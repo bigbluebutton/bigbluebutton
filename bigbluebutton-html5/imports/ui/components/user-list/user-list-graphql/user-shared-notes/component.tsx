@@ -8,8 +8,8 @@ import { layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout
 import Styled from './styles';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useRev from '/imports/ui/components/pads/pads-graphql/hooks/useRev';
-import useNotesLastRev from '../../../../notes/hooks/useNotesLastRev';
-import useHasUnreadNotes from '../../../../notes/hooks/useHasUnreadNotes';
+import useNotesLastRev from '../../../notes/hooks/useNotesLastRev';
+import useHasUnreadNotes from '../../../notes/hooks/useHasUnreadNotes';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { GET_PAD_ID, GetPadIdQueryResponse } from '/imports/ui/components/notes/queries';
 import { useQuery } from '@apollo/client';
@@ -206,15 +206,7 @@ const UserNotesContainerGraphql: React.FC<UserNotesContainerGraphqlProps> = (pro
   const hasUnreadNotes = useHasUnreadNotes();
   const markNotesAsRead = () => setNotesLastRev(rev);
 
-  const { data: padIdData } = useQuery<GetPadIdQueryResponse>(
-    GET_PAD_ID,
-    { variables: { externalId: NOTES_CONFIG.id } },
-  );
-  const sharedNotesType = padIdData?.sharedNotes?.[0]?.sharedNotesType;
-
-  const isEtherpadSharedNotes = sharedNotesType === 'etherpad';
-
-  const isEnabled = NotesService.useIsEnabled() && isEtherpadSharedNotes;
+  const isEnabled = NotesService.useIsEnabled();
 
   const isPinned = currentMeeting?.componentsFlags?.isSharedNotesPinned ?? false;
   return (

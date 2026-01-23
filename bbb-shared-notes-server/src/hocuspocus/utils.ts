@@ -3,6 +3,6 @@ export function extractMeetingId(documentName: string) {
   return splitList[splitList.length - 1]
 }
 
-export function toBoolean(str: string) {
-  return str.toLocaleLowerCase() === 'true';
+export function toBoolean(str?: string) {
+  return !!str && str.toLocaleLowerCase() === 'true';
 }

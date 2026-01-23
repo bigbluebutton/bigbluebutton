@@ -23,6 +23,7 @@ import { useIsPresentationEnabled } from '../../services/features';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import useMeeting from '../../core/hooks/useMeeting';
 import { GET_PAD_ID, GetPadIdQueryResponse } from './queries';
+import BlockNoteContainer from '../bn-shared-notes/component';
 
 const intlMessages = defineMessages({
   hide: {
@@ -46,6 +47,7 @@ interface NotesContainerGraphqlProps {
 
 interface NotesGraphqlProps extends NotesContainerGraphqlProps {
   hasPermission: boolean;
+  sharedNotesType: string;
   padId: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   layoutContextDispatch: (action: any) => void;
@@ -66,6 +68,7 @@ const sidebarContentToIgnoreDelay = ['captions'];
 const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   const {
     hasPermission,
+    sharedNotesType,
     padId,
     isRTL,
     layoutContextDispatch,
@@ -134,6 +137,9 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
 
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
+  const isEtherpadSharedNotes = sharedNotesType === 'etherpad';
+  console.log("teste aqui ---> ", isEtherpadSharedNotes);
+
   return (shouldRenderNotes || shouldShowSharedNotesOnPresentationArea) && (
     <Styled.Notes
       data-test="notes"
@@ -172,12 +178,14 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
           />
         </>
       ) : renderHeaderOnMedia()}
-      <PadContainer
-        externalId={NOTES_CONFIG.id}
-        hasPermission={hasPermission}
-        isResizing={isResizing}
-        isRTL={isRTL}
-      />
+      { isEtherpadSharedNotes ?
+        <PadContainer
+          externalId={NOTES_CONFIG.id}
+          hasPermission={hasPermission}
+          isResizing={isResizing}
+          isRTL={isRTL}
+        /> : <BlockNoteContainer />
+      }
     </Styled.Notes>
   );
 };
@@ -237,13 +245,12 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
     });
   };
 
-  const isEtherpadSharedNotes = sharedNotesType === 'etherpad';
-
-  if (!padId || !isEtherpadSharedNotes) return null;
+  if (!padId || !sharedNotesType) return null;
 
   return (
     <NotesGraphql
       padId={padId}
+      sharedNotesType={sharedNotesType}
       area={area}
       hasPermission={hasPermission}
       layoutContextDispatch={layoutContextDispatch}

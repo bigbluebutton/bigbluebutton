@@ -154,7 +154,6 @@ export const PANELS = {
   POLL: 'poll',
   CAPTIONS: 'captions',
   BREAKOUT: 'breakoutroom',
-  BN_SHARED_NOTES: 'bn-shared-notes',
   SHARED_NOTES: 'shared-notes',
   TIMER: 'timer',
   WAITING_USERS: 'waiting-users',

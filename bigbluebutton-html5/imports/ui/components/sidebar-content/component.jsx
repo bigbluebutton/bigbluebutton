@@ -4,7 +4,6 @@ import { Resizable } from 're-resizable';
 import { ACTIONS, PANELS } from '../layout/enums';
 import ChatContainer from '/imports/ui/components/chat/chat-graphql/component';
 import NotesContainer from '/imports/ui/components/notes/component';
-import BlockNoteContainer from '../bn-shared-notes/component';
 import PollContainer from '/imports/ui/components/poll/container';
 import BreakoutRoomContainer from '../breakout-room/breakout-room/component';
 import TimerContainer from '/imports/ui/components/timer/panel/component';
@@ -83,7 +82,6 @@ const SidebarContent = (props) => {
 
   const smallSidebar = width < (maxWidth / 2);
   const pollDisplay = sidebarContentPanel === PANELS.POLL ? 'inherit' : 'none';
-  const showBlockNote = sidebarContentPanel === PANELS.BN_SHARED_NOTES;
 
   return (
     <Resizable
@@ -148,11 +146,6 @@ const SidebarContent = (props) => {
       {!isSharedNotesPinned && (
         <NotesContainer
           isToSharedNotesBeShow={sidebarContentPanel === PANELS.SHARED_NOTES}
-        />
-      )}
-      {!isSharedNotesPinned && (
-        <BlockNoteContainer
-          isToSharedNotesBeShow={showBlockNote}
         />
       )}
       {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}

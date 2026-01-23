@@ -1,10 +1,6 @@
 import styled from 'styled-components';
-import {
-  mdPaddingX,
-} from '/imports/ui/stylesheets/styled-components/general';
 import { colorDanger, colorGray, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import CommonHeader from '/imports/ui/components/common/control-header/component';
 
 const Notes = styled.div<{ isChrome: boolean }>`
   background-color: ${colorWhite};
@@ -12,6 +8,8 @@ const Notes = styled.div<{ isChrome: boolean }>`
   flex-grow: 1;
   flex-direction: column;
   height: 100%;
+  overflow-y: auto;
+  overflow-x: visible;
 
   ${({ isChrome }) => isChrome && `
     transform: translateZ(0);
@@ -23,10 +21,6 @@ const Notes = styled.div<{ isChrome: boolean }>`
       padding: 0;
     }
   }
-`;
-
-const Header = styled(CommonHeader)`
-  padding: ${mdPaddingX};
 `;
 
 const WarningNotificationContainer = styled.div`
@@ -53,7 +47,6 @@ const WaringMessage = styled.p`
 
 export default {
   Notes,
-  Header,
   WarningNotificationContainer,
   ErrorMessage,
   WaringMessage,

@@ -1426,7 +1426,6 @@ const updatePresentationAreaContent = (
           (sidebarContent.isOpen || !isPresentationEnabled)
           && ((
             sidebarContent.sidebarContentPanel === PANELS.SHARED_NOTES
-            || sidebarContent.sidebarContentPanel === PANELS.BN_SHARED_NOTES
           )
             || !isPresentationEnabled)
         ) {

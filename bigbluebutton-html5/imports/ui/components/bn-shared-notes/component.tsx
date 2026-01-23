@@ -1,238 +1,110 @@
-import React, { useEffect, useState } from 'react';
-import { defineMessages, useIntl } from 'react-intl';
-import { useMutation } from '@apollo/client';
-import {
-  screenshareHasEnded,
-} from '/imports/ui/components/screenshare/service';
-import browserInfo from '/imports/utils/browserInfo';
-import Button from '/imports/ui/components/common/button/component';
-import {
-  PANELS, ACTIONS,
-} from '/imports/ui/components/layout/enums';
-import { layoutSelectInput, layoutDispatch, layoutSelectOutput } from '/imports/ui/components/layout/context';
+/* eslint-disable import/extensions */
+import * as React from 'react';
+import { BlockNoteView } from '@blocknote/mantine';
+import { en } from '@blocknote/core/locales';
+import '@blocknote/core/fonts/inter.css';
+import '@blocknote/mantine/style.css';
 import Styled from './styles';
-import { useStorageKey } from '/imports/ui/services/storage/hooks';
-import useMeeting from '../../core/hooks/useMeeting';
-import BlockNoteApp from './app/component';
-import useCurrentUser from '../../core/hooks/useCurrentUser';
+import Button from '/imports/ui/components/common/button/component';
+import { useCreateBlockNote } from '@blocknote/react';
 import { User } from '../../Types/user';
-import { Meeting } from '../../Types/meeting';
-import NotesDropdownContainerGraphql from './dropdown/component';
-import { PIN_NOTES } from '../notes/mutations';
-import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
-import { useIsScreenBroadcasting } from '../screenshare/service';
-import injectWbResizeEvent from '../presentation/resize-wrapper/component';
+import { HocuspocusProvider } from '@hocuspocus/provider';
+import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import useHocuspocusProvider from './hooks';
+import { useState } from 'react';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useCurrentUser from '../../core/hooks/useCurrentUser';
 
-const intlMessages = defineMessages({
-  hide: {
-    id: 'app.notes.hide',
-    description: 'Label for hiding shared notes button',
-  },
-  title: {
-    id: 'app.notes.title',
-    description: 'Title for the shared notes',
-  },
-  unpinNotes: {
-    id: 'app.notes.notesDropdown.unpinNotes',
-    description: 'Label for unpin shared notes button',
-  },
-});
-
-interface NotesContainerGraphqlProps {
-  isToSharedNotesBeShow: boolean;
-  area: 'media' | undefined;
-}
-
-interface NotesGraphqlProps extends NotesContainerGraphqlProps {
-  handlePinSharedNotes: (pinned: boolean) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  layoutContextDispatch: (action: any) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  sidebarContent: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  sharedNotesOutput: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  shouldShowSharedNotesOnPresentationArea: boolean;
+interface BlockNoteAppProps {
+  hocuspocusProvider: HocuspocusProvider;
   currentUser: Partial<User> | null;
-  currentMeeting?: Partial<Meeting>;
-  isRTL: boolean;
-  amIPresenter: boolean;
-  isResizing: boolean;
+  disableNotes: boolean;
 }
 
-const sidebarContentToIgnoreDelay = ['captions'];
-
-
-const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
+function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   const {
-    layoutContextDispatch,
-    sidebarContent,
-    isToSharedNotesBeShow,
-    shouldShowSharedNotesOnPresentationArea,
+    hocuspocusProvider,
     currentUser,
-    currentMeeting,
-    handlePinSharedNotes,
-    area,
-    sharedNotesOutput,
-    isRTL,
-    amIPresenter,
-    isResizing,
+    disableNotes,
   } = props;
-  const [shouldRenderNotes, setShouldRenderNotes] = useState(false);
-  const intl = useIntl();
 
-  const { disableNotes } = currentMeeting?.lockSettings || { disableNotes: false };
+  const {
+    color: userColor,
+    name: userName,
+    isModerator: currentUserIsModerator,
+    locked: currentUserIsLocked,
+  } = currentUser || {
+    color: '',
+    name: '',
+    isModerator: false,
+    locked: true,
+  };
 
-  const { isChrome } = browserInfo;
-  const isOnMediaArea = area === 'media';
+  const fragment = hocuspocusProvider.document.getXmlFragment('doc');
+  console.log('=== BlockNote Document Debug ===');
+  console.log('Fragment length:', fragment.length);
+  console.log('Fragment toJSON:', JSON.stringify(fragment.toJSON(), null, 2));
+  console.log('Fragment toString:', fragment.toString());
 
-  const DELAY_UNMOUNT_SHARED_NOTES = window.meetingClientSettings.public.app.delayForUnmountOfSharedNote;
+  const locale = en;
 
-  const style = isOnMediaArea ? {
-    position: 'absolute',
-    ...sharedNotesOutput,
-  } : {};
+  const editor = useCreateBlockNote({
+    collaboration: {
+      provider: hocuspocusProvider,
+      fragment,
+      user: {
+        name: userName || '',
+        color: userColor || '',
+      },
+    },
+    dictionary: {
+      ...locale,
+      placeholders: {
+        ...locale.placeholders,
+        // Override the placeholders to prevent line wrapping in the narrow panel
+        emptyDocument: '',
+        default: '',
+        heading: '',
+      },
+    },
+  });
 
-  const isHidden = (isOnMediaArea && (style.width === 0 || style.height === 0))
-    || (!isToSharedNotesBeShow
-      && !sidebarContentToIgnoreDelay.includes(sidebarContent.sidebarContentPanel))
-    || shouldShowSharedNotesOnPresentationArea;
+  const editable = !disableNotes || !currentUserIsLocked || currentUserIsModerator;
 
-  if (isHidden && !isOnMediaArea) {
-    style.padding = 0;
-    style.display = 'none';
-  }
+  console.log('teste aqui para ver o que acontece ---> ', editable);
+  return (
+    <div
+      style={{
+        overflow: 'visible',
+        background: 'white',
+        width: '100%',
+        height: '100%',
+        position: 'relative',
+      }}
+    >
+      <style>
+        {`
+          .bn-collaboration-cursor__label {
+            color: ${colorWhite} !important;
+          }
+          .bn-mantine .bn-suggestion-menu {
+            min-width: 300px;
+          }
+        `}
+      </style>
+      <BlockNoteView
+        editable={editable}
+        editor={editor}
+        theme="light"
+      />
+    </div>
+  );
+}
 
-  let timoutRef: NodeJS.Timeout | undefined;
-  useEffect(() => {
-    if (isToSharedNotesBeShow || shouldShowSharedNotesOnPresentationArea) {
-      setShouldRenderNotes(true);
-      clearTimeout(timoutRef!);
-    } else {
-      timoutRef = setTimeout(() => {
-        setShouldRenderNotes(false);
-      }, (sidebarContentToIgnoreDelay.includes(sidebarContent.sidebarContentPanel)
-        || shouldShowSharedNotesOnPresentationArea)
-        ? 0 : DELAY_UNMOUNT_SHARED_NOTES);
-    }
-    return () => clearTimeout(timoutRef!);
-  }, [isToSharedNotesBeShow, shouldShowSharedNotesOnPresentationArea, sidebarContent.sidebarContentPanel]);
-
+function BlockNoteContainer(): React.ReactElement {
   const {
     error, isAuthenticating, hocuspocusProvider, connectionClosed, handleRetry, isSynced,
   } = useHocuspocusProvider();
-
-  const renderBlockNote = shouldRenderNotes && !error && !isAuthenticating
-    && hocuspocusProvider && !connectionClosed && isSynced;
-
-  const hasError = !!error;
-
-  useEffect(() => {
-    const hasError = !!error;
-    if (hasError) hocuspocusProvider?.destroy();
-  }, [error]);
-
-  const renderHeaderOnMedia = () => {
-    return amIPresenter ? (
-      <Styled.Header
-        rightButtonProps={{
-          'aria-label': intl.formatMessage(intlMessages.unpinNotes),
-          'data-test': 'unpinNotes',
-          icon: 'close',
-          label: intl.formatMessage(intlMessages.unpinNotes),
-          onClick: () => {
-            handlePinSharedNotes(false);
-          },
-        }}
-      />
-    ) : null;
-  };
-
-  return (shouldRenderNotes || shouldShowSharedNotesOnPresentationArea) && (
-    <Styled.Notes
-      data-test="notes"
-      isChrome={isChrome}
-      style={style}
-    >
-      {!isOnMediaArea ? (
-        <>
-          <h2 className="sr-only">{intl.formatMessage(intlMessages.title)}</h2>
-          <Styled.Header
-            leftButtonProps={{
-              onClick: () => {
-                layoutContextDispatch({
-                  type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-                  value: false,
-                });
-                layoutContextDispatch({
-                  type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-                  value: PANELS.NONE,
-                });
-              },
-              'data-test': 'hideNotesLabel',
-              'aria-label': intl.formatMessage(intlMessages.hide),
-              label: intl.formatMessage(intlMessages.title),
-            }}
-            customRightButton={(
-              <NotesDropdownContainerGraphql
-                handlePinSharedNotes={handlePinSharedNotes}
-              />
-            )}
-            data-test="notesHeader"
-            rightButtonProps={null}
-          />
-        </>
-      ) : renderHeaderOnMedia()}
-      {((isAuthenticating || !isSynced) && !hasError && !connectionClosed)
-        && (
-          <div style={{ padding: '20px', textAlign: 'center' }}>
-            Loading shared notes...
-          </div>
-        )}
-      {renderBlockNote
-        && (
-          <BlockNoteApp
-            disableNotes={disableNotes}
-            hocuspocusProvider={hocuspocusProvider}
-            currentUser={currentUser}
-          />
-        )}
-      {(hasError) && (
-        <Styled.WarningNotificationContainer data-test="notesError">
-          <Styled.ErrorMessage>{error}</Styled.ErrorMessage>
-          <Button
-            label="Retry"
-            onClick={handleRetry}
-            color="primary"
-            size="md"
-            dataTest="notesRetryButton"
-          />
-        </Styled.WarningNotificationContainer>
-      )}
-      {(connectionClosed) && (
-        <Styled.WarningNotificationContainer data-test="notesError">
-          <Styled.WaringMessage>Connection closed.</Styled.WaringMessage>
-          <Button
-            label="Retry"
-            onClick={handleRetry}
-            color="primary"
-            size="md"
-            dataTest="notesRetryButton"
-          />
-        </Styled.WarningNotificationContainer>
-      )}
-    </Styled.Notes>
-  );
-};
-
-const BlockNoteContainer: React.FC<NotesContainerGraphqlProps> = (props) => {
-  const { isToSharedNotesBeShow, area } = props;
-  const { data: currentMeeting } = useMeeting((meeting) => ({
-    meetingId: meeting.meetingId,
-    componentsFlags: meeting.componentsFlags,
-    lockSettings: meeting.lockSettings,
-  }));
 
   const { data: currentUser } = useCurrentUser((user) => ({
     color: user.color,
@@ -243,54 +115,55 @@ const BlockNoteContainer: React.FC<NotesContainerGraphqlProps> = (props) => {
     presenter: user.presenter,
   }));
 
-  const [pinSharedNotes] = useMutation(PIN_NOTES);
-  const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
-  const isScreenBroadcasting = useIsScreenBroadcasting();
+  const { data: currentMeeting } = useMeeting((m) => ({
+    lockSettings: m.lockSettings,
+  }));
 
-  // @ts-ignore Until everything in Typescript
-  const cameraDock = layoutSelectInput((i) => i.cameraDock);
-  // @ts-ignore Until everything in Typescript
-  const sharedNotesOutput = layoutSelectOutput((i) => i.sharedNotes);
-  // @ts-ignore Until everything in Typescript
-  const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
-  const { isResizing } = cameraDock;
-  const layoutContextDispatch = layoutDispatch();
-  const amIPresenter = !!currentUser?.presenter;
+  const { disableNotes } = currentMeeting?.lockSettings || { disableNotes: false };
 
-  const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
-  const { isOpen: isSidebarContentOpen } = sidebarContent;
-  const isGridLayout = useStorageKey('isGridEnabled');
+  const hasError = !!error;
 
-  const shouldShowSharedNotesOnPresentationArea = isGridLayout ? !!currentMeeting?.componentsFlags?.isSharedNotesPinned
-    && isSidebarContentOpen : !!currentMeeting?.componentsFlags?.isSharedNotesPinned;
-
-  const handlePinSharedNotes = (pinned: boolean) => {
-    if (pinned) {
-      stopExternalVideoShare();
-      if (isScreenBroadcasting) screenshareHasEnded();
-    }
-    pinSharedNotes({ variables: { pinned } });
-    layoutContextDispatch({
-      type: ACTIONS.SET_NOTES_IS_PINNED,
-      value: pinned,
-    });
-  };
+  const renderBlockNote = !error && !isAuthenticating
+    && hocuspocusProvider && !connectionClosed && isSynced;
+  console.log('teste aqui 123---> ', {
+    error, isAuthenticating, hocuspocusProvider, connectionClosed, isSynced, renderBlockNote
+  });
   return (
-    <NotesGraphql
-      layoutContextDispatch={layoutContextDispatch}
-      sidebarContent={sidebarContent}
-      sharedNotesOutput={sharedNotesOutput}
-      area={area}
-      shouldShowSharedNotesOnPresentationArea={shouldShowSharedNotesOnPresentationArea}
-      isToSharedNotesBeShow={isToSharedNotesBeShow}
-      currentUser={currentUser}
-      currentMeeting={currentMeeting}
-      handlePinSharedNotes={handlePinSharedNotes}
-      isRTL={isRTL}
-      amIPresenter={amIPresenter}
-      isResizing={isResizing}
-    />
+    <Styled.Notes>
+      {(hasError) && (
+          <Styled.WarningNotificationContainer data-test="notesError">
+            <Styled.ErrorMessage>{error}</Styled.ErrorMessage>
+            <Button
+              label="Retry"
+              onClick={handleRetry}
+              color="primary"
+              size="md"
+              dataTest="notesRetryButton"
+            />
+          </Styled.WarningNotificationContainer>
+        )}
+        {(connectionClosed) && (
+          <Styled.WarningNotificationContainer data-test="notesError">
+            <Styled.WaringMessage>Connection closed.</Styled.WaringMessage>
+            <Button
+              label="Retry"
+              onClick={handleRetry}
+              color="primary"
+              size="md"
+              dataTest="notesRetryButton"
+            />
+          </Styled.WarningNotificationContainer>
+        )}
+        {renderBlockNote
+          && (
+            <BlockNoteApp
+              disableNotes={disableNotes}
+              hocuspocusProvider={hocuspocusProvider}
+              currentUser={currentUser}
+            />
+        )}
+    </Styled.Notes>
   );
-};
+}
 
-export default injectWbResizeEvent(BlockNoteContainer);
+export default BlockNoteContainer;

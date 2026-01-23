@@ -37,7 +37,6 @@ import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles
 import ActionsBarContainer from '../actions-bar/container';
 import PushLayoutEngine from '../layout/push-layout/pushLayoutEngine';
 import NotesContainer from '/imports/ui/components/notes/component';
-import BlockNoteContainer from '../bn-shared-notes/component';
 import AppService from '/imports/ui/components/app/service';
 import PresentationUploaderToastContainer from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/container';
 import BreakoutJoinConfirmationContainerGraphQL from '../breakout-join-confirmation/breakout-join-confirmation-graphql/component';
@@ -344,8 +343,6 @@ class App extends Component {
       presentationFitToWidth,
     } = this.state;
 
-    const showBNSharedNotes = !isEtherpadSharedNotes && isSharedNotesPinned;
-    const showEtherpadSharedNotes = isEtherpadSharedNotes && isSharedNotesPinned;
     return (
       <>
         <ScreenReaderAlertAdapter />
@@ -398,19 +395,13 @@ class App extends Component {
             && <ScreenshareContainer shouldShowScreenshare={shouldShowScreenshare} />
           }
 
-          {showEtherpadSharedNotes
+          {isSharedNotesPinned
             ? (
               <NotesContainer
                 area="media"
               />
             ) : null}
 
-          {showBNSharedNotes
-            ? (
-              <BlockNoteContainer
-                area="media"
-              />
-            ) : null}
           <AudioCaptionsSpeechContainer />
           {this.renderAudioCaptions()}
           { (
