@@ -9,6 +9,7 @@ export const JoinErrorCodeTable = {
   BANNED_USER_REJOINING: 'banned_user_rejoining_reason',
   USER_LOGGED_OUT: 'user_logged_out_reason',
   MAX_PARTICIPANTS: 'max_participants_reason',
+  GUEST_DENY: 'guest_deny_reason',
 };
 
 export const MeetingEndedTable = {
