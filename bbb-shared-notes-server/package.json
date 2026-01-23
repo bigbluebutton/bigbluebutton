@@ -28,7 +28,7 @@
     "url": "https://github.com/bigbluebutton/bigbluebutton/issues"
   },
   "dependencies": {
-    "@blocknote/core": "^0.25.0",
+    "@blocknote/core": "^0.46.1",
     "@blocknote/react": "^0.25.0",
     "@blocknote/server-util": "^0.25.0",
     "@hocuspocus/extension-sqlite": "^2.15.3",

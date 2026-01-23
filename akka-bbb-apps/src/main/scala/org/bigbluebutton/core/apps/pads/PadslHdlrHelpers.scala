@@ -3,6 +3,8 @@ package org.bigbluebutton.core.apps.pads
 import org.bigbluebutton.common2.msgs.{ BNSharedNotesCreateCmdMsg, BNSharedNotesCreateCmdMsgBody, BbbCommonEnvCoreMsg, BbbCoreEnvelope, BbbCoreHeaderWithMeetingId, PadCreateCmdMsg, PadCreateCmdMsgBody, PadCreateGroupCmdMsg, PadCreateGroupCmdMsgBody }
 import org.bigbluebutton.core.running.OutMsgRouter
 
+import java.util
+
 object PadslHdlrHelpers {
 
   def broadcastPadCreateGroupCmdMsg(outGW: OutMsgRouter, meetingId: String, externalId: String, model: String): Unit = {
@@ -27,11 +29,17 @@ object PadslHdlrHelpers {
     outGW.send(msgEvent)
   }
 
-  def broadcastBNSharedNotesCreateCmdMsg(outGW: OutMsgRouter, meetingId: String, externalId: String, model: String): Unit = {
+  def broadcastBNSharedNotesCreateCmdMsg(
+      outGW:                         OutMsgRouter,
+      meetingId:                     String,
+      externalId:                    String,
+      model:                         String,
+      sharedNotesInitialContentJson: util.Map[String, AnyRef]
+  ): Unit = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(BNSharedNotesCreateCmdMsg.NAME, routing)
     val header = BbbCoreHeaderWithMeetingId(BNSharedNotesCreateCmdMsg.NAME, meetingId)
-    val body = BNSharedNotesCreateCmdMsgBody(externalId, model)
+    val body = BNSharedNotesCreateCmdMsgBody(externalId, model, sharedNotesInitialContentJson)
     val event = BNSharedNotesCreateCmdMsg(header, body)
     val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 

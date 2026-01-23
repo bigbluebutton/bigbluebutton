@@ -225,7 +225,6 @@ class NavBar extends Component {
 
     if (sidebarNavigation.isOpen) {
       if (sidebarContent.isOpen) {
-        console.log('teste aqui abc - nav-bar component');
         layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
           value: false,

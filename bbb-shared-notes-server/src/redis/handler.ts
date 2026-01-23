@@ -3,7 +3,7 @@ import { meetingLockMap, connectionsMap } from '../common/singleton';
 import { MeetingLock } from '../common/type';
 import { sender } from './sender';
 
-const logger = new Logger('handler');
+const logger = new Logger('redis handler');
 
 const handleMeetingLocked = async (header: MessageHeader, body: MessageBody): Promise<void> => {
   const { meetingId } = header;
@@ -83,14 +83,78 @@ const handleMeetingEnded = async (header: MessageHeader, body: MessageBody): Pro
   });
 };
 
-const handleSharedNotesCreate = (header: MessageHeader, body: MessageBody): void => {
+const handleSharedNotesCreate = async (header: MessageHeader, body: MessageBody): Promise<void> => {
   const { meetingId } = header;
   const {
     externalId,
     model,
+    initialContentJson,
   } = body;
 
   const padId = `bn-document__${meetingId}`;
+
+  const validateInitialContentNotEmpty = (): boolean => {
+    return initialContentJson !== undefined
+      && initialContentJson !== null
+      && typeof initialContentJson === "object"
+      && Object.keys(initialContentJson).length > 0
+  }
+
+  // const validBody = JSON.stringify({
+  //   blocks: [
+  //     {
+  //       id: crypto.randomUUID(),
+  //       type: 'paragraph',
+  //       props: {
+  //         textAlignment: 'left',
+  //         backgroundColor: 'default',
+  //         textColor: 'default'
+  //       },
+  //       content: [
+  //         {
+  //           type: 'text',
+  //           text: 'Welcome to BigBlueButton Shared Notes! Start collaborating here...',
+  //           styles: {}
+  //         }
+  //       ],
+  //       children: []
+  //     }
+  //   ]
+  // })
+
+  if (validateInitialContentNotEmpty()) {
+
+    logger.debug(
+      'Received initial content', {
+        initialContent: initialContentJson,
+        padId,
+        meetingId
+      }
+    );
+    try {
+      const response = await fetch(`http://127.0.0.1:8787/api/documents/${padId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(initialContentJson),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        logger.error('Failed to initialize document', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorText,
+          padId,
+        });
+      } else {
+        logger.info('Document initialized successfully', { padId });
+      }
+    } catch (error) {
+      logger.error('Error initializing document', { error, padId });
+    }
+  }
 
   sender.send('sharedNotesCreated', meetingId, { padId, externalId, model });
 };

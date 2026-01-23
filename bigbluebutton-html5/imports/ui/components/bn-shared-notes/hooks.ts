@@ -1,6 +1,6 @@
 import { HocuspocusProvider, HocuspocusProviderWebsocket } from '@hocuspocus/provider';
 import { useQuery } from '@apollo/client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { GET_PAD_ID, GetPadIdQueryResponse } from '../notes/queries';
 import logger from '/imports/startup/client/logger';
 
@@ -9,10 +9,11 @@ const checkLockReason = (reason: string): boolean => reason === 'Lock rules chan
 
 const useHocuspocusProvider = () => {
   const [hocuspocusProvider, setHocuspocusProvider] = useState<HocuspocusProvider>();
-  const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const isAuthenticating = useRef<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [connectionClosed, setConnectionClosed] = useState(false);
   const [retryTrigger, setRetryTrigger] = useState(0);
+  const [isSynced, setIsSynced] = useState(false);
 
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
   const { data: padIdData, loading: padIdLoading } = useQuery<GetPadIdQueryResponse>(
@@ -28,6 +29,7 @@ const useHocuspocusProvider = () => {
     setError(null);
     setConnectionClosed(false);
     setHocuspocusProvider(undefined);
+    setIsSynced(false);
     setRetryTrigger((prev) => prev + 1);
   };
 
@@ -36,10 +38,15 @@ const useHocuspocusProvider = () => {
       && !padIdLoading
       && padId
       && hasSessionToken(sessionToken)
-      && !isAuthenticating
+      && !isAuthenticating.current
     ) {
       const documentName = padId;
       const blockNoteToken = sessionToken;
+
+      logger.debug({
+        logCode: 'hocuspocus_creating_provider',
+        extraInfo: { documentId: documentName },
+      }, 'Creating new HocuspocusProvider instance');
 
       const wsProvider = new HocuspocusProviderWebsocket({
         url: 'wss://bbb30.bbb.imdt.dev/hocuspocus/collaboration',
@@ -48,17 +55,43 @@ const useHocuspocusProvider = () => {
           sessionToken,
         },
       });
-      setIsAuthenticating(true);
+      isAuthenticating.current = true;
       const provider = new HocuspocusProvider({
         name: documentName,
         token: blockNoteToken,
         websocketProvider: wsProvider,
         onConnect: () => {
-          setHocuspocusProvider(provider);
-          setIsAuthenticating(false);
+          logger.debug({
+            logCode: 'hocuspocus_connected',
+            extraInfo: { documentId: documentName },
+          }, 'Hocuspocus connection established');
+          isAuthenticating.current = false;
         },
         onAuthenticated: () => {
-          setIsAuthenticating(false);
+          logger.debug({
+            logCode: 'hocuspocus_authenticated',
+            extraInfo: { documentId: documentName },
+          }, 'Hocuspocus authentication successful');
+          isAuthenticating.current = false;
+        },
+        onSynced: ({ state }) => {
+          logger.debug({
+            logCode: 'hocuspocus_synced',
+            extraInfo: {
+              documentId: documentName,
+              synced: state,
+            },
+          }, 'Hocuspocus document synced');
+          const doc = provider.document;
+          logger.debug({
+            logCode: 'hocuspocus_fragment_content',
+            extraInfo: {
+              documentId: documentName,
+              document: doc,
+            },
+          }, 'Fragment content after sync');
+          setIsSynced(true);
+          setHocuspocusProvider(provider);
         },
         onAuthenticationFailed: (data) => {
           setError('Authentication failed');
@@ -89,7 +122,7 @@ const useHocuspocusProvider = () => {
             handleRetry();
           } else {
             setConnectionClosed(true);
-            setIsAuthenticating(false);
+            isAuthenticating.current = false;
           }
         },
       });
@@ -98,7 +131,8 @@ const useHocuspocusProvider = () => {
 
   return {
     hocuspocusProvider,
-    isAuthenticating,
+    isAuthenticating: isAuthenticating.current,
+    isSynced,
     error,
     connectionClosed,
     handleRetry,

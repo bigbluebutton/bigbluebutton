@@ -70,6 +70,8 @@ public class Meeting {
 	private boolean autoStartRecording = false;
 	private boolean allowStartStopRecording = false;
 	private String sharedNotesType = "etherpad";
+	private String sharedNotesInitialContentJsonUrl = "";
+	private Map<String, Object> sharedNotesInitialContentJson;
 	private boolean presentationConversionCacheEnabled = false;
 	private boolean recordFullDurationMedia = false;
 	private boolean haveRecordingMarks = false;
@@ -171,6 +173,7 @@ public class Meeting {
         autoStartRecording = builder.autoStartRecording;
         allowStartStopRecording = builder.allowStartStopRecording;
         sharedNotesType = builder.sharedNotesType;
+		sharedNotesInitialContentJsonUrl = builder.sharedNotesInitialContentJsonUrl;
 		presentationConversionCacheEnabled = builder.presentationConversionCacheEnabled;
         recordFullDurationMedia = builder.recordFullDurationMedia;
         webcamsOnlyForModerator = builder.webcamsOnlyForModerator;
@@ -679,6 +682,18 @@ public class Meeting {
 		return sharedNotesType;
 	}
 
+	public String getSharedNotesInitialContentJsonUrl() {
+		return sharedNotesInitialContentJsonUrl;
+	}
+
+	public Map<String, Object> getSharedNotesInitialContentJson() {
+		return sharedNotesInitialContentJson;
+	}
+
+	public void setSharedNotesInitialContentJson(Map<String, Object> initialContentJson) {
+		sharedNotesInitialContentJson = initialContentJson;
+	}
+
 	public boolean isPresentationConversionCacheEnabled() {
 		return presentationConversionCacheEnabled;
 	}
@@ -1001,6 +1016,7 @@ public class Meeting {
     	private boolean recordFullDurationMedia;
         private boolean allowStartStopRecording;
         private String sharedNotesType;
+		private String sharedNotesInitialContentJsonUrl;
         private boolean presentationConversionCacheEnabled;
         private boolean webcamsOnlyForModerator;
         private boolean multiUserWhiteboardEnabled;
@@ -1090,6 +1106,11 @@ public class Meeting {
 
 		public Builder withSharedNotesType(String type) {
     		this.sharedNotesType = type;
+    		return this;
+    	}
+
+		public Builder withSharedNotesInitialContentJsonUrl(String initialContent) {
+    		this.sharedNotesInitialContentJsonUrl = initialContent;
     		return this;
     	}
 

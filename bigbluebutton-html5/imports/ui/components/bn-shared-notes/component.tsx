@@ -82,8 +82,6 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   const [shouldRenderNotes, setShouldRenderNotes] = useState(false);
   const intl = useIntl();
 
-  const { meetingId } = currentMeeting || { meetingId: '' };
-
   const { disableNotes } = currentMeeting?.lockSettings || { disableNotes: false };
 
   const { isChrome } = browserInfo;
@@ -122,25 +120,13 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   }, [isToSharedNotesBeShow, shouldShowSharedNotesOnPresentationArea, sidebarContent.sidebarContentPanel]);
 
   const {
-    error, isAuthenticating, hocuspocusProvider, connectionClosed, handleRetry,
+    error, isAuthenticating, hocuspocusProvider, connectionClosed, handleRetry, isSynced,
   } = useHocuspocusProvider();
 
   const renderBlockNote = shouldRenderNotes && !error && !isAuthenticating
-    && hocuspocusProvider && !connectionClosed;
+    && hocuspocusProvider && !connectionClosed && isSynced;
 
   const hasError = !!error;
-
-  // Debug logging
-  console.log('BlockNote render conditions:', {
-    shouldRenderNotes,
-    error,
-    isAuthenticating,
-    hocuspocusProvider: !!hocuspocusProvider,
-    connectionClosed,
-    renderBlockNote,
-    area,
-    isOnMediaArea,
-  });
 
   useEffect(() => {
     const hasError = !!error;
@@ -198,7 +184,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
           />
         </>
       ) : renderHeaderOnMedia()}
-      {(isAuthenticating && !hasError)
+      {((isAuthenticating || !isSynced) && !hasError && !connectionClosed)
         && (
           <div style={{ padding: '20px', textAlign: 'center' }}>
             Loading shared notes...
@@ -242,7 +228,6 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
 
 const BlockNoteContainer: React.FC<NotesContainerGraphqlProps> = (props) => {
   const { isToSharedNotesBeShow, area } = props;
-
   const { data: currentMeeting } = useMeeting((meeting) => ({
     meetingId: meeting.meetingId,
     componentsFlags: meeting.componentsFlags,

@@ -616,6 +616,18 @@ public class ParamsProcessorUtil {
             }
         }
 
+        String sharedNotesInitialContentJsonUrl = "";
+        if (!StringUtils.isEmpty(params.get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_JSON_URL))) {
+            try {
+                sharedNotesInitialContentJsonUrl = params
+                        .get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_JSON_URL);
+            } catch (Exception ex) {
+                log.warn(
+                        "Invalid param [sharedNotesInitialContentJsonUrl] for meeting=[{}]",
+                        internalMeetingId);
+            }
+        }
+
         String sharedNotesType = defaultSharedNotesType;
         if (!StringUtils.isEmpty(params.get(ApiParams.SHARED_NOTES_TYPE))) {
             try {
@@ -948,6 +960,7 @@ public class ParamsProcessorUtil {
                 .withAutoStartRecording(autoStartRec)
                 .withAllowStartStopRecording(allowStartStoptRec)
                 .withSharedNotesType(sharedNotesType)
+                .withSharedNotesInitialContentJsonUrl(sharedNotesInitialContentJsonUrl)
                 .withPresentationConversionCacheEnabled(presentationCacheEnabled)
                 .withRecordFullDurationMedia(_recordFullDurationMedia)
                 .withWebcamsOnlyForModerator(webcamsOnlyForMod)

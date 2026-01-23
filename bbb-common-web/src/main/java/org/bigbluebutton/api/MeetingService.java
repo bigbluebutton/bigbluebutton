@@ -29,6 +29,7 @@ import java.util.concurrent.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
@@ -369,6 +370,34 @@ public class MeetingService implements MessageListener {
       : Collections.unmodifiableCollection(sessions.values());
   }
 
+  public Map<String, Object> requestSharedNotesInitialContent(Meeting m) {
+    Map<String, Object> initialContent = new HashMap<>();
+    String sharedNotesInitialContentJsonUrl = m.getSharedNotesInitialContentJsonUrl();
+    if (!sharedNotesInitialContentJsonUrl.isEmpty()) {
+      try {
+        URL url = new URL(sharedNotesInitialContentJsonUrl);
+        String content;
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()))) {
+          content = in.lines().collect(Collectors.joining("\n"));
+        }
+        // Parse the JSON content
+        JsonNode jsonNode = objectMapper.readTree(content);
+        initialContent = objectMapper.convertValue(jsonNode, new TypeReference<>() {
+        });
+      } catch (MalformedURLException e) {
+        log.error(
+                "Malformed URL for sharedNotesInitialContentJsonUrl: [{}]", sharedNotesInitialContentJsonUrl);
+      } catch (JsonProcessingException e) {
+        log.error(
+                "Error while processing json for sharedNotesInitialContentJsonUrl: [{}]", sharedNotesInitialContentJsonUrl);
+      } catch (IOException e) {
+        log.error(
+                "Something went wrong while processing [{}]. Error: {}", sharedNotesInitialContentJsonUrl, e.getMessage());
+      }
+    }
+    return initialContent;
+  }
+
   public Map<String, Object> requestPluginManifests(Meeting m) {
     Map<String, Object> pluginsResult = new ConcurrentHashMap<>();
     Map<String, String> metadata = m.getMetadata();
@@ -514,13 +543,16 @@ public class MeetingService implements MessageListener {
     if (existingId == null && existingTelVoice == null && existingWebVoice == null) {
       meetings.put(m.getInternalId(), m);
       Map<String, Object> pluginsMap;
+      Map<String, Object> sharedNotesInitialContentMap = null;
       if (m.isBreakout()) {
         pluginsMap = plugins;
       } else {
         pluginsMap = requestPluginManifests(m);
+        sharedNotesInitialContentMap = requestSharedNotesInitialContent(m);
       }
 
       m.setPlugins(pluginsMap);
+      m.setSharedNotesInitialContentJson(sharedNotesInitialContentMap);
       handle(new CreateMeeting(m));
       return true;
     }
@@ -598,7 +630,7 @@ public class MeetingService implements MessageListener {
 
     gw.createMeeting(m.getInternalId(), m.getExternalId(), m.getParentMeetingId(), m.getName(), m.isRecord(),
             m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording(),
-            m.getSharedNotesType(), m.getRecordFullDurationMedia(),
+            m.getSharedNotesInitialContentJson(), m.getSharedNotesType(), m.getRecordFullDurationMedia(),
             m.getWebcamsOnlyForModerator(), m.getMultiUserWhiteboardEnabled(), m.getMeetingCameraCap(), m.getUserCameraCap(), m.getMaxPinnedCameras(),
             m.getCameraBridge(),
             m.getScreenShareBridge(),
