@@ -7,6 +7,16 @@ configuration:
   custom_name: user_connectionStatus
   custom_root_fields: {}
 object_relationships:
+  - name: summary
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_connectionStatusSummary
+          schema: public
   - name: user
     using:
       manual_configuration:
