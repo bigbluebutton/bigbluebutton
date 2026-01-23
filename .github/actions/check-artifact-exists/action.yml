@@ -5,7 +5,7 @@ inputs:
     description: The name of the artifact to check for
     required: true
 outputs:
-  exists:
+  result:
     description: Whether the artifact exists (true/false)
     value: ${{ steps.check.outputs.result }}
 runs:
