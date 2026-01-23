@@ -89,9 +89,24 @@ const hocuspocus = new Hocuspocus({
   },
   onChange: async (data) => {
     const { documentName } = data;
-    const { id: userId, meetingId } = data.context.user;
-
-    sender.send('sharedNotesUpdated', meetingId, { userId, documentName });
+    let userId: string;
+    let meetingId: string | undefined;
+    if (data.context.user) {
+      userId = data.context.user.id;
+      meetingId = data.context.user.meetingId;
+    } else {
+      // Change initiated from server-side
+      userId = "SYSTEM";
+      if (documentName.includes("__")) meetingId = extractMeetingId(documentName);
+    }
+    if (!!meetingId) {
+      sender.send('sharedNotesUpdated', meetingId, { userId, documentName });
+    } else {
+      logger.warn("Malformed document name, ignoring change", {
+        documentName,
+        userId,
+      });
+    } 
   }
 });
 

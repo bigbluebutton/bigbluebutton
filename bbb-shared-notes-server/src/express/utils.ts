@@ -1,27 +1,3 @@
-interface TextContent {
-  type: "text" | "link";
-  text: string;
-  styles?: Record<string, any>;
-  href?: string;
-}
-
-interface Block {
-  id: string;
-  type: string;
-  props: {
-    backgroundColor: string;
-    textColor: string;
-    textAlignment: string;
-    [key: string]: any;
-  };
-  content?: TextContent[];
-  children?: Block[];
-}
-
-interface BlockWrapper {
-  blocks: Block[];
-}
-
 export function validateInitialContentJson(body: any): { valid: boolean; error?: string } {
   // Check if body has blocks property
   if (!body || typeof body !== "object") {
@@ -109,5 +85,3 @@ export function validateInitialContentJson(body: any): { valid: boolean; error?:
 
   return { valid: true };
 }
-
-export { BlockWrapper };

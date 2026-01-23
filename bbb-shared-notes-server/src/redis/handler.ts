@@ -99,31 +99,7 @@ const handleSharedNotesCreate = async (header: MessageHeader, body: MessageBody)
       && typeof initialContentJson === "object"
       && Object.keys(initialContentJson).length > 0
   }
-
-  // const validBody = JSON.stringify({
-  //   blocks: [
-  //     {
-  //       id: crypto.randomUUID(),
-  //       type: 'paragraph',
-  //       props: {
-  //         textAlignment: 'left',
-  //         backgroundColor: 'default',
-  //         textColor: 'default'
-  //       },
-  //       content: [
-  //         {
-  //           type: 'text',
-  //           text: 'Welcome to BigBlueButton Shared Notes! Start collaborating here...',
-  //           styles: {}
-  //         }
-  //       ],
-  //       children: []
-  //     }
-  //   ]
-  // })
-
   if (validateInitialContentNotEmpty()) {
-
     logger.debug(
       'Received initial content', {
         initialContent: initialContentJson,
