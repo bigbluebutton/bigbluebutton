@@ -116,7 +116,7 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
 
   const users = meeting?.meetingId
     ? filterByMeetingId(
-      usersData as User[],
+      (usersData ?? []) as User[],
       meeting.meetingId,
       USER_LIST_SUBSCRIPTION,
       (u) => ({ mismatchedUserId: u.userId, mismatchedName: u.name }),

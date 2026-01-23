@@ -23,7 +23,7 @@ const ConnectionStatusContainer = (props) => {
       CONNECTION_STATUS_REPORT_SUBSCRIPTION,
       (item) => ({ mismatchedUserId: item.user?.userId, mismatchedName: item.user?.name }),
     )
-    : [];
+    : (data?.user_connectionStatusReport ?? []);
   const connectionData = sortConnectionData(filteredData);
   const { data: currentUser } = useCurrentUser((u) => ({ isModerator: u.isModerator }));
   const amIModerator = !!currentUser?.isModerator;
