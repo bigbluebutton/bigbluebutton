@@ -305,7 +305,8 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
 
   const getRoomPresentation = (position: number) => {
     if (roomPresentations[position]) return roomPresentations[position];
-    return `${CURRENT_SLIDE_PREFIX}${currentPresentation}`;
+    const presentationToUse = currentPresentation || presentations[0]?.presentationId || '';
+    return `${CURRENT_SLIDE_PREFIX}${presentationToUse}`;
   };
 
   const getCaptureFilename = (roomName: string, slides: boolean = true) => {
