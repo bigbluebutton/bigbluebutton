@@ -1,5 +1,13 @@
 import { isEqual } from 'radash';
-import createReactiveStateHook from './createReactiveStateHook';
+import createReactiveRecordStateHook, {
+  PerKeyDataResult,
+  FullStateDataResult,
+} from './createReactiveRecordStateHook';
+
+type UseWhoIsTalkingGraphqlHook = {
+  (): FullStateDataResult;
+  (userId: string): PerKeyDataResult;
+};
 
 const createUseWhoIsTalkingGraphql = () => {
   const {
@@ -8,9 +16,11 @@ const createUseWhoIsTalkingGraphql = () => {
     setLoading,
     getState,
     setState,
-  } = createReactiveStateHook<Record<string, boolean>>({});
+  } = createReactiveRecordStateHook();
 
-  const dispatchWhoIsTalkingUpdate = (data?: { userId: string; talking: boolean; muted: boolean }[]) => {
+  const dispatchWhoIsTalkingUpdate = (
+    data?: { userId: string; talking: boolean; muted: boolean }[],
+  ) => {
     if (!data) {
       setState({});
       return;
@@ -34,7 +44,7 @@ const createUseWhoIsTalkingGraphql = () => {
   };
 
   return {
-    useWhoIsTalkingGraphql: useData,
+    useWhoIsTalkingGraphql: useData as UseWhoIsTalkingGraphqlHook,
     useWhoIsTalkingConsumersCount: useConsumersCount,
     setWhoIsTalkingLoading: setLoading,
     dispatchWhoIsTalkingUpdate,

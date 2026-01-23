@@ -5,6 +5,8 @@ import { isEqual } from 'radash';
 type ReactiveStateHookResult<T> = {
   useData: () => { data: T; loading: boolean };
 
+  useLoading: () => boolean;
+
   useConsumersCount: () => number;
 
   setLoading: (loading: boolean) => void;
@@ -45,6 +47,8 @@ const createReactiveStateHook = <T>(initialState: T): ReactiveStateHookResult<T>
 
   const useConsumersCount = () => useReactiveVar(countVar);
 
+  const useLoading = () => useReactiveVar(loadingVar);
+
   const useData = () => {
     const state = useReactiveVar(stateVar);
     const loading = useReactiveVar(loadingVar);
@@ -64,6 +68,7 @@ const createReactiveStateHook = <T>(initialState: T): ReactiveStateHookResult<T>
 
   return {
     useData,
+    useLoading,
     useConsumersCount,
     setLoading,
     dispatch,

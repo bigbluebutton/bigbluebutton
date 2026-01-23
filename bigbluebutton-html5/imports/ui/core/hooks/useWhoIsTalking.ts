@@ -9,7 +9,22 @@ import useWhoIsTalkingGraphql, {
   setWhoIsTalkingLoading as setWhoIsTalkingLoadingGraphql,
   dispatchWhoIsTalkingUpdate as dispatchWhoIsTalkingUpdateGraphql,
 } from './useWhoIsTalkingGraphql';
-import { TalkingUsersState } from './types';
+
+/**
+ * Return type for the useWhoIsTalking hook (full state).
+ */
+export type TalkingUsersState = {
+  data: Record<string, boolean>;
+  loading: boolean;
+};
+
+/**
+ * Return type for the useWhoIsTalking hook (per-user).
+ */
+export type TalkingUserState = {
+  data: boolean | undefined;
+  loading: boolean;
+};
 
 /**
  * Router hook that conditionally uses either BBB's GraphQL or LiveKit's
@@ -17,18 +32,28 @@ import { TalkingUsersState } from './types';
  *
  * When `useLiveKitAudioState` is enabled AND `audioBridge === 'livekit'`,
  * this hook uses LiveKit's participant speaking state, else BBB's.
+ *
+ * Supports two signatures:
+ * - useWhoIsTalking() - Returns all talking users
+ * - useWhoIsTalking(userId) - Returns a single user's talking state
  */
-const useWhoIsTalking = (): TalkingUsersState => {
+function useWhoIsTalking(): TalkingUsersState;
+function useWhoIsTalking(userId: string): TalkingUserState;
+function useWhoIsTalking(userId?: string): TalkingUsersState | TalkingUserState {
   const shouldUseLiveKit = useShouldUseLiveKitAudioState();
-  const bbbTalkingState = useWhoIsTalkingGraphql();
-  const liveKitTalkingState = useWhoIsTalkingLiveKit();
+  const bbbTalkingState = userId !== undefined
+    ? useWhoIsTalkingGraphql(userId)
+    : useWhoIsTalkingGraphql();
+  const liveKitTalkingState = userId !== undefined
+    ? useWhoIsTalkingLiveKit(userId)
+    : useWhoIsTalkingLiveKit();
 
   return useMemo(() => {
     if (shouldUseLiveKit) return liveKitTalkingState;
 
     return bbbTalkingState;
   }, [shouldUseLiveKit, bbbTalkingState, liveKitTalkingState]);
-};
+}
 
 const useWhoIsTalkingConsumersCount = () => {
   const shouldUseLiveKit = useShouldUseLiveKitAudioState();

@@ -14,7 +14,8 @@ import useShouldUseLiveKitAudioState from './useShouldUseLiveKitAudioState';
 import useSubscribedAudioUsers from './useSubscribedAudioUsers';
 import useTalkingUsersGraphql from '../useTalkingUsersGraphql';
 import { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/voiceActivity';
-import { TalkingUsersHookResult, VoiceUserMetadata } from '../types';
+import { TalkingUsersHookResult } from '../useTalkingUsers';
+import { VoiceUserMetadata } from '../types';
 import useTimedTalkingIndicator, { RawVoiceActivityItem } from '../useTimedTalkingIndicator';
 import createReactiveStateHook from '../createReactiveStateHook';
 

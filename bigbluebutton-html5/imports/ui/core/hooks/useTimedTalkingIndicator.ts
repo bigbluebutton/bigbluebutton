@@ -1,5 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import { VoiceItem, VoiceUserMetadata } from './types';
+import { VoiceUserMetadata } from './types';
+
+export type VoiceItem = {
+  startTime?: number;
+  endTime?: number;
+  muted: boolean;
+  talking: boolean;
+  userId: string;
+  user: VoiceUserMetadata;
+};
 
 const TALKING_INDICATOR_TIMEOUT = 6000;
 

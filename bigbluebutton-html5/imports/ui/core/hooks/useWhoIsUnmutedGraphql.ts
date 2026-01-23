@@ -1,5 +1,13 @@
 import { isEqual } from 'radash';
-import createReactiveStateHook from './createReactiveStateHook';
+import createReactiveRecordStateHook, {
+  PerKeyDataResult,
+  FullStateDataResult,
+} from './createReactiveRecordStateHook';
+
+type UseWhoIsUnmutedGraphqlHook = {
+  (): FullStateDataResult;
+  (userId: string): PerKeyDataResult;
+};
 
 const createUseWhoIsUnmutedGraphql = () => {
   const {
@@ -8,7 +16,7 @@ const createUseWhoIsUnmutedGraphql = () => {
     setLoading,
     getState,
     setState,
-  } = createReactiveStateHook<Record<string, boolean>>({});
+  } = createReactiveRecordStateHook();
 
   const dispatchWhoIsUnmutedUpdate = (data?: { userId: string; muted: boolean }[]) => {
     if (!data) {
@@ -34,7 +42,7 @@ const createUseWhoIsUnmutedGraphql = () => {
   };
 
   return {
-    useWhoIsUnmutedGraphql: useData,
+    useWhoIsUnmutedGraphql: useData as UseWhoIsUnmutedGraphqlHook,
     useWhoIsUnmutedConsumersCount: useConsumersCount,
     setWhoIsUnmutedLoading: setLoading,
     dispatchWhoIsUnmutedUpdate,
