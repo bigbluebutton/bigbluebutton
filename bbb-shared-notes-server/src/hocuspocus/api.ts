@@ -7,6 +7,7 @@ interface UserInformation {
   userName: string;
   meetingId: string;
   userIsModerator: boolean;
+  userHasNotesEnabled: boolean;
 }
 
 interface SecurityInformation {
@@ -19,7 +20,7 @@ export async function getUserInformation(
 ): Promise<UserInformation | null> {
   const {
     cookie,
-    sessionToken, 
+    sessionToken,
   } = securityInformation;
 
   const {
@@ -59,6 +60,7 @@ export async function getUserInformation(
         userName: res.headers['user-name'] as string,
         meetingId: res.headers['meeting-id'] as string,
         userIsModerator: toBoolean(res.headers['user-is-moderator'] as string),
+        userHasNotesEnabled: toBoolean(res.headers['user-notes-enabled'] as string),
       }
       resolve(userInfo);
     });
@@ -91,7 +93,7 @@ export async function checkUserAuthenticated(
 ): Promise<boolean> {
   const {
     cookie,
-    sessionToken, 
+    sessionToken,
   } = securityInformation;
 
   const {

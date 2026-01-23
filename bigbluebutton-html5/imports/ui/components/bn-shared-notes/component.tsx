@@ -253,6 +253,7 @@ const BlockNoteContainer: React.FC<NotesContainerGraphqlProps> = (props) => {
     color: user.color,
     name: user.name,
     isModerator: user.isModerator,
+    locked: user.locked,
     userLockSettings: user.userLockSettings,
     presenter: user.presenter,
   }));

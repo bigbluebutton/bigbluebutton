@@ -1,13 +1,17 @@
-import WebSocket from "ws";
-import { MeetingLock } from "./type";
+import { MeetingLock, ConnectionInfo } from "./type";
 
-// { sessionToken => Websocket }
-const websocketMap = new Map<string, WebSocket>();
 
-// { internalMeetingId => Websocket }
+const connectionsMap = new Map<string, ConnectionInfo>();
 const meetingLockMap = new Map<string, MeetingLock>();
+let connectionCounter = 0;
+
+const nextConnectionKey = (): string => {
+  connectionCounter += 1;
+  return `BC${String(connectionCounter).padStart(4, "0")}`;
+};
 
 export {
-  websocketMap,
+  connectionsMap,
   meetingLockMap,
+  nextConnectionKey,
 };

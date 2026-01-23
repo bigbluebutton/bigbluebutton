@@ -26,10 +26,12 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     color: userColor,
     name: userName,
     isModerator: currentUserIsModerator,
+    locked: currentUserIsLocked,
   } = currentUser || {
     color: '',
     name: '',
     isModerator: false,
+    locked: true,
   };
 
   // const editor = useCreateBlockNote({
@@ -71,7 +73,8 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     },
   });
 
-  const editable = !disableNotes || currentUserIsModerator;
+  const editable = !disableNotes || !currentUserIsLocked || currentUserIsModerator;
+
   return (
     <div
       style={{

@@ -1,35 +1,85 @@
 import { Logger } from '../common/logger';
-import { meetingLockMap, websocketMap } from '../common/singleton';
+import { meetingLockMap, connectionsMap } from '../common/singleton';
 import { MeetingLock } from '../common/type';
-import { fetchViewersByMeetingId } from '../database/model';
 import { sender } from './sender';
 
 const logger = new Logger('handler');
-
-
-const events = {
-  MEETING_LOCKED: 'LockSettingsInMeetingChangedEvtMsg',
-};
-
-const commands = {
-  BN_SHARED_NOTES_CREATE: 'BNSharedNotesCreateCmdMsg',
-};
 
 const handleMeetingLocked = async (header: MessageHeader, body: MessageBody): Promise<void> => {
   const { meetingId } = header;
   const { disableNotes: lock } = body;
 
   logger.info('Meeting locked changed', lock);
-  // Update Lock
   const meetingLock: MeetingLock = {
     viewerReadOnly: lock,
   };
   meetingLockMap.set(meetingId, meetingLock);
 
-  const viewers = await fetchViewersByMeetingId(meetingId);
-  viewers.forEach((v) => {
-    const viewerWsConnection = websocketMap.get(v.sessionToken);
-    viewerWsConnection?.close(1008, 'Lock rules changed.');
+  connectionsMap.forEach((connectionInfo, connectionKey) => {
+    if (connectionInfo.meetingId == meetingId && !connectionInfo.moderator) {
+      logger.debug('Removing connection', connectionKey, connectionInfo);
+      connectionInfo.websocket?.close(1008, 'Lock rules changed.');
+      connectionsMap.delete(connectionKey);
+    }
+  });
+};
+
+const handleUserLocked = async (header: MessageHeader, body: MessageBody): Promise<void> => {
+  const { meetingId } = header;
+  const { userId, locked } = body;
+
+  logger.debug('User locked changed', userId, locked);
+
+  connectionsMap.forEach((connectionInfo, connectionKey) => {
+    if (connectionInfo.meetingId == meetingId && connectionInfo.userId == userId) {
+      logger.debug('Removing connection', connectionKey, connectionInfo);
+      connectionInfo.websocket?.close(1008, 'Lock rules changed.');
+      connectionsMap.delete(connectionKey);
+    }
+  });
+};
+
+const handleUserRoleChanged = async (header: MessageHeader, body: MessageBody): Promise<void> => {
+  const { meetingId } = header;
+  const { userId, role } = body;
+
+  logger.debug('User role changed', userId, role);
+
+  connectionsMap.forEach((connectionInfo, connectionKey) => {
+    if (connectionInfo.meetingId == meetingId && connectionInfo.userId == userId) {
+      logger.debug('Removing connection', connectionKey, connectionInfo);
+      connectionInfo.websocket?.close(1008, 'Role changed.');
+      connectionsMap.delete(connectionKey);
+    }
+  });
+};
+
+const handleUserLeftMeeting = async (header: MessageHeader, body: MessageBody): Promise<void> => {
+  const { meetingId } = header;
+  const { intId: userId, eject } = body;
+
+  logger.debug('User left meeting', userId, eject);
+
+  connectionsMap.forEach((connectionInfo, connectionKey) => {
+    if (connectionInfo.meetingId == meetingId && connectionInfo.userId == userId) {
+      logger.debug('Removing connection', connectionKey, connectionInfo);
+      connectionInfo.websocket?.close(1008, 'User left meeting.');
+      connectionsMap.delete(connectionKey);
+    }
+  });
+};
+
+const handleMeetingEnded = async (header: MessageHeader, body: MessageBody): Promise<void> => {
+  const { meetingId } = header;
+
+  logger.debug('Meeting ended', meetingId);
+
+  connectionsMap.forEach((connectionInfo, connectionKey) => {
+    if (connectionInfo.meetingId == meetingId) {
+      logger.debug('Removing connection', connectionKey, connectionInfo);
+      connectionInfo.websocket?.close(1008, 'Meeting ended.');
+      connectionsMap.delete(connectionKey);
+    }
   });
 };
 
@@ -71,7 +121,7 @@ const check = (object: any, property: string): boolean => {
 };
 
 const validate = (message: string): { valid: false } | { valid: true; header: MessageHeader; body: MessageBody } => {
-  
+
   let messageObject: any;
   try {
     messageObject = JSON.parse(message);
@@ -105,7 +155,7 @@ interface PubSubHandler {
 }
 
 
-const handler: PubSubHandler = { 
+const handler: PubSubHandler = {
   handle: (message) => {
     const data = validate(message);
     if (!data.valid) return null;
@@ -116,10 +166,22 @@ const handler: PubSubHandler = {
     } = data;
 
     switch (header.name) {
-      case events.MEETING_LOCKED:
+      case 'LockSettingsInMeetingChangedEvtMsg':
         handleMeetingLocked(header, body);
         break;
-      case commands.BN_SHARED_NOTES_CREATE:
+      case 'UserLockedInMeetingEvtMsg':
+        handleUserLocked(header, body);
+        break;
+      case 'UserRoleChangedEvtMsg':
+        handleUserRoleChanged(header, body);
+        break;
+      case 'UserLeftMeetingEvtMsg':
+        handleUserLeftMeeting(header, body);
+        break;
+      case 'MeetingEndedEvtMsg':
+        handleMeetingEnded(header, body);
+        break;
+      case 'BNSharedNotesCreateCmdMsg':
         handleSharedNotesCreate(header, body);
         break;
       default:

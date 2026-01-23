@@ -99,6 +99,7 @@ class ConnectionController {
         response.addHeader("User-Name", URLEncoder.encode(userSession.fullname, StandardCharsets.UTF_8.name()))
         response.addHeader("User-Is-Moderator", u && u.isModerator() ? "true" : "false")
         response.addHeader("User-Is-Presenter", u && u.isPresenter() ? "true" : "false")
+        response.addHeader("User-Notes-Enabled", u && (u.isModerator() || !u.isLocked() || !m.lockSettingsParams.disableNotes) ? "true" : "false")
         response.setStatus(200)
         withFormat {
           json {
@@ -124,6 +125,7 @@ class ConnectionController {
           response.addHeader("User-Name", URLEncoder.encode(removedUserSession.userFullName, StandardCharsets.UTF_8.name()))
           response.addHeader("User-Is-Moderator", removedUserSession.isModerator() ? "true" : "false")
           response.addHeader("User-Is-Presenter", "false")
+          response.addHeader("User-Notes-Enabled", "false")
           response.setStatus(200)
           withFormat {
             json {

@@ -1,7 +1,7 @@
 import { Hocuspocus } from "@hocuspocus/server";
 import { getUserInformation } from "./api";
-import { meetingLockMap, websocketMap } from "../common/singleton";
-import * as Y from "yjs";
+import { meetingLockMap, connectionsMap, nextConnectionKey } from "../common/singleton";
+import { ConnectionInfo } from "../common/type";
 import { extractMeetingId } from "./utils";
 import sqliteDB from "./extensions/sqlite";
 import { Logger } from "../common/logger";
@@ -39,7 +39,7 @@ const hocuspocus = new Hocuspocus({
 
     const isUserAuthenticated = userInformation !== null;
     if (!isUserAuthenticated) {
-      websocketMap.get(sessionToken)?.terminate();
+      websocket.terminate();
       throw new Error("Unauthorized");
     }
 
@@ -51,9 +51,12 @@ const hocuspocus = new Hocuspocus({
     } = userInformation;
 
     if (meetingId !== meetingIdFromClient) {
-      websocketMap.get(sessionToken)?.terminate();
+      websocket.terminate();
       throw new Error("Meeting Id divergent");
     }
+
+    // TODO validate user name
+    // we should not allow the user to inform a name different than expected
 
     const isMeetingLocked = meetingLockMap.get(meetingId)?.viewerReadOnly;
 
@@ -61,7 +64,17 @@ const hocuspocus = new Hocuspocus({
     if (isConnectionReadOnly) {
       data.connection.readOnly = true;
     }
-    websocketMap.set(sessionToken, websocket);
+
+    const newConnection: ConnectionInfo = {
+      meetingId: userInformation.meetingId,
+      userId: userInformation.userId,
+      moderator: userInformation.userIsModerator,
+      notesEnabled: userInformation.userHasNotesEnabled,
+      websocket: websocket,
+    }
+
+    const connectionKey = nextConnectionKey();
+    connectionsMap.set(connectionKey, newConnection);
 
     return {
       user: {
