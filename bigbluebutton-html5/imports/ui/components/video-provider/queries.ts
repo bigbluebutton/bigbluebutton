@@ -81,6 +81,7 @@ export const GRID_USERS_SUBSCRIPTION = gql`
         userId: asc,
       },
     ) {
+      meetingId
       name
       userId
       nameSortable

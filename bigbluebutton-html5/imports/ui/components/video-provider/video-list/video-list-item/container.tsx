@@ -18,6 +18,7 @@ import { UserCameraHelperAreas } from '../../../plugins-engine/extensible-areas/
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { RAISED_HAND_USERS } from '/imports/ui/core/graphql/queries/users';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
 
 interface VideoListItemContainerProps {
   numOfStreams: number;
@@ -67,6 +68,7 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
 
   const { data: currentMeeting } = useMeeting((m) => ({
     lockSettings: m.lockSettings,
+    meetingId: m.meetingId,
   }));
 
   const hideUserList = currentUserData?.locked && currentMeeting?.lockSettings?.hideUserList;
@@ -89,7 +91,14 @@ const VideoListItemContainer: React.FC<VideoListItemContainerProps> = (props) =>
   const {
     data: usersData,
   } = useDeduplicatedSubscription<{ user: RaisedHandUser[] }>(RAISED_HAND_USERS);
-  const raisedHands: RaisedHandUser[] = usersData?.user ?? [];
+  const raisedHands: RaisedHandUser[] = currentMeeting?.meetingId
+    ? filterByMeetingId(
+      usersData?.user,
+      currentMeeting.meetingId,
+      RAISED_HAND_USERS,
+      (u) => ({ mismatchedUserId: u.userId }),
+    )
+    : [];
   const raisedHandIndex = !hideUserList
     ? raisedHands.findIndex((user) => user.userId === userId) + 1
     : 0;

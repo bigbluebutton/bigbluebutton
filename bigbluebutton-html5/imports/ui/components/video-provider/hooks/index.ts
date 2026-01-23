@@ -51,6 +51,7 @@ import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import ConnectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
+import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
 
 const useVideoStreamsSubscription = createUseSubscription(
   VIDEO_STREAMS_SUBSCRIPTION,
@@ -299,6 +300,10 @@ export const useGridUsers = (visibleStreamCount: number) => {
   const gridItems = useRef<GridItem[]>([]);
   const overflowCount = useRef<number>(0);
 
+  const { data: meeting } = useMeeting((m) => ({
+    meetingId: m.meetingId,
+  }));
+
   const {
     data: gridData,
     error: gridError,
@@ -323,8 +328,14 @@ export const useGridUsers = (visibleStreamCount: number) => {
     }, 'Grid users subscription failed.');
   }
 
-  if (gridData) {
-    const newGridUsers = gridData.user.map((user) => ({
+  if (gridData && meeting?.meetingId) {
+    const filteredUsers = filterByMeetingId(
+      gridData.user,
+      meeting.meetingId,
+      GRID_USERS_SUBSCRIPTION,
+      (u) => ({ mismatchedUserId: u.userId, mismatchedName: u.name }),
+    );
+    const newGridUsers = filteredUsers.map((user) => ({
       ...user,
       type: VIDEO_TYPES.GRID,
     }));
