@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { isEqual } from 'radash';
 import {
   useRemoteParticipants,
@@ -11,13 +11,23 @@ import Auth from '/imports/ui/services/auth';
 import useShouldUseLiveKitAudioState from './useShouldUseLiveKitAudioState';
 import useSubscribedAudioUsers from './useSubscribedAudioUsers';
 import useWhoIsTalkingGraphql from '../useWhoIsTalkingGraphql';
-import createReactiveStateHook from '../createReactiveStateHook';
-import { TalkingUsersState } from '../types';
+import createReactiveRecordStateHook from '../createReactiveRecordStateHook';
+import { TalkingUsersState, TalkingUserState } from '../useWhoIsTalking';
 
 const BASELINE_DATA: TalkingUsersState = Object.freeze({
   data: {},
   loading: false,
 });
+
+const BASELINE_USER_DATA: TalkingUserState = Object.freeze({
+  data: undefined,
+  loading: false,
+});
+
+type UseWhoIsTalkingLiveKitHook = {
+  (): TalkingUsersState;
+  (userId: string): TalkingUserState;
+};
 
 const createUseWhoIsTalkingLiveKit = () => {
   const {
@@ -26,11 +36,20 @@ const createUseWhoIsTalkingLiveKit = () => {
     setLoading,
     setState,
     getState,
-  } = createReactiveStateHook<Record<string, boolean>>({});
+  } = createReactiveRecordStateHook();
 
-  const useWhoIsTalking = () => {
+  /**
+   * Hook to get talking users state from LiveKit.
+   * Supports both full state and per-user granular subscriptions.
+   *
+   * @overload useWhoIsTalking() - Returns all talking users
+   * @overload useWhoIsTalking(userId) - Returns single user's state
+   */
+  function useWhoIsTalking(): TalkingUsersState;
+  function useWhoIsTalking(userId: string): TalkingUserState;
+  function useWhoIsTalking(userId?: string): TalkingUsersState | TalkingUserState {
     const shouldUseLiveKit = useShouldUseLiveKitAudioState();
-    const { data: talkingUsers, loading } = useData();
+    const whoIsTalkingData = userId !== undefined ? useData(userId) : useData();
     const remoteParticipants = useRemoteParticipants({
       room: liveKitRoom,
       updateOnlyOn: [
@@ -43,7 +62,14 @@ const createUseWhoIsTalkingLiveKit = () => {
     const { localParticipant } = useLocalParticipant({ room: liveKitRoom });
     const connectionState = useConnectionState(liveKitRoom);
     const subscribedAudioUsers = useSubscribedAudioUsers();
-    const { data: bbbTalkingUsers } = useWhoIsTalkingGraphql();
+    const bbbTalkingUsersData = userId !== undefined
+      ? useWhoIsTalkingGraphql(userId)
+      : useWhoIsTalkingGraphql();
+    const bbbTalkingUsers: Record<string, boolean> = useMemo(() => {
+      if (userId !== undefined) return bbbTalkingUsersData.data === true ? { [userId]: true } : {};
+
+      return bbbTalkingUsersData.data as Record<string, boolean>;
+    }, [userId, bbbTalkingUsersData.data]);
 
     useEffect(() => {
       if (!shouldUseLiveKit) return;
@@ -93,13 +119,13 @@ const createUseWhoIsTalkingLiveKit = () => {
       bbbTalkingUsers,
     ]);
 
-    if (!shouldUseLiveKit) return BASELINE_DATA;
+    if (!shouldUseLiveKit) return userId !== undefined ? BASELINE_USER_DATA : BASELINE_DATA;
 
-    return { data: talkingUsers, loading };
-  };
+    return whoIsTalkingData as TalkingUsersState | TalkingUserState;
+  }
 
   return {
-    useWhoIsTalking,
+    useWhoIsTalking: useWhoIsTalking as UseWhoIsTalkingLiveKitHook,
     useWhoIsTalkingConsumersCount: useConsumersCount,
     setWhoIsTalkingLoading: setLoading,
   };

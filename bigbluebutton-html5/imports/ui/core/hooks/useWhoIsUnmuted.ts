@@ -9,7 +9,22 @@ import useWhoIsUnmutedGraphql, {
   setWhoIsUnmutedLoading as setWhoIsUnmutedLoadingGraphql,
   dispatchWhoIsUnmutedUpdate as dispatchWhoIsUnmutedUpdateGraphql,
 } from './useWhoIsUnmutedGraphql';
-import { UnmutedUsersState } from './types';
+
+/**
+ * Return type for the useWhoIsUnmuted hook (full state).
+ */
+export type UnmutedUsersState = {
+  data: Record<string, boolean>;
+  loading: boolean;
+};
+
+/**
+ * Return type for the useWhoIsUnmuted hook (per-user).
+ */
+export type UnmutedUserState = {
+  data: boolean | undefined;
+  loading: boolean;
+};
 
 /**
  * Router hook that conditionally uses either BBB's GraphQL or LiveKit's
@@ -17,18 +32,28 @@ import { UnmutedUsersState } from './types';
  *
  * When `useLiveKitAudioState` is enabled AND `audioBridge === 'livekit'`,
  * this hook uses LiveKit's track publication state, else BBB's.
+ *
+ * Supports two signatures:
+ * - useWhoIsUnmuted() - Returns all unmuted users
+ * - useWhoIsUnmuted(userId) - Returns single user's state
  */
-const useWhoIsUnmuted = (): UnmutedUsersState => {
+function useWhoIsUnmuted(): UnmutedUsersState;
+function useWhoIsUnmuted(userId: string): UnmutedUserState;
+function useWhoIsUnmuted(userId?: string): UnmutedUsersState | UnmutedUserState {
   const shouldUseLiveKit = useShouldUseLiveKitAudioState();
-  const bbbMuteState = useWhoIsUnmutedGraphql();
-  const liveKitMuteState = useWhoIsUnmutedLiveKit();
+  const bbbUnmutedState = userId !== undefined
+    ? useWhoIsUnmutedGraphql(userId)
+    : useWhoIsUnmutedGraphql();
+  const liveKitUnmutedState = userId !== undefined
+    ? useWhoIsUnmutedLiveKit(userId)
+    : useWhoIsUnmutedLiveKit();
 
   return useMemo(() => {
-    if (shouldUseLiveKit) return liveKitMuteState;
+    if (shouldUseLiveKit) return liveKitUnmutedState;
 
-    return bbbMuteState;
-  }, [shouldUseLiveKit, bbbMuteState, liveKitMuteState]);
-};
+    return bbbUnmutedState;
+  }, [shouldUseLiveKit, bbbUnmutedState, liveKitUnmutedState]);
+}
 
 const useWhoIsUnmutedConsumersCount = () => {
   const shouldUseLiveKit = useShouldUseLiveKitAudioState();
