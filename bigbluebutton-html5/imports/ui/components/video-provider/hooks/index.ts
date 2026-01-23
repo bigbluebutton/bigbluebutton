@@ -60,6 +60,7 @@ const useVideoStreamsSubscription = createUseSubscription(
 );
 
 export const useStreams = () => {
+  const { data: meeting } = useMeeting((m) => ({ meetingId: m.meetingId }));
   const { data, loading, errors } = useVideoStreamsSubscription();
 
   if (loading) return [];
@@ -75,7 +76,16 @@ export const useStreams = () => {
     });
   }
 
-  const mappedStreams = (data as StreamSubscriptionData[]).map(({ streamId, user, voice }) => {
+  const filteredStreams = meeting?.meetingId
+    ? filterByMeetingId(
+      data as StreamSubscriptionData[],
+      meeting.meetingId,
+      VIDEO_STREAMS_SUBSCRIPTION,
+      (s) => ({ mismatchedUserId: s.user?.userId, mismatchedName: s.user?.name }),
+    )
+    : [];
+
+  const mappedStreams = filteredStreams.map(({ streamId, user, voice }) => {
     if (!streamId) {
       logger.warn({
         logCode: 'missing_stream_id',

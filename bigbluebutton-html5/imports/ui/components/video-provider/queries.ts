@@ -11,6 +11,7 @@ export interface ViewerVideoStreamsSubscriptionResponse {
 export const VIDEO_STREAMS_SUBSCRIPTION = gql`
   subscription VideoStreams {
     user_camera {
+      meetingId
       streamId
       user {
         name
