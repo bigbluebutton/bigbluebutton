@@ -24,7 +24,7 @@ const UsersListItem: React.FC<BaseSidebarButtonProps> = ({ isOpened }) => {
     data: guestWaitingUsersData,
   } = useDeduplicatedSubscription<GuestWaitingUsers>(GET_GUEST_WAITING_USERS_SUBSCRIPTION);
   const {
-    data: usersData,
+    data: raisedHandUsersData,
   } = useDeduplicatedSubscription<RaisedHandUsersSubscriptionResponse>(
     RAISED_HAND_USERS,
     { skip: isOpened },
@@ -32,7 +32,7 @@ const UsersListItem: React.FC<BaseSidebarButtonProps> = ({ isOpened }) => {
 
   const label = intl.formatMessage(intlMessages.usersListLabel);
   const hasNotification = (guestWaitingUsersData?.user_guest?.length ?? 0) > 0
-    || (usersData?.user?.length ?? 0) > 0;
+    || (raisedHandUsersData?.user?.length ?? 0) > 0;
 
   return (
     <SidebarNavigationButton
