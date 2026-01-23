@@ -149,6 +149,9 @@ jobs:
           report-path: ${{ env.REPORT_PATH }}
   comment-pr:
     runs-on: ubuntu-latest
+    concurrency:
+      group: comment-pr-${{ needs.get-pr-data.outputs.pr-number }}
+      cancel-in-progress: true
     permissions:
       pull-requests: write
     needs: get-pr-data
@@ -196,7 +199,7 @@ jobs:
             <h1>Automated tests Summary</h1>
             <h3><strong>:white_check_mark:</strong> All the CI tests have passed!</h3>
       - name: Failing tests comment (with report)
-        if: ${{ github.event.workflow_run.conclusion != 'success' && fromJson(env.isCompleted) && fromJson(steps.check-reports.outputs.exists || 'false') }}
+        if: ${{ github.event.workflow_run.conclusion == 'failure' && fromJson(env.isCompleted) && fromJson(steps.check-reports.outputs.exists || 'false') }}
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ needs.get-pr-data.outputs.pr-number }}
@@ -206,11 +209,29 @@ jobs:
             - [Test results](https://bigbluebutton.github.io/bbb-ci-playwright-reports/pr-${{ needs.get-pr-data.outputs.pr-number }})
             - [Github workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ needs.get-pr-data.outputs.workflow-id }})
       - name: Failing tests comment (without report)
-        if: ${{ github.event.workflow_run.conclusion != 'success' && fromJson(env.isCompleted) && !fromJson(steps.check-reports.outputs.exists || 'false') }}
+        if: ${{ github.event.workflow_run.conclusion == 'failure' && fromJson(env.isCompleted) && !fromJson(steps.check-reports.outputs.exists || 'false') }}
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ needs.get-pr-data.outputs.pr-number }}
           body: |
             <h2><strong>:rotating_light:</strong> Automated tests failed</h2>
+
+            - [Github workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ needs.get-pr-data.outputs.workflow-id }})
+      - name: Comment on cancellation
+        if: ${{ github.event.workflow_run.conclusion == 'cancelled' && fromJson(env.isCompleted) }}
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ needs.get-pr-data.outputs.pr-number }}
+          body: |
+            <h2><strong>:warning:</strong> Automated tests were cancelled</h2>
+
+            - [Github workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ needs.get-pr-data.outputs.workflow-id }})
+      - name: Skipped tests comment
+        if: ${{ github.event.workflow_run.conclusion == 'skipped' && fromJson(env.isCompleted) }}
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ needs.get-pr-data.outputs.pr-number }}
+          body: |
+            <h2><strong>:fast_forward:</strong> Automated tests were skipped</h2>
 
             - [Github workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ needs.get-pr-data.outputs.workflow-id }})
