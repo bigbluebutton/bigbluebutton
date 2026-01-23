@@ -37,6 +37,9 @@ const buildMessage = (type: string, meetingId: string, body: object) => {
     case 'sharedNotesCreated':
       message = build('BNSharedNotesCreatedEvtMsg', meetingId, body);
       break;
+    case 'sharedNotesUpdated':
+      message = build('BNSharedNotesUpdatedEvtMsg', meetingId, body);
+      break;
     default:
   }
 

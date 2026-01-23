@@ -44,6 +44,7 @@ class PadsApp2x(implicit val context: ActorContext)
   with PadCreateReqMsgHdlr
   with PadCreatedEvtMsgHdlr
   with BNSharedNotesCreatedEvtMsgHdlr
+  with BNSharedNotesUpdatedEvtMsgHdlr
   with PadCreateSessionReqMsgHdlr
   with PadSessionCreatedEvtMsgHdlr
   with PadSessionDeletedSysMsgHdlr

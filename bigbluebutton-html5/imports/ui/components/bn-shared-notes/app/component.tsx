@@ -1,6 +1,7 @@
 /* eslint-disable import/extensions */
 import * as React from 'react';
 import { BlockNoteView } from '@blocknote/mantine';
+import { en } from '@blocknote/core/locales';
 import '@blocknote/core/fonts/inter.css';
 import '@blocknote/mantine/style.css';
 import { useCreateBlockNote } from '@blocknote/react';
@@ -37,6 +38,8 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   console.log('Fragment toJSON:', JSON.stringify(fragment.toJSON(), null, 2));
   console.log('Fragment toString:', fragment.toString());
 
+  const locale = en;
+
   const editor = useCreateBlockNote({
     collaboration: {
       provider: hocuspocusProvider,
@@ -46,13 +49,23 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         color: userColor || '',
       },
     },
+    dictionary: {
+      ...locale,
+      placeholders: {
+        ...locale.placeholders,
+        // Override the placeholders to prevent line wrapping in the narrow panel
+        emptyDocument: '',
+        default: '',
+        heading: '',
+      },
+    },
   });
 
   const editable = !disableNotes || currentUserIsModerator;
   return (
     <div
       style={{
-        overflow: 'auto',
+        overflow: 'visible',
         background: 'white',
         width: '100%',
         height: '100%',
@@ -63,6 +76,9 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         {`
           .bn-collaboration-cursor__label {
             color: ${colorWhite} !important;
+          }
+          .bn-mantine .bn-suggestion-menu {
+            min-width: 300px;
           }
         `}
       </style>

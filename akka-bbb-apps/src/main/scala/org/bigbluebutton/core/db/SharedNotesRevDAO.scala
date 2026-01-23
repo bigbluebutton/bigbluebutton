@@ -46,6 +46,23 @@ object SharedNotesRevDAO {
     )
   }
 
+  def insertNextRev(meetingId: String, sharedNotesExtId: String, userId: String) = {
+    DatabaseConnection.enqueue(
+      sqlu"""
+          insert into "sharedNotes_rev"("meetingId", "sharedNotesExtId", "userId", "rev")
+           select
+             ${meetingId} as "meetingId",
+             ${sharedNotesExtId} as "sharedNotesExtId",
+             ${userId} as "userId",
+             coalesce((  select max(rev)
+                from "sharedNotes_rev"
+                where "meetingId" = ${meetingId}
+                and "sharedNotesExtId" = ${sharedNotesExtId}
+             ),0) + 1 as "rev"
+          """
+    )
+  }
+
   def update(meetingId: String, sharedNotesExtId: String, revId: Int, start: Int, end: Int, text: String) = {
     DatabaseConnection.enqueue(
       TableQuery[SharedNotesRevDbTableDef]
