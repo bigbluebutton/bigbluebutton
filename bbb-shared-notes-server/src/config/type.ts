@@ -1,6 +1,7 @@
 export interface HocuspocusServerConfig {
   host: string;
   port: number;
+  apiSecrete?: string;
 }
 
 export interface BbbWebConfig {

@@ -31,26 +31,16 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     isModerator: false,
   };
 
-  // const editor = useCreateBlockNote({
-  //   collaboration: {
-  //     provider: hocuspocusProvider,
-  //     fragment: hocuspocusProvider.document.getXmlFragment('doc'),
-  //     user: {
-  //       name: 'Guilherme',
-  //       color: '#ff0000',
-  //     },
-  //   },
-  //   resolveUsers: async (userIds) => userIds.map((userId) => ({
-  //     id: userId,
-  //     username: 'Guilherme',
-  //     avatarUrl: 'https://placehold.co/100x100',
-  //   })),
-  // });
+  const fragment = hocuspocusProvider.document.getXmlFragment('doc');
+  console.log('=== BlockNote Document Debug ===');
+  console.log('Fragment length:', fragment.length);
+  console.log('Fragment toJSON:', JSON.stringify(fragment.toJSON(), null, 2));
+  console.log('Fragment toString:', fragment.toString());
 
   const editor = useCreateBlockNote({
     collaboration: {
       provider: hocuspocusProvider,
-      fragment: hocuspocusProvider.document.getXmlFragment('doc'),
+      fragment,
       user: {
         name: userName || '',
         color: userColor || '',

@@ -1,5 +1,7 @@
 package org.bigbluebutton.common2.msgs
 
+import java.util
+
 trait PadStandardMsg extends BbbCoreMsg {
   def header: BbbCoreHeaderWithMeetingId
 }
@@ -27,7 +29,7 @@ case class PadCreateReqMsgBody(externalId: String, name: String)
 // apps -> shared-notes-server
 object BNSharedNotesCreateCmdMsg { val NAME = "BNSharedNotesCreateCmdMsg" }
 case class BNSharedNotesCreateCmdMsg(header: BbbCoreHeaderWithMeetingId, body: BNSharedNotesCreateCmdMsgBody) extends BbbCoreMsg
-case class BNSharedNotesCreateCmdMsgBody(externalId: String, model: String)
+case class BNSharedNotesCreateCmdMsgBody(externalId: String, model: String, initialContentJson: util.Map[String, AnyRef])
 
 // shared-notes-server -> apps
 object BNSharedNotesCreatedEvtMsg { val NAME = "BNSharedNotesCreatedEvtMsg" }
