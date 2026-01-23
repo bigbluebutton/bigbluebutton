@@ -1,12 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
+import { useMutation } from '@apollo/client';
 import Button from '/imports/ui/components/common/button/component';
 import Session from '/imports/ui/services/storage/in-memory';
 import { ACTIONS, PANELS, LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 import {
   layoutSelectInput, layoutSelect,
 } from '/imports/ui/components/layout/context';
+import { useStorageKey } from '/imports/ui/services/storage/hooks';
+import { CAMERA_SET_SHOW_AS_CONTENT } from '/imports/ui/core/graphql/mutations/userMutations';
+import { useStreams } from '/imports/ui/components/video-provider/hooks';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -46,6 +50,9 @@ const PresentationOptionsContainer = ({
   hasGenericContent,
   hasCameraAsContent,
 }) => {
+  const [cameraSetShowAsContent] = useMutation(CAMERA_SET_SHOW_AS_CONTENT);
+  const streams = useStreams();
+  const contentStreams = streams.filter((stream) => (stream)?.showAsContent);
   let buttonType = 'presentation';
   if (hasExternalVideo) {
     // hack until we have an external-video icon
@@ -79,7 +86,8 @@ const PresentationOptionsContainer = ({
       hideLabel
       circle
       size="lg"
-      onClick={() => {
+      onClick={async () => {
+        const willOpenPresentation = !presentationIsOpen;
         if (!isChatOpen && isVideoFocusLayout && !presentationIsOpen) {
           layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
@@ -94,9 +102,21 @@ const PresentationOptionsContainer = ({
             value: true,
           });
         }
-        setPresentationIsOpen(layoutContextDispatch, !presentationIsOpen);
+
+        if (willOpenPresentation && contentStreams.length) {
+          await Promise.all(
+            contentStreams.map((stream) => cameraSetShowAsContent({
+              variables: {
+                streamId: stream.stream,
+                showAsContent: false,
+              },
+            })),
+          );
+        }
+
+        setPresentationIsOpen(layoutContextDispatch, willOpenPresentation);
         if (onlyPresentation) {
-          Session.setItem('presentationLastState', !presentationIsOpen);
+          Session.setItem('presentationLastState', willOpenPresentation);
         }
       }}
       id="restore-presentation"

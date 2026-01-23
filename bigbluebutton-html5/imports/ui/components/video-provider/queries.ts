@@ -12,6 +12,8 @@ export const VIDEO_STREAMS_SUBSCRIPTION = gql`
   subscription VideoStreams {
     user_camera {
       streamId
+      contentType
+      showAsContent
       user {
         name
         userId
@@ -41,11 +43,12 @@ export const VIDEO_STREAMS_SUBSCRIPTION = gql`
 `;
 
 export const OWN_VIDEO_STREAMS_QUERY = gql`
-  query OwnVideoStreams($userId: String!, $streamIdPrefix: String!) {
+  query OwnVideoStreams($userId: String!, $streamIdPrefix: String!, $contentType: String!) {
     user_camera(
       where: {
         userId: { _eq: $userId },
         streamId: { _like: $streamIdPrefix }
+        contentType: {_eq: $contentType}
       },
     ) {
       streamId

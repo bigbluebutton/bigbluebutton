@@ -49,6 +49,8 @@ public class ApiParams {
     public static final String MUTE_ON_START = "muteOnStart";
     public static final String CAMERA_BRIDGE = "cameraBridge";
     public static final String SCREEN_SHARE_BRIDGE = "screenShareBridge";
+    public static final String SCREEN_SHARE_BROADCAST_ALLOWED_FOR = "screenShareBroadcastAllowedFor";
+    public static final String VIEWER_SCREEN_SHARE_VIEW_ALLOWED_FOR = "viewerScreenShareViewAllowedFor";
     public static final String AUDIO_BRIDGE = "audioBridge";
     public static final String MEETING_KEEP_EVENTS = "meetingKeepEvents";
     public static final String ALLOW_MODS_TO_UNMUTE_USERS = "allowModsToUnmuteUsers";
@@ -102,6 +104,8 @@ public class ApiParams {
     public static final String LOCK_SETTINGS_LOCK_ON_JOIN_CONFIGURABLE = "lockSettingsLockOnJoinConfigurable";
     public static final String LOCK_SETTINGS_HIDE_VIEWERS_CURSOR = "lockSettingsHideViewersCursor";
     public static final String LOCK_SETTINGS_HIDE_VIEWERS_ANNOTATION = "lockSettingsHideViewersAnnotation";
+    public static final String LOCK_SETTINGS_VIEWERS_CAN_SHARE_SCREEN = "lockSettingsViewersCanShareScreen";
+    public static final String LOCK_SETTINGS_VIEWERS_CAN_SEE_VIEWERS_SCREENSHARES = "lockSettingsViewersCanSeeViewersScreenShares";
 
     // New param passed on create call to callback when meeting ends.
     // This is a duplicate of the endCallbackUrl meta param as we want this

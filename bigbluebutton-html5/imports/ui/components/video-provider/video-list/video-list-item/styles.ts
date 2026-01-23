@@ -8,6 +8,7 @@ import {
   webcamBackgroundColor,
   colorDanger,
   webcamPlaceholderBorder,
+  colorContentBackground,
   webcamTalkingBackgroundColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { TextElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
@@ -156,6 +157,7 @@ const VideoContainer = styled.div<{
 const Video = styled.video<{
   mirrored: boolean;
   unhealthyStream: boolean;
+  screenShare: boolean;
 }>`
   position: relative;
   height: 100%;
@@ -170,6 +172,10 @@ const Video = styled.video<{
 
   ${({ unhealthyStream }) => unhealthyStream && `
     filter: grayscale(50%) opacity(50%);
+  `}
+
+  ${({screenShare})=> screenShare && `
+    background-color: ${colorContentBackground};
   `}
 `;
 
@@ -265,6 +271,22 @@ const UserCameraButtonsContainerWrapper = styled.div<UserCameraButtonsContainerW
   `}
 `;
 
+const SetAsContentOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.5);
+  color: ${colorWhite};
+  font-weight: 700;
+  text-align: center;
+  pointer-events: none;
+  z-index: 3;
+  backdrop-filter: blur(2px);
+`;
+
 export default {
   Content,
   UserCameraButtonsContainerWrapper,
@@ -278,4 +300,5 @@ export default {
   RaiseHand,
   RaiseHandNumber,
   RaiseHandEmoji,
+  SetAsContentOverlay,
 };

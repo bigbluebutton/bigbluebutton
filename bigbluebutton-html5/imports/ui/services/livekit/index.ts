@@ -34,7 +34,8 @@ export const getLKStats = async (): Promise<Map<string, unknown>> => {
 };
 
 export const lkIsCameraSource = (track: TrackPublication | RemoteTrack): boolean => {
-  return track.kind === Track.Kind.Video && track.source === Track.Source.Camera;
+  return (track.kind === Track.Kind.Video && track.source === Track.Source.Camera)
+  || track.source === Track.Source.ScreenShare;
 };
 
 export const lkToggleMuteCameras = (mute: boolean): void => {

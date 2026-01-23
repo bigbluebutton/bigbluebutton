@@ -615,7 +615,8 @@ public class MeetingService implements MessageListener {
             m.breakoutRoomsParams, m.lockSettingsParams, m.getLoginUrl(), m.getLogoutUrl(), m.getCustomLogoURL(), m.getCustomDarkLogoURL(),
             m.getBannerText(), m.getBannerColor(), m.getGroups(), m.getDisabledFeatures(), m.getNotifyRecordingIsOn(),
             m.getPresentationUploadExternalDescription(), m.getPresentationUploadExternalUrl(), m.getPlugins(),
-            m.getHtml5PluginSdkVersion(), m.getOverrideClientSettings());
+            m.getHtml5PluginSdkVersion(), m.getOverrideClientSettings(),
+            m.getScreenShareBroadcastAllowedFor(), m.getViewerScreenShareViewAllowedFor());
   }
 
   private String formatPrettyDate(Long timestamp) {
@@ -1446,7 +1447,9 @@ public class MeetingService implements MessageListener {
                 msg.lockOnJoin,
                 msg.lockOnJoinConfigurable,
                 msg.hideViewersCursor,
-                msg.hideViewersAnnotation)
+                msg.hideViewersAnnotation,
+                msg.viewersCanShareScreen,
+                msg.viewersCanSeeViewersScreenShares)
       );
     }
   }

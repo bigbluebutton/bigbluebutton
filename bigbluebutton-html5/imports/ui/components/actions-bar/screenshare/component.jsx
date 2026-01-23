@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -17,6 +17,9 @@ import {
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
 import Button from '/imports/ui/components/common/button/component';
 import { EXTERNAL_VIDEO_STOP } from '../../external-video-player/mutations';
+import {
+  useStopVideo,
+} from '/imports/ui/components/video-provider/hooks';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const { isMobile } = deviceInfo;
@@ -28,6 +31,7 @@ const propTypes = {
   amIPresenter: PropTypes.bool,
   isScreenBroadcasting: PropTypes.bool.isRequired,
   isScreenGloballyBroadcasting: PropTypes.bool.isRequired,
+  viewersCanShareScreen: PropTypes.bool,
   isConnected: PropTypes.bool.isRequired,
 };
 
@@ -148,10 +152,14 @@ const ScreenshareButton = ({
   amIPresenter = false,
   isConnected,
   screenshareDataSavingSetting,
+  streamId,
+  isUserSharedScreen,
+  viewersCanShareScreen,
 }) => {
   const TROUBLESHOOTING_URLS = window.meetingClientSettings.public.media.screenshareTroubleshootingLinks;
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
   const isCameraAsContentBroadcasting = useIsCameraAsContentBroadcasting();
+  const stopVideo = useStopVideo('screenshare');
 
   const {
     isOpen: isScreenshareUnavailableModalOpen,
@@ -181,7 +189,7 @@ const ScreenshareButton = ({
     } = error;
 
     const localizedError = getErrorLocale(errorCode);
-    const helpInfo =  getHelpInfoForError(errorCode);
+    const helpInfo = getHelpInfoForError(errorCode);
     const toastType = getToastType(errorCode);
 
     if (localizedError) {
@@ -208,26 +216,28 @@ const ScreenshareButton = ({
     </Styled.ScreenShareModal>
   );
 
-  const amIBroadcasting = isScreenBroadcasting && amIPresenter;
+  const amIBroadcasting = isScreenBroadcasting || isUserSharedScreen;
 
   // this part handles the label/desc intl for the screenshare button
   // basically: if you are not a presenter, the label/desc will be 'the screen cannot be shared'.
   // if you are: the label/desc intl will be 'stop/start screenshare'.
   let info = screenshareDataSavingSetting ? 'desktopShare' : 'lockedDesktopShare';
-  if (!amIPresenter) {
+  if (!amIPresenter && !viewersCanShareScreen) {
     info = 'notPresenterDesktopShare';
-  } else if (isScreenBroadcasting) {
+  } else if (amIBroadcasting) {
     info = 'stopDesktopShare';
   }
 
   const showButtonForNonPresenters = useShowButtonForNonPresenters();
 
   const shouldAllowScreensharing = enabled
-    && (!isMobile || isTabletApp)
-    && (amIPresenter || showButtonForNonPresenters);
+    && (!isMobile || isTabletApp);
 
   const dataTest = isScreenBroadcasting ? 'stopScreenShare' : 'startScreenShare';
   const loading = isScreenBroadcasting && !isScreenGloballyBroadcasting;
+
+  if ((!viewersCanShareScreen && !amIPresenter)
+    && !isScreenBroadcasting && !isUserSharedScreen) return null;
 
   return (
     <>
@@ -236,7 +246,7 @@ const ScreenshareButton = ({
           ? (
             <Styled.Container>
               <Button
-                disabled={(!isConnected && !isScreenBroadcasting) || !screenshareDataSavingSetting || !amIPresenter}
+                // disabled={(!isMeteorConnected && !isScreenBroadcasting) || !screenshareDataSavingSetting || !amIPresenter}
                 icon={amIBroadcasting ? 'desktop' : 'desktop_off'}
                 data-test={dataTest}
                 label={intl.formatMessage(intlMessages[`${info}Label`])}
@@ -247,13 +257,16 @@ const ScreenshareButton = ({
                 size="lg"
                 loading={loading}
                 onClick={amIBroadcasting
-                  ? screenshareHasEnded
+                  ? () => {
+                    screenshareHasEnded();
+                    stopVideo(streamId);
+                  }
                   : () => {
                     if (isSafari && !ScreenshareBridgeService.HAS_DISPLAY_MEDIA) {
                       openScreenshareUnavailableModal();
                     } else {
                       // eslint-disable-next-line max-len
-                      shareScreen(isCameraAsContentBroadcasting, stopExternalVideoShare, amIPresenter, handleFailure);
+                      shareScreen(isCameraAsContentBroadcasting, stopExternalVideoShare, true, handleFailure);
                     }
                   }}
                 id={amIBroadcasting ? 'unshare-screen-button' : 'share-screen-button'}

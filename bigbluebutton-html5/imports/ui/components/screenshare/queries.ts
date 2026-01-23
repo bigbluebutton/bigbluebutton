@@ -2,6 +2,7 @@ import { gql } from '@apollo/client';
 
 export interface ScreenshareResponse {
   contentType: string;
+  showAsContent?: boolean;
   hasAudio: boolean;
   screenshareConf: string;
   screenshareId: string;
@@ -13,7 +14,19 @@ export interface ScreenshareResponse {
   voiceConf: string;
 }
 
-export const SCREENSHARE_SUBSCRIPTION = gql`
+export const MULTI_SCREENSHARE_SUBSCRIPTION = gql`
+  subscription Screenshare {
+    user_camera(where: {contentType: {_eq: "screenshare"}}) {
+    contentType
+    showAsContent
+    hasAudio
+    streamId
+    userId
+  }
+}
+`;
+
+export const SINGLE_SCREENSHARE_SUBSCRIPTION = gql`
   subscription Screenshare {
     screenshare {
       contentType
@@ -31,5 +44,6 @@ export const SCREENSHARE_SUBSCRIPTION = gql`
 `;
 
 export default {
-  SCREENSHARE_SUBSCRIPTION,
+  MULTI_SCREENSHARE_SUBSCRIPTION,
+  SINGLE_SCREENSHARE_SUBSCRIPTION,
 };

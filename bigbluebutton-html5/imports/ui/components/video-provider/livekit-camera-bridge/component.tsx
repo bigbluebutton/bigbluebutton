@@ -70,10 +70,11 @@ interface LiveKitCameraBridgeProps {
   isUserLocked: boolean;
   currentVideoPageIndex: number;
   streams: VideoItem[];
-  playStart: (cameraId: string) => void;
+  playStart: (cameraId: string, contentType: string) => void;
   exitVideo: () => void;
   lockUser: () => void;
   stopVideo: (cameraId?: string) => void;
+  screenShare: unknown;
   overflowCount: number;
 }
 
@@ -103,11 +104,12 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
   exitVideo,
   lockUser,
   stopVideo,
+  screenShare,
   overflowCount,
 }) => {
   const intl = useIntl();
   const connectionState = useConnectionState(liveKitRoom);
-  const cameraTracks = useTracks([Track.Source.Camera], {
+  const cameraTracks = useTracks([Track.Source.Camera, Track.Source.ScreenShare], {
     room: liveKitRoom,
     onlySubscribed: false,
     updateOnlyOn: [
@@ -302,7 +304,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     if (bridgeRefs.current.localTracks[stream] || bridgeRefs.current.connectingStreams[stream]) return;
 
     const LIVEKIT_SETTINGS = meetingSettings.public.media.livekit?.camera;
-    const source = Track.Source.Camera;
+    const source = stream.includes('screenshare') ? Track.Source.ScreenShare : Track.Source.Camera;
     const defaultPubOptions = LIVEKIT_SETTINGS?.publishOptions || {
       dtx: true,
       videoCodec: 'vp8',
@@ -358,7 +360,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
       localBBBStream.inactivationHandler = () => handleLocalStreamInactive(stream);
       localBBBStream.once('inactive', localBBBStream.inactivationHandler);
 
-      playStart(stream);
+      playStart(stream, stream.includes('screenshare') ? 'screenshare' : 'camera');
       attachLiveKitStream(stream);
       notifyStreamStateChange(stream, 'completed');
     } catch (error) {
@@ -642,6 +644,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
 
   return (
     <VideoListContainer
+      screenShare={screenShare}
       streams={streams}
       currentVideoPageIndex={currentVideoPageIndex}
       cameraDock={cameraDock}

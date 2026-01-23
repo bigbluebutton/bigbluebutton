@@ -6,6 +6,7 @@ import { TextElipsis, DivElipsis } from '/imports/ui/stylesheets/styled-componen
 import { landscape, mediumUp } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { fontSizeSmaller } from '/imports/ui/stylesheets/styled-components/typography';
 import Button from '/imports/ui/components/common/button/component';
+import Icon from '/imports/ui/components/common/icon/component';
 
 const DropdownTrigger = styled(DivElipsis)<{
   $isRTL: boolean;
@@ -122,6 +123,13 @@ const OptionsButton = styled(Button)`
   }
 `;
 
+const ScreenShareIcon = styled(Icon)`
+  margin-right: 0.35rem;
+  height: 1rem;
+  width: 1rem;
+  vertical-align: middle;
+`;
+
 export default {
   DropdownTrigger,
   UserName,
@@ -129,4 +137,5 @@ export default {
   MenuWrapper,
   MenuWrapperSqueezed,
   OptionsButton,
+  ScreenShareIcon,
 };

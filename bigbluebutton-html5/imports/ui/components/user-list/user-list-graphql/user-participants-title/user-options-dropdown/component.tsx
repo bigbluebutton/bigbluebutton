@@ -157,8 +157,8 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
     uid(8, 'options-'),
     uid(8, 'options-'),
     uid(8, 'options-'),
+    uid(8, 'options-'),
   ]);
-
   const createBreakoutRoomModal = useModalRegistration({ id: 'createBreakoutRoomModal', priority: 'medium' });
   const guestPolicyModal = useModalRegistration({ id: 'guestPolicyModal', priority: 'low' });
   const lockViewersModal = useModalRegistration({ id: 'lockViewersModal', priority: 'low' });

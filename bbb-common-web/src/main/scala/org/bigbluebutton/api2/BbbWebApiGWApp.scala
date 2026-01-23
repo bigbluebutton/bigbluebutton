@@ -174,7 +174,10 @@ class BbbWebApiGWApp(
                     presentationUploadExternalUrl:          String,
                     plugins:                                util.Map[String, AnyRef],
                     html5PluginSdkVersion:                   String,
-                    overrideClientSettings:                 String): Unit = {
+                    overrideClientSettings:                 String,
+                    screenShareBroadcastAllowedFor:         String,
+                    viewerScreenShareViewAllowedFor:        String,
+                   ): Unit = {
 
     val disabledFeaturesAsVector: Vector[String] = disabledFeatures.asScala.toVector
 
@@ -191,7 +194,9 @@ class BbbWebApiGWApp(
       disabledFeaturesAsVector,
       notifyRecordingIsOn,
       presentationUploadExternalDescription,
-      presentationUploadExternalUrl
+      presentationUploadExternalUrl,
+      screenShareBroadcastAllowedFor,
+      viewerScreenShareViewAllowedFor,
     )
 
     val durationProps = DurationProps(
@@ -251,7 +256,9 @@ class BbbWebApiGWApp(
       lockOnJoin = lockSettingsParams.lockOnJoin.booleanValue(),
       lockOnJoinConfigurable = lockSettingsParams.lockOnJoinConfigurable.booleanValue(),
       hideViewersCursor = lockSettingsParams.hideViewersCursor.booleanValue(),
-      hideViewersAnnotation = lockSettingsParams.hideViewersAnnotation.booleanValue()
+      hideViewersAnnotation = lockSettingsParams.hideViewersAnnotation.booleanValue(),
+      viewersCanShareScreen = lockSettingsParams.viewersCanShareScreen.booleanValue(),
+      viewersCanSeeViewersScreenShares = lockSettingsParams.viewersCanSeeViewersScreenShares.booleanValue(),
     )
 
     val systemProps = SystemProps(

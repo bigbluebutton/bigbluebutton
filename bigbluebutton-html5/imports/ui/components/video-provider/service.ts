@@ -104,7 +104,9 @@ class VideoService {
         name: Auth.fullname as string,
         nameSortable: Auth.fullname as string,
         type: VIDEO_TYPES.CONNECTING,
+        contentType: deviceId === 'screenshare' ? 'screenshare' : 'camera',
       };
+
       setConnectingStream(stream);
       setVideoState({ isConnecting: true });
     }
@@ -467,7 +469,7 @@ class VideoService {
     if (this.deviceId == null) return null;
     return VideoPreviewService.getStream(this.deviceId);
   }
-
+  
   updatePeerDictionaryReference(newRef: Record<string, WebRtcPeer>) {
     this.webRtcPeersRef = newRef;
   }

@@ -2,10 +2,12 @@ import React, {
   useContext,
   useEffect,
   useState,
+  useCallback,
 } from 'react';
+import { useMutation } from '@apollo/client';
 import { UserCameraHelperButton, UserCameraHelperInterface, UserCameraHelperItemPosition } from 'bigbluebutton-html-plugin-sdk';
 import VideoList from '/imports/ui/components/video-provider/video-list/component';
-import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
+import { layoutSelect, layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
 import { useNumberOfPages } from '/imports/ui/components/video-provider/hooks';
 import { VideoItem } from '/imports/ui/components/video-provider/types';
 import { Layout, Output } from '/imports/ui/components/layout/layoutTypes';
@@ -15,6 +17,11 @@ import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { DomElementManipulationHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/enums';
 import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import { UserCameraHelperAreas } from '../../plugins-engine/extensible-areas/components/user-camera-helper/types';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { CAMERA_SET_SHOW_AS_CONTENT } from '/imports/ui/core/graphql/mutations/userMutations';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { CURRENT_PRESENTATION_PAGE_SUBSCRIPTION, CurrentPresentationPagesSubscriptionResponse } from '/imports/ui/components/whiteboard/queries';
 
 interface VideoListContainerProps {
   streams: VideoItem[];
@@ -27,6 +34,7 @@ interface VideoListContainerProps {
   onVideoItemMount: (stream: string, video: HTMLVideoElement) => void;
   onVideoItemUnmount: (stream: string) => void;
   onVirtualBgDrop: (stream: string, type: string, name: string, data: string) => Promise<unknown>;
+  screenShare: unknown;
 }
 
 const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
@@ -43,7 +51,59 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
     onVideoItemMount,
     onVideoItemUnmount,
     onVirtualBgDrop,
+    screenShare,
   } = props;
+  
+  const {
+    data: meeting,
+    loading: meetingLoading,
+  } = useMeeting((m) => ({
+    lockSettings: m.lockSettings,
+  }));
+
+  const {
+    data: currentUser,
+  } = useCurrentUser((u) => ({
+    isModerator: u.isModerator,
+    userId: u.userId,
+    presenter: u.presenter,
+  }));
+  const {
+    data: presentationPageData,
+  } = useDeduplicatedSubscription<CurrentPresentationPagesSubscriptionResponse>(
+    CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+  );
+  const presentationInput = layoutSelectInput((i) => i.presentation);
+  const isPresentationOpen = presentationInput?.isOpen ?? true;
+  const hasPresentation = !!presentationPageData?.pres_page_curr?.[0]?.presentationId;
+  const isPresentationAvailable = hasPresentation && isPresentationOpen;
+  const viewersCanSeeViewersScreenShares = meeting?.lockSettings?.viewersCanSeeViewersScreenShares !== false;
+  const [cameraSetShowAsContent] = useMutation(CAMERA_SET_SHOW_AS_CONTENT);
+  const handleSetStreamAsContent = useCallback((streamId: string, showAsContent: boolean) => {
+    if (!streamId) return;
+    cameraSetShowAsContent({
+      variables: {
+        streamId,
+        showAsContent,
+      },
+    });
+  }, [cameraSetShowAsContent]);
+
+  const filteredStreams = streams.filter((stream) => {
+    const streamUserRole = stream?.user?.role;
+    if (stream.userId === currentUser?.userId) return true;
+    // Always allow non-screenshare or moderator screenshare or streams without user metadata
+    if (stream.contentType !== 'screenshare' || streamUserRole === 'MODERATOR' || !streamUserRole) return true;
+
+    const viewersCanSee = meeting?.lockSettings?.viewersCanSeeViewersScreenShares;
+
+    // Remove viewer→viewer screenshares ONLY if disabled
+    if (!viewersCanSee && streamUserRole === 'VIEWER' && !currentUser?.isModerator) {
+      return false;
+    }
+
+    return true;
+  });
   const numberOfPages = useNumberOfPages();
 
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
@@ -99,7 +159,7 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
   }
 
   return (
-    !streams.length
+    !filteredStreams.length
       ? null
       : (
         <VideoList
@@ -113,11 +173,17 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
           focusedId={focusedId}
           handleVideoFocus={handleVideoFocus}
           isGridEnabled={isGridEnabled}
+          streams={filteredStreams}
           overflowCount={overflowCount}
-          streams={streams}
           onVideoItemMount={onVideoItemMount}
           onVideoItemUnmount={onVideoItemUnmount}
           onVirtualBgDrop={onVirtualBgDrop}
+          screenShare={screenShare}
+          currentUserId={currentUser?.userId || ''}
+          isCurrentUserPresenter={currentUser?.presenter || false}
+          onSetStreamAsContent={handleSetStreamAsContent}
+          isPresentationAvailable={isPresentationAvailable}
+          viewersCanSeeViewersScreenShares={viewersCanSeeViewersScreenShares}
         />
       )
   );

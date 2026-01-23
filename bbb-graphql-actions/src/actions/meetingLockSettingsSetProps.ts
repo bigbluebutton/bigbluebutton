@@ -15,6 +15,8 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
         {name: 'lockOnJoinConfigurable', type: 'boolean', required: true},
         {name: 'hideViewersCursor', type: 'boolean', required: true},
         {name: 'hideViewersAnnotation', type: 'boolean', required: true},
+        {name: 'viewersCanShareScreen', type: 'boolean', required: true},
+        {name: 'viewersCanSeeViewersScreenShares', type: 'boolean', required: true},
       ]
   )
 
@@ -43,6 +45,8 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     lockOnJoinConfigurable: input.lockOnJoinConfigurable,
     hideViewersCursor: input.hideViewersCursor,
     hideViewersAnnotation: input.hideViewersAnnotation,
+    viewersCanShareScreen: input.viewersCanShareScreen,
+    viewersCanSeeViewersScreenShares: input.viewersCanSeeViewersScreenShares,
   };
 
   return { eventName, routing, header, body };

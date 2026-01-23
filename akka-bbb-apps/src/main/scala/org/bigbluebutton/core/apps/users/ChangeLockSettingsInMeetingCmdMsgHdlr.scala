@@ -3,10 +3,10 @@ package org.bigbluebutton.core.apps.users
 import org.bigbluebutton.LockSettingsUtil
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core.db.{ MeetingLockSettingsDAO, NotificationDAO }
+import org.bigbluebutton.core.db.{ MeetingLockSettingsDAO, NotificationDAO, UserCameraDAO }
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models._
-import org.bigbluebutton.core.running.OutMsgRouter
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.running.MeetingActor
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core2.Permissions
@@ -34,7 +34,9 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
         lockOnJoin = msg.body.lockOnJoin,
         lockOnJoinConfigurable = msg.body.lockOnJoinConfigurable,
         hideViewersCursor = msg.body.hideViewersCursor,
-        hideViewersAnnotation = msg.body.hideViewersAnnotation
+        hideViewersAnnotation = msg.body.hideViewersAnnotation,
+        viewersCanShareScreen = msg.body.viewersCanShareScreen,
+        viewersCanSeeViewersScreenShares = msg.body.viewersCanSeeViewersScreenShares
       )
 
       if (!MeetingStatus2x.permissionsEqual(liveMeeting.status, settings) || !MeetingStatus2x.permisionsInitialized(liveMeeting.status)) {
@@ -44,14 +46,8 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
 
         MeetingStatus2x.setPermissions(liveMeeting.status, settings)
 
-        //Refresh graphql session for all locked viewers
-        for {
-          user <- Users2x.findAll(liveMeeting.users2x)
-          if user.locked
-          if user.role == Roles.VIEWER_ROLE
-          regUser <- RegisteredUsers.findWithUserId(user.intId, liveMeeting.registeredUsers)
-        } yield {
-          GraphqlMiddleware.requestGraphqlReconnection(regUser.sessionToken, "lockSettings_changed")
+        if (!settings.viewersCanSeeViewersScreenShares) {
+          unsetViewerScreensharesContent(liveMeeting, msg.body.setBy)
         }
 
         //Update database
@@ -253,6 +249,8 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
           lockOnJoinConfigurable = settings.lockOnJoinConfigurable,
           hideViewersCursor = settings.hideViewersCursor,
           hideViewersAnnotation = settings.hideViewersAnnotation,
+          viewersCanShareScreen = settings.viewersCanShareScreen,
+          viewersCanSeeViewersScreenShares = settings.viewersCanSeeViewersScreenShares,
           msg.body.setBy
         )
         val header = BbbClientMsgHeader(
@@ -263,6 +261,28 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
 
         outGW.send(BbbCommonEnvCoreMsg(envelope, LockSettingsInMeetingChangedEvtMsg(header, body)))
       }
+    }
+  }
+
+  private def unsetViewerScreensharesContent(liveMeeting: LiveMeeting, setBy: String): Unit = {
+    val meetingId = liveMeeting.props.meetingProp.intId
+
+    val viewerScreenshareContentStreams = Webcams
+      .findAll(liveMeeting.webcams)
+      .filter(cam => cam.contentType == "screenshare")
+      .filter(cam => Users2x.findWithIntId(liveMeeting.users2x, cam.userId).exists(_.role == Roles.VIEWER_ROLE))
+
+    viewerScreenshareContentStreams.foreach { cam =>
+      Webcams.updateShowAsContent(liveMeeting.webcams, cam.streamId, false)
+      UserCameraDAO.updateShowAsContent(meetingId, cam.streamId, false)
+
+      val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, cam.userId)
+      val envelope = BbbCoreEnvelope(SetCamShowAsContentEvtMsg.NAME, routing)
+      val header = BbbClientMsgHeader(SetCamShowAsContentEvtMsg.NAME, meetingId, cam.userId)
+      val body = SetCamShowAsContentEvtMsgBody(cam.streamId, showAsContent = false, setBy)
+      val event = SetCamShowAsContentEvtMsg(header, body)
+
+      outGW.send(BbbCommonEnvCoreMsg(envelope, event))
     }
   }
 }

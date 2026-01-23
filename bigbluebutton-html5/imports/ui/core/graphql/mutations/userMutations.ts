@@ -114,6 +114,12 @@ export const SWAP_SCREENSHARE = gql`
   }
 `;
 
+export const CAMERA_SET_SHOW_AS_CONTENT = gql`
+  mutation cameraSetShowAsContent($streamId: String!, $showAsContent: Boolean!) {
+    cameraSetShowAsContent(streamId: $streamId, showAsContent: $showAsContent)
+  }
+`;
+
 export default {
   SET_CAMERA_PINNED,
   SET_RAISE_HAND,

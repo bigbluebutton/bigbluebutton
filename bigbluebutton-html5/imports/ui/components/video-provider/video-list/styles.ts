@@ -8,6 +8,7 @@ import Button from '/imports/ui/components/common/button/component';
 const NextPageButton = styled(Button)`
   color: ${colorWhite};
   width: ${mdPaddingX};
+  flex-shrink: 0;
 
   & > i {
     [dir="rtl"] & {
@@ -35,6 +36,7 @@ const NextPageButton = styled(Button)`
 const PreviousPageButton = styled(Button)`
   color: ${colorWhite};
   width: ${mdPaddingX};
+  flex-shrink: 0;
 
   i {
     [dir="rtl"] & {
@@ -60,20 +62,30 @@ const PreviousPageButton = styled(Button)`
 
 const VideoListItem = styled.div<{
   $focused: boolean;
+  $isContent: boolean;
+  $contentRowSpan: number;
 }>`
   display: flex;
   overflow: hidden;
   width: 100%;
+  height: 100%;
   max-height: 100%;
 
-  ${({ $focused }) => $focused && `
+  ${({ $focused, $isContent }) => $focused && !$isContent && `
     grid-column: 1 / span 2;
     grid-row: 1 / span 2;
+  `}
+
+  ${({ $isContent, $contentRowSpan }) => $isContent && `
+    grid-column: 1 / -1;
+    grid-row: span ${Math.max($contentRowSpan, 1)};
+    order: 1;
   `}
 `;
 
 const VideoCanvas = styled.div<{
   $position: string;
+  $hasContent: boolean;
 }>`
   position: absolute;
   width: 100%;
@@ -86,6 +98,7 @@ const VideoCanvas = styled.div<{
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
 
   ${({ $position }) => ($position === 'contentRight' || $position === 'contentLeft') && `
     flex-wrap: wrap;
@@ -113,6 +126,86 @@ const Break = styled.div`
   height: 5px;
 `;
 
+const ContentWrapper = styled.div`
+  display: flex;
+  width: 100%;
+  min-height: 50%;
+  align-items: stretch;
+  justify-content: center;
+  position: relative;
+`;
+
+const VideoListColumn = styled.div<{
+  $hasContent: boolean;
+}>`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: ${({ $hasContent }) => ($hasContent ? '6px' : '0')};
+  flex: 1;
+  min-width: 0;
+`;
+
+const PaginationRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+
+  @media ${mediumUp} {
+    gap: 12px;
+  }
+`;
+
+const PeekOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  padding: 0;
+  pointer-events: auto;
+  z-index: 1200;
+`;
+
+const PeekCard = styled.div<{
+  presentation: HTMLElement | null;
+}>`
+  position: relative;
+  pointer-events: auto;
+  width: 100%;
+  height: 75%;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  ${({ presentation }) => (presentation ? `height: 100%;
+  background: rgba(0, 0, 0, 0.9);` : '')}
+`;
+
+const PeekModalBody = styled.div`
+  width: 100%;
+  height: 60vh;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  overflow: hidden;
+  border-radius: 10px;
+  background: transparent;
+`;
+
+// @ts-expect-error -> Untyped component.
+const PeekCloseButton = styled(Button)`
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+`;
+
 export default {
   NextPageButton,
   PreviousPageButton,
@@ -120,4 +213,11 @@ export default {
   VideoCanvas,
   VideoList,
   Break,
+  ContentWrapper,
+  VideoListColumn,
+  PaginationRow,
+  PeekOverlay,
+  PeekCard,
+  PeekModalBody,
+  PeekCloseButton,
 };

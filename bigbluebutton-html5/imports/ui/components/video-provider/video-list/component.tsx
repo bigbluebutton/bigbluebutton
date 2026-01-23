@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { createPortal } from 'react-dom';
 import { IntlShape, defineMessages, injectIntl } from 'react-intl';
 import { UpdatedDataForUserCameraDomElement } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/user-camera/types';
 import { throttle } from '/imports/utils/throttle';
@@ -15,6 +16,9 @@ import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { VideoItem } from '/imports/ui/components/video-provider/types';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 import { UserCameraHelperAreas } from '../../plugins-engine/extensible-areas/components/user-camera-helper/types';
+import { ModalRegistration } from '/imports/ui/core/singletons/modalController';
+// @ts-ignore Untyped component.
+import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 
 const intlMessages = defineMessages({
   autoplayBlockedDesc: {
@@ -28,6 +32,10 @@ const intlMessages = defineMessages({
   },
   prevPageLabel: {
     id: 'app.video.pagination.prevPage',
+  },
+  setScreenshareAsContentHint: {
+    id: 'app.screenshare.setAsContentHover',
+    defaultMessage: 'Click to set your screenshare as content',
   },
 });
 
@@ -65,13 +73,16 @@ const findOptimalGrid = (
   };
 };
 
-const ASPECT_RATIO = 4 / 3;
+const ASPECT_RATIO = 16 / 9;
+const CONTENT_ROW_SPAN = 2;
+const CONTENT_HEIGHT_RATIO = 0.75;
 // const ACTION_NAME_BACKGROUND = 'blurBackground';
 
 interface VideoListProps {
   pluginUserCameraHelperPerPosition: UserCameraHelperAreas;
   layoutType: string;
   layoutContextDispatch: (...args: unknown[]) => void;
+  onSetStreamAsContent: (streamId: string, showAsContent: boolean) => void;
   numberOfPages: number;
   currentVideoPageIndex: number;
   cameraDock: Output['cameraDock'];
@@ -80,11 +91,16 @@ interface VideoListProps {
   isGridEnabled: boolean;
   overflowCount: number;
   streams: VideoItem[];
+  currentUserId: string;
+  isCurrentUserPresenter: boolean;
   intl: IntlShape;
   setUserCamerasRequestedFromPlugin: React.Dispatch<React.SetStateAction<UpdatedDataForUserCameraDomElement[]>>;
   onVideoItemMount: (stream: string, video: HTMLVideoElement) => void;
   onVideoItemUnmount: (stream: string) => void;
   onVirtualBgDrop: (stream: string, type: string, name: string, data: string) => Promise<unknown>;
+  screenShare: boolean;
+  isPresentationAvailable: boolean;
+  viewersCanSeeViewersScreenShares: boolean;
 }
 
 interface VideoListState {
@@ -95,7 +111,10 @@ interface VideoListState {
     height: number;
     columns: number;
   },
+  aspectRatio: number,
   autoplayBlocked: boolean,
+  contentHeight: number,
+  peekedStream: VideoItem | null,
 }
 
 class VideoList extends Component<VideoListProps, VideoListState> {
@@ -109,6 +128,12 @@ class VideoList extends Component<VideoListProps, VideoListState> {
 
   private autoplayWasHandled: boolean;
 
+  private presentationOverlayHost: HTMLElement | null;
+
+  private openPeekModal: (() => void) | null;
+
+  private closePeekModal: (() => void) | null;
+
   constructor(props: VideoListProps) {
     super(props);
 
@@ -120,9 +145,11 @@ class VideoList extends Component<VideoListProps, VideoListState> {
         height: 0,
         width: 0,
       },
+      aspectRatio: this.props.screenShare ? 16 / 9 : 4 / 3,
       autoplayBlocked: false,
+      contentHeight: 0,
+      peekedStream: null,
     };
-
     this.ticking = false;
     this.grid = null;
     this.canvas = null;
@@ -135,7 +162,12 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     this.setOptimalGrid = this.setOptimalGrid.bind(this);
     this.handleAllowAutoplay = this.handleAllowAutoplay.bind(this);
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
+    this.handleOpenPeek = this.handleOpenPeek.bind(this);
+    this.handleClosePeek = this.handleClosePeek.bind(this);
     this.autoplayWasHandled = false;
+    this.presentationOverlayHost = null;
+    this.openPeekModal = null;
+    this.closePeekModal = null;
   }
 
   componentDidMount() {
@@ -144,11 +176,16 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     window.addEventListener('videoPlayFailed', this.handlePlayElementFailed);
   }
 
-  componentDidUpdate(prevProps: VideoListProps) {
+  componentDidUpdate(prevProps: VideoListProps, prevState: VideoListState) {
     const {
       layoutType, cameraDock, streams, focusedId,
     } = this.props;
+    const { peekedStream } = this.state;
     const { width: cameraDockWidth, height: cameraDockHeight } = cameraDock;
+    const contentStreamId = streams.find((s) => s.contentType === 'screenshare'
+      && (s as any).showAsContent)?.stream;
+    const prevContentStreamId = prevProps.streams.find((s) => s.contentType === 'screenshare'
+      && (s as any).showAsContent)?.stream;
     const {
       layoutType: prevLayoutType,
       cameraDock: prevCameraDock,
@@ -161,14 +198,36 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       || focusedId !== prevFocusedId
       || cameraDockWidth !== prevCameraDockWidth
       || cameraDockHeight !== prevCameraDockHeight
-      || streams.length !== prevStreams.length) {
+      || streams.length !== prevStreams.length
+      || contentStreamId !== prevContentStreamId) {
       this.handleCanvasResize();
+    }
+
+    if (peekedStream && !streams.find((s) => s.contentType === 'screenshare'
+      && (s as any).stream === (peekedStream as any).stream)) {
+      this.handleClosePeek();
+      return;
+    }
+
+    const prevPeekedStream = prevState.peekedStream;
+    const needsPeekModal = Boolean(peekedStream) && this.shouldUsePeekModal(this.props);
+    const prevNeedsPeekModal = Boolean(prevPeekedStream) && this.shouldUsePeekModal(prevProps);
+
+    if (peekedStream && needsPeekModal && !prevNeedsPeekModal) {
+      this.openPeekModal?.();
+      this.teardownPresentationOverlay();
+    }
+
+    if ((!peekedStream && prevNeedsPeekModal)
+      || (peekedStream && !needsPeekModal && prevNeedsPeekModal)) {
+      this.closePeekModal?.();
     }
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleCanvasResize, false);
     window.removeEventListener('videoPlayFailed', this.handlePlayElementFailed);
+    this.teardownPresentationOverlay();
   }
 
   handleAllowAutoplay() {
@@ -212,6 +271,77 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     }
   }
 
+  handleOpenPeek(stream: VideoItem) {
+    const { peekedStream } = this.state;
+
+    if (peekedStream && (peekedStream as any).stream === (stream as any).stream) {
+      this.handleClosePeek();
+      return;
+    }
+
+    const needsPeekModal = this.shouldUsePeekModal(this.props);
+
+    this.teardownPresentationOverlay();
+    this.closePeekModal?.();
+
+    this.setState({ peekedStream: null }, () => {
+      setTimeout(() => {
+        this.setState({ peekedStream: stream }, () => {
+          if (needsPeekModal) {
+            this.openPeekModal?.();
+          } else {
+            this.closePeekModal?.();
+          }
+        });
+      }, 0);
+    });
+  }
+
+  handleClosePeek() {
+    this.setState({ peekedStream: null });
+    this.closePeekModal?.();
+    this.teardownPresentationOverlay();
+  }
+
+  hasPeekContentArea(props: VideoListProps): boolean {
+    const { streams, isPresentationAvailable } = props;
+    const hasStreamAsContent = streams.some((s) => s.contentType === 'screenshare' && (s as any).showAsContent);
+    return isPresentationAvailable || hasStreamAsContent;
+  }
+
+  shouldUsePeekModal(props: VideoListProps): boolean {
+    return !this.hasPeekContentArea(props);
+  }
+
+  mountPresentationOverlay(): HTMLElement | null {
+    const presentationArea = document.getElementById('presentationInnerWrapper');
+    if (!presentationArea) {
+      this.teardownPresentationOverlay();
+      return null;
+    }
+
+    if (!this.presentationOverlayHost) {
+      this.presentationOverlayHost = document.createElement('div');
+      this.presentationOverlayHost.style.position = 'absolute';
+      this.presentationOverlayHost.style.inset = '0';
+      this.presentationOverlayHost.style.pointerEvents = 'auto';
+      this.presentationOverlayHost.style.zIndex = '1200';
+      this.presentationOverlayHost.style.display = 'flex';
+      this.presentationOverlayHost.style.alignItems = 'center';
+      this.presentationOverlayHost.style.justifyContent = 'center';
+      presentationArea.appendChild(this.presentationOverlayHost);
+    }
+
+    return this.presentationOverlayHost;
+  }
+
+  teardownPresentationOverlay(): void {
+    if (this.presentationOverlayHost?.parentNode) {
+      this.presentationOverlayHost.parentNode.removeChild(this.presentationOverlayHost);
+    }
+    this.presentationOverlayHost = null;
+  }
+
   handleCanvasResize() {
     if (!this.ticking) {
       window.requestAnimationFrame(() => {
@@ -233,7 +363,11 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     );
     let numItems = visibleStreams.length;
 
-    if (numItems < 1 || !this.canvas || !this.grid) {
+    const {
+      aspectRatio,
+    } = this.state;
+
+    if (streams.length < 1 || !this.canvas || !this.grid) {
       return;
     }
     const { focusedId } = this.props;
@@ -243,22 +377,49 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     const gridGutter = parseInt(window.getComputedStyle(this.grid)
       .getPropertyValue('grid-row-gap'), 10);
 
-    const hasFocusedItem = visibleStreams.filter(
-      (s) => s.type !== VIDEO_TYPES.GRID && s.stream === focusedId,
-    ).length && numItems > 2;
+    const contentStream = streams.find(
+      (s) => s.type !== VIDEO_TYPES.GRID && (s as any).showAsContent,
+    );
+    const hasContentStream = !!contentStream;
+    const nonContentStreams = hasContentStream
+      ? streams.filter((s) => s !== contentStream)
+      : streams;
 
-    // Has a focused item so we need +3 cells
-    if (hasFocusedItem) {
-      numItems += 3;
-    }
-    const optimalGrid = range(1, numItems + 1)
+    const hasFocusedItem = streams.filter(
+      (s) => s.type !== VIDEO_TYPES.GRID && s.stream === focusedId,
+    ).length && streams.length > 2;
+    const isContentFocused = hasContentStream && contentStream?.stream === focusedId;
+    const shouldGrowFocused = hasFocusedItem && !isContentFocused;
+    const focusCells = shouldGrowFocused ? 3 : 0;
+
+    const columnRangeLimit = hasContentStream
+      ? Math.max(nonContentStreams.length + focusCells, 1) + 1
+      : streams.length + focusCells + 1;
+
+    const targetContentHeight = hasContentStream
+      ? Math.max(Math.floor(canvasHeight * CONTENT_HEIGHT_RATIO), 0)
+      : 0;
+
+    const availableHeightForGrid = hasContentStream
+      ? Math.max(canvasHeight - targetContentHeight - gridGutter, Math.floor(canvasHeight * 0.1))
+      : canvasHeight;
+
+    const optimalGrid = range(1, columnRangeLimit)
       .reduce((currentGrid, col) => {
+        let numItems = hasContentStream
+          ? nonContentStreams.length
+          : streams.length;
+
+        if (shouldGrowFocused) {
+          numItems += 3;
+        }
+
         const testGrid = findOptimalGrid(
-          canvasWidth, canvasHeight, gridGutter,
-          ASPECT_RATIO, numItems, col,
+          canvasWidth, availableHeightForGrid, gridGutter,
+          aspectRatio, numItems, col,
         );
         // We need a minimum of 2 rows and columns for the focused
-        const focusedConstraint = hasFocusedItem ? testGrid.rows > 1 && testGrid.columns > 1 : true;
+        const focusedConstraint = shouldGrowFocused ? testGrid.rows > 1 && testGrid.columns > 1 : true;
         const betterThanCurrent = testGrid.filledArea > currentGrid.filledArea;
         return focusedConstraint && betterThanCurrent ? testGrid : currentGrid;
       }, { filledArea: 0 } as {
@@ -272,11 +433,14 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       type: ACTIONS.SET_CAMERA_DOCK_OPTIMAL_GRID_SIZE,
       value: {
         width: optimalGrid.width,
-        height: optimalGrid.height,
+        height: hasContentStream
+          ? Math.max(optimalGrid.height + targetContentHeight + gridGutter, canvasHeight)
+          : optimalGrid.height,
       },
     });
     this.setState({
       optimalGrid,
+      contentHeight: hasContentStream ? targetContentHeight : 0,
     });
   }
 
@@ -360,45 +524,59 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       onVideoItemMount,
       onVideoItemUnmount,
       handleVideoFocus,
+      onSetStreamAsContent,
       setUserCamerasRequestedFromPlugin,
       focusedId,
       pluginUserCameraHelperPerPosition,
-      isGridEnabled,
-      overflowCount,
+      screenShare,
+      currentUserId,
+      isCurrentUserPresenter,
+      intl,
+      isPresentationAvailable,
+      viewersCanSeeViewersScreenShares,
     } = this.props;
-    const numOfStreams = streams.filter(
-      (item) => item.type === VIDEO_TYPES.GRID || !('render' in item) || item.render !== false,
-    ).length;
+    const contentStream = streams.find((stream) => stream.type !== VIDEO_TYPES.GRID
+      && (stream as any).showAsContent);
+    const { peekedStream } = this.state;
+    const allowPeek = true;
+    const nonContentStreams = contentStream
+      ? streams.filter((stream) => stream !== contentStream)
+      : streams;
+    const numOfStreams = streams.length;
 
-    const shouldShowOverflowTile = isGridEnabled && overflowCount > 0;
-
-    let streamsToRender = streams;
-    if (shouldShowOverflowTile) {
-      const lastGridUserIndex = streams.map((s, idx) => ({ s, idx }))
-        .reverse()
-        .find(({ s }) => s.type === VIDEO_TYPES.GRID)?.idx;
-
-      if (lastGridUserIndex !== undefined) {
-        // remove the last grid user to replace it with the overflow tile
-        streamsToRender = streams.filter((_, idx) => idx !== lastGridUserIndex);
-      }
-    }
-
-    const videoItems = streamsToRender.map((item) => {
+    const renderItem = (item: VideoItem, isContentStream?: boolean) => {
       const { userId, name } = item;
       const isStream = item.type !== VIDEO_TYPES.GRID;
       const stream = isStream ? item.stream : null;
       const key = isStream ? stream : userId;
+      const isContent = isContentStream || (isStream && (item as any).showAsContent);
       const isFocused = isStream && focusedId === stream && numOfStreams > 2;
-      const shouldRender = item.type === VIDEO_TYPES.GRID || !('render' in item) || item.render !== false;
-
-      if (!shouldRender) return null;
+      const contentType = (item as any).contentType;
+      const isOwnScreenshare = isStream && contentType === 'screenshare'
+        && userId === currentUserId;
+      const showSetAsContentHint = isOwnScreenshare && isCurrentUserPresenter && !isContent;
+      const setAsContentHint = showSetAsContentHint
+        ? intl.formatMessage(intlMessages.setScreenshareAsContentHint)
+        : undefined;
+      const isPeeked = !!(peekedStream && (peekedStream as any).stream === (item as any).stream);
 
       return (
         <Styled.VideoListItem
           key={key}
           $focused={isFocused}
+          $isContent={isContent}
+          $contentRowSpan={CONTENT_ROW_SPAN}
           data-test="webcamVideoItem"
+          title={setAsContentHint}
+          onClick={() => {
+            if (isStream && contentType === 'screenshare' && !(item as any).showAsContent) {
+              if (isOwnScreenshare && isCurrentUserPresenter && stream) {
+                onSetStreamAsContent(stream, true);
+              } else if (allowPeek) {
+                this.handleOpenPeek(item);
+              }
+            }
+          }}
         >
           <VideoListItemContainer
             pluginUserCameraHelperPerPosition={pluginUserCameraHelperPerPosition}
@@ -421,24 +599,22 @@ class VideoList extends Component<VideoListProps, VideoListState> {
                 return isStream ? onVirtualBgDrop(item.stream, type, name, data) : Promise.resolve(null);
               }
             }
+            screenShare={screenShare}
+            viewersCanSeeViewersScreenShares={viewersCanSeeViewersScreenShares}
+            onPeek={contentType === 'screenshare' && isStream && !(item as any).showAsContent && allowPeek
+              ? () => this.handleOpenPeek(item)
+              : undefined}
+            hasPeekedStream={isPeeked}
+            setAsContentHint={setAsContentHint}
           />
         </Styled.VideoListItem>
       );
-    });
+    };
 
-    if (shouldShowOverflowTile) {
-      videoItems.push(
-        <Styled.VideoListItem
-          key="overflow-tile"
-          $focused={false}
-          data-test="overflowTile"
-        >
-          <OverflowTile overflowCount={overflowCount} />
-        </Styled.VideoListItem>,
-      );
-    }
-
-    return videoItems;
+    return {
+      gridItems: nonContentStreams.map((item) => renderItem(item, false)),
+      contentItem: contentStream ? renderItem(contentStream, true) : null,
+    };
   }
 
   render() {
@@ -448,53 +624,211 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       cameraDock,
       isGridEnabled,
     } = this.props;
-    const { optimalGrid, autoplayBlocked } = this.state;
+    const { optimalGrid, autoplayBlocked, contentHeight, peekedStream } = this.state;
     const { position } = cameraDock;
+    const usePeekModal = Boolean(peekedStream) && this.shouldUsePeekModal(this.props);
+    const shouldOverlayPresentation = Boolean(peekedStream) && this.hasPeekContentArea(this.props);
+
+    const gridAvailableWidth = Math.min(
+      optimalGrid.width,
+      cameraDock?.width || optimalGrid.width,
+    );
+
+    const { gridItems, contentItem } = this.renderVideoList();
 
     return (
-      <Styled.VideoCanvas
-        $position={position}
-        ref={(ref) => {
-          this.canvas = ref;
-        }}
-        style={{
-          minHeight: 'inherit',
-        }}
-      >
-        {this.renderPreviousPageButton()}
+      <>
+        <Styled.VideoCanvas
+          $position={position}
+          $hasContent={contentHeight > 0}
+          ref={(ref) => {
+            this.canvas = ref;
+          }}
+          style={{
+            minHeight: 'inherit',
+          }}
+        >
+          {!streams.length && !isGridEnabled ? null : (
+            <>
+              <Styled.PaginationRow>
+                {this.renderPreviousPageButton()}
+                <Styled.VideoListColumn $hasContent={false}>
+                  <Styled.VideoList
+                    ref={(ref) => {
+                      this.grid = ref;
+                    }}
+                    style={{
+                      width: '100%',
+                      maxWidth: `${gridAvailableWidth}px`,
+                      height: `${optimalGrid.height}px`,
+                      gridTemplateColumns: `repeat(${optimalGrid.columns}, 1fr)`,
+                      gridTemplateRows: `repeat(${optimalGrid.rows}, 1fr)`,
+                    }}
+                    className="video-provider_list"
+                  >
+                    {gridItems}
+                  </Styled.VideoList>
+                </Styled.VideoListColumn>
+                {this.renderNextPageButton()}
+              </Styled.PaginationRow>
+              {contentHeight > 0 && contentItem && (
+                <Styled.ContentWrapper
+                  style={{
+                    width: `${cameraDock?.width}px`,
+                    height: `${contentHeight}px`,
+                  }}
+                >
+                  {contentItem}
+                </Styled.ContentWrapper>
+              )}
+            </>
+          )}
+          {peekedStream && !usePeekModal && this.renderPeekOverlay(
+            peekedStream as VideoItem,
+            shouldOverlayPresentation,
+          )}
+          {this.renderPeekModal()}
+          {!autoplayBlocked ? null : (
+            <AutoplayOverlay
+              autoplayBlockedDesc={intl.formatMessage(intlMessages.autoplayBlockedDesc)}
+              autoplayAllowLabel={intl.formatMessage(intlMessages.autoplayAllowLabel)}
+              handleAllowAutoplay={this.handleAllowAutoplay}
+            />
+          )}
 
-        {!streams.length && !isGridEnabled ? null : (
-          <Styled.VideoList
-            ref={(ref) => {
-              this.grid = ref;
-            }}
-            style={{
-              width: `${optimalGrid.width}px`,
-              height: `${optimalGrid.height}px`,
-              gridTemplateColumns: `repeat(${optimalGrid.columns}, 1fr)`,
-              gridTemplateRows: `repeat(${optimalGrid.rows}, 1fr)`,
-            }}
-            className="video-provider_list"
-          >
-            {this.renderVideoList()}
-          </Styled.VideoList>
-        )}
-        {!autoplayBlocked ? null : (
-          <AutoplayOverlay
-            autoplayBlockedDesc={intl.formatMessage(intlMessages.autoplayBlockedDesc)}
-            autoplayAllowLabel={intl.formatMessage(intlMessages.autoplayAllowLabel)}
-            handleAllowAutoplay={this.handleAllowAutoplay}
-          />
-        )}
-
-        {
-          (position === 'contentRight' || position === 'contentLeft')
-          && <Styled.Break />
-        }
-
-        {this.renderNextPageButton()}
-      </Styled.VideoCanvas>
+          {
+            (position === 'contentRight' || position === 'contentLeft')
+            && <Styled.Break />
+          }
+        </Styled.VideoCanvas>
+      </>
     );
+  }
+
+  renderPeekModal() {
+    return (
+      <ModalRegistration id="peekStreamModal" priority="high">
+        {({ isOpen, open, close, id }) => {
+          this.openPeekModal = open;
+          this.closePeekModal = close;
+
+          const { peekedStream } = this.state;
+          const usePeekModal = Boolean(peekedStream) && this.shouldUsePeekModal(this.props);
+          if (!usePeekModal || !peekedStream) return null;
+
+          const peekContent = this.renderPeekContent(peekedStream as VideoItem);
+          if (!peekContent) return null;
+
+          const name = (peekedStream as any).name ?? '';
+          const title = name ? `Peek: ${name}` : 'Peek';
+
+          return (
+            <ModalSimple
+              id={id}
+              title={title}
+              isOpen={isOpen}
+              modalIsOpen={isOpen}
+              onRequestClose={this.handleClosePeek}
+              setIsOpen={close}
+              priority="high"
+              shouldCloseOnOverlayClick
+              style={{
+                content: {
+                  width: '55vw',
+                  maxWidth: '55vw',
+                },
+              }}
+            >
+              <Styled.PeekModalBody>
+                {peekContent}
+              </Styled.PeekModalBody>
+            </ModalSimple>
+          );
+        }}
+      </ModalRegistration>
+    );
+  }
+
+  renderPeekContent(stream: VideoItem) {
+    const {
+      onVideoItemMount,
+      onVideoItemUnmount,
+      onVirtualBgDrop,
+      setUserCamerasRequestedFromPlugin,
+      pluginUserCameraHelperPerPosition,
+      handleVideoFocus,
+      streams,
+      viewersCanSeeViewersScreenShares,
+    } = this.props;
+
+    const isStream = stream.type !== VIDEO_TYPES.GRID;
+    if (!isStream) return null;
+
+    const streamId = (stream as any).stream;
+    const userId = (stream as any).userId;
+    const name = (stream as any).name;
+    const isContent = (stream as any).showAsContent ?? false;
+    const contentType = (stream as any).contentType;
+    const numOfStreams = streams.length;
+
+    return (
+      <VideoListItemContainer
+        pluginUserCameraHelperPerPosition={pluginUserCameraHelperPerPosition}
+        numOfStreams={numOfStreams}
+        cameraId={streamId}
+        userId={userId}
+        name={name}
+        focused={false}
+        isStream
+        onHandleVideoFocus={handleVideoFocus}
+        onVideoItemMount={(videoRef) => onVideoItemMount(streamId, videoRef)}
+        onVideoItemUnmount={() => onVideoItemUnmount(streamId)}
+        onVirtualBgDrop={(type, dropName, data) => onVirtualBgDrop(streamId, type, dropName, data)}
+        setUserCamerasRequestedFromPlugin={setUserCamerasRequestedFromPlugin}
+        stream={stream}
+        screenShare
+        contentType={contentType}
+        isContent={isContent}
+        viewersCanSeeViewersScreenShares={viewersCanSeeViewersScreenShares}
+      />
+    );
+  }
+
+  renderPeekOverlay(
+    stream: VideoItem,
+    usePresentationOverlay: boolean,
+  ) {
+    const peekContent = this.renderPeekContent(stream);
+    if (!peekContent) return null;
+
+    const overlay = (
+      <Styled.PeekOverlay
+        onClick={this.handleClosePeek}
+      >
+        <Styled.PeekCard presentation={this.presentationOverlayHost} onClick={(e) => e.stopPropagation()}>
+          <Styled.PeekCloseButton
+            icon="close"
+            label="Close peek overlay"
+            hideLabel
+            circle
+            size="md"
+            onClick={this.handleClosePeek}
+            data-test="closePeekOverlay"
+          />
+          {peekContent}
+        </Styled.PeekCard>
+      </Styled.PeekOverlay>
+    );
+
+    if (usePresentationOverlay) {
+      const host = this.mountPresentationOverlay();
+      if (host) {
+        return createPortal(overlay, host);
+      }
+    }
+
+    this.teardownPresentationOverlay();
+    return overlay;
   }
 }
 

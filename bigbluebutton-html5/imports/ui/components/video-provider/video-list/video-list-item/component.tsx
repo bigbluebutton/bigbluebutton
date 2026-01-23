@@ -38,8 +38,12 @@ interface VideoListItemProps {
   isFullscreenContext: boolean;
   setUserCamerasRequestedFromPlugin: React.Dispatch<React.SetStateAction<UpdatedDataForUserCameraDomElement[]>>;
   layoutContextDispatch: (...args: unknown[]) => void;
+  contentType?: string;
+  isContent?: boolean;
+  screenShare?: boolean;
   isRTL: boolean;
   amIModerator: boolean;
+  setAsContentHint?: string;
   cameraId: string;
   disabledCams: string[];
   focused: boolean;
@@ -51,6 +55,8 @@ interface VideoListItemProps {
   onVideoItemUnmount: (stream: string) => void;
   settingsSelfViewDisable: boolean;
   stream: VideoItem;
+  onPeek?: () => void;
+  viewersCanSeeViewersScreenShares: boolean;
   makeDragOperations: (userId?: string) => {
     onDragOver: (e: DragEvent) => void,
     onDrop: (e: DragEvent) => void,
@@ -66,6 +72,7 @@ interface VideoListItemProps {
     deafened: boolean;
   };
   raisedHandPosition: number;
+  hasPeekedStream?: boolean;
 }
 
 const renderPluginItems = (
@@ -121,27 +128,33 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     cameraId, numOfStreams, focused, onVideoItemMount, onVideoItemUnmount,
     makeDragOperations, dragging, draggingOver, isRTL, isStream, settingsSelfViewDisable,
     disabledCams, amIModerator, stream, setUserCamerasRequestedFromPlugin,
-    pluginUserCameraHelperPerPosition, raisedHandPosition,
+    pluginUserCameraHelperPerPosition, screenShare, raisedHandPosition,
+    contentType, isContent, onPeek, setAsContentHint, viewersCanSeeViewersScreenShares,
+    hasPeekedStream = false,
   } = props;
 
   const intl = useIntl();
 
   const [videoDataLoaded, setVideoDataLoaded] = useState(false);
   const [isStreamHealthy, setIsStreamHealthy] = useState(false);
-  const [isMirrored, setIsMirrored] = useState<boolean>(VideoService.mirrorOwnWebcam(stream.userId));
+  const [isMirrored, setIsMirrored] = useState<boolean>(
+    contentType === 'screenshare' ? false : VideoService.mirrorOwnWebcam(stream.userId),
+  );
   const [isVideoSqueezed, setIsVideoSqueezed] = useState(false);
   const [isVideoPluginHelperSqueezed, setIsVideoPluginHelperSqueezed] = useState(false);
   const [isSelfViewDisabled, setIsSelfViewDisabled] = useState(false);
 
-  const pluginSqueezedResizeObserver = new ResizeObserver((entry) => {
-    if (entry && entry[0]?.contentRect?.width < VIDEO_CONTAINER_PLUGIN_HELPERS_WIDTH_BOUND) {
+  const pluginSqueezedResizeObserver = new ResizeObserver((entries = []) => {
+    const entry = entries[0];
+    if (entry?.contentRect?.width < VIDEO_CONTAINER_PLUGIN_HELPERS_WIDTH_BOUND) {
       return setIsVideoPluginHelperSqueezed(true);
     }
     return setIsVideoPluginHelperSqueezed(false);
   });
 
-  const resizeObserver = new ResizeObserver((entry) => {
-    if (entry && entry[0]?.contentRect?.width < VIDEO_CONTAINER_WIDTH_BOUND) {
+  const resizeObserver = new ResizeObserver((entries = []) => {
+    const entry = entries[0];
+    if (entry?.contentRect?.width < VIDEO_CONTAINER_WIDTH_BOUND) {
       return setIsVideoSqueezed(true);
     }
     return setIsVideoSqueezed(false);
@@ -271,7 +284,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     setIsSelfViewDisabled(settingsSelfViewDisable);
   }, [settingsSelfViewDisable]);
 
-  const renderSqueezedButton = () => (
+  const renderSqueezedButton = () => !screenShare && (
     <UserActions
       name={name}
       stream={stream}
@@ -285,11 +298,14 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       isMirrored={isMirrored}
       isRTL={isRTL}
       isStream={isStream}
+      onPeek={onPeek}
+      hasPeekedStream={hasPeekedStream}
       onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
       isSelfViewDisabled={isSelfViewDisabled}
       amIModerator={amIModerator}
       isFullscreenContext={isFullscreenContext}
       layoutContextDispatch={layoutContextDispatch}
+      viewersCanSeeViewersScreenShares={viewersCanSeeViewersScreenShares}
     />
   );
   const renderRaiseHandElement = () => {
@@ -303,7 +319,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     );
   };
 
-  const renderWebcamConnecting = () => (
+  const renderWebcamConnecting = () => !screenShare && (
     <Styled.WebcamConnecting
       data-test="webcamConnecting"
       animations={animations}
@@ -336,7 +352,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     </Styled.WebcamConnecting>
   );
 
-  const renderDefaultButtons = () => (
+  const renderDefaultButtons = () => !screenShare && (
     <>
       <Styled.TopBar>
         {renderRaiseHandElement()}
@@ -363,6 +379,11 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
           videoContainer={videoContainer}
           isFullscreenContext={isFullscreenContext}
           layoutContextDispatch={layoutContextDispatch}
+          contentType={contentType || (stream as any).contentType}
+          isContent={(stream as any).showAsContent ?? isContent}
+          onPeek={onPeek}
+          hasPeekedStream={hasPeekedStream}
+          viewersCanSeeViewersScreenShares={viewersCanSeeViewersScreenShares}
         />
         <UserStatus
           voiceUser={voiceUser}
@@ -434,17 +455,20 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     onDragOver,
     onDrop,
   } = makeDragOperations(stream.userId);
+  const [isHovering, setIsHovering] = useState(false);
 
   return (
     // @ts-expect-error -> Until everything in Typescript.
     <Styled.Content
       ref={videoContainer}
-      talking={talking}
+      talking={talking && (contentType !== 'screenshare')}
       customHighlight={webcamBorderHighlightColor}
       fullscreen={isFullscreenContext}
       data-test={talking ? 'webcamItemTalkingUser' : 'webcamItem'}
       animations={animations}
       isStream={isStream}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
       {...{
         onDragLeave,
         onDragOver,
@@ -469,6 +493,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
           muted
           autoPlay
           playsInline
+          screenShare={screenShare}
         />
       </Styled.VideoContainer>
 
@@ -481,13 +506,20 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
 
       {/* eslint-disable-next-line no-nested-ternary */}
 
-      {isVideoSqueezed ? renderSqueezedButton() : renderDefaultButtons()}
+      {((videoIsReady || (isSelfViewDisabled || disabledCams.includes(cameraId))) && !screenShare) && (
+        isVideoSqueezed ? renderSqueezedButton() : renderDefaultButtons()
+      )}
       {!videoIsReady && (!isSelfViewDisabled || !isStream) && (
         isVideoSqueezed ? renderWebcamConnectingSqueezed() : renderWebcamConnecting()
       )}
       {((isSelfViewDisabled && stream.userId === Auth.userID) || disabledCams.includes(cameraId))
       && renderWebcamConnecting()}
       {renderCameraHelperButtons()}
+      {setAsContentHint && isHovering && (
+        <Styled.SetAsContentOverlay>
+          {setAsContentHint}
+        </Styled.SetAsContentOverlay>
+      )}
     </Styled.Content>
   );
 };

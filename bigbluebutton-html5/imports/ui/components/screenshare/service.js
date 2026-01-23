@@ -8,9 +8,13 @@ import logger from '/imports/startup/client/logger';
 import AudioService from '/imports/ui/components/audio/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import browserInfo from '/imports/utils/browserInfo';
-import { SCREENSHARE_SUBSCRIPTION } from './queries';
+import { MULTI_SCREENSHARE_SUBSCRIPTION, SINGLE_SCREENSHARE_SUBSCRIPTION } from './queries';
+import VideoService from '/imports/ui/components/video-provider/service';
+import VideoPreviewService from '/imports/ui/components/video-preview/service';
+import BBBVideoStream from '../../services/webrtc-base/bbb-video-stream';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import useMeeting from '../../core/hooks/useMeeting';
+import meetingStaticData from '../../core/singletons/meetingStaticData';
 
 let screenShareBridge = sfuScreenShareBridge;
 
@@ -60,6 +64,7 @@ export const sharingContentTypeVar = makeVar(false);
 export const cameraAsContentDeviceIdTypeVar = makeVar('');
 
 export const useScreenshare = () => {
+  const multiScreenshareEnabled = window.meetingClientSettings.public.app.enableMultiScreenshare;
   const {
     data: meeting,
     loading: meetingLoading,
@@ -68,16 +73,14 @@ export const useScreenshare = () => {
   }));
 
   const { data, loading, error } = useDeduplicatedSubscription(
-    SCREENSHARE_SUBSCRIPTION,
+    multiScreenshareEnabled ? MULTI_SCREENSHARE_SUBSCRIPTION : SINGLE_SCREENSHARE_SUBSCRIPTION,
     {
-      skip: meetingLoading
-      || !(meeting?.componentsFlags?.hasScreenshare
-        || meeting?.componentsFlags?.hasCameraAsContent),
+      skip: meetingLoading,
     },
   );
 
   return {
-    data: data?.screenshare || [],
+    data: multiScreenshareEnabled ? data?.user_camera || [] : data?.screenshare || [],
     loading,
     error,
   };
@@ -163,6 +166,7 @@ export const useIsScreenGloballyBroadcasting = () => {
     && data[0]
     && data[0].contentType === CONTENT_TYPE_SCREENSHARE
     && data[0].stream,
+    // && data[0].streamId,
     ),
     loading,
   };
@@ -281,8 +285,8 @@ export const attachLocalPreviewStream = (mediaElement) => {
   }
 };
 
-export const setOutputDeviceId = (outputDeviceId) => {
-  const screenShareElement = document.getElementById(SCREENSHARE_MEDIA_ELEMENT_NAME);
+export const setOutputDeviceId = (outputDeviceId, element) => {
+  const screenShareElement = element || document.getElementById(SCREENSHARE_MEDIA_ELEMENT_NAME);
   const sinkIdSupported = screenShareElement && typeof screenShareElement.setSinkId === 'function';
   const srcStream = screenShareElement?.srcObject;
 
@@ -312,7 +316,7 @@ export const setOutputDeviceId = (outputDeviceId) => {
   }
 };
 
-export const shareScreen = async (
+export const singleShareScreen = async (
   isCameraAsContentBroadcasting,
   stopWatching,
   isPresenter,
@@ -356,6 +360,39 @@ export const shareScreen = async (
   } catch (error) {
     onFail(error);
   }
+};
+
+export const multiScreenshare = async (
+  isCameraAsContentBroadcasting,
+  stopWatching,
+  isPresenter,
+  onFail,
+  options = {},
+) => {
+  try {
+    let stream;
+    let contentType = CONTENT_TYPE_SCREENSHARE;
+    if (options.stream == null) {
+      stream = await BridgeService.getScreenStream();
+    } else {
+      contentType = CONTENT_TYPE_CAMERA;
+      stream = options.stream;
+    }
+    _trackStreamTermination(stream, _handleStreamTermination);
+
+    VideoPreviewService.storeStream('screenshare', new BBBVideoStream(stream));
+    VideoService.joinVideo('screenshare', false, 'screenshare');
+  } catch (error) {
+    onFail(error);
+  }
+};
+
+export const shareScreen = (...args) => {
+  const multiScreenshareEnabled = window.meetingClientSettings.public.app.enableMultiScreenshare;
+  if (multiScreenshareEnabled && meetingStaticData.getMeetingData().screenShareBridge === 'livekit') {
+    return multiScreenshare(...args);
+  }
+  return singleShareScreen(...args);
 };
 
 export const viewScreenshare = (streamId, hasAudio, options = {}) => {

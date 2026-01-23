@@ -81,6 +81,14 @@ const intlMessages = defineMessages({
     id: 'app.lock-viewers.hideAnnotationsLabel',
     description: 'label for other viewers annotation',
   },
+  viewersCanShareScreenLabel: {
+    id: 'app.lock-viewers.viewersCanShareScreenLabel',
+    description: 'label for viewers screenshare toggle',
+  },
+  viewersCanSeeViewersScreenSharesLabel: {
+    id: 'app.lock-viewers.viewersCanSeeViewersScreenSharesLabel',
+    description: 'label for viewers seeing other viewers screenshares toggle',
+  },
 });
 
 const propTypes = {
@@ -92,6 +100,7 @@ const propTypes = {
   showToggleLabel: PropTypes.bool.isRequired,
   updateLockSettings: PropTypes.func.isRequired,
   updateWebcamsOnlyForModerator: PropTypes.func.isRequired,
+  screenShareBridge: PropTypes.string.isRequired,
 };
 
 class LockViewersComponent extends Component {
@@ -156,7 +165,9 @@ class LockViewersComponent extends Component {
       isChatEnabled,
       isPrivateChatEnabled,
       isSharedNotesEnabled,
+      screenShareBridge,
     } = this.props;
+    const multiScreenshareEnabled = window.meetingClientSettings.public.app.enableMultiScreenshare;
 
     const { lockSettingsProps, usersProp } = this.state;
 
@@ -233,6 +244,60 @@ class LockViewersComponent extends Component {
                 </Styled.FormElementRight>
               </Styled.Col>
             </Styled.Row>
+            {
+              multiScreenshareEnabled && screenShareBridge === 'livekit' ? (
+                <>
+                  <Styled.Row data-test="lockViewersShareScreenItem">
+                    <Styled.Col aria-hidden="true">
+                      <Styled.FormElement>
+                        <Styled.Label>
+                          {intl.formatMessage(intlMessages.viewersCanShareScreenLabel)}
+                        </Styled.Label>
+                      </Styled.FormElement>
+                    </Styled.Col>
+                    <Styled.Col>
+                      <Styled.FormElementRight>
+                        {this.displayLockStatus(!lockSettingsProps.viewersCanShareScreen)}
+                        <Toggle
+                          icons={false}
+                          defaultChecked={lockSettingsProps.viewersCanShareScreen}
+                          onChange={() => {
+                            this.toggleLockSettings('viewersCanShareScreen');
+                          }}
+                          ariaLabel={intl.formatMessage(intlMessages.viewersCanShareScreenLabel)}
+                          showToggleLabel={showToggleLabel}
+                          data-test="lockViewersShareScreen"
+                        />
+                      </Styled.FormElementRight>
+                    </Styled.Col>
+                  </Styled.Row>
+                  <Styled.Row data-test="lockViewersSeeScreensharesItem">
+                    <Styled.Col aria-hidden="true">
+                      <Styled.FormElement>
+                        <Styled.Label>
+                          {intl.formatMessage(intlMessages.viewersCanSeeViewersScreenSharesLabel)}
+                        </Styled.Label>
+                      </Styled.FormElement>
+                    </Styled.Col>
+                    <Styled.Col>
+                      <Styled.FormElementRight>
+                        {this.displayLockStatus(!lockSettingsProps.viewersCanSeeViewersScreenShares)}
+                        <Toggle
+                          icons={false}
+                          defaultChecked={lockSettingsProps.viewersCanSeeViewersScreenShares}
+                          onChange={() => {
+                            this.toggleLockSettings('viewersCanSeeViewersScreenShares');
+                          }}
+                          ariaLabel={intl.formatMessage(intlMessages.viewersCanSeeViewersScreenSharesLabel)}
+                          showToggleLabel={showToggleLabel}
+                          data-test="lockViewersSeeScreenshares"
+                        />
+                      </Styled.FormElementRight>
+                    </Styled.Col>
+                  </Styled.Row>
+                </>
+              ) : null
+            }
             <Styled.Row data-test="lockShareMicrophoneItem">
               <Styled.Col aria-hidden="true">
                 <Styled.FormElement>

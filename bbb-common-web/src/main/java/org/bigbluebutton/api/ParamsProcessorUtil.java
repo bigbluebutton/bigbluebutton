@@ -118,6 +118,8 @@ public class ParamsProcessorUtil {
     private String defaultDarkLogoURL;
     private String defaultPresentationUploadExternalDescription = "";
     private String defaultPresentationUploadExternalUrl = "";
+    private String defaultScreenShareBroadcastAllowedFor = "PRESENTER";
+    private String defaultViewerScreenShareViewAllowedFor = "MODERATORS";
 
 		private boolean defaultBreakoutRoomsRecord;
         private boolean defaultBreakoutRoomsCaptureSlides = false;
@@ -137,6 +139,8 @@ public class ParamsProcessorUtil {
 		private boolean defaultLockSettingsLockOnJoinConfigurable;
 		private boolean defaultLockSettingsHideViewersCursor;
         private boolean defaultLockSettingsHideViewersAnnotation;
+        private boolean defaultLockSettingsViewersCanShareScreen = false;
+        private boolean defaultLockSettingsViewersCanSeeViewersScreenShares = false;
 
     private Long maxPresentationFileUpload = 30000000L; // 30MB
 
@@ -419,6 +423,18 @@ public class ParamsProcessorUtil {
                 lockSettingsHideViewersAnnotation = Boolean.parseBoolean(lockSettingsHideViewersAnnotationParam);
 			}
 
+            Boolean lockSettingsViewersCanShareScreen = defaultLockSettingsViewersCanShareScreen;
+            String lockSettingsViewersCanShareScreenParam = params.get(ApiParams.LOCK_SETTINGS_VIEWERS_CAN_SHARE_SCREEN);
+            if (!StringUtils.isEmpty(lockSettingsViewersCanShareScreenParam)) {
+                lockSettingsViewersCanShareScreen = Boolean.parseBoolean(lockSettingsViewersCanShareScreenParam);
+            }
+
+            Boolean lockSettingsViewersCanSeeViewersScreenShares = defaultLockSettingsViewersCanSeeViewersScreenShares;
+            String lockSettingsViewersCanSeeViewersScreenSharesParam = params.get(ApiParams.LOCK_SETTINGS_VIEWERS_CAN_SEE_VIEWERS_SCREENSHARES);
+            if (!StringUtils.isEmpty(lockSettingsViewersCanSeeViewersScreenSharesParam)) {
+                lockSettingsViewersCanSeeViewersScreenShares = Boolean.parseBoolean(lockSettingsViewersCanSeeViewersScreenSharesParam);
+            }
+
 			return new LockSettingsParams(lockSettingsDisableCam,
 							lockSettingsDisableMic,
 							lockSettingsDisablePrivateChat,
@@ -428,7 +444,9 @@ public class ParamsProcessorUtil {
 							lockSettingsLockOnJoin,
 							lockSettingsLockOnJoinConfigurable,
                             lockSettingsHideViewersCursor,
-                            lockSettingsHideViewersAnnotation);
+                            lockSettingsHideViewersAnnotation,
+                            lockSettingsViewersCanShareScreen,
+                            lockSettingsViewersCanSeeViewersScreenShares);
 		}
 
     private ArrayList<Group> processGroupsParams(Map<String, String> params) {
@@ -917,6 +935,16 @@ public class ParamsProcessorUtil {
             maxUserConcurrentAccesses = 1;
         }
 
+        String screenShareBroadcastAllowedFor = defaultScreenShareBroadcastAllowedFor;
+        if (!StringUtils.isEmpty(params.get(ApiParams.SCREEN_SHARE_BROADCAST_ALLOWED_FOR))) {
+            screenShareBroadcastAllowedFor = params.get(ApiParams.SCREEN_SHARE_BROADCAST_ALLOWED_FOR);
+        }
+
+        String viewerScreenShareViewAllowedFor = defaultViewerScreenShareViewAllowedFor;
+        if (!StringUtils.isEmpty(params.get(ApiParams.VIEWER_SCREEN_SHARE_VIEW_ALLOWED_FOR))) {
+            viewerScreenShareViewAllowedFor = params.get(ApiParams.VIEWER_SCREEN_SHARE_VIEW_ALLOWED_FOR);
+        }
+
         // Create the meeting with all passed in parameters.
         Meeting meeting = new Meeting.Builder(externalMeetingId,
                 internalMeetingId, createTime).withName(meetingName)
@@ -967,6 +995,8 @@ public class ParamsProcessorUtil {
                 .withNotifyRecordingIsOn(notifyRecordingIsOn)
                 .withPresentationUploadExternalDescription(presentationUploadExternalDescription)
                 .withPresentationUploadExternalUrl(presentationUploadExternalUrl)
+                .withScreenShareBroadcastAllowedFor(screenShareBroadcastAllowedFor)
+                .withViewerScreenShareViewAllowedFor(viewerScreenShareViewAllowedFor)
                 .build();
 
         if (!StringUtils.isEmpty(params.get(ApiParams.MODERATOR_ONLY_MESSAGE))) {
@@ -1775,6 +1805,14 @@ public class ParamsProcessorUtil {
 
     public void setLockSettingsHideViewersAnnotation(Boolean lockSettingsHideViewersAnnotation) {
 		this.defaultLockSettingsHideViewersAnnotation = lockSettingsHideViewersAnnotation;
+	}
+
+	public void setLockSettingsViewersCanShareScreen(Boolean lockSettingsViewersCanShareScreen) {
+		this.defaultLockSettingsViewersCanShareScreen = lockSettingsViewersCanShareScreen;
+	}
+
+	public void setLockSettingsViewersCanSeeViewersScreenShares(Boolean lockSettingsViewersCanSeeViewersScreenShares) {
+		this.defaultLockSettingsViewersCanSeeViewersScreenShares = lockSettingsViewersCanSeeViewersScreenShares;
 	}
 
 	public void setAllowDuplicateExtUserid(Boolean allow) {

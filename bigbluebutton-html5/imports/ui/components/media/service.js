@@ -22,10 +22,9 @@ const buildLayoutWhenPresentationAreaIsDisabled = (
   isSharingVideo,
   isSharedNotesPinned,
   isThereWebcam,
-  isScreenSharingEnabled,
+  hasScreenshare,
   isPresentationEnabled,
 ) => {
-  const hasScreenshare = isScreenSharingEnabled;
   const isGeneralMediaOff = !hasScreenshare && !isSharedNotesPinned && !isSharingVideo;
   const webcamIsOnlyContent = isThereWebcam && isGeneralMediaOff;
   const isThereNoMedia = !isThereWebcam && isGeneralMediaOff;

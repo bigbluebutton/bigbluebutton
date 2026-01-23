@@ -25,29 +25,47 @@ class UserCameraDbTableDef(tag: Tag) extends Table[UserCameraDbModel](tag, None,
 
 object UserCameraDAO {
 
+  private def unsetShowAsContentExcept(meetingId: String, streamId: String) = {
+    TableQuery[UserCameraDbTableDef]
+      .filter(_.meetingId === meetingId)
+      .filter(_.streamId =!= streamId)
+      .filter(_.showAsContent)
+      .map(cam => cam.showAsContent)
+      .update(false)
+  }
+
   def insert(meetingId: String, webcam: WebcamStream) = {
-    DatabaseConnection.enqueue(
-      TableQuery[UserCameraDbTableDef].forceInsert(
-        UserCameraDbModel(
-          streamId = webcam.streamId,
-          meetingId = meetingId,
-          userId = webcam.userId,
-          contentType = webcam.contentType,
-          hasAudio = webcam.hasAudio,
-          showAsContent = webcam.showAsContent,
-        )
+    val insertAction = TableQuery[UserCameraDbTableDef].forceInsert(
+      UserCameraDbModel(
+        streamId = webcam.streamId,
+        meetingId = meetingId,
+        userId = webcam.userId,
+        contentType = webcam.contentType,
+        hasAudio = webcam.hasAudio,
+        showAsContent = webcam.showAsContent,
       )
     )
+
+    val action =
+      if (webcam.showAsContent) DBIO.seq(unsetShowAsContentExcept(meetingId, webcam.streamId), insertAction)
+      else insertAction
+
+    DatabaseConnection.enqueue(action)
   }
 
   def updateShowAsContent(meetingId: String, streamId: String, showAsContent: Boolean) = {
-    DatabaseConnection.enqueue(
+    val updateAction =
       TableQuery[UserCameraDbTableDef]
         .filter(_.meetingId === meetingId)
         .filter(_.streamId === streamId)
         .map(cam => cam.showAsContent)
         .update(showAsContent)
-    )
+
+    val action =
+      if (showAsContent) DBIO.seq(unsetShowAsContentExcept(meetingId, streamId), updateAction)
+      else updateAction
+
+    DatabaseConnection.enqueue(action)
   }
 
   def delete(streamId: String) = {

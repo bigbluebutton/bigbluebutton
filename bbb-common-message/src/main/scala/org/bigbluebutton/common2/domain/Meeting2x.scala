@@ -22,6 +22,8 @@ case class MeetingProp(
     notifyRecordingIsOn:                    Boolean,
     presentationUploadExternalDescription:  String,
     presentationUploadExternalUrl:          String,
+    screenShareBroadcastAllowedFor:         String,
+    viewerScreenShareViewAllowedFor:        String,
 )
 
 case class BreakoutProps(
@@ -72,7 +74,9 @@ case class LockSettingsProps(
     lockOnJoin:             Boolean,
     lockOnJoinConfigurable: Boolean,
     hideViewersCursor:      Boolean,
-    hideViewersAnnotation:  Boolean
+    hideViewersAnnotation:  Boolean,
+    viewersCanShareScreen: Boolean,
+    viewersCanSeeViewersScreenShares: Boolean
 )
 
 case class SystemProps(

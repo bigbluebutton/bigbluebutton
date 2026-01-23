@@ -4,6 +4,13 @@ import org.bigbluebutton.core.db.UserCameraDAO
 import collection.immutable.HashMap
 
 object Webcams {
+  private def unsetShowAsContent(webcams: Webcams, keepStreamId: String): Unit = {
+    // Ensure only one stream is marked as content at a time
+    webcams.toVector
+      .filter(cam => cam.showAsContent && cam.streamId != keepStreamId)
+      .foreach(cam => webcams.save(cam.copy(showAsContent = false)))
+  }
+
   def findWithStreamId(webcams: Webcams, streamId: String): Option[WebcamStream] = {
     webcams.toVector.find(webcam => webcam.streamId == streamId)
   }
@@ -17,6 +24,7 @@ object Webcams {
   def addWebcamStream(meetingId: String, webcams: Webcams, webcam: WebcamStream): Option[WebcamStream] = {
     findWithStreamId(webcams, webcam.streamId) match {
       case None => {
+        if (webcam.showAsContent) unsetShowAsContent(webcams, webcam.streamId)
         UserCameraDAO.insert(meetingId, webcam)
         Some(webcams.save(webcam))
       }
@@ -65,6 +73,15 @@ object Webcams {
     findWithStreamId(webcams, streamId) match {
       case Some(webcam) => webcam.userId == userId && webcam.streamId.startsWith(userId)
       case None         => false
+    }
+  }
+
+  def updateShowAsContent(webcams: Webcams, streamId: String, showAsContent: Boolean): Unit = {
+    for {
+      webcam <- findWithStreamId(webcams, streamId)
+    } yield {
+      if (showAsContent) unsetShowAsContent(webcams, streamId)
+      webcams.save(webcam.copy(showAsContent = showAsContent))
     }
   }
 }

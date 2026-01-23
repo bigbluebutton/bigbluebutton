@@ -69,6 +69,7 @@ export type Stream = {
   lastFloorTime: string;
   voice: Voice | undefined;
   type: typeof VIDEO_TYPES.STREAM;
+  showAsContent: boolean;
   render?: boolean;
 }
 

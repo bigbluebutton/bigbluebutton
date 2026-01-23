@@ -32,6 +32,8 @@ const AppContainer = (props) => {
   const {
     viewScreenshare,
   } = useSettings(SETTINGS.DATA_SAVING);
+  const multiScreenshareEnabled = window.meetingClientSettings.public.app.enableMultiScreenshare;
+
   const { isNotificationEnabled } = useReactiveVar(handleIsNotificationEnabled);
   const layoutContextDispatch = layoutDispatch();
   const isPollingEnabled = useIsPollingEnabled();
@@ -53,6 +55,7 @@ const AppContainer = (props) => {
     isBreakout: m.isBreakout,
     name: m.name,
     meetingId: m.meetingId,
+    screenShareBridge: m.screenShareBridge,
   }));
 
   const { data: usersData } = useDeduplicatedSubscription(RAISED_HAND_USERS);
@@ -111,10 +114,11 @@ const AppContainer = (props) => {
 
   const shouldShowScreenshare = (viewScreenshare || isPresenter)
   && (currentMeeting?.componentsFlags?.hasScreenshare
-    || currentMeeting?.componentsFlags?.hasCameraAsContent) && showScreenshare;
+    || currentMeeting?.componentsFlags?.hasCameraAsContent) && showScreenshare && (!multiScreenshareEnabled && !(currentMeeting.screenShareBridge === 'livekit'));
   const shouldShowPresentation = (!shouldShowScreenshare && !isSharedNotesPinned
-      && !shouldShowExternalVideo && !shouldShowGenericMainContent
-      && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled;
+    && !shouldShowExternalVideo && !shouldShowGenericMainContent
+    && (presentationIsOpen || presentationRestoreOnUpdate)) && isPresentationEnabled;
+
   const currentPageInfoData = currentPageInfo?.pres_page_curr[0] ?? {};
   const fitToWidth = currentPageInfoData?.fitToWidth ?? false;
   const pageId = currentPageInfoData?.pageId ?? '';
@@ -168,6 +172,8 @@ const AppContainer = (props) => {
           isBreakout: currentMeeting?.isBreakout ?? false,
           meetingName: currentMeeting?.name ?? '',
           meetingId: currentMeeting?.meetingId ?? '',
+          screenShareBridge: currentMeeting?.screenShareBridge,
+          multiScreenshareEnabled,
         }}
         {...props}
       />

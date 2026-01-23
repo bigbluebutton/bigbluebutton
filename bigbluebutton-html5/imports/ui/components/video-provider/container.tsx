@@ -32,11 +32,14 @@ import {
   useVideoState,
 } from './state';
 import { VIDEO_TYPES } from './enums';
+import { useScreenshare, screenshareHasEnded } from '/imports/ui/components/screenshare/service';
 
 interface VideoProviderContainerProps {
   focusedId: string;
   cameraDock: Output['cameraDock'];
   handleVideoFocus:(id: string) => void;
+  screenShare?: boolean;
+  streams?: VideoItem[];
 }
 
 const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) => {
@@ -44,18 +47,21 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     cameraDock,
     focusedId,
     handleVideoFocus,
+    screenShare,
+    streams: propStreams,
   } = props;
+
   const [cameraBroadcastStart] = useMutation(CAMERA_BROADCAST_START);
   const [meetingSettings] = useMeetingSettings();
   const connectingStream = useConnectingStream();
 
-  const sendUserShareWebcam = (cameraId: string) => {
-    return cameraBroadcastStart({ variables: { cameraId, contentType: 'camera' } });
+  const sendUserShareWebcam = (cameraId: string, contentType: string = 'camera') => {
+    return cameraBroadcastStart({ variables: { cameraId, contentType } });
   };
 
-  const playStart = (cameraId: string) => {
+  const playStart = (cameraId: string, contentType: string = 'camera') => {
     if (VideoService.isLocalStream(cameraId)) {
-      sendUserShareWebcam(cameraId).then(() => {
+      sendUserShareWebcam(cameraId, contentType).then(() => {
         VideoService.joinedVideo();
       });
     }
@@ -74,11 +80,13 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
   const { data: currentMeeting } = useMeeting((m) => ({
     usersPolicies: m.usersPolicies,
     cameraBridge: m.cameraBridge,
+    lockSettings: m.lockSettings,
   }));
 
   const { data: currentUser } = useCurrentUser((user) => ({
     locked: user.locked,
     userId: user.userId,
+    presenter: user.presenter,
   }));
 
   const currentUserId = currentUser?.userId ?? '';
@@ -90,12 +98,15 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
   const isClientConnected = useReactiveVar(ConnectionStatus.getConnectedStatusVar());
 
   const {
-    streams,
     gridUsers,
     overflowCount,
     totalNumberOfStreams,
     totalNumberOfOtherStreams,
+    streams: hookStreams,
   } = useVideoStreams();
+
+  const streams = propStreams ?? hookStreams;
+
   VideoService.updateActivePeers(streams);
 
   let usersVideo: VideoItem[] = streams;
@@ -129,28 +140,44 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
   const { numberOfPages } = useVideoState();
   const isPaginationEnabled = useIsPaginationEnabled();
   const isGridEnabled = useStorageKey('isGridEnabled') as boolean;
+  const { data: screenshares } = useScreenshare();
 
   useEffect(() => {
-    if (isPaginationEnabled) {
-      const total = totalNumberOfOtherStreams ?? 0;
-      const nOfPages = Math.ceil(total / myPageSize);
-
-      if (nOfPages !== numberOfPages) {
-        setVideoState({ numberOfPages: nOfPages });
-
-        if (nOfPages === 0) {
-          setVideoState({ currentVideoPageIndex: 0 });
-        } else if (currentVideoPageIndex + 1 > nOfPages) {
-          VideoService.getPreviousVideoPage();
-        }
-      }
-    } else {
+    if (!isPaginationEnabled || myPageSize <= 0) {
       setVideoState({
         numberOfPages: 0,
         currentVideoPageIndex: 0,
       });
+      return;
     }
-  }, [myPageSize, numberOfPages, totalNumberOfOtherStreams, isPaginationEnabled]);
+
+    const total = totalNumberOfOtherStreams ?? 0;
+    const nOfPages = Math.ceil(total / myPageSize);
+
+    if (!Number.isFinite(nOfPages)) {
+      setVideoState({
+        numberOfPages: 0,
+        currentVideoPageIndex: 0,
+      });
+      return;
+    }
+
+    if (nOfPages !== numberOfPages) {
+      setVideoState({ numberOfPages: nOfPages });
+
+      if (nOfPages === 0) {
+        setVideoState({ currentVideoPageIndex: 0 });
+      } else if (currentVideoPageIndex + 1 > nOfPages) {
+        VideoService.getPreviousVideoPage();
+      }
+    }
+  }, [
+    myPageSize,
+    numberOfPages,
+    totalNumberOfOtherStreams,
+    isPaginationEnabled,
+    currentVideoPageIndex,
+  ]);
 
   // Clean up local connecting stream state if the stream is connected
   useEffect(() => {
@@ -163,6 +190,17 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     if (streamIsConnected) setConnectingStream(null);
   }, [streams, connectingStream]);
 
+  useEffect(() => {
+    const viewersCanShare = currentMeeting?.lockSettings?.viewersCanShareScreen;
+    if (viewersCanShare === false && !currentUser?.presenter) {
+      const myScreenshare = screenshares?.find((s: any) => s.userId === currentUserId);
+      if (myScreenshare) {
+        screenshareHasEnded();
+        stopVideo(myScreenshare.streamId || myScreenshare.stream);
+      }
+    }
+  }, [currentMeeting?.lockSettings?.viewersCanShareScreen, currentUser?.presenter, screenshares, currentUserId, stopVideo]);
+
   if (!usersVideo.length && !isGridEnabled) return null;
 
   const providerProps = {
@@ -170,21 +208,22 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     focusedId,
     handleVideoFocus,
     isGridEnabled,
-    isClientConnected,
     currentUserId,
     paginationEnabled,
     viewParticipantsWebcams,
+    isClientConnected,
     totalNumberOfStreams,
     overflowCount,
     isUserLocked,
     currentVideoPageIndex,
     streams: usersVideo,
-    info,
     playStart,
     exitVideo,
     lockUser,
     stopVideo,
     applyCameraProfile,
+    info,
+    screenShare,
   };
 
   switch (currentMeeting?.cameraBridge) {

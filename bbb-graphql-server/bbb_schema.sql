@@ -45,7 +45,9 @@ create unlogged table "meeting" (
     "endWhenNoModeratorDelayInMinutes" integer,
 	"endedAt" timestamp with time zone,
 	"endedReasonCode" varchar(200),
-	"endedBy" varchar(50)
+	"endedBy" varchar(50),
+    "screenShareBroadcastAllowedFor" varchar(50),
+    "viewerScreenShareViewAllowedFor" varchar(50)
 );
 ALTER TABLE "meeting" ADD COLUMN "createdAt" timestamp with time zone GENERATED ALWAYS AS (to_timestamp("createdTime"::double precision / 1000)) STORED;
 ALTER TABLE "meeting" ADD COLUMN "ended" boolean GENERATED ALWAYS AS ("endedAt" is not null) STORED;
@@ -191,7 +193,9 @@ create unlogged table "meeting_lockSettings" (
     "lockOnJoin"             boolean,
     "lockOnJoinConfigurable" boolean,
     "hideViewersCursor"      boolean,
-    "hideViewersAnnotation"  boolean
+    "hideViewersAnnotation"  boolean,
+    "viewersCanShareScreen" boolean,
+    "viewersCanSeeViewersScreenShares" boolean
 );
 
 CREATE OR REPLACE VIEW "v_meeting_lockSettings" AS
@@ -205,6 +209,8 @@ SELECT
 	mls."hideUserList",
 	mls."hideViewersCursor",
 	mls."hideViewersAnnotation",
+	mls."viewersCanShareScreen",
+	mls."viewersCanSeeViewersScreenShares",
 	mls."lockOnJoin",
     mls."lockOnJoinConfigurable",
 	mup."webcamsOnlyForModerator",
@@ -218,6 +224,8 @@ SELECT
 	WHEN mls."hideViewersCursor"  IS TRUE THEN TRUE
 	WHEN mls."hideViewersAnnotation"  IS TRUE THEN TRUE
 	WHEN mup."webcamsOnlyForModerator"  IS TRUE THEN TRUE
+	WHEN mls."viewersCanShareScreen" IS FALSE THEN TRUE
+	WHEN mls."viewersCanSeeViewersScreenShares" IS FALSE THEN TRUE
 	ELSE FALSE
 	END "hasActiveLockSetting"
 FROM meeting m
@@ -2429,18 +2437,48 @@ select "meeting"."meetingId",
             where "timer"."meetingId" = "meeting"."meetingId"
             and "active" is true
         ) as "hasTimer",
+
         exists (
-            select 1
-            from "v_screenshare"
-            where "v_screenshare"."meetingId" = "meeting"."meetingId"
-            and "contentType" = 'screenshare'
+          select 1
+          where
+            exists (
+              select 1
+              from "v_screenshare"
+              where "v_screenshare"."meetingId" = "meeting"."meetingId"
+                and "contentType" = 'screenshare'
+            )
+            or
+            exists (
+              select 1
+              from "v_user_camera"
+              where "v_user_camera"."meetingId" = "meeting"."meetingId"
+                and "contentType" = 'screenshare'
+                and "showAsContent" is true
+            )
         ) as "hasScreenshare",
         exists (
-            select 1
-            from "v_screenshare"
-            join "v_layout" on "v_layout"."meetingId" = "v_screenshare"."meetingId" and "v_layout"."screenshareAsContent" is true
-            where "v_screenshare"."meetingId" = "meeting"."meetingId"
-            and "contentType" = 'screenshare'
+          select 1
+          where
+            exists (
+              select 1
+              from "v_user_camera"
+              join "v_layout"
+                on "v_layout"."meetingId" = "v_user_camera"."meetingId"
+               and "v_layout"."screenshareAsContent" is true
+              where "v_user_camera"."meetingId" = "meeting"."meetingId"
+                and "contentType" = 'screenshare'
+                and "showAsContent" is true
+            )
+            or
+            exists (
+              select 1
+              from "v_screenshare"
+              join "v_layout"
+                on "v_layout"."meetingId" = "v_screenshare"."meetingId"
+               and "v_layout"."screenshareAsContent" is true
+              where "v_screenshare"."meetingId" = "meeting"."meetingId"
+                and "contentType" = 'screenshare'
+            )
         ) as "hasScreenshareAsContent",
         exists (
             select 1

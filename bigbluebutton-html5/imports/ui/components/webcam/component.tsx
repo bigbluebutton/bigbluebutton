@@ -360,7 +360,11 @@ const WebcamContainer: React.FC = () => {
 
   const audioModalIsOpen = useStorageKey('audioModalIsOpen');
 
-  return cameraDock?.display && !audioModalIsOpen && (usersVideo.length > 0 || isGridEnabled)
+  const cameraDockUsers = usersVideo;
+
+  if (!cameraDock?.display || !cameraDockUsers.length || audioModalIsOpen) return null;
+
+  return (usersVideo.length > 0 || isGridEnabled)
     ? (
       <WebcamComponent
         {...{

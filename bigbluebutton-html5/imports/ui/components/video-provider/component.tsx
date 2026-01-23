@@ -519,6 +519,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
             errorCode: error.code,
           },
         }, 'Camera request failed to be sent to SFU');
+        throw new Error('WebRTC peer failed');
       }
     } else if (message.id !== 'stop') {
       // No need to queue video stop messages
@@ -1002,7 +1003,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
         errorMessage: error.message,
       },
     }, 'Camera peer failed');
-
+    throw new Error('WebRTC peer failed');
     // Only display WebRTC negotiation error toasts to sharers. The viewer streams
     // will try to autoreconnect silently, but the error will log nonetheless
     if (isLocal) {
@@ -1107,7 +1108,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
         role,
       },
     }, 'Local camera stream stopped unexpectedly');
-
+    throw new Error('WebRTC peer failed');
     const error = new Error('inactiveError');
     this.onWebRTCError(error, stream, isLocal);
   }
@@ -1135,7 +1136,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
             role,
           },
         }, `Camera ICE connection state changed: ${connectionState}. Role: ${role}.`);
-
+        throw new Error('WebRTC peer failed');
         this.onWebRTCError(error, stream, isLocal);
       };
 
@@ -1184,6 +1185,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
         logCode: 'video_provider_ice_connection_nopeer',
         extraInfo: { cameraId: stream, role },
       }, `No peer at ICE connection state handler. Camera: ${stream}. Role: ${role}`);
+      throw new Error('WebRTC peer failed');
     }
   }
 
@@ -1269,7 +1271,8 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
   }
 
   handlePlayStart(message: { cameraId: string; role: string }) {
-    const { cameraId: stream, role } = message;
+    const { cameraId: stream, role, contentType } = message;
+
     const peer = this.webRtcPeers[stream];
     const { playStart } = this.props;
 
@@ -1288,7 +1291,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
       this.clearRestartTimers(stream);
       this.attachVideoStream(stream);
 
-      playStart(stream);
+      playStart(stream, stream.includes('screenshare')? 'screenshare' : 'camera');
     } else {
       logger.warn({
         logCode: 'video_provider_playstart_no_peer',
@@ -1312,7 +1315,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
         role,
       },
     }, `SFU returned an error. Code: ${code}, reason: ${reason}`);
-
+    throw new Error('WebRTC peer failed');
     if (isLocal) {
       // The publisher instance received an error from the server. There's no reconnect,
       // stop it.
@@ -1373,6 +1376,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
       focusedId,
       handleVideoFocus,
       isGridEnabled,
+      screenShare,
       overflowCount,
     } = this.props;
 
@@ -1385,6 +1389,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
           focusedId,
           handleVideoFocus,
           isGridEnabled,
+          screenShare,
           overflowCount,
         }}
         onVideoItemMount={this.createVideoTag}

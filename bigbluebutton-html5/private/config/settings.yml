@@ -69,6 +69,8 @@ public:
     enableLimitOfViewersInWebcam: false
     enableMultipleCameras: true
     enableCameraAsContent: true
+    # Allow multiple participants to share their screens simultaneously (LiveKit meetings only)
+    enableMultiScreenshare: false
     # Allow users to open webcam video modal/preview when video is already
     # active. This also allows to change virtual backgrounds without
     # restarting webcam.
@@ -366,7 +368,7 @@ public:
     screenshare:
       showButtonForNonPresenters: false
       # Whether volume control should be allowed if screen sharing has audio
-      enableVolumeControl: true
+      enableVolumeControl: false
       # Experimental. True is the canonical behavior. Flip to false to reverse
       # the negotiation flow for subscribers.
       subscriberOffering: false
@@ -395,7 +397,7 @@ public:
             max: 2560
           height:
             max: 1600
-        audio: true
+        audio: false
     # cameraProfiles is an array of:
     # - id: profile identifier
     #   name: human-readable profile name
