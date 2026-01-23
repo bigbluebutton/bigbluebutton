@@ -24,6 +24,7 @@ export interface CurrentPageWritersResponse {
 }
 
 export interface UserWhiteboardCursor {
+  meetingId: string;
   userId: string;
   name: string;
   presenter: boolean;
@@ -202,6 +203,7 @@ export const CURRENT_CURSORS_SUBSCRIPTION = gql`
     user_whiteboardCursorAccess(
       order_by: { userId: asc }
     ) {
+      meetingId
       userId
       name
       presenter

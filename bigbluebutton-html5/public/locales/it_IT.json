@@ -1003,6 +1003,7 @@
     "app.userList.guest.feedbackMessage": "Azione applicata: ",
     "app.user-info.title": "Cerca directory",
     "app.toast.breakoutRoomEnded": "L'aula separata è terminata. Torna alla riunione.",
+    "app.toast.breakoutContentUnchangedNotConverted": "Una o più stanze separate non avevano aggiornamenti della lavagna/note condivise, quindi non sono state convertite in diapositive.",
     "app.toast.chat.public": "Nuovo messaggio nella chat pubblica",
     "app.toast.chat.private": "Nuovo messaggio privato",
     "app.toast.chat.system": "Sistema",

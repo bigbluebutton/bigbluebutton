@@ -17,11 +17,11 @@ runs:
       with:
         script: |
           const runId = context.payload.workflow_run?.id ?? context.runId;
-          const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+          const artifacts = await github.paginate(github.rest.actions.listWorkflowRunArtifacts, {
             owner: context.repo.owner,
             repo: context.repo.repo,
             run_id: runId,
           });
-          const artifactExists = artifacts.data.artifacts.some(a => a.name === '${{ inputs.artifact-name }}');
-          console.log(`Artifact '${{ inputs.artifact-name }}' found: ${artifactExists}`);
+          const artifactExists = artifacts.some(a => a.name.includes('${{ inputs.artifact-name }}'));
+          console.log(`Artifact containing '${{ inputs.artifact-name }}' found: ${artifactExists}`);
           return artifactExists;
