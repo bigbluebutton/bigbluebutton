@@ -5,6 +5,7 @@ import * as Y from "yjs";
 import { extractMeetingId } from "./utils";
 import sqliteDB from "./extensions/sqlite";
 import { Logger } from "../common/logger";
+import { sender } from "../redis/sender";
 
 const logger = new Logger('hocuspocus');
 // Configure Hocuspocus
@@ -73,6 +74,12 @@ const hocuspocus = new Hocuspocus({
       }
     };
   },
+  onChange: async (data) => {
+    const { documentName } = data;
+    const { id: userId, meetingId } = data.context.user;
+
+    sender.send('sharedNotesUpdated', meetingId, { userId, documentName });
+  }
 });
 
 export default hocuspocus;
