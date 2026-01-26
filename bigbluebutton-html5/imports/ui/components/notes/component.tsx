@@ -138,7 +138,6 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
   const isEtherpadSharedNotes = sharedNotesType === 'etherpad';
-  console.log("teste aqui ---> ", isEtherpadSharedNotes);
 
   return (shouldRenderNotes || shouldShowSharedNotesOnPresentationArea) && (
     <Styled.Notes

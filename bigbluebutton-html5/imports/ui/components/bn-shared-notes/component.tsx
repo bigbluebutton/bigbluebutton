@@ -11,7 +11,6 @@ import { User } from '../../Types/user';
 import { HocuspocusProvider } from '@hocuspocus/provider';
 import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import useHocuspocusProvider from './hooks';
-import { useState } from 'react';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
 
@@ -71,7 +70,6 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
 
   const editable = !disableNotes || !currentUserIsLocked || currentUserIsModerator;
 
-  console.log('teste aqui para ver o que acontece ---> ', editable);
   return (
     <div
       style={{
@@ -125,9 +123,6 @@ function BlockNoteContainer(): React.ReactElement {
 
   const renderBlockNote = !error && !isAuthenticating
     && hocuspocusProvider && !connectionClosed && isSynced;
-  console.log('teste aqui 123---> ', {
-    error, isAuthenticating, hocuspocusProvider, connectionClosed, isSynced, renderBlockNote
-  });
   return (
     <Styled.Notes>
       {(hasError) && (

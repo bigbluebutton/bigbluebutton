@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { colorDanger, colorGray, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
-const Notes = styled.div<{ isChrome: boolean }>`
+const Notes = styled.div`
   background-color: ${colorWhite};
   display: flex;
   flex-grow: 1;
@@ -10,10 +10,6 @@ const Notes = styled.div<{ isChrome: boolean }>`
   height: 100%;
   overflow-y: auto;
   overflow-x: visible;
-
-  ${({ isChrome }) => isChrome && `
-    transform: translateZ(0);
-  `}
 
   @media ${smallOnly} {
     transform: none !important;
