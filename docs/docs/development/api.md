@@ -491,7 +491,7 @@ Another param is the `meetingEndedURL` create param. This create param is a call
 
 You can ask the BigBlueButton server to make a callback to your application when the meeting ends. Upon receiving the callback, your application can retrieve and save the Learning Analytics Dashboard data for long-term storage, analysis, or integration with your own learning management system.
 
-To specify the callback to BigBlueButton, pass a URL using the meta-parameter `meta_analytics-callback-url` on the `create` command. When the BigBlueButton server ends the meeting, it will check if `meta_analytics-callback-url` is set and, if so, make an HTTP GET request to the given URL.
+To specify the callback to BigBlueButton, pass a URL using the meta-parameter `meta_analytics-callback-url` on the `create` command. When the BigBlueButton server ends the meeting, it will check if `meta_analytics-callback-url` is set and, if so, make an HTTP POST request to the given URL.
 
 For example, to specify the callback URL as
 
