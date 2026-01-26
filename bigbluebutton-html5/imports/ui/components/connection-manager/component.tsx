@@ -13,6 +13,7 @@ import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import deviceInfo from '/imports/utils/deviceInfo';
 import BBBWeb from '/imports/api/bbb-web-api';
 import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 interface ConnectionManagerProps {
   children: React.ReactNode;
@@ -150,8 +151,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
         } else if (tsNow - tsLastPingMessageRef.current < boundary.current && !connectionStatus.getPingIsComing()) {
           connectionStatus.setPingIsComing(true);
         }
-      }
-    }, 5_000);
+      }, 5_000);
     return () => {
       clearInterval(interval);
       if (terminateTimeoutRef.current !== undefined) {
@@ -159,6 +159,34 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
       }
     };
   }, []);
+
+  const { data: currentUser } = useCurrentUser((u) => ({ isModerator: u.isModerator }));
+  const isModerator = currentUser?.isModerator;
+  // Initialize with current value to avoid reconnection on mount
+  const isModeratorRef = useRef(isModerator);
+
+  useEffect(() => {
+    // Skip the first run or if isModerator is undefined (loading)
+    if (isModeratorRef.current === undefined && isModerator !== undefined) {
+      isModeratorRef.current = isModerator;
+      return;
+    }
+
+    if (isModeratorRef.current !== isModerator && isModerator !== undefined) {
+      logger.info(
+        {
+          logCode: 'GRAPHQL_CONNECTION_REFRESH_ON_ROLE_CHANGE',
+          extraInfo: {
+            oldRoleModerator: isModeratorRef.current,
+            newRoleModerator: isModerator,
+          },
+        },
+        'User role changed, terminating GraphQL connection to force permission refresh',
+      );
+      apolloContextHolder.getLink().terminate();
+      isModeratorRef.current = isModerator;
+    }
+  }, [isModerator]);
 
   useEffect(() => {
     if (errorCounts === numberOfAttempts.current) {
@@ -352,7 +380,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
       }
     }
   },
-  [graphqlUrl]);
+    [graphqlUrl]);
   return (
     apolloClient
       ? (
