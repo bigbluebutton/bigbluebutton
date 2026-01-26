@@ -1,14 +1,16 @@
 /* eslint-disable import/extensions */
 import * as React from 'react';
 import { BlockNoteView } from '@blocknote/mantine';
-import { en } from '@blocknote/core/locales';
+import { useEffect, useState } from 'react';
+import * as BlockNoteLocales from '@blocknote/core/locales';
 import '@blocknote/core/fonts/inter.css';
 import '@blocknote/mantine/style.css';
+import { useIntl } from 'react-intl';
+import { HocuspocusProvider } from '@hocuspocus/provider';
+import { useCreateBlockNote } from '@blocknote/react';
 import Styled from './styles';
 import Button from '/imports/ui/components/common/button/component';
-import { useCreateBlockNote } from '@blocknote/react';
 import { User } from '../../Types/user';
-import { HocuspocusProvider } from '@hocuspocus/provider';
 import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import useHocuspocusProvider from './hooks';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -28,6 +30,26 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   } = props;
 
   const {
+    locale: currentLocale,
+    defaultLocale,
+  } = useIntl();
+
+  const [blockNoteLocale, setBlockNoteLocale] = useState<string>(currentLocale);
+
+  useEffect(() => {
+    if (BlockNoteLocales[currentLocale]) {
+      if (currentLocale !== blockNoteLocale) setBlockNoteLocale(currentLocale);
+    } else if (BlockNoteLocales[defaultLocale]) {
+      if (defaultLocale !== blockNoteLocale) setBlockNoteLocale(defaultLocale);
+    } else {
+      setBlockNoteLocale('en');
+    }
+  }, [
+    currentLocale,
+    defaultLocale,
+  ]);
+
+  const {
     color: userColor,
     name: userName,
     isModerator: currentUserIsModerator,
@@ -45,8 +67,6 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   console.log('Fragment toJSON:', JSON.stringify(fragment.toJSON(), null, 2));
   console.log('Fragment toString:', fragment.toString());
 
-  const locale = en;
-
   const editor = useCreateBlockNote({
     collaboration: {
       provider: hocuspocusProvider,
@@ -57,16 +77,16 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
       },
     },
     dictionary: {
-      ...locale,
+      ...BlockNoteLocales[blockNoteLocale],
       placeholders: {
-        ...locale.placeholders,
+        ...BlockNoteLocales[blockNoteLocale],
         // Override the placeholders to prevent line wrapping in the narrow panel
         emptyDocument: '',
         default: '',
         heading: '',
       },
     },
-  });
+  }, [blockNoteLocale]);
 
   const editable = !disableNotes || !currentUserIsLocked || currentUserIsModerator;
 
@@ -126,36 +146,36 @@ function BlockNoteContainer(): React.ReactElement {
   return (
     <Styled.Notes>
       {(hasError) && (
-          <Styled.WarningNotificationContainer data-test="notesError">
-            <Styled.ErrorMessage>{error}</Styled.ErrorMessage>
-            <Button
-              label="Retry"
-              onClick={handleRetry}
-              color="primary"
-              size="md"
-              dataTest="notesRetryButton"
-            />
-          </Styled.WarningNotificationContainer>
-        )}
-        {(connectionClosed) && (
-          <Styled.WarningNotificationContainer data-test="notesError">
-            <Styled.WaringMessage>Connection closed.</Styled.WaringMessage>
-            <Button
-              label="Retry"
-              onClick={handleRetry}
-              color="primary"
-              size="md"
-              dataTest="notesRetryButton"
-            />
-          </Styled.WarningNotificationContainer>
-        )}
-        {renderBlockNote
-          && (
-            <BlockNoteApp
-              disableNotes={disableNotes}
-              hocuspocusProvider={hocuspocusProvider}
-              currentUser={currentUser}
-            />
+        <Styled.WarningNotificationContainer data-test="notesError">
+          <Styled.ErrorMessage>{error}</Styled.ErrorMessage>
+          <Button
+            label="Retry"
+            onClick={handleRetry}
+            color="primary"
+            size="md"
+            dataTest="notesRetryButton"
+          />
+        </Styled.WarningNotificationContainer>
+      )}
+      {(connectionClosed) && (
+        <Styled.WarningNotificationContainer data-test="notesError">
+          <Styled.WaringMessage>Connection closed.</Styled.WaringMessage>
+          <Button
+            label="Retry"
+            onClick={handleRetry}
+            color="primary"
+            size="md"
+            dataTest="notesRetryButton"
+          />
+        </Styled.WarningNotificationContainer>
+      )}
+      {renderBlockNote
+        && (
+          <BlockNoteApp
+            disableNotes={disableNotes}
+            hocuspocusProvider={hocuspocusProvider}
+            currentUser={currentUser}
+          />
         )}
     </Styled.Notes>
   );

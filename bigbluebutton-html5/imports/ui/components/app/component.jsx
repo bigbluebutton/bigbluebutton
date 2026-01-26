@@ -327,7 +327,6 @@ class App extends Component {
       shouldShowPresentation,
       shouldShowScreenshare,
       isSharedNotesPinned,
-      isEtherpadSharedNotes,
       presentationIsOpen,
       darkTheme,
       intl,

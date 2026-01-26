@@ -100,7 +100,6 @@ const AppContainer = (props) => {
   ].includes(layoutType);
   const setSpeechOptions = useSetSpeechOptions();
   const isSharedNotesPinnedFromGraphql = currentMeeting?.componentsFlags?.isSharedNotesPinned;
-  const isEtherpadSharedNotes = currentMeeting?.componentsFlags?.isEtherpadSharedNotes;
   const isSharedNotesPinned = isSharedNotesPinnedFromGraphql && presentation.isOpen;
   const isExternalVideoEnabled = useIsExternalVideoEnabled();
   const isPresentationEnabled = useIsPresentationEnabled();
@@ -165,7 +164,6 @@ const AppContainer = (props) => {
           shouldShowExternalVideo,
           shouldShowScreenshare,
           isSharedNotesPinned,
-          isEtherpadSharedNotes,
           shouldShowPresentation,
           isNotificationEnabled,
           isRaiseHandEnabled,
