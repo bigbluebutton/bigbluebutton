@@ -47,7 +47,7 @@ interface NotesContainerGraphqlProps {
 
 interface NotesGraphqlProps extends NotesContainerGraphqlProps {
   hasPermission: boolean;
-  sharedNotesType: string;
+  sharedNotesEditor: string;
   padId: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   layoutContextDispatch: (action: any) => void;
@@ -68,7 +68,7 @@ const sidebarContentToIgnoreDelay = ['captions'];
 const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   const {
     hasPermission,
-    sharedNotesType,
+    sharedNotesEditor,
     padId,
     isRTL,
     layoutContextDispatch,
@@ -137,7 +137,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
 
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
-  const isEtherpadSharedNotes = sharedNotesType === 'etherpad';
+  const isEtherpadSharedNotes = sharedNotesEditor === 'etherpad';
 
   return (shouldRenderNotes || shouldShowSharedNotesOnPresentationArea) && (
     <Styled.Notes
@@ -204,7 +204,7 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
     { variables: { externalId: NOTES_CONFIG.id } },
   );
   const padId = padIdData?.sharedNotes?.[0]?.padId;
-  const sharedNotesType = padIdData?.sharedNotes?.[0]?.sharedNotesType;
+  const sharedNotesEditor = padIdData?.sharedNotes?.[0]?.sharedNotesEditor;
 
   const { data: currentMeeting } = useMeeting((meeting) => ({
     componentsFlags: meeting.componentsFlags,
@@ -244,12 +244,12 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
     });
   };
 
-  if (!padId || !sharedNotesType) return null;
+  if (!padId || !sharedNotesEditor) return null;
 
   return (
     <NotesGraphql
       padId={padId}
-      sharedNotesType={sharedNotesType}
+      sharedNotesEditor={sharedNotesEditor}
       area={area}
       hasPermission={hasPermission}
       layoutContextDispatch={layoutContextDispatch}

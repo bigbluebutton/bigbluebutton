@@ -28,7 +28,7 @@ trait PadCreatedEvtMsgHdlr {
         SharedNotesDAO.insert(
           liveMeeting.props.meetingProp.intId,
           group.externalId, group.model,
-          msg.body.padId, msg.body.name, liveMeeting.props.meetingProp.sharedNotesType
+          msg.body.padId, msg.body.name, liveMeeting.props.meetingProp.sharedNotesEditor
         )
         broadcastEvent(group.externalId, group.userId, msg.body.padId, msg.body.name)
       }

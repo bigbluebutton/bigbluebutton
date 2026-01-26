@@ -345,7 +345,7 @@ class MeetingActor(
     val isSharedNotesEnabled = (sharedNotesEnabledInClientSettings
       && !liveMeeting.props.meetingProp.disabledFeatures.contains("sharedNotes"))
 
-    val isEtherpadType = liveMeeting.props.meetingProp.sharedNotesType == "etherpad"
+    val isEtherpadType = liveMeeting.props.meetingProp.sharedNotesEditor == "etherpad"
 
     if (isSharedNotesEnabled) {
       val sharedNotesPadId = getConfigPropertyValueByPathAsStringOrElse(

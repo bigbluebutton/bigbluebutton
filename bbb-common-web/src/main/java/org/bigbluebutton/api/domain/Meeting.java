@@ -69,7 +69,7 @@ public class Meeting {
 	private boolean record;
 	private boolean autoStartRecording = false;
 	private boolean allowStartStopRecording = false;
-	private String sharedNotesType = "etherpad";
+	private String sharedNotesEditor = "etherpad";
 	private String sharedNotesInitialContentJsonUrl = "";
 	private Map<String, Object> sharedNotesInitialContentJson;
 	private boolean presentationConversionCacheEnabled = false;
@@ -172,7 +172,7 @@ public class Meeting {
         record = builder.record;
         autoStartRecording = builder.autoStartRecording;
         allowStartStopRecording = builder.allowStartStopRecording;
-        sharedNotesType = builder.sharedNotesType;
+        sharedNotesEditor = builder.sharedNotesEditor;
 		sharedNotesInitialContentJsonUrl = builder.sharedNotesInitialContentJsonUrl;
 		presentationConversionCacheEnabled = builder.presentationConversionCacheEnabled;
         recordFullDurationMedia = builder.recordFullDurationMedia;
@@ -678,8 +678,8 @@ public class Meeting {
 		return allowStartStopRecording;
 	}
 
-	public String getSharedNotesType() {
-		return sharedNotesType;
+	public String getSharedNotesEditor() {
+		return sharedNotesEditor;
 	}
 
 	public String getSharedNotesInitialContentJsonUrl() {
@@ -1015,7 +1015,7 @@ public class Meeting {
     	private boolean autoStartRecording;
     	private boolean recordFullDurationMedia;
         private boolean allowStartStopRecording;
-        private String sharedNotesType;
+        private String sharedNotesEditor;
 		private String sharedNotesInitialContentJsonUrl;
         private boolean presentationConversionCacheEnabled;
         private boolean webcamsOnlyForModerator;
@@ -1104,8 +1104,8 @@ public class Meeting {
     		return this;
     	}
 
-		public Builder withSharedNotesType(String type) {
-    		this.sharedNotesType = type;
+		public Builder withSharedNotesEditor(String type) {
+    		this.sharedNotesEditor = type;
     		return this;
     	}
 

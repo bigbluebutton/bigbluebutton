@@ -12,7 +12,7 @@ select_permissions:
       columns:
         - lastRev
         - model
-        - sharedNotesType
+        - sharedNotesEditor
         - name
         - padId
         - pinned

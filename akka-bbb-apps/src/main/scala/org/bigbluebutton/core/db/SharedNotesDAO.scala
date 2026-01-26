@@ -3,13 +3,13 @@ import org.bigbluebutton.core.models.PadGroup
 import slick.jdbc.PostgresProfile.api._
 
 case class SharedNotesDbModel(
-    meetingId:        String,
-    sharedNotesExtId: String,
-    sharedNotesType:  String,
-    padId:            String,
-    model:            String,
-    name:             String,
-    pinned:           Boolean
+    meetingId:         String,
+    sharedNotesExtId:  String,
+    sharedNotesEditor: String,
+    padId:             String,
+    model:             String,
+    name:              String,
+    pinned:            Boolean
 )
 
 class SharedNotesDbTableDef(tag: Tag) extends Table[SharedNotesDbModel](tag, None, "sharedNotes") {
@@ -17,22 +17,22 @@ class SharedNotesDbTableDef(tag: Tag) extends Table[SharedNotesDbModel](tag, Non
   val sharedNotesExtId = column[String]("sharedNotesExtId", O.PrimaryKey)
   val padId = column[String]("padId")
   val model = column[String]("model")
-  val sharedNotesType = column[String]("sharedNotesType")
+  val sharedNotesEditor = column[String]("sharedNotesEditor")
   val name = column[String]("name")
   val pinned = column[Boolean]("pinned")
   val * = (
-    meetingId, sharedNotesExtId, sharedNotesType, padId, model, name, pinned
+    meetingId, sharedNotesExtId, sharedNotesEditor, padId, model, name, pinned
   ) <> (SharedNotesDbModel.tupled, SharedNotesDbModel.unapply)
 }
 
 object SharedNotesDAO {
-  def insert(meetingId: String, sharedNotesExtId: String, model: String, padId: String, name: String, sharedNotesType: String) = {
+  def insert(meetingId: String, sharedNotesExtId: String, model: String, padId: String, name: String, sharedNotesEditor: String) = {
     DatabaseConnection.enqueue(
       TableQuery[SharedNotesDbTableDef].insertOrUpdate(
         SharedNotesDbModel(
           meetingId = meetingId,
           sharedNotesExtId = sharedNotesExtId,
-          sharedNotesType = sharedNotesType,
+          sharedNotesEditor = sharedNotesEditor,
           padId = padId,
           model = model,
           name = name,

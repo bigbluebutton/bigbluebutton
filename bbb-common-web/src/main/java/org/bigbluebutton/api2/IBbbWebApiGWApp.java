@@ -21,7 +21,7 @@ public interface IBbbWebApiGWApp {
                      String voiceBridge, Integer duration, Boolean autoStartRecording,
                      Boolean allowStartStopRecording,
                      Map<String, Object> sharedNotesInitialContentJson,
-                     String sharedNotesType,
+                     String sharedNotesEditor,
                      Boolean recordFullDurationMedia,
                      Boolean webcamsOnlyForModerator,
                      Boolean multiUserWhiteboardEnabled,
