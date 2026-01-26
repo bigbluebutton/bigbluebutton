@@ -1,23 +1,30 @@
 /* eslint react/jsx-filename-extension: 0 */
 import React from 'react';
 import { toast } from 'react-toastify';
-import { isEqual } from 'radash';
 import Styled from './styles';
 import Toast from '/imports/ui/components/common/toast/component';
 
-let lastToast = {
-  id: null,
-  message: null,
-  type: null,
-  icon: null,
-};
+/**
+ * Generates a deterministic toast ID based on props to prevent duplicates.
+ * React-toastify will automatically prevent showing a toast if one with the same ID is active.
+ */
+function generateToastId(message, type, icon) {
+  let messageKey;
+
+  if (typeof message === 'string') {
+    messageKey = message;
+  } else if (React.isValidElement(message)) {
+    // Extract id from FormattedMessage or similar components
+    messageKey = message.props?.id || message.props?.children || 'react-element';
+  } else {
+    messageKey = String(message);
+  }
+
+  return `${type}-${icon}-${messageKey}`;
+}
 
 export function notify(message, type = 'default', icon, options, content, small) {
-  const settings = {
-    ...options,
-  };
-
-  const { id: lastToastId, ...lastToastProps } = lastToast;
+  const toastId = options?.toastId ?? generateToastId(message, type, icon);
 
   const toastProps = {
     message,
@@ -27,44 +34,43 @@ export function notify(message, type = 'default', icon, options, content, small)
     small,
   };
 
-  if (!toast.isActive(lastToast.id) || !isEqual(JSON.stringify(lastToastProps),
-    JSON.stringify(toastProps))) {
-    if (options?.helpLink != null && options?.helpLabel != null) {
-      const id = toast(
-        <div role="alert">
-          <Toast {...toastProps} />
-          <Styled.HelpLinkButton
-            label={options.helpLabel}
-            color="default"
-            size="sm"
-            onClick={() => { window.open(options.helpLink); }}
-            data-test="helpLinkToastButton"
-          />
-        </div>, settings,
-      );
-
-      lastToast = { id, ...toastProps };
-
-      return id;
+  // If toast with same ID is already active, don't show duplicate
+  if (toast.isActive(toastId)) {
+    // Optionally update the existing toast if autoClose is specified
+    if (options?.autoClose > 0) {
+      toast.update(toastId, {
+        render: <Styled.ToastWrapper role="alert"><Toast {...toastProps} /></Styled.ToastWrapper>,
+        autoClose: options.autoClose,
+      });
     }
-    if (toast.isActive(lastToast.id)
-      && isEqual(lastToastProps.key, toastProps.key) && options?.autoClose > 0) {
-      toast.update(
-        lastToast.id,
-        {
-          render: <Styled.ToastWrapper role="alert"><Toast {...toastProps} /></Styled.ToastWrapper>,
-          autoClose: options.autoClose,
-        },
-      );
-    } else {
-      const id = toast(<Styled.ToastWrapper role="alert"><Toast {...toastProps} /></Styled.ToastWrapper>, settings);
-
-      lastToast = { id, ...toastProps };
-
-      return id;
-    }
+    return null;
   }
-  return null;
+
+  const settings = {
+    ...options,
+    toastId,
+  };
+
+  if (options?.helpLink != null && options?.helpLabel != null) {
+    return toast(
+      <div role="alert">
+        <Toast {...toastProps} />
+        <Styled.HelpLinkButton
+          label={options.helpLabel}
+          color="default"
+          size="sm"
+          onClick={() => { window.open(options.helpLink); }}
+          data-test="helpLinkToastButton"
+        />
+      </div>,
+      settings,
+    );
+  }
+
+  return toast(
+    <Styled.ToastWrapper role="alert"><Toast {...toastProps} /></Styled.ToastWrapper>,
+    settings,
+  );
 }
 
 export default { notify };
