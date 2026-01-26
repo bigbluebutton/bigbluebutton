@@ -43,6 +43,11 @@ anonymize_chat_moderators: false
 # Use this option to ignore locks and assume Moderator viewpoint instead.
 show_moderator_viewpoint: false
 
+# Control the number of video "cuts" that will be composited in parallel. Note that each cut
+# will start up multiple ffmpeg processes, and perform multi-threaded video encoding. The actual
+# number of physical CPU threads that will be used will typically be 2-4 times this number.
+video_compositing_parallel_workers: 2
+
 # Sequence of recording steps. Keys are the current step, values
 # are the next step(s). Examples:
 #   current_step: next_step

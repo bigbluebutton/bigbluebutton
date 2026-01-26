@@ -1,10 +1,12 @@
 package common
 
 import (
-	"bbb-graphql-middleware/config"
-	"github.com/google/uuid"
 	"sync"
 	"time"
+
+	"bbb-graphql-middleware/config"
+
+	"github.com/google/uuid"
 )
 
 var uniqueID string
@@ -17,10 +19,12 @@ func GetUniqueID() string {
 	return uniqueID
 }
 
-var PatchedMessageCache = make(map[uint32][]byte)
-var PatchedMessageCacheMutex sync.RWMutex
+var (
+	PatchedMessageCache      = make(map[uint64][]byte)
+	PatchedMessageCacheMutex sync.RWMutex
+)
 
-func GetPatchedMessageCache(cacheKey uint32) ([]byte, bool) {
+func GetPatchedMessageCache(cacheKey uint64) ([]byte, bool) {
 	PatchedMessageCacheMutex.RLock()
 	defer PatchedMessageCacheMutex.RUnlock()
 
@@ -28,17 +32,17 @@ func GetPatchedMessageCache(cacheKey uint32) ([]byte, bool) {
 	return jsonDiffPatch, jsonDiffPatchExists
 }
 
-func StorePatchedMessageCache(cacheKey uint32, data []byte) {
+func StorePatchedMessageCache(cacheKey uint64, data []byte) {
 	PatchedMessageCacheMutex.Lock()
 	defer PatchedMessageCacheMutex.Unlock()
 
 	PatchedMessageCache[cacheKey] = data
 
-	//Remove the cache after 30 seconds
+	// Remove the cache after 30 seconds
 	go RemovePatchedMessageCache(cacheKey, 30)
 }
 
-func RemovePatchedMessageCache(cacheKey uint32, delayInSecs time.Duration) {
+func RemovePatchedMessageCache(cacheKey uint64, delayInSecs time.Duration) {
 	time.Sleep(delayInSecs * time.Second)
 
 	PatchedMessageCacheMutex.Lock()
@@ -46,9 +50,11 @@ func RemovePatchedMessageCache(cacheKey uint32, delayInSecs time.Duration) {
 	delete(PatchedMessageCache, cacheKey)
 }
 
-var HasuraMessageCache = make(map[uint32]HasuraMessage)
-var HasuraMessageKeyCache = make(map[uint32]string)
-var HasuraMessageCacheMutex sync.RWMutex
+var (
+	HasuraMessageCache      = make(map[uint32]HasuraMessage)
+	HasuraMessageKeyCache   = make(map[uint32]string)
+	HasuraMessageCacheMutex sync.RWMutex
+)
 
 func GetHasuraMessageCache(cacheKey uint32) (string, HasuraMessage, bool) {
 	HasuraMessageCacheMutex.RLock()
@@ -66,7 +72,7 @@ func StoreHasuraMessageCache(cacheKey uint32, dataKey string, hasuraMessage Hasu
 	HasuraMessageKeyCache[cacheKey] = dataKey
 	HasuraMessageCache[cacheKey] = hasuraMessage
 
-	//Remove the cache after 30 seconds
+	// Remove the cache after 30 seconds
 	go RemoveHasuraMessageCache(cacheKey, 30)
 }
 
@@ -79,8 +85,10 @@ func RemoveHasuraMessageCache(cacheKey uint32, delayInSecs time.Duration) {
 	delete(HasuraMessageCache, cacheKey)
 }
 
-var StreamCursorValueCache = make(map[uint32]interface{})
-var StreamCursorValueCacheMutex sync.RWMutex
+var (
+	StreamCursorValueCache      = make(map[uint32]interface{})
+	StreamCursorValueCacheMutex sync.RWMutex
+)
 
 func GetStreamCursorValueCache(cacheKey uint32) (interface{}, bool) {
 	StreamCursorValueCacheMutex.RLock()
@@ -96,7 +104,7 @@ func StoreStreamCursorValueCache(cacheKey uint32, streamCursorValue interface{})
 
 	StreamCursorValueCache[cacheKey] = streamCursorValue
 
-	//Remove the cache after 30 seconds
+	// Remove the cache after 30 seconds
 	go RemoveStreamCursorValueCache(cacheKey, 30)
 }
 
@@ -108,8 +116,10 @@ func RemoveStreamCursorValueCache(cacheKey uint32, delayInSecs time.Duration) {
 	delete(StreamCursorValueCache, cacheKey)
 }
 
-var MaxConnPerSessionToken = config.GetConfig().Server.MaxConnectionsPerSessionToken
-var MaxConnGlobal = config.GetConfig().Server.MaxConnections
+var (
+	MaxConnPerSessionToken = config.GetConfig().Server.MaxConnectionsPerSessionToken
+	MaxConnGlobal          = config.GetConfig().Server.MaxConnections
+)
 
 func GetMaxConnectionsPerSessionToken() int {
 	return MaxConnPerSessionToken
@@ -119,9 +129,11 @@ func GetMaxConnectionsGlobal() int {
 	return MaxConnGlobal
 }
 
-var GlobalConnectionsCount int
-var UserConnectionsCount = make(map[string]int)
-var UserConnectionsCountMutex sync.RWMutex
+var (
+	GlobalConnectionsCount    int
+	UserConnectionsCount      = make(map[string]int)
+	UserConnectionsCountMutex sync.RWMutex
+)
 
 func HasReachedMaxGlobalConnections() bool {
 	if GetMaxConnectionsGlobal() == 0 {

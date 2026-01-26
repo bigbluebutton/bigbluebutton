@@ -64,8 +64,8 @@ cd ..
 
 # replace v=VERSION with build number in head and css files
 if [ -f dist/index.html ] || [ -f dist/stylesheets/fonts.css ]; then
-  sed -i "s/VERSION/$(($BUILD))/g" dist/index.html
-  sed -i "s/VERSION/$(($BUILD))/g" dist/stylesheets/fonts.css
+  sed -i "s/?v=VERSION/?v=$(($BUILD))/g" dist/index.html
+  sed -i "s/?v=VERSION/?v=$(($BUILD))/g" dist/stylesheets/fonts.css
 fi
 
 # Compress CSS, Javascript and tensorflow WASM binaries used for virtual backgrounds. Keep the
