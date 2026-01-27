@@ -156,7 +156,7 @@ const GuestWait: React.FC<GuestWaitProps> = (props) => {
       const reason = intl.formatMessage(intlMessages[reasonCode]);
       setMessage(reason);
       setTimeout(() => {
-        const url = `${logoutUrl}?reason=${encodeURIComponent(reason)}&reasonCode=${encodeURIComponent(reasonCode)}`;
+        const url = `${logoutUrl}${logoutUrl.includes('?') ? '&' : '?'}reason=${encodeURIComponent(reason)}&reasonCode=${encodeURIComponent(reasonCode)}`;
         window.location.assign(url);
       }, REDIRECT_TIMEOUT);
       return;
