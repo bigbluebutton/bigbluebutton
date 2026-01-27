@@ -512,7 +512,7 @@ The callback will be a POST request with a JSON body containing the complete ana
 **Data object structure:**
 - `metadata` - Meeting metadata including:
   - `analytics_callback_url` - The callback URL that was configured
-  - `is_breakout` - Whether this was a breakout room (true/false)
+  - `is_breakout` - Whether this was a breakout room ("true"/"false")
   - `meeting_name` - The name of the meeting
   - Additional custom metadata fields passed during meeting creation
 - `duration` - Total meeting duration in seconds
