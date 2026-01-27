@@ -128,7 +128,7 @@ const PushLayoutEngine = (props) => {
     }
 
     if (actualLayout === LAYOUT_TYPE.UNIFIED_LAYOUT) {
-      Session.setItem('isGridEnabled', !presentationIsOpen);
+      Session.setItem('isGridEnabled', true);
     } else {
       Session.setItem('isGridEnabled', actualLayout === LAYOUT_TYPE.VIDEO_FOCUS);
     }
@@ -366,9 +366,8 @@ const PushLayoutEngine = (props) => {
     }
 
     if (selectedLayout === LAYOUT_TYPE.UNIFIED_LAYOUT
-      && (selectedLayout !== prevProps.selectedLayout
-        || presentationIsOpen !== prevProps.presentationIsOpen)) {
-      Session.setItem('isGridEnabled', !presentationIsOpen);
+      && selectedLayout !== prevProps.selectedLayout) {
+      Session.setItem('isGridEnabled', true);
     }
 
     return () => {};
