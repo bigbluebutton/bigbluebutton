@@ -1,5 +1,7 @@
 import { HocuspocusProvider, HocuspocusProviderWebsocket } from '@hocuspocus/provider';
 import { useQuery } from '@apollo/client';
+import { useIntl } from 'react-intl';
+import * as BlockNoteLocales from '@blocknote/core/locales';
 import { useEffect, useState, useRef } from 'react';
 import { GET_PAD_ID, GetPadIdQueryResponse } from '../notes/queries';
 import logger from '/imports/startup/client/logger';
@@ -139,4 +141,43 @@ const useHocuspocusProvider = () => {
   };
 };
 
-export default useHocuspocusProvider;
+// e.g.: zh-TW -> zhTW (That's how block-note maps their available languages)
+const convertIntlLocaleIntoBNLocale = (intlLocale: string) => {
+  const locale = new Intl.Locale(intlLocale);
+  return `${locale.language}${locale.region || ''}`;
+};
+
+function useBlockNoteLocaleLanguage(): string {
+  const {
+    locale: currentLocale,
+    defaultLocale,
+  } = useIntl();
+
+  const [blockNoteLocale, setBlockNoteLocale] = useState<string>(currentLocale);
+
+  useEffect(() => {
+    const currentLocaleInBnFormat = convertIntlLocaleIntoBNLocale(currentLocale);
+    const intlCurrentLanguage = new Intl.Locale(currentLocale).language;
+    const intlDefaultLanguage = new Intl.Locale(defaultLocale).language;
+    const availableLanguages = Object.keys(BlockNoteLocales);
+
+    if (availableLanguages.includes(currentLocaleInBnFormat)) {
+      if (currentLocaleInBnFormat !== blockNoteLocale) setBlockNoteLocale(currentLocaleInBnFormat);
+    } else if (availableLanguages.includes(intlCurrentLanguage)) {
+      if (intlCurrentLanguage !== blockNoteLocale) setBlockNoteLocale(intlCurrentLanguage);
+    } else if (availableLanguages.includes(defaultLocale)) {
+      if (defaultLocale !== blockNoteLocale) setBlockNoteLocale(defaultLocale);
+    } else if (availableLanguages.includes(intlDefaultLanguage)) {
+      if (intlDefaultLanguage !== blockNoteLocale) setBlockNoteLocale(intlDefaultLanguage);
+    } else {
+      setBlockNoteLocale('en');
+    }
+  }, [
+    currentLocale,
+    defaultLocale,
+  ]);
+
+  return blockNoteLocale;
+}
+
+export { useHocuspocusProvider, useBlockNoteLocaleLanguage };

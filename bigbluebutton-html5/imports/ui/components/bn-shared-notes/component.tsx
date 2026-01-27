@@ -1,18 +1,16 @@
 /* eslint-disable import/extensions */
 import * as React from 'react';
 import { BlockNoteView } from '@blocknote/mantine';
-import { useEffect, useState } from 'react';
 import * as BlockNoteLocales from '@blocknote/core/locales';
 import '@blocknote/core/fonts/inter.css';
 import '@blocknote/mantine/style.css';
-import { useIntl } from 'react-intl';
 import { HocuspocusProvider } from '@hocuspocus/provider';
 import { useCreateBlockNote } from '@blocknote/react';
 import Styled from './styles';
 import Button from '/imports/ui/components/common/button/component';
 import { User } from '../../Types/user';
 import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
-import useHocuspocusProvider from './hooks';
+import { useBlockNoteLocaleLanguage, useHocuspocusProvider } from './hooks';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
 
@@ -29,25 +27,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     disableNotes,
   } = props;
 
-  const {
-    locale: currentLocale,
-    defaultLocale,
-  } = useIntl();
-
-  const [blockNoteLocale, setBlockNoteLocale] = useState<string>(currentLocale);
-
-  useEffect(() => {
-    if (BlockNoteLocales[currentLocale]) {
-      if (currentLocale !== blockNoteLocale) setBlockNoteLocale(currentLocale);
-    } else if (BlockNoteLocales[defaultLocale]) {
-      if (defaultLocale !== blockNoteLocale) setBlockNoteLocale(defaultLocale);
-    } else {
-      setBlockNoteLocale('en');
-    }
-  }, [
-    currentLocale,
-    defaultLocale,
-  ]);
+  const blockNoteLocale = useBlockNoteLocaleLanguage();
 
   const {
     color: userColor,
