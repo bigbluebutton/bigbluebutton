@@ -685,7 +685,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         },
         audio: {
           publishOptions: {
-            audioPreset: AudioPresets.musicHighQuality,
+            audioPreset: AudioPresets.telephone,
             dtx: true,
             red: false,
             forceStereo: false,
