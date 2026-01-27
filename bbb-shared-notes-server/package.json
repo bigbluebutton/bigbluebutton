@@ -43,6 +43,7 @@
     "hono": "^4.7.2",
     "pg": "^8.17.1",
     "prosemirror-state": "^1.4.1",
+    "puppeteer": "^24.36.0",
     "redis": "^4.7.0",
     "y-prosemirror": "^1.2.15",
     "yjs": "^13.6.23"

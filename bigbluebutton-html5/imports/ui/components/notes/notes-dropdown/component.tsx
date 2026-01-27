@@ -10,6 +10,7 @@ import {
   PresentationsSubscriptionResponse,
 } from '/imports/ui/components/whiteboard/queries';
 import Service from './service';
+import BnSharedNotesService from '/imports/ui/components/bn-shared-notes/service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const DEBOUNCE_TIMEOUT = 15000;
@@ -18,6 +19,10 @@ const intlMessages = defineMessages({
   convertAndUploadLabel: {
     id: 'app.notes.notesDropdown.covertAndUpload',
     description: 'Export shared notes as a PDF and upload to the main room',
+  },
+  exportAsPDFLabel: {
+    id: 'app.notes.notesDropdown.exportAsPDF',
+    description: 'Export shared notes as a PDF file',
   },
   pinNotes: {
     id: 'app.notes.notesDropdown.pinNotes',
@@ -33,6 +38,7 @@ interface NotesDropdownContainerGraphqlProps {
   handlePinSharedNotes: (pinned: boolean) => void;
   presentationEnabled: boolean;
   padId: string;
+  sharedNotesEditor: string;
 }
 
 interface NotesDropdownGraphqlProps extends NotesDropdownContainerGraphqlProps {
@@ -41,11 +47,12 @@ interface NotesDropdownGraphqlProps extends NotesDropdownContainerGraphqlProps {
   presentations: any;
   isRTL: boolean;
   padId: string;
+  sharedNotesEditor: string;
 }
 
 const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
   const {
-    amIPresenter, presentations, handlePinSharedNotes, isRTL, padId, presentationEnabled,
+    amIPresenter, presentations, handlePinSharedNotes, isRTL, padId, presentationEnabled, sharedNotesEditor,
   } = props;
   const [converterButtonDisabled, setConverterButtonDisabled] = useState(false);
   const intl = useIntl();
@@ -54,8 +61,10 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
   const getAvailableActions = () => {
     const uploadIcon = 'upload';
     const pinIcon = 'presentation';
+    const downloadIcon = 'download';
 
     const menuItems = [];
+    const isEtherpadSharedNotes = sharedNotesEditor === 'etherpad';
 
     if (amIPresenter) {
       menuItems.push(
@@ -69,6 +78,20 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
             setConverterButtonDisabled(true);
             setTimeout(() => setConverterButtonDisabled(false), DEBOUNCE_TIMEOUT);
             return Service.convertAndUpload(presentations, padId, presentationEnabled);
+          },
+        },
+      );
+    }
+
+    if (!isEtherpadSharedNotes) {
+      menuItems.push(
+        {
+          key: uniqueId('notes-option-'),
+          icon: downloadIcon,
+          dataTest: 'exportNotesAsPDF',
+          label: intl.formatMessage(intlMessages.exportAsPDFLabel),
+          onClick: () => {
+            return BnSharedNotesService.exportNotesAsPDF(padId);
           },
         },
       );
@@ -124,7 +147,9 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
 };
 
 const NotesDropdownContainerGraphql: React.FC<NotesDropdownContainerGraphqlProps> = (props) => {
-  const { handlePinSharedNotes, presentationEnabled, padId } = props;
+  const {
+    handlePinSharedNotes, presentationEnabled, padId, sharedNotesEditor,
+  } = props;
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
   }));
@@ -147,6 +172,7 @@ const NotesDropdownContainerGraphql: React.FC<NotesDropdownContainerGraphqlProps
       handlePinSharedNotes={handlePinSharedNotes}
       presentationEnabled={presentationEnabled}
       padId={padId}
+      sharedNotesEditor={sharedNotesEditor}
     />
   );
 };

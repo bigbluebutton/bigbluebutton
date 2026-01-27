@@ -128,6 +128,7 @@
     "app.notes.locked": "Locked",
     "app.notes.disabled": "Pinned on media area",
     "app.notes.notesDropdown.covertAndUpload": "Convert notes to presentation",
+    "app.notes.notesDropdown.exportAsPDF": "Export notes as PDF",
     "app.notes.notesDropdown.pinNotes": "Pin notes onto whiteboard",
     "app.notes.notesDropdown.unpinNotes": "Unpin notes",
     "app.notes.notesDropdown.notesOptions": "Notes options",

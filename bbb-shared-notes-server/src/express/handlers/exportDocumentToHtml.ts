@@ -1,0 +1,108 @@
+import hocuspocus from "../../hocuspocus";
+import { ServerBlockNoteEditor } from "@blocknote/server-util";
+
+async function exportDocumentToHtml(documentName: string): Promise<string> {
+  try {
+    const connection = await hocuspocus.openDirectConnection(documentName);
+    const doc = connection.document;
+
+    if (!doc) {
+      await connection.disconnect();
+      throw new Error('document_not_found');
+    }
+
+    const fragment = doc.getXmlFragment("doc");
+
+    // Check if document is empty
+    if (fragment.length === 0) {
+      await connection.disconnect();
+      throw new Error('document_empty');
+    }
+
+    // Create a ServerBlockNoteEditor instance
+    const editor = ServerBlockNoteEditor.create();
+
+    // Convert Yjs XML Fragment to BlockNote blocks
+    const blocks = editor.yXmlFragmentToBlocks(fragment);
+
+    // Convert blocks to HTML (using type assertion to handle schema differences)
+    const htmlContent = await editor.blocksToHTMLLossy(blocks as any);
+
+    await connection.disconnect();
+
+    // Create HTML document with styling
+    const fullHtml = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+              line-height: 1.6;
+              padding: 40px;
+              max-width: 800px;
+              margin: 0 auto;
+            }
+            h1, h2, h3, h4, h5, h6 {
+              margin-top: 24px;
+              margin-bottom: 16px;
+              font-weight: 600;
+              line-height: 1.25;
+            }
+            h1 { font-size: 2em; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; }
+            h2 { font-size: 1.5em; border-bottom: 1px solid #eaecef; padding-bottom: 0.3em; }
+            h3 { font-size: 1.25em; }
+            p { margin-bottom: 16px; }
+            ul, ol { padding-left: 2em; margin-bottom: 16px; }
+            li { margin-bottom: 4px; }
+            code {
+              background-color: #f6f8fa;
+              padding: 0.2em 0.4em;
+              border-radius: 3px;
+              font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+              font-size: 85%;
+            }
+            pre {
+              background-color: #f6f8fa;
+              padding: 16px;
+              border-radius: 6px;
+              overflow: auto;
+            }
+            pre code {
+              background-color: transparent;
+              padding: 0;
+            }
+            blockquote {
+              border-left: 4px solid #dfe2e5;
+              padding-left: 16px;
+              color: #6a737d;
+              margin-left: 0;
+            }
+            table {
+              border-collapse: collapse;
+              width: 100%;
+              margin-bottom: 16px;
+            }
+            table th, table td {
+              border: 1px solid #dfe2e5;
+              padding: 8px 13px;
+            }
+            table th {
+              background-color: #f6f8fa;
+              font-weight: 600;
+            }
+          </style>
+        </head>
+        <body>
+          ${htmlContent}
+        </body>
+      </html>
+    `;
+    return fullHtml;
+  } catch(error) {
+    throw error;
+  }
+}
+
+export { exportDocumentToHtml };

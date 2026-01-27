@@ -27,6 +27,7 @@ const startExpressApp = () => {
   app.ws("/collaboration", websocketApi.collaboration);
 
   // Rest APIs
+  app.get("/api/documents/:documentName/export/:format", documentApi.export);
   app.get("/api/documents/:documentName", documentApi.get);
   app.post("/api/documents/:documentName", documentApi.post);
 

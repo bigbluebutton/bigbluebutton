@@ -172,6 +172,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
                 handlePinSharedNotes={handlePinSharedNotes}
                 presentationEnabled={isPresentationEnabled}
                 padId={padId}
+                sharedNotesEditor={sharedNotesEditor}
               />
           )}
           />

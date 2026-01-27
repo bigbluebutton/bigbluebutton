@@ -4,10 +4,13 @@ import * as Y from "yjs";
 import { Logger } from "../common/logger";
 import { ServerBlockNoteEditor } from "@blocknote/server-util";
 import { validateInitialContentJson } from "./utils";
+import puppeteer from "puppeteer";
+import { exportDocumentToHtml } from "./handlers/exportDocumentToHtml";
 
 interface DocumentApi {
   get: RequestHandler;
   post: RequestHandler;
+  export: RequestHandler;
 }
 
 const logger = new Logger('express-rest-api');
@@ -109,6 +112,88 @@ const documentApi: DocumentApi = {
           message: error instanceof Error ? error.message : 'Unknown error'
         });
       }
+    }
+  },
+  export: async (request, response) => {
+    const { documentName, format } = request.params;
+    try {
+      const fullHtml = await exportDocumentToHtml(documentName);
+
+      switch (format) {
+        case 'html':
+          logger.info('HTML exported successfully', { documentName });
+
+          // Set response headers
+          response.setHeader('Content-Type', 'text/html; charset=utf-8');
+          response.setHeader('Content-Disposition', `attachment; filename="${documentName}.html"`);
+
+          // Send HTML
+          response.send(fullHtml);
+          break;
+        case 'pdf':
+          // Launch puppeteer and generate PDF
+          const browser = await puppeteer.launch({
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
+          });
+
+          const page = await browser.newPage();
+          await page.setContent(fullHtml, { waitUntil: 'networkidle0' });
+
+          // Generate PDF buffer
+          const pdfBuffer = await page.pdf({
+            format: 'A4',
+            printBackground: true,
+            margin: {
+              top: '20mm',
+              right: '20mm',
+              bottom: '20mm',
+              left: '20mm'
+            }
+          });
+
+          await browser.close();
+
+          logger.info('PDF generated successfully', { documentName });
+
+          // Set response headers
+          response.setHeader('Content-Type', 'application/pdf');
+          response.setHeader('Content-Disposition', `attachment; filename="${documentName}.pdf"`);
+          response.setHeader('Content-Length', pdfBuffer.length);
+
+          // Send PDF
+          response.send(pdfBuffer);
+          break;
+        default:
+          logger.error(
+            `Export requested for [${documentName}] with format [${format}] not supported`
+          );
+          return response.status(400).json({
+            success: false,
+            error: `Requested format ${format} not supported`,
+          });
+      }
+    } catch (error) {
+      if (error && typeof error === 'object' && 'message' in error) {
+        if (error.message  === 'document_not_found'){
+          return response.status(404).json({
+            success: false,
+            error: 'Document not found'
+          });
+        }
+        else if (error.message  === 'document_empty') {
+          return response.status(404).json({
+            success: false,
+            error: 'Document is empty'
+          });
+        }
+      }
+      logger.error('Error generating PDF', { error, documentName });
+      response.status(500).json({
+        success: false,
+        error: 'Failed to generate PDF',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   },
 }
