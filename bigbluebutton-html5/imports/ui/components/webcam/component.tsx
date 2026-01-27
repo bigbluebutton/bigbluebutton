@@ -344,7 +344,7 @@ const WebcamContainer: React.FC = () => {
   const isVideoFocus = selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS;
   const isUnifiedLayout = selectedLayout === LAYOUT_TYPE.UNIFIED_LAYOUT;
 
-  const isGridEnabled = isVideoFocus || (isUnifiedLayout && !presentationIsOpen);
+  const isGridEnabled = isVideoFocus || isUnifiedLayout;
 
   const { streams: videoUsers, gridUsers } = useVideoStreams();
 
