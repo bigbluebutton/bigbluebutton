@@ -5,7 +5,7 @@ inputs:
     description: The name of the artifact to check for
     required: true
 outputs:
-  exists:
+  result:
     description: Whether the artifact exists (true/false)
     value: ${{ steps.check.outputs.result }}
 runs:
@@ -16,10 +16,11 @@ runs:
       uses: actions/github-script@v7
       with:
         script: |
+          const runId = context.payload.workflow_run?.id ?? context.runId;
           const artifacts = await github.paginate(github.rest.actions.listWorkflowRunArtifacts, {
             owner: context.repo.owner,
             repo: context.repo.repo,
-            run_id: context.payload.workflow_run.id,
+            run_id: runId,
           });
           const artifactExists = artifacts.some(a => a.name.includes('${{ inputs.artifact-name }}'));
           console.log(`Artifact containing '${{ inputs.artifact-name }}' found: ${artifactExists}`);
