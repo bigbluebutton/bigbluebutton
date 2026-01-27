@@ -4,7 +4,7 @@ import * as Y from "yjs";
 import { Logger } from "../common/logger";
 import { ServerBlockNoteEditor } from "@blocknote/server-util";
 import { validateInitialContentJson } from "./utils";
-import puppeteer from "puppeteer";
+import puppeteer, { Browser } from "puppeteer";
 import { exportDocumentToHtml } from "./handlers/exportDocumentToHtml";
 
 interface DocumentApi {
@@ -14,6 +14,20 @@ interface DocumentApi {
 }
 
 const logger = new Logger('express-rest-api');
+
+// Singleton browser instance for PDF generation (reused across requests)
+let browserInstance: Browser | null = null;
+
+async function getBrowser(): Promise<Browser> {
+  if (!browserInstance || !browserInstance.isConnected()) {
+    logger.info('Launching new browser instance');
+    browserInstance = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+  }
+  return browserInstance;
+}
 
 const documentApi: DocumentApi = {
   get: async (request, response) => {
@@ -131,38 +145,38 @@ const documentApi: DocumentApi = {
           response.send(fullHtml);
           break;
         case 'pdf':
-          // Launch puppeteer and generate PDF
-          const browser = await puppeteer.launch({
-            headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
-          });
-
+          // Puppeteer implementation with browser reuse (optimal solution)
+          const browser = await getBrowser();
           const page = await browser.newPage();
-          await page.setContent(fullHtml, { waitUntil: 'networkidle0' });
 
-          // Generate PDF buffer
-          const pdfBuffer = await page.pdf({
-            format: 'A4',
-            printBackground: true,
-            margin: {
-              top: '20mm',
-              right: '20mm',
-              bottom: '20mm',
-              left: '20mm'
-            }
-          });
+          try {
+            await page.setContent(fullHtml, { waitUntil: 'networkidle0' });
 
-          await browser.close();
+            // Generate PDF buffer
+            const pdfBuffer = await page.pdf({
+              format: 'A4',
+              printBackground: true,
+              margin: {
+                top: '20mm',
+                right: '20mm',
+                bottom: '20mm',
+                left: '20mm'
+              }
+            });
 
-          logger.info('PDF generated successfully', { documentName });
+            logger.info('PDF generated successfully', { documentName });
 
-          // Set response headers
-          response.setHeader('Content-Type', 'application/pdf');
-          response.setHeader('Content-Disposition', `attachment; filename="${documentName}.pdf"`);
-          response.setHeader('Content-Length', pdfBuffer.length);
+            // Set response headers
+            response.setHeader('Content-Type', 'application/pdf');
+            response.setHeader('Content-Disposition', `attachment; filename="${documentName}.pdf"`);
+            response.setHeader('Content-Length', pdfBuffer.length);
 
-          // Send PDF
-          response.send(pdfBuffer);
+            // Send PDF
+            response.send(pdfBuffer);
+          } finally {
+            // Close the page, but keep the browser running for reuse
+            await page.close();
+          }
           break;
         default:
           logger.error(
