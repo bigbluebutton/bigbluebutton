@@ -18,7 +18,7 @@ import {
   layoutSelectOutput,
   layoutDispatch,
 } from '../layout/context';
-import { DEVICE_TYPE } from '../layout/enums';
+import { DEVICE_TYPE, ACTIONS } from '/imports/ui/components/layout/enums';
 import MediaService from '../media/service';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
@@ -46,7 +46,10 @@ const PresentationContainer = ({
   const layoutContextDispatch = layoutDispatch();
   const { selectedLayout } = useSettings(SETTINGS.LAYOUT);
 
-  const { data: presentationPageData } = useDeduplicatedSubscription(
+  const {
+    data: presentationPageData,
+    loading: loadingPresentationPageData,
+  } = useDeduplicatedSubscription(
     CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   );
 
@@ -54,6 +57,27 @@ const PresentationContainer = ({
   const currentPresentationPage = presentationPageArray?.[0];
   const slideSvgUrl = currentPresentationPage?.svgUrl;
   const currentPageId = currentPresentationPage?.pageId;
+
+  const {
+    data: currentMeeting,
+    loading: loadingMeeting,
+  } = useMeeting((m) => ({
+    createdTime: m.createdTime,
+    isBreakout: m.isBreakout,
+  }));
+
+  useEffect(() => {
+    // close presentation if there isn't any
+    // case when the presentation has been manually removed in the media area drop up
+    // or when defaultUploadedPresentation is null in bigbluebutton.properties
+    if (loadingPresentationPageData || loadingMeeting) return;
+    if (!currentPageId && !currentMeeting?.isBreakout) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+        value: false,
+      });
+    }
+  }, [currentPageId, loadingPresentationPageData, loadingMeeting, currentMeeting?.isBreakout]);
 
   const { data: whiteboardWritersData } = useDeduplicatedSubscription(
     CURRENT_PAGE_WRITERS_SUBSCRIPTION,
@@ -66,11 +90,7 @@ const PresentationContainer = ({
     FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS,
     window.meetingClientSettings.public.presentation.restoreOnUpdate,
   );
-  const {
-    data: currentMeeting,
-  } = useMeeting((m) => ({
-    createdTime: m.createdTime,
-  }));
+
 
   const { data: initialPageAnnotations, refetch: refetchInitialPageAnnotations } = useQuery(
     CURRENT_PAGE_ANNOTATIONS_QUERY,

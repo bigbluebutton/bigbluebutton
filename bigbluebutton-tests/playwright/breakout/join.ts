@@ -223,7 +223,10 @@ export class Join extends Create {
     await this.modPage.waitAndClick(e.breakoutOptionsMenu);
     await this.modPage.waitAndClick(e.endAllBreakouts);
     await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
-    await this.modPage.hasElement(e.createBreakoutRoomsButton, 'should display create breakout rooms button after ending all breakout rooms');
+    await this.modPage.hasElement(
+      e.createBreakoutRoomsButton,
+      'should display create breakout rooms button after ending all breakout rooms',
+    );
   }
 
   async moveUserToOtherRoom() {
@@ -277,8 +280,14 @@ export class Join extends Create {
     const { sharedNotesEnabled } = this.modPage.settings || {};
 
     if (!sharedNotesEnabled) {
-      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the chat button to access the public chat');
-      await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes when it is disabled');
+      await this.modPage.hasElement(
+        e.messagesSidebarButton,
+        'should display the chat button to access the public chat',
+      );
+      await this.modPage.wasRemoved(
+        e.sharedNotesSidebarButton,
+        'should not display the shared notes when it is disabled',
+      );
       return;
     }
     // join room and type on the shared notes
@@ -313,7 +322,7 @@ export class Join extends Create {
     await expect(shareNotesPDF, 'should have the Notes name on the share notes pdf').toHaveText(/Notes/, {
       timeout: 30000,
     });
-    await this.modPage.hasElementCount(e.presentationNames, 2, 'should display 2 items'); //This checks if no other content was exported.
+    await this.modPage.hasElementCount(e.presentationNames, 2, 'should display 2 items'); // This checks if no other content was exported.
     const shareNotesPDFThumbnail = await this.modPage.getLocatorByIndex(e.presentationThumbnails, 1);
     await shareNotesPDFThumbnail.click();
     await this.modPage.waitAndClick(e.sharePresentationButton);
@@ -335,7 +344,10 @@ export class Join extends Create {
 
     const { sharedNotesEnabled } = this.modPage.settings || {};
     if (!sharedNotesEnabled) {
-      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the chat button to access the public chat');
+      await this.modPage.hasElement(
+        e.messagesSidebarButton,
+        'should display the chat button to access the public chat',
+      );
       await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should have removed the shared notes');
       return;
     }
@@ -346,7 +358,10 @@ export class Join extends Create {
       'should have the presentation title displayed on the breakout room',
     );
     await breakoutUserPage.waitAndClick(e.sharedNotesSidebarButton);
-    await breakoutUserPage.hasElement(e.hideNotesLabel, 'should display the hide notes element when shared notes is opened');
+    await breakoutUserPage.hasElement(
+      e.hideNotesLabel,
+      'should display the hide notes element when shared notes is opened',
+    );
     await breakoutUserPage.hasElement(
       e.whiteboard,
       'should display the whiteboard on breakout room',
@@ -385,7 +400,7 @@ export class Join extends Create {
     await this.modPage.waitAndClick(e.managePresentations);
     const whiteboardPDF = await this.modPage.getLocatorByIndex(e.presentationNames, 1);
     await expect(whiteboardPDF).toHaveText(/Whiteboard/, { timeout: 30000 });
-     await this.modPage.hasElementCount(e.presentationNames, 2, 'should display 2 items'); //This checks if no other content was exported.
+    await this.modPage.hasElementCount(e.presentationNames, 2, 'should display 2 items'); // This checks if no other content was exported.
     await this.modPage.press('Escape'); // close the media sharing menu
     await this.modPage.hasElement(
       e.presentationUploadProgressToast,
@@ -453,7 +468,8 @@ export class Join extends Create {
     // create breakouts
     await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
     await this.modPage.waitForSelector(e.randomlyAssign);
-    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 }); // needed for better create breakout rooms button disposition
+    // needed for better create breakout rooms button disposition
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
     await this.modPage.setHeightWidthViewPortSize(); // reset to default size
     // select different presentation for the first breakout room
@@ -462,7 +478,8 @@ export class Join extends Create {
       changeSlideBreakoutLocator.locator('option'),
       'should display 3 available option on presentation selection (current slide, default and uploaded presentation)',
     ).toHaveCount(3);
-    await changeSlideBreakoutLocator.selectOption({ label: e.uploadPresentationFileName });
+    // change to default, other breakout will have the uploaded one as it's the current presentation
+    await changeSlideBreakoutLocator.selectOption({ label: 'default.pdf' });
     await this.modPage.waitAndClick(e.createBreakoutRoomsButton);
     await this.userPage.waitAndClick(e.modalDismissButton);
     // join user to breakout room and check the presentation loaded
@@ -473,8 +490,10 @@ export class Join extends Create {
     await breakoutModPage.waitForSelector(e.presentationTitle);
     await breakoutModPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_EXTRA_LONG_TIME);
     await breakoutModPage.closeAllToastNotifications();
+    // Wait for presentations to fully load and stabilize
+    await breakoutModPage.page.waitForTimeout(2000);
     // visual assertion on the presentations
-    await expect(this.modPage.page).toHaveScreenshot('moderator-page-first-room.png');
-    await expect(this.userPage.page).toHaveScreenshot('attendee-page-second-room.png');
+    await expect(breakoutModPage.page).toHaveScreenshot('moderator-page-first-room.png');
+    await expect(breakoutUserPage.page).toHaveScreenshot('attendee-page-second-room.png');
   }
 }
