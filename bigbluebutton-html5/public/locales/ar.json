@@ -1003,6 +1003,7 @@
     "app.userList.guest.feedbackMessage": "تم تطبيق الإجراء:",
     "app.user-info.title": "بحث الدليل",
     "app.toast.breakoutRoomEnded": "انتهت الغرفة الجانبية. يرجى الانضمام للصوت مرة أخرى.",
+    "app.toast.breakoutContentUnchangedNotConverted": "لم يكن لدى غرفة أو أكثر من غرف الاجتماعات الفرعية تحديثات للسبورة البيضاء/الملاحظات المشتركة، لذلك لم يتم تحويلها إلى شرائح.",
     "app.toast.chat.public": "رسالة جديدة للدردشة العامة",
     "app.toast.chat.private": "رسالة جديدة للدردشة الخاصة",
     "app.toast.chat.system": "النظام",
