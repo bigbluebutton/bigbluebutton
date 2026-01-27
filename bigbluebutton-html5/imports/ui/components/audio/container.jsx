@@ -188,9 +188,6 @@ const AudioContainer = (props) => {
     );
 
     if ((!autoJoin || didMountAutoJoin)) {
-      if (enableVideo && autoShareWebcam) {
-        openVideoPreviewModal();
-      }
       return Promise.resolve(false);
     }
     Session.setItem('audioModalIsOpen', true);
