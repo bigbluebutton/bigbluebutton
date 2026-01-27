@@ -49,7 +49,7 @@ const useHocuspocusProvider = () => {
       }, 'Creating new HocuspocusProvider instance');
 
       const wsProvider = new HocuspocusProviderWebsocket({
-        url: 'wss://bbb30.bbb.imdt.dev/hocuspocus/collaboration',
+        url: `wss://${window.location.hostname}/hocuspocus/collaboration`,
         maxAttempts: 1,
         parameters: {
           sessionToken,

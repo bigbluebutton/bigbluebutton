@@ -108,6 +108,20 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
           .bn-mantine .bn-suggestion-menu {
             min-width: 300px;
           }
+          .bn-editor {
+            padding-inline: 35px 0px
+          }
+          /* Make the editor fill the available space so clicks below last line focus it */
+          .bn-mantine,
+          .bn-editor,
+          .bn-editor .ProseMirror {
+            height: 100%;
+            min-height: 100%;
+          }
+          .bn-editor .ProseMirror {
+            box-sizing: border-box;
+            cursor: text;
+          }
         `}
       </style>
       <BlockNoteView
