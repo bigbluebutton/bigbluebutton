@@ -1375,7 +1375,7 @@ http&#58;//yourserver.com/bigbluebutton/api/getJoinUrl?[parameters]
 
 **Example Requests:**
 
-https://bbb30.bbb.imdt.dev/bigbluebutton/api/getJoinUrl?sessionToken=xyn1fbqlrhug1j6z&enforceLayout=PRESENTATION_ONLY&sessionName=Presentation%20session&userdata-bbb_client_title=Presentation%20client
+https://yourserver.com/bigbluebutton/api/getJoinUrl?sessionToken=xyn1fbqlrhug1j6z&enforceLayout=PRESENTATION_ONLY&sessionName=Presentation%20session&userdata-bbb_client_title=Presentation%20client
 
 **Example Response:**
 
@@ -1384,7 +1384,7 @@ https://bbb30.bbb.imdt.dev/bigbluebutton/api/getJoinUrl?sessionToken=xyn1fbqlrhu
     "response": {
         "returncode": "SUCCESS",
         "message": "Join URL provided successfully.",
-        "url": "https://bbb30.bbb.imdt.dev/bigbluebutton/api/join?&redirect=true&existingUserID=w_t18rn7uc1wjm&role=MODERATOR&userdata-bbb_client_title=Presentation+client&sessionName=Presentation+session&fullName=teacher%2B1&meetingID=random-7653737&enforceLayout=PRESENTATION_ONLY&checksum=135f230a2339b9485d91a3e87b1a22420ca57e8b"
+        "url": "https://yourserver.com/bigbluebutton/api/join?&redirect=true&existingUserID=w_t18rn7uc1wjm&role=MODERATOR&userdata-bbb_client_title=Presentation+client&sessionName=Presentation+session&fullName=teacher%2B1&meetingID=random-7653737&enforceLayout=PRESENTATION_ONLY&checksum=135f230a2339b9485d91a3e87b1a22420ca57e8b"
     }
 }
 ```
