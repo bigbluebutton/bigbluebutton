@@ -178,6 +178,34 @@ const documentApi: DocumentApi = {
             await page.close();
           }
           break;
+        case 'txt':
+          // Strip HTML tags to get plain text (emojis are preserved as Unicode characters)
+          const plainText = fullHtml
+            .replace(/<style[^>]*>.*?<\/style>/gis, '') // Remove style tags and content
+            .replace(/<script[^>]*>.*?<\/script>/gis, '') // Remove script tags and content
+            .replace(/<br\s*\/?>/gi, '\n') // Replace <br> with newline
+            .replace(/<\/?(p|div|h[1-6]|li|tr)[^>]*>/gi, '\n') // Replace block elements with newline
+            .replace(/<\/ul>/gi, '\n') // Add newline after lists
+            .replace(/<\/ol>/gi, '\n') // Add newline after ordered lists
+            .replace(/<[^>]+>/g, '') // Remove all remaining HTML tags
+            .replace(/&nbsp;/g, ' ') // Replace &nbsp; with space
+            .replace(/&lt;/g, '<') // Replace &lt; with <
+            .replace(/&gt;/g, '>') // Replace &gt; with >
+            .replace(/&amp;/g, '&') // Replace &amp; with &
+            .replace(/&quot;/g, '"') // Replace &quot; with "
+            .replace(/&#39;/g, "'") // Replace &#39; with '
+            .replace(/\n\s*\n\s*\n/g, '\n\n') // Collapse multiple blank lines to max 2 newlines
+            .trim();
+
+          logger.info('TXT exported successfully', { documentName });
+
+          // Set response headers
+          response.setHeader('Content-Type', 'text/plain; charset=utf-8');
+          response.setHeader('Content-Disposition', `attachment; filename="${documentName}.txt"`);
+
+          // Send plain text
+          response.send(plainText);
+          break;
         default:
           logger.error(
             `Export requested for [${documentName}] with format [${format}] not supported`

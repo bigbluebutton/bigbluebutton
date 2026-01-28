@@ -54,7 +54,7 @@ case class PadCreatedEvtMsgBody(groupId: String, padId: String, name: String)
 // apps -> client
 object PadCreatedRespMsg { val NAME = "PadCreatedRespMsg" }
 case class PadCreatedRespMsg(header: BbbClientMsgHeader, body: PadCreatedRespMsgBody) extends BbbCoreMsg
-case class PadCreatedRespMsgBody(externalId: String, padId: String, name: String)
+case class PadCreatedRespMsgBody(externalId: String, padId: String, name: String, sharedNotesEditor: String)
 
 // client -> apps
 object PadCreateSessionReqMsg { val NAME = "PadCreateSessionReqMsg" }

@@ -15,7 +15,7 @@ trait BNSharedNotesCreatedEvtMsgHdlr {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, userId)
       val envelope = BbbCoreEnvelope(PadCreatedRespMsg.NAME, routing)
       val header = BbbClientMsgHeader(PadCreatedRespMsg.NAME, liveMeeting.props.meetingProp.intId, userId)
-      val body = PadCreatedRespMsgBody(externalId, padId, name)
+      val body = PadCreatedRespMsgBody(externalId, padId, name, "blockNote")
       val event = PadCreatedRespMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 
