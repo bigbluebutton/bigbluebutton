@@ -3,38 +3,21 @@ package org.bigbluebutton.presentation;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import javax.net.ssl.SSLContext;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.DnsResolver;
-import org.apache.http.conn.ssl.DefaultHostnameVerifier;
-import org.apache.http.entity.ContentType;
-import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
-import org.apache.http.impl.nio.client.HttpAsyncClients;
-import org.apache.http.impl.nio.conn.PoolingNHttpClientConnectionManager;
-import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
-import org.apache.http.impl.nio.reactor.IOReactorConfig;
-import org.apache.http.nio.client.methods.HttpAsyncMethods;
-import org.apache.http.nio.client.methods.ZeroCopyConsumer;
-import org.apache.http.nio.conn.NoopIOSessionStrategy;
-import org.apache.http.nio.conn.SchemeIOSessionStrategy;
-import org.apache.http.nio.conn.ssl.SSLIOSessionStrategy;
-import org.apache.http.nio.reactor.ConnectingIOReactor;
-import org.apache.http.nio.reactor.IOReactorException;
-import org.apache.http.ssl.SSLContexts;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.bigbluebutton.api.Util;
 import org.bigbluebutton.api.service.RedirectFollowerService;
 import org.bigbluebutton.api.service.ValidatedUrl;
@@ -208,39 +191,27 @@ public class PresentationUrlDownloadService {
         }
 
         boolean success = false;
-        CloseableHttpAsyncClient httpclient = null;
+        CloseableHttpClient httpclient = null;
 
         try {
             httpclient = createPinnedHttpClient(validatedUrl);
-            httpclient.start();
-
             File download = new File(filename);
-            ZeroCopyConsumer<File> consumer = new ZeroCopyConsumer<>(download) {
-                @Override
-                protected File process(
-                        final HttpResponse response,
-                        final File file,
-                        final ContentType contentType) throws Exception {
-                    if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                        throw new ClientProtocolException("Upload failed: " + response.getStatusLine());
-                    }
-                    return file;
-                }
-            };
-
-            // Build request to the pinned IP with proper Host header
             HttpGet request = createPinnedRequest(validatedUrl);
-            Future<File> future = httpclient.execute(HttpAsyncMethods.create(request), consumer, null);
-            File result = future.get();
-            success = result.exists();
-        } catch (IOReactorException ex) {
-            log.error("IOReactorException while saving presentation for meeting [{}]", meetingId, ex);
-        } catch (java.lang.InterruptedException ex) {
-            log.error("InterruptedException while saving presentation for meeting [{}]", meetingId, ex);
-        } catch (java.util.concurrent.ExecutionException ex) {
-            log.error("ExecutionException while saving presentation for meeting [{}]", meetingId, ex);
+
+            try (CloseableHttpResponse response = httpclient.execute(request)) {
+                if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+                    throw new ClientProtocolException("Upload failed: " + response.getStatusLine());
+                }
+                if (response.getEntity() != null && response.getEntity().getContent() != null) {
+                    FileUtils.copyInputStreamToFile(response.getEntity().getContent(), download);
+                }
+            }
+
+            success = download.exists();
         } catch (java.io.FileNotFoundException ex) {
             log.error("FileNotFoundException while saving presentation for meeting [{}]", meetingId, ex);
+        } catch (java.io.IOException ex) {
+            log.error("IOException while saving presentation for meeting [{}]", meetingId, ex);
         } finally {
             if (httpclient != null) {
                 try {
@@ -254,14 +225,12 @@ public class PresentationUrlDownloadService {
         return success;
     }
 
-    private CloseableHttpAsyncClient createPinnedHttpClient(ValidatedUrl validatedUrl) throws IOReactorException {
-        // Create a custom DNS resolver that always returns the pinned IP
-        final InetAddress pinnedAddress = validatedUrl.resolvedAddress();
+    private CloseableHttpClient createPinnedHttpClient(ValidatedUrl validatedUrl) {
         final String originalHost = validatedUrl.host();
 
         DnsResolver pinnedDnsResolver = host -> {
             if (host.equalsIgnoreCase(originalHost) || host.equals(validatedUrl.resolvedIpAddress())) {
-                return new InetAddress[]{pinnedAddress};
+                return new java.net.InetAddress[]{validatedUrl.resolvedAddress()};
             }
             // For any other host (shouldn't happen), fail fast
             throw new java.net.UnknownHostException("DNS resolution blocked for unpinned host: " + host);
@@ -273,35 +242,9 @@ public class PresentationUrlDownloadService {
                 .setSocketTimeout(presDownloadReadTimeoutInMs)
                 .build();
 
-        IOReactorConfig ioReactorConfig = IOReactorConfig.custom()
-                .setConnectTimeout(presDownloadReadTimeoutInMs)
-                .setSoTimeout(presDownloadReadTimeoutInMs)
-                .build();
-
-        ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor(ioReactorConfig);
-
-        // Configure SSL with hostname verification against the original hostname
-        SSLContext sslContext = SSLContexts.createDefault();
-        SSLIOSessionStrategy sslStrategy = new SSLIOSessionStrategy(
-                sslContext,
-                new String[]{"TLSv1.2", "TLSv1.3"},
-                null,
-                new DefaultHostnameVerifier()
-        );
-
-        PoolingNHttpClientConnectionManager connectionManager = new PoolingNHttpClientConnectionManager(
-                ioReactor,
-                null,
-                org.apache.http.config.RegistryBuilder.<SchemeIOSessionStrategy>create()
-                        .register("http", NoopIOSessionStrategy.INSTANCE)
-                        .register("https", sslStrategy)
-                        .build(),
-                pinnedDnsResolver
-        );
-
-        return HttpAsyncClients.custom()
-                .setConnectionManager(connectionManager)
+        return HttpClients.custom()
                 .setDefaultRequestConfig(requestConfig)
+                .setDnsResolver(pinnedDnsResolver)
                 .build();
     }
 
