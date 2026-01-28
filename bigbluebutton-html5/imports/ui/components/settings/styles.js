@@ -61,7 +61,7 @@ const SettingsTabList = styled(TabList)`
     padding: 0;
     margin: 0 0 0.5rem 0;
     background: transparent;
-    overflow-y: auto;
+    overflow-y: hidden;
   }
 `;
 
