@@ -219,6 +219,7 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
     extId: u.extId,
     userId: u.userId,
     bot: u.bot,
+    logoutUrl: u.logoutUrl,
   }));
 
   const { error, data } = useDeduplicatedSubscription<GetGuestLobbyInfo>(getGuestLobbyInfo, {
@@ -247,12 +248,12 @@ const PresenceManagerContainer: React.FC<PresenceManagerContainerProps> = ({ chi
     extId,
     name,
     bot = false,
+    logoutUrl,
   } = currentUserData;
 
   const guestStatusDetails = data?.user_current?.[0]?.guestStatusDetails;
 
   const {
-    logoutUrl,
     meetingId,
     name: meetingName,
     bannerColor,

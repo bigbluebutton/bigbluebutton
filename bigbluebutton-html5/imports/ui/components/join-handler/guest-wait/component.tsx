@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { LoadingContext } from '../../common/loading-screen/loading-screen-HOC/component';
+import { JoinErrorCodeTable } from '/imports/ui/components/meeting-ended/service';
 import Styled from './styles';
 
 const REDIRECT_TIMEOUT = 15000;
@@ -38,7 +39,7 @@ const intlMessages = defineMessages({
     id: 'app.guest.allow',
     description: '',
   },
-  deny: {
+  [JoinErrorCodeTable.GUEST_DENY]: {
     id: 'app.guest.guestDeny',
     description: '',
   },
@@ -151,9 +152,12 @@ const GuestWait: React.FC<GuestWaitProps> = (props) => {
     if (guestStatus === GUEST_STATUSES.DENY) {
       setAnimate(false);
       setPositionMessage('');
-      setMessage(intl.formatMessage(intlMessages.deny));
+      const reasonCode = JoinErrorCodeTable.GUEST_DENY;
+      const reason = intl.formatMessage(intlMessages[reasonCode]);
+      setMessage(reason);
       setTimeout(() => {
-        window.location.assign(logoutUrl);
+        const url = `${logoutUrl}${logoutUrl.includes('?') ? '&' : '?'}reason=${encodeURIComponent(reason)}&reasonCode=${encodeURIComponent(reasonCode)}`;
+        window.location.assign(url);
       }, REDIRECT_TIMEOUT);
       return;
     }

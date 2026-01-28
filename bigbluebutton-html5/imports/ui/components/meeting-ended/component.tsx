@@ -186,23 +186,26 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
     authToken,
     meetingId,
   }] = useAuthData();
+  const endMessageCode = meetingEndedCode || joinErrorCode || '410';
 
-  const generateEndMessage = useCallback((joinErrorCode: string, meetingEndedCode: string, endedBy: string) => {
+  const generateEndMessage = useCallback((endMessageCode: string, endedBy: string) => {
     if (!isEmpty(endedBy)) {
       return intl.formatMessage(intlMessage.messageEndedByUser, { userName: endedBy });
     }
-    // OR opetaror always returns the first truthy value
 
-    const code = meetingEndedCode || joinErrorCode || '410';
-    return intl.formatMessage(intlMessage[code]);
+    if (intlMessage[endMessageCode]) {
+      return intl.formatMessage(intlMessage[endMessageCode]);
+    }
+    logger.error(`No meeting end message found for code: ${endMessageCode}`);
+    return intl.formatMessage(intlMessage.messageEnded);
   }, []);
 
   const confirmRedirect = (isBreakout: boolean, allowRedirect: boolean) => {
     if (isBreakout) window.close();
     if (allowRedirect) {
-      const reason = generateEndMessage(joinErrorCode, meetingEndedCode, endedBy);
+      const reason = generateEndMessage(endMessageCode, endedBy);
       const finalUrl = reason
-        ? `${logoutUrl}${logoutUrl.includes('?') ? '&' : '?'}reason=${encodeURIComponent(reason)}`
+        ? `${logoutUrl}${logoutUrl.includes('?') ? '&' : '?'}reason=${encodeURIComponent(reason)}&reasonCode=${encodeURIComponent(endMessageCode)}`
         : logoutUrl;
       window.location.href = finalUrl;
     }
@@ -322,7 +325,7 @@ const MeetingEnded: React.FC<MeetingEndedProps> = ({
       <Styled.Modal data-test="meetingEndedModal">
         <Styled.Content>
           <Styled.Title>
-            {generateEndMessage(joinErrorCode, meetingEndedCode, endedBy)}
+            {generateEndMessage(endMessageCode, endedBy)}
           </Styled.Title>
           {allowRedirect ? logoutButton : null}
         </Styled.Content>
