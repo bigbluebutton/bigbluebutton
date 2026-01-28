@@ -12,6 +12,7 @@ bn_notes_endpoint: http://127.0.0.1:8787/api/documents
 # Specify the notes formats we archive
 # txt, doc and odt are also supported
 notes_formats:
+  - etherpad
   - html
   - pdf
 redis_host: 127.0.0.1
