@@ -1173,7 +1173,7 @@
     "app.shortcut-help.delete": "Delete",
     "app.shortcut-help.duplicate": "Duplicate",
     "app.shortcut-help.gesture": "Gestures",
-    "app.shortcut-help.fingerTap": "finger tap",
+    "app.shortcut-help.fingerTap": "{fingerCount}-finger tap",
     "app.lock-viewers.title": "Restrict participants",
     "app.lock-viewers.description": "Restrict participants from using specific features.",
     "app.lock-viewers.restrictParticipantsLabel": "Restrict participants from...",

@@ -362,9 +362,9 @@ const ShortcutHelpComponent: React.FC<ShortcutHelpComponentProps> = ({
 
   const gestureItems = [];
   gestureItems.push(renderItem(intl.formatMessage(intlMessages.undo),
-    `2-${intl.formatMessage(intlMessages.fingerTap)}`));
+    intl.formatMessage(intlMessages.fingerTap, { fingerCount: 2 })));
   gestureItems.push(renderItem(intl.formatMessage(intlMessages.redo),
-    `3-${intl.formatMessage(intlMessages.fingerTap)}`));
+    intl.formatMessage(intlMessages.fingerTap, { fingerCount: 3 })));
 
   const whiteboardShortcutItems = [];
   // tools
