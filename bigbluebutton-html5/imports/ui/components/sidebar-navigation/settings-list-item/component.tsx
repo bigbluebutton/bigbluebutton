@@ -1,7 +1,6 @@
 import React, { useState, memo, useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import SettingsContainer from '/imports/ui/components/settings/container';
-import ShortcutHelpComponent from '/imports/ui/components/shortcut-help/component';
 import SidebarNavigationButton from '/imports/ui/components/sidebar-navigation/sidebar-navigation-button/component';
 
 const intlMessages = defineMessages({
@@ -14,7 +13,6 @@ const intlMessages = defineMessages({
 const SettingsListItem = () => {
   const intl = useIntl();
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
-  const [isShortcutModalOpen, setIsShortcutModalOpen] = useState(false);
 
   const openSettingsModal = useCallback(() => {
     setIsSettingsModalOpen(true);
@@ -37,13 +35,6 @@ const SettingsListItem = () => {
         <SettingsContainer
           isOpen={isSettingsModalOpen}
           setIsOpen={setIsSettingsModalOpen}
-          setIsShortcutModalOpen={setIsShortcutModalOpen}
-        />
-      )}
-      {isShortcutModalOpen && (
-        <ShortcutHelpComponent
-          isOpen={isShortcutModalOpen}
-          onRequestClose={() => setIsShortcutModalOpen(false)}
         />
       )}
     </>

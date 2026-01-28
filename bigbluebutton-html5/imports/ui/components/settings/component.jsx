@@ -5,6 +5,7 @@ import About from '/imports/ui/components/settings/submenus/about/component';
 import DataSaving from '/imports/ui/components/settings/submenus/data-saving/component';
 import Application from '/imports/ui/components/settings/submenus/application/component';
 import Notification from '/imports/ui/components/settings/submenus/notification/component';
+import Shortcuts from '/imports/ui/components/settings/submenus/shortcuts/component';
 import { clone } from 'radash';
 import PropTypes from 'prop-types';
 import Styled from './styles';
@@ -60,6 +61,10 @@ const intlMessages = defineMessages({
   dataSavingLabel: {
     id: 'app.settings.dataSavingTab.label',
     description: 'label for data savings tab',
+  },
+  shortcutsLabel: {
+    id: 'app.settings.shortcutsTab.label',
+    description: 'label for shortcuts tab',
   },
   savedAlertLabel: {
     id: 'app.settings.save-notification.label',
@@ -273,8 +278,6 @@ class Settings extends Component {
       isGladiaEnabled,
       paginationToggleEnabled,
       isChatEnabled,
-      setIsOpen,
-      setIsShortcutModalOpen,
     } = this.props;
 
     const {
@@ -323,6 +326,13 @@ class Settings extends Component {
               </Styled.SettingsTabSelector>
             )
             : null}
+          <Styled.SettingsTabSelector
+            aria-labelledby="shortcutsTab"
+            selectedClassName="is-selected"
+            data-test="shortcutsTabButton"
+          >
+            <span id="shortcutsTab">{intl.formatMessage(intlMessages.shortcutsLabel)}</span>
+          </Styled.SettingsTabSelector>
           <Styled.SettingsTabSelector
             aria-labelledby="aboutTab"
             selectedClassName="is-selected"
@@ -378,11 +388,12 @@ class Settings extends Component {
             </Styled.SettingsTabPanel>
           )
           : null}
+        <Styled.SettingsTabPanel selectedClassName="is-selected" $noPadding>
+          <Shortcuts />
+        </Styled.SettingsTabPanel>
         <Styled.SettingsTabPanel selectedClassName="is-selected">
           <About
             settings={current.application}
-            setIsShortcutModalOpen={setIsShortcutModalOpen}
-            setIsOpen={setIsOpen}
           />
         </Styled.SettingsTabPanel>
       </Styled.SettingsTabs>

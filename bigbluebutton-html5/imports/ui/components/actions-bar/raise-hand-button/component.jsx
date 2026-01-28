@@ -1,7 +1,7 @@
 import React from 'react';
 import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
-import withShortcutHelper from '/imports/ui/components/shortcut-help/service';
+import withShortcutHelper from '/imports/ui/services/shortcuts/withShortcutHelper';
 import { SET_RAISE_HAND } from '/imports/ui/core/graphql/mutations/userMutations';
 import { useMutation } from '@apollo/client';
 import { listItemBgHover } from '/imports/ui/stylesheets/styled-components/palette';

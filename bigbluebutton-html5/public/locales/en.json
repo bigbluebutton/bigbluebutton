@@ -725,6 +725,7 @@
     "app.settings.dataSavingTab.description": "To save your bandwidth adjust what's currently being displayed.",
     "app.settings.transcriptionTab.partialUtterances": "Show partial utterances",
     "app.settings.transcriptionTab.minUtteranceLength": "Minimum utterances length (seconds)",
+    "app.settings.shortcutsTab.label": "Keyboard shortcuts",
     "app.settings.save-notification.label": "Settings have been saved",
     "app.settings.unsavedChanges.message": "You have unsaved changes.",
     "app.settings.unsavedChanges.ignoreMessage": "If you ignore the changes they will not be applied.",

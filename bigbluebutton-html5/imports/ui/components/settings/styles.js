@@ -31,6 +31,7 @@ const SettingsTabs = styled(Tabs)`
   flex-direction: row;
   width: 100%;
   height: 100%;
+  overflow: hidden;
 
   @media ${smallOnly} {
     display: flex;
@@ -46,7 +47,6 @@ const SettingsTabList = styled(TabList)`
   flex-flow: column;
   margin: 0;
   border-top: 1px solid ${colorBorder};
-  border-bottom: 1px solid ${colorBorder};
   padding: 0;
   width: calc(100% / 3);
   height: 39rem;
@@ -143,7 +143,7 @@ const SettingsIcon = styled(Icon)`
 const SettingsTabPanel = styled(TabPanel)`
   display: none;
   flex-grow: 1;
-  padding: 1.5rem 3rem;
+  ${({ $noPadding }) => !$noPadding && 'padding: 1.5rem 3rem'};
   border-top: 1px solid ${colorBorder};
   border-left: 1px solid ${colorBorder};
   border-bottom: 1px solid ${colorBorder};
@@ -154,7 +154,8 @@ const SettingsTabPanel = styled(TabPanel)`
   }
 
   &.is-selected {
-    display: block;
+    display: flex;
+    flex-direction: column;
   }
 
   @media ${smallOnly} {
@@ -219,6 +220,18 @@ const ActionButton = styled.button`
 const Modal = styled(ModalSimple)`
   padding: 0;
   border-radius: 1rem;
+
+  & > div {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  & > div > div:last-child {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
 
   @media ${smallOnly} {
     height: 90vh !important;
