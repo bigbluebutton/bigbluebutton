@@ -425,10 +425,12 @@ const ShortcutHelpComponent: React.FC<ShortcutHelpComponentProps> = ({
           <span id="whiteboardTab">{intl.formatMessage(intlMessages.whiteboard)}</span>
         </Styled.TabSelector>
 
-        <Styled.TabSelector selectedClassName="is-selected">
-          <Styled.TabIcon iconName="whiteboard" />
-          <span id="gestureTab">{intl.formatMessage(intlMessages.gesture)}</span>
-        </Styled.TabSelector>
+        { deviceInfo.isMobile && (
+          <Styled.TabSelector selectedClassName="is-selected">
+            <Styled.TabIcon iconName="whiteboard" />
+            <span id="gestureTab">{intl.formatMessage(intlMessages.gesture)}</span>
+          </Styled.TabSelector>
+        )}
       </Styled.TabList>
 
       <Styled.TabPanel selectedClassName="is-selected">
@@ -475,19 +477,21 @@ const ShortcutHelpComponent: React.FC<ShortcutHelpComponentProps> = ({
         </Styled.TableWrapper>
       </Styled.TabPanel>
 
-      <Styled.TabPanel selectedClassName="is-selected">
-        <Styled.TableWrapper>
-          <Styled.ShortcutTable>
-            <tbody>
-              <tr>
-                <Styled.ColumnTitle alignStart>{intl.formatMessage(intlMessages.functionLabel)}</Styled.ColumnTitle>
-                <Styled.ColumnTitle>{intl.formatMessage(intlMessages.comboLabel)}</Styled.ColumnTitle>
-              </tr>
-              {gestureItems}
-            </tbody>
-          </Styled.ShortcutTable>
-        </Styled.TableWrapper>
-      </Styled.TabPanel>
+      { deviceInfo.isMobile && (
+        <Styled.TabPanel selectedClassName="is-selected">
+          <Styled.TableWrapper>
+            <Styled.ShortcutTable>
+              <tbody>
+                <tr>
+                  <Styled.ColumnTitle alignStart>{intl.formatMessage(intlMessages.functionLabel)}</Styled.ColumnTitle>
+                  <Styled.ColumnTitle>{intl.formatMessage(intlMessages.comboLabel)}</Styled.ColumnTitle>
+                </tr>
+                {gestureItems}
+              </tbody>
+            </Styled.ShortcutTable>
+          </Styled.TableWrapper>
+        </Styled.TabPanel>
+      )}
     </Styled.Tabs>
   );
 };
