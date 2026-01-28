@@ -399,3 +399,6 @@
 .icon-bbb-unassigned:before {
   content: "\e97D";
 }
+.icon-bbb-mobile:before {
+  content: "\e97E";
+}

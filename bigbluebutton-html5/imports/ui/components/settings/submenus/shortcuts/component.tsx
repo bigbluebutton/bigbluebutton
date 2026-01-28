@@ -427,7 +427,7 @@ const ShortcutHelpComponent: React.FC<ShortcutHelpComponentProps> = ({
 
         { deviceInfo.isMobile && (
           <Styled.TabSelector selectedClassName="is-selected">
-            <Styled.TabIcon iconName="whiteboard" />
+            <Styled.TabIcon iconName="mobile" />
             <span id="gestureTab">{intl.formatMessage(intlMessages.gesture)}</span>
           </Styled.TabSelector>
         )}
