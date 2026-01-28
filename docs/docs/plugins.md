@@ -188,6 +188,22 @@ Here is a complete `manifest.json` example with all possible configurations:
   "javascriptEntrypointUrl": "MyPlugin.js",
   "javascriptEntrypointIntegrity": "sha384-Bwsz2rxm...", // Optional
   "localesBaseUrl": "https://cdn.domain.com/my-plugin/", // Optional
+  "loggerSettings": {                                    // Optional
+    "console": {
+      "enableRuntimeErrorLogging": false,
+      "enabled": true,
+      "level": "debug" // Possible values: info, debug, warn, error
+    },
+    "external": {
+      "enabled": false,
+      "level": "info", // Possible values: info, debug, warn, error
+      "url": "https://LOG_HOST/html5Log",
+      "method": "POST",
+      "throttleInterval": 400,
+      "flushOnClose": true,
+      "logTag": ""
+    }
+  },
   "dataChannels":[
     {
       "name": "public-channel",
@@ -233,6 +249,10 @@ Example:
 `version=0.0.8`
 `javascriptEntrypointUrl=MyPlugin.js`
 Browser will load: `MyPlugin.js?version=0.0.8`.
+
+**loggerSettings:**
+
+The optional loggerSettings directive allows you to override the default logger configuration for a specific plugin. For instance, you could set the client’s log level to info while restricting the plugin’s log level to error. If no settings are provided, the plugin’s logger inherits the default configuration.
 
 **settingsSchema:**
 
@@ -760,11 +780,22 @@ That being said, here are the extensible areas we have so far:
 
 Mind that no plugin will interfere into another's extensible area. So feel free to set whatever you need into a certain plugin with no worries.
 
-### Auxiliary functions:
+### Auxiliaries:
 
 - `getSessionToken`: returns the user session token located on the user's URL.
 - `getJoinUrl`: returns the join url associated with the parameters passed as an argument. Since it fetches the BigBlueButton API, this getter method is asynchronous.
 - `useLocaleMessages`: returns the messages to be used in internationalization functions (recommend to use `react-intl`, as example, refer to official plugins)
+- `logger`: the pluginLogger is part of the API and can be used as pictured ahead: 
+
+```ts
+export const { logger: pluginLogger } = pluginApi;
+// Or in the index file:
+import { BbbPluginSdk } from 'bigbluebutton-html-plugin-sdk';
+
+const uuid = document.currentScript?.getAttribute('uuid') || 'root';
+
+export const { logger: pluginLogger } = BbbPluginSdk.getPluginApi(uuid);
+```
 
 ### Realtime data consumption
 

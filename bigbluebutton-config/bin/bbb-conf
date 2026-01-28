@@ -1132,7 +1132,7 @@ check_state() {
 
 	# stun is from the stun-client package, which is available on both bionic and focal
 	# stunclient is from the stuntman-client package, which is available on bionic but was removed from focal
-	if which stun > /dev/null 2>&1; then
+	if which stun > /dev/null 2>&1 && ! which turnutils_stunclient > /dev/null 2>&1; then
 	  # stun return codes, from its client.cxx
 	  # low nibble: open (0), various STUN combinations (2-9), firewall (a), blocked (c), unknown (e), error (f)
 	  # high nibble: hairpin (1)
@@ -1145,7 +1145,7 @@ check_state() {
             echo "#    stun $STUN_SERVER"
             echo "#"
           fi
-        elif which stunclient > /dev/null 2>&1; then
+        elif which stunclient > /dev/null 2>&1 && ! which turnutils_stunclient > /dev/null 2>&1; then
           if echo $STUN_SERVER | grep -q ':'; then
             STUN_SERVER="$(echo $STUN_SERVER | sed 's/:.*//g') $(echo $STUN_SERVER | sed 's/.*://g')"
           else
@@ -1157,6 +1157,18 @@ check_state() {
             echo "# Warning: Failed to verify STUN server at $STUN_SERVER with command"
             echo "#"
             echo "#    stunclient $STUN_SERVER"
+            echo "#"
+          fi
+        elif which turnutils_stunclient > /dev/null 2>&1; then
+          # turnutils_stunclient comes from the coturn package, stun-client package uses old stun version which doesn't work with out-of-the-box security settings from coturn
+          # (no-rfc5780, no-stun-backward-compatibility, response-origin-only-with-rfc5780)
+          turnutils_stunclient $STUN_SERVER > /dev/null 2>&1
+          if [ $? -ne 0 ]; then
+            echo
+            echo "#"
+            echo "# Warning: Failed to verify STUN server at $STUN_SERVER with command"
+            echo "#"
+            echo "#    turnutils_stunclient $STUN_SERVER"
             echo "#"
           fi
         fi
