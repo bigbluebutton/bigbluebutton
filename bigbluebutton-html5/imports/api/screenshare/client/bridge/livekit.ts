@@ -512,14 +512,14 @@ export default class LiveKitScreenshareBridge {
   private unsubscribe(mainPublication: RemoteTrackPublication): void {
     if (this.role === RECV_ROLE) {
       // @ts-ignore
-      const withSelectiveSubscription = window.meetingClientSettings.public.media?.livekit?.selectiveSubscription
-        || false;
+      const withSelectiveSub = window.meetingClientSettings?.public?.media?.livekit?.selectiveSubscription?.enabled
+        ?? false;
       const { track } = mainPublication;
       const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG) as HTMLMediaElement;
 
       if (track) track.detach(mediaElement);
 
-      if (withSelectiveSubscription) {
+      if (withSelectiveSub) {
         const audioPublications = Array.from(this.audioPublications.values()) as RemoteTrackPublication[];
 
         if (audioPublications.length > 0) {

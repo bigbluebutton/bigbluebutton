@@ -33,9 +33,3 @@ export type MediaSendersData = {
   senders: MediaGroupStream[];
   inAnyGroup: boolean;
 }
-
-export const SUBSCRIPTION_RETRY = {
-  MAX_RETRIES: 3,
-  RETRY_INTERVAL: 2000,
-  BACKOFF_MULTIPLIER: 1.5,
-};
