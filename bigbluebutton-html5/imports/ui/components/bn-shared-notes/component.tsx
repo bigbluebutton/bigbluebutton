@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { BlockNoteView } from '@blocknote/mantine';
 import * as BlockNoteLocales from '@blocknote/core/locales';
+import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
 import '@blocknote/core/fonts/inter.css';
 import '@blocknote/mantine/style.css';
 import { HocuspocusProvider } from '@hocuspocus/provider';
@@ -18,6 +19,8 @@ import {
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
 
+
+
 interface BlockNoteAppProps {
   hocuspocusProvider: HocuspocusProvider;
   currentUser: Partial<User> | null;
@@ -33,6 +36,15 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
 
   const blockNoteLocale = useBlockNoteLocaleLanguage();
   const editorRef = useFlipCursorWhenTopPosition();
+
+  // Remove Media block types for now
+  const { audio, image, file, video, ...remainingBlockSpecs } = defaultBlockSpecs;
+
+  const schema = BlockNoteSchema.create({
+    blockSpecs: {
+      ...remainingBlockSpecs,
+    },
+  });
 
   const {
     color: userColor,
@@ -61,6 +73,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         color: userColor || '',
       },
     },
+    schema,
     dictionary: {
       ...BlockNoteLocales[blockNoteLocale],
       placeholders: {
