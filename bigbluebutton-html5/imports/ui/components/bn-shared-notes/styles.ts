@@ -8,7 +8,7 @@ const Notes = styled.div`
   flex-grow: 1;
   flex-direction: column;
   height: 100%;
-  overflow: visible;
+  overflow: auto;
 
   @media ${smallOnly} {
     transform: none !important;
