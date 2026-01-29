@@ -31,7 +31,7 @@ public:
     appName: BigBlueButton HTML5 Client
     bbbServerVersion: HTML5_FULL_BBB_VERSION
     displayBbbServerVersion: true
-    copyright: '©2025 BigBlueButton Inc.'
+    copyright: '©2026 BigBlueButton Inc.'
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
     delayForUnmountOfSharedNote: 120000
@@ -502,7 +502,7 @@ public:
     # cameraSortingModes.paginationSorting: sorting mode to be applied when pagination is active
     # cameraSortingModes.defaultSorting: sorting mode when pagination is not active (full mesh)
     # Current implemented modes are:
-    # 'LOCAL_ALPHABETICAL' | 'VOICE_ACTIVITY_LOCAL' | 'LOCAL_VOICE_ACTIVITY' | 'LOCAL_PRESENTER_ALPHABETICAL'
+    # 'LOCAL_ALPHABETICAL' | 'VOICE_ACTIVITY_LOCAL' | 'LOCAL_VOICE_ACTIVITY' | 'LOCAL_PRESENTER_ALPHABETICAL' | 'PRESENTER_LOCAL_PINNED'
     # The algorithm names are self-explanatory.
     cameraSortingModes:
       defaultSorting: LOCAL_ALPHABETICAL
@@ -834,6 +834,9 @@ public:
     showScreenshareQuickSwapButton: false
     showLeaveSessionLabel: false
     usersPerUserListPage: 50
+    syncCameraDockSizeAndPosition: false
+    # if false, the user can't change the layout (no layout selection modal)
+    enableDeprecatedLayoutSelection: true
   pads:
     url: ETHERPAD_HOST
   media:
@@ -969,6 +972,9 @@ public:
       # when set to true and in effect (conditional to client behavior).
       selectiveSubscription: true
       logLevel: 3
+      # reconnectOnFatalFailures: whether to trigger LK room reconnections when
+      # fatal errors occur (e.g.: unrecoverable publish timeouts). Default is false.
+      reconnectOnFatalFailures: false
       roomOptions:
         adaptiveStream: true
         dynacast: true
@@ -1059,8 +1065,6 @@ public:
         mime: image/png
       - extension: .webp
         mime: image/webp
-      - extension: .svg
-        mime: image/svg+xml
   user:
     role_moderator: MODERATOR
     role_viewer: VIEWER

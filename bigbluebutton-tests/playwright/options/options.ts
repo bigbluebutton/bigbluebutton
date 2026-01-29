@@ -66,7 +66,7 @@ export class Options extends MultiUsers {
   async darkMode() {
     await this.modPage.hasElement(e.whiteboard, 'should the whiteboard be display');
     // send chat message
-    await this.modPage.type(e.chatBox, e.message);
+    await this.modPage.fill(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElement(e.chatUserMessageText, 'should the chat message be displayed');
     // set all locators

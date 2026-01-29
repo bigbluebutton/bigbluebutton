@@ -20,7 +20,11 @@ const GenericMainContent: React.FC<GenericContentMainAreaProps> = ({
 
   const isMinimized = width === 0 && height === 0;
 
-  const componentToRender = renderFunctionComponents.filter((g) => genericContentId === g.id);
+  const componentToRender = renderFunctionComponents.filter((g) => genericContentId === g.id)[0];
+  let dataTest: string = genericContentId;
+  if (componentToRender) {
+    dataTest = componentToRender.dataTest;
+  }
   return (
     <Styled.Container
       style={{
@@ -31,11 +35,13 @@ const GenericMainContent: React.FC<GenericContentMainAreaProps> = ({
         right,
       }}
       preventInteraction={isResizing && isLocalChange}
+      data-test={`container-${dataTest}`}
       isMinimized={isMinimized}
     >
       <GenericContentItem
-        key={componentToRender[0]?.id}
-        renderFunction={componentToRender[0]?.contentFunction}
+        dataTest={dataTest}
+        key={componentToRender?.id}
+        renderFunction={componentToRender?.contentFunction}
       />
     </Styled.Container>
   );

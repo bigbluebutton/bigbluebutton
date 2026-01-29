@@ -37,6 +37,8 @@ export const constants = {
   enforcePresentationOnly: 'enforceLayout=PRESENTATION_ONLY',
   enforceParticipantsAndChatOnly: 'enforceLayout=PARTICIPANTS_AND_CHAT_ONLY',
   enforceMediaOnly: 'enforceLayout=MEDIA_ONLY',
+  groups:
+    'groups=[{"id":"1","name":"Room 1","roster":["1235"]},{"id":"2","name":"Room 2","roster":["2333","2335"]},{"id":"3","roster":[]}]',
   // Custom Parameters
   autoJoin: 'userdata-bbb_auto_join_audio=false',
   listenOnlyMode: 'userdata-bbb_listen_only_mode=false',
@@ -95,6 +97,7 @@ export const constants = {
   customVirtualBackgroundDisabled: 'disabledFeatures=customVirtualBackgrounds',
   slideSnapshotDisabled: 'disabledFeatures=snapshotOfCurrentSlide',
   cameraAsContent: 'disabledFeatures=cameraAsContent',
+  infiniteWhiteboard: 'disabledFeatures=infiniteWhiteboard',
   // Disabled Features Exclude
   breakoutRoomsExclude: 'disabledFeatures=breakoutRooms,presentation,chat&disabledFeaturesExclude=breakoutRooms',
   speechRecognitionExclude:
@@ -121,6 +124,7 @@ export const constants = {
     'disabledFeatures=presentation,chat,customVirtualBackground&disabledFeaturesExclude=customVirtualBackground',
   slideSnapshotExclude: 'disabledFeatures=snapShotOfCurrentSlide,chat&disabledFeaturesExclude=snapShotOfCurrentSlide',
   cameraAsContentExclude: 'disabledFeatures=cameraAsContent,chat&disabledFeaturesExclude=cameraAsContent',
+  infiniteWhiteboardExclude: 'disabledFeatures=infiniteWhiteboard,chat&disabledFeaturesExclude=infiniteWhiteboard',
   // Shortcuts
   shortcuts: 'userdata-bbb_shortcuts=[$]',
   initialShortcuts: [

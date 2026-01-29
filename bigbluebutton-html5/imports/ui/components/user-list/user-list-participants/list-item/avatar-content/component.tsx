@@ -45,7 +45,7 @@ const AvatarContent: React.FC<AvatarContentProps> = ({ user }) => {
   };
 
   const userAvatarFiltered = (user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar;
-  const avatarContent = user.lastBreakoutRoom?.currentlyInRoom && userAvatarFiltered.length === 0
+  const avatarContent = user.lastBreakoutRoom?.isUserCurrentlyInRoom && userAvatarFiltered.length === 0
     ? user.lastBreakoutRoom?.sequence
     : getIconUser();
 

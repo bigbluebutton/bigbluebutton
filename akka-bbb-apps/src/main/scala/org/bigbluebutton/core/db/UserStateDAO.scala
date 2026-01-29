@@ -9,20 +9,24 @@ case class UserEjectColumnsDbModel(
     ejectReasonCode:              Option[String],
     ejectedByModerator:           Option[String],
 )
+case class UserGuestColumnsDbModel(
+    guestStatus:                  String,
+    guestStatusSetByModerator:    Option[String],
+    guestLobbyMessage:            Option[String],
+)
 case class UserStateDbModel(
     meetingId:                    String,
     userId:                       String,
     away:                         Boolean = false,
     raiseHand:                    Boolean = false,
-    guestStatus:                  String,
-    guestStatusSetByModerator:    Option[String],
-    guestLobbyMessage:            Option[String],
+    guestColumns:                 UserGuestColumnsDbModel,
     mobile:                       Boolean,
     clientType:                   String,
     disconnected:                 Boolean = false,
     expired:                      Boolean = false,
     ejectColumns:                 UserEjectColumnsDbModel,
     presenter:                    Boolean = false,
+    whiteboardWriteAccess:        Boolean = false,
     pinned:                       Boolean = false,
     locked:                       Boolean = false,
     speechLocale:                 String,
@@ -36,8 +40,10 @@ case class UserStateDbModel(
 
 class UserStateDbTableDef(tag: Tag) extends Table[UserStateDbModel](tag, None, "user") {
   override def * = (
-    meetingId, userId,away,raiseHand,guestStatus,guestStatusSetByModerator,guestLobbyMessage,mobile,clientType,disconnected,
-    expired,ejectColumns,presenter,pinned,locked,speechLocale, captionLocale,
+    meetingId, userId,away,raiseHand,
+    guestColumns,
+    mobile,clientType,disconnected,
+    expired,ejectColumns,presenter,whiteboardWriteAccess,pinned,locked,speechLocale, captionLocale,
     inactivityWarningDisplay, inactivityWarningTimeoutSecs, requestedUnmuteByMod, requestedPresenter, echoTestRunningAt) <> (UserStateDbModel.tupled, UserStateDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
@@ -46,6 +52,7 @@ class UserStateDbTableDef(tag: Tag) extends Table[UserStateDbModel](tag, None, "
   val guestStatus = column[String]("guestStatus")
   val guestStatusSetByModerator = column[Option[String]]("guestStatusSetByModerator")
   val guestLobbyMessage = column[Option[String]]("guestLobbyMessage")
+  val guestColumns = (guestStatus, guestStatusSetByModerator, guestLobbyMessage) <> (UserGuestColumnsDbModel.tupled, UserGuestColumnsDbModel.unapply)
   val mobile = column[Boolean]("mobile")
   val clientType = column[String]("clientType")
   val disconnected = column[Boolean]("disconnected")
@@ -56,6 +63,7 @@ class UserStateDbTableDef(tag: Tag) extends Table[UserStateDbModel](tag, None, "
   val ejectedByModerator = column[Option[String]]("ejectedByModerator")
   val ejectColumns = (ejected, ejectReason, ejectReasonCode, ejectedByModerator) <> (UserEjectColumnsDbModel.tupled, UserEjectColumnsDbModel.unapply)
   val presenter = column[Boolean]("presenter")
+  val whiteboardWriteAccess = column[Boolean]("whiteboardWriteAccess")
   val pinned = column[Boolean]("pinned")
   val locked = column[Boolean]("locked")
   val speechLocale = column[String]("speechLocale")
@@ -73,9 +81,10 @@ object UserStateDAO {
       TableQuery[UserStateDbTableDef]
         .filter(_.meetingId === userState.meetingId)
         .filter(_.userId === userState.intId)
-        .map(u => (u.presenter, u.pinned, u.locked, u.speechLocale, u.captionLocale, u.away, u.raiseHand, u.mobile, u.clientType, u.disconnected, u.requestedUnmuteByMod, u.requestedPresenter))
+        .map(u => (u.presenter, u.whiteboardWriteAccess, u.pinned, u.locked, u.speechLocale, u.captionLocale, u.away, u.raiseHand, u.mobile, u.clientType, u.disconnected, u.requestedUnmuteByMod, u.requestedPresenter))
         .update((
           userState.presenter,
+          userState.whiteboardWriteAccess,
           userState.pin,
           userState.locked,
           userState.speechLocale,

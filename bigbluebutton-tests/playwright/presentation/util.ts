@@ -55,7 +55,7 @@ export async function uploadSinglePresentation(testPage: Page, fileName: string,
     e.presentationFileUpload,
     'should display the presentation space for uploading a new file, when the manage presentations is opened',
   );
-  await testPage.page.waitForTimeout(500); //wait a bit for the presentations to load
+  await testPage.page.waitForTimeout(500); // wait a bit for the presentations to load
   const numPresentationsBefore = await testPage.getSelectorCount(e.presentationThumbnails);
 
   await testPage.page.setInputFiles(e.presentationFileUpload, path.join(__dirname, `../core/media/${fileName}`));
@@ -64,7 +64,8 @@ export async function uploadSinglePresentation(testPage: Page, fileName: string,
     e.presentationUploadProgressToast,
     'should display the toast presentation upload progress after confirming the presentation to be uploaded',
   );
-  await testPage.waitUntilHaveCountSelector(e.presentationThumbnails, numPresentationsBefore + 1, uploadTimeout) // wait for the upload to finish
+  // wait for the upload to finish
+  await testPage.waitUntilHaveCountSelector(e.presentationThumbnails, numPresentationsBefore + 1, uploadTimeout);
 
   // select and share the uploaded presentation
   const newPDFThumbnail = await testPage.getLocatorByIndex(e.presentationThumbnails, 1);
@@ -111,7 +112,8 @@ export async function uploadMultiplePresentations(
     fileNames.length,
     'should display the upload done icon after all presentations are successfully uploaded',
   );
-  await testPage.waitUntilHaveCountSelector(e.presentationThumbnails, fileNames.length + 1, uploadTimeout) // wait for the uploads to finish
+  // wait for the uploads to finish
+  await testPage.waitUntilHaveCountSelector(e.presentationThumbnails, fileNames.length + 1, uploadTimeout);
   // select and share a new uploaded presentation
   const newPDFThumbnail = await testPage.getLocatorByIndex(e.presentationThumbnails, 1);
   await newPDFThumbnail.click();

@@ -27,7 +27,9 @@ const intlMessages = defineMessages({
   },
 });
 
-const CrowdActionButtons: React.FC<CrowdActionButtonsProps> = () => {
+const CrowdActionButtons: React.FC<CrowdActionButtonsProps> = ({
+  isBreakout,
+}) => {
   const intl = useIntl();
   const [setMuted] = useMutation(SET_MUTED);
   const lockViewersModal = useModalRegistration({ id: 'lockViewersModal', priority: 'low' });
@@ -78,21 +80,23 @@ const CrowdActionButtons: React.FC<CrowdActionButtonsProps> = () => {
             onClick={muteAll}
           />
         </Styled.ActionButtonWrapper>
-        <Styled.ActionButtonWrapper>
-          <Styled.ActionButtonLabel>
-            {intl.formatMessage(intlMessages.lockSettingsButtonLabel)}
-          </Styled.ActionButtonLabel>
-          {/* @ts-ignore - button is js component */}
-          <Styled.ActionButton
-            hideLabel
-            label={intl.formatMessage(intlMessages.lockSettingsButtonDescription)}
-            tooltipLabel={intl.formatMessage(intlMessages.lockSettingsButtonDescription)}
-            icon="lock"
-            size="lg"
-            data-test="lockViewersButton"
-            onClick={openLockSettingsModal}
-          />
-        </Styled.ActionButtonWrapper>
+        {!isBreakout && (
+          <Styled.ActionButtonWrapper>
+            <Styled.ActionButtonLabel>
+              {intl.formatMessage(intlMessages.lockSettingsButtonLabel)}
+            </Styled.ActionButtonLabel>
+            {/* @ts-ignore - button is js component */}
+            <Styled.ActionButton
+              hideLabel
+              label={intl.formatMessage(intlMessages.lockSettingsButtonDescription)}
+              tooltipLabel={intl.formatMessage(intlMessages.lockSettingsButtonDescription)}
+              icon="lock"
+              size="lg"
+              data-test="lockViewersButton"
+              onClick={openLockSettingsModal}
+            />
+          </Styled.ActionButtonWrapper>
+        )}
       </Styled.ActionButtonsWrapper>
     </>
   );

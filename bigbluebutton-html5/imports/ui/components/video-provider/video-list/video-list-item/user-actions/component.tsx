@@ -78,6 +78,10 @@ const intlMessages = defineMessages({
   disableWarning: {
     id: 'app.videoDock.webcamDisableWarning',
   },
+  you: {
+    id: 'app.userList.you',
+    description: 'Text for identifying your user',
+  },
 });
 
 interface UserActionProps {
@@ -124,6 +128,11 @@ const UserActions: React.FC<UserActionProps> = (props) => {
   const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);
   const pinEnabledForCurrentUser = useIsVideoPinEnabledForCurrentUser(amIModerator);
 
+  const isLocalStream = stream.userId === Auth.userID;
+  const displayName = isLocalStream
+    ? `${name} (${intl.formatMessage(intlMessages.you)})`
+    : name;
+
   useEffect(() => () => {
     if (isFullscreenContext) {
       layoutContextDispatch({
@@ -162,8 +171,8 @@ const UserActions: React.FC<UserActionProps> = (props) => {
     if (isVideoSqueezed) {
       menuItems.push({
         key: `${cameraId}-name`,
-        label: name,
-        description: name,
+        label: displayName,
+        description: displayName,
         onClick: () => { },
         disabled: true,
       });
@@ -260,6 +269,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
               browserClickEvent: event,
             }),
             icon: optionItem.icon,
+            dataTest: optionItem.dataTest,
           });
           break;
         }
@@ -267,6 +277,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
           menuItems.push({
             key: pluginItem.id,
             isSeparator: true,
+            dataTest: pluginItem.dataTest,
           });
           break;
         default:
@@ -313,7 +324,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
                 $isRTL={isRTL}
                 role="button"
               >
-                {name}
+                {displayName}
               </Styled.DropdownTrigger>
             )}
             actions={getAvailableActions()}
@@ -333,7 +344,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
         : (
           <Styled.Dropdown $isFirefox={isFirefox}>
             <Styled.UserName $noMenu={numOfStreams < 3}>
-              {name}
+              {displayName}
             </Styled.UserName>
           </Styled.Dropdown>
         )}

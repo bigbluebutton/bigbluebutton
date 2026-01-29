@@ -42,6 +42,7 @@ interface VideoPreviewProps {
   priority?: number;
   isVirtualBackgroundsEnabled: boolean;
   isCustomVirtualBackgroundsEnabled: boolean;
+  hideNotificationToasts?: boolean;
   setAway: MutationFunction;
   isAway: boolean;
 }
@@ -168,6 +169,7 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
   priority,
   isVirtualBackgroundsEnabled,
   isCustomVirtualBackgroundsEnabled,
+  hideNotificationToasts = false,
   setAway,
   isAway,
 }) => {
@@ -458,6 +460,7 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
           initialVirtualBgState={initialVirtualBgState}
           isCustomVirtualBackgroundsEnabled={isCustomVirtualBackgroundsEnabled}
           renderSettingsLabel={false}
+          hideNotificationToasts={hideNotificationToasts}
         />
       </Styled.Fragment>
     );

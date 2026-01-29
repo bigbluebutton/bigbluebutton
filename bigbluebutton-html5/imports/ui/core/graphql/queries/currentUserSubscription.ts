@@ -49,7 +49,7 @@ subscription userCurrentSubscription {
       logoutUrl
     }
     lastBreakoutRoom {
-      currentlyInRoom
+      isUserCurrentlyInRoom
       sequence
       shortName
     }

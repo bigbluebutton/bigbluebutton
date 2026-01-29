@@ -8,6 +8,7 @@ import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 
 interface AppItemProps {
   appKey: string;
+  dataTest?: string;
   name: string;
   icon: string;
   isPinned: boolean;
@@ -30,6 +31,7 @@ const intlMessages = defineMessages({
 
 const AppItem: React.FC<AppItemProps> = ({
   appKey,
+  dataTest,
   name,
   icon,
   isPinned,
@@ -74,7 +76,7 @@ const AppItem: React.FC<AppItemProps> = ({
   const functionToBeCalled = typeof onClick === 'function' ? onClick : openAppPanel;
 
   return (
-    <Styled.RegisteredAppContent key={`${appKey}${isPinned}`}>
+    <Styled.RegisteredAppContent key={`${appKey}${isPinned}`} data-test={dataTest}>
       <Styled.ClickableArea onClick={functionToBeCalled}>
         <Styled.OpenButton
           key={`OPEN${appKey}`}

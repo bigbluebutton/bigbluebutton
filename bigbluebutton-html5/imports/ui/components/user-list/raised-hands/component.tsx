@@ -2,6 +2,7 @@ import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import { RAISED_HAND_USERS } from '/imports/ui/core/graphql/queries/users';
+import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
 import { SET_RAISE_HAND } from '/imports/ui/core/graphql/mutations/userMutations';
 import { CURRENT_PRESENTATION_PAGE_SUBSCRIPTION } from '/imports/ui/components/whiteboard/queries';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
@@ -30,7 +31,6 @@ const RaisedHandsContainer: React.FC = () => {
 
   const { data: usersData, error: usersError } = useDeduplicatedSubscription<{
     user: RaisedHandUser[] }>(RAISED_HAND_USERS);
-  const raisedHands = usersData?.user ?? [];
 
   const { data: meeting, loading: meetingLoading } = useMeeting((m) => ({
     lockSettings: m.lockSettings,
@@ -59,6 +59,13 @@ const RaisedHandsContainer: React.FC = () => {
       'Error on requesting raise hand data',
     );
   }
+
+  const raisedHands: RaisedHandUser[] = filterByMeetingId(
+    usersData?.user,
+    meeting?.meetingId,
+    RAISED_HAND_USERS,
+    (u) => ({ mismatchedUserId: u.userId, mismatchedName: u.name }),
+  );
 
   if (!meeting || !currentUser || meetingLoading || raisedHands.length === 0) {
     return null;

@@ -189,7 +189,7 @@ func handleSubscriptionMessage(hc *common.HasuraConnection, message *[]byte, sub
 
 	lastDataChecksumWas := subscription.LastReceivedDataChecksum
 	lastReceivedDataWas := subscription.LastReceivedData
-	cacheKey := mergeUint32(subscription.LastReceivedDataChecksum, dataChecksum)
+	cacheKey := combineUint32ToUint64(subscription.LastReceivedDataChecksum, dataChecksum)
 
 	// Store LastReceivedData Checksum
 	subscription.LastReceivedData = messageData
@@ -206,8 +206,8 @@ func handleSubscriptionMessage(hc *common.HasuraConnection, message *[]byte, sub
 	return true
 }
 
-func mergeUint32(a, b uint32) uint32 {
-	return (a << 16) | (b >> 16)
+func combineUint32ToUint64(a, b uint32) uint64 {
+	return (uint64(a) << 32) | uint64(b)
 }
 
 func handleStreamingMessage(hc *common.HasuraConnection, message []byte, subscription common.GraphQlSubscription, queryId string) {
@@ -247,8 +247,8 @@ func handleConnectionAckMessage(hc *common.HasuraConnection, message []byte) {
 func getHasuraMessage(message []byte, subscription common.GraphQlSubscription, logger *logrus.Entry) (uint32, string, common.HasuraMessage) {
 	dataChecksum := crc32.ChecksumIEEE(message)
 
-	common.GlobalCacheLocks.Lock(dataChecksum)
-	defer common.GlobalCacheLocks.Unlock(dataChecksum)
+	common.GlobalCacheLocks.Lock(uint64(dataChecksum))
+	defer common.GlobalCacheLocks.Unlock(uint64(dataChecksum))
 
 	dataKey, hasuraMessage, dataMapExists := common.GetHasuraMessageCache(dataChecksum)
 	if dataMapExists {

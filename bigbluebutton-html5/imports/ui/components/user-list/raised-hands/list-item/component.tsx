@@ -91,7 +91,7 @@ const renderUserListItemIconsFromPlugin = (
 ).map((item: PluginSdk.UserListItemAdditionalInformationInterface) => {
   const itemToRender = item as PluginSdk.UserListItemIcon;
   return (
-    <Styled.IconRightContainer key={item.id}>
+    <Styled.IconRightContainer key={item.id} data-test={itemToRender.dataTest}>
       <Icon iconName={itemToRender.icon} />
     </Styled.IconRightContainer>
   );
@@ -181,8 +181,7 @@ const RaisedHandsListItem: React.FC<RaisedHandsListItemProps> = ({
     layoutContextDispatch,
     operations.chatCreateWithUser,
     operations.toggleVoiceFunction,
-    operations.getWriters,
-    operations.presentationSetWriters,
+    operations.userSetWhiteboardWriteAccess,
     operations.setPresenter,
     operations.setRole,
     operations.setLocked,
@@ -195,7 +194,14 @@ const RaisedHandsListItem: React.FC<RaisedHandsListItemProps> = ({
   const animations = Settings?.application?.animations;
 
   return (
-    <Styled.UserItemContents id={`raised-user-${index}`} tabIndex={-1} data-test="raisedHandsListItem">
+    <Styled.UserItemContents
+      id={`raised-user-${index}`}
+      tabIndex={-1}
+      data-test="raisedHandsListItem"
+      role="listitem"
+      aria-label={user.name}
+      data-id={user.extId}
+    >
       {modal.isOpen && (
         <ConfirmationModal
           intl={intl}

@@ -13,6 +13,7 @@ public class PageToConvert {
 
   private boolean svgImagesRequired=true;
   private boolean generatePngs;
+  private boolean useBlanks;
   private PageExtractor pageExtractor;
 
 
@@ -29,6 +30,7 @@ public class PageToConvert {
                        File pageFile,
                        boolean svgImagesRequired,
                        boolean generatePngs,
+                       boolean useBlanks,
                        TextFileCreator textFileCreator,
                        SvgImageCreator svgImageCreator,
                        ThumbnailCreator thumbnailCreator,
@@ -39,6 +41,7 @@ public class PageToConvert {
     this.pageFile = pageFile;
     this.svgImagesRequired = svgImagesRequired;
     this.generatePngs = generatePngs;
+    this.useBlanks = useBlanks;
     this.textFileCreator = textFileCreator;
     this.svgImageCreator = svgImageCreator;
     this.thumbnailCreator = thumbnailCreator;
@@ -74,14 +77,14 @@ public class PageToConvert {
 
   public boolean convert() {
     /* adding accessibility */
-    createThumbnails(pres, page, pageFile);
+    createThumbnails(pres, page, pageFile, useBlanks);
 
-    createTextFiles(pres, page);
+    createTextFiles(pres, page, useBlanks);
 
     // only create SVG images if the configuration requires it
     if (svgImagesRequired) {
       try{
-        createSvgImages(pres, page);
+        createSvgImages(pres, page, useBlanks);
       } catch (TimeoutException e) {
         messageErrorInConversion = e.getMessage();
       }
@@ -89,7 +92,7 @@ public class PageToConvert {
 
     // only create PNG images if the configuration requires it
     if (generatePngs) {
-      createPngImages(pres, page, pageFile);
+      createPngImages(pres, page, pageFile, useBlanks);
     }
 
     return true;
@@ -102,23 +105,23 @@ public class PageToConvert {
     if (generatePngs) pngCreator.createBlank(pres, page);
   }
 
-  private void createThumbnails(UploadedPresentation pres, int page, File pageFile) {
+  private void createThumbnails(UploadedPresentation pres, int page, File pageFile, boolean useBlank) {
     //notifier.sendCreatingThumbnailsUpdateMessage(pres);
-    thumbnailCreator.createThumbnail(pres, page, pageFile);
+    thumbnailCreator.createThumbnail(pres, page, pageFile, useBlank);
   }
 
-  private void createTextFiles(UploadedPresentation pres, int page) {
+  private void createTextFiles(UploadedPresentation pres, int page, boolean useBlank) {
     //notifier.sendCreatingTextFilesUpdateMessage(pres);
-    textFileCreator.createTextFile(pres, page);
+    textFileCreator.createTextFile(pres, page, useBlank);
   }
 
-  private void createSvgImages(UploadedPresentation pres, int page) throws TimeoutException {
+  private void createSvgImages(UploadedPresentation pres, int page, boolean useBlank) throws TimeoutException {
     //notifier.sendCreatingSvgImagesUpdateMessage(pres);
-    svgImageCreator.createSvgImage(pres, page);
+    svgImageCreator.createSvgImage(pres, page, useBlank);
   }
 
-  private void createPngImages(UploadedPresentation pres, int page, File pageFile) {
-    pngCreator.createPng(pres, page, pageFile);
+  private void createPngImages(UploadedPresentation pres, int page, File pageFile, boolean useBlank) {
+    pngCreator.createPng(pres, page, pageFile, useBlank);
   }
 
 }

@@ -281,7 +281,11 @@ class ApiController {
 
     boolean redirectClient = REDIRECT_RESPONSE
     if(!(validationResponse == null)) {
-      invalid(validationResponse.getKey(), validationResponse.getValue(), redirectClient, errorRedirectUrl);
+      if (validationResponse.getKey() == "checksumError") {
+        invalid(validationResponse.getKey(), validationResponse.getValue(), redirectClient);
+      } else {
+        invalid(validationResponse.getKey(), validationResponse.getValue(), redirectClient, errorRedirectUrl);
+      }
       return
     }
 
@@ -456,6 +460,22 @@ class ApiController {
     //Return a Map with the user custom data
     Map<String, String> userCustomData = meetingService.getUserCustomData(meeting, externUserID, params);
 
+    // Build joinRequestMetadata with client request info (IP, User-Agent, Referer, sessionToken)
+    // This is static metadata from the initial join request, not dynamic user state
+    String clientIp = paramsProcessorUtil.extractClientIp(
+        request.getHeader("X-Forwarded-For"),
+        request.getHeader("X-Real-IP"),
+        request.getRemoteAddr()
+    )
+    String userAgent = paramsProcessorUtil.sanitizeHeader(request.getHeader('User-Agent'), 512)
+    String referer = paramsProcessorUtil.sanitizeHeader(request.getHeader('Referer'), 1024)
+
+    Map<String, String> joinRequestMetadata = new HashMap<>()
+    joinRequestMetadata.put("ipAddress", clientIp)
+    joinRequestMetadata.put("userAgent", userAgent)
+    joinRequestMetadata.put("referer", referer)
+    joinRequestMetadata.put("sessionToken", sessionToken)
+
     //Currently, it's associated with the externalUserID
     meetingService.addUserCustomData(meeting.getInternalId(), externUserID, userCustomData);
 
@@ -557,6 +577,7 @@ class ApiController {
         us.leftGuestLobby,
         us.enforceLayout,
         us.logoutUrl,
+        joinRequestMetadata,
         meeting.getUserCustomData(us.externUserID)
     )
 
@@ -2096,6 +2117,10 @@ class ApiController {
     if(!violations.isEmpty()) {
       for (Map.Entry<String, String> violation: violations.entrySet()) {
         log.error violation.getValue()
+      }
+
+      if (violations.containsKey("checksumError")) {
+        response = new AbstractMap.SimpleEntry<String, String>("checksumError", violations.get("checksumError"))
       }
 
       if(response == null) {

@@ -142,6 +142,17 @@ const suportedLayouts = [
       DEVICE_TYPE.DESKTOP,
     ],
   },
+  {
+    layoutKey: LAYOUT_TYPE.UNIFIED_LAYOUT,
+    layoutName: 'Unified Layout',
+    suportedDevices: [
+      DEVICE_TYPE.MOBILE,
+      DEVICE_TYPE.TABLET,
+      DEVICE_TYPE.TABLET_PORTRAIT,
+      DEVICE_TYPE.TABLET_LANDSCAPE,
+      DEVICE_TYPE.DESKTOP,
+    ],
+  },
 ];
 
 const COMMON_ELEMENTS = {
@@ -157,6 +168,10 @@ const COMMON_ELEMENTS = {
 };
 
 const LAYOUTS_SYNC = {
+  [LAYOUT_TYPE.UNIFIED_LAYOUT]: {
+    [SYNC.PROPAGATE_ELEMENTS]: [...COMMON_ELEMENTS.DEFAULT, ...COMMON_ELEMENTS.DOCK],
+    [SYNC.REPLICATE_ELEMENTS]: [...COMMON_ELEMENTS.DEFAULT, ...COMMON_ELEMENTS.DOCK],
+  },
   [LAYOUT_TYPE.CUSTOM_LAYOUT]: {
     [SYNC.PROPAGATE_ELEMENTS]: [...COMMON_ELEMENTS.DEFAULT, ...COMMON_ELEMENTS.DOCK],
     [SYNC.REPLICATE_ELEMENTS]: [...COMMON_ELEMENTS.DEFAULT, ...COMMON_ELEMENTS.DOCK],
@@ -217,7 +232,8 @@ const getSupportedLayouts = (deviceType) => suportedLayouts.filter(
 const layoutAllowedInSettings = (layout) => layout !== LAYOUT_TYPE.CAMERAS_ONLY
   && layout !== LAYOUT_TYPE.PRESENTATION_ONLY
   && layout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY
-  && layout !== LAYOUT_TYPE.MEDIA_ONLY;
+  && layout !== LAYOUT_TYPE.MEDIA_ONLY
+  && layout !== LAYOUT_TYPE.UNIFIED_LAYOUT;
 
 const getDeviceType = () => {
   let deviceType = null;

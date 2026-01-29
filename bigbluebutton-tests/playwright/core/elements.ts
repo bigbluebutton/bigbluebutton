@@ -111,7 +111,8 @@ export const elements = {
   inputSetTimeSelector: 'input[id="inputSetTimeSelector"]',
   sendButtonDurationTime: 'button[data-test="sendButtonDurationTime"]',
   breakoutRemainingTime: 'span[data-test="breakoutRemainingTime"]',
-  roomNameInput: 'input[data-test="roomName-1"]',
+  roomNameInput1: 'input[data-test="roomName-1"]',
+  roomNameInput2: 'input[data-test="roomName-2"]',
   roomName1Test: 'span[data-test="TestRoom 1"]',
   breakoutRoomItemOnManage: 'span[data-test^="Room"]',
   userNameBreakoutRoom: 'div[data-test="userNameBreakoutRoom-Room 1"]',
@@ -282,6 +283,7 @@ export const elements = {
   publicChatToast: 'New Public Chat message',
   privateChatToast: 'New Private Chat message',
   joinAudioToast: 'You have joined the audio conference',
+  leftAudioToast: 'You have left the audio conference',
   pollPublishedToast: 'Poll results were published',
   startScreenshareToast: 'Screenshare has started',
   endScreenshareToast: 'Screenshare has ended',
@@ -289,7 +291,8 @@ export const elements = {
   raisingHandToast: 'You have raised your hand',
   loweringHandToast: 'Your hand has been lowered',
   noActiveMicrophoneToast: 'No active microphone. Share your microphone to add audio to this recording.',
-
+  whiteboardAvailableToast: 'The whiteboard is now available',
+  whiteboardDisabledToast: 'The whiteboard access has been removed',
   // Icons
   unmuteIcon: `${baseBbbIcon}unmute`,
   listenOnlyIcon: `${baseBbbIcon}listen`,

@@ -51,6 +51,7 @@ const renderPluginItems = (pluginItems, bottom, right) => {
                 icon={pluginItem.icon}
                 label={pluginItem.label}
                 onClick={pluginItem.onClick}
+                dataTest={pluginItem.dataTest}
               />
             );
             return returnComponent;

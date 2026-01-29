@@ -16,6 +16,7 @@ import Styled from './styles';
 
 interface ExternalAppItemProps {
   appKey: string;
+  dataTest?: string;
   name: string;
   icon: string;
   isPinned: boolean;
@@ -30,6 +31,7 @@ interface ExternalAppItemProps {
 
 const ExternalAppItem: React.FC<ExternalAppItemProps> = ({
   appKey,
+  dataTest,
   name,
   icon,
   isPinned,
@@ -110,6 +112,7 @@ const ExternalAppItem: React.FC<ExternalAppItemProps> = ({
   return (
     <AppItem
       appKey={appKey}
+      dataTest={`apps_gallery_item_${dataTest}`}
       name={nameReplacement}
       icon={icon}
       isPinned={isPinned}

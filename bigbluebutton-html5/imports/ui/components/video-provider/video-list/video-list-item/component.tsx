@@ -95,6 +95,7 @@ const renderPluginItems = (
                 icon={pluginButton.icon}
                 label={pluginButton.label}
                 onClick={({ browserClickEvent }) => pluginButton.onClick({ browserClickEvent, streamId, userId })}
+                dataTest={pluginButton.dataTest}
               />
             );
             return returnComponent;
@@ -306,6 +307,8 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     <Styled.WebcamConnecting
       data-test="webcamConnecting"
       animations={animations}
+      talking={talking}
+      customHighlight={webcamBorderHighlightColor}
     >
       <UserAvatarVideo
         user={user}
@@ -321,6 +324,8 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     <Styled.WebcamConnecting
       data-test="webcamConnectingSqueezed"
       animations={animations}
+      talking={talking}
+      customHighlight={webcamBorderHighlightColor}
     >
       <UserAvatarVideo
         user={user}

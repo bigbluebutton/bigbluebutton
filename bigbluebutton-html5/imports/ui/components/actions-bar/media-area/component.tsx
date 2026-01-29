@@ -24,7 +24,7 @@ const MediaArea = (props: MediaAreaProps) => {
     intl,
     amIPresenter = false,
     amIModerator = false,
-    isMeteorConnected,
+    isConnected,
     mediaAreaItems,
     isCameraAsContentEnabled,
     hasCameraAsContent,
@@ -64,7 +64,7 @@ const MediaArea = (props: MediaAreaProps) => {
     setMenuOpen(!menuOpen);
   }, [menuOpen]);
 
-  if (!isMeteorConnected) {
+  if (!isConnected) {
     return null;
   }
 
@@ -91,7 +91,7 @@ const MediaArea = (props: MediaAreaProps) => {
         intl={intl}
         amIPresenter={amIPresenter}
         amIModerator={amIModerator}
-        isMeteorConnected={isMeteorConnected}
+        isConnected={isConnected}
         mediaAreaItems={mediaAreaItems}
         isCameraAsContentEnabled={isCameraAsContentEnabled}
         hasCameraAsContent={hasCameraAsContent}

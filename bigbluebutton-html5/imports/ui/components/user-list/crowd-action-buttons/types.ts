@@ -1,4 +1,6 @@
-export interface CrowdActionButtonsProps {}
+export interface CrowdActionButtonsProps {
+  isBreakout?: boolean;
+}
 export interface ActionButtonProps {
   color: string;
   disabled: boolean;

@@ -82,12 +82,26 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="recordingServiceGW" ref="recordingServiceGW"/>
     </bean>
 
+    <bean id="redirectFollower" class="org.bigbluebutton.api.service.RedirectFollowerService">
+    </bean>
+
+    <bean id="pluginRedirectValidator" class="org.bigbluebutton.api.service.impl.PluginRedirectValidatorService">
+    </bean>
+
     <bean id="pluginUtils" class="org.bigbluebutton.api.util.PluginUtils">
         <property name="html5PluginSdkVersion" value="${html5PluginSdkVersion}"/>
+        <property name="redirectFollower" ref="redirectFollower"/>
+        <property name="pluginRedirectValidator" ref="pluginRedirectValidator"/>
     </bean>
 
     <bean id="recordingServiceGW" class="org.bigbluebutton.api2.util.RecMetaXmlHelper">
         <constructor-arg index="0" ref="bbbWebApiGWApp"/>
+    </bean>
+
+    <bean id="presRedirectValidator" class="org.bigbluebutton.api.service.impl.PresRedirectValidator">
+        <property name="defaultUploadedPresentation" value="${beans.presentationService.defaultUploadedPresentation}"/>
+        <property name="insertDocumentSupportedProtocols" value="${insertDocumentSupportedProtocols}" />
+        <property name="insertDocumentBlockedHosts" value="${insertDocumentBlockedHosts}" />
     </bean>
 
     <bean id="presDownloadService" class="org.bigbluebutton.presentation.PresentationUrlDownloadService"
@@ -97,10 +111,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="pageExtractor" ref="pageExtractor"/>
         <property name="documentConversionService" ref="documentConversionService"/>
         <property name="blankPresentation" value="${BLANK_PRESENTATION}"/>
-        <property name="defaultUploadedPresentation" value="${beans.presentationService.defaultUploadedPresentation}"/>
-        <property name="insertDocumentSupportedProtocols" value="${insertDocumentSupportedProtocols}" />
-        <property name="insertDocumentBlockedHosts" value="${insertDocumentBlockedHosts}" />
+        <property name="redirectFollower" ref="redirectFollower" />
         <property name="presDownloadReadTimeoutInMs" value="${presDownloadReadTimeoutInMs}" />
+        <property name="presRedirectValidator" ref="presRedirectValidator" />
     </bean>
 
     <bean id="xmlService" class="org.bigbluebutton.api.service.impl.XmlServiceImpl"/>
@@ -193,6 +206,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="allowModsToEjectCameras" value="${allowModsToEjectCameras}"/>
         <property name="breakoutRoomsRecord" value="${breakoutRoomsRecord}"/>
         <property name="breakoutRoomsPrivateChatEnabled" value="${breakoutRoomsPrivateChatEnabled}"/>
+        <property name="breakoutRoomsMultiUserWhiteboardDefaultOn" value="${breakoutRoomsMultiUserWhiteboardDefaultOn}"/>
         <property name="lockSettingsDisableCam" value="${lockSettingsDisableCam}"/>
         <property name="lockSettingsDisableMic" value="${lockSettingsDisableMic}"/>
         <property name="lockSettingsDisablePrivateChat" value="${lockSettingsDisablePrivateChat}"/>

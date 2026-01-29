@@ -1,5 +1,5 @@
 import Auth from '/imports/ui/services/auth';
-import { LazyQueryExecFunction, MutationFunction } from '@apollo/client';
+import { MutationFunction } from '@apollo/client';
 import { IntlShape, defineMessages } from 'react-intl';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import { User } from '/imports/ui/Types/user';
@@ -10,15 +10,9 @@ import {
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import { toggleMuteMicrophone } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 import { DispatcherFunction } from '/imports/ui/components/layout/layoutTypes';
-import {
-  GetWritersData,
-  GetWritersVariables,
-  UserActionPermissions,
-  Writer,
-} from './types';
+import { UserActionPermissions } from './types';
 import logger from '/imports/startup/client/logger';
 import { setPendingChat } from '/imports/ui/core/local-states/usePendingChat';
-import { notify } from '/imports/ui/services/notification';
 
 const intlMessages = defineMessages({
   presenter: {
@@ -163,17 +157,21 @@ export const generateActionsPermissions = (
   // A breakout room user that has a moderator role in it's parent room
   const parentRoomModerator = getFromUserSettings('bbb_parent_room_moderator', false);
   const hasAuthority = currentUserIsModerator || amISubjectUser;
+
   const userChatIsLocked = currentUserLocked && lockSettings?.disablePrivateChat;
-  const allowedToChatPrivately = isChatEnabled && (
-    currentUserIsModerator || (
-      !userChatIsLocked
-        // TODO: Add check for hasPrivateChat between users
-        || subjectUser.isModerator
-    )) && !amISubjectUser
+  const isBreakoutPrivateChatLocked = isBreakout && lockSettings?.disablePrivateChat;
+  const preventSelfChat = !amISubjectUser;
+  const moderatorOverride = currentUserIsModerator
+    && !amISubjectUser && !isDialInUser && isPrivateChatEnabled;
+  const regularUserCondition = (isPrivateChatEnabled
+    && isChatEnabled
+    && !lockSettings?.disablePrivateChat
     && !isDialInUser
-    && isPrivateChatEnabled
-    && !isSubjectUserBot
-    && !isBreakout
+    && !isBreakout)
+    || currentUserIsModerator;
+  const allowedToChatPrivately = preventSelfChat
+    && (moderatorOverride || regularUserCondition || !userChatIsLocked)
+    && !isBreakoutPrivateChatLocked
     && type === 'participant';
 
   const allowedToMuteAudio = hasAuthority
@@ -288,51 +286,27 @@ export const startPrivateChatOnClick = (
 export const hasWhiteboardWriteAccess = (user: Partial<User>) => (user?.whiteboardWriteAccess === true);
 
 export const handleWhiteboardAccessChange = async (
-  intl: IntlShape,
   user: Partial<User>,
   pageId: string,
-  getWriters: LazyQueryExecFunction<GetWritersData, GetWritersVariables>,
-  presentationSetWriters: MutationFunction,
+  userSetWhiteboardWriteAccess: MutationFunction,
+  newWhiteboardWriteAccess: boolean,
 ) => {
   // There is no presentation available, so access cannot be granted.
   if (!pageId) return;
   try {
-    // Fetch the writers data
-    const { data } = await getWriters();
-    const currentWriters: Writer[] = data?.user_whiteboardWriteAccess || [];
-
     // Determine if the user has access
-    const { userId } = user;
-    if (!userId) throw new Error('Invalid userId');
-    const hasAccess = hasWhiteboardWriteAccess(user);
+    const { userId, whiteboardWriteAccess } = user;
 
-    // Prepare the updated list of user IDs for whiteboard access
-    const usersIds = currentWriters?.map((writer: { userId: string }) => writer?.userId);
-    const newUsersIds: string[] = hasAccess
-      ? usersIds.filter((id: string) => id !== userId)
-      : [...usersIds, userId];
-
-    // Check if the maximum number of writers has been reached.
-    // If so, notify the user then return.
-    const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
-    if (newUsersIds.length >= WHITEBOARD_CONFIG.maxNumberOfActiveUsers) {
-      notify(
-        intl.formatMessage(
-          intlMessages.multiUserLimitHasBeenReachedNotification,
-          { numberOfUsers: WHITEBOARD_CONFIG.maxNumberOfActiveUsers },
-        ),
-        'info',
-        'pen_tool',
-      );
-      return;
+    if (newWhiteboardWriteAccess !== whiteboardWriteAccess) {
+      // Update user whiteboardWriteAccess
+      await userSetWhiteboardWriteAccess({
+        variables: {
+          userIds: [userId],
+          allUsers: false,
+          whiteboardWriteAccess: newWhiteboardWriteAccess,
+        },
+      });
     }
-    // Update the writers
-    await presentationSetWriters({
-      variables: {
-        pageId,
-        usersIds: newUsersIds,
-      },
-    });
   } catch (error) {
     logger.warn({
       logCode: 'user_action_whiteboard_access_failed',
@@ -367,8 +341,7 @@ export const createToolbarOptions = (
   layoutContextDispatch: DispatcherFunction,
   chatCreateWithUser: MutationFunction,
   toggleVoice: (userId: string, muted: boolean) => Promise<void>,
-  getWriters: LazyQueryExecFunction<GetWritersData, GetWritersVariables>,
-  presentationSetWriters: MutationFunction,
+  userSetWhiteboardWriteAccess: MutationFunction,
   setPresenter: MutationFunction,
   setRole: MutationFunction,
   setLocked: MutationFunction,
@@ -481,7 +454,7 @@ export const createToolbarOptions = (
           ? intl.formatMessage(intlMessages.removeWhiteboardAccess)
           : intl.formatMessage(intlMessages.giveWhiteboardAccess),
         onClick: () => {
-          handleWhiteboardAccessChange(intl, user, pageId, getWriters, presentationSetWriters);
+          handleWhiteboardAccessChange(user, pageId, userSetWhiteboardWriteAccess, !whiteboardAccess);
         },
         icon: whiteboardAccess ? 'pen_tool' : 'pen_tool_off',
         dataTest: 'changeWhiteboardAccessUser',

@@ -65,7 +65,7 @@ object FakeUserGenerator {
 
     val ru = RegisteredUsers.create(meetingId, userId = id, extId, name, "", "", role,
       authToken, Vector(sessionToken), avatarURL, webcamBackgroundURL, color, bot,
-      guest, authed, guestStatus = GuestStatus.ALLOW, false, "", logoutUrl, Map(), false)
+      guest, authed, guestStatus = GuestStatus.ALLOW, false, "", logoutUrl, Map.empty, Map.empty, false)
     RegisteredUsers.add(users, ru, meetingId)
     ru
   }

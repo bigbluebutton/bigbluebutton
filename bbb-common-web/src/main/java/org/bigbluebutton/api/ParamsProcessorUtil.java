@@ -125,7 +125,8 @@ public class ParamsProcessorUtil {
         private boolean defaultBreakoutRoomsCaptureNotes = false;
         private String  defaultBreakoutRoomsCaptureSlidesFilename = CONF_NAME;
         private String  defaultBreakoutRoomsCaptureNotesFilename = CONF_NAME;
-		private boolean defaultbreakoutRoomsPrivateChatEnabled;
+		private boolean defaultBreakoutRoomsPrivateChatEnabled;
+		private boolean defaultBreakoutRoomsMultiUserWhiteboardDefaultOn = true;
 
 		private boolean defaultLockSettingsDisableCam;
 		private boolean defaultLockSettingsDisableMic;
@@ -318,7 +319,7 @@ public class ParamsProcessorUtil {
 				breakoutRoomsRecord = Boolean.parseBoolean(breakoutRoomsRecordParam);
 			}
 
-			Boolean breakoutRoomsPrivateChatEnabled =  defaultbreakoutRoomsPrivateChatEnabled;
+			Boolean breakoutRoomsPrivateChatEnabled =  defaultBreakoutRoomsPrivateChatEnabled;
 			String breakoutRoomsPrivateChatEnabledParam = params.get(ApiParams.BREAKOUT_ROOMS_PRIVATE_CHAT_ENABLED);
 			if (!StringUtils.isEmpty(breakoutRoomsPrivateChatEnabledParam)) {
 				breakoutRoomsPrivateChatEnabled = Boolean.parseBoolean(breakoutRoomsPrivateChatEnabledParam);
@@ -743,6 +744,18 @@ public class ParamsProcessorUtil {
             notifyRecordingIsOn = Boolean.parseBoolean(params.get(ApiParams.NOTIFY_RECORDING_IS_ON));
         }
 
+        boolean multiUserWhiteboardEnabled = false;
+        if (isBreakout) {
+            multiUserWhiteboardEnabled = defaultBreakoutRoomsMultiUserWhiteboardDefaultOn;
+        }
+        if(!StringUtils.isEmpty(params.get(ApiParams.MULTIUSER_WHITEBOARD_ENABLED))) {
+            try {
+                multiUserWhiteboardEnabled = Boolean.parseBoolean(params.get(ApiParams.MULTIUSER_WHITEBOARD_ENABLED));
+            } catch (Exception ex) {
+                log.warn("Invalid param [multiUserWhiteboardEnabled] for meeting=[{}]",internalMeetingId);
+            }
+        }
+
         boolean webcamsOnlyForMod = webcamsOnlyForModerator;
         if (!StringUtils.isEmpty(params.get(ApiParams.WEBCAMS_ONLY_FOR_MODERATOR))) {
             try {
@@ -925,6 +938,7 @@ public class ParamsProcessorUtil {
                 .withPresentationConversionCacheEnabled(presentationCacheEnabled)
                 .withRecordFullDurationMedia(_recordFullDurationMedia)
                 .withWebcamsOnlyForModerator(webcamsOnlyForMod)
+                .withMultiUserWhiteboardEnabled(multiUserWhiteboardEnabled)
                 .withMeetingCameraCap(meetingCameraCap)
                 .withUserCameraCap(userCameraCap)
                 .withMaxPinnedCameras(maxPinnedCameras)
@@ -996,14 +1010,14 @@ public class ParamsProcessorUtil {
 			meeting.setCustomLogoURL(this.getDefaultLogoURL());
 		}
 
-        if (!StringUtils.isEmpty(params.get(ApiParams.DARK_LOGO))) {                
-            meeting.setCustomDarkLogoURL(params.get(ApiParams.DARK_LOGO));          
-        } else if  (!StringUtils.isEmpty(params.get(ApiParams.LOGO))) {             
-            meeting.setCustomDarkLogoURL(params.get(ApiParams.LOGO));               
-        } else if  (this.getUseDefaultDarkLogo()) {                                 
-            meeting.setCustomDarkLogoURL(this.getDefaultDarkLogoURL());             
-        } else if (!this.getUseDefaultDarkLogo() && this.getUseDefaultLogo()) {     
-            meeting.setCustomDarkLogoURL(this.getDefaultLogoURL());                 
+        if (!StringUtils.isEmpty(params.get(ApiParams.DARK_LOGO))) {
+            meeting.setCustomDarkLogoURL(params.get(ApiParams.DARK_LOGO));
+        } else if  (!StringUtils.isEmpty(params.get(ApiParams.LOGO))) {
+            meeting.setCustomDarkLogoURL(params.get(ApiParams.LOGO));
+        } else if  (this.getUseDefaultDarkLogo()) {
+            meeting.setCustomDarkLogoURL(this.getDefaultDarkLogoURL());
+        } else if (!this.getUseDefaultDarkLogo() && this.getUseDefaultLogo()) {
+            meeting.setCustomDarkLogoURL(this.getDefaultLogoURL());
         }
 
 		if (!StringUtils.isEmpty(params.get(ApiParams.COPYRIGHT))) {
@@ -1731,8 +1745,12 @@ public class ParamsProcessorUtil {
 	}
 
 	public void setBreakoutRoomsPrivateChatEnabled(Boolean breakoutRoomsPrivateChatEnabled) {
-		this.defaultbreakoutRoomsPrivateChatEnabled = breakoutRoomsPrivateChatEnabled;
+		this.defaultBreakoutRoomsPrivateChatEnabled = breakoutRoomsPrivateChatEnabled;
 	}
+
+    public void setBreakoutRoomsMultiUserWhiteboardDefaultOn(Boolean breakoutRoomsMultiUserWhiteboardDefaultOn) {
+        this.defaultBreakoutRoomsMultiUserWhiteboardDefaultOn = breakoutRoomsMultiUserWhiteboardDefaultOn;
+    }
 
 	public void setLockSettingsDisableCam(Boolean lockSettingsDisableCam) {
 		this.defaultLockSettingsDisableCam = lockSettingsDisableCam;
@@ -1846,5 +1864,49 @@ public class ParamsProcessorUtil {
 
     public void setPluginUtils(PluginUtils pluginUtils) {
         this.pluginUtils = pluginUtils;
+    }
+
+    /**
+     * Extracts client IP from headers. Parses X-Forwarded-For (first valid IP),
+     * falls back to X-Real-IP, then remoteAddr. Returns sanitized IP (max 128 chars).
+     */
+    public String extractClientIp(String xForwardedFor, String xRealIp, String remoteAddr) {
+        String clientIp = "";
+
+        // Parse X-Forwarded-For (may contain multiple IPs)
+        if (xForwardedFor != null && !xForwardedFor.trim().isEmpty()) {
+            String[] parts = xForwardedFor.split(",");
+            for (String part : parts) {
+                String trimmed = part.trim();
+                if (!trimmed.isEmpty()) {
+                    clientIp = trimmed;
+                    break;
+                }
+            }
+        }
+
+        if (clientIp.isEmpty() && xRealIp != null && !xRealIp.trim().isEmpty()) {
+            clientIp = xRealIp.trim();
+        }
+
+        if (clientIp.isEmpty() && remoteAddr != null && !remoteAddr.trim().isEmpty()) {
+            clientIp = remoteAddr.trim();
+        }
+
+        return sanitizeHeader(clientIp, 128);
+    }
+
+    /**
+     * Sanitizes header value: trims whitespace and caps length.
+     */
+    public String sanitizeHeader(String value, int maxLength) {
+        if (value == null || value.isEmpty()) {
+            return "";
+        }
+        String trimmed = value.trim();
+        if (trimmed.length() > maxLength) {
+            return trimmed.substring(0, maxLength);
+        }
+        return trimmed;
     }
 }

@@ -85,7 +85,7 @@ const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
       </span>,
     );
   }
-  if (subjectUser.lastBreakoutRoom?.currentlyInRoom) {
+  if (subjectUser.lastBreakoutRoom?.isUserCurrentlyInRoom) {
     subs.push(
       <span key={uniqueId('breakout-')}>
         <Icon iconName="rooms" />
@@ -113,7 +113,7 @@ const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
   ).forEach((item) => {
     const itemToRender = item as UserListItemLabel;
     subs.push(
-      <span key={itemToRender.id}>
+      <span key={itemToRender.id} data-test={itemToRender.dataTest}>
         { itemToRender.icon
           && <Styled.UserAdditionalInformationIcon iconName={itemToRender.icon} /> }
         {itemToRender.label}

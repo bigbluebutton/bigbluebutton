@@ -118,7 +118,7 @@ export class LockViewers extends MultiUsers {
 
   async lockSendPublicChatMessages() {
     // mod send a message
-    await this.modPage.type(e.chatBox, e.message);
+    await this.modPage.fill(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElement(
       e.chatUserMessageText,
@@ -150,7 +150,7 @@ export class LockViewers extends MultiUsers {
       'should have the send button on the public chat disabled for the second attendee',
     );
     await this.modPage.waitAndClick(e.messagesSidebarButton);
-    await this.modPage.type(e.chatBox, e.message);
+    await this.modPage.fill(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
     // unlock user2
     await this.modPage.waitAndClick(e.usersListSidebarButton);
@@ -162,7 +162,7 @@ export class LockViewers extends MultiUsers {
       'should have the public chat enabled for the second attendee',
       ELEMENT_WAIT_LONGER_TIME,
     );
-    await this.userPage2.type(e.chatBox, e.message);
+    await this.userPage2.fill(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.messagesSidebarButton);
     await this.modPage.hasElement(e.typingIndicator, 'should display the typing indicator element for the moderator');
     await this.userPage2.waitAndClick(e.sendButton);
@@ -208,10 +208,10 @@ export class LockViewers extends MultiUsers {
       e.sendButton,
       'should have the send button on the private chat enabled for the first attendee',
     );
-    await this.userPage.type(e.chatBox, 'Test');
+    await this.userPage.fill(e.chatBox, 'Test');
     await this.userPage.waitAndClick(e.sendButton);
     // check message sent and toolbar
-        await this.userPage.hasElement(
+    await this.userPage.hasElement(
       e.chatUserMessageText,
       'should display the chat message text on the private chat for the first attendee',
     );
@@ -241,7 +241,7 @@ export class LockViewers extends MultiUsers {
     await this.userPage.waitAndClick(e.sharedNotesSidebarButton);
     await this.userPage.waitForSelector(e.hideNotesLabel);
     const sharedNotesLocator = getNotesLocator(this.userPage);
-    await sharedNotesLocator.type(e.message, { timeout: ELEMENT_WAIT_LONGER_TIME });
+    await sharedNotesLocator.pressSequentially(e.message, { timeout: ELEMENT_WAIT_LONGER_TIME });
     await expect(
       sharedNotesLocator,
       'should the shared notes contain the text "Hello World!" for the first attendee',

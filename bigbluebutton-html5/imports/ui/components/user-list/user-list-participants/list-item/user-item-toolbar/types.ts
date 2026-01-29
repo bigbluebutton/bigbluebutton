@@ -30,6 +30,7 @@ export interface DropdownItem {
   iconRight?: string;
   textColor?: string;
   isSeparator?: boolean;
+  dataTest?: string;
   contentFunction?: ((element: HTMLElement) => void);
   onClick?: (() => void);
 }

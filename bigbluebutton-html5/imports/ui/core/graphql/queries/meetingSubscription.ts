@@ -39,6 +39,7 @@ const MEETING_SUBSCRIPTION = gql`
           guestPolicy
           guestLobbyMessage
           webcamsOnlyForModerator
+          multiUserWhiteboardEnabled
         }
         layout {
           cameraDockAspectRatio
@@ -51,7 +52,7 @@ const MEETING_SUBSCRIPTION = gql`
           setByUserId
           updatedAt
         }
-        
+
         breakoutRoomsCommonProperties {
           durationInSeconds
           freeJoin

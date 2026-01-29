@@ -104,7 +104,7 @@ const propTypes = {
   amIModerator: PropTypes.bool,
   shortcuts: PropTypes.string,
   isBreakoutRoom: PropTypes.bool,
-  isMeteorConnected: PropTypes.bool.isRequired,
+  isConnected: PropTypes.bool.isRequired,
   isDropdownOpen: PropTypes.bool,
   audioCaptionsEnabled: PropTypes.bool,
   audioCaptionsActive: PropTypes.bool.isRequired,
@@ -202,7 +202,7 @@ class OptionsDropdown extends PureComponent {
 
   renderMenuItems() {
     const {
-      intl, amIModerator, isBreakoutRoom, isMeteorConnected, audioCaptionsEnabled,
+      intl, amIModerator, isBreakoutRoom, isConnected, audioCaptionsEnabled,
       audioCaptionsActive, audioCaptionsSet, isMobile, optionsDropdownItems,
       isDirectLeaveButtonEnabled, isLayoutsEnabled,
     } = this.props;
@@ -248,9 +248,11 @@ class OptionsDropdown extends PureComponent {
 
     const Settings = getSettingsSingletonInstance();
     const { selectedLayout } = Settings.layout;
+    const showLayoutButton = window.meetingClientSettings.public.layout.enableDeprecatedLayoutSelection;
     const shouldShowManageLayoutButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
       && selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
-      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY;
+      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY
+      && showLayoutButton;
 
     if (shouldShowManageLayoutButton && isLayoutsEnabled) {
       this.menuItems.push({
@@ -270,17 +272,18 @@ class OptionsDropdown extends PureComponent {
             icon: item.icon,
             onClick: item.onClick,
             label: item.label,
+            dataTest: item.dataTest,
           });
           break;
         case OptionsDropdownItemType.SEPARATOR:
-          this.menuItems.push({ key: item.id, isSeparator: true });
+          this.menuItems.push({ key: item.id, isSeparator: true, dataTest: item.dataTest });
           break;
         default:
           break;
       }
     });
 
-    if (isMeteorConnected && !isDirectLeaveButtonEnabled) {
+    if (isConnected && !isDirectLeaveButtonEnabled) {
       const bottomItems = [{ key: 'list-item-separator', isSeparator: true }];
 
       if (allowLogoutSetting) {

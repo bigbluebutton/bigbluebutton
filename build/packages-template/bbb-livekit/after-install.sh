@@ -8,8 +8,6 @@ if [ ! -f /etc/bigbluebutton/livekit.yaml ]; then
 # This file will be merged with /usr/share/livekit-server/livekit.yaml
 # on startup. Settings specified here will take  precedence.
 
-logging:
-  level: debug
 keys:
   $API_KEY: $API_SECRET
 webhook:

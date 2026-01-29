@@ -136,7 +136,7 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
       return intl.formatMessage(intlMessages.publicChatClear);
     }
 
-    return unescapeHtml(stripTags(msg.message));
+    return unescapeHtml(stripTags(msg.messageAsHtml));
   };
 
   const createMessage = (msg: Message) => (

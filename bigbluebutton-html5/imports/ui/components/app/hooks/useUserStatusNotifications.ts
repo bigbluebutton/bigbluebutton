@@ -5,6 +5,7 @@ import { RAISED_HAND_USERS } from '/imports/ui/core/graphql/queries/users';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { RaisedHandUser } from '/imports/ui/Types/user';
+import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
 
 const intlMessages = defineMessages({
   raisedHand: {
@@ -30,6 +31,7 @@ const intlMessages = defineMessages({
 });
 
 const useUserStatusNotifications = (
+  meetingId: string,
   currentUserAway?: boolean,
   currentUserRaiseHand?: boolean,
   intl?: IntlShape,
@@ -39,8 +41,16 @@ const useUserStatusNotifications = (
     raiseHand: user.raiseHand,
   }));
   const { data: usersData } = useDeduplicatedSubscription<{ user: RaisedHandUser[] }>(RAISED_HAND_USERS);
-  const isCurrentUserNextRaisedHand = usersData?.user && currentUser?.raiseHand
-    ? usersData.user[0]?.userId === currentUser?.userId
+  const raisedHandUsers = meetingId
+    ? filterByMeetingId(
+      usersData?.user,
+      meetingId,
+      RAISED_HAND_USERS,
+      (u) => ({ mismatchedUserId: u.userId, mismatchedName: u.name }),
+    )
+    : [];
+  const isCurrentUserNextRaisedHand = raisedHandUsers.length > 0 && currentUser?.raiseHand
+    ? raisedHandUsers[0]?.userId === currentUser?.userId
     : false;
   const prevAwayRef = useRef<boolean | undefined>(currentUserAway);
   const prevRaiseHandRef = useRef<boolean | undefined>(currentUserRaiseHand);

@@ -30,6 +30,7 @@ interface Voice extends GridVoice {
 
 export interface VideoStreamsResponse {
   user_camera: {
+    meetingId: string;
     streamId: string;
     user: User;
     voice?: Voice;
@@ -69,6 +70,7 @@ export type Stream = {
   lastFloorTime: string;
   voice: Voice | undefined;
   type: typeof VIDEO_TYPES.STREAM;
+  render?: boolean;
 }
 
 export type StreamItem = Stream | ConnectingStream;

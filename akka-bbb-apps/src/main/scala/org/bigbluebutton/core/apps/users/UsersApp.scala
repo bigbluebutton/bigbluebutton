@@ -221,6 +221,7 @@ class UsersApp(
   with ChangeUserPinStateReqMsgHdlr
   with UserConnectionAliveReqMsgHdlr
   with ChangeUserReactionEmojiReqMsgHdlr
+  with SetUserWhiteboardWriteAccessReqMsgHdlr
   with ChangeUserRaiseHandReqMsgHdlr
   with ChangeUserAwayReqMsgHdlr
   with EjectUserFromMeetingCmdMsgHdlr

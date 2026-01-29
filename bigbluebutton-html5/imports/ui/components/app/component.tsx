@@ -102,7 +102,7 @@ const App: React.FC<AppProps> = ({
   useAppInitialization();
   useJoinLogger(meetingId, meetingName, isBreakout);
   usePollShortcut(layoutContextDispatch, isPollingEnabled);
-  useUserStatusNotifications(currentUserAway, currentUserRaiseHand, intl);
+  useUserStatusNotifications(meetingId, currentUserAway, currentUserRaiseHand, intl);
 
   useEffect(() => {
     AppService.setDarkTheme(darkTheme);

@@ -60,6 +60,7 @@ const AppsGalleryPluginStateContainer = ((
           name: agi.name,
           icon: agi.icon,
           onClick: agi.onClick,
+          dataTest: agi.dataTest,
           uuid,
           pluginName: pluginApi.pluginName,
         },

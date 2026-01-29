@@ -103,6 +103,7 @@ const GenericContentPluginStateContainer = ((
           name: genericContentItem.name,
           icon: genericContentItem.buttonIcon,
           contentFunction: genericContentItem.contentFunction,
+          dataTest: genericContentItem.dataTest,
           uuid,
           pluginName: pluginApi.pluginName,
         },

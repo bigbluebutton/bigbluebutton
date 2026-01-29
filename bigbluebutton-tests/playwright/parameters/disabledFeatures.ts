@@ -141,7 +141,7 @@ export class DisabledFeatures extends MultiUsers {
   async infiniteWhiteboard() {
     const { allowInfiniteWhiteboard } = this.modPage.settings || {};
 
-    if(allowInfiniteWhiteboard) {
+    if (allowInfiniteWhiteboard) {
       await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
       await this.modPage.wasRemoved(e.turnInfiniteWhiteboardOn, 'should not display the infinite whiteboard button');
     }
@@ -278,7 +278,7 @@ export class DisabledFeatures extends MultiUsers {
   async infiniteWhiteboardExclude() {
     const { allowInfiniteWhiteboard } = this.modPage.settings || {};
 
-    if(allowInfiniteWhiteboard) {
+    if (allowInfiniteWhiteboard) {
       await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard');
       await this.modPage.hasElement(e.turnInfiniteWhiteboardOn, 'should display the infinite whiteboard button');
     }

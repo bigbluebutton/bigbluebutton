@@ -25,7 +25,7 @@ const intlMessages = defineMessages({
 interface BreakoutDropdownProps {
   openBreakoutTimeManager: () => void;
   endAllBreakouts: () => void;
-  isMeteorConnected: boolean;
+  isConnected: boolean;
   amIModerator: boolean;
   isRTL: boolean;
   setUpdateUsersWhileRunning: Dispatch<SetStateAction<boolean>>,
@@ -42,7 +42,7 @@ interface MenuItem {
 const BreakoutDropdown: React.FC<BreakoutDropdownProps> = ({
   openBreakoutTimeManager,
   endAllBreakouts,
-  isMeteorConnected,
+  isConnected,
   amIModerator,
   isRTL,
   setUpdateUsersWhileRunning,
@@ -75,7 +75,7 @@ const BreakoutDropdown: React.FC<BreakoutDropdownProps> = ({
         key: 'endAllBreakouts',
         dataTest: 'endAllBreakouts',
         label: intl.formatMessage(intlMessages.destroy),
-        disabled: !isMeteorConnected,
+        disabled: !isConnected,
         onClick: () => {
           endAllBreakouts();
         },

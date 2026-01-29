@@ -5,9 +5,9 @@ import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MenuItem from '@mui/material/MenuItem';
-import { Layout } from '../layout/layoutTypes';
+import { Input, Layout } from '../layout/layoutTypes';
 import Styled from './styles';
-import { layoutDispatch, layoutSelect } from '../layout/context';
+import { layoutDispatch, layoutSelect, layoutSelectInput } from '../layout/context';
 import { ACTIONS, PANELS } from '../layout/enums';
 import { useStorageKey } from '../../services/storage/hooks';
 import VideoService from '/imports/ui/components/video-provider/service';
@@ -36,6 +36,7 @@ import { colorPrimary } from '../../stylesheets/styled-components/palette';
 import { useVideoPreview } from '/imports/ui/components/video-preview/hooks/useVideoPreview';
 import { CameraProfileProps, CustomBgParams } from '/imports/ui/components/video-preview/hooks/types';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
+import getFromUserSettings from '../../services/users-settings';
 
 const intlMessages: { [key: string]: { id: string; description?: string } } = defineMessages({
   title: {
@@ -231,6 +232,8 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
   const [cameraSections, setCameraSections] = React.useState<CameraSection[]>([]);
   const [activePreviewIndex, setActivePreviewIndex] = React.useState(0);
   const prevSharedDevices = usePreviousValue(sharedDevices);
+  const { hideNotificationToasts } = layoutSelectInput((i: Input) => i.notificationsBar);
+  const hideNotifications = hideNotificationToasts || getFromUserSettings('bbb_hide_notifications', false);
 
   const isAlreadyShared = useCallback((webcamId: string | null) => {
     return !!webcamId && sharedDevices.includes(webcamId);
@@ -742,6 +745,7 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
                 initialVirtualBgState={initialVirtualBgState}
                 isCustomVirtualBackgroundsEnabled={isCustomVirtualBackgroundsEnabled}
                 renderSettingsLabel={false}
+                hideNotificationToasts={hideNotifications}
               />
             </Styled.VirtualBgSelectorBorder>
           )}
