@@ -8,7 +8,7 @@ import {
   mdPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  fontSizeSmall,
+  fontSizeBase,
   fontSizeSmaller,
 } from '/imports/ui/stylesheets/styled-components/typography';
 
@@ -55,7 +55,7 @@ export const ChatWrapper = styled.div<ChatWrapperProps>`
   flex-flow: column;
   gap: ${smPaddingY};
   position: relative;
-  font-size: ${fontSizeSmall};
+  font-size: ${fontSizeBase};
   position: relative;
 
   [dir='rtl'] & {
