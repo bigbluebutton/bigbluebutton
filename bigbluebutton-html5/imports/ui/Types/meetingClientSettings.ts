@@ -399,6 +399,8 @@ export interface Constraints2 {
 export interface CameraSortingModes {
   defaultSorting: string
   paginationSorting: string
+  showAudioOnlyOnFirstPage: boolean
+  maxAudioOnlyUsers: number
 }
 
 export interface CameraQualityThresholds {

@@ -496,6 +496,14 @@ public:
     cameraSortingModes:
       defaultSorting: LOCAL_ALPHABETICAL
       paginationSorting: VOICE_ACTIVITY_LOCAL
+      # showAudioOnlyOnFirstPage: when enabled, shows audio-only tiles
+      # for speaking users who don't have cameras on first page. These tiles appear on the right side,
+      # bumping previous off-view tiles to the left.
+      showAudioOnlyOnFirstPage: true
+      # maxAudioOnlyUsers: maximum number of audio-only tiles to show
+      # When pagination is enabled, this limits the number of slots available for audio-only users
+      # When pagination is disabled, this is the limit for audio-only users
+      maxAudioOnlyUsers: 2
     # Entry `thresholds` is an array of:
     # - threshold: minimum number of cameras being shared for profile to applied
     #   profile: a camera profile id from the cameraProfiles configuration array
