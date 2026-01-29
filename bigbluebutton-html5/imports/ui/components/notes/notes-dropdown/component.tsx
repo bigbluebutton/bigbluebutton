@@ -38,7 +38,7 @@ interface NotesDropdownContainerGraphqlProps {
   handlePinSharedNotes: (pinned: boolean) => void;
   presentationEnabled: boolean;
   padId: string;
-  sharedNotesEditor: string;
+  isEtherpadSharedNotes: boolean;
 }
 
 interface NotesDropdownGraphqlProps extends NotesDropdownContainerGraphqlProps {
@@ -47,12 +47,11 @@ interface NotesDropdownGraphqlProps extends NotesDropdownContainerGraphqlProps {
   presentations: any;
   isRTL: boolean;
   padId: string;
-  sharedNotesEditor: string;
 }
 
 const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
   const {
-    amIPresenter, presentations, handlePinSharedNotes, isRTL, padId, presentationEnabled, sharedNotesEditor,
+    amIPresenter, presentations, handlePinSharedNotes, isRTL, padId, presentationEnabled, isEtherpadSharedNotes,
   } = props;
   const [converterButtonDisabled, setConverterButtonDisabled] = useState(false);
   const intl = useIntl();
@@ -64,7 +63,6 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
     const downloadIcon = 'download';
 
     const menuItems = [];
-    const isEtherpadSharedNotes = sharedNotesEditor === 'etherpad';
 
     if (amIPresenter) {
       menuItems.push(
@@ -77,7 +75,7 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
           onClick: () => {
             setConverterButtonDisabled(true);
             setTimeout(() => setConverterButtonDisabled(false), DEBOUNCE_TIMEOUT);
-            return Service.convertAndUpload(presentations, padId, presentationEnabled);
+            return Service.convertAndUpload(presentations, padId, presentationEnabled, isEtherpadSharedNotes);
           },
         },
       );
@@ -148,7 +146,7 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
 
 const NotesDropdownContainerGraphql: React.FC<NotesDropdownContainerGraphqlProps> = (props) => {
   const {
-    handlePinSharedNotes, presentationEnabled, padId, sharedNotesEditor,
+    handlePinSharedNotes, presentationEnabled, padId, isEtherpadSharedNotes,
   } = props;
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
@@ -172,7 +170,7 @@ const NotesDropdownContainerGraphql: React.FC<NotesDropdownContainerGraphqlProps
       handlePinSharedNotes={handlePinSharedNotes}
       presentationEnabled={presentationEnabled}
       padId={padId}
-      sharedNotesEditor={sharedNotesEditor}
+      isEtherpadSharedNotes={isEtherpadSharedNotes}
     />
   );
 };

@@ -169,10 +169,10 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
             rightButtonProps={null}
             customRightButton={(
               <NotesDropdown
+                isEtherpadSharedNotes={isEtherpadSharedNotes}
                 handlePinSharedNotes={handlePinSharedNotes}
                 presentationEnabled={isPresentationEnabled}
                 padId={padId}
-                sharedNotesEditor={sharedNotesEditor}
               />
           )}
           />

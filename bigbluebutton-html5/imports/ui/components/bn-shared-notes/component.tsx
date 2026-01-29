@@ -59,10 +59,6 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   };
 
   const fragment = hocuspocusProvider.document.getXmlFragment('doc');
-  console.log('=== BlockNote Document Debug ===');
-  console.log('Fragment length:', fragment.length);
-  console.log('Fragment toJSON:', JSON.stringify(fragment.toJSON(), null, 2));
-  console.log('Fragment toString:', fragment.toString());
 
   const editor = useCreateBlockNote({
     collaboration: {
