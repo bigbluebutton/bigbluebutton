@@ -13,7 +13,6 @@ export class Options extends MultiUsers {
     await this.modPage.hasText(e.simpleModal, 'Client build: ', 'should display the client build text');
     await this.modPage.hasText(e.simpleModal, 'BigBlueButton version: ', 'should display the BBB version text');
     await this.modPage.hasText(e.simpleModal, 'Keyboard shortcuts', 'should display the shortcuts text');
-    await this.modPage.hasElement(e.shortcutsButton, 'should display the shortcuts button');
     await this.modPage.hasElement(e.helpLinkButton, 'should display the help link button');
     await this.modPage.hasElement(e.closeModal, 'should display the close modal button for the about modal');
     await this.modPage.waitAndClick(e.closeModal);

@@ -1,28 +1,18 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { defineMessages, injectIntl } from 'react-intl';
+import {
+  IntlShape,
+  defineMessages,
+  injectIntl,
+  WrappedComponentProps,
+} from 'react-intl';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
-import ModalSimple from '/imports/ui/components/common/modal/simple/component';
-import Styled from './styles';
-import StyledSettings from '../settings/styles';
-import withShortcutHelper from './service';
+import withShortcutHelper from '/imports/ui/services/shortcuts/withShortcutHelper';
 import { useIsChatEnabled } from '/imports/ui/services/features';
 import { uniqueId } from '/imports/utils/string-utils';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
-  title: {
-    id: 'app.shortcut-help.title',
-    description: 'modal title label',
-  },
-  closeLabel: {
-    id: 'app.shortcut-help.closeLabel',
-    description: 'label for close button',
-  },
-  closeDesc: {
-    id: 'app.shortcut-help.closeDesc',
-    description: 'description for close button',
-  },
   accessKeyNotAvailable: {
     id: 'app.shortcut-help.accessKeyNotAvailable',
     description: 'message shown in place of access key table if not supported',
@@ -277,17 +267,21 @@ const intlMessages = defineMessages({
   },
 });
 
+interface Shortcut {
+  accesskey: string;
+  descId: string;
+}
 
-const renderItem = (func, key) => {
+const renderItem = (func: string, key: string) => {
   return (
     <tr key={uniqueId('hotkey-item-')}>
       <Styled.DescCell>{func}</Styled.DescCell>
       <Styled.KeyCell>{key}</Styled.KeyCell>
     </tr>
   );
-}
+};
 
-const renderItemWhiteBoard = (func, key, alt) => {
+const renderItemWhiteBoard = (func: string, key: string, alt: string) => {
   return (
     <tr key={uniqueId('hotkey-item-')}>
       <Styled.DescCell>{func}</Styled.DescCell>
@@ -295,21 +289,23 @@ const renderItemWhiteBoard = (func, key, alt) => {
       <Styled.KeyCell>{alt}</Styled.KeyCell>
     </tr>
   );
+};
+
+interface ShortcutHelpComponentProps extends WrappedComponentProps {
+  intl: IntlShape;
+  shortcuts: Shortcut[];
 }
 
-const ShortcutHelpComponent = ({
-  intl = {},
+const ShortcutHelpComponent: React.FC<ShortcutHelpComponentProps> = ({
+  intl,
   shortcuts,
-  isOpen,
-  onRequestClose,
-  priority,
 }) => {
   const { browserName } = browserInfo;
   const { isIos, isMacos } = deviceInfo;
-  const [ selectedTab, setSelectedTab] = React.useState(0);
+  const [selectedTab, setSelectedTab] = React.useState(0);
   const isChatEnabled = useIsChatEnabled();
 
-  let accessMod = null;
+  let accessMod: string | null = null;
 
   // different browsers use different access modifier keys
   // on different systems when using accessKey property.
@@ -338,40 +334,40 @@ const ShortcutHelpComponent = ({
   const generalShortcutItems = shortcuts.map((shortcut) => {
     if (!isChatEnabled && shortcut.descId.indexOf('Chat') !== -1) return null;
     return renderItem(
-      `${intl.formatMessage(intlMessages[`${shortcut.descId.toLowerCase()}`])}`,
-      `${accessMod} + ${shortcut.accesskey}`
+      `${intl.formatMessage(intlMessages[shortcut.descId.toLowerCase() as keyof typeof intlMessages])}`,
+      `${accessMod} + ${shortcut.accesskey}`,
     );
   });
 
   const ptt = renderItem(
     `${intl.formatMessage(intlMessages.pushToTalkDesc)}`,
-    `M`
+    'M',
   );
 
   generalShortcutItems.splice(3, 0, ptt);
-  generalShortcutItems.push( renderItem(
+  generalShortcutItems.push(renderItem(
     `${intl.formatMessage(intlMessages.openCustomPoll)}`,
-    isMacos ? `Cmd + Opt + P` : `Ctrl + Alt + P`
+    isMacos ? 'Cmd + Opt + P' : 'Ctrl + Alt + P',
   ));
 
   const shortcutItems = [];
   shortcutItems.push(renderItem(intl.formatMessage(intlMessages.togglePan),
-   intl.formatMessage(intlMessages.togglePanKey)));
+    intl.formatMessage(intlMessages.togglePanKey)));
   shortcutItems.push(renderItem(intl.formatMessage(intlMessages.toggleFullscreen),
-   intl.formatMessage(intlMessages.toggleFullscreenKey)));
+    intl.formatMessage(intlMessages.toggleFullscreenKey)));
   shortcutItems.push(renderItem(intl.formatMessage(intlMessages.nextSlideDesc),
-   intl.formatMessage(intlMessages.nextSlideKey)));
+    intl.formatMessage(intlMessages.nextSlideKey)));
   shortcutItems.push(renderItem(intl.formatMessage(intlMessages.previousSlideDesc),
-   intl.formatMessage(intlMessages.previousSlideKey)));
+    intl.formatMessage(intlMessages.previousSlideKey)));
 
   const gestureItems = [];
   gestureItems.push(renderItem(intl.formatMessage(intlMessages.undo),
-   `2-${intl.formatMessage(intlMessages.fingerTap)}`));
+    intl.formatMessage(intlMessages.fingerTap, { fingerCount: 2 })));
   gestureItems.push(renderItem(intl.formatMessage(intlMessages.redo),
-   `3-${intl.formatMessage(intlMessages.fingerTap)}`));
+    intl.formatMessage(intlMessages.fingerTap, { fingerCount: 3 })));
 
   const whiteboardShortcutItems = [];
-  //tools
+  // tools
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.select), '1', 'V'));
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.pencil), '2', 'D, P'));
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.eraser), '3', 'E'));
@@ -384,12 +380,12 @@ const ShortcutHelpComponent = ({
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.note), '0', 'N, S'));
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.hand), '', 'H'));
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.highlight), '', 'Shift D'));
-  //views
+  // views
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.zoomIn), 'Ctrl +', 'Ctrl M. Wheel up'));
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.zoomOut), 'Ctrl -', 'Ctrl M. Wheel down'));
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.zoomFit), 'Shift 1', 'N/A'));
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.zoomSelect), 'Shift 2', 'N/A'));
-//transform
+  // transform
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.flipH), 'Shift H', 'N/A'));
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.flipV), 'Shift V', 'N/A'));
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.lock), 'Ctrl Shift L', 'N/A'));
@@ -397,7 +393,7 @@ const ShortcutHelpComponent = ({
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.moveForward), ']', 'N/A'));
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.moveBackward), '[', 'N/A'));
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.moveToBack), 'Shift [', 'N/A'));
-  //edit
+  // edit
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.undo), 'Ctrl Z', 'N/A'));
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.redo), 'Ctrl Shift Z', 'N/A'));
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.cut), 'Ctrl X', 'N/A'));
@@ -408,116 +404,96 @@ const ShortcutHelpComponent = ({
   whiteboardShortcutItems.push(renderItemWhiteBoard(intl.formatMessage(intlMessages.duplicate), 'Ctrl D', 'N/A'));
 
   return (
-    <ModalSimple
-      contentLabel={intl.formatMessage(intlMessages.title)}
-      dismiss={{
-        label: intl.formatMessage(intlMessages.closeLabel),
-        description: intl.formatMessage(intlMessages.closeDesc),
-      }}
-      title={intl.formatMessage(intlMessages.title)}
-      {...{
-        isOpen,
-        onRequestClose,
-        priority,
-      }}
+    <Styled.Tabs
+      onSelect={(tab) => setSelectedTab(tab)}
+      selectedIndex={selectedTab}
+      role="presentation"
     >
-      <Styled.SettingsTabs
-        onSelect={(tab) => setSelectedTab(tab)}
-        selectedIndex={selectedTab}
-        role="presentation"
-      >
-        <StyledSettings.SettingsTabList>
-          <StyledSettings.SettingsTabSelector selectedClassName="is-selected">
-            <StyledSettings.SettingsIcon iconName="application" />
-            <span id="appicationTab">{intl.formatMessage(intlMessages.general)}</span>
-          </StyledSettings.SettingsTabSelector>
+      <Styled.TabList>
+        <Styled.TabSelector selectedClassName="is-selected">
+          <Styled.TabIcon iconName="application" />
+          <span id="appicationTab">{intl.formatMessage(intlMessages.general)}</span>
+        </Styled.TabSelector>
 
-          <StyledSettings.SettingsTabSelector selectedClassName="is-selected">
-            <StyledSettings.SettingsIcon iconName="presentation" />
-            <span id="presentationTab">{intl.formatMessage(intlMessages.presentation)}</span>
-          </StyledSettings.SettingsTabSelector>
+        <Styled.TabSelector selectedClassName="is-selected">
+          <Styled.TabIcon iconName="presentation" />
+          <span id="presentationTab">{intl.formatMessage(intlMessages.presentation)}</span>
+        </Styled.TabSelector>
 
-          <StyledSettings.SettingsTabSelector selectedClassName="is-selected">
-            <StyledSettings.SettingsIcon iconName="whiteboard" />
-            <span id="whiteboardTab">{intl.formatMessage(intlMessages.whiteboard)}</span>
-          </StyledSettings.SettingsTabSelector>
+        <Styled.TabSelector selectedClassName="is-selected">
+          <Styled.TabIcon iconName="whiteboard" />
+          <span id="whiteboardTab">{intl.formatMessage(intlMessages.whiteboard)}</span>
+        </Styled.TabSelector>
 
-          <StyledSettings.SettingsTabSelector selectedClassName="is-selected">
-            <StyledSettings.SettingsIcon iconName="whiteboard" />
+        { deviceInfo.isMobile && (
+          <Styled.TabSelector selectedClassName="is-selected">
+            <Styled.TabIcon iconName="mobile" />
             <span id="gestureTab">{intl.formatMessage(intlMessages.gesture)}</span>
-          </StyledSettings.SettingsTabSelector>
-        </StyledSettings.SettingsTabList>
+          </Styled.TabSelector>
+        )}
+      </Styled.TabList>
 
-        <Styled.TabPanel selectedClassName="is-selected">
+      <Styled.TabPanel selectedClassName="is-selected">
         {!accessMod ? <p>{intl.formatMessage(intlMessages.accessKeyNotAvailable)}</p>
           : (
             <Styled.TableWrapper>
               <Styled.ShortcutTable>
                 <tbody>
-                  <tr>           
-                    <th>{intl.formatMessage(intlMessages.functionLabel)}</th>
-                    <th>{intl.formatMessage(intlMessages.comboLabel)}</th>
+                  <tr>
+                    <Styled.ColumnTitle alignStart>{intl.formatMessage(intlMessages.functionLabel)}</Styled.ColumnTitle>
+                    <Styled.ColumnTitle>{intl.formatMessage(intlMessages.comboLabel)}</Styled.ColumnTitle>
                   </tr>
                   {generalShortcutItems}
                 </tbody>
               </Styled.ShortcutTable>
             </Styled.TableWrapper>
-          )
-        }
-        </Styled.TabPanel>
-        <Styled.TabPanel selectedClassName="is-selected">
-          <Styled.TableWrapper>
-            <Styled.ShortcutTable>
-              <tbody>
-                <tr>
-                  <th>{intl.formatMessage(intlMessages.functionLabel)}</th>
-                  <th>{intl.formatMessage(intlMessages.comboLabel)}</th>
-                </tr>
-                {shortcutItems}
-              </tbody>
-            </Styled.ShortcutTable>
-          </Styled.TableWrapper>
-        </Styled.TabPanel>
-        <Styled.TabPanel selectedClassName="is-selected">
-          <Styled.TableWrapper>
-            <Styled.ShortcutTable>
-              <tbody>
-                <tr>
-                  <th>{intl.formatMessage(intlMessages.functionLabel)}</th>
-                  <th>{intl.formatMessage(intlMessages.comboLabel)}</th>
-                  <th>{intl.formatMessage(intlMessages.alternativeLabel)}</th>
-                </tr>
-                {whiteboardShortcutItems}
-              </tbody>
-            </Styled.ShortcutTable>
-          </Styled.TableWrapper>
-        </Styled.TabPanel>
+          )}
+      </Styled.TabPanel>
+      <Styled.TabPanel selectedClassName="is-selected">
+        <Styled.TableWrapper>
+          <Styled.ShortcutTable>
+            <tbody>
+              <tr>
+                <Styled.ColumnTitle alignStart>{intl.formatMessage(intlMessages.functionLabel)}</Styled.ColumnTitle>
+                <Styled.ColumnTitle>{intl.formatMessage(intlMessages.comboLabel)}</Styled.ColumnTitle>
+              </tr>
+              {shortcutItems}
+            </tbody>
+          </Styled.ShortcutTable>
+        </Styled.TableWrapper>
+      </Styled.TabPanel>
+      <Styled.TabPanel selectedClassName="is-selected">
+        <Styled.TableWrapper>
+          <Styled.ShortcutTable>
+            <tbody>
+              <tr>
+                <Styled.ColumnTitle alignStart>{intl.formatMessage(intlMessages.functionLabel)}</Styled.ColumnTitle>
+                <Styled.ColumnTitle>{intl.formatMessage(intlMessages.comboLabel)}</Styled.ColumnTitle>
+                <Styled.ColumnTitle>{intl.formatMessage(intlMessages.alternativeLabel)}</Styled.ColumnTitle>
+              </tr>
+              {whiteboardShortcutItems}
+            </tbody>
+          </Styled.ShortcutTable>
+        </Styled.TableWrapper>
+      </Styled.TabPanel>
 
+      { deviceInfo.isMobile && (
         <Styled.TabPanel selectedClassName="is-selected">
           <Styled.TableWrapper>
             <Styled.ShortcutTable>
               <tbody>
                 <tr>
-                  <th>{intl.formatMessage(intlMessages.functionLabel)}</th>
-                  <th>{intl.formatMessage(intlMessages.comboLabel)}</th>
+                  <Styled.ColumnTitle alignStart>{intl.formatMessage(intlMessages.functionLabel)}</Styled.ColumnTitle>
+                  <Styled.ColumnTitle>{intl.formatMessage(intlMessages.comboLabel)}</Styled.ColumnTitle>
                 </tr>
                 {gestureItems}
               </tbody>
             </Styled.ShortcutTable>
           </Styled.TableWrapper>
         </Styled.TabPanel>
-
-      </Styled.SettingsTabs>
-    </ModalSimple>
+      )}
+    </Styled.Tabs>
   );
-};
-
-ShortcutHelpComponent.propTypes = {
-  intl: PropTypes.object.isRequired,
-  shortcuts: PropTypes.arrayOf(PropTypes.shape({
-    accesskey: PropTypes.string.isRequired,
-    descId: PropTypes.string.isRequired,
-  })).isRequired,
 };
 
 export default withShortcutHelper(injectIntl(ShortcutHelpComponent));

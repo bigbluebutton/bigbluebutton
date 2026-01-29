@@ -404,7 +404,7 @@ export const elements = {
   dataSavingsTab: 'span[id="dataSaving"]',
   enableWebcamsToggleBtn: 'span[data-test="webcamToggleBtn"] input',
   enableDesktopSharingToggleBtn: 'span[data-test="desktopSharingToggleBtn"] input',
-  shortcutsButton: 'button[data-test="shortcutsButton"]',
+  shortcutsTab: 'span[id="shortcutsTab"]',
 
   // User
   userAvatar,

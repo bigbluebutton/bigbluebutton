@@ -63,7 +63,7 @@ class About extends Component {
   }
 
   render() {
-    const { intl, setIsOpen, setIsShortcutModalOpen } = this.props;
+    const { intl } = this.props;
     const { settings } = this.state;
 
     const {
@@ -90,25 +90,6 @@ class About extends Component {
                 {`${intl.formatMessage(intlMessages.version_label)} ${bbbServerVersion}`}
               </Styled.Text>
             )}
-          </Styled.Content>
-
-          <Styled.Content>
-            <Styled.Title as="h3">{intl.formatMessage(intlMessages.hotkeys)}</Styled.Title>
-            <Styled.Text>
-              <Styled.TableButton
-                as="button"
-                type="button"
-                onClick={() => {
-                  setIsOpen(false);
-                  setIsShortcutModalOpen(true);
-                }}
-                data-test="shortcutsButton"
-              >
-                [
-                {intl.formatMessage(intlMessages.hotkeysTable)}
-                ]
-              </Styled.TableButton>
-            </Styled.Text>
           </Styled.Content>
 
           <Styled.Content>
