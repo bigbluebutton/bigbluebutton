@@ -10,7 +10,6 @@ import {
   PresentationsSubscriptionResponse,
 } from '/imports/ui/components/whiteboard/queries';
 import Service from './service';
-import BnSharedNotesService from '/imports/ui/components/bn-shared-notes/service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const DEBOUNCE_TIMEOUT = 15000;
@@ -82,6 +81,9 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
     }
 
     if (!isEtherpadSharedNotes) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const sessionToken = urlParams.get('sessionToken');
+
       menuItems.push(
         {
           key: uniqueId('notes-option-'),
@@ -89,7 +91,7 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
           dataTest: 'exportNotesAsPDF',
           label: intl.formatMessage(intlMessages.exportAsPDFLabel),
           onClick: () => {
-            return BnSharedNotesService.exportNotesAsPDF(padId);
+            window.open(`/hocuspocus/api/documents/${padId}/export/pdf?sessionToken=${sessionToken}`);
           },
         },
       );

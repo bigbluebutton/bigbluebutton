@@ -15,8 +15,6 @@ import { useBlockNoteLocaleLanguage, useHocuspocusProvider } from './hooks';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
 
-
-
 interface BlockNoteAppProps {
   hocuspocusProvider: HocuspocusProvider;
   currentUser: Partial<User> | null;

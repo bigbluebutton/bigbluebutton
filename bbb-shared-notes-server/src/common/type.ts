@@ -8,6 +8,7 @@ export interface MeetingLock {
 export interface ConnectionInfo {
   meetingId: string;
   userId: string;
+  intUserId: string;
   moderator: boolean;
   notesEnabled: boolean;
   websocket: WebSocket;

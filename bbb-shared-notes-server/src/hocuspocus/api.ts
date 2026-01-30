@@ -5,6 +5,7 @@ import { toBoolean } from "./utils";
 interface UserInformation {
   userId: string;
   userName: string;
+  intUserId: string;
   meetingId: string;
   userIsModerator: boolean;
   userHasNotesEnabled: boolean;
@@ -29,7 +30,7 @@ export async function getUserInformation(
     checkAuthorizationEndpoint,
   } = config.bbbWeb;
 
-  const checkAuthorizationUrlString = `http://${host}:${port}/${checkAuthorizationEndpoint}`;
+  const checkAuthorizationUrlString = `http://${host}:${port}${checkAuthorizationEndpoint}`;
   const checkAuthorizationUrl = new URL(checkAuthorizationUrlString);
 
   if (!cookie || !sessionToken) return null;
@@ -47,6 +48,7 @@ export async function getUserInformation(
       if (res.statusCode !== 200) resolve(null);
       const checkHeaders = () => (
         'user-external-id' in res.headers
+        && 'user-id' in res.headers
         && 'user-name' in res.headers
         && 'meeting-id' in res.headers
         && 'user-is-moderator' in res.headers
@@ -57,6 +59,7 @@ export async function getUserInformation(
 
       const userInfo: UserInformation = {
         userId: res.headers['user-external-id'] as string,
+        intUserId: res.headers['user-id'] as string,
         userName: res.headers['user-name'] as string,
         meetingId: res.headers['meeting-id'] as string,
         userIsModerator: toBoolean(res.headers['user-is-moderator'] as string),
@@ -102,7 +105,7 @@ export async function checkUserAuthenticated(
     checkAuthorizationEndpoint,
   } = config.bbbWeb;
 
-  const checkAuthorizationUrlString = `http://${host}:${port}/${checkAuthorizationEndpoint}`;
+  const checkAuthorizationUrlString = `http://${host}:${port}${checkAuthorizationEndpoint}`;
   const checkAuthorizationUrl = new URL(checkAuthorizationUrlString);
 
   if (!cookie || !sessionToken) return false;

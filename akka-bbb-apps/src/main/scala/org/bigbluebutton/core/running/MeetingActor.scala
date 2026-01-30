@@ -355,7 +355,6 @@ class MeetingActor(
       )
       if (!Pads.hasGroup(liveMeeting.pads, sharedNotesPadId)) {
         Pads.addGroup(liveMeeting.pads, sharedNotesPadId, sharedNotesPadId, sharedNotesPadId, "SYSTEM")
-
       }
       if (isEtherpadType) {
         PadslHdlrHelpers.broadcastPadCreateGroupCmdMsg(

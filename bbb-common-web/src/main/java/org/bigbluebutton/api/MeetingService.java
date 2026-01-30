@@ -543,12 +543,11 @@ public class MeetingService implements MessageListener {
     if (existingId == null && existingTelVoice == null && existingWebVoice == null) {
       meetings.put(m.getInternalId(), m);
       Map<String, Object> pluginsMap;
-      Map<String, Object> sharedNotesInitialContentMap = null;
+      Map<String, Object> sharedNotesInitialContentMap = requestSharedNotesInitialContent(m);
       if (m.isBreakout()) {
         pluginsMap = plugins;
       } else {
         pluginsMap = requestPluginManifests(m);
-        sharedNotesInitialContentMap = requestSharedNotesInitialContent(m);
       }
 
       m.setPlugins(pluginsMap);
@@ -873,6 +872,7 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.IS_BREAKOUT, "true");
       params.put(ApiParams.SEQUENCE, message.sequence.toString());
       params.put(ApiParams.FREE_JOIN, message.freeJoin.toString());
+      params.put(ApiParams.SHARED_NOTES_EDITOR, message.sharedNotesEditor);
       params.put(ApiParams.BREAKOUT_ROOMS_CAPTURE_SLIDES, message.captureSlides.toString());
       params.put(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES, message.captureNotes.toString());
       params.put(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES_FILENAME, message.captureNotesFilename.toString());
