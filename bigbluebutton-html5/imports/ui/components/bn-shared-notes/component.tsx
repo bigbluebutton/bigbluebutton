@@ -11,11 +11,7 @@ import Styled from './styles';
 import Button from '/imports/ui/components/common/button/component';
 import { User } from '../../Types/user';
 import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
-import {
-  useBlockNoteLocaleLanguage,
-  useFlipCursorWhenTopPosition,
-  useHocuspocusProvider,
-} from './hooks';
+import { useBlockNoteLocaleLanguage, useHocuspocusProvider } from './hooks';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
 
@@ -33,7 +29,6 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   } = props;
 
   const blockNoteLocale = useBlockNoteLocaleLanguage();
-  const editorRef = useFlipCursorWhenTopPosition();
 
   // Remove Media block types for now
   const { audio, image, file, video, ...remainingBlockSpecs } = defaultBlockSpecs;
@@ -84,7 +79,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
 
 
   return (
-    <div ref={editorRef} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <style>
         {`
           .bn-collaboration-cursor__label {
@@ -110,7 +105,9 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
             cursor: text;
           }
           /* Flip labels to below when near top of scroll container */
-          .near-top .bn-collaboration-cursor__label {
+          .bn-block-group > .bn-block-outer:first-child
+            .bn-collaboration-cursor__label {
+
             top: 1.5em !important;
             bottom: auto !important;
             transform: translateY(0) !important;
