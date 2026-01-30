@@ -16,13 +16,13 @@ Let’s get started!
 
 This is a general instruction on how to use a plugin.
 For a detailed configuration example of each use case,
-have a look at the READMEs in the respective [samples](samples)-folders.
+have a look at the READMEs in the respective [samples](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/tree/v0.0.x/samples)-folders.
 
 ### Running the Plugin from Source
 
 For development purposes you can run a plugin locally from source.
 
-For example if you take the [`sample-action-button-dropdown-plugin`](samples/sample-action-button-dropdown-plugin),
+For example if you take the [`sample-action-button-dropdown-plugin`](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/tree/v0.0.x/samples/sample-action-button-dropdown-plugin),
 you do the following:
 
 *Running from source code with local BBB-server*
@@ -89,7 +89,7 @@ And there you go, you can test it freely.
 ### Building the Plugin (Production)
 
 To build a plugin for production use
-(again, using the example of [`sample-action-button-dropdown-plugin`](samples/sample-action-button-dropdown-plugin)),
+(again, using the example of [`sample-action-button-dropdown-plugin`](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/tree/v0.0.x/samples/sample-action-button-dropdown-plugin)),
 follow these steps:
 
 ```bash

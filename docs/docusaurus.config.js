@@ -12,8 +12,6 @@ const config = {
     tagline: 'Official Documentation',
     url: 'https://docs.bigbluebutton.org/',
     baseUrl: isDev ? '/docs' : '/',
-    onBrokenLinks: 'warn',
-    onBrokenMarkdownLinks: 'warn',
     favicon: 'img/favicon.ico',
     trailingSlash: true,
     markdown: {
