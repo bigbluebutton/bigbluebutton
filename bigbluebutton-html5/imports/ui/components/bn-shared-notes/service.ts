@@ -1,10 +1,14 @@
 import logger from '/imports/startup/client/logger';
 
+
 async function exportNotesAsPDF(padId: string) {
   try {
     const filename = 'Shared_Notes.pdf';
 
-    const response = await fetch(`/hocuspocus/api/documents/${padId}/export/pdf`, {
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionToken = urlParams.get('sessionToken');
+
+    const response = await fetch(`/hocuspocus/api/documents/${padId}/export/pdf?sessionToken=${sessionToken}`, {
       method: 'GET',
       headers: {
         Accept: 'application/pdf',

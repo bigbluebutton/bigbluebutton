@@ -6,10 +6,14 @@ import { extractMeetingId } from "./utils";
 import sqliteDB from "./extensions/sqlite";
 import { Logger } from "../common/logger";
 import { sender } from "../redis/sender";
+import { config } from "../config";
 
 const logger = new Logger('hocuspocus');
 // Configure Hocuspocus
 const hocuspocus = new Hocuspocus({
+  name: "bigbluebutton-hocuspocus",
+  address: config.hocuspocusServer.host,
+  port: config.hocuspocusServer.port,
   extensions: [
     sqliteDB,
   ],
@@ -106,7 +110,7 @@ const hocuspocus = new Hocuspocus({
         documentName,
         userId,
       });
-    } 
+    }
   }
 });
 

@@ -1,6 +1,10 @@
 import { AppSettings } from "./type";
 
 const  DEFAULT_SETTINGS: AppSettings = {
+  expressServer: {
+    host: '127.0.0.1',
+    port: 8787,
+  },
   hocuspocusServer: {
     host: '127.0.0.1',
     port: 9001,

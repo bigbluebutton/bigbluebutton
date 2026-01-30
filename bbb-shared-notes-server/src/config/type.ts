@@ -1,7 +1,11 @@
 export interface HocuspocusServerConfig {
   host: string;
   port: number;
-  apiSecrete?: string;
+}
+
+export interface ExpressServerConfig {
+  host: string;
+  port: number;
 }
 
 export interface BbbWebConfig {
@@ -42,6 +46,7 @@ export interface SqliteConfig {
 }
 
 export interface AppSettings {
+  expressServer: ExpressServerConfig;
   hocuspocusServer: HocuspocusServerConfig;
   bbbWeb: BbbWebConfig;
   log: LogConfig;

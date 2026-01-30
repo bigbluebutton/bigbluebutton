@@ -24,11 +24,11 @@ async function convertAndUpload(
   const PADS_CONFIG = window.meetingClientSettings.public.pads;
 
   let exportUrlString;
+  const params = PadsService.getParams();
   if (isEtherpadEditor) {
-    const params = PadsService.getParams();
     exportUrlString = Auth.authenticateURL(`${PADS_CONFIG.url}/p/${padId}/export/${extension}?${params}`);
   } else {
-    exportUrlString = Auth.authenticateURL(`/hocuspocus/api/documents/${padId}/export/${extension}`);
+    exportUrlString = Auth.authenticateURL(`/hocuspocus/api/documents/${padId}/export/${extension}?${params}`);
   }
   const exportUrl = Auth.authenticateURL(exportUrlString);
 

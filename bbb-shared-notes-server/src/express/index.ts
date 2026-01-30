@@ -1,6 +1,7 @@
 import express from "express";
 import expressWebsockets from "express-ws";
 import { Logger } from "../common/logger";
+import { config } from "../config";
 import path from "path";
 import { documentApi } from "./rest-api";
 import { websocketApi } from "./websocket-api";
@@ -22,6 +23,26 @@ const startExpressApp = () => {
   // Add middlewares
   app.use(express.json());
   app.use('/api/documents', express.raw({ type: 'application/octet-stream', limit: '10mb' }));
+  app.use('/api/documents/:documentName', (req, res, next) => {
+    const meetingIdHeader = req.get('meeting-id');
+    if (!meetingIdHeader) {
+      next();
+      return;
+    }
+
+    const { documentName } = req.params;
+    const prefix = 'bn-document__';
+    const meetingIdFromUrl = documentName.startsWith(prefix)
+      ? documentName.slice(prefix.length)
+      : documentName;
+
+    if (meetingIdHeader !== meetingIdFromUrl) {
+      logger.warn(`meeting-id header mismatch for ${req.originalUrl}`);
+      res.sendStatus(403);
+      return;
+    }
+    next();
+  });
 
   // Websocket APIs
   app.ws("/collaboration", websocketApi.collaboration);
@@ -34,7 +55,8 @@ const startExpressApp = () => {
   runDevelopmentRoutes();
 
   // Start the server
-  app.listen(8787, () => console.log("Listening on http://127.0.0.1:8787"));
+  const { host, port } = config.expressServer;
+  app.listen(port, host, () => console.log(`Listening on http://${host}:${port}`));
 }
 
 export { startExpressApp };
