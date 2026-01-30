@@ -51,7 +51,7 @@ const createWasmProcessorStream = (stream) => {
         audioProcessor.port.onmessage = (event) => {
           if (event.data?.type === 'loaded') {
             audioProcessor.port.postMessage({ type: 'monitor', index: PARAMETER_VAD_METER });
-            audioProcessor.port.postMessage({ type: 'param', index: PARAMETER_INTENSITY, value: 90 });
+            audioProcessor.port.postMessage({ type: 'param', index: PARAMETER_INTENSITY, value: 90 }); // set VIintesity to 90
             resolve(contextDestination.stream);
           } else if (event.data?.type === 'error') {
             reject(event.data.error);
