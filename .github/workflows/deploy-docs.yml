@@ -7,10 +7,15 @@ on:
       - 'develop'
     paths:
       - 'docs/**'
+  pull_request:
+    branches:
+      - 'develop'
+    paths:
+      - 'docs/**'
 
 # Do not build the docs concurrently
 concurrency:
-  group: docs
+  group: docs-${{ github.event_name }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -23,6 +28,8 @@ jobs:
     steps:
       # Setup
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Needed for build.sh to access other branches/tags
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -44,6 +51,7 @@ jobs:
   deploy:
     name: Deploy docs to gh-pages
     needs: build
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
 
     permissions:
       pages: write

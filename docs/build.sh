@@ -33,41 +33,20 @@ if [ -f versions.json ]; then
   rm versions.json
 fi
 
-# Build the docs for these tags (the last tag of old major releases)
-# We build the docs for historical reasons. The branch no longer exists
-# since the release is no longer supported/maintained.
-TAGS=(
-  # v2.5.20 # antobinary disabling this during docusaurus upgrades which seem to have stricter rules, requiring me to go back and update super old docs
-)
-
 # Build the docs only for these release branches
 BRANCHES=(
   v2.6.x-release
   v2.7.x-release
   v3.0.x-release
-  v3.1.x-release
+  # v3.1.x-release
 )
 
 git fetch "$REMOTE"
-git fetch --tags
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 
-for tag in "${TAGS[@]}"; do
-
-  if [ "$tag" != "$current_branch" ]; then
-    git fetch "$REMOTE" "$tag"
-  fi
-
-  git checkout "$tag"
-  if [ -f docusaurus.config.js ]; then
-    version=${tag:1:3}-legacy
-    echo "Adding documentation for $version"
-    npm run docusaurus docs:version "${version}"
-  else
-    echo "Warning: branch/tag $(version) does not contain a docusaurus.config.js!"
-  fi
-
-done
+# Store the current static/img directory
+mkdir -p static/img
+cp -r static/img /tmp/base_img
 
 for branch in "${BRANCHES[@]}"; do
 
@@ -80,6 +59,10 @@ for branch in "${BRANCHES[@]}"; do
     version=${branch:1:3}
     echo "Adding documentation for $version"
     npm run docusaurus docs:version "${version}"
+    # Copy static assets from this version
+    if [ -d static/img ]; then
+      cp -rn static/img/* /tmp/base_img/ 2>/dev/null || true
+    fi
   else
     echo "Warning: branch $(branch) does not contain a docusaurus.config.js!"
   fi
@@ -87,3 +70,7 @@ for branch in "${BRANCHES[@]}"; do
 done
 
 git checkout "$current_branch"
+
+# Restore all collected static assets
+cp -r /tmp/base_img/* static/img/
+rm -rf /tmp/base_img
