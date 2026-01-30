@@ -89,7 +89,7 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
           dataTest: 'exportNotesAsPDF',
           label: intl.formatMessage(intlMessages.exportAsPDFLabel),
           onClick: () => {
-            return BnSharedNotesService.exportNotesAsPDF(padId);
+            window.open(`/hocuspocus/api/documents/${padId}/export/pdf`);
           },
         },
       );
