@@ -59,9 +59,6 @@ const config = {
                         '3.0': {
                             banner: 'none'
                         },
-                        '3.1': {
-                            banner: 'none'
-                        },
                     }
                 },
                 theme: {
