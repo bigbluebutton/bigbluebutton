@@ -472,8 +472,12 @@ class ReceivedJsonMsgHandlerActor(
       case PluginDataChannelResetMsg.NAME =>
         routeGenericMsg[PluginDataChannelResetMsg](envelope, jsonNode)
 
-      case PluginLearningAnalyticsDashboardSendGenericDataMsg.NAME =>
-        routeGenericMsg[PluginLearningAnalyticsDashboardSendGenericDataMsg](envelope, jsonNode)
+      case PluginLearningAnalyticsDashboardUpsertUserDataMsg.NAME =>
+        routeGenericMsg[PluginLearningAnalyticsDashboardUpsertUserDataMsg](envelope, jsonNode)
+      case PluginLearningAnalyticsDashboardDeleteUserDataMsg.NAME =>
+        routeGenericMsg[PluginLearningAnalyticsDashboardDeleteUserDataMsg](envelope, jsonNode)
+      case PluginLearningAnalyticsDashboardClearAllUsersDataMsg.NAME =>
+        routeGenericMsg[PluginLearningAnalyticsDashboardClearAllUsersDataMsg](envelope, jsonNode)
 
       case PluginPersistEventMsg.NAME =>
         routeGenericMsg[PluginPersistEventMsg](envelope, jsonNode)

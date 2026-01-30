@@ -63,8 +63,8 @@ create unlogged table "meeting_breakoutRoomProps" (
     "privateChatEnabled"    boolean,
     "captureNotes"          boolean,
     "captureSlides"         boolean,
-    "captureNotesFilename"  varchar(100),
-    "captureSlidesFilename" varchar(100)
+    "captureNotesFilename"  text,
+    "captureSlidesFilename" text
 );
 create view "v_meeting_breakoutPolicies" as select * from "meeting_breakoutRoomProps";
 
@@ -1866,8 +1866,8 @@ CREATE UNLOGGED TABLE "breakoutRoom" (
 	"meetingId"                 varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
 	"breakoutRoomExternalId"    varchar(100),
 	"sequence"                  numeric,
-	"name"                      varchar(100),
-	"shortName"                 varchar(100),
+	"name"                      text,
+	"shortName"                 text,
 	"isDefaultName"             bool,
 	"freeJoin"                  bool,
 	"createdAt"                 timestamp with time zone,
@@ -2339,6 +2339,7 @@ create index idx_notification on notification("meetingId","userId","role","creat
 create unlogged table "plugin" (
 	"meetingId" varchar(100),
 	"name" varchar(100),
+    "loggerSettings" jsonb,
     "localesBaseUrl" varchar(500),
 	"javascriptEntrypointUrl" varchar(500),
 	"javascriptEntrypointIntegrity" varchar(500),

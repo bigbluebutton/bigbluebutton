@@ -81,6 +81,7 @@ trait HandlerHelpers extends SystemConfiguration {
         color = regUser.color,
         clientType = clientType,
         userLeftFlag = UserLeftFlag(false, 0),
+        joinRequestMetadata = regUser.joinRequestMetadata,
         userMetadata = regUser.userMetadata
       )
     }

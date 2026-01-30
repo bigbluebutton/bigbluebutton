@@ -78,8 +78,10 @@ export const USER_AGGREGATE_COUNT_SUBSCRIPTION = gql`
 `;
 
 export const GET_USER_NAMES = gql`
-  query Users {
+  query GetUserNames {
     user(where: { bot: { _eq: false } } ) {
+      userId
+      meetingId
       name
       nameSortable
       firstNameSortable
@@ -90,6 +92,7 @@ export const GET_USER_NAMES = gql`
 
 export type RaisedHandUser = Pick<
 User,
+| 'meetingId'
 | 'userId'
 | 'name'
 | 'color'
@@ -97,6 +100,7 @@ User,
 | 'isModerator'
 | 'raiseHand'
 | 'whiteboardWriteAccess'
+| 'locked'
 > & {
   raiseHandTime?: string;
 };
@@ -114,6 +118,7 @@ subscription RaisedHandUsers {
     order_by: [
       {raiseHandTime: asc_nulls_last},
     ]) {
+    meetingId
     userId
     name
     color
@@ -122,5 +127,6 @@ subscription RaisedHandUsers {
     raiseHand
     raiseHandTime
     whiteboardWriteAccess
+    locked
   }
 }`;

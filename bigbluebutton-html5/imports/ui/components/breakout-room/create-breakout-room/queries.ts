@@ -60,6 +60,7 @@ export const getUser = gql`
         {registeredAt: asc},
         {userId: asc}
       ]) {
+      meetingId
       extId
       userId
       name

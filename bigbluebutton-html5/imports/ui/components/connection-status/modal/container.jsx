@@ -10,10 +10,21 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { useReactiveVar } from '@apollo/client';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
 
 const ConnectionStatusContainer = (props) => {
+  const { data: meeting } = useMeeting((m) => ({ meetingId: m.meetingId }));
   const { data } = useDeduplicatedSubscription(CONNECTION_STATUS_REPORT_SUBSCRIPTION);
-  const connectionData = data ? sortConnectionData(data.user_connectionStatusReport) : [];
+  const filteredData = meeting?.meetingId
+    ? filterByMeetingId(
+      data?.user_connectionStatusReport,
+      meeting.meetingId,
+      CONNECTION_STATUS_REPORT_SUBSCRIPTION,
+      (item) => ({ mismatchedUserId: item.user?.userId, mismatchedName: item.user?.name }),
+    )
+    : (data?.user_connectionStatusReport ?? []);
+  const connectionData = sortConnectionData(filteredData);
   const { data: currentUser } = useCurrentUser((u) => ({ isModerator: u.isModerator }));
   const amIModerator = !!currentUser?.isModerator;
 

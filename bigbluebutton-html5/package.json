@@ -37,7 +37,7 @@
   "dependencies": {
     "@apollo/client": "^3.10.4",
     "@babel/runtime": "^7.26.10",
-    "@bigbluebutton/tldraw": "^2.0.0-alpha.32",
+    "@bigbluebutton/tldraw": "^2.0.0-alpha.33",
     "@browser-bunyan/console-formatted-stream": "^1.8.0",
     "@browser-bunyan/console-raw-stream": "^1.8.0",
     "@browser-bunyan/levels": "^1.8.0",
@@ -154,7 +154,7 @@
     "typescript": "5.5.3",
     "webpack": "5.94.0",
     "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "5.2.2"
+    "webpack-dev-server": "^5.2.3"
   },
   "resolutions": {
     "trim-newlines": "^4.0.1"

@@ -30,6 +30,7 @@ interface Voice extends GridVoice {
 
 export interface VideoStreamsResponse {
   user_camera: {
+    meetingId: string;
     streamId: string;
     user: User;
     voice?: Voice;

@@ -19,8 +19,8 @@ export default defineConfig({
   },
   use: {
     headless: true,
-    trace: 'on',
     screenshot: 'on',
+    trace: CI ? 'retain-on-failure' : 'on',
     video: CI ? 'retain-on-failure' : 'on',
     actionTimeout: ELEMENT_WAIT_LONGER_TIME,
   },

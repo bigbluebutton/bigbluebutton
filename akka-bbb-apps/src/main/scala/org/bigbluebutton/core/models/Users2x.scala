@@ -468,6 +468,7 @@ case class UserState(
     loggedOut:             Boolean             = false,
     speechLocale:          String              = "",
     captionLocale:         String              = "",
+    joinRequestMetadata:   Map[String, String] = Map.empty,
     userMetadata:          Map[String, String] = Map.empty,
     userLockSettings:      UserLockSettings    = UserLockSettings()
 )
