@@ -7,6 +7,7 @@ export interface HocuspocusServerConfig {
 export interface BbbWebConfig {
   host: string;
   port: string;
+  presentationEndpoint: string;
   checkAuthorizationEndpoint: string;
 }
 
@@ -41,9 +42,14 @@ export interface SqliteConfig {
   database: string;
 }
 
+export interface Shared {
+  tmpDirectory: string
+}
+
 export interface AppSettings {
   hocuspocusServer: HocuspocusServerConfig;
   bbbWeb: BbbWebConfig;
+  shared: Shared;
   log: LogConfig;
   redis: RedisConfig;
   bbbPostgres: BbbPostgresConfig;

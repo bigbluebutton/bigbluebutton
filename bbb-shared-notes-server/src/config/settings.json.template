@@ -3,6 +3,15 @@
     "host": "127.0.0.1",
     "port": 9001
   },
+  "share": {
+    "tmpDirectory": "/tmp/pres-ann-dropbox"
+  },
+  "bbbWeb": {
+    "host": "127.0.0.1",
+    "port": "8090",
+    "presentationEndpoint": "bigbluebutton/presentation/",
+    "checkAuthorizationEndpoint": "bigbluebutton/connection/checkGraphqlAuthorization"
+  },
   "log": {
     "level": "info"
   },

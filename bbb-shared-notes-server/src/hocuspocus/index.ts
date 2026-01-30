@@ -47,6 +47,7 @@ const hocuspocus = new Hocuspocus({
       userName,
       userId,
       meetingId,
+      intUserId,
       userIsModerator,
     } = userInformation;
 
@@ -66,8 +67,9 @@ const hocuspocus = new Hocuspocus({
     }
 
     const newConnection: ConnectionInfo = {
-      meetingId: userInformation.meetingId,
-      userId: userInformation.userId,
+      meetingId,
+      userId,
+      intUserId,
       moderator: userInformation.userIsModerator,
       notesEnabled: userInformation.userHasNotesEnabled,
       websocket: websocket,
@@ -80,6 +82,7 @@ const hocuspocus = new Hocuspocus({
       user: {
         websocket,
         sessionToken,
+        intUserId,
         id: userId,
         role: role,
         name: userName,
@@ -89,22 +92,22 @@ const hocuspocus = new Hocuspocus({
   },
   onChange: async (data) => {
     const { documentName } = data;
-    let userId: string;
     let meetingId: string | undefined;
+    let intUserId: string | undefined;
     if (data.context.user) {
-      userId = data.context.user.id;
+      intUserId = data.context.user.intUserId;
       meetingId = data.context.user.meetingId;
     } else {
       // Change initiated from server-side
-      userId = "SYSTEM";
+      intUserId = "SYSTEM";
       if (documentName.includes("__")) meetingId = extractMeetingId(documentName);
     }
     if (!!meetingId) {
-      sender.send('sharedNotesUpdated', meetingId, { userId, documentName });
+      sender.send('sharedNotesUpdated', meetingId, { intUserId, documentName });
     } else {
       logger.warn("Malformed document name, ignoring change", {
         documentName,
-        userId,
+        intUserId,
       });
     } 
   }

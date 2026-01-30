@@ -5,10 +5,14 @@ const  DEFAULT_SETTINGS: AppSettings = {
     host: '127.0.0.1',
     port: 9001,
   },
+  shared: {
+    tmpDirectory: '/tmp/pres-ann-dropbox',
+  },
   bbbWeb: {
     host: '127.0.0.1',
     port: '8090',
-    checkAuthorizationEndpoint: 'bigbluebutton/connection/checkGraphqlAuthorization',
+    presentationEndpoint: '/bigbluebutton/presentation',
+    checkAuthorizationEndpoint: '/bigbluebutton/connection/checkGraphqlAuthorization',
   },
   log: {
     level: 'info',

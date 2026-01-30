@@ -39,7 +39,7 @@ case class BNSharedNotesCreatedEvtMsgBody(padId: String, externalId: String, mod
 // shared-notes-server -> apps
 object BNSharedNotesUpdatedEvtMsg { val NAME = "BNSharedNotesUpdatedEvtMsg" }
 case class BNSharedNotesUpdatedEvtMsg(header: BbbCoreHeaderWithMeetingId, body: BNSharedNotesUpdatedEvtMsgBody) extends PadStandardMsg
-case class BNSharedNotesUpdatedEvtMsgBody(userId: String, documentName: String)
+case class BNSharedNotesUpdatedEvtMsgBody(intUserId: String, documentName: String)
 
 // apps -> pads
 object PadCreateCmdMsg { val NAME = "PadCreateCmdMsg" }
@@ -135,3 +135,14 @@ case class PadPinnedReqMsgBody(externalId: String, pinned: Boolean)
 object PadPinnedEvtMsg { val NAME = "PadPinnedEvtMsg" }
 case class PadPinnedEvtMsg(header: BbbClientMsgHeader, body: PadPinnedEvtMsgBody) extends BbbCoreMsg
 case class PadPinnedEvtMsgBody(externalId: String, pinned: Boolean)
+
+// apps -> shared-notes-server (BlockNote export)
+object ExportBNSharedNotesEvtMsg { val NAME = "ExportBNSharedNotesEvtMsg" }
+case class ExportBNSharedNotesEvtMsg(header: BbbCoreHeaderWithMeetingId, body: ExportBNSharedNotesEvtMsgBody) extends BbbCoreMsg
+case class ExportBNSharedNotesEvtMsgBody(
+    jobId:              String,
+    presId:             String,
+    serverSideFilename: String,
+    parentMeetingId:    String,
+    presUploadToken:    String
+)

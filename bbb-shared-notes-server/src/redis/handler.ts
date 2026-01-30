@@ -2,6 +2,10 @@ import { Logger } from '../common/logger';
 import { meetingLockMap, connectionsMap } from '../common/singleton';
 import { MeetingLock } from '../common/type';
 import { sender } from './sender';
+import { config } from '../config';
+import fs from 'fs';
+import path from 'path';
+import { uploadPresentation } from './helpers/uploadPresentation';
 
 const logger = new Logger('redis handler');
 
@@ -135,6 +139,88 @@ const handleSharedNotesCreate = async (header: MessageHeader, body: MessageBody)
   sender.send('sharedNotesCreated', meetingId, { padId, externalId, model });
 };
 
+const handleBlockNoteExport = async (header: MessageHeader, body: MessageBody): Promise<void> => {
+  const { meetingId } = header;
+  const {
+    jobId,
+    presId,
+    serverSideFilename,
+    parentMeetingId,
+    presUploadToken,
+  } = body;
+
+  logger.info('Received BlockNote export request', {
+    jobId,
+    presId,
+    meetingId,
+    parentMeetingId,
+  });
+
+  try {
+    const { tmpDirectory } = config.shared;
+    const temporarySavingDir = path.join(tmpDirectory, jobId);
+
+    if (!fs.existsSync(temporarySavingDir)) {
+      fs.mkdirSync(temporarySavingDir, { recursive: true });
+    }
+
+    const exportJob = {
+      jobId,
+      filename: serverSideFilename,
+      serverSideFilename,
+      presId,
+      parentMeetingId: parentMeetingId || meetingId,
+      presUploadToken,
+    };
+    fs.writeFileSync(path.join(temporarySavingDir, 'job'), JSON.stringify(exportJob));
+
+    // Export the document
+    const documentName = presId;
+    const notesFormat = 'pdf';
+    const underscoredFilename = serverSideFilename.replace(/\s/g, '_');
+    const sanitizedFilename = underscoredFilename.replace(/[^a-z0-9_\-\.]/gi, '_');
+    const outputFilename = `${sanitizedFilename}.${notesFormat}`;
+    const filePath = path.join(temporarySavingDir, outputFilename);
+
+    const apiEndpoint = `http://127.0.0.1:8787/api/documents/${documentName}/export/${notesFormat}`;
+
+    const response = await fetch(apiEndpoint, { method: 'GET' });
+
+    if (!response.ok) {
+      throw new Error(`Export failed with status: ${response.status}`);
+    }
+
+    const buffer = await response.arrayBuffer();
+    fs.writeFileSync(filePath, Buffer.from(buffer));
+
+    // Upload the file to BBB
+    await uploadPresentation(filePath, exportJob.presUploadToken, exportJob.parentMeetingId, jobId);
+
+    logger.info('Export completed successfully', {
+      jobId,
+      presId,
+      filePath,
+    });
+
+    // Delete temporary files
+    try {
+      fs.rmSync(temporarySavingDir, { recursive: true });
+      logger.info('Cleaned up temporary files', { dropbox: temporarySavingDir });
+    } catch (cleanupError) {
+      logger.error('Failed to cleanup temporary files', {
+        error: cleanupError instanceof Error ? cleanupError.message : String(cleanupError),
+        temporarySavingDir,
+      });
+    }
+  } catch (error) {
+    logger.error('Failed to export BlockNote document', {
+      error: error instanceof Error ? error.message : String(error),
+      jobId,
+      presId,
+    });
+  }
+};
+
 interface MessageHeader {
   name: string;
   meetingId: string;
@@ -223,6 +309,9 @@ const handler: PubSubHandler = {
         break;
       case 'BNSharedNotesCreateCmdMsg':
         handleSharedNotesCreate(header, body);
+        break;
+      case 'ExportBNSharedNotesEvtMsg':
+        handleBlockNoteExport(header, body);
         break;
       default:
     }

@@ -23,7 +23,7 @@ trait BNSharedNotesCreatedEvtMsgHdlr {
     }
 
     // Create group
-    Pads.setGroupId(liveMeeting.pads, msg.body.externalId, "not-used")
+    Pads.setGroupId(liveMeeting.pads, msg.body.externalId, "default")
 
     Pads.setPadId(liveMeeting.pads, msg.body.externalId, msg.body.padId)
     SharedNotesDAO.insert(liveMeeting.props.meetingProp.intId, msg.body.externalId, msg.body.model,
