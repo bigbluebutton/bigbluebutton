@@ -7,6 +7,7 @@ import {
   colorPrimaryDarkTheme,
   colorHoverBgDark,
   colorToggleBgDisabledDarkTheme,
+  colorTldrawBackground,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const Layout = styled(FlexColumn)``;
@@ -58,6 +59,9 @@ const DtfInvert = `
   .tl-container {
     .tl-image {
       background-color: white !important;
+    }
+    .tl-background {
+      background-color: ${colorTldrawBackground} !important;
     }
   }
   .tlui-slider__thumb {
