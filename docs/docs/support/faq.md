@@ -308,7 +308,7 @@ We (the core developers) have not installed BigBlueButton on any other version o
 
 There is no support for CentOS.
 
-We do have experience with CentOS. In April, 2010, we released [BigBlueButton 0.64](/release-notes#release-0.64:-lickety-split) with RPM packages for CentOS 5.4. However, based on our experience of developing, building, and testing both Ubuntu and CentOS packages, we stopped supporting RPM packages after that release.
+We do have experience with CentOS. In April, 2010, we released BigBlueButton 0.64 with RPM packages for CentOS 5.4. However, based on our experience of developing, building, and testing both Ubuntu and CentOS packages, we stopped supporting RPM packages after that release.
 
 Why?
 
