@@ -17,7 +17,7 @@ Now this command is going to start the server so you can access it.
 
 ### Develop branch details
 
-If you want to test the documentation as a whole, we suggest you to check out to the `develop` branch. There you'll have the ability to build all the versioning we currently support (3.0, 2.7, 2.6 and 2.5-legacy).
+If you want to test the documentation as a whole, we suggest you to check out to the `develop` branch. There you'll have the ability to build all the versioning we currently support (3.0, 2.7, 2.6 and 2.5).
 
 If you are already into the `develop` branch, to run the docs you'll run the following command first outside a docker-container (Previous to the `run-dev.sh`):
 
