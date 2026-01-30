@@ -6,6 +6,7 @@ import { config } from '../config';
 import fs from 'fs';
 import path from 'path';
 import { uploadPresentation } from './helpers/uploadPresentation';
+import { documentNamePrefix } from '../hocuspocus/utils';
 
 const logger = new Logger('redis handler');
 
@@ -95,7 +96,7 @@ const handleSharedNotesCreate = async (header: MessageHeader, body: MessageBody)
     initialContentJson,
   } = body;
 
-  const padId = `bn-document__${meetingId}`;
+  const padId = `${documentNamePrefix}${meetingId}`;
 
   const validateInitialContentNotEmpty = (): boolean => {
     return initialContentJson !== undefined
