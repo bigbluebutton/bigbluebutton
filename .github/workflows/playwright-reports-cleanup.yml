@@ -6,6 +6,7 @@ on:
 jobs:
   cleanup-report:
     runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'bigbluebutton' }}
     steps:
       - name: Checkout reports repository
         uses: actions/checkout@v4

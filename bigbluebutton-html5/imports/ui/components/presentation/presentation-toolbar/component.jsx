@@ -131,12 +131,10 @@ class PresentationToolbar extends PureComponent {
   }
 
   handleSkipToSlideChange(event) {
-    const { skipToSlide, currentSlide, setPresentationPageInfiniteWhiteboard } = this.props;
+    const { skipToSlide, currentSlide } = this.props;
     const requestedSlideNum = Number.parseInt(event.target.value, 10);
 
-    const isInfiniteWhiteboard = currentSlide?.infiniteWhiteboard;
-
-    if (isInfiniteWhiteboard) setPresentationPageInfiniteWhiteboard(false);
+    if (currentSlide?.infiniteWhiteboard) this.disableInfiniteWhiteboard();
 
     if (event) event.currentTarget.blur();
     skipToSlide(requestedSlideNum);
@@ -152,6 +150,17 @@ class PresentationToolbar extends PureComponent {
       return setMultiUserWhiteboardDisabled();
     }
     return setMultiUserWhiteboardEnabled();
+  }
+
+  disableInfiniteWhiteboard() {
+    const {
+      tldrawAPI, resetSlide, zoomChanger, setPresentationPageInfiniteWhiteboard,
+    } = this.props;
+
+    tldrawAPI?.setCamera({ x: 0, y: 0 });
+    resetSlide();
+    zoomChanger(100);
+    setPresentationPageInfiniteWhiteboard(false);
   }
 
   fullscreenToggleHandler() {
@@ -177,25 +186,18 @@ class PresentationToolbar extends PureComponent {
   }
 
   nextSlideHandler(event) {
-    const {
-      nextSlide, currentSlide, setPresentationPageInfiniteWhiteboard,
-    } = this.props;
-    const isInfiniteWhiteboard = currentSlide?.infiniteWhiteboard;
+    const { nextSlide, currentSlide } = this.props;
 
-    if (isInfiniteWhiteboard) setPresentationPageInfiniteWhiteboard(false);
+    if (currentSlide?.infiniteWhiteboard) this.disableInfiniteWhiteboard();
 
     if (event) event.currentTarget.blur();
     nextSlide();
   }
 
   previousSlideHandler(event) {
-    const {
-      previousSlide, currentSlide, setPresentationPageInfiniteWhiteboard,
-    } = this.props;
+    const { previousSlide, currentSlide } = this.props;
 
-    const isInfiniteWhiteboard = currentSlide?.infiniteWhiteboard;
-
-    if (isInfiniteWhiteboard) setPresentationPageInfiniteWhiteboard(false);
+    if (currentSlide?.infiniteWhiteboard) this.disableInfiniteWhiteboard();
 
     if (event) event.currentTarget.blur();
     previousSlide();
@@ -473,11 +475,10 @@ class PresentationToolbar extends PureComponent {
             circle
             onClick={() => {
               if (isInfiniteWhiteboard) {
-                tldrawAPI.setCamera({ x: 0, y: 0 });
-                resetSlide();
-                zoomChanger(100);
+                this.disableInfiniteWhiteboard();
+              } else {
+                setPresentationPageInfiniteWhiteboard(true);
               }
-              setPresentationPageInfiniteWhiteboard(!isInfiniteWhiteboard);
             }}
             label={
               isInfiniteWhiteboard
