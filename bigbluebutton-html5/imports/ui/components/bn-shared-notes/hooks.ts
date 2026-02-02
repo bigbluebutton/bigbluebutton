@@ -120,7 +120,13 @@ const useHocuspocusProvider = () => {
             reason,
           } = data.event;
 
-          if (code === 1008 && checkLockReason(reason)) {
+          // Handle security violations (4001) - do not reconnect
+          if (code === 4001) {
+            setError(`Security violation: ${reason}`);
+            isAuthenticating.current = false;
+            // Destroy the provider to prevent reconnection attempts
+            provider.destroy();
+          } else if (code === 1008 && checkLockReason(reason)) {
             handleRetry();
           } else {
             setConnectionClosed(true);

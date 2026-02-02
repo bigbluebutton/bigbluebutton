@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { BlockNoteView } from '@blocknote/mantine';
 import * as BlockNoteLocales from '@blocknote/core/locales';
-import { BlockNoteSchema, defaultBlockSpecs } from "@blocknote/core";
+import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
 import '@blocknote/core/fonts/inter.css';
 import '@blocknote/mantine/style.css';
 import { HocuspocusProvider } from '@hocuspocus/provider';
@@ -31,7 +31,10 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   const blockNoteLocale = useBlockNoteLocaleLanguage();
 
   // Remove Media block types for now
-  const { audio, image, file, video, ...remainingBlockSpecs } = defaultBlockSpecs;
+  const {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    audio, image, file, video, ...remainingBlockSpecs
+  } = defaultBlockSpecs;
 
   const schema = BlockNoteSchema.create({
     blockSpecs: {
@@ -76,7 +79,6 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   }, [blockNoteLocale]);
 
   const editable = !disableNotes || !currentUserIsLocked || currentUserIsModerator;
-
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
