@@ -1,6 +1,3 @@
 /node_modules
 /dist
 /.claude/
-
-src/config/settings.json
-db.sqlite

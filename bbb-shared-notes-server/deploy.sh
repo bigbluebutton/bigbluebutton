@@ -2,45 +2,57 @@
 
 cd "$(dirname "$0")"
 
-for var in "$@"
-do
-    if [[ $var == --reset ]] ; then
-    	echo "Performing a full reset..."
-      sudo rm -rf node_modules
-    fi
+# sudo systemctl stop bbb-shared-notes-server.service
+
+echo "Npm version:"
+npm -v
+echo "Node version:"
+node -v
+
+# Create directory for fpm to process
+DIRS="/usr/share/bbb-shared-notes-server /usr/share/bigbluebutton/nginx"
+for dir in $DIRS; do
+  mkdir -p $dir
+  DIRECTORIES="$DIRECTORIES --directories $dir"
 done
 
-if [ ! -d ./node_modules ] ; then
-  npm ci --no-progress
-fi
+# Build shared-notes-server
+npm ci --no-progress
 npm run build
 
-# create target directory if it doesn't exist
-sudo mkdir -p /usr/local/bigbluebutton/bbb-shared-notes-server
+mv dist/index.js dist/bbb-shared-notes-server.js
+cp -r dist/* /usr/share/bbb-shared-notes-server
+cp blocknote_schema.sql /usr/share/bbb-shared-notes-server
+cp package.json /usr/share/bbb-shared-notes-server
+cp package-lock.json /usr/share/bbb-shared-notes-server
+cp src/config/settings.json /usr/share/bbb-shared-notes-server/config
+cp -r node_modules /usr/share/bbb-shared-notes-server
 
-sudo mv -f dist/index.js dist/bbb-shared-notes-server.js
-sudo cp -rf dist/* /usr/local/bigbluebutton/bbb-shared-notes-server
-sudo cp -f package.json /usr/local/bigbluebutton/bbb-shared-notes-server
-sudo cp -f package-lock.json /usr/local/bigbluebutton/bbb-shared-notes-server
-sudo cp -rf node_modules /usr/local/bigbluebutton/bbb-shared-notes-server
+# Set nginx location
+cp ../build/packages-template/bbb-shared-notes-server/bbb-shared-notes-server.nginx /usr/share/bigbluebutton/nginx
 
-# Copy default settings.json to production config location
-sudo mkdir -p /usr/local/bigbluebutton/bbb-shared-notes-server/config
-sudo cp -f src/config/settings.json /usr/local/bigbluebutton/bbb-shared-notes-server/config/
+# Set service
+# mkdir -p /usr/lib/systemd/system
+cp ../build/packages-template/bbb-shared-notes-server/bbb-shared-notes-server.service /usr/lib/systemd/system
+systemctl enable bbb-shared-notes-server.service
+systemctl daemon-reload
+systemctl restart nginx
+systemctl restart bbb-shared-notes-server.service
 
-# Create template for local overrides if it doesn't exist
-if [ ! -f /etc/bigbluebutton/shared-notes-server.json ]; then
-    sudo mkdir -p /etc/bigbluebutton
-    sudo cp -f src/config/settings.json.template /etc/bigbluebutton/shared-notes-server.json
-    echo "Created /etc/bigbluebutton/shared-notes-server.json from template"
-fi
+# Set dabatase
 
-# Create SQLite database directory with proper permissions
-sudo mkdir -p /var/lib/bbb-shared-notes-server
-sudo chown bigbluebutton:bigbluebutton /var/lib/bbb-shared-notes-server
-sudo chmod 755 /var/lib/bbb-shared-notes-server
-sudo systemctl restart bbb-shared-notes-server
-echo ''
-echo ''
-echo '----------------'
-echo 'bbb-shared-notes-server updated'
+  # make sure postgres can read this directory
+  chmod 755 /usr/share/bbb-shared-notes-server/ -R
+
+export LANGUAGE="en_US.UTF-8"
+export LC_ALL="en_US.UTF-8"
+
+  # Create user blocknote_app@blocknote_app (for blocknote metadata)
+  runuser -u postgres -- psql -tc "SELECT 1 FROM pg_roles WHERE rolname='blocknote_app'" | grep -q 1 || \
+    runuser -u postgres -- psql -c "CREATE USER blocknote_app WITH PASSWORD 'blocknote_app'"
+
+  HASURA_DATABASE_NAME="blocknote_app"
+  runuser -u postgres -- psql -q -c "DROP DATABASE IF EXISTS $HASURA_DATABASE_NAME WITH (FORCE);"
+  runuser -u postgres -- psql -q -c "CREATE DATABASE $HASURA_DATABASE_NAME OWNER blocknote_app;"
+
+runuser -u postgres -- psql -U postgres -d $HASURA_DATABASE_NAME -q -f /usr/share/bbb-shared-notes-server/blocknote_schema.sql --set ON_ERROR_STOP=on

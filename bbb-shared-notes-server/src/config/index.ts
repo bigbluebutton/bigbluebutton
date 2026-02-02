@@ -3,7 +3,7 @@ import { AppSettings } from './type';
 import DEFAULT_SETTINGS from './const';
 
 const DEFAULT_SETTINGS_FILE_PATH = process.env.NODE_ENV === 'production'
-  ? '/usr/local/bigbluebutton/bbb-shared-notes-server/config/settings.json'
+  ? '/usr/share/bbb-shared-notes-server/config/settings.json'
   : './settings.json';
 const LOCAL_SETTINGS_FILE_PATH = '/etc/bigbluebutton/shared-notes-server.json';
 
@@ -41,7 +41,6 @@ function loadConfiguration() {
 
   if (localSettingsExists()) {
     const LOCAL_SETTINGS = require(LOCAL_SETTINGS_FILE_PATH);
-    mergeSettings(SETTINGS, LOCAL_SETTINGS);
     mergeSettings(SETTINGS, LOCAL_SETTINGS);
   }
   settings = SETTINGS;

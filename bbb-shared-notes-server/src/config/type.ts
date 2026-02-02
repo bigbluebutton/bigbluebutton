@@ -42,8 +42,23 @@ export interface BbbPostgresConfig {
   connectionTimeoutMillis?: number;
 }
 
-export interface SqliteConfig {
+export interface PostgresConfig {
+  host: string;
+  port: number;
   database: string;
+  user: string;
+  password: string;
+}
+
+export interface BbbPostgresConfig {
+  host: string;
+  port: number;
+  database: string;
+  user: string;
+  password: string;
+  max?: number;
+  idleTimeoutMillis?: number;
+  connectionTimeoutMillis?: number;
 }
 
 export interface Shared {
@@ -58,5 +73,5 @@ export interface AppSettings {
   log: LogConfig;
   redis: RedisConfig;
   bbbPostgres: BbbPostgresConfig;
-  sqlite: SqliteConfig;
+  postgres: PostgresConfig;
 }

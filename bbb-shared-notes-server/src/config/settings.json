@@ -30,5 +30,12 @@
         "from-etherpad-redis-channel"
       ]
     }
+  },
+  "postgres": {
+    "host": "127.0.0.1",
+    "port": 5432,
+    "database": "blocknote_app",
+    "user": "blocknote_app",
+    "password": "blocknote_app"
   }
 }

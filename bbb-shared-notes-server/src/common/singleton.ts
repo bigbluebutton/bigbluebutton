@@ -7,7 +7,7 @@ let connectionCounter = 0;
 
 const nextConnectionKey = (): string => {
   connectionCounter += 1;
-  return `BC${String(connectionCounter).padStart(4, "0")}`;
+  return `BN-CONN-${String(connectionCounter).padStart(4, "0")}`;
 };
 
 export {

@@ -43,10 +43,12 @@ const  DEFAULT_SETTINGS: AppSettings = {
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 2000,
   },
-  sqlite: {
-    database: process.env.NODE_ENV === 'production'
-      ? '/var/lib/bbb-shared-notes-server/db.sqlite'
-      : './db.sqlite',
+  postgres: {
+    host: '127.0.0.1',
+    port: 5432,
+    database: 'blocknote_app',
+    user: 'blocknote_app',
+    password: 'blocknote_app',
   },
 };
 

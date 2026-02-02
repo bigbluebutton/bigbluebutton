@@ -3,7 +3,7 @@ import { getUserInformation } from "./api";
 import { meetingLockMap, connectionsMap, nextConnectionKey } from "../common/singleton";
 import { ConnectionInfo } from "../common/type";
 import { extractMeetingId } from "./utils";
-import sqliteDB from "./extensions/sqlite";
+import postgresqlDB from "./extensions/postgresql";
 import { Logger } from "../common/logger";
 import { sender } from "../redis/sender";
 import { config } from "../config";
@@ -15,7 +15,7 @@ const hocuspocus = new Hocuspocus({
   address: config.hocuspocusServer.host,
   port: config.hocuspocusServer.port,
   extensions: [
-    sqliteDB,
+    postgresqlDB,
   ],
 
   onAuthenticate: async (data) => {

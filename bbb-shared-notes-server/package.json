@@ -31,7 +31,6 @@
     "@blocknote/core": "^0.46.1",
     "@blocknote/react": "^0.25.0",
     "@blocknote/server-util": "^0.25.0",
-    "@hocuspocus/extension-sqlite": "^2.15.3",
     "@hocuspocus/server": "^2.15.2",
     "@hono/node-server": "^1.0.8",
     "@hono/node-ws": "^1.0.8",
