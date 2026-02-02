@@ -1003,6 +1003,7 @@
     "app.userList.guest.feedbackMessage": "Rakendatud tegevus:",
     "app.user-info.title": "Otsi kataloogist",
     "app.toast.breakoutRoomEnded": "Eraldatud ruum on lõppenud. Palun liitu uuesti audioga.",
+    "app.toast.breakoutContentUnchangedNotConverted": "Ühes või mitmes eraldatud ruumis puudusid tahvli / jagatud märkmete uuendused, mistõttu neid ei teisendatud slaidideks.",
     "app.toast.chat.public": "Uus avalik sõnum",
     "app.toast.chat.private": "Uus privaatne sõnum",
     "app.toast.chat.system": "Süsteem",
