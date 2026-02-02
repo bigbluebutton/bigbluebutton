@@ -5,6 +5,7 @@ import { config } from "../config";
 import path from "path";
 import { documentApi } from "./rest-api";
 import { websocketApi } from "./websocket-api";
+import { extractMeetingId } from "../hocuspocus/utils";
 
 const logger = new Logger('index.ts');
 
@@ -31,10 +32,7 @@ const startExpressApp = () => {
     }
 
     const { documentName } = req.params;
-    const prefix = 'bn-document__';
-    const meetingIdFromUrl = documentName.startsWith(prefix)
-      ? documentName.slice(prefix.length)
-      : documentName;
+    const meetingIdFromUrl = extractMeetingId(documentName);
 
     if (meetingIdHeader !== meetingIdFromUrl) {
       logger.warn(`meeting-id header mismatch for ${req.originalUrl}`);

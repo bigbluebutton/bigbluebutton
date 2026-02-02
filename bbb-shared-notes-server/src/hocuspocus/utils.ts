@@ -1,6 +1,9 @@
+export var documentNamePrefix = 'bn-document__';
+
 export function extractMeetingId(documentName: string) {
-  const splitList = documentName.split('__'); // Of the form bn-document__${meetingId}
-  return splitList[splitList.length - 1]
+  return documentName.startsWith(documentNamePrefix)
+    ? documentName.slice(documentNamePrefix.length)
+    : documentName;
 }
 
 export function toBoolean(str?: string) {
