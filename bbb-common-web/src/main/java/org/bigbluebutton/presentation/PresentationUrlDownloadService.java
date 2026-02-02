@@ -184,10 +184,10 @@ public class PresentationUrlDownloadService {
         }
 
         if (!validatedUrl.originalUrl().equals(urlString)) {
-            log.info("Redirected to Final URL [{}], pinned to IP [{}]",
-                    validatedUrl.originalUrl(), validatedUrl.resolvedIpAddress());
+            log.info("Redirected to Final URL [{}], resolved to {} address(es)",
+                    validatedUrl.originalUrl(), validatedUrl.resolvedAddresses().length);
         } else {
-            log.info("URL [{}] pinned to IP [{}]", urlString, validatedUrl.resolvedIpAddress());
+            log.info("URL [{}] resolved to {} address(es)", urlString, validatedUrl.resolvedAddresses().length);
         }
 
         boolean success = false;
@@ -229,8 +229,8 @@ public class PresentationUrlDownloadService {
         final String originalHost = validatedUrl.host();
 
         DnsResolver pinnedDnsResolver = host -> {
-            if (host.equalsIgnoreCase(originalHost) || host.equals(validatedUrl.resolvedIpAddress())) {
-                return new java.net.InetAddress[]{validatedUrl.resolvedAddress()};
+            if (host.equalsIgnoreCase(originalHost)) {
+                return validatedUrl.resolvedAddresses();
             }
             // For any other host (shouldn't happen), fail fast
             throw new java.net.UnknownHostException("DNS resolution blocked for unpinned host: " + host);

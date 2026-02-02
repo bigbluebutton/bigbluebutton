@@ -104,8 +104,8 @@ public class RedirectFollowerService {
                 .build();
 
         DnsResolver pinnedDnsResolver = host -> {
-            if (host.equalsIgnoreCase(validatedUrl.host()) || host.equals(validatedUrl.resolvedIpAddress())) {
-                return new java.net.InetAddress[]{validatedUrl.resolvedAddress()};
+            if (host.equalsIgnoreCase(validatedUrl.host())) {
+                return validatedUrl.resolvedAddresses();
             }
             throw new UnknownHostException("DNS resolution blocked for unpinned host: " + host);
         };

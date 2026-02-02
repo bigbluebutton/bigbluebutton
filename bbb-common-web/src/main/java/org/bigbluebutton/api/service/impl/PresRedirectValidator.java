@@ -6,10 +6,7 @@ import org.bigbluebutton.api.service.ValidatedUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetAddress;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -178,13 +175,20 @@ public class PresRedirectValidator implements RedirectValidator {
                 log.error("Address [{}] is a link local address", address.getHostAddress());
                 return null;
             }
+
+            if (address instanceof Inet6Address) {
+                if (isUniqueLocalAddress(address)) {
+                    log.error("Address [{}] is a private IPv6 ULA", address.getHostAddress());
+                    return null;
+                }
+            }
         }
 
-        // Return the first valid address pinned for subsequent connections
-        InetAddress pinnedAddress = addresses[0];
-        log.info("URL [{}] validated, pinning to IP [{}]", redirectUrl, pinnedAddress.getHostAddress());
+        // Return all validated addresses for subsequent connections
+        log.info("URL [{}] validated, resolved to {} address(es): {}", redirectUrl, addresses.length,
+                java.util.Arrays.stream(addresses).map(InetAddress::getHostAddress).toList());
 
-        return new ValidatedUrl(redirectUrl, host, port, protocol, path, pinnedAddress);
+        return new ValidatedUrl(redirectUrl, host, port, protocol, path, addresses);
     }
 
     public void setInsertDocumentSupportedProtocols(List<String> insertDocumentSupportedProtocols) {
@@ -201,5 +205,13 @@ public class PresRedirectValidator implements RedirectValidator {
 
     public void setDefaultUploadedPresentation(String defaultUploadedPresentation) {
         this.defaultUploadedPresentation = defaultUploadedPresentation;
+    }
+
+    private boolean isUniqueLocalAddress(InetAddress address) {
+        if (!(address instanceof Inet6Address)) {
+            return false;
+        }
+        byte[] bytes = address.getAddress();
+        return (bytes[0] & 0xFE) == 0xFC;
     }
 }

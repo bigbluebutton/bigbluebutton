@@ -8,7 +8,7 @@ public record ValidatedUrl(
         int port,
         String protocol,
         String path,
-        InetAddress resolvedAddress
+        InetAddress[] resolvedAddresses
 ) {
     public int effectivePort() {
         if (port != -1) {
@@ -21,7 +21,11 @@ public record ValidatedUrl(
         return "https".equalsIgnoreCase(protocol);
     }
 
-    public String resolvedIpAddress() {
-        return resolvedAddress.getHostAddress();
+    public InetAddress primaryAddress() {
+        return resolvedAddresses[0];
+    }
+
+    public String primaryIpAddress() {
+        return primaryAddress().getHostAddress();
     }
 }
