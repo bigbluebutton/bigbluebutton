@@ -14,36 +14,36 @@ rm -rf staging
 #
 # package
 
-mkdir -p staging/usr/local/bigbluebutton/bbb-shared-notes-server-temp
+# Create directory for fpm to process
+DIRS="/usr/share/bbb-shared-notes-server /usr/share/bigbluebutton/nginx"
+for dir in $DIRS; do
+  mkdir -p staging$dir
+  DIRECTORIES="$DIRECTORIES --directories $dir"
+done
 
-find -maxdepth 1 ! -path . ! -name staging $(printf "! -name %s " $(cat .build-files)) -exec cp -r {} staging/usr/local/bigbluebutton/bbb-shared-notes-server-temp/ \;
+# Set nginx location
+cp bbb-shared-notes-server.nginx staging/usr/share/bigbluebutton/nginx
 
-pushd .
-cd staging/usr/local/bigbluebutton/bbb-shared-notes-server-temp/
+echo "Npm version:"
 npm -v
+echo "Node version:"
+node -v
+
+# Build shared-notes-server
 npm ci --no-progress
 npm run build
-popd
 
-mkdir -p staging/usr/local/bigbluebutton/bbb-shared-notes-server
-pushd .
-cd staging/usr/local/bigbluebutton/bbb-shared-notes-server/
-mv ../bbb-shared-notes-server-temp/dist/* .
-mv index.js bbb-shared-notes-server.js
-cp ../bbb-shared-notes-server-temp/package.json .
-cp ../bbb-shared-notes-server-temp/package-lock.json .
-sudo cp -f ../src/bbb-shared-notes-server-temp/config/settings.json.template /usr/local/bigbluebutton/bbb-shared-notes-server/config/settings.json
-npm ci --no-progress --omit=dev
-rm -rf ../bbb-shared-notes-server-temp/
-popd
+mv dist/index.js dist/bbb-shared-notes-server.js
+cp -r dist/* /usr/share/bbb-shared-notes-server
+cp blocknote_schema.sql /usr/share/bbb-shared-notes-server
+cp package.json /usr/share/bbb-shared-notes-server
+cp package-lock.json /usr/share/bbb-shared-notes-server
+cp src/config/settings.json /usr/share/bbb-shared-notes-server/config
+cp -r node_modules /usr/share/bbb-shared-notes-server
 
+# Setup service
 mkdir -p staging/usr/lib/systemd/system
 cp bbb-shared-notes-server.service staging/usr/lib/systemd/system
-
-echo "List files"
-find staging/
-
-##
 
 . ./opts-$DISTRO.sh
 
@@ -54,8 +54,7 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --after-install after-install.sh \
     --before-install before-install.sh \
     --before-remove before-remove.sh \
-    --description "BigBlueButton GraphQL Actions" \
+    --description "BigBlueButton Shared Notes Server" \
     $DIRECTORIES \
     $OPTS \
     -d 'nodejs (>= 18)' -d 'nodejs (<< 23)'
-
