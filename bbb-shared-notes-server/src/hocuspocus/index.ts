@@ -18,6 +18,40 @@ const hocuspocus = new Hocuspocus({
     postgresqlDB,
   ],
 
+  onAwarenessUpdate: async (data) => {
+    const { context, awareness, added, updated } = data;
+
+    // Validate awareness state matches authenticated user
+    if (context.user) {
+      const authenticatedUserName = context.user.name;
+
+      // Check both newly added and updated awareness states
+      [...added, ...updated].forEach((clientId) => {
+        const state = awareness.getStates().get(clientId);
+
+        if (state?.user) {
+          const clientProvidedName = state.user.name;
+
+          // Validate that client-provided name matches authenticated name
+          if (clientProvidedName !== authenticatedUserName) {
+            logger.warn('User name mismatch detected - disconnecting client', {
+              authenticatedName: authenticatedUserName,
+              clientProvidedName: clientProvidedName,
+              clientId,
+              userId: context.user.id,
+              intUserId: context.user.intUserId,
+            });
+
+            // 4001 (policy violation)
+            if (context.user.websocket) {
+              context.user.websocket.close(4001, "User identity mismatch");
+            }
+          }
+        }
+      });
+    }
+  },
+
   onAuthenticate: async (data) => {
     const { documentName, requestHeaders, context } = data;
 
@@ -59,9 +93,6 @@ const hocuspocus = new Hocuspocus({
       websocket.terminate();
       throw new Error("Meeting Id divergent");
     }
-
-    // TODO validate user name
-    // we should not allow the user to inform a name different than expected
 
     const isMeetingLocked = meetingLockMap.get(meetingId)?.viewerReadOnly;
 
