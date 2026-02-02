@@ -82,11 +82,6 @@ public class ValidationService {
 
         if(request == null) {
             violations.put("validationError", "Request not recognized");
-        } else if(params.containsKey("presentationUploadExternalUrl")) {
-            String urlToValidate = params.get("presentationUploadExternalUrl")[0];
-            if(!this.isValidURL(urlToValidate)) {
-                violations.put("validationError", "Param 'presentationUploadExternalUrl' is not a valid URL");
-            }
         } else {
             request.populateFromParamsMap(params);
             violations = performValidation(request);

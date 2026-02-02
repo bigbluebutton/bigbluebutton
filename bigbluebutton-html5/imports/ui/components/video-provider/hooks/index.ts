@@ -481,6 +481,7 @@ export const useVideoStreams = () => {
     defaultSorting: DEFAULT_SORTING,
     showAudioOnlyOnFirstPage,
     maxAudioOnlyUsers,
+    partitionPrivilegedStreams,
   } = window.meetingClientSettings.public.kurento.cameraSortingModes;
 
   if (connectingStream) streams.push(connectingStream);
@@ -495,9 +496,9 @@ export const useVideoStreams = () => {
     const sortingConfig = getSortingMethod(sortingMethod);
 
     // Check if this sorting method uses custom pagination logic
-    if (sortingConfig.customPagination) {
-      // For PRESENTER_LOCAL_PINNED mode, paginate all streams equally
-      // This means local cameras will only appear on their page (where they belong in sort order)
+    if (!partitionPrivilegedStreams) {
+      // When partitionPrivilegedStreams is false, paginate all streams equally
+      // This means local/pinned cameras will only appear on their page (where they belong in sort order)
       const sortedStreams = sortVideoStreams(streams, sortingMethod);
 
       totalNumberOfOtherStreams = sortedStreams.length;
@@ -516,7 +517,7 @@ export const useVideoStreams = () => {
 
       streams = [...paginatedStreams, ...localStreamsWithRenderFlag];
     } else {
-      // Original pagination logic for other sorting methods
+      // Original pagination logic (show pinned/local cameras on every page)
       const [filtered, others] = partition(
         streams,
         (vs: StreamItem) => videoService.isLocalStream(vs.stream)
