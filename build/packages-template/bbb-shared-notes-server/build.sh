@@ -34,12 +34,12 @@ npm ci --no-progress
 npm run build
 
 mv dist/index.js dist/bbb-shared-notes-server.js
-cp -r dist/* /usr/share/bbb-shared-notes-server
-cp blocknote_schema.sql /usr/share/bbb-shared-notes-server
-cp package.json /usr/share/bbb-shared-notes-server
-cp package-lock.json /usr/share/bbb-shared-notes-server
-cp src/config/settings.json /usr/share/bbb-shared-notes-server/config
-cp -r node_modules /usr/share/bbb-shared-notes-server
+cp -r dist/* staging/usr/share/bbb-shared-notes-server
+cp blocknote_schema.sql staging/usr/share/bbb-shared-notes-server
+cp package.json staging/usr/share/bbb-shared-notes-server
+cp package-lock.json staging/usr/share/bbb-shared-notes-server
+cp src/config/settings.json staging/usr/share/bbb-shared-notes-server/config
+cp -r node_modules staging/usr/share/bbb-shared-notes-server
 
 # Setup service
 mkdir -p staging/usr/lib/systemd/system
