@@ -204,6 +204,11 @@ jobs:
         with:
           name: artifacts_bbb-etherpad
           path: all-artifacts
+      - name: Download artifacts_bbb-shared-notes-server
+        uses: actions/download-artifact@v4
+        with:
+          name: artifacts_bbb-shared-notes-server
+          path: all-artifacts
       - name: Download artifacts_bbb-freeswitch
         uses: actions/download-artifact@v4
         with:
