@@ -11,16 +11,26 @@ import Toast from '/imports/ui/components/common/toast/component';
 function generateToastId(message, type, icon) {
   let messageKey;
 
-  if (typeof message === 'string') {
-    messageKey = message;
+  if (typeof message === 'string' || typeof message === 'number') {
+    messageKey = String(message);
   } else if (React.isValidElement(message)) {
     // Extract id from FormattedMessage or similar components
-    messageKey = message.props?.id || message.props?.children || 'react-element';
+    const child = message.props?.children;
+    messageKey = message.props?.id
+      ?? (typeof child === 'string' || typeof child === 'number' ? String(child) : undefined)
+      ?? message.key
+      ?? message.type?.displayName
+      ?? message.type?.name
+      ?? 'react-element';
   } else {
     messageKey = String(message);
   }
 
-  return `${type}-${icon}-${messageKey}`;
+  const iconKey = React.isValidElement(icon)
+    ? icon.type?.displayName ?? icon.type?.name ?? 'icon'
+    : String(icon);
+
+  return `${type}-${iconKey}-${messageKey}`;
 }
 
 export function notify(message, type = 'default', icon, options, content, small) {
@@ -34,16 +44,14 @@ export function notify(message, type = 'default', icon, options, content, small)
     small,
   };
 
-  // If toast with same ID is already active, don't show duplicate
+  // If toast with same ID is already active, update it and reset the timer
   if (toast.isActive(toastId)) {
-    // Optionally update the existing toast if autoClose is specified
-    if (options?.autoClose > 0) {
-      toast.update(toastId, {
-        render: <Styled.ToastWrapper role="alert"><Toast {...toastProps} /></Styled.ToastWrapper>,
-        autoClose: options.autoClose,
-      });
-    }
-    return null;
+    toast.update(toastId, {
+      render: <Styled.ToastWrapper role="alert"><Toast {...toastProps} /></Styled.ToastWrapper>,
+      autoClose: options?.autoClose,
+      progress: 0,
+    });
+    return toastId;
   }
 
   const settings = {
@@ -59,7 +67,7 @@ export function notify(message, type = 'default', icon, options, content, small)
           label={options.helpLabel}
           color="default"
           size="sm"
-          onClick={() => { window.open(options.helpLink); }}
+          onClick={() => { window.open(options.helpLink, '_blank', 'noopener,noreferrer'); }}
           data-test="helpLinkToastButton"
         />
       </div>,
