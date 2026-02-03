@@ -175,6 +175,7 @@ export class Presentation extends MultiUsers {
     await this.userPage.closeAllToastNotifications();
 
     const userFrame = await this.userPage.getYoutubeFrame();
+    if (!userFrame) throw Error('Failed to get video frame element');
 
     await userFrame.hasElement('video', 'should display the element frame for the video that is being shared');
     await this.modPage.wasRemoved(

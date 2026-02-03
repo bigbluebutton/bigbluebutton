@@ -63,10 +63,10 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.selectSlide();
   });
 
-  test.describe.parallel('External Video', () => {
+  // All external video tests (youtube) require logged user to start external video on CI environment
+  test.describe.parallel('External Video', { tag: '@flaky' }, () => {
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#start-youtube-video-sharing
-    test('Start external video', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
-      // requiring logged user to start external video on CI environment
+    test('Start external video', async ({ browser, context, page }, testInfo) => {
       linkIssue(21589);
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, testInfo);
@@ -99,7 +99,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.changePresenterWhileVideoPlaying();
     });
 
-    test('End External video', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
+    test('End External video', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, testInfo);
       await presentation.startExternalVideo();
