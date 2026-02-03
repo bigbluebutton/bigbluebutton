@@ -74,7 +74,7 @@ const handleUserLeftMeeting = async (header: MessageHeader, body: MessageBody): 
   });
 };
 
-const handleMeetingEnded = async (header: MessageHeader, body: MessageBody): Promise<void> => {
+const handleMeetingEnded = async (header: MessageHeader, _body: MessageBody): Promise<void> => {
   const { meetingId } = header;
 
   logger.debug('Meeting ended', meetingId);
@@ -232,7 +232,7 @@ interface MessageBody {
   [key: string]: any;
 }
 
-interface Message {
+interface _Message {
   core: {
     header: MessageHeader;
     body: MessageBody;

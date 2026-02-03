@@ -6,14 +6,11 @@ import { extractMeetingId } from "./utils";
 import postgresqlDB from "./extensions/postgresql";
 import { Logger } from "../common/logger";
 import { sender } from "../redis/sender";
-import { config } from "../config";
 
 const logger = new Logger('hocuspocus');
 // Configure Hocuspocus
 const hocuspocus = new Hocuspocus({
   name: "bigbluebutton-hocuspocus",
-  address: config.hocuspocusServer.host,
-  port: config.hocuspocusServer.port,
   extensions: [
     postgresqlDB,
   ],
@@ -98,7 +95,7 @@ const hocuspocus = new Hocuspocus({
 
     const isConnectionReadOnly = isMeetingLocked && !userIsModerator;
     if (isConnectionReadOnly) {
-      data.connection.readOnly = true;
+      data.connectionConfig.readOnly = true;
     }
 
     const newConnection: ConnectionInfo = {

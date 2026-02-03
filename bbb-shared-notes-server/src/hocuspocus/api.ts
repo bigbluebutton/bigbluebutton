@@ -1,4 +1,4 @@
-import http, { IncomingHttpHeaders } from "http";
+import http from "http";
 import { config } from "../config";
 import { decodeURLEncodedString, toBoolean } from "./utils";
 

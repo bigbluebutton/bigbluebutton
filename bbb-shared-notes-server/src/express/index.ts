@@ -3,9 +3,13 @@ import expressWebsockets from "express-ws";
 import { Logger } from "../common/logger";
 import { config } from "../config";
 import path from "path";
+import { fileURLToPath } from "url";
 import { documentApi } from "./rest-api";
 import { websocketApi } from "./websocket-api";
 import { extractMeetingId } from "../hocuspocus/utils";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const logger = new Logger('index.ts');
 

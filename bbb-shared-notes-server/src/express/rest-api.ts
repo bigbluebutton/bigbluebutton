@@ -31,7 +31,9 @@ async function getBrowser(): Promise<Browser> {
 
 const documentApi: DocumentApi = {
   get: async (request, response) => {
-    const { documentName } = request.params;
+    const documentName = Array.isArray(request.params.documentName)
+      ? request.params.documentName[0]
+      : request.params.documentName;
 
     try {
       const connection = await hocuspocus.openDirectConnection(documentName);
@@ -82,7 +84,9 @@ const documentApi: DocumentApi = {
     }
   },
   post: async (request, response) => {
-    const { documentName } = request.params;
+    const documentName = Array.isArray(request.params.documentName)
+      ? request.params.documentName[0]
+      : request.params.documentName;
 
     const validationResult = validateInitialContentJson(request.body);
     if (validationResult.valid) {
@@ -129,7 +133,12 @@ const documentApi: DocumentApi = {
     }
   },
   export: async (request, response) => {
-    const { documentName, format } = request.params;
+    const documentName = Array.isArray(request.params.documentName)
+      ? request.params.documentName[0]
+      : request.params.documentName;
+    const format = Array.isArray(request.params.format)
+      ? request.params.format[0]
+      : request.params.format;
     try {
       const fullHtml = await exportDocumentToHtml(documentName);
 

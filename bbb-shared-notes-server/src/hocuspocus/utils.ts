@@ -1,4 +1,4 @@
-export var documentNamePrefix = 'bn-document__';
+export const documentNamePrefix = 'bn-document__';
 
 export function extractMeetingId(documentName: string) {
   return documentName.startsWith(documentNamePrefix)

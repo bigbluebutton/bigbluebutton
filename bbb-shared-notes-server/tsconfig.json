@@ -1,13 +1,15 @@
 {
     "compilerOptions": {
-      "target": "es2020",
-      "lib": ["es2020"],
-      "module": "commonjs",
+      "target": "ES2022",
+      "lib": ["ES2022"],
+      "module": "ESNext",
+      "moduleResolution": "Bundler",
       "outDir": "./dist",
       "rootDir": "./src",
       "strict": true,
       "esModuleInterop": true,
-      "skipLibCheck": true
+      "skipLibCheck": true,
+      "noImplicitAny": false
     },
     "include": ["src/**/*.ts"],
     "exclude": ["node_modules"]
