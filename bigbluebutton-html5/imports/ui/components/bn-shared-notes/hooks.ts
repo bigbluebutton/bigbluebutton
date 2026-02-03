@@ -120,9 +120,14 @@ const useHocuspocusProvider = () => {
             reason,
           } = data.event;
 
-          // Handle security violations (4001) - do not reconnect
-          if (code === 4001) {
-            setError(`Security violation: ${reason}`);
+          // Handle security violations - do not reconnect
+          if (code === 4001 || code === 1005 || code === 3000) {
+            let securityViolationReason = reason;
+            if (code === 1005 && (!reason || reason === '')) {
+              // If empty reason, connection didn't pass handshake request
+              securityViolationReason = 'Too many requests';
+            }
+            setError(`Security violation: ${securityViolationReason}`);
             isAuthenticating.current = false;
             // Destroy the provider to prevent reconnection attempts
             provider.destroy();

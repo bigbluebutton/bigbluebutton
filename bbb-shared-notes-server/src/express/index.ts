@@ -1,4 +1,5 @@
 import express from "express";
+import { rateLimit } from 'express-rate-limit'
 import expressWebsockets from "express-ws";
 import { Logger } from "../common/logger";
 import { config } from "../config";
@@ -12,6 +13,40 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const logger = new Logger('index.ts');
+
+const limiter = rateLimit({
+	windowMs: (config.rateLimit.windowInSeconds as number) * 1000,
+	limit: config.rateLimit.maxRequestsPerWindow,
+	standardHeaders: true,
+	legacyHeaders: false,
+    message: 'Too many requests. Please slow down.',
+    handler: (req, res, _next, options) => {
+      logger.warn(`Rate limit exceeded for user: ${options.keyGenerator(req, res)}`);
+
+      // Check if this is a WebSocket upgrade request
+      const isWebSocket = req.headers.upgrade === 'websocket';
+
+      if (isWebSocket) {
+        // For WebSocket upgrade requests, send 429 with text response
+        // The client will receive this as a connection error
+        res.status(429)
+           .set('Content-Type', 'text/plain')
+           .send('Rate limit exceeded. Please slow down.')
+           .end();
+      } else {
+        // For regular HTTP requests, send JSON response
+        res.status(options.statusCode).json({ error: options.message }).end();
+      }
+    },
+    keyGenerator: (req) => {
+      const userId = req.headers['user-id'];
+      const meetingId = req.headers['meeting-id'];
+      if (!(typeof userId === 'string') || !(typeof meetingId === 'string')) {
+        return 'system';
+      }
+      return `${userId}-${meetingId}`;
+    },
+});
 
 const startExpressApp = () => {
   // Setup your express instance using the express-ws extension
@@ -27,6 +62,7 @@ const startExpressApp = () => {
 
   // Add middlewares
   app.use(express.json());
+  app.use(limiter);
   app.use('/api/documents', express.raw({ type: 'application/octet-stream', limit: '10mb' }));
   app.use('/api/documents/:documentName', (req, res, next) => {
     const meetingIdHeader = req.get('meeting-id');

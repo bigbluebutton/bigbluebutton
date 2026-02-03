@@ -65,9 +65,15 @@ export interface Shared {
   tmpDirectory: string
 }
 
+export interface RateLimit {
+  windowInSeconds: number;
+  maxRequestsPerWindow: number;
+}
+
 export interface AppSettings {
   expressServer: ExpressServerConfig;
   hocuspocusServer: HocuspocusServerConfig;
+  rateLimit: RateLimit;
   bbbWeb: BbbWebConfig;
   shared: Shared;
   log: LogConfig;

@@ -43,6 +43,10 @@ const  DEFAULT_SETTINGS: AppSettings = {
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 2000,
   },
+  rateLimit: {
+    maxRequestsPerWindow: 60,
+    windowInSeconds: 60,
+  },
   postgres: {
     host: '127.0.0.1',
     port: 5432,
