@@ -33,16 +33,6 @@ const  DEFAULT_SETTINGS: AppSettings = {
       ],
     },
   },
-  bbbPostgres: {
-    host: '127.0.0.1',
-    port: 5432,
-    database: 'bbb_graphql',
-    user: 'bbb_core',
-    password: 'bbb_core',
-    max: 20,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
-  },
   postgres: {
     host: '127.0.0.1',
     port: 5432,

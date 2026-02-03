@@ -31,34 +31,12 @@ export interface RedisConfig {
   channels: RedisChannelsConfig;
 }
 
-export interface BbbPostgresConfig {
-  host: string;
-  port: number;
-  database: string;
-  user: string;
-  password: string;
-  max?: number;
-  idleTimeoutMillis?: number;
-  connectionTimeoutMillis?: number;
-}
-
 export interface PostgresConfig {
   host: string;
   port: number;
   database: string;
   user: string;
   password: string;
-}
-
-export interface BbbPostgresConfig {
-  host: string;
-  port: number;
-  database: string;
-  user: string;
-  password: string;
-  max?: number;
-  idleTimeoutMillis?: number;
-  connectionTimeoutMillis?: number;
 }
 
 export interface Shared {
@@ -72,6 +50,5 @@ export interface AppSettings {
   shared: Shared;
   log: LogConfig;
   redis: RedisConfig;
-  bbbPostgres: BbbPostgresConfig;
   postgres: PostgresConfig;
 }
