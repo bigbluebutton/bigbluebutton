@@ -10,13 +10,24 @@ import { documentNamePrefix } from '../hocuspocus/utils';
 
 const logger = new Logger('redis handler');
 
+const handleMeetingCreated = async (header: MessageHeader, body: MessageBody): Promise<void> => {
+  const { props: { meetingProp: { intId: meetingId }, lockSettingsProps: { disableNotes } } } = body;
+
+  const meetingLock: MeetingLock = {
+    viewerReadOnly: disableNotes,
+  };
+
+  logger.info(`Meeting created with disableNotes: ${disableNotes}`, meetingId);
+  meetingLockMap.set(meetingId, meetingLock);
+};
+
 const handleMeetingLocked = async (header: MessageHeader, body: MessageBody): Promise<void> => {
   const { meetingId } = header;
-  const { disableNotes: lock } = body;
+  const { disableNotes } = body;
 
-  logger.info('Meeting locked changed', lock);
+  logger.info(`Meeting lockSettings changed with disableNotes: ${disableNotes}`, meetingId);
   const meetingLock: MeetingLock = {
-    viewerReadOnly: lock,
+    viewerReadOnly: disableNotes,
   };
   meetingLockMap.set(meetingId, meetingLock);
 
@@ -33,7 +44,7 @@ const handleUserLocked = async (header: MessageHeader, body: MessageBody): Promi
   const { meetingId } = header;
   const { userId, locked } = body;
 
-  logger.debug('User locked changed', userId, locked);
+  logger.debug(`User changed with locked: ${locked}`, userId, meetingId);
 
   connectionsMap.forEach((connectionInfo, connectionKey) => {
     if (connectionInfo.meetingId == meetingId && connectionInfo.userId == userId) {
@@ -48,7 +59,7 @@ const handleUserRoleChanged = async (header: MessageHeader, body: MessageBody): 
   const { meetingId } = header;
   const { userId, role } = body;
 
-  logger.debug('User role changed', userId, role);
+  logger.debug(`User role changed: ${role}`, userId, meetingId);
 
   connectionsMap.forEach((connectionInfo, connectionKey) => {
     if (connectionInfo.meetingId == meetingId && connectionInfo.userId == userId) {
@@ -63,7 +74,7 @@ const handleUserLeftMeeting = async (header: MessageHeader, body: MessageBody): 
   const { meetingId } = header;
   const { intId: userId, eject } = body;
 
-  logger.debug('User left meeting', userId, eject);
+  logger.debug(`User left meeting, eject: ${eject}`, userId, meetingId);
 
   connectionsMap.forEach((connectionInfo, connectionKey) => {
     if (connectionInfo.meetingId == meetingId && connectionInfo.userId == userId) {
@@ -86,6 +97,12 @@ const handleMeetingEnded = async (header: MessageHeader, _body: MessageBody): Pr
       connectionsMap.delete(connectionKey);
     }
   });
+
+  if (meetingLockMap.has(meetingId)) {
+    meetingLockMap.delete(meetingId);
+  }
+
+
 };
 
 const handleSharedNotesCreate = async (header: MessageHeader, body: MessageBody): Promise<void> => {
@@ -293,6 +310,9 @@ const handler: PubSubHandler = {
     } = data;
 
     switch (header.name) {
+      case 'MeetingCreatedEvtMsg':
+        handleMeetingCreated(header, body);
+        break;
       case 'LockSettingsInMeetingChangedEvtMsg':
         handleMeetingLocked(header, body);
         break;

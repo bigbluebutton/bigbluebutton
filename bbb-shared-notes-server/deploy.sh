@@ -10,49 +10,47 @@ echo "Node version:"
 node -v
 
 # Create directory for fpm to process
-DIRS="/usr/share/bbb-shared-notes-server /usr/share/bigbluebutton/nginx"
-for dir in $DIRS; do
-  mkdir -p $dir
-  DIRECTORIES="$DIRECTORIES --directories $dir"
-done
+sudo mkdir -p /usr/share/bbb-shared-notes-server
+sudo mkdir -p /usr/share/bbb-shared-notes-server/config
+sudo mkdir -p /usr/share/bigbluebutton/nginx
 
 # Build shared-notes-server
 npm ci --no-progress
 npm run build
 
 mv dist/index.js dist/bbb-shared-notes-server.js
-cp -r dist/* /usr/share/bbb-shared-notes-server
-cp blocknote_schema.sql /usr/share/bbb-shared-notes-server
-cp package.json /usr/share/bbb-shared-notes-server
-cp package-lock.json /usr/share/bbb-shared-notes-server
-cp src/config/settings.json /usr/share/bbb-shared-notes-server/config
-cp -r node_modules /usr/share/bbb-shared-notes-server
+sudo cp -r dist/* /usr/share/bbb-shared-notes-server
+sudo cp blocknote_schema.sql /usr/share/bbb-shared-notes-server
+sudo cp package.json /usr/share/bbb-shared-notes-server
+sudo cp package-lock.json /usr/share/bbb-shared-notes-server
+sudo cp src/config/settings.json /usr/share/bbb-shared-notes-server/config
+sudo cp -r node_modules /usr/share/bbb-shared-notes-server
 
 # Set nginx location
-cp ../build/packages-template/bbb-shared-notes-server/bbb-shared-notes-server.nginx /usr/share/bigbluebutton/nginx
+sudo cp ../build/packages-template/bbb-shared-notes-server/bbb-shared-notes-server.nginx /usr/share/bigbluebutton/nginx
 
 # Set service
 # mkdir -p /usr/lib/systemd/system
-cp ../build/packages-template/bbb-shared-notes-server/bbb-shared-notes-server.service /usr/lib/systemd/system
-systemctl enable bbb-shared-notes-server.service
-systemctl daemon-reload
-systemctl restart nginx
-systemctl restart bbb-shared-notes-server.service
+sudo cp ../build/packages-template/bbb-shared-notes-server/bbb-shared-notes-server.service /usr/lib/systemd/system
+sudo systemctl enable bbb-shared-notes-server.service
+sudo systemctl daemon-reload
+sudo systemctl restart nginx
+sudo systemctl restart bbb-shared-notes-server.service
 
 # Set dabatase
 
   # make sure postgres can read this directory
-  chmod 755 /usr/share/bbb-shared-notes-server/ -R
+  sudo chmod 755 /usr/share/bbb-shared-notes-server/ -R
 
 export LANGUAGE="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
 
   # Create user blocknote_app@blocknote_app (for blocknote metadata)
-  runuser -u postgres -- psql -tc "SELECT 1 FROM pg_roles WHERE rolname='blocknote_app'" | grep -q 1 || \
-    runuser -u postgres -- psql -c "CREATE USER blocknote_app WITH PASSWORD 'blocknote_app'"
+  sudo runuser -u postgres -- psql -tc "SELECT 1 FROM pg_roles WHERE rolname='blocknote_app'" | grep -q 1 || \
+    sudo runuser -u postgres -- psql -c "CREATE USER blocknote_app WITH PASSWORD 'blocknote_app'"
 
   HASURA_DATABASE_NAME="blocknote_app"
-  runuser -u postgres -- psql -q -c "DROP DATABASE IF EXISTS $HASURA_DATABASE_NAME WITH (FORCE);"
-  runuser -u postgres -- psql -q -c "CREATE DATABASE $HASURA_DATABASE_NAME OWNER blocknote_app;"
+  sudo runuser -u postgres -- psql -q -c "DROP DATABASE IF EXISTS $HASURA_DATABASE_NAME WITH (FORCE);"
+  sudo runuser -u postgres -- psql -q -c "CREATE DATABASE $HASURA_DATABASE_NAME OWNER blocknote_app;"
 
-runuser -u postgres -- psql -U postgres -d $HASURA_DATABASE_NAME -q -f /usr/share/bbb-shared-notes-server/blocknote_schema.sql --set ON_ERROR_STOP=on
+sudo runuser -u postgres -- psql -U postgres -d $HASURA_DATABASE_NAME -q -f /usr/share/bbb-shared-notes-server/blocknote_schema.sql --set ON_ERROR_STOP=on

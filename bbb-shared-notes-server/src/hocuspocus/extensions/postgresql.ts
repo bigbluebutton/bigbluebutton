@@ -5,8 +5,6 @@ import { config } from "../../config";
 
 const connectionString = `postgres://${config.postgres.user}:${config.postgres.password}@${config.postgres.host}:${config.postgres.port}/${config.postgres.database}`
 
-console.log(connectionString);
-
 const pool = new Pool({
   connectionString
 })
