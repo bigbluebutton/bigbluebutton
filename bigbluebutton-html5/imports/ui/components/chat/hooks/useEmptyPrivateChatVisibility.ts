@@ -9,8 +9,13 @@ const useEmptyPrivateChatVisibility = (
   chats: Partial<ChatType>[] | undefined,
   idChatOpen: string,
   publicChatId: string,
+  pendingChat: string,
 ) => {
   return useMemo(() => {
+    // If we're in the process of opening a private chat (pendingChat is set),
+    // show buttons to allow switching between public/private
+    if (pendingChat) return true;
+
     // No chat open or public chat open - buttons not needed
     if (!idChatOpen || idChatOpen === publicChatId) return false;
 
@@ -23,8 +28,8 @@ const useEmptyPrivateChatVisibility = (
     // Edge case: private chat is open but has no messages yet
     // User needs access to public chat notifications via toggle buttons
     const openChatExists = chats?.some((chat) => chat.chatId === idChatOpen);
-    return openChatExists;
-  }, [chats, idChatOpen, publicChatId]);
+    return openChatExists ?? false;
+  }, [chats, idChatOpen, publicChatId, pendingChat]);
 };
 
 export default useEmptyPrivateChatVisibility;

@@ -12,7 +12,7 @@ const intlMessages = defineMessages({
 interface PrivateChatListHeaderProps {
   name: string;
   currentlyInMeeting: boolean;
-  dateTime: Date;
+  dateTime: Date | null;
 }
 
 const PrivateChatListHeader: React.FC<PrivateChatListHeaderProps> = ({
@@ -34,9 +34,11 @@ const PrivateChatListHeader: React.FC<PrivateChatListHeaderProps> = ({
           </Styled.ChatUserOffline>
         )
       }
-      <Styled.ChatTime>
-        <FormattedTime value={dateTime} hour12={false} />
-      </Styled.ChatTime>
+      {dateTime && (
+        <Styled.ChatTime>
+          <FormattedTime value={dateTime} hour12={false} />
+        </Styled.ChatTime>
+      )}
     </Styled.ChatHeaderText>
   );
 };
