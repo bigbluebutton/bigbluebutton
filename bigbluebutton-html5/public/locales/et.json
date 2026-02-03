@@ -298,7 +298,7 @@
     "app.presentation.endSlideContent": "Slaidisisu lõpp",
     "app.presentation.changedSlideContent": "Esitluse slaid on nüüd {slideNumber}",
     "app.presentation.emptySlideContent": "Aktiivsel slaidil puudub sisu",
-    "app.presentation.options.fullscreen": "Esitlus täisekraanil",
+    "app.presentation.options.fullscreen": "Esitlus täisekraanile",
     "app.presentation.options.exitFullscreen": "Välju täisekraanilt",
     "app.presentation.options.minimize": "Minimeeri",
     "app.presentation.options.snapshot": "Praeguse slaidi hetktõmmis",
