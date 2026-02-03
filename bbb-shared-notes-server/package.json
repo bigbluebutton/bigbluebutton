@@ -51,7 +51,7 @@
     "pg": "^8.18.0",
     "prosemirror-state": "^1.4.1",
     "puppeteer": "^24.36.1",
-    "rate-limiter-flexible": "^9.1.0",
+    "express-rate-limit": "^8.1.0",
     "redis": "^5.10.0",
     "y-prosemirror": "^1.2.15",
     "yjs": "^13.6.23"

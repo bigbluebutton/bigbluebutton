@@ -52,6 +52,8 @@ const hocuspocus = new Hocuspocus({
   onAuthenticate: async (data) => {
     const { documentName, requestHeaders, context } = data;
 
+    const { userInformation } = context;
+
     logger.info('=== Authentication Data ===')
     logger.info('Document Name:', documentName)
 
@@ -62,20 +64,13 @@ const hocuspocus = new Hocuspocus({
     const { sessionToken, websocket } = context;
 
     if (!websocket) {
-      throw new Error("Unauthorized");
+      return null;
     }
-
-    const securityInformation = {
-      cookie: requestHeaders.cookie || null,
-      sessionToken,
-    }
-
-    const userInformation = await getUserInformation(securityInformation);
 
     const isUserAuthenticated = userInformation !== null;
     if (!isUserAuthenticated) {
       websocket.terminate();
-      throw new Error("Unauthorized");
+      return null;
     }
 
     const {
@@ -87,8 +82,9 @@ const hocuspocus = new Hocuspocus({
     } = userInformation;
 
     if (meetingId !== meetingIdFromClient) {
-      websocket.terminate();
-      throw new Error("Meeting Id divergent");
+      const message = "Meeting Id divergent"
+      websocket.close(3000, message);
+      return null;
     }
 
     const isMeetingLocked = meetingLockMap.get(meetingId)?.viewerReadOnly;
