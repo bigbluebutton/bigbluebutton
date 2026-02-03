@@ -6,7 +6,7 @@ case "$1" in
   fc-cache -f
 
   # make sure postgres can read this directory
-  chmod 755 /usr/share/bbb-graphql-server/ -R
+  chmod 755 /usr/share/bbb-shared-notes-server/ -R
 
 
   # Create user blocknote_app@blocknote_app (for blocknote metadata)
@@ -17,7 +17,7 @@ case "$1" in
   runuser -u postgres -- psql -q -c "DROP DATABASE IF EXISTS $HASURA_DATABASE_NAME WITH (FORCE);"
   runuser -u postgres -- psql -q -c "CREATE DATABASE $HASURA_DATABASE_NAME OWNER blocknote_app;"
 
-runuser -u postgres -- psql -U postgres -d blocknote_app -q -f /usr/share/bbb-graphql-server/blocknote_schema.sql --set ON_ERROR_STOP=on
+runuser -u postgres -- psql -U postgres -d blocknote_app -q -f /usr/share/bbb-shared-notes-server/blocknote_schema.sql --set ON_ERROR_STOP=on
 
   if [ ! -f /.dockerenv ]; then
     systemctl enable bbb-shared-notes-server.service
