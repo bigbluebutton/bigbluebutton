@@ -520,7 +520,7 @@
     "app.navBar.leaveMeetingBtnLabel": "Lahku",
     "app.navBar.leaveMeetingBtnDesc": "Lahku sessioonilt",
     "app.navBar.optionsDropdown.optionsLabel": "Valikud",
-    "app.navBar.optionsDropdown.fullscreenLabel": "Täisekraanirakendus",
+    "app.navBar.optionsDropdown.fullscreenLabel": "Rakendus täisekraanile",
     "app.navBar.optionsDropdown.settingsLabel": "Sätted",
     "app.navBar.optionsDropdown.aboutLabel": "Info",
     "app.navBar.optionsDropdown.leaveSessionLabel": "Lahku sessioonilt",
