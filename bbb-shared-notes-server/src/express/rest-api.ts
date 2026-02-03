@@ -35,6 +35,8 @@ const documentApi: DocumentApi = {
       ? request.params.documentName[0]
       : request.params.documentName;
 
+    console.log('teste aqui ----> \n\n\n', request.headers);
+
     try {
       const connection = await hocuspocus.openDirectConnection(documentName);
       const doc = connection.document;

@@ -1,5 +1,4 @@
 import { Hocuspocus } from "@hocuspocus/server";
-import { getUserInformation } from "./api";
 import { meetingLockMap, connectionsMap, nextConnectionKey } from "../common/singleton";
 import { ConnectionInfo } from "../common/type";
 import { extractMeetingId } from "./utils";
@@ -19,7 +18,7 @@ const hocuspocus = new Hocuspocus({
     const { context, awareness, added, updated } = data;
 
     // Validate awareness state matches authenticated user
-    if (context.user) {
+    if (context && context.user) {
       const authenticatedUserName = context.user.name;
 
       // Check both newly added and updated awareness states
@@ -118,6 +117,7 @@ const hocuspocus = new Hocuspocus({
       }
     };
   },
+
   onChange: async (data) => {
     const { documentName } = data;
     let meetingId: string | undefined;
