@@ -2,4 +2,4 @@
 
 . ./opts-global.sh
 
-OPTS="$OPTS -d bc,bbb-pads,bbb-shared-notes-server,bbb-webrtc-sfu,bbb-export-annotations,bbb-web,bbb-graphql-middleware,bbb-graphql-actions,yq,nginx,unzip -t deb"
+OPTS="$OPTS -d bc,bbb-pads,bbb-webrtc-sfu,bbb-export-annotations,bbb-web,bbb-graphql-middleware,bbb-graphql-actions,yq,nginx,unzip -t deb"
