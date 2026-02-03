@@ -1339,115 +1339,31 @@ module BigBlueButton
       return false
     end
 
-    # Generic function to get a list of times when a specific state changes
+    # Get a list of layout events (screenshare as content and presentation open)
     #
-    # The returned times account for recording start/stop events, and have timestamps relative to the start of the
-    # recording.
+    # The returned events account for recording start/stop events and have timestamps relative to the start of the
+    # recording. Only changes in state are included.
     #
     # @param events [Nokogiri::XML::Document] The parsed events.xml document
     # @param start_time [Integer] The recording segment start timestamp (ms)
     # @param end_time [Integer] The recording segment end timestamp (ms)
-    # @param target_module [String] The module name of the event to track
-    # @param target_eventname [String] The event name to track
-    # @param compare_keys [Array<Symbol>] Optional list of keys to compare for state changes. If nil, all keys are compared.
-    # @return [Array<Hash>] An array of events, each with a timestamp and the extracted state
-    def self.get_events(events, start_time, end_time, target_module, target_eventname, compare_keys = nil)
-      BigBlueButton.logger.info("Getting #{target_eventname} Events")
+    # @return [Array<Hash>] An array of events, each with a timestamp and the changed layout state keys
+    #   (:screenshareAsContent, :presentationIsOpen)
+    def self.get_layout_events(events, start_time, end_time)
+      layout_edl = BigBlueButton::Events.create_layout_edl(events)
+      layout_edl = BigBlueButton::Events.edl_match_recording_marks_video(layout_edl, events, start_time, end_time)
 
-      initial_timestamp = first_event_timestamp(events)
-      start_time -= initial_timestamp
-      end_time -= initial_timestamp
+      layout_edl.each_with_object([]) do |entry, events|
+        next unless entry[:conditions] &&
+                    !entry[:conditions][:screenshare_as_content].nil? &&
+                    !entry[:conditions][:presentation_is_open].nil?
 
-      last_stop_timestamp = start_time
-      offset = start_time
-      # Recordings without status events are assumed to have been recorded from the beginning
-      record = events.at_xpath('/recording/event[@eventname="RecordStatusEvent"]').nil?
-
-      extracted_events = []
-      current_state = nil
-
-      events.xpath('/recording/event').each do |event|
-        timestamp = event[:timestamp].to_i - initial_timestamp
-        break if timestamp >= end_time
-
-        case [event[:module], event[:eventname]]
-        when [target_module, target_eventname]
-          current_state = yield(event)
-
-          # Don't emit events during unrecorded sections of the meeting. An event will be emitted when recording resumes
-          next unless timestamp >= start_time && record
-          
-          # Don't emit an event if the previous event has the same state
-          if extracted_events.last
-            last_event = extracted_events.last.reject { |k| k == :timestamp }
-            if compare_keys
-              next if last_event.select { |k, _| compare_keys.include?(k) } == current_state.select { |k, _| compare_keys.include?(k) }
-            else
-              next if last_event == current_state
-            end
-          end
-
-          extracted_events << current_state.merge(timestamp: timestamp - offset)
-
-        when %w[PARTICIPANT RecordStatusEvent]
-          record = event.at_xpath('status').content == 'true'
-          # Don't update timestamps until we're past the segment start time
-          next unless timestamp >= start_time
-
-          if record
-            # Recording resumed; update offset to account for the timestamp jump
-            offset += timestamp - last_stop_timestamp
-
-            # Don't emit an event if the previous event has the same state
-            next if current_state.nil?
-            if extracted_events.last
-              last_event = extracted_events.last.reject { |k| k == :timestamp }
-              if compare_keys
-                next if last_event.select { |k, _| compare_keys.include?(k) } == current_state.select { |k, _| compare_keys.include?(k) }
-              else
-                next if last_event == current_state
-              end
-            end
-
-            extracted_events << current_state.merge(timestamp: timestamp - offset)
-          else
-            # Recording paused
-            last_stop_timestamp = timestamp
-          end
-        else
-          # Handle the case of start_time being inside a recording segment - need to add an event corresponding to
-          # whatever the state happened to be when start_time was reached
-
-          # Don't emit an event during unrecorded sections of the meeting, or if one has already been emitted.
-          next unless timestamp >= start_time && record && extracted_events.empty?
-
-          # Don't emit an event if we haven't seen the target event yet
-          next if current_state.nil?
-
-          extracted_events << current_state.merge(timestamp: 0)
-        end
-      end
-      extracted_events
-    end
-
-    def self.get_screenshare_as_content_events(events, start_time, end_time)
-      get_events(events, start_time, end_time, 'PARTICIPANT', 'SetScreenshareAsContentEvent', [:screenshareAsContent]) do |event|
-        {
-          screenshareAsContent: event.at_xpath('screenshareAsContent')&.content == "true"
+        events << {
+          timestamp: entry[:timestamp],
+          screenshareAsContent: entry[:conditions][:screenshare_as_content],
+          presentationIsOpen: entry[:conditions][:presentation_is_open]
         }
-      end
-    end
 
-    def self.get_layout_broadcasted_events(events, start_time, end_time)
-      get_events(events, start_time, end_time, 'PARTICIPANT', 'LayoutBroadcastedEvent', [:presentationIsOpen]) do |event|
-        {
-          focusedCamera: event.at_xpath('focusedCamera')&.content,
-          presentationVideoRate: event.at_xpath('presentationVideoRate')&.content.to_f,
-          cameraPosition: event.at_xpath('cameraPosition')&.content,
-          layout: event.at_xpath('layout')&.content,
-          presentationIsOpen: event.at_xpath('presentationIsOpen')&.content == "true",
-          isResizing: event.at_xpath('isResizing')&.content == "true"
-        }
       end
     end
   end

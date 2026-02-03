@@ -1312,24 +1312,16 @@ def copy_media_files_helper(media, media_files, package_dir)
 end
 
 def process_layout_events(events)
-  BigBlueButton.logger.info("Processing screenshare as content and layout events")
-  swap_events = BigBlueButton::Events.get_screenshare_as_content_events(events, @meeting_start.to_i, @meeting_end.to_i)
-  layout_events = BigBlueButton::Events.get_layout_broadcasted_events(events, @meeting_start.to_i, @meeting_end.to_i)
+  BigBlueButton.logger.info("Processing layout events")
+  layout_events = BigBlueButton::Events.get_layout_events(events, @meeting_start.to_i, @meeting_end.to_i)
   @layout_swap_xml = Builder::XmlMarkup.new(indent: 2)
   @layout_swap_xml.instruct!
 
   @layout_swap_xml.recording('id' => 'layout_swap_events') do
-    # Merge and sort events chronologically
-    all_events = (swap_events + layout_events).sort_by { |e| e[:timestamp] }
-
-    all_events.each do |event|
+    layout_events.each do |event|
       attributes = { timestamp: (event[:timestamp].to_f / 1000.0).round(1) }
-
-      if event.key?(:screenshareAsContent)
-        attributes[:show_screenshare] = event[:screenshareAsContent]
-      elsif event.key?(:presentationIsOpen)
-        attributes[:show_presentation] = event[:presentationIsOpen]
-      end
+      attributes[:show_screenshare] = event[:screenshareAsContent] unless event[:screenshareAsContent].nil?
+      attributes[:show_presentation] = event[:presentationIsOpen] unless event[:presentationIsOpen].nil?
 
       @layout_swap_xml.event(attributes)
     end
