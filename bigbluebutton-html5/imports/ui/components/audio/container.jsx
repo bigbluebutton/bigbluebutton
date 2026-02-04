@@ -112,6 +112,7 @@ const AudioContainer = (props) => {
   const {
     intl,
     userLocks,
+    currentUserHasVoice,
   } = props;
 
   const APP_CONFIG = window.meetingClientSettings.public.app;
@@ -153,7 +154,6 @@ const AudioContainer = (props) => {
     name: u.name,
     speechLocale: u.speechLocale,
     breakoutRoomsSummary: u.breakoutRoomsSummary,
-    voice: u.voice,
   }));
 
   const hasBreakoutRooms = (currentUser?.breakoutRoomsSummary?.totalOfBreakoutRooms ?? 0) > 0;
@@ -188,18 +188,25 @@ const AudioContainer = (props) => {
     );
 
     if ((!autoJoin || didMountAutoJoin)) {
+      if (enableVideo && autoShareWebcam) {
+        openVideoPreviewModal();
+      }
       return Promise.resolve(false);
     }
     Session.setItem('audioModalIsOpen', true);
     if (enableVideo && autoShareWebcam) {
       openVideoPreviewModal();
-      openAudioModal();
+      if (!currentUserHasVoice) {
+        openAudioModal();
+      }
       didMountAutoJoin = true;
     } else if (!(
       userSelectedMicrophone
       && userSelectedListenOnly
       && meetingIsBreakout)) {
-      openAudioModal();
+      if (!currentUserHasVoice) {
+        openAudioModal();
+      }
       didMountAutoJoin = true;
     }
     return Promise.resolve(true);
@@ -235,15 +242,13 @@ const AudioContainer = (props) => {
     // We don't know whether the meeting is a breakout or not.
     // So, postpone the decision.
     if (meetingIsBreakout === undefined) return;
-    // If the user has duplicated the session and has already joined the audio.
-    if (!currentUser?.voice) {
-      init().then(() => {
-        if (meetingIsBreakout && !Service.isUsingAudio()) {
-          joinAudio();
-        }
-      });
-    }
-  }, [meetingIsBreakout, currentUser?.voice]);
+    init().then(() => {
+      // Skip auto join audio if user has already joined in another tab (currentUserHasVoice)
+      if (meetingIsBreakout && !Service.isUsingAudio() && !currentUserHasVoice) {
+        joinAudio();
+      }
+    });
+  }, [meetingIsBreakout]);
 
   useEffect(() => {
     if (userIsReturningFromBreakoutRoom) {
@@ -320,4 +325,5 @@ AudioContainer.propTypes = {
   userLocks: PropTypes.shape({
     userMic: PropTypes.bool.isRequired,
   }).isRequired,
+  currentUserHasVoice: PropTypes.bool,
 };
