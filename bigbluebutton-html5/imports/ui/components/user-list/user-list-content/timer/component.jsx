@@ -73,7 +73,6 @@ class Timer extends PureComponent {
               <Icon iconName="time" />
               <span>
                 {intl.formatMessage(message)}
-
               </span>
             </Styled.ListItem>
           </Styled.List>
