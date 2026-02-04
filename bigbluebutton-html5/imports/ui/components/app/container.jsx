@@ -159,7 +159,7 @@ const AppContainer = (props) => {
           isNonMediaLayout,
           currentUserAway: currentUser.away,
           currentUserRaiseHand: currentUser?.raiseHand ?? false,
-          currentUserHasVoice: !!currentUser?.voice ?? null,
+          currentUserHasVoice: !!currentUser?.voice,
           isCurrentUserNextRaisedHand,
           captionsStyle,
           presentationIsOpen,
