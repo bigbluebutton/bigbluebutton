@@ -38,8 +38,6 @@
     "@blocknote/server-util": "^0.46.2",
     "@hocuspocus/extension-database": "^3.4.4",
     "@hocuspocus/server": "^3.4.4",
-    "@hono/node-server": "^1.19.9",
-    "@hono/node-ws": "^1.0.8",
     "@types/express": "^5.0.6",
     "@types/node": "^22.15.0",
     "axios": "^1.13.4",
@@ -47,13 +45,10 @@
     "express": "^5.2.1",
     "express-ws": "^5.0.2",
     "form-data": "^4.0.5",
-    "hono": "^4.11.7",
     "pg": "^8.18.0",
-    "prosemirror-state": "^1.4.1",
     "puppeteer": "^24.36.1",
     "express-rate-limit": "^8.1.0",
     "redis": "^5.10.0",
-    "y-prosemirror": "^1.2.15",
     "yjs": "^13.6.23"
   },
   "devDependencies": {
@@ -67,7 +62,6 @@
     "tsup": "^8.5.0",
     "tsx": "^4.19.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.54.0",
-    "vitest": "^4.0.18"
+    "typescript-eslint": "^8.54.0"
   }
 }
