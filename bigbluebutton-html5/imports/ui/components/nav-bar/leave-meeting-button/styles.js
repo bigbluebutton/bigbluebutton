@@ -5,8 +5,6 @@ import Button from '/imports/ui/components/common/button/component';
 const LeaveMeetingWrapper = styled.div`
   display: inline-block;
   
-  /* Margins moved here from LeaveButton to fix clickable area issue */
-  /* Only apply margins on non-mobile to match original button behavior */
   ${({ $isMobile }) => !$isMobile && `
     margin-left: 1.0rem;
     margin-right: 0.5rem;
