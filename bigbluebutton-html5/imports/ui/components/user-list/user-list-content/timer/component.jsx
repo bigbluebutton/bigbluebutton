@@ -47,7 +47,7 @@ class Timer extends PureComponent {
     return (
       <Styled.Messages>
         <Styled.Container>
-          <Styled.SmallTitle>
+          <Styled.SmallTitle data-test="timeTitle">
             {intl.formatMessage(intlMessages.title)}
           </Styled.SmallTitle>
         </Styled.Container>
@@ -73,6 +73,7 @@ class Timer extends PureComponent {
               <Icon iconName="time" />
               <span>
                 {intl.formatMessage(message)}
+
               </span>
             </Styled.ListItem>
           </Styled.List>
