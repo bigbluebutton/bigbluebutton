@@ -73,11 +73,12 @@ module BigBlueButton
         # @return [VideoSourceReader] reader for the cut
         def open(width, height, seek, duration, framerate, name)
           # If the video is corrupt or the seekpoint is at or after the end of the file, the filter chain will have problems.
-          # Substitute in a blank video.
+          # Substitute in a blank video generated on GPU.
           if corrupt? || seek >= @info[:duration]
             return VideoSourceReader.new(
-              ffmpeg_filter: "color=c=white:s=#{width}x#{height}:r=#{framerate}," \
-                "trim=end=#{BigBlueButton::EDL::Video.ms_to_s(duration)}"
+              ffmpeg_filter: "color=c=white:s=#{width}x#{height}:r=#{framerate},format=nv12,hwupload_cuda," \
+                "trim=end=#{BigBlueButton::EDL::Video.ms_to_s(duration)}",
+              gpu: true
             )
           end
 
@@ -87,6 +88,10 @@ module BigBlueButton
 
           scale_width, scale_height = BigBlueButton::EDL::Video.aspect_scale(video_width, video_height, width, height)
           BigBlueButton.logger.debug "      scaled size: #{scale_width}x#{scale_height}"
+
+          # Calculate centering offsets for overlay (replaces CPU pad filter)
+          pad_x = (width - scale_width) / 2
+          pad_y = (height - scale_height) / 2
 
           BigBlueButton.logger.debug("      start timestamp: #{seek}")
           seek_offset = @info[:start_time]
@@ -120,27 +125,38 @@ module BigBlueButton
             # Fcntl::F_SETPIPE_SZ isn't available on Ruby version older than 3.0
           end
 
-          # Pre-filtering: scaling, padding, and extending.
+          # GPU-accelerated pre-filtering: decode on GPU, scale with scale_cuda, pad using overlay_cuda on a
+          # white background (replacing CPU pad filter), and encode with h264_nvenc for low-bandwidth pipe output.
           preprocess_filter = String.new
-          preprocess_filter << '[0:v:0]'
-          preprocess_filter << "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease,"
-          preprocess_filter << "setsar=1,pad=w=#{width}:h=#{height}:x=-1:y=-1:color=white,"
+          # Create white background at target tile size on GPU
+          preprocess_filter << "color=c=white:s=#{width}x#{height},format=nv12,hwupload_cuda[preprocess_bg];"
+          # Scale the input video on GPU to fit within the tile, preserving aspect ratio
+          preprocess_filter << "[0:v:0]scale_cuda=w=#{scale_width}:h=#{scale_height}:format=nv12[preprocess_scaled];"
+          # Overlay the scaled video centered on the white background (replaces CPU setsar+pad),
+          # then trim to the required time range
+          preprocess_filter << "[preprocess_bg][preprocess_scaled]overlay_cuda=x=#{pad_x}:y=#{pad_y},"
           # The trim command combines its arguments - end at the timestamp but only if at least one frame has been output.
           preprocess_filter << "trim=end=#{BigBlueButton::EDL::Video.ms_to_s(out_time)}:end_frame=1"
           preprocess_filter << '[out]'
 
-          # Set up filters and inputs for video pre-processing ffmpeg command
+          # Set up filters and inputs for GPU-accelerated video pre-processing ffmpeg command
           preprocess_command = [
             *FFMPEG,
+            # Initialize CUDA device for filter graph operations
+            '-init_hw_device', 'cuda=gpu', '-filter_hw_device', 'gpu',
             # Ensure input isn't misdetected as cfr, and frames prior to seek point run through filters.
             '-vsync', 'vfr', '-noaccurate_seek',
+            # Decode input video on GPU using CUDA hardware acceleration
+            '-hwaccel', 'cuda', '-hwaccel_output_format', 'cuda',
             '-ss', BigBlueButton::EDL::Video.ms_to_s(seek).to_s,
             '-itsoffset', BigBlueButton::EDL::Video.ms_to_s(seek).to_s,
             '-i', @filename,
             '-filter_complex', preprocess_filter, '-map', '[out]',
             # Copy timebase from input instead of guessing based on framerate
             '-enc_time_base', '-1',
-            '-c:v', 'rawvideo', '-f', 'nut', "pipe:#{write.fileno}",
+            # Encode with h264_nvenc on GPU - fastest preset for intermediate processing, reduces pipe I/O
+            # compared to rawvideo output
+            '-c:v', 'h264_nvenc', '-preset', 'p1', '-f', 'nut', "pipe:#{write.fileno}",
           ]
           BigBlueButton.logger.info("Executing: #{Shellwords.join(preprocess_command)}")
           pid = spawn(
@@ -153,15 +169,19 @@ module BigBlueButton
           write.close
           BigBlueButton.logger.debug("preprocessing ffmpeg command pid #{pid}")
 
-          ffmpeg_input = ['-f', 'nut', '-i', "pipe:#{read.fileno}"]
+          # Decode the preprocessed h264 pipe on GPU in the main composite ffmpeg process
+          ffmpeg_input = [
+            '-hwaccel', 'cuda', '-hwaccel_output_format', 'cuda',
+            '-f', 'nut', '-i', "pipe:#{read.fileno}",
+          ]
 
           ffmpeg_filter = String.new
           # Scale the video length for the deskshare timestamp workaround
           ffmpeg_filter << "setpts=PTS*#{@scale}," unless @scale.nil?
           # Apply PTS offset so '0' time is aligned
           ffmpeg_filter << "setpts=PTS-#{BigBlueButton::EDL::Video.ms_to_s(in_time)}/TB[#{name}_input];"
-          # Extend the video if needed
-          ffmpeg_filter << "color=c=white:s=#{width}x#{height}:r=#{framerate}[#{name}_tpad];"
+          # Extend the video if needed with a GPU-uploaded white frame
+          ffmpeg_filter << "color=c=white:s=#{width}x#{height}:r=#{framerate},format=nv12,hwupload_cuda[#{name}_tpad];"
           ffmpeg_filter << "[#{name}_input][#{name}_tpad]concat=n=2:v=1:a=0,"
           # Clean up the framerate
           ffmpeg_filter << "fps=#{framerate},"
@@ -169,7 +189,7 @@ module BigBlueButton
           ffmpeg_filter << 'trim=start=0,'
           # Trim frames after stop time, which can be generated by the pre-processing ffmpeg if there's an unlucky
           # large timestamp gap before a frame which changes resolution.
-          # The trim filter is needed to eat these frames so they don't queue up on the inputs of xstack.
+          # The trim filter is needed to eat these frames so they don't queue up on the inputs of overlay_cuda.
           ffmpeg_filter << "trim=end=#{BigBlueButton::EDL::Video.ms_to_s(duration)}"
 
           VideoSourceReader.new(
@@ -177,7 +197,8 @@ module BigBlueButton
             read: read,
             ffmpeg_input: ffmpeg_input,
             ffmpeg_filter: ffmpeg_filter,
-            log_file: log_file
+            log_file: log_file,
+            gpu: true
           )
         end
 

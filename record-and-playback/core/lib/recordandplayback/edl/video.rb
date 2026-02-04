@@ -28,16 +28,15 @@ require_relative 'video/video_source'
 module BigBlueButton
   module EDL
     module Video
-      FFMPEG_WF_CODEC = 'libx264'
+      FFMPEG_WF_CODEC = 'h264_nvenc'
       FFMPEG_WF_ARGS = [
-        '-codec', FFMPEG_WF_CODEC.to_s, '-threads', '2',
-        # Use the faster preset, along with the film tune that reduces deblocking strength slightly to improve
-        # appearance of small text/shapes on slides. Adjust the subme option to the value from veryfast preset; without
-        # much motion it's not a big quality loss, but it is a big speed improvement. Adjust the bframes value +2 like
-        # the animation tune; we have a lot of frames which are very similar. Enable stitchable mode since we are
-        # concatenating video. Use crf to balance the file size vs video quality tradeoff.
-        '-preset', 'faster', '-tune', 'film', '-x264opts', 'subme=2:bframes=5:stitchable=1', '-crf', '23',
-        '-force_key_frames', 'expr:gte(t,n_forced*10)', '-pix_fmt', 'yuv420p',
+        '-codec', FFMPEG_WF_CODEC.to_s,
+        # Use NVENC hardware encoder on GPU. Preset p4 provides a balanced speed/quality tradeoff.
+        # Use VBR rate control with constant quality (cq) matching the previous CRF 23 quality level.
+        # The NVENC encoder directly consumes CUDA frames from the GPU filter pipeline, avoiding
+        # CPU-GPU data transfers for encoding.
+        '-preset', 'p4', '-tune', 'hq', '-rc', 'vbr', '-cq', '23', '-b:v', '0',
+        '-force_key_frames', 'expr:gte(t,n_forced*10)',
       ]
       WF_EXT = 'mp4'
 
@@ -477,7 +476,9 @@ module BigBlueButton
         ffmpeg_inputs = []
         ffmpeg_input_pipes = {}
         ffmpeg_filter = String.new
-        ffmpeg_filter << "color=c=white:s=#{layout[:width]}x#{layout[:height]}:r=#{layout[:framerate]}"
+        # Generate the base background on GPU: create a white frame, convert to NV12, and upload to CUDA memory
+        ffmpeg_filter << "color=c=white:s=#{layout[:width]}x#{layout[:height]}:r=#{layout[:framerate]}" \
+                         ',format=nv12,hwupload_cuda'
 
         # Check for obscured (completely hidden) video areas, and skip processing for those areas
         layout[:areas].each_with_index do |layout_area, i|
@@ -546,8 +547,8 @@ module BigBlueButton
 
           BigBlueButton.logger.debug "    Tiling in a #{tiles_h}x#{tiles_v} grid"
 
-          xstack_inputs = []
-          xstack_layout = []
+          # Collect tile information for GPU overlay-based compositing (replaces CPU xstack)
+          overlay_tiles = []
 
           area.each do |video|
             BigBlueButton.logger.debug "    tile location (#{tile_x}, #{tile_y})"
@@ -556,8 +557,11 @@ module BigBlueButton
 
             pad_name = "#{layout_area[:name]}_x#{tile_x}_y#{tile_y}"
 
-            xstack_inputs << "[#{pad_name}]"
-            xstack_layout << "#{tile_offset_x + (tile_x * tile_width)}_#{tile_offset_y + (tile_y * tile_height)}"
+            overlay_tiles << {
+              name: pad_name,
+              x: tile_offset_x + (tile_x * tile_width),
+              y: tile_offset_y + (tile_y * tile_height),
+            }
 
             tile_x += 1
             if tile_x >= tiles_h
@@ -586,37 +590,63 @@ module BigBlueButton
             ffmpeg_filter << "[#{input_index}]" unless video_source_reader.ffmpeg_input.nil?
             if video_source_reader.ffmpeg_filter.nil?
               # VideoSourceReader requires at least one of ffmpeg_input or ffmpeg_filter, so if ffmpeg_filter is nil,
-              # ffmpeg_input must have been present. In that case, the video needs to be passed through to the correct pad name,
-              # and the "null" ffmpeg filter handles that.
-              ffmpeg_filter << 'null'
+              # ffmpeg_input must have been present. In that case, the video needs to be passed through to the correct
+              # pad name. For non-GPU sources, upload CPU frames to CUDA memory for GPU compositing pipeline.
+              ffmpeg_filter << if video_source_reader.gpu
+                                 'null'
+                               else
+                                 'format=nv12,hwupload_cuda'
+                               end
             else
               ffmpeg_filter << video_source_reader.ffmpeg_filter
+              # Ensure non-GPU source filter output is uploaded to CUDA for the GPU compositing pipeline
+              ffmpeg_filter << ',format=nv12,hwupload_cuda' unless video_source_reader.gpu
             end
             ffmpeg_filter << "[#{pad_name}];"
           end
 
-          # Create the xstack filter to composite the video elements
-          xstack_inputs.each do |xstack_input|
-            ffmpeg_filter << xstack_input
-          end
-          ffmpeg_filter <<
-            if xstack_inputs.length >= 2
-              "xstack=fill=white:inputs=#{xstack_inputs.length}:layout=#{xstack_layout.join('|')}"
-            else
-              # xstack doesn't support 1 input; a kind of odd omission
-              'null'
-            end
+          # Composite tiles using GPU overlay_cuda (replaces CPU xstack filter which has no GPU equivalent).
+          # For multiple tiles, create an area-sized white background on GPU and overlay each tile at its
+          # grid position. This keeps all pixel data on the GPU, avoiding CPU-GPU transfers.
+          if overlay_tiles.length == 1
+            # Single tile: pass through directly (overlay_cuda not needed for positioning within area,
+            # as the area-level overlay_cuda handles final placement)
+            ffmpeg_filter << "[#{overlay_tiles[0][:name]}]null"
+          else
+            # Create area-sized white background on GPU for tile compositing
+            area_bg = "#{layout_area[:name]}_bg"
+            ffmpeg_filter << "color=c=white:s=#{layout_area[:width]}x#{layout_area[:height]}" \
+                             ":r=#{layout[:framerate]},format=nv12,hwupload_cuda[#{area_bg}];\n"
 
-          # Overlay this area on top of the input video
+            # Chain overlay_cuda operations to place each tile on the area background
+            prev_label = area_bg
+            overlay_tiles.each_with_index do |tile, idx|
+              ffmpeg_filter << "[#{prev_label}][#{tile[:name]}]overlay_cuda=x=#{tile[:x]}:y=#{tile[:y]}"
+              if idx < overlay_tiles.length - 1
+                next_label = "#{layout_area[:name]}_ovr#{idx}"
+                ffmpeg_filter << "[#{next_label}];\n"
+                prev_label = next_label
+              end
+            end
+          end
+
+          # Overlay this area on top of the main background using GPU overlay_cuda
           ffmpeg_filter << "[#{layout_area[:name]}];\n"
-          ffmpeg_filter << "[#{layout_area[:name]}_in][#{layout_area[:name]}]overlay=x=#{layout_area[:x]}:y=#{layout_area[:y]}"
+          ffmpeg_filter << "[#{layout_area[:name]}_in][#{layout_area[:name]}]" \
+                           "overlay_cuda=x=#{layout_area[:x]}:y=#{layout_area[:y]}"
         end
 
-        # As a safety measure, crop anything that might have made the frame too large.
-        ffmpeg_filter << ",crop=w=#{layout[:width]}:h=#{layout[:height]}:x=0:y=0"
+        # The crop safety measure is omitted for GPU pipeline since there is no crop_cuda filter.
+        # The background is created at the exact output dimensions, and overlay_cuda preserves the
+        # dimensions of the first (background) input, so the output size is always correct.
         ffmpeg_filter << ",trim=end=#{ms_to_s(duration)}"
 
-        ffmpeg_cmd = [*FFMPEG, '-copyts']
+        ffmpeg_cmd = [
+          *FFMPEG,
+          # Initialize CUDA device for the GPU filter pipeline
+          '-init_hw_device', 'cuda=gpu', '-filter_hw_device', 'gpu',
+          '-copyts',
+        ]
         ffmpeg_inputs.each do |input|
           ffmpeg_cmd.append(*input)
         end

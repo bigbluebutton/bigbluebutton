@@ -4,7 +4,7 @@ module BigBlueButton
   module EDL
     module Video
       class VideoSourceReader
-        attr_reader :pid, :read, :ffmpeg_input, :ffmpeg_filter, :log_file
+        attr_reader :pid, :read, :ffmpeg_input, :ffmpeg_filter, :log_file, :gpu
 
         # Initialize a video source reader data class.
         #
@@ -15,12 +15,14 @@ module BigBlueButton
         # @param pid [Integer, nil] process ID of the external process which pre-processes or generates the video data
         # @param ffmpeg_filter [String, nil] ffmpeg filter arguments
         # @param log_file [String, nil] path to the log file for the external process
-        def initialize(read: nil, ffmpeg_input: nil, pid: nil, ffmpeg_filter: nil, log_file: nil)
+        # @param gpu [Boolean] true if the video data is GPU-accelerated (CUDA frames), false for CPU frames
+        def initialize(read: nil, ffmpeg_input: nil, pid: nil, ffmpeg_filter: nil, log_file: nil, gpu: false)
           @pid = pid
           @read = read
           @ffmpeg_input = ffmpeg_input
           @ffmpeg_filter = ffmpeg_filter
           @log_file = log_file
+          @gpu = gpu
 
           return unless @ffmpeg_input.nil? && @ffmpeg_filter.nil?
 
