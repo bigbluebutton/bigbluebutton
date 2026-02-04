@@ -736,8 +736,7 @@ export class CustomParameters extends MultiUsers {
     await this.userPage.waitForSelector(e.whiteboard);
     await this.userPage2.waitForSelector(e.whiteboard);
 
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
 
     await this.modPage.hasElement(e.breakoutBox0, 'should display the breakout box for unassigned users,');
 
@@ -757,7 +756,7 @@ export class CustomParameters extends MultiUsers {
       'should display the correct name of the group for breakout room 2',
     );
 
-    await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
 
     await this.userPage.hasElement(e.modalConfirmButton, 'should appear the modal confirm button to join breakout');
     await this.userPage.hasText(
@@ -766,7 +765,7 @@ export class CustomParameters extends MultiUsers {
       'should display the correct breakout room name in the modal',
     );
     await this.userPage.waitAndClick(e.modalConfirmButton);
-    await this.userPage.waitAndClick(e.breakoutRoomsItem);
+    await this.userPage.waitAndClick(e.breakoutRoomSidebarButton);
     await this.userPage.hasElement(
       e.alreadyConnected,
       'should display the element alreadyConnected',
@@ -775,6 +774,7 @@ export class CustomParameters extends MultiUsers {
 
     const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);
     await breakoutUserPage.closeAudioModal();
+    await breakoutUserPage.waitAndClick(e.usersListSidebarButton);
     await breakoutUserPage.hasElementCount(
       e.currentUser,
       1,
@@ -789,7 +789,7 @@ export class CustomParameters extends MultiUsers {
       'should display the correct breakout room name in the modal',
     );
     await this.userPage2.waitAndClick(e.modalConfirmButton);
-    await this.userPage2.waitAndClick(e.breakoutRoomsItem);
+    await this.userPage2.waitAndClick(e.breakoutRoomSidebarButton);
     await this.userPage2.hasElement(
       e.alreadyConnected,
       'should display the element alreadyConnected',
@@ -798,6 +798,7 @@ export class CustomParameters extends MultiUsers {
 
     const breakoutUserPage2 = await this.userPage2.getLastTargetPage(this.context);
     await breakoutUserPage2.closeAudioModal();
+    await breakoutUserPage2.waitAndClick(e.usersListSidebarButton);
     await breakoutUserPage2.hasElementCount(
       e.currentUser,
       1,
@@ -805,7 +806,6 @@ export class CustomParameters extends MultiUsers {
     );
     await breakoutUserPage2.hasText(e.presentationTitle, 'Room 2', 'should display the correct breakout room name');
 
-    await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.hasText(
       e.userNameBreakoutRoom,
       /Attendee/,

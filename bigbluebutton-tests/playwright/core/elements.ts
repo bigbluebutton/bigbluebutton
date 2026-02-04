@@ -37,6 +37,7 @@ export const elements = {
   redirectButton: 'button[data-test="redirectButton"]',
   leaveMeetingDropdown: 'button[data-test="leaveMeetingDropdown"]',
   directLogoutButton: 'li[data-test="directLogoutButton"]',
+  returnToMainRoomButton: 'li[data-test="returnToMainRoomButton"]',
   optionsLogoutButton: 'li[data-test="optionsLogoutButton"]',
   endMeetingButton: 'li[data-test="endMeetingButton"]',
   confirmEndMeetingButton: 'button[data-test="confirmEndMeeting"]',

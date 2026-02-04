@@ -99,7 +99,7 @@ export class Join extends Create {
     await breakoutUserPage.hasElement(e.isTalking, 'should have the element isTalking active');
 
     await breakoutUserPage.waitAndClick(e.leaveMeetingDropdown, ELEMENT_WAIT_EXTRA_LONG_TIME);
-    await breakoutUserPage.waitAndClick(e.directLogoutButton);
+    await breakoutUserPage.waitAndClick(e.returnToMainRoomButton);
     await breakoutUserPage.waitAndClick(e.redirectButton);
 
     await this.userPage.hasElement(
@@ -136,7 +136,7 @@ export class Join extends Create {
     await breakoutUserPage.hasElement(e.isTalking, 'should have the element isTalking active');
 
     await breakoutUserPage.waitAndClick(e.leaveMeetingDropdown, ELEMENT_WAIT_EXTRA_LONG_TIME);
-    await breakoutUserPage.waitAndClick(e.directLogoutButton);
+    await breakoutUserPage.waitAndClick(e.returnToMainRoomButton);
     await breakoutUserPage.waitAndClick(e.redirectButton);
 
     await this.userPage.hasElement(
