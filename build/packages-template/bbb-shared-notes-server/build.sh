@@ -15,7 +15,7 @@ rm -rf staging
 # package
 
 # Create directory for fpm to process
-DIRS="/usr/share/bbb-shared-notes-server /usr/share/bigbluebutton/nginx"
+DIRS="/usr/share/bbb-shared-notes-server /usr/share/bbb-shared-notes-server/config /usr/share/bigbluebutton/nginx"
 for dir in $DIRS; do
   mkdir -p staging$dir
   DIRECTORIES="$DIRECTORIES --directories $dir"
