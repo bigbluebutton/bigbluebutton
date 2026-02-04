@@ -399,6 +399,7 @@ export interface Constraints2 {
 export interface CameraSortingModes {
   defaultSorting: string
   paginationSorting: string
+  partitionPrivilegedStreams: boolean
 }
 
 export interface CameraQualityThresholds {

@@ -1053,17 +1053,26 @@ CREATE OR REPLACE VIEW "v_user_whiteboardWriteAccess" AS
 select "meetingId", "userId", "name", "presenter", "isModerator"
 FROM "user"
 WHERE "user"."currentlyInMeeting" is true
-AND "user"."whiteboardWriteAccess" is true;
+AND (
+        "user"."whiteboardWriteAccess" is true
+        OR "user"."presenter" is true
+    );
 
 CREATE OR REPLACE VIEW "v_user_whiteboardCursorAccess" AS
 select "meetingId", "userId", "name", "presenter", "isModerator"
 FROM "user"
 WHERE "user"."currentlyInMeeting" is true
-AND "user"."whiteboardWriteAccess" is true;
+AND (
+        "user"."whiteboardWriteAccess" is true
+        OR "user"."presenter" is true
+    );
 
 CREATE INDEX "idx_user_whiteboardWriteAccess" ON "user"("meetingId", "userId") INCLUDE ("meetingId", "userId", "name", "presenter", "isModerator")
 WHERE "user"."currentlyInMeeting" is true
-AND "user"."whiteboardWriteAccess" is true;
+AND (
+        "user"."whiteboardWriteAccess" is true
+        OR "user"."presenter" is true
+    );
 
 
 create unlogged table "user_activity"(
