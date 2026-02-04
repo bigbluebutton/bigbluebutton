@@ -259,6 +259,7 @@ jobs:
             artifacts_bbb-playback-record
             artifacts_bbb-graphql-server
             artifacts_bbb-etherpad
+            artifacts_bbb-shared-notes-server
             artifacts_bbb-freeswitch
             artifacts_bbb-webrtc
             artifacts_bbb-web
