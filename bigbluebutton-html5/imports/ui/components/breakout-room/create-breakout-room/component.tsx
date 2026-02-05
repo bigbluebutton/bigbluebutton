@@ -12,8 +12,7 @@ import {
   getBreakoutsResponse,
   getMeetingGroup,
   getMeetingGroupResponse,
-  getUser,
-  getUserResponse,
+  getUsersSubscription,
 } from './queries';
 import { PRESENTATIONS_SUBSCRIPTION, PresentationsSubscriptionResponse } from '/imports/ui/components/whiteboard/queries';
 import logger from '/imports/startup/client/logger';
@@ -29,6 +28,7 @@ import {
   RoomPresentations,
 } from './room-managment-state/types';
 import { BREAKOUT_ROOM_CREATE, BREAKOUT_ROOM_MOVE_USER } from '../mutations';
+import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
@@ -288,8 +288,8 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
 
   const roomsRef = React.useRef<Rooms>({});
   const moveRegisterRef = React.useRef<moveUserRegistery>({});
-  const randomlyAssignFunction = React.useRef<() => void>(() => {});
-  const resetAssignmentsFunction = React.useRef<() => void>(() => {});
+  const randomlyAssignFunction = React.useRef<() => void>(() => { });
+  const resetAssignmentsFunction = React.useRef<() => void>(() => { });
 
   const setRoomsRef = (rooms: Rooms) => {
     roomsRef.current = rooms;
@@ -727,13 +727,17 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
     meetingId: m.meetingId,
   }));
 
+  const useUsersSubscription = createUseSubscription(
+    getUsersSubscription,
+    {},
+    true,
+  );
+
   const {
     data: usersData,
     loading: usersLoading,
-    error: usersError,
-  } = useQuery<getUserResponse>(getUser, {
-    fetchPolicy: 'network-only',
-  });
+    errors: usersError,
+  } = useUsersSubscription();
 
   const [
     loadBreakouts,
