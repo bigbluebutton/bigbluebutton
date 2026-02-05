@@ -174,10 +174,11 @@ class LeaveMeetingButton extends PureComponent {
 
     return (
       <>
-        <BBBMenu
-          customStyles={!ismobile ? customStyles : null}
-          trigger={(
-            <Styled.LeaveButton
+        <Styled.LeaveMeetingWrapper $isMobile={ismobile}>
+          <BBBMenu
+            customStyles={!ismobile ? customStyles : null}
+            trigger={(
+              <Styled.LeaveButton
               state={isDropdownOpen ? 'open' : 'closed'}
               ismobile={ismobile.toString()}
               accessKey={openLeaveMenu}
@@ -209,6 +210,7 @@ class LeaveMeetingButton extends PureComponent {
             transformorigin: { vertical: 'top', horizontal: isRTL ? 'left' : 'right' },
           }}
         />
+        </Styled.LeaveMeetingWrapper>
         <ModalRegistration id="leaveMeetingMenuModal" priority="low">
           {({
             isOpen, open, close,
