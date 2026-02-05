@@ -26,7 +26,7 @@ interface MediaSharingModalProps {
   intl: IntlShape;
   amIPresenter: boolean | undefined;
   amIModerator: boolean | undefined;
-  isMeteorConnected: boolean;
+  isConnected: boolean;
   mediaAreaItems?: MediaButtonPluginItem[];
   isCameraAsContentEnabled: boolean;
   hasCameraAsContent: boolean;
@@ -143,7 +143,7 @@ const intlMessages = defineMessages({
 });
 
 const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
-  open, onClose, intl, amIPresenter = false, isMeteorConnected,
+  open, onClose, intl, amIPresenter = false, isConnected,
   mediaAreaItems = [],
   isCameraAsContentEnabled,
   hasCameraAsContent,
@@ -204,7 +204,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
         <Styled.MediaGrid isMobile={isMobile}>
           <ScreenshareButtonContainer {...{
             amIPresenter,
-            isMeteorConnected,
+            isConnected,
           }}
           />
           {amIPresenter && isPresentationEnabled && !isPresentationManagementDisabled && (

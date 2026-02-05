@@ -197,6 +197,7 @@ interface SidebarContentHorizontalResizer {
 interface Widget {
     name: string;
     icon: string;
+    dataTest?: string;
     uuid?: string;
     pluginName?: string;
     hasNotification: boolean;

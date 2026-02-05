@@ -31,6 +31,7 @@ export interface PollInfo {
   questionText: string;
   ended: boolean;
   multipleResponses: boolean;
+  type: string;
   users: Array<UserInfo>;
   responses: Array<ResponseInfo>;
   users_aggregate: {
@@ -72,6 +73,7 @@ subscription getCurrentPollData {
       ended
       multipleResponses
       quiz
+      type
       users {
         user {
           name

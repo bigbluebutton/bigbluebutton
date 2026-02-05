@@ -187,7 +187,6 @@ const JoinVideoButton: React.FC<JoinVideoButtonProps> = ({
             key: plugin.id,
             // @ts-expect-error -> Plugin-related.
             label: plugin.label,
-            // @ts-expect-error -> Plugin-related.
             dataTest: plugin.dataTest,
             // @ts-expect-error -> Plugin-related.
             onClick: plugin.onClick,

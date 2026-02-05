@@ -1,11 +1,10 @@
-import { useLazyQuery, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { useIntl } from 'react-intl';
 import { User, RaisedHandUser } from '/imports/ui/Types/user';
 import { isVoiceOnlyUser } from '/imports/ui/components/user-list/user-list-participants/list-item/service';
 import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
 import { CHAT_CREATE_WITH_USER, SET_ROLE, USER_EJECT_CAMERAS } from '/imports/ui/components/user-list/user-list-participants/list-item/mutations';
-import { PRESENTATION_SET_WRITERS } from '/imports/ui/components/presentation/mutations';
-import { CURRENT_PAGE_WRITERS_QUERY } from '/imports/ui/components/whiteboard/queries';
+import { USER_SET_WHITEBOARD_WRITE_ACCESS } from '/imports/ui/components/presentation/mutations';
 import {
   EJECT_FROM_MEETING,
   EJECT_FROM_VOICE,
@@ -70,11 +69,7 @@ export const useUserOperations = (userId?: string) => {
     }
   };
 
-  const [getWriters] = useLazyQuery(CURRENT_PAGE_WRITERS_QUERY, {
-    fetchPolicy: 'no-cache',
-  });
-
-  const [presentationSetWriters] = useMutation(PRESENTATION_SET_WRITERS);
+  const [userSetWhiteboardWriteAccess] = useMutation(USER_SET_WHITEBOARD_WRITE_ACCESS);
   const [setPresenter] = useMutation(SET_PRESENTER);
   const [setRole] = useMutation(SET_ROLE);
   const [setLocked] = useMutation(SET_LOCKED);
@@ -95,8 +90,7 @@ export const useUserOperations = (userId?: string) => {
     operations: {
       chatCreateWithUser,
       toggleVoiceFunction,
-      getWriters,
-      presentationSetWriters,
+      userSetWhiteboardWriteAccess,
       setPresenter,
       setRole,
       setLocked,

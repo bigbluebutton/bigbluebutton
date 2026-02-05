@@ -53,7 +53,7 @@ export const userComparator = (a?: Partial<User>, b?: Partial<User>): boolean =>
 
   const albr = a.lastBreakoutRoom;
   const blbr = b.lastBreakoutRoom;
-  if ((albr?.currentlyInRoom ?? false) !== (blbr?.currentlyInRoom ?? false)) return false;
+  if ((albr?.isUserCurrentlyInRoom ?? false) !== (blbr?.isUserCurrentlyInRoom ?? false)) return false;
   if ((albr?.sequence ?? 0) !== (blbr?.sequence ?? 0)) return false;
   if ((albr?.shortName ?? '') !== (blbr?.shortName ?? '')) return false;
 

@@ -55,7 +55,7 @@ export async function uploadSinglePresentation(testPage: Page, fileName: string,
     e.presentationFileUpload,
     'should display the presentation space for uploading a new file, when the manage presentations is opened',
   );
-  await testPage.page.waitForTimeout(500); //wait a bit for the presentations to load
+  await testPage.page.waitForTimeout(500); // wait a bit for the presentations to load
   const numPresentationsBefore = await testPage.getSelectorCount(e.presentationThumbnails);
 
   await testPage.page.setInputFiles(e.presentationFileUpload, path.join(__dirname, `../core/media/${fileName}`));
@@ -64,7 +64,8 @@ export async function uploadSinglePresentation(testPage: Page, fileName: string,
     e.presentationUploadProgressToast,
     'should display the toast presentation upload progress after confirming the presentation to be uploaded',
   );
-  await testPage.waitUntilHaveCountSelector(e.presentationThumbnails, numPresentationsBefore + 1, uploadTimeout) // wait for the upload to finish
+  // wait for the upload to finish
+  await testPage.waitUntilHaveCountSelector(e.presentationThumbnails, numPresentationsBefore + 1, uploadTimeout);
 
   // select and share the uploaded presentation
   const newPDFThumbnail = await testPage.getLocatorByIndex(e.presentationThumbnails, 1);
@@ -91,6 +92,14 @@ export async function uploadMultiplePresentations(
   fileNames: string[],
   uploadTimeout = ELEMENT_WAIT_EXTRA_LONG_TIME,
 ) {
+  // Capture the initial slide state before uploading
+  const firstSlideSrc = await testPage.page.evaluate(
+    ([selector]) => {
+      const el = document.querySelector(selector) as HTMLElement | null;
+      return el?.style?.backgroundImage?.split('"')[1] ?? null;
+    },
+    [e.currentSlideImg],
+  );
   await testPage.waitAndClick(e.mediaAreaButton);
   await testPage.waitAndClick(e.managePresentations);
   await testPage.hasElement(
@@ -111,12 +120,25 @@ export async function uploadMultiplePresentations(
     fileNames.length,
     'should display the upload done icon after all presentations are successfully uploaded',
   );
-  await testPage.waitUntilHaveCountSelector(e.presentationThumbnails, fileNames.length + 1, uploadTimeout) // wait for the uploads to finish
+  // wait for the uploads to finish
+  await testPage.waitUntilHaveCountSelector(e.presentationThumbnails, fileNames.length + 1, uploadTimeout);
   // select and share a new uploaded presentation
   const newPDFThumbnail = await testPage.getLocatorByIndex(e.presentationThumbnails, 1);
   await newPDFThumbnail.click();
   await testPage.waitAndClick(e.sharePresentationButton);
   await testPage.press('Escape'); // close the media sharing menu
+  // ensures current slide differs from previous slide - successful upload
+  await testPage.page.waitForFunction(
+    ([selector, previousSlideSrc]) => {
+      if (typeof selector !== 'string') return false;
+      const currentSrc = (document.querySelector(selector) as HTMLElement)?.style?.backgroundImage?.split('"')[1];
+      return currentSrc !== previousSlideSrc;
+    },
+    [e.currentSlideImg, firstSlideSrc],
+    {
+      timeout: uploadTimeout,
+    },
+  );
   await hasCurrentPresentationToastElement(testPage, { timeout: uploadTimeout });
 }
 

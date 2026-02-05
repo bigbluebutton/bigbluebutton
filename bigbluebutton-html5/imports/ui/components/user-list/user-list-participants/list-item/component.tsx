@@ -35,6 +35,7 @@ const renderUserListItemIconsFromPlugin = (
   return (
     <Styled.IconRightContainer
       key={item.id}
+      data-test={itemToRender.dataTest}
     >
       <Icon iconName={itemToRender.icon} />
     </Styled.IconRightContainer>
@@ -112,8 +113,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
     layoutContextDispatch,
     operations.chatCreateWithUser,
     operations.toggleVoiceFunction,
-    operations.getWriters,
-    operations.presentationSetWriters,
+    operations.userSetWhiteboardWriteAccess,
     operations.setPresenter,
     operations.setRole,
     operations.setLocked,
@@ -128,7 +128,14 @@ const UserListItem: React.FC<UserListItemProps> = ({
   const animations = Settings?.application?.animations;
 
   return (
-    <Styled.UserItemContents id={`user-index-${index}`} tabIndex={-1} data-test={(isMe(user.userId)) ? 'userListItemCurrent' : 'userListItem'}>
+    <Styled.UserItemContents
+      id={`user-index-${index}`}
+      tabIndex={-1}
+      data-test={(isMe(user.userId)) ? 'userListItemCurrent' : 'userListItem'}
+      role="listitem"
+      aria-label={user.name}
+      data-id={user.extId}
+    >
       {modal.isOpen && (
         <ConfirmationModal
           intl={intl}

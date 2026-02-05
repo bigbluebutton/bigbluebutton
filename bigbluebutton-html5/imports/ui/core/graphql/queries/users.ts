@@ -60,7 +60,7 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
       isDefaultName
       sequence
       shortName
-      currentlyInRoom
+      isUserCurrentlyInRoom
     }
     userLockSettings {
       disablePublicChat
@@ -78,17 +78,11 @@ export const USER_AGGREGATE_COUNT_SUBSCRIPTION = gql`
   }
 `;
 
-export const GET_USER_IDS = gql`
-  query Users {
+export const GET_USER_NAMES = gql`
+  query GetUserNames {
     user(where: { bot: { _eq: false } } ) {
       userId
-    }
-  }
-`;
-
-export const GET_USER_NAMES = gql`
-  query Users {
-    user(where: { bot: { _eq: false } } ) {
+      meetingId
       name
       nameSortable
       firstNameSortable
@@ -99,6 +93,7 @@ export const GET_USER_NAMES = gql`
 
 export type RaisedHandUser = Pick<
 User,
+| 'meetingId'
 | 'userId'
 | 'name'
 | 'color'
@@ -106,6 +101,7 @@ User,
 | 'isModerator'
 | 'raiseHand'
 | 'whiteboardWriteAccess'
+| 'locked'
 > & {
   raiseHandTime?: string;
   voice?: {
@@ -128,6 +124,7 @@ subscription RaisedHandUsers {
     order_by: [
       {raiseHandTime: asc_nulls_last},
     ]) {
+    meetingId
     userId
     name
     color
@@ -141,5 +138,6 @@ subscription RaisedHandUsers {
       listenOnly
       deafened
     }
+    locked
   }
 }`;

@@ -188,6 +188,22 @@ Here is a complete `manifest.json` example with all possible configurations:
   "javascriptEntrypointUrl": "MyPlugin.js",
   "javascriptEntrypointIntegrity": "sha384-Bwsz2rxm...", // Optional
   "localesBaseUrl": "https://cdn.domain.com/my-plugin/", // Optional
+  "loggerSettings": {                                    // Optional
+    "console": {
+      "enableRuntimeErrorLogging": false,
+      "enabled": true,
+      "level": "debug" // Possible values: info, debug, warn, error
+    },
+    "external": {
+      "enabled": false,
+      "level": "info", // Possible values: info, debug, warn, error
+      "url": "https://LOG_HOST/html5Log",
+      "method": "POST",
+      "throttleInterval": 400,
+      "flushOnClose": true,
+      "logTag": ""
+    }
+  },
   "dataChannels":[
     {
       "name": "public-channel",
@@ -233,6 +249,10 @@ Example:
 `version=0.0.8`
 `javascriptEntrypointUrl=MyPlugin.js`
 Browser will load: `MyPlugin.js?version=0.0.8`.
+
+**loggerSettings:**
+
+The optional loggerSettings directive allows you to override the default logger configuration for a specific plugin. For instance, you could set the client’s log level to info while restricting the plugin’s log level to error. If no settings are provided, the plugin’s logger inherits the default configuration.
 
 **settingsSchema:**
 
@@ -789,11 +809,22 @@ public:
 
 When the client loads, the item for "my-plugin-name" will automatically display the "New" badge in the Apps Gallery.
 
-### Auxiliary functions:
+### Auxiliaries:
 
 - `getSessionToken`: returns the user session token located on the user's URL.
 - `getJoinUrl`: returns the join url associated with the parameters passed as an argument. Since it fetches the BigBlueButton API, this getter method is asynchronous.
 - `useLocaleMessages`: returns the messages to be used in internationalization functions (recommend to use `react-intl`, as example, refer to official plugins)
+- `logger`: the pluginLogger is part of the API and can be used as pictured ahead: 
+
+```ts
+export const { logger: pluginLogger } = pluginApi;
+// Or in the index file:
+import { BbbPluginSdk } from 'bigbluebutton-html-plugin-sdk';
+
+const uuid = document.currentScript?.getAttribute('uuid') || 'root';
+
+export const { logger: pluginLogger } = BbbPluginSdk.getPluginApi(uuid);
+```
 
 ### Realtime data consumption
 
@@ -1146,17 +1177,36 @@ If no permission is present in the manifest, then we consider that every user in
 
 ### Learning Analytics Dashboard integration
 
-- `sendGenericDataForLearningAnalyticsDashboard`: This function will send data for the bbb to render inside the plugin's table
+This integration allow you to insert/update entry in LAD (Learning Analytics Dashboard) via `upsertUserData` function and also delete entries via `deleteUserData` function.
 
-The object structure of this function's argument must be:
+It's an object available in the `pluginApi` that wraps those 3 functions:
+
+- `pluginApi.learningAnalyticsDashboard.upsertUserData`
+- `pluginApi.learningAnalyticsDashboard.deleteUserData`
+- `pluginApi.learningAnalyticsDashboard.clearAllUsersData`
+
+For the `upsert` function, the argument's data object structure must be:
 
 ```ts
-interface GenericDataForLearningAnalyticsDashboard {
-  cardTitle: string; // Yet to be implemented (future updates)
+interface LearningAnalyticsDashboardUserData {
+  cardTitle: string;
   columnTitle: string;
   value: string;
 }
 ```
+
+For the `deleteUserData` function, the argument's data object structure must be:
+
+```ts
+interface LearningAnalyticsDashboardDeleteUserData {
+  cardTitle: string;
+  columnTitle: string;
+}
+```
+
+For the `clearAllUsersData` function, the argument is the cardTitle (optionally), and when it's not sent, all the entries for a specific plugin will be deleted. (And if the card ends up empty, it will be removed) 
+
+If the user is a moderator, there is the possibility to publish data on behalf of other users by using the second **optional** parameter named `targetUserId`
 
 So that the data will appear in the following form:
 
@@ -1164,6 +1214,36 @@ So that the data will appear in the following form:
 |    ---    |  :--  |      --:        |
 | user-name |   1   |   `<value>`     |
 
+
+See example of use ahead:
+
+```ts
+const targetUserId = 'abcd-efg';
+pluginApi.learningAnalyticsDashboard.upsertUserData(
+  {
+    cardTitle: 'Example Title',
+    columnTitle: 'link sent by user',
+    value: '[link](https://my-website.com/abc.png)'
+  },
+  targetUserId,
+);
+
+pluginApi.learningAnalyticsDashboard.deleteUserData(
+  {
+    cardTitle: 'Example Title',
+    columnTitle: 'link sent by user',
+  },
+  targetUserId,
+);
+
+pluginApi.learningAnalyticsDashboard.clearAllUsersData(columnTitle);
+
+pluginApi.learningAnalyticsDashboard.clearAllUsersData(); // Or without the Column Title
+```
+
+Note 1: the `value` field (in the upsert function's argument) supports markdown, so feel free to use it as you wish.
+
+Note 2: pluginApi.sendGenericDataForLearningAnalyticsDashboard is now being deprecated, but has the same data structure as upsert (without the possibility to send entry on behalf of another user)
 
 ### External data resources
 

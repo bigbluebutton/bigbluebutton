@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { useMutation } from '@apollo/client';
+import { useMutation, useReactiveVar } from '@apollo/client';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { useIsInfiniteWhiteboardEnabled, useIsPollingEnabled, useIsQuizEnabled } from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
@@ -13,6 +13,7 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import { USER_AGGREGATE_COUNT_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { DEVICE_TYPE } from '/imports/ui/components/layout/enums';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const infiniteWhiteboardIcon = (isinfiniteWhiteboard) => {
   if (isinfiniteWhiteboard) {
@@ -211,6 +212,7 @@ const PresentationToolbarContainer = (props) => {
   const numberOfJoinedUsers = countData?.user_aggregate?.aggregate?.count || 0;
   const isMobile = layoutSelect((i) => i.deviceType) === DEVICE_TYPE.MOBILE;
   const layoutType = layoutSelect((i) => i.layoutType);
+  const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
 
   if (userIsPresenter && !layoutSwapped) {
     // Only show controls if user is presenter and layout isn't swapped
@@ -226,7 +228,7 @@ const PresentationToolbarContainer = (props) => {
         allowInfiniteWhiteboardInBreakouts={WHITEBOARD_CONFIG?.allowInfiniteWhiteboardInBreakouts}
         allowInfiniteWhiteboard={allowInfiniteWhiteboard}
         // TODO: Remove this
-        isMeteorConnected
+        isConnected={connected}
         maxNumberOfActiveUsers={WHITEBOARD_CONFIG.maxNumberOfActiveUsers}
         numberOfJoinedUsers={numberOfJoinedUsers}
         {...{

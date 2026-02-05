@@ -405,6 +405,7 @@ const reducer = (state, action) => {
         icon,
         hasNotification = false,
         contentFunction = undefined,
+        dataTest = undefined,
         onClick = undefined,
         uuid,
         pluginName,
@@ -422,6 +423,7 @@ const reducer = (state, action) => {
           hasNotification,
           ...(contentFunction && { contentFunction }),
           ...(onClick && { onClick }),
+          ...(dataTest && { dataTest }),
         },
       };
 

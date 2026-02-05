@@ -14,7 +14,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(FIELD)
 @Retention(RUNTIME)
 public @interface IsBooleanConstraint {
-
     String key() default "validationError";
     String message() default "Value must be a boolean";
     Class<?>[] groups() default {};

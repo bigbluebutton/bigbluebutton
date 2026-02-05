@@ -1,8 +1,6 @@
-import React, { useEffect, useState, memo } from 'react';
+import React, { memo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import NotesService from '/imports/ui/components/notes/service';
-import { notify } from '/imports/ui/services/notification';
-import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useHasUnreadNotes from '/imports/ui/components/notes/hooks/useHasUnreadNotes';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import SidebarNavigationButton from '/imports/ui/components/sidebar-navigation/sidebar-navigation-button/component';
@@ -50,7 +48,6 @@ const UserNotesListItemContainerGraphql: React.FC<BaseSidebarButtonProps> = (pro
   const intl = useIntl();
   const { userLocks } = useLockContext();
   const disableNotes = userLocks.userNotes;
-  const [pinWasNotified, setPinWasNotified] = useState(false);
   const hasUnreadNotes = useHasUnreadNotes({ isNotesPanelOpened: isOpened });
   const {
     data: currentMeeting,
@@ -58,21 +55,8 @@ const UserNotesListItemContainerGraphql: React.FC<BaseSidebarButtonProps> = (pro
     componentsFlags: meeting.componentsFlags,
   }));
   const isPinned = currentMeeting?.componentsFlags?.isSharedNotesPinned ?? false;
-  const prevIsPinned = usePreviousValue(isPinned);
 
   const isEnabled = NotesService.useIsEnabled();
-
-  useEffect(() => {
-    if (isPinned && !pinWasNotified) {
-      notify(intl.formatMessage(intlMessages.pinnedNotification), 'info', 'copy', { pauseOnFocusLoss: false });
-      setPinWasNotified(true);
-      return;
-    }
-
-    if (prevIsPinned && !isPinned && pinWasNotified) {
-      setPinWasNotified(false);
-    }
-  });
 
   const notesOpen = isOpened && !isPinned;
   const label = disableNotes

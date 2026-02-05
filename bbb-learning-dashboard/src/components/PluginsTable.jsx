@@ -4,14 +4,14 @@ import { DataGrid } from '@mui/x-data-grid';
 import ReactMarkdown from 'react-markdown';
 import UserAvatar from './UserAvatar';
 
-// Type of genericData is of the form: {
+// Type of pluginUserData is of the form: {
 //  columnTitle: string;
 //  value: string
 // }
 const PluginsTable = (props) => {
   const {
-    genericDataColumnTitleList,
-    allUsers, intl, genericDataCardTitle,
+    pluginUserDataColumnTitleList,
+    allUsers, intl, pluginUserDataCardTitle,
   } = props;
 
   const commonUserProps = {
@@ -43,15 +43,16 @@ const PluginsTable = (props) => {
     },
   ];
 
+  // Creating a set out of the object's keys will remove duplicates from the array of keys
   gridCols.push({
     ...commonCountProps,
-    valueGetter: (params) => Object.keys(
-      params?.row?.User?.genericData?.[genericDataCardTitle],
-    )?.length || 0,
+    valueGetter: (params) => [...(new Set(Object.keys(
+      params?.row?.User?.pluginUserData?.[pluginUserDataCardTitle],
+    )))].length || 0,
     renderCell: (params) => params?.value,
   });
 
-  genericDataColumnTitleList.map((pluginColumnTitle) => {
+  pluginUserDataColumnTitleList.map((pluginColumnTitle) => {
     const commonColProps = {
       field: pluginColumnTitle,
       headerName: pluginColumnTitle,
@@ -69,13 +70,13 @@ const PluginsTable = (props) => {
 
   const gridRows = [];
   Object.values(allUsers).map((u, i) => {
-    if (Object.keys(u?.genericData)?.length === 0) return u;
+    if (Object.keys(u?.pluginUserData)?.length === 0) return u;
     gridRows.push({
       id: i + 1,
       User: u,
       // This is going to be of the form:
       // [learningAnalyticsDashboardColumnTitle]: learningAnalyticsDashboardValue, for each entry
-      ...u.genericData?.[genericDataCardTitle].reduce((acc, curr) => {
+      ...u.pluginUserData?.[pluginUserDataCardTitle].reduce((acc, curr) => {
         const {
           columnTitle,
           value,

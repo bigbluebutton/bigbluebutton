@@ -115,7 +115,7 @@ export class Presentation extends MultiUsers {
       e.closeIcon,
       'should display the close modal button after the moderator opens the modal for sharing external video',
     );
-    await this.modPage.type(e.videoModalInput, e.youtubeLink);
+    await this.modPage.fill(e.videoModalInput, e.youtubeLink);
     await this.modPage.waitAndClick(e.startShareVideoBtn);
 
     const modFrame = await this.modPage.getYoutubeFrame();

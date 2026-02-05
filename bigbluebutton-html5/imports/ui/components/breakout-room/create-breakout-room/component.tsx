@@ -5,6 +5,7 @@ import { uniqueId } from '/imports/utils/string-utils';
 import { useIsImportPresentationWithAnnotationsFromBreakoutRoomsEnabled, useIsImportSharedNotesFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { useLazyQuery, useQuery, useMutation } from '@apollo/client';
+import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
 import Styled from './styles';
 import {
   getBreakouts,
@@ -410,8 +411,8 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         moveUser({
           variables: {
             userId,
-            fromBreakoutRoomId: fromRoomId || '',
-            toBreakoutRoomId: toRoomId || '',
+            fromBreakoutRoomMeetingId: fromRoomId || '',
+            toBreakoutRoomMeetingId: toRoomId || '',
           },
         });
       }
@@ -723,6 +724,7 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
     breakoutPolicies: m.breakoutPolicies,
     durationInSeconds: m.durationInSeconds,
     createdTime: m.createdTime,
+    meetingId: m.meetingId,
   }));
 
   const {
@@ -788,7 +790,14 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
       isUpdate={isUpdate}
       setUpdateUsersWhileRunning={setUpdateUsersWhileRunning}
       isBreakoutRecordable={currentMeeting?.breakoutPolicies?.record ?? true}
-      users={usersData?.user ?? []}
+      users={currentMeeting?.meetingId
+        ? filterByMeetingId(
+          usersData?.user,
+          currentMeeting.meetingId,
+          getUser,
+          (u) => ({ mismatchedUserId: u.userId, mismatchedName: u.name }),
+        )
+        : []}
       runningRooms={breakoutsData?.breakoutRoom ?? []}
       presentations={presentations}
       currentPresentation={currentPresentation}

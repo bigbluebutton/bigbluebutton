@@ -20,6 +20,18 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { RAISED_HAND_USERS, GET_USER_NAMES } from '/imports/ui/core/graphql/queries/users';
 import logger from '/imports/startup/client/logger';
 import { RaisedHandUser } from '/imports/ui/Types/user';
+import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
+
+interface GetUserNamesResponse {
+  user: Array<{
+    meetingId: string;
+    name: string;
+    nameSortable: string;
+    firstNameSortable: string;
+    lastNameSortable: string;
+    userId: string;
+  }>;
+}
 
 const intlMessages = defineMessages({
   usersTitle: {
@@ -65,8 +77,9 @@ const UserList: React.FC<UserListComponentProps> = () => {
     name: meeting?.name,
     lockSettings: meeting?.lockSettings,
     isBreakout: meeting?.isBreakout,
+    meetingId: meeting?.meetingId,
   }));
-  const [getUsers, { data: usersData, error: usersError }] = useLazyQuery(GET_USER_NAMES, { fetchPolicy: 'no-cache' });
+  const [getUsers, { data: usersData, error: usersError }] = useLazyQuery<GetUserNamesResponse>(GET_USER_NAMES, { fetchPolicy: 'no-cache' });
   const users = usersData?.user || [];
   const hideUserList = currentUserData?.locked && meetingInfo?.lockSettings?.hideUserList;
 
@@ -80,10 +93,16 @@ const UserList: React.FC<UserListComponentProps> = () => {
   }, [usersError]);
 
   useEffect(() => {
-    if (users.length > 0) {
-      onSaveUserNames(intl, meetingInfo?.name ?? '', users);
+    if (users.length > 0 && meetingInfo?.meetingId) {
+      const filteredUsers = filterByMeetingId(
+        users,
+        meetingInfo.meetingId,
+        GET_USER_NAMES,
+        (u) => ({ mismatchedUserId: u.userId, mismatchedName: u.name }),
+      );
+      onSaveUserNames(intl, meetingInfo?.name ?? '', filteredUsers);
     }
-  }, [users]);
+  }, [users, meetingInfo?.meetingId]);
 
   const renderGuestManagement = useCallback(() => {
     if (!currentUserData?.isModerator || meetingInfo?.isBreakout) return null;
@@ -122,10 +141,10 @@ const UserList: React.FC<UserListComponentProps> = () => {
     return (
       <>
         <Styled.Separator />
-        <CrowActionsButtons />
+        <CrowActionsButtons isBreakout={meetingInfo?.isBreakout} />
       </>
     );
-  }, [currentUserData]);
+  }, [currentUserData, meetingInfo?.isBreakout]);
 
   const onClick = useCallback(() => {
     layoutContextDispatch({

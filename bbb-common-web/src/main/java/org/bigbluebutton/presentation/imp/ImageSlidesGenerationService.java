@@ -77,13 +77,13 @@ public class ImageSlidesGenerationService {
 	private void createTextFiles(UploadedPresentation pres, int page) {
 		log.debug("Creating textfiles for accessibility.");
 		notifier.sendCreatingTextFilesUpdateMessage(pres);
-		textFileCreator.createTextFile(pres, page);
+		textFileCreator.createTextFile(pres, page, false);
 	}
 	
 	private void createThumbnails(UploadedPresentation pres, int page) {
 		log.debug("Creating thumbnails.");
 		notifier.sendCreatingThumbnailsUpdateMessage(pres);
-		thumbnailCreator.createThumbnail(pres, page, pres.getUploadedFile());
+		thumbnailCreator.createThumbnail(pres, page, pres.getUploadedFile(), false);
 	}
 	
 	private void createSvgImages(UploadedPresentation pres, int page) throws TimeoutException{
@@ -103,11 +103,11 @@ public class ImageSlidesGenerationService {
 		}
 
 		notifier.sendCreatingSvgImagesUpdateMessage(pres);
-		svgImageCreator.createSvgImage(pres, page);
+		svgImageCreator.createSvgImage(pres, page, false);
 	}
 	
    private void createPngImages(UploadedPresentation pres, int page) {
-        pngCreator.createPng(pres, page, pres.getUploadedFile());
+        pngCreator.createPng(pres, page, pres.getUploadedFile(), false);
    }
 
 	private void resizeImage(UploadedPresentation pres, String ratio) {

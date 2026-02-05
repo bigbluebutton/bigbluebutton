@@ -1,52 +1,56 @@
 package msgpatch
 
 import (
-	"bbb-graphql-middleware/internal/common"
 	"encoding/json"
+	"strconv"
+
+	"bbb-graphql-middleware/internal/common"
+
 	"github.com/mattbaird/jsonpatch"
 	log "github.com/sirupsen/logrus"
-	"strconv"
 )
 
-var minLengthToPatch = 250    //250 chars
-var minShrinkToUsePatch = 0.5 //50% percent
+var (
+	minLengthToPatch    = 250 // 250 chars
+	minShrinkToUsePatch = 0.5 // 50% percent
+)
 
 func GetPatchedMessage(
 	receivedMessage []byte,
 	dataKey string,
 	lastHasuraMessage common.HasuraMessage,
 	hasuraMessage common.HasuraMessage,
-	cacheKey uint32,
+	cacheKey uint64,
 	lastDataChecksum uint32,
-	currDataChecksum uint32) []byte {
-
+	currDataChecksum uint32,
+) []byte {
 	if lastDataChecksum != 0 {
-		common.JsonPatchBenchmarkingStarted(strconv.Itoa(int(cacheKey)))
-		defer common.JsonPatchBenchmarkingCompleted(strconv.Itoa(int(cacheKey)))
+		common.JsonPatchBenchmarkingStarted(strconv.FormatUint(cacheKey, 10))
+		defer common.JsonPatchBenchmarkingCompleted(strconv.FormatUint(cacheKey, 10))
 	}
 
-	//Lock to avoid other routines from processing the same message
+	// Lock to avoid other routines from processing the same message
 	common.GlobalCacheLocks.Lock(cacheKey)
 	if patchedMessageCache, patchedMessageCacheExists := common.GetPatchedMessageCache(cacheKey); patchedMessageCacheExists {
-		//Unlock immediately once the cache was already created by other routine
+		// Unlock immediately once the cache was already created by other routine
 		common.GlobalCacheLocks.Unlock(cacheKey)
 		return patchedMessageCache
 	} else {
-		//It will create the cache and then Unlock (others will wait to benefit from this cache)
+		// It will create the cache and then Unlock (others will wait to benefit from this cache)
 		defer common.GlobalCacheLocks.Unlock(cacheKey)
 	}
 
 	var jsonDiffPatch []byte
 
 	if currDataChecksum == lastDataChecksum {
-		//Content didn't change, set message as null to avoid sending it to the browser
-		//This case is usual when the middleware reconnects with Hasura and receives the data again
+		// Content didn't change, set message as null to avoid sending it to the browser
+		// This case is usual when the middleware reconnects with Hasura and receives the data again
 		jsonData, _ := json.Marshal(nil)
 		common.StorePatchedMessageCache(cacheKey, jsonData)
 		return jsonData
 	} else {
-		//Content was changed, creating json patch
-		//If data is small (< minLengthToPatch) it's not worth creating the patch
+		// Content was changed, creating json patch
+		// If data is small (< minLengthToPatch) it's not worth creating the patch
 		if len(hasuraMessage.Payload.Data[dataKey]) > minLengthToPatch {
 			if string(lastHasuraMessage.Payload.Data[dataKey]) != "" {
 				var shouldUseCustomJsonPatch bool
@@ -67,10 +71,10 @@ func GetPatchedMessage(
 		}
 	}
 
-	//Use patch if the length is {minShrinkToUsePatch}% smaller than the original msg
+	// Use patch if the length is {minShrinkToUsePatch}% smaller than the original msg
 	if jsonDiffPatch != nil && float64(len(string(jsonDiffPatch)))/float64(len(string(hasuraMessage.Payload.Data[dataKey]))) < minShrinkToUsePatch {
-		//Modify receivedMessage to include the Patch and remove the previous data
-		//The key of the original message is kept to avoid errors (Apollo-client expects to receive this prop)
+		// Modify receivedMessage to include the Patch and remove the previous data
+		// The key of the original message is kept to avoid errors (Apollo-client expects to receive this prop)
 
 		hasuraMessage.Payload.Data = map[string]json.RawMessage{
 			"patch": jsonDiffPatch,

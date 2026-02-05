@@ -10,7 +10,7 @@ import { notify } from '/imports/ui/services/notification';
 import Presentation from '/imports/ui/components/presentation/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import {
-  useMutation, useLazyQuery, useSubscription, useQuery,
+  useMutation, useSubscription, useQuery,
 } from '@apollo/client';
 import {
   layoutSelect,
@@ -28,12 +28,12 @@ import {
 } from '/imports/ui/components/whiteboard/queries';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { PRESENTATION_SET_ZOOM, PRESENTATION_SET_WRITERS } from './mutations';
-import { GET_USER_IDS } from '/imports/ui/core/graphql/queries/users';
+import { PRESENTATION_SET_ZOOM, USER_SET_WHITEBOARD_WRITE_ACCESS } from './mutations';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import usePresentationFitToWidth from '/imports/ui/components/presentation/hooks/usePresentationFitToWidth';
+import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 
 const fetchedpresentation = {};
 const FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS = 'bbb_force_restore_presentation_on_new_events';
@@ -57,6 +57,8 @@ const PresentationContainer = ({
   const currentPresentationPage = presentationPageArray?.[0];
   const slideSvgUrl = currentPresentationPage?.svgUrl;
   const currentPageId = currentPresentationPage?.pageId;
+  const currentPresentationId = currentPresentationPage?.presentationId;
+  const prevPresentationId = usePreviousValue(currentPresentationId);
 
   const {
     data: currentMeeting,
@@ -64,6 +66,7 @@ const PresentationContainer = ({
   } = useMeeting((m) => ({
     createdTime: m.createdTime,
     isBreakout: m.isBreakout,
+    usersPolicies: m.usersPolicies,
   }));
 
   useEffect(() => {
@@ -90,7 +93,6 @@ const PresentationContainer = ({
     FORCE_RESTORE_PRESENTATION_ON_NEW_EVENTS,
     window.meetingClientSettings.public.presentation.restoreOnUpdate,
   );
-
 
   const { data: initialPageAnnotations, refetch: refetchInitialPageAnnotations } = useQuery(
     CURRENT_PAGE_ANNOTATIONS_QUERY,
@@ -129,45 +131,31 @@ const PresentationContainer = ({
   });
 
   const [presentationSetZoom] = useMutation(PRESENTATION_SET_ZOOM);
-  const [presentationSetWriters] = useMutation(PRESENTATION_SET_WRITERS);
-  // eslint-disable-next-line no-unused-vars
   const [fitToWidth, setPresentationFitToWidth] = usePresentationFitToWidth();
-
-  const [getUsers, { data: usersData }] = useLazyQuery(GET_USER_IDS, { fetchPolicy: 'no-cache' });
-  const users = usersData?.user || [];
+  const [userSetWhiteboardWriteAccess] = useMutation(USER_SET_WHITEBOARD_WRITE_ACCESS);
 
   const APP_CONFIG = window.meetingClientSettings.public.app;
   const PRELOAD_NEXT_SLIDE = APP_CONFIG.preloadNextSlides;
 
-  const addWhiteboardGlobalAccess = useCallback(() => {
-    const usersIds = users.map((user) => user.userId);
-    const { pageId } = currentPresentationPage;
-
-    presentationSetWriters({
+  const setMultiUserWhiteboardEnabled = () => {
+    userSetWhiteboardWriteAccess({
       variables: {
-        pageId,
-        usersIds,
+        userIds: [],
+        allUsers: true,
+        whiteboardWriteAccess: true,
       },
     });
-  }, [currentPresentationPage, presentationSetWriters, users]);
+  };
 
-  // users will only be fetched when getUsers is called
-  useEffect(() => {
-    if (users.length > 0) {
-      addWhiteboardGlobalAccess();
-    }
-  }, [users]);
-
-  const removeWhiteboardGlobalAccess = useCallback(() => {
-    const { pageId } = currentPresentationPage;
-
-    presentationSetWriters({
+  const setMultiUserWhiteboardDisabled = () => {
+    userSetWhiteboardWriteAccess({
       variables: {
-        pageId,
-        usersIds: [],
+        userIds: [],
+        allUsers: true,
+        whiteboardWriteAccess: false,
       },
     });
-  }, [currentPresentationPage, presentationSetWriters]);
+  };
 
   const zoomSlide = useCallback((widthRatio, heightRatio, xOffset, yOffset) => {
     const { presentationId, pageId, num } = currentPresentationPage;
@@ -286,7 +274,13 @@ const PresentationContainer = ({
     presentationAreaHeight: presentation?.height,
   };
 
+  const shouldRestoreOnUpdate = userIsPresenter
+    && currentPresentationId === prevPresentationId ? false : restoreOnUpdate;
+
   if (layoutType === 'videoFocus' && presentation?.width === 0) return null;
+
+  const multiUserWhiteboardEnabled = currentMeeting?.usersPolicies?.multiUserWhiteboardEnabled
+    ?? false;
 
   return (
     <Presentation
@@ -310,16 +304,16 @@ const PresentationContainer = ({
           slidePosition,
           hasWBAccess: currentUser?.whiteboardWriteAccess,
           downloadPresentationUri: `${APP_CONFIG.bbbWebBase}/${currentPresentationPage?.downloadFileUri}`,
-          multiUser: multiUserData.active && presentationIsOpen,
+          multiUser: (multiUserWhiteboardEnabled || multiUserData.active) && presentationIsOpen,
           presentationIsDownloadable: currentPresentationPage?.downloadable,
           mountPresentation: !!currentSlide,
           currentPresentationId: currentPresentationPage?.presentationId,
           totalPages: currentPresentationPage?.totalPages || 0,
           notify,
           zoomSlide,
-          restoreOnUpdate,
-          addWhiteboardGlobalAccess: getUsers,
-          removeWhiteboardGlobalAccess,
+          restoreOnUpdate: shouldRestoreOnUpdate,
+          setMultiUserWhiteboardEnabled,
+          setMultiUserWhiteboardDisabled,
           multiUserSize: multiUserData.size,
           isViewersAnnotationsLocked,
           setPresentationIsOpen: MediaService.setPresentationIsOpen,

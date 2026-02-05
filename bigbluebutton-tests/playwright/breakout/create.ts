@@ -10,7 +10,8 @@ export class Create extends MultiUsers {
     if (!this?.modPage) throw new Error('modPage not initialized');
     if (!this?.userPage) throw new Error('userPage not initialized');
 
-    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 }); // needed for better create breakout rooms button disposition
+    // needed for better create breakout rooms button disposition
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
     await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
 
     // assign user to first room
@@ -20,7 +21,10 @@ export class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.hasElement(e.modalConfirmButton, 'should appear the modal confirm button to join breakout');
     await this.userPage.waitAndClick(e.modalDismissButton);
-    await this.userPage.hasElement(e.breakoutRoomSidebarButton, 'should display the breakout room sidebar button for the attendee after rooms are created');
+    await this.userPage.hasElement(
+      e.breakoutRoomSidebarButton,
+      'should display the breakout room sidebar button for the attendee after rooms are created',
+    );
     await this.modPage.setHeightWidthViewPortSize(); // reset to default size
   }
 
@@ -83,15 +87,16 @@ export class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
     await this.modPage.waitAndClick(e.randomlyAssign);
     // Change room's name
-    await this.modPage.type(e.roomNameInput, 'Test');
+    await this.modPage.fill(e.roomNameInput1, 'TestRoom 1');
     await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.hasText(e.roomName1Test, /Test/, 'should display the correct breakout room name');
+    await this.modPage.hasText(e.roomName1Test, /TestRoom 1/, 'should display the correct breakout room name');
   }
 
   async removeAndResetAssignments() {
     if (!this?.modPage) throw new Error('modPage not initialized');
 
-    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 }); // needed for better create breakout rooms button disposition
+    // needed for better create breakout rooms button disposition
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
     await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
     // Reset assignments
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
@@ -102,7 +107,11 @@ export class Create extends MultiUsers {
     // Remove specific assignment
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
     await this.modPage.waitAndClick(`${e.breakoutBox1} span[role="button"]`);
-    await this.modPage.hasText(e.breakoutBox0, /Attendee/, 'should display the attendee name on the first breakout room box');
+    await this.modPage.hasText(
+      e.breakoutBox0,
+      /Attendee/,
+      'should display the attendee name on the first breakout room box',
+    );
     await this.modPage.setHeightWidthViewPortSize(); // reset to default size
   }
 
@@ -119,7 +128,7 @@ export class Create extends MultiUsers {
       createButtonLocator,
       'should designate a user to a specific a breakout room, before creating it',
     ).toBeDisabled();
-        await this.modPage.hasElement(
+    await this.modPage.hasElement(
       e.warningNoUserAssigned,
       'should designate a user to a specific a breakout room, before creating it',
     );

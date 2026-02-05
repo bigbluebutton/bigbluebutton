@@ -17,6 +17,7 @@ export const makeDropdownPluginItem: (
         tooltip: undefined,
         textColor: undefined,
         allowed: undefined,
+        dataTest: undefined,
       };
       switch (userDropdownItem.type) {
         case UserListDropdownItemType.OPTION: {
@@ -26,6 +27,7 @@ export const makeDropdownPluginItem: (
           returnValue.icon = dropdownButton.icon;
           returnValue.allowed = dropdownButton.allowed;
           returnValue.onClick = dropdownButton.onClick;
+          returnValue.dataTest = dropdownButton.dataTest;
           break;
         }
         case UserListDropdownItemType.FIXED_CONTENT_INFORMATION: {
@@ -35,17 +37,21 @@ export const makeDropdownPluginItem: (
           returnValue.iconRight = dropdownButton.iconRight;
           returnValue.textColor = dropdownButton.textColor;
           returnValue.allowed = dropdownButton.allowed;
+          returnValue.dataTest = dropdownButton.dataTest;
           break;
         }
         case UserListDropdownItemType.GENERIC_CONTENT_INFORMATION: {
           const dropdownButton = userDropdownItem as PluginSdk.UserListDropdownGenericContentInformation;
           returnValue.allowed = dropdownButton.allowed;
           returnValue.contentFunction = dropdownButton.contentFunction;
+          returnValue.dataTest = dropdownButton.dataTest;
           break;
         }
         case UserListDropdownItemType.SEPARATOR: {
+          const dropdownSeparator = userDropdownItem as PluginSdk.UserListDropdownSeparator;
           returnValue.allowed = true;
           returnValue.isSeparator = true;
+          returnValue.dataTest = dropdownSeparator.dataTest;
           break;
         }
         default:

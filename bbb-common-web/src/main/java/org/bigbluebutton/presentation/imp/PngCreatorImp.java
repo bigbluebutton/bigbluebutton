@@ -52,12 +52,17 @@ public class PngCreatorImp implements PngCreator {
 
 	private static final String TEMP_PNG_NAME = "temp-png";
 
-	public boolean createPng(UploadedPresentation pres, int page, File pageFile) {
+	public boolean createPng(UploadedPresentation pres, int page, File pageFile, boolean useBlank) {
 		boolean success = false;
 		File pngDir = determinePngDirectory(pres.getUploadedFile());
 
 		if (!pngDir.exists())
 			pngDir.mkdir();
+
+        if (useBlank) {
+            createBlankPng(pngDir, page);
+            return true;
+        }
 
 		try {
 			long start = System.currentTimeMillis();

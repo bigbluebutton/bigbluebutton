@@ -11,6 +11,7 @@ export interface ViewerVideoStreamsSubscriptionResponse {
 export const VIDEO_STREAMS_SUBSCRIPTION = gql`
   subscription VideoStreams {
     user_camera {
+      meetingId
       streamId
       user {
         name
@@ -82,6 +83,7 @@ export const GRID_USERS_SUBSCRIPTION = gql`
         userId: asc,
       },
     ) {
+      meetingId
       name
       userId
       nameSortable

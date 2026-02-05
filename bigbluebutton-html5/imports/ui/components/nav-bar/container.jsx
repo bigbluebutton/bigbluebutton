@@ -2,12 +2,14 @@ import React, { useContext } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import { useReactiveVar } from '@apollo/client';
 import NavBar from './component';
 import { layoutDispatch, layoutSelectOutput } from '../layout/context';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '../../core/hooks/useMeeting';
 import { registerTitleView } from '/imports/utils/dom-utils';
+import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 
 const intlMessages = defineMessages({
   defaultViewLabel: {
@@ -45,6 +47,7 @@ const NavBarContainer = (props) => {
   let breakoutNum;
   let breakoutName;
   let meetingName;
+  const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
 
   const { data: meeting } = useMeeting((m) => ({
     name: m.name,
@@ -91,6 +94,8 @@ const NavBarContainer = (props) => {
         breakoutName,
         meetingName,
         isDirectLeaveButtonEnabled: IS_DIRECT_LEAVE_BUTTON_ENABLED,
+        // TODO: Remove/Replace
+        isConnected: connected,
         hideTopRow: navBar.hideTopRow,
         showSessionDetailsOnJoin: SHOW_SESSION_DETAILS_ON_JOIN,
         ...props,

@@ -14,11 +14,12 @@ export const PRESENTATION_SET_ZOOM = gql`
   }
 `;
 
-export const PRESENTATION_SET_WRITERS = gql`
-  mutation PresentationSetWriters($pageId: String!, $usersIds: [String]!) {
-    presentationSetWriters(
-      pageId: $pageId,
-      usersIds: $usersIds,
+export const USER_SET_WHITEBOARD_WRITE_ACCESS = gql`
+  mutation UserSetWhiteboardWriteAccess($userIds: [String]!, $allUsers: Boolean!, $whiteboardWriteAccess: Boolean!) {
+    userSetWhiteboardWriteAccess(
+      userIds: $userIds,
+      allUsers: $allUsers,
+      whiteboardWriteAccess: $whiteboardWriteAccess,
     )
   }
 `;
@@ -123,7 +124,7 @@ export const PRESENTATION_SET_FIT_TO_WIDTH = gql`
 
 export default {
   PRESENTATION_SET_ZOOM,
-  PRESENTATION_SET_WRITERS,
+  USER_SET_WHITEBOARD_WRITE_ACCESS,
   PRESENTATION_SET_PAGE,
   PRESENTATION_SET_DOWNLOADABLE,
   PRESENTATION_EXPORT,

@@ -12,9 +12,10 @@ import {
   SYNC,
   LAYOUT_ELEMENTS,
   PANELS,
+  HIDDEN_LAYOUTS,
 } from '../enums';
 import { LAYOUTS_SYNC } from '../utils';
-import { updateSettings } from '/imports/ui/components/settings/service';
+import { updateSettings, isKeepPushingLayoutEnabled } from '/imports/ui/components/settings/service';
 import Session from '/imports/ui/services/storage/in-memory';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -49,6 +50,7 @@ const propTypes = {
   isMeetingLayoutResizing: PropTypes.bool,
   isPresenter: PropTypes.bool,
   isModerator: PropTypes.bool,
+  isChatEnabled: PropTypes.bool,
   layoutContextDispatch: PropTypes.func,
   meetingLayout: PropTypes.string,
   meetingLayoutCameraPosition: PropTypes.string,
@@ -119,7 +121,11 @@ const PushLayoutEngine = (props) => {
     const contextLayout = enforcedLayout || changeLayout || defaultLayout
       || meetingLayout || currentLayout;
 
-    Session.setItem('isGridEnabled', currentLayout === LAYOUT_TYPE.VIDEO_FOCUS);
+    if (currentLayout === LAYOUT_TYPE.UNIFIED_LAYOUT) {
+      Session.setItem('isGridEnabled', !presentationIsOpen);
+    } else {
+      Session.setItem('isGridEnabled', currentLayout === LAYOUT_TYPE.VIDEO_FOCUS);
+    }
 
     setLayoutType(
       contextLayout,
@@ -137,7 +143,8 @@ const PushLayoutEngine = (props) => {
     MediaService.setPresentationIsOpen(layoutContextDispatch, presentationLastState);
     Session.setItem('presentationLastState', presentationLastState);
 
-    if (currentLayout === LAYOUT_TYPE.CUSTOM_LAYOUT) {
+    if (currentLayout === LAYOUT_TYPE.CUSTOM_LAYOUT
+     || currentLayout === LAYOUT_TYPE.UNIFIED_LAYOUT) {
       setTimeout(() => {
         layoutContextDispatch({
           type: ACTIONS.SET_FOCUSED_CAMERA_ID,
@@ -300,17 +307,22 @@ const PushLayoutEngine = (props) => {
       replicateLayoutType();
     }
     if (!isPresenter && notInitialValues) {
+      const { syncCameraDockSizeAndPosition } = window.meetingClientSettings.public.layout;
+
       if (layoutReplicateElements.includes(LAYOUT_ELEMENTS.PRESENTATION_STATE)) {
         replicatePresentationState();
       }
       if (layoutReplicateElements.includes(LAYOUT_ELEMENTS.FOCUSED_CAMERA)) {
         replicateFocusedCamera();
       }
-      if (layoutReplicateElements.includes(LAYOUT_ELEMENTS.CAMERA_DOCK_POSITION)) {
-        replicateCameraDockPosition();
-      }
-      if (layoutReplicateElements.includes(LAYOUT_ELEMENTS.CAMERA_DOCK_SIZE)) {
-        replicateCameraDockSize();
+
+      if (syncCameraDockSizeAndPosition) {
+        if (layoutReplicateElements.includes(LAYOUT_ELEMENTS.CAMERA_DOCK_POSITION)) {
+          replicateCameraDockPosition();
+        }
+        if (layoutReplicateElements.includes(LAYOUT_ELEMENTS.CAMERA_DOCK_SIZE)) {
+          replicateCameraDockSize();
+        }
       }
     }
 
@@ -338,14 +350,22 @@ const PushLayoutEngine = (props) => {
       && layoutPropagateElements.length > 0
     ) {
       if (pushLayout && (layoutChanged || pushLayout !== prevProps.pushLayout)) {
-        setMeetingLayout();
+        setMeetingLayout(pushLayout);
       }
     }
 
-    if (selectedLayout !== prevProps.selectedLayout) {
+    if (selectedLayout !== prevProps.selectedLayout
+      && selectedLayout !== LAYOUT_TYPE.UNIFIED_LAYOUT) {
       Session.setItem('isGridEnabled', selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS);
     }
-    return () => { };
+
+    if (selectedLayout === LAYOUT_TYPE.UNIFIED_LAYOUT
+      && (selectedLayout !== prevProps.selectedLayout
+        || presentationIsOpen !== prevProps.presentationIsOpen)) {
+      Session.setItem('isGridEnabled', !presentationIsOpen);
+    }
+
+    return () => {};
   });
 
   return null;
@@ -361,7 +381,6 @@ const PushLayoutEngineContainer = (props) => {
   const layoutSettings = useSettings(SETTINGS.LAYOUT);
   const {
     selectedLayout,
-    pushLayout,
   } = layoutSettings;
 
   const {
@@ -370,6 +389,28 @@ const PushLayoutEngineContainer = (props) => {
     position: cameraPosition,
     focusedId: focusedCamera,
   } = cameraDockOutput;
+
+  const isPushLayoutEnabled = isKeepPushingLayoutEnabled();
+
+  const getKeepPushingLayout = () => {
+    // check if current layout is a hidden layout
+    if (selectedLayout
+      && selectedLayout !== LAYOUT_TYPE.UNIFIED_LAYOUT
+      && HIDDEN_LAYOUTS.includes(selectedLayout)) {
+      return false;
+    }
+
+    // always enabled for non-hidden layouts is layout manager is disabled
+    if (!window.meetingClientSettings.public.layout.enableDeprecatedLayoutSelection) {
+      return true;
+    }
+
+    if (!isPushLayoutEnabled) return false;
+
+    return layoutSettings.pushLayout;
+  };
+
+  const pushLayout = getKeepPushingLayout();
 
   const {
     isResizing: cameraIsResizing,

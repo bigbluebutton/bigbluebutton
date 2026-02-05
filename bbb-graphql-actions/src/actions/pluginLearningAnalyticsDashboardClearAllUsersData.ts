@@ -1,17 +1,15 @@
 import { RedisMessage } from '../types';
-import { ValidationError } from '../types/ValidationError';
-import {throwErrorIfInvalidInput, throwErrorIfNotPresenter} from "../imports/validation";
+import {throwErrorIfInvalidInput} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
-  throwErrorIfNotPresenter(sessionVariables);
   throwErrorIfInvalidInput(input,
-      [
-        {name: 'pageId', type: 'string', required: true},
-        {name: 'usersIds', type: 'stringArray', required: true},
-      ]
+    [
+      {name: 'pluginName', type: 'string', required: true},
+      {name: 'cardTitle', type: 'string', required: true},
+    ]
   )
 
-  const eventName = `ModifyWhiteboardAccessPubMsg`;
+  const eventName = `PluginLearningAnalyticsDashboardClearAllUsersDataMsg`;
 
   const routing = {
     meetingId: sessionVariables['x-hasura-meetingid'] as String,
@@ -25,8 +23,8 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   };
 
   const body = {
-    whiteboardId: input.pageId,
-    multiUser: input.usersIds
+    pluginName: input.pluginName,
+    cardTitle: input.cardTitle,
   };
 
   return { eventName, routing, header, body };

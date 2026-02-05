@@ -19,6 +19,7 @@ const GenericSidekickContent: React.FC<GenericSidekickContentProps> = ({
   layoutContextDispatch,
   genericContentId,
   genericContentLabel,
+  dataTest,
 }) => {
   const intl = useIntl();
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
@@ -27,8 +28,8 @@ const GenericSidekickContent: React.FC<GenericSidekickContentProps> = ({
       data-test={genericContentId}
     >
       <Styled.HeaderContainer
+        data-test={`sidekick_header_${dataTest}`}
         isRTL={isRTL}
-        data-test={genericContentId}
         title={genericContentLabel}
         rightButtonProps={{
           onClick: () => {
@@ -50,6 +51,7 @@ const GenericSidekickContent: React.FC<GenericSidekickContentProps> = ({
       <Styled.Separator />
       <Styled.Container>
         <GenericContentItem
+          dataTest={dataTest}
           key={genericContentId}
           renderFunction={renderFunction}
         />

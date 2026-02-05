@@ -90,7 +90,7 @@ export const meetingComparator = <T>(
   if ((abp?.captureSlides ?? false) !== (bbp?.captureSlides ?? false)) return false;
   if ((abp?.captureSlidesFilename ?? '') !== (bbp?.captureSlidesFilename ?? '')) return false;
   if ((abp?.freeJoin ?? false) !== (bbp?.freeJoin ?? false)) return false;
-  if ((abp?.parentId ?? '') !== (bbp?.parentId ?? '')) return false;
+  if ((abp?.parentMeetingId ?? '') !== (bbp?.parentMeetingId ?? '')) return false;
   if ((abp?.privateChatEnabled ?? false) !== (bbp?.privateChatEnabled ?? false)) return false;
   if ((abp?.record ?? false) !== (bbp?.record ?? false)) return false;
   if ((abp?.sequence ?? 0) !== (bbp?.sequence ?? 0)) return false;

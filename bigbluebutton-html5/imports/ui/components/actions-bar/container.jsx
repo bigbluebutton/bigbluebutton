@@ -139,43 +139,47 @@ const ActionsBarContainer = (props) => {
 
   const isSharedNotesPinned = isSharedNotesPinnedFromGraphql;
   return (
-    <ActionsBar
-      presentationIsOpen={presentationIsOpen}
-      enableVideo={getFromUserSettings('bbb_enable_video', window.meetingClientSettings.public.kurento.enableVideo)}
-      showScreenshareQuickSwapButton={window.meetingClientSettings
-        .public.layout.showScreenshareQuickSwapButton}
-      multiUserTools={getFromUserSettings('bbb_multi_user_tools', window.meetingClientSettings.public.whiteboard.toolbar.multiUserTools)}
-      isReactionsButtonEnabled={isReactionsButtonEnabled}
-      setPresentationIsOpen={MediaService.setPresentationIsOpen}
-      hasScreenshare={currentMeeting?.componentsFlags?.hasScreenshare ?? false}
-      isMeteorConnected={connected}
-      hasCameraAsContent={currentMeeting?.componentsFlags?.hasCameraAsContent}
-      intl={intl}
-      allowExternalVideo={allowExternalVideo}
-      isPollingEnabled={isPollingEnabled}
-      isPresentationEnabled={isPresentationEnabled}
-      isRaiseHandEnabled={isRaiseHandEnabled}
-      currentUser={currentUser}
-      amIModerator={amIModerator}
-      layoutContextDispatch={layoutContextDispatch}
-      actionsBarStyle={actionsBarStyle}
-      amIPresenter={amIPresenter}
-      actionBarItems={actionBarItems}
-      isThereCurrentPresentation={isThereCurrentPresentation}
-      isSharingVideo={isSharingVideo}
-      stopExternalVideoShare={stopExternalVideoShare}
-      isSharedNotesPinned={isSharedNotesPinned}
-      isTimerActive={currentMeeting?.componentsFlags?.hasTimer}
-      isTimerEnabled={isTimerFeatureEnabled}
-      hasGenericContent={isThereGenericMainContent}
-      setPushLayout={setPushLayout}
-      setMeetingLayout={setMeetingLayout}
-      showPushLayout={showPushLayoutButton
-        && layoutSettings.selectedLayout === LAYOUT_TYPE.CUSTOM_LAYOUT}
-      ariaHidden={ariaHidden}
-      isDarkThemeEnabled={darkModeIsEnabled}
-      isMobile={isMobile}
-      selectedLayout={selectedLayout}
+    <ActionsBar {
+      ...{
+        ...props,
+        presentationIsOpen,
+        enableVideo: getFromUserSettings('bbb_enable_video', window.meetingClientSettings.public.kurento.enableVideo),
+        showScreenshareQuickSwapButton: window.meetingClientSettings
+          .public.layout.showScreenshareQuickSwapButton,
+        multiUserTools: getFromUserSettings('bbb_multi_user_tools', window.meetingClientSettings.public.whiteboard.toolbar.multiUserTools),
+        isReactionsButtonEnabled,
+        setPresentationIsOpen: MediaService.setPresentationIsOpen,
+        hasScreenshare: currentMeeting?.componentsFlags?.hasScreenshare ?? false,
+        isConnected: connected,
+        hasCameraAsContent: currentMeeting?.componentsFlags?.hasCameraAsContent,
+        intl,
+        allowExternalVideo,
+        isPollingEnabled,
+        isPresentationEnabled,
+        isRaiseHandEnabled,
+        currentUser,
+        amIModerator,
+        layoutContextDispatch,
+        actionsBarStyle,
+        amIPresenter,
+        actionBarItems,
+        isThereCurrentPresentation,
+        isSharingVideo,
+        stopExternalVideoShare,
+        isSharedNotesPinned,
+        isTimerActive: currentMeeting?.componentsFlags?.hasTimer,
+        isTimerEnabled: isTimerFeatureEnabled,
+        hasGenericContent: isThereGenericMainContent,
+        setPushLayout,
+        setMeetingLayout,
+        showPushLayout: showPushLayoutButton
+          && layoutSettings.selectedLayout === LAYOUT_TYPE.CUSTOM_LAYOUT,
+        ariaHidden,
+        isDarkThemeEnabled: darkModeIsEnabled,
+        isMobile,
+        selectedLayout,
+      }
+    }
     />
   );
 };

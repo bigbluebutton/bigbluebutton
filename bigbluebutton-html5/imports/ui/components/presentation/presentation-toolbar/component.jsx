@@ -131,12 +131,10 @@ class PresentationToolbar extends PureComponent {
   }
 
   handleSkipToSlideChange(event) {
-    const { skipToSlide, currentSlide, setPresentationPageInfiniteWhiteboard } = this.props;
+    const { skipToSlide, currentSlide } = this.props;
     const requestedSlideNum = Number.parseInt(event.target.value, 10);
 
-    const isInfiniteWhiteboard = currentSlide?.infiniteWhiteboard;
-
-    if (isInfiniteWhiteboard) setPresentationPageInfiniteWhiteboard(false);
+    if (currentSlide?.infiniteWhiteboard) this.disableInfiniteWhiteboard();
 
     if (event) event.currentTarget.blur();
     skipToSlide(requestedSlideNum);
@@ -145,14 +143,24 @@ class PresentationToolbar extends PureComponent {
   handleSwitchWhiteboardMode() {
     const {
       multiUser,
-      whiteboardId,
-      removeWhiteboardGlobalAccess,
-      addWhiteboardGlobalAccess,
+      setMultiUserWhiteboardDisabled,
+      setMultiUserWhiteboardEnabled,
     } = this.props;
     if (multiUser) {
-      return removeWhiteboardGlobalAccess(whiteboardId);
+      return setMultiUserWhiteboardDisabled();
     }
-    return addWhiteboardGlobalAccess(whiteboardId);
+    return setMultiUserWhiteboardEnabled();
+  }
+
+  disableInfiniteWhiteboard() {
+    const {
+      tldrawAPI, resetSlide, zoomChanger, setPresentationPageInfiniteWhiteboard,
+    } = this.props;
+
+    tldrawAPI?.setCamera({ x: 0, y: 0 });
+    resetSlide();
+    zoomChanger(100);
+    setPresentationPageInfiniteWhiteboard(false);
   }
 
   fullscreenToggleHandler() {
@@ -178,25 +186,18 @@ class PresentationToolbar extends PureComponent {
   }
 
   nextSlideHandler(event) {
-    const {
-      nextSlide, currentSlide, setPresentationPageInfiniteWhiteboard,
-    } = this.props;
-    const isInfiniteWhiteboard = currentSlide?.infiniteWhiteboard;
+    const { nextSlide, currentSlide } = this.props;
 
-    if (isInfiniteWhiteboard) setPresentationPageInfiniteWhiteboard(false);
+    if (currentSlide?.infiniteWhiteboard) this.disableInfiniteWhiteboard();
 
     if (event) event.currentTarget.blur();
     nextSlide();
   }
 
   previousSlideHandler(event) {
-    const {
-      previousSlide, currentSlide, setPresentationPageInfiniteWhiteboard,
-    } = this.props;
+    const { previousSlide, currentSlide } = this.props;
 
-    const isInfiniteWhiteboard = currentSlide?.infiniteWhiteboard;
-
-    if (isInfiniteWhiteboard) setPresentationPageInfiniteWhiteboard(false);
+    if (currentSlide?.infiniteWhiteboard) this.disableInfiniteWhiteboard();
 
     if (event) event.currentTarget.blur();
     previousSlide();
@@ -330,7 +331,7 @@ class PresentationToolbar extends PureComponent {
       fitToWidth,
       intl,
       zoom,
-      isMeteorConnected,
+      isConnected,
       isPollingEnabled,
       amIPresenter,
       startPoll,
@@ -412,7 +413,7 @@ class PresentationToolbar extends PureComponent {
             aria-describedby={
               startOfSlides ? 'noPrevSlideDesc' : 'prevSlideDesc'
             }
-            disabled={startOfSlides || !isMeteorConnected}
+            disabled={startOfSlides || !isConnected}
             color="light"
             circle
             icon="left_arrow"
@@ -432,7 +433,7 @@ class PresentationToolbar extends PureComponent {
               aria-describedby="skipSlideDesc"
               aria-live="polite"
               aria-relevant="all"
-              disabled={!isMeteorConnected}
+              disabled={!isConnected}
               value={currentSlideNum}
               onChange={this.handleSkipToSlideChange}
               data-test="skipSlide"
@@ -446,7 +447,7 @@ class PresentationToolbar extends PureComponent {
             aria-describedby={
               endOfSlides ? 'noNextSlideDesc' : 'nextSlideDesc'
             }
-            disabled={endOfSlides || !isMeteorConnected}
+            disabled={endOfSlides || !isConnected}
             color="light"
             circle
             icon="right_arrow"
@@ -468,17 +469,16 @@ class PresentationToolbar extends PureComponent {
                 : intl.formatMessage(intlMessages.infiniteWhiteboardOn)
             }
             color="light"
-            disabled={!isMeteorConnected}
+            disabled={!isConnected}
             customIcon={infiniteWhiteboardIcon(isInfiniteWhiteboard)}
             size="md"
             circle
             onClick={() => {
               if (isInfiniteWhiteboard) {
-                tldrawAPI.setCamera({ x: 0, y: 0 });
-                resetSlide();
-                zoomChanger(100);
+                this.disableInfiniteWhiteboard();
+              } else {
+                setPresentationPageInfiniteWhiteboard(true);
               }
-              setPresentationPageInfiniteWhiteboard(!isInfiniteWhiteboard);
             }}
             label={
               isInfiniteWhiteboard
@@ -522,7 +522,7 @@ class PresentationToolbar extends PureComponent {
                 maxBound={MAX_PERCENT}
                 step={STEP}
                 isInfiniteWhiteboard={isInfiniteWhiteboard}
-                isMeteorConnected={isMeteorConnected}
+                isConnected={isConnected}
               />
             </TooltipContainer>
           ) : null}
@@ -540,7 +540,7 @@ class PresentationToolbar extends PureComponent {
                 )} ${intl.formatMessage(intlMessages.fitToWidth)}`
             }
             color="light"
-            disabled={!isMeteorConnected}
+            disabled={!isConnected}
             icon="fit_to_width"
             size="md"
             circle
@@ -573,16 +573,14 @@ PresentationToolbar.propTypes = {
   fitToWidthHandler: PropTypes.func.isRequired,
   fitToWidth: PropTypes.bool.isRequired,
   zoom: PropTypes.number.isRequired,
-  isMeteorConnected: PropTypes.bool.isRequired,
+  isConnected: PropTypes.bool.isRequired,
   fullscreenElementId: PropTypes.string.isRequired,
   fullscreenAction: PropTypes.string.isRequired,
   isFullscreen: PropTypes.bool.isRequired,
   layoutContextDispatch: PropTypes.func.isRequired,
-  setIsPanning: PropTypes.func.isRequired,
   multiUser: PropTypes.bool.isRequired,
-  whiteboardId: PropTypes.string.isRequired,
-  removeWhiteboardGlobalAccess: PropTypes.func.isRequired,
-  addWhiteboardGlobalAccess: PropTypes.func.isRequired,
+  setMultiUserWhiteboardDisabled: PropTypes.func.isRequired,
+  setMultiUserWhiteboardEnabled: PropTypes.func.isRequired,
   fullscreenRef: PropTypes.instanceOf(Element),
   handleToggleFullScreen: PropTypes.func.isRequired,
   isPollingEnabled: PropTypes.bool.isRequired,

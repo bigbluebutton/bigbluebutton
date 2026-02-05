@@ -20,7 +20,7 @@ export interface MediaAreaContainerProps {
   intl: IntlShape;
   isSharingVideo: boolean;
   stopExternalVideoShare: () => void;
-  isMeteorConnected: boolean;
+  isConnected: boolean;
   hasPresentation: boolean;
 }
 
@@ -34,7 +34,7 @@ export interface MediaAreaProps {
   stopExternalVideoShare: () => void;
   isCameraAsContentEnabled: boolean;
   hasCameraAsContent: boolean;
-  isMeteorConnected: boolean;
+  isConnected: boolean;
   hasPresentation: boolean;
   isPresentationEnabled: boolean;
   isSharingVideo: boolean;

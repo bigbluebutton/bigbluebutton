@@ -75,7 +75,7 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
-            <version>1.5.13</version>
+            <version>1.5.25</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

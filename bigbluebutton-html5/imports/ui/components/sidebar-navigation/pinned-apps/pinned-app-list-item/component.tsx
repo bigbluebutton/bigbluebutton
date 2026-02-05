@@ -9,7 +9,9 @@ const PinnedAppBase: React.FC<PinnedAppProps> = ({
   isOpened,
   children,
 }) => {
-  const { name, icon, hasNotification } = appInfo;
+  const {
+    name, icon, hasNotification, dataTest,
+  } = appInfo;
 
   // type guard
   const { onClick } = (appInfo as InjectedAppGalleryItem);
@@ -22,7 +24,7 @@ const PinnedAppBase: React.FC<PinnedAppProps> = ({
       label={name}
       hasNotification={hasNotification}
       id={`pinned-app-${appKey}`}
-      dataTest={`${appKey}SidebarButton`}
+      dataTest={dataTest ? `sidebar_button_${dataTest}` : `${appKey}SidebarButton`}
       onClick={typeof onClick === 'function' ? onClick : undefined}
     >
       {children}

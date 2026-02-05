@@ -27,7 +27,7 @@ const MediaAreaContainer = (props: MediaAreaContainerProps) => {
     intl,
     isSharingVideo,
     stopExternalVideoShare,
-    isMeteorConnected,
+    isConnected,
     hasPresentation,
   } = props;
 
@@ -91,7 +91,7 @@ const MediaAreaContainer = (props: MediaAreaContainerProps) => {
       intl={intl}
       isSharingVideo={isSharingVideo}
       stopExternalVideoShare={stopExternalVideoShare}
-      isMeteorConnected={isMeteorConnected}
+      isConnected={isConnected}
       hasPresentation={hasPresentation}
       isRequestingPresenter={isRequestingPresenter}
     />

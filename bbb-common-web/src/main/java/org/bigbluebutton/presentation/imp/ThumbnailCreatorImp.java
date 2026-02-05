@@ -54,12 +54,17 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
   private long execTimeout = 10;
 
   @Override
-  public boolean createThumbnail(UploadedPresentation pres, int page, File pageFile) {
+  public boolean createThumbnail(UploadedPresentation pres, int page, File pageFile, boolean useBlank) {
     boolean success = false;
     File thumbsDir = determineThumbnailDirectory(pres.getUploadedFile());
 
     if (!thumbsDir.exists())
       thumbsDir.mkdir();
+
+    if (useBlank) {
+        createBlankThumbnail(thumbsDir, page);
+        return true;
+    }
 
     try {
       success = generateThumbnail(thumbsDir, pres, page, pageFile);

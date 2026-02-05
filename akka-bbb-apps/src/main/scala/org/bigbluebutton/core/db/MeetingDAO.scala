@@ -157,7 +157,7 @@ object MeetingDAO {
     MeetingVoiceDAO.insert(meetingProps.meetingProp.intId, meetingProps.voiceProp)
     MeetingWelcomeDAO.insert(meetingProps.meetingProp.intId, meetingProps.welcomeProp)
     MeetingGroupDAO.insert(meetingProps.meetingProp.intId, meetingProps.groups)
-    MeetingBreakoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.breakoutProps)
+    MeetingBreakoutRoomPropsDAO.insert(meetingProps.meetingProp.intId, meetingProps.breakoutProps)
     LayoutDAO.insert(meetingProps.meetingProp.intId, meetingProps.usersProp.meetingLayout)
     PluginModel.persistPluginsForClient(meetingProps.meetingProp.intId, pluginProps)
     MeetingClientSettingsDAO.insert(meetingProps.meetingProp.intId, JsonUtils.mapToJson(clientSettings))
@@ -165,13 +165,13 @@ object MeetingDAO {
 
   def updateMeetingDurationByParentMeeting(parentMeetingId: String, newDurationInSeconds: Int) = {
     val subqueryBreakoutRooms = TableQuery[BreakoutRoomDbTableDef]
-      .filter(_.parentMeetingId === parentMeetingId)
+      .filter(_.meetingId === parentMeetingId)
       .filter(_.endedAt.isEmpty)
-      .map(_.externalId)
+      .map(_.breakoutRoomMeetingId)
 
     DatabaseConnection.enqueue(
       TableQuery[MeetingDbTableDef]
-        .filter(_.extId in subqueryBreakoutRooms)
+        .filter(_.meetingId in subqueryBreakoutRooms)
         .map(u => u.durationInSeconds)
         .update(newDurationInSeconds)
     )

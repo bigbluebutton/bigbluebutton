@@ -73,6 +73,7 @@ public class Meeting {
 	private boolean recordFullDurationMedia = false;
 	private boolean haveRecordingMarks = false;
 	private boolean webcamsOnlyForModerator = false;
+	private boolean multiUserWhiteboardEnabled = false;
 	private Integer meetingCameraCap = 0;
 	private Integer userCameraCap = 0;
 	private Integer maxPinnedCameras = 0;
@@ -172,6 +173,7 @@ public class Meeting {
 		presentationConversionCacheEnabled = builder.presentationConversionCacheEnabled;
         recordFullDurationMedia = builder.recordFullDurationMedia;
         webcamsOnlyForModerator = builder.webcamsOnlyForModerator;
+        multiUserWhiteboardEnabled = builder.multiUserWhiteboardEnabled;
         meetingCameraCap = builder.meetingCameraCap;
         userCameraCap = builder.userCameraCap;
         maxPinnedCameras = builder.maxPinnedCameras;
@@ -535,6 +537,10 @@ public class Meeting {
 		this.webcamsOnlyForModerator = webcamsOnlyForModerator;
 	}
 
+    public void setMultiUserWhiteboardEnabled(Boolean multiUserWhiteboardEnabled) {
+        this.multiUserWhiteboardEnabled = multiUserWhiteboardEnabled;
+    }
+
 	public void setGuestLobbyMessage(String message) {
 		guestLobbyMessage = message;
 	}
@@ -678,6 +684,10 @@ public class Meeting {
 
     public boolean getWebcamsOnlyForModerator() {
         return webcamsOnlyForModerator;
+    }
+
+    public boolean getMultiUserWhiteboardEnabled() {
+        return multiUserWhiteboardEnabled;
     }
 
     public Integer getMeetingCameraCap() {
@@ -995,6 +1005,7 @@ public class Meeting {
         private boolean allowStartStopRecording;
         private boolean presentationConversionCacheEnabled;
         private boolean webcamsOnlyForModerator;
+        private boolean multiUserWhiteboardEnabled;
         private Integer meetingCameraCap;
         private Integer userCameraCap;
         private Integer maxPinnedCameras;
@@ -1091,6 +1102,11 @@ public class Meeting {
 
         public Builder withWebcamsOnlyForModerator(boolean only) {
             this.webcamsOnlyForModerator = only;
+            return this;
+        }
+
+        public Builder withMultiUserWhiteboardEnabled(boolean multiUserWhiteboardEnabled) {
+            this.multiUserWhiteboardEnabled = multiUserWhiteboardEnabled;
             return this;
         }
 

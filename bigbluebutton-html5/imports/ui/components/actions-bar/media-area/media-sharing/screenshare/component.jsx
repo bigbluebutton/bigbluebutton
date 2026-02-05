@@ -28,7 +28,7 @@ const propTypes = {
   amIPresenter: PropTypes.bool,
   isScreenBroadcasting: PropTypes.bool.isRequired,
   isScreenGloballyBroadcasting: PropTypes.bool.isRequired,
-  isMeteorConnected: PropTypes.bool.isRequired,
+  isConnected: PropTypes.bool.isRequired,
   screenshareDataSavingSetting: PropTypes.bool,
 };
 
@@ -119,7 +119,7 @@ const ScreenshareButton = ({
   isScreenBroadcasting,
   isScreenGloballyBroadcasting,
   amIPresenter = false,
-  isMeteorConnected,
+  isConnected,
   screenshareDataSavingSetting,
 }) => {
   // eslint-disable-next-line max-len
@@ -192,7 +192,7 @@ const ScreenshareButton = ({
           ? (
             <MediaButton
               disabled={
-                (!isMeteorConnected && !isScreenBroadcasting) || !screenshareDataSavingSetting
+                (!isConnected && !isScreenBroadcasting) || !screenshareDataSavingSetting
                 || !amIPresenter || loading
               }
               data-test={dataTest}

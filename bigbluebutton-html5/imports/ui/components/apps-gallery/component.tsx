@@ -50,6 +50,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
       const {
         name,
         icon,
+        dataTest,
         pluginName,
       } = registeredApps[pinnedAppKey];
 
@@ -62,6 +63,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
       return (
         <Component
           key={`${pinnedAppKey}true`}
+          dataTest={dataTest}
           appKey={pinnedAppKey}
           name={name}
           icon={icon}
@@ -85,6 +87,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
         const {
           name,
           icon,
+          dataTest,
           pluginName,
         } = registeredApps[unpinnedAppKey];
 
@@ -97,6 +100,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
         return (
           <Component
             key={`${unpinnedAppKey}false`}
+            dataTest={dataTest}
             appKey={unpinnedAppKey}
             name={name}
             icon={icon}

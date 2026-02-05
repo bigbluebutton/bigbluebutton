@@ -49,6 +49,7 @@ case class UsersProp(
     maxUsers:                     Int,
     maxUserConcurrentAccesses:    Int,
     webcamsOnlyForModerator:      Boolean,
+    multiUserWhiteboardEnabled:   Boolean,
     userCameraCap:                Int,
     guestPolicy:                  String,
     meetingLayout:                String,

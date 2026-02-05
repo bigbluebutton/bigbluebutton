@@ -177,6 +177,7 @@ class BBBMenu extends React.Component {
             key={a.key}
             isTitle={isTitle}
             isGenericContent={!!contentFunction}
+            data-test={dataTest}
             disabled={disabled || isTitle}
           >
             <Styled.MenuItemWrapper

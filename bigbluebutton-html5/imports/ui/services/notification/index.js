@@ -26,6 +26,7 @@ export function notify(
   };
 
   const { id: lastToastId, ...lastToastProps } = lastToast;
+
   const toastProps = {
     message,
     type,
@@ -36,7 +37,8 @@ export function notify(
     $disablePointer: options?.disablePointer ?? true,
   };
 
-  if (!toast.isActive(lastToast.id) || !isEqual(lastToastProps, toastProps)) {
+  if (!toast.isActive(lastToast.id) || !isEqual(JSON.stringify(lastToastProps),
+    JSON.stringify(toastProps))) {
     if (options?.helpLink != null && options?.helpLabel != null) {
       const id = toast(
         <div role="alert">

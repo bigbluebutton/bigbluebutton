@@ -1,4 +1,4 @@
-import { useMutation } from '@apollo/client';
+import { useMutation, useReactiveVar } from '@apollo/client';
 import React, {
   useCallback,
   useEffect,
@@ -42,6 +42,7 @@ interface BreakoutRoomProps {
   setUpdateUsersWhileRunning: Dispatch<SetStateAction<boolean>>;
   createdTime: number;
   closePanel: () => void;
+  isConnected: boolean;
 }
 
 const intlMessages = defineMessages({
@@ -134,6 +135,7 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
   setUpdateUsersWhileRunning,
   createdTime,
   closePanel,
+  isConnected,
 }) => {
   const [breakoutRoomEndAll] = useMutation(BREAKOUT_ROOM_END_ALL);
   const [breakoutRoomTransfer] = useMutation(USER_TRANSFER_VOICE_TO_MEETING);
@@ -158,13 +160,13 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
     );
   };
 
-  const requestJoinURL = (breakoutRoomId: string) => {
-    breakoutRoomRequestJoinURL({ variables: { breakoutRoomId } });
+  const requestJoinURL = (breakoutRoomMeetingId: string) => {
+    breakoutRoomRequestJoinURL({ variables: { breakoutRoomMeetingId } });
   };
 
   useEffect(() => {
     if (requestedBreakoutRoomId) {
-      const breakout = breakouts.find((b) => b.breakoutRoomId === requestedBreakoutRoomId);
+      const breakout = breakouts.find((b) => b.breakoutRoomMeetingId === requestedBreakoutRoomId);
       if (breakout && breakout.joinURL) {
         window.open(breakout.joinURL, '_blank');
         setRequestedBreakoutRoomId('');
@@ -202,7 +204,7 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
               closePanel();
               breakoutRoomEndAll();
             }}
-            isMeteorConnected
+            isConnected={isConnected}
             amIModerator={isModerator}
             isRTL={isRTL}
             setUpdateUsersWhileRunning={setUpdateUsersWhileRunning}
@@ -242,8 +244,8 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
               const userJoinedDialin = breakout.participants.find((p) => p.userId === userId)?.isAudioOnly ?? false;
 
               return (
-                <Styled.BreakoutItems key={`breakoutRoomItems-${breakout.breakoutRoomId}`}>
-                  <Styled.BreakoutRoomList key={`breakoutRoomList-${breakout.breakoutRoomId}`}>
+                <Styled.BreakoutItems key={`breakoutRoomItems-${breakout.breakoutRoomMeetingId}`}>
+                  <Styled.BreakoutRoomList key={`breakoutRoomList-${breakout.breakoutRoomMeetingId}`}>
                     <Styled.BreakoutRoomListNameLabel data-test={breakout.shortName} aria-hidden>
                       {breakout.isDefaultName
                         ? intl.formatMessage(intlMessages.breakoutRoom, { roomNumber: breakout.sequence })
@@ -254,7 +256,7 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
                         )
                       </Styled.UsersAssignedNumberLabel>
                     </Styled.BreakoutRoomListNameLabel>
-                    {requestedBreakoutRoomId === breakout.breakoutRoomId ? (
+                    {requestedBreakoutRoomId === breakout.breakoutRoomMeetingId ? (
                       <span>
                         {intl.formatMessage(intlMessages.generatingURL)}
                         <Styled.ConnectingAnimation animations />
@@ -272,8 +274,8 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
                             aria-label={`${breakoutLabel} ${breakout.shortName}`}
                             onClick={() => {
                               if (!breakout.joinURL) {
-                                setRequestedBreakoutRoomId(breakout.breakoutRoomId);
-                                requestJoinURL(breakout.breakoutRoomId);
+                                setRequestedBreakoutRoomId(breakout.breakoutRoomMeetingId);
+                                requestJoinURL(breakout.breakoutRoomMeetingId);
                               } else {
                                 window.open(breakout.joinURL, '_blank');
                                 stopMediaOnMainRoom(presenter);
@@ -292,11 +294,11 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
                                   : intl.formatMessage(intlMessages.breakoutJoinAudio)
                               }
                               disabled={false}
-                              key={`join-audio-${breakout.breakoutRoomId}`}
+                              key={`join-audio-${breakout.breakoutRoomMeetingId}`}
                               onClick={
                                 userJoinedDialin
-                                  ? () => transferUserToMeeting(breakout.breakoutRoomId, meetingId)
-                                  : () => transferUserToMeeting(meetingId, breakout.breakoutRoomId)
+                                  ? () => transferUserToMeeting(breakout.breakoutRoomMeetingId, meetingId)
+                                  : () => transferUserToMeeting(meetingId, breakout.breakoutRoomMeetingId)
                               }
                             />,
                           ]
@@ -371,6 +373,7 @@ const BreakoutRoomContainer: React.FC = () => {
     error: breakoutError,
   } = useDeduplicatedSubscription<GetBreakoutDataResponse>(getBreakoutData);
   const [isOpen, setIsOpen] = useState(!hasBreakoutRoom);
+  const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
   if (
     breakoutLoading
     || currentUserLoading
@@ -407,6 +410,7 @@ const BreakoutRoomContainer: React.FC = () => {
           : breakoutRoomsUpdateUsersModal.open
         }
         createdTime={meetingData.createdTime ?? 0}
+        isConnected={connected}
         closePanel={closePanel}
       />
       {breakoutRoomsUpdateUsersModal.isOpen && (
