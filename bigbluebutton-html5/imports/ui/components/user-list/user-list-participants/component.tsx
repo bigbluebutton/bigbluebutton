@@ -169,7 +169,7 @@ const UserListParticipantsContainer: React.FC<UserListParticipantsContainerProps
     isModerator: user.isModerator,
   }));
 
-  const where = makeUserSearchWhere(searchQuery);
+  const where = useMemo(() => makeUserSearchWhere(searchQuery), [searchQuery]);
 
   const {
     data: countData,
