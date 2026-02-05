@@ -211,7 +211,6 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
             <MediaButton
               dataTest="managePresentations"
               color={hasPresentation ? 'active' : 'default'}
-              showSettingsIcon
               text={intl.formatMessage(intlMessages.mediaSharingSlides)}
               // @ts-ignore - jsx code
               icon={(<Icon iconName="file" color={hasPresentation ? colorPrimary : undefined} />)}
@@ -222,7 +221,6 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
             <MediaButton
               dataTest="shareExternalVideo"
               color={isSharingVideo ? 'primary' : 'default'}
-              showSettingsIcon
               text={intl.formatMessage(intlMessages.mediaSharingVideoLink)}
               icon={<Icon iconName="external-video" />}
               onClick={handleExternalVideoClick}

@@ -1002,7 +1002,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
       // @ts-ignore
       const LIVEKIT_SETTINGS = window.meetingClientSettings.public.media?.livekit?.audio;
       const basePublishOptions: TrackPublishOptions = LIVEKIT_SETTINGS?.publishOptions || {
-        audioPreset: AudioPresets.music,
+        audioPreset: AudioPresets.musicHighQuality,
         dtx: true,
         red: true,
         forceStereo: false,

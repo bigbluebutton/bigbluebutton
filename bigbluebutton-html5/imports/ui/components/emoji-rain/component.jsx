@@ -113,7 +113,7 @@ const EmojiRain = ({ reactions }) => {
     left: 0,
     overflow: 'hidden',
     pointerEvents: 'none',
-    zIndex: 2,
+    zIndex: 6,
   };
 
   return <div ref={containerRef} style={containerStyle} data-test="emojiRain" />;
