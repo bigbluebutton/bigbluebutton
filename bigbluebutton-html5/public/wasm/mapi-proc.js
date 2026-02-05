@@ -75,9 +75,9 @@ class MapiWorkletProcessor extends AudioWorkletProcessor {
 
         // validity checks
         if (options.numberOfInputs != options.numberOfOutputs)
-            throw new Error('Mis-matching IO, number of inputs must match outputs');
+            throw Error('Mis-matching IO, number of inputs must match outputs');
         if (options.numberOfInputs != 1)
-            throw new Error('Invalid IO, must be mono');
+            throw Error('Invalid IO, must be mono');
 
         // workaround for Chromium-based browsers, return true in `process` until disconnected
         this.disconnected = false;
