@@ -1353,12 +1353,12 @@ module BigBlueButton
       layout_edl = BigBlueButton::Events.create_layout_edl(events)
       layout_edl = BigBlueButton::Events.edl_match_recording_marks_video(layout_edl, events, start_time, end_time)
 
-      layout_edl.each_with_object([]) do |entry, events|
+      layout_edl.each_with_object([]) do |entry, layout_events|
         next unless entry[:conditions] &&
                     !entry[:conditions][:screenshare_as_content].nil? &&
                     !entry[:conditions][:presentation_is_open].nil?
 
-        events << {
+        layout_events << {
           timestamp: entry[:timestamp],
           screenshareAsContent: entry[:conditions][:screenshare_as_content],
           presentationIsOpen: entry[:conditions][:presentation_is_open]
