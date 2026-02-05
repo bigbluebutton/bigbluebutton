@@ -492,8 +492,9 @@ export const getUsersPerUserListPage = () => window.meetingClientSettings?.publi
 
 export const makeUserSearchWhere = (searchQuery) => {
   const searchTerms = searchQuery ? searchQuery.trim().split(/\s+/) : [];
+  const escapeTerm = (term) => term.replace(/[\\%_]/g, '\\$&');
   return searchTerms.length > 0
-    ? { _and: searchTerms.map((term) => ({ name: { _ilike: `%${term}%` } })) }
+    ? { _and: searchTerms.map((term) => ({ name: { _ilike: `%${escapeTerm(term)}%` } })) }
     : { name: { _ilike: '%' } };
 };
 
