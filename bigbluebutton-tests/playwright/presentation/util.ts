@@ -92,6 +92,14 @@ export async function uploadMultiplePresentations(
   fileNames: string[],
   uploadTimeout = ELEMENT_WAIT_EXTRA_LONG_TIME,
 ) {
+  // Capture the initial slide state before uploading
+  const firstSlideSrc = await testPage.page.evaluate(
+    ([selector]) => {
+      const el = document.querySelector(selector) as HTMLElement | null;
+      return el?.style?.backgroundImage?.split('"')[1] ?? null;
+    },
+    [e.currentSlideImg],
+  );
   await testPage.waitAndClick(e.mediaAreaButton);
   await testPage.waitAndClick(e.managePresentations);
   await testPage.hasElement(
@@ -119,6 +127,18 @@ export async function uploadMultiplePresentations(
   await newPDFThumbnail.click();
   await testPage.waitAndClick(e.sharePresentationButton);
   await testPage.press('Escape'); // close the media sharing menu
+  // ensures current slide differs from previous slide - successful upload
+  await testPage.page.waitForFunction(
+    ([selector, previousSlideSrc]) => {
+      if (typeof selector !== 'string') return false;
+      const currentSrc = (document.querySelector(selector) as HTMLElement)?.style?.backgroundImage?.split('"')[1];
+      return currentSrc !== previousSlideSrc;
+    },
+    [e.currentSlideImg, firstSlideSrc],
+    {
+      timeout: uploadTimeout,
+    },
+  );
   await hasCurrentPresentationToastElement(testPage, { timeout: uploadTimeout });
 }
 
