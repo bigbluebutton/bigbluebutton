@@ -5,7 +5,7 @@ on:
       - Automated tests
     types:
       - completed
-      - requested
+      - in_progress
 env:
   isCompleted: ${{ github.event.workflow_run.status == 'completed' }}
   AUTO_COMMENT_MARKER: "<!-- bbb-automated-tests -->"
@@ -242,7 +242,7 @@ jobs:
               }
             }
       - name: In progress tests comment
-        if: ${{ !fromJson(env.isCompleted) }}
+        if: ${{ github.event.action == 'in_progress' }}
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ needs.get-pr-data.outputs.pr-number }}
