@@ -26,17 +26,58 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const response = await github.rest.search.issuesAndPullRequests({
-              q: 'repo:${{ github.repository }} is:pr sha:${{ github.event.workflow_run.head_sha }}',
-              per_page: 1,
+            // PR resolution strategy:
+            // 1) Use workflow_run.pull_requests payload when available.
+            // 2) If multiple PRs, disambiguate using head repo + head branch.
+            // 3) Fallback to list PRs associated with commit SHA and apply same filter.
+            // 4) If still ambiguous or empty, skip to avoid commenting on the wrong PR.
+
+            const run = context.payload.workflow_run
+            const prs = run.pull_requests || []
+            if (prs.length === 1) {
+              core.info(`Found PR from workflow_run payload: #${prs[0].number}`)
+              return prs[0].number
+            }
+            if (prs.length > 1) {
+              const headRepo = run.head_repository?.full_name
+              const headBranch = run.head_branch
+              const matched = prs.filter((p) =>
+                p.head?.ref === headBranch &&
+                p.head?.repo?.full_name === headRepo
+              )
+              core.info(`Multiple PRs in workflow_run payload: ${prs.map(p => `#${p.number}`).join(', ')}`)
+              if (matched.length === 1) {
+                core.info(`Matched PR by head repo+branch: #${matched[0].number}`)
+                return matched[0].number
+              }
+              core.info(`Unable to disambiguate PRs from payload by head repo+branch`)
+            }
+
+            core.info('Falling back to PRs associated with commit SHA')
+            const list = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: run.head_sha,
+              per_page: 100,
             })
-            const items = response.data.items
-            if (items.length < 1) {
-              console.error('No PRs found')
+            const open = list.data.filter((p) => p.state === 'open')
+            const headRepo = run.head_repository?.full_name
+            const headBranch = run.head_branch
+            const matched = open.filter((p) =>
+              p.head?.ref === headBranch &&
+              p.head?.repo?.full_name === headRepo
+            )
+            core.info(`Commit PRs: total=${list.data.length} open=${open.length} matched=${matched.length}`)
+            if (matched.length === 1) {
+              core.info(`Matched PR by commit+head repo+branch: #${matched[0].number}`)
+              return matched[0].number
+            }
+            if (matched.length === 0) {
+              core.info('No open PR matched commit+head repo+branch')
               return
             }
-            const pullRequestNumber = items[0].number
-            return pullRequestNumber
+            core.info('Multiple open PRs matched commit+head repo+branch; skipping to avoid wrong comment')
+            return
       - name: Download PR artifact
         if: ${{ fromJson(env.isCompleted) }}
         uses: actions/github-script@v7
