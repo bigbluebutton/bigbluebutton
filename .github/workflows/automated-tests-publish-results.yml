@@ -21,7 +21,6 @@ jobs:
       workflow-id: ${{ github.event.workflow_run.id || steps.set-env.outputs.workflow-id }}
     steps:
       - name: Find associated pull request
-        if: ${{ !fromJson(env.isCompleted) }}
         id: pr
         uses: actions/github-script@v7
         with:
