@@ -42,24 +42,6 @@ export interface getMeetingGroupResponse {
   }[];
 }
 
-export const getUsersSubscription = gql`
-  subscription users {
-    user(
-      where: { bot: {_eq: false } }
-      order_by: [
-        {nameSortable: asc},
-        {registeredAt: asc},
-        {userId: asc}
-      ]) {
-      meetingId
-      extId
-      userId
-      name
-      isModerator
-    }
-  }
-`;
-
 export const getBreakouts = gql`
   query getBreakouts {
     breakoutRoom {
@@ -107,7 +89,6 @@ export const getMeetingGroup = gql`
 `;
 
 export default {
-  getUsersSubscription,
   getBreakouts,
   getLastBreakouts,
   getMeetingGroup,
