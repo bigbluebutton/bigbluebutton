@@ -49,7 +49,7 @@ const GuestPanelOpener: React.FC<GuestPanelOpenerProps> = ({
   return (
     <Styled.Messages>
       <Styled.Container>
-        <Styled.SmallTitle>
+        <Styled.SmallTitle data-test="userManagementTitle">
           {intl.formatMessage(intlMessages.waitingUsersTitle)}
         </Styled.SmallTitle>
       </Styled.Container>
