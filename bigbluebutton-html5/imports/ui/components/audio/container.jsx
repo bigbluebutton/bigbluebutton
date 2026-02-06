@@ -137,7 +137,7 @@ const AudioContainer = (props) => {
 
   const audioModal = useModalRegistration({
     id: 'audioModal',
-    priority: 'medium',
+    priority: 'high',
   });
 
   const meetingIsBreakout = useMeetingIsBreakout();
@@ -195,10 +195,10 @@ const AudioContainer = (props) => {
     }
     Session.setItem('audioModalIsOpen', true);
     if (enableVideo && autoShareWebcam) {
-      openVideoPreviewModal();
       if (!currentUserHasVoice) {
         openAudioModal();
       }
+      openVideoPreviewModal();
       didMountAutoJoin = true;
     } else if (!(
       userSelectedMicrophone
@@ -294,7 +294,7 @@ const AudioContainer = (props) => {
       {audioModal.isOpen ? (
         <AudioModalContainer
           {...{
-            priority: 'medium',
+            priority: 'high',
             setIsOpen: audioModal.isOpen ? audioModal.close : audioModal.open,
             isOpen: audioModal.isOpen,
           }}
