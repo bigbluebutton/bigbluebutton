@@ -618,6 +618,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       showScreenshareQuickSwapButton: true,
       showLeaveSessionLabel: false,
     },
+    sidebarNavigation: {
+      appsToLabelAsNew: [],
+    },
     pads: {
       url: 'ETHERPAD_HOST',
     },

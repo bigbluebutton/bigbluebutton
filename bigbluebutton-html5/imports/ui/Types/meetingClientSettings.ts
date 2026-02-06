@@ -21,6 +21,7 @@ export interface Public {
   userReaction: UserReaction
   notes: Notes
   layout: Layout
+  sidebarNavigation: SidebarNavigation
   pads: Pads
   media: Media
   stats: Stats
@@ -602,6 +603,10 @@ export interface Layout {
   showParticipantsOnLogin: boolean
   showScreenshareQuickSwapButton: boolean
   showLeaveSessionLabel: boolean
+}
+
+export interface SidebarNavigation {
+  appsToLabelAsNew: string[]
 }
 
 export interface Pads {

@@ -837,6 +837,11 @@ public:
     showLeaveSessionLabel: false
     usersPerUserListPage: 50
     syncCameraDockSizeAndPosition: true
+  sidebarNavigation:
+    # Controls which apps should have the "new" label in the apps gallery.
+    # Possible values: 'poll', 'breakoutroom', 'timer', 'audio-captions'.
+    # For plugins, refer to the isNew flag in the plugin's own settings.
+    appsToLabelAsNew: []
   pads:
     url: ETHERPAD_HOST
   media:
