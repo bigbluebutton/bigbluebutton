@@ -94,7 +94,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
             min-width: 300px;
           }
           .bn-editor {
-            padding-inline: 35px 0px
+            padding-inline: 35px 25px;
           }
           /* Make the editor fill the available space so clicks below last line focus it */
           .bn-mantine,
