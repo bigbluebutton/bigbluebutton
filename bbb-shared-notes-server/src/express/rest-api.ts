@@ -2,14 +2,11 @@ import { RequestHandler } from "express";
 import hocuspocus from "../hocuspocus";
 import * as Y from "yjs";
 import { Logger } from "../common/logger";
-import { ServerBlockNoteEditor } from "@blocknote/server-util";
-import { validateInitialContentJson } from "./utils";
 import puppeteer, { Browser } from "puppeteer";
 import { exportDocumentToHtml } from "./handlers/exportDocumentToHtml";
 
 interface DocumentApi {
   get: RequestHandler;
-  post: RequestHandler;
   export: RequestHandler;
 }
 
@@ -81,55 +78,6 @@ const documentApi: DocumentApi = {
         error: 'Failed to retrieve document',
         message: error instanceof Error ? error.message : 'Unknown error'
       });
-    }
-  },
-  post: async (request, response) => {
-    const documentName = Array.isArray(request.params.documentName)
-      ? request.params.documentName[0]
-      : request.params.documentName;
-
-    const validationResult = validateInitialContentJson(request.body);
-    if (validationResult.valid) {
-      const { blocks: initialBlocks } = request.body;
-      try {
-        const connection = await hocuspocus.openDirectConnection(documentName);
-
-        const doc = connection.document;
-
-        if (!doc) {
-          await connection.disconnect();
-          return response.status(500).json({
-            success: false,
-            error: 'Failed to initialize document'
-          });
-        }
-
-        const fragment = doc.getXmlFragment("doc");
-
-        // Check if document already has content
-        if (fragment.length > 0) {
-          await connection.disconnect();
-          return response.status(409).send("Document already exists");
-        }
-
-        // Create a ServerBlockNoteEditor instance
-        const editor = ServerBlockNoteEditor.create();
-
-        // Convert blocks to Yjs XML Fragment directly in our document's fragment
-        editor.blocksToYXmlFragment(initialBlocks, fragment);
-
-        await connection.disconnect();
-
-        logger.info('Document created/loaded successfully', { documentName });
-        response.status(204).send();
-      } catch (error) {
-        logger.error('Error creating document', { error, documentName });
-        response.status(500).json({
-          success: false,
-          error: 'Failed to create document',
-          message: error instanceof Error ? error.message : 'Unknown error'
-        });
-      }
     }
   },
   export: async (request, response) => {

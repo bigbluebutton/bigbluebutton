@@ -5,8 +5,9 @@ import { sender } from './sender';
 import { config } from '../config';
 import fs from 'fs';
 import path from 'path';
-import { uploadPresentation } from './helpers/uploadPresentation';
+import { uploadPresentation } from './service/uploadPresentation';
 import { documentNamePrefix } from '../hocuspocus/utils';
+import { pushInitialContent } from './service/pushInitialContent';
 
 const logger = new Logger('redis handler');
 
@@ -130,24 +131,24 @@ const handleSharedNotesCreate = async (header: MessageHeader, body: MessageBody)
       }
     );
     try {
-      const response = await fetch(`http://127.0.0.1:8787/api/documents/${padId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(initialContentJson),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        logger.error('Failed to initialize document', {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorText,
-          padId,
+      const statusReturn = await pushInitialContent(padId, initialContentJson);
+      if (statusReturn.error) {
+        logger.error('Error found, see details', {
+          logCode: statusReturn.statusCode,
+          extraInfo: {
+            ...statusReturn,
+            padId,
+            meetingId,
+          } 
         });
       } else {
-        logger.info('Document initialized successfully', { padId });
+        logger.debug('Initial content updated', {
+          logCode: statusReturn.statusCode,
+          extraInfo: {
+            padId,
+            meetingId,
+          } 
+        });
       }
     } catch (error) {
       logger.error('Error initializing document', { error, padId });
