@@ -1041,9 +1041,17 @@ We have added support for ClamAV to automatically scan every presentation file f
 To use it you would need to first install ClamAV:
 The simplest way would be to run it locally as a container.
 
-```
-docker pull clamav/clamav`
-docker run --name "clamav" --mount type=bind,source=/var/bigbluebutton,target=/var/bigbluebutton -p 3310:3310 -p 7357:7357 clamav/clamav:latest
+```bash
+docker pull clamav/clamav:latest
+docker run --name "clamav" -d \
+  --volume /var/bigbluebutton:/var/bigbluebutton:ro \
+  --publish 127.0.0.1:3310:3310 \
+  --memory 4G \
+  --cpus 1 \
+  --user "clamav" \
+  --entrypoint "/init-unprivileged" \
+  --restart unless-stopped \
+  clamav/clamav:latest
 ```
 
 
@@ -1053,8 +1061,9 @@ Now when you check the running containers you should see an entry like this one:
 
 ```
 root@test30:~# docker ps
-CONTAINER ID   IMAGE                                                       COMMAND                  CREATED          STATUS                    PORTS                                                                                                           NAMES
-bda7f5596192   clamav/clamav:latest                                        "/init"                  21 minutes ago   Up 21 minutes (healthy)   0.0.0.0:3310->3310/tcp, :::3310->3310/tcp, 0.0.0.0:7357->7357/tcp, :::7357->7357/tcp                            clamav
+CONTAINER ID   IMAGE                  COMMAND                CREATED             STATUS                       PORTS                                NAMES
+8582c5c195aa   clamav/clamav:latest   "/init-unprivileged"   About an hour ago   Up About an hour (healthy)   127.0.0.1:3310->3310/tcp, 7357/tcp   clamav
+
 ```
 
 
