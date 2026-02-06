@@ -45,6 +45,11 @@ runs:
         fi
 
         pr_dir="reports-repo/pr-$PR_NUMBER"
+        if [ -d "$pr_dir" ]; then
+          commit_action="Update"
+        else
+          commit_action="Add"
+        fi
         dest_dir="$pr_dir/$WORKFLOW_ID"
         rm -rf "$pr_dir"
         mkdir -p "$dest_dir"
@@ -54,7 +59,7 @@ runs:
         git -C reports-repo config user.email "github-actions[bot]@users.noreply.github.com"
         if [ -n "$(git -C reports-repo status --porcelain)" ]; then
           git -C reports-repo add .
-          git -C reports-repo commit -m "Add Playwright report for PR #$PR_NUMBER"
+          git -C reports-repo commit -m "$commit_action Playwright report for PR #$PR_NUMBER - workflow $WORKFLOW_ID"
           git -C reports-repo push
         else
           echo "No changes to publish"
