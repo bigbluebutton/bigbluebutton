@@ -4,6 +4,7 @@ import * as Y from "yjs";
 import { Logger } from "../common/logger";
 import puppeteer, { Browser } from "puppeteer";
 import { exportDocumentToHtml } from "./handlers/exportDocumentToHtml";
+import { exportDocumentToMarkdown } from "./handlers/exportDocumentToMarkdown";
 
 interface DocumentApi {
   get: RequestHandler;
@@ -162,6 +163,17 @@ const documentApi: DocumentApi = {
 
           // Send plain text
           response.send(plainText);
+          break;
+        case 'md':
+          const markdownContent = await exportDocumentToMarkdown(documentName);
+
+          response.setHeader('Content-Type', 'text/plain; charset=utf-8');
+          response.setHeader('Content-Disposition', `attachment; filename="${documentName}.md"`);
+
+          logger.info('Markdown exported successfully', { documentName });
+
+          // Send plain text
+          response.send(markdownContent);
           break;
         default:
           logger.error(
