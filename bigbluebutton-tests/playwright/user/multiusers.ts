@@ -400,6 +400,10 @@ export class MultiUsers {
       e.wbToolbar,
       'should not display the whiteboard toolbar for the attendee after being removed access',
     );
+
+    // Wait a moment to ensure the grant toast is gone and the removal toast is visible
+    await this.userPage.page.waitForTimeout(2000);
+
     await this.userPage.hasText(
       e.smallToastMsg,
       e.whiteboardDisabledToast,
