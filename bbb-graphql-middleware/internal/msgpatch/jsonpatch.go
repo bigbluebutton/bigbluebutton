@@ -23,6 +23,7 @@ func GetPatchedMessage(
 	cacheKey uint64,
 	lastDataChecksum uint32,
 	currDataChecksum uint32,
+	meetingId string,
 ) []byte {
 	if lastDataChecksum != 0 {
 		common.JsonPatchBenchmarkingStarted(strconv.FormatUint(cacheKey, 10))
@@ -31,7 +32,7 @@ func GetPatchedMessage(
 
 	// Lock to avoid other routines from processing the same message
 	common.GlobalCacheLocks.Lock(cacheKey)
-	if patchedMessageCache, patchedMessageCacheExists := common.GetPatchedMessageCache(cacheKey); patchedMessageCacheExists {
+	if patchedMessageCache, patchedMessageCacheExists := common.GetPatchedMessageCache(meetingId, cacheKey); patchedMessageCacheExists {
 		// Unlock immediately once the cache was already created by other routine
 		common.GlobalCacheLocks.Unlock(cacheKey)
 		return patchedMessageCache
@@ -46,7 +47,7 @@ func GetPatchedMessage(
 		// Content didn't change, set message as null to avoid sending it to the browser
 		// This case is usual when the middleware reconnects with Hasura and receives the data again
 		jsonData, _ := json.Marshal(nil)
-		common.StorePatchedMessageCache(cacheKey, jsonData)
+		common.StorePatchedMessageCache(meetingId, cacheKey, jsonData)
 		return jsonData
 	} else {
 		// Content was changed, creating json patch
@@ -58,7 +59,7 @@ func GetPatchedMessage(
 					lastHasuraMessage.Payload.Data[dataKey],
 					hasuraMessage.Payload.Data[dataKey],
 					"userId"); shouldUseCustomJsonPatch {
-					common.StorePatchedMessageCache(cacheKey, jsonDiffPatch)
+					common.StorePatchedMessageCache(meetingId, cacheKey, jsonDiffPatch)
 				} else if diffPatch, diffPatchErr := jsonpatch.CreatePatch(lastHasuraMessage.Payload.Data[dataKey], hasuraMessage.Payload.Data[dataKey]); diffPatchErr == nil {
 					var err error
 					if jsonDiffPatch, err = json.Marshal(diffPatch); err != nil {
@@ -84,6 +85,6 @@ func GetPatchedMessage(
 		receivedMessage = hasuraMessageJson
 	}
 
-	common.StorePatchedMessageCache(cacheKey, receivedMessage)
+	common.StorePatchedMessageCache(meetingId, cacheKey, receivedMessage)
 	return receivedMessage
 }
