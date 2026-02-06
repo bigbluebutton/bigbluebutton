@@ -187,6 +187,7 @@ jobs:
           reports-repo: ${{ github.repository_owner }}/bbb-ci-playwright-reports
           token: ${{ secrets.PLAYWRIGHT_REPORTS_REPO_TOKEN }}
           pr-number: ${{ needs.get-pr-data.outputs.pr-number }}
+          workflow-id: ${{ needs.get-pr-data.outputs.workflow-id }}
           report-path: ${{ env.REPORT_PATH }}
   comment-pr:
     runs-on: ubuntu-latest
@@ -266,7 +267,7 @@ jobs:
             ${{ env.AUTO_COMMENT_MARKER }}
             <h2><strong>:rotating_light:</strong> Automated tests failed</h2>
 
-            - [Test results](https://bigbluebutton.github.io/bbb-ci-playwright-reports/pr-${{ needs.get-pr-data.outputs.pr-number }})
+            - [Test results](https://bigbluebutton.github.io/bbb-ci-playwright-reports/pr-${{ needs.get-pr-data.outputs.pr-number }}/${{ needs.get-pr-data.outputs.workflow-id }})
             - [Github workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ needs.get-pr-data.outputs.workflow-id }})
       - name: Failing tests comment (without report)
         if: ${{ github.event.workflow_run.conclusion == 'failure' && fromJson(env.isCompleted) && !fromJson(steps.check-reports.outputs.result || 'false') }}
