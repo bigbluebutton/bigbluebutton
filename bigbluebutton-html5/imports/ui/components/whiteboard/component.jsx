@@ -264,10 +264,9 @@ const Whiteboard = React.memo((props) => {
       if (tools.deleteAll) {
         toolbarItems.splice(7, 0, toolbarItem(tools.deleteAll));
       }
-      const hasRestrictions =
-      bbbMultiUserPenOnly ||
-      (Array.isArray(bbbPresenterTools) && bbbPresenterTools.length > 0) ||
-      (Array.isArray(bbbMultiUserTools) && bbbMultiUserTools.length > 0);
+      const hasRestrictions = bbbMultiUserPenOnly
+      || (Array.isArray(bbbPresenterTools) && bbbPresenterTools.length > 0)
+      || (Array.isArray(bbbMultiUserTools) && bbbMultiUserTools.length > 0);
       const shouldBypassFiltering = isTestEnv && !hasRestrictions;
 
       if (shouldBypassFiltering) {
@@ -344,32 +343,28 @@ const Whiteboard = React.memo((props) => {
 
   const debouncedSetInitialZoom = debounce(() => {
     if (
-      currentPresentationPageRef.current &&
-      currentPresentationPageRef.current.scaledWidth > 0 &&
-      currentPresentationPageRef.current.scaledHeight > 0 &&
-      presentationAreaWidth > 0 &&
-      presentationAreaHeight > 0
+      currentPresentationPageRef.current
+      && currentPresentationPageRef.current.scaledWidth > 0
+      && currentPresentationPageRef.current.scaledHeight > 0
+      && presentationAreaWidth > 0
+      && presentationAreaHeight > 0
     ) {
-      const slideAspectRatio =
-        currentPresentationPageRef.current.scaledWidth /
-        currentPresentationPageRef.current.scaledHeight;
+      const slideAspectRatio = currentPresentationPageRef.current.scaledWidth
+        / currentPresentationPageRef.current.scaledHeight;
 
-      const presentationAreaAspectRatio =
-        presentationAreaWidth / presentationAreaHeight;
+      const presentationAreaAspectRatio = presentationAreaWidth / presentationAreaHeight;
 
       let initialZoom;
 
       if (
-        slideAspectRatio > presentationAreaAspectRatio ||
-        (fitToWidthRef.current && isPresenterRef.current)
+        slideAspectRatio > presentationAreaAspectRatio
+        || (fitToWidthRef.current && isPresenterRef.current)
       ) {
-        initialZoom =
-          presentationAreaWidth /
-          currentPresentationPageRef.current.scaledWidth;
+        initialZoom = presentationAreaWidth
+          / currentPresentationPageRef.current.scaledWidth;
       } else {
-        initialZoom =
-          presentationAreaHeight /
-          currentPresentationPageRef.current.scaledHeight;
+        initialZoom = presentationAreaHeight
+          / currentPresentationPageRef.current.scaledHeight;
       }
 
       initialZoomRef.current = initialZoom;
@@ -790,8 +785,8 @@ const Whiteboard = React.memo((props) => {
         '+': handleKeybindZoom.bind(null, 'zoomIn'),
         '-': handleKeybindZoom.bind(null, 'zoomOut'),
         '=': handleKeybindZoom.bind(null, 'zoomIn'),
-        'add': handleKeybindZoom.bind(null, 'zoomIn'),
-        'subtract': handleKeybindZoom.bind(null, 'zoomOut'),
+        add: handleKeybindZoom.bind(null, 'zoomIn'),
+        subtract: handleKeybindZoom.bind(null, 'zoomOut'),
       };
 
       if (ctrlKeyMap[key]) {
@@ -1348,7 +1343,7 @@ const Whiteboard = React.memo((props) => {
               currentPresentationPageRef.current?.scaledHeight,
             );
             const tlCamPercent = Math.round(
-              (nextCam.z / (initialZoomRef.current || 1)) * 100
+              (nextCam.z / (initialZoomRef.current || 1)) * 100,
             );
 
             if (tlCamPercent !== zoomValueRef.current) {
@@ -1364,9 +1359,9 @@ const Whiteboard = React.memo((props) => {
             }
 
             if (
-              tlCamPercent === zoomValueRef.current &&
-              (!hasZoomSyncedRef.current || (hasZoomSyncedRef.current && panned)) &&
-              isMountedRef.current
+              tlCamPercent === zoomValueRef.current
+              && (!hasZoomSyncedRef.current || (hasZoomSyncedRef.current && panned))
+              && isMountedRef.current
             ) {
               hasZoomSyncedRef.current = true;
 
@@ -1668,7 +1663,7 @@ const Whiteboard = React.memo((props) => {
         + (viewportHeight - slideShape.props.h * zoomCamera) / (2 * zoomCamera);
 
       // use stored values if slide has just changed and zoom is not default
-      if(camera.x === 0 && camera.y === 0 && zoomValueRef.current !== HUNDRED_PERCENT) {
+      if (camera.x === 0 && camera.y === 0 && zoomValueRef.current !== HUNDRED_PERCENT) {
         newCamera = {
           x: currentPresentationPageRef.current.xOffset,
           y: currentPresentationPageRef.current.yOffset,
@@ -2095,8 +2090,7 @@ const Whiteboard = React.memo((props) => {
   }, [tlEditorRef?.current?.camera, presentationAreaWidth, presentationAreaHeight, presentationId]);
 
   React.useEffect(() => {
-    const baseName =
-      window.meetingClientSettings.public.app.cdn
+    const baseName = window.meetingClientSettings.public.app.cdn
       + window.meetingClientSettings.public.app.basename;
     const makeCursorUrl = (filename) => `${baseName}/resources/images/whiteboard-cursor/${filename}`;
 
@@ -2113,16 +2107,14 @@ const Whiteboard = React.memo((props) => {
     setCursorType(newCursor);
   }, [tlEditorRef.current?.getCurrentToolId()]);
 
-  const getToolbarCurrentState = useCallback(() => {
-    return {
-      colorStyle: tlEditorRef.current?.getInstanceState().stylesForNextShape[DefaultColorStyle.id],
-      dashStyle: tlEditorRef.current?.getInstanceState().stylesForNextShape[DefaultDashStyle.id],
-      fillStyle: tlEditorRef.current?.getInstanceState().stylesForNextShape[DefaultFillStyle.id],
-      fontStyle: tlEditorRef.current?.getInstanceState().stylesForNextShape[DefaultFontStyle.id],
-      sizeStyle: tlEditorRef.current?.getInstanceState().stylesForNextShape[DefaultSizeStyle.id],
-      selectedTool: tlEditorRef.current?.getCurrentToolId(),
-    };
-  }, [
+  const getToolbarCurrentState = useCallback(() => ({
+    colorStyle: tlEditorRef.current?.getInstanceState().stylesForNextShape[DefaultColorStyle.id],
+    dashStyle: tlEditorRef.current?.getInstanceState().stylesForNextShape[DefaultDashStyle.id],
+    fillStyle: tlEditorRef.current?.getInstanceState().stylesForNextShape[DefaultFillStyle.id],
+    fontStyle: tlEditorRef.current?.getInstanceState().stylesForNextShape[DefaultFontStyle.id],
+    sizeStyle: tlEditorRef.current?.getInstanceState().stylesForNextShape[DefaultSizeStyle.id],
+    selectedTool: tlEditorRef.current?.getCurrentToolId(),
+  }), [
     tlEditorRef.current?.getInstanceState().stylesForNextShape,
     tlEditorRef.current?.getCurrentToolId(),
   ]);
@@ -2150,14 +2142,14 @@ const Whiteboard = React.memo((props) => {
         autoFocus={false}
         key={`tldrawv2-${presentationId}-${animations}`}
         forceMobile
-        hideUi={!(hasWBAccessRef.current || isPresenter)}
+        hideUi={!(hasWBAccess || isPresenter)}
         onMount={handleTldrawMount}
         tools={customTools}
         overrides={customUiOverrides}
       />
       <Styled.TldrawV2GlobalStyle
         {...{
-          hasWBAccess: hasWBAccessRef.current,
+          hasWBAccess,
           bgSelected: bgSelectedRef.current,
           isPresenter,
           isRTL,
