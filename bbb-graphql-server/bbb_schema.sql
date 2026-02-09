@@ -1609,6 +1609,7 @@ SELECT pres_presentation."meetingId",
         select array_agg("nextPages"."urlsJson"->>'svg')
         from pres_page "nextPages"
         where "nextPages"."presentationId" = pres_page."presentationId"
+        and "nextPages"."slideRevealed" = true
         and "nextPages".num > pres_page."num"
         and "nextPages".num <= pres_page."num" + pres_presentation."preloadNextPages"
     ) "nextPagesSvg"

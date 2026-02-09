@@ -11,6 +11,10 @@ class UrlMappings {
       action = [GET: 'checkPresentationBeforeUploading']
     }
 
+    "/bigbluebutton/presentation/checkAuthorization"(controller: "presentation") {
+      action = [GET: 'checkPresentationAuthorization']
+    }
+
     "/bigbluebutton/presentation/test-convert"(controller: "presentation") {
       action = [GET: 'testConversion']
     }

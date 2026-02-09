@@ -23,6 +23,7 @@ import org.apache.commons.io.FilenameUtils
 import org.bigbluebutton.api.MeetingService
 import org.bigbluebutton.api.ParamsProcessorUtil
 import org.bigbluebutton.api.Util
+import org.bigbluebutton.api.domain.UserSession
 import org.bigbluebutton.api.messaging.messages.PresentationUploadToken
 import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.presentation.SupportedFileTypes
@@ -30,7 +31,10 @@ import org.bigbluebutton.presentation.UploadedPresentation
 import org.bigbluebutton.web.services.PresentationService
 import org.grails.web.mime.DefaultMimeUtility
 
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
 import java.nio.charset.StandardCharsets
+import java.util.regex.Pattern
 
 class PresentationController {
   MeetingService meetingService
@@ -38,8 +42,132 @@ class PresentationController {
   ParamsProcessorUtil paramsProcessorUtil
   DefaultMimeUtility grailsMimeUtility
 
+  private static final Pattern SLIDE_URI_PATTERN = Pattern.compile(
+    '/bigbluebutton/presentation/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/(svg|thumbnail|textfiles|png)/(\\d+)'
+  )
+  private static final Pattern DOWNLOAD_URI_PATTERN = Pattern.compile(
+    '/bigbluebutton/presentation/download/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)'
+  )
+  private static final Pattern PDF_URI_PATTERN = Pattern.compile(
+    '/bigbluebutton/presentation/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/pdf/([A-Za-z0-9]+)/annotated_slides\\.pdf'
+  )
+
   def index = {
     render(view: 'upload-file')
+  }
+
+  def checkPresentationAuthorization = {
+    try {
+      def uri = request.getHeader("x-original-uri")
+      if (uri == null) {
+        response.setStatus(401)
+        response.addHeader("Cache-Control", "no-cache")
+        response.contentType = 'plain/text'
+        response.outputStream << 'unauthorized'
+        return
+      }
+
+      def sessionToken = ParamsUtil.getSessionToken(uri)
+      UserSession userSession = meetingService.getUserSessionWithSessionToken(sessionToken)
+      Boolean allowRequestsWithoutSession = meetingService.getAllowRequestsWithoutSession(sessionToken)
+      Boolean isSessionTokenInvalid = !session[sessionToken] && !allowRequestsWithoutSession
+
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'plain/text'
+
+      if (userSession == null || isSessionTokenInvalid) {
+        response.setStatus(401)
+        response.outputStream << 'unauthorized'
+        return
+      }
+
+      def uriPath = uri.split('\\?')[0]
+
+      def slideMatcher = SLIDE_URI_PATTERN.matcher(uriPath)
+      if (slideMatcher.matches()) {
+        def meetingIdFromUri = slideMatcher.group(2)
+        if (meetingIdFromUri != userSession.meetingID) {
+          response.setStatus(403)
+          response.outputStream << 'forbidden'
+          return
+        }
+
+        def presToken = extractQueryParam(uri, "presToken")
+        if (presentationService.presTokenSecret) {
+          def presId = slideMatcher.group(3)
+          def pageNum = slideMatcher.group(5)
+          def expectedToken = generatePresToken(presId, Integer.parseInt(pageNum), presentationService.presTokenSecret)
+          if (presToken == null || presToken != expectedToken) {
+            response.setStatus(403)
+            response.outputStream << 'invalid-token'
+            return
+          }
+        }
+
+        response.setStatus(200)
+        response.outputStream << 'authorized'
+        return
+      }
+
+      def downloadMatcher = DOWNLOAD_URI_PATTERN.matcher(uriPath)
+      if (downloadMatcher.matches()) {
+        def meetingIdFromUri = downloadMatcher.group(1)
+        if (meetingIdFromUri != userSession.meetingID) {
+          response.setStatus(403)
+          response.outputStream << 'forbidden'
+          return
+        }
+
+        response.setStatus(200)
+        response.outputStream << 'authorized'
+        return
+      }
+
+      def pdfMatcher = PDF_URI_PATTERN.matcher(uriPath)
+      if (pdfMatcher.matches()) {
+        def meetingIdFromUri = pdfMatcher.group(2)
+        if (meetingIdFromUri != userSession.meetingID) {
+          response.setStatus(403)
+          response.outputStream << 'forbidden'
+          return
+        }
+
+        response.setStatus(200)
+        response.outputStream << 'authorized'
+        return
+      }
+
+      response.setStatus(403)
+      response.outputStream << 'forbidden'
+    } catch (Exception e) {
+      log.error("Error in checkPresentationAuthorization.\n" + e.getMessage())
+      response.setStatus(401)
+      response.contentType = 'plain/text'
+      response.outputStream << 'unauthorized'
+    }
+  }
+
+  private static String extractQueryParam(String uri, String paramName) {
+    def queryStart = uri.indexOf('?')
+    if (queryStart < 0) return null
+    def query = uri.substring(queryStart + 1)
+    def pairs = query.split('&')
+    for (pair in pairs) {
+      def eqIdx = pair.indexOf('=')
+      if (eqIdx > 0) {
+        def key = URLDecoder.decode(pair.substring(0, eqIdx), StandardCharsets.UTF_8.name())
+        if (key == paramName) {
+          return URLDecoder.decode(pair.substring(eqIdx + 1), StandardCharsets.UTF_8.name())
+        }
+      }
+    }
+    return null
+  }
+
+  private static String generatePresToken(String presId, int page, String secret) {
+    Mac mac = Mac.getInstance("HmacSHA256")
+    mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"))
+    return mac.doFinal("${presId}|${page}".getBytes(StandardCharsets.UTF_8)).collect { String.format('%02x', it) }.join()
   }
 
   def checkPresentationBeforeUploading = {
@@ -229,7 +357,6 @@ class PresentationController {
 
   //handle external presentation server 
   def delegate = {
-
     def presentation_name = request.getParameter('presentation_name')
     def conference = request.getParameter('conference')
     def room = request.getParameter('room')
