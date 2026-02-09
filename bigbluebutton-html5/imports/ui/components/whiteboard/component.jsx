@@ -1388,6 +1388,7 @@ const Whiteboard = React.memo((props) => {
           || path === 'draw.idle'
           || path === 'select.editing_shape'
           || path === 'highlight.idle'
+          || path === 'eraser.idle'
         ) {
           if (Object.keys(shapeBatchRef.current).length > 0) {
             const shapesToPersist = Object.values(shapeBatchRef.current);
