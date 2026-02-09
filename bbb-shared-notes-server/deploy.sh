@@ -13,6 +13,7 @@ node -v
 sudo mkdir -p /usr/share/bbb-shared-notes-server
 sudo mkdir -p /usr/share/bbb-shared-notes-server/config
 sudo mkdir -p /usr/share/bigbluebutton/nginx
+sudo mkdir -p /usr/share/bbb-conversion-shared-notes
 
 # Build shared-notes-server
 npm ci --no-progress
@@ -25,6 +26,10 @@ sudo cp package.json /usr/share/bbb-shared-notes-server
 sudo cp package-lock.json /usr/share/bbb-shared-notes-server
 sudo cp src/config/settings.json /usr/share/bbb-shared-notes-server/config
 sudo cp -r node_modules /usr/share/bbb-shared-notes-server
+
+# Copy HTML to PDF conversion script
+sudo cp convert-html-to-pdf.sh /usr/share/bbb-conversion-shared-notes/convert.sh
+sudo chmod +x /usr/share/bbb-conversion-shared-notes/convert.sh
 
 # Set nginx location
 sudo cp ../build/packages-template/bbb-shared-notes-server/bbb-shared-notes-server.nginx /usr/share/bigbluebutton/nginx

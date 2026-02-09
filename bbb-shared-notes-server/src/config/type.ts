@@ -41,6 +41,7 @@ export interface PostgresConfig {
 
 export interface Shared {
   tmpDirectory: string
+  conversionScriptPath: string
 }
 
 export interface RateLimit {

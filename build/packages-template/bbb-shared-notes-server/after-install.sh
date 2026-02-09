@@ -19,6 +19,27 @@ case "$1" in
 
 runuser -u postgres -- psql -U postgres -d blocknote_app -q -f /usr/share/bbb-shared-notes-server/blocknote_schema.sql --set ON_ERROR_STOP=on
 
+  # Setup Docker image for HTML to PDF conversion
+  if which docker > /dev/null; then
+    echo "#"
+    echo "# Pulling zenika/alpine-chrome docker image for PDF conversion"
+    echo "#"
+    docker pull zenika/alpine-chrome || echo "Warning: Failed to pull zenika/alpine-chrome image"
+
+    # Configure sudoers to allow bigbluebutton user to run docker without password
+    # for the specific HTML to PDF conversion command
+    echo "Configuring sudoers for HTML to PDF conversion..."
+    cat > /etc/sudoers.d/zzz-bbb-docker-chrome <<'SUDOERS_EOF'
+bigbluebutton ALL=(ALL) NOPASSWD: /usr/bin/docker run --rm --memory=1g --memory-swap=1g --network none --user=[0-9][0-9][0-9][0-9][0-9] -v /tmp/bbb-chrome-bigbluebutton/tmp.[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]/:/workspace/ --security-opt seccomp=unconfined zenika/alpine-chrome --headless=new --no-pdf-header-footer --run-all-compositor-stages-before-draw --disable-dev-shm-usage --no-sandbox --disable-setuid-sandbox --no-first-run --no-default-browser-check --disable-breakpad --disable-gpu --disable-software-rasterizer --disable-extensions --blink-settings=imagesEnabled=false --print-to-pdf=/workspace/output.pdf file:///workspace/input.html
+SUDOERS_EOF
+    chmod 440 /etc/sudoers.d/zzz-bbb-docker-chrome
+
+    # Ensure conversion script is executable
+    chmod +x /usr/share/bbb-conversion-shared-notes/convert.sh
+  else
+    echo "Warning: Docker not found. HTML to PDF conversion will not work."
+  fi
+
   if [ ! -f /.dockerenv ]; then
     systemctl enable bbb-shared-notes-server.service
     systemctl daemon-reload

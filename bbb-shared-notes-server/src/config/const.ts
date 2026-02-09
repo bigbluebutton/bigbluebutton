@@ -11,6 +11,7 @@ const  DEFAULT_SETTINGS: AppSettings = {
   },
   shared: {
     tmpDirectory: '/tmp/pres-ann-dropbox',
+    conversionScriptPath: '/usr/share/bbb-conversion-shared-notes/convert.sh'
   },
   bbbWeb: {
     host: '127.0.0.1',

@@ -46,7 +46,6 @@
     "express-ws": "^5.0.2",
     "form-data": "^4.0.5",
     "pg": "^8.18.0",
-    "puppeteer": "^24.36.1",
     "express-rate-limit": "^8.1.0",
     "redis": "^5.10.0",
     "yjs": "^13.6.23"

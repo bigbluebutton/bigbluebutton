@@ -2,9 +2,9 @@ import { RequestHandler } from "express";
 import hocuspocus from "../hocuspocus";
 import * as Y from "yjs";
 import { Logger } from "../common/logger";
-import puppeteer, { Browser } from "puppeteer";
 import { exportDocumentToHtml } from "./handlers/exportDocumentToHtml";
 import { exportDocumentToMarkdown } from "./handlers/exportDocumentToMarkdown";
+import { exportHtmlToPdf } from "./handlers/exportDocumentToPdf";
 
 interface DocumentApi {
   get: RequestHandler;
@@ -12,20 +12,6 @@ interface DocumentApi {
 }
 
 const logger = new Logger('express-rest-api');
-
-// Singleton browser instance for PDF generation (reused across requests)
-let browserInstance: Browser | null = null;
-
-async function getBrowser(): Promise<Browser> {
-  if (!browserInstance || !browserInstance.isConnected()) {
-    logger.info('Launching new browser instance');
-    browserInstance = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-  }
-  return browserInstance;
-}
 
 const documentApi: DocumentApi = {
   get: async (request, response) => {
@@ -103,38 +89,26 @@ const documentApi: DocumentApi = {
           response.send(fullHtml);
           break;
         case 'pdf':
-          // Puppeteer implementation with browser reuse (optimal solution)
-          const browser = await getBrowser();
-          const page = await browser.newPage();
+          const pdfBuffer = await exportHtmlToPdf(fullHtml, {
+            format: 'A4',
+            printBackground: true,
+            margin: {
+              top: '20mm',
+              right: '20mm',
+              bottom: '20mm',
+              left: '20mm'
+            }
+          });
 
-          try {
-            await page.setContent(fullHtml, { waitUntil: 'networkidle0' });
+          logger.info('PDF generated successfully', { documentName });
 
-            // Generate PDF buffer
-            const pdfBuffer = await page.pdf({
-              format: 'A4',
-              printBackground: true,
-              margin: {
-                top: '20mm',
-                right: '20mm',
-                bottom: '20mm',
-                left: '20mm'
-              }
-            });
+          // Set response headers
+          response.setHeader('Content-Type', 'application/pdf');
+          response.setHeader('Content-Disposition', `attachment; filename="${documentName}.pdf"`);
+          response.setHeader('Content-Length', pdfBuffer.length);
 
-            logger.info('PDF generated successfully', { documentName });
-
-            // Set response headers
-            response.setHeader('Content-Type', 'application/pdf');
-            response.setHeader('Content-Disposition', `attachment; filename="${documentName}.pdf"`);
-            response.setHeader('Content-Length', pdfBuffer.length);
-
-            // Send PDF
-            response.send(pdfBuffer);
-          } finally {
-            // Close the page, but keep the browser running for reuse
-            await page.close();
-          }
+          // Send PDF
+          response.send(pdfBuffer);
           break;
         case 'txt':
           // Strip HTML tags to get plain text (emojis are preserved as Unicode characters)
@@ -186,7 +160,7 @@ const documentApi: DocumentApi = {
       }
     } catch (error) {
       if (error && typeof error === 'object' && 'message' in error) {
-        if (error.message  === 'document_not_found'){
+        if (error.message  === 'document_not_found') {
           return response.status(404).json({
             success: false,
             error: 'Document not found'
@@ -197,10 +171,17 @@ const documentApi: DocumentApi = {
             success: false,
             error: 'Document is empty'
           });
+        } else {
+          logger.error('Error generating PDF', { error: error.message, documentName });
+          return response.status(500).json({
+            success: false,
+            error: 'Failed to generate PDF',
+            message: error.message
+          });
         }
       }
       logger.error('Error generating PDF', { error, documentName });
-      response.status(500).json({
+      return response.status(500).json({
         success: false,
         error: 'Failed to generate PDF',
         message: error instanceof Error ? error.message : 'Unknown error'

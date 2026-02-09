@@ -15,7 +15,7 @@ rm -rf staging
 # package
 
 # Create directory for fpm to process
-DIRS="/usr/share/bbb-shared-notes-server /usr/share/bbb-shared-notes-server/config /usr/share/bigbluebutton/nginx"
+DIRS="/usr/share/bbb-shared-notes-server /usr/share/bbb-shared-notes-server/config /usr/share/bigbluebutton/nginx /usr/share/bbb-conversion-shared-notes"
 for dir in $DIRS; do
   mkdir -p staging$dir
   DIRECTORIES="$DIRECTORIES --directories $dir"
@@ -41,6 +41,10 @@ cp package-lock.json staging/usr/share/bbb-shared-notes-server
 cp src/config/settings.json staging/usr/share/bbb-shared-notes-server/config
 cp -r node_modules staging/usr/share/bbb-shared-notes-server
 
+# Copy HTML to PDF conversion script
+cp convert-html-to-pdf.sh staging/usr/share/bbb-conversion-shared-notes/convert.sh
+chmod +x staging/usr/share/bbb-conversion-shared-notes/convert.sh
+
 # Setup service
 mkdir -p staging/usr/lib/systemd/system
 cp bbb-shared-notes-server.service staging/usr/lib/systemd/system
@@ -54,6 +58,7 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --after-install after-install.sh \
     --before-install before-install.sh \
     --before-remove before-remove.sh \
+    --after-remove after-remove.sh \
     --description "BigBlueButton Shared Notes Server" \
     $DIRECTORIES \
     $OPTS \
