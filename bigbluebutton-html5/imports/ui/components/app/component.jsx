@@ -336,7 +336,6 @@ class App extends Component {
       isNotificationEnabled,
       isNonMediaLayout,
       isRaiseHandEnabled,
-      currentUserHasVoice,
     } = this.props;
 
     const {
@@ -408,7 +407,7 @@ class App extends Component {
           <UploaderContainer />
           <BreakoutJoinConfirmationContainerGraphQL />
           <BBBLiveKitRoomContainer />
-          <AudioContainer currentUserHasVoice={currentUserHasVoice} />
+          <AudioContainer />
           { (
             !hideNotificationToasts
             && isNotificationEnabled) && <ToastContainer rtl /> }

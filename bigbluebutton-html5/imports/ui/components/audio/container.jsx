@@ -112,7 +112,6 @@ const AudioContainer = (props) => {
   const {
     intl,
     userLocks,
-    currentUserHasVoice,
   } = props;
 
   const APP_CONFIG = window.meetingClientSettings.public.app;
@@ -154,6 +153,7 @@ const AudioContainer = (props) => {
     name: u.name,
     speechLocale: u.speechLocale,
     breakoutRoomsSummary: u.breakoutRoomsSummary,
+    hasVoice: !!u.voice,
   }));
 
   const hasBreakoutRooms = (currentUser?.breakoutRoomsSummary?.totalOfBreakoutRooms ?? 0) > 0;
@@ -196,7 +196,7 @@ const AudioContainer = (props) => {
     Session.setItem('audioModalIsOpen', true);
     if (enableVideo && autoShareWebcam) {
       openVideoPreviewModal();
-      if (!currentUserHasVoice) {
+      if (!currentUser?.hasVoice) {
         openAudioModal();
       }
       didMountAutoJoin = true;
@@ -204,7 +204,7 @@ const AudioContainer = (props) => {
       userSelectedMicrophone
       && userSelectedListenOnly
       && meetingIsBreakout)) {
-      if (!currentUserHasVoice) {
+      if (!currentUser?.hasVoice) {
         openAudioModal();
       }
       didMountAutoJoin = true;
@@ -244,7 +244,7 @@ const AudioContainer = (props) => {
     if (meetingIsBreakout === undefined) return;
     init().then(() => {
       // Skip auto join audio if user has already joined in another tab (currentUserHasVoice)
-      if (meetingIsBreakout && !Service.isUsingAudio() && !currentUserHasVoice) {
+      if (meetingIsBreakout && !Service.isUsingAudio() && !currentUser?.hasVoice) {
         joinAudio();
       }
     });
@@ -325,5 +325,4 @@ AudioContainer.propTypes = {
   userLocks: PropTypes.shape({
     userMic: PropTypes.bool.isRequired,
   }).isRequired,
-  currentUserHasVoice: PropTypes.bool,
 };
