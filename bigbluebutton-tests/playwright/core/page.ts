@@ -391,8 +391,15 @@ export class Page {
     description: string,
     timeout: number = ELEMENT_WAIT_TIME,
   ): Promise<void> {
-    const locator = this.page.locator(selector).first();
-    await expect(locator, description).toContainText(text, { timeout });
+    const isToast = /toast/i.test(selector);
+    // for toast elements, check for visibility with hasText option (can't guarantee text is in the first toast)
+    if (isToast && (typeof text === 'string' || text instanceof RegExp)) {
+      const locator = this.page.locator(selector, { hasText: text });
+      await expect(locator.first(), description).toBeVisible({ timeout });
+    } else {
+      const locator = this.page.locator(selector).first();
+      await expect(locator, description).toContainText(text, { timeout });
+    }
   }
 
   async haveTitle(title: string): Promise<void> {

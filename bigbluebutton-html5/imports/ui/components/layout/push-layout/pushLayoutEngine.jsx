@@ -32,8 +32,6 @@ import { calculatePresentationVideoRate } from './service';
 import { useMeetingLayoutUpdater, usePushLayoutUpdater } from './hooks';
 import { setEnforcedLayout } from '/imports/ui/components/plugins-engine/ui-commands/layout/handler';
 import { useIsChatEnabled } from '/imports/ui/services/features';
-import Auth from '/imports/ui/services/auth';
-import Storage from '/imports/ui/services/storage/session';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 
 const equalDouble = (n1, n2) => {
@@ -387,6 +385,7 @@ const PushLayoutEngineContainer = (props) => {
   const applicationSettings = useSettings(SETTINGS.APPLICATION);
   const {
     selectedLayout,
+    pushLayout: pushLayoutSetting,
   } = applicationSettings;
 
   const isPushLayoutEnabled = isKeepPushingLayoutEnabled();
@@ -406,8 +405,7 @@ const PushLayoutEngineContainer = (props) => {
 
     if (!isPushLayoutEnabled) return false;
 
-    const storageKey = `keepPushingLayout_${Auth.meetingID}`;
-    return Storage.getItem(storageKey) === true;
+    return pushLayoutSetting;
   };
 
   const {
