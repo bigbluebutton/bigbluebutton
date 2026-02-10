@@ -29,7 +29,6 @@ import java.util.concurrent.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
@@ -370,31 +369,64 @@ public class MeetingService implements MessageListener {
       : Collections.unmodifiableCollection(sessions.values());
   }
 
-  public Map<String, Object> requestSharedNotesInitialContent(Meeting m) {
-    Map<String, Object> initialContent = new HashMap<>();
+  public Map<String, Object> getSharedNotesInitialContent(Meeting m) {
+    Map<String, Object> initialContent;
     String sharedNotesInitialContentJsonUrl = m.getSharedNotesInitialContentJsonUrl();
+    String sharedNotesInitialContentJsonBase64 = m.getSharedNotesInitialContentJsonBase64();
+
     if (!sharedNotesInitialContentJsonUrl.isEmpty()) {
+      initialContent = requestSharedNotesInitialContentFromUrl(sharedNotesInitialContentJsonUrl);
+    } else {
+      initialContent = decodeSharedNotesInitialContentBase64(sharedNotesInitialContentJsonBase64);
+    }
+
+    return initialContent;
+  }
+
+  public Map<String, Object> requestSharedNotesInitialContentFromUrl(String initialContentJsonUrl) {
+
+    Map<String, Object> initialContent = new HashMap<>();
+    if (!initialContentJsonUrl.isEmpty()) {
       try {
-        URL url = new URL(sharedNotesInitialContentJsonUrl);
+        URL url = new URL(initialContentJsonUrl);
         String content;
         try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()))) {
           content = in.lines().collect(Collectors.joining("\n"));
         }
-        // Parse the JSON content
-        JsonNode jsonNode = objectMapper.readTree(content);
-        initialContent = objectMapper.convertValue(jsonNode, new TypeReference<>() {
-        });
+        initialContent = parseSharedNotesInitialContent(content);
       } catch (MalformedURLException e) {
         log.error(
-                "Malformed URL for sharedNotesInitialContentJsonUrl: [{}]", sharedNotesInitialContentJsonUrl);
-      } catch (JsonProcessingException e) {
-        log.error(
-                "Error while processing json for sharedNotesInitialContentJsonUrl: [{}]", sharedNotesInitialContentJsonUrl);
+                "Malformed URL for sharedNotesInitialContentJsonUrl: [{}]", initialContentJsonUrl);
       } catch (IOException e) {
         log.error(
-                "Something went wrong while processing [{}]. Error: {}", sharedNotesInitialContentJsonUrl, e.getMessage());
+                "Something went wrong while processing [{}]. Error: {}", initialContentJsonUrl, e.getMessage());
       }
     }
+    return initialContent;
+  }
+
+  public Map<String, Object> decodeSharedNotesInitialContentBase64(String initialContentJsonInBase64) {
+    Map<String, Object> initialContent = new HashMap<>();
+    if (initialContentJsonInBase64 != null && !initialContentJsonInBase64.isEmpty()) {
+      byte[] decodedBytes = Base64.getDecoder().decode(initialContentJsonInBase64);
+      String decodedContent = new String(decodedBytes);
+
+      initialContent = parseSharedNotesInitialContent(decodedContent);
+    }
+    return initialContent;
+  }
+
+  public Map<String, Object> parseSharedNotesInitialContent(String content) {
+    Map<String, Object> initialContent;
+    JsonNode jsonNode = null;
+    try {
+      jsonNode = objectMapper.readTree(content);
+    } catch (JsonProcessingException e) {
+      log.error(
+              "Error while processing json for sharedNotesInitialContent: [{}]", e.getMessage());
+    }
+    initialContent = objectMapper.convertValue(jsonNode, new TypeReference<>() {});
+    if (initialContent == null) return new HashMap<>();
     return initialContent;
   }
 
@@ -543,7 +575,7 @@ public class MeetingService implements MessageListener {
     if (existingId == null && existingTelVoice == null && existingWebVoice == null) {
       meetings.put(m.getInternalId(), m);
       Map<String, Object> pluginsMap;
-      Map<String, Object> sharedNotesInitialContentMap = requestSharedNotesInitialContent(m);
+      Map<String, Object> sharedNotesInitialContentMap = getSharedNotesInitialContent(m);
       if (m.isBreakout()) {
         pluginsMap = plugins;
       } else {
