@@ -134,6 +134,8 @@ public class Meeting {
 
 	private String meetingEndedCallbackURL = "";
 
+	private String sharedNotesInitialContentJsonBase64;
+
 	private String overrideClientSettings = "";
 
 	private int maxNumPages;
@@ -1000,6 +1002,14 @@ public class Meeting {
 
     public Map<String, String> getPluginMetadataParametersMap() {
         return pluginMetadataParametersMap;
+    }
+
+    public String getSharedNotesInitialContentJsonBase64() {
+        return sharedNotesInitialContentJsonBase64;
+    }
+
+    public void setSharedNotesInitialContentJsonBase64(String sharedNotesInitialContentJsonBase64) {
+        this.sharedNotesInitialContentJsonBase64 = sharedNotesInitialContentJsonBase64;
     }
 
     /***
