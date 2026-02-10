@@ -16,7 +16,7 @@ trait UpdateTranscriptPubMsgHdlr {
     val meetingId = liveMeeting.props.meetingProp.intId
 
     def broadcastEvent(userId: String, transcriptId: String, transcript: String, locale: String, result: Boolean): Unit = {
-      val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, "nodeJSapp")
+      val routing = Routing.addMsgToClientRouting(MessageTypes.DIRECT, meetingId, userId)
       val envelope = BbbCoreEnvelope(TranscriptUpdatedEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(TranscriptUpdatedEvtMsg.NAME, meetingId, userId)
       val body = TranscriptUpdatedEvtMsgBody(transcriptId, transcript, locale, result)
@@ -57,7 +57,7 @@ trait UpdateTranscriptPubMsgHdlr {
 
     val isTranscriptionEnabled = !liveMeeting.props.meetingProp.disabledFeatures.contains("liveTranscription")
 
-    if (AudioCaptions.isFloor(liveMeeting.audioCaptions, msg.header.userId) && isTranscriptionEnabled) {
+    if (isTranscriptionEnabled) {
       val (start, end, text) = AudioCaptions.editTranscript(
         liveMeeting.audioCaptions,
         msg.body.transcriptId,
@@ -78,11 +78,10 @@ trait UpdateTranscriptPubMsgHdlr {
 
       val transcript = AudioCaptions.parseTranscript(msg.body.transcript)
 
-
       for {
         u <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
       } yield {
-        CaptionDAO.insertOrUpdateCaption(msg.body.transcriptId, meetingId, msg.header.userId, transcript, u.speechLocale)
+        CaptionDAO.insertOrUpdateCaption(msg.body.transcriptId, meetingId, msg.header.userId, transcript, msg.body.locale)
       }
 
       broadcastEvent(

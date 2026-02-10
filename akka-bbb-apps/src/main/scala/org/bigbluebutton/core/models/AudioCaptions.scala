@@ -7,8 +7,6 @@ import org.bigbluebutton.SystemConfiguration
 object AudioCaptions extends SystemConfiguration {
   def setFloor(audioCaptions: AudioCaptions, userId: String) = audioCaptions.floor = userId
 
-  def isFloor(audioCaptions: AudioCaptions, userId: String) = true
-
   def parseTranscript(transcript: String): String = {
     transcript
   }
