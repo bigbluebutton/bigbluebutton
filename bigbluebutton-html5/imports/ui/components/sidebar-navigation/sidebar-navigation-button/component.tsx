@@ -90,8 +90,8 @@ const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
         $disabled={isDisabled}
         $locked={isLocked}
       >
-        {children}
         <Icon iconName={iconName} />
+        {children}
       </Styled.ListItem>
     </TooltipContainer>
   );
