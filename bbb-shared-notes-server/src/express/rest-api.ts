@@ -176,15 +176,13 @@ const documentApi: DocumentApi = {
           return response.status(500).json({
             success: false,
             error: 'Failed to generate PDF',
-            message: error.message
           });
         }
       }
       logger.error('Error generating PDF', { error, documentName });
       return response.status(500).json({
         success: false,
-        error: 'Failed to generate PDF',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        error: 'Failed exporting the document to PDF',
       });
     }
   },
