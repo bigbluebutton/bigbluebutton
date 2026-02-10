@@ -53,6 +53,9 @@ import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import ConnectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
+import { layoutSelect } from '/imports/ui/components/layout/context';
+import { Layout } from '/imports/ui/components/layout/layoutTypes';
+import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
 import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
 
@@ -421,11 +424,14 @@ const useAudioOnlySubscription = createUseSubscription(
 export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
   const { data: meeting } = useMeeting((m) => ({ meetingId: m.meetingId }));
   const { data, loading, errors } = useAudioOnlySubscription();
+  const layoutType = layoutSelect((i: Layout) => i.layoutType);
   const {
     showAudioOnlyOnFirstPage,
   } = window.meetingClientSettings.public.kurento.cameraSortingModes;
 
-  if (!showAudioOnlyOnFirstPage) return [];
+  const isUnifiedLayout = layoutType === LAYOUT_TYPE.UNIFIED_LAYOUT;
+
+  if (!showAudioOnlyOnFirstPage || !isUnifiedLayout) return [];
   if (loading) return [];
 
   if (errors) {
@@ -476,13 +482,18 @@ export const useVideoStreams = () => {
   let streams: StreamItem[] = [...videoStreams];
   let totalNumberOfOtherStreams: number | undefined;
 
+  const layoutType = layoutSelect((i: Layout) => i.layoutType);
+  const isUnifiedLayout = layoutType === LAYOUT_TYPE.UNIFIED_LAYOUT;
   const {
     paginationSorting: PAGINATION_SORTING,
     defaultSorting: DEFAULT_SORTING,
-    showAudioOnlyOnFirstPage,
-    maxAudioOnlyUsers,
+    showAudioOnlyOnFirstPage: showAudioOnlyOnFirstPageSetting,
+    maxAudioOnlyUsers: maxAudioOnlyUsersSetting,
     partitionPrivilegedStreams,
   } = window.meetingClientSettings.public.kurento.cameraSortingModes;
+
+  const showAudioOnlyOnFirstPage = showAudioOnlyOnFirstPageSetting && isUnifiedLayout;
+  const maxAudioOnlyUsers = isUnifiedLayout ? maxAudioOnlyUsersSetting : 0;
 
   if (connectingStream) streams.push(connectingStream);
 
