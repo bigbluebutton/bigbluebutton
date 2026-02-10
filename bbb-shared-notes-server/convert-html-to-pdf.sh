@@ -48,10 +48,16 @@ timeout $(printf %03d $timeoutSecs)s sudo /usr/bin/docker run \
   --memory-swap=1g \
   --network none \
   --user=$(printf %05d `id -u`) \
+  -e HOME=/tmp \
+  -e XDG_RUNTIME_DIR=/tmp/runtime \
+  --tmpfs /tmp:rw,exec,nosuid,size=256m \
+  --tmpfs /tmp/runtime:rw,exec,nosuid,size=64m \
   -v "$tempDir/":/workspace/ \
   --security-opt seccomp=unconfined \
+  --entrypoint /usr/bin/chromium-browser \
   zenika/alpine-chrome \
     --headless=new \
+    --user-data-dir=/tmp/chrome-data \
     --no-pdf-header-footer \
     --run-all-compositor-stages-before-draw \
     --disable-dev-shm-usage \
