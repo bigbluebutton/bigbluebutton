@@ -39,7 +39,7 @@ export interface PostgresConfig {
   password: string;
 }
 
-export interface Shared {
+export interface HtmlToPdfExporter {
   tmpDirectory: string
   conversionScriptPath: string
 }
@@ -54,7 +54,7 @@ export interface AppSettings {
   hocuspocusServer: HocuspocusServerConfig;
   rateLimit: RateLimit;
   bbbWeb: BbbWebConfig;
-  shared: Shared;
+  htmlToPdfExporter: HtmlToPdfExporter;
   log: LogConfig;
   redis: RedisConfig;
   postgres: PostgresConfig;

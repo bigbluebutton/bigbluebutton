@@ -9,7 +9,7 @@ const  DEFAULT_SETTINGS: AppSettings = {
     host: '127.0.0.1',
     port: 9001,
   },
-  shared: {
+  htmlToPdfExporter: {
     tmpDirectory: '/tmp/pres-ann-dropbox',
     conversionScriptPath: '/usr/share/bbb-conversion-shared-notes/convert.sh'
   },

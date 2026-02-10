@@ -37,7 +37,7 @@ export async function exportHtmlToPdf(
   const pdfFilePath = path.join(tmpdir(), `bbb-pdf-${runId}.pdf`);
 
   // Path to the conversion script (absolute path in production)
-  const { conversionScriptPath: scriptPath } = config.shared;
+  const { conversionScriptPath: scriptPath } = config.htmlToPdfExporter;
 
   try {
     // Write HTML content to temporary file

@@ -139,7 +139,7 @@ const handleSharedNotesCreate = async (header: MessageHeader, body: MessageBody)
             ...statusReturn,
             padId,
             meetingId,
-          } 
+          }
         });
       } else {
         logger.debug('Initial content updated', {
@@ -147,7 +147,7 @@ const handleSharedNotesCreate = async (header: MessageHeader, body: MessageBody)
           extraInfo: {
             padId,
             meetingId,
-          } 
+          }
         });
       }
     } catch (error) {
@@ -176,7 +176,7 @@ const handleBlockNoteExport = async (header: MessageHeader, body: MessageBody): 
   });
 
   try {
-    const { tmpDirectory } = config.shared;
+    const { tmpDirectory } = config.htmlToPdfExporter;
     const temporarySavingDir = path.join(tmpDirectory, jobId);
 
     if (!fs.existsSync(temporarySavingDir)) {
