@@ -5,8 +5,6 @@ import scala.collection.immutable.HashMap
 import org.bigbluebutton.SystemConfiguration
 
 object AudioCaptions extends SystemConfiguration {
-  def setFloor(audioCaptions: AudioCaptions, userId: String) = audioCaptions.floor = userId
-
   def parseTranscript(transcript: String): String = {
     transcript
   }
@@ -38,7 +36,6 @@ object AudioCaptions extends SystemConfiguration {
 
 class AudioCaptions {
   private var transcripts = new HashMap[String, Transcript]()
-  private var floor: String = ""
 
   /*
    * @return : (start, end, text)
