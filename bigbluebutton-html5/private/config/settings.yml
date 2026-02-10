@@ -509,9 +509,9 @@ public:
       paginationSorting: VOICE_ACTIVITY_LOCAL
       # showAudioOnlyOnFirstPage: when enabled, shows audio-only tiles
       # for speaking users who don't have cameras on first page. These tiles appear on the right side,
-      # bumping previous off-view tiles to the left.
+      # bumping previous off-view tiles to the left. (only for unified layout)
       showAudioOnlyOnFirstPage: true
-      # maxAudioOnlyUsers: maximum number of audio-only tiles to show
+      # maxAudioOnlyUsers: maximum number of audio-only tiles to show (only for unified layout).
       # When pagination is enabled, this limits the number of slots available for audio-only users
       # When pagination is disabled, this is the limit for audio-only users
       maxAudioOnlyUsers: 2
