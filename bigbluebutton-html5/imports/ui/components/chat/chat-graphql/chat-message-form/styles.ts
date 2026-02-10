@@ -7,6 +7,7 @@ import {
   colorDanger,
   colorGrayDark,
   colorBorder,
+  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
@@ -44,7 +45,7 @@ const Wrapper = styled.div`
 
 const Input = styled(TextareaAutosize)<InputProps>`
   flex: 1;
-  background: #fff;
+  background: transparent;
   background-clip: padding-box;
   margin: 0px;
   border-radius: 0px;
@@ -117,6 +118,7 @@ const EmojiButtonWrapper = styled.div``;
 // @ts-ignore - as button comes from JS, we can't provide its props
 const EmojiButton = styled(Button)`
   margin:0 0 0 ${smPaddingX};
+  background: transparent !important;
 
   [dir="rtl"]  & {
     margin: 0 ${smPaddingX} 0 0;
@@ -184,6 +186,7 @@ const InputWrapper = styled.div`
   z-index: 0;
   border-radius: 0.75rem;
   border: 1px solid ${colorBorder};
+  background-color: ${colorWhite};
   gap: 3px;
 
   &:focus-within {
