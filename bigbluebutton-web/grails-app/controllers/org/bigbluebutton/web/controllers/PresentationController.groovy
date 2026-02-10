@@ -170,6 +170,15 @@ class PresentationController {
     return mac.doFinal("${presId}|${page}".getBytes(StandardCharsets.UTF_8)).collect { String.format('%02x', it) }.join()
   }
 
+  private UserSession validateSession() {
+    def sessionToken = params.sessionToken
+    if (!sessionToken) return null
+    UserSession userSession = meetingService.getUserSessionWithSessionToken(sessionToken)
+    Boolean allowRequestsWithoutSession = meetingService.getAllowRequestsWithoutSession(sessionToken)
+    if (userSession == null || (!session[sessionToken] && !allowRequestsWithoutSession)) return null
+    return userSession
+  }
+
   def checkPresentationBeforeUploading = {
     try {
       def maxUploadFileSize = paramsProcessorUtil.getMaxPresentationFileUpload()
@@ -369,10 +378,20 @@ class PresentationController {
   }
 
   def showSvgImage = {
+    def userSession = validateSession()
+    if (userSession == null) { response.setStatus(401); return }
+
     def presentationName = params.presentation_name
     def conf = params.conference
     def rm = params.room
     def slide = params.id
+
+    if (conf != userSession.meetingID) { response.setStatus(403); return }
+    if (presentationService.presTokenSecret) {
+      def presToken = params.presToken
+      def expected = generatePresToken(presentationName, Integer.parseInt(slide), presentationService.presTokenSecret)
+      if (presToken == null || presToken != expected) { response.setStatus(403); return }
+    }
 
     log.error("Nginx should be serving this SVG file! meetingId=" + conf + ",presId=" + presentationName + ",page=" + slide);
 
@@ -392,10 +411,20 @@ class PresentationController {
   }
 
   def showThumbnail = {
+    def userSession = validateSession()
+    if (userSession == null) { response.setStatus(401); return }
+
     def presentationName = params.presentation_name
     def conf = params.conference
     def rm = params.room
     def thumb = params.id
+
+    if (conf != userSession.meetingID) { response.setStatus(403); return }
+    if (presentationService.presTokenSecret) {
+      def presToken = params.presToken
+      def expected = generatePresToken(presentationName, Integer.parseInt(thumb), presentationService.presTokenSecret)
+      if (presToken == null || presToken != expected) { response.setStatus(403); return }
+    }
 
     log.error("Nginx should be serving this thumb file! meetingId=" + conf + ",presId=" + presentationName + ",page=" + thumb);
 
@@ -416,10 +445,20 @@ class PresentationController {
   }
 
   def showPng = {
+    def userSession = validateSession()
+    if (userSession == null) { response.setStatus(401); return }
+
     def presentationName = params.presentation_name
     def conf = params.conference
     def rm = params.room
     def png = params.id
+
+    if (conf != userSession.meetingID) { response.setStatus(403); return }
+    if (presentationService.presTokenSecret) {
+      def presToken = params.presToken
+      def expected = generatePresToken(presentationName, Integer.parseInt(png), presentationService.presTokenSecret)
+      if (presToken == null || presToken != expected) { response.setStatus(403); return }
+    }
 
     InputStream is = null;
     try {
@@ -437,12 +476,22 @@ class PresentationController {
   }
 
   def showTextfile = {
+    def userSession = validateSession()
+    if (userSession == null) { response.setStatus(401); return }
+
     def presentationName = params.presentation_name
     def conf = params.conference
     def rm = params.room
     def textfile = params.id
-    log.debug "Controller: Show textfile request for $presentationName $textfile"
 
+    if (conf != userSession.meetingID) { response.setStatus(403); return }
+    if (presentationService.presTokenSecret) {
+      def presToken = params.presToken
+      def expected = generatePresToken(presentationName, Integer.parseInt(textfile), presentationService.presTokenSecret)
+      if (presToken == null || presToken != expected) { response.setStatus(403); return }
+    }
+
+    log.debug "Controller: Show textfile request for $presentationName $textfile"
     log.error("Nginx should be serving this text file! meetingId=" + conf + ",presId=" + presentationName + ",page=" + textfile);
 
     InputStream is = null;
@@ -465,10 +514,15 @@ class PresentationController {
   }
 
   def downloadFile = {
+    def userSession = validateSession()
+    if (userSession == null) { response.setStatus(401); return }
+
     def presId = params.presId
     def presFilename = params.presFilename
     def meetingId = params.meetingId
     def filename = params.filename
+
+    if (meetingId != userSession.meetingID) { response.setStatus(403); return }
 
     log.debug "Controller: Download request for $presFilename"
 
@@ -504,6 +558,9 @@ class PresentationController {
   }
 
   def thumbnail = {
+    def userSession = validateSession()
+    if (userSession == null) { response.setStatus(401); return }
+
     def filename = params.id.replace('###', '.')
     def presDir = confDir() + File.separatorChar + filename
     try {
@@ -520,9 +577,14 @@ class PresentationController {
   }
 
   def numberOfSlides = {
+    def userSession = validateSession()
+    if (userSession == null) { response.setStatus(401); return }
+
     def presentationName = params.presentation_name
     def conf = params.conference
     def rm = params.room
+
+    if (conf != userSession.meetingID) { response.setStatus(403); return }
 
     def numThumbs = presentationService.numberOfThumbnails(conf, rm, presentationName)
     response.addHeader("Cache-Control", "no-cache")
@@ -544,9 +606,15 @@ class PresentationController {
   }
 
   def numberOfThumbnails = {
+    def userSession = validateSession()
+    if (userSession == null) { response.setStatus(401); return }
+
     def filename = params.presentation_name
     def conf = params.conference
     def rm = params.room
+
+    if (conf != userSession.meetingID) { response.setStatus(403); return }
+
     def numThumbs = presentationService.numberOfThumbnails(conf, rm, filename)
     withFormat {
       xml {
@@ -566,9 +634,15 @@ class PresentationController {
   }
 
   def numberOfSvgs = {
+    def userSession = validateSession()
+    if (userSession == null) { response.setStatus(401); return }
+
     def filename = params.presentation_name
     def conf = params.conference
     def rm = params.room
+
+    if (conf != userSession.meetingID) { response.setStatus(403); return }
+
     def numSvgs = presentationService.numberOfSvgs(conf, rm, filename)
     withFormat {
       xml {
@@ -588,9 +662,15 @@ class PresentationController {
   }
 
   def numberOfTextfiles = {
+    def userSession = validateSession()
+    if (userSession == null) { response.setStatus(401); return }
+
     def filename = params.presentation_name
     def conf = params.conference
     def rm = params.room
+
+    if (conf != userSession.meetingID) { response.setStatus(403); return }
+
     def numFiles = presentationService.numberOfTextfiles(conf, rm, filename)
 
     withFormat {
