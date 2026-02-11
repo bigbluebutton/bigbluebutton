@@ -22,6 +22,7 @@ import {
   MediaSendersData,
   SUBSCRIPTION_RETRY,
   MediaType,
+  PUBLIC_GROUP_IDS,
 } from '/imports/ui/components/livekit/selective-subscription/types';
 import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
 import AudioManager from '/imports/ui/services/audio-manager';
@@ -74,20 +75,21 @@ export const useMediaSenders = (
   const groups = (data as MediaGroupStream[] || []).filter(
     (group) => group.mediaType === mediaType,
   );
+  // Groups where I am a receiver - I see the union of senders from all of these
   const myInboundGroupIds = groups.filter(
     (group) => group.userId === Auth.userID && group.receiver === true,
   ).map((group) => group.groupId);
   const inAnyGroup = myInboundGroupIds.length > 0;
 
-  // If we don't have any groups, we need to subscribe to all senders that
-  // are not part of a sender group
+  // No explicit group membership = treat as public receiver.
+  // Public receivers receive from: groupless senders + public group senders.
+  // Exclude only senders in non-public groups.
   if (!inAnyGroup) {
-    const senderIds = new Set(groups
-      .filter((group) => group.sender === true)
+    const senderIdsInNonPublicGroups = new Set(groups
+      .filter((group) => group.sender === true && group.groupId !== PUBLIC_GROUP_IDS[mediaType])
       .map((group) => group.userId));
-
-    const grouplessSenders = remoteParticipants
-      .filter((participant) => !senderIds.has(participant.identity))
+    const senders = remoteParticipants
+      .filter((participant) => !senderIdsInNonPublicGroups.has(participant.identity))
       .map((participant) => ({
         userId: participant.identity,
         groupId: 'default',
@@ -96,13 +98,20 @@ export const useMediaSenders = (
         receiver: true,
         active: true,
       }));
-
-    return { senders: grouplessSenders, inAnyGroup: false };
+    return { senders, inAnyGroup: false };
   }
 
-  const senders = groups
+  // Union of senders from all groups where I am a receiver
+  const senderStreams = groups
     .filter((group) => myInboundGroupIds.includes(group.groupId))
     .filter((stream) => stream.sender === true && stream.active);
+  // Dedupe by userId, keeping first occurrence
+  const seenUserIds = new Set<string>();
+  const senders = senderStreams.filter((stream) => {
+    if (seenUserIds.has(stream.userId)) return false;
+    seenUserIds.add(stream.userId);
+    return true;
+  });
 
   return { senders, inAnyGroup };
 };

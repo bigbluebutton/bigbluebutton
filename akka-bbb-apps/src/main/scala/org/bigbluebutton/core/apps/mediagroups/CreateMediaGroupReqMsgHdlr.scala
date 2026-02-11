@@ -46,6 +46,9 @@ trait CreateMediaGroupReqMsgHdlr extends RightsManagementTrait {
       val reason = "No permission to create a media group"
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
       state
+    } else if (PublicMediaGroupIds.isPublicGroup(msg.body.id)) {
+      // Public groups are created by the system, not by clients
+      state
     } else {
       val senders = msg.body.senders
       val receivers = msg.body.receivers

@@ -1,6 +1,8 @@
 import { RedisMessage } from '../types';
 import { InputParam, throwErrorIfInvalidInput } from "../imports/validation";
 
+const PUBLIC_GROUP_IDS = ['public:audio', 'public:camera', 'public:screenshare'];
+
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
   throwErrorIfInvalidInput(input, [
     { name: 'id', type: 'string', required: true },
@@ -20,6 +22,12 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
 
   senders?.forEach(sender => throwErrorIfInvalidInput(sender, participantValidator));
   receivers?.forEach(receiver => throwErrorIfInvalidInput(receiver, participantValidator));
+
+  const groupId = input['id'] as string;
+
+  if (PUBLIC_GROUP_IDS.includes(groupId) || groupId.startsWith('public:')) {
+    throw new Error('Public groups are created by the system and cannot be created by clients');
+  }
 
   const eventName = 'CreateMediaGroupReqMsg';
 

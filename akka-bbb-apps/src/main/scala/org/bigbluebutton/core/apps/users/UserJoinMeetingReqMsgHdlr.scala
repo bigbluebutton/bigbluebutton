@@ -2,6 +2,7 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs.UserJoinMeetingReqMsg
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers
+import org.bigbluebutton.core.apps.mediagroups.{ MediaGroupApp }
 import org.bigbluebutton.core.db.{BreakoutRoomDAO, NotificationDAO, UserDAO, UserStateDAO}
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
@@ -48,7 +49,12 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
   }
 
   private def handleSuccessfulUserJoin(msg: UserJoinMeetingReqMsg, regUser: RegisteredUser, state: MeetingState2x) = {
-    val newState = userJoinMeeting(outGW, msg.body.authToken, msg.body.clientType, msg.body.clientIsMobile, liveMeeting, state)
+    var newState = userJoinMeeting(outGW, msg.body.authToken, msg.body.clientType, msg.body.clientIsMobile, liveMeeting, state)
+
+    // Enroll user in public media groups
+    newState = newState.update(
+      MediaGroupApp.enrollUserInPublicGroups(liveMeeting, regUser.id, newState.mediaGroups)
+    )
     updateParentMeetingWithNewListOfUsers()
     notifyPreviousUsersWithSameExtId(regUser)
     clearCachedVoiceUser(regUser)

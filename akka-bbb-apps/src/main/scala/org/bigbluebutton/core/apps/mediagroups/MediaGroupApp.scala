@@ -3,6 +3,19 @@ package org.bigbluebutton.core.apps.mediagroups
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
+import org.bigbluebutton.core.db.MediaGroupUserDAO
+
+// Reserved group IDs for the explicit public space per media type
+object PublicMediaGroupIds {
+  val AUDIO = "public:audio"
+  val CAMERA = "public:camera"
+  val SCREENSHARE = "public:screenshare"
+
+  val All: Vector[String] = Vector(AUDIO, CAMERA, SCREENSHARE)
+
+  def isPublicGroup(groupId: String): Boolean =
+    groupId == AUDIO || groupId == CAMERA || groupId == SCREENSHARE
+}
 
 object MediaGroupApp {
   def createMediaGroup(
@@ -117,6 +130,63 @@ object MediaGroupApp {
       val updatedMg = mg.removeSender(userId).removeReceiver(userId)
       groups.update(updatedMg)
     }
+  }
+
+  def createPublicMediaGroups(mediaGroups: MediaGroups): MediaGroups = {
+    val groups = Vector(
+      (PublicMediaGroupIds.AUDIO, "audio"),
+      (PublicMediaGroupIds.CAMERA, "camera"),
+      (PublicMediaGroupIds.SCREENSHARE, "screenshare")
+    )
+
+    groups.foldLeft(mediaGroups) { (acc, t) =>
+      val (groupId, mediaType) = t
+      val mg = createMediaGroup(
+        id = groupId,
+        createdBy = "system",
+        mediaType = mediaType,
+        locked = false,
+        record = false,
+        senders = Vector(),
+        receivers = Vector(),
+        mediaGroups = acc
+      )
+
+      addMediaGroup(mg, acc)
+    }
+  }
+
+  def enrollUserInPublicGroups(
+      liveMeeting: LiveMeeting,
+      userId:      String,
+      mediaGroups: MediaGroups
+  ): MediaGroups = {
+    val participant = MediaGroupParticipant(
+      userId,
+      sender = true,
+      receiver = true,
+      active = true
+    )
+
+    val newMgState = PublicMediaGroupIds.All.foldLeft(mediaGroups) { (acc, groupId) =>
+      mediaGroups.find(groupId) match {
+        case Some(_) => addMediaGroupParticipant(groupId, participant, acc)
+        case None    => acc
+      }
+    }
+
+    PublicMediaGroupIds.All.foreach { groupId =>
+      MediaGroupUserDAO.insertUser(
+        liveMeeting.props.meetingProp.intId,
+        groupId,
+        userId,
+        sender = true,
+        receiver = true,
+        active = true
+      )
+    }
+
+    newMgState
   }
 
   def handleMediaGroupUpdated(

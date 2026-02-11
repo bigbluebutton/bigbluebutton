@@ -1,8 +1,15 @@
 export enum MediaType {
   AUDIO = 'audio',
-  CAMERA= 'camera',
+  CAMERA = 'camera',
   SCREENSHARE = 'screenshare',
 }
+
+/** Reserved group IDs for the explicit public space per media type. */
+export const PUBLIC_GROUP_IDS: Record<MediaType, string> = {
+  [MediaType.AUDIO]: 'public:audio',
+  [MediaType.CAMERA]: 'public:camera',
+  [MediaType.SCREENSHARE]: 'public:screenshare',
+};
 
 export type MediaGroupParticipant = {
   userId: string;

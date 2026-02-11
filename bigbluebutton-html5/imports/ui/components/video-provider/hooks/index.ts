@@ -64,6 +64,7 @@ import {
 import {
   MediaGroupStream,
   MediaType,
+  PUBLIC_GROUP_IDS,
 } from '/imports/ui/components/livekit/selective-subscription/types';
 
 const useVideoStreamsSubscription = createUseSubscription(
@@ -503,20 +504,25 @@ const useVideoSenders = () => {
     (group) => group.mediaType === MediaType.CAMERA,
   );
 
+  // Groups where I am a receiver - I see the union of senders from all of these
   const myInboundGroupIds = groups.filter(
     (group) => group.userId === Auth.userID && group.receiver === true,
   ).map((group) => group.groupId);
 
   const inAnyGroup = myInboundGroupIds.length > 0;
 
+  // No explicit group membership = treat as public receiver.
+  // Public receivers receive from: groupless senders + public group senders.
+  // Exclude only senders in non-public groups.
   if (!inAnyGroup) {
-    const senderIdsInGroups = new Set(groups
-      .filter((group) => group.sender === true)
+    const senderIdsInNonPublicGroups = new Set(groups
+      .filter((group) => group.sender === true && group.groupId !== PUBLIC_GROUP_IDS[MediaType.CAMERA])
       .map((group) => group.userId));
 
-    return { senderIds: null, senderIdsInGroups, inAnyGroup: false };
+    return { senderIds: null, senderIdsInGroups: senderIdsInNonPublicGroups, inAnyGroup: false };
   }
 
+  // Union of senders from all groups where I am a receiver (public + interpretation, etc.)
   const senderIds = new Set(groups
     .filter((group) => myInboundGroupIds.includes(group.groupId))
     .filter((stream) => stream.sender === true && stream.active)
