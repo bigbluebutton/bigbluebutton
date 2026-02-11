@@ -29,8 +29,6 @@ dest="$2"
 
 # If timeout is missing, define 30 seconds
 timeoutSecs="${3:-30}"
-# Truncate timeout to max 3 digits
-timeoutSecs="${timeoutSecs:0:3}"
 
 # Copy input HTML to temp directory
 cp "${source}" "$tempDir/input.html"
@@ -53,6 +51,10 @@ timeout $(printf %03d $timeoutSecs)s sudo /usr/bin/docker run \
   --tmpfs /tmp:rw,exec,nosuid,size=256m \
   --tmpfs /tmp/runtime:rw,exec,nosuid,size=64m \
   -v "$tempDir/":/workspace/ \
+  -v /usr/share/fonts/:/usr/share/fonts/:ro \
+  -v /usr/share/fontconfig/:/usr/share/fontconfig/:ro \
+  -v /etc/fonts/:/etc/fonts/:ro \
+  -v /var/cache/fontconfig/:/var/cache/fontconfig/:ro \
   --security-opt seccomp=unconfined \
   --entrypoint /usr/bin/chromium-browser \
   zenika/alpine-chrome \
