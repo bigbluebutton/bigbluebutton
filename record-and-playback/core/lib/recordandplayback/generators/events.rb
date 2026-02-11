@@ -991,7 +991,7 @@ module BigBlueButton
             in: timestamp - offset,
             out: nil,
             sender_id: sender_id,
-            sender: sender_id.nil? ? sender : user_map.fetch(sender_id),
+            sender: sender_id.nil? ? sender : user_map.fetch(sender_id, sender_id),
             senderRole: senderRole,
             chatEmphasizedText: chatEmphasizedText,
             replyToMessageId: replyToMessageId,
