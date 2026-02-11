@@ -44,6 +44,7 @@ const AppContainer = (props) => {
     raiseHand: u.raiseHand,
     userId: u.userId,
     presenter: u.presenter,
+    voice: u.voice,
   }));
 
   const {
@@ -158,6 +159,7 @@ const AppContainer = (props) => {
           isNonMediaLayout,
           currentUserAway: currentUser.away,
           currentUserRaiseHand: currentUser?.raiseHand ?? false,
+          currentUserHasVoice: !!currentUser?.voice,
           isCurrentUserNextRaisedHand,
           captionsStyle,
           presentationIsOpen,

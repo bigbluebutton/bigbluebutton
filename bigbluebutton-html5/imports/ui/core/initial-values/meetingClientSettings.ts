@@ -356,6 +356,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       cameraSortingModes: {
         defaultSorting: 'LOCAL_ALPHABETICAL',
         paginationSorting: 'VOICE_ACTIVITY_LOCAL',
+        showAudioOnlyOnFirstPage: true,
+        maxAudioOnlyUsers: 2,
+        partitionPrivilegedStreams: true,
       },
       cameraQualityThresholds: {
         enabled: true,

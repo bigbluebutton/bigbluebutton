@@ -500,7 +500,7 @@ jobs:
         working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
         run: |
           # Read flaky tests from core repo and build a grep-invert parameter
-          FLAKY_TESTS_FILE="sdk-flaky-tests.txt"
+          FLAKY_TESTS_FILE="../playwright/sdk-flaky-tests.txt"
           FLAKY_TESTS_LINES=""
 
           if [ -f "$FLAKY_TESTS_FILE" ]; then
@@ -542,13 +542,19 @@ jobs:
           ACTIONS_RUNNER_DEBUG: true
           BBB_URL: https://bbb-ci.test/bigbluebutton/
           BBB_SECRET: bbbci
-        run: npm run test-chromium-ci -- --grep-invert "$SDK_FLAKY_TESTS"
+        run: |
+          if [ -n "$SDK_FLAKY_TESTS" ]; then
+            npm run test-chromium-ci -- --grep-invert "$SDK_FLAKY_TESTS"
+          else
+            npm run test-chromium-ci
+          fi
       - if: failure()
         name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: blob-report-plugins
           path: bigbluebutton-tests/bigbluebutton-html-plugin-sdk/blob-report
+          if-no-files-found: ignore
       - if: failure()
         name: Generate the plugins HTML report from blob report
         shell: bash
@@ -601,7 +607,7 @@ jobs:
         with:
           node-version: 22
       - name: Check if blob reports exist
-        if: ${{ github.event.workflow_run.conclusion != 'success' && fromJSON(env.hasFailure) }}
+        if: ${{ fromJSON(env.hasFailure) }}
         id: check-blob-reports
         uses: ./.github/actions/check-artifact-exists
         with:
