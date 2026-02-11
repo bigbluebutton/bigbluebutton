@@ -148,20 +148,22 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
               />
             </Styled.ChatHeading>
           )}
-          <Styled.ChatContent data-test="private-user-list-content">
-            <Styled.MessageItemWrapper>
-              {lastMessage}
-            </Styled.MessageItemWrapper>
-            {(unreadMessagesToDisplay > 0)
-              ? (
-                <Styled.UnreadMessages data-test="unreadMessages" aria-label={arialabel}>
-                  <Styled.UnreadMessagesText aria-hidden="true">
-                    {unreadMessagesToDisplay}
-                  </Styled.UnreadMessagesText>
-                </Styled.UnreadMessages>
-              )
-              : null}
-          </Styled.ChatContent>
+          {(hasMessages || unreadMessagesToDisplay > 0) && (
+            <Styled.ChatContent data-test="private-user-list-content">
+              <Styled.MessageItemWrapper>
+                {lastMessage}
+              </Styled.MessageItemWrapper>
+              {(unreadMessagesToDisplay > 0)
+                ? (
+                  <Styled.UnreadMessages data-test="unreadMessages" aria-label={arialabel}>
+                    <Styled.UnreadMessagesText aria-hidden="true">
+                      {unreadMessagesToDisplay}
+                    </Styled.UnreadMessagesText>
+                  </Styled.UnreadMessages>
+                )
+                : null}
+            </Styled.ChatContent>
+          )}
         </Styled.ChatWrapper>
       </Styled.ChatListItemLink>
     </Styled.ChatListItem>
