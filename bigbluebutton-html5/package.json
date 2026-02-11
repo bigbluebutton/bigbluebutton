@@ -32,7 +32,8 @@
     },
     "@bigbluebutton/editor": {
       "core-js": "^3.37.1"
-    }
+    },
+    "markdown-it": "^14.1.1"
   },
   "dependencies": {
     "@apollo/client": "^3.10.4",

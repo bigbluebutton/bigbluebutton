@@ -163,7 +163,7 @@ function BlockNoteContainer(): React.ReactElement {
           />
         </Styled.WarningNotificationContainer>
       )}
-      {(connectionClosed) && (
+      {(connectionClosed && !hasError) && (
         <Styled.WarningNotificationContainer data-test="notesError">
           <Styled.WaringMessage>Connection closed.</Styled.WaringMessage>
           <Button
