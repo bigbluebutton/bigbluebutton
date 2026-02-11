@@ -1613,6 +1613,13 @@ const Whiteboard = React.memo((props) => {
       adjustCameraOnMount(!isPresenterRef.current);
     });
 
+    // New cursor hint shape: circle
+    const newD = 'M 8,5 A 3,3 0 1,0 2,5 A 3,3 0 1,0 8,5';
+    // Fetch the cursor hint element and update its path
+    const cursorHint = document.getElementById('cursor_hint');
+    if (cursorHint) {
+      cursorHint.setAttribute('d', newD);
+    }
   };
 
   const syncCameraOnPresenterZoom = () => {

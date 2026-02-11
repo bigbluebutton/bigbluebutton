@@ -65,9 +65,12 @@ const TldrawV2GlobalStyle = createGlobalStyle`
   }
 
   ${({ isPresenter, isMultiUserActive, pointerDiameter = 5 }) => {
-    const scale = pointerDiameter / 100;
-    const scaleRatio = pointerDiameter / 5;
-    // Increased left offset to move pointer left
+    const numericDiameter = Number(pointerDiameter);
+    const safeDiameter = Number.isFinite(numericDiameter) && numericDiameter > 0
+      ? numericDiameter
+      : 5;
+    const scale = safeDiameter / 100;
+    const scaleRatio = safeDiameter / 5;
     const leftOffset = -15 * scaleRatio;
     const topOffset = -10 * scaleRatio;
     return !isPresenter && !isMultiUserActive && `
