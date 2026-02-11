@@ -29,8 +29,6 @@ dest="$2"
 
 # If timeout is missing, define 30 seconds
 timeoutSecs="${3:-30}"
-# Truncate timeout to max 3 digits
-timeoutSecs="${timeoutSecs:0:3}"
 
 # Copy input HTML to temp directory
 cp "${source}" "$tempDir/input.html"
