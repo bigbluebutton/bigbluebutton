@@ -5,6 +5,7 @@ import { Logger } from "../common/logger";
 import { exportDocumentToHtml } from "./handlers/exportDocumentToHtml";
 import { exportDocumentToMarkdown } from "./handlers/exportDocumentToMarkdown";
 import { exportHtmlToPdf } from "./handlers/exportDocumentToPdf";
+import { exportDocumentToJson } from "./handlers/exportDocumentToJson";
 
 interface DocumentApi {
   get: RequestHandler;
@@ -75,10 +76,9 @@ const documentApi: DocumentApi = {
       ? request.params.format[0]
       : request.params.format;
     try {
-      const fullHtml = await exportDocumentToHtml(documentName);
-
       switch (format) {
         case 'html':
+          const fullHtml = await exportDocumentToHtml(documentName);
           logger.info('HTML exported successfully', { documentName });
 
           // Set response headers
@@ -89,7 +89,8 @@ const documentApi: DocumentApi = {
           response.send(fullHtml);
           break;
         case 'pdf':
-          const pdfBuffer = await exportHtmlToPdf(fullHtml, {
+          const fullHtmlToBeConvertedToHtml = await exportDocumentToHtml(documentName);
+          const pdfBuffer = await exportHtmlToPdf(fullHtmlToBeConvertedToHtml, {
             format: 'A4',
             printBackground: true,
             margin: {
@@ -100,19 +101,20 @@ const documentApi: DocumentApi = {
             }
           });
 
-          logger.info('PDF generated successfully', { documentName });
-
           // Set response headers
           response.setHeader('Content-Type', 'application/pdf');
           response.setHeader('Content-Disposition', `attachment; filename="${documentName}.pdf"`);
           response.setHeader('Content-Length', pdfBuffer.length);
 
+          logger.info('PDF generated successfully', { documentName });
+
           // Send PDF
           response.send(pdfBuffer);
           break;
         case 'txt':
+          const fullHtmlToBeConvertedToPlainText = await exportDocumentToHtml(documentName);
           // Strip HTML tags to get plain text (emojis are preserved as Unicode characters)
-          const plainText = fullHtml
+          const plainText = fullHtmlToBeConvertedToPlainText
             .replace(/<style[^>]*>.*?<\/style>/gis, '') // Remove style tags and content
             .replace(/<script[^>]*>.*?<\/script>/gis, '') // Remove script tags and content
             .replace(/<br\s*\/?>/gi, '\n') // Replace <br> with newline
@@ -129,14 +131,24 @@ const documentApi: DocumentApi = {
             .replace(/\n\s*\n\s*\n/g, '\n\n') // Collapse multiple blank lines to max 2 newlines
             .trim();
 
-          logger.info('TXT exported successfully', { documentName });
-
           // Set response headers
           response.setHeader('Content-Type', 'text/plain; charset=utf-8');
           response.setHeader('Content-Disposition', `attachment; filename="${documentName}.txt"`);
 
+          logger.info('TXT exported successfully', { documentName });
+
           // Send plain text
           response.send(plainText);
+          break;
+        case 'json':
+          const jsonContent = await exportDocumentToJson(documentName);
+
+          response.setHeader('Content-Type', 'application/json; charset=utf-8');
+          response.setHeader('Content-Disposition', `attachment; filename="${documentName}.json"`);
+
+          logger.info('JSON exported successfully', { documentName });
+
+          response.send(jsonContent);
           break;
         case 'md':
           const markdownContent = await exportDocumentToMarkdown(documentName);
