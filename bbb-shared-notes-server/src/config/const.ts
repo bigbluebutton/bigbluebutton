@@ -11,7 +11,7 @@ const  DEFAULT_SETTINGS: AppSettings = {
   },
   htmlToPdfExporter: {
     tmpDirectory: '/tmp/pres-ann-dropbox',
-    conversionScriptPath: '/usr/share/bbb-conversion-shared-notes/convert.sh'
+    conversionScriptPath: '/usr/share/bbb-shared-notes-conversion/convert.sh'
   },
   bbbWeb: {
     host: '127.0.0.1',
