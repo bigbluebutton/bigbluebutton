@@ -223,8 +223,8 @@ const UserNotesContainerGraphql: React.FC<UserNotesContainerGraphqlProps> = (pro
       extraInfo: {
         padId,
         sharedNotesEditor,
-      }
-    })
+      },
+    });
     return null;
   }
   return (

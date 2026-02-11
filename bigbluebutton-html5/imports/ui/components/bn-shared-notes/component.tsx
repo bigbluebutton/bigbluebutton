@@ -67,9 +67,9 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     },
     schema,
     dictionary: {
-      ...BlockNoteLocales[blockNoteLocale],
+      ...BlockNoteLocales[blockNoteLocale as keyof typeof BlockNoteLocales],
       placeholders: {
-        ...BlockNoteLocales[blockNoteLocale],
+        ...BlockNoteLocales[blockNoteLocale as keyof typeof BlockNoteLocales].placeholders,
         // Override the placeholders to prevent line wrapping in the narrow panel
         emptyDocument: '',
         default: '',

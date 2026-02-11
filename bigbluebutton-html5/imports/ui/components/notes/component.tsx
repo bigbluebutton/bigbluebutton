@@ -178,14 +178,15 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
           />
         </>
       ) : renderHeaderOnMedia()}
-      { isEtherpadSharedNotes ?
-        <PadContainer
-          externalId={NOTES_CONFIG.id}
-          hasPermission={hasPermission}
-          isResizing={isResizing}
-          isRTL={isRTL}
-        /> : <BlockNoteContainer />
-      }
+      { isEtherpadSharedNotes
+        ? (
+          <PadContainer
+            externalId={NOTES_CONFIG.id}
+            hasPermission={hasPermission}
+            isResizing={isResizing}
+            isRTL={isRTL}
+          />
+        ) : <BlockNoteContainer />}
     </Styled.Notes>
   );
 };
