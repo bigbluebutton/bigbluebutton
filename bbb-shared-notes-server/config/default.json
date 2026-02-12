@@ -14,8 +14,8 @@
   "bbbWeb": {
     "host": "127.0.0.1",
     "port": "8090",
-    "presentationEndpoint": "bigbluebutton/presentation/",
-    "checkAuthorizationEndpoint": "bigbluebutton/connection/checkGraphqlAuthorization"
+    "presentationEndpoint": "/bigbluebutton/presentation",
+    "checkAuthorizationEndpoint": "/bigbluebutton/connection/checkGraphqlAuthorization"
   },
   "log": {
     "level": "info"
@@ -25,12 +25,18 @@
     "port": 6379,
     "password": null,
     "channels": {
-      "publish": "to-akka-apps-redis-channel",
+      "publish": [
+        "to-akka-apps-redis-channel"
+      ],
       "subscribe": [
         "from-akka-apps-redis-channel",
         "from-etherpad-redis-channel"
       ]
     }
+  },
+  "rateLimit": {
+    "maxRequestsPerWindow": 60,
+    "windowInSeconds": 60
   },
   "postgres": {
     "host": "127.0.0.1",

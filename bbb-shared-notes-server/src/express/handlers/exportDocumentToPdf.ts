@@ -6,7 +6,7 @@ import { randomBytes } from 'crypto';
 import { tmpdir } from 'os';
 import path from 'path';
 import { Logger } from '../../common/logger';
-import { config } from '../../config';
+import config from '../../config';
 
 const execAsync = promisify(exec);
 const logger = new Logger('exportDocumentToPdf');

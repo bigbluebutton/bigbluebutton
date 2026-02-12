@@ -24,7 +24,10 @@ sudo cp -r dist/* /usr/share/bbb-shared-notes-server
 sudo cp blocknote_schema.sql /usr/share/bbb-shared-notes-server
 sudo cp package.json /usr/share/bbb-shared-notes-server
 sudo cp package-lock.json /usr/share/bbb-shared-notes-server
-sudo cp src/config/settings.json /usr/share/bbb-shared-notes-server/config
+
+# Copy config directory with all config files
+sudo cp -r config /usr/share/bbb-shared-notes-server/
+
 sudo cp -r node_modules /usr/share/bbb-shared-notes-server
 
 # Copy HTML to PDF conversion script

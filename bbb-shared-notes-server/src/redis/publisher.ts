@@ -1,5 +1,5 @@
 import { createClient, RedisClientOptions } from 'redis';
-import { config } from '../config';
+import config from '../config';
 import { Logger } from '../common/logger';
 
 const logger = new Logger('publisher');

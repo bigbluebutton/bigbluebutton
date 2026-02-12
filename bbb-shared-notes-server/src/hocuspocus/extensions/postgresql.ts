@@ -1,7 +1,7 @@
 import { Database } from '@hocuspocus/extension-database'
 import pkg from 'pg'
 const { Pool } = pkg
-import { config } from "../../config";
+import config from "../../config";
 
 const connectionString = `postgres://${config.postgres.user}:${config.postgres.password}@${config.postgres.host}:${config.postgres.port}/${config.postgres.database}`
 

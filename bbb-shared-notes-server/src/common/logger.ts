@@ -1,6 +1,6 @@
-import { config } from '../config';
+import config from '../config';
 
-const { level } = config?.log;
+const { level } = config.log;
 const trace = level.toLowerCase() === 'trace';
 const debug = trace || level.toLowerCase() === 'debug';
 

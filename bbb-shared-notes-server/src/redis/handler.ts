@@ -2,7 +2,7 @@ import { Logger } from '../common/logger';
 import { meetingLockMap, connectionsMap } from '../common/singleton';
 import { MeetingLock } from '../common/type';
 import { sender } from './sender';
-import { config } from '../config';
+import config from '../config';
 import fs from 'fs';
 import path from 'path';
 import { uploadPresentation } from './service/uploadPresentation';

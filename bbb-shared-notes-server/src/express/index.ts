@@ -2,7 +2,7 @@ import express from "express";
 import { rateLimit } from 'express-rate-limit'
 import expressWebsockets from "express-ws";
 import { Logger } from "../common/logger";
-import { config } from "../config";
+import config from "../config";
 import path from "path";
 import { fileURLToPath } from "url";
 import { documentApi } from "./rest-api";
