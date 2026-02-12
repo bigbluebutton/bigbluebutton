@@ -5,6 +5,7 @@ import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.models.MediaGroup
+import org.bigbluebutton.core.db.MediaGroupUserDAO
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 
 trait MediaGroupRemoveParticipantsReqMsgHdlr extends RightsManagementTrait {
@@ -49,8 +50,19 @@ trait MediaGroupRemoveParticipantsReqMsgHdlr extends RightsManagementTrait {
           state.mediaGroups
         )
         broadcastEvent(mg)
-        // TODO: No DB for now - will be used later
-        state.update(updatedGroups)
+        userIds.foreach { uid =>
+          MediaGroupUserDAO.delete(liveMeeting.props.meetingProp.intId, groupId, uid)
+        }
+        val newState = userIds.foldLeft(updatedGroups) { (groups, uid) =>
+          MediaGroupApp.enforcePublicGroupState(
+            liveMeeting,
+            bus.outGW,
+            uid,
+            msg.body.mediaType,
+            groups
+          )
+        }
+        state.update(newState)
       case None =>
         state
     }

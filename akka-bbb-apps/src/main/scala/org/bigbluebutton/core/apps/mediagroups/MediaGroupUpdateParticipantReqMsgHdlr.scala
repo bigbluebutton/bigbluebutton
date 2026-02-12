@@ -19,7 +19,7 @@ trait MediaGroupUpdateParticipantReqMsgHdlr extends RightsManagementTrait {
     val affectsOtherUser = participantUserId != msg.header.userId
     val groupId = msg.body.id
 
-    def broadcastEvent(mg: MediaGroup): Unit = {
+    def broadcastEvent(mg: MediaGroup, p: MediaGroupParticipant): Unit = {
       val routing = Routing.addMsgToClientRouting(
         MessageTypes.BROADCAST_TO_MEETING,
         liveMeeting.props.meetingProp.intId,
@@ -27,7 +27,7 @@ trait MediaGroupUpdateParticipantReqMsgHdlr extends RightsManagementTrait {
       )
       val envelope = BbbCoreEnvelope(MediaGroupParticipantUpdatedEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(MediaGroupParticipantUpdatedEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
-      val body = MediaGroupParticipantUpdatedEvtMsgBody(groupId, msg.body.mediaType, participant)
+      val body = MediaGroupParticipantUpdatedEvtMsgBody(groupId, msg.body.mediaType, p)
       val event = MediaGroupParticipantUpdatedEvtMsg(header, body)
       val respMsg = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(respMsg)
@@ -46,14 +46,25 @@ trait MediaGroupUpdateParticipantReqMsgHdlr extends RightsManagementTrait {
     MediaGroupApp.findMediaGroup(groupId, state.mediaGroups) match {
       case Some(mg) =>
         mg.findParticipant(participantUserId) match {
-          case Some(oldParticipant) =>
+          case Some(_) =>
+            val effectiveParticipant =
+              if (PublicMediaGroupIds.isPublicGroup(groupId) &&
+                MediaGroupApp.isUserOnlyInPublicGroupForMediaType(
+                  participantUserId,
+                  msg.body.mediaType,
+                  state.mediaGroups
+                )) {
+                participant.copy(sender = true, receiver = true, active = true)
+              } else {
+                participant
+              }
             val updatedGroups = MediaGroupApp.updateMediaGroupParticipant(
               groupId,
-              participant,
+              effectiveParticipant,
               state.mediaGroups
             )
-            broadcastEvent(mg)
-            MediaGroupUserDAO.update(liveMeeting.props.meetingProp.intId, groupId, participant)
+            broadcastEvent(mg, effectiveParticipant)
+            MediaGroupUserDAO.update(liveMeeting.props.meetingProp.intId, groupId, effectiveParticipant)
             val newState = state.update(updatedGroups)
             MediaGroupApp.handleMediaGroupUpdated(mg.id, updatedGroups, liveMeeting, bus.outGW)
             newState

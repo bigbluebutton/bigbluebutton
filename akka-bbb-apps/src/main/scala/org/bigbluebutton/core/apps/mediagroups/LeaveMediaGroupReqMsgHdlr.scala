@@ -55,8 +55,15 @@ trait LeaveMediaGroupReqMsgHdlr extends RightsManagementTrait {
               )
               broadcastEvent(mg)
               MediaGroupUserDAO.delete(liveMeeting.props.meetingProp.intId, groupId, participantUserId)
-              val newState = state.update(updatedGroups)
-              MediaGroupApp.handleMediaGroupUpdated(mg.id, updatedGroups, liveMeeting, bus.outGW)
+              val enforcedGroups = MediaGroupApp.enforcePublicGroupState(
+                liveMeeting,
+                bus.outGW,
+                participantUserId,
+                msg.body.mediaType,
+                updatedGroups
+              )
+              val newState = state.update(enforcedGroups)
+              MediaGroupApp.handleMediaGroupUpdated(mg.id, enforcedGroups, liveMeeting, bus.outGW)
               newState
             case None =>
               state

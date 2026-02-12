@@ -15,6 +15,13 @@ object PublicMediaGroupIds {
 
   def isPublicGroup(groupId: String): Boolean =
     groupId == AUDIO || groupId == CAMERA || groupId == SCREENSHARE
+
+  def publicGroupIdForMediaType(mediaType: String): String = mediaType match {
+    case "audio"       => AUDIO
+    case "camera"      => CAMERA
+    case "screenshare" => SCREENSHARE
+    case _             => s"public:$mediaType"
+  }
 }
 
 object MediaGroupApp {
@@ -187,6 +194,97 @@ object MediaGroupApp {
     }
 
     newMgState
+  }
+
+  def isUserOrphanedForMediaType(
+      userId:      String,
+      mediaType:   String,
+      mediaGroups: MediaGroups
+  ): Boolean = mediaGroups.findAllMediaGroupsForUser(userId).filter(_.mediaType == mediaType).isEmpty
+
+  def isUserOnlyInPublicGroupForMediaType(
+      userId:      String,
+      mediaType:   String,
+      mediaGroups: MediaGroups
+  ): Boolean = {
+    val groupsForType = mediaGroups.findAllMediaGroupsForUser(userId).filter(_.mediaType == mediaType)
+    groupsForType.size == 1 && PublicMediaGroupIds.isPublicGroup(groupsForType.head.id)
+  }
+
+  def enforcePublicGroupsForUser(
+      liveMeeting: LiveMeeting,
+      userId:      String,
+      mediaType:   String,
+      mediaGroups: MediaGroups
+  ): MediaGroups = {
+    if (!isUserOrphanedForMediaType(userId, mediaType, mediaGroups)) {
+      mediaGroups
+    } else {
+      val publicId = PublicMediaGroupIds.publicGroupIdForMediaType(mediaType)
+      val participant = MediaGroupParticipant(userId, sender = true, receiver = true, active = true)
+      mediaGroups.find(publicId) match {
+        case Some(_) =>
+          MediaGroupUserDAO.insertUser(
+            liveMeeting.props.meetingProp.intId,
+            publicId,
+            userId,
+            sender = true,
+            receiver = true,
+            active = true
+          )
+          addMediaGroupParticipant(publicId, participant, mediaGroups)
+        case None =>
+          mediaGroups
+      }
+    }
+  }
+
+  def enforcePublicOnlyUserState(
+      liveMeeting: LiveMeeting,
+      userId:      String,
+      mediaType:   String,
+      mediaGroups: MediaGroups
+  ): MediaGroups = {
+    if (!isUserOnlyInPublicGroupForMediaType(userId, mediaType, mediaGroups)) {
+      mediaGroups
+    } else {
+      val publicId = PublicMediaGroupIds.publicGroupIdForMediaType(mediaType)
+      val participant = MediaGroupParticipant(userId, sender = true, receiver = true, active = true)
+      mediaGroups.find(publicId) match {
+        case Some(mg) =>
+          mg.findParticipant(userId) match {
+            case Some(current) if current.sender && current.receiver && current.active =>
+              mediaGroups
+            case _ =>
+              MediaGroupUserDAO.update(
+                liveMeeting.props.meetingProp.intId,
+                publicId,
+                participant
+              )
+              updateMediaGroupParticipant(publicId, participant, mediaGroups)
+          }
+        case None =>
+          mediaGroups
+      }
+    }
+  }
+
+  def enforcePublicGroupState(
+      liveMeeting: LiveMeeting,
+      outGW:       OutMsgRouter,
+      userId:      String,
+      mediaType:   String,
+      mediaGroups: MediaGroups
+  ): MediaGroups = {
+    var state = enforcePublicGroupsForUser(liveMeeting, userId, mediaType, mediaGroups)
+    state = enforcePublicOnlyUserState(liveMeeting, userId, mediaType, state)
+
+    if (state != mediaGroups) {
+      val publicId = PublicMediaGroupIds.publicGroupIdForMediaType(mediaType)
+      handleMediaGroupUpdated(publicId, state, liveMeeting, outGW)
+    }
+
+    state
   }
 
   def handleMediaGroupUpdated(
