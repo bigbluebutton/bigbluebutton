@@ -1,18 +1,12 @@
 export function validateInitialContentJson(body: any): { valid: boolean; error?: string } {
-  // Check if body has blocks property
+  // Array is of object type
   if (!body || typeof body !== "object") {
     return { valid: false, error: "Body must be an object" };
   }
 
-  if (!body.blocks || !Array.isArray(body.blocks)) {
-    return { valid: false, error: "Body must contain a 'blocks' array" };
-  }
-
-  const blocks = body.blocks;
-
   // Validate each block
-  for (let i = 0; i < blocks.length; i++) {
-    const block = blocks[i];
+  for (let i = 0; i < body.length; i++) {
+    const block = body[i];
 
     // Check required fields
     if (!block.id || typeof block.id !== "string") {

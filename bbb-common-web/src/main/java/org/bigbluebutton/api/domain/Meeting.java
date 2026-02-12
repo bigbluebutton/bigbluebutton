@@ -71,7 +71,7 @@ public class Meeting {
 	private boolean allowStartStopRecording = false;
 	private String sharedNotesEditor = "etherpad";
 	private String sharedNotesInitialContentJsonUrl = "";
-	private Map<String, Object> sharedNotesInitialContentJson;
+	private ArrayList<Object> sharedNotesInitialContentJson;
 	private boolean presentationConversionCacheEnabled = false;
 	private boolean recordFullDurationMedia = false;
 	private boolean haveRecordingMarks = false;
@@ -688,11 +688,11 @@ public class Meeting {
 		return sharedNotesInitialContentJsonUrl;
 	}
 
-	public Map<String, Object> getSharedNotesInitialContentJson() {
+	public ArrayList<Object> getSharedNotesInitialContentJson() {
 		return sharedNotesInitialContentJson;
 	}
 
-	public void setSharedNotesInitialContentJson(Map<String, Object> initialContentJson) {
+	public void setSharedNotesInitialContentJson(ArrayList<Object> initialContentJson) {
 		sharedNotesInitialContentJson = initialContentJson;
 	}
 

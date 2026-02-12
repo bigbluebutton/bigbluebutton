@@ -34,7 +34,7 @@ object PadslHdlrHelpers {
       meetingId:                     String,
       externalId:                    String,
       model:                         String,
-      sharedNotesInitialContentJson: util.Map[String, AnyRef]
+      sharedNotesInitialContentJson: Vector[AnyRef]
   ): Unit = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(BNSharedNotesCreateCmdMsg.NAME, routing)

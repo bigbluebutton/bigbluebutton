@@ -125,7 +125,7 @@ class BbbWebApiGWApp(
                     recorded: java.lang.Boolean, voiceBridge: String, duration: java.lang.Integer,
                     autoStartRecording:      java.lang.Boolean,
                     allowStartStopRecording: java.lang.Boolean,
-                    sharedNotesInitialContentJson: util.Map[String, AnyRef],
+                    sharedNotesInitialContentJson: java.util.ArrayList[AnyRef],
                     sharedNotesEditor:         java.lang.String,
                     recordFullDurationMedia: java.lang.Boolean,
                     webcamsOnlyForModerator: java.lang.Boolean,
@@ -180,12 +180,13 @@ class BbbWebApiGWApp(
 
     val disabledFeaturesAsVector: Vector[String] = disabledFeatures.asScala.toVector
 
+    val sharedNotesInitialContentJsonVector: Vector[AnyRef] = sharedNotesInitialContentJson.asScala.toVector
     val meetingProp = MeetingProp(
       name = meetingName,
       extId = extMeetingId,
       intId = meetingId,
       meetingCameraCap = meetingCameraCap.intValue(),
-      sharedNotesInitialContentJson = sharedNotesInitialContentJson,
+      sharedNotesInitialContentJson = sharedNotesInitialContentJsonVector,
       sharedNotesEditor = sharedNotesEditor,
       maxPinnedCameras = maxPinnedCameras.intValue(),
       cameraBridge,

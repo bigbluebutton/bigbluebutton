@@ -369,8 +369,8 @@ public class MeetingService implements MessageListener {
       : Collections.unmodifiableCollection(sessions.values());
   }
 
-  public Map<String, Object> getSharedNotesInitialContent(Meeting m) {
-    Map<String, Object> initialContent;
+  public ArrayList<Object> getSharedNotesInitialContent(Meeting m) {
+    ArrayList<Object> initialContent;
     String sharedNotesInitialContentJsonUrl = m.getSharedNotesInitialContentJsonUrl();
     String sharedNotesInitialContentJsonBase64 = m.getSharedNotesInitialContentJsonBase64();
 
@@ -383,9 +383,8 @@ public class MeetingService implements MessageListener {
     return initialContent;
   }
 
-  public Map<String, Object> requestSharedNotesInitialContentFromUrl(String initialContentJsonUrl) {
-
-    Map<String, Object> initialContent = new HashMap<>();
+  public ArrayList<Object> requestSharedNotesInitialContentFromUrl(String initialContentJsonUrl) {
+    ArrayList<Object> initialContent = new ArrayList<>();
     if (!initialContentJsonUrl.isEmpty()) {
       try {
         URL url = new URL(initialContentJsonUrl);
@@ -405,8 +404,8 @@ public class MeetingService implements MessageListener {
     return initialContent;
   }
 
-  public Map<String, Object> decodeSharedNotesInitialContentBase64(String initialContentJsonInBase64) {
-    Map<String, Object> initialContent = new HashMap<>();
+  public ArrayList<Object> decodeSharedNotesInitialContentBase64(String initialContentJsonInBase64) {
+    ArrayList<Object> initialContent = new ArrayList<Object>();
     if (initialContentJsonInBase64 != null && !initialContentJsonInBase64.isEmpty()) {
       byte[] decodedBytes = Base64.getDecoder().decode(initialContentJsonInBase64);
       String decodedContent = new String(decodedBytes);
@@ -416,17 +415,18 @@ public class MeetingService implements MessageListener {
     return initialContent;
   }
 
-  public Map<String, Object> parseSharedNotesInitialContent(String content) {
-    Map<String, Object> initialContent;
-    JsonNode jsonNode = null;
+  public ArrayList<Object> parseSharedNotesInitialContent(String content) {
+    ArrayList<Object> initialContent = null;
     try {
-      jsonNode = objectMapper.readTree(content);
+      JsonNode jsonNode = objectMapper.readTree(content);
+      initialContent = objectMapper.convertValue(jsonNode, new TypeReference<>() {});
     } catch (JsonProcessingException e) {
       log.error(
               "Error while processing json for sharedNotesInitialContent: [{}]", e.getMessage());
+    } catch (IllegalArgumentException e) {
+      log.warn("Structure mismatched, ignoring initial content for shared notes.");
     }
-    initialContent = objectMapper.convertValue(jsonNode, new TypeReference<>() {});
-    if (initialContent == null) return new HashMap<>();
+    if (initialContent == null) return new ArrayList<>();
     return initialContent;
   }
 
@@ -575,7 +575,7 @@ public class MeetingService implements MessageListener {
     if (existingId == null && existingTelVoice == null && existingWebVoice == null) {
       meetings.put(m.getInternalId(), m);
       Map<String, Object> pluginsMap;
-      Map<String, Object> sharedNotesInitialContentMap = getSharedNotesInitialContent(m);
+      ArrayList<Object> sharedNotesInitialContentMap = getSharedNotesInitialContent(m);
       if (m.isBreakout()) {
         pluginsMap = plugins;
       } else {

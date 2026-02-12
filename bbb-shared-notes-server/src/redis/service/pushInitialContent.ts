@@ -10,7 +10,7 @@ export async function pushInitialContent(padId: string, initialContentJson: any)
 
   const validationResult = validateInitialContentJson(initialContentJson);
   if (validationResult.valid) {
-    const { blocks: initialBlocks } = initialContentJson;
+    const initialBlocks = initialContentJson;
     try {
       const connection = await hocuspocus.openDirectConnection(documentName);
 

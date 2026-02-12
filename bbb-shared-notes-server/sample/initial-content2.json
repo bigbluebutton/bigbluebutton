@@ -1,23 +1,21 @@
-{
-  "blocks": [
-    {
-      "id": "00000000-0000-0000-0000-000000000000",
-      "type": "paragraph",
-      "props": {
-        "textAlignment": "right",
-        "backgroundColor": "blue",
-        "textColor": "red"
-      },
-      "content": [
-        {
-          "type": "text",
-          "text": "Welcome to BigBlueButton Shared Notes! Start collaborating here...",
-          "styles": {
-            "bold": true
-          }
+[
+  {
+    "id": "00000000-0000-0000-0000-000000000000",
+    "type": "paragraph",
+    "props": {
+      "textAlignment": "right",
+      "backgroundColor": "blue",
+      "textColor": "red"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "Welcome to BigBlueButton Shared Notes! Start collaborating here...",
+        "styles": {
+          "bold": true
         }
-      ],
-      "children": []
-    }
-  ]
-}
+      }
+    ],
+    "children": []
+  }
+]
