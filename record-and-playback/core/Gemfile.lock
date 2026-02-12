@@ -8,7 +8,7 @@ GEM
       minitest (>= 5.1)
       tzinfo (~> 2.0)
     ast (2.4.2)
-    bbbevents (2.0.0)
+    bbbevents (2.0.3)
       activesupport (>= 5.0.0.1, < 8)
       rexml
     builder (3.2.4)
@@ -92,7 +92,7 @@ PLATFORMS
 
 DEPENDENCIES
   absolute_time (~> 1.0)
-  bbbevents (~> 2.0, >= 2.0.0)
+  bbbevents (~> 2.0, >= 2.0.3)
   builder (~> 3.2)
   fastimage (~> 2.1)
   java_properties
