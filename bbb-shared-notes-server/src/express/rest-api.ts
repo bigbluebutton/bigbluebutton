@@ -115,13 +115,14 @@ const documentApi: DocumentApi = {
           const fullHtmlToBeConvertedToPlainText = await exportDocumentToHtml(documentName);
           // Strip HTML tags to get plain text (emojis are preserved as Unicode characters)
           const plainText = fullHtmlToBeConvertedToPlainText
-            .replace(/<style[^>]*>.*?<\/style>/gis, '') // Remove style tags and content
-            .replace(/<script[^>]*>.*?<\/script>/gis, '') // Remove script tags and content
+            .replace(/<style(?=([^>]*))\1>(?:(?!<\/style>)[\s\S])*<\/style>/gi, '') // Remove style tags and content (ReDoS-safe)
+            .replace(/<script(?=([^>]*))\1>(?:(?!<\/script>)[\s\S])*<\/script>/gi, '') // Remove script tags and content (ReDoS-safe)
+            .replace(/<title(?=([^>]*))\1>(?:(?!<\/title>)[\s\S])*<\/title>/gi, '') // Remove title tags and content (ReDoS-safe)
             .replace(/<br\s*\/?>/gi, '\n') // Replace <br> with newline
             .replace(/<\/?(p|div|h[1-6]|li|tr)[^>]*>/gi, '\n') // Replace block elements with newline
             .replace(/<\/ul>/gi, '\n') // Add newline after lists
             .replace(/<\/ol>/gi, '\n') // Add newline after ordered lists
-            .replace(/<[^>]+>/g, '') // Remove all remaining HTML tags
+            .replace(/<(?=([^>]+))\1>/g, '') // Remove all remaining HTML tags (ReDoS-safe)
             .replace(/&nbsp;/g, ' ') // Replace &nbsp; with space
             .replace(/&lt;/g, '<') // Replace &lt; with <
             .replace(/&gt;/g, '>') // Replace &gt; with >
