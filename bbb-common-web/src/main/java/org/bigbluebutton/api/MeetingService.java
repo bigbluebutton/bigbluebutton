@@ -372,12 +372,12 @@ public class MeetingService implements MessageListener {
   public ArrayList<Object> getSharedNotesInitialContent(Meeting m) {
     ArrayList<Object> initialContent;
     String sharedNotesInitialContentJsonUrl = m.getSharedNotesInitialContentJsonUrl();
-    String sharedNotesInitialContentJsonBase64 = m.getSharedNotesInitialContentJsonBase64();
+    String sharedNotesInitialContentJsonFromPayload = m.getSharedNotesInitialContentJsonFromPayload();
 
     if (!sharedNotesInitialContentJsonUrl.isEmpty()) {
       initialContent = requestSharedNotesInitialContentFromUrl(sharedNotesInitialContentJsonUrl);
     } else {
-      initialContent = decodeSharedNotesInitialContentBase64(sharedNotesInitialContentJsonBase64);
+      initialContent = parseSharedNotesInitialContent(sharedNotesInitialContentJsonFromPayload);
     }
 
     return initialContent;
@@ -400,17 +400,6 @@ public class MeetingService implements MessageListener {
         log.error(
                 "Something went wrong while processing [{}]. Error: {}", initialContentJsonUrl, e.getMessage());
       }
-    }
-    return initialContent;
-  }
-
-  public ArrayList<Object> decodeSharedNotesInitialContentBase64(String initialContentJsonInBase64) {
-    ArrayList<Object> initialContent = new ArrayList<Object>();
-    if (initialContentJsonInBase64 != null && !initialContentJsonInBase64.isEmpty()) {
-      byte[] decodedBytes = Base64.getDecoder().decode(initialContentJsonInBase64);
-      String decodedContent = new String(decodedBytes);
-
-      initialContent = parseSharedNotesInitialContent(decodedContent);
     }
     return initialContent;
   }

@@ -134,7 +134,7 @@ public class Meeting {
 
 	private String meetingEndedCallbackURL = "";
 
-	private String sharedNotesInitialContentJsonBase64;
+	private String sharedNotesInitialContentJsonFromPayload;
 
 	private String overrideClientSettings = "";
 
@@ -1004,12 +1004,12 @@ public class Meeting {
         return pluginMetadataParametersMap;
     }
 
-    public String getSharedNotesInitialContentJsonBase64() {
-        return sharedNotesInitialContentJsonBase64;
+    public String getSharedNotesInitialContentJsonFromPayload() {
+        return sharedNotesInitialContentJsonFromPayload;
     }
 
-    public void setSharedNotesInitialContentJsonBase64(String sharedNotesInitialContentJsonBase64) {
-        this.sharedNotesInitialContentJsonBase64 = sharedNotesInitialContentJsonBase64;
+    public void setSharedNotesInitialContentJsonFromPayload(String sharedNotesInitialContentJsonFromPayload) {
+        this.sharedNotesInitialContentJsonFromPayload = sharedNotesInitialContentJsonFromPayload;
     }
 
     /***
