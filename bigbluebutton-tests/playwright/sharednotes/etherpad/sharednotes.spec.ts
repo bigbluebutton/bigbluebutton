@@ -1,13 +1,17 @@
-import { initializePages } from '../core/helpers';
-import { test } from '../core/setup/fixtures';
+import { initializePages } from '../../core/helpers';
+import { test } from '../../core/setup/fixtures';
 import { SharedNotes } from './sharednotes';
 
-test.describe.parallel('Shared Notes', { tag: '@ci' }, () => {
+test.describe.parallel('Shared Notes - Etherpad', { tag: '@ci' }, () => {
   let sharedNotes: SharedNotes;
 
   test.beforeEach(async ({ browser, context }, testInfo) => {
     sharedNotes = new SharedNotes(browser, context);
-    await initializePages(sharedNotes, browser, { isMultiUser: true, testInfo });
+    await initializePages(sharedNotes, browser, {
+      isMultiUser: true,
+      createParameter: 'sharedNotesEditor=etherpad',
+      testInfo,
+    });
   });
 
   test('Open shared notes', async () => {

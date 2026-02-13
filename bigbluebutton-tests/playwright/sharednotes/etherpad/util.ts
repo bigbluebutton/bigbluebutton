@@ -1,6 +1,6 @@
-import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
-import { elements as e } from '../core/elements';
-import { Page } from '../core/page';
+import { ELEMENT_WAIT_LONGER_TIME } from '../../core/constants';
+import { elements as e } from '../../core/elements';
+import { Page } from '../../core/page';
 
 export async function startSharedNotes(testPage: Page) {
   await testPage.waitAndClick(e.sharedNotes);
