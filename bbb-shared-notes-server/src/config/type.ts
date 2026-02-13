@@ -6,6 +6,7 @@ export interface HocuspocusServerConfig {
 export interface ExpressServerConfig {
   host: string;
   port: number;
+  maxContentLength: number; // In kB
 }
 
 export interface BbbWebConfig {

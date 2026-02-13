@@ -8,6 +8,7 @@ import { fileURLToPath } from "url";
 import { documentApi } from "./rest-api";
 import { websocketApi } from "./websocket-api";
 import { extractMeetingId } from "../hocuspocus/utils";
+import expressWs from "express-ws";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -51,6 +52,23 @@ const limiter = rateLimit({
 const startExpressApp = () => {
   // Setup your express instance using the express-ws extension
   const { app } = expressWebsockets(express());
+
+  const wsInstance = expressWs(app); 
+
+  const wsServer = wsInstance.getWss();
+
+  const maxSize = config.expressServer.maxContentLength * 1024; //kB
+
+  wsServer.options.maxPayload = maxSize;
+
+  wsServer.on("connection", (ws) => {
+    ws.on("error", (err) => {
+      logger.error("WS connection error:", {
+        message: err.message,
+        cause: err.cause,
+      });
+    });
+  });
 
   const runDevelopmentRoutes = () => {
     // Serve static files from sample directory (development only)

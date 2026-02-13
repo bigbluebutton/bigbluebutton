@@ -121,11 +121,20 @@ const useHocuspocusProvider = () => {
           } = data.event;
 
           // Handle security violations - do not reconnect
-          if (code === 4001 || code === 1005 || code === 3000) {
+          if (code !== 1008 && code !== 1006) {
             let securityViolationReason = reason;
-            if (code === 1005 && (!reason || reason === '')) {
-              // If empty reason, connection didn't pass handshake request
-              securityViolationReason = 'Too many requests';
+            if ((!reason || reason === '')) {
+              switch (code) {
+                case 1005:
+                  securityViolationReason = 'Too many requests';
+                  break;
+                case 1009:
+                  securityViolationReason = 'Payload too long';
+                  break;
+                default:
+                  securityViolationReason = 'Unknown error - Contact administrators';
+                  break;
+              }
             }
             setError(`Security violation: ${securityViolationReason}`);
             isAuthenticating.current = false;

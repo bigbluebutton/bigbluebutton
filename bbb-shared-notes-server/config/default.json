@@ -1,7 +1,8 @@
 {
   "expressServer": {
     "host": "127.0.0.1",
-    "port": 8787
+    "port": 8787,
+    "maxContentLength": 512
   },
   "hocuspocusServer": {
     "host": "127.0.0.1",
