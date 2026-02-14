@@ -557,6 +557,7 @@ export interface Chat {
   disableEmojis: string[]
   markdownImageAllowed: boolean
   toolbar: string[]
+  maxPinnedChatMessages?: number
 }
 
 export interface SystemMessagesKeys {

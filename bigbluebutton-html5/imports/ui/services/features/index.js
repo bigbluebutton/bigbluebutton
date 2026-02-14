@@ -132,6 +132,18 @@ export function useIsChatMessageReactionsEnabled() {
   );
 }
 
+export function useIsChatPinningEnabled() {
+  return useDisabledFeatures().indexOf('chatPinning') === -1;
+}
+
+export function useIsPinChatMessageEnabled() {
+  return (
+    useIsChatPinningEnabled()
+    && useDisabledFeatures().indexOf('pinChatMessage') === -1
+    && window.meetingClientSettings.public.chat.toolbar.includes('pin')
+  );
+}
+
 export function useIsPrivateChatEnabled() {
   return useDisabledFeatures().indexOf('privateChat') === -1;
 }

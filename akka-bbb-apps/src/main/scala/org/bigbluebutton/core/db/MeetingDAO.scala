@@ -14,6 +14,13 @@ case class MeetingSystemColumnsDbModel(
       bannerColor:                           Option[String],
 )
 
+// Group bridge-related columns into a single nested model to avoid Scala's 22-tuple limitation
+case class MeetingBridgesDbModel(
+  cameraBridge: String,
+  screenShareBridge: String,
+  audioBridge: String
+)
+
 case class MeetingDbModel(
     meetingId:                             String,
     extId:                                 String,
@@ -21,10 +28,9 @@ case class MeetingDbModel(
     isBreakout:                            Boolean,
     disabledFeatures:                      List[String],
     meetingCameraCap:                      Int,
-    maxPinnedCameras:                      Int,
-    cameraBridge:                          String,
-    screenShareBridge:                     String,
-    audioBridge:                           String,
+    maxPinnedCameras:                     Int,
+    maxPinnedChatMessages:                Int,
+    bridges:                               MeetingBridgesDbModel,
     notifyRecordingIsOn:                   Boolean,
     presentationUploadExternalDescription: String,
     presentationUploadExternalUrl:         String,
@@ -48,9 +54,8 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
     disabledFeatures,
     meetingCameraCap,
     maxPinnedCameras,
-    cameraBridge,
-    screenShareBridge,
-    audioBridge,
+    maxPinnedChatMessages,
+    bridges,
     notifyRecordingIsOn,
     presentationUploadExternalDescription,
     presentationUploadExternalUrl,
@@ -71,9 +76,14 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val disabledFeatures = column[List[String]]("disabledFeatures")
   val meetingCameraCap = column[Int]("meetingCameraCap")
   val maxPinnedCameras = column[Int]("maxPinnedCameras")
+  val maxPinnedChatMessages = column[Int]("maxPinnedChatMessages")
   val cameraBridge = column[String]("cameraBridge")
   val screenShareBridge = column[String]("screenShareBridge")
   val audioBridge = column[String]("audioBridge")
+
+  // composite mapping for the three bridge columns
+  val bridges = (cameraBridge, screenShareBridge, audioBridge) <> (MeetingBridgesDbModel.tupled, MeetingBridgesDbModel.unapply)
+
   val notifyRecordingIsOn = column[Boolean]("notifyRecordingIsOn")
   val presentationUploadExternalDescription = column[String]("presentationUploadExternalDescription")
   val presentationUploadExternalUrl = column[String]("presentationUploadExternalUrl")
@@ -106,9 +116,12 @@ object MeetingDAO {
           disabledFeatures = meetingProps.meetingProp.disabledFeatures.toList,
           meetingCameraCap = meetingProps.meetingProp.meetingCameraCap,
           maxPinnedCameras = meetingProps.meetingProp.maxPinnedCameras,
-          cameraBridge = meetingProps.meetingProp.cameraBridge,
-          screenShareBridge = meetingProps.meetingProp.screenShareBridge,
-          audioBridge = meetingProps.meetingProp.audioBridge,
+          maxPinnedChatMessages = meetingProps.meetingProp.maxPinnedChatMessages,
+          bridges = MeetingBridgesDbModel(
+            cameraBridge = meetingProps.meetingProp.cameraBridge,
+            screenShareBridge = meetingProps.meetingProp.screenShareBridge,
+            audioBridge = meetingProps.meetingProp.audioBridge
+          ),
           notifyRecordingIsOn = meetingProps.meetingProp.notifyRecordingIsOn,
           presentationUploadExternalDescription = meetingProps.meetingProp.presentationUploadExternalDescription,
           presentationUploadExternalUrl = meetingProps.meetingProp.presentationUploadExternalUrl,

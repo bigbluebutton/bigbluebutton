@@ -411,3 +411,9 @@
 .icon-bbb-presentation_permission:before {
   content: "\e981";
 }
+.icon-bbb-pin_filled:before {
+  content: "\e982";
+}
+.icon-bbb-visibility_off:before {
+  content: "\e983";
+}

@@ -26,6 +26,7 @@ create unlogged table "meeting" (
 	"disabledFeatures" varchar[],
 	"meetingCameraCap" integer,
 	"maxPinnedCameras" integer,
+	"maxPinnedChatMessages" integer,
 	"cameraBridge" varchar(30),
 	"screenShareBridge" varchar(30),
 	"audioBridge" varchar(30),
@@ -1062,6 +1063,10 @@ create view "v_meeting_learningDashboard" as
 select "meetingId", "learningDashboardAccessToken"
 from "v_meeting";
 
+create view "v_meeting_chat" as
+select "meetingId", "maxPinnedChatMessages"
+from "v_meeting";
+
 
 CREATE OR REPLACE VIEW "v_user_whiteboardWriteAccess" AS
 select "meetingId", "userId", "name", "presenter", "isModerator"
@@ -1095,12 +1100,13 @@ create index "idx_user_activity_orderBy" on "user_activity" ("meetingId", "userI
 
 
 CREATE UNLOGGED TABLE "chat" (
-	"meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
-	"chatId"  varchar(100),
-	"access" varchar(20),
-	"createdBy" varchar(25),
-	"totalMessages" integer,
-	CONSTRAINT "chat_pkey" PRIMARY KEY ("meetingId", "chatId")
+    "meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
+    "chatId"  varchar(100),
+    "access" varchar(20),
+    "createdBy" varchar(25),
+    "totalMessages" integer,
+    "pinnedMessageIds" varchar(100)[],
+    CONSTRAINT "chat_pkey" PRIMARY KEY ("meetingId", "chatId")
 );
 CREATE INDEX "idx_chat_pk_reverse" ON "chat"("chatId","meetingId");
 
@@ -1184,6 +1190,8 @@ CREATE UNLOGGED TABLE "chat_message" (
 	"editedAt" timestamp with time zone,
 	"deletedByUserId" varchar(100),
 	"deletedAt" timestamp with time zone,
+  "pinnedByUserId" varchar(100),
+  "pinnedAt" timestamp with time zone,
     CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
 );
 CREATE INDEX "idx_chat_message_chatId" ON "chat_message"("chatId","meetingId");
@@ -1382,7 +1390,8 @@ SELECT 	"user"."meetingId",
 		"chat"."totalMessages",
 		cu."totalUnreadMessages" AS "totalUnread",
 		cu."lastSeenAt",
-		CASE WHEN "chat"."access" = 'PUBLIC_ACCESS' THEN true ELSE false end "public"
+		CASE WHEN "chat"."access" = 'PUBLIC_ACCESS' THEN true ELSE false end "public",
+        "chat"."pinnedMessageIds"
 FROM "user"
 JOIN "chat_user" cu ON cu."meetingId" = "user"."meetingId" AND cu."userId" = "user"."userId"
 --now it will always add chat_user for public chat onUserJoin
@@ -1422,6 +1431,8 @@ SELECT  cu."meetingId",
         cm."editedAt",
         cm."deletedByUserId",
         cm."deletedAt",
+        cm."pinnedByUserId",
+        cm."pinnedAt",
         CASE WHEN chat_with."lastSeenAt" >= cm."createdAt" THEN true ELSE false end "recipientHasSeen"
 FROM chat_message cm
 JOIN chat_user cu ON cu."meetingId" = cm."meetingId" AND cu."chatId" = cm."chatId"
@@ -2551,4 +2562,5 @@ WHERE attrelid IN (
   and n.nspname = 'public' -- restrict to public schema
 )
 AND (attname ~ 'Id$' or attname in ('sessionToken', 'isModerator'))
+AND attname != 'pinnedByUserId' -- exclude nullable field for unpinned messages
 AND attnotnull IS FALSE; -- skip already set

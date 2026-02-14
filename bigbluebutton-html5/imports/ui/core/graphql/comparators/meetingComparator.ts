@@ -32,6 +32,7 @@ export const meetingComparator = <T>(
   if ((aData.isBreakout ?? false) !== (bData.isBreakout ?? false)) return false;
   if ((aData.learningDashboardAccessToken ?? '') !== (bData.learningDashboardAccessToken ?? '')) return false;
   if ((aData.maxPinnedCameras ?? 0) !== (bData.maxPinnedCameras ?? 0)) return false;
+  if ((aData.chat?.maxPinnedChatMessages ?? 0) !== (bData.chat?.maxPinnedChatMessages ?? 0)) return false;
   if ((aData.meetingCameraCap ?? 0) !== (bData.meetingCameraCap ?? 0)) return false;
   if ((aData.cameraBridge ?? '') !== (bData.cameraBridge ?? '')) return false;
   if ((aData.screenShareBridge ?? '') !== (bData.screenShareBridge ?? '')) return false;

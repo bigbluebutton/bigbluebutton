@@ -24,16 +24,26 @@ case class GroupChats(chats: collection.immutable.Map[String, GroupChat]) {
 }
 
 case class GroupChat(id: String, access: String, createdBy: GroupChatUser,
-                     users: Vector[GroupChatUser],
-                     msgs:  Vector[GroupChatMessage]) {
+                     users:            Vector[GroupChatUser],
+                     msgs:             Vector[GroupChatMessage],
+                     pinnedMessageIds: Vector[String]           = Vector.empty) {
   def findMsgWithId(id: String): Option[GroupChatMessage] = msgs.find(m => m.id == id)
   def add(user: GroupChatUser): GroupChat = copy(users = users :+ user)
   def remove(userId: String): GroupChat = copy(users = users.filterNot(u => u.id == userId))
   def add(msg: GroupChatMessage): GroupChat = copy(msgs = msgs :+ msg)
-  def delete(msgId: String): GroupChat = copy(msgs = msgs.filterNot(m => m.id == msgId))
+  def delete(msgId: String): GroupChat = copy(msgs = msgs.filterNot(m => m.id == msgId), pinnedMessageIds = pinnedMessageIds.filterNot(_ == msgId))
   def update(msg: GroupChatMessage): GroupChat = add(msg)
   def isUserMemberOf(userId: String): Boolean = users.find(p => p.id == userId).isDefined
-  def clearMessages(): GroupChat = copy(msgs = Vector())
+  def clearMessages(): GroupChat = copy(msgs = Vector(), pinnedMessageIds = Vector.empty)
+
+  def pin(messageId: String): GroupChat = {
+    if (pinnedMessageIds.contains(messageId) || findMsgWithId(messageId).isEmpty) this
+    else copy(pinnedMessageIds = pinnedMessageIds :+ messageId)
+  }
+
+  def unpin(messageId: String): GroupChat = copy(pinnedMessageIds = pinnedMessageIds.filterNot(_ == messageId))
+
+  def isPinned(messageId: String): Boolean = pinnedMessageIds.contains(messageId)
 }
 
 case class GroupChatMessage(id: String, timestamp: Long, correlationId: String, createdOn: Long,

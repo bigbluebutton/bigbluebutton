@@ -34,6 +34,7 @@
 ### Relationships:
 - `breakoutPolicies: Object` [Type meeting_breakoutPolicies](#type-meeting_breakoutPolicies)
 - `clientSettings: Object` [Type meeting_clientSettings](#type-meeting_clientSettings)
+- `chat: Object` [Type meeting_chat](#type-meeting_chat)
 - `componentsFlags: Object` **Type meeting_componentsFlags**
   - `hasBreakoutRoom: Boolean`
   - `hasCameraAsContent: Boolean`
@@ -306,6 +307,14 @@ Permission: Restricted to User Viewing Self-Related Data
 - `isSharedNotesPinned`
 - `showRemainingTime`
 
+## Type: meeting_chat
+### Fields:
+- `meetingId`
+- `maxPinnedChatMessages`
+
+Notes:
+- Backed by SQL view `v_meeting_chat` and exposed in GraphQL via `meeting.chat.maxPinnedChatMessages`.
+
 ## Type: pres_page
 Permission: Restricted to Presenter
 ### Fields:
@@ -568,8 +577,10 @@ Permission: Restricted to Presenter
 - `totalMessages`
 - `totalUnread`
 - `visible`
+- `pinnedMessageIds`
 ### Relationships:
 - `participant: Object` [Type User](#type-user)
+- `pinnedMessages: Array` [Type Public Chat Message](#type-chat_message_public)
 
 ## Type: pluginDataChannelEntry
 ### Fields:

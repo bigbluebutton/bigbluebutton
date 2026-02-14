@@ -2,6 +2,7 @@ package org.bigbluebutton.core.db
 
 import slick.jdbc.PostgresProfile.api._
 import org.bigbluebutton.core.models.{GroupChatFactory, GroupChatMessage}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 case class ChatMessageDbModel(
     messageId:          String,
@@ -20,7 +21,9 @@ case class ChatMessageDbModel(
     createdAt:          java.sql.Timestamp,
     editedAt:           Option[java.sql.Timestamp],
     deletedByUserId:    Option[String],
-    deletedAt:          Option[java.sql.Timestamp]
+    deletedAt:          Option[java.sql.Timestamp],
+    pinnedByUserId:     Option[String],
+    pinnedAt:           Option[java.sql.Timestamp]
 )
 
 class ChatMessageDbTableDef(tag: Tag) extends Table[ChatMessageDbModel](tag, None, "chat_message") {
@@ -43,11 +46,13 @@ class ChatMessageDbTableDef(tag: Tag) extends Table[ChatMessageDbModel](tag, Non
   val editedAt = column[Option[java.sql.Timestamp]]("editedAt")
   val deletedByUserId = column[Option[String]]("deletedByUserId")
   val deletedAt = column[Option[java.sql.Timestamp]]("deletedAt")
+  val pinnedByUserId = column[Option[String]]("pinnedByUserId")
+  val pinnedAt = column[Option[java.sql.Timestamp]]("pinnedAt")
 
   override def * = (
     messageId, chatId, meetingId, correlationId, chatEmphasizedText,
     message, messageAsHtml, messageType, replyToMessageId, messageMetadata, senderId, senderName, senderRole,
-    createdAt, editedAt, deletedByUserId, deletedAt
+    createdAt, editedAt, deletedByUserId, deletedAt, pinnedByUserId, pinnedAt
   ) <> (ChatMessageDbModel.tupled, ChatMessageDbModel.unapply)
 }
 
@@ -76,6 +81,8 @@ object ChatMessageDAO {
           editedAt = None,
           deletedByUserId = None,
           deletedAt = None,
+          pinnedByUserId = None,
+          pinnedAt = None,
         )
       )
     )
@@ -105,6 +112,8 @@ object ChatMessageDAO {
           editedAt = None,
           deletedByUserId = None,
           deletedAt = None,
+          pinnedByUserId = None,
+          pinnedAt = None,
         )
       )
     )
@@ -126,6 +135,30 @@ object ChatMessageDAO {
     )
   }
 
+  def pin(meetingId: String, chatId: String, messageId: String, pinnedByUserId: String) = {
+    val now = new java.sql.Timestamp(System.currentTimeMillis())
+    DatabaseConnection.enqueue(
+      TableQuery[ChatMessageDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .filter(_.chatId === chatId)
+        .filter(_.messageId === messageId)
+        .map(msg => (msg.pinnedByUserId, msg.pinnedAt))
+        .update((Some(pinnedByUserId), Some(now)))
+    )
+  }
+
+  def unpin(meetingId: String, chatId: String, messageId: String) = {
+    val now = new java.sql.Timestamp(System.currentTimeMillis())
+    DatabaseConnection.enqueue(
+      TableQuery[ChatMessageDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .filter(_.chatId === chatId)
+        .filter(_.messageId === messageId)
+        .map(msg => (msg.pinnedByUserId, msg.pinnedAt))
+        .update(None, None)
+    )
+  }
+
   def softDelete(meetingId: String, chatId: String, messageId: String, deletedByUserId: String) = {
     //set message=NULL instead of delete it from db, because the client will show "Message deleted"
     DatabaseConnection.enqueue(
@@ -134,8 +167,8 @@ object ChatMessageDAO {
         .filter(_.chatId === chatId)
         .filter(_.messageId === messageId)
         .filter(_.message.nonEmpty)
-        .map(msg => (msg.message, msg.messageAsHtml, msg.deletedByUserId, msg.deletedAt))
-        .update((None, None, Some(deletedByUserId), Some(new java.sql.Timestamp(System.currentTimeMillis()))))
+        .map(msg => (msg.message, msg.messageAsHtml, msg.deletedByUserId, msg.deletedAt, msg.pinnedByUserId, msg.pinnedAt))
+        .update((None, None, Some(deletedByUserId), Some(new java.sql.Timestamp(System.currentTimeMillis())), None, None))
     )
   }
 

@@ -6,6 +6,12 @@ const CHAT_EDIT_MESSAGE_MUTATION = gql`
   }
 `;
 
+const CHAT_SET_PINNED_MUTATION = gql`
+  mutation($chatId: String!, $messageId: String!, $pinned: Boolean!) {
+    chatSetPinned(chatId: $chatId, messageId: $messageId, pinned: $pinned)
+  }
+`;
+
 const CHAT_DELETE_MESSAGE_MUTATION = gql`
   mutation($chatId: String!, $messageId: String!) {
     chatDeleteMessage(chatId: $chatId, messageId: $messageId)
@@ -37,10 +43,12 @@ export default {
   CHAT_DELETE_MESSAGE_MUTATION,
   CHAT_DELETE_REACTION_MUTATION,
   CHAT_SEND_REACTION_MUTATION,
+  CHAT_SET_PINNED_MUTATION,
 };
 
 export {
   CHAT_EDIT_MESSAGE_MUTATION,
+  CHAT_SET_PINNED_MUTATION,
   CHAT_DELETE_MESSAGE_MUTATION,
   CHAT_DELETE_REACTION_MUTATION,
   CHAT_SEND_REACTION_MUTATION,

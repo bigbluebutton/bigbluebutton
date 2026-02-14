@@ -7,6 +7,7 @@ import {
   Root,
 } from './styles';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
+import { useIsPinChatMessageEnabled } from '/imports/ui/services/features';
 
 const intlMessages = defineMessages({
   reply: {
@@ -26,6 +27,10 @@ const intlMessages = defineMessages({
     id: 'app.chat.header.tooltipReply',
     description: '',
     defaultMessage: 'Reply to message',
+  },
+  pinTooltip: {
+    id: 'app.chat.header.tooltipPin',
+    description: 'pin message tooltip',
   },
   deleteTooltip: {
     id: 'app.chat.header.tooltipDelete',
@@ -50,6 +55,7 @@ interface ChatMessageToolbarProps {
   hasToolbar: boolean;
   locked: boolean;
   deleted: boolean;
+  isPinned: boolean;
   chatReplyEnabled: boolean;
   chatReactionsEnabled: boolean;
   chatEditEnabled: boolean;
@@ -57,29 +63,35 @@ interface ChatMessageToolbarProps {
   onReply: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
   onEdit: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
   onDelete: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  togglePin: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  isPublicChat: boolean;
 }
 
 const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const {
-    isCustomPluginMessage, deleted, messageSequence, own, amIModerator, isBreakoutRoom,
+    isCustomPluginMessage, deleted, isPinned, messageSequence, own, amIModerator, isBreakoutRoom,
     locked, onReactionPopoverOpenChange, reactionPopoverIsOpen, hasToolbar,
     chatDeleteEnabled, chatEditEnabled, chatReactionsEnabled, chatReplyEnabled,
-    onDelete, onEdit, onReply,
+    onDelete, onEdit, onReply, togglePin, isPublicChat,
   } = props;
   const intl = useIntl();
+  const chatPinEnabled = useIsPinChatMessageEnabled();
 
   if ([
     chatReplyEnabled,
     chatReactionsEnabled,
     chatEditEnabled,
     chatDeleteEnabled,
+    chatPinEnabled,
   ].every((config) => !config) || !hasToolbar || locked || deleted) return null;
 
   const showReplyButton = chatReplyEnabled;
   const showReactionsButton = chatReactionsEnabled;
   const showEditButton = chatEditEnabled && own && !isCustomPluginMessage;
   const showDeleteButton = chatDeleteEnabled && (own || (amIModerator && !isBreakoutRoom));
-  const showDivider = (showReplyButton || showReactionsButton) && (showEditButton || showDeleteButton);
+  const showPinMessageButton = chatPinEnabled && amIModerator && !isCustomPluginMessage && isPublicChat;
+  const showDivider = (showReplyButton || showReactionsButton || showPinMessageButton)
+    && (showEditButton || showDeleteButton);
 
   const container = (
     <Container className="chat-message-toolbar" data-test="chatMessageToolbar">
@@ -108,6 +120,19 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
             color="light"
             data-test="reactMessageButton"
           />
+        </Tooltip>
+      )}
+      {showPinMessageButton && (
+        <Tooltip title={intl.formatMessage(intlMessages.pinTooltip)}>
+          <span>
+            <EmojiButton
+              aria-label={intl.formatMessage(intlMessages.pinTooltip)}
+              onClick={togglePin}
+              icon={`pin-video_${isPinned ? 'off' : 'on'}`}
+              color="light"
+              data-test="pinMessageButton"
+            />
+          </span>
         </Tooltip>
       )}
       {showDivider && <Divider role="separator" />}

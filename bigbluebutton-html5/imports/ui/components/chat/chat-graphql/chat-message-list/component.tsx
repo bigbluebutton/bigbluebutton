@@ -38,6 +38,7 @@ import { CHAT_DELETE_REACTION_MUTATION, CHAT_SEND_REACTION_MUTATION } from './pa
 import logger from '/imports/startup/client/logger';
 import { ChatLoading } from '../component';
 import Storage from '/imports/ui/services/storage/in-memory';
+import PinnedChatMessageContainer from './pinned-chat-message/container';
 
 const PAGE_SIZE = 50;
 const CLEANUP_TIMEOUT = 3000;
@@ -373,6 +374,10 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     setLastMessageCreatedAt(new Date(pendingLastSeenAt).toISOString());
   }, [pendingLastSeenAtByChat, chatId, lastMessageCreatedAt]);
 
+  const firstPageToLoad = userLoadedBackUntilPage !== null
+    ? userLoadedBackUntilPage
+    : Math.max(totalPages - 2, 0);
+
   useEffect(() => {
     const handler = (e: Event) => {
       if (e instanceof CustomEvent) {
@@ -390,7 +395,7 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     return () => {
       window.removeEventListener(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, handler);
     };
-  }, []);
+  }, [firstPageToLoad]);
 
   const markMessageAsSeen = useCallback((message: Message) => {
     if (new Date(message.createdAt).getTime() > new Date((lastMessageCreatedAt || 0)).getTime()) {
@@ -512,9 +517,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
     }
   }, []);
 
-  const firstPageToLoad = userLoadedBackUntilPage !== null
-    ? userLoadedBackUntilPage
-    : Math.max(totalPages - 2, 0);
   const pagesToLoad = (totalPages - firstPageToLoad) || 1;
 
   const rove: KeyboardEventHandler<HTMLElement> = (e) => {
@@ -561,6 +563,9 @@ const ChatMessageList: React.FC<ChatListProps> = ({
       {
         [
           <Content key="message-list-content">
+            <PinnedChatMessageContainer
+              openChatId={chatId}
+            />
             <MessageList
               id="chat-list"
               key="message-list-wrapper"

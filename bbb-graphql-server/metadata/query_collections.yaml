@@ -29,6 +29,9 @@
               endWhenNoModeratorDelayInMinutes
               createdTime
               maxPinnedCameras
+              chat {
+                maxPinnedChatMessages
+              }
               meetingCameraCap
               cameraBridge
               screenShareBridge

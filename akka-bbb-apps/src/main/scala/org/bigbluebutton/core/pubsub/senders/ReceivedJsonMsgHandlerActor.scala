@@ -449,6 +449,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[EditGroupChatMessageReqMsg](envelope, jsonNode)
       case DeleteGroupChatMessageReqMsg.NAME =>
         routeGenericMsg[DeleteGroupChatMessageReqMsg](envelope, jsonNode)
+      case PinGroupChatMessageReqMsg.NAME =>
+        routeGenericMsg[PinGroupChatMessageReqMsg](envelope, jsonNode)
+      case UnpinGroupChatMessageReqMsg.NAME =>
+        routeGenericMsg[UnpinGroupChatMessageReqMsg](envelope, jsonNode)
       case SendGroupChatMessageReactionReqMsg.NAME =>
         routeGenericMsg[SendGroupChatMessageReactionReqMsg](envelope, jsonNode)
       case DeleteGroupChatMessageReactionReqMsg.NAME =>

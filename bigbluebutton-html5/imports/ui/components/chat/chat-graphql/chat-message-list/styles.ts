@@ -46,10 +46,12 @@ export const UnreadButton = styled(ButtonElipsis)<UnreadButtonProps>`
 export const PageWrapper = styled.div``;
 
 export const Content = styled.div`
-  height: 100%;
   position: relative;
-  flex-shrink: 1;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
 `;
 
 export default {

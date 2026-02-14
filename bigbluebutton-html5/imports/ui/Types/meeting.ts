@@ -134,6 +134,7 @@ export interface Meeting {
   learningDashboardAccessToken: string;
   maxPinnedCameras: number;
   meetingCameraCap: number;
+  chat?: { maxPinnedChatMessages: number };
   cameraBridge: string;
   screenShareBridge: string;
   audioBridge: string;

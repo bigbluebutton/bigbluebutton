@@ -2,6 +2,7 @@ package org.bigbluebutton.core.apps.groupchats
 
 import org.bigbluebutton.common2.msgs.{ GroupChatAccess, GroupChatMessageType, GroupChatMsgFromUser, GroupChatMsgToUser, GroupChatUser }
 import org.bigbluebutton.core.db.ChatMessageDAO
+import org.bigbluebutton.core.db.ChatDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.LiveMeeting
@@ -55,9 +56,58 @@ object GroupChatApp {
   }
 
   def deleteGroupChatMessage(meetingId: String, chat: GroupChat, chats: GroupChats, msg: GroupChatMessage, deletedBy: String): GroupChats = {
+    // Remove pinned message if the deleted message is pinned
+    ChatMessageDAO.unpin(meetingId, chat.id, msg.id)
+    ChatDAO.removePinnedMessage(meetingId, chat.id, msg.id)
+
     ChatMessageDAO.softDelete(meetingId, chat.id, msg.id, deletedBy)
 
     val c = chat.delete(msg.id)
+    chats.update(c)
+  }
+
+  // Returns (updated GroupChats, optional evicted message id if eviction occurred)
+  def pinGroupChatMessage(meetingId: String, chat: GroupChat, chats: GroupChats, msg: GroupChatMessage, pinnedByUserId: String, maxPinnedChatMessages: Int): (GroupChats, Option[String]) = {
+    // No-op if already pinned
+    if (chat.pinnedMessageIds.contains(msg.id)) return (chats, None)
+
+    var evicted: Option[String] = None
+    var updatedChat = chat
+
+    // Evict oldest pinned message when limit reached
+    if (maxPinnedChatMessages > 0 && chat.pinnedMessageIds.size >= maxPinnedChatMessages) {
+      // oldest is at head because we append on pin
+      val oldest = chat.pinnedMessageIds.head
+
+      // Clear pinned info in message row and chat table (persist eviction)
+      ChatMessageDAO.unpin(meetingId, chat.id, oldest)
+      ChatDAO.removePinnedMessage(meetingId, chat.id, oldest)
+
+      // Update in-memory chat
+      updatedChat = updatedChat.unpin(oldest)
+      evicted = Some(oldest)
+    }
+
+    // Set pinned by and pinned at in message row for the new pin
+    ChatMessageDAO.pin(meetingId, chat.id, msg.id, pinnedByUserId)
+
+    // Persist pinned message id in chat table for the new pin
+    ChatDAO.addPinnedMessage(meetingId, chat.id, msg.id)
+
+    // Update in-memory chat with the new pin
+    updatedChat = updatedChat.pin(msg.id)
+
+    val updated = chats.update(updatedChat)
+    (updated, evicted)
+  }
+
+  def unpinGroupChatMessage(meetingId: String, chat: GroupChat, chats: GroupChats, msg: GroupChatMessage): GroupChats = {
+    // Clear pinned info in message row - remove pinned by and pinned at
+    ChatMessageDAO.unpin(meetingId, chat.id, msg.id)
+
+    ChatDAO.removePinnedMessage(meetingId, chat.id, msg.id)
+
+    val c = chat.unpin(msg.id)
     chats.update(c)
   }
 

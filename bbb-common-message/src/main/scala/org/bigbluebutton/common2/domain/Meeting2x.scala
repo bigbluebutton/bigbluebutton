@@ -14,6 +14,7 @@ case class MeetingProp(
     intId:                                  String,
     meetingCameraCap:                       Int,
     maxPinnedCameras:                       Int,
+    maxPinnedChatMessages:                  Int,
     cameraBridge:                           String,
     screenShareBridge:                      String,
     audioBridge:                        String,

@@ -47,6 +47,10 @@ export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
       deletedBy {
         name
       }
+      pinnedAt
+      pinnedBy {
+        name
+      }
       messageMetadata
       senderName
       senderRole
@@ -103,6 +107,10 @@ export const CHAT_MESSAGE_PRIVATE_SUBSCRIPTION = gql`
       editedAt
       deletedAt
       deletedBy {
+        name
+      }
+      pinnedAt
+      pinnedBy {
         name
       }
       messageMetadata

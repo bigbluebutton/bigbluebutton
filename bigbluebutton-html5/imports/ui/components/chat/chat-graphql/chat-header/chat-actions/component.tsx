@@ -18,6 +18,8 @@ import { CHAT_PUBLIC_CLEAR_HISTORY } from './mutations';
 import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import { usePinnedChatMessagesHidden, setPinnedChatMessagesHidden } from '/imports/ui/components/chat/chat-graphql/service';
+import Styled from '../styles';
 
 const intlMessages = defineMessages({
   clear: {
@@ -44,6 +46,10 @@ const intlMessages = defineMessages({
     id: 'app.chat.dropdown.options',
     description: 'Chat Options',
   },
+  openPinnedMessages: {
+    id: 'app.chat.pinnedMessages.open',
+    description: 'Label for opening pinned messages from header',
+  },
 });
 
 const ChatActions: React.FC = () => {
@@ -64,6 +70,8 @@ const ChatActions: React.FC = () => {
     isBreakout: m.isBreakout,
     name: m.name,
   }));
+  const pinnedMessagesHidden = usePinnedChatMessagesHidden();
+
   const [
     getChatMessageHistory,
     {
@@ -152,29 +160,41 @@ const ChatActions: React.FC = () => {
   }
 
   return (
-    <BBBMenu
-      trigger={(
-        <Trigger
-          label={intl.formatMessage(intlMessages.options)}
-          aria-label={intl.formatMessage(intlMessages.options)}
+    <>
+      {pinnedMessagesHidden && (
+        <Styled.Trigger
+          label={intl.formatMessage(intlMessages.openPinnedMessages)}
+          aria-label={intl.formatMessage(intlMessages.openPinnedMessages)}
           hideLabel
-          icon="more"
-          data-test="chatOptionsMenu"
-          onClick={() => {}}
+          icon="pin_filled"
+          data-test="chatOpenPinnedMessages"
+          onClick={() => setPinnedChatMessagesHidden(false)}
         />
       )}
-      opts={{
-        id: 'chat-options-dropdown-menu',
-        keepMounted: true,
-        transitionDuration: 0,
-        elevation: 3,
-        getcontentanchorel: null,
-        fullwidth: 'true',
-        anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
-        transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
-      }}
-      actions={actions}
-    />
+      <BBBMenu
+        trigger={(
+          <Trigger
+            label={intl.formatMessage(intlMessages.options)}
+            aria-label={intl.formatMessage(intlMessages.options)}
+            hideLabel
+            icon="more"
+            data-test="chatOptionsMenu"
+            onClick={() => {}}
+          />
+        )}
+        opts={{
+          id: 'chat-options-dropdown-menu',
+          keepMounted: true,
+          transitionDuration: 0,
+          elevation: 3,
+          getcontentanchorel: null,
+          fullwidth: 'true',
+          anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
+          transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
+        }}
+        actions={actions}
+      />
+    </>
   );
 };
 

@@ -9,6 +9,7 @@ export interface MeetingStaticData {
   createdTime: number;
   maxPinnedCameras: number;
   meetingCameraCap: number;
+  chat?: { maxPinnedChatMessages?: number };
   cameraBridge: string;
   screenShareBridge: string;
   audioBridge: string;
