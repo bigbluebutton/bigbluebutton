@@ -7,6 +7,7 @@ import '@blocknote/core/fonts/inter.css';
 import '@blocknote/mantine/style.css';
 import { HocuspocusProvider } from '@hocuspocus/provider';
 import { useCreateBlockNote } from '@blocknote/react';
+import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 import Button from '/imports/ui/components/common/button/component';
 import { User } from '../../Types/user';
@@ -15,7 +16,6 @@ import { useBlockNoteLocaleLanguage, useHocuspocusProvider } from './hooks';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
 import logger from '/imports/startup/client/logger';
-import { defineMessages, useIntl } from 'react-intl';
 
 const intlMessages = defineMessages({
   payloadSizeError: {
@@ -96,7 +96,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     pasteHandler: ({ event, defaultPasteHandler }) => {
       try {
         // Get the clipboard data
-        const clipboardData = event.clipboardData;
+        const { clipboardData } = event;
         if (!clipboardData) {
           return defaultPasteHandler();
         }
@@ -104,7 +104,6 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         // Get text content from clipboard
         const textSize = new TextEncoder().encode(clipboardData.getData('text/plain')).length;
         const htmlSize = new TextEncoder().encode(clipboardData.getData('text/html')).length;
-
 
         // Calculate the size of the pasted content (use the larger of text or html)
         const pasteSize = htmlSize > textSize ? htmlSize : textSize;
