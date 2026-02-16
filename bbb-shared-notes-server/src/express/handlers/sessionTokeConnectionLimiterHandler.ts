@@ -21,7 +21,9 @@ function handleSessionTokenConnectionLimiter(wsConnection: WebSocket, sessionTok
   wsConnection.addEventListener('close', () => {
     const currentNumberOfConnections = sessionTokenConnectionsMap.get(sessionToken) || 0;
     const newNumberOfConnection = Math.max(currentNumberOfConnections - 1, 0);
-    sessionTokenConnectionsMap.set(sessionToken, newNumberOfConnection);
+    if (newNumberOfConnection === 0) {
+      sessionTokenConnectionsMap.delete(sessionToken);
+    } else sessionTokenConnectionsMap.set(sessionToken, newNumberOfConnection);
   });
 }
 
