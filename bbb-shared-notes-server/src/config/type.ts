@@ -7,6 +7,7 @@ export interface ExpressServerConfig {
   host: string;
   port: number;
   maxContentLength: number; // In kB
+  maxConnectionsPerSessionToken: number;
 }
 
 export interface BbbWebConfig {

@@ -11,6 +11,8 @@ const checkLockReason = (reason: string): boolean => reason === 'Lock rules chan
 
 const useHocuspocusProvider = () => {
   const [hocuspocusProvider, setHocuspocusProvider] = useState<HocuspocusProvider>();
+  const hocuspocusProviderRef = useRef<HocuspocusProvider>();
+  const wsProviderRef = useRef<HocuspocusProviderWebsocket>();
   const isAuthenticating = useRef<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [connectionClosed, setConnectionClosed] = useState(false);
@@ -28,8 +30,16 @@ const useHocuspocusProvider = () => {
   const sessionToken = urlParams.get('sessionToken');
 
   const handleRetry = () => {
+    if (hocuspocusProviderRef.current) {
+      hocuspocusProviderRef.current.destroy();
+    }
+    if (wsProviderRef.current) {
+      wsProviderRef.current.destroy();
+    }
     setError(null);
     setConnectionClosed(false);
+    hocuspocusProviderRef.current = undefined;
+    wsProviderRef.current = undefined;
     setHocuspocusProvider(undefined);
     setIsSynced(false);
     setRetryTrigger((prev) => prev + 1);
@@ -93,6 +103,8 @@ const useHocuspocusProvider = () => {
             },
           }, 'Fragment content after sync');
           setIsSynced(true);
+          hocuspocusProviderRef.current = provider;
+          wsProviderRef.current = wsProvider;
           setHocuspocusProvider(provider);
         },
         onAuthenticationFailed: (data) => {
@@ -139,7 +151,14 @@ const useHocuspocusProvider = () => {
             setError(`Security violation: ${securityViolationReason}`);
             isAuthenticating.current = false;
             // Destroy the provider to prevent reconnection attempts
-            provider.destroy();
+            if (hocuspocusProviderRef.current) {
+              hocuspocusProviderRef.current.destroy();
+            }
+            if (wsProviderRef.current) {
+              wsProviderRef.current.destroy();
+            }
+            hocuspocusProviderRef.current = undefined;
+            wsProviderRef.current = undefined;
           } else if (code === 1008 && checkLockReason(reason)) {
             handleRetry();
           } else {
@@ -150,6 +169,16 @@ const useHocuspocusProvider = () => {
       });
     }
   }, [retryTrigger, sessionToken, padIdLoading, padId]);
+
+  useEffect(() => () => {
+    // Run on unmount
+    if (hocuspocusProviderRef.current) {
+      hocuspocusProviderRef.current.destroy();
+    }
+    if (wsProviderRef.current) {
+      wsProviderRef.current.destroy();
+    }
+  }, []);
 
   return {
     hocuspocusProvider,

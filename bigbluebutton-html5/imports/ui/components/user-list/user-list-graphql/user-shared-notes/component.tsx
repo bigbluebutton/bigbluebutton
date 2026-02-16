@@ -195,7 +195,7 @@ const UserNotesContainerGraphql: React.FC<UserNotesContainerGraphqlProps> = (pro
   }));
 
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
-  const { data: padIdData } = useQuery<GetPadIdQueryResponse>(
+  const { data: padIdData, loading: padIdLoading } = useQuery<GetPadIdQueryResponse>(
     GET_PAD_ID,
     { variables: { externalId: NOTES_CONFIG.id } },
   );
@@ -217,16 +217,17 @@ const UserNotesContainerGraphql: React.FC<UserNotesContainerGraphqlProps> = (pro
 
   const isPinned = currentMeeting?.componentsFlags?.isSharedNotesPinned ?? false;
 
-  if (!padId || !sharedNotesEditor) {
-    logger.error('No padId or shared-notes editor found, ignoring...', {
+  if (!padIdLoading && (!padId || !sharedNotesEditor)) {
+    logger.error({
       logCode: 'shared_notes_not_configured',
       extraInfo: {
         padId,
         sharedNotesEditor,
       },
-    });
+    }, 'No padId or shared-notes editor found, ignoring...');
     return null;
   }
+  if (padIdLoading) return null;
   return (
     <UserNotesGraphql
       disableNotes={disableNotes}
