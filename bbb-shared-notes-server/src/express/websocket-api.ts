@@ -2,7 +2,7 @@ import { WebsocketRequestHandler } from "express-ws";
 import { Logger } from "../common/logger";
 import hocuspocus from "../hocuspocus";
 import { getUserInformation, validateHeaderInformation } from "./utils";
-import { handleSessionTokenConnections } from "./handlers/sessionTokeConnectionHandler";
+import { handleSessionTokenConnectionLimiter } from "./handlers/sessionTokeConnectionLimiterHandler";
 
 interface WebsocketApi {
   collaboration: WebsocketRequestHandler
@@ -26,7 +26,7 @@ const websocketApi: WebsocketApi = {
 
     const sessionToken = url.searchParams.get('sessionToken') as string;
 
-    handleSessionTokenConnections(websocket, sessionToken, userInformation?.meetingId || '');
+    handleSessionTokenConnectionLimiter(websocket, sessionToken);
 
     const context = {
       sessionToken,
