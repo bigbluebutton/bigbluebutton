@@ -39,6 +39,7 @@ export interface PostgresConfig {
   database: string;
   user: string;
   password: string;
+  documentExpireMinutesAfterMeetingEnd: number;
 }
 
 export interface HtmlToPdfExporter {
