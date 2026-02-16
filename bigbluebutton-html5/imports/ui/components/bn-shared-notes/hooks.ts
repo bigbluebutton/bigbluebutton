@@ -196,31 +196,40 @@ const convertIntlLocaleIntoBNLocale = (intlLocale: string) => {
   return `${locale.language}${locale.region || ''}`;
 };
 
+const resolveBlockNoteLocale = (currentLocale: string, defaultLocale: string): string => {
+  const currentLocaleInBnFormat = convertIntlLocaleIntoBNLocale(currentLocale);
+  const intlCurrentLanguage = new Intl.Locale(currentLocale).language;
+  const intlDefaultLanguage = new Intl.Locale(defaultLocale).language;
+  const availableLanguages = Object.keys(BlockNoteLocales);
+
+  if (availableLanguages.includes(currentLocaleInBnFormat)) {
+    return currentLocaleInBnFormat;
+  }
+  if (availableLanguages.includes(intlCurrentLanguage)) {
+    return intlCurrentLanguage;
+  }
+  if (availableLanguages.includes(defaultLocale)) {
+    return defaultLocale;
+  }
+  if (availableLanguages.includes(intlDefaultLanguage)) {
+    return intlDefaultLanguage;
+  }
+  return 'en';
+};
+
 function useBlockNoteLocaleLanguage(): string {
   const {
     locale: currentLocale,
     defaultLocale,
   } = useIntl();
 
-  const [blockNoteLocale, setBlockNoteLocale] = useState<string>(currentLocale);
+  const [blockNoteLocale, setBlockNoteLocale] = useState<string>(
+    () => resolveBlockNoteLocale(currentLocale, defaultLocale),
+  );
 
   useEffect(() => {
-    const currentLocaleInBnFormat = convertIntlLocaleIntoBNLocale(currentLocale);
-    const intlCurrentLanguage = new Intl.Locale(currentLocale).language;
-    const intlDefaultLanguage = new Intl.Locale(defaultLocale).language;
-    const availableLanguages = Object.keys(BlockNoteLocales);
-
-    if (availableLanguages.includes(currentLocaleInBnFormat)) {
-      if (currentLocaleInBnFormat !== blockNoteLocale) setBlockNoteLocale(currentLocaleInBnFormat);
-    } else if (availableLanguages.includes(intlCurrentLanguage)) {
-      if (intlCurrentLanguage !== blockNoteLocale) setBlockNoteLocale(intlCurrentLanguage);
-    } else if (availableLanguages.includes(defaultLocale)) {
-      if (defaultLocale !== blockNoteLocale) setBlockNoteLocale(defaultLocale);
-    } else if (availableLanguages.includes(intlDefaultLanguage)) {
-      if (intlDefaultLanguage !== blockNoteLocale) setBlockNoteLocale(intlDefaultLanguage);
-    } else {
-      setBlockNoteLocale('en');
-    }
+    const resolved = resolveBlockNoteLocale(currentLocale, defaultLocale);
+    if (resolved !== blockNoteLocale) setBlockNoteLocale(resolved);
   }, [
     currentLocale,
     defaultLocale,
