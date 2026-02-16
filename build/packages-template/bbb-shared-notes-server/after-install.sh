@@ -35,8 +35,6 @@ SUDOERS_EOF
 
     chmod 440 /etc/sudoers.d/zzz-bbb-docker-chrome
 
-    # Ensure conversion script is executable
-    chmod +x /usr/share/bbb-conversion-shared-notes/convert.sh
   else
     echo "Warning: Docker not found. HTML to PDF conversion will not work."
   fi
