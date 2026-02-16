@@ -14,6 +14,15 @@ import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { useBlockNoteLocaleLanguage, useHocuspocusProvider } from './hooks';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
+import logger from '/imports/startup/client/logger';
+import { defineMessages, useIntl } from 'react-intl';
+
+const intlMessages = defineMessages({
+  payloadSizeError: {
+    id: 'app.notes.blocknote.payloadSizeError',
+    description: 'Error message for when payload is too large',
+  },
+});
 
 interface BlockNoteAppProps {
   hocuspocusProvider: HocuspocusProvider;
@@ -28,7 +37,10 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     disableNotes,
   } = props;
 
+  const intl = useIntl();
+
   const blockNoteLocale = useBlockNoteLocaleLanguage();
+  const [notificationErrorMessage, setNotificationErrorMessage] = React.useState<string | null>(null);
 
   // Remove Media block types for now
   const {
@@ -56,6 +68,11 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
 
   const fragment = hocuspocusProvider.document.getXmlFragment('doc');
 
+  // kB
+  const MAX_UPDATE_SHARED_NOTES = window.meetingClientSettings.public.app.sharedNotesMaxContentUpdateLength;
+
+  const MAX_PASTE_SIZE = MAX_UPDATE_SHARED_NOTES * 1024;
+
   const editor = useCreateBlockNote({
     collaboration: {
       provider: hocuspocusProvider,
@@ -76,7 +93,60 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         heading: '',
       },
     },
-  }, [blockNoteLocale]);
+    pasteHandler: ({ event, defaultPasteHandler }) => {
+      try {
+        // Get the clipboard data
+        const clipboardData = event.clipboardData;
+        if (!clipboardData) {
+          return defaultPasteHandler();
+        }
+
+        // Get text content from clipboard
+        const textSize = new TextEncoder().encode(clipboardData.getData('text/plain')).length;
+        const htmlSize = new TextEncoder().encode(clipboardData.getData('text/html')).length;
+
+
+        // Calculate the size of the pasted content (use the larger of text or html)
+        const pasteSize = htmlSize > textSize ? htmlSize : textSize;
+
+        // Check if paste exceeds size limit
+        if (pasteSize > MAX_PASTE_SIZE) {
+          logger.warn({
+            logCode: 'paste_too_large',
+            extraInfo: {
+              pasteSize,
+              maxSize: MAX_PASTE_SIZE,
+            },
+          }, `Paste size ${pasteSize} bytes exceeds maximum allowed size of ${MAX_PASTE_SIZE} bytes`);
+
+          // Show error to user
+          const sizeKB = (pasteSize / 1024).toFixed(2);
+          const maxKB = (MAX_PASTE_SIZE / 1024).toFixed(2);
+          setNotificationErrorMessage(intl.formatMessage(intlMessages.payloadSizeError, {
+            sizeKB,
+            maxKB,
+          }));
+
+          // Return false to cancel the paste
+          return false;
+        }
+
+        // Clear any previous errors
+        if (notificationErrorMessage) {
+          setNotificationErrorMessage(null);
+        }
+
+        // Allow the paste
+        return defaultPasteHandler();
+      } catch (error) {
+        logger.error({
+          logCode: 'paste_handler_error',
+          extraInfo: { error },
+        }, 'Error in paste handler');
+        return defaultPasteHandler();
+      }
+    },
+  }, [blockNoteLocale, notificationErrorMessage]);
 
   const editable = !disableNotes || !currentUserIsLocked || currentUserIsModerator;
 
@@ -116,6 +186,18 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
           }
         `}
       </style>
+      {notificationErrorMessage && (
+        <Styled.WarningNotificationContainer data-test="noteSizeError">
+          <Styled.WaringMessage>{notificationErrorMessage}</Styled.WaringMessage>
+          <Button
+            label="Dismiss"
+            onClick={() => setNotificationErrorMessage(null)}
+            color="primary"
+            size="sm"
+            dataTest="dismissSizeErrorButton"
+          />
+        </Styled.WarningNotificationContainer>
+      )}
       <BlockNoteView
         editable={editable}
         editor={editor}

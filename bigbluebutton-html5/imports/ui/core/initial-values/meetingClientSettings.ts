@@ -22,6 +22,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       html5ClientBuild: 'HTML5_CLIENT_VERSION',
       helpLink: 'https://bigbluebutton.org/html5/',
       delayForUnmountOfSharedNote: 120000,
+      sharedNotesMaxContentUpdateLength: 512,
       enableApolloDevTools: false,
       bbbTabletApp: {
         enabled: true,

@@ -53,6 +53,7 @@ export interface App {
   html5ClientBuild: string
   helpLink: string
   delayForUnmountOfSharedNote: number
+  sharedNotesMaxContentUpdateLength: number
   bbbTabletApp: BbbTabletApp
   cdn: string
   basename: string
