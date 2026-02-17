@@ -738,7 +738,7 @@
     "app.audioNotification.deviceChangeFailed": "Audio-gailuaren aldaketak huts egin du. Egiaztatu aukeratutako gailua behar bezala konfiguratuta eta erabilgarri dagoen",
     "app.audioNotification.closeLabel": "Itxi",
     "app.audioNotificaion.reconnectingAsListenOnly": "Ikusleek mikrofonoak blokeatuta dituzte, soilik entzuteko moduan konektatzen ari zara",
-    "app.breakoutJoinConfirmation.title": "Sartu azpitaldearen gelan",
+    "app.breakoutJoinConfirmation.title": "Sartu azpitalde-gelan",
     "app.breakoutJoinConfirmation.message": "Sartu nahi duzu",
     "app.breakoutJoinConfirmation.confirmDesc": "Sartu azpitalde-gelan",
     "app.breakoutJoinConfirmation.dismissLabel": "Utzi",
