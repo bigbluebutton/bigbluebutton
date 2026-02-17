@@ -747,7 +747,7 @@
     "app.breakoutTimeRemainingMessage": "Azpitaldeari geratzen zaion denbora: {timeInMinutes}",
     "app.breakoutWillCloseMessage": "Denbora agortu da. Azpitaldearen gela laster itxiko da",
     "app.breakout.dropdown.manageDuration": "Aldatu iraupena",
-    "app.breakout.dropdown.destroyAll": "Amaitu azpitaldeen gelak",
+    "app.breakout.dropdown.destroyAll": "Amaitu azpitalde-gelak",
     "app.breakout.dropdown.options": "Azpitaldeen aukerak",
     "app.breakout.dropdown.manageUsers": "Kudeatu erabiltzaileak",
     "app.calculatingBreakoutTimeRemaining": "Geratzen den denbora kalkulatzen...",
