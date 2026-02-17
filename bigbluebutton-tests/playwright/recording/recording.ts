@@ -6,7 +6,7 @@ import { elements as e, playbackElements } from '../core/elements';
 import { getRecordings } from '../core/endpoints';
 import { Page } from '../core/page';
 import { skipSlide } from '../presentation/util';
-import { getNotesLocator, startSharedNotes } from '../sharednotes/util';
+import { getNotesLocator, startSharedNotes } from '../sharednotes/etherpad/util';
 import { MultiUsers } from '../user/multiusers';
 
 export class Recording extends MultiUsers {
