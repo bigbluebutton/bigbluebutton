@@ -740,7 +740,7 @@
     "app.audioNotificaion.reconnectingAsListenOnly": "Ikusleek mikrofonoak blokeatuta dituzte, soilik entzuteko moduan konektatzen ari zara",
     "app.breakoutJoinConfirmation.title": "Sartu azpitaldearen gelan",
     "app.breakoutJoinConfirmation.message": "Sartu nahi duzu",
-    "app.breakoutJoinConfirmation.confirmDesc": "Sartu azpitaldearen gelan",
+    "app.breakoutJoinConfirmation.confirmDesc": "Sartu azpitalde-gelan",
     "app.breakoutJoinConfirmation.dismissLabel": "Utzi",
     "app.breakoutJoinConfirmation.dismissDesc": "Itxi eta uko egiten dio azpitalde-gelan sartzeari",
     "app.breakoutJoinConfirmation.freeJoinMessage": "Aukeratu azpitalde-gela bat bertara sartzeko",
