@@ -1395,7 +1395,7 @@
     "app.createBreakoutRoom.currentSlideLabel": "Uneko diapositiba",
     "app.updateBreakoutRoom.modalDesc": "Erabiltzaile bat eguneratzeko edo gonbidatzeko, arrastatu nahi duzun gelara.",
     "app.updateBreakoutRoom.cancelLabel": "Utzi",
-    "app.updateBreakoutRoom.title": "Eguneratu azpitaldeen gelak",
+    "app.updateBreakoutRoom.title": "Eguneratu azpitalde-gelak",
     "app.updateBreakoutRoom.confirm": "Aplikatu",
     "app.updateBreakoutRoom.userChangeRoomNotification": "{roomName}. gelara eraman zaituzte.",
     "app.smartMediaShare.externalVideo": "Kanpoko bideoa(k)",
