@@ -1373,7 +1373,7 @@
     "app.createBreakoutRoom.doneLabel": "Eginda",
     "app.createBreakoutRoom.nextLabel": "Hurrengoa",
     "app.createBreakoutRoom.minusRoomTime": "Murriztu azpitaldeen gelen denbora hona:",
-    "app.createBreakoutRoom.addRoomTime": "Zabaldu azpitaldeen gelen denbora hona:",
+    "app.createBreakoutRoom.addRoomTime": "Zabaldu azpitalde-gelen denbora hona:",
     "app.createBreakoutRoom.addParticipantLabel": "+ Gehitu partaidea",
     "app.createBreakoutRoom.freeJoin": "Baimendu erabiltzaileei zein azpitalderen gelan sartu aukeratzea ",
     "app.createBreakoutRoom.manageRoomsLabel": "Kudeatu gelak",
