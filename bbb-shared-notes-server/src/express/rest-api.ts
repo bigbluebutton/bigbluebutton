@@ -14,6 +14,13 @@ interface DocumentApi {
 
 const logger = new Logger('express-rest-api');
 
+const getExportFilename = (extension: string): string => {
+  const now = new Date();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
+  return `document_${date}.${extension}`;
+};
+
 const documentApi: DocumentApi = {
   get: async (request, response) => {
     const documentName = Array.isArray(request.params.documentName)
@@ -83,7 +90,7 @@ const documentApi: DocumentApi = {
 
           // Set response headers
           response.setHeader('Content-Type', 'text/html; charset=utf-8');
-          response.setHeader('Content-Disposition', `attachment; filename="${documentName}.html"`);
+          response.setHeader('Content-Disposition', `attachment; filename="${getExportFilename('html')}"`);
 
           // Send HTML
           response.send(fullHtml);
@@ -103,7 +110,7 @@ const documentApi: DocumentApi = {
 
           // Set response headers
           response.setHeader('Content-Type', 'application/pdf');
-          response.setHeader('Content-Disposition', `attachment; filename="${documentName}.pdf"`);
+          response.setHeader('Content-Disposition', `attachment; filename="${getExportFilename('pdf')}"`);
           response.setHeader('Content-Length', pdfBuffer.length);
 
           logger.info('PDF generated successfully', { documentName });
@@ -134,7 +141,7 @@ const documentApi: DocumentApi = {
 
           // Set response headers
           response.setHeader('Content-Type', 'text/plain; charset=utf-8');
-          response.setHeader('Content-Disposition', `attachment; filename="${documentName}.txt"`);
+          response.setHeader('Content-Disposition', `attachment; filename="${getExportFilename('txt')}"`);
 
           logger.info('TXT exported successfully', { documentName });
 
@@ -145,7 +152,7 @@ const documentApi: DocumentApi = {
           const jsonContent = await exportDocumentToJson(documentName);
 
           response.setHeader('Content-Type', 'application/json; charset=utf-8');
-          response.setHeader('Content-Disposition', `attachment; filename="${documentName}.json"`);
+          response.setHeader('Content-Disposition', `attachment; filename="${getExportFilename('json')}"`);
 
           logger.info('JSON exported successfully', { documentName });
 
@@ -155,7 +162,7 @@ const documentApi: DocumentApi = {
           const markdownContent = await exportDocumentToMarkdown(documentName);
 
           response.setHeader('Content-Type', 'text/plain; charset=utf-8');
-          response.setHeader('Content-Disposition', `attachment; filename="${documentName}.md"`);
+          response.setHeader('Content-Disposition', `attachment; filename="${getExportFilename('md')}"`);
 
           logger.info('Markdown exported successfully', { documentName });
 
