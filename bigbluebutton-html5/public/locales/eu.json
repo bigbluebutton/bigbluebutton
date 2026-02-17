@@ -1347,7 +1347,7 @@
     "app.videoDock.autoplayAllowLabel": "Ikusi web-kamerak",
     "app.videoDock.plugin.helpers.seeMoreItems": "Ikusi elementu gehiago",
     "app.createBreakoutRoom.title": "Azpitaldeen gelak",
-    "app.createBreakoutRoom.ariaTitle": "Ezkutatu azpitaldeen gelak",
+    "app.createBreakoutRoom.ariaTitle": "Ezkutatu azpitalde-gelak",
     "app.createBreakoutRoom.breakoutRoomLabel": "{roomNumber}. azpitalde-gela",
     "app.createBreakoutRoom.askToJoin": "Eskatu sartzeko",
     "app.createBreakoutRoom.generatingURL": "URLa sortzen",
