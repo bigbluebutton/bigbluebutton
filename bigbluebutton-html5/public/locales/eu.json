@@ -1390,7 +1390,7 @@
     "app.createBreakoutRoom.setTimeInMinutes": "Ezarri iraupena (minututan)",
     "app.createBreakoutRoom.setTimeLabel": "Aplikatu",
     "app.createBreakoutRoom.setTimeCancel": "Utzi",
-    "app.createBreakoutRoom.setTimeHigherThanMeetingTimeError": "Azpitaldeen gelen iraupenak ezin du saioari geratzen zaion denbora gainditu.",
+    "app.createBreakoutRoom.setTimeHigherThanMeetingTimeError": "Azpitalde-gelen iraupenak ezin du saioari geratzen zaion denbora gainditu.",
     "app.createBreakoutRoom.roomNameInputDesc": "Eguneratzen du azpitalde gelaren izena",
     "app.createBreakoutRoom.currentSlideLabel": "Uneko diapositiba",
     "app.updateBreakoutRoom.modalDesc": "Erabiltzaile bat eguneratzeko edo gonbidatzeko, arrastatu nahi duzun gelara.",
