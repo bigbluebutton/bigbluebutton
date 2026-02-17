@@ -1364,7 +1364,7 @@
     "app.createBreakoutRoom.numberOfRooms": "Gela kopurua",
     "app.createBreakoutRoom.durationInMinutes": "Iraupena (minutuak)",
     "app.createBreakoutRoom.randomlyAssign": "Ausazko esleipena",
-    "app.createBreakoutRoom.randomlyAssignDesc": "Erabiltzaileak ausaz banatzen ditu azpitaldeen geletan",
+    "app.createBreakoutRoom.randomlyAssignDesc": "Erabiltzaileak ausaz banatzen ditu azpitalde-geletan",
     "app.createBreakoutRoom.resetAssignments": "Berrezarri esleipenak",
     "app.createBreakoutRoom.resetAssignmentsDesc": "Berrezarri erabiltzaileen gelaren esleipen guztiak",
     "app.createBreakoutRoom.endAllBreakouts": "Itxi azpitalde-gela guztiak",
