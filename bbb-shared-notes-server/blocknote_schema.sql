@@ -1,7 +1,8 @@
 CREATE TABLE documents (
   name VARCHAR(255) PRIMARY KEY,
   content BYTEA NOT NULL,
-  updated_at TIMESTAMP DEFAULT NOW()
+  updated_at TIMESTAMP DEFAULT NOW(),
+  ended_at TIMESTAMP
 );
 
 GRANT USAGE ON SCHEMA public TO blocknote_app;

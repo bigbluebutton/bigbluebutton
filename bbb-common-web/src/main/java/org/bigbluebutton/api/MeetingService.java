@@ -46,7 +46,9 @@ import org.bigbluebutton.api.messaging.converters.messages.PublishedRecordingMes
 import org.bigbluebutton.api.messaging.converters.messages.UnpublishedRecordingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.DeletedRecordingMessage;
 import org.bigbluebutton.api.messaging.messages.*;
+import org.bigbluebutton.api.service.impl.SharedNotesRedirectValidatorService;
 import org.bigbluebutton.api.util.PluginUtils;
+import org.bigbluebutton.api.service.RedirectFollowerService;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.api2.domain.UploadedTrack;
 import org.bigbluebutton.common2.redis.RedisStorageService;
@@ -102,6 +104,8 @@ public class MeetingService implements MessageListener {
 
   private ParamsProcessorUtil paramsProcessorUtil;
   private PresentationUrlDownloadService presDownloadService;
+  private RedirectFollowerService redirectFollower;
+  private SharedNotesRedirectValidatorService sharedNotesRedirectValidator;
 
   private IBbbWebApiGWApp gw;
 
@@ -375,7 +379,7 @@ public class MeetingService implements MessageListener {
     String sharedNotesInitialContentJsonFromPayload = m.getSharedNotesInitialContentJsonFromPayload();
 
     if (!sharedNotesInitialContentJsonUrl.isEmpty()) {
-      initialContent = requestSharedNotesInitialContentFromUrl(sharedNotesInitialContentJsonUrl);
+      initialContent = requestSharedNotesInitialContentFromUrl(m.getInternalId(), sharedNotesInitialContentJsonUrl);
     } else {
       initialContent = parseSharedNotesInitialContent(sharedNotesInitialContentJsonFromPayload);
     }
@@ -383,11 +387,15 @@ public class MeetingService implements MessageListener {
     return initialContent;
   }
 
-  public ArrayList<Object> requestSharedNotesInitialContentFromUrl(String initialContentJsonUrl) {
+  public ArrayList<Object> requestSharedNotesInitialContentFromUrl(String meetingId, String initialContentJsonUrl) {
     ArrayList<Object> initialContent = new ArrayList<>();
     if (!initialContentJsonUrl.isEmpty()) {
       try {
-        URL url = new URL(initialContentJsonUrl);
+        String finalInitialContentJsonUrl = redirectFollower.followRedirect(
+                meetingId, initialContentJsonUrl, 0, initialContentJsonUrl, sharedNotesRedirectValidator, 6000
+        );
+
+        URL url = new URL(finalInitialContentJsonUrl);
         String content;
         try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()))) {
           content = in.lines().collect(Collectors.joining("\n"));
@@ -1646,6 +1654,14 @@ public class MeetingService implements MessageListener {
 
   public void setSlidesGenerationProgressNotifier(SlidesGenerationProgressNotifier notifier) {
     this.notifier = notifier;
+  }
+
+  public void setRedirectFollower(RedirectFollowerService redirectFollower) {
+    this.redirectFollower = redirectFollower;
+  }
+
+  public void setSharedNotesRedirectValidator(SharedNotesRedirectValidatorService sharedNotesRedirectValidator) {
+    this.sharedNotesRedirectValidator = sharedNotesRedirectValidator;
   }
 
 }

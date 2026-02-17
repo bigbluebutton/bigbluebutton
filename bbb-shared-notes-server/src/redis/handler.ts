@@ -8,6 +8,7 @@ import path from 'path';
 import { uploadPresentation } from './service/uploadPresentation';
 import { documentNamePrefix } from '../hocuspocus/utils';
 import { pushInitialContent } from './service/pushInitialContent';
+import { markDocumentEnded } from '../hocuspocus/extensions/postgresql';
 
 const logger = new Logger('redis handler');
 
@@ -86,10 +87,10 @@ const handleUserLeftMeeting = async (header: MessageHeader, body: MessageBody): 
   });
 };
 
-const handleMeetingEnded = async (header: MessageHeader, _body: MessageBody): Promise<void> => {
-  const { meetingId } = header;
+const handleMeetingEnded = async (_header: MessageHeader, body: MessageBody): Promise<void> => {
+  const { meetingId } = body;
 
-  logger.debug('Meeting ended', meetingId);
+  logger.info('Meeting ended', meetingId);
 
   connectionsMap.forEach((connectionInfo, connectionKey) => {
     if (connectionInfo.meetingId == meetingId) {
@@ -103,7 +104,8 @@ const handleMeetingEnded = async (header: MessageHeader, _body: MessageBody): Pr
     meetingLockMap.delete(meetingId);
   }
 
-
+  const padId = `${documentNamePrefix}${meetingId}`;
+  await markDocumentEnded(padId);
 };
 
 const handleSharedNotesCreate = async (header: MessageHeader, body: MessageBody): Promise<void> => {
