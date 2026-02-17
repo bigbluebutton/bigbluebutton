@@ -1003,7 +1003,7 @@
     "app.userList.guest.feedbackMessage": "Aplikatu den ekintza:",
     "app.user-info.title": "Direktorio bilatzea",
     "app.toast.breakoutRoomEnded": "Azpitaldearen bilera amaitu da. Piztu ezazu audioa berriro.",
-    "app.toast.breakoutContentUnchangedNotConverted": "Azpi-gela batek edo gehiagok ez zuten arbel edo ohar partekatutako eguneratzerik, beraz, ez ziren diapositiba bihurtu.",
+    "app.toast.breakoutContentUnchangedNotConverted": "Azpitalde-gela batek edo gehiagok ez zuten arbel edo ohar partekatutako eguneratzerik, beraz, ez ziren diapositiba bihurtu.",
     "app.toast.chat.public": "Txat publikoaren mezu berria",
     "app.toast.chat.private": "Txat pribatuko mezu berria",
     "app.toast.chat.system": "Sistema",
