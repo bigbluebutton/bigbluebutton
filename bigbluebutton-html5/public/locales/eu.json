@@ -745,7 +745,7 @@
     "app.breakoutJoinConfirmation.dismissDesc": "Itxi eta uko egiten dio azpitaldearen gelan sartzeari",
     "app.breakoutJoinConfirmation.freeJoinMessage": "Aukeratu azpitalde baten gela bertara sartzeko",
     "app.breakoutTimeRemainingMessage": "Azpitaldeari geratzen zaion denbora: {timeInMinutes}",
-    "app.breakoutWillCloseMessage": "Denbora agortu da. Azpitaldearen gela laster itxiko da",
+    "app.breakoutWillCloseMessage": "Denbora agortu da. Azpitalde-gela laster itxiko da",
     "app.breakout.dropdown.manageDuration": "Aldatu iraupena",
     "app.breakout.dropdown.destroyAll": "Itxi azpitalde-gelak",
     "app.breakout.dropdown.options": "Azpitaldeen aukerak",
