@@ -1381,7 +1381,7 @@
     "app.createBreakoutRoom.captureSlides": "Hartu arbela azpitaldeen gelak amaitzen direnean",
     "app.createBreakoutRoom.sendInvitationToMods": "Bidali gonbidapena esleitutako moderatzaileei",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Azpitalde-gela bakoitzean gutxienez erabiltzaile bana kokatu behar duzu.",
-    "app.createBreakoutRoom.minimumDurationWarnBreakout": "Azpitalde baten gutxieneko iraupena {timeInMinutes} minutu da.",
+    "app.createBreakoutRoom.minimumDurationWarnBreakout": "Azpitalde-gela baten gutxieneko iraupena {timeInMinutes} minutu da.",
     "app.createBreakoutRoom.timeCannotExceedMainRoom": "Azpitalde-gela baten iraupenak ezin du gainditu saioa amaitzeko geratzen den denbora.",
     "app.createBreakoutRoom.modalDesc": "Bete beheko urratsak zure saioan azpitalde-gelak sortzeko. Parte-hartzaileak gela batera gehitzeko, arrastatu haien izena nahi duzun gelara.",
     "app.createBreakoutRoom.numberOfRoomsError": "Gela kopurua ez da baliozkoa",
