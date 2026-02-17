@@ -742,7 +742,7 @@
     "app.breakoutJoinConfirmation.message": "Sartu nahi duzu",
     "app.breakoutJoinConfirmation.confirmDesc": "Sartu azpitaldearen gelan",
     "app.breakoutJoinConfirmation.dismissLabel": "Utzi",
-    "app.breakoutJoinConfirmation.dismissDesc": "Itxi eta uko egiten dio azpitaldearen gelan sartzeari",
+    "app.breakoutJoinConfirmation.dismissDesc": "Itxi eta uko egiten dio azpitalde-gelan sartzeari",
     "app.breakoutJoinConfirmation.freeJoinMessage": "Aukeratu azpitalde-gela bat bertara sartzeko",
     "app.breakoutTimeRemainingMessage": "Azpitalde-gelari geratzen zaion denbora: {timeInMinutes}",
     "app.breakoutWillCloseMessage": "Denbora agortu da. Azpitalde-gela laster itxiko da",
