@@ -1367,7 +1367,7 @@
     "app.createBreakoutRoom.randomlyAssignDesc": "Erabiltzaileak ausaz banatzen ditu azpitaldeen geletan",
     "app.createBreakoutRoom.resetAssignments": "Berrezarri esleipenak",
     "app.createBreakoutRoom.resetAssignmentsDesc": "Berrezarri erabiltzaileen gelaren esleipen guztiak",
-    "app.createBreakoutRoom.endAllBreakouts": "Itxi azpitaldeen gela guztiak",
+    "app.createBreakoutRoom.endAllBreakouts": "Itxi azpitalde-gela guztiak",
     "app.createBreakoutRoom.chatTitleMsgAllRooms": "gela guztiak",
     "app.createBreakoutRoom.msgToBreakoutsSent": "Mezu bat bidali zaio {numberOfBreakouts}. azpitaldeari ",
     "app.createBreakoutRoom.doneLabel": "Eginda",
