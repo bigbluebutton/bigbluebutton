@@ -1351,7 +1351,7 @@
     "app.createBreakoutRoom.breakoutRoomLabel": "{roomNumber}. azpitalde-gela",
     "app.createBreakoutRoom.askToJoin": "Eskatu sartzeko",
     "app.createBreakoutRoom.generatingURL": "URLa sortzen",
-    "app.createBreakoutRoom.generatingURLMessage": "Hautatutako azpitaldera batzeko URL bat sortzen ari gara. Baliteke segundo batzuk behar izatea...",
+    "app.createBreakoutRoom.generatingURLMessage": "Hautatutako azpitalde-gelara batzeko URL bat sortzen ari gara. Baliteke segundo batzuk behar izatea...",
     "app.createBreakoutRoom.duration": "Iraupena: {remainingTime}",
     "app.createBreakoutRoom.room": "{roomNumber}. gela",
     "app.createBreakoutRoom.notAssigned": "({userCount}) esleitu gabe",
