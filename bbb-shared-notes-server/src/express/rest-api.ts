@@ -1,4 +1,4 @@
-import { Request, RequestHandler, Response } from "express";
+import { RequestHandler, Response } from "express";
 import hocuspocus from "../hocuspocus";
 import * as Y from "yjs";
 import { Logger } from "../common/logger";
@@ -14,24 +14,14 @@ interface DocumentApi {
 
 const logger = new Logger('express-rest-api');
 
-// true if (window.open, <a href>, etc.)
-const isBrowserNavigation = (request: Request): boolean =>
-  request.headers['sec-fetch-dest'] === 'document';
-
-// Sends an error response: plain text for browser navigations, JSON for API callers.
 const sendExportError = (
-  request: Request,
   response: Response,
   status: number,
   message: string,
 ): Response => {
-  if (isBrowserNavigation(request)) {
-    return response.status(status).type('text/plain').send(
-      `Export failed: ${message}. Please contact the server administrator.`
-    );
-  } else {
-    return response.status(status).json({ success: false, error: message });
-  }
+  return response.status(status).type('text/plain').send(
+    `Export failed: ${message}. Please contact the server administrator.`
+  );
 };
 
 const getExportFilename = (extension: string): string => {
@@ -193,22 +183,22 @@ const documentApi: DocumentApi = {
           logger.error(
             `Export requested for [${documentName}] with format [${format}] not supported`
           );
-          return sendExportError(request, response, 400, `Requested format ${format} not supported`);
+          return sendExportError(response, 400, `Requested format ${format} not supported`);
       }
     } catch (error) {
       if (error && typeof error === 'object' && 'message' in error) {
         if (error.message  === 'document_not_found') {
-          return sendExportError(request, response, 404, 'Document not found');
+          return sendExportError(response, 404, 'Document not found');
         }
         else if (error.message  === 'document_empty') {
-          return sendExportError(request, response, 404, 'Document is empty');
+          return sendExportError(response, 404, 'Document is empty');
         } else {
           logger.error('Error exporting document', { error: error.message, documentName });
-          return sendExportError(request, response, 500, 'Failed to export document');
+          return sendExportError(response, 500, 'Failed to export document');
         }
       }
       logger.error('Error exporting document', { error, documentName });
-      return sendExportError(request, response, 500, 'Failed to export document');
+      return sendExportError(response, 500, 'Failed to export document');
     }
   },
 }
