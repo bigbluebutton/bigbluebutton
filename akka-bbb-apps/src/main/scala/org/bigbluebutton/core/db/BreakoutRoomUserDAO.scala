@@ -59,8 +59,15 @@ object BreakoutRoomUserDAO {
   def updateUserJoined(breakoutRoomUser: BreakoutUser, parentMeetingUser: RegisteredUser, breakoutRoom: BreakoutRoom2x) = {
       DatabaseConnection.enqueue(
         sqlu"""UPDATE "breakoutRoom_user" SET
+                "breakoutRoomUserId" = ${breakoutRoomUser.userId},
                 "joinedAt" = current_timestamp,
-                "breakoutRoomUserId" = ${breakoutRoomUser.userId}
+                "isUserCurrentlyInRoom" = exists (
+                  select 1
+                  from "user"
+                  where "user"."meetingId" = ${breakoutRoom.id}
+                  and "user"."userId" = ${breakoutRoomUser.userId}
+                  and "currentlyInMeeting" is true
+                )
                 WHERE "meetingId" = ${parentMeetingUser.meetingId}
                 AND "userId" = ${parentMeetingUser.id}
                 AND "breakoutRoomMeetingId" = ${breakoutRoom.id}
