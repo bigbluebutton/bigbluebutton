@@ -483,7 +483,7 @@
     "app.poll.quiz.start.label": "Start Quiz",
     "app.poll.quiz.selectCorrectAnswer": "Select correct answer",
     "app.poll.quiz.correctAnswerSelected": "Correct answer selected",
-    "app.poll.quiz.showCorrectAnswer": "Display correct answer to all participants",
+    "app.poll.quiz.showCorrectAnswer": "Mostra la resposta correcta a tots els participants",
     "app.poll.quiz.options.title": "Opcions de qüestionari",
     "app.poll.quiz.options.tooltip": "Marca com a resposta correcta",
     "app.poll.quiz.options.correct": "Resposta correcta",
