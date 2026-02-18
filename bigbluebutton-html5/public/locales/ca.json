@@ -145,7 +145,7 @@
     "app.appsGallery.maxpinnedAppsContinue": "a la barra lateral.",
     "app.appsGallery.pinTooltip": "Fixa l'aplicació",
     "app.appsGallery.unpinTooltip": "Desfixa l'aplicació",
-    "app.appsGallery.newAppLabel": "New",
+    "app.appsGallery.newAppLabel": "Nou",
     "app.appsGallery.modal.title": "Oops!",
     "app.appsGallery.modal.subtitle": "Ja tens {pinnedAppsNumber} aplicacions fixades a la barra lateral.",
     "app.appsGallery.modal.description": "Per fixar una nova aplicació, primer n'has de desfixar una altra.",
