@@ -1614,7 +1614,7 @@
     "app.learningDashboard.userDetails.raiseHands": "Mans aixecades",
     "app.learningDashboard.userDetails.pollVotes": "Vots de l'enquesta",
     "app.learningDashboard.userDetails.onlineIndicator": "{userName} Hora de la connexió",
-    "app.learningDashboard.userDetails.quiz": "Quiz",
+    "app.learningDashboard.userDetails.quiz": "Qüestionari",
     "app.learningDashboard.usersTable.title": "Resum",
     "app.learningDashboard.usersTable.colOnline": "Hora de la connexió",
     "app.learningDashboard.usersTable.colTalk": "Temps de conversa",
