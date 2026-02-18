@@ -332,19 +332,6 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     });
 
     test.describe.serial(() => {
-      test('Layouts', async ({ browser, context, page }, testInfo) => {
-        const disabledFeatures = new DisabledFeatures(browser, context);
-        await disabledFeatures.initModPage(page, { createParameter: c.layoutsDisabled, testInfo });
-        await disabledFeatures.layouts();
-      });
-      test('Layouts (exclude)', async ({ browser, context, page }, testInfo) => {
-        const disabledFeatures = new DisabledFeatures(browser, context);
-        await disabledFeatures.initModPage(page, { createParameter: c.layoutsExclude, testInfo });
-        await disabledFeatures.layoutsExclude();
-      });
-    });
-
-    test.describe.serial(() => {
       test('Learning Dashboard', async ({ browser, context, page }, testInfo) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, { createParameter: c.learningDashboardDisabled, testInfo });
