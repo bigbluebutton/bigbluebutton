@@ -1481,7 +1481,7 @@
     "app.createBreakoutRoom.currentSlideLabel": "Diapositiva actual",
     "app.createBreakoutRoom.inProgressLabel": "Sales externes en curs",
     "app.createBreakoutRoom.notAssignedLabel": "No formes part d'una sala externa",
-    "app.createBreakoutRoom.notAssignedHelp": "Ask the session moderator to add you to a Breakout Room",
+    "app.createBreakoutRoom.notAssignedHelp": "Demana al moderador per que t'afegeixi a una sala externa",
     "app.updateBreakoutRoom.modalDesc": "Per a actualitzar o convidar a un usuari, n'hi ha prou amb arrossegar-lo a la sala desitjada.",
     "app.updateBreakoutRoom.cancelLabel": "Cancel·lar",
     "app.updateBreakoutRoom.title": "Actualitza la sala de grup",
