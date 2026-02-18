@@ -899,7 +899,7 @@
     "app.audio.audioSettings.fallbackOutputLabel": "Sortie audio {index}",
     "app.audio.audioSettings.fallbackNoPermission": "(pas d'autorisation donnée aux dispositifs)",
     "app.audio.audioSettings.defaultOutputDeviceLabel": "Par défaut",
-    "app.audio.audioSettings.findingDevicesLabel": "À la recherche des dispositifs audio...",
+    "app.audio.audioSettings.findingDevicesLabel": "À la recherche des dispositifs audio…",
     "app.audio.audioSettings.confirmLabel": "Confirmer",
     "app.audio.audioSettings.cancelLabel": "Annuler",
     "app.audio.listenOnly.backLabel": "Retour",
