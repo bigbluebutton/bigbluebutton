@@ -1502,7 +1502,7 @@
     "app.externalVideo.noteLabelWarning": "Shared videos are not included in the recording.",
     "app.externalVideo.subtitlesOn": "Apagar",
     "app.externalVideo.subtitlesOff": "Encendre (si està disponible)",
-    "app.externalVideo.stopShareExternalVideo": "Stop sharing external video",
+    "app.externalVideo.stopShareExternalVideo": "Deixa de compartir el vídeo extern",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Comparteix un vídeo extern",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Deixa de compartir els vídeos externs",
     "app.legacy.unsupportedBrowser": "Sembla que utilitzeu un navegador que no és compatible. Si us plau, utilitzeu {supportedBrowser1} o {supportedBrowser2} per obtenir assistència completa.",
