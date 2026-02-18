@@ -478,7 +478,7 @@
     "app.poll.info": "Poll mode: Collect opinions and see response distribution. No correct answers needed.",
     "app.poll.quiz.info": "Quiz mode: Select the correct answer for each question. Results will show who got it right.",
     "app.poll.quiz.answerChoices.label": "Answer Choices",
-    "app.poll.quiz": "Quiz",
+    "app.poll.quiz": "Qüestionari",
     "app.poll.quiz.error": "Quiz has not correct answers selected. Please select at least one correct answer.",
     "app.poll.quiz.start.label": "Inicia el qüestionari",
     "app.poll.quiz.selectCorrectAnswer": "Selecciona la resposta correcta",
