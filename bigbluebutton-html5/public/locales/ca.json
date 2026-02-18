@@ -778,7 +778,7 @@
     "app.actionsBar.actionsDropdown.takePresenterDesc": "Assigna't com el nou/nova presentador",
     "app.actionsBar.actionsDropdown.requestPresenter": "Request presenter",
     "app.actionsBar.actionsDropdown.requestPresenterDesc": "Request to be the new presenter",
-    "app.actionsBar.actionsDropdown.waitingForModerator": "Waiting for moderator answer...",
+    "app.actionsBar.actionsDropdown.waitingForModerator": "Esperant la resposta del moderador...",
     "app.actionsBar.actionsDropdown.waitingForModeratorDesc": "Waiting for a moderator to approve your request.",
     "app.actionsBar.reactions.reactionsButtonLabel": "Comparteix una reacció",
     "app.actionsBar.reactions.removeReactionLabel": "Elimina la reacció",
