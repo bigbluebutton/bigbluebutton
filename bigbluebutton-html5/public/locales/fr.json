@@ -514,7 +514,7 @@
     "app.unmute.modal.confirm.label": "Réactiver le micro",
     "app.unmute.modal.deny.label": "Maintenez le micro silencieux",
     "app.requestPresenter.notification.title": "Définir comme présentateur",
-    "app.requestPresenter.notification.description": "{userName} demande à présenter dans la session.",
+    "app.requestPresenter.notification.description": "{userName} demande à devenir présentateur dans la session.",
     "app.requestPresenter.notification.confirm.label": "Autoriser",
     "app.requestPresenter.notification.deny.label": "Annuler",
     "app.requestPresenter.notification.denied": "Votre demande de devenir présentateur a été refusée par le modérateur.",
