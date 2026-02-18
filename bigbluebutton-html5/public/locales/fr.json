@@ -1437,7 +1437,7 @@
     "app.createBreakoutRoom.breakoutRoomLabel": "Salles pour les groupes de travail {roomNumber}",
     "app.createBreakoutRoom.askToJoin": "Demander à rejoindre une réunion",
     "app.createBreakoutRoom.generatingURL": "Générer l'URL",
-    "app.createBreakoutRoom.generatingURLMessage": "Nous sommes en train de générer une URL pour rejoindre le groupe de travail sélectionné. Cela peut prendre quelques secondes...",
+    "app.createBreakoutRoom.generatingURLMessage": "Nous sommes en train de générer une URL pour rejoindre le groupe de travail sélectionné. Cela peut prendre quelques secondes…",
     "app.createBreakoutRoom.duration": "Temps restant {remainingTime}",
     "app.createBreakoutRoom.room": "Salle {roomNumber}",
     "app.createBreakoutRoom.notAssigned": "Non attribué ({userCount})",
