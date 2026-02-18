@@ -692,7 +692,7 @@
     "app.submenu.notification.userJoinLabel": "Entrada d'usuari",
     "app.submenu.notification.userLeaveLabel": "Baixa de l'usuari",
     "app.submenu.notification.guestWaitingLabel": "Convidat en espera d'autorització",
-    "app.submenu.notification.muteUnmuteLabel": "Mute/Unmute Microphone",
+    "app.submenu.notification.muteUnmuteLabel": "Silencia/desmuta el micròfon",
     "app.submenu.audio.micSourceLabel": "Micròfon",
     "app.submenu.audio.speakerSourceLabel": "Altaveu",
     "app.submenu.audio.streamVolumeLabel": "El vostre volum d'emissió",
