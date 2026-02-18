@@ -540,7 +540,7 @@
     "app.navBar.optionsDropdown.helpDesc": "Enllaça a l'usuari amb tutorials en vídeo (obre una nova pestanya)",
     "app.navBar.optionsDropdown.endMeetingDesc": "Finalitza la sessió en curs",
     "app.navBar.optionsDropdown.endMeetingLabel": "Finalitzar sessió",
-    "app.navBar.optionsDropdown.returnToMainRoomLabel": "Return to main room",
+    "app.navBar.optionsDropdown.returnToMainRoomLabel": "Retorneu a la sala principal",
     "app.navBar.optionsDropdown.returnToMainRoomDesc": "Returns to the main room session",
     "app.navBar.optionsDropdown.endMeetingForAllLabel": "Finalitzar la sessió per a tots",
     "app.navBar.optionsDropdown.presenceLabel": "Sóc",
