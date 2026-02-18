@@ -515,7 +515,7 @@
     "app.unmute.modal.deny.label": "Stay Muted",
     "app.requestPresenter.notification.title": "Make Presenter",
     "app.requestPresenter.notification.description": "{userName} is asking to present in the session.",
-    "app.requestPresenter.notification.confirm.label": "Allow",
+    "app.requestPresenter.notification.confirm.label": "Permetre",
     "app.requestPresenter.notification.deny.label": "Cancel",
     "app.requestPresenter.notification.denied": "Your request to present was denied by the moderator.",
     "app.navBar.leaveMeetingBtnLabel": "Sortir",
