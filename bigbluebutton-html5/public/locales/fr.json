@@ -377,7 +377,7 @@
     "app.presentationUploder.upload.progress": "Chargement ({progress}%)",
     "app.presentationUploder.conversion.204": "Pas de contenu a capturer",
     "app.presentationUploder.upload.413": "Le fichier est trop volumineux, il dépasse le maximum de {maxFileSize} Mo",
-    "app.presentationUploder.genericError": "Oups, quelque chose s'est mal passé...",
+    "app.presentationUploder.genericError": "Oups, quelque chose s'est mal passé…",
     "app.presentationUploder.upload.fileVirus": "Le téléchargement a échoué : virus détecté ! Veuillez vérifier votre fichier et réessayer.",
     "app.presentationUploder.upload.scanFailed": "Échec du téléchargement : le fichier n'a pas pu être analysé",
     "app.presentationUploder.upload.408": "Le jeton de demande de téléversement a expiré.",
