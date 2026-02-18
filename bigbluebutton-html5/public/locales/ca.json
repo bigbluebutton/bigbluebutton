@@ -730,7 +730,7 @@
     "app.settings.save-notification.label": "La configuració ha estat desada.",
     "app.settings.unsavedChanges.message": "Teniu canvis sense desar.",
     "app.settings.unsavedChanges.ignoreMessage": "If you ignore the changes they will not be applied.",
-    "app.settings.unsavedChanges.ignoreButtonLabel": "Ignore changes",
+    "app.settings.unsavedChanges.ignoreButtonLabel": "Ignoreu els canvis",
     "app.statusNotifier.lowerHands": "Mans abaixades",
     "app.statusNotifier.lowerHandDescOneUser": "Baixar la mà de {userName}",
     "app.statusNotifier.raisedHandsTitle": "Mans aixecades",
