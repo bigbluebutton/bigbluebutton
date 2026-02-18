@@ -124,10 +124,6 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.stopShareExternalVideo',
     description: 'Stop sharing external video button',
   },
-  layoutModal: {
-    id: 'app.actionsBar.actionsDropdown.layoutModal',
-    description: 'Label for layouts selection button',
-  },
   shareCameraAsContent: {
     id: 'app.actionsBar.actionsDropdown.shareCameraAsContent',
     description: 'Label for share camera as content',

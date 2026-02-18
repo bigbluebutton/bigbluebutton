@@ -835,8 +835,6 @@ public:
     showLeaveSessionLabel: false
     usersPerUserListPage: 50
     syncCameraDockSizeAndPosition: false
-    # if false, the user can't change the layout (no layout selection modal)
-    enableDeprecatedLayoutSelection: true
   pads:
     url: ETHERPAD_HOST
   media:

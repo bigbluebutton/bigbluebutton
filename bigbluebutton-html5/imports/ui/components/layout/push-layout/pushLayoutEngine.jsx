@@ -15,7 +15,7 @@ import {
   HIDDEN_LAYOUTS,
 } from '../enums';
 import { LAYOUTS_SYNC } from '../utils';
-import { updateSettings, isKeepPushingLayoutEnabled } from '/imports/ui/components/settings/service';
+import { updateSettings } from '/imports/ui/components/settings/service';
 import Session from '/imports/ui/services/storage/in-memory';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -390,8 +390,6 @@ const PushLayoutEngineContainer = (props) => {
     focusedId: focusedCamera,
   } = cameraDockOutput;
 
-  const isPushLayoutEnabled = isKeepPushingLayoutEnabled();
-
   const getKeepPushingLayout = () => {
     // check if current layout is a hidden layout
     if (selectedLayout
@@ -400,14 +398,7 @@ const PushLayoutEngineContainer = (props) => {
       return false;
     }
 
-    // always enabled for non-hidden layouts is layout manager is disabled
-    if (!window.meetingClientSettings.public.layout.enableDeprecatedLayoutSelection) {
-      return true;
-    }
-
-    if (!isPushLayoutEnabled) return false;
-
-    return layoutSettings.pushLayout;
+    return true;
   };
 
   const pushLayout = getKeepPushingLayout();
