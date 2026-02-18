@@ -726,7 +726,7 @@
     "app.settings.dataSavingTab.description": "Per a estalviar amplada de banda, ajusteu el que s'està mostrant.",
     "app.settings.transcriptionTab.partialUtterances": "Mostrar enunciats parcials",
     "app.settings.transcriptionTab.minUtteranceLength": "Durada mínima dels enunciats (segons)",
-    "app.settings.shortcutsTab.label": "Keyboard shortcuts",
+    "app.settings.shortcutsTab.label": "Dreceres de teclat",
     "app.settings.save-notification.label": "La configuració ha estat desada.",
     "app.settings.unsavedChanges.message": "You have unsaved changes.",
     "app.settings.unsavedChanges.ignoreMessage": "If you ignore the changes they will not be applied.",
