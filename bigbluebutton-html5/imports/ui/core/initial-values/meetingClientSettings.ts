@@ -22,7 +22,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       html5ClientBuild: 'HTML5_CLIENT_VERSION',
       helpLink: 'https://bigbluebutton.org/html5/',
       delayForUnmountOfSharedNote: 120000,
-      sharedNotesMaxContentUpdateLength: 512,
       enableApolloDevTools: false,
       bbbTabletApp: {
         enabled: true,
@@ -214,6 +213,10 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       maxMutationPayloadSize: 10485760, // 10MB
       timeoutBeforeRedirectOnMeetingEnd: 20000,
       showConnectionErrors: [3001, 3002, 3003, 3004, 3005, 3006],
+    },
+    sharedNotes: {
+      serverUrl: '',
+      maxLengthForContentUpdate: 512,
     },
     externalVideoPlayer: {
       enabled: true,
