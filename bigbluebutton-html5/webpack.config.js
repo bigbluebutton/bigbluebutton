@@ -80,6 +80,7 @@ const config = {
     alias: {
       '/client': path.resolve(__dirname, 'client/'),
       '/imports': path.resolve(__dirname, '/imports/'),
+      yjs: path.resolve(__dirname, 'node_modules/yjs'),
     },
   },
   module: {

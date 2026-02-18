@@ -75,7 +75,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
 
   const editor = useCreateBlockNote({
     collaboration: {
-      provider: hocuspocusProvider,
+      provider: { awareness: hocuspocusProvider.awareness || undefined },
       fragment,
       user: {
         name: userName || '',

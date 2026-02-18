@@ -33,8 +33,6 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "@blocknote/core": "^0.46.2",
-    "@blocknote/react": "^0.46.2",
     "@blocknote/server-util": "^0.46.2",
     "@hocuspocus/extension-database": "^3.4.4",
     "@hocuspocus/server": "^3.4.4",

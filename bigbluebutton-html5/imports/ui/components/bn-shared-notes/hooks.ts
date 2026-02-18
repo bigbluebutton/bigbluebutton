@@ -61,11 +61,8 @@ const useHocuspocusProvider = () => {
       }, 'Creating new HocuspocusProvider instance');
 
       const wsProvider = new HocuspocusProviderWebsocket({
-        url: `wss://${window.location.hostname}/hocuspocus/collaboration`,
+        url: `wss://${window.location.hostname}/hocuspocus/collaboration?sessionToken=${sessionToken}`,
         maxAttempts: 1,
-        parameters: {
-          sessionToken,
-        },
       });
       isAuthenticating.current = true;
       const provider = new HocuspocusProvider({
@@ -94,14 +91,6 @@ const useHocuspocusProvider = () => {
               synced: state,
             },
           }, 'Hocuspocus document synced');
-          const doc = provider.document;
-          logger.debug({
-            logCode: 'hocuspocus_fragment_content',
-            extraInfo: {
-              documentId: documentName,
-              document: doc,
-            },
-          }, 'Fragment content after sync');
           setIsSynced(true);
           hocuspocusProviderRef.current = provider;
           wsProviderRef.current = wsProvider;
@@ -167,6 +156,7 @@ const useHocuspocusProvider = () => {
           }
         },
       });
+      provider.attach();
     }
   }, [retryTrigger, sessionToken, padIdLoading, padId]);
 
