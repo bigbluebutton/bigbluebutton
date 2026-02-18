@@ -158,7 +158,7 @@
     "app.user.activityCheck.label": "Comprovar si l'usuari segueix a la sessió ({responseDelay})",
     "app.user.activityCheck.check": "Comprova",
     "app.userList.usersTitle": "Usuaris ({userCount})",
-    "app.userList.usersStaticTitle": "User List",
+    "app.userList.usersStaticTitle": "Llista d'usuaris",
     "app.userList.profileTitle": "Perfil",
     "app.userList.lockedUsersTitle": "Moderadors ({userCount})",
     "app.userList.participantsTitle": "Participants",
