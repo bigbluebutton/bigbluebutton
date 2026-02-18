@@ -24,7 +24,7 @@
     "app.chat.label": "Xat",
     "app.chat.offline": "Fora de línia",
     "app.chat.pollResult": "Resultats de l'enquesta",
-    "app.chat.quizResult": "Quiz Results",
+    "app.chat.quizResult": "Resultats del qüestionari",
     "app.chat.breakoutDurationUpdated": "El temps de descans és ara {timeInMinutes} minuts",
     "app.chat.breakoutDurationUpdatedModerator": "El temps de les sales de descans és ara de {timeInMinutes} minuts, i s'ha enviat una notificació.",
     "app.chat.emptyLogLabel": "Registre del xat buit",
