@@ -333,7 +333,7 @@
     "app.presentation.presentationToolbar.hideToolsDesc": "Ocultar barres d'eines",
     "app.presentation.presentationToolbar.showToolsDesc": "Mostrar barres d'eines",
     "app.presentation.placeholder": "No hi ha cap presentació activa actualment",
-    "app.presentation.modal.clearAnnotationsTitle": "Clear Annotations",
+    "app.presentation.modal.clearAnnotationsTitle": "Netejar anotiacions",
     "app.presentation.modal.modClearAnnotationsDesc": "Are you sure you want to clear all whiteboard annotations?",
     "app.presentation.modal.viewerClearAnnotationsDesc": "Are you sure you want to clear all of your whiteboard annotations?",
     "app.presentation.modal.clearAnnotationsCancelLabel": "Cancel·lar",
