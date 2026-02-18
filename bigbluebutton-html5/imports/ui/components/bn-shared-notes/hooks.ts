@@ -60,8 +60,11 @@ const useHocuspocusProvider = () => {
         extraInfo: { documentId: documentName },
       }, 'Creating new HocuspocusProvider instance');
 
+      const hocuspocusServerUrl = window.meetingClientSettings.public.sharedNotes.serverUrl
+        || `wss://${window.location.hostname}/hocuspocus/collaboration?sessionToken=${sessionToken}`;
+
       const wsProvider = new HocuspocusProviderWebsocket({
-        url: `wss://${window.location.hostname}/hocuspocus/collaboration?sessionToken=${sessionToken}`,
+        url: hocuspocusServerUrl,
         maxAttempts: 1,
       });
       isAuthenticating.current = true;
