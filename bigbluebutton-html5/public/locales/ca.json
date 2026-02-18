@@ -337,7 +337,7 @@
     "app.presentation.modal.modClearAnnotationsDesc": "Are you sure you want to clear all whiteboard annotations?",
     "app.presentation.modal.viewerClearAnnotationsDesc": "Are you sure you want to clear all of your whiteboard annotations?",
     "app.presentation.modal.clearAnnotationsCancelLabel": "Cancel",
-    "app.presentation.modal.clearAnnotationsConfirmLabel": "Clear",
+    "app.presentation.modal.clearAnnotationsConfirmLabel": "Neteja",
     "app.presentationUploder.title": "Presentació",
     "app.presentationUploder.message": "Com a presentador, podeu pujar qualsevol document o fitxer PDF. Recomanem el fitxer PDF per a obtenir millors resultats. Assegureu-vos que s'ha seleccionat una presentació mitjançant la casella circular de selecció que hi ha a la part dreta.",
     "app.presentationUploader.exportHint": "En el menú \"Opcions d'exportació\" tens l'opció d'activar la descàrrega de la presentació original i proporcionar als usuaris un enllaç de descàrrega amb anotacions en el xat públic.",
