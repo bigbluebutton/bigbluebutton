@@ -504,7 +504,7 @@
     "app.serverIsNotResponding": "Le serveur ne répond pas, veuillez patienter.",
     "app.serverIsSlow": "Le chargement des données est lent. Veuillez attendre.",
     "app.downloadPresentationButton.label": "Télécharger la présentation d'origine",
-    "app.connectingMessage": "Connexion en cours...",
+    "app.connectingMessage": "Connexion en cours…",
     "app.reconnectingMessage": "La connexion est perdue. Veuillez vérifier votre connexion",
     "app.muteWarning.label": "Cliquez sur {unmuteIcon} pour réactiver votre micro.",
     "app.muteWarning.disableMessage": "Les alertes de micro éteint sont désactivées jusqu'à la réactivation du micro.",
