@@ -1185,7 +1185,7 @@
     "app.lock-viewers.otherViewersWebcamLabel": "Veure les webcams dels altres",
     "app.lock-viewers.microphoneLabel": "Sharing their microphone.",
     "app.lock-viewers.PublicChatLabel": "Envia missatges al xat públic",
-    "app.lock-viewers.PrivateChatLabel": "Sending private messages.",
+    "app.lock-viewers.PrivateChatLabel": "Envia missatges privats.",
     "app.lock-viewers.notesLabel": "Edita les notes compartides",
     "app.lock-viewers.userListLabel": "Veure altres espectadors a la llista d'usuari",
     "app.lock-viewers.ariaTitle": "Bloqueja la configuració de la modalitat del espectadors",
