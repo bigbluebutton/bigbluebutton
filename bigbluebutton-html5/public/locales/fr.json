@@ -26,7 +26,7 @@
     "app.chat.pollResult": "Résultats du sondage",
     "app.chat.quizResult": "Résultats du Quiz",
     "app.chat.breakoutDurationUpdated": "Le temps restant aux groupes de travail est désormais de {timeInMinutes} minutes",
-    "app.chat.breakoutDurationUpdatedModerator": "Le temps en groupe de travail est de {timeInMinutes} minutes ; une notification a été envoyée",
+    "app.chat.breakoutDurationUpdatedModerator": "Le temps en groupe de travail est de {timeInMinutes} minutes, et une notification a été envoyée",
     "app.chat.emptyLogLabel": "Journal de discussion vide",
     "app.chat.away": "Est temporairement absent",
     "app.chat.notAway": "N'est plus absent",
