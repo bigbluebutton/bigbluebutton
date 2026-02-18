@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { clone } from 'ramda';
 import { getDeviceType, presentationContentHasChanges } from './utils';
 import {
-  ACTIONS, PRESENTATION_AREA, PANELS, LAYOUT_TYPE,
+  ACTIONS, PRESENTATION_AREA, PANELS,
 } from '/imports/ui/components/layout/enums';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE, INITIAL_OUTPUT_STATE } from './initState';
@@ -1483,9 +1483,6 @@ const updatePresentationAreaContent = (
     previousLayoutType,
   );
   if (hasPresentationContentChanged) {
-    const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-    const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
-
     // eslint-disable-next-line no-param-reassign
     previousPresentationAreaContentActions.current = clone(currentPresentationAreaContentActions);
     const lastIndex = currentPresentationAreaContentActions.length - 1;
@@ -1509,25 +1506,14 @@ const updatePresentationAreaContent = (
           && (sidebarContent.sidebarContentPanel === PANELS.SHARED_NOTES
             || !isPresentationEnabled)
         ) {
-          if (layoutType === LAYOUT_TYPE.VIDEO_FOCUS) {
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-              value: PANELS.CHAT,
-            });
-            layoutContextDispatch({
-              type: ACTIONS.SET_ID_CHAT_OPEN,
-              value: PUBLIC_GROUP_CHAT_ID,
-            });
-          } else {
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-              value: false,
-            });
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-              value: PANELS.NONE,
-            });
-          }
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: false,
+          });
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+            value: PANELS.NONE,
+          });
         }
 
         layoutContextDispatch({

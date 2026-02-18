@@ -211,7 +211,6 @@ const PresentationToolbarContainer = (props) => {
   const { data: countData } = useDeduplicatedSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
   const numberOfJoinedUsers = countData?.user_aggregate?.aggregate?.count || 0;
   const isMobile = layoutSelect((i) => i.deviceType) === DEVICE_TYPE.MOBILE;
-  const layoutType = layoutSelect((i) => i.layoutType);
   const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
 
   if (userIsPresenter && !layoutSwapped) {
@@ -245,7 +244,6 @@ const PresentationToolbarContainer = (props) => {
           resetSlide,
           meetingIsBreakout,
           isMobile,
-          layoutType,
         }}
       />
     );

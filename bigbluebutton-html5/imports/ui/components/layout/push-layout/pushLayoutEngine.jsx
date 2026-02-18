@@ -121,11 +121,7 @@ const PushLayoutEngine = (props) => {
     const contextLayout = enforcedLayout || changeLayout || defaultLayout
       || meetingLayout || currentLayout;
 
-    if (currentLayout === LAYOUT_TYPE.UNIFIED_LAYOUT) {
-      Session.setItem('isGridEnabled', !presentationIsOpen);
-    } else {
-      Session.setItem('isGridEnabled', currentLayout === LAYOUT_TYPE.VIDEO_FOCUS);
-    }
+    Session.setItem('isGridEnabled', currentLayout === LAYOUT_TYPE.UNIFIED_LAYOUT && !presentationIsOpen);
 
     setLayoutType(
       contextLayout,
@@ -143,8 +139,7 @@ const PushLayoutEngine = (props) => {
     MediaService.setPresentationIsOpen(layoutContextDispatch, presentationLastState);
     Session.setItem('presentationLastState', presentationLastState);
 
-    if (currentLayout === LAYOUT_TYPE.CUSTOM_LAYOUT
-     || currentLayout === LAYOUT_TYPE.UNIFIED_LAYOUT) {
+    if (currentLayout === LAYOUT_TYPE.UNIFIED_LAYOUT) {
       setTimeout(() => {
         layoutContextDispatch({
           type: ACTIONS.SET_FOCUSED_CAMERA_ID,
@@ -356,7 +351,7 @@ const PushLayoutEngine = (props) => {
 
     if (selectedLayout !== prevProps.selectedLayout
       && selectedLayout !== LAYOUT_TYPE.UNIFIED_LAYOUT) {
-      Session.setItem('isGridEnabled', selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS);
+      Session.setItem('isGridEnabled', false);
     }
 
     if (selectedLayout === LAYOUT_TYPE.UNIFIED_LAYOUT
