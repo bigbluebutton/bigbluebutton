@@ -481,7 +481,7 @@
     "app.poll.quiz": "Quiz",
     "app.poll.quiz.error": "Quiz has not correct answers selected. Please select at least one correct answer.",
     "app.poll.quiz.start.label": "Start Quiz",
-    "app.poll.quiz.selectCorrectAnswer": "Select correct answer",
+    "app.poll.quiz.selectCorrectAnswer": "Selecciona la resposta correcta",
     "app.poll.quiz.correctAnswerSelected": "Resposta correcta seleccionada",
     "app.poll.quiz.showCorrectAnswer": "Mostra la resposta correcta a tots els participants",
     "app.poll.quiz.options.title": "Opcions de qüestionari",
