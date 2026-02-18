@@ -485,7 +485,7 @@
     "app.poll.quiz.correctAnswerSelected": "Correct answer selected",
     "app.poll.quiz.showCorrectAnswer": "Display correct answer to all participants",
     "app.poll.quiz.options.title": "Quiz options",
-    "app.poll.quiz.options.tooltip": "Set as correct answer",
+    "app.poll.quiz.options.tooltip": "Marca com a resposta correcta",
     "app.poll.quiz.options.correct": "Resposta correcta",
     "app.poll.quiz.options.incorrect": "Resposta incorrecta",
     "app.poll.quiz.liveResult.title.correct": "Correcte",
