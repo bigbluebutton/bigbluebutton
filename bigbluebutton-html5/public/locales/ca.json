@@ -1429,7 +1429,7 @@
     "app.videoDock.webcamUnpinLabel": "Desconnectar",
     "app.videoDock.webcamUnpinLabelDisabled": "Només els moderadors poden desconnectar als usuaris",
     "app.videoDock.webcamUnpinDesc": "Desconnectar la webcam seleccionada",
-    "app.videoDock.webcamPresenterLabel": "Presenter",
+    "app.videoDock.webcamPresenterLabel": "Presentador",
     "app.videoDock.autoplayBlockedDesc": "Necessitem el seu permís per a mostrar les càmeres dels altres usuaris.",
     "app.videoDock.autoplayAllowLabel": "Veure càmeres",
     "app.createBreakoutRoom.title": "Sales externes",
