@@ -1,6 +1,5 @@
 import { ServerBlockNoteEditor } from "@blocknote/server-util";
 import hocuspocus from "../../hocuspocus";
-import { validateInitialContentJson } from "../utils";
 import { Logger } from "../../common/logger";
 
 const logger = new Logger('redis.service.pushInitialContent');
@@ -8,56 +7,48 @@ const logger = new Logger('redis.service.pushInitialContent');
 export async function pushInitialContent(padId: string, initialContentJson: any): Promise<{ statusCode: string; error?: string; }> {
   const documentName = padId;
 
-  const validationResult = validateInitialContentJson(initialContentJson);
-  if (validationResult.valid) {
-    const initialBlocks = initialContentJson;
-    try {
-      const connection = await hocuspocus.openDirectConnection(documentName);
+  const initialBlocks = initialContentJson;
+  try {
+    const connection = await hocuspocus.openDirectConnection(documentName);
 
-      const doc = connection.document;
+    const doc = connection.document;
 
-      if (!doc) {
-        await connection.disconnect();
-        return {
-          statusCode: 'document_unavailable',
-          error: 'Document not found',
-        };
-      }
-
-      const fragment = doc.getXmlFragment("doc");
-
-      // Check if document already has content
-      if (fragment.length > 0) {
-        await connection.disconnect();
-        return {
-          statusCode: 'document_already_filled',
-          error: 'Document already exists and has content',
-        };
-      }
-
-      // Create a ServerBlockNoteEditor instance
-      const editor = ServerBlockNoteEditor.create();
-
-      // Convert blocks to Yjs XML Fragment directly in our document's fragment
-      editor.blocksToYXmlFragment(initialBlocks, fragment);
-
+    if (!doc) {
       await connection.disconnect();
-
-      logger.info('Document created/loaded successfully', { documentName });
       return {
-        statusCode: "document_loaded",
-      }
-    } catch (error) {
-      logger.error('Error creating document', { error, documentName });
-      return {
-        statusCode: "unknown_error",
-        error: error instanceof Error ? error.message : 'Unknown error',
-      }
+        statusCode: 'document_unavailable',
+        error: 'Document not found',
+      };
     }
-  } else {
+
+    const fragment = doc.getXmlFragment("doc");
+
+    // Check if document already has content
+    if (fragment.length > 0) {
+      await connection.disconnect();
+      return {
+        statusCode: 'document_already_filled',
+        error: 'Document already exists and has content',
+      };
+    }
+
+    // Create a ServerBlockNoteEditor instance
+    const editor = ServerBlockNoteEditor.create();
+
+    // Convert blocks to Yjs XML Fragment directly in our document's fragment
+    editor.blocksToYXmlFragment(initialBlocks, fragment);
+
+    await connection.disconnect();
+
+    logger.info('Document created/loaded successfully', { documentName });
     return {
-      statusCode: "initial_content_invalid",
-      error: "Initial content is not valid",
+      statusCode: "document_loaded",
+    }
+  } catch (error) {
+    logger.error('Error creating document', { error, documentName });
+    return {
+      statusCode: "unknown_error",
+      error: error instanceof Error ? error.message : 'Unknown error',
     }
   }
 }
