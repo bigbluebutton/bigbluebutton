@@ -2,8 +2,6 @@ import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { notify } from '/imports/ui/services/notification';
 import intlHolder from '../../core/singletons/intlHolder';
 
-export const isKeepPushingLayoutEnabled = () => window.meetingClientSettings.public.layout.showPushLayoutToggle;
-
 export const updateSettings = (obj, msgDescriptor, mutation) => {
   const Settings = getSettingsSingletonInstance();
   Object.keys(obj).forEach(k => (Settings[k] = obj[k]));
@@ -57,7 +55,6 @@ export const FALLBACK_LOCALES = {
 
 export default {
   updateSettings,
-  isKeepPushingLayoutEnabled,
   getAvailableLocales,
   FALLBACK_LOCALES,
 };

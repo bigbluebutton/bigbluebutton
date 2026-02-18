@@ -614,8 +614,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     layout: {
       hidePresentationOnJoin: false,
       showParticipantsOnLogin: true,
-      showPushLayoutButton: true,
-      showPushLayoutToggle: true,
       showScreenshareQuickSwapButton: true,
       showLeaveSessionLabel: false,
     },

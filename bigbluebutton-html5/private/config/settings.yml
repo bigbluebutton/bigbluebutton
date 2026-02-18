@@ -828,8 +828,6 @@ public:
   layout:
     hidePresentationOnJoin: false
     showParticipantsOnLogin: false
-    showPushLayoutButton: true
-    showPushLayoutToggle: true
     showSessionDetailsOnJoin: true
     showScreenshareQuickSwapButton: false
     showLeaveSessionLabel: false
