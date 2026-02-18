@@ -386,7 +386,7 @@
     "app.presentationUploder.conversion.conversionProcessingSlides": "Traitement de la page {currentPage} sur {totalPages}",
     "app.presentationUploder.conversion.genericConversionStatus": "Conversion du fichier en cours…",
     "app.presentationUploder.conversion.generatingThumbnail": "Création des vignettes en cours…",
-    "app.presentationUploder.conversion.generatedSlides": "Diapositives générées...",
+    "app.presentationUploder.conversion.generatedSlides": "Diapositives générées…",
     "app.presentationUploder.conversion.generatingSvg": "Création d'images SVG en cours...",
     "app.presentationUploder.conversion.pageCountExceeded": "Le nombre de pages dépasse le maximum de {maxNumberOfPages}",
     "app.presentationUploder.conversion.invalidMimeType": "Format de fichier incorrect (extension={extension}, type de contenu={contentType})",
