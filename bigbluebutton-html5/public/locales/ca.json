@@ -1642,7 +1642,7 @@
     "app.learningDashboard.pollsTable.userLabel": "Usuari",
     "app.learningDashboard.quizzes.noQuizzesCreatedHeading": "No quizzes have been created",
     "app.learningDashboard.quizzes.noQuizzesCreatedMessage": "Once a quiz has been sent to users, their results will appear in this list.",
-    "app.learningDashboard.quizzes.userLabel": "User",
+    "app.learningDashboard.quizzes.userLabel": "Usuari",
     "app.learningDashboard.quizzes.numberOfResponses": "Nombre de respostes",
     "app.learningDashboard.quizzes.anonymousRowName": "Anònim",
     "app.learningDashboard.quizzes.anonymousAnswer": "Anonymous Quiz (answers in the last row)",
