@@ -420,8 +420,8 @@ const LayoutEngine = () => {
       layout?.setAttribute('data-layout', LAYOUT_TYPE.PLUGINS_ONLY);
       return <PluginsOnlyLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
     default:
-      layout?.setAttribute('data-layout', LAYOUT_TYPE.CUSTOM_LAYOUT);
-      return <CustomLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
+      layout?.setAttribute('data-layout', LAYOUT_TYPE.UNIFIED_LAYOUT);
+      return <UnifiedLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
   }
 };
 

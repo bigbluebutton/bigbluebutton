@@ -9,7 +9,7 @@ export const SIDEBAR_CONTENT_PANEL_MAX_WIDTH = 800; // px
 export const SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH = 0.01;
 
 const DEFAULT_VALUES = {
-  layoutType: LAYOUT_TYPE.CUSTOM_LAYOUT,
+  layoutType: LAYOUT_TYPE.UNIFIED_LAYOUT,
   panelType: 'chat',
   fontSize: 16,
 
