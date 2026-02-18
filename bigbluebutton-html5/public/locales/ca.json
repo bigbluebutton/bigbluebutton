@@ -541,7 +541,7 @@
     "app.navBar.optionsDropdown.endMeetingDesc": "Finalitza la sessió en curs",
     "app.navBar.optionsDropdown.endMeetingLabel": "Finalitzar sessió",
     "app.navBar.optionsDropdown.returnToMainRoomLabel": "Retorneu a la sala principal",
-    "app.navBar.optionsDropdown.returnToMainRoomDesc": "Returns to the main room session",
+    "app.navBar.optionsDropdown.returnToMainRoomDesc": "Retorna a la sessió de la sala principal",
     "app.navBar.optionsDropdown.endMeetingForAllLabel": "Finalitzar la sessió per a tots",
     "app.navBar.optionsDropdown.presenceLabel": "Sóc",
     "app.sidebarNavigation.toggle.btnLabel": "Navigation sidebar toggle",
