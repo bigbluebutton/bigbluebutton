@@ -734,7 +734,7 @@
     "app.statusNotifier.lowerHands": "Mans abaixades",
     "app.statusNotifier.lowerHandDescOneUser": "Baixar la mà de {userName}",
     "app.statusNotifier.raisedHandsTitle": "Mans aixecades",
-    "app.statusNotifier.raisedHandsTitleNotifier": "Raised Hands",
+    "app.statusNotifier.raisedHandsTitleNotifier": "Mans aixecades",
     "app.statusNotifier.raisedHandDesc": "{userNames} van aixecar la mà",
     "app.statusNotifier.raisedHandDescOneUser": "{userNames} mà aixecada",
     "app.statusNotifier.and": "i",
