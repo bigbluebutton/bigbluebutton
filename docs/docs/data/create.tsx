@@ -299,8 +299,8 @@ const createEndpointTableData = [
   {
     "name": "meetingLayout",
     "type": "Enum",
-    "default": "CUSTOM_LAYOUT",
-    "description": (<>Will set the default layout for the meeting. Possible values are: CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS. (added 2.4) In version 3.0 a few more possible options were added: CAMERAS_ONLY, PRESENTATION_ONLY, PARTICIPANTS_AND_CHAT_ONLY, MEDIA_ONLY</>)
+    "default": "UNIFIED_LAYOUT",
+    "description": (<>Will set the default layout for the meeting. Possible values are: UNIFIED_LAYOUT. (added 2.4) In version 3.0 a few more possible options were added: CAMERAS_ONLY, PRESENTATION_ONLY, PARTICIPANTS_AND_CHAT_ONLY, MEDIA_ONLY</>)
   },
   {
     "name": "learningDashboardCleanupDelayInMinutes",
@@ -418,9 +418,6 @@ const createEndpointTableData = [
             </li>
             <li>
               <code className="language-plaintext highlighter-rouge">importSharedNotesFromBreakoutRooms</code> - <b>Capture breakout shared notes</b>
-            </li>
-            <li>
-              <code className="language-plaintext highlighter-rouge">layouts</code> - <b>Layouts</b> (allow only default layout)
             </li>
             <li>
               <code className="language-plaintext highlighter-rouge">learningDashboard</code> - <b>Learning Analytics Dashboard</b>
