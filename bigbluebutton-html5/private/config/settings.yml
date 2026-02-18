@@ -35,7 +35,6 @@ public:
     html5ClientBuild: HTML5_CLIENT_VERSION
     helpLink: https://bigbluebutton.org/html5/
     delayForUnmountOfSharedNote: 120000
-    sharedNotesMaxContentUpdateLength: 512
     bbbTabletApp:
       enabled: true
       iosAppStoreUrl: 'https://apps.apple.com/us/app/bigbluebutton-tablet/id1641156756'
@@ -833,6 +832,11 @@ public:
     enableDeprecatedLayoutSelection: true
   pads:
     url: ETHERPAD_HOST
+  sharedNotes:
+    # Hocuspocus server url for BlockNote (it will use the client's domain when empty)
+    # e.g: `wss://bbb-host/hocuspocus/collaboration`
+    serverUrl:
+    maxLengthForContentUpdate: 512
   media:
     audio:
       # defaultFullAudioBridge: bridge to be used by full audio mechanism.

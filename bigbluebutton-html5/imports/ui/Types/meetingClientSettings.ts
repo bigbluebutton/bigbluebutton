@@ -22,6 +22,7 @@ export interface Public {
   notes: Notes
   layout: Layout
   pads: Pads
+  sharedNotes: SharedNotes
   media: Media
   stats: Stats
   presentation: Presentation
@@ -53,7 +54,6 @@ export interface App {
   html5ClientBuild: string
   helpLink: string
   delayForUnmountOfSharedNote: number
-  sharedNotesMaxContentUpdateLength: number
   bbbTabletApp: BbbTabletApp
   cdn: string
   basename: string
@@ -594,6 +594,11 @@ export interface Layout {
 
 export interface Pads {
   url: string
+}
+
+export interface SharedNotes {
+  serverUrl: string
+  maxLengthForContentUpdate: number
 }
 
 export interface Media {

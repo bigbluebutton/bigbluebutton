@@ -69,7 +69,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   const fragment = hocuspocusProvider.document.getXmlFragment('doc');
 
   // kB
-  const MAX_UPDATE_SHARED_NOTES = window.meetingClientSettings.public.app.sharedNotesMaxContentUpdateLength;
+  const MAX_UPDATE_SHARED_NOTES = window.meetingClientSettings.public.sharedNotes.maxLengthForContentUpdate;
 
   const MAX_PASTE_SIZE = MAX_UPDATE_SHARED_NOTES * 1024;
 
