@@ -1070,7 +1070,7 @@
     "app.userList.guest.allowEveryone": "Autoriser tout le monde",
     "app.userList.guest.denyEveryone": "Rejeter toutes les demandes",
     "app.userList.guest.pendingUsers": "{usersCount} participants en attente",
-    "app.userList.guest.noPendingUsers": "Aucun utilisateur en attente...",
+    "app.userList.guest.noPendingUsers": "Aucun utilisateur en attente…",
     "app.userList.guest.pendingGuestUsers": "{usersCount} invités en attente",
     "app.userList.guest.pendingGuestAlert": "A rejoint la séance et attend votre approbation.",
     "app.userList.guest.rememberChoice": "Se rappeler du choix",
