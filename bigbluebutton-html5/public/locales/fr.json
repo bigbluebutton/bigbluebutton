@@ -820,7 +820,7 @@
     "app.breakout.dropdown.destroyAll": "Clôturer les groupes de travail",
     "app.breakout.dropdown.options": "Options des groupes de travail",
     "app.breakout.dropdown.manageUsers": "Gestion des utilisateurs",
-    "app.calculatingBreakoutTimeRemaining": "Calcul du temps restant...",
+    "app.calculatingBreakoutTimeRemaining": "Calcul du temps restant…",
     "app.audioModal.ariaTitle": "Choix du mode audio pour rejoindre la réunion",
     "app.audioModal.microphoneLabel": "Parler et écouter",
     "app.audioModal.listenOnlyLabel": "Écoute seule",
