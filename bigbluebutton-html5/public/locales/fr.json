@@ -346,7 +346,7 @@
     "app.presentationUploader.exporting": "Envoi dans la discussion",
     "app.presentationUploader.sending": "En cours d'envoi…",
     "app.presentationUploader.collecting": "Extraction de la page {currentPage} of {totalPages}…",
-    "app.presentationUploader.processing": "Annotation de la page {currentPage} sur {totalPages}...",
+    "app.presentationUploader.processing": "Annotation de la page {currentPage} sur {totalPages}…",
     "app.presentationUploader.sent": "Envoyé",
     "app.presentationUploader.exportingTimeout": "L'export dure trop longtemps...",
     "app.presentationUploader.export": "Envoi dans la discussion",
