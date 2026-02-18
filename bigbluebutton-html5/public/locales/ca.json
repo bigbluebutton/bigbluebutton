@@ -781,7 +781,7 @@
     "app.actionsBar.actionsDropdown.waitingForModerator": "Waiting for moderator answer...",
     "app.actionsBar.actionsDropdown.waitingForModeratorDesc": "Waiting for a moderator to approve your request.",
     "app.actionsBar.reactions.reactionsButtonLabel": "Comparteix una reacció",
-    "app.actionsBar.reactions.removeReactionLabel": "Remove reaction",
+    "app.actionsBar.reactions.removeReactionLabel": "Elimina la reacció",
     "app.actionsBar.reactions.raiseHand": "Aixecar la mà",
     "app.actionsBar.reactions.lowHand": "Baixar la mà",
     "app.actionsBar.reactions.lowUserHand": "Lower user's hand",
