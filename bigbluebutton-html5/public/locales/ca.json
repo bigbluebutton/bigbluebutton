@@ -531,7 +531,7 @@
     "app.navBar.optionsDropdown.settingsDesc": "Canviar la configuració general",
     "app.navBar.optionsDropdown.aboutDesc": "Mostrar informació sobre el client",
     "app.navBar.optionsDropdown.leaveSessionDesc": "Abandonar la sessió",
-    "app.navBar.optionsDropdown.leaveBreakoutDesc": "Leave the breakout room",
+    "app.navBar.optionsDropdown.leaveBreakoutDesc": " Abandoneu la sala de reunió separada",
     "app.navBar.optionsDropdown.exitFullscreenDesc": "Sortir del mode de pantalla completa",
     "app.navBar.optionsDropdown.hotkeysLabel": "Dreceres de teclat",
     "app.navBar.optionsDropdown.hotkeysDesc": "Llista de dreceres de teclat disponibles",
