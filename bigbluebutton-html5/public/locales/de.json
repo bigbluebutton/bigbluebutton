@@ -105,7 +105,7 @@
     "app.timer.button.start": "Start",
     "app.timer.button.stop": "Stopp",
     "app.timer.button.reset": "Zurücksetzen",
-    "app.timer.button.deactivate": "Deactivate",
+    "app.timer.button.deactivate": "Deaktivieren",
     "app.timer.hours": "Stunden",
     "app.timer.minutes": "Minuten",
     "app.timer.seconds": "Sekunden",
