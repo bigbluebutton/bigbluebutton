@@ -1085,7 +1085,7 @@
     "app.userList.guest.hideWaitingUsersLabel": "Verstecke wartende Personen",
     "app.user-info.title": "Verzeichnissuche",
     "app.toast.breakoutRoomEnded": "Gruppenraum wurde geschlossen. Bitte gegebenenfalls der Audiokonferenz erneut beitreten.",
-    "app.toast.breakoutContentUnchangedNotConverted": "One or more breakout rooms had no whiteboard/shared notes updates, so they weren't converted to slides.",
+    "app.toast.breakoutContentUnchangedNotConverted": "Ein oder mehrere Gruppenräume hatten keine Änderungen am Whiteboard / den Geteilten Notizen, deswegen wurden diese nicht zu Folien konvertiert.",
     "app.toast.chat.public": "Neue Chatnachricht an alle",
     "app.toast.chat.private": "Neue private Chatnachricht",
     "app.toast.chat.system": "System",
