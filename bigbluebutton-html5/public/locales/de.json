@@ -516,7 +516,7 @@
     "app.requestPresenter.notification.title": "Präsentationsrechte geben",
     "app.requestPresenter.notification.description": "{userName} is asking to present in the session.",
     "app.requestPresenter.notification.confirm.label": "Erlauben",
-    "app.requestPresenter.notification.deny.label": "Cancel",
+    "app.requestPresenter.notification.deny.label": "Abbrechen",
     "app.requestPresenter.notification.denied": "Your request to present was denied by the moderator.",
     "app.navBar.leaveMeetingBtnLabel": "Verlassen",
     "app.navBar.leaveMeetingBtnDesc": "Konferenz verlassen",
