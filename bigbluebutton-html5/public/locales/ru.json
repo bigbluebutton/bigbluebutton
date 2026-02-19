@@ -113,7 +113,7 @@
     "app.timer.aria.prevPreset": "Предыдущий презет",
     "app.timer.aria.nextPreset": "Следующий презет",
     "app.timer.aria.decrementHours": "Сократить часы на {amount}",
-    "app.timer.aria.incrementHours": "Збільшити години на {amount}",
+    "app.timer.aria.incrementHours": "Увеличить часы на {amount}",
     "app.timer.aria.decrementMinutes": "Зменшити хвилини на {amount}",
     "app.timer.aria.incrementMinutes": "Збільшити хвилини на {amount}",
     "app.timer.aria.decrementSeconds": "Зменшити секунди на {amount}",
