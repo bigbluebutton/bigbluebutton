@@ -65,7 +65,7 @@
     "app.chat.content.pollVotes": "ψήφοι",
     "app.chat.plugin.metadataInformation": "{userName} - {pluginName}",
     "app.timer.toolTipTimerStopped": "Το χρονόμετρο σταμάτησε.",
-    "app.timer.toolTipTimerRunning": "Ο χρόνος λειτουργεί.",
+    "app.timer.toolTipTimerRunning": "Το χρονόμετρο εκτελείται.",
     "app.timer.toolTipStopwatchStopped": "Το χρονόμετρο σταμάτησε.",
     "app.timer.toolTipStopwatchRunning": "Το χρονόμετρο εκτελείται.",
     "app.timer.toolTipTimerStoppedMod": "Πατήστε για επαναφορά του χρόνου.",
