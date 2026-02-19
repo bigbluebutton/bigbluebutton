@@ -809,7 +809,7 @@
     "app.audioNotification.closeLabel": "Fermer",
     "app.audioNotificaion.reconnectingAsListenOnly": "Le microphone est verrouillé pour les participants, vous êtes connecté uniquement en mode auditeur.",
     "app.breakoutJoinConfirmation.title": "Rejoindre le groupe de travail",
-    "app.breakoutJoinConfirmation.message": "Voulez-vous rejoindre la séance",
+    "app.breakoutJoinConfirmation.message": "Voulez-vous rejoindre le groupe",
     "app.breakoutJoinConfirmation.confirmDesc": "Rejoignez le groupe de travail",
     "app.breakoutJoinConfirmation.dismissLabel": "Annuler",
     "app.breakoutJoinConfirmation.dismissDesc": "Ferme et rejette l'intégration au groupe de travail",
