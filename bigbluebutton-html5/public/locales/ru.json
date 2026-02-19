@@ -114,7 +114,7 @@
     "app.timer.aria.nextPreset": "Наступний пресет",
     "app.timer.aria.decrementHours": "Зменшити години на {amount}",
     "app.timer.aria.incrementHours": "Збільшити години на {amount}",
-    "app.timer.aria.decrementMinutes": "Decrease minutes by {amount}",
+    "app.timer.aria.decrementMinutes": "Зменшити хвилини на {amount}",
     "app.timer.aria.incrementMinutes": "Increase minutes by {amount}",
     "app.timer.aria.decrementSeconds": "Decrease seconds by {amount}",
     "app.timer.aria.incrementSeconds": "Increase seconds by {amount}",
