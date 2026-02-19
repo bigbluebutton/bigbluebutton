@@ -525,7 +525,7 @@
     "app.navBar.optionsDropdown.settingsLabel": "Einstellungen",
     "app.navBar.optionsDropdown.aboutLabel": "Über",
     "app.navBar.optionsDropdown.leaveSessionLabel": "Konferenz verlassen",
-    "app.navBar.optionsDropdown.leaveBreakoutLabel": "Leave breakout room",
+    "app.navBar.optionsDropdown.leaveBreakoutLabel": "Gruppenraum verlassen",
     "app.navBar.optionsDropdown.exitFullscreenLabel": "Vollbilddarstellung beenden",
     "app.navBar.optionsDropdown.fullscreenDesc": "Einstellungen im Vollbild anzeigen",
     "app.navBar.optionsDropdown.settingsDesc": "Allgemeine Einstellungen ändern",
