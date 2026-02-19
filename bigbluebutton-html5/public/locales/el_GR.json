@@ -777,7 +777,7 @@
     "app.actionsBar.actionsDropdown.takePresenter": "Γίνετε παρουσιαστής",
     "app.actionsBar.actionsDropdown.takePresenterDesc": "Γίνετε ο νέος παρουσιαστής",
     "app.actionsBar.actionsDropdown.requestPresenter": "Αίτημα παρουσιαστή",
-    "app.actionsBar.actionsDropdown.requestPresenterDesc": "Request to be the new presenter",
+    "app.actionsBar.actionsDropdown.requestPresenterDesc": "Αίτηση για να γίνετε ο νέος παρουσιαστής",
     "app.actionsBar.actionsDropdown.waitingForModerator": "Αναμονή για απάντηση του συντονιστή...",
     "app.actionsBar.actionsDropdown.waitingForModeratorDesc": "Waiting for a moderator to approve your request.",
     "app.actionsBar.reactions.reactionsButtonLabel": "Κοινοποιήστε μια αντίδραση",
