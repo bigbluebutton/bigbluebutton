@@ -172,7 +172,7 @@
     "app.userList.presenter": "Présentateur",
     "app.userList.you": "Vous",
     "app.userList.locked": "Verrouillé",
-    "app.userList.byModerator": "par (modérateur)",
+    "app.userList.byModerator": "(par un modérateur)",
     "app.userList.label": "Liste d'utilisateurs",
     "app.userList.toggleCompactView.label": "Basculer vers/depuis le mode d'affichage compact",
     "app.userList.bot": "Automatisé",
