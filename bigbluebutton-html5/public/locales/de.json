@@ -1244,7 +1244,7 @@
     "app.recording.resumeTitle": "Aufzeichnung fortsetzen",
     "app.recording.recordingTitle": "Recording",
     "app.recording.stopButton": "Pause",
-    "app.recording.recordButton": "Record",
+    "app.recording.recordButton": "Aufzeichnen",
     "app.recording.resumeViewTitle": "Paused recording",
     "app.recording.startDescription": "Durch erneutes Drücken des Aufnahmeknopfs Aufnahme pausieren.",
     "app.recording.stopDescription": "Aufnahme pausieren? Diese kann durch erneutes Drücken des Aufnahmeknopfs jederzeit fortgesetzt werden.",
