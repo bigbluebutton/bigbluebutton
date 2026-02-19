@@ -747,7 +747,7 @@
     "app.talkingIndicator.wasTalking": "{userName} hat aufgehört zu sprechen",
     "app.mediaSharing.modal.title": "Media Sharing",
     "app.mediaSharing.modal.slides": "Folien",
-    "app.mediaSharing.modal.videoLink": "Play video from link",
+    "app.mediaSharing.modal.videoLink": "Video von einem Link abspielen",
     "app.mediaSharing.modal.mustBePresenter": "Nur ein Präsentator kann Inhalte teilen.",
     "app.mediaSharing.modal.share": "Teilen",
     "app.mediaSharing.modal.stopSharing": "Teilen beenden",
