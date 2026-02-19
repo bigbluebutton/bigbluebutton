@@ -163,7 +163,7 @@
     "app.userList.lockedUsersTitle": "Moderatoren ({userCount})",
     "app.userList.participantsTitle": "Teilnehmer",
     "app.userList.learningDashboardLabel": "Learning Analytics Dashboard",
-    "app.userList.settingsTitle": "Settings",
+    "app.userList.settingsTitle": "Einstellungen",
     "app.userList.appsTitle": "Apps Gallery",
     "app.userList.messagesTitle": "Nachrichten",
     "app.userList.notesTitle": "Notizen",
