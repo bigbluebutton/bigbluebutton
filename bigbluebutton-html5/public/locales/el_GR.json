@@ -18,7 +18,7 @@
     "app.chat.partnerDisconnected": "Ο/Η {participantName} αποχώρησε από την τηλεδιάσκεψη",
     "app.chat.moreMessages": "Περισσότερα μηνύματα παρακάτω",
     "app.chat.dropdown.options": "Επιλογές συνομιλίας",
-    "app.chat.dropdown.clear": "Καθαρισμός",
+    "app.chat.dropdown.clear": "Εκκαθάριση",
     "app.chat.dropdown.copy": "Αντιγραφή",
     "app.chat.dropdown.save": "Αποθήκευση",
     "app.chat.label": "Συνομιλία",
