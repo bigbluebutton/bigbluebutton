@@ -118,7 +118,7 @@
     "app.timer.aria.incrementMinutes": "Увеличить минуты на {amount}",
     "app.timer.aria.decrementSeconds": "Уменьшить секунды на {amount}",
     "app.timer.aria.incrementSeconds": "Увеличить секунды на {amount}",
-    "app.timer.aria.addTime": "Додати {time}",
+    "app.timer.aria.addTime": "Добавить {time}",
     "app.timer.songs": "Музыка",
     "app.timer.noTrack": "Нет музыки",
     "app.timer.track1": "Расслабляющий",
