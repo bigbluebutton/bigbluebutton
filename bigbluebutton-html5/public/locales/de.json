@@ -159,7 +159,7 @@
     "app.user.activityCheck.check": "Bestätigen",
     "app.userList.usersTitle": "Teilnehmer ({userCount})",
     "app.userList.usersStaticTitle": "User List",
-    "app.userList.profileTitle": "Profile",
+    "app.userList.profileTitle": "Profil",
     "app.userList.lockedUsersTitle": "Moderatoren ({userCount})",
     "app.userList.participantsTitle": "Teilnehmer",
     "app.userList.learningDashboardLabel": "Learning Analytics Dashboard",
