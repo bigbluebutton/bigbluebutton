@@ -1498,7 +1498,7 @@
     "app.externalVideo.autoPlayWarning": "Video abspielen, um Mediensynchronisation zu aktivieren",
     "app.externalVideo.refreshLabel": "Videoplayer aktualisieren",
     "app.externalVideo.fullscreenLabel": "Videoplayer",
-    "app.externalVideo.noteLabelSupported": "Supports links from YouTube, Vimeo, Instructure Media, Twitch, Dailymotion, and media file URLs.",
+    "app.externalVideo.noteLabelSupported": "Unterstützt werden Links von YouTube, Vimeo, Instructure Media, Twitch, Dailymotion und URLs von Mediendateien.",
     "app.externalVideo.noteLabelWarning": "Geteilte Videos sind in Aufzeichnungen nicht enthalten.",
     "app.externalVideo.subtitlesOn": "Ausschalten",
     "app.externalVideo.subtitlesOff": "Einschalten (falls verfügbar)",
