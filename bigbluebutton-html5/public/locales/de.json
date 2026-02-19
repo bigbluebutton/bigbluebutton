@@ -256,7 +256,7 @@
     "app.media.cameraAsContent.endDueToDataSaving": "Kamera wurde aufgrund von Dateneinsparungen deaktiviert",
     "app.media.cameraAsContent.autoplayBlockedDesc": "Wir benötigen die Erlaubnis um die Präsentationskamera zu zeigen.",
     "app.media.cameraAsContent.autoplayAllowLabel": "Verwendete Kamera anzeigen",
-    "app.media.mediaReconnecting": "Connection issue detected. Restoring your audio and video...",
+    "app.media.mediaReconnecting": "Verbindungsprobleme festgestellt, die Audio- und Videoverbindung wird wiederhergestellt...",
     "app.screenshare.presenterLoadingLabel": "Der Bildschirm wird freigegeben",
     "app.screenshare.viewerLoadingLabel": "Der Bildschirm des Präsentators wird geladen",
     "app.screenshare.presenterSharingLabel": "Der Bildschirm wird nun geteilt.",
