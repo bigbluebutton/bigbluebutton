@@ -1481,7 +1481,7 @@
     "app.createBreakoutRoom.currentSlideLabel": "Aktuelle Folie",
     "app.createBreakoutRoom.inProgressLabel": "Gruppenräume sind aktiv",
     "app.createBreakoutRoom.notAssignedLabel": "Sie sind keinem Gruppenraum beigetreten",
-    "app.createBreakoutRoom.notAssignedHelp": "Ask the session moderator to add you to a Breakout Room",
+    "app.createBreakoutRoom.notAssignedHelp": "Bitte einen Moderator um eine Einladung in einen Gruppenraum.",
     "app.updateBreakoutRoom.modalDesc": "Um eine Person zu aktualisieren oder einzuladen, diese einfach in den gewünschten Raum ziehen.",
     "app.updateBreakoutRoom.cancelLabel": "Abbrechen",
     "app.updateBreakoutRoom.title": "Gruppenräume aktualisieren",
