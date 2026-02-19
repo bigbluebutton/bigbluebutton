@@ -28,7 +28,7 @@
     "app.chat.breakoutDurationUpdated": "Ο χρόνος του τμήματος αίθουσας είναι {timeInMinutes} λεπτά",
     "app.chat.breakoutDurationUpdatedModerator": "Ο χρόνος των τμημάτων της αίθουσας είναι {timeInMinutes} λεπτά. Έχει σταλθεί ειδοποίηση.",
     "app.chat.emptyLogLabel": "Το αρχείο καταγραφής συνομιλίας είναι κενό",
-    "app.chat.away": "Είναι απών",
+    "app.chat.away": "Μη διαθέσιμος",
     "app.chat.notAway": "Διαθέσιμος",
     "app.chat.isPresenter": "Ο/Η {presenterName} είναι παρουσιαστής",
     "app.chat.isPresenterSetBy": "Ο/Η {presenterName} είναι παρουσιαστής, ορίστηκε από {assignedByName}",
