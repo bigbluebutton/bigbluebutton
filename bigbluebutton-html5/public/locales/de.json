@@ -514,7 +514,7 @@
     "app.unmute.modal.confirm.label": "Stummschaltung aufheben",
     "app.unmute.modal.deny.label": "Stummgeschaltet bleiben",
     "app.requestPresenter.notification.title": "Präsentationsrechte geben",
-    "app.requestPresenter.notification.description": "{userName} is asking to present in the session.",
+    "app.requestPresenter.notification.description": "{userName} möchte gerne etwas präsentieren.",
     "app.requestPresenter.notification.confirm.label": "Erlauben",
     "app.requestPresenter.notification.deny.label": "Abbrechen",
     "app.requestPresenter.notification.denied": "Your request to present was denied by the moderator.",
