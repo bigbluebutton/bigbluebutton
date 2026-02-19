@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import {
   useReactiveVar,
@@ -76,6 +76,7 @@ const propTypes = {
 const PushLayoutEngine = (props) => {
   const prevProps = usePreviousValue(props) || {};
   const setLayoutType = useLayoutUpdater();
+  const hasInitiallyPropagated = useRef(false);
 
   const {
     cameraWidth,
@@ -343,10 +344,18 @@ const PushLayoutEngine = (props) => {
       // since all meeting layout properties are pushed together in a
       // single call just check whether there is any element to be propagate
       && layoutPropagateElements.length > 0
+      // Only propagate after the meeting layout has been applied locally at
+      // least once. This prevents intermediate renders (while the meeting data
+      // is still loading) from pushing the default value to the
+      // server and overwriting the meeting configured layout type.
+      && hasInitiallyPropagated.current
     ) {
       if (pushLayout && (layoutChanged || pushLayout !== prevProps.pushLayout)) {
         setMeetingLayout(pushLayout);
       }
+    }
+    if (!hasInitiallyPropagated.current && hasMeetingLayout) {
+      hasInitiallyPropagated.current = true;
     }
 
     if (selectedLayout !== prevProps.selectedLayout
