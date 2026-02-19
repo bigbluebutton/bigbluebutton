@@ -1082,7 +1082,7 @@
     "app.userList.guest.denyLabel": "Ablehnen",
     "app.userList.guest.feedbackMessage": "Angewendet:",
     "app.userList.guest.showWaitingUsersLabel": "Zeige wartende Personen",
-    "app.userList.guest.hideWaitingUsersLabel": "Hide waiting users",
+    "app.userList.guest.hideWaitingUsersLabel": "Verstecke wartende Personen",
     "app.user-info.title": "Verzeichnissuche",
     "app.toast.breakoutRoomEnded": "Gruppenraum wurde geschlossen. Bitte gegebenenfalls der Audiokonferenz erneut beitreten.",
     "app.toast.breakoutContentUnchangedNotConverted": "One or more breakout rooms had no whiteboard/shared notes updates, so they weren't converted to slides.",
