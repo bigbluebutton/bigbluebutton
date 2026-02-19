@@ -909,7 +909,7 @@
     "app.audio.captions.disclaimer": "Durch das Aktivieren der Automatischen Transkription oder von Untertiteln, stimmen Sie zu: {termsLink}.",
     "app.audio.captions.panelTitle": "Transkription und Untertitel",
     "app.audio.captions.terms": "Durch das Aktivieren stimmen Sie zu: {termsLink}",
-    "app.audio.captions.terms.linkText": "terms of use of closed captions",
+    "app.audio.captions.terms.linkText": "Nutzungsbedingungen für Untertitel",
     "app.audio.captions.button.start": "Untertitel anzeigen",
     "app.audio.captions.button.stop": "Untertitel verbergen",
     "app.audio.captions.button.language": "Sprache",
