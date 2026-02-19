@@ -512,7 +512,7 @@
     "app.unmute.modal.title": "A moderator is asking you to unmute",
     "app.unmute.modal.subtitle": "Bitte die Stummschaltung des Mikrofons aufheben",
     "app.unmute.modal.confirm.label": "Unmute",
-    "app.unmute.modal.deny.label": "Stay Muted",
+    "app.unmute.modal.deny.label": "Stummgeschaltet bleiben",
     "app.requestPresenter.notification.title": "Präsentationsrechte geben",
     "app.requestPresenter.notification.description": "{userName} is asking to present in the session.",
     "app.requestPresenter.notification.confirm.label": "Erlauben",
