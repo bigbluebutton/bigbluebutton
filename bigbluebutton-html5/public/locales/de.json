@@ -750,7 +750,7 @@
     "app.mediaSharing.modal.videoLink": "Play video from link",
     "app.mediaSharing.modal.mustBePresenter": "You must be a presenter to share content.",
     "app.mediaSharing.modal.share": "Teilen",
-    "app.mediaSharing.modal.stopSharing": "Stop Sharing",
+    "app.mediaSharing.modal.stopSharing": "Teilen beenden",
     "app.actionsBar.actionsDropdown.actionsLabel": "Aktionen",
     "app.actionsBar.actionsDropdown.activateTimerStopwatchLabel": "Kurzzeitwecker/Stoppuhr aktivieren",
     "app.actionsBar.actionsDropdown.deactivateTimerStopwatchLabel": "Kurzzeitwecker/Stoppuhr abschalten",
