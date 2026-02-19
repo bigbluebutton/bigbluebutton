@@ -1529,7 +1529,7 @@
     "app.layout.modal.layoutBtnDesc": "Legt Layout als ausgewählte Option fest",
     "app.layout.modal.layoutToastLabelAuto": "Automatische Layout-Aktualisierungen wurden aktiviert, Änderungen werden nun bei allen Teilnehmern angewendet",
     "app.layout.modal.layoutToastLabelAutoOff": "Automatische Layout-Aktualisierungen wurden deaktiviert",
-    "app.layout.modal.layoutNotAvailable": "Layout not available on your device.",
+    "app.layout.modal.layoutNotAvailable": "Layout auf diesem Gerät nicht verfügbar.",
     "app.layout.style.custom": "Benutzerdefiniertes Layout",
     "app.layout.style.smart": "Automatisches Layout",
     "app.layout.style.presentationFocus": "Präsentation im Zentrum",
