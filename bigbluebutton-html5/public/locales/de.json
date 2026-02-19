@@ -1100,7 +1100,7 @@
     "app.toast.wakeLock.disclaimer": "{error}. Nach Ausschalten des Bildschirms wird die Verbindung beendet.",
     "app.toast.setEmoji.raiseHand": "Hand gehoben",
     "app.toast.setEmoji.lowerHand": "Hand wurde gesenkt",
-    "app.toast.raisedHandNext.label": "You're next in line with your hand raised",
+    "app.toast.raisedHandNext.label": "Sie sind der Nächste mit erhobener Hand",
     "app.toast.setEmoji.away": "Status auf abwesend gesetzt",
     "app.toast.setEmoji.notAway": "Der \"abwesend\" Status wurde entfernt",
     "app.toast.promotedLabel": "Moderationsrolle erhalten",
