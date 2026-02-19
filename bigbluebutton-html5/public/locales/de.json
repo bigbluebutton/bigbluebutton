@@ -1502,7 +1502,7 @@
     "app.externalVideo.noteLabelWarning": "Geteilte Videos sind in Aufzeichnungen nicht enthalten.",
     "app.externalVideo.subtitlesOn": "Ausschalten",
     "app.externalVideo.subtitlesOff": "Einschalten (falls verfügbar)",
-    "app.externalVideo.stopShareExternalVideo": "Stop sharing external video",
+    "app.externalVideo.stopShareExternalVideo": "Teilen des externen Videos beenden",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Externes Video teilen",
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Teilen von externem Video beenden",
     "app.legacy.unsupportedBrowser": "Es scheint, dass der verwendete Browser nicht unterstützt wird. Bitte {supportedBrowser1} oder {supportedBrowser2} verwenden.",
