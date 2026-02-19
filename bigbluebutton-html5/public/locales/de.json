@@ -424,7 +424,7 @@
     "app.poll.publishLabel": "Resultate veröffentlichen",
     "app.poll.cancelPollLabel": "Abbrechen",
     "app.poll.backLabel": "Umfrage starten",
-    "app.poll.ariaInputCount": "Custom poll option {currentOption} of {totalOptions}",
+    "app.poll.ariaInputCount": "Benutzerdefinierte Umfrageoption {currentOption} von {totalOptions}",
     "app.poll.closeLabel": "Schließen",
     "app.poll.waitingLabel": "Warten auf Antworten ({current}/{total})",
     "app.poll.customPlaceholder": "Umfrageoption hinzufügen",
