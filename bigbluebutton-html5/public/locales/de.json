@@ -612,7 +612,7 @@
     "app.submenu.application.fontSizeControlLabel": "Schriftgröße",
     "app.submenu.application.increaseFontBtnLabel": "Schriftgröße erhöhen",
     "app.submenu.application.decreaseFontBtnLabel": "Schriftgröße verringern",
-    "app.submenu.application.exampleTextLabel": "Example Sentence for Font",
+    "app.submenu.application.exampleTextLabel": "Beispielsatz für Schriftart",
     "app.submenu.application.currentSize": "momentan {size}",
     "app.submenu.application.languageLabel": "Sprache",
     "app.submenu.application.languageOptionLabel": "Sprache auswählen",
