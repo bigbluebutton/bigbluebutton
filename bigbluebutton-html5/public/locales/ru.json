@@ -110,7 +110,7 @@
     "app.timer.minutes": "минуты",
     "app.timer.seconds": "секунды",
     "app.timer.aria.setTo": "Установить таймер на {label}",
-    "app.timer.aria.prevPreset": "Попередній пресет",
+    "app.timer.aria.prevPreset": "Предыдущий презет",
     "app.timer.aria.nextPreset": "Наступний пресет",
     "app.timer.aria.decrementHours": "Зменшити години на {amount}",
     "app.timer.aria.incrementHours": "Збільшити години на {amount}",
