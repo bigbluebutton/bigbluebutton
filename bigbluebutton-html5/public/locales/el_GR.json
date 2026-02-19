@@ -553,7 +553,7 @@
     "app.navBar.toggleUserList.newMessages": "με ειδοποίηση νέου μηνύματος",
     "app.navBar.toggleUserList.newMsgAria": "Νέο μήνυμα από {chatName}",
     "app.navBar.recording": "Αυτή η συνεδρία καταγράφεται",
-    "app.navBar.recording.on": "Εγγραφή",
+    "app.navBar.recording.on": "Γίνεται εγγραφή",
     "app.navBar.recording.off": "Δεν γίνετε εγγραφή",
     "app.navBar.recording.unavailable": "Η καταγραφή δεν είναι διαθέσιμη",
     "app.navBar.emptyAudioBrdige": "Κανένα ενεργό μικρόφωνο. Διαμοιράστε το μικρόφωνο σας, για να προσθέσετε ήχο στην καταγραφή.",
