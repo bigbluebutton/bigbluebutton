@@ -545,7 +545,7 @@
     "app.navBar.optionsDropdown.endMeetingForAllLabel": "Konferenz für alle beenden",
     "app.navBar.optionsDropdown.presenceLabel": "Ich bin ",
     "app.sidebarNavigation.toggle.btnLabel": "Navigationsleiste an/aus",
-    "app.sidebarNavigation.toggle.ariaLabel": "Navigation sidebar toggle",
+    "app.sidebarNavigation.toggle.ariaLabel": "Navigationsleiste an/aus",
     "app.sidebarNavigation.toggle.newMessages": "with new message notification",
     "app.sidebarNavigation.toggle.newMsgAria": "New message notification",
     "app.navBar.userListToggleBtnLabel": "Liste der Teilnehmenden umschalten",
