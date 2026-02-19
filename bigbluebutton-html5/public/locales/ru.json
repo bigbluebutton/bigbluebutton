@@ -24,7 +24,7 @@
     "app.chat.label": "Чат",
     "app.chat.offline": "Офлайн",
     "app.chat.pollResult": "Результаты опроса",
-    "app.chat.quizResult": "Quiz Results",
+    "app.chat.quizResult": "Результаты викторины",
     "app.chat.breakoutDurationUpdated": "Время сессионного зала теперь {timeInMinutes} минут",
     "app.chat.breakoutDurationUpdatedModerator": "Время сессионных залов теперь {timeInMinutes} минут, уведомление отправлено.",
     "app.chat.emptyLogLabel": "Журнал чата пуст",
