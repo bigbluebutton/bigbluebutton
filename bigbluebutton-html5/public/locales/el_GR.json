@@ -514,7 +514,7 @@
     "app.unmute.modal.confirm.label": "Κατάργηση σίγασης",
     "app.unmute.modal.deny.label": "Μείνετε σε σίγαση",
     "app.requestPresenter.notification.title": "Ορισμός ως παρουσιαστής",
-    "app.requestPresenter.notification.description": "{userName} is asking to present in the session.",
+    "app.requestPresenter.notification.description": "Ο {userName} ζητά να παρουσιάσει στη συνεδρία.",
     "app.requestPresenter.notification.confirm.label": "Επιτρέπεται",
     "app.requestPresenter.notification.deny.label": "Ακύρωση",
     "app.requestPresenter.notification.denied": "Το αίτημά σας για παρουσίαση απορρίφθηκε από τον συντονιστή. ",
