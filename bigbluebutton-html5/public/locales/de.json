@@ -748,7 +748,7 @@
     "app.mediaSharing.modal.title": "Media Sharing",
     "app.mediaSharing.modal.slides": "Folien",
     "app.mediaSharing.modal.videoLink": "Play video from link",
-    "app.mediaSharing.modal.mustBePresenter": "You must be a presenter to share content.",
+    "app.mediaSharing.modal.mustBePresenter": "Nur ein Präsentator kann Inhalte teilen.",
     "app.mediaSharing.modal.share": "Teilen",
     "app.mediaSharing.modal.stopSharing": "Teilen beenden",
     "app.actionsBar.actionsDropdown.actionsLabel": "Aktionen",
