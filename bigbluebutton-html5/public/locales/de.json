@@ -146,7 +146,7 @@
     "app.appsGallery.pinTooltip": "Pin app",
     "app.appsGallery.unpinTooltip": "Unpin app",
     "app.appsGallery.newAppLabel": "New",
-    "app.appsGallery.modal.title": "Oops!",
+    "app.appsGallery.modal.title": "Huch!",
     "app.appsGallery.modal.subtitle": "You already have {pinnedAppsNumber} pinned apps in the sidebar.",
     "app.appsGallery.modal.description": "To pin a new app, you must unpin another first.",
     "app.appsGallery.modal.confirmButtonLabel": "Got it",
