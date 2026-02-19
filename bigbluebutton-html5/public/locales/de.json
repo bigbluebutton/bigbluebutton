@@ -118,7 +118,7 @@
     "app.timer.aria.incrementMinutes": "Minuten um {amount} vergrößern",
     "app.timer.aria.decrementSeconds": "Sekunden um {amount} verringern",
     "app.timer.aria.incrementSeconds": "Sekunden um {amount} vergrößern",
-    "app.timer.aria.addTime": "Add {time}",
+    "app.timer.aria.addTime": "{time} hinzufügen",
     "app.timer.songs": "Lieder",
     "app.timer.noTrack": "Kein Lied",
     "app.timer.track1": "am entspannen",
