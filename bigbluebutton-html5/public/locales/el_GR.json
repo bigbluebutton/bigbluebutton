@@ -111,7 +111,7 @@
     "app.timer.seconds": "δεύτερα",
     "app.timer.aria.setTo": "Set timer to {label}",
     "app.timer.aria.prevPreset": "Previous preset",
-    "app.timer.aria.nextPreset": "Next preset",
+    "app.timer.aria.nextPreset": "Επόμενη προεπιλογή",
     "app.timer.aria.decrementHours": "Decrease hours by {amount}",
     "app.timer.aria.incrementHours": "Increase hours by {amount}",
     "app.timer.aria.decrementMinutes": "Decrease minutes by {amount}",
