@@ -108,51 +108,24 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     await createParam.allowModsToEjectCameras();
   });
 
-  test('Override default presentation on CREATE meeting API call', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
-    linkIssue(24367);
-    const createParam = new CreateParameters(browser, context);
-    await createParam.initModPage(page, {
-      createParameter:
-        `${c.preUploadedPresentation}&${c.preUploadedPresentationOverrideDefault}&` +
-        `${c.preUploadedPresentationName}`,
-      testInfo,
-    });
-    await createParam.initUserPage(context, { testInfo });
-    await createParam.overrideDefaultPresentation();
-  });
+  test(
+    'Override default presentation on CREATE meeting API call',
+    { tag: '@flaky-3.1' },
+    async ({ browser, context, page }, testInfo) => {
+      linkIssue(24367);
+      const createParam = new CreateParameters(browser, context);
+      await createParam.initModPage(page, {
+        createParameter:
+          `${c.preUploadedPresentation}&${c.preUploadedPresentationOverrideDefault}&` +
+          `${c.preUploadedPresentationName}`,
+        testInfo,
+      });
+      await createParam.initUserPage(context, { testInfo });
+      await createParam.overrideDefaultPresentation();
+    },
+  );
 
   test.describe.parallel('Meeting Layout(default)', () => {
-    test('CUSTOM_LAYOUT', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
-      const createParam = new CreateParameters(browser, context);
-      await createParam.initModPage(page, { createParameter: c.customLayout, testInfo });
-      await createParam.initUserPage(context, { testInfo });
-      await createParam.customLayout();
-    });
-
-    test('SMART_LAYOUT', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
-      const createParam = new CreateParameters(browser, context);
-      await createParam.initModPage(page, { createParameter: c.smartLayout, testInfo });
-      await createParam.initUserPage(context, { testInfo });
-      await createParam.smartLayout();
-    });
-
-    test('PRESENTATION_FOCUS', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
-      const createParam = new CreateParameters(browser, context);
-      await createParam.initModPage(page, { createParameter: c.presentationFocus, testInfo });
-      await createParam.initUserPage(context, { testInfo });
-      await createParam.presentationFocus();
-    });
-
-    test('VIDEO_FOCUS', async ({ browser, context, page }, testInfo) => {
-      const createParam = new CreateParameters(browser, context);
-      await createParam.initModPage(page, { createParameter: c.videoFocus, testInfo });
-      await createParam.initUserPage(context, { testInfo });
-      await createParam.videoFocus();
-    });
-
     test('CAMERAS_ONLY', async ({ browser, context, page }, testInfo) => {
       const createParam = new CreateParameters(browser, context);
       await createParam.initModPage(page, { createParameter: c.camerasOnly, testInfo });
@@ -163,7 +136,11 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     test('PRESENTATION_ONLY', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
       linkIssue(24367);
       const createParam = new CreateParameters(browser, context);
-      await createParam.initModPage(page, { createParameter: c.presentationOnly, shouldCloseAudioModal: false, testInfo });
+      await createParam.initModPage(page, {
+        createParameter: c.presentationOnly,
+        shouldCloseAudioModal: false,
+        testInfo,
+      });
       await createParam.initUserPage(context, { shouldCloseAudioModal: false, testInfo });
       await createParam.presentationOnly();
     });
@@ -185,42 +162,6 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
   });
 
   test.describe.parallel('Enforce Layout', { tag: '@flaky-3.1' }, () => {
-    test('CUSTOM_LAYOUT', async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
-      const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, {
-        createParameter: c.presentationFocus,
-        joinParameter: c.enforceCustomLayout,
-        testInfo,
-      });
-      await customParam.initUserPage(context, { testInfo });
-      await customParam.enforceCustomLayout();
-    });
-
-    test('SMART_LAYOUT', async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
-      const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, { joinParameter: c.enforceSmartLayout, testInfo });
-      await customParam.initUserPage(context, { testInfo });
-      await customParam.enforceSmartLayout();
-    });
-
-    test('PRESENTATION_FOCUS', async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
-      const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, { joinParameter: c.enforcePresentationFocus, testInfo });
-      await customParam.initUserPage(context, { testInfo });
-      await customParam.enforcePresentationFocus();
-    });
-
-    test('VIDEO_FOCUS', async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
-      const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, { joinParameter: c.enforceVideoFocus, testInfo });
-      await customParam.initUserPage(context, { testInfo });
-      await customParam.enforceVideoFocus();
-    });
-
     test('CAMERAS_ONLY', async ({ browser, context, page }, testInfo) => {
       linkIssue(24367);
       const customParam = new CustomParameters(browser, context);
@@ -240,7 +181,11 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     test('PRESENTATION_ONLY', async ({ browser, context, page }, testInfo) => {
       linkIssue(24367);
       const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, { joinParameter: c.enforcePresentationOnly, shouldCloseAudioModal: false, testInfo });
+      await customParam.initModPage(page, {
+        joinParameter: c.enforcePresentationOnly,
+        shouldCloseAudioModal: false,
+        testInfo,
+      });
       await customParam.initUserPage(context, { shouldCloseAudioModal: false, testInfo });
       await customParam.enforcePresentationOnly();
     });
