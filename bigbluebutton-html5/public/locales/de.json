@@ -779,7 +779,7 @@
     "app.actionsBar.actionsDropdown.requestPresenter": "Präsentationsrechte anfordern",
     "app.actionsBar.actionsDropdown.requestPresenterDesc": "Fordere an, der nächste Präsentator zu werden.",
     "app.actionsBar.actionsDropdown.waitingForModerator": "Waiting for moderator answer...",
-    "app.actionsBar.actionsDropdown.waitingForModeratorDesc": "Waiting for a moderator to approve your request.",
+    "app.actionsBar.actionsDropdown.waitingForModeratorDesc": "Warte auf Zustimmung eines moderators.",
     "app.actionsBar.reactions.reactionsButtonLabel": "Reaktionen",
     "app.actionsBar.reactions.removeReactionLabel": "Reaktion zurückziehen",
     "app.actionsBar.reactions.raiseHand": "Hand heben",
