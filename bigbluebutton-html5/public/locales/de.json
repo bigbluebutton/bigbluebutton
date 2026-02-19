@@ -148,7 +148,7 @@
     "app.appsGallery.newAppLabel": "New",
     "app.appsGallery.modal.title": "Huch!",
     "app.appsGallery.modal.subtitle": "Es gibt bereits {pinnedAppsNumber} in der Seitenleiste.",
-    "app.appsGallery.modal.description": "To pin a new app, you must unpin another first.",
+    "app.appsGallery.modal.description": "Um eine App anzuheften muss zuerst eine andere App gelöst werden.",
     "app.appsGallery.modal.confirmButtonLabel": "Verstanden",
     "app.profileSettings.title": "Profileinstellungen",
     "app.profileSettings.usernameTitle": "Username",
