@@ -62,7 +62,7 @@
     "app.chat.header.tooltipDelete": "Удалить сообщение",
     "app.chat.header.tooltipReact": "Отреагировать на сообщение",
     "app.chat.content.pollVote": "голос",
-    "app.chat.content.pollVotes": "votes",
+    "app.chat.content.pollVotes": "голосів",
     "app.chat.plugin.metadataInformation": "{userName} - {pluginName}",
     "app.timer.toolTipTimerStopped": "Таймер остановлен.",
     "app.timer.toolTipTimerRunning": "Таймер запущен.",
