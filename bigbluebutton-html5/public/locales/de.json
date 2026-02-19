@@ -158,7 +158,7 @@
     "app.user.activityCheck.label": "Prüfen, ob Person noch in der Sitzung ({responseDelay}) ist",
     "app.user.activityCheck.check": "Bestätigen",
     "app.userList.usersTitle": "Teilnehmer ({userCount})",
-    "app.userList.usersStaticTitle": "User List",
+    "app.userList.usersStaticTitle": "Teilnehmerliste",
     "app.userList.profileTitle": "Profil",
     "app.userList.lockedUsersTitle": "Moderatoren ({userCount})",
     "app.userList.participantsTitle": "Teilnehmer",
