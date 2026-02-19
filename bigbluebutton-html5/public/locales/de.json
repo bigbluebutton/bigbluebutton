@@ -729,7 +729,7 @@
     "app.settings.shortcutsTab.label": "Tastenkombinationen",
     "app.settings.save-notification.label": "Einstellungen wurden gespeichert",
     "app.settings.unsavedChanges.message": "Es gibt ungespeicherte Einstellungen.",
-    "app.settings.unsavedChanges.ignoreMessage": "If you ignore the changes they will not be applied.",
+    "app.settings.unsavedChanges.ignoreMessage": "Ungespeicherte Änderungen gehen verloren",
     "app.settings.unsavedChanges.ignoreButtonLabel": "Änderungen verwerfen",
     "app.statusNotifier.lowerHands": "Hände senken",
     "app.statusNotifier.lowerHandDescOneUser": "Hand von {userName} senken",
