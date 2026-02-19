@@ -547,7 +547,7 @@
     "app.sidebarNavigation.toggle.btnLabel": "Navigationsleiste an/aus",
     "app.sidebarNavigation.toggle.ariaLabel": "Navigationsleiste an/aus",
     "app.sidebarNavigation.toggle.newMessages": "mit Benachrichtigung für neue Nachrichten",
-    "app.sidebarNavigation.toggle.newMsgAria": "New message notification",
+    "app.sidebarNavigation.toggle.newMsgAria": "Benachrichtigung für neue Nachrichten",
     "app.navBar.userListToggleBtnLabel": "Liste der Teilnehmenden umschalten",
     "app.navBar.toggleUserList.ariaLabel": "Teilnehmer/Nachrichten-Umschaltung",
     "app.navBar.toggleUserList.newMessages": "mit Benachrichtigung für neue Nachrichten",
