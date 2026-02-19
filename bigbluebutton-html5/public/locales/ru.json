@@ -115,7 +115,7 @@
     "app.timer.aria.decrementHours": "Зменшити години на {amount}",
     "app.timer.aria.incrementHours": "Збільшити години на {amount}",
     "app.timer.aria.decrementMinutes": "Зменшити хвилини на {amount}",
-    "app.timer.aria.incrementMinutes": "Increase minutes by {amount}",
+    "app.timer.aria.incrementMinutes": "Збільшити хвилини на {amount}",
     "app.timer.aria.decrementSeconds": "Decrease seconds by {amount}",
     "app.timer.aria.incrementSeconds": "Increase seconds by {amount}",
     "app.timer.aria.addTime": "Add {time}",
