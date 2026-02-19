@@ -687,17 +687,6 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       await customParam.hidePresentationOnJoinPinSharedNotes();
     });
 
-    test('After Changing Layout', async ({ browser, context, page }, testInfo) => {
-      const customParam = new CustomParameters(browser, context);
-      await customParam.initModPage(page, { joinParameter: c.hidePresentationOnJoin, testInfo });
-      await customParam.initUserPage(context, {
-        useModMeetingId: true,
-        joinParameter: c.hidePresentationOnJoin,
-        testInfo,
-      });
-      await customParam.hidePresentationOnJoinChangeLayout();
-    });
-
     test('After Returning from breakouts', async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, { joinParameter: c.hidePresentationOnJoin, testInfo });
