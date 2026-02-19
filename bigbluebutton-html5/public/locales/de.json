@@ -1242,7 +1242,7 @@
     "app.recording.startTitle": "Aufzeichnung starten",
     "app.recording.stopTitle": "Aufzeichnung pausieren",
     "app.recording.resumeTitle": "Aufzeichnung fortsetzen",
-    "app.recording.recordingTitle": "Recording",
+    "app.recording.recordingTitle": "Aufzeichnung",
     "app.recording.stopButton": "Pause",
     "app.recording.recordButton": "Aufzeichnen",
     "app.recording.resumeViewTitle": "Paused recording",
