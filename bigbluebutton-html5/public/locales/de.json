@@ -151,7 +151,7 @@
     "app.appsGallery.modal.description": "Um eine App anzuheften muss zuerst eine andere App gelöst werden.",
     "app.appsGallery.modal.confirmButtonLabel": "Verstanden",
     "app.profileSettings.title": "Profileinstellungen",
-    "app.profileSettings.usernameTitle": "Username",
+    "app.profileSettings.usernameTitle": "Anzeigename",
     "app.profileSettings.addExtraCamera": "Add Extra Camera",
     "app.pads.hint": "Esc drücken, um die Symbolleiste des Pads auszuwählen",
     "app.user.activityCheck": "Teilnehmeraktivitätsprüfung",
