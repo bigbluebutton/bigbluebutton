@@ -152,7 +152,7 @@
     "style-loader": "4.0.0",
     "terser-webpack-plugin": "^5.3.10",
     "typescript": "5.5.3",
-    "webpack": "5.94.0",
+    "webpack": "5.105.2",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.2.3"
   },
