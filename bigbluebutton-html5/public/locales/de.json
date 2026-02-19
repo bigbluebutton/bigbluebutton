@@ -1178,7 +1178,7 @@
     "app.shortcut-help.fingerTap": "Fingertipp",
     "app.lock-viewers.title": "Rechte der Teilnehmenden einschränken",
     "app.lock-viewers.description": "Diese Optionen ermöglichen es, bestimmte Funktionen für Teilnehmende einzuschränken.",
-    "app.lock-viewers.restrictParticipantsLabel": "Restrict participants from...",
+    "app.lock-viewers.restrictParticipantsLabel": "Beschränke ...",
     "app.lock-viewers.featuresLable": "Funktion",
     "app.lock-viewers.lockStatusLabel": "Status",
     "app.lock-viewers.webcamLabel": "Webcam freigeben",
