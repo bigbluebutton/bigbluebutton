@@ -1343,7 +1343,7 @@
     "app.video.meetingCamCapReached": "Die Sitzung hat die Maximalzahl gleichzeitiger Kameras erreicht",
     "app.video.dropZoneLabel": "Hier loslassen",
     "app.video.cameraAriaLabel": "Webcams",
-    "app.video.overflowUsers": "+{overflowCount} users",
+    "app.video.overflowUsers": "+{overflowCount} Weitere",
     "app.fullscreenButton.label": "{elementName} als Vollbild darstellen",
     "app.fullscreenUndoButton.label": "{elementName} Vollbild verlassen",
     "app.switchButton.expandLabel": "Bildschirmfreigabevorschau vergrößern",
