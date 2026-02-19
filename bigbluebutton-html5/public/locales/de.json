@@ -1081,7 +1081,7 @@
     "app.userList.guest.acceptLabel": "Akzeptieren",
     "app.userList.guest.denyLabel": "Ablehnen",
     "app.userList.guest.feedbackMessage": "Angewendet:",
-    "app.userList.guest.showWaitingUsersLabel": "Show waiting users",
+    "app.userList.guest.showWaitingUsersLabel": "Zeige wartende Personen",
     "app.userList.guest.hideWaitingUsersLabel": "Hide waiting users",
     "app.user-info.title": "Verzeichnissuche",
     "app.toast.breakoutRoomEnded": "Gruppenraum wurde geschlossen. Bitte gegebenenfalls der Audiokonferenz erneut beitreten.",
