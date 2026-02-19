@@ -517,7 +517,7 @@
     "app.requestPresenter.notification.description": "{userName} is asking to present in the session.",
     "app.requestPresenter.notification.confirm.label": "Allow",
     "app.requestPresenter.notification.deny.label": "Ακύρωση",
-    "app.requestPresenter.notification.denied": "Your request to present was denied by the moderator.",
+    "app.requestPresenter.notification.denied": "Το αίτημά σας για παρουσίαση απορρίφθηκε από τον συντονιστή. ",
     "app.navBar.leaveMeetingBtnLabel": "Έξοδος",
     "app.navBar.leaveMeetingBtnDesc": "Αποχώρηση από την τηλεδιάσκεψη",
     "app.navBar.optionsDropdown.optionsLabel": "Επιλογές",
