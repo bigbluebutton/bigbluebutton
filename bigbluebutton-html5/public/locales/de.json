@@ -193,7 +193,7 @@
     "app.userlist.menu.removeConfirmation.desc": "Hindere diese Person daran, der Konferenz erneut beizutreten.",
     "app.userList.menu.muteUserAudio.label": "Person stummschalten",
     "app.userList.menu.unmuteUserAudio.label": "Stummschaltung aufheben",
-    "app.userList.menu.listenOnly": "Listen Mode User",
+    "app.userList.menu.listenOnly": "Zuhörmodus",
     "app.userList.menu.microphoneOpen": "Mikrofon ist aktiv",
     "app.userList.menu.microphoneClosed": "Mikrofon ist ausgeschaltet",
     "app.userList.menu.webcamPin.label": "Webkamera des Teilnehmers anheften",
