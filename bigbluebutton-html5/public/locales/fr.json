@@ -5,7 +5,7 @@
     "app.chat.errorMaxMessageLength": "Le message est trop long, il excède le maximum de {maxMessageLength} caractères. ",
     "app.chat.errorMinMessageLength": "Le message est trop court. Il doit contenir {minMessageLength} caractères minimum.",
     "app.chat.errorOnSendMessage": "Erreur lors de l'envoi du message instantané",
-    "app.chat.errorOnUpdateMessage": "Erreur lors de la mise à jour du message de chat",
+    "app.chat.errorOnUpdateMessage": "Erreur lors de la mise à jour du message instantané",
     "app.chat.disconnected": "Vous êtes déconnecté, les messages ne peuvent pas être envoyés",
     "app.chat.locked": "La discussion est verrouillée, les messages ne peuvent pas être envoyés",
     "app.chat.inputLabel": "Saisie des messages pour la discussion {chatName}",
