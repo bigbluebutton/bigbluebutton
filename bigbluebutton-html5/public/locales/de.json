@@ -194,7 +194,7 @@
     "app.userList.menu.muteUserAudio.label": "Person stummschalten",
     "app.userList.menu.unmuteUserAudio.label": "Stummschaltung aufheben",
     "app.userList.menu.listenOnly": "Listen Mode User",
-    "app.userList.menu.microphoneOpen": "User Microphone Open",
+    "app.userList.menu.microphoneOpen": "Mikrofon ist aktiv",
     "app.userList.menu.microphoneClosed": "User Microphone Closed",
     "app.userList.menu.webcamPin.label": "Webkamera des Teilnehmers anheften",
     "app.userList.menu.webcamUnpin.label": "Webkamera des Teilnehmers lösen",
