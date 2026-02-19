@@ -786,7 +786,7 @@
     "app.actionsBar.reactions.lowHand": "Hand senken",
     "app.actionsBar.reactions.lowUserHand": "Hand senken",
     "app.actionsBar.reactions.autoCloseReactionsBarLabel": "Reaktionenleiste automatisch schließen",
-    "app.actionsBar.currentStatusDesc": "current status {status}",
+    "app.actionsBar.currentStatusDesc": "Derzeitiger Status {status}",
     "app.actionsBar.reactions.away": "abwesend",
     "app.actionsBar.reactions.available": "verfügbar",
     "app.actionsBar.captions.start": "Untertitel starten",
