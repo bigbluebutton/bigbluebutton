@@ -907,7 +907,7 @@
     "app.audio.permissionsOverlay.title": "Zugriff auf das Mikrofon erlauben",
     "app.audio.permissionsOverlay.hint": "Zugriff auf die Mediengeräte muss im Browser erlaubt werden, um an einer Audiokonferenz teilnehmen zu können.",
     "app.audio.captions.disclaimer": "By enabling Automatic Transcription or Captions, you agree to our {termsLink}.",
-    "app.audio.captions.panelTitle": "Transcription and Captions",
+    "app.audio.captions.panelTitle": "Transkription und Untertitel",
     "app.audio.captions.terms": "By activating, you agree to: {termsLink}",
     "app.audio.captions.terms.linkText": "terms of use of closed captions",
     "app.audio.captions.button.start": "Untertitel anzeigen",
