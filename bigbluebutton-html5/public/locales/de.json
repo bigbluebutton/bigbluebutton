@@ -587,7 +587,7 @@
     "app.mobileAppModal.userConnectedWithSameId": "Der Teilnehmer {userName} hat sich gerade mit der gleichen ID wie Sie verbunden.",
     "app.actionsBar.changeStatusLabel": "Status ändern",
     "app.actionsBar.muteLabel": "Stummschalten",
-    "app.actionsBar.unmuteLabel": "Freischalten",
+    "app.actionsBar.unmuteLabel": "Stummschaltung aufheben",
     "app.actionsBar.unmuteAndSetActiveLabel": "Stummschaltung aufheben und Status auf \"Aktiv\" setzen",
     "app.actionsBar.camOffLabel": "Kamera aus",
     "app.actionsBar.raiseLabel": "Hand heben",
