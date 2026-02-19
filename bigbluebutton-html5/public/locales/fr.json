@@ -1338,7 +1338,7 @@
     "app.video.virtualBackground.errorOnRead": "Une erreur s'est produite lors de la lecture du fichier.",
     "app.video.virtualBackground.uploaded": "Chargé",
     "app.video.virtualBackground.uploading": "En cours de chargement…",
-    "app.video.virtualBackground.button.customDesc": "Ajoute un nouveau arrière-plan virtuel",
+    "app.video.virtualBackground.button.customDesc": "Ajoute un nouvel arrière-plan virtuel",
     "app.video.camCapReached": "Vous ne pouvez pas partager plus de caméras",
     "app.video.meetingCamCapReached": "La séance a atteint la limite du nombre de caméras actives simultanément",
     "app.video.dropZoneLabel": "Déposer ici",
