@@ -143,7 +143,7 @@
     "app.appsGallery.title": "Apps Gallery",
     "app.appsGallery.maxpinnedApps": "{pinnedCount} out of {maxPinned} pinned apps",
     "app.appsGallery.maxpinnedAppsContinue": "in der Seitenleiste",
-    "app.appsGallery.pinTooltip": "Pin app",
+    "app.appsGallery.pinTooltip": "App anheften",
     "app.appsGallery.unpinTooltip": "Unpin app",
     "app.appsGallery.newAppLabel": "New",
     "app.appsGallery.modal.title": "Huch!",
