@@ -1654,7 +1654,7 @@
     "app.learningDashboard.quizzes.chartTitle": "Quizleistung vs. Aktivitätsniveau",
     "app.learningDashboard.quizzes.lockedIndicator": "Correct answer not revealed",
     "app.learningDashboard.quizzes.unknownIndicator": "Results not published yet",
-    "app.learningDashboard.quizzes.successIndicator": "Correct answer",
+    "app.learningDashboard.quizzes.successIndicator": "Richtige Antwort",
     "app.learningDashboard.quizzes.errorIndicator": "Incorrect answer",
     "app.learningDashboard.quizzes.waitingResponse": "Waiting user response",
     "app.learningDashboard.indicators.quizzes": "Quizze",
