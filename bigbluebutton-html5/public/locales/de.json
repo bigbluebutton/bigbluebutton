@@ -531,7 +531,7 @@
     "app.navBar.optionsDropdown.settingsDesc": "Allgemeine Einstellungen ändern",
     "app.navBar.optionsDropdown.aboutDesc": "Informationen über den Client anzeigen",
     "app.navBar.optionsDropdown.leaveSessionDesc": "Konferenz verlassen",
-    "app.navBar.optionsDropdown.leaveBreakoutDesc": "Leave the breakout room",
+    "app.navBar.optionsDropdown.leaveBreakoutDesc": "Gruppenraum verlassen",
     "app.navBar.optionsDropdown.exitFullscreenDesc": "Vollbilddarstellung beenden",
     "app.navBar.optionsDropdown.hotkeysLabel": "Tastenkombinationen",
     "app.navBar.optionsDropdown.hotkeysDesc": "Verfügbare Tastenkombinationen",
