@@ -1175,7 +1175,7 @@
     "app.shortcut-help.delete": "Löschen",
     "app.shortcut-help.duplicate": "Duplizieren",
     "app.shortcut-help.gesture": "Gesten",
-    "app.shortcut-help.fingerTap": "Fingertipp",
+    "app.shortcut-help.fingerTap": "{fingerCount}-Fingertipp",
     "app.lock-viewers.title": "Rechte der Teilnehmenden einschränken",
     "app.lock-viewers.description": "Diese Optionen ermöglichen es, bestimmte Funktionen für Teilnehmende einzuschränken.",
     "app.lock-viewers.restrictParticipantsLabel": "Beschränke ...",
