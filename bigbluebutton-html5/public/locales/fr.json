@@ -16,7 +16,7 @@
     "app.chat.titlePrivate": "Discussion privée",
     "app.chat.titlePrivateToUser": "Discussion privée avec {participantName}",
     "app.chat.partnerDisconnected": "{participantName} à quitté la séance",
-    "app.chat.moreMessages": "Plus de messages ci-dessous",
+    "app.chat.moreMessages": "Davantage de messages ci-dessous",
     "app.chat.dropdown.options": "Options de discussion",
     "app.chat.dropdown.clear": "Effacer",
     "app.chat.dropdown.copy": "Copier",
