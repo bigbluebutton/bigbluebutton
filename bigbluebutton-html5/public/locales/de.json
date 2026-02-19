@@ -145,7 +145,7 @@
     "app.appsGallery.maxpinnedAppsContinue": "in der Seitenleiste",
     "app.appsGallery.pinTooltip": "App anheften",
     "app.appsGallery.unpinTooltip": "App lösen",
-    "app.appsGallery.newAppLabel": "New",
+    "app.appsGallery.newAppLabel": "Neu",
     "app.appsGallery.modal.title": "Huch!",
     "app.appsGallery.modal.subtitle": "Es gibt bereits {pinnedAppsNumber} in der Seitenleiste.",
     "app.appsGallery.modal.description": "Um eine App anzuheften muss zuerst eine andere App gelöst werden.",
