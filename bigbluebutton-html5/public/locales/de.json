@@ -1652,7 +1652,7 @@
     "app.learningDashboard.quizzes.activityLevel": "Aktivitätslevel",
     "app.learningDashboard.quizzes.quizScore": "Quiz-Ergebnis",
     "app.learningDashboard.quizzes.chartTitle": "Quizleistung vs. Aktivitätsniveau",
-    "app.learningDashboard.quizzes.lockedIndicator": "Correct answer not revealed",
+    "app.learningDashboard.quizzes.lockedIndicator": "Richtige Antwort verdeckt",
     "app.learningDashboard.quizzes.unknownIndicator": "Ergebnisse sind noch nicht veröffentlicht",
     "app.learningDashboard.quizzes.successIndicator": "Richtige Antwort",
     "app.learningDashboard.quizzes.errorIndicator": "Falsche Antwort",
