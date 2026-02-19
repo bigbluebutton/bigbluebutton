@@ -14,7 +14,7 @@
     "app.chat.inputPlaceholder": "Сообщение {chatName}",
     "app.chat.titlePublic": "Общий чат",
     "app.chat.titlePrivate": "Личный чат с {participantName}",
-    "app.chat.titlePrivateToUser": "Private Chat with {participantName}",
+    "app.chat.titlePrivateToUser": "Приватный чат с {participantName}",
     "app.chat.partnerDisconnected": "{participantName} покинул(а) сеанс",
     "app.chat.moreMessages": "Еще сообщения ниже",
     "app.chat.dropdown.options": "Параметры чата",
