@@ -1096,7 +1096,7 @@
     "app.toast.muteAllViewers.label": "Tous les téléspectateurs ont été mis en sourdine",
     "app.toast.wakeLock.acquireSuccess": "Verrouillage du réveil actif ! Vous pouvez le désactiver dans le menu des paramètres.",
     "app.toast.wakeLock.acquireFailed": "Erreur d'acquisition du verrouillage de réveil.",
-    "app.toast.wakeLock.notSupported": "Votre navigateur ne prend pas en charge les verrous de réveil",
+    "app.toast.wakeLock.notSupported": "Votre navigateur ne prend pas en charge les verrous de sortie de veille",
     "app.toast.wakeLock.disclaimer": "{error}. Vous serez exclu de la séance lorsque votre écran s'éteindra.",
     "app.toast.setEmoji.raiseHand": "Vous avez levé la main",
     "app.toast.setEmoji.lowerHand": "Votre main a été abaissée",
