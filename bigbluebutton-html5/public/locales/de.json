@@ -114,7 +114,7 @@
     "app.timer.aria.nextPreset": "Next preset",
     "app.timer.aria.decrementHours": "Stunden um {amount} verringern",
     "app.timer.aria.incrementHours": "Increase hours by {amount}",
-    "app.timer.aria.decrementMinutes": "Decrease minutes by {amount}",
+    "app.timer.aria.decrementMinutes": "Minuten um {amount} verringern",
     "app.timer.aria.incrementMinutes": "Increase minutes by {amount}",
     "app.timer.aria.decrementSeconds": "Decrease seconds by {amount}",
     "app.timer.aria.incrementSeconds": "Increase seconds by {amount}",
