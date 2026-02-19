@@ -1429,7 +1429,7 @@
     "app.videoDock.webcamUnpinLabel": "Désépingler",
     "app.videoDock.webcamUnpinLabelDisabled": "Seuls les modérateurs peuvent désépingler des utilisateurs",
     "app.videoDock.webcamUnpinDesc": "Désépingler la caméra sélectionnée",
-    "app.videoDock.webcamPresenterLabel": "Présentateur\n",
+    "app.videoDock.webcamPresenterLabel": "Présentateur",
     "app.videoDock.autoplayBlockedDesc": "Nous avons besoin de votre permission pour vous montrer les webcams des autres utilisateurs.",
     "app.videoDock.autoplayAllowLabel": "Voir les webcams",
     "app.createBreakoutRoom.title": "Salles pour les groupes de travail",
