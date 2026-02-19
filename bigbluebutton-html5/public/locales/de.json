@@ -510,7 +510,7 @@
     "app.muteWarning.disableMessage": "Hinweis auf Stummschaltung deaktiviert, bis die Stummschaltung aufgehoben wird",
     "app.muteWarning.tooltip": "Klicken, um den Hinweis bis zur nächsten Aufhebung der Stummschaltung zu schließen",
     "app.unmute.modal.title": "A moderator is asking you to unmute",
-    "app.unmute.modal.subtitle": "Please unmute your microphone",
+    "app.unmute.modal.subtitle": "Bitte die Stummschaltung des Mikrofons aufheben",
     "app.unmute.modal.confirm.label": "Unmute",
     "app.unmute.modal.deny.label": "Stay Muted",
     "app.requestPresenter.notification.title": "Präsentationsrechte geben",
