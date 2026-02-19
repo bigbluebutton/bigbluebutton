@@ -540,7 +540,7 @@
     "app.navBar.optionsDropdown.helpDesc": "Link zur Videoanleitung (in neuem Tab)",
     "app.navBar.optionsDropdown.endMeetingDesc": "Beendet die aktuelle Sitzung",
     "app.navBar.optionsDropdown.endMeetingLabel": "Konferenz beenden",
-    "app.navBar.optionsDropdown.returnToMainRoomLabel": "Return to main room",
+    "app.navBar.optionsDropdown.returnToMainRoomLabel": "Zurück zum Hauptraum",
     "app.navBar.optionsDropdown.returnToMainRoomDesc": "Returns to the main room session",
     "app.navBar.optionsDropdown.endMeetingForAllLabel": "Konferenz für alle beenden",
     "app.navBar.optionsDropdown.presenceLabel": "Ich bin ",
