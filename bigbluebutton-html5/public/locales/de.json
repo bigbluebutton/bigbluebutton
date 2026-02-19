@@ -144,7 +144,7 @@
     "app.appsGallery.maxpinnedApps": "{pinnedCount} out of {maxPinned} pinned apps",
     "app.appsGallery.maxpinnedAppsContinue": "in der Seitenleiste",
     "app.appsGallery.pinTooltip": "App anheften",
-    "app.appsGallery.unpinTooltip": "Unpin app",
+    "app.appsGallery.unpinTooltip": "App lösen",
     "app.appsGallery.newAppLabel": "New",
     "app.appsGallery.modal.title": "Huch!",
     "app.appsGallery.modal.subtitle": "You already have {pinnedAppsNumber} pinned apps in the sidebar.",
