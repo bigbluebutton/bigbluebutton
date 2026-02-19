@@ -726,7 +726,7 @@
     "app.settings.dataSavingTab.description": "Um Datentransfervolumen zu sparen, kann hier eingestellt werden, was angezeigt wird.",
     "app.settings.transcriptionTab.partialUtterances": "Zeige unvollständige Äußerungen",
     "app.settings.transcriptionTab.minUtteranceLength": "Minimale Länge einer Äußerung (in Sekunden)",
-    "app.settings.shortcutsTab.label": "Keyboard shortcuts",
+    "app.settings.shortcutsTab.label": "Tastenkombinationen",
     "app.settings.save-notification.label": "Einstellungen wurden gespeichert",
     "app.settings.unsavedChanges.message": "You have unsaved changes.",
     "app.settings.unsavedChanges.ignoreMessage": "If you ignore the changes they will not be applied.",
