@@ -1,6 +1,6 @@
 {
     "app.home.greeting": "Die Präsentation beginnt in Kürze...",
-    "app.sidebarContent.minimizePanelLabel": "Minimize {panelName}",
+    "app.sidebarContent.minimizePanelLabel": "{panelName} minimieren",
     "app.chat.submitLabel": "Nachricht senden",
     "app.chat.errorMaxMessageLength": "Die Nachricht überschreitet das Limit von {maxMessageLength} Zeichen",
     "app.chat.errorMinMessageLength": "Die Nachricht muss mindestens {minMessageLength} Zeichen lang sein",
