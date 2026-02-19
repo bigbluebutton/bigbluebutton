@@ -149,7 +149,7 @@
     "app.appsGallery.modal.title": "Huch!",
     "app.appsGallery.modal.subtitle": "You already have {pinnedAppsNumber} pinned apps in the sidebar.",
     "app.appsGallery.modal.description": "To pin a new app, you must unpin another first.",
-    "app.appsGallery.modal.confirmButtonLabel": "Got it",
+    "app.appsGallery.modal.confirmButtonLabel": "Verstanden",
     "app.profileSettings.title": "Profile Settings",
     "app.profileSettings.usernameTitle": "Username",
     "app.profileSettings.addExtraCamera": "Add Extra Camera",
