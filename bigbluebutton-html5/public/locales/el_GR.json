@@ -29,7 +29,7 @@
     "app.chat.breakoutDurationUpdatedModerator": "Ο χρόνος των τμημάτων της αίθουσας είναι {timeInMinutes} λεπτά. Έχει σταλθεί ειδοποίηση.",
     "app.chat.emptyLogLabel": "Το αρχείο καταγραφής συνομιλίας είναι κενό",
     "app.chat.away": "Είναι απών",
-    "app.chat.notAway": "είναι ενεργό ξανά",
+    "app.chat.notAway": "Διαθέσιμος",
     "app.chat.isPresenter": "Ο/Η {presenterName} είναι παρουσιαστής",
     "app.chat.isPresenterSetBy": "Ο/Η {presenterName} είναι παρουσιαστής, ορίστηκε από {assignedByName}",
     "app.chat.clearPublicChatMessage": "Το ιστορικό δημόσιας συνομιλίας έχει διαγραφεί από τον συντονιστή.",
