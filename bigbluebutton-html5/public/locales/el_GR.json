@@ -266,7 +266,7 @@
     "app.screenshare.screenshareUnsupportedEnv": "Κωδικός {errorCode}. Το πρόγραμμα περιήγησης δεν υποστηρίζεται. Δοκιμάστε ξανά από άλλη συσκευή ή άλλο πρόγραμμα περιήγησης.",
     "app.screenshare.screensharePermissionError": "Κωδικός {errorCode}. Για την καταγραφή της οθόνης απαιτείται εξουσιοδότηση.",
     "app.screenshare.screenshareToastHelpLabel": "Μάθετε περισσότερα",
-    "app.cameraAsContent.presenterLoadingLabel": "Σύνδεση στην κάμερά σας",
+    "app.cameraAsContent.presenterLoadingLabel": "Η κάμερά σας φορτώνεται",
     "app.cameraAsContent.viewerLoadingLabel": "Η κάμερα παρουσιαστή φορτώνεται",
     "app.cameraAsContent.presenterSharingLabel": "Τώρα προβάλλεται η κάμερά σας",
     "app.meeting.ended": "Η συνεδρία έληξε",
