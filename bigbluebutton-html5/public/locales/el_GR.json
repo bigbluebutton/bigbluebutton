@@ -140,7 +140,7 @@
     "app.notes.notesDropdown.pinNotes": "Καρφίτσωμα σημειώσεων στον ασπροπίνακα",
     "app.notes.notesDropdown.unpinNotes": "Ξεκαρφίτσωμα σημειώσεων",
     "app.notes.notesDropdown.notesOptions": "Επιλογές σημειώσεων",
-    "app.appsGallery.title": "Apps Gallery",
+    "app.appsGallery.title": "Γκαλερί εφαρμογών",
     "app.appsGallery.maxpinnedApps": "{pinnedCount} από {maxPinned} καρφιτσωμένων εφαρμογών",
     "app.appsGallery.maxpinnedAppsContinue": "στην πλαϊνή γραμμή.",
     "app.appsGallery.pinTooltip": "Καρφίτσωμα εφαρμογής",
