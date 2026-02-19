@@ -778,7 +778,7 @@
     "app.actionsBar.actionsDropdown.takePresenterDesc": "S'assigner comme nouveau présentateur",
     "app.actionsBar.actionsDropdown.requestPresenter": "Demande de présentateur",
     "app.actionsBar.actionsDropdown.requestPresenterDesc": "Demande pour devenir le nouveau présentateur",
-    "app.actionsBar.actionsDropdown.waitingForModerator": "En attente de la réponse du modérateur…",
+    "app.actionsBar.actionsDropdown.waitingForModerator": "En attente de la réponse d'un modérateur…",
     "app.actionsBar.actionsDropdown.waitingForModeratorDesc": "En attente de validation de votre demande par un modérateur.",
     "app.actionsBar.reactions.reactionsButtonLabel": "Barre de réactions",
     "app.actionsBar.reactions.removeReactionLabel": "Supprimer la réaction",
