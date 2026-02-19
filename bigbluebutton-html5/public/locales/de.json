@@ -110,7 +110,7 @@
     "app.timer.minutes": "Minuten",
     "app.timer.seconds": "Sekunden",
     "app.timer.aria.setTo": "Timer auf {label} setzen",
-    "app.timer.aria.prevPreset": "Previous preset",
+    "app.timer.aria.prevPreset": "Vorherige Voreinstellung",
     "app.timer.aria.nextPreset": "Next preset",
     "app.timer.aria.decrementHours": "Stunden um {amount} verringern",
     "app.timer.aria.incrementHours": "Stunden um {amount} vergrößern",
