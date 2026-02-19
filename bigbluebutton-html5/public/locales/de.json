@@ -141,7 +141,7 @@
     "app.notes.notesDropdown.unpinNotes": "Notizen lösen",
     "app.notes.notesDropdown.notesOptions": "Notizoptionen",
     "app.appsGallery.title": "Apps Gallery",
-    "app.appsGallery.maxpinnedApps": "{pinnedCount} out of {maxPinned} pinned apps",
+    "app.appsGallery.maxpinnedApps": "{pinnedCount} von {maxPinned} Apps sind angeheftet",
     "app.appsGallery.maxpinnedAppsContinue": "in der Seitenleiste",
     "app.appsGallery.pinTooltip": "App anheften",
     "app.appsGallery.unpinTooltip": "App lösen",
