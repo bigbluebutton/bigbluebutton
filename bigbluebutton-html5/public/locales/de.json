@@ -1183,7 +1183,7 @@
     "app.lock-viewers.lockStatusLabel": "Status",
     "app.lock-viewers.webcamLabel": "Webcam freigeben",
     "app.lock-viewers.otherViewersWebcamLabel": "Webcams anderer anzeigen",
-    "app.lock-viewers.microphoneLabel": "Sharing their microphone.",
+    "app.lock-viewers.microphoneLabel": "Mikrofon teilen",
     "app.lock-viewers.PublicChatLabel": "Chatnachrichten an alle senden",
     "app.lock-viewers.PrivateChatLabel": "Sending private messages.",
     "app.lock-viewers.notesLabel": "Geteilte Notizen bearbeiten",
