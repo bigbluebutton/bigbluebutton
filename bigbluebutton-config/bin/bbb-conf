@@ -449,6 +449,19 @@ display_bigbluebutton_status () {
             printf "%s %s [✘ - $status]\n" $unit "${line:${#unit}}"
         fi
     done
+
+    # Display firewall status
+    echo
+    if which ufw > /dev/null 2>&1; then
+        firewall_name="ufw"; firewall_status=$(ufw status | head -1 | sed 's/Status: //'); line_offset=18
+    elif which firewall-cmd > /dev/null 2>&1; then
+        firewall_name="firewalld"; firewall_status=$(firewall-cmd --state > /dev/null 2>&1 && echo "active" || echo "inactive"); line_offset=10
+    else
+        firewall_name="none"; firewall_status="inactive"; line_offset=10
+    fi
+    checkmark=$([ "$firewall_status" = "active" ] && echo "✔" || echo "✘")
+    echo "Firewall: $firewall_name"
+    echo "└─ Status: ${line:$line_offset} [$checkmark - $firewall_status]"
 }
 
 if [ $# -eq 0 ]; then
@@ -784,13 +797,25 @@ check_configuration() {
        echo
     fi
 
-    if ! which ufw > /dev/null 2>&1; then
-       echo
-       echo "# Warning: No firewall detected.  Recommend using setting up a firewall for your server"
-       echo "#"
-       echo "#     https://docs.bigbluebutton.org/administration/firewall-configuration"
-       echo "#"
-       echo
+    # Check for firewall presence (ufw or firewalld)
+    FIREWALL_DETECTED=""
+    FIREWALL_CMD=""
+
+    if which ufw > /dev/null 2>&1; then
+        FIREWALL_DETECTED="ufw"
+        FIREWALL_CMD="ufw status"
+    elif which firewall-cmd > /dev/null 2>&1; then
+        FIREWALL_DETECTED="firewalld"
+        FIREWALL_CMD="firewall-cmd --state"
+    fi
+
+    if [ -z "$FIREWALL_DETECTED" ]; then
+        echo
+        echo "# Warning: No firewall detected.  Recommend using setting up a firewall for your server"
+        echo "#"
+        echo "#     https://docs.bigbluebutton.org/administration/firewall-configuration"
+        echo "#"
+        echo
     fi
 
 }
