@@ -832,7 +832,7 @@ public:
     showScreenshareQuickSwapButton: false
     showLeaveSessionLabel: false
     usersPerUserListPage: 50
-    syncCameraDockSizeAndPosition: false
+    syncCameraDockSizeAndPosition: true
   pads:
     url: ETHERPAD_HOST
   media:
