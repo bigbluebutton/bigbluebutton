@@ -39,6 +39,7 @@ const MediaArea = (props: MediaAreaProps) => {
     isMobile,
     isRTL,
     isRequestingPresenter,
+    disablePresenterRequest,
   } = props;
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -104,6 +105,7 @@ const MediaArea = (props: MediaAreaProps) => {
         allowExternalVideo={allowExternalVideo}
         stopExternalVideoShare={stopExternalVideoShare}
         isRequestingPresenter={isRequestingPresenter}
+        disablePresenterRequest={disablePresenterRequest}
       />
     </>
   );

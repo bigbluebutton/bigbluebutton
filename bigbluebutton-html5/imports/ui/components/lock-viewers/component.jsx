@@ -84,6 +84,10 @@ const intlMessages = defineMessages({
     id: 'app.lock-viewers.hideAnnotationsLabel',
     description: 'label for other viewers annotation',
   },
+  disablePresenterRequestLabel: {
+    id: 'app.lock-viewers.disablePresenterRequestLabel',
+    description: 'label for presenter request toggle',
+  },
 });
 
 const propTypes = {
@@ -383,6 +387,28 @@ class LockViewersComponent extends Component {
                 <Styled.FormElement>
                   <Styled.Label>
                     {intl.formatMessage(intlMessages.hideAnnotationsLabel)}
+                  </Styled.Label>
+                </Styled.FormElement>
+              </Styled.Col>
+            </Styled.Row>
+
+            <Styled.Row data-test="disablePresenterRequestItem">
+              <Styled.ColToggle>
+                <Styled.FormElementLeft>
+                  <Styled.MaterialCheckbox
+                    checked={lockSettingsProps.disablePresenterRequest}
+                    onChange={() => this.toggleLockSettings('disablePresenterRequest')}
+                    inputProps={{
+                      'aria-label': intl.formatMessage(intlMessages.disablePresenterRequestLabel),
+                      'data-test': 'disablePresenterRequest',
+                    }}
+                  />
+                </Styled.FormElementLeft>
+              </Styled.ColToggle>
+              <Styled.Col aria-hidden="true">
+                <Styled.FormElement>
+                  <Styled.Label>
+                    {intl.formatMessage(intlMessages.disablePresenterRequestLabel)}
                   </Styled.Label>
                 </Styled.FormElement>
               </Styled.Col>

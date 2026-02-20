@@ -1446,7 +1446,8 @@ public class MeetingService implements MessageListener {
                 msg.lockOnJoin,
                 msg.lockOnJoinConfigurable,
                 msg.hideViewersCursor,
-                msg.hideViewersAnnotation)
+                msg.hideViewersAnnotation,
+                msg.disablePresenterRequest)
       );
     }
   }

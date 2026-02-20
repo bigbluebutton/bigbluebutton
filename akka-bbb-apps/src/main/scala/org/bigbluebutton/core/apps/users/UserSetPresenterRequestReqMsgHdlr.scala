@@ -5,6 +5,7 @@ import org.bigbluebutton.core.models.{ Users2x, Roles }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter, MeetingActor }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core2.MeetingStatus2x
 
 trait UserSetPresenterRequestReqMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>
@@ -33,9 +34,14 @@ trait UserSetPresenterRequestReqMsgHdlr extends RightsManagementTrait {
         } else if (requester.role == Roles.MODERATOR_ROLE) {
           log.info("Moderator can become presenter directly. meetingId=" + meetingId + " requesterId=" + requesterId)
         } else {
-          Users2x.setUserRequestedPresenter(liveMeeting.users2x, requesterId, true)
-          log.info("User requested presenter. meetingId=" + meetingId +
-            " requesterId=" + requesterId + " requesterName=" + requester.name)
+          val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
+          if (requester.locked && permissions.disablePresenterRequest) {
+            log.info("Presenter request is locked. meetingId=" + meetingId + " requesterId=" + requesterId)
+          } else {
+            Users2x.setUserRequestedPresenter(liveMeeting.users2x, requesterId, true)
+            log.info("User requested presenter. meetingId=" + meetingId +
+              " requesterId=" + requesterId + " requesterName=" + requester.name)
+          }
         }
       }
       state

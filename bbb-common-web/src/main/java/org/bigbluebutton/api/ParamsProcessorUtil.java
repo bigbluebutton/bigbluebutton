@@ -138,6 +138,7 @@ public class ParamsProcessorUtil {
 		private boolean defaultLockSettingsLockOnJoinConfigurable;
 		private boolean defaultLockSettingsHideViewersCursor;
         private boolean defaultLockSettingsHideViewersAnnotation;
+        private boolean defaultLockSettingsDisablePresenterRequest;
 
     private Long maxPresentationFileUpload = 30000000L; // 30MB
 
@@ -420,6 +421,12 @@ public class ParamsProcessorUtil {
                 lockSettingsHideViewersAnnotation = Boolean.parseBoolean(lockSettingsHideViewersAnnotationParam);
 			}
 
+            Boolean lockSettingsDisablePresenterRequest = defaultLockSettingsDisablePresenterRequest;
+			String lockSettingsDisablePresenterRequestParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_PRESENTER_REQUEST);
+			if (!StringUtils.isEmpty(lockSettingsDisablePresenterRequestParam)) {
+                lockSettingsDisablePresenterRequest = Boolean.parseBoolean(lockSettingsDisablePresenterRequestParam);
+			}
+
 			return new LockSettingsParams(lockSettingsDisableCam,
 							lockSettingsDisableMic,
 							lockSettingsDisablePrivateChat,
@@ -429,7 +436,8 @@ public class ParamsProcessorUtil {
 							lockSettingsLockOnJoin,
 							lockSettingsLockOnJoinConfigurable,
                             lockSettingsHideViewersCursor,
-                            lockSettingsHideViewersAnnotation);
+                            lockSettingsHideViewersAnnotation,
+                            lockSettingsDisablePresenterRequest);
 		}
 
     private ArrayList<Group> processGroupsParams(Map<String, String> params) {
@@ -1790,6 +1798,10 @@ public class ParamsProcessorUtil {
 
     public void setLockSettingsHideViewersAnnotation(Boolean lockSettingsHideViewersAnnotation) {
 		this.defaultLockSettingsHideViewersAnnotation = lockSettingsHideViewersAnnotation;
+	}
+
+    public void setLockSettingsDisablePresenterRequest(Boolean lockSettingsDisablePresenterRequest) {
+		this.defaultLockSettingsDisablePresenterRequest = lockSettingsDisablePresenterRequest;
 	}
 
 	public void setAllowDuplicateExtUserid(Boolean allow) {

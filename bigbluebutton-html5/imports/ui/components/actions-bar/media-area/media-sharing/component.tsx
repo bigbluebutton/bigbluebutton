@@ -41,6 +41,7 @@ interface MediaSharingModalProps {
   isMobile: boolean;
   isRTL: boolean;
   isRequestingPresenter?: boolean;
+  disablePresenterRequest?: boolean;
 }
 
 const intlMessages = defineMessages({
@@ -159,6 +160,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   isMobile,
   isRTL,
   isRequestingPresenter = false,
+  disablePresenterRequest = false,
 }) => {
   const actionsBarStyle = layoutSelectOutput((i: Output) => i.actionBar);
   const { screenIsShared: isScreenGloballyBroadcasting } = useIsScreenGloballyBroadcasting();
@@ -355,18 +357,22 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
       ? 'takePresenterButton'
       : 'requestPresenterButton';
 
+    const showButton = amIModerator || !disablePresenterRequest;
+
     return (
       <Styled.BecomePresenterViewContainer>
         <Styled.BecomePresenterText>
           {intl.formatMessage(intlMessages.mustBePresenter)}
         </Styled.BecomePresenterText>
-        <Styled.ConfirmationButton
-          data-test={dataTestId}
-          label={buttonLabel}
-          color="primary"
-          onClick={buttonAction}
-          customIcon={<CoPresentIcon />}
-        />
+        {showButton && (
+          <Styled.ConfirmationButton
+            data-test={dataTestId}
+            label={buttonLabel}
+            color="primary"
+            onClick={buttonAction}
+            customIcon={<CoPresentIcon />}
+          />
+        )}
       </Styled.BecomePresenterViewContainer>
     );
   };
