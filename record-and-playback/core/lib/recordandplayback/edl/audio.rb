@@ -49,7 +49,7 @@ module BigBlueButton
         # Special case handling for the start
         # If there's a cut immediately after the start, the later logic would delete the first cut,
         # which would result in desync. Any cuts within MIN_CUT_LENGTH of the start have to be
-        # pushed back to avoid this situation. It multiple cuts are pushed back (they'd all get set
+        # pushed back to avoid this situation. If multiple cuts are pushed back (they'd all get set
         #  to the same timestamp), the later logic will clean them up.
         1.upto(edl.length - 1).each do |i|
           # We've made it past the problematic point near the start of the recording
