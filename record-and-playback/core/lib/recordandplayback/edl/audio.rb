@@ -59,8 +59,8 @@ module BigBlueButton
           offset = MIN_CUT_LENGTH - edl[i][:timestamp]
           # Move the cut to start at MIN_CUT_LENGTH
           edl[i][:timestamp] = MIN_CUT_LENGTH
-          # And offset the start times of every video to compensate
-          edl[i][:audios].each_value do |audio_data|
+          # And offset the start times of every audio track to compensate
+          edl[i][:audios]&.each do |audio_data|
             audio_data[:timestamp] += offset
           end
         end
