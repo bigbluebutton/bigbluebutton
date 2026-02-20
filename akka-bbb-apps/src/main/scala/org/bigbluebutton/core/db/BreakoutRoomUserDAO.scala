@@ -43,7 +43,7 @@ object BreakoutRoomUserDAO {
     )
         ON CONFLICT ("breakoutRoomMeetingId", "meetingId", "userId")
         DO UPDATE SET
-        "assignedAt" = $assignedAt,
+        "assignedAt" = coalesce($assignedAt, "breakoutRoom_user"."assignedAt"),
         "joinURL" = ${joinURL},
         "inviteDismissedAt" = null
         """
