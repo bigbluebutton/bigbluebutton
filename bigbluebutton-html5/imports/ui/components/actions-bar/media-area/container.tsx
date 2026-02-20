@@ -51,8 +51,7 @@ const MediaAreaContainer = (props: MediaAreaContainerProps) => {
   }));
 
   const isLockedUser = currentUserData?.locked ?? false;
-  const disablePresenterRequest = isLockedUser
-    && (meetingData?.lockSettings?.disablePresenterRequest ?? false);
+  const presenterPolicy = meetingData?.lockSettings?.presenterPolicy ?? 'requireApproval';
 
   let mediaAreaItems: MediaButtonPluginItem[] = [];
   if (pluginsExtensibleAreasAggregatedState.mediaAreaItems) {
@@ -104,7 +103,8 @@ const MediaAreaContainer = (props: MediaAreaContainerProps) => {
       isConnected={isConnected}
       hasPresentation={hasPresentation}
       isRequestingPresenter={isRequestingPresenter}
-      disablePresenterRequest={disablePresenterRequest}
+      presenterPolicy={presenterPolicy}
+      isLockedUser={isLockedUser}
     />
   );
 };

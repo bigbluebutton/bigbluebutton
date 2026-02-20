@@ -329,7 +329,7 @@ class MeetingActor(
       lockOnJoinConfigurable = lockSettingsProp.lockOnJoinConfigurable,
       hideViewersCursor = lockSettingsProp.hideViewersCursor,
       hideViewersAnnotation = lockSettingsProp.hideViewersAnnotation,
-      disablePresenterRequest = lockSettingsProp.disablePresenterRequest
+      presenterPolicy = lockSettingsProp.presenterPolicy
     )
 
     MeetingStatus2x.initializePermissions(liveMeeting.status)

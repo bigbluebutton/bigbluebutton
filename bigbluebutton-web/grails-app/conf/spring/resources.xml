@@ -217,7 +217,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="lockSettingsLockOnJoinConfigurable" value="${lockSettingsLockOnJoinConfigurable}"/>
         <property name="lockSettingsHideViewersCursor" value="${lockSettingsHideViewersCursor}"/>
         <property name="lockSettingsHideViewersAnnotation" value="${lockSettingsHideViewersAnnotation}"/>
-        <property name="lockSettingsDisablePresenterRequest" value="${lockSettingsDisablePresenterRequest}"/>
+        <property name="lockSettingsPresenterPolicy" value="${lockSettingsPresenterPolicy}"/>
         <property name="allowDuplicateExtUserid" value="${allowDuplicateExtUserid}"/>
         <property name="maxUserConcurrentAccesses" value="${maxUserConcurrentAccesses}"/>
         <property name="endWhenNoModerator" value="${endWhenNoModerator}"/>

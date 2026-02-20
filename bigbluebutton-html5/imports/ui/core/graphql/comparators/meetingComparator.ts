@@ -67,7 +67,7 @@ export const meetingComparator = <T>(
   if ((als?.disableNotes ?? false) !== (bls?.disableNotes ?? false)) return false;
   if ((als?.disablePrivateChat ?? false) !== (bls?.disablePrivateChat ?? false)) return false;
   if ((als?.disablePublicChat ?? false) !== (bls?.disablePublicChat ?? false)) return false;
-  if ((als?.disablePresenterRequest ?? false) !== (bls?.disablePresenterRequest ?? false)) return false;
+  if ((als?.presenterPolicy ?? 'requireApproval') !== (bls?.presenterPolicy ?? 'requireApproval')) return false;
   if ((als?.hasActiveLockSetting ?? false) !== (bls?.hasActiveLockSetting ?? false)) return false;
   if ((als?.hideUserList ?? false) !== (bls?.hideUserList ?? false)) return false;
   if ((als?.hideViewersCursor ?? false) !== (bls?.hideViewersCursor ?? false)) return false;

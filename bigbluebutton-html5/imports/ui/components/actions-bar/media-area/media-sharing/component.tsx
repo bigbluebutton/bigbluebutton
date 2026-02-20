@@ -41,7 +41,8 @@ interface MediaSharingModalProps {
   isMobile: boolean;
   isRTL: boolean;
   isRequestingPresenter?: boolean;
-  disablePresenterRequest?: boolean;
+  presenterPolicy?: string;
+  isLockedUser?: boolean;
 }
 
 const intlMessages = defineMessages({
@@ -160,7 +161,8 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   isMobile,
   isRTL,
   isRequestingPresenter = false,
-  disablePresenterRequest = false,
+  presenterPolicy = 'requireApproval',
+  isLockedUser = false,
 }) => {
   const actionsBarStyle = layoutSelectOutput((i: Output) => i.actionBar);
   const { screenIsShared: isScreenGloballyBroadcasting } = useIsScreenGloballyBroadcasting();
@@ -345,34 +347,62 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
       );
     }
 
-    const buttonLabel = amIModerator
-      ? intl.formatMessage(intlMessages.takePresenter)
-      : intl.formatMessage(intlMessages.requestPresenter);
+    if (amIModerator) {
+      return (
+        <Styled.BecomePresenterViewContainer>
+          <Styled.BecomePresenterText>
+            {intl.formatMessage(intlMessages.mustBePresenter)}
+          </Styled.BecomePresenterText>
+          <Styled.ConfirmationButton
+            data-test="takePresenterButton"
+            label={intl.formatMessage(intlMessages.takePresenter)}
+            color="primary"
+            onClick={handleTakePresenter}
+            customIcon={<CoPresentIcon />}
+          />
+        </Styled.BecomePresenterViewContainer>
+      );
+    }
 
-    const buttonAction = amIModerator
-      ? handleTakePresenter
-      : handleRequestPresenter;
+    if (presenterPolicy === 'moderatorOnly' && isLockedUser) {
+      return (
+        <Styled.BecomePresenterViewContainer>
+          <Styled.BecomePresenterText>
+            {intl.formatMessage(intlMessages.mustBePresenter)}
+          </Styled.BecomePresenterText>
+        </Styled.BecomePresenterViewContainer>
+      );
+    }
 
-    const dataTestId = amIModerator
-      ? 'takePresenterButton'
-      : 'requestPresenterButton';
-
-    const showButton = amIModerator || !disablePresenterRequest;
+    if (presenterPolicy === 'freeForAll') {
+      return (
+        <Styled.BecomePresenterViewContainer>
+          <Styled.BecomePresenterText>
+            {intl.formatMessage(intlMessages.mustBePresenter)}
+          </Styled.BecomePresenterText>
+          <Styled.ConfirmationButton
+            data-test="takePresenterButton"
+            label={intl.formatMessage(intlMessages.takePresenter)}
+            color="primary"
+            onClick={handleRequestPresenter}
+            customIcon={<CoPresentIcon />}
+          />
+        </Styled.BecomePresenterViewContainer>
+      );
+    }
 
     return (
       <Styled.BecomePresenterViewContainer>
         <Styled.BecomePresenterText>
           {intl.formatMessage(intlMessages.mustBePresenter)}
         </Styled.BecomePresenterText>
-        {showButton && (
-          <Styled.ConfirmationButton
-            data-test={dataTestId}
-            label={buttonLabel}
-            color="primary"
-            onClick={buttonAction}
-            customIcon={<CoPresentIcon />}
-          />
-        )}
+        <Styled.ConfirmationButton
+          data-test="requestPresenterButton"
+          label={intl.formatMessage(intlMessages.requestPresenter)}
+          color="primary"
+          onClick={handleRequestPresenter}
+          customIcon={<CoPresentIcon />}
+        />
       </Styled.BecomePresenterViewContainer>
     );
   };

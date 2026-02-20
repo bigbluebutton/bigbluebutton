@@ -35,7 +35,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
         lockOnJoinConfigurable = msg.body.lockOnJoinConfigurable,
         hideViewersCursor = msg.body.hideViewersCursor,
         hideViewersAnnotation = msg.body.hideViewersAnnotation,
-        disablePresenterRequest = msg.body.disablePresenterRequest
+        presenterPolicy = msg.body.presenterPolicy
       )
 
       if (!MeetingStatus2x.permissionsEqual(liveMeeting.status, settings) || !MeetingStatus2x.permisionsInitialized(liveMeeting.status)) {
@@ -234,8 +234,8 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
           }
         }
 
-        if (oldPermissions.disablePresenterRequest != settings.disablePresenterRequest) {
-          if (settings.disablePresenterRequest) {
+        if (oldPermissions.presenterPolicy != settings.presenterPolicy) {
+          if (settings.presenterPolicy == "moderatorOnly") {
             val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
               liveMeeting.props.meetingProp.intId,
               "info",
@@ -280,7 +280,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
           lockOnJoinConfigurable = settings.lockOnJoinConfigurable,
           hideViewersCursor = settings.hideViewersCursor,
           hideViewersAnnotation = settings.hideViewersAnnotation,
-          disablePresenterRequest = settings.disablePresenterRequest,
+          presenterPolicy = settings.presenterPolicy,
           msg.body.setBy
         )
         val header = BbbClientMsgHeader(

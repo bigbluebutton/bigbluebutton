@@ -106,12 +106,7 @@ const UserList: React.FC<UserListComponentProps> = () => {
 
   const renderGuestManagement = useCallback(() => {
     if (!currentUserData?.isModerator || meetingInfo?.isBreakout) return null;
-    return (
-      <>
-        <GuestManagement />
-        <Styled.Separator />
-      </>
-    );
+    return <GuestManagement />;
   }, [currentUserData, meetingInfo]);
 
   const renderScrollableSection = useCallback(() => {

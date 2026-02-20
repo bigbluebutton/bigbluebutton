@@ -15,7 +15,7 @@ select_permissions:
         - disableNotes
         - disablePrivateChat
         - disablePublicChat
-        - disablePresenterRequest
+        - presenterPolicy
         - hasActiveLockSetting
         - hideUserList
         - hideViewersAnnotation

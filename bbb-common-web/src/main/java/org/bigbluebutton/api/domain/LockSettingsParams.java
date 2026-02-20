@@ -11,7 +11,7 @@ public class LockSettingsParams {
 	public final Boolean lockOnJoinConfigurable;
 	public final Boolean hideViewersCursor;
 	public final Boolean hideViewersAnnotation;
-	public final Boolean disablePresenterRequest;
+	public final String presenterPolicy;
 
 	public LockSettingsParams(Boolean disableCam,
 				Boolean disableMic,
@@ -23,7 +23,7 @@ public class LockSettingsParams {
 				Boolean lockOnJoinConfigurable,
 				Boolean hideViewersCursor,
 				Boolean hideViewersAnnotation,
-				Boolean disablePresenterRequest) {
+				String presenterPolicy) {
 		this.disableCam = disableCam;
 		this.disableMic = disableMic;
 		this.disablePrivateChat = disablePrivateChat;
@@ -34,6 +34,6 @@ public class LockSettingsParams {
 		this.lockOnJoinConfigurable = lockOnJoinConfigurable;
 		this.hideViewersCursor = hideViewersCursor;
 		this.hideViewersAnnotation = hideViewersAnnotation;
-		this.disablePresenterRequest = disablePresenterRequest;
+		this.presenterPolicy = presenterPolicy;
 	}
 }

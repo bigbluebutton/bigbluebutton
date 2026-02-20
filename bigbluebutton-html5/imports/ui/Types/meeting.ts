@@ -4,7 +4,7 @@ export interface LockSettings {
   disableNotes: boolean;
   disablePrivateChat: boolean;
   disablePublicChat: boolean;
-  disablePresenterRequest: boolean;
+  presenterPolicy: string;
   hasActiveLockSetting: boolean;
   hideUserList: boolean;
   hideViewersCursor: boolean;

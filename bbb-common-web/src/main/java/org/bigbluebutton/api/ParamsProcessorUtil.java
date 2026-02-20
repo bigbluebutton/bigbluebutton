@@ -138,7 +138,7 @@ public class ParamsProcessorUtil {
 		private boolean defaultLockSettingsLockOnJoinConfigurable;
 		private boolean defaultLockSettingsHideViewersCursor;
         private boolean defaultLockSettingsHideViewersAnnotation;
-        private boolean defaultLockSettingsDisablePresenterRequest;
+        private String defaultLockSettingsPresenterPolicy = "requireApproval";
 
     private Long maxPresentationFileUpload = 30000000L; // 30MB
 
@@ -421,10 +421,10 @@ public class ParamsProcessorUtil {
                 lockSettingsHideViewersAnnotation = Boolean.parseBoolean(lockSettingsHideViewersAnnotationParam);
 			}
 
-            Boolean lockSettingsDisablePresenterRequest = defaultLockSettingsDisablePresenterRequest;
-			String lockSettingsDisablePresenterRequestParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_PRESENTER_REQUEST);
-			if (!StringUtils.isEmpty(lockSettingsDisablePresenterRequestParam)) {
-                lockSettingsDisablePresenterRequest = Boolean.parseBoolean(lockSettingsDisablePresenterRequestParam);
+            String lockSettingsPresenterPolicy = defaultLockSettingsPresenterPolicy;
+			String lockSettingsPresenterPolicyParam = params.get(ApiParams.LOCK_SETTINGS_PRESENTER_POLICY);
+			if (!StringUtils.isEmpty(lockSettingsPresenterPolicyParam)) {
+                lockSettingsPresenterPolicy = lockSettingsPresenterPolicyParam;
 			}
 
 			return new LockSettingsParams(lockSettingsDisableCam,
@@ -437,7 +437,7 @@ public class ParamsProcessorUtil {
 							lockSettingsLockOnJoinConfigurable,
                             lockSettingsHideViewersCursor,
                             lockSettingsHideViewersAnnotation,
-                            lockSettingsDisablePresenterRequest);
+                            lockSettingsPresenterPolicy);
 		}
 
     private ArrayList<Group> processGroupsParams(Map<String, String> params) {
@@ -1800,8 +1800,8 @@ public class ParamsProcessorUtil {
 		this.defaultLockSettingsHideViewersAnnotation = lockSettingsHideViewersAnnotation;
 	}
 
-    public void setLockSettingsDisablePresenterRequest(Boolean lockSettingsDisablePresenterRequest) {
-		this.defaultLockSettingsDisablePresenterRequest = lockSettingsDisablePresenterRequest;
+    public void setLockSettingsPresenterPolicy(String lockSettingsPresenterPolicy) {
+		this.defaultLockSettingsPresenterPolicy = lockSettingsPresenterPolicy;
 	}
 
 	public void setAllowDuplicateExtUserid(Boolean allow) {
