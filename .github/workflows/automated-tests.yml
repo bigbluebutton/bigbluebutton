@@ -15,14 +15,14 @@ on:
       - "docs/**"
       - "**/*.md"
       - "bigbluebutton-html5/public/locales/*.json"
-permissions:
-  contents: read
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
   build-package:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -135,6 +135,8 @@ jobs:
           path: artifacts/
   bbb-libreoffice-image:
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
     steps:
       - name: Checkout PR's source merged into its target branch
         if: github.event_name == 'pull_request'
@@ -163,6 +165,9 @@ jobs:
   unify-artifacts:
     needs: build-package
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      actions: write
     steps:
       - name: Create all-artifacts directory
         run: mkdir -p all-artifacts
@@ -263,6 +268,8 @@ jobs:
       - unify-artifacts
       - bbb-libreoffice-image
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -392,6 +399,8 @@ jobs:
       - unify-artifacts
       - bbb-libreoffice-image
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
     env:
@@ -590,6 +599,8 @@ jobs:
       - install-and-run-bbb-tests
       - install-and-run-plugin-tests
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
     env:
       hasFailure: ${{ needs.install-and-run-bbb-tests.result == 'failure' || needs.install-and-run-plugin-tests.result == 'failure' }}
     steps:
