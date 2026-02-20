@@ -1363,7 +1363,7 @@
     "app.createBreakoutRoom.record": "Spill inn",
     "app.createBreakoutRoom.numberOfRooms": "Antall rom",
     "app.createBreakoutRoom.durationInMinutes": "Varighet (minutter)",
-    "app.createBreakoutRoom.randomlyAssign": "Tilfeldig designert",
+    "app.createBreakoutRoom.randomlyAssign": "Tilfeldig tildelt",
     "app.createBreakoutRoom.randomlyAssignDesc": "Brukere blir tilfeldig tildelt et grupperom",
     "app.createBreakoutRoom.resetAssignments": "Fjern tilordningen av brukere",
     "app.createBreakoutRoom.resetAssignmentsDesc": "Tilbakestill oppgaver i grupperom",
