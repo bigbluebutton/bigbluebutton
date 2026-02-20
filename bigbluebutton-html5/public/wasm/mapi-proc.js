@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: ISC
 
 // known constants
+const maxSymbolLength = 255;
 const nominalBufferSize = 128;
 
 // function to setup wasm + emscripten module options for offline fetch
@@ -27,23 +28,31 @@ class MapiProcessorInstance {
     constructor(port, module) {
         this.port = port;
         this.module = module;
-        this.handle = module._mapi_create(sampleRate);
+        this.handle = module._mapi_create(sampleRate, nominalBufferSize);
         this.enabled = true;
-        this.monitor_param = -1;
+        this.monitor_param = null;
         this.monitor_value = null;
 
         this.audioData = module._malloc(module.HEAPF32.BYTES_PER_ELEMENT * nominalBufferSize);
         this.audioPtrs = module._malloc(module.HEAPU32.BYTES_PER_ELEMENT);
         module.HEAPU32[this.audioPtrs + (0 << 2) >> 2] = this.audioData;
+
+        this.csymbolData = module._malloc(maxSymbolLength);
     }
 
-    param(index, value) {
-        this.module._mapi_set_parameter(this.handle, index, value);
+    csymbol(symbol) {
+        const len = Math.min(maxSymbolLength, this.module.lengthBytesUTF8(symbol) + 1);
+        this.module.stringToUTF8(symbol, this.csymbolData, len);
+        return this.csymbolData;
     }
 
-    monitor(index) {
-        this.monitor_param = index;
-        this.monitor_value = this.module._mapi_get_parameter(this.handle, index);
+    param(symbol, value) {
+        this.module._mapi_set_parameter(this.handle, this.csymbol(symbol), value);
+    }
+
+    monitor(symbol) {
+        this.monitor_param = symbol;
+        this.monitor_value = this.module._mapi_get_parameter(this.handle, this.csymbol(symbol));
     }
 
     process(buffer, bufferSize, bufferOffset) {
@@ -58,8 +67,8 @@ class MapiProcessorInstance {
         for (let i = 0; i < bufferSize; ++i)
             buffer[bufferOffset + i] = this.module.HEAPF32[this.audioData + (i << 2) >> 2];
 
-        if (this.monitor_param != -1) {
-            const value = this.module._mapi_get_parameter(this.handle, this.monitor_param);
+        if (this.monitor_param != null) {
+            const value = this.module._mapi_get_parameter(this.handle, this.csymbol(this.monitor_param));
             if (this.monitor_value != value) {
                 this.monitor_value = value;
                 this.port.postMessage({ type: 'monitor', value: value });
@@ -143,7 +152,7 @@ class MapiWorkletProcessor extends AudioWorkletProcessor {
             return;
         }
 
-        this.bbba.monitor(data.index);
+        this.bbba.monitor(data.symbol);
     }
 
     param(data) {
@@ -152,7 +161,7 @@ class MapiWorkletProcessor extends AudioWorkletProcessor {
             return;
         }
 
-        this.bbba.param(data.index, data.value);
+        this.bbba.param(data.symbol, data.value);
     }
 
     destroy() {
