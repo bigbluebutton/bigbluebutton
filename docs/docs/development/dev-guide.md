@@ -295,6 +295,8 @@ sudo yq e -i ".public.kurento.wsUrl = \"wss://$HOST/bbb-webrtc-sfu\"" /etc/bigbl
 sudo bbb-conf --restart
 ```
 
+Edit /usr/share/bigbluebutton/nginx/bbb-html5.nginx to use bbb-html5.nginx.dev, instead of bbb-html5.nginx.static. If the file path to bbb-html5.nginx.dev is missing, try /usr/share/bigbluebutton/nginx/bbb-html5.nginx.dev. Then restart nginx by `sudo systemctl restart nginx`. Remember to switch it back when you stop using the developing client.
+
 Install the npm dependencies.
 
 ```bash
