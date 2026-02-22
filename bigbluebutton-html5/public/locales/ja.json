@@ -1085,7 +1085,7 @@
     "app.userList.guest.hideWaitingUsersLabel": "待機中のユーザーを隠す",
     "app.user-info.title": "ディレクトリ検索",
     "app.toast.breakoutRoomEnded": "小会議が終了しました。もう一度音声参加を行ってください。",
-    "app.toast.breakoutContentUnchangedNotConverted": "One or more breakout rooms had no whiteboard/shared notes updates, so they weren't converted to slides.",
+    "app.toast.breakoutContentUnchangedNotConverted": "ホワイトボードや共有ノートを使用しなかった小会議室があります。それらはスライドには変換されません。",
     "app.toast.chat.public": "新しい公開チャットメッセージ",
     "app.toast.chat.private": "新しい非公開チャットメッセージ",
     "app.toast.chat.system": "システム",
