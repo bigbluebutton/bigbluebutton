@@ -256,7 +256,7 @@
     "app.media.cameraAsContent.endDueToDataSaving": "通信量制限のためプレゼンカメラを停止しました",
     "app.media.cameraAsContent.autoplayBlockedDesc": "発表者のカメラ画像の表示を許可してください",
     "app.media.cameraAsContent.autoplayAllowLabel": "プレゼンカメラをみる",
-    "app.media.mediaReconnecting": "Connection issue detected. Restoring your audio and video...",
+    "app.media.mediaReconnecting": "接続に問題が生じました。音声とビデオを修復しています...",
     "app.screenshare.presenterLoadingLabel": "あなたの画面を共有しようとしています",
     "app.screenshare.viewerLoadingLabel": "発表者の画面を共有しようとしています",
     "app.screenshare.presenterSharingLabel": "現在あなたの画面を共有中です",
