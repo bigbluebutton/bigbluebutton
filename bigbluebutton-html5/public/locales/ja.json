@@ -1343,7 +1343,7 @@
     "app.video.meetingCamCapReached": "カメラの数が最大に達しています",
     "app.video.dropZoneLabel": "ここにドロップ",
     "app.video.cameraAriaLabel": "カメラ",
-    "app.video.overflowUsers": "+{overflowCount} users",
+    "app.video.overflowUsers": "+{overflowCount} ユーザー",
     "app.fullscreenButton.label": "{elementName} を全画面表示にする",
     "app.fullscreenUndoButton.label": "{elementName} の全画面表示を解除",
     "app.switchButton.expandLabel": "画面共有のビデオを拡大",
