@@ -148,7 +148,7 @@ class ZoomTool extends PureComponent {
       minBound,
       maxBound,
       intl,
-      isMeteorConnected,
+      isConnected,
       step,
     } = this.props;
     const { stateZoomValue } = this.state;
@@ -186,7 +186,7 @@ class ZoomTool extends PureComponent {
               data-test="zoomOutBtn"
               icon="substract"
               onClick={() => { }}
-              disabled={(zoomValue <= minBound) || !isMeteorConnected}
+              disabled={(zoomValue <= minBound) || !isConnected}
               hideLabel
             />
             <div id="zoomOutDescription" hidden>{intl.formatMessage(intlMessages.zoomOutDesc)}</div>
@@ -197,7 +197,7 @@ class ZoomTool extends PureComponent {
             <Styled.ResetZoomButton
               aria-label={intl.formatMessage(intlMessages.resetZoomLabel)}
               aria-describedby="resetZoomDescription"
-              disabled={(stateZoomValue === HUNDRED_PERCENT) || !isMeteorConnected}
+              disabled={(stateZoomValue === HUNDRED_PERCENT) || !isConnected}
               color="light"
               customIcon={stateZoomPct}
               size="md"
@@ -229,7 +229,7 @@ class ZoomTool extends PureComponent {
               data-test="zoomInBtn"
               icon="add"
               onClick={() => { }}
-              disabled={(zoomValue >= maxBound) || !isMeteorConnected}
+              disabled={(zoomValue >= maxBound) || !isConnected}
               hideLabel
             />
             <div id="zoomInDescription" hidden>{intl.formatMessage(intlMessages.zoomInDesc)}</div>
@@ -250,7 +250,7 @@ const propTypes = {
   minBound: PropTypes.number.isRequired,
   maxBound: PropTypes.number.isRequired,
   step: PropTypes.number.isRequired,
-  isMeteorConnected: PropTypes.bool.isRequired,
+  isConnected: PropTypes.bool.isRequired,
 };
 
 ZoomTool.propTypes = propTypes;

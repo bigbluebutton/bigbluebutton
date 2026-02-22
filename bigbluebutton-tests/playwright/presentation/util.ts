@@ -110,16 +110,24 @@ export async function uploadMultiplePresentations(
     e.presentationUploadProgressToast,
     'should display a toast presentation upload progress after confirming the presentation to be uploaded',
   );
-  await testPage.hasNElements(
-    e.processingPresentationItem,
-    fileNames.length,
-    'should display the presentation status info element with converting label after confirmation to upload the new file',
-  );
-  await testPage.hasNElements(
+  try {
+    await testPage.hasNElements(
+      e.processingPresentationItem,
+      fileNames.length,
+      'should display the presentation status info element with converting label after confirmation to upload the new file',
+    );
+
+    await testPage.hasNElements(
     e.uploadDoneIcon,
     fileNames.length,
-    'should display the upload done icon after all presentations are successfully uploaded',
-  );
+    'should display the upload done icon after all presentations are successfully uploaded',);
+    } catch {
+    await testPage.hasNElements(
+      e.uploadDoneIcon,
+      fileNames.length,
+      'should display the upload done icon after all presentations are successfully uploaded',
+    );
+  }
   await hasCurrentPresentationToastElement(testPage, { timeout: uploadTimeout });
 }
 

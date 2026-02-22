@@ -95,6 +95,7 @@ const renderPluginItems = (
                 icon={pluginButton.icon}
                 label={pluginButton.label}
                 onClick={({ browserClickEvent }) => pluginButton.onClick({ browserClickEvent, streamId, userId })}
+                dataTest={pluginButton.dataTest}
               />
             );
             return returnComponent;
@@ -196,6 +197,11 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       user = stream;
       break;
     }
+    case VIDEO_TYPES.AUDIO_ONLY: {
+      user = stream.user;
+      streamId = stream.stream;
+      break;
+    }
     case VIDEO_TYPES.CONNECTING:
     default: {
       user = currentUser ?? {};
@@ -224,16 +230,23 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
 
   // component did mount
   useEffect(() => {
-    subscribeToStreamStateChange(cameraId, onStreamStateChange);
-    onVideoItemMount(videoTag.current!);
+    const isAudioOnly = stream.type === VIDEO_TYPES.AUDIO_ONLY;
+
+    if (!isAudioOnly) {
+      subscribeToStreamStateChange(cameraId, onStreamStateChange);
+      onVideoItemMount(videoTag.current!);
+      videoTag?.current?.addEventListener('loadeddata', onLoadedData);
+    }
+
     if (videoContainer.current) {
       resizeObserver.observe(videoContainer.current);
       pluginSqueezedResizeObserver.observe(videoContainer.current);
     }
-    videoTag?.current?.addEventListener('loadeddata', onLoadedData);
 
     return () => {
-      videoTag?.current?.removeEventListener('loadeddata', onLoadedData);
+      if (!isAudioOnly) {
+        videoTag?.current?.removeEventListener('loadeddata', onLoadedData);
+      }
       pluginSqueezedResizeObserver.disconnect();
       resizeObserver.disconnect();
     };
@@ -262,8 +275,11 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
 
   // component will unmount
   useEffect(() => () => {
-    unsubscribeFromStreamStateChange(cameraId, onStreamStateChange);
-    onVideoItemUnmount(cameraId);
+    const isAudioOnly = stream.type === VIDEO_TYPES.AUDIO_ONLY;
+    if (!isAudioOnly) {
+      unsubscribeFromStreamStateChange(cameraId, onStreamStateChange);
+      onVideoItemUnmount(cameraId);
+    }
   }, []);
 
   useEffect(() => {
@@ -306,6 +322,8 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     <Styled.WebcamConnecting
       data-test="webcamConnecting"
       animations={animations}
+      talking={talking}
+      customHighlight={webcamBorderHighlightColor}
     >
       <UserAvatarVideo
         user={user}
@@ -321,6 +339,8 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     <Styled.WebcamConnecting
       data-test="webcamConnectingSqueezed"
       animations={animations}
+      talking={talking}
+      customHighlight={webcamBorderHighlightColor}
     >
       <UserAvatarVideo
         user={user}
@@ -448,24 +468,26 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
         draggingOver,
       }}
     >
-      <Styled.VideoContainer
-        className="videoContainer"
-        data-stream={streamId}
-        $selfViewDisabled={(isSelfViewDisabled && stream.userId === Auth.userID)
-          || disabledCams.includes(cameraId)}
-      >
-        <Styled.Video
-          mirrored={isMirrored}
-          unhealthyStream={videoDataLoaded && !isStreamHealthy}
-          data-test={isMirrored ? 'mirroredVideoContainer' : 'videoContainer'}
-          data-current-user-stream={stream.userId === Auth.userID ? 'true' : 'false'}
-          data-local-stream={VideoService.isLocalStream(cameraId) ? 'true' : 'false'}
-          ref={videoTag}
-          muted
-          autoPlay
-          playsInline
-        />
-      </Styled.VideoContainer>
+      {stream.type !== VIDEO_TYPES.AUDIO_ONLY && (
+        <Styled.VideoContainer
+          className="videoContainer"
+          data-stream={streamId}
+          $selfViewDisabled={(isSelfViewDisabled && stream.userId === Auth.userID)
+            || disabledCams.includes(cameraId)}
+        >
+          <Styled.Video
+            mirrored={isMirrored}
+            unhealthyStream={videoDataLoaded && !isStreamHealthy}
+            data-test={isMirrored ? 'mirroredVideoContainer' : 'videoContainer'}
+            data-current-user-stream={stream.userId === Auth.userID ? 'true' : 'false'}
+            data-local-stream={VideoService.isLocalStream(cameraId) ? 'true' : 'false'}
+            ref={videoTag}
+            muted
+            autoPlay
+            playsInline
+          />
+        </Styled.VideoContainer>
+      )}
 
       {isStream && ((isSelfViewDisabled && stream.userId === Auth.userID)
       || disabledCams.includes(cameraId)) && (
@@ -477,7 +499,10 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       {/* eslint-disable-next-line no-nested-ternary */}
 
       {isVideoSqueezed ? renderSqueezedButton() : renderDefaultButtons()}
-      {!videoIsReady && (!isSelfViewDisabled || !isStream) && (
+      {stream.type === VIDEO_TYPES.AUDIO_ONLY && (
+        isVideoSqueezed ? renderWebcamConnectingSqueezed() : renderWebcamConnecting()
+      )}
+      {!videoIsReady && (!isSelfViewDisabled || !isStream) && stream.type !== VIDEO_TYPES.AUDIO_ONLY && (
         isVideoSqueezed ? renderWebcamConnectingSqueezed() : renderWebcamConnecting()
       )}
       {((isSelfViewDisabled && stream.userId === Auth.userID) || disabledCams.includes(cameraId))

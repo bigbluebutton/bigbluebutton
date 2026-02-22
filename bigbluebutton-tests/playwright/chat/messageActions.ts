@@ -9,7 +9,7 @@ export class MessageActions extends Chat {
   async editMessageFromToolbarButton() {
     await openPublicChat(this.modPage);
     // send a message
-    await this.modPage.type(e.chatBox, e.message);
+    await this.modPage.fill(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElement(
       e.chatUserMessageText,
@@ -49,7 +49,7 @@ export class MessageActions extends Chat {
   async editMessageFromArrowUp() {
     await openPublicChat(this.modPage);
     // send a message
-    await this.modPage.type(e.chatBox, e.message);
+    await this.modPage.fill(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElement(
       e.chatUserMessageText,
@@ -93,7 +93,7 @@ export class MessageActions extends Chat {
   async ableToEditOwnMessage() {
     await openPublicChat(this.modPage);
     // mod send a message
-    await this.modPage.type(e.chatBox, e.message);
+    await this.modPage.fill(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElement(
       e.chatUserMessageText,
@@ -125,7 +125,7 @@ export class MessageActions extends Chat {
       'should display the edit message button when hovering the mod message',
     ).toBeVisible();
     // user send a message
-    await this.userPage.type(e.chatBox, e.testMessage);
+    await this.userPage.fill(e.chatBox, e.testMessage);
     await this.userPage.waitAndClick(e.sendButton);
     await this.userPage.hasElementCount(
       e.chatUserMessageText,
@@ -164,7 +164,7 @@ export class MessageActions extends Chat {
   async deleteOwnMessage() {
     await openPublicChat(this.modPage);
     // send a message
-    await this.modPage.type(e.chatBox, e.message);
+    await this.modPage.fill(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElement(
       e.chatUserMessageText,
@@ -212,7 +212,7 @@ export class MessageActions extends Chat {
   async deleteAnotherUserMessage() {
     await openPublicChat(this.userPage);
     // user send a message
-    await this.userPage.type(e.chatBox, e.message);
+    await this.userPage.fill(e.chatBox, e.message);
     await this.userPage.waitAndClick(e.sendButton);
     await this.userPage.hasElement(
       e.chatUserMessageText,
@@ -256,7 +256,7 @@ export class MessageActions extends Chat {
     ).not.toBeVisible();
     // join mod2 and send a message
     await this.initModPage2();
-    await this.modPage2.type(e.chatBox, e.message);
+    await this.modPage2.fill(e.chatBox, e.message);
     await this.modPage2.waitAndClick(e.sendButton);
     // check if mod2 message is deletable by mod1
     await this.modPage.hasElement(
@@ -311,7 +311,7 @@ export class MessageActions extends Chat {
     const breakoutModPage = await this.modPage.getLastTargetPage(this.context);
     await breakoutModPage.waitAndClick(e.closeModal);
     // mod send a message
-    await breakoutModPage.type(e.chatBox, e.message);
+    await breakoutModPage.fill(e.chatBox, e.message);
     await breakoutModPage.waitAndClick(e.sendButton);
     await breakoutModPage.hasElement(
       e.chatUserMessageText,
@@ -375,7 +375,7 @@ export class MessageActions extends Chat {
   async replyMessage() {
     await openPublicChat(this.modPage);
     // send a message
-    await this.modPage.type(e.chatBox, e.message);
+    await this.modPage.fill(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElement(
       e.chatUserMessageText,
@@ -420,7 +420,7 @@ export class MessageActions extends Chat {
   async cancelReplyMessage() {
     await openPublicChat(this.modPage);
     // send a message
-    await this.modPage.type(e.chatBox, e.message);
+    await this.modPage.fill(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElement(
       e.chatUserMessageText,
@@ -494,7 +494,7 @@ export class MessageActions extends Chat {
   async scrollToRepliedMessage() {
     await openPublicChat(this.modPage);
     // send first message
-    await this.modPage.type(e.chatBox, e.message);
+    await this.modPage.fill(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElement(
       e.chatUserMessageText,
@@ -504,7 +504,7 @@ export class MessageActions extends Chat {
     // send many messages
     const MESSAGES_COUNT = 20;
     for (let i = 1; i <= MESSAGES_COUNT; i += 1) {
-      await this.modPage.type(e.chatBox, `message ${i}`);
+      await this.modPage.fill(e.chatBox, `message ${i}`);
       await this.modPage.waitAndClick(e.sendButton);
       await this.modPage.hasElementCount(
         e.chatUserMessageText,
@@ -567,7 +567,7 @@ export class MessageActions extends Chat {
 
   async addRemoveReaction() {
     // send first message
-    await this.modPage.type(e.chatBox, e.message);
+    await this.modPage.fill(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElement(
       e.chatUserMessageText,
@@ -612,7 +612,7 @@ export class MessageActions extends Chat {
 
   async incrementDecrementReaction() {
     // send first message
-    await this.modPage.type(e.chatBox, e.message);
+    await this.modPage.fill(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElement(
       e.chatUserMessageText,
@@ -650,7 +650,7 @@ export class MessageActions extends Chat {
 
   async orderReactions() {
     // send first message
-    await this.modPage.type(e.chatBox, e.message);
+    await this.modPage.fill(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElement(
       e.chatUserMessageText,

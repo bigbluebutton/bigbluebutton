@@ -69,6 +69,7 @@ const config = {
     }),
     (isDev && hotReload) && new ReactRefreshWebpackPlugin({
       overlay: false,
+      exclude: /worker\.ts$/,
     }),
   ],
   resolve: {

@@ -24,6 +24,7 @@ export interface CurrentPageWritersResponse {
 }
 
 export interface UserWhiteboardCursor {
+  meetingId: string;
   userId: string;
   name: string;
   presenter: boolean;
@@ -184,19 +185,6 @@ export const ANNOTATION_HISTORY_STREAM = gql`
   }
 `;
 
-export const CURRENT_PAGE_WRITERS_QUERY = gql`
-  query whiteboardWriteAccessQuery {
-    user_whiteboardWriteAccess(
-      order_by: { userId: asc }
-    ) {
-      userId
-      name
-      presenter
-      isModerator
-    }
-  }
-`;
-
 export const CURRENT_PAGE_WRITERS_SUBSCRIPTION = gql`
   subscription whiteboardWriteAccessSubscription {
     user_whiteboardWriteAccess(
@@ -215,6 +203,7 @@ export const CURRENT_CURSORS_SUBSCRIPTION = gql`
     user_whiteboardCursorAccess(
       order_by: { userId: asc }
     ) {
+      meetingId
       userId
       name
       presenter

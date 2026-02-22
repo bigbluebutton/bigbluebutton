@@ -42,6 +42,11 @@ module BigBlueButton
         events = Nokogiri::XML(File.open("#{target_dir}/events.xml"))
         notes_id = BigBlueButton::Events.get_notes_id(events)
 
+        if notes_id.nil? || notes_id.empty? || notes_id == 'undefined'
+          @logger.warn("No notes_id found for #{@meeting_id}, skipping etherpad events")
+          return
+        end
+
         events_etherpad = "#{target_dir}/events.etherpad"
         BigBlueButton.try_download("#{@notes_endpoint}/#{CGI.escape notes_id}/export/etherpad", events_etherpad)
       end

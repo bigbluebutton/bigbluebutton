@@ -288,28 +288,69 @@ const useMouseEvents = ({
     }
   };
 
-  const handleTouchMove = (event) => {
+  const handleTouchMove = throttle({ interval: 175 }, (event) => {
     if (fingerCountRef.current === 2 && event.touches.length === 2) {
       const [t1, t2] = event.touches;
       const currentDistance = getDistanceBetweenTouches(t1, t2);
       const distanceDiff = Math.abs(currentDistance - initialPinchDistanceRef.current);
       if (distanceDiff > PINCH_THRESHOLD) {
         isPinchingRef.current = true;
+
+        // Pinch-to-zoom for presenters
+        if (isPresenterRef.current && tlEditorRef.current && currentPresentationPage) {
+          const MAX_ZOOM_FACTOR = 4;
+          const MIN_ZOOM_FACTOR = isInfiniteWhiteboard ? 0.25 : 1;
+          const ZOOM_STEP = 0.1;
+
+          const { x: cx, y: cy, z: cz } = tlEditorRef.current.getCamera();
+          let currentZoomLevel = cz / initialZoomRef.current;
+
+          // Zoom in if fingers moving apart, zoom out if moving together
+          if (currentDistance > initialPinchDistanceRef.current) {
+            currentZoomLevel = Math.min(currentZoomLevel + ZOOM_STEP, MAX_ZOOM_FACTOR);
+          } else {
+            currentZoomLevel = Math.max(currentZoomLevel - ZOOM_STEP, MIN_ZOOM_FACTOR);
+          }
+
+          const zoomPercentage = currentZoomLevel * 100;
+          zoomChanger(zoomPercentage);
+
+          const newCameraZoomFactor = currentZoomLevel * initialZoomRef.current;
+
+          // Calculate center point between the two touches
+          const centerX = (t1.clientX + t2.clientX) / 2;
+          const centerY = (t1.clientY + t2.clientY) / 2;
+
+          const rect = whiteboardRef.current?.getBoundingClientRect();
+          const canvasCenterX = (centerX - (rect?.left || 0)) / cz + cx;
+          const canvasCenterY = (centerY - (rect?.top || 0)) / cz + cy;
+
+          const nextCamera = {
+            x: canvasCenterX - (canvasCenterX - cx) * (newCameraZoomFactor / cz),
+            y: canvasCenterY - (canvasCenterY - cy) * (newCameraZoomFactor / cz),
+            z: newCameraZoomFactor,
+          };
+
+          tlEditorRef.current.setCamera(nextCamera, { duration: 175 });
+
+          // Update initial distance for continuous pinch
+          initialPinchDistanceRef.current = currentDistance;
+        }
       }
     }
-  };
+  });
 
   const handleTouchEnd = (event) => {
     if (event.touches.length === 0) {
       const count = fingerCountRef.current;
 
-      if (!hasWBAccess) return;
+      if (!hasWBAccess && !isPresenterRef.current) return;
 
       if (count === 2) {
-        if (!isPinchingRef.current) {
+        if (!isPinchingRef.current && hasWBAccess) {
           tlEditorRef.current?.undo();
         }
-      } else if (count === 3) {
+      } else if (count === 3 && hasWBAccess) {
         tlEditorRef.current?.redo();
       }
       fingerCountRef.current = 0;

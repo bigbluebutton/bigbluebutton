@@ -307,7 +307,7 @@ class MeetingActor(
     case msg: BreakoutRoomCreatedInternalMsg       => state = handleBreakoutRoomCreatedInternalMsg(msg, state)
     case msg: SendBreakoutUsersAuditInternalMsg    => handleSendBreakoutUsersUpdateInternalMsg(msg)
     case msg: BreakoutRoomUsersUpdateInternalMsg   => state = handleBreakoutRoomUsersUpdateInternalMsg(msg, state)
-    case msg: EndBreakoutRoomInternalMsg           => handleEndBreakoutRoomInternalMsg(msg)
+    case msg: EndBreakoutRoomInternalMsg           => handleEndBreakoutRoomInternalMsg(msg, state)
     case msg: UpdateBreakoutRoomTimeInternalMsg    => state = handleUpdateBreakoutRoomTimeInternalMsgHdlr(msg, state)
     case msg: EjectUserFromBreakoutInternalMsg     => handleEjectUserFromBreakoutInternalMsgHdlr(msg)
     case msg: BreakoutRoomEndedInternalMsg         => state = handleBreakoutRoomEndedInternalMsg(msg, state)
@@ -461,6 +461,9 @@ class MeetingActor(
       case m: ChangeUserReactionEmojiReqMsg =>
         usersApp.handleChangeUserReactionEmojiReqMsg(m)
         updateUserLastActivity(m.header.userId)
+      case m: SetUserWhiteboardWriteAccessReqMsg =>
+        usersApp.handleSetUserWhiteboardWriteAccessReqMsg(m)
+        updateUserLastActivity(m.header.userId)
       case m: ChangeUserRaiseHandReqMsg =>
         usersApp.handleChangeUserRaiseHandReqMsg(m)
         updateUserLastActivity(m.header.userId)
@@ -499,13 +502,7 @@ class MeetingActor(
       case m: SendCursorPositionPubMsg =>
         wbApp.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
-      case m: ClearWhiteboardPubMsg =>
-        wbApp.handle(m, liveMeeting, msgBus)
-        updateUserLastActivity(m.header.userId)
       case m: DeleteWhiteboardAnnotationsPubMsg =>
-        wbApp.handle(m, liveMeeting, msgBus)
-        updateUserLastActivity(m.header.userId)
-      case m: ModifyWhiteboardAccessPubMsg =>
         wbApp.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
       case m: SendWhiteboardAnnotationsPubMsg =>
@@ -569,7 +566,6 @@ class MeetingActor(
       case m: RecordingStartedVoiceConfEvtMsg => handleRecordingStartedVoiceConfEvtMsg(m)
       case m: AudioFloorChangedVoiceConfEvtMsg =>
         handleAudioFloorChangedVoiceConfEvtMsg(m)
-        audioCaptionsApp2x.handle(m, liveMeeting)
       case m: MuteUserCmdMsg =>
         usersApp.handleMuteUserCmdMsg(m)
         updateUserLastActivity(m.body.mutedBy)

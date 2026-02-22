@@ -876,8 +876,8 @@ class Presentation extends PureComponent {
       layoutContextDispatch,
       presentationIsOpen,
       slidePosition,
-      addWhiteboardGlobalAccess,
-      removeWhiteboardGlobalAccess,
+      setMultiUserWhiteboardEnabled,
+      setMultiUserWhiteboardDisabled,
       multiUserSize,
       multiUser,
       fitToWidth,
@@ -923,8 +923,8 @@ class Presentation extends PureComponent {
         isFullscreen={fullscreenContext}
         fullscreenAction={ACTIONS.SET_FULLSCREEN_ELEMENT}
         fullscreenRef={this.refPresentationContainer}
-        addWhiteboardGlobalAccess={addWhiteboardGlobalAccess}
-        removeWhiteboardGlobalAccess={removeWhiteboardGlobalAccess}
+        setMultiUserWhiteboardEnabled={setMultiUserWhiteboardEnabled}
+        setMultiUserWhiteboardDisabled={setMultiUserWhiteboardDisabled}
         multiUserSize={multiUserSize}
         multiUser={multiUser}
         whiteboardId={currentSlide?.id}
@@ -1296,8 +1296,8 @@ Presentation.propTypes = {
     presentationAreaHeight: PropTypes.number.isRequired,
   }),
   zoomSlide: PropTypes.func.isRequired,
-  addWhiteboardGlobalAccess: PropTypes.func.isRequired,
-  removeWhiteboardGlobalAccess: PropTypes.func.isRequired,
+  setMultiUserWhiteboardEnabled: PropTypes.func.isRequired,
+  setMultiUserWhiteboardDisabled: PropTypes.func.isRequired,
   multiUserSize: PropTypes.number.isRequired,
   layoutType: PropTypes.string.isRequired,
   fullscreenElementId: PropTypes.string.isRequired,

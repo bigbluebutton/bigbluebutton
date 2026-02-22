@@ -2,9 +2,7 @@ package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
 import org.bigbluebutton.core.db.{
-  UserBreakoutRoomDAO,
   UserDAO,
-  UserDbModel,
   UserSessionTokenDAO,
   UserLivekitDAO
 }
@@ -14,7 +12,7 @@ object RegisteredUsers {
   def create(meetingId: String, userId: String, extId: String, name: String, firstName: String, lastName: String, roles: String,
              authToken: String, sessionToken: Vector[String], avatar: String, webcamBackground: String, color: String, bot: Boolean,
              guest: Boolean, authenticated: Boolean, guestStatus: String, excludeFromDashboard: Boolean, enforceLayout: String, logoutUrl: String,
-             userMetadata: Map[String, String], loggedOut: Boolean,
+             joinRequestMetadata: Map[String, String], userMetadata: Map[String, String], loggedOut: Boolean,
              livekitToken: Option[String] = None): RegisteredUser = {
     new RegisteredUser(
       userId,
@@ -43,6 +41,7 @@ object RegisteredUsers {
       banned = false,
       enforceLayout,
       logoutUrl,
+      joinRequestMetadata,
       userMetadata,
       loggedOut,
       livekitToken = livekitToken
@@ -179,7 +178,6 @@ object RegisteredUsers {
                                  lastBreakoutRoom: BreakoutRoom2x): RegisteredUser = {
     val u = user.modify(_.lastBreakoutRoom).setTo(lastBreakoutRoom)
     users.save(u)
-//    UserBreakoutRoomDAO.updateLastBreakoutRoom(u.id, lastBreakoutRoom)
     u
   }
 
@@ -288,7 +286,8 @@ case class RegisteredUser(
     banned:                   Boolean,
     enforceLayout:            String,
     logoutUrl:                String,
-    userMetadata:         Map[String,String],
+    joinRequestMetadata:      Map[String, String],
+    userMetadata:             Map[String, String],
     loggedOut:                Boolean,
     lastBreakoutRoom:         BreakoutRoom2x = null,
     livekitToken:             Option[String] = None,

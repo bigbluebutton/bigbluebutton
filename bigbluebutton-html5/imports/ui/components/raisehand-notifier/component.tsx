@@ -60,14 +60,14 @@ const RaiseHandNotifier: React.FC<RaiseHandNotifierProps> = ({
       return;
     }
 
+    const isAllowed = isModerator || isPresenter;
     const previousUserIdsSet = new Set(previousUserIdsRef.current);
     const newRaisedHandUsers = raiseHandUsers.filter(
       (user) => !previousUserIdsSet.has(user.userId),
-    ).filter((user) => isPresenter && user.userId !== currentUserId);
+    ).filter((user) => isAllowed && user.userId !== currentUserId);
     const hasNewRaisedHand = newRaisedHandUsers.length > 0;
-    const isAllowed = isModerator || isPresenter;
 
-    if (hasNewRaisedHand && isAllowed) {
+    if (hasNewRaisedHand) {
       if (raiseHandAudioAlert) {
         AudioService.playAlertSound(getRaiseHandSoundUrl());
       }
@@ -79,7 +79,6 @@ const RaiseHandNotifier: React.FC<RaiseHandNotifierProps> = ({
           .map((user) => user.name)
           .filter((name): name is string => !!name && name.length > 0);
         const message = buildRaisedHandMessage(names);
-
         if (message) {
           notify(message, 'info', 'hand');
         }

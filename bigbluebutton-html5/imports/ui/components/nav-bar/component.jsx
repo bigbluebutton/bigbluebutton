@@ -101,6 +101,7 @@ const renderPluginItems = (pluginItems) => {
                       color="primary"
                       tooltip={pluginItem.tooltip}
                       onClick={pluginItem.onClick}
+                      dataTest={pluginItem.dataTest}
                     />
                   </Styled.PluginComponentWrapper>
                 );
@@ -111,7 +112,7 @@ const renderPluginItems = (pluginItems) => {
                     key={`${pluginItem.id}-${pluginItem.type}`}
                     tooltip={pluginItem.tooltip}
                   >
-                    <Styled.PluginInfoComponent>
+                    <Styled.PluginInfoComponent data-test={pluginItem.dataTest}>
                       {pluginItem.label}
                     </Styled.PluginInfoComponent>
                   </Styled.PluginComponentWrapper>
@@ -160,6 +161,7 @@ class NavBar extends Component {
 
     this.handleToggleUserList = this.handleToggleUserList.bind(this);
     this.splitPluginItems = this.splitPluginItems.bind(this);
+    this.setModalIsOpen = () => {};
   }
 
   componentDidMount() {
@@ -310,7 +312,7 @@ class NavBar extends Component {
       sidebarNavigation,
       currentUserId,
       isDirectLeaveButtonEnabled,
-      isMeteorConnected,
+      isConnected,
       hideTopRow,
     } = this.props;
 
@@ -429,7 +431,7 @@ class NavBar extends Component {
               {renderPluginItems(rightPluginItems)}
               {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
               {ConnectionStatusService.isEnabled() ? <ConnectionStatus /> : null}
-              {isDirectLeaveButtonEnabled && isMeteorConnected
+              {isDirectLeaveButtonEnabled && isConnected
                 ? <LeaveMeetingButtonContainer amIModerator={amIModerator} /> : null}
               <OptionsDropdownContainer
                 amIModerator={amIModerator}

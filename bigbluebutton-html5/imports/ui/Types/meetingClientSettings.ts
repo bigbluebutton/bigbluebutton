@@ -399,6 +399,9 @@ export interface Constraints2 {
 export interface CameraSortingModes {
   defaultSorting: string
   paginationSorting: string
+  showAudioOnlyOnFirstPage: boolean
+  maxAudioOnlyUsers: number
+  partitionPrivilegedStreams: boolean
 }
 
 export interface CameraQualityThresholds {
@@ -648,6 +651,7 @@ export interface LiveKitScreenShareSettings {
 export interface LiveKitAudioSettings {
   publishOptions?: TrackPublishOptions
   unpublishOnMute?: boolean
+  unpublishAfterMuteMs?: number
 }
 
 export interface LiveKitSettings {
@@ -655,6 +659,7 @@ export interface LiveKitSettings {
   selectiveSubscription?: boolean
   logLevel?: LogLevel
   roomOptions?: Partial<InternalRoomOptions>
+  reconnectOnFatalFailures?: boolean
   audio?: LiveKitAudioSettings
   camera?: LiveKitCameraSettings
   screenshare?: LiveKitScreenShareSettings

@@ -32,7 +32,7 @@ export async function publicChatMessageToast(testPage: Page, testPage2: Page) {
   await testPage.waitAndClick(e.startPrivateChat);
   await testPage.waitForSelector(e.hidePrivateChat);
   // send a public message
-  await testPage2.type(e.chatBox, e.publicMessage1);
+  await testPage2.fill(e.chatBox, e.publicMessage1);
   await testPage2.waitAndClick(e.sendButton);
 }
 
@@ -43,7 +43,7 @@ export async function privateChatMessageToast(testPage: Page) {
   // wait for the private chat to be ready
   await testPage.waitUntilHaveCountSelector(e.chatButton, 2);
   // send a private message
-  await testPage.type(e.chatBox, e.message1);
+  await testPage.fill(e.chatBox, e.message1);
   await testPage.page.waitForTimeout(1000);
   await testPage.waitAndClick(e.sendButton);
 }

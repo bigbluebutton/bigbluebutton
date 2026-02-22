@@ -72,7 +72,7 @@ export class Polling extends MultiUsers {
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard for the moderator');
     await util.openPoll(this.modPage);
 
-    await this.modPage.type(e.pollQuestionArea, e.pollQuestion);
+    await this.modPage.fill(e.pollQuestionArea, e.pollQuestion);
     await this.modPage.waitAndClick(e.userResponseBtn);
     await this.modPage.waitAndClick(e.startPoll);
 
@@ -80,7 +80,7 @@ export class Polling extends MultiUsers {
       e.pollingContainer,
       'should display the polling container for the user to answer it',
     );
-    await this.userPage.type(e.pollAnswerOptionInput, e.answerMessage);
+    await this.userPage.fill(e.pollAnswerOptionInput, e.answerMessage);
     await this.userPage.waitAndClick(e.pollSubmitAnswer);
 
     await this.modPage.hasText(e.userVoteLiveResult, e.answerMessage, 'should display the answer sent by the attendee');
@@ -204,11 +204,11 @@ export class Polling extends MultiUsers {
     await this.modPage.waitAndClick(e.polling);
     await this.modPage.waitAndClickElement(e.autoOptioningPollBtn);
 
-    await this.modPage.type(e.pollQuestionArea, 'Test');
+    await this.modPage.fill(e.pollQuestionArea, 'Test');
     await this.modPage.waitAndClick(e.addPollItem);
-    await this.modPage.type(e.pollOptionItem, 'test1');
+    await this.modPage.fill(e.pollOptionItem, 'test1');
     await this.modPage.waitAndClick(e.addPollItem);
-    await this.modPage.type(e.pollOptionItem2, 'test2');
+    await this.modPage.fill(e.pollOptionItem2, 'test2');
     await this.modPage.waitAndClick(e.startPoll);
 
     await this.userPage.hasElement(
@@ -232,15 +232,15 @@ export class Polling extends MultiUsers {
     await this.modPage.waitAndClick(e.polling);
     await this.modPage.waitAndClickElement(e.autoOptioningPollBtn);
 
-    await this.modPage.type(e.pollQuestionArea, 'Test');
+    await this.modPage.fill(e.pollQuestionArea, 'Test');
     await this.modPage.waitAndClickElement(e.allowMultiple);
 
     await this.modPage.waitAndClick(e.addPollItem);
     await this.modPage.hasElementDisabled(e.startPoll, 'should display the start poll button disabled');
 
-    await this.modPage.type(e.pollOptionItem1, 'test1');
+    await this.modPage.fill(e.pollOptionItem1, 'test1');
     await this.modPage.waitAndClick(e.addPollItem);
-    await this.modPage.type(e.pollOptionItem2, 'test2');
+    await this.modPage.fill(e.pollOptionItem2, 'test2');
     await this.modPage.waitAndClick(e.startPoll);
     await this.modPage.hasText(
       e.currentPollQuestion,
@@ -401,7 +401,7 @@ export class Polling extends MultiUsers {
       e.pollingContainer,
       'should display the polling container for the user to answer it',
     );
-    await this.userPage.type(e.pollAnswerOptionInput, e.answerMessage);
+    await this.userPage.fill(e.pollAnswerOptionInput, e.answerMessage);
     await this.userPage.waitAndClick(e.pollSubmitAnswer);
     await this.modPage.hasText(e.userVoteLiveResult, e.answerMessage, 'should display the answer sent by the attendee');
     await util.countingVotes(this.modPage, e.userVoteLiveResult, 1, 'All good!');

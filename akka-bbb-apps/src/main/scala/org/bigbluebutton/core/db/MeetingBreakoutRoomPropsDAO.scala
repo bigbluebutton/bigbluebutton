@@ -4,9 +4,9 @@ import org.bigbluebutton.common2.domain.{ BreakoutProps }
 import slick.lifted.ProvenShape
 import PostgresProfile.api._
 
-case class MeetingBreakoutDbModel(
+case class MeetingBreakoutRoomPropsDbModel(
     meetingId:             String,
-    parentId:              String,
+    parentMeetingId:       String,
     sequence:              Int,
     freeJoin:              Boolean,
     breakoutRooms:         List[String],
@@ -18,9 +18,9 @@ case class MeetingBreakoutDbModel(
     captureSlidesFilename: String
 )
 
-class MeetingBreakoutDbTableDef(tag: Tag) extends Table[MeetingBreakoutDbModel](tag, "meeting_breakout") {
+class MeetingBreakoutRoomPropsDbTableDef(tag: Tag) extends Table[MeetingBreakoutRoomPropsDbModel](tag, "meeting_breakoutRoomProps") {
   val meetingId = column[String]("meetingId", O.PrimaryKey)
-  val parentId = column[String]("parentId")
+  val parentMeetingId = column[String]("parentMeetingId")
   val sequence = column[Int]("sequence")
   val freeJoin = column[Boolean]("freeJoin")
   val breakoutRooms = column[List[String]]("breakoutRooms")
@@ -33,16 +33,20 @@ class MeetingBreakoutDbTableDef(tag: Tag) extends Table[MeetingBreakoutDbModel](
 
   //  def fk_meetingId: ForeignKeyQuery[MeetingDbTableDef, MeetingDbModel] = foreignKey("fk_meetingId", meetingId, TableQuery[MeetingDbTableDef])(_.meetingId)
 
-  override def * : ProvenShape[MeetingBreakoutDbModel] = (meetingId, parentId, sequence, freeJoin, breakoutRooms, record, privateChatEnabled, captureNotes, captureSlides, captureNotesFilename, captureSlidesFilename) <> (MeetingBreakoutDbModel.tupled, MeetingBreakoutDbModel.unapply)
+  override def * : ProvenShape[MeetingBreakoutRoomPropsDbModel] = (
+    meetingId, parentMeetingId, sequence, freeJoin, breakoutRooms,
+    record, privateChatEnabled, captureNotes, captureSlides,
+    captureNotesFilename, captureSlidesFilename
+  ) <> (MeetingBreakoutRoomPropsDbModel.tupled, MeetingBreakoutRoomPropsDbModel.unapply)
 }
 
-object MeetingBreakoutDAO {
+object MeetingBreakoutRoomPropsDAO {
   def insert(meetingId: String, breakoutProps: BreakoutProps) = {
     DatabaseConnection.enqueue(
-      TableQuery[MeetingBreakoutDbTableDef].forceInsert(
-        MeetingBreakoutDbModel(
+      TableQuery[MeetingBreakoutRoomPropsDbTableDef].forceInsert(
+        MeetingBreakoutRoomPropsDbModel(
           meetingId = meetingId,
-          parentId = breakoutProps.parentId,
+          parentMeetingId = breakoutProps.parentId,
           sequence = breakoutProps.sequence,
           freeJoin = breakoutProps.freeJoin,
           //          breakoutRooms = breakoutProps.breakoutRooms.toList,

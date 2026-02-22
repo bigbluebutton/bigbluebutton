@@ -347,6 +347,7 @@ class App extends Component {
       popupWindow,
       isPresentationDetached,
       toggleDetachPresentation,
+      currentUserHasVoice,
     } = this.props;
 
     const {
@@ -422,7 +423,7 @@ class App extends Component {
           <UploaderContainer />
           <BreakoutJoinConfirmationContainerGraphQL />
           <BBBLiveKitRoomContainer />
-          <AudioContainer />
+          <AudioContainer currentUserHasVoice={currentUserHasVoice} />
           { (
             !hideNotificationToasts
             && isNotificationEnabled) && <ToastContainer rtl /> }
