@@ -180,7 +180,7 @@ const doGUM = async (constraints, retryOnFailure = false) => {
       // eslint-disable-next-line no-param-reassign
       constraints.audio = filterSupportedConstraints({
         echoCancellation: true,
-        autoGainControl: false,
+        autoGainControl: true,
         noiseSuppression: false,
       });
 

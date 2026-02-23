@@ -10,10 +10,6 @@ const loadedFiles = {
   worklet: null,
 };
 
-// known constants
-const PARAMETER_VAD_METER = "vad_meter";
-const PARAMETER_INTENSITY = "intensity";
-
 // global audio processor so we can communicate with it
 let audioProcessor = null;
 
@@ -50,8 +46,13 @@ const createWasmProcessorStream = (stream) => {
         audioProcessor = new AudioWorkletNode(audioContext, 'mapi-proc', audioProcessorOptions);
         audioProcessor.port.onmessage = (event) => {
           if (event.data?.type === 'loaded') {
-            audioProcessor.port.postMessage({ type: 'monitor', symbol: PARAMETER_VAD_METER });
-            audioProcessor.port.postMessage({ type: 'param', symbol: PARAMETER_INTENSITY, value: 90 }); // set VIintesity to 90
+            audioProcessor.port.postMessage({ type: 'monitor', symbol: "vad_meter" });
+            audioProcessor.port.postMessage({ type: 'param', symbol: "intensity", value: 90 });
+            audioProcessor.port.postMessage({ type: 'param', symbol: "leveler_target", value: -18 });
+            audioProcessor.port.postMessage({ type: 'param', symbol: "sb_strength", value: 60 });
+            audioProcessor.port.postMessage({ type: 'param', symbol: "mb_strength", value: 60 });
+            audioProcessor.port.postMessage({ type: 'param', symbol: "pre_gain", value: 2 });
+            audioProcessor.port.postMessage({ type: 'param', symbol: "post_gain", value: 0 });
             resolve(contextDestination.stream);
           } else if (event.data?.type === 'error') {
             reject(event.data.error);
