@@ -264,6 +264,8 @@ const SwitchRow = styled.div`
 const SwitchLabel = styled.span`
   color: ${colorText};
   font-size: ${fontSizeSmall};
+  cursor: pointer;
+  user-select: none;
 `;
 
 const MaterialSwitch = materialStyled(Switch)(({ theme }) => ({
@@ -357,6 +359,8 @@ const CheckboxRow = styled.div`
 const CheckboxLabel = styled.span`
   color: ${colorText};
   font-size: ${fontSizeSmall};
+  cursor: pointer;
+  user-select: none;
 `;
 
 const MaterialCheckbox = materialStyled(Checkbox)({

@@ -299,7 +299,13 @@ class LockViewersComponent extends Component {
                 if (!checked) this.setState({ lobbyMessage: '' });
               }}
             />
-            <Styled.SwitchLabel>
+            <Styled.SwitchLabel
+              onClick={() => {
+                const next = !lobbyMessageEnabled;
+                this.setState({ lobbyMessageEnabled: next });
+                if (!next) this.setState({ lobbyMessage: '' });
+              }}
+            >
               {intl.formatMessage(intlMessages.lobbyMessageLabel)}
             </Styled.SwitchLabel>
           </Styled.SwitchRow>
@@ -337,21 +343,21 @@ class LockViewersComponent extends Component {
       {
         key: 'disableCam',
         label: intlMessages.webcamLabel,
-        checked: lockSettingsProps.disableCam,
+        checked: !lockSettingsProps.disableCam,
         toggle: () => this.toggleLockSettings('disableCam'),
         dataTest: 'lockShareWebcam',
       },
       {
         key: 'webcamsOnlyForModerator',
         label: intlMessages.otherViewersWebcamLabel,
-        checked: usersProp.webcamsOnlyForModerator,
+        checked: !usersProp.webcamsOnlyForModerator,
         toggle: () => this.toggleUserProps('webcamsOnlyForModerator'),
         dataTest: 'lockSeeOtherViewersWebcam',
       },
       {
         key: 'disableMic',
         label: intlMessages.microphoneLabel,
-        checked: lockSettingsProps.disableMic,
+        checked: !lockSettingsProps.disableMic,
         toggle: () => this.toggleLockSettings('disableMic'),
         dataTest: 'lockShareMicrophone',
       },
@@ -361,7 +367,7 @@ class LockViewersComponent extends Component {
       checkboxItems.push({
         key: 'disablePublicChat',
         label: intlMessages.publicChatLabel,
-        checked: lockSettingsProps.disablePublicChat,
+        checked: !lockSettingsProps.disablePublicChat,
         toggle: () => this.toggleLockSettings('disablePublicChat'),
         dataTest: 'lockPublicChat',
       });
@@ -369,7 +375,7 @@ class LockViewersComponent extends Component {
         checkboxItems.push({
           key: 'disablePrivateChat',
           label: intlMessages.privateChatLabel,
-          checked: lockSettingsProps.disablePrivateChat,
+          checked: !lockSettingsProps.disablePrivateChat,
           toggle: () => this.toggleLockSettings('disablePrivateChat'),
           dataTest: 'lockPrivateChat',
         });
@@ -380,7 +386,7 @@ class LockViewersComponent extends Component {
       checkboxItems.push({
         key: 'disableNotes',
         label: intlMessages.notesLabel,
-        checked: lockSettingsProps.disableNotes,
+        checked: !lockSettingsProps.disableNotes,
         toggle: () => this.toggleLockSettings('disableNotes'),
         dataTest: 'lockEditSharedNotes',
       });
@@ -390,14 +396,14 @@ class LockViewersComponent extends Component {
       {
         key: 'hideUserList',
         label: intlMessages.userListLabel,
-        checked: lockSettingsProps.hideUserList,
+        checked: !lockSettingsProps.hideUserList,
         toggle: () => this.toggleLockSettings('hideUserList'),
         dataTest: 'lockUserList',
       },
       {
         key: 'hideViewersCursor',
         label: intlMessages.hideCursorsLabel,
-        checked: lockSettingsProps.hideViewersCursor,
+        checked: !lockSettingsProps.hideViewersCursor,
         toggle: () => this.toggleLockSettings('hideViewersCursor'),
         dataTest: 'hideViewersCursor',
       },
@@ -422,7 +428,7 @@ class LockViewersComponent extends Component {
                   'data-test': item.dataTest,
                 }}
               />
-              <Styled.CheckboxLabel>
+              <Styled.CheckboxLabel onClick={item.toggle}>
                 {intl.formatMessage(item.label)}
               </Styled.CheckboxLabel>
             </Styled.CheckboxRow>
