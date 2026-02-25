@@ -878,7 +878,7 @@
     "app.audio.changeAudioDevice": "Ses aygıtını değiştir",
     "app.audio.enterSessionLabel": "Oturuma katıl",
     "app.audio.playSoundLabel": "Sesi oynat",
-    "app.audio.startAudioFeedback": "Sesli geri bildirimi başlat",
+    "app.audio.startAudioFeedback": "Ses geri beslemesini başlat",
     "app.audio.stopAudioFeedback": "Ses geri beslemesini durdur",
     "app.audio.backLabel": "Geri",
     "app.audio.loading": "Yükleniyor",
