@@ -1645,7 +1645,7 @@
     "app.learningDashboard.quizzes.userLabel": "Usuario/a",
     "app.learningDashboard.quizzes.numberOfResponses": "Número de respuestas",
     "app.learningDashboard.quizzes.anonymousRowName": "Anónimo",
-    "app.learningDashboard.quizzes.anonymousAnswer": "Anonymous Quiz (answers in the last row)",
+    "app.learningDashboard.quizzes.anonymousAnswer": "Cuestionario anónimo (respuestas en la última fila)",
     "app.learningDashboard.quizzes.noResponse": "No response",
     "app.learningDashboard.quizzes.correct": "Correct",
     "app.learningDashboard.quizzes.incorrect": "Incorrect",
