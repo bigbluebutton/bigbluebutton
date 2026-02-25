@@ -531,7 +531,7 @@
     "app.navBar.optionsDropdown.settingsDesc": "Cambiar la configuración general",
     "app.navBar.optionsDropdown.aboutDesc": "Mostrar información sobre el cliente",
     "app.navBar.optionsDropdown.leaveSessionDesc": "Abandonar la sesión",
-    "app.navBar.optionsDropdown.leaveBreakoutDesc": "Leave the breakout room",
+    "app.navBar.optionsDropdown.leaveBreakoutDesc": "Salir de la sala externa",
     "app.navBar.optionsDropdown.exitFullscreenDesc": "Salir de pantalla completa",
     "app.navBar.optionsDropdown.hotkeysLabel": "Atajos de teclado",
     "app.navBar.optionsDropdown.hotkeysDesc": "Lista de atajos de teclado disponibles",
