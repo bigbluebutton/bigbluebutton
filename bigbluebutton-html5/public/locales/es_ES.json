@@ -514,7 +514,7 @@
     "app.unmute.modal.confirm.label": "Activar sonido",
     "app.unmute.modal.deny.label": "Silenciado",
     "app.requestPresenter.notification.title": "Hacer presentador",
-    "app.requestPresenter.notification.description": "{userName} is asking to present in the session.",
+    "app.requestPresenter.notification.description": "{userName} está solicitando presentar en la sesión.",
     "app.requestPresenter.notification.confirm.label": "Allow",
     "app.requestPresenter.notification.deny.label": "Cancel",
     "app.requestPresenter.notification.denied": "Your request to present was denied by the moderator.",
