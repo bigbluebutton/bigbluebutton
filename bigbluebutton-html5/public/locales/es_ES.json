@@ -1499,7 +1499,7 @@
     "app.externalVideo.refreshLabel": "Refrescar reproductor de vídeo",
     "app.externalVideo.fullscreenLabel": "Reproductor de vídeo",
     "app.externalVideo.noteLabelSupported": "Admite enlaces de YouTube, Vimeo, Instructure Media, Twitch, Dailymotion y URL de archivos multimedia.",
-    "app.externalVideo.noteLabelWarning": "Shared videos are not included in the recording.",
+    "app.externalVideo.noteLabelWarning": "Los vídeos compartidos no se incluyen en la grabación.",
     "app.externalVideo.subtitlesOn": "Apagar",
     "app.externalVideo.subtitlesOff": "Encender (si está disponible)",
     "app.externalVideo.stopShareExternalVideo": "Stop sharing external video",
