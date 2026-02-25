@@ -490,7 +490,7 @@
     "app.poll.quiz.options.incorrect": "Respuesta incorrecta",
     "app.poll.quiz.liveResult.title.correct": "Correcto",
     "app.poll.quiz.options.responseNotSecret": "Cuestionario - el presentador puede ver tu respuesta.",
-    "app.poll.tabSelector.ariaLabel": "Quiz and Poll Tab Selector",
+    "app.poll.tabSelector.ariaLabel": "Selector de pestañas de cuestionarios y encuestas",
     "app.polling.pollingTitle": "Opciones de encuesta",
     "app.polling.pollQuestionTitle": "Pregunta de encuesta",
     "app.polling.submitLabel": "Enviar",
