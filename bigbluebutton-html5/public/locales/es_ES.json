@@ -1085,7 +1085,7 @@
     "app.userList.guest.hideWaitingUsersLabel": "Ocultar usuarios en espera",
     "app.user-info.title": "Buscar en directorio",
     "app.toast.breakoutRoomEnded": "La sala de reuniones externa terminó. Por favor, vuelva a unirse al audio.",
-    "app.toast.breakoutContentUnchangedNotConverted": "One or more breakout rooms had no whiteboard/shared notes updates, so they weren't converted to slides.",
+    "app.toast.breakoutContentUnchangedNotConverted": "Una o más salas de descanso no tenían actualizaciones de pizarra/notas compartidas, por lo que no se convirtieron en diapositivas.",
     "app.toast.chat.public": "Nuevo mensaje en el chat público",
     "app.toast.chat.private": "Nuevo mensaje en el chat privado",
     "app.toast.chat.system": "Sistema",
