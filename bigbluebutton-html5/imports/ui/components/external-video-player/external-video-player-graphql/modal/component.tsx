@@ -35,6 +35,10 @@ const intlMessages = defineMessages({
     id: 'app.externalVideo.noteLabel',
     description: 'provides hint about Shared External videos',
   },
+  supportedFormats: {
+    id: 'app.externalVideo.note.supportedFormats',
+    description: 'Supported formats for external video player',
+  },
 });
 
 const YOUTUBE_SHORTS_REGEX = new RegExp(/^(?:https?:\/\/)?(?:www\.)?(youtube\.com\/shorts)\/.+$/);
@@ -112,7 +116,8 @@ const ExternalVideoPlayerModal: React.FC<ExternalVideoPlayerModalProps> = ({
             />
           </label>
           <Styled.ExternalVideoNote id="external-video-note">
-            {intl.formatMessage(intlMessages.note)}
+            <p>{intl.formatMessage(intlMessages.note)}</p>
+            <p>{`${intl.formatMessage(intlMessages.supportedFormats)} ${window.meetingClientSettings.public.externalVideoPlayer.allowedFileFormats.join(', ')}`}</p>
           </Styled.ExternalVideoNote>
         </Styled.VideoUrl>
         <div>

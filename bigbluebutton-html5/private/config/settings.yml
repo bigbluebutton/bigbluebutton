@@ -320,6 +320,14 @@ public:
       # - 3006
   externalVideoPlayer:
     enabled: true
+    # A list of supported formats. Adding a new one will make the system accept it, 
+    # but it may not work as it's untested and might not be supported by all browsers
+    allowedFileFormats:
+      - mp4
+      - webm
+      - mp3
+      - wav
+      - m4a
   kurento:
     wsUrl: HOST
     cameraWsOptions:
