@@ -245,7 +245,7 @@
     "app.media.label": "Ortam",
     "app.media.autoplayAlertDesc": "Erişme izni ver",
     "app.media.screenshare.start": "Ekran paylaşımı başlatıldı",
-    "app.media.screenshare.end": "Ekran paylaşımı sona erdirildi",
+    "app.media.screenshare.end": "Ekran paylaşımı durduruldu",
     "app.media.screenshare.endDueToDataSaving": "Veri tasarrufu nedeniyle ekran paylaşımı durduruldu",
     "app.media.screenshare.unavailable": "Ekran paylaşımı kullanılamıyor",
     "app.media.screenshare.notSupported": "Bu tarayıcıda ekran paylaşımı desteklenmiyor.",
