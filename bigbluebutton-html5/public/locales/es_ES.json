@@ -1649,7 +1649,7 @@
     "app.learningDashboard.quizzes.noResponse": "Sin respuesta",
     "app.learningDashboard.quizzes.correct": "Correcto",
     "app.learningDashboard.quizzes.incorrect": "Incorrecto",
-    "app.learningDashboard.quizzes.activityLevel": "Activity Level",
+    "app.learningDashboard.quizzes.activityLevel": "Nivel de actividad",
     "app.learningDashboard.quizzes.quizScore": "Quiz Score",
     "app.learningDashboard.quizzes.chartTitle": "Quiz Performance vs Activity Level",
     "app.learningDashboard.quizzes.lockedIndicator": "Correct answer not revealed",
