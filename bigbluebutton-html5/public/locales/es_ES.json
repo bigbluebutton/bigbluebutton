@@ -750,7 +750,7 @@
     "app.mediaSharing.modal.videoLink": "Reproducir vídeo desde el enlace",
     "app.mediaSharing.modal.mustBePresenter": "Debes ser presentador para compartir contenido.",
     "app.mediaSharing.modal.share": "Compartir",
-    "app.mediaSharing.modal.stopSharing": "Stop Sharing",
+    "app.mediaSharing.modal.stopSharing": "Dejar de compartir",
     "app.actionsBar.actionsDropdown.actionsLabel": "Acciones",
     "app.actionsBar.actionsDropdown.activateTimerStopwatchLabel": "Activar temporizador/contador",
     "app.actionsBar.actionsDropdown.deactivateTimerStopwatchLabel": "Desactivar temporizador/contador",
