@@ -730,7 +730,7 @@
     "app.settings.save-notification.label": "Las configuraciones han sido guardadas",
     "app.settings.unsavedChanges.message": "Tienes cambios sin guardar.",
     "app.settings.unsavedChanges.ignoreMessage": "Si ignoras los cambios, estos no se aplicarán.",
-    "app.settings.unsavedChanges.ignoreButtonLabel": "Ignore changes",
+    "app.settings.unsavedChanges.ignoreButtonLabel": "Ignorar cambios",
     "app.statusNotifier.lowerHands": "Bajar manos",
     "app.statusNotifier.lowerHandDescOneUser": "Bajar la mano de {userName}",
     "app.statusNotifier.raisedHandsTitle": "Manos levantadas",
