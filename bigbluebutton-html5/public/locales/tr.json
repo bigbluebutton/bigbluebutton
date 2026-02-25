@@ -789,7 +789,7 @@
     "app.actionsBar.currentStatusDesc": "geçerli durum: {status}",
     "app.actionsBar.reactions.away": "Uzakta",
     "app.actionsBar.reactions.available": "Uygun",
-    "app.actionsBar.captions.start": "Alt yazıları görüntülemeye aç",
+    "app.actionsBar.captions.start": "Alt yazıları görüntülemeyi aç",
     "app.actionsBar.captions.stop": "Alt yazıları görüntülemeyi kapat",
     "app.audioNotification.audioFailedError1001": "WebSocket bağlantısı kesildi (hata 1001)",
     "app.audioNotification.audioFailedError1002": "WebSocket bağlantısı kurulamadı (hata 1002)",
