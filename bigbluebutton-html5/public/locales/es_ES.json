@@ -767,7 +767,7 @@
     "app.actionsBar.actionsDropdown.desktopShareDesc": "Compartir su pantalla con otros",
     "app.actionsBar.actionsDropdown.stopDesktopShareDesc": "Detener compartir su pantalla con",
     "app.actionsBar.actionsDropdown.pollBtnLabel": "Iniciar una encuesta",
-    "app.actionsBar.actionsDropdown.pollQuizBtnLabel": "Start a poll/quiz",
+    "app.actionsBar.actionsDropdown.pollQuizBtnLabel": "Iniciar una encuesta/cuestionario",
     "app.actionsBar.actionsDropdown.pollBtnDesc": "Alterna el panel de votación",
     "app.actionsBar.actionsDropdown.saveUserNames": "Guardar nombres de usuarios",
     "app.actionsBar.actionsDropdown.createBreakoutRoom": "Crear salas externas",
