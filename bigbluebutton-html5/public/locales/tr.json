@@ -339,7 +339,7 @@
     "app.presentation.modal.clearAnnotationsCancelLabel": "İptal",
     "app.presentation.modal.clearAnnotationsConfirmLabel": "Temizle",
     "app.presentationUploder.title": "Sunum",
-    "app.presentationUploder.message": "Sunucu olarak, herhangi bir Office ya da PDF belgesi yükleyebilirsiniz. En iyi sonucu almak için PDF belgesi kullanmanız önerilir. Lütfen sol taraftaki daire işaret kutusunu kullanarak bir sunum seçildiğinden emin olun.",
+    "app.presentationUploder.message": "Sunucu olarak, herhangi bir Office ya da PDF belgesi yükleyebilirsiniz. En iyi sonucu almak için PDF belgesi kullanmanız önerilir. Lütfen sol taraftaki daire işaret kutusunu kullanarak bir sunum seçtiğinizden emin olun.",
     "app.presentationUploader.exportHint": "\"Sohbete gönder\" seçildiğinde, kullanıcılara herkese açık sohbet için ek açıklamalar bulunan bir indirilebilir bağlantı sunulur.",
     "app.presentationUploader.exportToastHeader": "Sohbete gönderiliyor ({numberOfPresentations} öge)",
     "app.presentationUploader.exportToastHeaderPlural": "Sohbete gönderiliyor ({numberOfPresentations} öge)",
