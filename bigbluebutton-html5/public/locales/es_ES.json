@@ -781,7 +781,7 @@
     "app.actionsBar.actionsDropdown.waitingForModerator": "Esperando la respuesta del moderador...",
     "app.actionsBar.actionsDropdown.waitingForModeratorDesc": "Esperando a que un moderador apruebe tu solicitud.",
     "app.actionsBar.reactions.reactionsButtonLabel": "Compartir una reacción",
-    "app.actionsBar.reactions.removeReactionLabel": "Remove reaction",
+    "app.actionsBar.reactions.removeReactionLabel": "Eliminar reacción",
     "app.actionsBar.reactions.raiseHand": "Levantar su mano",
     "app.actionsBar.reactions.lowHand": "Bajar su mano",
     "app.actionsBar.reactions.lowUserHand": "Lower user's hand",
