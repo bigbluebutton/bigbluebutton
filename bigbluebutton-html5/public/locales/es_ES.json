@@ -1648,7 +1648,7 @@
     "app.learningDashboard.quizzes.anonymousAnswer": "Cuestionario anónimo (respuestas en la última fila)",
     "app.learningDashboard.quizzes.noResponse": "Sin respuesta",
     "app.learningDashboard.quizzes.correct": "Correcto",
-    "app.learningDashboard.quizzes.incorrect": "Incorrect",
+    "app.learningDashboard.quizzes.incorrect": "Incorrecto",
     "app.learningDashboard.quizzes.activityLevel": "Activity Level",
     "app.learningDashboard.quizzes.quizScore": "Quiz Score",
     "app.learningDashboard.quizzes.chartTitle": "Quiz Performance vs Activity Level",
