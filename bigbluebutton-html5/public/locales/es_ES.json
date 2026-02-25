@@ -525,7 +525,7 @@
     "app.navBar.optionsDropdown.settingsLabel": "Configuración",
     "app.navBar.optionsDropdown.aboutLabel": "Sobre",
     "app.navBar.optionsDropdown.leaveSessionLabel": "Abandonar la sesión",
-    "app.navBar.optionsDropdown.leaveBreakoutLabel": "Leave breakout room",
+    "app.navBar.optionsDropdown.leaveBreakoutLabel": "Salir de la sala externa",
     "app.navBar.optionsDropdown.exitFullscreenLabel": "Salir de pantalla completa",
     "app.navBar.optionsDropdown.fullscreenDesc": "Pantalla completa del menú de configuración",
     "app.navBar.optionsDropdown.settingsDesc": "Cambiar la configuración general",
