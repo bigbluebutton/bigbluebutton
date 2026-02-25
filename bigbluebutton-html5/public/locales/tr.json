@@ -370,7 +370,7 @@
     "app.presentationUploder.browseImagesLabel": "ya da görsellere göz atın veya yakalayın",
     "app.presentationUploder.externalUploadTitle": "3. taraf uygulamadan içerik ekle",
     "app.presentationUploder.externalUploadLabel": "Dosyalara göz at",
-    "app.presentationUploder.fileToUpload": "Yüklenecek ...",
+    "app.presentationUploder.fileToUpload": "Yüklenecek...",
     "app.presentationUploder.currentBadge": "Geçerli",
     "app.presentationUploder.rejectedError": "Seçilmiş dosya(lar) reddedildi. Lütfen dosya türlerini denetleyin.",
     "app.presentationUploder.connectionClosedError": "Kötü bağlantı nedeniyle kesintiye uğradı. Lütfen yeniden deneyin.",
