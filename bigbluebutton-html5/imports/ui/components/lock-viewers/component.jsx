@@ -109,6 +109,10 @@ const intlMessages = defineMessages({
     id: 'app.lock-viewers.hideAnnotationsLabel',
     description: 'label for other viewers annotation',
   },
+  submitLabel: {
+    id: 'app.chat.submitLabel',
+    description: 'Submit button label',
+  },
   presentationPermissionsTitle: {
     id: 'app.lock-viewers.presentationPermissions.title',
     description: 'Presentation permissions section title',
@@ -197,11 +201,6 @@ class LockViewersComponent extends Component {
       lobbyMessage: props.guestLobbyMessage || '',
       presentationPolicy,
     };
-  }
-
-  componentWillUnmount() {
-    const { closeModal } = this.props;
-    closeModal();
   }
 
   handleSelectTab(tabIndex) {
@@ -318,10 +317,11 @@ class LockViewersComponent extends Component {
                 data-test="lobbyMessageInput"
               />
               <Styled.LobbyInputSendButton
+                aria-label={intl.formatMessage(intlMessages.submitLabel)}
                 onClick={() => {
                   const { setLobbyMessage: setMsg } = this.props;
                   const { lobbyMessage: msg } = this.state;
-                  if (msg) setMsg(msg);
+                  setMsg(msg);
                 }}
               >
                 ▶
@@ -406,6 +406,13 @@ class LockViewersComponent extends Component {
         checked: !lockSettingsProps.hideViewersCursor,
         toggle: () => this.toggleLockSettings('hideViewersCursor'),
         dataTest: 'hideViewersCursor',
+      },
+      {
+        key: 'hideViewersAnnotation',
+        label: intlMessages.hideAnnotationsLabel,
+        checked: !lockSettingsProps.hideViewersAnnotation,
+        toggle: () => this.toggleLockSettings('hideViewersAnnotation'),
+        dataTest: 'lockShareWhiteboard',
       },
     );
 

@@ -154,6 +154,7 @@ const SettingsTabPanel = styled(TabPanel)`
   border-left: 1px solid ${colorBorder};
   border-bottom: 1px solid ${colorBorder};
   width: calc(100% / 3 * 2);
+  min-height: 35rem;
   overflow-y: auto;
 
   [dir="rtl"] & {

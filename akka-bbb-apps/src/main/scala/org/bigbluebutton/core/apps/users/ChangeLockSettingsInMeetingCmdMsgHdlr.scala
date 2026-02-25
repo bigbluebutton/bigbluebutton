@@ -234,7 +234,8 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
           }
         }
 
-        if (oldPermissions.presenterPolicy != settings.presenterPolicy) {
+        if (oldPermissions.presenterPolicy != settings.presenterPolicy &&
+          (oldPermissions.presenterPolicy == "moderatorOnly" || settings.presenterPolicy == "moderatorOnly")) {
           if (settings.presenterPolicy == "moderatorOnly") {
             val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
               liveMeeting.props.meetingProp.intId,

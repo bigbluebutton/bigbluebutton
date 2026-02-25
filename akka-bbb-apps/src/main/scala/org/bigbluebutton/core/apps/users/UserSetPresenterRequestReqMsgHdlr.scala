@@ -1,9 +1,10 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.models.{ Users2x, Roles }
+import org.bigbluebutton.core.models.{ Users2x, Roles, PresentationPod }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter, MeetingActor }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.apps.presentationpod.SetPresenterInPodActionHandler
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core2.MeetingStatus2x
 
@@ -34,24 +35,23 @@ trait UserSetPresenterRequestReqMsgHdlr extends RightsManagementTrait {
         } else if (requester.role == Roles.MODERATOR_ROLE) {
           log.info("Moderator can become presenter directly. meetingId=" + meetingId + " requesterId=" + requesterId)
         } else {
-          val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
-          if (requester.locked && permissions.presenterPolicy == "moderatorOnly") {
+          val permissions = org.bigbluebutton.core2.MeetingStatus2x.getPermissions(liveMeeting.status)
+          if (permissions.presenterPolicy == "moderatorOnly") {
             log.info("Presenter request is locked. meetingId=" + meetingId + " requesterId=" + requesterId)
           } else if (permissions.presenterPolicy == "freeForAll") {
             // Auto-approve: directly assign as presenter
-            // Use a moderator as assignedBy to pass the MOD_LEVEL permission check
-            // in AssignPresenterActionHandler
+            // Use requesterId as assignedBy and skip permission check
             Users2x.setUserRequestedPresenter(liveMeeting.users2x, requesterId, false)
-            val moderatorId = Users2x.findModerator(liveMeeting.users2x)
-              .map(_.intId).getOrElse(requesterId)
-            val assignMsg = AssignPresenterReqMsg(
-              BbbClientMsgHeader(AssignPresenterReqMsg.NAME, meetingId, moderatorId),
-              AssignPresenterReqMsgBody(moderatorId, requesterId)
-            )
+
             log.info("Free-for-all presenter policy, auto-assigning presenter. meetingId=" + meetingId +
               " requesterId=" + requesterId + " requesterName=" + requester.name +
-              " assignedBy=" + moderatorId)
-            return handlePresenterChange(assignMsg, state)
+              " assignedBy=" + requesterId)
+
+            AssignPresenterActionHandler.handleAction(liveMeeting, outGW, requesterId, requesterId, skipPermissions = true)
+
+            return SetPresenterInPodActionHandler.handleAction(state, liveMeeting, outGW,
+              requesterId, PresentationPod.DEFAULT_PRESENTATION_POD,
+              requesterId)
           } else {
             Users2x.setUserRequestedPresenter(liveMeeting.users2x, requesterId, true)
             log.info("User requested presenter. meetingId=" + meetingId +

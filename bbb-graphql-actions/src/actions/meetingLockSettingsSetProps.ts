@@ -19,6 +19,11 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
       ]
   )
 
+  const ALLOWED_PRESENTER_POLICIES = ['moderatorOnly', 'requireApproval', 'freeForAll'];
+  if (!ALLOWED_PRESENTER_POLICIES.includes(input.presenterPolicy as string)) {
+    throw new Error(`Invalid presenterPolicy: ${input.presenterPolicy}`);
+  }
+
   const eventName = 'ChangeLockSettingsInMeetingCmdMsg';
 
   const routing = {

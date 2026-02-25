@@ -194,7 +194,7 @@ create unlogged table "meeting_lockSettings" (
     "lockOnJoinConfigurable" boolean,
     "hideViewersCursor"      boolean,
     "hideViewersAnnotation"  boolean,
-    "presenterPolicy"        varchar(50)
+    "presenterPolicy"        varchar(50) DEFAULT 'requireApproval' NOT NULL
 );
 
 CREATE OR REPLACE VIEW "v_meeting_lockSettings" AS
