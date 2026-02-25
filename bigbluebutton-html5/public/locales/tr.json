@@ -1482,7 +1482,7 @@
     "app.createBreakoutRoom.inProgressLabel": "Çalışma grubu odaları kullanılıyor",
     "app.createBreakoutRoom.notAssignedLabel": "Bir çalışma odası grubunda değilsiniz",
     "app.createBreakoutRoom.notAssignedHelp": "Oturum sorumlusundan sizi bir çalışma grubu odasına eklemesini isteyin",
-    "app.updateBreakoutRoom.modalDesc": "Bir kullanıcıyı güncellemek ya da çağırmak için kullanıcı sürükleyip istediğiniz odaya bırakın.",
+    "app.updateBreakoutRoom.modalDesc": "Bir kullanıcıyı güncellemek ya da çağırmak için kullanıcıyı sürükleyip istediğiniz odaya bırakın.",
     "app.updateBreakoutRoom.cancelLabel": "İptal",
     "app.updateBreakoutRoom.title": "Çalışma grubu odalarını güncelle",
     "app.updateBreakoutRoom.confirm": "Uygula",
