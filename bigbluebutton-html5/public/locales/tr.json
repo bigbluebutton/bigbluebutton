@@ -1469,7 +1469,7 @@
     "app.createBreakoutRoom.leastOneWarnBreakout": "Bir çalışma grubu odasına en az bir kullanıcı göndermelisiniz..",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "En kısa çalışma grubu odası süresi {timeInMinutes} dakikadır.",
     "app.createBreakoutRoom.timeCannotExceedMainRoom": "Çalışma grubu odasının süresi, oturumun kalan süresini aşamaz.",
-    "app.createBreakoutRoom.modalDesc": "İpucu: Herhangi bir çalışma grubu odasına atamak için kullanıcıların adını sürükleyip bırakabilirsiniz.",
+    "app.createBreakoutRoom.modalDesc": "İpucu: Kullanıcıları bir çalışma grubu odasına atamak için adlarını sürükleyip odaya bırakabilirsiniz.",
     "app.createBreakoutRoom.numberOfRoomsError": "Oda sayısı geçersiz.",
     "app.createBreakoutRoom.duplicatedRoomNameError": "Odaların adı aynı olamaz.",
     "app.createBreakoutRoom.emptyRoomNameError": "Oda adı boş olamaz.",
