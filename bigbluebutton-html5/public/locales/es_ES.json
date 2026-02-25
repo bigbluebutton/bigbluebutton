@@ -1100,7 +1100,7 @@
     "app.toast.wakeLock.disclaimer": "{error}. Saldrá de la llamada cuando se apague la pantalla.",
     "app.toast.setEmoji.raiseHand": "Ud. ha levantado la mano",
     "app.toast.setEmoji.lowerHand": "Se ha bajado tu mano",
-    "app.toast.raisedHandNext.label": "You're next in line with your hand raised",
+    "app.toast.raisedHandNext.label": "Eres el siguiente en la fila con la mano levantada.",
     "app.toast.setEmoji.away": "Ha establecido su estado en ausente",
     "app.toast.setEmoji.notAway": "Tu estado de ausencia ha sido eliminado.",
     "app.toast.promotedLabel": "Has sido promocionado/a a Moderador",
