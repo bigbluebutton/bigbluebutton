@@ -505,7 +505,7 @@
     "app.serverIsSlow": "Veriler yavaş yükleniyor. Lütfen bekleyin.",
     "app.downloadPresentationButton.label": "Özgün sunumu indir",
     "app.connectingMessage": "Bağlantı kuruluyor...",
-    "app.reconnectingMessage": "Bağlantı kesildi. Lütfen İnternet bağlantınızı denetleyin.",
+    "app.reconnectingMessage": "Bağlantı kesildi. Lütfen internet bağlantınızı denetleyin.",
     "app.muteWarning.label": "Mikrofonunuzu açmak için {unmuteIcon} üzerine tıklayın.",
     "app.muteWarning.disableMessage": "Mikrofon kapalı uyarıları mikrofon açılıncaya kadar kapatıldı",
     "app.muteWarning.tooltip": "Kapatmak için tıklayın ve mikrofon yeniden açılana kadar uyarıyı kapatın",
