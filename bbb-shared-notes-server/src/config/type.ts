@@ -42,9 +42,10 @@ export interface PostgresConfig {
   documentExpireMinutesAfterMeetingEnd: number;
 }
 
-export interface HtmlToPdfExporter {
-  tmpDirectory: string
-  conversionScriptPath: string
+export interface CommandExecution {
+  workDir: string
+  runnerScript: string
+  timeout: number;
 }
 
 export interface RateLimit {
@@ -57,7 +58,7 @@ export interface AppSettings {
   hocuspocusServer: HocuspocusServerConfig;
   rateLimit: RateLimit;
   bbbWeb: BbbWebConfig;
-  htmlToPdfExporter: HtmlToPdfExporter;
+  commandExecution: CommandExecution;
   log: LogConfig;
   redis: RedisConfig;
   postgres: PostgresConfig;

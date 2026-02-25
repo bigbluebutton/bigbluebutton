@@ -15,7 +15,7 @@ rm -rf staging
 # package
 
 # Create directory for fpm to process
-DIRS="/usr/share/bbb-shared-notes-server /usr/share/bbb-shared-notes-server/config /usr/share/bigbluebutton/nginx /usr/share/bbb-shared-notes-conversion"
+DIRS="/usr/share/bbb-shared-notes-server /usr/share/bbb-shared-notes-server/config /usr/share/bigbluebutton/nginx"
 for dir in $DIRS; do
   mkdir -p staging$dir
   DIRECTORIES="$DIRECTORIES --directories $dir"
@@ -41,9 +41,9 @@ cp package-lock.json staging/usr/share/bbb-shared-notes-server
 cp config/default.json staging/usr/share/bbb-shared-notes-server/config
 cp -r node_modules staging/usr/share/bbb-shared-notes-server
 
-# Copy HTML to PDF conversion script
-cp convert-html-to-pdf.sh staging/usr/share/bbb-shared-notes-conversion/convert.sh
-chmod +x staging/usr/share/bbb-shared-notes-conversion/convert.sh
+# Copy script to run commands through `system-run --user`
+cp run-in-systemd.sh "$STAGING"/usr/share/bbb-shared-notes-server
+chmod 755 "$STAGING"/usr/share/bbb-shared-notes-server
 
 # Setup service
 mkdir -p staging/usr/lib/systemd/system

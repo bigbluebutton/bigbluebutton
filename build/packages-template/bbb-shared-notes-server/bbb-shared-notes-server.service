@@ -8,6 +8,7 @@ StartLimitIntervalSec=0
 [Service]
 WorkingDirectory=/usr/share/bbb-shared-notes-server
 ExecStart=/usr/bin/node bbb-shared-notes-server.js
+EnvironmentFile=-/etc/bigbluebutton/bbb-shared-notes-server.env
 Restart=always
 SyslogIdentifier=bbb-shared-notes-server
 User=bigbluebutton

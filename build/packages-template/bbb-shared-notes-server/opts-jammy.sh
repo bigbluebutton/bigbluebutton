@@ -2,4 +2,4 @@
 
 . ./opts-global.sh
 
-OPTS="$OPTS -t deb -d npm"
+OPTS="$OPTS -t deb -d npm,pandoc,wkhtmltopdf"

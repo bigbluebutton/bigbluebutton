@@ -9,9 +9,10 @@
     "host": "127.0.0.1",
     "port": 9001
   },
-  "htmlToPdfExporter": {
-    "tmpDirectory": "/tmp/pres-ann-dropbox",
-    "conversionScriptPath": "/usr/share/bbb-shared-notes-conversion/convert.sh"
+  "commandExecution": {
+    "workDir": "/tmp/shared-notes-dropbox/",
+    "runnerScript": "/usr/share/bbb-shared-notes-server/run-in-systemd.sh",
+    "timeout": 30
   },
   "bbbWeb": {
     "host": "127.0.0.1",

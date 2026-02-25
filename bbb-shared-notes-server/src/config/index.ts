@@ -5,7 +5,7 @@ import { AppSettings } from './type';
 export default config as typeof config & {
   expressServer: AppSettings['expressServer'];
   hocuspocusServer: AppSettings['hocuspocusServer'];
-  htmlToPdfExporter: AppSettings['htmlToPdfExporter'];
+  commandExecution: AppSettings['commandExecution'];
   bbbWeb: AppSettings['bbbWeb'];
   log: AppSettings['log'];
   redis: AppSettings['redis'];

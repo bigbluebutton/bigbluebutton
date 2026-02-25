@@ -178,8 +178,8 @@ const handleBlockNoteExport = async (header: MessageHeader, body: MessageBody): 
   });
 
   try {
-    const { tmpDirectory } = config.htmlToPdfExporter;
-    const temporarySavingDir = path.join(tmpDirectory, jobId);
+    const { workDir } = config.commandExecution;
+    const temporarySavingDir = path.join(workDir, jobId);
 
     if (!fs.existsSync(temporarySavingDir)) {
       fs.mkdirSync(temporarySavingDir, { recursive: true });

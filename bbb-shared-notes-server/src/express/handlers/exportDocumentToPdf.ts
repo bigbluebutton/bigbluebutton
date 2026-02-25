@@ -3,7 +3,7 @@ import { promisify } from 'util';
 import { writeFile, unlink } from 'fs/promises';
 import { existsSync } from 'fs';
 import { randomBytes } from 'crypto';
-import { tmpdir } from 'os';
+import fs from 'fs';
 import path from 'path';
 import { Logger } from '../../common/logger';
 import config from '../../config';
@@ -23,7 +23,7 @@ interface PdfExportOptions {
 }
 
 /**
- * Converts HTML content to PDF using Chrome headless in a Docker container
+ * Converts HTML content to PDF using pandoc
  * Uses a bash script (convert-html-to-pdf.sh) for conversion
  * The container is ephemeral (created, used, and removed automatically)
  */
@@ -31,13 +31,16 @@ export async function exportHtmlToPdf(
   htmlContent: string,
   _options: PdfExportOptions = {}
 ): Promise<Buffer> {
+  const { workDir, runnerScript, timeout } = config.commandExecution;
+
+  if (!fs.existsSync(workDir)) {
+    fs.mkdirSync(workDir, { recursive: true });
+  }
+
   // Generate unique filename for isolation
   const runId = randomBytes(8).toString('hex');
-  const htmlFilePath = path.join(tmpdir(), `bbb-html-${runId}.html`);
-  const pdfFilePath = path.join(tmpdir(), `bbb-pdf-${runId}.pdf`);
-
-  // Path to the conversion script (absolute path in production)
-  const { conversionScriptPath: scriptPath } = config.htmlToPdfExporter;
+  const htmlFilePath = path.join(workDir, `bbb-html-${runId}.html`);
+  const pdfFilePath = path.join(workDir, `bbb-pdf-${runId}.pdf`);
 
   try {
     // Write HTML content to temporary file
@@ -45,8 +48,22 @@ export async function exportHtmlToPdf(
     logger.info('HTML content written to temporary file', { htmlFilePath });
 
     // Execute bash script for conversion
-    // Script params: input_html output_pdf [timeout]
-    const command = `${scriptPath} "${htmlFilePath}" "${pdfFilePath}" 30`;
+    const command = `${runnerScript} ${timeout} \
+      pandoc "${htmlFilePath}" \
+      -o "${pdfFilePath}" \
+      --pdf-engine=wkhtmltopdf \
+      -V papersize=letter \
+      -V margin-top=10mm \
+      -V margin-bottom=10mm \
+      -V margin-left=10mm \
+      -V margin-right=10mm \
+      --pdf-engine-opt=--dpi \
+      --pdf-engine-opt=96 \
+      --pdf-engine-opt=--zoom \
+      --pdf-engine-opt=1.0 \
+      --pdf-engine-opt=--print-media-type \
+      --pdf-engine-opt=--no-header-line \
+      -M title=`;
 
     logger.info('Executing conversion script', { command });
 

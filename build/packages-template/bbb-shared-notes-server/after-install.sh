@@ -19,26 +19,6 @@ case "$1" in
 
 runuser -u postgres -- psql -U postgres -d blocknote_app -q -f /usr/share/bbb-shared-notes-server/blocknote_schema.sql --set ON_ERROR_STOP=on
 
-  # Setup Docker image for HTML to PDF conversion
-  if which docker > /dev/null; then
-    echo "#"
-    echo "# Pulling zenika/alpine-chrome docker image for PDF conversion"
-    echo "#"
-    docker pull zenika/alpine-chrome || echo "Warning: Failed to pull zenika/alpine-chrome image"
-
-    # Configure sudoers to allow bigbluebutton user to run docker without password
-    # for the specific HTML to PDF conversion command
-    echo "Configuring sudoers for HTML to PDF conversion..."
-    cat > /etc/sudoers.d/zzz-bbb-docker-chrome <<'SUDOERS_EOF'
-bigbluebutton ALL=(ALL) NOPASSWD: /usr/bin/docker run --rm --memory=1g --memory-swap=1g --network none --user=[0-9][0-9][0-9][0-9][0-9] -e HOME=/tmp -e XDG_RUNTIME_DIR=/tmp/runtime --tmpfs /tmp\:rw\,exec\,nosuid\,size=256m --tmpfs /tmp/runtime\:rw\,exec\,nosuid\,size=64m -v /tmp/bbb-chrome-bigbluebutton/tmp.[0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z][0-9a-zA-Z]/\:/workspace/ -v /usr/share/fonts/\:/usr/share/fonts/\:ro -v /usr/share/fontconfig/\:/usr/share/fontconfig/\:ro -v /etc/fonts/\:/etc/fonts/\:ro -v /var/cache/fontconfig/\:/var/cache/fontconfig/\:ro --security-opt seccomp=unconfined --entrypoint /usr/bin/chromium-browser zenika/alpine-chrome --headless=new --user-data-dir=/tmp/chrome-data --no-pdf-header-footer --run-all-compositor-stages-before-draw --disable-dev-shm-usage --no-sandbox --disable-setuid-sandbox --no-first-run --no-default-browser-check --disable-breakpad --disable-gpu --disable-software-rasterizer --disable-extensions --print-to-pdf=/workspace/output.pdf file\:///workspace/input.html
-SUDOERS_EOF
-
-    chmod 440 /etc/sudoers.d/zzz-bbb-docker-chrome
-
-  else
-    echo "Warning: Docker not found. HTML to PDF conversion will not work."
-  fi
-
   if [ ! -f /.dockerenv ]; then
     systemctl enable bbb-shared-notes-server.service
     systemctl daemon-reload
