@@ -872,7 +872,7 @@
     "app.audioManager.requestTimeout": "Hata: İstek zaman aşımına uğradı",
     "app.audioManager.invalidTarget": "Hata: Geçersiz bir hedef için bir istekte bulunuldu",
     "app.audioManager.mediaError": "Hata: Ortam aygıtlarınıza erişilirken bir sorun çıktı",
-    "app.audio.joinAudio": "Sesli katıl",
+    "app.audio.joinAudio": "Ses ile katıl",
     "app.audio.joinAudioAndSetActive": "Ses ile katıl ve beni etkin olarak ayarla",
     "app.audio.leaveAudio": "Sesli katılımı kapat",
     "app.audio.changeAudioDevice": "Ses aygıtını değiştir",
