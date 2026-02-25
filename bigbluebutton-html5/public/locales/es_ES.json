@@ -1178,7 +1178,7 @@
     "app.shortcut-help.fingerTap": "Toque con el dedo",
     "app.lock-viewers.title": "Bloquear espectadores",
     "app.lock-viewers.description": "Estas opciones le habilitan a restringir el uso de características específicas a los espectadores",
-    "app.lock-viewers.restrictParticipantsLabel": "Restrict participants from...",
+    "app.lock-viewers.restrictParticipantsLabel": "Restringir a los participantes de...",
     "app.lock-viewers.featuresLable": "Característica",
     "app.lock-viewers.lockStatusLabel": "Estado",
     "app.lock-viewers.webcamLabel": "Compartir webcam",
