@@ -16,7 +16,7 @@
     "app.chat.titlePrivate": "{0} ile özel sohbet",
     "app.chat.titlePrivateToUser": "{participantName} ile özel sohbet",
     "app.chat.partnerDisconnected": "{participantName} oturumdan ayrıldı",
-    "app.chat.moreMessages": "İletilerin devamı aşağıda",
+    "app.chat.moreMessages": "Diğer iletiler aşağıda",
     "app.chat.dropdown.options": "Sohbet ayarları",
     "app.chat.dropdown.clear": "Temizle",
     "app.chat.dropdown.copy": "Kopyala",
