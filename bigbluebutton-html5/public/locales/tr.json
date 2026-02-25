@@ -1015,7 +1015,7 @@
     "app.modal.randomUser.title": "Rastgele seçilmiş kullanıcı",
     "app.modal.randomUser.who": "Kim seçilecek...?",
     "app.modal.randomUser.alone": "Yalnızca bir izleyici var",
-    "app.modal.randomUser.reselect.label": "Yeniden seç",
+    "app.modal.randomUser.reselect.label": "Yeniden seçin",
     "app.modal.randomUser.ariaLabel.title": "Rastgele seçilmiş kullanıcı üste açılan penceresi",
     "app.dropdown.close": "Kapat",
     "app.dropdown.list.item.activeLabel": "Etkin",
