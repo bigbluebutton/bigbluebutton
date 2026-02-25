@@ -98,6 +98,7 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
   const [normalizedLocale, setNormalizedLocale] = React.useState(navigator.language.replace('_', '-'));
   const [messages, setMessages] = React.useState<LocaleJson>({});
   const [fallbackOnEmptyLocaleString, setFallbackOnEmptyLocaleString] = React.useState(false);
+  const skipInitialLocaleFetch = React.useRef(true);
 
   const fetchLocalizedMessages = useCallback((locale: string, init: boolean) => {
     setFetching(true);
@@ -154,10 +155,19 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
 
   useEffect(() => {
     const language = navigator.languages ? navigator.languages[0] : navigator.language;
-    fetchLocalizedMessages(language, true);
+    // if currentLocale was already overridden before this component mounted, use it instead
+    if (currentLocale !== normalizedLocale) {
+      fetchLocalizedMessages(currentLocale, false);
+    } else {
+      fetchLocalizedMessages(language, true);
+    }
   }, []);
 
   useEffect(() => {
+    if (skipInitialLocaleFetch.current) {
+      skipInitialLocaleFetch.current = false;
+      return;
+    }
     if (currentLocale !== normalizedLocale) {
       fetchLocalizedMessages(currentLocale, false);
     }
