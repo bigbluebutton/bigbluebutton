@@ -1,8 +1,7 @@
-import { useMutation, useReactiveVar } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import React, {
   useCallback,
   useEffect,
-  useState,
   Dispatch,
   SetStateAction,
 } from 'react';
@@ -25,10 +24,12 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import TimeRemaingPanel from './components/timeRemaining';
 import BreakoutMessageForm from './components/messageForm';
 import { useStopMediaOnMainRoom } from '/imports/ui/components/breakout-room/hooks';
+import { setBreakoutWindowRef } from './service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import CreateBreakoutRoomContainer from '../create-breakout-room/component';
+import SidebarCreateBreakoutContainer from '../create-breakout-room/sidebar-create-breakout/container';
+import RunningBreakoutRoom from './running-room/component';
+import ParticipantBreakoutRoom from './participant-room/component';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
-import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 
 interface BreakoutRoomProps {
@@ -125,6 +126,7 @@ const intlMessages = defineMessages({
   },
 });
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
   breakouts,
   isModerator,
@@ -170,7 +172,8 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
     if (requestedBreakoutRoomId) {
       const breakout = breakouts.find((b) => b.breakoutRoomMeetingId === requestedBreakoutRoomId);
       if (breakout && breakout.joinURL) {
-        window.open(breakout.joinURL, '_blank');
+        const win = window.open(breakout.joinURL, '_blank');
+        if (win) setBreakoutWindowRef(win);
         setRequestedBreakoutRoomId('');
         stopMediaOnMainRoom(presenter);
       }
@@ -279,7 +282,8 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
                                 setRequestedBreakoutRoomId(breakout.breakoutRoomMeetingId);
                                 requestJoinURL(breakout.breakoutRoomMeetingId);
                               } else {
-                                window.open(breakout.joinURL, '_blank');
+                                const win = window.open(breakout.joinURL, '_blank');
+                                if (win) setBreakoutWindowRef(win);
                                 stopMediaOnMainRoom(presenter);
                               }
                             }}
@@ -338,7 +342,6 @@ const BreakoutRoomContainer: React.FC = () => {
     meetingId: m.meetingId,
     componentsFlags: m.componentsFlags,
   }));
-  const breakoutRoomsUpdateUsersModal = useModalRegistration({ id: 'createBreakoutRoomModal', priority: 'low' });
 
   const {
     data: currentUserData,
@@ -375,8 +378,7 @@ const BreakoutRoomContainer: React.FC = () => {
     loading: breakoutLoading,
     error: breakoutError,
   } = useDeduplicatedSubscription<GetBreakoutDataResponse>(getBreakoutData);
-  const [isOpen, setIsOpen] = useState(!hasBreakoutRoom);
-  const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
+
   if (
     breakoutLoading
     || currentUserLoading
@@ -397,45 +399,37 @@ const BreakoutRoomContainer: React.FC = () => {
   }
   if (!currentUserData || !breakoutData || !meetingData) return null; // or loading spinner or error
 
-  return (
-    <>
-      <BreakoutRoom
-        breakouts={breakoutData.breakoutRoom || []}
-        isModerator={currentUserData.isModerator ?? false}
-        presenter={currentUserData.presenter ?? false}
-        durationInSeconds={meetingData.durationInSeconds ?? 0}
-        userJoinedAudio={(currentUserData?.voice?.joined && !currentUserData?.voice?.deafened) ?? false}
-        userId={currentUserData.userId ?? ''}
-        meetingId={meetingData.meetingId ?? ''}
-        setUpdateUsersWhileRunning={
-        breakoutRoomsUpdateUsersModal.isOpen
-          ? breakoutRoomsUpdateUsersModal.close
-          : breakoutRoomsUpdateUsersModal.open
-        }
-        createdTime={meetingData.createdTime ?? 0}
-        isConnected={connected}
-        closePanel={closePanel}
-        audioBridge={meetingData.audioBridge ?? 'livekit'}
-      />
-      {breakoutRoomsUpdateUsersModal.isOpen && (
-      <CreateBreakoutRoomContainer
-        isOpen={isOpen}
+  if (!hasBreakoutRoom && (currentUserData.isModerator ?? false)) {
+    return (
+      <SidebarCreateBreakoutContainer
         setIsOpen={(value: boolean) => {
-          if (!hasBreakoutRoom) {
+          if (!value) {
             closePanel();
           }
-          setIsOpen(value);
         }}
-        priority="low"
-        isUpdate={breakoutRoomsUpdateUsersModal.isOpen}
-        setUpdateUsersWhileRunning={
-          breakoutRoomsUpdateUsersModal.isOpen
-            ? breakoutRoomsUpdateUsersModal.close
-            : breakoutRoomsUpdateUsersModal.open
-        }
       />
-      )}
-    </>
+    );
+  }
+
+  if (hasBreakoutRoom && (currentUserData.isModerator ?? false)) {
+    return (
+      <RunningBreakoutRoom
+        breakouts={breakoutData.breakoutRoom || []}
+        userId={currentUserData.userId ?? ''}
+        meetingId={meetingData.meetingId ?? ''}
+        closePanel={closePanel}
+      />
+    );
+  }
+
+  return (
+    <ParticipantBreakoutRoom
+      breakouts={breakoutData.breakoutRoom || []}
+      meetingId={meetingData.meetingId ?? ''}
+      presenter={currentUserData.presenter ?? false}
+      userJoinedAudio={(currentUserData?.voice?.joined && !currentUserData?.voice?.deafened) ?? false}
+      closePanel={closePanel}
+    />
   );
 };
 

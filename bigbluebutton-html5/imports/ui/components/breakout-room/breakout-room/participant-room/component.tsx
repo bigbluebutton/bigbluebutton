@@ -1,0 +1,298 @@
+import React, {
+  useState, useEffect, useRef, useCallback,
+} from 'react';
+import { defineMessages, useIntl } from 'react-intl';
+import { useMutation } from '@apollo/client';
+import Styled from './styles';
+import Icon from '/imports/ui/components/common/icon/component';
+import { BreakoutRoom as BreakoutRoomType } from '../queries';
+import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import {
+  USER_TRANSFER_VOICE_TO_MEETING,
+} from '../../mutations';
+import { CHAT_SEND_MESSAGE } from '/imports/ui/components/plugins-engine/server-commands/chat/send-message/mutations';
+import { notify } from '/imports/ui/services/notification';
+import { useStopMediaOnMainRoom } from '/imports/ui/components/breakout-room/hooks';
+import { setBreakoutWindowRef, rejoinAudio, closeBreakoutWindow } from '/imports/ui/components/breakout-room/breakout-room/service';
+
+const CALL_MODERATOR_COOLDOWN_MS = 30000;
+
+const intlMessages = defineMessages({
+  breakoutTitle: {
+    id: 'app.createBreakoutRoom.title',
+    description: 'breakout title',
+  },
+  durationOfBreakout: {
+    id: 'app.createBreakoutRoom.durationOfBreakout',
+    description: 'Duration of Breakout Room label',
+  },
+  youAreInRoom: {
+    id: 'app.createBreakoutRoom.youAreInRoom',
+    description: 'Message telling user which room they are in',
+  },
+  callModerator: {
+    id: 'app.createBreakoutRoom.callModerator',
+    description: 'Call moderator button label',
+  },
+  returnToMainSession: {
+    id: 'app.createBreakoutRoom.returnToMainSession',
+    description: 'Return to main session button label',
+  },
+  genericMinimizePanel: {
+    id: 'app.sidebarContent.minimizePanelLabel',
+    description: 'Generic minimize label for panels',
+  },
+  breakoutRoom: {
+    id: 'app.createBreakoutRoom.room',
+    description: 'breakout room',
+  },
+  notAssignedLabel: {
+    id: 'app.createBreakoutRoom.notAssignedLabel',
+    description: 'Label telling user they are not in a breakout room',
+  },
+  notAssignedHelp: {
+    id: 'app.createBreakoutRoom.notAssignedHelp',
+    description: 'Text asking user to contact moderator to be assigned',
+  },
+  callModeratorChatMsg: {
+    id: 'app.createBreakoutRoom.callModeratorChatMsg',
+    description: 'Chat message sent when calling moderator',
+  },
+  callModeratorSent: {
+    id: 'app.createBreakoutRoom.callModeratorSent',
+    description: 'Toast message confirming call moderator was sent',
+  },
+  callModeratorCooldown: {
+    id: 'app.createBreakoutRoom.callModeratorCooldown',
+    description: 'Toast message when call moderator is on cooldown',
+  },
+});
+
+interface ParticipantBreakoutRoomProps {
+  breakouts: BreakoutRoomType[];
+  meetingId: string;
+  presenter: boolean;
+  userJoinedAudio: boolean;
+  closePanel: () => void;
+}
+
+const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
+  breakouts,
+  meetingId,
+  presenter,
+  userJoinedAudio,
+  closePanel,
+}) => {
+  const intl = useIntl();
+  const [timeSync] = useTimeSync();
+  const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [remainingTime, setRemainingTime] = useState<number>(0);
+  const [requestedBreakoutRoomId, setRequestedBreakoutRoomId] = useState<string>('');
+
+  const [breakoutRoomTransfer] = useMutation(USER_TRANSFER_VOICE_TO_MEETING);
+  const [chatSendMessage] = useMutation(CHAT_SEND_MESSAGE);
+  const stopMediaOnMainRoom = useStopMediaOnMainRoom();
+  const [callModeratorCooldown, setCallModeratorCooldown] = useState(false);
+
+  const { data: currentUserData } = useCurrentUser((u) => ({
+    name: u.name,
+  }));
+  const userName = currentUserData?.name ?? '';
+
+  const {
+    data: meetingData,
+  } = useMeeting((m) => ({
+    breakoutRoomsCommonProperties: m.breakoutRoomsCommonProperties,
+  }));
+
+  const breakoutProps = meetingData?.breakoutRoomsCommonProperties;
+  const breakoutDurationInSeconds = breakoutProps?.durationInSeconds ?? 0;
+  const breakoutStartedAt = new Date(breakoutProps?.startedAt ?? '').getTime();
+
+  const userRoom = breakouts.find(
+    (b) => b.isLastAssignedRoom || b.isUserCurrentlyInRoom,
+  );
+
+  const getUserRoomName = () => {
+    if (!userRoom) return '';
+    if (userRoom.isDefaultName) {
+      return intl.formatMessage(intlMessages.breakoutRoom, { roomNumber: userRoom.sequence });
+    }
+    return userRoom.shortName;
+  };
+  const userRoomName = getUserRoomName();
+
+  useEffect(() => {
+    const calcRemaining = () => {
+      const now = Date.now() + timeSync;
+      const end = breakoutStartedAt + (breakoutDurationInSeconds * 1000);
+      return Math.max(0, Math.floor((end - now) / 1000));
+    };
+
+    setRemainingTime(calcRemaining());
+
+    timerIntervalRef.current = setInterval(() => {
+      setRemainingTime(calcRemaining());
+    }, 1000);
+
+    return () => {
+      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+    };
+  }, [breakoutDurationInSeconds, breakoutStartedAt, timeSync]);
+
+  useEffect(() => {
+    if (requestedBreakoutRoomId) {
+      const breakout = breakouts.find(
+        (b) => b.breakoutRoomMeetingId === requestedBreakoutRoomId,
+      );
+      if (breakout && breakout.joinURL) {
+        const win = window.open(breakout.joinURL, '_blank');
+        if (win) setBreakoutWindowRef(win);
+        setRequestedBreakoutRoomId('');
+        stopMediaOnMainRoom(presenter);
+      }
+    }
+  }, [breakouts, requestedBreakoutRoomId, stopMediaOnMainRoom, presenter]);
+
+  const hours = Math.floor(remainingTime / 3600);
+  const minutes = Math.floor((remainingTime % 3600) / 60);
+  const seconds = remainingTime % 60;
+  const padNum = (n: number) => n.toString().padStart(2, '0');
+
+  const handleCallModerator = useCallback(() => {
+    if (callModeratorCooldown) {
+      notify(
+        intl.formatMessage(intlMessages.callModeratorCooldown),
+        'warning',
+        'warning',
+      );
+      return;
+    }
+
+    let roomName = '';
+    if (userRoom) {
+      roomName = userRoom.isDefaultName
+        ? intl.formatMessage(intlMessages.breakoutRoom, { roomNumber: userRoom.sequence })
+        : userRoom.shortName;
+    }
+
+    const chatMessage = intl.formatMessage(
+      intlMessages.callModeratorChatMsg,
+      { userName, roomName },
+    );
+
+    chatSendMessage({
+      variables: {
+        chatId: 'MAIN-PUBLIC-GROUP-CHAT',
+        chatMessageInMarkdownFormat: chatMessage,
+        metadata: {
+          pluginName: 'breakoutCallModerator',
+        },
+      },
+    });
+
+    notify(
+      intl.formatMessage(intlMessages.callModeratorSent),
+      'success',
+      'user',
+    );
+
+    setCallModeratorCooldown(true);
+    setTimeout(() => setCallModeratorCooldown(false), CALL_MODERATOR_COOLDOWN_MS);
+  }, [
+    userRoom, chatSendMessage, userName, intl, callModeratorCooldown,
+  ]);
+
+  const handleReturnToMainSession = useCallback(() => {
+    closeBreakoutWindow();
+
+    if (userJoinedAudio && userRoom) {
+      breakoutRoomTransfer({
+        variables: {
+          fromMeetingId: userRoom.breakoutRoomMeetingId,
+          toMeetingId: meetingId,
+        },
+      });
+    }
+
+    rejoinAudio();
+    closePanel();
+  }, [userJoinedAudio, userRoom, meetingId, breakoutRoomTransfer, closePanel]);
+
+  const title = intl.formatMessage(intlMessages.breakoutTitle);
+  const minimizeLabel = intl.formatMessage(
+    intlMessages.genericMinimizePanel,
+    { panelName: title },
+  );
+
+  return (
+    <Styled.PanelContent>
+      <Styled.HeaderContainer
+        title={title}
+        data-test="breakoutRoomParticipantHeader"
+        rightButtonProps={{
+          'aria-label': minimizeLabel,
+          label: minimizeLabel,
+          onClick: closePanel,
+          icon: 'minus',
+        }}
+      />
+      <Styled.Separator />
+
+      <Styled.TimerSection>
+        <Styled.TimerLabel>
+          {intl.formatMessage(intlMessages.durationOfBreakout)}
+        </Styled.TimerLabel>
+        <Styled.TimerDisplay>
+          {padNum(hours)}
+          :
+          {padNum(minutes)}
+          :
+          {padNum(seconds)}
+        </Styled.TimerDisplay>
+      </Styled.TimerSection>
+
+      <Styled.Separator />
+
+      {userRoom ? (
+        <Styled.InfoCard>
+          <Styled.RoomNumberSquare>
+            {userRoom.sequence}
+          </Styled.RoomNumberSquare>
+          <Styled.InfoText>
+            {intl.formatMessage(intlMessages.youAreInRoom, { roomName: userRoomName })}
+          </Styled.InfoText>
+        </Styled.InfoCard>
+      ) : (
+        <Styled.InfoCard>
+          <Icon iconName="unassigned" />
+          <Styled.InfoText>
+            {intl.formatMessage(intlMessages.notAssignedLabel)}
+          </Styled.InfoText>
+        </Styled.InfoCard>
+      )}
+      <Styled.ContentArea />
+      <Styled.BottomBar>
+        {/* @ts-ignore */}
+        <Styled.CallModeratorBtn
+          icon="user"
+          color="primary"
+          label={intl.formatMessage(intlMessages.callModerator)}
+          onClick={handleCallModerator}
+          data-test="callModeratorButton"
+        />
+        {/* @ts-ignore */}
+        <Styled.ReturnBtn
+          label={intl.formatMessage(intlMessages.returnToMainSession)}
+          onClick={handleReturnToMainSession}
+          data-test="returnToMainSessionButton"
+          ghost
+        />
+      </Styled.BottomBar>
+    </Styled.PanelContent>
+  );
+};
+
+export default ParticipantBreakoutRoom;

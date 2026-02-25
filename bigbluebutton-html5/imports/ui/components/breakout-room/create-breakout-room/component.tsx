@@ -45,6 +45,7 @@ interface CreateBreakoutRoomContainerProps {
   priority: string,
   isUpdate?: boolean,
   setUpdateUsersWhileRunning: Dispatch<SetStateAction<boolean>>,
+  renderInSidebar?: boolean,
 }
 
 interface CreateBreakoutRoomProps extends CreateBreakoutRoomContainerProps {
@@ -61,6 +62,7 @@ interface CreateBreakoutRoomProps extends CreateBreakoutRoomContainerProps {
   durationInSeconds: number,
   createdTime: number,
   timeSync: number,
+  renderInSidebar?: boolean,
 }
 
 const intlMessages = defineMessages({
@@ -241,6 +243,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   durationInSeconds,
   createdTime,
   timeSync,
+  renderInSidebar = false,
 }) => {
   const { isMobile } = deviceInfo;
   const intl = useIntl();
@@ -632,21 +635,8 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
     checkboxesInfo, roomsRef.current,
   ]);
 
-  return (
-    <Styled.Modal
-      title={isUpdate
-        ? intl.formatMessage(intlMessages.updateTitle)
-        : intl.formatMessage(intlMessages.breakoutRoomTitle)}
-      isOpen={isOpen}
-      priority={priority}
-      onRequestClose={() => {
-        if (isUpdate) {
-          setUpdateUsersWhileRunning(false);
-        } else {
-          setIsOpen(false);
-        }
-      }}
-    >
+  const innerContent = (
+    <>
       <Styled.PanelSeparator />
       <Styled.ModalContentWrapper>
         <Styled.Content id="scroll-box">
@@ -702,6 +692,44 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
           </Styled.FooterButton>
         </Styled.ActionButtonContainer>
       </Styled.ModalContentWrapper>
+    </>
+  );
+
+  if (renderInSidebar) {
+    return (
+      <Styled.SidebarPanelContent>
+        <Styled.SidebarHeaderContainer
+          title={isUpdate
+            ? intl.formatMessage(intlMessages.updateTitle)
+            : intl.formatMessage(intlMessages.breakoutRoomTitle)}
+          rightButtonProps={{
+            'aria-label': intl.formatMessage(intlMessages.dismissLabel),
+            label: intl.formatMessage(intlMessages.dismissLabel),
+            onClick: () => setIsOpen(false),
+            icon: 'minus',
+          }}
+        />
+        {innerContent}
+      </Styled.SidebarPanelContent>
+    );
+  }
+
+  return (
+    <Styled.Modal
+      title={isUpdate
+        ? intl.formatMessage(intlMessages.updateTitle)
+        : intl.formatMessage(intlMessages.breakoutRoomTitle)}
+      isOpen={isOpen}
+      priority={priority}
+      onRequestClose={() => {
+        if (isUpdate) {
+          setUpdateUsersWhileRunning(false);
+        } else {
+          setIsOpen(false);
+        }
+      }}
+    >
+      {innerContent}
     </Styled.Modal>
   );
 };
@@ -712,6 +740,7 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
   setIsOpen,
   priority,
   setUpdateUsersWhileRunning = () => { },
+  renderInSidebar = false,
 }) => {
   const intl = useIntl();
   const [fetchedBreakouts, setFetchedBreakouts] = React.useState(false);
@@ -804,6 +833,7 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
       durationInSeconds={currentMeeting?.durationInSeconds ?? 0}
       createdTime={currentMeeting?.createdTime ?? 0}
       timeSync={timeSync}
+      renderInSidebar={renderInSidebar}
     />
   );
 };
