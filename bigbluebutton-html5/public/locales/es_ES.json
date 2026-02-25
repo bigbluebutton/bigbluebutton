@@ -729,7 +729,7 @@
     "app.settings.shortcutsTab.label": "Atajos de teclado",
     "app.settings.save-notification.label": "Las configuraciones han sido guardadas",
     "app.settings.unsavedChanges.message": "Tienes cambios sin guardar.",
-    "app.settings.unsavedChanges.ignoreMessage": "If you ignore the changes they will not be applied.",
+    "app.settings.unsavedChanges.ignoreMessage": "Si ignoras los cambios, estos no se aplicarán.",
     "app.settings.unsavedChanges.ignoreButtonLabel": "Ignore changes",
     "app.statusNotifier.lowerHands": "Bajar manos",
     "app.statusNotifier.lowerHandDescOneUser": "Bajar la mano de {userName}",
