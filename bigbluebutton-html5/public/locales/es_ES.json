@@ -734,7 +734,7 @@
     "app.statusNotifier.lowerHands": "Bajar manos",
     "app.statusNotifier.lowerHandDescOneUser": "Bajar la mano de {userName}",
     "app.statusNotifier.raisedHandsTitle": "Manos levantadas",
-    "app.statusNotifier.raisedHandsTitleNotifier": "Raised Hands",
+    "app.statusNotifier.raisedHandsTitleNotifier": "Manos levantadas",
     "app.statusNotifier.raisedHandDesc": "{userNames} levantaron la mano",
     "app.statusNotifier.raisedHandDescOneUser": "{userNames} con la mano levantada",
     "app.statusNotifier.and": "y",
