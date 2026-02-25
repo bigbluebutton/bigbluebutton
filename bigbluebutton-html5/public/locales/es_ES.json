@@ -1653,7 +1653,7 @@
     "app.learningDashboard.quizzes.quizScore": "Puntuación del cuestionario",
     "app.learningDashboard.quizzes.chartTitle": "Rendimiento en los cuestionarios vs nivel de actividad",
     "app.learningDashboard.quizzes.lockedIndicator": "Respuesta correcta no revelada",
-    "app.learningDashboard.quizzes.unknownIndicator": "Results not published yet",
+    "app.learningDashboard.quizzes.unknownIndicator": "Resultados aún no publicados",
     "app.learningDashboard.quizzes.successIndicator": "Correct answer",
     "app.learningDashboard.quizzes.errorIndicator": "Incorrect answer",
     "app.learningDashboard.quizzes.waitingResponse": "Waiting user response",
