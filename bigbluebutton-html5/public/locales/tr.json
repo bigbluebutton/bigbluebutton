@@ -2,7 +2,7 @@
     "app.home.greeting": "Sunumunuz birazdan başlayacak...",
     "app.sidebarContent.minimizePanelLabel": "{panelName} küçült",
     "app.chat.submitLabel": "İleti gönder",
-    "app.chat.errorMaxMessageLength": "İleti çok uzun. En fazla {maxMessageLength} karakter olabilir",
+    "app.chat.errorMaxMessageLength": "İleti en fazla {maxMessageLength} karakter uzunluğunda olabilir",
     "app.chat.errorMinMessageLength": "İleti çok kısa. En az {minMessageLength} karakter olabilir",
     "app.chat.errorOnSendMessage": "Sohbet iletisi gönderilirken sorun çıktı",
     "app.chat.errorOnUpdateMessage": "Sohbet iletisi güncellenirken sorun çıktı",
