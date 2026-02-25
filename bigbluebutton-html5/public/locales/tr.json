@@ -215,7 +215,7 @@
     "app.userList.userOptions.usersJoinMutedDisableLabel": "Kullanıcılar katılırken sesleri kapatılmasın",
     "app.userList.userOptions.usersJoinMutedDisableDesc": "Kullanıcılar katılırken sesleri varsayılan olarak kapatılmıyor",
     "app.userList.userOptions.clearAllReactionsLabel": "Tüm tepkileri temizle",
-    "app.userList.userOptions.clearAllReactionsDesc": "Kullanıcıların tüm emoji simgelerini temizler",
+    "app.userList.userOptions.clearAllReactionsDesc": "Kullanıcıların tüm tepki emojilerini temizler",
     "app.userList.userOptions.clearedReactions": "Tüm kullanıcı tepkileri temizlendi",
     "app.userList.userOptions.muteAllExceptPresenterLabel": "Sunucu dışındaki tüm kullanıcıların sesini kapat",
     "app.userList.userOptions.muteAllExceptPresenterDesc": "Oturumda sunum yapan kişi dışındaki tüm kullanıcıların sesini kapatır",
