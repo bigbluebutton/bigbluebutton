@@ -1657,7 +1657,7 @@
     "app.learningDashboard.quizzes.successIndicator": "Respuesta correcta",
     "app.learningDashboard.quizzes.errorIndicator": "Respuesta incorrecta",
     "app.learningDashboard.quizzes.waitingResponse": "Esperando respuesta del usuario",
-    "app.learningDashboard.indicators.quizzes": "Quizzes",
+    "app.learningDashboard.indicators.quizzes": "Cuestionarios",
     "app.learningDashboard.pluginsTable.totalLabel": "Total",
     "app.learningDashboard.pluginsTable.userLabel": "Usuario/a",
     "app.learningDashboard.statusTimelineTable.title": "Cronología",
