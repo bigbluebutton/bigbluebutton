@@ -487,7 +487,7 @@
     "app.poll.quiz.options.title": "Opciones del cuestionario",
     "app.poll.quiz.options.tooltip": "Marcar como respuesta correcta",
     "app.poll.quiz.options.correct": "Respuesta correcta",
-    "app.poll.quiz.options.incorrect": "Incorrect Answer",
+    "app.poll.quiz.options.incorrect": "Respuesta incorrecta",
     "app.poll.quiz.liveResult.title.correct": "Correct",
     "app.poll.quiz.options.responseNotSecret": "Quiz – the presenter can see your answer.",
     "app.poll.tabSelector.ariaLabel": "Quiz and Poll Tab Selector",
