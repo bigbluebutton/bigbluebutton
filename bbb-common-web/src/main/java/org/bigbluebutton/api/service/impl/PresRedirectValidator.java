@@ -56,7 +56,7 @@ public class PresRedirectValidator implements RedirectValidator {
                     return false;
                 }
 
-                if (redirectUrl.equalsIgnoreCase(defaultUploadedPresentation)) {
+                if (redirectUrl.equals(defaultUploadedPresentation)) {
                     return true;
                 }
 
@@ -64,24 +64,31 @@ public class PresRedirectValidator implements RedirectValidator {
                     return true;
                 }
 
-                if (address.isAnyLocalAddress()) {
-                    log.error("Address [{}] is a local address", address.getHostAddress());
-                    return false;
-                }
+                if (address instanceof Inet6Address inet6) {
+                    if (isNotGlobalUnicastIPv6(inet6)) {
+                        log.error("Address [{}] is not a globally routable IPv6 address", address.getHostAddress());
+                        return false;
+                    }
+                } else {
+                    if (address.isAnyLocalAddress()) {
+                        log.error("Address [{}] is a local address", address.getHostAddress());
+                        return false;
+                    }
 
-                if (address.isLoopbackAddress()) {
-                    log.error("Address [{}] is a loopback address", address.getHostAddress());
-                    return false;
-                }
+                    if (address.isLoopbackAddress()) {
+                        log.error("Address [{}] is a loopback address", address.getHostAddress());
+                        return false;
+                    }
 
-                if (address.isSiteLocalAddress()) {
-                    log.error("Address [{}] is a private/site-local address", address.getHostAddress());
-                    return false;
-                }
+                    if (address.isSiteLocalAddress()) {
+                        log.error("Address [{}] is a private/site-local address", address.getHostAddress());
+                        return false;
+                    }
 
-                if (address.isLinkLocalAddress()) {
-                    log.error("Address [{}] is a link local address", address.getHostAddress());
-                    return false;
+                    if (address.isLinkLocalAddress()) {
+                        log.error("Address [{}] is a link local address", address.getHostAddress());
+                        return false;
+                    }
                 }
             }
         } catch(UnknownHostException e) {
@@ -141,7 +148,7 @@ public class PresRedirectValidator implements RedirectValidator {
 
         InetAddressValidator validator = InetAddressValidator.getInstance();
         boolean localhostBlocked = insertDocumentBlockedHosts.stream().anyMatch(h -> h.equalsIgnoreCase("localhost"));
-        boolean isDefaultPresentation = redirectUrl.equalsIgnoreCase(defaultUploadedPresentation);
+        boolean isDefaultPresentation = redirectUrl.equals(defaultUploadedPresentation);
         boolean isAllowedLocalHost = insertDocumentAllowedLocalHosts.stream().anyMatch(h -> h.equalsIgnoreCase(host));
 
         // Validate all resolved addresses
@@ -156,29 +163,29 @@ public class PresRedirectValidator implements RedirectValidator {
                 continue;
             }
 
-            if (address.isAnyLocalAddress()) {
-                log.error("Address [{}] is a local address", address.getHostAddress());
-                return null;
-            }
+            if (address instanceof Inet6Address inet6) {
+                if (isNotGlobalUnicastIPv6(inet6)) {
+                    log.error("Address [{}] is not a globally routable IPv6 address", address.getHostAddress());
+                    return null;
+                }
+            } else {
+                if (address.isAnyLocalAddress()) {
+                    log.error("Address [{}] is a local address", address.getHostAddress());
+                    return null;
+                }
 
-            if (address.isLoopbackAddress()) {
-                log.error("Address [{}] is a loopback address", address.getHostAddress());
-                return null;
-            }
+                if (address.isLoopbackAddress()) {
+                    log.error("Address [{}] is a loopback address", address.getHostAddress());
+                    return null;
+                }
 
-            if (address.isSiteLocalAddress()) {
-                log.error("Address [{}] is a private/site-local address", address.getHostAddress());
-                return null;
-            }
+                if (address.isSiteLocalAddress()) {
+                    log.error("Address [{}] is a private/site-local address", address.getHostAddress());
+                    return null;
+                }
 
-            if (address.isLinkLocalAddress()) {
-                log.error("Address [{}] is a link local address", address.getHostAddress());
-                return null;
-            }
-
-            if (address instanceof Inet6Address) {
-                if (isUniqueLocalAddress(address)) {
-                    log.error("Address [{}] is a private IPv6 ULA", address.getHostAddress());
+                if (address.isLinkLocalAddress()) {
+                    log.error("Address [{}] is a link local address", address.getHostAddress());
                     return null;
                 }
             }
@@ -207,11 +214,11 @@ public class PresRedirectValidator implements RedirectValidator {
         this.defaultUploadedPresentation = defaultUploadedPresentation;
     }
 
-    private boolean isUniqueLocalAddress(InetAddress address) {
-        if (!(address instanceof Inet6Address)) {
-            return false;
-        }
+    private boolean isNotGlobalUnicastIPv6(Inet6Address address) {
         byte[] bytes = address.getAddress();
-        return (bytes[0] & 0xFE) == 0xFC;
+        // Global unicast is 2000::/3 — first 3 bits must be 001
+        if ((bytes[0] & 0xE0) != 0x20) return true;
+        // 6to4 (2002::/16) embeds arbitrary IPv4 in bytes 2-3; block it explicitly
+        return bytes[0] == 0x20 && bytes[1] == 0x02;
     }
 }
