@@ -1468,7 +1468,7 @@
     "app.createBreakoutRoom.sendInvitationToMods": "Enviar invitación a moderadores asignados",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Debe colocar al menos un usuario en la sala externa",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "La duración mínima para una sala de un grupo de trabajo es de {timeInMinutes} minutos.",
-    "app.createBreakoutRoom.timeCannotExceedMainRoom": "The breakout room duration cannot exceed the session remaining time.",
+    "app.createBreakoutRoom.timeCannotExceedMainRoom": "La duración de la sala de grupo no puede exceder el tiempo restante de la sesión.",
     "app.createBreakoutRoom.modalDesc": "Sugerencia: puede arrastrar y soltar el nombre de un usuario para asignarlo a una sala externa específica.",
     "app.createBreakoutRoom.numberOfRoomsError": "El número de salas es inválido",
     "app.createBreakoutRoom.duplicatedRoomNameError": "El nombre de la sala no puede estar duplicado",
