@@ -852,7 +852,7 @@
     "app.audioModal.help.unknownError": "Tarayıcı ve sistem ayarlarını gözden geçirin. Tarayıcınızı kapatıp açın ve yeniden deneyin.",
     "app.audioModal.help.errorCode": "Hata kodu: {code} - {message}",
     "app.audioModal.help.noSSL": "Bu sayfa güvenli bağlantı kullanmıyor. Mikrofona erişime izni verilebilmesi için sayfa bağlantısı HTTPS ile kurulmalıdır. Lütfen sunucu yöneticisi ile görüşün.",
-    "app.audioModal.help.macNotAllowed": "Mac sistem ayarlarınız mikrofonunuza erişilmesini engelliyor gibi görünüyor. Sistem Ayarları > ​​Güvenlik ve Gizlilik > Gizlilik > Mikrofon bölümünü açın ve kullandığınız tarayıcının işaretlenmiş olduğunu doğrulayın.",
+    "app.audioModal.help.macNotAllowed": "Mac sistem ayarlarınız mikrofonunuza erişilmesini engelliyor gibi görünüyor. Sistem Ayarları > Gizlilik ve Güvenlik > Mikrofon bölümünü açın ve kullandığınız tarayıcının işaretlenmiş olduğunu doğrulayın.",
     "app.audioModal.audioDialTitle": "Telefonunuz ile katılın",
     "app.audioDial.audioDialDescription": "Ara",
     "app.audioDial.audioDialConfrenceText": "ve konferansa katılmak için PIN numarasını yazın:",
