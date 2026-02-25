@@ -746,7 +746,7 @@
     "app.talkingIndicator.moreThanMaxIndicatorsWereTalking": "{userCount}+ estaban hablando",
     "app.talkingIndicator.wasTalking": "{userName} dejaron de hablar",
     "app.mediaSharing.modal.title": "Compartir contenidos multimedia",
-    "app.mediaSharing.modal.slides": "Slides",
+    "app.mediaSharing.modal.slides": "Diapositivas",
     "app.mediaSharing.modal.videoLink": "Play video from link",
     "app.mediaSharing.modal.mustBePresenter": "You must be a presenter to share content.",
     "app.mediaSharing.modal.share": "Share",
