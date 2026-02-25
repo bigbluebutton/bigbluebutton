@@ -1094,7 +1094,7 @@
     "app.toast.usersJoinMutedOn.label": "Kullanıcılar katılırken sesleri kapatılsın",
     "app.toast.usersJoinMutedOff.label": "Kullanıcılar katılırken sesleri kapatılmasın",
     "app.toast.muteAllViewers.label": "Tüm izleyicilerin sesi kapatıldı",
-    "app.toast.wakeLock.acquireSuccess": "Uyandurma kilidi açık! Ayarlar menüsünden kapatabilirsiniz.",
+    "app.toast.wakeLock.acquireSuccess": "Uyandırma kilidi açık! Ayarlar menüsünden kapatabilirsiniz.",
     "app.toast.wakeLock.acquireFailed": "Uyandırma kilidi açılırken sorun çıktı.",
     "app.toast.wakeLock.notSupported": "Tarayıcınız uyandırma kilitlerini desteklemiyor",
     "app.toast.wakeLock.disclaimer": "{error}. Ekranınız kapandığında çağrıdan ayrılacaksınız.",
