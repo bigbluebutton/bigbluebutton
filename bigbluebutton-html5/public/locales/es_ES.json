@@ -547,7 +547,7 @@
     "app.sidebarNavigation.toggle.btnLabel": "Barra lateral de navegación",
     "app.sidebarNavigation.toggle.ariaLabel": "Barra lateral de navegación",
     "app.sidebarNavigation.toggle.newMessages": "con nueva notificación de mensaje ",
-    "app.sidebarNavigation.toggle.newMsgAria": "New message notification",
+    "app.sidebarNavigation.toggle.newMsgAria": "Notificación de nuevo mensaje",
     "app.navBar.userListToggleBtnLabel": "Alternar lista de usuarios",
     "app.navBar.toggleUserList.ariaLabel": "Alternar usuarios y mensajes",
     "app.navBar.toggleUserList.newMessages": "con nueva notificación de mensaje ",
