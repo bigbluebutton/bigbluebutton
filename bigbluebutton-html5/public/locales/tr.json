@@ -887,7 +887,7 @@
     "app.audio.noDeviceFound": "Herhangi bir aygıt bulunamadı (yalnızca dinleme)",
     "app.audio.audioSettings.titleLabel": "Ses ayarlarınız",
     "app.audio.audioSettings.baseSubtitle": "İnce ayarları yapmak için, konuşarak giriş ve çıkış aygıtlarınızın nasıl çalıştığını kontrol edin.",
-    "app.audio.audioSettings.findingDevicesTitle": "Ses aygıtları aranıyor. Onları kullanabilmek için lütfen izin isteklerini kabul edin",
+    "app.audio.audioSettings.findingDevicesTitle": "Ses aygıtları aranıyor. Onları kullanabilmek için lütfen erişme izni isteklerini kabul edin",
     "app.audio.audioSettings.noMicSelectedWarning": "Bir mikrofon seçilmemiş. Dinleyebilirsiniz ancak konuşamazsınız.",
     "app.audio.audioSettings.noMicListenOnly": "Mikrofon yok (yalnızca dinleme)",
     "app.audio.audioSettings.microphoneSourceLabel": "Mikrofon",
