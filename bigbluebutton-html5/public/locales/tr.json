@@ -236,7 +236,7 @@
     "app.userList.userOptions.enablePubChat": "Herkese açık sohbet açık",
     "app.userList.userOptions.enableNotes": "Paylaşılmış notlar etkinleştirildi",
     "app.userList.userOptions.showUserList": "Kullanıcı listesi izleyicilere gösteriliyor",
-    "app.userList.userOptions.enableOnlyModeratorWebcam": "Kameranı şimdi açabilirsin, herkes seni görecek",
+    "app.userList.userOptions.enableOnlyModeratorWebcam": "Kameranızı şimdi açabilirsiniz, herkes sizi görecek",
     "app.userList.userOptions.savedNames.title": "{dateAndTime} - {meetingName} oturumundaki kullanıcıların listesi",
     "app.userList.userOptions.sortedFirstName.heading": "Ada göre sıralı:",
     "app.userList.userOptions.sortedLastName.heading": "Soyada göre sıralı:",
