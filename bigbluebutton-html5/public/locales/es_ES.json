@@ -1343,7 +1343,7 @@
     "app.video.meetingCamCapReached": "La sesión ha alcanzado su límite de cámaras simultáneas",
     "app.video.dropZoneLabel": "Soltar aquí",
     "app.video.cameraAriaLabel": "Cámaras",
-    "app.video.overflowUsers": "+{overflowCount} users",
+    "app.video.overflowUsers": "+{overflowCount} usuarios",
     "app.fullscreenButton.label": "Hacer {elementName} pantalla completa",
     "app.fullscreenUndoButton.label": "Deshacer {elementName} en pantalla completa",
     "app.switchButton.expandLabel": "Expandir pantalla compartida de vídeo",
