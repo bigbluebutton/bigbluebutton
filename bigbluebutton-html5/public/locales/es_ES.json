@@ -541,7 +541,7 @@
     "app.navBar.optionsDropdown.endMeetingDesc": "Finalizar la sesión actual",
     "app.navBar.optionsDropdown.endMeetingLabel": "Finalizar sesión",
     "app.navBar.optionsDropdown.returnToMainRoomLabel": "Volver a la sala principal",
-    "app.navBar.optionsDropdown.returnToMainRoomDesc": "Returns to the main room session",
+    "app.navBar.optionsDropdown.returnToMainRoomDesc": "Vuelve a la sesión de la sala principal.",
     "app.navBar.optionsDropdown.endMeetingForAllLabel": "Finalizar sesión para todos",
     "app.navBar.optionsDropdown.presenceLabel": "Soy",
     "app.sidebarNavigation.toggle.btnLabel": "Navigation sidebar toggle",
