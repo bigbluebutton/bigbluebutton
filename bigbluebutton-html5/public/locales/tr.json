@@ -1504,7 +1504,7 @@
     "app.externalVideo.subtitlesOff": "Aç (olabiliyorsa)",
     "app.externalVideo.stopShareExternalVideo": "Dış görüntü paylaşımını durdur",
     "app.actionsBar.actionsDropdown.shareExternalVideo": "Bir dış görüntüyü paylaş",
-    "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Dışarından görüntü paylaşımını durdur",
+    "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Dış görüntü paylaşımını durdur",
     "app.legacy.unsupportedBrowser": "Desteklenmeyen bir tarayıcı kullanıyorsunuz. Lütfen tam destek almak için daha yeni bir {supportedBrowser1} ya da {supportedBrowser2} sürümü kullanın.",
     "app.legacy.upgradeBrowser": "Desteklenen bir tarayıcının eski bir sürümünü kullanıyor gibi görünüyorsunuz. Lütfen tam destek almak için tarayıcınızı daha yeni bir sürüme güncelleyin.",
     "app.legacy.criosBrowser": "Lütfen iOS üzerinde tam destek almak için daha yeni bir Safari sürümü kullanın.",
