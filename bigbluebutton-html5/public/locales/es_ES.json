@@ -1656,7 +1656,7 @@
     "app.learningDashboard.quizzes.unknownIndicator": "Resultados aún no publicados",
     "app.learningDashboard.quizzes.successIndicator": "Respuesta correcta",
     "app.learningDashboard.quizzes.errorIndicator": "Respuesta incorrecta",
-    "app.learningDashboard.quizzes.waitingResponse": "Waiting user response",
+    "app.learningDashboard.quizzes.waitingResponse": "Esperando respuesta del usuario",
     "app.learningDashboard.indicators.quizzes": "Quizzes",
     "app.learningDashboard.pluginsTable.totalLabel": "Total",
     "app.learningDashboard.pluginsTable.userLabel": "Usuario/a",
