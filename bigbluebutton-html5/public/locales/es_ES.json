@@ -747,7 +747,7 @@
     "app.talkingIndicator.wasTalking": "{userName} dejaron de hablar",
     "app.mediaSharing.modal.title": "Compartir contenidos multimedia",
     "app.mediaSharing.modal.slides": "Diapositivas",
-    "app.mediaSharing.modal.videoLink": "Play video from link",
+    "app.mediaSharing.modal.videoLink": "Reproducir vídeo desde el enlace",
     "app.mediaSharing.modal.mustBePresenter": "You must be a presenter to share content.",
     "app.mediaSharing.modal.share": "Share",
     "app.mediaSharing.modal.stopSharing": "Stop Sharing",
