@@ -826,7 +826,7 @@
     "app.audioModal.listenOnlyLabel": "Yalnızca dinleme",
     "app.audioModal.microphoneDesc": "Sesli konferansa mikrofon ile katılır ",
     "app.audioModal.listenOnlyDesc": "Sesli konferansa yalnızca dinleyici olarak katılır",
-    "app.audioModal.audioChoiceLabel": "Sesli toplantıya nasıl katılımak istersiniz?",
+    "app.audioModal.audioChoiceLabel": "Sese nasıl katılmak istersiniz?",
     "app.audioModal.iOSBrowser": "Ses/görüntü desteklenmiyor",
     "app.audioModal.iOSErrorDescription": "Şu anda iOS için Chrome üzerinde ses ve görüntü desteklenmiyor.",
     "app.audioModal.iOSErrorRecommendation": "iOS için Safari kullanmanız önerilir.",
