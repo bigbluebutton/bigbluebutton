@@ -513,7 +513,7 @@
     "app.unmute.modal.subtitle": "Por favor, activa el micrófono.",
     "app.unmute.modal.confirm.label": "Activar sonido",
     "app.unmute.modal.deny.label": "Silenciado",
-    "app.requestPresenter.notification.title": "Make Presenter",
+    "app.requestPresenter.notification.title": "Hacer presentador",
     "app.requestPresenter.notification.description": "{userName} is asking to present in the session.",
     "app.requestPresenter.notification.confirm.label": "Allow",
     "app.requestPresenter.notification.deny.label": "Cancel",
