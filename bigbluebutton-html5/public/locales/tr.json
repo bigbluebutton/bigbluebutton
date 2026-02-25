@@ -10,7 +10,7 @@
     "app.chat.locked": "Sohbet kilitli, ileti gönderilemez",
     "app.chat.inputLabel": "{chatName} sohbeti için ileti girişi",
     "app.chat.emojiButtonLabel": "Emoji seçici",
-    "app.chat.loadMoreButtonLabel": "Daha Fazla",
+    "app.chat.loadMoreButtonLabel": "Diğerlerini yükle",
     "app.chat.inputPlaceholder": "{chatName} iletisi",
     "app.chat.titlePublic": "Herkese açık sohbet",
     "app.chat.titlePrivate": "{0} ile özel sohbet",
