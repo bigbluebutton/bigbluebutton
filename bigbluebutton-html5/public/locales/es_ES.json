@@ -511,7 +511,7 @@
     "app.muteWarning.tooltip": "Haga clic para cerrar y deshabilitar la advertencia hasta la próxima activación del sonido",
     "app.unmute.modal.title": "Un moderador te está pidiendo que actives el micrófono.",
     "app.unmute.modal.subtitle": "Por favor, activa el micrófono.",
-    "app.unmute.modal.confirm.label": "Unmute",
+    "app.unmute.modal.confirm.label": "Activar sonido",
     "app.unmute.modal.deny.label": "Stay Muted",
     "app.requestPresenter.notification.title": "Make Presenter",
     "app.requestPresenter.notification.description": "{userName} is asking to present in the session.",
