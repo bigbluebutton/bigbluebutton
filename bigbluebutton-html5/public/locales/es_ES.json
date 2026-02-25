@@ -920,7 +920,7 @@
     "app.audio.captions.speech.title": "Transcripción automática",
     "app.audio.captions.speech.tip": "Para que otros usuarios puedan ver tus subtítulos, debes habilitar la transcripción.",
     "app.audio.captions.speech.captions": "Subtítulos",
-    "app.audio.captions.speech.captionsToggleTooltip": "Caption language tracks become available as users enable their transcription.",
+    "app.audio.captions.speech.captionsToggleTooltip": "Las pistas de idioma de los subtítulos estarán disponibles cuando los usuarios habiliten la transcripción.",
     "app.audio.captions.speech.noAvailableCaptions": "No captions available. Language tracks become available as users enable transcription.",
     "app.audio.captions.speech.transcriptionDescription": "Para que otros usuarios puedan ver tus subtítulos, debes habilitar la transcripción.",
     "app.audio.captions.speech.disabled": "Desactivado",
