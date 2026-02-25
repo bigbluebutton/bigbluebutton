@@ -372,7 +372,7 @@
     "app.presentationUploder.externalUploadLabel": "Dosyalara göz at",
     "app.presentationUploder.fileToUpload": "Yüklenecek...",
     "app.presentationUploder.currentBadge": "Geçerli",
-    "app.presentationUploder.rejectedError": "Seçilmiş dosya(lar) reddedildi. Lütfen dosya türlerini denetleyin.",
+    "app.presentationUploder.rejectedError": "Seçilmiş dosyalar reddedildi. Lütfen dosya türlerini denetleyin.",
     "app.presentationUploder.connectionClosedError": "Kötü bağlantı nedeniyle kesintiye uğradı. Lütfen yeniden deneyin.",
     "app.presentationUploder.upload.progress": "Yükleniyor (%{progress})",
     "app.presentationUploder.conversion.204": "Görüntüsü yakalanacak bir içerik bulunamadı",
