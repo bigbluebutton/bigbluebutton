@@ -1479,7 +1479,7 @@
     "app.createBreakoutRoom.setTimeHigherThanMeetingTimeError": "La duración de las salas de grupo no puede superar el tiempo restante de la sesión.",
     "app.createBreakoutRoom.roomNameInputDesc": "Actualiza el nombre de la sala de los grupos de trabajo",
     "app.createBreakoutRoom.currentSlideLabel": "Diapositiva actual",
-    "app.createBreakoutRoom.inProgressLabel": "Breakout Rooms in progress",
+    "app.createBreakoutRoom.inProgressLabel": "Salas externas en curso",
     "app.createBreakoutRoom.notAssignedLabel": "You are not part of a Breakout Room",
     "app.createBreakoutRoom.notAssignedHelp": "Ask the session moderator to add you to a Breakout Room",
     "app.updateBreakoutRoom.modalDesc": "Para actualizar o invitar a un/a usuario/a, simplemente arrástrelo/a a la sala deseada.",
