@@ -1651,7 +1651,7 @@
     "app.learningDashboard.quizzes.incorrect": "Incorrecto",
     "app.learningDashboard.quizzes.activityLevel": "Nivel de actividad",
     "app.learningDashboard.quizzes.quizScore": "Puntuación del cuestionario",
-    "app.learningDashboard.quizzes.chartTitle": "Quiz Performance vs Activity Level",
+    "app.learningDashboard.quizzes.chartTitle": "Rendimiento en los cuestionarios vs al nivel de actividad",
     "app.learningDashboard.quizzes.lockedIndicator": "Correct answer not revealed",
     "app.learningDashboard.quizzes.unknownIndicator": "Results not published yet",
     "app.learningDashboard.quizzes.successIndicator": "Correct answer",
