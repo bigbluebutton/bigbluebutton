@@ -1643,7 +1643,7 @@
     "app.learningDashboard.quizzes.noQuizzesCreatedHeading": "No se han creado cuestionarios",
     "app.learningDashboard.quizzes.noQuizzesCreatedMessage": "Una vez que se ha enviado un cuestionario a los usuarios, sus resultados aparecerán en esta lista.",
     "app.learningDashboard.quizzes.userLabel": "Usuario/a",
-    "app.learningDashboard.quizzes.numberOfResponses": "Number of responses",
+    "app.learningDashboard.quizzes.numberOfResponses": "Número de respuestas",
     "app.learningDashboard.quizzes.anonymousRowName": "Anonymous",
     "app.learningDashboard.quizzes.anonymousAnswer": "Anonymous Quiz (answers in the last row)",
     "app.learningDashboard.quizzes.noResponse": "No response",
