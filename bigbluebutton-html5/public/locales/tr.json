@@ -1351,7 +1351,7 @@
     "app.sfu.mediaServerConnectionError2000": "Ortam sunucusu ile bağlantı kurulamadı (hata 2000)",
     "app.sfu.mediaServerOffline2001": "Ortam sunucusu çevrim dışı. Lütfen bir süre sonra yeniden deneyin (hata 2001)",
     "app.sfu.mediaServerNoResources2002": "Ortam sunucunda kullanılabilecek kaynak yok (hata 2002)",
-    "app.sfu.mediaServerRequestTimeout2003": "Ortam sunucu istekleri zaman aşımına uğradı (hata 2003)",
+    "app.sfu.mediaServerRequestTimeout2003": "Ortam sunucusu istekleri zaman aşımına uğradı (hata 2003)",
     "app.sfu.serverIceGatheringFailed2021": "Ortam sunucusu bağlantı adaylarını alamadı (ICE hatası 2021)",
     "app.sfu.serverIceGatheringFailed2022": "Ortam sunucusu bağlantısı kurulamadı (ICE hatası 2022)",
     "app.sfu.mediaGenericError2200": "Ortam sunucusu isteği işleyemedi (ICE hatası 2200)",
