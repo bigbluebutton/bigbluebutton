@@ -779,7 +779,7 @@
     "app.actionsBar.actionsDropdown.requestPresenter": "Solicitar presentador",
     "app.actionsBar.actionsDropdown.requestPresenterDesc": "Solicita ser el nuevo presentador",
     "app.actionsBar.actionsDropdown.waitingForModerator": "Esperando la respuesta del moderador...",
-    "app.actionsBar.actionsDropdown.waitingForModeratorDesc": "Waiting for a moderator to approve your request.",
+    "app.actionsBar.actionsDropdown.waitingForModeratorDesc": "Esperando a que un moderador apruebe tu solicitud.",
     "app.actionsBar.reactions.reactionsButtonLabel": "Compartir una reacción",
     "app.actionsBar.reactions.removeReactionLabel": "Remove reaction",
     "app.actionsBar.reactions.raiseHand": "Levantar su mano",
