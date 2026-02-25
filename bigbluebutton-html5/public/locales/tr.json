@@ -3,7 +3,7 @@
     "app.sidebarContent.minimizePanelLabel": "{panelName} küçült",
     "app.chat.submitLabel": "İleti gönder",
     "app.chat.errorMaxMessageLength": "İleti en fazla {maxMessageLength} karakter uzunluğunda olabilir",
-    "app.chat.errorMinMessageLength": "İleti çok kısa. En az {minMessageLength} karakter olabilir",
+    "app.chat.errorMinMessageLength": "İleti en az {minMessageLength} karakter uzunluğunda olabilir",
     "app.chat.errorOnSendMessage": "Sohbet iletisi gönderilirken sorun çıktı",
     "app.chat.errorOnUpdateMessage": "Sohbet iletisi güncellenirken sorun çıktı",
     "app.chat.disconnected": "Bağlantınız kesildi, iletiler gönderilemedi",
