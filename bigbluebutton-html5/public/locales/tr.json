@@ -1293,7 +1293,7 @@
     "app.video.advancedVideo": "Gelişmiş ayarları aç",
     "app.video.iceCandidateError": "ICE adayı eklenirken sorun çıktı",
     "app.video.iceConnectionStateError": "Bağlantı kurulamadı (ICE 1107 hatası)",
-    "app.video.permissionError": "Kamera paylaşılırken sorun çıktı. Lütfen izinleri denetleyin",
+    "app.video.permissionError": "Kamera paylaşılırken sorun çıktı. Lütfen erişim izinlerini denetleyin",
     "app.video.sharingError": "Kamera paylaşılırken sorun çıktı",
     "app.video.abortError": "Kameranız bilinmeyen bir sorun nedeniyle kullanılamıyor",
     "app.video.overconstrainedError": "Kameranız bu kalite profilini desteklemiyor",
