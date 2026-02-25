@@ -1420,7 +1420,7 @@
     "app.videoDock.webcamDisableLabelAllCams": "Kendini görmeyi kapat (tüm kameralar)",
     "app.videoDock.webcamEnableLabel": "Kendini görmeyi aç",
     "app.videoDock.webcamDisableDesc": "Kendini görme kapalı",
-    "app.videoDock.webcamDisableWarning": "Diğer kişiler hala kamera görüntünüzü görüyor. Yalnızca yerel görünümünüz kapatıldı.",
+    "app.videoDock.webcamDisableWarning": "Diğer kişiler hala kamera görüntünüzü görebiliyor. Yalnızca yerel görünümünüz kapatıldı.",
     "app.videoDock.webcamPinLabel": "Sabitle",
     "app.videoDock.webcamPinDesc": "Seçilmiş kamera görüntüsünü sabitler",
     "app.videoDock.webcamFullscreenLabel": "Kamerayı tam ekran görüntüle",
