@@ -1020,7 +1020,7 @@
     "app.dropdown.close": "Kapat",
     "app.dropdown.list.item.activeLabel": "Etkin",
     "app.error.400": "İstek hatalı",
-    "app.error.401": "Yetkisiz",
+    "app.error.401": "İzin verilmemiş",
     "app.error.403": "Oturumdan çıkarıldınız",
     "app.error.404": "Bulunamadı",
     "app.error.408": "Kimlik doğrulanamadı",
