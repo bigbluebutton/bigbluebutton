@@ -998,7 +998,7 @@
     "app.error.removed": "Konferanstan çıkarıldınız",
     "app.error.meeting.ended": "Konferanstan ayrıldınız",
     "app.meeting.logout.duplicateUserEjectReason": "Aynı kullanıcı oturuma ikinci kez katılmaya çalışıyor",
-    "app.meeting.logout.permissionEjectReason": "İzin ihlali nedeniyle çıkarıldı",
+    "app.meeting.logout.permissionEjectReason": "İzine aykırı davranış nedeniyle çıkarıldı",
     "app.meeting.logout.ejectedFromMeeting": "Oturumdan çıkarıldınız",
     "app.meeting.logout.validateTokenFailedEjectReason": "Kimlik doğrulama kodu doğrulanamadı",
     "app.meeting.logout.userInactivityEjectReason": "Kullanıcı uzun süredir etkin değil",
