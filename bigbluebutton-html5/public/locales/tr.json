@@ -856,7 +856,7 @@
     "app.audioModal.audioDialTitle": "Telefonunuz ile katılın",
     "app.audioDial.audioDialDescription": "Ara",
     "app.audioDial.audioDialConfrenceText": "ve konferansa katılmak için PIN numarasını yazın:",
-    "app.audioModal.autoplayBlockedDesc": "Sesi oynatmak için izniniz gerekiyor.",
+    "app.audioModal.autoplayBlockedDesc": "Sesi oynatmak için izin vermeniz gerekiyor.",
     "app.audioModal.playAudio": "Sesi oynat",
     "app.audioModal.playAudio.arialabel": "Sesi oynat",
     "app.audioDial.tipIndicator": "İpucu",
