@@ -921,7 +921,7 @@
     "app.audio.captions.speech.tip": "Para que otros usuarios puedan ver tus subtítulos, debes habilitar la transcripción.",
     "app.audio.captions.speech.captions": "Subtítulos",
     "app.audio.captions.speech.captionsToggleTooltip": "Las pistas de idioma de los subtítulos estarán disponibles cuando los usuarios habiliten la transcripción.",
-    "app.audio.captions.speech.noAvailableCaptions": "No captions available. Language tracks become available as users enable transcription.",
+    "app.audio.captions.speech.noAvailableCaptions": "No hay subtítulos disponibles. Las pistas de audio estarán disponibles cuando los usuarios habiliten la transcripción.",
     "app.audio.captions.speech.transcriptionDescription": "Para que otros usuarios puedan ver tus subtítulos, debes habilitar la transcripción.",
     "app.audio.captions.speech.disabled": "Desactivado",
     "app.audio.captions.speech.unsupported": "Su navegador no es compatible con el reconocimiento de voz. Su audio no se transcribirá",
