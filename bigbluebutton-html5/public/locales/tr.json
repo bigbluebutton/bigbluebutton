@@ -805,7 +805,7 @@
     "app.audioNotification.audioFailedError1012": "Bağlantı sona erdildi (ICE 1012 hatası)",
     "app.audioNotification.audioFailedMessage": "Ses bağlantınız kurulamadı",
     "app.audioNotification.mediaFailedMessage": "Yalnızca güvenli kaynaklara izin verildiğinden getUserMicMedia tamamlanamadı",
-    "app.audioNotification.deviceChangeFailed": "Ses aygıtı değiştirilemedi. Seçilen aygıtın doğru şekilde kurulmuş ve kullanılabilir olduğundan emin olun",
+    "app.audioNotification.deviceChangeFailed": "Ses aygıtı değiştirilemedi. Seçilmiş aygıtın doğru şekilde kurulmuş ve kullanılabilir olduğundan emin olun",
     "app.audioNotification.closeLabel": "Kapat",
     "app.audioNotificaion.reconnectingAsListenOnly": "İzleyicilerin mikrofon kullanması engellenmiş. Yalnızca dinleyici olarak bağlanıyorsunuz",
     "app.breakoutJoinConfirmation.title": "Çalışma grubu odasına katıl",
