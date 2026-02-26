@@ -116,7 +116,7 @@
     "app.timer.aria.incrementHours": "Augmenta les hores en {amount}",
     "app.timer.aria.decrementMinutes": "Redueix els minuts en {amount}",
     "app.timer.aria.incrementMinutes": "Augmenta els minuts en {amount}",
-    "app.timer.aria.decrementSeconds": "Decrease seconds by {amount}",
+    "app.timer.aria.decrementSeconds": "Redueix els segons en {amount}",
     "app.timer.aria.incrementSeconds": "Increase seconds by {amount}",
     "app.timer.aria.addTime": "Add {time}",
     "app.timer.songs": "Cançons",
