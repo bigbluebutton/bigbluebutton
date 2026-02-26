@@ -509,7 +509,7 @@
     "app.muteWarning.label": "Feu clic a {unmuteIcon} per a silenciar-vos.",
     "app.muteWarning.disableMessage": "Alertes de silenci deshabilitades fins que es desactivi el silenci",
     "app.muteWarning.tooltip": "Faci clic per a tancar i deshabilitar l'advertiment fins a la pròxima vegada que desactivi el silenci",
-    "app.unmute.modal.title": "A moderator is asking you to unmute",
+    "app.unmute.modal.title": "Un moderador et demana que activis el micròfon",
     "app.unmute.modal.subtitle": "Please unmute your microphone",
     "app.unmute.modal.confirm.label": "Activa el micròfon",
     "app.unmute.modal.deny.label": "Stay Muted",
