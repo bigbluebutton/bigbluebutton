@@ -179,16 +179,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[CreateMediaGroupReqMsg](envelope, jsonNode)
       case DestroyMediaGroupReqMsg.NAME =>
         routeGenericMsg[DestroyMediaGroupReqMsg](envelope, jsonNode)
-      case MediaGroupAddParticipantsReqMsg.NAME =>
-        routeGenericMsg[MediaGroupAddParticipantsReqMsg](envelope, jsonNode)
-      case MediaGroupRemoveParticipantsReqMsg.NAME =>
-        routeGenericMsg[MediaGroupRemoveParticipantsReqMsg](envelope, jsonNode)
-      case JoinMediaGroupReqMsg.NAME =>
-        routeGenericMsg[JoinMediaGroupReqMsg](envelope, jsonNode)
-      case LeaveMediaGroupReqMsg.NAME =>
-        routeGenericMsg[LeaveMediaGroupReqMsg](envelope, jsonNode)
-      case MediaGroupUpdateParticipantReqMsg.NAME =>
-        routeGenericMsg[MediaGroupUpdateParticipantReqMsg](envelope, jsonNode)
+      case SetUserMediaGroupStateReqMsg.NAME =>
+        routeGenericMsg[SetUserMediaGroupStateReqMsg](envelope, jsonNode)
 
       // Voice
       case RecordingStartedVoiceConfEvtMsg.NAME =>

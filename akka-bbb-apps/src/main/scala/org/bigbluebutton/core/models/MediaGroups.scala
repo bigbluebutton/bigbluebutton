@@ -26,19 +26,27 @@ case class MediaGroup(
     senders:   Set[MediaGroupParticipant],
     receivers: Set[MediaGroupParticipant]
 ) {
-  def addSender(sender: MediaGroupParticipant): MediaGroup = copy(senders = senders + sender)
-  def addSenders(newSenders: Vector[MediaGroupParticipant]): MediaGroup = copy(senders = senders ++ newSenders)
+  def addSender(sender: MediaGroupParticipant): MediaGroup = copy(senders = senders.filterNot(_.userId == sender.userId) + sender)
+  def addSenders(newSenders: Vector[MediaGroupParticipant]): MediaGroup = newSenders.foldLeft(this)((mg, s) => mg.addSender(s))
   def findAllSenders(): Vector[MediaGroupParticipant] = senders.toVector
   def removeSender(userId: String): MediaGroup = copy(senders = senders.filterNot(_.userId == userId))
   def removeSenders(userIds: Vector[String]): MediaGroup = copy(senders = senders.filterNot(s => userIds.contains(s.userId)))
-  def addReceiver(receiver: MediaGroupParticipant): MediaGroup = copy(receivers = receivers + receiver)
-  def addReceivers(newReceivers: Vector[MediaGroupParticipant]): MediaGroup = copy(receivers = receivers ++ newReceivers)
+  def addReceiver(receiver: MediaGroupParticipant): MediaGroup = copy(receivers = receivers.filterNot(_.userId == receiver.userId) + receiver)
+  def addReceivers(newReceivers: Vector[MediaGroupParticipant]): MediaGroup = newReceivers.foldLeft(this)((mg, r) => mg.addReceiver(r))
   def findAllReceivers(): Vector[MediaGroupParticipant] = receivers.toVector
   def removeReceiver(userId: String): MediaGroup = copy(receivers = receivers.filterNot(_.userId == userId))
   def removeReceivers(userIds: Vector[String]): MediaGroup = copy(receivers = receivers.filterNot(r => userIds.contains(r.userId)))
   def updateParticipant(participant: MediaGroupParticipant): MediaGroup = {
-    val newSenders = if (senders.exists(_.userId == participant.userId)) senders.filterNot(_.userId == participant.userId) + participant else senders
-    val newReceivers = if (receivers.exists(_.userId == participant.userId)) receivers.filterNot(_.userId == participant.userId) + participant else receivers
+    val newSenders = if (participant.sender) {
+      senders.filterNot(_.userId == participant.userId) + participant
+    } else {
+      senders.filterNot(_.userId == participant.userId)
+    }
+    val newReceivers = if (participant.receiver) {
+      receivers.filterNot(_.userId == participant.userId) + participant
+    } else {
+      receivers.filterNot(_.userId == participant.userId)
+    }
     copy(senders = newSenders, receivers = newReceivers)
   }
   def removeParticipant(userId: String): MediaGroup = {

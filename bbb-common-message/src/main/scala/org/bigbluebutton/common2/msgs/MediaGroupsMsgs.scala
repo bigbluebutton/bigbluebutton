@@ -18,6 +18,20 @@ case class MediaGroupInfo(
     receivers: Vector[MediaGroupParticipant]
 )
 
+case class MediaGroupEntry(
+    groupId:   String,
+    mediaType: String,
+    sender:    Boolean,
+    receiver:  Boolean,
+    active:    Boolean
+)
+
+case class MediaGroupEntryError(
+    groupId:   String,
+    mediaType: String,
+    reason:    String
+)
+
 object CreateMediaGroupReqMsg { val NAME = "CreateMediaGroupReqMsg" }
 case class CreateMediaGroupReqMsg(header: BbbClientMsgHeader, body: CreateMediaGroupReqMsgBody) extends StandardMsg
 case class CreateMediaGroupReqMsgBody(
@@ -72,87 +86,23 @@ object GetMediaGroupsRespMsg { val NAME = "GetMediaGroupsRespMsg" }
 case class GetMediaGroupsRespMsg(header: BbbClientMsgHeader, body: GetMediaGroupsRespMsgBody) extends BbbCoreMsg
 case class GetMediaGroupsRespMsgBody(mediaGroups: Vector[MediaGroupInfo])
 
-object MediaGroupAddParticipantsReqMsg { val NAME = "MediaGroupAddParticipantsReqMsg" }
-case class MediaGroupAddParticipantsReqMsg(header: BbbClientMsgHeader, body: MediaGroupAddParticipantsReqMsgBody) extends StandardMsg
-case class MediaGroupAddParticipantsReqMsgBody(
-    id:        String,
-    mediaType: String,
-    senders:   Vector[MediaGroupParticipant],
-    receivers: Vector[MediaGroupParticipant]
+object SetUserMediaGroupStateReqMsg { val NAME = "SetUserMediaGroupStateReqMsg" }
+case class SetUserMediaGroupStateReqMsg(header: BbbClientMsgHeader, body: SetUserMediaGroupStateReqMsgBody) extends StandardMsg
+case class SetUserMediaGroupStateReqMsgBody(
+    userId:   String,
+    entries:  Vector[MediaGroupEntry],
+    // "all" = entries replace entire state (groups not listed are removed)
+    // "byMediaType" = entries replace state per mediaType (only media types
+    //      present in entries are affected; others are untouched)
+    // "merge" = entries merge with existing state (groups not listed are
+    //      untouched; sender=false + receiver=false = removal)
+    scope:    String
 )
 
-object MediaGroupParticipantsAddedEvtMsg { val NAME = "MediaGroupParticipantsAddedEvtMsg" }
-case class MediaGroupParticipantsAddedEvtMsg(header: BbbClientMsgHeader, body: MediaGroupParticipantsAddedEvtMsgBody) extends BbbCoreMsg
-case class MediaGroupParticipantsAddedEvtMsgBody(
-    id:          String,
-    mediaType:   String,
-    requesterId: String,
-    senders:     Vector[MediaGroupParticipant],
-    receivers:   Vector[MediaGroupParticipant]
-)
-
-object MediaGroupRemoveParticipantsReqMsg { val NAME = "MediaGroupRemoveParticipantsReqMsg" }
-case class MediaGroupRemoveParticipantsReqMsg(header: BbbClientMsgHeader, body: MediaGroupRemoveParticipantsReqMsgBody) extends StandardMsg
-case class MediaGroupRemoveParticipantsReqMsgBody(
-    id:        String,
-    mediaType: String,
-    userIds:   Vector[String]
-)
-
-object MediaGroupParticipantsRemovedEvtMsg { val NAME = "MediaGroupParticipantsRemovedEvtMsg" }
-case class MediaGroupParticipantsRemovedEvtMsg(header: BbbClientMsgHeader, body: MediaGroupParticipantsRemovedEvtMsgBody) extends BbbCoreMsg
-case class MediaGroupParticipantsRemovedEvtMsgBody(
-    id:          String,
-    mediaType:   String,
-    requesterId: String,
-    userIds:     Vector[String]
-)
-
-object JoinMediaGroupReqMsg { val NAME = "JoinMediaGroupReqMsg" }
-case class JoinMediaGroupReqMsg(header: BbbClientMsgHeader, body: JoinMediaGroupReqMsgBody) extends StandardMsg
-case class JoinMediaGroupReqMsgBody(
-    id:          String,
-    mediaType:   String,
-    participant: MediaGroupParticipant
-)
-
-object MediaGroupParticipantJoinedEvtMsg { val NAME = "MediaGroupParticipantJoinedEvtMsg" }
-case class MediaGroupParticipantJoinedEvtMsg(header: BbbClientMsgHeader, body: MediaGroupParticipantJoinedEvtMsgBody) extends BbbCoreMsg
-case class MediaGroupParticipantJoinedEvtMsgBody(
-    id:          String,
-    mediaType:   String,
-    participant: MediaGroupParticipant
-)
-
-object LeaveMediaGroupReqMsg { val NAME = "LeaveMediaGroupReqMsg" }
-case class LeaveMediaGroupReqMsg(header: BbbClientMsgHeader, body: LeaveMediaGroupReqMsgBody) extends StandardMsg
-case class LeaveMediaGroupReqMsgBody(
-    id:        String,
-    mediaType: String,
-    userId:    String
-)
-
-object MediaGroupParticipantLeftEvtMsg { val NAME = "MediaGroupParticipantLeftEvtMsg" }
-case class MediaGroupParticipantLeftEvtMsg(header: BbbClientMsgHeader, body: MediaGroupParticipantLeftEvtMsgBody) extends BbbCoreMsg
-case class MediaGroupParticipantLeftEvtMsgBody(
-    id:          String,
-    mediaType:   String,
-    requesterId: String,
-    userId:      String
-)
-
-object MediaGroupUpdateParticipantReqMsg { val NAME = "MediaGroupUpdateParticipantReqMsg" }
-case class MediaGroupUpdateParticipantReqMsg(header: BbbClientMsgHeader, body: MediaGroupUpdateParticipantReqMsgBody) extends StandardMsg
-case class MediaGroupUpdateParticipantReqMsgBody(
-    id:          String,
-    mediaType:   String,
-    participant: MediaGroupParticipant
-)
-
-object MediaGroupParticipantUpdatedEvtMsg { val NAME = "MediaGroupParticipantUpdatedEvtMsg" }
-case class MediaGroupParticipantUpdatedEvtMsg(header: BbbClientMsgHeader, body: MediaGroupParticipantUpdatedEvtMsgBody) extends BbbCoreMsg
-case class MediaGroupParticipantUpdatedEvtMsgBody(
-    id:          String,
-    mediaType:   String,
-    participant: MediaGroupParticipant
+object SetUserMediaGroupStateRespMsg { val NAME = "SetUserMediaGroupStateRespMsg" }
+case class SetUserMediaGroupStateRespMsg(header: BbbClientMsgHeader, body: SetUserMediaGroupStateRespMsgBody) extends BbbCoreMsg
+case class SetUserMediaGroupStateRespMsgBody(
+    userId:       String,
+    appliedState: Vector[MediaGroupEntry],
+    errors:       Vector[MediaGroupEntryError]
 )

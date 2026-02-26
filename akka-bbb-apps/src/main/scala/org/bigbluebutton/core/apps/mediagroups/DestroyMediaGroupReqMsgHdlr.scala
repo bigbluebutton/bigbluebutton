@@ -45,15 +45,11 @@ trait DestroyMediaGroupReqMsgHdlr extends RightsManagementTrait {
             PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
             state
           } else {
-            val affectedUserIds = mg.findAllParticipants().map(_.userId).distinct
             val updatedGroups = MediaGroupApp.deleteMediaGroup(groupId, state.mediaGroups)
             broadcastEvent(mg)
             MediaGroupUserDAO.deleteAll(liveMeeting.props.meetingProp.intId, groupId)
             MediaGroupDAO.delete(liveMeeting.props.meetingProp.intId, groupId)
-            val finalMgs = affectedUserIds.foldLeft(updatedGroups) { (groups, uid) =>
-              MediaGroupApp.enforcePublicGroupState(liveMeeting, bus.outGW, uid, mg.mediaType, groups)
-            }
-            state.update(finalMgs)
+            state.update(updatedGroups)
           }
         case None =>
           state

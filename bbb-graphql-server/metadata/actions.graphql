@@ -25,26 +25,10 @@ type Mutation {
 }
 
 type Mutation {
-  mediaGroupJoin(
-    id: String!
-    mediaType: String!
-    participant: MediaGroupParticipant!
-  ): Boolean
-}
-
-type Mutation {
-  mediaGroupLeave(
-    id: String!
-    mediaType: String!
+  mediaGroupSetUserState(
     userId: String!
-  ): Boolean
-}
-
-type Mutation {
-  mediaGroupUpdateParticipant(
-    id: String!
-    mediaType: String!
-    participant: MediaGroupParticipant!
+    entries: [MediaGroupStateEntry!]!
+    scope: String!
   ): Boolean
 }
 
@@ -784,3 +768,10 @@ input MediaGroupParticipant {
   active: Boolean!
 }
 
+input MediaGroupStateEntry {
+  groupId: String!
+  mediaType: String!
+  sender: Boolean!
+  receiver: Boolean!
+  active: Boolean!
+}

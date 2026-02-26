@@ -559,14 +559,16 @@ class MeetingActor(
       case m: ChangeUserBreakoutReqMsg             => state = handleChangeUserBreakoutReqMsg(m, state)
 
       // Media Groups
-      case m: CreateMediaGroupReqMsg               => state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: DestroyMediaGroupReqMsg              => state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: CreateMediaGroupReqMsg =>
+        state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+        updateUserLastActivity(m.header.userId)
+      case m: DestroyMediaGroupReqMsg =>
+        state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+        updateUserLastActivity(m.header.userId)
       case m: GetMediaGroupsReqMsg                 => state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: MediaGroupAddParticipantsReqMsg      => state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: MediaGroupRemoveParticipantsReqMsg   => state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: JoinMediaGroupReqMsg                 => state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: LeaveMediaGroupReqMsg                => state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: MediaGroupUpdateParticipantReqMsg    => state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: SetUserMediaGroupStateReqMsg =>
+        state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+        updateUserLastActivity(m.header.userId)
 
       // Voice
       case m: UserLeftVoiceConfEvtMsg              => handleUserLeftVoiceConfEvtMsg(m)

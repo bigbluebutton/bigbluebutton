@@ -16,15 +16,18 @@ object PublicMediaGroupIds {
   def isPublicGroup(groupId: String): Boolean =
     groupId == AUDIO || groupId == CAMERA || groupId == SCREENSHARE
 
-  def publicGroupIdForMediaType(mediaType: String): String = mediaType match {
-    case "audio"       => AUDIO
-    case "camera"      => CAMERA
-    case "screenshare" => SCREENSHARE
-    case _             => s"public:$mediaType"
+  def publicGroupIdForMediaType(mediaType: String): Option[String] = mediaType match {
+    case "audio"       => Some(AUDIO)
+    case "camera"      => Some(CAMERA)
+    case "screenshare" => Some(SCREENSHARE)
+    case _             => None
   }
 }
 
 object MediaGroupApp {
+  // Public groups are explicit and system-managed on meeting/user join, but
+  // post-join membership transitions are declarative: handlers apply exactly
+  // the requested operations and callers own any public-group restoration.
   def createMediaGroup(
       id:          String,
       createdBy:   String,
@@ -176,115 +179,31 @@ object MediaGroupApp {
     )
 
     val newMgState = PublicMediaGroupIds.All.foldLeft(mediaGroups) { (acc, groupId) =>
-      mediaGroups.find(groupId) match {
-        case Some(_) => addMediaGroupParticipant(groupId, participant, acc)
-        case None    => acc
+      acc.find(groupId) match {
+        // Only enroll if not already in the group (e.g.: reconns, multiple sessions)
+        case Some(mg) if !mg.isUserSending(userId) && !mg.isUserReceiving(userId) =>
+          addMediaGroupParticipant(groupId, participant, acc)
+        case _ => acc
       }
     }
 
     PublicMediaGroupIds.All.foreach { groupId =>
-      MediaGroupUserDAO.insertUser(
-        liveMeeting.props.meetingProp.intId,
-        groupId,
-        userId,
-        sender = true,
-        receiver = true,
-        active = true
+      val userAlreadyInGroup = mediaGroups.find(groupId).exists(
+        mg => mg.isUserSending(userId) || mg.isUserReceiving(userId)
       )
+      if (!userAlreadyInGroup) {
+        MediaGroupUserDAO.insertUser(
+          liveMeeting.props.meetingProp.intId,
+          groupId,
+          userId,
+          sender = true,
+          receiver = true,
+          active = true
+        )
+      }
     }
 
     newMgState
-  }
-
-  def isUserOrphanedForMediaType(
-      userId:      String,
-      mediaType:   String,
-      mediaGroups: MediaGroups
-  ): Boolean = mediaGroups.findAllMediaGroupsForUser(userId).filter(_.mediaType == mediaType).isEmpty
-
-  def isUserOnlyInPublicGroupForMediaType(
-      userId:      String,
-      mediaType:   String,
-      mediaGroups: MediaGroups
-  ): Boolean = {
-    val groupsForType = mediaGroups.findAllMediaGroupsForUser(userId).filter(_.mediaType == mediaType)
-    groupsForType.size == 1 && PublicMediaGroupIds.isPublicGroup(groupsForType.head.id)
-  }
-
-  def enforcePublicGroupsForUser(
-      liveMeeting: LiveMeeting,
-      userId:      String,
-      mediaType:   String,
-      mediaGroups: MediaGroups
-  ): MediaGroups = {
-    if (!isUserOrphanedForMediaType(userId, mediaType, mediaGroups)) {
-      mediaGroups
-    } else {
-      val publicId = PublicMediaGroupIds.publicGroupIdForMediaType(mediaType)
-      val participant = MediaGroupParticipant(userId, sender = true, receiver = true, active = true)
-      mediaGroups.find(publicId) match {
-        case Some(_) =>
-          MediaGroupUserDAO.insertUser(
-            liveMeeting.props.meetingProp.intId,
-            publicId,
-            userId,
-            sender = true,
-            receiver = true,
-            active = true
-          )
-          addMediaGroupParticipant(publicId, participant, mediaGroups)
-        case None =>
-          mediaGroups
-      }
-    }
-  }
-
-  def enforcePublicOnlyUserState(
-      liveMeeting: LiveMeeting,
-      userId:      String,
-      mediaType:   String,
-      mediaGroups: MediaGroups
-  ): MediaGroups = {
-    if (!isUserOnlyInPublicGroupForMediaType(userId, mediaType, mediaGroups)) {
-      mediaGroups
-    } else {
-      val publicId = PublicMediaGroupIds.publicGroupIdForMediaType(mediaType)
-      val participant = MediaGroupParticipant(userId, sender = true, receiver = true, active = true)
-      mediaGroups.find(publicId) match {
-        case Some(mg) =>
-          mg.findParticipant(userId) match {
-            case Some(current) if current.sender && current.receiver && current.active =>
-              mediaGroups
-            case _ =>
-              MediaGroupUserDAO.update(
-                liveMeeting.props.meetingProp.intId,
-                publicId,
-                participant
-              )
-              updateMediaGroupParticipant(publicId, participant, mediaGroups)
-          }
-        case None =>
-          mediaGroups
-      }
-    }
-  }
-
-  def enforcePublicGroupState(
-      liveMeeting: LiveMeeting,
-      outGW:       OutMsgRouter,
-      userId:      String,
-      mediaType:   String,
-      mediaGroups: MediaGroups
-  ): MediaGroups = {
-    var state = enforcePublicGroupsForUser(liveMeeting, userId, mediaType, mediaGroups)
-    state = enforcePublicOnlyUserState(liveMeeting, userId, mediaType, state)
-
-    if (state != mediaGroups) {
-      val publicId = PublicMediaGroupIds.publicGroupIdForMediaType(mediaType)
-      handleMediaGroupUpdated(publicId, state, liveMeeting, outGW)
-    }
-
-    state
   }
 
   def handleMediaGroupUpdated(
@@ -312,5 +231,161 @@ object MediaGroupApp {
         broadcastEvent(mg)
       case _ =>
     }
+  }
+
+  case class SetUserMediaGroupStateResult(
+      mediaGroups:  MediaGroups,
+      appliedState: Vector[MediaGroupEntry],
+      errors:       Vector[MediaGroupEntryError]
+  )
+
+  def setUserMediaGroupState(
+      userId:      String,
+      entries:     Vector[MediaGroupEntry],
+      scope:       String,
+      mediaGroups: MediaGroups,
+      liveMeeting: LiveMeeting,
+      outGW:       OutMsgRouter
+  ): SetUserMediaGroupStateResult = {
+    val meetingId = liveMeeting.props.meetingProp.intId
+    // Deduplicate entries: last entry per groupId wins
+    val deduped = entries.groupBy(_.groupId).map(_._2.last).toVector
+    // Validate entries: group must exist and mediaType must match
+    val (valid, errors) = deduped.foldLeft((Vector.empty[MediaGroupEntry], Vector.empty[MediaGroupEntryError])) {
+      case ((v, e), entry) =>
+        mediaGroups.find(entry.groupId) match {
+          case Some(mg) if mg.mediaType == entry.mediaType => (v :+ entry, e)
+          case Some(_)                                     => (v, e :+ MediaGroupEntryError(entry.groupId, entry.mediaType, "mediaType mismatch"))
+          case None                                        => (v, e :+ MediaGroupEntryError(entry.groupId, entry.mediaType, "group not found"))
+        }
+    }
+    val desiredGroupMap = valid.map(e => e.groupId -> e).toMap
+    // All groups the user is in
+    val currentUserGroups = mediaGroups.findAllMediaGroupsForUser(userId)
+    val currentGroupMap: Map[String, MediaGroupEntry] = currentUserGroups.flatMap { mg =>
+      val isSender = mg.isUserSending(userId)
+      val isReceiver = mg.isUserReceiving(userId)
+
+      if (isSender || isReceiver) {
+        val participant = mg.findParticipant(userId)
+        val active = participant.map(_.active).getOrElse(true)
+        Some(mg.id -> MediaGroupEntry(mg.id, mg.mediaType, isSender, isReceiver, active))
+      } else None
+    }.toMap
+
+    // For replacement scopes ("all", "byMediaType"), validation errors would
+    // cause errored groups to look omitted and be removed. Bail out entirely
+    // so we don't partially apply the replacement.
+    if (errors.nonEmpty && (scope == "all" || scope == "byMediaType")) {
+      return SetUserMediaGroupStateResult(
+        mediaGroups = mediaGroups,
+        appliedState = currentGroupMap.values.toVector,
+        errors = errors
+      )
+    }
+
+    // Compute group delta based on the scope requested - see bbb-common-message's
+    // definition of media group scope for details.
+    val (toAdd, toUpdate, toRemove) = scope match {
+      case "all" =>
+        // all = replace the user's entire state
+        val additions = desiredGroupMap.filter { case (gid, _) => !currentGroupMap.contains(gid) }
+        val updates = desiredGroupMap.filter { case (gid, entry) =>
+          currentGroupMap.get(gid).exists(cur =>
+            cur.sender != entry.sender || cur.receiver != entry.receiver || cur.active != entry.active)
+        }
+        val removals = currentGroupMap.filter { case (gid, _) => !desiredGroupMap.contains(gid) }
+        (additions, updates, removals)
+
+      case "byMediaType" =>
+        // byMediaType = only media types present in the entries are affected;
+        // groups of other types are untouched
+        val affectedMediaTypes = valid.map(_.mediaType).toSet
+        val scopedCurrentMap = currentGroupMap.filter {
+          case (_, entry) => affectedMediaTypes.contains(entry.mediaType)
+        }
+        val additions = desiredGroupMap.filter { case (gid, _) => !scopedCurrentMap.contains(gid) }
+        val updates = desiredGroupMap.filter { case (gid, entry) =>
+          scopedCurrentMap.get(gid).exists(cur =>
+            cur.sender != entry.sender || cur.receiver != entry.receiver || cur.active != entry.active)
+        }
+        val removals = scopedCurrentMap.filter { case (gid, _) => !desiredGroupMap.contains(gid) }
+        (additions, updates, removals)
+
+      case _ => // "merge" is the canonical param, but also default
+        // merge = merge changes into the user's state; entries with sender=false or receiver=false are removals
+        val removals = desiredGroupMap.filter { case (_, e) => !e.sender && !e.receiver }
+        val additions = desiredGroupMap.filter { case (gid, e) =>
+          (e.sender || e.receiver) && !currentGroupMap.contains(gid)
+        }
+        val updates = desiredGroupMap.filter { case (gid, e) =>
+          (e.sender || e.receiver) && currentGroupMap.get(gid).exists(cur =>
+            cur.sender != e.sender || cur.receiver != e.receiver || cur.active != e.active)
+        }
+        (additions, updates, removals.filter { case (gid, _) => currentGroupMap.contains(gid) })
+    }
+
+    var affectedGroupIds = Set.empty[String]
+    var updatedMediaGroups = mediaGroups
+
+    toRemove.foreach { case (groupId, _) =>
+      updatedMediaGroups = removeMediaGroupParticipant(groupId, userId, updatedMediaGroups)
+      MediaGroupUserDAO.delete(meetingId, groupId, userId)
+      affectedGroupIds += groupId
+    }
+
+    toAdd.foreach { case (groupId, entry) =>
+      val participant = MediaGroupParticipant(userId, entry.sender, entry.receiver, entry.active)
+      updatedMediaGroups = addMediaGroupParticipant(groupId, participant, updatedMediaGroups)
+      MediaGroupUserDAO.insertUser(meetingId, groupId, userId, entry.sender, entry.receiver, entry.active)
+      affectedGroupIds += groupId
+    }
+
+    toUpdate.foreach { case (groupId, entry) =>
+      val participant = MediaGroupParticipant(userId, entry.sender, entry.receiver, entry.active)
+      updatedMediaGroups = updateMediaGroupParticipant(groupId, participant, updatedMediaGroups)
+      MediaGroupUserDAO.update(meetingId, groupId, participant)
+      affectedGroupIds += groupId
+    }
+
+    // Public group enforcement: after removals, if the user has no
+    // remaining groups for a media type, auto-re-enroll in the public group.
+    // This applies to both absolute and relative modes to prevent orphaned
+    // users from losing access to a media type.
+    {
+      val allMediaTypes = Set("audio", "camera", "screenshare")
+      val userCurrentGroups = updatedMediaGroups.findAllMediaGroupsForUser(userId)
+
+      allMediaTypes.foreach { mediaType =>
+        val userStillInType = userCurrentGroups.exists(_.mediaType == mediaType)
+
+        if (!userStillInType) {
+          PublicMediaGroupIds.publicGroupIdForMediaType(mediaType).foreach { publicGroupId =>
+            val participant = MediaGroupParticipant(userId, sender = true, receiver = true, active = true)
+
+            updatedMediaGroups = addMediaGroupParticipant(publicGroupId, participant, updatedMediaGroups)
+            MediaGroupUserDAO.insertUser(meetingId, publicGroupId, userId, sender = true, receiver = true, active = true)
+            affectedGroupIds += publicGroupId
+          }
+        }
+      }
+    }
+
+    affectedGroupIds.foreach { groupId =>
+      handleMediaGroupUpdated(groupId, updatedMediaGroups, liveMeeting, outGW)
+    }
+
+    val appliedState = updatedMediaGroups.findAllMediaGroupsForUser(userId).flatMap { mg =>
+      val isSender = mg.isUserSending(userId)
+      val isReceiver = mg.isUserReceiving(userId)
+
+      if (isSender || isReceiver) {
+        val participant = mg.findParticipant(userId)
+        val active = participant.map(_.active).getOrElse(true)
+        Some(MediaGroupEntry(mg.id, mg.mediaType, isSender, isReceiver, active))
+      } else None
+    }
+
+    SetUserMediaGroupStateResult(updatedMediaGroups, appliedState, errors)
   }
 }
