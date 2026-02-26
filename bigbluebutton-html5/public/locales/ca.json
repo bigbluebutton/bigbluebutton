@@ -490,7 +490,7 @@
     "app.poll.quiz.options.incorrect": "Resposta incorrecta",
     "app.poll.quiz.liveResult.title.correct": "Correcte",
     "app.poll.quiz.options.responseNotSecret": "Qüestionari – el presentador pot veure la teva resposta.",
-    "app.poll.tabSelector.ariaLabel": "Quiz and Poll Tab Selector",
+    "app.poll.tabSelector.ariaLabel": "Selector de pestanyes de Qüestionari i Enquesta",
     "app.polling.pollingTitle": "Opcions d'enquesta",
     "app.polling.pollQuestionTitle": "Pregunta de l'enquesta",
     "app.polling.submitLabel": "Enviar",
