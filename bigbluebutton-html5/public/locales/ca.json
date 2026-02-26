@@ -1641,7 +1641,7 @@
     "app.learningDashboard.pollsTable.answerTotal": "Total",
     "app.learningDashboard.pollsTable.userLabel": "Usuari",
     "app.learningDashboard.quizzes.noQuizzesCreatedHeading": "No s'han creat qüestionaris",
-    "app.learningDashboard.quizzes.noQuizzesCreatedMessage": "Once a quiz has been sent to users, their results will appear in this list.",
+    "app.learningDashboard.quizzes.noQuizzesCreatedMessage": "Un cop s’hagi enviat un qüestionari als usuaris, els resultats apareixeran en aquesta llista.",
     "app.learningDashboard.quizzes.userLabel": "Usuari",
     "app.learningDashboard.quizzes.numberOfResponses": "Nombre de respostes",
     "app.learningDashboard.quizzes.anonymousRowName": "Anònim",
