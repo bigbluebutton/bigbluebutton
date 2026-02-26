@@ -113,7 +113,7 @@
     "app.timer.aria.prevPreset": "Preajustament anterior",
     "app.timer.aria.nextPreset": "Preajustament següent",
     "app.timer.aria.decrementHours": "Redueix les hores en {amount}",
-    "app.timer.aria.incrementHours": "Increase hours by {amount}",
+    "app.timer.aria.incrementHours": "Augmenta les hores en {amount}",
     "app.timer.aria.decrementMinutes": "Decrease minutes by {amount}",
     "app.timer.aria.incrementMinutes": "Increase minutes by {amount}",
     "app.timer.aria.decrementSeconds": "Decrease seconds by {amount}",
