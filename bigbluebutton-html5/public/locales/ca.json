@@ -544,7 +544,7 @@
     "app.navBar.optionsDropdown.returnToMainRoomDesc": "Retorna a la sessió de la sala principal",
     "app.navBar.optionsDropdown.endMeetingForAllLabel": "Finalitzar la sessió per a tots",
     "app.navBar.optionsDropdown.presenceLabel": "Sóc",
-    "app.sidebarNavigation.toggle.btnLabel": "Navigation sidebar toggle",
+    "app.sidebarNavigation.toggle.btnLabel": "Commuta la barra lateral de navegació",
     "app.sidebarNavigation.toggle.ariaLabel": "Navigation sidebar toggle",
     "app.sidebarNavigation.toggle.newMessages": "with new message notification",
     "app.sidebarNavigation.toggle.newMsgAria": "Nova notificació de missatge",
