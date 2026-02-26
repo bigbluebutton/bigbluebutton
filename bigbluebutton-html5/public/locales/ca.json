@@ -14,7 +14,7 @@
     "app.chat.inputPlaceholder": "Missatge {chatName}",
     "app.chat.titlePublic": "Xat públic",
     "app.chat.titlePrivate": "Xat privat amb {participantName}",
-    "app.chat.titlePrivateToUser": "Private Chat with {participantName}",
+    "app.chat.titlePrivateToUser": "Xat privat amb {participantName}",
     "app.chat.partnerDisconnected": "{participantName} ha abandonat la sessió",
     "app.chat.moreMessages": "Més missatges a sota",
     "app.chat.dropdown.options": "Opcions del xat",
