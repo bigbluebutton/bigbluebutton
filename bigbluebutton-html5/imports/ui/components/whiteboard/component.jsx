@@ -773,7 +773,6 @@ const Whiteboard = React.memo((props) => {
         d: () => {
           tlEditorRef.current
             ?.duplicateShapes(tlEditorRef.current?.getSelectedShapes(), { x: 35, y: 35 });
-          tlEditorRef.current?.selectNone();
         },
         x: () => {
           handleCut(true);
