@@ -335,7 +335,7 @@
     "app.presentation.placeholder": "No hi ha cap presentació activa actualment",
     "app.presentation.modal.clearAnnotationsTitle": "Netejar anotiacions",
     "app.presentation.modal.modClearAnnotationsDesc": "Segur que vols esborrar totes les anotacions de la pissarra?",
-    "app.presentation.modal.viewerClearAnnotationsDesc": "Are you sure you want to clear all of your whiteboard annotations?",
+    "app.presentation.modal.viewerClearAnnotationsDesc": "Segur que vols esborrar totes les teves anotacions de la pissarra?",
     "app.presentation.modal.clearAnnotationsCancelLabel": "Cancel·lar",
     "app.presentation.modal.clearAnnotationsConfirmLabel": "Neteja",
     "app.presentationUploder.title": "Presentació",
