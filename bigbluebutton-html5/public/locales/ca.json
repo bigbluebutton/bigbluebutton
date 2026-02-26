@@ -517,7 +517,7 @@
     "app.requestPresenter.notification.description": "{userName} demana presentar a la sessió.",
     "app.requestPresenter.notification.confirm.label": "Permetre",
     "app.requestPresenter.notification.deny.label": "Cancel·lar",
-    "app.requestPresenter.notification.denied": "Your request to present was denied by the moderator.",
+    "app.requestPresenter.notification.denied": "El moderador ha denegat la teva sol·licitud per presentar.",
     "app.navBar.leaveMeetingBtnLabel": "Sortir",
     "app.navBar.leaveMeetingBtnDesc": "Abandonar la sessió",
     "app.navBar.optionsDropdown.optionsLabel": "Opcions",
