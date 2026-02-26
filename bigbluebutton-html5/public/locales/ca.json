@@ -921,7 +921,7 @@
     "app.audio.captions.speech.tip": "Perquè altres usuaris puguin veure els teus subtítols, has d'habilitar la transcripció.",
     "app.audio.captions.speech.captions": "Subtítols",
     "app.audio.captions.speech.captionsToggleTooltip": "Les pistes d’idioma dels subtítols estaran disponibles a mesura que els usuaris activin la transcripció.",
-    "app.audio.captions.speech.noAvailableCaptions": "No captions available. Language tracks become available as users enable transcription.",
+    "app.audio.captions.speech.noAvailableCaptions": "No hi ha subtítols disponibles. Les pistes d’idioma estaran disponibles a mesura que els usuaris activin la transcripció.",
     "app.audio.captions.speech.transcriptionDescription": "Perquè altres usuaris puguin veure els teus subtítols, has d’activar la transcripció.",
     "app.audio.captions.speech.disabled": "Desactivat",
     "app.audio.captions.speech.unsupported": "El teu navegador no és compatible amb el reconeixement de veu. L'àudio no es transcriurà",
