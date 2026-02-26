@@ -403,7 +403,7 @@
     "app.presentationUploder.tableHeading.options": "Opcions",
     "app.presentationUploder.tableHeading.status": "Estat",
     "app.presentationUploder.uploading": "Pujada {0} {1}",
-    "app.presentationUploder.uploadingPlural": "Uploading {numberOfPresentations} items",
+    "app.presentationUploder.uploadingPlural": "S’estan pujant {numberOfPresentations} elements",
     "app.presentationUploder.uploadStatus": "{completeUploads} de {totalUploads} pujades finalitzades",
     "app.presentationUploder.completed": "{numberOfCompleteUploads} pujades finalitzades",
     "app.presentationUploder.clearErrors": "Neteja els errors",
