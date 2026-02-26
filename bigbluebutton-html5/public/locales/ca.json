@@ -475,7 +475,7 @@
     "app.poll.liveResult.secretLabel": "Aquesta és una enquesta anònima. No es mostren les respostes individuals.",
     "app.poll.removePollOpt": "Eliminada l'opció d'enquesta {option}",
     "app.poll.emptyPollOpt": "En blanc",
-    "app.poll.info": "Poll mode: Collect opinions and see response distribution. No correct answers needed.",
+    "app.poll.info": "Mode enquesta: Recull opinions i mostra la distribució de respostes. No cal cap resposta correcta.",
     "app.poll.quiz.info": "Quiz mode: Select the correct answer for each question. Results will show who got it right.",
     "app.poll.quiz.answerChoices.label": "Answer Choices",
     "app.poll.quiz": "Qüestionari",
