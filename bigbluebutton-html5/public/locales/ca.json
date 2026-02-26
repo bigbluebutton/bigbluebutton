@@ -1183,7 +1183,7 @@
     "app.lock-viewers.lockStatusLabel": "Estat",
     "app.lock-viewers.webcamLabel": "Comparteix webcam",
     "app.lock-viewers.otherViewersWebcamLabel": "Veure les webcams dels altres",
-    "app.lock-viewers.microphoneLabel": "Sharing their microphone.",
+    "app.lock-viewers.microphoneLabel": "Compartir el micròfon.",
     "app.lock-viewers.PublicChatLabel": "Envia missatges al xat públic",
     "app.lock-viewers.PrivateChatLabel": "Envia missatges privats.",
     "app.lock-viewers.notesLabel": "Edita les notes compartides",
