@@ -477,7 +477,7 @@
     "app.poll.emptyPollOpt": "En blanc",
     "app.poll.info": "Mode enquesta: Recull opinions i mostra la distribució de respostes. No cal cap resposta correcta.",
     "app.poll.quiz.info": "Mode qüestionari: Selecciona la resposta correcta per a cada pregunta. Els resultats mostraran qui l’ha encertat.",
-    "app.poll.quiz.answerChoices.label": "Answer Choices",
+    "app.poll.quiz.answerChoices.label": "Opcions de resposta",
     "app.poll.quiz": "Qüestionari",
     "app.poll.quiz.error": "Quiz has not correct answers selected. Please select at least one correct answer.",
     "app.poll.quiz.start.label": "Inicia el qüestionari",
