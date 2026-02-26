@@ -1652,7 +1652,7 @@
     "app.learningDashboard.quizzes.activityLevel": "Nivell d’activitat",
     "app.learningDashboard.quizzes.quizScore": "Puntuació del qüestionari",
     "app.learningDashboard.quizzes.chartTitle": "Rendiment al qüestionari vs. nivell d’activitat",
-    "app.learningDashboard.quizzes.lockedIndicator": "Correct answer not revealed",
+    "app.learningDashboard.quizzes.lockedIndicator": "La resposta correcta no s’ha revelat",
     "app.learningDashboard.quizzes.unknownIndicator": "Resultats encara no publicats",
     "app.learningDashboard.quizzes.successIndicator": "Resposta correcta",
     "app.learningDashboard.quizzes.errorIndicator": "Resposta incorrecta",
