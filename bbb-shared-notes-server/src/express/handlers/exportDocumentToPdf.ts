@@ -45,6 +45,8 @@ export async function exportHtmlToPdf(
   try {
     // Write HTML content to temporary file
     await writeFile(htmlFilePath, htmlContent, 'utf-8');
+    // Set ownership to bigbluebutton user
+    await execAsync(`chown bigbluebutton:bigbluebutton "${htmlFilePath}"`);
     logger.info('HTML content written to temporary file', { htmlFilePath });
 
     // Execute bash script for conversion

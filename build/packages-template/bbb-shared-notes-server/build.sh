@@ -42,8 +42,8 @@ cp config/default.json staging/usr/share/bbb-shared-notes-server/config
 cp -r node_modules staging/usr/share/bbb-shared-notes-server
 
 # Copy script to run commands through `system-run --user`
-cp run-in-systemd.sh "$STAGING"/usr/share/bbb-shared-notes-server
-chmod 755 "$STAGING"/usr/share/bbb-shared-notes-server
+cp run-in-systemd.sh staging/usr/share/bbb-shared-notes-server
+chmod 755 staging/usr/share/bbb-shared-notes-server
 
 # Setup service
 mkdir -p staging/usr/lib/systemd/system

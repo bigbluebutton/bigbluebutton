@@ -20,6 +20,38 @@ case "$1" in
 runuser -u postgres -- psql -U postgres -d blocknote_app -q -f /usr/share/bbb-shared-notes-server/blocknote_schema.sql --set ON_ERROR_STOP=on
 
   if [ ! -f /.dockerenv ]; then
+
+
+  # This drop-in configures the `bbb-shared-notes-server` system service to support `systemd-run --user` in headless environments.
+  # It sets the required `XDG_RUNTIME_DIR` and `DBUS_SESSION_BUS_ADDRESS` environment variables so the Java process
+  # can communicate with the per-user systemd instance via D-Bus. Additionally, it declares `Wants=` and `After=`
+  # dependencies on `user@UID.service` to ensure the user manager is started before the service attempts to interact with it.
+  SERVICE_NAME="bbb-shared-notes-server.service"
+  DROPIN_DIR="/etc/systemd/system/${SERVICE_NAME}.d"
+  DROPIN_FILE="${DROPIN_DIR}/10-user-session.conf"
+  BIGBLUEBUTTON_UID=$(id -u bigbluebutton)
+
+  echo "Creating drop-in for $SERVICE_NAME..."
+
+  if [ -f "$DROPIN_FILE" ]; then
+      echo "Removing old drop-in for $SERVICE_NAME: $DROPIN_FILE"
+      rm $DROPIN_FILE
+  fi
+
+  mkdir -p "$DROPIN_DIR"
+
+  tee "$DROPIN_FILE" > /dev/null <<EOF
+[Service]
+Environment="XDG_RUNTIME_DIR=/run/user/${BIGBLUEBUTTON_UID}"
+Environment="DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/${BIGBLUEBUTTON_UID}/bus"
+[Unit]
+Wants=user@${BIGBLUEBUTTON_UID}.service
+After=user@${BIGBLUEBUTTON_UID}.service
+EOF
+
+  echo "Drop-in created sucessfuly: $DROPIN_FILE"
+  systemctl daemon-reexec
+
     systemctl enable bbb-shared-notes-server.service
     systemctl daemon-reload
     reloadService nginx

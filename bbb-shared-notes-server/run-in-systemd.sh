@@ -27,19 +27,20 @@ fi
 : "${BBB_BLOCKNOTE_CONVERSION_MEMORY_HIGH:=512M}"
 : "${BBB_BLOCKNOTE_CONVERSION_MEMORY_MAX:=640M}"
 
-systemd-run --user --pipe --wait --quiet --same-dir                   \
+systemd-run --user --pipe --wait --quiet                              \
   --unit=bbb-shared-notes-server-run-in-systemd-$$                    \
   --description="bbb-shared-notes-server run-in-systemd $*"           \
   --property=RuntimeMaxSec="${timeout_secs}"                          \
   --property=ProtectSystem=strict                                     \
   --property=ProtectHome=yes                                          \
   --property=PrivateTmp=true                                          \
+  --property=WorkingDirectory="${BBB_BLOCKNOTE_DIR}"                  \
   --property=ReadWritePaths="${BBB_BLOCKNOTE_DIR}"                    \
   --property=NoNewPrivileges=true                                     \
   --property=RestrictRealtime=true                                    \
   --property=SystemCallFilter=~@mount                                 \
-  --property=MemoryHigh="${BBB_BLOCKNOTE_CONVERSION_MEMORY_HIGH}"  \
-  --property=MemoryMax="${BBB_BLOCKNOTE_CONVERSION_MEMORY_MAX}"    \
+  --property=MemoryHigh="${BBB_BLOCKNOTE_CONVERSION_MEMORY_HIGH}"     \
+  --property=MemoryMax="${BBB_BLOCKNOTE_CONVERSION_MEMORY_MAX}"       \
   --property=MemorySwapMax=0                                          \
   --property=UMask=0022                                               \
   --property=CollectMode=inactive-or-failed                           \
