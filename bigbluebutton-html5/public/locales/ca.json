@@ -514,7 +514,7 @@
     "app.unmute.modal.confirm.label": "Activa el micròfon",
     "app.unmute.modal.deny.label": "Continua amb el micròfon silenciat",
     "app.requestPresenter.notification.title": "Fes presentador",
-    "app.requestPresenter.notification.description": "{userName} is asking to present in the session.",
+    "app.requestPresenter.notification.description": "{userName} demana presentar a la sessió.",
     "app.requestPresenter.notification.confirm.label": "Permetre",
     "app.requestPresenter.notification.deny.label": "Cancel·lar",
     "app.requestPresenter.notification.denied": "Your request to present was denied by the moderator.",
