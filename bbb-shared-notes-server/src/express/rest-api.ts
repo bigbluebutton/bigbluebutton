@@ -6,6 +6,7 @@ import { exportDocumentToHtml } from "./handlers/exportDocumentToHtml";
 import { exportDocumentToMarkdown } from "./handlers/exportDocumentToMarkdown";
 import { exportHtmlToPdf } from "./handlers/exportDocumentToPdf";
 import { exportDocumentToJson } from "./handlers/exportDocumentToJson";
+import { exportDocumentToYjs } from "./handlers/exportDocumentToYjs";
 
 interface DocumentApi {
   get: RequestHandler;
@@ -167,6 +168,16 @@ const documentApi: DocumentApi = {
           logger.info('JSON exported successfully', { documentName });
 
           response.send(jsonContent);
+          break;
+        case 'yjs':
+          const yjsContent = await exportDocumentToYjs(documentName);
+
+          response.setHeader('Content-Type', 'text/plain; charset=utf-8');
+          response.setHeader('Content-Disposition', `attachment; filename="${getExportFilename('yjs')}"`);
+
+          logger.info('YJS exported successfully', { documentName });
+
+          response.send(yjsContent);
           break;
         case 'md':
           const markdownContent = await exportDocumentToMarkdown(documentName);
