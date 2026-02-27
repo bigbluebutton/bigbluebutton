@@ -1409,7 +1409,7 @@
     "app.externalVideo.autoPlayWarning": "تشغيل الفيديو لتمكين مزامنة الوسائط",
     "app.externalVideo.refreshLabel": "تحديث مشغل الفيديو",
     "app.externalVideo.fullscreenLabel": "مشغل فديو",
-    "app.externalVideo.noteLabel": "ملاحظة: لن تظهر مقاطع الفيديو الخارجية المشتركة في التسجيل. يتم دعم رابط ملفات الوسائط مثل YouTube و Vimeo و Instructure Media و Twitch و Dailymotion وملفات الوسائط (مثل https://example.com/xy.mp4).",
+    "app.externalVideo.noteLabel": "Note: Shared external videos will not appear in the recording. YouTube, Vimeo, Instructure Media, Twitch and media file URLs (e.g. https://example.com/xy.mp4) are supported.",
     "app.externalVideo.subtitlesOn": "أطفئ",
     "app.externalVideo.subtitlesOff": "تشغيل (إذا كان متاحًا)",
     "app.externalVideo.stopShareExternalVideo": "إيقاف مشاركة الفيديو الخارجي",
