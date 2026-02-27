@@ -569,7 +569,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
       <Styled.BottomBar>
         {/* @ts-ignore */}
         <Styled.MegaphoneBtn
-          icon="unmute"
+          icon="megaphone"
           label={intl.formatMessage(intlMessages.megaphoneLabel)}
           onClick={() => setMegaphoneOpen(!megaphoneOpen)}
           data-test="megaphoneButton"
