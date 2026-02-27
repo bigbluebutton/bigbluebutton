@@ -167,6 +167,24 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   const actionsBarStyle = layoutSelectOutput((i: Output) => i.actionBar);
   const { screenIsShared: isScreenGloballyBroadcasting } = useIsScreenGloballyBroadcasting();
   const [currentView, setCurrentView] = useState<'main' | 'presentation' | 'externalVideo' | 'cameraAsContent'>('main');
+  const [localRequestingPresenter, setLocalRequestingPresenter] = useState(false);
+
+  useEffect(() => {
+    setLocalRequestingPresenter(isRequestingPresenter);
+  }, [isRequestingPresenter]);
+
+  useEffect(() => {
+    if (amIPresenter) {
+      setLocalRequestingPresenter(false);
+    }
+  }, [amIPresenter]);
+
+  const isWaitingPresenter = localRequestingPresenter || isRequestingPresenter;
+
+  const handleRequestPresenterWithFeedback = () => {
+    setLocalRequestingPresenter(true);
+    handleRequestPresenter();
+  };
 
   const handleClose = () => {
     setCurrentView('main');
@@ -330,7 +348,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   };
 
   const renderTakePresenterView = () => {
-    if (isRequestingPresenter) {
+    if (isWaitingPresenter) {
       return (
         <Styled.BecomePresenterViewContainer>
           <Styled.BecomePresenterText>
@@ -384,7 +402,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
             data-test="takePresenterButton"
             label={intl.formatMessage(intlMessages.takePresenter)}
             color="primary"
-            onClick={handleRequestPresenter}
+            onClick={handleRequestPresenterWithFeedback}
             customIcon={<CoPresentIcon />}
           />
         </Styled.BecomePresenterViewContainer>
@@ -400,7 +418,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
           data-test="requestPresenterButton"
           label={intl.formatMessage(intlMessages.requestPresenter)}
           color="primary"
-          onClick={handleRequestPresenter}
+          onClick={handleRequestPresenterWithFeedback}
           customIcon={<CoPresentIcon />}
         />
       </Styled.BecomePresenterViewContainer>
