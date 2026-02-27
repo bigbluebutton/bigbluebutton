@@ -1409,7 +1409,7 @@
     "app.externalVideo.autoPlayWarning": "Αναπραγωγή βίντεο για συγχρονισμό μέσων",
     "app.externalVideo.refreshLabel": "Ανανέωση της εφαρμογής βίντεο",
     "app.externalVideo.fullscreenLabel": "Πρόγραμμα αναπαραγωγής βίντεο",
-    "app.externalVideo.noteLabel": "Σημείωση: Τα διαμοιρασμένα εξωτερικά βίντεο δε θα εμφανιστούν στην καταγραφή. Τα YouTube, Vimeo, Instructure Media, Twitch, Dailymotion και σύνδεσμοι αρχείων πολυμέσων (π.χ. https://example.com/xy.mp4) υποστηρίζονται.",
+    "app.externalVideo.noteLabel": "Note: Shared external videos will not appear in the recording. YouTube, Vimeo, Instructure Media, Twitch and media file URLs (e.g. https://example.com/xy.mp4) are supported.",
     "app.externalVideo.subtitlesOn": "Απενεργοποίηση",
     "app.externalVideo.subtitlesOff": "Ενεργοποίηση (εάν είναι διαθέσιμο)",
     "app.externalVideo.stopShareExternalVideo": "Τερματισμός διαμοιρασμού εξωτερικού βίντεο",
