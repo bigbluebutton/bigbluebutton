@@ -1409,7 +1409,7 @@
     "app.externalVideo.autoPlayWarning": "Ortam eşleştirmesini etkinleştirmek için görüntüyü oynatın",
     "app.externalVideo.refreshLabel": "Görüntü oynatıcıyı yenile",
     "app.externalVideo.fullscreenLabel": "Görüntü oynatıcı",
-    "app.externalVideo.noteLabel": "Not: Dışarıdan paylaşılan görüntüler kayıtta görüntülenmez. YouTube, Vimeo, Instructure Media, Twitch, Dailymotion ve ortam dosyası adresleri (https://ornek.com/xy.mp4 gibi) desteklenir.",
+    "app.externalVideo.noteLabel": "Note: Shared external videos will not appear in the recording. YouTube, Vimeo, Instructure Media, Twitch and media file URLs (e.g. https://example.com/xy.mp4) are supported.",
     "app.externalVideo.subtitlesOn": "Kapat",
     "app.externalVideo.subtitlesOff": "Aç (olabiliyorsa)",
     "app.externalVideo.stopShareExternalVideo": "Dış görüntü paylaşımını durdur",
