@@ -1409,7 +1409,7 @@
     "app.externalVideo.autoPlayWarning": "Відтворити відео для синхронізації медіа",
     "app.externalVideo.refreshLabel": "Оновити програвач відео",
     "app.externalVideo.fullscreenLabel": "Переглядач відео",
-    "app.externalVideo.noteLabel": "Примітка: Зовнішні відеозаписи не з'являються у записі сеансу. Підтримуються: YouTube, Vimeo, Instructure Media, Twitch, Dailymotion та посилання на відео ( наприклад : https://example.com/xy.mp4 )",
+    "app.externalVideo.noteLabel": "Note: Shared external videos will not appear in the recording. YouTube, Vimeo, Instructure Media, Twitch and media file URLs (e.g. https://example.com/xy.mp4) are supported.",
     "app.externalVideo.subtitlesOn": "Вимкнути",
     "app.externalVideo.subtitlesOff": "Увімкнути (якщо доступно)",
     "app.externalVideo.stopShareExternalVideo": "Stop sharing external video",
