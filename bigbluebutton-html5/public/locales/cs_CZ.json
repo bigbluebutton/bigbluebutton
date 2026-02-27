@@ -1409,7 +1409,7 @@
     "app.externalVideo.autoPlayWarning": "Přehrát video k povolení synchronizace medií.",
     "app.externalVideo.refreshLabel": "Obnovit video player",
     "app.externalVideo.fullscreenLabel": "Video přehrávač",
-    "app.externalVideo.noteLabel": "Poznámka: Sdílená externí videa se neobjeví v nahrávce. YouTube, Vimeo, Instructure Media, Twitch, Dailymotion a odkazy na média (např. https://example.com/xy.mp4) jsou podporovány.",
+    "app.externalVideo.noteLabel": "Note: Shared external videos will not appear in the recording. YouTube, Vimeo, Instructure Media, Twitch and media file URLs (e.g. https://example.com/xy.mp4) are supported.",
     "app.externalVideo.subtitlesOn": "Vypnout",
     "app.externalVideo.subtitlesOff": "Zapnout (pokud je k dispozici)",
     "app.externalVideo.stopShareExternalVideo": "Ukončete sdílení externího videa",
