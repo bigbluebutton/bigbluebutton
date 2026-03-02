@@ -38,7 +38,7 @@ cp -r dist/* staging/usr/share/bbb-shared-notes-server
 cp blocknote_schema.sql staging/usr/share/bbb-shared-notes-server
 cp package.json staging/usr/share/bbb-shared-notes-server
 cp package-lock.json staging/usr/share/bbb-shared-notes-server
-cp config/default.json staging/usr/share/bbb-shared-notes-server/config
+cp config/default.yml staging/usr/share/bbb-shared-notes-server/config
 cp -r node_modules staging/usr/share/bbb-shared-notes-server
 
 # Copy script to run commands through `system-run --user`
