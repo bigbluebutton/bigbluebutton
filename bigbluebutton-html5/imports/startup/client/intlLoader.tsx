@@ -164,6 +164,8 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
   }, []);
 
   useEffect(() => {
+    // Skip first run since initial locale is already fetched in the previous useEffect
+    // Prevents redundant initial locale fetches when a locale override is detected at mount time
     if (skipInitialLocaleFetch.current) {
       skipInitialLocaleFetch.current = false;
       return;
