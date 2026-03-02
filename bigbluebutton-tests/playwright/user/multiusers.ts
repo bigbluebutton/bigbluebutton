@@ -383,14 +383,14 @@ export class MultiUsers {
       'should display the "turn multi-user whiteboard off" icon',
     );
 
-    await this.userPage.hasElement(
-      e.wbToolbar,
-      'should display the whiteboard toolbar for the attendee after being given access',
-    );
     await this.userPage.hasText(
       e.smallToastMsg,
       e.whiteboardAvailableToast,
       `should have toast message "${e.whiteboardAvailableToast}" for the attendee after being given access`,
+    );
+    await this.userPage.hasElement(
+      e.wbToolbar,
+      'should display the whiteboard toolbar for the attendee after being given access',
     );
 
     await this.modPage.waitAndClick(e.changeWhiteboardAccess);
@@ -400,11 +400,12 @@ export class MultiUsers {
       e.wbToolbar,
       'should not display the whiteboard toolbar for the attendee after being removed access',
     );
-    await this.userPage.hasText(
-      e.smallToastMsg,
-      e.whiteboardDisabledToast,
+
+    const toastLocator = this.userPage.page.locator(e.smallToastMsg).filter({ hasText: e.whiteboardDisabledToast });
+    await expect(
+      toastLocator,
       `should have toast message "${e.whiteboardDisabledToast}" for the attendee after being removed access`,
-    );
+    ).toBeVisible();
   }
 
   async disabledUsersJoinMuted() {
