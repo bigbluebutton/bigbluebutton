@@ -1,8 +1,0 @@
-{
-  "postgres": {
-    "password": "POSTGRES_PASSWORD"
-  },
-  "redis": {
-    "password": "REDIS_PASSWORD"
-  }
-}
