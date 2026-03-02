@@ -46,7 +46,6 @@ const createWasmProcessorStream = (stream) => {
         audioProcessor = new AudioWorkletNode(audioContext, 'mapi-proc', audioProcessorOptions);
         audioProcessor.port.onmessage = (event) => {
           if (event.data?.type === 'loaded') {
-            audioProcessor.port.postMessage({ type: 'monitor', symbol: "vad_meter" });
             audioProcessor.port.postMessage({ type: 'param', symbol: "intensity", value: 90 });
             audioProcessor.port.postMessage({ type: 'param', symbol: "leveler_target", value: -18 });
             audioProcessor.port.postMessage({ type: 'param', symbol: "sb_strength", value: 60 });
@@ -56,8 +55,6 @@ const createWasmProcessorStream = (stream) => {
             resolve(contextDestination.stream);
           } else if (event.data?.type === 'error') {
             reject(event.data.error);
-          } else if (event.data?.type === 'monitor') {
-            // TODO monitor of VAD event.data.value
           }
         };
         audioProcessor.port.postMessage({ type: 'init', wasm: loadedFiles.wasmBlob, js: loadedFiles.wasmJS });

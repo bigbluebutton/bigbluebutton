@@ -30,8 +30,6 @@ class MapiProcessorInstance {
         this.module = module;
         this.handle = module._mapi_create(sampleRate, nominalBufferSize);
         this.enabled = true;
-        this.monitor_param = null;
-        this.monitor_value = null;
 
         this.audioData = module._malloc(module.HEAPF32.BYTES_PER_ELEMENT * nominalBufferSize);
         this.audioPtrs = module._malloc(module.HEAPU32.BYTES_PER_ELEMENT);
@@ -50,11 +48,6 @@ class MapiProcessorInstance {
         this.module._mapi_set_parameter(this.handle, this.csymbol(symbol), value);
     }
 
-    monitor(symbol) {
-        this.monitor_param = symbol;
-        this.monitor_value = this.module._mapi_get_parameter(this.handle, this.csymbol(symbol));
-    }
-
     process(buffer, bufferSize, bufferOffset) {
         if (! this.enabled)
             return;
@@ -66,14 +59,6 @@ class MapiProcessorInstance {
 
         for (let i = 0; i < bufferSize; ++i)
             buffer[bufferOffset + i] = this.module.HEAPF32[this.audioData + (i << 2) >> 2];
-
-        if (this.monitor_param != null) {
-            const value = this.module._mapi_get_parameter(this.handle, this.csymbol(this.monitor_param));
-            if (this.monitor_value != value) {
-                this.monitor_value = value;
-                this.port.postMessage({ type: 'monitor', value: value });
-            }
-        }
     }
 };
 
@@ -103,9 +88,6 @@ class MapiWorkletProcessor extends AudioWorkletProcessor {
                 break;
             case 'enable':
                 this.enable(event.data);
-                break;
-            case 'monitor':
-                this.monitor(event.data);
                 break;
             case 'param':
                 this.param(event.data);
@@ -144,15 +126,6 @@ class MapiWorkletProcessor extends AudioWorkletProcessor {
         }
 
         this.bbba.enabled = !!data.enable;
-    }
-
-    monitor(data) {
-        if (!this.bbba) {
-            console.error('BBBA wasm is not loaded yet!');
-            return;
-        }
-
-        this.bbba.monitor(data.symbol);
     }
 
     param(data) {
