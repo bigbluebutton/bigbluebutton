@@ -1409,7 +1409,7 @@
     "app.externalVideo.autoPlayWarning": "Käivita video, et meedia sünkroniseerimine aktiveerida",
     "app.externalVideo.refreshLabel": "Värskenda videomängijat",
     "app.externalVideo.fullscreenLabel": "Videomängija",
-    "app.externalVideo.noteLabel": "Note: Shared external videos will not appear in the recording. YouTube, Vimeo, Instructure Media, Twitch and media file URLs (e.g. https://example.com/xy.mp4) are supported.",
+    "app.externalVideo.noteLabel": "Märkus: jagatud väliseid videoid sessiooni salvestisse ei kaasata. Toetatakse keskkondi YouTube, Vimeo, Instructure Media, Twitch ning meediafailide URLe (nt https://example.com/xy.mp4).",
     "app.externalVideo.subtitlesOn": "Lülita välja",
     "app.externalVideo.subtitlesOff": "Lülita sisse (kui saadaval)",
     "app.externalVideo.stopShareExternalVideo": "Lõpeta välise video jagamine",
