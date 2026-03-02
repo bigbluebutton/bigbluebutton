@@ -19,6 +19,7 @@ trait BreakoutRoomCallModeratorMsgHdlr {
       breakoutModel <- state.breakout
       room <- breakoutModel.rooms.get(msg.body.breakoutRoomId)
       senderUser <- RegisteredUsers.findWithUserId(msg.header.userId, liveMeeting.registeredUsers)
+      if room.assignedUsers.contains(msg.header.userId)
     } yield {
       val roomName = room.shortName
       val msgMeta = Map(

@@ -302,10 +302,10 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
         sendInviteToModerators: inviteMods,
         rooms: roomsArray,
       },
+    }).then(() => {
+      layoutContextDispatch({ type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN, value: true });
+      layoutContextDispatch({ type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL, value: PANELS.BREAKOUT });
     });
-
-    layoutContextDispatch({ type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN, value: true });
-    layoutContextDispatch({ type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL, value: PANELS.BREAKOUT });
   }, [
     numberOfRooms, durationTime, freeJoin, record, captureNotes,
     captureSlides, inviteMods, roomPresentations,

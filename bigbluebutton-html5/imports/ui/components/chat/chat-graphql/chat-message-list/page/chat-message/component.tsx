@@ -585,7 +585,10 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       }
       case ChatMessageType.BREAKOUT_CALL_MODERATOR: {
         const meta = (() => {
-          try { return JSON.parse(message.messageMetadata); } catch { return {}; }
+          try {
+            const parsed = JSON.parse(message.messageMetadata);
+            return parsed && typeof parsed === 'object' ? parsed : {};
+          } catch { return {}; }
         })();
         const callModeratorMsg = intl.formatMessage(intlMessages.breakoutCallModerator, {
           userName: message.senderName,

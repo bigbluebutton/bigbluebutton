@@ -128,13 +128,16 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
       const seqToMeetingId = new Map<number, string>();
       breakouts.forEach((b) => {
         seqToMeetingId.set(b.sequence, b.breakoutRoomMeetingId);
+        return undefined;
       });
 
       const alreadyAssigned = new Set<string>();
       breakouts.forEach((b) => {
         b.participants.filter((p) => !p.isAudioOnly).forEach((p) => {
           alreadyAssigned.add(p.userId);
+          return undefined;
         });
+        return undefined;
       });
 
       const newPending = new Map<string, { toRoomId: string; userName: string }>();
@@ -151,6 +154,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
           const next = new Map(prev);
           newPending.forEach((val, key) => {
             if (!next.has(key)) next.set(key, val);
+            return undefined;
           });
           return next;
         });
@@ -167,7 +171,9 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
         .filter((p) => !p.isAudioOnly)
         .forEach((p) => {
           ids.add(p.userId);
+          return undefined;
         });
+      return undefined;
     });
     return ids;
   }, [breakouts]);
@@ -213,12 +219,17 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
       if (move.toRoomId === breakout.breakoutRoomMeetingId && !existingIds.has(uId)) {
         pendingIncoming.push({ userId: uId, name: move.userName });
       }
+      return undefined;
     });
     return { serverUsers: filtered, pendingIncoming };
   }, [pendingMoves]);
 
   useEffect(() => {
     const calcRemaining = () => {
+      if (!Number.isFinite(breakoutStartedAt) || breakoutStartedAt === 0
+        || !Number.isFinite(breakoutDurationInSeconds)) {
+        return 0;
+      }
       const now = Date.now() + timeSync;
       const end = breakoutStartedAt + (breakoutDurationInSeconds * 1000);
       return Math.max(0, Math.floor((end - now) / 1000));
