@@ -24,7 +24,7 @@ interface PdfExportOptions {
 
 /**
  * Converts HTML content to PDF using pandoc
- * Uses a bash script (convert-html-to-pdf.sh) for conversion
+ * Uses a shell script (run-in-systemd.sh) to run the command in a sandboxed env
  * The container is ephemeral (created, used, and removed automatically)
  */
 export async function exportHtmlToPdf(
