@@ -23,6 +23,7 @@ export const enum ChatMessageType {
   BREAKOUT_ROOM = 'breakoutRoomModeratorMsg',
   USER_AWAY_STATUS_MSG = 'userAwayStatusMsg',
   USER_IS_PRESENTER_MSG = 'userIsPresenterMsg',
+  BREAKOUT_CALL_MODERATOR = 'breakoutCallModeratorMsg',
   PLUGIN = 'plugin'
 }
 

@@ -8,11 +8,10 @@ import Icon from '/imports/ui/components/common/icon/component';
 import { BreakoutRoom as BreakoutRoomType } from '../queries';
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
   USER_TRANSFER_VOICE_TO_MEETING,
+  BREAKOUT_ROOM_CALL_MODERATOR,
 } from '../../mutations';
-import { CHAT_SEND_MESSAGE } from '/imports/ui/components/plugins-engine/server-commands/chat/send-message/mutations';
 import { notify } from '/imports/ui/services/notification';
 import { useStopMediaOnMainRoom } from '/imports/ui/components/breakout-room/hooks';
 import { setBreakoutWindowRef, rejoinAudio, closeBreakoutWindow } from '/imports/ui/components/breakout-room/breakout-room/service';
@@ -56,10 +55,6 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.notAssignedHelp',
     description: 'Text asking user to contact moderator to be assigned',
   },
-  callModeratorChatMsg: {
-    id: 'app.createBreakoutRoom.callModeratorChatMsg',
-    description: 'Chat message sent when calling moderator',
-  },
   callModeratorSent: {
     id: 'app.createBreakoutRoom.callModeratorSent',
     description: 'Toast message confirming call moderator was sent',
@@ -92,14 +87,9 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
   const [requestedBreakoutRoomId, setRequestedBreakoutRoomId] = useState<string>('');
 
   const [breakoutRoomTransfer] = useMutation(USER_TRANSFER_VOICE_TO_MEETING);
-  const [chatSendMessage] = useMutation(CHAT_SEND_MESSAGE);
+  const [callModerator] = useMutation(BREAKOUT_ROOM_CALL_MODERATOR);
   const stopMediaOnMainRoom = useStopMediaOnMainRoom();
   const [callModeratorCooldown, setCallModeratorCooldown] = useState(false);
-
-  const { data: currentUserData } = useCurrentUser((u) => ({
-    name: u.name,
-  }));
-  const userName = currentUserData?.name ?? '';
 
   const {
     data: meetingData,
@@ -109,7 +99,8 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
 
   const breakoutProps = meetingData?.breakoutRoomsCommonProperties;
   const breakoutDurationInSeconds = breakoutProps?.durationInSeconds ?? 0;
-  const breakoutStartedAt = new Date(breakoutProps?.startedAt ?? '').getTime();
+  const parsedStartedAt = new Date(breakoutProps?.startedAt ?? '').getTime();
+  const breakoutStartedAt = Number.isFinite(parsedStartedAt) ? parsedStartedAt : 0;
 
   const userRoom = breakouts.find(
     (b) => b.isLastAssignedRoom || b.isUserCurrentlyInRoom,
@@ -171,38 +162,30 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
       return;
     }
 
-    let roomName = '';
-    if (userRoom) {
-      roomName = userRoom.isDefaultName
-        ? intl.formatMessage(intlMessages.breakoutRoom, { roomNumber: userRoom.sequence })
-        : userRoom.shortName;
-    }
+    if (!userRoom) return;
 
-    const chatMessage = intl.formatMessage(
-      intlMessages.callModeratorChatMsg,
-      { userName, roomName },
-    );
-
-    chatSendMessage({
+    callModerator({
       variables: {
-        chatId: 'MAIN-PUBLIC-GROUP-CHAT',
-        chatMessageInMarkdownFormat: chatMessage,
-        metadata: {
-          pluginName: 'breakoutCallModerator',
-        },
+        breakoutRoomId: userRoom.breakoutRoomMeetingId,
       },
+    }).then(() => {
+      notify(
+        intl.formatMessage(intlMessages.callModeratorSent),
+        'success',
+        'user',
+      );
+
+      setCallModeratorCooldown(true);
+      setTimeout(() => setCallModeratorCooldown(false), CALL_MODERATOR_COOLDOWN_MS);
+    }).catch(() => {
+      notify(
+        intl.formatMessage(intlMessages.callModeratorCooldown),
+        'warning',
+        'warning',
+      );
     });
-
-    notify(
-      intl.formatMessage(intlMessages.callModeratorSent),
-      'success',
-      'user',
-    );
-
-    setCallModeratorCooldown(true);
-    setTimeout(() => setCallModeratorCooldown(false), CALL_MODERATOR_COOLDOWN_MS);
   }, [
-    userRoom, chatSendMessage, userName, intl, callModeratorCooldown,
+    callModerator, intl, callModeratorCooldown, userRoom,
   ]);
 
   const handleReturnToMainSession = useCallback(() => {

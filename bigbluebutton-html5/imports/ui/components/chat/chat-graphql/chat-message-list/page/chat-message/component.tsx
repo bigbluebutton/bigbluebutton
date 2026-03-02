@@ -165,6 +165,9 @@ const intlMessages = defineMessages({
   downloadPollResults: {
     id: 'app.chat.pollResult.download',
     description: 'Download poll results as PNG',
+  breakoutCallModerator: {
+    id: 'app.chat.breakoutCallModerator',
+    description: 'Breakout room call moderator system message',
   },
 });
 
@@ -573,6 +576,30 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
             <ChatMessageNotificationContent
               iconName="presentation"
               text={userIsPresenterMsg}
+            />
+          ),
+          showAvatar: false,
+          showHeading: false,
+          showToolbar: false,
+        };
+      }
+      case ChatMessageType.BREAKOUT_CALL_MODERATOR: {
+        const meta = (() => {
+          try { return JSON.parse(message.messageMetadata); } catch { return {}; }
+        })();
+        const callModeratorMsg = intl.formatMessage(intlMessages.breakoutCallModerator, {
+          userName: message.senderName,
+          roomName: meta.roomName || '',
+        });
+        return {
+          name: message.senderName,
+          color: '#0F70D7',
+          isModerator: false,
+          isSystemSender: true,
+          component: (
+            <ChatMessageNotificationContent
+              iconName="rooms"
+              text={callModeratorMsg}
             />
           ),
           showAvatar: false,

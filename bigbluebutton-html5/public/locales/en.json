@@ -32,6 +32,7 @@
     "app.chat.notAway": "is available",
     "app.chat.isPresenter": "{presenterName} is now the presenter",
     "app.chat.isPresenterSetBy": "{presenterName} is now the presenter, set by {assignedByName}",
+    "app.chat.breakoutCallModerator": "{userName} from {roomName} is requesting moderator assistance.",
     "app.chat.clearPublicChatMessage": "The public chat history has been cleared by a moderator",
     "app.chat.multi.typing": "Multiple users are typing",
     "app.chat.someone.typing": "Someone is typing",

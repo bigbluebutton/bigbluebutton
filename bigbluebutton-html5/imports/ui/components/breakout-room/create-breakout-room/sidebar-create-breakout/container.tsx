@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useQuery } from '@apollo/client';
 import { useIntl } from 'react-intl';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -59,20 +59,29 @@ const SidebarCreateBreakoutContainer: React.FC<SidebarCreateBreakoutContainerPro
     (p: Presentation) => p.current,
   )?.presentationId || '';
 
+  const queryError = usersError || meetingGroupError;
+  const prevErrorRef = useRef(queryError);
+
+  useEffect(() => {
+    if (queryError && queryError !== prevErrorRef.current) {
+      notify(intl.formatMessage({
+        id: 'app.error.issueLoadingData',
+      }), 'warning', 'warning');
+      logger.error({
+        logCode: 'subscription_Failed',
+        extraInfo: {
+          error: queryError,
+        },
+      });
+    }
+    prevErrorRef.current = queryError;
+  }, [queryError, intl]);
+
   if (usersLoading || meetingGroupLoading || !currentMeeting) {
     return null;
   }
 
-  if (usersError || meetingGroupError) {
-    notify(intl.formatMessage({
-      id: 'app.error.issueLoadingData',
-    }), 'warning', 'warning');
-    logger.error({
-      logCode: 'subscription_Failed',
-      extraInfo: {
-        error: usersError || meetingGroupError,
-      },
-    });
+  if (queryError) {
     return null;
   }
 

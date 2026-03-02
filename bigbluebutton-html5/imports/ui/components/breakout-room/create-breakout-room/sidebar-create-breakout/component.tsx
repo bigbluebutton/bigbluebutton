@@ -157,7 +157,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
   const captureWhiteboardByDefault = BREAKOUT_SETTINGS.captureWhiteboardByDefault
     && isImportPresentationWithAnnotationsEnabled;
   const captureSharedNotesByDefault = BREAKOUT_SETTINGS.captureSharedNotesByDefault
-    && isImportPresentationWithAnnotationsEnabled;
+    && isImportSharedNotesEnabled;
 
   const [numberOfRooms, setNumberOfRooms] = useState(MIN_BREAKOUT_ROOMS);
   const [hours, setHours] = useState(0);
@@ -204,7 +204,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
     }
   }, []);
 
-  const durationTime = (hours * 60) + minutes;
+  const durationTime = (hours * 60) + minutes + (seconds > 0 ? 1 : 0);
 
   const getRoomPresentation = (position: number) => {
     if (roomPresentations[position]) return roomPresentations[position];

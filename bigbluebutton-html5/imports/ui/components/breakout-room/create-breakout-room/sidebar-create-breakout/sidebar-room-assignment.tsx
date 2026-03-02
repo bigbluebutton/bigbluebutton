@@ -52,7 +52,9 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
   const drop = (roomNumber: number) => (ev: React.DragEvent) => {
     ev.preventDefault();
     const data = ev.dataTransfer.getData('text');
-    const [userId, from] = data.split('-');
+    const separatorIndex = data.lastIndexOf('-');
+    const userId = data.substring(0, separatorIndex);
+    const from = data.substring(separatorIndex + 1);
     moveUser(userId, Number(from), roomNumber);
     setSelectedId('');
   };

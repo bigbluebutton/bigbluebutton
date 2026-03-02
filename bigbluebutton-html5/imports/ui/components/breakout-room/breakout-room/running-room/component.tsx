@@ -110,7 +110,8 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
 
   const breakoutProps = meetingData?.breakoutRoomsCommonProperties;
   const breakoutDurationInSeconds = breakoutProps?.durationInSeconds ?? 0;
-  const breakoutStartedAt = new Date(breakoutProps?.startedAt ?? '').getTime();
+  const parsedStartedAt = new Date(breakoutProps?.startedAt ?? '').getTime();
+  const breakoutStartedAt = Number.isFinite(parsedStartedAt) ? parsedStartedAt : 0;
 
   useEffect(() => {
     if (initialAssignmentsLoaded.current) return;
@@ -131,7 +132,9 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
 
       const alreadyAssigned = new Set<string>();
       breakouts.forEach((b) => {
-        b.participants.filter((p) => !p.isAudioOnly).forEach((p) => alreadyAssigned.add(p.userId));
+        b.participants.filter((p) => !p.isAudioOnly).forEach((p) => {
+          alreadyAssigned.add(p.userId);
+        });
       });
 
       const newPending = new Map<string, { toRoomId: string; userName: string }>();
@@ -162,7 +165,9 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
     breakouts.forEach((b) => {
       b.participants
         .filter((p) => !p.isAudioOnly)
-        .forEach((p) => ids.add(p.userId));
+        .forEach((p) => {
+          ids.add(p.userId);
+        });
     });
     return ids;
   }, [breakouts]);
