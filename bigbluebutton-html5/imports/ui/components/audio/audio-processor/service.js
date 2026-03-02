@@ -145,7 +145,9 @@ const loadWasmProcessorFiles = () => new Promise((resolve, reject) => {
   );
 
   // load wasm files and worklet
-  const basepath = '/html5client/wasm/';
+  const pathMatch = window.location.pathname.match('^(.*)/html5client/?$');
+  const serverPathPrefix = pathMatch ? pathMatch[1] : '';
+  const basepath = `${serverPathPrefix}/html5client/wasm/`;
   const suffix = supportsSIMD ? '' : '-nosimd';
   fetch(`${basepath}BBBA${suffix}-mapi.wasm`).then((resp) => {
     resp.arrayBuffer().then((bytes) => {
