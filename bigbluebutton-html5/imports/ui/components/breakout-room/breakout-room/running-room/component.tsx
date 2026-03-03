@@ -317,7 +317,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
   }, [megaphoneMessage, sendMessageToAll]);
 
   const dragStart = (ev: React.DragEvent<HTMLDivElement>, visUserId: string, fromRoomId: string, userName: string) => {
-    ev.dataTransfer.setData('text', `${visUserId}::${fromRoomId}::${userName}`);
+    ev.dataTransfer.setData('text', JSON.stringify({ userId: visUserId, fromRoomId, userName }));
     const ghost = document.createElement('div');
     ghost.textContent = userName;
     ghost.style.cssText = 'position:absolute;top:-9999px;padding:4px 8px;background:#fff;border:1px solid #ccc;border-radius:4px;font-size:0.85rem;white-space:nowrap;';
@@ -330,7 +330,17 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
     ev.preventDefault();
     ev.currentTarget.classList.remove('drag-over');
     const data = ev.dataTransfer.getData('text');
-    const [droppedUserId, fromRoomMeetingId, droppedUserName] = data.split('::');
+    let droppedUserId: string;
+    let fromRoomMeetingId: string;
+    let droppedUserName: string;
+    try {
+      const parsed = JSON.parse(data);
+      droppedUserId = parsed.userId;
+      fromRoomMeetingId = parsed.fromRoomId;
+      droppedUserName = parsed.userName;
+    } catch {
+      return;
+    }
     if (fromRoomMeetingId === toRoomId) return;
 
     setPendingMoves((prev) => {

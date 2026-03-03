@@ -696,6 +696,8 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   );
 
   if (renderInSidebar) {
+    if (!isOpen) return null;
+
     return (
       <Styled.SidebarPanelContent>
         <Styled.SidebarHeaderContainer
@@ -705,7 +707,13 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
           rightButtonProps={{
             'aria-label': intl.formatMessage(intlMessages.dismissLabel),
             label: intl.formatMessage(intlMessages.dismissLabel),
-            onClick: () => setIsOpen(false),
+            onClick: () => {
+              if (isUpdate) {
+                setUpdateUsersWhileRunning(false);
+              } else {
+                setIsOpen(false);
+              }
+            },
             icon: 'minus',
           }}
         />
