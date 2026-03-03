@@ -12,7 +12,8 @@
     "dev": "tsx src/index.ts",
     "lint": "eslint src --max-warnings 0",
     "clean": "rimraf dist && rimraf types",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "postinstall": "node scripts/download-twemoji-assets.mjs"
   },
   "repository": {
     "type": "git",
@@ -47,6 +48,7 @@
     "js-yaml": "^4.1.1",
     "pg": "^8.18.0",
     "redis": "^5.10.0",
+    "twemoji": "^14.0.2",
     "yjs": "^13.6.23"
   },
   "devDependencies": {
