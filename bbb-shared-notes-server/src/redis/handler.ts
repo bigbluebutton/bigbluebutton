@@ -170,6 +170,18 @@ const handleBlockNoteExport = async (header: MessageHeader, body: MessageBody): 
     presUploadToken,
   } = body;
 
+  const isValidJobId = (value: unknown): value is string => {
+    return typeof value === 'string' && /^[A-Za-z0-9_-]+$/.test(value);
+  };
+
+  if (!isValidJobId(jobId)) {
+    logger.error('Invalid jobId received, refusing export', {
+      jobId,
+      meetingId,
+    });
+    return;
+  }
+
   logger.info('Received BlockNote export request', {
     jobId,
     presId,
