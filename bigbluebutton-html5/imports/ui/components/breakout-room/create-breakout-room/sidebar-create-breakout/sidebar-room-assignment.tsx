@@ -24,7 +24,6 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
   numberOfRooms,
   setSelectedId,
   resetRooms,
-  users,
 }) => {
   const intl = useIntl();
   const roomPadNum = (n: number) => n.toString().padStart(2, '0');
@@ -39,6 +38,12 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
     const el = ev.target as HTMLDivElement;
     ev.dataTransfer.setData('text', el.id);
     setSelectedId(el.id);
+    const ghost = document.createElement('div');
+    ghost.textContent = el.textContent || '';
+    ghost.style.cssText = 'position:absolute;top:-9999px;padding:4px 8px;background:#fff;border:1px solid #ccc;border-radius:4px;font-size:0.85rem;white-space:nowrap;';
+    document.body.appendChild(ghost);
+    ev.dataTransfer.setDragImage(ghost, 0, 0);
+    requestAnimationFrame(() => ghost.remove());
   };
 
   const dragEnd = () => {
@@ -107,8 +112,6 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
                 <Styled.RoomCardRight>
                   <Styled.RoomCardCount>
                     {roomPadNum(usersInRoom.length)}
-                    {' / '}
-                    {roomPadNum(users.length)}
                   </Styled.RoomCardCount>
                   <Styled.RoomCardIcon>
                     <Icon iconName="user_list" />

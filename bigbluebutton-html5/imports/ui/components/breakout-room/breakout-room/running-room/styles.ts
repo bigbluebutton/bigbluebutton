@@ -174,8 +174,8 @@ export const UserItem = styled.div`
 `;
 
 export const RoomCardsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
   gap: 0.5rem;
   margin: 0.5rem 0;
 `;
@@ -250,6 +250,7 @@ export const RoomCardUserItem = styled.div`
 
 export const BottomBar = styled.div`
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
@@ -272,16 +273,23 @@ interface BtnProps {
 export const MegaphoneBtn = styled<BtnProps>(Button)`
   background: ${colorPrimary};
   border: none;
-  border-radius: 2rem;
-  padding: 0.75rem 1.5rem;
+  border-radius: 1rem;
+  padding: 1rem 1.5rem;
   color: ${colorWhite};
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   flex: 1;
-  font-size: 1rem;
+  min-width: 0;
+  font-size: 0.95rem;
   font-weight: 600;
+
+  & > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
   & > span > i {
     color: ${colorWhite} !important;
@@ -297,19 +305,23 @@ export const MegaphoneBtn = styled<BtnProps>(Button)`
 export const FinishBtn = styled<BtnProps>(Button)`
   background: ${colorDanger};
   border: none;
-  border-radius: 2rem;
-  padding: 0.75rem 1.5rem;
+  border-radius: 1rem;
+  padding: 1rem 1.5rem;
   color: ${colorWhite};
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   flex: 1;
-  font-size: 1rem;
+  min-width: 0;
+  font-size: 0.95rem;
   font-weight: 600;
 
   & > span {
     color: ${colorWhite} !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   &:hover {

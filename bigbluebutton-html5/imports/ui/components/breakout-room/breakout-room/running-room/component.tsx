@@ -42,6 +42,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.megaphone',
     description: 'Megaphone button label',
   },
+  megaphoneTooltip: {
+    id: 'app.createBreakoutRoom.megaphoneTooltip',
+    description: 'Megaphone button tooltip',
+  },
   finishLabel: {
     id: 'app.createBreakoutRoom.finish',
     description: 'Finish button label',
@@ -314,6 +318,12 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
 
   const dragStart = (ev: React.DragEvent<HTMLDivElement>, visUserId: string, fromRoomId: string, userName: string) => {
     ev.dataTransfer.setData('text', `${visUserId}::${fromRoomId}::${userName}`);
+    const ghost = document.createElement('div');
+    ghost.textContent = userName;
+    ghost.style.cssText = 'position:absolute;top:-9999px;padding:4px 8px;background:#fff;border:1px solid #ccc;border-radius:4px;font-size:0.85rem;white-space:nowrap;';
+    document.body.appendChild(ghost);
+    ev.dataTransfer.setDragImage(ghost, 0, 0);
+    requestAnimationFrame(() => ghost.remove());
   };
 
   const handleDrop = useCallback((toRoomId: string) => (ev: React.DragEvent) => {
@@ -354,8 +364,6 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
       container.scrollTop += SCROLL_SPEED;
     }
   }, []);
-
-  const totalParticipants = allUsers.length;
 
   const title = intl.formatMessage(intlMessages.breakoutTitle);
   const minimizeLabel = intl.formatMessage(
@@ -511,8 +519,6 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                   <Styled.RoomCardRight>
                     <Styled.RoomCardCount>
                       {padNum(totalRoomUsers)}
-                      {' / '}
-                      {padNum(totalParticipants)}
                     </Styled.RoomCardCount>
                     <Styled.RoomCardIcon>
                       <Icon iconName="user_list" />
@@ -588,6 +594,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
           icon="megaphone"
           label={intl.formatMessage(intlMessages.megaphoneLabel)}
           onClick={() => setMegaphoneOpen(!megaphoneOpen)}
+          title={intl.formatMessage(intlMessages.megaphoneTooltip)}
           data-test="megaphoneButton"
         />
         {/* @ts-ignore */}

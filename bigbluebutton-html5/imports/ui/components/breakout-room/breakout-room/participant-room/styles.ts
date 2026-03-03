@@ -104,7 +104,13 @@ const CallModeratorBtn = styled(Button)`
   width: 100%;
   font-size: 1rem;
   padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
+  border-radius: 1rem;
+
+  & > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 `;
 
 // @ts-ignore - as Button comes from JS, we can't provide its props
@@ -115,7 +121,13 @@ const ReturnBtn = styled(Button)`
   background-color: ${colorWhite};
   color: ${colorText};
   border: 1px solid ${colorGrayLighter};
-  border-radius: 0.5rem;
+  border-radius: 1rem;
+
+  & > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
   &:hover {
     background-color: ${colorBlueAux};

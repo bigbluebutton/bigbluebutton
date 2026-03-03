@@ -272,6 +272,21 @@ export const InfoClose = styled.button`
   }
 `;
 
+export const InfoGotItBtn = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: ${colorPrimary};
+  font-size: ${fontSizeSmall};
+  font-weight: 600;
+  padding: 0;
+  text-decoration: underline;
+
+  &:hover {
+    opacity: 0.8;
+  }
+`;
+
 export const UsersSection = styled.div`
   border: 1px solid ${colorGrayLighter};
   border-radius: 0.75rem;
@@ -319,8 +334,8 @@ export const UserItem = styled.div`
 `;
 
 export const RoomCardsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
   gap: 0.5rem;
   margin: 0.5rem 0;
 `;
@@ -395,7 +410,7 @@ export const StartButtonWrapper = styled.div`
 export const StartButton = styled.button<{ disabled?: boolean }>`
   width: 100%;
   padding: 0.75rem;
-  border-radius: 1.5rem;
+  border-radius: 1rem;
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
@@ -482,6 +497,7 @@ export default {
   InfoIcon,
   InfoText,
   InfoClose,
+  InfoGotItBtn,
   UsersSection,
   UsersSectionHeader,
   UserCount,

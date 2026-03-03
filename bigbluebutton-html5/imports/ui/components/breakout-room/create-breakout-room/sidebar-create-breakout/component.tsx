@@ -98,6 +98,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.infoBannerText',
     description: 'Info banner description text',
   },
+  infoBannerGotIt: {
+    id: 'app.createBreakoutRoom.infoBannerGotIt',
+    description: 'Info banner got it button',
+  },
   startLabel: {
     id: 'app.createBreakoutRoom.start',
     description: 'Start button label',
@@ -470,6 +474,13 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
             <Styled.InfoText>
               <strong>{intl.formatMessage(intlMessages.infoBannerTitle)}</strong>
               {intl.formatMessage(intlMessages.infoBannerText)}
+              {' '}
+              <Styled.InfoGotItBtn
+                type="button"
+                onClick={() => setInfoBannerVisible(false)}
+              >
+                {intl.formatMessage(intlMessages.infoBannerGotIt)}
+              </Styled.InfoGotItBtn>
             </Styled.InfoText>
             <Styled.InfoClose onClick={() => setInfoBannerVisible(false)}>✕</Styled.InfoClose>
           </Styled.InfoBanner>
