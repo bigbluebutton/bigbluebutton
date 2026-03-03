@@ -474,7 +474,8 @@ const UserActions: React.FC<UserActionsProps> = ({
       allowed: allowedToChangeWhiteboardAccess
         && !user.presenter
         && !isVoiceOnlyUser(user.userId)
-        && pageId,
+        && pageId
+        && !isBreakout,
       key: 'changeWhiteboardAccess',
       label: hasWhiteboardAccess
         ? intl.formatMessage(messages.removeWhiteboardAccess)
