@@ -1,5 +1,6 @@
 import { RequestHandler, Response } from "express";
 import hocuspocus from "../hocuspocus";
+import { isValidDocumentName } from "../hocuspocus/utils";
 import * as Y from "yjs";
 import { Logger } from "../common/logger";
 import { exportDocumentToHtml } from "./handlers/exportDocumentToHtml";
@@ -37,6 +38,13 @@ const documentApi: DocumentApi = {
     const documentName = Array.isArray(request.params.documentName)
       ? request.params.documentName[0]
       : request.params.documentName;
+
+    if (!isValidDocumentName(documentName)) {
+      return response.status(400).json({
+        success: false,
+        error: 'Invalid document name',
+      });
+    }
 
     try {
       const connection = await hocuspocus.openDirectConnection(documentName);
@@ -93,6 +101,11 @@ const documentApi: DocumentApi = {
     const format = Array.isArray(request.params.format)
       ? request.params.format[0]
       : request.params.format;
+
+    if (!isValidDocumentName(documentName)) {
+      return sendExportError(response, 400, 'Invalid document name');
+    }
+
     try {
       switch (format) {
         case 'html':
