@@ -34,10 +34,12 @@ systemd-run --user --pipe --wait --quiet                              \
   --property=ProtectSystem=strict                                     \
   --property=ProtectHome=yes                                          \
   --property=PrivateTmp=true                                          \
+  --property=PrivateNetwork=true                                      \
   --property=WorkingDirectory="${BBB_BLOCKNOTE_DIR}"                  \
   --property=ReadWritePaths="${BBB_BLOCKNOTE_DIR}"                    \
   --property=NoNewPrivileges=true                                     \
   --property=RestrictRealtime=true                                    \
+  --property=IPAddressDeny=any                                        \
   --property=SystemCallFilter=~@mount                                 \
   --property=MemoryHigh="${BBB_BLOCKNOTE_CONVERSION_MEMORY_HIGH}"     \
   --property=MemoryMax="${BBB_BLOCKNOTE_CONVERSION_MEMORY_MAX}"       \
