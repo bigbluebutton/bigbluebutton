@@ -45,8 +45,6 @@ async function exportDocumentToHtml(documentName: string): Promise<string> {
       'body {',
       '  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;',
       '  line-height: 1.6;',
-      '  padding: 40px;',
-      '  max-width: 800px;',
       '  margin: 0 auto;',
       '}',
       'h1, h2, h3, h4, h5, h6 {',
