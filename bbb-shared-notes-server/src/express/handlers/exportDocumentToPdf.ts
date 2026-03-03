@@ -125,11 +125,12 @@ export async function exportHtmlToPdf(
           --encoding utf-8 \
           --dpi 96 \
           --page-size A4 \
-          --margin-top 10mm \
-          --margin-bottom 10mm \
-          --margin-left 10mm \
-          --margin-right 10mm \
+          --margin-top 0mm \
+          --margin-bottom 0mm \
+          --margin-left 0mm \
+          --margin-right 0mm \
           --print-media-type \
+          --background \
           --no-header-line \
           "${htmlFilePath}" "${pdfFilePath}"`;
 
