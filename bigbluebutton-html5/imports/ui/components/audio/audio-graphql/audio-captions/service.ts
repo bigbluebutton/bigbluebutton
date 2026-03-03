@@ -16,7 +16,7 @@ export const splitTranscript = (obj: Caption) => {
   const CHARACTERS_PER_LINE = CAPTIONS_CONFIG.lineLimit;
   const LINES_PER_MESSAGE = CAPTIONS_CONFIG.lines;
 
-  let transcripts = [];
+  const transcripts = [];
   const words = obj.captionText.split(' ');
 
   let currentLine = '';
