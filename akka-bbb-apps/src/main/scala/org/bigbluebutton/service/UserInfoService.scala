@@ -51,6 +51,7 @@ class UserInfoService(system: ActorSystem, bbbActor: ActorRef) {
         "X-Hasura-UserId" -> userId,
         "X-Hasura-MeetingId" -> meetingID,
         "X-Hasura-SessionToken" -> sessionToken,
+        "X-Hasura-IsBreakout" -> conditionalValue("isBreakout", "true", ""),
         "X-Hasura-CursorNotLockedInMeeting" -> conditionalValue("hideViewersCursor", "", meetingID),
         "X-Hasura-CursorLockedUserId" -> conditionalValue("hideViewersCursor", userId, ""),
         "X-Hasura-AnnotationsNotLockedInMeeting" -> conditionalValue("hideViewersAnnotation", "", meetingID),
