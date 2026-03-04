@@ -1183,7 +1183,7 @@
     "app.lock-viewers.restrictParticipantsLabel": "تقييد المشاركين من...",
     "app.lock-viewers.featuresLable": "ميزة",
     "app.lock-viewers.lockStatusLabel": "الحالة",
-    "app.lock-viewers.webcamLabel": "Share webcam",
+    "app.lock-viewers.webcamLabel": "مشاركة كاميرا",
     "app.lock-viewers.otherViewersWebcamLabel": "See other participants' webcam",
     "app.lock-viewers.microphoneLabel": "Share microphone",
     "app.lock-viewers.PublicChatLabel": "Send public messages",
