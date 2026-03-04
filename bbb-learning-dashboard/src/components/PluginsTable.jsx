@@ -4,14 +4,14 @@ import { DataGrid } from '@mui/x-data-grid';
 import ReactMarkdown from 'react-markdown';
 import UserAvatar from './UserAvatar';
 
-// Type of genericData is of the form: {
+// Type of pluginUserData is of the form: {
 //  columnTitle: string;
 //  value: string
 // }
 const PluginsTable = (props) => {
   const {
-    genericDataColumnTitleList,
-    allUsers, intl, genericDataCardTitle,
+    pluginUserDataColumnTitleList,
+    allUsers, intl, pluginUserDataCardTitle,
   } = props;
 
   const [allUserPluginInformation, setAllUserPluginInformation] = useState({});
@@ -84,15 +84,55 @@ const PluginsTable = (props) => {
     if (hasUserInformationChanged()) setAllUserPluginInformation(allUsers);
   }, [allUsers]);
 
+  useEffect(() => {
+    const hasUserInformationChanged = () => {
+      const newUserIds = Object.keys(allUsers);
+      const oldUserIds = Object.keys(allUserPluginInformation);
+
+      const hasLengthChanged = (
+        newUserIds.length !== oldUserIds.length);
+
+      const hasKeysChanged = hasLengthChanged
+        || newUserIds.some((uId) => !oldUserIds.includes(uId))
+        || oldUserIds.some((uId) => !newUserIds.includes(uId));
+      if (hasKeysChanged) {
+        return true;
+      }
+      const hasGenericInformationChanged = Object.values(allUsers).some((newU) => {
+        const oldU = allUserPluginInformation[newU.userKey];
+
+        const oldUGenericDataList = oldU?.genericData?.[genericDataCardTitle] || [];
+        const newUGenericDataKeys = newU?.genericData?.[genericDataCardTitle] || [];
+
+        const hasGenericDataKeyChanged = oldUGenericDataList.length !== newUGenericDataKeys.length
+          || oldUGenericDataList.some((oldUGDEntry) => {
+            const newUGenericDataList = newUGenericDataKeys.filter(
+              (newUGDKey) => oldUGDEntry.columnTitle === newUGDKey.columnTitle,
+            );
+            if (newUGenericDataList.length === 0) return true;
+            const newGenericDataContainsOldItem = newUGenericDataList.some(
+              (newUGenericDataItem) => newUGenericDataItem.value === oldUGDEntry.value,
+            );
+            return !newGenericDataContainsOldItem;
+          });
+        return hasGenericDataKeyChanged;
+      });
+      return hasGenericInformationChanged;
+    };
+
+    if (hasUserInformationChanged()) setAllUserPluginInformation(allUsers);
+  }, [allUsers]);
+
+  // Creating a set out of the object's keys will remove duplicates from the array of keys
   gridCols.push({
     ...commonCountProps,
-    valueGetter: (params) => Object.keys(
-      params?.row?.User?.genericData?.[genericDataCardTitle],
-    )?.length || 0,
+    valueGetter: (params) => [...(new Set(Object.keys(
+      params?.row?.User?.pluginUserData?.[pluginUserDataCardTitle],
+    )))].length || 0,
     renderCell: (params) => params?.value,
   });
 
-  genericDataColumnTitleList.map((pluginColumnTitle) => {
+  pluginUserDataColumnTitleList.map((pluginColumnTitle) => {
     const commonColProps = {
       field: pluginColumnTitle,
       headerName: pluginColumnTitle,
@@ -108,13 +148,13 @@ const PluginsTable = (props) => {
     return pluginColumnTitle;
   });
   const gridRows = useMemo(() => Object.values(allUserPluginInformation).filter(
-    (u) => !(Object.keys(u?.genericData)?.length === 0),
+    (u) => !(Object.keys(u?.pluginUserData)?.length === 0),
   ).map((u, i) => ({
     id: i + 1,
     User: u,
     // This is going to be of the form:
     // [learningAnalyticsDashboardColumnTitle]: learningAnalyticsDashboardValue, for each entry
-    ...u.genericData?.[genericDataCardTitle].reduce((acc, curr) => {
+    ...u.pluginUserData?.[pluginUserDataCardTitle].reduce((acc, curr) => {
       const {
         columnTitle,
         value,

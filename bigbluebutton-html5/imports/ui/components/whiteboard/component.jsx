@@ -773,7 +773,6 @@ const Whiteboard = React.memo((props) => {
         d: () => {
           tlEditorRef.current
             ?.duplicateShapes(tlEditorRef.current?.getSelectedShapes(), { x: 35, y: 35 });
-          tlEditorRef.current?.selectNone();
         },
         x: () => {
           handleCut(true);
@@ -1388,6 +1387,7 @@ const Whiteboard = React.memo((props) => {
           || path === 'draw.idle'
           || path === 'select.editing_shape'
           || path === 'highlight.idle'
+          || path === 'eraser.idle'
         ) {
           if (Object.keys(shapeBatchRef.current).length > 0) {
             const shapesToPersist = Object.values(shapeBatchRef.current);
@@ -1418,8 +1418,15 @@ const Whiteboard = React.memo((props) => {
       }
 
       const hasShapes = shapes && Object.keys(shapes).length > 0;
+      // Filter shapes to only include those belonging to the current presentation
+      const currentPresId = presentationIdRef.current;
       const remoteShapesArray = hasShapes
-        ? Object.values(shapes).map((shape) => sanitizeShape(shape))
+        ? Object.values(shapes)
+          .filter((shape) => {
+            const shapePresId = shape.meta?.presentationId;
+            return !shapePresId || shapePresId === currentPresId;
+          })
+          .map((shape) => sanitizeShape(shape))
         : [];
 
       editor.store.mergeRemoteChanges(() => {
@@ -1428,7 +1435,7 @@ const Whiteboard = React.memo((props) => {
           editor.store.put(assets);
           editor.setCurrentPage(`page:${curPageIdRef.current}`);
           editor.store.put(bgShape);
-          if (hasShapes) {
+          if (remoteShapesArray.length > 0) {
             editor.store.put(remoteShapesArray);
           }
           editor.history.clear();

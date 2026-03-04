@@ -342,7 +342,7 @@ class ActionsDropdown extends PureComponent {
       intl,
       amIPresenter,
       shortcuts: OPEN_ACTIONS_AK,
-      isMeteorConnected,
+      isConnected,
       isDropdownOpen,
       isMobile,
       isRTL,
@@ -356,7 +356,7 @@ class ActionsDropdown extends PureComponent {
 
     const customStyles = { top: '-1rem' };
 
-    if (availableActions.length === 0 || !isMeteorConnected) {
+    if (availableActions.length === 0 || !isConnected) {
       return null;
     }
 

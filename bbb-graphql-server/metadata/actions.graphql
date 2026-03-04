@@ -59,14 +59,14 @@ type Mutation {
 type Mutation {
   breakoutRoomMoveUser(
     userId: String!
-    fromBreakoutRoomId: String!
-    toBreakoutRoomId: String!
+    fromBreakoutRoomMeetingId: String!
+    toBreakoutRoomMeetingId: String!
   ): Boolean
 }
 
 type Mutation {
   breakoutRoomRequestJoinUrl(
-    breakoutRoomId: String!
+    breakoutRoomMeetingId: String!
   ): Boolean
 }
 
@@ -352,8 +352,24 @@ type Mutation {
 }
 
 type Mutation {
-  pluginLearningAnalyticsDashboardSendGenericData(
-    genericDataForLearningAnalyticsDashboard: json!
+  pluginLearningAnalyticsDashboardUpsertUserData(
+    targetUserId: String!
+    userDataForLearningAnalyticsDashboard: json!
+    pluginName: String!
+  ): Boolean
+}
+
+type Mutation {
+  pluginLearningAnalyticsDashboardDeleteUserData(
+    targetUserId: String!
+    userDataForLearningAnalyticsDashboard: json!
+    pluginName: String!
+  ): Boolean
+}
+
+type Mutation {
+  pluginLearningAnalyticsDashboardClearAllUsersData(
+    cardTitle: String!
     pluginName: String!
   ): Boolean
 }
@@ -488,9 +504,10 @@ type Mutation {
 }
 
 type Mutation {
-  presentationSetWriters(
-    pageId: String!
-    usersIds: [String]!
+  userSetWhiteboardWriteAccess(
+    userIds: [String]
+    allUsers: Boolean!
+    whiteboardWriteAccess: Boolean!
   ): Boolean
 }
 
@@ -758,3 +775,4 @@ input AudioGroupParticipant {
   participantType: String!
   active: Boolean!
 }
+

@@ -57,6 +57,9 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
     props.usersProp.meetingLayout,
   )
 
+  // Set initial multiUserWhiteboardEnabled state
+  MeetingStatus2x.setMultiUserWhiteboardEnabled(liveMeeting.status, liveMeeting.props.usersProp.multiUserWhiteboardEnabled)
+
   private val recordEvents = props.recordProp.record || props.recordProp.keepEvents
   val outMsgRouter = new OutMsgRouter(recordEvents, outGW)
 

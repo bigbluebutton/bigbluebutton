@@ -5,6 +5,7 @@ interface PluginButtonContainerProps {
   dark: boolean;
   bottom: boolean;
   right: boolean;
+  dataTest?: string;
   icon: string;
   label: string;
   onClick: (args:{ browserClickEvent: React.MouseEvent<HTMLElement> }) => void;
@@ -18,6 +19,7 @@ const PluginButtonContainer = (props: PluginButtonContainerProps) => {
     icon,
     label,
     onClick,
+    dataTest,
   } = props;
   return (
     <PluginHelperButtonComponent
@@ -25,6 +27,7 @@ const PluginButtonContainer = (props: PluginButtonContainerProps) => {
       bottom={bottom}
       right={right}
       icon={icon}
+      dataTest={dataTest}
       label={label}
       onClick={onClick}
     />

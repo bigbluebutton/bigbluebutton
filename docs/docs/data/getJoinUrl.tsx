@@ -2,6 +2,12 @@ import React from "react";
 
 const getJoinUrlTableData = [
     {
+        name: "sessionToken",
+        required: true,
+        type: "String",
+        description: <>Session token to identify the user who is requesting a new join url.</>,
+    },
+    {
         name: "replaceSession",
         required: false,
         type: "Boolean",

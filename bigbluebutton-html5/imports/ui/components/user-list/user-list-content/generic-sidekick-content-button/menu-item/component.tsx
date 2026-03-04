@@ -101,10 +101,12 @@ const GenericContentSidekickAreaMenuItem = ({
     };
   }, []);
 
+  const dataTest = `sidekick_menu_item_${genericContentSidekickAreaObject.dataTest}`;
   return (
     <Styled.ScrollableList>
       <Styled.List>
         <Styled.ListItem
+          data-test={dataTest}
           role="button"
           tabIndex={0}
           active={sidebarContentPanel === genericSidekickContentId}

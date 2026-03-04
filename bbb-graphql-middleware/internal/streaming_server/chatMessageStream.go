@@ -23,8 +23,6 @@ func HandleGroupChatMessageBroadcastEvtMsg(receivedMessage common.RedisMessage, 
 	browserConnectionsMutex.RLock()
 	for _, bc := range browserConnections {
 		if bc.MeetingId == receivedMessage.Core.Header.MeetingId {
-			fmt.Println(chatParticipants)
-			fmt.Println(bc.UserId)
 			if len(chatParticipants) == 0 || slices.Contains(chatParticipants, any(bc.UserId)) {
 				browserConnectionsToSendData = append(browserConnectionsToSendData, bc)
 			}
@@ -52,6 +50,7 @@ func createChatMesssageGraphqlMessage(receivedMessage common.RedisMessage) ([]by
 		return nil, fmt.Errorf("it was not able to read msg in GroupChatMessageBroadcastEvtMsg")
 	}
 	message := messageProps["message"].(string)
+	messageAsHtml := messageProps["messageAsHtml"].(string)
 	messageId := messageProps["id"].(string)
 	messageMetadata := messageProps["metadata"]
 	messageType := messageProps["messageType"].(string)
@@ -68,6 +67,7 @@ func createChatMesssageGraphqlMessage(receivedMessage common.RedisMessage) ([]by
 	item := map[string]any{
 		"chatId":          chatId,
 		"message":         message,
+		"messageAsHtml":   messageAsHtml,
 		"messageId":       messageId,
 		"messageMetadata": messageMetadata,
 		"messageType":     messageType,

@@ -4,7 +4,7 @@ import scala.collection.immutable.HashMap
 import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.apps.whiteboard.Whiteboard
 import org.bigbluebutton.SystemConfiguration
-import org.bigbluebutton.core.db.{ PresAnnotationDAO, PresAnnotationHistoryDAO, PresPageWritersDAO }
+import org.bigbluebutton.core.db.{ PresAnnotationDAO, PresAnnotationHistoryDAO }
 
 class WhiteboardModel extends SystemConfiguration {
   private var _whiteboards = new HashMap[String, Whiteboard]()
@@ -24,9 +24,6 @@ class WhiteboardModel extends SystemConfiguration {
   private def createWhiteboard(wbId: String): Whiteboard = {
     Whiteboard(
       wbId,
-      Array.empty[String],
-      Array.empty[String],
-      System.currentTimeMillis(),
       new HashMap[String, AnnotationVO]
     )
   }
@@ -47,6 +44,7 @@ class WhiteboardModel extends SystemConfiguration {
     }).toMap
 
   def addAnnotations(wbId: String, meetingId: String, userId: String, annotations: Array[AnnotationVO], isPresenter: Boolean, isModerator: Boolean): Array[AnnotationVO] = {
+
     val wb = getWhiteboard(wbId)
 
     var annotationsAdded = Array[AnnotationVO]()
@@ -162,26 +160,4 @@ class WhiteboardModel extends SystemConfiguration {
 
     annotationsIdsRemoved
   }
-
-  def modifyWhiteboardAccess(meetingId: String, wbId: String, multiUser: Array[String]) {
-    val wb = getWhiteboard(wbId)
-    val newWb = wb.copy(multiUser = multiUser, oldMultiUser = wb.multiUser, changedModeOn = System.currentTimeMillis())
-    PresPageWritersDAO.updateMultiuser(meetingId, newWb)
-    saveWhiteboard(newWb)
-  }
-
-  def getWhiteboardAccess(wbId: String): Array[String] = getWhiteboard(wbId).multiUser
-
-  def isNonEjectionGracePeriodOver(wbId: String, userId: String): Boolean = {
-    val wb = getWhiteboard(wbId)
-    val lastChange = System.currentTimeMillis() - wb.changedModeOn
-    !(wb.oldMultiUser.contains(userId) && lastChange < 5000)
-  }
-
-  def hasWhiteboardAccess(wbId: String, userId: String): Boolean = {
-    val wb = getWhiteboard(wbId)
-    wb.multiUser.contains(userId)
-  }
-
-  def getChangedModeOn(wbId: String): Long = getWhiteboard(wbId).changedModeOn
 }

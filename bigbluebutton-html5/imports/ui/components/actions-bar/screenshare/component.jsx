@@ -28,7 +28,7 @@ const propTypes = {
   amIPresenter: PropTypes.bool,
   isScreenBroadcasting: PropTypes.bool.isRequired,
   isScreenGloballyBroadcasting: PropTypes.bool.isRequired,
-  isMeteorConnected: PropTypes.bool.isRequired,
+  isConnected: PropTypes.bool.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -146,7 +146,7 @@ const ScreenshareButton = ({
   isScreenBroadcasting,
   isScreenGloballyBroadcasting,
   amIPresenter = false,
-  isMeteorConnected,
+  isConnected,
   screenshareDataSavingSetting,
 }) => {
   const TROUBLESHOOTING_URLS = window.meetingClientSettings.public.media.screenshareTroubleshootingLinks;
@@ -236,7 +236,7 @@ const ScreenshareButton = ({
           ? (
             <Styled.Container>
               <Button
-                disabled={(!isMeteorConnected && !isScreenBroadcasting) || !screenshareDataSavingSetting || !amIPresenter}
+                disabled={(!isConnected && !isScreenBroadcasting) || !screenshareDataSavingSetting || !amIPresenter}
                 icon={amIBroadcasting ? 'desktop' : 'desktop_off'}
                 data-test={dataTest}
                 label={intl.formatMessage(intlMessages[`${info}Label`])}

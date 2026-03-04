@@ -47,6 +47,7 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
         true,
         externalMeetingId,
         user.avatar,
+        user.webcamBackground,
         user.role,
         liveMeeting.props.password.moderatorPass
       )
@@ -118,7 +119,7 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
   ): Unit = {
 
     val users = Users2x.findAll(liveMeeting.users2x)
-    val breakoutUsers = users map { u => new BreakoutUser(u.extId, u.name) }
+    val breakoutUsers = users map { u => BreakoutUser(u.intId, u.extId, u.name) }
 
     val voiceUsers = VoiceUsers.findAll(liveMeeting.voiceUsers)
     val breakoutVoiceUsers = voiceUsers map { vu => BreakoutVoiceUser(vu.intId, vu.intId, vu.voiceUserId) }

@@ -101,6 +101,8 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
       userId,
     } = talkingUser;
 
+    const isMuteActionAvailable = isModerator && !isBreakout;
+
     const ariaLabel = intl.formatMessage(talking
       ? intlMessages.isTalking : intlMessages.wasTalking, {
       userName: name,
@@ -123,15 +125,15 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
         <Styled.TalkingIndicatorButton
           $spoke={!talking || undefined}
           $muted={muted || undefined}
-          $isViewer={!isModerator || undefined}
+          $isViewer={!isMuteActionAvailable || undefined}
           key={userId}
           onClick={() => {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore - call signature is misse due the function being wrapped
-            muteUser(userId, muted, isBreakout, isModerator, toggleVoice);
+            muteUser(userId, muted, isBreakout, isMuteActionAvailable, toggleVoice);
           }}
           label={name}
-          tooltipLabel={!muted && isModerator
+          tooltipLabel={!muted && isMuteActionAvailable
             ? `${intl.formatMessage(intlMessages.muteLabel)} ${name}`
             : null}
           data-test={talking ? 'isTalking' : 'wasTalking'}
@@ -141,7 +143,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
           icon={icon}
           size="lg"
           style={
-            isModerator
+            isMuteActionAvailable
               ? {
                 backgroundColor: color,
                 border: `solid 2px ${color}`,

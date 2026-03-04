@@ -356,6 +356,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       cameraSortingModes: {
         defaultSorting: 'LOCAL_ALPHABETICAL',
         paginationSorting: 'VOICE_ACTIVITY_LOCAL',
+        showAudioOnlyOnFirstPage: true,
+        maxAudioOnlyUsers: 2,
+        partitionPrivilegedStreams: true,
       },
       cameraQualityThresholds: {
         enabled: true,
@@ -665,6 +668,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         url: `wss://${window.location.hostname}/livekit`,
         selectiveSubscription: false,
         logLevel: LogLevel.warn,
+        reconnectOnFatalFailures: false,
         roomOptions: {
           adaptiveStream: true,
           dynacast: true,
