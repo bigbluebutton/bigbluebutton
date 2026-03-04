@@ -1,10 +1,5 @@
 name: Run ShellCheck
 on:
-  push:
-    branches:
-      - "develop"
-      - "v2.[5-9].x-release"
-      - "v[3-9].*.x-release"
   pull_request:
     types: [opened, synchronize, reopened]
 permissions:
