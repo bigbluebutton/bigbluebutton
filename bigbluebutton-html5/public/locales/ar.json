@@ -1186,7 +1186,7 @@
     "app.lock-viewers.webcamLabel": "مشاركة كاميرا",
     "app.lock-viewers.otherViewersWebcamLabel": "شاهد كاميرا الويب الخاصة بالمشاركين الآخرين",
     "app.lock-viewers.microphoneLabel": "مشاركة الميكروفون",
-    "app.lock-viewers.PublicChatLabel": "Send public messages",
+    "app.lock-viewers.PublicChatLabel": "إرسال رسائل عامة",
     "app.lock-viewers.PrivateChatLabel": "Send private messages",
     "app.lock-viewers.notesLabel": "Edit shared notes",
     "app.lock-viewers.userListLabel": "See other participants in the user list",
