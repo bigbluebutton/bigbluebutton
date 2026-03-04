@@ -237,7 +237,7 @@
     "app.userList.userOptions.enableNotes": "تم تمكين الملاحظات المشتركة الآن",
     "app.userList.userOptions.showUserList": "تم تفعيل عرض قائمة المستخدمين عند المشاهدين",
     "app.userList.userOptions.disablePresenterRequest": "تم تعطيل طلبات مقدمي البرامج للمشاهدين",
-    "app.userList.userOptions.enablePresenterRequest": "Presenter request is now enabled for viewers",
+    "app.userList.userOptions.enablePresenterRequest": "أصبح طلب مقدم العرض متاحًا الآن للمشاهدين",
     "app.userList.userOptions.enableOnlyModeratorWebcam": "يمكنك تمكين كاميرا الويب الخاصة بك الآن ، وسيراك الجميع",
     "app.userList.userOptions.savedNames.title": "قائمة المستخدمين في الجلسة {meetingName} في {dateAndTime}",
     "app.userList.userOptions.sortedFirstName.heading": "مرتبة حسب الاسم الأول:",
