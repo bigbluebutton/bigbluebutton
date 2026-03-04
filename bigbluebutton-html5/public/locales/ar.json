@@ -1194,7 +1194,7 @@
     "app.lock-viewers.button.apply": "تطبيق",
     "app.lock-viewers.button.cancel": "إلغاء",
     "app.lock-viewers.locked": "مقفل",
-    "app.lock-viewers.hideViewersCursor": "See other participants' cursors",
+    "app.lock-viewers.hideViewersCursor": "شاهد مؤشرات المشاركين الآخرين",
     "app.lock-viewers.hideAnnotationsLabel": "رؤية تعليقات المشاركين الآخرين على السبورة البيضاء.",
     "app.lock-viewers.disablePresenterRequestLabel": "Requesting to become presenter.",
     "app.lock-viewers.tabs.guestPolicy": "Guest Policy",
