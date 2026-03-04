@@ -1188,7 +1188,7 @@
     "app.lock-viewers.microphoneLabel": "مشاركة الميكروفون",
     "app.lock-viewers.PublicChatLabel": "إرسال رسائل عامة",
     "app.lock-viewers.PrivateChatLabel": "إرسال رسائل خاصة.",
-    "app.lock-viewers.notesLabel": "Edit shared notes",
+    "app.lock-viewers.notesLabel": "تحرير الملاحظات المشتركة",
     "app.lock-viewers.userListLabel": "See other participants in the user list",
     "app.lock-viewers.ariaTitle": "تقييد المشاركين المشروط",
     "app.lock-viewers.button.apply": "تطبيق",
