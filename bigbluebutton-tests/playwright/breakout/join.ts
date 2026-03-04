@@ -119,7 +119,7 @@ export class Join extends Create {
   }
 
   async joinAndShareScreen() {
-    const breakoutPage = await this.joinRoom();
+    const breakoutPage = await this.joinRoomWithModerator();
 
     await utilScreenShare.startScreenshare(breakoutPage);
   }
