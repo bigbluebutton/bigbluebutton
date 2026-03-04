@@ -39,6 +39,7 @@ export const userComparator = (a?: Partial<User>, b?: Partial<User>): boolean =>
   if ((a.raiseHand ?? false) !== (b.raiseHand ?? false)) return false;
   if ((a.registeredAt ?? 0) !== (b.registeredAt ?? 0)) return false;
   if ((a.requestedUnmuteByMod ?? false) !== (b.requestedUnmuteByMod ?? false)) return false;
+  if ((a.requestedPresenter ?? false) !== (b.requestedPresenter ?? false)) return false;
   if ((a.role ?? '') !== (b.role ?? '')) return false;
   if ((a.speechLocale ?? '') !== (b.speechLocale ?? '')) return false;
   if ((a.captionLocale ?? '') !== (b.captionLocale ?? '')) return false;
