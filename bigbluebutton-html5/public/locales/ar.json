@@ -1178,7 +1178,7 @@
     "app.shortcut-help.duplicate": "تكرار",
     "app.shortcut-help.gesture": "الإيماءات",
     "app.shortcut-help.fingerTap": "{fingerCount}-نقرة إصبع",
-    "app.lock-viewers.title": "Restrictions and Policies",
+    "app.lock-viewers.title": "القيود والسياسات",
     "app.lock-viewers.description": "منع المشاركين من استخدام ميزات معينة.",
     "app.lock-viewers.restrictParticipantsLabel": "تقييد المشاركين من...",
     "app.lock-viewers.featuresLable": "ميزة",
