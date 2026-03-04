@@ -59,71 +59,31 @@ const PluginsTable = (props) => {
       if (hasKeysChanged) {
         return true;
       }
-      const hasGenericInformationChanged = Object.values(allUsers).some((newU) => {
+      const hasPluginInformationChanged = Object.values(allUsers).some((newU) => {
         const oldU = allUserPluginInformation[newU.userKey];
 
-        const oldUGenericDataList = oldU?.genericData?.[genericDataCardTitle] || [];
-        const newUGenericDataKeys = newU?.genericData?.[genericDataCardTitle] || [];
+        const oldUPluginDataList = oldU?.pluginUserData?.[pluginUserDataCardTitle] || [];
+        const newUPluginDataKeys = newU?.pluginUserData?.[pluginUserDataCardTitle] || [];
 
-        const hasGenericDataKeyChanged = oldUGenericDataList.length !== newUGenericDataKeys.length
-          || oldUGenericDataList.some((oldUGDEntry) => {
-            const newUGenericDataList = newUGenericDataKeys.filter(
+        const hasPluginDataKeyChanged = oldUPluginDataList.length !== newUPluginDataKeys.length
+          || oldUPluginDataList.some((oldUGDEntry) => {
+            const newUPluginDataList = newUPluginDataKeys.filter(
               (newUGDKey) => oldUGDEntry.columnTitle === newUGDKey.columnTitle,
             );
-            if (newUGenericDataList.length === 0) return true;
-            const newGenericDataContainsOldItem = newUGenericDataList.some(
-              (newUGenericDataItem) => newUGenericDataItem.value === oldUGDEntry.value,
+            if (newUPluginDataList.length === 0) return true;
+            const newPluginDataContainsOldItem = newUPluginDataList.some(
+              (newUPluginDataItem) => newUPluginDataItem.value === oldUGDEntry.value,
             );
-            return !newGenericDataContainsOldItem;
+            return !newPluginDataContainsOldItem;
           });
-        return hasGenericDataKeyChanged;
+        return hasPluginDataKeyChanged;
       });
-      return hasGenericInformationChanged;
+      return hasPluginInformationChanged;
     };
 
     if (hasUserInformationChanged()) setAllUserPluginInformation(allUsers);
   }, [allUsers]);
 
-  useEffect(() => {
-    const hasUserInformationChanged = () => {
-      const newUserIds = Object.keys(allUsers);
-      const oldUserIds = Object.keys(allUserPluginInformation);
-
-      const hasLengthChanged = (
-        newUserIds.length !== oldUserIds.length);
-
-      const hasKeysChanged = hasLengthChanged
-        || newUserIds.some((uId) => !oldUserIds.includes(uId))
-        || oldUserIds.some((uId) => !newUserIds.includes(uId));
-      if (hasKeysChanged) {
-        return true;
-      }
-      const hasGenericInformationChanged = Object.values(allUsers).some((newU) => {
-        const oldU = allUserPluginInformation[newU.userKey];
-
-        const oldUGenericDataList = oldU?.genericData?.[genericDataCardTitle] || [];
-        const newUGenericDataKeys = newU?.genericData?.[genericDataCardTitle] || [];
-
-        const hasGenericDataKeyChanged = oldUGenericDataList.length !== newUGenericDataKeys.length
-          || oldUGenericDataList.some((oldUGDEntry) => {
-            const newUGenericDataList = newUGenericDataKeys.filter(
-              (newUGDKey) => oldUGDEntry.columnTitle === newUGDKey.columnTitle,
-            );
-            if (newUGenericDataList.length === 0) return true;
-            const newGenericDataContainsOldItem = newUGenericDataList.some(
-              (newUGenericDataItem) => newUGenericDataItem.value === oldUGDEntry.value,
-            );
-            return !newGenericDataContainsOldItem;
-          });
-        return hasGenericDataKeyChanged;
-      });
-      return hasGenericInformationChanged;
-    };
-
-    if (hasUserInformationChanged()) setAllUserPluginInformation(allUsers);
-  }, [allUsers]);
-
-  // Creating a set out of the object's keys will remove duplicates from the array of keys
   gridCols.push({
     ...commonCountProps,
     valueGetter: (params) => [...(new Set(Object.keys(
