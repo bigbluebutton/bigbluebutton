@@ -12,7 +12,7 @@ import {
   BREAKOUT_ROOM_SEND_MESSAGE_TO_ALL,
 } from '../../mutations';
 import { BreakoutRoom as BreakoutRoomType } from '../queries';
-import { getUserSubscription, getUserResponse } from '../../create-breakout-room/queries';
+import { getUserSubscription, type getUserResponse } from '../../create-breakout-room/queries';
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
@@ -202,7 +202,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
   }, [breakouts, assignedUserIds, meetingId]);
 
   const unassignedUsers = useMemo(
-    () => allUsers.filter((u) => {
+    () => allUsers.filter((u: { userId: string }) => {
       const pending = pendingMoves.get(u.userId);
       if (pending && pending.toRoomId !== meetingId) return false;
       if (pending && pending.toRoomId === meetingId) return true;
@@ -483,8 +483,8 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
             </Styled.UsersSectionHeader>
             <Styled.UsersList>
               {unassignedUsers
-                .sort((a, b) => a.name.localeCompare(b.name))
-                .map((user) => (
+                .sort((a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name))
+                .map((user: { userId: string; name: string }) => (
                   <Styled.UserItem
                     key={user.userId}
                     draggable
