@@ -1197,7 +1197,7 @@
     "app.lock-viewers.hideViewersCursor": "شاهد مؤشرات المشاركين الآخرين",
     "app.lock-viewers.hideAnnotationsLabel": "رؤية تعليقات المشاركين الآخرين على السبورة البيضاء.",
     "app.lock-viewers.disablePresenterRequestLabel": "أطلب أن أصبح مقدم.",
-    "app.lock-viewers.tabs.guestPolicy": "Guest Policy",
+    "app.lock-viewers.tabs.guestPolicy": "سياسة الضيف",
     "app.lock-viewers.tabs.participantPermissions": "Participant Permissions",
     "app.lock-viewers.tabs.presentationPermissions": "Presentation Permissions",
     "app.lock-viewers.guestPolicy.title": "Guest Policy",
