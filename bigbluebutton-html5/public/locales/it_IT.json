@@ -1207,7 +1207,7 @@
     "app.lock-viewers.presentationPermissions.moderatorOnly": "Il relatore è assegnato da un moderatore",
     "app.lock-viewers.presentationPermissions.moderatorOnly.tooltip": "Solo i moderatori possono assegnare il ruolo di relatore ai partecipanti.",
     "app.lock-viewers.presentationPermissions.requireApproval": "Consenti ai partecipanti di presentare con l'approvazione del moderatore",
-    "app.lock-viewers.presentationPermissions.requireApproval.tooltip": "Participants can request to become presenter, but a moderator must approve the request.",
+    "app.lock-viewers.presentationPermissions.requireApproval.tooltip": "I partecipanti possono richiedere di diventare relatori, ma la richiesta deve essere approvata da un moderatore.",
     "app.lock-viewers.presentationPermissions.freeForAll": "Consentire ai partecipanti di presentare liberamente",
     "app.lock-viewers.presentationPermissions.freeForAll.tooltip": "Any participant can take the presenter role without moderator approval.",
     "app.guest-policy.ariaTitle": "Finestra impostazioni regolamento degli ospiti",
