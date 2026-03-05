@@ -121,6 +121,10 @@ Updated in 3.0:
 - **html5client/check** endpoint was removed. It was used for checking the health of the server returning `{"html5clientStatus":"running"}`
 - **feedback** endpoint was introduced, replacing calls to `/html5client/feedback` with `/api/feedback`
 
+Updated in 4.0:
+
+- **create** - **Removed:** Parameter `meetingLayout` no longer supports: CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS; 
+
 ## API Data Types
 
 There are three types in the API.
