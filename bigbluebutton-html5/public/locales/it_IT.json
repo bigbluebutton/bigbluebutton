@@ -1200,7 +1200,7 @@
     "app.lock-viewers.tabs.presentationPermissions": "Presentation Permissions",
     "app.lock-viewers.guestPolicy.title": "Guest Policy",
     "app.lock-viewers.guestPolicy.description": "Configura come vengono gestiti gli ospiti quando tentano di partecipare alla riunione.",
-    "app.lock-viewers.participantPermissions.title": "Participant Permissions",
+    "app.lock-viewers.participantPermissions.title": "Autorizzazioni dei partecipanti",
     "app.lock-viewers.participantPermissions.description": "Le opzioni seguenti definiscono cosa possono fare i partecipanti nella sessione. Deselezionando un'opzione si rimuove l'autorizzazione corrispondente.",
     "app.lock-viewers.presentationPermissions.title": "Autorizzazioni di presentazione",
     "app.lock-viewers.presentationPermissions.description": "Configurare la modalità di gestione dei diritti di presentazione nella sessione.",
