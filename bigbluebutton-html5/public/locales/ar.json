@@ -1205,7 +1205,7 @@
     "app.lock-viewers.participantPermissions.title": "أذوات المشارك",
     "app.lock-viewers.participantPermissions.description": "تحدد الخيارات أدناه ما يمكن للمشاركين فعله في الجلسة. يؤدي إلغاء تحديد أحد الخيارات إلى إزالة هذا الإذن.",
     "app.lock-viewers.presentationPermissions.title": "أذونات العرض التقديمي",
-    "app.lock-viewers.presentationPermissions.description": "Configure how presentation rights are managed in the session.",
+    "app.lock-viewers.presentationPermissions.description": "قم بضبط كيفية إدارة حقوق العرض في الجلسة.",
     "app.lock-viewers.presentationPermissions.moderatorOnly": "Presenter is assigned by a moderator",
     "app.lock-viewers.presentationPermissions.moderatorOnly.tooltip": "Only moderators can assign the presenter role to participants.",
     "app.lock-viewers.presentationPermissions.requireApproval": "Allow participants to present with moderator approval",
