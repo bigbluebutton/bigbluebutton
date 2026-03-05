@@ -196,7 +196,7 @@ public:
     userSettingsStorage: session
     defaultSettings:
       layout:
-        selectedLayout: 'custom'
+        selectedLayout: 'unified'
         pushLayout: false
       application:
         animations: true
@@ -828,15 +828,11 @@ public:
   layout:
     hidePresentationOnJoin: false
     showParticipantsOnLogin: false
-    showPushLayoutButton: true
-    showPushLayoutToggle: true
     showSessionDetailsOnJoin: true
     showScreenshareQuickSwapButton: false
     showLeaveSessionLabel: false
     usersPerUserListPage: 50
-    syncCameraDockSizeAndPosition: false
-    # if false, the user can't change the layout (no layout selection modal)
-    enableDeprecatedLayoutSelection: true
+    syncCameraDockSizeAndPosition: true
   pads:
     url: ETHERPAD_HOST
   media:

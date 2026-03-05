@@ -1,9 +1,5 @@
 export const LAYOUT_TYPE = {
   UNIFIED_LAYOUT: 'unified',
-  CUSTOM_LAYOUT: 'custom',
-  SMART_LAYOUT: 'smart',
-  PRESENTATION_FOCUS: 'presentationFocus',
-  VIDEO_FOCUS: 'videoFocus',
   CAMERAS_ONLY: 'camerasOnly',
   PRESENTATION_ONLY: 'presentationOnly',
   PARTICIPANTS_AND_CHAT_ONLY: 'participantsAndChatOnly',

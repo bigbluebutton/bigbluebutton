@@ -83,14 +83,14 @@ const useLayoutUpdater = (fullUpdate: boolean = false) => {
     }
 
     const layoutSupported = isLayoutSupported(deviceType, targetLayout);
-    const layoutToBeApplied = layoutSupported ? targetLayout : LAYOUT_TYPE.SMART_LAYOUT;
+    const layoutToBeApplied = layoutSupported ? targetLayout : LAYOUT_TYPE.UNIFIED_LAYOUT;
 
     if (!layoutSupported) {
       logger.info({
         logCode: 'layout_type_not_supported_fallback',
-        extraInfo: { deviceType, targetLayout, fallback: LAYOUT_TYPE.SMART_LAYOUT },
+        extraInfo: { deviceType, targetLayout, fallback: LAYOUT_TYPE.UNIFIED_LAYOUT },
       }, `Layout type ${targetLayout} is not supported on ${deviceType}.`
-      + `Falling back to ${LAYOUT_TYPE.SMART_LAYOUT}.`);
+      + `Falling back to ${LAYOUT_TYPE.UNIFIED_LAYOUT}.`);
     }
 
     if (layoutTypeFromSettings === layoutTypeFromContext && layoutTypeFromSettings === layoutToBeApplied) {

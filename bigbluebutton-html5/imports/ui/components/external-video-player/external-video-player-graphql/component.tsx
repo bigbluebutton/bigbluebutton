@@ -73,7 +73,6 @@ interface ExternalVideoPlayerProps {
   currentVolume: React.MutableRefObject<number>;
   isMuted: React.MutableRefObject<boolean>;
   isEchoTest: boolean;
-  isGridLayout: boolean;
   isPresenter: boolean;
   isBot: boolean;
   videoUrl: string;
@@ -84,7 +83,6 @@ interface ExternalVideoPlayerProps {
   playing: boolean;
   playerPlaybackRate: number;
   playerKey: string;
-  isSidebarContentOpen: boolean;
   setPlayerKey: (key: string) => void;
   sendMessage: (event: string, data: {
     rate: number | Promise<number>;
@@ -103,8 +101,6 @@ Styled.VideoPlayer.addCustomPlayer(ArcPlayer);
 const truncateTime = (time: number) => (time < 1 ? 0 : time);
 
 const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
-  isGridLayout,
-  isSidebarContentOpen,
   currentVolume,
   isMuted,
   isResizing,
@@ -589,7 +585,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
 
   const shouldShowTools = () => {
     if (isBot) return false;
-    if (isPresenter || (!isPresenter && isGridLayout && !isSidebarContentOpen) || !videoUrl) {
+    if (isPresenter || !videoUrl) {
       return false;
     }
     return true;
@@ -703,7 +699,6 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   }));
   const { data: currentMeeting } = useMeeting((m) => ({
     externalVideo: m.externalVideo,
-    layout: m.layout,
   }));
   const currentVolume = React.useRef(0);
   const isMuted = React.useRef(false);
@@ -820,8 +815,6 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   const externalVideo: ExternalVideo = layoutSelectOutput((i: Output) => i.externalVideo);
   const hasExternalVideoOnLayout: boolean = layoutSelectInput((i: Input) => i.externalVideo?.hasExternalVideo);
   const cameraDock = layoutSelectInput((i: Input) => i.cameraDock);
-  const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
-  const { isOpen: isSidebarContentOpen } = sidebarContent;
   const { isResizing, isLocalChange } = cameraDock;
   const layoutContextDispatch = layoutDispatch();
   const fullscreen = layoutSelect((i: Layout) => i.fullscreen);
@@ -832,7 +825,6 @@ const ExternalVideoPlayerContainer: React.FC = () => {
   if (!hasExternalVideoOnLayout) return null;
   const isPresenter = currentUser.presenter ?? false;
   const isBot = currentUser.bot ?? false;
-  const isGridLayout = currentMeeting.layout?.currentLayoutType === 'VIDEO_FOCUS';
   const {
     updatedAt = new Date().toISOString(),
     playerPlaybackRate = 1,
@@ -843,8 +835,6 @@ const ExternalVideoPlayerContainer: React.FC = () => {
 
   return (
     <ExternalVideoPlayer
-      isSidebarContentOpen={isSidebarContentOpen}
-      isGridLayout={isGridLayout}
       currentVolume={currentVolume}
       isMuted={isMuted}
       isEchoTest={isEchoTest}

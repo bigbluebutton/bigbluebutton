@@ -119,7 +119,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       userSettingsStorage: 'session',
       defaultSettings: {
         layout: {
-          selectedLayout: 'custom',
+          selectedLayout: 'unified',
           pushLayout: false,
         },
         application: {
@@ -614,8 +614,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     layout: {
       hidePresentationOnJoin: false,
       showParticipantsOnLogin: true,
-      showPushLayoutButton: true,
-      showPushLayoutToggle: true,
       showScreenshareQuickSwapButton: true,
       showLeaveSessionLabel: false,
     },

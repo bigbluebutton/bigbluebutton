@@ -295,11 +295,10 @@ export class SharedNotes extends MultiUsers {
     await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.unpinNotes);
     await this.modPage.hasElement(e.whiteboard, 'should restore the presentation for the moderator (previous state)');
-    await this.userPage.wasRemoved(
+    await this.userPage.hasElement(
       e.whiteboard,
-      'should not restore the presentation for the attendee as it was minimized before pinning the notes (previous state)',
+      'should restore the presentation for the attendee as it syncs to presenter state',
     );
-    await this.userPage.waitAndClick(e.restorePresentation);
     // pin notes again as moderator
     await startSharedNotes(this.modPage);
     await this.modPage.waitAndClick(e.notesOptions);
