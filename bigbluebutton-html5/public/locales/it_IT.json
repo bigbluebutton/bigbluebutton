@@ -1201,7 +1201,7 @@
     "app.lock-viewers.guestPolicy.title": "Guest Policy",
     "app.lock-viewers.guestPolicy.description": "Configura come vengono gestiti gli ospiti quando tentano di partecipare alla riunione.",
     "app.lock-viewers.participantPermissions.title": "Participant Permissions",
-    "app.lock-viewers.participantPermissions.description": "The options below define what participants can do in the session. Unchecking an option removes that permission.",
+    "app.lock-viewers.participantPermissions.description": "Le opzioni seguenti definiscono cosa possono fare i partecipanti nella sessione. Deselezionando un'opzione si rimuove l'autorizzazione corrispondente.",
     "app.lock-viewers.presentationPermissions.title": "Presentation Permissions",
     "app.lock-viewers.presentationPermissions.description": "Configure how presentation rights are managed in the session.",
     "app.lock-viewers.presentationPermissions.moderatorOnly": "Il relatore è assegnato da un moderatore",
