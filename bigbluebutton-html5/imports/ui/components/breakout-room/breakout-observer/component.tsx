@@ -98,6 +98,7 @@ const BreakoutRoomsAppObserver = () => {
       value: {
         id,
         pin: true,
+        isDefault: true,
       },
     });
   };

@@ -85,6 +85,7 @@ const SidebarNavigationContainer = () => {
       value: {
         id,
         pin: true,
+        isDefault: true,
       },
     });
   };

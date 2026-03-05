@@ -61,6 +61,36 @@ const initState = {
   output: INITIAL_OUTPUT_STATE,
 };
 
+let _cachedPinnedApps = null;
+const BBB_PINNED_APPS_KEY = 'bbb-pinned-apps';
+
+const getPersistedPinnedApps = () => {
+  if (_cachedPinnedApps !== null) return _cachedPinnedApps;
+  try {
+    const raw = localStorage.getItem(BBB_PINNED_APPS_KEY);
+    _cachedPinnedApps = raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    logger.debug({
+      logCode: 'apps_gallery_localstorage_read_error',
+      extraInfo: { error: e },
+    }, 'Failed to read pinned apps from localStorage');
+    _cachedPinnedApps = [];
+  }
+  return _cachedPinnedApps;
+};
+
+const setPersistedPinnedApps = (apps) => {
+  _cachedPinnedApps = apps;
+  try {
+    localStorage.setItem(BBB_PINNED_APPS_KEY, JSON.stringify(apps));
+  } catch (e) {
+    logger.debug({
+      logCode: 'apps_gallery_localstorage_write_error',
+      extraInfo: { error: e },
+    }, 'Failed to save pinned apps to localStorage');
+  }
+};
+
 const reducer = (state, action) => {
   debugActions(action.type, action.value);
   switch (action.type) {
@@ -434,6 +464,21 @@ const reducer = (state, action) => {
         .slice()
         .sort((a, b) => newRegisteredApps[a].name.localeCompare(newRegisteredApps[b].name));
 
+      let restoredPinnedApps = sortedPinnedApps;
+      const savedPinnedApps = getPersistedPinnedApps();
+
+      if (
+        Array.isArray(savedPinnedApps)
+        && savedPinnedApps.includes(id)
+        && !sortedPinnedApps.includes(id)
+      ) {
+        const MAX_PINNED = window.meetingClientSettings.public.app.appsGallery.maxPinnedApps;
+        if (sortedPinnedApps.length < MAX_PINNED) {
+          restoredPinnedApps = [...sortedPinnedApps, id]
+            .sort((a, b) => newRegisteredApps[a].name.localeCompare(newRegisteredApps[b].name));
+        }
+      }
+
       return {
         ...state,
         input: {
@@ -441,7 +486,7 @@ const reducer = (state, action) => {
           sidebarNavigation: {
             ...sidebarNavigation,
             registeredApps: sortedRegisteredApps,
-            pinnedApps: sortedPinnedApps,
+            pinnedApps: restoredPinnedApps,
           },
         },
       };
@@ -480,7 +525,7 @@ const reducer = (state, action) => {
     case ACTIONS.SET_SIDEBAR_NAVIGATION_PIN_APP: {
       const APP_CONFIG = window.meetingClientSettings.public.app;
       const MAX_PINNED_APPS_GALLERY = APP_CONFIG.appsGallery.maxPinnedApps;
-      const { id: appId, pin } = action.value;
+      const { id: appId, pin, isDefault = false } = action.value;
       const { sidebarNavigation } = state.input;
       const { pinnedApps, registeredApps = [] } = sidebarNavigation;
 
@@ -491,11 +536,29 @@ const reducer = (state, action) => {
       if ((pin && isAppPinned) || (!pin && !isAppPinned)) return state;
       if (pin && pinnedApps.length === MAX_PINNED_APPS_GALLERY) return state;
 
+      if (isDefault && pin) {
+        if (_cachedPinnedApps !== null) {
+          if (Array.isArray(_cachedPinnedApps) && !_cachedPinnedApps.includes(appId)) {
+            return state;
+          }
+        } else {
+          const savedPinnedApps = getPersistedPinnedApps();
+
+          if (localStorage.getItem(BBB_PINNED_APPS_KEY) !== null
+            && Array.isArray(savedPinnedApps)
+            && !savedPinnedApps.includes(appId)) {
+            return state;
+          }
+        }
+      }
+
       const updatedPinnedApps = pin
         ? [...pinnedApps, appId].sort(
           (a, b) => registeredApps[a].name.localeCompare(registeredApps[b].name),
         )
         : pinnedApps.filter((pinnedApp) => pinnedApp !== appId);
+
+      setPersistedPinnedApps(updatedPinnedApps);
 
       return {
         ...state,
