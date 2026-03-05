@@ -1203,7 +1203,7 @@
     "app.lock-viewers.participantPermissions.title": "Participant Permissions",
     "app.lock-viewers.participantPermissions.description": "Le opzioni seguenti definiscono cosa possono fare i partecipanti nella sessione. Deselezionando un'opzione si rimuove l'autorizzazione corrispondente.",
     "app.lock-viewers.presentationPermissions.title": "Presentation Permissions",
-    "app.lock-viewers.presentationPermissions.description": "Configure how presentation rights are managed in the session.",
+    "app.lock-viewers.presentationPermissions.description": "Configurare la modalità di gestione dei diritti di presentazione nella sessione.",
     "app.lock-viewers.presentationPermissions.moderatorOnly": "Il relatore è assegnato da un moderatore",
     "app.lock-viewers.presentationPermissions.moderatorOnly.tooltip": "Solo i moderatori possono assegnare il ruolo di relatore ai partecipanti.",
     "app.lock-viewers.presentationPermissions.requireApproval": "Consenti ai partecipanti di presentare con l'approvazione del moderatore",
