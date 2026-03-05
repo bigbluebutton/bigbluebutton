@@ -236,7 +236,7 @@
     "app.userList.userOptions.enablePubChat": "Le chat pubbliche sono abilitate",
     "app.userList.userOptions.enableNotes": "Le note condivise sono abilitate",
     "app.userList.userOptions.showUserList": "La lista utenti è ora visibile agli utenti",
-    "app.userList.userOptions.disablePresenterRequest": "Presenter request is now disabled for viewers",
+    "app.userList.userOptions.disablePresenterRequest": "La richiesta di relatore è ora disabilitata per gli spettatori.",
     "app.userList.userOptions.enablePresenterRequest": "La richiesta di relatore è ora abilitata per gli spettatori",
     "app.userList.userOptions.enableOnlyModeratorWebcam": "Puoi attivare la tua webcam adesso, tutti ti vedranno",
     "app.userList.userOptions.savedNames.title": "Elenco degli utenti nella sessione {meetingName} al {dateAndTime}",
