@@ -616,7 +616,9 @@ const Whiteboard = React.memo((props) => {
       return;
     }
 
-    if (key === ' ' && tlEditorRef.current?.getCurrentToolId() !== 'hand' && isPresenterRef.current) {
+    if (isPresenterRef.current && event.keyCode === KEY_CODES.SPACE && tlEditorRef.current?.getCurrentToolId() !== 'hand') {
+      event.preventDefault();
+      event.stopPropagation();
       previousTool.current = tlEditorRef.current?.getCurrentToolId();
       tlEditorRef.current?.setCurrentTool('hand');
       return;
@@ -1830,7 +1832,9 @@ const Whiteboard = React.memo((props) => {
     };
 
     const handleKeyUp = (event) => {
-      if (event.key === ' ') {
+      if (event.keyCode === KEY_CODES.SPACE) {
+        event.preventDefault();
+        event.stopPropagation();
         if (previousTool.current) {
           tlEditorRef.current?.setCurrentTool(previousTool.current);
           previousTool.current = null;
