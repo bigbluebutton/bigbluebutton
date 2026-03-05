@@ -1,6 +1,6 @@
 name: publiccode.yml validation
 
-on: [pull_request, push]
+on: [pull_request]
 
 jobs:
   publiccode_yml_validation:

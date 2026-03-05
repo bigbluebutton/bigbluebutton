@@ -1003,6 +1003,7 @@
     "app.userList.guest.feedbackMessage": "İşlem uygulandı:",
     "app.user-info.title": "Dizinde arama",
     "app.toast.breakoutRoomEnded": "Çalışma grubu odası kapatıldı. Lütfen yeniden sesli görüşmeye katılın.",
+    "app.toast.breakoutContentUnchangedNotConverted": "One or more breakout rooms had no whiteboard/shared notes updates, so they weren't converted to slides.",
     "app.toast.chat.public": "Yeni herkese açık sohbet iletisi",
     "app.toast.chat.private": "Yeni özel sohbet iletisi",
     "app.toast.chat.system": "Sistem",

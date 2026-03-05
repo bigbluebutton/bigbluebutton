@@ -147,7 +147,9 @@ const AudioContainer = (props) => {
       voiceConf: m?.voiceSettings?.voiceConf,
       muteOnStart: m?.voiceSettings?.muteOnStart,
     },
+    lockSettings: m.lockSettings,
   }));
+  const lockSettingsLoaded = meeting?.lockSettings !== undefined;
 
   const { data: currentUser } = useCurrentUser((u) => ({
     userId: u.userId,
@@ -242,13 +244,15 @@ const AudioContainer = (props) => {
     // We don't know whether the meeting is a breakout or not.
     // So, postpone the decision.
     if (meetingIsBreakout === undefined) return;
+
+    if (!lockSettingsLoaded) return;
     init().then(() => {
       // Skip auto join audio if user has already joined in another tab (currentUserHasVoice)
       if (meetingIsBreakout && !Service.isUsingAudio() && !currentUserHasVoice) {
         joinAudio();
       }
     });
-  }, [meetingIsBreakout]);
+  }, [meetingIsBreakout, lockSettingsLoaded]);
 
   useEffect(() => {
     if (userIsReturningFromBreakoutRoom) {

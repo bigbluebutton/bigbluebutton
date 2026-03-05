@@ -47,6 +47,7 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
         true,
         externalMeetingId,
         user.avatar,
+        user.webcamBackground,
         user.role,
         liveMeeting.props.password.moderatorPass
       )

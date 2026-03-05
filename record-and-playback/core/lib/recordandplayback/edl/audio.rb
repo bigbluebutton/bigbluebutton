@@ -25,6 +25,7 @@ module BigBlueButton
       FFMPEG_WF_CODEC = 'libvorbis'
       FFMPEG_WF_ARGS = ['-c:a', FFMPEG_WF_CODEC, '-q:a', '2', '-f', 'ogg']
       WF_EXT = 'ogg'
+      MIN_CUT_LENGTH = 20 # ms (one frame of audio in opus)
 
       def self.dump(edl)
         BigBlueButton.logger.debug "EDL Dump:"
@@ -41,6 +42,49 @@ module BigBlueButton
             BigBlueButton.logger.debug "    silence"
           end
         end
+      end
+
+      # Edit the EDL to make sure that every cut has a minimum length
+      def self.enforce_cut_lengths(edl)
+        # Special case handling for the start
+        # If there's a cut immediately after the start, the later logic would delete the first cut,
+        # which would result in desync. Any cuts within MIN_CUT_LENGTH of the start have to be
+        # pushed back to avoid this situation. If multiple cuts are pushed back (they'd all get set
+        #  to the same timestamp), the later logic will clean them up.
+        1.upto(edl.length - 1).each do |i|
+          # We've made it past the problematic point near the start of the recording
+          break if edl[i][:timestamp] >= MIN_CUT_LENGTH
+
+          BigBlueButton.logger.debug("Pushing EDL entry index #{i} from #{edl[i][:timestamp]} to #{MIN_CUT_LENGTH}")
+          offset = MIN_CUT_LENGTH - edl[i][:timestamp]
+          # Move the cut to start at MIN_CUT_LENGTH
+          edl[i][:timestamp] = MIN_CUT_LENGTH
+          # And offset the start times of every audio track to compensate
+          edl[i][:audios]&.each do |audio_data|
+            audio_data[:timestamp] += offset
+          end
+        end
+
+        # Iterate through the edl entries from end to just after the start
+        (edl.length - 1).downto(1).each do |i|
+          duration = edl[i][:timestamp] - edl[i - 1][:timestamp]
+          # If the cut that *ends* at EDL entry i is less than the minimum cut length
+          next unless duration < MIN_CUT_LENGTH
+
+          # Then delete edl entry i - 1 from the list
+          BigBlueButton.logger.debug("Dropping EDL entry index #{i - 1} (#{duration} < #{MIN_CUT_LENGTH})")
+          edl.delete_at(i - 1)
+          # On the next iteration through the loop, we'll be re-checking from the same end point, but a new start
+        end
+
+        # What if all of the cuts got deleted?
+        if edl.length == 1
+          BigBlueButton.logger.debug('EDL contains no cuts - enforcing minimum length')
+          # Add a new end point at the minimum cut length
+          edl << { timestamp: MIN_CUT_LENGTH, audios: [] }
+        end
+
+        nil
       end
 
       def self.mixer(inputs, output_basename)
@@ -67,7 +111,9 @@ module BigBlueButton
 
         corrupt_audios = Set.new
 
-        BigBlueButton.logger.info "Pre-processing EDL"
+        BigBlueButton.logger.info 'Pre-processing EDL'
+        enforce_cut_lengths(edl)
+
         # The render scripts use this to calculate cut lengths
         (0...(edl.length - 1)).each do |i|
           edl[i][:next_timestamp] = edl[i+1][:timestamp]
