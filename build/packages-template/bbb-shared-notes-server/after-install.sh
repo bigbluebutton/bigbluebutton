@@ -13,9 +13,9 @@ case "$1" in
   runuser -u postgres -- psql -tc "SELECT 1 FROM pg_roles WHERE rolname='blocknote_app'" | grep -q 1 || \
     runuser -u postgres -- psql -c "CREATE USER blocknote_app WITH PASSWORD 'blocknote_app'"
 
-  HASURA_DATABASE_NAME="blocknote_app"
-  runuser -u postgres -- psql -q -c "DROP DATABASE IF EXISTS $HASURA_DATABASE_NAME WITH (FORCE);"
-  runuser -u postgres -- psql -q -c "CREATE DATABASE $HASURA_DATABASE_NAME OWNER blocknote_app;"
+  BLOCKNOTE_DATABASE_NAME="blocknote_app"
+  runuser -u postgres -- psql -q -c "DROP DATABASE IF EXISTS $BLOCKNOTE_DATABASE_NAME WITH (FORCE);"
+  runuser -u postgres -- psql -q -c "CREATE DATABASE $BLOCKNOTE_DATABASE_NAME OWNER blocknote_app;"
 
 runuser -u postgres -- psql -U postgres -d blocknote_app -q -f /usr/share/bbb-shared-notes-server/blocknote_schema.sql --set ON_ERROR_STOP=on
 
