@@ -123,7 +123,7 @@ Updated in 3.0:
 
 Updated in 4.0:
 
-- **create** - **Removed:** Parameter `meetingLayout` no longer supports: CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS; 
+- **create** - **Added** `meetingLayout` now supports option UNIFIED_LAYOUT **Removed:** Parameter `meetingLayout` no longer supports: CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS; 
 
 ## API Data Types
 
