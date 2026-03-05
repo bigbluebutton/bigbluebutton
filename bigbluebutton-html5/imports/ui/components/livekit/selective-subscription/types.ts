@@ -20,6 +20,14 @@ export type MediaGroupParticipant = {
   active: boolean;
 }
 
+export type MediaGroupStateEntry = {
+  groupId: string;
+  mediaType: string;
+  sender: boolean;
+  receiver: boolean;
+  active: boolean;
+}
+
 export type MediaGroupStream = {
   userId: string;
   groupId: string;

@@ -205,10 +205,19 @@ export const useMediaSenders = (
   // Exclude only senders in non-public groups.
   if (!inAnyGroup) {
     const senderIdsInNonPublicGroups = new Set(groups
-      .filter((group) => group.sender === true && group.groupId !== PUBLIC_GROUP_IDS[mediaType])
+      .filter((group) => group.sender === true && group.active && group.groupId !== PUBLIC_GROUP_IDS[mediaType])
       .map((group) => group.userId));
+    const senderIdsInPublicGroup = new Set(groups
+      .filter((g) => g.sender === true && g.active && g.groupId === PUBLIC_GROUP_IDS[mediaType])
+      .map((g) => g.userId));
+    // Exclude only senders who are active in non-public groups but NOT in the public group.
+    // Users concurrently sending in both public and non-public groups should still be
+    // heard by public receivers.
+    const senderIdsOnlyInNonPublic = new Set(
+      [...senderIdsInNonPublicGroups].filter((id) => !senderIdsInPublicGroup.has(id)),
+    );
     const senders = remoteParticipants
-      .filter((participant) => !senderIdsInNonPublicGroups.has(participant.identity))
+      .filter((participant) => !senderIdsOnlyInNonPublic.has(participant.identity))
       .map((participant) => ({
         userId: participant.identity,
         groupId: 'default',
@@ -217,6 +226,7 @@ export const useMediaSenders = (
         receiver: true,
         active: true,
       }));
+
     return { senders, inAnyGroup: false };
   }
 
@@ -244,7 +254,8 @@ export const useMediaSubscriptions = (liveKitRoom: Room) => {
   const remoteParticipants = useRemoteParticipants({
     updateOnlyOn: PARTICIPANTS_UPDATE_FILTER,
   });
-  // For now we're only handling audio, but this is ready for other media types
+  // Audio group-based filtering; screen share audio is handled separately
+  // (always subscribed regardless of groups) in handleSubscriptionChanges.
   const { senders, inAnyGroup } = useMediaSenders(remoteParticipants, deafened, MediaType.AUDIO);
   const { audioSubscriptionPoolSize, muteDebounceMs } = getSelectiveSubscriptionConfig();
   const participantsLastSpokeAt = useParticipantsLastSpokeAt(liveKitRoom);
@@ -260,12 +271,25 @@ export const useMediaSubscriptions = (liveKitRoom: Room) => {
       [Track.Source.Microphone]: new Set<string>(),
       [Track.Source.ScreenShareAudio]: new Set<string>(),
     };
+    // Collect unsubscribed screen share audio publications upfront so we can
+    // forcefully subscribe them.
+    const pendingScreenShareAudio: Array<{
+      publication: RemoteTrackPublication;
+      participantId: string;
+    }> = [];
 
     remoteParticipants.forEach((participant) => {
       participant.audioTrackPublications.forEach((publication: RemoteTrackPublication) => {
-        if (isAudioSource(publication.source) && publication.isSubscribed) {
-          const source = publication.source as Track.Source.Microphone | Track.Source.ScreenShareAudio;
-          currentSubscriptions[source].add(participant.identity);
+        if (isAudioSource(publication.source)) {
+          if (publication.isSubscribed) {
+            const source = publication.source as Track.Source.Microphone | Track.Source.ScreenShareAudio;
+            currentSubscriptions[source].add(participant.identity);
+          } else if (publication.source === Track.Source.ScreenShareAudio) {
+            pendingScreenShareAudio.push({
+              publication,
+              participantId: participant.identity,
+            });
+          }
         }
       });
     });
@@ -321,6 +345,9 @@ export const useMediaSubscriptions = (liveKitRoom: Room) => {
           const participant = remoteParticipants.find((p) => p.identity === participantId);
           if (participant) {
             participant.audioTrackPublications.forEach((publication) => {
+              // Screen share audio is always subscribed regardless of group membership
+              if (publication.source === Track.Source.ScreenShareAudio) return;
+
               const { trackSid } = publication;
 
               if (publication.isSubscribed) {
@@ -338,6 +365,22 @@ export const useMediaSubscriptions = (liveKitRoom: Room) => {
           }
         }
       });
+    });
+
+    // Force-subscribe any screen share audio not already handled by the
+    // desired-subscription pass above.
+    pendingScreenShareAudio.forEach(({ publication, participantId }) => {
+      if (!publication.isSubscribed && !desiredSubscriptions.has(participantId)) {
+        publication.setSubscribed(true);
+        logger.debug({
+          logCode: 'livekit_audio_sel_subscribed',
+          extraInfo: {
+            trackSid: publication.trackSid,
+            participantId,
+            source: publication.source,
+          },
+        }, `LiveKit: Subscribed to ${publication.source} - ${publication.trackSid} (always-on)`);
+      }
     });
   }, [
     senders,
