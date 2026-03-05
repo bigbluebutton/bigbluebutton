@@ -1202,7 +1202,7 @@
     "app.lock-viewers.tabs.presentationPermissions": "أذونات العرض التقديمي",
     "app.lock-viewers.guestPolicy.title": "سياسة الضيف",
     "app.lock-viewers.guestPolicy.description": "قم بضبط كيفية التعامل مع الضيوف عند محاولتهم الانضمام إلى الاجتماع.",
-    "app.lock-viewers.participantPermissions.title": "Participant Permissions",
+    "app.lock-viewers.participantPermissions.title": "أذوات المشارك",
     "app.lock-viewers.participantPermissions.description": "The options below define what participants can do in the session. Unchecking an option removes that permission.",
     "app.lock-viewers.presentationPermissions.title": "Presentation Permissions",
     "app.lock-viewers.presentationPermissions.description": "Configure how presentation rights are managed in the session.",
