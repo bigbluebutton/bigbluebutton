@@ -1208,7 +1208,7 @@
     "app.lock-viewers.presentationPermissions.description": "قم بضبط كيفية إدارة حقوق العرض في الجلسة.",
     "app.lock-viewers.presentationPermissions.moderatorOnly": "يتم تعيين مقدم العرض من قبل المشرف",
     "app.lock-viewers.presentationPermissions.moderatorOnly.tooltip": "لا يمكن إلا للمشرفين تحديد دور مقدم العرض للمشاركين.",
-    "app.lock-viewers.presentationPermissions.requireApproval": "Allow participants to present with moderator approval",
+    "app.lock-viewers.presentationPermissions.requireApproval": "يُسمح للمشاركين بتقديم عروضهم بموافقة المشرف.",
     "app.lock-viewers.presentationPermissions.requireApproval.tooltip": "Participants can request to become presenter, but a moderator must approve the request.",
     "app.lock-viewers.presentationPermissions.freeForAll": "Allow participants to present freely",
     "app.lock-viewers.presentationPermissions.freeForAll.tooltip": "Any participant can take the presenter role without moderator approval.",
