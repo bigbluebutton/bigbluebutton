@@ -12,6 +12,7 @@ import useUpdatePresentationAreaContentForPlugin from '/imports/ui/components/pl
 import { useIsPresentationEnabled } from '/imports/ui/services/features';
 import { usePrevious } from '../whiteboard/utils';
 import Session from '/imports/ui/services/storage/in-memory';
+import Local from '/imports/ui/services/storage/local';
 import logger from '/imports/startup/client/logger';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
@@ -61,34 +62,18 @@ const initState = {
   output: INITIAL_OUTPUT_STATE,
 };
 
-let _cachedPinnedApps = null;
-const BBB_PINNED_APPS_KEY = 'bbb-pinned-apps';
+let _cachedPinnedApps;
+const PINNED_APPS_STORAGE_KEY = 'pinnedApps';
 
 const getPersistedPinnedApps = () => {
-  if (_cachedPinnedApps !== null) return _cachedPinnedApps;
-  try {
-    const raw = localStorage.getItem(BBB_PINNED_APPS_KEY);
-    _cachedPinnedApps = raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    logger.debug({
-      logCode: 'apps_gallery_localstorage_read_error',
-      extraInfo: { error: e },
-    }, 'Failed to read pinned apps from localStorage');
-    _cachedPinnedApps = [];
-  }
+  if (_cachedPinnedApps !== undefined) return _cachedPinnedApps;
+  _cachedPinnedApps = Local.getItem(PINNED_APPS_STORAGE_KEY);
   return _cachedPinnedApps;
 };
 
 const setPersistedPinnedApps = (apps) => {
   _cachedPinnedApps = apps;
-  try {
-    localStorage.setItem(BBB_PINNED_APPS_KEY, JSON.stringify(apps));
-  } catch (e) {
-    logger.debug({
-      logCode: 'apps_gallery_localstorage_write_error',
-      extraInfo: { error: e },
-    }, 'Failed to save pinned apps to localStorage');
-  }
+  Local.setItem(PINNED_APPS_STORAGE_KEY, apps);
 };
 
 const reducer = (state, action) => {
@@ -537,18 +522,10 @@ const reducer = (state, action) => {
       if (pin && pinnedApps.length === MAX_PINNED_APPS_GALLERY) return state;
 
       if (isDefault && pin) {
-        if (_cachedPinnedApps !== null) {
-          if (Array.isArray(_cachedPinnedApps) && !_cachedPinnedApps.includes(appId)) {
-            return state;
-          }
-        } else {
-          const savedPinnedApps = getPersistedPinnedApps();
-
-          if (localStorage.getItem(BBB_PINNED_APPS_KEY) !== null
-            && Array.isArray(savedPinnedApps)
-            && !savedPinnedApps.includes(appId)) {
-            return state;
-          }
+        const savedPinnedApps = getPersistedPinnedApps();
+        if (savedPinnedApps !== null
+          && Array.isArray(savedPinnedApps) && !savedPinnedApps.includes(appId)) {
+          return state;
         }
       }
 
