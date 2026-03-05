@@ -1196,7 +1196,7 @@
     "app.lock-viewers.hideAnnotationsLabel": "Visualizzare le annotazioni degli altri partecipanti sulla lavagna.",
     "app.lock-viewers.disablePresenterRequestLabel": "Richiesta di diventare relatore.",
     "app.lock-viewers.tabs.guestPolicy": "Policy per gli ospiti",
-    "app.lock-viewers.tabs.participantPermissions": "Participant Permissions",
+    "app.lock-viewers.tabs.participantPermissions": "Autorizzazioni dei partecipanti",
     "app.lock-viewers.tabs.presentationPermissions": "Autorizzazioni di presentazione",
     "app.lock-viewers.guestPolicy.title": "Guest Policy",
     "app.lock-viewers.guestPolicy.description": "Configura come vengono gestiti gli ospiti quando tentano di partecipare alla riunione.",
