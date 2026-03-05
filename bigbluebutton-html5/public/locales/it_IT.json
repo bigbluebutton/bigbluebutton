@@ -1182,7 +1182,7 @@
     "app.lock-viewers.featuresLable": "Caratteristica",
     "app.lock-viewers.lockStatusLabel": "Stato",
     "app.lock-viewers.webcamLabel": "Condividi webcam",
-    "app.lock-viewers.otherViewersWebcamLabel": "See other participants' webcam",
+    "app.lock-viewers.otherViewersWebcamLabel": " Visualizza la webcam degli altri partecipanti",
     "app.lock-viewers.microphoneLabel": "Condividi microfono",
     "app.lock-viewers.PublicChatLabel": "Invia messaggi pubblici",
     "app.lock-viewers.PrivateChatLabel": "Invia messaggi privati",
