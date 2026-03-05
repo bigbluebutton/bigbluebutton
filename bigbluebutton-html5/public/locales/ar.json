@@ -1210,7 +1210,7 @@
     "app.lock-viewers.presentationPermissions.moderatorOnly.tooltip": "لا يمكن إلا للمشرفين تحديد دور مقدم العرض للمشاركين.",
     "app.lock-viewers.presentationPermissions.requireApproval": "يُسمح للمشاركين بتقديم عروضهم بموافقة المشرف.",
     "app.lock-viewers.presentationPermissions.requireApproval.tooltip": "يمكن للمشاركين طلب أن يصبحوا مقدمين، ولكن يجب على المشرف الموافقة على الطلب.",
-    "app.lock-viewers.presentationPermissions.freeForAll": "Allow participants to present freely",
+    "app.lock-viewers.presentationPermissions.freeForAll": "اسمح للمشاركين بتقديم عروضهم بحرية",
     "app.lock-viewers.presentationPermissions.freeForAll.tooltip": "Any participant can take the presenter role without moderator approval.",
     "app.guest-policy.ariaTitle": "نهج إعدادات سياسة الضيف",
     "app.guest-policy.title": "سياسة الضيف",
