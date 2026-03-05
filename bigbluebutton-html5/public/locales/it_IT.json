@@ -1184,7 +1184,7 @@
     "app.lock-viewers.webcamLabel": "Condividi webcam",
     "app.lock-viewers.otherViewersWebcamLabel": "See other participants' webcam",
     "app.lock-viewers.microphoneLabel": "Condividi microfono",
-    "app.lock-viewers.PublicChatLabel": "Send public messages",
+    "app.lock-viewers.PublicChatLabel": "Invia messaggi pubblici",
     "app.lock-viewers.PrivateChatLabel": "Send private messages",
     "app.lock-viewers.notesLabel": "Edit shared notes",
     "app.lock-viewers.userListLabel": "See other participants in the user list",
