@@ -45,11 +45,6 @@ subscriber.on('subscribe', (channel) => {
   logger.info('subscribed', { channel });
 });
 
-subscriber.on('message', (channel, message) => {
-  const msg = typeof message === 'object' ? message : JSON.parse(message);
-  handler.handle(msg);
-});
-
 const startRedis = async () => {
   try {
     logger.info('Connecting to Redis...', {
@@ -60,7 +55,16 @@ const startRedis = async () => {
     await subscriber.connect();
 
     logger.info('Subscribing to channels...', { channels });
-    channels.forEach((channel) => subscriber.subscribe(channel, handler.handle));
+    for (const channel of channels) {
+      await subscriber.subscribe(channel, (message) => {
+        try {
+          const msg = JSON.parse(message);
+          handler.handle(msg);
+        } catch (err) {
+          logger.error('Failed to parse Redis message', { channel, message, error: err });
+        }
+      });
+    }
   } catch (error) {
     logger.error('Failed to start Redis subscriber', { error });
     throw error;
