@@ -982,6 +982,8 @@
     "app.guest.guestInvalid": "Gjestebruker er ugyldig",
     "app.guest.meetingForciblyEnded": "Du kan ikke bli med i en økt som allerede har hatt en tvungen avslutning",
     "app.guest.calculating": "Beregner plassen ventekøen",
+    "app.guest.messageFromHost": "Message from host",
+    "app.guest.waitingForApproval": "Waiting for approval",
     "app.userList.guest.waitingUsers": "Ventende brukere",
     "app.userList.guest.waitingUsersTitle": "Brukerstyring",
     "app.userList.guest.optionTitle": "Administrer ventende brukere",
