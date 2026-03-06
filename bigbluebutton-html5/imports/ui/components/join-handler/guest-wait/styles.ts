@@ -47,10 +47,11 @@ const MessageLabel = styled.div`
   letter-spacing: 0.5px;
 `;
 
-const MessageText = styled.div`
+const MessageText = styled.p`
   font-size: 1em;
   font-weight: 500;
   line-height: 1.4;
+  margin: 0;
 `;
 
 const pulse = keyframes`
