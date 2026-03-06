@@ -236,7 +236,7 @@
     "app.userList.userOptions.enablePubChat": "公開チャットが利用可能です",
     "app.userList.userOptions.enableNotes": "共有ノートが使用可能です",
     "app.userList.userOptions.showUserList": "ユーザーリストが視聴者に表示されます",
-    "app.userList.userOptions.disablePresenterRequest": "Presenter request is now disabled for viewers",
+    "app.userList.userOptions.disablePresenterRequest": "視聴者からの発表者要求が無効になりました",
     "app.userList.userOptions.enablePresenterRequest": "Presenter request is now enabled for viewers",
     "app.userList.userOptions.enableOnlyModeratorWebcam": "ウェブカメラを有効にすると、全員があなたを見ることができます",
     "app.userList.userOptions.savedNames.title": "会議 {meetingName} の {dateAndTime} のユーザーリスト",
