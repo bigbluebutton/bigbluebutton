@@ -1185,7 +1185,7 @@
     "app.lock-viewers.otherViewersWebcamLabel": "他の参加者のカメラの閲覧",
     "app.lock-viewers.microphoneLabel": "マイクの共有",
     "app.lock-viewers.PublicChatLabel": "公開メッセージの送信",
-    "app.lock-viewers.PrivateChatLabel": "Send private messages",
+    "app.lock-viewers.PrivateChatLabel": "個人的なメッセージの送信",
     "app.lock-viewers.notesLabel": "Edit shared notes",
     "app.lock-viewers.userListLabel": "See other participants in the user list",
     "app.lock-viewers.ariaTitle": "参加者モーダルを制限",
