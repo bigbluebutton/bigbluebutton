@@ -1187,7 +1187,7 @@
     "app.lock-viewers.PublicChatLabel": "公開メッセージの送信",
     "app.lock-viewers.PrivateChatLabel": "個人的なメッセージの送信",
     "app.lock-viewers.notesLabel": "共有ノートの編集",
-    "app.lock-viewers.userListLabel": "参加者リストの閲覧",
+    "app.lock-viewers.userListLabel": "ユーザーリストに他の参加者を表示",
     "app.lock-viewers.ariaTitle": "参加者モーダルを制限",
     "app.lock-viewers.button.apply": "適用",
     "app.lock-viewers.button.cancel": "キャンセル",
