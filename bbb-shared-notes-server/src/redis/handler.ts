@@ -310,46 +310,50 @@ const validate = (message: string): { valid: false } | { valid: true; header: Me
 };
 
 interface PubSubHandler {
-  handle: (message: string) => void;
+  handle: (message: string) => Promise<void>;
 }
 
 
 const handler: PubSubHandler = {
-  handle: (message) => {
+  handle: async (message) => {
     const data = validate(message);
-    if (!data.valid) return null;
+    if (!data.valid) return;
 
     const {
       header,
       body,
     } = data;
 
-    switch (header.name) {
-      case 'MeetingCreatedEvtMsg':
-        handleMeetingCreated(header, body);
-        break;
-      case 'LockSettingsInMeetingChangedEvtMsg':
-        handleMeetingLocked(header, body);
-        break;
-      case 'UserLockedInMeetingEvtMsg':
-        handleUserLocked(header, body);
-        break;
-      case 'UserRoleChangedEvtMsg':
-        handleUserRoleChanged(header, body);
-        break;
-      case 'UserLeftMeetingEvtMsg':
-        handleUserLeftMeeting(header, body);
-        break;
-      case 'MeetingEndedEvtMsg':
-        handleMeetingEnded(header, body);
-        break;
-      case 'BNSharedNotesCreateCmdMsg':
-        handleSharedNotesCreate(header, body);
-        break;
-      case 'ExportBNSharedNotesEvtMsg':
-        handleBlockNoteExport(header, body);
-        break;
-      default:
+    try {
+      switch (header.name) {
+        case 'MeetingCreatedEvtMsg':
+          await handleMeetingCreated(header, body);
+          break;
+        case 'LockSettingsInMeetingChangedEvtMsg':
+          await handleMeetingLocked(header, body);
+          break;
+        case 'UserLockedInMeetingEvtMsg':
+          await handleUserLocked(header, body);
+          break;
+        case 'UserRoleChangedEvtMsg':
+          await handleUserRoleChanged(header, body);
+          break;
+        case 'UserLeftMeetingEvtMsg':
+          await handleUserLeftMeeting(header, body);
+          break;
+        case 'MeetingEndedEvtMsg':
+          await handleMeetingEnded(header, body);
+          break;
+        case 'BNSharedNotesCreateCmdMsg':
+          await handleSharedNotesCreate(header, body);
+          break;
+        case 'ExportBNSharedNotesEvtMsg':
+          await handleBlockNoteExport(header, body);
+          break;
+        default:
+      }
+    } catch (error) {
+      logger.error('Unhandled error in message handler', { error, messageName: header.name });
     }
   }
 };
