@@ -1192,7 +1192,7 @@
     "app.lock-viewers.button.apply": "適用",
     "app.lock-viewers.button.cancel": "キャンセル",
     "app.lock-viewers.locked": "禁止",
-    "app.lock-viewers.hideViewersCursor": "See other participants' cursors",
+    "app.lock-viewers.hideViewersCursor": "他の参加者のホワイトボードカーソルの表示",
     "app.lock-viewers.hideAnnotationsLabel": "他の参加者の共有ノートの表示",
     "app.lock-viewers.disablePresenterRequestLabel": "Requesting to become presenter.",
     "app.lock-viewers.tabs.guestPolicy": "Guest Policy",
