@@ -1411,7 +1411,7 @@
     "app.externalVideo.autoPlayWarning": "音声同期するには動画を再生してください",
     "app.externalVideo.refreshLabel": "ビデオプレイヤーをリフレッシュ",
     "app.externalVideo.fullscreenLabel": "ビデオプレイヤー",
-    "app.externalVideo.noteLabel": "Note: Shared external videos will not appear in the recording. YouTube, Vimeo, Instructure Media, Twitch and media file URLs (e.g. https://example.com/xy.mp4) are supported.",
+    "app.externalVideo.noteLabel": "注意：外部動画は、共有しても録画されません。録画には、YouTube, Vimeo, Instructure Media, Twitch, およびメディアファイル（例えばhttps://example.com/xy.mp4）へのリンクが表示されます。",
     "app.externalVideo.subtitlesOn": "消す",
     "app.externalVideo.subtitlesOff": "（あれば）表示する",
     "app.externalVideo.stopShareExternalVideo": "動画の共有を停止",
