@@ -982,6 +982,8 @@
     "app.guest.guestInvalid": "Невалідний гість",
     "app.guest.meetingForciblyEnded": "Ви не можете приєднатись до сеансу, який було примусово зупинено",
     "app.guest.calculating": "Обчислення місця у черзі",
+    "app.guest.messageFromHost": "Message from host",
+    "app.guest.waitingForApproval": "Waiting for approval",
     "app.userList.guest.waitingUsers": "Учасники у очікуванні",
     "app.userList.guest.waitingUsersTitle": "Керування учасниками",
     "app.userList.guest.optionTitle": "Переглянути учасників, які очікують",
