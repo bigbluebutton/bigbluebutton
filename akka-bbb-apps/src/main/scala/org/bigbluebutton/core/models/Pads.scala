@@ -78,8 +78,7 @@ class Pads {
     for {
       group <- groups.get(externalId)
     } yield {
-      val previousRev = group.rev + 1
-      groups += externalId -> group.copy(rev = previousRev + 1)
+      groups += externalId -> group.copy(rev = group.rev + 1)
     }
   }
 
