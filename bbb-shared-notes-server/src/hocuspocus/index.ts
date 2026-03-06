@@ -35,8 +35,7 @@ const hocuspocus = new Hocuspocus({
       return null;
     }
 
-    const isUserAuthenticated = userInformation !== null;
-    if (!isUserAuthenticated) {
+    if (userInformation == null) {
       websocket.terminate();
       return null;
     }
