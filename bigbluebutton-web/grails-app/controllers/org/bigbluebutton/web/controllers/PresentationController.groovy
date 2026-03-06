@@ -30,6 +30,7 @@ import org.bigbluebutton.presentation.SupportedFileTypes
 import org.bigbluebutton.presentation.UploadedPresentation
 import org.bigbluebutton.web.services.PresentationService
 import org.grails.web.mime.DefaultMimeUtility
+import org.springframework.web.util.UriComponentsBuilder
 
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
@@ -148,20 +149,7 @@ class PresentationController {
   }
 
   private static String extractQueryParam(String uri, String paramName) {
-    def queryStart = uri.indexOf('?')
-    if (queryStart < 0) return null
-    def query = uri.substring(queryStart + 1)
-    def pairs = query.split('&')
-    for (pair in pairs) {
-      def eqIdx = pair.indexOf('=')
-      if (eqIdx > 0) {
-        def key = URLDecoder.decode(pair.substring(0, eqIdx), StandardCharsets.UTF_8.name())
-        if (key == paramName) {
-          return URLDecoder.decode(pair.substring(eqIdx + 1), StandardCharsets.UTF_8.name())
-        }
-      }
-    }
-    return null
+    return UriComponentsBuilder.fromUriString(uri).build().getQueryParams().getFirst(paramName)
   }
 
   private static String generatePresToken(String presId, int page, String secret) {
