@@ -1209,7 +1209,7 @@
     "app.lock-viewers.presentationPermissions.requireApproval": "参加者が司会者の承認を得て発表",
     "app.lock-viewers.presentationPermissions.requireApproval.tooltip": "参加者が発表権を要求できますが、司会者の承認が必要です。",
     "app.lock-viewers.presentationPermissions.freeForAll": "参加者が自由に発表",
-    "app.lock-viewers.presentationPermissions.freeForAll.tooltip": "Any participant can take the presenter role without moderator approval.",
+    "app.lock-viewers.presentationPermissions.freeForAll.tooltip": "全ての参加者が、司会者の承認なしに発表者権限を取得できます。",
     "app.guest-policy.ariaTitle": "入室許可設定モーダル",
     "app.guest-policy.title": "入室許可設定",
     "app.guest-policy.description": "会議のゲストポリシー設定を変更する",
