@@ -8,13 +8,13 @@ export async function pushInitialContent(padId: string, initialContentJson: any)
   const documentName = padId;
 
   const initialBlocks = initialContentJson;
+  let connection: Awaited<ReturnType<typeof hocuspocus.openDirectConnection>> | null = null;
   try {
-    const connection = await hocuspocus.openDirectConnection(documentName);
+    connection = await hocuspocus.openDirectConnection(documentName);
 
     const doc = connection.document;
 
     if (!doc) {
-      await connection.disconnect();
       return {
         statusCode: 'document_unavailable',
         error: 'Document not found',
@@ -25,7 +25,6 @@ export async function pushInitialContent(padId: string, initialContentJson: any)
 
     // Check if document already has content
     if (fragment.length > 0) {
-      await connection.disconnect();
       return {
         statusCode: 'document_already_filled',
         error: 'Document already exists and has content',
@@ -38,8 +37,6 @@ export async function pushInitialContent(padId: string, initialContentJson: any)
     // Convert blocks to Yjs XML Fragment directly in our document's fragment
     editor.blocksToYXmlFragment(initialBlocks, fragment);
 
-    await connection.disconnect();
-
     logger.info('Document created/loaded successfully', { documentName });
     return {
       statusCode: "document_loaded",
@@ -50,5 +47,7 @@ export async function pushInitialContent(padId: string, initialContentJson: any)
       statusCode: "unknown_error",
       error: error instanceof Error ? error.message : 'Unknown error',
     }
+  } finally {
+    if (connection) await connection.disconnect();
   }
 }
