@@ -1194,7 +1194,7 @@
     "app.lock-viewers.locked": "禁止",
     "app.lock-viewers.hideViewersCursor": "他の参加者のホワイトボードカーソルの表示",
     "app.lock-viewers.hideAnnotationsLabel": "他の参加者の共有ノートの表示",
-    "app.lock-viewers.disablePresenterRequestLabel": "Requesting to become presenter.",
+    "app.lock-viewers.disablePresenterRequestLabel": "発表者権限を要求しています",
     "app.lock-viewers.tabs.guestPolicy": "Guest Policy",
     "app.lock-viewers.tabs.participantPermissions": "Participant Permissions",
     "app.lock-viewers.tabs.presentationPermissions": "Presentation Permissions",
