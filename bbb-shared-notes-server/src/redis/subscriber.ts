@@ -9,6 +9,7 @@ const { subscribe: channels } = config.redis.channels;
 const { redis: settings } = config;
 
 const options: RedisClientOptions = {
+  password: settings.password ?? undefined,
   socket: {
     host: settings.host,
     port: settings.port,
@@ -41,10 +42,6 @@ subscriber.on('reconnecting', () => {
   logger.warn('Redis subscriber reconnecting...');
 });
 
-subscriber.on('subscribe', (channel) => {
-  logger.info('subscribed', { channel });
-});
-
 const startRedis = async () => {
   try {
     logger.info('Connecting to Redis...', {
@@ -57,13 +54,9 @@ const startRedis = async () => {
     logger.info('Subscribing to channels...', { channels });
     for (const channel of channels) {
       await subscriber.subscribe(channel, (message) => {
-        try {
-          const msg = JSON.parse(message);
-          handler.handle(msg);
-        } catch (err) {
-          logger.error('Failed to parse Redis message', { channel, message, error: err });
-        }
+        handler.handle(message);
       });
+      logger.info('subscribed', { channel });
     }
   } catch (error) {
     logger.error('Failed to start Redis subscriber', { error });

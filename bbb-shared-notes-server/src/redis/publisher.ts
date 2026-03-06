@@ -9,6 +9,7 @@ const channel = channels[0]; // Get the first publish channel
 const { redis: settings } = config;
 
 const options: RedisClientOptions = {
+  password: settings.password ?? undefined,
   socket: {
     host: settings.host,
     port: settings.port,

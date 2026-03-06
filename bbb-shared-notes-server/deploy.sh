@@ -39,16 +39,7 @@ sudo cp run-in-systemd.sh /usr/share/bbb-shared-notes-server
 # Set nginx location
 sudo cp ../build/packages-template/bbb-shared-notes-server/bbb-shared-notes-server.nginx /usr/share/bigbluebutton/nginx
 
-# Set service
-# mkdir -p /usr/lib/systemd/system
-sudo cp ../build/packages-template/bbb-shared-notes-server/bbb-shared-notes-server.service /usr/lib/systemd/system
-sudo systemctl enable bbb-shared-notes-server.service
-sudo systemctl daemon-reload
-sudo systemctl restart nginx
-sudo systemctl restart bbb-shared-notes-server.service
-
-# Set dabatase
-
+# Set database
   # make sure postgres can read this directory
   sudo chmod 755 /usr/share/bbb-shared-notes-server/ -R
 
@@ -64,3 +55,12 @@ export LC_ALL="en_US.UTF-8"
   sudo runuser -u postgres -- psql -q -c "CREATE DATABASE $HASURA_DATABASE_NAME OWNER blocknote_app;"
 
 sudo runuser -u postgres -- psql -U postgres -d $HASURA_DATABASE_NAME -q -f /usr/share/bbb-shared-notes-server/blocknote_schema.sql --set ON_ERROR_STOP=on
+
+
+# Set service
+# mkdir -p /usr/lib/systemd/system
+sudo cp ../build/packages-template/bbb-shared-notes-server/bbb-shared-notes-server.service /usr/lib/systemd/system
+sudo systemctl enable bbb-shared-notes-server.service
+sudo systemctl daemon-reload
+sudo systemctl restart nginx
+sudo systemctl restart bbb-shared-notes-server.service

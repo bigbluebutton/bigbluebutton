@@ -136,9 +136,10 @@ export async function exportHtmlToPdf(
 
     logger.info('Executing conversion script', { command });
 
+    const execTimeoutMs = (timeout * 1000) + 5000; // (script timeout + 5s buffer)
     const { stdout, stderr } = await execAsync(command, {
       maxBuffer: 10 * 1024 * 1024, // 10MB buffer
-      timeout: 35000 // 35 seconds (script timeout + 5s buffer)
+      timeout: execTimeoutMs
     });
 
     if (stdout) {

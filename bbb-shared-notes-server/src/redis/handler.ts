@@ -189,10 +189,10 @@ const handleBlockNoteExport = async (header: MessageHeader, body: MessageBody): 
     parentMeetingId,
   });
 
-  try {
-    const { workDir } = config.commandExecution;
-    const temporarySavingDir = path.join(workDir, jobId);
+  const { workDir } = config.commandExecution;
+  const temporarySavingDir = path.join(workDir, jobId);
 
+  try {
     if (!fs.existsSync(temporarySavingDir)) {
       fs.mkdirSync(temporarySavingDir, { recursive: true });
     }
@@ -235,23 +235,27 @@ const handleBlockNoteExport = async (header: MessageHeader, body: MessageBody): 
       filePath,
     });
 
-    // Delete temporary files
-    try {
-      fs.rmSync(temporarySavingDir, { recursive: true });
-      logger.info('Cleaned up temporary files', { dropbox: temporarySavingDir });
-    } catch (cleanupError) {
-      logger.error('Failed to cleanup temporary files', {
-        error: cleanupError instanceof Error ? cleanupError.message : String(cleanupError),
-        temporarySavingDir,
-      });
-    }
   } catch (error) {
     logger.error('Failed to export BlockNote document', {
       error: error instanceof Error ? error.message : String(error),
       jobId,
       presId,
     });
+  } finally {
+    // Delete temporary files
+    if (fs.existsSync(temporarySavingDir)) {
+      try {
+        fs.rmSync(temporarySavingDir, { recursive: true, force: true });
+        logger.info('Cleaned up temporary files', { dropbox: temporarySavingDir });
+      } catch (cleanupError) {
+        logger.error('Failed to cleanup temporary files', {
+          error: cleanupError instanceof Error ? cleanupError.message : String(cleanupError),
+          temporarySavingDir,
+        });
+      }
+    }
   }
+
 };
 
 interface MessageHeader {
@@ -294,6 +298,7 @@ const validate = (message: string): { valid: false } | { valid: true; header: Me
 
   const { core } = messageObject;
 
+  if (core === null || typeof core !== 'object') return { valid: false };
   if (!check(core, 'header')) return { valid: false };
   if (!check(core, 'body')) return { valid: false };
 
@@ -301,6 +306,9 @@ const validate = (message: string): { valid: false } | { valid: true; header: Me
     header,
     body,
   } = core;
+
+  if (header === null || typeof header !== 'object') return { valid: false };
+  if (body === null || typeof body !== 'object') return { valid: false };
 
   return {
     valid: true,
