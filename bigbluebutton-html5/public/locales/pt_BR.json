@@ -982,6 +982,8 @@
     "app.guest.guestInvalid": "Convidado inválido",
     "app.guest.meetingForciblyEnded": "Você não pode acessar uma sessão que já foi encerrada",
     "app.guest.calculating": "Calculando posição na fila de espera",
+    "app.guest.messageFromHost": "Message from host",
+    "app.guest.waitingForApproval": "Waiting for approval",
     "app.userList.guest.waitingUsers": "Aguardando",
     "app.userList.guest.waitingUsersTitle": "Convidados",
     "app.userList.guest.optionTitle": "Usuários aguardando aprovação",
