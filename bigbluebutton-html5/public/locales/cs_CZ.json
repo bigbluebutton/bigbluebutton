@@ -982,6 +982,8 @@
     "app.guest.guestInvalid": "Neplatný uživatel host",
     "app.guest.meetingForciblyEnded": "Nelze se připojit k místnosti, protože již byla ukončena",
     "app.guest.calculating": "Výpočet pozice ve frontě čekajících",
+    "app.guest.messageFromHost": "Message from host",
+    "app.guest.waitingForApproval": "Waiting for approval",
     "app.userList.guest.waitingUsers": "Čekající uživatelé",
     "app.userList.guest.waitingUsersTitle": "Správa uživatelů",
     "app.userList.guest.optionTitle": "Zkontrolovat čekající uživatele",
