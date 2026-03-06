@@ -9,6 +9,10 @@ npm -v
 echo "Node version:"
 node -v
 
+# wkhtmltopdf is required
+sudo apt update
+sudo apt install wkhtmltopdf -y
+
 # Create directory for fpm to process
 sudo mkdir -p /usr/share/bbb-shared-notes-server
 sudo mkdir -p /usr/share/bbb-shared-notes-server/config
