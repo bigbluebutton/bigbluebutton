@@ -1204,7 +1204,7 @@
     "app.lock-viewers.participantPermissions.description": "以下のオプションは参加者の権限を規定しています。チェックを外すことで、許可を取り消すことができます。",
     "app.lock-viewers.presentationPermissions.title": "発表者の権限の許可",
     "app.lock-viewers.presentationPermissions.description": "会議で誰がどのように発表できるかを設定します。",
-    "app.lock-viewers.presentationPermissions.moderatorOnly": "Presenter is assigned by a moderator",
+    "app.lock-viewers.presentationPermissions.moderatorOnly": "司会者が発表者を決定する",
     "app.lock-viewers.presentationPermissions.moderatorOnly.tooltip": "Only moderators can assign the presenter role to participants.",
     "app.lock-viewers.presentationPermissions.requireApproval": "Allow participants to present with moderator approval",
     "app.lock-viewers.presentationPermissions.requireApproval.tooltip": "Participants can request to become presenter, but a moderator must approve the request.",
