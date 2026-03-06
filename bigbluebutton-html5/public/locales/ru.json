@@ -982,6 +982,8 @@
     "app.guest.guestInvalid": "Гостевой пользователь недействителен",
     "app.guest.meetingForciblyEnded": "Вы не можете присоединиться к сеансу, который уже был принудительно завершен",
     "app.guest.calculating": "Расчет позиции в очереди ожидания",
+    "app.guest.messageFromHost": "Message from host",
+    "app.guest.waitingForApproval": "Waiting for approval",
     "app.userList.guest.waitingUsers": "Ожидающие пользователи",
     "app.userList.guest.waitingUsersTitle": "Управление пользователями",
     "app.userList.guest.optionTitle": "Просмотреть ожидающих пользователей",
