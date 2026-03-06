@@ -984,6 +984,8 @@
     "app.guest.guestInvalid": "Guest user is invalid",
     "app.guest.meetingForciblyEnded": "You cannot join a session that has already been forcibly ended",
     "app.guest.calculating": "Calculating position in waiting queue",
+    "app.guest.messageFromHost": "Message from host",
+    "app.guest.waitingForApproval": "Waiting for approval",
     "app.userList.guest.waitingUsers": "Waiting Users",
     "app.userList.guest.waitingUsersTitle": "User Management",
     "app.userList.guest.optionTitle": "Review Pending Users",
