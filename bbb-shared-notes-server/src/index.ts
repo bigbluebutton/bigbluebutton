@@ -5,8 +5,10 @@ import { Logger } from "./common/logger";
 
 const logger = new Logger('cleanup');
 
-startRedis();
-startExpressApp();
+async function main() {
+  await startRedis();
+  startExpressApp();
+}
 
 setInterval(async () => {
   try {
@@ -18,3 +20,8 @@ setInterval(async () => {
     logger.error('Failed to remove expired documents', { error });
   }
 }, 60_000);
+
+main().catch((err) => {
+  logger.error('Fatal startup error', { error: err });
+  process.exit(1);
+});

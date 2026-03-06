@@ -66,10 +66,17 @@ async function inlineEmojiImages(html: string): Promise<string> {
   const emojiCss = '<style>.emoji { height: 1em; width: 1em; margin: 0 0.05em 0 0.1em; vertical-align: -0.15em; display: inline-block; }</style>';
   let result = parsedHtml.replace('</head>', `${emojiCss}\n</head>`);
 
-  // Swap placeholder src URLs for base64 data URIs
-  result = result.replace(/src="[^"]+\/([^"/]+\.svg)"/g, (match, filename) => {
-    const b64 = base64Cache.get(filename);
-    return b64 ? `src="${b64}"` : match;
+  // Swap placeholder emoji <img> tags for base64 data URIs, or plain alt text when
+  // the SVG is missing — avoids leaving unreachable https://twemoji.local/... URLs
+  // in the HTML that the sandboxed wkhtmltopdf process can never fetch.
+  result = result.replace(/<img[^>]+class="emoji"[^>]*>/g, (imgTag) => {
+    const srcMatch = imgTag.match(/src="[^"]+\/([^"/]+\.svg)"/);
+    if (!srcMatch) return imgTag;
+    const b64 = base64Cache.get(srcMatch[1]);
+    if (b64) return imgTag.replace(/src="[^"]+"/, `src="${b64}"`);
+    // SVG not on disk — fall back to the raw emoji character (alt text)
+    const altMatch = imgTag.match(/alt="([^"]*)"/);
+    return altMatch?.[1] ?? '';
   });
 
   return result;
@@ -114,7 +121,6 @@ export async function exportHtmlToPdf(
     // Write HTML content to temporary file
     await writeFile(htmlFilePath, htmlWithInlinedEmojis, 'utf-8');
     // Set ownership to bigbluebutton user
-    await execAsync(`chown bigbluebutton:bigbluebutton "${htmlFilePath}"`);
     logger.info('HTML content written to temporary file', { htmlFilePath });
 
 

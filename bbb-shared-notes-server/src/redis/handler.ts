@@ -127,7 +127,6 @@ const handleSharedNotesCreate = async (header: MessageHeader, body: MessageBody)
   if (validateInitialContentNotEmpty()) {
     logger.debug(
       'Received initial content', {
-        initialContent: initialContentJson,
         padId,
         meetingId
       }
@@ -189,7 +188,7 @@ const handleBlockNoteExport = async (header: MessageHeader, body: MessageBody): 
     parentMeetingId,
   });
 
-  const { workDir } = config.commandExecution;
+  const { workDir, timeout } = config.commandExecution;
   const temporarySavingDir = path.join(workDir, jobId);
 
   try {
@@ -217,7 +216,14 @@ const handleBlockNoteExport = async (header: MessageHeader, body: MessageBody): 
 
     const apiEndpoint = `http://127.0.0.1:8787/api/documents/${documentName}/export/${notesFormat}`;
 
-    const response = await fetch(apiEndpoint, { method: 'GET' });
+    const controller = new AbortController();
+    const fetchTimeout = setTimeout(() => controller.abort(), timeout * 1000);
+    let response: Response;
+    try {
+      response = await fetch(apiEndpoint, { method: 'GET', signal: controller.signal });
+    } finally {
+      clearTimeout(fetchTimeout);
+    }
 
     if (!response.ok) {
       throw new Error(`Export failed with status: ${response.status}`);
