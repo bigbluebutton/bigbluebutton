@@ -1181,7 +1181,7 @@
     "app.lock-viewers.restrictParticipantsLabel": "参加者が以下の機能を利用することを制限...",
     "app.lock-viewers.featuresLable": "機能",
     "app.lock-viewers.lockStatusLabel": "状況",
-    "app.lock-viewers.webcamLabel": "Share webcam",
+    "app.lock-viewers.webcamLabel": "カメラの共有",
     "app.lock-viewers.otherViewersWebcamLabel": "See other participants' webcam",
     "app.lock-viewers.microphoneLabel": "Share microphone",
     "app.lock-viewers.PublicChatLabel": "Send public messages",
