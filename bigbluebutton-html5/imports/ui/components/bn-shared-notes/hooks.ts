@@ -14,6 +14,7 @@ const useHocuspocusProvider = () => {
   const hocuspocusProviderRef = useRef<HocuspocusProvider>();
   const wsProviderRef = useRef<HocuspocusProviderWebsocket>();
   const isAuthenticating = useRef<boolean>(false);
+  const autoRetryCount = useRef<number>(0);
   const [error, setError] = useState<string | null>(null);
   const [connectionClosed, setConnectionClosed] = useState(false);
   const [retryTrigger, setRetryTrigger] = useState(0);
@@ -61,10 +62,10 @@ const useHocuspocusProvider = () => {
       }, 'Creating new HocuspocusProvider instance');
 
       const hocuspocusServerUrl = window.meetingClientSettings.public.sharedNotes.serverUrl
-        || `wss://${window.location.hostname}/hocuspocus/collaboration?sessionToken=${sessionToken}`;
+        || `wss://${window.location.hostname}/hocuspocus/collaboration`;
 
       const wsProvider = new HocuspocusProviderWebsocket({
-        url: hocuspocusServerUrl,
+        url: `${hocuspocusServerUrl}?sessionToken=${sessionToken}`,
         maxAttempts: 1,
       });
       isAuthenticating.current = true;
@@ -94,6 +95,7 @@ const useHocuspocusProvider = () => {
               synced: state,
             },
           }, 'Hocuspocus document synced');
+          autoRetryCount.current = 0;
           setIsSynced(true);
           hocuspocusProviderRef.current = provider;
           wsProviderRef.current = wsProvider;
@@ -152,6 +154,14 @@ const useHocuspocusProvider = () => {
             hocuspocusProviderRef.current = undefined;
             wsProviderRef.current = undefined;
           } else if (code === 1008 && checkLockReason(reason)) {
+            handleRetry();
+          } else if (autoRetryCount.current < 1) {
+            autoRetryCount.current += 1;
+            logger.debug({
+              logCode: 'hocuspocus_auto_retry',
+              extraInfo: { documentId: documentName, attempt: autoRetryCount.current },
+            }, `Hocuspocus connection closed (code ${code}), auto-retrying (attempt ${autoRetryCount.current})`);
+            isAuthenticating.current = false;
             handleRetry();
           } else {
             setConnectionClosed(true);
