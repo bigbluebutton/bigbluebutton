@@ -1184,7 +1184,7 @@
     "app.lock-viewers.webcamLabel": "カメラの共有",
     "app.lock-viewers.otherViewersWebcamLabel": "他の参加者のカメラの閲覧",
     "app.lock-viewers.microphoneLabel": "マイクの共有",
-    "app.lock-viewers.PublicChatLabel": "Send public messages",
+    "app.lock-viewers.PublicChatLabel": "公開メッセージの送信",
     "app.lock-viewers.PrivateChatLabel": "Send private messages",
     "app.lock-viewers.notesLabel": "Edit shared notes",
     "app.lock-viewers.userListLabel": "See other participants in the user list",
