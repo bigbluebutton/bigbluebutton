@@ -982,7 +982,7 @@
     "app.guest.guestInvalid": "Ospite non valido",
     "app.guest.meetingForciblyEnded": "Non puoi unirti a una sessione che è già stata terminata forzatamente",
     "app.guest.calculating": "Calcolo della posizione nella coda di attesa",
-    "app.guest.messageFromHost": "Message from host",
+    "app.guest.messageFromHost": "Messaggio da un ospite",
     "app.guest.waitingForApproval": "Waiting for approval",
     "app.userList.guest.waitingUsers": "Utenti in attesa",
     "app.userList.guest.waitingUsersTitle": "Gestione utente",
