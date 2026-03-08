@@ -38,7 +38,7 @@ const createWasmProcessor = (audioContext, stream) => {
         const processor = new AudioWorkletNode(audioContext, 'mapi-proc', audioProcessorOptions);
         processor.port.onmessage = (event) => {
           if (event.data?.type === 'loaded') {
-            processor.port.postMessage({ type: 'param', symbol: "intensity", value: 90 });
+            processor.port.postMessage({ type: 'param', symbol: "intensity", value: 100 });
             processor.port.postMessage({ type: 'param', symbol: "leveler_target", value: -18 });
             processor.port.postMessage({ type: 'param', symbol: "sb_strength", value: 60 });
             processor.port.postMessage({ type: 'param', symbol: "mb_strength", value: 60 });
