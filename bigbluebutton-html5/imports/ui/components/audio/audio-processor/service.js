@@ -66,7 +66,7 @@ const createWasmProcessor = (audioContext, stream) => {
     const create_module_bbba = jsfn_bbba.call();
 
     // audio setup
-    const bufferSize = 4096;
+    const bufferSize = 8192;
     const numberOfInputs = 1;
     const numberOfOutputs = 1;
     const processor = audioContext.createScriptProcessor(bufferSize, numberOfInputs, numberOfOutputs);
