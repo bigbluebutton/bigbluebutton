@@ -181,7 +181,7 @@ const doGUM = async (constraints, retryOnFailure = false) => {
       constraints.audio = filterSupportedConstraints({
         echoCancellation: true,
         autoGainControl: true,
-        noiseSuppression: false,
+        noiseSuppression: true,
       });
 
       if (deviceId) {
