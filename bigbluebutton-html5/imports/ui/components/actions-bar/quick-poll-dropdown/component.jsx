@@ -97,6 +97,8 @@ const QuickPollDropdown = (props) => {
   const questionLines = [];
   let isOptionSection = false;
   const options = [];
+  // Holds the last completed paragraph so a blank line before options doesn't lose the question
+  let savedParagraph = [];
 
   // Group consecutive non-option lines as question
   lines.forEach((line) => {
@@ -107,11 +109,25 @@ const QuickPollDropdown = (props) => {
       isOptionSection = true;
       options.push(trimmedLine);
       if (basicQuestionPattern.test(trimmedLine)) questionLines.push(trimmedLine);
-    } else if (!isOptionSection && trimmedLine.length > 0) {
-      // Any non-empty line before options is considered question text
-      questionLines.push(trimmedLine);
+    } else if (!isOptionSection) {
+      if (trimmedLine.length > 0) {
+        // Any non-empty line before options is considered question text
+        questionLines.push(trimmedLine);
+      } else if (questionLines.length > 0) {
+        // Blank line ends a paragraph — save it and start a fresh one so that
+        // a title before the question doesn't get merged into it, but we don't
+        // lose the question itself when there's a blank line before the options.
+        savedParagraph = [...questionLines];
+        questionLines.length = 0;
+      }
     }
   });
+
+  // If the last thing before the options section was a blank line, questionLines
+  // was cleared — restore from the most recent saved paragraph.
+  if (questionLines.length === 0 && savedParagraph.length > 0) {
+    questionLines.push(...savedParagraph);
+  }
 
   // Trim question to everything before the first '?'
   if (questionLines.length > 0) {
@@ -160,7 +176,7 @@ const QuickPollDropdown = (props) => {
 
   const hasTF = safeMatch(trueFalsePatt, content, false);
 
-  const pollRegex = /\b(?:[1-9]|1[0-9]|[A-Sa-s])[.)]\s*.*/g;
+  const pollRegex = /^\s*(?:[1-9]|1[0-9]|[A-Sa-s])[.)]\s*.*/gm;
   let optionsPoll = safeMatch(pollRegex, content, []);
 
   const optionsWithLabels = [];
@@ -171,9 +187,10 @@ const QuickPollDropdown = (props) => {
 
   if (optionsPoll) {
     optionsPoll = optionsPoll.map((opt) => {
-      const cleanedOpt = opt.endsWith(QUICK_POLL_CORRECT_ANSWER_SUFFIX)
-        ? opt.slice(0, -QUICK_POLL_CORRECT_ANSWER_SUFFIX.length)
-        : opt;
+      const trimmedOpt = opt.trim();
+      const cleanedOpt = trimmedOpt.endsWith(QUICK_POLL_CORRECT_ANSWER_SUFFIX)
+        ? trimmedOpt.slice(0, -QUICK_POLL_CORRECT_ANSWER_SUFFIX.length)
+        : trimmedOpt;
 
       const formattedOpt = cleanedOpt.substring(0, MAX_CHAR_LIMIT);
       optionsWithLabels.push(formattedOpt);
@@ -184,6 +201,21 @@ const QuickPollDropdown = (props) => {
   const normalizedCorrectAnswer = correctAnswer && (hasYN || hasTF)
     ? correctAnswer.replace(/^[a-zA-Z0-9][.)]\s+/, '').trim()
     : correctAnswer;
+
+  // DEBUG: Smart Slides detection — remove before merging
+  console.group('[SmartSlides] Detection debug');
+  console.log('raw content:\n', JSON.stringify(content));
+  console.log('lines:', lines);
+  console.log('questionLines (after parse):', questionLines);
+  console.log('question:', question);
+  console.log('options (raw):', options);
+  console.log('processedOptions:', processedOptions);
+  console.log('pollRegex matches (optionsPoll):', optionsPoll);
+  console.log('optionsWithLabels:', optionsWithLabels);
+  console.log('hasYN:', hasYN, '| hasTF:', hasTF, '| hasYesNo:', hasYesNo, '| hasTrueFalse:', hasTrueFalse);
+  console.log('isValidQuestion:', isValidQuestion, '| hasExplicitQuestionMark:', hasExplicitQuestionMark);
+  console.log('correctAnswer:', correctAnswer, '| normalizedCorrectAnswer:', normalizedCorrectAnswer);
+  console.groupEnd();
 
   const optionGroupsWithLabels = [];
   optionsPoll.reduce((acc, currentValue) => {
