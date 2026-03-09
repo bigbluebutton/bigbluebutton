@@ -7,7 +7,7 @@ import { GET_PAD_ID, GetPadIdQueryResponse } from '../notes/queries';
 import logger from '/imports/startup/client/logger';
 
 const hasSessionToken = (sessionToken?: string | null) => sessionToken != null && sessionToken !== '';
-const checkLockReason = (reason: string): boolean => reason === 'Lock rules changed.';
+const checkLockReason = (reason: string): boolean => reason === 'Lock rules changed.' || reason === 'Role changed.';
 
 const useHocuspocusProvider = () => {
   const [hocuspocusProvider, setHocuspocusProvider] = useState<HocuspocusProvider>();
@@ -126,10 +126,15 @@ const useHocuspocusProvider = () => {
           } = data.event;
 
           // Handle security violations - do not reconnect
-          if (code !== 1008 && code !== 1006) {
+          // 1003: Unsupported Data, 1005: No Status / Too many requests, 1009: Message Too Big
+          const SECURITY_VIOLATION_CODES = [1003, 1005, 1008, 1009];
+          if (SECURITY_VIOLATION_CODES.includes(code)) {
             let securityViolationReason = reason;
             if ((!reason || reason === '')) {
               switch (code) {
+                case 1003:
+                  securityViolationReason = 'Unsupported data';
+                  break;
                 case 1005:
                   securityViolationReason = 'Too many requests';
                   break;
@@ -152,9 +157,7 @@ const useHocuspocusProvider = () => {
             }
             hocuspocusProviderRef.current = undefined;
             wsProviderRef.current = undefined;
-          } else if (code === 1008 && checkLockReason(reason)) {
-            handleRetry();
-          } else if (autoRetryCount.current < 1) {
+          } else if (code === 1008 && checkLockReason(reason) && autoRetryCount.current < 1) {
             autoRetryCount.current += 1;
             logger.debug({
               logCode: 'hocuspocus_auto_retry',
