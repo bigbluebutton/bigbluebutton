@@ -150,8 +150,11 @@ const createWasmProcessorStream = (stream) => {
   }
 
   return new Promise((resolve, reject) => {
+    // fetch sampleRate from stream
+    const sampleRate = stream.getAudioTracks()[0].getSettings().sampleRate;
+
     // create audio context first
-    const audioContext = new AudioContext();
+    const audioContext = new AudioContext({ sampleRate });
 
     // function to load audio worklet, called once audio context is running
     const loadAudioWorklet = () => {
