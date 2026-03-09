@@ -6,7 +6,7 @@ import { useEffect, useState, useRef } from 'react';
 import { GET_PAD_ID, GetPadIdQueryResponse } from '../notes/queries';
 import logger from '/imports/startup/client/logger';
 
-const hasSessionToken = (sessionToken?: string | null) => sessionToken !== undefined || sessionToken !== null;
+const hasSessionToken = (sessionToken?: string | null) => sessionToken != null && sessionToken !== '';
 const checkLockReason = (reason: string): boolean => reason === 'Lock rules changed.';
 
 const useHocuspocusProvider = () => {
