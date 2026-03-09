@@ -61,8 +61,11 @@ const addDelayNode = (stream) => {
     stubAudioElement.muted = true;
     stubAudioElement.srcObject = stream;
 
+    // Fetch sampleRate from stream
+    const sampleRate = stream.getAudioTracks()[0].getSettings().sampleRate;
+
     // Create a new AudioContext to be able to add a delay to the stream
-    audioContext = new AudioContext();
+    audioContext = new AudioContext({ sampleRate });
     sourceContext = audioContext.createMediaStreamSource(stream);
     contextDestination = audioContext.createMediaStreamDestination();
     // Create a DelayNode to add a delay to the stream
