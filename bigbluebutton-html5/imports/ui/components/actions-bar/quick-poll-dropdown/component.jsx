@@ -202,21 +202,6 @@ const QuickPollDropdown = (props) => {
     ? correctAnswer.replace(/^[a-zA-Z0-9][.)]\s+/, '').trim()
     : correctAnswer;
 
-  // DEBUG: Smart Slides detection — remove before merging
-  console.group('[SmartSlides] Detection debug');
-  console.log('raw content:\n', JSON.stringify(content));
-  console.log('lines:', lines);
-  console.log('questionLines (after parse):', questionLines);
-  console.log('question:', question);
-  console.log('options (raw):', options);
-  console.log('processedOptions:', processedOptions);
-  console.log('pollRegex matches (optionsPoll):', optionsPoll);
-  console.log('optionsWithLabels:', optionsWithLabels);
-  console.log('hasYN:', hasYN, '| hasTF:', hasTF, '| hasYesNo:', hasYesNo, '| hasTrueFalse:', hasTrueFalse);
-  console.log('isValidQuestion:', isValidQuestion, '| hasExplicitQuestionMark:', hasExplicitQuestionMark);
-  console.log('correctAnswer:', correctAnswer, '| normalizedCorrectAnswer:', normalizedCorrectAnswer);
-  console.groupEnd();
-
   const optionGroupsWithLabels = [];
   optionsPoll.reduce((acc, currentValue) => {
     const lastElement = acc[acc.length - 1];
