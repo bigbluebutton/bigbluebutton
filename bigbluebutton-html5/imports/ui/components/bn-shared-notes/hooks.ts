@@ -68,6 +68,7 @@ const useHocuspocusProvider = () => {
         url: `${hocuspocusServerUrl}?sessionToken=${sessionToken}`,
         maxAttempts: 1,
       });
+      wsProviderRef.current = wsProvider;
       isAuthenticating.current = true;
       const provider = new HocuspocusProvider({
         name: documentName,
@@ -97,8 +98,6 @@ const useHocuspocusProvider = () => {
           }, 'Hocuspocus document synced');
           autoRetryCount.current = 0;
           setIsSynced(true);
-          hocuspocusProviderRef.current = provider;
-          wsProviderRef.current = wsProvider;
           setHocuspocusProvider(provider);
         },
         onAuthenticationFailed: (data) => {
@@ -169,6 +168,7 @@ const useHocuspocusProvider = () => {
           }
         },
       });
+      hocuspocusProviderRef.current = provider;
       provider.attach();
     }
   }, [retryTrigger, sessionToken, padIdLoading, padId]);
