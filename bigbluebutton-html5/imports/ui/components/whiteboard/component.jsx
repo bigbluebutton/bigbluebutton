@@ -1615,8 +1615,9 @@ const Whiteboard = React.memo((props) => {
       adjustCameraOnMount(!isPresenterRef.current);
     });
 
-    // New cursor hint shape: circle
-    const newD = 'M 8,5 A 3,3 0 1,0 2,5 A 3,3 0 1,0 8,5';
+    // New cursor hint shape: circle scaled by pointerDiameter
+    const hintRadius = 3 * (pointerDiameter / 5);
+    const newD = `M ${5 + hintRadius},5 A ${hintRadius},${hintRadius} 0 1,0 ${5 - hintRadius},5 A ${hintRadius},${hintRadius} 0 1,0 ${5 + hintRadius},5`;
     // Fetch the cursor hint element and update its path
     const cursorHint = document.getElementById('cursor_hint');
     if (cursorHint) {
