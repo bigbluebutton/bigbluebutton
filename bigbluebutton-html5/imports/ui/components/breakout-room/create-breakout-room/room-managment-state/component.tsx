@@ -76,14 +76,20 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   }>({});
 
   const recordUserMovement = (userId: string, fromRoom: number, toRoom: number) => {
+    // Use the actual running room as fromRoomId source of truth.
+    // If the user was dragged through the unassigned box (fromRoom=0),
+    // the previous movementRegistered entry still holds the real fromRoomId.
+    const runningRoom = runningRooms?.find((r) => r.participants.some((p) => p.user.userId === userId));
+    const fromRoomId = runningRoom?.breakoutRoomMeetingId
+      ?? movementRegistered[userId]?.fromRoomId;
     let updatedMovementRegistered = { ...movementRegistered };
     updatedMovementRegistered = {
       ...updatedMovementRegistered,
       [userId]: {
-        fromSequence: fromRoom,
+        fromSequence: runningRoom?.sequence ?? fromRoom,
         toSequence: toRoom,
         toRoomId: runningRooms?.find((r) => r.sequence === toRoom)?.breakoutRoomMeetingId,
-        fromRoomId: runningRooms?.find((r) => r.sequence === fromRoom)?.breakoutRoomMeetingId,
+        fromRoomId,
       },
     };
     setMovementRegistered(updatedMovementRegistered);
@@ -143,10 +149,22 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
       assignments[i] = (i % numberOfRooms) + 1;
     }
 
+    const updatedMovementRegistered = { ...movementRegistered };
     userIds.forEach((userId, index) => {
       const roomNumber = assignments[index];
+      // Find where the user actually is in the running rooms (ground truth),
+      // regardless of any UI reassignments or unassigns done in the modal.
+      const runningRoom = runningRooms?.find((r) => r.participants.some((p) => p.user.userId === userId));
       updatedUserAssignedRooms[userId] = [roomNumber];
+      updatedMovementRegistered[userId] = {
+        fromSequence: runningRoom?.sequence ?? 0,
+        toSequence: roomNumber,
+        fromRoomId: runningRoom?.breakoutRoomMeetingId,
+        toRoomId: runningRooms?.find((r) => r.sequence === roomNumber)?.breakoutRoomMeetingId,
+      };
     });
+    setMovementRegistered(updatedMovementRegistered);
+    setMoveRegisterRef(updatedMovementRegistered);
     setUserAssignedRooms(updatedUserAssignedRooms);
   };
 
