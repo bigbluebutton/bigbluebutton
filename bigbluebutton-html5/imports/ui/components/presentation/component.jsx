@@ -490,6 +490,30 @@ class Presentation extends PureComponent {
       //  .querySelectorAll('style[data-styled]')
       //  .forEach(el => el.remove());
 
+      // (26.3.10) After deployment, the production mode app shows the presentation in a wrong place (much lower than usual).
+      // When the presentation is rendered in a separate popup window using a React Portal, some styles generated
+      //  by Emotion (used by Material UI) are not automatically applied in the popup document.
+      // In development mode, Emotion often injects CSS rules directly as text nodes inside 
+      //  `<style data-emotion>` elements, so cloning these elements works as expected. 
+      // However, in the production build, Emotion frequently inserts styles using the CSSOM API (`insertRule`). 
+      // In this case the `<style>` elements appear empty in the DOM, and simply cloning them does not copy the actual CSS rules.
+      // As a result, essential styles (for example the `position: fixed` rule used by MUI modal/popover components) 
+      //  are missing in the popup window, which causes layout issues such as the presentation being vertically shifted.
+      // The solution is to explicitly copy the CSS rules from the Emotion stylesheets (`style.sheet.cssRules`)
+      //  into new `<style>` elements in the popup document, ensuring that the popup window receives the same 
+      //  computed styles as the main document.
+      document.querySelectorAll('style[data-emotion]').forEach((style) => {
+        if (style.textContent.trim() !== '') return; // dev mode already has CSS
+        const sheet = style.sheet;
+        if (!sheet) return;
+        const newStyle = popup.document.createElement('style');
+        popup.document.head.appendChild(newStyle);
+        const newSheet = newStyle.sheet;
+        Array.from(sheet.cssRules).forEach((rule) => {
+          newSheet.insertRule(rule.cssText);
+        });
+      });
+
       // tldraw-original(?) fonts injection,
       //  this fix the inconsistency of var(--tl-font-draw) between popup and main window.
       const fonts = [
