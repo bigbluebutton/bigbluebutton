@@ -2503,9 +2503,9 @@ CREATE VIEW "v_user_livekit" AS SELECT * FROM "user_livekit";
 CREATE UNLOGGED TABLE "mediaGroup" (
 	"meetingId" 			varchar(100),
 	"groupId"					varchar(100),
-	"mediaType"				varchar(50),
-	"locked"					boolean,
-	"record"					boolean,
+	"mediaType"				varchar(50) NOT NULL,
+	"locked"					boolean NOT NULL DEFAULT false,
+	"record"					boolean NOT NULL DEFAULT false,
 	"createdBy"				varchar(50),
 	CONSTRAINT "mediaGroup_pkey" PRIMARY KEY ("meetingId", "groupId"),
 	FOREIGN KEY ("meetingId") REFERENCES "meeting"("meetingId") ON DELETE CASCADE
@@ -2519,7 +2519,7 @@ CREATE UNLOGGED TABLE "user_mediaGroup" (
 	"groupId"						varchar(100),
 	"sender"						boolean NOT NULL DEFAULT false,
 	"receiver"					boolean NOT NULL DEFAULT false,
-	"active"						boolean,
+	"active"						boolean NOT NULL DEFAULT false,
 	CONSTRAINT "user_mediaGroup_pkey" PRIMARY KEY ("meetingId", "userId", "groupId"),
 	FOREIGN KEY ("meetingId", "groupId") REFERENCES "mediaGroup"("meetingId", "groupId") ON DELETE CASCADE,
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId", "userId") ON DELETE CASCADE
