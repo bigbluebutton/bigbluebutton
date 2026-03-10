@@ -1478,9 +1478,14 @@ CREATE INDEX "idx_pres_presentation_meetingId_curr" ON "pres_presentation"("meet
 --Populate preloadNextPages, which will be used to provide the SVG of next slides at pres_page_curr
 CREATE OR REPLACE FUNCTION "update_preloadNextPages"() RETURNS TRIGGER AS $$
 BEGIN
-    SELECT coalesce(("clientSettingsJson"->'public'->'app'->'preloadNextSlides')::int,0) INTO NEW."preloadNextPages"
-    from "meeting_clientSettings" mcs
-    where mcs."meetingId" = NEW."meetingId";
+    SELECT CASE
+        WHEN 'slidePreloading' = ANY(m."disabledFeatures") THEN 0
+        ELSE coalesce(("clientSettingsJson"->'public'->'app'->'preloadNextSlides')::int, 0)
+    END
+    INTO NEW."preloadNextPages"
+    FROM "meeting_clientSettings" mcs
+    JOIN "meeting" m ON m."meetingId" = mcs."meetingId"
+    WHERE mcs."meetingId" = NEW."meetingId";
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1609,7 +1614,6 @@ SELECT pres_presentation."meetingId",
         select array_agg("nextPages"."urlsJson"->>'svg')
         from pres_page "nextPages"
         where "nextPages"."presentationId" = pres_page."presentationId"
-        and "nextPages"."slideRevealed" = true
         and "nextPages".num > pres_page."num"
         and "nextPages".num <= pres_page."num" + pres_presentation."preloadNextPages"
     ) "nextPagesSvg"
