@@ -425,15 +425,8 @@ export class LockViewers extends MultiUsers {
   }
 
   async presenterPolicyModeratorOnly() {
-    // Lock the viewer (disableCam) so the moderatorOnly restriction applies, and set moderatorOnly policy
-    await openLockViewers(this.modPage);
-    await this.modPage.waitAndClick(e.participantPermissionsTab);
-    await this.modPage.waitAndClickElement(e.lockShareWebcam);
-    await this.modPage.waitAndClick(e.presentationPermissionsTab);
-    await this.modPage.waitAndClick(e.presentationPolicySelector);
-    await this.modPage.waitAndClick(e.presModeratorOnly);
-    await this.modPage.waitAndClick(e.applyLockSettings);
-    // Locked viewer should see no action button in the media area
+    await setPresentationPermission(this.modPage, e.presModeratorOnly);
+    // Locked viewer should see no action button in the media area to become presenter
     await this.userPage.waitAndClick(e.mediaAreaButton);
     await this.userPage.wasRemoved(
       e.takePresenterButton,
