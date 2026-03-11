@@ -952,7 +952,7 @@
     "app.error.userLoggedOut": "Kullanıcı oturumu kapattığından sessionToken geçersiz",
     "app.error.ejectedUser": "Kullanıcı oturumdan çıkarıldığından sessionToken geçersiz",
     "app.error.joinedAnotherWindow": "Bu oturum başka bir tarayıcı penceresinde açık gibi görünüyor.",
-    "app.error.userBanned": "Kullanıcı yasaklandı",
+    "app.error.userBanned": "You have been removed for the remaining duration of this session.",
     "app.error.leaveLabel": "Yeniden oturum aç",
     "app.error.fallback.presentation.title": "Bir sorun çıktı",
     "app.error.fallback.presentation.description": "Oturum açıldı. Lütfen sayfayı yeniden yüklemeyi deneyin.",
