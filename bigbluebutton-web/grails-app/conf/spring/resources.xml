@@ -88,6 +88,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="pluginRedirectValidator" class="org.bigbluebutton.api.service.impl.PluginRedirectValidatorService">
     </bean>
 
+    <bean id="clientSettingsOverrideUrlValidator" class="org.bigbluebutton.api.service.impl.ClientSettingsOverrideUrlValidator">
+    </bean>
+
     <bean id="pluginUtils" class="org.bigbluebutton.api.util.PluginUtils">
         <property name="html5PluginSdkVersion" value="${html5PluginSdkVersion}"/>
         <property name="redirectFollower" ref="redirectFollower"/>
@@ -229,8 +232,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="pluginManifests" value="${pluginManifests}"/>
         <property name="pluginManifestsFetchUrlResponseTimeout" value="${pluginManifestsFetchUrlResponseTimeout}"/>
         <property name="maxPluginManifestsFetchUrlPayloadSize" value="${maxPluginManifestsFetchUrlPayloadSize}"/>
+        <property name="clientSettingsOverrideJsonUrlResponseTimeout" value="${clientSettingsOverrideJsonUrlResponseTimeout}"/>
+        <property name="maxClientSettingsOverrideJsonUrlPayloadSize" value="${maxClientSettingsOverrideJsonUrlPayloadSize}"/>
         <property name="html5PluginSdkVersion" value="${html5PluginSdkVersion}"/>
         <property name="pluginUtils" ref="pluginUtils"/>
+        <property name="clientSettingsOverrideUrlValidator" ref="clientSettingsOverrideUrlValidator"/>
         <property name="maxNumPages" value="${maxNumPages}"/>
         <property name="getJoinUrlUserdataBlocklist" value="${getJoinUrlUserdataBlocklist}"/>
     </bean>

@@ -42,6 +42,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bigbluebutton.api.service.ServiceUtils;
+import org.bigbluebutton.api.service.impl.ClientSettingsOverrideUrlValidator;
 import org.bigbluebutton.api.util.ParamsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -155,11 +156,14 @@ public class ParamsProcessorUtil {
     private String bbbVersion = "";
     private Boolean allowRevealOfBBBVersion = false;
     private Boolean allowOverrideClientSettingsOnCreateCall = false;
+    private Integer clientSettingsOverrideJsonUrlResponseTimeout;
+    private Integer maxClientSettingsOverrideJsonUrlPayloadSize;
 
     private Integer defaultMaxNumPages;
     private String getJoinUrlUserdataBlocklist;
 
     private PluginUtils pluginUtils;
+    private ClientSettingsOverrideUrlValidator clientSettingsOverrideUrlValidator;
 
   	private String formatConfNum(String s) {
   		if (s.length() > 5) {
@@ -537,6 +541,62 @@ public class ParamsProcessorUtil {
             log.error("I/O error when fetching plugin manifests from [{}]", urlStr, e);
         } catch (Exception e) {
             log.error("Unexpected error while processing pluginManifestsFetchUrl [{}]", urlStr, e);
+        }
+        return null;
+    }
+
+    private String fetchClientSettingsOverrideFromUrl(String urlStr) {
+        if (!clientSettingsOverrideUrlValidator.isRedirectValid(urlStr)) {
+            log.error("clientSettingsOverrideJsonUrl [{}] failed URL validation; skipping load.", urlStr);
+            return null;
+        }
+
+        int timeoutConnectionMillis = clientSettingsOverrideJsonUrlResponseTimeout * 1000;
+        try {
+            log.info("clientSettingsOverrideJsonUrl provided: [{}]", urlStr);
+            log.info("Attempting to download clientSettingsOverride from [{}]", urlStr);
+
+            HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
+            conn.setConnectTimeout(timeoutConnectionMillis);
+            conn.setReadTimeout(timeoutConnectionMillis);
+            conn.setRequestProperty("Accept", "application/json");
+
+            if (conn.getResponseCode() != 200) {
+                log.warn("clientSettingsOverrideJsonUrl responded with HTTP {}", conn.getResponseCode());
+                return null;
+            }
+
+            StringBuilder sb = new StringBuilder(8192);
+            try (BufferedReader in = new BufferedReader(
+                    new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+                char[] buf = new char[4096];
+                int n;
+                int max = maxClientSettingsOverrideJsonUrlPayloadSize * 1024;
+                while ((n = in.read(buf)) != -1 && max > 0) {
+                    sb.append(buf, 0, n);
+                    max -= n;
+                }
+
+                if (max < 0) {
+                    log.warn(
+                            "Response from clientSettingsOverrideJsonUrl [{}] exceeded maximum allowed payload size ({} KiB); skipping load.",
+                            urlStr, maxClientSettingsOverrideJsonUrlPayloadSize);
+                    return null;
+                }
+            }
+
+            String content = sb.toString();
+            // Validate it is parseable JSON before accepting it
+            new Gson().fromJson(content, JsonElement.class);
+            log.info("Successfully downloaded clientSettingsOverride from [{}]", urlStr);
+            return content;
+
+        } catch (MalformedURLException e) {
+            log.error("Invalid clientSettingsOverrideJsonUrl [{}]", urlStr, e);
+        } catch (IOException e) {
+            log.error("I/O error when fetching clientSettingsOverride from [{}]", urlStr, e);
+        } catch (Exception e) {
+            log.error("Unexpected error while processing clientSettingsOverrideJsonUrl [{}]", urlStr, e);
         }
         return null;
     }
@@ -1066,6 +1126,15 @@ public class ParamsProcessorUtil {
             }
         }
         meeting.setMaxNumPages(maxNumPages);
+
+        // Handle clientSettingsOverrideJsonUrl (GET param, takes precedence over POST body)
+        String clientSettingsOverrideJsonUrlParam = params.get(ApiParams.CLIENT_SETTINGS_OVERRIDE_JSON_URL);
+        if (!StringUtils.isEmpty(clientSettingsOverrideJsonUrlParam)) {
+            String fetchedJson = fetchClientSettingsOverrideFromUrl(clientSettingsOverrideJsonUrlParam);
+            if (fetchedJson != null) {
+                meeting.setOverrideClientSettings(fetchedJson);
+            }
+        }
 
         return meeting;
     }
@@ -1837,6 +1906,18 @@ public class ParamsProcessorUtil {
 
 	public void setPluginManifestsFetchUrlResponseTimeout(Integer pluginManifestsFetchUrlResponseTimeout) {
 		this.pluginManifestsFetchUrlResponseTimeout = pluginManifestsFetchUrlResponseTimeout;
+	}
+
+	public void setClientSettingsOverrideUrlValidator(ClientSettingsOverrideUrlValidator clientSettingsOverrideUrlValidator) {
+		this.clientSettingsOverrideUrlValidator = clientSettingsOverrideUrlValidator;
+	}
+
+	public void setClientSettingsOverrideJsonUrlResponseTimeout(Integer clientSettingsOverrideJsonUrlResponseTimeout) {
+		this.clientSettingsOverrideJsonUrlResponseTimeout = clientSettingsOverrideJsonUrlResponseTimeout;
+	}
+
+	public void setMaxClientSettingsOverrideJsonUrlPayloadSize(Integer maxClientSettingsOverrideJsonUrlPayloadSize) {
+		this.maxClientSettingsOverrideJsonUrlPayloadSize = maxClientSettingsOverrideJsonUrlPayloadSize;
 	}
 
 	public void setMaxPluginManifestsFetchUrlPayloadSize(Integer maxPluginManifestsFetchUrlPayloadSize) {
