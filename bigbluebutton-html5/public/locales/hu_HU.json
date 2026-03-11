@@ -952,7 +952,7 @@
     "app.error.userLoggedOut": "A felhasználónak érvénytelen munkamenet-tokenje van kijelentkezés miatt",
     "app.error.ejectedUser": "A felhasználónak érvénytelen munkamenet-tokenje van kizárás miatt",
     "app.error.joinedAnotherWindow": "Úgy tűnik, hogy ez a munkamenet nyitva van egy másik böngészőben.",
-    "app.error.userBanned": "A résztvevőt kitiltották",
+    "app.error.userBanned": "You have been removed for the remaining duration of this session.",
     "app.error.leaveLabel": "Bejelentkezés újra",
     "app.error.fallback.presentation.title": "Hiba lépett fel",
     "app.error.fallback.presentation.description": "Naplóztuk. Kérjük, próbáld újra betölteni az oldalt.",
