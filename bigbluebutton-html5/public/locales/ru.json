@@ -952,7 +952,7 @@
     "app.error.userLoggedOut": "У пользователя неверный sessionToken из-за выхода из системы",
     "app.error.ejectedUser": "У пользователя неверный sessionToken из-за удаления",
     "app.error.joinedAnotherWindow": "Этот сеанс, похоже, открыт в другом окне браузера.",
-    "app.error.userBanned": "Пользователь забанен",
+    "app.error.userBanned": "You have been removed for the remaining duration of this session.",
     "app.error.leaveLabel": "Войти снова",
     "app.error.fallback.presentation.title": "Произошла ошибка",
     "app.error.fallback.presentation.description": "Ошибка была зарегистрирована. Пожалуйста, попробуйте перезагрузить страницу.",
