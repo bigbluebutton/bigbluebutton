@@ -11,9 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PresRedirectValidator implements RedirectValidator {
-    private List<String> insertDocumentSupportedProtocols;
-    private List<String> insertDocumentBlockedHosts;
-    private List<String> insertDocumentAllowedLocalHosts = new ArrayList<>();
+    private List<String> fetchUrlSupportedProtocols;
+    private List<String> fetchUrlBlockedHosts;
+    private List<String> fetchUrlAllowLocalHosts = new ArrayList<>();
     private String defaultUploadedPresentation;
     private static final Logger log = LoggerFactory.getLogger(PresRedirectValidator.class);
 
@@ -26,8 +26,8 @@ public class PresRedirectValidator implements RedirectValidator {
             String protocol = url.getProtocol();
             String host = url.getHost();
 
-            if(insertDocumentSupportedProtocols.stream().noneMatch(p -> p.equalsIgnoreCase(protocol))) {
-                if(insertDocumentSupportedProtocols.size() == 1 && insertDocumentSupportedProtocols.get(0).equalsIgnoreCase("all")) {
+            if (fetchUrlSupportedProtocols.stream().noneMatch(p -> p.equalsIgnoreCase(protocol))) {
+                if (fetchUrlSupportedProtocols.size() == 1 && fetchUrlSupportedProtocols.get(0).equalsIgnoreCase("all")) {
                     log.warn("Warning: All protocols are supported for presentation download. It is recommended to only allow HTTPS.");
                 } else {
                     log.error("Invalid protocol [{}]", protocol);
@@ -35,33 +35,36 @@ public class PresRedirectValidator implements RedirectValidator {
                 }
             }
 
-            if(insertDocumentBlockedHosts.stream().anyMatch(h -> h.equalsIgnoreCase(host))) {
+            if (fetchUrlBlockedHosts.stream().anyMatch(h -> h.equalsIgnoreCase(host))) {
                 log.error("Attempted to download from blocked host [{}]", host);
                 return false;
             }
-        } catch(MalformedURLException e) {
+        } catch (MalformedURLException e) {
             log.error("Malformed URL [{}]", redirectUrl);
             return false;
         }
+
+        // Skip local address checks for default presentation
+        if (redirectUrl.equals(defaultUploadedPresentation)) {
+            return true;
+        }
+
+        boolean isAllowedLocalHost = fetchUrlAllowLocalHosts.stream()
+                .anyMatch(h -> h.equalsIgnoreCase(url.getHost()));
 
         try {
             InetAddress[] addresses = InetAddress.getAllByName(url.getHost());
             InetAddressValidator validator = InetAddressValidator.getInstance();
 
-            boolean localhostBlocked = insertDocumentBlockedHosts.stream().anyMatch(h -> h.equalsIgnoreCase("localhost"));
-
-            for(InetAddress address: addresses) {
-                if(!validator.isValid(address.getHostAddress())) {
+            for (InetAddress address : addresses) {
+                if (!validator.isValid(address.getHostAddress())) {
                     log.error("Invalid address [{}]", address.getHostAddress());
                     return false;
                 }
 
-                if (redirectUrl.equals(defaultUploadedPresentation)) {
-                    return true;
-                }
-
-                if (!localhostBlocked) {
-                    return true;
+                // Skip local address checks for allowed local hosts
+                if (isAllowedLocalHost) {
+                    continue;
                 }
 
                 if (address instanceof Inet6Address inet6) {
@@ -91,7 +94,7 @@ public class PresRedirectValidator implements RedirectValidator {
                     }
                 }
             }
-        } catch(UnknownHostException e) {
+        } catch (UnknownHostException e) {
             log.error("Unknown host [{}]", url.getHost());
             return false;
         }
@@ -117,8 +120,8 @@ public class PresRedirectValidator implements RedirectValidator {
         String path = url.getFile(); // includes query string
 
         // Validate protocol
-        if (insertDocumentSupportedProtocols.stream().noneMatch(p -> p.equalsIgnoreCase(protocol))) {
-            if (insertDocumentSupportedProtocols.size() == 1 && insertDocumentSupportedProtocols.get(0).equalsIgnoreCase("all")) {
+        if (fetchUrlSupportedProtocols.stream().noneMatch(p -> p.equalsIgnoreCase(protocol))) {
+            if (fetchUrlSupportedProtocols.size() == 1 && fetchUrlSupportedProtocols.get(0).equalsIgnoreCase("all")) {
                 log.warn("Warning: All protocols are supported for presentation download. It is recommended to only allow HTTPS.");
             } else {
                 log.error("Invalid protocol [{}]", protocol);
@@ -127,7 +130,7 @@ public class PresRedirectValidator implements RedirectValidator {
         }
 
         // Check blocked hosts
-        if (insertDocumentBlockedHosts.stream().anyMatch(h -> h.equalsIgnoreCase(host))) {
+        if (fetchUrlBlockedHosts.stream().anyMatch(h -> h.equalsIgnoreCase(host))) {
             log.error("Attempted to download from blocked host [{}]", host);
             return null;
         }
@@ -147,9 +150,8 @@ public class PresRedirectValidator implements RedirectValidator {
         }
 
         InetAddressValidator validator = InetAddressValidator.getInstance();
-        boolean localhostBlocked = insertDocumentBlockedHosts.stream().anyMatch(h -> h.equalsIgnoreCase("localhost"));
         boolean isDefaultPresentation = redirectUrl.equals(defaultUploadedPresentation);
-        boolean isAllowedLocalHost = insertDocumentAllowedLocalHosts.stream().anyMatch(h -> h.equalsIgnoreCase(host));
+        boolean isAllowedLocalHost = fetchUrlAllowLocalHosts.stream().anyMatch(h -> h.equalsIgnoreCase(host));
 
         // Validate all resolved addresses
         for (InetAddress address : addresses) {
@@ -159,7 +161,7 @@ public class PresRedirectValidator implements RedirectValidator {
             }
 
             // Skip local address checks for default presentation or allowed local hosts
-            if (isDefaultPresentation || isAllowedLocalHost || !localhostBlocked) {
+            if (isDefaultPresentation || isAllowedLocalHost) {
                 continue;
             }
 
@@ -198,16 +200,16 @@ public class PresRedirectValidator implements RedirectValidator {
         return new ValidatedUrl(redirectUrl, host, port, protocol, path, addresses);
     }
 
-    public void setInsertDocumentSupportedProtocols(List<String> insertDocumentSupportedProtocols) {
-        this.insertDocumentSupportedProtocols = insertDocumentSupportedProtocols;
+    public void setFetchUrlSupportedProtocols(List<String> fetchUrlSupportedProtocols) {
+        this.fetchUrlSupportedProtocols = fetchUrlSupportedProtocols;
     }
 
-    public void setInsertDocumentBlockedHosts(List<String> insertDocumentBlockedHosts) {
-        this.insertDocumentBlockedHosts = insertDocumentBlockedHosts;
+    public void setFetchUrlBlockedHosts(List<String> fetchUrlBlockedHosts) {
+        this.fetchUrlBlockedHosts = fetchUrlBlockedHosts;
     }
 
-    public void setInsertDocumentAllowedLocalHosts(List<String> insertDocumentAllowedLocalHosts) {
-        this.insertDocumentAllowedLocalHosts = insertDocumentAllowedLocalHosts != null ? insertDocumentAllowedLocalHosts : new ArrayList<>();
+    public void setFetchUrlAllowLocalHosts(List<String> fetchUrlAllowLocalHosts) {
+        this.fetchUrlAllowLocalHosts = fetchUrlAllowLocalHosts != null ? fetchUrlAllowLocalHosts : new ArrayList<>();
     }
 
     public void setDefaultUploadedPresentation(String defaultUploadedPresentation) {
