@@ -952,7 +952,7 @@
     "app.error.userLoggedOut": "L'utente ha un token di sessione non valido a causa di un log out",
     "app.error.ejectedUser": "L'utente ha un token di sessione non valido a causa di un'espulsione",
     "app.error.joinedAnotherWindow": "Sembra che questa questa sessione sia già aperta in un'altra finestra",
-    "app.error.userBanned": "You have been removed for the remaining duration of this session.",
+    "app.error.userBanned": " Sei stato rimosso per la rimanente durata della sessione.",
     "app.error.leaveLabel": "Rientra",
     "app.error.fallback.presentation.title": "Si è verificato un errore",
     "app.error.fallback.presentation.description": "È stato registrato. Per favore ricarica la pagina.",
