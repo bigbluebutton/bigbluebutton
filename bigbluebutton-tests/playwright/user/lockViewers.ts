@@ -5,7 +5,7 @@ import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { getNotesLocator } from '../sharednotes/util';
 import { MultiUsers } from './multiusers';
-import { drawArrow, openLockViewers } from './util';
+import { drawArrow, openLockViewers, setPresentationPermission } from './util';
 
 export class LockViewers extends MultiUsers {
   async lockShareWebcam() {
@@ -421,6 +421,73 @@ export class LockViewers extends MultiUsers {
       e.whiteboardCursorIndicator,
       1,
       'should be displayed the other viewer whiteboard cursor indicator when unlocking user is unlocked',
+    );
+  }
+
+  async presenterPolicyModeratorOnly() {
+    // Lock the viewer (disableCam) so the moderatorOnly restriction applies, and set moderatorOnly policy
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.participantPermissionsTab);
+    await this.modPage.waitAndClickElement(e.lockShareWebcam);
+    await this.modPage.waitAndClick(e.presentationPermissionsTab);
+    await this.modPage.waitAndClick(e.presentationPolicySelector);
+    await this.modPage.waitAndClick(e.presModeratorOnly);
+    await this.modPage.waitAndClick(e.applyLockSettings);
+    // Locked viewer should see no action button in the media area
+    await this.userPage.waitAndClick(e.mediaAreaButton);
+    await this.userPage.wasRemoved(
+      e.takePresenterButton,
+      'should not display a take presenter button for a locked viewer under moderatorOnly policy',
+    );
+    await this.userPage.wasRemoved(
+      e.requestPresenterButton,
+      'should not display a request presenter button for a locked viewer under moderatorOnly policy',
+    );
+  }
+
+  async presenterPolicyRequireApproval() {
+    await setPresentationPermission(this.modPage, e.presRequireApproval);
+    // Viewer opens media area and sees the request presenter button
+    await this.userPage.waitAndClick(e.mediaAreaButton);
+    await this.userPage.hasElement(
+      e.requestPresenterButton,
+      'should display the request presenter button for the viewer under requireApproval policy',
+    );
+    // Viewer requests presenter role
+    await this.userPage.waitAndClick(e.requestPresenterButton);
+    await this.userPage.hasElement(
+      e.waitingPresenterButton,
+      'should display the waiting presenter button while the request is pending',
+    );
+    // Moderator approves the request
+    await this.modPage.hasElement(
+      e.approvePresenter,
+      'should display the approve presenter button for the moderator',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.modPage.waitAndClick(e.approvePresenter);
+    // Viewer becomes presenter
+    await this.userPage.hasElement(
+      e.wbToolbar,
+      'should display the whiteboard toolbar after viewer becomes presenter',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+  }
+
+  async presenterPolicyFreeForAll() {
+    await setPresentationPermission(this.modPage, e.presFreeForAll);
+    // Viewer opens media area and sees the take presenter button directly
+    await this.userPage.waitAndClick(e.mediaAreaButton);
+    await this.userPage.hasElement(
+      e.takePresenterButton,
+      'should display the take presenter button for the viewer under freeForAll policy',
+    );
+    // Viewer takes presenter without moderator approval
+    await this.userPage.waitAndClick(e.takePresenterButton);
+    await this.userPage.hasElement(
+      e.wbToolbar,
+      'should display the whiteboard toolbar after viewer takes presenter under freeForAll policy',
+      ELEMENT_WAIT_LONGER_TIME,
     );
   }
 }

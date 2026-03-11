@@ -1,10 +1,11 @@
 import { Locator } from '@playwright/test';
 
+import { ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 
 export async function openLockViewers(testPage: Page) {
-  const isLockViewersButtonVisible = await testPage.page.locator(e.lockViewersButton).isVisible({ timeout: 1000 }).catch(() => false);
+  const isLockViewersButtonVisible = await testPage.page.locator(e.lockViewersButton).isVisible({ timeout: ELEMENT_WAIT_TIME }).catch(() => false);
   if (!isLockViewersButtonVisible) {
     await testPage.waitAndClick(e.usersListSidebarButton);
   }
@@ -15,6 +16,14 @@ export async function setGuestPolicyOption(testPage: Page, option: string) {
   await openLockViewers(testPage);
   await testPage.waitAndClick(e.guestPolicyTab);
   await testPage.waitAndClick(e.guestPolicySelector);
+  await testPage.waitAndClick(option);
+  await testPage.waitAndClick(e.applyLockSettings);
+}
+
+export async function setPresentationPermission(testPage: Page, option: string) {
+  await openLockViewers(testPage);
+  await testPage.waitAndClick(e.presentationPermissionsTab);
+  await testPage.waitAndClick(e.presentationPolicySelector);
   await testPage.waitAndClick(option);
   await testPage.waitAndClick(e.applyLockSettings);
 }
