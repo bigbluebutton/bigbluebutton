@@ -100,8 +100,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="presRedirectValidator" class="org.bigbluebutton.api.service.impl.PresRedirectValidator">
         <property name="defaultUploadedPresentation" value="${beans.presentationService.defaultUploadedPresentation}"/>
-        <property name="insertDocumentSupportedProtocols" value="${insertDocumentSupportedProtocols}" />
-        <property name="insertDocumentBlockedHosts" value="${insertDocumentBlockedHosts}" />
+        <property name="fetchUrlSupportedProtocols" value="${fetchUrlSupportedProtocols}" />
+        <property name="fetchUrlBlockedExternalHosts" value="${fetchUrlBlockedExternalHosts}" />
+        <property name="fetchUrlAllowedLocalHosts" value="${fetchUrlAllowedLocalHosts}" />
     </bean>
 
     <bean id="presDownloadService" class="org.bigbluebutton.presentation.PresentationUrlDownloadService"
