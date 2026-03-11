@@ -21,7 +21,7 @@ module BigBlueButton
   module EDL
     module Audio
       FFMPEG_AEVALSRC = "aevalsrc=s=48000:c=stereo:exprs=0|0"
-      FFMPEG_AFORMAT = "aresample=async=1000,aformat=sample_fmts=s16:sample_rates=48000:channel_layouts=stereo"
+      FFMPEG_AFORMAT = "aresample=async=1000:first_pts=0,aformat=sample_fmts=s16:sample_rates=48000:channel_layouts=stereo"
       FFMPEG_WF_CODEC = 'libvorbis'
       FFMPEG_WF_ARGS = ['-c:a', FFMPEG_WF_CODEC, '-q:a', '2', '-f', 'ogg']
       WF_EXT = 'ogg'
