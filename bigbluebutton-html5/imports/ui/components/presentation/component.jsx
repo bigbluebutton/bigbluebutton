@@ -381,7 +381,6 @@ class Presentation extends PureComponent {
       isPresentationDetached,
       popupWindow,
       toggleDetachPresentation,
-      onPopupPreparing,
     } = this.props;
 
     
@@ -400,10 +399,6 @@ class Presentation extends PureComponent {
       popup.document.title = 'BigBlueButton Portal Window';
       const container = popup.document.createElement('div');
       popup.document.body.appendChild(container);
-
-      // popup window is still in preparation, so some graphql subscription fails,
-      //  which then will show the notification bar. We want to surpress it.
-      onPopupPreparing?.(true);
 
       // Copying the attributes of <html>, so that the bbb-icons font looks a bit smaller
       const mainHtml = document.documentElement; // メインウィンドウの <html>
@@ -597,7 +592,6 @@ class Presentation extends PureComponent {
 
       toggleDetachPresentation(popup);
       popup.addEventListener('beforeunload', () => {
-        onPopupPreparing?.(false); // Only when the popup is closed very quickly, but may not be necessary..
         // Revert the injection of popup.rAF/cAF
         window.requestAnimationFrame = originalRAF;
         window.cancelAnimationFrame = originalCAF;
@@ -612,7 +606,6 @@ class Presentation extends PureComponent {
 
       popup.addEventListener('beforeunload', () => {
         window.removeEventListener('beforeunload', closePopup);
-        onPopupPreparing?.(false);
         window.requestAnimationFrame = originalRAF;
         window.cancelAnimationFrame = originalCAF;
         toggleDetachPresentation(null);
@@ -635,22 +628,7 @@ class Presentation extends PureComponent {
         }
         // Then normal fullscreen change (by button or ESC)
         this.onFullscreenChange();
-      });
-      
-      // when the canvas of tldraw is drawn on the popup,
-      //  we will set false to isPopupOnPreparation.
-      // Then the notification bar with 3006 error becomes accepted again.
-      const tlContainer = popup.document.querySelector('.tl-container');
-      const observerTlCanvas = new MutationObserver((__, obs) => {
-        const tlCanvas = popup.document.querySelector('.tl-canvas');
-        if (tlCanvas) {
-          onPopupPreparing?.(false);
-          obs.disconnect();
-        }
-      });
-      //observerTlCanvas.observe(popup.document.body, { childList: true, subtree: true });
-      observerTlCanvas.observe(tlContainer, { childList: true, subtree: true });
-        
+      });        
     } else {
       // to explicitely exit fullsreen; we do not need setState "isFullscreen: false".
       //  (in case user directly merge popup when it is fullscreen)
