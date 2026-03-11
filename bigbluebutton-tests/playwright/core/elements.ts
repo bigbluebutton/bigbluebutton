@@ -468,6 +468,7 @@ export const elements = {
   lockViewersButton: 'button[data-test="lockViewersButton"]',
   unlockUserButton: 'li[data-test="unlockUserButton"]',
   applyLockSettings: 'button[data-test="applyLockSettings"]',
+  participantPermissionsTab: '[data-test="participantPermissionsTab"]',
   lockShareWebcam: 'input[data-test="lockShareWebcam"]',
   lockSeeOtherViewersWebcam: 'input[data-test="lockSeeOtherViewersWebcam"]',
   lockShareMicrophone: 'input[data-test="lockShareMicrophone"]',

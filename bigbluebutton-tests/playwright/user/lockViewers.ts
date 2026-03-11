@@ -248,6 +248,7 @@ export class LockViewers extends MultiUsers {
     ).toContainText(e.message, { timeout: ELEMENT_WAIT_TIME });
 
     await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.participantPermissionsTab);
     await this.modPage.waitAndClickElement(e.lockEditSharedNotes);
     await this.modPage.waitAndClick(e.applyLockSettings);
 
