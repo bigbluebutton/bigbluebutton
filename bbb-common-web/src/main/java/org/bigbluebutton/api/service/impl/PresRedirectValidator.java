@@ -12,8 +12,8 @@ import java.util.List;
 
 public class PresRedirectValidator implements RedirectValidator {
     private List<String> fetchUrlSupportedProtocols;
-    private List<String> fetchUrlBlockedHosts;
-    private List<String> fetchUrlAllowLocalHosts = new ArrayList<>();
+    private List<String> fetchUrlBlockedExternalHosts;
+    private List<String> fetchUrlAllowedLocalHosts = new ArrayList<>();
     private String defaultUploadedPresentation;
     private static final Logger log = LoggerFactory.getLogger(PresRedirectValidator.class);
 
@@ -35,7 +35,7 @@ public class PresRedirectValidator implements RedirectValidator {
                 }
             }
 
-            if (fetchUrlBlockedHosts.stream().anyMatch(h -> h.equalsIgnoreCase(host))) {
+            if (fetchUrlBlockedExternalHosts.stream().anyMatch(h -> h.equalsIgnoreCase(host))) {
                 log.error("Attempted to download from blocked host [{}]", host);
                 return false;
             }
@@ -49,7 +49,7 @@ public class PresRedirectValidator implements RedirectValidator {
             return true;
         }
 
-        boolean isAllowedLocalHost = fetchUrlAllowLocalHosts.stream()
+        boolean isAllowedLocalHost = fetchUrlAllowedLocalHosts.stream()
                 .anyMatch(h -> h.equalsIgnoreCase(url.getHost()));
 
         try {
@@ -130,7 +130,7 @@ public class PresRedirectValidator implements RedirectValidator {
         }
 
         // Check blocked hosts
-        if (fetchUrlBlockedHosts.stream().anyMatch(h -> h.equalsIgnoreCase(host))) {
+        if (fetchUrlBlockedExternalHosts.stream().anyMatch(h -> h.equalsIgnoreCase(host))) {
             log.error("Attempted to download from blocked host [{}]", host);
             return null;
         }
@@ -151,7 +151,7 @@ public class PresRedirectValidator implements RedirectValidator {
 
         InetAddressValidator validator = InetAddressValidator.getInstance();
         boolean isDefaultPresentation = redirectUrl.equals(defaultUploadedPresentation);
-        boolean isAllowedLocalHost = fetchUrlAllowLocalHosts.stream().anyMatch(h -> h.equalsIgnoreCase(host));
+        boolean isAllowedLocalHost = fetchUrlAllowedLocalHosts.stream().anyMatch(h -> h.equalsIgnoreCase(host));
 
         // Validate all resolved addresses
         for (InetAddress address : addresses) {
@@ -204,12 +204,12 @@ public class PresRedirectValidator implements RedirectValidator {
         this.fetchUrlSupportedProtocols = fetchUrlSupportedProtocols;
     }
 
-    public void setFetchUrlBlockedHosts(List<String> fetchUrlBlockedHosts) {
-        this.fetchUrlBlockedHosts = fetchUrlBlockedHosts;
+    public void setFetchUrlBlockedExternalHosts(List<String> fetchUrlBlockedExternalHosts) {
+        this.fetchUrlBlockedExternalHosts = fetchUrlBlockedExternalHosts;
     }
 
-    public void setFetchUrlAllowLocalHosts(List<String> fetchUrlAllowLocalHosts) {
-        this.fetchUrlAllowLocalHosts = fetchUrlAllowLocalHosts != null ? fetchUrlAllowLocalHosts : new ArrayList<>();
+    public void setFetchUrlAllowedLocalHosts(List<String> fetchUrlAllowedLocalHosts) {
+        this.fetchUrlAllowedLocalHosts = fetchUrlAllowedLocalHosts != null ? fetchUrlAllowedLocalHosts : new ArrayList<>();
     }
 
     public void setDefaultUploadedPresentation(String defaultUploadedPresentation) {
