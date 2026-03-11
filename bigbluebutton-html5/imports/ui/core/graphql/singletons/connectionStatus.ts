@@ -39,6 +39,16 @@ class ConnectionStatus {
 
   private rttValue = makeVar(0);
 
+  private minRtt: number = Infinity;
+
+  public setMinRtt(value: number): void {
+    this.minRtt = value;
+  }
+
+  public getMinRtt(): number {
+    return this.minRtt;
+  }
+
   private subscriptionFailed = makeVar(false);
 
   // @ts-ignore

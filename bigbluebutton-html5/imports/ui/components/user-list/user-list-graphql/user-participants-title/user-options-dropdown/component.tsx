@@ -261,7 +261,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         dataTest: 'usersJoinMuted',
       },
       {
-        allow: true,
+        allow: !isBreakout,
         key: uuids.current[1],
         label: intl.formatMessage(intlMessages.muteAllExceptPresenterLabel),
         description: intl.formatMessage(intlMessages.muteAllExceptPresenterDesc),
@@ -279,7 +279,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         dataTest: 'lockViewersButton',
       },
       {
-        allow: dynamicGuestPolicy,
+        allow: dynamicGuestPolicy && !isBreakout,
         key: uuids.current[3],
         icon: 'user',
         label: intl.formatMessage(intlMessages.guestPolicyLabel),
@@ -296,7 +296,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         dataTest: 'downloadUserNamesList',
       },
       {
-        allow: isReactionsEnabled && isModerator,
+        allow: isReactionsEnabled && isModerator && !isBreakout,
         key: uuids.current[5],
         label: intl.formatMessage(intlMessages.clearAllReactionsLabel),
         description: intl.formatMessage(intlMessages.clearAllReactionsDesc),

@@ -5,7 +5,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.{ BreakoutRoomUsersUpdateInternalMsg }
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
 import org.bigbluebutton.core.domain.{ BreakoutUser, BreakoutVoiceUser }
-import org.bigbluebutton.core.models.{ Users2x, VoiceUsers }
+import org.bigbluebutton.core.models.{ Roles, Users2x, VoiceUsers }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 
 object BreakoutHdlrHelpers extends SystemConfiguration {
@@ -41,14 +41,17 @@ object BreakoutHdlrHelpers extends SystemConfiguration {
     for {
       user <- Users2x.findWithIntId(liveMeeting.users2x, userId)
       apiCall = "join"
+      password = if (user.role == Roles.MODERATOR_ROLE) liveMeeting.props.password.moderatorPass
+      else liveMeeting.props.password.viewerPass
       (redirectParams, redirectToHtml5Params) = BreakoutRoomsUtil.joinParams(
         user.name,
         userId + "-" + roomSequence,
         true,
         externalMeetingId,
         user.avatar,
+        user.webcamBackground,
         user.role,
-        liveMeeting.props.password.moderatorPass
+        password
       )
       // We generate a first url with redirect -> true
       redirectBaseString = BreakoutRoomsUtil.createBaseString(redirectParams)

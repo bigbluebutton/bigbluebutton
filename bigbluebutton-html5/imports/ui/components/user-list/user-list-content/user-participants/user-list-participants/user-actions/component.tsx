@@ -379,20 +379,16 @@ const UserActions: React.FC<UserActionsProps> = ({
     {
       allowed: (() => {
         const preventSelfChat = user.userId !== currentUser.userId;
-        const isBreakoutPrivateChatLocked = isBreakout
-          && lockSettings?.disablePrivateChat;
         const moderatorOverride = currentUser.isModerator
           && allowedToChatPrivately;
         const regularUserCondition = (isPrivateChatEnabled
           && isChatEnabled
           && !lockSettings?.disablePrivateChat
-          && !isVoiceOnlyUser(user.userId)
-          && !isBreakout)
+          && !isVoiceOnlyUser(user.userId))
           || user.isModerator;
 
         const isAllowed = preventSelfChat
           && (moderatorOverride || regularUserCondition || !currentUser.locked)
-          && !isBreakoutPrivateChatLocked
           && type === 'participant';
 
         return isAllowed;
@@ -474,7 +470,8 @@ const UserActions: React.FC<UserActionsProps> = ({
       allowed: allowedToChangeWhiteboardAccess
         && !user.presenter
         && !isVoiceOnlyUser(user.userId)
-        && pageId,
+        && pageId
+        && !isBreakout,
       key: 'changeWhiteboardAccess',
       label: hasWhiteboardAccess
         ? intl.formatMessage(messages.removeWhiteboardAccess)

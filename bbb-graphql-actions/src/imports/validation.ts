@@ -26,6 +26,10 @@ export const isPresenter = (sessionVariables: Record<string, unknown>) => {
     return (sessionVariables['x-hasura-presenterinmeeting'] !== "");
 };
 
+export const isBreakout = (sessionVariables: Record<string, unknown>) => {
+    return (sessionVariables['x-hasura-isbreakout'] === "true");
+};
+
 export type InputParam = {
     name: string;
     type: 'string' | 'number' | 'int' | 'boolean' | 'json' | 'jsonArray' | 'stringArray' | 'numberArray' | 'intArray' | 'objectArray';

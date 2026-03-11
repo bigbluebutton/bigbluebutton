@@ -74,7 +74,7 @@ export const generateActionsPermissions = (
     && !amISubjectUser
     && usersPolicies?.allowModsToEjectCameras;
 
-  const allowedToSetPresenter = amIModerator
+  const allowedToSetPresenter = (amIModerator || isBreakout)
     && !subjectUser.presenter
     && !isDialInUser;
 

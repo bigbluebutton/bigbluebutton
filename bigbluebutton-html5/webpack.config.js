@@ -135,14 +135,7 @@ if (env === prodEnv) {
   config.mode = prodEnv;
   config.optimization = {
     minimize: true,
-    minimizer: isSafariTarget ? [] : [new TerserPlugin({
-      terserOptions: {
-        keep_classnames: true,
-        keep_fnames: true,
-      },
-      extractComments: false,
-      parallel: true,
-    })],
+    minimizer: isSafariTarget ? [] : [new TerserPlugin()],
   };
   config.performance = {
     hints: 'warning',

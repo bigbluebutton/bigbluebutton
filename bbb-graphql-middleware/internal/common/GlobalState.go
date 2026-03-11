@@ -20,100 +20,134 @@ func GetUniqueID() string {
 }
 
 var (
-	PatchedMessageCache      = make(map[uint64][]byte)
+	PatchedMessageCache      = make(map[string]map[uint64][]byte)
 	PatchedMessageCacheMutex sync.RWMutex
 )
 
-func GetPatchedMessageCache(cacheKey uint64) ([]byte, bool) {
+func GetPatchedMessageCache(meetingId string, cacheKey uint64) ([]byte, bool) {
 	PatchedMessageCacheMutex.RLock()
 	defer PatchedMessageCacheMutex.RUnlock()
 
-	jsonDiffPatch, jsonDiffPatchExists := PatchedMessageCache[cacheKey]
+	jsonDiffPatch, jsonDiffPatchExists := PatchedMessageCache[meetingId][cacheKey]
 	return jsonDiffPatch, jsonDiffPatchExists
 }
 
-func StorePatchedMessageCache(cacheKey uint64, data []byte) {
+func StorePatchedMessageCache(meetingId string, cacheKey uint64, data []byte) {
 	PatchedMessageCacheMutex.Lock()
 	defer PatchedMessageCacheMutex.Unlock()
 
-	PatchedMessageCache[cacheKey] = data
+	if _, jsonDiffPatchExists := PatchedMessageCache[meetingId]; !jsonDiffPatchExists {
+		PatchedMessageCache[meetingId] = make(map[uint64][]byte)
+	}
+
+	PatchedMessageCache[meetingId][cacheKey] = data
 
 	// Remove the cache after 30 seconds
-	go RemovePatchedMessageCache(cacheKey, 30)
+	go RemovePatchedMessageCache(meetingId, cacheKey, 30)
 }
 
-func RemovePatchedMessageCache(cacheKey uint64, delayInSecs time.Duration) {
+func RemovePatchedMessageCache(meetingId string, cacheKey uint64, delayInSecs time.Duration) {
 	time.Sleep(delayInSecs * time.Second)
 
 	PatchedMessageCacheMutex.Lock()
 	defer PatchedMessageCacheMutex.Unlock()
-	delete(PatchedMessageCache, cacheKey)
+	delete(PatchedMessageCache[meetingId], cacheKey)
+}
+
+func RemoveMeetingPatchedMessageCache(meetingId string) {
+	PatchedMessageCacheMutex.Lock()
+	defer PatchedMessageCacheMutex.Unlock()
+	delete(PatchedMessageCache, meetingId)
 }
 
 var (
-	HasuraMessageCache      = make(map[uint32]HasuraMessage)
-	HasuraMessageKeyCache   = make(map[uint32]string)
+	HasuraMessageCache      = make(map[string]map[uint32]HasuraMessage)
+	HasuraMessageKeyCache   = make(map[string]map[uint32]string)
 	HasuraMessageCacheMutex sync.RWMutex
 )
 
-func GetHasuraMessageCache(cacheKey uint32) (string, HasuraMessage, bool) {
+func GetHasuraMessageCache(meetingId string, cacheKey uint32) (string, HasuraMessage, bool) {
 	HasuraMessageCacheMutex.RLock()
 	defer HasuraMessageCacheMutex.RUnlock()
 
-	hasuraMessageDataKey, _ := HasuraMessageKeyCache[cacheKey]
-	hasuraMessage, hasuraMessageExists := HasuraMessageCache[cacheKey]
+	hasuraMessageDataKey, _ := HasuraMessageKeyCache[meetingId][cacheKey]
+	hasuraMessage, hasuraMessageExists := HasuraMessageCache[meetingId][cacheKey]
 	return hasuraMessageDataKey, hasuraMessage, hasuraMessageExists
 }
 
-func StoreHasuraMessageCache(cacheKey uint32, dataKey string, hasuraMessage HasuraMessage) {
+func StoreHasuraMessageCache(meetingId string, cacheKey uint32, dataKey string, hasuraMessage HasuraMessage) {
 	HasuraMessageCacheMutex.Lock()
 	defer HasuraMessageCacheMutex.Unlock()
 
-	HasuraMessageKeyCache[cacheKey] = dataKey
-	HasuraMessageCache[cacheKey] = hasuraMessage
+	if _, jsonDiffPatchExists := HasuraMessageKeyCache[meetingId]; !jsonDiffPatchExists {
+		HasuraMessageKeyCache[meetingId] = make(map[uint32]string)
+	}
+	if _, jsonDiffPatchExists := HasuraMessageCache[meetingId]; !jsonDiffPatchExists {
+		HasuraMessageCache[meetingId] = make(map[uint32]HasuraMessage)
+	}
+
+	HasuraMessageKeyCache[meetingId][cacheKey] = dataKey
+	HasuraMessageCache[meetingId][cacheKey] = hasuraMessage
 
 	// Remove the cache after 30 seconds
-	go RemoveHasuraMessageCache(cacheKey, 30)
+	go RemoveHasuraMessageCache(meetingId, cacheKey, 30)
 }
 
-func RemoveHasuraMessageCache(cacheKey uint32, delayInSecs time.Duration) {
+func RemoveHasuraMessageCache(meetingId string, cacheKey uint32, delayInSecs time.Duration) {
 	time.Sleep(delayInSecs * time.Second)
 
 	HasuraMessageCacheMutex.Lock()
 	defer HasuraMessageCacheMutex.Unlock()
-	delete(HasuraMessageKeyCache, cacheKey)
-	delete(HasuraMessageCache, cacheKey)
+	delete(HasuraMessageKeyCache[meetingId], cacheKey)
+	delete(HasuraMessageCache[meetingId], cacheKey)
+}
+
+func RemoveMeetingHasuraMessageCache(meetingId string) {
+	HasuraMessageCacheMutex.Lock()
+	defer HasuraMessageCacheMutex.Unlock()
+	delete(HasuraMessageKeyCache, meetingId)
+	delete(HasuraMessageCache, meetingId)
 }
 
 var (
-	StreamCursorValueCache      = make(map[uint32]interface{})
+	StreamCursorValueCache      = make(map[string]map[uint32]interface{})
 	StreamCursorValueCacheMutex sync.RWMutex
 )
 
-func GetStreamCursorValueCache(cacheKey uint32) (interface{}, bool) {
+func GetStreamCursorValueCache(meetingId string, cacheKey uint32) (interface{}, bool) {
 	StreamCursorValueCacheMutex.RLock()
 	defer StreamCursorValueCacheMutex.RUnlock()
 
-	streamCursorValue, streamCursorValueExists := StreamCursorValueCache[cacheKey]
+	streamCursorValue, streamCursorValueExists := StreamCursorValueCache[meetingId][cacheKey]
 	return streamCursorValue, streamCursorValueExists
 }
 
-func StoreStreamCursorValueCache(cacheKey uint32, streamCursorValue interface{}) {
+func StoreStreamCursorValueCache(meetingId string, cacheKey uint32, streamCursorValue interface{}) {
 	StreamCursorValueCacheMutex.Lock()
 	defer StreamCursorValueCacheMutex.Unlock()
 
-	StreamCursorValueCache[cacheKey] = streamCursorValue
+	if _, jsonDiffPatchExists := StreamCursorValueCache[meetingId]; !jsonDiffPatchExists {
+		StreamCursorValueCache[meetingId] = make(map[uint32]interface{})
+	}
+
+	StreamCursorValueCache[meetingId][cacheKey] = streamCursorValue
 
 	// Remove the cache after 30 seconds
-	go RemoveStreamCursorValueCache(cacheKey, 30)
+	go RemoveStreamCursorValueCache(meetingId, cacheKey, 30)
 }
 
-func RemoveStreamCursorValueCache(cacheKey uint32, delayInSecs time.Duration) {
+func RemoveStreamCursorValueCache(meetingId string, cacheKey uint32, delayInSecs time.Duration) {
 	time.Sleep(delayInSecs * time.Second)
 
 	StreamCursorValueCacheMutex.Lock()
 	defer StreamCursorValueCacheMutex.Unlock()
-	delete(StreamCursorValueCache, cacheKey)
+	delete(StreamCursorValueCache[meetingId], cacheKey)
+}
+
+func RemoveMeetingStreamCursorValueCache(meetingId string) {
+	StreamCursorValueCacheMutex.Lock()
+	defer StreamCursorValueCacheMutex.Unlock()
+	delete(StreamCursorValueCache, meetingId)
 }
 
 var (
