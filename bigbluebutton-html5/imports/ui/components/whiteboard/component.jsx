@@ -211,6 +211,7 @@ const Whiteboard = React.memo((props) => {
   const innerWrapperPollingFrameRef = React.useRef(null);
   const isMountedPollingFrameRef = React.useRef(null);
   const hasZoomSyncedRef = useRef(false);
+  const lastForcedViewRef = useRef(null);
   const currentUserRef = useRef(currentUser);
 
   currentUserRef.current = currentUser;
@@ -1745,11 +1746,55 @@ const Whiteboard = React.memo((props) => {
       }
 
       const camera = tlEditorRef.current.getCamera();
+
       const updatedCurrentCam = {
         ...camera,
         z: adjustedZoom,
       };
-      tlEditorRef.current.store.put([updatedCurrentCam]);
+      tlEditorRef.current.store.mergeRemoteChanges(() => {
+        tlEditorRef.current.store.put([updatedCurrentCam]);
+      });
+
+      // Remote camera updates do not trigger the user-source listener,
+      // so publish the final settled presenter view explicitly.
+      if (fitToWidthRef.current) {
+        requestAnimationFrame(() => {
+          const viewportPageBounds = tlEditorRef.current?.getViewportPageBounds();
+          if (!viewportPageBounds?.w || !viewportPageBounds?.h) {
+            return;
+          }
+
+          const viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(
+            viewportPageBounds.w,
+            currentPresentationPageRef.current?.scaledWidth,
+          );
+          const viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(
+            viewportPageBounds.h,
+            currentPresentationPageRef.current?.scaledHeight,
+          );
+
+          const forcedView = {
+            pageId: curPageIdRef.current,
+            w: Number(viewedRegionW.toFixed(6)),
+            h: Number(viewedRegionH.toFixed(6)),
+            x: Number(updatedCurrentCam.x.toFixed(6)),
+            y: Number(updatedCurrentCam.y.toFixed(6)),
+          };
+
+          if (isEqual(lastForcedViewRef.current, forcedView)) {
+            return;
+          }
+
+          lastForcedViewRef.current = forcedView;
+          zoomSlide(
+            viewedRegionW,
+            viewedRegionH,
+            updatedCurrentCam.x,
+            updatedCurrentCam.y,
+            currentPresentationPageRef.current,
+          );
+        });
+      }
     } else {
       const newZoom = calculateZoomValue(
         scaledViewBoxWidth,
