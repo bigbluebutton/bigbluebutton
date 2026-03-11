@@ -952,7 +952,7 @@
     "app.error.userLoggedOut": "Uživatel má neplatný token k místnosti, jelikož došlo k odhlášení",
     "app.error.ejectedUser": "Uživatel nemá platný token k místnosti, jelikož byl vyhozen z místnosti",
     "app.error.joinedAnotherWindow": "Zdá se, že setkání bylo otevřeno v jiném okně prohlížeče.",
-    "app.error.userBanned": "Uživatel byl zakázán",
+    "app.error.userBanned": "You have been removed for the remaining duration of this session.",
     "app.error.leaveLabel": "Přihlašte se znovu",
     "app.error.fallback.presentation.title": "Došlo k chybě",
     "app.error.fallback.presentation.description": "Bylo to zalogováno. Zkuste prosím znovu načíst stránku.",
