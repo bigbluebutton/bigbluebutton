@@ -17,6 +17,7 @@ export class LockViewers extends MultiUsers {
     await this.modPage.hasNElements(e.webcamVideoItem, 2, 'should display two webcam video item for the moderator');
     await this.userPage.hasNElements(e.webcamVideoItem, 2, 'should display two webcam video item for the attendee');
     await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.participantPermissionsTab);
     await this.modPage.waitAndClickElement(e.lockShareWebcam);
     await this.modPage.waitAndClick(e.applyLockSettings);
     await this.modPage.closeAllToastNotifications();
@@ -39,6 +40,7 @@ export class LockViewers extends MultiUsers {
     await this.modPage.shareWebcam();
     await this.userPage.shareWebcam();
     await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.participantPermissionsTab);
     await this.modPage.waitAndClickElement(e.lockSeeOtherViewersWebcam);
     await this.modPage.waitAndClick(e.applyLockSettings);
     await this.modPage.page.waitForTimeout(500);
@@ -75,6 +77,7 @@ export class LockViewers extends MultiUsers {
     await this.userPage.waitAndClick(e.joinAudio);
     await this.userPage.joinMicrophone();
     await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.participantPermissionsTab);
     await this.modPage.waitAndClickElement(e.lockShareMicrophone);
     await this.modPage.waitAndClick(e.applyLockSettings);
     await this.userPage.wasRemoved(e.isTalking, 'should not display the is talking element for the first attendee');
@@ -130,6 +133,7 @@ export class LockViewers extends MultiUsers {
     );
     // lock the public chat
     await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.participantPermissionsTab);
     await this.modPage.waitAndClickElement(e.lockPublicChat);
     await this.modPage.waitAndClick(e.applyLockSettings);
     await this.userPage.hasElementDisabled(e.chatBox, 'should have the public chat disabled for the first attendee');
@@ -193,6 +197,7 @@ export class LockViewers extends MultiUsers {
     await startPrivateChatButton.click();
     // mod lock the private chat
     await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.participantPermissionsTab);
     await this.modPage.waitAndClickElement(e.lockPrivateChat);
     await this.modPage.waitAndClick(e.applyLockSettings);
     // join second user
@@ -266,6 +271,7 @@ export class LockViewers extends MultiUsers {
 
   async lockSeeOtherViewersUserList() {
     await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.participantPermissionsTab);
     await this.modPage.waitAndClickElement(e.lockUserList);
     await this.modPage.waitAndClick(e.applyLockSettings);
     await this.initUserPage2();
@@ -313,6 +319,7 @@ export class LockViewers extends MultiUsers {
     };
     // lock the viewers annotations
     await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.participantPermissionsTab);
     await this.modPage.waitAndClickElement(e.hideViewersAnnotation);
     await this.modPage.waitAndClick(e.applyLockSettings);
     await this.modPage.page.waitForTimeout(1000); // timeout to ensure the lock settings are applied
@@ -385,6 +392,7 @@ export class LockViewers extends MultiUsers {
     await drawArrow(this.userPage);
     // lock the viewers cursor
     await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.participantPermissionsTab);
     await this.modPage.waitAndClickElement(e.hideViewersCursor);
     await this.modPage.waitAndClick(e.applyLockSettings);
     // check if the cursor is not displayed for the viewer

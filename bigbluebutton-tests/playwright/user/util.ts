@@ -4,14 +4,19 @@ import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 
 export async function openLockViewers(testPage: Page) {
-  await testPage.waitAndClick(e.usersListSidebarButton);
+  const isLockViewersButtonVisible = await testPage.page.locator(e.lockViewersButton).isVisible({ timeout: 1000 }).catch(() => false);
+  if (!isLockViewersButtonVisible) {
+    await testPage.waitAndClick(e.usersListSidebarButton);
+  }
   await testPage.waitAndClick(e.lockViewersButton);
 }
 
 export async function setGuestPolicyOption(testPage: Page, option: string) {
-  await testPage.waitAndClick(e.manageUsers);
-  await testPage.waitAndClick(e.guestPolicyLabel);
+  await openLockViewers(testPage);
+  await testPage.waitAndClick(e.guestPolicyTab);
+  await testPage.waitAndClick(e.guestPolicySelector);
   await testPage.waitAndClick(option);
+  await testPage.waitAndClick(e.applyLockSettings);
 }
 
 export async function checkAvatarIcon(testPage: Page, checkModIcon = true) {
