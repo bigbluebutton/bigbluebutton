@@ -952,7 +952,7 @@
     "app.error.userLoggedOut": "使用者因登出而具有無效的 sessionToken",
     "app.error.ejectedUser": "因被驅逐而具有無效的 sessionToken",
     "app.error.joinedAnotherWindow": "此會話似乎在另一個瀏覽器窗口中打開。",
-    "app.error.userBanned": "使用者已被封鎖",
+    "app.error.userBanned": "You have been removed for the remaining duration of this session.",
     "app.error.leaveLabel": "重新登入",
     "app.error.fallback.presentation.title": "發生錯誤",
     "app.error.fallback.presentation.description": "已記錄。請嘗試重新載入頁面。",
