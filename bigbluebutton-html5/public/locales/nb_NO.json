@@ -952,7 +952,7 @@
     "app.error.userLoggedOut": "Brukeren har et ugyldig sessionToken på grunn av utlogging",
     "app.error.ejectedUser": "Brukeren har et ugyldig sessionToken på grunn av utkastelse fra sesjonen",
     "app.error.joinedAnotherWindow": "Denne økten ser ut til å være åpnet i et annet nettleservindu.",
-    "app.error.userBanned": "Brukeren har blitt utestengt",
+    "app.error.userBanned": "You have been removed for the remaining duration of this session.",
     "app.error.leaveLabel": "Logg inn igjen",
     "app.error.fallback.presentation.title": "En feil har skjedd",
     "app.error.fallback.presentation.description": "det har blitt loggført. Vennligst forsøk å oppdater siden",
