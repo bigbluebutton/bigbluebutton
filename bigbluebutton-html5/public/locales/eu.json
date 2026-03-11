@@ -952,7 +952,7 @@
     "app.error.userLoggedOut": "Erabiltzaileak saio-token baliogabea du saioa utzi duelako",
     "app.error.ejectedUser": "Erabiltzaileak saio-token baliogabea du kanporatua izan delako",
     "app.error.joinedAnotherWindow": "Saio hau beste nabigatzaile-leiho batean ireki dela dirudi.",
-    "app.error.userBanned": "Erabiltzailea debekatuta dago",
+    "app.error.userBanned": "You have been removed for the remaining duration of this session.",
     "app.error.leaveLabel": "Hasi saioa berriro",
     "app.error.fallback.presentation.title": "Errore bat gertatu da",
     "app.error.fallback.presentation.description": "Saioa hasi da. Saiatu orria berriro kargatzen.",
