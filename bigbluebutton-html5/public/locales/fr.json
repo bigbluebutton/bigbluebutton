@@ -1201,7 +1201,7 @@
     "app.guest-policy.button.alwaysAccept": "Toujours accepter",
     "app.guest-policy.button.alwaysDeny": "Toujours refuser",
     "app.guest-policy.policyBtnDesc": "Défini le paramétrage pour la gestion des accès à la séance",
-    "app.guest-policy.feedbackMessage": "La politique à l'égard des invités est maintenant :",
+    "app.guest-policy.feedbackMessage": "La politique à l'égard des invités est maintenant : {policy}",
     "app.connection-status.ariaTitle": "État de la connexion visible",
     "app.connection-status.title": "État de la connexion",
     "app.connection-status.description": "Voir l'état de la connexion des utilisateurs",

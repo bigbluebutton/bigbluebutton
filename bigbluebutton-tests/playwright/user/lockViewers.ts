@@ -482,14 +482,12 @@ export class LockViewers extends MultiUsers {
   }
 
   async presenterPolicyFreeForAll() {
-    // Start from moderatorOnly so that switching to freeForAll triggers the "enabled" notification
-    await setPresentationPermission(this.modPage, e.presModeratorOnly);
     await setPresentationPermission(this.modPage, e.presFreeForAll);
-    // Moderator should see a notification that presenter requests are enabled
+    // Moderator should see a notification that free-for-all presenter is enabled
     await this.modPage.hasText(
       e.smallToastMsg,
-      'Presenter request is now enabled for viewers',
-      'should display a notification that presenter requests are enabled for viewers',
+      'Participants can now take presenter without moderator approval',
+      'should display a notification that free-for-all presenter is enabled',
     );
     // Viewer opens media area and sees the take presenter button directly
     await this.userPage.waitAndClick(e.mediaAreaButton);

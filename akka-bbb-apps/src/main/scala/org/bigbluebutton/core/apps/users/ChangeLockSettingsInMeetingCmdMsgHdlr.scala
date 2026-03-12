@@ -234,31 +234,26 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
           }
         }
 
-        if (oldPermissions.presenterPolicy != settings.presenterPolicy &&
-          (oldPermissions.presenterPolicy == "moderatorOnly" || settings.presenterPolicy == "moderatorOnly")) {
-          if (settings.presenterPolicy == "moderatorOnly") {
-            val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
-              liveMeeting.props.meetingProp.intId,
-              "info",
-              "lock",
-              "app.userList.userOptions.disablePresenterRequest",
-              "Label to disable presenter request notification",
-              Map()
-            )
-            outGW.send(notifyEvent)
-            NotificationDAO.insert(notifyEvent)
-          } else {
-            val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
-              liveMeeting.props.meetingProp.intId,
-              "info",
-              "lock",
-              "app.userList.userOptions.enablePresenterRequest",
-              "Label to enable presenter request notification",
-              Map()
-            )
-            outGW.send(notifyEvent)
-            NotificationDAO.insert(notifyEvent)
+        if (oldPermissions.presenterPolicy != settings.presenterPolicy) {
+          val (messageId, messageDescription) = settings.presenterPolicy match {
+            case "moderatorOnly" =>
+              ("app.userList.userOptions.disablePresenterRequest", "Label to disable presenter request notification")
+            case "freeForAll" =>
+              ("app.userList.userOptions.enablePresenterFreeForAll", "Label to enable free-for-all presenter notification")
+            case _ =>
+              ("app.userList.userOptions.enablePresenterRequest", "Label to enable presenter request notification")
           }
+
+          val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+            liveMeeting.props.meetingProp.intId,
+            "info",
+            "presentation_permission",
+            messageId,
+            messageDescription,
+            Map()
+          )
+          outGW.send(notifyEvent)
+          NotificationDAO.insert(notifyEvent)
         }
 
         val routing = Routing.addMsgToClientRouting(

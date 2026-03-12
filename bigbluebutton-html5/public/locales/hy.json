@@ -1111,7 +1111,7 @@
     "app.guest-policy.button.alwaysAccept": "Միշտ թույլատրել",
     "app.guest-policy.button.alwaysDeny": "Միշտ արգելել",
     "app.guest-policy.policyBtnDesc": "Սահմանել հանդիպման հյուրերի կարգավորումները",
-    "app.guest-policy.feedbackMessage": "Հուրերի կարգավորումները հիմա՝ ",
+    "app.guest-policy.feedbackMessage": "Հուրերի կարգավորումները հիմա՝  {policy}",
     "app.connection-status.ariaTitle": "Ինտերնետ-միացման որակի պատուհան",
     "app.connection-status.title": "Ինտերնետ-միացման կարգավիճակը",
     "app.connection-status.description": "Նայել մասնակիցների Ինտերնետ-միացման կարգավիճակը",

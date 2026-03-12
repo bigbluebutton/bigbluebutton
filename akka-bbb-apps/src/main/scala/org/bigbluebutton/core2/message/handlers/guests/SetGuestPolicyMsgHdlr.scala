@@ -49,7 +49,7 @@ trait SetGuestPolicyMsgHdlr extends RightsManagementTrait {
               "guest_policy",
               "app.guest-policy.feedbackMessage",
               "Label for guest policy change notification",
-              Map("0" -> labelKey)
+              Map("policy" -> labelKey)
             )
             outGW.send(notifyEvent)
             NotificationDAO.insert(notifyEvent)

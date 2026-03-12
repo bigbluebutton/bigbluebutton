@@ -1012,7 +1012,7 @@
     "app.guest-policy.button.alwaysAccept": "Aceptar siempre",
     "app.guest-policy.button.alwaysDeny": "Denegar siempre",
     "app.guest-policy.policyBtnDesc": "Establecer la política de invitados a la reunión",
-    "app.guest-policy.feedbackMessage": "La política de invitados es ahora:",
+    "app.guest-policy.feedbackMessage": "La política de invitados es ahora: {policy}",
     "app.connection-status.ariaTitle": "Estado de conexión modal",
     "app.connection-status.title": "Estado de la conexión",
     "app.connection-status.description": "Ver el estado de conexión de los usuarios",

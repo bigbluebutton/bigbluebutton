@@ -1201,7 +1201,7 @@
     "app.guest-policy.button.alwaysAccept": "Accetta sempre",
     "app.guest-policy.button.alwaysDeny": "Rifiuta sempre",
     "app.guest-policy.policyBtnDesc": "Imposta la politica degli ospiti della sessione",
-    "app.guest-policy.feedbackMessage": "Il criterio di ammissione degli ospiti ora è: ",
+    "app.guest-policy.feedbackMessage": "Il criterio di ammissione degli ospiti ora è:  {policy}",
     "app.connection-status.ariaTitle": "Finestra stato connessione",
     "app.connection-status.title": "Stato connessione",
     "app.connection-status.description": "Visualizza lo stato di connessione degli utenti",

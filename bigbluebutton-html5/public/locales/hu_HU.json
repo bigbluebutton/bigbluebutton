@@ -1201,7 +1201,7 @@
     "app.guest-policy.button.alwaysAccept": "Mindenki automatikusan engedélyezve",
     "app.guest-policy.button.alwaysDeny": "Mindenki automatikusan elutasítva",
     "app.guest-policy.policyBtnDesc": "Konferencia résztvevőire vonatkozó szabály beállítása",
-    "app.guest-policy.feedbackMessage": "A vendégszabályzat most a következő:",
+    "app.guest-policy.feedbackMessage": "A vendégszabályzat most a következő: {policy}",
     "app.connection-status.ariaTitle": "Kapcsolódási állapot modal",
     "app.connection-status.title": "Kapcsolódás állapota",
     "app.connection-status.description": "Az állapotjel saját interneted minőségéről mutat képet.",

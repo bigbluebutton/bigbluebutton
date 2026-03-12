@@ -1201,7 +1201,7 @@
     "app.guest-policy.button.alwaysAccept": "Her zaman kabul et",
     "app.guest-policy.button.alwaysDeny": "Her zaman reddet",
     "app.guest-policy.policyBtnDesc": "Oturum konuk ilkesini ayarla",
-    "app.guest-policy.feedbackMessage": "Konuk ilkesi:",
+    "app.guest-policy.feedbackMessage": "Konuk ilkesi: {policy}",
     "app.connection-status.ariaTitle": "Bağlantı durumu üste açılan penceresi",
     "app.connection-status.title": "Bağlantı durumu",
     "app.connection-status.description": "Kullanıcıların bağlantı durumunu görüntüle",

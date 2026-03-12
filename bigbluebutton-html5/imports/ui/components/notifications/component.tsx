@@ -26,7 +26,9 @@ const Notifications: React.FC = () => {
   ): Record<string, string> => Object.fromEntries(
     Object.entries(messageValues).map(([k, v]) => [
       k,
-      typeof v === 'string' && v.startsWith('app.') ? intl.formatMessage({ id: v }) : v,
+      typeof v === 'string' && v.startsWith('app.')
+        ? intl.formatMessage({ id: v, defaultMessage: v })
+        : v,
     ]),
   );
 

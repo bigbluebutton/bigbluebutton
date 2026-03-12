@@ -1030,7 +1030,7 @@
     "app.guest-policy.button.alwaysAccept": "Завжди приймати",
     "app.guest-policy.button.alwaysDeny": "Завжди відхиляти",
     "app.guest-policy.policyBtnDesc": "Встановлює політику для гостей зустрічі",
-    "app.guest-policy.feedbackMessage": "Поточна гостьова політика:",
+    "app.guest-policy.feedbackMessage": "Поточна гостьова політика: {policy}",
     "app.connection-status.ariaTitle": "Вікно стану з'єднання",
     "app.connection-status.title": "Стан з'єднання",
     "app.connection-status.description": "Перегляд стану з'єднання користувачів",
