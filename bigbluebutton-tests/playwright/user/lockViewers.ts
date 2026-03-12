@@ -426,6 +426,12 @@ export class LockViewers extends MultiUsers {
 
   async presenterPolicyModeratorOnly() {
     await setPresentationPermission(this.modPage, e.presModeratorOnly);
+    // Moderator should see a notification that presenter requests are disabled
+    await this.modPage.hasText(
+      e.smallToastMsg,
+      'Presenter request is now disabled for viewers',
+      'should display a notification that presenter requests are disabled for viewers',
+    );
     // Locked viewer should see no action button in the media area to become presenter
     await this.userPage.waitAndClick(e.mediaAreaButton);
     await this.userPage.wasRemoved(
@@ -439,7 +445,15 @@ export class LockViewers extends MultiUsers {
   }
 
   async presenterPolicyRequireApproval() {
+    // Start from moderatorOnly so that switching to requireApproval triggers the "enabled" notification
+    await setPresentationPermission(this.modPage, e.presModeratorOnly);
     await setPresentationPermission(this.modPage, e.presRequireApproval);
+    // Moderator should see a notification that presenter requests are enabled
+    await this.modPage.hasText(
+      e.smallToastMsg,
+      'Presenter request is now enabled for viewers',
+      'should display a notification that presenter requests are enabled for viewers',
+    );
     // Viewer opens media area and sees the request presenter button
     await this.userPage.waitAndClick(e.mediaAreaButton);
     await this.userPage.hasElement(
@@ -468,7 +482,15 @@ export class LockViewers extends MultiUsers {
   }
 
   async presenterPolicyFreeForAll() {
+    // Start from moderatorOnly so that switching to freeForAll triggers the "enabled" notification
+    await setPresentationPermission(this.modPage, e.presModeratorOnly);
     await setPresentationPermission(this.modPage, e.presFreeForAll);
+    // Moderator should see a notification that presenter requests are enabled
+    await this.modPage.hasText(
+      e.smallToastMsg,
+      'Presenter request is now enabled for viewers',
+      'should display a notification that presenter requests are enabled for viewers',
+    );
     // Viewer opens media area and sees the take presenter button directly
     await this.userPage.waitAndClick(e.mediaAreaButton);
     await this.userPage.hasElement(

@@ -1215,6 +1215,7 @@
     "app.guest-policy.description": "Change session guest policy setting",
     "app.guest-policy.button.askModerator": "Ask moderator",
     "app.guest-policy.button.alwaysAccept": "Always accept",
+    "app.guest-policy.button.alwaysAcceptAuth": "Always accept authenticated",
     "app.guest-policy.button.alwaysDeny": "Always deny",
     "app.guest-policy.policyBtnDesc": "Sets session guest policy",
     "app.guest-policy.feedbackMessage": "The guest policy is now: {0}",

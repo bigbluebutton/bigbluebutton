@@ -35,21 +35,21 @@ trait SetGuestPolicyMsgHdlr extends RightsManagementTrait {
         outGW.send(event)
 
         if (oldPolicy != newPolicy) {
-          val policyLabel = newPolicy match {
-            case GuestPolicyType.ASK_MODERATOR      => "Ask moderator"
-            case GuestPolicyType.ALWAYS_ACCEPT      => "Always accept"
-            case GuestPolicyType.ALWAYS_ACCEPT_AUTH => "Always accept authenticated"
-            case GuestPolicyType.ALWAYS_DENY        => "Always deny"
-            case _                                  => ""
+          val policyLabelKey: Option[String] = newPolicy match {
+            case GuestPolicyType.ASK_MODERATOR      => Some("app.guest-policy.button.askModerator")
+            case GuestPolicyType.ALWAYS_ACCEPT      => Some("app.guest-policy.button.alwaysAccept")
+            case GuestPolicyType.ALWAYS_ACCEPT_AUTH => Some("app.guest-policy.button.alwaysAcceptAuth")
+            case GuestPolicyType.ALWAYS_DENY        => Some("app.guest-policy.button.alwaysDeny")
+            case _                                  => None
           }
-          if (policyLabel.nonEmpty) {
+          policyLabelKey.foreach { labelKey =>
             val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
               liveMeeting.props.meetingProp.intId,
               "info",
               "guest_policy",
               "app.guest-policy.feedbackMessage",
               "Label for guest policy change notification",
-              Map("0" -> policyLabel)
+              Map("0" -> labelKey)
             )
             outGW.send(notifyEvent)
             NotificationDAO.insert(notifyEvent)
