@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.apps.groupchats
 
-import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsBooleanOrElse
+import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPathAsBooleanOrElse, getConfigPropertyValueByPathAsIntOrElse }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core.apps.plugin.PluginHdlrHelpers.checkPermission
@@ -23,6 +23,17 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
       } else {
         GroupChatMessageType.DEFAULT
       }
+    }
+
+    val minMsgLen = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.chat.min_message_length", 1)
+    val maxMsgLen = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.chat.max_message_length", 5000)
+    val msgLen = msg.body.msg.message.length
+
+    if (msgLen < minMsgLen || msgLen > maxMsgLen) {
+      log.warning(
+        s"Ignoring chat message from user ${msg.header.userId} in meeting ${liveMeeting.props.meetingProp.intId}: message length $msgLen out of bounds [$minMsgLen, $maxMsgLen]"
+      )
+      return state
     }
 
     val chatDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("chat")

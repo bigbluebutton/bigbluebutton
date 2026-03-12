@@ -1,6 +1,6 @@
 package org.bigbluebutton.core.apps.groupchats
 
-import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsBooleanOrElse
+import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPathAsBooleanOrElse, getConfigPropertyValueByPathAsIntOrElse }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core.bus.MessageBus
@@ -14,6 +14,16 @@ trait EditGroupChatMessageReqMsgHdlr extends HandlerHelpers {
   this: GroupChatHdlrs =>
 
   def handle(msg: EditGroupChatMessageReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
+    val maxMsgLen = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.chat.max_message_length", 5000)
+    val minMsgLen = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.chat.min_message_length", 1)
+
+    if (msg.body.message.length < minMsgLen || msg.body.message.length > maxMsgLen) {
+      log.warning(
+        s"Ignoring chat edit from user ${msg.header.userId} in meeting ${liveMeeting.props.meetingProp.intId}: message length ${msg.body.message.length} out of bounds [$minMsgLen, $maxMsgLen]"
+      )
+      return state
+    }
+
     val chatDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("chat")
     val editChatMessageDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("editChatMessage")
     var chatLocked: Boolean = false
