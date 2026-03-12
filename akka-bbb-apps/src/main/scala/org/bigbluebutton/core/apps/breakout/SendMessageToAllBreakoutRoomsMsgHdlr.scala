@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.apps.breakout
 
+import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsIntOrElse
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.SendMessageToBreakoutRoomInternalMsg
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
@@ -16,6 +17,17 @@ trait SendMessageToAllBreakoutRoomsMsgHdlr extends RightsManagementTrait {
   val outGW: OutMsgRouter
 
   def handleSendMessageToAllBreakoutRoomsMsg(msg: SendMessageToAllBreakoutRoomsReqMsg, state: MeetingState2x): MeetingState2x = {
+    val minMsgLen = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.chat.min_message_length", 1)
+    val maxMsgLen = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.chat.max_message_length", 5000)
+    val msgLen = msg.body.msg.length
+
+    if (msgLen < minMsgLen || msgLen > maxMsgLen) {
+      log.warning(
+        s"Ignoring breakout message from user ${msg.header.userId} in meeting ${liveMeeting.props.meetingProp.intId}: message length $msgLen out of bounds [$minMsgLen, $maxMsgLen]"
+      )
+      return state
+    }
+
     if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to send message to all breakout rooms for meeting."
