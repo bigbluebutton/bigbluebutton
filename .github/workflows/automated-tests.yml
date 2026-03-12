@@ -584,14 +584,117 @@ jobs:
         with:
           name: bbb-logs-plugins
           path: ./bbb-logs.tar.gz
+  install-and-run-livekit-tests:
+    needs:
+      - unify-artifacts
+      - bbb-libreoffice-image
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout PR's source merged into its target branch
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.number }}/merge
+      - name: Checkout commit/branch
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      - name: Install BBB
+        timeout-minutes: 60
+        uses: ./.github/actions/install-bbb
+      - name: Enable LiveKit
+        run: |
+          sudo apt-get install -y bbb-livekit
+          sudo yq e -i '.livekit.enabled = true' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml
+          sudo systemctl restart bbb-webrtc-sfu
+          for service in livekit-server bbb-webrtc-sfu; do
+            timeout 30 bash -c "until systemctl is-active --quiet $service; do sleep 1; done" \
+              || { echo "$service failed to start"; systemctl status $service; exit 1; }
+          done
+      - uses: actions/setup-node@v4
+        name: Restore Playwright node modules from cache
+        with:
+          cache: "npm"
+          cache-dependency-path: bigbluebutton-tests/playwright/package-lock.json
+      - name: Restore Playwright binaries from cache
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/.cache/ms-playwright/
+          key: ${{ runner.os }}-playwright-bins-${{ hashFiles('bigbluebutton-tests/playwright/package-lock.json') }}
+      - name: Install test dependencies
+        working-directory: ./bigbluebutton-tests/playwright
+        timeout-minutes: 25
+        run: |
+          npm ci
+          npx playwright install-deps
+          npx playwright install
+      - name: Run LiveKit media tests
+        working-directory: ./bigbluebutton-tests/playwright
+        timeout-minutes: 25
+        env:
+          NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
+          ACTIONS_RUNNER_DEBUG: true
+          BBB_URL: https://bbb-ci.test/bigbluebutton/
+          BBB_SECRET: bbbci
+          MEDIA_BRIDGE: livekit
+        run: npx playwright test audio/ webcam/ screenshare/ --project=chromium --grep @ci --grep-invert '@flaky|@need-update|@only-headed|@setting-required'
+      - if: failure()
+        name: Upload blob report to GitHub Actions Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: blob-report-livekit
+          path: bigbluebutton-tests/playwright/blob-report
+          if-no-files-found: ignore
+      - if: failure()
+        name: Generate LiveKit HTML report from blob report
+        shell: bash
+        working-directory: ./bigbluebutton-tests/playwright
+        run: |
+          if [ -d "./blob-report" ]; then
+            npx playwright merge-reports --reporter html ./blob-report
+          else
+            echo "blob-report directory not found, skipping HTML report generation"
+          fi
+      - if: failure()
+        name: Upload LiveKit HTML report to GitHub Actions Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report_livekit
+          path: bigbluebutton-tests/playwright/playwright-report
+      - if: always()
+        name: Upload logs folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-logs-livekit
+          path: bigbluebutton-tests/playwright/logs
+      - if: failure()
+        name: Prepare artifacts
+        uses: ./.github/actions/prepare-artifacts
+      - if: failure()
+        name: Upload bbb-configs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bbb-configs-livekit
+          path: configs
+      - if: failure()
+        name: Upload bbb-logs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bbb-logs-livekit
+          path: ./bbb-logs.tar.gz
   publish-report:
     if: always() && !contains(github.event.head_commit.message, 'Merge pull request')
     needs:
       - install-and-run-bbb-tests
       - install-and-run-plugin-tests
+      - install-and-run-livekit-tests
     runs-on: ubuntu-22.04
     env:
-      hasFailure: ${{ needs.install-and-run-bbb-tests.result == 'failure' || needs.install-and-run-plugin-tests.result == 'failure' }}
+      hasFailure: ${{ needs.install-and-run-bbb-tests.result == 'failure' || needs.install-and-run-plugin-tests.result == 'failure' || needs.install-and-run-livekit-tests.result == 'failure' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
