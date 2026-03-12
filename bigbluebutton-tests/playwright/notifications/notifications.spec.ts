@@ -1,3 +1,4 @@
+import { isLiveKit } from '../core/livekit';
 import { test } from '../core/setup/fixtures';
 import { constants } from '../parameters/constants';
 import { ChatNotifications } from './chatNotifications';
@@ -64,6 +65,7 @@ test.describe.parallel('Notifications', { tag: '@ci' }, () => {
     });
 
     test('Notification appearing when user is in listen only', async ({ browser, page }, testInfo) => {
+      test.skip(isLiveKit, 'LiveKit does not have a dedicated listen-only mode');
       const recordingNotifications = new RecordingNotifications(browser, page);
       await recordingNotifications.init(true, { createParameter: recordMeeting, testInfo });
       await recordingNotifications.notificationListenOnly();

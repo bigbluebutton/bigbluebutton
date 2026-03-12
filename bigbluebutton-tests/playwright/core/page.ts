@@ -21,6 +21,7 @@ import {
 } from './constants';
 import { elements as e } from './elements';
 import * as helpers from './helpers';
+import { getLiveKitCreateParam, isLiveKit } from './livekit';
 import Logger from './logger';
 import { parameters } from './parameters';
 import { generateSettingsData, Settings } from './settings';
@@ -103,7 +104,7 @@ export class Page {
       shouldCloseAudioModal = true,
       fullName,
       meetingId,
-      createParameter,
+      createParameter: callerCreateParameter,
       joinParameter,
       customMeetingId,
       isRecording,
@@ -113,6 +114,14 @@ export class Page {
       forceErrorLogFailure,
       testInfo,
     } = initOptions || {};
+
+    // Specify LiveKit via bridge create parameters if necessary for tests
+    // in LK-enabled envs
+    const liveKitParam = getLiveKitCreateParam();
+    const createParameter =
+      callerCreateParameter && liveKitParam
+        ? `${callerCreateParameter}&${liveKitParam}`
+        : (callerCreateParameter ?? liveKitParam);
 
     if (!this.testInfo && testInfo) this.testInfo = testInfo;
 
@@ -176,10 +185,14 @@ export class Page {
     return newPage;
   }
 
+  async clickMicrophoneButton(): Promise<void> {
+    if (!isLiveKit) await this.waitAndClick(e.microphoneButton);
+  }
+
   async joinMicrophone(options: JoinMicrophoneOptions = {}): Promise<void> {
     const { shouldUnmute = true } = options;
     await this.waitForSelector(e.audioModal);
-    await this.waitAndClick(e.microphoneButton);
+    await this.clickMicrophoneButton();
     await this.waitForSelector(e.stopHearingButton);
     await this.waitAndClick(e.joinEchoTestButton);
     await this.wasRemoved(
