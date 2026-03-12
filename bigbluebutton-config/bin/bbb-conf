@@ -696,6 +696,8 @@ check_configuration() {
     ignore_configs_args+=(-e "redisPassword")
     ignore_configs_args+=(-e "disabledFeatures")
     ignore_configs_args+=(-e "pluginManifests")
+    ignore_configs_args+=(-e "fetchUrlBlockedExternalHosts")
+    ignore_configs_args+=(-e "fetchUrlAllowedLocalHosts")
 
     for file in $CONFIG_FILES ; do
         if [ ! -f $file ]; then
