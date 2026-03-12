@@ -13,19 +13,22 @@ class ToastContainer extends React.Component {
     const { animations } = Settings.application;
 
     return (
-      <Styled.ToastifyContainer
-        closeButton={(<Styled.CloseIcon data-test="closeToastBtn" iconName="close" animations={animations} />)}
-        autoClose={5000}
-        toastClassName="toastClass"
-        bodyClassName="toastBodyClass"
-        progressClassName="toastProgressClass"
-        newestOnTop={false}
-        hideProgressBar={false}
-        closeOnClick
-        pauseOnHover
-        icon={false}
-        theme="colored"
-      />
+      <>
+        <Styled.ToastifyGlobalStyle />
+        <Styled.ToastifyContainer
+          closeButton={(<Styled.CloseIcon data-test="closeToastBtn" iconName="close" animations={animations} />)}
+          autoClose={5000}
+          toastClassName="toastClass"
+          bodyClassName="toastBodyClass"
+          progressClassName="toastProgressClass"
+          newestOnTop={false}
+          hideProgressBar={false}
+          closeOnClick
+          pauseOnHover
+          icon={false}
+          theme="colored"
+        />
+      </>
     );
   }
 }
