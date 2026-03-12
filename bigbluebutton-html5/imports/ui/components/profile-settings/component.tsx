@@ -767,52 +767,54 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
         </Styled.UsernameContainer>
         <Styled.UserPresenceRoot>
           <Styled.UsernameTitle>{formatMessage(intlMessages.statusLabel)}</Styled.UsernameTitle>
-          <Styled.UserPresenceDropdown
-            value={away ? 'away' : 'available'}
-            onChange={(e) => handleSetStatus(e.target.value as string)}
-            IconComponent={ExpandMoreIcon}
-            MenuProps={{
-              PaperProps: {
-                sx: {
-                  borderRadius: '0.75rem',
-                  border: '1px solid #E5E7EB',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
-                  mt: 0,
-                  '& .MuiList-root': {
-                    padding: '0.5rem',
-                  },
-                  '& .MuiMenuItem-root': {
-                    borderRadius: '0.5rem',
-                    gap: '0.5rem',
-                    padding: '0.625rem 0.75rem',
+          <Styled.UserPresenceField>
+            <Styled.UserPresenceIndicator aria-hidden>
+              <Styled.UserPresenceStatusDot away={away} />
+            </Styled.UserPresenceIndicator>
+            <Styled.UserPresenceDropdown
+              value={away ? 'away' : 'available'}
+              onChange={(e) => handleSetStatus(e.target.value as string)}
+              IconComponent={ExpandMoreIcon}
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    borderRadius: '0.75rem',
+                    border: '1px solid #E5E7EB',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+                    mt: 0,
+                    '& .MuiList-root': {
+                      padding: '0.5rem',
+                    },
+                    '& .MuiMenuItem-root': {
+                      borderRadius: '0.5rem',
+                      gap: '0.5rem',
+                      padding: '0.625rem 0.75rem',
+                    },
                   },
                 },
-              },
-            }}
-            renderValue={(val) => (
-              <Styled.UserPresenceValueContainer>
-                <Styled.UserPresenceStatusDot away={val === 'away'} />
+              }}
+              renderValue={(val) => (
                 <Styled.UserPresenceText>
                   {val === 'away'
                     ? formatMessage(intlMessages.awayLabel)
                     : formatMessage(intlMessages.availableLabel)}
                 </Styled.UserPresenceText>
-              </Styled.UserPresenceValueContainer>
-            )}
-          >
-            <MenuItem value="available">
-              <Styled.UserPresenceValueContainer>
-                <Styled.UserPresenceStatusDot away={false} />
-                <Styled.UserPresenceText>{formatMessage(intlMessages.availableLabel)}</Styled.UserPresenceText>
-              </Styled.UserPresenceValueContainer>
-            </MenuItem>
-            <MenuItem value="away">
-              <Styled.UserPresenceValueContainer>
-                <Styled.UserPresenceStatusDot away />
-                <Styled.UserPresenceText>{formatMessage(intlMessages.awayLabel)}</Styled.UserPresenceText>
-              </Styled.UserPresenceValueContainer>
-            </MenuItem>
-          </Styled.UserPresenceDropdown>
+              )}
+            >
+              <MenuItem value="available">
+                <Styled.UserPresenceValueContainer>
+                  <Styled.UserPresenceStatusDot away={false} />
+                  <Styled.UserPresenceText>{formatMessage(intlMessages.availableLabel)}</Styled.UserPresenceText>
+                </Styled.UserPresenceValueContainer>
+              </MenuItem>
+              <MenuItem value="away">
+                <Styled.UserPresenceValueContainer>
+                  <Styled.UserPresenceStatusDot away />
+                  <Styled.UserPresenceText>{formatMessage(intlMessages.awayLabel)}</Styled.UserPresenceText>
+                </Styled.UserPresenceValueContainer>
+              </MenuItem>
+            </Styled.UserPresenceDropdown>
+          </Styled.UserPresenceField>
         </Styled.UserPresenceRoot>
         <Styled.Separator />
         <Styled.DevicesSettingsContainer>

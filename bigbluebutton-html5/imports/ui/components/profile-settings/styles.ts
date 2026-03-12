@@ -204,11 +204,26 @@ const UserPresenceRoot = styled.div`
   padding: 0px ${contentSidebarPadding};
 `;
 
+const UserPresenceField = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+`;
+
+const UserPresenceIndicator = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  flex-shrink: 0;
+`;
+
 const UserPresenceDropdown = styled(Select)`
+  flex: 1;
   height: 3rem;
   border-radius: 0.5rem !important;
   overflow: hidden;
-  width: 100%;
 `;
 
 const UserPresenceValueContainer = styled.div`
@@ -539,6 +554,8 @@ export default {
   UsernameTitle,
   Username,
   UserPresenceRoot,
+  UserPresenceField,
+  UserPresenceIndicator,
   UserPresenceDropdown,
   UserPresenceValueContainer,
   UserPresenceStatusDot,
