@@ -1,6 +1,7 @@
 import React, {
   useState, useCallback, useRef, useEffect, useMemo,
 } from 'react';
+import { createPortal } from 'react-dom';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import Styled from './styles';
@@ -10,12 +11,15 @@ import {
   BREAKOUT_ROOM_SET_TIME,
   BREAKOUT_ROOM_MOVE_USER,
   BREAKOUT_ROOM_SEND_MESSAGE_TO_ALL,
+  BREAKOUT_ROOM_REQUEST_JOIN_URL,
+  USER_TRANSFER_VOICE_TO_MEETING,
 } from '../../mutations';
 import { BreakoutRoom as BreakoutRoomType } from '../queries';
 import { getUserSubscription, type getUserResponse } from '../../create-breakout-room/queries';
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { setBreakoutWindowRef } from '../service';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -66,6 +70,18 @@ const intlMessages = defineMessages({
     id: 'app.chat.inputPlaceholder',
     description: 'Chat message input placeholder',
   },
+  joinRoom: {
+    id: 'app.createBreakoutRoom.join',
+    description: 'Enter breakout room button label',
+  },
+  listenToRoom: {
+    id: 'app.createBreakoutRoom.listenToRoom',
+    description: 'Listen to breakout room audio',
+  },
+  stopListeningToRoom: {
+    id: 'app.createBreakoutRoom.stopListeningToRoom',
+    description: 'Stop listening to breakout room audio',
+  },
 });
 
 interface RunningBreakoutRoomProps {
@@ -94,14 +110,21 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
   const [megaphoneOpen, setMegaphoneOpen] = useState(false);
   const [megaphoneMessage, setMegaphoneMessage] = useState('');
 
-  const [pendingMoves, setPendingMoves] = useState<Map<string, { toRoomId: string; userName: string }>>(new Map());
+  const [openMenuBreakoutId, setOpenMenuBreakoutId] = useState<string | null>(null);
+  const [editingRoomId, setEditingRoomId] = useState<string | null>(null);
+  const [localRoomNames, setLocalRoomNames] = useState<Record<string, string>>({});
+  const [requestingJoinForRoomId, setRequestingJoinForRoomId] = useState<string | null>(null);
+  const [listeningToRoomId, setListeningToRoomId] = useState<string | null>(null);
+  const roomMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
+  const menuPortalRef = useRef<HTMLDivElement | null>(null);
 
   const [breakoutRoomEndAll] = useMutation(BREAKOUT_ROOM_END_ALL);
   const [breakoutRoomSetTime] = useMutation(BREAKOUT_ROOM_SET_TIME);
   const [breakoutRoomMoveUser] = useMutation(BREAKOUT_ROOM_MOVE_USER);
   const [sendMessageToAll] = useMutation(BREAKOUT_ROOM_SEND_MESSAGE_TO_ALL);
-
-  const initialAssignmentsLoaded = useRef(false);
+  const [requestJoinUrl] = useMutation(BREAKOUT_ROOM_REQUEST_JOIN_URL);
+  const [breakoutRoomTransfer] = useMutation(USER_TRANSFER_VOICE_TO_MEETING);
 
   const { data: usersData } = useDeduplicatedSubscription<getUserResponse>(getUserSubscription);
   const allUsers = usersData?.user ?? [];
@@ -117,57 +140,6 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
   const parsedStartedAt = new Date(breakoutProps?.startedAt ?? '').getTime();
   const breakoutStartedAt = Number.isFinite(parsedStartedAt) ? parsedStartedAt : 0;
 
-  useEffect(() => {
-    if (initialAssignmentsLoaded.current) return;
-    if (breakouts.length === 0) return;
-
-    const raw = sessionStorage.getItem('breakoutInitialAssignments');
-    if (!raw) return;
-
-    try {
-      const assignments: Record<string, { roomSequence: number; userName: string }> = JSON.parse(raw);
-      sessionStorage.removeItem('breakoutInitialAssignments');
-      initialAssignmentsLoaded.current = true;
-
-      const seqToMeetingId = new Map<number, string>();
-      breakouts.forEach((b) => {
-        seqToMeetingId.set(b.sequence, b.breakoutRoomMeetingId);
-        return undefined;
-      });
-
-      const alreadyAssigned = new Set<string>();
-      breakouts.forEach((b) => {
-        b.participants.filter((p) => !p.isAudioOnly).forEach((p) => {
-          alreadyAssigned.add(p.userId);
-          return undefined;
-        });
-        return undefined;
-      });
-
-      const newPending = new Map<string, { toRoomId: string; userName: string }>();
-      Object.entries(assignments).forEach(([uid, info]) => {
-        if (alreadyAssigned.has(uid)) return;
-        const targetMeetingId = seqToMeetingId.get(info.roomSequence);
-        if (targetMeetingId) {
-          newPending.set(uid, { toRoomId: targetMeetingId, userName: info.userName });
-        }
-      });
-
-      if (newPending.size > 0) {
-        setPendingMoves((prev) => {
-          const next = new Map(prev);
-          newPending.forEach((val, key) => {
-            if (!next.has(key)) next.set(key, val);
-            return undefined;
-          });
-          return next;
-        });
-      }
-    } catch (e) {
-      sessionStorage.removeItem('breakoutInitialAssignments');
-    }
-  }, [breakouts]);
-
   const assignedUserIds = useMemo(() => {
     const ids = new Set<string>();
     breakouts.forEach((b) => {
@@ -182,51 +154,10 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
     return ids;
   }, [breakouts]);
 
-  useEffect(() => {
-    setPendingMoves((prev) => {
-      const next = new Map(prev);
-      let changed = false;
-      next.forEach((move, uId) => {
-        const targetBreakout = breakouts.find((b) => b.breakoutRoomMeetingId === move.toRoomId);
-        const isInTarget = targetBreakout?.participants.some(
-          (p) => p.userId === uId && !p.isAudioOnly,
-        );
-        const isUnassignedTarget = move.toRoomId === meetingId && !assignedUserIds.has(uId);
-        if (isInTarget || isUnassignedTarget) {
-          next.delete(uId);
-          changed = true;
-        }
-      });
-      return changed ? next : prev;
-    });
-  }, [breakouts, assignedUserIds, meetingId]);
-
   const unassignedUsers = useMemo(
-    () => allUsers.filter((u: { userId: string }) => {
-      const pending = pendingMoves.get(u.userId);
-      if (pending && pending.toRoomId !== meetingId) return false;
-      if (pending && pending.toRoomId === meetingId) return true;
-      return !assignedUserIds.has(u.userId);
-    }),
-    [allUsers, assignedUserIds, pendingMoves, meetingId],
+    () => allUsers.filter((u: { userId: string }) => !assignedUserIds.has(u.userId)),
+    [allUsers, assignedUserIds],
   );
-
-  const getOptimisticParticipants = useCallback((breakout: BreakoutRoomType) => {
-    const serverUsers = breakout.participants.filter((p) => !p.isAudioOnly);
-    const filtered = serverUsers.filter((p) => {
-      const pending = pendingMoves.get(p.userId);
-      return !pending || pending.toRoomId === breakout.breakoutRoomMeetingId;
-    });
-    const existingIds = new Set(filtered.map((p) => p.userId));
-    const pendingIncoming: Array<{ userId: string; name: string }> = [];
-    pendingMoves.forEach((move, uId) => {
-      if (move.toRoomId === breakout.breakoutRoomMeetingId && !existingIds.has(uId)) {
-        pendingIncoming.push({ userId: uId, name: move.userName });
-      }
-      return undefined;
-    });
-    return { serverUsers: filtered, pendingIncoming };
-  }, [pendingMoves]);
 
   useEffect(() => {
     const calcRemaining = () => {
@@ -258,11 +189,71 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
     if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
   }, []);
 
+  useEffect(() => {
+    if (!requestingJoinForRoomId) return;
+    const breakout = breakouts.find((b) => b.breakoutRoomMeetingId === requestingJoinForRoomId);
+    if (breakout?.joinURL) {
+      const win = window.open(breakout.joinURL, '_blank');
+      if (win) setBreakoutWindowRef(win);
+      setRequestingJoinForRoomId(null);
+    }
+  }, [breakouts, requestingJoinForRoomId]);
+
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (!openMenuBreakoutId) return;
+      const wrapperEl = roomMenuRefs.current[openMenuBreakoutId];
+      const portalEl = menuPortalRef.current;
+      const isInsideWrapper = wrapperEl?.contains(e.target as Node) ?? false;
+      const isInsidePortal = portalEl?.contains(e.target as Node) ?? false;
+      if (!isInsideWrapper && !isInsidePortal) {
+        setOpenMenuBreakoutId(null);
+        setMenuPosition(null);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [openMenuBreakoutId]);
+
+  const handleEnterRoom = useCallback((breakout: BreakoutRoomType) => {
+    setOpenMenuBreakoutId(null);
+    if (breakout.joinURL) {
+      const win = window.open(breakout.joinURL, '_blank');
+      if (win) setBreakoutWindowRef(win);
+    } else {
+      requestJoinUrl({ variables: { breakoutRoomMeetingId: breakout.breakoutRoomMeetingId } });
+      setRequestingJoinForRoomId(breakout.breakoutRoomMeetingId);
+    }
+  }, [requestJoinUrl]);
+
+  const handleListenToRoom = useCallback((breakout: BreakoutRoomType) => {
+    setOpenMenuBreakoutId(null);
+    if (listeningToRoomId === breakout.breakoutRoomMeetingId) {
+      breakoutRoomTransfer({
+        variables: {
+          fromMeetingId: breakout.breakoutRoomMeetingId,
+          toMeetingId: meetingId,
+        },
+      });
+      setListeningToRoomId(null);
+    } else {
+      breakoutRoomTransfer({
+        variables: {
+          fromMeetingId: meetingId,
+          toMeetingId: breakout.breakoutRoomMeetingId,
+        },
+      });
+      setListeningToRoomId(breakout.breakoutRoomMeetingId);
+    }
+  }, [listeningToRoomId, breakoutRoomTransfer, meetingId]);
+
   const displayedTime = editingTime ?? remainingTime;
   const hours = Math.floor(displayedTime / 3600);
   const minutes = Math.floor((displayedTime % 3600) / 60);
   const seconds = displayedTime % 60;
   const padNum = (n: number) => n.toString().padStart(2, '0');
+
+  const openBreakout = breakouts.find((b) => b.breakoutRoomMeetingId === openMenuBreakoutId);
 
   const commitTimeChange = useCallback((newTotalSeconds: number) => {
     const clamped = Math.max(60, newTotalSeconds);
@@ -332,22 +323,14 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
     const data = ev.dataTransfer.getData('text');
     let droppedUserId: string;
     let fromRoomMeetingId: string;
-    let droppedUserName: string;
     try {
       const parsed = JSON.parse(data);
       droppedUserId = parsed.userId;
       fromRoomMeetingId = parsed.fromRoomId;
-      droppedUserName = parsed.userName;
     } catch {
       return;
     }
     if (fromRoomMeetingId === toRoomId) return;
-
-    setPendingMoves((prev) => {
-      const next = new Map(prev);
-      next.set(droppedUserId, { toRoomId, userName: droppedUserName });
-      return next;
-    });
 
     breakoutRoomMoveUser({
       variables: {
@@ -502,11 +485,16 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
 
         <Styled.RoomCardsContainer>
           {breakouts.map((breakout) => {
-            const { serverUsers, pendingIncoming } = getOptimisticParticipants(breakout);
-            const totalRoomUsers = serverUsers.length + pendingIncoming.length;
+            const roomParticipants = breakout.participants.filter((p) => !p.isAudioOnly);
+            const totalRoomUsers = roomParticipants.length;
             const roomName = breakout.isDefaultName
               ? intl.formatMessage(intlMessages.breakoutRoom, { roomNumber: breakout.sequence })
               : breakout.shortName;
+
+            const displayName = localRoomNames[breakout.breakoutRoomMeetingId] ?? roomName;
+            const isMenuOpen = openMenuBreakoutId === breakout.breakoutRoomMeetingId;
+            const isEditing = editingRoomId === breakout.breakoutRoomMeetingId;
+            const isListening = listeningToRoomId === breakout.breakoutRoomMeetingId;
 
             return (
               <Styled.RoomCard
@@ -525,19 +513,68 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                 }}
               >
                 <Styled.RoomCardHeader>
-                  <Styled.RoomCardName>{roomName}</Styled.RoomCardName>
-                  <Styled.RoomCardRight>
-                    <Styled.RoomCardCount>
+                  <Styled.RoomCardLeft>
+                    {isEditing ? (
+                      <Styled.RoomNameInput
+                        value={displayName}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          setLocalRoomNames((prev) => ({
+                            ...prev,
+                            [breakout.breakoutRoomMeetingId]: e.target.value,
+                          }));
+                        }}
+                        onBlur={() => setEditingRoomId(null)}
+                        onKeyDown={(e: React.KeyboardEvent) => {
+                          if (e.key === 'Enter' || e.key === 'Escape') setEditingRoomId(null);
+                        }}
+                        // eslint-disable-next-line jsx-a11y/no-autofocus
+                        autoFocus
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    ) : (
+                      <Styled.RoomCardName
+                        title={displayName}
+                        onClick={() => setEditingRoomId(breakout.breakoutRoomMeetingId)}
+                      >
+                        {displayName}
+                      </Styled.RoomCardName>
+                    )}
+                    <Styled.RoomCardCountLeft>
                       {padNum(totalRoomUsers)}
-                    </Styled.RoomCardCount>
-                    <Styled.RoomCardIcon>
                       <Icon iconName="user_list" />
-                    </Styled.RoomCardIcon>
-                  </Styled.RoomCardRight>
+                    </Styled.RoomCardCountLeft>
+                  </Styled.RoomCardLeft>
+                  <Styled.RoomCardMenuWrapper
+                    ref={(el) => { roomMenuRefs.current[breakout.breakoutRoomMeetingId] = el; }}
+                  >
+                    <Styled.RoomCardMenuBtn
+                      $listening={isListening}
+                      onClick={(e: React.MouseEvent) => {
+                        e.stopPropagation();
+                        if (isMenuOpen) {
+                          setOpenMenuBreakoutId(null);
+                          setMenuPosition(null);
+                        } else {
+                          const wrapper = roomMenuRefs.current[breakout.breakoutRoomMeetingId];
+                          if (wrapper) {
+                            const rect = wrapper.getBoundingClientRect();
+                            setMenuPosition({ top: rect.bottom + 4, left: rect.left });
+                          }
+                          setOpenMenuBreakoutId(breakout.breakoutRoomMeetingId);
+                        }
+                      }}
+                      aria-label="Room options"
+                      title={isListening
+                        ? intl.formatMessage(intlMessages.stopListeningToRoom)
+                        : intl.formatMessage(intlMessages.listenToRoom)}
+                    >
+                      ···
+                    </Styled.RoomCardMenuBtn>
+                  </Styled.RoomCardMenuWrapper>
                 </Styled.RoomCardHeader>
                 {totalRoomUsers > 0 && (
                   <Styled.RoomCardUserList>
-                    {serverUsers
+                    {roomParticipants
                       .sort((a, b) => a.user.nameSortable.localeCompare(b.user.nameSortable))
                       .map((participant) => (
                         <Styled.RoomCardUserItem
@@ -557,17 +594,6 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                             : ''}
                         </Styled.RoomCardUserItem>
                       ))}
-                    {pendingIncoming.map((pending) => (
-                      <Styled.RoomCardUserItem
-                        key={`pending-${pending.userId}`}
-                        style={{ opacity: 0.55, fontStyle: 'italic' }}
-                      >
-                        {pending.name}
-                        {pending.userId === userId
-                          ? ` (${intl.formatMessage(intlMessages.you)})`
-                          : ''}
-                      </Styled.RoomCardUserItem>
-                    ))}
                   </Styled.RoomCardUserList>
                 )}
               </Styled.RoomCard>
@@ -601,7 +627,6 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
       <Styled.BottomBar>
         {/* @ts-ignore */}
         <Styled.MegaphoneBtn
-          icon="megaphone"
           label={intl.formatMessage(intlMessages.megaphoneLabel)}
           onClick={() => setMegaphoneOpen(!megaphoneOpen)}
           title={intl.formatMessage(intlMessages.megaphoneTooltip)}
@@ -614,6 +639,33 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
           data-test="finishBreakoutButton"
         />
       </Styled.BottomBar>
+      {openMenuBreakoutId && menuPosition && openBreakout && createPortal(
+        <div
+          ref={menuPortalRef}
+          style={{
+            position: 'fixed', top: menuPosition.top, left: menuPosition.left, zIndex: 9999,
+          }}
+        >
+          <Styled.RoomCardMenu>
+            <Styled.RoomCardMenuItem
+              onClick={() => handleEnterRoom(openBreakout)}
+              data-test="enterBreakoutRoomButton"
+            >
+              {intl.formatMessage(intlMessages.joinRoom)}
+            </Styled.RoomCardMenuItem>
+            <Styled.RoomCardMenuItem
+              onClick={() => handleListenToRoom(openBreakout)}
+              $active={listeningToRoomId === openBreakout.breakoutRoomMeetingId}
+              data-test="listenToBreakoutRoomButton"
+            >
+              {listeningToRoomId === openBreakout.breakoutRoomMeetingId
+                ? intl.formatMessage(intlMessages.stopListeningToRoom)
+                : intl.formatMessage(intlMessages.listenToRoom)}
+            </Styled.RoomCardMenuItem>
+          </Styled.RoomCardMenu>
+        </div>,
+        document.body,
+      )}
     </Styled.PanelContent>
   );
 };

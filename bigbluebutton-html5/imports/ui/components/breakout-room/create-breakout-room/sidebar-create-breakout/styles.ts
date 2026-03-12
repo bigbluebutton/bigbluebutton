@@ -10,6 +10,7 @@ import {
   colorGrayUserListToolbar,
   colorText,
   btnPrimaryBg,
+  colorDanger,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
 import {
@@ -50,6 +51,12 @@ export const TimerSection = styled.div`
 export const TimerLabel = styled.span`
   font-size: ${fontSizeSmall};
   color: ${colorText};
+`;
+
+export const TimerWarning = styled.span`
+  font-size: ${fontSizeSmall};
+  color: ${colorDanger};
+  margin-top: 0.15rem;
 `;
 
 export const TimerDisplay = styled.div`
@@ -238,8 +245,18 @@ export const InfoBanner = styled.div`
 `;
 
 export const InfoIcon = styled.span`
-  color: ${colorPrimary};
-  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  min-width: 1rem;
+  border-radius: 50%;
+  background: ${colorPrimary};
+  color: ${colorWhite};
+  font-size: 0.6rem;
+  font-weight: 400;
+  font-style: normal;
   flex-shrink: 0;
   margin-top: 0.1rem;
 `;
@@ -392,6 +409,9 @@ export const RoomCardUserItem = styled.div`
   cursor: grab;
   user-select: none;
   border-radius: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 
   &:hover {
     background: ${colorGrayUserListToolbar};
@@ -399,6 +419,29 @@ export const RoomCardUserItem = styled.div`
 
   &:active {
     cursor: grabbing;
+  }
+`;
+
+export const UserRemoveBtn = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: ${colorGray};
+  font-size: 0.75rem;
+  padding: 0 0.15rem;
+  line-height: 1;
+  opacity: 0;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.1s, color 0.1s;
+
+  ${RoomCardUserItem}:hover & {
+    opacity: 1;
+  }
+
+  &:hover {
+    color: ${colorDanger};
   }
 `;
 
@@ -414,15 +457,13 @@ export const StartButton = styled.button<{ disabled?: boolean }>`
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  color: ${colorPrimary};
-  background: ${colorGrayUserListToolbar};
-  border: 2px solid ${colorGrayLighter};
+  color: ${colorWhite};
+  background: ${colorPrimary};
+  border: 2px solid ${colorPrimary};
   transition: all 0.15s;
 
   &:hover:not(:disabled) {
-    background: ${colorPrimary};
-    color: ${colorWhite};
-    border-color: ${colorPrimary};
+    opacity: 0.85;
   }
 
   &:disabled {
@@ -481,6 +522,7 @@ export default {
   ScrollContent,
   TimerSection,
   TimerLabel,
+  TimerWarning,
   TimerDisplay,
   TimerInput,
   TimerColon,
@@ -512,6 +554,7 @@ export default {
   RoomCardIcon,
   RoomCardUserList,
   RoomCardUserItem,
+  UserRemoveBtn,
   StartButtonWrapper,
   StartButton,
   MaterialSwitch,

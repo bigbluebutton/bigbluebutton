@@ -4,6 +4,7 @@ import React, {
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import Styled from './styles';
 import {
   Rooms,
@@ -53,6 +54,10 @@ const intlMessages = defineMessages({
   randomlyAssignDesc: {
     id: 'app.createBreakoutRoom.randomlyAssignDesc',
     description: 'randomly assign label description',
+  },
+  resetAssignmentsDesc: {
+    id: 'app.createBreakoutRoom.resetAssignmentsDesc',
+    description: 'Reset all user room assignments',
   },
   freeJoinLabel: {
     id: 'app.createBreakoutRoom.freeJoin',
@@ -113,6 +118,14 @@ const intlMessages = defineMessages({
   unassignedUsers: {
     id: 'app.createBreakoutRoom.unassignedUsers',
     description: 'Unassigned users label',
+  },
+  leastOneWarnBreakout: {
+    id: 'app.createBreakoutRoom.leastOneWarnBreakout',
+    description: 'Warning: at least one user must be assigned',
+  },
+  minimumDurationWarnBreakout: {
+    id: 'app.createBreakoutRoom.minimumDurationWarnBreakout',
+    description: 'Warning: minimum breakout duration',
   },
 });
 
@@ -175,8 +188,9 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
   const [captureNotes, setCaptureNotes] = useState(captureSharedNotesByDefault);
   const [record, setRecord] = useState(recordRoomByDefault || false);
   const [inviteMods, setInviteMods] = useState(inviteModsByDefault);
-  const [, setLeastOneUserIsValid] = useState(false);
+  const [leastOneUserIsValid, setLeastOneUserIsValid] = useState(false);
   const [roomPresentations, setRoomPresentations] = useState<RoomPresentations>([]);
+  const [randomlyAssigned, setRandomlyAssigned] = useState(false);
 
   const [createBreakoutRoom] = useMutation(BREAKOUT_ROOM_CREATE);
 
@@ -288,9 +302,6 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
         });
       }
     }
-    if (Object.keys(initialAssignments).length > 0) {
-      sessionStorage.setItem('breakoutInitialAssignments', JSON.stringify(initialAssignments));
-    }
 
     logger.info({
       logCode: 'breakout_create_rooms',
@@ -317,7 +328,20 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
 
   const roomPadNum = (n: number) => n.toString().padStart(2, '0');
 
-  const canStart = durationTime >= MIN_BREAKOUT_TIME;
+  const canStart = durationTime >= MIN_BREAKOUT_TIME && (freeJoin || leastOneUserIsValid);
+
+  const tooltipText = (() => {
+    if (durationTime < MIN_BREAKOUT_TIME) {
+      return intl.formatMessage(
+        intlMessages.minimumDurationWarnBreakout,
+        { timeInMinutes: MIN_BREAKOUT_TIME },
+      );
+    }
+    if (!freeJoin && !leastOneUserIsValid) {
+      return intl.formatMessage(intlMessages.leastOneWarnBreakout);
+    }
+    return undefined;
+  })();
 
   const optionsConfig = useMemo(() => [
     {
@@ -413,6 +437,14 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
             aria-label="Seconds"
           />
         </Styled.TimerDisplay>
+        {durationTime < MIN_BREAKOUT_TIME && (
+          <Styled.TimerWarning>
+            {intl.formatMessage(
+              intlMessages.minimumDurationWarnBreakout,
+              { timeInMinutes: MIN_BREAKOUT_TIME },
+            )}
+          </Styled.TimerWarning>
+        )}
       </Styled.TimerSection>
 
       <Styled.Separator />
@@ -439,10 +471,20 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
         </Styled.RoomCountControl>
         {/* @ts-ignore */}
         <Styled.RandomAssignBtn
-          icon="random"
-          label={intl.formatMessage(intlMessages.randomlyAssignDesc)}
+          icon={randomlyAssigned ? 'undo' : 'random'}
+          label={randomlyAssigned
+            ? intl.formatMessage(intlMessages.resetAssignmentsDesc)
+            : intl.formatMessage(intlMessages.randomlyAssignDesc)}
           hideLabel
-          onClick={() => randomlyAssignFunction.current()}
+          onClick={() => {
+            if (randomlyAssigned) {
+              resetAssignmentsFunction.current();
+              setRandomlyAssigned(false);
+            } else {
+              randomlyAssignFunction.current();
+              setRandomlyAssigned(true);
+            }
+          }}
           data-test="randomlyAssign"
         />
       </Styled.ControlsRow>
@@ -510,15 +552,29 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
         />
       </Styled.ScrollContent>
 
-      <Styled.StartButtonWrapper>
-        <Styled.StartButton
-          disabled={!canStart}
-          onClick={handleCreateRoom}
-          data-test="createBreakoutRoomsButton"
-        >
-          {intl.formatMessage(intlMessages.startLabel)}
-        </Styled.StartButton>
-      </Styled.StartButtonWrapper>
+      {tooltipText ? (
+        <TooltipContainer title={tooltipText}>
+          <Styled.StartButtonWrapper>
+            <Styled.StartButton
+              disabled={!canStart}
+              onClick={handleCreateRoom}
+              data-test="createBreakoutRoomsButton"
+            >
+              {intl.formatMessage(intlMessages.startLabel)}
+            </Styled.StartButton>
+          </Styled.StartButtonWrapper>
+        </TooltipContainer>
+      ) : (
+        <Styled.StartButtonWrapper>
+          <Styled.StartButton
+            disabled={!canStart}
+            onClick={handleCreateRoom}
+            data-test="createBreakoutRoomsButton"
+          >
+            {intl.formatMessage(intlMessages.startLabel)}
+          </Styled.StartButton>
+        </Styled.StartButtonWrapper>
+      )}
     </Styled.PanelContent>
   );
 };

@@ -14,6 +14,10 @@ const intlMessages = defineMessages({
     id: 'app.userList.you',
     description: 'Text for identifying your user',
   },
+  unassignUser: {
+    id: 'app.update.resetRoom',
+    description: 'Remove user from room',
+  },
 });
 
 const isMe = (intId: string) => intId === Auth.userID;
@@ -128,8 +132,20 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
                       onDragStart={dragStart}
                       onDragEnd={dragEnd}
                     >
-                      {user.name}
-                      {isMe(user.userId) ? ` (${intl.formatMessage(intlMessages.you)})` : ''}
+                      <span>
+                        {user.name}
+                        {isMe(user.userId) ? ` (${intl.formatMessage(intlMessages.you)})` : ''}
+                      </span>
+                      <Styled.UserRemoveBtn
+                        type="button"
+                        aria-label={intl.formatMessage(intlMessages.unassignUser)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          moveUser(user.userId, roomNum, 0);
+                        }}
+                      >
+                        ✕
+                      </Styled.UserRemoveBtn>
                     </Styled.RoomCardUserItem>
                   ))}
                 </Styled.RoomCardUserList>

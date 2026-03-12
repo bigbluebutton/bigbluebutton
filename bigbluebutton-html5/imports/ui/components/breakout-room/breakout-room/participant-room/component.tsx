@@ -11,6 +11,7 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
   USER_TRANSFER_VOICE_TO_MEETING,
   BREAKOUT_ROOM_CALL_MODERATOR,
+  BREAKOUT_ROOM_REQUEST_JOIN_URL,
 } from '../../mutations';
 import { notify } from '/imports/ui/services/notification';
 import { useStopMediaOnMainRoom } from '/imports/ui/components/breakout-room/hooks';
@@ -30,6 +31,10 @@ const intlMessages = defineMessages({
   youAreInRoom: {
     id: 'app.createBreakoutRoom.youAreInRoom',
     description: 'Message telling user which room they are in',
+  },
+  joinRoom: {
+    id: 'app.createBreakoutRoom.join',
+    description: 'Enter breakout room button label',
   },
   callModerator: {
     id: 'app.createBreakoutRoom.callModerator',
@@ -63,6 +68,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.callModeratorCooldown',
     description: 'Toast message when call moderator is on cooldown',
   },
+  requestToJoin: {
+    id: 'app.createBreakoutRoom.askToJoin',
+    description: 'Request to join a breakout room',
+  },
 });
 
 interface ParticipantBreakoutRoomProps {
@@ -71,6 +80,8 @@ interface ParticipantBreakoutRoomProps {
   presenter: boolean;
   userJoinedAudio: boolean;
   closePanel: () => void;
+  isInBreakout?: boolean;
+  breakoutMeetingId?: string;
 }
 
 const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
@@ -79,6 +90,8 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
   presenter,
   userJoinedAudio,
   closePanel,
+  isInBreakout = false,
+  breakoutMeetingId = '',
 }) => {
   const intl = useIntl();
   const [timeSync] = useTimeSync();
@@ -88,6 +101,7 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
 
   const [breakoutRoomTransfer] = useMutation(USER_TRANSFER_VOICE_TO_MEETING);
   const [callModerator] = useMutation(BREAKOUT_ROOM_CALL_MODERATOR);
+  const [requestJoinUrl] = useMutation(BREAKOUT_ROOM_REQUEST_JOIN_URL);
   const stopMediaOnMainRoom = useStopMediaOnMainRoom();
   const [callModeratorCooldown, setCallModeratorCooldown] = useState(false);
 
@@ -95,12 +109,32 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
     data: meetingData,
   } = useMeeting((m) => ({
     breakoutRoomsCommonProperties: m.breakoutRoomsCommonProperties,
+    durationInSeconds: m.durationInSeconds,
+    createdTime: m.createdTime,
+    breakoutPolicies: m.breakoutPolicies,
+    name: m.name,
   }));
 
-  const breakoutProps = meetingData?.breakoutRoomsCommonProperties;
-  const breakoutDurationInSeconds = breakoutProps?.durationInSeconds ?? 0;
-  const parsedStartedAt = new Date(breakoutProps?.startedAt ?? '').getTime();
-  const breakoutStartedAt = Number.isFinite(parsedStartedAt) ? parsedStartedAt : 0;
+  const freeJoin = meetingData?.breakoutRoomsCommonProperties?.freeJoin ?? false;
+
+  const breakoutDurationInSeconds = isInBreakout
+    ? (meetingData?.durationInSeconds ?? 0)
+    : (meetingData?.breakoutRoomsCommonProperties?.durationInSeconds ?? 0);
+  const breakoutStartedAt = isInBreakout
+    ? (meetingData?.createdTime ?? 0)
+    : (() => {
+      const p = new Date(meetingData?.breakoutRoomsCommonProperties?.startedAt ?? '').getTime();
+      return Number.isFinite(p) ? p : 0;
+    })();
+
+  const selfRoomSequence = meetingData?.breakoutPolicies?.sequence ?? 0;
+  const selfRoomName = isInBreakout
+    ? (meetingData?.name
+      ?? (selfRoomSequence
+        ? intl.formatMessage(intlMessages.breakoutRoom, { roomNumber: selfRoomSequence })
+        : ''))
+    : '';
+  const parentMeetingId = meetingData?.breakoutPolicies?.parentMeetingId ?? '';
 
   const userRoom = breakouts.find(
     (b) => b.isLastAssignedRoom || b.isUserCurrentlyInRoom,
@@ -162,11 +196,12 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
       return;
     }
 
-    if (!userRoom) return;
+    const roomId = isInBreakout ? breakoutMeetingId : userRoom?.breakoutRoomMeetingId;
+    if (!roomId) return;
 
     callModerator({
       variables: {
-        breakoutRoomId: userRoom.breakoutRoomMeetingId,
+        breakoutRoomId: roomId,
       },
     }).then(() => {
       notify(
@@ -185,12 +220,46 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
       );
     });
   }, [
-    callModerator, intl, callModeratorCooldown, userRoom,
+    callModerator, intl, callModeratorCooldown, userRoom, isInBreakout, breakoutMeetingId,
   ]);
 
-  const handleReturnToMainSession = useCallback(() => {
-    closeBreakoutWindow();
+  const handleEnterRoom = useCallback(() => {
+    if (!userRoom) return;
+    if (userRoom.joinURL) {
+      const win = window.open(userRoom.joinURL, '_blank');
+      if (win) setBreakoutWindowRef(win);
+      stopMediaOnMainRoom(presenter);
+    } else {
+      requestJoinUrl({ variables: { breakoutRoomMeetingId: userRoom.breakoutRoomMeetingId } });
+      setRequestedBreakoutRoomId(userRoom.breakoutRoomMeetingId);
+    }
+  }, [userRoom, requestJoinUrl, stopMediaOnMainRoom, presenter]);
 
+  const handleFreeJoinRoom = useCallback((breakout: BreakoutRoomType) => {
+    if (breakout.joinURL) {
+      const win = window.open(breakout.joinURL, '_blank');
+      if (win) setBreakoutWindowRef(win);
+      stopMediaOnMainRoom(presenter);
+    } else {
+      requestJoinUrl({ variables: { breakoutRoomMeetingId: breakout.breakoutRoomMeetingId } });
+      setRequestedBreakoutRoomId(breakout.breakoutRoomMeetingId);
+    }
+  }, [requestJoinUrl, stopMediaOnMainRoom, presenter]);
+
+  const handleReturnToMainSession = useCallback(() => {
+    if (isInBreakout) {
+      if (userJoinedAudio) {
+        breakoutRoomTransfer({
+          variables: {
+            fromMeetingId: breakoutMeetingId,
+            toMeetingId: parentMeetingId,
+          },
+        });
+      }
+      window.close();
+      return;
+    }
+    closeBreakoutWindow();
     if (userJoinedAudio && userRoom) {
       breakoutRoomTransfer({
         variables: {
@@ -202,13 +271,86 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
 
     rejoinAudio();
     closePanel();
-  }, [userJoinedAudio, userRoom, meetingId, breakoutRoomTransfer, closePanel]);
+  }, [
+    isInBreakout, userJoinedAudio, userRoom, meetingId,
+    breakoutRoomTransfer, closePanel, breakoutMeetingId, parentMeetingId,
+    rejoinAudio,
+  ]);
 
   const title = intl.formatMessage(intlMessages.breakoutTitle);
   const minimizeLabel = intl.formatMessage(
     intlMessages.genericMinimizePanel,
     { panelName: title },
   );
+
+  const renderRoomInfo = () => {
+    if (isInBreakout) {
+      return (
+        <Styled.InfoCard>
+          <Styled.RoomNumberSquare>
+            {selfRoomSequence}
+          </Styled.RoomNumberSquare>
+          <Styled.InfoText>
+            {intl.formatMessage(intlMessages.youAreInRoom, { roomName: selfRoomName })}
+          </Styled.InfoText>
+        </Styled.InfoCard>
+      );
+    }
+    if (!freeJoin) {
+      if (userRoom) {
+        return (
+          <Styled.InfoCard>
+            <Styled.RoomNumberSquare>
+              {userRoom.sequence}
+            </Styled.RoomNumberSquare>
+            <Styled.InfoText>
+              {intl.formatMessage(intlMessages.youAreInRoom, { roomName: userRoomName })}
+            </Styled.InfoText>
+            <Styled.EnterRoomBtn
+              type="button"
+              onClick={handleEnterRoom}
+              data-test="enterBreakoutRoomButton"
+            >
+              {intl.formatMessage(intlMessages.joinRoom)}
+            </Styled.EnterRoomBtn>
+          </Styled.InfoCard>
+        );
+      }
+      return (
+        <>
+          <Styled.InfoCard>
+            <Icon iconName="unassigned" />
+            <Styled.InfoText>
+              {intl.formatMessage(intlMessages.notAssignedLabel)}
+            </Styled.InfoText>
+          </Styled.InfoCard>
+          <Styled.NotAssignedHelpText>
+            {intl.formatMessage(intlMessages.notAssignedHelp)}
+          </Styled.NotAssignedHelpText>
+        </>
+      );
+    }
+    if (userRoom) {
+      return (
+        <Styled.InfoCard>
+          <Styled.RoomNumberSquare>
+            {userRoom.sequence}
+          </Styled.RoomNumberSquare>
+          <Styled.InfoText>
+            {intl.formatMessage(intlMessages.youAreInRoom, { roomName: userRoomName })}
+          </Styled.InfoText>
+          <Styled.EnterRoomBtn
+            type="button"
+            onClick={handleEnterRoom}
+            data-test="enterBreakoutRoomButton"
+          >
+            {intl.formatMessage(intlMessages.joinRoom)}
+          </Styled.EnterRoomBtn>
+        </Styled.InfoCard>
+      );
+    }
+    return null;
+  };
 
   return (
     <Styled.PanelContent>
@@ -239,41 +381,63 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
 
       <Styled.Separator />
 
-      {userRoom ? (
-        <Styled.InfoCard>
-          <Styled.RoomNumberSquare>
-            {userRoom.sequence}
-          </Styled.RoomNumberSquare>
-          <Styled.InfoText>
-            {intl.formatMessage(intlMessages.youAreInRoom, { roomName: userRoomName })}
-          </Styled.InfoText>
-        </Styled.InfoCard>
+      {renderRoomInfo()}
+      {!isInBreakout && freeJoin ? (
+        <Styled.FreeJoinScrollArea>
+          <Styled.FreeJoinRoomList>
+            {breakouts.map((breakout) => {
+              const isCurrent = breakout.breakoutRoomMeetingId === userRoom?.breakoutRoomMeetingId;
+              const roomName = breakout.isDefaultName
+                ? intl.formatMessage(intlMessages.breakoutRoom, { roomNumber: breakout.sequence })
+                : breakout.shortName;
+              const isRequesting = requestedBreakoutRoomId === breakout.breakoutRoomMeetingId;
+              const participantCount = breakout.participants.filter((p) => !p.isAudioOnly).length;
+              return (
+                <Styled.FreeJoinRoomCard key={breakout.breakoutRoomMeetingId} $isCurrent={isCurrent}>
+                  <Styled.FreeJoinRoomCardHeader>
+                    <Styled.FreeJoinRoomName title={roomName}>{roomName}</Styled.FreeJoinRoomName>
+                    <Styled.FreeJoinRoomCount>
+                      {participantCount.toString().padStart(2, '0')}
+                      <Icon iconName="user_list" />
+                    </Styled.FreeJoinRoomCount>
+                  </Styled.FreeJoinRoomCardHeader>
+                  <Styled.FreeJoinRequestBtn
+                    type="button"
+                    $isCurrent={isCurrent}
+                    disabled={isRequesting}
+                    onClick={() => handleFreeJoinRoom(breakout)}
+                  >
+                    {isCurrent
+                      ? intl.formatMessage(intlMessages.joinRoom)
+                      : intl.formatMessage(intlMessages.requestToJoin)}
+                  </Styled.FreeJoinRequestBtn>
+                </Styled.FreeJoinRoomCard>
+              );
+            })}
+          </Styled.FreeJoinRoomList>
+        </Styled.FreeJoinScrollArea>
       ) : (
-        <Styled.InfoCard>
-          <Icon iconName="unassigned" />
-          <Styled.InfoText>
-            {intl.formatMessage(intlMessages.notAssignedLabel)}
-          </Styled.InfoText>
-        </Styled.InfoCard>
+        <Styled.ContentArea />
       )}
-      <Styled.ContentArea />
-      <Styled.BottomBar>
-        {/* @ts-ignore */}
-        <Styled.CallModeratorBtn
-          icon="user"
-          color="primary"
-          label={intl.formatMessage(intlMessages.callModerator)}
-          onClick={handleCallModerator}
-          data-test="callModeratorButton"
-        />
-        {/* @ts-ignore */}
-        <Styled.ReturnBtn
-          label={intl.formatMessage(intlMessages.returnToMainSession)}
-          onClick={handleReturnToMainSession}
-          data-test="returnToMainSessionButton"
-          ghost
-        />
-      </Styled.BottomBar>
+      {isInBreakout && (
+        <Styled.BottomBar>
+          {/* @ts-ignore */}
+          <Styled.CallModeratorBtn
+            icon="user"
+            color="primary"
+            label={intl.formatMessage(intlMessages.callModerator)}
+            onClick={handleCallModerator}
+            data-test="callModeratorButton"
+          />
+          {/* @ts-ignore */}
+          <Styled.ReturnBtn
+            label={intl.formatMessage(intlMessages.returnToMainSession)}
+            onClick={handleReturnToMainSession}
+            data-test="returnToMainSessionButton"
+            ghost
+          />
+        </Styled.BottomBar>
+      )}
     </Styled.PanelContent>
   );
 };

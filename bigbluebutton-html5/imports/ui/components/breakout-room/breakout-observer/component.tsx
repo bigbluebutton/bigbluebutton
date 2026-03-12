@@ -105,6 +105,10 @@ const BreakoutRoomsAppObserver = () => {
       registerApp(BREAKOUTS_APP_KEY, intl.formatMessage(breakoutLabel), BREAKOUTS_ICON);
       pinApp(BREAKOUTS_APP_KEY);
     }
+    if (isBreakoutMeeting && isBreakoutRoomsEnabled) {
+      registerApp(BREAKOUTS_APP_KEY, intl.formatMessage(breakoutLabel), BREAKOUTS_ICON);
+      pinApp(BREAKOUTS_APP_KEY);
+    }
   }, [hasBreakoutRoom, isBreakoutMeeting, isModerator, isBreakoutRoomsEnabled]);
 
   useEffect(() => {
@@ -127,16 +131,16 @@ const BreakoutRoomsAppObserver = () => {
   useEffect(() => {
     if (!breakoutsAreRegistered
       && isBreakoutRoomsEnabled
-      && !isBreakoutMeeting
-      && (isModerator || (!isModerator && hasBreakoutRoom))) {
+      && (isBreakoutMeeting || (!isBreakoutMeeting && (isModerator || (!isModerator && hasBreakoutRoom))))) {
       registerApp(BREAKOUTS_APP_KEY, intl.formatMessage(breakoutLabel), BREAKOUTS_ICON);
       pinApp(BREAKOUTS_APP_KEY);
     }
 
     if (breakoutsAreRegistered
-      && (isBreakoutMeeting || (!isModerator
+      && !isBreakoutMeeting
+      && (!isModerator
         && !hasBreakoutRoom)
-      )) {
+    ) {
       unregisterApp(BREAKOUTS_APP_KEY);
       if (sidebarContentPanel === BREAKOUTS_APP_KEY) {
         layoutContextDispatch({

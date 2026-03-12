@@ -8,6 +8,7 @@ import {
   colorGrayLighter,
   colorBlueAux,
   colorText,
+  colorGray,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeSmall,
@@ -18,6 +19,7 @@ import {
   Separator as BaseSeparator,
   PanelContent as BasePanelContent,
 } from '/imports/ui/components/sidebar-content/styles';
+import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 
 const HeaderContainer = styled(BaseHeaderContainer)``;
 
@@ -90,6 +92,107 @@ const ContentArea = styled.div`
   min-height: 0;
 `;
 
+const FreeJoinScrollArea = styled(ScrollboxVertical)`
+  overflow: hidden auto;
+  flex-grow: 1;
+  min-height: 0;
+  padding: 0.5rem ${contentSidebarPadding} 1rem;
+`;
+
+const FreeJoinRoomList = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+  gap: 0.5rem;
+`;
+
+const FreeJoinRoomCard = styled.div<{ $isCurrent?: boolean }>`
+  display: flex;
+  flex-direction: column;
+  border: 1.5px solid ${({ $isCurrent }) => ($isCurrent ? colorPrimary : colorGrayLighter)};
+  border-radius: 0.75rem;
+  padding: 0.6rem 0.6rem 0.5rem;
+  background: ${({ $isCurrent }) => ($isCurrent ? colorBlueAux : 'transparent')};
+  gap: 0.5rem;
+`;
+
+const FreeJoinRoomCardHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+`;
+
+const FreeJoinRoomName = styled.span`
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: ${colorText};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+`;
+
+const FreeJoinRoomCount = styled.span`
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  font-size: ${fontSizeSmall};
+  color: ${colorGray};
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  & > i {
+    color: ${colorPrimary};
+    font-size: 0.85rem;
+  }
+`;
+
+const FreeJoinRequestBtn = styled.button<{ $isCurrent?: boolean }>`
+  background: ${({ $isCurrent }) => ($isCurrent ? colorPrimary : 'transparent')};
+  color: ${({ $isCurrent }) => ($isCurrent ? colorWhite : colorPrimary)};
+  border: 1px solid ${({ $isCurrent }) => ($isCurrent ? colorPrimary : colorGrayLighter)};
+  border-radius: 0.5rem;
+  padding: 0.3rem 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  line-height: 1.2;
+
+  &:hover:not(:disabled) {
+    opacity: 0.85;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const NotAssignedHelpText = styled.p`
+  font-size: ${fontSizeSmall};
+  color: ${colorText};
+  margin: 0.5rem ${contentSidebarPadding} 0;
+  text-align: center;
+`;
+
+const EnterRoomBtn = styled.button`
+  background: ${colorPrimary};
+  color: ${colorWhite};
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.45rem 1.25rem;
+  font-size: ${fontSizeSmall};
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+
+  &:hover {
+    opacity: 0.85;
+  }
+`;
+
 const BottomBar = styled.div`
   padding: 0.75rem ${contentSidebarPadding};
   display: flex;
@@ -145,6 +248,15 @@ export default {
   RoomNumberSquare,
   InfoText,
   ContentArea,
+  NotAssignedHelpText,
+  EnterRoomBtn,
+  FreeJoinScrollArea,
+  FreeJoinRoomList,
+  FreeJoinRoomCard,
+  FreeJoinRoomCardHeader,
+  FreeJoinRoomName,
+  FreeJoinRoomCount,
+  FreeJoinRequestBtn,
   BottomBar,
   CallModeratorBtn,
   ReturnBtn,

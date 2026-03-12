@@ -7,6 +7,7 @@ import {
   colorGrayUserListToolbar,
   colorText,
   colorDanger,
+  colorBlueAux,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
 import {
@@ -200,28 +201,111 @@ export const RoomCardHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.25rem;
+`;
+
+export const RoomCardLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
 `;
 
 export const RoomCardName = styled.span`
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 700;
   color: ${colorText};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  flex-shrink: 1;
+  min-width: 0;
+
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
-export const RoomCardRight = styled.div`
+export const RoomNameInput = styled.input`
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: ${colorText};
+  border: none;
+  border-bottom: 1.5px solid ${colorPrimary};
+  background: transparent;
+  outline: none;
+  padding: 0;
+  width: 100%;
+  min-width: 0;
+  flex-shrink: 1;
+`;
+
+export const RoomCardCountLeft = styled.span`
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-`;
-
-export const RoomCardCount = styled.span`
+  gap: 0.2rem;
   font-size: ${fontSizeSmall};
   color: ${colorGray};
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  & > i {
+    color: ${colorPrimary};
+    font-size: 0.9rem;
+  }
 `;
 
-export const RoomCardIcon = styled.span`
-  color: ${colorPrimary};
+export const RoomCardMenuWrapper = styled.div`
+  position: relative;
+  flex-shrink: 0;
+`;
+
+export const RoomCardMenuBtn = styled.button<{ $listening?: boolean }>`
+  background: ${({ $listening }) => ($listening ? colorPrimary : 'transparent')};
+  border: none;
+  border-radius: 0.375rem;
+  color: ${({ $listening }) => ($listening ? colorWhite : colorGray)};
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  width: 1.75rem;
+  height: 1.5rem;
+  padding: 0;
+`;
+
+export const RoomCardMenu = styled.div`
+  background: ${colorWhite};
+  border: 1px solid ${colorGrayLighter};
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  white-space: nowrap;
+`;
+
+export const RoomCardMenuItem = styled.button<{ $active?: boolean }>`
+  display: block;
+  width: 100%;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: ${({ $active }) => ($active ? 600 : 400)};
+  color: ${({ $active }) => ($active ? colorPrimary : colorText)};
+  background: ${({ $active }) => ($active ? colorBlueAux : 'transparent')};
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+  transition: background 0.12s;
+
+  &:hover {
+    background: ${colorGrayLighter};
+  }
 `;
 
 export const RoomCardUserList = styled.div`
@@ -282,6 +366,7 @@ export const MegaphoneBtn = styled<BtnProps>(Button)`
   justify-content: center;
   flex: 1;
   min-width: 0;
+  overflow: hidden;
   font-size: 0.95rem;
   font-weight: 600;
 
@@ -289,11 +374,14 @@ export const MegaphoneBtn = styled<BtnProps>(Button)`
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
   }
 
   & > span > i {
-    color: ${colorWhite} !important;
-    font-size: 1.2rem;
+    display: none;
   }
 
   &:hover {
@@ -405,10 +493,14 @@ export default {
   RoomCardsContainer,
   RoomCard,
   RoomCardHeader,
+  RoomCardLeft,
   RoomCardName,
-  RoomCardRight,
-  RoomCardCount,
-  RoomCardIcon,
+  RoomNameInput,
+  RoomCardCountLeft,
+  RoomCardMenuWrapper,
+  RoomCardMenuBtn,
+  RoomCardMenu,
+  RoomCardMenuItem,
   RoomCardUserList,
   RoomCardUserItem,
   BottomBar,
