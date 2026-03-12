@@ -7,14 +7,14 @@ export function getActivityScore(user, allUsers, totalOfPolls) {
   let userPoints = 0;
 
   // Calculate points of Talking
-  const usersTalkTime = allUsersArr.map((currUser) => currUser?.talk?.totalTime || 0);
+  const usersTalkTime = allUsersArr.map((currUser) => currUser.talk.totalTime);
   const maxTalkTime = Math.max(...usersTalkTime);
   if (maxTalkTime > 0) {
     userPoints += (user.talk.totalTime / maxTalkTime) * 2;
   }
 
   // Calculate points of Chatting
-  const usersTotalOfMessages = allUsersArr.map((currUser) => currUser?.totalOfMessages || 0);
+  const usersTotalOfMessages = allUsersArr.map((currUser) => currUser.totalOfMessages);
   const maxMessages = Math.max(...usersTotalOfMessages);
   if (maxMessages > 0) {
     userPoints += (user.totalOfMessages / maxMessages) * 2;
