@@ -238,7 +238,7 @@
     "app.userList.userOptions.showUserList": "La lista utenti è ora visibile agli utenti",
     "app.userList.userOptions.disablePresenterRequest": "La richiesta di relatore è ora disabilitata per gli spettatori.",
     "app.userList.userOptions.enablePresenterRequest": "La richiesta di relatore è ora abilitata per gli spettatori",
-    "app.userList.userOptions.enablePresenterFreeForAll": "Participants can now take presenter without moderator approval",
+    "app.userList.userOptions.enablePresenterFreeForAll": "Ora i partecipanti possono scegliere il relatore senza l'approvazione del moderatore.",
     "app.userList.userOptions.enableOnlyModeratorWebcam": "Puoi attivare la tua webcam adesso, tutti ti vedranno",
     "app.userList.userOptions.savedNames.title": "Elenco degli utenti nella sessione {meetingName} al {dateAndTime}",
     "app.userList.userOptions.sortedFirstName.heading": "Ordinati per nome: ",
