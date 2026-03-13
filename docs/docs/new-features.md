@@ -408,6 +408,9 @@ Removed
 - `breakoutRoomsEnabled` removed (was previously deprecated)
 - `learningDashboardEnabled` removed (was previously deprecated)
 - `defaultGuestWaitURL` removed (now handled on the same page as the client)
+- `pdfToSvgTimeout` removed in BBB 3.0.13
+- `pngCreationWait` removed in BBB 3.0.13
+- `maxConversionTime` removed in BBB 3.0.15
 
 Value changed
 - `defaultHTML5ClientUrl` changed -- dropped the `/join` ending
