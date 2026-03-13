@@ -1344,7 +1344,7 @@
     "app.videoDock.webcamUnpinLabel": "Ξεκαρφίτσωμα",
     "app.videoDock.webcamUnpinLabelDisabled": "Μόνο οι συντονιστές μπορούν να ξεκαρφιτσώσουν χρήστες",
     "app.videoDock.webcamUnpinDesc": "Ξεκαρφίτσωμα επιλεγμένων καμερών",
-    "app.videoDock.webcamPresenterLabel": "Presenter",
+    "app.videoDock.webcamPresenterLabel": "Παρουσιαστής",
     "app.videoDock.autoplayBlockedDesc": "Χρειαζόμαστε την άδειά σας για να σας δείξουμε τις κάμερες των άλλων χρηστών.",
     "app.videoDock.autoplayAllowLabel": "Προβολή καμερών",
     "app.videoDock.plugin.helpers.seeMoreItems": "See more items",
