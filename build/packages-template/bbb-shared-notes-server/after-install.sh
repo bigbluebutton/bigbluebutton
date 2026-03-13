@@ -33,7 +33,7 @@ runuser -u postgres -- psql -U postgres -d blocknote_app -q -f /usr/share/bbb-sh
 
   echo "Creating drop-in for $SERVICE_NAME..."
 
-  if [ -f "$DROPIN_FILE" ]; then
+  if [[ -f "$DROPIN_FILE" ]]; then
       echo "Removing old drop-in for $SERVICE_NAME: $DROPIN_FILE"
       rm $DROPIN_FILE
   fi

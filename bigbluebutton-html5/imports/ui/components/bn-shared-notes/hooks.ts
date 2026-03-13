@@ -127,7 +127,7 @@ const useHocuspocusProvider = () => {
 
           // Handle security violations - do not reconnect
           // 1003: Unsupported Data, 1005: No Status / Too many requests, 1009: Message Too Big
-          const SECURITY_VIOLATION_CODES = [1003, 1005, 1008, 1009];
+          const SECURITY_VIOLATION_CODES = [1003, 1005, 1009];
           if (SECURITY_VIOLATION_CODES.includes(code)) {
             let securityViolationReason = reason;
             if ((!reason || reason === '')) {

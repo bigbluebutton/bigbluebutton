@@ -1,8 +1,8 @@
-import { exec } from 'child_process';
+import { exec } from 'node:child_process';
 import { promisify } from 'util';
-import { writeFile, readFile, unlink } from 'fs/promises';
+import { writeFile, readFile, unlink } from 'node:fs/promises';
 import { existsSync } from 'fs';
-import { randomBytes } from 'crypto';
+import { randomBytes } from 'node:crypto';
 import fs from 'fs';
 import path from 'path';
 import { Logger } from '../../common/logger';
@@ -70,12 +70,12 @@ async function inlineEmojiImages(html: string): Promise<string> {
   // the SVG is missing — avoids leaving unreachable https://twemoji.local/... URLs
   // in the HTML that the sandboxed wkhtmltopdf process can never fetch.
   result = result.replace(/<img[^>]+class="emoji"[^>]*>/g, (imgTag) => {
-    const srcMatch = imgTag.match(/src="[^"]+\/([^"/]+\.svg)"/);
+    const srcMatch = /src="[^"]+\/([^"/]+\.svg)"/.exec(imgTag);
     if (!srcMatch) return imgTag;
     const b64 = base64Cache.get(srcMatch[1]);
     if (b64) return imgTag.replace(/src="[^"]+"/, `src="${b64}"`);
     // SVG not on disk — fall back to the raw emoji character (alt text)
-    const altMatch = imgTag.match(/alt="([^"]*)"/);
+    const altMatch = /alt="([^"]*)"/.exec(imgTag);
     return altMatch?.[1] ?? '';
   });
 

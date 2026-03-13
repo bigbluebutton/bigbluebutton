@@ -2,7 +2,7 @@ import { Logger } from '../../common/logger';
 import config from '../../config';
 import FormData from 'form-data';
 import axios from 'axios';
-import fs from 'fs';
+import fs from 'node:fs';
 
 const logger = new Logger('helpers/uploadPresentation'); 
 

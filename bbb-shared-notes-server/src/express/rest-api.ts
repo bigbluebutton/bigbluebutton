@@ -108,7 +108,7 @@ const documentApi: DocumentApi = {
 
     try {
       switch (format) {
-        case 'html':
+        case 'html': {
           const fullHtml = await exportDocumentToHtml(documentName);
           logger.info('HTML exported successfully', { documentName });
 
@@ -119,7 +119,8 @@ const documentApi: DocumentApi = {
           // Send HTML
           response.send(fullHtml);
           break;
-        case 'pdf':
+        }
+        case 'pdf': {
           const fullHtmlToBeConvertedToHtml = await exportDocumentToHtml(documentName);
           const pdfBuffer = await exportHtmlToPdf(fullHtmlToBeConvertedToHtml, {
             format: 'A4',
@@ -142,25 +143,26 @@ const documentApi: DocumentApi = {
           // Send PDF
           response.send(pdfBuffer);
           break;
-        case 'txt':
+        }
+        case 'txt': {
           const fullHtmlToBeConvertedToPlainText = await exportDocumentToHtml(documentName);
           // Strip HTML tags to get plain text (emojis are preserved as Unicode characters)
           const plainText = fullHtmlToBeConvertedToPlainText
-            .replace(/<style(?=([^>]*))\1>(?:(?!<\/style>)[\s\S])*<\/style>/gi, '') // Remove style tags and content (ReDoS-safe)
-            .replace(/<script(?=([^>]*))\1>(?:(?!<\/script>)[\s\S])*<\/script>/gi, '') // Remove script tags and content (ReDoS-safe)
-            .replace(/<title(?=([^>]*))\1>(?:(?!<\/title>)[\s\S])*<\/title>/gi, '') // Remove title tags and content (ReDoS-safe)
-            .replace(/<br\s*\/?>/gi, '\n') // Replace <br> with newline
-            .replace(/<\/?(p|div|h[1-6]|li|tr)[^>]*>/gi, '\n') // Replace block elements with newline
-            .replace(/<\/ul>/gi, '\n') // Add newline after lists
-            .replace(/<\/ol>/gi, '\n') // Add newline after ordered lists
-            .replace(/<(?=([^>]+))\1>/g, '') // Remove all remaining HTML tags (ReDoS-safe)
-            .replace(/&nbsp;/g, ' ') // Replace &nbsp; with space
-            .replace(/&lt;/g, '<') // Replace &lt; with <
-            .replace(/&gt;/g, '>') // Replace &gt; with >
-            .replace(/&amp;/g, '&') // Replace &amp; with &
-            .replace(/&quot;/g, '"') // Replace &quot; with "
-            .replace(/&#39;/g, "'") // Replace &#39; with '
-            .replace(/\n\s*\n\s*\n/g, '\n\n') // Collapse multiple blank lines to max 2 newlines
+            .replaceAll(/<style(?=([^>]*))\1>(?:(?!<\/style>)[\s\S])*<\/style>/gi, '') // Remove style tags and content (ReDoS-safe)
+            .replaceAll(/<script(?=([^>]*))\1>(?:(?!<\/script>)[\s\S])*<\/script>/gi, '') // Remove script tags and content (ReDoS-safe)
+            .replaceAll(/<title(?=([^>]*))\1>(?:(?!<\/title>)[\s\S])*<\/title>/gi, '') // Remove title tags and content (ReDoS-safe)
+            .replaceAll(/<br\s*\/?>/gi, '\n') // Replace <br> with newline
+            .replaceAll(/<\/?(p|div|h[1-6]|li|tr)[^>]*>/gi, '\n') // Replace block elements with newline
+            .replaceAll('</ul>', '\n') // Add newline after lists
+            .replaceAll('</ol>', '\n') // Add newline after ordered lists
+            .replaceAll(/<(?=([^>]+))\1>/g, '') // Remove all remaining HTML tags (ReDoS-safe)
+            .replaceAll('&nbsp;', ' ') // Replace &nbsp; with space
+            .replaceAll('&lt;', '<') // Replace &lt; with <
+            .replaceAll('&gt;', '>') // Replace &gt; with >
+            .replaceAll('&amp;', '&') // Replace &amp; with &
+            .replaceAll('&quot;', '"') // Replace &quot; with "
+            .replaceAll('&#39;', "'") // Replace &#39; with '
+            .replaceAll(/\n\s*\n\s*\n/g, '\n\n') // Collapse multiple blank lines to max 2 newlines
             .trim();
 
           // Set response headers
@@ -172,7 +174,8 @@ const documentApi: DocumentApi = {
           // Send plain text
           response.send(plainText);
           break;
-        case 'json':
+        }
+        case 'json': {
           const jsonContent = await exportDocumentToJson(documentName);
 
           response.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -182,7 +185,8 @@ const documentApi: DocumentApi = {
 
           response.send(jsonContent);
           break;
-        case 'yjs':
+        }
+        case 'yjs': {
           const yjsContent = await exportDocumentToYjs(documentName);
 
           response.setHeader('Content-Type', 'text/plain; charset=utf-8');
@@ -192,7 +196,8 @@ const documentApi: DocumentApi = {
 
           response.send(yjsContent);
           break;
-        case 'md':
+        }
+        case 'md': {
           const markdownContent = await exportDocumentToMarkdown(documentName);
 
           response.setHeader('Content-Type', 'text/plain; charset=utf-8');
@@ -203,6 +208,7 @@ const documentApi: DocumentApi = {
           // Send plain text
           response.send(markdownContent);
           break;
+        }
         default:
           logger.error(
             `Export requested for [${documentName}] with format [${format}] not supported`

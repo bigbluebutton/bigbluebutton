@@ -1,14 +1,13 @@
 import express from "express";
 import { rateLimit } from 'express-rate-limit'
-import expressWebsockets from "express-ws";
+import expressWs from "express-ws";
 import { Logger } from "../common/logger";
 import config from "../config";
-import path from "path";
-import { fileURLToPath } from "url";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { documentApi } from "./rest-api";
 import { websocketApi } from "./websocket-api";
 import { extractMeetingId } from "../hocuspocus/utils";
-import expressWs from "express-ws";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -42,7 +41,7 @@ const limiter = rateLimit({
     keyGenerator: (req) => {
       const userId = req.headers['user-id'];
       const meetingId = req.headers['meeting-id'];
-      if (!(typeof userId === 'string') || !(typeof meetingId === 'string')) {
+      if (typeof userId !== 'string' || typeof meetingId !== 'string') {
         return 'system';
       }
       return `${userId}-${meetingId}`;
@@ -51,9 +50,8 @@ const limiter = rateLimit({
 
 const startExpressApp = () => {
   // Setup your express instance using the express-ws extension
-  const { app } = expressWebsockets(express());
-
-  const wsInstance = expressWs(app); 
+  const wsInstance = expressWs(express());
+  const { app } = wsInstance;
 
   const wsServer = wsInstance.getWss();
 

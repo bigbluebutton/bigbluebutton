@@ -2,40 +2,39 @@ import hocuspocus from "../../hocuspocus";
 import { ServerBlockNoteEditor } from "@blocknote/server-util";
 
 async function exportDocumentToHtml(documentName: string): Promise<string> {
-  try {
-    const connection = await hocuspocus.openDirectConnection(documentName);
-    const doc = connection.document;
+  const connection = await hocuspocus.openDirectConnection(documentName);
+  const doc = connection.document;
 
-    if (!doc) {
-      await connection.disconnect();
-      throw new Error('document_not_found');
-    }
-
-    const fragment = doc.getXmlFragment("doc");
-
-    // Check if document is empty
-    if (fragment.length === 0) {
-      await connection.disconnect();
-      throw new Error('document_empty');
-    }
-
-    // Create a ServerBlockNoteEditor instance
-    const editor = ServerBlockNoteEditor.create();
-
-    // Convert Yjs XML Fragment to BlockNote blocks
-    const blocks = editor.yXmlFragmentToBlocks(fragment);
-
-    // Convert blocks to HTML (using type assertion to handle schema differences)
-    let htmlContent = await editor.blocksToHTMLLossy(blocks as any);
-
-    // Replace empty paragraph tags with paragraphs containing a <br> tag
-    // This ensures empty lines are preserved in the HTML output
-    htmlContent = htmlContent.replace(/<p><\/p>/g, '<p><br></p>');
-
+  if (!doc) {
     await connection.disconnect();
+    throw new Error('document_not_found');
+  }
 
-    // Create HTML document with styling
-    const fullHtml = [
+  const fragment = doc.getXmlFragment("doc");
+
+  // Check if document is empty
+  if (fragment.length === 0) {
+    await connection.disconnect();
+    throw new Error('document_empty');
+  }
+
+  // Create a ServerBlockNoteEditor instance
+  const editor = ServerBlockNoteEditor.create();
+
+  // Convert Yjs XML Fragment to BlockNote blocks
+  const blocks = editor.yXmlFragmentToBlocks(fragment);
+
+  // Convert blocks to HTML (using type assertion to handle schema differences)
+  let htmlContent = await editor.blocksToHTMLLossy(blocks as any);
+
+  // Replace empty paragraph tags with paragraphs containing a <br> tag
+  // This ensures empty lines are preserved in the HTML output
+  htmlContent = htmlContent.replaceAll('<p></p>', '<p><br></p>');
+
+  await connection.disconnect();
+
+  // Create HTML document with styling
+  const fullHtml = [
       '<!DOCTYPE html>',
       '<html>',
       '<head>',
@@ -63,7 +62,7 @@ async function exportDocumentToHtml(documentName: string): Promise<string> {
       'ul { padding-left: 2em; margin-bottom: 16px; list-style: none; }',
       '/* Restore disc bullet only for regular list items where <p> is the first child.',
       '   Checkbox items have <input> as the first child, so :first-child never matches them. */',
-      'ul > li > p.bn-inline-content:first-child::before { content: "\\2022\\00A0"; }',
+      String.raw`ul > li > p.bn-inline-content:first-child::before { content: "\2022\00A0"; }`,
       'li { margin-bottom: 4px; }',
       'code {',
       '  background-color: #f6f8fa;',
@@ -121,11 +120,8 @@ async function exportDocumentToHtml(documentName: string): Promise<string> {
       htmlContent,
       '</body>',
       '</html>'
-    ].join('\n');
-    return fullHtml;
-  } catch(error) {
-    throw error;
-  }
+  ].join('\n');
+  return fullHtml;
 }
 
 export { exportDocumentToHtml };

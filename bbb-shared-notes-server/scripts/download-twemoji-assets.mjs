@@ -13,7 +13,7 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import { tmpdir } from 'os';
 import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'node:url';
 
 const execAsync = promisify(exec);
 

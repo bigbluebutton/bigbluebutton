@@ -42,5 +42,5 @@ postgres:
   port: 5432
   database: blocknote_app
   user: blocknote_app
-  password: blocknote_app
+  password: blocknote_app # NOSONAR
   documentExpireMinutesAfterMeetingEnd: 60

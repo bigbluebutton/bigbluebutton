@@ -3,7 +3,7 @@
 case "$1" in
   remove|purge|0)
     # Remove sudoers configuration for Docker Chrome
-    if [ -f /etc/sudoers.d/zzz-bbb-docker-chrome ]; then
+    if [[ -f /etc/sudoers.d/zzz-bbb-docker-chrome ]]; then
       echo "Removing Docker Chrome sudoers configuration..."
       rm -f /etc/sudoers.d/zzz-bbb-docker-chrome
     fi

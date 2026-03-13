@@ -19,9 +19,11 @@ const options: RedisClientOptions = {
 const publisher = createClient(options);
 
 // Connect the publisher client
-publisher.connect().catch((err) => {
+try {
+  await publisher.connect();
+} catch (err) {
   logger.error('Failed to connect publisher', { error: err });
-});
+}
 
 // Handle connection errors
 publisher.on('error', (err) => {
