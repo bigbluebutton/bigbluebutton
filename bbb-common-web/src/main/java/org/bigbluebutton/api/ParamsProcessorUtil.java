@@ -138,6 +138,7 @@ public class ParamsProcessorUtil {
 		private boolean defaultLockSettingsLockOnJoinConfigurable;
 		private boolean defaultLockSettingsHideViewersCursor;
         private boolean defaultLockSettingsHideViewersAnnotation;
+        private String defaultLockSettingsPresenterPolicy = "requireApproval";
 
     private Long maxPresentationFileUpload = 30000000L; // 30MB
 
@@ -420,6 +421,12 @@ public class ParamsProcessorUtil {
                 lockSettingsHideViewersAnnotation = Boolean.parseBoolean(lockSettingsHideViewersAnnotationParam);
 			}
 
+            String lockSettingsPresenterPolicy = defaultLockSettingsPresenterPolicy;
+			String lockSettingsPresenterPolicyParam = params.get(ApiParams.LOCK_SETTINGS_PRESENTER_POLICY);
+			if (!StringUtils.isEmpty(lockSettingsPresenterPolicyParam)) {
+                lockSettingsPresenterPolicy = lockSettingsPresenterPolicyParam;
+			}
+
 			return new LockSettingsParams(lockSettingsDisableCam,
 							lockSettingsDisableMic,
 							lockSettingsDisablePrivateChat,
@@ -429,7 +436,8 @@ public class ParamsProcessorUtil {
 							lockSettingsLockOnJoin,
 							lockSettingsLockOnJoinConfigurable,
                             lockSettingsHideViewersCursor,
-                            lockSettingsHideViewersAnnotation);
+                            lockSettingsHideViewersAnnotation,
+                            lockSettingsPresenterPolicy);
 		}
 
     private ArrayList<Group> processGroupsParams(Map<String, String> params) {
@@ -1790,6 +1798,10 @@ public class ParamsProcessorUtil {
 
     public void setLockSettingsHideViewersAnnotation(Boolean lockSettingsHideViewersAnnotation) {
 		this.defaultLockSettingsHideViewersAnnotation = lockSettingsHideViewersAnnotation;
+	}
+
+    public void setLockSettingsPresenterPolicy(String lockSettingsPresenterPolicy) {
+		this.defaultLockSettingsPresenterPolicy = lockSettingsPresenterPolicy;
 	}
 
 	public void setAllowDuplicateExtUserid(Boolean allow) {

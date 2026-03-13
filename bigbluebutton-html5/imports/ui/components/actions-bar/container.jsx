@@ -15,7 +15,7 @@ import {
   layoutDispatch,
   layoutSelect,
 } from '/imports/ui/components/layout/context';
-import { DEVICE_TYPE, SMALL_VIEWPORT_BREAKPOINT, LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
+import { DEVICE_TYPE, SMALL_VIEWPORT_BREAKPOINT } from '/imports/ui/components/layout/enums';
 import {
   useIsExternalVideoEnabled,
   useIsPollingEnabled,
@@ -36,7 +36,6 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
-import { useMeetingLayoutUpdater, usePushLayoutUpdater } from '../layout/push-layout/hooks';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -45,13 +44,8 @@ const isLayeredView = window.matchMedia(`(max-width: ${SMALL_VIEWPORT_BREAKPOINT
 
 const ActionsBarContainer = (props) => {
   const { presentationIsOpen } = props;
-  const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
-  const { showPushLayoutButton } = LAYOUT_CONFIG;
   const actionsBarStyle = layoutSelectOutput((i) => i.actionBar);
   const layoutContextDispatch = layoutDispatch();
-  const cameraDockOutput = layoutSelectOutput((i) => i.cameraDock);
-  const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
-  const presentationInput = layoutSelectInput((i) => i.presentation);
   const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
 
@@ -106,14 +100,7 @@ const ActionsBarContainer = (props) => {
   const isRaiseHandEnabled = useIsRaiseHandEnabled();
   const isReactionsButtonEnabled = useIsUserReactionsEnabled();
   const layoutSettings = useSettings(SETTINGS.LAYOUT);
-  const { pushLayout, selectedLayout } = layoutSettings;
-  const setPushLayout = usePushLayoutUpdater(pushLayout);
-  const setMeetingLayout = useMeetingLayoutUpdater(
-    cameraDockOutput,
-    cameraDockInput,
-    presentationInput,
-    layoutSettings,
-  );
+  const { selectedLayout } = layoutSettings;
   const { isOpen: sidebarNavigationIsOpen } = sidebarNavigation;
   const { isOpen: sidebarContentIsOpen } = sidebarContent;
   const ariaHidden = sidebarNavigationIsOpen
@@ -170,10 +157,6 @@ const ActionsBarContainer = (props) => {
         isTimerActive: currentMeeting?.componentsFlags?.hasTimer,
         isTimerEnabled: isTimerFeatureEnabled,
         hasGenericContent: isThereGenericMainContent,
-        setPushLayout,
-        setMeetingLayout,
-        showPushLayout: showPushLayoutButton
-          && layoutSettings.selectedLayout === LAYOUT_TYPE.CUSTOM_LAYOUT,
         ariaHidden,
         isDarkThemeEnabled: darkModeIsEnabled,
         isMobile,

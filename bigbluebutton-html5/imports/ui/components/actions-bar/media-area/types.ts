@@ -43,4 +43,6 @@ export interface MediaAreaProps {
   isMobile: boolean;
   isRTL: boolean;
   isRequestingPresenter: boolean;
+  presenterPolicy: string;
+  isLockedUser: boolean;
 }

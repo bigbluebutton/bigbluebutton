@@ -196,7 +196,7 @@ public:
     userSettingsStorage: session
     defaultSettings:
       layout:
-        selectedLayout: 'custom'
+        selectedLayout: 'unified'
         pushLayout: false
       application:
         animations: true
@@ -515,6 +515,8 @@ public:
       # When pagination is enabled, this limits the number of slots available for audio-only users
       # When pagination is disabled, this is the limit for audio-only users
       maxAudioOnlyUsers: 2
+      # If set to true (default), always show privileged streams (pinned users and local cameras)
+      partitionPrivilegedStreams: true
     # Entry `thresholds` is an array of:
     # - threshold: minimum number of cameras being shared for profile to applied
     #   profile: a camera profile id from the cameraProfiles configuration array
@@ -836,15 +838,11 @@ public:
   layout:
     hidePresentationOnJoin: false
     showParticipantsOnLogin: false
-    showPushLayoutButton: true
-    showPushLayoutToggle: true
     showSessionDetailsOnJoin: true
     showScreenshareQuickSwapButton: false
     showLeaveSessionLabel: false
     usersPerUserListPage: 50
-    syncCameraDockSizeAndPosition: false
-    # if false, the user can't change the layout (no layout selection modal)
-    enableDeprecatedLayoutSelection: true
+    syncCameraDockSizeAndPosition: true
   pads:
     url: ETHERPAD_HOST
   media:

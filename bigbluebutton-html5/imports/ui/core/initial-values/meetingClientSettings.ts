@@ -119,7 +119,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       userSettingsStorage: 'session',
       defaultSettings: {
         layout: {
-          selectedLayout: 'custom',
+          selectedLayout: 'unified',
           pushLayout: false,
         },
         application: {
@@ -366,6 +366,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         paginationSorting: 'VOICE_ACTIVITY_LOCAL',
         showAudioOnlyOnFirstPage: true,
         maxAudioOnlyUsers: 2,
+        partitionPrivilegedStreams: true,
       },
       cameraQualityThresholds: {
         enabled: true,
@@ -616,8 +617,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     layout: {
       hidePresentationOnJoin: false,
       showParticipantsOnLogin: true,
-      showPushLayoutButton: true,
-      showPushLayoutToggle: true,
       showScreenshareQuickSwapButton: true,
       showLeaveSessionLabel: false,
     },

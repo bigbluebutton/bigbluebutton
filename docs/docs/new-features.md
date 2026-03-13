@@ -48,6 +48,13 @@ Recent releases:
 
 ### Other notable changes
 
+#### Removing deprecated layout options
+
+The layout system has been simplified to use a single unified layout. The following layouts have been removed: `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, and `VIDEO_FOCUS`. The default layout is now `UNIFIED_LAYOUT`.
+
+The layout selection modal and the push layout button have also been removed. The `showPushLayoutButton` and `showPushLayoutToggle` settings are no longer available.
+
+The `layouts` option has been removed from `disabledFeatures`.
 
 ### Changes to events.xml
 

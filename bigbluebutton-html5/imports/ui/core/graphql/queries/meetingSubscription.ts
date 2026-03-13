@@ -10,6 +10,7 @@ const MEETING_SUBSCRIPTION = gql`
           disableNotes
           disablePrivateChat
           disablePublicChat
+          presenterPolicy
           hasActiveLockSetting
           hideUserList
           hideViewersCursor

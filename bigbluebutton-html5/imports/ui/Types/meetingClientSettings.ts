@@ -412,6 +412,7 @@ export interface CameraSortingModes {
   paginationSorting: string
   showAudioOnlyOnFirstPage: boolean
   maxAudioOnlyUsers: number
+  partitionPrivilegedStreams: boolean
 }
 
 export interface CameraQualityThresholds {
@@ -600,8 +601,6 @@ export interface Notes {
 export interface Layout {
   hidePresentationOnJoin: boolean
   showParticipantsOnLogin: boolean
-  showPushLayoutButton: boolean
-  showPushLayoutToggle: boolean
   showScreenshareQuickSwapButton: boolean
   showLeaveSessionLabel: boolean
 }

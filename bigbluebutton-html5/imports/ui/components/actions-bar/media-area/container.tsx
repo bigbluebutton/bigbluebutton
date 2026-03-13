@@ -18,6 +18,7 @@ import Auth from '/imports/ui/services/auth';
 import { useMeetingIsBreakout } from '/imports/ui/components/app/service';
 import { USER_SET_PRESENTER_REQUEST } from '/imports/ui/components/request-presenter/mutations';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 const MediaAreaContainer = (props: MediaAreaContainerProps) => {
   const {
@@ -40,9 +41,17 @@ const MediaAreaContainer = (props: MediaAreaContainerProps) => {
 
   const { data: currentUserData } = useCurrentUser((u) => ({
     requestedPresenter: u.requestedPresenter,
+    locked: u.locked,
   }));
 
   const isRequestingPresenter = currentUserData?.requestedPresenter ?? false;
+
+  const { data: meetingData } = useMeeting((m) => ({
+    lockSettings: m.lockSettings,
+  }));
+
+  const isLockedUser = currentUserData?.locked ?? false;
+  const presenterPolicy = meetingData?.lockSettings?.presenterPolicy ?? 'requireApproval';
 
   let mediaAreaItems: MediaButtonPluginItem[] = [];
   if (pluginsExtensibleAreasAggregatedState.mediaAreaItems) {
@@ -94,6 +103,8 @@ const MediaAreaContainer = (props: MediaAreaContainerProps) => {
       isConnected={isConnected}
       hasPresentation={hasPresentation}
       isRequestingPresenter={isRequestingPresenter}
+      presenterPolicy={presenterPolicy}
+      isLockedUser={isLockedUser}
     />
   );
 };

@@ -185,14 +185,27 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   });
 
   useEffect(() => {
-    if (users.length > 0 && Object.keys(userAssignedRooms).length === 0) {
-      setUserAssignedRooms(
-        users.reduce((acc: { [key: string]: number[] }, user) => {
-          const { userId } = user;
-          acc[userId] = [];
-          return acc;
-        }, {}),
-      );
+    if (users.length > 0) {
+      setUserAssignedRooms((prev) => {
+        const updated = { ...prev };
+
+        // Add new users that don't exist in the state
+        users.forEach((user) => {
+          if (!updated[user.userId]) {
+            updated[user.userId] = [];
+          }
+        });
+
+        // Remove users that are no longer in the users list
+        const currentUserIds = new Set(users.map((u) => u.userId));
+        Object.keys(updated).forEach((userId) => {
+          if (!currentUserIds.has(userId)) {
+            delete updated[userId];
+          }
+        });
+
+        return updated;
+      });
     }
   }, [users]);
 

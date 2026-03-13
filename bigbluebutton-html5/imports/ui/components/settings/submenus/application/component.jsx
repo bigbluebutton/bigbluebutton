@@ -84,42 +84,6 @@ const intlMessages = defineMessages({
     id: 'app.submenu.application.layoutOptionLabel',
     description: 'layout options',
   },
-  pushLayoutLabel: {
-    id: 'app.submenu.application.pushLayoutLabel',
-    description: 'push layout togle',
-  },
-  customLayout: {
-    id: 'app.layout.style.custom',
-    description: 'label for custom layout style',
-  },
-  smartLayout: {
-    id: 'app.layout.style.smart',
-    description: 'label for smart layout style',
-  },
-  presentationFocusLayout: {
-    id: 'app.layout.style.presentationFocus',
-    description: 'label for presentationFocus layout style',
-  },
-  videoFocusLayout: {
-    id: 'app.layout.style.videoFocus',
-    description: 'label for videoFocus layout style',
-  },
-  presentationFocusPushLayout: {
-    id: 'app.layout.style.presentationFocusPush',
-    description: 'label for presentationFocus layout style (push to all)',
-  },
-  videoFocusPushLayout: {
-    id: 'app.layout.style.videoFocusPush',
-    description: 'label for videoFocus layout style (push to all)',
-  },
-  smartPushLayout: {
-    id: 'app.layout.style.smartPush',
-    description: 'label for smart layout style (push to all)',
-  },
-  customPushLayout: {
-    id: 'app.layout.style.customPush',
-    description: 'label for custom layout style (push to all)',
-  },
   disableLabel: {
     id: 'app.videoDock.webcamDisableLabelAllCams',
   },

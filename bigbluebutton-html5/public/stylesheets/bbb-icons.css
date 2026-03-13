@@ -402,3 +402,12 @@
 .icon-bbb-mobile:before {
   content: "\e97E";
 }
+.icon-bbb-guest_policy:before {
+  content: "\e97F";
+}
+.icon-bbb-lock_viewers:before {
+  content: "\e980";
+}
+.icon-bbb-presentation_permission:before {
+  content: "\e981";
+}
