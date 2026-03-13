@@ -673,7 +673,7 @@
     "app.settings.transcriptionTab.partialUtterances": "Εμφάνιση επιμέρους εκφωνήσεων",
     "app.settings.transcriptionTab.minUtteranceLength": "Ελάχιστο μήκος εκφωνήσεων (δευτερόλεπτα)",
     "app.settings.save-notification.label": "Οι ρυθμίσεις έχουν αποθηκευτεί",
-    "app.statusNotifier.lowerHands": "Lower all hands",
+    "app.statusNotifier.lowerHands": "Να κατέβουν τα χέρια",
     "app.statusNotifier.lowerHandDescOneUser": "Κατέβασμα χεριού του {userName} ",
     "app.statusNotifier.raisedHandsTitle": "Raised Hands ({count})",
     "app.statusNotifier.raisedHandDesc": "Οι {userNames} σήκωσαν το χέρι τους",
