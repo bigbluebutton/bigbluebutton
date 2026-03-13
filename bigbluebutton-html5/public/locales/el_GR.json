@@ -225,7 +225,7 @@
     "app.media.cameraAsContent.endDueToDataSaving": "Η τρέχουσα κάμερα έχει σταματήσει για εξοικονόμηση δεδομένων",
     "app.media.cameraAsContent.autoplayBlockedDesc": "Χρειαζόμαστε την άδειά σας για να σας προβάλλουμε την κάμερα του παρουσιαστή.",
     "app.media.cameraAsContent.autoplayAllowLabel": "Προβολή τρέχουσας κάμερας",
-    "app.media.mediaReconnecting": "Connection issue detected. Restoring your audio and video...",
+    "app.media.mediaReconnecting": "Εντοπίστηκε πρόβλημα σύνδεσης. Επαναφορά του ήχου και του βίντεο...",
     "app.screenshare.presenterLoadingLabel": "Ο διαμοιρασμός οθόνης φορτώνεται",
     "app.screenshare.viewerLoadingLabel": "Η οθόνη παρουσιαστή φορτώνεται",
     "app.screenshare.presenterSharingLabel": "Γίνεται διαμοιρασμός της οθόνης σας",
