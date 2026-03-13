@@ -1,17 +1,31 @@
 import { Locator } from '@playwright/test';
 
+import { ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 
 export async function openLockViewers(testPage: Page) {
-  await testPage.waitAndClick(e.usersListSidebarButton);
+  const isLockViewersButtonVisible = await testPage.page.locator(e.lockViewersButton).isVisible({ timeout: ELEMENT_WAIT_TIME }).catch(() => false);
+  if (!isLockViewersButtonVisible) {
+    await testPage.waitAndClick(e.usersListSidebarButton);
+  }
   await testPage.waitAndClick(e.lockViewersButton);
 }
 
 export async function setGuestPolicyOption(testPage: Page, option: string) {
-  await testPage.waitAndClick(e.manageUsers);
-  await testPage.waitAndClick(e.guestPolicyLabel);
+  await openLockViewers(testPage);
+  await testPage.waitAndClick(e.guestPolicyTab);
+  await testPage.waitAndClick(e.guestPolicySelector);
   await testPage.waitAndClick(option);
+  await testPage.waitAndClick(e.applyLockSettings);
+}
+
+export async function setPresentationPermission(testPage: Page, option: string) {
+  await openLockViewers(testPage);
+  await testPage.waitAndClick(e.presentationPermissionsTab);
+  await testPage.waitAndClick(e.presentationPolicySelector);
+  await testPage.waitAndClick(option);
+  await testPage.waitAndClick(e.applyLockSettings);
 }
 
 export async function checkAvatarIcon(testPage: Page, checkModIcon = true) {

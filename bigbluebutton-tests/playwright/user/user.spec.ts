@@ -245,6 +245,26 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
         await lockViewers.initPages(page, testInfo);
         await lockViewers.lockSeeOtherViewersCursor();
       });
+
+      test.describe.parallel('Presentation permissions', () => {
+        test('Moderator only', async ({ browser, context, page }, testInfo) => {
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initPages(page, testInfo);
+          await lockViewers.presenterPolicyModeratorOnly();
+        });
+
+        test('Require approval', async ({ browser, context, page }, testInfo) => {
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initPages(page, testInfo);
+          await lockViewers.presenterPolicyRequireApproval();
+        });
+
+        test('Free for all', async ({ browser, context, page }, testInfo) => {
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initPages(page, testInfo);
+          await lockViewers.presenterPolicyFreeForAll();
+        });
+      });
     });
 
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#saving-usernames
