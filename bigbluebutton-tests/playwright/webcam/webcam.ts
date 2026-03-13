@@ -60,7 +60,12 @@ export class Webcam extends Page {
     );
 
     const mirroredWebcamLocator = await this.page.locator(e.webcamMirroredVideoContainer);
-    await expect(mirroredWebcamLocator).toHaveScreenshot('webcam-mirrored-view.png');
+    // Mask dropdown and status buttons. Depending on the media bridge, audio
+    // may be connected and this causes flakiness as it changes camera container
+    // items (user status and dropdown button) that don't matter to this test.
+    await expect(mirroredWebcamLocator).toHaveScreenshot('webcam-mirrored-view.png', {
+      mask: [this.page.locator(e.dropdownWebcamButton), this.page.locator(e.webcamUserStatus)],
+    });
 
     const dropdownWebcamButton = await this.page.locator(e.dropdownWebcamButton).filter({ hasText: this.username });
 
@@ -126,7 +131,12 @@ export class Webcam extends Page {
     await this.waitAndClick(e.startSharingWebcam);
     await this.waitForSelector(e.currentUserLocalStreamVideo);
     const webcamVideoLocator = await this.page.locator(e.currentUserLocalStreamVideo);
-    await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-home-background.png');
+    // Mask dropdown and status buttons. Depending on the media bridge, audio
+    // may be connected and this causes flakiness as it changes camera container
+    // items (user status and dropdown button) that don't matter to this test.
+    await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-home-background.png', {
+      mask: [this.page.locator(e.dropdownWebcamButton), this.page.locator(e.webcamUserStatus)],
+    });
   }
 
   async webcamFullscreen() {

@@ -25,7 +25,7 @@ const UserStatus: React.FC<UserStatusProps> = (props) => {
   const away = data?.away;
 
   return (
-    <div>
+    <div data-test="webcamUserStatus">
       {away && <span>⏰</span>}
       {(emoji && emoji !== 'none' && !away) && <span>{emoji}</span>}
 
