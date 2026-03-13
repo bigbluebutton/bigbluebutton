@@ -715,7 +715,7 @@
     "app.actionsBar.reactions.removeReactionLabel": "Αφαίρεση αντίδρασης",
     "app.actionsBar.reactions.raiseHand": "Σηκώστε το χέρι σας",
     "app.actionsBar.reactions.lowHand": "Κατεβάστε το χέρι σας",
-    "app.actionsBar.reactions.lowUserHand": "Lower user's hand",
+    "app.actionsBar.reactions.lowUserHand": "Κατέβασμα χεριών των χρηστών",
     "app.actionsBar.reactions.autoCloseReactionsBarLabel": "Αυτόματο κλείσιμο της γραμμής αντιδράσεων",
     "app.actionsBar.reactions.away": "απών/ούσα",
     "app.actionsBar.reactions.available": "διαθέσιμος",
