@@ -1020,7 +1020,7 @@
     "app.toast.wakeLock.disclaimer": "{error}. Θα αποκλειστείτε από την κλήση αφού απενεργοποιηθεί η οθόνη σας.",
     "app.toast.setEmoji.raiseHand": "Έχετε σηκώσει το χέρι σας",
     "app.toast.setEmoji.lowerHand": "Η παλάμη σας έχει κατέβει",
-    "app.toast.raisedHandNext.label": "You're next in line with your hand raised",
+    "app.toast.raisedHandNext.label": "Είστε ο επόμενος στη σειρά με το χέρι σηκωμένο",
     "app.toast.setEmoji.away": "Ορίσατε την κατάστασή σας σε απών",
     "app.toast.setEmoji.notAway": "Η κατάσταση απουσίας σας έχει καταργηθεί",
     "app.toast.promotedLabel": "Έχετε προαχθεί σε συντονιστή",
