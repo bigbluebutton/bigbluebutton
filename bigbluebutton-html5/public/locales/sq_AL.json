@@ -1201,7 +1201,7 @@
     "app.guest-policy.button.alwaysAccept": "Pranoje përherë",
     "app.guest-policy.button.alwaysDeny": "Hidhe poshtë përherë",
     "app.guest-policy.policyBtnDesc": "Cakton rregulla mysafirësh sesioni",
-    "app.guest-policy.feedbackMessage": "Rregulli për mysafirët tani është: {policy}",
+    "app.guest-policy.feedbackMessage": "Rregulli për mysafirët tani është:",
     "app.connection-status.ariaTitle": "Dritare modale gjendjeje lidhjeje",
     "app.connection-status.title": "Gjendje lidhjeje",
     "app.connection-status.description": "Shihni gjendje lidhje të përdoruesve",

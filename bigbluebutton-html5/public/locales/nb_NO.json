@@ -1201,7 +1201,7 @@
     "app.guest-policy.button.alwaysAccept": "Godta alltid",
     "app.guest-policy.button.alwaysDeny": "Avslå alltid",
     "app.guest-policy.policyBtnDesc": "Setter retningslinjer for øktgjester",
-    "app.guest-policy.feedbackMessage": "Retningslinjene for gjester er nå: {policy}",
+    "app.guest-policy.feedbackMessage": "Retningslinjene for gjester er nå:",
     "app.connection-status.ariaTitle": "Dialogboks for tilkoblingsstatus",
     "app.connection-status.title": "Tilkoblingsstatus",
     "app.connection-status.description": "Vis brukernes tilkoblingsstatus",

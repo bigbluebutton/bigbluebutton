@@ -1118,7 +1118,7 @@
     "app.guest-policy.button.alwaysAccept": "همیشه بپذیر",
     "app.guest-policy.button.alwaysDeny": "همیشه رد کن",
     "app.guest-policy.policyBtnDesc": "سیاست پذیرش مهمان جلسه را تنظیم می‌کند",
-    "app.guest-policy.feedbackMessage": "سیاست پذیرش مهمان در جلسه اکنون این است: {policy}",
+    "app.guest-policy.feedbackMessage": "سیاست پذیرش مهمان در جلسه اکنون این است:",
     "app.connection-status.ariaTitle": "پنجرهٔ وضعیت اتصال",
     "app.connection-status.title": "وضعیت اتصال",
     "app.connection-status.description": "وضعیت اتصال کاربران را مشاهده کنید",

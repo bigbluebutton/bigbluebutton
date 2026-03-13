@@ -1010,7 +1010,7 @@
     "app.guest-policy.button.alwaysAccept": "Zawsze akceptuj",
     "app.guest-policy.button.alwaysDeny": "Zawsze odmawiaj",
     "app.guest-policy.policyBtnDesc": "Okno ustawień polityki gości",
-    "app.guest-policy.feedbackMessage": "Zasady dla gości to teraz:  {policy}",
+    "app.guest-policy.feedbackMessage": "Zasady dla gości to teraz: ",
     "app.connection-status.ariaTitle": "Okno statusu połączenia",
     "app.connection-status.title": "Status połączenia",
     "app.connection-status.description": "Pokaż status połączenia użytkownika",

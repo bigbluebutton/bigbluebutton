@@ -1201,7 +1201,7 @@
     "app.guest-policy.button.alwaysAccept": "始終接受",
     "app.guest-policy.button.alwaysDeny": "始終拒絕",
     "app.guest-policy.policyBtnDesc": "設定會議訪客政策",
-    "app.guest-policy.feedbackMessage": "訪客政策現在是： {policy}",
+    "app.guest-policy.feedbackMessage": "訪客政策現在是：",
     "app.connection-status.ariaTitle": "連線狀態對話框",
     "app.connection-status.title": "連線狀態",
     "app.connection-status.description": "查看使用者的連線狀態",

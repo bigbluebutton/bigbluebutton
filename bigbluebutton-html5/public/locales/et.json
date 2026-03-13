@@ -1201,7 +1201,7 @@
     "app.guest-policy.button.alwaysAccept": "Luba alati",
     "app.guest-policy.button.alwaysDeny": "Keela alati",
     "app.guest-policy.policyBtnDesc": "Määrab sessiooni külaliste reeglid",
-    "app.guest-policy.feedbackMessage": "Külaliste reeglid on nüüd: {policy}",
+    "app.guest-policy.feedbackMessage": "Külaliste reeglid on nüüd:",
     "app.connection-status.ariaTitle": "Ühenduse oleku aken",
     "app.connection-status.title": "Ühenduse olek",
     "app.connection-status.description": "Vaata kasutajate ühenduse olekut",

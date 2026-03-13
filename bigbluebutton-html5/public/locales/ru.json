@@ -1152,7 +1152,7 @@
     "app.guest-policy.button.alwaysAccept": "Всегда разрешать",
     "app.guest-policy.button.alwaysDeny": "Всегда запрещать",
     "app.guest-policy.policyBtnDesc": "Установка политики для гостей",
-    "app.guest-policy.feedbackMessage": "Политика для гостей теперь: {policy}",
+    "app.guest-policy.feedbackMessage": "Политика для гостей теперь:",
     "app.connection-status.ariaTitle": "Окно качества интернет-соединения",
     "app.connection-status.title": "Статус интернет-соединения",
     "app.connection-status.description": "Посмотреть состояние интернет-соединения пользователей",

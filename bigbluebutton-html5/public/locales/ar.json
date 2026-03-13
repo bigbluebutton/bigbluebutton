@@ -1201,7 +1201,7 @@
     "app.guest-policy.button.alwaysAccept": "اقبل دائما",
     "app.guest-policy.button.alwaysDeny": "ارفض دائما",
     "app.guest-policy.policyBtnDesc": "يحدد سياسة الضيف",
-    "app.guest-policy.feedbackMessage": "سياسة الضيوف الآن هي: {policy}",
+    "app.guest-policy.feedbackMessage": "سياسة الضيوف الآن هي:",
     "app.connection-status.ariaTitle": "شكل حالة الاتصال",
     "app.connection-status.title": "حالة الإتصال",
     "app.connection-status.description": "عرض حالة اتصال المستخدم",
