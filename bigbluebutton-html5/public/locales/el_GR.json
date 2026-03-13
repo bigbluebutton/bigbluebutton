@@ -675,7 +675,7 @@
     "app.settings.save-notification.label": "Οι ρυθμίσεις έχουν αποθηκευτεί",
     "app.statusNotifier.lowerHands": "Να κατέβουν τα χέρια",
     "app.statusNotifier.lowerHandDescOneUser": "Κατέβασμα χεριού του {userName} ",
-    "app.statusNotifier.raisedHandsTitle": "Raised Hands ({count})",
+    "app.statusNotifier.raisedHandsTitle": "Σηκωμένα χέρια ({count})",
     "app.statusNotifier.raisedHandDesc": "Οι {userNames} σήκωσαν το χέρι τους",
     "app.statusNotifier.raisedHandDescOneUser": "Οι {userNames} σήκωσαν το χέρι τους",
     "app.statusNotifier.and": "και",
