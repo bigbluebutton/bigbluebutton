@@ -1219,7 +1219,7 @@
     "app.guest-policy.button.alwaysAcceptAuth": "اقبل دائمًا الموثقة",
     "app.guest-policy.button.alwaysDeny": "ارفض دائما",
     "app.guest-policy.policyBtnDesc": "يحدد سياسة الضيف",
-    "app.guest-policy.feedbackMessage": "The guest policy is now: {policy}",
+    "app.guest-policy.feedbackMessage": "سياسة الضيوف هي الآن: {policy}",
     "app.connection-status.ariaTitle": "شكل حالة الاتصال",
     "app.connection-status.title": "حالة الإتصال",
     "app.connection-status.description": "عرض حالة اتصال المستخدم",
