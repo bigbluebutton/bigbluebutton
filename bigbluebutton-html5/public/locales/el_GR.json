@@ -490,7 +490,7 @@
     "app.navBar.optionsDropdown.settingsDesc": "Αλλαγή γενικών ρυθμίσεων",
     "app.navBar.optionsDropdown.aboutDesc": "Εμφάνιση πληροφοριών εφαρμογής πελάτη",
     "app.navBar.optionsDropdown.leaveSessionDesc": "Αποχώρηση από την τηλεδιάσκεψη",
-    "app.navBar.optionsDropdown.leaveBreakoutDesc": "Leave the breakout room",
+    "app.navBar.optionsDropdown.leaveBreakoutDesc": "Αποχώρηση από το τμήμα αίθουσας",
     "app.navBar.optionsDropdown.exitFullscreenDesc": "Έξοδος από πλήρη οθόνη",
     "app.navBar.optionsDropdown.hotkeysLabel": "Συντομεύσεις πληκτρολογίου",
     "app.navBar.optionsDropdown.hotkeysDesc": "Λίστα διαθέσιμων συντομεύσεων πληκτρολογίου",
