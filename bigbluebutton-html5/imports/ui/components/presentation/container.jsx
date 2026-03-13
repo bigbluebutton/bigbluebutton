@@ -4,7 +4,6 @@ import { notify } from '/imports/ui/services/notification';
 import Presentation from '/imports/ui/components/presentation/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
-import { useIsSlidePreloadingEnabled } from '/imports/ui/services/features';
 import {
   useMutation, useSubscription, useQuery,
 } from '@apollo/client';
@@ -110,8 +109,7 @@ const PresentationContainer = (props) => {
   const [userSetWhiteboardWriteAccess] = useMutation(USER_SET_WHITEBOARD_WRITE_ACCESS);
 
   const APP_CONFIG = window.meetingClientSettings.public.app;
-  const isSlidePreloadingEnabled = useIsSlidePreloadingEnabled();
-  const PRELOAD_NEXT_SLIDE = isSlidePreloadingEnabled ? APP_CONFIG.preloadNextSlides : 0;
+  const PRELOAD_NEXT_SLIDE = APP_CONFIG.preloadNextSlides;
 
   const setMultiUserWhiteboardEnabled = () => {
     userSetWhiteboardWriteAccess({

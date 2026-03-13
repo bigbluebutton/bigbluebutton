@@ -161,7 +161,3 @@ export function useIsEmojiPickerEnabled() {
   return useDisabledFeatures().indexOf('chatEmojiPicker') === -1
     && EMOJI_PICKER_ENABLED;
 }
-
-export function useIsSlidePreloadingEnabled() {
-  return useDisabledFeatures().indexOf('slidePreloading') === -1;
-}
