@@ -1258,7 +1258,7 @@
     "app.video.meetingCamCapReached": "Η τηλεδιάσκεψη έφτασε στο όριο χρήσης ταυτόχρονων καμερών",
     "app.video.dropZoneLabel": "Εναποθέστε εδώ",
     "app.video.cameraAriaLabel": "Κάμερες",
-    "app.video.overflowUsers": "+{overflowCount} users",
+    "app.video.overflowUsers": "Χρήστες +{overflowCount}",
     "app.fullscreenButton.label": "Εναλλαγή {elementName} σε πλήρη οθόνη",
     "app.fullscreenUndoButton.label": "Έξοδος {elementName} από πλήρη οθόνη",
     "app.switchButton.expandLabel": "Επέκταση οθόνης του κοινόχρηστου βίντεο",
