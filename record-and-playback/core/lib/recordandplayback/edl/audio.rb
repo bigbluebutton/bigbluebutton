@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with BigBlueButton.  If not, see <http://www.gnu.org/licenses/>.
 
+require_relative 'media_utils'
+
 module BigBlueButton
   module EDL
     module Audio
@@ -112,13 +114,7 @@ module BigBlueButton
         corrupt_audios = Set.new
 
         BigBlueButton.logger.info 'Pre-processing EDL'
-        enforce_cut_lengths(edl)
 
-        # The render scripts use this to calculate cut lengths
-        (0...(edl.length - 1)).each do |i|
-          edl[i][:next_timestamp] = edl[i+1][:timestamp]
-        end
-      
         # Build a list of audio files to read information from
         edl.each do |entry|
           if entry[:audios]
@@ -149,6 +145,16 @@ module BigBlueButton
             end
           end
           dump(edl)
+          corrupt_audios.each { |f| audioinfo.delete(f) }
+        end
+
+        process_dir = File.dirname(output_basename)
+        remove_audio_gaps(edl, audioinfo.keys, process_dir)
+        enforce_cut_lengths(edl)
+
+        # The `process_segment` method uses this to calculate cut lengths
+        (0...(edl.length - 1)).each do |i|
+          edl[i][:next_timestamp] = edl[i + 1][:timestamp]
         end
 
         segment_files = []
@@ -179,6 +185,8 @@ module BigBlueButton
 
         output
       end
+
+      # The methods below should be considered private
 
       def self.process_segment(entry, output_basename, i, total_segments, audioinfo)
         BigBlueButton.logger.info "Processing segment #{i} of #{total_segments} (duration: #{entry[:next_timestamp] - entry[:timestamp]} ms, num_audios: #{entry[:audios]&.length || 0})"
@@ -278,7 +286,71 @@ module BigBlueButton
         segment_output
       end
 
-      # The methods below should be considered private
+      # Check audio files for large gaps in timestamps
+      # 
+      # When there's a large timestamp gap, the ffmpeg `aresample` filter generates silent audio to
+      # fill the gap, but it enqueues the full length of the gap into the filter chain all at once,
+      # which uses a lot of memory. To work around this issue, detect long gaps in the audio files
+      # and remove the audio file from the mix for the duration of the gap.
+      def self.remove_audio_gaps(edl, audio_files, process_dir)
+        audio_files.each do |filename|
+          gaps = BigBlueButton::EDL::MediaUtils.pts_gaps(process_dir, filename, :audio).each
+          next if gaps.none?
+
+          BigBlueButton.logger.info("Audio file #{File.basename(filename)} has #{gaps.size} gap(s), adjusting EDL")
+
+          next_i = 0
+          gap_start, gap_end = gaps.next
+          while next_i < edl.length - 1
+            i = next_i
+            entry = edl[i]
+            next_i += 1
+
+            audio_data = entry[:audios]&.find { |a| a[:filename] == filename }
+            # Current EDL entry does not contain this file
+            next unless audio_data
+
+            audio_in = audio_data[:timestamp]
+            audio_out = audio_in + edl[next_i][:timestamp] - entry[:timestamp]
+
+            # Iterate forward through gaps until we find one that's not in the past
+            gap_start, gap_end = gaps.next while gap_end <= audio_in
+
+            # Nothing to do if the next gap is after the current entry ends
+            next if gap_start >= audio_out
+
+            BigBlueButton.logger.debug("Processing gap [#{gap_start}ms, #{gap_end}ms) in EDL entry #{i}")
+
+            # If gap starts in this EDL entry, then it needs to be split
+            if gap_start > audio_in
+              split_edl_at(edl, i, gap_start - audio_in + entry[:timestamp])
+              # No audio to remove from the current entry
+              next
+            end
+
+            # If gap ends in this EDL entry, then it needs to be split
+            if gap_end < audio_out
+              split_edl_at(edl, i, gap_end - audio_in + entry[:timestamp])
+              # Audio needs to be removed from the current entry
+            end
+
+            # Only get here if the current EDL entry is completely contained within a gap.
+            # Remove the file from the entry.
+            entry[:audios].reject! { |a| a[:filename] == filename }
+          end
+        rescue StopIteration
+          # Reached the end of the gaps list for this file, go to the next file.
+          next
+        end
+      end
+
+      def self.split_edl_at(edl, i, rec_time)
+        BigBlueButton.logger.debug("Splitting EDL entry #{i} at #{rec_time}ms")
+        entry = edl[i]
+        offset = rec_time - entry[:timestamp]
+        new_entry = BigBlueButton::Events.edl_entry_offset_audio.call(entry, offset)
+        edl.insert(i + 1, new_entry)
+      end
 
       def self.audio_info(filename)
         IO.popen([*FFPROBE, filename]) do |probe|
