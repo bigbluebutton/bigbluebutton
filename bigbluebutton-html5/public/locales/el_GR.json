@@ -484,7 +484,7 @@
     "app.navBar.optionsDropdown.settingsLabel": "Ρυθμίσεις",
     "app.navBar.optionsDropdown.aboutLabel": "Πληροφορίες",
     "app.navBar.optionsDropdown.leaveSessionLabel": "Αποχώρηση από τηλεδιάσκεψη",
-    "app.navBar.optionsDropdown.leaveBreakoutLabel": "Leave breakout room",
+    "app.navBar.optionsDropdown.leaveBreakoutLabel": "Αποχώρηση από το τμήμα αίθουσας",
     "app.navBar.optionsDropdown.exitFullscreenLabel": "Έξοδος από πλήρη οθόνη",
     "app.navBar.optionsDropdown.fullscreenDesc": "Εμφάνιση μενού ρυθμίσεων σε πλήρη οθόνη",
     "app.navBar.optionsDropdown.settingsDesc": "Αλλαγή γενικών ρυθμίσεων",
