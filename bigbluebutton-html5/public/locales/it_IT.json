@@ -1216,7 +1216,7 @@
     "app.guest-policy.description": "Modifica l'impostazione della politica degli ospiti della sessione",
     "app.guest-policy.button.askModerator": "Chiedi a un moderatore",
     "app.guest-policy.button.alwaysAccept": "Accetta sempre",
-    "app.guest-policy.button.alwaysAcceptAuth": "Always accept authenticated",
+    "app.guest-policy.button.alwaysAcceptAuth": "Accetta sempre autenticato",
     "app.guest-policy.button.alwaysDeny": "Rifiuta sempre",
     "app.guest-policy.policyBtnDesc": "Imposta la politica degli ospiti della sessione",
     "app.guest-policy.feedbackMessage": "The guest policy is now: {policy}",
