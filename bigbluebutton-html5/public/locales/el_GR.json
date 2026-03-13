@@ -983,7 +983,7 @@
     "app.guest.meetingForciblyEnded": "Δεν μπορείτε να συμμετάσχετε σε μια τηλεδιάσκεψη που έχει τερματιστεί αναγκαστικά",
     "app.guest.calculating": "Υπολογισμός θέσης αναμονής",
     "app.guest.messageFromHost": "Μήνυμα από τον διαχειριστή",
-    "app.guest.waitingForApproval": "Waiting for approval",
+    "app.guest.waitingForApproval": "Αναμονή έγκρισης",
     "app.userList.guest.waitingUsers": "Αναμονή χρηστών",
     "app.userList.guest.waitingUsersTitle": "Διαχείριση χρηστών",
     "app.userList.guest.optionTitle": "Ελέγξτε τους χρήστες σε αναμονή",
