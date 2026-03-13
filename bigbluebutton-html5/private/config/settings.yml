@@ -977,6 +977,7 @@ public:
         adaptiveStream: true
         dynacast: true
         stopLocalTrackOnUnpublish: false
+        singlePeerConnection: false
       audio:
         # unpublishOnMute: whether to unpublish audio tracks when muted. Default is true.
         unpublishOnMute: true

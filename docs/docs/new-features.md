@@ -412,6 +412,8 @@ Removed
 Value changed
 - `defaultHTML5ClientUrl` changed -- dropped the `/join` ending
 - `muteOnStart` default value changed to `true` - which helps now that `transparentListenOnly` is enabled by default too. See [PR 20848](https://github.com/bigbluebutton/bigbluebutton/issues/20848) for more info.
+- `insertDocumentSupportedProtocols` renamed to `fetchUrlSupportedProtocols`
+- `insertDocumentBlockedHosts` renamed to `fetchUrlBlockedExternalHosts`
 
 Added
 - `pluginManifestFetchTimeout` added
@@ -454,6 +456,7 @@ Added
 - `useDefaultDarkLogo` added
 - `defaultDarkLogoURL` added
 - `maxNumPages` added
+- `fetchUrlAllowedLocalHosts` added
 
 #### Removed support for POST requests on `join` endpoint and Content-Type headers are now required
 

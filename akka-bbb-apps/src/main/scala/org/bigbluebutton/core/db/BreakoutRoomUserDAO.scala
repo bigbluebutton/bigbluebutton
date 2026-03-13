@@ -98,14 +98,6 @@ object BreakoutRoomUserDAO {
   }
 
   def refreshBreakoutRoomsVisibleForUsers(meetingId: String, userId: String = "") = {
-    val userCriteria: String = {
-      if (userId.nonEmpty) {
-        s"""AND u."userId" = '${userId}'"""
-      } else {
-        ""
-      }
-    }
-
     //Insert all rooms visible to the user into "breakoutRoom_user", as it will improve performance
     //Also remove all rooms that is visible to the user but should no longer be visible
     DatabaseConnection.enqueue(
@@ -114,7 +106,8 @@ object BreakoutRoomUserDAO {
         SELECT b."breakoutRoomMeetingId", u."meetingId", u."userId"
         FROM "user" u
         JOIN "breakoutRoom" b ON b."meetingId" = u."meetingId" AND b."endedAt" IS NULL
-        WHERE u."meetingId" = ${meetingId} #${userCriteria}
+        WHERE u."meetingId" = $meetingId
+        AND ($userId = '' OR u."userId" = $userId)
         AND ( b."freeJoin" IS TRUE OR u."role" = 'MODERATOR')
         ON CONFLICT ("breakoutRoomMeetingId", "meetingId", "userId") DO NOTHING;
 
@@ -125,7 +118,8 @@ object BreakoutRoomUserDAO {
                 from "breakoutRoom_user" bu
                 join "breakoutRoom" b using("breakoutRoomMeetingId")
                 join "user" u using("userId")
-                where u."meetingId" = ${meetingId} #${userCriteria}
+                where u."meetingId" = $meetingId
+                and ($userId = '' OR u."userId" = $userId)
                 and bu."isLastAssignedRoom" is false
                 and b."freeJoin" is not true
                 and u."isModerator" is not true
