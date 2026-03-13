@@ -644,7 +644,7 @@
     "app.submenu.notification.userJoinLabel": "Είσοδος χρήστη",
     "app.submenu.notification.userLeaveLabel": "Αποχώρηση χρήστη",
     "app.submenu.notification.guestWaitingLabel": "Αναμονή επισκέπτη για έγκριση",
-    "app.submenu.notification.muteUnmuteLabel": "Mute/Unmute Microphone",
+    "app.submenu.notification.muteUnmuteLabel": "Από/Σίγαση μικροφώνου",
     "app.submenu.audio.micSourceLabel": "Μικρόφωνο",
     "app.submenu.audio.speakerSourceLabel": "Ακουστικό",
     "app.submenu.audio.streamVolumeLabel": "Η ένταση του ήχου σας",
