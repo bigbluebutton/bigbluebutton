@@ -1219,7 +1219,7 @@
     "app.guest-policy.button.alwaysAcceptAuth": "Accetta sempre autenticato",
     "app.guest-policy.button.alwaysDeny": "Rifiuta sempre",
     "app.guest-policy.policyBtnDesc": "Imposta la politica degli ospiti della sessione",
-    "app.guest-policy.feedbackMessage": "The guest policy is now: {policy}",
+    "app.guest-policy.feedbackMessage": "La policy per gli ospiti è ora: {policy}",
     "app.connection-status.ariaTitle": "Finestra stato connessione",
     "app.connection-status.title": "Stato connessione",
     "app.connection-status.description": "Visualizza lo stato di connessione degli utenti",
