@@ -1347,7 +1347,7 @@
     "app.videoDock.webcamPresenterLabel": "Παρουσιαστής",
     "app.videoDock.autoplayBlockedDesc": "Χρειαζόμαστε την άδειά σας για να σας δείξουμε τις κάμερες των άλλων χρηστών.",
     "app.videoDock.autoplayAllowLabel": "Προβολή καμερών",
-    "app.videoDock.plugin.helpers.seeMoreItems": "See more items",
+    "app.videoDock.plugin.helpers.seeMoreItems": "Δείτε περισσότερα αντικείμενα",
     "app.createBreakoutRoom.title": "Τμήματα αίθουσας διάσκεψης",
     "app.createBreakoutRoom.ariaTitle": "Απόκρυψη τμημάτων αίθουσας διάσκεψης",
     "app.createBreakoutRoom.breakoutRoomLabel": "Τμήματα αίθουσας {roomNumber}",
