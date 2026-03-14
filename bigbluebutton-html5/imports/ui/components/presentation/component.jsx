@@ -417,7 +417,7 @@ class Presentation extends PureComponent {
       if (mainHtml.hasAttribute('lang')) {
         popupHtml.setAttribute('lang', mainHtml.getAttribute('lang'));
       } else {
-        popupHtml.removeAttribute('dir');
+        popupHtml.removeAttribute('lang');
       }
 
       // headの中身をコピー
