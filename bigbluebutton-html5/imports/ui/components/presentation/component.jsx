@@ -397,8 +397,9 @@ class Presentation extends PureComponent {
         `innerwidth=${svgDimensions.width},innerheight=${svgDimensions.height + toolbarHeight},resizable,scrollbars`);
       if (!popup) return;
       popup.document.title = 'BigBlueButton Portal Window';
-      const container = popup.document.createElement('div');
-      popup.document.body.appendChild(container);
+      // unnecessary div
+      //const container = popup.document.createElement('div');
+      //popup.document.body.appendChild(container);
 
       // Copying the attributes of <html>, so that the bbb-icons font looks a bit smaller
       const mainHtml = document.documentElement; // メインウィンドウの <html>
@@ -407,17 +408,22 @@ class Presentation extends PureComponent {
       popupHtml.className = mainHtml.className;
       // style, which includes font-size: 14px
       popupHtml.style.cssText = mainHtml.style.cssText;
-      // dir
-      if (mainHtml.hasAttribute('dir')) {
-        popupHtml.setAttribute('dir', mainHtml.getAttribute('dir'));
-      } else {
-        popupHtml.removeAttribute('dir');
-      }
-      // lang
-      if (mainHtml.hasAttribute('lang')) {
-        popupHtml.setAttribute('lang', mainHtml.getAttribute('lang'));
-      } else {
-        popupHtml.removeAttribute('lang');
+      
+      //// dir
+      //if (mainHtml.hasAttribute('dir')) {
+      //  popupHtml.setAttribute('dir', mainHtml.getAttribute('dir'));
+      //} else {
+      //  popupHtml.removeAttribute('dir');
+      //}
+      //// lang
+      //if (mainHtml.hasAttribute('lang')) {
+      //  popupHtml.setAttribute('lang', mainHtml.getAttribute('lang'));
+      //} else {
+      //  popupHtml.removeAttribute('lang');
+      //}
+      // Copy all attributes (<html> extensions including DarkReader, which may not work anyway)
+      for (const attr of mainHtml.attributes) {
+        popupHtml.setAttribute(attr.name, attr.value);
       }
 
       // headの中身をコピー
