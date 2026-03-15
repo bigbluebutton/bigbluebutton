@@ -1205,7 +1205,7 @@
     "app.lock-viewers.participantPermissions.description": "Οι παρακάτω επιλογές καθορίζουν τι μπορούν να κάνουν οι συμμετέχοντες στην περίοδο λειτουργίας. Η κατάργηση της επιλογής καταργεί αυτό το δικαίωμα.",
     "app.lock-viewers.presentationPermissions.title": "Δικαιώματα Παρουσίασης",
     "app.lock-viewers.presentationPermissions.description": "Ρυθμίστε τον τρόπο διαχείρισης των δικαιωμάτων παρουσίασης στην περίοδο λειτουργίας.",
-    "app.lock-viewers.presentationPermissions.moderatorOnly": "Presenter is assigned by a moderator",
+    "app.lock-viewers.presentationPermissions.moderatorOnly": "Ο παρουσιαστής ορίζεται από έναν συντονιστή",
     "app.lock-viewers.presentationPermissions.moderatorOnly.tooltip": "Only moderators can assign the presenter role to participants.",
     "app.lock-viewers.presentationPermissions.requireApproval": "Allow participants to present with moderator approval",
     "app.lock-viewers.presentationPermissions.requireApproval.tooltip": "Participants can request to become presenter, but a moderator must approve the request.",
