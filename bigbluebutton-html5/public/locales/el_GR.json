@@ -1216,7 +1216,7 @@
     "app.guest-policy.description": "Αλλαγή ρυθμίσεων της πολιτικής σύνδεσης για επισκέπτες",
     "app.guest-policy.button.askModerator": "Ρωτήστε ένα συντονιστή",
     "app.guest-policy.button.alwaysAccept": "Πάντα αποδοχή",
-    "app.guest-policy.button.alwaysAcceptAuth": "Always accept authenticated",
+    "app.guest-policy.button.alwaysAcceptAuth": "Να επιτρέπονται πάντοτε οι πιστοποιημένοι",
     "app.guest-policy.button.alwaysDeny": "Πάντα απόρριψη",
     "app.guest-policy.policyBtnDesc": "Ορισμός πολιτικής σύνδεσης για επισκέπτες",
     "app.guest-policy.feedbackMessage": "The guest policy is now: {policy}",
