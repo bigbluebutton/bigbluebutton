@@ -1210,7 +1210,7 @@
     "app.lock-viewers.presentationPermissions.requireApproval": "Να επιτρέπεται στους συμμετέχοντες να κάνουν παρουσιάσεις με την έγκριση του συντονιστή",
     "app.lock-viewers.presentationPermissions.requireApproval.tooltip": "Οι συμμετέχοντες μπορούν να υποβάλουν αίτημα για να γίνουν παρουσιαστές, αλλά ένας συντονιστής πρέπει να εγκρίνει το αίτημα.",
     "app.lock-viewers.presentationPermissions.freeForAll": "Να επιτρέπεται στους συμμετέχοντες η δυνατότητα να παρουσιάσουν ελεύθερα",
-    "app.lock-viewers.presentationPermissions.freeForAll.tooltip": "Any participant can take the presenter role without moderator approval.",
+    "app.lock-viewers.presentationPermissions.freeForAll.tooltip": "Οποιοσδήποτε συμμετέχων μπορεί να αναλάβει τον ρόλο του παρουσιαστή χωρίς την έγκριση του συντονιστή.",
     "app.guest-policy.ariaTitle": "Τυπικές ρυθμίσεις πολιτικής για επισκέπτη",
     "app.guest-policy.title": "Πολιτική επισκεπτών",
     "app.guest-policy.description": "Αλλαγή ρυθμίσεων της πολιτικής σύνδεσης για επισκέπτες",
