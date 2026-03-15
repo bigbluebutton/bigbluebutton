@@ -118,7 +118,7 @@
     "app.timer.aria.incrementMinutes": "Αύξηση λεπτών κατά {amount}",
     "app.timer.aria.decrementSeconds": "Μείωση δευτερολέπτων κατά {amount}",
     "app.timer.aria.incrementSeconds": "Αύξηση δευτερολέπτων κατά {amount}",
-    "app.timer.aria.addTime": "Add {time}",
+    "app.timer.aria.addTime": "Προσθήκη {time}",
     "app.timer.songs": "Τραγούδια",
     "app.timer.noTrack": "Κανένα τραγούδι",
     "app.timer.track1": "Χαλαρωτικό",
