@@ -1207,7 +1207,7 @@
     "app.lock-viewers.presentationPermissions.description": "Ρυθμίστε τον τρόπο διαχείρισης των δικαιωμάτων παρουσίασης στην περίοδο λειτουργίας.",
     "app.lock-viewers.presentationPermissions.moderatorOnly": "Ο παρουσιαστής ορίζεται από έναν συντονιστή",
     "app.lock-viewers.presentationPermissions.moderatorOnly.tooltip": "Μόνο οι συντονιστές μπορούν να αναθέσουν τον ρόλο του παρουσιαστή στους συμμετέχοντες.",
-    "app.lock-viewers.presentationPermissions.requireApproval": "Allow participants to present with moderator approval",
+    "app.lock-viewers.presentationPermissions.requireApproval": "Να επιτρέπεται στους συμμετέχοντες να κάνουν παρουσιάσεις με την έγκριση του συντονιστή",
     "app.lock-viewers.presentationPermissions.requireApproval.tooltip": "Participants can request to become presenter, but a moderator must approve the request.",
     "app.lock-viewers.presentationPermissions.freeForAll": "Allow participants to present freely",
     "app.lock-viewers.presentationPermissions.freeForAll.tooltip": "Any participant can take the presenter role without moderator approval.",
