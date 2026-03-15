@@ -236,7 +236,7 @@
     "app.userList.userOptions.enablePubChat": "Η δημόσια συνομιλία είναι ενεργοποιημένη",
     "app.userList.userOptions.enableNotes": "Οι κοινόχρηστες σημειώσεις είναι ενεργοποιημένες",
     "app.userList.userOptions.showUserList": "Η λίστα χρήστη είναι ορατή στους χρήστες.",
-    "app.userList.userOptions.disablePresenterRequest": "Presenter request is now disabled for viewers",
+    "app.userList.userOptions.disablePresenterRequest": "Το αίτημα παρουσιαστή είναι πλέον απενεργοποιημένο για τους θεατές",
     "app.userList.userOptions.enablePresenterRequest": "Presenter request is now enabled for viewers",
     "app.userList.userOptions.enablePresenterFreeForAll": "Participants can now take presenter without moderator approval",
     "app.userList.userOptions.enableOnlyModeratorWebcam": "Μπορείτε να ενεργοποιήσετε την κάμερά σας τώρα, θα σας δουν όλοι",
