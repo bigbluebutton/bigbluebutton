@@ -1193,7 +1193,7 @@
     "app.lock-viewers.button.apply": "Εφαρμογή",
     "app.lock-viewers.button.cancel": "Ακύρωση",
     "app.lock-viewers.locked": "Κλειδωμένο",
-    "app.lock-viewers.hideViewersCursor": "See other participants' cursors",
+    "app.lock-viewers.hideViewersCursor": "Προβολή κέρσορα άλλων συμμετεχόντων.",
     "app.lock-viewers.hideAnnotationsLabel": "Εμφάνιση κοινών σημειώσεων άλλων συμμετεχόντων.",
     "app.lock-viewers.disablePresenterRequestLabel": "Requesting to become presenter.",
     "app.lock-viewers.tabs.guestPolicy": "Guest Policy",
