@@ -113,7 +113,7 @@
     "app.timer.aria.prevPreset": "Προηγούμενη προεπιλογή",
     "app.timer.aria.nextPreset": "Επόμενη προεπιλογή",
     "app.timer.aria.decrementHours": "Μείωση ώρας κατά {amount}",
-    "app.timer.aria.incrementHours": "Increase hours by {amount}",
+    "app.timer.aria.incrementHours": "Αύξηση ώρας κατά {amount}",
     "app.timer.aria.decrementMinutes": "Decrease minutes by {amount}",
     "app.timer.aria.incrementMinutes": "Increase minutes by {amount}",
     "app.timer.aria.decrementSeconds": "Decrease seconds by {amount}",
