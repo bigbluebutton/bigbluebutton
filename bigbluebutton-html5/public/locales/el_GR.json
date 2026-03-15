@@ -1201,7 +1201,7 @@
     "app.lock-viewers.tabs.presentationPermissions": "Δικαιώματα Παρουσίασης",
     "app.lock-viewers.guestPolicy.title": "Πολιτική Επισκεπτών",
     "app.lock-viewers.guestPolicy.description": "Ρυθμίστε τον τρόπο χειρισμού των προσκεκλημένων όταν προσπαθούν να συμμετάσχουν στην τηλεδιάσκεψη.",
-    "app.lock-viewers.participantPermissions.title": "Participant Permissions",
+    "app.lock-viewers.participantPermissions.title": "Δικαιώματα Συμμετεχόντων",
     "app.lock-viewers.participantPermissions.description": "The options below define what participants can do in the session. Unchecking an option removes that permission.",
     "app.lock-viewers.presentationPermissions.title": "Presentation Permissions",
     "app.lock-viewers.presentationPermissions.description": "Configure how presentation rights are managed in the session.",
