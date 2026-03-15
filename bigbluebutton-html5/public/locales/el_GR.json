@@ -1196,7 +1196,7 @@
     "app.lock-viewers.hideViewersCursor": "Προβολή του κέρσορα άλλων συμμετεχόντων.",
     "app.lock-viewers.hideAnnotationsLabel": "Εμφάνιση κοινών σημειώσεων άλλων συμμετεχόντων.",
     "app.lock-viewers.disablePresenterRequestLabel": "Αίτηση για να γίνετε παρουσιαστής.",
-    "app.lock-viewers.tabs.guestPolicy": "Guest Policy",
+    "app.lock-viewers.tabs.guestPolicy": "Πολιτική Επισκεπτών",
     "app.lock-viewers.tabs.participantPermissions": "Participant Permissions",
     "app.lock-viewers.tabs.presentationPermissions": "Presentation Permissions",
     "app.lock-viewers.guestPolicy.title": "Guest Policy",
