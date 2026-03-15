@@ -238,7 +238,7 @@
     "app.userList.userOptions.showUserList": "Η λίστα χρήστη είναι ορατή στους χρήστες.",
     "app.userList.userOptions.disablePresenterRequest": "Το αίτημα παρουσιαστή είναι πλέον απενεργοποιημένο για τους θεατές",
     "app.userList.userOptions.enablePresenterRequest": "Το αίτημα παρουσιαστή είναι πλέον ενεργοποιημένο για τους θεατές",
-    "app.userList.userOptions.enablePresenterFreeForAll": "Participants can now take presenter without moderator approval",
+    "app.userList.userOptions.enablePresenterFreeForAll": "Οι συμμετέχοντες μπορούν πλέον να επιλέξουν τον ρόλο παρουσιαστή χωρίς την έγκριση του διαχειριστή.",
     "app.userList.userOptions.enableOnlyModeratorWebcam": "Μπορείτε να ενεργοποιήσετε την κάμερά σας τώρα, θα σας δουν όλοι",
     "app.userList.userOptions.savedNames.title": "Λίστα χρηστών τηλεδιάσκεψης {meetingName} στις {dateAndTime}.",
     "app.userList.userOptions.sortedFirstName.heading": "Ταξινόμηση ανά όνομα:",
