@@ -1177,7 +1177,7 @@
     "app.shortcut-help.duplicate": "Διπλότυπο",
     "app.shortcut-help.gesture": "Χειρονομίες",
     "app.shortcut-help.fingerTap": "πάτημα με δάχτυλο",
-    "app.lock-viewers.title": "Restrictions and Policies",
+    "app.lock-viewers.title": "Περιορισμοί και Πολιτικές",
     "app.lock-viewers.description": "Περιορισμός πρόσβασης χρηστών σε συγκεκριμένες λειτουργίες.",
     "app.lock-viewers.restrictParticipantsLabel": "Περιορισμός συμμετεχόντων από...",
     "app.lock-viewers.featuresLable": "Δυνατότητα",
