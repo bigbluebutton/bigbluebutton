@@ -109,7 +109,7 @@
     "app.timer.hours": "ώρες",
     "app.timer.minutes": "λεπτά",
     "app.timer.seconds": "δεύτερα",
-    "app.timer.aria.setTo": "Set timer to {label}",
+    "app.timer.aria.setTo": "Ρύθμιση χρονοδιακόπτη σε {label}",
     "app.timer.aria.prevPreset": "Προηγούμενη προεπιλογή",
     "app.timer.aria.nextPreset": "Επόμενη προεπιλογή",
     "app.timer.aria.decrementHours": "Μείωση ώρας κατά {amount}",
