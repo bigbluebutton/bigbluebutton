@@ -1086,7 +1086,7 @@
     "app.userList.guest.hideWaitingUsersLabel": "Απόκρυψη χρηστών σε αναμονή",
     "app.user-info.title": "Αναζήτηση στον κατάλογο",
     "app.toast.breakoutRoomEnded": "Το τμήμα της αίθουσας διάσκεψης ολοκληρώθηκε. Παρακαλούμε συνδεθείτε ξανά για ήχο.",
-    "app.toast.breakoutContentUnchangedNotConverted": "One or more breakout rooms had no whiteboard/shared notes updates, so they weren't converted to slides.",
+    "app.toast.breakoutContentUnchangedNotConverted": "Ένα ή περισσότερα τμήματα αίθουσας δεν είχαν ενημερώσεις πίνακα/κοινόχρηστων σημειώσεων, επομένως δε μετατράπηκαν σε διαφάνειες.",
     "app.toast.chat.public": "Νέο μήνυμα δημόσιας συνομιλίας",
     "app.toast.chat.private": "Νέο μήνυμα ιδιωτικής συνομιλίας",
     "app.toast.chat.system": "Σύστημα",
