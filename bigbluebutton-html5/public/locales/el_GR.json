@@ -1188,7 +1188,7 @@
     "app.lock-viewers.PublicChatLabel": "Αποστολή δημόσιων μηνυμάτων",
     "app.lock-viewers.PrivateChatLabel": "Αποστολή ιδιωτικών μηνυμάτων",
     "app.lock-viewers.notesLabel": "Επεξεργασία κοινόχρηστων σημειώσεων",
-    "app.lock-viewers.userListLabel": "See other participants in the user list",
+    "app.lock-viewers.userListLabel": "Δείτε άλλους συμμετέχοντες στη λίστα χρηστών",
     "app.lock-viewers.ariaTitle": "Περιορισμός συμμετεχόντων",
     "app.lock-viewers.button.apply": "Εφαρμογή",
     "app.lock-viewers.button.cancel": "Ακύρωση",
