@@ -152,6 +152,7 @@
     "app.appsGallery.modal.confirmButtonLabel": "Το κατάλαβα",
     "app.profileSettings.title": "Ρυθμίσεις προφίλ",
     "app.profileSettings.usernameTitle": "Όνομα χρήστη",
+    "app.profileSettings.statusTitle": "Status",
     "app.profileSettings.addExtraCamera": "Προσθήκη επιπλέον κάμερας",
     "app.pads.hint": "Πατήστε «Esc» για εστίαση στη γραμμή εργαλείων",
     "app.user.activityCheck": "Έλεγχος δραστηριότητας χρήστη",
