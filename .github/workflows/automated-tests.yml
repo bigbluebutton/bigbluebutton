@@ -641,7 +641,7 @@ jobs:
           BBB_URL: https://bbb-ci.test/bigbluebutton/
           BBB_SECRET: bbbci
           MEDIA_BRIDGE: livekit
-        run: npx playwright test audio/ webcam/ screenshare/ --project=chromium --grep @ci --grep-invert '@flaky|@need-update|@only-headed|@setting-required'
+        run: npx playwright test --project=chromium --grep '(?=.*@ci)(?=.*@media)' --grep-invert '@flaky|@need-update|@only-headed|@setting-required'
       - if: failure()
         name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4

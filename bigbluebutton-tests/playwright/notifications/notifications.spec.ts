@@ -15,7 +15,7 @@ test.describe.parallel('Notifications', { tag: '@ci' }, () => {
     await notifications.saveSettingsNotification();
   });
 
-  test('Audio notifications', async ({ browser, context, page }, testInfo) => {
+  test('Audio notifications', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
     const notifications = new Notifications(browser, context);
     await notifications.initModPage(page, { testInfo });
     await notifications.audioNotification();
@@ -64,14 +64,14 @@ test.describe.parallel('Notifications', { tag: '@ci' }, () => {
       await recordingNotifications.notificationNoAudio();
     });
 
-    test('Notification appearing when user is in listen only', async ({ browser, page }, testInfo) => {
+    test('Notification appearing when user is in listen only', { tag: '@media' }, async ({ browser, page }, testInfo) => {
       test.skip(isLiveKit, 'LiveKit does not have a dedicated listen-only mode');
       const recordingNotifications = new RecordingNotifications(browser, page);
       await recordingNotifications.init(true, { createParameter: recordMeeting, testInfo });
       await recordingNotifications.notificationListenOnly();
     });
 
-    test('No notification appearing when user is in audio', async ({ browser, page }, testInfo) => {
+    test('No notification appearing when user is in audio', { tag: '@media' }, async ({ browser, page }, testInfo) => {
       const recordingNotifications = new RecordingNotifications(browser, page);
       await recordingNotifications.init(true, { createParameter: recordMeeting, testInfo });
       await recordingNotifications.noNotificationInAudio();
@@ -101,7 +101,7 @@ test.describe.parallel('Notifications', { tag: '@ci' }, () => {
       await presenterNotifications.fileUploaderNotification();
     });
 
-    test('Screenshare notification', async ({ browser, browserName, context, page }, testInfo) => {
+    test('Screenshare notification', { tag: '@media' }, async ({ browser, browserName, context, page }, testInfo) => {
       test.skip(browserName === 'firefox', 'Screenshare tests not able in Firefox browser without desktop');
       const presenterNotifications = new PresenterNotifications(browser, context);
       await presenterNotifications.initModPage(page, { testInfo });

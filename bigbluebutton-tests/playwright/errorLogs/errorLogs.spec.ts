@@ -9,14 +9,14 @@ test.describe('Error Logs Monitoring', { tag: '@ci' }, () => {
     await errorLogs.joinSession();
   });
 
-  test('Should not log any errors when sharing audio', async ({ browser, context, page }, testInfo) => {
+  test('Should not log any errors when sharing audio', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
     const errorLogs = new ErrorLogs(browser, context);
     await errorLogs.initPages(page, testInfo);
     errorLogs.monitorErrorLogs();
     await errorLogs.joinAudioWithMicrophone();
   });
 
-  test('Should not log any errors when sharing webcam', async ({ browser, context, page }, testInfo) => {
+  test('Should not log any errors when sharing webcam', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
     const errorLogs = new ErrorLogs(browser, context);
     await errorLogs.initPages(page, testInfo);
     errorLogs.monitorErrorLogs();

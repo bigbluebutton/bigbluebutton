@@ -3,7 +3,7 @@ import { isLiveKit } from '../core/livekit';
 import { test } from '../core/setup/fixtures';
 import { Audio } from './audio';
 
-test.describe.parallel('Audio', { tag: '@ci' }, () => {
+test.describe.parallel('Audio', { tag: ['@ci', '@media'] }, () => {
   let audio: Audio;
 
   test.beforeEach(async ({ browser, context }, testInfo) => {

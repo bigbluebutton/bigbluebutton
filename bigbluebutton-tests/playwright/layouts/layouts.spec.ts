@@ -2,7 +2,7 @@ import { initializePages } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { Layouts } from './layouts';
 
-test.describe.parallel('Layout', { tag: '@ci' }, () => {
+test.describe.parallel('Layout', { tag: ['@ci', '@media'] }, () => {
   let layouts: Layouts;
 
   test.beforeEach(async ({ browser, context }, testInfo) => {
