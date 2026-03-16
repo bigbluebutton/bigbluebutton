@@ -152,6 +152,7 @@
     "app.appsGallery.modal.confirmButtonLabel": "Skjønner",
     "app.profileSettings.title": "Profilinnstillinger",
     "app.profileSettings.usernameTitle": "Brukernavn",
+    "app.profileSettings.statusTitle": "Status",
     "app.profileSettings.addExtraCamera": "Legg til et ekstra kamera",
     "app.pads.hint": "Trykk på Esc for å fokusere dialogboksens verktøylinje",
     "app.user.activityCheck": "Sjekk brukeraktivitet",
