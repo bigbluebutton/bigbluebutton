@@ -1,7 +1,7 @@
 import styled, { css, keyframes } from 'styled-components';
 import {
   colorWhite, colorText, colorPrimary, colorDanger,
-  colorGrayDark, colorLink, listItemBgHover, colorBorder,
+  colorGrayDark, colorLink, colorBorder, colorSuccess, colorGrayLight,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPadding,
@@ -30,14 +30,6 @@ import {
   HeaderContainer as BaseHeaderContainer,
 } from '/imports/ui/components/sidebar-content/styles';
 import Button from '/imports/ui/components/common/button/component';
-
-const SimpleButton = styled.button`
-  cursor: pointer;
-  border: none;
-  background: none;
-  padding: 0;
-  outline: none;
-`;
 
 const RootContainer = styled.div`
   display: flex;
@@ -204,52 +196,54 @@ const Username = styled.div`
 `;
 
 const UserPresenceRoot = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
   width: 100%;
   padding: 0px ${contentSidebarPadding};
 `;
 
-const UserPresenceContainer = styled.div`
+const UserPresenceField = styled.div`
   display: flex;
-  flex-wrap: wrap;
-  min-height: 3.5rem;
-  padding: 0.5rem 1rem;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+`;
+
+const UserPresenceIndicator = styled.div`
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem 1rem;
-  border-radius: 1rem;
-  border: 1px solid ${colorBorder};
-`;
-
-const UserPresenceButton = styled(SimpleButton)<{ active?: boolean }>`
-  display: flex;
-  padding: 0.125rem 1rem;
-  justify-content: center;
-  align-items: center;
-  flex: 1 1 auto;
-  min-width: 6rem;
-  align-self: stretch;
-  border-radius: 0.5rem;
-
-  ${({ active }) => active && `
-    background: ${listItemBgHover};
-    cursor: not-allowed;
-    pointer-events: none;
-    border-radius: 1.0rem;
-  `}
-`;
-
-const UserPresenceText = styled.div`
-  color: ${colorGrayDark};
-  text-align: center;
-  font-size: ${fontSizeBase}
-  font-weight: ${textFontWeight};
-`;
-
-const UserPresenceDivider = styled.div`
-  width: 0.0625rem;
-  height: 2.5rem;
-  background: ${colorBorder};
+  width: 1.5rem;
   flex-shrink: 0;
+`;
+
+const UserPresenceDropdown = styled(Select)`
+  flex: 1;
+  height: 3rem;
+  border-radius: 0.5rem !important;
+  overflow: hidden;
+`;
+
+const UserPresenceValueContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const UserPresenceStatusDot = styled.div<{ away?: boolean }>`
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background-color: ${({ away }) => (away ? colorGrayLight : colorSuccess)};
+`;
+
+const UserPresenceText = styled.span`
+  color: ${colorGrayDark};
+  font-size: ${fontSizeBase};
+  font-weight: ${textFontWeight};
 `;
 
 const Separator = styled.hr`
@@ -560,10 +554,12 @@ export default {
   UsernameTitle,
   Username,
   UserPresenceRoot,
-  UserPresenceContainer,
-  UserPresenceButton,
+  UserPresenceField,
+  UserPresenceIndicator,
+  UserPresenceDropdown,
+  UserPresenceValueContainer,
+  UserPresenceStatusDot,
   UserPresenceText,
-  UserPresenceDivider,
   Separator,
   DevicesSettingsContainer,
   DeviceContainer,

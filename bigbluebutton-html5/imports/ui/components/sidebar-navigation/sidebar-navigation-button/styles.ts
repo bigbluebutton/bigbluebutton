@@ -13,6 +13,7 @@ import {
   itemFocusBorder,
   colorGrayIcons,
   colorGrayLightest,
+  colorSuccess,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { ListItemProps } from './types';
 
@@ -99,6 +100,19 @@ export const ListItem = styled.div<ListItemProps>`
   }
 `;
 
+const StatusDot = styled.div<{ away?: boolean }>`
+  position: absolute;
+  bottom: -1px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: ${({ away }: { away?: boolean }) => (away ? colorGrayLight : colorSuccess)};
+  border: 1px solid ${colorWhite};
+  pointer-events: none;
+`;
+
 export default {
   ListItem,
+  StatusDot,
 };
