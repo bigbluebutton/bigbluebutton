@@ -152,6 +152,7 @@
     "app.appsGallery.modal.confirmButtonLabel": "我知道了",
     "app.profileSettings.title": "個人檔案設定",
     "app.profileSettings.usernameTitle": "使用者名稱",
+    "app.profileSettings.statusTitle": "Status",
     "app.profileSettings.addExtraCamera": "新增額外鏡頭",
     "app.pads.hint": "按 Esc 鍵以聚焦筆記工具欄",
     "app.user.activityCheck": "使用者活動檢查",
