@@ -51,11 +51,11 @@ def archive_notes(meeting_id, etherpad_notes_endpoint, bn_notes_endpoint, notes_
   notes_id = BigBlueButton::Events.get_notes_id(events)
   notes_editor = BigBlueButton::Events.get_notes_editor(events)
 
-  isEtherpadEditor = notes_editor.eql? "etherpad"
+  is_etherpad_editor = notes_editor.eql? "etherpad"
 
   notes_endpoint = etherpad_notes_endpoint
 
-  notes_endpoint = bn_notes_endpoint unless isEtherpadEditor
+  notes_endpoint = bn_notes_endpoint unless is_etherpad_editor
 
   notes_dir = "#{raw_archive_dir}/#{meeting_id}/notes"
   FileUtils.mkdir_p(notes_dir)

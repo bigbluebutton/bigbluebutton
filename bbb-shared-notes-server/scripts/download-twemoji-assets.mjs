@@ -7,12 +7,12 @@
  * The download is skipped if the directory already exists and contains files.
  */
 
-import { existsSync, mkdirSync } from 'fs';
-import { readdir, rm } from 'fs/promises';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import { tmpdir } from 'os';
-import { join, dirname } from 'path';
+import { existsSync, mkdirSync } from 'node:fs';
+import { readdir, rm } from 'node:fs/promises';
+import { exec } from 'node:child_process';
+import { promisify } from 'node:util';
+import { tmpdir } from 'node:os';
+import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const execAsync = promisify(exec);

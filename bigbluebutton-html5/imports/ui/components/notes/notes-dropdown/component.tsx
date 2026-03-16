@@ -74,7 +74,7 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
           onClick: () => {
             setConverterButtonDisabled(true);
             setTimeout(() => setConverterButtonDisabled(false), DEBOUNCE_TIMEOUT);
-            return Service.convertAndUpload(presentations, padId, presentationEnabled, isEtherpadSharedNotes);
+            return Service.convertAndUpload(presentations, padId, isEtherpadSharedNotes, presentationEnabled);
           },
         },
       );

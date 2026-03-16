@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-TARGET=`basename $(pwd)`
+TARGET=$(basename "$(pwd)")
 
 PACKAGE=$(echo $TARGET | cut -d'_' -f1)
 VERSION=$(echo $TARGET | cut -d'_' -f2)

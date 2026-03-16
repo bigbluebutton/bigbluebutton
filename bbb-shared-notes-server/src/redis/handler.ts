@@ -3,8 +3,8 @@ import { meetingLockMap, connectionsMap } from '../common/singleton';
 import { MeetingLock } from '../common/type';
 import { sender } from './sender';
 import config from '../config';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import { uploadPresentation } from './service/uploadPresentation';
 import { documentNamePrefix } from '../hocuspocus/utils';
 import { pushInitialContent } from './service/pushInitialContent';
@@ -210,7 +210,7 @@ const handleBlockNoteExport = async (header: MessageHeader, body: MessageBody): 
     const documentName = presId;
     const notesFormat = 'pdf';
     const underscoredFilename = serverSideFilename.replace(/\s/g, '_');
-    const sanitizedFilename = underscoredFilename.replace(/[^a-z0-9_\-\.]/gi, '_');
+    const sanitizedFilename = underscoredFilename.replace(/[^a-z0-9_.-]/gi, '_');
     const outputFilename = `${sanitizedFilename}.${notesFormat}`;
     const filePath = path.join(temporarySavingDir, outputFilename);
 
@@ -274,7 +274,7 @@ interface MessageBody {
   [key: string]: any;
 }
 
-interface _Message {
+interface Message {
   core: {
     header: MessageHeader;
     body: MessageBody;

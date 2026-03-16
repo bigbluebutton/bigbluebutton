@@ -106,7 +106,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         const htmlSize = new TextEncoder().encode(clipboardData.getData('text/html')).length;
 
         // Calculate the size of the pasted content (use the larger of text or html)
-        const pasteSize = htmlSize > textSize ? htmlSize : textSize;
+        const pasteSize = Math.max(htmlSize, textSize);
 
         // Check if paste exceeds size limit
         if (pasteSize > MAX_PASTE_SIZE) {

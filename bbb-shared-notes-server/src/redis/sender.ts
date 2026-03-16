@@ -8,7 +8,7 @@ const buildEnvelope = (name:string) => {
   return {
     name,
     routing: { sender: 'bbb-shared-notes-server' },
-    timestamp: (new Date()).getTime(),
+    timestamp: Date.now(),
   };
 };
 

@@ -1,10 +1,9 @@
 import { exec } from 'node:child_process';
-import { promisify } from 'util';
+import { promisify } from 'node:util';
 import { writeFile, readFile, unlink } from 'node:fs/promises';
-import { existsSync } from 'fs';
 import { randomBytes } from 'node:crypto';
-import fs from 'fs';
-import path from 'path';
+import fs, { existsSync } from 'node:fs';
+import path from 'node:path';
 import { Logger } from '../../common/logger';
 import config from '../../config';
 
@@ -42,7 +41,7 @@ async function inlineEmojiImages(html: string): Promise<string> {
   const allImgTags = parsedHtml.match(/<img[^>]+>/g) ?? [];
   for (const tag of allImgTags) {
     if (tag.includes('class="emoji"')) {
-      const srcMatch = tag.match(/src="[^"]+\/([^"/]+\.svg)"/);
+      const srcMatch = /src="[^"]+\/([^"/]+\.svg)"/.exec(tag);
       if (srcMatch) filenames.add(srcMatch[1]);
     }
   }
@@ -69,7 +68,7 @@ async function inlineEmojiImages(html: string): Promise<string> {
   // Swap placeholder emoji <img> tags for base64 data URIs, or plain alt text when
   // the SVG is missing — avoids leaving unreachable https://twemoji.local/... URLs
   // in the HTML that the sandboxed wkhtmltopdf process can never fetch.
-  result = result.replace(/<img[^>]+class="emoji"[^>]*>/g, (imgTag) => {
+  result = result.replaceAll(/<img[^>]+class="emoji"[^>]*>/g, (imgTag) => {
     const srcMatch = /src="[^"]+\/([^"/]+\.svg)"/.exec(imgTag);
     if (!srcMatch) return imgTag;
     const b64 = base64Cache.get(srcMatch[1]);
@@ -162,7 +161,6 @@ export async function exportHtmlToPdf(
     }
 
     // Read PDF file
-    const { readFile } = await import('fs/promises');
     const pdfBuffer = await readFile(pdfFilePath);
 
     logger.info('PDF generated successfully', {

@@ -14,9 +14,6 @@ const hocuspocus = new Hocuspocus({
     postgresqlDB,
   ],
 
-  // TODO: Authenticate user name on cursor.
-  // Awaiting https://github.com/ueberdosis/hocuspocus/issues/1055
-
   onAuthenticate: async (data) => {
     const { documentName, context } = data;
 
@@ -98,7 +95,7 @@ const hocuspocus = new Hocuspocus({
       intUserId = "SYSTEM";
       if (documentName.includes("__")) meetingId = extractMeetingId(documentName);
     }
-    if (!!meetingId) {
+    if (meetingId) {
       sender.send('sharedNotesUpdated', meetingId, { intUserId, documentName });
     } else {
       logger.warn("Malformed document name, ignoring change", {

@@ -1,4 +1,4 @@
-import { IncomingHttpHeaders } from "http";
+import { IncomingHttpHeaders } from "node:http";
 import { toBoolean } from "../common/utils";
 import { UserInformation } from "../hocuspocus/type";
 

@@ -134,7 +134,7 @@ export class SharedNotes extends MultiUsers {
 
     // .html checks
     const html = await this.modPage.handleDownload(exportHtmlLocator);
-    if (!html || !html.download) throw new Error('Download failed or invalid file extension');
+    if (!html?.download) throw new Error('Download failed or invalid file extension');
     const htmlFileExtension = html.download.suggestedFilename().split('.').pop();
     if (!htmlFileExtension) throw new Error('Download failed or invalid file extension');
     await checkTextContent(htmlFileExtension, 'html', 'should match the html file extension');

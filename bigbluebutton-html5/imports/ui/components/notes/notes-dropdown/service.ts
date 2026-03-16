@@ -7,8 +7,8 @@ import PadsService from '/imports/ui/components/pads/pads-graphql/service';
 async function convertAndUpload(
   presentations: any,
   padId: string,
-  presentationEnabled = true,
   isEtherpadEditor: boolean,
+  presentationEnabled = true,
 ) {
   let filename = 'Shared_Notes';
   const duplicates = presentations.filter(

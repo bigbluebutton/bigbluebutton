@@ -17,6 +17,8 @@ trait EndBreakoutRoomInternalMsgHdlr extends HandlerHelpers {
   val outGW: OutMsgRouter
   val eventBus: InternalEventBus
 
+  private val BbbAppsAkkaSender = "bbb-apps-akka"
+
   def handleEndBreakoutRoomInternalMsg(msg: EndBreakoutRoomInternalMsg, state: MeetingState2x): Unit = {
     var noContentToImportFromRoom = liveMeeting.props.breakoutProps.captureSlides || liveMeeting.props.breakoutProps.captureNotes
 
@@ -108,7 +110,7 @@ trait EndBreakoutRoomInternalMsgHdlr extends HandlerHelpers {
   }
 
   def buildStoreExportJobInRedisSysMsg(exportJob: ExportJob, liveMeeting: LiveMeeting): BbbCommonEnvCoreMsg = {
-    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val routing = collection.immutable.HashMap("sender" -> BbbAppsAkkaSender)
     val envelope = BbbCoreEnvelope(StoreExportJobInRedisSysMsg.NAME, routing)
     val body = StoreExportJobInRedisSysMsgBody(exportJob)
     val header = BbbCoreHeaderWithMeetingId(StoreExportJobInRedisSysMsg.NAME, liveMeeting.props.meetingProp.intId)
@@ -118,7 +120,7 @@ trait EndBreakoutRoomInternalMsgHdlr extends HandlerHelpers {
   }
 
   def buildPresentationUploadTokenSysPubMsg(parentMeetingId: String, userId: String, presentationUploadToken: String, filename: String, presId: String): BbbCommonEnvCoreMsg = {
-    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val routing = collection.immutable.HashMap("sender" -> BbbAppsAkkaSender)
     val envelope = BbbCoreEnvelope(PresentationUploadTokenSysPubMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationUploadTokenSysPubMsg.NAME, parentMeetingId, userId)
     val body = PresentationUploadTokenSysPubMsgBody("DEFAULT_PRESENTATION_POD", presentationUploadToken, filename, parentMeetingId, presId)
@@ -151,7 +153,7 @@ trait EndBreakoutRoomInternalMsgHdlr extends HandlerHelpers {
       presUploadToken:    String,
       liveMeeting:        LiveMeeting
   ): BbbCommonEnvCoreMsg = {
-    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val routing = collection.immutable.HashMap("sender" -> BbbAppsAkkaSender)
     val envelope = BbbCoreEnvelope(ExportBNSharedNotesEvtMsg.NAME, routing)
     val header = BbbCoreHeaderWithMeetingId(ExportBNSharedNotesEvtMsg.NAME, liveMeeting.props.meetingProp.intId)
     val body = ExportBNSharedNotesEvtMsgBody(

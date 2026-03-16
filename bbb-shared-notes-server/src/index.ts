@@ -21,7 +21,9 @@ setInterval(async () => {
   }
 }, 60_000);
 
-main().catch((err) => {
+try {
+  await main();
+} catch (err) {
   logger.error('Fatal startup error', { error: err });
   process.exit(1);
-});
+}
