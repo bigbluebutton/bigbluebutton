@@ -152,6 +152,7 @@
     "app.appsGallery.modal.confirmButtonLabel": "Sain aru",
     "app.profileSettings.title": "Profiili sätted",
     "app.profileSettings.usernameTitle": "Kasutajanimi",
+    "app.profileSettings.statusTitle": "Status",
     "app.profileSettings.addExtraCamera": "Lisa täiendav kaamera",
     "app.pads.hint": "Kirjutusala tööriistariba aktiveerimiseks vajuta Esc-klahvi",
     "app.user.activityCheck": "Kasutaja aktiivsuse kontroll",
