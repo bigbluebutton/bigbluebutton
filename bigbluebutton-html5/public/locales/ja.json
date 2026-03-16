@@ -152,6 +152,7 @@
     "app.appsGallery.modal.confirmButtonLabel": "了解",
     "app.profileSettings.title": "プロファイルの設定",
     "app.profileSettings.usernameTitle": "ユーザー名",
+    "app.profileSettings.statusTitle": "Status",
     "app.profileSettings.addExtraCamera": "新たなカメラを追加",
     "app.pads.hint": "パッドのツールバーにフォーカスするにはEscを押してください",
     "app.user.activityCheck": "ユーザーアクティビティ確認",
