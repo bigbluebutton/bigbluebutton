@@ -152,6 +152,7 @@
     "app.appsGallery.modal.confirmButtonLabel": "Entendi",
     "app.profileSettings.title": "Ajustes de Perfil",
     "app.profileSettings.usernameTitle": "Nome",
+    "app.profileSettings.statusTitle": "Status",
     "app.profileSettings.addExtraCamera": "Adicionar câmera extra",
     "app.pads.hint": "Pressione Esc para focar na barra de ferramentas do editor",
     "app.user.activityCheck": "Verificação de atividade do usuário",
