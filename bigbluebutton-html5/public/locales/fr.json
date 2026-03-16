@@ -152,6 +152,7 @@
     "app.appsGallery.modal.confirmButtonLabel": "Compris",
     "app.profileSettings.title": "Paramètres du profil",
     "app.profileSettings.usernameTitle": "Nom d'utilisateur",
+    "app.profileSettings.statusTitle": "Status",
     "app.profileSettings.addExtraCamera": "Ajouter une caméra ",
     "app.pads.hint": "Appuyez sur Echap pour sélectionner la barre d'outils de l'éditeur",
     "app.user.activityCheck": "Vérification de l'activité de l'utilisateur",
