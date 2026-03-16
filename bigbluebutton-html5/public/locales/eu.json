@@ -152,6 +152,7 @@
     "app.appsGallery.modal.confirmButtonLabel": "Eskuratu",
     "app.profileSettings.title": "Profilaren ezarpenak",
     "app.profileSettings.usernameTitle": "Erabiltzaile-izena",
+    "app.profileSettings.statusTitle": "Status",
     "app.profileSettings.addExtraCamera": "Gehitu kamera extra",
     "app.pads.hint": "Sakatu Esc blokaren tresna-barra fokuratzeko",
     "app.user.activityCheck": "Erabiltzailearen aktibitate-kontrola",
