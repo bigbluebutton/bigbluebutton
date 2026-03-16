@@ -152,6 +152,7 @@
     "app.appsGallery.modal.confirmButtonLabel": "Megvan",
     "app.profileSettings.title": "Profilbeállítások",
     "app.profileSettings.usernameTitle": "Felhasználónév",
+    "app.profileSettings.statusTitle": "Status",
     "app.profileSettings.addExtraCamera": "Extra kamera hozzáadása",
     "app.pads.hint": "Nyomj Esc-et a szerkesztő eszköztárra fókuszálásához",
     "app.user.activityCheck": "Felhasználói aktivitás ellenőrzése",
