@@ -2,7 +2,6 @@ public:
   app:
     mobileFontSize: 16px
     desktopFontSize: 14px
-    audioChatNotification: false
     # Shows the audio modal when user joins the room. The audio modal prompts
     # user to select an option ("Microphone" and/or "Listen only") for joining
     # audio
@@ -28,7 +27,6 @@ public:
     #
     skipEchoTestIfPreviousDevice: false
     clientTitle: BigBlueButton
-    appName: BigBlueButton HTML5 Client
     bbbServerVersion: HTML5_FULL_BBB_VERSION
     displayBbbServerVersion: true
     copyright: '©2026 BigBlueButton Inc.'
@@ -129,7 +127,6 @@ public:
       interval: 200
       threshold: -50
       duration: 4000
-    remainingTimeThreshold: 30
     remainingTimeAlertThresholdArray: [1,5]
     enableDebugWindow: true
     # Warning: increasing the limit of breakout rooms per meeting
@@ -292,15 +289,10 @@ public:
       displayBrandingArea: true
     connectionTimeout: 60000
     showHelpButton: true
-    effectiveConnection:
-      - critical
-      - danger
-      - warning
     # Whether the fallback mechanism should be used
     # when the locale string is empty. If false, the empty
     # string will be returned.
     fallbackOnEmptyLocaleString: true
-    disableWebsocketFallback: true
     # Maximum number of bytes allowed in each mutation message payload.
     # Defaults to 10485760 (10MB)
     maxMutationPayloadSize: 10485760
@@ -323,12 +315,8 @@ public:
   kurento:
     wsUrl: HOST
     cameraWsOptions:
-      # Valid for video-provider. Time (ms) before its WS connection times out
-      # and tries to reconnect.
-      wsConnectionTimeout: 4000
-      # maxRetries: max reconnection retries
+      connectionTimeout: 4000
       maxRetries: 7
-      # debug: console trace logging for video-provider's ws
       debug: false
       heartbeat:
         interval: 15000
@@ -592,9 +580,6 @@ public:
           desktopPageSizes:
             moderator: 6
             viewer: 4
-  syncUsersWithConnectionManager:
-    enabled: false
-    syncInterval: 60000
   poll:
     enabled: true
     allowCustomResponseInput: true
@@ -607,8 +592,7 @@ public:
       quickPollCorrectAnswerSuffix: "__"
   captions:
     enabled: true
-    id: captions
-    dictation: false
+    showButton: true
     background: '#000000'
     font:
       color: '#ffffff'
@@ -622,9 +606,6 @@ public:
     lines: 2
     # time the captions will hang on screen after last updated
     time: 5000
-    # Default pad which will store automatically generated captions
-    defaultPad: en
-    showButton: false
     locales:
       - locale: "af"
         name: "Afrikaans"
@@ -750,24 +731,20 @@ public:
         name: "中文（台灣"
   timer:
     enabled: true
-    alarm: true
+    time: 5
     music:
-      enabled: false
+      enabled: true
       volume: 0.4
       track1: "RelaxingMusic"
       track2: "CalmMusic"
       track3: "aristocratDrums"
-    time: 5
   chat:
     enabled: true
     itemsPerPage: 100
-    timeBetweenFetchs: 1000
     enableSaveAndCopyPublicChat: true
-    bufferChatInsertsMs: 0
     startClosed: false
     min_message_length: 1
     max_message_length: 5000
-    grouping_messages_window: 10000
     type_system: SYSTEM_MESSAGE
     type_public: PUBLIC_ACCESS
     type_private: PRIVATE_ACCESS
@@ -972,7 +949,6 @@ public:
         adaptiveStream: true
         dynacast: true
         stopLocalTrackOnUnpublish: false
-        singlePeerConnection: false
       audio:
         # unpublishOnMute: whether to unpublish audio tracks when muted. Default is true.
         unpublishOnMute: true
@@ -1008,7 +984,6 @@ public:
       danger: 1000
       critical: 2000
     help: STATS_HELP_URL
-    lastEntriesCap: 20
   presentation:
     allowDownloadOriginal: true
     allowDownloadWithAnnotations: true
@@ -1196,18 +1171,7 @@ public:
       - coffeeshop.jpg
       - board.jpg
 private:
-  analytics:
-    includeChat: true
+  analytics: {}
   app:
     host: 127.0.0.1
     localesUrl: /locale-list
-    pencilChunkLength: 100
-    loadSlidesFromHttpAlways: false
-  # Direct Prometheus instrumentation.
-  # EXPERIMENTAL, so disabled by default.
-  prometheus:
-    enabled: false
-    # Metrics endpoint path
-    path: '/metrics'
-    # Whether default metrics for Node.js processes should be exported
-    collectDefaultMetrics: false
