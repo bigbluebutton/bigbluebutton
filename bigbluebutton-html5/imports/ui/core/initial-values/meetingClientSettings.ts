@@ -64,7 +64,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         enabled: false,
         mobile: false,
         provider: 'webspeech',
-        useAppsGallery: false,
+        showInSidebarNavigation: false,
         language: {
           available: [
             'en-US',

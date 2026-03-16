@@ -3,7 +3,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import { PANELS } from '/imports/ui/components/layout/enums';
 import SidebarNavigationButton from '/imports/ui/components/sidebar-navigation/sidebar-navigation-button/component';
 import {
-  useAppsGallery,
+  showInSidebarNavigation,
   useIsAudioTranscriptionEnabled,
 } from '/imports/ui/components/audio/audio-graphql/audio-captions/service';
 import { BaseSidebarButtonProps } from '../types';
@@ -18,9 +18,9 @@ const intlMessages = defineMessages({
 const AudioCaptionsListItem: React.FC<BaseSidebarButtonProps> = ({ isOpened }) => {
   const intl = useIntl();
   const isEnabled = useIsAudioTranscriptionEnabled();
-  const shouldUseAppsGallery = useAppsGallery();
+  const shouldShowInSidebarNavigation = showInSidebarNavigation();
 
-  if (!isEnabled || !shouldUseAppsGallery) return null;
+  if (!isEnabled || !shouldShowInSidebarNavigation) return null;
 
   return (
     <SidebarNavigationButton
