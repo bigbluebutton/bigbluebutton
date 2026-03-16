@@ -152,6 +152,7 @@
     "app.appsGallery.modal.confirmButtonLabel": "Anladım",
     "app.profileSettings.title": "Profil ayarları",
     "app.profileSettings.usernameTitle": "Kullanıcı adı",
+    "app.profileSettings.statusTitle": "Status",
     "app.profileSettings.addExtraCamera": "Kamera ekle",
     "app.pads.hint": "Pad araç çubuğuna odaklanmak için Esc tuşuna basın",
     "app.user.activityCheck": "Kullanıcı etkinliği denetimi",
