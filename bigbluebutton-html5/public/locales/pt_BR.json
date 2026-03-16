@@ -952,7 +952,7 @@
     "app.error.userLoggedOut": "O participante tem um token de sessão inválido porque se desconectou",
     "app.error.ejectedUser": "O participante tem um token de sessão inválido porque foi bloqueado",
     "app.error.joinedAnotherWindow": "Esta sessão parece estar aberta em mais de uma janela de navegador.",
-    "app.error.userBanned": "O participante foi bloqueado",
+    "app.error.userBanned": "You have been removed for the remaining duration of this session.",
     "app.error.leaveLabel": "Faça o login novamente",
     "app.error.fallback.presentation.title": "Um erro ocorreu",
     "app.error.fallback.presentation.description": "Ele estava logado. Por favor, tente recarregar a página.",

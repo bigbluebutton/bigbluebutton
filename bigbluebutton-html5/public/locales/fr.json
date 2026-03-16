@@ -952,7 +952,7 @@
     "app.error.userLoggedOut": "Le jeton de session n'est plus valide car l'utilisateur est déconnecté",
     "app.error.ejectedUser": "Le jeton de session n'est plus valide car l'utilisateur a été exclu",
     "app.error.joinedAnotherWindow": "Il semble que cette conférence soit ouverte dans une autre fenêtre de navigateur",
-    "app.error.userBanned": "L'utilisateur a été banni",
+    "app.error.userBanned": "You have been removed for the remaining duration of this session.",
     "app.error.leaveLabel": "Connectez-vous à nouveau",
     "app.error.fallback.presentation.title": "Une erreur s'est produite",
     "app.error.fallback.presentation.description": "Cela a été consigné. Essayez de recharger la page s'il vous plaît.",

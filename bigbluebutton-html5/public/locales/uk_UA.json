@@ -952,7 +952,7 @@
     "app.error.userLoggedOut": "Користувач має помилковий sessionToken через те що вийшов",
     "app.error.ejectedUser": "Користувач має помилковий sessionToken через вилучення",
     "app.error.joinedAnotherWindow": "Схоже що цей сеанс відкритий у іншому вікні браузера",
-    "app.error.userBanned": "Користувача було заблоковано",
+    "app.error.userBanned": "You have been removed for the remaining duration of this session.",
     "app.error.leaveLabel": "Увійдіть знову",
     "app.error.fallback.presentation.title": "Виникла помилка",
     "app.error.fallback.presentation.description": "Уже увійшли. Спробуйте перезавантажити сторінку.",
