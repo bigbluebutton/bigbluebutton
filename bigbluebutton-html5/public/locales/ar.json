@@ -152,6 +152,7 @@
     "app.appsGallery.modal.confirmButtonLabel": "مفهوم",
     "app.profileSettings.title": "إعدادات الملف الشخصي",
     "app.profileSettings.usernameTitle": "اسم المستخدم",
+    "app.profileSettings.statusTitle": "Status",
     "app.profileSettings.addExtraCamera": "إضافة كاميرا إضافية",
     "app.pads.hint": "اضغط على Esc لتركيز شريط أدوات اللوحة",
     "app.user.activityCheck": "التحقق من نشاط المستخدم",
