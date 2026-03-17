@@ -97,14 +97,18 @@ const QuickPollDropdown = (props) => {
   const questionLines = [];
   let isOptionSection = false;
   const options = [];
-  // Holds the last completed paragraph so a blank line before options doesn't lose the question
-  let savedParagraph = [];
+  const allParagraphs = []; // all paragraphs seen before the options section
 
   // Group consecutive non-option lines as question
   lines.forEach((line) => {
     const trimmedLine = line.trim();
 
     if (questionPattern.test(trimmedLine) || optionsPattern.test(trimmedLine)) {
+      // Flush any pending paragraph before switching to option mode
+      if (!isOptionSection && questionLines.length > 0) {
+        allParagraphs.push([...questionLines]);
+        questionLines.length = 0;
+      }
       // We've found explicit options (e.g., "a) Yes" or "Yes / No")
       isOptionSection = true;
       options.push(trimmedLine);
@@ -114,20 +118,24 @@ const QuickPollDropdown = (props) => {
         // Any non-empty line before options is considered question text
         questionLines.push(trimmedLine);
       } else if (questionLines.length > 0) {
-        // Blank line ends a paragraph — save it and start a fresh one so that
-        // a title before the question doesn't get merged into it, but we don't
-        // lose the question itself when there's a blank line before the options.
-        savedParagraph = [...questionLines];
+        // Blank line ends a paragraph — save it and start fresh
+        allParagraphs.push([...questionLines]);
         questionLines.length = 0;
       }
     }
   });
 
-  // If the last thing before the options section was a blank line, questionLines
-  // was cleared — restore from the most recent saved paragraph.
-  if (questionLines.length === 0 && savedParagraph.length > 0) {
-    questionLines.push(...savedParagraph);
+  // Flush remaining lines if no options section was found (e.g. Typed Response)
+  if (!isOptionSection && questionLines.length > 0) {
+    allParagraphs.push([...questionLines]);
+    questionLines.length = 0;
   }
+
+  // Pick the best paragraph: last one containing '?', else last paragraph
+  const questionParagraph = [...allParagraphs].reverse().find((p) => p.join(' ').includes('?'))
+    ?? allParagraphs[allParagraphs.length - 1]
+    ?? [];
+  questionLines.push(...questionParagraph);
 
   // Trim question to everything before the first '?'
   if (questionLines.length > 0) {
@@ -143,8 +151,10 @@ const QuickPollDropdown = (props) => {
   const question = [questionLines.join(' ').trim()];
 
   const correctAnswer = lines
-    .map((line) => line.trimStart()).find((line) => line.endsWith(QUICK_POLL_CORRECT_ANSWER_SUFFIX)
-  && !question.includes(line))?.slice(0, -QUICK_POLL_CORRECT_ANSWER_SUFFIX.length);
+    .map((line) => line.trim())
+    .find((line) => line.endsWith(QUICK_POLL_CORRECT_ANSWER_SUFFIX) && !question.includes(line))
+    ?.slice(0, -QUICK_POLL_CORRECT_ANSWER_SUFFIX.length)
+    .trim();
 
   // Check explicitly if options exist or if the question ends with '?'
   const hasExplicitQuestionMark = basicQuestionPattern.test(question);
