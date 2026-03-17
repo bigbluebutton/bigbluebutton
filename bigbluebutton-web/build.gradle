@@ -1,14 +1,14 @@
 repositories {
   mavenCentral()
   mavenLocal()
-  maven { url "https://repo.grails.org/grails/core" }
+  maven { url = "https://repo.grails.org/grails/core" }
 }
 
 buildscript {
   repositories {
     mavenCentral()
     mavenLocal()
-    maven { url "https://repo.grails.org/grails/core" }
+    maven { url = "https://repo.grails.org/grails/core" }
   }
   dependencies {
     classpath platform("org.apache.grails:grails-gradle-bom:${grailsVersion}")
@@ -19,8 +19,8 @@ buildscript {
   }
 }
 
-version "0.10.0"
-group "org.bigbluebutton.web"
+version = "0.10.0"
+group = "org.bigbluebutton.web"
 
 apply plugin: "eclipse"
 apply plugin: "idea"
@@ -48,7 +48,7 @@ processResources.dependsOn copyWebInf
 repositories {
   mavenCentral()
   mavenLocal()
-  maven { url "https://repo.grails.org/grails/core" }
+  maven { url = "https://repo.grails.org/grails/core" }
 }
 
 dependencies {
