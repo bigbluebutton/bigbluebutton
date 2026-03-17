@@ -221,14 +221,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           var firefoxVersion = parseVersion(/Firefox\/(\d+)/);
           var edgeVersion = parseVersion(/Edg\/(\d+)/);
           var miuiVersion = parseVersion(/MiuiBrowser\/(\d+)/);
-
-          var supported = !(
+          // WebRTC support check is based on LiveKit's isBrowserSupported util
+          var supportsWebRTC = !!(
+            typeof RTCPeerConnection !== 'undefined'
+            && RTCPeerConnection
+            && navigator.mediaDevices
+            && RTCPeerConnection.prototype
+            && 'addTransceiver' in RTCPeerConnection.prototype
+            && 'addTrack' in RTCPeerConnection.prototype
+          );
+          var supportedUA = !(
             (safariVersion && safariVersion < MIN_VERSIONS.safari) ||
             (chromeVersion && chromeVersion < MIN_VERSIONS.chrome) ||
             (firefoxVersion && firefoxVersion < MIN_VERSIONS.firefox) ||
             (edgeVersion && edgeVersion < MIN_VERSIONS.edge)||
             (miuiVersion !== null)
           );
+          var supported = supportedUA && supportsWebRTC;
+
 
           if (supported) {
             var bundleHash = '<%= bundleHash %>';
