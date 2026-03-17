@@ -591,8 +591,6 @@ public:
       enabled: true
       quickPollCorrectAnswerSuffix: "__"
   captions:
-    enabled: true
-    showButton: true
     background: '#000000'
     font:
       color: '#ffffff'
@@ -733,7 +731,7 @@ public:
     enabled: true
     time: 10
     music:
-      enabled: true
+      enabled: false
       volume: 0.4
       track1: "RelaxingMusic"
       track2: "CalmMusic"

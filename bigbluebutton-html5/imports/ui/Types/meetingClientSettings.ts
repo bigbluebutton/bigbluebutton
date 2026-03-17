@@ -815,8 +815,7 @@ export interface Private {
   app: App2
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface Analytics {}
+export type Analytics = Record<string, never>
 
 export interface App2 {
   host: string

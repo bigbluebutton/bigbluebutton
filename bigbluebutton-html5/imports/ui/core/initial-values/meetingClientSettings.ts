@@ -921,9 +921,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     },
   },
   private: {
-    analytics: {
-      includeChat: true,
-    },
+    analytics: {},
     app: {
       host: '127.0.0.1',
       localesUrl: '/locale-list',
