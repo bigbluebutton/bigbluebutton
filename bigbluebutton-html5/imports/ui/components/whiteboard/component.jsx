@@ -1764,6 +1764,13 @@ const Whiteboard = React.memo((props) => {
             return;
           }
 
+          const settledCamera = tlEditorRef.current?.getCamera();
+          if (!settledCamera) {
+            return;
+          }
+          const settledX = settledCamera.x;
+          const settledY = settledCamera.y;
+
           const viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(
             viewportPageBounds.w,
             currentPresentationPageRef.current?.scaledWidth,
@@ -1777,8 +1784,8 @@ const Whiteboard = React.memo((props) => {
             pageId: curPageIdRef.current,
             w: Number(viewedRegionW.toFixed(6)),
             h: Number(viewedRegionH.toFixed(6)),
-            x: Number(updatedCurrentCam.x.toFixed(6)),
-            y: Number(updatedCurrentCam.y.toFixed(6)),
+            x: Number(settledX.toFixed(6)),
+            y: Number(settledY.toFixed(6)),
           };
 
           if (isEqual(lastForcedViewRef.current, forcedView)) {
@@ -1789,8 +1796,8 @@ const Whiteboard = React.memo((props) => {
           zoomSlide(
             viewedRegionW,
             viewedRegionH,
-            updatedCurrentCam.x,
-            updatedCurrentCam.y,
+            settledX,
+            settledY,
             currentPresentationPageRef.current,
           );
         });
