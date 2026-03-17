@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { MenuItem } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import Styled from './styles';
 
 const PRESENTATION_POLICY = {
@@ -496,21 +497,14 @@ class LockViewersComponent extends Component {
             >
               <Styled.PresentationMenuItem>
                 <span>{intl.formatMessage(option.label)}</span>
-                <Styled.TooltipIcon
+                <TooltipContainer
                   title={intl.formatMessage(option.tooltip)}
-                  slotProps={{
-                    tooltip: {
-                      sx: {
-                        fontSize: '0.85rem',
-                        padding: '0.6rem 0.85rem',
-                        maxWidth: '22rem',
-                        lineHeight: 1.5,
-                      },
-                    },
-                  }}
+                  position="right"
                 >
-                  <InfoOutlinedIcon fontSize="small" />
-                </Styled.TooltipIcon>
+                  <Styled.TooltipIcon>
+                    <InfoOutlinedIcon fontSize="small" />
+                  </Styled.TooltipIcon>
+                </TooltipContainer>
               </Styled.PresentationMenuItem>
             </MenuItem>
           ))}
