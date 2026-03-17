@@ -731,7 +731,7 @@ public:
         name: "中文（台灣"
   timer:
     enabled: true
-    time: 5
+    time: 10
     music:
       enabled: true
       volume: 0.4
@@ -949,6 +949,7 @@ public:
         adaptiveStream: true
         dynacast: true
         stopLocalTrackOnUnpublish: false
+        singlePeerConnection: false
       audio:
         # unpublishOnMute: whether to unpublish audio tracks when muted. Default is true.
         unpublishOnMute: true
