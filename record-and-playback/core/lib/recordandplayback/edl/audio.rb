@@ -349,6 +349,7 @@ module BigBlueButton
         entry = edl[i]
         offset = rec_time - entry[:timestamp]
         new_entry = BigBlueButton::Events.edl_entry_offset_audio.call(entry, offset)
+        new_entry[:timestamp] = rec_time
         edl.insert(i + 1, new_entry)
       end
 

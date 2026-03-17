@@ -19,6 +19,7 @@
 
 require 'shellwords'
 require 'csv'
+require 'tempfile'
 
 module BigBlueButton
   module EDL
