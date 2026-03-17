@@ -8,7 +8,7 @@ import {
   isGladia,
   setUserLocaleProperty,
   useIsAudioTranscriptionEnabled,
-  useAppsGallery,
+  showInSidebarNavigation,
 } from '/imports/ui/components/audio/audio-graphql/audio-captions/service';
 import { hasSpeechRecognitionSupport } from '/imports/ui/components/audio/audio-graphql/audio-captions/speech/service';
 import AudioCaptionsSpeechSelectorContainer from './selector/component';
@@ -50,7 +50,7 @@ const AudioCaptionsSpeechControls = ({ showTerms, audioModal = false }: AudioCap
   const [voicesList, setVoicesList] = useState<string[]>([]);
   const voices = getSpeechVoices();
   const isEnabled = useIsAudioTranscriptionEnabled();
-  const shouldUseAppsGallery = useAppsGallery();
+  const shouldShowInSidebarNavigation = showInSidebarNavigation();
   const isMobile = layoutSelect((i: Layout) => i.deviceType) === DEVICE_TYPE.MOBILE;
   const {
     data: currentUser,
@@ -128,7 +128,7 @@ const AudioCaptionsSpeechControls = ({ showTerms, audioModal = false }: AudioCap
   const noSupport = (!speechRecognitionSupport || speechVoices.length === 0) && !isGladia();
   const hasSupport = !noSupport;
   if (!isEnabled) return null;
-  if (shouldUseAppsGallery && audioModal) return null;
+  if (shouldShowInSidebarNavigation && audioModal) return null;
 
   return (
     <Styled.TranscriptionToggleContainer addPadding={audioModal && !isMobile}>

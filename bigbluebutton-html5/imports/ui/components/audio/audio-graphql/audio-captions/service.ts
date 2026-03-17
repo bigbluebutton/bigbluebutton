@@ -119,9 +119,9 @@ export const getCaptionsTermsLink = (locale: string) => {
   return terms[DEFAULT_LOCALE];
 };
 
-export const useAppsGallery = () => {
-  const USE_APPS_GALLERY = window.meetingClientSettings.public.app.audioCaptions.useAppsGallery;
-  return USE_APPS_GALLERY;
+export const showInSidebarNavigation = () => {
+  const SHOW_IN_SIDEBAR_NAVIGATION = window.meetingClientSettings.public.app.audioCaptions.showInSidebarNavigation;
+  return SHOW_IN_SIDEBAR_NAVIGATION;
 };
 
 export default {
@@ -136,5 +136,5 @@ export default {
   splitTranscript,
   getLocaleName,
   getCaptionsTermsLink,
-  useAppsGallery,
+  showInSidebarNavigation,
 };

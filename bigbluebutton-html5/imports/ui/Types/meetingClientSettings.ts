@@ -129,7 +129,7 @@ export interface AudioCaptions {
   enabled: boolean
   mobile: boolean
   provider: string
-  useAppsGallery: boolean
+  showInSidebarNavigation: boolean
   language: Language
 }
 

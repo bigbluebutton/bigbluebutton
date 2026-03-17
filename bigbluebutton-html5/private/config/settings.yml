@@ -99,8 +99,8 @@ public:
       # provider: [webspeech, vosk, gladia]
       provider: webspeech
       # If true, the transcriptions and captions settings are displayed as an
-      # entry in the apps gallery rather than a button in the actions bar
-      useAppsGallery: false
+      # entry in the sidebar navigation rather than a button in the actions bar
+      showInSidebarNavigation: false
       language:
         # Available languages will depend on the transcription service
         # Google: https://cloud.google.com/speech-to-text/docs/speech-to-text-supported-languages
@@ -129,7 +129,7 @@ public:
         locale: disabled
       terms:
         # The URL to the terms of service for the transcription service
-        # Specify the URL for each locale you want: 
+        # Specify the URL for each locale you want:
         # en-US: 'https://xxx/SubtitleTerms'
     mutedAlert:
       enabled: true
