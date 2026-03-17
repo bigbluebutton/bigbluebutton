@@ -7,6 +7,7 @@ import '@blocknote/core/fonts/inter.css';
 import '@blocknote/mantine/style.css';
 import { HocuspocusProvider } from '@hocuspocus/provider';
 import { useCreateBlockNote } from '@blocknote/react';
+import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 import Button from '/imports/ui/components/common/button/component';
@@ -16,6 +17,10 @@ import { useBlockNoteLocaleLanguage, useHocuspocusProvider } from './hooks';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
 import logger from '/imports/startup/client/logger';
+
+const MAX_DOCUMENT_CHARS = window.meetingClientSettings?.public?.sharedNotes?.maxDocumentChars ?? 99999;
+
+const maxDocumentCharsPluginKey = new PluginKey('maxDocumentChars');
 
 const intlMessages = defineMessages({
   payloadSizeError: {
@@ -146,6 +151,28 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
       }
     },
   }, [blockNoteLocale, notificationErrorMessage]);
+
+  React.useEffect(() => {
+    const tiptapEditor = Reflect.get(editor, '_tiptapEditor') as {
+      registerPlugin: (plugin: Plugin) => void;
+      unregisterPlugin: (key: PluginKey) => void;
+    };
+    const plugin = new Plugin({
+      key: maxDocumentCharsPluginKey,
+      filterTransaction(tr) {
+        if (!tr.docChanged) return true;
+        let charCount = 0;
+        tr.doc.descendants((node) => {
+          if (node.isText) charCount += node.text?.length ?? 0;
+        });
+        return charCount <= MAX_DOCUMENT_CHARS;
+      },
+    });
+    tiptapEditor.registerPlugin(plugin);
+    return () => {
+      tiptapEditor.unregisterPlugin(maxDocumentCharsPluginKey);
+    };
+  }, [editor]);
 
   const editable = !disableNotes || !currentUserIsLocked || currentUserIsModerator;
 

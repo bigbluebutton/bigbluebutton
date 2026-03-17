@@ -216,6 +216,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     },
     sharedNotes: {
       serverUrl: '',
+      maxDocumentChars: 99999,
       maxLengthForContentUpdate: 512,
     },
     externalVideoPlayer: {

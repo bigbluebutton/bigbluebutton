@@ -598,6 +598,7 @@ export interface Pads {
 
 export interface SharedNotes {
   serverUrl: string
+  maxDocumentChars: number
   maxLengthForContentUpdate: number
 }
 
