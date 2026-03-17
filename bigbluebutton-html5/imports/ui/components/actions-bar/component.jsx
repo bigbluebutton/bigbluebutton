@@ -205,7 +205,7 @@ class ActionsBar extends PureComponent {
                 <JoinVideoOptionsContainer />
               )
               : null}
-            {shouldShowPresentationButton && (
+            {shouldShowPresentationButton && !isMobile && (
               <ScreenshareButtonContainer {...{
                 amIPresenter,
                 isConnected,
