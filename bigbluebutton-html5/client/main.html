@@ -119,6 +119,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     .fade-out {
       opacity: 0 !important;
     }
+
+    .browserWarning {
+      border: 5px solid #F3F6F9;
+      border-radius: 0.5rem;
+      color: #F3F6F9;
+      text-align: center;
+      width: 500px;
+      position: fixed;
+      left: 50%;
+      margin-left: -250px;
+      top: 50%;
+      margin-top: -4rem;
+      font-size: 1.5rem;
+      padding: 10px;
+      font-family: 'Source Sans Pro', Arial, sans-serif;
+    }
+
+    @media only screen and (max-width: 40em) {
+      .browserWarning {
+        width: 95%;
+        left: 2.5%;
+        margin-left: 0;
+      }
+    }
   </style>
   <script>
     document.addEventListener('gesturestart', function (e) {
@@ -200,10 +224,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             (miuiVersion !== null);
 
           if (tooOld) {
-            var banner = document.createElement('div');
-            banner.innerHTML = '<strong>Browser not supported</strong><br>Please update your browser or contact support service.';
-            banner.style.cssText = 'background:#ffdddd;color:#a00;padding:1em;margin:1em 0;text-align:center;font-family:sans-serif;';
-            document.body.insertBefore(banner, document.body.firstChild);
+            var banner = document.createElement('p');
+            banner.className = 'browserWarning';
+            banner.innerHTML = 'It looks like you&#39;re using a browser that is not fully supported. Please use either <a href="https://www.google.com/chrome/" rel="noopener noreferrer">Chrome</a> or <a href="https://getfirefox.com" rel="noopener noreferrer">Firefox</a> for full support.';
+            document.getElementById('app').appendChild(banner);
           } else {
             var bundleHash = '<%= bundleHash %>';
             var isProduction = '<%= isProduction %>' === 'true';
