@@ -4,7 +4,6 @@ import {
   Checkbox,
   Select,
   Switch,
-  Tooltip,
 } from '@mui/material';
 import {
   Tab, Tabs, TabList, TabPanel,
@@ -19,7 +18,7 @@ import {
   colorBorder,
   settingsModalTabSelected,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeSmall, fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
+import { fontSizeBase, fontSizeLarger } from '/imports/ui/stylesheets/styled-components/typography';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Icon from '/imports/ui/components/common/icon/component';
@@ -139,7 +138,7 @@ const SettingsTabSelector = styled(Tab)`
 
 const TabIcon = styled(Icon)`
   margin: 0 0.5rem 0 0;
-  font-size: ${fontSizeLarge};
+  font-size: ${fontSizeLarger};
 
   [dir="rtl"] & {
     margin: 0 0 0 0.5rem;
@@ -194,7 +193,7 @@ const SectionTitle = styled.h3`
 
 const SectionDescription = styled.p`
   color: ${colorGrayLabel};
-  font-size: ${fontSizeSmall};
+  font-size: ${fontSizeBase};
   margin: 0 0 0.5rem 0;
   line-height: 1.4;
 `;
@@ -264,7 +263,7 @@ const SwitchRow = styled.div`
 
 const SwitchLabel = styled.span`
   color: ${colorText};
-  font-size: ${fontSizeSmall};
+  font-size: ${fontSizeBase};
   cursor: pointer;
   user-select: none;
 `;
@@ -319,7 +318,7 @@ const LobbyInput = styled.input`
   flex: 1;
   border: none;
   padding: 0.75rem 1rem;
-  font-size: ${fontSizeSmall};
+  font-size: ${fontSizeBase};
   outline: none;
   background: ${colorWhite};
   color: ${colorText};
@@ -359,7 +358,7 @@ const CheckboxRow = styled.div`
 
 const CheckboxLabel = styled.span`
   color: ${colorText};
-  font-size: ${fontSizeSmall};
+  font-size: ${fontSizeBase};
   cursor: pointer;
   user-select: none;
 `;
@@ -390,7 +389,7 @@ const PresentationMenuItem = styled.div`
   width: 100%;
 `;
 
-const TooltipIcon = styled(Tooltip)`
+const TooltipIcon = styled.span`
   color: ${colorGrayLabel};
   cursor: help;
   display: flex;
