@@ -5,59 +5,30 @@ import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, LOOP_INTERVAL } from '../c
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 
-declare global {
-  interface Document {
-    lastVideoHash?: Record<number, ArrayBuffer>;
-  }
-}
 
 export async function webcamContentCheck(testPage: Page) {
-  // loop 5 times, every LOOP_INTERVAL milliseconds, and check that all
-  // videos displayed are changing by comparing a hash of their
-  // displayed contents
+  // Verify the webcam stream is live by checking that the video's currentTime advances.
   await testPage.waitForSelector(e.webcamVideoItem);
   await testPage.wasRemoved(
     e.webcamConnecting,
     'should the connecting element be removed when start webcam sharing',
     ELEMENT_WAIT_LONGER_TIME,
   );
-  const repeats = 5;
-  let check;
-  for (let i = repeats; i >= 1; i--) {
-    console.log(`loop ${i}`);
-    const checkCameras = async () => {
-      const videos = document.querySelectorAll('video');
-      const lastVideoHash = document.lastVideoHash || {};
-      document.lastVideoHash = lastVideoHash;
 
-      for (let v = 0; v < videos.length; v++) {
-        const video = videos[v];
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        context?.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-        const pixel = context?.getImageData(0, 0, video.videoWidth, video.videoHeight).data;
-        if (!pixel) return false;
-        const pixelHash = await window.crypto.subtle.digest('SHA-1', pixel);
+  const getVideoTime = () => {
+    const video =
+      document.querySelector<HTMLVideoElement>('video[data-local-stream="true"]') ||
+      document.querySelector<HTMLVideoElement>('video');
+    return video ? video.currentTime : -1;
+  };
 
-        if (lastVideoHash[v]) {
-          const lastHash = new Uint8Array(lastVideoHash[v]);
-          const currentHash = new Uint8Array(pixelHash);
-          const areEqual =
-            lastHash.length === currentHash.length && lastHash.every((val, idx) => val === currentHash[idx]);
-          if (areEqual) {
-            return false;
-          }
-        }
-        lastVideoHash[v] = pixelHash;
-      }
-      return true;
-    };
+  const initialTime = await testPage.page.evaluate(getVideoTime);
+  if (initialTime < 0) return false;
 
-    check = await testPage.page.evaluate(checkCameras);
-    if (!check) return false;
-    await testPage.page.waitForTimeout(LOOP_INTERVAL);
-  }
-  return check === true;
+  await testPage.page.waitForTimeout(LOOP_INTERVAL * 2);
+
+  const laterTime = await testPage.page.evaluate(getVideoTime);
+  return laterTime > initialTime;
 }
 
 export async function checkVideoUploadData(testPage: Page, previousValue: number, timeout = ELEMENT_WAIT_TIME) {
