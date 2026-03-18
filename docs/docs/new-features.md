@@ -295,6 +295,10 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 
 Recent releases:
+- [3.0.23](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.23)
+- [3.0.22](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.22)
+- [3.0.21](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.21)
+- [3.0.20](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.20)
 - [3.0.19](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.19)
 - [3.0.18](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.18)
 - [3.0.17](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.17)
@@ -408,10 +412,15 @@ Removed
 - `breakoutRoomsEnabled` removed (was previously deprecated)
 - `learningDashboardEnabled` removed (was previously deprecated)
 - `defaultGuestWaitURL` removed (now handled on the same page as the client)
+- `pdfToSvgTimeout` removed in BBB 3.0.13
+- `pngCreationWait` removed in BBB 3.0.13
+- `maxConversionTime` removed in BBB 3.0.15
 
 Value changed
 - `defaultHTML5ClientUrl` changed -- dropped the `/join` ending
 - `muteOnStart` default value changed to `true` - which helps now that `transparentListenOnly` is enabled by default too. See [PR 20848](https://github.com/bigbluebutton/bigbluebutton/issues/20848) for more info.
+- `insertDocumentSupportedProtocols` renamed to `fetchUrlSupportedProtocols`
+- `insertDocumentBlockedHosts` renamed to `fetchUrlBlockedExternalHosts`
 
 Added
 - `pluginManifestFetchTimeout` added
@@ -454,6 +463,7 @@ Added
 - `useDefaultDarkLogo` added
 - `defaultDarkLogoURL` added
 - `maxNumPages` added
+- `fetchUrlAllowedLocalHosts` added
 
 #### Removed support for POST requests on `join` endpoint and Content-Type headers are now required
 

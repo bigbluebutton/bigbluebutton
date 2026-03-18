@@ -13,7 +13,11 @@ trait RespondToTypedPollReqMsgHdlr {
 
   def handle(msg: RespondToTypedPollReqMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
-    if (Polls.isResponsePollType(msg.body.pollId, liveMeeting.polls) &&
+    val pollStopped = Polls.getPoll(msg.body.pollId, liveMeeting.polls).exists(_.stopped)
+
+    if (pollStopped) {
+      log.info("Ignoring vote from user {} because poll {} is already finished in meeting {}", msg.header.userId, msg.body.pollId, msg.header.meetingId)
+    } else if (Polls.isResponsePollType(msg.body.pollId, liveMeeting.polls) &&
       !Polls.hasUserAlreadyResponded(msg.body.pollId, msg.header.userId, liveMeeting.polls) &&
       !Polls.hasUserAlreadyAddedTypedAnswer(msg.body.pollId, msg.header.userId, liveMeeting.polls)) {
 

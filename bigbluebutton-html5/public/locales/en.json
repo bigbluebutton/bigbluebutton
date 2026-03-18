@@ -952,7 +952,7 @@
     "app.error.userLoggedOut": "User has an invalid sessionToken due to log out",
     "app.error.ejectedUser": "User has an invalid sessionToken due to ejection",
     "app.error.joinedAnotherWindow": "This session seems to be opened in another browser window.",
-    "app.error.userBanned": "User has been banned",
+    "app.error.userBanned": "You have been removed for the remaining duration of this session.",
     "app.error.leaveLabel": "Log in again",
     "app.error.fallback.presentation.title": "An error occurred",
     "app.error.fallback.presentation.description": "It has been logged. Please try reloading the page.",

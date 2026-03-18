@@ -1858,11 +1858,11 @@ const Whiteboard = React.memo((props) => {
     zoomValueRef.current = zoomValue;
     setPageZoomMap((prev) => ({
       ...prev,
-      [curPageIdRef.current]: zoomValue,
+      [`${presentationIdRef.current}_${curPageIdRef.current}`]: zoomValue,
     }));
 
     if (pageChanged) {
-      zoomChanger(pageZoomMap[curPageIdRef.current] || HUNDRED_PERCENT);
+      zoomChanger(pageZoomMap[`${presentationIdRef.current}_${curPageIdRef.current}`] || HUNDRED_PERCENT);
       return;
     }
 
