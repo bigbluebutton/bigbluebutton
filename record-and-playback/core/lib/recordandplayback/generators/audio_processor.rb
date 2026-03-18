@@ -67,7 +67,7 @@ module BigBlueButton
 
       ogg_format = {
         :extension => 'ogg',
-        :parameters => [ [ '-c:a', 'copy', '-f', 'ogg' ] ]
+        :parameters => [ [ '-c:a', 'libvorbis', '-q:a', '2', '-f', 'ogg' ] ]
       }
       BigBlueButton::EDL.encode(@audio_file, nil, ogg_format, file_basename)
 
@@ -76,7 +76,7 @@ module BigBlueButton
         :parameters => [ [ '-c:a', 'copy', '-f', 'webm' ] ],
         :postprocess => [ [ 'mkclean', '--quiet', ':input', ':output' ] ]
       }
-      BigBlueButton::EDL.encode(@audio_file, nil, webm_format, file_basename)
+      BigBlueButton::EDL.encode("#{file_basename}.ogg", nil, webm_format, file_basename)
     end
 
     def self.get_processed_audio_file(archive_dir, file_basename)

@@ -30,9 +30,9 @@ module BigBlueButton
       # inserts extra frames with bad timestamps when starting the resampler on-demand.
       FFMPEG_ARESAMPLE = "aresample=async=#{(SAMPLE_RATE / 100).round}:first_pts=0:flags=res"
       FFMPEG_AFORMAT = "aformat=sample_fmts=s16:sample_rates=#{SAMPLE_RATE}:channel_layouts=stereo"
-      FFMPEG_WF_CODEC = 'libvorbis'
-      FFMPEG_WF_ARGS = ['-c:a', FFMPEG_WF_CODEC, '-q:a', '2', '-f', 'ogg']
-      WF_EXT = 'ogg'
+      FFMPEG_WF_CODEC = 'flac'
+      FFMPEG_WF_ARGS = ['-sample_fmt', 's16', '-c:a', FFMPEG_WF_CODEC, '-f', 'flac']
+      WF_EXT = 'flac'
       MIN_CUT_LENGTH = 20 # ms (one frame of audio in opus)
 
       def self.dump(edl)
