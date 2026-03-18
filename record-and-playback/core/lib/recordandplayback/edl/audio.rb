@@ -52,6 +52,99 @@ module BigBlueButton
         end
       end
 
+      # Merge multiple EDLs into a single EDL
+      #
+      # @param edls [Array<Array<Hash>>] The EDLs to merge
+      # @return [Array<Hash>] The merged EDL
+      def self.merge(*edls)
+        entries_i = Array.new(edls.length, 0)
+        done = Array.new(edls.length, false)
+        merged_edl = [{ timestamp: 0, audios: [] }]
+
+        while !done.all?
+          # Figure out what the next entry in each edl is
+          entries = []
+          entries_i.each_with_index do |entry, edl|
+            entries << edls[edl][entry]
+          end
+
+          # Find the next entry - the one with the lowest timestamp
+          next_edl = nil
+          next_entry = nil
+          entries.each_with_index do |entry, edl|
+            if entry
+              if !next_entry or entry[:timestamp] < next_entry[:timestamp]
+                next_edl = edl
+                next_entry = entry
+              end
+            end
+          end
+
+          # To calculate differences, need the previous entry from the same edl
+          prev_entry = nil
+          if entries_i[next_edl] > 0
+            prev_entry = edls[next_edl][entries_i[next_edl] - 1]
+          end
+
+          # Find new audios that were added
+          add_audios = []
+          if prev_entry
+            next_entry[:audios].each do |audio|
+              if !prev_entry[:audios].find { |a| a[:filename] == audio[:filename] }
+                add_audios << audio
+              end
+            end
+          else
+            add_audios = next_entry[:audios]
+          end
+
+          # Find audios that were removed
+          del_audios = []
+          if prev_entry
+            prev_entry[:audios].each do |audio|
+              if !next_entry[:audios].find { |a| a[:filename] == audio[:filename] }
+                del_audios << audio
+              end
+            end
+          end
+
+          # Determine whether to create a new entry or edit the previous one
+          merged_entry = last_entry = merged_edl.last
+          unless last_entry[:timestamp] == next_entry[:timestamp]
+            # Need to create a new entry
+            offset = next_entry[:timestamp] - last_entry[:timestamp]
+            merged_entry = {
+              timestamp: next_entry[:timestamp],
+              # Copy audios from the last entry into the new entry, updating timestamps
+              audios: last_entry[:audios].map do |audio|
+                audio.merge(timestamp: audio[:timestamp] + offset)
+              end
+            }
+            merged_edl << merged_entry
+          end
+
+          # Remove deleted videos
+          del_audios.each do |audio|
+            merged_entry[:audios].reject! { |a| a[:filename] == audio[:filename] }
+          end
+          # Add new audios
+          merged_entry[:audios].concat(add_audios)
+
+          # Pull in timestamps from the next entry to respect edit cuts
+          next_entry[:audios].each do |audio|
+            merged_audio = merged_entry[:audios].find { |a| a[:filename] == audio[:filename] }
+            merged_audio[:timestamp] = audio[:timestamp] unless merged_audio.nil?
+          end
+
+          entries_i[next_edl] += 1
+          if entries_i[next_edl] >= edls[next_edl].length
+            done[next_edl] = true
+          end
+        end
+
+        merged_edl
+      end
+
       # Edit the EDL to make sure that every cut has a minimum length
       def self.enforce_cut_lengths(edl)
         # Special case handling for the start
