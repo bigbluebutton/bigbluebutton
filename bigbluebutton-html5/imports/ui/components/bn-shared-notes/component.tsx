@@ -19,8 +19,6 @@ import useCurrentUser from '../../core/hooks/useCurrentUser';
 import logger from '/imports/startup/client/logger';
 import { notify } from '../../services/notification';
 
-const MAX_DOCUMENT_CHARS = window.meetingClientSettings?.public?.sharedNotes?.maxDocumentChars ?? 99999;
-
 const maxDocumentCharsPluginKey = new PluginKey('maxDocumentChars');
 
 const intlMessages = defineMessages({
@@ -80,6 +78,8 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
 
   // kB
   const MAX_UPDATE_SHARED_NOTES = window.meetingClientSettings.public.sharedNotes.maxLengthForContentUpdate;
+
+  const MAX_DOCUMENT_CHARS = window.meetingClientSettings?.public?.sharedNotes?.maxDocumentChars || 99999;
 
   const MAX_PASTE_SIZE = MAX_UPDATE_SHARED_NOTES * 1024;
 
