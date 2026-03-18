@@ -22,8 +22,14 @@ require_relative 'media_utils'
 module BigBlueButton
   module EDL
     module Audio
-      FFMPEG_AEVALSRC = "aevalsrc=s=48000:c=stereo:exprs=0|0"
-      FFMPEG_AFORMAT = "aresample=async=1000:first_pts=0,aformat=sample_fmts=s16:sample_rates=48000:channel_layouts=stereo"
+      SAMPLE_RATE=48000
+      FFMPEG_AEVALSRC = "aevalsrc=s=#{SAMPLE_RATE}:c=stereo:exprs=0|0"
+      # Do audio sync to timestamps with a maximum stretch/squeeze rate of 1%
+      # Use first_pts to trim (or pad) audio to start at the correct sample
+      # Set flags=res to force resampler to be used to workaround a bug in ffmpeg 4.4 where it
+      # inserts extra frames with bad timestamps when starting the resampler on-demand.
+      FFMPEG_ARESAMPLE = "aresample=async=#{(SAMPLE_RATE / 100).round}:first_pts=0:flags=res"
+      FFMPEG_AFORMAT = "aformat=sample_fmts=s16:sample_rates=#{SAMPLE_RATE}:channel_layouts=stereo"
       FFMPEG_WF_CODEC = 'libvorbis'
       FFMPEG_WF_ARGS = ['-c:a', FFMPEG_WF_CODEC, '-q:a', '2', '-f', 'ogg']
       WF_EXT = 'ogg'
@@ -144,13 +150,14 @@ module BigBlueButton
               event[:audios].reject! { |a| corrupt_audios.include?(a[:filename]) }
             end
           end
-          dump(edl)
           corrupt_audios.each { |f| audioinfo.delete(f) }
         end
 
         process_dir = File.dirname(output_basename)
         remove_audio_gaps(edl, audioinfo.keys, process_dir)
         enforce_cut_lengths(edl)
+
+        dump(edl)
 
         # The `process_segment` method uses this to calculate cut lengths
         (0...(edl.length - 1)).each do |i|
@@ -172,11 +179,11 @@ module BigBlueButton
         File.open(concat_list_file, 'w') do |f|
           f.write("ffconcat version 1.0\n") 
           segment_files.each do |segment|
-            f.write("file #{segment[:file]}\n") 
+            f.write("file #{segment[:file]}\n")
           end
         end
 
-        merge_cmd = [*FFMPEG, '-f', 'concat', '-safe', '0', '-i', concat_list_file, '-af', "#{FFMPEG_AFORMAT},asetpts=N"]
+        merge_cmd = [*FFMPEG, '-f', 'concat', '-safe', '0', '-i', concat_list_file, '-af', "#{FFMPEG_ARESAMPLE},#{FFMPEG_AFORMAT}"]
         output = "#{output_basename}.#{WF_EXT}"
         merge_cmd += ['-vn', *FFMPEG_WF_ARGS, output]
         BigBlueButton.logger.info "Running merge command..."
@@ -218,7 +225,8 @@ module BigBlueButton
             # if events are slightly misaligned and you get unlucky with a start/stop or chapter break.
             if seek < (info[:duration].to_f * speed)
               # For each audio, add a -ss and -i for its input
-              ffmpeg_cmd += ['-ss', ms_to_s(seek)]
+              # Use -noaccurate_seek to read frames before seek point (will be trimmed by resampler)
+              ffmpeg_cmd += ['-noaccurate_seek', '-ss', ms_to_s(seek)]
               # Ensure that the entire contents of freeswitch wav files are read
               if info[:format][:format_name] == 'wav'
                 ffmpeg_cmd += ['-ignore_length', '1']
@@ -231,16 +239,17 @@ module BigBlueButton
 
               # Build track label
               track_label = "t#{i}_#{idx}"
-              line = "[#{input_index}]#{FFMPEG_AFORMAT},apad"
-              line << ",atempo=#{speed},atrim=start=#{ms_to_s(audio_data[:timestamp])}" if speed != 1.0
-              line << ",asetpts=N[#{track_label}];"
+              line = "[#{input_index}]"
+              line << "atempo=#{speed},atrim=start=#{ms_to_s(audio_date[:timestamp])}," if speed != 1.0
+              line << "#{FFMPEG_ARESAMPLE},#{FFMPEG_AFORMAT},apad"
+              line << "[#{track_label}];"
               filter_lines << line
               track_labels << "[#{track_label}]"
               input_index += 1
             else
               # If we're seeking past the file end => silence
               track_label = "t#{i}_silence#{idx}"
-              line = "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT},asetpts=N[#{track_label}];"
+              line = "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT}[#{track_label}];"
               filter_lines << line
               track_labels << "[#{track_label}]"
             end
@@ -258,7 +267,7 @@ module BigBlueButton
           end
         else
           BigBlueButton.logger.info "  Generating silence"
-          filter_lines << "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT},asetpts=N,"
+          filter_lines << "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT},"
         end
       
         # Now trim this segment to seg_duration
