@@ -186,7 +186,7 @@ const QuickPollDropdown = (props) => {
 
   const hasTF = safeMatch(trueFalsePatt, content, false);
 
-  const pollRegex = /^\s*(?:[1-9]|1[0-9]|[A-Sa-s])[.)]\s*.*/gm;
+  const pollRegex = /(?:^|\s{2,})(?:[1-9]|1[0-9]|[A-Sa-s])[.)]\s*.*/gm;
   let optionsPoll = safeMatch(pollRegex, content, []);
 
   const optionsWithLabels = [];
