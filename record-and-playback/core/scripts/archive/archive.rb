@@ -83,7 +83,7 @@ def archive_notes(meeting_id, etherpad_notes_endpoint, bn_notes_endpoint, notes_
   end
 
   notes_formats.each do |format|
-    unless !(isEtherpadEditor) && format.eql?("etherpad")
+    unless !(is_etherpad_editor) && format.eql?("etherpad")
       BigBlueButton.try_download("#{notes_endpoint}/#{CGI.escape notes_id}/export/#{format}", "#{notes_dir}/notes.#{format}")
     end
   end

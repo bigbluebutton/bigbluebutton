@@ -133,6 +133,7 @@
     "app.notes.notesDropdown.unpinNotes": "Unpin notes",
     "app.notes.notesDropdown.notesOptions": "Notes options",
     "app.notes.blocknote.payloadSizeError": "Clipboard content too large ({sizeKB}KB). Maximum size for pasting is {maxKB}KB.",
+    "app.notes.blocknote.maxCharCountError": "Input limit reached. You cannot type more than {maxCharCount} characters.",
     "app.pads.hint": "Press Esc to focus the pad's toolbar",
     "app.user.activityCheck": "User activity check",
     "app.user.activityCheck.label": "Check if user is still in session ({responseDelay})",

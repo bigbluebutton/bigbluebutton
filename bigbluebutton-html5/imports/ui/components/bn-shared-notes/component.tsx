@@ -17,6 +17,7 @@ import { useBlockNoteLocaleLanguage, useHocuspocusProvider } from './hooks';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
 import logger from '/imports/startup/client/logger';
+import { notify } from '../../services/notification';
 
 const MAX_DOCUMENT_CHARS = window.meetingClientSettings?.public?.sharedNotes?.maxDocumentChars ?? 99999;
 
@@ -26,6 +27,10 @@ const intlMessages = defineMessages({
   payloadSizeError: {
     id: 'app.notes.blocknote.payloadSizeError',
     description: 'Error message for when payload is too large',
+  },
+  maxCharCountError: {
+    id: 'app.notes.blocknote.maxCharCountError',
+    description: 'Error message for when number of typed characters exceeds the maximum',
   },
 });
 
@@ -157,6 +162,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
       registerPlugin: (plugin: Plugin) => void;
       unregisterPlugin: (key: PluginKey) => void;
     };
+    if (!tiptapEditor) return () => {};
     const plugin = new Plugin({
       key: maxDocumentCharsPluginKey,
       filterTransaction(tr) {
@@ -165,6 +171,18 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         tr.doc.descendants((node) => {
           if (node.isText) charCount += node.text?.length ?? 0;
         });
+        if (charCount > MAX_DOCUMENT_CHARS) {
+          logger.warn({
+            logCode: 'max_number_char_typed',
+            extraInfo: {
+              charCount,
+              maxCharCount: MAX_DOCUMENT_CHARS,
+            },
+          }, 'User typed more characters than allowed');
+          notify(intl.formatMessage(intlMessages.maxCharCountError, {
+            maxCharCount: MAX_DOCUMENT_CHARS,
+          }), 'warning');
+        }
         return charCount <= MAX_DOCUMENT_CHARS;
       },
     });
