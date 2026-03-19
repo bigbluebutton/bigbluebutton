@@ -30,8 +30,7 @@ trait ChangeUserPinStateReqMsgHdlr extends RightsManagementTrait {
       outGW.send(msgEventChange)
     }
 
-    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.body.changedBy)
-      || liveMeeting.props.meetingProp.isBreakout) {
+    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.body.changedBy)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to change pin in meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.body.changedBy, reason, outGW, liveMeeting)
