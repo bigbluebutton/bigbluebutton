@@ -101,7 +101,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
       userId,
     } = talkingUser;
 
-    const isMuteActionAvailable = isModerator && !isBreakout;
+    const isMuteActionAvailable = isModerator;
 
     const ariaLabel = intl.formatMessage(talking
       ? intlMessages.isTalking : intlMessages.wasTalking, {
