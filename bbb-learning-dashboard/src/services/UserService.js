@@ -21,17 +21,17 @@ export function getActivityScore(user, allUsers, totalOfPolls) {
   }
 
   // Calculate points of Raise hand
-  const usersRaiseHand = allUsersArr.map((currUser) => currUser.raiseHand.length);
+  const usersRaiseHand = allUsersArr.map((currUser) => currUser?.raiseHand?.length || 0);
   const maxRaiseHand = Math.max(...usersRaiseHand);
-  const userRaiseHand = user.raiseHand.length;
+  const userRaiseHand = user?.raiseHand?.length || 0;
   if (maxRaiseHand > 0) {
     userPoints += (userRaiseHand / maxRaiseHand) * 2;
   }
 
   // Calculate points of Reactions
-  const usersReactions = allUsersArr.map((currUser) => currUser.reactions.length);
+  const usersReactions = allUsersArr.map((currUser) => currUser?.reactions?.length || 0);
   const maxReactions = Math.max(...usersReactions);
-  const userReactions = user.reactions.length;
+  const userReactions = user?.reactions?.length || 0;
   if (maxReactions > 0) {
     userPoints += (userReactions / maxReactions) * 2;
   }
