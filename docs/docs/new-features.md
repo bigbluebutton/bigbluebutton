@@ -217,8 +217,6 @@ Everyone sees the margins and follows the presenter's point of view. If multi-us
 
 You can enable infinite whiteboard via `public.whiteboard.allowInfiniteWhiteboard` https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.8/bigbluebutton-html5/private/config/settings.yml#L1047
 
-Recording is not yet implemented, meaning that if you enable this experimental feature on your server and use it in a recorded session, the recording will most likely have broken whiteboard at best. The recording (and playback) work is planned for after BigBlueButton 3.0.
-
 #### Integration with LiveKit
 
 We have added initial support for LiveKit as a media framework for BigBlueButton.
@@ -385,7 +383,7 @@ In BigBlueButton 2.7.5/3.0.0-alpha.5 we stopped propagating the events.xml event
 - Client settings.yml: `skipVideoPreviewIfPreviousDevice`. Defaults to `false`
 - Can be overridden on JOIN with Custom Parameter: `userdata-bbb_skip_video_preview_if_previous_device=`
 
-### Replaced all user facing instances of "meeting" with the word "session"
+#### Replaced all user facing instances of "meeting" with the word "session"
 
 The word "session" is more generic and encompasses both educational and work contexts. Up until BigBlueButton 3.0 we were using the two keywords interchangeably. Moving forward we are preferring to use "session".
 
@@ -402,20 +400,23 @@ Modified/added events
 - the old user status emojis were retired. `emojiStatus` will not be filled anymore. For more information see https://github.com/bigbluebutton/bigbluebutton/pull/20717
 - `SetScreenshareAsContentEvent` - Contains the `screenshareAsContent` field, a boolean that indicates whether the screenshare is in focus. For more information see https://github.com/bigbluebutton/bigbluebutton/pull/22312
 
-#### bbb-web properties changes
+### bbb-web properties changes
 
-Removed
+#### Removed
 - `breakoutRoomsEnabled` removed (was previously deprecated)
 - `learningDashboardEnabled` removed (was previously deprecated)
 - `defaultGuestWaitURL` removed (now handled on the same page as the client)
+- `pdfToSvgTimeout` removed in BBB 3.0.13
+- `pngCreationWait` removed in BBB 3.0.13
+- `maxConversionTime` removed in BBB 3.0.15
 
-Value changed
-- `defaultHTML5ClientUrl` changed -- dropped the `/join` ending
+#### Value changed
+- `defaultHTML5ClientUrl` changed — dropped the `/join` ending
 - `muteOnStart` default value changed to `true` - which helps now that `transparentListenOnly` is enabled by default too. See [PR 20848](https://github.com/bigbluebutton/bigbluebutton/issues/20848) for more info.
 - `insertDocumentSupportedProtocols` renamed to `fetchUrlSupportedProtocols`
 - `insertDocumentBlockedHosts` renamed to `fetchUrlBlockedExternalHosts`
 
-Added
+#### Added
 - `pluginManifestFetchTimeout` added
 - `pluginManifestsFetchUrlResponseTimeout` added
 - `maxPluginManifestsFetchUrlPayloadSize` added
@@ -458,24 +459,24 @@ Added
 - `maxNumPages` added
 - `fetchUrlAllowedLocalHosts` added
 
-#### Removed support for POST requests on `join` endpoint and Content-Type headers are now required
+### Removed support for POST requests on `join` endpoint and Content-Type headers are now required
 
-In BigBlueButton 2.6.18/2.7.8 POST requests are no longer allowed for the `join` endpoint. To ensure they are validated properly, a `Content-Type` header must also be provided for POST requests that contain data in the request body. Endpoints now support a limited set of content types that includes `text/xml`, `application/xml`, `application/x-www-form-url-encoded`, and `multipart/form-data`. By default each endpoint only supports `application/x-www-form-urlencoded` and `multipart/form-data`, but individual endpoints can override this and define their own set of supported content types. The `create` endpoint supports all of the four previously listed content types while `insertDocument` supports only `text/xml` and `application/xml`. Any requests with a content type that differs from the set supported by the target endpoint will be rejected with a new `unsupportedContentType` error.
+In BigBlueButton 2.6.18/2.7.8 POST requests are no longer allowed for the `join` endpoint. To ensure they are validated properly, a `Content-Type` header must also be provided for POST requests that contain data in the request body. Endpoints now support a limited set of content types that includes `text/xml`, `application/xml`, `application/x-www-form-urlencoded`, and `multipart/form-data`. By default each endpoint only supports `application/x-www-form-urlencoded` and `multipart/form-data`, but individual endpoints can override this and define their own set of supported content types. The `create` endpoint supports all of the four previously listed content types while `insertDocument` supports only `text/xml` and `application/xml`. Any requests with a content type that differs from the set supported by the target endpoint will be rejected with a new `unsupportedContentType` error.
 
-#### Changes in document formats we support
+### Changes in document formats we support
 
 We improved the documentation for which types of files we support when uploading presentations. Support for `.odi` and `.odc` was dropped. Support for `.svg`, `.odg` and `.webp` was officially added even though animated webp's are no longer animated after the image processing.
 
-#### We mirror the webcam preview by default now
+### We mirror the webcam preview by default now
 
 We have supported the option to mirror your own webcam while viewing it. Starting with BigBlueButton 3.0.0-beta.6 we mirror it by default (which leads to the same result you would expect if you looked yourself in a physical mirror).
 
-#### Feedback form removed
+### Feedback form removed
 
 We have removed the feedback form that used to be part of the client. It was relying on client logs to carry the information and was not particularly flexible. See https://github.com/bigbluebutton/bigbluebutton/pull/22111 for more information.
 A new repository was contributed by Mconf https://github.com/bigbluebutton/custom-feedback with a much more sophisticated feedback form (see below).
 
-#### Custom feedback
+### Custom feedback
 
 In BigBlueButton 3.0 we replaced the old feedback form with a new way of collecting feedback from users. It's a standalone, customizable, extensible application that can be integrated into BigBlueButton. Please refer to its [README](https://github.com/bigbluebutton/custom-feedback/blob/master/README.md) for details on how to customize and install it.
 
@@ -491,13 +492,13 @@ Below are some screenshots of it:
 
 ![fifth screen of the default custom feedback experience](/img/30/30-custom-feedback-5.png)
 
-### Development
+## Development
 
 For information on developing in BigBlueButton, see [setting up a development environment for 3.0](/development/guide).
 
 The build scripts for packaging 3.0 (using fpm) are located in the GitHub repository [here](https://github.com/bigbluebutton/bigbluebutton/tree/v3.0.x-release/build).
 
-### Contribution
+## Contribution
 
 We welcome contributors to BigBlueButton 3.0!  The best ways to contribute at the current time are:
 
