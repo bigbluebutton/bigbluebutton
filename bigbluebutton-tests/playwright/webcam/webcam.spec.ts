@@ -37,8 +37,7 @@ test.describe.parallel('Webcam', { tag: '@ci' }, () => {
     await webcam.pinningWebcams();
   });
 
-  test('Change video quality', { tag: '@flaky' }, async ({ browser, page }, testInfo) => {
-    // Current approach is not reliable enough to ensure the video quality is changed
+  test('Change video quality', async ({ browser, page }, testInfo) => {
     const webcam = new Webcam(browser, page);
     await webcam.init(true, { testInfo });
     await webcam.changeVideoQuality();

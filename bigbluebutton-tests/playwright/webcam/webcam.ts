@@ -101,7 +101,7 @@ export class Webcam extends Page {
       await this.waitForSelector(e.videoQualitySelector);
       const langDropdown = await this.page.$(e.videoQualitySelector);
       await langDropdown?.selectOption({ value });
-      await this.waitForSelector(e.currentUserLocalStreamVideo, videoPreviewTimeout);
+      await this.waitForSelector(e.webcamMirroredVideoPreview, videoPreviewTimeout);
       await this.waitAndClick(e.startSharingWebcam);
       await this.waitForSelector(e.webcamConnecting);
       await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);

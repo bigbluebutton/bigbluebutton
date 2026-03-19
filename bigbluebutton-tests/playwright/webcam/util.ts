@@ -31,14 +31,27 @@ export async function webcamContentCheck(testPage: Page) {
   return laterTime > initialTime;
 }
 
+// NETWORK_MONITORING_INTERVAL_MS in BBB's connection-status/service.js is 2000ms.
+// Sample across 4 intervals (~8s) and take the peak to get a stable reading
+// once the stream has ramped up past its initial startup transient.
+const SAMPLE_COUNT = 4;
+const SAMPLE_INTERVAL_MS = 2000;
+
 export async function checkVideoUploadData(testPage: Page, previousValue: number, timeout = ELEMENT_WAIT_TIME) {
   const locator = testPage.page.locator(e.videoUploadRateData);
   await expect(locator).not.toHaveText('0k ↑', { timeout });
-  const text = await locator.textContent();
-  if (!text) throw new Error('Video upload rate data not found');
-  const currentValue = Number(text.split('k')[0]);
-  await expect(currentValue).toBeGreaterThan(previousValue);
-  return currentValue;
+
+  let peak = 0;
+  for (let i = 0; i < SAMPLE_COUNT; i++) {
+    const text = await locator.textContent();
+    if (!text) throw new Error('Video upload rate data not found');
+    const sample = Number(text.split('k')[0]);
+    if (sample > peak) peak = sample;
+    if (i < SAMPLE_COUNT - 1) await testPage.page.waitForTimeout(SAMPLE_INTERVAL_MS);
+  }
+
+  await expect(peak).toBeGreaterThan(previousValue);
+  return peak;
 }
 
 export async function uploadBackgroundVideoImage(testPage: Page) {
