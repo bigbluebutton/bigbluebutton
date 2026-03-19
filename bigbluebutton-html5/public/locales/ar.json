@@ -1204,7 +1204,7 @@
     "app.lock-viewers.guestPolicy.description": "قم بضبط كيفية التعامل مع الضيوف عند محاولتهم الانضمام إلى الاجتماع.",
     "app.lock-viewers.participantPermissions.title": "أذوات المشارك",
     "app.lock-viewers.participantPermissions.description": "تحدد الخيارات أدناه ما يمكن للمشاركين فعله في الجلسة. يؤدي إلغاء تحديد أحد الخيارات إلى إزالة هذا الإذن.",
-    "app.lock-viewers.presentationPermissions.title": "Presentation Policy",
+    "app.lock-viewers.presentationPermissions.title": "سياسة العرض التقديمي",
     "app.lock-viewers.presentationPermissions.description": "قم بضبط كيفية إدارة حقوق العرض في الجلسة.",
     "app.lock-viewers.presentationPermissions.moderatorOnly": "يتم تعيين مقدم العرض من قبل المشرف",
     "app.lock-viewers.presentationPermissions.moderatorOnly.tooltip": "لا يمكن إلا للمشرفين تحديد دور مقدم العرض للمشاركين.",
