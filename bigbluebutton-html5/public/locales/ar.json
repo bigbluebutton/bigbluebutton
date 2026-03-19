@@ -1199,7 +1199,7 @@
     "app.lock-viewers.disablePresenterRequestLabel": "أطلب أن أصبح مقدم.",
     "app.lock-viewers.tabs.guestPolicy": "سياسة الضيف",
     "app.lock-viewers.tabs.participantPermissions": "أذوات المشارك",
-    "app.lock-viewers.tabs.presentationPermissions": "Presentation Policy",
+    "app.lock-viewers.tabs.presentationPermissions": "سياسة العرض التقديمي",
     "app.lock-viewers.guestPolicy.title": "سياسة الضيف",
     "app.lock-viewers.guestPolicy.description": "قم بضبط كيفية التعامل مع الضيوف عند محاولتهم الانضمام إلى الاجتماع.",
     "app.lock-viewers.participantPermissions.title": "أذوات المشارك",
