@@ -729,7 +729,7 @@ public:
         name: "中文（台灣"
   timer:
     enabled: true
-    time: 10
+    time: 5
     music:
       enabled: false
       volume: 0.4
