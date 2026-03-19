@@ -14,7 +14,7 @@ import {
   PANELS,
   HIDDEN_LAYOUTS,
 } from '../enums';
-import { LAYOUTS_SYNC } from '../utils';
+import { isValidSynchronizationLayout, LAYOUTS_SYNC } from '../utils';
 import { updateSettings } from '/imports/ui/components/settings/service';
 import Session from '/imports/ui/services/storage/in-memory';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
@@ -197,7 +197,7 @@ const PushLayoutEngine = (props) => {
   }, [hasMeetingLayout, enforceLayoutResult]);
 
   useEffect(() => {
-    if (!selectedLayout) return () => { };
+    if (!isValidSynchronizationLayout(selectedLayout)) return () => {};
     const meetingLayoutDidChange = prevProps.meetingLayout !== undefined
       && meetingLayout !== prevProps.meetingLayout;
     const pushLayoutMeetingDidChange = prevProps.pushLayoutMeeting !== undefined
