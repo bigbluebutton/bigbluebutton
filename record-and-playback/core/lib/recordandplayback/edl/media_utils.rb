@@ -60,7 +60,7 @@ module BigBlueButton
               close_others: true,
               in: :close,
               out: w,
-              err: %i[child out],
+              err: log_file,
             )
             w.close
 
