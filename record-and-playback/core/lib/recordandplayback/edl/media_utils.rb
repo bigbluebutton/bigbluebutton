@@ -42,7 +42,7 @@ module BigBlueButton
           case stream_type
           when :audio then 'a:0'
           when :video then 'v:0'
-          else raise ArgumentError("Unexpected stream_type #{stream_type.inspect}")
+          else raise ArgumentError, "Unexpected stream_type #{stream_type.inspect}"
           end
         ffprobe_cmd = [
           'ffprobe', '-v', 'warning', '-select_streams', stream_specifier,
