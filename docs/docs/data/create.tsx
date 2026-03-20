@@ -596,6 +596,16 @@ const createEndpointTableData = [
     )
   },
   {
+    "name": "clientSettingsOverrideJsonUrl",
+    "required": false,
+    "type": "String",
+    "description": (
+      <>
+        <p>A URL pointing to a JSON file whose content overrides values from the HTML5 client's <code>settings.yml</code> file. The JSON structure is identical to <a href='#clientsettingsoverride'>clientSettingsOverride</a> but is provided as a direct JSON file (no XML wrapper). This parameter takes precedence over <code>clientSettingsOverride</code> when both are present. Unlike <code>clientSettingsOverride</code>, it does not require <code>allowOverrideClientSettingsOnCreateCall</code> to be enabled.</p>
+      </>
+    )
+  },
+  {
     "name": "allowPromoteGuestToModerator",
     "required": false,
     "type": "Boolean",
