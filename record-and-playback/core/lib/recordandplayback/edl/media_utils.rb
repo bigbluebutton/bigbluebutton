@@ -88,7 +88,7 @@ module BigBlueButton
               BigBlueButton.logger.debug("ffprobe #{status}")
               log_file.rewind
               log_file.each_line do |line|
-                BigBlueButton.logger.debug(line.chomp!)
+                BigBlueButton.logger.debug(line.chomp)
               end
             end
           end
