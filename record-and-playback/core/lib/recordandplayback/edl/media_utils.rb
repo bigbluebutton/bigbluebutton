@@ -62,31 +62,34 @@ module BigBlueButton
               out: w,
               err: log_file,
             )
-            w.close
+            begin
+              w.close
 
-            prev_end = 0
+              prev_end = 0
 
-            csv = CSV.new(r, headers: %i[pts_time duration_time], converters: %i[float float], skip_blanks: true, empty_value: 'N/A')
-            csv.each do |row|
-              next if row[:pts_time] == 'N/A'
+              csv = CSV.new(r, headers: %i[pts_time duration_time], converters: %i[float float], skip_blanks: true, empty_value: 'N/A')
+              csv.each do |row|
+                next if row[:pts_time] == 'N/A'
 
-              pts = (row[:pts_time] * 1000).round
+                pts = (row[:pts_time] * 1000).round
 
-              gap = pts - prev_end
-              if gap >= min_gap
-                BigBlueButton.logger.info("PTS gap detected between #{prev_end}ms and #{pts}ms (#{gap}ms long)")
-                pts_gaps << [prev_end, pts]
+                gap = pts - prev_end
+                if gap >= min_gap
+                  BigBlueButton.logger.info("PTS gap detected between #{prev_end}ms and #{pts}ms (#{gap}ms long)")
+                  pts_gaps << [prev_end, pts]
+                end
+
+                prev_end = pts
+                prev_end += (row[:duration_time] * 1000).round unless row[:duration_time] == 'N/A'
               end
 
-              prev_end = pts
-              prev_end += (row[:duration_time] * 1000).round unless row[:duration_time] == 'N/A'
-            end
-
-            _pid, status = Process.wait2(pid)
-            BigBlueButton.logger.debug("ffprobe #{status}")
-            log_file.rewind
-            log_file.each_line do |line|
-              BigBlueButton.logger.debug(line.chomp!)
+            ensure
+              _pid, status = Process.wait2(pid)
+              BigBlueButton.logger.debug("ffprobe #{status}")
+              log_file.rewind
+              log_file.each_line do |line|
+                BigBlueButton.logger.debug(line.chomp!)
+              end
             end
           end
         end
