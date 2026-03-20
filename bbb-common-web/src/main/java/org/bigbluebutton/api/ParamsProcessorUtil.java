@@ -41,7 +41,10 @@ import org.jsoup.select.Elements;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.bigbluebutton.api.service.RedirectFollowerService;
+import org.bigbluebutton.api.service.SecureUrlDownloader;
 import org.bigbluebutton.api.service.ServiceUtils;
+import org.bigbluebutton.api.service.ValidatedUrl;
 import org.bigbluebutton.api.service.impl.ClientSettingsOverrideUrlValidator;
 import org.bigbluebutton.api.util.ParamsUtil;
 import org.slf4j.Logger;
@@ -164,6 +167,8 @@ public class ParamsProcessorUtil {
 
     private PluginUtils pluginUtils;
     private ClientSettingsOverrideUrlValidator clientSettingsOverrideUrlValidator;
+    private RedirectFollowerService redirectFollower;
+    private SecureUrlDownloader secureUrlDownloader;
 
   	private String formatConfNum(String s) {
   		if (s.length() > 5) {
@@ -546,59 +551,39 @@ public class ParamsProcessorUtil {
     }
 
     private String fetchClientSettingsOverrideFromUrl(String urlStr) {
-        if (!clientSettingsOverrideUrlValidator.isRedirectValid(urlStr)) {
+        log.info("clientSettingsOverrideJsonUrl provided: [{}]", urlStr);
+
+        int timeoutMs = clientSettingsOverrideJsonUrlResponseTimeout * 1000;
+
+        ValidatedUrl validatedUrl = redirectFollower.followRedirectSecure(
+                "clientSettingsOverride", urlStr, 0, urlStr, clientSettingsOverrideUrlValidator, timeoutMs
+        );
+
+        if (validatedUrl == null) {
             log.error("clientSettingsOverrideJsonUrl [{}] failed URL validation; skipping load.", urlStr);
             return null;
         }
 
-        int timeoutConnectionMillis = clientSettingsOverrideJsonUrlResponseTimeout * 1000;
-        try {
-            log.info("clientSettingsOverrideJsonUrl provided: [{}]", urlStr);
-            log.info("Attempting to download clientSettingsOverride from [{}]", urlStr);
+        log.info("Attempting to download clientSettingsOverride from [{}]", validatedUrl.originalUrl());
 
-            HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
-            conn.setConnectTimeout(timeoutConnectionMillis);
-            conn.setReadTimeout(timeoutConnectionMillis);
-            conn.setRequestProperty("Accept", "application/json");
+        String content = secureUrlDownloader.downloadToString(
+                "clientSettingsOverride", validatedUrl, timeoutMs, maxClientSettingsOverrideJsonUrlPayloadSize
+        );
 
-            if (conn.getResponseCode() != 200) {
-                log.warn("clientSettingsOverrideJsonUrl responded with HTTP {}", conn.getResponseCode());
-                return null;
-            }
-
-            StringBuilder sb = new StringBuilder(8192);
-            try (BufferedReader in = new BufferedReader(
-                    new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
-                char[] buf = new char[4096];
-                int n;
-                int max = maxClientSettingsOverrideJsonUrlPayloadSize * 1024;
-                while ((n = in.read(buf)) != -1 && max > 0) {
-                    sb.append(buf, 0, n);
-                    max -= n;
-                }
-
-                if (max < 0) {
-                    log.warn(
-                            "Response from clientSettingsOverrideJsonUrl [{}] exceeded maximum allowed payload size ({} KiB); skipping load.",
-                            urlStr, maxClientSettingsOverrideJsonUrlPayloadSize);
-                    return null;
-                }
-            }
-
-            String content = sb.toString();
-            // Validate it is parseable JSON before accepting it
-            new Gson().fromJson(content, JsonElement.class);
-            log.info("Successfully downloaded clientSettingsOverride from [{}]", urlStr);
-            return content;
-
-        } catch (MalformedURLException e) {
-            log.error("Invalid clientSettingsOverrideJsonUrl [{}]", urlStr, e);
-        } catch (IOException e) {
-            log.error("I/O error when fetching clientSettingsOverride from [{}]", urlStr, e);
-        } catch (Exception e) {
-            log.error("Unexpected error while processing clientSettingsOverrideJsonUrl [{}]", urlStr, e);
+        if (content == null) {
+            return null;
         }
-        return null;
+
+        // Validate it is parseable JSON before accepting it
+        try {
+            new Gson().fromJson(content, JsonElement.class);
+        } catch (Exception e) {
+            log.error("Response from clientSettingsOverrideJsonUrl [{}] is not valid JSON; skipping load.", urlStr, e);
+            return null;
+        }
+
+        log.info("Successfully downloaded clientSettingsOverride from [{}]", urlStr);
+        return content;
     }
 
     public Meeting processCreateParams(Map<String, String> params) {
@@ -1911,6 +1896,14 @@ public class ParamsProcessorUtil {
 	public void setClientSettingsOverrideUrlValidator(ClientSettingsOverrideUrlValidator clientSettingsOverrideUrlValidator) {
 		this.clientSettingsOverrideUrlValidator = clientSettingsOverrideUrlValidator;
 	}
+
+    public void setRedirectFollower(RedirectFollowerService redirectFollower) {
+        this.redirectFollower = redirectFollower;
+    }
+
+    public void setSecureUrlDownloader(SecureUrlDownloader secureUrlDownloader) {
+        this.secureUrlDownloader = secureUrlDownloader;
+    }
 
 	public void setClientSettingsOverrideJsonUrlResponseTimeout(Integer clientSettingsOverrideJsonUrlResponseTimeout) {
 		this.clientSettingsOverrideJsonUrlResponseTimeout = clientSettingsOverrideJsonUrlResponseTimeout;
