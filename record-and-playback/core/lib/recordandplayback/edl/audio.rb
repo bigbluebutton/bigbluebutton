@@ -388,12 +388,13 @@ module BigBlueButton
       # and remove the audio file from the mix for the duration of the gap.
       def self.remove_audio_gaps(edl, audio_files, process_dir)
         audio_files.each do |filename|
-          gaps = BigBlueButton::EDL::MediaUtils.pts_gaps(process_dir, filename, :audio).each
-          next if gaps.none?
+          gaps_array = BigBlueButton::EDL::MediaUtils.pts_gaps(process_dir, filename, :audio)
+          next if gaps_array.empty?
 
-          BigBlueButton.logger.info("Audio file #{File.basename(filename)} has #{gaps.size} gap(s), adjusting EDL")
+          BigBlueButton.logger.info("Audio file #{File.basename(filename)} has #{gaps_array.length} gap(s), adjusting EDL")
 
           next_i = 0
+          gaps = gaps_array.each
           gap_start, gap_end = gaps.next
           while next_i < edl.length - 1
             i = next_i
