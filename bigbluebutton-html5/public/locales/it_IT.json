@@ -1199,7 +1199,7 @@
     "app.lock-viewers.disablePresenterRequestLabel": "Richiesta di diventare relatore.",
     "app.lock-viewers.tabs.guestPolicy": "Policy per gli ospiti",
     "app.lock-viewers.tabs.participantPermissions": "Autorizzazioni dei partecipanti",
-    "app.lock-viewers.tabs.presentationPermissions": "Presentation Policy",
+    "app.lock-viewers.tabs.presentationPermissions": "Policy di Presentazione",
     "app.lock-viewers.guestPolicy.title": "Policy per gli ospiti",
     "app.lock-viewers.guestPolicy.description": "Configura come vengono gestiti gli ospiti quando tentano di partecipare alla riunione.",
     "app.lock-viewers.participantPermissions.title": "Autorizzazioni dei partecipanti",
