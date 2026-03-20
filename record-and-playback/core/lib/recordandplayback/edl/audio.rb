@@ -129,7 +129,7 @@ module BigBlueButton
           end
 
           entries_i[next_edl] += 1
-          done[next_idl] = true if entries_i[next_edl] >= edls[next_edl].length
+          done[next_edl] = true if entries_i[next_edl] >= edls[next_edl].length
         end
 
         merged_edl
