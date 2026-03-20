@@ -27,7 +27,7 @@ import {
 } from '/imports/ui/services/features';
 
 const MIN_BREAKOUT_TIME = 5;
-const DEFAULT_SIDEBAR_BREAKOUT_TIME = 10;
+const DEFAULT_SIDEBAR_BREAKOUT_TIME = 15;
 const CURRENT_SLIDE_PREFIX = 'current-';
 
 const intlMessages = defineMessages({

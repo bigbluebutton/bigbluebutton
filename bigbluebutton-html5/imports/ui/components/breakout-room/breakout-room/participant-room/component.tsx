@@ -16,6 +16,8 @@ import {
 import { notify } from '/imports/ui/services/notification';
 import { useStopMediaOnMainRoom } from '/imports/ui/components/breakout-room/hooks';
 import { setBreakoutWindowRef, rejoinAudio, closeBreakoutWindow } from '/imports/ui/components/breakout-room/breakout-room/service';
+import { USER_LEAVE_MEETING } from '/imports/ui/core/graphql/mutations/userMutations';
+import Session from '/imports/ui/services/storage/in-memory';
 
 const CALL_MODERATOR_COOLDOWN_MS = 30000;
 
@@ -35,6 +37,10 @@ const intlMessages = defineMessages({
   joinRoom: {
     id: 'app.createBreakoutRoom.join',
     description: 'Enter breakout room button label',
+  },
+  alreadyConnected: {
+    id: 'app.createBreakoutRoom.alreadyConnected',
+    description: 'Already in room label',
   },
   callModerator: {
     id: 'app.createBreakoutRoom.callModerator',
@@ -102,6 +108,7 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
   const [breakoutRoomTransfer] = useMutation(USER_TRANSFER_VOICE_TO_MEETING);
   const [callModerator] = useMutation(BREAKOUT_ROOM_CALL_MODERATOR);
   const [requestJoinUrl] = useMutation(BREAKOUT_ROOM_REQUEST_JOIN_URL);
+  const [userLeaveMeeting] = useMutation(USER_LEAVE_MEETING);
   const stopMediaOnMainRoom = useStopMediaOnMainRoom();
   const [callModeratorCooldown, setCallModeratorCooldown] = useState(false);
 
@@ -134,7 +141,6 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
         ? intl.formatMessage(intlMessages.breakoutRoom, { roomNumber: selfRoomSequence })
         : ''))
     : '';
-  const parentMeetingId = meetingData?.breakoutPolicies?.parentMeetingId ?? '';
 
   const userRoom = breakouts.find(
     (b) => b.isLastAssignedRoom || b.isUserCurrentlyInRoom,
@@ -248,15 +254,8 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
 
   const handleReturnToMainSession = useCallback(() => {
     if (isInBreakout) {
-      if (userJoinedAudio) {
-        breakoutRoomTransfer({
-          variables: {
-            fromMeetingId: breakoutMeetingId,
-            toMeetingId: parentMeetingId,
-          },
-        });
-      }
-      window.close();
+      userLeaveMeeting();
+      Session.setItem('codeError', '680');
       return;
     }
     closeBreakoutWindow();
@@ -273,8 +272,8 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
     closePanel();
   }, [
     isInBreakout, userJoinedAudio, userRoom, meetingId,
-    breakoutRoomTransfer, closePanel, breakoutMeetingId, parentMeetingId,
-    rejoinAudio,
+    breakoutRoomTransfer, closePanel,
+    rejoinAudio, userLeaveMeeting,
   ]);
 
   const title = intl.formatMessage(intlMessages.breakoutTitle);
@@ -298,6 +297,8 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
     }
     if (!freeJoin) {
       if (userRoom) {
+        const isCurrentlyInRoom = userRoom.isUserCurrentlyInRoom;
+        const isInAnyRoom = breakouts.some((b) => b.isUserCurrentlyInRoom);
         return (
           <Styled.InfoCard>
             <Styled.RoomNumberSquare>
@@ -310,8 +311,11 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
               type="button"
               onClick={handleEnterRoom}
               data-test="enterBreakoutRoomButton"
+              disabled={isCurrentlyInRoom || isInAnyRoom}
             >
-              {intl.formatMessage(intlMessages.joinRoom)}
+              {isCurrentlyInRoom
+                ? intl.formatMessage(intlMessages.alreadyConnected)
+                : intl.formatMessage(intlMessages.joinRoom)}
             </Styled.EnterRoomBtn>
           </Styled.InfoCard>
         );
@@ -331,6 +335,8 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
       );
     }
     if (userRoom) {
+      const isCurrentlyInRoom = userRoom.isUserCurrentlyInRoom;
+      const isInAnyRoom = breakouts.some((b) => b.isUserCurrentlyInRoom);
       return (
         <Styled.InfoCard>
           <Styled.RoomNumberSquare>
@@ -343,8 +349,11 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
             type="button"
             onClick={handleEnterRoom}
             data-test="enterBreakoutRoomButton"
+            disabled={isCurrentlyInRoom || isInAnyRoom}
           >
-            {intl.formatMessage(intlMessages.joinRoom)}
+            {isCurrentlyInRoom
+              ? intl.formatMessage(intlMessages.alreadyConnected)
+              : intl.formatMessage(intlMessages.joinRoom)}
           </Styled.EnterRoomBtn>
         </Styled.InfoCard>
       );
@@ -404,12 +413,18 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
                   <Styled.FreeJoinRequestBtn
                     type="button"
                     $isCurrent={isCurrent}
-                    disabled={isRequesting}
+                    disabled={
+                      isRequesting
+                      || breakout.isUserCurrentlyInRoom
+                      || (!isCurrent && breakouts.some((b) => b.isUserCurrentlyInRoom))
+                    }
                     onClick={() => handleFreeJoinRoom(breakout)}
                   >
-                    {isCurrent
-                      ? intl.formatMessage(intlMessages.joinRoom)
-                      : intl.formatMessage(intlMessages.requestToJoin)}
+                    {(() => {
+                      if (breakout.isUserCurrentlyInRoom) return intl.formatMessage(intlMessages.alreadyConnected);
+                      if (isCurrent) return intl.formatMessage(intlMessages.joinRoom);
+                      return intl.formatMessage(intlMessages.requestToJoin);
+                    })()}
                   </Styled.FreeJoinRequestBtn>
                 </Styled.FreeJoinRoomCard>
               );

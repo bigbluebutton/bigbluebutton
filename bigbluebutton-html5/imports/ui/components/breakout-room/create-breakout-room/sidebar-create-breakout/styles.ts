@@ -365,24 +365,48 @@ export const RoomCard = styled.div`
   padding: 0.75rem;
   transition: background 0.15s, border-color 0.15s;
   min-height: 3rem;
+  min-width: 0;
+  overflow: hidden;
 `;
 
 export const RoomCardHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.25rem;
+  min-width: 0;
 `;
 
 export const RoomCardName = styled.span`
   font-size: 0.85rem;
   font-weight: 500;
   color: ${colorText};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex-shrink: 1;
+`;
+
+export const RoomNameInput = styled.input`
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: ${colorText};
+  border: none;
+  border-bottom: 1.5px solid ${colorPrimary};
+  background: transparent;
+  outline: none;
+  padding: 0;
+  width: 100%;
+  min-width: 0;
+  flex-shrink: 1;
 `;
 
 export const RoomCardRight = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-shrink: 0;
 `;
 
 export const RoomCardCount = styled.span`
@@ -549,6 +573,7 @@ export default {
   RoomCard,
   RoomCardHeader,
   RoomCardName,
+  RoomNameInput,
   RoomCardRight,
   RoomCardCount,
   RoomCardIcon,

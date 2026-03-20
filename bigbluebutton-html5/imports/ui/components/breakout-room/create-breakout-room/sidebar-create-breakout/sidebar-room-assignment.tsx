@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
@@ -28,9 +28,11 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
   numberOfRooms,
   setSelectedId,
   resetRooms,
+  changeRoomName,
 }) => {
   const intl = useIntl();
   const roomPadNum = (n: number) => n.toString().padStart(2, '0');
+  const [editingRoom, setEditingRoom] = useState<number | null>(null);
 
   useEffect(() => {
     if (numberOfRooms) {
@@ -112,7 +114,27 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
               onDragOver={allowDrop}
             >
               <Styled.RoomCardHeader>
-                <Styled.RoomCardName>{roomName}</Styled.RoomCardName>
+                {editingRoom === roomNum ? (
+                  <Styled.RoomNameInput
+                    value={roomName}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      changeRoomName(roomNum, e.target.value);
+                    }}
+                    onBlur={() => setEditingRoom(null)}
+                    onKeyDown={(e: React.KeyboardEvent) => {
+                      if (e.key === 'Enter' || e.key === 'Escape') setEditingRoom(null);
+                    }}
+                    autoFocus
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                ) : (
+                  <Styled.RoomCardName
+                    onClick={() => setEditingRoom(roomNum)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {roomName}
+                  </Styled.RoomCardName>
+                )}
                 <Styled.RoomCardRight>
                   <Styled.RoomCardCount>
                     {roomPadNum(usersInRoom.length)}

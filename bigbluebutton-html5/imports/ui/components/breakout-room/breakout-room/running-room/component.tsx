@@ -20,6 +20,7 @@ import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { setBreakoutWindowRef } from '../service';
+import { notify } from '/imports/ui/services/notification';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -73,6 +74,18 @@ const intlMessages = defineMessages({
   joinRoom: {
     id: 'app.createBreakoutRoom.join',
     description: 'Enter breakout room button label',
+  },
+  alreadyConnected: {
+    id: 'app.createBreakoutRoom.alreadyConnected',
+    description: 'Already in room label',
+  },
+  inviteSentToast: {
+    id: 'app.createBreakoutRoom.inviteSentToast',
+    description: 'Toast notification when invite is sent after moving user',
+  },
+  unassignUser: {
+    id: 'app.update.resetRoom',
+    description: 'Remove user from room',
   },
   listenToRoom: {
     id: 'app.createBreakoutRoom.listenToRoom',
@@ -323,10 +336,12 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
     const data = ev.dataTransfer.getData('text');
     let droppedUserId: string;
     let fromRoomMeetingId: string;
+    let userName: string;
     try {
       const parsed = JSON.parse(data);
       droppedUserId = parsed.userId;
       fromRoomMeetingId = parsed.fromRoomId;
+      userName = parsed.userName || '';
     } catch {
       return;
     }
@@ -338,8 +353,24 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
         fromBreakoutRoomMeetingId: fromRoomMeetingId,
         toBreakoutRoomMeetingId: toRoomId,
       },
+    }).then(() => {
+      const targetRoom = breakouts.find((b) => b.breakoutRoomMeetingId === toRoomId);
+      let targetRoomName = '';
+      if (targetRoom) {
+        targetRoomName = targetRoom.isDefaultName
+          ? intl.formatMessage(intlMessages.breakoutRoom, { roomNumber: targetRoom.sequence })
+          : targetRoom.shortName;
+      }
+      notify(
+        intl.formatMessage(intlMessages.inviteSentToast, {
+          userName: userName || droppedUserId,
+          roomName: targetRoomName,
+        }),
+        'success',
+        'user',
+      );
     });
-  }, [breakoutRoomMoveUser]);
+  }, [breakoutRoomMoveUser, breakouts, intl]);
 
   const SCROLL_ZONE = 60;
   const SCROLL_SPEED = 8;
@@ -588,10 +619,28 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                             participant.user.name,
                           )}
                         >
-                          {participant.user.name}
-                          {participant.userId === userId
-                            ? ` (${intl.formatMessage(intlMessages.you)})`
-                            : ''}
+                          <span>
+                            {participant.user.name}
+                            {participant.userId === userId
+                              ? ` (${intl.formatMessage(intlMessages.you)})`
+                              : ''}
+                          </span>
+                          <Styled.UserRemoveBtn
+                            type="button"
+                            aria-label={intl.formatMessage(intlMessages.unassignUser)}
+                            onClick={(e: React.MouseEvent) => {
+                              e.stopPropagation();
+                              breakoutRoomMoveUser({
+                                variables: {
+                                  userId: participant.userId,
+                                  fromBreakoutRoomMeetingId: breakout.breakoutRoomMeetingId,
+                                  toBreakoutRoomMeetingId: meetingId,
+                                },
+                              });
+                            }}
+                          >
+                            ✕
+                          </Styled.UserRemoveBtn>
                         </Styled.RoomCardUserItem>
                       ))}
                   </Styled.RoomCardUserList>
@@ -650,8 +699,11 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
             <Styled.RoomCardMenuItem
               onClick={() => handleEnterRoom(openBreakout)}
               data-test="enterBreakoutRoomButton"
+              $disabled={openBreakout.isUserCurrentlyInRoom || breakouts.some((b) => b.isUserCurrentlyInRoom)}
             >
-              {intl.formatMessage(intlMessages.joinRoom)}
+              {openBreakout.isUserCurrentlyInRoom
+                ? intl.formatMessage(intlMessages.alreadyConnected)
+                : intl.formatMessage(intlMessages.joinRoom)}
             </Styled.RoomCardMenuItem>
             <Styled.RoomCardMenuItem
               onClick={() => handleListenToRoom(openBreakout)}

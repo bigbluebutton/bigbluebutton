@@ -289,19 +289,25 @@ export const RoomCardMenu = styled.div`
   white-space: nowrap;
 `;
 
-export const RoomCardMenuItem = styled.button<{ $active?: boolean }>`
+export const RoomCardMenuItem = styled.button<{ $active?: boolean; $disabled?: boolean }>`
   display: block;
   width: 100%;
   padding: 0.45rem 0.75rem;
   font-size: 0.85rem;
   font-weight: ${({ $active }) => ($active ? 600 : 400)};
-  color: ${({ $active }) => ($active ? colorPrimary : colorText)};
+  color: ${({ $active, $disabled }) => {
+    if ($disabled) return colorGray;
+    if ($active) return colorPrimary;
+    return colorText;
+  }};
   background: ${({ $active }) => ($active ? colorBlueAux : 'transparent')};
   border: none;
-  cursor: pointer;
+  cursor: ${({ $disabled }) => ($disabled ? 'default' : 'pointer')};
   text-align: left;
   white-space: nowrap;
   transition: background 0.12s;
+  opacity: ${({ $disabled }) => ($disabled ? 0.6 : 1)};
+  pointer-events: ${({ $disabled }) => ($disabled ? 'none' : 'auto')};
 
   &:hover {
     background: ${colorGrayLighter};
@@ -316,6 +322,9 @@ export const RoomCardUserList = styled.div`
 `;
 
 export const RoomCardUserItem = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 0.25rem 0.25rem;
   font-size: ${fontSizeSmall};
   color: ${colorText};
@@ -329,6 +338,29 @@ export const RoomCardUserItem = styled.div`
 
   &:active {
     cursor: grabbing;
+  }
+`;
+
+export const UserRemoveBtn = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: ${colorGray};
+  font-size: 0.75rem;
+  padding: 0 0.15rem;
+  line-height: 1;
+  opacity: 0;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.1s, color 0.1s;
+
+  ${RoomCardUserItem}:hover & {
+    opacity: 1;
+  }
+
+  &:hover {
+    color: ${colorDanger};
   }
 `;
 
@@ -503,6 +535,7 @@ export default {
   RoomCardMenuItem,
   RoomCardUserList,
   RoomCardUserItem,
+  UserRemoveBtn,
   BottomBar,
   MegaphoneBtn,
   FinishBtn,

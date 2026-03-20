@@ -113,6 +113,8 @@ const FreeJoinRoomCard = styled.div<{ $isCurrent?: boolean }>`
   padding: 0.6rem 0.6rem 0.5rem;
   background: ${({ $isCurrent }) => ($isCurrent ? colorBlueAux : 'transparent')};
   gap: 0.5rem;
+  min-width: 0;
+  overflow: hidden;
 `;
 
 const FreeJoinRoomCardHeader = styled.div`
