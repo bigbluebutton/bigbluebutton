@@ -115,7 +115,7 @@ module BigBlueButton
             merged_edl << merged_entry
           end
 
-          # Remove deleted videos
+          # Remove deleted audios
           del_audios.each do |audio|
             merged_entry[:audios].reject! { |a| a[:filename] == audio[:filename] }
           end
