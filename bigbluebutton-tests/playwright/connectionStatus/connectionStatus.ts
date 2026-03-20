@@ -25,23 +25,26 @@ export class ConnectionStatus extends MultiUsers {
   }
 
   async reportUserInConnectionIssues() {
+    await openConnectionStatus(this.modPage);
+    await this.modPage.waitAndClick(e.connectionStatusTab2);
+    await this.modPage.hasElement(e.connectionStatusItemEmpty, 'should display no users with connection issues');
+
     // Delay /rtt-check responses to simulate ~1500ms RTT ('danger' status).
     await this.modPage.page.route('**/rtt-check**', async (route) => {
       await new Promise<void>((resolve) => { setTimeout(resolve, 1500); });
       await route.continue();
     });
 
-    await openConnectionStatus(this.modPage);
-    await this.modPage.waitAndClick(e.connectionStatusTab2);
-    await this.modPage.hasElement(e.connectionStatusItemEmpty, 'should display no users with connection issues');
-    await this.modPage.wasRemoved(
-      e.connectionStatusItemEmpty,
-      'should not display empty item element with connection issues',
-      ELEMENT_WAIT_EXTRA_LONG_TIME,
-    );
-    await this.modPage.hasElementCount(e.connectionStatusItemUser, 1, 'should display one user with connection issues');
-
-    await this.modPage.page.unroute('**/rtt-check**');
+    try {
+      await this.modPage.wasRemoved(
+        e.connectionStatusItemEmpty,
+        'should not display empty item element with connection issues',
+        ELEMENT_WAIT_EXTRA_LONG_TIME,
+      );
+      await this.modPage.hasElementCount(e.connectionStatusItemUser, 1, 'should display one user with connection issues');
+    } finally {
+      await this.modPage.page.unroute('**/rtt-check**');
+    }
   }
 
   async linkToSettingsTest() {
@@ -53,16 +56,18 @@ export class ConnectionStatus extends MultiUsers {
       await route.continue();
     });
 
-    await openConnectionStatus(this.modPage);
-    await this.modPage.hasElement(
-      e.connectionStatusLinkToSettings,
-      'should display the link to settings',
-      ELEMENT_WAIT_EXTRA_LONG_TIME,
-    );
-    await this.modPage.waitAndClick(e.connectionStatusLinkToSettings);
-    await this.modPage.waitForSelector(e.dataSavingsTab);
-
-    await this.modPage.page.unroute('**/rtt-check**');
+    try {
+      await openConnectionStatus(this.modPage);
+      await this.modPage.hasElement(
+        e.connectionStatusLinkToSettings,
+        'should display the link to settings',
+        ELEMENT_WAIT_EXTRA_LONG_TIME,
+      );
+      await this.modPage.waitAndClick(e.connectionStatusLinkToSettings);
+      await this.modPage.waitForSelector(e.dataSavingsTab);
+    } finally {
+      await this.modPage.page.unroute('**/rtt-check**');
+    }
   }
 
   async copyStatsTest() {
