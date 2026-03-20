@@ -460,7 +460,7 @@ const WhiteboardContainer = (props) => {
   const sidebarNavigationWidth = layoutSelect(
     (i) => i?.output?.sidebarNavigation?.width,
   );
-  const { maxStickyNoteLength, maxNumberOfAnnotations, lockToolbarTools } = WHITEBOARD_CONFIG;
+  const { maxStickyNoteLength, maxNumberOfAnnotations, lockToolbarTools, pointerDiameter } = WHITEBOARD_CONFIG;
   const fontFamily = WHITEBOARD_CONFIG.styles.text.family;
   const {
     colorStyle, dashStyle, fillStyle, fontStyle, sizeStyle,
@@ -506,6 +506,7 @@ const WhiteboardContainer = (props) => {
           maxStickyNoteLength,
           maxNumberOfAnnotations,
           lockToolbarTools,
+          pointerDiameter,
           fontFamily,
           colorStyle,
           dashStyle,
