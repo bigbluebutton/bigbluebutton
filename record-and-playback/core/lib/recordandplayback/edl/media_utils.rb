@@ -73,7 +73,7 @@ module BigBlueButton
               pts = (row[:pts_time] * 1000).round
 
               gap = pts - prev_end
-              if gap > min_gap
+              if gap >= min_gap
                 BigBlueButton.logger.info("PTS gap detected between #{prev_end}ms and #{pts}ms (#{gap}ms long)")
                 pts_gaps << [prev_end, pts]
               end
