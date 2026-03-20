@@ -211,6 +211,7 @@ const Whiteboard = React.memo((props) => {
   const innerWrapperPollingFrameRef = React.useRef(null);
   const isMountedPollingFrameRef = React.useRef(null);
   const hasZoomSyncedRef = useRef(false);
+  const lastForcedViewRef = useRef(null);
   const currentUserRef = useRef(currentUser);
 
   currentUserRef.current = currentUser;
@@ -1745,11 +1746,62 @@ const Whiteboard = React.memo((props) => {
       }
 
       const camera = tlEditorRef.current.getCamera();
+
       const updatedCurrentCam = {
         ...camera,
         z: adjustedZoom,
       };
-      tlEditorRef.current.store.put([updatedCurrentCam]);
+      tlEditorRef.current.store.mergeRemoteChanges(() => {
+        tlEditorRef.current.store.put([updatedCurrentCam]);
+      });
+
+      // Remote camera updates do not trigger the user-source listener,
+      // so publish the final settled presenter view explicitly.
+      if (fitToWidthRef.current) {
+        requestAnimationFrame(() => {
+          const viewportPageBounds = tlEditorRef.current?.getViewportPageBounds();
+          if (!viewportPageBounds?.w || !viewportPageBounds?.h) {
+            return;
+          }
+
+          const settledCamera = tlEditorRef.current?.getCamera();
+          if (!settledCamera) {
+            return;
+          }
+          const settledX = settledCamera.x;
+          const settledY = settledCamera.y;
+
+          const viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(
+            viewportPageBounds.w,
+            currentPresentationPageRef.current?.scaledWidth,
+          );
+          const viewedRegionH = SlideCalcUtil.calcViewedRegionHeight(
+            viewportPageBounds.h,
+            currentPresentationPageRef.current?.scaledHeight,
+          );
+
+          const forcedView = {
+            pageId: curPageIdRef.current,
+            w: Number(viewedRegionW.toFixed(6)),
+            h: Number(viewedRegionH.toFixed(6)),
+            x: Number(settledX.toFixed(6)),
+            y: Number(settledY.toFixed(6)),
+          };
+
+          if (isEqual(lastForcedViewRef.current, forcedView)) {
+            return;
+          }
+
+          lastForcedViewRef.current = forcedView;
+          zoomSlide(
+            viewedRegionW,
+            viewedRegionH,
+            settledX,
+            settledY,
+            currentPresentationPageRef.current,
+          );
+        });
+      }
     } else {
       const newZoom = calculateZoomValue(
         scaledViewBoxWidth,
