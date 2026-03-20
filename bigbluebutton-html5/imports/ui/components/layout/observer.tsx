@@ -236,18 +236,6 @@ const LayoutObserver: React.FC = () => {
         const Settings = getSettingsSingletonInstance();
         Settings.save(setLocalSettings);
 
-        if (getFromUserSettings('bbb_hide_sidebar_navigation', false)) {
-          layoutContextDispatch({
-            type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
-            value: false,
-          });
-          layoutContextDispatch({
-            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-            value: false,
-          });
-          return;
-        }
-
         layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
           value: true,
@@ -280,6 +268,17 @@ const LayoutObserver: React.FC = () => {
           layoutContextDispatch({
             type: ACTIONS.SET_ID_CHAT_OPEN,
             value: PUBLIC_GROUP_CHAT_ID,
+          });
+        }
+
+        if (getFromUserSettings('bbb_hide_sidebar_navigation', false)) {
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
+            value: false,
+          });
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+            value: false,
           });
         }
 
