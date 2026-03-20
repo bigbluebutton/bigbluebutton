@@ -1978,34 +1978,6 @@ const Whiteboard = React.memo((props) => {
     }
   }, [currentPresentationPage, isPresenter]);
 
-  React.useEffect(() => {
-    // Set red pointer cursor for the popup presentation,
-    //  which would be better displayed in a face-to-face lecture.
-    if (!(isPresenter && isPresentationDetached)) return;
-    if (!popupWindow) return;
-
-    const observer = new MutationObserver(() => {
-      const el = popupWindow.document.querySelector('.tl-container');
-      if (!el) return;
-
-      const varMap = {
-        '--tl-cursor-grab': '--tl-cursor-pointer',
-        '--tl-cursor-grabbing': '--tl-cursor-grabbing',
-      };
-
-      Object.entries(varMap).forEach(([baseVar, replaceVar]) => {
-        const dataUrl = getComputedStyle(el).getPropertyValue(replaceVar).trim();
-        if (dataUrl) {
-          const tinted = dataUrl.replace(/fill='white'/g, "fill='red'");
-          el.style.setProperty(baseVar, tinted);
-        }
-      });
-    })
-
-    observer.observe(popupWindow.document.body, { childList: true, subtree: true })
-      return () => observer.disconnect()
-  }, [isPresenter, isPresentationDetached, popupWindow]);
-
   // HTMLElement injection
   // The tldraw module uses HTMLElement variable, which is not from the popup.
   // Thus some tldraw functions such as fullscreen and resize a drawing
