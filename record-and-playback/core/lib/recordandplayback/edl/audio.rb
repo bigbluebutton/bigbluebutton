@@ -413,7 +413,10 @@ module BigBlueButton
             # Nothing to do if the next gap is after the current entry ends
             next if gap_start >= audio_out
 
-            BigBlueButton.logger.debug("Processing gap [#{gap_start}ms, #{gap_end}ms) in EDL entry #{i}")
+            BigBlueButton.logger.debug(
+              "Processing gap [#{gap_start}ms, #{gap_end}ms) " \
+              "in EDL entry #{i} (timestamp=#{entry[:timestamp]}ms)",
+            )
 
             # If gap starts in this EDL entry, then it needs to be split
             if gap_start > audio_in
