@@ -261,7 +261,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         dataTest: 'usersJoinMuted',
       },
       {
-        allow: !isBreakout,
+        allow: true,
         key: uuids.current[1],
         label: intl.formatMessage(intlMessages.muteAllExceptPresenterLabel),
         description: intl.formatMessage(intlMessages.muteAllExceptPresenterDesc),
@@ -296,7 +296,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         dataTest: 'downloadUserNamesList',
       },
       {
-        allow: isReactionsEnabled && isModerator && !isBreakout,
+        allow: isReactionsEnabled && isModerator,
         key: uuids.current[5],
         label: intl.formatMessage(intlMessages.clearAllReactionsLabel),
         description: intl.formatMessage(intlMessages.clearAllReactionsDesc),

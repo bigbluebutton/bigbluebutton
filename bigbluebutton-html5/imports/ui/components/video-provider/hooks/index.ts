@@ -47,7 +47,6 @@ import {
 import { DesktopPageSizes, MobilePageSizes } from '/imports/ui/Types/meetingClientSettings';
 import logger from '/imports/startup/client/logger';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import { useMeetingIsBreakout } from '/imports/ui/components/app/service';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
@@ -724,8 +723,7 @@ export const useShouldRenderPaginationToggle = () => {
 };
 
 export const useIsVideoPinEnabledForCurrentUser = (isModerator: boolean) => {
-  const isBreakout = useMeetingIsBreakout();
   const isPinEnabled = videoService.isPinEnabled();
 
-  return !!(isModerator && isPinEnabled && !isBreakout);
+  return !!(isModerator && isPinEnabled);
 };
