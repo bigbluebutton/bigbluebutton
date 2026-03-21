@@ -1178,7 +1178,7 @@
     "app.shortcut-help.duplicate": "複製",
     "app.shortcut-help.gesture": "ジェスチャー",
     "app.shortcut-help.fingerTap": "指でタップ",
-    "app.lock-viewers.title": "Permissions and Policies",
+    "app.lock-viewers.title": "許諾と方針",
     "app.lock-viewers.description": "特定の機能の使用を制限する。",
     "app.lock-viewers.restrictParticipantsLabel": "参加者が以下の機能を利用することを制限...",
     "app.lock-viewers.featuresLable": "機能",
