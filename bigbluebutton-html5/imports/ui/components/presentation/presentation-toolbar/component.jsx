@@ -128,11 +128,8 @@ class PresentationToolbar extends PureComponent {
       popupWindow,
     } = this.props;
 
-    if (isPresentationDetached) {
-      popupWindow.document.addEventListener('keydown', this.switchSlide);
-    } else {
-      document.addEventListener('keydown', this.switchSlide);
-    }
+    const targetDoc = isPresentationDetached ? popupWindow.document : document;
+    targetDoc.addEventListener('keydown', this.switchSlide);
   }
 
   componentWillUnmount() {
@@ -141,11 +138,8 @@ class PresentationToolbar extends PureComponent {
       popupWindow,
     } = this.props;
 
-    if (isPresentationDetached) {
-      popupWindow.document.removeEventListener('keydown', this.switchSlide);
-    } else {
-      document.removeEventListener('keydown', this.switchSlide);
-    }
+    const targetDoc = isPresentationDetached ? popupWindow.document : document;
+    targetDoc.removeEventListener('keydown', this.switchSlide);
   }
 
   handleSkipToSlideChange(event) {
