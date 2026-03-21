@@ -1204,7 +1204,7 @@
     "app.lock-viewers.guestPolicy.description": "議に参加しようとするゲストの扱いを設定",
     "app.lock-viewers.participantPermissions.title": "参加者の権限の許可",
     "app.lock-viewers.participantPermissions.description": "以下のオプションは参加者の権限を規定しています。チェックを外すことで、許可を取り消すことができます。",
-    "app.lock-viewers.presentationPermissions.title": "Presentation Policy",
+    "app.lock-viewers.presentationPermissions.title": "発表の方針",
     "app.lock-viewers.presentationPermissions.description": "会議で誰がどのように発表できるかを設定します。",
     "app.lock-viewers.presentationPermissions.moderatorOnly": "司会者が発表者を決定",
     "app.lock-viewers.presentationPermissions.moderatorOnly.tooltip": "司会者のみが、参加者に発表者権限を与えられます。",
