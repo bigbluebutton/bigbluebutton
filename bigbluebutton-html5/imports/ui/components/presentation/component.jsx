@@ -343,7 +343,7 @@ class Presentation extends PureComponent {
       popupWindow,
     } = this.props;
 
-    const targetWin = isPresentationDetached ? popupWindow : window;
+    const targetWin = isPresentationDetached && popupWindow ? popupWindow : window;
     targetWin.removeEventListener('resize', this.onResize, false);
     
     if (this.refPresentationContainer) {
