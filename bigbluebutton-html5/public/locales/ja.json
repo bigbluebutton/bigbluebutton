@@ -1199,7 +1199,7 @@
     "app.lock-viewers.disablePresenterRequestLabel": "発表者権限を要求しています",
     "app.lock-viewers.tabs.guestPolicy": "ゲストポリシー",
     "app.lock-viewers.tabs.participantPermissions": "参加者の権限の許可",
-    "app.lock-viewers.tabs.presentationPermissions": "Presentation Policy",
+    "app.lock-viewers.tabs.presentationPermissions": "発表の方針",
     "app.lock-viewers.guestPolicy.title": "ゲストポリシー",
     "app.lock-viewers.guestPolicy.description": "議に参加しようとするゲストの扱いを設定",
     "app.lock-viewers.participantPermissions.title": "参加者の権限の許可",
