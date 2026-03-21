@@ -176,12 +176,9 @@ const Whiteboard = React.memo((props) => {
 
   clearTldrawCache();
 
-  const raf = isPresentationDetached
-    ? popupWindow.requestAnimationFrame
-    : window.requestAnimationFrame;
-  const caf = isPresentationDetached
-    ? popupWindow.cancelAnimationFrame
-    : window.cancelAnimationFrame;
+  const targetWin = isPresentationDetached && popupWindow ? popupWindow : window;
+  const raf = targetWin.requestAnimationFrame;
+  const caf = targetWin.cancelAnimationFrame;
 
   const [isMounting, setIsMounting] = React.useState(true);
   const [cursorType, setCursorType] = React.useState('');
@@ -895,14 +892,9 @@ const Whiteboard = React.memo((props) => {
 
   const getContainerDimensions = () => {
     // This change affects the behaviour when resize and fullscreen the popupWindow.
-    //const container = document.querySelector('[data-test="presentationContainer"]');
-    //const innerWrapper = document.getElementById('presentationInnerWrapper');
-    const container = isPresentationDetached ?
-      popupWindow.document.querySelector('[data-test="presentationContainer"]') :
-      document.querySelector('[data-test="presentationContainer"]');
-    const innerWrapper = isPresentationDetached ?
-      popupWindow.document.getElementById('presentationInnerWrapper') :
-      document.getElementById('presentationInnerWrapper');
+    const targetDoc = isPresentationDetached && popupWindow?.document ? popupWindow.document : document;
+    const container = targetDoc.querySelector('[data-test="presentationContainer"]');
+    const innerWrapper = targetDoc.getElementById('presentationInnerWrapper');
     const containerWidth = container ? container.offsetWidth : 0;
     const innerWrapperWidth = innerWrapper ? innerWrapper.offsetWidth : 0;
     const widthGap = Math.max(containerWidth - innerWrapperWidth, 0);
@@ -1087,14 +1079,9 @@ const Whiteboard = React.memo((props) => {
     lastDimensions = { width: 0, height: 0 },
   ) => {
     // This change affects the behaviour when resize and fullscreen the popupWindow.
-    //const container = document.querySelector('[data-test="presentationContainer"]');
-    //const innerWrapper = document.getElementById('presentationInnerWrapper');
-    const container = isPresentationDetached ?
-      popupWindow.document.querySelector('[data-test="presentationContainer"]') :
-      document.querySelector('[data-test="presentationContainer"]');
-    const innerWrapper = isPresentationDetached ?
-      popupWindow.document.getElementById('presentationInnerWrapper') :
-      document.getElementById('presentationInnerWrapper');
+    const targetDoc = isPresentationDetached && popupWindow?.document ? popupWindow.document : document;
+    const container = targetDoc.querySelector('[data-test="presentationContainer"]');
+    const innerWrapper = targetDoc.getElementById('presentationInnerWrapper');
 
     const containerWidth = container ? container.offsetWidth : 0;
     const containerHeight = container ? container.offsetHeight : 0;
@@ -2199,8 +2186,8 @@ const Whiteboard = React.memo((props) => {
 
   React.useEffect(() => {
     if (!whiteboardToolbarAutoHide) {
-      const doc = isPresentationDetached ? popupWindow.document : document;
-      const optionsDropdown = doc.getElementById('WhiteboardOptionButton');
+      const targetDoc = isPresentationDetached && popupWindow?.document ? popupWindow.document : document;
+      const optionsDropdown = targetDoc.getElementById('WhiteboardOptionButton');
       if (optionsDropdown?.classList.contains('fade-in')) {
         optionsDropdown.classList.remove('fade-in');
       }
