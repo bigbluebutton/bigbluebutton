@@ -1220,7 +1220,7 @@
     "app.guest-policy.button.alwaysAcceptAuth": "Always accept authenticated",
     "app.guest-policy.button.alwaysDeny": "常に拒否",
     "app.guest-policy.policyBtnDesc": "会議のゲストポリシーを設定する",
-    "app.guest-policy.feedbackMessage": "The guest policy is now: {policy}",
+    "app.guest-policy.feedbackMessage": "現在のゲストポリシー： {policy}",
     "app.connection-status.ariaTitle": "接続状況モーダル",
     "app.connection-status.title": "接続状況",
     "app.connection-status.description": "ユーザーの接続状況の閲覧",
