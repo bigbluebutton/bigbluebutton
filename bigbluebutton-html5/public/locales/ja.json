@@ -239,7 +239,7 @@
     "app.userList.userOptions.showUserList": "ユーザーリストが視聴者に表示されます",
     "app.userList.userOptions.disablePresenterRequest": "視聴者からの発表者要求が無効になりました",
     "app.userList.userOptions.enablePresenterRequest": "視聴者からの発表者要求が有効になりました",
-    "app.userList.userOptions.enablePresenterFreeForAll": "Participants can now take presenter without moderator approval",
+    "app.userList.userOptions.enablePresenterFreeForAll": "参加者が、司会者の了解なしに発表者となれるようになりました",
     "app.userList.userOptions.enableOnlyModeratorWebcam": "ウェブカメラを有効にすると、全員があなたを見ることができます",
     "app.userList.userOptions.savedNames.title": "会議 {meetingName} の {dateAndTime} のユーザーリスト",
     "app.userList.userOptions.sortedFirstName.heading": "第一語でソート",
