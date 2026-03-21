@@ -1217,7 +1217,7 @@
     "app.guest-policy.description": "会議のゲストポリシー設定を変更する",
     "app.guest-policy.button.askModerator": "司会者に尋ねる",
     "app.guest-policy.button.alwaysAccept": "常に許可",
-    "app.guest-policy.button.alwaysAcceptAuth": "Always accept authenticated",
+    "app.guest-policy.button.alwaysAcceptAuth": "認証済みユーザーは常に許可",
     "app.guest-policy.button.alwaysDeny": "常に拒否",
     "app.guest-policy.policyBtnDesc": "会議のゲストポリシーを設定する",
     "app.guest-policy.feedbackMessage": "現在のゲストポリシー： {policy}",
