@@ -128,7 +128,7 @@ class PresentationToolbar extends PureComponent {
       popupWindow,
     } = this.props;
 
-    const targetDoc = isPresentationDetached ? popupWindow.document : document;
+    const targetDoc = isPresentationDetached && popupWindow?.document ? popupWindow.document : document;
     targetDoc.addEventListener('keydown', this.switchSlide);
   }
 
@@ -138,7 +138,7 @@ class PresentationToolbar extends PureComponent {
       popupWindow,
     } = this.props;
 
-    const targetDoc = isPresentationDetached ? popupWindow.document : document;
+    const targetDoc = isPresentationDetached && popupWindow?.document ? popupWindow.document : document;
     targetDoc.removeEventListener('keydown', this.switchSlide);
   }
 
