@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { throttle } from 'radash';
 
 const hasBackgroundImageUrl = (el, isDetached = false, p) => {
-  const style = isDetached ? p.getComputedStyle(el) : window.getComputedStyle(el);
+  const targetWin = isDetached ? p : window;
+  const style = targetWin.getComputedStyle(el);
   const bg = style.backgroundImage || '';
   return bg.includes('url(');
 };
@@ -28,14 +29,17 @@ const useCursor = (publishCursorUpdate, whiteboardId) => {
   return [cursorPosition, updateCursorPosition];
 };
 
-const getPresentationOptionsMenuItem = (isDetached = false, p) =>
-       (isDetached ? p.document.querySelector('li#presentationFullscreen') : document.querySelector('li#presentationFullscreen'))
-    || (isDetached ? p.document.querySelector('li#presentationSnapshot') : document.querySelector('li#presentationSnapshot'))
-    || (isDetached ? p.document.querySelector('li#toolVisibility') : document.querySelector('li#toolVisibility'))
-    || null;
+const getPresentationOptionsMenuItem = (isDetached = false, p) => {
+  const targetDoc = isDetached && p?.document ? p.document : document;
+  return targetDoc.querySelector('li#presentationFullscreen')
+      || targetDoc.querySelector('li#presentationSnapshot')
+      || targetDoc.querySelector('li#toolVisibility')
+      || null;
+}
 
 const getTldrawOpenMenu = (isDetached = false, p) => {
-  const tlElement = isDetached ? p.document.querySelectorAll('[id^=radix-]') : document.querySelectorAll('[id^=radix-]');
+  const targetDoc = isDetached && p?.document ? p.document : document;
+  const tlElement = targetDoc.querySelectorAll('[id^=radix-]');
   const tldrawMenu = Array.from(tlElement).find((el) => {
     const menuClasses = ['tlui-popover__content', 'tlui-menu'];
     if (el && menuClasses.includes(el.className)) {
@@ -105,9 +109,8 @@ const useMouseEvents = ({
   const handleMouseDownWindow = (event) => {
     const { target } = event;
     const editor = tlEditorRef.current;
-    const presentationInnerWrapper = isPresentationDetached ?
-      popupWindow.document.getElementById('presentationInnerWrapper') :
-      document.getElementById('presentationInnerWrapper');
+    const targetDoc = isPresentationDetached && popupWindow?.document ? popupWindow.document : document;
+    const presentationInnerWrapper = targetDoc.getElementById('presentationInnerWrapper');
 
     if (!(presentationInnerWrapper && presentationInnerWrapper.contains(target))) {
       if (editor?.getEditingShape()) {
@@ -382,14 +385,9 @@ const useMouseEvents = ({
   }, [whiteboardToolbarAutoHide]);
 
   React.useEffect(() => {
-    const presentationWrapper = isPresentationDetached ?
-      popupWindow.document.getElementById('presentationInnerWrapper') :
-      document.getElementById('presentationInnerWrapper');
-    if (isPresentationDetached) {
-      popupWindow.addEventListener('mousedown', handleMouseDownWindow);
-    } else {
-      window.addEventListener('mousedown', handleMouseDownWindow);
-    }
+    const targetWin = isPresentationDetached && popupWindow ? popupWindow : window;
+    const presentationWrapper = targetWin.document.getElementById('presentationInnerWrapper');
+    targetWin.addEventListener('mousedown', handleMouseDownWindow);
 
     // Solving a problem that the style changer on the popup continues to select every button
     //  as pointerup event is stolen by the main window to which tldraw attaches the event.
@@ -422,11 +420,7 @@ const useMouseEvents = ({
         presentationWrapper.removeEventListener('touchend', handleTouchEnd);
         presentationWrapper.removeEventListener('touchmove', handleTouchMove);
       }
-      if (isPresentationDetached) {
-        popupWindow.removeEventListener('mousedown', handleMouseDownWindow);
-      } else {
-        window.removeEventListener('mousedown', handleMouseDownWindow);
-      }
+      targetWin.removeEventListener('mousedown', handleMouseDownWindow);
     };
   }, [
     tlEditorRef,
