@@ -122,9 +122,8 @@ const notifyShapeNumberExceeded = (intl, limit) => {
 
 const toggleToolsAnimations = (activeAnim, anim, time, hasWBAccess = false, isDetached, p) => {
   const handleOptionsDropdown = () => {
-    const optionsDropdown = isDetached ?
-      p.document.getElementById('WhiteboardOptionButton') :
-      document.getElementById('WhiteboardOptionButton');
+    const targetDoc = isDetached && p?.document ? p.document : document;
+    const optionsDropdown = targetDoc.getElementById('WhiteboardOptionButton');
     if (optionsDropdown) {
       optionsDropdown.classList.remove(activeAnim);
       optionsDropdown.style.transition = `opacity ${time} ease-in-out`;
@@ -137,9 +136,8 @@ const toggleToolsAnimations = (activeAnim, anim, time, hasWBAccess = false, isDe
   }
 
   const checkElementsAndRun = () => {
-    const tlEls = isDetached ?
-      p.document.querySelectorAll('.tlui-menu-zone, .tlui-toolbar__tools, .tlui-toolbar__extras, .tlui-style-panel__wrapper, .tlui-undo, .tlui-redo') :
-      document.querySelectorAll('.tlui-menu-zone, .tlui-toolbar__tools, .tlui-toolbar__extras, .tlui-style-panel__wrapper, .tlui-undo, .tlui-redo');
+    const targetDoc = isDetached && p?.document ? p.document : document;
+    const tlEls = targetDoc.querySelectorAll('.tlui-menu-zone, .tlui-toolbar__tools, .tlui-toolbar__extras, .tlui-style-panel__wrapper, .tlui-undo, .tlui-redo');
     if (tlEls.length) {
       tlEls?.forEach((el) => {
         el.classList.remove(activeAnim);
