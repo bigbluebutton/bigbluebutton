@@ -176,7 +176,7 @@ const Whiteboard = React.memo((props) => {
 
   clearTldrawCache();
 
-  const targetWin = isPresentationDetached ? popupWindow : window;
+  const targetWin = isPresentationDetached && popupWindow ? popupWindow : window;
   const raf = targetWin.requestAnimationFrame;
   const caf = targetWin.cancelAnimationFrame;
 
@@ -892,7 +892,7 @@ const Whiteboard = React.memo((props) => {
 
   const getContainerDimensions = () => {
     // This change affects the behaviour when resize and fullscreen the popupWindow.
-    const targetDoc = isPresentationDetached ? popupWindow.document : document;
+    const targetDoc = isPresentationDetached && popupWindow?.document ? popupWindow.document : document;
     const container = targetDoc.querySelector('[data-test="presentationContainer"]');
     const innerWrapper = targetDoc.getElementById('presentationInnerWrapper');
     const containerWidth = container ? container.offsetWidth : 0;
@@ -1079,7 +1079,7 @@ const Whiteboard = React.memo((props) => {
     lastDimensions = { width: 0, height: 0 },
   ) => {
     // This change affects the behaviour when resize and fullscreen the popupWindow.
-    const targetDoc = isPresentationDetached ? popupWindow.document : document;
+    const targetDoc = isPresentationDetached && popupWindow?.document ? popupWindow.document : document;
     const container = targetDoc.querySelector('[data-test="presentationContainer"]');
     const innerWrapper = targetDoc.getElementById('presentationInnerWrapper');
 
@@ -2186,7 +2186,7 @@ const Whiteboard = React.memo((props) => {
 
   React.useEffect(() => {
     if (!whiteboardToolbarAutoHide) {
-      const targetDoc = isPresentationDetached ? popupWindow.document : document;
+      const targetDoc = isPresentationDetached && popupWindow?.document ? popupWindow.document : document;
       const optionsDropdown = targetDoc.getElementById('WhiteboardOptionButton');
       if (optionsDropdown?.classList.contains('fade-in')) {
         optionsDropdown.classList.remove('fade-in');
