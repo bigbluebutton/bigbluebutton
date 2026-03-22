@@ -39,7 +39,7 @@ import logger from '/imports/startup/client/logger';
 import { ChatLoading } from '../component';
 import Storage from '/imports/ui/services/storage/in-memory';
 import { originalHTMLElement } from '/imports/utils/HTMLElementBackup';
-import { originalRAF, originalCAF } from '/imports/utils/animationFrameBackup';
+import { originalRAF } from '/imports/utils/animationFrameBackup';
 
 const PAGE_SIZE = 50;
 const CLEANUP_TIMEOUT = 3000;
