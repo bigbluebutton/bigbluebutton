@@ -54,7 +54,7 @@ import { isMobile } from '/imports/utils/deviceInfo';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
-import { originalRAF, originalCAF } from '/imports/utils/animationFrameBackup';
+import { originalRAF } from '/imports/utils/animationFrameBackup';
 
 interface ChatMessageProps {
   message: Message;
