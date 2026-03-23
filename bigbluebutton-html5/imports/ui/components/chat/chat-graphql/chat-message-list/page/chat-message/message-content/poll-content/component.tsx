@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useCallback, useImperativeHandle } from 'react';
 import {
   Bar, BarChart, ResponsiveContainer, XAxis, YAxis,
 } from 'recharts';
@@ -12,6 +12,11 @@ import { Layout, Output } from '/imports/ui/components/layout/layoutTypes';
 interface ChatPollContentProps {
   metadata: string;
   height?: number;
+}
+
+export interface ChatPollContentHandle {
+  copy: (onDone: () => void) => void;
+  download: () => void;
 }
 
 interface Metadata {
@@ -90,11 +95,12 @@ function assertAsMetadata(metadata: unknown): asserts metadata is Metadata {
   }
 }
 
-const ChatPollContent: React.FC<ChatPollContentProps> = ({
+const ChatPollContent = React.forwardRef<ChatPollContentHandle, ChatPollContentProps>(({
   metadata: string,
   height = undefined,
-}) => {
+}, ref) => {
   const intl = useIntl();
+  const chartRef = useRef<HTMLDivElement>(null);
   const sidebarContent: Output['sidebarContent'] = layoutSelectOutput((i: Output) => i.sidebarContent);
   const fontSize: Layout['fontSize'] = layoutSelect((i: Layout) => i.fontSize);
 
@@ -114,6 +120,82 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
     };
   });
 
+  const handleCopy = useCallback((onDone: () => void) => {
+    const lines = [
+      pollData.questionText,
+      '',
+      ...translatedAnswers.map((a: Answers & { pollAnswer: string }) => {
+        const voteLabel = a.numVotes === 1
+          ? intl.formatMessage(intlMessages.vote)
+          : intl.formatMessage(intlMessages.votes);
+        const correct = a.isCorrectAnswer
+          ? `${intl.formatMessage(intlMessages.correctAnswer)}: `
+          : '';
+        return `${correct}${a.pollAnswer}: ${a.numVotes} ${voteLabel}`;
+      }),
+    ].filter((_line, idx) => idx !== 1 || pollData.questionText);
+    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+      onDone();
+    }).catch(() => {});
+  }, [translatedAnswers, pollData, intl]);
+
+  const handleDownload = useCallback(() => {
+    if (!chartRef.current) return;
+    const svgEl = chartRef.current.querySelector('svg');
+    if (!svgEl) return;
+
+    const { width: svgW, height: svgH } = svgEl.getBoundingClientRect();
+    const padding = 24;
+    const titleFontSize = 16;
+    const titleAreaHeight = pollData.questionText
+      ? Math.ceil(titleFontSize * 1.4) + padding
+      : padding;
+    const canvasW = svgW + padding * 2;
+    const canvasH = svgH + titleAreaHeight + padding;
+
+    const clonedSvg = svgEl.cloneNode(true) as SVGElement;
+    clonedSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    clonedSvg.setAttribute('width', String(svgW));
+    clonedSvg.setAttribute('height', String(svgH));
+
+    const svgData = new XMLSerializer().serializeToString(clonedSvg);
+    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = canvasW;
+    canvas.height = canvasH;
+
+    const img = new Image();
+    img.onload = () => {
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvasW, canvasH);
+      if (pollData.questionText) {
+        ctx.fillStyle = '#333333';
+        ctx.font = `bold ${titleFontSize}px sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.fillText(pollData.questionText, canvasW / 2, padding + titleFontSize);
+      }
+      ctx.drawImage(img, padding, titleAreaHeight);
+      URL.revokeObjectURL(url);
+
+      const a = document.createElement('a');
+      a.download = 'poll-result.png';
+      a.href = canvas.toDataURL('image/png');
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    };
+    img.src = url;
+  }, [pollData]);
+
+  useImperativeHandle(ref, () => ({
+    copy: handleCopy,
+    download: handleDownload,
+  }), [handleCopy, handleDownload]);
+
   const useHeight = height || translatedAnswers.length * 50;
   return (
     <>
@@ -121,19 +203,21 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
         <Styled.PollText>
           {pollData.questionText}
         </Styled.PollText>
-        <ResponsiveContainer width="100%" height={useHeight}>
-          <BarChart
-            data={translatedAnswers}
-            layout="vertical"
-          >
-            <XAxis
-              type="number"
-              allowDecimals={false}
-            />
-            <YAxis width={sidebarContent.width / 3} fontSize={fontSize} type="category" dataKey="pollAnswerWithNumVotes" tick={CustomizedAxisTick} />
-            <Bar dataKey="numVotes" fill="#0C57A7" />
-          </BarChart>
-        </ResponsiveContainer>
+        <div ref={chartRef}>
+          <ResponsiveContainer width="100%" height={useHeight}>
+            <BarChart
+              data={translatedAnswers}
+              layout="vertical"
+            >
+              <XAxis
+                type="number"
+                allowDecimals={false}
+              />
+              <YAxis width={sidebarContent.width / 3} fontSize={fontSize} type="category" dataKey="pollAnswerWithNumVotes" tick={CustomizedAxisTick} />
+              <Bar dataKey="numVotes" fill="#0C57A7" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </Styled.PollWrapper>
       <p className="sr-only">
         {pollData.questionText ? `${pollData.questionText}: ` : ''}
@@ -150,6 +234,8 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
       </ul>
     </>
   );
-};
+});
+
+ChatPollContent.displayName = 'ChatPollContent';
 
 export default ChatPollContent;
