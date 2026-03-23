@@ -312,60 +312,9 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   }, [chatSetPinned, message.chatId, message.messageId]);
 
   const replacePinnedMessage = useCallback(() => {
-    // Unpin only the oldest pinned message (first in the array)
-    if (currentChat?.pinnedMessageIds && currentChat.pinnedMessageIds.length > 0) {
-      const oldestPinnedMessageId = currentChat.pinnedMessageIds[0];
-
-      chatSetPinned({
-        variables: {
-          chatId: message.chatId,
-          messageId: oldestPinnedMessageId,
-          pinned: false,
-        },
-      }).then(() => {
-        // Pin the new message after the oldest pin is removed
-        chatSetPinned({
-          variables: {
-            chatId: message.chatId,
-            messageId: message.messageId,
-            pinned: true,
-          },
-        }).catch((e) => {
-          logger.error({
-            logCode: 'chat_set_pinned_error',
-            extraInfo: {
-              errorName: e?.name,
-              errorMessage: e?.message,
-            },
-          }, `Pinning the new message failed: ${e?.message}`);
-        });
-      }).catch((e) => {
-        logger.error({
-          logCode: 'chat_set_pinned_error',
-          extraInfo: {
-            errorName: e?.name,
-            errorMessage: e?.message,
-          },
-        }, `Unpinning the oldest message failed: ${e?.message}`);
-      });
-    } else {
-      chatSetPinned({
-        variables: {
-          chatId: message.chatId,
-          messageId: message.messageId,
-          pinned: true,
-        },
-      }).catch((e) => {
-        logger.error({
-          logCode: 'chat_set_pinned_error',
-          extraInfo: {
-            errorName: e?.name,
-            errorMessage: e?.message,
-          },
-        }, `Pinning the message failed: ${e?.message}`);
-      });
-    }
-  }, [chatSetPinned, message.chatId, message.messageId, currentChat?.pinnedMessageIds]);
+    // The server handles eviction of the oldest pinned message when the limit is reached
+    pinMessageAction();
+  }, [pinMessageAction]);
 
   const [chatDeleteMessage] = useMutation(CHAT_DELETE_MESSAGE_MUTATION);
   const onDeleteConfirmation = useCallback(() => {
