@@ -93,23 +93,16 @@ class AnalyticsActor(val includeChat: Boolean) extends Actor with ActorLogging {
 
       case m: ChangeUserRoleCmdMsg                           => logMessage(msg)
 
-      // Audio groups
-      case m: CreateAudioGroupReqMsg                         => logMessage(msg)
-      case m: AudioGroupCreatedEvtMsg                        => logMessage(msg)
-      case m: DestroyAudioGroupReqMsg                        => logMessage(msg)
-      case m: AudioGroupDestroyedEvtMsg                      => logMessage(msg)
-      case m: GetAudioGroupsReqMsg                           => logMessage(msg)
-      case m: GetAudioGroupsRespMsg                          => logMessage(msg)
-      case m: AudioGroupAddParticipantsReqMsg                => logMessage(msg)
-      case m: AudioGroupParticipantsAddedEvtMsg              => logMessage(msg)
-      case m: AudioGroupRemoveParticipantsReqMsg             => logMessage(msg)
-      case m: AudioGroupParticipantsRemovedEvtMsg            => logMessage(msg)
-      case m: JoinAudioGroupReqMsg                           => logMessage(msg)
-      case m: AudioGroupParticipantJoinedEvtMsg              => logMessage(msg)
-      case m: LeaveAudioGroupReqMsg                          => logMessage(msg)
-      case m: AudioGroupParticipantLeftEvtMsg                => logMessage(msg)
-      case m: AudioGroupUpdateParticipantReqMsg              => logMessage(msg)
-      case m: AudioGroupParticipantUpdatedEvtMsg             => logMessage(msg)
+      // Media groups
+      case m: CreateMediaGroupReqMsg                         => logMessage(msg)
+      case m: MediaGroupCreatedEvtMsg                        => logMessage(msg)
+      case m: MediaGroupUpdatedEvtMsg                        => logMessage(msg)
+      case m: DestroyMediaGroupReqMsg                        => logMessage(msg)
+      case m: MediaGroupDestroyedEvtMsg                      => logMessage(msg)
+      case m: GetMediaGroupsReqMsg                           => logMessage(msg)
+      case m: GetMediaGroupsRespMsg                          => logMessage(msg)
+      case m: SetUserMediaGroupStateReqMsg                   => logMessage(msg)
+      case m: SetUserMediaGroupStateRespMsg                  => logMessage(msg)
 
       // Voice
       case m: UserMutedVoiceEvtMsg =>
