@@ -64,17 +64,9 @@ object DatabaseConnection {
     }
 
     if (batch.nonEmpty) {
-      val startTime = System.nanoTime()
       val combinedAction = DBIO.sequence(batch.toList)
       db.run(combinedAction).onComplete {
         case scala.util.Success(_) =>
-          val endTime = System.nanoTime()
-          val duration = (endTime - startTime) / 1e6 // convert to milliseconds
-          if (duration > 2000) {
-            logger.warn(s"${batch.size} actions executed in the database in $duration ms.")
-          } else {
-            logger.debug(s"${batch.size} actions executed in the database in $duration ms.")
-          }
           isProcessing.set(false)
           if (!queue.isEmpty) tryProcessBatch()
         case scala.util.Failure(e) =>
