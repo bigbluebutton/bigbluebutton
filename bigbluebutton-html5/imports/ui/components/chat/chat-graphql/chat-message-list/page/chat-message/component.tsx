@@ -12,7 +12,6 @@ import { defineMessages, FormattedTime, useIntl } from 'react-intl';
 import FocusTrap from 'focus-trap-react';
 import classNames from 'classnames';
 import { useMutation } from '@apollo/client';
-import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import ChatMessageHeader from './message-header/component';
 import ChatMessageTextContent from './message-content/text-content/component';
 import ChatPollContent from './message-content/poll-content/component';
@@ -254,10 +253,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   ), [chats, message?.chatId]);
   const pinnedMessagesCount = React.useMemo(() => currentChat?.pinnedMessageIds?.length ?? 0, [currentChat]);
 
-  const { data: meetingData } = useMeeting((m) => ({
-    chat: { maxPinnedChatMessages: m.chat?.maxPinnedChatMessages },
-  }));
-
   const chatMessageContentWrapperRef = React.useRef<HTMLDivElement>(null);
   const messageContentRef = React.useRef<HTMLDivElement>(null);
   const [isToolbarReactionPopoverOpen, setIsToolbarReactionPopoverOpen] = React.useState(false);
@@ -312,9 +307,26 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   }, [chatSetPinned, message.chatId, message.messageId]);
 
   const replacePinnedMessage = useCallback(() => {
-    // The server handles eviction of the oldest pinned message when the limit is reached
-    pinMessageAction();
-  }, [pinMessageAction]);
+    const pinnedIds = currentChat?.pinnedMessageIds ?? [];
+    const unpinPromises = pinnedIds.map((msgId) => chatSetPinned({
+      variables: {
+        chatId: message.chatId,
+        messageId: msgId,
+        pinned: false,
+      },
+    }).catch((e) => {
+      logger.error({
+        logCode: 'chat_set_pinned_error',
+        extraInfo: {
+          errorName: e?.name,
+          errorMessage: e?.message,
+        },
+      }, `Unpinning the message failed: ${e?.message}`);
+    }));
+    Promise.all(unpinPromises).then(() => {
+      pinMessageAction();
+    });
+  }, [chatSetPinned, currentChat?.pinnedMessageIds, message.chatId, pinMessageAction]);
 
   const [chatDeleteMessage] = useMutation(CHAT_DELETE_MESSAGE_MUTATION);
   const onDeleteConfirmation = useCallback(() => {
@@ -844,11 +856,8 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       return;
     }
 
-    // Replace existing pinned message only when limit is reached
-    const maxPinnedChatMessages = meetingData?.chat?.maxPinnedChatMessages;
-    if (maxPinnedChatMessages != null
-        && pinnedMessagesCount >= maxPinnedChatMessages
-        && !isPinned) {
+    // Replace existing pinned message(s) whenever any pin already exists
+    if (pinnedMessagesCount > 0 && !isPinned) {
       const handler = () => {
         setIsTryingToPinWithExisting(true);
       };
@@ -873,7 +882,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     } else {
       handler();
     }
-  }, [deactivateFocusTrap, keyboardFocused, isPinned, pinnedMessagesCount, message.message, meetingData]);
+  }, [deactivateFocusTrap, keyboardFocused, isPinned, pinnedMessagesCount, message.message]);
 
   const onDelete = useCallback((e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.stopPropagation();
