@@ -519,7 +519,7 @@ func InvalidateIdleBrowserConnectionsRoutine() {
 				browserConnection.Logger.Info("Closing browser connection, reason: idle timeout")
 				errCloseWs := browserConnection.Websocket.Close(websocket.StatusNormalClosure, "idle timeout")
 				if errCloseWs != nil {
-					browserConnection.Logger.Debugf("Error on close websocket: %v", errCloseWs)
+					browserConnection.Logger.Warnf("Error on close websocket: %v", errCloseWs)
 				}
 			}
 		}
