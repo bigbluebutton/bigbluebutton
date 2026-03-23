@@ -529,13 +529,13 @@ const Whiteboard = React.memo((props) => {
     const rect = whiteboardRef.current?.getBoundingClientRect();
     const centerX = (rect?.width || 0) / 2;
     const centerY = (rect?.height || 0) / 2;
-    const canvasMouseX = (centerX + (rect?.left || 0)) / cz + cx;
-    const canvasMouseY = (centerY + (rect?.top || 0)) / cz + cy;
+    const canvasMouseX = centerX / cz + cx;
+    const canvasMouseY = centerY / cz + cy;
 
     // Calculate the new camera position to keep the mouse position under the cursor
     const nextCamera = {
-      x: canvasMouseX - (canvasMouseX - cx) * (newCameraZoomFactor / cz),
-      y: canvasMouseY - (canvasMouseY - cy) * (newCameraZoomFactor / cz),
+      x: cx + (canvasMouseX - cx) * (cz / newCameraZoomFactor - 1),
+      y: cy + (canvasMouseY - cy) * (cz / newCameraZoomFactor - 1),
       z: newCameraZoomFactor,
     };
 
@@ -1878,7 +1878,7 @@ const Whiteboard = React.memo((props) => {
       }
     }
     prevZoomValueRef.current = zoomValue;
-  }, [zoomValue, pageChanged, tlEditorRef.current, isWheelZoomRef.current]);
+  }, [zoomValue, pageChanged, tlEditorRef.current]);
 
   const prevFitToWidth = usePrevious(fitToWidth);
 
