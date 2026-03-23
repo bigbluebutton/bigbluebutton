@@ -135,6 +135,10 @@ const ChatPollContent = React.forwardRef<ChatPollContentHandle, ChatPollContentP
         return `${correct}${a.pollAnswer}: ${a.numVotes} ${voteLabel}`;
       }),
     ].filter((_line, idx) => idx !== 1 || pollData.questionText);
+    if (!navigator.clipboard) {
+      logger.warn({ logCode: 'poll_clipboard_unavailable' }, 'Clipboard API not available in this context');
+      return;
+    }
     navigator.clipboard.writeText(lines.join('\n')).then(() => {
       onDone();
     }).catch((err: Error) => {
@@ -150,10 +154,33 @@ const ChatPollContent = React.forwardRef<ChatPollContentHandle, ChatPollContentP
     const { width: svgW, height: svgH } = svgEl.getBoundingClientRect();
     const padding = 24;
     const titleFontSize = 16;
-    const titleAreaHeight = pollData.questionText
-      ? Math.ceil(titleFontSize * 1.4) + padding
-      : padding;
+    const lineHeight = Math.ceil(titleFontSize * 1.4);
     const canvasW = svgW + padding * 2;
+
+    // Measure and wrap title text so long questions don't get clipped
+    const titleLines: string[] = [];
+    if (pollData.questionText) {
+      const measureCtx = document.createElement('canvas').getContext('2d');
+      if (measureCtx) {
+        measureCtx.font = `bold ${titleFontSize}px sans-serif`;
+        const maxWidth = canvasW - padding * 2;
+        const words = pollData.questionText.split(' ');
+        let currentLine = '';
+        words.forEach((word) => {
+          const testLine = currentLine ? `${currentLine} ${word}` : word;
+          if (measureCtx.measureText(testLine).width > maxWidth && currentLine) {
+            titleLines.push(currentLine);
+            currentLine = word;
+          } else {
+            currentLine = testLine;
+          }
+        });
+        if (currentLine) titleLines.push(currentLine);
+      }
+    }
+    const titleAreaHeight = titleLines.length > 0
+      ? lineHeight * titleLines.length + padding
+      : padding;
     const canvasH = svgH + titleAreaHeight + padding;
 
     const clonedSvg = svgEl.cloneNode(true) as SVGElement;
@@ -178,11 +205,13 @@ const ChatPollContent = React.forwardRef<ChatPollContentHandle, ChatPollContentP
       if (!ctx) return;
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, canvasW, canvasH);
-      if (pollData.questionText) {
+      if (titleLines.length > 0) {
         ctx.fillStyle = '#333333';
         ctx.font = `bold ${titleFontSize}px sans-serif`;
         ctx.textAlign = 'center';
-        ctx.fillText(pollData.questionText, canvasW / 2, padding + titleFontSize);
+        titleLines.forEach((line, i) => {
+          ctx.fillText(line, canvasW / 2, padding + titleFontSize + i * lineHeight);
+        });
       }
       ctx.drawImage(img, padding, titleAreaHeight);
       URL.revokeObjectURL(url);
