@@ -216,6 +216,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   const containerRef = React.useRef<HTMLDivElement>(null);
   const pollActionsRef = React.useRef<ChatPollContentHandle>(null);
   const [pollResultCopied, setPollResultCopied] = React.useState(false);
+  const pollCopyTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const animationInitialTimestamp = React.useRef(0);
   const animationInitialScrollPosition = React.useRef(0);
   const animationScrollPositionDiff = React.useRef(0);
@@ -393,6 +394,10 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       containerRef.current?.scrollIntoView({ behavior: 'instant', block: 'center', inline: 'center' });
     }
   }, [focused]);
+
+  useEffect(() => () => {
+    if (pollCopyTimeoutRef.current) clearTimeout(pollCopyTimeoutRef.current);
+  }, []);
 
   const pluginMessageNotCustom = (previousMessage?.messageType !== ChatMessageType.PLUGIN
     || !JSON.parse(previousMessage?.messageMetadata).custom);
@@ -619,8 +624,9 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
         title={intl.formatMessage(intlMessages.copyPollResults)}
         onClick={() => {
           pollActionsRef.current?.copy(() => {
+            if (pollCopyTimeoutRef.current) clearTimeout(pollCopyTimeoutRef.current);
             setPollResultCopied(true);
-            setTimeout(() => setPollResultCopied(false), 2000);
+            pollCopyTimeoutRef.current = setTimeout(() => setPollResultCopied(false), 2000);
           });
         }}
       >

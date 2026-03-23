@@ -2,6 +2,7 @@ import React, { useRef, useCallback, useImperativeHandle } from 'react';
 import {
   Bar, BarChart, ResponsiveContainer, XAxis, YAxis,
 } from 'recharts';
+import logger from '/imports/startup/client/logger';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
@@ -136,7 +137,9 @@ const ChatPollContent = React.forwardRef<ChatPollContentHandle, ChatPollContentP
     ].filter((_line, idx) => idx !== 1 || pollData.questionText);
     navigator.clipboard.writeText(lines.join('\n')).then(() => {
       onDone();
-    }).catch(() => {});
+    }).catch((err: Error) => {
+      logger.warn({ logCode: 'poll_clipboard_copy_error', extraInfo: { errorMessage: err?.message } }, 'Failed to copy poll results to clipboard');
+    });
   }, [translatedAnswers, pollData, intl]);
 
   const handleDownload = useCallback(() => {
@@ -167,6 +170,9 @@ const ChatPollContent = React.forwardRef<ChatPollContentHandle, ChatPollContentP
     canvas.height = canvasH;
 
     const img = new Image();
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+    };
     img.onload = () => {
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
