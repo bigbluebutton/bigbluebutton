@@ -150,6 +150,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
 
   const videoTag = useRef<HTMLVideoElement | null>(null);
   const videoContainer = useRef<HTMLDivElement | null>(null);
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setUserCamerasRequestedFromPlugin((userCamera) => {
@@ -281,6 +282,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       unsubscribeFromStreamStateChange(cameraId, onStreamStateChange);
       onVideoItemUnmount(cameraId);
     }
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
   }, []);
 
   useEffect(() => {
@@ -440,8 +442,16 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       data-test={talking ? 'webcamItemTalkingUser' : 'webcamItem'}
       animations={animations}
       isStream={isStream}
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={() => {
+        if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+        setIsHovered(true);
+      }}
       onMouseLeave={() => setIsHovered(false)}
+      onTouchStart={() => {
+        if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+        setIsHovered(true);
+        hoverTimeoutRef.current = setTimeout(() => setIsHovered(false), 3000);
+      }}
       {...{
         onDragLeave,
         onDragOver,
