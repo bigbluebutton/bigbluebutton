@@ -132,6 +132,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   const [isVideoSqueezed, setIsVideoSqueezed] = useState(false);
   const [isVideoPluginHelperSqueezed, setIsVideoPluginHelperSqueezed] = useState(false);
   const [isSelfViewDisabled, setIsSelfViewDisabled] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const pluginSqueezedResizeObserver = new ResizeObserver((entry) => {
     if (entry && entry[0]?.contentRect?.width < VIDEO_CONTAINER_PLUGIN_HELPERS_WIDTH_BOUND) {
@@ -286,27 +287,6 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     setIsSelfViewDisabled(settingsSelfViewDisable);
   }, [settingsSelfViewDisable]);
 
-  const renderSqueezedButton = () => (
-    <UserActions
-      name={name}
-      stream={stream}
-      videoContainer={videoContainer}
-      isVideoSqueezed={isVideoSqueezed}
-      cameraId={cameraId}
-      numOfStreams={numOfStreams}
-      onHandleVideoFocus={onHandleVideoFocus}
-      focused={focused}
-      onHandleMirror={() => setIsMirrored((value) => !value)}
-      isMirrored={isMirrored}
-      isRTL={isRTL}
-      isStream={isStream}
-      onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
-      isSelfViewDisabled={isSelfViewDisabled}
-      amIModerator={amIModerator}
-      isFullscreenContext={isFullscreenContext}
-      layoutContextDispatch={layoutContextDispatch}
-    />
-  );
   const renderRaiseHandElement = () => {
     if (!raiseHand) return null;
 
@@ -460,6 +440,8 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       data-test={talking ? 'webcamItemTalkingUser' : 'webcamItem'}
       animations={animations}
       isStream={isStream}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       {...{
         onDragLeave,
         onDragOver,
@@ -496,9 +478,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
         </Styled.VideoDisabled>
       )}
 
-      {/* eslint-disable-next-line no-nested-ternary */}
-
-      {isVideoSqueezed ? renderSqueezedButton() : renderDefaultButtons()}
+      {(!isVideoSqueezed || isHovered) && renderDefaultButtons()}
       {stream.type === VIDEO_TYPES.AUDIO_ONLY && (
         isVideoSqueezed ? renderWebcamConnectingSqueezed() : renderWebcamConnecting()
       )}

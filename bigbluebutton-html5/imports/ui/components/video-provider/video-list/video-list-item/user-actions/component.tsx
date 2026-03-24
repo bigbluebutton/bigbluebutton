@@ -68,10 +68,6 @@ const intlMessages = defineMessages({
     id: 'app.videoDock.webcamExitFullscreenLabel',
     description: 'Make exit fullscreen option label',
   },
-  squeezedLabel: {
-    id: 'app.videoDock.webcamSqueezedButtonLabel',
-    description: 'User selected webcam squeezed options',
-  },
   disableDesc: {
     id: 'app.videoDock.webcamDisableDesc',
   },
@@ -98,7 +94,6 @@ interface UserActionProps {
   onHandleDisableCam: () => void;
   isSelfViewDisabled: boolean;
   amIModerator: boolean;
-  isVideoSqueezed?: boolean,
   videoContainer?: MutableRefObject<HTMLDivElement | null>,
   isFullscreenContext: boolean;
   layoutContextDispatch: (...args: unknown[]) => void;
@@ -107,7 +102,7 @@ interface UserActionProps {
 const UserActions: React.FC<UserActionProps> = (props) => {
   const {
     name, cameraId, numOfStreams, onHandleVideoFocus, stream, focused, onHandleMirror,
-    isVideoSqueezed = false, videoContainer, isRTL, isStream, isSelfViewDisabled, isMirrored,
+    videoContainer, isRTL, isStream, isSelfViewDisabled, isMirrored,
     amIModerator, isFullscreenContext, layoutContextDispatch,
   } = props;
 
@@ -166,16 +161,6 @@ const UserActions: React.FC<UserActionProps> = (props) => {
         Session.setItem('disabledCams', disabledCams.filter((cId: string) => cId !== cameraId));
       }
     };
-
-    if (isVideoSqueezed) {
-      menuItems.push({
-        key: `${cameraId}-name`,
-        label: displayName,
-        description: displayName,
-        onClick: () => { },
-        disabled: true,
-      });
-    }
 
     if (userId === Auth.userID && isStream && !isSelfViewDisabled) {
       menuItems.push({
@@ -287,30 +272,6 @@ const UserActions: React.FC<UserActionProps> = (props) => {
     return menuItems;
   };
 
-  const renderSqueezedButton = () => (
-    <Styled.MenuWrapperSqueezed>
-      <BBBMenu
-        trigger={(
-          <Styled.OptionsButton
-            label={intl.formatMessage(intlMessages.squeezedLabel)}
-            aria-label={`${name} ${intl.formatMessage(intlMessages.squeezedLabel)}`}
-            data-test="webcamOptionsMenuSqueezed"
-            icon="device_list_selector"
-            ghost
-            color="primary"
-            hideLabel
-            size="sm"
-            onClick={() => null}
-          />
-        )}
-        actions={getAvailableActions()}
-        opts={{
-          container: isFullscreenContext ? videoContainer?.current : document.body,
-        }}
-      />
-    </Styled.MenuWrapperSqueezed>
-  );
-
   const renderDefaultButton = () => (
     <Styled.MenuWrapper>
       {enableVideoMenu && getAvailableActions().length >= 1
@@ -350,11 +311,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
     </Styled.MenuWrapper>
   );
 
-  return (
-    isVideoSqueezed
-      ? renderSqueezedButton()
-      : renderDefaultButton()
-  );
+  return renderDefaultButton();
 };
 
 export default UserActions;
