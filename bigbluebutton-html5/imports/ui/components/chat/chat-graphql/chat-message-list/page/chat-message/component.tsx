@@ -382,13 +382,13 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     const scrollTop = scrollRef.current?.scrollTop || 0;
     const viewportHeight = scrollRef.current?.offsetHeight || 0;
 
-    // Se não precisa fazer scroll (mensagem já está visível)
+    // If no scroll is needed (message is already visible)
     if (containerOffset >= scrollTop && containerOffset <= scrollTop + viewportHeight) {
       requestAnimationFrame(startBackgroundAnimation);
       return;
     }
 
-    // Se precisa fazer scroll para cima
+    // If scroll up is needed
     if (containerOffset < scrollTop) {
       animationScrollDirection.current = 'up';
       animationInitialScrollPosition.current = scrollTop;
@@ -398,7 +398,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       return;
     }
 
-    // Se precisa fazer scroll para baixo
+    // If scroll down is needed
     if (containerOffset > scrollTop + viewportHeight) {
       animationScrollDirection.current = 'down';
       animationInitialScrollPosition.current = scrollTop;
