@@ -138,14 +138,14 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-Italic.woff?v=VERSION" as="font" crossorigin="anonymous"/>
   <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-SemiboldItalic.woff?v=VERSION" as="font" crossorigin="anonymous"/>
   <link rel="preload" href="fonts/SourceSansPro/SourceSansPro-BoldItalic.woff?v=VERSION" as="font" crossorigin="anonymous"/>
-  
+
   <link rel="stylesheet" href="stylesheets/bbb-icons.css" crossorigin="anonymous"/>
   <link rel="stylesheet" href="stylesheets/fonts.css" crossorigin="anonymous"/>
   <link rel="stylesheet" href="stylesheets/fontSizing.css" crossorigin="anonymous"/>
   <link rel="stylesheet" href="stylesheets/modals.css" crossorigin="anonymous"/>
   <link rel="stylesheet" href="stylesheets/toastify.css" crossorigin="anonymous"/>
   <link rel="stylesheet" href="stylesheets/toggleSwitch.css" crossorigin="anonymous"/>
-  
+
   <style>
     @font-face {
       font-family: 'bbb-icons';
@@ -204,6 +204,50 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             banner.innerHTML = '<strong>Browser not supported</strong><br>Please update your browser or contact support service.';
             banner.style.cssText = 'background:#ffdddd;color:#a00;padding:1em;margin:1em 0;text-align:center;font-family:sans-serif;';
             document.body.insertBefore(banner, document.body.firstChild);
+
+            var blockReason = 'unknown';
+            var detectedVersion = null;
+            if (miuiVersion !== null) {
+              blockReason = 'miui_browser_not_supported';
+              detectedVersion = miuiVersion;
+            } else if (safariVersion && safariVersion < MIN_VERSIONS.safari) {
+              blockReason = 'safari_too_old';
+              detectedVersion = safariVersion;
+            } else if (chromeVersion && chromeVersion < MIN_VERSIONS.chrome) {
+              blockReason = 'chrome_too_old';
+              detectedVersion = chromeVersion;
+            } else if (firefoxVersion && firefoxVersion < MIN_VERSIONS.firefox) {
+              blockReason = 'firefox_too_old';
+              detectedVersion = firefoxVersion;
+            } else if (edgeVersion && edgeVersion < MIN_VERSIONS.edge) {
+              blockReason = 'edge_too_old';
+              detectedVersion = edgeVersion;
+            }
+
+            var sessionToken = null;
+            try { sessionToken = new URLSearchParams(window.location.search).get('sessionToken'); } catch (e) {}
+
+            try {
+              fetch('/html5log', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  v: 0,
+                  level: 40,
+                  name: 'clientLogger',
+                  time: new Date().toISOString(),
+                  logCode: 'unsupported_browser',
+                  msg: 'User blocked by browser version check: ' + blockReason,
+                  extraInfo: {
+                    reason: blockReason,
+                    detectedVersion: detectedVersion,
+                    userAgent: ua,
+                    sessionToken: sessionToken,
+                    currentUrl: window.location.href,
+                  },
+                }),
+              });
+            } catch (e) {}
           } else {
             var bundleHash = '<%= bundleHash %>';
             var isProduction = '<%= isProduction %>' === 'true';
@@ -219,7 +263,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             document.head.appendChild(script);
           }
 
-          
+
         })();
       </script>
   </main>
