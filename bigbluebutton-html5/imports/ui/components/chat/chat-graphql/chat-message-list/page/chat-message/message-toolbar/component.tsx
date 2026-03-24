@@ -31,6 +31,12 @@ const intlMessages = defineMessages({
   pinTooltip: {
     id: 'app.chat.header.tooltipPin',
     description: 'pin message tooltip',
+    defaultMessage: 'Pin message',
+  },
+  unpinTooltip: {
+    id: 'app.chat.header.tooltipUnpin',
+    description: 'unpin message tooltip',
+    defaultMessage: 'Unpin message',
   },
   deleteTooltip: {
     id: 'app.chat.header.tooltipDelete',
@@ -123,10 +129,10 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
         </Tooltip>
       )}
       {showPinMessageButton && (
-        <Tooltip title={intl.formatMessage(intlMessages.pinTooltip)}>
+        <Tooltip title={intl.formatMessage(isPinned ? intlMessages.unpinTooltip : intlMessages.pinTooltip)}>
           <span>
             <EmojiButton
-              aria-label={intl.formatMessage(intlMessages.pinTooltip)}
+              aria-label={intl.formatMessage(isPinned ? intlMessages.unpinTooltip : intlMessages.pinTooltip)}
               onClick={togglePin}
               icon={`pin-video_${isPinned ? 'off' : 'on'}`}
               color="light"

@@ -84,6 +84,7 @@
     "app.chat.header.tooltipReply": "Reply to message",
     "app.chat.header.tooltipDelete": "Delete message",
     "app.chat.header.tooltipPin": "Pin message",
+    "app.chat.header.tooltipUnpin": "Unpin message",
     "app.chat.header.tooltipReact": "React to message",
     "app.chat.content.pollVote": "vote",
     "app.chat.content.pollVotes": "votes",
