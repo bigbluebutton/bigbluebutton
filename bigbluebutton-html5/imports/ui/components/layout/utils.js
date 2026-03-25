@@ -168,4 +168,11 @@ const LAYOUTS_SYNC = {
     ],
   },
 };
-export { suportedLayouts, LAYOUTS_SYNC, getWaitLayout };
+const isValidSynchronizationLayout = (layout) => layout && LAYOUTS_SYNC[layout] != null;
+
+export {
+  suportedLayouts,
+  LAYOUTS_SYNC,
+  getWaitLayout,
+  isValidSynchronizationLayout,
+};
