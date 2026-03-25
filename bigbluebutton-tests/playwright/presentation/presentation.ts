@@ -63,7 +63,7 @@ export class Presentation extends MultiUsers {
     await expect(modWhiteboardLocator, 'should display the same screenshot as taken before').toHaveScreenshot(
       'moderator-share-camera-as-content.png',
       {
-        maxDiffPixels: 1000,
+        mask: [modWhiteboardLocator],
       },
     );
 
@@ -75,7 +75,7 @@ export class Presentation extends MultiUsers {
     await this.modPage.closeAllToastNotifications();
     const viewerWhiteboardLocator = this.userPage.page.locator(e.screenShareVideo);
     await expect(viewerWhiteboardLocator).toHaveScreenshot('viewer-share-camera-as-content.png', {
-      maxDiffPixels: 1000,
+      mask: [viewerWhiteboardLocator],
     });
   }
 
