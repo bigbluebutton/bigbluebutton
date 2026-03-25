@@ -1199,7 +1199,7 @@
     "app.lock-viewers.disablePresenterRequestLabel": "Αίτηση για να γίνετε παρουσιαστής.",
     "app.lock-viewers.tabs.guestPolicy": "Πολιτική Επισκεπτών",
     "app.lock-viewers.tabs.participantPermissions": "Δικαιώματα Συμμετεχόντων",
-    "app.lock-viewers.tabs.presentationPermissions": "Presentation Policy",
+    "app.lock-viewers.tabs.presentationPermissions": "Πολιτική Παρουσίασης",
     "app.lock-viewers.guestPolicy.title": "Πολιτική Επισκεπτών",
     "app.lock-viewers.guestPolicy.description": "Ρυθμίστε τον τρόπο χειρισμού των προσκεκλημένων όταν προσπαθούν να συμμετάσχουν στην τηλεδιάσκεψη.",
     "app.lock-viewers.participantPermissions.title": "Δικαιώματα Συμμετεχόντων",
