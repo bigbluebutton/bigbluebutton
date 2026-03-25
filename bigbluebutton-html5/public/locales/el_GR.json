@@ -1204,7 +1204,7 @@
     "app.lock-viewers.guestPolicy.description": "Ρυθμίστε τον τρόπο χειρισμού των προσκεκλημένων όταν προσπαθούν να συμμετάσχουν στην τηλεδιάσκεψη.",
     "app.lock-viewers.participantPermissions.title": "Δικαιώματα Συμμετεχόντων",
     "app.lock-viewers.participantPermissions.description": "Οι παρακάτω επιλογές καθορίζουν τι μπορούν να κάνουν οι συμμετέχοντες στην περίοδο λειτουργίας. Η κατάργηση της επιλογής καταργεί αυτό το δικαίωμα.",
-    "app.lock-viewers.presentationPermissions.title": "Presentation Policy",
+    "app.lock-viewers.presentationPermissions.title": "Πολιτική Παρουσίασης",
     "app.lock-viewers.presentationPermissions.description": "Ρυθμίστε τον τρόπο διαχείρισης των δικαιωμάτων παρουσίασης στην περίοδο λειτουργίας.",
     "app.lock-viewers.presentationPermissions.moderatorOnly": "Ο παρουσιαστής ορίζεται από έναν συντονιστή",
     "app.lock-viewers.presentationPermissions.moderatorOnly.tooltip": "Μόνο οι συντονιστές μπορούν να αναθέσουν τον ρόλο του παρουσιαστή στους συμμετέχοντες.",
