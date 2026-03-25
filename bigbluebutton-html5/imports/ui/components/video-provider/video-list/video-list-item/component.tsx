@@ -488,6 +488,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
         }, 300);
       }}
       onTouchMove={() => {
+        if (!isVideoSqueezed) return;
         if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
         setIsHovered(false);
       }}
