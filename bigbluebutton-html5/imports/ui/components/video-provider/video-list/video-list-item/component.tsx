@@ -289,6 +289,34 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     setIsSelfViewDisabled(settingsSelfViewDisable);
   }, [settingsSelfViewDisable]);
 
+  const renderSqueezedButton = () => (
+    <UserActions
+      name={name}
+      stream={stream}
+      videoContainer={videoContainer}
+      isVideoSqueezed={isVideoSqueezed}
+      cameraId={cameraId}
+      numOfStreams={numOfStreams}
+      onHandleVideoFocus={onHandleVideoFocus}
+      focused={focused}
+      onHandleMirror={() => setIsMirrored((value) => !value)}
+      isMirrored={isMirrored}
+      isRTL={isRTL}
+      isStream={isStream}
+      onHandleDisableCam={() => setIsSelfViewDisabled((value) => !value)}
+      isSelfViewDisabled={isSelfViewDisabled}
+      amIModerator={amIModerator}
+      isFullscreenContext={isFullscreenContext}
+      layoutContextDispatch={layoutContextDispatch}
+    />
+  );
+
+  const renderSqueezedName = () => (
+    <Styled.BottomBar>
+      <Styled.SqueezedName>{name}</Styled.SqueezedName>
+    </Styled.BottomBar>
+  );
+
   const renderRaiseHandElement = () => {
     if (!raiseHand) return null;
 
@@ -443,14 +471,25 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       animations={animations}
       isStream={isStream}
       onMouseEnter={() => {
+        if (!isVideoSqueezed) return;
         if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
         setIsHovered(true);
       }}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseLeave={() => {
+        if (!isVideoSqueezed) return;
+        setIsHovered(false);
+      }}
       onTouchStart={() => {
+        if (!isVideoSqueezed) return;
         if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
-        setIsHovered(true);
-        hoverTimeoutRef.current = setTimeout(() => setIsHovered(false), 3000);
+        hoverTimeoutRef.current = setTimeout(() => {
+          setIsHovered(true);
+          hoverTimeoutRef.current = setTimeout(() => setIsHovered(false), 3000);
+        }, 300);
+      }}
+      onTouchMove={() => {
+        if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+        setIsHovered(false);
       }}
       {...{
         onDragLeave,
@@ -488,7 +527,8 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
         </Styled.VideoDisabled>
       )}
 
-      {(!isVideoSqueezed || isHovered) && renderDefaultButtons()}
+      {isVideoSqueezed ? renderSqueezedButton() : renderDefaultButtons()}
+      {isVideoSqueezed && isHovered && renderSqueezedName()}
       {stream.type === VIDEO_TYPES.AUDIO_ONLY && (
         isVideoSqueezed ? renderWebcamConnectingSqueezed() : renderWebcamConnecting()
       )}

@@ -68,6 +68,10 @@ const intlMessages = defineMessages({
     id: 'app.videoDock.webcamExitFullscreenLabel',
     description: 'Make exit fullscreen option label',
   },
+  squeezedLabel: {
+    id: 'app.videoDock.webcamSqueezedButtonLabel',
+    description: 'User selected webcam squeezed options',
+  },
   disableDesc: {
     id: 'app.videoDock.webcamDisableDesc',
   },
@@ -94,6 +98,7 @@ interface UserActionProps {
   onHandleDisableCam: () => void;
   isSelfViewDisabled: boolean;
   amIModerator: boolean;
+  isVideoSqueezed?: boolean,
   videoContainer?: MutableRefObject<HTMLDivElement | null>,
   isFullscreenContext: boolean;
   layoutContextDispatch: (...args: unknown[]) => void;
@@ -102,7 +107,7 @@ interface UserActionProps {
 const UserActions: React.FC<UserActionProps> = (props) => {
   const {
     name, cameraId, numOfStreams, onHandleVideoFocus, stream, focused, onHandleMirror,
-    videoContainer, isRTL, isStream, isSelfViewDisabled, isMirrored,
+    isVideoSqueezed = false, videoContainer, isRTL, isStream, isSelfViewDisabled, isMirrored,
     amIModerator, isFullscreenContext, layoutContextDispatch,
   } = props;
 
@@ -152,6 +157,16 @@ const UserActions: React.FC<UserActionProps> = (props) => {
     const ALLOW_FULLSCREEN = !isIphone ? window.meetingClientSettings.public.app.allowFullscreen : false;
 
     const menuItems = [];
+
+    if (isVideoSqueezed) {
+      menuItems.push({
+        key: `${cameraId}-name`,
+        label: displayName,
+        description: displayName,
+        onClick: () => { },
+        disabled: true,
+      });
+    }
 
     const toggleDisableCam = () => {
       if (!isCameraDisabled) {
@@ -311,7 +326,35 @@ const UserActions: React.FC<UserActionProps> = (props) => {
     </Styled.MenuWrapper>
   );
 
-  return renderDefaultButton();
+  const renderSqueezedButton = () => (
+    <Styled.MenuWrapperSqueezed>
+      <BBBMenu
+        trigger={(
+          <Styled.OptionsButton
+            label={intl.formatMessage(intlMessages.squeezedLabel)}
+            aria-label={`${name} ${intl.formatMessage(intlMessages.squeezedLabel)}`}
+            data-test="webcamOptionsMenuSqueezed"
+            icon="device_list_selector"
+            ghost
+            color="primary"
+            hideLabel
+            size="sm"
+            onClick={() => null}
+          />
+        )}
+        actions={getAvailableActions()}
+        opts={{
+          container: isFullscreenContext ? videoContainer?.current : document.body,
+        }}
+      />
+    </Styled.MenuWrapperSqueezed>
+  );
+
+  return (
+    isVideoSqueezed
+      ? renderSqueezedButton()
+      : renderDefaultButton()
+  );
 };
 
 export default UserActions;
