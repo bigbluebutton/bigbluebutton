@@ -18,7 +18,7 @@ import StatusTable from './components/StatusTable';
 import PollsTable from './components/PollsTable';
 import PluginsTable from './components/PluginsTable';
 import ErrorMessage from './components/ErrorMessage';
-import { makeUserCSVData, tsToHHmmss } from './services/UserService';
+import { makeUserCSVData, tsToHHmmss, mergeOverlappingUsers } from './services/UserService';
 import QuizzesTable from './components/QuizzesTable';
 import QuizzesChart from './components/QuizzesChart';
 
@@ -254,7 +254,7 @@ class App extends React.Component {
           }
         });
       });
-      return newActivivies;
+      return mergeOverlappingUsers(newActivivies);
     };
 
     if (learningDashboardAccessToken !== '') {
@@ -279,7 +279,7 @@ class App extends React.Component {
           if (json.response.returncode === 'SUCCESS') {
             const jsonData = JSON.parse(json.response.data);
             this.setState({
-              activitiesJson: jsonData,
+              activitiesJson: mergeOverlappingUsers(jsonData),
               loading: false,
               invalidSessionCount: 0,
               lastUpdated: Date.now(),

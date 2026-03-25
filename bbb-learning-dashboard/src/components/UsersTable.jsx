@@ -71,19 +71,8 @@ class UsersTable extends React.Component {
 
   onlineTimeOrder(a, b) {
     const { onlineTimeOrder } = this.state;
-    const onlineTimeA = Object.values(a.intIds).reduce((prev, intId) => (
-      prev + intId.sessions.reduce((prev2, session) => (
-        prev2 + (session.leftOn > 0
-          ? session.leftOn
-          : (new Date()).getTime()) - session.registeredOn), 0)
-    ), 0);
-
-    const onlineTimeB = Object.values(b.intIds).reduce((prev, intId) => (
-      prev + intId.sessions.reduce((prev2, session) => (
-        prev2 + (session.leftOn > 0
-          ? session.leftOn
-          : (new Date()).getTime()) - session.registeredOn), 0)
-    ), 0);
+    const onlineTimeA = getSumOfTime(Object.values(a.intIds));
+    const onlineTimeB = getSumOfTime(Object.values(b.intIds));
 
     if (onlineTimeA < onlineTimeB) {
       return onlineTimeOrder === 'desc' ? 1 : -1;
@@ -321,8 +310,10 @@ class UsersTable extends React.Component {
                         >
                           {user.name}
                         </button>
-                        { Object.values(user.intIds || {}).map((intId, index) => intId.sessions
-                          .map((session, sessionIndex) => (
+                        { Object.values(user.intIds || {})
+                          .flatMap((intId) => intId.sessions)
+                          .sort((a, b) => a.registeredOn - b.registeredOn)
+                          .map((session, sessionIndex, sessionsArr) => (
                             <>
                               <p className="text-xs text-gray-700 dark:text-gray-400">
                                 <svg
@@ -377,14 +368,13 @@ class UsersTable extends React.Component {
                                   </p>
                                 )
                                 : null }
-                              { index === Object.values(user.intIds).length - 1
-                                && sessionIndex === intId?.sessions.length - 1
+                              { sessionIndex === sessionsArr.length - 1
                                 ? null
                                 : (
                                   <hr className="my-1" />
                                 ) }
                             </>
-                          ))) }
+                          )) }
                       </div>
                     </td>
                     <td className={`px-4 py-3 text-sm text-center items-center ${opacity}`} data-test="userOnlineTimeDashboard">
@@ -403,19 +393,16 @@ class UsersTable extends React.Component {
                         />
                       </svg>
                       &nbsp;
-                      { tsToHHmmss(Object.values(user.intIds).reduce((prev, intId) => (
-                        prev + intId.sessions.reduce((prev2, session) => ((session.leftOn > 0
-                          ? prev2 + session.leftOn
-                          : prev2 + (new Date()).getTime()) - session.registeredOn), 0)), 0)) }
+                      { tsToHHmmss(getSumOfTime(Object.values(user.intIds))) }
                       <br />
                       {
                         ((function getPercentage() {
                           const { intIds } = user;
-                          const percentage = Object.values(intIds || {}).reduce((prev, intId) => (
-                            prev + intId.sessions.reduce((prev2, session) => (
-                              prev2 + this.getOnlinePercentage(session.registeredOn, session.leftOn)
-                            ), 0)
-                          ), 0);
+                          const { totalOfActivityTime } = this.props;
+                          let percentage = Math.ceil(
+                            (getSumOfTime(Object.values(intIds || {})) / totalOfActivityTime) * 100,
+                          );
+                          if (percentage > 100) percentage = 100;
 
                           return (
                             <div
