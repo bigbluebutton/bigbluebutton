@@ -8,6 +8,7 @@ import org.bigbluebutton.api.exception.PluginMalformedParametersException;
 import org.bigbluebutton.api.exception.PluginMetadataException;
 import org.bigbluebutton.api.service.impl.PluginRedirectValidatorService;
 import org.bigbluebutton.api.service.RedirectFollowerService;
+import org.bigbluebutton.api.service.ValidatedUrl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.github.zafarkhaja.semver.Version;
@@ -45,15 +46,16 @@ public class PluginUtils {
 
     private String extractFinalPluginManifestUrl(String rawManifestUrl, String meetingId) {
         String manifestUrlBeforeRedirections = replaceAllPlaceholdersInManifestUrls(rawManifestUrl, meetingId);
-        String finalUrl = redirectFollower.followRedirect(
+        ValidatedUrl validatedUrl = redirectFollower.followRedirectSecure(
                 meetingId, manifestUrlBeforeRedirections, 0, manifestUrlBeforeRedirections,
                 pluginRedirectValidator, 6000
         );
-        if (finalUrl != null) {
-            return finalUrl;
+        if (validatedUrl != null) {
+            return validatedUrl.originalUrl();
         } else {
-            log.error("Raw manifest URL [{}] failed when following redirects", manifestUrlBeforeRedirections);
-            return manifestUrlBeforeRedirections;
+            log.error("Plugin manifest URL [{}] failed security validation for meeting [{}]",
+                    manifestUrlBeforeRedirections, meetingId);
+            return null;
         }
     }
 
@@ -63,6 +65,11 @@ public class PluginUtils {
             if (pluginManifestJsonObj.has("url")) {
                 String barePluginManifestUrl = pluginManifestJsonObj.get("url").getAsString();
                 String url = extractFinalPluginManifestUrl(barePluginManifestUrl, meetingId);
+                if (url == null) {
+                    log.error("Plugin manifest URL [{}] rejected for meeting [{}]",
+                            barePluginManifestUrl, meetingId);
+                    return null;
+                }
                 PluginManifest newPlugin = new PluginManifest(url);
                 if (pluginManifestJsonObj.has("checksum")) {
                     newPlugin.setChecksum(pluginManifestJsonObj.get("checksum").getAsString());
