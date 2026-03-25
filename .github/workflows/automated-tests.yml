@@ -22,7 +22,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build-package:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -134,7 +134,7 @@ jobs:
           name: artifacts_${{ matrix.package }}
           path: artifacts/
   bbb-libreoffice-image:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout PR's source merged into its target branch
         if: github.event_name == 'pull_request'
@@ -162,7 +162,7 @@ jobs:
           docker save docker.io/${{ env.BBB_LIBREOFFICE_IMAGE_NAME }} -o bbb-libreoffice.tar
   unify-artifacts:
     needs: build-package
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Create all-artifacts directory
         run: mkdir -p all-artifacts
@@ -262,7 +262,7 @@ jobs:
     needs:
       - unify-artifacts
       - bbb-libreoffice-image
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -424,7 +424,7 @@ jobs:
     needs:
       - unify-artifacts
       - bbb-libreoffice-image
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
     env:
@@ -622,7 +622,7 @@ jobs:
     needs:
       - install-and-run-bbb-tests
       - install-and-run-plugin-tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     env:
       hasFailure: ${{ needs.install-and-run-bbb-tests.result == 'failure' || needs.install-and-run-plugin-tests.result == 'failure' }}
     steps:
