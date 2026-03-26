@@ -1342,8 +1342,8 @@ if [ $CHECK ]; then
         echo "                  recordingAdapter: $(echo "$WEBRTC_SFU_CONFIG" | yq -r '.recordingAdapter')"
         echo "               recordScreenSharing: $(echo "$WEBRTC_SFU_CONFIG" | yq -r '.recordScreenSharing')"
         echo "                     recordWebcams: $(echo "$WEBRTC_SFU_CONFIG" | yq -r '.recordWebcams')"
-        echo "                  codec_video_main: $(echo "$WEBRTC_SFU_CONFIG" | yq -r '.\"conference-media-specs\".codec_video_main')"
-        echo "               codec_video_content: $(echo "$WEBRTC_SFU_CONFIG" | yq -r '.\"conference-media-specs\".codec_video_content')"
+        echo "                  codec_video_main: $(echo "$WEBRTC_SFU_CONFIG" | yq -r '.["conference-media-specs"].codec_video_main')"
+        echo "               codec_video_content: $(echo "$WEBRTC_SFU_CONFIG" | yq -r '.["conference-media-specs"].codec_video_content')"
 
     fi
 
