@@ -1,17 +1,19 @@
 package org.bigbluebutton.web.services.callback;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
 
-import org.apache.http.HttpResponse;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
-import org.apache.http.impl.nio.client.HttpAsyncClients;
+import org.apache.http.conn.DnsResolver;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.bigbluebutton.api.service.ValidatedUrl;
+import org.bigbluebutton.api.service.impl.CallbackRedirectValidatorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,10 +25,13 @@ public class CallbackUrlService {
 	private BlockingQueue<DelayCallback> receivedMessages = new DelayQueue<DelayCallback>();
 
 	private volatile boolean processMessage = false;
-	private static final int MAX_REDIRECTS = 5;
+
+	private static final int CALLBACK_TIMEOUT_MS = 10_000;
 
 	private final Executor msgProcessorExec = Executors.newSingleThreadExecutor();
 	private final Executor runExec = Executors.newSingleThreadExecutor();
+
+	private CallbackRedirectValidatorService callbackRedirectValidator;
 
 	public void stop() {
 		log.info("Stopping callback url service.");
@@ -151,31 +156,47 @@ public class CallbackUrlService {
 	}
 
 	private boolean fetchCallbackUrl(final String callbackUrl) {
-
-		boolean success = false;
-
-		CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
-		try {
-			httpclient.start();
-
-			HttpGet request = new HttpGet(callbackUrl);
-
-			Future<HttpResponse> future = httpclient.execute(request, null);
-			HttpResponse response = future.get();
-			// Consider 2xx response code as success.
-			success = (response.getStatusLine().getStatusCode() >= 200 && response.getStatusLine().getStatusCode() < 300);
-		} catch (java.lang.InterruptedException ex) {
-			log.error("Interrupted exception while calling url {}", callbackUrl);
-		} catch (java.util.concurrent.ExecutionException ex) {
-			log.error("ExecutionException exception while calling url {}", callbackUrl);
-		} finally {
-			try {
-				httpclient.close();
-			} catch (java.io.IOException ex) {
-				log.error("IOException exception while closing http client for url {}", callbackUrl);
-			}
+		ValidatedUrl validatedUrl = callbackRedirectValidator.validateUrl(callbackUrl);
+		if (validatedUrl == null) {
+			log.error("Callback URL [{}] failed security validation; blocking request.", callbackUrl);
+			return false;
 		}
 
-		return success;
+		final String pinnedHost = validatedUrl.host();
+		DnsResolver pinnedDnsResolver = host -> {
+			if (host.equalsIgnoreCase(pinnedHost)) {
+				return validatedUrl.resolvedAddresses();
+			}
+			throw new UnknownHostException("DNS resolution blocked for unpinned host: " + host);
+		};
+
+		RequestConfig requestConfig = RequestConfig.custom()
+				.setRedirectsEnabled(false)
+				.setConnectTimeout(CALLBACK_TIMEOUT_MS)
+				.setSocketTimeout(CALLBACK_TIMEOUT_MS)
+				.setConnectionRequestTimeout(CALLBACK_TIMEOUT_MS)
+				.build();
+
+		try (CloseableHttpClient httpClient = HttpClients.custom()
+				.setDefaultRequestConfig(requestConfig)
+				.setDnsResolver(pinnedDnsResolver)
+				.build()) {
+
+			HttpGet request = new HttpGet(validatedUrl.originalUrl());
+			request.setHeader("Accept-Language", "en-US,en;q=0.8");
+			request.setHeader("User-Agent", "Mozilla");
+
+			try (CloseableHttpResponse response = httpClient.execute(request)) {
+				int statusCode = response.getStatusLine().getStatusCode();
+				return (statusCode >= 200 && statusCode < 300);
+			}
+		} catch (IOException e) {
+			log.error("IOException while calling callback url [{}]", callbackUrl, e);
+			return false;
+		}
+	}
+
+	public void setCallbackRedirectValidator(CallbackRedirectValidatorService callbackRedirectValidator) {
+		this.callbackRedirectValidator = callbackRedirectValidator;
 	}
 }
