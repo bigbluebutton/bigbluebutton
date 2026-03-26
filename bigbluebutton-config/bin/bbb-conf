@@ -645,8 +645,10 @@ if [[ $PORT_RANGE ]]; then
         yq -y -i ".mediasoup.worker.rtcMinPort = \"$START_PORT\"" $WEBRTC_SFU_ETC_CONFIG
         yq -y -i ".mediasoup.worker.rtcMaxPort = \"$END_PORT\"" $WEBRTC_SFU_ETC_CONFIG
 
-        yq -y -i ".webrtc.rtcMinPort = \"$START_PORT\"" $WEBRTC_RECORDER_DEFAULT_CONFIG
-        yq -y -i ".webrtc.rtcMaxPort = \"$END_PORT\"" $WEBRTC_RECORDER_DEFAULT_CONFIG
+        if [ -f $WEBRTC_RECORDER_DEFAULT_CONFIG ]; then
+            yq -y -i ".webrtc.rtcMinPort = \"$START_PORT\"" $WEBRTC_RECORDER_DEFAULT_CONFIG
+            yq -y -i ".webrtc.rtcMaxPort = \"$END_PORT\"" $WEBRTC_RECORDER_DEFAULT_CONFIG
+        fi
 
         if [ -f $LIVEKIT_SERVER_ETC_CONFIG ]; then
             yq -y -i ".rtc.port_range_start = \"$START_PORT\"" $LIVEKIT_SERVER_ETC_CONFIG
