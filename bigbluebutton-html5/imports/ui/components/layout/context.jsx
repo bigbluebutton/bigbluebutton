@@ -63,11 +63,13 @@ const initState = {
 };
 
 let _cachedPinnedApps;
+let _initialPersistedPinnedApps;
 const PINNED_APPS_STORAGE_KEY = 'pinnedApps';
 
 const getPersistedPinnedApps = () => {
   if (_cachedPinnedApps !== undefined) return _cachedPinnedApps;
   _cachedPinnedApps = Local.getItem(PINNED_APPS_STORAGE_KEY);
+  _initialPersistedPinnedApps = _cachedPinnedApps;
   return _cachedPinnedApps;
 };
 
@@ -522,7 +524,8 @@ const reducer = (state, action) => {
       if (pin && pinnedApps.length === MAX_PINNED_APPS_GALLERY) return state;
 
       if (isDefault && pin) {
-        const savedPinnedApps = getPersistedPinnedApps();
+        if (_initialPersistedPinnedApps === undefined) getPersistedPinnedApps();
+        const savedPinnedApps = _initialPersistedPinnedApps;
         if (savedPinnedApps !== null
           && Array.isArray(savedPinnedApps) && !savedPinnedApps.includes(appId)) {
           return state;
