@@ -836,22 +836,6 @@ check_state() {
         echo "# Not running: ${NOT_RUNNING_APPS}"
     fi
 
-    # Show status and logs for any failed BBB-related services
-    for svc in redis-server bbb-export-annotations bbb-graphql-middleware bbb-pads; do
-        if systemctl is-failed --quiet "$svc" 2>/dev/null; then
-            echo
-            echo "# ========== $svc (failed) =========="
-            systemctl --no-pager status "$svc" || true
-            journalctl --no-pager -n 50 -u "$svc" || true
-        fi
-    done
-
-    echo
-    echo "# Installed package versions"
-    for pkg in redis-server nginx postgresql coturn; do
-        ver=$(dpkg-query -W -f='${Version}' "$pkg" 2>/dev/null) && echo "#   $pkg: $ver" || echo "#   $pkg: not installed"
-    done
-
     #
     # Check if running development environment
     #

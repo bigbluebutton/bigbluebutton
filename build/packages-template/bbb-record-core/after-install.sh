@@ -21,8 +21,6 @@ case "$1" in
       HOST=$IP
     fi
 
-    echo "~~~~~~~~~~~~~~~~~~~"
-    yq --version
     yq -y -i ".playback_host = \"$HOST\"" $TARGET
 
     chmod +r $TARGET
