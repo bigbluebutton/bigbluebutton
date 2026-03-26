@@ -44,14 +44,14 @@ public class PluginUtils {
                 .replace(MEETING_ID, meetingId);
     }
 
-    private String extractFinalPluginManifestUrl(String rawManifestUrl, String meetingId) {
+    private ValidatedUrl extractFinalPluginManifestUrl(String rawManifestUrl, String meetingId) {
         String manifestUrlBeforeRedirections = replaceAllPlaceholdersInManifestUrls(rawManifestUrl, meetingId);
         ValidatedUrl validatedUrl = redirectFollower.followRedirectSecure(
                 meetingId, manifestUrlBeforeRedirections, 0, manifestUrlBeforeRedirections,
                 pluginRedirectValidator, 6000
         );
         if (validatedUrl != null) {
-            return validatedUrl.originalUrl();
+            return validatedUrl;
         } else {
             log.error("Plugin manifest URL [{}] failed security validation for meeting [{}]",
                     manifestUrlBeforeRedirections, meetingId);
@@ -64,13 +64,13 @@ public class PluginUtils {
             JsonObject pluginManifestJsonObj = pluginManifestJson.getAsJsonObject();
             if (pluginManifestJsonObj.has("url")) {
                 String barePluginManifestUrl = pluginManifestJsonObj.get("url").getAsString();
-                String url = extractFinalPluginManifestUrl(barePluginManifestUrl, meetingId);
-                if (url == null) {
+                ValidatedUrl validatedUrl = extractFinalPluginManifestUrl(barePluginManifestUrl, meetingId);
+                if (validatedUrl == null) {
                     log.error("Plugin manifest URL [{}] rejected for meeting [{}]",
                             barePluginManifestUrl, meetingId);
                     return null;
                 }
-                PluginManifest newPlugin = new PluginManifest(url);
+                PluginManifest newPlugin = new PluginManifest(validatedUrl.originalUrl(), validatedUrl);
                 if (pluginManifestJsonObj.has("checksum")) {
                     newPlugin.setChecksum(pluginManifestJsonObj.get("checksum").getAsString());
                 }

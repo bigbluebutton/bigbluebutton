@@ -63,6 +63,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="enteredUsersTimeout" value="${enteredUsersTimeout}"/>
         <property name="numPluginManifestsFetchingThreads" value="${numPluginManifestsFetchingThreads}"/>
         <property name="pluginManifestFetchTimeout" value="${pluginManifestFetchTimeout}"/>
+        <property name="secureUrlDownloader" ref="secureUrlDownloader"/>
+        <property name="maxPluginManifestPayloadSizeKib" value="${maxPluginManifestsFetchUrlPayloadSize}"/>
         <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
         <property name="redirectFollower" ref="redirectFollower"/>
         <property name="sharedNotesRedirectValidator" ref="sharedNotesRedirectValidator"/>
