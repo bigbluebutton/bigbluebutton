@@ -29,6 +29,13 @@ case "$1" in
     yq -y -i '.mediasoup.dedicatedMediaTypeWorkers.audio = "auto"' $TARGET
 
 
+
+
+    systemctl --no-pager status freeswitch.service || true
+
+    journalctl --no-pager -u freeswitch.service || true
+
+
     FREESWITCH_IP=$(xmlstarlet sel -t -v '//X-PRE-PROCESS[@cmd="set" and starts-with(@data, "local_ip_v4=")]/@data' /opt/freeswitch/conf/vars.xml | sed 's/local_ip_v4=//g')
     if [ "$FREESWITCH_IP" != "" ]; then
       yq -y -i ".freeswitch.ip = \"$FREESWITCH_IP\"" $TARGET
