@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import SearchIcon from '@mui/icons-material/Search';
 import { CircularProgress } from '@mui/material';
 import { useIntl, defineMessages } from 'react-intl';
+import Icon from '/imports/ui/components/common/icon/component';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -51,7 +51,7 @@ const UserSearch: React.FC<UserSearchProps> = ({
 
   return (
     <Styled.SearchContainer>
-      <SearchIcon />
+      <Icon iconName="search" />
       <Styled.SearchInput
         type="text"
         placeholder={intl.formatMessage(intlMessages.searchUsers)}
