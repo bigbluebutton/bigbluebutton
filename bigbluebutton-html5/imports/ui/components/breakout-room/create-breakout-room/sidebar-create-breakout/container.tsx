@@ -1,17 +1,16 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useQuery } from '@apollo/client';
 import { useIntl } from 'react-intl';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
+import useUsersBasicInfo from '/imports/ui/core/hooks/useUsersBasicInfo';
+import { UserBasicInfo } from '/imports/ui/Types/user';
 import {
-  getUser,
-  getUserResponse,
   getMeetingGroup,
   getMeetingGroupResponse,
 } from '../queries';
 import { PRESENTATIONS_SUBSCRIPTION, PresentationsSubscriptionResponse } from '/imports/ui/components/whiteboard/queries';
-import { Presentation } from '../room-managment-state/types';
+import { Presentation, BreakoutUser } from '../room-managment-state/types';
 import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
@@ -39,10 +38,14 @@ const SidebarCreateBreakoutContainer: React.FC<SidebarCreateBreakoutContainerPro
   const {
     data: usersData,
     loading: usersLoading,
-    error: usersError,
-  } = useQuery<getUserResponse>(getUser, {
-    fetchPolicy: 'network-only',
-  });
+    errors: usersErrors,
+  } = useUsersBasicInfo(useMemo(() => (user: Partial<UserBasicInfo>) => ({
+    userId: user.userId,
+    extId: user.extId,
+    name: user.name,
+    isModerator: user.isModerator,
+    bot: user.bot,
+  }), []));
 
   const {
     data: meetingGroupData,
@@ -59,6 +62,7 @@ const SidebarCreateBreakoutContainer: React.FC<SidebarCreateBreakoutContainerPro
     (p: Presentation) => p.current,
   )?.presentationId || '';
 
+  const usersError = usersErrors?.[0];
   const queryError = usersError || meetingGroupError;
   const prevErrorRef = useRef(queryError);
 
@@ -87,14 +91,7 @@ const SidebarCreateBreakoutContainer: React.FC<SidebarCreateBreakoutContainerPro
 
   return (
     <SidebarCreateBreakout
-      users={currentMeeting?.meetingId
-        ? filterByMeetingId(
-          usersData?.user,
-          currentMeeting.meetingId,
-          getUser,
-          (u) => ({ mismatchedUserId: u.userId, mismatchedName: u.name }),
-        )
-        : []}
+      users={(usersData?.filter((u) => !u.bot && !u.isModerator) ?? []) as BreakoutUser[]}
       presentations={presentations}
       currentPresentation={currentPresentation}
       isBreakoutRecordable={currentMeeting?.breakoutPolicies?.record ?? true}

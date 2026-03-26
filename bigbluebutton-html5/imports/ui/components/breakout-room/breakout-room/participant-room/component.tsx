@@ -298,7 +298,6 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
     if (!freeJoin) {
       if (userRoom) {
         const isCurrentlyInRoom = userRoom.isUserCurrentlyInRoom;
-        const isInAnyRoom = breakouts.some((b) => b.isUserCurrentlyInRoom);
         return (
           <Styled.InfoCard>
             <Styled.RoomNumberSquare>
@@ -311,7 +310,7 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
               type="button"
               onClick={handleEnterRoom}
               data-test="enterBreakoutRoomButton"
-              disabled={isCurrentlyInRoom || isInAnyRoom}
+              disabled={isCurrentlyInRoom}
             >
               {isCurrentlyInRoom
                 ? intl.formatMessage(intlMessages.alreadyConnected)
@@ -336,7 +335,6 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
     }
     if (userRoom) {
       const isCurrentlyInRoom = userRoom.isUserCurrentlyInRoom;
-      const isInAnyRoom = breakouts.some((b) => b.isUserCurrentlyInRoom);
       return (
         <Styled.InfoCard>
           <Styled.RoomNumberSquare>
@@ -349,7 +347,7 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
             type="button"
             onClick={handleEnterRoom}
             data-test="enterBreakoutRoomButton"
-            disabled={isCurrentlyInRoom || isInAnyRoom}
+            disabled={isCurrentlyInRoom}
           >
             {isCurrentlyInRoom
               ? intl.formatMessage(intlMessages.alreadyConnected)
@@ -416,7 +414,6 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
                     disabled={
                       isRequesting
                       || breakout.isUserCurrentlyInRoom
-                      || (!isCurrent && breakouts.some((b) => b.isUserCurrentlyInRoom))
                     }
                     onClick={() => handleFreeJoinRoom(breakout)}
                   >
