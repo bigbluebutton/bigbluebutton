@@ -35,7 +35,7 @@ cp -r bbb_schema.sql metadata config.yaml staging/usr/share/bbb-graphql-server
 chmod -R a+rX staging/usr/share/bbb-graphql-server
 
 #Copy BBB configs for Postgres
-POSTGRES_MAJOR_VERSION=14
+POSTGRES_MAJOR_VERSION=16
 mkdir -p staging/etc/postgresql/$POSTGRES_MAJOR_VERSION/main/conf.d
 cp bbb-pg.conf staging/etc/postgresql/$POSTGRES_MAJOR_VERSION/main/conf.d
 chmod 644 staging/etc/postgresql/$POSTGRES_MAJOR_VERSION/main/conf.d/bbb-pg.conf
