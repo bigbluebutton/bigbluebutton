@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {
   FormattedMessage, FormattedDate, FormattedNumber, injectIntl,
 } from 'react-intl';
@@ -580,6 +581,20 @@ class UsersTable extends React.Component {
     );
   }
 }
+
+UsersTable.propTypes = {
+  allUsers: PropTypes.shape({}),
+  totalOfPolls: PropTypes.number,
+  totalOfActivityTime: PropTypes.number,
+  tab: PropTypes.string,
+};
+
+UsersTable.defaultProps = {
+  allUsers: {},
+  totalOfPolls: 0,
+  totalOfActivityTime: 0,
+  tab: 'overview',
+};
 
 UsersTable.contextType = UserDetailsContext;
 

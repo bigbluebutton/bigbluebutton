@@ -46,7 +46,7 @@ export function getActivityScore(user, allUsers, totalOfPolls) {
 
 export function getSumOfTime(eventsArr) {
   const intervals = [];
-  const now = new Date().getTime();
+  const now = Date.now();
 
   eventsArr.forEach((elem) => {
     if (elem?.sessions) {
@@ -69,7 +69,7 @@ export function getSumOfTime(eventsArr) {
 
   const merged = [intervals[0]];
   for (let i = 1; i < intervals.length; i += 1) {
-    const lastMerged = merged[merged.length - 1];
+    const lastMerged = merged.at(-1);
     const current = intervals[i];
     if (current[0] <= lastMerged[1]) {
       // Overlapping intervals, union them securely
@@ -247,6 +247,93 @@ export function makeUserCSVData(users, polls, intl) {
   ].join('\r\n');
 }
 
+// Helper to extract a single flat array of all session objects across all internal IDs of a user
+const getSessions = (user) => {
+  const sessions = [];
+  Object.values(user.intIds || {}).forEach((intIdObj) => {
+    if (intIdObj.sessions) {
+      sessions.push(...intIdObj.sessions);
+    }
+  });
+  return sessions;
+};
+
+// Checks if two user objects have sessions that genuinely run in parallel.
+// Overlaps shorter than `overlapThreshold` are considered "ghost connections"
+// (where a dropping connection overlaps briefly with a new connection) and return false.
+const hasRealOverlap = (u1, u2, endedOn, overlapThreshold) => {
+  const s1 = getSessions(u1);
+  const s2 = getSessions(u2);
+  // eslint-disable-next-line no-restricted-syntax
+  for (const sa of s1) {
+    // eslint-disable-next-line no-restricted-syntax
+    for (const sb of s2) {
+      // Find the intersection window between the two sessions
+      const start = Math.max(sa.registeredOn, sb.registeredOn);
+      const endA = sa.leftOn > 0 ? sa.leftOn : (endedOn || Date.now());
+      const endB = sb.leftOn > 0 ? sb.leftOn : (endedOn || Date.now());
+      const end = Math.min(endA, endB);
+
+      // If intersection lasts longer than threshold, it is a real concurrent overlap
+      if (end - start > overlapThreshold) {
+        return true;
+      }
+    }
+  }
+  return false;
+};
+
+// Consolidates all metrics and sessions from `otherUser` into `mainUser`
+// eslint-disable-next-line no-param-reassign
+const mergeTwoUsers = (mainUser, otherUser) => {
+  const mergedUser = mainUser;
+
+  // Merge internal IDs (sessions will be combined)
+  mergedUser.intIds = { ...mergedUser.intIds, ...otherUser.intIds };
+
+  // Accumulate time counters safely without accidentally discarding metadata
+  mergedUser.talk.totalTime = (mergedUser.talk.totalTime || 0) + (otherUser.talk.totalTime || 0);
+  mergedUser.talk.lastTalkStartedOn = Math.max(
+    mergedUser.talk.lastTalkStartedOn || 0,
+    otherUser.talk.lastTalkStartedOn || 0,
+  );
+
+  // Merge array-based interactions mapping (polls, messages, hands raised)
+  const concatArrays = (arr1, arr2) => [...(arr1 || []), ...(arr2 || [])];
+  mergedUser.reactions = concatArrays(mergedUser.reactions, otherUser.reactions);
+  mergedUser.raiseHand = concatArrays(mergedUser.raiseHand, otherUser.raiseHand);
+  mergedUser.away = concatArrays(mergedUser.away, otherUser.away);
+  mergedUser.webcams = concatArrays(mergedUser.webcams, otherUser.webcams);
+
+  // Aggregate scalar counters
+  mergedUser.totalOfMessages = (mergedUser.totalOfMessages || 0)
+    + (otherUser.totalOfMessages || 0);
+  mergedUser.totalOfSharedNotes = (mergedUser.totalOfSharedNotes || 0)
+    + (otherUser.totalOfSharedNotes || 0);
+  mergedUser.totalOfWhiteboardAnnotations = (mergedUser.totalOfWhiteboardAnnotations || 0)
+    + (otherUser.totalOfWhiteboardAnnotations || 0);
+
+  // Merge poll answers
+  mergedUser.answers = { ...mergedUser.answers, ...otherUser.answers };
+
+  // Merge plugin data and last-seen state
+  mergedUser.pluginUserData = { ...mergedUser.pluginUserData, ...otherUser.pluginUserData };
+  mergedUser.leftOn = (mergedUser.leftOn === 0 || otherUser.leftOn === 0)
+    ? 0
+    : Math.max(mergedUser.leftOn || 0, otherUser.leftOn || 0);
+
+  // Promote privilege if either session had moderator rights
+  mergedUser.isModerator = mergedUser.isModerator || otherUser.isModerator;
+
+  return mergedUser;
+};
+
+const getFirstReg = (u) => {
+  const sessions = getSessions(u);
+  if (!sessions.length) return Number.MAX_VALUE;
+  return Math.min(...sessions.map((s) => s.registeredOn));
+};
+
 /**
  * Merges duplicate user entries caused by rapid reconnects (ghost connections)
  * while keeping genuinely concurrent sessions (e.g., dual-device usage) separate.
@@ -256,7 +343,7 @@ export function makeUserCSVData(users, polls, intl) {
  * @returns {Object} A new activities object with correctly merged user sessions
  */
 export function mergeOverlappingUsers(activitiesJson, overlapThreshold = 210000) {
-  if (!activitiesJson || !activitiesJson.users) return activitiesJson;
+  if (!activitiesJson?.users) return activitiesJson;
   const newActivivies = activitiesJson;
 
   // Group users by their external ID to find duplicate entries for the same physical person
@@ -264,110 +351,28 @@ export function mergeOverlappingUsers(activitiesJson, overlapThreshold = 210000)
   const newUsers = {};
 
   Object.entries(newActivivies.users).forEach(([userKey, user]) => {
-    if (!user.extId) {
-      newUsers[userKey] = user;
-    } else {
+    if (user.extId) {
       if (!extIdGroups[user.extId]) extIdGroups[user.extId] = [];
       extIdGroups[user.extId].push({ ...user });
+    } else {
+      newUsers[userKey] = user;
     }
   });
 
-  // Helper to extract a single flat array of all session objects across all internal IDs of a user
-  const getSessions = (user) => {
-    const sessions = [];
-    Object.values(user.intIds || {}).forEach((intIdObj) => {
-      if (intIdObj.sessions) {
-        sessions.push(...intIdObj.sessions);
-      }
-    });
-    return sessions;
-  };
-
-  // Checks if two user objects have sessions that genuinely run in parallel.
-  // Overlaps shorter than `overlapThreshold` are considered "ghost connections"
-  // (where a dropping connection overlaps briefly with a new connection) and return false.
-  const hasRealOverlap = (u1, u2) => {
-    const s1 = getSessions(u1);
-    const s2 = getSessions(u2);
-    for (let i = 0; i < s1.length; i += 1) {
-      for (let j = 0; j < s2.length; j += 1) {
-        const sa = s1[i];
-        const sb = s2[j];
-
-        // Find the intersection window between the two sessions
-        const start = Math.max(sa.registeredOn, sb.registeredOn);
-        const endA = sa.leftOn > 0 ? sa.leftOn : (newActivivies.endedOn || Date.now());
-        const endB = sb.leftOn > 0 ? sb.leftOn : (newActivivies.endedOn || Date.now());
-        const end = Math.min(endA, endB);
-
-        // If intersection lasts longer than threshold, it is a real concurrent overlap
-        if (end - start > overlapThreshold) {
-          return true;
-        }
-      }
-    }
-    return false;
-  };
-
-  // Consolidates all metrics and sessions from `otherUser` into `mainUser`
-  // eslint-disable-next-line no-param-reassign
-  const mergeTwoUsers = (mainUser, otherUser) => {
-    const mergedUser = mainUser;
-
-    // Merge internal IDs (sessions will be combined)
-    mergedUser.intIds = { ...mergedUser.intIds, ...otherUser.intIds };
-
-    // Accumulate time counters safely without accidentally discarding metadata
-    mergedUser.talk.totalTime = (mergedUser.talk.totalTime || 0) + (otherUser.talk.totalTime || 0);
-    mergedUser.talk.lastTalkStartedOn = Math.max(
-      mergedUser.talk.lastTalkStartedOn || 0,
-      otherUser.talk.lastTalkStartedOn || 0,
-    );
-
-    // Merge array-based interactions mapping (polls, messages, hands raised)
-    const concatArrays = (arr1, arr2) => [...(arr1 || []), ...(arr2 || [])];
-    mergedUser.reactions = concatArrays(mergedUser.reactions, otherUser.reactions);
-    mergedUser.raiseHand = concatArrays(mergedUser.raiseHand, otherUser.raiseHand);
-    mergedUser.away = concatArrays(mergedUser.away, otherUser.away);
-    mergedUser.webcams = concatArrays(mergedUser.webcams, otherUser.webcams);
-
-    // Aggregate scalar counters
-    mergedUser.totalOfMessages = (mergedUser.totalOfMessages || 0)
-      + (otherUser.totalOfMessages || 0);
-    mergedUser.totalOfSharedNotes = (mergedUser.totalOfSharedNotes || 0)
-      + (otherUser.totalOfSharedNotes || 0);
-    mergedUser.totalOfWhiteboardAnnotations = (mergedUser.totalOfWhiteboardAnnotations || 0)
-      + (otherUser.totalOfWhiteboardAnnotations || 0);
-
-    // Merge poll answers
-    mergedUser.answers = { ...mergedUser.answers, ...otherUser.answers };
-
-    // Promote privilege if either session had moderator rights
-    mergedUser.isModerator = mergedUser.isModerator || otherUser.isModerator;
-
-    return mergedUser;
-  };
-
   // Process all instances of each unique extId
-  Object.keys(extIdGroups).forEach((extId) => {
+  // eslint-disable-next-line no-restricted-syntax
+  for (const extId of Object.keys(extIdGroups)) {
     const users = extIdGroups[extId];
 
     // Sort to consistently process the oldest user session first
-    users.sort((a, b) => {
-      const getFirstReg = (u) => {
-        const sessions = getSessions(u);
-        if (!sessions.length) return Number.MAX_VALUE;
-        return Math.min(...sessions.map((s) => s.registeredOn));
-      };
-      return getFirstReg(a) - getFirstReg(b);
-    });
+    users.sort((a, b) => getFirstReg(a) - getFirstReg(b));
 
     // Merge logic: try joining to an existing profile unless there is a real overlap
     const mergedList = [];
     users.forEach((u) => {
       // Find a previously merged instance that does NOT have a real overlap and combine them
       const placed = mergedList.some((m) => {
-        if (!hasRealOverlap(m, u)) {
+        if (!hasRealOverlap(m, u, activitiesJson.endedOn, overlapThreshold)) {
           mergeTwoUsers(m, u);
           return true;
         }
@@ -397,7 +402,7 @@ export function mergeOverlappingUsers(activitiesJson, overlapThreshold = 210000)
       }
       newUsers[u.userKey] = u;
     });
-  });
+  }
 
   newActivivies.users = newUsers;
   return newActivivies;
