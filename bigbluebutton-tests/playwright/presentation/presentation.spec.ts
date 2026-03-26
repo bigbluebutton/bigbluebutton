@@ -1,4 +1,7 @@
+import path from 'path';
+
 import { linkIssue } from '../core/helpers';
+import { chromiumBaseArgs } from '../core/setup/browsersConfig';
 import { test } from '../core/setup/fixtures';
 import { Presentation } from './presentation';
 
@@ -10,10 +13,23 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.skipSlide();
   });
 
-  test('Share Camera As Content', async ({ browser, context, page }, testInfo) => {
-    const presentation = new Presentation(browser, context);
-    await presentation.initPages(page, testInfo);
-    await presentation.shareCameraAsContent();
+  test('Share Camera As Content', async ({ browser }, testInfo) => {
+    const staticVideoBrowser = await browser.browserType().launch({
+      args: [
+        ...chromiumBaseArgs,
+        `--use-file-for-fake-video-capture=${path.join(__dirname, '../core/media/video-static.y4m')}`,
+      ],
+    });
+    try {
+      const staticContext = await staticVideoBrowser.newContext();
+      const staticPage = await staticContext.newPage();
+      const presentation = new Presentation(staticVideoBrowser, staticContext);
+      await presentation.initModPage(staticPage, { testInfo });
+      await presentation.initUserPage(staticContext, { testInfo });
+      await presentation.shareCameraAsContent();
+    } finally {
+      await staticVideoBrowser.close();
+    }
   });
 
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#minimizerestore-presentation-automated
