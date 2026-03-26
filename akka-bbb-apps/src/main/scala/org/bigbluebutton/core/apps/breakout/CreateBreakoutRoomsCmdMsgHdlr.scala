@@ -21,7 +21,6 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
 
   def handleCreateBreakoutRoomsCmdMsg(msg: CreateBreakoutRoomsCmdMsg, state: MeetingState2x): MeetingState2x = {
 
-
     val minOfRooms = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.app.breakouts.breakoutRoomMinimum", 2)
     val maxOfRooms = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.app.breakouts.breakoutRoomLimit", 16)
 

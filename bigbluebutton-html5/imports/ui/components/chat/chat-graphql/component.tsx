@@ -28,7 +28,6 @@ import {
   colorDanger,
   btnPrimaryBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import useEmptyPrivateChatVisibility from '../hooks/useEmptyPrivateChatVisibility';
 
 const intlMessages = defineMessages({
   messagesTitle: {
@@ -54,7 +53,7 @@ interface ChatProps {
   privateUnreadMessages: boolean;
   chatId: string;
   participantName: string;
-  filteredPrivateChats: Partial<ChatType>[];
+  allPrivateChats: Partial<ChatType>[];
   shouldShowChatButtons: boolean;
 }
 
@@ -67,7 +66,7 @@ const Chat: React.FC<ChatProps> = ({
   privateUnreadMessages,
   chatId,
   participantName,
-  filteredPrivateChats,
+  allPrivateChats,
   shouldShowChatButtons,
 }) => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
@@ -80,17 +79,18 @@ const Chat: React.FC<ChatProps> = ({
   const isPrivateChat = chatId !== PUBLIC_GROUP_CHAT_ID;
   const isPublicChat = chatId === PUBLIC_GROUP_CHAT_ID && !privateList;
 
-  const handleClickSelectChat = (isPublicChat: boolean) => {
-    if (isPublicChat) {
+  const handleClickSelectChat = (selectPublicChat: boolean) => {
+    if (selectPublicChat) {
       setPrivateList(false);
       layoutContextDispatch({
         type: ACTIONS.SET_ID_CHAT_OPEN,
         value: PUBLIC_GROUP_CHAT_ID,
       });
-    } else if (filteredPrivateChats.length > 0) {
+    } else if (allPrivateChats.length > 0) {
+      // There are private chats (with or without messages), show the private chat list
       setPrivateList(true);
     } else {
-      // no private chat was started, go back to public chat
+      // No private chat exists, stay on public chat
       layoutContextDispatch({
         type: ACTIONS.SET_ID_CHAT_OPEN,
         value: PUBLIC_GROUP_CHAT_ID,
@@ -99,10 +99,11 @@ const Chat: React.FC<ChatProps> = ({
   };
 
   const handleClickReturnPrivateList = () => {
-    if (filteredPrivateChats.length > 0) {
+    if (allPrivateChats.length > 0) {
+      // There are private chats, show the list
       setPrivateList(true);
     } else {
-      // no private chat was started, go back to public chat
+      // No private chats, go back to public chat
       layoutContextDispatch({
         type: ACTIONS.SET_ID_CHAT_OPEN,
         value: PUBLIC_GROUP_CHAT_ID,
@@ -158,7 +159,7 @@ const Chat: React.FC<ChatProps> = ({
       return (
         <PrivateChatListContainer
           privateChatSelectedCallback={() => setPrivateList(false)}
-          chats={filteredPrivateChats}
+          chats={allPrivateChats}
         />
       );
     }
@@ -307,9 +308,14 @@ const ChatContainer: React.FC = () => {
     && chat?.totalUnread
     && chat.totalUnread > 0
   ))), [chats]);
-  const filteredPrivateChats = useMemo(() => (chats || [] as ChatType[]).filter(
-    (chat) => !chat.public && chat.totalMessages && chat.totalMessages !== 0,
+
+  // All private chats (including empty ones) for navigation
+  const allPrivateChats = useMemo(() => (chats || [] as ChatType[]).filter(
+    (chat) => !chat.public,
   ), [chats]);
+
+  // Check if any private chat exists (even empty ones)
+  const hasAnyPrivateChat = allPrivateChats.length > 0;
 
   const pendingChatTarget = useMemo(() => {
     if (!pendingChat || !chats) return undefined;
@@ -326,13 +332,6 @@ const ChatContainer: React.FC = () => {
   }, [pendingChatTarget, setPendingChat, layoutContextDispatch]);
 
   const resolvedChatId = pendingChatTarget?.chatId ?? idChatOpen;
-
-  // Handle edge case: show buttons when private chat is open but empty
-  const shouldShowEmptyPrivateChat = useEmptyPrivateChatVisibility(
-    chats || undefined,
-    resolvedChatId,
-    PUBLIC_GROUP_CHAT_ID,
-  );
 
   let participantName = '';
   const currentChat = chats?.find((chat) => chat.chatId === resolvedChatId);
@@ -361,8 +360,8 @@ const ChatContainer: React.FC = () => {
       privateUnreadMessages={privateUnreadMessages}
       participantName={participantName}
       chatId={resolvedChatId}
-      filteredPrivateChats={filteredPrivateChats}
-      shouldShowChatButtons={filteredPrivateChats.length > 0 || Boolean(shouldShowEmptyPrivateChat)}
+      allPrivateChats={allPrivateChats}
+      shouldShowChatButtons={hasAnyPrivateChat || Boolean(pendingChat)}
     />
   );
 };

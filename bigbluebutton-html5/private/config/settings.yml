@@ -99,8 +99,8 @@ public:
       # provider: [webspeech, vosk, gladia]
       provider: webspeech
       # If true, the transcriptions and captions settings are displayed as an
-      # entry in the apps gallery rather than a button in the actions bar
-      useAppsGallery: false
+      # entry in the sidebar navigation rather than a button in the actions bar
+      showInSidebarNavigation: false
       language:
         # Available languages will depend on the transcription service
         # Google: https://cloud.google.com/speech-to-text/docs/speech-to-text-supported-languages
@@ -129,7 +129,7 @@ public:
         locale: disabled
       terms:
         # The URL to the terms of service for the transcription service
-        # Specify the URL for each locale you want: 
+        # Specify the URL for each locale you want:
         # en-US: 'https://xxx/SubtitleTerms'
     mutedAlert:
       enabled: true
@@ -196,7 +196,7 @@ public:
     userSettingsStorage: session
     defaultSettings:
       layout:
-        selectedLayout: 'custom'
+        selectedLayout: 'unified'
         pushLayout: false
       application:
         animations: true
@@ -507,6 +507,8 @@ public:
     cameraSortingModes:
       defaultSorting: LOCAL_ALPHABETICAL
       paginationSorting: VOICE_ACTIVITY_LOCAL
+      # If set to true (default), always show privileged streams (pinned users and local cameras)
+      partitionPrivilegedStreams: true
     # Entry `thresholds` is an array of:
     # - threshold: minimum number of cameras being shared for profile to applied
     #   profile: a camera profile id from the cameraProfiles configuration array
@@ -828,15 +830,11 @@ public:
   layout:
     hidePresentationOnJoin: false
     showParticipantsOnLogin: false
-    showPushLayoutButton: true
-    showPushLayoutToggle: true
     showSessionDetailsOnJoin: true
     showScreenshareQuickSwapButton: false
     showLeaveSessionLabel: false
     usersPerUserListPage: 50
-    syncCameraDockSizeAndPosition: false
-    # if false, the user can't change the layout (no layout selection modal)
-    enableDeprecatedLayoutSelection: true
+    syncCameraDockSizeAndPosition: true
   pads:
     url: ETHERPAD_HOST
   media:

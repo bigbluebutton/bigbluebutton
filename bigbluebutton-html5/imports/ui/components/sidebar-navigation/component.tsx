@@ -12,6 +12,7 @@ import ChatListItem from './chat-list-item/component';
 import UserNotesListItemContainer from './user-notes-list-item/component';
 import UsersListItem from './users-list-item/component';
 import AppsListItem from './apps-list-item/component';
+import AudioCaptionsListItem from './audio-captions-list-item/component';
 import LearningDashboardListItem from './learning-dashboard-list-item/component';
 import SettingsListItem from './settings-list-item/component';
 import PinnedApps from './pinned-apps/component';
@@ -191,6 +192,7 @@ const SidebarNavigation = ({
           </Styled.Center>
 
           <Styled.Bottom>
+            <AudioCaptionsListItem isOpened={sidebarContentPanel === PANELS.AUDIO_CAPTIONS} />
             { isLearningDashboardEnabled && isModerator ? <LearningDashboardListItem /> : null }
             <SettingsListItem />
           </Styled.Bottom>

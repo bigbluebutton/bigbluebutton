@@ -41,6 +41,8 @@ interface MediaSharingModalProps {
   isMobile: boolean;
   isRTL: boolean;
   isRequestingPresenter?: boolean;
+  presenterPolicy?: string;
+  isLockedUser?: boolean;
 }
 
 const intlMessages = defineMessages({
@@ -124,10 +126,6 @@ const intlMessages = defineMessages({
     id: 'app.actionsBar.actionsDropdown.stopShareExternalVideo',
     description: 'Stop sharing external video button',
   },
-  layoutModal: {
-    id: 'app.actionsBar.actionsDropdown.layoutModal',
-    description: 'Label for layouts selection button',
-  },
   shareCameraAsContent: {
     id: 'app.actionsBar.actionsDropdown.shareCameraAsContent',
     description: 'Label for share camera as content',
@@ -159,10 +157,30 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   isMobile,
   isRTL,
   isRequestingPresenter = false,
+  presenterPolicy = 'requireApproval',
+  isLockedUser = false,
 }) => {
   const actionsBarStyle = layoutSelectOutput((i: Output) => i.actionBar);
   const { screenIsShared: isScreenGloballyBroadcasting } = useIsScreenGloballyBroadcasting();
   const [currentView, setCurrentView] = useState<'main' | 'presentation' | 'externalVideo' | 'cameraAsContent'>('main');
+  const [localRequestingPresenter, setLocalRequestingPresenter] = useState(false);
+
+  useEffect(() => {
+    setLocalRequestingPresenter(isRequestingPresenter);
+  }, [isRequestingPresenter]);
+
+  useEffect(() => {
+    if (amIPresenter) {
+      setLocalRequestingPresenter(false);
+    }
+  }, [amIPresenter]);
+
+  const isWaitingPresenter = localRequestingPresenter || isRequestingPresenter;
+
+  const handleRequestPresenterWithFeedback = () => {
+    setLocalRequestingPresenter(true);
+    handleRequestPresenter();
+  };
 
   const handleClose = () => {
     setCurrentView('main');
@@ -326,7 +344,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   };
 
   const renderTakePresenterView = () => {
-    if (isRequestingPresenter) {
+    if (isWaitingPresenter) {
       return (
         <Styled.BecomePresenterViewContainer>
           <Styled.BecomePresenterText>
@@ -343,17 +361,49 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
       );
     }
 
-    const buttonLabel = amIModerator
-      ? intl.formatMessage(intlMessages.takePresenter)
-      : intl.formatMessage(intlMessages.requestPresenter);
+    if (amIModerator) {
+      return (
+        <Styled.BecomePresenterViewContainer>
+          <Styled.BecomePresenterText>
+            {intl.formatMessage(intlMessages.mustBePresenter)}
+          </Styled.BecomePresenterText>
+          <Styled.ConfirmationButton
+            data-test="takePresenterButton"
+            label={intl.formatMessage(intlMessages.takePresenter)}
+            color="primary"
+            onClick={handleTakePresenter}
+            customIcon={<CoPresentIcon />}
+          />
+        </Styled.BecomePresenterViewContainer>
+      );
+    }
 
-    const buttonAction = amIModerator
-      ? handleTakePresenter
-      : handleRequestPresenter;
+    if (presenterPolicy === 'moderatorOnly' && isLockedUser) {
+      return (
+        <Styled.BecomePresenterViewContainer>
+          <Styled.BecomePresenterText>
+            {intl.formatMessage(intlMessages.mustBePresenter)}
+          </Styled.BecomePresenterText>
+        </Styled.BecomePresenterViewContainer>
+      );
+    }
 
-    const dataTestId = amIModerator
-      ? 'takePresenterButton'
-      : 'requestPresenterButton';
+    if (presenterPolicy === 'freeForAll') {
+      return (
+        <Styled.BecomePresenterViewContainer>
+          <Styled.BecomePresenterText>
+            {intl.formatMessage(intlMessages.mustBePresenter)}
+          </Styled.BecomePresenterText>
+          <Styled.ConfirmationButton
+            data-test="takePresenterButton"
+            label={intl.formatMessage(intlMessages.takePresenter)}
+            color="primary"
+            onClick={handleRequestPresenterWithFeedback}
+            customIcon={<CoPresentIcon />}
+          />
+        </Styled.BecomePresenterViewContainer>
+      );
+    }
 
     return (
       <Styled.BecomePresenterViewContainer>
@@ -361,10 +411,10 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
           {intl.formatMessage(intlMessages.mustBePresenter)}
         </Styled.BecomePresenterText>
         <Styled.ConfirmationButton
-          data-test={dataTestId}
-          label={buttonLabel}
+          data-test="requestPresenterButton"
+          label={intl.formatMessage(intlMessages.requestPresenter)}
           color="primary"
-          onClick={buttonAction}
+          onClick={handleRequestPresenterWithFeedback}
           customIcon={<CoPresentIcon />}
         />
       </Styled.BecomePresenterViewContainer>

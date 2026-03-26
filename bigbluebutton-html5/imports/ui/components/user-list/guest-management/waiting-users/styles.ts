@@ -115,7 +115,7 @@ const Users = styled.div`
 const Panel = styled.div<PanelProps>`
   background-color: ${colorWhite};
   display: flex;
-  flex-grow: 1;
+  flex: 0 0 auto;
   flex-direction: column;
   justify-content: flex-start;
   overflow: hidden;

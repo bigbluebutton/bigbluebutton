@@ -33,17 +33,17 @@ const infiniteWhiteboardIcon = (isinfiniteWhiteboard) => {
              3.14924 14.8508 3 14.6667 3ZM1.33333 2C0.596954 2 0 2.59695 0 3.33333V13.3333C0 14.0697
              0.596953 14.6667 1.33333 14.6667H14.6667C15.403 14.6667 16 14.0697 16 13.3333V3.33333C16
              2.59695 15.403 2 14.6667 2H1.33333Z"
-          fill="#4E5A66"
+          fill="currentColor"
         />
         <path
           d="M12.875 11.875L9.125 8.125M9.125 8.125L9.125 10.9375M9.125 8.125L11.9375 8.125"
-          stroke="#4E5A66"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
         <path
           d="M3.125 5.125L6.875 8.875M6.875 8.875L6.875 6.0625M6.875 8.875L4.0625 8.875"
-          stroke="#4E5A66"
+          stroke="currentColor"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
@@ -66,17 +66,17 @@ const infiniteWhiteboardIcon = (isinfiniteWhiteboard) => {
              3.14924 14.8508 3 14.6667 3ZM1.33333 2C0.596954 2 0 2.59695 0 3.33333V13.3333C0 14.0697
              0.596953 14.6667 1.33333 14.6667H14.6667C15.403 14.6667 16 14.0697 16 13.3333V3.33333C16
              2.59695 15.403 2 14.6667 2H1.33333Z"
-        fill="#4E5A66"
+        fill="currentColor"
       />
       <path
         d="M9.125 8.125L12.875 11.875M12.875 11.875L12.875 9.0625M12.875 11.875L10.0625 11.875"
-        stroke="#4E5A66"
+        stroke="currentColor"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <path
         d="M6.875 8.875L3.125 5.125M3.125 5.125L3.125 7.9375M3.125 5.125L5.9375 5.125"
-        stroke="#4E5A66"
+        stroke="currentColor"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -211,7 +211,6 @@ const PresentationToolbarContainer = (props) => {
   const { data: countData } = useDeduplicatedSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
   const numberOfJoinedUsers = countData?.user_aggregate?.aggregate?.count || 0;
   const isMobile = layoutSelect((i) => i.deviceType) === DEVICE_TYPE.MOBILE;
-  const layoutType = layoutSelect((i) => i.layoutType);
   const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
 
   if (userIsPresenter && !layoutSwapped) {
@@ -245,7 +244,6 @@ const PresentationToolbarContainer = (props) => {
           resetSlide,
           meetingIsBreakout,
           isMobile,
-          layoutType,
         }}
       />
     );

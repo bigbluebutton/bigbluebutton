@@ -8,10 +8,6 @@ import DEFAULT_VALUES, {
 import { LAYOUT_TYPE, DEVICE_TYPE } from '/imports/ui/components/layout/enums';
 
 import UnifiedLayout from '/imports/ui/components/layout/layout-manager/unifiedLayout';
-import CustomLayout from '/imports/ui/components/layout/layout-manager/customLayout';
-import SmartLayout from '/imports/ui/components/layout/layout-manager/smartLayout';
-import PresentationFocusLayout from '/imports/ui/components/layout/layout-manager/presentationFocusLayout';
-import VideoFocusLayout from '/imports/ui/components/layout/layout-manager/videoFocusLayout';
 import CamerasOnlyLayout from '/imports/ui/components/layout/layout-manager/camerasOnly';
 import PresentationOnlyLayout from '/imports/ui/components/layout/layout-manager/presentationOnlyLayout';
 import ParticipantsAndChatOnlyLayout from '/imports/ui/components/layout/layout-manager/participantsAndChatOnlyLayout';
@@ -90,10 +86,9 @@ const LayoutEngine = () => {
       && !hasExternalVideo && !hasScreenShare
       && !isSharedNotesPinned && !genericContentId;
 
-    const isVideoFocusLayout = selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS;
     const isUnifiedLayout = selectedLayout === LAYOUT_TYPE.UNIFIED_LAYOUT;
 
-    if (cameraDockInput.numCameras === 0 && !isVideoFocusLayout && !isUnifiedLayout) {
+    if (cameraDockInput.numCameras === 0 && !isUnifiedLayout) {
       cameraDockBounds.width = 0;
       cameraDockBounds.height = 0;
 
@@ -392,18 +387,6 @@ const LayoutEngine = () => {
     case LAYOUT_TYPE.UNIFIED_LAYOUT:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.UNIFIED_LAYOUT);
       return <UnifiedLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
-    case LAYOUT_TYPE.CUSTOM_LAYOUT:
-      layout?.setAttribute('data-layout', LAYOUT_TYPE.CUSTOM_LAYOUT);
-      return <CustomLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
-    case LAYOUT_TYPE.SMART_LAYOUT:
-      layout?.setAttribute('data-layout', LAYOUT_TYPE.SMART_LAYOUT);
-      return <SmartLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
-    case LAYOUT_TYPE.PRESENTATION_FOCUS:
-      layout?.setAttribute('data-layout', LAYOUT_TYPE.PRESENTATION_FOCUS);
-      return <PresentationFocusLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
-    case LAYOUT_TYPE.VIDEO_FOCUS:
-      layout?.setAttribute('data-layout', LAYOUT_TYPE.VIDEO_FOCUS);
-      return <VideoFocusLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
     case LAYOUT_TYPE.CAMERAS_ONLY:
       layout?.setAttribute('data-layout', LAYOUT_TYPE.CAMERAS_ONLY);
       return <CamerasOnlyLayout {...common} />;
@@ -420,8 +403,8 @@ const LayoutEngine = () => {
       layout?.setAttribute('data-layout', LAYOUT_TYPE.PLUGINS_ONLY);
       return <PluginsOnlyLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
     default:
-      layout?.setAttribute('data-layout', LAYOUT_TYPE.CUSTOM_LAYOUT);
-      return <CustomLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
+      layout?.setAttribute('data-layout', LAYOUT_TYPE.UNIFIED_LAYOUT);
+      return <UnifiedLayout {...common} isPresentationEnabled={isPresentationEnabled} />;
   }
 };
 

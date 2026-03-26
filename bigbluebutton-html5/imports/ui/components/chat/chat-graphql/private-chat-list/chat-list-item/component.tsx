@@ -65,16 +65,20 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
   const chatQuery = CHAT_MESSAGE_PRIVATE_SUBSCRIPTION;
+  const totalMessages = chat.totalMessages || 0;
+  // Ensure offset is never negative (happens when chat is empty)
+  const offset = totalMessages > 0 ? totalMessages - 1 : 0;
   const defaultVariables = {
-    // The || 0 is here because chat is a partial type (can have undefined fields)
-    offset: (chat.totalMessages || 0) - 1,
+    offset,
     limit: 1,
   }; // to get only the last message from private chat
   const variables = { ...defaultVariables, requestedChatId: chat.chatId };
+  // Skip subscription if chat has no messages
+  const skipSubscription = totalMessages === 0;
   const useChatMessageSubscription = useCreateUseSubscription<Message>(chatQuery, variables);
   const {
     data: chatMessageData,
-  } = useChatMessageSubscription((msg) => msg) as GraphqlDataHookSubscriptionResponse<Message[]>;
+  } = useChatMessageSubscription((msg) => msg, skipSubscription) as GraphqlDataHookSubscriptionResponse<Message[]>;
 
   useEffect(() => {
     // Clear any previous timeout to prevent multiple executions
@@ -132,9 +136,10 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
   );
   const ariaLabel = unreadCount > 0 ? unreadMessagesLabel : noUnreadMessagesLabel;
 
-  if (!chatMessageData) return null;
-  const lastMessage = chatMessageData[0]?.message;
-  const lastMessageTime = new Date(chatMessageData[0]?.createdAt);
+  // Handle empty chats (no messages yet)
+  const hasMessages = chatMessageData && chatMessageData.length > 0;
+  const lastMessage = hasMessages ? chatMessageData[0]?.message : '';
+  const lastMessageTime = hasMessages ? new Date(chatMessageData[0]?.createdAt) : null;
 
   return (
     <Styled.ChatListItem
@@ -166,20 +171,22 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
               />
             </Styled.ChatHeading>
           )}
-          <Styled.ChatContent data-test="private-user-list-content">
-            <Styled.MessageItemWrapper>
-              {lastMessage}
-            </Styled.MessageItemWrapper>
-            {(unreadMessagesToDisplay > 0)
-              ? (
-                <Styled.UnreadMessages data-test="unreadMessages" aria-label={ariaLabel}>
-                  <Styled.UnreadMessagesText aria-hidden="true">
-                    {unreadMessagesToDisplay}
-                  </Styled.UnreadMessagesText>
-                </Styled.UnreadMessages>
-              )
-              : null}
-          </Styled.ChatContent>
+          {(hasMessages || unreadMessagesToDisplay > 0) && (
+            <Styled.ChatContent data-test="private-user-list-content">
+              <Styled.MessageItemWrapper>
+                {lastMessage}
+              </Styled.MessageItemWrapper>
+              {(unreadMessagesToDisplay > 0)
+                ? (
+                  <Styled.UnreadMessages data-test="unreadMessages" aria-label={ariaLabel}>
+                    <Styled.UnreadMessagesText aria-hidden="true">
+                      {unreadMessagesToDisplay}
+                    </Styled.UnreadMessagesText>
+                  </Styled.UnreadMessages>
+                )
+                : null}
+            </Styled.ChatContent>
+          )}
         </Styled.ChatWrapper>
       </Styled.ChatListItemLink>
     </Styled.ChatListItem>

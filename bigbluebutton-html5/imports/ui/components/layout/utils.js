@@ -56,49 +56,6 @@ export const presentationContentHasChanges = (
 // Array for select component to select different layout
 const suportedLayouts = [
   {
-    layoutKey: LAYOUT_TYPE.CUSTOM_LAYOUT,
-    layoutName: 'Custom Layout',
-    suportedDevices: [
-      DEVICE_TYPE.TABLET,
-      DEVICE_TYPE.TABLET_PORTRAIT,
-      DEVICE_TYPE.TABLET_LANDSCAPE,
-      DEVICE_TYPE.DESKTOP,
-    ],
-  },
-  {
-    layoutKey: LAYOUT_TYPE.SMART_LAYOUT,
-    layoutName: 'Smart Layout',
-    suportedDevices: [
-      DEVICE_TYPE.MOBILE,
-      DEVICE_TYPE.TABLET,
-      DEVICE_TYPE.TABLET_PORTRAIT,
-      DEVICE_TYPE.TABLET_LANDSCAPE,
-      DEVICE_TYPE.DESKTOP,
-    ],
-  },
-  {
-    layoutKey: LAYOUT_TYPE.PRESENTATION_FOCUS,
-    layoutName: 'Presentation Focus',
-    suportedDevices: [
-      DEVICE_TYPE.MOBILE,
-      DEVICE_TYPE.TABLET,
-      DEVICE_TYPE.TABLET_PORTRAIT,
-      DEVICE_TYPE.TABLET_LANDSCAPE,
-      DEVICE_TYPE.DESKTOP,
-    ],
-  },
-  {
-    layoutKey: LAYOUT_TYPE.VIDEO_FOCUS,
-    layoutName: 'Video Focus',
-    suportedDevices: [
-      DEVICE_TYPE.MOBILE,
-      DEVICE_TYPE.TABLET,
-      DEVICE_TYPE.TABLET_PORTRAIT,
-      DEVICE_TYPE.TABLET_LANDSCAPE,
-      DEVICE_TYPE.DESKTOP,
-    ],
-  },
-  {
     layoutKey: LAYOUT_TYPE.CAMERAS_ONLY,
     layoutName: 'Cameras Only',
     suportedDevices: [
@@ -172,22 +129,6 @@ const LAYOUTS_SYNC = {
     [SYNC.PROPAGATE_ELEMENTS]: [...COMMON_ELEMENTS.DEFAULT, ...COMMON_ELEMENTS.DOCK],
     [SYNC.REPLICATE_ELEMENTS]: [...COMMON_ELEMENTS.DEFAULT, ...COMMON_ELEMENTS.DOCK],
   },
-  [LAYOUT_TYPE.CUSTOM_LAYOUT]: {
-    [SYNC.PROPAGATE_ELEMENTS]: [...COMMON_ELEMENTS.DEFAULT, ...COMMON_ELEMENTS.DOCK],
-    [SYNC.REPLICATE_ELEMENTS]: [...COMMON_ELEMENTS.DEFAULT, ...COMMON_ELEMENTS.DOCK],
-  },
-  [LAYOUT_TYPE.SMART_LAYOUT]: {
-    [SYNC.PROPAGATE_ELEMENTS]: COMMON_ELEMENTS.DEFAULT,
-    [SYNC.REPLICATE_ELEMENTS]: COMMON_ELEMENTS.DEFAULT,
-  },
-  [LAYOUT_TYPE.PRESENTATION_FOCUS]: {
-    [SYNC.PROPAGATE_ELEMENTS]: COMMON_ELEMENTS.DEFAULT,
-    [SYNC.REPLICATE_ELEMENTS]: COMMON_ELEMENTS.DEFAULT,
-  },
-  [LAYOUT_TYPE.VIDEO_FOCUS]: {
-    [SYNC.PROPAGATE_ELEMENTS]: COMMON_ELEMENTS.DEFAULT,
-    [SYNC.REPLICATE_ELEMENTS]: COMMON_ELEMENTS.DEFAULT,
-  },
   // Hidden layouts are now able to replicate their layout type, as it's currently possible
   // to change them via plugin ui-commands and those need to be followed correctly.
   [LAYOUT_TYPE.CAMERAS_ONLY]: {
@@ -229,6 +170,8 @@ const getSupportedLayouts = (deviceType) => suportedLayouts.filter(
   (layout) => layout.suportedDevices.includes(deviceType),
 );
 
+const isValidSynchronizationLayout = (layout) => layout && LAYOUTS_SYNC[layout] != null;
+
 const layoutAllowedInSettings = (layout) => layout !== LAYOUT_TYPE.CAMERAS_ONLY
   && layout !== LAYOUT_TYPE.PRESENTATION_ONLY
   && layout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY
@@ -248,4 +191,5 @@ const getDeviceType = () => {
 export {
   suportedLayouts, LAYOUTS_SYNC, getSupportedLayouts, isLayoutSupported, layoutAllowedInSettings,
   getWaitLayout, getDeviceType,
+  isValidSynchronizationLayout,
 };

@@ -5,15 +5,13 @@ import { uniqueId } from '/imports/utils/string-utils';
 import { useIsImportPresentationWithAnnotationsFromBreakoutRoomsEnabled, useIsImportSharedNotesFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { useLazyQuery, useQuery, useMutation } from '@apollo/client';
-import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
+import useUsersBasicInfo from '/imports/ui/core/hooks/useUsersBasicInfo';
 import Styled from './styles';
 import {
   getBreakouts,
   getBreakoutsResponse,
   getMeetingGroup,
   getMeetingGroupResponse,
-  getUser,
-  getUserResponse,
 } from './queries';
 import { PRESENTATIONS_SUBSCRIPTION, PresentationsSubscriptionResponse } from '/imports/ui/components/whiteboard/queries';
 import logger from '/imports/startup/client/logger';
@@ -35,6 +33,7 @@ import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { notify } from '/imports/ui/services/notification';
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import { getRemainingMeetingTime, isNewTimeValid } from '/imports/ui/core/utils/calculateRemaingTime';
+import { UserBasicInfo } from '/imports/ui/Types/user';
 
 const MIN_BREAKOUT_TIME = 5;
 const DEFAULT_BREAKOUT_TIME = 15;
@@ -288,8 +287,8 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
 
   const roomsRef = React.useRef<Rooms>({});
   const moveRegisterRef = React.useRef<moveUserRegistery>({});
-  const randomlyAssignFunction = React.useRef<() => void>(() => {});
-  const resetAssignmentsFunction = React.useRef<() => void>(() => {});
+  const randomlyAssignFunction = React.useRef<() => void>(() => { });
+  const resetAssignmentsFunction = React.useRef<() => void>(() => { });
 
   const setRoomsRef = (rooms: Rooms) => {
     roomsRef.current = rooms;
@@ -730,10 +729,14 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
   const {
     data: usersData,
     loading: usersLoading,
-    error: usersError,
-  } = useQuery<getUserResponse>(getUser, {
-    fetchPolicy: 'network-only',
-  });
+    errors: usersError,
+  } = useUsersBasicInfo(useMemo(() => (user: Partial<UserBasicInfo>) => ({
+    userId: user.userId,
+    extId: user.extId,
+    name: user.name,
+    isModerator: user.isModerator,
+    bot: user.bot,
+  }), []));
 
   const [
     loadBreakouts,
@@ -790,14 +793,7 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
       isUpdate={isUpdate}
       setUpdateUsersWhileRunning={setUpdateUsersWhileRunning}
       isBreakoutRecordable={currentMeeting?.breakoutPolicies?.record ?? true}
-      users={currentMeeting?.meetingId
-        ? filterByMeetingId(
-          usersData?.user,
-          currentMeeting.meetingId,
-          getUser,
-          (u) => ({ mismatchedUserId: u.userId, mismatchedName: u.name }),
-        )
-        : []}
+      users={(usersData?.filter((u) => !u.bot) ?? []) as UserBasicInfo[]}
       runningRooms={breakoutsData?.breakoutRoom ?? []}
       presentations={presentations}
       currentPresentation={currentPresentation}

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import {
   useReactiveVar,
@@ -14,8 +14,8 @@ import {
   PANELS,
   HIDDEN_LAYOUTS,
 } from '../enums';
-import { LAYOUTS_SYNC } from '../utils';
-import { updateSettings, isKeepPushingLayoutEnabled } from '/imports/ui/components/settings/service';
+import { isValidSynchronizationLayout, LAYOUTS_SYNC } from '../utils';
+import { updateSettings } from '/imports/ui/components/settings/service';
 import Session from '/imports/ui/services/storage/in-memory';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -76,6 +76,7 @@ const propTypes = {
 const PushLayoutEngine = (props) => {
   const prevProps = usePreviousValue(props) || {};
   const setLayoutType = useLayoutUpdater();
+  const hasInitiallyPropagated = useRef(false);
 
   const {
     cameraWidth,
@@ -121,11 +122,7 @@ const PushLayoutEngine = (props) => {
     const contextLayout = enforcedLayout || changeLayout || defaultLayout
       || meetingLayout || currentLayout;
 
-    if (currentLayout === LAYOUT_TYPE.UNIFIED_LAYOUT) {
-      Session.setItem('isGridEnabled', !presentationIsOpen);
-    } else {
-      Session.setItem('isGridEnabled', currentLayout === LAYOUT_TYPE.VIDEO_FOCUS);
-    }
+    Session.setItem('isGridEnabled', currentLayout === LAYOUT_TYPE.UNIFIED_LAYOUT && !presentationIsOpen);
 
     setLayoutType(
       contextLayout,
@@ -143,8 +140,7 @@ const PushLayoutEngine = (props) => {
     MediaService.setPresentationIsOpen(layoutContextDispatch, presentationLastState);
     Session.setItem('presentationLastState', presentationLastState);
 
-    if (currentLayout === LAYOUT_TYPE.CUSTOM_LAYOUT
-     || currentLayout === LAYOUT_TYPE.UNIFIED_LAYOUT) {
+    if (currentLayout === LAYOUT_TYPE.UNIFIED_LAYOUT) {
       setTimeout(() => {
         layoutContextDispatch({
           type: ACTIONS.SET_FOCUSED_CAMERA_ID,
@@ -201,7 +197,7 @@ const PushLayoutEngine = (props) => {
   }, [hasMeetingLayout, enforceLayoutResult]);
 
   useEffect(() => {
-    if (!selectedLayout) return () => { };
+    if (!isValidSynchronizationLayout(selectedLayout)) return () => {};
     const meetingLayoutDidChange = prevProps.meetingLayout !== undefined
       && meetingLayout !== prevProps.meetingLayout;
     const pushLayoutMeetingDidChange = prevProps.pushLayoutMeeting !== undefined
@@ -231,6 +227,7 @@ const PushLayoutEngine = (props) => {
           type: ACTIONS.SET_PRESENTATION_IS_OPEN,
           value: meetingPresentationIsOpen,
         });
+        Session.setItem('presentationLastState', meetingPresentationIsOpen);
       }
     };
 
@@ -348,15 +345,23 @@ const PushLayoutEngine = (props) => {
       // since all meeting layout properties are pushed together in a
       // single call just check whether there is any element to be propagate
       && layoutPropagateElements.length > 0
+      // Only propagate after the meeting layout has been applied locally at
+      // least once. This prevents intermediate renders (while the meeting data
+      // is still loading) from pushing the default value to the
+      // server and overwriting the meeting configured layout type.
+      && hasInitiallyPropagated.current
     ) {
       if (pushLayout && (layoutChanged || pushLayout !== prevProps.pushLayout)) {
         setMeetingLayout(pushLayout);
       }
     }
+    if (!hasInitiallyPropagated.current && hasMeetingLayout) {
+      hasInitiallyPropagated.current = true;
+    }
 
     if (selectedLayout !== prevProps.selectedLayout
       && selectedLayout !== LAYOUT_TYPE.UNIFIED_LAYOUT) {
-      Session.setItem('isGridEnabled', selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS);
+      Session.setItem('isGridEnabled', false);
     }
 
     if (selectedLayout === LAYOUT_TYPE.UNIFIED_LAYOUT
@@ -390,8 +395,6 @@ const PushLayoutEngineContainer = (props) => {
     focusedId: focusedCamera,
   } = cameraDockOutput;
 
-  const isPushLayoutEnabled = isKeepPushingLayoutEnabled();
-
   const getKeepPushingLayout = () => {
     // check if current layout is a hidden layout
     if (selectedLayout
@@ -400,14 +403,7 @@ const PushLayoutEngineContainer = (props) => {
       return false;
     }
 
-    // always enabled for non-hidden layouts is layout manager is disabled
-    if (!window.meetingClientSettings.public.layout.enableDeprecatedLayoutSelection) {
-      return true;
-    }
-
-    if (!isPushLayoutEnabled) return false;
-
-    return layoutSettings.pushLayout;
+    return true;
   };
 
   const pushLayout = getKeepPushingLayout();

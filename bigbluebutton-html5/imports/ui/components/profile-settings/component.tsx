@@ -1,5 +1,5 @@
 import React, {
-  useCallback, useEffect, useRef, useState,
+  useCallback, useEffect,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
@@ -86,6 +86,10 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
   availableLabel: {
     id: 'app.actionsBar.reactions.available',
     description: 'Available Label',
+  },
+  statusLabel: {
+    id: 'app.profileSettings.statusTitle',
+    description: 'Label for the status section in profile settings',
   },
   joinVideoLabel: {
     id: 'app.video.joinVideo',
@@ -183,9 +187,6 @@ const updateCameraSections = (
   return finalSections;
 };
 
-const HIDE_DIVIDER_THRESHOLD = 200;
-const SHOW_DIVIDER_THRESHOLD = 220;
-
 interface ProfileSettingsProps {
 }
 const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
@@ -196,32 +197,6 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
   const streams = useStreams();
   const isVirtualBackgroundsEnabled = useIsVirtualBackgroundsEnabled();
   const isCustomVirtualBackgroundsEnabled = useIsCustomVirtualBackgroundsEnabled();
-
-  const presenceContainerRef = useRef<HTMLDivElement>(null);
-  const [showPresenceDivider, setShowPresenceDivider] = useState(true);
-
-  useEffect(() => {
-    const container = presenceContainerRef.current;
-    if (!container) return;
-
-    const observer = new ResizeObserver((entries) => {
-      entries.forEach((entry) => {
-        const { width } = entry.contentRect;
-
-        setShowPresenceDivider((prev) => {
-          if (prev && width < HIDE_DIVIDER_THRESHOLD) return false;
-          if (!prev && width > SHOW_DIVIDER_THRESHOLD) return true;
-          return prev;
-        });
-      });
-    });
-
-    observer.observe(container);
-    // eslint-disable-next-line consistent-return
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
 
   // @ts-ignore
   const settingsStorage = window.meetingClientSettings.public.app.userSettingsStorage;
@@ -351,11 +326,15 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
 
   const [setAway] = useMutation(SET_AWAY);
 
-  const handleToggleAFK = useCallback(() => {
+  const handleSetStatus = useCallback((status: string) => {
+    const isAway = status === 'away';
+
+    if (isAway === away) return;
+
     muteAway(muted, away, voiceToggle);
     setAway({
       variables: {
-        away: !away,
+        away: isAway,
       },
     });
   }, [muted, away, voiceToggle, setAway]);
@@ -790,15 +769,38 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
           <Styled.Username>{currentUserData?.name ?? ''}</Styled.Username>
         </Styled.UsernameContainer>
         <Styled.UserPresenceRoot>
-          <Styled.UserPresenceContainer ref={presenceContainerRef}>
-            <Styled.UserPresenceButton active={!currentUserData?.away} onClick={handleToggleAFK}>
-              <Styled.UserPresenceText>{formatMessage(intlMessages.availableLabel)}</Styled.UserPresenceText>
-            </Styled.UserPresenceButton>
-            {showPresenceDivider && <Styled.UserPresenceDivider />}
-            <Styled.UserPresenceButton active={currentUserData?.away} onClick={handleToggleAFK}>
-              <Styled.UserPresenceText>{formatMessage(intlMessages.awayLabel)}</Styled.UserPresenceText>
-            </Styled.UserPresenceButton>
-          </Styled.UserPresenceContainer>
+          <Styled.UsernameTitle id="status-label-id">{formatMessage(intlMessages.statusLabel)}</Styled.UsernameTitle>
+          <Styled.UserPresenceField>
+            <Styled.UserPresenceIndicator aria-hidden>
+              <Styled.UserPresenceStatusDot away={away} />
+            </Styled.UserPresenceIndicator>
+            <Styled.UserPresenceDropdown
+              labelId="status-label-id"
+              value={away ? 'away' : 'available'}
+              onChange={(e) => handleSetStatus(e.target.value as string)}
+              IconComponent={ExpandMoreIcon}
+              renderValue={(val) => (
+                <Styled.UserPresenceText>
+                  {val === 'away'
+                    ? formatMessage(intlMessages.awayLabel)
+                    : formatMessage(intlMessages.availableLabel)}
+                </Styled.UserPresenceText>
+              )}
+            >
+              <MenuItem value="available">
+                <Styled.UserPresenceValueContainer>
+                  <Styled.UserPresenceStatusDot away={false} />
+                  <Styled.UserPresenceText>{formatMessage(intlMessages.availableLabel)}</Styled.UserPresenceText>
+                </Styled.UserPresenceValueContainer>
+              </MenuItem>
+              <MenuItem value="away">
+                <Styled.UserPresenceValueContainer>
+                  <Styled.UserPresenceStatusDot away />
+                  <Styled.UserPresenceText>{formatMessage(intlMessages.awayLabel)}</Styled.UserPresenceText>
+                </Styled.UserPresenceValueContainer>
+              </MenuItem>
+            </Styled.UserPresenceDropdown>
+          </Styled.UserPresenceField>
         </Styled.UserPresenceRoot>
         <Styled.Separator />
         <Styled.DevicesSettingsContainer>

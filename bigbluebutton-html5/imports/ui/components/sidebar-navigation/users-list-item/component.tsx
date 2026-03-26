@@ -6,8 +6,10 @@ import { GET_GUEST_WAITING_USERS_SUBSCRIPTION, GuestWaitingUsers } from '/import
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import SidebarNavigationButton from '/imports/ui/components/sidebar-navigation/sidebar-navigation-button/component';
+import { RAISED_HAND_USERS, RaisedHandUsersSubscriptionResponse, USER_AGGREGATE_COUNT_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
+import { UserAggregateCountSubscriptionResponse } from '/imports/ui/components/user-list/types';
 import { BaseSidebarButtonProps } from '../types';
-import { RAISED_HAND_USERS, RaisedHandUsersSubscriptionResponse } from '/imports/ui/core/graphql/queries/users';
+import Styled from './styles';
 
 const intlMessages = defineMessages({
   usersListLabel: {
@@ -19,6 +21,11 @@ const intlMessages = defineMessages({
 const UsersListItem: React.FC<BaseSidebarButtonProps> = ({ isOpened }) => {
   const TOGGLE_USER_LIST_SHORTCUT = useShortcut('toggleUserList');
   const intl = useIntl();
+
+  const {
+    data: usersCountData,
+  } = useDeduplicatedSubscription<UserAggregateCountSubscriptionResponse>(USER_AGGREGATE_COUNT_SUBSCRIPTION);
+  const usersCount = usersCountData?.user_aggregate?.aggregate?.count ?? 0;
 
   const {
     data: guestWaitingUsersData,
@@ -45,7 +52,13 @@ const UsersListItem: React.FC<BaseSidebarButtonProps> = ({ isOpened }) => {
       ariaDescribedBy="usersList"
       dataTest="usersListSidebarButton"
       hasNotification={hasNotification}
-    />
+    >
+      <Styled.GuestNumberIndicatorWrapper $count={usersCount}>
+        <Styled.GuestNumberIndicator>
+          {usersCount}
+        </Styled.GuestNumberIndicator>
+      </Styled.GuestNumberIndicatorWrapper>
+    </SidebarNavigationButton>
   );
 };
 

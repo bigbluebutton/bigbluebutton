@@ -3,7 +3,6 @@ import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import EndMeetingConfirmationContainer from '/imports/ui/components/end-meeting-confirmation/container';
 import MobileAppModal from '/imports/ui/components/mobile-app-modal/mobile-app-modal-graphql/component';
-import LayoutModalContainer from '/imports/ui/components/layout/modal/container';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { colorDanger, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
@@ -12,8 +11,6 @@ import Styled from './styles';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
 import Session from '/imports/ui/services/storage/in-memory';
-import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { ModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const intlMessages = defineMessages({
@@ -88,10 +85,6 @@ const intlMessages = defineMessages({
   stopCaption: {
     id: 'app.audio.captions.button.stop',
     description: 'Stop audio captions',
-  },
-  layoutModal: {
-    id: 'app.actionsBar.actionsDropdown.layoutModal',
-    description: 'Label for layouts selection button',
   },
 });
 
@@ -204,7 +197,7 @@ class OptionsDropdown extends PureComponent {
     const {
       intl, amIModerator, isBreakoutRoom, isConnected, audioCaptionsEnabled,
       audioCaptionsActive, audioCaptionsSet, isMobile, optionsDropdownItems,
-      isDirectLeaveButtonEnabled, isLayoutsEnabled,
+      isDirectLeaveButtonEnabled,
     } = this.props;
 
     const { isIos } = deviceInfo;
@@ -243,24 +236,6 @@ class OptionsDropdown extends PureComponent {
         label: intl.formatMessage(audioCaptionsActive
           ? intlMessages.stopCaption : intlMessages.startCaption),
         onClick: () => audioCaptionsSet(!audioCaptionsActive),
-      });
-    }
-
-    const Settings = getSettingsSingletonInstance();
-    const { selectedLayout } = Settings.layout;
-    const showLayoutButton = window.meetingClientSettings.public.layout.enableDeprecatedLayoutSelection;
-    const shouldShowManageLayoutButton = selectedLayout !== LAYOUT_TYPE.CAMERAS_ONLY
-      && selectedLayout !== LAYOUT_TYPE.PRESENTATION_ONLY
-      && selectedLayout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY
-      && showLayoutButton;
-
-    if (shouldShowManageLayoutButton && isLayoutsEnabled) {
-      this.menuItems.push({
-        key: 'list-item-layout-modal',
-        icon: 'manage_layout',
-        label: intl.formatMessage(intlMessages.layoutModal),
-        onClick: () => this.setLayoutModalIsOpen(),
-        dataTest: 'manageLayoutBtn',
       });
     }
 
@@ -385,21 +360,6 @@ class OptionsDropdown extends PureComponent {
             this.setMobileAppModalIsOpen = isOpen ? close : open;
             return isOpen && (
               <MobileAppModal onRequestClose={close} priority="low" isOpen={isOpen} id={id} setIsOpen={isOpen ? close : open} />
-            );
-          }}
-        </ModalRegistration>
-
-        {/* Layout Modal */}
-        <ModalRegistration id="layoutModal" priority="low">
-          {({
-            isOpen,
-            id,
-            open,
-            close,
-          }) => {
-            this.setLayoutModalIsOpen = isOpen ? close : open;
-            return isOpen && (
-              <LayoutModalContainer onRequestClose={close} priority="low" isOpen={isOpen} id={id} setIsOpen={isOpen ? close : open} />
             );
           }}
         </ModalRegistration>

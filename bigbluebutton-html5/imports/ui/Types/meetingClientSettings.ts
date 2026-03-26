@@ -129,7 +129,7 @@ export interface AudioCaptions {
   enabled: boolean
   mobile: boolean
   provider: string
-  useAppsGallery: boolean
+  showInSidebarNavigation: boolean
   language: Language
 }
 
@@ -410,6 +410,7 @@ export interface Constraints2 {
 export interface CameraSortingModes {
   defaultSorting: string
   paginationSorting: string
+  partitionPrivilegedStreams: boolean
 }
 
 export interface CameraQualityThresholds {
@@ -598,8 +599,6 @@ export interface Notes {
 export interface Layout {
   hidePresentationOnJoin: boolean
   showParticipantsOnLogin: boolean
-  showPushLayoutButton: boolean
-  showPushLayoutToggle: boolean
   showScreenshareQuickSwapButton: boolean
   showLeaveSessionLabel: boolean
 }

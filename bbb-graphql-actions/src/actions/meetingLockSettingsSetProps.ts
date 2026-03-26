@@ -15,8 +15,14 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
         {name: 'lockOnJoinConfigurable', type: 'boolean', required: true},
         {name: 'hideViewersCursor', type: 'boolean', required: true},
         {name: 'hideViewersAnnotation', type: 'boolean', required: true},
+        {name: 'presenterPolicy', type: 'string', required: true},
       ]
   )
+
+  const ALLOWED_PRESENTER_POLICIES = ['moderatorOnly', 'requireApproval', 'freeForAll'];
+  if (!ALLOWED_PRESENTER_POLICIES.includes(input.presenterPolicy as string)) {
+    throw new Error(`Invalid presenterPolicy: ${input.presenterPolicy}`);
+  }
 
   const eventName = 'ChangeLockSettingsInMeetingCmdMsg';
 
@@ -43,6 +49,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     lockOnJoinConfigurable: input.lockOnJoinConfigurable,
     hideViewersCursor: input.hideViewersCursor,
     hideViewersAnnotation: input.hideViewersAnnotation,
+    presenterPolicy: input.presenterPolicy,
   };
 
   return { eventName, routing, header, body };
