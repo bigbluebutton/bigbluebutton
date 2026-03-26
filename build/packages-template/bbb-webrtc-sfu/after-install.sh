@@ -28,14 +28,6 @@ case "$1" in
     #   - giving the possibility to specify different scheduling priorities for audio workers
     yq -y -i '.mediasoup.dedicatedMediaTypeWorkers.audio = "auto"' $TARGET
 
-
-
-
-    systemctl --no-pager status freeswitch.service || true
-
-    journalctl --no-pager -u freeswitch.service || true
-
-
     FREESWITCH_IP=$(xmlstarlet sel -t -v '//X-PRE-PROCESS[@cmd="set" and starts-with(@data, "local_ip_v4=")]/@data' /opt/freeswitch/conf/vars.xml | sed 's/local_ip_v4=//g')
     if [ "$FREESWITCH_IP" != "" ]; then
       yq -y -i ".freeswitch.ip = \"$FREESWITCH_IP\"" $TARGET
@@ -61,7 +53,7 @@ case "$1" in
     yq -y -i '.kurento = []' $TARGET
 
     echo "Resetting mcs-address from localhost to 127.0.0.1"
-    yq -y -i '.mcs-address = "127.0.0.1"' $TARGET
+    yq -y -i '."mcs-address" = "127.0.0.1"' $TARGET
 
     if id bigbluebutton > /dev/null 2>&1; then
       chown -R bigbluebutton:bigbluebutton /usr/local/bigbluebutton/bbb-webrtc-sfu /var/log/bbb-webrtc-sfu/
