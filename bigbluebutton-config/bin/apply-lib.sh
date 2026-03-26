@@ -57,8 +57,8 @@ fi
 enableHTML5ClientLog() {
   echo "  - Enable HTML5 client log to /var/log/nginx/html5-client.log"
 
-  yq e -i '.public.clientLog.external.enabled = true' $HTML5_CONFIG
-  yq e -i ".public.clientLog.external.url = \"$PROTOCOL://$HOST/html5log\"" $HTML5_CONFIG
+  yq -y -i '.public.clientLog.external.enabled = true' $HTML5_CONFIG
+  yq -y -i ".public.clientLog.external.url = \"$PROTOCOL://$HOST/html5log\"" $HTML5_CONFIG
 
   cat > /usr/share/bigbluebutton/nginx/html5-client-log.nginx << HERE
 location /html5log {

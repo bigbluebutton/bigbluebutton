@@ -288,7 +288,7 @@ Next, override the `wsURL` so that it remains the same even if you switch branch
 
 ```bash
 HOST=$(grep -v '#' /etc/bigbluebutton/bbb-web.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-sudo yq e -i ".public.kurento.wsUrl = \"wss://$HOST/bbb-webrtc-sfu\"" /etc/bigbluebutton/bbb-html5.yml
+sudo yq -y -i ".public.kurento.wsUrl = \"wss://$HOST/bbb-webrtc-sfu\"" /etc/bigbluebutton/bbb-html5.yml
 sudo bbb-conf --restart
 ```
 
@@ -312,7 +312,7 @@ or `deploy.sh` to run in production mode and have the client files served by Ngi
 You may see the error "Call timeout (Error 1006)" during the microphone echo test after starting the developing HTML5 client by "npm start". A misconfiguration of Freeswitch may account for it, especially when BigBlueButton is set up with bbb-install.sh script. Try setting "sipjsHackViaWs" to true for the client:
 
 `touch /etc/bigbluebutton/bbb-html5.yml`
-`yq e -i '.public.media.sipjsHackViaWs = true' /etc/bigbluebutton/bbb-html5.yml`
+`yq -y -i '.public.media.sipjsHackViaWs = true' /etc/bigbluebutton/bbb-html5.yml`
 
 ### `/private/config`
 

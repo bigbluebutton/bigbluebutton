@@ -12,11 +12,11 @@ case "$1" in
     BBB_HOST=$(bbb-conf --secret | grep -F URL: | sed 's#^.*://##; s#/.*##')
     BBB_SECRET=$(bbb-conf --secret | grep -F Secret: | sed 's/.*Secret: //')
 
-    yq e -i  ".bbb.sharedSecret  = \"$BBB_SECRET\"" $TARGET
-    yq e -i  ".bbb.serverDomain = \"$BBB_HOST\"" $TARGET
-    yq e -i  '.bbb.auth2_0 = true' $TARGET
-    yq e -i  '.modules."../out/webhooks/index.js".config.getRaw = false' $TARGET
-    yq e -i  '.log.filename = "/var/log/bbb-webhooks/bbb-webhooks.log"' $TARGET
+    yq -y -i  ".bbb.sharedSecret  = \"$BBB_SECRET\"" $TARGET
+    yq -y -i  ".bbb.serverDomain = \"$BBB_HOST\"" $TARGET
+    yq -y -i  '.bbb.auth2_0 = true' $TARGET
+    yq -y -i  '.modules."../out/webhooks/index.js".config.getRaw = false' $TARGET
+    yq -y -i  '.log.filename = "/var/log/bbb-webhooks/bbb-webhooks.log"' $TARGET
 
     mkdir -p /var/log/bbb-webhooks/
     touch /var/log/bbb-webhooks/bbb-webhooks.log

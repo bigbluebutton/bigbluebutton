@@ -23,7 +23,7 @@ case "$1" in
 
     echo "~~~~~~~~~~~~~~~~~~~"
     yq --version
-    yq e -i ".playback_host = \"$HOST\"" $TARGET
+    yq -y -i ".playback_host = \"$HOST\"" $TARGET
 
     chmod +r $TARGET
 
