@@ -988,6 +988,11 @@ public:
       camera:
         publishOptions:
           videoCodec: 'vp8'
+        # presets: optional explicit simulcast presets. When specified,
+        # overrides automatic profile-to-layer mapping from cameraProfiles.
+        # Ordered lowest to highest quality.
+        # Array of VideoPreset objects (see https://docs.livekit.io/reference/client-sdk-js/variables/VideoPresets.html).
+        #presets: []
       screenshare:
         publishOptions:
           videoCodec: 'vp8'

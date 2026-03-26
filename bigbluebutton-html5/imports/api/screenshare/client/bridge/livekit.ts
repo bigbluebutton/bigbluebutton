@@ -26,6 +26,11 @@ import {
   getLKStats,
 } from '/imports/ui/services/livekit';
 import { LiveKitPresetConfig } from 'imports/ui/Types/meetingClientSettings';
+import {
+  assemblePresetFromConfig,
+  deduplicatePresets,
+  type PresetDefaults,
+} from '/imports/ui/services/livekit/presets';
 
 interface Options {
   hasAudio?: boolean;
@@ -103,25 +108,6 @@ const getDefaultPresets = (stream: MediaStream): VideoPreset[] => {
   ];
 };
 
-interface PresetDefaults {
-  width: number;
-  height: number;
-  maxBitrate: number;
-  maxFramerate: number;
-  priority: RTCPriorityType;
-}
-
-const assemblePresetFromConfig = (
-  config: LiveKitPresetConfig,
-  defaults: PresetDefaults,
-): VideoPreset => new VideoPreset(
-  config.width ?? defaults.width,
-  config.height ?? defaults.height,
-  config.maxBitrate ?? defaults.maxBitrate,
-  config.maxFramerate ?? defaults.maxFramerate,
-  config.priority ?? defaults.priority,
-);
-
 // Merges partially-specified config presets with capture-aware defaults.
 // Config presets are ordered lowest-to-highest quality. For each preset,
 // a normalized position t \E [0,1] is computed from its index. Missing
@@ -158,31 +144,9 @@ const resolveConfigPresets = (
     return assemblePresetFromConfig(config, positionalDefaults);
   });
 
-  // Deduplicate layers that are identical across all three preset dimensions
   const { frameRate: captureFrameRate } = getCaptureSettings(stream);
 
-  if (captureFrameRate == null || interpolatedPresets.length <= 1) return interpolatedPresets;
-
-  const effectiveFps = (preset: VideoPreset): number => Math.min(
-    preset.encoding.maxFramerate ?? captureFrameRate,
-    captureFrameRate,
-  );
-
-  const deduped: VideoPreset[] = [];
-
-  for (let i = 0; i < interpolatedPresets.length; i += 1) {
-    const preset = interpolatedPresets[i];
-    const isDuplicate = deduped.some(
-      (p) => p.width === preset.width
-        && p.height === preset.height
-        && p.encoding.maxBitrate === preset.encoding.maxBitrate
-        && effectiveFps(p) === effectiveFps(preset),
-    );
-
-    if (!isDuplicate) deduped.push(preset);
-  }
-
-  return deduped;
+  return deduplicatePresets(interpolatedPresets, captureFrameRate);
 };
 
 export default class LiveKitScreenshareBridge {
