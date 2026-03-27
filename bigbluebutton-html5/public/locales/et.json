@@ -609,7 +609,7 @@
     "app.submenu.application.applicationSectionTitle": "Rakenduse sätted",
     "app.submenu.application.pushToTalkLabel": "Vajuta heliga rääkimiseks",
     "app.submenu.application.animationsLabel": "Animatsioonid",
-    "app.submenu.application.audioFilterLabel": "Mikrofoni audiofiltrid",
+    "app.submenu.application.musicianModeLabel": "Musician Mode (all audio filters off, stereo)",
     "app.submenu.application.wbToolbarsAutoHideLabel": "Peida tahvli tööriistaribad automaatselt",
     "app.submenu.application.darkThemeLabel": "Tume režiim",
     "app.submenu.application.fontSizeControlLabel": "Kirjasuurus",
