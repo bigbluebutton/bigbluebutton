@@ -180,6 +180,8 @@
     "app.userList.moderator": "Sorumlu",
     "app.userList.mobile": "Mobil",
     "app.userList.guest": "Konuk",
+    "app.userList.searchUsers": "Search users",
+    "app.userList.clearSearch": "Clear search",
     "app.userList.sharingWebcam": "Kamera",
     "app.userList.menuTitleContext": "Kullanılabilecek seçenekler",
     "app.userList.chatListItem.unreadSingular": "Bir yeni ileti",
