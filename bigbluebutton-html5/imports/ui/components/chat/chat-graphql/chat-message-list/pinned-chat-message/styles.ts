@@ -34,11 +34,18 @@ const Title = styled.div`
   align-items: center;
   gap: 8px;
   font-size: 1rem;
+  min-width: 0;
+  overflow: hidden;
+  flex: 1;
 `;
 
 const PinnedBy = styled.span`
   color: inherit;
   font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 `;
 
 const PinnedByName = styled.span`
@@ -124,6 +131,22 @@ const Footer = styled.div`
 const FooterUserInfo = styled.div`
   color: ${colorNeutral2};
   font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 4px;
+`;
+
+const FooterSenderName = styled.span`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+`;
+
+const FooterTime = styled.span`
+  white-space: nowrap;
+  flex-shrink: 0;
 `;
 
 const Icon = styled(OrIcon)<{ iconName: string }>`
@@ -141,5 +164,7 @@ export default {
   MessagePreview,
   Footer,
   FooterUserInfo,
+  FooterSenderName,
+  FooterTime,
   Icon,
 };

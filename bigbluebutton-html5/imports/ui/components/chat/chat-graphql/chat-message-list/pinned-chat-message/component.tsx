@@ -158,11 +158,14 @@ export default function PinnedMessageComponent({ messages, isModerator }: Pinned
       />
       <Styled.Footer>
         <Styled.FooterUserInfo>
-          {activeMessage?.senderName}
-          {': '}
-          {intl.formatMessage(intlMessages.sentAt)}
-          {' '}
-          {formattedTime}
+          <Styled.FooterSenderName>
+            {activeMessage?.senderName}
+          </Styled.FooterSenderName>
+          <Styled.FooterTime>
+            {intl.formatMessage(intlMessages.sentAt)}
+            {' '}
+            {formattedTime}
+          </Styled.FooterTime>
         </Styled.FooterUserInfo>
       </Styled.Footer>
 
