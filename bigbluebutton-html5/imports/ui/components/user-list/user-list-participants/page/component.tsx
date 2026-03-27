@@ -29,6 +29,7 @@ interface UserListParticipantsContainerProps {
   isLastItem: boolean;
   restOfUsers: number;
   setVisibleUsers: React.Dispatch<React.SetStateAction<{ [key: number]: User[]; }>>;
+  searchQuery: string;
 }
 
 interface UsersListParticipantsPage {
@@ -98,6 +99,7 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
   isLastItem,
   restOfUsers,
   setVisibleUsers,
+  searchQuery,
 }) => {
   const usersPerUserListPage = getUsersPerUserListPage();
   const offset = index * usersPerUserListPage;
@@ -121,7 +123,11 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
   const {
     data: usersData,
     loading: usersLoading,
-  } = useLoadedUserList({ offset, limit: limit.current }, (u) => u) as GraphqlDataHookSubscriptionResponse<Array<User>>;
+  } = useLoadedUserList({
+    offset,
+    limit: limit.current,
+    searchQuery,
+  }, (u) => u) as GraphqlDataHookSubscriptionResponse<Array<User>>;
 
   const users = meeting?.meetingId
     ? filterByMeetingId(
@@ -190,7 +196,21 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
     usersPolicies: (meeting?.usersPolicies ?? ({} as UsersPolicies)) as UsersPolicies,
   }), [meeting?.meetingId, meeting?.isBreakout, meeting?.lockSettings, meeting?.usersPolicies]);
 
-  if (usersLoading || meetingLoading || !meeting || currentUserLoading || presentationLoading) {
+  const displayUsers = useMemo(() => {
+    const usersWithoutCurrent = users.filter((u: User) => u.userId !== currentUser?.userId);
+    if (offset === 0 && !searchQuery) {
+      return [currentUser as User, ...usersWithoutCurrent];
+    }
+    return usersWithoutCurrent;
+  }, [offset, currentUser, users, searchQuery]);
+
+  const isLoading = usersLoading
+    || meetingLoading
+    || !meeting
+    || currentUserLoading
+    || presentationLoading;
+
+  if (isLoading) {
     return Array.from({ length: isLastItem ? restOfUsers : usersPerUserListPage }).map((_, i) => (
       <Styled.UserListItem key={`not-visible-item-${i + 1}`}>
         {/* eslint-disable-next-line */}
@@ -198,11 +218,6 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
       </Styled.UserListItem>
     ));
   }
-
-  const usersWithoutCurrent = users.filter((u: User) => u.userId !== currentUser?.userId);
-  const displayUsers = offset === 0
-    ? [currentUser as User, ...usersWithoutCurrent]
-    : usersWithoutCurrent;
 
   if (!meeting || !currentUser) {
     return null;

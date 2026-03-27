@@ -834,6 +834,11 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         bot: false,
       },
     },
+    userList: {
+      searchBar: {
+        enabled: true,
+      },
+    },
     whiteboard: {
       annotationsQueueProcessInterval: 60,
       cursorInterval: 150,
