@@ -180,6 +180,8 @@
     "app.userList.moderator": "主持人",
     "app.userList.mobile": "行動裝置",
     "app.userList.guest": "訪客",
+    "app.userList.searchUsers": "Search users",
+    "app.userList.clearSearch": "Clear search",
     "app.userList.sharingWebcam": "視訊鏡頭",
     "app.userList.menuTitleContext": "可用選項",
     "app.userList.chatListItem.unreadSingular": "一則新訊息",
