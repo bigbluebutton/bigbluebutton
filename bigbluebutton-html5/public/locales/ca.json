@@ -180,6 +180,8 @@
     "app.userList.moderator": "Moderador/a",
     "app.userList.mobile": "Mòbil",
     "app.userList.guest": "Convidat/ada",
+    "app.userList.searchUsers": "Search users",
+    "app.userList.clearSearch": "Clear search",
     "app.userList.sharingWebcam": "Webcam",
     "app.userList.menuTitleContext": "Opcions disponibles",
     "app.userList.chatListItem.unreadSingular": "Un nou missatge",
