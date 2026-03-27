@@ -609,7 +609,7 @@
     "app.submenu.application.applicationSectionTitle": "Aplikazioa",
     "app.submenu.application.pushToTalkLabel": "Sakatu audioa hitz egiteko",
     "app.submenu.application.animationsLabel": "Animazioak",
-    "app.submenu.application.audioFilterLabel": "Mikrofonorako audio iragazkiak",
+    "app.submenu.application.musicianModeLabel": "Musician Mode (all audio filters off, stereo)",
     "app.submenu.application.wbToolbarsAutoHideLabel": "Ezkutatu automatikoki arbel zuriko tresna-barrak",
     "app.submenu.application.darkThemeLabel": "Modu iluna",
     "app.submenu.application.fontSizeControlLabel": "Letra tamaina",
