@@ -180,6 +180,8 @@
     "app.userList.moderator": "Moderatzailea",
     "app.userList.mobile": "Mugikorra",
     "app.userList.guest": "Gonbidatua",
+    "app.userList.searchUsers": "Search users",
+    "app.userList.clearSearch": "Clear search",
     "app.userList.sharingWebcam": "Web-kamera",
     "app.userList.menuTitleContext": "Aukera erabilgarriak",
     "app.userList.chatListItem.unreadSingular": "Mezu berri bat",
