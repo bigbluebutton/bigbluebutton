@@ -2,7 +2,7 @@
   "name": "bbb-graphql-actions",
   "homepage": "/html5client/",
   "version": "0.0.1",
-  "description": "A server component designed to interface between Hasura GraphQL actions and BigBlueButton ecosystem.",
+  "description": "A server component designed to interface between Hasura GraphQL actions and BigBlueButton ecosystems.",
   "main": "index.ts",
   "scripts": {
     "start": "nodemon --watch src --ext ts,json --exec ts-node src/index.ts",
