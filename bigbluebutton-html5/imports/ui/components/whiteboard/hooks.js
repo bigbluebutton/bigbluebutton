@@ -7,7 +7,7 @@ const hasBackgroundImageUrl = (el) => {
   return bg.includes('url(');
 };
 
-const useCursor = (publishCursorUpdate, whiteboardId) => {
+const useCursor = (publishCursorUpdate, whiteboardId, laserMode) => {
   const [cursorPosition, setCursorPosition] = useState({ x: '', y: '' });
 
   const updateCursorPosition = (newX, newY) => {
@@ -22,8 +22,9 @@ const useCursor = (publishCursorUpdate, whiteboardId) => {
       whiteboardId,
       xPercent: cursorPosition?.x,
       yPercent: cursorPosition?.y,
+      laserType: laserMode,
     });
-  }, [cursorPosition, publishCursorUpdate, whiteboardId]);
+  }, [cursorPosition, publishCursorUpdate, whiteboardId, laserMode]);
 
   return [cursorPosition, updateCursorPosition];
 };
