@@ -609,7 +609,7 @@
     "app.submenu.application.applicationSectionTitle": "Aplicação",
     "app.submenu.application.pushToTalkLabel": "Áudio aperte para falar",
     "app.submenu.application.animationsLabel": "Animações",
-    "app.submenu.application.audioFilterLabel": "Filtros de áudio para o microfone",
+    "app.submenu.application.musicianModeLabel": "Musician Mode (all audio filters off, stereo)",
     "app.submenu.application.wbToolbarsAutoHideLabel": "Esconder automaticamente as barras de ferramentas do quadro branco",
     "app.submenu.application.darkThemeLabel": "Modo escuro",
     "app.submenu.application.fontSizeControlLabel": "Tamanho da fonte",
