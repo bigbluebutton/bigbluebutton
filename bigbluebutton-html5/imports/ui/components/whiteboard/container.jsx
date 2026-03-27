@@ -231,7 +231,7 @@ const WhiteboardContainer = (props) => {
   };
 
   const publishCursorUpdate = useCallback((payload) => {
-    const { whiteboardId, xPercent, yPercent } = payload;
+    const { whiteboardId, xPercent, yPercent, laserType } = payload;
 
     if (!whiteboardId || !xPercent || !yPercent || !(hasWBAccess || isPresenter)) return;
 
@@ -240,6 +240,7 @@ const WhiteboardContainer = (props) => {
         whiteboardId,
         xPercent,
         yPercent,
+        laserType,
       },
     });
   }, [hasWBAccess, isPresenter]);
