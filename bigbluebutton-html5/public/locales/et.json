@@ -180,6 +180,8 @@
     "app.userList.moderator": "Moderaator",
     "app.userList.mobile": "Mobiil",
     "app.userList.guest": "Külaline",
+    "app.userList.searchUsers": "Search users",
+    "app.userList.clearSearch": "Clear search",
     "app.userList.sharingWebcam": "Veebikaamera",
     "app.userList.menuTitleContext": "Saadaolevad valikud",
     "app.userList.chatListItem.unreadSingular": "Üks uus sõnum",
