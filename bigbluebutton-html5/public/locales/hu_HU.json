@@ -180,6 +180,8 @@
     "app.userList.moderator": "Szervező",
     "app.userList.mobile": "Mobil",
     "app.userList.guest": "Vendég",
+    "app.userList.searchUsers": "Search users",
+    "app.userList.clearSearch": "Clear search",
     "app.userList.sharingWebcam": "Webkamera",
     "app.userList.menuTitleContext": "Elérhető beállítások",
     "app.userList.chatListItem.unreadSingular": "Egy új üzenet",
