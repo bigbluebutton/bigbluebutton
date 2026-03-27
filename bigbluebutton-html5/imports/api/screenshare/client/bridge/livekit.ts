@@ -633,7 +633,7 @@ export default class LiveKitScreenshareBridge {
     // @ts-ignore
     const configAudioPubOpts = window.meetingClientSettings.public.media?.livekit?.audio?.publishOptions || {};
     const baseAudioOptions: TrackPublishOptions = {
-      audioPreset: AudioPresets.speech,
+      audioPreset: AudioPresets.music,
       dtx: true,
       red: false,
       forceStereo: false,
