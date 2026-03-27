@@ -4,6 +4,7 @@ import { gql } from '@apollo/client';
 export interface CursorCoordinates {
   xPercent: number;
   yPercent: number;
+  laserType: string;
   userId: string;
 }
 
