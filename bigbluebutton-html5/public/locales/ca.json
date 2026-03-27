@@ -609,7 +609,7 @@
     "app.submenu.application.applicationSectionTitle": "Aplicació",
     "app.submenu.application.pushToTalkLabel": "Prem per parlar",
     "app.submenu.application.animationsLabel": "Animació",
-    "app.submenu.application.audioFilterLabel": "Filtres d'àudio per a micròfon",
+    "app.submenu.application.musicianModeLabel": "Musician Mode (all audio filters off, stereo)",
     "app.submenu.application.wbToolbarsAutoHideLabel": "Ocultar automàticament les barres d'eines de la pissarra",
     "app.submenu.application.darkThemeLabel": "Dark mode",
     "app.submenu.application.fontSizeControlLabel": "Mida de la lletra",
