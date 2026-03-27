@@ -2121,39 +2121,17 @@ const Whiteboard = React.memo((props) => {
   React.useEffect(() => {
     const targetDoc = document;
     if (!isPresenter) return;
-
-    const applyLaser = () => {
-      const el = targetDoc.querySelector('.tl-container');
-      if (!el) return false;
-
-      const laser = cursorLasers[laserMode];
-
-      if (laser) {
-        el.style.setProperty('--tl-cursor-grab', laser);
-        el.style.setProperty('--tl-cursor-grabbing', laser);
-      } else {
-        el.style.removeProperty('--tl-cursor-grab');
-        el.style.removeProperty('--tl-cursor-grabbing');
-      }
-
-      return true;
-    };
-
-    // don't obeserve if already done
-    if (applyLaser()) return;
-
-    const observer = new MutationObserver(() => {
-      if (applyLaser()) {
-        observer.disconnect();
-      }
-    });
-
-    observer.observe(targetDoc.body, {
-      childList: true,
-      subtree: true,
-    });
-
-    return () => observer.disconnect()
+    const el = targetDoc.querySelector('.tl-container');
+    if (!el) return;
+    
+    const laser = cursorLasers[laserMode];
+    if (laser) {
+      el.style.setProperty('--tl-cursor-grab', laser);
+      el.style.setProperty('--tl-cursor-grabbing', laser);
+    } else {
+      el.style.removeProperty('--tl-cursor-grab');
+      el.style.removeProperty('--tl-cursor-grabbing');
+    }
   }, [laserMode, isPresenter]);
 
   React.useEffect(() => {
