@@ -212,6 +212,9 @@ const Whiteboard = React.memo((props) => {
   const isMountedPollingFrameRef = React.useRef(null);
   const hasZoomSyncedRef = useRef(false);
   const currentUserRef = useRef(currentUser);
+  const currentLaserTypeRef = React.useRef(null);
+  const laserLayerRef = React.useRef(null);
+  const laserElRef = React.useRef(null);
 
   currentUserRef.current = currentUser;
 
@@ -864,6 +867,7 @@ const Whiteboard = React.memo((props) => {
   const [cursorPosition, updateCursorPosition] = useCursor(
     publishCursorUpdate,
     whiteboardIdRef.current,
+    laserMode,
   );
 
   const setCamera = (zoom, x = 0, y = 0) => {
@@ -1764,6 +1768,61 @@ const Whiteboard = React.memo((props) => {
     }
   };
 
+  const makeLaserSvg = ({ color, cx, cy, r }, id) => {
+    const width = cx * 2;
+    const height = cy * 2;
+
+    // On Windows and Linux, it darkens towards the edge
+    return `
+      <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+        <defs>
+          <radialGradient id="g-${id}">
+            <stop offset="0%" stop-color="${color}" stop-opacity="1"/>
+            <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#g-${id})" />
+      </svg>
+      `.replace(/\s+/g, ' ').trim();
+  };
+
+  const laserDefs = {
+    redSmall:   { color: 'red',  cx: 16, cy: 16, r: 14 },
+    greenSmall: { color: 'lime', cx: 16, cy: 16, r: 14 },
+    redLarge:   { color: 'red',  cx: 24, cy: 24, r: 22 },
+    greenLarge: { color: 'lime', cx: 24, cy: 24, r: 22 },
+  };
+
+  const laserSvgs = Object.fromEntries(
+    Object.entries(laserDefs).map(([key, def]) => [
+      key,
+      makeLaserSvg(def, key),
+    ])
+  );
+
+  const svgToCursor = (svg, x, y) =>
+    `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}") ${x} ${y}, auto`;
+
+  const cursorLasers = Object.fromEntries(
+    Object.entries(laserDefs).map(([key, def]) => [
+      key,
+      svgToCursor(laserSvgs[key], def.cx, def.cy),
+    ])
+  );
+
+  const createLaserElement = (svgString, targetDoc, def) => {
+    const wrapper = targetDoc.createElement('div');
+    wrapper.className = 'custom-laser';
+    wrapper.innerHTML = svgString;
+    const el = wrapper.firstChild;
+    Object.assign(el.style, {
+      position: 'absolute',
+      pointerEvents: 'none',
+      overflow: 'visible',
+    });
+    return el;
+  };
+
   useMouseEvents(
     {
       whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoomRef, isPresenterRef,
@@ -1953,6 +2012,151 @@ const Whiteboard = React.memo((props) => {
   }, [currentPresentationPage, isPresenter]);
 
   React.useEffect(() => {
+    const targetDoc = document;
+    const presentationWrapper = targetDoc.querySelector('#presentationInnerWrapper');
+    if (!presentationWrapper) return;
+    if (!isPresenter) return;
+
+    let menuEl = null;
+
+    const handleOutsideClick = (e) => {
+      if (!menuEl) return;
+      if (menuEl.contains(e.target)) return;
+      removeMenu();
+    };
+
+    const removeMenu = () => {
+      if (menuEl) {
+        menuEl.remove();
+        menuEl = null;
+        targetDoc.removeEventListener('mousedown', handleOutsideClick);
+      }
+    };
+
+    const createMenu = (x, y) => {
+      removeMenu();
+
+      const container =
+        targetDoc.fullscreenElement ||
+        targetDoc.querySelector('#presentationInnerWrapper') ||
+        targetDoc.body;
+
+      menuEl = targetDoc.createElement('div');
+
+      Object.assign(menuEl.style, {
+        position: 'fixed',
+        left: `${x}px`,
+        top: `${y}px`,
+        background: '#1e1e1e',
+        color: '#fff',
+        padding: '6px',
+        borderRadius: '8px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+        zIndex: 99999,
+      });
+
+      const items = [
+        { key: 'redSmall',   label: '🔴', size: 10 },
+        { key: 'greenSmall', label: '🟢', size: 10 },
+        { key: 'redLarge',   label: '🔴', size: 18 },
+        { key: 'greenLarge', label: '🟢', size: 18 },
+        { key: '',         label: '✋', size: 14 },
+      ];
+
+      items.forEach(({ key, label, size }) => {
+        const item = targetDoc.createElement('div');
+        item.innerHTML = `<span style="font-size:${size}px">${label}</span>`;
+
+        Object.assign(item.style, {
+          padding: '6px 10px',
+          cursor: 'pointer',
+          borderRadius: '4px',
+          textAlign: 'center',
+        });
+
+        item.onmouseenter = () => (item.style.background = '#333');
+        item.onmouseleave = () => (item.style.background = 'transparent');
+
+        item.onclick = () => {
+          setLaserMode(key);
+          removeMenu();
+        };
+
+        menuEl.appendChild(item);
+      });
+
+      container.appendChild(menuEl);
+
+      // compensation at the window edge
+      const rect = menuEl.getBoundingClientRect();
+      const vw = targetDoc.defaultView.innerWidth;
+      const vh = targetDoc.defaultView.innerHeight;
+
+      if (rect.right > vw) {
+        menuEl.style.left = `${vw - rect.width - 8}px`;
+      }
+      if (rect.bottom > vh) {
+        menuEl.style.top = `${vh - rect.height - 50}px`;
+      }
+
+      targetDoc.addEventListener('mousedown', handleOutsideClick);
+    };
+
+    const handleContextMenu = (e) => {
+      const tool = tlEditorRef.current?.getCurrentToolId?.();
+      if (tool !== 'hand') return;
+      if (!presentationWrapper.contains(e.target)) return;
+      e.preventDefault();
+      createMenu(e.clientX, e.clientY);
+    };
+
+    targetDoc.addEventListener('contextmenu', handleContextMenu);
+
+    return () => {
+      targetDoc.removeEventListener('contextmenu', handleContextMenu);
+      removeMenu();
+    };
+  }, [popupWindow, isPresenter]);
+
+  React.useEffect(() => {
+    const targetDoc = document;
+    if (!isPresenter) return;
+
+    const applyLaser = () => {
+      const el = targetDoc.querySelector('.tl-container');
+      if (!el) return false;
+
+      const laser = cursorLasers[laserMode];
+
+      if (laser) {
+        el.style.setProperty('--tl-cursor-grab', laser);
+        el.style.setProperty('--tl-cursor-grabbing', laser);
+      } else {
+        el.style.removeProperty('--tl-cursor-grab');
+        el.style.removeProperty('--tl-cursor-grabbing');
+      }
+
+      return true;
+    };
+
+    // don't obeserve if already done
+    if (applyLaser()) return;
+
+    const observer = new MutationObserver(() => {
+      if (applyLaser()) {
+        observer.disconnect();
+      }
+    });
+
+    observer.observe(targetDoc.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    return () => observer.disconnect()
+  }, [laserMode, isPresenter, popupWindow]);
+
+  React.useEffect(() => {
     if (tlEditorRef.current) {
       const useElement = document.querySelector('.tl-cursor use');
       if (useElement && !isMultiUserActive && !isPresenter) {
@@ -1979,7 +2183,7 @@ const Whiteboard = React.memo((props) => {
 
       const updatedPresences = otherCursors
         .map(({
-          userId, xPercent, yPercent, presenter, name, isModerator,
+          userId, xPercent, yPercent, laserType, presenter, name, isModerator,
         }) => {
           const id = InstancePresenceRecordType.createId(userId);
           const active = xPercent !== -1 && yPercent !== -1;
@@ -2027,6 +2231,74 @@ const Whiteboard = React.memo((props) => {
       }
     }
   }, [otherCursors, whiteboardWriters]);
+
+  // Show viewers Laser SVG
+  React.useEffect(() => {
+    if (isPresenter) return;
+    if (isMultiUserActive) return;
+
+    const tlContainer = document.querySelector('.tl-container');
+
+    let layer = laserLayerRef.current;
+    if (!layer || !document.contains(layer)) {
+      layer = document.querySelector('.tl-overlays > .tl-html-layer');
+      laserLayerRef.current = layer;
+    }
+
+    let laserEl = laserElRef.current;
+
+    const presenterCursor = otherCursors.find(c => c.presenter);
+    const laserKey = presenterCursor?.laserType;
+    const laserDef = laserDefs[laserKey];
+
+    const changed = laserKey !== currentLaserTypeRef.current;
+    if (changed) {
+      currentLaserTypeRef.current = laserKey;
+      laserEl?.remove();
+      laserEl = null;
+      laserElRef.current = null;
+      const defaultPointer = document.getElementById('redPointer');
+      if (!laserDef) {
+        // Presenter uses hand tool and the default red pointer is visible for viewers
+        defaultPointer.style.setProperty('display', 'block');
+      } else {
+        // Presenter uses laser pointer and the default red pointer is invisible for viewers
+        defaultPointer.style.setProperty('display', 'none');
+      }
+    }
+
+    if (!laserDef) return;
+
+    if (!laserEl && layer) {
+      laserEl = createLaserElement(laserSvgs[laserKey], document, laserDef);
+      layer.appendChild(laserEl);
+      laserElRef.current = laserEl;
+    }
+
+    // Place the laser SVG at where the invisible redPointer,
+    //   whose position is not very precise, is located
+    const cursorEl = document.querySelector('.tl-collaborator__cursor');
+    if (!cursorEl) return;
+
+    const zoom = parseFloat(getComputedStyle(tlContainer).getPropertyValue('--tl-zoom')) || 1;
+
+    const transform = cursorEl.style.transform;
+    if (!transform) return;
+
+    const match = transform.match(/translate\(([^,]+)px,\s*([^)]+)px\)/);
+    if (!match) return;
+
+    const x = parseFloat(match[1]);
+    const y = parseFloat(match[2]);
+
+    // Keep cursor size regardless of the slide zoom or window size change,
+    //   the same behaviour as the presenter's CSS-based laser pointer.
+    laserEl.style.transform = `
+      translate(${x - laserDef.cx}px, ${y - laserDef.cy}px)
+      scale(${1/zoom})
+    `;
+    return;
+  }, [otherCursors, isPresenter]);
 
   const updateStore = (pages, cameras) => {
     tlEditorRef.current.store.put(pages);
