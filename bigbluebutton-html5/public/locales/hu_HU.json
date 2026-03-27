@@ -609,7 +609,7 @@
     "app.submenu.application.applicationSectionTitle": "Alkalmazás",
     "app.submenu.application.pushToTalkLabel": "Hang \"Nyomj-hogy-beszélj\"",
     "app.submenu.application.animationsLabel": "Animációk",
-    "app.submenu.application.audioFilterLabel": "Zajszűrés",
+    "app.submenu.application.musicianModeLabel": "Musician Mode (all audio filters off, stereo)",
     "app.submenu.application.wbToolbarsAutoHideLabel": "Rajztábla eszköztárainak automatikus elrejtése",
     "app.submenu.application.darkThemeLabel": "Sötét mód",
     "app.submenu.application.fontSizeControlLabel": "Betűméret",
