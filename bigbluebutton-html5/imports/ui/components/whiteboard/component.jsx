@@ -218,6 +218,7 @@ const Whiteboard = React.memo((props) => {
   const isMountedPollingFrameRef = React.useRef(null);
   const hasZoomSyncedRef = useRef(false);
   const currentUserRef = useRef(currentUser);
+  const originalHTMLElementRef = React.useRef(null);
 
   currentUserRef.current = currentUser;
 
@@ -1971,7 +1972,6 @@ const Whiteboard = React.memo((props) => {
   //  does not work on the popup window.
   // This actually modify a global variable, possibly causing other problems
   //  -> Indeed. Now the original HTMLElement is backed up and used elsewhere.
-  const originalHTMLElementRef = React.useRef(null);
   React.useEffect(() => {
     if (!isPresenter) return;
 
