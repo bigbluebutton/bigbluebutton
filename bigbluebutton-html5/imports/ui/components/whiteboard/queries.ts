@@ -220,6 +220,7 @@ export const CURRENT_PAGE_CURSORS_COORDINATES_STREAM = gql`
                             batch_size: 100) {
       xPercent
       yPercent
+      laserType
       userId
     }
   }
