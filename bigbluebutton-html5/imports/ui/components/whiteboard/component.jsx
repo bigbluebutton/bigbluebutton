@@ -2060,7 +2060,7 @@ const Whiteboard = React.memo((props) => {
         { key: 'greenSmall', label: '🟢', size: 10 },
         { key: 'redLarge',   label: '🔴', size: 18 },
         { key: 'greenLarge', label: '🟢', size: 18 },
-        { key: '',         label: '✋', size: 14 },
+        { key: '',           label: '✋', size: 14 },
       ];
 
       items.forEach(({ key, label, size }) => {
