@@ -143,6 +143,8 @@ export const elements = {
   breakoutJoinConfirmationDialog: 'div[data-test="breakoutJoinConfirmationDialog"]',
   breakoutMegaphoneButton: 'button[data-test="megaphoneButton"]',
   breakoutMessageInput: 'input[data-test="messageInput"]',
+  callModeratorButton: 'button[data-test="callModeratorButton"]',
+  returnToMainSessionButton: 'button[data-test="returnToMainSessionButton"]',
 
   // Chat
   chatBox: 'textarea[id="message-input"]',
@@ -309,6 +311,9 @@ export const elements = {
   whiteboardDisabledToast: 'The whiteboard access has been removed',
   inviteSentRoom1: 'Attendee was invited to Room 1',
   inviteSentRoom2: 'Attendee was invited to Room 2',
+  callModeratorSentToast: 'Moderators have been notified.',
+  callModeratorCooldownToast: 'Please wait before calling the moderators again.',
+  requestingModeratorAssistance: 'is requesting moderator assistance.',
   // Icons
   unmuteIcon: `${baseBbbIcon}unmute`,
   listenOnlyIcon: `${baseBbbIcon}listen`,

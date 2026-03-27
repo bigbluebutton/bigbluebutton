@@ -164,5 +164,26 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.initPages(page, testInfo);
       await join.breakoutWithDifferentPresentations();
     });
+
+    test('Call moderator from breakout room', async ({ browser, context, page }, testInfo) => {
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.create();
+      await join.callModerator();
+    });
+
+    test('Call moderator cooldown', async ({ browser, context, page }, testInfo) => {
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.create();
+      await join.callModeratorCooldown();
+    });
+
+    test('Return to main session from sidebar', async ({ browser, context, page }, testInfo) => {
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.create();
+      await join.returnToMainSessionFromSidebar();
+    });
   });
 });

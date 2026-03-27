@@ -597,4 +597,92 @@ export class Join extends Create {
     await expect(breakoutModPage.page).toHaveScreenshot('moderator-page-first-room.png');
     await expect(breakoutUserPage.page).toHaveScreenshot('attendee-page-second-room.png');
   }
+
+  async callModerator() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+
+    const breakoutUserPage = await this.joinRoom();
+    await breakoutUserPage.hasElement(
+      e.presentationTitle,
+      'should display the presentation title inside the breakout room',
+    );
+
+    // open breakout sidebar in the breakout room and click call moderator
+    await breakoutUserPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await breakoutUserPage.waitAndClick(e.callModeratorButton);
+
+    // verify success notification on breakout user page
+    await breakoutUserPage.hasText(
+      e.smallToastMsg,
+      e.callModeratorSentToast,
+      'should display the "Moderators have been notified." toast notification',
+    );
+
+    // verify chat message on moderator page
+    await this.modPage.waitAndClick(e.messagesSidebarButton);
+    await this.modPage.hasElement(
+      `${e.chatMessageItem}[data-message-type="breakoutCallModeratorMsg"]`,
+      'should display a chat message with data-message-type="breakoutCallModeratorMsg"',
+    );
+    await this.modPage.hasText(
+      `${e.chatMessageItem}[data-message-type="breakoutCallModeratorMsg"] p`,
+      e.requestingModeratorAssistance,
+      'should display the call moderator message in the moderator public chat',
+    );
+  }
+
+  async callModeratorCooldown() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+
+    const breakoutUserPage = await this.joinRoom();
+    await breakoutUserPage.hasElement(
+      e.presentationTitle,
+      'should display the presentation title inside the breakout room',
+    );
+
+    // open breakout sidebar and click call moderator
+    await breakoutUserPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await breakoutUserPage.waitAndClick(e.callModeratorButton);
+    await breakoutUserPage.hasText(
+      e.smallToastMsg,
+      e.callModeratorSentToast,
+      'should display the "Moderators have been notified." toast notification',
+    );
+
+    // click again immediately to trigger cooldown
+    await breakoutUserPage.waitAndClick(e.callModeratorButton);
+    await breakoutUserPage.hasText(
+      e.smallToastMsg,
+      e.callModeratorCooldownToast,
+      'should display the "Please wait before calling the moderators again." cooldown toast',
+    );
+  }
+
+  async returnToMainSessionFromSidebar() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+
+    const breakoutUserPage = await this.joinRoom();
+    await breakoutUserPage.hasElement(
+      e.presentationTitle,
+      'should display the presentation title inside the breakout room',
+    );
+
+    // click the return to main session button from the breakout sidebar
+    await breakoutUserPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await breakoutUserPage.waitAndClick(e.returnToMainSessionButton);
+
+    await breakoutUserPage.hasElement(
+      e.meetingEndedModal,
+      'should display the meeting ended modal after returning to main session',
+    );
+    await breakoutUserPage.waitAndClick(e.redirectButton);
+
+    await this.userPage.hasElement(
+      e.joinAudio,
+      'should display the join audio button after returning to the main session',
+    );
+  }
 }
