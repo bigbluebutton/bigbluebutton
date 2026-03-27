@@ -609,7 +609,7 @@
     "app.submenu.application.applicationSectionTitle": "應用程式",
     "app.submenu.application.pushToTalkLabel": "按一下來講話",
     "app.submenu.application.animationsLabel": "動畫",
-    "app.submenu.application.audioFilterLabel": "麥克風的音頻濾波器",
+    "app.submenu.application.musicianModeLabel": "Musician Mode (all audio filters off, stereo)",
     "app.submenu.application.wbToolbarsAutoHideLabel": "自動隱藏白板工具列",
     "app.submenu.application.darkThemeLabel": "深色模式",
     "app.submenu.application.fontSizeControlLabel": "字體大小",
