@@ -16,6 +16,7 @@ export class Create extends MultiUsers {
 
     // assign user to first room
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
+    await this.modPage.waitAndClick(e.moreOptionsToggle);
     if (captureNotes) await this.modPage.page.check(e.captureBreakoutSharedNotes);
     if (captureWhiteboard) await this.modPage.page.check(e.captureBreakoutWhiteboard);
     await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);

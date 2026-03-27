@@ -197,7 +197,8 @@ export class Join extends Create {
     );
 
     await this.modPage.hasElement(e.breakoutRemainingTime, 'should display the breakout room remaining time element');
-    await this.modPage.fill(e.chatBox, 'Test message to all breakout rooms');
+    await this.modPage.waitAndClick(e.breakoutMegaphoneButton);
+    await this.modPage.fill(e.breakoutMessageInput, 'Test message to all breakout rooms');
     await this.modPage.waitAndClick(e.sendButton);
     await breakoutUserPage.hasElement(e.chatUserMessageText, 'should have a test message on the public chat.');
 
@@ -206,9 +207,14 @@ export class Join extends Create {
       'should display a message from the moderator, html element will have data-message-type="breakoutRoomModeratorMsg"',
     );
 
-    await this.modPage.fill(e.chatBox, 'Second Test message to all breakout rooms');
+    await this.modPage.waitAndClick(e.breakoutMegaphoneButton);
+    await this.modPage.fill(e.breakoutMessageInput, 'Second Test message to all breakout rooms');
     await this.modPage.waitAndClick(e.sendButton);
-    await breakoutUserPage.hasElement(e.chatUserMessageText, 'should have another test message on the public chat.');
+    await breakoutUserPage.hasNElements(
+      e.chatUserMessageText,
+      2,
+      'should have another test message on the public chat.',
+    );
 
     await breakoutUserPage.hasNElements(
       `${e.chatMessageItem}[data-message-type="breakoutRoomModeratorMsg"]`,
@@ -317,8 +323,7 @@ export class Join extends Create {
     if (!this?.modPage) throw new Error('modPage not initialized');
     if (!this?.userPage) throw new Error('userPage not initialized');
 
-    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
-    await this.modPage.waitAndClick(e.endAllBreakouts);
+    await this.modPage.waitAndClick(e.finishBreakoutButton);
     await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
     await this.modPage.hasElement(
       e.createBreakoutRoomsButton,
@@ -407,9 +412,8 @@ export class Join extends Create {
     // making sure there's enough time for the typing to finish
     await breakoutUserPage.page.waitForTimeout(1000);
     // end breakout rooms
-    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
     await this.modPage.closeAllToastNotifications();
-    await this.modPage.waitAndClick(e.endAllBreakouts);
+    await this.modPage.waitAndClick(e.finishBreakoutButton);
     // check if the notes were exported
     await this.modPage.hasElement(
       e.presentationUploadProgressToast,
@@ -486,9 +490,7 @@ export class Join extends Create {
     // making sure there's enough time for the drawing to finish
     await breakoutUserPage.page.waitForTimeout(1000);
     // end breakout rooms
-    await this.modPage.waitAndClick(e.breakoutRoomsItem);
-    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
-    await this.modPage.waitAndClick(e.endAllBreakouts);
+    await this.modPage.waitAndClick(e.finishBreakoutButton);
 
     await this.modPage.hasElement(
       e.presentationUploadProgressToast,

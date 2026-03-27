@@ -113,7 +113,7 @@ export const elements = {
   openBreakoutTimeManager: 'li[data-test="openBreakoutTimeManager"]',
   inputSetTimeSelector: 'input[id="inputSetTimeSelector"]',
   sendButtonDurationTime: 'button[data-test="sendButtonDurationTime"]',
-  breakoutRemainingTime: 'span[data-test="breakoutRemainingTime"]',
+  breakoutRemainingTime: 'div[data-test="breakoutRemainingTime"]',
   breakoutRoomTimerHoursInput: 'input[data-test="breakoutRoomTimerHoursInput"]',
   breakoutRoomTimerMinutesInput: 'input[data-test="breakoutRoomTimerMinutesInput"]',
   increaseBreakoutTimeButton: 'button[data-test="increaseBreakoutTimeButton"]',
@@ -141,6 +141,8 @@ export const elements = {
   currentSlideBreakoutOption: 'option[data-test="currentSlideBreakoutOption"]',
   moreOptionsToggle: 'button[data-test="moreOptionsToggle"]',
   breakoutJoinConfirmationDialog: 'div[data-test="breakoutJoinConfirmationDialog"]',
+  breakoutMegaphoneButton: 'button[data-test="megaphoneButton"]',
+  breakoutMessageInput: 'input[data-test="messageInput"]',
 
   // Chat
   chatBox: 'textarea[id="message-input"]',
