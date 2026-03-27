@@ -97,6 +97,7 @@ export const PRESENTATION_PUBLISH_CURSOR = gql`
       whiteboardId: $whiteboardId,
       xPercent: $xPercent,
       yPercent: $yPercent,
+      laserType: $laserType,
     )
   }
 `;
