@@ -610,10 +610,10 @@ export interface Media {
 }
 
 export interface LiveKitPresetConfig {
-  width: number
-  height: number
-  maxBitrate: number
-  maxFramerate: number
+  width?: number
+  height?: number
+  maxBitrate?: number
+  maxFramerate?: number
   priority?: RTCPriorityType
 }
 
@@ -625,6 +625,7 @@ export interface LiveKitCameraSettings {
 export interface LiveKitScreenShareSettings {
   publishOptions?: TrackPublishOptions
   presets?: LiveKitPresetConfig[]
+  constraints?: Constraints
 }
 
 export interface LiveKitAudioSettings {

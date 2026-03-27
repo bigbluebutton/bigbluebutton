@@ -963,9 +963,36 @@ public:
       camera:
         publishOptions:
           videoCodec: 'vp8'
+        # presets: optional explicit simulcast presets. When specified,
+        # overrides automatic profile-to-layer mapping from cameraProfiles.
+        # Ordered lowest to highest quality.
+        # Array of VideoPreset objects (see https://docs.livekit.io/reference/client-sdk-js/variables/VideoPresets.html).
+        #presets: []
       screenshare:
         publishOptions:
           videoCodec: 'vp8'
+        # constraints: independent from kurento.screenshare.constraints
+        constraints:
+          video:
+            frameRate:
+              ideal: 15
+              max: 15
+            width:
+              max: 2560
+            height:
+              max: 1600
+          audio: true
+        # livekit.screenshare.presets: ordered lowest to highest quality.
+        # Entries are VideoPreset objects (see https://docs.livekit.io/reference/client-sdk-js/variables/VideoPresets.html).
+        # Presets may be partially specified - missing bitrate/FPS entries will
+        # be interpolated by the client. Resolution defaults to capture resolution.
+        presets:
+          - maxBitrate: 500000
+            maxFramerate: 5
+            priority: medium
+          - maxBitrate: 1500000
+            maxFramerate: 15
+            priority: medium
   stats:
     enabled: true
     interval: 10000
