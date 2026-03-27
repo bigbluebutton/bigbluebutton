@@ -180,6 +180,8 @@
     "app.userList.moderator": "Συντονιστής",
     "app.userList.mobile": "Κινητό",
     "app.userList.guest": "Επισκέπτης",
+    "app.userList.searchUsers": "Search users",
+    "app.userList.clearSearch": "Clear search",
     "app.userList.sharingWebcam": "Κάμερα",
     "app.userList.menuTitleContext": "Διαθέσιμες επιλογές",
     "app.userList.chatListItem.unreadSingular": "Ένα νέο μήνυμα",
