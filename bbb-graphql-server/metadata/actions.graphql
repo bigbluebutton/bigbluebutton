@@ -452,6 +452,7 @@ type Mutation {
     whiteboardId: String!
     xPercent: Float!
     yPercent: Float!
+    laserType: String!
   ): Boolean
 }
 
