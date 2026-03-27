@@ -7,7 +7,6 @@ import { CHAT_SET_PINNED_MUTATION } from '/imports/ui/components/chat/chat-graph
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import ConfirmModal from '/imports/ui/components/common/modal/confirmation/component';
 import Styled from './styles';
-import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
 
 const intlMessages = defineMessages({
   pinnedMessagesTitle: {
@@ -113,7 +112,7 @@ export default function PinnedMessageComponent({ messages, isModerator }: Pinned
 
   const pinnedByName = activeMessage?.pinnedBy?.name || '';
   const formattedTime = activeMessage?.createdAt ? new Date(activeMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-  const previewText = activeMessage?.message || unescapeHtml(stripTags(activeMessage?.messageAsHtml ?? ''));
+  const messageAsHtml = activeMessage?.messageAsHtml ?? '';
 
   return (
     <Styled.Wrapper role="region" aria-label={intl.formatMessage(intlMessages.pinnedMessagesTitle)}>
@@ -154,9 +153,9 @@ export default function PinnedMessageComponent({ messages, isModerator }: Pinned
             handleNavigateToMessage(e);
           }
         }}
-      >
-        {previewText}
-      </Styled.MessagePreview>
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: messageAsHtml }}
+      />
       <Styled.Footer>
         <Styled.FooterUserInfo>
           {activeMessage?.senderName}

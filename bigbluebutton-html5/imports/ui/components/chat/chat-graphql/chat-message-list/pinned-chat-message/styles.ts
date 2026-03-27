@@ -5,6 +5,9 @@ import {
   colorBlueAux,
   appsGalleryOutlineColor,
   colorNeutral2,
+  colorDangerDark,
+  colorGrayLightest,
+  colorOffWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import OrIcon from '/imports/ui/components/common/icon/component';
 
@@ -84,6 +87,32 @@ const MessagePreview = styled.div`
     outline: 2px solid ${colorPrimary};
     outline-offset: 2px;
   }
+
+  & p {
+    margin: 0;
+    white-space: pre-wrap;
+  }
+
+  & pre:has(code), p code:not(pre > code) {
+    background-color: ${colorOffWhite};
+    border: solid 1px ${colorGrayLightest};
+    border-radius: 4px;
+    padding: 2px;
+    margin: 0;
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  & p code:not(pre > code) {
+    color: ${colorDangerDark};
+  }
+
+  & h1 { font-size: 1.5em; margin: 0; }
+  & h2 { font-size: 1.3em; margin: 0; }
+  & h3 { font-size: 1.1em; margin: 0; }
+  & h4, & h5, & h6 { margin: 0; }
 `;
 
 const Footer = styled.div`
