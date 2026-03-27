@@ -180,6 +180,8 @@
     "app.userList.moderator": "مشرف",
     "app.userList.mobile": "نقال",
     "app.userList.guest": "زائر",
+    "app.userList.searchUsers": "Search users",
+    "app.userList.clearSearch": "Clear search",
     "app.userList.sharingWebcam": "كاميرا ويب",
     "app.userList.menuTitleContext": "الخيارات المتاحة",
     "app.userList.chatListItem.unreadSingular": "رسالة جديدة واحدة",
