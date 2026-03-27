@@ -2116,7 +2116,7 @@ const Whiteboard = React.memo((props) => {
       targetDoc.removeEventListener('contextmenu', handleContextMenu);
       removeMenu();
     };
-  }, [popupWindow, isPresenter]);
+  }, [isPresenter]);
 
   React.useEffect(() => {
     const targetDoc = document;
@@ -2154,7 +2154,7 @@ const Whiteboard = React.memo((props) => {
     });
 
     return () => observer.disconnect()
-  }, [laserMode, isPresenter, popupWindow]);
+  }, [laserMode, isPresenter]);
 
   React.useEffect(() => {
     if (tlEditorRef.current) {
