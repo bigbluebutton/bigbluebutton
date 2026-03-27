@@ -111,7 +111,7 @@ export default function PinnedMessageComponent({ messages, isModerator }: Pinned
   if (!messages || messages.length === 0) return null;
 
   const pinnedByName = activeMessage?.pinnedBy?.name || '';
-  const formattedTime = activeMessage?.createdAt ? new Date(activeMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+  const formattedTime = activeMessage?.createdAt ? intl.formatTime(activeMessage.createdAt) : '';
   const messageAsHtml = activeMessage?.messageAsHtml ?? '';
 
   return (
