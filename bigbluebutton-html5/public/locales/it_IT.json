@@ -609,7 +609,7 @@
     "app.submenu.application.applicationSectionTitle": "Applicazione",
     "app.submenu.application.pushToTalkLabel": "Audio push-to-talk",
     "app.submenu.application.animationsLabel": "Animazioni",
-    "app.submenu.application.audioFilterLabel": "Filtri audio per microfono",
+    "app.submenu.application.musicianModeLabel": "Musician Mode (all audio filters off, stereo)",
     "app.submenu.application.wbToolbarsAutoHideLabel": "Nascondi automaticamente strumenti lavagna",
     "app.submenu.application.darkThemeLabel": "Tema scuro",
     "app.submenu.application.fontSizeControlLabel": "Dimensione carattere",
