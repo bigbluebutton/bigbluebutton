@@ -423,6 +423,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
               setMinutes(v);
             }}
             aria-label="Minutes"
+            data-test="durationTime"
           />
           <Styled.TimerColon>:</Styled.TimerColon>
           <Styled.TimerInput
@@ -438,7 +439,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
           />
         </Styled.TimerDisplay>
         {durationTime < MIN_BREAKOUT_TIME && (
-          <Styled.TimerWarning>
+          <Styled.TimerWarning data-test="minimumDurationWarnBreakout">
             {intl.formatMessage(
               intlMessages.minimumDurationWarnBreakout,
               { timeInMinutes: MIN_BREAKOUT_TIME },
@@ -455,6 +456,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
             onClick={decreaseRooms}
             disabled={numberOfRooms <= MIN_BREAKOUT_ROOMS}
             aria-label="Decrease rooms"
+            data-test="decreaseRooms"
           >
             ‹
           </Styled.RoomCountArrow>
@@ -465,6 +467,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
             onClick={increaseRooms}
             disabled={numberOfRooms >= MAX_BREAKOUT_ROOMS}
             aria-label="Increase rooms"
+            data-test="increaseRooms"
           >
             ›
           </Styled.RoomCountArrow>
@@ -489,7 +492,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
         />
       </Styled.ControlsRow>
 
-      <Styled.MoreOptionsToggle onClick={() => setMoreOptionsOpen(!moreOptionsOpen)}>
+      <Styled.MoreOptionsToggle data-test="moreOptionsToggle" onClick={() => setMoreOptionsOpen(!moreOptionsOpen)}>
         <Styled.ExpandIcon $expanded={moreOptionsOpen}>
           <ExpandMoreIcon />
         </Styled.ExpandIcon>

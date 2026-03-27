@@ -235,14 +235,14 @@ export class Join extends Create {
       'should display the presentation title on the breakout room',
     );
 
-    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
-    await this.modPage.waitAndClick(e.openBreakoutTimeManager);
-    await this.modPage.page.locator(e.inputSetTimeSelector).press('Backspace');
-    await this.modPage.type(e.inputSetTimeSelector, '5');
-    await this.modPage.waitAndClick(e.sendButtonDurationTime);
-    await this.modPage.hasText(
-      e.breakoutRemainingTime,
-      /[4-5]:[0-5][0-9]/,
+    // Decrease from 15 to 5 minutes by clicking in the minus button 10 times
+    for (let i = 0; i < 10; i += 1) {
+      await this.modPage.waitAndClick(e.decreaseBreakoutTimeButton);
+    }
+
+    await this.modPage.hasValue(
+      e.breakoutRoomTimerMinutesInput,
+      '04',
       'should have the breakout room time remaining counting down on the main meeting',
     );
 
@@ -257,15 +257,13 @@ export class Join extends Create {
     if (!this?.modPage) throw new Error('modPage not initialized');
     if (!this?.userPage) throw new Error('userPage not initialized');
 
-    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
-    await this.modPage.waitAndClick(e.openUpdateBreakoutUsersModal);
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
     await this.modPage.hasText(
-      e.breakoutBox1,
-      /Attendee/,
-      'should have the attendee name on the second breakout room box.',
+      e.smallToastMsg,
+      e.inviteSentRoom1,
+      `should appear the text "${e.inviteSentRoom1}" on the toast message after dropping the ` +
+        `attendee into the breakout room.`,
     );
-    await this.modPage.waitAndClick(e.updateBreakoutRoomsButton);
 
     await this.userPage.hasElement(
       e.modalConfirmButton,
@@ -297,15 +295,15 @@ export class Join extends Create {
       'should display the presentation title on the breakout room',
     );
 
-    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
-    await this.modPage.waitAndClick(e.openBreakoutTimeManager);
-    await this.modPage.page.locator(e.inputSetTimeSelector).press('Backspace');
-    await this.modPage.type(e.inputSetTimeSelector, '5');
-    await this.modPage.waitAndClick(e.sendButtonDurationTime);
-    await this.modPage.hasText(
-      e.breakoutRemainingTime,
-      /[4-5]:[0-5][0-9]/,
-      'should have the breakout room time remaining counting down on the breakout main panel.',
+    // Decrease from 15 to 5 minutes by clicking in the minus button 10 times
+    for (let i = 0; i < 10; i += 1) {
+      await this.modPage.waitAndClick(e.decreaseBreakoutTimeButton);
+    }
+
+    await this.modPage.hasValue(
+      e.breakoutRoomTimerMinutesInput,
+      '04',
+      'should have the breakout room time remaining counting down on the main meeting',
     );
 
     await breakoutUserPage.hasText(
@@ -344,11 +342,13 @@ export class Join extends Create {
       'should display the user name below the first breakout room name',
     );
 
-    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
-
-    await this.modPage.waitAndClick(e.openUpdateBreakoutUsersModal);
     await this.modPage.dragDropSelector(e.moveUser, e.breakoutBox2);
-    await this.modPage.waitAndClick(e.updateBreakoutRoomsButton);
+    await this.modPage.hasText(
+      e.smallToastMsg,
+      e.inviteSentRoom2,
+      `should appear the text "${e.inviteSentRoom2}" on the toast message after dropping the ` +
+        `attendee into the breakout room.`,
+    );
 
     await this.userPage.hasElement(
       e.modalConfirmButton,
@@ -368,7 +368,7 @@ export class Join extends Create {
     await this.modPage.hasText(
       e.userNameBreakoutRoom2,
       /Attendee/,
-      'should display the user name below the first breakout room name',
+      'should display the user name below the second breakout room name',
       ELEMENT_WAIT_LONGER_TIME,
     );
   }

@@ -229,7 +229,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
 
   return (
     <Styled.Overlay onClick={handleOverlayClick}>
-      <Styled.Dialog ref={dialogRef} role="dialog" aria-modal="true" aria-label={roomName}>
+      <Styled.Dialog ref={dialogRef} role="dialog" aria-modal="true" aria-label={roomName} data-test="breakoutJoinConfirmationDialog">
         <Styled.Header>
           <Styled.Title>{roomName}</Styled.Title>
           <Styled.CloseButton
@@ -252,7 +252,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
           )}
         </Styled.Body>
         <Styled.Footer>
-          <Styled.CancelButton onClick={handleClose}>
+          <Styled.CancelButton onClick={handleClose} data-test="modalDismissButton">
             {intl.formatMessage(intlMessages.dismissLabel)}
           </Styled.CancelButton>
           <Styled.EnterButton

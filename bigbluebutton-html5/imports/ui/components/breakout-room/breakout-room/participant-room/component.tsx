@@ -309,7 +309,7 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
             <Styled.EnterRoomBtn
               type="button"
               onClick={handleEnterRoom}
-              data-test="enterBreakoutRoomButton"
+              data-test={isCurrentlyInRoom ? 'alreadyConnected' : 'joinRoom'}
               disabled={isCurrentlyInRoom}
             >
               {isCurrentlyInRoom
@@ -346,7 +346,7 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
           <Styled.EnterRoomBtn
             type="button"
             onClick={handleEnterRoom}
-            data-test="enterBreakoutRoomButton"
+            data-test={isCurrentlyInRoom ? 'alreadyConnected' : 'joinRoom'}
             disabled={isCurrentlyInRoom}
           >
             {isCurrentlyInRoom
