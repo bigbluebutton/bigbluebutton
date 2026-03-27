@@ -609,7 +609,7 @@
     "app.submenu.application.applicationSectionTitle": "تطبيق",
     "app.submenu.application.pushToTalkLabel": "الدفع الصوتي للتحدث",
     "app.submenu.application.animationsLabel": "التحريكات",
-    "app.submenu.application.audioFilterLabel": "مرشحات الصوت للميكروفون",
+    "app.submenu.application.musicianModeLabel": "Musician Mode (all audio filters off, stereo)",
     "app.submenu.application.wbToolbarsAutoHideLabel": "إخفاء أشرطة أدوات السبورة البيضاء تلقائيًا",
     "app.submenu.application.darkThemeLabel": "الوضع الليلي",
     "app.submenu.application.fontSizeControlLabel": "حجم الخط",
