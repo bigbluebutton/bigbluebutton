@@ -2245,7 +2245,7 @@ const Whiteboard = React.memo((props) => {
       }
     }
 
-    if (!laserDef) return;
+    if (!laserDef) return; // hand tool, so laser pointer is drawn
 
     if (!laserEl && layer) {
       laserEl = createLaserElement(laserSvgs[laserKey], document, laserDef);
