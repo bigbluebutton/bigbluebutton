@@ -114,7 +114,7 @@ const dropdownCaretWidth = '12px';
 const toastOffsetSm = '.325rem';
 const btnSpacing = '.35rem';
 
-const toastIconMd = '2rem';
+const toastIconMd = '3rem';
 const toastIconSm = '1.2rem';
 
 const presentationMenuHeight = '45px';

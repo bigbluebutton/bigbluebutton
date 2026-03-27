@@ -77,6 +77,27 @@ const Notifications: React.FC = () => {
         </Styled.ContentMessage>,
         true,
       );
+    } else if (notification.messageId === 'app.notification.presenterRequestApproved') {
+      notify(
+        <>
+          <FormattedMessage
+            id="app.notification.presenterRequestApproved.title"
+            // @ts-ignore - JS code
+            values={{ presenterName: <strong>{notification.messageValues.presenterName}</strong> }}
+            description="Title for presenter request approved notification"
+          />
+          <Styled.ContentMessage>
+            <FormattedMessage
+              id={notification.messageId}
+              // @ts-ignore - JS code
+              values={resolvedValues}
+              description={notification.messageDescription}
+            />
+          </Styled.ContentMessage>
+        </>,
+        notification.notificationType,
+        notification.icon,
+      );
     } else {
       notify(
         <FormattedMessage
