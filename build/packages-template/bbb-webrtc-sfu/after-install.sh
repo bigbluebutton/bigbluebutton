@@ -35,9 +35,7 @@ case "$1" in
     else
       # Looks like the FreeSWITCH package is being installed, let's fall back to the default value
       yq -y -i ".freeswitch.ip = \"$IP\"" $TARGET
-      if [ "$DISTRIB_CODENAME" == "focal" ]; then
-        yq -y -i ".freeswitch.sip_ip = \"$IP\"" $TARGET
-      fi
+      yq -y -i ".freeswitch.sip_ip = \"$IP\"" $TARGET
     fi
 
     cd /usr/local/bigbluebutton/bbb-webrtc-sfu
