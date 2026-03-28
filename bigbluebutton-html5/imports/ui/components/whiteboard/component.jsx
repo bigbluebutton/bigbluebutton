@@ -170,6 +170,8 @@ const Whiteboard = React.memo((props) => {
     setEditor,
     lockToolbarTools,
     layoutChanged,
+    laserRadiusSmall,
+    laserRadiusLarge,
   } = props;
 
   clearTldrawCache();
@@ -1787,10 +1789,10 @@ const Whiteboard = React.memo((props) => {
   };
 
   const laserDefs = {
-    redSmall:   { color: 'red',  cx: 16, cy: 16, r: 14 },
-    greenSmall: { color: 'lime', cx: 16, cy: 16, r: 14 },
-    redLarge:   { color: 'red',  cx: 24, cy: 24, r: 22 },
-    greenLarge: { color: 'lime', cx: 24, cy: 24, r: 22 },
+    redSmall:   { color: 'red',  cx: laserRadiusSmall+2, cy: laserRadiusSmall+2, r: laserRadiusSmall },
+    greenSmall: { color: 'lime', cx: laserRadiusSmall+2, cy: laserRadiusSmall+2, r: laserRadiusSmall },
+    redLarge:   { color: 'red',  cx: laserRadiusLarge+2, cy: laserRadiusLarge+2, r: laserRadiusLarge },
+    greenLarge: { color: 'lime', cx: laserRadiusLarge+2, cy: laserRadiusLarge+2, r: laserRadiusLarge },
   };
 
   const laserSvgs = Object.fromEntries(
@@ -2464,6 +2466,8 @@ Whiteboard.propTypes = {
   presentationAreaHeight: PropTypes.number.isRequired,
   presentationAreaWidth: PropTypes.number.isRequired,
   maxNumberOfAnnotations: PropTypes.number.isRequired,
+  laserRadiusSmall: PropTypes.number.isRequired,
+  laserRadiusLarge: PropTypes.number.isRequired,
   setTldrawIsMounting: PropTypes.func.isRequired,
   presentationId: PropTypes.string,
   setTldrawAPI: PropTypes.func.isRequired,
