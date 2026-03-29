@@ -2204,6 +2204,10 @@ const Whiteboard = React.memo((props) => {
     }
   }, [whiteboardToolbarAutoHide]);
 
+  const slideZoom = tlEditorRef.current?.getCamera().z / initialZoomRef.current;
+  const { scaledWidth, scaledHeight } = currentPresentationPageRef.current;
+  const containerZoom = calculateZoomValue(scaledWidth, scaledHeight);
+
   return (
     <div
       ref={whiteboardRef}
@@ -2230,6 +2234,8 @@ const Whiteboard = React.memo((props) => {
           presentationHeight,
           cursorType,
           pointerDiameter,
+          slideZoom,
+          containerZoom,
         }}
       />
     </div>
