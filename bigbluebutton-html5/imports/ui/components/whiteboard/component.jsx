@@ -2260,7 +2260,8 @@ const Whiteboard = React.memo((props) => {
     const cursorEl = document.querySelector('.tl-collaborator__cursor');
     if (!cursorEl) return;
 
-    const zoom = parseFloat(getComputedStyle(tlContainer).getPropertyValue('--tl-zoom')) || 1;
+    //const zoom = parseFloat(getComputedStyle(tlContainer).getPropertyValue('--tl-zoom')) || 1;
+    const { z: zoom } = tlEditorRef.current.getCamera();
 
     const transform = cursorEl.style.transform;
     if (!transform) return;
