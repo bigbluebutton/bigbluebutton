@@ -2263,14 +2263,14 @@ const Whiteboard = React.memo((props) => {
     //const zoom = parseFloat(getComputedStyle(tlContainer).getPropertyValue('--tl-zoom')) || 1;
     const { z: zoom } = tlEditorRef.current.getCamera();
 
-    const transform = cursorEl.style.transform;
-    if (!transform) return;
-
-    const match = transform.match(/translate\(([^,]+)px,\s*([^)]+)px\)/);
-    if (!match) return;
-
-    const x = parseFloat(match[1]);
-    const y = parseFloat(match[2]);
+    //const transform = cursorEl.style.transform;
+    //if (!transform) return;
+    //const match = transform.match(/translate\(([^,]+)px,\s*([^)]+)px\)/);
+    //if (!match) return;
+    //const x = parseFloat(match[1]);
+    //const y = parseFloat(match[2]);
+    const x = presenterCursor.xPercent;
+    const y = presenterCursor.yPercent;
 
     // Keep cursor size regardless of the slide zoom or window size change,
     //   the same behaviour as the presenter's CSS-based laser pointer.
