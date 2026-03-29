@@ -64,15 +64,15 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     left: -50px !important;
   }
 
-  ${({ isPresenter, isMultiUserActive, pointerDiameter = 5 }) => {
+  ${({ isPresenter, isMultiUserActive, pointerDiameter = 5, containerZoom, slideZoom }) => {
     const numericDiameter = Number(pointerDiameter);
     const safeDiameter = Number.isFinite(numericDiameter) && numericDiameter > 0
       ? numericDiameter
       : 5;
     const scale = safeDiameter / 100;
     const scaleRatio = safeDiameter / 5;
-    const leftOffset = -18 * scaleRatio;
-    const topOffset = -10 * scaleRatio;
+    const leftOffset = (-18 * scaleRatio + 13 * (containerZoom - 0.38)) / slideZoom;
+    const topOffset = (-10 * scaleRatio + 7 * (containerZoom - 0.38)) / slideZoom;
     return !isPresenter && !isMultiUserActive && `
     .tl-cursor use {
       transform: scale(${scale})!important;
