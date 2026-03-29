@@ -181,7 +181,7 @@
     "app.userList.mobile": "モバイル端末",
     "app.userList.guest": "ゲスト",
     "app.userList.searchUsers": "ユーザーを探す",
-    "app.userList.clearSearch": "Clear search",
+    "app.userList.clearSearch": "検索を消去",
     "app.userList.sharingWebcam": "ウェブカメラ",
     "app.userList.menuTitleContext": "使用可能オプション",
     "app.userList.chatListItem.unreadSingular": "1 通の新規メッセージ",
