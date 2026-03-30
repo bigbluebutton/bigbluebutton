@@ -1,6 +1,15 @@
-import React, { useRef, useCallback, useImperativeHandle } from 'react';
+import React, {
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  forwardRef,
+} from 'react';
 import {
-  Bar, BarChart, ResponsiveContainer, XAxis, YAxis,
+  Bar,
+  BarChart,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
 } from 'recharts';
 import logger from '/imports/startup/client/logger';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
@@ -96,20 +105,18 @@ function assertAsMetadata(metadata: unknown): asserts metadata is Metadata {
   }
 }
 
-const ChatPollContent = React.forwardRef<ChatPollContentHandle, ChatPollContentProps>(({
-  metadata: string,
-  height = undefined,
-}, ref) => {
+const ChatPollContent = forwardRef<ChatPollContentHandle, ChatPollContentProps>((
+  { metadata, height },
+  ref,
+) => {
   const intl = useIntl();
   const chartRef = useRef<HTMLDivElement>(null);
   const sidebarContent: Output['sidebarContent'] = layoutSelectOutput((i: Output) => i.sidebarContent);
   const fontSize: Layout['fontSize'] = layoutSelect((i: Layout) => i.fontSize);
 
-  const pollData = JSON.parse(string) as unknown;
+  const pollData = JSON.parse(metadata) as unknown;
   assertAsMetadata(pollData);
-
   const answers = pollData.answers.reduce(caseInsensitiveReducer, []);
-
   const translatedAnswers = answers.map((answer: Answers) => {
     const translationKey = intlMessages[answer.key.toLowerCase() as keyof typeof intlMessages];
     const pollAnswer = translationKey ? intl.formatMessage(translationKey) : answer.key;
@@ -122,7 +129,12 @@ const ChatPollContent = React.forwardRef<ChatPollContentHandle, ChatPollContentP
   });
 
   const handleCopy = useCallback((onDone: () => void) => {
+    const now = new Date();
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+      + ` ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
     const lines = [
+      `[${dateStr}]`,
       pollData.questionText,
       '',
       ...translatedAnswers.map((a: Answers & { pollAnswer: string }) => {
@@ -134,96 +146,93 @@ const ChatPollContent = React.forwardRef<ChatPollContentHandle, ChatPollContentP
           : '';
         return `${correct}${a.pollAnswer}: ${a.numVotes} ${voteLabel}`;
       }),
-    ].filter((_line, idx) => idx !== 1 || pollData.questionText);
+    ].filter((_line, idx) => idx !== 2 || pollData.questionText);
     if (!navigator.clipboard) {
       logger.warn({ logCode: 'poll_clipboard_unavailable' }, 'Clipboard API not available in this context');
       return;
     }
-    navigator.clipboard.writeText(lines.join('\n')).then(() => {
-      onDone();
-    }).catch((err: Error) => {
-      logger.warn({ logCode: 'poll_clipboard_copy_error', extraInfo: { errorMessage: err?.message } }, 'Failed to copy poll results to clipboard');
-    });
+    navigator.clipboard.writeText(lines.join('\n'))
+      .then(() => {
+        onDone();
+      })
+      .catch((err: Error) => {
+        logger.warn({
+          logCode: 'poll_clipboard_copy_error',
+          extraInfo: { errorMessage: err?.message },
+        }, 'Failed to copy poll results to clipboard');
+      });
   }, [translatedAnswers, pollData, intl]);
 
   const handleDownload = useCallback(() => {
     if (!chartRef.current) return;
-    const svgEl = chartRef.current.querySelector('svg');
-    if (!svgEl) return;
-
-    const { width: svgW, height: svgH } = svgEl.getBoundingClientRect();
-    const padding = 24;
-    const titleFontSize = 16;
-    const lineHeight = Math.ceil(titleFontSize * 1.4);
-    const canvasW = svgW + padding * 2;
-
-    // Measure and wrap title text so long questions don't get clipped
-    const titleLines: string[] = [];
-    if (pollData.questionText) {
-      const measureCtx = document.createElement('canvas').getContext('2d');
-      if (measureCtx) {
-        measureCtx.font = `bold ${titleFontSize}px sans-serif`;
-        const maxWidth = canvasW - padding * 2;
-        const words = pollData.questionText.split(' ');
-        let currentLine = '';
-        words.forEach((word) => {
-          const testLine = currentLine ? `${currentLine} ${word}` : word;
-          if (measureCtx.measureText(testLine).width > maxWidth && currentLine) {
-            titleLines.push(currentLine);
-            currentLine = word;
-          } else {
-            currentLine = testLine;
-          }
+    const chartNode = chartRef.current;
+    const now = new Date();
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+      + `_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
+    const fileName = `poll-result_${dateStr}.png`;
+    import('html-to-image').then(({ toPng }) => {
+      toPng(chartNode, { backgroundColor: '#fff' })
+        .then((dataUrl) => {
+          const img = new window.Image();
+          img.onload = () => {
+            const padding = 24;
+            const titleFontSize = 20;
+            const lineHeight = Math.ceil(titleFontSize * 1.4);
+            const canvasW = img.width;
+            const ctxMeasure = document.createElement('canvas').getContext('2d');
+            let titleLines = [];
+            if (ctxMeasure && pollData.questionText) {
+              ctxMeasure.font = `bold ${titleFontSize}px sans-serif`;
+              const maxWidth = canvasW - padding * 2;
+              const words = pollData.questionText.split(' ');
+              let currentLine = '';
+              words.forEach((word) => {
+                const testLine = currentLine ? `${currentLine} ${word}` : word;
+                if (ctxMeasure.measureText(testLine).width > maxWidth && currentLine) {
+                  titleLines.push(currentLine);
+                  currentLine = word;
+                } else {
+                  currentLine = testLine;
+                }
+              });
+              if (currentLine) titleLines.push(currentLine);
+            } else {
+              titleLines = [pollData.questionText];
+            }
+            const titleAreaHeight = titleLines.length * lineHeight + padding;
+            const canvasH = img.height + titleAreaHeight;
+            const canvas = document.createElement('canvas');
+            canvas.width = canvasW;
+            canvas.height = canvasH;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.fillStyle = '#fff';
+              ctx.fillRect(0, 0, canvasW, canvasH);
+              ctx.fillStyle = '#333';
+              ctx.font = `bold ${titleFontSize}px sans-serif`;
+              ctx.textAlign = 'center';
+              titleLines.forEach((line, i) => {
+                ctx.fillText(line, canvasW / 2, padding + titleFontSize + i * lineHeight);
+              });
+              ctx.drawImage(img, 0, titleAreaHeight);
+              const a = document.createElement('a');
+              a.download = fileName;
+              a.href = canvas.toDataURL('image/png');
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+            }
+          };
+          img.src = dataUrl;
+        })
+        .catch((err) => {
+          logger.warn({
+            logCode: 'poll_download_error',
+            extraInfo: { errorMessage: err?.message },
+          }, 'Failed to download poll result as PNG');
         });
-        if (currentLine) titleLines.push(currentLine);
-      }
-    }
-    const titleAreaHeight = titleLines.length > 0
-      ? lineHeight * titleLines.length + padding
-      : padding;
-    const canvasH = svgH + titleAreaHeight + padding;
-
-    const clonedSvg = svgEl.cloneNode(true) as SVGElement;
-    clonedSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-    clonedSvg.setAttribute('width', String(svgW));
-    clonedSvg.setAttribute('height', String(svgH));
-
-    const svgData = new XMLSerializer().serializeToString(clonedSvg);
-    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(svgBlob);
-
-    const canvas = document.createElement('canvas');
-    canvas.width = canvasW;
-    canvas.height = canvasH;
-
-    const img = new Image();
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-    };
-    img.onload = () => {
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, canvasW, canvasH);
-      if (titleLines.length > 0) {
-        ctx.fillStyle = '#333333';
-        ctx.font = `bold ${titleFontSize}px sans-serif`;
-        ctx.textAlign = 'center';
-        titleLines.forEach((line, i) => {
-          ctx.fillText(line, canvasW / 2, padding + titleFontSize + i * lineHeight);
-        });
-      }
-      ctx.drawImage(img, padding, titleAreaHeight);
-      URL.revokeObjectURL(url);
-
-      const a = document.createElement('a');
-      a.download = 'poll-result.png';
-      a.href = canvas.toDataURL('image/png');
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    };
-    img.src = url;
+    });
   }, [pollData]);
 
   useImperativeHandle(ref, () => ({
@@ -232,6 +241,7 @@ const ChatPollContent = React.forwardRef<ChatPollContentHandle, ChatPollContentP
   }), [handleCopy, handleDownload]);
 
   const useHeight = height || translatedAnswers.length * 50;
+
   return (
     <>
       <Styled.PollWrapper aria-hidden data-test="chatPollMessageText">
@@ -248,7 +258,13 @@ const ChatPollContent = React.forwardRef<ChatPollContentHandle, ChatPollContentP
                 type="number"
                 allowDecimals={false}
               />
-              <YAxis width={sidebarContent.width / 3} fontSize={fontSize} type="category" dataKey="pollAnswerWithNumVotes" tick={CustomizedAxisTick} />
+              <YAxis
+                width={sidebarContent.width / 3}
+                fontSize={fontSize}
+                type="category"
+                dataKey="pollAnswerWithNumVotes"
+                tick={CustomizedAxisTick}
+              />
               <Bar dataKey="numVotes" fill="#0C57A7" />
             </BarChart>
           </ResponsiveContainer>
@@ -270,7 +286,5 @@ const ChatPollContent = React.forwardRef<ChatPollContentHandle, ChatPollContentP
     </>
   );
 });
-
-ChatPollContent.displayName = 'ChatPollContent';
 
 export default ChatPollContent;

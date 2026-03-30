@@ -622,6 +622,8 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       <PollHeaderAction
         type="button"
         title={intl.formatMessage(intlMessages.copyPollResults)}
+        aria-label={intl.formatMessage(intlMessages.copyPollResults)}
+        aria-describedby={`poll-action-copy-desc-${message.messageId}`}
         onClick={() => {
           pollActionsRef.current?.copy(() => {
             if (pollCopyTimeoutRef.current) clearTimeout(pollCopyTimeoutRef.current);
@@ -631,13 +633,21 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
         }}
       >
         <Icon iconName={pollResultCopied ? 'check' : 'copy'} />
+        <span id={`poll-action-copy-desc-${message.messageId}`} style={{ display: 'none' }}>
+          {intl.formatMessage(intlMessages.copyPollResults)}
+        </span>
       </PollHeaderAction>
       <PollHeaderAction
         type="button"
         title={intl.formatMessage(intlMessages.downloadPollResults)}
+        aria-label={intl.formatMessage(intlMessages.downloadPollResults)}
+        aria-describedby={`poll-action-download-desc-${message.messageId}`}
         onClick={() => pollActionsRef.current?.download()}
       >
         <Icon iconName="download" />
+        <span id={`poll-action-download-desc-${message.messageId}`} style={{ display: 'none' }}>
+          {intl.formatMessage(intlMessages.downloadPollResults)}
+        </span>
       </PollHeaderAction>
     </>
   ) : null;
