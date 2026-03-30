@@ -102,7 +102,6 @@ const ToastIcon = styled.div`
     position: absolute;
     top: 50%;
     width: 100%;
-    font-size: 1.5rem;
   }
 
   ${({ small }) => small && `
