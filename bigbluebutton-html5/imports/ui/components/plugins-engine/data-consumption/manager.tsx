@@ -210,15 +210,13 @@ const PluginDataConsumptionManager: React.FC = () => {
           const HookComponent = hookWithArguments.componentToRender;
           return (
             <CustomDataConsumptionHooksErrorBoundary
-              key={`${makeCustomHookIdentifierFromArgs(hookWithArguments.hookArguments)}-${hookWithArguments.version}`}
+              key={makeCustomHookIdentifierFromArgs(hookWithArguments.hookArguments)}
               hookWithArguments={hookWithArguments}
               dataConsumptionHook={DataConsumptionHooks.CUSTOM_QUERY}
               setDataConsumptionHookWithArgumentUtilizationCount={setQueryHookWithArgumentInfo}
             >
               <HookComponent
-                key={
-                  `${makeCustomHookIdentifierFromArgs(hookWithArguments.hookArguments)}-${hookWithArguments.version}`
-                }
+                key={makeCustomHookIdentifierFromArgs(hookWithArguments.hookArguments)}
                 hookArguments={hookWithArguments.hookArguments}
                 resolveQuery={() => {
                   updateHookUsage(() => {}, () => {}, setQueryHookWithArgumentInfo,
