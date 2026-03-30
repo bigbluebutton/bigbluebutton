@@ -243,6 +243,15 @@ archive_audio(meeting_id, audio_dir, raw_archive_dir)
 archive_notes(meeting_id, notes_endpoint, notes_formats, raw_archive_dir)
 # Presentation files
 archive_directory("#{presentation_dir}/#{meeting_id}/#{meeting_id}", "#{target_dir}/presentation")
+# Learning Analytics Dashboard JSON file
+base_id = meeting_id.split('-').first
+if (src = Dir["/var/bigbluebutton/learning-dashboard/#{base_id}-*/**/learning_dashboard_data.json"].first)
+  FileUtils.mkdir_p("#{target_dir}/learning-dashboard")
+  FileUtils.cp(src, "#{target_dir}/learning-dashboard/data.json")
+  BigBlueButton.logger.info("Archived learning dashboard data for #{meeting_id}")
+else
+  BigBlueButton.logger.info("No learning dashboard data found for #{meeting_id}")
+end
 # Kurento media
 remux_and_archive("#{kurento_screenshare_dir}/#{meeting_id}", "#{target_dir}/deskshare")
 remux_and_archive("#{kurento_video_dir}/#{meeting_id}", "#{target_dir}/video/#{meeting_id}")

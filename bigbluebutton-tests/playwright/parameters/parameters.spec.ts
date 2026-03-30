@@ -514,12 +514,12 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     test.describe.serial(() => {
       test('Infinite Whiteboard', async ({ browser, context, page }, testInfo) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
-        await disabledFeatures.initModPage(page, true, { createParameter: c.infiniteWhiteboard, testInfo });
+        await disabledFeatures.initModPage(page, { createParameter: c.infiniteWhiteboard, testInfo });
         await disabledFeatures.infiniteWhiteboard();
       });
       test('Infinite Whiteboard (exclude)', async ({ browser, context, page }, testInfo) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
-        await disabledFeatures.initModPage(page, true, { createParameter: c.infiniteWhiteboardExclude, testInfo });
+        await disabledFeatures.initModPage(page, { createParameter: c.infiniteWhiteboardExclude, testInfo });
         await disabledFeatures.infiniteWhiteboardExclude();
       });
     });
@@ -625,6 +625,22 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, { joinParameter: c.logoutURL, testInfo });
     await customParam.logoutURLTest();
+  });
+
+  test('Predefined groups for Breakout Rooms', async ({ browser, context, page }, testInfo) => {
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, { createParameter: `${encodeCustomParams(c.groups)}`, testInfo });
+    await customParam.initUserPage(context, {
+      fullName: `Attendee-1235`,
+      joinParameter: 'userID=1235',
+      testInfo,
+    });
+    await customParam.initUserPage2(context, {
+      fullName: `Attendee-2335`,
+      joinParameter: 'userID=2335',
+      testInfo,
+    });
+    await customParam.predefinedGroups();
   });
 
   test.describe.parallel('Audio', () => {

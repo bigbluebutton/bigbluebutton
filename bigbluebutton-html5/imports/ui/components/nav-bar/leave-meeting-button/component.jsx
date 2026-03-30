@@ -157,18 +157,28 @@ class LeaveMeetingButton extends PureComponent {
       ismobile,
       isRTL,
       openLeaveMenu,
+      connected,
     } = this.props;
 
     const { isEndMeetingConfirmationModalOpen } = this.state;
 
     const customStyles = { top: '1rem' };
 
+    const actions = this.renderMenuItems();
+
+    if (actions.length === 0 && connected) {
+      return null;
+    }
+
+    const isDisabled = actions.length === 0 && !connected;
+
     return (
       <>
-        <BBBMenu
-          customStyles={!ismobile ? customStyles : null}
-          trigger={(
-            <Styled.LeaveButton
+        <Styled.LeaveMeetingWrapper $isMobile={ismobile}>
+          <BBBMenu
+            customStyles={!ismobile ? customStyles : null}
+            trigger={(
+              <Styled.LeaveButton
               state={isDropdownOpen ? 'open' : 'closed'}
               ismobile={ismobile.toString()}
               accessKey={openLeaveMenu}
@@ -181,12 +191,14 @@ class LeaveMeetingButton extends PureComponent {
               color="danger"
               size="lg"
               hideLabel
+              disabled={isDisabled}
               // FIXME: Without onClick react proptypes keep warning
               // even after the DropdownTrigger inject an onClick handler
               onClick={() => null}
             />
           )}
-          actions={this.renderMenuItems()}
+          actions={actions}
+          disabled={isDisabled}
           opts={{
             id: 'app-leave-meeting-menu',
             keepMounted: true,
@@ -198,6 +210,7 @@ class LeaveMeetingButton extends PureComponent {
             transformorigin: { vertical: 'top', horizontal: isRTL ? 'left' : 'right' },
           }}
         />
+        </Styled.LeaveMeetingWrapper>
         <ModalRegistration id="leaveMeetingMenuModal" priority="low">
           {({
             isOpen, open, close,

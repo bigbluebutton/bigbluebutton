@@ -1,7 +1,7 @@
 [Unit]
 Description=BigBlueButton Export Annotations
-Wants=redis.service
-After=syslog.target network.target
+Wants=redis-server.service
+After=redis-server.service syslog.target network.target
 PartOf=bigbluebutton.target
 
 [Service]

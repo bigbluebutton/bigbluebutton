@@ -63,6 +63,7 @@ case class BreakoutRoomDetail(
     audioBridge:             String,
     cameraBridge:            String,
     screenShareBridge:       String,
+    disablePrivChat:         Boolean
 )
 
 /**

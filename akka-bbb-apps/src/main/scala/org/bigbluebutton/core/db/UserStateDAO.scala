@@ -23,6 +23,7 @@ case class UserStateDbModel(
     expired:                      Boolean = false,
     ejectColumns:                 UserEjectColumnsDbModel,
     presenter:                    Boolean = false,
+    whiteboardWriteAccess:        Boolean = false,
     pinned:                       Boolean = false,
     locked:                       Boolean = false,
     speechLocale:                 String,
@@ -35,7 +36,7 @@ case class UserStateDbModel(
 class UserStateDbTableDef(tag: Tag) extends Table[UserStateDbModel](tag, None, "user") {
   override def * = (
     meetingId, userId,away,raiseHand,guestStatus,guestStatusSetByModerator,guestLobbyMessage,mobile,clientType,disconnected,
-    expired,ejectColumns,presenter,pinned,locked,speechLocale, captionLocale,
+    expired,ejectColumns,presenter,whiteboardWriteAccess,pinned,locked,speechLocale, captionLocale,
     inactivityWarningDisplay, inactivityWarningTimeoutSecs, echoTestRunningAt) <> (UserStateDbModel.tupled, UserStateDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
@@ -54,6 +55,7 @@ class UserStateDbTableDef(tag: Tag) extends Table[UserStateDbModel](tag, None, "
   val ejectedByModerator = column[Option[String]]("ejectedByModerator")
   val ejectColumns = (ejected, ejectReason, ejectReasonCode, ejectedByModerator) <> (UserEjectColumnsDbModel.tupled, UserEjectColumnsDbModel.unapply)
   val presenter = column[Boolean]("presenter")
+  val whiteboardWriteAccess = column[Boolean]("whiteboardWriteAccess")
   val pinned = column[Boolean]("pinned")
   val locked = column[Boolean]("locked")
   val speechLocale = column[String]("speechLocale")
@@ -69,9 +71,10 @@ object UserStateDAO {
       TableQuery[UserStateDbTableDef]
         .filter(_.meetingId === userState.meetingId)
         .filter(_.userId === userState.intId)
-        .map(u => (u.presenter, u.pinned, u.locked, u.speechLocale, u.captionLocale, u.away, u.raiseHand, u.mobile, u.clientType, u.disconnected))
+        .map(u => (u.presenter, u.whiteboardWriteAccess, u.pinned, u.locked, u.speechLocale, u.captionLocale, u.away, u.raiseHand, u.mobile, u.clientType, u.disconnected))
         .update((
           userState.presenter,
+          userState.whiteboardWriteAccess,
           userState.pin,
           userState.locked,
           userState.speechLocale,

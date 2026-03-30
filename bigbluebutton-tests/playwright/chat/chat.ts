@@ -11,7 +11,7 @@ export class Chat extends MultiUsers {
     await openPublicChat(this.modPage);
     await this.modPage.hasElementCount(e.chatUserMessageText, 0, 'should have none message on the public chat');
 
-    await this.modPage.type(e.chatBox, e.message);
+    await this.modPage.fill(e.chatBox, e.message);
     await this.userPage.hasElement(e.typingIndicator, 'should display the typing indicator element');
     await this.modPage.page.click(e.sendButton);
     await this.modPage.hasElementCount(e.chatUserMessageText, 1, 'should have on message on the public chat');
@@ -26,7 +26,7 @@ export class Chat extends MultiUsers {
     // prevent a race condition when running on a deployed server
     await this.modPage.page.waitForTimeout(500);
     // modPage send message
-    await this.modPage.type(e.chatBox, e.message1);
+    await this.modPage.fill(e.chatBox, e.message1);
     await this.modPage.waitAndClick(e.sendButton);
     await this.userPage.waitUntilHaveCountSelector(e.chatButton, 2);
     await this.userPage.waitAndClickElement(e.chatButton, 1);
@@ -42,7 +42,7 @@ export class Chat extends MultiUsers {
       'should display the message sent by the moderator for the attendee',
     );
     // userPage send message
-    await this.userPage.type(e.chatBox, e.message2);
+    await this.userPage.fill(e.chatBox, e.message2);
     await this.modPage.hasElement(
       e.typingIndicator,
       'should display the typing indicator for the moderator when user is typing a message',
@@ -66,7 +66,7 @@ export class Chat extends MultiUsers {
 
     const userMessageTextCount = await this.modPage.getSelectorCount(e.chatUserMessageText);
 
-    await this.modPage.type(e.chatBox, e.message);
+    await this.modPage.fill(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElement(e.chatUserMessageText, 'should display a message sent by the moderator');
 
@@ -94,7 +94,7 @@ export class Chat extends MultiUsers {
       return;
     }
     // sending a message
-    await this.modPage.type(e.chatBox, e.message);
+    await this.modPage.fill(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
 
     await this.modPage.waitAndClick(e.chatOptions);
@@ -118,7 +118,7 @@ export class Chat extends MultiUsers {
       return;
     }
 
-    await this.modPage.type(e.chatBox, e.message);
+    await this.modPage.fill(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElement(
       e.chatUserMessageText,
@@ -180,7 +180,7 @@ export class Chat extends MultiUsers {
   }
 
   async copyPastePublicMessage() {
-    await this.modPage.type(e.chatBox, 'test');
+    await this.modPage.fill(e.chatBox, 'test');
     await this.modPage.waitAndClick(e.sendButton);
     await checkLastMessageSent(this.modPage, /test/);
 
@@ -271,7 +271,7 @@ export class Chat extends MultiUsers {
       chatMessageCount,
       'should not display any new messages on the private chat',
     );
-    await this.modPage.type(e.chatBox, e.message1);
+    await this.modPage.fill(e.chatBox, e.message1);
     await this.modPage.waitAndClick(e.sendButton);
     await this.userPage.waitUntilHaveCountSelector(e.chatButton, 2);
     await this.modPage.waitAndClick(e.closePrivateChat);
@@ -382,7 +382,7 @@ export class Chat extends MultiUsers {
 
     await this.modPage.hasElementCount(e.chatUserMessageText, 0, 'should not display any messages on the public chat');
 
-    await this.modPage.type(e.chatBox, e.autoConvertEmojiMessage);
+    await this.modPage.fill(e.chatBox, e.autoConvertEmojiMessage);
     await this.modPage.waitAndClick(e.sendButton);
 
     if (!autoConvertEmojiEnabled) {
@@ -399,7 +399,7 @@ export class Chat extends MultiUsers {
     const { autoConvertEmojiEnabled } = this.modPage.settings || {};
 
     await openPublicChat(this.modPage);
-    await this.modPage.type(e.chatBox, e.autoConvertEmojiMessage);
+    await this.modPage.fill(e.chatBox, e.autoConvertEmojiMessage);
     await this.modPage.waitAndClick(e.sendButton);
     if (!autoConvertEmojiEnabled) {
       await this.modPage.hasElement(e.chatBox, 'should display chat box on the public chat for the moderator');
@@ -426,7 +426,7 @@ export class Chat extends MultiUsers {
     const { autoConvertEmojiEnabled } = this.modPage.settings || {};
 
     await openPublicChat(this.modPage);
-    await this.modPage.type(e.chatBox, e.autoConvertEmojiMessage);
+    await this.modPage.fill(e.chatBox, e.autoConvertEmojiMessage);
     await this.modPage.waitAndClick(e.sendButton);
     if (!autoConvertEmojiEnabled) {
       await this.modPage.hasElement(e.chatBox, 'should display the chat box on the public chat');
@@ -461,7 +461,7 @@ export class Chat extends MultiUsers {
     // prevent a race condition when running on a deployed server
     await this.modPage.page.waitForTimeout(500);
     // modPage send message
-    await this.modPage.type(e.chatBox, e.autoConvertEmojiMessage);
+    await this.modPage.fill(e.chatBox, e.autoConvertEmojiMessage);
     await this.modPage.waitAndClick(e.sendButton);
     if (!autoConvertEmojiEnabled && !emojiPickerEnabled) {
       await this.modPage.hasElement(e.chatBox, 'should display the chat box on the private chat');
@@ -491,7 +491,7 @@ export class Chat extends MultiUsers {
     await checkLastMessageSent(this.modPage, e.convertedEmojiMessage);
     await checkLastMessageSent(this.userPage, e.convertedEmojiMessage);
     // userPage send message
-    await this.userPage.type(e.chatBox, e.autoConvertEmojiMessage);
+    await this.userPage.fill(e.chatBox, e.autoConvertEmojiMessage);
     await this.userPage.waitAndClick(e.sendButton);
     // check sent messages
     const lastMessageLocator = this.modPage.page.locator(e.chatUserMessageText).last();

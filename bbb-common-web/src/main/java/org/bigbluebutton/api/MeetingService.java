@@ -136,11 +136,11 @@ public class MeetingService implements MessageListener {
                            String fullname, String firstName, String lastName, String role, String externUserID,
                            String authToken, String sessionToken, String avatarURL, String webcamBackgroundURL, Boolean bot,
                            Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard, Boolean leftGuestLobby,
-                           String enforceLayout, String logoutUrl, Map<String, String> userMetadata) {
+                           String enforceLayout, String logoutUrl, Map<String, String> joinRequestMetadata, Map<String, String> userMetadata) {
     handle(
             new RegisterUser(meetingID, internalUserId, fullname, firstName, lastName, role,
                             externUserID, authToken, sessionToken, avatarURL, webcamBackgroundURL, bot, guest, authed, guestStatus,
-                            excludeFromDashboard, leftGuestLobby, enforceLayout, logoutUrl, userMetadata
+                            excludeFromDashboard, leftGuestLobby, enforceLayout, logoutUrl, joinRequestMetadata, userMetadata
             )
     );
 
@@ -323,7 +323,6 @@ public class MeetingService implements MessageListener {
     for (String token : sessions.keySet()) {
       UserSession userSession = sessions.get(token);
       if (userSession.meetingID.equals(meetingId)) {
-        System.out.println(token + " = " + userSession.authToken);
         removeUserSessionWithSessionToken(token);
       }
     }
@@ -577,6 +576,7 @@ public class MeetingService implements MessageListener {
     logData.put("duration", m.getDuration());
     logData.put("isBreakout", m.isBreakout());
     logData.put("webcamsOnlyForModerator", m.getWebcamsOnlyForModerator());
+    logData.put("multiUserWhiteboardEnabled", m.getMultiUserWhiteboardEnabled());
     logData.put("meetingCameraCap", m.getMeetingCameraCap());
     logData.put("userCameraCap", m.getUserCameraCap());
     logData.put("maxPinnedCameras", m.getMaxPinnedCameras());
@@ -598,7 +598,7 @@ public class MeetingService implements MessageListener {
     gw.createMeeting(m.getInternalId(), m.getExternalId(), m.getParentMeetingId(), m.getName(), m.isRecord(),
             m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording(),
             m.getRecordFullDurationMedia(),
-            m.getWebcamsOnlyForModerator(), m.getMeetingCameraCap(), m.getUserCameraCap(), m.getMaxPinnedCameras(),
+            m.getWebcamsOnlyForModerator(), m.getMultiUserWhiteboardEnabled(), m.getMeetingCameraCap(), m.getUserCameraCap(), m.getMaxPinnedCameras(),
             m.getCameraBridge(),
             m.getScreenShareBridge(),
             m.getAudioBridge(),
@@ -629,7 +629,8 @@ public class MeetingService implements MessageListener {
     gw.registerUser(message.meetingID,
       message.internalUserId, message.fullname, message.firstName, message.lastName, message.role,
       message.externUserID, message.authToken, message.sessionToken, message.avatarURL, message.webcamBackgroundURL, message.bot,
-      message.guest, message.authed, message.guestStatus, message.excludeFromDashboard, message.enforceLayout, message.logoutUrl, message.userMetadata);
+      message.guest, message.authed, message.guestStatus, message.excludeFromDashboard, message.enforceLayout, message.logoutUrl,
+      message.joinRequestMetadata, message.userMetadata);
   }
 
   private void processRegisterUserSessionToken(RegisterUserSessionToken message) {
@@ -855,6 +856,9 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.SCREEN_SHARE_BRIDGE, message.screenShareBridge);
       params.put(ApiParams.NOTIFY_RECORDING_IS_ON,parentMeeting.getNotifyRecordingIsOn().toString());
       params.put(ApiParams.DISABLED_FEATURES,String.join(",", message.disabledFeatures));
+
+      // Apply private chat lock settings from parent meeting to breakout room
+      params.put(ApiParams.LOCK_SETTINGS_DISABLE_PRIVATE_CHAT, message.disablePrivChat.toString());
 
       Map<String, String> parentMeetingMetadata = parentMeeting.getMetadata();
 

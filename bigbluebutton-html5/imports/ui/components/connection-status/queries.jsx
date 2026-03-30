@@ -10,6 +10,7 @@ export const CONNECTION_STATUS_REPORT_SUBSCRIPTION = gql`subscription ConnStatus
   },
   order_by: {lastUnstableStatusAt: desc}
   ) {
+    meetingId
     user {
       userId
       name

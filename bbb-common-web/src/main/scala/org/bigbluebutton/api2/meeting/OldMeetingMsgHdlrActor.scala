@@ -132,6 +132,7 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       msg.body.room.audioBridge,
       msg.body.room.cameraBridge,
       msg.body.room.screenShareBridge,
+      msg.body.room.disablePrivChat
     ))
   }
 
