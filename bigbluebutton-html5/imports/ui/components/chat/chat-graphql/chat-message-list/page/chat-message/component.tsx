@@ -411,7 +411,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   const formattedTime = intl.formatTime(dateTime, {
     hour: 'numeric',
     minute: 'numeric',
-    hour12: false,
   });
   const editTime = message.editedAt ? new Date(message.editedAt) : null;
   const deleteTime = message.deletedAt ? new Date(message.deletedAt) : null;
