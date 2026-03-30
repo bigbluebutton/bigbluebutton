@@ -70,7 +70,6 @@ interface ChatMessageProps {
   currentUserIsLocked: boolean;
   currentUserId: string;
   currentUserDisablePublicChat: boolean;
-  isBreakoutRoom: boolean;
   isPublicChat: boolean;
   hasToolbar: boolean;
   chatReplyEnabled: boolean;
@@ -182,7 +181,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   currentUserId,
   currentUserIsLocked,
   currentUserIsModerator,
-  isBreakoutRoom,
   isPublicChat,
   hasToolbar,
   chatDeleteEnabled,
@@ -747,7 +745,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
         deleted={!!deleteTime}
         own={message.user?.userId === currentUserId}
         amIModerator={currentUserIsModerator}
-        isBreakoutRoom={isBreakoutRoom}
         messageSequence={message.messageSequence}
         onReactionPopoverOpenChange={setIsToolbarReactionPopoverOpen}
         reactionPopoverIsOpen={isToolbarReactionPopoverOpen}

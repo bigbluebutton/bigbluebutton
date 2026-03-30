@@ -360,7 +360,7 @@ const UserActions: React.FC<UserActionsProps> = ({
     )),
     {
       allowed: user?.cameras?.length > 0
-        && isVideoPinEnabledForCurrentUser(currentUser, isBreakout) && type === 'participant',
+        && isVideoPinEnabledForCurrentUser(currentUser) && type === 'participant',
       key: 'pinVideo',
       label: user?.pinned
         ? intl.formatMessage(messages.UnpinUserWebcam)
@@ -442,7 +442,6 @@ const UserActions: React.FC<UserActionsProps> = ({
     },
     {
       allowed: allowedToMuteAudio
-        && !isBreakout
         && type === 'participant',
       key: 'mute',
       label: intl.formatMessage(messages.MuteUserAudioLabel),
@@ -455,7 +454,6 @@ const UserActions: React.FC<UserActionsProps> = ({
     {
       allowed: allowedToUnmuteAudio
         && !lockSettings?.disableMic
-        && !isBreakout
         && type === 'participant',
       key: 'unmute',
       label: intl.formatMessage(messages.UnmuteUserAudioLabel),
@@ -470,8 +468,7 @@ const UserActions: React.FC<UserActionsProps> = ({
       allowed: allowedToChangeWhiteboardAccess
         && !user.presenter
         && !isVoiceOnlyUser(user.userId)
-        && pageId
-        && !isBreakout,
+        && pageId,
       key: 'changeWhiteboardAccess',
       label: hasWhiteboardAccess
         ? intl.formatMessage(messages.removeWhiteboardAccess)
@@ -563,7 +560,6 @@ const UserActions: React.FC<UserActionsProps> = ({
     {
       allowed: allowedToEjectCameras
         && user?.cameras?.length > 0
-        && !isBreakout
         && type === 'participant',
       key: 'ejectUserCameras',
       label: intl.formatMessage(messages.ejectUserCamerasLabel),

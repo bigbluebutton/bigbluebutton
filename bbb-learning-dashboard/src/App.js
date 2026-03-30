@@ -156,7 +156,7 @@ class App extends React.Component {
     }
 
     // Calculate points of Raise hand
-    const usersRaiseHand = allUsers.map((currUser) => currUser.raiseHand.length);
+    const usersRaiseHand = allUsers.map((currUser) => currUser?.raiseHand?.length || 0);
     const maxRaiseHand = Math.max(...usersRaiseHand);
     const totalRaiseHand = usersRaiseHand.reduce((prev, val) => prev + val, 0);
     if (maxRaiseHand > 0) {
@@ -164,7 +164,7 @@ class App extends React.Component {
     }
 
     // Calculate points of Reactions
-    const usersReactions = allUsers.map((currUser) => currUser.reactions.length);
+    const usersReactions = allUsers.map((currUser) => currUser?.reactions?.length || 0);
     const maxReactions = Math.max(...usersReactions);
     const totalReactions = usersReactions.reduce((prev, val) => prev + val, 0);
     if (maxReactions > 0) {

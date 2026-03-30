@@ -1,10 +1,10 @@
 table:
-  name: v_audioGroup
+  name: v_mediaGroup
   schema: public
 configuration:
   column_config: {}
   custom_column_names: {}
-  custom_name: audioGroup
+  custom_name: mediaGroup
   custom_root_fields: {}
 object_relationships:
   - name: meeting
@@ -21,6 +21,10 @@ select_permissions:
     permission:
       columns:
         - groupId
+        - mediaType
+        - locked
+        - record
+        - createdBy
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId

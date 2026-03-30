@@ -107,7 +107,7 @@
     "validator": "^13.15.22",
     "wasm-feature-detect": "^1.5.1",
     "webrtc-adapter": "^8.1.1",
-    "yaml": "^2.2.2"
+    "yaml": "^2.8.3"
   },
   "devDependencies": {
     "@babel/core": "7.24.9",
