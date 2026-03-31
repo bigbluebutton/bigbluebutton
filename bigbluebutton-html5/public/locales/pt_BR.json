@@ -1115,6 +1115,8 @@
     "app.notification.recordingAriaLabel": "Tempo de gravação",
     "app.notification.userJoinPushAlert": "{userName} entrou na sala",
     "app.notification.userLeavePushAlert": "{userName} saiu da sala",
+    "app.notification.presenterRequestApproved.title": "{presenterName} is now the presenter",
+    "app.notification.presenterRequestApproved": "Set by: {approvedByName}",
     "app.submenu.notification.raiseHandLabel": "Levantar a mão",
     "app.shortcut-help.title": "Atalhos de teclado",
     "app.shortcut-help.pushToTalk": "Pressione para falar",
