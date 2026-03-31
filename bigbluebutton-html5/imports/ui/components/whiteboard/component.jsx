@@ -1788,11 +1788,16 @@ const Whiteboard = React.memo((props) => {
       `.replace(/\s+/g, ' ').trim();
   };
 
+  const c = {
+    red:   'rgba(255, 20, 20, 0.9)',
+    green: 'rgba(20, 255, 20, 0.9)',
+  };
+
   const laserDefs = {
-    redSmall:   { color: 'red',  cx: laserRadiusSmall+2, cy: laserRadiusSmall+2, r: laserRadiusSmall },
-    greenSmall: { color: 'lime', cx: laserRadiusSmall+2, cy: laserRadiusSmall+2, r: laserRadiusSmall },
-    redLarge:   { color: 'red',  cx: laserRadiusLarge+2, cy: laserRadiusLarge+2, r: laserRadiusLarge },
-    greenLarge: { color: 'lime', cx: laserRadiusLarge+2, cy: laserRadiusLarge+2, r: laserRadiusLarge },
+    redSmall:   { color: c.red,   cx: laserRadiusSmall+2, cy: laserRadiusSmall+2, r: laserRadiusSmall },
+    greenSmall: { color: c.green, cx: laserRadiusSmall+2, cy: laserRadiusSmall+2, r: laserRadiusSmall },
+    redLarge:   { color: c.red,   cx: laserRadiusLarge+2, cy: laserRadiusLarge+2, r: laserRadiusLarge },
+    greenLarge: { color: c.green, cx: laserRadiusLarge+2, cy: laserRadiusLarge+2, r: laserRadiusLarge },
   };
 
   const laserSvgs = Object.fromEntries(
