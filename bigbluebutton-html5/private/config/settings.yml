@@ -861,8 +861,9 @@ public:
       # If false, the audio modal will be locked until the process finishes.
       allowAudioJoinCancel: true
       # audioWasmProcessing: whether audio input processing through WASM/BBBA
-      # should be exposed to users
-      audioWasmProcessing: true
+      # should be exposed to users. If false, browser's built in audio processing
+      # will be used instead.
+      audioWasmProcessing: false
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
