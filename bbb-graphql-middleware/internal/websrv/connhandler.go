@@ -327,37 +327,14 @@ func invalidateBrowserConnectionForSessionToken(bc *common.BrowserConnection, se
 }
 
 func refreshUserSessionVariables(browserConnection *common.BrowserConnection) (error, string) {
-	// Re-verify meeting membership via bbb-web.  The session token in
-	// ConnectionInitMessage is reused on every Hasura reconnection, so if
-	// bbb-web has changed the token's meeting context since the browser
-	// first connected, Hasura would authenticate the new WebSocket as a
-	// different meeting while MeetingId still carries the original one.
-	// Detect that divergence here and close the connection rather than
-	// allow cross-meeting data to reach this browser.
-	browserConnection.RLock()
-	sessionToken := browserConnection.SessionToken
-	clientSessionUUID := browserConnection.ClientSessionUUID
-	cookies := browserConnection.BrowserRequestCookies
-	currentMeetingId := browserConnection.MeetingId
-	browserConnection.RUnlock()
-
-	meetingId, _, errCheckAuthorization := bbb_web.BBBWebCheckAuthorization(browserConnection.Id, sessionToken, clientSessionUUID, cookies)
-	if errCheckAuthorization == nil && meetingId != "" && meetingId != currentMeetingId {
-		browserConnection.Logger.Warnf(
-			"session token now resolves to meeting %s but connection belongs to meeting %s — closing connection to prevent cross-meeting data leakage",
-			meetingId, currentMeetingId,
-		)
-		browserConnection.ContextCancelFunc()
-		return fmt.Errorf("meeting changed during session refresh"), "meeting_changed"
-	}
-
-	// Fetch updated Hasura session variables from akka-apps.
-	sessionVariables, err, errorId := akka_apps.AkkaAppsGetSessionVariablesFrom(browserConnection.Id, sessionToken, clientSessionUUID)
+	// Check authorization
+	sessionVariables, err, errorId := akka_apps.AkkaAppsGetSessionVariablesFrom(browserConnection.Id, browserConnection.SessionToken, browserConnection.ClientSessionUUID)
 	if err != nil {
 		browserConnection.Logger.Error(err)
 		return fmt.Errorf("error on checking sessionToken authorization: %s", err.Error()), errorId
+	} else {
+		browserConnection.Logger.Trace("Session variables obtained successfully")
 	}
-	browserConnection.Logger.Trace("Session variables obtained successfully")
 
 	hasuraRole, existsHasuraRole := sessionVariables["x-hasura-role"]
 	if !existsHasuraRole {
