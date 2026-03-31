@@ -69,9 +69,11 @@ func HandleNotifyRoleInMeetingEvtMsg(receivedMessage common.RedisMessage, browse
 	browserConnectionsMutex.RLock()
 	for _, bc := range browserConnections {
 		if bc.MeetingId == receivedMessage.Core.Header.MeetingId {
-			if strings.EqualFold(role, "moderator") && bc.BBBWebSessionVariables["x-hasura-moderatorinmeeting"] == receivedMessage.Core.Header.MeetingId {
-				browserConnectionsToSendCursor = append(browserConnectionsToSendCursor, bc)
-			} else if strings.EqualFold(role, "presenter") && bc.BBBWebSessionVariables["x-hasura-presenterinmeeting"] == receivedMessage.Core.Header.MeetingId {
+			bc.RLock()
+			isModerator := strings.EqualFold(role, "moderator") && bc.BBBWebSessionVariables["x-hasura-moderatorinmeeting"] == receivedMessage.Core.Header.MeetingId
+			isPresenter := strings.EqualFold(role, "presenter") && bc.BBBWebSessionVariables["x-hasura-presenterinmeeting"] == receivedMessage.Core.Header.MeetingId
+			bc.RUnlock()
+			if isModerator || isPresenter {
 				browserConnectionsToSendCursor = append(browserConnectionsToSendCursor, bc)
 			}
 		}

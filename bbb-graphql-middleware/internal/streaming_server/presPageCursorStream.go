@@ -43,7 +43,9 @@ func HandleSendCursorPositionEvtMsg(receivedMessage common.RedisMessage, browser
 	browserConnectionsMutex.RLock()
 	for _, bc := range browserConnections {
 		if bc.MeetingId == receivedMessage.Core.Header.MeetingId {
+			bc.RLock()
 			userHasViewersCursorLocked := bc.BBBWebSessionVariables["x-hasura-cursorlockeduserid"] == bc.UserId
+			bc.RUnlock()
 			if !receivedCursorIsFromViewer || !userHasViewersCursorLocked { // check for lock settings "See other viewers cursors"
 				browserConnectionsToSendData = append(browserConnectionsToSendData, bc)
 			}
