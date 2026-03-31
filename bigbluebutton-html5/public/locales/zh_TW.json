@@ -1115,6 +1115,8 @@
     "app.notification.recordingAriaLabel": "錄製時間 ",
     "app.notification.userJoinPushAlert": "{userName} 加入了會話",
     "app.notification.userLeavePushAlert": "{userName} 離開了會話",
+    "app.notification.presenterRequestApproved.title": "{presenterName} is now the presenter",
+    "app.notification.presenterRequestApproved": "Set by: {approvedByName}",
     "app.submenu.notification.raiseHandLabel": "舉手",
     "app.shortcut-help.title": "鍵盤快捷鍵",
     "app.shortcut-help.pushToTalk": "按住來按即講",
