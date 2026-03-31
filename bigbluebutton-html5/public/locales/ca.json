@@ -1115,6 +1115,8 @@
     "app.notification.recordingAriaLabel": "Temps enregistrat",
     "app.notification.userJoinPushAlert": "{userName} s'ha unit a la sessió",
     "app.notification.userLeavePushAlert": "{userName} ha abandonat la sessió",
+    "app.notification.presenterRequestApproved.title": "{presenterName} is now the presenter",
+    "app.notification.presenterRequestApproved": "Set by: {approvedByName}",
     "app.submenu.notification.raiseHandLabel": "Aixeca la mà",
     "app.shortcut-help.title": "Dreceres de teclat",
     "app.shortcut-help.pushToTalk": "Mantén premut per parlar.",
