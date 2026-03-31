@@ -1115,6 +1115,8 @@
     "app.notification.recordingAriaLabel": "Durata registrazione",
     "app.notification.userJoinPushAlert": "{userName} si è unito alla sessione",
     "app.notification.userLeavePushAlert": "{userName} ha lasciato la sessione",
+    "app.notification.presenterRequestApproved.title": "{presenterName} is now the presenter",
+    "app.notification.presenterRequestApproved": "Set by: {approvedByName}",
     "app.submenu.notification.raiseHandLabel": "Alza la mano",
     "app.shortcut-help.title": "Scelta rapida",
     "app.shortcut-help.pushToTalk": "Tieni premuto per la funzione Push-to-talk",
