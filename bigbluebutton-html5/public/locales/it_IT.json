@@ -1116,7 +1116,7 @@
     "app.notification.userJoinPushAlert": "{userName} si è unito alla sessione",
     "app.notification.userLeavePushAlert": "{userName} ha lasciato la sessione",
     "app.notification.presenterRequestApproved.title": "{presenterName} è ora il presentatore",
-    "app.notification.presenterRequestApproved": "Set by: {approvedByName}",
+    "app.notification.presenterRequestApproved": "Impostato da: {approvedByName}",
     "app.submenu.notification.raiseHandLabel": "Alza la mano",
     "app.shortcut-help.title": "Scelta rapida",
     "app.shortcut-help.pushToTalk": "Tieni premuto per la funzione Push-to-talk",
