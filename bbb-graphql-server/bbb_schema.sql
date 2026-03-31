@@ -1,5 +1,6 @@
 --unaccent will be used to create nameSortable
 CREATE EXTENSION IF NOT EXISTS unaccent;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE OR REPLACE FUNCTION immutable_lower_unaccent(text)
 				RETURNS text AS $$
 				SELECT lower(unaccent('unaccent', $1))
@@ -318,6 +319,7 @@ CREATE UNLOGGED TABLE "user" (
 );
 CREATE INDEX "idx_user_pk_reverse" on "user" ("userId", "meetingId");
 CREATE INDEX "idx_user_meetingId_extId" ON "user"("meetingId", "extId");
+CREATE INDEX "idx_user_name_trgm" ON "user" USING gin ("name" gin_trgm_ops);
 
 -- user (on update raiseHand or away: set new time)
 CREATE OR REPLACE FUNCTION update_user_raiseHand_away_time_trigger_func()

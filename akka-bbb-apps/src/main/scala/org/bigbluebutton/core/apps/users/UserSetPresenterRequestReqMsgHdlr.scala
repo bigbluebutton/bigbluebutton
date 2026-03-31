@@ -7,6 +7,8 @@ import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.apps.presentationpod.SetPresenterInPodActionHandler
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core2.MeetingStatus2x
+import org.bigbluebutton.core.db.NotificationDAO
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait UserSetPresenterRequestReqMsgHdlr extends RightsManagementTrait {
   this: MeetingActor =>
@@ -81,6 +83,18 @@ trait UserSetPresenterRequestReqMsgHdlr extends RightsManagementTrait {
               AssignPresenterReqMsgBody(senderId, requesterId)
             )
             val newState = handlePresenterChange(assignMsg, state)
+
+            val senderName = Users2x.findWithIntId(liveMeeting.users2x, senderId).map(_.name).getOrElse("")
+            val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+              meetingId,
+              "info",
+              "co_presentation",
+              "app.notification.presenterRequestApproved",
+              "Notification when a presenter request is approved",
+              Map("presenterName" -> requester.name, "approvedByName" -> senderName)
+            )
+            outGW.send(notifyEvent)
+            NotificationDAO.insert(notifyEvent)
 
             log.info("Presenter request approved. meetingId=" + meetingId +
               " requesterId=" + requesterId + " approvedBy=" + senderId)

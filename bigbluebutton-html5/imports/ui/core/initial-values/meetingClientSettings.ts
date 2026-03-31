@@ -685,7 +685,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         },
         audio: {
           publishOptions: {
-            audioPreset: AudioPresets.speech,
+            audioPreset: AudioPresets.music,
             dtx: true,
             red: false,
             forceStereo: false,
@@ -832,6 +832,11 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         guest: true,
         sharingWebcam: true,
         bot: false,
+      },
+    },
+    userList: {
+      searchBar: {
+        enabled: true,
       },
     },
     whiteboard: {

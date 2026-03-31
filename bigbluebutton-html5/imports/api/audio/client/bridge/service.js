@@ -1,6 +1,12 @@
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
 import { getStorageSingletonInstance } from '/imports/ui/services/storage';
+import {
+  createWasmProcessorStream,
+  isWasmProcessorSupported,
+  loadWasmProcessorFiles,
+  setWasmProcessorEnabled,
+} from '/imports/ui/components/audio/audio-processor/service';
 
 const AUDIO_SESSION_NUM_KEY = 'AudioSessionNumber';
 const DEFAULT_INPUT_DEVICE_ID = '';
@@ -112,16 +118,83 @@ const getAudioConstraints = (constraintFields = {}) => {
   );
 
   if (deviceId) {
-    matchConstraints.deviceId = { exact: deviceId };
+    // NOTE using 'exact' here causes OverconstrainedError for systems with
+    // dynamic device ids like PipeWire
+    // prefer to use 'ideal' which can fallback to default device, allowing to keep constraints
+    matchConstraints.deviceId = { ideal: deviceId };
   }
 
   return matchConstraints;
 };
 
+const isBBBAWasmSupported = () => isWasmProcessorSupported()
+  && window.meetingClientSettings.public.media.audio.audioWasmProcessing;
+
+// check if wasm processing is enabled
+const isWasmProcessingEnabled = (localSettingsState) => {
+  if (!isBBBAWasmSupported()) return false;
+
+  const defaultSetting = window.meetingClientSettings.public.app.audioWasmProcessing;
+  const Settings = getSettingsSingletonInstance();
+
+  // Precedence: unconfirmed local user setttings -> local user setting
+  // -> default setting -> false (for now until stable - prlanzarin Nov 2025)
+  if (localSettingsState !== undefined) return localSettingsState;
+  if (Settings.application.audioWasmProcessing !== undefined) {
+    return Settings.application.audioWasmProcessing;
+  }
+  if (defaultSetting !== undefined) return defaultSetting;
+
+  return false;
+};
+
+const loadWasmProcessor = async () => {
+  if (isBBBAWasmSupported()) {
+    try {
+      await loadWasmProcessorFiles();
+      return true;
+    } catch (error) {
+      logger.warn({
+        logCode: 'audio_wasm_processor_load_failed',
+        extraInfo: {
+          errorMessage: error?.message,
+          errorStack: error?.stack,
+        },
+      }, `loadWasmProcessorFiles failed: ${error?.message || 'unknown error'}`);
+    }
+  }
+
+  return false;
+};
+
 const doGUM = async (constraints, retryOnFailure = false) => {
+  let haveWasmProcessor = false;
+  const wasmProcessingEnabled = isWasmProcessingEnabled();
+
+  // We want only echo-cancel on top of WASM
+  if (wasmProcessingEnabled) {
+    haveWasmProcessor = await loadWasmProcessor();
+
+    if (haveWasmProcessor) {
+      const deviceId = constraints?.audio?.deviceId;
+      // eslint-disable-next-line no-param-reassign
+      constraints.audio = filterSupportedConstraints({
+        echoCancellation: true,
+        autoGainControl: true,
+        noiseSuppression: true,
+      });
+
+      if (deviceId) {
+        // eslint-disable-next-line no-param-reassign
+        constraints.audio.deviceId = { ideal: deviceId };
+      }
+    }
+  }
+
+  let stream;
+
   try {
-    const stream = await navigator.mediaDevices.getUserMedia(constraints);
-    return stream;
+    stream = await navigator.mediaDevices.getUserMedia(constraints);
   } catch (error) {
     // This is probably a deviceId mismatch. Retry with base constraints
     // without an exact deviceId.
@@ -137,11 +210,36 @@ const doGUM = async (constraints, retryOnFailure = false) => {
         },
       }, 'Audio getUserMedia returned OverconstrainedError, rollback');
 
-      return navigator.mediaDevices.getUserMedia({ audio: true });
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } else {
+      // Not OverconstrainedError - bubble up the error.
+      throw error;
     }
+  }
 
-    // Not OverconstrainedError - bubble up the error.
-    throw error;
+  if (!haveWasmProcessor) {
+    return stream;
+  }
+
+  try {
+    const wasmProcessorStream = await createWasmProcessorStream(stream);
+
+    setWasmProcessorEnabled(wasmProcessingEnabled);
+    logger.debug({
+      logCode: 'audio_wasm_processor_stream_created',
+    }, 'createWasmProcessorStream succeeded');
+
+    return wasmProcessorStream;
+  } catch (error) {
+    logger.warn({
+      logCode: 'audio_wasm_processor_stream_failed',
+      extraInfo: {
+        errorMessage: error?.message,
+        errorStack: error?.stack,
+      },
+    }, `createWasmProcessorStream failed: ${error?.message || 'unknown error'}`);
+
+    return stream;
   }
 };
 
@@ -179,4 +277,6 @@ export {
   storeAudioOutputDeviceId,
   doGUM,
   stereoUnsupported,
+  isBBBAWasmSupported,
+  isWasmProcessingEnabled,
 };

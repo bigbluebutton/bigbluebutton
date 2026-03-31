@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import Styled from './styles';
 import listItemStyles from '../styles';
@@ -47,4 +47,4 @@ const SkeletonUserListItem: React.FC<SkeletonUserListItemProps> = ({
   );
 };
 
-export default SkeletonUserListItem;
+export default memo(SkeletonUserListItem);

@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import {
   colorDanger, colorWhite, colorGrayUserListToolbar, colorPrimary, appsGalleryOutlineColor,
@@ -203,7 +203,7 @@ const BecomePresenterText = styled.div`
   color: ${colorText};
 `;
 
-const WaitingButton = styled.button`
+const WaitingButton = styled.button<{ $animations?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -218,7 +218,9 @@ const WaitingButton = styled.button`
   opacity: 0.7;
 
   svg {
-    animation: spin 1.5s linear infinite;
+    ${({ $animations }) => $animations && css`
+      animation: spin 1.5s linear infinite;
+    `}
   }
 
   @keyframes spin {

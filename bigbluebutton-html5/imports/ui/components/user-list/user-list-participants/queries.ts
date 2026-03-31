@@ -9,8 +9,8 @@ export interface UsersCountSubscriptionResponse {
 }
 
 export const USER_AGGREGATE_COUNT_SUBSCRIPTION = gql`
-subscription UsersCount {
-  user_aggregate {
+subscription UsersCount($where: user_bool_exp) {
+  user_aggregate(where: $where) {
     aggregate {
       count
     }

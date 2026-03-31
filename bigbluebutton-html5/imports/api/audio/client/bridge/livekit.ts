@@ -23,6 +23,7 @@ import {
 } from '/imports/api/audio/client/bridge/service';
 import { liveKitRoom, getLKStats, LK_FATAL_ERROR_EVENT } from '/imports/ui/services/livekit';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
+import { isWasmProcessorSupported } from '/imports/ui/components/audio/audio-processor/service';
 
 const BRIDGE_NAME = 'livekit';
 const SENDRECV_ROLE = 'sendrecv';
@@ -1179,7 +1180,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
       // @ts-ignore
       const LIVEKIT_SETTINGS = window.meetingClientSettings.public.media?.livekit?.audio;
       const basePublishOptions: TrackPublishOptions = LIVEKIT_SETTINGS?.publishOptions || {
-        audioPreset: AudioPresets.music,
+        audioPreset: AudioPresets.musicHighQuality,
         dtx: true,
         red: true,
         forceStereo: false,
@@ -1380,7 +1381,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
 
       const matchConstraints = filterSupportedConstraints(constraints);
 
-      if (IS_CHROME) {
+      if (IS_CHROME || isWasmProcessorSupported()) {
         // @ts-ignore
         matchConstraints.deviceId = this.inputDeviceId;
         const stream = await doGUM({ audio: matchConstraints });

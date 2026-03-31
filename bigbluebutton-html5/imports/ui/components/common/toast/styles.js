@@ -44,7 +44,7 @@ const CloseIcon = styled(Icon)`
   position: relative;
   font-size: 70%;
   left: ${toastOffsetSm};
-  
+
   [dir="rtl"] & {
     left: auto;
     right: ${toastOffsetSm};
