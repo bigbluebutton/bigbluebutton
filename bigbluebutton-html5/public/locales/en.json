@@ -1115,6 +1115,8 @@
     "app.notification.recordingAriaLabel": "Recorded time ",
     "app.notification.userJoinPushAlert": "{userName} joined the session",
     "app.notification.userLeavePushAlert": "{userName} left the session",
+    "app.notification.presenterRequestApproved.title": "{presenterName} is now the presenter",
+    "app.notification.presenterRequestApproved": "Set by: {approvedByName}",
     "app.submenu.notification.raiseHandLabel": "Raise hand",
     "app.shortcut-help.title": "Keyboard shortcuts",
     "app.shortcut-help.pushToTalk": "Hold for Push-to-talk",

@@ -19,6 +19,7 @@ import CameraAsContentView from './camera-as-content/component';
 import { MediaButtonPluginItem } from '../types';
 import { layoutSelectOutput } from '/imports/ui/components/layout/context';
 import { Output } from '/imports/ui/components/layout/layoutTypes';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 interface MediaSharingModalProps {
   open: boolean;
@@ -160,6 +161,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   presenterPolicy = 'requireApproval',
   isLockedUser = false,
 }) => {
+  const animations = getSettingsSingletonInstance().application?.animations ?? true;
   const actionsBarStyle = layoutSelectOutput((i: Output) => i.actionBar);
   const { screenIsShared: isScreenGloballyBroadcasting } = useIsScreenGloballyBroadcasting();
   const [currentView, setCurrentView] = useState<'main' | 'presentation' | 'externalVideo' | 'cameraAsContent'>('main');
@@ -353,6 +355,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
           <Styled.WaitingButton
             data-test="waitingPresenterButton"
             disabled
+            $animations={animations}
           >
             <HourglassEmptyIcon sx={{ marginRight: '0.5rem' }} />
             {intl.formatMessage(intlMessages.waitingForModerator)}
