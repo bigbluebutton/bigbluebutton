@@ -1115,6 +1115,8 @@
     "app.notification.recordingAriaLabel": "Salvestuse kestus",
     "app.notification.userJoinPushAlert": "{userName} liitus sessiooniga",
     "app.notification.userLeavePushAlert": "{userName} lahkus sessioonilt",
+    "app.notification.presenterRequestApproved.title": "{presenterName} is now the presenter",
+    "app.notification.presenterRequestApproved": "Set by: {approvedByName}",
     "app.submenu.notification.raiseHandLabel": "Tõsta käsi",
     "app.shortcut-help.title": "Kiirklahvid",
     "app.shortcut-help.pushToTalk": "Vajuta ja hoia all rääkimiseks",
