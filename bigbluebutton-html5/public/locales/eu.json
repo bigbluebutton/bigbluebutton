@@ -1115,6 +1115,8 @@
     "app.notification.recordingAriaLabel": "Grabatutako denbora",
     "app.notification.userJoinPushAlert": "{userName} sartu da saioan",
     "app.notification.userLeavePushAlert": "{userName}-k saioa utzi du",
+    "app.notification.presenterRequestApproved.title": "{presenterName} is now the presenter",
+    "app.notification.presenterRequestApproved": "Set by: {approvedByName}",
     "app.submenu.notification.raiseHandLabel": "Altxa eskua",
     "app.shortcut-help.title": "Laster-teklak",
     "app.shortcut-help.pushToTalk": "Mantendu sakatuta hitz egiteko",
