@@ -1779,8 +1779,8 @@ const Whiteboard = React.memo((props) => {
       <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
         <defs>
           <radialGradient id="g-${id}">
-            <stop offset="0%" stop-color="${color}" stop-opacity="1"/>
-            <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+            <stop offset="0%" stop-color="${color}" stop-opacity="0.95"/>
+            <stop offset="100%" stop-color="${color}" stop-opacity="0.1"/>
           </radialGradient>
         </defs>
         <circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#g-${id})" />
@@ -1789,8 +1789,8 @@ const Whiteboard = React.memo((props) => {
   };
 
   const c = {
-    red:   'rgba(255, 20, 20, 0.9)',
-    green: 'rgba(20, 255, 20, 0.9)',
+    red:   'rgba(255, 20, 20)',
+    green: 'rgba(20, 255, 20)',
   };
 
   const laserDefs = {
