@@ -196,6 +196,8 @@ const Whiteboard = React.memo((props) => {
   const isMountedRef = useRef(false);
   const isWheelZoomRef = useRef(false);
   const isPresenterRef = useRef(isPresenter);
+  const pageActualZoomRatioRef = useRef({});
+  const calculateZoomValueRef = useRef(null);
   const fitToWidthRef = useRef(fitToWidth);
   const whiteboardIdRef = React.useRef(whiteboardId);
   const curPageIdRef = React.useRef(curPageId);
@@ -887,6 +889,8 @@ const Whiteboard = React.memo((props) => {
       : calcedZoom;
   };
 
+  calculateZoomValueRef.current = calculateZoomValue;
+
   const getContainerDimensions = () => {
     const container = document.querySelector('[data-test="presentationContainer"]');
     const innerWrapper = document.getElementById('presentationInnerWrapper');
@@ -1339,6 +1343,16 @@ const Whiteboard = React.memo((props) => {
           const panned = prevCam.x !== nextCam.x || prevCam.y !== nextCam.y;
 
           const zoomed = prevCam.z !== nextCam.z;
+          if (isPresenterRef.current && (panned || zoomed)) {
+            const baseZ = calculateZoomValueRef.current?.(
+              currentPresentationPageRef.current?.scaledWidth,
+              currentPresentationPageRef.current?.scaledHeight,
+            );
+            if (baseZ > 0) {
+              const pageKey = `${presentationIdRef.current}_${curPageIdRef.current}`;
+              pageActualZoomRatioRef.current[pageKey] = nextCam.z / baseZ;
+            }
+          }
 
           if ((panned || (zoomed || fitToWidthRef.current)) && isPresenterRef.current) {
             const viewedRegionW = SlideCalcUtil.calcViewedRegionWidth(
@@ -1729,14 +1743,21 @@ const Whiteboard = React.memo((props) => {
 
     const baseZoom = calculateZoomValue(scaledWidth, scaledHeight);
 
-    let adjustedZoom = (baseZoom * currentZoom) / HUNDRED_PERCENT;
+    // Use the actual stored zoom ratio for this page if available (preserves wheel zoom
+    // across slide switches). The ratio is zoom-level-independent so it scales correctly
+    // on resize. Fall back to toolbar zoom for first-visit or untracked pages.
+    const pageKey = `${presentationIdRef.current}_${curPageIdRef.current}`;
+    const storedZoomRatio = pageActualZoomRatioRef.current[pageKey];
+    let adjustedZoom = storedZoomRatio !== undefined
+      ? storedZoomRatio * baseZoom
+      : (baseZoom * currentZoom) / HUNDRED_PERCENT;
 
     if (isPresenter) {
       const {
         widthGap,
       } = getContainerDimensions();
 
-      if (widthGap > 0) {
+      if (widthGap > 0 && storedZoomRatio === undefined) {
         const gapZoom = (
           calculateZoomWithGapValue(
             scaledWidth,
@@ -1748,10 +1769,21 @@ const Whiteboard = React.memo((props) => {
       }
 
       const camera = tlEditorRef.current.getCamera();
+      const viewportBounds = tlEditorRef.current.getViewportScreenBounds();
+      const vw = viewportBounds.width;
+      const vh = viewportBounds.height;
+      const oldZ = camera.z;
+      const newZ = adjustedZoom;
 
       const updatedCurrentCam = {
         ...camera,
-        z: adjustedZoom,
+        x: (oldZ !== 0 && oldZ !== newZ)
+          ? camera.x + (vw / 2) * (1 / newZ - 1 / oldZ)
+          : camera.x,
+        y: (oldZ !== 0 && oldZ !== newZ)
+          ? camera.y + (vh / 2) * (1 / newZ - 1 / oldZ)
+          : camera.y,
+        z: newZ,
       };
       tlEditorRef.current.store.mergeRemoteChanges(() => {
         tlEditorRef.current.store.put([updatedCurrentCam]);
@@ -1927,7 +1959,7 @@ const Whiteboard = React.memo((props) => {
       && isPresenter
       && !isWheelZoomRef.current
     ) {
-      if (!isMounting) {
+      if (!isMounting && prevZoomValueRef.current !== zoomValue) {
         syncCameraOnPresenterZoom();
       }
     }
@@ -2120,7 +2152,7 @@ const Whiteboard = React.memo((props) => {
           }
           const allRecords = tlEditorRef.current.store.allRecords();
           const cameraRecords = allRecords.filter(
-            (record) => record.typeName === 'camera' && record.id?.split(':').pop() === formattedPageId,
+            (record) => record.typeName === 'camera' && record.id === `camera:page:${formattedPageId}`,
           );
           if (cameraRecords?.length < 1) {
             cameras.push(createCamera(formattedPageId, tlZ));
