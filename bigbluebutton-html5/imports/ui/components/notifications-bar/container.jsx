@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import MeetingRemainingTime from '/imports/ui/components/common/remaining-time/meeting-duration/component';
 import { useReactiveVar } from '@apollo/client';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import { layoutSelectInput, layoutDispatch } from '../layout/context';
 import { ACTIONS } from '../layout/enums';
 
@@ -47,6 +47,7 @@ const intlMessages = defineMessages({
 const STATUS_CRITICAL = 'critical';
 const COLOR_PRIMARY = 'primary';
 const CONNECTION_ERROR_TOAST_ID = 'connection-error-notification';
+const CONNECTION_ERROR_CONTAINER_ID = 'connection-error-toast-container';
 
 const NotificationsBarContainer = () => {
   const intl = useIntl();
@@ -202,6 +203,7 @@ const NotificationsBarContainer = () => {
       } else {
         toast(toastContent, {
           toastId: CONNECTION_ERROR_TOAST_ID,
+          containerId: CONNECTION_ERROR_CONTAINER_ID,
           autoClose: false,
         });
       }
@@ -221,12 +223,27 @@ const NotificationsBarContainer = () => {
     }
   }, [meetingMessage, hasNotification, dispatch]);
 
-  if (!meetingMessage || !hasNotification) return null;
+  if (!meetingMessage || !hasNotification) {
+    return (
+      <ToastContainer
+        containerId={CONNECTION_ERROR_CONTAINER_ID}
+        enableMultiContainer
+        rtl
+      />
+    );
+  }
 
   return (
-    <NotificationsBar color={COLOR_PRIMARY}>
-      {meetingMessage}
-    </NotificationsBar>
+    <>
+      <ToastContainer
+        containerId={CONNECTION_ERROR_CONTAINER_ID}
+        enableMultiContainer
+        rtl
+      />
+      <NotificationsBar color={COLOR_PRIMARY}>
+        {meetingMessage}
+      </NotificationsBar>
+    </>
   );
 };
 
