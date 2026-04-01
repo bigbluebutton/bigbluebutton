@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { useMutation } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
 import PadContainer from '/imports/ui/components/pads/pads-graphql/component';
 import browserInfo from '/imports/utils/browserInfo';
@@ -22,6 +22,8 @@ import {
 import { useIsPresentationEnabled } from '../../services/features';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import useMeeting from '../../core/hooks/useMeeting';
+import { GET_PAD_ID, GetPadIdQueryResponse } from './queries';
+import BlockNoteContainer from '../bn-shared-notes/component';
 
 const intlMessages = defineMessages({
   hide: {
@@ -45,6 +47,8 @@ interface NotesContainerGraphqlProps {
 
 interface NotesGraphqlProps extends NotesContainerGraphqlProps {
   hasPermission: boolean;
+  sharedNotesEditor: string;
+  padId: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   layoutContextDispatch: (action: any) => void;
   isResizing: boolean;
@@ -64,6 +68,8 @@ const sidebarContentToIgnoreDelay = ['captions'];
 const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   const {
     hasPermission,
+    sharedNotesEditor,
+    padId,
     isRTL,
     layoutContextDispatch,
     isResizing,
@@ -131,6 +137,8 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
 
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
+  const isEtherpadSharedNotes = sharedNotesEditor === 'etherpad';
+
   return (shouldRenderNotes || shouldShowSharedNotesOnPresentationArea) && (
     <Styled.Notes
       data-test="notes"
@@ -159,18 +167,26 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
             }}
             data-test="notesHeader"
             rightButtonProps={null}
-            customRightButton={
-              <NotesDropdown handlePinSharedNotes={handlePinSharedNotes} presentationEnabled={isPresentationEnabled} />
-          }
+            customRightButton={(
+              <NotesDropdown
+                isEtherpadSharedNotes={isEtherpadSharedNotes}
+                handlePinSharedNotes={handlePinSharedNotes}
+                presentationEnabled={isPresentationEnabled}
+                padId={padId}
+              />
+          )}
           />
         </>
       ) : renderHeaderOnMedia()}
-      <PadContainer
-        externalId={NOTES_CONFIG.id}
-        hasPermission={hasPermission}
-        isResizing={isResizing}
-        isRTL={isRTL}
-      />
+      { isEtherpadSharedNotes
+        ? (
+          <PadContainer
+            externalId={NOTES_CONFIG.id}
+            hasPermission={hasPermission}
+            isResizing={isResizing}
+            isRTL={isRTL}
+          />
+        ) : <BlockNoteContainer />}
     </Styled.Notes>
   );
 };
@@ -183,6 +199,14 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
   }));
+
+  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
+  const { data: padIdData } = useQuery<GetPadIdQueryResponse>(
+    GET_PAD_ID,
+    { variables: { externalId: NOTES_CONFIG.id } },
+  );
+  const padId = padIdData?.sharedNotes?.[0]?.padId;
+  const sharedNotesEditor = padIdData?.sharedNotes?.[0]?.sharedNotesEditor;
 
   const { data: currentMeeting } = useMeeting((meeting) => ({
     componentsFlags: meeting.componentsFlags,
@@ -222,8 +246,12 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
     });
   };
 
+  if (!padId || !sharedNotesEditor) return null;
+
   return (
     <NotesGraphql
+      padId={padId}
+      sharedNotesEditor={sharedNotesEditor}
       area={area}
       hasPermission={hasPermission}
       layoutContextDispatch={layoutContextDispatch}

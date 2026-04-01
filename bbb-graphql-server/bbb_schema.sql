@@ -2157,7 +2157,8 @@ group by u."meetingId", u."userId";
 create unlogged table "sharedNotes" (
     "meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
     "sharedNotesExtId" varchar(25),
-    "padId" varchar(25),
+    "padId" varchar(100),
+    "sharedNotesEditor" varchar(25),
     "model" varchar(25),
     "name" varchar(25),
     "pinned" boolean,
@@ -2480,6 +2481,12 @@ select "meeting"."meetingId",
             where "sharedNotes"."meetingId" = "meeting"."meetingId"
             and "sharedNotes"."pinned" is true
         ) as "isSharedNotesPinned",
+        exists (
+            select 1
+            from "sharedNotes"
+            where "sharedNotes"."meetingId" = "meeting"."meetingId"
+            and "sharedNotes"."sharedNotesEditor" = 'etherpad'
+        ) as "isEtherpadSharedNotes",
         exists (
             select 1
             from "v_pres_page_curr"

@@ -373,6 +373,42 @@ One other think to pay attention is to not include any of the parameters in both
 </response>
 ```
 
+#### Shared Notes Initial Content
+
+If `sharedNotesEditor` is set to `blockNote`, you can send initial content. It can be done with the create parameter `sharedNotesInitialContentJsonUrl` containing the URL from which the content will be fetched, or send the content directly via the `create` payload.
+
+If you choose the second option (sending content directly), the POST request payload must be as follows:
+
+```xml
+<modules>
+   <module name="sharedNotesInitialContentJson">
+      <![CDATA[
+        [
+          {
+            "id": "00000000-0000-0000-0000-000000000000",
+            "type": "paragraph",
+            "props": {
+              "textAlignment": "left",
+              "backgroundColor": "default",
+              "textColor": "default"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Welcome to BigBlueButton Shared Notes! Start collaborating here...",
+                "styles": {}
+              }
+            ],
+            "children": []
+          }
+        ]
+      ]]>
+   </module>
+</modules>
+```
+
+Pay close attention: the initial content JSON structure must be as described in [BlockNote's documentation](https://www.blocknotejs.org/docs/foundations/document-structure?utm_source=chatgpt.com#block-properties). The same applies to the create parameter `sharedNotesInitialContentJsonUrl` (the content inside the URL must have the same structure).
+
 #### Pre-upload Slides
 
 You can upload slides within the create call. If you do this, the BigBlueButton server will immediately download and process the slides.

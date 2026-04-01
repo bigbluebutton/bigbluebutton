@@ -21,6 +21,7 @@ export interface Public {
   notes: Notes
   layout: Layout
   pads: Pads
+  sharedNotes: SharedNotes
   media: Media
   stats: Stats
   presentation: Presentation
@@ -572,6 +573,12 @@ export interface Layout {
 
 export interface Pads {
   url: string
+}
+
+export interface SharedNotes {
+  serverUrl: string
+  maxDocumentChars: number
+  maxLengthForContentUpdate: number
 }
 
 export interface Media {

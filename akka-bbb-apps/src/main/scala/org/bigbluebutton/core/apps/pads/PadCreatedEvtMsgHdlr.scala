@@ -15,7 +15,7 @@ trait PadCreatedEvtMsgHdlr {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, userId)
       val envelope = BbbCoreEnvelope(PadCreatedRespMsg.NAME, routing)
       val header = BbbClientMsgHeader(PadCreatedRespMsg.NAME, liveMeeting.props.meetingProp.intId, userId)
-      val body = PadCreatedRespMsgBody(externalId, padId, name)
+      val body = PadCreatedRespMsgBody(externalId, padId, name, "etherpad")
       val event = PadCreatedRespMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 
@@ -25,7 +25,11 @@ trait PadCreatedEvtMsgHdlr {
     Pads.getGroupById(liveMeeting.pads, msg.body.groupId) match {
       case Some(group) => {
         Pads.setPadId(liveMeeting.pads, group.externalId, msg.body.padId)
-        SharedNotesDAO.insert(liveMeeting.props.meetingProp.intId, group, msg.body.padId, msg.body.name)
+        SharedNotesDAO.insert(
+          liveMeeting.props.meetingProp.intId,
+          group.externalId, group.model,
+          msg.body.padId, msg.body.name, liveMeeting.props.meetingProp.sharedNotesEditor
+        )
         broadcastEvent(group.externalId, group.userId, msg.body.padId, msg.body.name)
       }
       case _ =>

@@ -807,6 +807,12 @@ public:
     enableDeprecatedLayoutSelection: true
   pads:
     url: ETHERPAD_HOST
+  sharedNotes:
+    # Hocuspocus server url for BlockNote (it will use the client's domain when empty)
+    # e.g: `wss://bbb-host/hocuspocus/collaboration`
+    serverUrl:
+    maxDocumentChars: 99999
+    maxLengthForContentUpdate: 1500
   media:
     audio:
       # defaultFullAudioBridge: bridge to be used by full audio mechanism.

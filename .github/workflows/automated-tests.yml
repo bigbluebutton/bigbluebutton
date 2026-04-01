@@ -34,6 +34,7 @@ jobs:
             bbb-learning-dashboard,
             bbb-playback-record,
             bbb-graphql-server,
+            bbb-shared-notes-server,
             bbb-etherpad,
             bbb-web,
             bbb-fsesl-akka,
@@ -58,6 +59,8 @@ jobs:
             build-name: bbb-graphql-server
             build-list: bbb-graphql-server bbb-graphql-middleware bbb-graphql-actions
             cache-files-list: bbb-graphql-server bbb-graphql-middleware bbb-graphql-actions
+          - package: bbb-shared-notes-server
+            cache-files-list: bbb-shared-notes-server
           - package: bbb-etherpad
             cache-files-list: bbb-etherpad.placeholder.sh
             cache-urls-list: https://api.github.com/repos/mconf/ep_pad_ttl/commits https://api.github.com/repos/alangecker/bbb-etherpad-plugin/commits https://api.github.com/repos/mconf/ep_redis_publisher/commits https://api.github.com/repos/alangecker/bbb-etherpad-skin/commits
@@ -201,6 +204,11 @@ jobs:
         with:
           name: artifacts_bbb-etherpad
           path: all-artifacts
+      - name: Download artifacts_bbb-shared-notes-server
+        uses: actions/download-artifact@v4
+        with:
+          name: artifacts_bbb-shared-notes-server
+          path: all-artifacts
       - name: Download artifacts_bbb-freeswitch
         uses: actions/download-artifact@v4
         with:
@@ -251,6 +259,7 @@ jobs:
             artifacts_bbb-playback-record
             artifacts_bbb-graphql-server
             artifacts_bbb-etherpad
+            artifacts_bbb-shared-notes-server
             artifacts_bbb-freeswitch
             artifacts_bbb-webrtc
             artifacts_bbb-web

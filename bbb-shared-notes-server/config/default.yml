@@ -1,0 +1,46 @@
+expressServer:
+  host: 127.0.0.1
+  port: 8787
+  maxContentLength: 1500
+  maxConnectionsPerSessionToken: 3
+
+hocuspocusServer:
+  host: 127.0.0.1
+  port: 9001
+
+commandExecution:
+  workDir: /tmp/shared-notes-dropbox/
+  runnerScript: /usr/share/bbb-shared-notes-server/run-in-systemd.sh
+  timeout: 30
+
+bbbWeb:
+  host: 127.0.0.1
+  port: 8090
+  presentationEndpoint: /bigbluebutton/presentation
+  checkAuthorizationEndpoint: /bigbluebutton/connection/checkGraphqlAuthorization
+
+log:
+  level: info
+
+redis:
+  host: 127.0.0.1
+  port: 6379
+  password: null
+  channels:
+    publish:
+      - to-akka-apps-redis-channel
+    subscribe:
+      - from-akka-apps-redis-channel
+      - from-etherpad-redis-channel
+
+rateLimit:
+  maxRequestsPerWindow: 60
+  windowInSeconds: 60
+
+postgres:
+  host: 127.0.0.1
+  port: 5432
+  database: blocknote_app
+  user: blocknote_app
+  password: blocknote_app # NOSONAR
+  documentExpireMinutesAfterMeetingEnd: 60

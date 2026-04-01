@@ -43,6 +43,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="gw" ref="bbbWebApiGWApp"/>
     </bean>
 
+    <bean id="sharedNotesRedirectValidator" class="org.bigbluebutton.api.service.impl.SharedNotesRedirectValidatorService">
+    </bean>
+
     <bean id="meetingService" class="org.bigbluebutton.api.MeetingService" init-method="start" destroy-method="stop">
         <property name="redisStorageService" ref="redisStorageService"/>
         <property name="learningDashboardService" ref="learningDashboardService"/>
@@ -60,6 +63,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="numPluginManifestsFetchingThreads" value="${numPluginManifestsFetchingThreads}"/>
         <property name="pluginManifestFetchTimeout" value="${pluginManifestFetchTimeout}"/>
         <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
+        <property name="redirectFollower" ref="redirectFollower"/>
+        <property name="sharedNotesRedirectValidator" ref="sharedNotesRedirectValidator"/>
     </bean>
 
     <bean id="oldMessageReceivedGW" class="org.bigbluebutton.api2.bus.OldMessageReceivedGW">
@@ -184,6 +189,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
         <property name="autoStartRecording" value="${autoStartRecording}"/>
         <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
+        <property name="sharedNotesEditor" value="${sharedNotesEditor}"/>
         <property name="presentationConversionCacheEnabled" value="${presentationConversionCacheEnabled}"/>
         <property name="recordFullDurationMedia" value="${recordFullDurationMedia}"/>
         <property name="learningDashboardCleanupDelayInMinutes" value="${learningDashboardCleanupDelayInMinutes}"/>

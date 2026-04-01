@@ -8,9 +8,12 @@ import { layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout
 import Styled from './styles';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useRev from '/imports/ui/components/pads/pads-graphql/hooks/useRev';
-import useNotesLastRev from '../../../../notes/hooks/useNotesLastRev';
-import useHasUnreadNotes from '../../../../notes/hooks/useHasUnreadNotes';
+import useNotesLastRev from '../../../notes/hooks/useNotesLastRev';
+import useHasUnreadNotes from '../../../notes/hooks/useHasUnreadNotes';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import { GET_PAD_ID, GetPadIdQueryResponse } from '/imports/ui/components/notes/queries';
+import { useQuery } from '@apollo/client';
+import logger from '/imports/startup/client/logger';
 
 const intlMessages = defineMessages({
   title: {
@@ -192,6 +195,12 @@ const UserNotesContainerGraphql: React.FC<UserNotesContainerGraphqlProps> = (pro
   }));
 
   const NOTES_CONFIG = window.meetingClientSettings.public.notes;
+  const { data: padIdData, loading: padIdLoading } = useQuery<GetPadIdQueryResponse>(
+    GET_PAD_ID,
+    { variables: { externalId: NOTES_CONFIG.id } },
+  );
+  const padId = padIdData?.sharedNotes[0]?.padId;
+  const sharedNotesEditor = padIdData?.sharedNotes[0]?.sharedNotesEditor;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sidebarContent = layoutSelectInput((i: any) => i.sidebarContent);
@@ -203,9 +212,22 @@ const UserNotesContainerGraphql: React.FC<UserNotesContainerGraphqlProps> = (pro
 
   const hasUnreadNotes = useHasUnreadNotes();
   const markNotesAsRead = () => setNotesLastRev(rev);
+
   const isEnabled = NotesService.useIsEnabled();
 
   const isPinned = currentMeeting?.componentsFlags?.isSharedNotesPinned ?? false;
+
+  if (!padIdLoading && (!padId || !sharedNotesEditor)) {
+    logger.error({
+      logCode: 'shared_notes_not_configured',
+      extraInfo: {
+        padId,
+        sharedNotesEditor,
+      },
+    }, 'No padId or shared-notes editor found, ignoring...');
+    return null;
+  }
+  if (padIdLoading) return null;
   return (
     <UserNotesGraphql
       disableNotes={disableNotes}

@@ -221,6 +221,10 @@ class ApiController {
       }
     }
 
+    if(xmlModules.containsKey("sharedNotesInitialContentJson")) {
+      newMeeting.setSharedNotesInitialContentJsonFromPayload(xmlModules.get("sharedNotesInitialContentJson").text())
+    }
+
     ApiErrors errors = new ApiErrors()
 
     if (meetingService.createMeeting(newMeeting)) {
