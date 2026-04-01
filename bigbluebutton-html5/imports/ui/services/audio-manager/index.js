@@ -17,6 +17,7 @@ import {
   storeAudioOutputDeviceId,
   getAudioConstraints,
   doGUM,
+  isWasmProcessingEnabled,
 } from '/imports/api/audio/client/bridge/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { makeVar } from '@apollo/client';
@@ -779,8 +780,11 @@ class AudioManager {
       // eg, there's no default/pre-set deviceId ('') and the browser's
       // default device has been altered by the user (browser default != system's
       // default).
+      const previousDeviceId = this.inputDeviceId;
+      let extractedDeviceId = null;
+
       if (this.inputStream) {
-        const extractedDeviceId = MediaStreamUtils.extractDeviceIdFromStream(
+        extractedDeviceId = MediaStreamUtils.extractDeviceIdFromStream(
           this.inputStream,
           'audio',
         );
@@ -788,6 +792,18 @@ class AudioManager {
           this.changeInputDevice(extractedDeviceId);
         }
       }
+
+      logger.debug({
+        logCode: 'audiomanager_onaudiojoin_device_extraction',
+        extraInfo: {
+          bridge: this.bridgeName,
+          extractedDeviceId: extractedDeviceId ?? 'N/A',
+          previousDeviceId: previousDeviceId ?? 'N/A',
+          finalDeviceId: this.inputDeviceId ?? 'N/A',
+          streamData: MediaStreamUtils.getMediaStreamLogData(this.inputStream),
+          wasmProcessingEnabled: isWasmProcessingEnabled(),
+        },
+      }, `onAudioJoin: device ID extraction finished: ${extractedDeviceId}`);
       // Audio joined successfully - add device IDs to session storage so they
       // can be re-used on refreshes/other sessions
       storeAudioInputDeviceId(this.inputDeviceId);
@@ -1111,6 +1127,19 @@ class AudioManager {
         // Only store successfully changed device IDs. In case of failures,
         // cleanup in case of failures is done elsewhere (see doGUM)
         storeAudioInputDeviceId(newDeviceId);
+
+        logger.debug({
+          logCode: 'audiomanager_live_change_input_result',
+          extraInfo: {
+            bridge: this.bridgeName,
+            requestedDeviceId: deviceId,
+            previousDeviceId: currentDeviceId,
+            resolvedDeviceId: newDeviceId,
+            streamData: MediaStreamUtils.getMediaStreamLogData(this.inputStream),
+            wasmProcessingEnabled: isWasmProcessingEnabled(),
+          },
+        }, `liveChangeInputDevice completed: ${newDeviceId}`);
+
         this.setSenderTrackEnabled(!this.isMuted);
       })
       .catch((error) => {
