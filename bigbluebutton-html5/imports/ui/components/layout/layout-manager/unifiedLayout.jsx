@@ -138,7 +138,7 @@ const UnifiedLayout = (props) => {
       top: windowHeight() - DROP_ZONE_DEFAUL_SIZE,
       left: !isRTL ? sidebarNavWidth : null,
       right: isRTL ? sidebarNavWidth : null,
-      width: sidebarContentWidth - sidebarContentMarginToMedia,
+      width: sidebarContentWidth ? sidebarContentWidth - sidebarContentMarginToMedia : 0,
       height: DROP_ZONE_DEFAUL_SIZE,
       zIndex: cameraDockBounds.zIndex,
     };
