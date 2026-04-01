@@ -188,7 +188,7 @@ const IsTalkingWrapper = styled.div`
   flex-direction: row;
   position: relative;
   overflow: hidden;
-  margin-top: 0.5rem;
+  margin-top: 0.25rem;
 `;
 
 const Speaking = styled.div`
