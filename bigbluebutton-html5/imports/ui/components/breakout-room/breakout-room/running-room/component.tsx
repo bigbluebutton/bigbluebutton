@@ -21,6 +21,7 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { setBreakoutWindowRef } from '../service';
 import { notify } from '/imports/ui/services/notification';
+import logger from '/imports/startup/client/logger';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -117,6 +118,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const innerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [selectedTimerField, setSelectedTimerField] = useState<'h' | 'm' | 's'>('m');
   const [remainingTime, setRemainingTime] = useState<number>(0);
   const [editingTime, setEditingTime] = useState<number | null>(null);
@@ -149,6 +151,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
   }));
 
   const breakoutProps = meetingData?.breakoutRoomsCommonProperties;
+  const sendInvitationToModerators = breakoutProps?.sendInvitationToModerators ?? false;
   const breakoutDurationInSeconds = breakoutProps?.durationInSeconds ?? 0;
   const parsedStartedAt = new Date(breakoutProps?.startedAt ?? '').getTime();
   const breakoutStartedAt = Number.isFinite(parsedStartedAt) ? parsedStartedAt : 0;
@@ -160,16 +163,16 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
         .filter((p) => !p.isAudioOnly)
         .forEach((p) => {
           ids.add(p.userId);
-          return undefined;
         });
-      return undefined;
     });
     return ids;
   }, [breakouts]);
 
   const unassignedUsers = useMemo(
-    () => allUsers.filter((u: { userId: string; isModerator?: boolean }) => !u.isModerator && !assignedUserIds.has(u.userId)),
-    [allUsers, assignedUserIds],
+    () => allUsers.filter((u:
+      { userId: string; isModerator?: boolean }) => (
+      !u.isModerator || sendInvitationToModerators) && !assignedUserIds.has(u.userId)),
+    [allUsers, assignedUserIds, sendInvitationToModerators],
   );
 
   useEffect(() => {
@@ -200,6 +203,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
 
   useEffect(() => () => {
     if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    if (innerTimerRef.current) clearTimeout(innerTimerRef.current);
   }, []);
 
   useEffect(() => {
@@ -277,7 +281,8 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
     debounceTimerRef.current = setTimeout(() => {
       const newMinutes = Math.max(1, Math.ceil(clamped / 60));
       breakoutRoomSetTime({ variables: { timeInMinutes: newMinutes } });
-      setTimeout(() => setEditingTime(null), 500);
+      if (innerTimerRef.current) clearTimeout(innerTimerRef.current);
+      innerTimerRef.current = setTimeout(() => setEditingTime(null), 500);
     }, DEBOUNCE_DELAY);
   }, [breakoutRoomSetTime]);
 
@@ -368,6 +373,11 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
         }),
         'success',
         'user',
+      );
+    }).catch((err: unknown) => {
+      logger.error(
+        { logCode: 'breakout_move_user_failed', extraInfo: { error: err } },
+        'Failed to move user between breakout rooms',
       );
     });
   }, [breakoutRoomMoveUser, breakouts, intl]);

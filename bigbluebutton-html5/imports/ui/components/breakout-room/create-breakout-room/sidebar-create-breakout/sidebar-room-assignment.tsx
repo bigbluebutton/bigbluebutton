@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import MenuItem from '@mui/material/MenuItem';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
 import Auth from '/imports/ui/services/auth';
@@ -18,6 +19,10 @@ const intlMessages = defineMessages({
     id: 'app.update.resetRoom',
     description: 'Remove user from room',
   },
+  currentSlide: {
+    id: 'app.createBreakoutRoom.currentSlideLabel',
+    description: 'Current slide label for presentation selector',
+  },
 });
 
 const isMe = (intId: string) => intId === Auth.userID;
@@ -29,16 +34,28 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
   setSelectedId,
   resetRooms,
   changeRoomName,
+  presentations,
+  getRoomPresentation,
+  setRoomPresentations,
+  currentSlidePrefix,
+  currentPresentation,
 }) => {
   const intl = useIntl();
   const roomPadNum = (n: number) => n.toString().padStart(2, '0');
   const [editingRoom, setEditingRoom] = useState<number | null>(null);
 
+  const changeRoomPresentation = (roomNum: number) => (ev: { target: { value: unknown } }) => {
+    setRoomPresentations((prev) => ({
+      ...prev,
+      [roomNum]: ev.target.value as string,
+    }));
+  };
+
   useEffect(() => {
     if (numberOfRooms) {
       resetRooms(numberOfRooms);
     }
-  }, [numberOfRooms]);
+  }, [numberOfRooms, resetRooms]);
 
   const dragStart = (ev: React.DragEvent<HTMLDivElement>) => {
     const el = ev.target as HTMLDivElement;
@@ -64,8 +81,16 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
     ev.preventDefault();
     const data = ev.dataTransfer.getData('text');
     const separatorIndex = data.lastIndexOf('-');
+    if (separatorIndex <= 0) {
+      setSelectedId('');
+      return;
+    }
     const userId = data.substring(0, separatorIndex);
     const from = data.substring(separatorIndex + 1);
+    if (!userId || Number.isNaN(Number(from))) {
+      setSelectedId('');
+      return;
+    }
     moveUser(userId, Number(from), roomNumber);
     setSelectedId('');
   };
@@ -171,6 +196,32 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
                     </Styled.RoomCardUserItem>
                   ))}
                 </Styled.RoomCardUserList>
+              )}
+              {presentations.length > 1 && (
+                <Styled.PresentationSelect
+                  value={getRoomPresentation(roomNum)}
+                  onChange={changeRoomPresentation(roomNum)}
+                  data-test={`changeSlideBreakoutRoom${roomNum}`}
+                  size="small"
+                  displayEmpty
+                >
+                  {currentPresentation && (
+                    <MenuItem
+                      key="current-slide"
+                      value={`${currentSlidePrefix}${currentPresentation}`}
+                    >
+                      {intl.formatMessage(intlMessages.currentSlide)}
+                    </MenuItem>
+                  )}
+                  {presentations.map((presentation) => (
+                    <MenuItem
+                      key={presentation.presentationId}
+                      value={presentation.presentationId}
+                    >
+                      {presentation.name}
+                    </MenuItem>
+                  ))}
+                </Styled.PresentationSelect>
               )}
             </Styled.RoomCard>
           );

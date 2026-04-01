@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { styled as materialStyled } from '@mui/material/styles';
 import { Switch } from '@mui/material';
+import Select from '@mui/material/Select';
 import {
   colorPrimary,
   colorGray,
@@ -469,6 +470,20 @@ export const UserRemoveBtn = styled.button`
   }
 `;
 
+export const PresentationSelect = styled(Select)`
+  width: 100%;
+  margin-top: 0.5rem;
+  height: 2rem;
+  border-radius: 0.4rem !important;
+  overflow: hidden;
+  font-size: 0.75rem;
+
+  & .MuiSelect-select {
+    padding: 0.15rem 0.5rem;
+    font-size: 0.75rem;
+  }
+`;
+
 export const StartButtonWrapper = styled.div`
   padding: 0.75rem 1rem;
   margin-top: auto;
@@ -580,6 +595,7 @@ export default {
   RoomCardUserList,
   RoomCardUserItem,
   UserRemoveBtn,
+  PresentationSelect,
   StartButtonWrapper,
   StartButton,
   MaterialSwitch,

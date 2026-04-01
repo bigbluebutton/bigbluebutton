@@ -91,7 +91,7 @@ const SidebarCreateBreakoutContainer: React.FC<SidebarCreateBreakoutContainerPro
 
   return (
     <SidebarCreateBreakout
-      users={(usersData?.filter((u) => !u.bot && !u.isModerator) ?? []) as BreakoutUser[]}
+      users={(usersData?.filter((u) => !u.bot) ?? []) as BreakoutUser[]}
       presentations={presentations}
       currentPresentation={currentPresentation}
       isBreakoutRecordable={currentMeeting?.breakoutPolicies?.record ?? true}
