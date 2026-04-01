@@ -1115,7 +1115,7 @@
     "app.notification.recordingAriaLabel": "الوقت المسجل",
     "app.notification.userJoinPushAlert": "انضم {userName} إلى الجلسة",
     "app.notification.userLeavePushAlert": "غادر الجلسة {userName}",
-    "app.notification.presenterRequestApproved.title": "{presenterName} هو المقدم الآن",
+    "app.notification.presenterRequestApproved.title": "{presenterName} هو الآن مقدم العرض",
     "app.notification.presenterRequestApproved": "تم التعيين بواسطة: {approvedByName}",
     "app.submenu.notification.raiseHandLabel": "رفع اليد",
     "app.shortcut-help.title": "اختصارات لوحة المفاتيح",
