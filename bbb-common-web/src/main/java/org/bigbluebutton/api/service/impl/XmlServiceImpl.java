@@ -415,7 +415,13 @@ public class XmlServiceImpl implements XmlService {
     }
 
     private void setup() throws ParserConfigurationException {
-        if(factory == null) factory = DocumentBuilderFactory.newInstance();
+        if(factory == null) {
+            factory = DocumentBuilderFactory.newInstance();
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            factory.setExpandEntityReferences(false);
+        }
         if(builder == null) builder = factory.newDocumentBuilder();
     }
 

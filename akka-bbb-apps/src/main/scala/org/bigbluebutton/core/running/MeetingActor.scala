@@ -12,7 +12,7 @@ import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.common2.domain.{ DefaultProps, LockSettingsProps }
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
-import org.bigbluebutton.core.apps.audiogroups.AudioGroupHdlrs
+import org.bigbluebutton.core.apps.mediagroups.{ MediaGroupApp, MediaGroupHdlrs, PublicMediaGroupIds }
 import org.bigbluebutton.core.apps.caption.CaptionApp2x
 import org.bigbluebutton.core.apps.chat.ChatApp2x
 import org.bigbluebutton.core.apps.externalvideo.ExternalVideoApp2x
@@ -42,7 +42,16 @@ import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.plugin.PluginHdlrs
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
-import org.bigbluebutton.core.db.{ MeetingDAO, MeetingVoiceDAO, NotificationDAO, TimerDAO, UserDAO, UserStateDAO }
+import org.bigbluebutton.core.db.{
+  MeetingDAO,
+  MeetingVoiceDAO,
+  NotificationDAO,
+  TimerDAO,
+  UserDAO,
+  UserStateDAO,
+  MediaGroupDAO,
+  MediaGroupUserDAO
+}
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models.VoiceUsers.{ findAllFreeswitchCallers, findAllListenOnlyVoiceUsers }
 import org.bigbluebutton.core.models.Webcams.findAll
@@ -139,7 +148,7 @@ class MeetingActor(
   val wbApp = new WhiteboardApp2x
   val timerApp2x = new TimerApp2x
   val pluginHdlrs = new PluginHdlrs
-  val audioGroupHdlrs = new AudioGroupHdlrs
+  val mediaGroupHdlrs = new MediaGroupHdlrs
 
   object ExpiryTrackerHelper extends MeetingExpiryTrackerHelper
 
@@ -169,7 +178,7 @@ class MeetingActor(
     None,
     expiryTracker,
     recordingTracker,
-    new AudioGroups(Map.empty),
+    new MediaGroups(Map.empty),
     PresentationConversions(Map.empty)
   )
 
@@ -184,6 +193,13 @@ class MeetingActor(
 
   // Create a default public group chat
   state = groupChatApp.handleCreateDefaultPublicGroupChat(state, liveMeeting, msgBus)
+
+  // Create explicit public media groups. See media groups apps and models and
+  // associated commit history for those.
+  state = state.update(MediaGroupApp.createPublicMediaGroups(state.mediaGroups))
+  state.mediaGroups.findAllMediaGroups().filter(mg => PublicMediaGroupIds.isPublicGroup(mg.id)).foreach { mg =>
+    MediaGroupDAO.insert(liveMeeting.props.meetingProp.intId, mg)
+  }
 
   //state = GroupChatApp.genTestChatMsgHistory(GroupChatApp.MAIN_PUBLIC_CHAT, state, BbbSystemConst.SYSTEM_USER, liveMeeting)
   // Create a default public group chat **DEPRECATED, NOT GOING TO WORK ANYMORE**
@@ -342,16 +358,29 @@ class MeetingActor(
       alternativeValue = true
     )
 
-    if (sharedNotesEnabledInClientSettings && !liveMeeting.props.meetingProp.disabledFeatures.contains("sharedNotes")) {
+    val isSharedNotesEnabled = (sharedNotesEnabledInClientSettings
+      && !liveMeeting.props.meetingProp.disabledFeatures.contains("sharedNotes"))
+
+    val isEtherpadType = liveMeeting.props.meetingProp.sharedNotesEditor == "etherpad"
+
+    if (isSharedNotesEnabled) {
       val sharedNotesPadId = getConfigPropertyValueByPathAsStringOrElse(
         liveMeeting.clientSettings,
         "public.notes.id",
         alternativeValue = ""
       )
-
       if (!Pads.hasGroup(liveMeeting.pads, sharedNotesPadId)) {
         Pads.addGroup(liveMeeting.pads, sharedNotesPadId, sharedNotesPadId, sharedNotesPadId, "SYSTEM")
-        PadslHdlrHelpers.broadcastPadCreateGroupCmdMsg(outGW, liveMeeting.props.meetingProp.intId, sharedNotesPadId, sharedNotesPadId)
+      }
+      if (isEtherpadType) {
+        PadslHdlrHelpers.broadcastPadCreateGroupCmdMsg(
+          outGW, liveMeeting.props.meetingProp.intId, sharedNotesPadId, sharedNotesPadId
+        )
+      } else {
+        PadslHdlrHelpers.broadcastBNSharedNotesCreateCmdMsg(
+          outGW, liveMeeting.props.meetingProp.intId,
+          sharedNotesPadId, sharedNotesPadId, liveMeeting.props.meetingProp.sharedNotesInitialContentJson
+        )
       }
     }
   }
@@ -542,15 +571,17 @@ class MeetingActor(
       case m: SendMessageToAllBreakoutRoomsReqMsg  => state = handleSendMessageToAllBreakoutRoomsMsg(m, state)
       case m: ChangeUserBreakoutReqMsg             => state = handleChangeUserBreakoutReqMsg(m, state)
 
-      // Audio Groups
-      case m: CreateAudioGroupReqMsg               => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: DestroyAudioGroupReqMsg              => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: GetAudioGroupsReqMsg                 => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: AudioGroupAddParticipantsReqMsg      => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: AudioGroupRemoveParticipantsReqMsg   => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: JoinAudioGroupReqMsg                 => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: LeaveAudioGroupReqMsg                => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: AudioGroupUpdateParticipantReqMsg    => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      // Media Groups
+      case m: CreateMediaGroupReqMsg =>
+        state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+        updateUserLastActivity(m.header.userId)
+      case m: DestroyMediaGroupReqMsg =>
+        state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+        updateUserLastActivity(m.header.userId)
+      case m: GetMediaGroupsReqMsg                 => state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: SetUserMediaGroupStateReqMsg =>
+        state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+        updateUserLastActivity(m.header.userId)
 
       // Voice
       case m: UserLeftVoiceConfEvtMsg              => handleUserLeftVoiceConfEvtMsg(m)
@@ -606,6 +637,8 @@ class MeetingActor(
       case m: PadGroupCreatedEvtMsg         => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadCreateReqMsg               => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadCreatedEvtMsg              => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: BNSharedNotesCreatedEvtMsg    => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: BNSharedNotesUpdatedEvtMsg    => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadCreateSessionReqMsg        => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadSessionCreatedEvtMsg       => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadSessionDeletedSysMsg       => padsApp2x.handle(m, liveMeeting, msgBus)

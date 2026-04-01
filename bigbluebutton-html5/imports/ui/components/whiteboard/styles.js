@@ -64,17 +64,28 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     left: -50px !important;
   }
 
-  ${({ isPresenter, isMultiUserActive }) => !isPresenter && !isMultiUserActive && `
+  ${({ isPresenter, isMultiUserActive, pointerDiameter = 5 }) => {
+    const numericDiameter = Number(pointerDiameter);
+    const safeDiameter = Number.isFinite(numericDiameter) && numericDiameter > 0
+      ? numericDiameter
+      : 5;
+    const scale = safeDiameter / 100;
+    const scaleRatio = safeDiameter / 5;
+    const leftOffset = -18 * scaleRatio;
+    const topOffset = -10 * scaleRatio;
+    return !isPresenter && !isMultiUserActive && `
     .tl-cursor use {
-      transform: scale(0.05)!important;
+      transform: scale(${scale})!important;
+      transform-origin: 0 0 !important;
     }
 
     .tl-collaborator__cursor {
       position: absolute !important;
-      left: -7px !important;
-      top: -6px !important;
+      left: ${leftOffset}px !important;
+      top: ${topOffset}px !important;
     }
-  `}
+  `;
+  }}
 
   .tlui-toolbar__extras {
     position: fixed !important;

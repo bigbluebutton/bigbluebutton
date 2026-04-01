@@ -72,8 +72,6 @@ object DatabaseConnection {
           val duration = (endTime - startTime) / 1e6 // convert to milliseconds
           if (duration > 2000) {
             logger.warn(s"${batch.size} actions executed in the database in $duration ms.")
-          } else {
-            logger.debug(s"${batch.size} actions executed in the database in $duration ms.")
           }
           isProcessing.set(false)
           if (!queue.isEmpty) tryProcessBatch()

@@ -4,7 +4,7 @@ import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TI
 import { elements as e } from '../core/elements';
 import { hasCurrentPresentationToastElement, uploadSinglePresentation } from '../presentation/util';
 import * as utilScreenShare from '../screenshare/util';
-import { getNotesLocator } from '../sharednotes/util';
+import { getNotesLocator } from '../sharednotes/etherpad/util';
 import { Create } from './create';
 
 export class Join extends Create {
