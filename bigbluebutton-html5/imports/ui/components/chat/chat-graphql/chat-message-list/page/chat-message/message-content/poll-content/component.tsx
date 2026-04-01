@@ -11,6 +11,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { toPng } from 'html-to-image';
 import logger from '/imports/startup/client/logger';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { defineMessages, useIntl } from 'react-intl';
@@ -171,67 +172,14 @@ const ChatPollContent = forwardRef<ChatPollContentHandle, ChatPollContentProps>(
     const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
       + `_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
     const fileName = `poll-result_${dateStr}.png`;
-    import('html-to-image').then(({ toPng }) => {
-      toPng(chartNode, { backgroundColor: '#fff' })
-        .then((dataUrl) => {
-          const img = new window.Image();
-          img.onload = () => {
-            const padding = 24;
-            const titleFontSize = 20;
-            const lineHeight = Math.ceil(titleFontSize * 1.4);
-            const canvasW = img.width;
-            const ctxMeasure = document.createElement('canvas').getContext('2d');
-            let titleLines = [];
-            if (ctxMeasure && pollData.questionText) {
-              ctxMeasure.font = `bold ${titleFontSize}px sans-serif`;
-              const maxWidth = canvasW - padding * 2;
-              const words = pollData.questionText.split(' ');
-              let currentLine = '';
-              words.forEach((word) => {
-                const testLine = currentLine ? `${currentLine} ${word}` : word;
-                if (ctxMeasure.measureText(testLine).width > maxWidth && currentLine) {
-                  titleLines.push(currentLine);
-                  currentLine = word;
-                } else {
-                  currentLine = testLine;
-                }
-              });
-              if (currentLine) titleLines.push(currentLine);
-            } else {
-              titleLines = [pollData.questionText];
-            }
-            const titleAreaHeight = titleLines.length * lineHeight + padding;
-            const canvasH = img.height + titleAreaHeight;
-            const canvas = document.createElement('canvas');
-            canvas.width = canvasW;
-            canvas.height = canvasH;
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-              ctx.fillStyle = '#fff';
-              ctx.fillRect(0, 0, canvasW, canvasH);
-              ctx.fillStyle = '#333';
-              ctx.font = `bold ${titleFontSize}px sans-serif`;
-              ctx.textAlign = 'center';
-              titleLines.forEach((line, i) => {
-                ctx.fillText(line, canvasW / 2, padding + titleFontSize + i * lineHeight);
-              });
-              ctx.drawImage(img, 0, titleAreaHeight);
-              const a = document.createElement('a');
-              a.download = fileName;
-              a.href = canvas.toDataURL('image/png');
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-            }
-          };
-          img.src = dataUrl;
-        })
-        .catch((err) => {
-          logger.warn({
-            logCode: 'poll_download_error',
-            extraInfo: { errorMessage: err?.message },
-          }, 'Failed to download poll result as PNG');
-        });
+    toPng(chartNode, { backgroundColor: '#fff' }).then((dataUrl) => {
+      const anchor = document.createElement('a');
+      anchor.href = dataUrl;
+      anchor.setAttribute(
+        'download',
+        fileName,
+      );
+      anchor.click();
     });
   }, [pollData]);
 
@@ -244,11 +192,11 @@ const ChatPollContent = forwardRef<ChatPollContentHandle, ChatPollContentProps>(
 
   return (
     <>
-      <Styled.PollWrapper aria-hidden data-test="chatPollMessageText">
+      <Styled.PollWrapper aria-hidden data-test="chatPollMessageText" ref={chartRef}>
         <Styled.PollText>
           {pollData.questionText}
         </Styled.PollText>
-        <div ref={chartRef}>
+        <div>
           <ResponsiveContainer width="100%" height={useHeight}>
             <BarChart
               data={translatedAnswers}
