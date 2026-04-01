@@ -173,6 +173,32 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
                   </Styled.RoomCardIcon>
                 </Styled.RoomCardRight>
               </Styled.RoomCardHeader>
+              {presentations.length > 1 && (
+                <Styled.PresentationSelect
+                  value={getRoomPresentation(roomNum)}
+                  onChange={changeRoomPresentation(roomNum)}
+                  data-test={`changeSlideBreakoutRoom${roomNum}`}
+                  size="small"
+                  displayEmpty
+                >
+                  {currentPresentation && (
+                    <MenuItem
+                      key="current-slide"
+                      value={`${currentSlidePrefix}${currentPresentation}`}
+                    >
+                      {intl.formatMessage(intlMessages.currentSlide)}
+                    </MenuItem>
+                  )}
+                  {presentations.map((presentation) => (
+                    <MenuItem
+                      key={presentation.presentationId}
+                      value={presentation.presentationId}
+                    >
+                      {presentation.name}
+                    </MenuItem>
+                  ))}
+                </Styled.PresentationSelect>
+              )}
               {usersInRoom.length > 0 && (
                 <Styled.RoomCardUserList>
                   {usersInRoom.map((user) => (
@@ -200,32 +226,6 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
                     </Styled.RoomCardUserItem>
                   ))}
                 </Styled.RoomCardUserList>
-              )}
-              {presentations.length > 1 && (
-                <Styled.PresentationSelect
-                  value={getRoomPresentation(roomNum)}
-                  onChange={changeRoomPresentation(roomNum)}
-                  data-test={`changeSlideBreakoutRoom${roomNum}`}
-                  size="small"
-                  displayEmpty
-                >
-                  {currentPresentation && (
-                    <MenuItem
-                      key="current-slide"
-                      value={`${currentSlidePrefix}${currentPresentation}`}
-                    >
-                      {intl.formatMessage(intlMessages.currentSlide)}
-                    </MenuItem>
-                  )}
-                  {presentations.map((presentation) => (
-                    <MenuItem
-                      key={presentation.presentationId}
-                      value={presentation.presentationId}
-                    >
-                      {presentation.name}
-                    </MenuItem>
-                  ))}
-                </Styled.PresentationSelect>
               )}
             </Styled.RoomCard>
           );
