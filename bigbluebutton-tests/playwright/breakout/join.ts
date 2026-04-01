@@ -174,7 +174,9 @@ export class Join extends Create {
 
     await this.modPage.page.bringToFront();
 
+    await this.modPage.waitAndClick(e.roomOptions2);
     await this.modPage.waitAndClick(e.askJoinRoom2);
+    await this.modPage.waitAndClick(e.roomOptions2);
     await this.modPage.waitForSelector(e.alreadyConnected, ELEMENT_WAIT_LONGER_TIME);
 
     const breakoutModPage = await this.modPage.getLastTargetPage(this.context);
@@ -575,12 +577,15 @@ export class Join extends Create {
     await this.modPage.setHeightWidthViewPortSize(); // reset to default size
     // select different presentation for the first breakout room
     const changeSlideBreakoutLocator = await this.modPage.page.locator(e.changeSlideBreakoutRoom1);
+    // open the Select dropdown
+    await changeSlideBreakoutLocator.click();
+    const listbox = this.modPage.page.locator('ul[role="listbox"]');
     await expect(
-      changeSlideBreakoutLocator.locator('option'),
+      listbox.locator('li[role="option"]'),
       'should display 3 available option on presentation selection (current slide, default and uploaded presentation)',
     ).toHaveCount(3);
     // change to default, other breakout will have the uploaded one as it's the current presentation
-    await changeSlideBreakoutLocator.selectOption({ label: 'default.pdf' });
+    await listbox.locator('li[role="option"]', { hasText: 'default.pdf' }).click();
     await this.modPage.waitAndClick(e.createBreakoutRoomsButton);
     await this.userPage.waitAndClick(e.modalDismissButton);
     // join user to breakout room and check the presentation loaded

@@ -15,6 +15,7 @@ export const chromiumConfig: Project = {
         '--use-fake-device-for-media-stream',
         '--allow-file-access-from-files',
         `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video.y4m')}`,
+        '--font-render-hinting=none',
       ],
     },
   },

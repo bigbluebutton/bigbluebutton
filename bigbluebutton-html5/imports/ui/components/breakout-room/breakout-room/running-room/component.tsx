@@ -611,6 +611,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                           setOpenMenuBreakoutId(breakout.breakoutRoomMeetingId);
                         }
                       }}
+                      data-test={`roomOptions${breakout.sequence}`}
                       aria-label="Room options"
                       title={isListening
                         ? intl.formatMessage(intlMessages.stopListeningToRoom)
@@ -718,7 +719,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
           <Styled.RoomCardMenu>
             <Styled.RoomCardMenuItem
               onClick={() => handleEnterRoom(openBreakout)}
-              data-test={openBreakout.isUserCurrentlyInRoom ? 'alreadyConnected' : 'joinRoom'}
+              data-test={openBreakout.isUserCurrentlyInRoom ? 'alreadyConnected' : `askToJoinRoom${openBreakout.sequence}`}
               $disabled={openBreakout.isUserCurrentlyInRoom}
             >
               {openBreakout.isUserCurrentlyInRoom
