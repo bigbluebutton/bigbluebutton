@@ -10,8 +10,13 @@ const loadedFiles = {
   worklet: null,
 };
 
-// global audio processor so we can communicate with it
+// The active audio processor for runtime control (setWasmProcessorEnabled/Parameter etc).
+// Updated when a processor is adopted as the primary via doGUM.
 let audioProcessor = null;
+
+// Registry of all live {processor, audioContext} pairs, idx by output stream ID.
+// Allows explicit cleanup of specific processors without affecting others
+const processorRegistry = new Map();
 
 // check if wasm processor is supported, assigned to undefined if not checked yet
 let wasmProcessorUnsupportedError;
@@ -45,10 +50,9 @@ const createWasmProcessor = (audioContext, stream) => {
             processor.port.postMessage({ type: 'param', symbol: "pre_gain", value: 2 });
             processor.port.postMessage({ type: 'param', symbol: "post_gain", value: 0 });
 
-            audioProcessor = processor;
-            contextSource.connect(audioProcessor);
-            audioProcessor.connect(contextDestination);
-            resolve(contextDestination.stream);
+            contextSource.connect(processor);
+            processor.connect(contextDestination);
+            resolve({ stream: contextDestination.stream, processor });
           } else if (event.data?.type === 'error') {
             reject(event.data.error);
           }
@@ -132,54 +136,53 @@ const createWasmProcessor = (audioContext, stream) => {
           },
         };
 
-        audioProcessor = processor;
-        contextSource.connect(audioProcessor);
-        audioProcessor.connect(contextDestination);
-        resolve(contextDestination.stream);
+        contextSource.connect(processor);
+        processor.connect(contextDestination);
+        resolve({ stream: contextDestination.stream, processor });
       },
     });
   });
 };
 
 // create an audio processor on top of a stream, trigger Promise resolve with a processed stream
-const createWasmProcessorStream = (stream) => {
-  // cleanup old processor
-  if (audioProcessor) {
-    audioProcessor.port.postMessage({ type: 'destroy' });
-    audioProcessor = null;
-  }
+const createWasmProcessorStream = (stream) => new Promise((resolve, reject) => {
+  // fetch sampleRate from stream
+  const { sampleRate } = stream.getAudioTracks()[0]?.getSettings() || {};
 
-  return new Promise((resolve, reject) => {
-    // fetch sampleRate from stream
-    const sampleRate = stream.getAudioTracks()[0].getSettings().sampleRate;
+  // create audio context first
+  const audioContext = new AudioContext({ sampleRate });
+  const closeAndReject = (error) => {
+    audioContext.close?.().catch(() => {});
+    reject(error);
+  };
 
-    // create audio context first
-    const audioContext = new AudioContext({ sampleRate });
+  // function to load audio worklet, called once audio context is running
+  const loadAudioWorklet = () => {
+    createWasmProcessor(audioContext, stream).then(({ stream: outputStream, processor }) => {
+      processorRegistry.set(outputStream.id, {
+        processor,
+        context: audioContext,
+      });
+      resolve(outputStream);
+    }).catch(closeAndReject);
+  };
 
-    // function to load audio worklet, called once audio context is running
-    const loadAudioWorklet = () => {
-      createWasmProcessor(audioContext, stream).then((stream) => {
-        resolve(stream);
-      }).catch(reject);
-    };
-
-    // Firefox allows to resume right away, while Chrome does not
-    // handle both cases here
-    audioContext.resume().then(loadAudioWorklet).catch((err) => {
-      // Chrome does not allow to load worklet while audio context is suspended
-      // resuming audio context requires user interaction
-      if (audioContext.state === 'suspended') {
-        const resume = () => {
-          audioContext.resume().then(loadAudioWorklet).catch(reject);
-          document.removeEventListener('click', resume);
-        };
-        document.addEventListener('click', resume);
-      } else {
-        reject(err);
-      }
-    });
+  // Firefox allows to resume right away, while Chrome does not
+  // handle both cases here
+  audioContext.resume().then(loadAudioWorklet).catch((err) => {
+    // Chrome does not allow to load worklet while audio context is suspended
+    // resuming audio context requires user interaction
+    if (audioContext.state === 'suspended') {
+      const resume = () => {
+        audioContext.resume().then(loadAudioWorklet).catch(closeAndReject);
+        document.removeEventListener('click', resume);
+      };
+      document.addEventListener('click', resume);
+    } else {
+      closeAndReject(err);
+    }
   });
-};
+});
 
 const isWasmProcessorSupported = () => {
   if (typeof wasmProcessorUnsupportedError !== 'undefined') {
@@ -268,6 +271,34 @@ const loadWasmProcessorFiles = () => new Promise((resolve, reject) => {
   }).catch(catchHandler);
 });
 
+// Destroy a specific WASM processor by its output stream or stream ID.
+const destroyWasmProcessor = (streamOrId) => {
+  const streamId = typeof streamOrId === 'string' ? streamOrId : streamOrId?.id;
+
+  if (!streamId) return;
+
+  const entry = processorRegistry.get(streamId);
+
+  if (!entry) return;
+
+  entry.processor?.port?.postMessage({ type: 'destroy' });
+  entry.context?.close?.().catch(() => {});
+  processorRegistry.delete(streamId);
+
+  // Clear the runtime processor var if it pointed to the destroyed processor
+  if (audioProcessor === entry.processor) audioProcessor = null;
+};
+
+// Promote a processor (by its output stream) as the primary for runtime control.
+// Only called by doGUM when adoptProcessorAsPrimary=true (default). Preview/transient
+// processors should not be primary (e.g.: audio-settings/echo test)
+const adoptWasmProcessor = (streamOrId) => {
+  const streamId = typeof streamOrId === 'string' ? streamOrId : streamOrId?.id;
+  const entry = streamId ? processorRegistry.get(streamId) : null;
+
+  audioProcessor = entry?.processor || null;
+};
+
 // run-time changes to wasm processor
 const setWasmProcessorEnabled = (enabled) => {
   if (audioProcessor) {
@@ -282,7 +313,9 @@ const setWasmProcessorParameter = (index, value) => {
 };
 
 export {
+  adoptWasmProcessor,
   createWasmProcessorStream,
+  destroyWasmProcessor,
   isWasmProcessorSupported,
   loadWasmProcessorFiles,
   setWasmProcessorEnabled,

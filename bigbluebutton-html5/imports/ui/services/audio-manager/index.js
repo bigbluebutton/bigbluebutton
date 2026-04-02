@@ -17,6 +17,7 @@ import {
   storeAudioOutputDeviceId,
   getAudioConstraints,
   doGUM,
+  destroyWasmProcessor,
   isWasmProcessingEnabled,
 } from '/imports/api/audio/client/bridge/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
@@ -597,7 +598,7 @@ class AudioManager {
         && !callOptions.isListenOnly) {
         const constraints = getAudioConstraints({ deviceId: this?.bridge?.inputDeviceId });
 
-        this.inputStream = await doGUM({ audio: constraints }, true);
+        this.inputStream = await doGUM({ audio: constraints }, { retryOnFailure: true });
         await enumDevicesIfNecessary();
 
         // eslint-disable-next-line no-param-reassign
@@ -1100,6 +1101,7 @@ class AudioManager {
 
   liveChangeInputDevice(deviceId) {
     const currentDeviceId = this.inputDeviceId ?? 'none';
+    const prevInputStream = this.inputStream;
     const updateInputDevice = () => {
       const extractedDeviceId = MediaStreamUtils.extractDeviceIdFromStream(
         this.inputStream,
@@ -1121,6 +1123,11 @@ class AudioManager {
       .liveChangeInputDevice(deviceId)
       .then((stream) => {
         this.inputStream = stream;
+        // Clean up any previous WASM processor now that the switch succeeded.
+        if (prevInputStream && prevInputStream.id !== stream?.id) {
+          destroyWasmProcessor(prevInputStream);
+        }
+
         // Live input device change - add device ID to session storage so it
         // can be re-used on refreshes/other sessions
         const newDeviceId = updateInputDevice();
@@ -1157,6 +1164,12 @@ class AudioManager {
         }, `Input device live change failed - {${error.name}: ${error.message}}`);
         // Recover input stream from whatever is left in the bridge
         this.inputStream = this.bridge ? this.bridge.inputStream : this.inputStream;
+        // Clean up the previous stream's WASM processor if it differs from
+        // what the bridge rolled back to (avoids orphaned AudioContexts).
+        if (prevInputStream && (prevInputStream.id !== this.inputStream?.id)) {
+          destroyWasmProcessor(prevInputStream);
+        }
+
         // Rollback input device ID
         updateInputDevice();
         this.setSenderTrackEnabled(!this.isMuted);

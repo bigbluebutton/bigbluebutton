@@ -476,8 +476,12 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     const { deviceId = null, force = false } = options;
     const streamDeviceId = MediaStreamUtils.extractDeviceIdFromStream(stream, 'audio');
     const originalDeviceId = MediaStreamUtils.extractDeviceIdFromStream(this.originalStream, 'audio');
+    const originalStreamAlive = !!this.originalStream?.active
+      && this.originalStream.getAudioTracks().some((t) => t.readyState === 'live');
 
-    if ((!stream || this.originalStream?.id === stream.id || streamDeviceId === originalDeviceId)
+    if ((!stream
+      || this.originalStream?.id === stream.id
+      || (streamDeviceId === originalDeviceId && originalStreamAlive))
       && !force) {
       logger.debug({
         logCode: 'livekit_audio_set_input_stream_noop',

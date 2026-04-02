@@ -371,7 +371,7 @@ class SIPSession {
       return Promise.resolve(new MediaStream());
     }
 
-    return doGUM(constraints, true);
+    return doGUM(constraints, { retryOnFailure: true });
   }
 
   createUserAgent(iceServers) {
