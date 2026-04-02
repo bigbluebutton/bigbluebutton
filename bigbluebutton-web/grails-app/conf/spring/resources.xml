@@ -107,6 +107,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="fetchUrlSupportedProtocols" value="${fetchUrlSupportedProtocols}" />
         <property name="fetchUrlBlockedExternalHosts" value="${fetchUrlBlockedExternalHosts}" />
         <property name="fetchUrlAllowedLocalHosts" value="${fetchUrlAllowedLocalHosts}" />
+        <property name="localPluginUrlPrefix" value="${bigbluebutton.web.serverURL}/plugins" />
     </bean>
 
     <bean id="clientSettingsOverrideUrlValidator" class="org.bigbluebutton.api.service.impl.ClientSettingsOverrideUrlValidator">
