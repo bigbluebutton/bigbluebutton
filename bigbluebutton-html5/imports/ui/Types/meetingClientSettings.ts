@@ -678,11 +678,18 @@ export interface LiveKitSettings {
   screenshare?: LiveKitScreenShareSettings
 }
 
+export interface AudioWasmProcessingSettings {
+  enabled: boolean
+  // See: https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
+  constraints?: Record<string, unknown>
+}
+
 export interface Audio2 {
   defaultFullAudioBridge: string
   defaultListenOnlyBridge: string
   retryThroughRelay: boolean
   allowAudioJoinCancel: boolean
+  audioWasmProcessing?: AudioWasmProcessingSettings
 }
 
 export interface Screenshare2 {
