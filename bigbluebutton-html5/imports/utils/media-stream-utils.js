@@ -48,26 +48,20 @@ const getDeviceIdFromTrack = (track) => {
   return null;
 };
 
-// Tracks the real device ID for WASM-processed audio streams.
-// WASM processing (AudioContext.createMediaStreamDestination) creates tracks with
-// synthetic WebAudio-* device IDs. These IDs change on stream.clone(), making
-// things even more impractical. Since BBB only has one active microphone at a time
-// the most recently registered real device ID is always correct for any WebAudio-*
-// synthetic ID - prlanzarin
-let lastWasmRealDeviceId = null;
+// Maps synthetic WebAudio-* device IDs to real device IDs.
+// WASM-processed streams (from AudioContext.createMediaStreamDestination) have
+// a unique synthetic device ID per AudioContext. These IDs change on stream
+// cloning as well, making things even more impractical.
+// doGUM is charge of registering the mappings after WASM processing
+const wasmDeviceIdMap = new Map();
 
 const registerWasmDeviceId = (syntheticDeviceId, realDeviceId) => {
-  if (realDeviceId) lastWasmRealDeviceId = realDeviceId;
-};
-
-const resolveDeviceId = (deviceId) => {
-  if (deviceId && typeof deviceId === 'string'
-    && deviceId.startsWith('WebAudio-') && lastWasmRealDeviceId) {
-    return lastWasmRealDeviceId;
+  if (syntheticDeviceId && realDeviceId) {
+    wasmDeviceIdMap.set(syntheticDeviceId, realDeviceId);
   }
-
-  return deviceId;
 };
+
+const resolveDeviceId = (deviceId) => wasmDeviceIdMap.get(deviceId) ?? deviceId;
 
 const extractDeviceIdFromStream = (stream, kind) => {
   let tracks = [];

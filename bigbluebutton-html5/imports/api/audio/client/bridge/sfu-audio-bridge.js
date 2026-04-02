@@ -148,7 +148,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
 
   // eslint-disable-next-line class-methods-use-this
   mediaStreamFactory(constraints) {
-    return doGUM(constraints, true);
+    return doGUM(constraints, { retryOnFailure: true });
   }
 
   setConnectionTimeout() {
