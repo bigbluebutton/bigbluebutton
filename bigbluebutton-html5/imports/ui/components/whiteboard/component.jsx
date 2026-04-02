@@ -1775,12 +1775,16 @@ const Whiteboard = React.memo((props) => {
       const oldZ = camera.z;
       const newZ = adjustedZoom;
 
+      // Only adjust x/y to keep viewport center stable when restoring a stored
+      // zoom ratio (slide switch with user-defined zoom). On initial mount or
+      // fit-to-page operations the camera hasn't been user-positioned yet, so
+      // applying the offset would shift the slide off-center.
       const updatedCurrentCam = {
         ...camera,
-        x: (oldZ !== 0 && oldZ !== newZ)
+        x: (storedZoomRatio !== undefined && oldZ !== 0 && oldZ !== newZ)
           ? camera.x + (vw / 2) * (1 / newZ - 1 / oldZ)
           : camera.x,
-        y: (oldZ !== 0 && oldZ !== newZ)
+        y: (storedZoomRatio !== undefined && oldZ !== 0 && oldZ !== newZ)
           ? camera.y + (vh / 2) * (1 / newZ - 1 / oldZ)
           : camera.y,
         z: newZ,
