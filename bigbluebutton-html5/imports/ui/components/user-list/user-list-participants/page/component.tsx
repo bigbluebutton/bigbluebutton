@@ -5,6 +5,7 @@ import React, {
   useMemo,
   memo,
 } from 'react';
+import { defineMessages, useIntl } from 'react-intl';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { setLocalUserList, useLoadedUserList } from '/imports/ui/core/hooks/useLoadedUserList';
@@ -14,6 +15,7 @@ import { User } from '/imports/ui/Types/user';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { getUsersPerUserListPage } from '/imports/ui/components/user-list/service';
 import Styled from '../styles';
+import LocalStyled from './styles';
 import ListItem from '../list-item/component';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
@@ -45,6 +47,13 @@ interface UsersListParticipantsPage {
   offset: number;
   isBreakout: boolean;
 }
+
+const intlMessages = defineMessages({
+  noSearchResults: {
+    id: 'app.userList.noSearchResults',
+    description: 'Message shown when a search query is entered but no participants match the query',
+  },
+});
 
 const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
   users,
@@ -101,6 +110,7 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
   setVisibleUsers,
   searchQuery,
 }) => {
+  const intl = useIntl();
   const usersPerUserListPage = getUsersPerUserListPage();
   const offset = index * usersPerUserListPage;
   const limit = useRef(usersPerUserListPage);
@@ -221,6 +231,14 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
 
   if (!meeting || !currentUser) {
     return null;
+  }
+
+  if (index === 0 && displayUsers.length === 0) {
+    return (
+      <LocalStyled.EmptySearchMessage>
+        {intl.formatMessage(intlMessages.noSearchResults)}
+      </LocalStyled.EmptySearchMessage>
+    );
   }
 
   return (
