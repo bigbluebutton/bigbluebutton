@@ -108,9 +108,9 @@ const UnifiedLayout = (props) => {
 
     dropZones[CAMERADOCK_POSITION.CONTENT_RIGHT] = {
       top: DEFAULT_VALUES.navBarHeight + DROP_ZONE_DEFAUL_SIZE,
-      left: !isRTL
-        ? windowWidth() - DROP_ZONE_DEFAUL_SIZE - sidebarContentMarginToMedia
-        : sidebarContentMarginToMedia,
+      left: isRTL
+        ? sidebarContentMarginToMedia
+        : windowWidth() - DROP_ZONE_DEFAUL_SIZE - sidebarContentMarginToMedia,
       height: mediaAreaHeight - 2 * DROP_ZONE_DEFAUL_SIZE,
       width: DROP_ZONE_DEFAUL_SIZE,
       zIndex: cameraDockBounds.zIndex,
@@ -165,7 +165,7 @@ const UnifiedLayout = (props) => {
           return defaultsDeep(
             {
               sidebarNavigation: {
-                iisOpen: overrideOpenSidebarNavigation,
+                isOpen: overrideOpenSidebarNavigation,
                 registeredApps,
                 pinnedApps,
               },
@@ -350,9 +350,9 @@ const UnifiedLayout = (props) => {
         * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
 
       Storage.setItem('webcamSize', {
-        width: isCameraTopOrBottom || (
-          isCameraSidebar ? lastWidth : cameraDockInput.width - sidebarContentMarginToMedia
-        ),
+        width: (isCameraTopOrBottom || isCameraSidebar)
+          ? lastWidth
+          : cameraDockInput.width - sidebarContentMarginToMedia,
         height: isCameraTopOrBottom || isCameraSidebar ? cameraDockInput.height : lastHeight,
       });
 
@@ -420,7 +420,7 @@ const UnifiedLayout = (props) => {
 
       if (isCameraRight) {
         const sizeValue = mediaAreaBounds.left + mediaAreaBounds.width - cameraDockWidth;
-        cameraDockBounds.left = !isRTL ? sizeValue : 0;
+        cameraDockBounds.left = isRTL ? 0 : sizeValue;
         cameraDockBounds.right = isRTL ? sizeValue + sidebarSize : null;
       } else if (isCameraLeft) {
         cameraDockBounds.left = mediaAreaBounds.left;
@@ -457,7 +457,7 @@ const UnifiedLayout = (props) => {
       cameraDockBounds.maxWidth = sidebarContentWidth;
       cameraDockBounds.minHeight = cameraDockMinHeight;
       cameraDockBounds.height = cameraDockHeight;
-      cameraDockBounds.maxHeight = windowHeight() - sidebarContentMinHeight;
+      cameraDockBounds.maxHeight = windowHeight() - bannerAreaHeight() - sidebarContentMinHeight;
     }
     return cameraDockBounds;
   };
@@ -476,7 +476,7 @@ const UnifiedLayout = (props) => {
     const sidebarContentMarginToMedia = windowWidth()
       * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
     const mediaAreaWidth = windowWidth()
-      - (sidebarNavWidth + sidebarContentWidth) - (!isMobile ? sidebarContentMarginToMedia : 0);
+      - (sidebarNavWidth + sidebarContentWidth) - (isMobile ? 0 : sidebarContentMarginToMedia);
     const mediaBounds = {};
     const { element: fullscreenElement } = fullscreen;
     const { camerasMargin } = DEFAULT_VALUES;
