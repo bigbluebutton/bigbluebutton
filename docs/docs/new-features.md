@@ -151,11 +151,12 @@ Unified Layout behaves similarly to Custom Layout when the presentation is activ
 We have made significant changes to the architecture of BigBlueButton and have introduced support to plugins -- optional custom modules included in the client which allow expanding the capabilities of BigBlueButton. A data channel is provided to allow for data exchange between clients. See the [HTML5 Plugin SDK](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk) for examples and more information.
 
 At the moment of writing this documentation, the official list of plugins includes:
-- [Select Random User](https://github.com/bigbluebutton/plugin-pick-random-user)
+- [Pick Random User](https://github.com/bigbluebutton/plugin-pick-random-user)
 - [Share a link](https://github.com/bigbluebutton/plugin-generic-link-share)
 - [H5P plugin for BigBlueButton](https://github.com/bigbluebutton/plugin-h5p)
 - [Session share](https://github.com/bigbluebutton/plugin-session-share)
 - [Decrease the volume of external video when someone speaks](https://github.com/bigbluebutton/plugin-decrease-volume-on-speak)
+- [Live transcription](https://github.com/bigbluebutton/bbb-plugin-live-transcription)
 - [Typed captions](https://github.com/bigbluebutton/plugin-typed-captions)
 - [Source code highlight](https://github.com/bigbluebutton/plugin-code-highlight)
 - [Tour](https://github.com/bigbluebutton/plugin-tour)
