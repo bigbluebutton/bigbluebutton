@@ -416,7 +416,7 @@ jobs:
           echo "$SSH_KEY" | tr -d '\r' | ssh-add -
           rsync -avz -e "ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=10" \
             all-artifacts/*.deb ${REPO_USER}@${REPO_HOST}:/srv/apt-incoming/
-          # Trigger processing for the target codename (e.g. jammy)
+          # Trigger processing for the target codename (e.g. noble-40 or noble-41 or noble-41-dev)
           ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=10 \
             ${REPO_USER}@${REPO_HOST} \
             "sudo -u aptrepo /usr/local/bin/repo-process-incoming noble-40-dev"
