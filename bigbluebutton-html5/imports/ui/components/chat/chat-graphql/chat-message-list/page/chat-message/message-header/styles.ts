@@ -106,6 +106,34 @@ export const Center = styled.div`
   flex-grow: 1;
 `;
 
+export const HeaderActions = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  flex-shrink: 0;
+  margin-left: 0.15rem;
+`;
+
+export const PollHeaderAction = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.1rem 0.2rem;
+  display: inline-flex;
+  align-items: center;
+  color: ${colorGrayLight};
+  font-size: 0.9rem;
+  border-radius: 0.2rem;
+  line-height: 1;
+
+  &:hover,
+  &:focus {
+    color: ${colorGrayDark};
+    background-color: rgba(0, 0, 0, 0.08);
+    outline: none;
+  }
+`;
+
 export default {
   HeaderContent,
   ChatTime,
@@ -114,4 +142,6 @@ export default {
   ChatHeaderText,
   EditLabel,
   Center,
+  HeaderActions,
+  PollHeaderAction,
 };
