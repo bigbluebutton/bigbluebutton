@@ -889,7 +889,7 @@ check_state() {
     #
     FFMPEG_VERSION=$(ffmpeg -version 2>/dev/null | grep ffmpeg | cut -d ' ' -f3 | sed 's/--.*//g' | tr -d '\n')
     case "$FFMPEG_VERSION" in
-        4.*.*)
+        6.*.*)
             # This is the current supported version; OK.
             ;;
         '')
@@ -898,15 +898,9 @@ check_state() {
             echo
             ;;
         *)
-            echo "# Warning: The installed ffmpeg version '${FFMPEG_VERSION}' is not recommended."
-            echo "# Recommend you update to the 4.0.x version of ffmpeg.  To upgrade, do the following"
-            echo "#"
-            echo "#       $SUDO apt-get install software-properties-common"
-            echo "#       $SUDO add-apt-repository ppa:jonathonf/ffmpeg-4"
-            echo "#       $SUDO apt-get update"
-            echo "#       $SUDO apt-get dist-upgrade"
-            echo "#"
-            echo
+             # This is the current supported version; OK.
+            echo "# Warning: ffmpeg version '${FFMPEG_VERSION}' was found"
+            echo "#          It is different than the recommended version"
             ;;
     esac
 
