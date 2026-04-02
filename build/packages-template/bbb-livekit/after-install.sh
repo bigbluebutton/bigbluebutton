@@ -40,9 +40,9 @@ fi
 # This part is *temporary* to facilitate testing while the pkg is experimental.
 # We MUST move it to the SFU/recorder packages (and use the /usr/local file instead)
 # after bbb-livekit becomes mandatory and bbb-webrtc-sfu/recorder depends on it.
-if [ ! -f /etc/bigbluebutton/bbb-webrtc-sfu/production.yml ]; then
+if [ ! -s /etc/bigbluebutton/bbb-webrtc-sfu/production.yml ]; then
   mkdir -p /etc/bigbluebutton/bbb-webrtc-sfu
-  touch /etc/bigbluebutton/bbb-webrtc-sfu/production.yml
+  echo '{}' > /etc/bigbluebutton/bbb-webrtc-sfu/production.yml
   chown bigbluebutton:bigbluebutton /etc/bigbluebutton/bbb-webrtc-sfu/production.yml
 fi
 

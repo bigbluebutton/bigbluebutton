@@ -474,7 +474,7 @@ To ensure that your modifications are not lost when a new version of the package
 
 You can disable webcams by setting `enableVideo` to `false` in the `/etc/bigbluebutton/bbb-html5.yml` file for the HTML5 client.
 
-`touch /etc/bigbluebutton/bbb-html5.yml`
+`test -s /etc/bigbluebutton/bbb-html5.yml || echo '{}' > /etc/bigbluebutton/bbb-html5.yml`
 `yq -y -i '.public.kurento.enableVideo = false' /etc/bigbluebutton/bbb-html5.yml`
 
 and run `bbb-conf --restart`
@@ -483,7 +483,7 @@ and run `bbb-conf --restart`
 
 You can disable screen sharing by setting `enableScreensharing` to `false` in the `/etc/bigbluebutton/bbb-html5.yml` file for the HTML5 client.
 
-`touch /etc/bigbluebutton/bbb-html5.yml`
+`test -s /etc/bigbluebutton/bbb-html5.yml || echo '{}' > /etc/bigbluebutton/bbb-html5.yml`
 `yq -y -i '.public.kurento.enableScreensharing = false' /etc/bigbluebutton/bbb-html5.yml`
 
 #### Reduce bandwidth for webcams
@@ -497,14 +497,14 @@ you would want to proceed with caution. You would likely only want to run the co
 The following command will copy ALL of the DEFAULT camera profiles from the source `/usr/share/bigbluebutton/html5-client/private/config/settings.yml` to
 the override location `/etc/bigbluebutton/bbb-html5.yml`. If you had previous related overrides, you likely do not want to run this command.
 
-`touch /etc/bigbluebutton/bbb-html5.yml`
+`test -s /etc/bigbluebutton/bbb-html5.yml || echo '{}' > /etc/bigbluebutton/bbb-html5.yml`
 `yq -y -i '.public.kurento.cameraProfiles = (load("/usr/share/bigbluebutton/html5-client/private/config/settings.yml") | .public.kurento.cameraProfiles)' /etc/bigbluebutton/bbb-html5.yml`
 
 Now that you have the list of camera profiles in `/etc/bigbluebutton/bbb-html5.yml`, the following `yq` commands will tweak the bitrate and whether the profile is default.
 
 ```bash
 echo "  - Setting camera defaults"
-touch /etc/bigbluebutton/bbb-html5.yml
+test -s /etc/bigbluebutton/bbb-html5.yml || echo '{}' > /etc/bigbluebutton/bbb-html5.yml
 
 yq -y -i '( .public.kurento.cameraProfiles[] | select(.id == "low") ).bitrate = 50' /etc/bigbluebutton/bbb-html5.yml
 yq -y -i '( .public.kurento.cameraProfiles[] | select(.id == "medium") ).bitrate = 100' /etc/bigbluebutton/bbb-html5.yml
@@ -1370,7 +1370,7 @@ public:
 The following command can be used too.
 
 ```bash
-$ touch /etc/bigbluebutton/bbb-html5.yml
+$ test -s /etc/bigbluebutton/bbb-html5.yml || echo '{}' > /etc/bigbluebutton/bbb-html5.yml
 $ yq -y -i ".public.app.clientTitle = \"New Title\"" /etc/bigbluebutton/bbb-html5.yml
 ```
 
@@ -1451,7 +1451,7 @@ Next, run `sudo bbb-conf --setip <hostname>` where \<hostname\> is the external 
 Next, to enable gladia.io, run the following two commands
 
 ```
-sudo touch /etc/bigbluebutton/bbb-html5.yml
+sudo test -s /etc/bigbluebutton/bbb-html5.yml || sudo sh -c "echo '{}' > /etc/bigbluebutton/bbb-html5.yml"
 sudo yq -y -i '.public.app.audioCaptions.enabled = true' /etc/bigbluebutton/bbb-html5.yml
 sudo yq -y -i '.public.app.audioCaptions.provider = "gladia"' /etc/bigbluebutton/bbb-html5.yml
 ```
