@@ -47,7 +47,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </bean>
 
     <bean id="meetingService" class="org.bigbluebutton.api.MeetingService"
-          init-method="start" destroy-method="stop" lazy-init="true">
+          init-method="start" destroy-method="stop">
         <property name="redisStorageService" ref="redisStorageService"/>
         <property name="learningDashboardService" ref="learningDashboardService"/>
         <property name="recordingService" ref="recordingService"/>
@@ -121,7 +121,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </bean>
 
     <bean id="presDownloadService" class="org.bigbluebutton.presentation.PresentationUrlDownloadService"
-          destroy-method="stop" lazy-init="true">
+          destroy-method="stop">
         <property name="presentationDir" value="${presentationDir}"/>
         <property name="presentationBaseURL" value="${presentationBaseURL}"/>
         <property name="pageExtractor" ref="pageExtractor"/>
