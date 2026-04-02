@@ -92,7 +92,8 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   // --- End of plugin related code ---
 
   const renderedPaginatedUsers = useMemo(() => {
-    const amountOfPages = Math.ceil(count / usersPerUserListPage);
+    // Render one page even if there are no users to show the empty state message if needed
+    const amountOfPages = count === 0 ? 1 : Math.ceil(count / usersPerUserListPage);
 
     return Array.from({ length: amountOfPages }).map((_, i) => {
       const isLastItem = amountOfPages === (i + 1);
