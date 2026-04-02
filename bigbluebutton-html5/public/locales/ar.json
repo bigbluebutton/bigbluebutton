@@ -63,7 +63,7 @@
     "app.chat.header.tooltipReact": "الرد على الرسالة",
     "app.chat.content.pollVote": "تصويت",
     "app.chat.content.pollVotes": "الأصوات",
-    "app.chat.pollResult.copy": "Copy results",
+    "app.chat.pollResult.copy": "نسخ النتائج",
     "app.chat.pollResult.copySuccess": "Copied!",
     "app.chat.pollResult.download": "Download as PNG",
     "app.chat.plugin.metadataInformation": "{userName} - {pluginName}",
