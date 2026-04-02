@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import MeetingRemainingTime from '/imports/ui/components/common/remaining-time/meeting-duration/component';
 import { useReactiveVar } from '@apollo/client';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import { layoutSelectInput, layoutDispatch } from '../layout/context';
 import { ACTIONS } from '../layout/enums';
 
@@ -47,7 +47,6 @@ const intlMessages = defineMessages({
 const STATUS_CRITICAL = 'critical';
 const COLOR_PRIMARY = 'primary';
 const CONNECTION_ERROR_TOAST_ID = 'connection-error-notification';
-const CONNECTION_ERROR_CONTAINER_ID = 'connection-error-toast-container';
 
 const NotificationsBarContainer = () => {
   const intl = useIntl();
@@ -174,6 +173,8 @@ const NotificationsBarContainer = () => {
     return null;
   }, [meeting?.isBreakout, meeting?.componentsFlags?.showRemainingTime]);
 
+  const connectionToastRef = useRef(null);
+
   useEffect(() => {
     if (errorMessage) {
       const reloadContent = subscriptionFailed ? (
@@ -198,22 +199,24 @@ const NotificationsBarContainer = () => {
         </ToastStyled.ToastWrapper>
       );
 
-      if (toast.isActive(CONNECTION_ERROR_TOAST_ID)) {
-        toast.update(CONNECTION_ERROR_TOAST_ID, { render: toastContent });
+      if (connectionToastRef.current && toast.isActive(connectionToastRef.current)) {
+        toast.update(connectionToastRef.current, { render: toastContent });
       } else {
-        toast(toastContent, {
+        connectionToastRef.current = toast(toastContent, {
           toastId: CONNECTION_ERROR_TOAST_ID,
-          containerId: CONNECTION_ERROR_CONTAINER_ID,
           autoClose: false,
         });
       }
-    } else if (toast.isActive(CONNECTION_ERROR_TOAST_ID)) {
-      toast.dismiss(CONNECTION_ERROR_TOAST_ID);
+    } else if (connectionToastRef.current) {
+      toast.dismiss(connectionToastRef.current);
+      connectionToastRef.current = null;
     }
   }, [errorMessage, subscriptionFailed, intl]);
 
   useEffect(() => () => {
-    toast.dismiss(CONNECTION_ERROR_TOAST_ID);
+    if (connectionToastRef.current) {
+      toast.dismiss(connectionToastRef.current);
+    }
   }, []);
 
   useEffect(() => {
@@ -223,27 +226,12 @@ const NotificationsBarContainer = () => {
     }
   }, [meetingMessage, hasNotification, dispatch]);
 
-  if (!meetingMessage || !hasNotification) {
-    return (
-      <ToastContainer
-        containerId={CONNECTION_ERROR_CONTAINER_ID}
-        enableMultiContainer
-        rtl
-      />
-    );
-  }
+  if (!meetingMessage || !hasNotification) return null;
 
   return (
-    <>
-      <ToastContainer
-        containerId={CONNECTION_ERROR_CONTAINER_ID}
-        enableMultiContainer
-        rtl
-      />
-      <NotificationsBar color={COLOR_PRIMARY}>
-        {meetingMessage}
-      </NotificationsBar>
-    </>
+    <NotificationsBar color={COLOR_PRIMARY}>
+      {meetingMessage}
+    </NotificationsBar>
   );
 };
 
