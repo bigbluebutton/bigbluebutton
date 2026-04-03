@@ -438,7 +438,7 @@ export const elements = {
   viewerAvatar: 'div[data-test="viewerAvatar"]',
   userListItem: 'div[data-test="userListItem"]',
   usersListSidebarButton: 'div[data-test="usersListSidebarButton"]',
-  toggleSidebarNavigation: 'button[data-test="toggleSidebarNavigation"]',
+  toggleSidebarNavigation: 'button[data-test="toggleSidebarNavigation"], button[data-test="hasUnreadMessages"]',
   currentUser: 'div[data-test="userListItemCurrent"]',
   manageUsers: 'button[data-test="manageUsers"]',
   presenterClassName: 'presenter--',
