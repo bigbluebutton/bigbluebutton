@@ -1443,20 +1443,20 @@ Next, run `sudo bbb-conf --setip <hostname>` where \<hostname\> is the external 
 
 Next, to enable gladia.io, run the following two commands
 
-```
+```bash
 sudo yq e -i '.public.app.audioCaptions.enabled = true' /etc/bigbluebutton/bbb-html5.yml
 sudo yq e -i '.public.app.audioCaptions.provider = "gladia"' /etc/bigbluebutton/bbb-html5.yml
 ```
 
 Next, set the gladia.io API key using the command below, replacing \<gladia_api_key\> with a glada.io API key obtained above.
 
-```
+```bash
 sudo yq e -i '.gladia.startMessage = "{\"x_gladia_key\": \"<gladia-api-key>\", \"sample_rate\": 0, \"bit_depth\": 16, \"model_type\": \"fast\", \"endpointing\": 10 }"' /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml
 ```
 
 If you are running BigBlueButton version **3.0** or higher, use release version **>0.3.x** of the [bbb-transcription-controller](https://github.com/bigbluebutton/bbb-transcription-controller/) repository, install the Live Transcription plugin [https://github.com/bigbluebutton/bbb-plugin-live-transcription](https://github.com/bigbluebutton/bbb-plugin-live-transcription) and use the following startMessage:
 
-```
+```bash
 sudo yq e -i '.gladia.startMessage = "{\"sample_rate\": 16000, \"bit_depth\": 16, \"endpointing\": 0.01 }"' /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml
 ```
 
