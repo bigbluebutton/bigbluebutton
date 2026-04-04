@@ -178,6 +178,7 @@ const Whiteboard = React.memo((props) => {
 
   const [isMounting, setIsMounting] = React.useState(true);
   const [cursorType, setCursorType] = React.useState('');
+  const [laserMode, setLaserMode] = React.useState('');
 
   if (isMounting) {
     setDefaultEditorAssetUrls(getCustomEditorAssetUrls());
