@@ -2222,7 +2222,7 @@ const Whiteboard = React.memo((props) => {
   // Show viewers Laser SVG
   React.useEffect(() => {
     if (isPresenter) return;
-    if (isMultiUserActive) return;
+    //if (isMultiUserActive) return;
 
     const tlContainer = document.querySelector('.tl-container');
 
