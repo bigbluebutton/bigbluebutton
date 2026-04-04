@@ -65,7 +65,7 @@
     "app.chat.content.pollVotes": "投票",
     "app.chat.pollResult.copy": "結果をコピー",
     "app.chat.pollResult.copySuccess": "コピーしました！",
-    "app.chat.pollResult.download": "Download as PNG",
+    "app.chat.pollResult.download": "PNG形式でダウンロード",
     "app.chat.plugin.metadataInformation": "{userName} - {pluginName}",
     "app.timer.toolTipTimerStopped": "タイマーを止めました。",
     "app.timer.toolTipTimerRunning": "タイマーは動いています。",
