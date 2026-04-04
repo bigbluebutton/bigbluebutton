@@ -424,7 +424,7 @@ jar -xvf ../build/libs/bigbluebutton-0.10.0.war
 Then copy the `run-prod.sh` after checking all the jar dependencies are listed in
 
 ```bash
-cp ../run-prod.sh .
+cp ../run-in-systemd.sh .
 ```
 
 In the next step we will make a copy of the current production directory for `bbb-web`
