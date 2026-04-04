@@ -1777,7 +1777,7 @@ const Whiteboard = React.memo((props) => {
 
     // On Windows and Linux, it darkens towards the edge
     return `
-      <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+      <svg class="bbb-laser-pointer" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
         <defs>
           <radialGradient id="g-${id}">
             <stop offset="0%" stop-color="${color}" stop-opacity="0.95"/>
@@ -2219,6 +2219,12 @@ const Whiteboard = React.memo((props) => {
     }
   }, [otherCursors, whiteboardWriters]);
 
+  const removeViewerLaser = () => {
+    laserElRef.current = null;
+    const lasers = document.querySelectorAll('.bbb-laser-pointer');
+    lasers.forEach(el => el.remove());
+  };
+
   // Show viewers Laser SVG
   React.useEffect(() => {
     if (isPresenter) return;
@@ -2278,7 +2284,10 @@ const Whiteboard = React.memo((props) => {
     //const y = parseFloat(match[2]);
     const x = presenterCursor.xPercent;
     const y = presenterCursor.yPercent;
-    if (x === -1 || y === -1) return;
+    if (x === -1 || y === -1) {
+      removeViewerLaser();
+      return;
+    }
 
     // Keep cursor size regardless of the slide zoom or window size change,
     //   the same behaviour as the presenter's CSS-based laser pointer and a real laser.
@@ -2288,6 +2297,10 @@ const Whiteboard = React.memo((props) => {
     `;
     return;
   }, [otherCursors, isPresenter]);
+
+  React.useEffect(() => {
+    removeViewerLaser();
+  }, [curPageId]);
 
   const updateStore = (pages, cameras) => {
     tlEditorRef.current.store.put(pages);
