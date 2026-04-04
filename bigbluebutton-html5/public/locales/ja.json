@@ -1118,7 +1118,7 @@
     "app.notification.recordingAriaLabel": "録画時間",
     "app.notification.userJoinPushAlert": "{userName} が会議に参加しました",
     "app.notification.userLeavePushAlert": "{userName} が会議をから退出しました",
-    "app.notification.presenterRequestApproved.title": "{presenterName} is now the presenter",
+    "app.notification.presenterRequestApproved.title": "{presenterName} が発表者です",
     "app.notification.presenterRequestApproved": "Set by: {approvedByName}",
     "app.submenu.notification.raiseHandLabel": "挙手",
     "app.shortcut-help.title": "キーボードショートカット",
