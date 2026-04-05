@@ -2039,6 +2039,7 @@ const Whiteboard = React.memo((props) => {
         menuEl.remove();
         menuEl = null;
         targetDoc.removeEventListener('mousedown', handleOutsideClick);
+        targetDoc.removeEventListener('touchstart', handleOutsideClick);
       }
     };
 
@@ -2109,6 +2110,7 @@ const Whiteboard = React.memo((props) => {
       }
 
       targetDoc.addEventListener('mousedown', handleOutsideClick);
+      targetDoc.addEventListener('touchstart', handleOutsideClick);
     };
 
     const handleContextMenu = (e) => {
