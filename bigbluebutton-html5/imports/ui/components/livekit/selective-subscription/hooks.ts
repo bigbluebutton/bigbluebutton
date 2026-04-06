@@ -127,45 +127,53 @@ const useDebouncedMuteState = (
 ): Record<string, boolean> => {
   const { data: unmutedUsers } = useWhoIsUnmuted();
   const [debouncedState, setDebouncedState] = useState<Record<string, boolean>>(unmutedUsers || {});
+  const debouncedStateRef = useRef(debouncedState);
+  debouncedStateRef.current = debouncedState;
   const debounceTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   useEffect(() => {
     participants.forEach((participant) => {
       const userId = participant.identity;
       const currUnmuted = unmutedUsers[userId] ?? false;
-      const prevUnmuted = debouncedState[userId] ?? false;
+      const prevUnmuted = debouncedStateRef.current[userId] ?? false;
 
-      if (currUnmuted !== prevUnmuted) {
-        const existingTimer = debounceTimers.current.get(userId);
+      if (currUnmuted === prevUnmuted && !debounceTimers.current.has(userId)) return;
 
-        if (existingTimer) clearTimeout(existingTimer);
+      const existingTimer = debounceTimers.current.get(userId);
 
-        // Immediately apply transitions from muted -> unmuted (subscription)
-        if (currUnmuted) {
-          setDebouncedState((prev) => ({
-            ...prev,
-            [userId]: true,
-          }));
-        } else {
-          // Debounce transitions from unmuted -> muted (unsubscription)
-          const timer = setTimeout(() => {
-            setDebouncedState((prev) => ({
-              ...prev,
-              [userId]: false,
-            }));
-            debounceTimers.current.delete(userId);
-          }, debounceMs);
-
-          debounceTimers.current.set(userId, timer);
+      // Immediately apply transitions from muted -> unmuted (subscription)
+      if (currUnmuted) {
+        if (existingTimer) {
+          clearTimeout(existingTimer);
+          debounceTimers.current.delete(userId);
         }
+
+        setDebouncedState((prev) => {
+          if (prev[userId] === true) return prev;
+
+          return { ...prev, [userId]: true };
+        });
+      } else if (!existingTimer) {
+        // Debounce transitions from unmuted -> muted (unsubscription).
+        // Only set a timer if one isn't already pending.
+        const timer = setTimeout(() => {
+          setDebouncedState((prev) => {
+            if (prev[userId] === false || !(userId in prev)) return prev;
+            return { ...prev, [userId]: false };
+          });
+          debounceTimers.current.delete(userId);
+        }, debounceMs);
+        debounceTimers.current.set(userId, timer);
       }
     });
+  }, [participants, unmutedUsers]);
 
+  useEffect(() => {
     return () => {
       debounceTimers.current.forEach(clearTimeout);
       debounceTimers.current.clear();
     };
-  }, [participants, unmutedUsers]);
+  }, []);
 
   return debouncedState;
 };
