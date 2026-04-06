@@ -241,6 +241,10 @@ const TldrawV2GlobalStyle = createGlobalStyle`
 
     return `.tlui-layout__bottom { top: ${topValue} !important; }${additionalStyles}`;
   }}
+  ${({ hiddenGeoShapes }) => hiddenGeoShapes?.length > 0 && hiddenGeoShapes.map((shape) => `
+    [data-testid="style.geo.${shape}"] { display: none !important; }
+  `).join('')}
+
   [data-darkreader-scheme="dark"] button[data-testid="mobile.styles"] {
     & > div.tlui-icon {
       color: ${colorWhite};
