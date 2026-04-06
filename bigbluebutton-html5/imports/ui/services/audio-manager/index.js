@@ -135,6 +135,17 @@ class AudioManager {
     checkMediaDevicesTarget();
   }
 
+  isUsingLiveKit() {
+    return this.bridge?.bridgeName === 'livekit';
+  }
+
+  shouldUseLiveKitAudioState() {
+    const livekitConfig = window?.meetingClientSettings?.public?.media?.livekit;
+    const useLiveKitAudioState = livekitConfig?.audio?.useLiveKitAudioState ?? false;
+
+    return this.isUsingLiveKit() && useLiveKitAudioState;
+  }
+
   onBeforeUnload() {
     const CONFIRMATION_ON_LEAVE = window.meetingClientSettings.public.app.askForConfirmationOnLeave;
     if (!CONFIRMATION_ON_LEAVE) {
@@ -357,7 +368,10 @@ class AudioManager {
     this._applyCachedOutputDeviceId();
     this.transparentListenOnlySupported = this.supportsTransparentListenOnly();
     this.audioEventHandler = audioEventHandler;
-    this.observeVoiceActivity();
+
+    // Only observe GraphQL voice activity if not using LiveKit's audio state
+    if (!this.shouldUseLiveKitAudioState()) this.observeVoiceActivity();
+
     this.initialized = true;
   }
 
@@ -715,15 +729,24 @@ class AudioManager {
     return this.bridge.transferCall(this.onAudioJoin.bind(this));
   }
 
-  onVoiceUserChanges(fields = {}) {
+  onVoiceUserChanges({
+    leftVoiceConf,
+    muted,
+    talking,
+  } = {}) {
+    // When using LiveKit audio state, mute/talking states are derived
+    // via the useAudioManagerStateSync hook, which pulls data from the unified
+    // audio state hooks (useWhoIsUnmuted and useWhoIsTalking).
+    if (this.shouldUseLiveKitAudioState()) return;
+
     let newMuteState;
 
     // when user leaves voice conf, set muted = false
     // as the user might have been transfered to a breakout room
-    if (fields.leftVoiceConf !== undefined && fields.leftVoiceConf) {
+    if (leftVoiceConf !== undefined && leftVoiceConf) {
       newMuteState = false;
-    } else if (fields.muted !== undefined && fields.muted !== this.isMuted) {
-      newMuteState = fields.muted;
+    } else if (muted !== undefined && muted !== this.isMuted) {
+      newMuteState = muted;
     }
 
     if (newMuteState !== undefined && newMuteState !== this.isMuted) {
@@ -736,8 +759,8 @@ class AudioManager {
       }
     }
 
-    if (fields.talking !== undefined && fields.talking !== this.isTalking) {
-      this.isTalking = fields.talking;
+    if (talking !== undefined && talking !== this.isTalking) {
+      this.isTalking = talking;
     }
 
     if (this.isMuted) {

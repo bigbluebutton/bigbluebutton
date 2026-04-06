@@ -957,6 +957,9 @@ public:
       audio:
         # unpublishOnMute: whether to unpublish audio tracks when muted. Default is true.
         unpublishOnMute: true
+        # useLiveKitAudioState: whether to use LiveKit's client-side audio state
+        # instead of BBB's audio state. Default is false.
+        useLiveKitAudioState: false
         # publishOptions: see https://docs.livekit.io/client-sdk-js/interfaces/TrackPublishOptions.html
         publishOptions:
           audioPreset:
