@@ -115,6 +115,22 @@ jobs:
         run: |
           ./build/get_external_dependencies.sh
           echo "${{ matrix.build-list || matrix.package }}" | xargs -n 1 ./build/setup.sh
+      - name: Include external dependency .debs in artifacts
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          # Download external deps if not already present (e.g. from cache hit)
+          if [ ! -d "bbb-presentation-video" ]; then
+            bash -xe bbb-presentation-video.placeholder.sh || true
+          fi
+          # Copy any external dep .debs into artifacts
+          for dir in bbb-presentation-video; do
+            if [ -d "$dir" ]; then
+              echo "Including external deps from $dir/"
+              ls "$dir"/*.deb 2>/dev/null
+              cp "$dir"/*.deb artifacts/ 2>/dev/null || true
+            fi
+          done
       - name: Sanitize artifact filenames
         shell: bash
         run: |
