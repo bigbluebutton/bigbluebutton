@@ -57,7 +57,7 @@ else
 end
 logger = BigBlueButton.logger
 
-if File.exists?(donefile)
+if File.exist?(donefile)
   logger.warn "This processing script has already been run"
   exit 0
 end

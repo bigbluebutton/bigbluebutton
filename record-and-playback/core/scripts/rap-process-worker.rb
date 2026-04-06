@@ -58,10 +58,10 @@ def process_archived_meetings(recording_dir)
       process_type = match2[1]
 
       processed_done = "#{recording_dir}/status/processed/#{done_base}-#{process_type}.done"
-      next if File.exists?(processed_done)
+      next if File.exist?(processed_done)
 
       processed_fail = "#{recording_dir}/status/processed/#{done_base}-#{process_type}.fail"
-      if File.exists?(processed_fail)
+      if File.exist?(processed_fail)
         step_succeeded = false
         next
       end
@@ -86,7 +86,7 @@ def process_archived_meetings(recording_dir)
         IO.write("#{process_dir}/processing_time", step_time)
       end
 
-      step_succeeded = (ret == 0 and File.exists?(processed_done))
+      step_succeeded = (ret == 0 and File.exist?(processed_done))
 
       BigBlueButton.redis_publisher.put_process_ended(process_type, meeting_id, {
         "success" => step_succeeded,

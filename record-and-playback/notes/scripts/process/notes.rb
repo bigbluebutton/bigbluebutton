@@ -56,7 +56,7 @@ if not FileTest.directory?(target_dir)
   FileUtils.mkdir_p target_dir
 
   # Early exit if there isn't notes for this meeting
-  if not File.exists? note_file
+  if not File.exist? note_file
     BigBlueButton.logger.info("There wasn't any note for #{meeting_id}")
     process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-notes.done", "w")
     process_done.write("Processed #{meeting_id}")
