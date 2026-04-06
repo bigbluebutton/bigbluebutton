@@ -1,5 +1,8 @@
 import { elements as e } from '../core/elements';
 
+export const CUSTOM_STYLE_CSS = `${e.presentationTitle}{display: none;}`;
+export const CUSTOM_STYLE_URL = 'http://bbb-test-stub.local/css-test-file.css';
+
 export const constants = {
   // Create Parameters
   bannerText: 'bannerText=some+text',
@@ -55,8 +58,8 @@ export const constants = {
   multiUserPenOnly: 'userdata-bbb_multi_user_pen_only=true',
   presenterTools: 'userdata-bbb_presenter_tools=["select","draw", "arrow"]',
   multiUserTools: 'userdata-bbb_multi_user_tools=["arrow","text"]',
-  customStyle: `userdata-bbb_custom_style=${e.presentationTitle}{display: none;}`,
-  customStyleUrl: 'userdata-bbb_custom_style_url=https://dev30.bigbluebutton.org/css-test-file.css',
+  customStyle: `userdata-bbb_custom_style=${CUSTOM_STYLE_CSS}`,
+  customStyleUrl: `userdata-bbb_custom_style_url=${CUSTOM_STYLE_URL}`,
   autoSwapLayout: 'userdata-bbb_auto_swap_layout=true',
   hidePresentationOnJoin: 'userdata-bbb_hide_presentation_on_join=true',
   outsideToggleSelfVoice: 'userdata-bbb_outside_toggle_self_voice=true',
