@@ -106,7 +106,7 @@ enableUFWRules() {
       echo "  - Local haproxy detected and running -- opening port 3478"
       ufw allow 3478
       # echo "  - Forcing FireFox to use turn server"
-      # yq e -i '.public.kurento.forceRelayOnFirefox = true' $HTML5_CONFIG
+      # yq -y -i '.public.kurento.forceRelayOnFirefox = true' $HTML5_CONFIG
     else
       if grep -q 3478 /etc/ufw/user.rules; then
         echo "  - Local haproxy not running -- closing port 3478"

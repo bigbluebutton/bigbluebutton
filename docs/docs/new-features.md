@@ -27,6 +27,75 @@ Here's a breakdown of what's new in 3.1.
 
 ### Experimental
 
+#### Integration with LiveKit
+
+We have added initial support for LiveKit as a media framework for BigBlueButton.
+It's an experimental feature and, consequently, disabled by default.
+For an in-depth overview of this initiative, please refer to [issue 21059](https://github.com/bigbluebutton/bigbluebutton/issues/21059).
+Feature parity with the current media framework is not yet achieved, but the
+aforementioned issue provides parity tracking in section `Annex 1`.
+
+To enable support for LiveKit:
+1. Install bbb-livekit: `$ sudo apt-get install bbb-livekit`
+2. Enable the LiveKit controller module in bbb-webrtc-sfu:
+
+```
+if [ ! -s /etc/bigbluebutton/bbb-webrtc-sfu/production.yml ]; then echo '{}' > /etc/bigbluebutton/bbb-webrtc-sfu/production.yml; fi
+`yq -y -i '.livekit.enabled = true' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
+```
+
+3. Restart bbb-webrtc-sfu: `$ sudo systemctl restart bbb-webrtc-sfu`
+4. Guarantee that Node.js 22 is installed in your server: `$ node -v`
+    * Older 3.0 installations might still be using Node.js 18. If that's the case,
+      re-run bbb-install or correct any custom installation scripts to ensure
+      Node.js 22 is installed.
+5. Only when using BigBlueButton via the [cluster proxy](/administration/cluster-proxy) configuration:
+    1. Set the appropriate LiveKit endpoint URL in bbb-html5.yml's `public.media.livekit.url`. See
+      the aforementioned [docs section](/administration/cluster-proxy.md#bigbluebutton-servers) for details.
+
+We also *strongly recommend* setting up network interface filtering in LiveKit.
+While optional, this speeds up negotation times and works around an issue with the latest
+LiveKit versions that might cause CPU spikes if there's no filtering in place.
+To set up network interface filtering:
+1. Gather relevant network interfaces names to be used for media communication.
+For most setups, the default network interface is enough. See the `route` command
+to find it (`Destination: default`). If any other network interfaces are needed,
+make note of them.
+2. Set the following in `/etc/bigbluebutton/livekit.yaml`:
+```yaml
+rtc:
+  interfaces:
+    includes:
+      - <network_interface_name_1>
+      - <any_other_network_interface_name>
+```
+3. Restart livekit-server: `$ sudo systemctl restart livekit-server`
+
+Once enabled, LiveKit still won't be used by default. There are two ways to make
+use of it in meetings:
+- Per meeting: set any of the following meeting `/create` parameters
+  - `audioBridge=livekit`
+  - `cameraBridge=livekit`
+  - `screenShareBridge=livekit`
+- Server-wide: set any of the following properties in `/etc/bigbluebutton/bbb-web.properties`
+  - `audioBridge=livekit`
+  - `cameraBridge=livekit`
+  - `screenShareBridge=livekit`
+
+Those parameters do *not* need to be set concurrently. LiveKit can be enabled for
+audio only, for example, while keeping the current media framework for camera
+and screen sharing by setting just `audioBridge=livekit`.
+
+As of BigBlueButton v3.0.7, recording is enabled by default for LiveKit sessions
+via the bbb-webrtc-recorder application. If `livekit/egress` was previously
+installed in a server, any steps done to enable it should be reverted. Refer to
+the [previous installations steps](https://github.com/bigbluebutton/bigbluebutton/blob/6eab874ffa8d0e82453dad3b06621dea16e15e6d/docs/docs/new-features.md?plain=1#L209-L237).
+
+Keep in mind that the LiveKit integration is still experimental and not feature
+complete. Configuration, API parameters, and other details are subject to change.
+We encourage users to test it and provide feedback via our GitHub issue tracker
+or the mailing lists.
+
 
 ### Upgraded components
 
