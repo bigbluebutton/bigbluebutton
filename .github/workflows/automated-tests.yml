@@ -76,7 +76,7 @@ jobs:
             build-list: bbb-webrtc-sfu bbb-webrtc-recorder
             cache-files-list: bbb-webrtc-sfu.placeholder.sh bbb-webrtc-recorder.placeholder.sh
           - package: others
-            build-list: bbb-mkclean bbb-pads bbb-libreoffice-docker bbb-transcription-controller bigbluebutton bbb-livekit
+            build-list: bbb-mkclean bbb-pads bbb-libreoffice-docker bbb-transcription-controller bbb-livekit
             cache-files-list: bbb-pads.placeholder.sh bbb-libreoffice bbb-transcription-controller.placeholder.sh
     steps:
       - name: Checkout PR's source merged into its target branch
@@ -99,8 +99,9 @@ jobs:
           echo "CACHE_KEY_FILES=$CACHE_DIGEST" >> $GITHUB_ENV
           echo "CACHE_KEY_URLS=$(echo '${{ matrix.cache-urls-list }}' | xargs -r -n 1 curl -Is | grep -i 'Last-Modified' | md5sum | cut -c1-10)" >> $GITHUB_ENV
           cat bigbluebutton-config/bigbluebutton-release >> $GITHUB_ENV
-          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
-          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
+          # GIT_REV and COMMIT_DATE are not forced to 0 — each package gets
+          # a unique version based on its build time. The bigbluebutton meta-package
+          # is built in unify-artifacts where it reads actual .deb versions.
       - name: Handle cache
         if: matrix.cache-files-list != ''
         id: cache-action
@@ -235,6 +236,60 @@ jobs:
         run: |
           echo "Final contents of all-artifacts:"
           ls -la all-artifacts/
+      - name: Build bigbluebutton meta-package
+        run: |
+          sudo apt-get install -y -qq equivs
+
+          DEBS_DIR="all-artifacts"
+          PKGS="bbb-apps-akka bbb-config bbb-etherpad bbb-export-annotations
+                bbb-freeswitch-core bbb-freeswitch-sounds bbb-fsesl-akka bbb-html5
+                bbb-learning-dashboard bbb-libreoffice-docker bbb-mkclean bbb-pads
+                bbb-playback bbb-playback-presentation bbb-record-core bbb-web
+                bbb-webrtc-sfu bbb-webrtc-recorder"
+
+          # Use the version from the first .deb we find as the meta-package version
+          FIRST_DEB=$(ls "$DEBS_DIR"/*.deb | head -1)
+          META_VERSION=$(dpkg-deb --show --showformat='${Version}' "$FIRST_DEB")
+          echo "Meta-package version: $META_VERSION"
+
+          # Build dependency list with real versions from actual .debs
+          DEPENDENCIES=""
+          for PKG in $PKGS; do
+            DEB_FILE=$(find "$DEBS_DIR" -maxdepth 1 -name "${PKG}_*.deb" 2>/dev/null | head -1)
+            if [ -z "$DEB_FILE" ]; then
+              # Try with underscores (e.g. bbb_apps_akka)
+              DEB_FILE=$(find "$DEBS_DIR" -maxdepth 1 -name "${PKG//-/_}_*.deb" 2>/dev/null | head -1)
+            fi
+            if [ -n "$DEB_FILE" ]; then
+              PKG_VERSION=$(dpkg-deb --show --showformat='${Version}' "$DEB_FILE")
+              echo "  $PKG = $PKG_VERSION (from $(basename $DEB_FILE))"
+            else
+              echo "  WARNING: No .deb found for $PKG, using meta version"
+              PKG_VERSION="$META_VERSION"
+            fi
+            if [ -n "$DEPENDENCIES" ]; then DEPENDENCIES="${DEPENDENCIES},"; fi
+            DEPENDENCIES="${DEPENDENCIES} ${PKG} (= ${PKG_VERSION})"
+          done
+
+          cat > /tmp/control <<EOF
+          Section: web
+          Priority: optional
+          Homepage: https://bigbluebutton.org/
+          Standards-Version: 3.9.2
+
+          Package: bigbluebutton
+          Version: $META_VERSION
+          Maintainer: ffdixon@bigbluebutton.org
+          Depends: $DEPENDENCIES
+          Architecture: amd64
+          Description: Virtual Classroom
+           BigBlueButton is a virtual classroom for online teaching and learning.
+          EOF
+
+          cd /tmp && equivs-build control
+          cp /tmp/bigbluebutton_*.deb "$GITHUB_WORKSPACE/all-artifacts/"
+          echo "Built bigbluebutton meta-package:"
+          dpkg-deb --info "$GITHUB_WORKSPACE"/all-artifacts/bigbluebutton_*.deb | head -20
       - name: Upload unified all-artifacts directory
         uses: actions/upload-artifact@v4
         with:
