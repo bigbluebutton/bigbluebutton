@@ -618,6 +618,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       showScreenshareQuickSwapButton: true,
       showLeaveSessionLabel: false,
     },
+    sidebarNavigation: {
+      appsToLabelAsNew: [],
+    },
     pads: {
       url: 'ETHERPAD_HOST',
     },
@@ -627,6 +630,14 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         defaultListenOnlyBridge: 'fullaudio',
         retryThroughRelay: false,
         allowAudioJoinCancel: true,
+        audioWasmProcessing: {
+          enabled: false,
+          constraints: {
+            echoCancellation: true,
+            autoGainControl: true,
+            noiseSuppression: true,
+          },
+        },
       },
       stunTurnServersFetchAddress: '/bigbluebutton/api/stuns',
       cacheStunTurnServers: true,

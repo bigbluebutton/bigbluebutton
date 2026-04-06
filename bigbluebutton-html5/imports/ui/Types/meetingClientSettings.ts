@@ -21,6 +21,7 @@ export interface Public {
   userReaction: UserReaction
   notes: Notes
   layout: Layout
+  sidebarNavigation: SidebarNavigation
   pads: Pads
   media: Media
   stats: Stats
@@ -604,6 +605,10 @@ export interface Layout {
   showLeaveSessionLabel: boolean
 }
 
+export interface SidebarNavigation {
+  appsToLabelAsNew: string[]
+}
+
 export interface Pads {
   url: string
 }
@@ -678,11 +683,18 @@ export interface LiveKitSettings {
   screenshare?: LiveKitScreenShareSettings
 }
 
+export interface AudioWasmProcessingSettings {
+  enabled: boolean
+  // See: https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
+  constraints?: Record<string, unknown>
+}
+
 export interface Audio2 {
   defaultFullAudioBridge: string
   defaultListenOnlyBridge: string
   retryThroughRelay: boolean
   allowAudioJoinCancel: boolean
+  audioWasmProcessing?: AudioWasmProcessingSettings
 }
 
 export interface Screenshare2 {

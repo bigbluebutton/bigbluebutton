@@ -2,7 +2,9 @@ import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import logger from '/imports/startup/client/logger';
 import { getStorageSingletonInstance } from '/imports/ui/services/storage';
 import {
+  adoptWasmProcessor,
   createWasmProcessorStream,
+  destroyWasmProcessor,
   isWasmProcessorSupported,
   loadWasmProcessorFiles,
   setWasmProcessorEnabled,
@@ -125,8 +127,17 @@ const getAudioConstraints = (constraintFields = {}) => {
   return matchConstraints;
 };
 
+const getWasmProcessingSettings = () => {
+  const setting = window.meetingClientSettings.public.media.audio.audioWasmProcessing;
+
+  // Backwards compat, remove later - prlanzarin
+  if (typeof setting === 'boolean') return { enabled: setting };
+
+  return setting || {};
+};
+
 const isBBBAWasmSupported = () => isWasmProcessorSupported()
-  && window.meetingClientSettings.public.media.audio.audioWasmProcessing;
+  && getWasmProcessingSettings().enabled;
 
 // check if wasm processing is enabled
 const isWasmProcessingEnabled = (localSettingsState) => {
@@ -165,7 +176,12 @@ const loadWasmProcessor = async () => {
   return false;
 };
 
-const doGUM = async (constraints, retryOnFailure = false) => {
+const doGUM = async (
+  constraints, {
+    adoptProcessorAsPrimary = true,
+    retryOnFailure = false,
+  } = {},
+) => {
   let haveWasmProcessor = false;
   const wasmProcessingEnabled = isWasmProcessingEnabled();
 
@@ -180,11 +196,16 @@ const doGUM = async (constraints, retryOnFailure = false) => {
         ? (deviceIdConstraint?.exact || deviceIdConstraint?.ideal)
         : deviceIdConstraint;
 
-      // eslint-disable-next-line no-param-reassign
-      constraints.audio = filterSupportedConstraints({
+      const { constraints: wasmConstraints } = getWasmProcessingSettings();
+      const defaults = {
         echoCancellation: true,
         autoGainControl: true,
         noiseSuppression: true,
+      };
+      // eslint-disable-next-line no-param-reassign
+      constraints.audio = filterSupportedConstraints({
+        ...defaults,
+        ...wasmConstraints,
       });
 
       if (rawDeviceId) {
@@ -294,9 +315,16 @@ const doGUM = async (constraints, retryOnFailure = false) => {
 
     const wasmProcessorStream = await createWasmProcessorStream(stream);
 
-    // Register the real device ID so that extractDeviceIdFromStream can
-    // resolve synthetic WebAudio-* device IDs back to it.
-    MediaStreamUtils.registerWasmDeviceId(null, realDeviceId);
+    // Register the per-stream mapping from synthetic WebAudio-* device ID
+    // to the real device ID for later resolution
+    const syntheticDeviceId = wasmProcessorStream.getAudioTracks()[0]
+      ?.getSettings()?.deviceId;
+    MediaStreamUtils.registerWasmDeviceId(syntheticDeviceId, realDeviceId);
+
+    // Promote this processor as the primary for runtime control
+    // (setWasmProcessorEnabled/Parameter/Destruction). E.g.: preview calls (audio-settings
+    // pass it false to avoid hijacking the main audioProcessor since they're transient
+    if (adoptProcessorAsPrimary) adoptWasmProcessor(wasmProcessorStream);
 
     setWasmProcessorEnabled(wasmProcessingEnabled);
     logger.debug({
@@ -357,6 +385,7 @@ export {
   getStoredAudioOutputDeviceId,
   storeAudioOutputDeviceId,
   doGUM,
+  destroyWasmProcessor,
   stereoUnsupported,
   isBBBAWasmSupported,
   isWasmProcessingEnabled,
