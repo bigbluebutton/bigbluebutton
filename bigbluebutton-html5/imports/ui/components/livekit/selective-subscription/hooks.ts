@@ -55,7 +55,7 @@ const useMediaGroupStreamsSubscription = createUseSubscription(
 
 const getSelectiveSubscriptionConfig = () => {
   const selSubConfig = window.meetingClientSettings?.public?.media?.livekit?.selectiveSubscription;
-  const selectiveSubscriptionEnabled = selSubConfig?.enabled ?? false;
+  const selectiveSubscriptionEnabled = selSubConfig?.enabled ?? true;
   const audioSubscriptionPoolSize = selectiveSubscriptionEnabled
     ? selSubConfig?.audioSubscriptionPoolSize ?? 0
     : 0;

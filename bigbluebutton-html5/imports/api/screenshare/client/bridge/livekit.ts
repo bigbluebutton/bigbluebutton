@@ -513,7 +513,7 @@ export default class LiveKitScreenshareBridge {
     if (this.role === RECV_ROLE) {
       // @ts-ignore
       const withSelectiveSub = window.meetingClientSettings?.public?.media?.livekit?.selectiveSubscription?.enabled
-        ?? false;
+        ?? true;
       const { track } = mainPublication;
       const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG) as HTMLMediaElement;
 
