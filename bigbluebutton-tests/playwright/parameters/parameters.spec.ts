@@ -1,6 +1,6 @@
 import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
-import { constants as c } from './constants';
+import { constants as c, CUSTOM_STYLE_CSS, CUSTOM_STYLE_URL } from './constants';
 import { CreateParameters } from './createParameters';
 import { CustomParameters } from './customparameters';
 import { DisabledFeatures } from './disabledFeatures';
@@ -580,6 +580,9 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
   });
 
   test('Custom Styles: URL', async ({ browser, context, page }, testInfo) => {
+    await context.route(CUSTOM_STYLE_URL, (route) =>
+      route.fulfill({ contentType: 'text/css', body: CUSTOM_STYLE_CSS }),
+    );
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, { joinParameter: encodeCustomParams(c.customStyleUrl), testInfo });
     await customParam.customStyle();
