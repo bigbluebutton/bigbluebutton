@@ -26,7 +26,6 @@
 - "!include public_v_meeting_componentsFlags.yaml"
 - "!include public_v_meeting_group.yaml"
 - "!include public_v_meeting_learningDashboard.yaml"
-- "!include public_v_meeting_chat.yaml"
 - "!include public_v_meeting_lockSettings.yaml"
 - "!include public_v_meeting_recording.yaml"
 - "!include public_v_meeting_recordingPolicies.yaml"

@@ -20,5 +20,4 @@ trait SystemConfiguration {
   lazy val fromAkkaAppsJsonChannel = Try(config.getString("eventBus.fromAkkaAppsChannel")).getOrElse("from-akka-apps-json-channel")
   lazy val fromAkkaAppsOldJsonChannel = Try(config.getString("eventBus.fromAkkaAppsOldChannel")).getOrElse("from-akka-apps-old-json-channel")
 
-  lazy val maxPinnedChatMessages: Int = Try(config.getInt("chat.maxPinnedChatMessages")).getOrElse(3)
 }

@@ -26,7 +26,6 @@ create unlogged table "meeting" (
 	"disabledFeatures" varchar[],
 	"meetingCameraCap" integer,
 	"maxPinnedCameras" integer,
-	"maxPinnedChatMessages" integer,
 	"cameraBridge" varchar(30),
 	"screenShareBridge" varchar(30),
 	"audioBridge" varchar(30),
@@ -1063,10 +1062,6 @@ create view "v_meeting_learningDashboard" as
 select "meetingId", "learningDashboardAccessToken"
 from "v_meeting";
 
-create view "v_meeting_chat" as
-select "meetingId", "maxPinnedChatMessages"
-from "v_meeting";
-
 
 CREATE OR REPLACE VIEW "v_user_whiteboardWriteAccess" AS
 select "meetingId", "userId", "name", "presenter", "isModerator"
@@ -1104,8 +1099,7 @@ CREATE UNLOGGED TABLE "chat" (
     "chatId"  varchar(100),
     "access" varchar(20),
     "createdBy" varchar(25),
-    "totalMessages" integer,
-    "pinnedMessageIds" varchar(100)[],
+    "pinnedMessageIds" varchar(100),
     CONSTRAINT "chat_pkey" PRIMARY KEY ("meetingId", "chatId")
 );
 CREATE INDEX "idx_chat_pk_reverse" ON "chat"("chatId","meetingId");
@@ -1190,8 +1184,8 @@ CREATE UNLOGGED TABLE "chat_message" (
 	"editedAt" timestamp with time zone,
 	"deletedByUserId" varchar(100),
 	"deletedAt" timestamp with time zone,
-  "pinnedByUserId" varchar(100),
-  "pinnedAt" timestamp with time zone,
+    "pinnedByUserId" varchar(100),
+    "pinnedAt" timestamp with time zone,
     CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
 );
 CREATE INDEX "idx_chat_message_chatId" ON "chat_message"("chatId","meetingId");
@@ -1214,28 +1208,6 @@ BEFORE INSERT ON "chat_message"
 FOR EACH ROW
 EXECUTE FUNCTION "update_chatMessage_messageSequence"();
 
-
-CREATE OR REPLACE FUNCTION "update_chat_totalMessages"()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF TG_OP = 'INSERT' THEN
-        UPDATE "chat"
-        SET "totalMessages" = COALESCE("totalMessages", 0) + 1
-        WHERE "meetingId" = NEW."meetingId"
-        AND "chatId" = NEW."chatId";
-	ELSIF TG_OP = 'DELETE' THEN
-        UPDATE "chat"
-        SET "totalMessages" = GREATEST(COALESCE("totalMessages", 0) - 1, 0)
-        WHERE "meetingId" = OLD."meetingId"
-        AND "chatId" = OLD."chatId";
-	END IF;
-    RETURN NULL;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER "trigger_update_chat_totalMessages"
-AFTER INSERT OR DELETE ON "chat_message" FOR EACH ROW
-EXECUTE FUNCTION "update_chat_totalMessages"();
 
 -- Start of Triggers related with totalUnreadMessages
 
@@ -1387,7 +1359,7 @@ SELECT 	"user"."meetingId",
 		"chat"."chatId",
 		cu."visible",
 		chat_with."userId" AS "participantId",
-		"chat"."totalMessages",
+		(SELECT COUNT(*) FROM chat_message cm WHERE cm."meetingId" = "chat"."meetingId" AND cm."chatId" = "chat"."chatId") AS "totalMessages",
 		cu."totalUnreadMessages" AS "totalUnread",
 		cu."lastSeenAt",
 		CASE WHEN "chat"."access" = 'PUBLIC_ACCESS' THEN true ELSE false end "public",

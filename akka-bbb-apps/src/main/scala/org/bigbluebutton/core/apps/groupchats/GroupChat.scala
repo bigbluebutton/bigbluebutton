@@ -67,26 +67,11 @@ object GroupChatApp {
   }
 
   // Returns (updated GroupChats, optional evicted message id if eviction occurred)
-  def pinGroupChatMessage(meetingId: String, chat: GroupChat, chats: GroupChats, msg: GroupChatMessage, pinnedByUserId: String, maxPinnedChatMessages: Int): (GroupChats, Option[String]) = {
+  def pinGroupChatMessage(meetingId: String, chat: GroupChat, chats: GroupChats, msg: GroupChatMessage, pinnedByUserId: String): GroupChats = {
     // No-op if already pinned
-    if (chat.pinnedMessageIds.contains(msg.id)) return (chats, None)
+    if (chat.pinnedMessageIds.contains(msg.id)) return chats
 
-    var evicted: Option[String] = None
     var updatedChat = chat
-
-    // Evict oldest pinned message when limit reached
-    if (maxPinnedChatMessages > 0 && chat.pinnedMessageIds.size >= maxPinnedChatMessages) {
-      // oldest is at head because we append on pin
-      val oldest = chat.pinnedMessageIds.head
-
-      // Clear pinned info in message row and chat table (persist eviction)
-      ChatMessageDAO.unpin(meetingId, chat.id, oldest)
-      ChatDAO.removePinnedMessage(meetingId, chat.id, oldest)
-
-      // Update in-memory chat
-      updatedChat = updatedChat.unpin(oldest)
-      evicted = Some(oldest)
-    }
 
     // Set pinned by and pinned at in message row for the new pin
     ChatMessageDAO.pin(meetingId, chat.id, msg.id, pinnedByUserId)
@@ -97,8 +82,7 @@ object GroupChatApp {
     // Update in-memory chat with the new pin
     updatedChat = updatedChat.pin(msg.id)
 
-    val updated = chats.update(updatedChat)
-    (updated, evicted)
+    chats.update(updatedChat)
   }
 
   def unpinGroupChatMessage(meetingId: String, chat: GroupChat, chats: GroupChats, msg: GroupChatMessage): GroupChats = {

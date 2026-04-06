@@ -4,9 +4,6 @@ const MEETING_SUBSCRIPTION = gql`
   subscription MeetingSubscription {
       meeting {
         durationInSeconds
-        chat {
-          maxPinnedChatMessages
-        }
         lockSettings {
           disableCam
           disableMic

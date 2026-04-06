@@ -9,7 +9,6 @@ case class ChatDbModel(
     meetingId:    String,
     access:       String,
     createdBy:    String,
-    totalMessages: Int,
     pinnedMessageIds: Option[List[String]]
 )
 
@@ -18,10 +17,9 @@ class ChatDbTableDef(tag: Tag) extends Table[ChatDbModel](tag, None, "chat") {
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val access = column[String]("access")
   val createdBy = column[String]("createdBy")
-  val totalMessages = column[Int]("totalMessages")
   val pinnedMessageIds = column[Option[List[String]]]("pinnedMessageIds")
   //  val meeting = foreignKey("chat_meeting_fk", (meetingId), ChatDbTableDef.meetings)(_.meetingId, onDelete = ForeignKeyAction.Cascade)
-  override def * = (chatId, meetingId, access, createdBy, totalMessages, pinnedMessageIds) <> (ChatDbModel.tupled, ChatDbModel.unapply)
+  override def * = (chatId, meetingId, access, createdBy, pinnedMessageIds) <> (ChatDbModel.tupled, ChatDbModel.unapply)
 }
 
 object ChatDAO {
@@ -35,7 +33,6 @@ object ChatDAO {
           meetingId = meetingId,
           access = groupChat.access,
           createdBy = groupChat.createdBy.id,
-          totalMessages = 0,
           pinnedMessageIds = None,
         )
       )

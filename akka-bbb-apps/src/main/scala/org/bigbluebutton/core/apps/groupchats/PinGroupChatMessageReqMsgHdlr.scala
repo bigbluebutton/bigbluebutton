@@ -38,16 +38,7 @@ trait PinGroupChatMessageReqMsgHdlr extends HandlerHelpers {
             val logger = org.slf4j.LoggerFactory.getLogger(this.getClass)
             logger.info(s"Pin requested by user=${msg.header.userId} for message=${gcMessage.id} chat=${msg.body.chatId} in meeting=${liveMeeting.props.meetingProp.intId}")
 
-            val maxPinned = liveMeeting.props.meetingProp.maxPinnedChatMessages
-
-            val (updatedGroupChat, evictedOpt) = GroupChatApp.pinGroupChatMessage(liveMeeting.props.meetingProp.intId, groupChat, state.groupChats, gcMessage, user.intId, maxPinned)
-
-            // If an eviction happened, notify clients about the unpin first
-            evictedOpt.foreach { evictedId =>
-              val unpinEv = buildGroupChatMessageUnpinEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.chatId, msg.header.userId, evictedId)
-              bus.outGW.send(unpinEv)
-              logger.info(s"Evicted pinned message=${evictedId} from chat=${msg.body.chatId}")
-            }
+            val updatedGroupChat = GroupChatApp.pinGroupChatMessage(liveMeeting.props.meetingProp.intId, groupChat, state.groupChats, gcMessage, user.intId)
 
             val event = buildGroupChatMessagePinEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.chatId, msg.header.userId, gcMessage.id)
             bus.outGW.send(event)

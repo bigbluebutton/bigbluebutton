@@ -27,7 +27,6 @@ trait TestFixtures {
   val meetingCameraCap = 0
   val userCameraCap = 0
   val maxPinnedCameras = 3
-  val maxPinnedChatMessages = 3
   val cameraBridge = "testCameraBridge"
   val screenShareBridge = "testScreenShareBridge"
   val audioBridge = "testAudioBridge"
@@ -57,7 +56,6 @@ trait TestFixtures {
   val meetingProp = MeetingProp(name = meetingName, extId = externalMeetingId, intId = meetingId,
     meetingCameraCap = meetingCameraCap,
     maxPinnedCameras = maxPinnedCameras,
-    maxPinnedChatMessages = maxPinnedChatMessages,
     cameraBridge = cameraBridge,
     screenShareBridge = screenShareBridge,
     audioBridge = audioBridge,

@@ -29,7 +29,6 @@ case class MeetingDbModel(
     disabledFeatures:                      List[String],
     meetingCameraCap:                      Int,
     maxPinnedCameras:                     Int,
-    maxPinnedChatMessages:                Int,
     bridges:                               MeetingBridgesDbModel,
     notifyRecordingIsOn:                   Boolean,
     presentationUploadExternalDescription: String,
@@ -54,7 +53,6 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
     disabledFeatures,
     meetingCameraCap,
     maxPinnedCameras,
-    maxPinnedChatMessages,
     bridges,
     notifyRecordingIsOn,
     presentationUploadExternalDescription,
@@ -76,7 +74,6 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val disabledFeatures = column[List[String]]("disabledFeatures")
   val meetingCameraCap = column[Int]("meetingCameraCap")
   val maxPinnedCameras = column[Int]("maxPinnedCameras")
-  val maxPinnedChatMessages = column[Int]("maxPinnedChatMessages")
   val cameraBridge = column[String]("cameraBridge")
   val screenShareBridge = column[String]("screenShareBridge")
   val audioBridge = column[String]("audioBridge")
@@ -116,7 +113,6 @@ object MeetingDAO {
           disabledFeatures = meetingProps.meetingProp.disabledFeatures.toList,
           meetingCameraCap = meetingProps.meetingProp.meetingCameraCap,
           maxPinnedCameras = meetingProps.meetingProp.maxPinnedCameras,
-          maxPinnedChatMessages = meetingProps.meetingProp.maxPinnedChatMessages,
           bridges = MeetingBridgesDbModel(
             cameraBridge = meetingProps.meetingProp.cameraBridge,
             screenShareBridge = meetingProps.meetingProp.screenShareBridge,

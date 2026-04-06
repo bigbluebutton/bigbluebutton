@@ -185,7 +185,6 @@ class BbbWebApiGWApp(
       intId = meetingId,
       meetingCameraCap = meetingCameraCap.intValue(),
       maxPinnedCameras = maxPinnedCameras.intValue(),
-      maxPinnedChatMessages = this.maxPinnedChatMessages,
       cameraBridge,
       screenShareBridge,
       audioBridge,

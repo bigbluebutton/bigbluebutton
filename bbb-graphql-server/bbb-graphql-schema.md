@@ -307,14 +307,6 @@ Permission: Restricted to User Viewing Self-Related Data
 - `isSharedNotesPinned`
 - `showRemainingTime`
 
-## Type: meeting_chat
-### Fields:
-- `meetingId`
-- `maxPinnedChatMessages`
-
-Notes:
-- Backed by SQL view `v_meeting_chat` and exposed in GraphQL via `meeting.chat.maxPinnedChatMessages`.
-
 ## Type: pres_page
 Permission: Restricted to Presenter
 ### Fields:
