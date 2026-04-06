@@ -2534,5 +2534,4 @@ WHERE attrelid IN (
   and n.nspname = 'public' -- restrict to public schema
 )
 AND (attname ~ 'Id$' or attname in ('sessionToken', 'isModerator'))
-AND attname != 'pinnedByUserId' -- exclude nullable field for unpinned messages
 AND attnotnull IS FALSE; -- skip already set
