@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import React, { useContext } from 'react';
+import React, { ReactNode, useContext } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import {
   UserListItemAdditionalInformationType,
@@ -9,6 +9,7 @@ import browserInfo from '/imports/utils/browserInfo';
 import { defineMessages, useIntl } from 'react-intl';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import { User } from '/imports/ui/Types/user';
+import { PluginButtonIcon } from '/imports/ui/components/plugins/plugin-icon/styles';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import Auth from '/imports/ui/services/auth';
 import { LockSettings } from '/imports/ui/Types/meeting';
@@ -53,6 +54,20 @@ const messages = defineMessages({
 
 const { isChrome, isFirefox, isEdge } = browserInfo;
 
+const getIconComponent = (icon: PluginSdk.PluginIconType, isUserListAdditionalInformation: boolean = false): React.ReactNode => {
+  if (isUserListAdditionalInformation) {
+    if (typeof icon === 'string') return <Styled.UserAdditionalInformationIcon iconName={icon} />;
+    if ('iconName' in icon) return <Styled.UserAdditionalInformationIcon iconName={icon.iconName} />;
+    const svgContent = icon.svgContent as ReactNode;
+    return <Styled.SvgContentUserListIconMargin>{svgContent}</Styled.SvgContentUserListIconMargin>;
+  } else {
+    if (typeof icon === 'string') return <Icon iconName={icon} />;
+    if ('iconName' in icon) return <Icon iconName={icon.iconName} />;
+    const svgContent = icon.svgContent as ReactNode;
+    return <Styled.SvgContentUserListIcon>{svgContent}</Styled.SvgContentUserListIcon>;
+  }
+};
+
 interface EmojiProps {
   emoji: { native: string; };
   native: string;
@@ -84,7 +99,7 @@ const renderUserListItemIconsFromPlugin = (
       key={item.id}
       data-test={itemToRender.dataTest}
     >
-      <Icon iconName={itemToRender.icon} />
+      {getIconComponent(itemToRender.icon)}
     </Styled.IconRightContainer>
   );
 });
@@ -163,7 +178,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
     subs.push(
       <span key={itemToRender.id} data-test={itemToRender.dataTest}>
         { itemToRender.icon
-          && <Styled.UserAdditionalInformationIcon iconName={itemToRender.icon} /> }
+          && getIconComponent(itemToRender.icon, true) }
         {itemToRender.label}
       </span>,
     );

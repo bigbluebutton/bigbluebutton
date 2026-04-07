@@ -20,6 +20,7 @@ import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
 import SessionDetailsModal from '/imports/ui/components/session-details/component';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
+import { PluginButtonIcon } from '/imports/ui/components/plugins/plugin-icon/styles';
 import getStorageSingletonInstance from '../../services/storage';
 import { ModalRegistration } from '../../core/singletons/modalController';
 
@@ -88,24 +89,37 @@ const renderPluginItems = (pluginItems) => {
           pluginItems.map((pluginItem) => {
             let returnComponent;
             switch (pluginItem.type) {
-              case NavBarItemType.BUTTON:
+              case NavBarItemType.BUTTON: {
+                const navBarIconProps = {};
+                if (typeof pluginItem.icon === 'string') {
+                  navBarIconProps.icon = pluginItem.icon;
+                } else if (pluginItem.icon && 'iconName' in pluginItem.icon) {
+                  navBarIconProps.icon = pluginItem.icon.iconName;
+                } else if (pluginItem.icon && 'svgContent' in pluginItem.icon) {
+                  navBarIconProps.customIcon = (
+                    <PluginButtonIcon>
+                      {pluginItem.icon.svgContent}
+                    </PluginButtonIcon>
+                  );
+                }
                 returnComponent = (
                   <Styled.PluginComponentWrapper
                     key={`${pluginItem.id}-${pluginItem.type}`}
                   >
                     <Button
                       disabled={pluginItem.disabled}
-                      icon={pluginItem.icon}
                       label={pluginItem.label}
                       aria-label={pluginItem.tooltip}
                       color="primary"
                       tooltip={pluginItem.tooltip}
                       onClick={pluginItem.onClick}
                       dataTest={pluginItem.dataTest}
+                      {...navBarIconProps}
                     />
                   </Styled.PluginComponentWrapper>
                 );
                 break;
+              }
               case NavBarItemType.INFO:
                 returnComponent = (
                   <Styled.PluginComponentWrapper
