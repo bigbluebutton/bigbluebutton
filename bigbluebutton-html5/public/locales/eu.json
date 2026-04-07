@@ -64,7 +64,7 @@
     "app.chat.content.pollVote": "bozka",
     "app.chat.content.pollVotes": "bozka",
     "app.chat.pollResult.copy": "Kopiatu emaitzak",
-    "app.chat.pollResult.copySuccess": "Copied!",
+    "app.chat.pollResult.copySuccess": "Kopiatu dira!",
     "app.chat.pollResult.download": "Download as PNG",
     "app.chat.plugin.metadataInformation": "{userName} - {pluginName}",
     "app.timer.toolTipTimerStopped": "Tenporizadorea gelditu da.",
