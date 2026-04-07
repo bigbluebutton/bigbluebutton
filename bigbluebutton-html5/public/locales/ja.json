@@ -191,7 +191,7 @@
     "app.userList.chatListItem.unreadSingular": "1 通の新規メッセージ",
     "app.userList.more": "さらに見る",
     "app.userList.chatListItem.unreadPlural": "{unreadCount} 通の新規メッセージ",
-    "app.userList.chatListItem.unknownParticipant": "Unknown participant",
+    "app.userList.chatListItem.unknownParticipant": "未知の参加者",
     "app.userList.menu.away": "自分を退席中にする",
     "app.userList.menu.notAway": "自分を出席にする",
     "app.userList.menu.chat.label": "非公開チャット",
