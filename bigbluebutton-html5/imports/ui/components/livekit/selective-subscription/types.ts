@@ -20,6 +20,14 @@ export type MediaGroupParticipant = {
   active: boolean;
 }
 
+export type MediaGroupStateEntry = {
+  groupId: string;
+  mediaType: string;
+  sender: boolean;
+  receiver: boolean;
+  active: boolean;
+}
+
 export type MediaGroupStream = {
   userId: string;
   groupId: string;
@@ -33,9 +41,3 @@ export type MediaSendersData = {
   senders: MediaGroupStream[];
   inAnyGroup: boolean;
 }
-
-export const SUBSCRIPTION_RETRY = {
-  MAX_RETRIES: 3,
-  RETRY_INTERVAL: 2000,
-  BACKOFF_MULTIPLIER: 1.5,
-};

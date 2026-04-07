@@ -6,7 +6,7 @@ import { useMediaSubscriptions } from './hooks';
 
 const SelectiveSubscription: React.FC = () => {
   const connectionState = useConnectionState(liveKitRoom);
-  const { handleSubscriptionChanges } = useMediaSubscriptions();
+  const { handleSubscriptionChanges } = useMediaSubscriptions(liveKitRoom);
 
   useEffect(() => {
     if (connectionState !== ConnectionState.Connected) return;

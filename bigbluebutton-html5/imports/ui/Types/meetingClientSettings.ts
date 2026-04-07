@@ -642,9 +642,15 @@ export interface LiveKitAudioSettings {
   useLiveKitAudioState?: boolean
 }
 
+export type SelectiveSubscriptionConfig = {
+  enabled: boolean;
+  audioSubscriptionPoolSize: number;
+  muteDebounceMs: number;
+};
+
 export interface LiveKitSettings {
   url?: string
-  selectiveSubscription?: boolean
+  selectiveSubscription?: SelectiveSubscriptionConfig
   logLevel?: LogLevel
   roomOptions?: Partial<InternalRoomOptions>
   reconnectOnFatalFailures?: boolean
