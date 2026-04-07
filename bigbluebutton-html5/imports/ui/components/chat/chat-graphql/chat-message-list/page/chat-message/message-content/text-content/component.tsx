@@ -1,4 +1,5 @@
 import React from 'react';
+import DOMPurify from 'dompurify';
 import Styled from './styles';
 
 interface ChatMessageTextContentProps {
@@ -9,10 +10,12 @@ const ChatMessageTextContent: React.FC<ChatMessageTextContentProps> = ({
   text,
   dataTest = 'messageContent',
 }) => {
+  const sanitizedText = DOMPurify.sanitize(text);
+
   return (
     <Styled.ChatMessage
       // eslint-disable-next-line react/no-danger
-      dangerouslySetInnerHTML={{ __html: text }}
+      dangerouslySetInnerHTML={{ __html: sanitizedText }}
       data-test={dataTest}
     />
   );
