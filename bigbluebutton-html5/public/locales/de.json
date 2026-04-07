@@ -1210,7 +1210,7 @@
     "app.lock-viewers.tabs.participantPermissions": "Berechtigungen",
     "app.lock-viewers.tabs.presentationPermissions": "Präsentationsregeln",
     "app.lock-viewers.guestPolicy.title": "Gastzugang regeln",
-    "app.lock-viewers.guestPolicy.description": "Configure how guests are handled when trying to join the meeting.",
+    "app.lock-viewers.guestPolicy.description": "Einstellen, wie die Teilnahme von Gästen geregelt wird, welche dem Meeting beitreten möchten.",
     "app.lock-viewers.participantPermissions.title": "Berechtigungen",
     "app.lock-viewers.participantPermissions.description": "The options below define what participants can do in the session. Unchecking an option removes that permission.",
     "app.lock-viewers.presentationPermissions.title": "Presentation Policy",
