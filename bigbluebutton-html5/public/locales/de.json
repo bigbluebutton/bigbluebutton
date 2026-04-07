@@ -1203,7 +1203,7 @@
     "app.lock-viewers.button.apply": "Anwenden",
     "app.lock-viewers.button.cancel": "Abbrechen",
     "app.lock-viewers.locked": "Gesperrt",
-    "app.lock-viewers.hideViewersCursor": "See other participants' cursors",
+    "app.lock-viewers.hideViewersCursor": "Cursor anderer Teilnehmer anzeigen",
     "app.lock-viewers.hideAnnotationsLabel": "Anmerkungen anderer anzeigen",
     "app.lock-viewers.disablePresenterRequestLabel": "Requesting to become presenter.",
     "app.lock-viewers.tabs.guestPolicy": "Guest Policy",
