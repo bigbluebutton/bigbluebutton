@@ -1196,7 +1196,7 @@
     "app.lock-viewers.otherViewersWebcamLabel": "Webcams Anderer anzeigen",
     "app.lock-viewers.microphoneLabel": "Mikrofon freigeben",
     "app.lock-viewers.PublicChatLabel": "Chatnachrichten an alle senden",
-    "app.lock-viewers.PrivateChatLabel": "Send private messages",
+    "app.lock-viewers.PrivateChatLabel": "Direktnachrichten senden",
     "app.lock-viewers.notesLabel": "Geteilte Notizen bearbeiten",
     "app.lock-viewers.userListLabel": "See other participants in the user list",
     "app.lock-viewers.ariaTitle": "Einstellungen für Teilnehmende",
