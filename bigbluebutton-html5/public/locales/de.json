@@ -1198,7 +1198,7 @@
     "app.lock-viewers.PublicChatLabel": "Chatnachrichten an alle senden",
     "app.lock-viewers.PrivateChatLabel": "Direktnachrichten senden",
     "app.lock-viewers.notesLabel": "Geteilte Notizen bearbeiten",
-    "app.lock-viewers.userListLabel": "See other participants in the user list",
+    "app.lock-viewers.userListLabel": "Teilnehmerliste für andere Teilnehmer anzeigen",
     "app.lock-viewers.ariaTitle": "Einstellungen für Teilnehmende",
     "app.lock-viewers.button.apply": "Anwenden",
     "app.lock-viewers.button.cancel": "Abbrechen",
