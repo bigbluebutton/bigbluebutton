@@ -10,5 +10,5 @@ export interface Chat {
   userId: string;
   participant?: User;
   lastSeenAt: string;
-  pinnedMessageIds: Array<string> | null;
+  pinnedMessageId: string | null;
 }

@@ -23,7 +23,7 @@ const CHATS_SUBSCRIPTION = gql`
       totalUnread
       public
       lastSeenAt
-      pinnedMessageIds
+      pinnedMessageId
     }
   }
 `;

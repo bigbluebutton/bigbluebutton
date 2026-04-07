@@ -569,7 +569,7 @@ Permission: Restricted to Presenter
 - `totalMessages`
 - `totalUnread`
 - `visible`
-- `pinnedMessageIds`
+- `pinnedMessageId`
 ### Relationships:
 - `participant: Object` [Type User](#type-user)
 - `pinnedMessages: Array` [Type Public Chat Message](#type-chat_message_public)

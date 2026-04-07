@@ -1099,7 +1099,7 @@ CREATE UNLOGGED TABLE "chat" (
     "chatId"  varchar(100),
     "access" varchar(20),
     "createdBy" varchar(25),
-    "pinnedMessageIds" varchar(100),
+    "pinnedMessageId" varchar(100),
     CONSTRAINT "chat_pkey" PRIMARY KEY ("meetingId", "chatId")
 );
 CREATE INDEX "idx_chat_pk_reverse" ON "chat"("chatId","meetingId");
@@ -1363,7 +1363,7 @@ SELECT 	"user"."meetingId",
 		cu."totalUnreadMessages" AS "totalUnread",
 		cu."lastSeenAt",
 		CASE WHEN "chat"."access" = 'PUBLIC_ACCESS' THEN true ELSE false end "public",
-        "chat"."pinnedMessageIds"
+        "chat"."pinnedMessageId"
 FROM "user"
 JOIN "chat_user" cu ON cu."meetingId" = "user"."meetingId" AND cu."userId" = "user"."userId"
 --now it will always add chat_user for public chat onUserJoin

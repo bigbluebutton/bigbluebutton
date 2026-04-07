@@ -9,7 +9,7 @@ case class ChatDbModel(
     meetingId:    String,
     access:       String,
     createdBy:    String,
-    pinnedMessageIds: Option[List[String]]
+    pinnedMessageId: Option[String]
 )
 
 class ChatDbTableDef(tag: Tag) extends Table[ChatDbModel](tag, None, "chat") {
@@ -17,9 +17,9 @@ class ChatDbTableDef(tag: Tag) extends Table[ChatDbModel](tag, None, "chat") {
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val access = column[String]("access")
   val createdBy = column[String]("createdBy")
-  val pinnedMessageIds = column[Option[List[String]]]("pinnedMessageIds")
+  val pinnedMessageId = column[Option[String]]("pinnedMessageId")
   //  val meeting = foreignKey("chat_meeting_fk", (meetingId), ChatDbTableDef.meetings)(_.meetingId, onDelete = ForeignKeyAction.Cascade)
-  override def * = (chatId, meetingId, access, createdBy, pinnedMessageIds) <> (ChatDbModel.tupled, ChatDbModel.unapply)
+  override def * = (chatId, meetingId, access, createdBy, pinnedMessageId) <> (ChatDbModel.tupled, ChatDbModel.unapply)
 }
 
 object ChatDAO {
@@ -33,7 +33,7 @@ object ChatDAO {
           meetingId = meetingId,
           access = groupChat.access,
           createdBy = groupChat.createdBy.id,
-          pinnedMessageIds = None,
+          pinnedMessageId = None,
         )
       )
     )
@@ -45,55 +45,24 @@ object ChatDAO {
     }
   }
 
-  def addPinnedMessage(meetingId: String, chatId: String, messageId: String) = {
+  def setPinnedMessage(meetingId: String, chatId: String, messageId: String) = {
     DatabaseConnection.enqueue(
-      (
-        TableQuery[ChatDbTableDef]
-          .filter(_.meetingId === meetingId)
-          .filter(_.chatId === chatId)
-          .result
-          .headOption
-          .flatMap {
-            case Some(chatRow) =>
-              val current = chatRow.pinnedMessageIds.getOrElse(List.empty[String])
-              if (current.contains(messageId)) DBIO.successful(Some(chatRow))
-              else for {
-                _       <- TableQuery[ChatDbTableDef].filter(_.meetingId === meetingId).filter(_.chatId === chatId).map(_.pinnedMessageIds).update(Some(current :+ messageId))
-                updated <- TableQuery[ChatDbTableDef].filter(_.meetingId === meetingId).filter(_.chatId === chatId).result.headOption
-              } yield updated
-            case None => DBIO.successful(None)
-          }
-      ).transactionally
-        .map { maybeRow =>
-          logger.info(s"addPinnedMessage result for meetingId=$meetingId chatId=$chatId pinnedMessageIds=${maybeRow.flatMap(_.pinnedMessageIds)}")
-          0
-        }
+      TableQuery[ChatDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .filter(_.chatId === chatId)
+        .map(_.pinnedMessageId)
+        .update(Some(messageId))
     )
   }
 
-  def removePinnedMessage(meetingId: String, chatId: String, messageId: String) = {
+  def clearPinnedMessage(meetingId: String, chatId: String, messageId: String) = {
     DatabaseConnection.enqueue(
-      (
-        TableQuery[ChatDbTableDef]
-          .filter(_.meetingId === meetingId)
-          .filter(_.chatId === chatId)
-          .result
-          .headOption
-          .flatMap {
-            case Some(chatRow) =>
-              val current = chatRow.pinnedMessageIds.getOrElse(List.empty[String])
-              val updated = current.filterNot(_ == messageId)
-              for {
-                _          <- TableQuery[ChatDbTableDef].filter(_.meetingId === meetingId).filter(_.chatId === chatId).map(_.pinnedMessageIds).update(Some(updated))
-                updatedRow <- TableQuery[ChatDbTableDef].filter(_.meetingId === meetingId).filter(_.chatId === chatId).result.headOption
-              } yield updatedRow
-            case None => DBIO.successful(None)
-          }
-      ).transactionally
-        .map { maybeRow =>
-          logger.info(s"removePinnedMessage result for meetingId=$meetingId chatId=$chatId pinnedMessageIds=${maybeRow.flatMap(_.pinnedMessageIds)}")
-          0
-        }
+      TableQuery[ChatDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .filter(_.chatId === chatId)
+        .filter(_.pinnedMessageId === messageId)
+        .map(_.pinnedMessageId)
+        .update(None)
     )
   }
 }

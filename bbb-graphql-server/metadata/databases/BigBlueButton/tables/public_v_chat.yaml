@@ -28,7 +28,7 @@ select_permissions:
         - totalMessages
         - totalUnread
         - visible
-        - pinnedMessageIds
+        - pinnedMessageId
       filter:
         _and:
           - meetingId:

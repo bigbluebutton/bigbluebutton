@@ -253,26 +253,26 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   const onFocusTrapDeactivation = React.useRef<(() => void) | null>(null);
 
   const { data: chatData } = useChat(
-    (chat) => ({ chatId: chat.chatId, pinnedMessageIds: chat.pinnedMessageIds }),
+    (chat) => ({ chatId: chat.chatId, pinnedMessageId: chat.pinnedMessageId }),
     { chatId: message.chatId, skip: !message.chatId },
   );
-  const currentPinnedMessageIds: string[] = useMemo(() => {
+  const currentPinnedMessageId: string | null = useMemo(() => {
     const chat = Array.isArray(chatData) ? chatData[0] : chatData;
-    return chat?.pinnedMessageIds ?? [];
+    return chat?.pinnedMessageId ?? null;
   }, [chatData]);
 
   const [chatSetPinned] = useMutation(CHAT_SET_PINNED_MUTATION);
   const pinMessageAction = useCallback(() => {
-    const unpinPromises = currentPinnedMessageIds
-      .filter((id) => id !== message.messageId)
-      .map((id) => chatSetPinned({
+    const unpinPromise = currentPinnedMessageId && currentPinnedMessageId !== message.messageId
+      ? chatSetPinned({
         variables: {
           chatId: message.chatId,
-          messageId: id,
+          messageId: currentPinnedMessageId,
           pinned: false,
         },
-      }));
-    Promise.all(unpinPromises)
+      })
+      : Promise.resolve();
+    unpinPromise
       .then(() => chatSetPinned({
         variables: {
           chatId: message.chatId,
@@ -289,7 +289,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           },
         }, `Pinning the message failed: ${e?.message}`);
       });
-  }, [chatSetPinned, message.chatId, message.messageId, currentPinnedMessageIds]);
+  }, [chatSetPinned, message.chatId, message.messageId, currentPinnedMessageId]);
 
   const unpinMessageAction = useCallback(() => {
     chatSetPinned({
@@ -837,8 +837,8 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       return;
     }
 
-    const otherPinnedIds = currentPinnedMessageIds.filter((id) => id !== message.messageId);
-    const hasOtherPinned = otherPinnedIds.length > 0;
+    const otherPinnedIds = currentPinnedMessageId && currentPinnedMessageId !== message.messageId;
+    const hasOtherPinned = !!otherPinnedIds;
 
     const handler = () => {
       if (hasOtherPinned) {
@@ -854,7 +854,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     } else {
       handler();
     }
-  }, [deactivateFocusTrap, keyboardFocused, isPinned, message.message, currentPinnedMessageIds]);
+  }, [deactivateFocusTrap, keyboardFocused, isPinned, message.message, currentPinnedMessageId]);
 
   const onDelete = useCallback((e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.stopPropagation();
