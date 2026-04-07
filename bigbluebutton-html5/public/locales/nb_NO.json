@@ -184,6 +184,7 @@
     "app.userList.mobile": "Mobil",
     "app.userList.guest": "Gjest",
     "app.userList.searchUsers": "Search users",
+    "app.userList.noSearchResults": "No participants match your search. Try another name.",
     "app.userList.clearSearch": "Clear search",
     "app.userList.sharingWebcam": "Webkamera",
     "app.userList.menuTitleContext": "Tilgjengelige valg",
