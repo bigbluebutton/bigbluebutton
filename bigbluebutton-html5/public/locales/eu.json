@@ -1217,7 +1217,7 @@
     "app.lock-viewers.presentationPermissions.description": "Konfiguratu aurkezpen-eskubideak saioan nola kudeatzen diren.",
     "app.lock-viewers.presentationPermissions.moderatorOnly": "Moderatzaileak esleitzen du aurkezle rola",
     "app.lock-viewers.presentationPermissions.moderatorOnly.tooltip": "Moderatzaileek soilik eslei diezaiekete partaideei aurkezle-rola.",
-    "app.lock-viewers.presentationPermissions.requireApproval": "Allow participants to present with moderator approval",
+    "app.lock-viewers.presentationPermissions.requireApproval": "Eman baimena partaideei aurkezteko moderatzailearen onespena badute",
     "app.lock-viewers.presentationPermissions.requireApproval.tooltip": "Participants can request to become presenter, but a moderator must approve the request.",
     "app.lock-viewers.presentationPermissions.freeForAll": "Allow participants to present freely",
     "app.lock-viewers.presentationPermissions.freeForAll.tooltip": "Any participant can take the presenter role without moderator approval.",
