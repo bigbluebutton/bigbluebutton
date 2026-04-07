@@ -131,7 +131,7 @@
     "app.user.activityCheck": "Sprawdź aktywność uczestnika",
     "app.user.activityCheck.label": "Sprawdź czy uczestnik nadal uczestniczy w spotkaniu ({responseDelay})",
     "app.user.activityCheck.check": "Sprawdź",
-    "app.userList.usersTitle": "Uczestnicy",
+    "app.userList.usersTitle": "Uczestnicy  ({userCount})",
     "app.userList.participantsTitle": "Uczestnicy",
     "app.userList.messagesTitle": "Wiadomości",
     "app.userList.notesTitle": "Notatki",
