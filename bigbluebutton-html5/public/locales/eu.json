@@ -1226,7 +1226,7 @@
     "app.guest-policy.description": "Aldatu saioaren gonbidapen-gidalerroen ezarpenak",
     "app.guest-policy.button.askModerator": "Eskatu moderatzaile rola",
     "app.guest-policy.button.alwaysAccept": "Onartu beti",
-    "app.guest-policy.button.alwaysAcceptAuth": "Always accept authenticated",
+    "app.guest-policy.button.alwaysAcceptAuth": "Onartu beti autentifikatutak",
     "app.guest-policy.button.alwaysDeny": "Ukatu beti",
     "app.guest-policy.policyBtnDesc": "Saioaren gonbidapen-politika ezartzen du",
     "app.guest-policy.feedbackMessage": "The guest policy is now: {policy}",
