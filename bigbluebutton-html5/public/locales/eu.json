@@ -1195,7 +1195,7 @@
     "app.lock-viewers.webcamLabel": "Partekatu web-kamera",
     "app.lock-viewers.otherViewersWebcamLabel": "Ikusi beste partaideen web-kamerak",
     "app.lock-viewers.microphoneLabel": "Partekatu mikrofonoa",
-    "app.lock-viewers.PublicChatLabel": "Send public messages",
+    "app.lock-viewers.PublicChatLabel": "Bidali mezu publikoak",
     "app.lock-viewers.PrivateChatLabel": "Send private messages",
     "app.lock-viewers.notesLabel": "Edit shared notes",
     "app.lock-viewers.userListLabel": "See other participants in the user list",
