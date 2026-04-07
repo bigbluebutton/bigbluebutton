@@ -5,6 +5,7 @@ import { MenuItem } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
+import UnsavedChangesModal from '/imports/ui/components/common/modal/unsaved-changes/component';
 import Styled from './styles';
 
 const PRESENTATION_POLICY = {
@@ -181,7 +182,6 @@ const propTypes = {
   isPrivateChatEnabled: PropTypes.bool.isRequired,
   isSharedNotesEnabled: PropTypes.bool.isRequired,
   isOpen: PropTypes.bool,
-  onRequestClose: PropTypes.func,
   priority: PropTypes.string,
 };
 
@@ -201,11 +201,34 @@ class LockViewersComponent extends Component {
       lobbyMessageEnabled: !!props.guestLobbyMessage,
       lobbyMessage: props.guestLobbyMessage || '',
       presentationPolicy,
+      unsavedModalOpen: false,
     };
+
+    this.initialState = {
+      lockSettingsProps: lockSettings,
+      usersProp: usersPolicies,
+      guestPolicy: usersPolicies.guestPolicy || 'ASK_MODERATOR',
+      lobbyMessageEnabled: !!props.guestLobbyMessage,
+      lobbyMessage: props.guestLobbyMessage || '',
+      presentationPolicy,
+    };
+
+    this.handleClose = this.handleClose.bind(this);
+    this.handleIgnoreChanges = this.handleIgnoreChanges.bind(this);
   }
 
-  handleSelectTab(tabIndex) {
-    this.setState({ selectedTab: tabIndex });
+  handleClose() {
+    const { closeModal } = this.props;
+    if (this.hasChanges()) {
+      this.setState({ unsavedModalOpen: true });
+      return;
+    }
+    closeModal();
+  }
+
+  handleIgnoreChanges() {
+    const { closeModal } = this.props;
+    this.setState({ unsavedModalOpen: false }, closeModal);
   }
 
   handleSave() {
@@ -240,6 +263,26 @@ class LockViewersComponent extends Component {
     }
 
     closeModal();
+  }
+
+  handleSelectTab(tabIndex) {
+    this.setState({ selectedTab: tabIndex });
+  }
+
+  hasChanges() {
+    const {
+      lockSettingsProps, usersProp, guestPolicy,
+      lobbyMessageEnabled, lobbyMessage, presentationPolicy,
+    } = this.state;
+    const i = this.initialState;
+    return (
+      JSON.stringify(lockSettingsProps) !== JSON.stringify(i.lockSettingsProps)
+      || JSON.stringify(usersProp) !== JSON.stringify(i.usersProp)
+      || guestPolicy !== i.guestPolicy
+      || lobbyMessageEnabled !== i.lobbyMessageEnabled
+      || lobbyMessage !== i.lobbyMessage
+      || presentationPolicy !== i.presentationPolicy
+    );
   }
 
   toggleLockSettings(property) {
@@ -515,14 +558,22 @@ class LockViewersComponent extends Component {
 
   render() {
     const {
-      closeModal,
       intl,
       isOpen,
-      onRequestClose,
       priority,
     } = this.props;
 
-    const { selectedTab } = this.state;
+    const { selectedTab, unsavedModalOpen } = this.state;
+
+    if (unsavedModalOpen) {
+      return (
+        <UnsavedChangesModal
+          isOpen={unsavedModalOpen}
+          onCancel={() => this.setState({ unsavedModalOpen: false })}
+          onConfirm={this.handleIgnoreChanges}
+        />
+      );
+    }
 
     const tabs = [
       {
@@ -544,12 +595,12 @@ class LockViewersComponent extends Component {
 
     return (
       <Styled.LockViewersModal
-        onRequestClose={closeModal}
+        onRequestClose={this.handleClose}
         contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
         title={intl.formatMessage(intlMessages.lockViewersTitle)}
         {...{
           isOpen,
-          onRequestClose,
+          onRequestClose: this.handleClose,
           priority,
         }}
       >
@@ -582,7 +633,7 @@ class LockViewersComponent extends Component {
         </Styled.SettingsTabs>
         <Styled.ActionsContainer>
           <Styled.ActionButton
-            onClick={closeModal}
+            onClick={this.handleClose}
             data-test="cancelLockSettings"
           >
             {intl.formatMessage(intlMessages.buttonCancel)}
