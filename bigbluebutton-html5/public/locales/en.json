@@ -73,6 +73,8 @@
     "app.chat.pinnedMessages.confirmModal.unpinMessage": "Are you sure you want to unpin this message?",
     "app.chat.pinnedMessages.confirmModal.confirm": "Unpin",
     "app.chat.pinnedMessages.confirmModal.cancel": "Cancel",
+    "app.chat.pinnedMessages.tooltipUnpin": "Unpin message",
+    "app.chat.pinnedMessages.tooltipHide": "Hide pinned messages",
     "app.chat.toolbar.delete.cancelLabel": "Cancel",
     "app.chat.toolbar.delete.confirmationTitle": "Are you sure?",
     "app.chat.toolbar.delete.confirmationDescription": "This action is permanent, you will not be able to access this message again.",

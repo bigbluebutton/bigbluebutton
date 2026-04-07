@@ -6,6 +6,7 @@ import { setPinnedChatMessagesHidden } from '/imports/ui/components/chat/chat-gr
 import { CHAT_SET_PINNED_MUTATION } from '/imports/ui/components/chat/chat-graphql/chat-message-list/page/chat-message/mutations';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import ConfirmModal from '/imports/ui/components/common/modal/confirmation/component';
+import Tooltip from '/imports/ui/components/common/tooltip/component';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -44,6 +45,14 @@ const intlMessages = defineMessages({
   cancelButton: {
     id: 'app.chat.pinnedMessages.confirmModal.cancel',
     description: 'Cancel button label for unpin modal',
+  },
+  unpinTooltip: {
+    id: 'app.chat.pinnedMessages.tooltipUnpin',
+    description: 'Tooltip for unpin button in pinned messages section',
+  },
+  hideTooltip: {
+    id: 'app.chat.pinnedMessages.tooltipHide',
+    description: 'Tooltip for hide button in pinned messages section',
   },
 });
 
@@ -127,19 +136,23 @@ export default function PinnedMessageComponent({ messages, isModerator }: Pinned
 
         <Styled.Controls>
           {isModerator && (
-            <Styled.ToggleButton
-              aria-label={intl.formatMessage(intlMessages.unpinMessage)}
-              onClick={handleUnpin}
-            >
-              <Styled.Icon iconName="pin-video_off" />
-            </Styled.ToggleButton>
+            <Tooltip title={intl.formatMessage(intlMessages.unpinTooltip)}>
+              <Styled.ToggleButton
+                aria-label={intl.formatMessage(intlMessages.unpinMessage)}
+                onClick={handleUnpin}
+              >
+                <Styled.Icon iconName="pin-video_off" />
+              </Styled.ToggleButton>
+            </Tooltip>
           )}
-          <Styled.ToggleButton
-            aria-label={intl.formatMessage(intlMessages.hidePinned)}
-            onClick={() => setPinnedChatMessagesHidden(true)}
-          >
-            <Styled.Icon iconName="visibility_off" />
-          </Styled.ToggleButton>
+          <Tooltip title={intl.formatMessage(intlMessages.hideTooltip)}>
+            <Styled.ToggleButton
+              aria-label={intl.formatMessage(intlMessages.hidePinned)}
+              onClick={() => setPinnedChatMessagesHidden(true)}
+            >
+              <Styled.Icon iconName="visibility_off" />
+            </Styled.ToggleButton>
+          </Tooltip>
         </Styled.Controls>
       </Styled.Header>
 
