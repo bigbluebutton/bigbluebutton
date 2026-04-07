@@ -64,7 +64,7 @@
     "app.chat.content.pollVote": "abstimmen",
     "app.chat.content.pollVotes": "Stimmen",
     "app.chat.pollResult.copy": "Ergebnisse des Kopiervorganges",
-    "app.chat.pollResult.copySuccess": "Copied!",
+    "app.chat.pollResult.copySuccess": "Kopiert!",
     "app.chat.pollResult.download": "Download as PNG",
     "app.chat.plugin.metadataInformation": "{userName} - {pluginName}",
     "app.timer.toolTipTimerStopped": "Timer pausiert.",
