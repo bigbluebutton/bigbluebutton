@@ -2,15 +2,6 @@
   definition:
     query:
       collection_name: allowed-queries
-      query_name: clientSettings
-  methods:
-    - GET
-  name: clientSettings
-  url: clientSettings
-- comment: ""
-  definition:
-    query:
-      collection_name: allowed-queries
       query_name: meetingStaticData
   methods:
     - GET
