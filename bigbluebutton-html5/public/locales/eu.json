@@ -63,7 +63,7 @@
     "app.chat.header.tooltipReact": "Erreakzionatu mezuari",
     "app.chat.content.pollVote": "bozka",
     "app.chat.content.pollVotes": "bozka",
-    "app.chat.pollResult.copy": "Copy results",
+    "app.chat.pollResult.copy": "Kopiatu emaitzak",
     "app.chat.pollResult.copySuccess": "Copied!",
     "app.chat.pollResult.download": "Download as PNG",
     "app.chat.plugin.metadataInformation": "{userName} - {pluginName}",
