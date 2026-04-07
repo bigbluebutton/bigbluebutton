@@ -34,19 +34,21 @@ const PluginHelperButtonComponent = ({
 
   return (
     <Styled.PluginButtonWrapper
-      dark={dark}
-      bottom={bottom}
-      right={right}
+      {...{
+        dark,
+        bottom,
+        right,
+      }}
     >
       <Styled.PluginButton
         color="default"
         icon={resolvedIcon}
-        customIcon={resolvedCustomIcon}
         size="sm"
         onClick={(e: React.MouseEvent<HTMLElement>) => onClick({ browserClickEvent: e })}
         hideLabel
         label={label}
         data-test={dataTest}
+        customIcon={resolvedCustomIcon}
       />
     </Styled.PluginButtonWrapper>
   );

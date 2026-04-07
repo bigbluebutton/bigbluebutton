@@ -1,4 +1,5 @@
 import React from 'react';
+import { PluginIconType } from 'bigbluebutton-html-plugin-sdk';
 import { User } from '/imports/ui/Types/user';
 import { LockSettings, UsersPolicies } from '/imports/ui/Types/meeting';
 import { useIntl, defineMessages } from 'react-intl';
@@ -59,10 +60,10 @@ interface UserActionsProps {
 interface DropdownItem {
   key: string;
   label?: string;
-  icon?: string;
+  icon?: PluginIconType;
   tooltip?: string;
   allowed?: boolean;
-  iconRight?: string;
+  iconRight?: PluginIconType;
   textColor?: string;
   isSeparator?: boolean;
   dataTest?: string;
