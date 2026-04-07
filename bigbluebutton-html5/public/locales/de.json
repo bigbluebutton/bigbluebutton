@@ -616,7 +616,7 @@
     "app.submenu.application.applicationSectionTitle": "Anwendung",
     "app.submenu.application.pushToTalkLabel": "Audio \"Push-To-Talk\"",
     "app.submenu.application.animationsLabel": "Animationen",
-    "app.submenu.application.musicianModeLabel": "Musician Mode (all audio filters off, stereo)",
+    "app.submenu.application.musicianModeLabel": "Musiker-Modus (alle Audio-Filter de-aktiviert, stereo)",
     "app.submenu.application.wbToolbarsAutoHideLabel": "Symbolleisten des Whiteboards automatisch ausblenden",
     "app.submenu.application.darkThemeLabel": "Dark-Mode",
     "app.submenu.application.fontSizeControlLabel": "Schriftgröße",
