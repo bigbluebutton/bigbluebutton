@@ -1229,7 +1229,7 @@
     "app.guest-policy.button.alwaysAcceptAuth": "Onartu beti autentifikatutak",
     "app.guest-policy.button.alwaysDeny": "Ukatu beti",
     "app.guest-policy.policyBtnDesc": "Saioaren gonbidapen-politika ezartzen du",
-    "app.guest-policy.feedbackMessage": "The guest policy is now: {policy}",
+    "app.guest-policy.feedbackMessage": "Gonbidatuen politika orain hau da: {policy}",
     "app.connection-status.ariaTitle": "Konexioaren egoeraren modala",
     "app.connection-status.title": "Konexioaren egoera",
     "app.connection-status.description": "Ikusi erabiltzaileen konexio egoera",
