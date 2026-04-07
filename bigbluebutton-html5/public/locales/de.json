@@ -1192,7 +1192,7 @@
     "app.lock-viewers.restrictParticipantsLabel": "Beschränke ...",
     "app.lock-viewers.featuresLable": "Funktion",
     "app.lock-viewers.lockStatusLabel": "Status",
-    "app.lock-viewers.webcamLabel": "Share webcam",
+    "app.lock-viewers.webcamLabel": "Webcam freigeben",
     "app.lock-viewers.otherViewersWebcamLabel": "See other participants' webcam",
     "app.lock-viewers.microphoneLabel": "Share microphone",
     "app.lock-viewers.PublicChatLabel": "Send public messages",
