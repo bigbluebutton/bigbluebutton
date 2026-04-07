@@ -1206,7 +1206,7 @@
     "app.lock-viewers.hideViewersCursor": "Ikusi beste partaideen kurtsoreak",
     "app.lock-viewers.hideAnnotationsLabel": "Ikusi beste ikusleen oharrak",
     "app.lock-viewers.disablePresenterRequestLabel": "Aurkezle izateko eskatzen.",
-    "app.lock-viewers.tabs.guestPolicy": "Guest Policy",
+    "app.lock-viewers.tabs.guestPolicy": "Gonbidatuen politika",
     "app.lock-viewers.tabs.participantPermissions": "Participant Permissions",
     "app.lock-viewers.tabs.presentationPermissions": "Presentation Policy",
     "app.lock-viewers.guestPolicy.title": "Guest Policy",
