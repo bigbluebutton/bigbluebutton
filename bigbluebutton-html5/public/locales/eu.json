@@ -244,7 +244,7 @@
     "app.userList.userOptions.enablePubChat": "Txat publikoa gaituta dago",
     "app.userList.userOptions.enableNotes": "Orain ohar partekatuta gaituta daude",
     "app.userList.userOptions.showUserList": "Erabiltzaileen zerrenda ikusgai dago ikusleentzat",
-    "app.userList.userOptions.disablePresenterRequest": "Presenter request is now disabled for viewers",
+    "app.userList.userOptions.disablePresenterRequest": "Aurkezlearen eskaera desgaituta dago orain ikusleentzat",
     "app.userList.userOptions.enablePresenterRequest": "Presenter request is now enabled for viewers",
     "app.userList.userOptions.enablePresenterFreeForAll": "Participants can now take presenter without moderator approval",
     "app.userList.userOptions.enableOnlyModeratorWebcam": "Zure web-kamera piztu dezakezu orain, edonork ikusiko zaitu",
