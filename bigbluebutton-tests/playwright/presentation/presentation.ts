@@ -59,12 +59,9 @@ export class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.startSharingWebcam);
     await this.modPage.hasElement(e.screenShareVideo, 'should display the screen share video for the moderator');
     await this.modPage.closeAllToastNotifications();
-    const modWhiteboardLocator = this.modPage.page.locator(e.screenShareVideo);
-    await expect(modWhiteboardLocator, 'should display the same screenshot as taken before').toHaveScreenshot(
+    const modScreenShareVideo = this.modPage.page.locator(e.screenShareVideo);
+    await expect(modScreenShareVideo, 'should display the same screenshot as taken before').toHaveScreenshot(
       'moderator-share-camera-as-content.png',
-      {
-        maxDiffPixels: 1000,
-      },
     );
 
     await this.userPage.wasRemoved(
@@ -73,10 +70,8 @@ export class Presentation extends MultiUsers {
     );
     await this.userPage.hasElement(e.screenShareVideo, 'should display the screen share video for the viewer');
     await this.modPage.closeAllToastNotifications();
-    const viewerWhiteboardLocator = this.userPage.page.locator(e.screenShareVideo);
-    await expect(viewerWhiteboardLocator).toHaveScreenshot('viewer-share-camera-as-content.png', {
-      maxDiffPixels: 1000,
-    });
+    const viewerScreenShareVideo = this.userPage.page.locator(e.screenShareVideo);
+    await expect(viewerScreenShareVideo).toHaveScreenshot('viewer-share-camera-as-content.png');
   }
 
   async hideAndRestorePresentation() {
