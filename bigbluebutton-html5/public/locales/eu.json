@@ -1194,7 +1194,7 @@
     "app.lock-viewers.lockStatusLabel": "Egoera",
     "app.lock-viewers.webcamLabel": "Partekatu web-kamera",
     "app.lock-viewers.otherViewersWebcamLabel": "Ikusi beste partaideen web-kamerak",
-    "app.lock-viewers.microphoneLabel": "Share microphone",
+    "app.lock-viewers.microphoneLabel": "Partekatu mikrofonoa",
     "app.lock-viewers.PublicChatLabel": "Send public messages",
     "app.lock-viewers.PrivateChatLabel": "Send private messages",
     "app.lock-viewers.notesLabel": "Edit shared notes",
