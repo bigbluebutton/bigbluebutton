@@ -1216,7 +1216,7 @@
     "app.lock-viewers.presentationPermissions.title": "Präsentationsrichtlinien",
     "app.lock-viewers.presentationPermissions.description": "Einstellen, wie die Präsentationsrechte im Meeting gesteuert werden.",
     "app.lock-viewers.presentationPermissions.moderatorOnly": "Die Moderation weist Präsentationsrechte zu",
-    "app.lock-viewers.presentationPermissions.moderatorOnly.tooltip": "Only moderators can assign the presenter role to participants.",
+    "app.lock-viewers.presentationPermissions.moderatorOnly.tooltip": "Nur Moderator*innen können Teilnehmenden Präsentationsrechte erteilen.",
     "app.lock-viewers.presentationPermissions.requireApproval": "Allow participants to present with moderator approval",
     "app.lock-viewers.presentationPermissions.requireApproval.tooltip": "Participants can request to become presenter, but a moderator must approve the request.",
     "app.lock-viewers.presentationPermissions.freeForAll": "Allow participants to present freely",
