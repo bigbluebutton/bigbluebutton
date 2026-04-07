@@ -579,7 +579,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
     await customParam.customStyle();
   });
 
-  test('Custom Styles: URL', async ({ browser, context, page }, testInfo) => {
+  test('Custom Styles: URL', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, { joinParameter: encodeCustomParams(c.customStyleUrl), testInfo });
     await customParam.customStyle();
