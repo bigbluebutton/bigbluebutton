@@ -203,6 +203,7 @@ export const sortConnectionData = (connectionData) => connectionData
 
 export function getWorstStatus(statuses) {
   const statusOrder = {
+    unknown: -1,
     normal: 0,
     warning: 1,
     danger: 2,
