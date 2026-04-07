@@ -1220,7 +1220,7 @@
     "app.lock-viewers.presentationPermissions.requireApproval": "Eman baimena partaideei aurkezteko moderatzailearen onespena badute",
     "app.lock-viewers.presentationPermissions.requireApproval.tooltip": "Partaideek aurkezle rola eskatu dezakete baina moderatzaile batek onartu behar du eskaera.",
     "app.lock-viewers.presentationPermissions.freeForAll": "Eman baimena partaideei libreki aurkezteko",
-    "app.lock-viewers.presentationPermissions.freeForAll.tooltip": "Any participant can take the presenter role without moderator approval.",
+    "app.lock-viewers.presentationPermissions.freeForAll.tooltip": "Edozein partaidek har dezake aurkezle rola moderatzaile baten onarpen beharrik gabe.",
     "app.guest-policy.ariaTitle": "Gonbidatuen gidalerroen ezarpen modala",
     "app.guest-policy.title": "Gonbidapen gidalerroak",
     "app.guest-policy.description": "Aldatu saioaren gonbidapen-gidalerroen ezarpenak",
