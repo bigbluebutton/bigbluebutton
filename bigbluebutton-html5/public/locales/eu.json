@@ -245,7 +245,7 @@
     "app.userList.userOptions.enableNotes": "Orain ohar partekatuta gaituta daude",
     "app.userList.userOptions.showUserList": "Erabiltzaileen zerrenda ikusgai dago ikusleentzat",
     "app.userList.userOptions.disablePresenterRequest": "Aurkezlearen eskaera desgaituta dago orain ikusleentzat",
-    "app.userList.userOptions.enablePresenterRequest": "Presenter request is now enabled for viewers",
+    "app.userList.userOptions.enablePresenterRequest": "Aurkezlearen eskaera gaituta dago orain ikusleentzat",
     "app.userList.userOptions.enablePresenterFreeForAll": "Participants can now take presenter without moderator approval",
     "app.userList.userOptions.enableOnlyModeratorWebcam": "Zure web-kamera piztu dezakezu orain, edonork ikusiko zaitu",
     "app.userList.userOptions.savedNames.title": "{meetingName} saioko erabiltzaileen zerrenda {dateAndTime} etan",
