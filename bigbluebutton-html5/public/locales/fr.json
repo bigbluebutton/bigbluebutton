@@ -1380,7 +1380,7 @@
     "app.createBreakoutRoom.minusRoomTime": "Diminuer la durée des groupes de travail à",
     "app.createBreakoutRoom.addRoomTime": "Augmenter la durée des groupes de travail à",
     "app.createBreakoutRoom.addParticipantLabel": "+ Ajouter un participant",
-    "app.createBreakoutRoom.freeJoin": "Autoriser les participants à choisir la salle de réunion privée qu'ils souhaitent rejoindre",
+    "app.createBreakoutRoom.freeJoin": "Autoriser les participants à choisir leur groupe de travail",
     "app.createBreakoutRoom.manageRoomsLabel": "Gérer les salles",
     "app.createBreakoutRoom.captureNotes": "Faire une capture des notes partagées lors de la fermeture des groupes de travail",
     "app.createBreakoutRoom.captureSlides": "Faire une capture du tableau blanc lors de la fermeture des groupes de travail",
