@@ -1,5 +1,5 @@
-import styled from "styled-components";
-import { btnSpacing } from "/imports/ui/stylesheets/styled-components/general";
+import styled from 'styled-components';
+import { btnSpacing } from '/imports/ui/stylesheets/styled-components/general';
 
 export const PluginButtonIcon = styled.i`
   vertical-align: middle;
