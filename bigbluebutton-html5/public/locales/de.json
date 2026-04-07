@@ -1207,7 +1207,7 @@
     "app.lock-viewers.hideAnnotationsLabel": "Anmerkungen anderer anzeigen",
     "app.lock-viewers.disablePresenterRequestLabel": "Präsentationsrechte anfordern",
     "app.lock-viewers.tabs.guestPolicy": "Gastzugang regeln",
-    "app.lock-viewers.tabs.participantPermissions": "Participant Permissions",
+    "app.lock-viewers.tabs.participantPermissions": "Berechtigungen",
     "app.lock-viewers.tabs.presentationPermissions": "Presentation Policy",
     "app.lock-viewers.guestPolicy.title": "Guest Policy",
     "app.lock-viewers.guestPolicy.description": "Configure how guests are handled when trying to join the meeting.",
