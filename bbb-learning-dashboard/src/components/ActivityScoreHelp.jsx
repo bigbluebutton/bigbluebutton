@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormattedMessage, useIntl, injectIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 const ActivityScoreHelp = () => {
   const intl = useIntl();
