@@ -37,13 +37,13 @@ const calculateMOS = (rate) => 1 + (0.035) * rate + (0.000007) * rate * (rate - 
 const buildData = (inboundRTP) => {
   const builtData = {
     packets: {
-      received: inboundRTP.packetsReceived,
-      lost: inboundRTP.packetsLost,
+      received: inboundRTP.packetsReceived ?? 0,
+      lost: inboundRTP.packetsLost ?? 0,
     },
     bytes: {
-      received: inboundRTP.bytesReceived,
+      received: inboundRTP.bytesReceived ?? 0,
     },
-    jitter: inboundRTP.jitter,
+    jitter: inboundRTP.jitter ?? 0,
   };
 
   return builtData;
