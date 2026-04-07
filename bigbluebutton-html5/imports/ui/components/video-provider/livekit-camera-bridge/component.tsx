@@ -133,7 +133,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
   const streamsRef = useRef(streams);
   streamsRef.current = streams;
 
-  const withSelectiveSubscription = meetingSettings.public.media?.livekit?.selectiveSubscription || false;
+  const withSelectiveSubscription = meetingSettings.public.media?.livekit?.selectiveSubscription?.enabled ?? true;
 
   const handleStreamFailure = useCallback((error: Error, stream: string, isLocal: boolean) => {
     const { name: errorName, message: errorMessage } = error;

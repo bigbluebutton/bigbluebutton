@@ -952,7 +952,7 @@
     "app.error.userLoggedOut": "Kasutaja sessioonitõend on kehtetu väljalogimise tõttu",
     "app.error.ejectedUser": "Kasutaja sessioonitõend on kehtetu väljaheitmise tõttu",
     "app.error.joinedAnotherWindow": "See sessioon paistab olevat juba avatud teises brauseriaknas.",
-    "app.error.userBanned": "You have been removed for the remaining duration of this session.",
+    "app.error.userBanned": "Oled sellelt sessioonilt eemaldatud ülejäänud ajaks.",
     "app.error.leaveLabel": "Logi uuesti sisse",
     "app.error.fallback.presentation.title": "Tekkis viga",
     "app.error.fallback.presentation.description": "Viga on registreeritud. Palun proovi leht uuesti laadida.",

@@ -1,90 +1,60 @@
-import { useEffect } from 'react';
-import { isEqual } from 'radash';
-import { makeVar, useReactiveVar } from '@apollo/client';
+import { useMemo } from 'react';
+import useShouldUseLiveKitAudioState from './livekit/useShouldUseLiveKitAudioState';
+import useWhoIsTalkingLiveKit, {
+  useWhoIsTalkingConsumersCount as useWhoIsTalkingConsumersCountLiveKit,
+  setWhoIsTalkingLoading as setWhoIsTalkingLoadingLiveKit,
+} from './livekit/useWhoIsTalkingLiveKit';
+import useWhoIsTalkingGraphql, {
+  useWhoIsTalkingConsumersCount as useWhoIsTalkingConsumersCountGraphql,
+  setWhoIsTalkingLoading as setWhoIsTalkingLoadingGraphql,
+  dispatchWhoIsTalkingUpdate as dispatchWhoIsTalkingUpdateGraphql,
+} from './useWhoIsTalkingGraphql';
+import { TalkingUsersState } from './types';
 
-const createUseWhoIsTalking = () => {
-  const countVar = makeVar(0);
-  const stateVar = makeVar<Record<string, boolean>>({});
-  const loadingVar = makeVar(true);
+/**
+ * Router hook that conditionally uses either BBB's GraphQL or LiveKit's
+ * client-side state to provide the talking users state.
+ *
+ * When `useLiveKitAudioState` is enabled AND `audioBridge === 'livekit'`,
+ * this hook uses LiveKit's participant speaking state, else BBB's.
+ */
+const useWhoIsTalking = (): TalkingUsersState => {
+  const shouldUseLiveKit = useShouldUseLiveKitAudioState();
+  const bbbTalkingState = useWhoIsTalkingGraphql();
+  const liveKitTalkingState = useWhoIsTalkingLiveKit();
 
-  const setWhoIsTalkingState = (newState: Record<string, boolean>) => stateVar(newState);
+  return useMemo(() => {
+    if (shouldUseLiveKit) return liveKitTalkingState;
 
-  const setWhoIsTalkingLoading = (loading: boolean) => loadingVar(loading);
-
-  const getWhoIsTalking = () => stateVar();
-
-  const dispatchWhoIsTalkingUpdate = (data?: { userId: string; talking: boolean; muted: boolean }[]) => {
-    if (countVar() === 0) return;
-
-    if (!data) {
-      stateVar({});
-      return;
-    }
-
-    const newTalkingUsers = { ...getWhoIsTalking() };
-
-    data.forEach((voice) => {
-      const { userId, talking, muted } = voice;
-
-      // Delete the user key instead of setting it to false
-      // to keep the state object small and easy to compare with isEqual
-      if (!talking || muted) {
-        delete newTalkingUsers[userId];
-        return;
-      }
-
-      newTalkingUsers[userId] = true;
-    });
-
-    if (isEqual(getWhoIsTalking(), newTalkingUsers)) {
-      return;
-    }
-
-    setWhoIsTalkingState(newTalkingUsers);
-  };
-
-  const useWhoIsTalkingConsumersCount = () => useReactiveVar(countVar);
-
-  const useWhoIsTalking = () => {
-    const talkingUsers = useReactiveVar(stateVar);
-    const loading = useReactiveVar(loadingVar);
-
-    useEffect(() => {
-      countVar(countVar() + 1);
-      return () => {
-        countVar(countVar() - 1);
-        if (countVar() === 0) {
-          setWhoIsTalkingState({});
-        }
-      };
-    }, []);
-
-    return {
-      data: talkingUsers,
-      loading,
-    };
-  };
-
-  return [
-    useWhoIsTalking,
-    useWhoIsTalkingConsumersCount,
-    setWhoIsTalkingLoading,
-    dispatchWhoIsTalkingUpdate,
-  ] as const;
+    return bbbTalkingState;
+  }, [shouldUseLiveKit, bbbTalkingState, liveKitTalkingState]);
 };
 
-const [
-  useWhoIsTalking,
-  useWhoIsTalkingConsumersCount,
-  setWhoIsTalkingLoading,
-  dispatchWhoIsTalkingUpdate,
-] = createUseWhoIsTalking();
+const useWhoIsTalkingConsumersCount = () => {
+  const shouldUseLiveKit = useShouldUseLiveKitAudioState();
+  const bbbCount = useWhoIsTalkingConsumersCountGraphql();
+  const livekitCount = useWhoIsTalkingConsumersCountLiveKit();
+
+  return useMemo(() => {
+    if (shouldUseLiveKit) return livekitCount;
+
+    return bbbCount;
+  }, [shouldUseLiveKit, bbbCount, livekitCount]);
+};
+
+const setWhoIsTalkingLoading = (loading: boolean) => {
+  setWhoIsTalkingLoadingGraphql(loading);
+  setWhoIsTalkingLoadingLiveKit(loading);
+};
+
+// Re-export GraphQL dispatch function for backward compatibility
+// Only used by adapters when BBB mode is active
+export const dispatchWhoIsTalkingUpdate = dispatchWhoIsTalkingUpdateGraphql;
 
 export {
   useWhoIsTalking,
   useWhoIsTalkingConsumersCount,
   setWhoIsTalkingLoading,
-  dispatchWhoIsTalkingUpdate,
 };
 
 export default useWhoIsTalking;

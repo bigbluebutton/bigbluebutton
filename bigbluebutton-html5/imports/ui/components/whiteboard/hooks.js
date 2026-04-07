@@ -224,8 +224,8 @@ const useMouseEvents = ({
 
     // Calculate the new camera position to keep the mouse position under the cursor
     const nextCamera = {
-      x: canvasMouseX - (canvasMouseX - cx) * (newCameraZoomFactor / cz),
-      y: canvasMouseY - (canvasMouseY - cy) * (newCameraZoomFactor / cz),
+      x: cx + (canvasMouseX - cx) * (cz / newCameraZoomFactor - 1),
+      y: cy + (canvasMouseY - cy) * (cz / newCameraZoomFactor - 1),
       z: newCameraZoomFactor,
     };
 
@@ -289,8 +289,8 @@ const useMouseEvents = ({
           const canvasCenterY = (centerY - (rect?.top || 0)) / cz + cy;
 
           const nextCamera = {
-            x: canvasCenterX - (canvasCenterX - cx) * (newCameraZoomFactor / cz),
-            y: canvasCenterY - (canvasCenterY - cy) * (newCameraZoomFactor / cz),
+            x: cx + (canvasCenterX - cx) * (cz / newCameraZoomFactor - 1),
+            y: cy + (canvasCenterY - cy) * (cz / newCameraZoomFactor - 1),
             z: newCameraZoomFactor,
           };
 

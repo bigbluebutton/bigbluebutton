@@ -21,7 +21,7 @@ import Tooltip from '/imports/ui/components/common/tooltip/component';
 import SessionDetailsModal from '/imports/ui/components/session-details/component';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import { PluginButtonIcon } from '/imports/ui/components/plugins/plugin-icon/styles';
-import getStorageSingletonInstance from '../../services/storage';
+import SessionStorage from '../../services/storage/session';
 import { ModalRegistration } from '../../core/singletons/modalController';
 
 const intlMessages = defineMessages({
@@ -222,7 +222,7 @@ class NavBar extends Component {
       showSessionDetailsOnJoin,
       meetingId,
     } = this.props;
-    const ShownId = getStorageSingletonInstance().getItem('alreadyShowSessionDetailsOnJoin');
+    const ShownId = SessionStorage.getItem('alreadyShowSessionDetailsOnJoin');
     if (showSessionDetailsOnJoin && ShownId !== meetingId) {
       this.setModalIsOpen(true);
     }
@@ -427,7 +427,7 @@ class NavBar extends Component {
                     this.setModalIsOpen = (value) => {
                       if (!value) {
                         const { meetingId } = this.props;
-                        getStorageSingletonInstance().setItem('alreadyShowSessionDetailsOnJoin', meetingId);
+                        SessionStorage.setItem('alreadyShowSessionDetailsOnJoin', meetingId);
                       }
                       if (value) open();
                       else close();
