@@ -246,7 +246,7 @@
     "app.userList.userOptions.showUserList": "Liste der Teilnehmenden ist jetzt für alle sichtbar",
     "app.userList.userOptions.disablePresenterRequest": "Zuschauende können nun keine Päsentationsrechte anfordern",
     "app.userList.userOptions.enablePresenterRequest": "Zuschauende können nun Päsentationsrechte anfordern",
-    "app.userList.userOptions.enablePresenterFreeForAll": "Participants can now take presenter without moderator approval",
+    "app.userList.userOptions.enablePresenterFreeForAll": "Teilnehmende können sich nun ohne Zustimmung der Moderation selbst Präsentationsrechte holen",
     "app.userList.userOptions.enableOnlyModeratorWebcam": "Die Webkamera kann jetzt freigeben werden und wird dann allen anderen gezeigt",
     "app.userList.userOptions.savedNames.title": "Liste der Teilnehmer in der Sitzung {meetingName} / {dateAndTime}",
     "app.userList.userOptions.sortedFirstName.heading": "Sortiert nach Vorname:",
