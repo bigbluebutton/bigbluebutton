@@ -1203,7 +1203,7 @@
     "app.lock-viewers.button.apply": "Aplikatu",
     "app.lock-viewers.button.cancel": "Utzi",
     "app.lock-viewers.locked": "Blokeatua",
-    "app.lock-viewers.hideViewersCursor": "See other participants' cursors",
+    "app.lock-viewers.hideViewersCursor": "Ikusi beste partaideen kurtsoreak",
     "app.lock-viewers.hideAnnotationsLabel": "Ikusi beste ikusleen oharrak",
     "app.lock-viewers.disablePresenterRequestLabel": "Requesting to become presenter.",
     "app.lock-viewers.tabs.guestPolicy": "Guest Policy",
