@@ -184,6 +184,7 @@
     "app.userList.mobile": "行動裝置",
     "app.userList.guest": "訪客",
     "app.userList.searchUsers": "Search users",
+    "app.userList.noSearchResults": "No participants match your search. Try another name.",
     "app.userList.clearSearch": "Clear search",
     "app.userList.sharingWebcam": "視訊鏡頭",
     "app.userList.menuTitleContext": "可用選項",
