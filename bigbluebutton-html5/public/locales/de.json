@@ -1205,7 +1205,7 @@
     "app.lock-viewers.locked": "Gesperrt",
     "app.lock-viewers.hideViewersCursor": "Cursor anderer Teilnehmer anzeigen",
     "app.lock-viewers.hideAnnotationsLabel": "Anmerkungen anderer anzeigen",
-    "app.lock-viewers.disablePresenterRequestLabel": "Requesting to become presenter.",
+    "app.lock-viewers.disablePresenterRequestLabel": "Präsentationsrechte anfordern",
     "app.lock-viewers.tabs.guestPolicy": "Guest Policy",
     "app.lock-viewers.tabs.participantPermissions": "Participant Permissions",
     "app.lock-viewers.tabs.presentationPermissions": "Presentation Policy",
