@@ -191,7 +191,7 @@
     "app.userList.chatListItem.unreadSingular": "Eine neue Nachricht",
     "app.userList.more": "Mehr",
     "app.userList.chatListItem.unreadPlural": "{unreadCount} neue Nachrichten",
-    "app.userList.chatListItem.unknownParticipant": "Unknown participant",
+    "app.userList.chatListItem.unknownParticipant": "Teilnehmer*in unbekannt",
     "app.userList.menu.away": "Sich selbst als abwesend anzeigen",
     "app.userList.menu.notAway": "Sich selbst als aktiv anzeigen",
     "app.userList.menu.chat.label": "Privaten Chat starten",
