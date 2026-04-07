@@ -187,7 +187,7 @@
     "app.userList.clearSearch": "مسح البحث",
     "app.userList.sharingWebcam": "كاميرا ويب",
     "app.userList.menuTitleContext": "الخيارات المتاحة",
-    "app.userList.chatListItem.noUnread": "No new messages",
+    "app.userList.chatListItem.noUnread": "لا توجد رسائل جديدة",
     "app.userList.chatListItem.unreadSingular": "رسالة جديدة واحدة",
     "app.userList.more": "المزيد",
     "app.userList.chatListItem.unreadPlural": "{unreadCount} رسائل جديدة",
