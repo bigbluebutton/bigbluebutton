@@ -207,11 +207,17 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
   }), [meeting?.meetingId, meeting?.isBreakout, meeting?.lockSettings, meeting?.usersPolicies]);
 
   const displayUsers = useMemo(() => {
-    const usersWithoutCurrent = users.filter((u: User) => u.userId !== currentUser?.userId);
-    if (offset === 0 && !searchQuery) {
-      return [currentUser as User, ...usersWithoutCurrent];
+    const hasSearch = Boolean(searchQuery?.trim());
+    if (hasSearch) {
+      return users;
     }
-    return usersWithoutCurrent;
+
+    const usersWithoutCurrent = users.filter((u: User) => u.userId !== currentUser?.userId);
+    const shouldPinCurrentUser = offset === 0 && !!currentUser;
+
+    return shouldPinCurrentUser
+      ? [currentUser as User, ...usersWithoutCurrent]
+      : usersWithoutCurrent;
   }, [offset, currentUser, users, searchQuery]);
 
   const isLoading = usersLoading
