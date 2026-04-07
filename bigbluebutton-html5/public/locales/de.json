@@ -1197,7 +1197,7 @@
     "app.lock-viewers.microphoneLabel": "Share microphone",
     "app.lock-viewers.PublicChatLabel": "Send public messages",
     "app.lock-viewers.PrivateChatLabel": "Send private messages",
-    "app.lock-viewers.notesLabel": "Edit shared notes",
+    "app.lock-viewers.notesLabel": "Geteilte Notizen bearbeiten",
     "app.lock-viewers.userListLabel": "See other participants in the user list",
     "app.lock-viewers.ariaTitle": "Einstellungen für Teilnehmende",
     "app.lock-viewers.button.apply": "Anwenden",
