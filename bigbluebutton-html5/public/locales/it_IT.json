@@ -184,7 +184,7 @@
     "app.userList.mobile": "Mobile",
     "app.userList.guest": "Ospite",
     "app.userList.searchUsers": "Cerca utenti",
-    "app.userList.noSearchResults": "No participants match your search. Try another name.",
+    "app.userList.noSearchResults": "Nessun partecipante corrisponde alla tua ricerca. Prova con un altro nome.",
     "app.userList.clearSearch": "Pulisci ricerca",
     "app.userList.sharingWebcam": "Webcam",
     "app.userList.menuTitleContext": "Opzioni disponibili",
