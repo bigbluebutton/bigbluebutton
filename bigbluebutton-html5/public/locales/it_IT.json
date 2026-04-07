@@ -187,7 +187,7 @@
     "app.userList.clearSearch": "Pulisci ricerca",
     "app.userList.sharingWebcam": "Webcam",
     "app.userList.menuTitleContext": "Opzioni disponibili",
-    "app.userList.chatListItem.noUnread": "No new messages",
+    "app.userList.chatListItem.noUnread": "Nessun nuovo messaggio",
     "app.userList.chatListItem.unreadSingular": "Un nuovo messaggio",
     "app.userList.more": "Altro",
     "app.userList.chatListItem.unreadPlural": "{unreadCount} nuovi messaggi",
