@@ -187,7 +187,7 @@
     "app.userList.clearSearch": "検索を消去",
     "app.userList.sharingWebcam": "ウェブカメラ",
     "app.userList.menuTitleContext": "使用可能オプション",
-    "app.userList.chatListItem.noUnread": "No new messages",
+    "app.userList.chatListItem.noUnread": "新規メッセージなし",
     "app.userList.chatListItem.unreadSingular": "1 通の新規メッセージ",
     "app.userList.more": "さらに見る",
     "app.userList.chatListItem.unreadPlural": "{unreadCount} 通の新規メッセージ",
