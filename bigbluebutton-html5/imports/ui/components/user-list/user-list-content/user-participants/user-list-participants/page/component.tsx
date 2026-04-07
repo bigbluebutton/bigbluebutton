@@ -15,6 +15,8 @@ import SkeletonUserListItem from '../list-item/skeleton/component';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { LockSettings, Meeting, UsersPolicies } from '/imports/ui/Types/meeting';
+import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
+import { USER_LIST_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
 
 interface UserListParticipantsContainerProps {
   index: number;
@@ -71,6 +73,7 @@ const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
                 open={user.userId === openUserAction}
                 setOpenUserAction={setOpenUserAction}
                 isBreakout={isBreakout}
+                type="participant"
               >
                 <ListItem index={offset + idx} user={user} lockSettings={meeting.lockSettings} />
               </UserActions>
@@ -110,10 +113,19 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
     data: usersData,
     loading: usersLoading,
   } = useLoadedUserList({ offset, limit: limit.current }, (u) => u) as GraphqlDataHookSubscriptionResponse<Array<User>>;
-  const users = usersData ?? [];
+
+  const users = meeting?.meetingId
+    ? filterByMeetingId(
+      (usersData ?? []) as User[],
+      meeting.meetingId,
+      USER_LIST_SUBSCRIPTION,
+      (u) => ({ mismatchedUserId: u.userId, mismatchedName: u.name }),
+    )
+    : [];
 
   const { data: currentUser, loading: currentUserLoading } = useCurrentUser((c: Partial<User>) => ({
     userId: c.userId,
+    extId: c.extId,
     voice: c.voice,
     isModerator: c.isModerator,
     presenter: c.presenter,
@@ -124,14 +136,14 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
     lastBreakoutRoom: c.lastBreakoutRoom,
     cameras: c.cameras,
     pinned: c.pinned,
-    raiseHand: c.raiseHand,
     away: c.away,
     reactionEmoji: c.reactionEmoji,
     avatar: c.avatar,
     isDialIn: c.isDialIn,
     name: c.name,
     color: c.color,
-    presPagesWritable: c.presPagesWritable,
+    whiteboardWriteAccess: c.whiteboardWriteAccess,
+    raiseHand: c.raiseHand,
   }));
 
   const {

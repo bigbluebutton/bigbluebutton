@@ -21,5 +21,6 @@ package org.bigbluebutton.presentation;
 import java.io.File;
 
 public interface PngCreator {
-	public boolean createPng(UploadedPresentation pres, int page, File pageFile);
+	public boolean createPng(UploadedPresentation pres, int page, File pageFile, boolean useBlank);
+	public void createBlank(UploadedPresentation pres, int page);
 }

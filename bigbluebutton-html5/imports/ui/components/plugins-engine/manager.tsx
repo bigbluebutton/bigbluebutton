@@ -20,6 +20,10 @@ import PluginDomElementManipulationManager from './dom-element-manipulation/mana
 import PluginServerCommandsHandler from './server-commands/handler';
 import PluginLearningAnalyticsDashboardManager from './learning-analytics-dashboard/manager';
 import PluginEventPersistenceManager from './event-persistence/manager';
+import { DataChannelEntry } from './data-channel/types';
+import createUseSubscription from '../../core/hooks/createUseSubscription';
+import { PLUGIN_DATA_CHANNEL_PUBLIC_SUBSCRIPTION, PLUGIN_DATA_CHANNEL_PRIVATE_SUBSCRIPTION } from './data-channel/subscriptions';
+import { mergeDataChannelEntries } from './data-channel/utils';
 
 const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -44,6 +48,7 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
       ).map((p) => ({
         ...p,
         name: p.name,
+        loggerSettings: p.loggerSettings,
         url: p.javascriptEntrypointUrl,
         localesBaseUrl: p.localesBaseUrl,
         uuid: uuidLib.v4(),
@@ -88,6 +93,25 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
   },
   [failedPlugins]);
 
+  const {
+    data: allPublicEntriesFromDataChannel,
+  } = createUseSubscription<DataChannelEntry>(
+    PLUGIN_DATA_CHANNEL_PUBLIC_SUBSCRIPTION,
+    {}, true,
+  )((obj) => obj);
+
+  const {
+    data: allPrivateEntriesFromDataChannel,
+  } = createUseSubscription<DataChannelEntry>(
+    PLUGIN_DATA_CHANNEL_PRIVATE_SUBSCRIPTION,
+    {}, true,
+  )((obj) => obj);
+
+  const allEntriesFromDataChannel = mergeDataChannelEntries(
+    allPublicEntriesFromDataChannel,
+    allPrivateEntriesFromDataChannel,
+  );
+
   return (
     <>
       <PluginsEngineComponent
@@ -102,7 +126,12 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
       <PluginDomElementManipulationManager />
       {
         effectivePluginsConfig?.map((effectivePluginConfig: EffectivePluginConfig) => {
-          const { uuid, name: pluginName, localesBaseUrl } = effectivePluginConfig;
+          const {
+            uuid,
+            name: pluginName,
+            localesBaseUrl,
+            loggerSettings,
+          } = effectivePluginConfig;
           const pluginApi: PluginSdk.PluginApi = BbbPluginSdk.getPluginApi(uuid, pluginName, localesBaseUrl);
           return (
             <div key={uuid}>
@@ -112,6 +141,8 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
                   containerRef,
                   setNumberOfLoadedPlugins,
                   setLastLoadedPlugin,
+                  loggerSettings,
+                  pluginApi,
                   pluginConfig: effectivePluginConfig,
                 }}
               />
@@ -124,6 +155,7 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
               <PluginDataChannelManager
                 {...{
                   pluginApi,
+                  dataChannelEntries: allEntriesFromDataChannel,
                 }}
               />
               <ExtensibleAreaStateManager

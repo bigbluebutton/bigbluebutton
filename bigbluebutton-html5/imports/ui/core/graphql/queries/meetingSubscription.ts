@@ -38,6 +38,8 @@ const MEETING_SUBSCRIPTION = gql`
         usersPolicies {
           guestPolicy
           guestLobbyMessage
+          webcamsOnlyForModerator
+          multiUserWhiteboardEnabled
         }
         layout {
           cameraDockAspectRatio
@@ -49,7 +51,7 @@ const MEETING_SUBSCRIPTION = gql`
           propagateLayout
           updatedAt
         }
-        
+
         breakoutRoomsCommonProperties {
           durationInSeconds
           freeJoin
@@ -80,6 +82,7 @@ const MEETING_SUBSCRIPTION = gql`
           hasSharedNotes
           hasTimer
           isSharedNotesPinned
+          isEtherpadSharedNotes
           showRemainingTime
           }
     }

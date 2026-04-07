@@ -58,7 +58,6 @@
                 moderatorsCanMuteAudio
                 moderatorsCanUnmuteAudio
                 userCameraCap
-                webcamsOnlyForModerator
               }
               breakoutPolicies {
                 breakoutRooms
@@ -67,7 +66,7 @@
                 captureSlides
                 captureSlidesFilename
                 freeJoin
-                parentId
+                parentMeetingId
                 privateChatEnabled
                 record
                 sequence

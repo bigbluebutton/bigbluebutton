@@ -34,37 +34,39 @@ class NotificationDbTableDef(tag: Tag) extends Table[NotificationDbModel](tag, N
 object NotificationDAO {
   def insert(notification: BbbCommonEnvCoreMsg) = {
 
-    val (meetingId, notificationType, icon, messageId, messageDescription, messageValues, role, userId) = notification.core match {
-      case event: NotifyAllInMeetingEvtMsg =>
-        (event.body.meetingId, event.body.notificationType, event.body.icon, event.body.messageId, event.body.messageDescription, event.body.messageValues, None, None)
-      case event: NotifyRoleInMeetingEvtMsg =>
-        (event.body.meetingId, event.body.notificationType, event.body.icon, event.body.messageId, event.body.messageDescription, event.body.messageValues, Some(event.body.role), None)
-      case event: NotifyUserInMeetingEvtMsg =>
-        (event.body.meetingId, event.body.notificationType, event.body.icon, event.body.messageId, event.body.messageDescription, event.body.messageValues, None, Some(event.body.userId))
-      case _ =>
-        ("","", "", "", "", Map(""->""), None, None)
-    }
+    // Stop inserting notification into the database as it will be streamed by the Middleware
 
-    if (notificationType != "") {
-      DatabaseConnection.enqueue(
-        TableQuery[NotificationDbTableDef].forceInsert(
-          NotificationDbModel(
-            meetingId,
-            notificationType,
-            icon,
-            messageId,
-            messageDescription,
-            JsonUtils.mapToJson(messageValues),
-            role,
-            userMeetingId = userId match {
-              case Some(u) => Some(meetingId)
-              case _ => None
-            },
-            userId,
-            createdAt = new java.sql.Timestamp(System.currentTimeMillis())
-          )
-        )
-      )
-    }
+//    val (meetingId, notificationType, icon, messageId, messageDescription, messageValues, role, userId) = notification.core match {
+//      case event: NotifyAllInMeetingEvtMsg =>
+//        (event.body.meetingId, event.body.notificationType, event.body.icon, event.body.messageId, event.body.messageDescription, event.body.messageValues, None, None)
+//      case event: NotifyRoleInMeetingEvtMsg =>
+//        (event.body.meetingId, event.body.notificationType, event.body.icon, event.body.messageId, event.body.messageDescription, event.body.messageValues, Some(event.body.role), None)
+//      case event: NotifyUserInMeetingEvtMsg =>
+//        (event.body.meetingId, event.body.notificationType, event.body.icon, event.body.messageId, event.body.messageDescription, event.body.messageValues, None, Some(event.body.userId))
+//      case _ =>
+//        ("","", "", "", "", Map(""->""), None, None)
+//    }
+//
+//    if (notificationType != "") {
+//      DatabaseConnection.enqueue(
+//        TableQuery[NotificationDbTableDef].forceInsert(
+//          NotificationDbModel(
+//            meetingId,
+//            notificationType,
+//            icon,
+//            messageId,
+//            messageDescription,
+//            JsonUtils.mapToJson(messageValues),
+//            role,
+//            userMeetingId = userId match {
+//              case Some(u) => Some(meetingId)
+//              case _ => None
+//            },
+//            userId,
+//            createdAt = new java.sql.Timestamp(System.currentTimeMillis())
+//          )
+//        )
+//      )
+//    }
   }
 }

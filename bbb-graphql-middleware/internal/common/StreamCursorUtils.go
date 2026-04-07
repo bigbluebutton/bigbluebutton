@@ -3,11 +3,12 @@ package common
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"hash/crc32"
 	"regexp"
 	"strconv"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func GetStreamCursorPropsFromBrowserMessage(browserMessage BrowserSubscribeMessage) (string, string, interface{}) {
@@ -32,17 +33,17 @@ func GetStreamCursorPropsFromBrowserMessage(browserMessage BrowserSubscribeMessa
 	return streamCursorField, streamCursorVariableName, streamCursorInitialValue
 }
 
-func GetLastStreamCursorValueFromReceivedMessage(message []byte, streamCursorField string) interface{} {
+func GetLastStreamCursorValueFromReceivedMessage(message []byte, streamCursorField string, meetingId string) interface{} {
 	dataChecksum := crc32.ChecksumIEEE(message)
-	GlobalCacheLocks.Lock(dataChecksum)
+	GlobalCacheLocks.Lock(uint64(dataChecksum))
 
-	if streamCursorValueCache, streamCursorValueCacheExists := GetStreamCursorValueCache(dataChecksum); streamCursorValueCacheExists {
-		//Unlock immediately once the cache was already created by other routine
-		GlobalCacheLocks.Unlock(dataChecksum)
+	if streamCursorValueCache, streamCursorValueCacheExists := GetStreamCursorValueCache(meetingId, dataChecksum); streamCursorValueCacheExists {
+		// Unlock immediately once the cache was already created by other routine
+		GlobalCacheLocks.Unlock(uint64(dataChecksum))
 		return streamCursorValueCache
 	} else {
-		//It will create the cache and then Unlock (others will wait to benefit from this cache)
-		defer GlobalCacheLocks.Unlock(dataChecksum)
+		// It will create the cache and then Unlock (others will wait to benefit from this cache)
+		defer GlobalCacheLocks.Unlock(uint64(dataChecksum))
 	}
 
 	var lastStreamCursorValue interface{}
@@ -51,12 +52,12 @@ func GetLastStreamCursorValueFromReceivedMessage(message []byte, streamCursorFie
 	err := json.Unmarshal(message, &messageAsMap)
 	if err != nil {
 		log.Errorf("failed to unmarshal message: %v", err)
-		//return
+		return nil
 	}
 
 	if payload, okPayload := messageAsMap["payload"].(map[string]interface{}); okPayload {
 		if data, okData := payload["data"].(map[string]interface{}); okData {
-			//Data will have only one prop, `range` because its name is unknown
+			// Data will have only one prop, `range` because its name is unknown
 			for _, dataItem := range data {
 				currentDataProp, okCurrentDataProp := dataItem.([]interface{})
 				if okCurrentDataProp && len(currentDataProp) > 0 {
@@ -72,7 +73,7 @@ func GetLastStreamCursorValueFromReceivedMessage(message []byte, streamCursorFie
 		}
 	}
 
-	StoreStreamCursorValueCache(dataChecksum, lastStreamCursorValue)
+	StoreStreamCursorValueCache(meetingId, dataChecksum, lastStreamCursorValue)
 	return lastStreamCursorValue
 }
 
@@ -115,7 +116,7 @@ func PatchQuerySettingLastCursorValue(subscription GraphQlSubscription) []byte {
 			case string:
 				newValue = v
 
-				//Append quotes if it is missing, it will be necessary when appending to the query
+				// Append quotes if it is missing, it will be necessary when appending to the query
 				if !strings.HasPrefix(v, "\"") {
 					newValue = "\"" + newValue
 				}

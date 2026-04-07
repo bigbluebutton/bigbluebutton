@@ -4,12 +4,13 @@ export const CONNECTION_STATUS_REPORT_SUBSCRIPTION = gql`subscription ConnStatus
   user_connectionStatusReport(
   where: {
     _or: [
-            { clientNotResponding: { _eq: true } }, 
+            { clientNotResponding: { _eq: true } },
             { lastUnstableStatus: { _is_null: false } }
           ]
   },
   order_by: {lastUnstableStatusAt: desc}
   ) {
+    meetingId
     user {
       userId
       name
@@ -40,11 +41,19 @@ export const USER_CURRENT_STATUS_SUBSCRIPTION = gql`
   }
 `;
 
-export const CONNECTION_STATUS_SUBSCRIPTION = gql`subscription ConnStatus {
-  user_connectionStatus {
-    connectionAliveAt
-    userClientResponseAt
-    status
+// does not change: This subscription is used by the backend to measure the server load
+export const CONNECTION_STATUS_SUBSCRIPTION = gql`subscription ConnStatusWithTraceLog($clientSessionUUID: String!) {
+  user_connectionStatus(
+    where: {
+      clientSessionUUID: { _eq: $clientSessionUUID }
+    }
+  ) {
+    meetingId
+    userId
+    sessionToken
+    traceLog
+    networkRttInMs
+    applicationRttInMs
     statusUpdatedAt
   }
 }`;

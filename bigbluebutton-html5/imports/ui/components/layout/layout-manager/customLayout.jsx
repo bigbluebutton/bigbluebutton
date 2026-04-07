@@ -165,7 +165,7 @@ const CustomLayout = (props) => {
                 },
               },
               cameraDock: {
-                position: cameraDock.position || CAMERADOCK_POSITION.CONTENT_TOP,
+                position: cameraDock.position || DEFAULT_VALUES.cameraPosition,
                 numCameras: cameraDock.numCameras,
               },
               externalVideo: {
@@ -224,7 +224,7 @@ const CustomLayout = (props) => {
                 },
               },
               cameraDock: {
-                position: cameraDock.position || CAMERADOCK_POSITION.CONTENT_TOP,
+                position: cameraDock.position || DEFAULT_VALUES.cameraPosition,
                 numCameras: cameraDock.numCameras,
               },
               externalVideo: {
@@ -348,7 +348,7 @@ const CustomLayout = (props) => {
         );
       }
 
-      cameraDockBounds.top = navBarHeight;
+      cameraDockBounds.top = navBarHeight + bannerAreaHeight();
       cameraDockBounds.left = mediaAreaBounds.left;
       cameraDockBounds.right = isRTL ? sidebarSize : null;
       cameraDockBounds.minWidth = mediaAreaBounds.width;
@@ -711,7 +711,7 @@ const CustomLayout = (props) => {
         left: cameraDockBounds.left,
         right: cameraDockBounds.right,
         tabOrder: 4,
-        isDraggable: !isMobile && !isTablet && presentationInput.isOpen,
+        isDraggable: !isMobile && !isTablet && isMediaOpen,
         resizableEdge: {
           top:
           isMediaOpen

@@ -12,6 +12,8 @@ import useHasUnreadNotes from '../notes/hooks/useHasUnreadNotes';
 import { useShortcut } from '../../core/hooks/useShortcut';
 import useMeeting from '../../core/hooks/useMeeting';
 import { registerTitleView } from '/imports/utils/dom-utils';
+import { useReactiveVar } from '@apollo/client';
+import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 
 const intlMessages = defineMessages({
   defaultViewLabel: {
@@ -69,6 +71,7 @@ const NavBarContainer = ({ children, ...props }) => {
   let breakoutNum;
   let breakoutName;
   let meetingName;
+  const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
 
   const { data: meeting } = useMeeting((m) => ({
     name: m.name,
@@ -124,7 +127,7 @@ const NavBarContainer = ({ children, ...props }) => {
         meetingName,
         isDirectLeaveButtonEnabled: IS_DIRECT_LEAVE_BUTTON_ENABLED,
         // TODO: Remove/Replace
-        isMeteorConnected: true,
+        isConnected: connected,
         hideTopRow: navBar.hideTopRow,
         showSessionDetailsOnJoin: SHOW_SESSION_DETAILS_ON_JOIN,
         ...props,

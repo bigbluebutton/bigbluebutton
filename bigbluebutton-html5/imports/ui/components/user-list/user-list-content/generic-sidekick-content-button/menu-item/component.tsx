@@ -22,6 +22,13 @@ const GenericContentSidekickAreaMenuItem = ({
 }: GenericContentSidekickAreaMenuItemProps) => {
   const [nameReplacement, setNameReplacement] = useState(genericContentSidekickAreaObject.name);
   const [badgeContent, setBadgeContent] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (genericContentSidekickAreaObject.name !== nameReplacement) {
+      setNameReplacement(genericContentSidekickAreaObject.name);
+    }
+  }, [genericContentSidekickAreaObject]);
+
   useEffect(() => {
     if (genericContentSidekickAreaObject.open) {
       layoutContextDispatch({
@@ -94,10 +101,12 @@ const GenericContentSidekickAreaMenuItem = ({
     };
   }, []);
 
+  const dataTest = `sidekick_menu_item_${genericContentSidekickAreaObject.dataTest}`;
   return (
     <Styled.ScrollableList>
       <Styled.List>
         <Styled.ListItem
+          data-test={dataTest}
           role="button"
           tabIndex={0}
           active={sidebarContentPanel === genericSidekickContentId}

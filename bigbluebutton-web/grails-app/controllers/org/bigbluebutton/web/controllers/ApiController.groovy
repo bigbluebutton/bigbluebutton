@@ -22,6 +22,7 @@ import com.google.gson.Gson
 import grails.web.context.ServletContextHolder
 import groovy.json.JsonBuilder
 import groovy.xml.MarkupBuilder
+import groovy.xml.XmlSlurper
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FilenameUtils
@@ -31,24 +32,23 @@ import org.bigbluebutton.api.*
 import org.bigbluebutton.api.domain.GuestPolicy
 import org.bigbluebutton.api.domain.Meeting
 import org.bigbluebutton.api.domain.UserSession
-import org.bigbluebutton.api.service.ValidationService
 import org.bigbluebutton.api.service.ServiceUtils
+import org.bigbluebutton.api.service.ValidationService
 import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.api.util.ResponseBuilder
 import org.bigbluebutton.presentation.PresentationUrlDownloadService
+import org.bigbluebutton.presentation.SupportedFileTypes
 import org.bigbluebutton.presentation.UploadedPresentation
-import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.web.services.PresentationService
+import org.bigbluebutton.web.services.turn.RemoteIceCandidate
+import org.bigbluebutton.web.services.turn.StunServer
 import org.bigbluebutton.web.services.turn.StunTurnService
 import org.bigbluebutton.web.services.turn.TurnEntry
-import org.bigbluebutton.web.services.turn.StunServer
-import org.bigbluebutton.web.services.turn.RemoteIceCandidate
 import org.codehaus.groovy.util.ListHashMap
 import org.json.JSONArray
 
-
-import javax.servlet.ServletRequest
-import javax.servlet.http.HttpServletRequest
+import jakarta.servlet.ServletRequest
+import jakarta.servlet.http.HttpServletRequest
 
 class ApiController {
   private static final String CONTROLLER_NAME = 'ApiController'
@@ -106,6 +106,16 @@ class ApiController {
     } else {
       withFormat {
         xml {
+          render(text: responseBuilder.buildMeetingVersion(
+                  paramsProcessorUtil.getApiVersion(),
+                  paramsProcessorUtil.getBbbVersion(),
+                  paramsProcessorUtil.getGraphqlWebsocketUrl(),
+                  paramsProcessorUtil.getHtml5PluginSdkVersion(),
+                  paramsProcessorUtil.getGraphqlApiUrl(),
+                  RESP_CODE_SUCCESS),
+                  contentType: "text/xml")
+        }
+        '*' {
           render(text: responseBuilder.buildMeetingVersion(
                   paramsProcessorUtil.getApiVersion(),
                   paramsProcessorUtil.getBbbVersion(),
@@ -194,13 +204,25 @@ class ApiController {
 
     def xmlModules = processRequestXmlModules(requestBody)
 
-    // Set Client Settings Override
+    // Set Client Settings Override:
+    // clientSettingsOverrideJsonUrl (GET) takes precedence and is already resolved in processCreateParams.
+    // Fall back to clientSettingsOverride from the POST body only when the URL param did not supply a value.
     if(xmlModules.containsKey("clientSettingsOverride")) {
       if(paramsProcessorUtil.getAllowOverrideClientSettingsOnCreateCall()) {
-        newMeeting.setOverrideClientSettings(xmlModules.get("clientSettingsOverride").text())
+        if(StringUtils.isEmpty(newMeeting.getOverrideClientSettings())) {
+          newMeeting.setOverrideClientSettings(xmlModules.get("clientSettingsOverride").text())
+          log.info("Module `clientSettingsOverride` in POST body loaded.")
+          println(xmlModules.get("clientSettingsOverride").text())
+        } else {
+          log.info("Module `clientSettingsOverride` in POST body ignored because `clientSettingsOverrideJsonUrl` took precedence.")
+        }
       } else {
-        log.warn("Module `clientSettingsOverride` provided but this options is disabled by `allowOverrideClientSettingsOnCreateCall=false` config.");
+        log.warn("Module `clientSettingsOverride` provided but this option is disabled by `allowOverrideClientSettingsOnCreateCall=false` config.");
       }
+    }
+
+    if(xmlModules.containsKey("sharedNotesInitialContentJson")) {
+      newMeeting.setSharedNotesInitialContentJsonFromPayload(xmlModules.get("sharedNotesInitialContentJson").text())
     }
 
     ApiErrors errors = new ApiErrors()
@@ -271,7 +293,11 @@ class ApiController {
 
     boolean redirectClient = REDIRECT_RESPONSE
     if(!(validationResponse == null)) {
-      invalid(validationResponse.getKey(), validationResponse.getValue(), redirectClient, errorRedirectUrl);
+      if (validationResponse.getKey() == "checksumError") {
+        invalid(validationResponse.getKey(), validationResponse.getValue(), redirectClient);
+      } else {
+        invalid(validationResponse.getKey(), validationResponse.getValue(), redirectClient, errorRedirectUrl);
+      }
       return
     }
 
@@ -369,6 +395,10 @@ class ApiController {
               render(text: responseBuilder.buildError("Params required", "You must enter a valid password",
                       RESP_CODE_FAILED), contentType: "text/xml")
             }
+            '*' {
+              render(text: responseBuilder.buildError("Params required", "You must enter a valid password",
+                      RESP_CODE_FAILED), contentType: "text/xml")
+            }
           }
           return
         }
@@ -378,6 +408,10 @@ class ApiController {
         response.addHeader("Cache-Control", "no-cache")
         withFormat {
           xml {
+            render(text: responseBuilder.buildError("Params required", "You must send the 'role' parameter, since " +
+                    "this meeting doesn't have any password.", RESP_CODE_FAILED), contentType: "text/xml")
+          }
+         '*' {
             render(text: responseBuilder.buildError("Params required", "You must send the 'role' parameter, since " +
                     "this meeting doesn't have any password.", RESP_CODE_FAILED), contentType: "text/xml")
           }
@@ -394,6 +428,10 @@ class ApiController {
           render(text: responseBuilder.buildError("Params required", "You must either send the valid role of the user, or " +
                   "the password, sould the meeting has one.", RESP_CODE_FAILED), contentType: "text/xml")
         }
+        '*' {
+          render(text: responseBuilder.buildError("Params required", "You must either send the valid role of the user, or " +
+                  "the password, sould the meeting has one.", RESP_CODE_FAILED), contentType: "text/xml")
+        }
       }
       return
     }
@@ -401,13 +439,13 @@ class ApiController {
     // We preprend "w_" to our internal meeting Id to indicate that this is a web user.
     // For users joining using the phone, we will prepend "v_" so it will be easier
     // to distinguish users who doesn't have a web client. (ralam june 12, 2017)
-    String internalUserID = "w_" + RandomStringUtils.randomAlphanumeric(12).toLowerCase()
+    String internalUserID = "w_" + Util.randomAlphanumeric(12).toLowerCase()
 
-    String authToken = RandomStringUtils.randomAlphanumeric(12).toLowerCase()
+    String authToken = Util.randomAlphanumeric(12).toLowerCase()
 
     log.debug "Auth token: " + authToken
 
-    String sessionToken = RandomStringUtils.randomAlphanumeric(16).toLowerCase()
+    String sessionToken = Util.randomAlphanumeric(16).toLowerCase()
 
     log.debug "Session token: " + sessionToken
 
@@ -433,6 +471,22 @@ class ApiController {
 
     //Return a Map with the user custom data
     Map<String, String> userCustomData = meetingService.getUserCustomData(meeting, externUserID, params);
+
+    // Build joinRequestMetadata with client request info (IP, User-Agent, Referer, sessionToken)
+    // This is static metadata from the initial join request, not dynamic user state
+    String clientIp = paramsProcessorUtil.extractClientIp(
+        request.getHeader("X-Forwarded-For"),
+        request.getHeader("X-Real-IP"),
+        request.getRemoteAddr()
+    )
+    String userAgent = paramsProcessorUtil.sanitizeHeader(request.getHeader('User-Agent'), 512)
+    String referer = paramsProcessorUtil.sanitizeHeader(request.getHeader('Referer'), 1024)
+
+    Map<String, String> joinRequestMetadata = new HashMap<>()
+    joinRequestMetadata.put("ipAddress", clientIp)
+    joinRequestMetadata.put("userAgent", userAgent)
+    joinRequestMetadata.put("referer", referer)
+    joinRequestMetadata.put("sessionToken", sessionToken)
 
     //Currently, it's associated with the externalUserID
     meetingService.addUserCustomData(meeting.getInternalId(), externUserID, userCustomData);
@@ -535,6 +589,7 @@ class ApiController {
         us.leftGuestLobby,
         us.enforceLayout,
         us.logoutUrl,
+        joinRequestMetadata,
         meeting.getUserCustomData(us.externUserID)
     )
 
@@ -589,13 +644,22 @@ class ApiController {
         xml {
           render(text: responseBuilder.buildJoinMeeting(us, session[sessionToken], guestStatusVal, destUrl, msgKey, msgValue, RESP_CODE_SUCCESS), contentType: "text/xml")
         }
+        '*' {
+          render(text: responseBuilder.buildJoinMeeting(us, session[sessionToken], guestStatusVal, destUrl, msgKey, msgValue, RESP_CODE_SUCCESS), contentType: "text/xml")
+        }
       }
     }
   }
 
-  def handleJoinExistingUser(String existingUserID) {
+  private handleJoinExistingUser(String existingUserID) {
     Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
     UserSession existingUserSession = meetingService.getUserSessionWithUserId(existingUserID)
+
+    if (existingUserSession == null) {
+      invalid("userNotFound", "No active session found for the provided user ID.", false)
+      return
+    }
+
 
     //check if exists the param redirect
     boolean redirectClient = REDIRECT_RESPONSE
@@ -713,7 +777,10 @@ class ApiController {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         xml {
-          render(text: responseBuilder.buildJoinMeeting(us, session[sessionToken], guestStatusVal, destUrl, msgKey, msgValue, RESP_CODE_SUCCESS), contentType: "text/xml")
+          render(text: responseBuilder.buildJoinMeeting(us, session[sessionToken], us.guestStatus, destUrl, msgKey, msgValue, RESP_CODE_SUCCESS), contentType: "text/xml")
+        }
+        '*' {
+          render(text: responseBuilder.buildJoinMeeting(us, session[sessionToken], us.guestStatus, destUrl, msgKey, msgValue, RESP_CODE_SUCCESS), contentType: "text/xml")
         }
       }
     }
@@ -759,6 +826,11 @@ class ApiController {
           render(text: responseBuilder.buildIsMeetingRunning(isRunning, RESP_CODE_SUCCESS), contentType: "text/xml")
         }
       }
+      '*' {
+        render(contentType: "text/xml") {
+            render(text: responseBuilder.buildIsMeetingRunning(isRunning, RESP_CODE_SUCCESS), contentType: "text/xml")
+        }
+      }
     }
   }
 
@@ -802,6 +874,11 @@ class ApiController {
           render(text: responseBuilder.buildEndRunning("sentEndMeetingRequest", "A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.", RESP_CODE_SUCCESS), contentType: "text/xml")
         }
       }
+      '*' {
+        render(contentType: "text/xml") {
+            render(text: responseBuilder.buildEndRunning("sentEndMeetingRequest", "A request to end the meeting was sent.  Please wait a few seconds, and then use the getMeetingInfo or isMeetingRunning API calls to verify that it was ended.", RESP_CODE_SUCCESS), contentType: "text/xml")
+        }
+      }
     }
   }
 
@@ -827,6 +904,9 @@ class ApiController {
 
     withFormat {
       xml {
+        render(text: responseBuilder.buildGetMeetingInfoResponse(meeting, RESP_CODE_SUCCESS), contentType: "text/xml")
+      }
+      '*' {
         render(text: responseBuilder.buildGetMeetingInfoResponse(meeting, RESP_CODE_SUCCESS), contentType: "text/xml")
       }
     }
@@ -857,12 +937,18 @@ class ApiController {
         xml {
           render(text: responseBuilder.buildGetMeetingsResponse(mtgs, "noMeetings", "no meetings were found on this server", RESP_CODE_SUCCESS), contentType: "text/xml")
         }
+        '*' {
+          render(text: responseBuilder.buildGetMeetingsResponse(mtgs, "noMeetings", "no meetings were found on this server", RESP_CODE_SUCCESS), contentType: "text/xml")
+        }
       }
     } else {
       response.addHeader("Cache-Control", "no-cache")
 
       withFormat {
         xml {
+          render(text: responseBuilder.buildGetMeetingsResponse(mtgs, null, null, RESP_CODE_SUCCESS), contentType: "text/xml")
+        }
+        '*' {
           render(text: responseBuilder.buildGetMeetingsResponse(mtgs, null, null, RESP_CODE_SUCCESS), contentType: "text/xml")
         }
       }
@@ -894,6 +980,9 @@ class ApiController {
         xml {
           render(text: responseBuilder.buildGetSessionsResponse(sssns, "noSessions", "no sessions were found on this serverr", RESP_CODE_SUCCESS), contentType: "text/xml")
         }
+        '*' {
+          render(text: responseBuilder.buildGetSessionsResponse(sssns, "noSessions", "no sessions were found on this serverr", RESP_CODE_SUCCESS), contentType: "text/xml")
+        }
       }
     } else {
       response.addHeader("Cache-Control", "no-cache")
@@ -901,6 +990,11 @@ class ApiController {
         xml {
           render(contentType: "text/xml") {
             render(text: responseBuilder.buildGetSessionsResponse(sssns, null, null, RESP_CODE_SUCCESS), contentType: "text/xml")
+          }
+        }
+        '*' {
+          render(contentType: "text/xml") {
+              render(text: responseBuilder.buildGetSessionsResponse(sssns, null, null, RESP_CODE_SUCCESS), contentType: "text/xml")
           }
         }
       }
@@ -1045,6 +1139,10 @@ class ApiController {
         // No need to use the response builder here until we have a more complex response
         render(text: "<response><returncode>$RESP_CODE_SUCCESS</returncode></response>", contentType: "text/xml")
       }
+      '*' {
+        // No need to use the response builder here until we have a more complex response
+        render(text: "<response><returncode>$RESP_CODE_SUCCESS</returncode></response>", contentType: "text/xml")
+      }
     }
   }
 
@@ -1080,10 +1178,18 @@ class ApiController {
             render(text: responseBuilder.buildInsertDocumentResponse("Presentation is being uploaded", RESP_CODE_SUCCESS)
                     , contentType: "text/xml")
           }
+          '*' {
+            render(text: responseBuilder.buildInsertDocumentResponse("Presentation is being uploaded", RESP_CODE_SUCCESS)
+                    , contentType: "text/xml")
+          }
         }
       } else if (meetingService.isMeetingWithDisabledPresentation(meeting.getInternalId())) {
         withFormat {
           xml {
+            render(text: responseBuilder.buildInsertDocumentResponse("Presentation feature is disabled, ignoring.",
+                    RESP_CODE_FAILED), contentType: "text/xml")
+          }
+          '*' {
             render(text: responseBuilder.buildInsertDocumentResponse("Presentation feature is disabled, ignoring.",
                     RESP_CODE_FAILED), contentType: "text/xml")
           }
@@ -1093,6 +1199,11 @@ class ApiController {
       log.warn("Meeting with externalID ${externalMeetingId} doesn't exist.")
       withFormat {
         xml {
+          render(text: responseBuilder.buildInsertDocumentResponse(
+                  "Meeting with id [${externalMeetingId}] not found.", RESP_CODE_FAILED),
+                  contentType: "text/xml")
+        }
+        '*' {
           render(text: responseBuilder.buildInsertDocumentResponse(
                   "Meeting with id [${externalMeetingId}] not found.", RESP_CODE_FAILED),
                   contentType: "text/xml")
@@ -1133,6 +1244,10 @@ class ApiController {
     meetingService.sendChatMessage(meeting.internalId, userName, chatMessage);
     withFormat {
       xml {
+        render(text: responseBuilder.buildSendChatMessageResponse("Message successfully sent", RESP_CODE_SUCCESS)
+                , contentType: "text/xml")
+      }
+      '*' {
         render(text: responseBuilder.buildSendChatMessageResponse("Message successfully sent", RESP_CODE_SUCCESS)
                 , contentType: "text/xml")
       }
@@ -1390,7 +1505,7 @@ class ApiController {
     }
   }
 
-  def uploadDocuments(xmlModules, conf, isFromInsertAPI) {
+  private uploadDocuments(xmlModules, conf, isFromInsertAPI) {
     if (conf.getDisabledFeatures().contains("presentation")) {
       log.warn("Presentation feature is disabled.")
       return false
@@ -1560,7 +1675,7 @@ class ApiController {
     return true
   }
 
-  def processRequestXmlModules(String requestBody) {
+  private processRequestXmlModules(String requestBody) {
     def xmlModules = [:]
 
     if (requestBody != null && requestBody != "") {
@@ -1574,7 +1689,7 @@ class ApiController {
     return xmlModules
   }
 
-  def processDocumentFromRawBytes(bytes, presOrigFilename, meetingId, current, isDownloadable, isRemovable,
+  private processDocumentFromRawBytes(bytes, presOrigFilename, meetingId, current, isDownloadable, isRemovable,
                                   isDefaultPresentation) {
     def uploadFailed = false
     def uploadFailReasons = new ArrayList<String>()
@@ -1630,7 +1745,7 @@ class ApiController {
     }
   }
 
-  def downloadAndProcessDocument(address, meetingId, current, fileName, isDownloadable, isRemovable,
+  private downloadAndProcessDocument(address, meetingId, current, fileName, isDownloadable, isRemovable,
                                  isDefaultPresentation, isPreUploadedPresentationFromParameter) {
     log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId}, ${fileName})");
     String presOrigFilename;
@@ -1719,7 +1834,7 @@ class ApiController {
   }
 
 
-  def processUploadedFile(podId, meetingId, presId, filename, presFile, current,
+  private processUploadedFile(podId, meetingId, presId, filename, presFile, current,
                           authzToken, uploadFailed, uploadFailReasons, isDownloadable, isRemovable, isDefaultPresentation ) {
     def presentationBaseUrl = presentationService.presentationBaseUrl
     // TODO add podId
@@ -1753,17 +1868,20 @@ class ApiController {
     }
   }
 
-  def respondWithConference(meeting, msgKey, msg) {
+  private respondWithConference(meeting, msgKey, msg) {
     response.addHeader("Cache-Control", "no-cache")
     withFormat {
       xml {
         log.debug "Rendering as xml"
         render(text: responseBuilder.buildMeeting(meeting, msgKey, msg, RESP_CODE_SUCCESS), contentType: "text/xml")
       }
+      '*' {
+          render(text: responseBuilder.buildMeeting(meeting, msgKey, msg, RESP_CODE_SUCCESS), contentType: 'text/xml')
+      }
     }
   }
 
-  def getUserSession(token) {
+  private getUserSession(token) {
     if (token == null) {
       return null
     }
@@ -1787,7 +1905,7 @@ class ApiController {
     StringUtils.strip(input.replaceAll("\\p{Cntrl}", ""));
   }
 
-  def sanitizeSessionToken(param) {
+  private sanitizeSessionToken(param) {
     if (param == null) {
       log.info("sanitizeSessionToken: token is null")
       return null
@@ -1917,6 +2035,9 @@ class ApiController {
           }
           render(contentType: "application/json", text: builder.toPrettyString())
         }
+        '*' {
+            render(text: responseBuilder.buildErrors(errorList.getErrors(), RESP_CODE_FAILED), contentType: "text/xml")
+        }
       }
     }
   }
@@ -1951,6 +2072,9 @@ class ApiController {
             message msg
           }
           render(contentType: "application/json", text: builder.toPrettyString())
+        }
+        '*' {
+          render(text: responseBuilder.buildError(key, msg, RESP_CODE_FAILED), contentType: "text/xml")
         }
       }
     }
@@ -2011,6 +2135,10 @@ class ApiController {
     if(!violations.isEmpty()) {
       for (Map.Entry<String, String> violation: violations.entrySet()) {
         log.error violation.getValue()
+      }
+
+      if (violations.containsKey("checksumError")) {
+        response = new AbstractMap.SimpleEntry<String, String>("checksumError", violations.get("checksumError"))
       }
 
       if(response == null) {

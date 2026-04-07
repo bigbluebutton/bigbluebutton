@@ -6,6 +6,7 @@ interface PluginHelperButtonComponentProps {
   bottom: boolean;
   right: boolean;
   icon: string;
+  dataTest?: string;
   label: string;
   onClick: (args: { browserClickEvent: React.MouseEvent<HTMLElement> }) => void;
 }
@@ -16,6 +17,7 @@ const PluginHelperButtonComponent = ({
   onClick,
   right,
   icon,
+  dataTest,
   label,
 }: PluginHelperButtonComponentProps) => (
   <Styled.PluginButtonWrapper
@@ -32,7 +34,7 @@ const PluginHelperButtonComponent = ({
       onClick={(e: React.MouseEvent<HTMLElement>) => onClick({ browserClickEvent: e })}
       hideLabel
       label={label}
-      data-test="switchButton"
+      data-test={dataTest}
     />
   </Styled.PluginButtonWrapper>
 );

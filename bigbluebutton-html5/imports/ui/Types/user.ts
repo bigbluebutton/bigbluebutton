@@ -2,20 +2,12 @@ export interface Cameras {
   streamId: string;
 }
 
-export interface PresPagesWritable {
-  isCurrentPage: boolean;
-  meetingId: string;
-  pageId: string;
-  presentationId: string;
-  userId: string;
-}
-
 export interface LastBreakoutRoom {
-    breakoutRoomId: string;
+    breakoutRoomMeetingId: string;
     isDefaultName: boolean;
     sequence: number;
     shortName: string;
-    currentlyInRoom: boolean;
+    isUserCurrentlyInRoom: boolean;
     meetingId: string;
     userId: string;
 }
@@ -70,6 +62,7 @@ export interface User {
   logoutUrl: string;
   authToken: string;
   userId: string;
+  meetingId: string;
   extId: string;
   name: string;
   nameSortable: string;
@@ -101,11 +94,10 @@ export interface User {
   voice?: Partial<Voice>;
   locked: boolean;
   registeredAt: string;
-  hasDrawPermissionOnCurrentPage: boolean;
+  whiteboardWriteAccess: boolean;
   lastBreakoutRoom?: LastBreakoutRoom;
   breakoutRoomsSummary?: BreakoutRoomsSummary;
   cameras: Array<Cameras>;
-  presPagesWritable: Array<PresPagesWritable>;
   speechLocale: string;
   captionLocale: string;
   authed: boolean;
@@ -122,6 +114,8 @@ export interface UserBasicInfo {
   userId: string;
   extId: string;
   name: string;
+  nameSortable: string;
+  bot: boolean;
   isModerator: boolean;
   role: string;
   color: string;

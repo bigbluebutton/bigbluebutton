@@ -101,7 +101,7 @@ For each BigBlueButton server in your cluster, repeat the following steps:
 Add these options to `/etc/bigbluebutton/bbb-web.properties`:
 
 ```ini
-defaultHTML5ClientUrl=https://bbb-proxy.example.com/bbb-01/html5client
+defaultHTML5ClientUrl=https://bbb-proxy.example.com/bbb-01/html5client/
 presentationBaseURL=https://bbb-01.example.com/bigbluebutton/presentation
 accessControlAllowOrigin=https://bbb-proxy.example.com
 graphqlWebsocketUrl=wss://bbb-01.example.com/graphql
@@ -127,6 +127,8 @@ public:
     wsUrl: wss://bbb-01.example.com/bbb-webrtc-sfu
   presentation:
     uploadEndpoint: 'https://bbb-01.example.com/bigbluebutton/presentation/upload'
+  sharedNotes:
+    serverUrl: wss://bbb-01.example.com/hocuspocus/collaboration
   # for BBB 2.4:
   note:
     url: 'https://bbb-01.example.com/pad'
@@ -218,16 +220,13 @@ _**Note:** This one includes the protocol._
 ---
 
 If your proxy server uses a different root domain than your BBB server, you’ll need an additional configuration.
-Add the following settings to `/usr/share/bbb-web/WEB-INF/classes/application.yml`:
+Add the following settings to `/usr/share/bbb-web/WEB-INF/classes/application.properties`:
 
-```yaml
-server:
-  servlet:
-    session:
-      cookie:
-        secure: true
-        SameSite: none
+```shell
+server.servlet.session.cookie.secure=true
+server.servlet.session.cookie.SameSite=none
 ```
+
 _**Note:** This change will be reverted with subsequent bbb-web updates. If you rely on the override, look to include it in a post-installation routine._
 
 ---

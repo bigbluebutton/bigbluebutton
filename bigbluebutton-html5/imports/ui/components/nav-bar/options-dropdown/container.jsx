@@ -20,6 +20,8 @@ import { SET_AWAY } from '/imports/ui/components/user-list/user-list-content/use
 import {
   muteAway,
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
+import { useReactiveVar } from '@apollo/client';
 
 const { isIphone } = deviceInfo;
 const { isSafari, isValidSafariVersion } = browserInfo;
@@ -73,6 +75,7 @@ const OptionsDropdownContainer = (props) => {
   const audioCaptionsActive = useStorageKey('audioCaptions') || false;
   const isDropdownOpen = useStorageKey('dropdownOpen');
   const isLayoutsEnabled = useIsLayoutsEnabled();
+  const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
 
   return (
     <OptionsDropdown {...{
@@ -89,7 +92,7 @@ const OptionsDropdownContainer = (props) => {
       noIOSFullscreen,
       isBreakoutRoom: currentMeeting?.isBreakout,
       // TODO: Replace/Remove
-      isMeteorConnected: true,
+      isConnected: connected,
       isLayoutsEnabled,
       away,
       handleToggleAFK,

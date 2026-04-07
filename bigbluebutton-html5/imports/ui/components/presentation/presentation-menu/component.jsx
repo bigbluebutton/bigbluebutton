@@ -18,6 +18,7 @@ import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import SvgIcon from '/imports/ui/components/common/icon-svg/component';
+import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const intlMessages = defineMessages({
   downloading: {
@@ -216,7 +217,7 @@ const PresentationMenu = (props) => {
             uiDataGetter:
               PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_PAGE_SNAPSHOT,
           },
-        }, `UI data getter failed to fetch [${PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_PAGE_SNAPSHOT}]`);
+        }, `UI data getter failed to fetch [${PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_PAGE_SNAPSHOT}]: ${e}`);
       }
     };
 
@@ -230,11 +231,27 @@ const PresentationMenu = (props) => {
         updateUiDataHookPCurrentWhiteboardSVGWithAnnotationsForPlugin,
       );
     };
-  }, []);
-  const [isClearModalOpen, setIsClearModalOpen] = useState(false);
+  }, [tldrawAPI, slideNum]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const toastId = useRef('presentation-menu-toast');
   const dropdownRef = useRef(null);
+
+  const {
+    isOpen: isClearModalOpen,
+    open: openIsClearModal,
+    close: closeIsClearModal,
+  } = useModalRegistration({
+    id: 'clearAnnotationsModal',
+    priority: 'low',
+  });
+
+  const setIsClearModalOpen = (open) => {
+    if (open) {
+      openIsClearModal();
+    } else {
+      closeIsClearModal();
+    }
+  };
 
   const formattedLabel = (fullscreen) => (fullscreen
     ? intl.formatMessage(intlMessages.exitFullscreenLabel)
@@ -472,12 +489,14 @@ const PresentationMenu = (props) => {
             label: item.label,
             icon: item.icon,
             onClick: item.onClick,
+            dataTest: item.dataTest,
           });
           break;
         case PresentationDropdownItemType.SEPARATOR:
           menuItems.push({
             key: `${item.id}-${index}`,
             isSeparator: true,
+            dataTest: item.dataTest,
           });
           break;
         default:

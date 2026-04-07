@@ -43,6 +43,7 @@ case class BreakoutRoomDetail(
     parentId:                String,
     sequence:                Integer,
     shortName:               String,
+    sharedNotesEditor:       String,
     isDefaultName:           Boolean,
     freeJoin:                Boolean,
     dialNumber:              String,
@@ -63,6 +64,7 @@ case class BreakoutRoomDetail(
     audioBridge:             String,
     cameraBridge:            String,
     screenShareBridge:       String,
+    disablePrivChat:         Boolean
 )
 
 /**

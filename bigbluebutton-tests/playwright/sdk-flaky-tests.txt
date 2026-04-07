@@ -1,0 +1,11 @@
+# List of flaky SDK tests to skip in CI
+# Format: Test Suite › Test Spec (one per line)
+# Example: Custom Subscription Hook › should display the button with icon and log when clicked
+Action button dropdown › should display and log when clicked
+Action bar › should log expected message when custom SVG button is clicked
+Action bar › should handle selector button click and log expected values
+Action bar › should handle toggle group button click and log expected values
+Audio Settings Dropdown › should display the button with icon and log when clicked
+Camera Settings Dropdown › should display the button with icon and log when clicked
+Subscription Hook › should display the button with icon and log when clicked
+Data Channel › should increment data channel values and wipe data correctly

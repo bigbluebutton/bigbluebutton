@@ -17,6 +17,7 @@ import { useBreakoutExitObserver } from './hooks';
 import { useStopMediaOnMainRoom } from '/imports/ui/components/breakout-room/hooks';
 import logger from '/imports/startup/client/logger';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const intlMessages = defineMessages({
   title: {
@@ -75,27 +76,45 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   const stopMediaOnMainRoom = useStopMediaOnMainRoom();
   const intl = useIntl();
   const [waiting, setWaiting] = React.useState(false);
-  const [isOpen, setIsOpen] = React.useState(false);
+
+  const {
+    close: breakoutJoinConfirmationClose,
+    open: breakoutJoinConfirmationOpen,
+    isOpen: breakoutJoinConfirmationIsOpen,
+  } = useModalRegistration({
+    id: 'breakoutJoinConfirmationModal',
+    priority: 'medium',
+  });
+
+  const setIsOpen = useCallback((value: boolean) => {
+    if (value) {
+      breakoutJoinConfirmationOpen();
+    } else {
+      breakoutJoinConfirmationClose();
+    }
+  }, [breakoutJoinConfirmationClose, breakoutJoinConfirmationOpen]);
 
   const uniqueMatch = (arr: BreakoutRoom[], predicate: (item: BreakoutRoom) => boolean) => {
     const matches = arr.filter(predicate);
     return matches.length === 1 ? matches[0] : null;
   };
 
-  const defaultSelectedBreakoutId = uniqueMatch(breakouts, (br) => br.showInvitation)?.breakoutRoomId
-      || uniqueMatch(breakouts, (br) => br.isLastAssignedRoom)?.breakoutRoomId
-      || breakouts.find((br) => br.joinURL != null)?.breakoutRoomId
-      || breakouts[0]?.breakoutRoomId;
+  const defaultSelectedBreakoutId = uniqueMatch(breakouts, (br) => br.showInvitation)?.breakoutRoomMeetingId
+      || uniqueMatch(breakouts, (br) => br.isLastAssignedRoom)?.breakoutRoomMeetingId
+      || breakouts.find((br) => br.joinURL != null)?.breakoutRoomMeetingId
+      || breakouts[0]?.breakoutRoomMeetingId;
 
   const [selectValue, setSelectValue] = React.useState('');
 
-  const requestJoinURL = (breakoutRoomId: string) => {
-    breakoutRoomRequestJoinURL({ variables: { breakoutRoomId } });
+  const requestJoinURL = (breakoutRoomMeetingId: string) => {
+    breakoutRoomRequestJoinURL({ variables: { breakoutRoomMeetingId } });
   };
 
   // request join url if free join is enabled and user is not assigned to any room
-  if (defaultSelectedBreakoutId === breakouts[0].breakoutRoomId) {
-    const selectedBreakout = breakouts.find(({ breakoutRoomId }) => breakoutRoomId === defaultSelectedBreakoutId);
+  if (defaultSelectedBreakoutId === breakouts[0].breakoutRoomMeetingId) {
+    const selectedBreakout = breakouts.find(
+      ({ breakoutRoomMeetingId }) => breakoutRoomMeetingId === defaultSelectedBreakoutId,
+    );
     if (!selectedBreakout?.joinURL && !waiting) {
       requestJoinURL(defaultSelectedBreakoutId);
       setWaiting(true);
@@ -104,7 +123,9 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
 
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectValue(event.target.value);
-    const selectedBreakout = breakouts.find(({ breakoutRoomId }) => breakoutRoomId === event.target.value);
+    const selectedBreakout = breakouts.find(
+      ({ breakoutRoomMeetingId }) => breakoutRoomMeetingId === event.target.value,
+    );
     if (!selectedBreakout?.joinURL) {
       requestJoinURL(event.target.value);
       setWaiting(true);
@@ -129,7 +150,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
       }
       setIsOpen(false);
     } else {
-      const selectedBreakout = breakouts.find(({ breakoutRoomId }) => breakoutRoomId === selectValue);
+      const selectedBreakout = breakouts.find(({ breakoutRoomMeetingId }) => breakoutRoomMeetingId === selectValue);
       if (selectedBreakout?.joinURL) {
         // log which breakout room the user is joining
         logger.info({
@@ -154,12 +175,12 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
         >
           {
             breakouts.sort((a, b) => a.sequence - b.sequence).map(({
-              shortName, breakoutRoomId, isDefaultName, sequence,
+              shortName, breakoutRoomMeetingId, isDefaultName, sequence,
             }) => (
               <option
                 data-test="roomOption"
-                key={breakoutRoomId}
-                value={breakoutRoomId}
+                key={breakoutRoomMeetingId}
+                value={breakoutRoomMeetingId}
               >
                 {isDefaultName ? intl.formatMessage(intlMessages.breakoutRoom, { roomNumber: sequence }) : shortName}
               </option>
@@ -177,7 +198,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
 
   useEffect(() => {
     if (waiting) {
-      const breakout = breakouts.find(({ breakoutRoomId }) => breakoutRoomId === selectValue);
+      const breakout = breakouts.find(({ breakoutRoomMeetingId }) => breakoutRoomMeetingId === selectValue);
       if (breakout?.joinURL) {
         setWaiting(false);
       }
@@ -220,7 +241,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
       }}
       {...{
         setIsOpen,
-        isOpen,
+        isOpen: breakoutJoinConfirmationIsOpen,
         priority: 'medium',
       }}
     >
@@ -262,13 +283,13 @@ const BreakoutJoinConfirmationContainer: React.FC = () => {
   if (currentUser?.isModerator
       && !currentMeeting?.breakoutRoomsCommonProperties?.sendInvitationToModerators) return null;
 
-  if (!breakoutData || breakoutData.breakoutRoom.length === 0) return null;
+  if (!breakoutData || (breakoutData.breakoutRoom?.length ?? 0) === 0) return null;
 
   return (
     <BreakoutJoinConfirmation
       freeJoin={currentMeeting?.breakoutRoomsCommonProperties?.freeJoin ?? false}
       breakouts={breakoutData.breakoutRoom}
-      currentUserJoined={currentUser?.lastBreakoutRoom?.currentlyInRoom ?? false}
+      currentUserJoined={currentUser?.lastBreakoutRoom?.isUserCurrentlyInRoom ?? false}
       presenter={currentUser?.presenter ?? false}
     />
   );

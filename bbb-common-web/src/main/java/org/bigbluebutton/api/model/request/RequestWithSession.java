@@ -1,8 +1,8 @@
 package org.bigbluebutton.api.model.request;
 
 import jakarta.ws.rs.core.MediaType;
+import jakarta.servlet.http.HttpServletRequest;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Set;
 
 public abstract class RequestWithSession<P extends Enum<P> & RequestParameters> implements Request<P> {

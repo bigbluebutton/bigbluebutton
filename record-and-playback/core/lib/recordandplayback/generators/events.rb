@@ -68,6 +68,17 @@ module BigBlueButton
       notes_id
     end
 
+    def self.get_notes_editor(events)
+      BigBlueButton.logger.info("Task: Getting notes editor")
+      notes_editor = 'etherpad'
+      events.xpath("/recording/event[@eventname='AddPadEvent' or @eventname='PadCreatedEvent']").each do |pad_event|
+        editor_element = pad_event.at_xpath('sharedNotesEditor')
+        notes_editor = editor_element.text if editor_element && !editor_element.text.strip.empty?
+      end
+      notes_editor
+    end
+
+
     # Get the external meeting id
     def self.get_external_meeting_id(events_xml)
       BigBlueButton.logger.info("Task: Getting external meeting id")
@@ -460,72 +471,246 @@ module BigBlueButton
       stop_events.sort {|a, b| a[:stop_timestamp] <=> b[:stop_timestamp]}
     end
 
+    # Create a video EDL for the deskshare area
+    #
+    # This EDL does not have recording marks pre-applied.
+    #
+    # @param events [Nokogiri::XML::Document] the events.xml file
+    # @param archive_dir [String] the directory containing the raw recording data
+    # @return [Array<Hash<Symbol, Object>>] the EDL for the deskshare area
     def self.create_deskshare_edl(events, archive_dir)
       initial_timestamp = BigBlueButton::Events.first_event_timestamp(events)
       final_timestamp = BigBlueButton::Events.last_event_timestamp(events)
 
+      offset_entry = BigBlueButton::Events.edl_entry_offset_video
+
       deskshare_edl = []
 
       deskshare_edl << {
-        :timestamp => 0,
-        :areas => { :deskshare => [] }
+        timestamp: 0,
+        areas: { deskshare: [] },
       }
 
-      events.xpath('/recording/event[@module="Deskshare" or (@module="bbb-webrtc-sfu" and (@eventname="StartWebRTCDesktopShareEvent" or @eventname="StopWebRTCDesktopShareEvent"))]').each do |event|
+      original_durations = {}
+
+      events.xpath('/recording/event').each do |event|
         timestamp = event['timestamp'].to_i - initial_timestamp
-        # Determine the video filename
-        case event['eventname']
-        when 'DeskshareStartedEvent', 'DeskshareStoppedEvent'
+
+        # Determine the deskshare video filename
+        # Separated out to reduce duplication, since this is needed for both start and stop events.
+        case [event['module'], event['eventname']]
+        when %w[Deskshare DeskshareStartedEvent], %w[Deskshare DeskshareStoppedEvent]
           filename = event.at_xpath('file').text
           filename = "#{archive_dir}/deskshare/#{File.basename(filename)}"
-        when 'StartWebRTCDesktopShareEvent', 'StopWebRTCDesktopShareEvent'
+        when %w[bbb-webrtc-sfu StartWebRTCDesktopShareEvent], %w[bbb-webrtc-sfu StopWebRTCDesktopShareEvent]
           uri = event.at_xpath('filename').text
           filename = "#{archive_dir}/deskshare/#{File.basename(uri)}"
         end
-        raise "Couldn't determine video filename" if filename.nil?
 
-        # Add the video to the EDL
-        case event['eventname']
-        when 'DeskshareStartedEvent', 'StartWebRTCDesktopShareEvent'
-          # Only one deskshare stream is permitted at a time.
-          deskshare_edl << {
-            :timestamp => timestamp,
-            :areas => {
-              :deskshare => [
-                { :filename => filename, :timestamp => 0 }
-              ]
-            }
-          }
-        when 'DeskshareStoppedEvent', 'StopWebRTCDesktopShareEvent'
-          # Fill in the original/expected video duration when available
+        # Main event handling
+        case [event['module'], event['eventname']]
+        when %w[Deskshare DeskshareStartedEvent], %w[bbb-webrtc-sfu StartWebRTCDesktopShareEvent]
+          raise "Couldn't determine video filename" if filename.nil?
+
+          # Create a new EDL entry with the new deskshare video added
+          last_entry = deskshare_edl.last
+          new_entry = offset_entry.call(last_entry, timestamp - last_entry[:timestamp])
+          new_entry[:timestamp] = timestamp
+          new_entry[:areas][:deskshare] << { filename: filename, timestamp: 0 }
+          deskshare_edl << new_entry
+
+        when %w[Deskshare DeskshareStoppedEvent], %w[bbb-webrtc-sfu StopWebRTCDesktopShareEvent]
+          raise "Couldn't determine video filename" if filename.nil?
+
+          # Save the original duration of the deskshare video if provided (it will be added to the EDL later)
           duration = event.at_xpath('duration')
-          if !duration.nil?
-            duration = duration.text.to_i
-            deskshare_edl.each do |entry|
-              if !entry[:areas][:deskshare].nil?
-                entry[:areas][:deskshare].each do |file|
-                  if file[:filename] == filename
-                    file[:original_duration] = duration * 1000
-                  end
-                end
-              end
-            end
-          end
+          original_durations[filename] = duration.content.to_i * 1000 if duration
 
-          # Terminating entry
-          deskshare_edl << {
-            :timestamp => timestamp,
-            :areas => { :deskshare => [] }
-          }
+          # Create a new EDL entry with the deskshare video removed
+          last_entry = deskshare_edl.last
+          new_entry = offset_entry.call(last_entry, timestamp - last_entry[:timestamp])
+          new_entry[:timestamp] = timestamp
+          new_entry[:areas][:deskshare].reject! { |file| file[:filename] == filename }
+          deskshare_edl << new_entry
         end
       end
 
+      # Add the original duration information to the edl entries
+      unless original_durations.empty?
+        deskshare_edl.each do |entry|
+          entry[:areas][:deskshare].each do |video|
+            video[:original_duration] = original_durations[video[:filename]] if original_durations.include?(video[:filename])
+          end
+        end
+      end
+
+      # Terminating EDL entry to set final segment duration
       deskshare_edl << {
-        :timestamp => final_timestamp - initial_timestamp,
-        :areas => {}
+        timestamp: final_timestamp - initial_timestamp,
+        areas: {},
       }
 
-      return deskshare_edl
+      deskshare_edl
+    end
+
+    # Create a video EDL for the presentation area
+    #
+    # This EDL does not have recording marks pre-applied.
+    #
+    # The :presentation_used condition describes whether the presentation area should be visible in
+    # the recording. It is kept `false` until a new presentation is shared, the slide is changed,
+    # or a mark is drawn on the whiteboard. Afterwards, the value will be `true`.
+    #
+    # @param events [Nokogiri::XML::Document] the events.xml file
+    # @param archive_dir [String] the directory containing the raw recording data (events.xml file)
+    # @param process_dir [String] the directory for output files from processing
+    # @return [Array<Hash<Symbol, Object>>] the EDL for the presentation area
+    def self.create_presentation_edl(events, archive_dir, process_dir)
+      initial_timestamp = BigBlueButton::Events.first_event_timestamp(events)
+      final_timestamp = BigBlueButton::Events.last_event_timestamp(events)
+
+      video_source = BigBlueButton::EDL::Video::PresentationVideoSource.new(archive_dir, process_dir)
+
+      presentation_edl = []
+      presentation_used = false
+      presentation_edl << {
+        timestamp: 0,
+        areas: { presentation: [{ filename: :presentation, source: video_source, timestamp: 0 }] },
+        conditions: {
+          presentation_used: presentation_used,
+        },
+      }
+
+      pres_events = events.xpath('/recording/event')
+      seen_share_presentation = false
+
+      pres_events.each do |event|
+        timestamp = event['timestamp'].to_i - initial_timestamp
+
+        case event['eventname']
+        # The following events are considered to indicate that the presentation
+        # area was actively used during the session.
+        when 'AddShapeEvent', 'ModifyTextEvent', 'UndoShapeEvent',
+            'ClearPageEvent', 'AddTldrawShapeEvent', 'DeleteTldrawShapeEvent'
+          BigBlueButton.logger.debug("Seen a #{event['eventname']} event, presentation area used.")
+          presentation_used = true
+        when 'SharePresentationEvent'
+          # We ignore the first SharePresentationEvent, since it's the default
+          # presentation
+          if seen_share_presentation
+            BigBlueButton.logger.debug('Have a non-default SharePresentation')
+            presentation_used = true
+          else
+            BigBlueButton.logger.debug('Skipping default SharePresentation')
+            seen_share_presentation = true
+          end
+        when 'GotoSlideEvent'
+          slide = event.at_xpath('./slide').content.to_i
+          # We ignore the 'GotoSlideEvent' for page 0 (first page)
+          if slide == 0
+            BigBlueButton.logger.debug('Ignoring GotoSlide with default slide #')
+          else
+            BigBlueButton.logger.debug("Switched to slide #{slide}")
+            presentation_used = true
+          end
+        else
+          next
+        end
+
+        # Don't create a new entry if the condition has not changed
+        next if presentation_used == presentation_edl.dig(-1, :conditions, :presentation_used)
+
+        presentation_edl << {
+          timestamp: timestamp,
+          areas: { presentation: [{ filename: :presentation, source: video_source, timestamp: timestamp }] },
+          conditions: {
+            presentation_used: presentation_used,
+          },
+        }
+        break
+      end
+
+      presentation_edl << {
+        timestamp: final_timestamp - initial_timestamp,
+        areas: { presentation: [] },
+      }
+
+      presentation_edl
+    end
+
+    # Create a video EDL for layout events
+    #
+    # This EDL does not have recording marks pre-applied.
+    #
+    # This EDL does not actually define any video areas. It only provides conditions, which reflect
+    # layout changes pushed by the presenter in the meeting.
+    #
+    # The :presentation_is_open condition describes whether the "main content area" (which
+    # typically contains the presentation area, screensharing, or webcam as content) is currently
+    # visible. If it is not visible, the webcam grid is expected to fill the entire recording area.
+    # The :screenshare_as_content conditions describes whether the screenshare replaces the
+    # presentation in the main content area.
+    #
+    # @param events [Nokogiri::XML::Document] the events.xml file
+    # @return [Array<Hash<Symbol, Object>>] the EDL containing layout conditions
+    def self.create_layout_edl(events)
+      initial_timestamp = BigBlueButton::Events.first_event_timestamp(events)
+      final_timestamp = BigBlueButton::Events.last_event_timestamp(events)
+
+      # Assume the presentation is open by default for compatibility
+      presentation_is_open = true
+      # Assume screenshare as content (screenshare replaces presentation) is true by default for
+      # compatibility
+      screenshare_as_content = true
+      # Initialize the EDL with the default state
+      layout_edl = [
+        {
+          timestamp: 0,
+          areas: {},
+          conditions: {
+            presentation_is_open: presentation_is_open,
+            screenshare_as_content: screenshare_as_content,
+          },
+        },
+      ]
+
+      events.xpath('/recording/event').each do |event|
+        timestamp = event['timestamp'].to_i - initial_timestamp
+
+        case [event['module'], event['eventname']]
+        when %w[PARTICIPANT LayoutBroadcastedEvent]
+          pio_el = event.at_xpath('presentationIsOpen')
+          presentation_is_open = pio_el.content.casecmp?('true') if pio_el
+
+        when %w[PARTICIPANT SetScreenshareAsContentEvent]
+          sac_el = event.at_xpath('screenshareAsContent')
+          screenshare_as_content = sac_el.content.casecmp?('true') if sac_el
+
+        else
+          next
+        end
+
+        # Don't create a new entry if none of the conditions have changed
+        next if layout_edl.dig(-1, :conditions, :presentation_is_open) == presentation_is_open &&
+                layout_edl.dig(-1, :conditions, :screenshare_as_content) == screenshare_as_content
+
+        layout_edl << {
+          timestamp: timestamp,
+          areas: {},
+          conditions: {
+            presentation_is_open: presentation_is_open,
+            screenshare_as_content: screenshare_as_content,
+          },
+        }
+      end
+
+      # Add a terminating event at the meeting end
+      layout_edl << {
+        timestamp: final_timestamp - initial_timestamp,
+        areas: {},
+      }
+
+      layout_edl
     end
 
     def self.edl_entry_offset_audio
@@ -559,24 +744,22 @@ module BigBlueButton
     end
 
     def self.edl_entry_offset_video
-      return Proc.new do |edl_entry, offset|
-        new_entry = { areas: {} }
+      proc do |edl_entry, offset|
+        new_entry = { areas: {}, conditions: {} }
         edl_entry[:areas].each do |area, videos|
           new_entry[:areas][area] = []
           videos.each do |video|
-            new_entry[:areas][area] << {
-              filename: video[:filename],
-              timestamp: video[:timestamp] + offset,
-              original_duration: video[:original_duration]
-            }
+            new_entry[:areas][area] << video.merge(timestamp: video[:timestamp] + offset)
           end
         end
+        new_entry[:conditions].replace(edl_entry.fetch(:conditions, {}))
         new_entry
       end
     end
+
     def self.edl_empty_entry_video
-      return Proc.new do
-        { areas: {} }
+      proc do
+        { areas: {}, conditions: {} }
       end
     end
 
@@ -819,7 +1002,7 @@ module BigBlueButton
             in: timestamp - offset,
             out: nil,
             sender_id: sender_id,
-            sender: sender_id.nil? ? sender : user_map.fetch(sender_id),
+            sender: sender_id.nil? ? sender : user_map.fetch(sender_id, sender_id),
             senderRole: senderRole,
             chatEmphasizedText: chatEmphasizedText,
             replyToMessageId: replyToMessageId,

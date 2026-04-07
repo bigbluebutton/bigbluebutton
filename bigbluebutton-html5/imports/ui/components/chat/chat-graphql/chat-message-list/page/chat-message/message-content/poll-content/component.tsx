@@ -6,6 +6,8 @@ import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 import CustomizedAxisTick from '/imports/ui/components/poll/components/CustomizedAxisTick';
+import { layoutSelectOutput, layoutSelect } from '/imports/ui/components/layout/context';
+import { Layout, Output } from '/imports/ui/components/layout/layoutTypes';
 
 interface ChatPollContentProps {
   metadata: string;
@@ -93,6 +95,8 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
   height = undefined,
 }) => {
   const intl = useIntl();
+  const sidebarContent: Output['sidebarContent'] = layoutSelectOutput((i: Output) => i.sidebarContent);
+  const fontSize: Layout['fontSize'] = layoutSelect((i: Layout) => i.fontSize);
 
   const pollData = JSON.parse(string) as unknown;
   assertAsMetadata(pollData);
@@ -126,7 +130,7 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
               type="number"
               allowDecimals={false}
             />
-            <YAxis width={100} type="category" dataKey="pollAnswerWithNumVotes" tick={<CustomizedAxisTick />} />
+            <YAxis width={sidebarContent.width / 3} fontSize={fontSize} type="category" dataKey="pollAnswerWithNumVotes" tick={CustomizedAxisTick} />
             <Bar dataKey="numVotes" fill="#0C57A7" />
           </BarChart>
         </ResponsiveContainer>

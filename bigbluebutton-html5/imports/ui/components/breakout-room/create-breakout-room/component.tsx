@@ -6,6 +6,7 @@ import { uniqueId } from '/imports/utils/string-utils';
 import { useIsImportPresentationWithAnnotationsFromBreakoutRoomsEnabled, useIsImportSharedNotesFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { useLazyQuery, useQuery, useMutation } from '@apollo/client';
+import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
 import Styled from './styles';
 import {
   getBreakouts,
@@ -35,8 +36,9 @@ import { notify } from '/imports/ui/services/notification';
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import { getRemainingMeetingTime, isNewTimeValid } from '/imports/ui/core/utils/calculateRemaingTime';
 
-const MIN_BREAKOUT_ROOMS = 2;
+const MIN_BREAKOUT_ROOMS = 1;
 const MIN_BREAKOUT_TIME = 5;
+const DEFAULT_BREAKOUT_ROOMS = 2;
 const DEFAULT_BREAKOUT_TIME = 15;
 const CURRENT_SLIDE_PREFIX = 'current-';
 
@@ -240,7 +242,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   const { isMobile } = deviceInfo;
   const intl = useIntl();
 
-  const initialNumberOfRooms = runningRooms.length > 0 ? runningRooms.length : MIN_BREAKOUT_ROOMS;
+  const initialNumberOfRooms = runningRooms.length > 0 ? runningRooms.length : DEFAULT_BREAKOUT_ROOMS;
 
   const isImportPresentationWithAnnotationsEnabled = useIsImportPresentationWithAnnotationsFromBreakoutRoomsEnabled();
   const isImportSharedNotesEnabled = useIsImportSharedNotesFromBreakoutRoomsEnabled();
@@ -384,8 +386,8 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         moveUser({
           variables: {
             userId,
-            fromBreakoutRoomId: fromRoomId || '',
-            toBreakoutRoomId: toRoomId || '',
+            fromBreakoutRoomMeetingId: fromRoomId || '',
+            toBreakoutRoomMeetingId: toRoomId || '',
           },
         });
       }
@@ -651,6 +653,7 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
     breakoutPolicies: m.breakoutPolicies,
     durationInSeconds: m.durationInSeconds,
     createdTime: m.createdTime,
+    meetingId: m.meetingId,
   }));
 
   const {
@@ -719,7 +722,14 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
       priority={priority}
       isUpdate={isUpdate}
       isBreakoutRecordable={currentMeeting?.breakoutPolicies?.record ?? true}
-      users={usersData?.user ?? []}
+      users={currentMeeting?.meetingId
+        ? filterByMeetingId(
+          usersData?.user,
+          currentMeeting.meetingId,
+          getUser,
+          (u) => ({ mismatchedUserId: u.userId, mismatchedName: u.name }),
+        )
+        : []}
       runningRooms={breakoutsData?.breakoutRoom ?? []}
       presentations={presentations}
       currentPresentation={currentPresentation}

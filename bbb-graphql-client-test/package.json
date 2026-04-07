@@ -11,12 +11,14 @@
     "fast-json-patch": "^3.1.1",
     "graphql": "^16.8.1",
     "graphql-ws": "^5.11.2",
-    "lodash": "^4.17.21",
+    "lodash": "^4.18.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1",
     "subscriptions-transport-ws": "^0.11.0",
     "web-vitals": "^2.1.4"
+  },
+  "devDependencies": {
+    "react-scripts": "5.0.1"
   },
   "scripts": {
     "start": "react-scripts start",

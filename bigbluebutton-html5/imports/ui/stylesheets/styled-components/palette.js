@@ -123,6 +123,9 @@ const toastErrorBg = `var(--toast-error-bg, ${colorDanger})`;
 const webcamBackgroundColor = 'var(--webcam-background-color, #001428FF)';
 const webcamPlaceholderBorder = 'var(--webcam-placeholder-border, rgba(255, 255, 255, 0.5))'; // colorWhite, 50%
 
+// rgba version of colorPrimary (0F70D7) with 15% opacity for talking indicator background
+const webcamTalkingBackgroundColor = 'var(--webcam-talking-background-color, rgba(13, 109, 252, 0.15))';
+
 const toastWarningColor = `var(--toast-warning-color, ${colorWhite})`;
 const toastWarningBg = `var(--toast-warning-bg, ${colorWarning})`;
 
@@ -242,6 +245,7 @@ export {
   toastWarningBg,
   webcamBackgroundColor,
   webcamPlaceholderBorder,
+  webcamTalkingBackgroundColor,
   SegmentedButtonRingOffsetShadow,
   SegmentedButtonRingShadow,
   SegmentedButtonBoxShadowSm,

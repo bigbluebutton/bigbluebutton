@@ -41,6 +41,7 @@ interface AvatarProps {
     isFirefox?: boolean;
     isEdge?: boolean;
     isSkeleton?: boolean;
+    order?: number;
 }
 
 interface UserItemContentsProps {
@@ -334,6 +335,36 @@ const Avatar = styled.div<AvatarProps>`
   justify-content: center;
   align-items:center;  
   // ================ content ================
+
+  /* ================ raised-hand order badge ================ */
+  ${({ order }) => (order !== undefined && order > 0) && css`
+    &:before {
+      content: "${order}";
+      opacity: 1;
+      top: ${userIndicatorsOffset};
+      right: ${userIndicatorsOffset};
+      left: auto;
+      bottom: auto;
+      width: 1.1rem;
+      height: 1.1rem;
+      min-width: 1.1rem;
+      border-radius: 50% !important;
+      background-color: ${colorPrimary};
+      color: ${colorWhite};
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      letter-spacing: 0;
+      font-size: .75rem;
+      z-index: 2;
+
+      [dir="rtl"] & {
+        right: auto;
+        left: ${userIndicatorsOffset};
+      }
+    }
+  `}
+  /* ================ raised-hand order badge ================ */
 
   & .react-loading-skeleton {    
     height: 2.25rem;

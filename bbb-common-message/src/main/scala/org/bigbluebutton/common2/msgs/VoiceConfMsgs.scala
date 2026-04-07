@@ -485,6 +485,24 @@ case class UserTalkingVoiceEvtMsg(header: BbbClientMsgHeader, body: UserTalkingV
 case class UserTalkingVoiceEvtMsgBody(voiceConf: String, intId: String, voiceUserId: String, talking: Boolean)
 
 /**
+ * Sent to client that user is talking in voice conference.
+ */
+
+object UserVoiceStateEvtMsg { val NAME = "UserVoiceStateEvtMsg" }
+case class UserVoiceStateEvtMsg(header: BbbClientMsgHeader, body: UserVoiceStateEvtMsgBody) extends BbbCoreMsg
+case class UserVoiceStateEvtMsgBody(
+    voiceConf:        String,
+    userId:           String,
+    voiceUserId:      String,
+    userName:         String,
+    userColor:        String,
+    userSpeechLocale: String,
+    talking:          Boolean,
+    muted:            Boolean,
+    leftVoiceConf:    Boolean,
+)
+
+/**
  * Sent from client to notify that an user is talking (client-side version of
  * UserTalkingInVoiceConfEvtMsg).
  * Used by audio bridges incapable of generating the event server-side (LiveKit)

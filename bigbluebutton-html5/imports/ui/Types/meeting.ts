@@ -54,6 +54,7 @@ export interface UsersPolicies {
   meetingLayout: string;
   userCameraCap: number;
   webcamsOnlyForModerator: boolean;
+  multiUserWhiteboardEnabled: boolean;
   guestLobbyMessage: string | null;
 }
 
@@ -72,7 +73,7 @@ export interface BreakoutPolicies {
   captureSlides: string;
   captureSlidesFilename: string;
   freeJoin: boolean;
-  parentId: string;
+  parentMeetingId: string;
   privateChatEnabled: boolean;
   record: boolean;
   sequence: number;
@@ -113,6 +114,7 @@ export interface ComponentsFlags {
   hasCurrentPresentation: boolean;
   hasSharedNotes: boolean;
   isSharedNotesPinned: boolean;
+  isEtherpadSharedNotes: boolean;
 }
 
 export interface Meeting {

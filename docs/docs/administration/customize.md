@@ -14,7 +14,7 @@ BigBlueButton has many configuration files that offer you opportunities to custo
 
 ### Preserving changes to configuration files
 
-BigBlueButton's components use various configuration files which are included with the installation packages. If you were to make a change to these configuration files, your changes would be lost when an updated version of the package is installed during upgrades. To prevent this loss of customizations, most components also accept overriding configuration files from `/etc/bigbluebutton`. That directory is not interfered with by BigBlueButton (except in cases when using the command `bbb-conf --setip` or `--setsecret` placing new values you specify). 
+BigBlueButton's components use various configuration files which are included with the installation packages. If you were to make a change to these configuration files, your changes would be lost when an updated version of the package is installed during upgrades. To prevent this loss of customizations, most components also accept overriding configuration files from `/etc/bigbluebutton`. That directory is not interfered with by BigBlueButton (except in cases when using the command `bbb-conf --setip` or `--setsecret` placing new values you specify).
 
 For the full list of the configuration files and their overriding counterpart, see [Configuration Files](/administration/configuration-files#local-overrides-for-configuration-settings)
 
@@ -296,7 +296,7 @@ and do `systemctl daemon-reload`. This file overrides the timing of when systemd
 
 #### Allow all recordings to be returned
 
-In 2.6.x a new configuration property, `allowFetchAllRecordings`, was added to `bigbluebutton.properties`. This property determines whether every recording on the server can be returned in a single response from a `getRecordings` call. By default this property is set to `true`. On a server with a large number of recordings an attempt to return every recording in a single response can cause a large amount of load on the server and therefore it is advised that this property be switched to `false`. When this is done any request to `getRecordings` that does not specify any recording or meeting IDs as well as no pagination parameters will return no recordings to prevent all recordings from being returned. 
+In 2.6.x a new configuration property, `allowFetchAllRecordings`, was added to `bigbluebutton.properties`. This property determines whether every recording on the server can be returned in a single response from a `getRecordings` call. By default this property is set to `true`. On a server with a large number of recordings an attempt to return every recording in a single response can cause a large amount of load on the server and therefore it is advised that this property be switched to `false`. When this is done any request to `getRecordings` that does not specify any recording or meeting IDs as well as no pagination parameters will return no recordings to prevent all recordings from being returned.
 
 #### Increase the number of recording workers
 
@@ -304,7 +304,7 @@ In 2.6.x a new configuration property, `allowFetchAllRecordings`, was added to `
 > **Warning**
 >
 > If the `defaultKeepEvents` or `meetingKeepEvents` setting in bbb-web is enabled, you must not increase the number of BigBlueButton recording workers. Doing so could result in data loss, as meeting events will not be correctly archived.
-> 
+>
 > For more information, see [BigBlueButton issue #12503](https://github.com/bigbluebutton/bigbluebutton/issues/12503).
 
 Run `systemctl edit bbb-rap-resque-worker.service`, and insert the following into the editor, replacing the number with the desired number of recordings to process concurrently.
@@ -681,11 +681,20 @@ If you want to have all users join muted, you can add an overwrite in `/etc/bigb
 muteOnStart=true
 ```
 
-After making them modification, restart your server with `sudo bbb-conf --restart` to apply the changes.
+Mute state is applied to all users joining the meeting, except telephone (dial-in) users.
+If desired, enforcement can be enabled for telephone users by setting the following property in `/etc/bigbluebutton/bbb-apps-akka.conf`:
+
+```properties
+voiceConf {
+  dialInEnforceMuteOnStart = true
+}
+```
+
+Restart your server with `sudo bbb-conf --restart` to apply the changes.
 
 #### Turn off "you are now muted"
 
-You can remove this sound for all users by editing `/opt/freeswitch/etc/freeswitch/autoload_configs/conference.conf.xml` and moving the lines containing `muted-sound` and `unmuted-sound` into the commented section.
+When using audio through FreeSWITCH and/or mediasoup, you can remove this sound for all users by editing `/opt/freeswitch/etc/freeswitch/autoload_configs/conference.conf.xml` and moving the lines containing `muted-sound` and `unmuted-sound` into the commented section.
 
 ```xml
     <profile name="cdquality">
@@ -725,6 +734,16 @@ You can remove this sound for all users by editing `/opt/freeswitch/etc/freeswit
 
     </profile>
 ```
+
+If you're using audio through LiveKit, you can turn off the mute sound via /etc/bigbluebutton/bbb-html5.yml:
+```
+public:
+  app:
+    defaultSettings:
+      application:
+        muteUnmuteAudioAlerts: false
+```
+Afterwards, restart bbb-apps-akka: `$ sudo systemctl restart bbb-apps-akka`.
 
 #### Enable background music when only one person is in a session
 
@@ -800,7 +819,7 @@ To create the dialplan, use the XML below and save it to `/opt/freeswitch/conf/d
    <action application="start_dtmf" />
    <action application="answer"/>
    <action application="sleep" data="1000"/>
-   <action application="play_and_get_digits" data="9 9 3 30000 # conference/conf-pin.wav ivr/ivr-that_was_an_invalid_entry.wav pin \d+"/>
+   <action application="play_and_get_digits" data="5 9 3 30000 # conference/conf-pin.wav ivr/ivr-that_was_an_invalid_entry.wav pin \d+"/>
 
    <!-- Uncomment the following block if you want to mask the phone number in the list of participants. -->
    <!-- Instead of `01711233121` it will then show `xxx-xxx-3121`. -->
@@ -823,7 +842,7 @@ To create the dialplan, use the XML below and save it to `/opt/freeswitch/conf/d
  <condition field="${pin}" expression="^\d{5}$">
    <action application="answer"/>
    <action application="sleep" data="1000"/>
-   <action application="play_and_get_digits" data="9 9 3 30000 # conference/conf-bad-pin.wav ivr/ivr-that_was_an_invalid_entry.wav pin \d+"/>
+   <action application="play_and_get_digits" data="5 9 3 30000 # conference/conf-bad-pin.wav ivr/ivr-that_was_an_invalid_entry.wav pin \d+"/>
    <action application="transfer" data="SEND_TO_CONFERENCE XML public"/>
  </condition>
 </extension>
@@ -1022,9 +1041,16 @@ We have added support for ClamAV to automatically scan every presentation file f
 To use it you would need to first install ClamAV:
 The simplest way would be to run it locally as a container.
 
-```
-docker pull clamav/clamav`
-docker run --name "clamav" --mount type=bind,source=/var/bigbluebutton,target=/var/bigbluebutton -p 3310:3310 -p 7357:7357 clamav/clamav:latest
+```bash
+docker run --name "clamav" -d \
+  --volume /var/bigbluebutton:/var/bigbluebutton:ro \
+  --publish 127.0.0.1:3310:3310 \
+  --memory 4G \
+  --cpus 1 \
+  --user "clamav" \
+  --entrypoint "/init-unprivileged" \
+  --restart unless-stopped \
+  clamav/clamav:latest
 ```
 
 
@@ -1034,8 +1060,9 @@ Now when you check the running containers you should see an entry like this one:
 
 ```
 root@test30:~# docker ps
-CONTAINER ID   IMAGE                                                       COMMAND                  CREATED          STATUS                    PORTS                                                                                                           NAMES
-bda7f5596192   clamav/clamav:latest                                        "/init"                  21 minutes ago   Up 21 minutes (healthy)   0.0.0.0:3310->3310/tcp, :::3310->3310/tcp, 0.0.0.0:7357->7357/tcp, :::7357->7357/tcp                            clamav
+CONTAINER ID   IMAGE                  COMMAND                CREATED             STATUS                       PORTS                                NAMES
+8582c5c195aa   clamav/clamav:latest   "/init-unprivileged"   About an hour ago   Up About an hour (healthy)   127.0.0.1:3310->3310/tcp, 7357/tcp   clamav
+
 ```
 
 
@@ -1364,7 +1391,7 @@ Edit nginx configuration file (`/usr/share/bigbluebutton/nginx/bbb-html5.nginx`)
 Do the same in `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties` in the following lines:
 
 ```
-defaultHTML5ClientUrl=${bigbluebutton.web.serverURL}/html5client
+defaultHTML5ClientUrl=${bigbluebutton.web.serverURL}/html5client/
 ```
 
 You can overwrite that value in `/etc/bigbluebutton/bbb-web.properties` (recommended).
@@ -1408,7 +1435,7 @@ Restart BigBlueButton with `sudo bbb-conf --restart` and you should now see the 
 
 To use gladia.io for automatic speech-to-text transcriptions, you first need to obtain an API key from [gladia.io](https://www.gladia.io).  You can sign up for free credentials to test the integration.
 
-Next, you must be using BigBlueButton 2.7.4+ (pass `-v focal-270`) or BigBlueButton 3.0.0-alpha.7+ (pass `-v jammy-300`) or later on a BigBlueButton server with a public IP and hostname.  
+Next, you must be using BigBlueButton 2.7.4+ (pass `-v focal-270`) or BigBlueButton 3.0.0-alpha.7+ (pass `-v jammy-300`) or later on a BigBlueButton server with a public IP and hostname.
 
 Once you have BigBlueButton installed, run `sudo apt install bbb-transcription-controller` to install BigBlueButton's transcription service which supports gladia.io.
 
@@ -1477,6 +1504,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`
 | `enteredUsersTimeout`                    | Timeout (millis) to remove users that called the enter API but did not join                   | Integer                                                      | 45000 (45s)                    |
 | `breakoutRoomsRecord`                    | Enable Recordings in Breakout Rooms                                                           | true/false                                                   | false _`overwritable`_         |
 | `breakoutRoomsPrivateChatEnabled`        | Enable private chat in Breakout Rooms                                                         | true/false                                                   | true _`overwritable`_          |
+| `breakoutRoomsMultiUserWhiteboardDefaultOn` | Enable multi-user whiteboard by default in Breakout Rooms   | true/false    | true  |
 | `notifyRecordingIsOn`                    | Notify users that recording is on                                                             | true/false                                                   | false _`overwritable`_         |
 | `learningDashboardCleanupDelayInMinutes` | Number of minutes that Learning Dashboard will be available after the end of the meeting      | Integer (0=disable)                                          | 2 _`overwritable`_             |
 | `serviceEnabled`                         | API enabled                                                                                   | true/false                                                   | true                           |
@@ -1510,10 +1538,13 @@ Useful tools for development:
 | `userdata-bbb_skip_echotest_if_previous_device=` | (Introduced in BigBlueButton 3.0) If set to `true`, the user will not see the "echo test" if session has valid input/output devices stored previously | `false`       |
 | `userdata-bbb_override_default_locale=`        | (Introduced in BigBlueButton 2.3) If set to `de`, the user's browser preference will be ignored - the client will be shown in 'de' (i.e. German) regardless of the otherwise preferred locale 'en' (or other)                                                                                                                   | `null`        |
 | `userdata-bbb_direct_leave_button` | (Introduced in BigBlueButton 2.7) If set to `true` it will make a button to leave the meeting appear to the left of the Options menu. | `false`  |
-| `userdata-bbb_parent_room_moderator=` | (Introduced in BigBlueButton 3.0) Only used in breakouts: if set to `true`, user will have permission to kick other users inside the breakout | `false`                                                                      
+| `userdata-bbb_parent_room_moderator=` | (Introduced in BigBlueButton 3.0) Only used in breakouts: if set to `true`, user will have permission to kick other users inside the breakout | `false`
 | `userdata-bbb_record_permission=` | (Introduced in BigBlueButton 3.0) If set to `true`, the user will be able to control the recording start/stop. If set to `false`, the user will not be allowed to control the recording start/stop even if their role is moderator. Otherwise only moderators will have the control (default).                                                                                                                   | `null`        |
 | `userdata-bbb_record_permission_tooltip=` | (Introduced in BigBlueButton 3.0) If set, the tooltip of the recording indicator shown when the user don't have permission to record will be replaced by its content.                                                                                                                   | `null`        |
 | `userdata-bbb_show_session_details_on_join=` | (Introduced in BigBlueButton 3.0) If set to `false` , the session details window will not be displayed when a user joins the session.                                                                                                                   | `null`        |
+| `userdata-bbb_show_animations_default=` | If set to `false` , animations (emoji raining, whiteboard toolbars fading out, etc) will not be shown to the user.                                                                                                                   | `true`        |
+
+
 
 #### Branding parameters
 

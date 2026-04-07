@@ -48,7 +48,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration with HandlerHelp
     def registerUserInRegisteredUsers() = {
       val regUser = RegisteredUsers.create(liveMeeting.props.meetingProp.intId, msg.body.intId, msg.body.voiceUserId,
         msg.body.callerIdName, "", "", Roles.VIEWER_ROLE, msg.body.intId, Vector(""), "", "", userColor, false,
-        true, true, GuestStatus.WAIT, true, "", "", Map(), false)
+        true, true, GuestStatus.WAIT, true, "", "", Map.empty, Map.empty, false)
       RegisteredUsers.add(liveMeeting.registeredUsers, regUser, liveMeeting.props.meetingProp.intId)
     }
 
@@ -69,11 +69,12 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration with HandlerHelp
         pin = false,
         mobile = false,
         presenter = false,
+        whiteboardWriteAccess = MeetingStatus2x.multiUserWhiteboardEnabled(liveMeeting.status),
         locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
         avatar = "",
         webcamBackground = "",
         color = userColor,
-        clientType = if (isDialInUser) "dial-in-user" else "",
+        clientType = if (isDialInUser) ClientType.DIAL_IN else "",
         userLeftFlag = UserLeftFlag(false, 0)
       )
       Users2x.add(liveMeeting.users2x, newUser)
@@ -106,6 +107,11 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration with HandlerHelp
     }
 
     def letUserEnter() = {
+      val speechLocale = Users2x.findWithIntId(liveMeeting.users2x, msg.body.intId) match {
+        case Some(u) => u.speechLocale
+        case None    => ""
+      }
+
       VoiceApp.handleUserJoinedVoiceConfEvtMsg(
         liveMeeting,
         outGW,
@@ -117,6 +123,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration with HandlerHelp
         msg.body.callerIdName,
         msg.body.callerIdNum,
         userColor,
+        speechLocale,
         msg.body.muted,
         listenOnlyInputDevice = false,
         deafened = false,

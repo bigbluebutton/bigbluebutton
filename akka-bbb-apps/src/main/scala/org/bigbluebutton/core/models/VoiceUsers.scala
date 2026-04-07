@@ -80,6 +80,17 @@ object VoiceUsers {
     }
   }
 
+  def userSpeechLocale(users: VoiceUsers, userId: String, speechLocale: String): Option[VoiceUserState] = {
+    for {
+      u <- findWIthIntId(users, userId)
+    } yield {
+      val vu = u.modify(_.speechLocale).setTo(speechLocale)
+        .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
+      users.save(vu)
+      vu
+    }
+  }
+
   def userUpdatedListenOnlyInputDevice(users: VoiceUsers, voiceUserId: String, listenOnlyInputDevice: Boolean): Option[VoiceUserState] = {
     for {
       u <- findWithVoiceUserId(users, voiceUserId)
@@ -244,6 +255,7 @@ case class VoiceUserState(
     callerName:            String,
     callerNum:             String,
     color:                 String,
+    speechLocale:          String,
     muted:                 Boolean,
     listenOnlyInputDevice: Boolean,
     deafened:              Boolean,

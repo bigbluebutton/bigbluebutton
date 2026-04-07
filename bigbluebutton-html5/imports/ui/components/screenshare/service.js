@@ -71,7 +71,8 @@ export const useScreenshare = () => {
     SCREENSHARE_SUBSCRIPTION,
     {
       skip: meetingLoading
-      || !(meeting?.componentsFlags?.hasScreenshare || meeting.componentsFlags?.hasCameraAsContent),
+      || !(meeting?.componentsFlags?.hasScreenshare
+        || meeting?.componentsFlags?.hasCameraAsContent),
     },
   );
 
@@ -223,6 +224,10 @@ export const screenshareHasEnded = () => {
   }
 
   screenShareBridge.stop();
+
+  if (window.bbbMobileApp && window.bbbMobileApp.onScreenshareStopRequest) {
+    window.bbbMobileApp.onScreenshareStopRequest();
+  }
 };
 
 export const _handleStreamTermination = () => {
@@ -322,7 +327,11 @@ export const shareScreen = async (
     let stream;
     let contentType = CONTENT_TYPE_SCREENSHARE;
     if (options.stream == null) {
-      stream = await BridgeService.getScreenStream();
+      const isLiveKit = screenShareBridge.bridgeName === 'livekit';
+      const constraints = isLiveKit
+        ? window.meetingClientSettings.public.media?.livekit?.screenshare?.constraints
+        : undefined;
+      stream = await BridgeService.getScreenStream(constraints);
     } else {
       contentType = CONTENT_TYPE_CAMERA;
       stream = options.stream;

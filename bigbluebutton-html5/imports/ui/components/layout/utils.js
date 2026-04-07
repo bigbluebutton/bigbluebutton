@@ -1,8 +1,10 @@
+import { equals } from 'ramda';
 import {
   DEVICE_TYPE,
   LAYOUT_ELEMENTS,
   LAYOUT_TYPE,
   SYNC,
+  PRESENTATION_AREA,
 } from './enums';
 
 const phoneUpperBoundary = 600;
@@ -33,6 +35,23 @@ export default device;
 export {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
 };
+
+const hasGenericContentChanged = (current, previous) => !equals(
+  current.filter((action) => action?.value?.content === PRESENTATION_AREA.GENERIC_CONTENT)
+    .map((action) => action.value.genericContentId),
+  previous.filter((action) => action?.value?.content === PRESENTATION_AREA.GENERIC_CONTENT)
+    .map((action) => action.value.genericContentId),
+);
+
+export const presentationContentHasChanges = (
+  current,
+  previous,
+  currentLayoutType,
+  previousLayoutType,
+) => !equals(
+  current.map((action) => action.value.content),
+  previous.map((action) => action.value.content),
+) || currentLayoutType !== previousLayoutType || hasGenericContentChanged(current, previous);
 
 // Array for select component to select different layout
 const suportedLayouts = [
@@ -76,6 +95,17 @@ const suportedLayouts = [
       DEVICE_TYPE.DESKTOP,
     ],
   },
+  {
+    layoutKey: LAYOUT_TYPE.UNIFIED_LAYOUT,
+    layoutName: 'Unified Layout',
+    suportedDevices: [
+      DEVICE_TYPE.MOBILE,
+      DEVICE_TYPE.TABLET,
+      DEVICE_TYPE.TABLET_PORTRAIT,
+      DEVICE_TYPE.TABLET_LANDSCAPE,
+      DEVICE_TYPE.DESKTOP,
+    ],
+  },
 ];
 
 const COMMON_ELEMENTS = {
@@ -91,6 +121,10 @@ const COMMON_ELEMENTS = {
 };
 
 const LAYOUTS_SYNC = {
+  [LAYOUT_TYPE.UNIFIED_LAYOUT]: {
+    [SYNC.PROPAGATE_ELEMENTS]: [...COMMON_ELEMENTS.DEFAULT, ...COMMON_ELEMENTS.DOCK],
+    [SYNC.REPLICATE_ELEMENTS]: [...COMMON_ELEMENTS.DEFAULT, ...COMMON_ELEMENTS.DOCK],
+  },
   [LAYOUT_TYPE.CUSTOM_LAYOUT]: {
     [SYNC.PROPAGATE_ELEMENTS]: [...COMMON_ELEMENTS.DEFAULT, ...COMMON_ELEMENTS.DOCK],
     [SYNC.REPLICATE_ELEMENTS]: [...COMMON_ELEMENTS.DEFAULT, ...COMMON_ELEMENTS.DOCK],

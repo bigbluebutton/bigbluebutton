@@ -177,7 +177,7 @@ class App extends React.Component {
     }
 
     // Calculate points of Raise hand
-    const usersRaiseHand = allUsers.map((currUser) => currUser.raiseHand.length);
+    const usersRaiseHand = allUsers.map((currUser) => currUser?.raiseHand?.length || 0);
     const maxRaiseHand = Math.max(...usersRaiseHand);
     const totalRaiseHand = usersRaiseHand.reduce((prev, val) => prev + val, 0);
     if (maxRaiseHand > 0) {
@@ -185,7 +185,7 @@ class App extends React.Component {
     }
 
     // Calculate points of Reactions
-    const usersReactions = allUsers.map((currUser) => currUser.reactions.length);
+    const usersReactions = allUsers.map((currUser) => currUser?.reactions?.length || 0);
     const maxReactions = Math.max(...usersReactions);
     const totalReactions = usersReactions.reduce((prev, val) => prev + val, 0);
     if (maxReactions > 0) {
@@ -366,21 +366,21 @@ class App extends React.Component {
     } = this.state;
     const { intl } = this.props;
 
-    const genericDataCardTitle = activitiesJson?.genericDataTitles?.[0];
+    const pluginUserDataCardTitle = activitiesJson?.pluginUserDataCardTitles?.[0];
     // This line generates an array of all the plugin entries of all users,
     // this might have duplicate entries:
-    const genericDataColumnTitleWithDuplicates = Object.values(
+    const pluginUserDataColumnTitleWithDuplicates = Object.values(
       activitiesJson.users || {}, // Hardcoded for now, we will add cards relative to this key.
     ).flatMap((
       user,
-    ) => user.genericData?.[genericDataCardTitle]).filter((
-      genericDataListForSpecificUser,
+    ) => user.pluginUserData?.[pluginUserDataCardTitle]).filter((
+      pluginUserDataListForSpecificUser,
     ) => !!(
-      genericDataListForSpecificUser?.columnTitle)).map((
-      genericDataListForSpecificUser,
-    ) => genericDataListForSpecificUser?.columnTitle);
+      pluginUserDataListForSpecificUser?.columnTitle)).map((
+      pluginUserDataListForSpecificUser,
+    ) => pluginUserDataListForSpecificUser?.columnTitle);
     // This line will eliminate duplicates.
-    const genericDataColumnTitleList = [...new Set(genericDataColumnTitleWithDuplicates)];
+    const pluginUserDataColumnTitleList = [...new Set(pluginUserDataColumnTitleWithDuplicates)];
 
     document.title = `${intl.formatMessage({ id: 'app.learningDashboard.bigbluebuttonTitle', defaultMessage: 'BigBlueButton' })} - ${intl.formatMessage({ id: 'app.learningDashboard.dashboardTitle', defaultMessage: 'Learning Analytics Dashboard' })} - ${activitiesJson.name}`;
 
@@ -608,13 +608,13 @@ class App extends React.Component {
                 </CardContent>
               </Card>
             </TabUnstyled>
-            {genericDataColumnTitleList.length && (
+            {pluginUserDataColumnTitleList.length && (
               <TabUnstyled className="rounded focus:outline-none focus:ring focus:ring-red-500 ring-offset-2" data-test="pluginsPanelDashboard">
                 <Card>
                   <CardContent classes={{ root: '!p-0' }}>
                     <CardBody
-                      name={genericDataCardTitle}
-                      number={genericDataColumnTitleList.length}
+                      name={pluginUserDataCardTitle}
+                      number={pluginUserDataColumnTitleList.length}
                       cardClass={tab === TABS.POLLING ? 'border-red-500' : 'hover:border-red-500 border-white'}
                       iconClass="bg-red-100 text-red-500"
                     >
@@ -710,13 +710,13 @@ class App extends React.Component {
           </TabPanelUnstyled>
           <TabPanelUnstyled value={5}>
             <h2 className="block my-2 pr-2 text-xl font-semibold">
-              {genericDataCardTitle}
+              {pluginUserDataCardTitle}
             </h2>
             <div className="w-full overflow-hidden rounded-md shadow-xs border-2 border-gray-100">
               <div className="w-full overflow-x-auto">
                 <PluginsTable
-                  genericDataCardTitle={genericDataCardTitle}
-                  genericDataColumnTitleList={genericDataColumnTitleList}
+                  pluginUserDataCardTitle={pluginUserDataCardTitle}
+                  pluginUserDataColumnTitleList={pluginUserDataColumnTitleList}
                   allUsers={activitiesJson.users}
                 />
               </div>

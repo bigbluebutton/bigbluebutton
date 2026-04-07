@@ -2,7 +2,9 @@ package streamingserver
 
 import (
 	"encoding/json"
+	"slices"
 
+	"bbb-graphql-middleware/config"
 	"bbb-graphql-middleware/internal/common"
 )
 
@@ -10,8 +12,8 @@ func ReadNewStreamingSubscription(
 	browserConnection *common.BrowserConnection,
 	fromBrowserMessage []byte,
 ) error {
-	browserConnection.Logger.Info("Starting ReadNewStreamingSubscription")
-	defer browserConnection.Logger.Info("Finished ReadNewStreamingSubscription")
+	browserConnection.Logger.Debug("Starting ReadNewStreamingSubscription")
+	defer browserConnection.Logger.Debug("Finished ReadNewStreamingSubscription")
 
 	var browserMessage common.BrowserSubscribeMessage
 	err := json.Unmarshal(fromBrowserMessage, &browserMessage)
@@ -19,28 +21,27 @@ func ReadNewStreamingSubscription(
 		browserConnection.Logger.Errorf("failed to unmarshal message: %v", err)
 	}
 
-	browserConnection.Logger.Info(browserMessage.Type)
-	browserConnection.Logger.Info(browserMessage.Payload.OperationName)
+	browserConnection.Logger.Debug(browserMessage.Type)
+	browserConnection.Logger.Debug(browserMessage.Payload.OperationName)
 
-	operationName := "getCursorCoordinatesStream"
-	if browserMessage.Type == "subscribe" && browserMessage.Payload.OperationName == operationName {
+	if browserMessage.Type == "subscribe" && slices.Contains(config.StreamingSubscriptionsManagedByMiddleware, browserMessage.Payload.OperationName) {
 		queryId := browserMessage.ID
 
-		browserConnection.ActiveStreamingsMutex.RLock()
-		_, queryIdExists := browserConnection.ActiveStreamings[operationName]
-		browserConnection.ActiveStreamingsMutex.RUnlock()
-		if queryIdExists {
-			sendErrorMessage(browserConnection, queryId, "Only one getCursorCoordinatesStream subscription is allowed")
-			return nil
-		}
-
 		browserConnection.ActiveStreamingsMutex.Lock()
-		browserConnection.ActiveStreamings[operationName] = queryId
+		if _, queryIdExists := browserConnection.ActiveStreamings[browserMessage.Payload.OperationName]; !queryIdExists {
+			browserConnection.ActiveStreamings[browserMessage.Payload.OperationName] = []string{queryId}
+		} else {
+			browserConnection.ActiveStreamings[browserMessage.Payload.OperationName] = append(browserConnection.ActiveStreamings[browserMessage.Payload.OperationName], queryId)
+		}
 		browserConnection.ActiveStreamingsMutex.Unlock()
 
-		SendPreviousCursorPosition(browserConnection, queryId)
+		if browserMessage.Payload.OperationName == "getCursorCoordinatesStream" {
+			SendPreviousCursorPosition(browserConnection, queryId)
+		}
 
-		browserConnection.Logger.Debugf("Added new getCursorCoordinatesStream streaming %s ", queryId)
+		if browserMessage.Payload.OperationName == "getUserVoiceStateStream" {
+			SendPreviousUserVoiceState(browserConnection, queryId)
+		}
 	}
 
 	return nil
@@ -60,7 +61,7 @@ func sendErrorMessage(browserConnection *common.BrowserConnection, messageId str
 		},
 	}
 	jsonDataError, _ := json.Marshal(browserResponseData)
-	browserConnection.FromHasuraToBrowserChannel.Send(jsonDataError)
+	browserConnection.FromHasuraToBrowserChannel.SendWait(browserConnection.Context, jsonDataError)
 
 	// Return complete msg to client
 	browserResponseComplete := map[string]any{
@@ -68,5 +69,5 @@ func sendErrorMessage(browserConnection *common.BrowserConnection, messageId str
 		"type": "complete",
 	}
 	jsonDataComplete, _ := json.Marshal(browserResponseComplete)
-	browserConnection.FromHasuraToBrowserChannel.Send(jsonDataComplete)
+	browserConnection.FromHasuraToBrowserChannel.SendWait(browserConnection.Context, jsonDataComplete)
 }

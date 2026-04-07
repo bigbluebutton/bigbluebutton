@@ -4,18 +4,20 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	evanphxjsonpatch "github.com/evanphx/json-patch"
 	"github.com/mattbaird/jsonpatch"
 	log "github.com/sirupsen/logrus"
 )
 
 func ValidateIfShouldUseCustomJsonPatch(original []byte, modified []byte, idFieldName string) (bool, []byte) {
-	//Temporarily use CustomPatch only for UserList (testing feature)
+	// Temporarily use CustomPatch only for UserList (testing feature)
 	if !bytes.Contains(modified, []byte("\"__typename\":\"user\"}]")) {
 		return false, nil
 	}
 
-	//Test Original Data
+	// Test Original Data
 	originalMap := GetMapFromByte(original)
 	if originalMap == nil {
 		return false, nil
@@ -34,7 +36,7 @@ func ValidateIfShouldUseCustomJsonPatch(original []byte, modified []byte, idFiel
 		return false, nil
 	}
 
-	//Test Modified Data
+	// Test Modified Data
 	modifiedMap := GetMapFromByte(modified)
 	if modifiedMap == nil {
 		return false, nil
@@ -53,7 +55,7 @@ func ValidateIfShouldUseCustomJsonPatch(original []byte, modified []byte, idFiel
 		return false, nil
 	}
 
-	return true, CreateJsonPatchFromMaps(originalMap, modifiedMap, modified, "userId")
+	return true, CreateJsonPatchFromMaps(originalMap, modifiedMap, modified, idFieldName)
 }
 
 func hasDuplicatedId(items []map[string]interface{}, idFieldName string) bool {
@@ -77,10 +79,10 @@ func CreateJsonPatch(original []byte, modified []byte, idFieldName string) []byt
 }
 
 func CreateJsonPatchFromMaps(original []map[string]interface{}, modified []map[string]interface{}, modifiedJson []byte, idFieldName string) []byte {
-	//CREATE PATCHES FOR OPERATION "REPLACE"
+	// CREATE PATCHES FOR OPERATION "REPLACE"
 	replacesPatches, originalWithReplaces := CreateReplacePatches(original, modified, idFieldName)
 
-	//CREATE PATCHES FOR OPERATION "ADD" and "REMOVE"
+	// CREATE PATCHES FOR OPERATION "ADD" and "REMOVE"
 	addRemovePatches := CreateAddRemovePatches(originalWithReplaces, modified, idFieldName)
 
 	mergedPatch := append(replacesPatches, addRemovePatches...)
@@ -91,7 +93,7 @@ func CreateJsonPatchFromMaps(original []map[string]interface{}, modified []map[s
 		return mergedPatchJson
 	}
 
-	//CREATE PATCHES FOR OPERATION "MOVE"
+	// CREATE PATCHES FOR OPERATION "MOVE"
 	movesPatches, _ := CreateMovePatches(originalWithPatches, modifiedJson, idFieldName)
 	mergedPatchJson, _ = MergePatches(mergedPatchJson, movesPatches)
 
@@ -125,7 +127,7 @@ func CreateAddRemovePatches(original []map[string]interface{}, modified []map[st
 	addedFakeItem := false
 	if len(original) == len(modified) {
 		hasSameIDs = true
-		for i, _ := range original {
+		for i := range original {
 			if original[i][idFieldName] != modified[i][idFieldName] {
 				hasSameIDs = false
 				break
@@ -227,29 +229,40 @@ func findAndApplyMoveInversely(arr1, arr2 []map[string]interface{}, patches []ma
 }
 
 func CreateMovePatches(arr1 []byte, arr2 []byte, idFieldName string) ([]byte, error) {
+	methodFailed := make([]string, 0)
 	patchDirect, stepsDirect, errDirect := generateJSONPatch(arr1, arr2, idFieldName, 1)
-	if errDirect != nil {
-		//return nil, err
-		fmt.Printf("Err patch direct: %v\n", errDirect)
-	}
-
 	if stepsDirect <= 1 {
 		return patchDirect, nil
 	}
+	if errDirect != nil {
+		methodFailed = append(methodFailed, "1")
+	}
 
-	//Try reverse
+	// Try reverse
 	patchInverse, stepsInverse, errInverse := generateJSONPatch(arr1, arr2, idFieldName, 2)
 	if stepsInverse <= 1 {
 		return patchInverse, nil
 	}
+	if errInverse != nil {
+		methodFailed = append(methodFailed, "2")
+	}
 
-	//Try arr2First
+	// Try arr2First
 	patchFromArr2, stepsFromArr2, errFromArr2 := generateJSONPatch(arr1, arr2, idFieldName, 3)
+	if errFromArr2 != nil {
+		methodFailed = append(methodFailed, "2")
+	}
+
 	if errDirect != nil && errInverse != nil && errFromArr2 != nil {
+		log.Infof("Unable to generate json-patch with method any method (1, 2 and 3): %v", errDirect)
 		return nil, errDirect
 	}
 
-	//Send the shorter way
+	if len(methodFailed) > 0 {
+		log.Infof("Unable to generate json-patch with methods (%s), but other succeeded", strings.Join(methodFailed, ", "))
+	}
+
+	// Send the shorter way
 	if patchFromArr2 != nil && stepsFromArr2 < stepsDirect && stepsFromArr2 < stepsInverse {
 		return patchFromArr2, nil
 	} else if patchDirect != nil && stepsDirect < stepsInverse {
@@ -261,26 +274,27 @@ func CreateMovePatches(arr1 []byte, arr2 []byte, idFieldName string) ([]byte, er
 	}
 }
 
-func generateJSONPatch(arr1Json, arr2Json []byte, idFieldName string, method int) ([]byte, int, error) {
-	arr1 := GetMapFromByte(arr1Json)
-	arr2 := GetMapFromByte(arr2Json)
+func generateJSONPatch(arr1Json []byte, arr2Json []byte, idFieldName string, method int) ([]byte, int, error) {
+	arr1AsMap := GetMapFromByte(arr1Json)
+	arr2AsMap := GetMapFromByte(arr2Json)
 
 	patches := make([]map[string]interface{}, 0)
 	steps := 0
 	changed := true
 	for {
-		if steps > 100 {
+		if steps > 50 {
 			log.Debug(string(arr1Json))
 			log.Debug(string(arr2Json))
 			log.Debug(patches)
-			return nil, steps, fmt.Errorf("too many patches to generate JSON patch")
+			return nil, steps, fmt.Errorf("too many (> 50) patches to generate JSON patch")
 		}
-		if method == 1 {
-			_, patches, changed = findAndApplyMove(arr1, arr2, patches, idFieldName)
-		} else if method == 2 {
-			_, patches, changed = findAndApplyMoveInversely(arr1, arr2, patches, idFieldName)
-		} else {
-			_, patches, changed = findAndApplyMoveFromArr2(arr1, arr2, patches, idFieldName)
+		switch method {
+		case 1:
+			_, patches, changed = findAndApplyMove(arr1AsMap, arr2AsMap, patches, idFieldName)
+		case 2:
+			_, patches, changed = findAndApplyMoveInversely(arr1AsMap, arr2AsMap, patches, idFieldName)
+		default:
+			_, patches, changed = findAndApplyMoveFromArr2(arr1AsMap, arr2AsMap, patches, idFieldName)
 		}
 
 		if !changed {
@@ -299,7 +313,7 @@ func ApplyPatch(original []map[string]interface{}, patchBytes []byte) ([]byte, e
 		return nil, err
 	}
 
-	modifiedJson, err := patch.Apply(originalBytes)
+	modifiedJson, _ := patch.Apply(originalBytes)
 
 	return modifiedJson, nil
 }

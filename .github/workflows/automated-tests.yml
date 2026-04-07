@@ -34,6 +34,7 @@ jobs:
             bbb-learning-dashboard,
             bbb-playback-record,
             bbb-graphql-server,
+            bbb-shared-notes-server,
             bbb-etherpad,
             bbb-web,
             bbb-fsesl-akka,
@@ -58,6 +59,8 @@ jobs:
             build-name: bbb-graphql-server
             build-list: bbb-graphql-server bbb-graphql-middleware bbb-graphql-actions
             cache-files-list: bbb-graphql-server bbb-graphql-middleware bbb-graphql-actions
+          - package: bbb-shared-notes-server
+            cache-files-list: bbb-shared-notes-server
           - package: bbb-etherpad
             cache-files-list: bbb-etherpad.placeholder.sh
             cache-urls-list: https://api.github.com/repos/mconf/ep_pad_ttl/commits https://api.github.com/repos/alangecker/bbb-etherpad-plugin/commits https://api.github.com/repos/mconf/ep_redis_publisher/commits https://api.github.com/repos/alangecker/bbb-etherpad-skin/commits
@@ -79,14 +82,24 @@ jobs:
             build-list: bbb-mkclean bbb-pads bbb-libreoffice-docker bbb-transcription-controller bigbluebutton bbb-livekit
             cache-files-list: bbb-pads.placeholder.sh bbb-libreoffice bbb-transcription-controller.placeholder.sh
     steps:
-      - uses: actions/checkout@v4
-      - name: Merge branches
-        uses: ./.github/actions/merge-branches
+      - name: Checkout PR's source merged into its target branch
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.number }}/merge
+      - name: Checkout commit/branch
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
       - name: Set cache-key vars
         run: |
           BUILD_DIRS="$(echo '${{ matrix.build-list || matrix.package }}' | sed 's/[^ ]\+/build\/packages-template\/&/g')"
           echo "Including build dirs: $BUILD_DIRS"
-          echo "CACHE_KEY_FILES=$(echo '${{ matrix.cache-files-list }} '$BUILD_DIRS' .gitlab-ci.yml build/deb-helper.sh' | xargs -n1 git log -1 --format=%h -- | tr '\n' '-' | sed 's/-$//')" >> $GITHUB_ENV
+          LIST="${{ matrix.cache-files-list }} $BUILD_DIRS .gitlab-ci.yml build/deb-helper.sh"
+          TREE_HASHES=$(echo $LIST | tr ' ' '\n' | xargs -I {} git rev-parse HEAD:{} 2>/dev/null)
+          CACHE_DIGEST=$(printf "%s" "$TREE_HASHES" | (sha256sum 2>/dev/null || shasum -a 256) | awk '{print $1}')
+          echo "CACHE_KEY_FILES=$CACHE_DIGEST" >> $GITHUB_ENV
           echo "CACHE_KEY_URLS=$(echo '${{ matrix.cache-urls-list }}' | xargs -r -n 1 curl -Is | grep -i 'Last-Modified' | md5sum | cut -c1-10)" >> $GITHUB_ENV
           cat bigbluebutton-config/bigbluebutton-release >> $GITHUB_ENV
           echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
@@ -126,7 +139,16 @@ jobs:
   bbb-libreoffice-image:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout PR's source merged into its target branch
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.number }}/merge
+      - name: Checkout commit/branch
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
       - name: LIBREOFFICE CACHE - Set cache-key vars
         run: |
           echo "BBB_LIBREOFFICE_IMAGE_NAME=$(head -n 1 bbb-libreoffice/docker/Dockerfile | cut -d ' ' -f 2)" >> $GITHUB_ENV
@@ -182,6 +204,11 @@ jobs:
         with:
           name: artifacts_bbb-etherpad
           path: all-artifacts
+      - name: Download artifacts_bbb-shared-notes-server
+        uses: actions/download-artifact@v4
+        with:
+          name: artifacts_bbb-shared-notes-server
+          path: all-artifacts
       - name: Download artifacts_bbb-freeswitch
         uses: actions/download-artifact@v4
         with:
@@ -232,6 +259,7 @@ jobs:
             artifacts_bbb-playback-record
             artifacts_bbb-graphql-server
             artifacts_bbb-etherpad
+            artifacts_bbb-shared-notes-server
             artifacts_bbb-freeswitch
             artifacts_bbb-webrtc
             artifacts_bbb-web
@@ -252,16 +280,25 @@ jobs:
       shard: ${{ matrix.shard }}/8
       MATRIX_SHARD_UNDERSCORED: ${{ matrix.shard }}_8
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout PR's source merged into its target branch
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.number }}/merge
+      - name: Checkout commit/branch
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
       - name: Install BBB
         timeout-minutes: 60
         uses: ./.github/actions/install-bbb
       - uses: actions/setup-node@v4
-        name: PLAYRIGHT CACHE - Restore Playright node modules from cache
+        name: PLAYWRIGHT CACHE - Restore Playwright node modules from cache
         with:
-          cache: 'npm'
+          cache: "npm"
           cache-dependency-path: bigbluebutton-tests/playwright/package-lock.json
-      - name: PLAYRIGHT CACHE - Restore Playright binaries from cache
+      - name: PLAYWRIGHT CACHE - Restore Playwright binaries from cache
         id: cache
         uses: actions/cache@v4
         with:
@@ -297,23 +334,35 @@ jobs:
         run: |
           find $HOME/.cache/ms-playwright -name libnssckbi.so -exec rm {} \; -exec ln -s /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so {} \;
           npm run test-firefox-ci -- --shard=${{ env.shard }}
-      - if: always()
+      - if: failure()
         name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: blob-report-${{ matrix.shard }}
           path: bigbluebutton-tests/playwright/blob-report
-      - if: always()
+          if-no-files-found: ignore
+      - if: failure()
         name: Generate the shard HTML report from blob report
         shell: bash
         working-directory: ./bigbluebutton-tests/playwright
-        run: npx playwright merge-reports --reporter html ./blob-report
-      - if: always()
+        run: |
+          if [ -d "./blob-report" ]; then
+            npx playwright merge-reports --reporter html ./blob-report
+          else
+            echo "blob-report directory not found, skipping HTML report generation"
+          fi
+      - if: failure()
         name: Upload shard HTML report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: test-report_shard-${{ matrix.shard }}
           path: bigbluebutton-tests/playwright/playwright-report
+      - if: always()
+        name: Upload logs folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-logs-${{ matrix.shard }}
+          path: bigbluebutton-tests/playwright/logs
       - if: failure()
         name: Prepare artifacts
         uses: ./.github/actions/prepare-artifacts
@@ -330,18 +379,19 @@ jobs:
           name: bbb-logs-${{ env.MATRIX_SHARD_UNDERSCORED }}
           path: ./bbb-logs.tar.gz
       - name: APT CACHE - Check for changes using packages hash
-        if: success() && matrix.shard == 1
+        if: success() && matrix.shard == 1 && github.event_name != 'pull_request'
         id: apt-manifest
         shell: bash
         run: |
           sudo chown -R "$USER:$USER" /var/cache/apt/archives || true
           sudo chmod 755 /var/cache/apt/archives /var/cache/apt/archives/partial 2>/dev/null || true
-          find /var/cache/apt/archives -type f -name '*.deb' -print0 \
-            | sort -z \
-            | xargs -0 -r sha256sum > apt-manifest-end.txt
-          echo "hash=$(sha256sum apt-manifest-end.txt | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+          hash=$(find /var/cache/apt/archives -type f -name '*.deb' \
+                   | sort \
+                   | sha256sum \
+                   | cut -d' ' -f1)
+          echo "hash=$hash" >> $GITHUB_OUTPUT
       - name: APT CACHE - Upload new packages (if changed)
-        if: success() && matrix.shard == 1
+        if: success() && matrix.shard == 1 && github.event_name != 'pull_request'
         uses: actions/cache/save@v4
         with:
           path: /var/cache/apt/archives
@@ -356,7 +406,16 @@ jobs:
     env:
       SAMPLES_WITH_TESTS: "sample-action-button-dropdown-plugin sample-actions-bar-plugin sample-audio-settings-dropdown-plugin sample-camera-settings-dropdown-plugin sample-custom-subscription-hook sample-data-channel-plugin"
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout PR's source merged into its target branch
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.number }}/merge
+      - name: Checkout commit/branch
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
       - name: Install BBB
         timeout-minutes: 60
         uses: ./.github/actions/install-bbb
@@ -368,7 +427,7 @@ jobs:
             echo "SDK_URL=$SDK_DEP" >> $GITHUB_ENV
           else
             SDK_VERSION=$(jq -r '.packages["node_modules/bigbluebutton-html-plugin-sdk"]["version"]' package-lock.json)
-            echo "SDK_URL=https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/archive/refs/tags/v${SDK_VERSION}.tar.gz" >> $GITHUB_ENV
+            echo "SDK_URL=https://github.com/${{ github.repository_owner }}/bigbluebutton-html-plugin-sdk/archive/refs/tags/v${SDK_VERSION}.tar.gz" >> $GITHUB_ENV
           fi
       - name: Plugins SDK - Download bigbluebutton-html-plugin-sdk.tar.gz
         working-directory: bigbluebutton-tests
@@ -376,14 +435,14 @@ jobs:
           wget -O bigbluebutton-html-plugin-sdk.tar.gz $SDK_URL
           mkdir -p bigbluebutton-html-plugin-sdk
           tar -xzf bigbluebutton-html-plugin-sdk.tar.gz -C bigbluebutton-html-plugin-sdk --strip-components=1
-      - name: PLAYRIGHT CACHE (Plugins SDK) - Restore Playright node modules from cache
+      - name: PLAYWRIGHT CACHE (Plugins SDK) - Restore Playwright node modules from cache
         uses: actions/setup-node@v4
         with:
-          cache: 'npm'
+          cache: "npm"
           cache-dependency-path: |
-                bigbluebutton-tests/bigbluebutton-html-plugin-sdk/package-lock.json
-                bigbluebutton-tests/bigbluebutton-html-plugin-sdk/samples/**/package-lock.json
-      - name: PLAYRIGHT CACHE - Restore Playright binaries from cache
+            bigbluebutton-tests/bigbluebutton-html-plugin-sdk/package-lock.json
+            bigbluebutton-tests/bigbluebutton-html-plugin-sdk/samples/**/package-lock.json
+      - name: PLAYWRIGHT CACHE - Restore Playwright binaries from cache
         id: cache
         uses: actions/cache@v4
         with:
@@ -437,6 +496,44 @@ jobs:
           npm ci
           npx playwright install-deps
           npx playwright install
+      - name: Prepare flaky test exclusions
+        working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
+        run: |
+          # Read flaky tests from core repo and build a grep-invert parameter
+          FLAKY_TESTS_FILE="../playwright/sdk-flaky-tests.txt"
+          FLAKY_TESTS_LINES=""
+
+          if [ -f "$FLAKY_TESTS_FILE" ]; then
+            echo "Reading flaky tests from $FLAKY_TESTS_FILE"
+
+            # Process the file:
+            # - remove CRLF if present (Windows line endings)
+            # - ignore comments (#...) and empty lines
+            # - escape regex metacharacters to avoid breaking grep
+            # - replace " › " with ".*" to allow flexible matching
+            # - join all patterns into a single alternation regex separated by '|'
+
+            FLAKY_TESTS_LINES="$(
+              sed 's/\r$//' "$FLAKY_TESTS_FILE" \
+              | grep -Ev '^[[:space:]]*(#|$)' \
+              | sed -E 's/[][(){}.^$*+?|\]/\\&/g' \
+              | sed 's/ › /.*/g' \
+              | paste -sd'|' -
+            )"
+
+            # If we have patterns, print them; otherwise, say none found
+            if [ -n "$FLAKY_TESTS_LINES" ]; then
+              echo "Will skip flaky tests: $FLAKY_TESTS_LINES"
+            else
+              echo "No flaky tests to skip"
+            fi
+          else
+            # If the file does not exist, just run all tests
+            echo "Flaky tests file not found, running all tests"
+          fi
+
+          # Export the variable so it can be used in later GitHub Actions steps
+          echo "SDK_FLAKY_TESTS=$FLAKY_TESTS_LINES" >> "$GITHUB_ENV"
       - name: Run tests
         working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
         timeout-minutes: 25
@@ -445,24 +542,42 @@ jobs:
           ACTIONS_RUNNER_DEBUG: true
           BBB_URL: https://bbb-ci.test/bigbluebutton/
           BBB_SECRET: bbbci
-        run: npm run test-chromium-ci
-      - if: always()
+        run: |
+          if [ -n "$SDK_FLAKY_TESTS" ]; then
+            npm run test-chromium-ci -- --grep-invert "$SDK_FLAKY_TESTS"
+          else
+            npm run test-chromium-ci
+          fi
+      - if: failure()
         name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: blob-report-plugins
           path: bigbluebutton-tests/bigbluebutton-html-plugin-sdk/blob-report
-      - if: always()
+          if-no-files-found: ignore
+      - if: failure()
         name: Generate the plugins HTML report from blob report
         shell: bash
         working-directory: ./bigbluebutton-tests/bigbluebutton-html-plugin-sdk
-        run: npx playwright merge-reports --reporter html ./blob-report
-      - if: always()
+        run: |
+          if [ -d "./blob-report" ]; then
+            npx playwright merge-reports --reporter html ./blob-report
+          else
+            echo "blob-report directory not found, skipping HTML report generation"
+          fi
+      - if: failure()
         name: Upload shard HTML report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: test-report_plugins
           path: bigbluebutton-tests/bigbluebutton-html-plugin-sdk/playwright-report
+      - if: always()
+        name: Upload logs folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-logs-plugin
+          path: bigbluebutton-tests/bigbluebutton-html-plugin-sdk/logs
+          if-no-files-found: ignore
       - if: failure()
         name: Prepare artifacts
         uses: ./.github/actions/prepare-artifacts
@@ -478,30 +593,28 @@ jobs:
         with:
           name: bbb-logs-plugins
           path: ./bbb-logs.tar.gz
-  upload-report:
+  publish-report:
     if: always() && !contains(github.event.head_commit.message, 'Merge pull request')
     needs:
       - install-and-run-bbb-tests
       - install-and-run-plugin-tests
     runs-on: ubuntu-22.04
     env:
-      hasReportData: ${{ needs.install-and-run-bbb-tests.result == 'success' || needs.install-and-run-bbb-tests.result == 'failure' && needs.install-and-run-plugin-tests.result == 'success' || needs.install-and-run-plugin-tests.result == 'failure' }}
+      hasFailure: ${{ needs.install-and-run-bbb-tests.result == 'failure' || needs.install-and-run-plugin-tests.result == 'failure' }}
     steps:
       - uses: actions/checkout@v4
-      # temporarily disabled as merged blob reports are not being used
-      # - name: Merge and upload the blob reports
-      # if: ${{ env.hasReportData }}
-      #   uses: ./.github/actions/merge-and-upload-blob-reports
-      # - name: Remove unnecessary artifact
-      #   uses: geekyeggo/delete-artifact@v5
-      #   with:
-      #     name: all-blob-reports
-      #     failOnError: false
-      - name: Remove unnecessary blob artifacts
-        uses: geekyeggo/delete-artifact@v5
+      - uses: actions/setup-node@v4
         with:
-          name: blob-report-*
-          failOnError: false
+          node-version: 22
+      - name: Check if blob reports exist
+        if: ${{ fromJSON(env.hasFailure) }}
+        id: check-blob-reports
+        uses: ./.github/actions/check-artifact-exists
+        with:
+          artifact-name: blob-report-
+      - name: Merge and upload the blob reports
+        if: ${{ fromJSON(env.hasFailure) && fromJSON(steps.check-blob-reports.outputs.result || 'false') }}
+        uses: ./.github/actions/merge-and-upload-blob-reports
       - name: Write PR data for auto-comment
         if: github.event_name == 'pull_request'
         working-directory: ./

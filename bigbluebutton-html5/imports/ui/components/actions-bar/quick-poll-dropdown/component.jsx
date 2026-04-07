@@ -97,21 +97,45 @@ const QuickPollDropdown = (props) => {
   const questionLines = [];
   let isOptionSection = false;
   const options = [];
+  const allParagraphs = []; // all paragraphs seen before the options section
 
   // Group consecutive non-option lines as question
   lines.forEach((line) => {
     const trimmedLine = line.trim();
 
     if (questionPattern.test(trimmedLine) || optionsPattern.test(trimmedLine)) {
+      // Flush any pending paragraph before switching to option mode
+      if (!isOptionSection && questionLines.length > 0) {
+        allParagraphs.push([...questionLines]);
+        questionLines.length = 0;
+      }
       // We've found explicit options (e.g., "a) Yes" or "Yes / No")
       isOptionSection = true;
       options.push(trimmedLine);
       if (basicQuestionPattern.test(trimmedLine)) questionLines.push(trimmedLine);
-    } else if (!isOptionSection && trimmedLine.length > 0) {
-      // Any non-empty line before options is considered question text
-      questionLines.push(trimmedLine);
+    } else if (!isOptionSection) {
+      if (trimmedLine.length > 0) {
+        // Any non-empty line before options is considered question text
+        questionLines.push(trimmedLine);
+      } else if (questionLines.length > 0) {
+        // Blank line ends a paragraph — save it and start fresh
+        allParagraphs.push([...questionLines]);
+        questionLines.length = 0;
+      }
     }
   });
+
+  // Flush remaining lines if no options section was found (e.g. Typed Response)
+  if (!isOptionSection && questionLines.length > 0) {
+    allParagraphs.push([...questionLines]);
+    questionLines.length = 0;
+  }
+
+  // Pick the best paragraph: last one containing '?', else last paragraph
+  const questionParagraph = [...allParagraphs].reverse().find((p) => p.join(' ').includes('?'))
+    ?? allParagraphs[allParagraphs.length - 1]
+    ?? [];
+  questionLines.push(...questionParagraph);
 
   // Trim question to everything before the first '?'
   if (questionLines.length > 0) {
@@ -126,8 +150,11 @@ const QuickPollDropdown = (props) => {
   // Join lines into a single question string
   const question = [questionLines.join(' ').trim()];
 
-  const correctAnswer = lines.map(line => line.trimStart()).find((line) => line.endsWith(QUICK_POLL_CORRECT_ANSWER_SUFFIX)
-  && !question.includes(line))?.slice(0, -QUICK_POLL_CORRECT_ANSWER_SUFFIX.length);
+  const correctAnswer = lines
+    .map((line) => line.trim())
+    .find((line) => line.endsWith(QUICK_POLL_CORRECT_ANSWER_SUFFIX) && !question.includes(line))
+    ?.slice(0, -QUICK_POLL_CORRECT_ANSWER_SUFFIX.length)
+    .trim();
 
   // Check explicitly if options exist or if the question ends with '?'
   const hasExplicitQuestionMark = basicQuestionPattern.test(question);
@@ -159,7 +186,7 @@ const QuickPollDropdown = (props) => {
 
   const hasTF = safeMatch(trueFalsePatt, content, false);
 
-  const pollRegex = /\b(?:[1-9]|1[0-9]|[A-Sa-s])[.)]\s*.*/g;
+  const pollRegex = /(?:^|\s{2,})(?:[1-9]|1[0-9]|[A-Sa-s])[.)]\s*.*/gm;
   let optionsPoll = safeMatch(pollRegex, content, []);
 
   const optionsWithLabels = [];
@@ -170,9 +197,10 @@ const QuickPollDropdown = (props) => {
 
   if (optionsPoll) {
     optionsPoll = optionsPoll.map((opt) => {
-      const cleanedOpt = opt.endsWith(QUICK_POLL_CORRECT_ANSWER_SUFFIX)
-        ? opt.slice(0, -QUICK_POLL_CORRECT_ANSWER_SUFFIX.length)
-        : opt;
+      const trimmedOpt = opt.trim();
+      const cleanedOpt = trimmedOpt.endsWith(QUICK_POLL_CORRECT_ANSWER_SUFFIX)
+        ? trimmedOpt.slice(0, -QUICK_POLL_CORRECT_ANSWER_SUFFIX.length)
+        : trimmedOpt;
 
       const formattedOpt = cleanedOpt.substring(0, MAX_CHAR_LIMIT);
       optionsWithLabels.push(formattedOpt);
@@ -180,6 +208,9 @@ const QuickPollDropdown = (props) => {
       return `\r${labelChar}.`;
     });
   }
+  const normalizedCorrectAnswer = correctAnswer && (hasYN || hasTF)
+    ? correctAnswer.replace(/^[a-zA-Z0-9][.)]\s+/, '').trim()
+    : correctAnswer;
 
   const optionGroupsWithLabels = [];
   optionsPoll.reduce((acc, currentValue) => {
@@ -406,8 +437,8 @@ const QuickPollDropdown = (props) => {
                 letterAnswers,
                 pollQuestion,
                 pollData?.multiResp,
-                correctAnswer?.length > 0,
-                correctAnswer,
+                normalizedCorrectAnswer?.length > 0,
+                normalizedCorrectAnswer,
               );
             }, CANCELED_POLL_DELAY);
           }}
@@ -468,8 +499,8 @@ const QuickPollDropdown = (props) => {
               answers,
               pollQuestion,
               multiResponse,
-              correctAnswer?.length > 0,
-              correctAnswer,
+              normalizedCorrectAnswer?.length > 0,
+              normalizedCorrectAnswer,
             );
           } else {
             startPoll(
@@ -478,8 +509,8 @@ const QuickPollDropdown = (props) => {
               (optionGroupsWithLabels[0] || []),
               pollQuestion,
               multiResponse,
-              correctAnswer?.length > 0,
-              correctAnswer,
+              normalizedCorrectAnswer?.length > 0,
+              normalizedCorrectAnswer,
             );
           }
         }, CANCELED_POLL_DELAY);
