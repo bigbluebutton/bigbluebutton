@@ -1318,7 +1318,7 @@
     "app.whiteboard.toolbar.infiniteWhiteboardOn": "Activer le mode infini du tableau blanc",
     "app.whiteboard.toolbar.infiniteWhiteboardOff": "Désactiver le mode infini du tableau blanc",
     "app.whiteboard.toolbar.palmRejectionOn": "Protection contre l'interférence de la paume de la main activée",
-    "app.whiteboard.toolbar.palmRejectionOff": "Contacts de la paume de la main sur écrans tactiles : Activé",
+    "app.whiteboard.toolbar.palmRejectionOff": "Protection contre l'interférence de la paume de la main désactivée",
     "app.whiteboard.toolbar.fontSize": "Liste de tailles de police",
     "app.whiteboard.toolbarAriaLabel": "Outils de présentation",
     "app.feedback.title": "Vous avez quitté la réunion",
