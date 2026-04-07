@@ -21,6 +21,11 @@ if [ ! -d ./node_modules ] || ! npm ls --depth=0 > /dev/null 2>&1; then
   npm install
 fi
 
+if [ ! -f .env ]; then
+  echo "Copying .env.example to .env..."
+  cp .env.example .env
+fi
+
 BBB_URL=$(bbb-conf --secret | grep '^ *URL:' | cut -d' ' -f6 | sed 's|/bigbluebutton/||')
 
 if [ -e public/test/test/learning_dashboard_data.json ]; then

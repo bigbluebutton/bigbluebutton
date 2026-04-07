@@ -12,10 +12,18 @@ chown bigbluebutton /var/bigbluebutton/learning-dashboard/
 ## Build instructions
 
 ```
+cp .env.example .env
+```
+
+```
 ./deploy.sh
 ```
 
 ## Development instructions
+
+```
+cp .env.example .env
+```
 
 ```
 ./run-dev.sh
