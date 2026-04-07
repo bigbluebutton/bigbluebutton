@@ -5,6 +5,7 @@ const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
+const CompressionPlugin = require('compression-webpack-plugin');
 
 const env = process.env.NODE_ENV || 'development';
 const detailedLogs = process.env.DETAILED_LOGS || false;
@@ -134,6 +135,7 @@ const config = {
 };
 
 if (env === prodEnv) {
+  config.plugins.push(new CompressionPlugin());
   config.mode = prodEnv;
   config.optimization = {
     minimize: true,
