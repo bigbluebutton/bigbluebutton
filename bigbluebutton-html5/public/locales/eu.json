@@ -184,6 +184,7 @@
     "app.userList.mobile": "Mugikorra",
     "app.userList.guest": "Gonbidatua",
     "app.userList.searchUsers": "Bilatu erabiltzaileak",
+    "app.userList.noSearchResults": "No participants match your search. Try another name.",
     "app.userList.clearSearch": "Garbitu bilaketa",
     "app.userList.sharingWebcam": "Web-kamera",
     "app.userList.menuTitleContext": "Aukera erabilgarriak",
