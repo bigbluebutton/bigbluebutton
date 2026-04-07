@@ -43,6 +43,7 @@ interface BreakoutRoomProps {
   createdTime: number;
   closePanel: () => void;
   isConnected: boolean;
+  audioBridge: string;
 }
 
 const intlMessages = defineMessages({
@@ -136,6 +137,7 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
   createdTime,
   closePanel,
   isConnected,
+  audioBridge,
 }) => {
   const [breakoutRoomEndAll] = useMutation(BREAKOUT_ROOM_END_ALL);
   const [breakoutRoomTransfer] = useMutation(USER_TRANSFER_VOICE_TO_MEETING);
@@ -284,7 +286,7 @@ const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
                             disabled={requestedBreakoutRoomId}
                           />
                         )}
-                        {isModerator && (userJoinedAudio || userJoinedDialin)
+                        {isModerator && (userJoinedAudio || userJoinedDialin) && audioBridge !== 'livekit'
                           ? [
                             '|',
                             <Styled.AudioButton
@@ -330,6 +332,7 @@ const BreakoutRoomContainer: React.FC = () => {
   const {
     data: meetingData,
   } = useMeeting((m) => ({
+    audioBridge: m.audioBridge,
     durationInSeconds: m.durationInSeconds,
     createdTime: m.createdTime,
     meetingId: m.meetingId,
@@ -412,6 +415,7 @@ const BreakoutRoomContainer: React.FC = () => {
         createdTime={meetingData.createdTime ?? 0}
         isConnected={connected}
         closePanel={closePanel}
+        audioBridge={meetingData.audioBridge ?? 'livekit'}
       />
       {breakoutRoomsUpdateUsersModal.isOpen && (
       <CreateBreakoutRoomContainer

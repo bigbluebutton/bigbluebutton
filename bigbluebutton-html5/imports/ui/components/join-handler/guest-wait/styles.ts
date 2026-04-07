@@ -12,6 +12,8 @@ const Content = styled.div`
   text-align: center;
   color: white;
   font-size: 24px;
+  max-width: 650px;
+  padding: 0 20px;
 `;
 
 const Heading = styled.h1`
@@ -22,8 +24,65 @@ const Heading = styled.h1`
 const Position = styled.div`
   align-items: center;
   text-align: center;
+  font-size: 0.9em;
+  font-weight: normal;
+  opacity: 0.85;
+  margin-bottom: 24px;
 `;
 
+const MessageContainer = styled.div`
+  background-color: rgba(0, 0, 0, 0.35);
+  padding: 20px 28px;
+  border-radius: 12px;
+  margin: 8px 0 24px 0;
+`;
+
+const MessageLabel = styled.div`
+  font-size: 0.75em;
+  font-weight: normal;
+  opacity: 0.7;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+`;
+
+const MessageText = styled.p`
+  font-size: 1em;
+  font-weight: 500;
+  line-height: 1.4;
+  margin: 0;
+`;
+
+const pulse = keyframes`
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+`;
+
+const WaitingIndicator = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.8em;
+  font-weight: normal;
+  opacity: 0.7;
+  margin-top: 8px;
+`;
+
+const WaitingDot = styled.span`
+  width: 8px;
+  height: 8px;
+  background-color: #4ade80;
+  border-radius: 50%;
+  display: inline-block;
+  animation: ${pulse} 2s ease-in-out infinite;
+`;
+
+// Keep old spinner components for backwards compatibility but they won't be used
 const sk_bouncedelay = keyframes`
   0%,
   80%,
@@ -64,6 +123,11 @@ export default {
   Content,
   Heading,
   Position,
+  MessageContainer,
+  MessageLabel,
+  MessageText,
+  WaitingIndicator,
+  WaitingDot,
   Bounce,
   Bounce1,
   Bounce2,

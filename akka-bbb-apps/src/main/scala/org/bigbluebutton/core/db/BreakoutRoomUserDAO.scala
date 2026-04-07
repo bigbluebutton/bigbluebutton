@@ -29,20 +29,24 @@ class BreakoutRoomUserDbTableDef(tag: Tag) extends Table[BreakoutRoomUserDbModel
 
 object BreakoutRoomUserDAO {
   def prepareInsert(breakoutRoomMeetingId: String, meetingId: String, userId: String, joinURL: String, wasAssignedByMod: Boolean) = {
-    TableQuery[BreakoutRoomUserDbTableDef].insertOrUpdate(
-      BreakoutRoomUserDbModel(
-        breakoutRoomMeetingId = breakoutRoomMeetingId,
-        breakoutRoomUserId = "",
-        meetingId = meetingId,
-        userId = userId,
-        joinURL = joinURL,
-        assignedAt = wasAssignedByMod match {
-          case true => Some(new java.sql.Timestamp(System.currentTimeMillis()))
-          case false => None
-        },
-        inviteDismissedAt = None,
-      )
+    val assignedAt: Option[java.sql.Timestamp] = if (wasAssignedByMod) Some(new java.sql.Timestamp(System.currentTimeMillis())) else None
+
+    sqlu"""
+        INSERT INTO "breakoutRoom_user" ("breakoutRoomMeetingId", "meetingId", "userId", "joinURL", "assignedAt", "inviteDismissedAt")
+        VALUES (
+       ${breakoutRoomMeetingId},
+       ${meetingId},
+       ${userId},
+       ${joinURL},
+       $assignedAt,
+       null
     )
+        ON CONFLICT ("breakoutRoomMeetingId", "meetingId", "userId")
+        DO UPDATE SET
+        "assignedAt" = coalesce($assignedAt, "breakoutRoom_user"."assignedAt"),
+        "joinURL" = ${joinURL},
+        "inviteDismissedAt" = null
+        """
   }
 
   def updateUserMovedToRoom(meetingId: String, userId: String, toBreakoutRoomMeetingId: String, joinUrl: String) = {
@@ -59,12 +63,19 @@ object BreakoutRoomUserDAO {
   def updateUserJoined(breakoutRoomUser: BreakoutUser, parentMeetingUser: RegisteredUser, breakoutRoom: BreakoutRoom2x) = {
       DatabaseConnection.enqueue(
         sqlu"""UPDATE "breakoutRoom_user" SET
+                "breakoutRoomUserId" = ${breakoutRoomUser.userId},
                 "joinedAt" = current_timestamp,
-                "breakoutRoomUserId" = ${breakoutRoomUser.userId}
+                "isUserCurrentlyInRoom" = exists (
+                  select 1
+                  from "user"
+                  where "user"."meetingId" = ${breakoutRoom.id}
+                  and "user"."userId" = ${breakoutRoomUser.userId}
+                  and "currentlyInMeeting" is true
+                )
                 WHERE "meetingId" = ${parentMeetingUser.meetingId}
                 AND "userId" = ${parentMeetingUser.id}
                 AND "breakoutRoomMeetingId" = ${breakoutRoom.id}
-                AND "breakoutRoomUserId" != ${breakoutRoomUser.userId}"""
+                AND "breakoutRoomUserId" is distinct from ${breakoutRoomUser.userId}"""
       )
   }
 
@@ -87,14 +98,6 @@ object BreakoutRoomUserDAO {
   }
 
   def refreshBreakoutRoomsVisibleForUsers(meetingId: String, userId: String = "") = {
-    val userCriteria: String = {
-      if (userId.nonEmpty) {
-        s"""AND u."userId" = '${userId}'"""
-      } else {
-        ""
-      }
-    }
-
     //Insert all rooms visible to the user into "breakoutRoom_user", as it will improve performance
     //Also remove all rooms that is visible to the user but should no longer be visible
     DatabaseConnection.enqueue(
@@ -102,10 +105,10 @@ object BreakoutRoomUserDAO {
         INSERT INTO "breakoutRoom_user" ("breakoutRoomMeetingId", "meetingId", "userId")
         SELECT b."breakoutRoomMeetingId", u."meetingId", u."userId"
         FROM "user" u
-        JOIN "breakoutRoom" b ON b."meetingId" = u."meetingId"
-        WHERE u."meetingId" = ${meetingId} #${userCriteria}
+        JOIN "breakoutRoom" b ON b."meetingId" = u."meetingId" AND b."endedAt" IS NULL
+        WHERE u."meetingId" = $meetingId
+        AND ($userId = '' OR u."userId" = $userId)
         AND ( b."freeJoin" IS TRUE OR u."role" = 'MODERATOR')
-        AND b."endedAt" IS NULL
         ON CONFLICT ("breakoutRoomMeetingId", "meetingId", "userId") DO NOTHING;
 
         DELETE FROM "breakoutRoom_user"
@@ -115,7 +118,8 @@ object BreakoutRoomUserDAO {
                 from "breakoutRoom_user" bu
                 join "breakoutRoom" b using("breakoutRoomMeetingId")
                 join "user" u using("userId")
-                where u."meetingId" = ${meetingId} #${userCriteria}
+                where u."meetingId" = $meetingId
+                and ($userId = '' OR u."userId" = $userId)
                 and bu."isLastAssignedRoom" is false
                 and b."freeJoin" is not true
                 and u."isModerator" is not true

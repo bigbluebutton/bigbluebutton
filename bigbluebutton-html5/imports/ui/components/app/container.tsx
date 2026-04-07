@@ -36,6 +36,7 @@ const AppContainer: React.FC<AppContainerProps> = ({ pluginConfig }) => {
     raiseHand: u.raiseHand,
     userId: u.userId,
     presenter: u.presenter,
+    voice: u.voice,
   }));
 
   const { data: currentMeeting } = useMeeting((m) => ({
@@ -129,6 +130,7 @@ const AppContainer: React.FC<AppContainerProps> = ({ pluginConfig }) => {
       isNonMediaLayout={isNonMediaLayout}
       currentUserAway={away}
       currentUserRaiseHand={raiseHand}
+      currentUserHasVoice={!!currentUser?.voice}
       presentationIsOpen={presentationIsOpen}
       shouldShowExternalVideo={shouldShowExternalVideo}
       shouldShowScreenshare={shouldShowScreenshare}

@@ -1,53 +1,86 @@
+<!-- omit from toc -->
 ## BigBlueButton Playwright Tests
 
 Tests for BigBlueButton using Playwright.
 
-## Setup (with an existing BigBlueButton server)
+<!-- omit from toc -->
+## Table of content
 
-You need to install the dependencies:
+- [Setup](#setup)
+  - [1. Install dependencies](#1-install-dependencies)
+  - [2. Run tests](#2-run-tests)
+    - [2.1. Additional commands](#21-additional-commands)
+    - [2.2. Useful parameters](#22-useful-parameters)
+- [Skip SDK tests without the need of a new release](#skip-sdk-tests-without-the-need-of-a-new-release)
+- [Recording Meteor messages](#recording-meteor-messages)
+- [Print browser logs](#print-browser-logs)
+- [Code Formatting and Linting](#code-formatting-and-linting)
+  - [Available Commands](#available-commands)
+  - [Pre-commit Hooks](#pre-commit-hooks)
+  - [Editor Integration](#editor-integration)
+- [Check test results of a pull request](#check-test-results-of-a-pull-request)
+
+## Setup
+
+This section assumes a BigBlueButton server is already configured. Ideally the tests should be run in a separate environment
+
+### 1. Install dependencies
 
 ```bash
-cd ../bigbluebutton-tests/playwright
+cd ./bigbluebutton-tests/playwright
 npm install
 npx playwright install
-```
-
-You may also need to run the following command:
-
-```bash
 npx playwright install-deps
 ```
 
-To run these tests with an existing BigBlueButton server, you need to find the server's URL and secret (can be done with `bbb-conf --secret` command). You need to put them into the `.env` file inside `bigbluebutton-tests/playwright` folder (variables `BBB_URL` and `BBB_SECRET`).
+To run these tests with an existing BigBlueButton server, you need to find the server's URL and secret (can be done with `bbb-conf --secret` command). You need to set them into the `.env` file inside `bigbluebutton-tests/playwright` folder (variables `BBB_URL` and `BBB_SECRET` - check in `.env.template`).
 
-## Run tests
+### 2. Run tests
 
-We recommend to use Node 20+ to avoid errors in JavaScript.
-Tests can be executed using `npx` and `npm test`. You can run all tests in each of 3 supported environments (`chromium`, `firefox`, `webkit`) with one of the following commands:
+- **IMPORTANT**: BBB automated tests rely on the default server config (based on values set in `settings.yml`). Any custom setting may cause false failures.
+- Node 20+ recommended to avoid errors in JavaScript.
+
+Tests can be executed using `npx playwright test` or `npm test`. You can run all tests in each of 3 available browsers (`chromium`, `firefox`, `webkit`) (Note: ensure the browser you're interested in is enabled in `playwright.config.ts`) with one of the following commands:
 
 ```bash
 npx playwright test
+```
+
 or
+
+```bash
 npm test
 ```
+
+_**NOTE**: Current support for BBB tests using `firefox` and `webkit` is limited. Expected that tests will fail even if the functionality is working correctly_
 
 You can also run a single test suite and limit the execution to only one browser:
 
 ```bash
-npx playwright test chat --project="firefox"
-or
-npm test chat -- --project="firefox" # or "chromium" for example
+npx playwright test chat --project="chromium"
 ```
 
-### Additional commands
+or
 
-To see the tests running visually, you must run them in headed mode:
+```bash
+npm test chat -- --project="chromium" # or "firefox" for example
+```
+
+#### 2.1. Additional commands
+
+- To see generated reports of the last test run:
+
+```bash
+npx playwright show-report
+```
+
+- To see the tests running visually, you must run them in headed mode:
 
 ```bash
 npm run test:headed chat
 ```
 
-If you want to run a specific test or a specific group of tests, you can do so with the following command:
+- If you want to run a specific test or a specific group of tests, you can do so with the following command:
 
 ```bash
 npm run test:filter "Send public message"
@@ -55,7 +88,7 @@ npm run test:filter "Send public message"
 
 _Note: This filter needs to be passed in double quotes_
 
-You can also use this also through the test tree, adding the test suite / group of tests before the test filter:
+- You can also use this also through the test tree, adding the test suite / group of tests before the test filter:
 
 ```bash
 npm run test:filter "notifications chat"
@@ -66,6 +99,24 @@ If you don't have `BBB_URL` and `BBB_SECRET` set, but have ssh access to the tes
 ```bash
 npm run test:ssh -- HOSTNAME
 ```
+
+#### 2.2. Useful parameters
+
+```bash
+--list                  # list tests
+--grep "lock viewers"   # filter test specs
+--grep-invert "@flaky"  # inverted filter test specs (avoid matching)
+--workers 2             # number of concurrent workers (amount of parallel tests)
+--last-failed           # re-run only last failures
+--repeat-each 3         # repeat each test
+--retries               # maximum retry attempts before failing
+```
+
+_You can check the official documentation [here](https://playwright.dev/docs/test-cli)_
+
+## Skip SDK tests without the need of a new release
+
+Instead pushing changes with `@flaky` flag addition into the BigBlueButton SDK repository, you can simply add the flaky tests into `/bigbluebutton-tests/playwright/sdk-flaky-tests.txt` which will skip them on CI workflow runs (added on [this PR](https://github.com/bigbluebutton/bigbluebutton/pull/23656))
 
 ## Recording Meteor messages
 
@@ -164,7 +215,7 @@ For the best development experience, configure your editor to:
 
 VSCode settings are provided in `.vscode/settings.json` for automatic formatting and linting.
 
-## Check test results
+## Check test results of a pull request
 
 After opening a PR, the CI will run automated tests within your changes + target branch merged. When it finishes testing, generated files of the execution are exposed to be downloaded in the action run tab. the files / data is used mostly for exploring failures. To check the test results locally:
 
