@@ -6,6 +6,8 @@ import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import { monitorAudioConnection } from '/imports/utils/stats';
+import { monitorLiveKitAudioStats, stopLiveKitAudioStats } from '/imports/ui/services/livekit/stats';
+import { liveKitRoom } from '/imports/ui/services/livekit';
 import browserInfo from '/imports/utils/browserInfo';
 import {
   DEFAULT_INPUT_DEVICE_ID,
@@ -873,6 +875,7 @@ class AudioManager {
     window.removeEventListener('audioPlayFailed', this.handlePlayElementFailed);
     this._resetAudioJoinTime();
     this.notifyAudioExit();
+    stopLiveKitAudioStats();
     this.isConnected = false;
     this.isConnecting = false;
     this.isHangingUp = false;
@@ -1312,8 +1315,12 @@ class AudioManager {
   }
 
   monitor() {
-    const peer = this.bridge.getPeerConnection();
-    monitorAudioConnection(peer);
+    if (this.isUsingLiveKit()) {
+      const STATS_INTERVAL = window.meetingClientSettings.public.stats.interval;
+      monitorLiveKitAudioStats(liveKitRoom, STATS_INTERVAL);
+    } else {
+      monitorAudioConnection();
+    }
   }
 
   handleAllowAutoplay() {
