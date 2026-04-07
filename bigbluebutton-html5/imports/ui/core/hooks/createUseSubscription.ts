@@ -54,7 +54,7 @@ function createUseSubscription<T>(
       if (subscriptionHashRef.current !== subHash) {
         subscriptionHashRef.current = subHash;
         if (subscriptionRef.current && optionsRef.current) {
-          GrahqlSubscriptionStore.unsubscribe(subscriptionRef.current, queryVariables);
+          GrahqlSubscriptionStore.unsubscribe(subscriptionRef.current, optionsRef.current);
         }
 
         subscriptionRef.current = query;
@@ -141,7 +141,7 @@ function createUseSubscription<T>(
       GrahqlSubscriptionStore.makeSubscription(newSubscriptionGQL, queryVariables, usePatchedSubscription ? 'no-cache' : undefined);
       return () => {
         //  @ts-ignore
-        // window.removeEventListener('graphqlSubscription', listener);
+        window.removeEventListener('graphqlSubscription', listener);
       };
     }, [queryHash, skip]);
 
