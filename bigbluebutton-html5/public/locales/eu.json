@@ -1192,7 +1192,7 @@
     "app.lock-viewers.restrictParticipantsLabel": "Mugatu parte-hartzaile hauek...",
     "app.lock-viewers.featuresLable": "Eginbidea",
     "app.lock-viewers.lockStatusLabel": "Egoera",
-    "app.lock-viewers.webcamLabel": "Share webcam",
+    "app.lock-viewers.webcamLabel": "Partekatu web-kamera",
     "app.lock-viewers.otherViewersWebcamLabel": "See other participants' webcam",
     "app.lock-viewers.microphoneLabel": "Share microphone",
     "app.lock-viewers.PublicChatLabel": "Send public messages",
