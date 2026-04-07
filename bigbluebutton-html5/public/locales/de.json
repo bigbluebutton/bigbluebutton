@@ -1120,7 +1120,7 @@
     "app.notification.recordingAriaLabel": "Aufgezeichnete Zeit",
     "app.notification.userJoinPushAlert": "{userName} hat die Sitzung betreten",
     "app.notification.userLeavePushAlert": "{userName} hat die Sitzung verlassen",
-    "app.notification.presenterRequestApproved.title": "{presenterName} is now the presenter",
+    "app.notification.presenterRequestApproved.title": "Nun präsentiert {presenterName}",
     "app.notification.presenterRequestApproved": "Set by: {approvedByName}",
     "app.submenu.notification.raiseHandLabel": "Hand heben",
     "app.shortcut-help.title": "Tastenkombinationen",
