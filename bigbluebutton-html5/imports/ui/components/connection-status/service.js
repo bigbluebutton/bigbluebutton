@@ -457,6 +457,7 @@ export async function startMonitoringNetwork() {
 
 export function getWorstStatus(statuses) {
   const statusOrder = {
+    unknown: -1,
     normal: 0,
     warning: 1,
     danger: 2,
