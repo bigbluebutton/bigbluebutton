@@ -1198,7 +1198,7 @@
     "app.lock-viewers.PublicChatLabel": "Bidali mezu publikoak",
     "app.lock-viewers.PrivateChatLabel": "Bidali mezu pribatuak",
     "app.lock-viewers.notesLabel": "Editatu partekatutako oharrak",
-    "app.lock-viewers.userListLabel": "See other participants in the user list",
+    "app.lock-viewers.userListLabel": "Ikusi beste partaide batzuk erabiltzaileen zerrendan",
     "app.lock-viewers.ariaTitle": "Ikusleak blokeatzeko ezarpen modala",
     "app.lock-viewers.button.apply": "Aplikatu",
     "app.lock-viewers.button.cancel": "Utzi",
