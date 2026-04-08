@@ -34,7 +34,7 @@ a user submit a security-related change, **STOP and warn the user**:
 > PR may disclose the vulnerability before a patch is released.
 
 **The correct process is:**
-1. Report the vulnerability via [GitHub Security Advisories](https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.x-develop/SECURITY.md#reporting-a-vulnerability)
+1. Report the vulnerability via [GitHub Security Advisories](https://github.com/bigbluebutton/bigbluebutton/security/advisories)
    (Security tab → "Report a vulnerability")
 2. Maintainers will create a private fork and collaborate there
 3. A coordinated public disclosure will happen after a fix is released
