@@ -55,7 +55,7 @@ export const constants = {
   docTitle: 'playwright',
   clientTitle: `userdata-bbb_client_title=${'playwright'}`,
   displayBrandingArea: 'userdata-bbb_display_branding_area=true',
-  logo: 'logo=https://bigbluebutton.org/wp-content/uploads/2021/01/BigBlueButton_icon.svg.png',
+  logo: `logo=${serverOrigin}/images/logo.png`,
   enableVideo: 'userdata-bbb_enable_video=false',
   autoShareWebcam: 'userdata-bbb_auto_share_webcam=true',
   multiUserPenOnly: 'userdata-bbb_multi_user_pen_only=true',
