@@ -21,7 +21,7 @@ test.describe.parallel('Learning Dashboard', { tag: '@ci' }, () => {
   });
 
   // eslint-disable-next-line no-empty-pattern
-  test('Polls', { tag: '@flaky' }, async ({}, testInfo) => {
+  test('Polls', async ({}, testInfo) => {
     await learningDashboard.initUserPage(learningDashboard.modPage.context, { isRecording: true, testInfo });
     await learningDashboard.polls();
   });

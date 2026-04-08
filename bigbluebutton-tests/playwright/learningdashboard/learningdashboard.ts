@@ -111,25 +111,18 @@ export class LearningDashboard extends MultiUsers {
       ELEMENT_WAIT_EXTRA_LONG_TIME,
     );
 
-    // True / False
-    await this.dashboardPage.hasText(e.pollTrueFalseQuestion, 'True/False?', 'should display the correct question');
-    await this.dashboardPage.hasText(e.pollTrueFalseAnswer, 'True', 'should display the correct answer');
+    const checkPollAnswer = async (question: string, answer: string) => {
+      const header = this.dashboardPage.page.locator('div[role="columnheader"]').filter({ hasText: question });
+      await expect(header, `should display the "${question}" column header`).toBeVisible();
+      const field = await header.getAttribute('data-field');
+      const cell = this.dashboardPage.page.locator(`div[role="cell"][data-field="${field}"]`);
+      await expect(cell, `should display the correct answer for "${question}"`).toContainText(answer);
+    };
 
-    // ABCD
-    await this.dashboardPage.hasText(e.pollABCDQuestion, 'ABCD?', 'should display the correct question');
-    await this.dashboardPage.hasText(e.pollABCDAnswer, 'A', 'should display the correct answer');
-
-    // Yes No
-    await this.dashboardPage.hasText(e.pollYesNoQuestion, 'Yes/No/Abstention?', 'should display the correct question');
-    await this.dashboardPage.hasText(e.pollYesNoAnswer, 'Yes', 'should display the correct answer');
-
-    // User Response
-    await this.dashboardPage.hasText(
-      e.pollUserResponseQuestion,
-      'User response?',
-      'should display the correct question',
-    );
-    await this.dashboardPage.hasText(e.pollUserResponseAnswer, e.answerMessage, 'should display the correct answer');
+    await checkPollAnswer('True/False?', 'True');
+    await checkPollAnswer('ABCD?', 'A');
+    await checkPollAnswer('Yes/No/Abstention?', 'Yes');
+    await checkPollAnswer('User response?', e.answerMessage);
   }
 
   async basicInfos() {

@@ -443,7 +443,7 @@ const BBBLiveKitRoomContainer: React.FC = () => {
   const [meetingSettings] = useMeetingSettings();
   const url = meetingSettings.public.media?.livekit?.url
     || `wss://${window.location.hostname}/livekit`;
-  const withSelectiveSubscription = meetingSettings.public.media?.livekit?.selectiveSubscription ?? false;
+  const withSelectiveSubscription = meetingSettings.public.media?.livekit?.selectiveSubscription?.enabled ?? true;
   const logLevel = meetingSettings.public.media?.livekit?.logLevel ?? LogLevel.warn;
   const roomOptions = meetingSettings.public.media?.livekit?.roomOptions ?? {
     adaptiveStream: true,

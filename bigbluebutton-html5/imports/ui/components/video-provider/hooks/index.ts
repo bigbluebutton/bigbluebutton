@@ -61,7 +61,7 @@ import {
   MEDIA_GROUP_STREAMS_SUBSCRIPTION,
 } from '/imports/ui/components/livekit/selective-subscription/queries';
 import {
-  MediaGroupStream,
+  MediaGroupParticipant,
   MediaType,
   PUBLIC_GROUP_IDS,
 } from '/imports/ui/components/livekit/selective-subscription/types';
@@ -495,37 +495,48 @@ const useVideoSenders = () => {
           errorMessage: error.message,
           mediaType: MediaType.CAMERA,
         },
-      }, `VideoProvider: ${MediaType.CAMERA} group streams subscription failed.`);
+      }, `VideoProvider: ${MediaType.CAMERA} group participants subscription failed.`);
     });
   }
 
-  const groups = (data as MediaGroupStream[] || []).filter(
-    (group) => group.mediaType === MediaType.CAMERA,
+  const mediaGroupParticipants = (data as MediaGroupParticipant[] || []).filter(
+    (mgp) => mgp.mediaType === MediaType.CAMERA,
   );
 
   // Groups where I am a receiver - I see the union of senders from all of these
-  const myInboundGroupIds = groups.filter(
-    (group) => group.userId === Auth.userID && group.receiver === true,
-  ).map((group) => group.groupId);
+  const myInboundGroupIds = mediaGroupParticipants.filter(
+    (mgp) => mgp.userId === Auth.userID && mgp.receiver === true,
+  ).map((mgp) => mgp.groupId);
 
   const inAnyGroup = myInboundGroupIds.length > 0;
 
   // No explicit group membership = treat as public receiver.
   // Public receivers receive from: groupless senders + public group senders.
-  // Exclude only senders in non-public groups.
+  // Exclude only senders in non-public mediaGroupParticipants.
   if (!inAnyGroup) {
-    const senderIdsInNonPublicGroups = new Set(groups
-      .filter((group) => group.sender === true && group.groupId !== PUBLIC_GROUP_IDS[MediaType.CAMERA])
-      .map((group) => group.userId));
+    const senderIdsInPublicGroup = new Set(mediaGroupParticipants
+      .filter((mgp) => mgp.sender === true && mgp.active
+        && mgp.groupId === PUBLIC_GROUP_IDS[MediaType.CAMERA])
+      .map((mgp) => mgp.userId));
+    const senderIdsInNonPublicGroups = new Set(mediaGroupParticipants
+      .filter((mgp) => mgp.sender === true && mgp.active
+        && mgp.groupId !== PUBLIC_GROUP_IDS[MediaType.CAMERA])
+      .map((mgp) => mgp.userId));
+    // Exclude only senders who are active in non-public groups but NOT in the public group.
+    // Users concurrently sending in both public and non-public groups should still be
+    // visible to public receivers.
+    const senderIdsOnlyInNonPublic = new Set(
+      [...senderIdsInNonPublicGroups].filter((id) => !senderIdsInPublicGroup.has(id)),
+    );
 
-    return { senderIds: null, senderIdsInGroups: senderIdsInNonPublicGroups, inAnyGroup: false };
+    return { senderIds: null, senderIdsInGroups: senderIdsOnlyInNonPublic, inAnyGroup: false };
   }
 
-  // Union of senders from all groups where I am a receiver (public + interpretation, etc.)
-  const senderIds = new Set(groups
-    .filter((group) => myInboundGroupIds.includes(group.groupId))
-    .filter((stream) => stream.sender === true && stream.active)
-    .map((stream) => stream.userId));
+  // Union of senders from all mediaGroupParticipants where I am a receiver (public + explicit groups)
+  const senderIds = new Set(mediaGroupParticipants
+    .filter((mgp) => myInboundGroupIds.includes(mgp.groupId))
+    .filter((participant) => participant.sender === true && participant.active)
+    .map((participant) => participant.userId));
 
   return { senderIds, senderIdsInGroups: null, inAnyGroup: true };
 };

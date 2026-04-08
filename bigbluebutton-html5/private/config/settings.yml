@@ -941,10 +941,17 @@ public:
     livekit:
       # livekit.url is the URL of the LiveKit server. Default value is 'wss://{window.location.hostname}/livekit'
       #url: wss://LIVEKIT_HOST/livekit
-      # livekit.selectiveSubscription: whether to use selective subscription all
-      # applicable track sources. Default value is false. This overrides autoSubscribe
-      # when set to true and in effect (conditional to client behavior).
-      selectiveSubscription: true
+      # livekit.selectiveSubscription: whether to use selective subscription for all
+      # applicable track sources. This overrides autoSubscribe.
+      selectiveSubscription:
+        enabled: true
+        # audioSubscriptionPoolSize: maximum number of simultaneously subscribed
+        # audio tracks. 0 means unlimited. Exemptions that may exceed the pool:
+        # screen audio, unmuted users.
+        audioSubscriptionPoolSize: 0
+        # muteDebounceMs: debounce time in milliseconds for mute state
+        # transitions that would trigger unsubscribe operations.
+        muteDebounceMs: 2500
       logLevel: 3
       # reconnectOnFatalFailures: whether to trigger LK room reconnections when
       # fatal errors occur (e.g.: unrecoverable publish timeouts). Default is false.

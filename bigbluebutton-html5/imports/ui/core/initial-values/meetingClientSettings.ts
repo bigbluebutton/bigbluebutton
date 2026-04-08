@@ -649,7 +649,11 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
       livekit: {
         url: `wss://${window.location.hostname}/livekit`,
-        selectiveSubscription: false,
+        selectiveSubscription: {
+          enabled: true,
+          audioSubscriptionPoolSize: 0,
+          muteDebounceMs: 2500,
+        },
         logLevel: LogLevel.warn,
         reconnectOnFatalFailures: false,
         roomOptions: {
