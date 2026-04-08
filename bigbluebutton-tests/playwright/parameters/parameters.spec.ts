@@ -108,22 +108,17 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     await createParam.allowModsToEjectCameras();
   });
 
-  test(
-    'Override default presentation on CREATE meeting API call',
-    { tag: '@flaky-3.1' },
-    async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
-      const createParam = new CreateParameters(browser, context);
-      await createParam.initModPage(page, {
-        createParameter:
-          `${c.preUploadedPresentation}&${c.preUploadedPresentationOverrideDefault}&` +
-          `${c.preUploadedPresentationName}`,
-        testInfo,
-      });
-      await createParam.initUserPage(context, { testInfo });
-      await createParam.overrideDefaultPresentation();
-    },
-  );
+  test('Override default presentation on CREATE meeting API call', async ({ browser, context, page }, testInfo) => {
+    const createParam = new CreateParameters(browser, context);
+    await createParam.initModPage(page, {
+      createParameter:
+        `${c.preUploadedPresentation}&${c.preUploadedPresentationOverrideDefault}&` +
+        `${c.preUploadedPresentationName}`,
+      testInfo,
+    });
+    await createParam.initUserPage(context, { testInfo });
+    await createParam.overrideDefaultPresentation();
+  });
 
   test.describe.parallel('Meeting Layout(default)', () => {
     test('CAMERAS_ONLY', async ({ browser, context, page }, testInfo) => {
