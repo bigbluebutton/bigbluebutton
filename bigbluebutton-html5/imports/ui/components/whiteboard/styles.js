@@ -70,9 +70,8 @@ const TldrawV2GlobalStyle = createGlobalStyle`
       ? numericDiameter
       : 5;
     const scale = safeDiameter / 100;
-    const scaleRatio = safeDiameter / 5;
-    const leftOffset = -18 * scaleRatio;
-    const topOffset = -10 * scaleRatio;
+    const topOffset = 0;
+    const leftOffset = 0;
     return !isPresenter && !isMultiUserActive && `
     .tl-cursor use {
       transform: scale(${scale})!important;
