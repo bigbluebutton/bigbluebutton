@@ -1,7 +1,10 @@
 import { elements as e } from '../core/elements';
+import { parameters } from '../core/parameters';
 
 export const CUSTOM_STYLE_CSS = `${e.presentationTitle}{display: none;}`;
 export const CUSTOM_STYLE_URL = 'http://bbb-test-stub.local/css-test-file.css';
+
+const serverOrigin = parameters.server ? new URL(parameters.server).origin : '';
 
 export const constants = {
   // Create Parameters
@@ -21,7 +24,7 @@ export const constants = {
   lockSettingsHideUserList: 'lockSettingsHideUserList=true',
   allowModsToEjectCameras: 'allowModsToEjectCameras=true',
   notifyRecordingIsOn: 'notifyRecordingIsOn=true&notifyRecordingIsOn=true',
-  preUploadedPresentation: 'preUploadedPresentation=https://dagrs.berkeley.edu/sites/default/files/2020-01/sample.pdf',
+  preUploadedPresentation: `preUploadedPresentation=${serverOrigin}/default.pdf`,
   preUploadedPresentationOverrideDefault: 'preUploadedPresentationOverrideDefault=true',
   preUploadedPresentationName: 'preUploadedPresentationName=ScientificPaper.pdf',
   customLayout: 'meetingLayout=CUSTOM_LAYOUT',
