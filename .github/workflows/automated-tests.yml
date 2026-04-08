@@ -44,7 +44,7 @@ jobs:
           ]
         include:
           - package: bbb-apps-akka
-            cache-files-list: akka-bbb-apps bbb-common-message
+            cache-files-list: akka-bbb-apps bbb-common-message bbb-common-grpc
           - package: bbb-config
             cache-files-list: bigbluebutton-config
           - package: bbb-export-annotations
