@@ -208,7 +208,7 @@ const isWasmProcessorSupported = () => {
 };
 
 // load processor files, trigger Promise resolve when all done
-const loadWasmProcessorFiles = () => new Promise((resolve, reject) => {
+const loadWasmProcessorFiles = (settings) => new Promise((resolve, reject) => {
   // early check
   if (!isWasmProcessorSupported()) {
     reject(wasmProcessorUnsupportedError);
@@ -247,9 +247,7 @@ const loadWasmProcessorFiles = () => new Promise((resolve, reject) => {
   );
 
   // load wasm files and worklet
-  const pathMatch = window.location.pathname.match('^(.*)/html5client/?$');
-  const serverPathPrefix = pathMatch ? pathMatch[1] : '';
-  const { cdn, basename } = window.meetingClientSettings.public.app;
+  const { cdn, basename } = settings.public.app;
   const suffix = supportsSIMD ? '' : '-nosimd';
   fetch(`${cdn + basename}/BBBA${suffix}-mapi.wasm`).then((resp) => {
     resp.arrayBuffer().then((bytes) => {
