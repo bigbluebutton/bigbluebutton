@@ -5,7 +5,7 @@ import { Input, Layout, Output } from '../layoutTypes';
 import { calculatePresentationVideoRate } from './service';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
-import { layoutDispatch, layoutSelect } from '../context';
+import { layoutDispatch, layoutSelect, layoutSelectOutput } from '../context';
 import logger from '/imports/startup/client/logger';
 import { isLayoutSupported } from '../utils';
 import { LAYOUT_TYPE } from '../defaultValues';
@@ -33,6 +33,7 @@ const useMeetingLayoutUpdater = (
   layoutSettings: { pushLayout: boolean, selectedLayout: boolean },
 ) => {
   const [setMeetingLayoutProps] = useMutation(SET_LAYOUT_PROPS);
+  const mediaAreaSize = layoutSelectOutput((i: Output) => i.mediaArea);
 
   const { focusedId, position } = cameraDockOutput;
   const { isResizing } = cameraDockInput;
@@ -48,7 +49,7 @@ const useMeetingLayoutUpdater = (
         isResizing,
         cameraPosition: position || 'contentTop',
         focusedCamera: focusedId || 'none',
-        presentationVideoRate: calculatePresentationVideoRate(cameraDockOutput),
+        presentationVideoRate: calculatePresentationVideoRate(cameraDockOutput, mediaAreaSize),
       },
     });
   };

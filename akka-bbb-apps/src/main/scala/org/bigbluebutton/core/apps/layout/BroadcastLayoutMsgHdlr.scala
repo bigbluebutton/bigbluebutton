@@ -22,6 +22,11 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
     } else {
       if (LayoutsType.layoutsType.contains(msg.body.layout)) {
         val newlayout = LayoutsType.layoutsType.getOrElse(msg.body.layout, "")
+        val prevLayout = Layouts.getCurrentLayout(liveMeeting.layouts)
+        val prevPresentationIsOpen = Layouts.getPresentationIsOpen(liveMeeting.layouts)
+        val prevCameraPosition = Layouts.getCameraPosition(liveMeeting.layouts)
+        val prevFocusedCamera = Layouts.getFocusedCamera(liveMeeting.layouts)
+        val prevPushLayout = Layouts.getPushLayout(liveMeeting.layouts)
 
         Layouts.setCurrentLayout(liveMeeting.layouts, newlayout)
         Layouts.setPushLayout(liveMeeting.layouts, msg.body.pushLayout)
@@ -32,13 +37,19 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
         Layouts.setPresentationVideoRate(liveMeeting.layouts, msg.body.presentationVideoRate)
         Layouts.setRequestedBy(liveMeeting.layouts, msg.header.userId)
 
+        val meaningfulChange = prevLayout != newlayout ||
+          prevPresentationIsOpen != msg.body.presentationIsOpen ||
+          prevCameraPosition != msg.body.cameraPosition ||
+          prevFocusedCamera != msg.body.focusedCamera ||
+          prevPushLayout != msg.body.pushLayout
+
         LayoutDAO.insertOrUpdate(liveMeeting.props.meetingProp.intId, liveMeeting.layouts)
-        sendBroadcastLayoutEvtMsg(msg.header.userId)
+        sendBroadcastLayoutEvtMsg(msg.header.userId, meaningfulChange)
       }
     }
   }
 
-  def sendBroadcastLayoutEvtMsg(fromUserId: String): Unit = {
+  def sendBroadcastLayoutEvtMsg(fromUserId: String, meaningfulChange: Boolean): Unit = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, fromUserId)
     val envelope = BbbCoreEnvelope(BroadcastLayoutEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(BroadcastLayoutEvtMsg.NAME, liveMeeting.props.meetingProp.intId, fromUserId)
@@ -58,7 +69,7 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
 
     outGW.send(msgEvent)
 
-    if (body.pushLayout) {
+    if (body.pushLayout && meaningfulChange) {
       val notifyEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
         fromUserId,
         liveMeeting.props.meetingProp.intId,

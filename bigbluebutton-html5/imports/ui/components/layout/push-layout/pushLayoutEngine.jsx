@@ -71,6 +71,8 @@ const propTypes = {
   setLocalSettings: PropTypes.func.isRequired,
   hasMeetingLayout: PropTypes.bool,
   meetingLayoutSetByUserId: PropTypes.string,
+  mediaAreaWidth: PropTypes.number,
+  mediaAreaHeight: PropTypes.number,
 };
 
 const PushLayoutEngine = (props) => {
@@ -109,6 +111,8 @@ const PushLayoutEngine = (props) => {
     hasMeetingLayout,
     isChatEnabled,
     meetingLayoutSetByUserId,
+    mediaAreaWidth,
+    mediaAreaHeight,
   } = props;
 
   useEffect(() => {
@@ -165,11 +169,11 @@ const PushLayoutEngine = (props) => {
         if (!equalDouble(meetingLayoutVideoRate, 0)) {
           let w; let h;
           if (horizontalPosition) {
-            w = window.innerWidth * meetingLayoutVideoRate;
+            w = (mediaAreaWidth || window.innerWidth) * meetingLayoutVideoRate;
             h = cameraHeight;
           } else {
             w = cameraWidth;
-            h = window.innerHeight * meetingLayoutVideoRate;
+            h = (mediaAreaHeight || window.innerHeight) * meetingLayoutVideoRate;
           }
 
           layoutContextDispatch({
@@ -258,11 +262,11 @@ const PushLayoutEngine = (props) => {
         || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
         let w; let h;
         if (horizontalPosition) {
-          w = window.innerWidth * meetingLayoutVideoRate;
+          w = (mediaAreaWidth || window.innerWidth) * meetingLayoutVideoRate;
           h = cameraHeight;
         } else {
           w = cameraWidth;
-          h = window.innerHeight * meetingLayoutVideoRate;
+          h = (mediaAreaHeight || window.innerHeight) * meetingLayoutVideoRate;
         }
 
         if (isMeetingLayoutResizing !== prevProps.isMeetingLayoutResizing) {
@@ -326,11 +330,13 @@ const PushLayoutEngine = (props) => {
     // PROPAGATE LAYOUT
     const layoutChanged = presentationIsOpen !== prevProps.presentationIsOpen
       || selectedLayout !== prevProps.selectedLayout
-      || cameraIsResizing !== prevProps.cameraIsResizing
       || cameraPosition !== prevProps.cameraPosition
       || focusedCamera !== prevProps.focusedCamera
-      || enforceLayoutResult !== prevProps.enforceLayoutResult
-      || !equalDouble(presentationVideoRate, prevProps.presentationVideoRate);
+      || enforceLayoutResult !== prevProps.enforceLayoutResult;
+
+    const userFinishedResizing = prevProps.cameraIsResizing
+      && !cameraIsResizing
+      && !equalDouble(presentationVideoRate, prevProps.presentationVideoRate);
 
     if (pushLayoutMeeting !== undefined
       && pushLayout !== prevProps.pushLayout
@@ -351,7 +357,8 @@ const PushLayoutEngine = (props) => {
       // server and overwriting the meeting configured layout type.
       && hasInitiallyPropagated.current
     ) {
-      if (pushLayout && (layoutChanged || pushLayout !== prevProps.pushLayout)) {
+      if (pushLayout
+        && (layoutChanged || userFinishedResizing || pushLayout !== prevProps.pushLayout)) {
         setMeetingLayout(pushLayout);
       }
     }
@@ -380,6 +387,7 @@ const PushLayoutEngineContainer = (props) => {
   const cameraDockOutput = layoutSelectOutput((i) => i.cameraDock);
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
   const presentationInput = layoutSelectInput((i) => i.presentation);
+  const mediaAreaOutput = layoutSelectOutput((i) => i.mediaArea);
   const layoutContextDispatch = layoutDispatch();
   const isChatEnabled = useIsChatEnabled();
 
@@ -455,7 +463,7 @@ const PushLayoutEngineContainer = (props) => {
     });
   }, [enforcedLayoutLoading]);
 
-  const presentationVideoRate = calculatePresentationVideoRate(cameraDockOutput);
+  const presentationVideoRate = calculatePresentationVideoRate(cameraDockOutput, mediaAreaOutput);
 
   const setLocalSettings = useUserChangedLocalSettings();
   const setPushLayout = usePushLayoutUpdater(pushLayout);
@@ -511,6 +519,8 @@ const PushLayoutEngineContainer = (props) => {
         setPushLayout,
         hasMeetingLayout: !!meetingLayout,
         meetingLayoutSetByUserId,
+        mediaAreaWidth: mediaAreaOutput?.width,
+        mediaAreaHeight: mediaAreaOutput?.height,
         ...props,
       }}
     />
