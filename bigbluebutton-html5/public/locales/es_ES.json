@@ -738,6 +738,7 @@
     "app.settings.transcriptionTab.minUtteranceLength": " Duración mínima de los enunciados (segundos)",
     "app.settings.shortcutsTab.label": "Atajos de teclado",
     "app.settings.save-notification.label": "Las configuraciones han sido guardadas",
+    "app.settings.unsavedChanges.title": "Oops!",
     "app.settings.unsavedChanges.message": "Tienes cambios sin guardar.",
     "app.settings.unsavedChanges.ignoreMessage": "Si ignoras los cambios, estos no se aplicarán.",
     "app.settings.unsavedChanges.ignoreButtonLabel": "Ignorar cambios",
