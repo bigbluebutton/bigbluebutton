@@ -738,6 +738,7 @@
     "app.settings.transcriptionTab.minUtteranceLength": "Minimális kiejtéshossz (másodpercben)",
     "app.settings.shortcutsTab.label": "Keyboard shortcuts",
     "app.settings.save-notification.label": "A beállításokat mentettük",
+    "app.settings.unsavedChanges.title": "Oops!",
     "app.settings.unsavedChanges.message": "El nem mentett módosításaid vannak.",
     "app.settings.unsavedChanges.ignoreMessage": "Ha elveted a változásokat, nem jutnak érvényre.",
     "app.settings.unsavedChanges.ignoreButtonLabel": "Változások elvetése",
