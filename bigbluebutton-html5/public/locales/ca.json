@@ -738,6 +738,7 @@
     "app.settings.transcriptionTab.minUtteranceLength": "Durada mínima dels enunciats (segons)",
     "app.settings.shortcutsTab.label": "Dreceres de teclat",
     "app.settings.save-notification.label": "La configuració ha estat desada.",
+    "app.settings.unsavedChanges.title": "Oops!",
     "app.settings.unsavedChanges.message": "Teniu canvis sense desar.",
     "app.settings.unsavedChanges.ignoreMessage": "Si ignores els canvis, no s’aplicaran.",
     "app.settings.unsavedChanges.ignoreButtonLabel": "Ignoreu els canvis",
