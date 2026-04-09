@@ -738,6 +738,7 @@
     "app.settings.transcriptionTab.minUtteranceLength": "Lunghezza minima delle espressioni (secondi)",
     "app.settings.shortcutsTab.label": "Scorciatoie da tastiera",
     "app.settings.save-notification.label": "Impostazioni salvate",
+    "app.settings.unsavedChanges.title": "Oops!",
     "app.settings.unsavedChanges.message": "Ci sono modifiche non salvate.",
     "app.settings.unsavedChanges.ignoreMessage": "Se si ignorano le modifiche, queste non verranno applicate.",
     "app.settings.unsavedChanges.ignoreButtonLabel": "Ignora le modifiche",
