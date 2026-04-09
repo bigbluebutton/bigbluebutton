@@ -26,9 +26,9 @@ const PluginHelperButtonComponent = ({
   let resolvedCustomIcon: React.ReactNode | undefined;
   if (typeof icon === 'string') {
     resolvedIcon = icon;
-  } else if ('iconName' in icon) {
+  } else if (icon && typeof icon === 'object' && 'iconName' in icon) {
     resolvedIcon = icon.iconName;
-  } else if ('svgContent' in icon) {
+  } else if (icon && typeof icon === 'object' && 'svgContent' in icon) {
     resolvedCustomIcon = <PluginButtonIcon>{icon.svgContent as React.ReactNode}</PluginButtonIcon>;
   }
 

@@ -57,16 +57,24 @@ const getIconComponent = (
   icon: PluginSdk.PluginIconType,
   isUserListAdditionalInformation: boolean = false,
 ): React.ReactNode => {
-  if (isUserListAdditionalInformation) {
-    if (typeof icon === 'string') return <Styled.UserAdditionalInformationIcon iconName={icon} />;
-    if ('iconName' in icon) return <Styled.UserAdditionalInformationIcon iconName={icon.iconName} />;
+  if (typeof icon === 'string') {
+    if (isUserListAdditionalInformation) return <Styled.UserAdditionalInformationIcon iconName={icon} />;
+    return <Icon iconName={icon} />;
+  } if (icon && typeof icon === 'object' && 'iconName' in icon) {
+    if (isUserListAdditionalInformation) return <Styled.UserAdditionalInformationIcon iconName={icon.iconName} />;
+    return <Icon iconName={icon.iconName} />;
+  } if (icon && typeof icon === 'object' && 'svgContent' in icon) {
     const svgContent = icon.svgContent as ReactNode;
-    return <Styled.SvgContentUserListIconMargin>{svgContent}</Styled.SvgContentUserListIconMargin>;
+    if (isUserListAdditionalInformation) {
+      return (
+        <Styled.SvgContentUserListIconMargin>
+          {svgContent}
+        </Styled.SvgContentUserListIconMargin>
+      );
+    }
+    return <Styled.SvgContentUserListIcon>{svgContent}</Styled.SvgContentUserListIcon>;
   }
-  if (typeof icon === 'string') return <Icon iconName={icon} />;
-  if ('iconName' in icon) return <Icon iconName={icon.iconName} />;
-  const svgContent = icon.svgContent as ReactNode;
-  return <Styled.SvgContentUserListIcon>{svgContent}</Styled.SvgContentUserListIcon>;
+  return null;
 };
 
 interface EmojiProps {

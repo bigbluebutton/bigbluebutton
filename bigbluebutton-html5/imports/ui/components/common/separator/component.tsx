@@ -12,7 +12,9 @@ const Separator = ({ icon, actionsBar = false, dataTest = '' }: SeparatorProps) 
       </Styled.IconContainer>
     );
   }
-  const iconName = typeof icon === 'string' ? icon : icon.iconName;
+  let iconName = '';
+  if (typeof icon === 'string') iconName = icon;
+  if (icon && typeof icon === 'object' && 'iconName' in icon) iconName = icon.iconName;
   return (
     <Styled.IconContainer data-test={dataTest}>
       <Styled.Icon iconName={iconName} />

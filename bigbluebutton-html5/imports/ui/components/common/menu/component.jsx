@@ -21,10 +21,24 @@ const intlMessages = defineMessages({
 });
 
 const renderIcon = (icon, color, iconKey = 'icon', IconComponent = Icon, iconStyles = {}) => {
-  if (!icon) return null;
-  if (typeof icon === 'string') return <IconComponent color={color} iconName={icon} key={iconKey} style={iconStyles} />;
-  if ('iconName' in icon) return <IconComponent color={color} iconName={icon.iconName} key={iconKey} style={iconStyles} />;
-  if ('svgContent' in icon) return <Styled.SvgContentIconWrapper key={iconKey}>{icon.svgContent}</Styled.SvgContentIconWrapper>;
+  if (typeof icon === 'string') {
+    return <IconComponent color={color} iconName={icon} key={iconKey} style={iconStyles} />;
+  } if (icon && typeof icon === 'object' && 'iconName' in icon) {
+    return (
+      <IconComponent
+        color={color}
+        iconName={icon.iconName}
+        key={iconKey}
+        style={iconStyles}
+      />
+    );
+  } if (icon && typeof icon === 'object' && 'svgContent' in icon) {
+    return (
+      <Styled.SvgContentIconWrapper key={iconKey}>
+        {icon.svgContent}
+      </Styled.SvgContentIconWrapper>
+    );
+  }
   return null;
 };
 
@@ -262,9 +276,11 @@ class BBBMenu extends React.Component {
     return (
       <>
         <div
+          role="button"
           onClick={(e) => {
             e.persist();
-            const firefoxInputSource = !([1, 5].includes(e.nativeEvent.mozInputSource)); // 1 = mouse, 5 = touch (firefox only)
+            // 1 = mouse, 5 = touch (firefox only)
+            const firefoxInputSource = !([1, 5].includes(e.nativeEvent.mozInputSource));
             const chromeInputSource = !(['mouse', 'touch'].includes(e.nativeEvent.pointerType));
 
             this.optsToMerge.autoFocus = firefoxInputSource && chromeInputSource;
@@ -273,10 +289,10 @@ class BBBMenu extends React.Component {
           onKeyPress={(e) => {
             e.persist();
             if (e.which !== KEY_CODES.ENTER) return null;
-            this.handleClick(e);
+            return this.handleClick(e);
           }}
           accessKey={accessKey}
-          ref={(ref) => this.anchorElRef = ref}
+          ref={(ref) => { this.anchorElRef = ref; }}
           tabIndex={-1}
         >
           {trigger}
@@ -338,13 +354,13 @@ BBBMenu.propTypes = {
 
   trigger: PropTypes.element.isRequired,
 
-  actions: PropTypes.array.isRequired,
+  actions: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 
   onCloseCallback: PropTypes.func,
   dataTest: PropTypes.string,
   open: PropTypes.bool,
-  customStyles: PropTypes.object,
-  opts: PropTypes.object,
+  customStyles: PropTypes.shape({}),
+  opts: PropTypes.shape({}),
   accessKey: PropTypes.string,
   minContent: PropTypes.bool,
 };

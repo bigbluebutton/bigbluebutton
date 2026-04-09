@@ -91,11 +91,9 @@ const renderPluginItems = (pluginItems) => {
             switch (pluginItem.type) {
               case NavBarItemType.BUTTON: {
                 const navBarIconProps = {};
-                if (typeof pluginItem.icon === 'string') {
-                  navBarIconProps.icon = pluginItem.icon;
-                } else if (pluginItem.icon && 'iconName' in pluginItem.icon) {
-                  navBarIconProps.icon = pluginItem.icon.iconName;
-                } else if (pluginItem.icon && 'svgContent' in pluginItem.icon) {
+                if (typeof pluginItem?.icon === 'string') navBarIconProps.icon = pluginItem.icon;
+                else if (pluginItem?.icon && typeof pluginItem.icon === 'object' && 'iconName' in pluginItem.icon) navBarIconProps.icon = pluginItem.icon.iconName;
+                else if (pluginItem?.icon && typeof pluginItem.icon === 'object' && 'svgContent' in pluginItem.icon) {
                   navBarIconProps.customIcon = (
                     <PluginButtonIcon>
                       {pluginItem.icon.svgContent}
@@ -300,9 +298,9 @@ class NavBar extends Component {
     });
   }
 
-  renderModal(isOpen, setIsOpen, priority, Component, otherOptions) {
+  static renderModal(isOpen, setIsOpen, priority, ModalComponent, otherOptions) {
     return isOpen ? (
-      <Component
+      <ModalComponent
         {...{
           ...otherOptions,
           onRequestClose: () => setIsOpen(false),
@@ -432,7 +430,7 @@ class NavBar extends Component {
                       if (value) open();
                       else close();
                     };
-                    return this.renderModal(isOpen, this.setModalIsOpen, 'low', SessionDetailsModal);
+                    return NavBar.renderModal(isOpen, this.setModalIsOpen, 'low', SessionDetailsModal);
                   }
                 }
               </ModalRegistration>
