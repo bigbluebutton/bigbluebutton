@@ -80,8 +80,7 @@ export const constants = {
   overrideDefaultLocale: 'userdata-bbb_override_default_locale=pt-br',
   hideNavBar: 'userdata-bbb_hide_nav_bar=true',
   preferredCameraProfile: 'userdata-bbb_preferred_camera_profile=low',
-  webcamBackgroundPassingURL:
-    'webcamBackgroundURL=https://upload.wikimedia.org/wikipedia/commons/3/35/Spartan_apple.jpg',
+  webcamBackgroundPassingURL: `webcamBackgroundURL=${serverOrigin}/images/logo.png`,
   logoutURL: 'logoutURL=https://www.google.com',
   // Disabled Features
   breakoutRoomsDisabled: 'disabledFeatures=breakoutRooms',
