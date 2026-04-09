@@ -863,7 +863,7 @@ const Whiteboard = React.memo((props) => {
 
   const language = React.useMemo(() => mapLanguage(locale?.toLowerCase() || 'en'), [locale]);
 
-  const [cursorPosition, updateCursorPosition] = useCursor(
+  const updateCursorPosition = useCursor(
     publishCursorUpdate,
     whiteboardIdRef.current,
   );
@@ -1826,9 +1826,6 @@ const Whiteboard = React.memo((props) => {
       hasWBAccess: hasWBAccessRef.current,
       whiteboardToolbarAutoHide,
       animations,
-      publishCursorUpdate,
-      whiteboardId: whiteboardIdRef.current,
-      cursorPosition,
       updateCursorPosition,
       toggleToolsAnimations,
       currentPresentationPage,

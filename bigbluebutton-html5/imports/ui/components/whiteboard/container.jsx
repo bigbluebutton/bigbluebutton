@@ -232,8 +232,7 @@ const WhiteboardContainer = (props) => {
 
   const publishCursorUpdate = useCallback((payload) => {
     const { whiteboardId, xPercent, yPercent } = payload;
-
-    if (!whiteboardId || !xPercent || !yPercent || !(hasWBAccess || isPresenter)) return;
+    if (!whiteboardId || xPercent == null || yPercent == null || !(hasWBAccess || isPresenter)) return;
 
     presentationPublishCursor({
       variables: {
@@ -244,10 +243,12 @@ const WhiteboardContainer = (props) => {
     });
   }, [hasWBAccess, isPresenter]);
 
-  const throttledPublishCursorUpdate = useMemo(() => throttle(
+  const throttledPublishCursorUpdate = useMemo(() => {
+    return throttle(
     { interval: WHITEBOARD_CONFIG.cursorInterval },
     publishCursorUpdate,
-  ), [publishCursorUpdate]);
+  );
+  }, [publishCursorUpdate]);
 
   const isMultiUserActive = whiteboardWriters.filter((u) => !u.presenter)?.length > 0;
   const cursorArray = useMergedCursorData();
