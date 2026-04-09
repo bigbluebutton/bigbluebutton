@@ -12,6 +12,7 @@ import Styled from './styles';
 import { formatLocaleCode } from '/imports/utils/string-utils';
 import { setUseCurrentLocale } from '../../core/local-states/useCurrentLocale';
 import Transcription from '/imports/ui/components/settings/submenus/transcription/component';
+import UnsavedChangesModal from '/imports/ui/components/common/modal/unsaved-changes/component';
 
 const intlMessages = defineMessages({
   appTabLabel: {
@@ -81,22 +82,6 @@ const intlMessages = defineMessages({
   transcriptionLabel: {
     id: 'app.settings.transcriptionTab.label',
     description: 'label for transcriptions tab',
-  },
-  unsavedChangesModalTitle: {
-    id: 'app.appsGallery.modal.title',
-    description: 'label for the title of the unsaved changes modal',
-  },
-  unsavedChangesMessage: {
-    id: 'app.settings.unsavedChanges.message',
-    description: 'label for the title of the unsaved changes modal',
-  },
-  unsavedChangesIgnoreMessage: {
-    id: 'app.settings.unsavedChanges.ignoreMessage',
-    description: 'label for the title of the unsaved changes modal',
-  },
-  unsavedChangesIgnoreButtonLabel: {
-    id: 'app.settings.unsavedChanges.ignoreButtonLabel',
-    description: 'label for the title of the unsaved changes modal',
   },
 });
 
@@ -413,31 +398,11 @@ class Settings extends Component {
 
     if (unsavedModalOpen) {
       return (
-        <Styled.UnsavedChangesModal
-          title={intl.formatMessage(intlMessages.unsavedChangesModalTitle)}
-          modalIsOpen={unsavedModalOpen}
-          dismiss={{
-            callback: () => this.setState({ unsavedModalOpen: false }),
-          }}
-          onRequestClose={() => this.setState({ unsavedModalOpen: false })}
-        >
-          <Styled.UnsavedChangesContent>
-            <Styled.UnsavedChangesText>
-              {intl.formatMessage(intlMessages.unsavedChangesMessage)}
-            </Styled.UnsavedChangesText>
-            <Styled.UnsavedChangesIgnoreText>
-              {intl.formatMessage(intlMessages.unsavedChangesIgnoreMessage)}
-            </Styled.UnsavedChangesIgnoreText>
-            <Styled.UnsavedActionsContainer>
-              <Styled.ActionButton onClick={() => this.setState({ unsavedModalOpen: false })}>
-                {intl.formatMessage(intlMessages.CancelLabel)}
-              </Styled.ActionButton>
-              <Styled.ActionButton onClick={this.handleIgnoreChanges}>
-                {intl.formatMessage(intlMessages.unsavedChangesIgnoreButtonLabel)}
-              </Styled.ActionButton>
-            </Styled.UnsavedActionsContainer>
-          </Styled.UnsavedChangesContent>
-        </Styled.UnsavedChangesModal>
+        <UnsavedChangesModal
+          isOpen={unsavedModalOpen}
+          onCancel={() => this.setState({ unsavedModalOpen: false })}
+          onConfirm={this.handleIgnoreChanges}
+        />
       );
     }
 
