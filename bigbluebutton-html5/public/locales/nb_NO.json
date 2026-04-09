@@ -738,6 +738,7 @@
     "app.settings.transcriptionTab.minUtteranceLength": "Minimum lengde på ytringer (sekunder)",
     "app.settings.shortcutsTab.label": "Tastatursnarveier",
     "app.settings.save-notification.label": "Innstillinger har blitt lagret",
+    "app.settings.unsavedChanges.title": "Oops!",
     "app.settings.unsavedChanges.message": "Du har ikke lagret endringene dine.",
     "app.settings.unsavedChanges.ignoreMessage": "Hvis du ikke bruker endringene, blir de ikke brukt.",
     "app.settings.unsavedChanges.ignoreButtonLabel": "Se bort fra endringer",
