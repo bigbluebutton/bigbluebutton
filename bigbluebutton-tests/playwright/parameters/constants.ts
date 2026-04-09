@@ -24,7 +24,8 @@ export const constants = {
   lockSettingsHideUserList: 'lockSettingsHideUserList=true',
   allowModsToEjectCameras: 'allowModsToEjectCameras=true',
   notifyRecordingIsOn: 'notifyRecordingIsOn=true&notifyRecordingIsOn=true',
-  preUploadedPresentation: `preUploadedPresentation=${serverOrigin}/default.pdf`,
+  preUploadedPresentation:
+    'preUploadedPresentation=https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v3.0.x-develop/bigbluebutton-tests/playwright/core/media/sample.pdf',
   preUploadedPresentationOverrideDefault: 'preUploadedPresentationOverrideDefault=true',
   preUploadedPresentationName: 'preUploadedPresentationName=ScientificPaper.pdf',
   customLayout: 'meetingLayout=CUSTOM_LAYOUT',
