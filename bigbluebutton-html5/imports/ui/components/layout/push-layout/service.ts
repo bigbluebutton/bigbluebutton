@@ -15,8 +15,8 @@ const calculatePresentationVideoRate = (
     width,
   } = cameraDockOutput;
   const horizontalPosition = position === 'contentLeft' || position === 'contentRight';
-  const refWidth = mediaAreaSize?.width || window.innerWidth;
-  const refHeight = mediaAreaSize?.height || window.innerHeight;
+  const refWidth = mediaAreaSize?.width ?? window.innerWidth;
+  const refHeight = mediaAreaSize?.height ?? window.innerHeight;
   let presentationVideoRate;
   if (horizontalPosition) {
     presentationVideoRate = refWidth > 0 ? width / refWidth : 0;

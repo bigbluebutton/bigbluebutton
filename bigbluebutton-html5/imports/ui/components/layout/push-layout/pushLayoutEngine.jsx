@@ -169,11 +169,11 @@ const PushLayoutEngine = (props) => {
         if (!equalDouble(meetingLayoutVideoRate, 0)) {
           let w; let h;
           if (horizontalPosition) {
-            w = (mediaAreaWidth || window.innerWidth) * meetingLayoutVideoRate;
+            w = (mediaAreaWidth ?? window.innerWidth) * meetingLayoutVideoRate;
             h = cameraHeight;
           } else {
             w = cameraWidth;
-            h = (mediaAreaHeight || window.innerHeight) * meetingLayoutVideoRate;
+            h = (mediaAreaHeight ?? window.innerHeight) * meetingLayoutVideoRate;
           }
 
           layoutContextDispatch({
@@ -262,11 +262,11 @@ const PushLayoutEngine = (props) => {
         || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
         let w; let h;
         if (horizontalPosition) {
-          w = (mediaAreaWidth || window.innerWidth) * meetingLayoutVideoRate;
+          w = (mediaAreaWidth ?? window.innerWidth) * meetingLayoutVideoRate;
           h = cameraHeight;
         } else {
           w = cameraWidth;
-          h = (mediaAreaHeight || window.innerHeight) * meetingLayoutVideoRate;
+          h = (mediaAreaHeight ?? window.innerHeight) * meetingLayoutVideoRate;
         }
 
         if (isMeetingLayoutResizing !== prevProps.isMeetingLayoutResizing) {

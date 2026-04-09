@@ -27,6 +27,7 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
         val prevCameraPosition = Layouts.getCameraPosition(liveMeeting.layouts)
         val prevFocusedCamera = Layouts.getFocusedCamera(liveMeeting.layouts)
         val prevPushLayout = Layouts.getPushLayout(liveMeeting.layouts)
+        val prevPresentationVideoRate = Layouts.getPresentationVideoRate(liveMeeting.layouts)
 
         Layouts.setCurrentLayout(liveMeeting.layouts, newlayout)
         Layouts.setPushLayout(liveMeeting.layouts, msg.body.pushLayout)
@@ -41,7 +42,8 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
           prevPresentationIsOpen != msg.body.presentationIsOpen ||
           prevCameraPosition != msg.body.cameraPosition ||
           prevFocusedCamera != msg.body.focusedCamera ||
-          prevPushLayout != msg.body.pushLayout
+          prevPushLayout != msg.body.pushLayout ||
+          prevPresentationVideoRate != msg.body.presentationVideoRate
 
         LayoutDAO.insertOrUpdate(liveMeeting.props.meetingProp.intId, liveMeeting.layouts)
         sendBroadcastLayoutEvtMsg(msg.header.userId, meaningfulChange)
