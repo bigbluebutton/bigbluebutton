@@ -738,6 +738,7 @@
     "app.settings.transcriptionTab.minUtteranceLength": "Durée minimale des formulations (secondes)",
     "app.settings.shortcutsTab.label": "Raccourcis clavier",
     "app.settings.save-notification.label": "Les paramètres ont été enregistrés",
+    "app.settings.unsavedChanges.title": "Oops!",
     "app.settings.unsavedChanges.message": "Certaines modifications n'ont pas été enregistrées",
     "app.settings.unsavedChanges.ignoreMessage": "Si vous n'enregistrez pas les modifications, elle ne s'appliqueront pas",
     "app.settings.unsavedChanges.ignoreButtonLabel": "Ignorer les modifications",
