@@ -738,6 +738,7 @@
     "app.settings.transcriptionTab.minUtteranceLength": "En kısa ifade uzunluğu (saniye)",
     "app.settings.shortcutsTab.label": "Klavye kısayolları",
     "app.settings.save-notification.label": "Ayarlar kaydedildi",
+    "app.settings.unsavedChanges.title": "Oops!",
     "app.settings.unsavedChanges.message": "Kaydedilmemiş değişiklikleriniz var.",
     "app.settings.unsavedChanges.ignoreMessage": "Değişiklikleri yok sayarsanız uygulanmazlar.",
     "app.settings.unsavedChanges.ignoreButtonLabel": "Değişiklikleri yok say",
