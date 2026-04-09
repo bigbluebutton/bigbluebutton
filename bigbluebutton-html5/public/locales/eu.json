@@ -738,6 +738,7 @@
     "app.settings.transcriptionTab.minUtteranceLength": "Esaldien gutxieneko luzera (segundotan)",
     "app.settings.shortcutsTab.label": "Laster-teklak",
     "app.settings.save-notification.label": "Ezarpenak gorde dira",
+    "app.settings.unsavedChanges.title": "Oops!",
     "app.settings.unsavedChanges.message": "Gorde gabeko aldaketak dituzu.",
     "app.settings.unsavedChanges.ignoreMessage": "Aldaketak alde batera uzten badituzu, ez dira aplikatuko.",
     "app.settings.unsavedChanges.ignoreButtonLabel": "Utzi aldaketak",
