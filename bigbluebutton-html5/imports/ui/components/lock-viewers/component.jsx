@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
+import { clone } from 'radash';
 import { MenuItem } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -195,8 +196,8 @@ class LockViewersComponent extends Component {
 
     this.state = {
       selectedTab: 0,
-      lockSettingsProps: lockSettings,
-      usersProp: usersPolicies,
+      lockSettingsProps: clone(lockSettings),
+      usersProp: clone(usersPolicies),
       guestPolicy: usersPolicies.guestPolicy || 'ASK_MODERATOR',
       lobbyMessageEnabled: !!props.guestLobbyMessage,
       lobbyMessage: props.guestLobbyMessage || '',
@@ -205,8 +206,8 @@ class LockViewersComponent extends Component {
     };
 
     this.initialState = {
-      lockSettingsProps: lockSettings,
-      usersProp: usersPolicies,
+      lockSettingsProps: clone(lockSettings),
+      usersProp: clone(usersPolicies),
       guestPolicy: usersPolicies.guestPolicy || 'ASK_MODERATOR',
       lobbyMessageEnabled: !!props.guestLobbyMessage,
       lobbyMessage: props.guestLobbyMessage || '',
@@ -561,6 +562,7 @@ class LockViewersComponent extends Component {
       intl,
       isOpen,
       priority,
+      closeModal,
     } = this.props;
 
     const { selectedTab, unsavedModalOpen } = this.state;
@@ -595,7 +597,6 @@ class LockViewersComponent extends Component {
 
     return (
       <Styled.LockViewersModal
-        onRequestClose={this.handleClose}
         contentLabel={intl.formatMessage(intlMessages.ariaModalTitle)}
         title={intl.formatMessage(intlMessages.lockViewersTitle)}
         {...{
@@ -633,7 +634,7 @@ class LockViewersComponent extends Component {
         </Styled.SettingsTabs>
         <Styled.ActionsContainer>
           <Styled.ActionButton
-            onClick={this.handleClose}
+            onClick={closeModal}
             data-test="cancelLockSettings"
           >
             {intl.formatMessage(intlMessages.buttonCancel)}

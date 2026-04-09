@@ -737,6 +737,7 @@
     "app.settings.transcriptionTab.minUtteranceLength": "Minimum utterances length (seconds)",
     "app.settings.shortcutsTab.label": "Keyboard shortcuts",
     "app.settings.save-notification.label": "Settings have been saved",
+    "app.settings.unsavedChanges.title": "Oops!",
     "app.settings.unsavedChanges.message": "You have unsaved changes.",
     "app.settings.unsavedChanges.ignoreMessage": "If you ignore the changes they will not be applied.",
     "app.settings.unsavedChanges.ignoreButtonLabel": "Ignore changes",

@@ -5,7 +5,7 @@ import Styled from './styles';
 
 const intlMessages = defineMessages({
   title: {
-    id: 'app.appsGallery.modal.title',
+    id: 'app.settings.unsavedChanges.title',
     description: 'Title for the unsaved changes confirmation modal',
   },
   message: {
@@ -44,10 +44,10 @@ const UnsavedChangesModal = ({ isOpen, onCancel, onConfirm }) => {
           {intl.formatMessage(intlMessages.ignoreMessage)}
         </Styled.IgnoreText>
         <Styled.ActionsContainer>
-          <Styled.ActionButton onClick={onCancel}>
+          <Styled.ActionButton onClick={onCancel} data-test="unsavedChangesCancel">
             {intl.formatMessage(intlMessages.cancelLabel)}
           </Styled.ActionButton>
-          <Styled.ActionButton onClick={onConfirm}>
+          <Styled.ActionButton onClick={onConfirm} data-test="unsavedChangesIgnore">
             {intl.formatMessage(intlMessages.ignoreButtonLabel)}
           </Styled.ActionButton>
         </Styled.ActionsContainer>

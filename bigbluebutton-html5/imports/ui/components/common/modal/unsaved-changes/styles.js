@@ -2,13 +2,21 @@ import styled from 'styled-components';
 import {
   titlesFontWeight,
   textFontWeight,
+  fontSizeBase,
 } from '/imports/ui/stylesheets/styled-components/typography';
-import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  colorPrimary,
+  colorWhite,
+} from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  lgBorderRadius,
+  borderRadiusRounded,
+} from '/imports/ui/stylesheets/styled-components/general';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 
 const Modal = styled(ModalSimple)`
-  border-radius: 0.5rem;
+  border-radius: ${borderRadiusRounded};
   width: 35rem;
 `;
 
@@ -46,10 +54,10 @@ const ActionButton = styled.button`
   height: 3.5rem;
   padding: 0.5rem 1rem;
   border: none;
-  border-radius: 1rem;
+  border-radius: ${lgBorderRadius};
   cursor: pointer;
-  font-size: 16px;
-  color: #fff;
+  font-size: ${fontSizeBase};
+  color: ${colorWhite};
 
   &:first-child {
     background-color: transparent;
