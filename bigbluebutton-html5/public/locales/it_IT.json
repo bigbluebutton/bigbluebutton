@@ -1074,7 +1074,7 @@
     "app.guest.meetingForciblyEnded": "Non puoi unirti a una sessione che è già stata terminata forzatamente",
     "app.guest.calculating": "Calcolo della posizione nella coda di attesa",
     "app.guest.messageFromHost": "Messaggio dall'host",
-    "app.guest.waitingForApproval": "Waiting for approval",
+    "app.guest.waitingForApproval": "In attesa di approvazione",
     "app.userList.guest.waitingUsers": "Utenti in attesa",
     "app.userList.guest.waitingUsersTitle": "Gestione utente",
     "app.userList.guest.optionTitle": "Controlla utenti in attesa",
