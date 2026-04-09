@@ -738,6 +738,7 @@
     "app.settings.transcriptionTab.minUtteranceLength": "最短話語長度 (秒)",
     "app.settings.shortcutsTab.label": "鍵盤快速鍵",
     "app.settings.save-notification.label": "設定已保存",
+    "app.settings.unsavedChanges.title": "Oops!",
     "app.settings.unsavedChanges.message": "您有未儲存的變動。",
     "app.settings.unsavedChanges.ignoreMessage": "如果您忽略變動則不會套用。",
     "app.settings.unsavedChanges.ignoreButtonLabel": "忽略變動",
