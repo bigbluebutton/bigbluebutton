@@ -23,7 +23,8 @@ const intlMessages = defineMessages({
 const renderIcon = (icon, color, iconKey = 'icon', IconComponent = Icon, iconStyles = {}) => {
   if (typeof icon === 'string') {
     return <IconComponent color={color} iconName={icon} key={iconKey} style={iconStyles} />;
-  } if (icon && typeof icon === 'object' && 'iconName' in icon) {
+  }
+  if (icon && typeof icon === 'object' && 'iconName' in icon) {
     return (
       <IconComponent
         color={color}
@@ -32,7 +33,8 @@ const renderIcon = (icon, color, iconKey = 'icon', IconComponent = Icon, iconSty
         style={iconStyles}
       />
     );
-  } if (icon && typeof icon === 'object' && 'svgContent' in icon) {
+  }
+  if (icon && typeof icon === 'object' && 'svgContent' in icon) {
     return (
       <Styled.SvgContentIconWrapper key={iconKey}>
         {icon.svgContent}

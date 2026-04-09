@@ -60,10 +60,12 @@ const getIconComponent = (
   if (typeof icon === 'string') {
     if (isUserListAdditionalInformation) return <Styled.UserAdditionalInformationIcon iconName={icon} />;
     return <Icon iconName={icon} />;
-  } if (icon && typeof icon === 'object' && 'iconName' in icon) {
+  }
+  if (icon && typeof icon === 'object' && 'iconName' in icon) {
     if (isUserListAdditionalInformation) return <Styled.UserAdditionalInformationIcon iconName={icon.iconName} />;
     return <Icon iconName={icon.iconName} />;
-  } if (icon && typeof icon === 'object' && 'svgContent' in icon) {
+  }
+  if (icon && typeof icon === 'object' && 'svgContent' in icon) {
     const svgContent = icon.svgContent as ReactNode;
     if (isUserListAdditionalInformation) {
       return (

@@ -12,7 +12,8 @@ const getIcon = (icon: PluginSdk.PluginIconType): React.ReactNode => {
   if (typeof icon === 'string') return <Icon iconName={icon} />;
   if (icon && typeof icon === 'object' && 'iconName' in icon) {
     return <Icon iconName={icon.iconName} />;
-  } if (icon && typeof icon === 'object' && 'svgContent' in icon) {
+  }
+  if (icon && typeof icon === 'object' && 'svgContent' in icon) {
     const svgContent = icon.svgContent as ReactNode;
     return <PluginButtonIcon>{svgContent}</PluginButtonIcon>;
   }
