@@ -99,6 +99,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
     const {
       talking,
       muted,
+      color,
       speechLocale,
       name,
       userId,
@@ -106,6 +107,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
 
     const isYou = talkingUser.userId === Auth.userID;
     const isTalkingUserMod = talkingUser.role === ROLE_MODERATOR;
+    const isMuteActionAvailable = isModerator && !isBreakout;
 
     const ariaLabel = intl.formatMessage(talking
       ? intlMessages.isTalking : intlMessages.wasTalking, {
@@ -129,7 +131,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
         <Styled.TalkingIndicatorButton
           $spoke={!talking || undefined}
           $muted={muted || undefined}
-          $isViewer={!isModerator || undefined}
+          $isViewer={!isMuteActionAvailable || undefined}
           $talkingUserIsViewer={!isTalkingUserMod && !isYou}
           $you={isYou}
           $moderator={isTalkingUserMod}
@@ -137,10 +139,10 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
           onClick={() => {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore - call signature is misse due the function being wrapped
-            muteUser(userId, muted, isBreakout, isModerator, toggleVoice);
+            muteUser(userId, muted, isBreakout, isMuteActionAvailable, toggleVoice);
           }}
           label={name}
-          tooltipLabel={!muted && isModerator
+          tooltipLabel={!muted && isMuteActionAvailable
             ? `${intl.formatMessage(intlMessages.muteLabel)} ${name}`
             : null}
           data-test={talking ? 'isTalking' : 'wasTalking'}
@@ -149,6 +151,14 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
           color="primary"
           icon={icon}
           size="lg"
+          style={
+            isMuteActionAvailable
+              ? {
+                backgroundColor: color,
+                border: `solid 2px ${color}`,
+              }
+              : undefined
+          }
         >
           {talking ? (
             <Styled.Hidden id="description">

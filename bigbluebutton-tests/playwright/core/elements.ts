@@ -369,6 +369,7 @@ export const elements = {
   minimizePresentation: 'button[data-test="minimizePresentation"]',
   restorePresentation: 'button[data-test="restorePresentation"]',
   shareExternalVideoBtn: 'div[data-test="shareExternalVideo"]',
+  stopExternalVideoBtn: 'button[data-test="stopExternalVideoShare"]',
   videoModalInput: 'input[id="video-modal-input"]',
   startShareVideoBtn: 'button[data-test="startNewVideo"]',
   videoPlayer: 'div[data-test="videoPlayer"]',

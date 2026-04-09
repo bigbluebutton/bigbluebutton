@@ -5,7 +5,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 import useAudioCaptionEnable from '/imports/ui/core/local-states/useAudioCaptionEnable';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { splitTranscript } from '../service';
+import { splitTranscript, captionLimit } from '../service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import { layoutSelectOutput } from '/imports/ui/components/layout/context';
@@ -123,7 +123,7 @@ const AudioCaptionsLiveContainer: React.FC = () => {
         captions={AudioCaptionsLiveData.caption.map((c) => {
           const splits = splitTranscript(c);
           return splits;
-        }).flat().filter((c) => c.captionText)}
+        }).flat().filter((c) => c.captionText).slice(-captionLimit())}
       />
     </Styled.CaptionsContainer>
   );

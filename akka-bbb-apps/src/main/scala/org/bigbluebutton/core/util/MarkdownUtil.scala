@@ -129,9 +129,49 @@ object MarkdownUtil {
   private def autolinkUrls(root: Node): Unit = {
     root.accept(new AutoLinkVisitor)
   }
-  def markdownToSafeHtml(md: String, enableImages: Boolean = false): String = {
+  private val MaxMessageLength = 5000
 
-    val doc = parser.parse(md)
+  private val MarkdownSyntaxChars: Array[Char] =
+    Array('[', ']', '<', '>', '(', ')', '*', '_', '`', '~')
+
+  private val MaxSyntaxCharRepetitions = 100
+
+  private def hasPathologicalInput(text: String): Boolean = {
+    val counts = new Array[Int](MarkdownSyntaxChars.length)
+    var i = 0
+    while (i < text.length) {
+      val c = text.charAt(i)
+      var j = 0
+      while (j < MarkdownSyntaxChars.length) {
+        if (c == MarkdownSyntaxChars(j)) {
+          counts(j) += 1
+          if (counts(j) > MaxSyntaxCharRepetitions) return true
+        }
+        j += 1
+      }
+      i += 1
+    }
+    false
+  }
+
+  /** Prefix markdown syntax characters with backslash so the parser treats them as literal text. */
+  private def escapeMarkdownSyntax(text: String): String = {
+    val sb = new StringBuilder(text.length * 2)
+    var i = 0
+    while (i < text.length) {
+      val c = text.charAt(i)
+      if (MarkdownSyntaxChars.contains(c)) sb.append('\\')
+      sb.append(c)
+      i += 1
+    }
+    sb.toString()
+  }
+
+  def markdownToSafeHtml(md: String, enableImages: Boolean = false): String = {
+    val safeMd = if (md.length > MaxMessageLength) md.substring(0, MaxMessageLength) else md
+    val processedMd = if (hasPathologicalInput(safeMd)) escapeMarkdownSyntax(safeMd) else safeMd
+
+    val doc = parser.parse(processedMd)
     autolinkUrls(doc) // extra step: create links from plain text URLs
     val chosenRenderer = if (enableImages) rendererWithImages else rendererNoImages
     chosenRenderer.render(doc)

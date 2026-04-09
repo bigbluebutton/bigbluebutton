@@ -30,13 +30,16 @@ import {
   GRID_USERS_SUBSCRIPTION,
   VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
   VIDEO_STREAMS_SUBSCRIPTION,
+  AUDIO_ONLY_USERS_SUBSCRIPTION,
   ViewerVideoStreamsSubscriptionResponse,
+  AudioOnlyUsersResponse,
 } from '/imports/ui/components/video-provider/queries';
 import videoService from '/imports/ui/components/video-provider/service';
 import { CAMERA_BROADCAST_STOP } from '/imports/ui/components/video-provider/mutations';
 import {
   GridItem,
   StreamItem,
+  AudioOnlyStream,
   GridUsersResponse,
   OwnVideoStreamsResponse,
   StreamSubscriptionData,
@@ -50,6 +53,9 @@ import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import ConnectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
+import { layoutSelect } from '/imports/ui/components/layout/context';
+import { Layout } from '/imports/ui/components/layout/layoutTypes';
+import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
 import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
 
@@ -409,21 +415,85 @@ export const useGridSize = () => {
   return size;
 };
 
+const useAudioOnlySubscription = createUseSubscription(
+  AUDIO_ONLY_USERS_SUBSCRIPTION,
+  {},
+  true,
+);
+
+export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
+  const { data: meeting } = useMeeting((m) => ({ meetingId: m.meetingId }));
+  const { data, loading, errors } = useAudioOnlySubscription();
+  const layoutType = layoutSelect((i: Layout) => i.layoutType);
+  const {
+    showAudioOnlyOnFirstPage,
+  } = window.meetingClientSettings.public.kurento.cameraSortingModes;
+
+  const isUnifiedLayout = layoutType === LAYOUT_TYPE.UNIFIED_LAYOUT;
+
+  if (!showAudioOnlyOnFirstPage || !isUnifiedLayout) return [];
+  if (loading) return [];
+
+  if (errors) {
+    errors.forEach((error) => {
+      logger.error({
+        logCode: 'audio_only_users_sub_error',
+        extraInfo: {
+          errorMessage: error.message,
+        },
+      }, 'Audio-only users subscription failed.');
+    });
+  }
+
+  const filteredUsers = meeting?.meetingId
+    ? filterByMeetingId(
+      data as AudioOnlyUsersResponse['user'],
+      meeting.meetingId,
+      AUDIO_ONLY_USERS_SUBSCRIPTION,
+      (u) => ({ mismatchedUserId: u.userId, mismatchedName: u.name }),
+    )
+    : [];
+
+  const mappedAudioStreams: AudioOnlyStream[] = filteredUsers
+    .filter((u) => u.voice && u.voice.joined && !u.voice.listenOnly)
+    .map((user) => ({
+      stream: `audio-only-${user.userId}`,
+      name: user.name || '',
+      nameSortable: user.nameSortable || '',
+      userId: user.userId || '',
+      user,
+      floor: user.voice?.floor ?? false,
+      lastFloorTime: user.voice?.lastFloorTime ?? '0',
+      voice: user.voice!,
+      type: VIDEO_TYPES.AUDIO_ONLY,
+    }));
+
+  return mappedAudioStreams;
+};
+
 export const useVideoStreams = () => {
   const { viewParticipantsWebcams } = useSettings(SETTINGS.DATA_SAVING) as { viewParticipantsWebcams?: boolean };
   const { currentVideoPageIndex, numberOfPages } = useVideoState();
   const videoStreams = useStreams();
   const connectingStream = useConnectingStream(videoStreams);
+  const audioOnlyUsers = useAudioOnlyUsers();
   const myPageSize = useMyPageSize();
   const isPaginationEnabled = useIsPaginationEnabled();
   let streams: StreamItem[] = [...videoStreams];
   let totalNumberOfOtherStreams: number | undefined;
 
+  const layoutType = layoutSelect((i: Layout) => i.layoutType);
+  const isUnifiedLayout = layoutType === LAYOUT_TYPE.UNIFIED_LAYOUT;
   const {
     paginationSorting: PAGINATION_SORTING,
     defaultSorting: DEFAULT_SORTING,
+    showAudioOnlyOnFirstPage: showAudioOnlyOnFirstPageSetting,
+    maxAudioOnlyUsers: maxAudioOnlyUsersSetting,
     partitionPrivilegedStreams,
   } = window.meetingClientSettings.public.kurento.cameraSortingModes;
+
+  const showAudioOnlyOnFirstPage = showAudioOnlyOnFirstPageSetting && isUnifiedLayout;
+  const maxAudioOnlyUsers = isUnifiedLayout ? maxAudioOnlyUsersSetting : 0;
 
   if (connectingStream) streams.push(connectingStream);
 
@@ -469,9 +539,46 @@ export const useVideoStreams = () => {
         (vs: StreamItem) => vs.type === VIDEO_TYPES.STREAM && vs.user?.pinned,
       );
 
-      totalNumberOfOtherStreams = others.length;
-      const paginatedStreams = sortVideoStreams(others, sortingMethod)
-        .slice(chunkIndex, (chunkIndex + myPageSize)) || [];
+      // This is needed to adjust pagination for displaced video streams
+      let audioOnlySlotsUsedOnPage1 = 0;
+      if (showAudioOnlyOnFirstPage && audioOnlyUsers.length > 0) {
+        const uniqueAudioOnly = audioOnlyUsers.filter(
+          (audioUser) => !streams.find((s) => s.userId === audioUser.userId),
+        );
+
+        if (uniqueAudioOnly.length > 0) {
+          const pinnedAndLocalCount = pin.length + mine.length;
+          const availableSlots = myPageSize - pinnedAndLocalCount;
+          const maxAudioOnlySlots = Math.min(availableSlots, maxAudioOnlyUsers);
+          audioOnlySlotsUsedOnPage1 = Math.min(uniqueAudioOnly.length, maxAudioOnlySlots);
+        }
+      }
+      totalNumberOfOtherStreams = others.length + audioOnlySlotsUsedOnPage1;
+
+      const effectiveChunkIndex = currentVideoPageIndex > 0
+        ? chunkIndex - audioOnlySlotsUsedOnPage1
+        : chunkIndex;
+
+      let paginatedStreams = sortVideoStreams(others, sortingMethod)
+        .slice(effectiveChunkIndex, (effectiveChunkIndex + myPageSize)) || [];
+
+      // Add audio-only users only on page 1
+      if (showAudioOnlyOnFirstPage && currentVideoPageIndex === 0 && audioOnlySlotsUsedOnPage1 > 0) {
+        const uniqueAudioOnly = audioOnlyUsers.filter(
+          (audioUser) => !streams.find((s) => s.userId === audioUser.userId),
+        );
+
+        const pinnedAndLocalCount = pin.length + mine.length;
+        const availableSlots = myPageSize - pinnedAndLocalCount;
+        const audioOnlyToAdd = uniqueAudioOnly.slice(0, audioOnlySlotsUsedOnPage1);
+
+        if (audioOnlyToAdd.length > 0 && paginatedStreams.length + audioOnlyToAdd.length > availableSlots) {
+          const remoteStreamsToKeep = availableSlots - audioOnlyToAdd.length;
+          paginatedStreams = paginatedStreams.slice(0, Math.max(0, remoteStreamsToKeep));
+        }
+
+        paginatedStreams = [...paginatedStreams, ...audioOnlyToAdd];
+      }
 
       if (sortingConfig.localFirst) {
         streams = [...pin, ...mine, ...paginatedStreams];
@@ -481,6 +588,18 @@ export const useVideoStreams = () => {
     }
   } else {
     streams = sortVideoStreams(streams, DEFAULT_SORTING);
+
+    // Add up to maxAudioOnlyUsers when pagination is disabled
+    if (showAudioOnlyOnFirstPage && audioOnlyUsers.length > 0) {
+      const uniqueAudioOnly = audioOnlyUsers.filter(
+        (audioUser) => !streams.find((s) => s.userId === audioUser.userId),
+      );
+
+      if (uniqueAudioOnly.length > 0) {
+        const audioOnlyToAdd = uniqueAudioOnly.slice(0, maxAudioOnlyUsers);
+        streams = [...streams, ...audioOnlyToAdd];
+      }
+    }
   }
 
   const { gridUsers, overflowCount } = useGridUsers(streams.length);
