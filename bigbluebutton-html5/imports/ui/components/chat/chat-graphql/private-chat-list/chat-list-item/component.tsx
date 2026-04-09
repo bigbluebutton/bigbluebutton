@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable jsx-a11y/no-access-key */
 import React, { useEffect } from 'react';
+import { defineMessages, useIntl } from 'react-intl';
 import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import Styled from './styles';
@@ -13,6 +14,21 @@ import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import {
   CHAT_MESSAGE_PRIVATE_SUBSCRIPTION,
 } from '/imports/ui/components/chat/chat-graphql/chat-message-list/page/queries';
+
+const intlMessages = defineMessages({
+  privateChatUnkownUser: {
+    id: 'app.userList.chatListItem.unknownParticipant',
+  },
+  privateChatAriaLabelNoUnread: {
+    id: 'app.userList.chatListItem.noUnread',
+  },
+  privateChatAriaLabelSingular: {
+    id: 'app.userList.chatListItem.unreadSingular',
+  },
+  privateChatAriaLabelPlural: {
+    id: 'app.userList.chatListItem.unreadPlural',
+  },
+});
 
 interface PrivateChatListItemProps {
   chat: Partial<Chat>;
@@ -27,6 +43,7 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
   const layoutContextDispatch = layoutDispatch();
   const chatCountTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const [unreadMessagesToDisplay, setUnreadMessagesToDisplay] = React.useState(0);
+  const intl = useIntl();
 
   const { sidebarContentPanel } = sidebarContent;
   const sidebarContentIsOpen = sidebarContent.isOpen;
@@ -108,10 +125,16 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
   };
 
   const unreadCount = unreadMessagesToDisplay;
-  const participantName = chat.participant?.name || 'Usuário desconhecido';
-  const arialabel = unreadCount > 0
-    ? `${participantName}, ${unreadCount} nova${unreadCount > 1 ? 's' : ''} mensagem${unreadCount > 1 ? 's' : ''}`
-    : `${participantName}, sem novas mensagens`;
+  const participantName = chat.participant?.name || intl.formatMessage(intlMessages.privateChatUnkownUser);
+  const noUnreadMessagesLabel = intl.formatMessage(intlMessages.privateChatAriaLabelNoUnread);
+  const unreadMessagesLabel = intl.formatMessage(
+    unreadCount > 1
+      ? intlMessages.privateChatAriaLabelPlural
+      : intlMessages.privateChatAriaLabelSingular, {
+      unreadCount,
+    },
+  );
+  const ariaLabel = unreadCount > 0 ? unreadMessagesLabel : noUnreadMessagesLabel;
 
   // Handle empty chats (no messages yet)
   const hasMessages = chatMessageData && chatMessageData.length > 0;
@@ -127,7 +150,7 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
       tabIndex={-1}
       onClick={handleClickOpenPrivateChat}
       id={`chat-list-${index}`}
-      aria-label={chat.participant?.name}
+      aria-label={participantName}
       ref={chatNodeRef}
     >
       <Styled.ChatListItemLink>
@@ -155,7 +178,7 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
               </Styled.MessageItemWrapper>
               {(unreadMessagesToDisplay > 0)
                 ? (
-                  <Styled.UnreadMessages data-test="unreadMessages" aria-label={arialabel}>
+                  <Styled.UnreadMessages data-test="unreadMessages" aria-label={ariaLabel}>
                     <Styled.UnreadMessagesText aria-hidden="true">
                       {unreadMessagesToDisplay}
                     </Styled.UnreadMessagesText>

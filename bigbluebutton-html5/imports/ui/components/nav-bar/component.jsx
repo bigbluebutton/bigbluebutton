@@ -168,8 +168,9 @@ class NavBar extends Component {
       meetingId,
     } = this.props;
     const ShownId = getStorageSingletonInstance().getItem('alreadyShowSessionDetailsOnJoin');
-    if (this.setModalIsOpen) { // when hiding navbar this might be undefined and crash
-      this.setModalIsOpen(showSessionDetailsOnJoin && ShownId !== meetingId);
+    // when hiding navbar setModalIsOpen might be undefined and crash
+    if (this.setModalIsOpen && showSessionDetailsOnJoin && ShownId !== meetingId) {
+      this.setModalIsOpen(true);
     }
   }
 

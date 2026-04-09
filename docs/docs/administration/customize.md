@@ -1048,7 +1048,6 @@ To use it you would need to first install ClamAV:
 The simplest way would be to run it locally as a container.
 
 ```bash
-docker pull clamav/clamav:latest
 docker run --name "clamav" -d \
   --volume /var/bigbluebutton:/var/bigbluebutton:ro \
   --publish 127.0.0.1:3310:3310 \

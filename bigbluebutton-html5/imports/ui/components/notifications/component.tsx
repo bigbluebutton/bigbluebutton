@@ -5,7 +5,6 @@ import useCurrentUser from '../../core/hooks/useCurrentUser';
 import { notify } from '../../services/notification';
 import {
   NotifyPublishedPoll,
-  breakoutHadNoChanges,
   layoutUpdate,
   pendingGuestAlert,
   userJoinPushAlert,
@@ -41,7 +40,6 @@ const Notifications: React.FC = () => {
         'app.notification.userJoinPushAlert': userJoinPushAlert,
         'app.notification.userLeavePushAlert': userLeavePushAlert,
         'app.layoutUpdate.label': layoutUpdate,
-        'app.toast.breakoutContentUnchangedNotConverted': breakoutHadNoChanges,
       });
 
   const {

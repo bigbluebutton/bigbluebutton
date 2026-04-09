@@ -58,6 +58,7 @@ interface AppProps {
   meetingName: string;
   currentUserAway?: boolean;
   currentUserRaiseHand?: boolean;
+  currentUserHasVoice: boolean;
   shouldShowExternalVideo: boolean;
   shouldShowPresentation: boolean;
   shouldShowScreenshare: boolean;
@@ -93,6 +94,7 @@ const App: React.FC<AppProps> = ({
   isNotificationEnabled,
   isNonMediaLayout,
   isRaiseHandEnabled,
+  currentUserHasVoice,
   hideActionsBar,
   isPollingEnabled,
   layoutContextDispatch,
@@ -174,7 +176,7 @@ const App: React.FC<AppProps> = ({
           )}
           <BreakoutJoinConfirmationContainerGraphQL />
           <BBBLiveKitRoomContainer />
-          <AudioContainer />
+          <AudioContainer currentUserHasVoice={currentUserHasVoice} />
           {!hideNotificationToasts && isNotificationEnabled && (
             <ToastContainer rtl />
           )}

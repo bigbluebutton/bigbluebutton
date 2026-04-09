@@ -46,6 +46,7 @@ trait GetUserApiMsgHdlr extends HandlerHelpers {
     userInfos += ("guestStatus" -> regUser.guestStatus)
     userInfos += ("moderator" -> isModerator)
     userInfos += ("presenter" -> Users2x.userIsInPresenterGroup(liveMeeting.users2x, regUser.id))
+    userInfos += ("isBreakout" -> liveMeeting.props.meetingProp.isBreakout)
     if (isModerator || !isLocked) {
       userInfos += ("hideViewersCursor" -> false)
       userInfos += ("hideViewersAnnotation" -> false)
