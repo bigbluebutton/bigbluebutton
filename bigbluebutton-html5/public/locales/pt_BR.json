@@ -1539,7 +1539,6 @@
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Parar de compartilhar vídeo externo",
     "app.legacy.unsupportedBrowser": "Parece que você está usando um navegador que não é compatível. Use uma versão recente do {supportedBrowser1} ou do {supportedBrowser2} para obter suporte completo.",
     "app.legacy.upgradeBrowser": "Parece que você está usando uma versão antiga de um navegador compatível. Atualize seu navegador para uma versão mais recente para obter suporte completo.",
-    "app.legacy.criosBrowser": "No iOS, use uma versão recente do Safari para obter suporte completo.",
     "app.legacy.unsupportedSafari": "Atualize seu navegador para o Safari 14 ou mais recente para obter suporte completo.",
     "app.debugWindow.windowTitle": "Depurar",
     "app.debugWindow.form.userAgentLabel": "User Agent",
