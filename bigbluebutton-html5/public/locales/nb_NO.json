@@ -1539,7 +1539,6 @@
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Stopp deling av ekstern video",
     "app.legacy.unsupportedBrowser": "Det ser ut som at du bruker en nettleser som ikke støttes. Bruk en nyere versjon av enten {supportedBrowser1} eller {supportedBrowser2} for full støtte.",
     "app.legacy.upgradeBrowser": "Det ser ut som at du bruker en eldre versjon av en støttet nettleser. Oppgrader nettleseren din til en nyere versjon for full støtte.",
-    "app.legacy.criosBrowser": "På iOS må du bruke en nyere versjon av Safari for å få full støtte.",
     "app.legacy.unsupportedSafari": "Vennligst oppgrader nettleseren din til Safari 14 eller nyere for full støtte.",
     "app.debugWindow.windowTitle": "Feilsøk",
     "app.debugWindow.form.userAgentLabel": "Brukeragent",
