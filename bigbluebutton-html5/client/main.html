@@ -119,6 +119,30 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     .fade-out {
       opacity: 0 !important;
     }
+
+    .browserWarning {
+      border: 5px solid #F3F6F9;
+      border-radius: 0.5rem;
+      color: #F3F6F9;
+      text-align: center;
+      width: 500px;
+      position: fixed;
+      left: 50%;
+      margin-left: -250px;
+      top: 50%;
+      margin-top: -4rem;
+      font-size: 1.5rem;
+      padding: 10px;
+      font-family: 'Source Sans Pro', Arial, sans-serif;
+    }
+
+    @media only screen and (max-width: 40em) {
+      .browserWarning {
+        width: 95%;
+        left: 2.5%;
+        margin-left: 0;
+      }
+    }
   </style>
   <script>
     document.addEventListener('gesturestart', function (e) {
@@ -186,25 +210,37 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             return match ? parseInt(match[1], 10) : null;
           }
 
+          function replaceLocalePlaceholders(msg) {
+              return msg
+                .replace('{supportedBrowser1}', CHROME_LINK)
+                .replace('{supportedBrowser2}', FIREFOX_LINK);
+          }
+
           var safariVersion = parseVersion(/Version\/(\d+).*Safari/);
           var chromeVersion = parseVersion(/(?:Chrome|CriOS)\/(\d+)/);
           var firefoxVersion = parseVersion(/Firefox\/(\d+)/);
           var edgeVersion = parseVersion(/Edg\/(\d+)/);
           var miuiVersion = parseVersion(/MiuiBrowser\/(\d+)/);
-
-          var tooOld =
+          // WebRTC support check is based on LiveKit's isBrowserSupported util
+          var supportsWebRTC = !!(
+            typeof RTCPeerConnection !== 'undefined'
+            && RTCPeerConnection
+            && navigator.mediaDevices
+            && RTCPeerConnection.prototype
+            && 'addTransceiver' in RTCPeerConnection.prototype
+            && 'addTrack' in RTCPeerConnection.prototype
+          );
+          var supportedUA = !(
             (safariVersion && safariVersion < MIN_VERSIONS.safari) ||
             (chromeVersion && chromeVersion < MIN_VERSIONS.chrome) ||
             (firefoxVersion && firefoxVersion < MIN_VERSIONS.firefox) ||
             (edgeVersion && edgeVersion < MIN_VERSIONS.edge)||
-            (miuiVersion !== null);
+            (miuiVersion !== null)
+          );
+          var supported = supportedUA && supportsWebRTC;
 
-          if (tooOld) {
-            var banner = document.createElement('div');
-            banner.innerHTML = '<strong>Browser not supported</strong><br>Please update your browser or contact support service.';
-            banner.style.cssText = 'background:#ffdddd;color:#a00;padding:1em;margin:1em 0;text-align:center;font-family:sans-serif;';
-            document.body.insertBefore(banner, document.body.firstChild);
-          } else {
+
+          if (supported) {
             var bundleHash = '<%= bundleHash %>';
             var isProduction = '<%= isProduction %>' === 'true';
             var script = document.createElement('script');
@@ -217,6 +253,120 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             }
 
             document.head.appendChild(script);
+          } else {
+            var msgKey;
+
+            if (miuiVersion !== null) {
+              msgKey = 'app.legacy.unsupportedBrowser';
+            } else if (isSafari && safariVersion && safariVersion < MIN_VERSIONS.safari) {
+              msgKey = 'app.legacy.unsupportedSafari';
+            } else if (chromeVersion || firefoxVersion || edgeVersion) {
+              msgKey = 'app.legacy.upgradeBrowser';
+            } else {
+              msgKey = 'app.legacy.unsupportedBrowser';
+            }
+
+            var CHROME_LINK = '<a href="https://www.google.com/chrome/" rel="noopener noreferrer">Chrome</a>';
+            var FIREFOX_LINK = '<a href="https://getfirefox.com" rel="noopener noreferrer">Firefox</a>';
+            var FALLBACK = {};
+            FALLBACK['app.legacy.unsupportedBrowser'] = replaceLocalePlaceholders('It looks like you\'re using a browser that is not supported. Please use a recent version of either {supportedBrowser1} or {supportedBrowser2} for full support.');
+            FALLBACK['app.legacy.upgradeBrowser'] = 'It looks like you\'re using an older version of a supported browser. Please upgrade your browser to a recent version for full support.';
+            FALLBACK['app.legacy.unsupportedSafari'] = 'Please upgrade your browser to Safari 14 or newer for full support.';
+
+            var banner = document.createElement('p');
+            banner.className = 'browserWarning';
+            banner.innerHTML = FALLBACK[msgKey];
+            document.getElementById('app').appendChild(banner);
+
+            // Manual locale fetching so the unsupported browser page is localized
+            // This is a simplified version of what intlLoader does, minus:
+            // - locale merging: see hardcoded english fallbacks
+            // - handling of user-defined language preferences (no access to cli settings etc)
+            var RTL_LANGS = ['ar', 'dv', 'fa', 'he'];
+            var browserLang = (navigator.languages && navigator.languages[0]) || navigator.language || 'en';
+            var langParts = browserLang.replace(/-/g, '_').split('_');
+
+            function applyLocale(messages) {
+              var msg = messages[msgKey];
+
+              if (!msg) return;
+
+              banner.innerHTML = replaceLocalePlaceholders(msg);
+
+              if (RTL_LANGS.indexOf(langParts[0]) !== -1) {
+                banner.setAttribute('dir', 'rtl');
+              }
+            }
+
+            function tryFetchLocale(candidates, index) {
+              if (index >= candidates.length) return;
+
+              fetch('locales/' + candidates[index] + '.json?v=VERSION')
+                .then(function (resp) {
+                  if (!resp.ok) throw new Error('not found');
+
+                  return resp.json();
+                })
+                .then(applyLocale)
+                .catch(function () {
+                  tryFetchLocale(candidates, index + 1);
+                });
+            }
+
+            function buildCandidates(parts, localeFiles) {
+              if (!localeFiles) {
+                var guesses = [];
+                if (parts.length > 1) {
+                  guesses.push(parts[0] + '_' + parts[1].toUpperCase());
+                }
+                guesses.push(parts[0]);
+                return guesses;
+              }
+
+              var available = localeFiles.map(function (f) {
+                return f.replace('.json', '');
+              });
+              var candidates = [];
+
+              if (parts.length > 1) {
+                var exact = parts[0] + '_' + parts[1].toUpperCase();
+                if (available.indexOf(exact) !== -1) {
+                  candidates.push(exact);
+                }
+              }
+
+              if (available.indexOf(parts[0]) !== -1) {
+                candidates.push(parts[0]);
+              }
+
+              for (var j = 0; j < available.length; j++) {
+                if (available[j].split('_')[0] === parts[0] && candidates.indexOf(available[j]) === -1) {
+                  candidates.push(available[j]);
+                  break;
+                }
+              }
+
+              return candidates;
+            }
+
+            if (typeof fetch === 'function' && langParts[0] !== 'en') {
+              fetch('locales/index.json?v=VERSION')
+                .then(function (resp) {
+                  if (!resp.ok) throw new Error('index not found');
+                  return resp.json();
+                })
+                .then(function (localeFiles) {
+                  return buildCandidates(langParts, localeFiles);
+                })
+                .catch(function () {
+                  return buildCandidates(langParts, null);
+                })
+                .then(function (candidates) {
+                  if (candidates.length > 0) {
+                    tryFetchLocale(candidates, 0);
+                  }
+                });
+            }
           }
 
           
