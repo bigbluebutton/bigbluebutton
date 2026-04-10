@@ -305,8 +305,8 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                     if (base64Size > browserLimit) {
                         log.error("Encoded PNG is too large for the browser");
                     } else {
-                        int width = 500;
-                        int height = 500;
+                        int width = MAX_SVG_WIDTH;
+                        int height = MAX_SVG_HEIGHT;
 
                         ImageResolution imageResolution = imageResolutionService.identifyImageResolution(tempPng);
                         log.debug("Identified page {} image {} width={} and height={}", page, pres.getName(), imageResolution.getWidth(), imageResolution.getHeight());
@@ -320,8 +320,13 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                             log.info("The image exceeds max dimension allowed, it will be resized.");
                             imageResizer.resize(tempPng, MAX_SVG_WIDTH + "x" + MAX_SVG_HEIGHT);
                             imageResolution = imageResolutionService.identifyImageResolution(tempPng);
-                            width = imageResolution.getWidth();
-                            height = imageResolution.getHeight();
+                            if (imageResolution.getWidth() != 0 && imageResolution.getHeight() != 0) {
+                                width = imageResolution.getWidth();
+                                height = imageResolution.getHeight();
+                            } else {
+                                log.warn("Image resolution after resize returned 0 for page {} of {}, using defaults {}x{}",
+                                         page, pres.getName(), width, height);
+                            }
                         }
 
                         String svg = createSvgWithEmbeddedPng(base64encodedPng, width, height);
