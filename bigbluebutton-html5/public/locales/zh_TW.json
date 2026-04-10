@@ -1539,7 +1539,6 @@
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "停止分享外部影片",
     "app.legacy.unsupportedBrowser": "看起來您正在使用一個不受支援的瀏覽器。請使用最新版本的 {supportedBrowser1} 或 {supportedBrowser2} 以獲得完整支援。",
     "app.legacy.upgradeBrowser": "看起來您正在使用支援的瀏覽器的舊版本。請升級您的瀏覽器至最新版本以獲得完整支援。",
-    "app.legacy.criosBrowser": "在 iOS 上請使用最新版本 Safari 以獲得完整支援。",
     "app.legacy.unsupportedSafari": "請更新至 Safari 14 或是更新版本以獲得完整支援。",
     "app.debugWindow.windowTitle": "除錯",
     "app.debugWindow.form.userAgentLabel": "使用者代理",
