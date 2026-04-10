@@ -1539,7 +1539,6 @@
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Teilen von externem Video beenden",
     "app.legacy.unsupportedBrowser": "Es scheint, dass der verwendete Browser nicht unterstützt wird. Bitte {supportedBrowser1} oder {supportedBrowser2} verwenden.",
     "app.legacy.upgradeBrowser": "Es sieht so aus, als ob eine veraltete Version eines unterstützten Browsers verwendet wird. Bitte den Browser aktualisieren für den vollen Funktionsumfang.",
-    "app.legacy.criosBrowser": "Unter iOS bitte eine aktuelle Safari Version verwenden für optimale Funktionalität.",
     "app.legacy.unsupportedSafari": "Bitte Safari Version 14 oder höher verwenden für optimale Funktionalität.",
     "app.debugWindow.windowTitle": "Fehlersuche",
     "app.debugWindow.form.userAgentLabel": "User Agent",
