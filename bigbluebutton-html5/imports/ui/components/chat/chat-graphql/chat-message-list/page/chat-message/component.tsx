@@ -165,6 +165,7 @@ const intlMessages = defineMessages({
   downloadPollResults: {
     id: 'app.chat.pollResult.download',
     description: 'Download poll results as PNG',
+  },
   breakoutCallModerator: {
     id: 'app.chat.breakoutCallModerator',
     description: 'Breakout room call moderator system message',
