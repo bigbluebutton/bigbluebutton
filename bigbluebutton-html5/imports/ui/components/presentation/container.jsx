@@ -201,10 +201,7 @@ const PresentationContainer = (props) => {
       && presentation.canFetch) {
       const nextSlidesSvgUrl = (currentPresentationPage.nextPagesSvg || [])
         .map((url) => ({ svgUrl: Auth.authenticateURL(url) }));
-      const slidesToFetch = [
-        currentPresentationPage,
-        ...nextSlidesSvgUrl,
-      ];
+      const slidesToFetch = nextSlidesSvgUrl;
 
       const promiseImageGet = slidesToFetch
         .filter((s) => !fetchedpresentation[presentationId].fetchedSlide[s.svgUrl])
