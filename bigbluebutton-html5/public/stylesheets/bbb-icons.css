@@ -417,3 +417,12 @@
 .icon-bbb-visibility_off:before {
   content: "\e983";
 }
+.icon-bbb-visibility_on:before {
+  content: "\e984";
+}
+.icon-bbb-arrow_forward_up:before {
+  content: "\e985";
+}
+.icon-bbb-arrow_forward_down:before {
+  content: "\e986";
+}

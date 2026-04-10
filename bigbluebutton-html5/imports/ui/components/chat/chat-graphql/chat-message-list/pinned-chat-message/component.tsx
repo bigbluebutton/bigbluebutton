@@ -54,6 +54,14 @@ const intlMessages = defineMessages({
     id: 'app.chat.pinnedMessages.tooltipHide',
     description: 'Tooltip for hide button in pinned messages section',
   },
+  expandTooltip: {
+    id: 'app.chat.pinnedMessages.tooltipExpand',
+    description: 'Tooltip for expand button in pinned messages section',
+  },
+  collapseTooltip: {
+    id: 'app.chat.pinnedMessages.tooltipCollapse',
+    description: 'Tooltip for collapse button in pinned messages section',
+  },
 });
 
 interface PinnedMessageComponentProps {
@@ -63,6 +71,7 @@ interface PinnedMessageComponentProps {
 
 export default function PinnedMessageComponent({ messages, isModerator }: PinnedMessageComponentProps) {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const activeMessage = useMemo(() => messages[0] || null, [messages]);
   const intl = useIntl();
@@ -153,10 +162,19 @@ export default function PinnedMessageComponent({ messages, isModerator }: Pinned
               <Styled.Icon iconName="visibility_off" />
             </Styled.ToggleButton>
           </Tooltip>
+          <Tooltip title={intl.formatMessage(isExpanded ? intlMessages.collapseTooltip : intlMessages.expandTooltip)}>
+            <Styled.ToggleButton
+              onClick={() => setIsExpanded((prev) => !prev)}
+              aria-label={intl.formatMessage(isExpanded ? intlMessages.collapseTooltip : intlMessages.expandTooltip)}
+            >
+              <Styled.Icon iconName={isExpanded ? 'arrow_forward_up' : 'arrow_forward_down'} />
+            </Styled.ToggleButton>
+          </Tooltip>
         </Styled.Controls>
       </Styled.Header>
 
       <Styled.MessagePreview
+        $collapsed={!isExpanded}
         aria-hidden
         onClick={(e) => handleNavigateToMessage(e)}
         role="button"

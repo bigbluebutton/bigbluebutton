@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 import {
   colorWhite,
-  colorPrimary,
   colorBlueAux,
   appsGalleryOutlineColor,
   colorNeutral2,
@@ -14,7 +13,6 @@ import {
   fontSizeSmaller,
   fontSizeBase,
   fontSizeLarge,
-  headingsFontWeight,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   borderSizeSmall,
@@ -65,8 +63,7 @@ const PinnedBy = styled.span`
 `;
 
 const PinnedByName = styled.span`
-  color: ${colorPrimary};
-  font-weight: ${headingsFontWeight};
+  color: inherit;
   margin-left: ${mdPadding};
 `;
 
@@ -86,12 +83,12 @@ const ToggleButton = styled.button`
   justify-content: center;
 `;
 
-const MessagePreview = styled.div`
+const MessagePreview = styled.div<{ $collapsed?: boolean }>`
   color: inherit;
   font-size: ${fontSizeLarge};
   display: -webkit-box;
-  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
+  -webkit-line-clamp: ${({ $collapsed }) => ($collapsed ? 2 : 8)};
   overflow: hidden;
   text-overflow: ellipsis;
   /* prevent long continuous text/URLs from overflowing the preview */

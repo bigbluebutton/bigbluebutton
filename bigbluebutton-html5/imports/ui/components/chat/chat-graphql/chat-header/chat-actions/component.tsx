@@ -166,7 +166,7 @@ const ChatActions: React.FC = () => {
           label={intl.formatMessage(intlMessages.openPinnedMessages)}
           aria-label={intl.formatMessage(intlMessages.openPinnedMessages)}
           hideLabel
-          icon="pin_filled"
+          icon="visibility_on"
           data-test="chatOpenPinnedMessages"
           onClick={() => setPinnedChatMessagesHidden(false)}
         />
