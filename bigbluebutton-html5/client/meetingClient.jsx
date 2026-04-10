@@ -32,6 +32,7 @@ import PresenceAdapter from '../imports/ui/components/presence-adapter/component
 import CustomUsersSettings from '/imports/ui/components/join-handler/custom-users-settings/component';
 import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
 import PLUGIN_CONFIGURATION_QUERY from '/imports/ui/components/plugins-engine/query';
+import { useIsPluginsEnabled } from '/imports/ui/services/features';
 
 // eslint-disable-next-line import/prefer-default-export
 const Startup = () => {
@@ -64,11 +65,12 @@ const Startup = () => {
   const { data: pluginConfig } = createUseSubscription(
     PLUGIN_CONFIGURATION_QUERY,
   )((obj) => obj);
+  const isPluginsEnabled = useIsPluginsEnabled();
   return (
     <ContextProviders>
       <PresenceAdapter>
         <IntlAdapter>
-          <Base pluginConfig={pluginConfig} />
+          <Base pluginConfig={isPluginsEnabled ? pluginConfig : undefined} />
         </IntlAdapter>
       </PresenceAdapter>
     </ContextProviders>

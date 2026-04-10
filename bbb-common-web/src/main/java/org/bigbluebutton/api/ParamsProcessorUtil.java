@@ -743,7 +743,7 @@ public class ParamsProcessorUtil {
 
         // Parse Plugins Manifests from config and param
         ArrayList<PluginManifest> listOfPluginManifests = new ArrayList<PluginManifest>();
-        if (!isBreakout){
+        if (!isBreakout && !listOfDisabledFeatures.contains("plugins")){
             //Process plugins from config
             if (defaultPluginManifests != null && !defaultPluginManifests.isEmpty()) {
                 try {
