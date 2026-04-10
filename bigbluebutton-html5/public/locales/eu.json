@@ -1539,7 +1539,6 @@
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Gelditu kanpoko bideoaren partekatzea",
     "app.legacy.unsupportedBrowser": "Ematen du onartu gabeko nabigatzaile bat erabiltzen ari zarela. Mesedez erabili {supportedBrowser1} edo {supportedBrowser2} bertsio berri bat euskarri osoa izateko.",
     "app.legacy.upgradeBrowser": "Ematen du onartutako nabigatzaile baten bertsio zaharkitua erabiltzen ari zarela. Mesedez eguneratu zure nabigatzailea euskarri osoa izateko.",
-    "app.legacy.criosBrowser": "iOSean erabili, mesedez, Safariren bertsio berri bat euskarri osoa izateko.",
     "app.legacy.unsupportedSafari": "Eguneratu zure Safari nabigatzailea 14 bertsiora edo berriago batera euskarri osoa izateko.",
     "app.debugWindow.windowTitle": "Arazketa",
     "app.debugWindow.form.userAgentLabel": "Erabiltzaile agentea",
