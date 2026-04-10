@@ -1539,7 +1539,6 @@
     "app.actionsBar.actionsDropdown.stopShareExternalVideo": "Τερματισμός διαμοιρασμού εξωτερικού βίντεο",
     "app.legacy.unsupportedBrowser": "Το πρόγραμμα περιήγησης που χρησιμοποιείται δεν υποστηρίζεται. Παρακαλούμε χρησιμοποιήστε την τελευταία έκδοση {supportedBrowser1} ή {supportedBrowser2} για πλήρη συμβατότητα.",
     "app.legacy.upgradeBrowser": "Φαίνεται πως χρησιμοποιείτε μια παλαιότερη έκδοση ενός υποστηριζόμενου περιηγητή. Παρακαλούμε αναβαθμίστε τον περιηγητή σας για πλήρη υποστήριξη.",
-    "app.legacy.criosBrowser": "Σε iOS παρακαλούμε χρησιμοποιήστε το Safari για πλήρη υποστήριξη.",
     "app.legacy.unsupportedSafari": "Παρακαλούμε αναβαθμίστε τον περιηγητή σας σε Safari 14 ή νεότερο για πλήρη υποστήριξη.",
     "app.debugWindow.windowTitle": "Αποσφαλμάτωση",
     "app.debugWindow.form.userAgentLabel": "Εφαρμογή χρήστη",
