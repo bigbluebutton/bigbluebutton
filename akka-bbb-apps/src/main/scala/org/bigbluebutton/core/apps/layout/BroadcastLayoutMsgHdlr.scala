@@ -22,6 +22,14 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
     } else {
       if (LayoutsType.layoutsType.contains(msg.body.layout)) {
         val newlayout = LayoutsType.layoutsType.getOrElse(msg.body.layout, "")
+        val isInitialSetup = Layouts.getCurrentLayout(liveMeeting.layouts).isEmpty
+
+        val significantChange = !isInitialSetup && (
+          Layouts.getCurrentLayout(liveMeeting.layouts) != newlayout ||
+          Layouts.getPresentationIsOpen(liveMeeting.layouts) != msg.body.presentationIsOpen ||
+          Layouts.getCameraPosition(liveMeeting.layouts) != msg.body.cameraPosition ||
+          Layouts.getFocusedCamera(liveMeeting.layouts) != msg.body.focusedCamera
+        )
 
         Layouts.setCurrentLayout(liveMeeting.layouts, newlayout)
         Layouts.setPushLayout(liveMeeting.layouts, msg.body.pushLayout)
@@ -33,12 +41,12 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
         Layouts.setRequestedBy(liveMeeting.layouts, msg.header.userId)
 
         LayoutDAO.insertOrUpdate(liveMeeting.props.meetingProp.intId, liveMeeting.layouts)
-        sendBroadcastLayoutEvtMsg(msg.header.userId)
+        sendBroadcastLayoutEvtMsg(msg.header.userId, significantChange)
       }
     }
   }
 
-  def sendBroadcastLayoutEvtMsg(fromUserId: String): Unit = {
+  def sendBroadcastLayoutEvtMsg(fromUserId: String, significantChange: Boolean = true): Unit = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, fromUserId)
     val envelope = BbbCoreEnvelope(BroadcastLayoutEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(BroadcastLayoutEvtMsg.NAME, liveMeeting.props.meetingProp.intId, fromUserId)
@@ -58,7 +66,7 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
 
     outGW.send(msgEvent)
 
-    if (body.pushLayout) {
+    if (body.pushLayout && significantChange) {
       val notifyEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
         fromUserId,
         liveMeeting.props.meetingProp.intId,

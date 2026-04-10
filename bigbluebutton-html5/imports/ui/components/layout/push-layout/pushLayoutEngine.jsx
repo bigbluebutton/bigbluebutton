@@ -329,8 +329,7 @@ const PushLayoutEngine = (props) => {
       || cameraIsResizing !== prevProps.cameraIsResizing
       || cameraPosition !== prevProps.cameraPosition
       || focusedCamera !== prevProps.focusedCamera
-      || enforceLayoutResult !== prevProps.enforceLayoutResult
-      || !equalDouble(presentationVideoRate, prevProps.presentationVideoRate);
+      || enforceLayoutResult !== prevProps.enforceLayoutResult;
 
     if (pushLayoutMeeting !== undefined
       && pushLayout !== prevProps.pushLayout
