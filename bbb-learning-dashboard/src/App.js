@@ -278,12 +278,16 @@ class App extends React.Component {
         .then((json) => {
           if (json.response.returncode === 'SUCCESS') {
             const jsonData = JSON.parse(json.response.data);
-            this.setState({
+            const stateUpdate = {
               activitiesJson: jsonData,
               loading: false,
               invalidSessionCount: 0,
               lastUpdated: Date.now(),
-            });
+            };
+            if (json.response.learningDashboardAccessToken) {
+              stateUpdate.learningDashboardAccessToken = json.response.learningDashboardAccessToken;
+            }
+            this.setState(stateUpdate);
             this.updateModalUser();
           } else {
             // When meeting is ended the sessionToken stop working, check for new cookies
@@ -341,6 +345,7 @@ class App extends React.Component {
   render() {
     const {
       activitiesJson, tab, loading, lastUpdated, ldAccessTokenCopied,
+      sessionToken, learningDashboardAccessToken,
     } = this.state;
     const { intl } = this.props;
 
@@ -656,6 +661,8 @@ class App extends React.Component {
                   allUsers={activitiesJson.users}
                   slides={activitiesJson.presentationSlides}
                   meetingId={activitiesJson.intId}
+                  sessionToken={sessionToken}
+                  learningDashboardAccessToken={learningDashboardAccessToken}
                 />
               </div>
             </div>

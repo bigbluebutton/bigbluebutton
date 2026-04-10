@@ -1480,6 +1480,7 @@ class ApiController {
             returncode RESP_CODE_SUCCESS
             data jsonDataFile.getText()
             sessionToken
+            learningDashboardAccessToken meeting.getLearningDashboardAccessToken()
           }
           render(contentType: "application/json", text: builder.toPrettyString())
         }
