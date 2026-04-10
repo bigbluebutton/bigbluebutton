@@ -20,7 +20,8 @@ export const MessageList = styled(ScrollboxVertical)<MessageListProps>`
   width: 100%;
   z-index: 2;
   overflow-y: auto;
-  position: relative;
+  position: absolute;
+  display: flex;
   padding: 0 ${mdPadding};
 `;
 
