@@ -1530,7 +1530,7 @@
     "app.externalVideo.autoPlayWarning": "تشغيل الفيديو لتمكين مزامنة الوسائط",
     "app.externalVideo.refreshLabel": "تحديث مشغل الفيديو",
     "app.externalVideo.fullscreenLabel": "مشغل فديو",
-    "app.externalVideo.noteLabelSupported": "Supports links from YouTube, Vimeo, Instructure Media, Twitch, and media file URLs (e.g. https://example.com/xy.mp4).",
+    "app.externalVideo.noteLabelSupported": "يدعم الروابط من يوتيوب، وفيميو، وإنستركتشر ميديا، وتويتش، وعناوين URL لملفات الوسائط (على سبيل المثال https://example.com/xy.mp4).",
     "app.externalVideo.noteLabelWarning": "لا يتم تضمين مقاطع الفيديو المشتركة في التسجيل.",
     "app.externalVideo.subtitlesOn": "أطفئ",
     "app.externalVideo.subtitlesOff": "تشغيل (إذا كان متاحًا)",
