@@ -168,6 +168,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
           ecver: 2,
           controls: 1,
           cc_lang_pref: document.getElementsByTagName('html')[0].lang.substring(0, 2),
+          cc_load_policy: 1,
         },
         embedOptions: {
           host: 'https://www.youtube-nocookie.com',
