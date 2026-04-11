@@ -184,7 +184,7 @@
     "app.userList.mobile": "نقال",
     "app.userList.guest": "زائر",
     "app.userList.searchUsers": "ابحث عن المستخدمين",
-    "app.userList.noSearchResults": "No participants match your search. Try another name.",
+    "app.userList.noSearchResults": "لا توجد نتائج مطابقة لبحثك. جرب اسمًا آخر.",
     "app.userList.clearSearch": "مسح البحث",
     "app.userList.sharingWebcam": "كاميرا ويب",
     "app.userList.menuTitleContext": "الخيارات المتاحة",
