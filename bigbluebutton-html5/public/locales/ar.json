@@ -1043,7 +1043,7 @@
     "app.error.userLoggedOut": "المستخدم لديه رمز جلسة غير صالح بسبب تسجيل الخروج",
     "app.error.ejectedUser": "المستخدم لديه رمز جلسة غير صالح بسبب الطرد",
     "app.error.joinedAnotherWindow": "يبدو أن هذه الجلسة مفتوحة في نافذة متصفح أخر.",
-    "app.error.userBanned": "You have been removed for the remaining duration of this session.",
+    "app.error.userBanned": "تم إخراجك من الجلسة للفترة المتبقية.",
     "app.error.leaveLabel": "تسجيل الدخول مرة أخرى",
     "app.error.fallback.presentation.title": "حدث خطأ",
     "app.error.fallback.presentation.description": "لقد تم تسجيله. الرجاء محاولة إعادة تحميل الصفحة.",
