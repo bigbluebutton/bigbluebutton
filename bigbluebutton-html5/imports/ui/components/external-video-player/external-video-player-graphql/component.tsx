@@ -162,10 +162,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       youtube: {
         playerVars: {
           autoplay: 1,
-          modestbranding: 1,
-          autohide: 1,
-          rel: 0,
-          ecver: 2,
           controls: 1,
           cc_lang_pref: document.getElementsByTagName('html')[0].lang.substring(0, 2),
         },
