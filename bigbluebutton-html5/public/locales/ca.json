@@ -1230,7 +1230,7 @@
     "app.guest-policy.description": "Canviar la configuració de la política de convidats a les sessions",
     "app.guest-policy.button.askModerator": "Preguntar al moderador/a",
     "app.guest-policy.button.alwaysAccept": "Acceptar sempre",
-    "app.guest-policy.button.alwaysAcceptAuth": "Always accept authenticated",
+    "app.guest-policy.button.alwaysAcceptAuth": "Accepta sempre els autenticats",
     "app.guest-policy.button.alwaysDeny": "Negar sempre",
     "app.guest-policy.policyBtnDesc": "Estableix la política de convidats a les sessions",
     "app.guest-policy.feedbackMessage": "The guest policy is now: {policy}",
