@@ -1233,7 +1233,7 @@
     "app.guest-policy.button.alwaysAcceptAuth": "Accepta sempre els autenticats",
     "app.guest-policy.button.alwaysDeny": "Negar sempre",
     "app.guest-policy.policyBtnDesc": "Estableix la política de convidats a les sessions",
-    "app.guest-policy.feedbackMessage": "The guest policy is now: {policy}",
+    "app.guest-policy.feedbackMessage": "La política de convidats ara és: {policy}",
     "app.connection-status.ariaTitle": "Finestra modal de l'estat de connexió",
     "app.connection-status.title": "Estat de connexió",
     "app.connection-status.description": "Mostra l'estat de connexió dels usuaris",
