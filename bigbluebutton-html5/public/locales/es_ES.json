@@ -65,7 +65,7 @@
     "app.chat.content.pollVotes": "votos",
     "app.chat.pollResult.copy": "Copiar resultados",
     "app.chat.pollResult.copySuccess": "¡Copiado!",
-    "app.chat.pollResult.download": "Download as PNG",
+    "app.chat.pollResult.download": "Descargar como PNG",
     "app.chat.plugin.metadataInformation": "{userName} - {pluginName}",
     "app.timer.toolTipTimerStopped": "El temporizador se ha detenido",
     "app.timer.toolTipTimerRunning": "El temporizador se ha iniciado",
