@@ -245,7 +245,7 @@
     "app.userList.userOptions.enablePubChat": "Xat públic actiu",
     "app.userList.userOptions.enableNotes": "Les notes compartides estan ara actives",
     "app.userList.userOptions.showUserList": "Llistat d'usuaris ocult als assistents",
-    "app.userList.userOptions.disablePresenterRequest": "Presenter request is now disabled for viewers",
+    "app.userList.userOptions.disablePresenterRequest": "La sol·licitud de presentador ara està desactivada per als espectadors",
     "app.userList.userOptions.enablePresenterRequest": "Presenter request is now enabled for viewers",
     "app.userList.userOptions.enablePresenterFreeForAll": "Participants can now take presenter without moderator approval",
     "app.userList.userOptions.enableOnlyModeratorWebcam": "Ara pots activar la teva webcam, tothom et podrà veure",
