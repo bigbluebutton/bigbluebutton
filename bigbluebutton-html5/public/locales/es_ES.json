@@ -1224,7 +1224,7 @@
     "app.lock-viewers.presentationPermissions.requireApproval": "Permitir a los participantes presentar con aprobación del moderador",
     "app.lock-viewers.presentationPermissions.requireApproval.tooltip": "Los participantes pueden solicitar ser presentadores, pero un moderador debe aprobar la solicitud.",
     "app.lock-viewers.presentationPermissions.freeForAll": "Permitir a los participantes presentar libremente",
-    "app.lock-viewers.presentationPermissions.freeForAll.tooltip": "Any participant can take the presenter role without moderator approval.",
+    "app.lock-viewers.presentationPermissions.freeForAll.tooltip": "Cualquier participante puede asumir el rol de presentador sin la aprobación del moderador.",
     "app.guest-policy.ariaTitle": "Modo de configuración de la política de invitados",
     "app.guest-policy.title": "Política de invitados",
     "app.guest-policy.description": "Cambiar la configuración de la política de invitados de la sesión",
