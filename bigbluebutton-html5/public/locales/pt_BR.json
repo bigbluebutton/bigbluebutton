@@ -65,7 +65,7 @@
     "app.chat.content.pollVotes": "votos",
     "app.chat.pollResult.copy": "Copy results",
     "app.chat.pollResult.copySuccess": "Copied!",
-    "app.chat.pollResult.download": "Download as PNG",
+    "app.chat.pollResult.download": "Baixar como PNG",
     "app.chat.plugin.metadataInformation": "{userName} - {pluginName}",
     "app.timer.toolTipTimerStopped": "O temporizador foi interrompido.",
     "app.timer.toolTipTimerRunning": "O temporizador está em andamento.",
