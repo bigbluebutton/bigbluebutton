@@ -1,4 +1,10 @@
 import { elements as e } from '../core/elements';
+import { parameters } from '../core/parameters';
+
+export const CUSTOM_STYLE_CSS = `${e.presentationTitle}{display: none;}`;
+export const CUSTOM_STYLE_URL = 'http://bbb-test-stub.local/css-test-file.css';
+
+const serverOrigin = parameters.server ? new URL(parameters.server).origin : '';
 
 export const CUSTOM_STYLE_CSS = `${e.presentationTitle}{display: none;}`;
 export const CUSTOM_STYLE_URL = 'http://bbb-test-stub.local/css-test-file.css';
@@ -21,7 +27,8 @@ export const constants = {
   lockSettingsHideUserList: 'lockSettingsHideUserList=true',
   allowModsToEjectCameras: 'allowModsToEjectCameras=true',
   notifyRecordingIsOn: 'notifyRecordingIsOn=true&notifyRecordingIsOn=true',
-  preUploadedPresentation: 'preUploadedPresentation=https://dagrs.berkeley.edu/sites/default/files/2020-01/sample.pdf',
+  preUploadedPresentation:
+    'preUploadedPresentation=https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v3.0.x-develop/bigbluebutton-tests/playwright/core/media/sample.pdf',
   preUploadedPresentationOverrideDefault: 'preUploadedPresentationOverrideDefault=true',
   preUploadedPresentationName: 'preUploadedPresentationName=ScientificPaper.pdf',
   customLayout: 'meetingLayout=CUSTOM_LAYOUT',
@@ -52,7 +59,7 @@ export const constants = {
   docTitle: 'playwright',
   clientTitle: `userdata-bbb_client_title=${'playwright'}`,
   displayBrandingArea: 'userdata-bbb_display_branding_area=true',
-  logo: 'logo=https://bigbluebutton.org/wp-content/uploads/2021/01/BigBlueButton_icon.svg.png',
+  logo: `logo=${serverOrigin}/images/logo.png`,
   enableVideo: 'userdata-bbb_enable_video=false',
   autoShareWebcam: 'userdata-bbb_auto_share_webcam=true',
   multiUserPenOnly: 'userdata-bbb_multi_user_pen_only=true',
@@ -77,8 +84,7 @@ export const constants = {
   overrideDefaultLocale: 'userdata-bbb_override_default_locale=pt-br',
   hideNavBar: 'userdata-bbb_hide_nav_bar=true',
   preferredCameraProfile: 'userdata-bbb_preferred_camera_profile=low',
-  webcamBackgroundPassingURL:
-    'webcamBackgroundURL=https://upload.wikimedia.org/wikipedia/commons/3/35/Spartan_apple.jpg',
+  webcamBackgroundPassingURL: `webcamBackgroundURL=${serverOrigin}/images/logo.png`,
   logoutURL: 'logoutURL=https://www.google.com',
   // Disabled Features
   breakoutRoomsDisabled: 'disabledFeatures=breakoutRooms',
