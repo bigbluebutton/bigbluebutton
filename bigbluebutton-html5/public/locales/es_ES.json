@@ -63,7 +63,7 @@
     "app.chat.header.tooltipReact": "Contestar al mensaje",
     "app.chat.content.pollVote": "votar",
     "app.chat.content.pollVotes": "votos",
-    "app.chat.pollResult.copy": "Copy results",
+    "app.chat.pollResult.copy": "Copiar resultados",
     "app.chat.pollResult.copySuccess": "¡Copiado!",
     "app.chat.pollResult.download": "Download as PNG",
     "app.chat.plugin.metadataInformation": "{userName} - {pluginName}",
