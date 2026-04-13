@@ -1212,7 +1212,7 @@
     "app.lock-viewers.disablePresenterRequestLabel": "Solicitando convertirse en presentador.",
     "app.lock-viewers.tabs.guestPolicy": "Política de invitados",
     "app.lock-viewers.tabs.participantPermissions": "Permisos de los participantes",
-    "app.lock-viewers.tabs.presentationPermissions": "Presentation Policy",
+    "app.lock-viewers.tabs.presentationPermissions": "Política de presentación",
     "app.lock-viewers.guestPolicy.title": "Política de invitados",
     "app.lock-viewers.guestPolicy.description": "Configure how guests are handled when trying to join the meeting.",
     "app.lock-viewers.participantPermissions.title": "Participant Permissions",
