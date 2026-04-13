@@ -1096,6 +1096,8 @@ public:
       fillStyle: 'none'
       # font is one of 'draw','mono','sans', 'serif'
       fontStyle: 'draw'
+      # default locale for CJK draw (rounded) font is one of 'JA', 'KR', 'TW', 'CN'
+      CJKdrawFontLocale: ''
       # size is one of 'l', 'm', 's', 'xl'
       sizeStyle: 'm'
 

@@ -168,6 +168,15 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     font-family: 'Arial', sans-serif !important;
   }
 
+  .tl-text-shape__wrapper[data-font='draw'] {
+    font-family: ${props => {
+      const fallbackFonts = props.CJKdrawFontLocales
+        .map(code => `"Resource Han Rounded ${code}"`)
+        .join(', ');
+      return `"tldraw_draw", ${fallbackFonts}, sans-serif`;
+    }};
+  }
+
   [data-side="bottom"][data-align="end"][data-state="open"][role="dialog"] {
     right: 3.5rem !important;
     bottom: 9.5rem !important;
