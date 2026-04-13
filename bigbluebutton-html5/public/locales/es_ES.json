@@ -1221,7 +1221,7 @@
     "app.lock-viewers.presentationPermissions.description": "Configura cómo se gestionan los derechos de presentación en la sesión.",
     "app.lock-viewers.presentationPermissions.moderatorOnly": "El presentador es asignado por un moderador",
     "app.lock-viewers.presentationPermissions.moderatorOnly.tooltip": "Solo los moderadores pueden asignar el rol de presentador a los participantes.",
-    "app.lock-viewers.presentationPermissions.requireApproval": "Allow participants to present with moderator approval",
+    "app.lock-viewers.presentationPermissions.requireApproval": "Permitir a los participantes presentar con aprobación del moderador",
     "app.lock-viewers.presentationPermissions.requireApproval.tooltip": "Participants can request to become presenter, but a moderator must approve the request.",
     "app.lock-viewers.presentationPermissions.freeForAll": "Allow participants to present freely",
     "app.lock-viewers.presentationPermissions.freeForAll.tooltip": "Any participant can take the presenter role without moderator approval.",
