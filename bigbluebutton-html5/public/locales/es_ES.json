@@ -1530,7 +1530,7 @@
     "app.externalVideo.autoPlayWarning": "Reproduzca el video para habilitar la sincronización de medios",
     "app.externalVideo.refreshLabel": "Refrescar reproductor de vídeo",
     "app.externalVideo.fullscreenLabel": "Reproductor de vídeo",
-    "app.externalVideo.noteLabelSupported": "Supports links from YouTube, Vimeo, Instructure Media, Twitch, and media file URLs (e.g. https://example.com/xy.mp4).",
+    "app.externalVideo.noteLabelSupported": "Admite enlaces de YouTube, Vimeo, Instructure Media, Twitch y URLs de archivos multimedia (p. ej. https://example.com/xy.mp4).",
     "app.externalVideo.noteLabelWarning": "Los vídeos compartidos no se incluyen en la grabación.",
     "app.externalVideo.subtitlesOn": "Apagar",
     "app.externalVideo.subtitlesOff": "Encender (si está disponible)",
