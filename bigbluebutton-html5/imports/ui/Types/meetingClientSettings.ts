@@ -21,6 +21,7 @@ export interface Public {
   notes: Notes
   layout: Layout
   pads: Pads
+  sharedNotes: SharedNotes
   media: Media
   stats: Stats
   presentation: Presentation
@@ -574,6 +575,12 @@ export interface Pads {
   url: string
 }
 
+export interface SharedNotes {
+  serverUrl: string
+  maxDocumentChars: number
+  maxLengthForContentUpdate: number
+}
+
 export interface Media {
   audio: Audio2
   screenshare: Screenshare2,
@@ -610,10 +617,10 @@ export interface Media {
 }
 
 export interface LiveKitPresetConfig {
-  width: number
-  height: number
-  maxBitrate: number
-  maxFramerate: number
+  width?: number
+  height?: number
+  maxBitrate?: number
+  maxFramerate?: number
   priority?: RTCPriorityType
 }
 
@@ -625,17 +632,25 @@ export interface LiveKitCameraSettings {
 export interface LiveKitScreenShareSettings {
   publishOptions?: TrackPublishOptions
   presets?: LiveKitPresetConfig[]
+  constraints?: Constraints
 }
 
 export interface LiveKitAudioSettings {
   publishOptions?: TrackPublishOptions
   unpublishOnMute?: boolean
   unpublishAfterMuteMs?: number
+  useLiveKitAudioState?: boolean
 }
+
+export type SelectiveSubscriptionConfig = {
+  enabled: boolean;
+  audioSubscriptionPoolSize: number;
+  muteDebounceMs: number;
+};
 
 export interface LiveKitSettings {
   url?: string
-  selectiveSubscription?: boolean
+  selectiveSubscription?: SelectiveSubscriptionConfig
   logLevel?: LogLevel
   roomOptions?: Partial<InternalRoomOptions>
   reconnectOnFatalFailures?: boolean

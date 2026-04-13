@@ -327,7 +327,11 @@ export const shareScreen = async (
     let stream;
     let contentType = CONTENT_TYPE_SCREENSHARE;
     if (options.stream == null) {
-      stream = await BridgeService.getScreenStream();
+      const isLiveKit = screenShareBridge.bridgeName === 'livekit';
+      const constraints = isLiveKit
+        ? window.meetingClientSettings.public.media?.livekit?.screenshare?.constraints
+        : undefined;
+      stream = await BridgeService.getScreenStream(constraints);
     } else {
       contentType = CONTENT_TYPE_CAMERA;
       stream = options.stream;

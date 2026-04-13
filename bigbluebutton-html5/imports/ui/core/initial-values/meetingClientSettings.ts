@@ -205,6 +205,11 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       timeoutBeforeRedirectOnMeetingEnd: 20000,
       showConnectionErrors: [3001, 3002, 3003, 3004, 3005, 3006],
     },
+    sharedNotes: {
+      serverUrl: '',
+      maxDocumentChars: 99999,
+      maxLengthForContentUpdate: 512,
+    },
     externalVideoPlayer: {
       enabled: true,
     },
@@ -644,7 +649,11 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
       livekit: {
         url: `wss://${window.location.hostname}/livekit`,
-        selectiveSubscription: false,
+        selectiveSubscription: {
+          enabled: true,
+          audioSubscriptionPoolSize: 0,
+          muteDebounceMs: 2500,
+        },
         logLevel: LogLevel.warn,
         reconnectOnFatalFailures: false,
         roomOptions: {
@@ -661,6 +670,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           },
           unpublishOnMute: false,
           unpublishAfterMuteMs: 5000,
+          useLiveKitAudioState: false,
         },
         camera: {
           publishOptions: {

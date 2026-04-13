@@ -356,6 +356,19 @@ const createEndpointTableData = [
     "description": (<>Pass a URL to an image which will then be visible in the area above the participants list if <code>displayBrandingArea</code> is set to <code>true</code> in bbb-html5's configuration</>)
   },
   {
+    "name": "sharedNotesEditor",
+    "required": false,
+    "type": "String",
+    "default": "etherpad",
+    "description": (<>Editor to be rendered in the shared-notes area: `blockNote` or `etherpad`</>)
+  },
+  {
+    "name": "sharedNotesInitialContentJsonUrl",
+    "required": false,
+    "type": "String",
+    "description": (<>Url from which the shared-notes will fetch the initial content (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise)</>)
+  },
+  {
     "name": "disabledFeatures",
     "required": false,
     "type": "String",
