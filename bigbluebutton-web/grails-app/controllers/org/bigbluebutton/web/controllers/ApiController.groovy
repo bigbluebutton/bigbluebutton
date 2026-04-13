@@ -294,7 +294,7 @@ class ApiController {
     boolean redirectClient = REDIRECT_RESPONSE
     if(!(validationResponse == null)) {
       if (validationResponse.getKey() == "checksumError") {
-        invalid(validationResponse.getKey(), validationResponse.getValue(), redirectClient);
+        invalid(validationResponse.getKey(), validationResponse.getValue(), redirectClient, "", false);
       } else {
         invalid(validationResponse.getKey(), validationResponse.getValue(), redirectClient, errorRedirectUrl);
       }
@@ -2043,7 +2043,7 @@ class ApiController {
   }
 
   //TODO: method added for backward compatibility, it will be removed in next versions after 0.8
-  private void invalid(key, msg, redirectResponse = false, errorRedirectUrl = "") {
+  private void invalid(key, msg, redirectResponse = false, errorRedirectUrl = "", useLogoutUrl = true) {
     // Note: This xml scheme will be DEPRECATED.
     log.debug CONTROLLER_NAME + "#invalid " + msg
     if (redirectResponse) {
@@ -2056,7 +2056,7 @@ class ApiController {
       JSONArray errorsJSONArray = new JSONArray(errors)
       log.debug "JSON Errors {}", errorsJSONArray.toString()
 
-      respondWithRedirect(errorsJSONArray, errorRedirectUrl)
+      respondWithRedirect(errorsJSONArray, errorRedirectUrl, useLogoutUrl)
     } else {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
@@ -2091,10 +2091,10 @@ class ApiController {
     return newURL;
   }
 
-  private void respondWithRedirect(errorsJSONArray, redirectUrl = "") {
+  private void respondWithRedirect(errorsJSONArray, redirectUrl = "", useLogoutUrl = true) {
     String uriString = paramsProcessorUtil.getDefaultLogoutUrl();
 
-    if (!StringUtils.isEmpty(params.logoutURL)) {
+    if (useLogoutUrl && !StringUtils.isEmpty(params.logoutURL)) {
       try {
         uriString = params.logoutURL;
       } catch (Exception e) {
