@@ -1043,7 +1043,7 @@
     "app.error.userLoggedOut": "El usuario tiene un Token de sesión no válido debido al cierre de sesión",
     "app.error.ejectedUser": "El usuario tiene un Token de sesión no válido debido a su expulsión",
     "app.error.joinedAnotherWindow": "Parece que esta sesión ya está abierta en otra ventana del navegador.",
-    "app.error.userBanned": "You have been removed for the remaining duration of this session.",
+    "app.error.userBanned": "Has sido eliminado durante el resto de esta sesión.",
     "app.error.leaveLabel": "Ingresar de nuevo",
     "app.error.fallback.presentation.title": "Ocurrió un error",
     "app.error.fallback.presentation.description": "Ha sido registrado. Por favor, intente volver a cargar la página.",
