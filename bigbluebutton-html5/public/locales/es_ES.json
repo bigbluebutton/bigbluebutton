@@ -246,7 +246,7 @@
     "app.userList.userOptions.enableNotes": "Las notas compartidas se han activado",
     "app.userList.userOptions.showUserList": "La lista de usuarios ahora se muestra a los espectadores",
     "app.userList.userOptions.disablePresenterRequest": "La solicitud de presentador ahora está desactivada para los espectadores",
-    "app.userList.userOptions.enablePresenterRequest": "Presenter request is now enabled for viewers",
+    "app.userList.userOptions.enablePresenterRequest": "La solicitud de presentador ahora está activada para los espectadores",
     "app.userList.userOptions.enablePresenterFreeForAll": "Participants can now take presenter without moderator approval",
     "app.userList.userOptions.enableOnlyModeratorWebcam": "Usted puede habilitar su webcam ahora. Todos le verán.",
     "app.userList.userOptions.savedNames.title": "Lista de usiarios en la sesión {meetingName} a {dateAndTime}",
