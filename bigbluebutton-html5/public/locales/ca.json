@@ -1201,7 +1201,7 @@
     "app.lock-viewers.microphoneLabel": "Comparteix micròfon",
     "app.lock-viewers.PublicChatLabel": "Send public messages",
     "app.lock-viewers.PrivateChatLabel": "Send private messages",
-    "app.lock-viewers.notesLabel": "Edit shared notes",
+    "app.lock-viewers.notesLabel": "Edita les notes compartides",
     "app.lock-viewers.userListLabel": "See other participants in the user list",
     "app.lock-viewers.ariaTitle": "Bloqueja la configuració de la modalitat del espectadors",
     "app.lock-viewers.button.apply": "Aplica",
