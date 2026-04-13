@@ -1073,7 +1073,7 @@
     "app.guest.guestInvalid": "El/La usuario/a invitado/a no es válido",
     "app.guest.meetingForciblyEnded": "No puedes unirte a una sesión que ya ha sido finalizada por la fuerza.",
     "app.guest.calculating": "Calcular la posición en la cola de espera",
-    "app.guest.messageFromHost": "Message from host",
+    "app.guest.messageFromHost": "Mensaje del anfitrión",
     "app.guest.waitingForApproval": "Waiting for approval",
     "app.userList.guest.waitingUsers": "Esperando usuarios",
     "app.userList.guest.waitingUsersTitle": "Gestión de usuarios",
