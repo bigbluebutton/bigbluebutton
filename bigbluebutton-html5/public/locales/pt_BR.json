@@ -192,7 +192,7 @@
     "app.userList.chatListItem.unreadSingular": "Uma nova mensagem",
     "app.userList.more": "Mais",
     "app.userList.chatListItem.unreadPlural": "{unreadCount} novas mensagens",
-    "app.userList.chatListItem.unknownParticipant": "Unknown participant",
+    "app.userList.chatListItem.unknownParticipant": "Participante desconhecido",
     "app.userList.menu.away": "Mudar para ausente",
     "app.userList.menu.notAway": "Mudar para ativo",
     "app.userList.menu.chat.label": "Iniciar bate-papo privado",
