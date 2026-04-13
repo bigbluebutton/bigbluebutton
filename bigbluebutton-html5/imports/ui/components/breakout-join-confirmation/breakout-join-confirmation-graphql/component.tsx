@@ -73,8 +73,20 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   const intl = useIntl();
   const [waiting, setWaiting] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
-  const [dismissed, setDismissed] = React.useState(false);
+  const [dismissedInvitationKey, setDismissedInvitationKey] = React.useState<string | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
+
+  const currentInvitationKey = React.useMemo(
+    () => breakouts
+      .filter((br) => br.showInvitation)
+      .map((br) => br.assignedAt ?? '')
+      .sort()
+      .join(','),
+    [breakouts],
+  );
+  const isDismissed = dismissedInvitationKey !== null
+    && dismissedInvitationKey !== ''
+    && dismissedInvitationKey === currentInvitationKey;
 
   const uniqueMatch = (arr: BreakoutRoom[], predicate: (item: BreakoutRoom) => boolean) => {
     const matches = arr.filter(predicate);
@@ -122,9 +134,9 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
 
   const handleClose = useCallback(() => {
     setIsOpen(false);
-    setDismissed(true);
+    setDismissedInvitationKey(currentInvitationKey);
     callHandleInviteDismissedAt();
-  }, [callHandleInviteDismissedAt]);
+  }, [callHandleInviteDismissedAt, currentInvitationKey]);
 
   const handleJoinBreakoutConfirmation = useCallback(() => {
     stopMediaOnMainRoom(presenter);
@@ -139,7 +151,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
         if (win) setBreakoutWindowRef(win);
       }
       setIsOpen(false);
-      setDismissed(true);
+      setDismissedInvitationKey(currentInvitationKey);
     } else {
       const selectedBreakout = breakouts.find(
         ({ breakoutRoomMeetingId }) => breakoutRoomMeetingId === selectValue,
@@ -153,7 +165,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
         if (win2) setBreakoutWindowRef(win2);
       }
       setIsOpen(false);
-      setDismissed(true);
+      setDismissedInvitationKey(currentInvitationKey);
     }
   }, [breakouts, selectValue, presenter, stopMediaOnMainRoom, freeJoin]);
 
@@ -205,10 +217,10 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   }, [breakouts, waiting]);
 
   useEffect(() => {
-    if (breakouts?.length > 0 && !currentUserJoined && !dismissed) {
+    if (breakouts?.length > 0 && !currentUserJoined && !isDismissed) {
       setIsOpen(true);
     }
-  }, [breakouts, currentUserJoined, dismissed]);
+  }, [breakouts, currentUserJoined, isDismissed]);
 
   useEffect(() => {
     if (freeJoin) {
