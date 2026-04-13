@@ -1210,7 +1210,7 @@
     "app.lock-viewers.hideViewersCursor": "Veure els cursors dels altres participants",
     "app.lock-viewers.hideAnnotationsLabel": "Veure les anotacions d'altres espectadors",
     "app.lock-viewers.disablePresenterRequestLabel": "Requesting to become presenter.",
-    "app.lock-viewers.tabs.guestPolicy": "Guest Policy",
+    "app.lock-viewers.tabs.guestPolicy": "Política de convidats",
     "app.lock-viewers.tabs.participantPermissions": "Participant Permissions",
     "app.lock-viewers.tabs.presentationPermissions": "Presentation Policy",
     "app.lock-viewers.guestPolicy.title": "Guest Policy",
