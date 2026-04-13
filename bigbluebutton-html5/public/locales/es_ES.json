@@ -1233,7 +1233,7 @@
     "app.guest-policy.button.alwaysAcceptAuth": "Aceptar siempre a los autenticados",
     "app.guest-policy.button.alwaysDeny": "Denegar siempre",
     "app.guest-policy.policyBtnDesc": "Establece la política de invitados de la sesión",
-    "app.guest-policy.feedbackMessage": "The guest policy is now: {policy}",
+    "app.guest-policy.feedbackMessage": "La política de invitados ahora es: {policy}",
     "app.connection-status.ariaTitle": "Conexión en estado modal",
     "app.connection-status.title": "Estado de la conexión",
     "app.connection-status.description": "Ver el estado de conexión del usuario",
