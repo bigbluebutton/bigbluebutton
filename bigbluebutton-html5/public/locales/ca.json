@@ -1074,7 +1074,7 @@
     "app.guest.meetingForciblyEnded": "No es pot entrar en una sessió a la qual ja s'ha posat fi",
     "app.guest.calculating": "Calcular la posició en la cua d'espera",
     "app.guest.messageFromHost": "Missatge de l’amfitrió",
-    "app.guest.waitingForApproval": "Waiting for approval",
+    "app.guest.waitingForApproval": "Esperant aprovació",
     "app.userList.guest.waitingUsers": "Esperant usuaris/àries",
     "app.userList.guest.waitingUsersTitle": "Gestió d'usuaris",
     "app.userList.guest.optionTitle": "Revisar els usuaris pendents",
