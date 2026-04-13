@@ -1196,7 +1196,7 @@
     "app.lock-viewers.restrictParticipantsLabel": "Restringir a los participantes de...",
     "app.lock-viewers.featuresLable": "Característica",
     "app.lock-viewers.lockStatusLabel": "Estado",
-    "app.lock-viewers.webcamLabel": "Share webcam",
+    "app.lock-viewers.webcamLabel": "Compartir webcam",
     "app.lock-viewers.otherViewersWebcamLabel": "See other participants' webcam",
     "app.lock-viewers.microphoneLabel": "Share microphone",
     "app.lock-viewers.PublicChatLabel": "Send public messages",
