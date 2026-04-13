@@ -311,6 +311,9 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
               onClick={handleEnterRoom}
               data-test={isCurrentlyInRoom ? 'alreadyConnected' : 'joinRoom'}
               disabled={isCurrentlyInRoom}
+              aria-label={isCurrentlyInRoom
+                ? intl.formatMessage(intlMessages.alreadyConnected)
+                : intl.formatMessage(intlMessages.joinRoom)}
             >
               {isCurrentlyInRoom
                 ? intl.formatMessage(intlMessages.alreadyConnected)
@@ -348,6 +351,9 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
             onClick={handleEnterRoom}
             data-test={isCurrentlyInRoom ? 'alreadyConnected' : 'joinRoom'}
             disabled={isCurrentlyInRoom}
+            aria-label={isCurrentlyInRoom
+              ? intl.formatMessage(intlMessages.alreadyConnected)
+              : intl.formatMessage(intlMessages.joinRoom)}
           >
             {isCurrentlyInRoom
               ? intl.formatMessage(intlMessages.alreadyConnected)
@@ -416,6 +422,11 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
                       || breakout.isUserCurrentlyInRoom
                     }
                     onClick={() => handleFreeJoinRoom(breakout)}
+                    aria-label={(() => {
+                      if (breakout.isUserCurrentlyInRoom) return intl.formatMessage(intlMessages.alreadyConnected);
+                      if (isCurrent) return intl.formatMessage(intlMessages.joinRoom);
+                      return intl.formatMessage(intlMessages.requestToJoin);
+                    })()}
                   >
                     {(() => {
                       if (breakout.isUserCurrentlyInRoom) return intl.formatMessage(intlMessages.alreadyConnected);

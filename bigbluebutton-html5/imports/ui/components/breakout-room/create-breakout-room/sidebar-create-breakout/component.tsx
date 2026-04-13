@@ -492,7 +492,12 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
         />
       </Styled.ControlsRow>
 
-      <Styled.MoreOptionsToggle data-test="moreOptionsToggle" onClick={() => setMoreOptionsOpen(!moreOptionsOpen)}>
+      <Styled.MoreOptionsToggle
+        data-test="moreOptionsToggle"
+        onClick={() => setMoreOptionsOpen(!moreOptionsOpen)}
+        aria-label={intl.formatMessage(intlMessages.moreOptions)}
+        aria-expanded={moreOptionsOpen}
+      >
         <Styled.ExpandIcon $expanded={moreOptionsOpen}>
           <ExpandMoreIcon />
         </Styled.ExpandIcon>
@@ -523,11 +528,17 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
               <Styled.InfoGotItBtn
                 type="button"
                 onClick={() => setInfoBannerVisible(false)}
+                aria-label={intl.formatMessage(intlMessages.infoBannerGotIt)}
               >
                 {intl.formatMessage(intlMessages.infoBannerGotIt)}
               </Styled.InfoGotItBtn>
             </Styled.InfoText>
-            <Styled.InfoClose onClick={() => setInfoBannerVisible(false)}>✕</Styled.InfoClose>
+            <Styled.InfoClose
+              onClick={() => setInfoBannerVisible(false)}
+              aria-label={intl.formatMessage(intlMessages.dismissLabel)}
+            >
+              ✕
+            </Styled.InfoClose>
           </Styled.InfoBanner>
         )}
 
@@ -561,6 +572,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
             <Styled.StartButton
               disabled={!canStart}
               onClick={handleCreateRoom}
+              aria-label={intl.formatMessage(intlMessages.startLabel)}
               data-test="createBreakoutRoomsButton"
             >
               {intl.formatMessage(intlMessages.startLabel)}
@@ -572,6 +584,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
           <Styled.StartButton
             disabled={!canStart}
             onClick={handleCreateRoom}
+            aria-label={intl.formatMessage(intlMessages.startLabel)}
             data-test="createBreakoutRoomsButton"
           >
             {intl.formatMessage(intlMessages.startLabel)}

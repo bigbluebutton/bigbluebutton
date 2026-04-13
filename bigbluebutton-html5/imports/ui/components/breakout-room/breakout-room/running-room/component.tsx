@@ -96,6 +96,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.stopListeningToRoom',
     description: 'Stop listening to breakout room audio',
   },
+  sendMessage: {
+    id: 'app.chat.submitLabel',
+    description: 'Send message button label',
+  },
 });
 
 interface RunningBreakoutRoomProps {
@@ -687,6 +691,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
               type="button"
               onClick={handleMegaphoneSend}
               disabled={!megaphoneMessage.trim()}
+              aria-label={intl.formatMessage(intlMessages.sendMessage)}
               data-test="sendMessageButton"
             >
               <Icon iconName="send" />
