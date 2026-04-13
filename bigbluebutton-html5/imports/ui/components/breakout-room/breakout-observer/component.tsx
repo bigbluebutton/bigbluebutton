@@ -107,6 +107,7 @@ const BreakoutRoomsAppObserver = () => {
     }
     if (isBreakoutMeeting && isBreakoutRoomsEnabled) {
       registerApp(BREAKOUTS_APP_KEY, intl.formatMessage(breakoutLabel), BREAKOUTS_ICON);
+      pinApp(BREAKOUTS_APP_KEY);
     }
   }, [hasBreakoutRoom, isBreakoutMeeting, isModerator, isBreakoutRoomsEnabled]);
 
@@ -132,9 +133,7 @@ const BreakoutRoomsAppObserver = () => {
       && isBreakoutRoomsEnabled
       && (isBreakoutMeeting || (!isBreakoutMeeting && (isModerator || (!isModerator && hasBreakoutRoom))))) {
       registerApp(BREAKOUTS_APP_KEY, intl.formatMessage(breakoutLabel), BREAKOUTS_ICON);
-      if (!isBreakoutMeeting) {
-        pinApp(BREAKOUTS_APP_KEY);
-      }
+      pinApp(BREAKOUTS_APP_KEY);
     }
 
     if (breakoutsAreRegistered
