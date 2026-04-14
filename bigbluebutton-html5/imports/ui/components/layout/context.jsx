@@ -956,6 +956,19 @@ const reducer = (state, action) => {
     }
 
     // PRESENTATION
+    case ACTIONS.SET_PRESENTATION_CONTENT_UPDATED: {
+      const { presentation } = state.input;
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          presentation: {
+            ...presentation,
+            contentUpdatedAt: Date.now(),
+          },
+        },
+      };
+    }
     case ACTIONS.SET_PRESENTATION_IS_OPEN: {
       const { presentation } = state.input;
       if (presentation.isOpen === action.value) {
@@ -1583,6 +1596,9 @@ const updatePresentationAreaContent = (
     layoutContextDispatch({
       type: ACTIONS.SET_PRESENTATION_IS_OPEN,
       value: shouldOpenPresentation,
+    });
+    layoutContextDispatch({
+      type: ACTIONS.SET_PRESENTATION_CONTENT_UPDATED,
     });
   }
 };
