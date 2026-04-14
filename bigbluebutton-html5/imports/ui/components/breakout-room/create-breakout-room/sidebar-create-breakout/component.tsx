@@ -292,17 +292,6 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
       }
     }
 
-    const initialAssignments: Record<string, { roomSequence: number; userName: string }> = {};
-    for (let i = 0; i < numberOfRooms; i += 1) {
-      const rn = i + 1;
-      const rm = rooms[rn];
-      if (rm && rm.users.length > 0) {
-        rm.users.forEach((u) => {
-          initialAssignments[u.userId] = { roomSequence: rn, userName: u.name };
-        });
-      }
-    }
-
     logger.info({
       logCode: 'breakout_create_rooms',
       extraInfo: { rooms: roomsArray },

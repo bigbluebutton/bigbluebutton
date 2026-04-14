@@ -102,6 +102,7 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
   const intl = useIntl();
   const [timeSync] = useTimeSync();
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const cooldownTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [remainingTime, setRemainingTime] = useState<number>(0);
   const [requestedBreakoutRoomId, setRequestedBreakoutRoomId] = useState<string>('');
 
@@ -173,6 +174,10 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
     };
   }, [breakoutDurationInSeconds, breakoutStartedAt, timeSync]);
 
+  useEffect(() => () => {
+    if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current);
+  }, []);
+
   useEffect(() => {
     if (requestedBreakoutRoomId) {
       const breakout = breakouts.find(
@@ -217,7 +222,7 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
       );
 
       setCallModeratorCooldown(true);
-      setTimeout(() => setCallModeratorCooldown(false), CALL_MODERATOR_COOLDOWN_MS);
+      cooldownTimerRef.current = setTimeout(() => setCallModeratorCooldown(false), CALL_MODERATOR_COOLDOWN_MS);
     }).catch(() => {
       notify(
         intl.formatMessage(intlMessages.callModeratorCooldown),

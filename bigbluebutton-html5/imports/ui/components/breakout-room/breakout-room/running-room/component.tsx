@@ -520,6 +520,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                 .map((user: { userId: string; name: string }) => (
                   <Styled.UserItem
                     key={user.userId}
+                    data-test="draggableUser"
                     draggable
                     onDragStart={(ev) => dragStart(ev, user.userId, meetingId, user.name)}
                   >
@@ -633,6 +634,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                         <Styled.RoomCardUserItem
                           key={participant.userId}
                           id={`running-${participant.userId}-${breakout.breakoutRoomMeetingId}`}
+                          data-test="draggableUser"
                           draggable
                           onDragStart={(ev) => dragStart(
                             ev,
@@ -640,7 +642,6 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                             breakout.breakoutRoomMeetingId,
                             participant.user.name,
                           )}
-                          data-test={`userNameBreakoutRoom-${roomName}`}
                         >
                           <span>
                             {participant.user.name}

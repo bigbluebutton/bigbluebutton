@@ -115,6 +115,7 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
               <Styled.UserItem
                 key={user.userId}
                 id={`${user.userId}-0`}
+                data-test="draggableUser"
                 draggable
                 onDragStart={dragStart}
                 onDragEnd={dragEnd}
@@ -205,6 +206,7 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
                     <Styled.RoomCardUserItem
                       key={user.userId}
                       id={`${user.userId}-${roomNum}`}
+                      data-test="draggableUser"
                       draggable
                       onDragStart={dragStart}
                       onDragEnd={dragEnd}
