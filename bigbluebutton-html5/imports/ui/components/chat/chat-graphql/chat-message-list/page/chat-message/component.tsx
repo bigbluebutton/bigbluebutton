@@ -411,7 +411,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   const formattedTime = intl.formatTime(dateTime, {
     hour: 'numeric',
     minute: 'numeric',
-    hour12: false,
   });
   const editTime = message.editedAt ? new Date(message.editedAt) : null;
   const deleteTime = message.deletedAt ? new Date(message.deletedAt) : null;
@@ -785,14 +784,14 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
             })}
             {' '}
             &nbsp;
-            <FormattedTime value={dateTime} hour12={false} />
+            <FormattedTime value={dateTime} />
           </PluginInformationMetadata>
         )
       }
       {((sameSender || (isSystemSender && !messagesWithHeaders)) && !isCustomMessageFromPlugin) && (
         <ChatContentFooter>
           {!deleteTime && editTime && (
-            <Tooltip title={intl.formatTime(editTime, { hour12: false })}>
+            <Tooltip title={intl.formatTime(editTime)}>
               <EditLabel>
                 <Icon iconName="pen_tool" />
                 <span>{intl.formatMessage(intlMessages.edited)}</span>
@@ -800,7 +799,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
             </Tooltip>
           )}
           <ChatTime>
-            <FormattedTime value={dateTime} hour12={false} />
+            <FormattedTime value={dateTime} />
           </ChatTime>
         </ChatContentFooter>
       )}
