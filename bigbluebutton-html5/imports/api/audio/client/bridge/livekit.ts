@@ -21,7 +21,7 @@ import {
   filterSupportedConstraints,
   doGUM,
 } from '/imports/api/audio/client/bridge/service';
-import { liveKitRoom, getLKStats, LK_FATAL_ERROR_EVENT } from '/imports/ui/services/livekit';
+import { liveKitRoom, LK_FATAL_ERROR_EVENT } from '/imports/ui/services/livekit';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 
 const BRIDGE_NAME = 'livekit';
@@ -1325,11 +1325,6 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
   // eslint-disable-next-line class-methods-use-this
   getPeerConnection(): RTCPeerConnection | null {
     return null;
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  async getStats(): Promise<Map<string, unknown>> {
-    return getLKStats();
   }
 
   async joinAudio(

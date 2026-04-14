@@ -26,7 +26,6 @@ import {
 } from 'livekit-client';
 import {
   liveKitRoom,
-  getLKStats,
 } from '/imports/ui/services/livekit';
 import { LiveKitPresetConfig } from 'imports/ui/Types/meetingClientSettings';
 import {
@@ -558,11 +557,6 @@ export default class LiveKitScreenshareBridge {
   // eslint-disable-next-line class-methods-use-this
   getPeerConnection() {
     return null;
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  async getStats(): Promise<Map<string, unknown>> {
-    return getLKStats();
   }
 
   setVolume(volume: number): number {
