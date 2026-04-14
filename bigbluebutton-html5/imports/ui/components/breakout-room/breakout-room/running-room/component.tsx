@@ -643,7 +643,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                             participant.user.name,
                           )}
                         >
-                          <span>
+                          <span data-test={`userNameBreakoutRoom-${roomName}`}>
                             {participant.user.name}
                             {participant.userId === userId
                               ? ` (${intl.formatMessage(intlMessages.you)})`
