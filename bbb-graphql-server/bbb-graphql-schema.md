@@ -572,7 +572,6 @@ Permission: Restricted to Presenter
 - `pinnedMessageId`
 ### Relationships:
 - `participant: Object` [Type User](#type-user)
-- `pinnedMessages: Array` [Type Public Chat Message](#type-chat_message_public)
 
 ## Type: pluginDataChannelEntry
 ### Fields:

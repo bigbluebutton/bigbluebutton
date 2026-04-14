@@ -148,7 +148,6 @@ object ChatMessageDAO {
   }
 
   def unpin(meetingId: String, chatId: String, messageId: String) = {
-    val now = new java.sql.Timestamp(System.currentTimeMillis())
     DatabaseConnection.enqueue(
       TableQuery[ChatMessageDbTableDef]
         .filter(_.meetingId === meetingId)

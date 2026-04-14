@@ -263,33 +263,22 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
 
   const [chatSetPinned] = useMutation(CHAT_SET_PINNED_MUTATION);
   const pinMessageAction = useCallback(() => {
-    const unpinPromise = currentPinnedMessageId && currentPinnedMessageId !== message.messageId
-      ? chatSetPinned({
-        variables: {
-          chatId: message.chatId,
-          messageId: currentPinnedMessageId,
-          pinned: false,
+    chatSetPinned({
+      variables: {
+        chatId: message.chatId,
+        messageId: message.messageId,
+        pinned: true,
+      },
+    }).catch((e) => {
+      logger.error({
+        logCode: 'chat_set_pinned_error',
+        extraInfo: {
+          errorName: e?.name,
+          errorMessage: e?.message,
         },
-      })
-      : Promise.resolve();
-    unpinPromise
-      .then(() => chatSetPinned({
-        variables: {
-          chatId: message.chatId,
-          messageId: message.messageId,
-          pinned: true,
-        },
-      }))
-      .catch((e) => {
-        logger.error({
-          logCode: 'chat_set_pinned_error',
-          extraInfo: {
-            errorName: e?.name,
-            errorMessage: e?.message,
-          },
-        }, `Pinning the message failed: ${e?.message}`);
-      });
-  }, [chatSetPinned, message.chatId, message.messageId, currentPinnedMessageId]);
+      }, `Pinning the message failed: ${e?.message}`);
+    });
+  }, [chatSetPinned, message.chatId, message.messageId]);
 
   const unpinMessageAction = useCallback(() => {
     chatSetPinned({
@@ -1189,7 +1178,6 @@ const propsToCompare = [
   'chatEditEnabled',
   'chatReactionsEnabled',
   'chatReplyEnabled',
-  'chatPinEnabled',
   'focused',
   'editing',
   'keyboardFocused',
@@ -1200,7 +1188,7 @@ const propsToCompare = [
   'message.user.currentlyInMeeting',
   'message.reactions.length',
   'message.replyToMessage.message',
-  'message.pinnedAt',
+  'message.pinnedBy',
 ] as const;
 
 function areChatMessagesEqual(prevProps: ChatMessageProps, nextProps: ChatMessageProps) {

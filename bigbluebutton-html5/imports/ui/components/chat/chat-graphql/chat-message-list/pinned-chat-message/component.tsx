@@ -62,6 +62,10 @@ const intlMessages = defineMessages({
     id: 'app.chat.pinnedMessages.tooltipCollapse',
     description: 'Tooltip for collapse button in pinned messages section',
   },
+  goToMessage: {
+    id: 'app.chat.pinnedMessages.goToMessage',
+    description: 'Aria label for navigating to the pinned message',
+  },
 });
 
 interface PinnedMessageComponentProps {
@@ -175,12 +179,13 @@ export default function PinnedMessageComponent({ messages, isModerator }: Pinned
 
       <Styled.MessagePreview
         $collapsed={!isExpanded}
-        aria-hidden
+        aria-label={intl.formatMessage(intlMessages.goToMessage)}
         onClick={(e) => handleNavigateToMessage(e)}
         role="button"
         tabIndex={0}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
             handleNavigateToMessage(e);
           }
         }}
