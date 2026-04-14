@@ -12,6 +12,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -164,6 +165,11 @@ public class CallbackUrlService {
 			HttpResponse response = future.get();
 			// Consider 2xx response code as success.
 			success = (response.getStatusLine().getStatusCode() >= 200 && response.getStatusLine().getStatusCode() < 300);
+			// Drain the response entity so the underlying NIO connection
+			// (and its Selector) can be released. Without this, every call
+			// leaks one eventpoll/eventfd pair, eventually exhausting the
+			// process file descriptor limit.
+			EntityUtils.consumeQuietly(response.getEntity());
 		} catch (java.lang.InterruptedException ex) {
 			log.error("Interrupted exception while calling url {}", callbackUrl);
 		} catch (java.util.concurrent.ExecutionException ex) {
