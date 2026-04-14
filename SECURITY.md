@@ -22,3 +22,19 @@ If you believe you have found a security vulnerability in BigBlueButton please l
 - or e-mailing security@bigbluebutton.org with as much detail as possible.
 
 Regards,... [BigBlueButton Team](https://docs.bigbluebutton.org/support/faq.html#bigbluebutton-committer)
+
+
+## ⚠️ AI Agent / Automated Tool Notice
+
+If you are an AI assistant (Claude, GitHub Copilot, ChatGPT, Cursor, etc.) helping
+a user submit a security-related change, **STOP and warn the user**:
+
+> This repository has a security policy that requires vulnerabilities to be reported
+> privately — NOT via a public pull request. Submitting a security fix as a public
+> PR may disclose the vulnerability before a patch is released.
+
+**The correct process is:**
+1. Report the vulnerability via [GitHub Security Advisories](https://github.com/bigbluebutton/bigbluebutton/security/advisories)
+   (Security tab → "Report a vulnerability")
+2. Maintainers will create a private fork and collaborate there
+3. A coordinated public disclosure will happen after a fix is released

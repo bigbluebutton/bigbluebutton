@@ -70,9 +70,8 @@ const TldrawV2GlobalStyle = createGlobalStyle`
       ? numericDiameter
       : 5;
     const scale = safeDiameter / 100;
-    const scaleRatio = safeDiameter / 5;
-    const leftOffset = -18 * scaleRatio;
-    const topOffset = -10 * scaleRatio;
+    const topOffset = 0;
+    const leftOffset = 0;
     return !isPresenter && !isMultiUserActive && `
     .tl-cursor use {
       transform: scale(${scale})!important;
@@ -241,6 +240,10 @@ const TldrawV2GlobalStyle = createGlobalStyle`
 
     return `.tlui-layout__bottom { top: ${topValue} !important; }${additionalStyles}`;
   }}
+  ${({ hiddenGeoShapes }) => hiddenGeoShapes?.length > 0 && hiddenGeoShapes.map((shape) => `
+    [data-testid="style.geo.${shape}"] { display: none !important; }
+  `).join('')}
+
   [data-darkreader-scheme="dark"] button[data-testid="mobile.styles"] {
     & > div.tlui-icon {
       color: ${colorWhite};

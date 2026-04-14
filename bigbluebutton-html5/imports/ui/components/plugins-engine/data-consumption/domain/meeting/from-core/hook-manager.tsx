@@ -20,8 +20,8 @@ const MeetingHookContainer: React.FunctionComponent<
 ) => {
   const previousMeeting = useRef<GraphqlDataHookSubscriptionResponse<Partial<Meeting>> | null>(null);
 
-  const { data: meeting, numberOfUses } = props;
-  const previousNumberOfUses = usePreviousValue(numberOfUses);
+  const { data: meeting, version } = props;
+  const previousVersion = usePreviousValue(version);
   const updateMeetingForPlugin = () => {
     const meetingProjection: PluginSdk.GraphqlResponseWrapper<
     PluginSdk.Meeting> = formatMeetingResponseFromGraphql(
@@ -46,11 +46,11 @@ const MeetingHookContainer: React.FunctionComponent<
     }
   }, [meeting]);
   useEffect(() => {
-    const previousNumberOfUsesValue = previousNumberOfUses || 0;
-    if (numberOfUses > previousNumberOfUsesValue) {
+    const previousVersionValue = previousVersion ?? 0;
+    if (version > previousVersionValue) {
       updateMeetingForPlugin();
     }
-  }, [numberOfUses]);
+  }, [version]);
 
   return null;
 };

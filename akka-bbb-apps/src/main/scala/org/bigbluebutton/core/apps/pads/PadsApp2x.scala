@@ -43,6 +43,8 @@ class PadsApp2x(implicit val context: ActorContext)
   extends PadGroupCreatedEvtMsgHdlr
   with PadCreateReqMsgHdlr
   with PadCreatedEvtMsgHdlr
+  with BNSharedNotesCreatedEvtMsgHdlr
+  with BNSharedNotesUpdatedEvtMsgHdlr
   with PadCreateSessionReqMsgHdlr
   with PadSessionCreatedEvtMsgHdlr
   with PadSessionDeletedSysMsgHdlr

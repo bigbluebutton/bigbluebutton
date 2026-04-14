@@ -585,6 +585,7 @@ class RedisRecorderActor(
     val ev = new PadCreatedRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setPadId(msg.body.padId)
+    ev.setSharedNotesEditor(msg.body.sharedNotesEditor)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
