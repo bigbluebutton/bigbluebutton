@@ -1191,7 +1191,7 @@
     "app.shortcut-help.duplicate": "Duplicar",
     "app.shortcut-help.gesture": "Gestos",
     "app.shortcut-help.fingerTap": "toque com o dedo",
-    "app.lock-viewers.title": "Permissions and Policies",
+    "app.lock-viewers.title": "Permissões e Políticas",
     "app.lock-viewers.description": "Restringir participantes do uso de funcionalidades específicas.",
     "app.lock-viewers.restrictParticipantsLabel": "Restringir participantes de...",
     "app.lock-viewers.featuresLable": "Funcionalidade",
