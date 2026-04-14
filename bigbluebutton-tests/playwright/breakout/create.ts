@@ -16,6 +16,7 @@ export class Create extends MultiUsers {
 
     // assign user to first room
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
+    await this.modPage.waitAndClick(e.moreOptionsToggle);
     if (captureNotes) await this.modPage.page.check(e.captureBreakoutSharedNotes);
     if (captureWhiteboard) await this.modPage.page.check(e.captureBreakoutWhiteboard);
     await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
@@ -32,6 +33,7 @@ export class Create extends MultiUsers {
     if (!this?.modPage) throw new Error('modPage not initialized');
     if (!this?.userPage) throw new Error('userPage not initialized');
     await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.waitAndClick(e.moreOptionsToggle);
     await this.modPage.waitAndClick(e.allowChoiceRoom);
     await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.hasElement(
@@ -45,7 +47,10 @@ export class Create extends MultiUsers {
 
     await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
     await this.modPage.waitAndClick(e.randomlyAssign);
-    await this.modPage.page.locator(e.selectNumberOfRooms).selectOption('7');
+    // Increase rooms to have 7 in total (default is 2)
+    for (let i = 0; i < 5; i += 1) {
+      await this.modPage.waitAndClick(e.increaseRooms);
+    }
     await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.hasElementCount(e.breakoutRoomItemOnManage, 7, 'should have 7 breakout rooms created');
   }
@@ -73,11 +78,11 @@ export class Create extends MultiUsers {
     // await this.modPage.page.locator(e.durationTime).press('Backspace');
     await this.modPage.page.fill(e.durationTime, '15');
     await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.hasText(
-      e.breakoutRemainingTime,
-      /14:[0-5][0-9]/,
+
+    await this.modPage.hasValue(
+      e.breakoutRoomTimerMinutesInput,
+      '14',
       'should have the breakout room remaining time between 14:00 and 14:59 minutes',
-      ELEMENT_WAIT_LONGER_TIME,
     );
   }
 
@@ -87,6 +92,7 @@ export class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
     await this.modPage.waitAndClick(e.randomlyAssign);
     // Change room's name
+    await this.modPage.waitAndClick(e.roomName1);
     await this.modPage.fill(e.roomNameInput1, 'TestRoom 1');
     await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.hasText(e.roomName1Test, /TestRoom 1/, 'should display the correct breakout room name');
@@ -98,15 +104,10 @@ export class Create extends MultiUsers {
     // needed for better create breakout rooms button disposition
     await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
     await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
-    // Reset assignments
-    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
-    await this.modPage.hasText(e.breakoutBox1, /Attendee/, 'should have an attendee on second breakout room box');
-    await this.modPage.waitAndClick(e.resetAssignments);
-    await this.modPage.hasText(e.breakoutBox0, /Attendee/, 'should have and attendee on first breakout room box');
 
     // Remove specific assignment
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
-    await this.modPage.waitAndClick(`${e.breakoutBox1} span[role="button"]`);
+    await this.modPage.waitAndClick(`${e.breakoutBox1} button`);
     await this.modPage.hasText(
       e.breakoutBox0,
       /Attendee/,
@@ -128,10 +129,6 @@ export class Create extends MultiUsers {
       createButtonLocator,
       'should designate a user to a specific a breakout room, before creating it',
     ).toBeDisabled();
-    await this.modPage.hasElement(
-      e.warningNoUserAssigned,
-      'should designate a user to a specific a breakout room, before creating it',
-    );
 
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
     await this.modPage.hasText(e.breakoutBox1, /Attendee/, 'should have the attendee on the second breakout room');

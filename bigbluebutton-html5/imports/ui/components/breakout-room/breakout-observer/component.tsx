@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   layoutDispatch,
   layoutSelectInput,
@@ -17,20 +17,10 @@ import {
 } from '/imports/ui/components/breakout-room/constants';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import CreateBreakoutRoomContainer from '../create-breakout-room/component';
 import { UserIsInvitedSubscriptionResponse } from '/imports/ui/components/breakout-room/breakout-rooms-list-item/types';
 import { useIsBreakoutRoomsEnabled } from '/imports/ui/services/features';
-import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const BreakoutRoomsAppObserver = () => {
-  const {
-    isOpen: isCreateBreakoutRoomModalOpen,
-    close: createBreakoutRoomClose,
-    open: createBreakoutRoomOpen,
-  } = useModalRegistration({
-    id: 'createBreakoutRoomModal',
-    priority: 'medium',
-  });
   const [hasOpenedPanel, setHasOpenedPanel] = useState(false);
 
   const { data: currentUser } = useCurrentUser((u: Partial<User>) => (
@@ -79,15 +69,6 @@ const BreakoutRoomsAppObserver = () => {
         name,
         icon,
         hasNotification: isNotAssigned && !hasOpenedPanel,
-        ...(!hasBreakoutRoom && {
-          onClick: () => {
-            if (isCreateBreakoutRoomModalOpen) {
-              createBreakoutRoomClose();
-            } else {
-              createBreakoutRoomOpen();
-            }
-          },
-        }),
       },
     });
   };
@@ -124,7 +105,10 @@ const BreakoutRoomsAppObserver = () => {
       registerApp(BREAKOUTS_APP_KEY, intl.formatMessage(breakoutLabel), BREAKOUTS_ICON);
       pinApp(BREAKOUTS_APP_KEY);
     }
-    createBreakoutRoomClose();
+    if (isBreakoutMeeting && isBreakoutRoomsEnabled) {
+      registerApp(BREAKOUTS_APP_KEY, intl.formatMessage(breakoutLabel), BREAKOUTS_ICON);
+      pinApp(BREAKOUTS_APP_KEY);
+    }
   }, [hasBreakoutRoom, isBreakoutMeeting, isModerator, isBreakoutRoomsEnabled]);
 
   useEffect(() => {
@@ -147,16 +131,16 @@ const BreakoutRoomsAppObserver = () => {
   useEffect(() => {
     if (!breakoutsAreRegistered
       && isBreakoutRoomsEnabled
-      && !isBreakoutMeeting
-      && (isModerator || (!isModerator && hasBreakoutRoom))) {
+      && (isBreakoutMeeting || (!isBreakoutMeeting && (isModerator || (!isModerator && hasBreakoutRoom))))) {
       registerApp(BREAKOUTS_APP_KEY, intl.formatMessage(breakoutLabel), BREAKOUTS_ICON);
       pinApp(BREAKOUTS_APP_KEY);
     }
 
     if (breakoutsAreRegistered
-      && (isBreakoutMeeting || (!isModerator
+      && !isBreakoutMeeting
+      && (!isModerator
         && !hasBreakoutRoom)
-      )) {
+    ) {
       unregisterApp(BREAKOUTS_APP_KEY);
       if (sidebarContentPanel === BREAKOUTS_APP_KEY) {
         layoutContextDispatch({
@@ -187,14 +171,7 @@ const BreakoutRoomsAppObserver = () => {
     }
   }, [intl, breakoutLabel]);
 
-  return (isCreateBreakoutRoomModalOpen && (
-    <CreateBreakoutRoomContainer
-      priority="medium"
-      setIsOpen={isCreateBreakoutRoomModalOpen ? createBreakoutRoomClose : createBreakoutRoomOpen}
-      isOpen={isCreateBreakoutRoomModalOpen}
-      setUpdateUsersWhileRunning={() => {}}
-    />
-  ));
+  return null;
 };
 
 export default BreakoutRoomsAppObserver;
