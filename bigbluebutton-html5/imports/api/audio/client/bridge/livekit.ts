@@ -22,7 +22,8 @@ import {
   doGUM,
   isWasmProcessingEnabled,
 } from '/imports/api/audio/client/bridge/service';
-import { liveKitRoom, getLKStats, LK_FATAL_ERROR_EVENT } from '/imports/ui/services/livekit';
+import { liveKitRoom, LK_FATAL_ERROR_EVENT } from '/imports/ui/services/livekit';
+import { getLiveKitStats } from '/imports/ui/services/livekit/stats';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { isWasmProcessorSupported } from '/imports/ui/components/audio/audio-processor/service';
 
@@ -1409,7 +1410,12 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
   // eslint-disable-next-line class-methods-use-this
   async getStats(additionalStatsTypes = []):
     Promise<{ transportStats: object, [key: string]: string | number | object | unknown }> {
-    const stats = await getLKStats();
+    const stats = await getLiveKitStats({
+      room: liveKitRoom,
+      kind: 'audio',
+      source: Track.Source.Microphone,
+      aggregateInbound: true,
+    });
     return this.parseStats({ stats, additionalStatsTypes });
   }
 

@@ -23,8 +23,8 @@ import {
 } from 'livekit-client';
 import {
   liveKitRoom,
-  getLKStats,
 } from '/imports/ui/services/livekit';
+import { getLiveKitStats } from '/imports/ui/services/livekit/stats';
 import { LiveKitPresetConfig } from 'imports/ui/Types/meetingClientSettings';
 
 interface Options {
@@ -488,7 +488,13 @@ export default class LiveKitScreenshareBridge {
     transportStats: object;
     [key: string]: unknown,
   }> {
-    const stats = await getLKStats();
+    const stats = await getLiveKitStats({
+      room: liveKitRoom,
+      kind: 'video',
+      source: Track.Source.ScreenShare,
+      aggregateInbound: true,
+      aggregateOutbound: true,
+    });
     return BridgeService.parseStats({
       stats,
       additionalStatsTypes,
