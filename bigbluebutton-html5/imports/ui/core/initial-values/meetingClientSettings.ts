@@ -813,7 +813,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     },
     whiteboard: {
       annotationsQueueProcessInterval: 60,
-      cursorInterval: 150,
+      cursorInterval: 100,
       pointerDiameter: 5,
       maxStickyNoteLength: 1000,
       maxNumberOfAnnotations: 300,

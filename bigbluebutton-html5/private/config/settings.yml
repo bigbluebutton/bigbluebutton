@@ -1086,7 +1086,7 @@ public:
       sharingWebcam: true
   whiteboard:
     annotationsQueueProcessInterval: 60
-    cursorInterval: 150
+    cursorInterval: 100
     allowInfiniteWhiteboard: false
     allowInfiniteWhiteboardInBreakouts: false
     pointerDiameter: 5
