@@ -1520,7 +1520,7 @@
     "app.createBreakoutRoom.notAssignedLabel": "Non fai parte di una stanza separata",
     "app.createBreakoutRoom.notAssignedHelp": "Chiedi al moderatore della sessione di aggiungerti in una stanza separata.",
     "app.createBreakoutRoom.moreOptions": "Altre opzioni",
-    "app.createBreakoutRoom.infoBannerTitle": "Did you know?",
+    "app.createBreakoutRoom.infoBannerTitle": "Lo sapevi?",
     "app.createBreakoutRoom.infoBannerText": "You need to drag the names of the users to add them to a Group Room.",
     "app.createBreakoutRoom.infoBannerGotIt": "Got it!",
     "app.createBreakoutRoom.start": "Start",
