@@ -17,7 +17,7 @@ object_relationships:
         remote_table:
           name: v_user_ref
           schema: public
-  - name: pinnedBy 
+  - name: pinnedBy
     using:
       manual_configuration:
         column_mapping:
