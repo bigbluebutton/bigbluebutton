@@ -1343,7 +1343,7 @@
     "app.videoDock.webcamPinDesc": "Pin the selected webcam",
     "app.videoDock.webcamFullscreenLabel": "Fullscreen webcam",
     "app.videoDock.webcamExitFullscreenLabel": "Exit fullscreen webcam",
-    "app.videoDock.webcamSqueezedButtonLabel": "Webcam options",
+    "app.videoDock.webcamSqueezedButtonLabel": "Squeezed webcam view",
     "app.videoDock.webcamUnpinLabel": "Unpin",
     "app.videoDock.webcamUnpinLabelDisabled": "Only moderators can unpin users",
     "app.videoDock.webcamUnpinDesc": "Unpin the selected webcam",
