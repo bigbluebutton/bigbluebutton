@@ -823,7 +823,7 @@
     "app.breakoutJoinConfirmation.title": "Entra nell'aula separata",
     "app.breakoutJoinConfirmation.message": "Vuoi partecipare",
     "app.breakoutJoinConfirmation.addedToRoom": "Sei stato aggiunto alla stanza {roomName} dal moderatore della sessione.",
-    "app.breakoutJoinConfirmation.willBeRedirected": "You will be redirected to your group room shortly.",
+    "app.breakoutJoinConfirmation.willBeRedirected": "Tra poco verrai reindirizzato alla tua stanza di gruppo.",
     "app.breakoutJoinConfirmation.enterRoom": "Entra nella stanza",
     "app.breakoutJoinConfirmation.confirmDesc": "Partecipa con te nell'aula separata",
     "app.breakoutJoinConfirmation.dismissLabel": "Annulla",
