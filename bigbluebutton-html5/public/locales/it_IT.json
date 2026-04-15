@@ -1522,7 +1522,7 @@
     "app.createBreakoutRoom.moreOptions": "Altre opzioni",
     "app.createBreakoutRoom.infoBannerTitle": "Lo sapevi?",
     "app.createBreakoutRoom.infoBannerText": "È necessario trascinare i nomi degli utenti per aggiungerli a una stanza di gruppo.",
-    "app.createBreakoutRoom.infoBannerGotIt": "Got it!",
+    "app.createBreakoutRoom.infoBannerGotIt": "Ho capito!",
     "app.createBreakoutRoom.start": "Start",
     "app.createBreakoutRoom.megaphone": "Send message",
     "app.createBreakoutRoom.megaphoneTooltip": "Send message to all rooms",
