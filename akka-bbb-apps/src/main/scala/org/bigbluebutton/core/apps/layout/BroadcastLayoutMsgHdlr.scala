@@ -23,8 +23,10 @@ trait BroadcastLayoutMsgHdlr extends RightsManagementTrait {
       if (LayoutsType.layoutsType.contains(msg.body.layout)) {
         val newlayout = LayoutsType.layoutsType.getOrElse(msg.body.layout, "")
         val isInitialSetup = Layouts.getCurrentLayout(liveMeeting.layouts).isEmpty
+        val pushLayoutJustEnabled = msg.body.pushLayout && !Layouts.getPushLayout(liveMeeting.layouts)
 
         val significantChange = !isInitialSetup && (
+          pushLayoutJustEnabled ||
           Layouts.getCurrentLayout(liveMeeting.layouts) != newlayout ||
           Layouts.getPresentationIsOpen(liveMeeting.layouts) != msg.body.presentationIsOpen ||
           Layouts.getCameraPosition(liveMeeting.layouts) != msg.body.cameraPosition ||
