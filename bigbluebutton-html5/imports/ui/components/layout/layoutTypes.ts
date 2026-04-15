@@ -127,6 +127,7 @@ interface CurrentSlide {
 interface Presentation {
     browserHeight?: number;
     browserWidth?: number;
+    contentUpdatedAt?: number;
     currentSlide?: CurrentSlide;
     isOpen?: boolean;
     slidesLength?: number;
