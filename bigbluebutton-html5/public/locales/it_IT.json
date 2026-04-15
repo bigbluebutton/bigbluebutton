@@ -822,7 +822,7 @@
     "app.audioNotificaion.reconnectingAsListenOnly": "Il microfono è stato bloccato per i partecipanti, puoi collegarti solo come ascoltatore",
     "app.breakoutJoinConfirmation.title": "Entra nell'aula separata",
     "app.breakoutJoinConfirmation.message": "Vuoi partecipare",
-    "app.breakoutJoinConfirmation.addedToRoom": "You have been added to {roomName} by the session moderator.",
+    "app.breakoutJoinConfirmation.addedToRoom": "Sei stato aggiunto alla stanza {roomName} dal moderatore della sessione.",
     "app.breakoutJoinConfirmation.willBeRedirected": "You will be redirected to your group room shortly.",
     "app.breakoutJoinConfirmation.enterRoom": "Enter the room",
     "app.breakoutJoinConfirmation.confirmDesc": "Partecipa con te nell'aula separata",
