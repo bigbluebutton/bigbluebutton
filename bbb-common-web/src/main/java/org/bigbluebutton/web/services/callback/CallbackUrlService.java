@@ -67,22 +67,29 @@ public class CallbackUrlService {
 		Runnable task = new Runnable() {
 			public void run() {
 				MeetingEndedEvent event = (MeetingEndedEvent) msg.callbackEvent;
-				if (fetchCallbackUrl(msg.callbackEvent.getCallbackUrl())) {
-					Map<String, Object> logData = new HashMap<>();
-					logData.put("meetingId", event.meetingid);
-					logData.put("externalMeetingId", event.extMeetingid);
-					logData.put("name",event.name);
-					logData.put("callback", event.getCallbackUrl());
-					logData.put("attempts", msg.numAttempts);
-					logData.put("logCode", "callback_success");
-					logData.put("description", "Callback successful.");
+				CallbackResult result = fetchCallbackUrl(msg.callbackEvent.getCallbackUrl());
+				switch (result.type()) {
+					case SUCCESS:
+						Map<String, Object> logData = new HashMap<>();
+						logData.put("meetingId", event.meetingid);
+						logData.put("externalMeetingId", event.extMeetingid);
+						logData.put("name",event.name);
+						logData.put("callback", event.getCallbackUrl());
+						logData.put("attempts", msg.numAttempts);
+						logData.put("logCode", "callback_success");
+						logData.put("description", "Callback successful.");
 
-					Gson gson = new Gson();
-					String logStr = gson.toJson(logData);
+						Gson gson = new Gson();
+						String logStr = gson.toJson(logData);
 
-					log.info(" --analytics-- data={}", logStr);
-				} else {
-					schedRetryCallback(msg);
+						log.info(" --analytics-- data={}", logStr);
+						break;
+					case TRANSIENT_FAILURE:
+						schedRetryCallback(msg, result.reason());
+						break;
+					case PERMANENT_FAILURE:
+						failValidationCallback(msg, result.reason());
+						break;
 				}
 			}
 		};
@@ -90,7 +97,7 @@ public class CallbackUrlService {
 		runExec.execute(task);
 	}
 
-	private void schedCallback(final DelayCallback msg, long delayInMillis, int numAttempt) {
+	private void schedCallback(final DelayCallback msg, long delayInMillis, int numAttempt, String reason) {
 		MeetingEndedEvent event = (MeetingEndedEvent) msg.callbackEvent;
 		Map<String, Object> logData = new HashMap<>();
 		logData.put("meetingId", event.meetingid);
@@ -101,6 +108,9 @@ public class CallbackUrlService {
 		logData.put("retryInMs", delayInMillis);
 		logData.put("logCode", "callback_failed_retry");
 		logData.put("description", "Callback failed but retrying.");
+		if (reason != null) {
+			logData.put("reason", reason);
+		}
 
 		Gson gson = new Gson();
 		String logStr = gson.toJson(logData);
@@ -111,7 +121,26 @@ public class CallbackUrlService {
 		receivedMessages.add(dc);
 	}
 
-	private void giveupCallback(final DelayCallback msg) {
+	private void failValidationCallback(final DelayCallback msg, String reason) {
+		MeetingEndedEvent event = (MeetingEndedEvent) msg.callbackEvent;
+		Map<String, Object> logData = new HashMap<>();
+		logData.put("meetingId", event.meetingid);
+		logData.put("externalMeetingId", event.extMeetingid);
+		logData.put("name",event.name);
+		logData.put("callback", event.getCallbackUrl());
+		logData.put("logCode", "callback_failed_validation");
+		logData.put("description", "Callback URL failed security validation; not retrying.");
+		if (reason != null) {
+			logData.put("reason", reason);
+		}
+
+		Gson gson = new Gson();
+		String logStr = gson.toJson(logData);
+
+		log.info(" --analytics-- data={}", logStr);
+	}
+
+	private void giveupCallback(final DelayCallback msg, String reason) {
 		MeetingEndedEvent event = (MeetingEndedEvent) msg.callbackEvent;
 		Map<String, Object> logData = new HashMap<>();
 		logData.put("meetingId", event.meetingid);
@@ -121,30 +150,31 @@ public class CallbackUrlService {
 		logData.put("attempts", msg.numAttempts);
 		logData.put("logCode", "callback_failed_give_up");
 		logData.put("description", "Callback failed and giving up.");
+		if (reason != null) {
+			logData.put("reason", reason);
+		}
 
 		Gson gson = new Gson();
 		String logStr = gson.toJson(logData);
 
 		log.info(" --analytics-- data={}", logStr);
 	}
-	private void schedRetryCallback(final DelayCallback msg) {
-		MeetingEndedEvent event = (MeetingEndedEvent) msg.callbackEvent;
-
+	private void schedRetryCallback(final DelayCallback msg, String reason) {
 		switch (msg.numAttempts) {
 			case 1:
-				schedCallback(msg, 30_000 /** 30sec **/, 2);
+				schedCallback(msg, 30_000 /** 30sec **/, 2, reason);
 				break;
 			case 2:
-				schedCallback(msg, 60_000 /** 1min **/, 3);
+				schedCallback(msg, 60_000 /** 1min **/, 3, reason);
 				break;
 			case 3:
-				schedCallback(msg, 120_000 /** 2min **/, 4);
+				schedCallback(msg, 120_000 /** 2min **/, 4, reason);
 				break;
 			case 4:
-				schedCallback(msg, 300_000 /** 5min **/, 5);
+				schedCallback(msg, 300_000 /** 5min **/, 5, reason);
 				break;
 			default:
-				giveupCallback(msg);
+				giveupCallback(msg, reason);
 			}
 	}
 
@@ -155,11 +185,11 @@ public class CallbackUrlService {
 		receivedMessages.add(dc);
 	}
 
-	private boolean fetchCallbackUrl(final String callbackUrl) {
+	private CallbackResult fetchCallbackUrl(final String callbackUrl) {
 		ValidatedUrl validatedUrl = callbackRedirectValidator.validateUrl(callbackUrl);
 		if (validatedUrl == null) {
-			log.error("Callback URL [{}] failed security validation; blocking request.", callbackUrl);
-			return false;
+			log.debug("Callback URL [{}] failed security validation; blocking request.", callbackUrl);
+			return CallbackResult.permanentFailure("Callback URL failed security validation");
 		}
 
 		final String pinnedHost = validatedUrl.host();
@@ -188,11 +218,15 @@ public class CallbackUrlService {
 
 			try (CloseableHttpResponse response = httpClient.execute(request)) {
 				int statusCode = response.getStatusLine().getStatusCode();
-				return (statusCode >= 200 && statusCode < 300);
+				if (statusCode >= 200 && statusCode < 300) {
+					return CallbackResult.success();
+				}
+				return CallbackResult.transientFailure(
+						"HTTP " + statusCode + " response from callback URL");
 			}
 		} catch (IOException e) {
-			log.error("IOException while calling callback url [{}]", callbackUrl, e);
-			return false;
+			log.debug("IOException while calling callback url [{}]", callbackUrl, e);
+			return CallbackResult.transientFailure("IOException: " + e.getMessage());
 		}
 	}
 
