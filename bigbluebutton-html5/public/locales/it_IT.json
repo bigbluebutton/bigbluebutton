@@ -1527,7 +1527,7 @@
     "app.createBreakoutRoom.megaphone": "Invia messaggio",
     "app.createBreakoutRoom.megaphoneTooltip": "Send message to all rooms",
     "app.createBreakoutRoom.finish": "Finish",
-    "app.createBreakoutRoom.durationOfBreakout": "Duration of Breakout Rooms",
+    "app.createBreakoutRoom.durationOfBreakout": "Durata delle stanze separate",
     "app.createBreakoutRoom.unassignedUsers": "Unassigned Users",
     "app.createBreakoutRoom.youAreInRoom": "You are in {roomName}.",
     "app.createBreakoutRoom.callModerator": "Call Moderators",
