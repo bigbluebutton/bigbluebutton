@@ -572,7 +572,7 @@ public class MeetingService implements MessageListener {
       meetings.put(m.getInternalId(), m);
       Map<String, Object> pluginsMap;
       ArrayList<Object> sharedNotesInitialContentMap = getSharedNotesInitialContent(m);
-      if (m.isBreakout()) {
+      if (m.isBreakout() || m.getDisabledFeatures().contains("plugins")) {
         pluginsMap = plugins;
       } else {
         pluginsMap = requestPluginManifests(m);
