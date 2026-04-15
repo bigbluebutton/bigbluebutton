@@ -45,6 +45,7 @@ const tick = async () => {
     const serverEpochSecStr = res.headers.get('X-Server-Epoch-Msec');
     const serverRequestId = res.headers.get('X-Request-Id');
     // I can't use logger here, so use console.log
+    // eslint-disable-next-line no-console
     console.log(
       `Worker RTT check: RTT=${networkRttInMs}ms, Server-Epoch-Msec=${serverEpochSecStr} (this log is client only)`,
       // Not log first execution time

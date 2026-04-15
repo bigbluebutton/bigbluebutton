@@ -649,7 +649,11 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
       livekit: {
         url: `wss://${window.location.hostname}/livekit`,
-        selectiveSubscription: false,
+        selectiveSubscription: {
+          enabled: true,
+          audioSubscriptionPoolSize: 0,
+          muteDebounceMs: 2500,
+        },
         logLevel: LogLevel.warn,
         reconnectOnFatalFailures: false,
         roomOptions: {
@@ -666,6 +670,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           },
           unpublishOnMute: false,
           unpublishAfterMuteMs: 5000,
+          useLiveKitAudioState: false,
         },
         camera: {
           publishOptions: {
@@ -808,7 +813,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     },
     whiteboard: {
       annotationsQueueProcessInterval: 60,
-      cursorInterval: 150,
+      cursorInterval: 100,
       pointerDiameter: 5,
       maxStickyNoteLength: 1000,
       maxNumberOfAnnotations: 300,

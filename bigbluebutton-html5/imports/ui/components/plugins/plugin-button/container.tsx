@@ -1,4 +1,5 @@
 import React from 'react';
+import { PluginIconType } from 'bigbluebutton-html-plugin-sdk';
 import PluginHelperButtonComponent from './component';
 
 interface PluginButtonContainerProps {
@@ -6,7 +7,7 @@ interface PluginButtonContainerProps {
   bottom: boolean;
   right: boolean;
   dataTest?: string;
-  icon: string;
+  icon: PluginIconType;
   label: string;
   onClick: (args:{ browserClickEvent: React.MouseEvent<HTMLElement> }) => void;
 }

@@ -9,6 +9,7 @@ import useToggleVoice from '../../../audio/audio-graphql/hooks/useToggleVoice';
 import { setTalkingIndicatorList } from '/imports/ui/core/hooks/useTalkingIndicator';
 import useTalkingUsers from '/imports/ui/core/hooks/useTalkingUsers';
 import { partition } from '/imports/utils/array-utils';
+import { VoiceUserMetadata } from '/imports/ui/core/hooks/types';
 
 const TALKING_INDICATORS_MAX = 8;
 
@@ -43,7 +44,7 @@ interface TalkingIndicatorProps {
   talkingUsers: {
     talking: boolean;
     muted: boolean;
-    user: { color: string; speechLocale?: string; name: string };
+    user: VoiceUserMetadata;
     userId: string;
   }[];
   moreThanMaxIndicators: boolean;
@@ -138,7 +139,7 @@ const TalkingIndicator: React.FC<TalkingIndicatorProps> = ({
           icon={icon}
           size="lg"
           style={
-            isMuteActionAvailable
+            (isMuteActionAvailable && color)
               ? {
                 backgroundColor: color,
                 border: `solid 2px ${color}`,
