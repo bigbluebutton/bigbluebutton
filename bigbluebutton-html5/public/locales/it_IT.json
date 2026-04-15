@@ -1525,7 +1525,7 @@
     "app.createBreakoutRoom.infoBannerGotIt": "Ho capito!",
     "app.createBreakoutRoom.start": "Avvia",
     "app.createBreakoutRoom.megaphone": "Invia messaggio",
-    "app.createBreakoutRoom.megaphoneTooltip": "Send message to all rooms",
+    "app.createBreakoutRoom.megaphoneTooltip": "Invia messaggio a tutte le stanze",
     "app.createBreakoutRoom.finish": "Finish",
     "app.createBreakoutRoom.durationOfBreakout": "Durata delle stanze separate",
     "app.createBreakoutRoom.unassignedUsers": "Utenti non assegnati",
