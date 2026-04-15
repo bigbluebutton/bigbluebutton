@@ -1529,7 +1529,7 @@
     "app.createBreakoutRoom.finish": "Finish",
     "app.createBreakoutRoom.durationOfBreakout": "Durata delle stanze separate",
     "app.createBreakoutRoom.unassignedUsers": "Utenti non assegnati",
-    "app.createBreakoutRoom.youAreInRoom": "You are in {roomName}.",
+    "app.createBreakoutRoom.youAreInRoom": "Ti trovi nella stanza {roomName}.",
     "app.createBreakoutRoom.callModerator": "Call Moderators",
     "app.createBreakoutRoom.callModeratorChatMsg": "{userName} from {roomName} is requesting moderator assistance.",
     "app.createBreakoutRoom.callModeratorSent": "Moderators have been notified.",
