@@ -1524,7 +1524,7 @@
     "app.createBreakoutRoom.infoBannerText": "È necessario trascinare i nomi degli utenti per aggiungerli a una stanza di gruppo.",
     "app.createBreakoutRoom.infoBannerGotIt": "Ho capito!",
     "app.createBreakoutRoom.start": "Avvia",
-    "app.createBreakoutRoom.megaphone": "Send message",
+    "app.createBreakoutRoom.megaphone": "Invia messaggio",
     "app.createBreakoutRoom.megaphoneTooltip": "Send message to all rooms",
     "app.createBreakoutRoom.finish": "Finish",
     "app.createBreakoutRoom.durationOfBreakout": "Duration of Breakout Rooms",
