@@ -110,6 +110,7 @@ export const ACTIONS = {
   SET_DROP_AREAS: 'setDropAreas',
 
   SET_PRESENTATION_IS_OPEN: 'setPresentationIsOpen',
+  SET_PRESENTATION_CONTENT_UPDATED: 'setPresentationContentUpdated',
   SET_PRESENTATION_CURRENT_SLIDE_SIZE: 'setPresentationCurrentSlideSize',
   SET_PRESENTATION_NUM_CURRENT_SLIDE: 'setPresentationNumCurrentSlide',
   SET_PRESENTATION_SLIDES_LENGTH: 'setPresentationSlidesLength',

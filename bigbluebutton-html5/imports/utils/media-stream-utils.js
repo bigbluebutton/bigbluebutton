@@ -48,15 +48,29 @@ const getDeviceIdFromTrack = (track) => {
   return null;
 };
 
+// Maps synthetic WebAudio-* device IDs to real device IDs.
+// WASM-processed streams (from AudioContext.createMediaStreamDestination) have
+// a unique synthetic device ID per AudioContext. These IDs change on stream
+// cloning as well, making things even more impractical.
+// doGUM is charge of registering the mappings after WASM processing
+const wasmDeviceIdMap = new Map();
+
+const registerWasmDeviceId = (syntheticDeviceId, realDeviceId) => {
+  if (syntheticDeviceId && realDeviceId) {
+    wasmDeviceIdMap.set(syntheticDeviceId, realDeviceId);
+  }
+};
+
+const resolveDeviceId = (deviceId) => wasmDeviceIdMap.get(deviceId) ?? deviceId;
+
 const extractDeviceIdFromStream = (stream, kind) => {
-  // An empty string is the browser's default...
   let tracks = [];
 
   switch (kind) {
     case 'audio':
       tracks = getAudioTracks(stream);
       if (tracks.length === 0) return 'listen-only';
-      return getDeviceIdFromTrack(tracks[0]);
+      return resolveDeviceId(getDeviceIdFromTrack(tracks[0]));
     case 'video':
       tracks = getVideoTracks(stream);
       return getDeviceIdFromTrack(tracks[0]);
@@ -100,4 +114,5 @@ export default {
   getMediaStreamLogData,
   getVideoTracks,
   extractDeviceIdFromStream,
+  registerWasmDeviceId,
 };

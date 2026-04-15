@@ -77,6 +77,12 @@ type Mutation {
 }
 
 type Mutation {
+  breakoutRoomCallModerator(
+    breakoutRoomId: String!
+  ): Boolean
+}
+
+type Mutation {
   breakoutRoomSetInviteDismissed: Boolean
 }
 

@@ -15,6 +15,7 @@ object GroupChatMessageType {
   val USER_AWAY_STATUS_MSG = "userAwayStatusMsg"
   val USER_IS_PRESENTER_MSG = "userIsPresenterMsg"
   val PLUGIN = "plugin"
+  val BREAKOUT_CALL_MODERATOR_MSG = "breakoutCallModeratorMsg"
 }
 
 case class GroupChatUser(id: String, name: String = "", role: String = "VIEWER")

@@ -6,6 +6,7 @@ import useStableResponse from './useStableResponse';
 import { userListComparator, userComparator } from '/imports/ui/core/graphql/comparators/userListComparators';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { USER_LIST_SUBSCRIPTION } from '../graphql/queries/users';
+import { makeUserSearchWhere } from '/imports/ui/components/user-list/service';
 
 const createLocalUserListDataGathering = (): [
   (fn: (c: Partial<User>) => Partial<User>) => [
@@ -42,12 +43,18 @@ const createLocalUserListDataGathering = (): [
 };
 
 const useLoadedUserList = (
-  variables: { offset: number, limit: number },
+  variables: { offset: number, limit: number, searchQuery?: string },
   fn: (c: Partial<User>) => Partial<User>,
 ) => {
+  const where = makeUserSearchWhere(variables.searchQuery);
+
   const useLoadedUserListSubscription = useCreateUseSubscription<User>(
     USER_LIST_SUBSCRIPTION,
-    variables,
+    {
+      offset: variables.offset,
+      limit: variables.limit,
+      where,
+    },
     true,
   );
   const loadedUserList = useLoadedUserListSubscription(fn);

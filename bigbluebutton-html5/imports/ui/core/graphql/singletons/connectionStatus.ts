@@ -1,14 +1,23 @@
 import { makeVar, ReactiveVar } from '@apollo/client';
 import logger from '/imports/startup/client/logger';
 import { User } from '/imports/ui/Types/user';
+import { StorageData } from '/imports/ui/services/storage/observable';
 
 type NetworkData = {
   ready: boolean;
-  user: User;
+  user: {
+    time: Date;
+    username: StorageData | undefined;
+    meeting_name: StorageData | undefined;
+    meeting_id: StorageData | undefined;
+    connection_id: StorageData;
+    user_id: StorageData | undefined;
+    extern_user_id: StorageData | undefined;
+  },
   audio: {
     audioCurrentUploadRate: number;
     audioCurrentDownloadRate: number;
-    jitter: number;
+    jitter: number | string;
     packetsLost: number;
     transportStats: Record<string, unknown>;
   },
@@ -38,6 +47,16 @@ class ConnectionStatus {
   private lastRttRequestSuccess = makeVar(true);
 
   private rttValue = makeVar(0);
+
+  private minRtt: number = Infinity;
+
+  public setMinRtt(value: number): void {
+    this.minRtt = value;
+  }
+
+  public getMinRtt(): number {
+    return this.minRtt;
+  }
 
   private subscriptionFailed = makeVar(false);
 

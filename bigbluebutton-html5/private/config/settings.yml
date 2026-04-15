@@ -250,6 +250,8 @@ public:
         #     ideal: true
         #   noiseSuppression:
         #     ideal: true
+        # Audio input processing through WASM/BBBA: initial state (enabled/disabled)
+        audioWasmProcessing: true
       audio:
         inputDeviceId: undefined
         outputDeviceId: undefined
@@ -507,6 +509,14 @@ public:
     cameraSortingModes:
       defaultSorting: LOCAL_ALPHABETICAL
       paginationSorting: VOICE_ACTIVITY_LOCAL
+      # showAudioOnlyOnFirstPage: when enabled, shows audio-only tiles
+      # for speaking users who don't have cameras on first page. These tiles appear on the right side,
+      # bumping previous off-view tiles to the left. (only for unified layout)
+      showAudioOnlyOnFirstPage: true
+      # maxAudioOnlyUsers: maximum number of audio-only tiles to show (only for unified layout).
+      # When pagination is enabled, this limits the number of slots available for audio-only users
+      # When pagination is disabled, this is the limit for audio-only users
+      maxAudioOnlyUsers: 2
       # If set to true (default), always show privileged streams (pinned users and local cameras)
       partitionPrivilegedStreams: true
     # Entry `thresholds` is an array of:
@@ -835,6 +845,11 @@ public:
     showLeaveSessionLabel: false
     usersPerUserListPage: 50
     syncCameraDockSizeAndPosition: true
+  sidebarNavigation:
+    # Controls which apps should have the "new" label in the apps gallery.
+    # Possible values: 'poll', 'breakoutroom', 'timer', 'audio-captions'.
+    # For plugins, refer to the isNew flag in the plugin's own settings.
+    appsToLabelAsNew: []
   pads:
     url: ETHERPAD_HOST
   media:
@@ -858,6 +873,16 @@ public:
       # by closing the audio modal while audio is being negotiated.
       # If false, the audio modal will be locked until the process finishes.
       allowAudioJoinCancel: true
+      # audioWasmProcessing: audio input processing through WASM/BBBA
+      #   enabled: whether BBBA should be exposed to users. If false, browser's
+      #            built-in audio processing will be used instead.
+      #   constraints: browser-level audio constraints applied ON TOP of WASM processing.
+      audioWasmProcessing:
+        enabled: false
+        constraints:
+          echoCancellation: true
+          autoGainControl: true
+          noiseSuppression: true
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
@@ -977,6 +1002,7 @@ public:
         adaptiveStream: true
         dynacast: true
         stopLocalTrackOnUnpublish: false
+        singlePeerConnection: false
       audio:
         # unpublishOnMute: whether to unpublish audio tracks when muted. Default is true.
         unpublishOnMute: true
@@ -999,7 +1025,27 @@ public:
     enabled: true
     interval: 10000
     timeout: 10000
-    log: true
+    probes: 5
+    # Client-side WebRTC stats logging. If enabled, the client will log periodic
+    # WebRTC stats information to the configured logging transports.
+    # Disabled by default. This log is verbose and may incur in additional network
+    # usage if external logging targets are configured.
+    # The effective stats logging frequency is determined by the ratio of
+    # stats.interval to stats.probes (interval / probes).
+    logMediaStats:
+      enabled: false
+      # additionalStatsTypes: Defines additional WebRTC stats to extract from getStats(),
+      # beyond the default ones.
+      # Applied only when logMediaStats.enabled is true.
+      #   - Values must be provided as arrays.
+      #   - 'common' stats apply to all media types: audio, video, and screenshare.
+      #   - Stats under 'audio', 'video', or 'screenshare' apply only to their respective media type.
+      # Valid values: any type from https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport#the_statistic_types
+      additionalStatsTypes:
+        common: []
+        audio: []
+        video: []
+        screenshare: []
     notification:
       warning: false
       error: true
@@ -1073,6 +1119,9 @@ public:
       guest: true
       sharingWebcam: true
       bot: true
+  userList:
+    searchBar:
+      enabled: true
   whiteboard:
     annotationsQueueProcessInterval: 60
     cursorInterval: 150

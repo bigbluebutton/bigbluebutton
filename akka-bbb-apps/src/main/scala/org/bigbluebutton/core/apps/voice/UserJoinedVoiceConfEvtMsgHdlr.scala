@@ -112,6 +112,11 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration with HandlerHelp
         case None    => Roles.VIEWER_ROLE
       }
 
+      val speechLocale = Users2x.findWithIntId(liveMeeting.users2x, msg.body.intId) match {
+        case Some(u) => u.speechLocale
+        case None    => ""
+      }
+
       VoiceApp.handleUserJoinedVoiceConfEvtMsg(
         liveMeeting,
         outGW,
@@ -124,7 +129,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration with HandlerHelp
         msg.body.callerIdNum,
         role,
         userColor,
-        speechLocale = "",
+        speechLocale,
         msg.body.muted,
         listenOnlyInputDevice = false,
         deafened = false,

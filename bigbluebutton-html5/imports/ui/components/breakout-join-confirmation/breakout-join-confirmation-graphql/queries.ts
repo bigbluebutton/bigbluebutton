@@ -5,6 +5,7 @@ export interface BreakoutRoom {
   sequence: number;
   showInvitation: boolean;
   isLastAssignedRoom: boolean;
+  assignedAt: string | null;
   joinURL: string | null;
   breakoutRoomMeetingId: string;
   isDefaultName: boolean;
@@ -36,6 +37,7 @@ export const getBreakoutData = gql`
       sequence
       showInvitation
       isLastAssignedRoom
+      assignedAt
       joinURL
       breakoutRoomMeetingId
       isDefaultName

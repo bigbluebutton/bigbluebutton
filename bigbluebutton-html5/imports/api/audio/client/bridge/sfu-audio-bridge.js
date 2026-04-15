@@ -16,6 +16,8 @@ import {
   doGUM,
 } from '/imports/api/audio/client/bridge/service';
 import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
+import { isWasmProcessorSupported } from '/imports/ui/components/audio/audio-processor/service';
+import { getRTCStatsLogMetadata } from '/imports/utils/stats';
 
 const SENDRECV_ROLE = 'sendrecv';
 const RECV_ROLE = 'recv';
@@ -145,9 +147,27 @@ export default class SFUAudioBridge extends BaseAudioBridge {
     return null;
   }
 
+  async getStatsLogData() {
+    try {
+      const stats = await this.getStats();
+
+      return getRTCStatsLogMetadata(stats);
+    } catch (error) {
+      logger.warn({
+        logCode: 'sfuaudio_stats_log_error',
+        extraInfo: {
+          errorMessage: error.message,
+          bridge: this.bridgeName,
+          role: this.role,
+        },
+      }, 'Failed to get audio stats log data');
+      return null;
+    }
+  }
+
   // eslint-disable-next-line class-methods-use-this
   mediaStreamFactory(constraints) {
-    return doGUM(constraints, true);
+    return doGUM(constraints, { retryOnFailure: true });
   }
 
   setConnectionTimeout() {
@@ -237,63 +257,69 @@ export default class SFUAudioBridge extends BaseAudioBridge {
 
       if (!this.reconnecting) {
         if (this.broker?.started) {
-          logger.error({
-            logCode: 'sfuaudio_error_try_to_reconnect',
-            extraInfo: {
-              errorMessage,
-              errorCode,
-              errorCause,
-              bridge: this.bridgeName,
-              role: this.role,
-            },
-          }, 'SFU audio failed, try to reconnect');
-
-          return this.reconnect().then(resolve).catch(reject);
+          return this.getStatsLogData().then((stats) => {
+            logger.error({
+              logCode: 'sfuaudio_error_try_to_reconnect',
+              extraInfo: {
+                errorMessage,
+                errorCode,
+                errorCause,
+                bridge: this.bridgeName,
+                role: this.role,
+                stats,
+              },
+            }, 'SFU audio failed, try to reconnect');
+            this.reconnect().then(resolve).catch(reject);
+          });
         }
 
         if (RETRYABLE_ERRORS.includes(errorCode)) {
           const forceRelay = RETRY_THROUGH_RELAY && RTC_CONNECTIVITY_ERRORS.includes(errorCode);
-          logger.error({
-            logCode: 'sfuaudio_error_retry',
-            extraInfo: {
-              errorMessage,
-              errorCode,
-              errorCause,
-              bridge: this.bridgeName,
-              role: this.role,
-              forceRelay,
-            },
-          }, `SFU audio failed to connect, retrying (relay=${forceRelay})`);
-
-          return this.reconnect({ forceRelay }).then(resolve).catch(reject);
+          return this.getStatsLogData().then((stats) => {
+            logger.error({
+              logCode: 'sfuaudio_error_retry',
+              extraInfo: {
+                errorMessage,
+                errorCode,
+                errorCause,
+                bridge: this.bridgeName,
+                role: this.role,
+                stats,
+                forceRelay,
+              },
+            }, `SFU audio failed to connect, retrying (relay=${forceRelay})`);
+            this.reconnect({ forceRelay }).then(resolve).catch(reject);
+          });
         }
       }
 
       // Already tried reconnecting once OR the user handn't successfully
       // connected firsthand and retrying isn't an option. Finish the session
       // and reject with the error
-      logger.error({
-        logCode: 'sfuaudio_error',
-        extraInfo: {
-          errorMessage,
-          errorCode,
-          errorCause,
-          reconnecting: this.reconnecting,
-          bridge: this.bridgeName,
-          role: this.role,
-        },
-      }, 'SFU audio failed');
       this.clearConnectionTimeout();
+      this.getStatsLogData().then((stats) => {
+        logger.error({
+          logCode: 'sfuaudio_error',
+          extraInfo: {
+            errorMessage,
+            errorCode,
+            errorCause,
+            reconnecting: this.reconnecting,
+            bridge: this.bridgeName,
+            role: this.role,
+          },
+        }, 'SFU audio failed');
 
-      if (this.broker) this.broker.stop();
-
-      this.callback({
-        status: this.baseCallStates.failed,
-        error: errorCode,
-        bridgeError: errorMessage,
-        bridge: this.bridgeName,
+        if (this.broker) this.broker.stop();
+        this.callback({
+          status: this.baseCallStates.failed,
+          error: errorCode,
+          bridgeError: errorMessage,
+          bridge: this.bridgeName,
+          stats,
+        });
+        reject(error);
       });
-      return reject(error);
     });
   }
 
@@ -351,6 +377,10 @@ export default class SFUAudioBridge extends BaseAudioBridge {
         throw normalizedError;
       }
     });
+  }
+
+  get clientSessionNumber() {
+    return this.broker ? this.broker.clientSessionNumber : null;
   }
 
   async _startBroker(options) {
@@ -473,7 +503,7 @@ export default class SFUAudioBridge extends BaseAudioBridge {
 
       const matchConstraints = filterSupportedConstraints(constraints);
 
-      if (IS_CHROME) {
+      if (IS_CHROME || isWasmProcessorSupported()) {
         matchConstraints.deviceId = this.inputDeviceId;
         const stream = await doGUM({ audio: matchConstraints });
         await this.setInputStream(stream);

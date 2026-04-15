@@ -70,6 +70,7 @@ export const INITIAL_INPUT_STATE = {
     focusedId: 'none',
   },
   presentation: {
+    contentUpdatedAt: 0,
     isOpen: true,
     slidesLength: 0,
     currentSlide: {

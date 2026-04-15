@@ -411,18 +411,24 @@
 .icon-bbb-presentation_permission:before {
   content: "\e981";
 }
-.icon-bbb-pin_filled:before {
+.icon-bbb-search:before {
   content: "\e982";
 }
-.icon-bbb-visibility_off:before {
+.icon-bbb-co_presentation:before {
   content: "\e983";
 }
-.icon-bbb-visibility_on:before {
+.icon-bbb-pin_filled:before {
   content: "\e984";
 }
-.icon-bbb-arrow_forward_up:before {
+.icon-bbb-visibility_off:before {
   content: "\e985";
 }
-.icon-bbb-arrow_forward_down:before {
+.icon-bbb-visibility_on:before {
   content: "\e986";
+}
+.icon-bbb-arrow_forward_up:before {
+  content: "\e987";
+}
+.icon-bbb-arrow_forward_down:before {
+  content: "\e988";
 }

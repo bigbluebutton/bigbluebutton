@@ -12,8 +12,9 @@ import FocusTrap from 'focus-trap-react';
 import classNames from 'classnames';
 import { useMutation } from '@apollo/client';
 import ChatMessageHeader from './message-header/component';
+import { PollHeaderAction } from './message-header/styles';
 import ChatMessageTextContent from './message-content/text-content/component';
-import ChatPollContent from './message-content/poll-content/component';
+import ChatPollContent, { ChatPollContentHandle } from './message-content/poll-content/component';
 import ChatMessagePresentationContent from './message-content/presentation-content/component';
 import {
   ChatWrapper,
@@ -194,6 +195,22 @@ const intlMessages = defineMessages({
     id: 'app.chat.plugin.metadataInformation',
     description: 'Plugin metadata information within chat message',
   },
+  copyPollResults: {
+    id: 'app.chat.pollResult.copy',
+    description: 'Copy poll results',
+  },
+  copiedPollResults: {
+    id: 'app.chat.pollResult.copySuccess',
+    description: 'Confirmation after poll results are copied',
+  },
+  downloadPollResults: {
+    id: 'app.chat.pollResult.download',
+    description: 'Download poll results as PNG',
+  },
+  breakoutCallModerator: {
+    id: 'app.chat.breakoutCallModerator',
+    description: 'Breakout room call moderator system message',
+  },
 });
 
 function isInViewport(el: HTMLDivElement) {
@@ -245,6 +262,9 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   const [isTryingToReplacePin, setIsTryingToReplacePin] = React.useState(false);
   const [isTryingToUnpin, setIsTryingToUnpin] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const pollActionsRef = React.useRef<ChatPollContentHandle>(null);
+  const [pollResultCopied, setPollResultCopied] = React.useState(false);
+  const pollCopyTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const animationInitialTimestamp = React.useRef(0);
   const animationInitialScrollPosition = React.useRef(0);
   const animationScrollPositionDiff = React.useRef(0);
@@ -500,6 +520,10 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     }
   }, [focused]);
 
+  useEffect(() => () => {
+    if (pollCopyTimeoutRef.current) clearTimeout(pollCopyTimeoutRef.current);
+  }, []);
+
   const pluginMessageNotCustom = (previousMessage?.messageType !== ChatMessageType.PLUGIN
     || !JSON.parse(previousMessage?.messageMetadata).custom);
   let sameSender = ((previousMessage?.user?.userId
@@ -565,7 +589,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           color: '#3B48A9',
           isModerator: true,
           component: (
-            <ChatPollContent metadata={message.messageMetadata} />
+            <ChatPollContent ref={pollActionsRef} metadata={message.messageMetadata} />
           ),
           avatarIcon: 'icon-bbb-polling',
           showAvatar: true,
@@ -682,6 +706,33 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           showToolbar: false,
         };
       }
+      case ChatMessageType.BREAKOUT_CALL_MODERATOR: {
+        const meta = (() => {
+          try {
+            const parsed = JSON.parse(message.messageMetadata);
+            return parsed && typeof parsed === 'object' ? parsed : {};
+          } catch { return {}; }
+        })();
+        const callModeratorMsg = intl.formatMessage(intlMessages.breakoutCallModerator, {
+          userName: message.senderName,
+          roomName: meta.roomName || '',
+        });
+        return {
+          name: message.senderName,
+          color: '#0F70D7',
+          isModerator: false,
+          isSystemSender: true,
+          component: (
+            <ChatMessageNotificationContent
+              iconName="rooms"
+              text={callModeratorMsg}
+            />
+          ),
+          showAvatar: false,
+          showHeading: false,
+          showToolbar: false,
+        };
+      }
       case ChatMessageType.PLUGIN: {
         return {
           name: message.user?.name,
@@ -718,6 +769,41 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
         };
     }
   }, [message.message, intl.locale]);
+
+  const pollHeaderActions = message.messageType === ChatMessageType.POLL ? (
+    <>
+      <PollHeaderAction
+        type="button"
+        title={intl.formatMessage(intlMessages.copyPollResults)}
+        aria-label={intl.formatMessage(intlMessages.copyPollResults)}
+        aria-describedby={`poll-action-copy-desc-${message.messageId}`}
+        onClick={() => {
+          pollActionsRef.current?.copy(() => {
+            if (pollCopyTimeoutRef.current) clearTimeout(pollCopyTimeoutRef.current);
+            setPollResultCopied(true);
+            pollCopyTimeoutRef.current = setTimeout(() => setPollResultCopied(false), 2000);
+          });
+        }}
+      >
+        <Icon iconName={pollResultCopied ? 'check' : 'copy'} />
+        <span id={`poll-action-copy-desc-${message.messageId}`} style={{ display: 'none' }}>
+          {intl.formatMessage(intlMessages.copyPollResults)}
+        </span>
+      </PollHeaderAction>
+      <PollHeaderAction
+        type="button"
+        title={intl.formatMessage(intlMessages.downloadPollResults)}
+        aria-label={intl.formatMessage(intlMessages.downloadPollResults)}
+        aria-describedby={`poll-action-download-desc-${message.messageId}`}
+        onClick={() => pollActionsRef.current?.download()}
+      >
+        <Icon iconName="download" />
+        <span id={`poll-action-download-desc-${message.messageId}`} style={{ display: 'none' }}>
+          {intl.formatMessage(intlMessages.downloadPollResults)}
+        </span>
+      </PollHeaderAction>
+    </>
+  ) : null;
 
   sameSender = message.messageType === ChatMessageType.BREAKOUT_ROOM
     ? false
@@ -1068,6 +1154,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
                 deleteTime={deleteTime}
                 editTime={editTime}
                 role="listitem"
+                actions={pollHeaderActions}
               />
             )}
           </ChatHeading>

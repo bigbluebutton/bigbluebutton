@@ -51,6 +51,19 @@ export const rejoinAudio = () => {
   }
 };
 
+let breakoutWindowRef: Window | null = null;
+
+export const setBreakoutWindowRef = (win: Window | null) => {
+  breakoutWindowRef = win;
+};
+
+export const closeBreakoutWindow = () => {
+  if (breakoutWindowRef && !breakoutWindowRef.closed) {
+    breakoutWindowRef.close();
+  }
+  breakoutWindowRef = null;
+};
+
 export default {
   getIsMicrophoneUser,
   getIsReconnecting,
@@ -58,4 +71,6 @@ export default {
   stopVideo,
   finishScreenShare,
   rejoinAudio,
+  setBreakoutWindowRef,
+  closeBreakoutWindow,
 };

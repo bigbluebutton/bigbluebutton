@@ -30,6 +30,8 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   Separator as BaseSeparator,
+  PanelContent as BasePanelContent,
+  HeaderContainer as BaseHeaderContainer,
 } from '/imports/ui/components/sidebar-content/styles';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 
@@ -588,7 +590,7 @@ const FooterButton = styled.button`
   color: #fff;
 
   &:first-child {
-    background-color: transparent; 
+    background-color: transparent;
     color: #ccc;
   }
 
@@ -622,6 +624,15 @@ const AddParticipantButton = styled.button`
   gap: .7rem;
   color: ${colorText};
 `;
+
+const SidebarPanelContent = styled(BasePanelContent)`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+`;
+
+const SidebarHeaderContainer = styled(BaseHeaderContainer)``;
 
 const Icon = styled(IconB)`
   color: white;
@@ -677,4 +688,6 @@ export default {
   GridItem,
   AddParticipantButton,
   Icon,
+  SidebarPanelContent,
+  SidebarHeaderContainer,
 };

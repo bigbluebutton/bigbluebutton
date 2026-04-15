@@ -3,8 +3,19 @@ import {
   getAudioConstraints,
   doGUM,
 } from '/imports/api/audio/client/bridge/service';
+import { getTransportStats } from '/imports/utils/stats';
 
 const BASE_BRIDGE_NAME = 'base';
+/**
+ * Audio status to be filtered in getStats()
+ */
+const FILTER_AUDIO_STATS = [
+  'outbound-rtp',
+  'inbound-rtp',
+  'candidate-pair',
+  'local-candidate',
+  'transport',
+];
 
 export default class BaseAudioBridge {
   constructor(userData) {
@@ -166,5 +177,79 @@ export default class BaseAudioBridge {
       transferCallback();
       resolve();
     });
+  }
+
+  /**
+   * Get stats about active audio peer.
+   * We filter the status based on FILTER_AUDIO_STATS constant.
+   * We also append to the returned object the information about peer's
+   * transport. This transport information is retrieved by
+   * getTransportStatsFromPeer().
+   *
+   * @param [additionalStatsTypes] - A list of additional stats types to be included
+   * in the parsing.
+   *
+   * @returns An Object containing the status about the active audio peer.
+   *
+   * For more information see:
+   * https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/getStats
+   * and
+   * https://developer.mozilla.org/en-US/docs/Web/API/RTCStatsReport
+   */
+  async getStats(additionalStatsTypes = []) {
+    const peer = this.getPeerConnection();
+
+    if (!peer) return null;
+
+    const peerStats = await peer.getStats();
+
+    return this.parseStats({ stats: peerStats, peer, additionalStatsTypes });
+  }
+
+  /**
+  * Parses the provided statistics, filters audio stats, and fetches transport stats for the
+  * given peer.
+  *
+  * @param {Object} params - The parameters for parsing stats.
+  * @param params.stats - An array of statistics objects containing various types of stats.
+  * @param [params.peer] - The peer object representing the connection for which transport stats
+  *  need to be fetched.
+  * @param [params.additionalStatsTypes] - A list of additional stats types to included in
+  *  the parsing.
+  *
+  * @returns A promise that resolves to an object containing the transport stats and audio stats.
+  * The object will include `transportStats` from the `getTransportStats` function and the filtered
+  * `audioStats`.
+  *
+  */
+  async parseStats({ stats, peer = undefined, additionalStatsTypes = [] }) {
+    let transportStats = {};
+    const audioStats = {};
+
+    stats.forEach((stat) => {
+      const {
+        id,
+        type,
+        kind,
+      } = stat;
+      if ([...FILTER_AUDIO_STATS, ...additionalStatsTypes].includes(type) && (!kind || kind === 'audio')) {
+        audioStats[id] = stat;
+      }
+    });
+
+    try {
+      transportStats = await getTransportStats(peer, audioStats);
+    } catch (error) {
+      logger.debug({
+        logCode: 'audio_transport_stats_failed',
+        extraInfo: {
+          errorCode: error.errorCode,
+          errorMessage: error.errorMessage,
+          bridgeName: this.bridgeName,
+        },
+      }, 'Failed to get transport stats for audio');
+    }
+
+    return { transportStats, ...audioStats };
   }
 }

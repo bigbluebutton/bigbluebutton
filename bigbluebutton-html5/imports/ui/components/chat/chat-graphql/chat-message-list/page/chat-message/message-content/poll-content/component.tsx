@@ -1,7 +1,18 @@
-import React from 'react';
+import React, {
+  useRef,
+  useCallback,
+  useImperativeHandle,
+  forwardRef,
+} from 'react';
 import {
-  Bar, BarChart, ResponsiveContainer, XAxis, YAxis,
+  Bar,
+  BarChart,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
 } from 'recharts';
+import { toPng } from 'html-to-image';
+import logger from '/imports/startup/client/logger';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
@@ -12,6 +23,11 @@ import { Layout, Output } from '/imports/ui/components/layout/layoutTypes';
 interface ChatPollContentProps {
   metadata: string;
   height?: number;
+}
+
+export interface ChatPollContentHandle {
+  copy: (onDone: () => void) => void;
+  download: () => void;
 }
 
 interface Metadata {
@@ -90,19 +106,18 @@ function assertAsMetadata(metadata: unknown): asserts metadata is Metadata {
   }
 }
 
-const ChatPollContent: React.FC<ChatPollContentProps> = ({
-  metadata: string,
-  height = undefined,
-}) => {
+const ChatPollContent = forwardRef<ChatPollContentHandle, ChatPollContentProps>((
+  { metadata, height },
+  ref,
+) => {
   const intl = useIntl();
+  const chartRef = useRef<HTMLDivElement>(null);
   const sidebarContent: Output['sidebarContent'] = layoutSelectOutput((i: Output) => i.sidebarContent);
   const fontSize: Layout['fontSize'] = layoutSelect((i: Layout) => i.fontSize);
 
-  const pollData = JSON.parse(string) as unknown;
+  const pollData = JSON.parse(metadata) as unknown;
   assertAsMetadata(pollData);
-
   const answers = pollData.answers.reduce(caseInsensitiveReducer, []);
-
   const translatedAnswers = answers.map((answer: Answers) => {
     const translationKey = intlMessages[answer.key.toLowerCase() as keyof typeof intlMessages];
     const pollAnswer = translationKey ? intl.formatMessage(translationKey) : answer.key;
@@ -114,26 +129,94 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
     };
   });
 
+  const handleCopy = useCallback((onDone: () => void) => {
+    const now = new Date();
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+      + ` ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    const lines = [
+      `[${dateStr}]`,
+      pollData.questionText,
+      '',
+      ...translatedAnswers.map((a: Answers & { pollAnswer: string }) => {
+        const voteLabel = a.numVotes === 1
+          ? intl.formatMessage(intlMessages.vote)
+          : intl.formatMessage(intlMessages.votes);
+        const correct = a.isCorrectAnswer
+          ? `${intl.formatMessage(intlMessages.correctAnswer)}: `
+          : '';
+        return `${correct}${a.pollAnswer}: ${a.numVotes} ${voteLabel}`;
+      }),
+    ].filter((_line, idx) => idx !== 2 || pollData.questionText);
+    if (!navigator.clipboard) {
+      logger.warn({ logCode: 'poll_clipboard_unavailable' }, 'Clipboard API not available in this context');
+      return;
+    }
+    navigator.clipboard.writeText(lines.join('\n'))
+      .then(() => {
+        onDone();
+      })
+      .catch((err: Error) => {
+        logger.warn({
+          logCode: 'poll_clipboard_copy_error',
+          extraInfo: { errorMessage: err?.message },
+        }, 'Failed to copy poll results to clipboard');
+      });
+  }, [translatedAnswers, pollData, intl]);
+
+  const handleDownload = useCallback(() => {
+    if (!chartRef.current) return;
+    const chartNode = chartRef.current;
+    const now = new Date();
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+      + `_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
+    const fileName = `poll-result_${dateStr}.png`;
+    toPng(chartNode, { backgroundColor: '#fff' }).then((dataUrl) => {
+      const anchor = document.createElement('a');
+      anchor.href = dataUrl;
+      anchor.setAttribute(
+        'download',
+        fileName,
+      );
+      anchor.click();
+    });
+  }, [pollData]);
+
+  useImperativeHandle(ref, () => ({
+    copy: handleCopy,
+    download: handleDownload,
+  }), [handleCopy, handleDownload]);
+
   const useHeight = height || translatedAnswers.length * 50;
+
   return (
     <>
-      <Styled.PollWrapper aria-hidden data-test="chatPollMessageText">
+      <Styled.PollWrapper aria-hidden data-test="chatPollMessageText" ref={chartRef}>
         <Styled.PollText>
           {pollData.questionText}
         </Styled.PollText>
-        <ResponsiveContainer width="100%" height={useHeight}>
-          <BarChart
-            data={translatedAnswers}
-            layout="vertical"
-          >
-            <XAxis
-              type="number"
-              allowDecimals={false}
-            />
-            <YAxis width={sidebarContent.width / 3} fontSize={fontSize} type="category" dataKey="pollAnswerWithNumVotes" tick={CustomizedAxisTick} />
-            <Bar dataKey="numVotes" fill="#0C57A7" />
-          </BarChart>
-        </ResponsiveContainer>
+        <div>
+          <ResponsiveContainer width="100%" height={useHeight}>
+            <BarChart
+              data={translatedAnswers}
+              layout="vertical"
+            >
+              <XAxis
+                type="number"
+                allowDecimals={false}
+              />
+              <YAxis
+                width={sidebarContent.width / 3}
+                fontSize={fontSize}
+                type="category"
+                dataKey="pollAnswerWithNumVotes"
+                tick={CustomizedAxisTick}
+              />
+              <Bar dataKey="numVotes" fill="#0C57A7" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </Styled.PollWrapper>
       <p className="sr-only">
         {pollData.questionText ? `${pollData.questionText}: ` : ''}
@@ -150,6 +233,6 @@ const ChatPollContent: React.FC<ChatPollContentProps> = ({
       </ul>
     </>
   );
-};
+});
 
 export default ChatPollContent;

@@ -5,7 +5,6 @@ import useCurrentUser from '../../core/hooks/useCurrentUser';
 import { notify } from '../../services/notification';
 import {
   NotifyPublishedPoll,
-  breakoutHadNoChanges,
   layoutUpdate,
   pendingGuestAlert,
   userJoinPushAlert,
@@ -41,7 +40,6 @@ const Notifications: React.FC = () => {
         'app.notification.userJoinPushAlert': userJoinPushAlert,
         'app.notification.userLeavePushAlert': userLeavePushAlert,
         'app.layoutUpdate.label': layoutUpdate,
-        'app.toast.breakoutContentUnchangedNotConverted': breakoutHadNoChanges,
       });
 
   const {
@@ -76,6 +74,27 @@ const Notifications: React.FC = () => {
           />
         </Styled.ContentMessage>,
         true,
+      );
+    } else if (notification.messageId === 'app.notification.presenterRequestApproved') {
+      notify(
+        <>
+          <FormattedMessage
+            id="app.notification.presenterRequestApproved.title"
+            // @ts-ignore - JS code
+            values={{ presenterName: <strong>{notification.messageValues.presenterName}</strong> }}
+            description="Title for presenter request approved notification"
+          />
+          <Styled.ContentMessage>
+            <FormattedMessage
+              id={notification.messageId}
+              // @ts-ignore - JS code
+              values={resolvedValues}
+              description={notification.messageDescription}
+            />
+          </Styled.ContentMessage>
+        </>,
+        notification.notificationType,
+        notification.icon,
       );
     } else {
       notify(

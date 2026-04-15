@@ -1,6 +1,7 @@
 const colorWhite = 'var(--color-white, #FFF)';
 const colorOffWhite = 'var(--color-off-white, #F3F6F9)';
 const colorTldrawBackground = 'var(--color-tldraw-background, #F9FAFB)';
+const colorNeutral2 = 'var(--color-neutral-2, #717C91)';
 
 const colorBlack = 'var(--color-black, #000000)';
 const colorNeutral2 = 'var(--color-neutral2, #717C91)';
@@ -178,6 +179,7 @@ export {
   colorWhite,
   colorOffWhite,
   colorTldrawBackground,
+  colorNeutral2,
   colorBlack,
   colorNeutral2,
   colorGray,

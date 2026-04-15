@@ -23,8 +23,6 @@ func HandleGroupChatMessageBroadcastEvtMsg(receivedMessage common.RedisMessage, 
 	browserConnectionsMutex.RLock()
 	for _, bc := range browserConnections {
 		if bc.MeetingId == receivedMessage.Core.Header.MeetingId {
-			fmt.Println(chatParticipants)
-			fmt.Println(bc.UserId)
 			if len(chatParticipants) == 0 || slices.Contains(chatParticipants, any(bc.UserId)) {
 				browserConnectionsToSendData = append(browserConnectionsToSendData, bc)
 			}

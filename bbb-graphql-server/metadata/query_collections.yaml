@@ -1,13 +1,6 @@
 - name: allowed-queries
   definition:
     queries:
-      - name: clientSettings
-        query: |
-          query clientStartupSettings {
-            meeting_clientSettings {
-              clientSettingsJson
-            }
-          }
       - name: userMetadata
         query: |
           query getUserMetadata {

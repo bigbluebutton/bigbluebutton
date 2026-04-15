@@ -21,11 +21,13 @@ export interface Public {
   userReaction: UserReaction
   notes: Notes
   layout: Layout
+  sidebarNavigation: SidebarNavigation
   pads: Pads
   media: Media
   stats: Stats
   presentation: Presentation
   user: User
+  userList: UserList
   whiteboard: Whiteboard
   clientLog: ClientLog
   virtualBackgrounds: VirtualBackgrounds
@@ -410,6 +412,8 @@ export interface Constraints2 {
 export interface CameraSortingModes {
   defaultSorting: string
   paginationSorting: string
+  showAudioOnlyOnFirstPage: boolean
+  maxAudioOnlyUsers: number
   partitionPrivilegedStreams: boolean
 }
 
@@ -603,6 +607,10 @@ export interface Layout {
   showLeaveSessionLabel: boolean
 }
 
+export interface SidebarNavigation {
+  appsToLabelAsNew: string[]
+}
+
 export interface Pads {
   url: string
 }
@@ -677,11 +685,18 @@ export interface LiveKitSettings {
   screenshare?: LiveKitScreenShareSettings
 }
 
+export interface AudioWasmProcessingSettings {
+  enabled: boolean
+  // See: https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
+  constraints?: Record<string, unknown>
+}
+
 export interface Audio2 {
   defaultFullAudioBridge: string
   defaultListenOnlyBridge: string
   retryThroughRelay: boolean
   allowAudioJoinCancel: boolean
+  audioWasmProcessing?: AudioWasmProcessingSettings
 }
 
 export interface Screenshare2 {
@@ -710,13 +725,26 @@ export interface Delay {
 export interface Stats {
   enabled: boolean
   interval: number
+  probes: number
   timeout: number
-  log: boolean
+  logMediaStats: LogMediaStats
   notification: Notification
   loss: number[]
   rtt: number[]
   level: string[]
   help: string
+}
+
+export interface LogMediaStats {
+  enabled: boolean;
+  additionalStatsTypes: StatsTypes;
+}
+
+export interface StatsTypes {
+  common?: string[];
+  audio?: string[];
+  video?: string[];
+  screenshare?: string[];
 }
 
 export interface Notification {
@@ -750,6 +778,14 @@ export interface User {
   role_moderator: string
   role_viewer: string
   label: Label
+}
+
+interface Search {
+  enabled: boolean
+}
+
+export interface UserList {
+  searchBar: Search
 }
 
 export interface Label {

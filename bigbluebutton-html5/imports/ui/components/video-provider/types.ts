@@ -73,7 +73,19 @@ export type Stream = {
   render?: boolean;
 }
 
-export type StreamItem = Stream | ConnectingStream;
+export type AudioOnlyStream = {
+  userId: string;
+  stream: string;
+  name: string;
+  nameSortable: string;
+  user: User;
+  floor: boolean;
+  lastFloorTime: string;
+  voice: Voice;
+  type: typeof VIDEO_TYPES.AUDIO_ONLY;
+}
+
+export type StreamItem = Stream | ConnectingStream | AudioOnlyStream;
 export type GridItem = GridUser & { type: typeof VIDEO_TYPES.GRID };
 export type VideoItem = StreamItem | GridItem;
 export type StreamSubscriptionData = VideoStreamsResponse['user_camera'][number];

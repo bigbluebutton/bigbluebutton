@@ -20,9 +20,12 @@ import {
   getAudioConstraints,
   filterSupportedConstraints,
   doGUM,
+  isWasmProcessingEnabled,
 } from '/imports/api/audio/client/bridge/service';
-import { liveKitRoom, getLKStats, LK_FATAL_ERROR_EVENT } from '/imports/ui/services/livekit';
+import { liveKitRoom, LK_FATAL_ERROR_EVENT } from '/imports/ui/services/livekit';
+import { getLiveKitStats } from '/imports/ui/services/livekit/stats';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
+import { isWasmProcessorSupported } from '/imports/ui/components/audio/audio-processor/service';
 
 const BRIDGE_NAME = 'livekit';
 const SENDRECV_ROLE = 'sendrecv';
@@ -474,8 +477,12 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     const { deviceId = null, force = false } = options;
     const streamDeviceId = MediaStreamUtils.extractDeviceIdFromStream(stream, 'audio');
     const originalDeviceId = MediaStreamUtils.extractDeviceIdFromStream(this.originalStream, 'audio');
+    const originalStreamAlive = !!this.originalStream?.active
+      && this.originalStream.getAudioTracks().some((t) => t.readyState === 'live');
 
-    if ((!stream || this.originalStream?.id === stream.id || streamDeviceId === originalDeviceId)
+    if ((!stream
+      || this.originalStream?.id === stream.id
+      || (streamDeviceId === originalDeviceId && originalStreamAlive))
       && !force) {
       logger.debug({
         logCode: 'livekit_audio_set_input_stream_noop',
@@ -512,7 +519,11 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
         streamData: MediaStreamUtils.getMediaStreamLogData(stream),
         originalStreamData: MediaStreamUtils.getMediaStreamLogData(this.originalStream),
         deviceId: options?.deviceId,
+        streamDeviceId,
+        originalDeviceId,
+        resolvedDeviceId: newDeviceId,
         force: options?.force,
+        wasmProcessingEnabled: isWasmProcessingEnabled(),
       },
     }, 'LiveKit: set audio input stream');
 
@@ -639,9 +650,8 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
       },
     }, 'LiveKit: live change input device');
 
-    // Remove all input audio tracks from the stream
-    // This will effectively mute the microphone
-    // and keep the audio output working
+    // This means we're switching to listen-only mode (i.e.: no input device)
+    // Remove all input audio tracks from the stream, then return.
     if (deviceId === 'listen-only') {
       const stream = this.inputStream;
 
@@ -656,9 +666,67 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     }
 
     const trackPubs = this.getLocalMicTrackPubs();
+    const hasPublishedTrack = trackPubs.length > 0;
+    const wasmEnabled = isWasmProcessingEnabled();
 
-    // We have a published track, use LK's own method to switch the device
-    if (trackPubs.length > 0) {
+    if (hasPublishedTrack && wasmEnabled) {
+      // WASM + published track: LiveKit's switchActiveDevice/restartTrack do
+      // their own getUserMedia internally, bypassing doGUM — the new track
+      // would be published raw (unprocessed). Instead, create a new
+      // WASM-processed stream via doGUM and use replaceTrack to seamlessly
+      // swap the underlying MediaStreamTrack without unpublish/republish
+      try {
+        const constraints = { audio: getAudioConstraints({ deviceId }) };
+
+        backup();
+        newStream = await doGUM(constraints);
+        const newAudioTrack = newStream?.getAudioTracks()[0];
+        const localTrack = this.publicationTrack;
+
+        if (!newStream || !localTrack || !newAudioTrack) {
+          throw new Error('LiveKit: missing local track or new audio track for WASM replaceTrack');
+        }
+
+        await localTrack.replaceTrack(newAudioTrack);
+        this.inputDeviceId = deviceId;
+        this.originalStream = newStream;
+        cleanup();
+
+        logger.debug({
+          logCode: 'livekit_audio_live_change_wasm_replace_track',
+          extraInfo: {
+            bridge: this.bridgeName,
+            role: this.role,
+            requestedDeviceId: deviceId,
+            inputDeviceId: this.inputDeviceId,
+            newStreamData: MediaStreamUtils.getMediaStreamLogData(newStream),
+            wasmProcessingEnabled: wasmEnabled,
+          },
+        }, 'LiveKit: WASM device switch via replaceTrack');
+
+        return this.inputStream;
+      } catch (error) {
+        logger.error({
+          logCode: 'livekit_audio_live_change_wasm_replace_error',
+          extraInfo: {
+            errorMessage: (error as Error)?.message,
+            errorName: (error as Error)?.name,
+            errorStack: (error as Error)?.stack,
+            bridge: this.bridgeName,
+            role: this.role,
+            deviceId,
+            streamData: MediaStreamUtils.getMediaStreamLogData(this.inputStream),
+            originalStreamData: MediaStreamUtils.getMediaStreamLogData(this.originalStream),
+            newStreamData: MediaStreamUtils.getMediaStreamLogData(newStream),
+            backupStreamData: MediaStreamUtils.getMediaStreamLogData(backupStream),
+          },
+        }, 'LiveKit: WASM replaceTrack device switch failed');
+        await rollback();
+        throw error;
+      }
+    } else if (hasPublishedTrack) {
+      // No WASM, published track: use LiveKit's own switchActiveDevice or
+      // restartTrack for in-place device switching.
       try {
         // Backup stream (current one) in case the switch fails
         backup();
@@ -757,8 +825,8 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
         throw error;
       }
     } else {
-      // No published track at this point, so we are effectively muted.
-      // Way easier - just get a new stream and set it as the input stream.
+      // No published track (muted). Get a new stream via doGUM and set it
+      // as the input stream — publish will happen on unmute.
       try {
         const constraints = {
           audio: getAudioConstraints({ deviceId }),
@@ -769,6 +837,18 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
         newStream = await doGUM(constraints);
         await this.setInputStream(newStream, { deviceId });
         cleanup();
+
+        logger.debug({
+          logCode: 'livekit_audio_live_change_no_pub_result',
+          extraInfo: {
+            bridge: this.bridgeName,
+            requestedDeviceId: deviceId,
+            originalStreamData: MediaStreamUtils.getMediaStreamLogData(this.originalStream),
+            newStreamData: MediaStreamUtils.getMediaStreamLogData(newStream),
+            inputDeviceId: this.inputDeviceId,
+            wasmProcessingEnabled: isWasmProcessingEnabled(),
+          },
+        }, 'LiveKit: device change completed (no existing publication)');
 
         return newStream;
       } catch (error) {
@@ -1179,7 +1259,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
       // @ts-ignore
       const LIVEKIT_SETTINGS = window.meetingClientSettings.public.media?.livekit?.audio;
       const basePublishOptions: TrackPublishOptions = LIVEKIT_SETTINGS?.publishOptions || {
-        audioPreset: AudioPresets.music,
+        audioPreset: AudioPresets.musicHighQuality,
         dtx: true,
         red: true,
         forceStereo: false,
@@ -1328,8 +1408,15 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  async getStats(): Promise<Map<string, unknown>> {
-    return getLKStats();
+  async getStats(additionalStatsTypes = []):
+    Promise<{ transportStats: object, [key: string]: string | number | object | unknown }> {
+    const stats = await getLiveKitStats({
+      room: liveKitRoom,
+      kind: 'audio',
+      source: Track.Source.Microphone,
+      aggregateInbound: true,
+    });
+    return this.parseStats({ stats, additionalStatsTypes });
   }
 
   async joinAudio(
@@ -1380,7 +1467,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
 
       const matchConstraints = filterSupportedConstraints(constraints);
 
-      if (IS_CHROME) {
+      if (IS_CHROME || isWasmProcessorSupported()) {
         // @ts-ignore
         matchConstraints.deviceId = this.inputDeviceId;
         const stream = await doGUM({ audio: matchConstraints });

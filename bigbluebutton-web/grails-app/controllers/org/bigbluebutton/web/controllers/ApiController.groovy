@@ -639,9 +639,15 @@ class ApiController {
     }
   }
 
-  def handleJoinExistingUser(String existingUserID) {
+  private handleJoinExistingUser(String existingUserID) {
     Meeting meeting = ServiceUtils.findMeetingFromMeetingID(params.meetingID);
     UserSession existingUserSession = meetingService.getUserSessionWithUserId(existingUserID)
+
+    if (existingUserSession == null) {
+      invalid("userNotFound", "No active session found for the provided user ID.", false)
+      return
+    }
+
 
     //check if exists the param redirect
     boolean redirectClient = REDIRECT_RESPONSE
@@ -1487,7 +1493,7 @@ class ApiController {
     }
   }
 
-  def uploadDocuments(xmlModules, conf, isFromInsertAPI) {
+  private uploadDocuments(xmlModules, conf, isFromInsertAPI) {
     if (conf.getDisabledFeatures().contains("presentation")) {
       log.warn("Presentation feature is disabled.")
       return false
@@ -1657,7 +1663,7 @@ class ApiController {
     return true
   }
 
-  def processRequestXmlModules(String requestBody) {
+  private processRequestXmlModules(String requestBody) {
     def xmlModules = [:]
 
     if (requestBody != null && requestBody != "") {
@@ -1671,7 +1677,7 @@ class ApiController {
     return xmlModules
   }
 
-  def processDocumentFromRawBytes(bytes, presOrigFilename, meetingId, current, isDownloadable, isRemovable,
+  private processDocumentFromRawBytes(bytes, presOrigFilename, meetingId, current, isDownloadable, isRemovable,
                                   isDefaultPresentation) {
     def uploadFailed = false
     def uploadFailReasons = new ArrayList<String>()
@@ -1727,7 +1733,7 @@ class ApiController {
     }
   }
 
-  def downloadAndProcessDocument(address, meetingId, current, fileName, isDownloadable, isRemovable,
+  private downloadAndProcessDocument(address, meetingId, current, fileName, isDownloadable, isRemovable,
                                  isDefaultPresentation, isPreUploadedPresentationFromParameter) {
     log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId}, ${fileName})");
     String presOrigFilename;
@@ -1816,7 +1822,7 @@ class ApiController {
   }
 
 
-  def processUploadedFile(podId, meetingId, presId, filename, presFile, current,
+  private processUploadedFile(podId, meetingId, presId, filename, presFile, current,
                           authzToken, uploadFailed, uploadFailReasons, isDownloadable, isRemovable, isDefaultPresentation ) {
     def presentationBaseUrl = presentationService.presentationBaseUrl
     // TODO add podId
@@ -1850,7 +1856,7 @@ class ApiController {
     }
   }
 
-  def respondWithConference(meeting, msgKey, msg) {
+  private respondWithConference(meeting, msgKey, msg) {
     response.addHeader("Cache-Control", "no-cache")
     withFormat {
       xml {
@@ -1863,7 +1869,7 @@ class ApiController {
     }
   }
 
-  def getUserSession(token) {
+  private getUserSession(token) {
     if (token == null) {
       return null
     }
@@ -1887,7 +1893,7 @@ class ApiController {
     StringUtils.strip(input.replaceAll("\\p{Cntrl}", ""));
   }
 
-  def sanitizeSessionToken(param) {
+  private sanitizeSessionToken(param) {
     if (param == null) {
       log.info("sanitizeSessionToken: token is null")
       return null

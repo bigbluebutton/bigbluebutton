@@ -55,6 +55,16 @@ const intlMessages = defineMessages({
     id: 'app.guest.calculating',
     description: '',
   },
+  messageFromHost: {
+    id: 'app.guest.messageFromHost',
+    description: 'Label for host message',
+    defaultMessage: 'Message from host',
+  },
+  waitingForApproval: {
+    id: 'app.guest.waitingForApproval',
+    description: 'Waiting status text',
+    defaultMessage: 'Waiting for approval',
+  },
 });
 
 function getSearchParam(name: string) {
@@ -177,26 +187,42 @@ const GuestWait: React.FC<GuestWaitProps> = (props) => {
     updatePositionInWaitingQueue,
   ]);
 
+  const hasCustomMessage = guestLobbyMessage && guestLobbyMessage.length > 0;
+
   return (
     <Styled.Container>
       <Styled.Content id="content">
         <Styled.Heading id="heading">{intl.formatMessage(intlMessages.windowTitle)}</Styled.Heading>
-        {animate && (
-          <Styled.Spinner>
-            <Styled.Bounce1 />
-            <Styled.Bounce2 />
-            <Styled.Bounce />
-          </Styled.Spinner>
-        )}
-        <p
-          aria-live="polite"
-          data-test="guestMessage"
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: message }}
-        />
         <Styled.Position id="positionInWaitingQueue">
           <p aria-live="polite">{positionMessage}</p>
         </Styled.Position>
+        {hasCustomMessage && (
+          <Styled.MessageContainer>
+            <Styled.MessageLabel>
+              {intl.formatMessage(intlMessages.messageFromHost)}
+            </Styled.MessageLabel>
+            <Styled.MessageText
+              aria-live="polite"
+              data-test="guestMessage"
+              // eslint-disable-next-line react/no-danger
+              dangerouslySetInnerHTML={{ __html: message }}
+            />
+          </Styled.MessageContainer>
+        )}
+        {!hasCustomMessage && (
+          <p
+            aria-live="polite"
+            data-test="guestMessage"
+            // eslint-disable-next-line react/no-danger
+            dangerouslySetInnerHTML={{ __html: message }}
+          />
+        )}
+        {animate && (
+          <Styled.WaitingIndicator>
+            <Styled.WaitingDot />
+            <span>{intl.formatMessage(intlMessages.waitingForApproval)}</span>
+          </Styled.WaitingIndicator>
+        )}
       </Styled.Content>
     </Styled.Container>
   );

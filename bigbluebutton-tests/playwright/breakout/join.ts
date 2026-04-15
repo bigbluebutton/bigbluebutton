@@ -119,7 +119,7 @@ export class Join extends Create {
   }
 
   async joinAndShareScreen() {
-    const breakoutPage = await this.joinRoom();
+    const breakoutPage = await this.joinRoomWithModerator();
 
     await utilScreenShare.startScreenshare(breakoutPage);
   }
@@ -174,7 +174,9 @@ export class Join extends Create {
 
     await this.modPage.page.bringToFront();
 
+    await this.modPage.waitAndClick(e.roomOptions2);
     await this.modPage.waitAndClick(e.askJoinRoom2);
+    await this.modPage.waitAndClick(e.roomOptions2);
     await this.modPage.waitForSelector(e.alreadyConnected, ELEMENT_WAIT_LONGER_TIME);
 
     const breakoutModPage = await this.modPage.getLastTargetPage(this.context);
@@ -197,7 +199,8 @@ export class Join extends Create {
     );
 
     await this.modPage.hasElement(e.breakoutRemainingTime, 'should display the breakout room remaining time element');
-    await this.modPage.fill(e.chatBox, 'Test message to all breakout rooms');
+    await this.modPage.waitAndClick(e.breakoutMegaphoneButton);
+    await this.modPage.fill(e.breakoutMessageInput, 'Test message to all breakout rooms');
     await this.modPage.waitAndClick(e.sendButton);
     await breakoutUserPage.hasElement(e.chatUserMessageText, 'should have a test message on the public chat.');
 
@@ -206,9 +209,14 @@ export class Join extends Create {
       'should display a message from the moderator, html element will have data-message-type="breakoutRoomModeratorMsg"',
     );
 
-    await this.modPage.fill(e.chatBox, 'Second Test message to all breakout rooms');
+    await this.modPage.waitAndClick(e.breakoutMegaphoneButton);
+    await this.modPage.fill(e.breakoutMessageInput, 'Second Test message to all breakout rooms');
     await this.modPage.waitAndClick(e.sendButton);
-    await breakoutUserPage.hasElement(e.chatUserMessageText, 'should have another test message on the public chat.');
+    await breakoutUserPage.hasNElements(
+      e.chatUserMessageText,
+      2,
+      'should have another test message on the public chat.',
+    );
 
     await breakoutUserPage.hasNElements(
       `${e.chatMessageItem}[data-message-type="breakoutRoomModeratorMsg"]`,
@@ -235,14 +243,14 @@ export class Join extends Create {
       'should display the presentation title on the breakout room',
     );
 
-    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
-    await this.modPage.waitAndClick(e.openBreakoutTimeManager);
-    await this.modPage.page.locator(e.inputSetTimeSelector).press('Backspace');
-    await this.modPage.type(e.inputSetTimeSelector, '5');
-    await this.modPage.waitAndClick(e.sendButtonDurationTime);
-    await this.modPage.hasText(
-      e.breakoutRemainingTime,
-      /[4-5]:[0-5][0-9]/,
+    // Decrease from 15 to 5 minutes by clicking in the minus button 10 times
+    for (let i = 0; i < 10; i += 1) {
+      await this.modPage.waitAndClick(e.decreaseBreakoutTimeButton);
+    }
+
+    await this.modPage.hasValue(
+      e.breakoutRoomTimerMinutesInput,
+      '04',
       'should have the breakout room time remaining counting down on the main meeting',
     );
 
@@ -257,15 +265,13 @@ export class Join extends Create {
     if (!this?.modPage) throw new Error('modPage not initialized');
     if (!this?.userPage) throw new Error('userPage not initialized');
 
-    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
-    await this.modPage.waitAndClick(e.openUpdateBreakoutUsersModal);
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
     await this.modPage.hasText(
-      e.breakoutBox1,
-      /Attendee/,
-      'should have the attendee name on the second breakout room box.',
+      e.smallToastMsg,
+      e.inviteSentRoom1,
+      `should appear the text "${e.inviteSentRoom1}" on the toast message after dropping the ` +
+        `attendee into the breakout room.`,
     );
-    await this.modPage.waitAndClick(e.updateBreakoutRoomsButton);
 
     await this.userPage.hasElement(
       e.modalConfirmButton,
@@ -297,15 +303,15 @@ export class Join extends Create {
       'should display the presentation title on the breakout room',
     );
 
-    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
-    await this.modPage.waitAndClick(e.openBreakoutTimeManager);
-    await this.modPage.page.locator(e.inputSetTimeSelector).press('Backspace');
-    await this.modPage.type(e.inputSetTimeSelector, '5');
-    await this.modPage.waitAndClick(e.sendButtonDurationTime);
-    await this.modPage.hasText(
-      e.breakoutRemainingTime,
-      /[4-5]:[0-5][0-9]/,
-      'should have the breakout room time remaining counting down on the breakout main panel.',
+    // Decrease from 15 to 5 minutes by clicking in the minus button 10 times
+    for (let i = 0; i < 10; i += 1) {
+      await this.modPage.waitAndClick(e.decreaseBreakoutTimeButton);
+    }
+
+    await this.modPage.hasValue(
+      e.breakoutRoomTimerMinutesInput,
+      '04',
+      'should have the breakout room time remaining counting down on the main meeting',
     );
 
     await breakoutUserPage.hasText(
@@ -319,8 +325,7 @@ export class Join extends Create {
     if (!this?.modPage) throw new Error('modPage not initialized');
     if (!this?.userPage) throw new Error('userPage not initialized');
 
-    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
-    await this.modPage.waitAndClick(e.endAllBreakouts);
+    await this.modPage.waitAndClick(e.finishBreakoutButton);
     await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
     await this.modPage.hasElement(
       e.createBreakoutRoomsButton,
@@ -344,11 +349,13 @@ export class Join extends Create {
       'should display the user name below the first breakout room name',
     );
 
-    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
-
-    await this.modPage.waitAndClick(e.openUpdateBreakoutUsersModal);
     await this.modPage.dragDropSelector(e.moveUser, e.breakoutBox2);
-    await this.modPage.waitAndClick(e.updateBreakoutRoomsButton);
+    await this.modPage.hasText(
+      e.smallToastMsg,
+      e.inviteSentRoom2,
+      `should appear the text "${e.inviteSentRoom2}" on the toast message after dropping the ` +
+        `attendee into the breakout room.`,
+    );
 
     await this.userPage.hasElement(
       e.modalConfirmButton,
@@ -368,7 +375,7 @@ export class Join extends Create {
     await this.modPage.hasText(
       e.userNameBreakoutRoom2,
       /Attendee/,
-      'should display the user name below the first breakout room name',
+      'should display the user name below the second breakout room name',
       ELEMENT_WAIT_LONGER_TIME,
     );
   }
@@ -407,9 +414,8 @@ export class Join extends Create {
     // making sure there's enough time for the typing to finish
     await breakoutUserPage.page.waitForTimeout(1000);
     // end breakout rooms
-    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
     await this.modPage.closeAllToastNotifications();
-    await this.modPage.waitAndClick(e.endAllBreakouts);
+    await this.modPage.waitAndClick(e.finishBreakoutButton);
     // check if the notes were exported
     await this.modPage.hasElement(
       e.presentationUploadProgressToast,
@@ -486,9 +492,7 @@ export class Join extends Create {
     // making sure there's enough time for the drawing to finish
     await breakoutUserPage.page.waitForTimeout(1000);
     // end breakout rooms
-    await this.modPage.waitAndClick(e.breakoutRoomsItem);
-    await this.modPage.waitAndClick(e.breakoutOptionsMenu);
-    await this.modPage.waitAndClick(e.endAllBreakouts);
+    await this.modPage.waitAndClick(e.finishBreakoutButton);
 
     await this.modPage.hasElement(
       e.presentationUploadProgressToast,
@@ -573,12 +577,15 @@ export class Join extends Create {
     await this.modPage.setHeightWidthViewPortSize(); // reset to default size
     // select different presentation for the first breakout room
     const changeSlideBreakoutLocator = await this.modPage.page.locator(e.changeSlideBreakoutRoom1);
+    // open the Select dropdown
+    await changeSlideBreakoutLocator.click();
+    const listbox = this.modPage.page.locator('ul[role="listbox"]');
     await expect(
-      changeSlideBreakoutLocator.locator('option'),
+      listbox.locator('li[role="option"]'),
       'should display 3 available option on presentation selection (current slide, default and uploaded presentation)',
     ).toHaveCount(3);
     // change to default, other breakout will have the uploaded one as it's the current presentation
-    await changeSlideBreakoutLocator.selectOption({ label: 'default.pdf' });
+    await listbox.locator('li[role="option"]', { hasText: 'default.pdf' }).click();
     await this.modPage.waitAndClick(e.createBreakoutRoomsButton);
     await this.userPage.waitAndClick(e.modalDismissButton);
     // join user to breakout room and check the presentation loaded
@@ -594,5 +601,93 @@ export class Join extends Create {
     // visual assertion on the presentations
     await expect(breakoutModPage.page).toHaveScreenshot('moderator-page-first-room.png');
     await expect(breakoutUserPage.page).toHaveScreenshot('attendee-page-second-room.png');
+  }
+
+  async callModerator() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+
+    const breakoutUserPage = await this.joinRoom();
+    await breakoutUserPage.hasElement(
+      e.presentationTitle,
+      'should display the presentation title inside the breakout room',
+    );
+
+    // open breakout sidebar in the breakout room and click call moderator
+    await breakoutUserPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await breakoutUserPage.waitAndClick(e.callModeratorButton);
+
+    // verify success notification on breakout user page
+    await breakoutUserPage.hasText(
+      e.smallToastMsg,
+      e.callModeratorSentToast,
+      'should display the "Moderators have been notified." toast notification',
+    );
+
+    // verify chat message on moderator page
+    await this.modPage.waitAndClick(e.messagesSidebarButton);
+    await this.modPage.hasElement(
+      `${e.chatMessageItem}[data-message-type="breakoutCallModeratorMsg"]`,
+      'should display a chat message with data-message-type="breakoutCallModeratorMsg"',
+    );
+    await this.modPage.hasText(
+      `${e.chatMessageItem}[data-message-type="breakoutCallModeratorMsg"] p`,
+      e.requestingModeratorAssistance,
+      'should display the call moderator message in the moderator public chat',
+    );
+  }
+
+  async callModeratorCooldown() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+
+    const breakoutUserPage = await this.joinRoom();
+    await breakoutUserPage.hasElement(
+      e.presentationTitle,
+      'should display the presentation title inside the breakout room',
+    );
+
+    // open breakout sidebar and click call moderator
+    await breakoutUserPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await breakoutUserPage.waitAndClick(e.callModeratorButton);
+    await breakoutUserPage.hasText(
+      e.smallToastMsg,
+      e.callModeratorSentToast,
+      'should display the "Moderators have been notified." toast notification',
+    );
+
+    // click again immediately to trigger cooldown
+    await breakoutUserPage.waitAndClick(e.callModeratorButton);
+    await breakoutUserPage.hasText(
+      e.smallToastMsg,
+      e.callModeratorCooldownToast,
+      'should display the "Please wait before calling the moderators again." cooldown toast',
+    );
+  }
+
+  async returnToMainSessionFromSidebar() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+
+    const breakoutUserPage = await this.joinRoom();
+    await breakoutUserPage.hasElement(
+      e.presentationTitle,
+      'should display the presentation title inside the breakout room',
+    );
+
+    // click the return to main session button from the breakout sidebar
+    await breakoutUserPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await breakoutUserPage.waitAndClick(e.returnToMainSessionButton);
+
+    await breakoutUserPage.hasElement(
+      e.meetingEndedModal,
+      'should display the meeting ended modal after returning to main session',
+    );
+    await breakoutUserPage.waitAndClick(e.redirectButton);
+
+    await this.userPage.hasElement(
+      e.joinAudio,
+      'should display the join audio button after returning to the main session',
+    );
   }
 }
