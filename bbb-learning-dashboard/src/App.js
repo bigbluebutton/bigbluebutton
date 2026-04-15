@@ -279,7 +279,7 @@ class App extends React.Component {
     };
 
     if (learningDashboardAccessToken !== '') {
-      fetch(`${meetingId}/${learningDashboardAccessToken}/learning_dashboard_data.json`)
+      fetch(`${window.location.pathname.replace(/\/?$/, '/')}${meetingId}/${learningDashboardAccessToken}/learning_dashboard_data.json`)
         .then((response) => response.json())
         .then((json) => {
           this.setState({
@@ -319,9 +319,11 @@ class App extends React.Component {
       this.setState({ loading: false });
     }
 
-    setTimeout(() => {
-      this.fetchActivitiesJson();
-    }, 10000 * (2 ** invalidSessionCount));
+    if (learningDashboardAccessToken !== 'playback') {
+      setTimeout(() => {
+        this.fetchActivitiesJson();
+      }, 10000 * (2 ** invalidSessionCount));
+    }
   }
 
   totalOfReactions() {
