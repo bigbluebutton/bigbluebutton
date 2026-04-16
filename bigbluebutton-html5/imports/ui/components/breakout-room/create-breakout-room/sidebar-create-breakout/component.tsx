@@ -200,10 +200,10 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
   const resetAssignmentsFunction = useRef<() => void>(() => {});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  const setRoomsRef = (rooms: Rooms) => { roomsRef.current = rooms; };
-  const setMoveRegisterRef = (moveRegister: moveUserRegistery) => {
+  const setRoomsRef = useCallback((rooms: Rooms) => { roomsRef.current = rooms; }, []);
+  const setMoveRegisterRef = useCallback((moveRegister: moveUserRegistery) => {
     moveRegisterRef.current = moveRegister;
-  };
+  }, []);
 
   const SCROLL_ZONE = 60;
   const SCROLL_SPEED = 8;
