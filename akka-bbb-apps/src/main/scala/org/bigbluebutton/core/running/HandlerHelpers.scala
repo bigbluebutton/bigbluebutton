@@ -101,12 +101,12 @@ trait HandlerHelpers extends SystemConfiguration {
             val event = UserJoinedMeetingEvtMsgBuilder.build(liveMeeting.props.meetingProp.intId, newUser)
             outGW.send(event)
 
-            if (MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList) {
+            if (MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList && newUser.role != Roles.MODERATOR_ROLE) {
               Users2x.findAll(liveMeeting.users2x)
-                .filter(u => !u.userLeftFlag.left && (!u.locked || u.role == Roles.MODERATOR_ROLE))
-                .foreach { u =>
+                .filter(r => !r.userLeftFlag.left && (!r.locked || r.role == Roles.MODERATOR_ROLE))
+                .foreach { r =>
                   val notifyEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
-                    u.intId,
+                    r.intId,
                     liveMeeting.props.meetingProp.intId,
                     "info",
                     "user",

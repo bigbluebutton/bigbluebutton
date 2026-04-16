@@ -1153,7 +1153,7 @@ class MeetingActor(
         val userLeftMeetingEvent = MsgBuilder.buildUserLeftMeetingEvtMsg(liveMeeting.props.meetingProp.intId, u.intId)
         outGW.send(userLeftMeetingEvent)
 
-        if (MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList) {
+        if (MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList && u.role != Roles.MODERATOR_ROLE) {
           val leaverName = u.name
           Users2x.findAll(liveMeeting.users2x)
             .filter(recipient => !recipient.userLeftFlag.left && (!recipient.locked || recipient.role == Roles.MODERATOR_ROLE))
