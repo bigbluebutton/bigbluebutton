@@ -85,7 +85,21 @@ export type AudioOnlyStream = {
   type: typeof VIDEO_TYPES.AUDIO_ONLY;
 }
 
-export type StreamItem = Stream | ConnectingStream | AudioOnlyStream;
+export type ScreenshareDockStream = {
+  userId: string;
+  stream: string;
+  name: string;
+  nameSortable: string;
+  user: Partial<User>;
+  floor: boolean;
+  lastFloorTime: string;
+  voice: undefined;
+  type: typeof VIDEO_TYPES.SCREENSHARE;
+  screenshareId: string;
+  trackSid: string | null;
+};
+
+export type StreamItem = Stream | ConnectingStream | AudioOnlyStream | ScreenshareDockStream;
 export type GridItem = GridUser & { type: typeof VIDEO_TYPES.GRID };
 export type VideoItem = StreamItem | GridItem;
 export type StreamSubscriptionData = VideoStreamsResponse['user_camera'][number];

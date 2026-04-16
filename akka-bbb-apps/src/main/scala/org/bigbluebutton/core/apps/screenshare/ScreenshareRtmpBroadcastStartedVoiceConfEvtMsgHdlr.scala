@@ -56,6 +56,7 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
           // Stop external video if it's running
           ExternalVideoModel.stop(bus.outGW, liveMeeting)
 
+          val isPresenter = findPresenter(liveMeeting.users2x).exists(_.intId == userId)
           val newEntry = ScreenshareStream(
             streamId = msg.body.stream,
             userId = userId,
@@ -65,7 +66,7 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
             vidWidth = msg.body.vidWidth,
             vidHeight = msg.body.vidHeight,
             hasAudio = msg.body.hasAudio,
-            showAsContent = true,
+            showAsContent = isPresenter,
             timestamp = msg.body.timestamp,
             trackSid = msg.body.trackSid
           )

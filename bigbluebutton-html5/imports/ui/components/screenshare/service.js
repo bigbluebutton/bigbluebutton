@@ -207,12 +207,11 @@ export const useBroadcastContentType = () => {
   const { data } = useScreenshare();
 
   if (!data || data.length === 0) {
-    // defaults to contentType: "camera"
     return CONTENT_TYPE_CAMERA;
   }
 
-  // Find the first stream that's showing as content, fallback to first stream
-  const contentStream = data.find((s) => s.showAsContent) || data[0];
+  const contentStream = data.find((s) => s.showAsContent);
+  if (!contentStream) return CONTENT_TYPE_CAMERA;
   return contentStream.contentType;
 };
 
@@ -220,8 +219,7 @@ export const useScreenshareStreamId = () => {
   const { data } = useScreenshare();
 
   if (!data || data.length === 0) return undefined;
-  // Return the first showAsContent stream, fallback to first stream
-  const contentStream = data.find((s) => s.showAsContent) || data[0];
+  const contentStream = data.find((s) => s.showAsContent);
   return contentStream?.stream;
 };
 

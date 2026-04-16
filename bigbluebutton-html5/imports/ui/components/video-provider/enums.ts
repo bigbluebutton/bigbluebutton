@@ -3,6 +3,7 @@ export const VIDEO_TYPES = Object.freeze({
   STREAM: 'stream',
   GRID: 'grid',
   AUDIO_ONLY: 'audio_only',
+  SCREENSHARE: 'screenshare',
 });
 
 export default {

@@ -37,13 +37,16 @@ import {
 import videoService from '/imports/ui/components/video-provider/service';
 import { CAMERA_BROADCAST_STOP } from '/imports/ui/components/video-provider/mutations';
 import {
+  User,
   GridItem,
   StreamItem,
   AudioOnlyStream,
   GridUsersResponse,
   OwnVideoStreamsResponse,
   StreamSubscriptionData,
+  ScreenshareDockStream,
 } from '/imports/ui/components/video-provider/types';
+import { useScreenshareCameraStreams } from '/imports/ui/components/screenshare/service';
 import { DesktopPageSizes, MobilePageSizes } from '/imports/ui/Types/meetingClientSettings';
 import logger from '/imports/startup/client/logger';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
@@ -479,7 +482,23 @@ export const useVideoStreams = () => {
   const audioOnlyUsers = useAudioOnlyUsers();
   const myPageSize = useMyPageSize();
   const isPaginationEnabled = useIsPaginationEnabled();
-  let streams: StreamItem[] = [...videoStreams];
+  const screenshareCameraStreams = useScreenshareCameraStreams();
+
+  const screenshareDockStreams: ScreenshareDockStream[] = (screenshareCameraStreams as any[]).map((ss) => ({
+    userId: ss.userId,
+    stream: ss.stream,
+    name: `Screen - ${ss.userId}`,
+    nameSortable: `screen-${ss.userId}`,
+    user: { userId: ss.userId, name: `Screen - ${ss.userId}` } as Partial<User>,
+    floor: false,
+    lastFloorTime: '0',
+    voice: undefined,
+    type: VIDEO_TYPES.SCREENSHARE as typeof VIDEO_TYPES.SCREENSHARE,
+    screenshareId: ss.screenshareId,
+    trackSid: ss.trackSid || null,
+  }));
+
+  let streams: StreamItem[] = [...videoStreams, ...screenshareDockStreams];
   let totalNumberOfOtherStreams: number | undefined;
 
   const layoutType = layoutSelect((i: Layout) => i.layoutType);
