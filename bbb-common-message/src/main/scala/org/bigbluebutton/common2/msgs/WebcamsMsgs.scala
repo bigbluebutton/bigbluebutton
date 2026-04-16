@@ -199,3 +199,17 @@ case class SetCamShowAsContentEvtMsg(
     body:   SetCamShowAsContentEvtMsgBody
 ) extends BbbCoreMsg
 case class SetCamShowAsContentEvtMsgBody(streamId: String, showAsContent: Boolean, setBy: String)
+
+/**
+ * Sent from client to change the screenshare showAsContent (used to send screenshare to presentation area).
+ */
+object SetScreenshareShowAsContentReqMsg { val NAME = "SetScreenshareShowAsContentReqMsg" }
+case class SetScreenshareShowAsContentReqMsg(header: BbbClientMsgHeader, body: SetScreenshareShowAsContentReqMsgBody) extends StandardMsg
+case class SetScreenshareShowAsContentReqMsgBody(streamId: String, showAsContent: Boolean, setBy: String)
+
+object SetScreenshareShowAsContentEvtMsg { val NAME = "SetScreenshareShowAsContentEvtMsg" }
+case class SetScreenshareShowAsContentEvtMsg(
+    header: BbbClientMsgHeader,
+    body:   SetScreenshareShowAsContentEvtMsgBody
+) extends BbbCoreMsg
+case class SetScreenshareShowAsContentEvtMsgBody(streamId: String, showAsContent: Boolean, setBy: String)

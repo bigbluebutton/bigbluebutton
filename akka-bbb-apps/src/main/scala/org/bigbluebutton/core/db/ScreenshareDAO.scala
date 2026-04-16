@@ -100,4 +100,15 @@ object ScreenshareDAO {
     )
   }
 
+  def updateShowAsContent(meetingId: String, streamId: String, showAsContent: Boolean) = {
+    DatabaseConnection.enqueue(
+      TableQuery[ScreenshareDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .filter(_.stream === streamId)
+        .filter(_.stoppedAt.isEmpty)
+        .map(ev => ev.showAsContent)
+        .update(showAsContent)
+    )
+  }
+
 }

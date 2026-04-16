@@ -84,7 +84,8 @@ object ScreenshareApp2x {
 class ScreenshareApp2x(implicit val context: ActorContext)
   extends GetScreenshareStatusReqMsgHdlr
   with ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr
-  with ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgHdlr {
+  with ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgHdlr
+  with SetScreenshareShowAsContentReqMsgHdlr {
 
   val log = Logging(context.system, getClass)
 

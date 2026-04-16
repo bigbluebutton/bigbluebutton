@@ -424,6 +424,8 @@ class ReceivedJsonMsgHandlerActor(
         routeVoiceMsg[ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg](envelope, jsonNode)
       case ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg.NAME =>
         routeVoiceMsg[ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg](envelope, jsonNode)
+      case SetScreenshareShowAsContentReqMsg.NAME =>
+        routeGenericMsg[SetScreenshareShowAsContentReqMsg](envelope, jsonNode)
       case GetScreenBroadcastPermissionReqMsg.NAME =>
         routeGenericMsg[GetScreenBroadcastPermissionReqMsg](envelope, jsonNode)
       case GetScreenSubscribePermissionReqMsg.NAME =>

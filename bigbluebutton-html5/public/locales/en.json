@@ -1338,6 +1338,8 @@
     "app.videoDock.webcamDisableWarning": "Your webcam is still visible to others! Only your local view is disabled.",
     "app.videoDock.webcamPinLabel": "Pin",
     "app.videoDock.webcamPinDesc": "Pin the selected webcam",
+    "app.videoDock.screenshareShowAsContentLabel": "Show as content",
+    "app.videoDock.screenshareShowAsContentDesc": "Show this screenshare in the content area",
     "app.videoDock.webcamFullscreenLabel": "Fullscreen webcam",
     "app.videoDock.webcamExitFullscreenLabel": "Exit fullscreen webcam",
     "app.videoDock.webcamSqueezedButtonLabel": "Webcam options",

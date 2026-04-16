@@ -12,6 +12,7 @@ import Auth from '/imports/ui/services/auth';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { notify } from '/imports/ui/services/notification';
 import { SET_CAMERA_PINNED } from '/imports/ui/core/graphql/mutations/userMutations';
+import { SCREENSHARE_SET_SHOW_AS_CONTENT } from '/imports/ui/components/screenshare/mutations';
 import { VideoItem } from '/imports/ui/components/video-provider/types';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { useIsVideoPinEnabledForCurrentUser } from '/imports/ui/components/video-provider/hooks';
@@ -82,6 +83,12 @@ const intlMessages = defineMessages({
     id: 'app.userList.you',
     description: 'Text for identifying your user',
   },
+  screenshareShowAsContentLabel: {
+    id: 'app.videoDock.screenshareShowAsContentLabel',
+  },
+  screenshareShowAsContentDesc: {
+    id: 'app.videoDock.screenshareShowAsContentDesc',
+  },
 });
 
 interface UserActionProps {
@@ -126,6 +133,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
   const isIphone = !!(navigator.userAgent.match(/iPhone/i));
 
   const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);
+  const [screenshareSetShowAsContent] = useMutation(SCREENSHARE_SET_SHOW_AS_CONTENT);
   const pinEnabledForCurrentUser = useIsVideoPinEnabledForCurrentUser(amIModerator);
 
   const isLocalStream = stream.userId === Auth.userID;
@@ -251,6 +259,23 @@ const UserActions: React.FC<UserActionProps> = (props) => {
           },
         },
       );
+    }
+
+    if (stream.type === VIDEO_TYPES.SCREENSHARE && amIModerator) {
+      menuItems.push({
+        key: `${cameraId}-screenshare-content`,
+        label: intl.formatMessage(intlMessages.screenshareShowAsContentLabel),
+        description: intl.formatMessage(intlMessages.screenshareShowAsContentDesc),
+        onClick: () => {
+          screenshareSetShowAsContent({
+            variables: {
+              streamId: cameraId,
+              showAsContent: true,
+            },
+          });
+        },
+        dataTest: 'screenshareShowAsContentBtn',
+      });
     }
 
     userCameraDropdownItems.filter(
