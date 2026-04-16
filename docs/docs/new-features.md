@@ -136,6 +136,17 @@ BigBlueButton 3.0.19 introduced a new layout called "Unified Layout." This layou
 
 Unified Layout behaves similarly to Custom Layout when the presentation is active, and similarly to Grid Layout when it is not. Once the new layout becomes the default, the layout manager will no longer be used. The only way to change the arrangement of the visible area will be via the button that hides or restores the presentation area.
 
+### BlockNote Shared Notes
+
+BigBlueButton 3.0.25 introduced an alternative service for shared notes - BlockNote. It comes with modern rich text editing capabilities and tighter integration with our technology stack (React, TypeScript, WebSocket).
+
+To enable it, you would first need to install the optional package via
+
+`$ sudo apt-get install bbb-shared-notes-server`
+
+At this point you can use it in a specific session by passing `sharedNotesEditor=blockNote` on the `/create` call.
+If you have made your mind and would like to use it for all sessions, add the same line (`sharedNotesEditor=blockNote`) to `/etc/bigbluebutton/bbb-web.properties` and restart BigBlueButton via `$ sudo bbb-conf --restart`
+
 
 ### Engagement
 
