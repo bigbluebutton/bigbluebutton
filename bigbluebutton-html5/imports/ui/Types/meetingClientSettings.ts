@@ -652,6 +652,7 @@ export interface LiveKitSettings {
   url?: string
   selectiveSubscription?: SelectiveSubscriptionConfig
   logLevel?: LogLevel
+  retryThroughRelay?: boolean
   roomOptions?: Partial<InternalRoomOptions>
   reconnectOnFatalFailures?: boolean
   audio?: LiveKitAudioSettings

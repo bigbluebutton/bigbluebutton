@@ -956,6 +956,9 @@ public:
       # reconnectOnFatalFailures: whether to trigger LK room reconnections when
       # fatal errors occur (e.g.: unrecoverable publish timeouts). Default is false.
       reconnectOnFatalFailures: false
+      # retryThroughRelay: when the initial LiveKit connection fails, retries
+      # will force TURN/relay until the first successful connect.
+      retryThroughRelay: false
       roomOptions:
         adaptiveStream: true
         dynacast: true

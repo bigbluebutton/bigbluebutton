@@ -54,6 +54,7 @@ interface BBBLiveKitRoomProps {
   usingScreenShare: boolean;
   withSelectiveSubscription: boolean;
   reconnectOnFatalFailures?: boolean;
+  retryThroughRelay?: boolean;
 }
 
 interface ObserverProps {
@@ -175,16 +176,23 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
   usingScreenShare,
   withSelectiveSubscription,
   reconnectOnFatalFailures = false,
+  retryThroughRelay = false,
 }) => {
   const [connAttempts, setConnAttempts] = useState(0);
   const [connError, setConnError] = useState<Error | null>(null);
   const [lkRoomOptionsAvailable, setLkRoomOptionsAvailable] = useState(false);
   const [connectOptions, setConnectOptions] = useState<RoomConnectOptions | undefined>(undefined);
   const isClientConnected = useReactiveVar(connectionStatus.getConnectedStatusVar());
-  const { iceServers, isLoading: iceServersLoading } = useIceServers(bbbSessionToken);
+  const {
+    iceServers,
+    isLoading: iceServersLoading,
+    hasTurnServer,
+  } = useIceServers(bbbSessionToken);
   const speakerLevel = useSpeakerLevel();
   const intl = useIntl();
   const isReconnectingRef = useRef(false);
+  const hasEverConnectedRef = useRef(false);
+  const lastConnectUsedRelayRef = useRef(false);
 
   const onDisconnected = useCallback((reason?: DisconnectReason) => {
     logger.warn({
@@ -209,22 +217,31 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
         iceServers,
         connAttempts,
         isClientConnected,
+        hasEverConnected: hasEverConnectedRef.current,
+        forceRelay: lastConnectUsedRelayRef.current,
+        retryThroughRelay,
       },
     }, `LiveKit room error: ${error.message}`);
     setConnError(error);
     setConnAttempts((prev) => prev + 1);
-  }, [isClientConnected, url, iceServers, connAttempts]);
+  }, [isClientConnected, url, iceServers, connAttempts, retryThroughRelay]);
 
   const onConnected = useCallback(() => {
+    const initialConn = !hasEverConnectedRef.current;
+    const forceRelay = lastConnectUsedRelayRef.current;
+    hasEverConnectedRef.current = true;
     logger.info({
       logCode: 'livekit_room_connected',
       extraInfo: {
         url,
+        connAttempts,
+        initialConn,
+        forceRelay,
       },
-    }, 'LiveKit connected');
+    }, `LiveKit connected (initialConn=${initialConn}, attempts=${connAttempts}, forceRelay=${forceRelay})`);
     setConnAttempts(0);
     setConnError(null);
-  }, [url]);
+  }, [url, connAttempts]);
 
   useEffect(() => {
     if (!token
@@ -258,6 +275,19 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
       return;
     }
 
+    const forceRelay = retryThroughRelay
+      && !hasEverConnectedRef.current
+      && connError instanceof ConnectionError
+      && hasTurnServer;
+
+    const effectiveConnectOptions: RoomConnectOptions = forceRelay ? {
+      ...connectOptions,
+      rtcConfig: {
+        ...(connectOptions.rtcConfig ?? {}),
+        iceTransportPolicy: 'relay',
+      },
+    } : connectOptions;
+
     logger.warn({
       logCode: 'livekit_room_conn_retry',
       extraInfo: {
@@ -267,10 +297,13 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
         errorMessage: connError?.message,
         errorStack: connError?.stack,
         errorName: connError?.name,
+        retryThroughRelay,
+        forceRelay,
       },
-    }, `LiveKit reconnect attempt ${connAttempts}`);
+    }, `LiveKit reconnect attempt ${connAttempts} (forceRelay=${forceRelay})`);
     setConnError(null);
-    liveKitRoom.connect(url, token, connectOptions).catch((error) => {
+    lastConnectUsedRelayRef.current = forceRelay;
+    liveKitRoom.connect(url, token, effectiveConnectOptions).catch((error) => {
       logger.debug({
         logCode: 'livekit_room_connect_error',
         extraInfo: {
@@ -278,6 +311,7 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
           errorStack: (error as Error).stack,
           connAttempts,
           url,
+          forceRelay,
         },
       }, `Failed to connect to LiveKit room: ${error?.message}`);
     });
@@ -290,6 +324,8 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
     isClientConnected,
     iceServersLoading,
     connAttempts,
+    retryThroughRelay,
+    hasTurnServer,
   ]);
 
   useEffect(() => {
@@ -314,9 +350,10 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
       extraInfo: {
         url,
         iceServers,
+        retryThroughRelay,
       },
     }, 'LiveKit room will connect');
-  }, [token, url, iceServersLoading, iceServers, withSelectiveSubscription]);
+  }, [token, url, iceServersLoading, iceServers, withSelectiveSubscription, retryThroughRelay]);
 
   useEffect(() => {
     if (!url) return;
@@ -451,6 +488,7 @@ const BBBLiveKitRoomContainer: React.FC = () => {
     stopLocalTrackOnUnpublish: false,
   };
   const reconnectOnFatalFailures = meetingSettings.public.media?.livekit?.reconnectOnFatalFailures ?? false;
+  const retryThroughRelay = meetingSettings.public.media?.livekit?.retryThroughRelay ?? false;
   const { data: bridges } = useMeeting((m) => ({
     cameraBridge: m.cameraBridge,
     screenShareBridge: m.screenShareBridge,
@@ -473,6 +511,7 @@ const BBBLiveKitRoomContainer: React.FC = () => {
       usingScreenShare={bridges?.screenShareBridge === 'livekit'}
       withSelectiveSubscription={withSelectiveSubscription}
       reconnectOnFatalFailures={reconnectOnFatalFailures}
+      retryThroughRelay={retryThroughRelay}
     />
   );
 };
