@@ -655,7 +655,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           muteDebounceMs: 2500,
         },
         logLevel: LogLevel.warn,
-        reconnectOnFatalFailures: false,
+        reconnectOnFatalFailures: true,
         roomOptions: {
           adaptiveStream: true,
           dynacast: true,

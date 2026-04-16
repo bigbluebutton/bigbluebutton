@@ -954,8 +954,8 @@ public:
         muteDebounceMs: 2500
       logLevel: 3
       # reconnectOnFatalFailures: whether to trigger LK room reconnections when
-      # fatal errors occur (e.g.: unrecoverable publish timeouts). Default is false.
-      reconnectOnFatalFailures: false
+      # fatal errors occur (e.g.: unrecoverable publish timeouts).
+      reconnectOnFatalFailures: true
       roomOptions:
         adaptiveStream: true
         dynacast: true
