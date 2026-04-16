@@ -212,11 +212,6 @@ export class Join extends Create {
     await this.modPage.waitAndClick(e.breakoutMegaphoneButton);
     await this.modPage.fill(e.breakoutMessageInput, 'Second Test message to all breakout rooms');
     await this.modPage.waitAndClick(e.sendButton);
-    await breakoutUserPage.hasNElements(
-      e.chatUserMessageText,
-      2,
-      'should have another test message on the public chat.',
-    );
 
     await breakoutUserPage.hasNElements(
       `${e.chatMessageItem}[data-message-type="breakoutRoomModeratorMsg"]`,
@@ -224,13 +219,18 @@ export class Join extends Create {
       'should display 2 messages with data-message-type="breakoutRoomModeratorMsg"',
     );
 
-    const chatMessagesLocator = breakoutUserPage.page.locator(e.chatMessages);
+    const firstModeratorMsg = breakoutUserPage.page
+      .locator(`${e.chatMessageItem}[data-message-type="breakoutRoomModeratorMsg"]`)
+      .first();
+    const chatWrapper = firstModeratorMsg.locator('> div').first();
     await expect(
-      chatMessagesLocator,
-      'should match the screenshot showing different background color for moderator message',
-    ).toHaveScreenshot('breakout-moderator-chat-messages.png', {
-      maxDiffPixels: 1000,
-    });
+      chatWrapper,
+      'should have a highlighted background color for breakout room moderator messages',
+    ).toHaveCSS('background-color', 'rgb(254, 249, 241)');
+    await expect(chatWrapper, 'should have a left border highlight for breakout room moderator messages').toHaveCSS(
+      'border-left-color',
+      'rgb(245, 198, 127)',
+    );
   }
 
   async changeDurationTime() {

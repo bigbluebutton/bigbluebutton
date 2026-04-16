@@ -70,8 +70,6 @@ const ChatReplyIntention = () => {
     };
   }, [hidden]);
 
-  if (hidden) return null;
-
   return (
     <Styled.Container
       data-test="chatReplyIntentionContainer"

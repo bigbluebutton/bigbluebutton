@@ -455,7 +455,7 @@ export class MessageActions extends Chat {
     await expect(
       closeReplyBtn,
       'should remove the close reply button (by clicking on the cancel button)',
-    ).not.toBeVisible();
+    ).toHaveAttribute('tabindex', '-1');
     await this.modPage.wasRemoved(
       e.chatMessageReplied,
       'should not display any message replied message (by clicking on the cancel button)',
@@ -474,7 +474,10 @@ export class MessageActions extends Chat {
       e.chatReplyIntentionContainerContent,
       'should remove the reply intention container content (by pressing Escape)',
     );
-    await expect(closeReplyBtn, 'should remove the close reply button (by pressing Escape)').not.toBeVisible();
+    await expect(closeReplyBtn, 'should remove the close reply button (by pressing Escape)').toHaveAttribute(
+      'tabindex',
+      '-1',
+    );
     await this.modPage.wasRemoved(
       e.chatMessageReplied,
       'should not display any message replied message (by pressing Escape)',
