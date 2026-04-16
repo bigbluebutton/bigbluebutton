@@ -213,10 +213,7 @@ For details check the [server customization](/administration/customize/#configur
 BigBlueButton now supports file scanning (virus detection) for presentation files using ClamAV.
 For details check the [ClamAV section](/administration/customize#support-for-clamav-as-presentation-file-scanner) of the server customization documentation.
 
-
-### Experimental
-
-#### Infinite Whiteboard (experimental)
+#### Infinite Whiteboard
 
 We have added initial support for infinite whiteboard in the live session. Only the presenter can trigger it. It allows for annotations to be created in the margins, or to write content without being limited by space.
 
@@ -227,6 +224,10 @@ Everyone sees the margins and follows the presenter's point of view. If multi-us
 ![with infinite whiteboard enabled annotations can be made on the margins and more](/img/30/30-infinite-wb-in-action.png)
 
 You can enable infinite whiteboard via `public.whiteboard.allowInfiniteWhiteboard` https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.8/bigbluebutton-html5/private/config/settings.yml#L1047
+
+Note, circa BigBlueButton 3.0.19 Infinite Whiteboard recording support was finalized and therefore we drop the "experimental" flag from it.
+
+### Experimental
 
 #### Integration with LiveKit
 
