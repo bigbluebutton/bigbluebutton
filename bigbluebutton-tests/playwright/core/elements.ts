@@ -242,6 +242,7 @@ export const elements = {
   chatPopupAlertsBtn: 'input[data-test="chatPopupAlertsBtn"]',
   hasUnreadMessages: 'div[data-test="unreadMessages"]',
   userJoinPushAlerts: 'input[data-test="userJoinPopupAlerts"]',
+  userLeavePushAlerts: 'input[data-test="userLeavePopupAlerts"]',
   toastContainer: 'div[data-test="toastContainer"]',
   processingPresentationItem: 'span[data-test="processingPresentationItem"]',
   uploadDoneIcon: 'i[data-test="uploadDoneIcon"]',

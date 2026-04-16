@@ -188,6 +188,7 @@ class NotificationMenu extends BaseMenu {
                   onChange={() => this.handleToggle('userLeavePushAlerts')}
                   ariaLabel={`${intl.formatMessage(intlMessages.userLeaveLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)} - ${displaySettingsStatus(settings.userLeavePushAlerts, true)}`}
                   showToggleLabel={showToggleLabel}
+                  data-test="userLeavePopupAlerts"
                 />
               </Styled.FormElementCenter>
             </Styled.Col>

@@ -6,9 +6,6 @@ export const CUSTOM_STYLE_URL = 'http://bbb-test-stub.local/css-test-file.css';
 
 const serverOrigin = parameters.server ? new URL(parameters.server).origin : '';
 
-export const CUSTOM_STYLE_CSS = `${e.presentationTitle}{display: none;}`;
-export const CUSTOM_STYLE_URL = 'http://bbb-test-stub.local/css-test-file.css';
-
 export const constants = {
   // Create Parameters
   bannerText: 'bannerText=some+text',
