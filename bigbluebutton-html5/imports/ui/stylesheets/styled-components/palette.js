@@ -4,7 +4,6 @@ const colorTldrawBackground = 'var(--color-tldraw-background, #F9FAFB)';
 const colorNeutral2 = 'var(--color-neutral-2, #717C91)';
 
 const colorBlack = 'var(--color-black, #000000)';
-const colorNeutral2 = 'var(--color-neutral2, #717C91)';
 
 const colorGray = 'var(--color-gray, #4E5A66)';
 const colorGrayDark = 'var(--color-gray-dark, #06172A)';
@@ -181,7 +180,6 @@ export {
   colorTldrawBackground,
   colorNeutral2,
   colorBlack,
-  colorNeutral2,
   colorGray,
   colorGrayDark,
   colorGrayLight,

@@ -1,4 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, {
+  useState, useMemo, useRef, useLayoutEffect, useCallback,
+} from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import { Message } from '/imports/ui/Types/message';
@@ -76,11 +78,25 @@ interface PinnedMessageComponentProps {
 export default function PinnedMessageComponent({ messages, isModerator }: PinnedMessageComponentProps) {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+  const messagePreviewRef = useRef<HTMLDivElement>(null);
 
   const activeMessage = useMemo(() => messages[0] || null, [messages]);
   const intl = useIntl();
 
   const [unpinMessage] = useMutation(CHAT_SET_PINNED_MUTATION);
+
+  const checkOverflow = useCallback(() => {
+    const el = messagePreviewRef.current;
+    if (el) {
+      setIsOverflowing(el.scrollHeight > el.clientHeight);
+    }
+  }, []);
+
+  useLayoutEffect(() => {
+    checkOverflow();
+    setIsExpanded(false);
+  }, [activeMessage?.messageId, activeMessage?.messageAsHtml]);
 
   const handleUnpin = () => {
     setIsConfirmModalOpen(true);
@@ -166,18 +182,21 @@ export default function PinnedMessageComponent({ messages, isModerator }: Pinned
               <Styled.Icon iconName="visibility_off" />
             </Styled.ToggleButton>
           </Tooltip>
-          <Tooltip title={intl.formatMessage(isExpanded ? intlMessages.collapseTooltip : intlMessages.expandTooltip)}>
-            <Styled.ToggleButton
-              onClick={() => setIsExpanded((prev) => !prev)}
-              aria-label={intl.formatMessage(isExpanded ? intlMessages.collapseTooltip : intlMessages.expandTooltip)}
-            >
-              <Styled.Icon iconName={isExpanded ? 'arrow_forward_up' : 'arrow_forward_down'} />
-            </Styled.ToggleButton>
-          </Tooltip>
+          {(isOverflowing || isExpanded) && (
+            <Tooltip title={intl.formatMessage(isExpanded ? intlMessages.collapseTooltip : intlMessages.expandTooltip)}>
+              <Styled.ToggleButton
+                onClick={() => setIsExpanded((prev) => !prev)}
+                aria-label={intl.formatMessage(isExpanded ? intlMessages.collapseTooltip : intlMessages.expandTooltip)}
+              >
+                <Styled.Icon iconName={isExpanded ? 'arrow_forward_up' : 'arrow_forward_down'} />
+              </Styled.ToggleButton>
+            </Tooltip>
+          )}
         </Styled.Controls>
       </Styled.Header>
 
       <Styled.MessagePreview
+        ref={messagePreviewRef}
         $collapsed={!isExpanded}
         aria-label={intl.formatMessage(intlMessages.goToMessage)}
         onClick={(e) => handleNavigateToMessage(e)}
