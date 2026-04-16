@@ -6,7 +6,6 @@ import { useMutation } from '@apollo/client';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
 import { BreakoutRoom as BreakoutRoomType } from '../queries';
-import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import {
   USER_TRANSFER_VOICE_TO_MEETING,
@@ -18,6 +17,7 @@ import { useStopMediaOnMainRoom } from '/imports/ui/components/breakout-room/hoo
 import { setBreakoutWindowRef, rejoinAudio, closeBreakoutWindow } from '/imports/ui/components/breakout-room/breakout-room/service';
 import { USER_LEAVE_MEETING } from '/imports/ui/core/graphql/mutations/userMutations';
 import Session from '/imports/ui/services/storage/in-memory';
+import BreakoutCountdown from '../breakout-countdown/component';
 
 const CALL_MODERATOR_COOLDOWN_MS = 30000;
 
@@ -25,10 +25,6 @@ const intlMessages = defineMessages({
   breakoutTitle: {
     id: 'app.createBreakoutRoom.title',
     description: 'breakout title',
-  },
-  durationOfBreakout: {
-    id: 'app.createBreakoutRoom.durationOfBreakout',
-    description: 'Duration of Breakout Room label',
   },
   youAreInRoom: {
     id: 'app.createBreakoutRoom.youAreInRoom',
@@ -100,10 +96,7 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
   breakoutMeetingId = '',
 }) => {
   const intl = useIntl();
-  const [timeSync] = useTimeSync();
-  const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const cooldownTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [remainingTime, setRemainingTime] = useState<number>(0);
   const [requestedBreakoutRoomId, setRequestedBreakoutRoomId] = useState<string>('');
 
   const [breakoutRoomTransfer] = useMutation(USER_TRANSFER_VOICE_TO_MEETING);
@@ -157,24 +150,6 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
   const userRoomName = getUserRoomName();
 
   useEffect(() => {
-    const calcRemaining = () => {
-      const now = Date.now() + timeSync;
-      const end = breakoutStartedAt + (breakoutDurationInSeconds * 1000);
-      return Math.max(0, Math.floor((end - now) / 1000));
-    };
-
-    setRemainingTime(calcRemaining());
-
-    timerIntervalRef.current = setInterval(() => {
-      setRemainingTime(calcRemaining());
-    }, 1000);
-
-    return () => {
-      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
-    };
-  }, [breakoutDurationInSeconds, breakoutStartedAt, timeSync]);
-
-  useEffect(() => () => {
     if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current);
   }, []);
 
@@ -191,11 +166,6 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
       }
     }
   }, [breakouts, requestedBreakoutRoomId, stopMediaOnMainRoom, presenter]);
-
-  const hours = Math.floor(remainingTime / 3600);
-  const minutes = Math.floor((remainingTime % 3600) / 60);
-  const seconds = remainingTime % 60;
-  const padNum = (n: number) => n.toString().padStart(2, '0');
 
   const handleCallModerator = useCallback(() => {
     if (callModeratorCooldown) {
@@ -384,18 +354,10 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
       />
       <Styled.Separator />
 
-      <Styled.TimerSection>
-        <Styled.TimerLabel>
-          {intl.formatMessage(intlMessages.durationOfBreakout)}
-        </Styled.TimerLabel>
-        <Styled.TimerDisplay>
-          {padNum(hours)}
-          :
-          {padNum(minutes)}
-          :
-          {padNum(seconds)}
-        </Styled.TimerDisplay>
-      </Styled.TimerSection>
+      <BreakoutCountdown
+        breakoutDurationInSeconds={breakoutDurationInSeconds}
+        breakoutStartedAt={breakoutStartedAt}
+      />
 
       <Styled.Separator />
 
