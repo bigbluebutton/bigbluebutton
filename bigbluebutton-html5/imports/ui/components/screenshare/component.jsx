@@ -426,13 +426,14 @@ class ScreenshareComponent extends React.Component {
   }
 
   renderVideo(switched) {
-    const { isGloballyBroadcasting } = this.props;
+    const { isGloballyBroadcasting, streamId } = this.props;
     const { videoTagRef } = this.state;
+    const videoId = streamId ? `${SCREENSHARE_MEDIA_ELEMENT_NAME}-${streamId}` : SCREENSHARE_MEDIA_ELEMENT_NAME;
 
     return (
       <Styled.ScreenshareVideo
-        id={SCREENSHARE_MEDIA_ELEMENT_NAME}
-        key={SCREENSHARE_MEDIA_ELEMENT_NAME}
+        id={videoId}
+        key={videoId}
         unhealthyStream={!isGloballyBroadcasting}
         style={switched
           ? { maxHeight: '100%', width: '100%', height: '100%' }

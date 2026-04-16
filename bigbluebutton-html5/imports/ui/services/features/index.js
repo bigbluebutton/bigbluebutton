@@ -161,3 +161,9 @@ export function useIsEmojiPickerEnabled() {
   return useDisabledFeatures().indexOf('chatEmojiPicker') === -1
     && EMOJI_PICKER_ENABLED;
 }
+
+export function useIsMultiScreenshareEnabled() {
+  const { data: meeting } = useMeeting((m) => ({ screenShareBridge: m.screenShareBridge }));
+  return useDisabledFeatures().indexOf('multiScreenshare') === -1
+    && meeting?.screenShareBridge === 'livekit';
+}

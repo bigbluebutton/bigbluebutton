@@ -159,10 +159,7 @@ export const useIsScreenGloballyBroadcasting = () => {
 
   return {
     screenIsShared: Boolean(
-      data
-    && data[0]
-    && data[0].contentType === CONTENT_TYPE_SCREENSHARE
-    && data[0].stream,
+      data && data.some((s) => s.contentType === CONTENT_TYPE_SCREENSHARE && s.stream)
     ),
     loading,
   };
@@ -171,7 +168,7 @@ export const useIsScreenGloballyBroadcasting = () => {
 export const useIsCameraAsContentGloballyBroadcasting = () => {
   const { data } = useScreenshare();
 
-  return Boolean(data && data[0] && data[0].contentType === CONTENT_TYPE_CAMERA && data[0].stream);
+  return Boolean(data && data.some((s) => s.contentType === CONTENT_TYPE_CAMERA && s.stream));
 };
 
 export const useIsScreenBroadcasting = () => {
@@ -195,24 +192,46 @@ export const useIsCameraAsContentBroadcasting = () => {
 export const useScreenshareHasAudio = () => {
   const { data } = useScreenshare();
 
-  return Boolean(data && data[0] && data[0].hasAudio);
+  return Boolean(data && data.some((s) => s.hasAudio));
 };
 
 export const useBroadcastContentType = () => {
   const { data } = useScreenshare();
 
-  if (!data || !data[0]) {
+  if (!data || data.length === 0) {
     // defaults to contentType: "camera"
     return CONTENT_TYPE_CAMERA;
   }
 
-  return data[0].contentType;
+  // Find the first stream that's showing as content, fallback to first stream
+  const contentStream = data.find((s) => s.showAsContent) || data[0];
+  return contentStream.contentType;
 };
 
 export const useScreenshareStreamId = () => {
   const { data } = useScreenshare();
 
-  return data?.[0]?.stream;
+  if (!data || data.length === 0) return undefined;
+  // Return the first showAsContent stream, fallback to first stream
+  const contentStream = data.find((s) => s.showAsContent) || data[0];
+  return contentStream?.stream;
+};
+
+export const useScreenshareStreams = () => {
+  const { data, loading } = useScreenshare();
+  return { streams: data || [], loading };
+};
+
+export const useScreenshareContentStream = () => {
+  const { data } = useScreenshare();
+  if (!data || data.length === 0) return null;
+  return data.find((s) => s.showAsContent && s.contentType === CONTENT_TYPE_SCREENSHARE) || null;
+};
+
+export const useScreenshareCameraStreams = () => {
+  const { data } = useScreenshare();
+  if (!data) return [];
+  return data.filter((s) => !s.showAsContent || s.contentType === CONTENT_TYPE_CAMERA);
 };
 
 export const screenshareHasEnded = () => {
@@ -234,7 +253,12 @@ export const _handleStreamTermination = () => {
   screenshareHasEnded();
 };
 
-export const getMediaElement = () => document.getElementById(SCREENSHARE_MEDIA_ELEMENT_NAME);
+export const getMediaElement = (streamId) => {
+  if (streamId) {
+    return document.getElementById(`${SCREENSHARE_MEDIA_ELEMENT_NAME}-${streamId}`);
+  }
+  return document.getElementById(SCREENSHARE_MEDIA_ELEMENT_NAME);
+};
 
 export const getMediaElementDimensions = () => {
   const element = getMediaElement();
@@ -458,4 +482,7 @@ export default {
   useScreenshareHasAudio,
   useBroadcastContentType,
   useScreenshareStreamId,
+  useScreenshareStreams,
+  useScreenshareContentStream,
+  useScreenshareCameraStreams,
 };
