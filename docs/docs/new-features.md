@@ -89,7 +89,7 @@ We have added an indicator showing when your private chat recipient has seen the
 
 #### Push to talk was added
 
-You can now use the "M" shortcut while in a conference to control how long your microphone is open. If the option for push to talk is enabled in settings.yml holding "M" will keep your microphone unmuted for as long you hold the key down. Releasing it will mute you again.
+You can now use the "M" shortcut while in a conference to control how long your microphone is open. If the option for push to talk is enabled in settings.yml holding "M" will keep your microphone unmuted for as long as you hold the key down. Releasing it will mute you again.
 To enable see `public.app.defaultSettings.application.pushToTalkEnabled` https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.8/bigbluebutton-html5/private/config/settings.yml#L206
 
 #### Multi-User Whiteboard Improvements
@@ -136,7 +136,7 @@ BigBlueButton 3.0.19 introduced a new layout called "Unified Layout." This layou
 
 Unified Layout behaves similarly to Custom Layout when the presentation is active, and similarly to Grid Layout when it is not. Once the new layout becomes the default, the layout manager will no longer be used. The only way to change the arrangement of the visible area will be via the button that hides or restores the presentation area.
 
-### BlockNote Shared Notes
+#### BlockNote Shared Notes
 
 BigBlueButton 3.0.25 introduced an alternative service for shared notes - BlockNote. It comes with modern rich text editing capabilities and tighter integration with our technology stack (React, TypeScript, WebSocket).
 
@@ -145,7 +145,7 @@ To enable it, you would first need to install the optional package via
 `$ sudo apt-get install bbb-shared-notes-server`
 
 At this point you can use it in a specific session by passing `sharedNotesEditor=blockNote` on the `/create` call.
-If you have made your mind and would like to use it for all sessions, add the same line (`sharedNotesEditor=blockNote`) to `/etc/bigbluebutton/bbb-web.properties` and restart BigBlueButton via `$ sudo bbb-conf --restart`
+If you have made up your mind and would like to use it for all sessions, add the same line (`sharedNotesEditor=blockNote`) to `/etc/bigbluebutton/bbb-web.properties` and restart BigBlueButton via `$ sudo bbb-conf --restart`
 
 
 ### Engagement
@@ -159,7 +159,7 @@ If you have made your mind and would like to use it for all sessions, add the sa
 
 #### Introduction of plugins
 
-We have made significant changes to the architecture of BigBlueButton and have introduced support to plugins -- optional custom modules included in the client which allow expanding the capabilities of BigBlueButton. A data channel is provided to allow for data exchange between clients. See the [HTML5 Plugin SDK](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk) for examples and more information.
+We have made significant changes to the architecture of BigBlueButton and have introduced support for plugins -- optional custom modules included in the client which allow expanding the capabilities of BigBlueButton. A data channel is provided to allow for data exchange between clients. See the [HTML5 Plugin SDK](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk) for examples and more information.
 
 At the moment of writing this documentation, the official list of plugins includes:
 - [Select Random User](https://github.com/bigbluebutton/plugin-pick-random-user)
@@ -173,11 +173,11 @@ At the moment of writing this documentation, the official list of plugins includ
 - [Chat mention](https://github.com/bigbluebutton/plugin-chat-mention)
 - [Media popout](https://github.com/bigbluebutton/plugin-media-popout)
 
-For the most accurate information check the [plugins reporisory](https://github.com/bigbluebutton/plugins) where all the plugins are listed.
+For the most accurate information check the [plugins repository](https://github.com/bigbluebutton/plugins) where all the plugins are listed.
 
 #### Replaced Akka framework with Pekko
 
-Following the license change of Akka back in September 2022 we considered several options and decided to replace our use of Akka with [Apache Pekko](https://github.com/apache/incubator-pekko) More on the transition: https://github.com/bigbluebutton/bigbluebutton/pull/18694
+Following the license change of Akka back in September 2022 we considered several options and decided to replace our use of Akka with [Apache Pekko](https://github.com/apache/incubator-pekko). More on the transition: https://github.com/bigbluebutton/bigbluebutton/pull/18694
 
 #### Override client settings through API /create call
 
