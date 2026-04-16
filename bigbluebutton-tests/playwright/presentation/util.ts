@@ -118,10 +118,11 @@ export async function uploadMultiplePresentations(
     );
 
     await testPage.hasNElements(
-    e.uploadDoneIcon,
-    fileNames.length,
-    'should display the upload done icon after all presentations are successfully uploaded',);
-    } catch {
+      e.uploadDoneIcon,
+      fileNames.length,
+      'should display the upload done icon after all presentations are successfully uploaded',
+    );
+  } catch {
     await testPage.hasNElements(
       e.uploadDoneIcon,
       fileNames.length,

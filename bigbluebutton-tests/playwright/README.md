@@ -1,9 +1,11 @@
 <!-- omit from toc -->
+
 ## BigBlueButton Playwright Tests
 
 Tests for BigBlueButton using Playwright.
 
 <!-- omit from toc -->
+
 ## Table of content
 
 - [Setup](#setup)

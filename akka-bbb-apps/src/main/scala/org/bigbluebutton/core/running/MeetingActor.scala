@@ -885,8 +885,8 @@ class MeetingActor(
     val isMeetingRecorded = MeetingStatus2x.isRecording(liveMeeting.status)
 
     // TODO: Placeholder values as required values not available
-    val screenshareStream: ScreenshareStream = ScreenshareStream(new User("", ""), List())
-    val screenshare: Screenshare = Screenshare(screenshareStream)
+    val screenshareStream: org.bigbluebutton.common2.msgs.ScreenshareStream = org.bigbluebutton.common2.msgs.ScreenshareStream(new User("", ""), List())
+    val screenshare: org.bigbluebutton.common2.msgs.Screenshare = org.bigbluebutton.common2.msgs.Screenshare(screenshareStream)
 
     val listOfUsers: List[UserState] = Users2x.findAll(liveMeeting.users2x).toList
     val breakoutRoomNames: List[String] = {
