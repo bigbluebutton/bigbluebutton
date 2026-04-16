@@ -102,7 +102,7 @@ export default class LiveKitScreenshareBridge {
 
   private outputDeviceId?: string;
 
-  private streamId?: string;
+  private streamIds: Set<string> = new Set();
 
   private isResyncing: boolean = false;
 
@@ -182,7 +182,7 @@ export default class LiveKitScreenshareBridge {
     if (publications) {
       publications.set(publication.trackSid, publication);
 
-      if (publication.trackSid === this.streamId && this.role === RECV_ROLE) {
+      if (this.streamIds.has(publication.trackSid) && this.role === RECV_ROLE) {
         this.subscribe(publication as RemoteTrackPublication);
       }
     }
@@ -228,7 +228,7 @@ export default class LiveKitScreenshareBridge {
         logCode: 'livekit_screenshare_unpublished',
         extraInfo: {
           bridgeName: BRIDGE_NAME,
-          streamId: this.streamId,
+          streamIds: Array.from(this.streamIds),
           role: this.role,
           trackSid,
           trackName,
@@ -251,7 +251,7 @@ export default class LiveKitScreenshareBridge {
       logCode: 'livekit_screenshare_published',
       extraInfo: {
         bridgeName: BRIDGE_NAME,
-        streamId: this.streamId,
+        streamIds: Array.from(this.streamIds),
         role: this.role,
         trackSid,
         trackName,
@@ -284,12 +284,12 @@ export default class LiveKitScreenshareBridge {
 
     const { trackSid, source, trackName } = publication;
     this.setSubscription(trackSid, track, publication);
-    if (trackSid === this.streamId) this.handleViewerStart(trackSid);
+    if (this.streamIds.has(trackSid)) this.handleViewerStart(trackSid);
     logger.debug({
       logCode: 'livekit_screenshare_subscribed',
       extraInfo: {
         bridgeName: this.bridgeName,
-        streamId: this.streamId,
+        streamIds: Array.from(this.streamIds),
         trackSid,
         role: this.role,
         trackName,
@@ -310,7 +310,7 @@ export default class LiveKitScreenshareBridge {
       logCode: 'livekit_screenshare_unsubscribed',
       extraInfo: {
         bridgeName: this.bridgeName,
-        streamId: this.streamId,
+        streamIds: Array.from(this.streamIds),
         role: this.role,
         trackSid,
         trackName,
@@ -332,47 +332,49 @@ export default class LiveKitScreenshareBridge {
   }
 
   private resyncOnReconnection(): void {
-    if (this.role !== RECV_ROLE || !this.streamId) return;
+    if (this.role !== RECV_ROLE || this.streamIds.size === 0) return;
 
     this.findInitialRemotePublications();
 
-    const publication = this.getPublication(this.streamId);
+    this.streamIds.forEach((sid) => {
+      const publication = this.getPublication(sid);
 
-    if (!publication || !(publication instanceof RemoteTrackPublication)) {
-      logger.error({
-        logCode: 'livekit_screenshare_reconnection_pub_not_found',
-        extraInfo: {
-          bridgeName: this.bridgeName,
-          streamId: this.streamId,
-          role: this.role,
-        },
-      }, `LiveKit: screenshare pub not found on reconnection - streamId: ${this.streamId}`);
-      return;
-    }
+      if (!publication || !(publication instanceof RemoteTrackPublication)) {
+        logger.error({
+          logCode: 'livekit_screenshare_reconnection_pub_not_found',
+          extraInfo: {
+            bridgeName: this.bridgeName,
+            streamIds: Array.from(this.streamIds),
+            role: this.role,
+          },
+        }, `LiveKit: screenshare pub not found on reconnection - streamId: ${sid}`);
+        return;
+      }
 
-    if (publication.isSubscribed && publication.track) {
-      this.setSubscription(this.streamId, publication.track, publication);
-      this.handleViewerStart(this.streamId);
+      if (publication.isSubscribed && publication.track) {
+        this.setSubscription(sid, publication.track, publication);
+        this.handleViewerStart(sid);
 
-      logger.warn({
-        logCode: 'livekit_screenshare_reconnection_reattached',
-        extraInfo: {
-          bridgeName: this.bridgeName,
-          streamId: this.streamId,
-          role: this.role,
-        },
-      }, `LiveKit: screenshare track reattached on reconnection - streamId: ${this.streamId}`);
-    } else {
-      this.subscribe(publication);
-      logger.warn({
-        logCode: 'livekit_screenshare_reconnection_resubscribed',
-        extraInfo: {
-          bridgeName: this.bridgeName,
-          streamId: this.streamId,
-          role: this.role,
-        },
-      }, `LiveKit: screenshare resubscribed on reconnection - streamId: ${this.streamId}`);
-    }
+        logger.warn({
+          logCode: 'livekit_screenshare_reconnection_reattached',
+          extraInfo: {
+            bridgeName: this.bridgeName,
+            streamIds: Array.from(this.streamIds),
+            role: this.role,
+          },
+        }, `LiveKit: screenshare track reattached on reconnection - streamId: ${sid}`);
+      } else {
+        this.subscribe(publication);
+        logger.warn({
+          logCode: 'livekit_screenshare_reconnection_resubscribed',
+          extraInfo: {
+            bridgeName: this.bridgeName,
+            streamIds: Array.from(this.streamIds),
+            role: this.role,
+          },
+        }, `LiveKit: screenshare resubscribed on reconnection - streamId: ${sid}`);
+      }
+    });
   }
 
   private handleConnectionStateChanged(): void {
@@ -382,7 +384,7 @@ export default class LiveKitScreenshareBridge {
 
     if (currentState === ConnectionState.Connected) {
       const hasActiveSubscription = this.subscriptions.size > 0
-        || (this.role === RECV_ROLE && this.streamId);
+        || (this.role === RECV_ROLE && this.streamIds.size > 0);
 
       if (hasActiveSubscription && !this.isResyncing) {
         this.isResyncing = true;
@@ -449,7 +451,10 @@ export default class LiveKitScreenshareBridge {
       const withSelectiveSubscription = window.meetingClientSettings.public.media?.livekit?.selectiveSubscription
         || false;
       const { track } = mainPublication;
-      const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG) as HTMLMediaElement;
+      const elementId = this.streamIds.size > 1
+        ? `screenshareVideo-${mainPublication.trackSid}`
+        : SCREENSHARE_VIDEO_TAG;
+      const mediaElement = document.getElementById(elementId) as HTMLMediaElement;
 
       if (track) track.detach(mediaElement);
 
@@ -534,7 +539,8 @@ export default class LiveKitScreenshareBridge {
     if (publicationData && publicationData.track) {
       try {
         const { track } = publicationData;
-        const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG) as HTMLMediaElement;
+        const elementId = this.streamIds.size > 1 ? `screenshareVideo-${streamId}` : SCREENSHARE_VIDEO_TAG;
+        const mediaElement = document.getElementById(elementId) as HTMLMediaElement;
 
         if (mediaElement) {
           if (this.hasAudio && this.outputDeviceId && typeof this.outputDeviceId === 'string') {
@@ -562,7 +568,7 @@ export default class LiveKitScreenshareBridge {
     streamId: string,
     options: Options = { hasAudio: false, outputDeviceId: '' },
   ): Promise<void> {
-    this.streamId = streamId;
+    this.streamIds.add(streamId);
     this.role = RECV_ROLE;
     this.hasAudio = options.hasAudio || false;
 
@@ -599,7 +605,7 @@ export default class LiveKitScreenshareBridge {
           errorStack: error.stack,
           bridgeName: this.bridgeName,
           role: this.role,
-          streamId: this.streamId,
+          streamIds: Array.from(this.streamIds),
         },
       }, `LiveKit: screen subscribe failed: ${error.message}`);
     };
@@ -658,7 +664,7 @@ export default class LiveKitScreenshareBridge {
           errorStack: error.stack,
           bridgeName: this.bridgeName,
           role: this.role,
-          streamId: this.streamId,
+          streamIds: Array.from(this.streamIds),
           contentType,
           streamData: MediaStreamUtils.getMediaStreamLogData(stream),
         },
@@ -689,8 +695,37 @@ export default class LiveKitScreenshareBridge {
     }
   }
 
-  async stop(): Promise<void> {
-    const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG) as HTMLMediaElement;
+  async stop(streamId?: string): Promise<void> {
+    if (this.role === RECV_ROLE && streamId) {
+      // Stop a specific stream only
+      const publication = this.getPublication(streamId) as RemoteTrackPublication;
+
+      if (publication) this.unsubscribe(publication);
+      this.streamIds.delete(streamId);
+
+      if (this.streamIds.size === 0) {
+        // Last stream removed — clean up the base element
+        const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG) as HTMLMediaElement;
+
+        if (mediaElement && typeof mediaElement.pause === 'function') {
+          mediaElement.pause();
+          mediaElement.srcObject = null;
+        }
+
+        this.outputDeviceId = undefined;
+      } else {
+        // Other streams still active — only clean up this stream's element
+        const elementId = `screenshareVideo-${streamId}`;
+        const mediaElement = document.getElementById(elementId) as HTMLMediaElement;
+
+        if (mediaElement && typeof mediaElement.pause === 'function') {
+          mediaElement.pause();
+          mediaElement.srcObject = null;
+        }
+      }
+
+      return;
+    }
 
     if (this.role === SEND_ROLE) {
       try {
@@ -699,21 +734,26 @@ export default class LiveKitScreenshareBridge {
         logger.error({
           logCode: 'livekit_screenshare_exit_error',
           extraInfo: {
-
             errorName: (error as Error).name,
             errorMessage: (error as Error).message,
             errorStack: (error as Error).stack,
             bridgeName: this.bridgeName,
             role: this.role,
-            streamId: this.streamId,
+            streamIds: Array.from(this.streamIds),
           },
         }, 'Failed to exit screenshare');
       }
-    } else if (this.role === RECV_ROLE && this.streamId) {
-      const publication = this.getPublication(this.streamId) as RemoteTrackPublication;
+    } else if (this.role === RECV_ROLE) {
+      // Stop all streams
+      this.streamIds.forEach((sid) => {
+        const publication = this.getPublication(sid) as RemoteTrackPublication;
 
-      if (publication) this.unsubscribe(publication);
+        if (publication) this.unsubscribe(publication);
+      });
+      this.streamIds.clear();
     }
+
+    const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG) as HTMLMediaElement;
 
     if (mediaElement && typeof mediaElement.pause === 'function') {
       mediaElement.pause();
