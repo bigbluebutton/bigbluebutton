@@ -277,6 +277,24 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
           await lockViewers.hideUserListLeaveNotificationVisibleForUnlockedAndModOnly();
         },
       );
+
+      test(
+        'Hide user list join notification is visible to locked viewer when a moderator joins',
+        async ({ browser, context, page }, testInfo) => {
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initModPage(page, { testInfo });
+          await lockViewers.hideUserListModeratorJoinNotificationVisibleToAll();
+        },
+      );
+
+      test(
+        'Hide user list leave notification is visible to locked viewer when a moderator leaves',
+        async ({ browser, context, page }, testInfo) => {
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initModPage(page, { testInfo });
+          await lockViewers.hideUserListModeratorLeaveNotificationVisibleToAll();
+        },
+      );
     });
 
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#saving-usernames
