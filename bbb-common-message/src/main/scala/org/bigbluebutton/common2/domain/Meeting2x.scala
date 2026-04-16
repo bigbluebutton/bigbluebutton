@@ -51,6 +51,7 @@ case class UsersProp(
     webcamsOnlyForModerator:      Boolean,
     multiUserWhiteboardEnabled:   Boolean,
     userCameraCap:                Int,
+    userScreenshareCap:           Int = 1,
     guestPolicy:                  String,
     meetingLayout:                String,
     allowModsToUnmuteUsers:       Boolean,
