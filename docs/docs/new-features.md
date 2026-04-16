@@ -305,6 +305,8 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 
 Recent releases:
+- [3.0.25](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.25)
+- [3.0.24](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.24)
 - [3.0.23](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.23)
 - [3.0.22](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.22)
 - [3.0.21](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.21)
@@ -474,6 +476,8 @@ Modified/added events
 - `defaultDarkLogoURL` added
 - `maxNumPages` added
 - `fetchUrlAllowedLocalHosts` added
+- `clientSettingsOverrideJsonUrlResponseTimeout` added
+- `maxClientSettingsOverrideJsonUrlPayloadSize` added
 
 ### Removed support for POST requests on `join` endpoint and Content-Type headers are now required
 
