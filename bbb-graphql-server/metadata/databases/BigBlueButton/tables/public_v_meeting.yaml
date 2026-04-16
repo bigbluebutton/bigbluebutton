@@ -97,15 +97,6 @@ object_relationships:
         remote_table:
           name: v_meeting_recordingPolicies
           schema: public
-  - name: screenshare
-    using:
-      manual_configuration:
-        column_mapping:
-          meetingId: meetingId
-        insertion_order: null
-        remote_table:
-          name: v_screenshare
-          schema: public
   - name: timer
     using:
       manual_configuration:
@@ -134,6 +125,15 @@ object_relationships:
           name: v_meeting_voiceSettings
           schema: public
 array_relationships:
+  - name: screenshare
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+        insertion_order: null
+        remote_table:
+          name: v_screenshare
+          schema: public
   - name: groups
     using:
       manual_configuration:

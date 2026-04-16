@@ -12,6 +12,7 @@ case class MeetingUsersPoliciesDbModel(
                                 webcamsOnlyForModerator: Boolean,
                                 multiUserWhiteboardEnabled: Boolean,
                                 userCameraCap: Int,
+                                userScreenshareCap: Int,
                                 guestPolicy: String,
                                 guestLobbyMessage: Option[String],
                                 meetingLayout: String,
@@ -28,6 +29,7 @@ class MeetingUsersPoliciesDbTableDef(tag: Tag) extends Table[MeetingUsersPolicie
   val webcamsOnlyForModerator = column[Boolean]("webcamsOnlyForModerator")
   val multiUserWhiteboardEnabled = column[Boolean]("multiUserWhiteboardEnabled")
   val userCameraCap = column[Int]("userCameraCap")
+  val userScreenshareCap = column[Int]("userScreenshareCap")
   val guestPolicy = column[String]("guestPolicy")
   val guestLobbyMessage = column[Option[String]]("guestLobbyMessage")
   val meetingLayout = column[String]("meetingLayout")
@@ -39,7 +41,7 @@ class MeetingUsersPoliciesDbTableDef(tag: Tag) extends Table[MeetingUsersPolicie
 //  val fk_meetingId: ForeignKeyQuery[MeetingDbTableDef, MeetingDbModel] = foreignKey("fk_meetingId", meetingId, TableQuery[MeetingDbTableDef])(_.meetingId)
 
   override val * : ProvenShape[MeetingUsersPoliciesDbModel] = (meetingId, maxUsers, maxUserConcurrentAccesses,
-    webcamsOnlyForModerator, multiUserWhiteboardEnabled, userCameraCap, guestPolicy, guestLobbyMessage, meetingLayout,
+    webcamsOnlyForModerator, multiUserWhiteboardEnabled, userCameraCap, userScreenshareCap, guestPolicy, guestLobbyMessage, meetingLayout,
     allowModsToUnmuteUsers, allowModsToEjectCameras, authenticatedGuest, allowPromoteGuestToModerator
   ) <> (MeetingUsersPoliciesDbModel.tupled, MeetingUsersPoliciesDbModel.unapply)
 }
@@ -55,6 +57,7 @@ object MeetingUsersPoliciesDAO {
           webcamsOnlyForModerator = usersProp.webcamsOnlyForModerator,
           multiUserWhiteboardEnabled = usersProp.multiUserWhiteboardEnabled,
           userCameraCap = usersProp.userCameraCap,
+          userScreenshareCap = usersProp.userScreenshareCap,
           guestPolicy = usersProp.guestPolicy,
           guestLobbyMessage = None,
           meetingLayout = usersProp.meetingLayout,

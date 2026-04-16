@@ -14,9 +14,12 @@ select_permissions:
         - hasAudio
         - screenshareConf
         - screenshareId
+        - showAsContent
         - startedAt
         - stoppedAt
         - stream
+        - trackSid
+        - userId
         - vidHeight
         - vidWidth
         - voiceConf

@@ -22,6 +22,7 @@ select_permissions:
         - moderatorsCanMuteAudio
         - moderatorsCanUnmuteAudio
         - userCameraCap
+        - userScreenshareCap
         - webcamsOnlyForModerator
         - multiUserWhiteboardEnabled
       filter:
@@ -42,6 +43,7 @@ select_permissions:
         - moderatorsCanMuteAudio
         - moderatorsCanUnmuteAudio
         - userCameraCap
+        - userScreenshareCap
         - webcamsOnlyForModerator
         - multiUserWhiteboardEnabled
       filter:
