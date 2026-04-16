@@ -1154,17 +1154,18 @@ class MeetingActor(
         outGW.send(userLeftMeetingEvent)
 
         if (MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList) {
+          val leaverName = u.name
           Users2x.findAll(liveMeeting.users2x)
-            .filter(u => !u.userLeftFlag.left && (!u.locked || u.role == Roles.MODERATOR_ROLE))
-            .foreach { u =>
+            .filter(recipient => !recipient.userLeftFlag.left && (!recipient.locked || recipient.role == Roles.MODERATOR_ROLE))
+            .foreach { recipient =>
               val notifyEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
-                u.intId,
+                recipient.intId,
                 liveMeeting.props.meetingProp.intId,
                 "info",
                 "user",
                 "app.notification.userLeavePushAlert",
                 "Notification for a user leaves the meeting",
-                Map("userName" -> s"${u.name}")
+                Map("userName" -> leaverName)
               )
               outGW.send(notifyEvent)
               NotificationDAO.insert(notifyEvent)
