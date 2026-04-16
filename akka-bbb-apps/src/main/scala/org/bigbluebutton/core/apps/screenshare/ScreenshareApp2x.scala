@@ -3,6 +3,7 @@ package org.bigbluebutton.core.apps.screenshare
 import org.apache.pekko.actor.ActorContext
 import org.apache.pekko.event.Logging
 import org.bigbluebutton.core.apps.ScreenshareModel
+import org.bigbluebutton.core.models.Screenshares
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
@@ -17,6 +18,19 @@ object ScreenshareApp2x {
         ScreenshareModel.getRTMPBroadcastingUrl(liveMeeting.screenshareModel),
       )
 
+      outGW.send(event)
+    }
+  }
+
+  def requestAllBroadcastsStop(outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {
+    val allStreams = Screenshares.findAll(liveMeeting.screenshares)
+    allStreams.foreach { stream =>
+      val event = MsgBuilder.buildScreenBroadcastStopSysMsg(
+        liveMeeting.props.meetingProp.intId,
+        stream.voiceConf,
+        stream.userId,
+        stream.streamId,
+      )
       outGW.send(event)
     }
   }
@@ -44,6 +58,25 @@ object ScreenshareApp2x {
         ts
       )
       outGW.send(event)
+    }
+  }
+
+  def broadcastStopped(outGW: OutMsgRouter, liveMeeting: LiveMeeting, streamId: String): Unit = {
+    Screenshares.findByStreamId(liveMeeting.screenshares, streamId) match {
+      case Some(stream) =>
+        Screenshares.remove(liveMeeting.props.meetingProp.intId, liveMeeting.screenshares, streamId)
+        val event = MsgBuilder.buildStopScreenshareRtmpBroadcastEvtMsg(
+          liveMeeting.props.meetingProp.intId,
+          stream.voiceConf,
+          stream.screenshareConf,
+          stream.userId,
+          stream.streamId,
+          stream.vidWidth,
+          stream.vidHeight,
+          stream.timestamp
+        )
+        outGW.send(event)
+      case None => // stream not found in collection, ignore
     }
   }
 }

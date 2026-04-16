@@ -6,6 +6,7 @@ import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x.requestBroadcastStop
 import org.bigbluebutton.core.db.ExternalVideoDAO
+import org.bigbluebutton.core.models.Screenshares
 import org.bigbluebutton.core.apps.pads.PadsApp2x.setPinned
 import org.bigbluebutton.core.util.UrlTimeExtractor
 
@@ -35,9 +36,16 @@ trait StartExternalVideoPubMsgHdlr extends RightsManagementTrait {
       val reason = "You need to be the presenter to start external videos"
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
-      // Request a screen broadcast stop (goes to SFU, comes back through
-      // ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg)
-      requestBroadcastStop(bus.outGW, liveMeeting)
+      if (liveMeeting.props.meetingProp.screenShareBridge == "livekit") {
+        // For LiveKit multi-screenshare: migrate all screenshares to camera area
+        Screenshares.findAll(liveMeeting.screenshares).foreach { stream =>
+          Screenshares.setShowAsContent(liveMeeting.screenshares, stream.streamId, false)
+        }
+      } else {
+        // Request a screen broadcast stop (goes to SFU, comes back through
+        // ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg)
+        requestBroadcastStop(bus.outGW, liveMeeting)
+      }
 
       // Request Shared Notes to unpin
       setPinned(bus.outGW, liveMeeting, "notes", pinned = false)

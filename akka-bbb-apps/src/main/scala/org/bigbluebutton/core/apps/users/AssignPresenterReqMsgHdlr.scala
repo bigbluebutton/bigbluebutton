@@ -11,6 +11,7 @@ import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x.requestBroadcastStop
 import org.bigbluebutton.core.db.{ ChatMessageDAO, UserStateDAO }
+import org.bigbluebutton.core.models.Screenshares
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 
 trait AssignPresenterReqMsgHdlr extends RightsManagementTrait {
@@ -45,9 +46,17 @@ object AssignPresenterActionHandler extends RightsManagementTrait {
         if (oldPres.intId != newPresenterId) {
           // Stop external video if it's running
           ExternalVideoModel.stop(outGW, liveMeeting)
-          // Request a screen broadcast stop (goes to SFU, comes back through
-          // ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg)
-          requestBroadcastStop(outGW, liveMeeting)
+          if (liveMeeting.props.meetingProp.screenShareBridge == "livekit") {
+            // For LiveKit multi-screenshare: migrate old presenter's screenshares to camera area
+            val oldPresScreenshares = Screenshares.findByUser(liveMeeting.screenshares, oldPres.intId)
+            oldPresScreenshares.foreach { stream =>
+              Screenshares.setShowAsContent(liveMeeting.screenshares, stream.streamId, false)
+            }
+          } else {
+            // Request a screen broadcast stop (goes to SFU, comes back through
+            // ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg)
+            requestBroadcastStop(outGW, liveMeeting)
+          }
 
           for {
             u <- RegisteredUsers.findWithUserId(oldPres.intId, liveMeeting.registeredUsers)
