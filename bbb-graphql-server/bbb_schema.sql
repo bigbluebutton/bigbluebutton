@@ -1,5 +1,6 @@
 --unaccent will be used to create nameSortable
 CREATE EXTENSION IF NOT EXISTS unaccent;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE OR REPLACE FUNCTION immutable_lower_unaccent(text)
 				RETURNS text AS $$
 				SELECT lower(unaccent('unaccent', $1))
@@ -968,6 +969,7 @@ LEFT JOIN "user_connectionStatusMetrics" csm ON csm."meetingId" = u."meetingId" 
 order by u."meetingId", u."userId", cs."sessionToken", csm."lastOccurrenceAt" desc;
 
 CREATE INDEX "idx_user_connectionStatusMetrics_UnstableReport" ON "user_connectionStatusMetrics" ("meetingId", "userId") WHERE "status" != 'normal';
+CREATE INDEX "idx_user_name_trgm" ON "user" USING gin ("name" gin_trgm_ops) WHERE "currentlyInMeeting" IS TRUE;
 
 --ALTER TABLE "user_connectionStatus" ADD COLUMN "applicationRttInMs" NUMERIC GENERATED ALWAYS AS
 --(CASE WHEN  "connectionAliveAt" IS NULL OR "userClientResponseAt" IS NULL THEN NULL
@@ -1067,17 +1069,26 @@ CREATE OR REPLACE VIEW "v_user_whiteboardWriteAccess" AS
 select "meetingId", "userId", "name", "presenter", "isModerator"
 FROM "user"
 WHERE "user"."currentlyInMeeting" is true
-AND "user"."whiteboardWriteAccess" is true;
+AND (
+        "user"."whiteboardWriteAccess" is true
+        OR "user"."presenter" is true
+    );
 
 CREATE OR REPLACE VIEW "v_user_whiteboardCursorAccess" AS
 select "meetingId", "userId", "name", "presenter", "isModerator"
 FROM "user"
 WHERE "user"."currentlyInMeeting" is true
-AND "user"."whiteboardWriteAccess" is true;
+AND (
+        "user"."whiteboardWriteAccess" is true
+        OR "user"."presenter" is true
+    );
 
 CREATE INDEX "idx_user_whiteboardWriteAccess" ON "user"("meetingId", "userId") INCLUDE ("meetingId", "userId", "name", "presenter", "isModerator")
 WHERE "user"."currentlyInMeeting" is true
-AND "user"."whiteboardWriteAccess" is true;
+AND (
+        "user"."whiteboardWriteAccess" is true
+        OR "user"."presenter" is true
+    );
 
 
 create unlogged table "user_activity"(
@@ -1243,7 +1254,7 @@ BEGIN
      AND u."userId"    = cu."userId"
     WHERE cm."meetingId" = cu."meetingId"
       AND cm."chatId"    = cu."chatId"
-      AND cm."senderId" <> cu."userId"
+      AND cm."senderId" IS DISTINCT FROM cu."userId"
       AND cm."createdAt" > COALESCE(cu."lastSeenAt", u."registeredAt")
   )
   WHERE cu."meetingId" = _meetingId
@@ -1257,7 +1268,7 @@ BEGIN
        AND u."userId"    = cu."userId"
       WHERE cm."meetingId" = cu."meetingId"
         AND cm."chatId"    = cu."chatId"
-        AND cm."senderId" <> cu."userId"
+        AND cm."senderId" IS DISTINCT FROM cu."userId"
         AND cm."createdAt" > COALESCE(cu."lastSeenAt", u."registeredAt")
     );
 END;
@@ -1308,7 +1319,7 @@ BEGIN
   SET "totalUnreadMessages" = coalesce("totalUnreadMessages",0) + 1
   WHERE cu."meetingId" = NEW."meetingId"
     AND cu."chatId"    = NEW."chatId"
-    AND cu."userId"    != NEW."senderId";
+    AND cu."userId" IS DISTINCT FROM NEW."senderId";
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -2073,28 +2084,28 @@ CREATE OR REPLACE VIEW "v_user_breakoutRoom_lastJoinedRoom" AS
 select "breakoutRoom_user"."meetingId", "breakoutRoom_user"."userId", "breakoutRoom_user"."breakoutRoomMeetingId", "breakoutRoom_user"."isUserCurrentlyInRoom",
 		"breakoutRoom"."sequence", "breakoutRoom"."shortName", "breakoutRoom"."isDefaultName"
 from "breakoutRoom_user"
-join "breakoutRoom" on "breakoutRoom"."breakoutRoomMeetingId" = "breakoutRoom_user"."breakoutRoomMeetingId" and "breakoutRoom"."endedAt" IS NULL
+join "breakoutRoom" on "breakoutRoom"."breakoutRoomMeetingId" = "breakoutRoom_user"."breakoutRoomMeetingId"
 where "breakoutRoom_user"."isLastJoinedRoom" is true;
 
 CREATE OR REPLACE VIEW "v_user_current_breakoutRoom_lastJoinedRoom" AS
 select "breakoutRoom_user"."meetingId", "breakoutRoom_user"."userId", "breakoutRoom_user"."breakoutRoomMeetingId", "breakoutRoom_user"."isUserCurrentlyInRoom",
 		"breakoutRoom"."sequence", "breakoutRoom"."shortName", "breakoutRoom"."isDefaultName"
 from "breakoutRoom_user"
-join "breakoutRoom" on "breakoutRoom"."breakoutRoomMeetingId" = "breakoutRoom_user"."breakoutRoomMeetingId" and "breakoutRoom"."endedAt" IS NULL
+join "breakoutRoom" on "breakoutRoom"."breakoutRoomMeetingId" = "breakoutRoom_user"."breakoutRoomMeetingId"
 where "breakoutRoom_user"."isLastJoinedRoom" is true;
 
 CREATE OR REPLACE VIEW "v_user_breakoutRoom_lastAssignedRoom" AS
 select "breakoutRoom_user"."meetingId", "breakoutRoom_user"."userId", "breakoutRoom_user"."breakoutRoomMeetingId", "breakoutRoom_user"."isUserCurrentlyInRoom",
 		"breakoutRoom"."sequence", "breakoutRoom"."shortName", "breakoutRoom"."isDefaultName"
 from "breakoutRoom_user"
-join "breakoutRoom" on "breakoutRoom"."breakoutRoomMeetingId" = "breakoutRoom_user"."breakoutRoomMeetingId" and "breakoutRoom"."endedAt" IS NULL
+join "breakoutRoom" on "breakoutRoom"."breakoutRoomMeetingId" = "breakoutRoom_user"."breakoutRoomMeetingId"
 where "breakoutRoom_user"."isLastAssignedRoom" is true;
 
 CREATE OR REPLACE VIEW "v_user_current_breakoutRoom_lastAssignedRoom" AS
 select "breakoutRoom_user"."meetingId", "breakoutRoom_user"."userId", "breakoutRoom_user"."breakoutRoomMeetingId", "breakoutRoom_user"."isUserCurrentlyInRoom",
 		"breakoutRoom"."sequence", "breakoutRoom"."shortName", "breakoutRoom"."isDefaultName"
 from "breakoutRoom_user"
-join "breakoutRoom" on "breakoutRoom"."breakoutRoomMeetingId" = "breakoutRoom_user"."breakoutRoomMeetingId" and "breakoutRoom"."endedAt" IS NULL
+join "breakoutRoom" on "breakoutRoom"."breakoutRoomMeetingId" = "breakoutRoom_user"."breakoutRoomMeetingId"
 where "breakoutRoom_user"."isLastAssignedRoom" is true;
 
 CREATE OR REPLACE VIEW "v_breakoutRoom_participant" as

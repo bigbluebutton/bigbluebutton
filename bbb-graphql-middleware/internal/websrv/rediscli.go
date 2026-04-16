@@ -108,6 +108,9 @@ func StartRedisListener() {
 			log.Debugf("Removing cursor positions for meeting: %s", receivedMessage.Core.Body["meetingId"].(string))
 			go streamingserver.RemoveMeetingCursorsCache(receivedMessage.Core.Body["meetingId"].(string))
 			go streamingserver.RemoveMeetingUserVoiceStatesCache(receivedMessage.Core.Body["meetingId"].(string))
+			go common.RemoveMeetingHasuraMessageCache(receivedMessage.Core.Body["meetingId"].(string))
+			go common.RemoveMeetingPatchedMessageCache(receivedMessage.Core.Body["meetingId"].(string))
+			go common.RemoveMeetingStreamCursorValueCache(receivedMessage.Core.Body["meetingId"].(string))
 		}
 		if messageName == "UserLeftMeetingEvtMsg" {
 			log.Debugf("Removing cursor positions for meeting: %s, user: %s", receivedMessage.Core.Header.MeetingId, receivedMessage.Core.Header.UserId)

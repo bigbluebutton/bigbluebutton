@@ -12,6 +12,7 @@ import useUpdatePresentationAreaContentForPlugin from '/imports/ui/components/pl
 import { useIsPresentationEnabled } from '/imports/ui/services/features';
 import { usePrevious } from '../whiteboard/utils';
 import Session from '/imports/ui/services/storage/in-memory';
+import Local from '/imports/ui/services/storage/local';
 import logger from '/imports/startup/client/logger';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
@@ -59,6 +60,22 @@ const initState = {
   },
   input: INITIAL_INPUT_STATE,
   output: INITIAL_OUTPUT_STATE,
+};
+
+let _cachedPinnedApps;
+let _initialPersistedPinnedApps;
+const PINNED_APPS_STORAGE_KEY = 'pinnedApps';
+
+const getPersistedPinnedApps = () => {
+  if (_cachedPinnedApps !== undefined) return _cachedPinnedApps;
+  _cachedPinnedApps = Local.getItem(PINNED_APPS_STORAGE_KEY);
+  _initialPersistedPinnedApps = _cachedPinnedApps;
+  return _cachedPinnedApps;
+};
+
+const setPersistedPinnedApps = (apps) => {
+  _cachedPinnedApps = apps;
+  Local.setItem(PINNED_APPS_STORAGE_KEY, apps);
 };
 
 const reducer = (state, action) => {
@@ -434,6 +451,21 @@ const reducer = (state, action) => {
         .slice()
         .sort((a, b) => newRegisteredApps[a].name.localeCompare(newRegisteredApps[b].name));
 
+      let restoredPinnedApps = sortedPinnedApps;
+      const savedPinnedApps = getPersistedPinnedApps();
+
+      if (
+        Array.isArray(savedPinnedApps)
+        && savedPinnedApps.includes(id)
+        && !sortedPinnedApps.includes(id)
+      ) {
+        const MAX_PINNED = window.meetingClientSettings.public.app.appsGallery.maxPinnedApps;
+        if (sortedPinnedApps.length < MAX_PINNED) {
+          restoredPinnedApps = [...sortedPinnedApps, id]
+            .sort((a, b) => newRegisteredApps[a].name.localeCompare(newRegisteredApps[b].name));
+        }
+      }
+
       return {
         ...state,
         input: {
@@ -441,7 +473,7 @@ const reducer = (state, action) => {
           sidebarNavigation: {
             ...sidebarNavigation,
             registeredApps: sortedRegisteredApps,
-            pinnedApps: sortedPinnedApps,
+            pinnedApps: restoredPinnedApps,
           },
         },
       };
@@ -480,7 +512,7 @@ const reducer = (state, action) => {
     case ACTIONS.SET_SIDEBAR_NAVIGATION_PIN_APP: {
       const APP_CONFIG = window.meetingClientSettings.public.app;
       const MAX_PINNED_APPS_GALLERY = APP_CONFIG.appsGallery.maxPinnedApps;
-      const { id: appId, pin } = action.value;
+      const { id: appId, pin, isDefault = false } = action.value;
       const { sidebarNavigation } = state.input;
       const { pinnedApps, registeredApps = [] } = sidebarNavigation;
 
@@ -491,11 +523,22 @@ const reducer = (state, action) => {
       if ((pin && isAppPinned) || (!pin && !isAppPinned)) return state;
       if (pin && pinnedApps.length === MAX_PINNED_APPS_GALLERY) return state;
 
+      if (isDefault && pin) {
+        if (_initialPersistedPinnedApps === undefined) getPersistedPinnedApps();
+        const savedPinnedApps = _initialPersistedPinnedApps;
+        if (savedPinnedApps !== null
+          && Array.isArray(savedPinnedApps) && !savedPinnedApps.includes(appId)) {
+          return state;
+        }
+      }
+
       const updatedPinnedApps = pin
         ? [...pinnedApps, appId].sort(
           (a, b) => registeredApps[a].name.localeCompare(registeredApps[b].name),
         )
         : pinnedApps.filter((pinnedApp) => pinnedApp !== appId);
+
+      setPersistedPinnedApps(updatedPinnedApps);
 
       return {
         ...state,
@@ -956,6 +999,19 @@ const reducer = (state, action) => {
     }
 
     // PRESENTATION
+    case ACTIONS.SET_PRESENTATION_CONTENT_UPDATED: {
+      const { presentation } = state.input;
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          presentation: {
+            ...presentation,
+            contentUpdatedAt: Date.now(),
+          },
+        },
+      };
+    }
     case ACTIONS.SET_PRESENTATION_IS_OPEN: {
       const { presentation } = state.input;
       if (presentation.isOpen === action.value) {
@@ -1583,6 +1639,9 @@ const updatePresentationAreaContent = (
     layoutContextDispatch({
       type: ACTIONS.SET_PRESENTATION_IS_OPEN,
       value: shouldOpenPresentation,
+    });
+    layoutContextDispatch({
+      type: ACTIONS.SET_PRESENTATION_CONTENT_UPDATED,
     });
   }
 };

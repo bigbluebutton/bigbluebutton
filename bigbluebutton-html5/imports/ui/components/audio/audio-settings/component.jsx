@@ -13,6 +13,7 @@ import { hasMediaDevicesEventTarget } from '/imports/ui/services/webrtc-base/uti
 import AudioManager from '/imports/ui/services/audio-manager';
 import Session from '/imports/ui/services/storage/in-memory';
 import AudioCaptionsSelectContainer from '../audio-graphql/audio-captions/captions/component';
+import { destroyWasmProcessor } from '/imports/ui/components/audio/audio-processor/service';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -142,6 +143,7 @@ class AudioSettings extends React.Component {
     };
 
     this._isMounted = false;
+    this._confirmedWithStream = false;
   }
 
   componentDidMount() {
@@ -202,7 +204,12 @@ class AudioSettings extends React.Component {
     this._isMounted = false;
 
     if (stream) {
-      MediaStreamUtils.stopMediaStreamTracks(stream);
+      if (!this._confirmedWithStream) {
+        // Stream was not passed from handleConfirmation to the join flow (audio-manager).
+        // We MUST clean it up here - in the other scenario, audio-manager handles it.
+        destroyWasmProcessor(stream);
+        MediaStreamUtils.stopMediaStreamTracks(stream);
+      }
     }
 
     AudioManager.isEchoTest = false;
@@ -237,10 +244,18 @@ class AudioSettings extends React.Component {
       // Stream generation disabled or there isn't any stream: just run the provided callback
       if (!produceStreams || !stream) return handleConfirmation();
 
-      // Stream generation enabled and there is a valid input stream => call
-      // the confirmation callback with the input stream as arg so it can be used
-      // in upstream components. The rationale is no surplus gUM calls.
-      // We're cloning it because the original will be cleaned up on unmount here.
+      // Not connected: pass the original stream to the join flow (audio-manager).
+      // No spurioous gUMs or processors etc
+      if (!isConnected) {
+        // Skip processor/track cleanup on unmount
+        this._confirmedWithStream = true;
+
+        return handleConfirmation(stream);
+      }
+
+      // Connected: liveChangeInputDevice already handled the device switch
+      // with its own processor. Clone for the callback; the preview processor
+      // will be cleaned up on unmount.
       const clonedStream = stream.clone();
 
       return handleConfirmation(clonedStream);
@@ -454,24 +469,55 @@ class AudioSettings extends React.Component {
   }
 
   generateInputStream(inputDeviceId) {
-    const { doGUM, getAudioConstraints } = this.props;
+    const { doGUM, getAudioConstraints, isConnected } = this.props;
     const { stream } = this.state;
 
-    if (inputDeviceId && stream) {
+    if (stream) {
       const currentDeviceId = MediaStreamUtils.extractDeviceIdFromStream(stream, 'audio');
 
       if (currentDeviceId === inputDeviceId) return Promise.resolve(stream);
 
+      destroyWasmProcessor(stream);
       MediaStreamUtils.stopMediaStreamTracks(stream);
     }
 
     if (inputDeviceId === 'listen-only') return Promise.resolve(null);
 
+    // When already connected, the bridge _should_ have a working gUM stream.
+    // Reuse it cloned instead of calling doGUM again for two reasons: no trailing
+    // gUM requests surfaced to end users in finnicky browsers (ahem FF + iframes)
+    // and no duplicated processing pipelines (WASM-based).
+    if (isConnected) {
+      const bridgeStream = AudioManager.inputStream;
+      const isBridgeStreamLive = bridgeStream?.active
+        && bridgeStream.getAudioTracks().some((t) => t.readyState === 'live');
+
+      if (isBridgeStreamLive) {
+        const bridgeDeviceId = MediaStreamUtils.extractDeviceIdFromStream(
+          bridgeStream,
+          'audio',
+        );
+
+        if (bridgeDeviceId === inputDeviceId) {
+          const clonedStream = bridgeStream.clone();
+          // Guarantee the stream is unmuted for echo test purposes.
+          // Only applies to our local clone.
+          clonedStream.getAudioTracks().forEach((track) => {
+            // eslint-disable-next-line no-param-reassign
+            track.enabled = true;
+          });
+
+          return Promise.resolve(clonedStream);
+        }
+      }
+    }
+
     const constraints = {
       audio: getAudioConstraints({ deviceId: inputDeviceId }),
     };
 
-    return doGUM(constraints, true);
+    // Preview stream — don't promote its processor as the primary.
+    return doGUM(constraints, { retryOnFailure: true, adoptProcessorAsPrimary: false });
   }
 
   renderAudioCaptionsSelector() {

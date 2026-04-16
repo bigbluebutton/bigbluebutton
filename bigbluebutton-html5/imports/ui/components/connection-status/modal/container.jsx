@@ -1,14 +1,12 @@
 import React from 'react';
+import { useReactiveVar } from '@apollo/client';
 import { CONNECTION_STATUS_REPORT_SUBSCRIPTION } from '../queries';
 import {
   sortConnectionData,
-  startMonitoringNetwork,
-  stopMonitoringNetwork,
 } from '../service';
 import Component from './component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import { useReactiveVar } from '@apollo/client';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
@@ -36,8 +34,6 @@ const ConnectionStatusContainer = (props) => {
       connectionData={connectionData}
       amIModerator={amIModerator}
       networkData={networkData}
-      startMonitoringNetwork={startMonitoringNetwork}
-      stopMonitoringNetwork={stopMonitoringNetwork}
     />
   );
 };

@@ -1,11 +1,10 @@
 import React, { useEffect } from 'react';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { Notification, NotificationResponse, getNotificationsStream } from './queries';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
 import { notify } from '../../services/notification';
 import {
   NotifyPublishedPoll,
-  breakoutHadNoChanges,
   layoutUpdate,
   pendingGuestAlert,
   userJoinPushAlert,
@@ -17,6 +16,20 @@ import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscri
 const Notifications: React.FC = () => {
   const [registeredAt, setRegisteredAt] = React.useState<string>(new Date().toISOString());
   const [greaterThanLastOne, setGreaterThanLastOne] = React.useState<number>(0);
+  const intl = useIntl();
+
+  // Resolve any messageValue that is itself an i18n key (starts with 'app.')
+  // so the client-side translation is applied rather than a raw key string.
+  const resolveMessageValues = (
+    messageValues: Record<string, string>,
+  ): Record<string, string> => Object.fromEntries(
+    Object.entries(messageValues).map(([k, v]) => [
+      k,
+      typeof v === 'string' && v.startsWith('app.')
+        ? intl.formatMessage({ id: v, defaultMessage: v })
+        : v,
+    ]),
+  );
 
   const messageIndexRef = React.useRef<{
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -27,7 +40,6 @@ const Notifications: React.FC = () => {
         'app.notification.userJoinPushAlert': userJoinPushAlert,
         'app.notification.userLeavePushAlert': userLeavePushAlert,
         'app.layoutUpdate.label': layoutUpdate,
-        'app.toast.breakoutContentUnchangedNotConverted': breakoutHadNoChanges,
       });
 
   const {
@@ -45,6 +57,7 @@ const Notifications: React.FC = () => {
   });
 
   const notifier = (notification: Notification) => {
+    const resolvedValues = resolveMessageValues(notification.messageValues);
     // special guest alert notification, with user name as title
     if (notification.messageId === 'app.userList.guest.pendingGuestAlert') {
       notify(
@@ -56,18 +69,39 @@ const Notifications: React.FC = () => {
           <FormattedMessage
             id={notification.messageId}
             // @ts-ignore - JS code
-            values={notification.messageValues}
+            values={resolvedValues}
             description={notification.messageDescription}
           />
         </Styled.ContentMessage>,
         true,
+      );
+    } else if (notification.messageId === 'app.notification.presenterRequestApproved') {
+      notify(
+        <>
+          <FormattedMessage
+            id="app.notification.presenterRequestApproved.title"
+            // @ts-ignore - JS code
+            values={{ presenterName: <strong>{notification.messageValues.presenterName}</strong> }}
+            description="Title for presenter request approved notification"
+          />
+          <Styled.ContentMessage>
+            <FormattedMessage
+              id={notification.messageId}
+              // @ts-ignore - JS code
+              values={resolvedValues}
+              description={notification.messageDescription}
+            />
+          </Styled.ContentMessage>
+        </>,
+        notification.notificationType,
+        notification.icon,
       );
     } else {
       notify(
         <FormattedMessage
           id={notification.messageId}
           // @ts-ignore - JS code
-          values={notification.messageValues}
+          values={resolvedValues}
           description={notification.messageDescription}
         />,
         notification.notificationType,

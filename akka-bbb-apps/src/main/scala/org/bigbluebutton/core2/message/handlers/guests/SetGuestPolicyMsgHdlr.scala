@@ -1,6 +1,7 @@
 package org.bigbluebutton.core2.message.handlers.guests
 
 import org.bigbluebutton.common2.msgs.SetGuestPolicyCmdMsg
+import org.bigbluebutton.core.db.NotificationDAO
 import org.bigbluebutton.core.models.{ GuestPolicy, GuestPolicyType, GuestsWaiting }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
@@ -21,6 +22,7 @@ trait SetGuestPolicyMsgHdlr extends RightsManagementTrait {
     } else {
       val newPolicy = msg.body.policy.toUpperCase()
       if (GuestPolicyType.policyTypes.contains(newPolicy)) {
+        val oldPolicy = liveMeeting.guestsWaiting.getGuestPolicy().policy
         val policy = GuestPolicy(newPolicy, msg.body.setBy)
         GuestsWaiting.setGuestPolicy(
           liveMeeting.props.meetingProp.intId,
@@ -31,6 +33,28 @@ trait SetGuestPolicyMsgHdlr extends RightsManagementTrait {
           liveMeeting.props.meetingProp.intId, msg.header.userId, newPolicy, msg.body.setBy
         )
         outGW.send(event)
+
+        if (oldPolicy != newPolicy) {
+          val policyLabelKey: Option[String] = newPolicy match {
+            case GuestPolicyType.ASK_MODERATOR      => Some("app.guest-policy.button.askModerator")
+            case GuestPolicyType.ALWAYS_ACCEPT      => Some("app.guest-policy.button.alwaysAccept")
+            case GuestPolicyType.ALWAYS_ACCEPT_AUTH => Some("app.guest-policy.button.alwaysAcceptAuth")
+            case GuestPolicyType.ALWAYS_DENY        => Some("app.guest-policy.button.alwaysDeny")
+            case _                                  => None
+          }
+          policyLabelKey.foreach { labelKey =>
+            val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+              liveMeeting.props.meetingProp.intId,
+              "info",
+              "guest_policy",
+              "app.guest-policy.feedbackMessage",
+              "Label for guest policy change notification",
+              Map("policy" -> labelKey)
+            )
+            outGW.send(notifyEvent)
+            NotificationDAO.insert(notifyEvent)
+          }
+        }
       }
     }
   }

@@ -21,11 +21,6 @@ const LeaveButton = styled(Button)`
   }
 `}
 
-  ${({ $isMobile }) => !$isMobile && `
-    margin-left: 1.0rem;
-    margin-right: 0.5rem;
-  `}
-
   ${({ state }) => state === 'closed' && `
     z-index: 3;
     display: flex;

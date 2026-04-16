@@ -1,4 +1,9 @@
-import React, { memo, useMemo, useState } from 'react';
+import React, {
+  memo,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { AppsGalleryProps } from './types';
 import { layoutDispatch, layoutSelect } from '/imports/ui/components/layout/context';
@@ -9,6 +14,7 @@ import TooManyPinnedAppsModal from './modal/component';
 import AppItem from './app-item/component';
 import ExternalAppItem from './external-app-item/component';
 import { isPluginNew } from './service';
+import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 
 const intlMessages = defineMessages({
   appsGalleryTitle: {
@@ -44,6 +50,9 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
   const intl = useIntl();
   const title = intl.formatMessage(intlMessages.appsGalleryTitle);
   const [error, setError] = useState(false);
+  const [meetingSettings] = useMeetingSettings();
+  const appsToLabelAsNew = meetingSettings?.public?.sidebarNavigation?.appsToLabelAsNew || [];
+  const shouldAddIsNewLabel = useCallback((id: string) => appsToLabelAsNew.includes(id), [appsToLabelAsNew]);
 
   const renderedPinnedApps = useMemo(() => (
     pinnedApps.map((pinnedAppKey) => {
@@ -54,7 +63,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
         pluginName,
       } = registeredApps[pinnedAppKey];
 
-      const isNew = isPluginNew(pluginName);
+      const isNew = isPluginNew(pluginName) || shouldAddIsNewLabel(pinnedAppKey);
 
       // type guard
       const { onClick } = registeredApps[pinnedAppKey] as InjectedAppGalleryItem;
@@ -78,7 +87,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
         />
       );
     })
-  ), [registeredApps, pinnedApps]);
+  ), [registeredApps, pinnedApps, shouldAddIsNewLabel]);
 
   const renderedUnpinnedApps = useMemo(() => (
     Object.keys(registeredApps)
@@ -91,7 +100,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
           pluginName,
         } = registeredApps[unpinnedAppKey];
 
-        const isNew = isPluginNew(pluginName);
+        const isNew = isPluginNew(pluginName) || shouldAddIsNewLabel(unpinnedAppKey);
 
         // type guard
         const { onClick } = registeredApps[unpinnedAppKey] as InjectedAppGalleryItem;
@@ -115,7 +124,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
           />
         );
       })
-  ), [registeredApps, pinnedApps]);
+  ), [registeredApps, pinnedApps, shouldAddIsNewLabel]);
 
   return (
     <>

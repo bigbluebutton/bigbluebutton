@@ -6,13 +6,17 @@ import { Caption } from './live/queries';
 import Session from '/imports/ui/services/storage/in-memory';
 import { hasSpeechRecognitionSupport } from './speech/service';
 
+export const captionLimit = () => {
+  const CAPTIONS_CONFIG = window.meetingClientSettings.public.captions;
+  return CAPTIONS_CONFIG.captionLimit;
+};
+
 export const splitTranscript = (obj: Caption) => {
   const CAPTIONS_CONFIG = window.meetingClientSettings.public.captions;
   const CHARACTERS_PER_LINE = CAPTIONS_CONFIG.lineLimit;
   const LINES_PER_MESSAGE = CAPTIONS_CONFIG.lines;
-  const CAPTION_LIMIT = CAPTIONS_CONFIG.captionLimit;
 
-  let transcripts = [];
+  const transcripts = [];
   const words = obj.captionText.split(' ');
 
   let currentLine = '';
@@ -37,10 +41,6 @@ export const splitTranscript = (obj: Caption) => {
     transcripts.push(result);
   }
   transcripts.push(currentLine.trim());
-
-  // If there are more caption objects than CAPTION_LIMIT
-  // just get the last N captions
-  transcripts = transcripts.slice(-CAPTION_LIMIT);
 
   let i = 0;
   return transcripts.map((t) => {
@@ -119,9 +119,9 @@ export const getCaptionsTermsLink = (locale: string) => {
   return terms[DEFAULT_LOCALE];
 };
 
-export const useAppsGallery = () => {
-  const USE_APPS_GALLERY = window.meetingClientSettings.public.app.audioCaptions.useAppsGallery;
-  return USE_APPS_GALLERY;
+export const showInSidebarNavigation = () => {
+  const SHOW_IN_SIDEBAR_NAVIGATION = window.meetingClientSettings.public.app.audioCaptions.showInSidebarNavigation;
+  return SHOW_IN_SIDEBAR_NAVIGATION;
 };
 
 export default {
@@ -136,5 +136,6 @@ export default {
   splitTranscript,
   getLocaleName,
   getCaptionsTermsLink,
-  useAppsGallery,
+  showInSidebarNavigation,
+  captionLimit,
 };

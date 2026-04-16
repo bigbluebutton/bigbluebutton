@@ -229,6 +229,7 @@ export class DisabledFeatures extends MultiUsers {
   async importPresentationWithAnnotationsFromBreakoutRoomsExclude() {
     await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
     await this.modPage.waitForSelector(e.createBreakoutRoomsButton);
+    await this.modPage.waitAndClick(e.moreOptionsToggle);
     await this.modPage.hasElement(
       e.captureBreakoutWhiteboard,
       'should display the option to capture the breakout whiteboard on the create breakout rooms modal',

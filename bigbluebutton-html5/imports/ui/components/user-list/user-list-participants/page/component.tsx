@@ -5,6 +5,7 @@ import React, {
   useMemo,
   memo,
 } from 'react';
+import { defineMessages, useIntl } from 'react-intl';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { setLocalUserList, useLoadedUserList } from '/imports/ui/core/hooks/useLoadedUserList';
@@ -14,6 +15,7 @@ import { User } from '/imports/ui/Types/user';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import { getUsersPerUserListPage } from '/imports/ui/components/user-list/service';
 import Styled from '../styles';
+import LocalStyled from './styles';
 import ListItem from '../list-item/component';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
@@ -29,6 +31,7 @@ interface UserListParticipantsContainerProps {
   isLastItem: boolean;
   restOfUsers: number;
   setVisibleUsers: React.Dispatch<React.SetStateAction<{ [key: number]: User[]; }>>;
+  searchQuery: string;
 }
 
 interface UsersListParticipantsPage {
@@ -44,6 +47,13 @@ interface UsersListParticipantsPage {
   offset: number;
   isBreakout: boolean;
 }
+
+const intlMessages = defineMessages({
+  noSearchResults: {
+    id: 'app.userList.noSearchResults',
+    description: 'Message shown when a search query is entered but no participants match the query',
+  },
+});
 
 const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
   users,
@@ -98,7 +108,9 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
   isLastItem,
   restOfUsers,
   setVisibleUsers,
+  searchQuery,
 }) => {
+  const intl = useIntl();
   const usersPerUserListPage = getUsersPerUserListPage();
   const offset = index * usersPerUserListPage;
   const limit = useRef(usersPerUserListPage);
@@ -121,7 +133,11 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
   const {
     data: usersData,
     loading: usersLoading,
-  } = useLoadedUserList({ offset, limit: limit.current }, (u) => u) as GraphqlDataHookSubscriptionResponse<Array<User>>;
+  } = useLoadedUserList({
+    offset,
+    limit: limit.current,
+    searchQuery,
+  }, (u) => u) as GraphqlDataHookSubscriptionResponse<Array<User>>;
 
   const users = meeting?.meetingId
     ? filterByMeetingId(
@@ -190,7 +206,27 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
     usersPolicies: (meeting?.usersPolicies ?? ({} as UsersPolicies)) as UsersPolicies,
   }), [meeting?.meetingId, meeting?.isBreakout, meeting?.lockSettings, meeting?.usersPolicies]);
 
-  if (usersLoading || meetingLoading || !meeting || currentUserLoading || presentationLoading) {
+  const displayUsers = useMemo(() => {
+    const hasSearch = Boolean(searchQuery?.trim());
+    if (hasSearch) {
+      return users;
+    }
+
+    const usersWithoutCurrent = users.filter((u: User) => u.userId !== currentUser?.userId);
+    const shouldPinCurrentUser = offset === 0 && !!currentUser;
+
+    return shouldPinCurrentUser
+      ? [currentUser as User, ...usersWithoutCurrent]
+      : usersWithoutCurrent;
+  }, [offset, currentUser, users, searchQuery]);
+
+  const isLoading = usersLoading
+    || meetingLoading
+    || !meeting
+    || currentUserLoading
+    || presentationLoading;
+
+  if (isLoading) {
     return Array.from({ length: isLastItem ? restOfUsers : usersPerUserListPage }).map((_, i) => (
       <Styled.UserListItem key={`not-visible-item-${i + 1}`}>
         {/* eslint-disable-next-line */}
@@ -199,13 +235,16 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
     ));
   }
 
-  const usersWithoutCurrent = users.filter((u: User) => u.userId !== currentUser?.userId);
-  const displayUsers = offset === 0
-    ? [currentUser as User, ...usersWithoutCurrent]
-    : usersWithoutCurrent;
-
   if (!meeting || !currentUser) {
     return null;
+  }
+
+  if (index === 0 && displayUsers.length === 0) {
+    return (
+      <LocalStyled.EmptySearchMessage>
+        {intl.formatMessage(intlMessages.noSearchResults)}
+      </LocalStyled.EmptySearchMessage>
+    );
   }
 
   return (

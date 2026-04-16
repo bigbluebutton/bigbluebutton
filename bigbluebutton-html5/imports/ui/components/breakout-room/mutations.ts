@@ -73,6 +73,14 @@ export const BREAKOUT_ROOM_REQUEST_JOIN_URL = gql`
   }
 `;
 
+export const BREAKOUT_ROOM_CALL_MODERATOR = gql`
+  mutation BreakoutRoomCallModerator($breakoutRoomId: String!) {
+    breakoutRoomCallModerator(
+      breakoutRoomId: $breakoutRoomId,
+    )
+  }
+`;
+
 export default {
   BREAKOUT_ROOM_CREATE,
   BREAKOUT_ROOM_END_ALL,
@@ -81,4 +89,5 @@ export default {
   BREAKOUT_ROOM_SET_TIME,
   USER_TRANSFER_VOICE_TO_MEETING,
   BREAKOUT_ROOM_REQUEST_JOIN_URL,
+  BREAKOUT_ROOM_CALL_MODERATOR,
 };

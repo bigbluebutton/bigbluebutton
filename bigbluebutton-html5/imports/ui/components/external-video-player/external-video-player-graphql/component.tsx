@@ -678,6 +678,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
               icon="close"
               size="sm"
               onClick={stopExternalVideoShare}
+              data-test="stopExternalVideoShare"
               label={intl.formatMessage(intlMessages.closeExternalVideoLabel)}
               hideLabel
               className={Styled.ExternalVideoCloseButton}

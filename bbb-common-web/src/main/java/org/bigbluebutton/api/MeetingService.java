@@ -323,7 +323,6 @@ public class MeetingService implements MessageListener {
     for (String token : sessions.keySet()) {
       UserSession userSession = sessions.get(token);
       if (userSession.meetingID.equals(meetingId)) {
-        System.out.println(token + " = " + userSession.authToken);
         removeUserSessionWithSessionToken(token);
       }
     }

@@ -170,6 +170,8 @@ const getSupportedLayouts = (deviceType) => suportedLayouts.filter(
   (layout) => layout.suportedDevices.includes(deviceType),
 );
 
+const isValidSynchronizationLayout = (layout) => layout && LAYOUTS_SYNC[layout] != null;
+
 const layoutAllowedInSettings = (layout) => layout !== LAYOUT_TYPE.CAMERAS_ONLY
   && layout !== LAYOUT_TYPE.PRESENTATION_ONLY
   && layout !== LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY
@@ -189,4 +191,5 @@ const getDeviceType = () => {
 export {
   suportedLayouts, LAYOUTS_SYNC, getSupportedLayouts, isLayoutSupported, layoutAllowedInSettings,
   getWaitLayout, getDeviceType,
+  isValidSynchronizationLayout,
 };

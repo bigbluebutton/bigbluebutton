@@ -64,7 +64,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         enabled: false,
         mobile: false,
         provider: 'webspeech',
-        useAppsGallery: false,
+        showInSidebarNavigation: false,
         language: {
           available: [
             'en-US',
@@ -620,6 +620,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       showScreenshareQuickSwapButton: true,
       showLeaveSessionLabel: false,
     },
+    sidebarNavigation: {
+      appsToLabelAsNew: [],
+    },
     pads: {
       url: 'ETHERPAD_HOST',
     },
@@ -629,6 +632,14 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         defaultListenOnlyBridge: 'fullaudio',
         retryThroughRelay: false,
         allowAudioJoinCancel: true,
+        audioWasmProcessing: {
+          enabled: false,
+          constraints: {
+            echoCancellation: true,
+            autoGainControl: true,
+            noiseSuppression: true,
+          },
+        },
       },
       stunTurnServersFetchAddress: '/bigbluebutton/api/stuns',
       cacheStunTurnServers: true,
@@ -687,7 +698,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         },
         audio: {
           publishOptions: {
-            audioPreset: AudioPresets.speech,
+            audioPreset: AudioPresets.music,
             dtx: true,
             red: false,
             forceStereo: false,
@@ -710,8 +721,17 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     stats: {
       enabled: true,
       interval: 10000,
+      probes: 5,
       timeout: 30000,
-      log: true,
+      logMediaStats: {
+        enabled: false,
+        additionalStatsTypes: {
+          common: [],
+          audio: [],
+          video: [],
+          screenshare: [],
+        },
+      },
       notification: {
         warning: false,
         error: true,
@@ -834,6 +854,11 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         guest: true,
         sharingWebcam: true,
         bot: false,
+      },
+    },
+    userList: {
+      searchBar: {
+        enabled: true,
       },
     },
     whiteboard: {

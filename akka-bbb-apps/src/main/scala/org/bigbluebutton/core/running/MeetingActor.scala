@@ -542,20 +542,23 @@ class MeetingActor(
       case m: UpdateBreakoutRoomsTimeReqMsg        => state = handleUpdateBreakoutRoomsTimeMsg(m, state)
       case m: SendMessageToAllBreakoutRoomsReqMsg  => state = handleSendMessageToAllBreakoutRoomsMsg(m, state)
       case m: ChangeUserBreakoutReqMsg             => state = handleChangeUserBreakoutReqMsg(m, state)
+      case m: BreakoutRoomCallModeratorReqMsg =>
+        updateUserLastActivity(m.header.userId)
+        state = handleBreakoutRoomCallModeratorMsg(m, state)
 
       // Audio Groups
-      case m: CreateAudioGroupReqMsg               => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: DestroyAudioGroupReqMsg              => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: GetAudioGroupsReqMsg                 => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: AudioGroupAddParticipantsReqMsg      => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: AudioGroupRemoveParticipantsReqMsg   => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: JoinAudioGroupReqMsg                 => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: LeaveAudioGroupReqMsg                => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: AudioGroupUpdateParticipantReqMsg    => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: CreateAudioGroupReqMsg             => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: DestroyAudioGroupReqMsg            => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: GetAudioGroupsReqMsg               => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: AudioGroupAddParticipantsReqMsg    => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: AudioGroupRemoveParticipantsReqMsg => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: JoinAudioGroupReqMsg               => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: LeaveAudioGroupReqMsg              => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: AudioGroupUpdateParticipantReqMsg  => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
 
       // Voice
-      case m: UserLeftVoiceConfEvtMsg              => handleUserLeftVoiceConfEvtMsg(m)
-      case m: UserMutedInVoiceConfEvtMsg           => handleUserMutedInVoiceConfEvtMsg(m)
+      case m: UserLeftVoiceConfEvtMsg            => handleUserLeftVoiceConfEvtMsg(m)
+      case m: UserMutedInVoiceConfEvtMsg         => handleUserMutedInVoiceConfEvtMsg(m)
       case m: UserTalkingInVoiceConfEvtMsg =>
         updateVoiceUserLastActivity(m.body.voiceUserId)
         handleUserTalkingInVoiceConfEvtMsg(m)
@@ -567,7 +570,6 @@ class MeetingActor(
       case m: RecordingStartedVoiceConfEvtMsg => handleRecordingStartedVoiceConfEvtMsg(m)
       case m: AudioFloorChangedVoiceConfEvtMsg =>
         handleAudioFloorChangedVoiceConfEvtMsg(m)
-        audioCaptionsApp2x.handle(m, liveMeeting)
       case m: MuteUserCmdMsg =>
         usersApp.handleMuteUserCmdMsg(m)
         updateUserLastActivity(m.body.mutedBy)

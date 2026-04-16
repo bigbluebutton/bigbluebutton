@@ -238,6 +238,7 @@ export class SharedNotes extends MultiUsers {
     await startSharedNotes(this.userPage);
     await this.modPage.waitAndClick(e.usersListSidebarButton);
     await this.modPage.waitAndClick(e.lockViewersButton);
+    await this.modPage.waitAndClick(e.participantPermissionsTab);
     await this.modPage.waitAndClickElement(e.lockEditSharedNotes);
     await this.modPage.waitAndClick(e.applyLockSettings);
     // check text content on shared notes as attendee (locked)

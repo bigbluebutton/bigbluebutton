@@ -159,19 +159,16 @@ export const generateActionsPermissions = (
   const hasAuthority = currentUserIsModerator || amISubjectUser;
 
   const userChatIsLocked = currentUserLocked && lockSettings?.disablePrivateChat;
-  const isBreakoutPrivateChatLocked = isBreakout && lockSettings?.disablePrivateChat;
   const preventSelfChat = !amISubjectUser;
   const moderatorOverride = currentUserIsModerator
     && !amISubjectUser && !isDialInUser && isPrivateChatEnabled;
   const regularUserCondition = (isPrivateChatEnabled
     && isChatEnabled
     && !lockSettings?.disablePrivateChat
-    && !isDialInUser
-    && !isBreakout)
+    && !isDialInUser)
     || currentUserIsModerator;
   const allowedToChatPrivately = preventSelfChat
     && (moderatorOverride || regularUserCondition || !userChatIsLocked)
-    && !isBreakoutPrivateChatLocked
     && type === 'participant';
 
   const allowedToMuteAudio = hasAuthority
@@ -195,9 +192,10 @@ export const generateActionsPermissions = (
       && !amISubjectUser && !subjectUser.presenter
       && !isSubjectUserBot
       && !isDialInUser
+      && !isBreakout
       && (type === 'participant' || type === 'raised-hand');
 
-  const allowedToSetPresenter = amIModerator
+  const allowedToSetPresenter = (amIModerator || isBreakout)
       && !subjectUser.presenter
       && !isSubjectUserBot
       && !isDialInUser

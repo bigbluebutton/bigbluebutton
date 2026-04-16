@@ -7,8 +7,6 @@ const GUEST_WAITING_BELL_THROTTLE_TIME = 10000;
 
 const lastLayoutUpdateNotification = makeVar(new Date().getTime());
 
-const lastBreakoutHadNoChangesNotification = makeVar(new Date().getTime());
-
 export const NotifyPublishedPoll = (
   notification: Notification,
   notifier: (notification: Notification) => void,
@@ -119,24 +117,10 @@ export const layoutUpdate = (
   notifier(notification);
 };
 
-export const breakoutHadNoChanges = (
-  notification: Notification,
-  notifier: (notification: Notification) => void,
-) => {
-  const last = new Date(lastBreakoutHadNoChangesNotification()).getTime();
-  const now = new Date().getTime();
-  if (now - last < 1000) {
-    return;
-  }
-  lastBreakoutHadNoChangesNotification(now);
-  notifier(notification);
-};
-
 export default {
   NotifyPublishedPoll,
   pendingGuestAlert,
   userJoinPushAlert,
   userLeavePushAlert,
   layoutUpdate,
-  breakoutHadNoChanges,
 };

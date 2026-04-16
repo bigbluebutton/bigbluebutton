@@ -1,6 +1,6 @@
 import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
-import { constants as c } from './constants';
+import { constants as c, CUSTOM_STYLE_CSS, CUSTOM_STYLE_URL } from './constants';
 import { CreateParameters } from './createParameters';
 import { CustomParameters } from './customparameters';
 import { DisabledFeatures } from './disabledFeatures';
@@ -108,22 +108,17 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     await createParam.allowModsToEjectCameras();
   });
 
-  test(
-    'Override default presentation on CREATE meeting API call',
-    { tag: '@flaky-3.1' },
-    async ({ browser, context, page }, testInfo) => {
-      linkIssue(24367);
-      const createParam = new CreateParameters(browser, context);
-      await createParam.initModPage(page, {
-        createParameter:
-          `${c.preUploadedPresentation}&${c.preUploadedPresentationOverrideDefault}&` +
-          `${c.preUploadedPresentationName}`,
-        testInfo,
-      });
-      await createParam.initUserPage(context, { testInfo });
-      await createParam.overrideDefaultPresentation();
-    },
-  );
+  test('Override default presentation on CREATE meeting API call', async ({ browser, context, page }, testInfo) => {
+    const createParam = new CreateParameters(browser, context);
+    await createParam.initModPage(page, {
+      createParameter:
+        `${c.preUploadedPresentation}&${c.preUploadedPresentationOverrideDefault}&` +
+        `${c.preUploadedPresentationName}`,
+      testInfo,
+    });
+    await createParam.initUserPage(context, { testInfo });
+    await createParam.overrideDefaultPresentation();
+  });
 
   test.describe.parallel('Meeting Layout(default)', () => {
     test('CAMERAS_ONLY', async ({ browser, context, page }, testInfo) => {
@@ -526,6 +521,9 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
   });
 
   test('Custom Styles: URL', async ({ browser, context, page }, testInfo) => {
+    await context.route(CUSTOM_STYLE_URL, (route) =>
+      route.fulfill({ contentType: 'text/css', body: CUSTOM_STYLE_CSS }),
+    );
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, { joinParameter: encodeCustomParams(c.customStyleUrl), testInfo });
     await customParam.customStyle();

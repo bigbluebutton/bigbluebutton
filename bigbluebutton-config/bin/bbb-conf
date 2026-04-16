@@ -176,6 +176,22 @@ fi
 
 BBB_WEB_CONFIG="$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
 BBB_WEB_ETC_CONFIG="/etc/bigbluebutton/bbb-web.properties"
+
+# Properties that have been retired and should no longer be set by administrators.
+# bbb-conf --check will warn if any of these are found in $BBB_WEB_ETC_CONFIG.
+RETIRED_BBB_WEB_PROPERTIES=(
+    breakoutRoomsEnabled              # Removed in BBB 3.0
+    learningDashboardEnabled          # Removed in BBB 3.0
+    defaultGuestWaitURL               # Removed in BBB 3.0
+    pdfToSvgTimeout                   # Removed in BBB 3.0.13
+    pngCreationWait                   # Removed in BBB 3.0.13
+    maxConversionTime                 # Removed in BBB 3.0.15
+    pngCreationExecTimeoutInMs        # Renamed in BBB 3.0.17 (use pngCreationExecTimeout instead)
+    thumbnailCreationExecTimeoutInMs  # Renamed in BBB 3.0.17 (use thumbnailCreationExecTimeout instead)
+    textFileCreationExecTimeoutInMs   # Renamed in BBB 3.0.17 (use textFileCreationExecTimeout instead)
+    insertDocumentSupportedProtocols  # Renamed in BBB 3.0.23 (use fetchUrlSupportedProtocols instead)
+    insertDocumentBlockedHosts        # Renamed in BBB 3.0.23 (use fetchUrlBlockedExternalHosts instead)
+)
 NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1 | head -n 1)
 SIP_CONFIG=/usr/share/bigbluebutton/nginx/sip.nginx
 SIP_NGINX_IP=$(cat $SIP_CONFIG |  grep -v '#' | sed -n '/proxy_pass/{s/.*proxy_pass http[s]*:\/\///;s/:.*//;p}' | head -n 1)
@@ -696,6 +712,8 @@ check_configuration() {
     ignore_configs_args+=(-e "redisPassword")
     ignore_configs_args+=(-e "disabledFeatures")
     ignore_configs_args+=(-e "pluginManifests")
+    ignore_configs_args+=(-e "fetchUrlBlockedExternalHosts")
+    ignore_configs_args+=(-e "fetchUrlAllowedLocalHosts")
 
     for file in $CONFIG_FILES ; do
         if [ ! -f $file ]; then
@@ -791,6 +809,24 @@ check_configuration() {
        echo "#     https://docs.bigbluebutton.org/administration/firewall-configuration"
        echo "#"
        echo
+    fi
+
+    #
+    # Check for retired bbb-web properties that should no longer be used
+    #
+    RETIRED_FOUND=0
+    for prop in "${RETIRED_BBB_WEB_PROPERTIES[@]}"; do
+        if grep -q "^${prop}[[:space:]]*=" "$BBB_WEB_ETC_CONFIG" 2>/dev/null; then
+            if [ $RETIRED_FOUND -eq 0 ]; then
+                echo
+                echo "# Warning: The following retired bbb-web properties were found in $BBB_WEB_ETC_CONFIG and should be removed:"
+                RETIRED_FOUND=1
+            fi
+            echo "#   $prop"
+        fi
+    done
+    if [ $RETIRED_FOUND -eq 1 ]; then
+        echo
     fi
 
 }

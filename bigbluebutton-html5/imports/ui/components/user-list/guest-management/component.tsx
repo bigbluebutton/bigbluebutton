@@ -25,15 +25,16 @@ const GuestManagement: React.FC<GuestManagementProps> = () => {
 
   const amIModerator = currentUserData?.isModerator;
   const guestPolicy = currentMeeting?.usersPolicies?.guestPolicy;
+  const hasWaitingUsers = !!(guestWaitingUsersData?.user_guest?.length);
   const guestLobbyEnabled = (guestPolicy === ASK_MODERATOR)
-    || !!(guestWaitingUsersData?.user_guest?.length);
+    || hasWaitingUsers;
 
   if (!amIModerator || !guestLobbyEnabled) return null;
 
   return (
     <>
       <WaitingUserSection />
-      <Separator />
+      {hasWaitingUsers && <Separator />}
     </>
   );
 };

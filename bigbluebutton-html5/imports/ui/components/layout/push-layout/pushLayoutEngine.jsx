@@ -14,7 +14,7 @@ import {
   PANELS,
   HIDDEN_LAYOUTS,
 } from '../enums';
-import { LAYOUTS_SYNC } from '../utils';
+import { isValidSynchronizationLayout, LAYOUTS_SYNC } from '../utils';
 import { updateSettings } from '/imports/ui/components/settings/service';
 import Session from '/imports/ui/services/storage/in-memory';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
@@ -59,6 +59,7 @@ const propTypes = {
   meetingPresentationIsOpen: PropTypes.bool,
   meetingLayoutUpdatedAt: PropTypes.number,
   presentationIsOpen: PropTypes.bool,
+  presentationContentUpdatedAt: PropTypes.number,
   presentationVideoRate: PropTypes.number,
   pushLayout: PropTypes.bool,
   pushLayoutMeeting: PropTypes.bool,
@@ -100,6 +101,7 @@ const PushLayoutEngine = (props) => {
     isPresenter,
     layoutContextDispatch,
     meetingLayoutUpdatedAt,
+    presentationContentUpdatedAt,
     presentationIsOpen,
     presentationVideoRate,
     pushLayout,
@@ -197,7 +199,7 @@ const PushLayoutEngine = (props) => {
   }, [hasMeetingLayout, enforceLayoutResult]);
 
   useEffect(() => {
-    if (!selectedLayout) return () => { };
+    if (!isValidSynchronizationLayout(selectedLayout)) return () => {};
     const meetingLayoutDidChange = prevProps.meetingLayout !== undefined
       && meetingLayout !== prevProps.meetingLayout;
     const pushLayoutMeetingDidChange = prevProps.pushLayoutMeeting !== undefined
@@ -330,7 +332,8 @@ const PushLayoutEngine = (props) => {
       || cameraPosition !== prevProps.cameraPosition
       || focusedCamera !== prevProps.focusedCamera
       || enforceLayoutResult !== prevProps.enforceLayoutResult
-      || !equalDouble(presentationVideoRate, prevProps.presentationVideoRate);
+      || !equalDouble(presentationVideoRate, prevProps.presentationVideoRate)
+      || presentationContentUpdatedAt !== prevProps.presentationContentUpdatedAt;
 
     if (pushLayoutMeeting !== undefined
       && pushLayout !== prevProps.pushLayout
@@ -440,7 +443,10 @@ const PushLayoutEngineContainer = (props) => {
     setByUserId: meetingLayoutSetByUserId,
   } = (currentMeeting?.layout || {});
 
-  const { isOpen: presentationIsOpen } = presentationInput;
+  const {
+    isOpen: presentationIsOpen,
+    contentUpdatedAt: presentationContentUpdatedAt,
+  } = presentationInput;
 
   const { data: currentUserData, loading: enforcedLayoutLoading } = useCurrentUser((user) => ({
     enforceLayout: user.sessionCurrent?.enforceLayout,
@@ -503,6 +509,7 @@ const PushLayoutEngineContainer = (props) => {
         isChatEnabled,
         layoutContextDispatch,
         meetingLayoutUpdatedAt,
+        presentationContentUpdatedAt,
         presentationIsOpen,
         presentationVideoRate,
         pushLayout,
