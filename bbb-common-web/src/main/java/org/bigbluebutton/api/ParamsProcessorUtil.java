@@ -137,6 +137,7 @@ public class ParamsProcessorUtil {
 		private boolean defaultLockSettingsLockOnJoinConfigurable;
 		private boolean defaultLockSettingsHideViewersCursor;
         private boolean defaultLockSettingsHideViewersAnnotation;
+        private boolean defaultLockSettingsHideViewersScreenshare;
 
     private Long maxPresentationFileUpload = 30000000L; // 30MB
 
@@ -419,6 +420,12 @@ public class ParamsProcessorUtil {
                 lockSettingsHideViewersAnnotation = Boolean.parseBoolean(lockSettingsHideViewersAnnotationParam);
 			}
 
+			Boolean lockSettingsHideViewersScreenshare = defaultLockSettingsHideViewersScreenshare;
+			String lockSettingsHideViewersScreenshareParam = params.get(ApiParams.LOCK_SETTINGS_HIDE_VIEWERS_SCREENSHARE);
+			if (!StringUtils.isEmpty(lockSettingsHideViewersScreenshareParam)) {
+                lockSettingsHideViewersScreenshare = Boolean.parseBoolean(lockSettingsHideViewersScreenshareParam);
+			}
+
 			return new LockSettingsParams(lockSettingsDisableCam,
 							lockSettingsDisableMic,
 							lockSettingsDisablePrivateChat,
@@ -428,7 +435,8 @@ public class ParamsProcessorUtil {
 							lockSettingsLockOnJoin,
 							lockSettingsLockOnJoinConfigurable,
                             lockSettingsHideViewersCursor,
-                            lockSettingsHideViewersAnnotation);
+                            lockSettingsHideViewersAnnotation,
+                            lockSettingsHideViewersScreenshare);
 		}
 
     private ArrayList<Group> processGroupsParams(Map<String, String> params) {
@@ -1775,6 +1783,10 @@ public class ParamsProcessorUtil {
 
     public void setLockSettingsHideViewersAnnotation(Boolean lockSettingsHideViewersAnnotation) {
 		this.defaultLockSettingsHideViewersAnnotation = lockSettingsHideViewersAnnotation;
+	}
+
+    public void setLockSettingsHideViewersScreenshare(Boolean lockSettingsHideViewersScreenshare) {
+		this.defaultLockSettingsHideViewersScreenshare = lockSettingsHideViewersScreenshare;
 	}
 
 	public void setAllowDuplicateExtUserid(Boolean allow) {

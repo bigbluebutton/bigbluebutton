@@ -14,8 +14,10 @@ import org.bigbluebutton.core.models.{
   VoiceUserState,
   VoiceUsers,
   Webcams,
-  WebcamStream
+  WebcamStream,
+  Screenshares
 }
+import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
 
 object LockSettingsUtil {
 
@@ -166,6 +168,34 @@ object LockSettingsUtil {
   def enforceCamLockSettingsForAllUsers(liveMeeting: LiveMeeting, outGW: OutMsgRouter): Unit = {
     Users2x.findLockedViewers(liveMeeting.users2x).foreach { user =>
       enforceCamLockSettingsForUser(user, liveMeeting, outGW)
+    }
+  }
+
+  def isScreenshareBroadcastLocked(user: UserState, liveMeeting: LiveMeeting): Boolean = {
+    val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
+    user.role == Roles.VIEWER_ROLE && user.locked && permissions.hideViewersScreenshare
+  }
+
+  private def enforceHideViewersScreenshareForUser(
+      user: UserState, liveMeeting: LiveMeeting, outGW: OutMsgRouter
+  ): Unit = {
+    if (isScreenshareBroadcastLocked(user, liveMeeting)) {
+      val userScreenshares = Screenshares.findByUser(liveMeeting.screenshares, user.intId)
+      userScreenshares foreach { stream =>
+        val event = org.bigbluebutton.core2.message.senders.MsgBuilder.buildScreenBroadcastStopSysMsg(
+          liveMeeting.props.meetingProp.intId,
+          stream.voiceConf,
+          stream.userId,
+          stream.streamId
+        )
+        outGW.send(event)
+      }
+    }
+  }
+
+  def enforceScreenshareLockSettingsForAllViewers(liveMeeting: LiveMeeting, outGW: OutMsgRouter): Unit = {
+    Users2x.findLockedViewers(liveMeeting.users2x).foreach { user =>
+      enforceHideViewersScreenshareForUser(user, liveMeeting, outGW)
     }
   }
 }

@@ -64,16 +64,17 @@ case class UsersProp(
 case class MetadataProp(metadata: collection.immutable.Map[String, String])
 
 case class LockSettingsProps(
-    disableCam:             Boolean,
-    disableMic:             Boolean,
-    disablePrivateChat:     Boolean,
-    disablePublicChat:      Boolean,
-    disableNotes:           Boolean,
-    hideUserList:           Boolean,
-    lockOnJoin:             Boolean,
-    lockOnJoinConfigurable: Boolean,
-    hideViewersCursor:      Boolean,
-    hideViewersAnnotation:  Boolean
+    disableCam:               Boolean,
+    disableMic:               Boolean,
+    disablePrivateChat:       Boolean,
+    disablePublicChat:        Boolean,
+    disableNotes:             Boolean,
+    hideUserList:             Boolean,
+    lockOnJoin:               Boolean,
+    lockOnJoinConfigurable:   Boolean,
+    hideViewersCursor:        Boolean,
+    hideViewersAnnotation:    Boolean,
+    hideViewersScreenshare:   Boolean
 )
 
 case class SystemProps(

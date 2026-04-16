@@ -14,6 +14,7 @@ const MEETING_SUBSCRIPTION = gql`
           hideUserList
           hideViewersCursor
           hideViewersAnnotation
+          hideViewersScreenshare
           webcamsOnlyForModerator
           lockOnJoin
           lockOnJoinConfigurable

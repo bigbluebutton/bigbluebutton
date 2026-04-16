@@ -1,7 +1,11 @@
 import React from 'react';
 import ScreenshareButton from './component';
 import { useIsScreenSharingEnabled } from '/imports/ui/services/features';
-import { useAmIScreenBroadcasting, useIsScreenGloballyBroadcasting } from '/imports/ui/components/screenshare/service';
+import {
+  useAmIScreenBroadcasting,
+  useIsScreenGloballyBroadcasting,
+  useIsScreenshareLocked,
+} from '/imports/ui/components/screenshare/service';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 
@@ -10,6 +14,10 @@ const ScreenshareButtonContainer = (props) => {
   const screenIsBroadcasting = useAmIScreenBroadcasting();
   const { screenIsShared: isScreenGloballyBroadcasting } = useIsScreenGloballyBroadcasting();
   const enabled = useIsScreenSharingEnabled();
+  const isScreenshareLocked = useIsScreenshareLocked();
+
+  if (isScreenshareLocked && !screenIsBroadcasting) return null;
+
   return (
     <ScreenshareButton
       screenshareDataSavingSetting={screenshareDataSavingSetting}

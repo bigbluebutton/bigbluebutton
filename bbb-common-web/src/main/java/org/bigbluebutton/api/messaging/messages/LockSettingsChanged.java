@@ -13,6 +13,7 @@ public class LockSettingsChanged implements IMessage {
     public final Boolean lockOnJoinConfigurable;
     public final Boolean hideViewersCursor;
     public final Boolean hideViewersAnnotation;
+    public final Boolean hideViewersScreenshare;
 
     public LockSettingsChanged(String meetingId,
                                Boolean disableCam,
@@ -24,7 +25,8 @@ public class LockSettingsChanged implements IMessage {
                                Boolean lockOnJoin,
                                Boolean lockOnJoinConfigurable,
                                Boolean hideViewersCursor,
-                               Boolean hideViewersAnnotation) {
+                               Boolean hideViewersAnnotation,
+                               Boolean hideViewersScreenshare) {
         this.meetingId = meetingId;
         this.disableCam = disableCam;
         this.disableMic = disableMic;
@@ -36,5 +38,6 @@ public class LockSettingsChanged implements IMessage {
         this.lockOnJoinConfigurable = lockOnJoinConfigurable;
         this.hideViewersCursor = hideViewersCursor;
         this.hideViewersAnnotation = hideViewersAnnotation;
+        this.hideViewersScreenshare = hideViewersScreenshare;
     }
 }

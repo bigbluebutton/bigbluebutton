@@ -13,7 +13,8 @@ case class Permissions(
     lockOnJoin:             Boolean = true,
     lockOnJoinConfigurable: Boolean = false,
     hideViewersCursor:      Boolean = false,
-    hideViewersAnnotation:  Boolean = false
+    hideViewersAnnotation:  Boolean = false,
+    hideViewersScreenshare: Boolean = false
 )
 
 case class MeetingExtensionProp(maxExtensions: Int = 2, numExtensions: Int = 0, extendByMinutes: Int = 20,

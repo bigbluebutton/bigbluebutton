@@ -19,6 +19,7 @@ select_permissions:
         - hideUserList
         - hideViewersAnnotation
         - hideViewersCursor
+        - hideViewersScreenshare
         - lockOnJoin
         - lockOnJoinConfigurable
         - webcamsOnlyForModerator

@@ -81,6 +81,10 @@ const intlMessages = defineMessages({
     id: 'app.lock-viewers.hideAnnotationsLabel',
     description: 'label for other viewers annotation',
   },
+  hideViewersScreenshareLabel: {
+    id: 'app.lock-viewers.hideViewersScreenshareLabel',
+    description: 'label for hide viewers screenshare toggle',
+  },
 });
 
 const propTypes = {
@@ -417,6 +421,32 @@ class LockViewersComponent extends Component {
                     showToggleLabel={showToggleLabel}
                     invertColors={invertColors}
                     data-test="hideViewersAnnotation"
+                  />
+                </Styled.FormElementRight>
+              </Styled.Col>
+            </Styled.Row>
+
+            <Styled.Row data-test="hideViewersScreenshareItem">
+              <Styled.Col aria-hidden="true">
+                <Styled.FormElement>
+                  <Styled.Label>
+                    {intl.formatMessage(intlMessages.hideViewersScreenshareLabel)}
+                  </Styled.Label>
+                </Styled.FormElement>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.FormElementRight>
+                  {this.displayLockStatus(lockSettingsProps.hideViewersScreenshare)}
+                  <Toggle
+                    icons={false}
+                    defaultChecked={lockSettingsProps.hideViewersScreenshare}
+                    onChange={() => {
+                      this.toggleLockSettings('hideViewersScreenshare');
+                    }}
+                    ariaLabel={intl.formatMessage(intlMessages.hideViewersScreenshareLabel)}
+                    showToggleLabel={showToggleLabel}
+                    invertColors={invertColors}
+                    data-test="hideViewersScreenshare"
                   />
                 </Styled.FormElementRight>
               </Styled.Col>

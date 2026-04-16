@@ -11,6 +11,7 @@ import browserInfo from '/imports/utils/browserInfo';
 import { SCREENSHARE_SUBSCRIPTION } from './queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import useMeeting from '../../core/hooks/useMeeting';
+import useCurrentUser from '../../core/hooks/useCurrentUser';
 
 let screenShareBridge = sfuScreenShareBridge;
 
@@ -298,6 +299,22 @@ export const useShowButtonForNonPresenters = () => {
   return MEDIA_CONFIG.screenshare.showButtonForNonPresenters;
 };
 
+export const useIsScreenshareLocked = () => {
+  const { data: meeting } = useMeeting((m) => ({
+    lockSettings: m.lockSettings,
+  }));
+  const { data: currentUser } = useCurrentUser((u) => ({
+    locked: u.locked,
+    isModerator: u.isModerator,
+  }));
+
+  return Boolean(
+    currentUser?.locked
+    && !currentUser?.isModerator
+    && meeting?.lockSettings?.hideViewersScreenshare
+  );
+};
+
 export const attachLocalPreviewStream = (mediaElement) => {
   const { isTabletApp } = browserInfo;
   if (isTabletApp) {
@@ -479,6 +496,7 @@ export default {
   useIsCameraAsContentGloballyBroadcasting,
   useShouldEnableVolumeControl,
   useShowButtonForNonPresenters,
+  useIsScreenshareLocked,
   useIsScreenBroadcasting,
   useAmIScreenBroadcasting,
   useIsCameraAsContentBroadcasting,

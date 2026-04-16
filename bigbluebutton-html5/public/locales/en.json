@@ -1113,6 +1113,7 @@
     "app.lock-viewers.locked": "Locked",
     "app.lock-viewers.hideViewersCursor": "See other viewers cursors",
     "app.lock-viewers.hideAnnotationsLabel": "See other viewers annotations",
+    "app.lock-viewers.hideViewersScreenshareLabel": "Share screen",
     "app.guest-policy.ariaTitle": "Guest policy settings modal",
     "app.guest-policy.title": "Guest policy",
     "app.guest-policy.description": "Change session guest policy setting",

@@ -183,17 +183,18 @@ SELECT "meeting_usersPolicies"."meetingId",
    JOIN "meeting" using("meetingId");
 
 create unlogged table "meeting_lockSettings" (
-	"meetingId"              varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
-    "disableCam"             boolean,
-    "disableMic"             boolean,
-    "disablePrivateChat"     boolean,
-    "disablePublicChat"      boolean,
-    "disableNotes"           boolean,
-    "hideUserList"           boolean,
-    "lockOnJoin"             boolean,
-    "lockOnJoinConfigurable" boolean,
-    "hideViewersCursor"      boolean,
-    "hideViewersAnnotation"  boolean
+	"meetingId"               varchar(100) primary key references "meeting"("meetingId") ON DELETE CASCADE,
+    "disableCam"              boolean,
+    "disableMic"              boolean,
+    "disablePrivateChat"      boolean,
+    "disablePublicChat"       boolean,
+    "disableNotes"            boolean,
+    "hideUserList"            boolean,
+    "lockOnJoin"              boolean,
+    "lockOnJoinConfigurable"  boolean,
+    "hideViewersCursor"       boolean,
+    "hideViewersAnnotation"   boolean,
+    "hideViewersScreenshare"  boolean
 );
 
 CREATE OR REPLACE VIEW "v_meeting_lockSettings" AS
@@ -207,6 +208,7 @@ SELECT
 	mls."hideUserList",
 	mls."hideViewersCursor",
 	mls."hideViewersAnnotation",
+	mls."hideViewersScreenshare",
 	mls."lockOnJoin",
     mls."lockOnJoinConfigurable",
 	mup."webcamsOnlyForModerator",
@@ -219,6 +221,7 @@ SELECT
 	WHEN mls."hideUserList"  IS TRUE THEN TRUE
 	WHEN mls."hideViewersCursor"  IS TRUE THEN TRUE
 	WHEN mls."hideViewersAnnotation"  IS TRUE THEN TRUE
+	WHEN mls."hideViewersScreenshare"  IS TRUE THEN TRUE
 	WHEN mup."webcamsOnlyForModerator"  IS TRUE THEN TRUE
 	ELSE FALSE
 	END "hasActiveLockSetting"

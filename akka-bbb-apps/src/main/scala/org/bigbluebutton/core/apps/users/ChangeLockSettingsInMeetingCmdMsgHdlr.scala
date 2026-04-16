@@ -34,7 +34,8 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
         lockOnJoin = msg.body.lockOnJoin,
         lockOnJoinConfigurable = msg.body.lockOnJoinConfigurable,
         hideViewersCursor = msg.body.hideViewersCursor,
-        hideViewersAnnotation = msg.body.hideViewersAnnotation
+        hideViewersAnnotation = msg.body.hideViewersAnnotation,
+        hideViewersScreenshare = msg.body.hideViewersScreenshare
       )
 
       if (!MeetingStatus2x.permissionsEqual(liveMeeting.status, settings) || !MeetingStatus2x.permisionsInitialized(liveMeeting.status)) {
@@ -233,6 +234,34 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
           }
         }
 
+        if (oldPermissions.hideViewersScreenshare != settings.hideViewersScreenshare) {
+          if (settings.hideViewersScreenshare) {
+            val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+              liveMeeting.props.meetingProp.intId,
+              "info",
+              "lock",
+              "app.userList.userOptions.disableScreenshare",
+              "Label to disable viewer screenshare notification",
+              Map()
+            )
+            outGW.send(notifyEvent)
+            NotificationDAO.insert(notifyEvent)
+
+            LockSettingsUtil.enforceScreenshareLockSettingsForAllViewers(liveMeeting, outGW)
+          } else {
+            val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+              liveMeeting.props.meetingProp.intId,
+              "info",
+              "lock",
+              "app.userList.userOptions.enableScreenshare",
+              "Label to enable viewer screenshare notification",
+              Map()
+            )
+            outGW.send(notifyEvent)
+            NotificationDAO.insert(notifyEvent)
+          }
+        }
+
         val routing = Routing.addMsgToClientRouting(
           MessageTypes.BROADCAST_TO_MEETING,
           props.meetingProp.intId,
@@ -253,6 +282,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
           lockOnJoinConfigurable = settings.lockOnJoinConfigurable,
           hideViewersCursor = settings.hideViewersCursor,
           hideViewersAnnotation = settings.hideViewersAnnotation,
+          hideViewersScreenshare = settings.hideViewersScreenshare,
           msg.body.setBy
         )
         val header = BbbClientMsgHeader(

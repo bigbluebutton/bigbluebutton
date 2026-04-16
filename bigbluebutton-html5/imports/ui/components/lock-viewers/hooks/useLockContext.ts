@@ -26,6 +26,7 @@ const useLockContext = () => {
   lockSetting.userLocks.userPublicChat = Boolean(userIsLocked && lockSettings?.disablePublicChat);
   lockSetting.userLocks.hideViewersCursor = Boolean(userIsLocked && lockSettings?.hideViewersCursor);
   lockSetting.userLocks.hideViewersAnnotation = Boolean(userIsLocked && lockSettings?.hideViewersAnnotation);
+  lockSetting.userLocks.userScreenshare = Boolean(userIsLocked && lockSettings?.hideViewersScreenshare);
 
   return lockSetting;
 };

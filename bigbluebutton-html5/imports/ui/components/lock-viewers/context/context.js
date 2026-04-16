@@ -11,6 +11,7 @@ export function LockStruct() {
       disablePublicChat: false,
       hideViewersCursor: false,
       hideViewersAnnotation: false,
+      hideViewersScreenshare: false,
     },
     userLocks: {
       userWebcam: false,
@@ -20,6 +21,7 @@ export function LockStruct() {
       userPublicChat: false,
       hideViewersCursor: false,
       hideViewersAnnotation: false,
+      userScreenshare: false,
     },
   });
 }

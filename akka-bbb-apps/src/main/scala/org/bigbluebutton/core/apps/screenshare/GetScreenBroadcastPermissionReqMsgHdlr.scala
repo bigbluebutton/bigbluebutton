@@ -5,6 +5,7 @@ import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core2.message.senders.MsgBuilder
+import org.bigbluebutton.LockSettingsUtil
 
 trait GetScreenBroadcastPermissionReqMsgHdlr {
   this: MeetingActor =>
@@ -22,6 +23,8 @@ trait GetScreenBroadcastPermissionReqMsgHdlr {
         val meetingId = liveMeeting.props.meetingProp.intId
         val reason = "No permission to share the screen."
         PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
+      } else if (LockSettingsUtil.isScreenshareBroadcastLocked(user, liveMeeting)) {
+        // Viewer is locked from sharing screen — deny silently
       } else if (liveMeeting.props.meetingProp.intId == msg.body.meetingId
         && liveMeeting.props.voiceProp.voiceConf == msg.body.voiceConf) {
         allowed = true
