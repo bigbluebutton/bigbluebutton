@@ -127,6 +127,26 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.minimumDurationWarnBreakout',
     description: 'Warning: minimum breakout duration',
   },
+  timerHours: {
+    id: 'app.createBreakoutRoom.timerHours',
+    description: 'Timer hours field label',
+  },
+  timerMinutes: {
+    id: 'app.createBreakoutRoom.timerMinutes',
+    description: 'Timer minutes field label',
+  },
+  timerSeconds: {
+    id: 'app.createBreakoutRoom.timerSeconds',
+    description: 'Timer seconds field label',
+  },
+  decreaseRooms: {
+    id: 'app.createBreakoutRoom.decreaseRooms',
+    description: 'Decrease number of rooms button label',
+  },
+  increaseRooms: {
+    id: 'app.createBreakoutRoom.increaseRooms',
+    description: 'Increase number of rooms button label',
+  },
 });
 
 interface SidebarCreateBreakoutProps {
@@ -399,7 +419,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
               const v = Math.max(0, Math.min(23, Number(e.target.value)));
               setHours(v);
             }}
-            aria-label="Hours"
+            aria-label={intl.formatMessage(intlMessages.timerHours)}
           />
           <Styled.TimerColon>:</Styled.TimerColon>
           <Styled.TimerInput
@@ -411,7 +431,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
               const v = Math.max(0, Math.min(59, Number(e.target.value)));
               setMinutes(v);
             }}
-            aria-label="Minutes"
+            aria-label={intl.formatMessage(intlMessages.timerMinutes)}
             data-test="durationTime"
           />
           <Styled.TimerColon>:</Styled.TimerColon>
@@ -424,7 +444,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
               const v = Math.max(0, Math.min(59, Number(e.target.value)));
               setSeconds(v);
             }}
-            aria-label="Seconds"
+            aria-label={intl.formatMessage(intlMessages.timerSeconds)}
           />
         </Styled.TimerDisplay>
         {durationTime < MIN_BREAKOUT_TIME && (
@@ -444,7 +464,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
           <Styled.RoomCountArrow
             onClick={decreaseRooms}
             disabled={numberOfRooms <= MIN_BREAKOUT_ROOMS}
-            aria-label="Decrease rooms"
+            aria-label={intl.formatMessage(intlMessages.decreaseRooms)}
             data-test="decreaseRooms"
           >
             ‹
@@ -455,7 +475,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
           <Styled.RoomCountArrow
             onClick={increaseRooms}
             disabled={numberOfRooms >= MAX_BREAKOUT_ROOMS}
-            aria-label="Increase rooms"
+            aria-label={intl.formatMessage(intlMessages.increaseRooms)}
             data-test="increaseRooms"
           >
             ›

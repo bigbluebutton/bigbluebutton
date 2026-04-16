@@ -95,6 +95,10 @@ const intlMessages = defineMessages({
     id: 'app.chat.submitLabel',
     description: 'Send message button label',
   },
+  roomOptions: {
+    id: 'app.createBreakoutRoom.roomOptions',
+    description: 'Room options button label',
+  },
 });
 
 interface RunningBreakoutRoomProps {
@@ -466,7 +470,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                         }
                       }}
                       data-test={`roomOptions${breakout.sequence}`}
-                      aria-label="Room options"
+                      aria-label={intl.formatMessage(intlMessages.roomOptions)}
                       title={isListening
                         ? intl.formatMessage(intlMessages.stopListeningToRoom)
                         : intl.formatMessage(intlMessages.listenToRoom)}

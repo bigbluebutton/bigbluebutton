@@ -234,10 +234,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
 
   // Manage a running room
   useEffect(() => {
-    if (
-      runningRooms
-      && runningRooms.length > 0
-      && Object.keys(userAssignedRooms).length > 0) {
+    if (runningRooms && runningRooms.length > 0) {
       const assignUsers = runningRooms
         .reduce((
           acc: { [key: string]: number[] },
@@ -261,10 +258,16 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
       }, {});
 
       setNumberOfRooms(runningRooms.length);
-      setUserAssignedRooms((prev) => ({
-        ...prev,
-        ...assignUsers,
-      }));
+      setUserAssignedRooms((prev) => {
+        const updated = { ...prev };
+        users.forEach((user) => {
+          if (!updated[user.userId]) {
+            updated[user.userId] = [];
+          }
+        });
+        Object.assign(updated, assignUsers);
+        return updated;
+      });
 
       setRoomNames((prev) => ({
         ...prev,
@@ -343,14 +346,14 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
       });
 
       setUserAssignedRooms((prev) => {
-        if (Object.keys(prev).length === 0) return prev;
         const updated = { ...prev };
-        Object.entries(groupUserAssignments).forEach(([userId, rooms]) => {
-          if (!updated[userId]) {
-            updated[userId] = rooms;
-          } else {
-            updated[userId] = [...updated[userId], ...rooms];
+        users.forEach((user) => {
+          if (!updated[user.userId]) {
+            updated[user.userId] = [];
           }
+        });
+        Object.entries(groupUserAssignments).forEach(([userId, rooms]) => {
+          updated[userId] = rooms;
         });
         return updated;
       });

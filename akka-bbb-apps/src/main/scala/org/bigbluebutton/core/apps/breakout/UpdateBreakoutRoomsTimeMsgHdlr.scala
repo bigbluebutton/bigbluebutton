@@ -22,15 +22,15 @@ trait UpdateBreakoutRoomsTimeMsgHdlr extends RightsManagementTrait {
       val reason = "No permission to update time for breakout rooms for meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
       state
-    } else if (msg.body.timeInMinutes <= 0) {
-      log.error("Error while trying to update {} minutes for breakout rooms time in meeting {}. Only positive values are allowed!", msg.body.timeInMinutes, props.meetingProp.intId)
+    } else if (msg.body.timeInSeconds <= 0) {
+      log.error("Error while trying to update {} seconds for breakout rooms time in meeting {}. Only positive values are allowed!", msg.body.timeInSeconds, props.meetingProp.intId)
       state
     } else {
       val updatedModel = for {
         breakoutModel <- state.breakout
         startedOn <- breakoutModel.startedOn
       } yield {
-        val newSecsRemaining = msg.body.timeInMinutes * 60
+        val newSecsRemaining = msg.body.timeInSeconds
         val breakoutRoomSecsElapsed = TimeUtil.millisToSeconds(System.currentTimeMillis()) - TimeUtil.millisToSeconds(startedOn);
         val newDurationInSeconds = breakoutRoomSecsElapsed.toInt + newSecsRemaining
 
@@ -44,7 +44,7 @@ trait UpdateBreakoutRoomsTimeMsgHdlr extends RightsManagementTrait {
           //Avoid breakout room end later than main room
           //Keep 5 seconds of margin to finish breakout room and send informations to parent meeting
           if (newSecsRemaining > (mainRoomSecsRemaining - 5)) {
-            log.error("Error while trying to update {} minutes for breakout rooms time in meeting {}. Parent meeting will end up in {} minutes!", msg.body.timeInMinutes, props.meetingProp.intId, mainRoomTimeRemainingInMinutes)
+            log.error("Error while trying to update {} seconds for breakout rooms time in meeting {}. Parent meeting will end up in {} minutes!", msg.body.timeInSeconds, props.meetingProp.intId, mainRoomTimeRemainingInMinutes)
             isNewTimeHigherThanMeetingRemaining = true
           }
         }
@@ -60,7 +60,7 @@ trait UpdateBreakoutRoomsTimeMsgHdlr extends RightsManagementTrait {
               "about",
               "app.chat.breakoutDurationUpdated",
               "Used when the breakout duration is updated",
-              Map("timeInMinutes" -> s"${msg.body.timeInMinutes}")
+              Map("timeInMinutes" -> s"${msg.body.timeInSeconds / 60}")
             )
             outGW.send(notifyEvent)
             NotificationDAO.insert(notifyEvent)
@@ -73,19 +73,19 @@ trait UpdateBreakoutRoomsTimeMsgHdlr extends RightsManagementTrait {
             "promote",
             "app.chat.breakoutDurationUpdatedModerator",
             "Sent to the moderator that requested breakout duration change",
-            Map("timeInMinutes" -> s"${msg.body.timeInMinutes}")
+            Map("timeInMinutes" -> s"${msg.body.timeInSeconds / 60}")
           )
           outGW.send(notifyUserEvent)
           NotificationDAO.insert(notifyUserEvent)
 
-          log.debug("Updating {} minutes for breakout rooms time in meeting {}", msg.body.timeInMinutes, props.meetingProp.intId)
+          log.debug("Updating {} seconds for breakout rooms time in meeting {}", msg.body.timeInSeconds, props.meetingProp.intId)
           BreakoutRoomDAO.updateRoomsDuration(props.meetingProp.intId, newDurationInSeconds)
           MeetingDAO.updateMeetingDurationByParentMeeting(props.meetingProp.intId, newDurationInSeconds)
           breakoutModel.setTime(newDurationInSeconds)
         }
       }
 
-      val event = buildUpdateBreakoutRoomsTimeEvtMsg(msg.body.timeInMinutes)
+      val event = buildUpdateBreakoutRoomsTimeEvtMsg(msg.body.timeInSeconds)
       outGW.send(event)
 
       updatedModel match {
@@ -97,12 +97,12 @@ trait UpdateBreakoutRoomsTimeMsgHdlr extends RightsManagementTrait {
     }
   }
 
-  def buildUpdateBreakoutRoomsTimeEvtMsg(timeInMinutes: Int): BbbCommonEnvCoreMsg = {
+  def buildUpdateBreakoutRoomsTimeEvtMsg(timeInSeconds: Int): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(UpdateBreakoutRoomsTimeEvtMsg.NAME, routing)
     val header = BbbClientMsgHeader(UpdateBreakoutRoomsTimeEvtMsg.NAME, liveMeeting.props.meetingProp.intId, "not-used")
 
-    val body = UpdateBreakoutRoomsTimeEvtMsgBody(props.meetingProp.intId, timeInMinutes)
+    val body = UpdateBreakoutRoomsTimeEvtMsgBody(props.meetingProp.intId, timeInSeconds)
     val event = UpdateBreakoutRoomsTimeEvtMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }

@@ -14,6 +14,26 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.durationOfBreakout',
     description: 'Duration of Breakout Rooms label',
   },
+  timerHours: {
+    id: 'app.createBreakoutRoom.timerHours',
+    description: 'Timer hours field label',
+  },
+  timerMinutes: {
+    id: 'app.createBreakoutRoom.timerMinutes',
+    description: 'Timer minutes field label',
+  },
+  timerSeconds: {
+    id: 'app.createBreakoutRoom.timerSeconds',
+    description: 'Timer seconds field label',
+  },
+  decreaseBreakoutTime: {
+    id: 'app.createBreakoutRoom.decreaseBreakoutTime',
+    description: 'Decrease breakout time button label',
+  },
+  increaseBreakoutTime: {
+    id: 'app.createBreakoutRoom.increaseBreakoutTime',
+    description: 'Increase breakout time button label',
+  },
 });
 
 interface BreakoutTimerEditorProps {
@@ -78,19 +98,21 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
     if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
 
     debounceTimerRef.current = setTimeout(() => {
-      const newMinutes = Math.max(1, Math.ceil(clamped / 60));
-      breakoutRoomSetTime({ variables: { timeInMinutes: newMinutes } });
+      breakoutRoomSetTime({ variables: { timeInSeconds: clamped } });
       if (innerTimerRef.current) clearTimeout(innerTimerRef.current);
       innerTimerRef.current = setTimeout(() => setEditingTime(null), 500);
     }, DEBOUNCE_DELAY);
   }, [breakoutRoomSetTime]);
 
   const adjustTime = useCallback((delta: number) => {
-    let deltaSeconds = 0;
-    if (selectedTimerField === 'h') deltaSeconds = delta * 3600;
-    else if (selectedTimerField === 'm') deltaSeconds = delta * 60;
-    else deltaSeconds = delta;
-
+    let deltaSeconds: number;
+    if (selectedTimerField === 'h') {
+      deltaSeconds = delta * 3600;
+    } else if (selectedTimerField === 'm') {
+      deltaSeconds = delta * 60;
+    } else {
+      deltaSeconds = delta;
+    }
     const base = editingTime ?? remainingTime;
     commitTimeChange(base + deltaSeconds);
   }, [selectedTimerField, editingTime, remainingTime, commitTimeChange]);
@@ -99,14 +121,9 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
     field: 'h' | 'm' | 's',
     value: number,
   ) => {
-    let newH = hours;
-    let newM = minutes;
-    let newS = seconds;
-
-    if (field === 'h') newH = Math.max(0, Math.min(23, value));
-    else if (field === 'm') newM = Math.max(0, Math.min(59, value));
-    else newS = Math.max(0, Math.min(59, value));
-
+    const newH = field === 'h' ? Math.max(0, Math.min(23, value)) : hours;
+    const newM = field === 'm' ? Math.max(0, Math.min(59, value)) : minutes;
+    const newS = field === 's' ? Math.max(0, Math.min(59, value)) : seconds;
     const totalSeconds = (newH * 3600) + (newM * 60) + newS;
     commitTimeChange(totalSeconds);
   }, [hours, minutes, seconds, commitTimeChange]);
@@ -120,7 +137,7 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
         <Styled.TimerTimeBtn
           $variant="minus"
           onClick={() => adjustTime(-1)}
-          aria-label="Decrease time"
+          aria-label={intl.formatMessage(intlMessages.decreaseBreakoutTime)}
           data-test="decreaseBreakoutTimeButton"
         >
           −
@@ -136,7 +153,7 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleTimerInputChange('h', Number(e.target.value));
             }}
-            aria-label="Hours"
+            aria-label={intl.formatMessage(intlMessages.timerHours)}
             data-test="breakoutRoomTimerHoursInput"
           />
           <Styled.TimerColon>:</Styled.TimerColon>
@@ -150,7 +167,7 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleTimerInputChange('m', Number(e.target.value));
             }}
-            aria-label="Minutes"
+            aria-label={intl.formatMessage(intlMessages.timerMinutes)}
             data-test="breakoutRoomTimerMinutesInput"
           />
           <Styled.TimerColon>:</Styled.TimerColon>
@@ -164,13 +181,14 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               handleTimerInputChange('s', Number(e.target.value));
             }}
-            aria-label="Seconds"
+            aria-label={intl.formatMessage(intlMessages.timerSeconds)}
+            data-test="breakoutRoomTimerSecondsInput"
           />
         </Styled.TimerDisplay>
         <Styled.TimerTimeBtn
           $variant="plus"
           onClick={() => adjustTime(1)}
-          aria-label="Increase time"
+          aria-label={intl.formatMessage(intlMessages.increaseBreakoutTime)}
           data-test="increaseBreakoutTimeButton"
         >
           +

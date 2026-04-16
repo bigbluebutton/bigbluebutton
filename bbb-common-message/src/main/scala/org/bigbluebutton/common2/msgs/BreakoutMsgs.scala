@@ -101,11 +101,11 @@ case class TransferUserToMeetingRequestMsgBody(fromMeetingId: String, toMeetingI
 
 object UpdateBreakoutRoomsTimeReqMsg { val NAME = "UpdateBreakoutRoomsTimeReqMsg" }
 case class UpdateBreakoutRoomsTimeReqMsg(header: BbbClientMsgHeader, body: UpdateBreakoutRoomsTimeReqMsgBody) extends StandardMsg
-case class UpdateBreakoutRoomsTimeReqMsgBody(meetingId: String, timeInMinutes: Int)
+case class UpdateBreakoutRoomsTimeReqMsgBody(meetingId: String, timeInSeconds: Int)
 
 object UpdateBreakoutRoomsTimeEvtMsg { val NAME = "UpdateBreakoutRoomsTimeEvtMsg" }
 case class UpdateBreakoutRoomsTimeEvtMsg(header: BbbClientMsgHeader, body: UpdateBreakoutRoomsTimeEvtMsgBody) extends BbbCoreMsg
-case class UpdateBreakoutRoomsTimeEvtMsgBody(meetingId: String, timeInMinutes: Int)
+case class UpdateBreakoutRoomsTimeEvtMsgBody(meetingId: String, timeInSeconds: Int)
 
 object SendMessageToAllBreakoutRoomsReqMsg { val NAME = "SendMessageToAllBreakoutRoomsReqMsg" }
 case class SendMessageToAllBreakoutRoomsReqMsg(header: BbbClientMsgHeader, body: SendMessageToAllBreakoutRoomsReqMsgBody) extends StandardMsg
