@@ -172,6 +172,10 @@ At the moment of writing this documentation, the official list of plugins includ
 - [Tour](https://github.com/bigbluebutton/plugin-tour)
 - [Chat mention](https://github.com/bigbluebutton/plugin-chat-mention)
 - [Media popout](https://github.com/bigbluebutton/plugin-media-popout)
+- [Live transcription](https://github.com/bigbluebutton/plugin-live-transcription)
+- [Picture in picture](https://github.com/bigbluebutton/bbb-plugin-picture-in-picture)
+- [Pin message](https://github.com/bigbluebutton/plugin-pin-message)
+- [Reaction stack](https://github.com/bigbluebutton/bbb-plugin-reaction-stack)
 
 For the most accurate information check the [plugins repository](https://github.com/bigbluebutton/plugins) where all the plugins are listed.
 

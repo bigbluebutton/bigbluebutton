@@ -808,6 +808,8 @@ export const { logger: pluginLogger } = BbbPluginSdk.getPluginApi(uuid);
 - `usePluginSettings` hook: it provides all the specific settings regarding the current plugin it's been loaded from.
 - `useTalkingIndicator` hook: it gives you information on the user-voice data, that is, who is talking or muted.
 - `useMeeting` hook: it gives you information on the current meeting that the user is on.
+- `useMeetingData` hook: provides detailed meeting data with projection support, offering more flexibility than `useMeeting`.
+- `useCustomQuery` hook: similar to `useCustomSubscription`, but for one-time GraphQL queries rather than subscriptions. Note: Make sure that, on BBB version change, the custom queries you make will work as expected.
 
 So for these types of hooks, the return will follow the same structure:
 
