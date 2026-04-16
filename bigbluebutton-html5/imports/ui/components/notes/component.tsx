@@ -17,7 +17,7 @@ import { PIN_NOTES } from './mutations';
 import { EXTERNAL_VIDEO_STOP } from '/imports/ui/components/external-video-player/mutations';
 import {
   screenshareHasEnded,
-  useIsScreenBroadcasting,
+  useAmIScreenBroadcasting,
 } from '/imports/ui/components/screenshare/service';
 import { useIsPresentationEnabled } from '../../services/features';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
@@ -207,7 +207,7 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
     && isSidebarContentOpen : !!currentMeeting?.componentsFlags?.isSharedNotesPinned;
 
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
-  const isScreenBroadcasting = useIsScreenBroadcasting();
+  const isScreenBroadcasting = useAmIScreenBroadcasting();
   const isPresentationEnabled = useIsPresentationEnabled();
 
   const handlePinSharedNotes = (pinned: boolean) => {

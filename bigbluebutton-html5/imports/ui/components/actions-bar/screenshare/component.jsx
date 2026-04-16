@@ -208,15 +208,10 @@ const ScreenshareButton = ({
     </Styled.ScreenShareModal>
   );
 
-  const amIBroadcasting = isScreenBroadcasting && amIPresenter;
+  const amIBroadcasting = isScreenBroadcasting;
 
-  // this part handles the label/desc intl for the screenshare button
-  // basically: if you are not a presenter, the label/desc will be 'the screen cannot be shared'.
-  // if you are: the label/desc intl will be 'stop/start screenshare'.
   let info = screenshareDataSavingSetting ? 'desktopShare' : 'lockedDesktopShare';
-  if (!amIPresenter) {
-    info = 'notPresenterDesktopShare';
-  } else if (isScreenBroadcasting) {
+  if (isScreenBroadcasting) {
     info = 'stopDesktopShare';
   }
 
@@ -236,7 +231,7 @@ const ScreenshareButton = ({
           ? (
             <Styled.Container>
               <Button
-                disabled={(!isConnected && !isScreenBroadcasting) || !screenshareDataSavingSetting || !amIPresenter}
+                disabled={(!isConnected && !isScreenBroadcasting) || !screenshareDataSavingSetting}
                 icon={amIBroadcasting ? 'desktop' : 'desktop_off'}
                 data-test={dataTest}
                 label={intl.formatMessage(intlMessages[`${info}Label`])}

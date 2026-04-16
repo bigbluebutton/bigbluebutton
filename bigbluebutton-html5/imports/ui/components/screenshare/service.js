@@ -180,6 +180,14 @@ export const useIsScreenBroadcasting = () => {
   return sharing || screenIsShared;
 };
 
+// Returns true only if THIS user (this browser tab) is actively broadcasting a screenshare,
+// regardless of what other participants are doing. Used for per-user button state.
+export const useAmIScreenBroadcasting = () => {
+  const active = useIsSharing();
+  const sharingContentType = useSharingContentType();
+  return active && sharingContentType === CONTENT_TYPE_SCREENSHARE;
+};
+
 export const useIsCameraAsContentBroadcasting = () => {
   const active = useIsSharing();
   const sharingContentType = useSharingContentType();
@@ -358,11 +366,6 @@ export const shareScreen = async (
     }
     _trackStreamTermination(stream, _handleStreamTermination);
 
-    if (!isPresenter) {
-      MediaStreamUtils.stopMediaStreamTracks(stream);
-      return;
-    }
-
     await screenShareBridge.share(stream, onFail, contentType);
 
     // Stream might have been disabled in the meantime. I love badly designed
@@ -396,8 +399,9 @@ export const viewScreenshare = (streamId, hasAudio, options = {}) => {
 };
 
 export const screenshareHasStarted = (streamId, hasAudio, isPresenter, options = {}) => {
-  // Presenter's screen preview is local, so skip
-  if (!isPresenter) {
+  // Presenter's screen preview is local, so skip.
+  // Also skip if this user is actively sharing (non-presenter sharer) — their preview is local too.
+  if (!isPresenter && !isSharing()) {
     viewScreenshare(streamId, hasAudio, { outputDeviceId: options.outputDeviceId });
   }
 };
@@ -478,6 +482,7 @@ export default {
   useShouldEnableVolumeControl,
   useShowButtonForNonPresenters,
   useIsScreenBroadcasting,
+  useAmIScreenBroadcasting,
   useIsCameraAsContentBroadcasting,
   useScreenshareHasAudio,
   useBroadcastContentType,

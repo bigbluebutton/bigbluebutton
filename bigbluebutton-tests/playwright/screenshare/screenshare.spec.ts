@@ -71,4 +71,56 @@ test.describe.parallel('Screenshare', { tag: '@ci' }, () => {
     await screenshare.initModPage(page, { testInfo });
     await screenshare.screenshareCoexistsWithMeetingUI();
   });
+
+  // === Additional tests for 11-test plan ===
+
+  test('Non-presenter can start screenshare', async ({ browser, context, browserName, page }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not able in Firefox browser without desktop');
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(page, { testInfo });
+    await screenshare.initUserPage(context, { testInfo });
+    await screenshare.nonPresenterStartsScreenshare();
+  });
+
+  test('Screenshare appears in content area', async ({ browser, context, browserName, page }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not able in Firefox browser without desktop');
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(page, { testInfo });
+    await screenshare.initUserPage(context, { testInfo });
+    await screenshare.screenshareInContentArea();
+  });
+
+  test('Content priority full cycle: slides to screenshare and back', async ({
+    browser,
+    context,
+    browserName,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not able in Firefox browser without desktop');
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(page, { testInfo });
+    await screenshare.initUserPage(context, { testInfo });
+    await screenshare.contentPriorityFullCycle();
+  });
+
+  test('Screenshare coexists with webcam', async ({ browser, context, browserName, page }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not able in Firefox browser without desktop');
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(page, { testInfo });
+    await screenshare.initUserPage(context, { testInfo });
+    await screenshare.screenshareWithWebcam();
+  });
+
+  test('Lock disableMultiScreenshare not yet implemented', async ({
+    browser,
+    context,
+    browserName,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not able in Firefox browser without desktop');
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(page, { testInfo });
+    await screenshare.initUserPage(context, { testInfo });
+    await screenshare.lockDisableMultiScreenshare();
+  });
 });
