@@ -186,7 +186,7 @@
     "app.userList.guest": "Επισκέπτης",
     "app.userList.searchUsers": "Αναζήτηση χρηστών",
     "app.userList.noSearchResults": "Δε βρέθηκε χρήστης με αυτόν τον όρο. Δοκιμάστε διαφορετικό.",
-    "app.userList.clearSearch": "Clear search",
+    "app.userList.clearSearch": "Καθαρισμός αναζήτησης",
     "app.userList.sharingWebcam": "Κάμερα",
     "app.userList.menuTitleContext": "Διαθέσιμες επιλογές",
     "app.userList.chatListItem.noUnread": "No new messages",
