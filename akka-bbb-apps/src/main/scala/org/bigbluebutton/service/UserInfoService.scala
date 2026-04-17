@@ -58,7 +58,9 @@ class UserInfoService(system: ActorSystem, bbbActor: ActorRef) {
         "X-Hasura-AnnotationsLockedUserId" -> conditionalValue("hideViewersAnnotation", userId, ""),
         "X-Hasura-UserListNotLockedInMeeting" -> conditionalValue("hideUserList", "", meetingID),
         "X-Hasura-WebcamsNotLockedInMeeting" -> conditionalValue("webcamsOnlyForModerator", "", meetingID),
-        "X-Hasura-WebcamsLockedUserId" -> conditionalValue("webcamsOnlyForModerator", userId, "")
+        "X-Hasura-WebcamsLockedUserId" -> conditionalValue("webcamsOnlyForModerator", userId, ""),
+        "X-Hasura-ScreenshareNotLockedInMeeting" -> conditionalValue("hideViewersScreenshare", "", meetingID),
+        "X-Hasura-ScreenshareLockedUserId" -> conditionalValue("hideViewersScreenshare", userId, "")
       )
     } else {
       Map(

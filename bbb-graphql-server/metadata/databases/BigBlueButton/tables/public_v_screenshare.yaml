@@ -6,6 +6,17 @@ configuration:
   custom_column_names: {}
   custom_name: screenshare
   custom_root_fields: {}
+object_relationships:
+  - name: user
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_user_ref
+          schema: public
 select_permissions:
   - role: bbb_client
     permission:
@@ -24,5 +35,14 @@ select_permissions:
         - vidWidth
         - voiceConf
       filter:
-        meetingId:
-          _eq: X-Hasura-MeetingId
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - _or:
+              - user:
+                  isModerator:
+                    _eq: true
+              - meetingId:
+                  _eq: X-Hasura-ScreenshareNotLockedInMeeting
+              - userId:
+                  _eq: X-Hasura-ScreenshareLockedUserId

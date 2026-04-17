@@ -52,11 +52,13 @@ trait GetUserApiMsgHdlr extends HandlerHelpers {
       userInfos += ("hideViewersAnnotation" -> false)
       userInfos += ("hideUserList" -> false)
       userInfos += ("webcamsOnlyForModerator" -> false)
+      userInfos += ("hideViewersScreenshare" -> false)
     } else {
       userInfos += ("hideViewersCursor" -> permissions.hideViewersCursor)
       userInfos += ("hideViewersAnnotation" -> permissions.hideViewersAnnotation)
       userInfos += ("hideUserList" -> permissions.hideUserList)
       userInfos += ("webcamsOnlyForModerator" -> MeetingStatus2x.webcamsOnlyForModeratorEnabled(liveMeeting.status))
+      userInfos += ("hideViewersScreenshare" -> permissions.hideViewersScreenshare)
     }
 
     userInfos
