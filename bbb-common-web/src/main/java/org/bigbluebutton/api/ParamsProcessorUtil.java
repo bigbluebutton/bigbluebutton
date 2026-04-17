@@ -138,6 +138,7 @@ public class ParamsProcessorUtil {
 		private boolean defaultLockSettingsHideViewersCursor;
         private boolean defaultLockSettingsHideViewersAnnotation;
         private boolean defaultLockSettingsHideViewersScreenshare;
+        private boolean defaultLockSettingsDisableMultiScreenshare;
 
     private Long maxPresentationFileUpload = 30000000L; // 30MB
 
@@ -426,6 +427,12 @@ public class ParamsProcessorUtil {
                 lockSettingsHideViewersScreenshare = Boolean.parseBoolean(lockSettingsHideViewersScreenshareParam);
 			}
 
+			Boolean lockSettingsDisableMultiScreenshare = defaultLockSettingsDisableMultiScreenshare;
+			String lockSettingsDisableMultiScreenshareParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_MULTI_SCREENSHARE);
+			if (!StringUtils.isEmpty(lockSettingsDisableMultiScreenshareParam)) {
+                lockSettingsDisableMultiScreenshare = Boolean.parseBoolean(lockSettingsDisableMultiScreenshareParam);
+			}
+
 			return new LockSettingsParams(lockSettingsDisableCam,
 							lockSettingsDisableMic,
 							lockSettingsDisablePrivateChat,
@@ -436,7 +443,8 @@ public class ParamsProcessorUtil {
 							lockSettingsLockOnJoinConfigurable,
                             lockSettingsHideViewersCursor,
                             lockSettingsHideViewersAnnotation,
-                            lockSettingsHideViewersScreenshare);
+                            lockSettingsHideViewersScreenshare,
+                            lockSettingsDisableMultiScreenshare);
 		}
 
     private ArrayList<Group> processGroupsParams(Map<String, String> params) {
@@ -1787,6 +1795,10 @@ public class ParamsProcessorUtil {
 
     public void setLockSettingsHideViewersScreenshare(Boolean lockSettingsHideViewersScreenshare) {
 		this.defaultLockSettingsHideViewersScreenshare = lockSettingsHideViewersScreenshare;
+	}
+
+    public void setLockSettingsDisableMultiScreenshare(Boolean lockSettingsDisableMultiScreenshare) {
+		this.defaultLockSettingsDisableMultiScreenshare = lockSettingsDisableMultiScreenshare;
 	}
 
 	public void setAllowDuplicateExtUserid(Boolean allow) {

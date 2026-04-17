@@ -252,7 +252,8 @@ class BbbWebApiGWApp(
       lockOnJoinConfigurable = lockSettingsParams.lockOnJoinConfigurable.booleanValue(),
       hideViewersCursor = lockSettingsParams.hideViewersCursor.booleanValue(),
       hideViewersAnnotation = lockSettingsParams.hideViewersAnnotation.booleanValue(),
-      hideViewersScreenshare = lockSettingsParams.hideViewersScreenshare.booleanValue()
+      hideViewersScreenshare = lockSettingsParams.hideViewersScreenshare.booleanValue(),
+      disableMultiScreenshare = lockSettingsParams.disableMultiScreenshare.booleanValue()
     )
 
     val systemProps = SystemProps(

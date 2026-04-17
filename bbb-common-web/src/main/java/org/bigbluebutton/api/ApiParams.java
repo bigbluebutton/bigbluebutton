@@ -103,6 +103,7 @@ public class ApiParams {
     public static final String LOCK_SETTINGS_HIDE_VIEWERS_CURSOR = "lockSettingsHideViewersCursor";
     public static final String LOCK_SETTINGS_HIDE_VIEWERS_ANNOTATION = "lockSettingsHideViewersAnnotation";
     public static final String LOCK_SETTINGS_HIDE_VIEWERS_SCREENSHARE = "lockSettingsHideViewersScreenshare";
+    public static final String LOCK_SETTINGS_DISABLE_MULTI_SCREENSHARE = "lockSettingsDisableMultiScreenshare";
 
     // New param passed on create call to callback when meeting ends.
     // This is a duplicate of the endCallbackUrl meta param as we want this
