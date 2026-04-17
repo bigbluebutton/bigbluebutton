@@ -12,6 +12,7 @@ export function LockStruct() {
       hideViewersCursor: false,
       hideViewersAnnotation: false,
       hideViewersScreenshare: false,
+      disableMultiScreenshare: false,
     },
     userLocks: {
       userWebcam: false,

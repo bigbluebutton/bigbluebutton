@@ -192,9 +192,10 @@ create unlogged table "meeting_lockSettings" (
     "hideUserList"            boolean,
     "lockOnJoin"              boolean,
     "lockOnJoinConfigurable"  boolean,
-    "hideViewersCursor"       boolean,
-    "hideViewersAnnotation"   boolean,
-    "hideViewersScreenshare"  boolean
+    "hideViewersCursor"        boolean,
+    "hideViewersAnnotation"    boolean,
+    "hideViewersScreenshare"   boolean,
+    "disableMultiScreenshare"  boolean default false
 );
 
 CREATE OR REPLACE VIEW "v_meeting_lockSettings" AS
@@ -209,6 +210,7 @@ SELECT
 	mls."hideViewersCursor",
 	mls."hideViewersAnnotation",
 	mls."hideViewersScreenshare",
+	mls."disableMultiScreenshare",
 	mls."lockOnJoin",
     mls."lockOnJoinConfigurable",
 	mup."webcamsOnlyForModerator",
@@ -222,6 +224,7 @@ SELECT
 	WHEN mls."hideViewersCursor"  IS TRUE THEN TRUE
 	WHEN mls."hideViewersAnnotation"  IS TRUE THEN TRUE
 	WHEN mls."hideViewersScreenshare"  IS TRUE THEN TRUE
+	WHEN mls."disableMultiScreenshare"  IS TRUE THEN TRUE
 	WHEN mup."webcamsOnlyForModerator"  IS TRUE THEN TRUE
 	ELSE FALSE
 	END "hasActiveLockSetting"

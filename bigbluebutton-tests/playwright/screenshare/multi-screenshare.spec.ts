@@ -57,9 +57,9 @@ test.describe.parallel('Multi-screenshare', { tag: '@ci' }, () => {
     await screenshare.viewerScreenshareInCameraDock();
   });
 
-  // T06 — Lock "Share screen" (hideViewersScreenshare) blocks viewer without promotion (R13, R15, R3)
+  // T06 — Lock "Share screen" (disableMultiScreenshare) blocks viewer without promotion (R13, R15, R3)
   // Pre-condition: moderator (presenter) + viewer (NEVER promoted to presenter at any point).
-  // The lock is activated by the moderator via the lock-viewers modal.
+  // The moderator activates disableMultiScreenshare via the lock-viewers modal.
   // Viewer button must disappear; moderator can still share; viewer stays in participant list.
   // After deactivating the lock, viewer can share again.
   test('lock disableMultiScreenshare blocks viewer without promotion', async ({

@@ -311,7 +311,7 @@ export const useIsScreenshareLocked = () => {
   return Boolean(
     currentUser?.locked
     && !currentUser?.isModerator
-    && meeting?.lockSettings?.hideViewersScreenshare
+    && meeting?.lockSettings?.disableMultiScreenshare
   );
 };
 

@@ -433,6 +433,7 @@ export const elements = {
   hideViewersAnnotation: 'input[data-test="hideViewersAnnotation"]',
   hideViewersCursor: 'input[data-test="hideViewersCursor"]',
   hideViewersScreenshare: 'input[data-test="hideViewersScreenshare"]',
+  disableMultiScreenshare: 'input[data-test="disableMultiScreenshare"]',
   whiteboardCursorIndicator: 'svg use[href="#cursor"]',
   // Locales
   locales: [

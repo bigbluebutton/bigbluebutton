@@ -329,7 +329,8 @@ class MeetingActor(
       lockOnJoinConfigurable = lockSettingsProp.lockOnJoinConfigurable,
       hideViewersCursor = lockSettingsProp.hideViewersCursor,
       hideViewersAnnotation = lockSettingsProp.hideViewersAnnotation,
-      hideViewersScreenshare = lockSettingsProp.hideViewersScreenshare
+      hideViewersScreenshare = lockSettingsProp.hideViewersScreenshare,
+      disableMultiScreenshare = lockSettingsProp.disableMultiScreenshare
     )
 
     MeetingStatus2x.initializePermissions(liveMeeting.status)

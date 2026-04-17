@@ -173,7 +173,7 @@ object LockSettingsUtil {
 
   def isScreenshareBroadcastLocked(user: UserState, liveMeeting: LiveMeeting): Boolean = {
     val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
-    user.role == Roles.VIEWER_ROLE && user.locked && permissions.hideViewersScreenshare
+    user.role == Roles.VIEWER_ROLE && user.locked && permissions.disableMultiScreenshare
   }
 
   private def enforceHideViewersScreenshareForUser(

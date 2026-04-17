@@ -517,9 +517,10 @@ export class ScreenShare extends MultiUsers {
     await this.modPage2.waitAndClick(e.stopScreenSharing);
   }
 
-  // T06: Lock "Share screen" (hideViewersScreenshare) blocks viewer, no promotion (R13, R15, R3)
+  // T06: Lock "Share screen" (disableMultiScreenshare) blocks viewer, no promotion (R13, R15, R3)
   // Pre-condition: moderator (presenter) + viewer (NEVER promoted). Lock initially OFF.
-  // Steps: enable lock → viewer button disappears → mod can share → viewer in list → disable lock → viewer can share.
+  // Steps: enable disableMultiScreenshare lock → viewer button disappears → mod can share →
+  //        viewer in list → disable lock → viewer can share again.
   async lockBlocksViewerNoPromotion() {
     // Wait for meeting to be ready — screenshare button is our canary
     await this.modPage.hasElement(
@@ -537,15 +538,15 @@ export class ScreenShare extends MultiUsers {
     const viewerIsPresenterBefore = await checkIsPresenter(this.userPage);
     expect(viewerIsPresenterBefore, 'viewer must not be presenter at start of T06').toBeFalsy();
 
-    // Step 1: Moderator activates hideViewersScreenshare lock via lock-viewers modal
+    // Step 1: Moderator activates disableMultiScreenshare lock via lock-viewers modal
     await openLockViewers(this.modPage);
-    await this.modPage.waitAndClickElement(e.hideViewersScreenshare);
+    await this.modPage.waitAndClickElement(e.disableMultiScreenshare);
     await this.modPage.waitAndClick(e.applyLockSettings);
 
     // Step 2: Viewer's screenshare button disappears — server enforced lock propagated via GraphQL
     await this.userPage.wasRemoved(
       e.startScreenSharing,
-      'viewer screenshare button must disappear when lock is active',
+      'viewer screenshare button must disappear when disableMultiScreenshare lock is active',
       ELEMENT_WAIT_LONGER_TIME,
     );
 
@@ -569,13 +570,13 @@ export class ScreenShare extends MultiUsers {
 
     // Step 4: Moderator deactivates the lock
     await openLockViewers(this.modPage);
-    await this.modPage.waitAndClickElement(e.hideViewersScreenshare);
+    await this.modPage.waitAndClickElement(e.disableMultiScreenshare);
     await this.modPage.waitAndClick(e.applyLockSettings);
 
     // Step 5: Viewer's screenshare button reappears after lock is deactivated
     await this.userPage.hasElement(
       e.startScreenSharing,
-      'viewer should see screenshare button again after lock is deactivated',
+      'viewer should see screenshare button again after disableMultiScreenshare lock is deactivated',
       ELEMENT_WAIT_LONGER_TIME,
     );
 
@@ -584,7 +585,6 @@ export class ScreenShare extends MultiUsers {
     expect(viewerIsPresenterAfter, 'viewer must not be promoted to presenter during T06').toBeFalsy();
 
     // Viewer starts screenshare after lock is removed (confirms share path is restored)
-    // startScreenshare validates via screenShareVideo + stopScreenSharing internally
     await startScreenshare(this.userPage);
 
     // Cleanup
@@ -771,9 +771,9 @@ export class ScreenShare extends MultiUsers {
       ELEMENT_WAIT_EXTRA_LONG_TIME,
     );
 
-    // Moderator enables hideViewersScreenshare lock — server enforces denial for viewers
+    // Moderator enables disableMultiScreenshare lock — server enforces denial for viewers
     await openLockViewers(this.modPage);
-    await this.modPage.waitAndClickElement(e.hideViewersScreenshare);
+    await this.modPage.waitAndClickElement(e.disableMultiScreenshare);
     await this.modPage.waitAndClick(e.applyLockSettings);
 
     // Viewer's button disappears — server communicated the lock; client reflects server state

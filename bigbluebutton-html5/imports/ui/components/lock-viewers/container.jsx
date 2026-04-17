@@ -29,6 +29,7 @@ const LockViewersContainer = (props) => {
         hideViewersCursor: lockSettings.hideViewersCursor,
         hideViewersAnnotation: lockSettings.hideViewersAnnotation,
         hideViewersScreenshare: lockSettings.hideViewersScreenshare,
+        disableMultiScreenshare: lockSettings.disableMultiScreenshare,
       },
     });
   };

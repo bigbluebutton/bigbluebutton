@@ -4,17 +4,18 @@ import java.util.concurrent.TimeUnit
 import org.bigbluebutton.core.util.TimeUtil
 
 case class Permissions(
-    disableCam:             Boolean = false,
-    disableMic:             Boolean = false,
-    disablePrivChat:        Boolean = false,
-    disablePubChat:         Boolean = false,
-    disableNotes:           Boolean = false,
-    hideUserList:           Boolean = false,
-    lockOnJoin:             Boolean = true,
-    lockOnJoinConfigurable: Boolean = false,
-    hideViewersCursor:      Boolean = false,
-    hideViewersAnnotation:  Boolean = false,
-    hideViewersScreenshare: Boolean = false
+    disableCam:              Boolean = false,
+    disableMic:              Boolean = false,
+    disablePrivChat:         Boolean = false,
+    disablePubChat:          Boolean = false,
+    disableNotes:            Boolean = false,
+    hideUserList:            Boolean = false,
+    lockOnJoin:              Boolean = true,
+    lockOnJoinConfigurable:  Boolean = false,
+    hideViewersCursor:       Boolean = false,
+    hideViewersAnnotation:   Boolean = false,
+    hideViewersScreenshare:  Boolean = false,
+    disableMultiScreenshare: Boolean = false
 )
 
 case class MeetingExtensionProp(maxExtensions: Int = 2, numExtensions: Int = 0, extendByMinutes: Int = 20,

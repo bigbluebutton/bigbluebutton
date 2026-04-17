@@ -85,6 +85,10 @@ const intlMessages = defineMessages({
     id: 'app.lock-viewers.hideViewersScreenshareLabel',
     description: 'label for hide viewers screenshare toggle',
   },
+  disableMultiScreenshareLabel: {
+    id: 'app.lock-viewers.features.screenShareLabel',
+    description: 'label for share screen lock toggle',
+  },
 });
 
 const propTypes = {
@@ -421,6 +425,32 @@ class LockViewersComponent extends Component {
                     showToggleLabel={showToggleLabel}
                     invertColors={invertColors}
                     data-test="hideViewersAnnotation"
+                  />
+                </Styled.FormElementRight>
+              </Styled.Col>
+            </Styled.Row>
+
+            <Styled.Row data-test="disableMultiScreenshareItem">
+              <Styled.Col aria-hidden="true">
+                <Styled.FormElement>
+                  <Styled.Label>
+                    {intl.formatMessage(intlMessages.disableMultiScreenshareLabel)}
+                  </Styled.Label>
+                </Styled.FormElement>
+              </Styled.Col>
+              <Styled.Col>
+                <Styled.FormElementRight>
+                  {this.displayLockStatus(lockSettingsProps.disableMultiScreenshare)}
+                  <Toggle
+                    icons={false}
+                    defaultChecked={lockSettingsProps.disableMultiScreenshare}
+                    onChange={() => {
+                      this.toggleLockSettings('disableMultiScreenshare');
+                    }}
+                    ariaLabel={intl.formatMessage(intlMessages.disableMultiScreenshareLabel)}
+                    showToggleLabel={showToggleLabel}
+                    invertColors={invertColors}
+                    data-test="disableMultiScreenshare"
                   />
                 </Styled.FormElementRight>
               </Styled.Col>

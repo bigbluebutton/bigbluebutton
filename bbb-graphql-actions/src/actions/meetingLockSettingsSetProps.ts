@@ -16,6 +16,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
         {name: 'hideViewersCursor', type: 'boolean', required: true},
         {name: 'hideViewersAnnotation', type: 'boolean', required: true},
         {name: 'hideViewersScreenshare', type: 'boolean', required: true},
+        {name: 'disableMultiScreenshare', type: 'boolean', required: true},
       ]
   )
 
@@ -45,6 +46,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     hideViewersCursor: input.hideViewersCursor,
     hideViewersAnnotation: input.hideViewersAnnotation,
     hideViewersScreenshare: input.hideViewersScreenshare,
+    disableMultiScreenshare: input.disableMultiScreenshare,
   };
 
   return { eventName, routing, header, body };

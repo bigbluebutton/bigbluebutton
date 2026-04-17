@@ -17,7 +17,8 @@ case class MeetingLockSettingsDbModel(
     lockOnJoinConfigurable:  Boolean,
     hideViewersCursor:       Boolean,
     hideViewersAnnotation:   Boolean,
-    hideViewersScreenshare:  Boolean
+    hideViewersScreenshare:  Boolean,
+    disableMultiScreenshare: Boolean
 )
 
 class MeetingLockSettingsDbTableDef(tag: Tag) extends Table[MeetingLockSettingsDbModel](tag, "meeting_lockSettings") {
@@ -33,10 +34,11 @@ class MeetingLockSettingsDbTableDef(tag: Tag) extends Table[MeetingLockSettingsD
   val hideViewersCursor = column[Boolean]("hideViewersCursor")
   val hideViewersAnnotation = column[Boolean]("hideViewersAnnotation")
   val hideViewersScreenshare = column[Boolean]("hideViewersScreenshare")
+  val disableMultiScreenshare = column[Boolean]("disableMultiScreenshare")
 
   //  def fk_meetingId: ForeignKeyQuery[MeetingDbTableDef, MeetingDbModel] = foreignKey("fk_meetingId", meetingId, TableQuery[MeetingDbTableDef])(_.meetingId)
 
-  override def * : ProvenShape[MeetingLockSettingsDbModel] = (meetingId, disableCam, disableMic, disablePrivateChat, disablePublicChat, disableNotes, hideUserList, lockOnJoin, lockOnJoinConfigurable, hideViewersCursor, hideViewersAnnotation, hideViewersScreenshare) <> (MeetingLockSettingsDbModel.tupled, MeetingLockSettingsDbModel.unapply)
+  override def * : ProvenShape[MeetingLockSettingsDbModel] = (meetingId, disableCam, disableMic, disablePrivateChat, disablePublicChat, disableNotes, hideUserList, lockOnJoin, lockOnJoinConfigurable, hideViewersCursor, hideViewersAnnotation, hideViewersScreenshare, disableMultiScreenshare) <> (MeetingLockSettingsDbModel.tupled, MeetingLockSettingsDbModel.unapply)
 }
 
 object MeetingLockSettingsDAO {
@@ -56,6 +58,7 @@ object MeetingLockSettingsDAO {
           hideViewersCursor = lockSettingsProps.hideViewersCursor,
           hideViewersAnnotation = lockSettingsProps.hideViewersAnnotation,
           hideViewersScreenshare = lockSettingsProps.hideViewersScreenshare,
+          disableMultiScreenshare = lockSettingsProps.disableMultiScreenshare,
         )
       )
     )
@@ -77,6 +80,7 @@ object MeetingLockSettingsDAO {
           hideViewersCursor = permissions.hideViewersCursor,
           hideViewersAnnotation = permissions.hideViewersAnnotation,
           hideViewersScreenshare = permissions.hideViewersScreenshare,
+          disableMultiScreenshare = permissions.disableMultiScreenshare,
         ),
       )
     )

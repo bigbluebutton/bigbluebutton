@@ -377,7 +377,7 @@ case class ChangeLockSettingsInMeetingCmdMsg(
 case class ChangeLockSettingsInMeetingCmdMsgBody(disableCam: Boolean, disableMic: Boolean, disablePrivChat: Boolean,
                                                  disablePubChat: Boolean, disableNotes: Boolean, hideUserList: Boolean, lockOnJoin: Boolean,
                                                  lockOnJoinConfigurable: Boolean, hideViewersCursor: Boolean, hideViewersAnnotation: Boolean,
-                                                 hideViewersScreenshare: Boolean, setBy: String)
+                                                 hideViewersScreenshare: Boolean, disableMultiScreenshare: Boolean = false, setBy: String)
 
 object LockSettingsInMeetingChangedEvtMsg { val NAME = "LockSettingsInMeetingChangedEvtMsg" }
 case class LockSettingsInMeetingChangedEvtMsg(
@@ -387,7 +387,7 @@ case class LockSettingsInMeetingChangedEvtMsg(
 case class LockSettingsInMeetingChangedEvtMsgBody(disableCam: Boolean, disableMic: Boolean, disablePrivChat: Boolean,
                                                   disablePubChat: Boolean, disableNotes: Boolean, hideUserList: Boolean, lockOnJoin: Boolean,
                                                   lockOnJoinConfigurable: Boolean, hideViewersCursor: Boolean, hideViewersAnnotation: Boolean,
-                                                  hideViewersScreenshare: Boolean, setBy: String)
+                                                  hideViewersScreenshare: Boolean, disableMultiScreenshare: Boolean = false, setBy: String)
 
 /**
  * Response to the query for lock settings.
@@ -397,7 +397,7 @@ case class GetLockSettingsRespMsg(header: BbbClientMsgHeader, body: GetLockSetti
 case class GetLockSettingsRespMsgBody(disableCam: Boolean, disableMic: Boolean, disablePrivChat: Boolean,
                                       disablePubChat: Boolean, disableNotes: Boolean, hideUserList: Boolean, lockOnJoin: Boolean,
                                       lockOnJoinConfigurable: Boolean, hideViewersCursor: Boolean, hideViewersAnnotation: Boolean,
-                                      hideViewersScreenshare: Boolean)
+                                      hideViewersScreenshare: Boolean, disableMultiScreenshare: Boolean = false)
 
 object LockSettingsNotInitializedRespMsg { val NAME = "LockSettingsNotInitializedRespMsg" }
 case class LockSettingsNotInitializedRespMsg(header: BbbClientMsgHeader, body: LockSettingsNotInitializedRespMsgBody) extends BbbCoreMsg

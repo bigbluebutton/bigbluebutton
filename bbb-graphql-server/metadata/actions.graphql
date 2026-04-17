@@ -299,6 +299,7 @@ type Mutation {
     hideViewersCursor: Boolean!
     hideViewersAnnotation: Boolean!
     hideViewersScreenshare: Boolean!
+    disableMultiScreenshare: Boolean!
   ): Boolean
 }
 
