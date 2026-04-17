@@ -31,6 +31,8 @@ const lockContextContainer = (component) => (props) => {
     && lockSettings?.hideViewersCursor) || false;
   lockSetting.userLocks.hideViewersAnnotation = (userIsLocked
     && lockSettings?.hideViewersAnnotation) || false;
+  lockSetting.userLocks.userScreenshare = (userIsLocked
+    && lockSettings?.disableMultiScreenshare) || false;
 
   const ComponentWithContext = useMemo(() => withLockContext(component), []);
   // eslint-disable-next-line react/prop-types
