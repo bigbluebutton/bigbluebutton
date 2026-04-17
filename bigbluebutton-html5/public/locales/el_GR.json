@@ -1531,7 +1531,7 @@
     "app.createBreakoutRoom.unassignedUsers": "Μη εκχωρημένοι χρήστες",
     "app.createBreakoutRoom.youAreInRoom": "Βρίσκεστε στο {roomName}.",
     "app.createBreakoutRoom.callModerator": "Κλήση συντονιστή",
-    "app.createBreakoutRoom.callModeratorChatMsg": "{userName} from {roomName} is requesting moderator assistance.",
+    "app.createBreakoutRoom.callModeratorChatMsg": "Ο/Η {userName} από {roomName} αιτήθηκε συνδρομή από συντονιστή.",
     "app.createBreakoutRoom.callModeratorSent": "Moderators have been notified.",
     "app.createBreakoutRoom.callModeratorCooldown": "Please wait before calling the moderators again.",
     "app.createBreakoutRoom.returnToMainSession": "Return to Main Session",
