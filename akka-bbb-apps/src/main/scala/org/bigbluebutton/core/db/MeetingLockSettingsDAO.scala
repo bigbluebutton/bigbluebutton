@@ -17,7 +17,9 @@ case class MeetingLockSettingsDbModel(
     lockOnJoinConfigurable:  Boolean,
     hideViewersCursor:       Boolean,
     hideViewersAnnotation:   Boolean,
-    presenterPolicy:         String
+    presenterPolicy:         String,
+    disableMultiScreenshare: Boolean,
+    hideViewersScreenshare:  Boolean
 )
 
 class MeetingLockSettingsDbTableDef(tag: Tag) extends Table[MeetingLockSettingsDbModel](tag, "meeting_lockSettings") {
@@ -33,10 +35,10 @@ class MeetingLockSettingsDbTableDef(tag: Tag) extends Table[MeetingLockSettingsD
   val hideViewersCursor = column[Boolean]("hideViewersCursor")
   val hideViewersAnnotation = column[Boolean]("hideViewersAnnotation")
   val presenterPolicy = column[String]("presenterPolicy")
+  val disableMultiScreenshare = column[Boolean]("disableMultiScreenshare")
+  val hideViewersScreenshare = column[Boolean]("hideViewersScreenshare")
 
-  //  def fk_meetingId: ForeignKeyQuery[MeetingDbTableDef, MeetingDbModel] = foreignKey("fk_meetingId", meetingId, TableQuery[MeetingDbTableDef])(_.meetingId)
-
-  override def * : ProvenShape[MeetingLockSettingsDbModel] = (meetingId, disableCam, disableMic, disablePrivateChat, disablePublicChat, disableNotes, hideUserList, lockOnJoin, lockOnJoinConfigurable, hideViewersCursor, hideViewersAnnotation, presenterPolicy) <> (MeetingLockSettingsDbModel.tupled, MeetingLockSettingsDbModel.unapply)
+  override def * : ProvenShape[MeetingLockSettingsDbModel] = (meetingId, disableCam, disableMic, disablePrivateChat, disablePublicChat, disableNotes, hideUserList, lockOnJoin, lockOnJoinConfigurable, hideViewersCursor, hideViewersAnnotation, presenterPolicy, disableMultiScreenshare, hideViewersScreenshare) <> (MeetingLockSettingsDbModel.tupled, MeetingLockSettingsDbModel.unapply)
 }
 
 object MeetingLockSettingsDAO {
@@ -56,6 +58,8 @@ object MeetingLockSettingsDAO {
           hideViewersCursor = lockSettingsProps.hideViewersCursor,
           hideViewersAnnotation = lockSettingsProps.hideViewersAnnotation,
           presenterPolicy = lockSettingsProps.presenterPolicy,
+          disableMultiScreenshare = lockSettingsProps.disableMultiScreenshare,
+          hideViewersScreenshare = lockSettingsProps.hideViewersScreenshare,
         )
       )
     )
@@ -77,9 +81,10 @@ object MeetingLockSettingsDAO {
           hideViewersCursor = permissions.hideViewersCursor,
           hideViewersAnnotation = permissions.hideViewersAnnotation,
           presenterPolicy = permissions.presenterPolicy,
+          disableMultiScreenshare = permissions.disableMultiScreenshare,
+          hideViewersScreenshare = permissions.hideViewersScreenshare,
         ),
       )
     )
   }
-
 }
