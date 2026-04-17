@@ -4,6 +4,7 @@ import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { MultiUsers } from '../user/multiusers';
+import { checkIsPresenter } from '../user/util';
 import { getScreenshareVideoCount, startScreenshare } from './util';
 
 export class ScreenShare extends MultiUsers {
@@ -467,6 +468,53 @@ export class ScreenShare extends MultiUsers {
     // Webcams should still be active after screenshare stops
     await this.modPage.hasElement(e.leaveVideo, 'moderator webcam should persist after screenshare stops');
     await this.userPage.hasElement(e.leaveVideo, 'attendee webcam should persist after screenshare stops');
+  }
+
+  // T22: Moderador não-presenter compartilha (R2)
+  async moderatorNonPresenterSharesScreen() {
+    // modPage  = first moderator (presenter by default in BBB)
+    // modPage2 = second moderator (must NOT be presenter — never promoted)
+    // Wait for the screenshare button to appear — it signals the meeting is loaded
+    // and screenshare is available. Using this instead of e.whiteboard because the
+    // canvas only renders with active slide content, which may not be present.
+    await this.modPage.hasElement(
+      e.startScreenSharing,
+      'presenter should see start screenshare button',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await this.modPage2.hasElement(
+      e.startScreenSharing,
+      'second moderator should see start screenshare button',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+
+    // Check 3 guard: confirm modPage2 is NOT presenter before sharing
+    const mod2IsPresenterBefore = await checkIsPresenter(this.modPage2);
+    expect(mod2IsPresenterBefore, 'second moderator must not be presenter at setup').toBeFalsy();
+
+    // Non-presenter moderator must see the screenshare button (enabled, not locked)
+    await this.modPage2.hasElement(
+      e.startScreenSharing,
+      'non-presenter moderator should see start screenshare button without promotion',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+
+    // Start screenshare from the non-presenter moderator — no promotion at any point
+    await startScreenshare(this.modPage2);
+
+    // Observer (first moderator/presenter) must see the screenshare stream
+    await this.modPage.hasElement(
+      e.screenShareVideo,
+      'presenter should see screenshare stream from non-presenter moderator',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+
+    // Check 3 guard: confirm modPage2 is STILL NOT the presenter after sharing
+    const mod2IsPresenterAfter = await checkIsPresenter(this.modPage2);
+    expect(mod2IsPresenterAfter, 'second moderator must not be promoted to presenter during screenshare').toBeFalsy();
+
+    // Cleanup
+    await this.modPage2.waitAndClick(e.stopScreenSharing);
   }
 
   // Test: Lock disableMultiScreenshare blocks viewers (NOT IMPLEMENTED)
