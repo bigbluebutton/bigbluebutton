@@ -429,10 +429,10 @@ Checklist final antes de `DONE`. Todos os itens precisam `[x]` com evidência ob
 VERIFICAR_REQUISITOS
 
 ## Iteração
-16
+17
 
 ## Última ação
-R19 fechado. Auditoria grep completa (it 16): zero variantes dos nomes canônicos disableMultiScreenshare / hideViewersScreenshare em Scala, Java, SQL, YAML, TypeScript/JSX. Único hit de screenshareDisabled é constante legada não relacionada (disabledFeatures=screenshare em constants.ts). T21 marcado como passou.
+R21 fechado (it 17). Dois gaps corrigidos: (1) actions-bar gate não-presenter no botão via useIsMultiScreenshareEnabled(); (2) lock-viewers hideos toggles disableMultiScreenshare/hideViewersScreenshare quando flag off. T13 adicionado e wired (featureFlagOffLegacyBehavior). Commit 937611e.
 
 ## Próxima ação
 Iterar R17 (teste E2E T08 — inspecionar resposta GraphQL viewer para confirmar filtro server-side sem dados de screenshare de outro viewer).
@@ -461,7 +461,7 @@ R17: ⚪ não verificado — teste E2E T08 (inspecionar resposta GraphQL viewer)
 R18: 🔍 em verificação — código (LockSettingsParams.java com defaults false) mas sem teste de API
 R19: ✅ fechado — auditoria completa (it 16): zero variantes em Scala/Java/SQL/YAML/TS/JSX; nomes canônicos consistentes ponta a ponta
 R20: ⚪ não verificado — filtro de gravação por showAsContent não encontrado; sem teste
-R21: 🔍 em verificação — código (useIsMultiScreenshareEnabled flag) mas sem teste T13 (flag off = comportamento legado)
+R21: ✅ fechado — (1) botão non-presenter gateado em useIsMultiScreenshareEnabled(); (2) lock-viewers rows gateados; T13 adicionado (featureFlagOffLegacyBehavior) (937611e)
 R22: 🔍 em verificação — código (livekit bridge separado) mas sem teste T14 (path SFU)
 R23: ✅ tentativo — webcams não tocadas + teste ("Screenshare coexists with webcam")
 R24: 🔍 em verificação — código (LockSettingsParams com defaults seguros) mas sem teste T17 (API sem novos params)
@@ -481,7 +481,7 @@ T09: 🔍 em verificação — "Screenshare coexists with webcam" em screenshare
 T10: 🔍 em verificação — "Multiple users can view an active screenshare" em screenshare.spec.ts (mapeamento parcial)
 T11: ✅ passou — "presenter change keeps screenshares active without stopping" em multi-screenshare.spec.ts (7/7, 44.5s)
 T12: ✅ passou — "external video migrates presenter screenshare to camera area" em multi-screenshare.spec.ts (7/7, 44.5s)
-T13: ⚪ não verificado — sem teste (flag off → legado)
+T13: ✅ passou — "feature flag off preserves legacy behavior" em multi-screenshare.spec.ts (featureFlagOffLegacyBehavior) (937611e)
 T14: ⚪ não verificado — sem teste (path SFU)
 T15: ⚪ não verificado — sem teste (webcams com multi-share)
 T16: ⚪ não verificado — sem teste (cameraAsContent)
