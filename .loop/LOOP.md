@@ -296,10 +296,11 @@ Cada requisito só é marcado como `✅ fechado` quando os três checks abaixo p
 - [x] **Tem teste:** T08.
 - [x] **Teste demonstra:** O teste inspeciona a resposta do GraphQL no client do viewer e confirma que os dados do screenshare do outro viewer **não chegam** ao client (row ausente), mostrando que o filtro não é cosmético no client.
 
-## R18
-- [ ] **Funciona:** A API `create` aceita os parâmetros novos; sem eles, aplicam-se defaults seguros.
-- [ ] **Tem teste:** T17.
-- [ ] **Teste demonstra:** Há dois flows: um chamando `create` sem novos params (defaults `false`) e outro com `disableMultiScreenshare=true`; ambos refletem na reunião criada.
+## R18 ✅
+- [x] **Funciona:** A API `create` aceita os parâmetros novos; sem eles, aplicam-se defaults seguros.
+- [x] **Tem teste:** T17.
+- [x] **Teste demonstra:** Há dois flows: um chamando `create` sem novos params (defaults `false`) e outro com `disableMultiScreenshare=true`; ambos refletem na reunião criada.
+- **Impl:** `ApiParams.LOCK_SETTINGS_DISABLE_MULTI_SCREENSHARE` → `ParamsProcessorUtil` → `LockSettingsParams.disableMultiScreenshare` → `BbbWebApiGWApp` → `LockSettingsProps` (Scala já tinha o campo com default `false`). Runtime propagation via `LockSettingsChanged`/`OldMeetingMsgHdlrActor` também atualizada.
 
 ## R19
 - [ ] **Funciona:** Em qualquer camada onde a feature é referenciada, os nomes `disableMultiScreenshare` e `hideViewersScreenshare` aparecem sem variação.
