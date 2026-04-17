@@ -23,6 +23,8 @@ select_permissions:
         - lockOnJoin
         - lockOnJoinConfigurable
         - webcamsOnlyForModerator
+        - disableMultiScreenshare
+        - hideViewersScreenshare
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
