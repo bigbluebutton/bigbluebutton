@@ -1527,7 +1527,7 @@
     "app.createBreakoutRoom.megaphone": "Αποστολή μηνύματος",
     "app.createBreakoutRoom.megaphoneTooltip": "Αποστολή μηνύματος σε όλες τις αίθουσες",
     "app.createBreakoutRoom.finish": "Τερματισμός",
-    "app.createBreakoutRoom.durationOfBreakout": "Duration of Breakout Rooms",
+    "app.createBreakoutRoom.durationOfBreakout": "Διάρκεια τμημάτων αίθουσας τηλεδιάσκεψης",
     "app.createBreakoutRoom.unassignedUsers": "Unassigned Users",
     "app.createBreakoutRoom.youAreInRoom": "You are in {roomName}.",
     "app.createBreakoutRoom.callModerator": "Call Moderators",
