@@ -130,6 +130,26 @@ test.describe.parallel('Multi-screenshare', { tag: '@ci' }, () => {
     await screenshare.lockStopsActiveViewerShares();
   });
 
+  // T08 — hideViewersScreenshare enforced server-side via HTTP GraphQL query (R16, R17)
+  // Pre-condition: moderator (presenter) + viewer1 + viewer2. Lock initially OFF.
+  // Both viewers start screenshare. Viewer1 makes a direct HTTP GraphQL query:
+  //   before lock → 2 rows visible; after lock → only 1 row (own).
+  // Proves the filter is server-side: the raw HTTP response is filtered by Hasura RLS.
+  test('T08 — hideViewersScreenshare enforced server-side', async ({
+    browser,
+    context,
+    browserName,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not available in Firefox without desktop capture');
+    test.setTimeout(120000);
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(page, { testInfo });
+    await screenshare.initUserPage(context, { testInfo });
+    await screenshare.initUserPage2(context, { testInfo });
+    await screenshare.hideViewersScreenshareEnforcedServerSide();
+  });
+
   // T19 — Blocked screenshare attempt does not eject viewer from meeting (R3)
   // Pre-condition: moderator (presenter) + viewer. Lock enabled by moderator.
   // Server-side lock denies the share (explicit denial via GetScreenBroadcastPermissionRespMsg).

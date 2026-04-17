@@ -1111,6 +1111,113 @@ export class ScreenShare extends MultiUsers {
     await this.modPage.waitAndClick(e.stopScreenSharing);
   }
 
+  // T08: hideViewersScreenshare enforcement is server-side (R16, R17)
+  // Setup: moderator (presenter) + viewer1 (userPage) + viewer2 (userPage2).
+  //        Lock hideViewersScreenshare initially OFF. Both viewers NEVER promoted.
+  // Proof: direct HTTP GraphQL queries from viewer pages bypass client-side code entirely.
+  //        When the HTTP response changes from 2→1 rows after lock, the filter is server-side.
+  async hideViewersScreenshareEnforcedServerSide() {
+    await this.modPage.hasElement(
+      e.startScreenSharing,
+      'presenter should see screenshare button',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await this.userPage.hasElement(
+      e.startScreenSharing,
+      'viewer1 should see screenshare button before lock',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await this.userPage2.hasElement(
+      e.startScreenSharing,
+      'viewer2 should see screenshare button before lock',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+
+    // Check 3 guard: neither viewer is presenter at the start
+    const v1IsPresenterBefore = await checkIsPresenter(this.userPage);
+    expect(v1IsPresenterBefore, 'viewer1 must not be presenter at start of T08').toBeFalsy();
+    const v2IsPresenterBefore = await checkIsPresenter(this.userPage2);
+    expect(v2IsPresenterBefore, 'viewer2 must not be presenter at start of T08').toBeFalsy();
+
+    // Step 1: Both viewers start screenshare (no role promotion at any point)
+    await startScreenshare(this.userPage);
+    await startScreenshare(this.userPage2);
+
+    // Helper: issue an HTTP GraphQL query from a page's browser context.
+    // The session token from sessionStorage authenticates the request.
+    // Server-side row-level security in Hasura filters rows per lock state —
+    // this cannot be bypassed by client-side code.
+    const queryScreenshares = async (testPage: Page): Promise<{ userId: string }[]> =>
+      testPage.page.evaluate(async (): Promise<{ userId: string }[]> => {
+        const token = sessionStorage.getItem('sessionToken') ?? '';
+        const res = await fetch('/v1/graphql', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Session-Token': token,
+          },
+          body: JSON.stringify({ query: 'query { screenshare { userId } }' }),
+        });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const json: any = await res.json();
+        const rows = json?.data?.screenshare;
+        return Array.isArray(rows) ? (rows as { userId: string }[]) : [];
+      });
+
+    // Step 2: Before lock — viewer1 must see 2 rows (own + viewer2's)
+    // Poll to handle small delay between screenshare start and DB write
+    await expect.poll(
+      async () => (await queryScreenshares(this.userPage)).length,
+      {
+        timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
+        message: 'viewer1 must see 2 screenshare rows before lock (both viewers sharing)',
+      },
+    ).toBe(2);
+
+    // Step 3: Moderator activates hideViewersScreenshare lock via lock-viewers modal
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClickElement(e.hideViewersScreenshare);
+    await this.modPage.waitAndClick(e.applyLockSettings);
+
+    // Step 4: After lock — viewer1 must see only 1 row (own; viewer2's filtered server-side).
+    // Key assertion: the HTTP response is filtered by Hasura row-level security.
+    // A client-side-only filter would NOT affect the raw HTTP GraphQL response.
+    await expect.poll(
+      async () => (await queryScreenshares(this.userPage)).length,
+      {
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+        message: 'viewer1 must see only 1 row after lock — server-side filter applied (R16, R17)',
+      },
+    ).toBe(1);
+
+    // Confirm each viewer sees only their own row (userId differs between viewers)
+    const v1Rows = await queryScreenshares(this.userPage);
+    const v2Rows = await queryScreenshares(this.userPage2);
+    expect(v1Rows.length, 'viewer1 must see exactly 1 row after lock').toBe(1);
+    expect(v2Rows.length, 'viewer2 must also see exactly 1 row after lock (own only)').toBe(1);
+    expect(
+      v1Rows[0].userId,
+      'viewer1 row userId must differ from viewer2 — server-side per-viewer filter enforced (R17)',
+    ).not.toBe(v2Rows[0].userId);
+
+    // Step 5: Moderator bypasses the lock — still sees 2 rows (moderator bypass in Hasura filter)
+    const modRows = await queryScreenshares(this.modPage);
+    expect(
+      modRows.length,
+      'moderator must see 2 rows after lock — moderator bypass in server-side filter (R16)',
+    ).toBe(2);
+
+    // Check 3 final guards: neither viewer was promoted to presenter during T08
+    const v1IsPresenterAfter = await checkIsPresenter(this.userPage);
+    expect(v1IsPresenterAfter, 'viewer1 must not be promoted to presenter during T08').toBeFalsy();
+    const v2IsPresenterAfter = await checkIsPresenter(this.userPage2);
+    expect(v2IsPresenterAfter, 'viewer2 must not be promoted to presenter during T08').toBeFalsy();
+
+    // Cleanup
+    await this.userPage.waitAndClick(e.stopScreenSharing);
+    await this.userPage2.waitAndClick(e.stopScreenSharing);
+  }
+
   /* eslint-disable class-methods-use-this, no-useless-return */
   async lockDisableMultiScreenshare() {
     // Stub: replaced by lockBlocksViewerNoPromotion
