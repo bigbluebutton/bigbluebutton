@@ -454,7 +454,7 @@ R11: ✅ fechado — container.jsx fallback correto (showScreenshare→slides→
 R12: ✅ fechado — AssignPresenterReqMsgHdlr migra shares do ex-presenter; race condition corrigida; T11 passando 6/6
 R13: ✅ fechado — disableMultiScreenshare implementado end-to-end (DB/Hasura/GraphQL/Scala/frontend); isScreenshareBroadcastLocked corrigido; T06 testando lock correta; 8/8 pass (5490f36)
 R14: ✅ fechado — ChangeLockSettingsInMeetingCmdMsgHdlr chama enforceScreenshareLockSettingsForAllViewers; isScreenshareBroadcastLocked usa disableMultiScreenshare; T07 passando 9/9 (59.1s) (d81cb40)
-R15: 🔍 em verificação — código parcial (UI reflection de lock) mas sem teste explícito
+R15: ✅ fechado — container.jsx retorna null quando isScreenshareLocked (botão oculto); useIsScreenshareLocked verifica disableMultiScreenshare+locked+!isModerator; T06 passando 2/2 (19.6s)
 R16: 🔍 em verificação — código parcial (hideViewersScreenshare em LockSettings declarado) mas filtro em subscribe não confirmado; sem teste
 R17: ⚪ não verificado — filtro server-side para hideViewersScreenshare no subscribe não encontrado; sem teste
 R18: 🔍 em verificação — código (LockSettingsParams.java com defaults false) mas sem teste de API
