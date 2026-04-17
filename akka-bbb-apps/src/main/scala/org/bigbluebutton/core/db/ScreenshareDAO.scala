@@ -16,6 +16,8 @@ case class ScreenshareDbModel(
     vidWidth:        Int,
     vidHeight:       Int,
     hasAudio:        Boolean,
+    userId:          String,
+    showAsContent:   Boolean,
     startedAt:       java.sql.Timestamp         = new java.sql.Timestamp(System.currentTimeMillis()),
     stoppedAt:       Option[java.sql.Timestamp]
 )
@@ -30,13 +32,15 @@ class ScreenshareDbTableDef(tag: Tag) extends Table[ScreenshareDbModel](tag, "sc
   val vidWidth = column[Int]("vidWidth")
   val vidHeight = column[Int]("vidHeight")
   val hasAudio = column[Boolean]("hasAudio")
+  val userId = column[String]("userId")
+  val showAsContent = column[Boolean]("showAsContent")
   val startedAt = column[java.sql.Timestamp]("startedAt")
   val stoppedAt = column[Option[java.sql.Timestamp]]("stoppedAt")
-  override def * : ProvenShape[ScreenshareDbModel] = (screenshareId, meetingId, voiceConf, screenshareConf, contentType, stream, vidWidth, vidHeight, hasAudio, startedAt, stoppedAt) <> (ScreenshareDbModel.tupled, ScreenshareDbModel.unapply)
+  override def * : ProvenShape[ScreenshareDbModel] = (screenshareId, meetingId, voiceConf, screenshareConf, contentType, stream, vidWidth, vidHeight, hasAudio, userId, showAsContent, startedAt, stoppedAt) <> (ScreenshareDbModel.tupled, ScreenshareDbModel.unapply)
 }
 
 object ScreenshareDAO {
-  def insert(meetingId: String, screenshareModel: ScreenshareModel) = {
+  def insert(meetingId: String, userId: String, screenshareModel: ScreenshareModel, showAsContent: Boolean) = {
     DatabaseConnection.enqueue(
       TableQuery[ScreenshareDbTableDef].forceInsert(
         ScreenshareDbModel(
@@ -49,6 +53,8 @@ object ScreenshareDAO {
           vidWidth = getScreenshareVideoWidth(screenshareModel),
           vidHeight = getScreenshareVideoHeight(screenshareModel),
           hasAudio = getHasAudio(screenshareModel),
+          userId = userId,
+          showAsContent = showAsContent,
           startedAt = new java.sql.Timestamp(System.currentTimeMillis()),
           stoppedAt = None
         )
@@ -67,4 +73,14 @@ object ScreenshareDAO {
     )
   }
 
+  def updateShowAsContent(meetingId: String, stream: String, showAsContent: Boolean) = {
+    DatabaseConnection.enqueue(
+      TableQuery[ScreenshareDbTableDef]
+        .filter(_.meetingId === meetingId)
+        .filter(_.stream === stream)
+        .filter(_.stoppedAt.isEmpty)
+        .map(_.showAsContent)
+        .update(showAsContent)
+    )
+  }
 }

@@ -16,6 +16,7 @@ import org.bigbluebutton.core.models.{
   Webcams,
   WebcamStream
 }
+import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
 
 object LockSettingsUtil {
 
@@ -167,5 +168,14 @@ object LockSettingsUtil {
     Users2x.findLockedViewers(liveMeeting.users2x).foreach { user =>
       enforceCamLockSettingsForUser(user, liveMeeting, outGW)
     }
+  }
+
+  def isScreenshareBroadcastLocked(user: UserState, liveMeeting: LiveMeeting): Boolean = {
+    val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
+    user.role == Roles.VIEWER_ROLE && user.locked && permissions.disableMultiScreenshare
+  }
+
+  def enforceScreenshareLockSettingsForAllViewers(liveMeeting: LiveMeeting, outGW: OutMsgRouter): Unit = {
+    ScreenshareApp2x.enforceScreenshareLockSettingsForAllViewers(outGW, liveMeeting)
   }
 }
