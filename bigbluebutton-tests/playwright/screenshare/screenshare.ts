@@ -798,6 +798,91 @@ export class ScreenShare extends MultiUsers {
     );
   }
 
+  // T03: Only one screenshare in content area; viewer's share goes to camera dock (R6, R7, R9)
+  // Pre-condition: modPage = presenter, userPage = viewer (NEVER promoted to presenter).
+  // Step 1: Presenter starts screenshare → content area.
+  // Step 2: Viewer starts screenshare → camera dock, NOT content area.
+  // Assert: content area has exactly one video (presenter's stream ID);
+  //         viewer's tile appears in camera dock; viewer never promoted.
+  async viewerScreenshareInCameraDock() {
+    await this.modPage.hasElement(
+      e.startScreenSharing,
+      'presenter should see screenshare button',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await this.userPage.hasElement(
+      e.startScreenSharing,
+      'viewer should see screenshare button',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+
+    // Check 3 guard: viewer must NOT be presenter at start
+    const viewerIsPresenterBefore = await checkIsPresenter(this.userPage);
+    expect(viewerIsPresenterBefore, 'viewer must not be presenter at start of T03').toBeFalsy();
+
+    // Step 1: Presenter starts screenshare → must occupy content area (R7)
+    await startScreenshare(this.modPage);
+    await this.modPage.hasElement(e.isSharingScreen, 'presenter should be sharing screen');
+    await this.userPage.hasElement(
+      e.screenShareVideo,
+      'viewer should see presenter screenshare in content area',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+
+    // Capture presenter stream ID from viewer's content-area video element (id="screenshareVideo-{streamId}")
+    const presenterVideoEl = this.userPage.page.locator(e.screenShareVideo).first();
+    await presenterVideoEl.waitFor({ timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+    const presenterVideoId = await presenterVideoEl.getAttribute('id');
+    const presenterStreamId = presenterVideoId?.replace('screenshareVideo-', '') ?? '';
+    expect(presenterStreamId, 'could not extract presenter stream ID from content area').not.toBe('');
+
+    // Step 2: Viewer starts screenshare (no role promotion at any point — R9)
+    await startScreenshare(this.userPage);
+    // Stop button confirms the viewer's screenshare is active
+    await this.userPage.hasElement(
+      e.stopScreenSharing,
+      'viewer screenshare should be active',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+
+    // Assert A: Content area has exactly ONE screenshare video — never two simultaneously (R6)
+    const contentAreaCount = await this.userPage.page
+      .locator('#screenshareContainer video[id^="screenshareVideo"]')
+      .count();
+    expect(contentAreaCount, 'content area must contain exactly one screenshare — never two at once (R6)').toBe(1);
+
+    // Assert B: That one video in content area belongs to the PRESENTER, NOT the viewer (R9)
+    const contentVideoId = await this.userPage.page
+      .locator('#screenshareContainer video[id^="screenshareVideo"]')
+      .first()
+      .getAttribute('id');
+    const contentStreamId = contentVideoId?.replace('screenshareVideo-', '') ?? '';
+    expect(
+      contentStreamId,
+      'content area must contain only the presenter stream — viewer stream must NOT appear in content area (R9)',
+    ).toBe(presenterStreamId);
+
+    // Assert C: Viewer's screenshare tile is in camera dock (R9).
+    // Camera dock tiles expose data-stream={streamId}; the viewer's tile has a streamId distinct
+    // from the presenter's. No webcams are active in this test so any non-presenter data-stream
+    // tile belongs to the viewer's screenshare.
+    const viewerCamTile = this.modPage.page.locator(
+      `${e.cameraDock} div[data-stream]:not([data-stream="${presenterStreamId}"])`,
+    );
+    await expect(
+      viewerCamTile.first(),
+      'viewer screenshare must appear in camera dock, not content area (R9)',
+    ).toBeAttached({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    // Check 3 final guard: viewer was NEVER promoted to presenter
+    const viewerIsPresenterAfter = await checkIsPresenter(this.userPage);
+    expect(viewerIsPresenterAfter, 'viewer must not be promoted to presenter during T03 (R9)').toBeFalsy();
+
+    // Cleanup
+    await this.modPage.waitAndClick(e.stopScreenSharing);
+    await this.userPage.waitAndClick(e.stopScreenSharing);
+  }
+
   /* eslint-disable class-methods-use-this, no-useless-return */
   async lockDisableMultiScreenshare() {
     // Stub: replaced by lockBlocksViewerNoPromotion

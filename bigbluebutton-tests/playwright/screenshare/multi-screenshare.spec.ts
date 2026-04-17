@@ -18,6 +18,25 @@ test.describe.parallel('Multi-screenshare', { tag: '@ci' }, () => {
     await screenshare.moderatorNonPresenterSharesScreen();
   });
 
+  // T03 — Apenas um screenshare na área de apresentação (R6, R7, R9)
+  // Pre-condition: moderator (presenter) + viewer. Viewer NEVER promoted to presenter.
+  // Step 1: Presenter starts screenshare → content area.
+  // Step 2: Viewer starts screenshare → camera dock (R9: viewers never occupy content area on their own).
+  // Assert: content area has exactly one screenshare (presenter's stream ID);
+  //         viewer's tile in camera dock; viewer was never promoted.
+  test('viewer screenshare goes to camera dock not content area', async ({
+    browser,
+    context,
+    browserName,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not available in Firefox without desktop capture');
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(page, { testInfo });
+    await screenshare.initUserPage(context, { testInfo });
+    await screenshare.viewerScreenshareInCameraDock();
+  });
+
   // T06 — Lock "Share screen" (hideViewersScreenshare) blocks viewer without promotion (R13, R15, R3)
   // Pre-condition: moderator (presenter) + viewer (NEVER promoted to presenter at any point).
   // The lock is activated by the moderator via the lock-viewers modal.
