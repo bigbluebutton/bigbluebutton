@@ -425,71 +425,71 @@ Checklist final antes de `DONE`. Todos os itens precisam `[x]` com evidência ob
 
 ```
 ## Fase atual
-ENV_CHECK
+VERIFICAR_REQUISITOS
 
 ## Iteração
-2
+3
 
 ## Última ação
-SETUP concluído — haproxy iniciado (auto-signed cert, porta 443 ativa); livekit-server habilitado e em execução (override CPUSchedulingPolicy); LiveKit enabled=true em production.yml; bbb-webrtc-sfu reiniciado; bbb-common-message 0.0.1776372461-SNAPSHOT reconstruído; bbb-common-web e bigbluebutton-web rebuilt contra nova versão; bbb-html5 rebuilt limpo (webpack cache descartado); hasura metadata aplicada; bbb-graphql-actions rebuilt+deployed; 6 arquivos commitados d551720; API retorna HTTP 200.
+ENV_CHECK passou (HTTP 200, serviços OK). INVENTÁRIO concluído — Rs/Ts catalogados conforme presença de código/teste. Serviços confirmados: postgres, bbb-apps-akka, bbb-fsesl-akka, bbb-web, hasura/bbb-graphql-server, bbb-graphql-middleware, livekit-server, bbb-webrtc-sfu. Branch feat/multi-screenshare confirmado. html5client responde 301 (redirect esperado do nginx SPA). Nota: multi-screenshare.spec.ts NÃO existe; testes multi-share estão em screenshare.spec.ts (12 testes + 1 stub).
 
 ## Próxima ação
-ENV_CHECK revalidar serviços (bbb-apps-akka, bbb-web, bbb-graphql-server, livekit) e HTTP 200 — notar que bbb-html5 é servido como static via nginx (sem systemd unit), adaptar checklist do ENV_CHECK para verificar via curl /html5client ao invés de systemctl.
+Iniciar VERIFICAR_REQUISITOS pelo menor R não fechado em ordem de prioridade (❌ > 🔍 > ✅ tentativo > ⚪). Primeiro: R2 (menor 🔍 em verificação) — verificar se moderador não-presenter consegue iniciar screenshare sem ser promovido.
 
 ## Bloqueios
 nenhum
 
 ## Estado dos requisitos
-R1: ⚪ não verificado
-R2: ⚪ não verificado
-R3: ⚪ não verificado
-R4: ⚪ não verificado
-R5: ⚪ não verificado
-R6: ⚪ não verificado
-R7: ⚪ não verificado
-R8: ⚪ não verificado
-R9: ⚪ não verificado
-R10: ⚪ não verificado
-R11: ⚪ não verificado
-R12: ⚪ não verificado
-R13: ⚪ não verificado
-R14: ⚪ não verificado
-R15: ⚪ não verificado
-R16: ⚪ não verificado
-R17: ⚪ não verificado
-R18: ⚪ não verificado
-R19: ⚪ não verificado
-R20: ⚪ não verificado
-R21: ⚪ não verificado
-R22: ⚪ não verificado
-R23: ⚪ não verificado
-R24: ⚪ não verificado
-R25: ⚪ não verificado
-R26: ⚪ não verificado
+R1: ✅ tentativo — código (VIEWER_LEVEL em GetScreenBroadcastPermissionReqMsgHdlr) + teste ("Non-presenter can start screenshare" em screenshare.spec.ts)
+R2: 🔍 em verificação — código plausível (VIEWER_LEVEL aplica a viewer e mod) mas teste não distingue explicitamente moderador não-presenter de viewer
+R3: 🔍 em verificação — código (deny sem eject em GetScreenBroadcastPermissionReqMsgHdlr) mas sem teste explícito de negação
+R4: ✅ tentativo — código (sem guard câmera+tela) + teste ("Screenshare coexists with webcam")
+R5: ✅ tentativo — código (Screenshares.scala multi-stream) + teste ("Two users can share screen simultaneously")
+R6: ✅ tentativo — código (showAsContent) + teste ("Attendee sees multiple", "Screenshare appears in content area")
+R7: ✅ tentativo — código (SetScreenshareShowAsContentReqMsgHdlr) + teste ("Screenshare appears in content area", "Content priority full cycle")
+R8: 🔍 em verificação — código (área de conteúdo gerenciada) mas teste "Start screenshare stops external video" pode parar em vez de migrar
+R9: 🔍 em verificação — código (area management) mas sem teste explícito viewer-apenas-em-câmeras
+R10: ✅ tentativo — código (showAsContent, promoção atômica) + teste ("Content priority full cycle" inclui promoção)
+R11: 🔍 em verificação — teste ("Content priority full cycle" termina em slides) mas código de fallback explícito não encontrado
+R12: ✅ tentativo — código (AssignPresenterReqMsgHdlr preserva shares) + teste ("Screenshare survives presenter change")
+R13: 🔍 em verificação — código parcial (disableMultiScreenshare em LockSettingsParams/ChangeLockSettings) + stub de teste ("not yet implemented")
+R14: 🔍 em verificação — código parcial (ChangeLockSettingsInMeetingCmdMsgHdlr processa settings) mas stop de viewers não confirmado; sem teste
+R15: 🔍 em verificação — código parcial (UI reflection de lock) mas sem teste explícito
+R16: 🔍 em verificação — código parcial (hideViewersScreenshare em LockSettings declarado) mas filtro em subscribe não confirmado; sem teste
+R17: ⚪ não verificado — filtro server-side para hideViewersScreenshare no subscribe não encontrado; sem teste
+R18: 🔍 em verificação — código (LockSettingsParams.java com defaults false) mas sem teste de API
+R19: 🔍 em verificação — código (naming consistente em Scala/Java/SQL/YAML) mas T21 (busca textual) não implementado como teste
+R20: ⚪ não verificado — filtro de gravação por showAsContent não encontrado; sem teste
+R21: 🔍 em verificação — código (useIsMultiScreenshareEnabled flag) mas sem teste T13 (flag off = comportamento legado)
+R22: 🔍 em verificação — código (livekit bridge separado) mas sem teste T14 (path SFU)
+R23: ✅ tentativo — webcams não tocadas + teste ("Screenshare coexists with webcam")
+R24: 🔍 em verificação — código (LockSettingsParams com defaults seguros) mas sem teste T17 (API sem novos params)
+R25: 🔍 em verificação — código (cameraAsContent sem alteração) mas sem teste T16
+R26: ⚪ não verificado — métricas/contadores de screenshare não encontrados; sem teste
 
 ## Estado dos testes
-T01: ⚪ não executado
-T02: ⚪ não executado
-T03: ⚪ não executado
-T04: ⚪ não executado
-T05: ⚪ não executado
-T06: ⚪ não executado
-T07: ⚪ não executado
-T08: ⚪ não executado
-T09: ⚪ não executado
-T10: ⚪ não executado
-T11: ⚪ não executado
-T12: ⚪ não executado
-T13: ⚪ não executado
-T14: ⚪ não executado
-T15: ⚪ não executado
-T16: ⚪ não executado
-T17: ⚪ não executado
-T18: ⚪ não executado
-T19: ⚪ não executado
-T20: ⚪ não executado
-T21: ⚪ não executado
-T22: ⚪ não executado
+T01: 🔍 em verificação — "Non-presenter can start screenshare" existe em screenshare.spec.ts; não está em multi-screenshare.spec.ts (arquivo não existe)
+T02: 🔍 em verificação — "Two users can share screen simultaneously" em screenshare.spec.ts
+T03: 🔍 em verificação — "Attendee sees multiple simultaneous screenshares" em screenshare.spec.ts (mapeamento parcial)
+T04: 🔍 em verificação — "Content priority full cycle: slides to screenshare and back" em screenshare.spec.ts
+T05: 🔍 em verificação — "Stopping one screenshare keeps the other active" em screenshare.spec.ts
+T06: ⚪ não verificado — stub "Lock disableMultiScreenshare not yet implemented" em screenshare.spec.ts (não executa comportamento)
+T07: ⚪ não verificado — sem teste
+T08: ⚪ não verificado — sem teste
+T09: 🔍 em verificação — "Screenshare coexists with webcam" em screenshare.spec.ts
+T10: 🔍 em verificação — "Multiple users can view an active screenshare" em screenshare.spec.ts (mapeamento parcial)
+T11: 🔍 em verificação — "Screenshare survives presenter change" em screenshare.spec.ts
+T12: 🔍 em verificação — "Start screenshare stops external video" em screenshare.spec.ts (comportamento pode ser stop em vez de migrar — verificar)
+T13: ⚪ não verificado — sem teste (flag off → legado)
+T14: ⚪ não verificado — sem teste (path SFU)
+T15: ⚪ não verificado — sem teste (webcams com multi-share)
+T16: ⚪ não verificado — sem teste (cameraAsContent)
+T17: ⚪ não verificado — sem teste (API create sem novos params)
+T18: ⚪ não verificado — sem teste (gravação)
+T19: ⚪ não verificado — sem teste (tentativa negada sem ejeção)
+T20: ⚪ não verificado — sem teste (métricas)
+T21: ⚪ não verificado — sem teste (nomenclatura consistente)
+T22: ⚪ não verificado — sem teste (moderador não-presenter)
 
 ## Arquivos tocados nesta sessão
 /home/devuser/LOOP.md (→ .loop/LOOP.md no repo bigbluebutton)
