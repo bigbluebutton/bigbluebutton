@@ -1525,7 +1525,7 @@
     "app.createBreakoutRoom.infoBannerGotIt": "Το κατάλαβα!",
     "app.createBreakoutRoom.start": "Έναρξη",
     "app.createBreakoutRoom.megaphone": "Αποστολή μηνύματος",
-    "app.createBreakoutRoom.megaphoneTooltip": "Send message to all rooms",
+    "app.createBreakoutRoom.megaphoneTooltip": "Αποστολή μηνύματος σε όλες τις αίθουσες",
     "app.createBreakoutRoom.finish": "Finish",
     "app.createBreakoutRoom.durationOfBreakout": "Duration of Breakout Rooms",
     "app.createBreakoutRoom.unassignedUsers": "Unassigned Users",
