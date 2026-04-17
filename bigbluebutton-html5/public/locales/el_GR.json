@@ -823,7 +823,7 @@
     "app.breakoutJoinConfirmation.title": "Συμμετοχή σε τμήμα αίθουσας διάσκεψης",
     "app.breakoutJoinConfirmation.message": "Θέλετε να συνδεθείτε;",
     "app.breakoutJoinConfirmation.addedToRoom": "Έχετε προστεθεί στο {roomName} από τον συντονιστή.",
-    "app.breakoutJoinConfirmation.willBeRedirected": "You will be redirected to your group room shortly.",
+    "app.breakoutJoinConfirmation.willBeRedirected": "Θα μεταφερθείτε στην ομαδική σας αίθουσα σύντομα.",
     "app.breakoutJoinConfirmation.enterRoom": "Enter the room",
     "app.breakoutJoinConfirmation.confirmDesc": "Προστεθήκατε σε τμήμα αίθουσας διάσκεψης",
     "app.breakoutJoinConfirmation.dismissLabel": "Ακύρωση",
