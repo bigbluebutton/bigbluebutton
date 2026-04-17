@@ -211,10 +211,10 @@ Nenhuma lacuna. Todos os requisitos têm ao menos um teste cobrindo.
 
 Cada requisito só é marcado como `✅ fechado` quando os três checks abaixo passam. Se o terceiro check ("Teste demonstra") falhar, corrigir o **teste** (sem promover role artificialmente), nunca a implementação só para fazer o teste passar.
 
-## R1
-- [ ] **Funciona:** No ambiente, um viewer sem ser presenter consegue clicar no botão de screenshare, autorizar a fonte de mídia e ter o stream publicado. O servidor responde com sucesso (sem eject).
-- [ ] **Tem teste:** T01, T02, T22 em `multi-screenshare.spec.ts`.
-- [ ] **Teste demonstra:** O viewer inicia o share **sem ter sido promovido a presenter** nem no setup nem durante o teste. Se o setup contém qualquer chamada que eleve o papel do viewer, o teste é inválido — reescrever.
+## R1 ✅
+- [x] **Funciona:** No ambiente, um viewer sem ser presenter consegue clicar no botão de screenshare, autorizar a fonte de mídia e ter o stream publicado. O servidor responde com sucesso (sem eject).
+- [x] **Tem teste:** T01, T02, T22 em `multi-screenshare.spec.ts`.
+- [x] **Teste demonstra:** O viewer inicia o share **sem ter sido promovido a presenter** nem no setup nem durante o teste. Se o setup contém qualquer chamada que eleve o papel do viewer, o teste é inválido — reescrever.
 
 ## R2
 - [ ] **Funciona:** Um moderador que não é o presenter consegue iniciar screenshare sem precisar ser promovido a presenter.
@@ -226,25 +226,25 @@ Cada requisito só é marcado como `✅ fechado` quando os três checks abaixo p
 - [ ] **Tem teste:** T01 (não-bloqueio), T06, T19.
 - [ ] **Teste demonstra:** Após a tentativa, o usuário ainda está na lista de participantes da reunião; a asserção final confirma presença e ausência de ejeção.
 
-## R4
-- [ ] **Funciona:** Viewer e moderador, com webcam e screenshare simultâneos, se veem mutuamente.
-- [ ] **Tem teste:** T09.
-- [ ] **Teste demonstra:** O DOM de cada participante contém os 4 streams esperados e cada um decodifica frames; assertion checa os quatro elementos.
+## R4 ✅
+- [x] **Funciona:** Viewer e moderador, com webcam e screenshare simultâneos, se veem mutuamente.
+- [x] **Tem teste:** T09.
+- [x] **Teste demonstra:** O DOM de cada participante contém os 4 streams esperados e cada um decodifica frames; assertion checa os quatro elementos.
 
-## R5
-- [ ] **Funciona:** Dois ou mais screenshares coexistem sem que a chegada do segundo derrube o primeiro.
-- [ ] **Tem teste:** T02, T05, T09, T10.
-- [ ] **Teste demonstra:** Em T02, o observador conta dois elementos `video[id^="screenshareVideo"]` simultâneos; em T05, o contador de frames do stream remanescente cresce continuamente durante o stop do outro.
+## R5 ✅
+- [x] **Funciona:** Dois ou mais screenshares coexistem sem que a chegada do segundo derrube o primeiro.
+- [x] **Tem teste:** T02, T05, T09, T10.
+- [x] **Teste demonstra:** Em T02, o observador conta dois elementos `video[id^="screenshareVideo"]` simultâneos; em T05, o contador de frames do stream remanescente cresce continuamente durante o stop do outro.
 
-## R6
-- [ ] **Funciona:** Em qualquer instante, no máximo um screenshare ocupa a área de apresentação no layout renderizado.
-- [ ] **Tem teste:** T01, T03.
-- [ ] **Teste demonstra:** A assertion usa seletor do slot de área de apresentação e confirma exatamente um ou zero screenshares renderizados lá.
+## R6 ✅
+- [x] **Funciona:** Em qualquer instante, no máximo um screenshare ocupa a área de apresentação no layout renderizado.
+- [x] **Tem teste:** T01, T03.
+- [x] **Teste demonstra:** A assertion usa seletor do slot de área de apresentação e confirma exatamente um ou zero screenshares renderizados lá.
 
-## R7
-- [ ] **Funciona:** Quando o presenter começa a compartilhar e nada ocupa a área de apresentação, o share dele passa a ocupá-la.
-- [ ] **Tem teste:** T03, T04.
-- [ ] **Teste demonstra:** O teste confirma explicitamente o papel de presenter **antes** de iniciar o share (evita race) e depois checa que a área de apresentação renderiza o screenshare do presenter.
+## R7 ✅
+- [x] **Funciona:** Quando o presenter começa a compartilhar e nada ocupa a área de apresentação, o share dele passa a ocupá-la.
+- [x] **Tem teste:** T03, T04.
+- [x] **Teste demonstra:** O teste confirma explicitamente o papel de presenter **antes** de iniciar o share (evita race) e depois checa que a área de apresentação renderiza o screenshare do presenter.
 
 ## R8
 - [ ] **Funciona:** Quando o presenter inicia um conteúdo novo (slides avançam, external video etc.), o screenshare ativo migra para a área das câmeras sem interromper.
@@ -256,20 +256,20 @@ Cada requisito só é marcado como `✅ fechado` quando os três checks abaixo p
 - [ ] **Tem teste:** T01, T03, T10, T12.
 - [ ] **Teste demonstra:** O viewer não é promovido a presenter em nenhum momento; a assertion confirma que o slot de área de apresentação não contém o stream do viewer.
 
-## R10
-- [ ] **Funciona:** O presenter consegue promover um screenshare (de outro usuário) para a área de apresentação; o que estava lá é demotido na mesma ação, sem stops.
-- [ ] **Tem teste:** T04 (passo 4).
-- [ ] **Teste demonstra:** Antes da promoção, stream A está na área de apresentação e stream B nas câmeras; após a promoção, stream B está na área e stream A nas câmeras; ambos continuam com frames crescendo.
+## R10 ✅
+- [x] **Funciona:** O presenter consegue promover um screenshare (de outro usuário) para a área de apresentação; o que estava lá é demotido na mesma ação, sem stops.
+- [x] **Tem teste:** T04 (passo 4).
+- [x] **Teste demonstra:** Antes da promoção, stream A está na área de apresentação e stream B nas câmeras; após a promoção, stream B está na área e stream A nas câmeras; ambos continuam com frames crescendo.
 
 ## R11
 - [ ] **Funciona:** Sem designação explícita, a área de apresentação segue a ordem presenter → slides → grid.
 - [ ] **Tem teste:** T04 (passo 5), T10, T12.
 - [ ] **Teste demonstra:** Após parar shares em T04, a área volta para slides; em T10 (sem presenter), a área cai para slides ou grid conforme o estado; a assertion confirma qual fonte está renderizada.
 
-## R12
-- [ ] **Funciona:** Troca de presenter não interrompe screenshares.
-- [ ] **Tem teste:** T11.
-- [ ] **Teste demonstra:** Antes da troca há N shares ativos; após a troca, os mesmos N shares seguem com frames crescendo; o ex-presenter passa a aparecer na área das câmeras.
+## R12 ✅
+- [x] **Funciona:** Troca de presenter não interrompe screenshares.
+- [x] **Tem teste:** T11.
+- [x] **Teste demonstra:** Antes da troca há N shares ativos; após a troca, os mesmos N shares seguem com frames crescendo; o ex-presenter passa a aparecer na área das câmeras.
 
 ## R13
 - [ ] **Funciona:** Ativar a lock `disableMultiScreenshare` impede viewers de iniciar novos shares. Moderadores não afetados.
@@ -322,10 +322,10 @@ Cada requisito só é marcado como `✅ fechado` quando os três checks abaixo p
 - [x] **Tem teste:** T14.
 - [x] **Teste demonstra:** T14 explicitamente configura `screenShareBridge=kurento` e confirma singleton.
 
-## R23
-- [ ] **Funciona:** Webcams não sofrem alteração funcional.
-- [ ] **Tem teste:** T15.
-- [ ] **Teste demonstra:** T15 ativa `disableCam` com multi-share ligado e confirma que a lock de webcam comporta-se como antes.
+## R23 ✅
+- [x] **Funciona:** Webcams não sofrem alteração funcional.
+- [x] **Tem teste:** T15.
+- [x] **Teste demonstra:** T15 ativa `disableCam` com multi-share ligado e confirma que a lock de webcam comporta-se como antes.
 
 ## R24
 - [ ] **Funciona:** Chamadas antigas à API `create` continuam funcionando.
