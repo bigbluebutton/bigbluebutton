@@ -10,16 +10,9 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.conn.DnsResolver;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.bigbluebutton.api.Util;
 import org.bigbluebutton.api.service.RedirectFollowerService;
+import org.bigbluebutton.api.service.SecureUrlDownloader;
 import org.bigbluebutton.api.service.ValidatedUrl;
 import org.bigbluebutton.api.service.impl.PresRedirectValidator;
 import org.slf4j.Logger;
@@ -36,6 +29,7 @@ public class PresentationUrlDownloadService {
     private String BLANK_PRESENTATION;
     private RedirectFollowerService redirectFollower;
     private PresRedirectValidator presRedirectValidator;
+    private SecureUrlDownloader secureUrlDownloader;
     private int presDownloadReadTimeoutInMs;
 
     private ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(3);
@@ -173,7 +167,6 @@ public class PresentationUrlDownloadService {
     public boolean savePresentation(final String meetingId,
             final String filename, final String urlString) {
 
-        // Use the secure redirect follower that pins IP addresses
         ValidatedUrl validatedUrl = redirectFollower.followRedirectSecure(
                 meetingId, urlString, 0, urlString, presRedirectValidator, presDownloadReadTimeoutInMs
         );
@@ -190,76 +183,7 @@ public class PresentationUrlDownloadService {
             log.info("URL [{}] resolved to {} address(es)", urlString, validatedUrl.resolvedAddresses().length);
         }
 
-        boolean success = false;
-        CloseableHttpClient httpclient = null;
-
-        try {
-            httpclient = createPinnedHttpClient(validatedUrl);
-            File download = new File(filename);
-            HttpGet request = createPinnedRequest(validatedUrl);
-
-            try (CloseableHttpResponse response = httpclient.execute(request)) {
-                if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                    throw new ClientProtocolException("Upload failed: " + response.getStatusLine());
-                }
-                if (response.getEntity() != null && response.getEntity().getContent() != null) {
-                    FileUtils.copyInputStreamToFile(response.getEntity().getContent(), download);
-                }
-            }
-
-            success = download.exists();
-        } catch (java.io.FileNotFoundException ex) {
-            log.error("FileNotFoundException while saving presentation for meeting [{}]", meetingId, ex);
-        } catch (java.io.IOException ex) {
-            log.error("IOException while saving presentation for meeting [{}]", meetingId, ex);
-        } finally {
-            if (httpclient != null) {
-                try {
-                    httpclient.close();
-                } catch (java.io.IOException ex) {
-                    log.error("IOException while closing httpclient for meeting [{}]", meetingId, ex);
-                }
-            }
-        }
-
-        return success;
-    }
-
-    private CloseableHttpClient createPinnedHttpClient(ValidatedUrl validatedUrl) {
-        final String originalHost = validatedUrl.host();
-
-        DnsResolver pinnedDnsResolver = host -> {
-            if (host.equalsIgnoreCase(originalHost)) {
-                return validatedUrl.resolvedAddresses();
-            }
-            // For any other host (shouldn't happen), fail fast
-            throw new java.net.UnknownHostException("DNS resolution blocked for unpinned host: " + host);
-        };
-
-        RequestConfig requestConfig = RequestConfig.custom()
-                .setRedirectsEnabled(false)
-                .setConnectTimeout(presDownloadReadTimeoutInMs)
-                .setSocketTimeout(presDownloadReadTimeoutInMs)
-                .build();
-
-        return HttpClients.custom()
-                .setDefaultRequestConfig(requestConfig)
-                .setDnsResolver(pinnedDnsResolver)
-                .build();
-    }
-
-    private HttpGet createPinnedRequest(ValidatedUrl validatedUrl) {
-        // Create request URL using the original URL (the pinned DNS resolver will handle routing)
-        HttpGet request = new HttpGet(validatedUrl.originalUrl());
-
-        // Ensure proper Host header is set (should already be set by default,
-        // but we set it explicitly to be safe)
-        request.setHeader("Host", validatedUrl.host() +
-                (validatedUrl.port() != -1 ? ":" + validatedUrl.port() : ""));
-        request.setHeader("Accept-Language", "en-US,en;q=0.8");
-        request.setHeader("User-Agent", "Mozilla");
-
-        return request;
+        return secureUrlDownloader.downloadToFile(meetingId, validatedUrl, new File(filename), presDownloadReadTimeoutInMs);
     }
 
     public void setPageExtractor(PageExtractor extractor) {
@@ -289,6 +213,10 @@ public class PresentationUrlDownloadService {
 
     public void setPresRedirectValidator(PresRedirectValidator presRedirectValidator) {
         this.presRedirectValidator = presRedirectValidator;
+    }
+
+    public void setSecureUrlDownloader(SecureUrlDownloader secureUrlDownloader) {
+        this.secureUrlDownloader = secureUrlDownloader;
     }
 
     public void setPresDownloadReadTimeoutInMs(int presDownloadReadTimeoutInMs) {

@@ -74,7 +74,6 @@ object CameraHdlrHelpers extends SystemConfiguration with RightsManagementTrait 
     )
 
     (allowModsToEjectCameras &&
-      !isBreakout &&
       hasPermission)
   }
 

@@ -204,13 +204,25 @@ class ApiController {
 
     def xmlModules = processRequestXmlModules(requestBody)
 
-    // Set Client Settings Override
+    // Set Client Settings Override:
+    // clientSettingsOverrideJsonUrl (GET) takes precedence and is already resolved in processCreateParams.
+    // Fall back to clientSettingsOverride from the POST body only when the URL param did not supply a value.
     if(xmlModules.containsKey("clientSettingsOverride")) {
       if(paramsProcessorUtil.getAllowOverrideClientSettingsOnCreateCall()) {
-        newMeeting.setOverrideClientSettings(xmlModules.get("clientSettingsOverride").text())
+        if(StringUtils.isEmpty(newMeeting.getOverrideClientSettings())) {
+          newMeeting.setOverrideClientSettings(xmlModules.get("clientSettingsOverride").text())
+          log.info("Module `clientSettingsOverride` in POST body loaded.")
+          println(xmlModules.get("clientSettingsOverride").text())
+        } else {
+          log.info("Module `clientSettingsOverride` in POST body ignored because `clientSettingsOverrideJsonUrl` took precedence.")
+        }
       } else {
-        log.warn("Module `clientSettingsOverride` provided but this options is disabled by `allowOverrideClientSettingsOnCreateCall=false` config.");
+        log.warn("Module `clientSettingsOverride` provided but this option is disabled by `allowOverrideClientSettingsOnCreateCall=false` config.");
       }
+    }
+
+    if(xmlModules.containsKey("sharedNotesInitialContentJson")) {
+      newMeeting.setSharedNotesInitialContentJsonFromPayload(xmlModules.get("sharedNotesInitialContentJson").text())
     }
 
     ApiErrors errors = new ApiErrors()
