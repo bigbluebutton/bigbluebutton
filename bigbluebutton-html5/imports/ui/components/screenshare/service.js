@@ -415,7 +415,7 @@ export const viewScreenshare = (streamId, hasAudio, options = {}) => {
 
 export const screenshareHasStarted = (streamId, hasAudio, isPresenter, options = {}) => {
   // Presenter's screen preview is local, so skip.
-  // Also skip if this user is actively sharing (non-presenter sharer) — their preview is local too.
+  // Also skip if this user is actively sharing (non-presenter sharer) -- their preview is local too.
   if (!isPresenter && !isSharing()) {
     viewScreenshare(streamId, hasAudio, { outputDeviceId: options.outputDeviceId });
   }

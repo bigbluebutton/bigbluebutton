@@ -704,7 +704,7 @@ export default class LiveKitScreenshareBridge {
       this.streamIds.delete(streamId);
 
       if (this.streamIds.size === 0) {
-        // Last stream removed — clean up the base element
+        // Last stream removed -- clean up the base element
         const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG) as HTMLMediaElement;
 
         if (mediaElement && typeof mediaElement.pause === 'function') {
@@ -714,7 +714,7 @@ export default class LiveKitScreenshareBridge {
 
         this.outputDeviceId = undefined;
       } else {
-        // Other streams still active — only clean up this stream's element
+        // Other streams still active -- only clean up this stream's element
         const elementId = `screenshareVideo-${streamId}`;
         const mediaElement = document.getElementById(elementId) as HTMLMediaElement;
 

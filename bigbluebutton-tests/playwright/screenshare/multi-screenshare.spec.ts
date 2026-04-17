@@ -3,7 +3,7 @@ import { constants as c } from '../parameters/constants';
 import { ScreenShare } from './screenshare';
 
 test.describe.parallel('Multi-screenshare', { tag: '@ci' }, () => {
-  // T22 — Moderador não-presenter compartilha (R2)
+  // T22: non-presenter moderator can share screen (R2)
   // Pre-condition: 2 moderators in the meeting; only one is presenter; the other NEVER promoted.
   // The second moderator must be able to start screenshare without any role change.
   test('non-presenter moderator can start screenshare without promotion', async ({
@@ -19,7 +19,7 @@ test.describe.parallel('Multi-screenshare', { tag: '@ci' }, () => {
     await screenshare.moderatorNonPresenterSharesScreen();
   });
 
-  // T04 — Ciclo slides → screen1 → screen2 → slides (R7, R8, R10, R11)
+  // T04: slides -> screen1 -> screen2 -> slides cycle (R7, R8, R10, R11)
   // Pre-condition: presenter (modPage) + viewer (userPage). Presentation with slides loaded.
   // Viewer NEVER promoted to presenter.
   // Step 1: Slides visible. Step 2: Presenter screenshare → content area (R7).
@@ -39,7 +39,7 @@ test.describe.parallel('Multi-screenshare', { tag: '@ci' }, () => {
     await screenshare.contentAreaFullCycle();
   });
 
-  // T03 — Apenas um screenshare na área de apresentação (R6, R7, R9)
+  // T03: only one screenshare occupies the presentation area (R6, R7, R9)
   // Pre-condition: moderator (presenter) + viewer. Viewer NEVER promoted to presenter.
   // Step 1: Presenter starts screenshare → content area.
   // Step 2: Viewer starts screenshare → camera dock (R9: viewers never occupy content area on their own).
@@ -58,7 +58,7 @@ test.describe.parallel('Multi-screenshare', { tag: '@ci' }, () => {
     await screenshare.viewerScreenshareInCameraDock();
   });
 
-  // T06 — Lock "Share screen" (disableMultiScreenshare) blocks viewer without promotion (R13, R15, R3)
+  // T06 -- Lock "Share screen" (disableMultiScreenshare) blocks viewer without promotion (R13, R15, R3)
   // Pre-condition: moderator (presenter) + viewer (NEVER promoted to presenter at any point).
   // The moderator activates disableMultiScreenshare via the lock-viewers modal.
   // Viewer button must disappear; moderator can still share; viewer stays in participant list.
@@ -76,7 +76,7 @@ test.describe.parallel('Multi-screenshare', { tag: '@ci' }, () => {
     await screenshare.lockBlocksViewerNoPromotion();
   });
 
-  // T11 — Troca de presenter mantém screenshares ativos (R8, R12)
+  // T11: presenter swap keeps active screenshares running (R8, R12)
   // Pre-condition: presenter (modPage) + viewer (userPage) both sharing screen.
   // Viewer is NEVER promoted to presenter in setup.
   // Action: moderator transfers presenter to viewer.
@@ -94,7 +94,7 @@ test.describe.parallel('Multi-screenshare', { tag: '@ci' }, () => {
     await screenshare.presenterChangeKeepsShares();
   });
 
-  // T12 — Vídeo externo migra screenshare do presenter para câmeras (R8, R9, R11)
+  // T12: external video migrates presenter screenshare to the camera dock (R8, R9, R11)
   // Pre-condition: presenter (modPage) sharing screen, viewer (userPage) sharing screen.
   // Viewer is NEVER promoted to presenter at any point.
   // Action: presenter starts external video.
@@ -113,7 +113,7 @@ test.describe.parallel('Multi-screenshare', { tag: '@ci' }, () => {
     await screenshare.externalVideoMigratesPresenterShare();
   });
 
-  // T07 — Lock ativada interrompe screenshare ativo de viewer, moderador segue ativo (R14, R13)
+  // T07: activating the lock stops active viewer screenshares while moderator keeps sharing (R14, R13)
   // Pre-condition: moderator (presenter) + viewer BOTH sharing. Lock initially OFF. Viewer NEVER promoted.
   // Steps: both share → mod activates disableMultiScreenshare → viewer share stopped by server
   //        (no viewer click) → mod share survives → viewer cannot re-share while lock is active.
@@ -131,12 +131,12 @@ test.describe.parallel('Multi-screenshare', { tag: '@ci' }, () => {
     await screenshare.lockStopsActiveViewerShares();
   });
 
-  // T08 — hideViewersScreenshare enforced server-side via HTTP GraphQL query (R16, R17)
+  // T08 -- hideViewersScreenshare enforced server-side via HTTP GraphQL query (R16, R17)
   // Pre-condition: moderator (presenter) + viewer1 + viewer2. Lock initially OFF.
   // Both viewers start screenshare. Viewer1 makes a direct HTTP GraphQL query:
   //   before lock → 2 rows visible; after lock → only 1 row (own).
   // Proves the filter is server-side: the raw HTTP response is filtered by Hasura RLS.
-  test('T08 — hideViewersScreenshare enforced server-side', async ({
+  test('T08 -- hideViewersScreenshare enforced server-side', async ({
     browser,
     context,
     browserName,
@@ -151,10 +151,10 @@ test.describe.parallel('Multi-screenshare', { tag: '@ci' }, () => {
     await screenshare.hideViewersScreenshareEnforcedServerSide();
   });
 
-  // T19 — Blocked screenshare attempt does not eject viewer from meeting (R3)
+  // T19 -- Blocked screenshare attempt does not eject viewer from meeting (R3)
   // Pre-condition: moderator (presenter) + viewer. Lock enabled by moderator.
   // Server-side lock denies the share (explicit denial via GetScreenBroadcastPermissionRespMsg).
-  // Viewer must remain in participant list — no EjectUserCmdMsg is sent.
+  // Viewer must remain in participant list -- no EjectUserCmdMsg is sent.
   test('locked screenshare attempt does not eject viewer', async ({
     browser,
     context,
@@ -168,7 +168,7 @@ test.describe.parallel('Multi-screenshare', { tag: '@ci' }, () => {
     await screenshare.lockedAttemptNoEject();
   });
 
-  // T14 — Path SFU/Kurento maintains singleton even with multiScreenshare flag on (R22)
+  // T14 -- Path SFU/Kurento maintains singleton even with multiScreenshare flag on (R22)
   // Pre-condition: meeting created with screenShareBridge=bbb-webrtc-sfu; multiScreenshare NOT disabled.
   // Viewer is NEVER promoted to presenter.
   // Asserts: (1) viewer does NOT see screenshare button (bridge != livekit → multi-screenshare gate closes);
@@ -186,7 +186,7 @@ test.describe.parallel('Multi-screenshare', { tag: '@ci' }, () => {
     await screenshare.sfuPathLegacySingleton();
   });
 
-  // T13 — Feature flag off → legacy behavior preserved (R21)
+  // T13 -- Feature flag off → legacy behavior preserved (R21)
   // Pre-condition: meeting created with disabledFeatures=multiScreenshare; presenter + viewer.
   // Viewer is NEVER promoted to presenter.
   // Asserts: (1) viewer does NOT see screenshare button (legacy: only presenter shares);

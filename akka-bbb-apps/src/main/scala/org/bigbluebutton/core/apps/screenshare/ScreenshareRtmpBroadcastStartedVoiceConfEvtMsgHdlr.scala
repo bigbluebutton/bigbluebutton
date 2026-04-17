@@ -80,7 +80,7 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
           log.info("START broadcast (LiveKit) for stream={} user={} showAsContent={}", msg.body.stream, userId, newEntry.showAsContent)
 
           // Set layout flag when this is the first screenshare (no other users already sharing).
-          // Skip when other users are already active — avoids re-enabling content area after
+          // Skip when other users are already active -- avoids re-enabling content area after
           // AssignPresenterReqMsgHdlr just reset the flag (race condition in presenter transfer).
           if (!otherUsersSharing && !Layouts.getScreenshareAsContent(liveMeeting.layouts)) {
             Layouts.setScreenshareAsContent(liveMeeting.layouts, true)
