@@ -19,13 +19,13 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.apache.poi:poi:4.1.2'
-    implementation 'org.apache.poi:poi-ooxml:4.1.2'
-    implementation 'org.apache.poi:poi-ooxml-schemas:4.1.2'
+    implementation 'org.apache.poi:poi:5.2.5'
+    implementation 'org.apache.poi:poi-ooxml:5.2.5'
+    implementation 'org.apache.poi:poi-ooxml-full:5.2.5'
     implementation 'commons-io:commons-io:2.11.0'
     implementation 'org.apache.commons:commons-lang3:3.9'
     implementation 'org.apache.commons:commons-collections4:4.4'
-    implementation 'org.apache.xmlbeans:xmlbeans:3.0.2'
+    implementation 'org.apache.xmlbeans:xmlbeans:5.1.1'
 }
 
 jar {
