@@ -30,6 +30,9 @@ const propTypes = {
   isScreenBroadcasting: PropTypes.bool.isRequired,
   isScreenGloballyBroadcasting: PropTypes.bool.isRequired,
   isConnected: PropTypes.bool.isRequired,
+  isScreenshareLocked: PropTypes.bool,
+  isLocked: PropTypes.bool,
+  amIPersonallySharing: PropTypes.bool,
 };
 
 const intlMessages = defineMessages({
@@ -149,6 +152,9 @@ const ScreenshareButton = ({
   amIPresenter = false,
   isConnected,
   screenshareDataSavingSetting,
+  isScreenshareLocked = false,
+  isLocked = false,
+  amIPersonallySharing = false,
 }) => {
   const TROUBLESHOOTING_URLS = window.meetingClientSettings.public.media.screenshareTroubleshootingLinks;
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
@@ -209,26 +215,28 @@ const ScreenshareButton = ({
     </Styled.ScreenShareModal>
   );
 
-  const amIBroadcasting = isScreenBroadcasting && amIPresenter;
+  // True only when this client is personally sharing (not just observing a global share).
+  const amIBroadcasting = amIPersonallySharing;
 
-  // this part handles the label/desc intl for the screenshare button
-  // basically: if you are not a presenter, the label/desc will be 'the screen cannot be shared'.
-  // if you are: the label/desc intl will be 'stop/start screenshare'.
+  // Label/desc selection
   let info = screenshareDataSavingSetting ? 'desktopShare' : 'lockedDesktopShare';
-  if (!amIPresenter) {
-    info = 'notPresenterDesktopShare';
-  } else if (isScreenBroadcasting) {
+  if (amIBroadcasting) {
     info = 'stopDesktopShare';
   }
 
   const showButtonForNonPresenters = useShowButtonForNonPresenters();
 
+  // Show the share button to all non-mobile users who are not specifically locked out of
+  // screenshare (isScreenshareLocked = userIsLocked && disableMultiScreenshare).
+  // Presenters, moderators (never locked), and viewers when disableMultiScreenshare=false
+  // can all share screens.
+  const canShare = amIPresenter || showButtonForNonPresenters || !isScreenshareLocked;
   const shouldAllowScreensharing = enabled
     && (!isMobile || isTabletApp)
-    && (amIPresenter || showButtonForNonPresenters);
+    && canShare;
 
-  const dataTest = isScreenBroadcasting ? 'stopScreenShare' : 'startScreenShare';
-  const loading = isScreenBroadcasting && !isScreenGloballyBroadcasting;
+  const dataTest = amIBroadcasting ? 'stopScreenShare' : 'startScreenShare';
+  const loading = amIBroadcasting && !isScreenGloballyBroadcasting;
 
   return (
     <>
@@ -237,7 +245,7 @@ const ScreenshareButton = ({
           ? (
             <Styled.Container>
               <Button
-                disabled={(!isConnected && !isScreenBroadcasting) || !screenshareDataSavingSetting || !amIPresenter}
+                disabled={(!isConnected && !amIBroadcasting) || !screenshareDataSavingSetting}
                 icon={amIBroadcasting ? 'desktop' : 'desktop_off'}
                 data-test={dataTest}
                 label={intl.formatMessage(intlMessages[`${info}Label`])}
