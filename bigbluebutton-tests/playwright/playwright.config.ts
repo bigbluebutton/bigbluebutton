@@ -19,6 +19,7 @@ export default defineConfig({
   },
   use: {
     headless: true,
+    ignoreHTTPSErrors: true,
     screenshot: 'on',
     trace: CI ? 'retain-on-failure' : 'on',
     video: CI ? 'retain-on-failure' : 'on',

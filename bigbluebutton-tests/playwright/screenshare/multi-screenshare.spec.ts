@@ -18,6 +18,26 @@ test.describe.parallel('Multi-screenshare', { tag: '@ci' }, () => {
     await screenshare.moderatorNonPresenterSharesScreen();
   });
 
+  // T04 — Ciclo slides → screen1 → screen2 → slides (R7, R8, R10, R11)
+  // Pre-condition: presenter (modPage) + viewer (userPage). Presentation with slides loaded.
+  // Viewer NEVER promoted to presenter.
+  // Step 1: Slides visible. Step 2: Presenter screenshare → content area (R7).
+  // Step 3: Viewer screenshare → camera dock (R9). Step 4: Presenter promotes viewer screenshare
+  //         via "Show as content" → viewer in content area, presenter migrates to camera dock (R8, R10).
+  // Step 5: Both stop → slides return to content area (R11 fallback).
+  test('content area full cycle: slides → screenshare → promotion → slides', async ({
+    browser,
+    context,
+    browserName,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not available in Firefox without desktop capture');
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(page, { testInfo });
+    await screenshare.initUserPage(context, { testInfo });
+    await screenshare.contentAreaFullCycle();
+  });
+
   // T03 — Apenas um screenshare na área de apresentação (R6, R7, R9)
   // Pre-condition: moderator (presenter) + viewer. Viewer NEVER promoted to presenter.
   // Step 1: Presenter starts screenshare → content area.

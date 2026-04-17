@@ -24,8 +24,8 @@ async function validateEnvironmentAndAPI(): Promise<void> {
     throw new Error('BBB_URL must follow the pattern "https://DOMAIN_NAME/bigbluebutton/"');
   }
 
-  // Create a request context for API validation
-  const requestContext = await request.newContext();
+  // Create a request context for API validation (ignoreHTTPSErrors for self-signed dev certs)
+  const requestContext = await request.newContext({ ignoreHTTPSErrors: true });
 
   try {
     // Test the /create endpoint with a temporary meeting

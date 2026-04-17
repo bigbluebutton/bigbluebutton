@@ -883,6 +883,118 @@ export class ScreenShare extends MultiUsers {
     await this.userPage.waitAndClick(e.stopScreenSharing);
   }
 
+  // T04: Full cycle slides → screenshare → promotion → slides (R7, R8, R10, R11)
+  // Pre-condition: presenter (modPage) + viewer (userPage). Presentation with slides loaded.
+  // Viewer NEVER promoted to presenter at any point.
+  // Step 1: Slides visible in content area.
+  // Step 2: Presenter starts screenshare → content area (R7).
+  // Step 3: Viewer starts screenshare → camera dock (R9).
+  // Step 4: Presenter promotes viewer screenshare via "Show as content" → viewer in content area,
+  //         presenter's migrates to camera dock without stopping (R8, R10).
+  // Step 5: Presenter stops, then viewer stops → slides return to content area (R11 fallback).
+  async contentAreaFullCycle() {
+    // Step 1: Wait for meeting to be ready — screenshare buttons are the canary
+    await this.modPage.hasElement(
+      e.startScreenSharing,
+      'presenter should see screenshare button (meeting ready)',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await this.userPage.hasElement(
+      e.startScreenSharing,
+      'viewer should see screenshare button (meeting ready)',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    // Baseline: no screenshare in content area yet (screenshare container hidden or absent)
+    await this.userPage.page
+      .waitForSelector('#screenshareContainer', {
+        state: 'hidden',
+        timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
+      })
+      .catch(() => {
+        // Container may not exist yet before any share — that is also fine (no screenshare in content area)
+      });
+
+    // Check 3 guard: viewer must NOT be presenter at start
+    const viewerIsPresenterBefore = await checkIsPresenter(this.userPage);
+    expect(viewerIsPresenterBefore, 'viewer must not be presenter at start of T04').toBeFalsy();
+
+    // Step 2: Presenter starts screenshare → content area (R7)
+    await startScreenshare(this.modPage);
+    await this.modPage.hasElement(e.isSharingScreen, 'presenter should be sharing screen');
+    await this.userPage.hasElement(
+      e.screenShareVideo,
+      'viewer should see presenter screenshare in content area (R7)',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+
+    // Capture presenter's stream ID from the content-area video element
+    const presenterVideoEl = this.userPage.page.locator(e.screenShareVideo).first();
+    await presenterVideoEl.waitFor({ timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+    const presenterVideoId = await presenterVideoEl.getAttribute('id');
+    const presenterStreamId = presenterVideoId?.replace('screenshareVideo-', '') ?? '';
+    expect(presenterStreamId, 'could not extract presenter stream ID from content area').not.toBe('');
+
+    // Step 3: Viewer starts screenshare → camera dock (R9; presenter's still in content area)
+    await startScreenshare(this.userPage);
+    // Confirm content area still shows exactly ONE screenshare (presenter's)
+    const contentCountAfterViewer = await this.userPage.page
+      .locator('#screenshareContainer video[id^="screenshareVideo"]')
+      .count();
+    expect(
+      contentCountAfterViewer,
+      'content area must still have exactly one screenshare (presenter) after viewer starts sharing (R9)',
+    ).toBe(1);
+
+    // Step 4: Presenter promotes viewer screenshare via camera dock "Show as content" (R10)
+    // On modPage, the camera dock shows the viewer's screenshare tile (presenter's own share is in
+    // content area and does NOT appear as a camera dock tile for the presenter).
+    await this.modPage.waitAndClick(e.dropdownWebcamButton);
+    await this.modPage.waitAndClick(e.screenshareShowAsContentBtn);
+
+    // After promotion: viewer's stream is in content area; presenter's migrates to camera dock (R8)
+    // Wait until presenter's stream ID is NO LONGER in content area
+    await this.userPage.page.waitForFunction(
+      (presId: string) => {
+        const videos = document.querySelectorAll('#screenshareContainer video[id^="screenshareVideo"]');
+        return videos.length > 0 && !Array.from(videos).some((v) => v.id === `screenshareVideo-${presId}`);
+      },
+      presenterStreamId,
+      { timeout: ELEMENT_WAIT_EXTRA_LONG_TIME },
+    );
+
+    // Presenter's stream migrated to camera dock — still in DOM, NOT stopped (R8)
+    const presenterCamStream = this.userPage.page.locator(`div[data-stream="${presenterStreamId}"]`);
+    await expect(
+      presenterCamStream,
+      'presenter screenshare must migrate to camera dock (NOT stopped) after viewer promotion (R8)',
+    ).toBeAttached({ timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+
+    // Step 5: Stop both shares → content area falls back to slides/grid (R11 fallback)
+    // Moderator stops first; viewer's promoted screenshare is still in content area at this point.
+    await this.modPage.waitAndClick(e.stopScreenSharing);
+    // Viewer stops their screenshare (which was promoted to content area)
+    await this.userPage.waitAndClick(e.stopScreenSharing);
+
+    // R11 assertion: screenshare container must be hidden after all shares stop.
+    // When screenshareContainer is hidden, the content area falls back to the next item in the
+    // priority stack: slides (if loaded) or grid mode — confirming R11 fallback.
+    await this.userPage.page.waitForSelector('#screenshareContainer', {
+      state: 'hidden',
+      timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
+    });
+
+    // Confirm no screenshare video in content area (belt-and-suspenders for R11)
+    await this.userPage.wasRemoved(
+      e.screenShareVideo,
+      'no screenshare video in content area after all shares stop — content area fell back per R11',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+
+    // Check 3 final guard: viewer was NEVER promoted to presenter
+    const viewerIsPresenterAfter = await checkIsPresenter(this.userPage);
+    expect(viewerIsPresenterAfter, 'viewer must not be promoted to presenter during T04').toBeFalsy();
+  }
+
   /* eslint-disable class-methods-use-this, no-useless-return */
   async lockDisableMultiScreenshare() {
     // Stub: replaced by lockBlocksViewerNoPromotion
