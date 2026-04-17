@@ -317,10 +317,10 @@ Cada requisito só é marcado como `✅ fechado` quando os três checks abaixo p
 - [ ] **Tem teste:** T13.
 - [ ] **Teste demonstra:** T13 roda com flag off e confirma singleton, botão restrito ao presenter e ausência dos novos toggles de lock.
 
-## R22
-- [ ] **Funciona:** Com path SFU, nenhuma mudança funcional é observável mesmo com flag on.
-- [ ] **Tem teste:** T14.
-- [ ] **Teste demonstra:** T14 explicitamente configura `screenShareBridge=kurento` e confirma singleton.
+## R22 ✅
+- [x] **Funciona:** Com path SFU, nenhuma mudança funcional é observável mesmo com flag on.
+- [x] **Tem teste:** T14.
+- [x] **Teste demonstra:** T14 explicitamente configura `screenShareBridge=kurento` e confirma singleton.
 
 ## R23
 - [ ] **Funciona:** Webcams não sofrem alteração funcional.
