@@ -1402,7 +1402,7 @@ The Plugin SDK provides the `useLocaleMessages` hook, described in the [auxiliar
 
 We also strongly encourage developers to include localization in their plugins. This greatly improves adoption and usability within the community.
 
-For a practical example, see how the [pick-random-user plugin](https://github.com/bigbluebutton/plugin-pick-random-user/blob/7259ec7f32ea0e3d851f4b6636a739a82a385896/src/commons/hooks.ts#L17) uses it in the `useGetInternationalization` hook.
+For a practical example, see how the [pick-random-user plugin](https://github.com/bigbluebutton/bbb-plugin-pick-random-user/blob/7259ec7f32ea0e3d851f4b6636a739a82a385896/src/commons/hooks.ts#L17) uses it in the `useGetInternationalization` hook.
 
 ## Frequently Asked Questions (FAQ)
 

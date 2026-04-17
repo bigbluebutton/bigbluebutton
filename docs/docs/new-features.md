@@ -162,19 +162,19 @@ If you have made up your mind and would like to use it for all sessions, add the
 We have made significant changes to the architecture of BigBlueButton and have introduced support for plugins -- optional custom modules included in the client which allow expanding the capabilities of BigBlueButton. A data channel is provided to allow for data exchange between clients. See the [HTML5 Plugin SDK](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk) for examples and more information.
 
 At the moment of writing this documentation, the official list of plugins includes:
-- [Select Random User](https://github.com/bigbluebutton/plugin-pick-random-user)
-- [Share a link](https://github.com/bigbluebutton/plugin-generic-link-share)
-- [H5P plugin for BigBlueButton](https://github.com/bigbluebutton/plugin-h5p)
-- [Session share](https://github.com/bigbluebutton/plugin-session-share)
-- [Decrease the volume of external video when someone speaks](https://github.com/bigbluebutton/plugin-decrease-volume-on-speak)
-- [Typed captions](https://github.com/bigbluebutton/plugin-typed-captions)
-- [Source code highlight](https://github.com/bigbluebutton/plugin-code-highlight)
-- [Tour](https://github.com/bigbluebutton/plugin-tour)
-- [Chat mention](https://github.com/bigbluebutton/plugin-chat-mention)
-- [Media popout](https://github.com/bigbluebutton/plugin-media-popout)
-- [Live transcription](https://github.com/bigbluebutton/plugin-live-transcription)
+- [Select Random User](https://github.com/bigbluebutton/bbb-plugin-pick-random-user)
+- [Share a link](https://github.com/bigbluebutton/bbb-plugin-generic-link-share)
+- [H5P plugin for BigBlueButton](https://github.com/bigbluebutton/bbb-plugin-h5p)
+- [Session share](https://github.com/bigbluebutton/bbb-plugin-session-share)
+- [Decrease the volume of external video when someone speaks](https://github.com/bigbluebutton/bbb-plugin-decrease-volume-on-speak)
+- [Typed captions](https://github.com/bigbluebutton/bbb-plugin-typed-captions)
+- [Source code highlight](https://github.com/bigbluebutton/bbb-plugin-code-highlight)
+- [Tour](https://github.com/bigbluebutton/bbb-plugin-tour)
+- [Chat mention](https://github.com/bigbluebutton/bbb-plugin-chat-mention)
+- [Media popout](https://github.com/bigbluebutton/bbb-plugin-media-popout)
+- [Live transcription](https://github.com/bigbluebutton/bbb-plugin-live-transcription)
 - [Picture in picture](https://github.com/bigbluebutton/bbb-plugin-picture-in-picture)
-- [Pin message](https://github.com/bigbluebutton/plugin-pin-message)
+- [Pin message](https://github.com/bigbluebutton/bbb-plugin-pin-message)
 - [Reaction stack](https://github.com/bigbluebutton/bbb-plugin-reaction-stack)
 
 For the most accurate information check the [plugins repository](https://github.com/bigbluebutton/plugins) where all the plugins are listed.
@@ -362,12 +362,12 @@ We have removed all use of Kurento Media Server. For the live media transmission
 
 #### Select Random User feature removed and is now a plugin
 
-The functionality Select Random User which used to be part of the BigBlueButton core was removed. A plugin with the same functionality was developed and [made public](https://github.com/bigbluebutton/plugin-pick-random-user).
+The functionality Select Random User which used to be part of the BigBlueButton core was removed. A plugin with the same functionality was developed and [made public](https://github.com/bigbluebutton/bbb-plugin-pick-random-user).
 
 #### Typed captions feature removed and is now a plugin
 
 We removed the built-in typed captions support given that we support several options for automatic captions which seem to be much more popular.
-We implemented a plugin for typed captions - [Typed captions plugin](https://github.com/bigbluebutton/plugin-typed-captions) which you could use instead.
+We implemented a plugin for typed captions - [Typed captions plugin](https://github.com/bigbluebutton/bbb-plugin-typed-captions) which you could use instead.
 
 #### Removed userStatus
 
