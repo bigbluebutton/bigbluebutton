@@ -89,7 +89,7 @@ We have added an indicator showing when your private chat recipient has seen the
 
 #### Push to talk was added
 
-You can now use the "M" shortcut while in a conference to control how long your microphone is open. If the option for push to talk is enabled in settings.yml holding "M" will keep your microphone unmuted for as long you hold the key down. Releasing it will mute you again.
+You can now use the "M" shortcut while in a conference to control how long your microphone is open. If the option for push to talk is enabled in settings.yml holding "M" will keep your microphone unmuted for as long as you hold the key down. Releasing it will mute you again.
 To enable see `public.app.defaultSettings.application.pushToTalkEnabled` https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.8/bigbluebutton-html5/private/config/settings.yml#L206
 
 #### Multi-User Whiteboard Improvements
@@ -136,6 +136,17 @@ BigBlueButton 3.0.19 introduced a new layout called "Unified Layout." This layou
 
 Unified Layout behaves similarly to Custom Layout when the presentation is active, and similarly to Grid Layout when it is not. Once the new layout becomes the default, the layout manager will no longer be used. The only way to change the arrangement of the visible area will be via the button that hides or restores the presentation area.
 
+#### BlockNote Shared Notes
+
+BigBlueButton 3.0.25 introduced an alternative service for shared notes - BlockNote. It comes with modern rich text editing capabilities and tighter integration with our technology stack (React, TypeScript, WebSocket).
+
+To enable it, you would first need to install the optional package via
+
+`$ sudo apt-get install bbb-shared-notes-server`
+
+At this point you can use it in a specific session by passing `sharedNotesEditor=blockNote` on the `/create` call.
+If you have made up your mind and would like to use it for all sessions, add the same line (`sharedNotesEditor=blockNote`) to `/etc/bigbluebutton/bbb-web.properties` and restart BigBlueButton via `$ sudo bbb-conf --restart`
+
 
 ### Engagement
 
@@ -148,26 +159,29 @@ Unified Layout behaves similarly to Custom Layout when the presentation is activ
 
 #### Introduction of plugins
 
-We have made significant changes to the architecture of BigBlueButton and have introduced support to plugins -- optional custom modules included in the client which allow expanding the capabilities of BigBlueButton. A data channel is provided to allow for data exchange between clients. See the [HTML5 Plugin SDK](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk) for examples and more information.
+We have made significant changes to the architecture of BigBlueButton and have introduced support for plugins -- optional custom modules included in the client which allow expanding the capabilities of BigBlueButton. A data channel is provided to allow for data exchange between clients. See the [HTML5 Plugin SDK](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk) for examples and more information.
 
 At the moment of writing this documentation, the official list of plugins includes:
-- [Pick Random User](https://github.com/bigbluebutton/plugin-pick-random-user)
-- [Share a link](https://github.com/bigbluebutton/plugin-generic-link-share)
-- [H5P plugin for BigBlueButton](https://github.com/bigbluebutton/plugin-h5p)
-- [Session share](https://github.com/bigbluebutton/plugin-session-share)
-- [Decrease the volume of external video when someone speaks](https://github.com/bigbluebutton/plugin-decrease-volume-on-speak)
+- [Pick Random User](https://github.com/bigbluebutton/bbb-plugin-pick-random-user)
+- [Share a link](https://github.com/bigbluebutton/bbb-plugin-generic-link-share)
+- [H5P plugin for BigBlueButton](https://github.com/bigbluebutton/bbb-plugin-h5p)
+- [Session share](https://github.com/bigbluebutton/bbb-plugin-session-share)
+- [Decrease the volume of external video when someone speaks](https://github.com/bigbluebutton/bbb-plugin-decrease-volume-on-speak)
+- [Typed captions](https://github.com/bigbluebutton/bbb-plugin-typed-captions)
+- [Source code highlight](https://github.com/bigbluebutton/bbb-plugin-code-highlight)
+- [Tour](https://github.com/bigbluebutton/bbb-plugin-tour)
+- [Chat mention](https://github.com/bigbluebutton/bbb-plugin-chat-mention)
+- [Media popout](https://github.com/bigbluebutton/bbb-plugin-media-popout)
 - [Live transcription](https://github.com/bigbluebutton/bbb-plugin-live-transcription)
-- [Typed captions](https://github.com/bigbluebutton/plugin-typed-captions)
-- [Source code highlight](https://github.com/bigbluebutton/plugin-code-highlight)
-- [Tour](https://github.com/bigbluebutton/plugin-tour)
-- [Chat mention](https://github.com/bigbluebutton/plugin-chat-mention)
-- [Media popout](https://github.com/bigbluebutton/plugin-media-popout)
+- [Picture in picture](https://github.com/bigbluebutton/bbb-plugin-picture-in-picture)
+- [Pin message](https://github.com/bigbluebutton/bbb-plugin-pin-message)
+- [Reaction stack](https://github.com/bigbluebutton/bbb-plugin-reaction-stack)
 
-For the most accurate information check the [plugins reporisory](https://github.com/bigbluebutton/plugins) where all the plugins are listed.
+For the most accurate information check the [plugins repository](https://github.com/bigbluebutton/plugins) where all the plugins are listed.
 
 #### Replaced Akka framework with Pekko
 
-Following the license change of Akka back in September 2022 we considered several options and decided to replace our use of Akka with [Apache Pekko](https://github.com/apache/incubator-pekko) More on the transition: https://github.com/bigbluebutton/bigbluebutton/pull/18694
+Following the license change of Akka back in September 2022 we considered several options and decided to replace our use of Akka with [Apache Pekko](https://github.com/apache/incubator-pekko). More on the transition: https://github.com/bigbluebutton/bigbluebutton/pull/18694
 
 #### Override client settings through API /create call
 
@@ -203,10 +217,7 @@ For details check the [server customization](/administration/customize/#configur
 BigBlueButton now supports file scanning (virus detection) for presentation files using ClamAV.
 For details check the [ClamAV section](/administration/customize#support-for-clamav-as-presentation-file-scanner) of the server customization documentation.
 
-
-### Experimental
-
-#### Infinite Whiteboard (experimental)
+#### Infinite Whiteboard
 
 We have added initial support for infinite whiteboard in the live session. Only the presenter can trigger it. It allows for annotations to be created in the margins, or to write content without being limited by space.
 
@@ -217,6 +228,10 @@ Everyone sees the margins and follows the presenter's point of view. If multi-us
 ![with infinite whiteboard enabled annotations can be made on the margins and more](/img/30/30-infinite-wb-in-action.png)
 
 You can enable infinite whiteboard via `public.whiteboard.allowInfiniteWhiteboard` https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.8/bigbluebutton-html5/private/config/settings.yml#L1047
+
+Note, circa BigBlueButton 3.0.19 Infinite Whiteboard recording support was finalized and therefore we drop the "experimental" flag from it.
+
+### Experimental
 
 #### Integration with LiveKit
 
@@ -284,16 +299,18 @@ or the mailing lists.
 ### Upgraded components
 
 Under the hood, BigBlueButton 3.0 installs on Ubuntu 22.04 64-bit, and the following key components have been upgraded
-- Grails 7.0.0
+- Grails 7.0.8
 - Gradle 8.14.3
 - Groovy 4.0.21
 - Spring 6.2.11
-- Spring Boot 3.4.9 
+- Spring Boot 3.5.11
 
 For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 
 Recent releases:
+- [3.0.25](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.25)
+- [3.0.24](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.24)
 - [3.0.23](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.23)
 - [3.0.22](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.22)
 - [3.0.21](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.21)
@@ -345,12 +362,12 @@ We have removed all use of Kurento Media Server. For the live media transmission
 
 #### Select Random User feature removed and is now a plugin
 
-The functionality Select Random User which used to be part of the BigBlueButton core was removed. A plugin with the same functionality was developed and [made public](https://github.com/bigbluebutton/plugin-pick-random-user).
+The functionality Select Random User which used to be part of the BigBlueButton core was removed. A plugin with the same functionality was developed and [made public](https://github.com/bigbluebutton/bbb-plugin-pick-random-user).
 
 #### Typed captions feature removed and is now a plugin
 
 We removed the built-in typed captions support given that we support several options for automatic captions which seem to be much more popular.
-We implemented a plugin for typed captions - [Typed captions plugin](https://github.com/bigbluebutton/plugin-typed-captions) which you could use instead.
+We implemented a plugin for typed captions - [Typed captions plugin](https://github.com/bigbluebutton/bbb-plugin-typed-captions) which you could use instead.
 
 #### Removed userStatus
 
@@ -463,6 +480,8 @@ Modified/added events
 - `defaultDarkLogoURL` added
 - `maxNumPages` added
 - `fetchUrlAllowedLocalHosts` added
+- `clientSettingsOverrideJsonUrlResponseTimeout` added
+- `maxClientSettingsOverrideJsonUrlPayloadSize` added
 
 ### Removed support for POST requests on `join` endpoint and Content-Type headers are now required
 

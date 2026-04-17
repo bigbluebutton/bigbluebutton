@@ -96,6 +96,7 @@ public class ParamsProcessorUtil {
     private boolean disableRecordingDefault;
     private boolean autoStartRecording;
     private boolean allowStartStopRecording;
+    private String defaultSharedNotesEditor;
     private boolean presentationConversionCacheEnabled;
     private boolean recordFullDurationMedia;
     private int learningDashboardCleanupDelayInMinutes;
@@ -660,6 +661,30 @@ public class ParamsProcessorUtil {
             }
         }
 
+        String sharedNotesInitialContentJsonUrl = "";
+        if (!StringUtils.isEmpty(params.get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_JSON_URL))) {
+            try {
+                sharedNotesInitialContentJsonUrl = params
+                        .get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_JSON_URL);
+            } catch (Exception ex) {
+                log.warn(
+                        "Invalid param [sharedNotesInitialContentJsonUrl] for meeting=[{}]",
+                        internalMeetingId);
+            }
+        }
+
+        String sharedNotesEditor = defaultSharedNotesEditor;
+        if (!StringUtils.isEmpty(params.get(ApiParams.SHARED_NOTES_EDITOR))) {
+            try {
+                sharedNotesEditor = params
+                        .get(ApiParams.SHARED_NOTES_EDITOR);
+            } catch (Exception ex) {
+                log.warn(
+                        "Invalid param [sharedNotesEditor] for meeting=[{}]",
+                        internalMeetingId);
+            }
+        }
+
         boolean allowStartStoptRec = allowStartStopRecording;
         if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_START_STOP_RECORDING))) {
             try {
@@ -718,7 +743,7 @@ public class ParamsProcessorUtil {
 
         // Parse Plugins Manifests from config and param
         ArrayList<PluginManifest> listOfPluginManifests = new ArrayList<PluginManifest>();
-        if (!isBreakout){
+        if (!isBreakout && !listOfDisabledFeatures.contains("plugins")){
             //Process plugins from config
             if (defaultPluginManifests != null && !defaultPluginManifests.isEmpty()) {
                 try {
@@ -979,6 +1004,8 @@ public class ParamsProcessorUtil {
                 .withDefaultWebcamBackgroundURL(webcamBackgroundURL)
                 .withAutoStartRecording(autoStartRec)
                 .withAllowStartStopRecording(allowStartStoptRec)
+                .withSharedNotesEditor(sharedNotesEditor)
+                .withSharedNotesInitialContentJsonUrl(sharedNotesInitialContentJsonUrl)
                 .withPresentationConversionCacheEnabled(presentationCacheEnabled)
                 .withRecordFullDurationMedia(_recordFullDurationMedia)
                 .withWebcamsOnlyForModerator(webcamsOnlyForMod)
@@ -1923,6 +1950,10 @@ public class ParamsProcessorUtil {
 
     public void setPluginUtils(PluginUtils pluginUtils) {
         this.pluginUtils = pluginUtils;
+    }
+
+    public void setSharedNotesEditor(String sharedNotesEditor) {
+        this.defaultSharedNotesEditor = sharedNotesEditor;
     }
 
     /**

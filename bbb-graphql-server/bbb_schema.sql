@@ -1564,10 +1564,10 @@ SELECT pres_presentation."meetingId",
     pres_page."height",
     pres_page."viewBoxWidth",
     pres_page."viewBoxHeight",
-    (pres_page."width" * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledWidth",
-    (pres_page."height" * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledHeight",
-    (pres_page."width" * pres_page."widthRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxWidth",
-    (pres_page."height" * pres_page."heightRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxHeight",
+    (pres_page."width" * LEAST(pres_page."maxImageWidth" / NULLIF(pres_page."width", 0), pres_page."maxImageHeight" / NULLIF(pres_page."height", 0))) AS "scaledWidth",
+    (pres_page."height" * LEAST(pres_page."maxImageWidth" / NULLIF(pres_page."width", 0), pres_page."maxImageHeight" / NULLIF(pres_page."height", 0))) AS "scaledHeight",
+    (pres_page."width" * pres_page."widthRatio" / 100 * LEAST(pres_page."maxImageWidth" / NULLIF(pres_page."width", 0), pres_page."maxImageHeight" / NULLIF(pres_page."height", 0))) AS "scaledViewBoxWidth",
+    (pres_page."height" * pres_page."heightRatio" / 100 * LEAST(pres_page."maxImageWidth" / NULLIF(pres_page."width", 0), pres_page."maxImageHeight" / NULLIF(pres_page."height", 0))) AS "scaledViewBoxHeight",
     pres_page."uploadCompleted",
     pres_page."infiniteWhiteboard",
     pres_page."fitToWidth"
@@ -1599,10 +1599,10 @@ SELECT pres_presentation."meetingId",
     pres_page."height",
     pres_page."viewBoxWidth",
     pres_page."viewBoxHeight",
-    (pres_page."width" * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledWidth",
-    (pres_page."height" * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledHeight",
-    (pres_page."width" * pres_page."widthRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxWidth",
-    (pres_page."height" * pres_page."heightRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxHeight",
+    (pres_page."width" * LEAST(pres_page."maxImageWidth" / NULLIF(pres_page."width", 0), pres_page."maxImageHeight" / NULLIF(pres_page."height", 0))) AS "scaledWidth",
+    (pres_page."height" * LEAST(pres_page."maxImageWidth" / NULLIF(pres_page."width", 0), pres_page."maxImageHeight" / NULLIF(pres_page."height", 0))) AS "scaledHeight",
+    (pres_page."width" * pres_page."widthRatio" / 100 * LEAST(pres_page."maxImageWidth" / NULLIF(pres_page."width", 0), pres_page."maxImageHeight" / NULLIF(pres_page."height", 0))) AS "scaledViewBoxWidth",
+    (pres_page."height" * pres_page."heightRatio" / 100 * LEAST(pres_page."maxImageWidth" / NULLIF(pres_page."width", 0), pres_page."maxImageHeight" / NULLIF(pres_page."height", 0))) AS "scaledViewBoxHeight",
     pres_page."infiniteWhiteboard",
     pres_page."fitToWidth",
     (
@@ -2157,7 +2157,8 @@ group by u."meetingId", u."userId";
 create unlogged table "sharedNotes" (
     "meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
     "sharedNotesExtId" varchar(25),
-    "padId" varchar(25),
+    "padId" varchar(100),
+    "sharedNotesEditor" varchar(25),
     "model" varchar(25),
     "name" varchar(25),
     "pinned" boolean,
@@ -2480,6 +2481,12 @@ select "meeting"."meetingId",
             where "sharedNotes"."meetingId" = "meeting"."meetingId"
             and "sharedNotes"."pinned" is true
         ) as "isSharedNotesPinned",
+        exists (
+            select 1
+            from "sharedNotes"
+            where "sharedNotes"."meetingId" = "meeting"."meetingId"
+            and "sharedNotes"."sharedNotesEditor" = 'etherpad'
+        ) as "isEtherpadSharedNotes",
         exists (
             select 1
             from "v_pres_page_curr"

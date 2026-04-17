@@ -356,6 +356,19 @@ const createEndpointTableData = [
     "description": (<>Pass a URL to an image which will then be visible in the area above the participants list if <code>displayBrandingArea</code> is set to <code>true</code> in bbb-html5's configuration</>)
   },
   {
+    "name": "sharedNotesEditor",
+    "required": false,
+    "type": "String",
+    "default": "etherpad",
+    "description": (<>Editor to be rendered in the shared-notes area: `blockNote` or `etherpad`</>)
+  },
+  {
+    "name": "sharedNotesInitialContentJsonUrl",
+    "required": false,
+    "type": "String",
+    "description": (<>Url from which the shared-notes will fetch the initial content (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise)</>)
+  },
+  {
     "name": "disabledFeatures",
     "required": false,
     "type": "String",
@@ -602,6 +615,7 @@ const createEndpointTableData = [
     "description": (
       <>
         <p>A URL pointing to a JSON file whose content overrides values from the HTML5 client's <code>settings.yml</code> file. The JSON structure is identical to <a href='#clientsettingsoverride'>clientSettingsOverride</a> but is provided as a direct JSON file (no XML wrapper). This parameter takes precedence over <code>clientSettingsOverride</code> when both are present. Unlike <code>clientSettingsOverride</code>, it does not require <code>allowOverrideClientSettingsOnCreateCall</code> to be enabled.</p>
+        <p><i>Added:</i> 3.0.25</p>
       </>
     )
   },

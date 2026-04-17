@@ -158,15 +158,6 @@ const UserActions: React.FC<UserActionProps> = (props) => {
 
     const menuItems = [];
 
-    const toggleDisableCam = () => {
-      if (!isCameraDisabled) {
-        Session.setItem('disabledCams', [...disabledCams, cameraId]);
-        notify(intl.formatMessage(intlMessages.disableWarning), 'info', 'warning');
-      } else {
-        Session.setItem('disabledCams', disabledCams.filter((cId: string) => cId !== cameraId));
-      }
-    };
-
     if (isVideoSqueezed) {
       menuItems.push({
         key: `${cameraId}-name`,
@@ -176,6 +167,15 @@ const UserActions: React.FC<UserActionProps> = (props) => {
         disabled: true,
       });
     }
+
+    const toggleDisableCam = () => {
+      if (!isCameraDisabled) {
+        Session.setItem('disabledCams', [...disabledCams, cameraId]);
+        notify(intl.formatMessage(intlMessages.disableWarning), 'info', 'warning');
+      } else {
+        Session.setItem('disabledCams', disabledCams.filter((cId: string) => cId !== cameraId));
+      }
+    };
 
     if (userId === Auth.userID && isStream && !isSelfViewDisabled) {
       menuItems.push({
@@ -287,30 +287,6 @@ const UserActions: React.FC<UserActionProps> = (props) => {
     return menuItems;
   };
 
-  const renderSqueezedButton = () => (
-    <Styled.MenuWrapperSqueezed>
-      <BBBMenu
-        trigger={(
-          <Styled.OptionsButton
-            label={intl.formatMessage(intlMessages.squeezedLabel)}
-            aria-label={`${name} ${intl.formatMessage(intlMessages.squeezedLabel)}`}
-            data-test="webcamOptionsMenuSqueezed"
-            icon="device_list_selector"
-            ghost
-            color="primary"
-            hideLabel
-            size="sm"
-            onClick={() => null}
-          />
-        )}
-        actions={getAvailableActions()}
-        opts={{
-          container: isFullscreenContext ? videoContainer?.current : document.body,
-        }}
-      />
-    </Styled.MenuWrapperSqueezed>
-  );
-
   const renderDefaultButton = () => (
     <Styled.MenuWrapper>
       {enableVideoMenu && getAvailableActions().length >= 1
@@ -348,6 +324,30 @@ const UserActions: React.FC<UserActionProps> = (props) => {
           </Styled.Dropdown>
         )}
     </Styled.MenuWrapper>
+  );
+
+  const renderSqueezedButton = () => (
+    <Styled.MenuWrapperSqueezed>
+      <BBBMenu
+        trigger={(
+          <Styled.OptionsButton
+            label={intl.formatMessage(intlMessages.squeezedLabel)}
+            aria-label={`${name} ${intl.formatMessage(intlMessages.squeezedLabel)}`}
+            data-test="webcamOptionsMenuSqueezed"
+            icon="device_list_selector"
+            ghost
+            color="primary"
+            hideLabel
+            size="sm"
+            onClick={() => null}
+          />
+        )}
+        actions={getAvailableActions()}
+        opts={{
+          container: isFullscreenContext ? videoContainer?.current : document.body,
+        }}
+      />
+    </Styled.MenuWrapperSqueezed>
   );
 
   return (

@@ -807,6 +807,12 @@ public:
     enableDeprecatedLayoutSelection: true
   pads:
     url: ETHERPAD_HOST
+  sharedNotes:
+    # Hocuspocus server url for BlockNote (it will use the client's domain when empty)
+    # e.g: `wss://bbb-host/hocuspocus/collaboration`
+    serverUrl:
+    maxDocumentChars: 99999
+    maxLengthForContentUpdate: 1500
   media:
     audio:
       # defaultFullAudioBridge: bridge to be used by full audio mechanism.
@@ -935,10 +941,17 @@ public:
     livekit:
       # livekit.url is the URL of the LiveKit server. Default value is 'wss://{window.location.hostname}/livekit'
       #url: wss://LIVEKIT_HOST/livekit
-      # livekit.selectiveSubscription: whether to use selective subscription all
-      # applicable track sources. Default value is false. This overrides autoSubscribe
-      # when set to true and in effect (conditional to client behavior).
-      selectiveSubscription: true
+      # livekit.selectiveSubscription: whether to use selective subscription for all
+      # applicable track sources. This overrides autoSubscribe.
+      selectiveSubscription:
+        enabled: true
+        # audioSubscriptionPoolSize: maximum number of simultaneously subscribed
+        # audio tracks. 0 means unlimited. Exemptions that may exceed the pool:
+        # screen audio, unmuted users.
+        audioSubscriptionPoolSize: 0
+        # muteDebounceMs: debounce time in milliseconds for mute state
+        # transitions that would trigger unsubscribe operations.
+        muteDebounceMs: 2500
       logLevel: 3
       # reconnectOnFatalFailures: whether to trigger LK room reconnections when
       # fatal errors occur (e.g.: unrecoverable publish timeouts). Default is false.
@@ -951,6 +964,9 @@ public:
       audio:
         # unpublishOnMute: whether to unpublish audio tracks when muted. Default is true.
         unpublishOnMute: true
+        # useLiveKitAudioState: whether to use LiveKit's client-side audio state
+        # instead of BBB's audio state. Default is false.
+        useLiveKitAudioState: false
         # publishOptions: see https://docs.livekit.io/client-sdk-js/interfaces/TrackPublishOptions.html
         publishOptions:
           audioPreset:
@@ -1070,7 +1086,7 @@ public:
       sharingWebcam: true
   whiteboard:
     annotationsQueueProcessInterval: 60
-    cursorInterval: 150
+    cursorInterval: 100
     allowInfiniteWhiteboard: false
     allowInfiniteWhiteboardInBreakouts: false
     pointerDiameter: 5

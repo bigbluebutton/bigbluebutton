@@ -1,6 +1,6 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { UserCameraHelperButton } from 'bigbluebutton-html-plugin-sdk';
+import { UserCameraHelperButton, PluginIconType } from 'bigbluebutton-html-plugin-sdk';
 import Styled from './styles';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 
@@ -20,7 +20,7 @@ interface PluginMenuActionsProps {
 interface ActionItem {
   key: string;
   label: string;
-  icon: string;
+  icon: PluginIconType;
   description: string;
   disabled: boolean;
   dataTest?: string;

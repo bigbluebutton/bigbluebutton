@@ -5,6 +5,9 @@ import {
   screenShareEndAlert,
   setOutputDeviceId,
 } from '/imports/ui/components/screenshare/service';
+import {
+  setLiveKitScreenshareHasAudio,
+} from '/imports/ui/components/screenshare/livekit-screenshare-state';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import {
   AudioPresets,
@@ -23,7 +26,6 @@ import {
 } from 'livekit-client';
 import {
   liveKitRoom,
-  getLKStats,
 } from '/imports/ui/services/livekit';
 import { LiveKitPresetConfig } from 'imports/ui/Types/meetingClientSettings';
 import {
@@ -237,6 +239,7 @@ export default class LiveKitScreenshareBridge {
   clearPublications(): void {
     this.screenPublications.clear();
     this.audioPublications.clear();
+    setLiveKitScreenshareHasAudio(false);
   }
 
   private setPublication(
@@ -247,6 +250,8 @@ export default class LiveKitScreenshareBridge {
 
     if (publications) {
       publications.set(publication.trackSid, publication);
+
+      if (source === Track.Source.ScreenShareAudio) setLiveKitScreenshareHasAudio(true);
 
       if (publication.trackSid === this.streamId && this.role === RECV_ROLE) {
         this.subscribe(publication as RemoteTrackPublication);
@@ -261,7 +266,12 @@ export default class LiveKitScreenshareBridge {
     const audioPublication = this.audioPublications.get(trackSid);
 
     if (screenPublication) this.screenPublications.delete(trackSid);
-    if (audioPublication) this.audioPublications.delete(trackSid);
+
+    if (audioPublication) {
+      this.audioPublications.delete(trackSid);
+
+      if (this.audioPublications.size === 0) setLiveKitScreenshareHasAudio(false);
+    }
   }
 
   private setSubscription(
@@ -512,14 +522,14 @@ export default class LiveKitScreenshareBridge {
   private unsubscribe(mainPublication: RemoteTrackPublication): void {
     if (this.role === RECV_ROLE) {
       // @ts-ignore
-      const withSelectiveSubscription = window.meetingClientSettings.public.media?.livekit?.selectiveSubscription
-        || false;
+      const withSelectiveSub = window.meetingClientSettings?.public?.media?.livekit?.selectiveSubscription?.enabled
+        ?? true;
       const { track } = mainPublication;
       const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG) as HTMLMediaElement;
 
       if (track) track.detach(mediaElement);
 
-      if (withSelectiveSubscription) {
+      if (withSelectiveSub) {
         const audioPublications = Array.from(this.audioPublications.values()) as RemoteTrackPublication[];
 
         if (audioPublications.length > 0) {
@@ -547,11 +557,6 @@ export default class LiveKitScreenshareBridge {
   // eslint-disable-next-line class-methods-use-this
   getPeerConnection() {
     return null;
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  async getStats(): Promise<Map<string, unknown>> {
-    return getLKStats();
   }
 
   setVolume(volume: number): number {
@@ -806,5 +811,6 @@ export default class LiveKitScreenshareBridge {
     }
 
     this.outputDeviceId = undefined;
+    setLiveKitScreenshareHasAudio(false);
   }
 }
