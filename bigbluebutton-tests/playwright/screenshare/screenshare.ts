@@ -106,7 +106,7 @@ export class ScreenShare extends MultiUsers {
     await expectDecodedFrames(this.modPage.page, 'video[id^="screenshareVideo"]');
   }
 
-  // R3: disableMultiScreenshare=true hides the button from locked viewers
+  // R3: disableMultiScreenshare=true hides the button from locked viewers (API-param path)
   async viewerScreenshareLockedByApiParam() {
     // With lockSettingsDisableMultiScreenshare=true and lockOnJoin=true,
     // the viewer is locked and disableMultiScreenshare is active.
@@ -115,6 +115,57 @@ export class ScreenShare extends MultiUsers {
       e.startScreenSharing,
       'viewer start screenshare button should be hidden when disableMultiScreenshare is active',
     );
+  }
+
+  // R3 / T03 UI-toggle path: moderator activates disableMultiScreenshare via lock-viewers panel,
+  // viewer's share button disappears, moderator deactivates lock, viewer can share successfully
+  async viewerScreenshareLockedByUiToggle() {
+    const { screensharingEnabled } = this.modPage.settings || {};
+    if (!screensharingEnabled) {
+      await this.userPage.wasRemoved(e.startScreenSharing, 'screenshare feature disabled');
+      return;
+    }
+
+    // viewer_target: start button must be visible when lock is inactive (default)
+    await this.userPage.hasElement(
+      e.startScreenSharing,
+      'viewer start screenshare button should be visible when lock is inactive',
+    );
+
+    // moderator_controller: activate disableMultiScreenshare via lock-viewers UI.
+    // lockScreenshare is checked=true when disableMultiScreenshare=false (allow).
+    // Clicking it unchecks it, meaning disableMultiScreenshare=true (block viewers).
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.participantPermissionsTab);
+    await this.modPage.waitAndClick(e.lockScreenshare);
+    await this.modPage.waitAndClick(e.applyLockSettings);
+
+    // dwell so the recording captures the locked state in the moderator's panel view
+    await dwellOnBehavior(this.modPage.page, 'disableMultiScreenshare lock active via UI toggle', 4000);
+
+    // viewer_target: start button must be removed from the DOM when lock is active
+    await this.userPage.wasRemoved(
+      e.startScreenSharing,
+      'viewer start screenshare button must be hidden when disableMultiScreenshare is active via UI',
+    );
+
+    // moderator_controller: deactivate the lock (re-check = disableMultiScreenshare=false, allow viewers)
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.participantPermissionsTab);
+    await this.modPage.waitAndClick(e.lockScreenshare);
+    await this.modPage.waitAndClick(e.applyLockSettings);
+
+    // dwell so the recording captures the unlocked state
+    await dwellOnBehavior(this.modPage.page, 'disableMultiScreenshare lock deactivated - viewer share allowed', 4000);
+
+    // viewer_target: can now start screenshare (lock is off)
+    await startScreenshare(this.userPage);
+
+    // dwell on the active share so the recording confirms the allowed path
+    await dwellOnBehavior(this.modPage.page, 'viewer share active after lock deactivation', 4000);
+
+    // moderator_controller: must observe decoded frames from the viewer's stream
+    await expectDecodedFrames(this.modPage.page, 'video[id^="screenshareVideo"]');
   }
 
   // R14: Lock viewers UI shows the two new screenshare toggles
@@ -177,6 +228,34 @@ export class ScreenShare extends MultiUsers {
     await this.modPage.hasElement(
       e.stopScreenSharing,
       'broadcaster_moderator screenshare must continue after lock is applied to viewers',
+    );
+  }
+
+  // R14 / T14 regression: existing lock settings must still apply their effects after multi-screenshare changes.
+  // Actors: moderator_controller (modPage), viewer_target (userPage)
+  async lockViewersRegressionEffects() {
+    // --- disableCam: viewer's join-video button must be disabled when lockShareWebcam is active ---
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.participantPermissionsTab);
+    await this.modPage.waitAndClick(e.lockShareWebcam);
+    await this.modPage.waitAndClick(e.applyLockSettings);
+
+    await dwellOnBehavior(this.modPage.page, 'lockShareWebcam active - viewer joinVideo disabled', 4000);
+    await this.userPage.hasElementDisabled(
+      e.joinVideo,
+      'join video button should be disabled when lockShareWebcam is active',
+    );
+
+    // --- lockPublicChat: viewer's public chat input must be disabled when lockPublicChat is active ---
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.participantPermissionsTab);
+    await this.modPage.waitAndClick(e.lockPublicChat);
+    await this.modPage.waitAndClick(e.applyLockSettings);
+
+    await dwellOnBehavior(this.modPage.page, 'lockPublicChat active - viewer chatBox disabled', 4000);
+    await this.userPage.hasElementDisabled(
+      e.chatBox,
+      'public chat input should be disabled when lockPublicChat is active',
     );
   }
 }

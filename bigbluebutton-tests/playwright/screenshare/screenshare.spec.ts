@@ -70,6 +70,21 @@ test.describe.parallel('Screenshare', { tag: '@ci' }, () => {
     await screenshare.viewerShareAllowedWithLockInactive();
   });
 
+  // R3 / T03 UI-toggle: moderator enables disableMultiScreenshare via lock-viewers panel,
+  // viewer's button disappears, moderator deactivates lock, viewer can share successfully
+  test('[R3][T03-ui] viewer screenshare blocked when disableMultiScreenshare activated via UI toggle', async ({
+    browser,
+    context,
+    browserName,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not supported in Firefox without desktop');
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(page, { testInfo });
+    await screenshare.initUserPage(context, { testInfo });
+    await screenshare.viewerScreenshareLockedByUiToggle();
+  });
+
   // R4: Enabling disableMultiScreenshare via lock-viewers UI forcibly stops active viewer shares
   // Actors: broadcaster_moderator (modPage), broadcaster_viewer (userPage),
   //         moderator_controller (modPage2)
@@ -85,5 +100,18 @@ test.describe.parallel('Screenshare', { tag: '@ci' }, () => {
     await screenshare.initUserPage(context, { testInfo });
     await screenshare.initModPage2(context, { testInfo });
     await screenshare.enableDisableMultiScreenshareStopsViewerShare();
+  });
+
+  // R14 / T14 regression: existing lock settings disableCam and lockPublicChat still apply their
+  // effects after multi-screenshare changes
+  test('[R14][Regression] existing lock settings disableCam and lockPublicChat still apply', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(page, { testInfo });
+    await screenshare.initUserPage(context, { testInfo });
+    await screenshare.lockViewersRegressionEffects();
   });
 });
