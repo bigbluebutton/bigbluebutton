@@ -64,7 +64,7 @@
     "app.chat.header.tooltipReact": "Αντίδραση στο μήνυμα",
     "app.chat.content.pollVote": "ψήφος",
     "app.chat.content.pollVotes": "ψήφοι",
-    "app.chat.pollResult.copy": "Copy results",
+    "app.chat.pollResult.copy": "Αντιγραφή αποτελεσμάτων",
     "app.chat.pollResult.copySuccess": "Copied!",
     "app.chat.pollResult.download": "Download as PNG",
     "app.chat.plugin.metadataInformation": "{userName} - {pluginName}",
