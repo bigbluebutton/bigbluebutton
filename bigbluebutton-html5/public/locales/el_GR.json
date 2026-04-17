@@ -739,7 +739,7 @@
     "app.settings.transcriptionTab.minUtteranceLength": "Ελάχιστο μήκος εκφωνήσεων (δευτερόλεπτα)",
     "app.settings.shortcutsTab.label": "Συντομεύσεις πληκτρολογίου",
     "app.settings.save-notification.label": "Οι ρυθμίσεις έχουν αποθηκευτεί",
-    "app.settings.unsavedChanges.title": "Oops!",
+    "app.settings.unsavedChanges.title": "Ωπ!",
     "app.settings.unsavedChanges.message": "Έχετε μη αποθηκευμένες αλλαγές.",
     "app.settings.unsavedChanges.ignoreMessage": "Αν αγνοήσετε τις αλλαγές δε θα εφαρμοστούν.",
     "app.settings.unsavedChanges.ignoreButtonLabel": "Αγνόηση αλλαγών",
