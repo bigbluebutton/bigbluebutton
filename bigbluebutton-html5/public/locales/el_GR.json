@@ -1047,7 +1047,7 @@
     "app.error.userLoggedOut": "Ο χρήστης έχει άκυρο αναγνωριστικό συνεδρίας λόγω αποσύνδεσης",
     "app.error.ejectedUser": "Ο χρήστης έχει άκυρο αναγνωριστικό συνεδρίας λόγω εξόδου",
     "app.error.joinedAnotherWindow": "Αυτή η συνεδρία φαίνεται πως είναι ανοιχτή σε άλλο παράθυρο του φυλλομετρητή.",
-    "app.error.userBanned": "You have been removed for the remaining duration of this session.",
+    "app.error.userBanned": "Έχετε αφαιρεθεί για τον υπόλοιπο χρόνο της συνεδρίας.",
     "app.error.leaveLabel": "Συνδεθείτε ξανά",
     "app.error.fallback.presentation.title": "Παρουσιάστηκε σφάλμα",
     "app.error.fallback.presentation.description": "Καταγράφτηκε. Παρακαλούμε δοκιμάστε να ανανεώσετε τη σελίδα.",
