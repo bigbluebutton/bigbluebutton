@@ -7,7 +7,7 @@ export async function openPoll(testPage: Page) {
   const { pollEnabled } = testPage.settings || {};
   test.skip(!pollEnabled, 'Polling is disabled');
 
-  await testPage.waitAndClick(e.pollSidebarButton)
+  await testPage.waitAndClick(e.pollSidebarButton);
 }
 
 export function timeInSeconds(timeTextContent: string) {

@@ -19,8 +19,14 @@ export class Chat extends MultiUsers {
 
   async sendPrivateMessage() {
     await this.modPage.hasElement(e.chatBox, 'should display the chat box element when chat is open');
-    await this.modPage.wasRemoved(e.publicChatButton, 'should not display the public chat button when there is no private messages');
-    await this.modPage.wasRemoved(e.privateChatButton, 'should not display the private chat button when there is no private messages');
+    await this.modPage.wasRemoved(
+      e.publicChatButton,
+      'should not display the public chat button when there is no private messages',
+    );
+    await this.modPage.wasRemoved(
+      e.privateChatButton,
+      'should not display the private chat button when there is no private messages',
+    );
     await openPrivateChat(this.modPage);
     await this.modPage.hasElement(
       e.hidePrivateChat,
@@ -32,7 +38,10 @@ export class Chat extends MultiUsers {
     await this.modPage.fill(e.chatBox, e.message1);
     await this.modPage.waitAndClick(e.sendButton);
     await this.userPage.waitAndClick(e.privateChatButton);
-    await this.userPage.hasElement(e.privateChatItem, 'should display the private chat item when user receives a private message');
+    await this.userPage.hasElement(
+      e.privateChatItem,
+      'should display the private chat item when user receives a private message',
+    );
     await this.userPage.waitAndClick(e.privateChatItem);
     await this.userPage.hasElement(
       e.hidePrivateChat,
@@ -262,7 +271,10 @@ export class Chat extends MultiUsers {
     await this.modPage.hasElement(e.sendButton, 'should display the send button element');
     await this.modPage.waitAndClick(e.hidePublicChat);
     await this.modPage.wasRemoved(e.chatTitle, 'should not display the chat title element after hiding the messages');
-    await this.modPage.wasRemoved(e.chatOptions, 'should not display the chat options element after hiding the messages');
+    await this.modPage.wasRemoved(
+      e.chatOptions,
+      'should not display the chat options element after hiding the messages',
+    );
     await this.modPage.wasRemoved(e.chatBox, 'should not display the chat box element after hiding the messages');
     await this.modPage.wasRemoved(e.sendButton, 'should not display the send button element after hiding the messages');
   }
@@ -498,7 +510,10 @@ export class Chat extends MultiUsers {
       return;
     }
     await this.userPage.waitAndClick(e.privateChatButton);
-    await this.userPage.hasElement(e.privateChatItem, 'should display the private chat item when the user receives a private message');
+    await this.userPage.hasElement(
+      e.privateChatItem,
+      'should display the private chat item when the user receives a private message',
+    );
     await this.userPage.waitAndClick(e.privateChatItem);
     // check sent messages
     await checkLastMessageSent(this.modPage, e.convertedEmojiMessage);

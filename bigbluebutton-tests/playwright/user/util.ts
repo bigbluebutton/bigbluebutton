@@ -5,7 +5,10 @@ import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 
 export async function openLockViewers(testPage: Page) {
-  const isLockViewersButtonVisible = await testPage.page.locator(e.lockViewersButton).isVisible({ timeout: ELEMENT_WAIT_TIME }).catch(() => false);
+  const isLockViewersButtonVisible = await testPage.page
+    .locator(e.lockViewersButton)
+    .isVisible({ timeout: ELEMENT_WAIT_TIME })
+    .catch(() => false);
   if (!isLockViewersButtonVisible) {
     await testPage.waitAndClick(e.usersListSidebarButton);
   }

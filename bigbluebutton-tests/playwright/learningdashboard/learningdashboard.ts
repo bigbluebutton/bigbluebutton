@@ -46,7 +46,7 @@ export class LearningDashboard extends MultiUsers {
     await this.modPage.hasText(e.recordingIndicator, '00:00', 'should start recording at the initial time');
 
     const timeLocator = this.dashboardPage.page.locator(e.userOnlineTime);
-    const timeContent = await (timeLocator).textContent();
+    const timeContent = await timeLocator.textContent();
     if (!timeContent) throw new Error('Time content is null');
     const time = timeInSeconds(timeContent);
     await this.dashboardPage.page.waitForTimeout(1000);

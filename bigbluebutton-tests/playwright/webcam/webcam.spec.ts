@@ -1,7 +1,7 @@
+import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { MultiUsers } from '../user/multiusers';
 import { Webcam } from './webcam';
-import { linkIssue } from '../core/helpers';
 
 test.describe.parallel('Webcam', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#joining-webcam-automated
