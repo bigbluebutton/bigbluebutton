@@ -9,8 +9,8 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
     </properties>
 
     <build>
@@ -54,9 +54,9 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <compilerSource>17</compilerSource>
-                    <compilerCompliance>17</compilerCompliance>
-                    <compilerTargetPlatform>17</compilerTargetPlatform>
+                    <compilerSource>21</compilerSource>
+                    <compilerCompliance>21</compilerCompliance>
+                    <compilerTargetPlatform>21</compilerTargetPlatform>
                     <lineEnding>LF</lineEnding>
                     <encoding>UTF-8</encoding>
                 </configuration>
