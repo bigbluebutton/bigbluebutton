@@ -74,7 +74,9 @@ case class LockSettingsProps(
     lockOnJoinConfigurable:  Boolean,
     hideViewersCursor:       Boolean,
     hideViewersAnnotation:   Boolean,
-    presenterPolicy:         String
+    presenterPolicy:         String,
+    disableMultiScreenshare: Boolean = false,
+    hideViewersScreenshare:  Boolean = false
 )
 
 case class SystemProps(
