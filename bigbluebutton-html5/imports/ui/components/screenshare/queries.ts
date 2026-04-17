@@ -11,6 +11,8 @@ export interface ScreenshareResponse {
   vidHeight: number;
   vidWidth: number;
   voiceConf: string;
+  userId: string;
+  showAsContent: boolean;
 }
 
 export const SCREENSHARE_SUBSCRIPTION = gql`
@@ -26,6 +28,8 @@ export const SCREENSHARE_SUBSCRIPTION = gql`
       vidHeight
       vidWidth
       voiceConf
+      userId
+      showAsContent
     }
   }
 `;
