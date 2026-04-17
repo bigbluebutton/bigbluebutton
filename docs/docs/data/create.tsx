@@ -265,6 +265,13 @@ const createEndpointTableData = [
     "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will prevent viewers to see other viewers cursor when multi-user whiteboard is on. (added 2.5)</>)
   },
   {
+    "name": "lockSettingsHideViewersAnnotation",
+    "required": false,
+    "type": "Boolean",
+    "default": "false",
+    "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will prevent viewers from seeing other viewers' annotations when multi-user whiteboard is on. (added 2.7)</>)
+  },
+  {
     "name": "guestPolicy",
     "required": false,
     "type": "Enum",
