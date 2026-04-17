@@ -20,6 +20,8 @@ select_permissions:
         - vidHeight
         - vidWidth
         - voiceConf
+        - userId
+        - showAsContent
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
