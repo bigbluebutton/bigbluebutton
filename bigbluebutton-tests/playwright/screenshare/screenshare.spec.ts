@@ -56,6 +56,20 @@ test.describe.parallel('Screenshare', { tag: '@ci' }, () => {
     await screenshare.lockViewersUiHasScreenshareToggles();
   });
 
+  // R3 inverse / T15: with lock inactive a viewer share stays allowed and reaches a moderator observer
+  test('[R3][Inverse] viewer share stays allowed when lock inactive, observed by moderator', async ({
+    browser,
+    context,
+    browserName,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not supported in Firefox without desktop');
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(page, { testInfo });
+    await screenshare.initUserPage(context, { testInfo });
+    await screenshare.viewerShareAllowedWithLockInactive();
+  });
+
   // R4: Enabling disableMultiScreenshare via lock-viewers UI forcibly stops active viewer shares
   // Actors: broadcaster_moderator (modPage), broadcaster_viewer (userPage),
   //         moderator_controller (modPage2)

@@ -2,7 +2,7 @@ import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { MultiUsers } from '../user/multiusers';
 import { openLockViewers } from '../user/util';
-import { dwellOnBehavior, expectDecodedFrames, startScreenshare } from './util';
+import { dwellOnBehavior, expectDecodedFrames, expectVisiblyRendered, startScreenshare } from './util';
 
 export class ScreenShare extends MultiUsers {
   async startSharing() {
@@ -71,17 +71,39 @@ export class ScreenShare extends MultiUsers {
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard after stopping screenshare');
   }
 
-  // R1: Viewer sees the start screenshare button and can share
+  // R1 / T01: viewer (broadcaster_viewer) starts screenshare; moderator (observer_moderator) observes decoded frames
   async viewerCanStartScreenshare() {
     const { screensharingEnabled } = this.modPage.settings || {};
     if (!screensharingEnabled) {
       await this.userPage.wasRemoved(e.startScreenSharing, 'screenshare feature disabled');
       return;
     }
-    // The viewer should see the start button (multi-screenshare feature)
+    // broadcaster_viewer starts screenshare
     await this.userPage.hasElement(e.startScreenSharing, 'viewer should see the start screenshare button');
     await startScreenshare(this.userPage);
-    await this.userPage.hasElement(e.stopScreenSharing, 'viewer should see the stop screenshare button after starting');
+    // stop button must be visibly rendered on the viewer's own page
+    await expectVisiblyRendered(this.userPage.page, e.stopScreenSharing);
+    // hold live state long enough for the recording to capture the active share
+    await dwellOnBehavior(this.modPage.page, 'viewer screenshare visible for moderator', 4000);
+    // observer_moderator must see the viewer stream decoding from their perspective
+    await expectDecodedFrames(this.modPage.page, 'video[id^="screenshareVideo"]');
+  }
+
+  // R3 inverse / T15: with disableMultiScreenshare inactive a viewer share stays allowed
+  // and reaches the moderator observer
+  async viewerShareAllowedWithLockInactive() {
+    const { screensharingEnabled } = this.modPage.settings || {};
+    if (!screensharingEnabled) {
+      await this.userPage.wasRemoved(e.startScreenSharing, 'screenshare feature disabled');
+      return;
+    }
+    // viewer_broadcaster starts screenshare with disableMultiScreenshare=false (default - lock inactive)
+    await this.userPage.hasElement(e.startScreenSharing, 'viewer should see start button when lock is inactive');
+    await startScreenshare(this.userPage);
+    // hold the allowed state for the recording
+    await dwellOnBehavior(this.modPage.page, 'viewer share allowed - lock inactive', 4000);
+    // moderator_observer must see the viewer stream decoding - confirms lock absence permits publishing
+    await expectDecodedFrames(this.modPage.page, 'video[id^="screenshareVideo"]');
   }
 
   // R3: disableMultiScreenshare=true hides the button from locked viewers
