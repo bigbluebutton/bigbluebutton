@@ -32,7 +32,7 @@
     "app.chat.notAway": "Διαθέσιμος",
     "app.chat.isPresenter": "Ο/Η {presenterName} είναι παρουσιαστής",
     "app.chat.isPresenterSetBy": "Ο/Η {presenterName} είναι παρουσιαστής, ορίστηκε από {assignedByName}",
-    "app.chat.breakoutCallModerator": "{userName} from {roomName} is requesting moderator assistance.",
+    "app.chat.breakoutCallModerator": "Ο/Η {userName} από {roomName} αιτήθηκε συνδρομή από συντονιστή.",
     "app.chat.clearPublicChatMessage": "Το ιστορικό δημόσιας συνομιλίας έχει διαγραφεί από τον συντονιστή.",
     "app.chat.multi.typing": "Πολλοί χρήστες πληκτρολογούν",
     "app.chat.someone.typing": "Κάποιος πληκτρολογεί",
