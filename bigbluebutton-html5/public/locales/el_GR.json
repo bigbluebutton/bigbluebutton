@@ -1553,7 +1553,7 @@
     "app.externalVideo.autoPlayWarning": "Αναπραγωγή βίντεο για συγχρονισμό μέσων",
     "app.externalVideo.refreshLabel": "Ανανέωση της εφαρμογής βίντεο",
     "app.externalVideo.fullscreenLabel": "Πρόγραμμα αναπαραγωγής βίντεο",
-    "app.externalVideo.noteLabelSupported": "Supports links from YouTube, Vimeo, Instructure Media, Twitch, and media file URLs (e.g. https://example.com/xy.mp4).",
+    "app.externalVideo.noteLabelSupported": "Υποστηρίζει συνδέσμους από YouTube, Vimeo, Instructure Media, Twitch και διευθύνσεις URL αρχείων πολυμέσων (π.χ. https://example.com/xy.mp4).",
     "app.externalVideo.noteLabelWarning": "Τα κοινόχρηστα βίντεο δεν περιλαμβάνονται στην εγγραφή.",
     "app.externalVideo.subtitlesOn": "Απενεργοποίηση",
     "app.externalVideo.subtitlesOff": "Ενεργοποίηση (εάν είναι διαθέσιμο)",
