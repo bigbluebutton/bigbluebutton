@@ -66,7 +66,7 @@
     "app.chat.content.pollVotes": "ψήφοι",
     "app.chat.pollResult.copy": "Αντιγραφή αποτελεσμάτων",
     "app.chat.pollResult.copySuccess": "Αντιγράφηκε!",
-    "app.chat.pollResult.download": "Download as PNG",
+    "app.chat.pollResult.download": "Λήψη ως PNG",
     "app.chat.plugin.metadataInformation": "{userName} - {pluginName}",
     "app.timer.toolTipTimerStopped": "Το χρονόμετρο σταμάτησε.",
     "app.timer.toolTipTimerRunning": "Το χρονόμετρο εκτελείται.",
