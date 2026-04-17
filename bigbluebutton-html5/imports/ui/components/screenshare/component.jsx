@@ -24,6 +24,7 @@ import {
   setVolume,
   getVolume,
   setStreamEnabled,
+  isSharing,
 } from '/imports/ui/components/screenshare/service';
 import { ACTIONS, PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
@@ -151,7 +152,7 @@ class ScreenshareComponent extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     const { isPresenter, outputDeviceId, shouldShowScreenshare } = this.props;
     const { videoTagRef } = this.state;
-    if (prevProps.isPresenter && !isPresenter) {
+    if (prevProps.isPresenter && !isPresenter && !this.props.isMultiScreenshare) {
       screenshareHasEnded();
     }
 
@@ -183,7 +184,9 @@ class ScreenshareComponent extends React.Component {
     const {
       videoTagRef,
     } = this.state;
-    screenshareHasEnded();
+    if (!this.props.isMultiScreenshare || !isSharing()) {
+      screenshareHasEnded();
+    }
     window.removeEventListener('screensharePlayFailed', this.handlePlayElementFailed);
 
     const Settings = getSettingsSingletonInstance();

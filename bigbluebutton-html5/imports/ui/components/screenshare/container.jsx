@@ -25,6 +25,7 @@ import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 import AudioManager from '/imports/ui/services/audio-manager';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { PIN_NOTES } from '../notes/mutations';
+import { useIsMultiScreenshareEnabled } from '/imports/ui/services/features';
 
 const screenshareIntlMessages = defineMessages({
   // SCREENSHARE
@@ -130,6 +131,7 @@ const ScreenshareContainer = (props) => {
   const isSharedNotesPinned = currentMeeting?.componentsFlags?.isSharedNotesPinned;
 
   const isPresenter = currentUserData?.presenter;
+  const isMultiScreenshare = useIsMultiScreenshareEnabled();
 
   const info = {
     screenshare: {
@@ -195,6 +197,7 @@ const ScreenshareContainer = (props) => {
           ),
           ...selectedInfo,
           isPresenter,
+          isMultiScreenshare,
           streamId,
           shouldShowScreenshare,
         }

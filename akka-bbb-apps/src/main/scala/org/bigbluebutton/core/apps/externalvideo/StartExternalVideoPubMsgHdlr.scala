@@ -6,7 +6,9 @@ import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x.requestBroadcastStop
 import org.bigbluebutton.core.db.ExternalVideoDAO
-import org.bigbluebutton.core.models.Screenshares
+import org.bigbluebutton.core.db.{ LayoutDAO, ScreenshareDAO }
+import org.bigbluebutton.core.models.{ Layouts, Screenshares }
+import org.bigbluebutton.core.apps.layout.ScreenshareAsContenthdlrHelper
 import org.bigbluebutton.core.apps.pads.PadsApp2x.setPinned
 import org.bigbluebutton.core.util.UrlTimeExtractor
 
@@ -38,8 +40,16 @@ trait StartExternalVideoPubMsgHdlr extends RightsManagementTrait {
     } else {
       if (liveMeeting.props.meetingProp.screenShareBridge == "livekit") {
         // For LiveKit multi-screenshare: migrate all screenshares to camera area
-        Screenshares.findAll(liveMeeting.screenshares).foreach { stream =>
+        val meetingId = liveMeeting.props.meetingProp.intId
+        val allScreenshares = Screenshares.findAll(liveMeeting.screenshares)
+        allScreenshares.foreach { stream =>
           Screenshares.setShowAsContent(liveMeeting.screenshares, stream.streamId, false)
+          ScreenshareDAO.updateShowAsContent(meetingId, stream.streamId, false)
+        }
+        if (allScreenshares.nonEmpty) {
+          Layouts.setScreenshareAsContent(liveMeeting.layouts, false)
+          LayoutDAO.insertOrUpdate(meetingId, liveMeeting.layouts)
+          ScreenshareAsContenthdlrHelper.sendSetScreenshareAsContentEvtMsg(msg.header.userId, liveMeeting, bus.outGW)
         }
       } else {
         // Request a screen broadcast stop (goes to SFU, comes back through

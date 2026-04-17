@@ -10,8 +10,9 @@ import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x.requestBroadcastStop
-import org.bigbluebutton.core.db.{ ChatMessageDAO, UserStateDAO }
-import org.bigbluebutton.core.models.Screenshares
+import org.bigbluebutton.core.db.{ ChatMessageDAO, LayoutDAO, ScreenshareDAO, UserStateDAO }
+import org.bigbluebutton.core.models.{ Layouts, Screenshares }
+import org.bigbluebutton.core.apps.layout.ScreenshareAsContenthdlrHelper
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 
 trait AssignPresenterReqMsgHdlr extends RightsManagementTrait {
@@ -49,8 +50,15 @@ object AssignPresenterActionHandler extends RightsManagementTrait {
           if (liveMeeting.props.meetingProp.screenShareBridge == "livekit") {
             // For LiveKit multi-screenshare: migrate old presenter's screenshares to camera area
             val oldPresScreenshares = Screenshares.findByUser(liveMeeting.screenshares, oldPres.intId)
+            val meetingId = liveMeeting.props.meetingProp.intId
             oldPresScreenshares.foreach { stream =>
               Screenshares.setShowAsContent(liveMeeting.screenshares, stream.streamId, false)
+              ScreenshareDAO.updateShowAsContent(meetingId, stream.streamId, false)
+            }
+            if (oldPresScreenshares.nonEmpty) {
+              Layouts.setScreenshareAsContent(liveMeeting.layouts, false)
+              LayoutDAO.insertOrUpdate(meetingId, liveMeeting.layouts)
+              ScreenshareAsContenthdlrHelper.sendSetScreenshareAsContentEvtMsg(oldPres.intId, liveMeeting, outGW)
             }
           } else {
             // Request a screen broadcast stop (goes to SFU, comes back through

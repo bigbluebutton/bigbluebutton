@@ -36,6 +36,43 @@ test.describe.parallel('Multi-screenshare', { tag: '@ci' }, () => {
     await screenshare.lockBlocksViewerNoPromotion();
   });
 
+  // T11 — Troca de presenter mantém screenshares ativos (R8, R12)
+  // Pre-condition: presenter (modPage) + viewer (userPage) both sharing screen.
+  // Viewer is NEVER promoted to presenter in setup.
+  // Action: moderator transfers presenter to viewer.
+  // Assert: old presenter's screenshare migrates to camera dock (not stopped); both streams remain active.
+  test('presenter change keeps screenshares active without stopping', async ({
+    browser,
+    context,
+    browserName,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not available in Firefox without desktop capture');
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(page, { testInfo });
+    await screenshare.initUserPage(context, { testInfo });
+    await screenshare.presenterChangeKeepsShares();
+  });
+
+  // T12 — Vídeo externo migra screenshare do presenter para câmeras (R8, R9, R11)
+  // Pre-condition: presenter (modPage) sharing screen, viewer (userPage) sharing screen.
+  // Viewer is NEVER promoted to presenter at any point.
+  // Action: presenter starts external video.
+  // Assert: external video in content area; presenter screenshare migrates to camera dock (not stopped);
+  //         viewer screenshare stays in camera dock (not stopped).
+  test('external video migrates presenter screenshare to camera area', async ({
+    browser,
+    context,
+    browserName,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not available in Firefox without desktop capture');
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(page, { testInfo });
+    await screenshare.initUserPage(context, { testInfo });
+    await screenshare.externalVideoMigratesPresenterShare();
+  });
+
   // T19 — Blocked screenshare attempt does not eject viewer from meeting (R3)
   // Pre-condition: moderator (presenter) + viewer. Lock enabled by moderator.
   // Server-side lock denies the share (explicit denial via GetScreenBroadcastPermissionRespMsg).

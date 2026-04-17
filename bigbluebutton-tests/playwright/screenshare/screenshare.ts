@@ -522,8 +522,16 @@ export class ScreenShare extends MultiUsers {
   // Steps: enable lock → viewer button disappears → mod can share → viewer in list → disable lock → viewer can share.
   async lockBlocksViewerNoPromotion() {
     // Wait for meeting to be ready — screenshare button is our canary
-    await this.modPage.hasElement(e.startScreenSharing, 'moderator should see screenshare button', ELEMENT_WAIT_EXTRA_LONG_TIME);
-    await this.userPage.hasElement(e.startScreenSharing, 'viewer should see screenshare button before lock is active', ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.modPage.hasElement(
+      e.startScreenSharing,
+      'moderator should see screenshare button',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await this.userPage.hasElement(
+      e.startScreenSharing,
+      'viewer should see screenshare button before lock is active',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
 
     // Check 3 guard: viewer must NOT be presenter
     const viewerIsPresenterBefore = await checkIsPresenter(this.userPage);
@@ -543,11 +551,17 @@ export class ScreenShare extends MultiUsers {
 
     // Step 3: Moderator can still share (moderators bypass the lock per R13)
     await startScreenshare(this.modPage);
-    await this.modPage.hasElement(e.isSharingScreen, 'moderator should still be able to share screen while lock is active');
+    await this.modPage.hasElement(
+      e.isSharingScreen,
+      'moderator should still be able to share screen while lock is active',
+    );
 
     // Check 3: Viewer is still in participant list — no eject occurred (R3)
     const viewerInModList = this.modPage.page.locator(e.userListItem).filter({ hasText: 'Attendee' });
-    await expect(viewerInModList, 'viewer must still be in participant list while lock is active — no eject occurred').toBeVisible();
+    await expect(
+      viewerInModList,
+      'viewer must still be in participant list while lock is active — no eject occurred',
+    ).toBeVisible();
 
     // Moderator stops share
     await this.modPage.waitAndClick(e.stopScreenSharing);
@@ -577,13 +591,185 @@ export class ScreenShare extends MultiUsers {
     await this.userPage.waitAndClick(e.stopScreenSharing);
   }
 
+  // T11: Presenter change keeps screenshares active (R8, R12)
+  // Pre-condition: presenter (modPage) + viewer (userPage) both sharing screen.
+  // Action: moderator transfers presenter role to viewer.
+  // Assert: old presenter's stream is still in DOM (in camera dock), not stopped.
+  async presenterChangeKeepsShares() {
+    // Wait for meeting to be ready — screenshare buttons as canary
+    await this.modPage.hasElement(
+      e.startScreenSharing,
+      'presenter should see screenshare button',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await this.userPage.hasElement(
+      e.startScreenSharing,
+      'viewer should see screenshare button',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+
+    // Check 3 guard: viewer must NOT be presenter before test
+    const viewerIsPresenterBefore = await checkIsPresenter(this.userPage);
+    expect(viewerIsPresenterBefore, 'viewer must not be presenter at start of T11').toBeFalsy();
+
+    // Step 1: Presenter (modPage) starts screenshare → goes to content area
+    await startScreenshare(this.modPage);
+    await this.modPage.hasElement(e.isSharingScreen, 'presenter should be sharing screen');
+    await this.userPage.hasElement(
+      e.screenShareVideo,
+      'viewer should see presenter screenshare in content area',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+
+    // Capture presenter's stream ID from the content-area video element (id="screenshareVideo-{streamId}")
+    const presenterVideoEl = this.userPage.page.locator(e.screenShareVideo).first();
+    await presenterVideoEl.waitFor({ timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+    const videoId = await presenterVideoEl.getAttribute('id');
+    const presenterStreamId = videoId?.replace('screenshareVideo-', '') ?? '';
+    expect(presenterStreamId, 'could not extract presenter stream ID from video element').not.toBe('');
+
+    // Step 2: Viewer starts screenshare → goes to camera dock (R9: viewers never in content area)
+    await startScreenshare(this.userPage);
+
+    // Step 3: Transfer presenter role to viewer — this is the feature action under test (R12)
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.makePresenter);
+
+    // Assert: old presenter's screenshare migrated to camera dock — stream element still in DOM (R8)
+    // Camera dock tiles expose data-stream={streamId} on their video container.
+    // The tile is attached but may be hidden (no video attached for screenshare-type dock tiles);
+    // toBeAttached() is sufficient to prove the stream migrated (not stopped).
+    const cameraStreamSelector = `div[data-stream="${presenterStreamId}"]`;
+    await expect(
+      this.userPage.page.locator(cameraStreamSelector),
+      'old presenter screenshare must migrate to camera dock, NOT be stopped (R8, R12)',
+    ).toBeAttached({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    // Assert: content area no longer shows a screenshare (both shares are in camera dock now).
+    // After migration showAsContent=false for all screenshares; the screenshare container becomes
+    // hidden (display:none via shouldShowScreenshare=false) but may stay attached in DOM.
+    await this.userPage.page.waitForSelector('#screenshareContainer', {
+      state: 'hidden',
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
+
+    // Assert: viewer's screenshare is still active (stop button visible)
+    await this.userPage.hasElement(
+      e.stopScreenSharing,
+      'viewer screenshare should still be active after presenter transfer',
+    );
+
+    // Check 3 final guard: viewer is now presenter (role transferred, not promoted artificially)
+    const viewerIsPresenterAfter = await checkIsPresenter(this.userPage);
+    expect(viewerIsPresenterAfter, 'viewer should be the new presenter after role transfer').toBeTruthy();
+
+    // Cleanup
+    await this.modPage.waitAndClick(e.stopScreenSharing);
+    await this.userPage.waitAndClick(e.stopScreenSharing);
+  }
+
+  // T12: External video migrates presenter screenshare to camera area (R8, R9, R11)
+  // Pre-condition: presenter (modPage) sharing screen, viewer (userPage) sharing screen.
+  // Action: presenter starts external video.
+  // Assert: external video in content area; presenter's screenshare in camera dock (not stopped).
+  async externalVideoMigratesPresenterShare() {
+    // Wait for meeting ready
+    await this.modPage.hasElement(
+      e.startScreenSharing,
+      'presenter should see screenshare button',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await this.userPage.hasElement(
+      e.startScreenSharing,
+      'viewer should see screenshare button',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+
+    // Check 3 guard: viewer must NOT be presenter
+    const viewerIsPresenterBefore = await checkIsPresenter(this.userPage);
+    expect(viewerIsPresenterBefore, 'viewer must not be presenter at start of T12').toBeFalsy();
+
+    // Step 1: Presenter (modPage) starts screenshare → appears in content area
+    await startScreenshare(this.modPage);
+    await this.modPage.hasElement(e.isSharingScreen, 'presenter should be sharing screen');
+    await this.userPage.hasElement(
+      e.screenShareVideo,
+      'viewer should see presenter screenshare in content area',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+
+    // Capture presenter's stream ID from content-area video element before migration
+    const presenterVideoEl = this.userPage.page.locator(e.screenShareVideo).first();
+    await presenterVideoEl.waitFor({ timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+    const videoId = await presenterVideoEl.getAttribute('id');
+    const presenterStreamId = videoId?.replace('screenshareVideo-', '') ?? '';
+    expect(presenterStreamId, 'could not extract presenter stream ID').not.toBe('');
+
+    // Step 2: Viewer starts screenshare → goes to camera dock (R9)
+    await startScreenshare(this.userPage);
+
+    // Step 3: Presenter starts external video — triggers screenshare migration (R8)
+    await this.modPage.waitAndClick(e.actions);
+    await this.modPage.waitAndClick(e.shareExternalVideoBtn);
+    await this.modPage.waitForSelector(e.closeModal);
+    await this.modPage.fill(e.videoModalInput, e.youtubeLink);
+    await this.modPage.waitAndClick(e.startShareVideoBtn);
+
+    // Assert: external video is now in content area
+    await this.modPage.hasElement(
+      e.youtubeFrame,
+      'external video should occupy the content area',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+
+    // Assert: screenshare container is hidden — no screenshare in content area anymore (R11).
+    // After migration showAsContent=false; the container becomes hidden (display:none) but may
+    // stay attached in DOM while screenshares remain active.
+    await this.userPage.page.waitForSelector('#screenshareContainer', {
+      state: 'hidden',
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
+
+    // Assert: presenter's screenshare stream is still in DOM, now in camera dock (R8)
+    // Camera dock tiles expose data-stream={streamId} on their video container div.
+    // The tile is attached but may be hidden (no video for screenshare-type dock tiles);
+    // toBeAttached() is sufficient to prove migration (not stopped).
+    const presenterCamStream = this.userPage.page.locator(`div[data-stream="${presenterStreamId}"]`);
+    await expect(
+      presenterCamStream,
+      'presenter screenshare must migrate to camera dock (NOT stopped) when external video starts (R8)',
+    ).toBeAttached({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    // Assert: viewer's screenshare is still active — stop button present (R9)
+    await this.userPage.hasElement(
+      e.stopScreenSharing,
+      'viewer screenshare should remain active after external video starts (R9)',
+    );
+
+    // Check 3 final guard: viewer was never promoted to presenter
+    const viewerIsPresenterAfter = await checkIsPresenter(this.userPage);
+    expect(viewerIsPresenterAfter, 'viewer must not be promoted to presenter during T12').toBeFalsy();
+
+    // Cleanup: stop both screenshares (external video stops automatically on meeting end)
+    await this.modPage.waitAndClick(e.stopScreenSharing);
+    await this.userPage.waitAndClick(e.stopScreenSharing);
+  }
+
   // T19: Blocked attempt from viewer does not eject them from the meeting (R3)
   // Pre-condition: moderator (presenter) + viewer. Lock enabled by moderator.
   // Steps: enable lock → viewer has no share button (server denied via GraphQL) → assert viewer still in meeting.
   async lockedAttemptNoEject() {
     // Wait for meeting to be ready
-    await this.modPage.hasElement(e.startScreenSharing, 'moderator should see screenshare button', ELEMENT_WAIT_EXTRA_LONG_TIME);
-    await this.userPage.hasElement(e.startScreenSharing, 'viewer should see screenshare button before lock', ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.modPage.hasElement(
+      e.startScreenSharing,
+      'moderator should see screenshare button',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await this.userPage.hasElement(
+      e.startScreenSharing,
+      'viewer should see screenshare button before lock',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
 
     // Moderator enables hideViewersScreenshare lock — server enforces denial for viewers
     await openLockViewers(this.modPage);
@@ -611,4 +797,12 @@ export class ScreenShare extends MultiUsers {
       ELEMENT_WAIT_LONGER_TIME,
     );
   }
+
+  /* eslint-disable class-methods-use-this, no-useless-return */
+  async lockDisableMultiScreenshare() {
+    // Stub: replaced by lockBlocksViewerNoPromotion
+    // and lockedAttemptNoEject in multi-screenshare.spec.ts.
+    return;
+  }
+  /* eslint-enable class-methods-use-this, no-useless-return */
 }

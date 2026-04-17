@@ -57,6 +57,10 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
           ExternalVideoModel.stop(bus.outGW, liveMeeting)
 
           val isPresenter = findPresenter(liveMeeting.users2x).exists(_.intId == userId)
+          // Only show as content if presenter AND no other users already have active screenshares.
+          // The second condition prevents a race where a new presenter's share arrives slightly
+          // after AssignPresenterReqMsg and incorrectly overrides the just-reset layout flag.
+          val otherUsersSharing = Screenshares.findAll(liveMeeting.screenshares).exists(_.userId != userId)
           val newEntry = ScreenshareStream(
             streamId = msg.body.stream,
             userId = userId,
@@ -66,16 +70,19 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
             vidWidth = msg.body.vidWidth,
             vidHeight = msg.body.vidHeight,
             hasAudio = msg.body.hasAudio,
-            showAsContent = isPresenter,
+            showAsContent = isPresenter && !otherUsersSharing,
             timestamp = msg.body.timestamp,
             trackSid = msg.body.trackSid
           )
 
           Screenshares.add(meetingId, liveMeeting.screenshares, newEntry)
 
-          log.info("START broadcast (LiveKit) for stream={} user={}", msg.body.stream, userId)
+          log.info("START broadcast (LiveKit) for stream={} user={} showAsContent={}", msg.body.stream, userId, newEntry.showAsContent)
 
-          if (!Layouts.getScreenshareAsContent(liveMeeting.layouts)) {
+          // Set layout flag when this is the first screenshare (no other users already sharing).
+          // Skip when other users are already active — avoids re-enabling content area after
+          // AssignPresenterReqMsgHdlr just reset the flag (race condition in presenter transfer).
+          if (!otherUsersSharing && !Layouts.getScreenshareAsContent(liveMeeting.layouts)) {
             Layouts.setScreenshareAsContent(liveMeeting.layouts, true)
             LayoutDAO.insertOrUpdate(meetingId, liveMeeting.layouts)
             for {
