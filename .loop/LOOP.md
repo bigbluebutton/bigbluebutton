@@ -428,13 +428,13 @@ Checklist final antes de `DONE`. Todos os itens precisam `[x]` com evidência ob
 VERIFICAR_REQUISITOS
 
 ## Iteração
-11
+13
 
 ## Última ação
-R15 verificado e fechado. container.jsx já retornava null quando isScreenshareLocked && !screenIsBroadcasting (botão oculto). useIsScreenshareLocked verifica disableMultiScreenshare+locked+!isModerator. T06 ("lock disableMultiScreenshare blocks viewer without promotion") já existia e passou 2/2 (19.6s). Nenhuma alteração de código necessária. Commit 8c9e153.
+R16 fechado. Filtro server-side implementado em 3 arquivos: GetUserApiMsgHdlr.scala emite hideViewersScreenshare por user (false para moderadores/desbloqueados, permissions.hideViewersScreenshare para viewers bloqueados); UserInfoService.scala mapeia para X-Hasura-ScreenshareNotLockedInMeeting + X-Hasura-ScreenshareLockedUserId; public_v_screenshare.yaml: objeto relationship user→v_user_ref + permission filter _and[meetingId=meeting, _or[user.isModerator=true, meetingId=NotLocked, userId=LockedUserId]]. Padrão idêntico ao cursor/webcam. Commit d9a36e2.
 
 ## Próxima ação
-Iterar R16 (hideViewersScreenshare esconde screenshares de viewers entre si, enforcement no servidor).
+Iterar R17 (teste E2E T08 — inspecionar resposta GraphQL viewer para confirmar filtro server-side sem dados de screenshare de outro viewer).
 
 ## Bloqueios
 nenhum (nota: commits ao repo BBB devem ser feitos via docker exec ip-10-111-14-85, pois .git/COMMIT_EDITMSG é root-owned no host)
@@ -455,8 +455,8 @@ R12: ✅ fechado — AssignPresenterReqMsgHdlr migra shares do ex-presenter; rac
 R13: ✅ fechado — disableMultiScreenshare implementado end-to-end (DB/Hasura/GraphQL/Scala/frontend); isScreenshareBroadcastLocked corrigido; T06 testando lock correta; 8/8 pass (5490f36)
 R14: ✅ fechado — ChangeLockSettingsInMeetingCmdMsgHdlr chama enforceScreenshareLockSettingsForAllViewers; isScreenshareBroadcastLocked usa disableMultiScreenshare; T07 passando 9/9 (59.1s) (d81cb40)
 R15: ✅ fechado — container.jsx retorna null quando isScreenshareLocked (botão oculto); useIsScreenshareLocked verifica disableMultiScreenshare+locked+!isModerator; T06 passando 2/2 (19.6s)
-R16: 🔍 em verificação — código parcial (hideViewersScreenshare em LockSettings declarado) mas filtro em subscribe não confirmado; sem teste
-R17: ⚪ não verificado — filtro server-side para hideViewersScreenshare no subscribe não encontrado; sem teste
+R16: ✅ fechado — filtro server-side aplicado: GetUserApiMsgHdlr+UserInfoService emitem X-Hasura-Screenshare{NotLocked,Locked} vars; public_v_screenshare.yaml permission filter bloqueia viewers de ver screenshares de outros viewers quando hideViewersScreenshare=true (d9a36e2)
+R17: ⚪ não verificado — teste E2E T08 (inspecionar resposta GraphQL viewer) ainda não escrito
 R18: 🔍 em verificação — código (LockSettingsParams.java com defaults false) mas sem teste de API
 R19: 🔍 em verificação — código (naming consistente em Scala/Java/SQL/YAML) mas T21 (busca textual) não implementado como teste
 R20: ⚪ não verificado — filtro de gravação por showAsContent não encontrado; sem teste
