@@ -1129,7 +1129,7 @@
     "app.notification.userJoinPushAlert": "{userName} συμμετέχει στην τηλεδιάσκεψη",
     "app.notification.userLeavePushAlert": "Ο/Η {userName} αποχώρησε από την τηλεδιάσκεψη",
     "app.notification.presenterRequestApproved.title": "Ο/Η {presenterName} είναι πλέον παρουσιαστής",
-    "app.notification.presenterRequestApproved": "Set by: {approvedByName}",
+    "app.notification.presenterRequestApproved": "Ορίστηκε από: {approvedByName}",
     "app.submenu.notification.raiseHandLabel": "Σηκώστε το χέρι σας",
     "app.shortcut-help.title": "Συντομεύσεις πληκτρολογίου",
     "app.shortcut-help.pushToTalk": "Κρατήστε πατημένο για ομιλία",
