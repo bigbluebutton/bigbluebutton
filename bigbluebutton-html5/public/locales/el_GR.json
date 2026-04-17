@@ -1530,7 +1530,7 @@
     "app.createBreakoutRoom.durationOfBreakout": "Διάρκεια τμημάτων αίθουσας τηλεδιάσκεψης",
     "app.createBreakoutRoom.unassignedUsers": "Μη εκχωρημένοι χρήστες",
     "app.createBreakoutRoom.youAreInRoom": "Βρίσκεστε στο {roomName}.",
-    "app.createBreakoutRoom.callModerator": "Call Moderators",
+    "app.createBreakoutRoom.callModerator": "Κλήση συντονιστή",
     "app.createBreakoutRoom.callModeratorChatMsg": "{userName} from {roomName} is requesting moderator assistance.",
     "app.createBreakoutRoom.callModeratorSent": "Moderators have been notified.",
     "app.createBreakoutRoom.callModeratorCooldown": "Please wait before calling the moderators again.",
