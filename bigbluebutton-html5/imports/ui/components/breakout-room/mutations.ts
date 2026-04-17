@@ -5,7 +5,7 @@ export const BREAKOUT_ROOM_CREATE = gql`
     $record: Boolean!,
     $captureNotes: Boolean!,
     $captureSlides: Boolean!,
-    $durationInMinutes: Int!,
+    $durationInSeconds: Int!,
     $sendInviteToModerators: Boolean!,
     $rooms: [BreakoutRoom]!,
   ) {
@@ -13,7 +13,7 @@ export const BREAKOUT_ROOM_CREATE = gql`
       record: $record,
       captureNotes: $captureNotes,
       captureSlides: $captureSlides,
-      durationInMinutes: $durationInMinutes,
+      durationInSeconds: $durationInSeconds,
       sendInviteToModerators: $sendInviteToModerators,
       rooms: $rooms,
     )

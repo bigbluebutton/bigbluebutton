@@ -15,9 +15,8 @@ export function exceedsRemainingTime(remainingTime: number, newTimeInSeconds: nu
   return newTimeInSeconds >= remainingTime;
 }
 
-export function isNewTimeValid(remainingTime: number, newTime: number) {
+export function isNewTimeValid(remainingTime: number, newTimeInSeconds: number) {
   const FIVE_MINUTES = 300; // 5 minutes in seconds
-  const newTimeInSeconds = newTime * 60; // Convert newTime from minutes to seconds
   if (remainingTime === 0) return newTimeInSeconds >= FIVE_MINUTES;
   if (exceedsRemainingTime(remainingTime, newTimeInSeconds)) {
     return false;

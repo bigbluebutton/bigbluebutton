@@ -47,7 +47,7 @@ case class BreakoutRoomDetail(
     freeJoin:                Boolean,
     dialNumber:              String,
     voiceConfId:             String,
-    durationInMinutes:       Int,
+    durationInSeconds:       Int,
     moderatorPassword:       String,
     viewerPassword:          String,
     sourcePresentationId:    String,
@@ -71,7 +71,7 @@ case class BreakoutRoomDetail(
  */
 object CreateBreakoutRoomsCmdMsg { val NAME = "CreateBreakoutRoomsCmdMsg" }
 case class CreateBreakoutRoomsCmdMsg(header: BbbClientMsgHeader, body: CreateBreakoutRoomsCmdMsgBody) extends StandardMsg
-case class CreateBreakoutRoomsCmdMsgBody(meetingId: String, durationInMinutes: Int, record: Boolean, captureNotes: Boolean, captureSlides: Boolean, rooms: Vector[BreakoutRoomMsgBody], sendInviteToModerators: Boolean)
+case class CreateBreakoutRoomsCmdMsgBody(meetingId: String, durationInSeconds: Int, record: Boolean, captureNotes: Boolean, captureSlides: Boolean, rooms: Vector[BreakoutRoomMsgBody], sendInviteToModerators: Boolean)
 case class BreakoutRoomMsgBody(name: String, sequence: Int, shortName: String, captureNotesFilename: String, captureSlidesFilename: String, isDefaultName: Boolean, freeJoin: Boolean, users: Vector[String], allPages: Boolean, presId: String)
 
 // Sent by user to request ending all the breakout rooms

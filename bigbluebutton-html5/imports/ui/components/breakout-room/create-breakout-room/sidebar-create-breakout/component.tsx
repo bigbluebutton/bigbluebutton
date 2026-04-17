@@ -26,7 +26,7 @@ import {
   useIsImportSharedNotesFromBreakoutRoomsEnabled,
 } from '/imports/ui/services/features';
 
-const MIN_BREAKOUT_TIME = 5;
+const MIN_BREAKOUT_TIME = 300;
 const DEFAULT_SIDEBAR_BREAKOUT_TIME = 15;
 const CURRENT_SLIDE_PREFIX = 'current-';
 
@@ -242,7 +242,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
     }
   }, []);
 
-  const durationTime = (hours * 60) + minutes + (seconds > 0 ? 1 : 0);
+  const breakoutDuration = (hours * 3600) + (minutes * 60) + seconds;
 
   const getRoomPresentation = (position: number) => {
     if (roomPresentations[position]) return roomPresentations[position];
@@ -270,11 +270,10 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
   };
 
   const handleCreateRoom = useCallback(() => {
-    const totalMinutes = durationTime;
-    if (totalMinutes < MIN_BREAKOUT_TIME) return;
+    if (breakoutDuration < MIN_BREAKOUT_TIME) return;
 
     const remainingTime = getRemainingMeetingTime(durationInSeconds, createdTime, timeSync);
-    if (!isNewTimeValid(remainingTime, totalMinutes)) return;
+    if (!isNewTimeValid(remainingTime, breakoutDuration)) return;
 
     const rooms = roomsRef.current;
     const roomsArray: RoomToWithSettings[] = [];
@@ -322,7 +321,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
         record,
         captureNotes,
         captureSlides,
-        durationInMinutes: totalMinutes,
+        durationInSeconds: breakoutDuration,
         sendInviteToModerators: inviteMods,
         rooms: roomsArray,
       },
@@ -331,19 +330,19 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
       layoutContextDispatch({ type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL, value: PANELS.BREAKOUT });
     });
   }, [
-    numberOfRooms, durationTime, freeJoin, record, captureNotes,
+    numberOfRooms, breakoutDuration, freeJoin, record, captureNotes,
     captureSlides, inviteMods, roomPresentations,
   ]);
 
   const roomPadNum = (n: number) => n.toString().padStart(2, '0');
 
-  const canStart = durationTime >= MIN_BREAKOUT_TIME && (freeJoin || leastOneUserIsValid);
+  const canStart = breakoutDuration >= MIN_BREAKOUT_TIME && (freeJoin || leastOneUserIsValid);
 
   const tooltipText = (() => {
-    if (durationTime < MIN_BREAKOUT_TIME) {
+    if (breakoutDuration < MIN_BREAKOUT_TIME) {
       return intl.formatMessage(
         intlMessages.minimumDurationWarnBreakout,
-        { timeInMinutes: MIN_BREAKOUT_TIME },
+        { timeInMinutes: MIN_BREAKOUT_TIME / 60 },
       );
     }
     if (!freeJoin && !leastOneUserIsValid) {
@@ -447,11 +446,11 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
             aria-label={intl.formatMessage(intlMessages.timerSeconds)}
           />
         </Styled.TimerDisplay>
-        {durationTime < MIN_BREAKOUT_TIME && (
+        {breakoutDuration < MIN_BREAKOUT_TIME && (
           <Styled.TimerWarning data-test="minimumDurationWarnBreakout">
             {intl.formatMessage(
               intlMessages.minimumDurationWarnBreakout,
-              { timeInMinutes: MIN_BREAKOUT_TIME },
+              { timeInMinutes: MIN_BREAKOUT_TIME / 60 },
             )}
           </Styled.TimerWarning>
         )}

@@ -120,7 +120,7 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       msg.body.room.voiceConfId,
       msg.body.room.viewerPassword,
       msg.body.room.moderatorPassword,
-      msg.body.room.durationInMinutes,
+      msg.body.room.durationInSeconds,
       msg.body.room.sourcePresentationId,
       msg.body.room.sourcePresentationSlide,
       msg.body.room.record,
