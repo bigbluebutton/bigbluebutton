@@ -1077,7 +1077,7 @@
     "app.guest.guestInvalid": "Ο χρήστης «επισκέπτη» δεν είναι διαθέσιμος",
     "app.guest.meetingForciblyEnded": "Δεν μπορείτε να συμμετάσχετε σε μια τηλεδιάσκεψη που έχει τερματιστεί αναγκαστικά",
     "app.guest.calculating": "Υπολογισμός θέσης αναμονής",
-    "app.guest.messageFromHost": "Message from host",
+    "app.guest.messageFromHost": "Μήνυμα από τον οικοδεσπότη",
     "app.guest.waitingForApproval": "Αναμονή για έγκριση",
     "app.userList.guest.waitingUsers": "Αναμονή χρηστών",
     "app.userList.guest.waitingUsersTitle": "Διαχείριση χρηστών",
