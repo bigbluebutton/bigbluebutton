@@ -28,7 +28,7 @@ object Dependencies {
     val httpcomponents = "4.5.14"
 
     // BigBlueButton
-    val bbbCommons = "0.0.22-SNAPSHOT"
+    val bbbCommons = "0.0.1776372461-SNAPSHOT"
 
     // Database
     val slick = "3.4.1"
