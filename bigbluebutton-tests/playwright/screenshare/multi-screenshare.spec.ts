@@ -1,4 +1,5 @@
 import { test } from '../core/setup/fixtures';
+import { constants as c } from '../parameters/constants';
 import { ScreenShare } from './screenshare';
 
 test.describe.parallel('Multi-screenshare', { tag: '@ci' }, () => {
@@ -165,5 +166,25 @@ test.describe.parallel('Multi-screenshare', { tag: '@ci' }, () => {
     await screenshare.initModPage(page, { testInfo });
     await screenshare.initUserPage(context, { testInfo });
     await screenshare.lockedAttemptNoEject();
+  });
+
+  // T13 — Feature flag off → legacy behavior preserved (R21)
+  // Pre-condition: meeting created with disabledFeatures=multiScreenshare; presenter + viewer.
+  // Viewer is NEVER promoted to presenter.
+  // Asserts: (1) viewer does NOT see screenshare button (legacy: only presenter shares);
+  //          (2) presenter still sees the button (singleton behavior intact);
+  //          (3) new lock settings toggles (disableMultiScreenshare, hideViewersScreenshare)
+  //              are NOT shown in Lock Viewers modal.
+  test('feature flag off preserves legacy behavior', async ({
+    browser,
+    context,
+    browserName,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not available in Firefox without desktop capture');
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(page, { createParameter: c.multiScreenshareDisabled, testInfo });
+    await screenshare.initUserPage(context, { createParameter: c.multiScreenshareDisabled, testInfo });
+    await screenshare.featureFlagOffLegacyBehavior();
   });
 });

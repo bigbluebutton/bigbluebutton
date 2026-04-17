@@ -1225,4 +1225,37 @@ export class ScreenShare extends MultiUsers {
     return;
   }
   /* eslint-enable class-methods-use-this, no-useless-return */
+
+  // T13 — Feature flag OFF → legacy behavior (R21)
+  // Pre-condition: meeting created with disabledFeatures=multiScreenshare; presenter + viewer.
+  // Viewer NEVER promoted to presenter.
+  // Asserts: (1) viewer does NOT see the screenshare button (legacy: only presenter can share);
+  //          (2) presenter CAN share (singleton behavior preserved);
+  //          (3) new lock settings (disableMultiScreenshare, hideViewersScreenshare) NOT visible in UI.
+  async featureFlagOffLegacyBehavior() {
+    // Assert (1): viewer does not see screenshare button (no showButtonForNonPresenters when flag off)
+    const viewerButton = this.userPage.page.locator(e.startScreenSharing);
+    await expect(
+      viewerButton,
+      'viewer must NOT see the screenshare button when multiScreenshare flag is off (legacy behavior)',
+    ).toHaveCount(0);
+
+    // Assert (2): presenter still sees the button and can start screenshare (singleton preserved)
+    await this.modPage.hasElement(e.startScreenSharing, 'presenter must see the screenshare button');
+
+    // Check 3 (anti-atalho): viewer was never promoted to presenter
+    const viewerIsPresenter = await checkIsPresenter(this.userPage);
+    expect(viewerIsPresenter, 'viewer must not be a presenter at any point during T13').toBeFalsy();
+
+    // Assert (3): new lock settings NOT shown in Lock Viewers modal
+    await openLockViewers(this.modPage);
+    await this.modPage.wasRemoved(
+      '[data-test="disableMultiScreenshareItem"]',
+      'disableMultiScreenshare toggle must NOT appear in Lock Viewers when flag is off',
+    );
+    await this.modPage.wasRemoved(
+      '[data-test="hideViewersScreenshareItem"]',
+      'hideViewersScreenshare toggle must NOT appear in Lock Viewers when flag is off',
+    );
+  }
 }

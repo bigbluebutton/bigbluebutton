@@ -14,6 +14,7 @@ import {
   useIsCameraAsContentBroadcasting,
   useShowButtonForNonPresenters,
 } from '/imports/ui/components/screenshare/service';
+import { useIsMultiScreenshareEnabled } from '/imports/ui/services/features';
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
 import Button from '/imports/ui/components/common/button/component';
 import { EXTERNAL_VIDEO_STOP } from '../../external-video-player/mutations';
@@ -216,10 +217,11 @@ const ScreenshareButton = ({
   }
 
   const showButtonForNonPresenters = useShowButtonForNonPresenters();
+  const isMultiScreenshareEnabled = useIsMultiScreenshareEnabled();
 
   const shouldAllowScreensharing = enabled
     && (!isMobile || isTabletApp)
-    && (amIPresenter || showButtonForNonPresenters);
+    && (amIPresenter || (showButtonForNonPresenters && isMultiScreenshareEnabled));
 
   const dataTest = isScreenBroadcasting ? 'stopScreenShare' : 'startScreenShare';
   const loading = isScreenBroadcasting && !isScreenGloballyBroadcasting;

@@ -86,6 +86,7 @@ export const constants = {
   learningDashboardDisabled: 'disabledFeatures=learningDashboard',
   pollsDisabled: 'disabledFeatures=polls',
   screenshareDisabled: 'disabledFeatures=screenshare',
+  multiScreenshareDisabled: 'disabledFeatures=multiScreenshare',
   sharedNotesDisabled: 'disabledFeatures=sharedNotes',
   virtualBackgroundsDisabled: 'disabledFeatures=virtualBackgrounds',
   downloadPresentationWithAnnotationsDisabled: 'disabledFeatures=downloadPresentationWithAnnotations',

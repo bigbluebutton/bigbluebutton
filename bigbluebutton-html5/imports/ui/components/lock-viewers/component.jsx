@@ -100,6 +100,7 @@ const propTypes = {
   showToggleLabel: PropTypes.bool.isRequired,
   updateLockSettings: PropTypes.func.isRequired,
   updateWebcamsOnlyForModerator: PropTypes.func.isRequired,
+  isMultiScreenshareEnabled: PropTypes.bool,
 };
 
 class LockViewersComponent extends Component {
@@ -164,6 +165,7 @@ class LockViewersComponent extends Component {
       isChatEnabled,
       isPrivateChatEnabled,
       isSharedNotesEnabled,
+      isMultiScreenshareEnabled,
     } = this.props;
 
     const { lockSettingsProps, usersProp } = this.state;
@@ -430,6 +432,7 @@ class LockViewersComponent extends Component {
               </Styled.Col>
             </Styled.Row>
 
+            {isMultiScreenshareEnabled && (
             <Styled.Row data-test="disableMultiScreenshareItem">
               <Styled.Col aria-hidden="true">
                 <Styled.FormElement>
@@ -455,7 +458,9 @@ class LockViewersComponent extends Component {
                 </Styled.FormElementRight>
               </Styled.Col>
             </Styled.Row>
+            )}
 
+            {isMultiScreenshareEnabled && (
             <Styled.Row data-test="hideViewersScreenshareItem">
               <Styled.Col aria-hidden="true">
                 <Styled.FormElement>
@@ -481,6 +486,7 @@ class LockViewersComponent extends Component {
                 </Styled.FormElementRight>
               </Styled.Col>
             </Styled.Row>
+            )}
           </Styled.Form>
         </Styled.Container>
         <Styled.Footer>
