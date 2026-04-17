@@ -1536,7 +1536,7 @@
     "app.createBreakoutRoom.callModeratorCooldown": "Παρακαλώ περιμένετε πριν καλέσετε ξανά τους συντονιστές.",
     "app.createBreakoutRoom.returnToMainSession": "Επιστροφή στην κύρια αίθουσα",
     "app.createBreakoutRoom.listenToRoom": "Ακούστε την τηλεδιάσκεψη",
-    "app.createBreakoutRoom.stopListeningToRoom": "Stop listening",
+    "app.createBreakoutRoom.stopListeningToRoom": "Διακοπή ακρόασης",
     "app.updateBreakoutRoom.modalDesc": "Για ενημέρωση ή πρόσκληση χρήστη, απλώς σύρετέ τον στην επιθυμητή αίθουσα.",
     "app.updateBreakoutRoom.cancelLabel": "Άκυρο",
     "app.updateBreakoutRoom.title": "Ενημέρωση τμημάτων αίθουσας διάσκεψης",
