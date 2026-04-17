@@ -204,13 +204,25 @@ class ApiController {
 
     def xmlModules = processRequestXmlModules(requestBody)
 
-    // Set Client Settings Override
+    // Set Client Settings Override:
+    // clientSettingsOverrideJsonUrl (GET) takes precedence and is already resolved in processCreateParams.
+    // Fall back to clientSettingsOverride from the POST body only when the URL param did not supply a value.
     if(xmlModules.containsKey("clientSettingsOverride")) {
       if(paramsProcessorUtil.getAllowOverrideClientSettingsOnCreateCall()) {
-        newMeeting.setOverrideClientSettings(xmlModules.get("clientSettingsOverride").text())
+        if(StringUtils.isEmpty(newMeeting.getOverrideClientSettings())) {
+          newMeeting.setOverrideClientSettings(xmlModules.get("clientSettingsOverride").text())
+          log.info("Module `clientSettingsOverride` in POST body loaded.")
+          println(xmlModules.get("clientSettingsOverride").text())
+        } else {
+          log.info("Module `clientSettingsOverride` in POST body ignored because `clientSettingsOverrideJsonUrl` took precedence.")
+        }
       } else {
-        log.warn("Module `clientSettingsOverride` provided but this options is disabled by `allowOverrideClientSettingsOnCreateCall=false` config.");
+        log.warn("Module `clientSettingsOverride` provided but this option is disabled by `allowOverrideClientSettingsOnCreateCall=false` config.");
       }
+    }
+
+    if(xmlModules.containsKey("sharedNotesInitialContentJson")) {
+      newMeeting.setSharedNotesInitialContentJsonFromPayload(xmlModules.get("sharedNotesInitialContentJson").text())
     }
 
     ApiErrors errors = new ApiErrors()
@@ -282,7 +294,7 @@ class ApiController {
     boolean redirectClient = REDIRECT_RESPONSE
     if(!(validationResponse == null)) {
       if (validationResponse.getKey() == "checksumError") {
-        invalid(validationResponse.getKey(), validationResponse.getValue(), redirectClient);
+        invalid(validationResponse.getKey(), validationResponse.getValue(), redirectClient, "", false);
       } else {
         invalid(validationResponse.getKey(), validationResponse.getValue(), redirectClient, errorRedirectUrl);
       }
@@ -2031,7 +2043,7 @@ class ApiController {
   }
 
   //TODO: method added for backward compatibility, it will be removed in next versions after 0.8
-  private void invalid(key, msg, redirectResponse = false, errorRedirectUrl = "") {
+  private void invalid(key, msg, redirectResponse = false, errorRedirectUrl = "", useLogoutUrl = true) {
     // Note: This xml scheme will be DEPRECATED.
     log.debug CONTROLLER_NAME + "#invalid " + msg
     if (redirectResponse) {
@@ -2044,7 +2056,7 @@ class ApiController {
       JSONArray errorsJSONArray = new JSONArray(errors)
       log.debug "JSON Errors {}", errorsJSONArray.toString()
 
-      respondWithRedirect(errorsJSONArray, errorRedirectUrl)
+      respondWithRedirect(errorsJSONArray, errorRedirectUrl, useLogoutUrl)
     } else {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
@@ -2079,10 +2091,10 @@ class ApiController {
     return newURL;
   }
 
-  private void respondWithRedirect(errorsJSONArray, redirectUrl = "") {
+  private void respondWithRedirect(errorsJSONArray, redirectUrl = "", useLogoutUrl = true) {
     String uriString = paramsProcessorUtil.getDefaultLogoutUrl();
 
-    if (!StringUtils.isEmpty(params.logoutURL)) {
+    if (useLogoutUrl && !StringUtils.isEmpty(params.logoutURL)) {
       try {
         uriString = params.logoutURL;
       } catch (Exception e) {

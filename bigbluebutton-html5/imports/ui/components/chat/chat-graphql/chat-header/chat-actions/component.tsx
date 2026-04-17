@@ -132,7 +132,7 @@ const ChatActions: React.FC = () => {
       {
         key: uniqueIdsRef.current[2],
         enable: true,
-        disabled: !userIsModerator || meetingIsBreakout,
+        disabled: !userIsModerator,
         icon: 'delete',
         dataTest: 'chatClear',
         label: intl.formatMessage(intlMessages.clear),

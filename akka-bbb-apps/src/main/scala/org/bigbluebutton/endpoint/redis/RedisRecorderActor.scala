@@ -107,9 +107,9 @@ class RedisRecorderActor(
       case m: AudioFloorChangedEvtMsg               => handleAudioFloorChangedEvtMsg(m)
 
       // AudioGroups
-      case m: AudioGroupCreatedEvtMsg               => handleAudioGroupCreatedEvtMsg(m)
-      case m: AudioGroupDestroyedEvtMsg             => handleAudioGroupDestroyedEvtMsg(m)
-      case m: AudioGroupUpdatedEvtMsg               => handleAudioGroupUpdatedEvtMsg(m)
+      case m: MediaGroupCreatedEvtMsg               => handleMediaGroupCreatedEvtMsg(m)
+      case m: MediaGroupDestroyedEvtMsg             => handleMediaGroupDestroyedEvtMsg(m)
+      case m: MediaGroupUpdatedEvtMsg               => handleMediaGroupUpdatedEvtMsg(m)
 
       // Caption
       case m: EditCaptionHistoryEvtMsg              => handleEditCaptionHistoryEvtMsg(m)
@@ -544,24 +544,27 @@ class RedisRecorderActor(
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleAudioGroupCreatedEvtMsg(msg: AudioGroupCreatedEvtMsg): Unit = {
-    val ev = new AudioGroupCreatedRecordEvent()
+  private def handleMediaGroupCreatedEvtMsg(msg: MediaGroupCreatedEvtMsg): Unit = {
+    val ev = new MediaGroupCreatedRecordEvent()
     ev.setGroupId(msg.body.id)
+    ev.setMediaType(msg.body.mediaType)
     ev.setSenders(msg.body.senders)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleAudioGroupDestroyedEvtMsg(msg: AudioGroupDestroyedEvtMsg): Unit = {
-    val ev = new AudioGroupDestroyedRecordEvent()
+  private def handleMediaGroupDestroyedEvtMsg(msg: MediaGroupDestroyedEvtMsg): Unit = {
+    val ev = new MediaGroupDestroyedRecordEvent()
     ev.setGroupId(msg.body.id)
+    ev.setMediaType(msg.body.mediaType)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }
 
-  private def handleAudioGroupUpdatedEvtMsg(msg: AudioGroupUpdatedEvtMsg): Unit = {
-    val ev = new AudioGroupUpdatedRecordEvent()
+  private def handleMediaGroupUpdatedEvtMsg(msg: MediaGroupUpdatedEvtMsg): Unit = {
+    val ev = new MediaGroupUpdatedRecordEvent()
     ev.setGroupId(msg.body.id)
+    ev.setMediaType(msg.body.mediaType)
     ev.setSenders(msg.body.senders)
 
     record(msg.header.meetingId, ev.toMap.asJava)
@@ -583,6 +586,7 @@ class RedisRecorderActor(
     val ev = new PadCreatedRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
     ev.setPadId(msg.body.padId)
+    ev.setSharedNotesEditor(msg.body.sharedNotesEditor)
 
     record(msg.header.meetingId, ev.toMap.asJava)
   }

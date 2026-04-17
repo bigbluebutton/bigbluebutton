@@ -5,6 +5,9 @@ import {
   screenShareEndAlert,
   setOutputDeviceId,
 } from '/imports/ui/components/screenshare/service';
+import {
+  setLiveKitScreenshareHasAudio,
+} from '/imports/ui/components/screenshare/livekit-screenshare-state';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import {
   AudioPresets,
@@ -23,9 +26,13 @@ import {
 } from 'livekit-client';
 import {
   liveKitRoom,
-  getLKStats,
 } from '/imports/ui/services/livekit';
 import { LiveKitPresetConfig } from 'imports/ui/Types/meetingClientSettings';
+import {
+  assemblePresetFromConfig,
+  deduplicatePresets,
+  type PresetDefaults,
+} from '/imports/ui/services/livekit/presets';
 
 interface Options {
   hasAudio?: boolean;
@@ -43,44 +50,105 @@ const SEND_ROLE = 'send';
 const RECV_ROLE = 'recv';
 const DEFAULT_VOLUME = 1;
 const ROOM_CONNECTION_TIMEOUT = 15000;
+const LOW_TIER_FPS = 5;
+const LOW_TIER_BITRATE = 500_000;
+const HIGH_TIER_FPS = 15;
+const HIGH_TIER_BITRATE = 1_500_000;
+const DEFAULT_WIDTH = 1920;
+const DEFAULT_HEIGHT = 1080;
 
-const FALLBACK_PRESET_ORG_HIGH = new VideoPreset(1920, 1080, 2_000_000, 15, 'medium');
+interface CaptureSettings {
+  width: number;
+  height: number;
+  frameRate: number | undefined;
+}
 
-const getDefaultPresets = (mediaStream: MediaStream): VideoPreset[] => {
-  const fallbackPresets = [FALLBACK_PRESET_ORG_HIGH];
+const getCaptureSettings = (stream: MediaStream): CaptureSettings => {
+  // @ts-ignore
+  const configVideo = window.meetingClientSettings.public.media?.livekit?.screenshare
+    ?.constraints?.video;
+  const configWidth = configVideo?.width?.max ?? DEFAULT_WIDTH;
+  const configHeight = configVideo?.height?.max ?? DEFAULT_HEIGHT;
+  const configFps = configVideo?.frameRate?.ideal ?? configVideo?.frameRate?.max;
 
   try {
-    if (!mediaStream.getVideoTracks().length) return fallbackPresets;
+    const track = stream.getVideoTracks()[0];
+    const trackFps = track?.getSettings().frameRate;
 
-    const { width = 1920, height = 1080 } = mediaStream.getVideoTracks()[0].getSettings();
-
-    return [
-      new VideoPreset(width, height, 2_000_000, 15, 'medium'),
-    ];
-  } catch (error) {
-    logger.error({
-      logCode: 'livekit_screenshare_get_presets_error',
-      extraInfo: {
-        errorName: (error as Error).name,
-        errorMessage: (error as Error).message,
-        errorStack: (error as Error).stack,
-      },
-    }, `LiveKit: failed to get screen share presets: ${(error as Error).message}`);
-
-    return fallbackPresets;
+    return {
+      width: configWidth,
+      height: configHeight,
+      frameRate: trackFps ?? configFps,
+    };
+  } catch {
+    return { width: configWidth, height: configHeight, frameRate: configFps };
   }
 };
 
-const assemblePresetFromConfig = (config: LiveKitPresetConfig): VideoPreset => {
-  const {
-    width,
-    height,
-    maxBitrate,
-    maxFramerate,
-    priority,
-  } = config;
+const getDefaultPresets = (stream: MediaStream): VideoPreset[] => {
+  const { width, height, frameRate: captureFrameRate } = getCaptureSettings(stream);
 
-  return new VideoPreset(width, height, maxBitrate, maxFramerate, priority);
+  // If capture FPS is at or below the low-tier FPS, FPS-differentiated
+  // layers would encode at the same rate. Fall back to bitrate-only
+  // differentiation: two layers at same resolution + same FPS, different
+  // bitrate caps.
+  if (captureFrameRate != null && captureFrameRate <= LOW_TIER_FPS) {
+    return [
+      new VideoPreset(width, height, LOW_TIER_BITRATE, captureFrameRate, 'medium'),
+      new VideoPreset(width, height, HIGH_TIER_BITRATE, captureFrameRate, 'medium'),
+    ];
+  }
+
+  // Cap the high-tier FPS to the actual capture rate
+  const effectiveHighFps = captureFrameRate != null
+    ? Math.min(captureFrameRate, HIGH_TIER_FPS)
+    : HIGH_TIER_FPS;
+
+  return [
+    new VideoPreset(width, height, LOW_TIER_BITRATE, LOW_TIER_FPS, 'medium'),
+    new VideoPreset(width, height, HIGH_TIER_BITRATE, effectiveHighFps, 'medium'),
+  ];
+};
+
+// Merges partially-specified config presets with capture-aware defaults.
+// Config presets are ordered lowest-to-highest quality. For each preset,
+// a normalized position t \E [0,1] is computed from its index. Missing
+// bitrate/FPS values are filled by linearly interpolating between the
+// auto-generated low (t=0) and high (t=1) defaults from getDefaultPresets.
+// Resolution always defaults to capture resolution for all positions.
+// It can be overriden on individual presets via explicit width/height (e.g.
+// for a lower-resolution layer).
+// This is bound to change _significantly_ once we support VP9/AV1 (SVC) - prlanzarin
+const resolveConfigPresets = (
+  configPresets: LiveKitPresetConfig[],
+  stream: MediaStream,
+): VideoPreset[] => {
+  const defaults = getDefaultPresets(stream);
+  const first = defaults[0];
+  const last = defaults[defaults.length - 1];
+
+  const interpolatedPresets = configPresets.map((config, index) => {
+    const t = configPresets.length > 1 ? index / (configPresets.length - 1) : 1;
+    const positionalDefaults: PresetDefaults = {
+      width: last.width,
+      height: last.height,
+      maxBitrate: Math.round(
+        first.encoding.maxBitrate + t * (last.encoding.maxBitrate - first.encoding.maxBitrate),
+      ),
+      maxFramerate: Math.round(
+        (first.encoding.maxFramerate ?? LOW_TIER_FPS)
+          + t * ((last.encoding.maxFramerate ?? HIGH_TIER_FPS)
+          - (first.encoding.maxFramerate ?? LOW_TIER_FPS)),
+      ),
+      priority: 'medium',
+    };
+
+    return assemblePresetFromConfig(config, positionalDefaults);
+  });
+
+  const { frameRate: captureFrameRate } = getCaptureSettings(stream);
+
+  return deduplicatePresets(interpolatedPresets, captureFrameRate);
 };
 
 export default class LiveKitScreenshareBridge {
@@ -171,6 +239,7 @@ export default class LiveKitScreenshareBridge {
   clearPublications(): void {
     this.screenPublications.clear();
     this.audioPublications.clear();
+    setLiveKitScreenshareHasAudio(false);
   }
 
   private setPublication(
@@ -181,6 +250,8 @@ export default class LiveKitScreenshareBridge {
 
     if (publications) {
       publications.set(publication.trackSid, publication);
+
+      if (source === Track.Source.ScreenShareAudio) setLiveKitScreenshareHasAudio(true);
 
       if (publication.trackSid === this.streamId && this.role === RECV_ROLE) {
         this.subscribe(publication as RemoteTrackPublication);
@@ -195,7 +266,12 @@ export default class LiveKitScreenshareBridge {
     const audioPublication = this.audioPublications.get(trackSid);
 
     if (screenPublication) this.screenPublications.delete(trackSid);
-    if (audioPublication) this.audioPublications.delete(trackSid);
+
+    if (audioPublication) {
+      this.audioPublications.delete(trackSid);
+
+      if (this.audioPublications.size === 0) setLiveKitScreenshareHasAudio(false);
+    }
   }
 
   private setSubscription(
@@ -446,14 +522,14 @@ export default class LiveKitScreenshareBridge {
   private unsubscribe(mainPublication: RemoteTrackPublication): void {
     if (this.role === RECV_ROLE) {
       // @ts-ignore
-      const withSelectiveSubscription = window.meetingClientSettings.public.media?.livekit?.selectiveSubscription
-        || false;
+      const withSelectiveSub = window.meetingClientSettings?.public?.media?.livekit?.selectiveSubscription?.enabled
+        ?? true;
       const { track } = mainPublication;
       const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG) as HTMLMediaElement;
 
       if (track) track.detach(mediaElement);
 
-      if (withSelectiveSubscription) {
+      if (withSelectiveSub) {
         const audioPublications = Array.from(this.audioPublications.values()) as RemoteTrackPublication[];
 
         if (audioPublications.length > 0) {
@@ -481,11 +557,6 @@ export default class LiveKitScreenshareBridge {
   // eslint-disable-next-line class-methods-use-this
   getPeerConnection() {
     return null;
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  async getStats(): Promise<Map<string, unknown>> {
-    return getLKStats();
   }
 
   setVolume(volume: number): number {
@@ -624,12 +695,25 @@ export default class LiveKitScreenshareBridge {
     // @ts-ignore
     const configScreenPubOpts = window.meetingClientSettings.public.media?.livekit?.screenshare?.publishOptions
       || {};
-    const presets = window.meetingClientSettings.public.media?.livekit?.screenshare?.presets;
-    const screenSharePresets = presets
-      ? presets.map((preset: LiveKitPresetConfig) => assemblePresetFromConfig(preset))
+    const configPresets = window.meetingClientSettings.public.media?.livekit?.screenshare?.presets;
+    const presets = configPresets?.length
+      ? resolveConfigPresets(configPresets, stream)
       : getDefaultPresets(stream);
-    const screenShareEncoding = screenSharePresets[screenSharePresets.length - 1]?.encoding
+    const layers = presets.length > 1
+      ? presets.slice(0, -1)
+      : [];
+    const screenShareEncoding = presets[presets.length - 1]?.encoding
       || ScreenSharePresets.h1080fps15.encoding;
+    logger.debug({
+      logCode: 'livekit_screenshare_presets',
+      extraInfo: {
+        presetCount: presets.length,
+        simulcastLayerCount: layers?.length,
+        presets: presets.map((p) => ({
+          width: p.width, height: p.height, maxBitrate: p.encoding.maxBitrate, maxFramerate: p.encoding.maxFramerate,
+        })),
+      },
+    }, `LiveKit: resolved screen share presets (p=${presets.length}, l=${layers?.length})`);
     // @ts-ignore
     const configAudioPubOpts = window.meetingClientSettings.public.media?.livekit?.audio?.publishOptions || {};
     const baseAudioOptions: TrackPublishOptions = {
@@ -643,6 +727,7 @@ export default class LiveKitScreenshareBridge {
       videoCodec: 'vp8',
       simulcast: true,
       screenShareEncoding,
+      screenShareSimulcastLayers: layers,
       ...configScreenPubOpts,
     };
 
@@ -726,5 +811,6 @@ export default class LiveKitScreenshareBridge {
     }
 
     this.outputDeviceId = undefined;
+    setLiveKitScreenshareHasAudio(false);
   }
 }

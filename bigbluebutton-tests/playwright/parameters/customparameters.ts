@@ -682,6 +682,8 @@ export class CustomParameters extends MultiUsers {
 
     await this.modPage.shareWebcam();
     await this.userPage.shareWebcam();
+    await this.modPage.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
+    await this.userPage.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
 
     await checkScreenshots(
       this,
@@ -816,6 +818,8 @@ export class CustomParameters extends MultiUsers {
 
     await this.modPage.shareWebcam();
     await this.userPage.shareWebcam();
+    await this.modPage.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
+    await this.userPage.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
 
     await checkScreenshots(
       this,
@@ -878,6 +882,8 @@ export class CustomParameters extends MultiUsers {
 
     await this.modPage.shareWebcam();
     await this.userPage.shareWebcam();
+    await this.modPage.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
+    await this.userPage.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
 
     await checkScreenshots(
       this,

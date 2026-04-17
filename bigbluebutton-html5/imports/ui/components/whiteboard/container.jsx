@@ -232,8 +232,7 @@ const WhiteboardContainer = (props) => {
 
   const publishCursorUpdate = useCallback((payload) => {
     const { whiteboardId, xPercent, yPercent, laserType } = payload;
-
-    if (!whiteboardId || !xPercent || !yPercent || !(hasWBAccess || isPresenter)) return;
+    if (!whiteboardId || xPercent == null || yPercent == null || !(hasWBAccess || isPresenter)) return;
 
     presentationPublishCursor({
       variables: {
@@ -245,10 +244,12 @@ const WhiteboardContainer = (props) => {
     });
   }, [hasWBAccess, isPresenter]);
 
-  const throttledPublishCursorUpdate = useMemo(() => throttle(
+  const throttledPublishCursorUpdate = useMemo(() => {
+    return throttle(
     { interval: WHITEBOARD_CONFIG.cursorInterval },
     publishCursorUpdate,
-  ), [publishCursorUpdate]);
+  );
+  }, [publishCursorUpdate]);
 
   const isMultiUserActive = whiteboardWriters.filter((u) => !u.presenter)?.length > 0;
   const cursorArray = useMergedCursorData();
@@ -461,7 +462,7 @@ const WhiteboardContainer = (props) => {
   const sidebarNavigationWidth = layoutSelect(
     (i) => i?.output?.sidebarNavigation?.width,
   );
-  const { maxStickyNoteLength, maxNumberOfAnnotations, lockToolbarTools, laserRadiusSmall, laserRadiusLarge } = WHITEBOARD_CONFIG;
+  const { maxStickyNoteLength, maxNumberOfAnnotations, lockToolbarTools, pointerDiameter, laserRadiusSmall, laserRadiusLarge } = WHITEBOARD_CONFIG;
   const fontFamily = WHITEBOARD_CONFIG.styles.text.family;
   const {
     colorStyle, dashStyle, fillStyle, fontStyle, sizeStyle,
@@ -507,6 +508,7 @@ const WhiteboardContainer = (props) => {
           maxStickyNoteLength,
           maxNumberOfAnnotations,
           lockToolbarTools,
+          pointerDiameter,
           laserRadiusSmall,
           laserRadiusLarge,
           fontFamily,

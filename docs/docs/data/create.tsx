@@ -356,6 +356,19 @@ const createEndpointTableData = [
     "description": (<>Pass a URL to an image which will then be visible in the area above the participants list if <code>displayBrandingArea</code> is set to <code>true</code> in bbb-html5's configuration</>)
   },
   {
+    "name": "sharedNotesEditor",
+    "required": false,
+    "type": "String",
+    "default": "etherpad",
+    "description": (<>Editor to be rendered in the shared-notes area: `blockNote` or `etherpad`</>)
+  },
+  {
+    "name": "sharedNotesInitialContentJsonUrl",
+    "required": false,
+    "type": "String",
+    "description": (<>Url from which the shared-notes will fetch the initial content (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise)</>)
+  },
+  {
     "name": "disabledFeatures",
     "required": false,
     "type": "String",
@@ -368,100 +381,148 @@ const createEndpointTableData = [
           <br />
           <ul>
             <li>
-              <code className="language-plaintext highlighter-rouge">breakoutRooms</code> - <b>Breakout Rooms</b>
+              <b>Chat</b>
+              <ul>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">chat</code> - <b>Chat (Public and Private)</b>
+                </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">privateChat</code> - <b>Private Chat</b>
+                </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">deleteChatMessage</code> - <b>Delete a Chat Message (moderators or author)</b>
+                </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">editChatMessage</code> - <b>Edit a Chat Message (only author)</b>
+                </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">replyChatMessage</code> - <b>Reply to a Chat Message</b>
+                </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">chatMessageReactions</code> - <b>Send Reactions to a chat message</b>
+                </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">chatEmojiPicker</code> - <b>Chat emoji picker (added in BigBlueButton 3.0)</b>
+                </li>
+              </ul>
             </li>
             <li>
-              <code className="language-plaintext highlighter-rouge">captions</code> - <b>Closed Caption</b>
+              <b>Presentation &amp; Whiteboard</b>
+              <ul>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">presentation</code> - <b>Presentation</b>
+                </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">downloadPresentationWithAnnotations</code> - <b>Annotated presentation download</b>
+                </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">downloadPresentationConvertedToPdf</code> - <b>Converted presentation download (if BigBlueButton had to convert to PDF)</b>
+                </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">downloadPresentationOriginalFile</code> - <b>Original presentation download</b>
+                </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">snapshotOfCurrentSlide</code> - <b>Snapshot of the current slide</b>
+                </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">infiniteWhiteboard</code> - <b>Infinite Whiteboard (added in BigBlueButton 3.0)</b>
+                </li>
+              </ul>
             </li>
             <li>
-              <code className="language-plaintext highlighter-rouge">chat</code> - <b>Chat (Public and Private)</b>
+              <b>Breakout Rooms</b>
+              <ul>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">breakoutRooms</code> - <b>Breakout Rooms</b>
+                </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">importPresentationWithAnnotationsFromBreakoutRooms</code> - <b>Capture breakout presentation</b>
+                </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">importSharedNotesFromBreakoutRooms</code> - <b>Capture breakout shared notes</b>
+                </li>
+              </ul>
             </li>
             <li>
-              <code className="language-plaintext highlighter-rouge">privateChat</code> - <b>Private Chat</b>
+              <b>Video &amp; Audio</b>
+              <ul>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">screenshare</code> - <b>Screen Sharing</b>
+                </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">cameraAsContent</code> - <b>Camera as Content</b>
+                </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">virtualBackgrounds</code> - <b>Virtual Backgrounds</b>
+                </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">customVirtualBackgrounds</code> - <b>Virtual Backgrounds Upload</b>
+                </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">liveTranscription</code> - <b>Live Transcription</b>
+                </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">captions</code> - <b>Closed Captions</b>
+                </li>
+              </ul>
             </li>
             <li>
-              <code className="language-plaintext highlighter-rouge">deleteChatMessage</code> - <b>Delete a Chat Message (moderators or author)</b>
+              <b>User Engagement</b>
+              <ul>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">polls</code> - <b>Polls</b>
+                </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">quizzes</code> - <b>Quizzes (added in BigBlueButton 3.0)</b>
+                </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">raiseHand</code> - <b>Raise Hand (added in BigBlueButton 3.0)</b>
+                </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">userReactions</code> - <b>User Reactions button in actions bar (added in BigBlueButton 3.0)</b>
+                </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">externalVideos</code> - <b>Share an External Video</b>
+                </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">timer</code> - <b>Timer</b>
+                </li>
+              </ul>
             </li>
             <li>
-              <code className="language-plaintext highlighter-rouge">editChatMessage</code> - <b>Edit a Chat Message (only author)</b>
+              <b>Shared Notes</b>
+              <ul>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">sharedNotes</code> - <b>Shared Notes</b>
+                </li>
+              </ul>
             </li>
             <li>
-              <code className="language-plaintext highlighter-rouge">replyChatMessage</code> - <b>Reply to a Chat Message</b>
+              <b>Learning Analytics</b>
+              <ul>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">learningDashboard</code> - <b>Learning Analytics Dashboard</b>
+                </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">learningDashboardDownloadSessionData</code> - <b>Learning Analytics Dashboard Download Session Data (prevents the option to download)</b>
+                </li>
+              </ul>
             </li>
             <li>
-              <code className="language-plaintext highlighter-rouge">chatMessageReactions</code> - <b>Send Reactions to a chat message</b>
+              <b>Layouts</b>
+              <ul>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">layouts</code> - <b>Layouts</b> (allow only default layout)
+                </li>
+              </ul>
             </li>
             <li>
-              <code className="language-plaintext highlighter-rouge">downloadPresentationWithAnnotations</code> - <b>Annotated presentation download</b>
-            </li>
-            <li>
-              <code className="language-plaintext highlighter-rouge">downloadPresentationConvertedToPdf</code> - <b>Converted presentation download (if BigBlueButton had to convert to PDF)</b>
-            </li>
-            <li>
-              <code className="language-plaintext highlighter-rouge">downloadPresentationOriginalFile</code> - <b>Original presentation download</b>
-            </li>
-            <li>
-              <code className="language-plaintext highlighter-rouge">snapshotOfCurrentSlide</code> - <b>Allow snapshot of the current slide</b>
-            </li>
-            <li>
-              <code className="language-plaintext highlighter-rouge">externalVideos</code> - <b>Share an external video</b>
-            </li>
-            <li>
-              <code className="language-plaintext highlighter-rouge">importPresentationWithAnnotationsFromBreakoutRooms</code> - <b>Capture breakout presentation</b>
-            </li>
-            <li>
-              <code className="language-plaintext highlighter-rouge">importSharedNotesFromBreakoutRooms</code> - <b>Capture breakout shared notes</b>
-            </li>
-            <li>
-              <code className="language-plaintext highlighter-rouge">layouts</code> - <b>Layouts</b> (allow only default layout)
-            </li>
-            <li>
-              <code className="language-plaintext highlighter-rouge">learningDashboard</code> - <b>Learning Analytics Dashboard</b>
-            </li>
-            <li>
-              <code className="language-plaintext highlighter-rouge">learningDashboardDownloadSessionData</code> - <b>Learning Analytics Dashboard Download Session Data (prevents the option to download)</b>
-            </li>
-            <li>
-              <code className="language-plaintext highlighter-rouge">polls</code> - <b>Polls</b>
-            </li>
-            <li>
-              <code className="language-plaintext highlighter-rouge">screenshare</code> - <b>Screen Sharing</b>
-            </li>
-            <li>
-              <code className="language-plaintext highlighter-rouge">sharedNotes</code> - <b>Shared Notes</b>
-            </li>
-            <li>
-              <code className="language-plaintext highlighter-rouge">virtualBackgrounds</code> - <b>Virtual Backgrounds</b>
-            </li>
-            <li>
-              <code className="language-plaintext highlighter-rouge">customVirtualBackgrounds</code> - <b>Virtual Backgrounds Upload</b>
-            </li>
-            <li>
-              <code className="language-plaintext highlighter-rouge">liveTranscription</code> - <b>Live Transcription</b>
-            </li>
-            <li>
-              <code className="language-plaintext highlighter-rouge">presentation</code> - <b>Presentation</b>
-            </li>
-            <li>
-              <code className="language-plaintext highlighter-rouge">cameraAsContent</code> - <b>Enables/Disables camera as a content</b>
-            </li>
-            <li>
-              <code className="language-plaintext highlighter-rouge">timer</code> - <b>Disables timer</b>
-            </li>
-            <li>
-              <code className="language-plaintext highlighter-rouge">infiniteWhiteboard</code> - <b>Infinite Whiteboard (added in BigBlueButton 3.0)</b>
-            </li>
-            <li>
-              <code className="language-plaintext highlighter-rouge">raiseHand</code> - <b>Raise Hand (added in BigBlueButton 3.0)</b>
-            </li>
-            <li>
-              <code className="language-plaintext highlighter-rouge">userReactions</code> - <b>Enable/Disable user reactions (added in BigBlueButton 3.0)</b>
-            </li>
-            <li>
-              <code className="language-plaintext highlighter-rouge">chatEmojiPicker</code> - <b>Enable/Disable chat emoji picker (added in BigBlueButton 3.0)</b>
-            </li>
-            <li>
-              <code className="language-plaintext highlighter-rouge">quizzes</code> - <b>Quizzes  (added in BigBlueButton 3.0)</b>
+              <b>Plugins</b>
+              <ul>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">plugins</code> - <b>Plugins (added in BigBlueButton 3.0)</b>
+                </li>
+              </ul>
             </li>
           </ul>
         </>
@@ -544,6 +605,17 @@ const createEndpointTableData = [
       <>
         <p>A data structure containing settings which override values from the HTML5 client's <code>settings.yml</code> file. This data can also be provided in the body of a POST request, see <a href='#clientsettingsoverride'>clientSettingsOverride</a> for details.</p>
         <p><i>Added:</i> 3.0.0-alpha.5</p>
+      </>
+    )
+  },
+  {
+    "name": "clientSettingsOverrideJsonUrl",
+    "required": false,
+    "type": "String",
+    "description": (
+      <>
+        <p>A URL pointing to a JSON file whose content overrides values from the HTML5 client's <code>settings.yml</code> file. The JSON structure is identical to <a href='#clientsettingsoverride'>clientSettingsOverride</a> but is provided as a direct JSON file (no XML wrapper). This parameter takes precedence over <code>clientSettingsOverride</code> when both are present. Unlike <code>clientSettingsOverride</code>, it does not require <code>allowOverrideClientSettingsOnCreateCall</code> to be enabled.</p>
+        <p><i>Added:</i> 3.0.25</p>
       </>
     )
   },

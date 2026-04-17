@@ -22,9 +22,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+        https://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/util
-        http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+        https://www.springframework.org/schema/util/spring-util.xsd">
 
     <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
 
@@ -43,7 +43,11 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="gw" ref="bbbWebApiGWApp"/>
     </bean>
 
-    <bean id="meetingService" class="org.bigbluebutton.api.MeetingService" init-method="start" destroy-method="stop">
+    <bean id="sharedNotesRedirectValidator" class="org.bigbluebutton.api.service.impl.SharedNotesRedirectValidatorService">
+    </bean>
+
+    <bean id="meetingService" class="org.bigbluebutton.api.MeetingService"
+          init-method="start" destroy-method="stop">
         <property name="redisStorageService" ref="redisStorageService"/>
         <property name="learningDashboardService" ref="learningDashboardService"/>
         <property name="recordingService" ref="recordingService"/>
@@ -60,6 +64,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="numPluginManifestsFetchingThreads" value="${numPluginManifestsFetchingThreads}"/>
         <property name="pluginManifestFetchTimeout" value="${pluginManifestFetchTimeout}"/>
         <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
+        <property name="redirectFollower" ref="redirectFollower"/>
+        <property name="sharedNotesRedirectValidator" ref="sharedNotesRedirectValidator"/>
     </bean>
 
     <bean id="oldMessageReceivedGW" class="org.bigbluebutton.api2.bus.OldMessageReceivedGW">
@@ -85,7 +91,16 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="redirectFollower" class="org.bigbluebutton.api.service.RedirectFollowerService">
     </bean>
 
+    <bean id="secureUrlDownloader" class="org.bigbluebutton.api.service.SecureUrlDownloader">
+    </bean>
+
     <bean id="pluginRedirectValidator" class="org.bigbluebutton.api.service.impl.PluginRedirectValidatorService">
+    </bean>
+
+    <bean id="clientSettingsOverrideUrlValidator" class="org.bigbluebutton.api.service.impl.ClientSettingsOverrideUrlValidator">
+        <property name="fetchUrlSupportedProtocols" value="${fetchUrlSupportedProtocols}" />
+        <property name="fetchUrlBlockedExternalHosts" value="${fetchUrlBlockedExternalHosts}" />
+        <property name="fetchUrlAllowedLocalHosts" value="${fetchUrlAllowedLocalHosts}" />
     </bean>
 
     <bean id="pluginUtils" class="org.bigbluebutton.api.util.PluginUtils">
@@ -115,6 +130,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="redirectFollower" ref="redirectFollower" />
         <property name="presDownloadReadTimeoutInMs" value="${presDownloadReadTimeoutInMs}" />
         <property name="presRedirectValidator" ref="presRedirectValidator" />
+        <property name="secureUrlDownloader" ref="secureUrlDownloader" />
     </bean>
 
     <bean id="xmlService" class="org.bigbluebutton.api.service.impl.XmlServiceImpl"/>
@@ -174,6 +190,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="disableRecordingDefault" value="${disableRecordingDefault}"/>
         <property name="autoStartRecording" value="${autoStartRecording}"/>
         <property name="allowStartStopRecording" value="${allowStartStopRecording}"/>
+        <property name="sharedNotesEditor" value="${sharedNotesEditor}"/>
         <property name="presentationConversionCacheEnabled" value="${presentationConversionCacheEnabled}"/>
         <property name="recordFullDurationMedia" value="${recordFullDurationMedia}"/>
         <property name="learningDashboardCleanupDelayInMinutes" value="${learningDashboardCleanupDelayInMinutes}"/>
@@ -229,8 +246,13 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="pluginManifests" value="${pluginManifests}"/>
         <property name="pluginManifestsFetchUrlResponseTimeout" value="${pluginManifestsFetchUrlResponseTimeout}"/>
         <property name="maxPluginManifestsFetchUrlPayloadSize" value="${maxPluginManifestsFetchUrlPayloadSize}"/>
+        <property name="clientSettingsOverrideJsonUrlResponseTimeout" value="${clientSettingsOverrideJsonUrlResponseTimeout}"/>
+        <property name="maxClientSettingsOverrideJsonUrlPayloadSize" value="${maxClientSettingsOverrideJsonUrlPayloadSize}"/>
         <property name="html5PluginSdkVersion" value="${html5PluginSdkVersion}"/>
         <property name="pluginUtils" ref="pluginUtils"/>
+        <property name="clientSettingsOverrideUrlValidator" ref="clientSettingsOverrideUrlValidator"/>
+        <property name="redirectFollower" ref="redirectFollower"/>
+        <property name="secureUrlDownloader" ref="secureUrlDownloader"/>
         <property name="maxNumPages" value="${maxNumPages}"/>
         <property name="getJoinUrlUserdataBlocklist" value="${getJoinUrlUserdataBlocklist}"/>
     </bean>

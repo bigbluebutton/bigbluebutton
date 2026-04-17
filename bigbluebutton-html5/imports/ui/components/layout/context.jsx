@@ -1424,7 +1424,9 @@ const updatePresentationAreaContent = (
       case PRESENTATION_AREA.PINNED_NOTES: {
         if (
           (sidebarContent.isOpen || !isPresentationEnabled)
-          && (sidebarContent.sidebarContentPanel === PANELS.SHARED_NOTES
+          && ((
+            sidebarContent.sidebarContentPanel === PANELS.SHARED_NOTES
+          )
             || !isPresentationEnabled)
         ) {
           if (layoutType === LAYOUT_TYPE.VIDEO_FOCUS) {

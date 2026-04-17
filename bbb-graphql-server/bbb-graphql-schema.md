@@ -44,6 +44,7 @@
   - `hasScreenshare: Boolean`
   - `hasTimer: Boolean`
   - `isSharedNotesPinned: Boolean`
+  - `isEtherpadSharedNotes: Boolean`
   - `showRemainingTime: Boolean`
 - `externalVideo: Object` [Type externalVideo](#type-externalVideo)
 - `groups: Array` [Type meeting_group](#type-meeting_group)
@@ -303,6 +304,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `hasScreenshare`
 - `hasTimer`
 - `isSharedNotesPinned`
+- `isEtherpadSharedNotes`
 - `showRemainingTime`
 
 ## Type: pres_page
@@ -734,6 +736,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `lastRev`
 - `model`
 - `name`
+- `sharedNotesEditor`
 - `padId`
 - `pinned`
 - `sharedNotesExtId`
