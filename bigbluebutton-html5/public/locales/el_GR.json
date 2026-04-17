@@ -189,7 +189,7 @@
     "app.userList.clearSearch": "Καθαρισμός αναζήτησης",
     "app.userList.sharingWebcam": "Κάμερα",
     "app.userList.menuTitleContext": "Διαθέσιμες επιλογές",
-    "app.userList.chatListItem.noUnread": "No new messages",
+    "app.userList.chatListItem.noUnread": "Δεν υπάρχουν νέα μηνύματα",
     "app.userList.chatListItem.unreadSingular": "Ένα νέο μήνυμα",
     "app.userList.more": "Περισσότερα",
     "app.userList.chatListItem.unreadPlural": "{unreadCount} νέα μηνύματα",
