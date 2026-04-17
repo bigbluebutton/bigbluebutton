@@ -14,6 +14,8 @@ public class LockSettingsChanged implements IMessage {
     public final Boolean hideViewersCursor;
     public final Boolean hideViewersAnnotation;
     public final String presenterPolicy;
+    public final Boolean disableMultiScreenshare;
+    public final Boolean hideViewersScreenshare;
 
     public LockSettingsChanged(String meetingId,
                                Boolean disableCam,
@@ -26,7 +28,9 @@ public class LockSettingsChanged implements IMessage {
                                Boolean lockOnJoinConfigurable,
                                Boolean hideViewersCursor,
                                Boolean hideViewersAnnotation,
-                               String presenterPolicy) {
+                               String presenterPolicy,
+                               Boolean disableMultiScreenshare,
+                               Boolean hideViewersScreenshare) {
         this.meetingId = meetingId;
         this.disableCam = disableCam;
         this.disableMic = disableMic;
@@ -39,5 +43,7 @@ public class LockSettingsChanged implements IMessage {
         this.hideViewersCursor = hideViewersCursor;
         this.hideViewersAnnotation = hideViewersAnnotation;
         this.presenterPolicy = presenterPolicy;
+        this.disableMultiScreenshare = disableMultiScreenshare;
+        this.hideViewersScreenshare = hideViewersScreenshare;
     }
 }

@@ -427,6 +427,18 @@ public class ParamsProcessorUtil {
                 lockSettingsPresenterPolicy = lockSettingsPresenterPolicyParam;
 			}
 
+            Boolean lockSettingsDisableMultiScreenshare = false;
+            String lockSettingsDisableMultiScreenshareParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_MULTI_SCREENSHARE);
+            if (!StringUtils.isEmpty(lockSettingsDisableMultiScreenshareParam)) {
+                lockSettingsDisableMultiScreenshare = Boolean.parseBoolean(lockSettingsDisableMultiScreenshareParam);
+            }
+
+            Boolean lockSettingsHideViewersScreenshare = false;
+            String lockSettingsHideViewersScreenshareParam = params.get(ApiParams.LOCK_SETTINGS_HIDE_VIEWERS_SCREENSHARE);
+            if (!StringUtils.isEmpty(lockSettingsHideViewersScreenshareParam)) {
+                lockSettingsHideViewersScreenshare = Boolean.parseBoolean(lockSettingsHideViewersScreenshareParam);
+            }
+
 			return new LockSettingsParams(lockSettingsDisableCam,
 							lockSettingsDisableMic,
 							lockSettingsDisablePrivateChat,
@@ -437,7 +449,9 @@ public class ParamsProcessorUtil {
 							lockSettingsLockOnJoinConfigurable,
                             lockSettingsHideViewersCursor,
                             lockSettingsHideViewersAnnotation,
-                            lockSettingsPresenterPolicy);
+                            lockSettingsPresenterPolicy,
+                            lockSettingsDisableMultiScreenshare,
+                            lockSettingsHideViewersScreenshare);
 		}
 
     private ArrayList<Group> processGroupsParams(Map<String, String> params) {
