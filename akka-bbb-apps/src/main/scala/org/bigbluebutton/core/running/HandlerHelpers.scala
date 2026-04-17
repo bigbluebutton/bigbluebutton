@@ -112,7 +112,7 @@ trait HandlerHelpers extends SystemConfiguration {
                     "user",
                     "app.notification.userJoinPushAlert",
                     "Notification for a user joins the meeting",
-                    Map("userName" -> s"${newUser.name}")
+                    Map("userName" -> newUser.name)
                   )
                   outGW.send(notifyEvent)
                   NotificationDAO.insert(notifyEvent)
@@ -124,7 +124,7 @@ trait HandlerHelpers extends SystemConfiguration {
                 "user",
                 "app.notification.userJoinPushAlert",
                 "Notification for a user joins the meeting",
-                Map("userName" -> s"${newUser.name}")
+                Map("userName" -> newUser.name)
               )
               outGW.send(notifyEvent)
               NotificationDAO.insert(notifyEvent)
