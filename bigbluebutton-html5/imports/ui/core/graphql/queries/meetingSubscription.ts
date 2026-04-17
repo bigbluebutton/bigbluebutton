@@ -18,6 +18,8 @@ const MEETING_SUBSCRIPTION = gql`
           webcamsOnlyForModerator
           lockOnJoin
           lockOnJoinConfigurable
+          disableMultiScreenshare
+          hideViewersScreenshare
         }
 
         learningDashboard {
@@ -35,6 +37,8 @@ const MEETING_SUBSCRIPTION = gql`
           vidHeight
           vidWidth
           voiceConf
+          userId
+          showAsContent
         }
         usersPolicies {
           guestPolicy
