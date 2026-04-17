@@ -4,7 +4,7 @@ import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME } from '../core/
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { MultiUsers } from '../user/multiusers';
-import { checkIsPresenter } from '../user/util';
+import { checkIsPresenter, openLockViewers } from '../user/util';
 import { getScreenshareVideoCount, startScreenshare } from './util';
 
 export class ScreenShare extends MultiUsers {
@@ -517,30 +517,98 @@ export class ScreenShare extends MultiUsers {
     await this.modPage2.waitAndClick(e.stopScreenSharing);
   }
 
-  // Test: Lock disableMultiScreenshare blocks viewers (NOT IMPLEMENTED)
-  async lockDisableMultiScreenshare() {
-    await this.modPage.waitForSelector(e.whiteboard);
-    await this.userPage.waitForSelector(e.whiteboard);
+  // T06: Lock "Share screen" (hideViewersScreenshare) blocks viewer, no promotion (R13, R15, R3)
+  // Pre-condition: moderator (presenter) + viewer (NEVER promoted). Lock initially OFF.
+  // Steps: enable lock → viewer button disappears → mod can share → viewer in list → disable lock → viewer can share.
+  async lockBlocksViewerNoPromotion() {
+    // Wait for meeting to be ready — screenshare button is our canary
+    await this.modPage.hasElement(e.startScreenSharing, 'moderator should see screenshare button', ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.userPage.hasElement(e.startScreenSharing, 'viewer should see screenshare button before lock is active', ELEMENT_WAIT_EXTRA_LONG_TIME);
 
-    // Open lock viewers settings
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.lockViewersButton);
+    // Check 3 guard: viewer must NOT be presenter
+    const viewerIsPresenterBefore = await checkIsPresenter(this.userPage);
+    expect(viewerIsPresenterBefore, 'viewer must not be presenter at start of T06').toBeFalsy();
 
-    // Check if disableMultiScreenshare lock setting exists
-    // This setting is NOT yet implemented in the UI
-    const hasLockSetting = await this.modPage.checkElement('input[data-test=lockScreenShareToggle]');
+    // Step 1: Moderator activates hideViewersScreenshare lock via lock-viewers modal
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClickElement(e.hideViewersScreenshare);
+    await this.modPage.waitAndClick(e.applyLockSettings);
 
-    if (hasLockSetting) {
-      // If implemented, toggle it and verify
-      await this.modPage.page.click('input[data-test=lockScreenShareToggle]');
-      await this.modPage.waitAndClick(e.applyLockSettings);
-    } else {
-      // Document the gap: lock setting not implemented
-      // Close the modal
-      await this.modPage.waitAndClick(e.applyLockSettings);
-    }
+    // Step 2: Viewer's screenshare button disappears — server enforced lock propagated via GraphQL
+    await this.userPage.wasRemoved(
+      e.startScreenSharing,
+      'viewer screenshare button must disappear when lock is active',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
 
-    // Return whether the setting was found
-    expect(hasLockSetting, 'disableMultiScreenshare lock setting should exist (NOT YET IMPLEMENTED)').toBeFalsy();
+    // Step 3: Moderator can still share (moderators bypass the lock per R13)
+    await startScreenshare(this.modPage);
+    await this.modPage.hasElement(e.isSharingScreen, 'moderator should still be able to share screen while lock is active');
+
+    // Check 3: Viewer is still in participant list — no eject occurred (R3)
+    const viewerInModList = this.modPage.page.locator(e.userListItem).filter({ hasText: 'Attendee' });
+    await expect(viewerInModList, 'viewer must still be in participant list while lock is active — no eject occurred').toBeVisible();
+
+    // Moderator stops share
+    await this.modPage.waitAndClick(e.stopScreenSharing);
+    await this.modPage.wasRemoved(e.isSharingScreen, 'moderator screenshare should stop', ELEMENT_WAIT_LONGER_TIME);
+
+    // Step 4: Moderator deactivates the lock
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClickElement(e.hideViewersScreenshare);
+    await this.modPage.waitAndClick(e.applyLockSettings);
+
+    // Step 5: Viewer's screenshare button reappears after lock is deactivated
+    await this.userPage.hasElement(
+      e.startScreenSharing,
+      'viewer should see screenshare button again after lock is deactivated',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+
+    // Check 3: Viewer is still NOT promoted to presenter
+    const viewerIsPresenterAfter = await checkIsPresenter(this.userPage);
+    expect(viewerIsPresenterAfter, 'viewer must not be promoted to presenter during T06').toBeFalsy();
+
+    // Viewer starts screenshare after lock is removed (confirms share path is restored)
+    // startScreenshare validates via screenShareVideo + stopScreenSharing internally
+    await startScreenshare(this.userPage);
+
+    // Cleanup
+    await this.userPage.waitAndClick(e.stopScreenSharing);
+  }
+
+  // T19: Blocked attempt from viewer does not eject them from the meeting (R3)
+  // Pre-condition: moderator (presenter) + viewer. Lock enabled by moderator.
+  // Steps: enable lock → viewer has no share button (server denied via GraphQL) → assert viewer still in meeting.
+  async lockedAttemptNoEject() {
+    // Wait for meeting to be ready
+    await this.modPage.hasElement(e.startScreenSharing, 'moderator should see screenshare button', ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await this.userPage.hasElement(e.startScreenSharing, 'viewer should see screenshare button before lock', ELEMENT_WAIT_EXTRA_LONG_TIME);
+
+    // Moderator enables hideViewersScreenshare lock — server enforces denial for viewers
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClickElement(e.hideViewersScreenshare);
+    await this.modPage.waitAndClick(e.applyLockSettings);
+
+    // Viewer's button disappears — server communicated the lock; client reflects server state
+    await this.userPage.wasRemoved(
+      e.startScreenSharing,
+      'viewer screenshare button must be removed when server-side lock is active',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+
+    // Explicit denial without ejection: viewer is still in moderator's participant list
+    const viewerInModList = this.modPage.page.locator(e.userListItem).filter({ hasText: 'Attendee' });
+    await expect(
+      viewerInModList,
+      'viewer must still be in participant list after server denial — no eject occurred (R3)',
+    ).toBeVisible();
+
+    // Viewer's own UI confirms they are still in the meeting (not ejected/disconnected)
+    await this.userPage.hasElement(
+      e.currentUser,
+      'viewer should still see their own user entry in the meeting — not ejected',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
   }
 }

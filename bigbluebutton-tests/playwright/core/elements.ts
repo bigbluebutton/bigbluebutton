@@ -432,6 +432,7 @@ export const elements = {
   lockUserList: 'input[data-test="lockUserList"]',
   hideViewersAnnotation: 'input[data-test="hideViewersAnnotation"]',
   hideViewersCursor: 'input[data-test="hideViewersCursor"]',
+  hideViewersScreenshare: 'input[data-test="hideViewersScreenshare"]',
   whiteboardCursorIndicator: 'svg use[href="#cursor"]',
   // Locales
   locales: [
