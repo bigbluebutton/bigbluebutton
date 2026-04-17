@@ -94,9 +94,12 @@ export default function PinnedMessageComponent({ messages, isModerator }: Pinned
   }, []);
 
   useLayoutEffect(() => {
-    checkOverflow();
     setIsExpanded(false);
   }, [activeMessage?.messageId, activeMessage?.messageAsHtml]);
+
+  useLayoutEffect(() => {
+    checkOverflow();
+  }, [isExpanded, activeMessage?.messageId, activeMessage?.messageAsHtml]);
 
   const handleUnpin = () => {
     setIsConfirmModalOpen(true);
