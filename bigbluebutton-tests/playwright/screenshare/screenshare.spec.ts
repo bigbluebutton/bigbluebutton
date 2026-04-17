@@ -57,6 +57,8 @@ test.describe.parallel('Screenshare', { tag: '@ci' }, () => {
   });
 
   // R4: Enabling disableMultiScreenshare via lock-viewers UI forcibly stops active viewer shares
+  // Actors: broadcaster_moderator (modPage), broadcaster_viewer (userPage),
+  //         moderator_controller (modPage2)
   test('[R4] Enabling disableMultiScreenshare stops active viewer screenshare', async ({
     browser,
     context,
@@ -67,6 +69,7 @@ test.describe.parallel('Screenshare', { tag: '@ci' }, () => {
     const screenshare = new ScreenShare(browser, context);
     await screenshare.initModPage(page, { testInfo });
     await screenshare.initUserPage(context, { testInfo });
+    await screenshare.initModPage2(context, { testInfo });
     await screenshare.enableDisableMultiScreenshareStopsViewerShare();
   });
 });

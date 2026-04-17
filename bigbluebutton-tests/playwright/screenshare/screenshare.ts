@@ -2,7 +2,7 @@ import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { MultiUsers } from '../user/multiusers';
 import { openLockViewers } from '../user/util';
-import { startScreenshare } from './util';
+import { dwellOnBehavior, expectDecodedFrames, startScreenshare } from './util';
 
 export class ScreenShare extends MultiUsers {
   async startSharing() {
@@ -106,27 +106,55 @@ export class ScreenShare extends MultiUsers {
     );
   }
 
-  // R3+R4: Enable disableMultiScreenshare via UI while a viewer is already sharing
+  // R4: Three actors:
+  //   broadcaster_moderator = modPage  (starts screenshare, must survive the lock)
+  //   broadcaster_viewer    = userPage (starts screenshare, must be stopped by the lock)
+  //   moderator_controller  = modPage2 (applies the lock, observes the outcome)
   async enableDisableMultiScreenshareStopsViewerShare() {
     const { screensharingEnabled } = this.modPage.settings || {};
     if (!screensharingEnabled) return;
 
-    // Viewer starts screenshare first
+    // broadcaster_moderator starts screenshare - this stream must survive the lock
+    await startScreenshare(this.modPage);
+    await this.modPage.hasElement(e.stopScreenSharing, 'broadcaster_moderator should be sharing');
+
+    // broadcaster_viewer starts screenshare - this stream must be stopped by the lock
     await startScreenshare(this.userPage);
-    await this.userPage.hasElement(e.stopScreenSharing, 'viewer should be sharing before lock is applied');
+    await this.userPage.hasElement(e.stopScreenSharing, 'broadcaster_viewer should be sharing before lock');
 
-    // Moderator opens lock viewers and enables disableMultiScreenshare
-    await openLockViewers(this.modPage);
-    await this.modPage.waitAndClick(e.participantPermissionsTab);
-    // The lockScreenshare checkbox is checked=true when disableMultiScreenshare=false (meaning "allow").
-    // Unchecking it means "disallow" (disableMultiScreenshare=true).
-    await this.modPage.waitAndClick(e.lockScreenshare);
-    await this.modPage.waitAndClick(e.applyLockSettings);
+    // Dwell on "both shares active" so the recording captures the simultaneity window
+    await dwellOnBehavior(this.modPage2.page, 'both shares active before lock', 4000);
 
-    // Viewer's screenshare should have been forcibly stopped by the server
+    // Prove both streams are visible and decoding from moderator_controller perspective
+    await expectDecodedFrames(this.modPage2.page, 'video[id^="screenshareVideo"]');
+
+    // moderator_controller activates disableMultiScreenshare via lock-viewers panel
+    await openLockViewers(this.modPage2);
+    await this.modPage2.waitAndClick(e.participantPermissionsTab);
+    // The lockScreenshare checkbox is checked=true when disableMultiScreenshare=false (allow).
+    // Unchecking it means disallow (disableMultiScreenshare=true).
+    await this.modPage2.waitAndClick(e.lockScreenshare);
+    await this.modPage2.waitAndClick(e.applyLockSettings);
+
+    // Dwell on lock-applied state so the recording shows the transition
+    await dwellOnBehavior(this.modPage2.page, 'lock applied - broadcaster_viewer share stopping', 4000);
+
+    // broadcaster_viewer screenshare must have been forcibly stopped server-side
     await this.userPage.wasRemoved(
       e.stopScreenSharing,
-      'viewer screenshare should be stopped after moderator enables disableMultiScreenshare',
+      'broadcaster_viewer screenshare must stop after moderator_controller enables disableMultiScreenshare',
+    );
+
+    // Dwell on "only moderator share remains" so the recording confirms the final state
+    await dwellOnBehavior(this.modPage2.page, 'only broadcaster_moderator share active', 4000);
+
+    // broadcaster_moderator stream must still be decoding after the lock was applied
+    await expectDecodedFrames(this.modPage2.page, 'video[id^="screenshareVideo"]');
+
+    // broadcaster_moderator stop button must still be visible, confirming the share is alive
+    await this.modPage.hasElement(
+      e.stopScreenSharing,
+      'broadcaster_moderator screenshare must continue after lock is applied to viewers',
     );
   }
 }
