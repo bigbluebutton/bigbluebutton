@@ -20,6 +20,9 @@ import { SidebarNavigation as SidebarNavigationInput } from '../layout/layoutTyp
 import getSettingsSingletonInstance from '/imports/ui/services/settings';
 import { useIsLearningDashboardEnabled } from '/imports/ui/services/features';
 import { PANELS } from '/imports/ui/components/layout/enums';
+import { layoutSelectInput } from '/imports/ui/components/layout/context';
+import { Input } from '/imports/ui/components/layout/layoutTypes';
+import useIsPanelOpened from './hooks/useIsPanelOpened';
 import Styled from './styles';
 
 interface SidebarNavigationProps {
@@ -34,7 +37,6 @@ interface SidebarNavigationProps {
   isModerator: boolean,
   hasUnreadMessages: boolean,
   hasUnreadNotes: boolean,
-  sidebarContentPanel: string,
 }
 
 const intlMessages = defineMessages({
@@ -70,7 +72,6 @@ const SidebarNavigation = ({
   isModerator,
   hasUnreadMessages,
   hasUnreadNotes,
-  sidebarContentPanel,
 }: SidebarNavigationProps) => {
   const intl = useIntl();
   const showBrandingArea = getFromUserSettings('bbb_display_branding_area', window.meetingClientSettings.public.app.branding.displayBrandingArea);
@@ -85,6 +86,8 @@ const SidebarNavigation = ({
   const animations = Settings?.application?.animations;
   const hasNotification = hasUnreadMessages || hasUnreadNotes;
   const isLearningDashboardEnabled = useIsLearningDashboardEnabled();
+  const { sidebarContentPanel } = layoutSelectInput((i: Input) => i.sidebarContent);
+  const isOpened = useIsPanelOpened();
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -178,21 +181,21 @@ const SidebarNavigation = ({
         >
           <Styled.Top>
             {showBrandingArea && <CustomLogo />}
-            <ProfileListItem isOpened={sidebarContentPanel === PANELS.PROFILE} />
-            <UsersListItem isOpened={sidebarContentPanel === PANELS.USERLIST} />
-            <ChatListItem isOpened={sidebarContentPanel === PANELS.CHAT} />
-            <UserNotesListItemContainer isOpened={sidebarContentPanel === PANELS.SHARED_NOTES} />
+            <ProfileListItem isOpened={isOpened(PANELS.PROFILE)} />
+            <UsersListItem isOpened={isOpened(PANELS.USERLIST)} />
+            <ChatListItem isOpened={isOpened(PANELS.CHAT)} />
+            <UserNotesListItemContainer isOpened={isOpened(PANELS.SHARED_NOTES)} />
           </Styled.Top>
 
           <Styled.Center>
-            <AppsListItem isOpened={sidebarContentPanel === PANELS.APPS_GALLERY} />
+            <AppsListItem isOpened={isOpened(PANELS.APPS_GALLERY)} />
             <PinnedApps
               sidebarNavigationInput={sidebarNavigationInput}
             />
           </Styled.Center>
 
           <Styled.Bottom>
-            <AudioCaptionsListItem isOpened={sidebarContentPanel === PANELS.AUDIO_CAPTIONS} />
+            <AudioCaptionsListItem isOpened={isOpened(PANELS.AUDIO_CAPTIONS)} />
             { isLearningDashboardEnabled && isModerator ? <LearningDashboardListItem /> : null }
             <SettingsListItem />
           </Styled.Bottom>

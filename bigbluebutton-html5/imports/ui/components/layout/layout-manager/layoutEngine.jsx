@@ -28,6 +28,7 @@ const LayoutEngine = () => {
   const navBarOutput = layoutSelectOutput((i) => i.navBar);
   const sidebarNavigationInput = layoutSelectInput((i) => i.sidebarNavigation);
   const sidebarContentInput = layoutSelectInput((i) => i.sidebarContent);
+  const sidebarContentAuxiliaryInput = layoutSelectInput((i) => i.sidebarContentAuxiliary);
   const externalVideoInput = layoutSelectInput((i) => i.externalVideo);
   const genericMainContentInput = layoutSelectInput((i) => i.genericMainContent);
   const screenShareInput = layoutSelectInput((i) => i.screenShare);
@@ -275,13 +276,16 @@ const LayoutEngine = () => {
     };
   };
 
-  const calculatesSidebarContentWidth = () => {
+  const calculatesSidebarContentWidth = (auxiliary = false) => {
     const {
       sidebarContentMinWidth,
       sidebarContentMaxWidth,
     } = DEFAULT_VALUES;
 
-    const { isOpen, width: sidebarContentWidth } = sidebarContentInput;
+    const isAuxiliaryOpen = sidebarContentAuxiliaryInput.isOpen;
+
+    const { isOpen, width: sidebarContentWidth } = auxiliary
+      ? sidebarContentAuxiliaryInput : sidebarContentInput;
 
     let minWidth = 0;
     let width = 0;
@@ -293,7 +297,7 @@ const LayoutEngine = () => {
         width = windowWidth();
         maxWidth = windowWidth();
       } else {
-        if (sidebarContentWidth === 0) {
+        if (sidebarContentWidth === 0 || isAuxiliaryOpen) {
           width = min(
             max((windowWidth() * 0.2), sidebarContentMinWidth), sidebarContentMaxWidth,
           );
@@ -301,8 +305,8 @@ const LayoutEngine = () => {
           width = min(max(sidebarContentWidth, sidebarContentMinWidth),
             sidebarContentMaxWidth);
         }
-        minWidth = sidebarContentMinWidth;
-        maxWidth = sidebarContentMaxWidth;
+        minWidth = isAuxiliaryOpen ? windowWidth() * 0.2 : sidebarContentMinWidth;
+        maxWidth = isAuxiliaryOpen ? windowWidth() * 0.2 : sidebarContentMaxWidth;
       }
     }
     return {

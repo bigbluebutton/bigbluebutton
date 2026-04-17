@@ -18,13 +18,10 @@ import {
   contentSidebarPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  HeaderContainer as BaseHeaderContainer,
   PanelContent as BasePanelContent,
   Separator as BaseSeparator,
 } from '/imports/ui/components/sidebar-content/styles';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
-
-const HeaderContainer = styled(BaseHeaderContainer)``;
 
 const PanelContent = styled(BasePanelContent)``;
 
@@ -145,7 +142,6 @@ const NewLabel = styled.span`
 `;
 
 export default {
-  HeaderContainer,
   PanelContent,
   Separator,
   Wrapper,

@@ -284,6 +284,7 @@ const ChatContainer: React.FC = () => {
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
+  const sidebarContentAuxiliary = layoutSelectInput((i: Input) => i.sidebarContentAuxiliary);
   const layoutContextDispatch = layoutDispatch();
   const { data: chats } = useChat((chat) => {
     return {
@@ -346,7 +347,10 @@ const ChatContainer: React.FC = () => {
 
   const isLocked = currentUser?.locked || currentUser?.userLockSettings?.disablePublicChat;
 
-  if (sidebarContent.sidebarContentPanel !== PANELS.CHAT) return null;
+  if (sidebarContent.sidebarContentPanel !== PANELS.CHAT
+    && sidebarContentAuxiliary.sidebarContentPanel !== PANELS.CHAT) {
+    return null;
+  }
   if (!resolvedChatId && !isLocked) {
     if (sidebarContent.sidebarContentIsOpen) {
       return <ChatLoading isRTL={isRTL} />;

@@ -1,5 +1,4 @@
 import React, {
-  useCallback,
   useEffect,
 } from 'react';
 import {
@@ -8,8 +7,8 @@ import {
 } from './queries';
 import logger from '/imports/startup/client/logger';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { layoutDispatch } from '../../layout/context';
-import { ACTIONS, PANELS } from '../../layout/enums';
+import usePanelClose from '/imports/ui/components/common/panel-header/usePanelClose';
+import { PANELS } from '/imports/ui/components/layout/enums';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import SidebarCreateBreakoutContainer from '../create-breakout-room/sidebar-create-breakout/container';
@@ -19,7 +18,6 @@ import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStat
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 
 const BreakoutRoomContainer: React.FC = () => {
-  const layoutContextDispatch = layoutDispatch();
   const {
     data: meetingData,
   } = useMeeting((m) => ({
@@ -40,17 +38,7 @@ const BreakoutRoomContainer: React.FC = () => {
     voice: u.voice,
     userId: u.userId,
   }));
-
-  const closePanel = useCallback(() => {
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-      value: false,
-    });
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-      value: PANELS.NONE,
-    });
-  }, [layoutContextDispatch]);
+  const { closePanel } = usePanelClose(PANELS.BREAKOUT);
 
   const hasBreakoutRoom = meetingData?.componentsFlags?.hasBreakoutRoom ?? false;
   const prevHasBreakoutRoom = usePreviousValue(hasBreakoutRoom);
@@ -90,15 +78,7 @@ const BreakoutRoomContainer: React.FC = () => {
   const isBreakoutMeeting = meetingData?.isBreakout ?? false;
 
   if (!hasBreakoutRoom && (currentUserData.isModerator ?? false) && !isBreakoutMeeting) {
-    return (
-      <SidebarCreateBreakoutContainer
-        setIsOpen={(value: boolean) => {
-          if (!value) {
-            closePanel();
-          }
-        }}
-      />
-    );
+    return <SidebarCreateBreakoutContainer />;
   }
 
   if (hasBreakoutRoom && (currentUserData.isModerator ?? false) && !isBreakoutMeeting) {

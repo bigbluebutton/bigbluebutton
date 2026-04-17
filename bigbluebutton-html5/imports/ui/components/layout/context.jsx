@@ -5,6 +5,7 @@ import { clone } from 'ramda';
 import { getDeviceType, presentationContentHasChanges } from './utils';
 import {
   ACTIONS, PRESENTATION_AREA, PANELS,
+  CAMERADOCK_POSITION,
 } from '/imports/ui/components/layout/enums';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE, INITIAL_OUTPUT_STATE } from './initState';
@@ -614,11 +615,197 @@ const reducer = (state, action) => {
       };
     }
 
+    // SIDEBAR CONTENT AUXILIARY
+    case ACTIONS.SET_SIDEBAR_CONTENT_AUXILIARY_IS_OPEN: {
+      const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+      const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
+      const {
+        sidebarNavigation,
+        sidebarContent,
+        sidebarContentAuxiliary,
+        cameraDock,
+      } = state.input;
+
+      if (sidebarContentAuxiliary.isOpen === action.value) {
+        return state;
+      }
+
+      if (action.value === true) {
+        // Ensure the sidebar content is open as well
+        sidebarContent.isOpen = true;
+        // Reset camera position if it is under the sidebar content
+        if (cameraDock.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM) {
+          cameraDock.position = CAMERADOCK_POSITION.CONTENT_TOP;
+        }
+        // Reset auxiliary sidebar content panel to none to avoid showing
+        // the same content in both sidebars
+        if (sidebarContent.sidebarContentPanel === sidebarContentAuxiliary.sidebarContentPanel) {
+          sidebarContentAuxiliary.sidebarContentPanel = PANELS.NONE;
+        }
+      }
+      return {
+        ...state,
+        // Reset chat to public if there is no chat open.
+        idChatOpen: state.idChatOpen || PUBLIC_GROUP_CHAT_ID,
+        input: {
+          ...state.input,
+          cameraDock,
+          sidebarNavigation,
+          sidebarContent,
+          sidebarContentAuxiliary: {
+            ...sidebarContentAuxiliary,
+            isOpen: action.value,
+          },
+        },
+      };
+    }
+
+    case ACTIONS.SET_SIDEBAR_CONTENT_AUXILIARY_PANEL: {
+      const { sidebarContentAuxiliary } = state.input;
+      if (sidebarContentAuxiliary.sidebarContentPanel === action.value) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          sidebarContentAuxiliary: {
+            ...sidebarContentAuxiliary,
+            sidebarContentPanel: action.value,
+          },
+        },
+      };
+    }
+
+    case ACTIONS.SET_SIDEBAR_CONTENT_AUXILIARY_SIZE: {
+      const {
+        width,
+        browserWidth,
+        height,
+        browserHeight,
+      } = action.value;
+      const { sidebarContentAuxiliary } = state.input;
+      if (sidebarContentAuxiliary.width === width
+        && sidebarContentAuxiliary.browserWidth === browserWidth
+        && sidebarContentAuxiliary.height === height
+        && sidebarContentAuxiliary.browserHeight === browserHeight) {
+        return state;
+      }
+      return {
+        ...state,
+        input: {
+          ...state.input,
+          sidebarContentAuxiliary: {
+            ...sidebarContentAuxiliary,
+            width,
+            browserWidth,
+            height,
+            browserHeight,
+          },
+        },
+      };
+    }
+
+    case ACTIONS.SET_SIDEBAR_CONTENT_AUXILIARY_OUTPUT: {
+      const {
+        display,
+        minWidth,
+        width,
+        maxWidth,
+        minHeight,
+        height,
+        maxHeight,
+        top,
+        left,
+        right,
+        currentPanelType,
+        tabOrder,
+        isResizable,
+        zIndex,
+      } = action.value;
+      const { sidebarContentAuxiliary } = state.output;
+      if (sidebarContentAuxiliary.display === display
+        && sidebarContentAuxiliary.minWidth === minWidth
+        && sidebarContentAuxiliary.width === width
+        && sidebarContentAuxiliary.maxWidth === maxWidth
+        && sidebarContentAuxiliary.minHeight === minHeight
+        && sidebarContentAuxiliary.height === height
+        && sidebarContentAuxiliary.maxHeight === maxHeight
+        && sidebarContentAuxiliary.top === top
+        && sidebarContentAuxiliary.left === left
+        && sidebarContentAuxiliary.right === right
+        && sidebarContentAuxiliary.tabOrder === tabOrder
+        && sidebarContentAuxiliary.zIndex === zIndex
+        && sidebarContentAuxiliary.isResizable === isResizable) {
+        return state;
+      }
+      return {
+        ...state,
+        output: {
+          ...state.output,
+          sidebarContentAuxiliary: {
+            ...sidebarContentAuxiliary,
+            display,
+            minWidth,
+            width,
+            maxWidth,
+            minHeight,
+            height,
+            maxHeight,
+            top,
+            left,
+            right,
+            currentPanelType,
+            tabOrder,
+            isResizable,
+            zIndex,
+          },
+        },
+      };
+    }
+
+    case ACTIONS.SET_SIDEBAR_CONTENT_AUXILIARY_RESIZABLE_EDGE: {
+      const {
+        top, right, bottom, left,
+      } = action.value;
+      const { sidebarContentAuxiliary } = state.output;
+      if (sidebarContentAuxiliary.resizableEdge.top === top
+        && sidebarContentAuxiliary.resizableEdge.right === right
+        && sidebarContentAuxiliary.resizableEdge.bottom === bottom
+        && sidebarContentAuxiliary.resizableEdge.left === left) {
+        return state;
+      }
+      return {
+        ...state,
+        output: {
+          ...state.output,
+          sidebarContentAuxiliary: {
+            ...sidebarContentAuxiliary,
+            resizableEdge: {
+              top,
+              right,
+              bottom,
+              left,
+            },
+          },
+        },
+      };
+    }
+
     // SIDEBAR CONTENT
     case ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN: {
-      const { sidebarContent, sidebarNavigation } = state.input;
+      const {
+        sidebarContent,
+        sidebarContentAuxiliary,
+        sidebarNavigation,
+      } = state.input;
       if (sidebarContent.isOpen === action.value) {
         return state;
+      }
+
+      // Enforce auxiliary sidebar close when the default one is closed
+      if (action.value === false) {
+        sidebarContentAuxiliary.isOpen = false;
       }
 
       return {
@@ -626,6 +813,7 @@ const reducer = (state, action) => {
         input: {
           ...state.input,
           sidebarNavigation,
+          sidebarContentAuxiliary,
           sidebarContent: {
             ...sidebarContent,
             isOpen: action.value,
@@ -634,10 +822,24 @@ const reducer = (state, action) => {
       };
     }
     case ACTIONS.SET_SIDEBAR_CONTENT_PANEL: {
-      const { sidebarContent } = state.input;
-      if (sidebarContent.sidebarContentPanel === action.value) {
-        return state;
+      const { sidebarContent, sidebarContentAuxiliary } = state.input;
+      const isMultiFunctionalModeActive = sidebarContentAuxiliary.isOpen;
+
+      if (isMultiFunctionalModeActive) {
+        if (sidebarContentAuxiliary.sidebarContentPanel === action.value) return state;
+        return {
+          ...state,
+          input: {
+            ...state.input,
+            sidebarContentAuxiliary: {
+              ...sidebarContentAuxiliary,
+              sidebarContentPanel: action.value,
+            },
+          },
+        };
       }
+
+      if (sidebarContent.sidebarContentPanel === action.value) return state;
       return {
         ...state,
         input: {
@@ -1528,7 +1730,7 @@ const updatePresentationAreaContent = (
   isPresentationEnabled,
 ) => {
   const { layoutType } = layoutContextState;
-  const { sidebarContent, sharedNotes } = layoutContextState.input;
+  const { sidebarContent, sidebarContentAuxiliary, sharedNotes } = layoutContextState.input;
   const {
     presentationAreaContentActions: currentPresentationAreaContentActions,
   } = layoutContextState;
@@ -1570,6 +1772,20 @@ const updatePresentationAreaContent = (
           });
           layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+            value: PANELS.NONE,
+          });
+        }
+        if (
+          (sidebarContentAuxiliary.isOpen || !isPresentationEnabled)
+          && (sidebarContentAuxiliary.sidebarContentPanel === PANELS.SHARED_NOTES
+            || !isPresentationEnabled)
+        ) {
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_AUXILIARY_IS_OPEN,
+            value: false,
+          });
+          layoutContextDispatch({
+            type: ACTIONS.SET_SIDEBAR_CONTENT_AUXILIARY_PANEL,
             value: PANELS.NONE,
           });
         }

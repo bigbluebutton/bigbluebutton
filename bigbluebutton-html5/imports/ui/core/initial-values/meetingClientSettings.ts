@@ -593,6 +593,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         },
       ],
     },
+    multiFunctionalMode: {
+      enabled: false,
+    },
     notes: {
       enabled: true,
       id: 'notes',

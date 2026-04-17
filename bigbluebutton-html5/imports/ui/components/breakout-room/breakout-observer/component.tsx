@@ -1,4 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import {
   layoutDispatch,
   layoutSelectInput,
@@ -19,6 +24,7 @@ import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { UserIsInvitedSubscriptionResponse } from '/imports/ui/components/breakout-room/breakout-rooms-list-item/types';
 import { useIsBreakoutRoomsEnabled } from '/imports/ui/services/features';
+import usePanelClose from '/imports/ui/components/common/panel-header/usePanelClose';
 
 const BreakoutRoomsAppObserver = () => {
   const [hasOpenedPanel, setHasOpenedPanel] = useState(false);
@@ -51,6 +57,9 @@ const BreakoutRoomsAppObserver = () => {
   const intl = useIntl();
   const sidebarNavigationInput = layoutSelectInput((i: Input) => i.sidebarNavigation);
   const { sidebarContentPanel } = layoutSelectInput((o: Input) => o.sidebarContent);
+  const {
+    sidebarContentPanel: sidebarContentAuxiliaryPanel,
+  } = layoutSelectInput((o: Input) => o.sidebarContentAuxiliary);
   const layoutContextDispatch = layoutDispatch();
   const {
     registeredApps,
@@ -60,6 +69,19 @@ const BreakoutRoomsAppObserver = () => {
 
   const isNotAssigned = !isModerator && hasBreakoutRoom && !isUserInvited;
   const breakoutLabel = isNotAssigned ? BREAKOUTS_UNASSIGNED_LABEL : BREAKOUTS_LABEL;
+  const onBeforeCloseBreakoutPanel = useCallback((isInAuxiliaryPanel: boolean) => {
+    if (isInAuxiliaryPanel) {
+      // Explicitly reset the auxiliary panel to none.
+      // We want the auxiliary panel to forget about the breakout being in the sidebar panel.
+      // Without this, non-moderators could inadvertently regain access to the breakouts panel
+      // through the auxiliary panel after it should have been closed.
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_AUXILIARY_PANEL,
+        value: PANELS.NONE,
+      });
+    }
+  }, [layoutContextDispatch]);
+  const { closePanel: closeBreakoutPanel } = usePanelClose(PANELS.BREAKOUT, onBeforeCloseBreakoutPanel);
 
   const registerApp = (id: string, name: string, icon: string) => {
     layoutContextDispatch({
@@ -143,19 +165,11 @@ const BreakoutRoomsAppObserver = () => {
         && !hasBreakoutRoom)
     ) {
       unregisterApp(BREAKOUTS_APP_KEY);
-      if (sidebarContentPanel === BREAKOUTS_APP_KEY) {
-        layoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-          value: false,
-        });
-        layoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-          value: PANELS.NONE,
-        });
+      if (sidebarContentPanel === BREAKOUTS_APP_KEY || sidebarContentAuxiliaryPanel === BREAKOUTS_APP_KEY) {
+        closeBreakoutPanel();
       }
     }
   }, [
-    layoutContextDispatch,
     currentUser,
     registeredApps,
     hasBreakoutRoom,
@@ -164,6 +178,9 @@ const BreakoutRoomsAppObserver = () => {
     isBreakoutMeeting,
     breakoutLabel,
     isBreakoutRoomsEnabled,
+    sidebarContentPanel,
+    sidebarContentAuxiliaryPanel,
+    closeBreakoutPanel,
   ]);
 
   useEffect(() => {

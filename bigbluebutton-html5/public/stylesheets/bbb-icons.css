@@ -426,3 +426,6 @@
 .icon-bbb-arrow_forward_down:before {
   content: "\e986";
 }
+.icon-bbb-add_column:before {
+  content: "\e987";
+}

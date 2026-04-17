@@ -792,6 +792,8 @@ public:
     # example: ['reply', 'delete']
     toolbar: ['reply', 'delete', 'edit', 'reactions', 'pin']
     announcePresenterChangeInChat: true
+  multiFunctionalMode:
+    enabled: false # Enables an auxiliary sidebar content panel in the UI.
   userReaction:
     enabled: true
     expire: 30

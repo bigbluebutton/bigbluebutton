@@ -17,6 +17,7 @@ import { ACTIONS, DEVICE_TYPE, PANELS } from '/imports/ui/components/layout/enum
 import useHasUnreadNotes from '/imports/ui/components/notes/hooks/useHasUnreadNotes';
 import useHasUnreadChatMessages from '/imports/ui/components/chat/hooks/useHasUnreadChatMessages';
 import { useIsPollingEnabled, useIsTimerFeatureEnabled } from '/imports/ui/services/features';
+import useIsPanelOpened from './hooks/useIsPanelOpened';
 
 const SidebarNavigationContainer = () => {
   const { data: currentUser } = useCurrentUser((u: Partial<User>) => (
@@ -34,7 +35,6 @@ const SidebarNavigationContainer = () => {
   const intl = useIntl();
   const sidebarNavigationInput = layoutSelectInput((i: Input) => i.sidebarNavigation);
   const sidebarNavigation = layoutSelectOutput((i: Output) => i.sidebarNavigation);
-  const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
   const deviceType = layoutSelect((i: Layout) => i.deviceType);
   const isMobile = deviceType === DEVICE_TYPE.MOBILE;
   const layoutContextDispatch = layoutDispatch();
@@ -56,15 +56,15 @@ const SidebarNavigationContainer = () => {
   const timerIsRegistered = useMemo(() => (
     Object.keys(registeredApps).includes(TIMER_APP_KEY)), [registeredApps]);
 
-  const { sidebarContentPanel } = sidebarContent;
+  const isPanelOpened = useIsPanelOpened();
   const hasUnreadNotes = useHasUnreadNotes({
-    isNotesPanelOpened: sidebarContentPanel === PANELS.SHARED_NOTES,
+    isNotesPanelOpened: isPanelOpened(PANELS.SHARED_NOTES),
     skip: !isMobile,
   });
   const {
     hasUnreadMessages,
   } = useHasUnreadChatMessages({
-    isChatPanelOpened: sidebarContentPanel === PANELS.CHAT,
+    isChatPanelOpened: isPanelOpened(PANELS.CHAT),
     skip: !isMobile,
   });
 
@@ -145,7 +145,6 @@ const SidebarNavigationContainer = () => {
       isModerator={isModerator}
       hasUnreadMessages={hasUnreadMessages}
       hasUnreadNotes={hasUnreadNotes}
-      sidebarContentPanel={sidebarContentPanel}
     />
   );
 };

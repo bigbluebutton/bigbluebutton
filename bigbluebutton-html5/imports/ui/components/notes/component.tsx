@@ -7,6 +7,7 @@ import React, {
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation, useQuery } from '@apollo/client';
 import injectWbResizeEvent from '/imports/ui/components/presentation/resize-wrapper/component';
+import PanelHeader from '/imports/ui/components/common/panel-header/component';
 import PadContainer from '/imports/ui/components/pads/pads-graphql/component';
 import NotesDropdown from './notes-dropdown/component';
 import {
@@ -33,7 +34,6 @@ import {
   SharedNotes,
   Output,
   Input,
-  DispatcherFunction,
 } from '/imports/ui/components/layout/layoutTypes';
 import { NotesRenderMode, sidebarContentToIgnoreDelay } from './constants';
 import { NotesRenderModeType } from './types';
@@ -50,10 +50,6 @@ const intlMessages = defineMessages({
     id: 'app.notes.notesDropdown.unpinNotes',
     description: 'Label for unpin shared notes button',
   },
-  minimize: {
-    id: 'app.sidebarContent.minimizePanelLabel',
-    description: 'Label for the minimize shared notes panel',
-  },
 });
 
 interface NotesContainerGraphqlProps {
@@ -67,7 +63,6 @@ interface NotesGraphqlProps {
   hasPermission: boolean;
   sharedNotesEditor: string;
   padId: string;
-  layoutContextDispatch: DispatcherFunction;
   isResizing: boolean;
   isLocalChange: boolean;
   sharedNotesOutput: SharedNotes;
@@ -85,7 +80,6 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     sharedNotesEditor,
     padId,
     isRTL,
-    layoutContextDispatch,
     isResizing,
     isLocalChange,
     sharedNotesOutput,
@@ -160,31 +154,11 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     >
       {!isOnMediaArea ? (
         <>
-          <Styled.HeaderContainer
+          <PanelHeader
+            panelId={PANELS.SHARED_NOTES}
             title={intl.formatMessage(intlMessages.title)}
-            rightButtonProps={{
-              onClick: () => {
-                layoutContextDispatch({
-                  type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-                  value: false,
-                });
-                layoutContextDispatch({
-                  type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-                  value: PANELS.NONE,
-                });
-              },
-              icon: 'minus',
-              'data-test': 'hideNotesLabel',
-              'aria-label': intl.formatMessage(
-                intlMessages.minimize,
-                { panelName: intl.formatMessage(intlMessages.title) },
-              ),
-              label: intl.formatMessage(
-                intlMessages.minimize,
-                { panelName: intl.formatMessage(intlMessages.title) },
-              ),
-            }}
-            data-test="notesHeader"
+            dataTest="notesHeader"
+            closeButtonDataTest="hideNotesLabel"
             customRightButton={(
               <NotesDropdown
                 handlePinSharedNotes={handlePinSharedNotes}
@@ -273,7 +247,6 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
       padId={padId}
       sharedNotesEditor={sharedNotesEditor}
       hasPermission={hasPermission}
-      layoutContextDispatch={layoutContextDispatch}
       isResizing={isResizing}
       isLocalChange={isLocalChange}
       ignoreDelayforUnmount={sidebarContentToIgnoreDelay.includes(sidebarContent.sidebarContentPanel)

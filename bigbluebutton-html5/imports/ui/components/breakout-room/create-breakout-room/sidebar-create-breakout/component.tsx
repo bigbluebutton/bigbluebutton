@@ -25,6 +25,7 @@ import {
   useIsImportPresentationWithAnnotationsFromBreakoutRoomsEnabled,
   useIsImportSharedNotesFromBreakoutRoomsEnabled,
 } from '/imports/ui/services/features';
+import PanelHeader from '/imports/ui/components/common/panel-header/component';
 
 const MIN_BREAKOUT_TIME = 300;
 const DEFAULT_SIDEBAR_BREAKOUT_TIME = 15;
@@ -155,7 +156,6 @@ interface SidebarCreateBreakoutProps {
   currentPresentation: string;
   isBreakoutRecordable: boolean;
   groups: Array<{ groupId: string; name: string; usersExtId: string[] }>;
-  setIsOpen: (value: boolean) => void;
   durationInSeconds: number;
   createdTime: number;
   timeSync: number;
@@ -167,7 +167,6 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
   currentPresentation,
   isBreakoutRecordable,
   groups,
-  setIsOpen,
   durationInSeconds,
   createdTime,
   timeSync,
@@ -393,14 +392,10 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
 
   return (
     <Styled.PanelContent>
-      <Styled.HeaderContainer
+      <PanelHeader
+        panelId={PANELS.BREAKOUT}
         title={intl.formatMessage(intlMessages.breakoutTitle)}
-        rightButtonProps={{
-          'aria-label': intl.formatMessage(intlMessages.dismissLabel),
-          label: intl.formatMessage(intlMessages.dismissLabel),
-          onClick: () => setIsOpen(false),
-          icon: 'minus',
-        }}
+        closeButtonLabel={intl.formatMessage(intlMessages.dismissLabel)}
       />
       <Styled.Separator />
 

@@ -5,10 +5,10 @@ import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MenuItem from '@mui/material/MenuItem';
-import { Input, Layout } from '../layout/layoutTypes';
+import { Input } from '/imports/ui/components/layout/layoutTypes';
 import Styled from './styles';
-import { layoutDispatch, layoutSelect, layoutSelectInput } from '../layout/context';
-import { ACTIONS, PANELS } from '../layout/enums';
+import { layoutSelectInput } from '/imports/ui/components/layout/context';
+import { PANELS } from '/imports/ui/components/layout/enums';
 import { useStorageKey } from '../../services/storage/hooks';
 import VideoService from '/imports/ui/components/video-provider/service';
 import PreviewService from '/imports/ui/components/video-preview/service';
@@ -37,6 +37,7 @@ import { useVideoPreview } from '/imports/ui/components/video-preview/hooks/useV
 import { CameraProfileProps, CustomBgParams } from '/imports/ui/components/video-preview/hooks/types';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import getFromUserSettings from '../../services/users-settings';
+import PanelHeader from '/imports/ui/components/common/panel-header/component';
 
 const intlMessages: { [key: string]: { id: string; description?: string } } = defineMessages({
   title: {
@@ -201,8 +202,6 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
   // @ts-ignore
   const settingsStorage = window.meetingClientSettings.public.app.userSettingsStorage;
   const lastUsedWebcamDeviceId = useStorageKey('WebcamDeviceId', settingsStorage) as string || null;
-  const layoutContextDispatch = layoutDispatch();
-  const isRTL = layoutSelect((i: Layout) => i.isRTL);
 
   const [cameraSections, setCameraSections] = React.useState<CameraSection[]>([]);
   const [activePreviewIndex, setActivePreviewIndex] = React.useState(0);
@@ -738,28 +737,11 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
 
   return (
     <Styled.RootContainer>
-      <Styled.HeaderContainer
-        isRTL={isRTL}
-        data-test="profileSettingsTitle"
+      <PanelHeader
+        panelId={PANELS.PROFILE}
         title={formatMessage(intlMessages.title)}
-        leftButtonProps={{}}
-        rightButtonProps={{
-          'aria-label': formatMessage(intlMessages.minimize, { panelName: formatMessage(intlMessages.title) }),
-          'data-test': 'closeProfileSettings',
-          icon: 'minus',
-          label: formatMessage(intlMessages.minimize, { panelName: formatMessage(intlMessages.title) }),
-          onClick: () => {
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-              value: false,
-            });
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-              value: PANELS.NONE,
-            });
-          },
-        }}
-        customRightButton={null}
+        dataTest="profileSettingsTitle"
+        closeButtonDataTest="closeProfileSettings"
       />
       <Styled.Separator />
       {renderWebcamPreview()}
