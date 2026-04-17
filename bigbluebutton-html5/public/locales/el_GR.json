@@ -1534,7 +1534,7 @@
     "app.createBreakoutRoom.callModeratorChatMsg": "Ο/Η {userName} από {roomName} αιτήθηκε συνδρομή από συντονιστή.",
     "app.createBreakoutRoom.callModeratorSent": "Οι συντονιστές έχουν ενημερωθεί.",
     "app.createBreakoutRoom.callModeratorCooldown": "Παρακαλώ περιμένετε πριν καλέσετε ξανά τους συντονιστές.",
-    "app.createBreakoutRoom.returnToMainSession": "Return to Main Session",
+    "app.createBreakoutRoom.returnToMainSession": "Επιστροφή στην κύρια αίθουσα",
     "app.createBreakoutRoom.listenToRoom": "Listen to room",
     "app.createBreakoutRoom.stopListeningToRoom": "Stop listening",
     "app.updateBreakoutRoom.modalDesc": "Για ενημέρωση ή πρόσκληση χρήστη, απλώς σύρετέ τον στην επιθυμητή αίθουσα.",
