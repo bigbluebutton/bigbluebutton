@@ -291,10 +291,10 @@ Cada requisito só é marcado como `✅ fechado` quando os três checks abaixo p
 - [ ] **Tem teste:** T08.
 - [ ] **Teste demonstra:** Em T08, o viewer1 tenta ver o stream do viewer2 e a UI não o renderiza; o moderador vê os dois.
 
-## R17
-- [ ] **Funciona:** O filtro é aplicado no servidor/banco, não no client.
-- [ ] **Tem teste:** T08.
-- [ ] **Teste demonstra:** O teste inspeciona a resposta do GraphQL no client do viewer e confirma que os dados do screenshare do outro viewer **não chegam** ao client (row ausente), mostrando que o filtro não é cosmético no client.
+## R17 ✅
+- [x] **Funciona:** O filtro é aplicado no servidor/banco, não no client.
+- [x] **Tem teste:** T08.
+- [x] **Teste demonstra:** O teste inspeciona a resposta do GraphQL no client do viewer e confirma que os dados do screenshare do outro viewer **não chegam** ao client (row ausente), mostrando que o filtro não é cosmético no client.
 
 ## R18
 - [ ] **Funciona:** A API `create` aceita os parâmetros novos; sem eles, aplicam-se defaults seguros.
