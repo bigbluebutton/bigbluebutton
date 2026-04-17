@@ -824,7 +824,7 @@
     "app.breakoutJoinConfirmation.message": "Θέλετε να συνδεθείτε;",
     "app.breakoutJoinConfirmation.addedToRoom": "Έχετε προστεθεί στο {roomName} από τον συντονιστή.",
     "app.breakoutJoinConfirmation.willBeRedirected": "Θα μεταφερθείτε στην ομαδική σας αίθουσα σύντομα.",
-    "app.breakoutJoinConfirmation.enterRoom": "Enter the room",
+    "app.breakoutJoinConfirmation.enterRoom": "Είσοδος στην αίθουσα",
     "app.breakoutJoinConfirmation.confirmDesc": "Προστεθήκατε σε τμήμα αίθουσας διάσκεψης",
     "app.breakoutJoinConfirmation.dismissLabel": "Ακύρωση",
     "app.breakoutJoinConfirmation.dismissDesc": "Κλείνει και απορρίπτει τη συμμετοχή σε τμήμα αίθουσας διάσκεψης",
