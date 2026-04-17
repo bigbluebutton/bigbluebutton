@@ -162,7 +162,7 @@ If you have made up your mind and would like to use it for all sessions, add the
 We have made significant changes to the architecture of BigBlueButton and have introduced support for plugins -- optional custom modules included in the client which allow expanding the capabilities of BigBlueButton. A data channel is provided to allow for data exchange between clients. See the [HTML5 Plugin SDK](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk) for examples and more information.
 
 At the moment of writing this documentation, the official list of plugins includes:
-- [Select Random User](https://github.com/bigbluebutton/bbb-plugin-pick-random-user)
+- [Pick Random User](https://github.com/bigbluebutton/bbb-plugin-pick-random-user)
 - [Share a link](https://github.com/bigbluebutton/bbb-plugin-generic-link-share)
 - [H5P plugin for BigBlueButton](https://github.com/bigbluebutton/bbb-plugin-h5p)
 - [Session share](https://github.com/bigbluebutton/bbb-plugin-session-share)
