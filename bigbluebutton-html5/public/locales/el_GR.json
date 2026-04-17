@@ -1481,7 +1481,7 @@
     "app.createBreakoutRoom.joinAudio": "Συμμετοχή με ήχο",
     "app.createBreakoutRoom.returnAudio": "Επιστροφή ήχου",
     "app.createBreakoutRoom.alreadyConnected": "Είστε ήδη στην αίθουσα διάσκεψης",
-    "app.createBreakoutRoom.inviteSentToast": "{userName} was invited to {roomName}",
+    "app.createBreakoutRoom.inviteSentToast": "Ο/Η {userName} σας προσκάλεσε στο {roomName}",
     "app.createBreakoutRoom.confirm": "Δημιουργία",
     "app.createBreakoutRoom.record": "Καταγραφή",
     "app.createBreakoutRoom.numberOfRooms": "Αριθμός αιθουσών διάσκεψης",
