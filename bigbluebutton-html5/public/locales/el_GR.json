@@ -185,7 +185,7 @@
     "app.userList.mobile": "Κινητό",
     "app.userList.guest": "Επισκέπτης",
     "app.userList.searchUsers": "Αναζήτηση χρηστών",
-    "app.userList.noSearchResults": "No participants match your search. Try another name.",
+    "app.userList.noSearchResults": "Δε βρέθηκε χρήστης με αυτόν τον όρο. Δοκιμάστε διαφορετικό.",
     "app.userList.clearSearch": "Clear search",
     "app.userList.sharingWebcam": "Κάμερα",
     "app.userList.menuTitleContext": "Διαθέσιμες επιλογές",
