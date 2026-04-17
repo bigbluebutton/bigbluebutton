@@ -428,31 +428,31 @@ Checklist final antes de `DONE`. Todos os itens precisam `[x]` com evidência ob
 VERIFICAR_REQUISITOS
 
 ## Iteração
-3
+9
 
 ## Última ação
-ENV_CHECK passou (HTTP 200, serviços OK). INVENTÁRIO concluído — Rs/Ts catalogados conforme presença de código/teste. Serviços confirmados: postgres, bbb-apps-akka, bbb-fsesl-akka, bbb-web, hasura/bbb-graphql-server, bbb-graphql-middleware, livekit-server, bbb-webrtc-sfu. Branch feat/multi-screenshare confirmado. html5client responde 301 (redirect esperado do nginx SPA). Nota: multi-screenshare.spec.ts NÃO existe; testes multi-share estão em screenshare.spec.ts (12 testes + 1 stub).
+R13 verificado e fechado. Descoberto que disableMultiScreenshare não existia em nenhuma camada (DB, Hasura, GraphQL action, Scala messages, Permissions, frontend). isScreenshareBroadcastLocked usava hideViewersScreenshare (R16) em vez de disableMultiScreenshare (R13). T06/T19 usavam toggle hideViewersScreenshare errado. Implementado disableMultiScreenshare end-to-end em 22 arquivos, corrigido isScreenshareBroadcastLocked, T06+T19 agora usam e.disableMultiScreenshare. 8/8 testes passando (52.5s). Commit 5490f36.
 
 ## Próxima ação
-Iniciar VERIFICAR_REQUISITOS pelo menor R não fechado em ordem de prioridade (❌ > 🔍 > ✅ tentativo > ⚪). Primeiro: R2 (menor 🔍 em verificação) — verificar se moderador não-presenter consegue iniciar screenshare sem ser promovido.
+Iterar R14 (disableMultiScreenshare ativa encerra shares ativos de viewers, moderadores continuam).
 
 ## Bloqueios
-nenhum
+nenhum (nota: commits ao repo BBB devem ser feitos via docker exec ip-10-111-14-85, pois .git/COMMIT_EDITMSG é root-owned no host)
 
 ## Estado dos requisitos
 R1: ✅ tentativo — código (VIEWER_LEVEL em GetScreenBroadcastPermissionReqMsgHdlr) + teste ("Non-presenter can start screenshare" em screenshare.spec.ts)
-R2: 🔍 em verificação — código plausível (VIEWER_LEVEL aplica a viewer e mod) mas teste não distingue explicitamente moderador não-presenter de viewer
-R3: 🔍 em verificação — código (deny sem eject em GetScreenBroadcastPermissionReqMsgHdlr) mas sem teste explícito de negação
+R2: ✅ fechado — VIEWER_LEVEL no handler + MOD_ROLE isento de lock + T22 criado e passando (c932ae0)
+R3: ✅ fechado — backend envia explicit deny (allowed=false) sem eject + T06/T19 criados e passando 4/4 (59723e27)
 R4: ✅ tentativo — código (sem guard câmera+tela) + teste ("Screenshare coexists with webcam")
 R5: ✅ tentativo — código (Screenshares.scala multi-stream) + teste ("Two users can share screen simultaneously")
 R6: ✅ tentativo — código (showAsContent) + teste ("Attendee sees multiple", "Screenshare appears in content area")
 R7: ✅ tentativo — código (SetScreenshareShowAsContentReqMsgHdlr) + teste ("Screenshare appears in content area", "Content priority full cycle")
-R8: 🔍 em verificação — código (área de conteúdo gerenciada) mas teste "Start screenshare stops external video" pode parar em vez de migrar
-R9: 🔍 em verificação — código (area management) mas sem teste explícito viewer-apenas-em-câmeras
+R8: ✅ fechado — race condition corrigida (ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr: otherUsersSharing guard); T11+T12 passando 6/6
+R9: ✅ fechado — código (showAsContent=false para viewers) + T03 "viewer screenshare goes to camera dock not content area" passando 7/7 (44.5s) (db09559)
 R10: ✅ tentativo — código (showAsContent, promoção atômica) + teste ("Content priority full cycle" inclui promoção)
-R11: 🔍 em verificação — teste ("Content priority full cycle" termina em slides) mas código de fallback explícito não encontrado
-R12: ✅ tentativo — código (AssignPresenterReqMsgHdlr preserva shares) + teste ("Screenshare survives presenter change")
-R13: 🔍 em verificação — código parcial (disableMultiScreenshare em LockSettingsParams/ChangeLockSettings) + stub de teste ("not yet implemented")
+R11: ✅ fechado — container.jsx fallback correto (showScreenshare→slides→grid); T04 adicionado e passando 8/8 (b3c1cf6)
+R12: ✅ fechado — AssignPresenterReqMsgHdlr migra shares do ex-presenter; race condition corrigida; T11 passando 6/6
+R13: ✅ fechado — disableMultiScreenshare implementado end-to-end (DB/Hasura/GraphQL/Scala/frontend); isScreenshareBroadcastLocked corrigido; T06 testando lock correta; 8/8 pass (5490f36)
 R14: 🔍 em verificação — código parcial (ChangeLockSettingsInMeetingCmdMsgHdlr processa settings) mas stop de viewers não confirmado; sem teste
 R15: 🔍 em verificação — código parcial (UI reflection de lock) mas sem teste explícito
 R16: 🔍 em verificação — código parcial (hideViewersScreenshare em LockSettings declarado) mas filtro em subscribe não confirmado; sem teste
@@ -468,31 +468,37 @@ R25: 🔍 em verificação — código (cameraAsContent sem alteração) mas sem
 R26: ⚪ não verificado — métricas/contadores de screenshare não encontrados; sem teste
 
 ## Estado dos testes
-T01: 🔍 em verificação — "Non-presenter can start screenshare" existe em screenshare.spec.ts; não está em multi-screenshare.spec.ts (arquivo não existe)
+T01: 🔍 em verificação — "Non-presenter can start screenshare" existe em screenshare.spec.ts; não está em multi-screenshare.spec.ts
 T02: 🔍 em verificação — "Two users can share screen simultaneously" em screenshare.spec.ts
-T03: 🔍 em verificação — "Attendee sees multiple simultaneous screenshares" em screenshare.spec.ts (mapeamento parcial)
-T04: 🔍 em verificação — "Content priority full cycle: slides to screenshare and back" em screenshare.spec.ts
+T03: ✅ passou — "viewer screenshare goes to camera dock not content area" em multi-screenshare.spec.ts (7/7, 44.5s) (db09559)
+T04: ✅ passou — "content area full cycle: slides → screenshare → promotion → slides" em multi-screenshare.spec.ts (8/8, 52s) (b3c1cf6)
 T05: 🔍 em verificação — "Stopping one screenshare keeps the other active" em screenshare.spec.ts
-T06: ⚪ não verificado — stub "Lock disableMultiScreenshare not yet implemented" em screenshare.spec.ts (não executa comportamento)
+T06: ✅ passou — "lock disableMultiScreenshare blocks viewer without promotion" em multi-screenshare.spec.ts; agora usa e.disableMultiScreenshare (R13 correto) (5490f36)
 T07: ⚪ não verificado — sem teste
 T08: ⚪ não verificado — sem teste
 T09: 🔍 em verificação — "Screenshare coexists with webcam" em screenshare.spec.ts
 T10: 🔍 em verificação — "Multiple users can view an active screenshare" em screenshare.spec.ts (mapeamento parcial)
-T11: 🔍 em verificação — "Screenshare survives presenter change" em screenshare.spec.ts
-T12: 🔍 em verificação — "Start screenshare stops external video" em screenshare.spec.ts (comportamento pode ser stop em vez de migrar — verificar)
+T11: ✅ passou — "presenter change keeps screenshares active without stopping" em multi-screenshare.spec.ts (7/7, 44.5s)
+T12: ✅ passou — "external video migrates presenter screenshare to camera area" em multi-screenshare.spec.ts (7/7, 44.5s)
 T13: ⚪ não verificado — sem teste (flag off → legado)
 T14: ⚪ não verificado — sem teste (path SFU)
 T15: ⚪ não verificado — sem teste (webcams com multi-share)
 T16: ⚪ não verificado — sem teste (cameraAsContent)
 T17: ⚪ não verificado — sem teste (API create sem novos params)
 T18: ⚪ não verificado — sem teste (gravação)
-T19: ⚪ não verificado — sem teste (tentativa negada sem ejeção)
+T19: ✅ passou — "locked screenshare attempt does not eject viewer" em multi-screenshare.spec.ts (7/7, 44.5s)
 T20: ⚪ não verificado — sem teste (métricas)
 T21: ⚪ não verificado — sem teste (nomenclatura consistente)
-T22: ⚪ não verificado — sem teste (moderador não-presenter)
+T22: ✅ passou — "non-presenter moderator can start screenshare without promotion" em multi-screenshare.spec.ts (7/7, 44.5s)
 
 ## Arquivos tocados nesta sessão
 /home/devuser/LOOP.md (→ .loop/LOOP.md no repo bigbluebutton)
+bigbluebutton-tests/playwright/core/elements.ts (screenshareShowAsContentBtn adicionado)
+bigbluebutton-tests/playwright/core/setup/global.setup.ts (ignoreHTTPSErrors adicionado)
+bigbluebutton-tests/playwright/playwright.config.ts (ignoreHTTPSErrors adicionado)
+bigbluebutton-tests/playwright/.env (NODE_TLS_REJECT_UNAUTHORIZED=0 adicionado)
+bigbluebutton-tests/playwright/screenshare/screenshare.ts (contentAreaFullCycle adicionado; T03 viewerScreenshareInCameraDock adicionado)
+bigbluebutton-tests/playwright/screenshare/multi-screenshare.spec.ts (T04 + T03 adicionados)
 ```
 
 # Protocolo do Loop
