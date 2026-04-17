@@ -477,7 +477,7 @@ object MsgBuilder {
             val hPx = hRaw.flatMap(parseCssLengthPx)
 
             (wPx, hPx) match {
-              case (Some(w), Some(h)) =>
+              case (Some(w), Some(h)) if w > 0 && h > 0 =>
                 val W = roundPx(w, scale)
                 val H = roundPx(h, scale)
                 return Some(SvgDimensions(W, H))

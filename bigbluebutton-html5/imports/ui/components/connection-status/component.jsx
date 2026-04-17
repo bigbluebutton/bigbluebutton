@@ -88,8 +88,10 @@ const ConnectionStatus = ({
 
   const handleUpdateConnectionAliveAt = (networkRtt, serverEpochMsec, serverRequestId) => {
     try {
-      // calculate time sync only once
-      if (timeSyncRef.current === 0) {
+      // recalculate time sync
+      // whenever a new minimum RTT is observed (lower RTT = better NTP estimate)
+      if (networkRtt < connectionStatus.getMinRtt()) {
+        connectionStatus.setMinRtt(networkRtt);
         const clientNowEpoch = Date.now();
         const oneWay = networkRtt / 2; // aproximation NTP
         // Not allow negative skew

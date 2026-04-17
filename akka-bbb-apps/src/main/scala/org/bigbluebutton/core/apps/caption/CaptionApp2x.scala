@@ -13,6 +13,8 @@ class CaptionApp2x(implicit val context: ActorContext) extends RightsManagementT
 
   def handle(msg: CaptionSubmitTranscriptPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
     val meetingId = liveMeeting.props.meetingProp.intId
+    val validCaptionTypes = Set(CaptionTypes.TYPED, CaptionTypes.AUDIO_TRANSCRIPTION)
+
     def broadcastSuccessEvent(transcriptId: String, transcript: String, locale: String): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(CaptionSubmitTranscriptEvtMsg.NAME, routing)
@@ -23,10 +25,18 @@ class CaptionApp2x(implicit val context: ActorContext) extends RightsManagementT
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
     }
-    CaptionDAO.insertOrUpdateCaption(msg.body.transcriptId, meetingId, msg.header.userId,
-      msg.body.transcript, msg.body.locale, msg.body.captionType)
 
-    broadcastSuccessEvent(msg.body.transcriptId, msg.body.transcript, msg.body.locale)
+    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+      val reason = "No permission to submit caption transcript."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
+    } else if (!validCaptionTypes.contains(msg.body.captionType)) {
+      log.warning("Invalid captionType '{}' from user {} in meeting {}", msg.body.captionType, msg.header.userId, meetingId)
+    } else {
+      CaptionDAO.insertOrUpdateCaption(msg.body.transcriptId, meetingId, msg.header.userId,
+        msg.body.transcript, msg.body.locale, msg.body.captionType)
+
+      broadcastSuccessEvent(msg.body.transcriptId, msg.body.transcript, msg.body.locale)
+    }
   }
 
   def handle(msg: AddCaptionLocalePubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {

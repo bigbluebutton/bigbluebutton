@@ -1,8 +1,10 @@
 
-import { throwErrorIfInvalidInput } from '../imports/validation';
+import { throwErrorIfInvalidInput, throwErrorIfNotModerator } from '../imports/validation';
 import { RedisMessage } from '../types';
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
+  throwErrorIfNotModerator(sessionVariables);
+
   const eventName = `CaptionSubmitTranscriptPubMsg`;
 
   throwErrorIfInvalidInput(input,

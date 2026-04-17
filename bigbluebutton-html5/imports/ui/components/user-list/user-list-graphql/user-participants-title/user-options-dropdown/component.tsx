@@ -279,7 +279,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         dataTest: 'lockViewersButton',
       },
       {
-        allow: dynamicGuestPolicy,
+        allow: dynamicGuestPolicy && !isBreakout,
         key: uuids.current[3],
         icon: 'user',
         label: intl.formatMessage(intlMessages.guestPolicyLabel),

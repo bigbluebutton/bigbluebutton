@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 import { ToastContainer as Toastify } from 'react-toastify';
 import Icon from '/imports/ui/components/common/icon/component';
 import {
@@ -118,7 +118,10 @@ const ToastMessage = styled.div`
   margin-bottom: auto;
   font-size: ${fontSizeSmall};
   max-height: 15vh;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overflow-wrap: break-word;
+  word-break: break-word;
   color: black !important;
   font-family: Arial, sans-serif;
 
@@ -179,25 +182,28 @@ const Toast = styled.div`
   `}
 `;
 
-const ToastifyContainer = styled(Toastify)`
-  z-index: 998;
-  position: fixed;
-  min-width: 240px !important;
-  max-width: 320px !important;
-  box-sizing: border-box;
-  right: ${jumboPaddingY};
-  left: auto;
-  top: 4.5rem;
-  max-height: 75vh;
-  overflow: hidden;
+const ToastifyContainer = Toastify;
 
-  [dir="rtl"] & {
-    right: auto;
-    left: ${jumboPaddingY};
+const ToastifyGlobalStyle = createGlobalStyle`
+  .Toastify__toast-container {
+    z-index: 998 !important;
+    position: fixed !important;
+    box-sizing: border-box !important;
+    right: ${jumboPaddingY} !important;
+    left: auto !important;
+    top: 4.5rem !important;
+    max-height: 75vh !important;
+    overflow: hidden !important;
+    /* Never exceed the available space between the right margin and the left viewport edge */
+    max-width: min(320px, calc(100vw - 2 * ${jumboPaddingY})) !important;
+    width: auto !important;
+    /* Make individual toasts fill the container instead of using their default fixed width */
+    --toastify-toast-width: 100%;
   }
 
-  @media ${smallOnly} {
-    width: 75%;
+  [dir="rtl"] .Toastify__toast-container {
+    right: auto !important;
+    left: ${jumboPaddingY} !important;
   }
 `;
 
@@ -210,4 +216,5 @@ export default {
   Separator,
   Toast,
   ToastifyContainer,
+  ToastifyGlobalStyle,
 };

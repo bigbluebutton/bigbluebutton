@@ -13,6 +13,8 @@ case class MeetingProp(
     extId:                                  String,
     intId:                                  String,
     meetingCameraCap:                       Int,
+    sharedNotesInitialContentJson:          Vector[AnyRef],
+    sharedNotesEditor:                        String,
     maxPinnedCameras:                       Int,
     cameraBridge:                           String,
     screenShareBridge:                      String,

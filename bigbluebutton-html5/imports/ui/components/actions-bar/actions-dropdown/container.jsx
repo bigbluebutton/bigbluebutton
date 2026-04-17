@@ -114,6 +114,7 @@ const ActionsDropdownContainer = (props) => {
         isPresentationEnabled,
         isPresentationManagementDisabled,
         isQuizEnabled,
+        isBreakout: meetingIsBreakout,
         ...props,
       }}
     />

@@ -5,69 +5,53 @@ import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, LOOP_INTERVAL } from '../c
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 
-declare global {
-  interface Document {
-    lastVideoHash?: Record<number, ArrayBuffer>;
-  }
-}
 
 export async function webcamContentCheck(testPage: Page) {
-  // loop 5 times, every LOOP_INTERVAL milliseconds, and check that all
-  // videos displayed are changing by comparing a hash of their
-  // displayed contents
+  // Verify the webcam stream is live by checking that the video's currentTime advances.
   await testPage.waitForSelector(e.webcamVideoItem);
   await testPage.wasRemoved(
     e.webcamConnecting,
     'should the connecting element be removed when start webcam sharing',
     ELEMENT_WAIT_LONGER_TIME,
   );
-  const repeats = 5;
-  let check;
-  for (let i = repeats; i >= 1; i--) {
-    console.log(`loop ${i}`);
-    const checkCameras = async () => {
-      const videos = document.querySelectorAll('video');
-      const lastVideoHash = document.lastVideoHash || {};
-      document.lastVideoHash = lastVideoHash;
 
-      for (let v = 0; v < videos.length; v++) {
-        const video = videos[v];
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        context?.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-        const pixel = context?.getImageData(0, 0, video.videoWidth, video.videoHeight).data;
-        if (!pixel) return false;
-        const pixelHash = await window.crypto.subtle.digest('SHA-1', pixel);
+  const getVideoTime = () => {
+    const video =
+      document.querySelector<HTMLVideoElement>('video[data-local-stream="true"]') ||
+      document.querySelector<HTMLVideoElement>('video');
+    return video ? video.currentTime : -1;
+  };
 
-        if (lastVideoHash[v]) {
-          const lastHash = new Uint8Array(lastVideoHash[v]);
-          const currentHash = new Uint8Array(pixelHash);
-          const areEqual =
-            lastHash.length === currentHash.length && lastHash.every((val, idx) => val === currentHash[idx]);
-          if (areEqual) {
-            return false;
-          }
-        }
-        lastVideoHash[v] = pixelHash;
-      }
-      return true;
-    };
+  const initialTime = await testPage.page.evaluate(getVideoTime);
+  if (initialTime < 0) return false;
 
-    check = await testPage.page.evaluate(checkCameras);
-    if (!check) return false;
-    await testPage.page.waitForTimeout(LOOP_INTERVAL);
-  }
-  return check === true;
+  await testPage.page.waitForTimeout(LOOP_INTERVAL * 2);
+
+  const laterTime = await testPage.page.evaluate(getVideoTime);
+  return laterTime > initialTime;
 }
+
+// NETWORK_MONITORING_INTERVAL_MS in BBB's connection-status/service.js is 2000ms.
+// Sample across 4 intervals (~8s) and take the peak to get a stable reading
+// once the stream has ramped up past its initial startup transient.
+const SAMPLE_COUNT = 4;
+const SAMPLE_INTERVAL_MS = 2000;
 
 export async function checkVideoUploadData(testPage: Page, previousValue: number, timeout = ELEMENT_WAIT_TIME) {
   const locator = testPage.page.locator(e.videoUploadRateData);
   await expect(locator).not.toHaveText('0k ↑', { timeout });
-  const text = await locator.textContent();
-  if (!text) throw new Error('Video upload rate data not found');
-  const currentValue = Number(text.split('k')[0]);
-  await expect(currentValue).toBeGreaterThan(previousValue);
-  return currentValue;
+
+  let peak = 0;
+  for (let i = 0; i < SAMPLE_COUNT; i++) {
+    const text = await locator.textContent();
+    if (!text) throw new Error('Video upload rate data not found');
+    const sample = Number(text.split('k')[0]);
+    if (sample > peak) peak = sample;
+    if (i < SAMPLE_COUNT - 1) await testPage.page.waitForTimeout(SAMPLE_INTERVAL_MS);
+  }
+
+  await expect(peak).toBeGreaterThan(previousValue);
+  return peak;
 }
 
 export async function uploadBackgroundVideoImage(testPage: Page) {

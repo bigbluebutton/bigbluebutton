@@ -22,6 +22,8 @@ import {
   colorOffWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
+import { PluginButtonIcon } from '/imports/ui/components/plugins/plugin-icon/styles';
+
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 
 interface AvatarProps {
@@ -380,6 +382,15 @@ const UserAdditionalInformationIcon = styled(Icon)`
   margin-right: ${smPaddingX};
 `;
 
+const SvgContentUserListIcon = styled(PluginButtonIcon)`
+  display: inline-flex;
+  align-items: center;
+`;
+
+const SvgContentUserListIconMargin = styled(PluginButtonIcon)`
+  margin-right: ${smPaddingX};
+`;
+
 const pulse = (color: string) => keyframes`
     0% {
       box-shadow: 0 0 0 0 ${color}80;
@@ -387,7 +398,6 @@ const pulse = (color: string) => keyframes`
     100% {
       box-shadow: 0 0 0 10px ${color}00;
     }
-  }
 `;
 
 // ======================== User Name ========================
@@ -457,5 +467,7 @@ export default {
   UserAdditionalInformationIcon,
   UserNameSub,
   UserName,
+  SvgContentUserListIcon,
+  SvgContentUserListIconMargin,
   IconRightContainer,
 };

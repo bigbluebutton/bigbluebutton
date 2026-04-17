@@ -3,7 +3,7 @@ import { expect } from '@playwright/test';
 import { hoverLastMessage } from '../chat/util';
 import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
-import { getNotesLocator } from '../sharednotes/util';
+import { getNotesLocator } from '../sharednotes/etherpad/util';
 import { MultiUsers } from './multiusers';
 import { drawArrow, openLockViewers } from './util';
 

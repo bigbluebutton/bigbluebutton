@@ -33,6 +33,7 @@ function generateToastId(message, type, icon) {
   return `${type}-${iconKey}-${messageKey}`;
 }
 
+// Type can be one of the following: 'default', 'info', 'success', 'warning', 'error'
 export function notify(message, type = 'default', icon, options, content, small) {
   const toastId = options?.toastId ?? generateToastId(message, type, icon);
 

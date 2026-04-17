@@ -213,6 +213,15 @@ const BottomBar = styled.div`
   justify-content: space-between;
 `;
 
+const SqueezedName = styled(TextElipsis)`
+  color: ${colorWhite};
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  padding: 0 0.5rem;
+  font-size: 80%;
+  max-width: 100%;
+`;
+
 const RaiseHand = styled.div`
   position: relative;
   display: inline-block;
@@ -274,6 +283,7 @@ export default {
   Video,
   TopBar,
   BottomBar,
+  SqueezedName,
   VideoDisabled,
   RaiseHand,
   RaiseHandNumber,

@@ -14,7 +14,7 @@ import {
   PANELS,
   HIDDEN_LAYOUTS,
 } from '../enums';
-import { isMobile, LAYOUTS_SYNC } from '../utils';
+import { isMobile, isValidSynchronizationLayout, LAYOUTS_SYNC } from '../utils';
 import { updateSettings, isKeepPushingLayoutEnabled } from '/imports/ui/components/settings/service';
 import Session from '/imports/ui/services/storage/in-memory';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
@@ -69,6 +69,7 @@ const propTypes = {
   enforceLayoutResult: PropTypes.string,
   setLocalSettings: PropTypes.func.isRequired,
   hasMeetingLayout: PropTypes.bool,
+  isChatEnabled: PropTypes.bool,
 };
 
 const PushLayoutEngine = (props) => {
@@ -200,7 +201,7 @@ const PushLayoutEngine = (props) => {
   }, [hasMeetingLayout, enforceLayoutResult]);
 
   useEffect(() => {
-    if (!selectedLayout) return () => {};
+    if (!isValidSynchronizationLayout(selectedLayout)) return () => {};
     const meetingLayoutDidChange = meetingLayout !== prevProps.meetingLayout;
     const pushLayoutMeetingDidChange = pushLayoutMeeting !== prevProps.pushLayoutMeeting;
     const enforceLayoutDidChange = enforceLayoutResult !== prevProps.enforceLayoutResult;

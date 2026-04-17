@@ -1,0 +1,20 @@
+[Unit]
+Description=BigBlueButton Shared Notes Server
+Wants=redis-server.service postgresql.service
+After=syslog.target network.target redis-server.service postgresql.service
+PartOf=bigbluebutton.target
+StartLimitIntervalSec=0
+
+[Service]
+WorkingDirectory=/usr/share/bbb-shared-notes-server
+ExecStart=/usr/bin/node bbb-shared-notes-server.js
+EnvironmentFile=-/etc/bigbluebutton/bbb-shared-notes-server.env
+Restart=always
+SyslogIdentifier=bbb-shared-notes-server
+User=bigbluebutton
+Group=bigbluebutton
+Environment=NODE_ENV=production
+RestartSec=1s
+
+[Install]
+WantedBy=multi-user.target bigbluebutton.target

@@ -68,6 +68,17 @@ module BigBlueButton
       notes_id
     end
 
+    def self.get_notes_editor(events)
+      BigBlueButton.logger.info("Task: Getting notes editor")
+      notes_editor = 'etherpad'
+      events.xpath("/recording/event[@eventname='AddPadEvent' or @eventname='PadCreatedEvent']").each do |pad_event|
+        editor_element = pad_event.at_xpath('sharedNotesEditor')
+        notes_editor = editor_element.text if editor_element && !editor_element.text.strip.empty?
+      end
+      notes_editor
+    end
+
+
     # Get the external meeting id
     def self.get_external_meeting_id(events_xml)
       BigBlueButton.logger.info("Task: Getting external meeting id")

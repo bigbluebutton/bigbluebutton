@@ -6,6 +6,8 @@ import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import { monitorAudioConnection } from '/imports/utils/stats';
+import { monitorLiveKitAudioStats, stopLiveKitAudioStats } from '/imports/ui/services/livekit/stats';
+import { liveKitRoom } from '/imports/ui/services/livekit';
 import browserInfo from '/imports/utils/browserInfo';
 import {
   DEFAULT_INPUT_DEVICE_ID,
@@ -133,6 +135,17 @@ class AudioManager {
     window.addEventListener('StopAudioTracks', () => this.forceExitAudio());
     window.addEventListener('beforeunload', this.onBeforeUnload);
     checkMediaDevicesTarget();
+  }
+
+  isUsingLiveKit() {
+    return this.bridge?.bridgeName === 'livekit';
+  }
+
+  shouldUseLiveKitAudioState() {
+    const livekitConfig = window?.meetingClientSettings?.public?.media?.livekit;
+    const useLiveKitAudioState = livekitConfig?.audio?.useLiveKitAudioState ?? false;
+
+    return this.isUsingLiveKit() && useLiveKitAudioState;
   }
 
   onBeforeUnload() {
@@ -357,7 +370,10 @@ class AudioManager {
     this._applyCachedOutputDeviceId();
     this.transparentListenOnlySupported = this.supportsTransparentListenOnly();
     this.audioEventHandler = audioEventHandler;
-    this.observeVoiceActivity();
+
+    // Only observe GraphQL voice activity if not using LiveKit's audio state
+    if (!this.shouldUseLiveKitAudioState()) this.observeVoiceActivity();
+
     this.initialized = true;
   }
 
@@ -715,15 +731,24 @@ class AudioManager {
     return this.bridge.transferCall(this.onAudioJoin.bind(this));
   }
 
-  onVoiceUserChanges(fields = {}) {
+  onVoiceUserChanges({
+    leftVoiceConf,
+    muted,
+    talking,
+  } = {}) {
+    // When using LiveKit audio state, mute/talking states are derived
+    // via the useAudioManagerStateSync hook, which pulls data from the unified
+    // audio state hooks (useWhoIsUnmuted and useWhoIsTalking).
+    if (this.shouldUseLiveKitAudioState()) return;
+
     let newMuteState;
 
     // when user leaves voice conf, set muted = false
     // as the user might have been transfered to a breakout room
-    if (fields.leftVoiceConf !== undefined && fields.leftVoiceConf) {
+    if (leftVoiceConf !== undefined && leftVoiceConf) {
       newMuteState = false;
-    } else if (fields.muted !== undefined && fields.muted !== this.isMuted) {
-      newMuteState = fields.muted;
+    } else if (muted !== undefined && muted !== this.isMuted) {
+      newMuteState = muted;
     }
 
     if (newMuteState !== undefined && newMuteState !== this.isMuted) {
@@ -736,8 +761,8 @@ class AudioManager {
       }
     }
 
-    if (fields.talking !== undefined && fields.talking !== this.isTalking) {
-      this.isTalking = fields.talking;
+    if (talking !== undefined && talking !== this.isTalking) {
+      this.isTalking = talking;
     }
 
     if (this.isMuted) {
@@ -850,6 +875,7 @@ class AudioManager {
     window.removeEventListener('audioPlayFailed', this.handlePlayElementFailed);
     this._resetAudioJoinTime();
     this.notifyAudioExit();
+    stopLiveKitAudioStats();
     this.isConnected = false;
     this.isConnecting = false;
     this.isHangingUp = false;
@@ -1289,8 +1315,12 @@ class AudioManager {
   }
 
   monitor() {
-    const peer = this.bridge.getPeerConnection();
-    monitorAudioConnection(peer);
+    if (this.isUsingLiveKit()) {
+      const STATS_INTERVAL = window.meetingClientSettings.public.stats.interval;
+      monitorLiveKitAudioStats(liveKitRoom, STATS_INTERVAL);
+    } else {
+      monitorAudioConnection();
+    }
   }
 
   handleAllowAutoplay() {

@@ -18,6 +18,7 @@ import {
 import { useConnectionState, useTracks } from '@livekit/components-react';
 import { debounce } from '/imports/utils/debounce';
 import VideoService from '/imports/ui/components/video-provider/service';
+import { getCameraPublishOptions } from './service';
 import VideoListContainer from '/imports/ui/components/video-provider/video-list/container';
 import logger from '/imports/startup/client/logger';
 import { notifyStreamStateChange } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
@@ -132,7 +133,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
   const streamsRef = useRef(streams);
   streamsRef.current = streams;
 
-  const withSelectiveSubscription = meetingSettings.public.media?.livekit?.selectiveSubscription || false;
+  const withSelectiveSubscription = meetingSettings.public.media?.livekit?.selectiveSubscription?.enabled ?? true;
 
   const handleStreamFailure = useCallback((error: Error, stream: string, isLocal: boolean) => {
     const { name: errorName, message: errorMessage } = error;
@@ -301,18 +302,6 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
   const startStream = useCallback(async (stream: string, isLocal: boolean) => {
     if (bridgeRefs.current.localTracks[stream] || bridgeRefs.current.connectingStreams[stream]) return;
 
-    const LIVEKIT_SETTINGS = meetingSettings.public.media.livekit?.camera;
-    const source = Track.Source.Camera;
-    const defaultPubOptions = LIVEKIT_SETTINGS?.publishOptions || {
-      dtx: true,
-      videoCodec: 'vp8',
-    };
-    const publishOptions = {
-      ...defaultPubOptions,
-      source,
-      name: stream,
-    };
-
     if (!isLocal) {
       subscribeToRemotePub(stream);
       return;
@@ -324,6 +313,20 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
       const localBBBStream = VideoService.getPreloadedStream();
       bridgeRefs.current.localVideoStreams[stream] = localBBBStream;
       const { mediaStream } = localBBBStream;
+      const LIVEKIT_SETTINGS = meetingSettings.public.media.livekit?.camera;
+      const basePubOptions = {
+        dtx: true,
+        videoCodec: 'vp8' as const,
+        ...LIVEKIT_SETTINGS?.publishOptions,
+      };
+      const simulcastOptions = getCameraPublishOptions(mediaStream);
+      const publishOptions = {
+        ...basePubOptions,
+        ...simulcastOptions,
+        source: Track.Source.Camera,
+        name: stream,
+      };
+
       const publishers: Promise<LocalTrackPublication>[] = mediaStream
         .getTracks()
         .map((track: MediaStreamTrack) => {

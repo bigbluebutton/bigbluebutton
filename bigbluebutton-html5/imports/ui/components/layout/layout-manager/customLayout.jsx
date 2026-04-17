@@ -348,7 +348,7 @@ const CustomLayout = (props) => {
         );
       }
 
-      cameraDockBounds.top = navBarHeight;
+      cameraDockBounds.top = navBarHeight + bannerAreaHeight();
       cameraDockBounds.left = mediaAreaBounds.left;
       cameraDockBounds.right = isRTL ? sidebarSize : null;
       cameraDockBounds.minWidth = mediaAreaBounds.width;

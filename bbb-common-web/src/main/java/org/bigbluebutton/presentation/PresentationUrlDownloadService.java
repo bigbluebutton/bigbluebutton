@@ -5,23 +5,15 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.entity.ContentType;
-import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
-import org.apache.http.impl.nio.client.HttpAsyncClients;
-import org.apache.http.nio.client.methods.HttpAsyncMethods;
-import org.apache.http.nio.client.methods.ZeroCopyConsumer;
 import org.bigbluebutton.api.Util;
 import org.bigbluebutton.api.service.RedirectFollowerService;
+import org.bigbluebutton.api.service.SecureUrlDownloader;
+import org.bigbluebutton.api.service.ValidatedUrl;
 import org.bigbluebutton.api.service.impl.PresRedirectValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +29,7 @@ public class PresentationUrlDownloadService {
     private String BLANK_PRESENTATION;
     private RedirectFollowerService redirectFollower;
     private PresRedirectValidator presRedirectValidator;
+    private SecureUrlDownloader secureUrlDownloader;
     private int presDownloadReadTimeoutInMs;
 
     private ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(3);
@@ -174,60 +167,23 @@ public class PresentationUrlDownloadService {
     public boolean savePresentation(final String meetingId,
             final String filename, final String urlString) {
 
-        String finalUrl = redirectFollower.followRedirect(
+        ValidatedUrl validatedUrl = redirectFollower.followRedirectSecure(
                 meetingId, urlString, 0, urlString, presRedirectValidator, presDownloadReadTimeoutInMs
         );
 
-        if (finalUrl == null) return false;
-        if(!finalUrl.equals(urlString)) {
-            log.info("Redirected to Final URL [{}]", finalUrl);
+        if (validatedUrl == null) {
+            log.error("Failed to validate and resolve URL [{}] for meeting [{}]", urlString, meetingId);
+            return false;
         }
 
-        boolean success = false;
-
-        //Disable follow redirect since finalUrl already did it
-        RequestConfig requestConfig = RequestConfig.custom()
-                .setRedirectsEnabled(false)
-                .build();
-
-        CloseableHttpAsyncClient httpclient = HttpAsyncClients.custom()
-                .setDefaultRequestConfig(requestConfig)
-                .build();
-
-        try {
-            httpclient.start();
-            File download = new File(filename);
-            ZeroCopyConsumer<File> consumer = new ZeroCopyConsumer<File>(download) {
-                @Override
-                protected File process(
-                        final HttpResponse response,
-                        final File file,
-                        final ContentType contentType) throws Exception {
-                    if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
-                        throw new ClientProtocolException("Upload failed: " + response.getStatusLine());
-                    }
-                    return file;
-                }
-
-            };
-            Future<File> future = httpclient.execute(HttpAsyncMethods.createGet(finalUrl), consumer, null);
-            File result = future.get();
-            success = result.exists();
-        } catch (java.lang.InterruptedException ex) {
-            log.error("InterruptedException while saving presentation", meetingId, ex);
-        } catch (java.util.concurrent.ExecutionException ex) {
-            log.error("ExecutionException while saving presentation", meetingId, ex);
-        } catch (java.io.FileNotFoundException ex) {
-            log.error("FileNotFoundException while saving presentation", meetingId, ex);
-        } finally {
-            try {
-                httpclient.close();
-            } catch (java.io.IOException ex) {
-                log.error("IOException while saving presentation", meetingId, ex);
-            }
+        if (!validatedUrl.originalUrl().equals(urlString)) {
+            log.info("Redirected to Final URL [{}], resolved to {} address(es)",
+                    validatedUrl.originalUrl(), validatedUrl.resolvedAddresses().length);
+        } else {
+            log.info("URL [{}] resolved to {} address(es)", urlString, validatedUrl.resolvedAddresses().length);
         }
 
-        return success;
+        return secureUrlDownloader.downloadToFile(meetingId, validatedUrl, new File(filename), presDownloadReadTimeoutInMs);
     }
 
     public void setPageExtractor(PageExtractor extractor) {
@@ -257,6 +213,10 @@ public class PresentationUrlDownloadService {
 
     public void setPresRedirectValidator(PresRedirectValidator presRedirectValidator) {
         this.presRedirectValidator = presRedirectValidator;
+    }
+
+    public void setSecureUrlDownloader(SecureUrlDownloader secureUrlDownloader) {
+        this.secureUrlDownloader = secureUrlDownloader;
     }
 
     public void setPresDownloadReadTimeoutInMs(int presDownloadReadTimeoutInMs) {

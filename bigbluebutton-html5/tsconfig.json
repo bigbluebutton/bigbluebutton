@@ -33,7 +33,7 @@
       "/imports/": ["./imports/*"],
       "/client/": ["./client/*"]
     },
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "preserveSymlinks": true
   },

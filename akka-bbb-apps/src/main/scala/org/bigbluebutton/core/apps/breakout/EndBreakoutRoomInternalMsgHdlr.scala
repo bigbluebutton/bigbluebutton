@@ -1,14 +1,13 @@
 package org.bigbluebutton.core.apps.breakout
 
-import org.bigbluebutton.common2.msgs.{ BbbClientMsgHeader, BbbCommonEnvCoreMsg, BbbCoreEnvelope, BbbCoreHeaderWithMeetingId, ExportJob, MessageTypes, PresentationConversionUpdateEvtMsg, PresentationConversionUpdateEvtMsgBody, PresentationConversionUpdateSysPubMsg, PresentationPageForExport, PresentationUploadTokenSysPubMsg, PresentationUploadTokenSysPubMsgBody, Routing, StoreExportJobInRedisSysMsg, StoreExportJobInRedisSysMsgBody, StoredAnnotations }
+import org.bigbluebutton.common2.msgs.{ BbbClientMsgHeader, BbbCommonEnvCoreMsg, BbbCoreEnvelope, BbbCoreHeaderWithMeetingId, ExportBNSharedNotesEvtMsg, ExportBNSharedNotesEvtMsgBody, ExportJob, MessageTypes, PresentationConversionUpdateEvtMsg, PresentationConversionUpdateEvtMsgBody, PresentationConversionUpdateSysPubMsg, PresentationPageForExport, PresentationUploadTokenSysPubMsg, PresentationUploadTokenSysPubMsgBody, Routing, StoreExportJobInRedisSysMsg, StoreExportJobInRedisSysMsgBody, StoredAnnotations }
 import org.bigbluebutton.core.api.{ CapturePresentationReqInternalMsg, EndBreakoutRoomInternalMsg }
 import org.bigbluebutton.core.apps.presentationpod.PresentationPodsApp
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
-import org.bigbluebutton.core.db.{ NotificationDAO, PresPresentationDAO }
-import org.bigbluebutton.core.models.{ Pads, PresentationInPod, PresentationPage, PresentationPod, Roles }
+import org.bigbluebutton.core.db.PresPresentationDAO
+import org.bigbluebutton.core.models.{ Pads, PresentationInPod, Roles }
 import org.bigbluebutton.core.running.{ BaseMeetingActor, HandlerHelpers, LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.PresentationInPod.getCurrentPage
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait EndBreakoutRoomInternalMsgHdlr extends HandlerHelpers {
@@ -17,6 +16,8 @@ trait EndBreakoutRoomInternalMsgHdlr extends HandlerHelpers {
   val liveMeeting: LiveMeeting
   val outGW: OutMsgRouter
   val eventBus: InternalEventBus
+
+  private val BbbAppsAkkaSender = "bbb-apps-akka"
 
   def handleEndBreakoutRoomInternalMsg(msg: EndBreakoutRoomInternalMsg, state: MeetingState2x): Unit = {
     var noContentToImportFromRoom = liveMeeting.props.breakoutProps.captureSlides || liveMeeting.props.breakoutProps.captureNotes
@@ -81,9 +82,21 @@ trait EndBreakoutRoomInternalMsgHdlr extends HandlerHelpers {
         val presentationUploadToken: String = PresentationPodsApp.generateToken("DEFAULT_PRESENTATION_POD", userId)
         outGW.send(buildPresentationUploadTokenSysPubMsg(msg.parentId, userId, presentationUploadToken, filename, presentationId))
 
-        val exportJob = ExportJob(jobId, "PadCaptureJob", filename, filename, group.padId, "", allPages = true, List(), msg.parentId, presentationUploadToken)
-        val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
-        outGW.send(job)
+        if (liveMeeting.props.meetingProp.sharedNotesEditor == "etherpad") {
+          val exportJob = ExportJob(jobId, "PadCaptureJob", filename, filename, group.padId, "", allPages = true, List(), msg.parentId, presentationUploadToken)
+          val job = buildStoreExportJobInRedisSysMsg(exportJob, liveMeeting)
+          outGW.send(job)
+        } else {
+          val exportMsg = buildExportBNSharedNotesEvtMsg(
+            jobId,
+            group.padId,
+            filename,
+            msg.parentId,
+            presentationUploadToken,
+            liveMeeting
+          )
+          outGW.send(exportMsg)
+        }
       } else {
         pres = pres.copy(errorMsgKey = "204")
 
@@ -97,7 +110,7 @@ trait EndBreakoutRoomInternalMsgHdlr extends HandlerHelpers {
   }
 
   def buildStoreExportJobInRedisSysMsg(exportJob: ExportJob, liveMeeting: LiveMeeting): BbbCommonEnvCoreMsg = {
-    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val routing = collection.immutable.HashMap("sender" -> BbbAppsAkkaSender)
     val envelope = BbbCoreEnvelope(StoreExportJobInRedisSysMsg.NAME, routing)
     val body = StoreExportJobInRedisSysMsgBody(exportJob)
     val header = BbbCoreHeaderWithMeetingId(StoreExportJobInRedisSysMsg.NAME, liveMeeting.props.meetingProp.intId)
@@ -107,7 +120,7 @@ trait EndBreakoutRoomInternalMsgHdlr extends HandlerHelpers {
   }
 
   def buildPresentationUploadTokenSysPubMsg(parentMeetingId: String, userId: String, presentationUploadToken: String, filename: String, presId: String): BbbCommonEnvCoreMsg = {
-    val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
+    val routing = collection.immutable.HashMap("sender" -> BbbAppsAkkaSender)
     val envelope = BbbCoreEnvelope(PresentationUploadTokenSysPubMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationUploadTokenSysPubMsg.NAME, parentMeetingId, userId)
     val body = PresentationUploadTokenSysPubMsgBody("DEFAULT_PRESENTATION_POD", presentationUploadToken, filename, parentMeetingId, presId)
@@ -129,6 +142,28 @@ trait EndBreakoutRoomInternalMsgHdlr extends HandlerHelpers {
       temporaryPresentationId
     )
     val event = PresentationConversionUpdateEvtMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildExportBNSharedNotesEvtMsg(
+      jobId:              String,
+      presId:             String,
+      serverSideFilename: String,
+      parentMeetingId:    String,
+      presUploadToken:    String,
+      liveMeeting:        LiveMeeting
+  ): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> BbbAppsAkkaSender)
+    val envelope = BbbCoreEnvelope(ExportBNSharedNotesEvtMsg.NAME, routing)
+    val header = BbbCoreHeaderWithMeetingId(ExportBNSharedNotesEvtMsg.NAME, liveMeeting.props.meetingProp.intId)
+    val body = ExportBNSharedNotesEvtMsgBody(
+      jobId,
+      presId,
+      serverSideFilename,
+      parentMeetingId,
+      presUploadToken
+    )
+    val event = ExportBNSharedNotesEvtMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
