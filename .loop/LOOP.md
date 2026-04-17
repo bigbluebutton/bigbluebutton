@@ -428,13 +428,13 @@ Checklist final antes de `DONE`. Todos os itens precisam `[x]` com evidência ob
 VERIFICAR_REQUISITOS
 
 ## Iteração
-10
+11
 
 ## Última ação
-R14 verificado e fechado. ChangeLockSettingsInMeetingCmdMsgHdlr já chamava LockSettingsUtil.enforceScreenshareLockSettingsForAllViewers quando disableMultiScreenshare ativado — envia ScreenBroadcastStopSysMsg para cada screenshare ativo de viewers (VIEWER_ROLE); moderadores não afetados. LockSettingsUtil.isScreenshareBroadcastLocked usa disableMultiScreenshare corretamente. T07 escrito e passando: "lock disableMultiScreenshare stops active viewer screenshare server-side while keeping moderator stream alive" em multi-screenshare.spec.ts. 9/9 testes passando (59.1s). Commit d81cb40.
+R15 verificado e fechado. container.jsx já retornava null quando isScreenshareLocked && !screenIsBroadcasting (botão oculto). useIsScreenshareLocked verifica disableMultiScreenshare+locked+!isModerator. T06 ("lock disableMultiScreenshare blocks viewer without promotion") já existia e passou 2/2 (19.6s). Nenhuma alteração de código necessária. Commit 8c9e153.
 
 ## Próxima ação
-Iterar R15 (UI do viewer reflete restrição da lock com botão oculto/desabilitado).
+Iterar R16 (hideViewersScreenshare esconde screenshares de viewers entre si, enforcement no servidor).
 
 ## Bloqueios
 nenhum (nota: commits ao repo BBB devem ser feitos via docker exec ip-10-111-14-85, pois .git/COMMIT_EDITMSG é root-owned no host)
