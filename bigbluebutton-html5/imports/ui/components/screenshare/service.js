@@ -329,11 +329,6 @@ export const shareScreen = async (
     }
     _trackStreamTermination(stream, _handleStreamTermination);
 
-    if (!isPresenter) {
-      MediaStreamUtils.stopMediaStreamTracks(stream);
-      return;
-    }
-
     await screenShareBridge.share(stream, onFail, contentType);
 
     // Stream might have been disabled in the meantime. I love badly designed
