@@ -112,6 +112,24 @@ test.describe.parallel('Multi-screenshare', { tag: '@ci' }, () => {
     await screenshare.externalVideoMigratesPresenterShare();
   });
 
+  // T07 — Lock ativada interrompe screenshare ativo de viewer, moderador segue ativo (R14, R13)
+  // Pre-condition: moderator (presenter) + viewer BOTH sharing. Lock initially OFF. Viewer NEVER promoted.
+  // Steps: both share → mod activates disableMultiScreenshare → viewer share stopped by server
+  //        (no viewer click) → mod share survives → viewer cannot re-share while lock is active.
+  test('lock disableMultiScreenshare stops active viewer screenshare server-side while keeping moderator stream alive', async ({
+    browser,
+    context,
+    browserName,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not available in Firefox without desktop capture');
+    test.setTimeout(120000);
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(page, { testInfo });
+    await screenshare.initUserPage(context, { testInfo });
+    await screenshare.lockStopsActiveViewerShares();
+  });
+
   // T19 — Blocked screenshare attempt does not eject viewer from meeting (R3)
   // Pre-condition: moderator (presenter) + viewer. Lock enabled by moderator.
   // Server-side lock denies the share (explicit denial via GetScreenBroadcastPermissionRespMsg).

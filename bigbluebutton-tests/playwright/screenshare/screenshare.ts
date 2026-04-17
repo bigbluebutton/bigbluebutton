@@ -995,6 +995,122 @@ export class ScreenShare extends MultiUsers {
     expect(viewerIsPresenterAfter, 'viewer must not be promoted to presenter during T04').toBeFalsy();
   }
 
+  // T07: Lock activation stops active viewer screenshare server-side (R14, R13)
+  // Pre-condition: presenter (modPage) + viewer (userPage) BOTH sharing screen.
+  //               Lock disableMultiScreenshare initially OFF. Viewer NEVER promoted.
+  // Steps:
+  //   1. Both share (mod → content area; viewer → camera dock).
+  //   2. Moderator activates disableMultiScreenshare.
+  //   3. Viewer's share is stopped by the SERVER (stop button disappears without viewer clicking).
+  //   4. Moderator's share stays active (isSharingScreen + stopScreenSharing still visible).
+  //   5. Moderator's screenshare video still visible to viewer (stream not interrupted).
+  //   6. Viewer cannot re-share while lock is active.
+  async lockStopsActiveViewerShares() {
+    // Wait for meeting ready — screenshare buttons are canaries
+    await this.modPage.hasElement(
+      e.startScreenSharing,
+      'presenter should see screenshare button',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await this.userPage.hasElement(
+      e.startScreenSharing,
+      'viewer should see screenshare button before lock',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+
+    // Check 3 guard: viewer must NOT be presenter at start of T07
+    const viewerIsPresenterBefore = await checkIsPresenter(this.userPage);
+    expect(viewerIsPresenterBefore, 'viewer must not be presenter at start of T07').toBeFalsy();
+
+    // Step 1a: Presenter starts screenshare → appears in content area (R7)
+    await startScreenshare(this.modPage);
+    await this.modPage.hasElement(e.isSharingScreen, 'moderator should be sharing screen');
+    await this.userPage.hasElement(
+      e.screenShareVideo,
+      'viewer should see moderator screenshare in content area',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+
+    // Capture the moderator's stream ID for post-lock verification
+    const modVideoEl = this.userPage.page.locator('#screenshareContainer video[id^="screenshareVideo"]').first();
+    await modVideoEl.waitFor({ timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+    const modVideoId = await modVideoEl.getAttribute('id');
+    const modStreamId = modVideoId?.replace('screenshareVideo-', '') ?? '';
+    expect(modStreamId, 'could not extract moderator stream ID from content area').not.toBe('');
+
+    // Step 1b: Viewer starts screenshare → goes to camera dock (R9; never promoted to presenter)
+    await startScreenshare(this.userPage);
+    await this.userPage.hasElement(
+      e.stopScreenSharing,
+      'viewer screenshare should be active (stop button visible)',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+
+    // Step 2: Moderator activates disableMultiScreenshare lock via lock-viewers modal
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClickElement(e.disableMultiScreenshare);
+    await this.modPage.waitAndClick(e.applyLockSettings);
+
+    // Step 3: Viewer's screenshare is stopped by the SERVER — the viewer never clicks stop.
+    // Stop button disappears (server ended the share) + start button gone (lock active).
+    // This combination proves the stop was server-originated: no viewer click was made.
+    await this.userPage.wasRemoved(
+      e.stopScreenSharing,
+      'viewer stop button must disappear — server stopped the share (not the viewer) (R14)',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await this.userPage.wasRemoved(
+      e.startScreenSharing,
+      'viewer start button must be hidden — share is locked server-side (R13)',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+
+    // Step 4: Moderator's screenshare is still active — moderators bypass the viewer lock (R14)
+    await this.modPage.hasElement(
+      e.isSharingScreen,
+      'moderator isSharingScreen must remain — share was not affected by viewer lock (R14)',
+    );
+    await this.modPage.hasElement(
+      e.stopScreenSharing,
+      'moderator stop button must remain — share is still active (R14)',
+    );
+
+    // Step 5: Moderator's screenshare video is still visible in the viewer's content area.
+    // The video element remaining proves the stream was NOT stopped on the moderator's side (R14).
+    await this.userPage.hasElement(
+      '#screenshareContainer video[id^="screenshareVideo"]',
+      'moderator screenshare video must remain in content area — stream not stopped (R14)',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    // Confirm the video in content area is still the MODERATOR's stream (not a different one)
+    const modVideoStillInContent = this.userPage.page.locator(`video#screenshareVideo-${modStreamId}`);
+    await expect(
+      modVideoStillInContent,
+      'moderator specific stream must still be in content area after viewer lock (R14)',
+    ).toBeAttached({ timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+
+    // Step 6: Viewer cannot re-initiate screenshare — lock is still active
+    await this.userPage.wasRemoved(
+      e.startScreenSharing,
+      'viewer screenshare button must remain hidden while lock is active (R13)',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+
+    // Viewer remains in meeting — server did not eject them (R3 co-coverage)
+    const viewerInModList = this.modPage.page.locator(e.userListItem).filter({ hasText: 'Attendee' });
+    await expect(
+      viewerInModList,
+      'viewer must remain in participant list — no eject from R14 enforcement',
+    ).toBeVisible();
+
+    // Check 3 final guard: viewer was NEVER promoted to presenter during T07
+    const viewerIsPresenterAfter = await checkIsPresenter(this.userPage);
+    expect(viewerIsPresenterAfter, 'viewer must not be promoted to presenter during T07').toBeFalsy();
+
+    // Cleanup: stop moderator screenshare (viewer's was already stopped by server)
+    await this.modPage.waitAndClick(e.stopScreenSharing);
+  }
+
   /* eslint-disable class-methods-use-this, no-useless-return */
   async lockDisableMultiScreenshare() {
     // Stub: replaced by lockBlocksViewerNoPromotion
