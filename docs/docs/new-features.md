@@ -249,7 +249,8 @@ To enable support for LiveKit:
     * Older 3.0 installations might still be using Node.js 18. If that's the case,
       re-run bbb-install or correct any custom installation scripts to ensure
       Node.js 22 is installed.
-5. Only when using BigBlueButton via the [cluster proxy](/administration/cluster-proxy) configuration:
+5. Restart livekit-server: `$ sudo systemctl restart livekit-server`
+6. Only when using BigBlueButton via the [cluster proxy](/administration/cluster-proxy) configuration:
     1. Set the appropriate LiveKit endpoint URL in bbb-html5.yml's `public.media.livekit.url`. See
       the aforementioned [docs section](/administration/cluster-proxy.md#bigbluebutton-servers) for details.
 
