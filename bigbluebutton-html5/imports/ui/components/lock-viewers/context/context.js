@@ -20,6 +20,7 @@ export function LockStruct() {
       userPublicChat: false,
       hideViewersCursor: false,
       hideViewersAnnotation: false,
+      userScreenshare: false,
     },
   });
 }

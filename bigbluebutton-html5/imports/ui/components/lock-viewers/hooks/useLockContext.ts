@@ -32,6 +32,7 @@ const useLockContext = () => {
         userPublicChat: Boolean(userIsLocked && lockSettings?.disablePublicChat),
         hideViewersCursor: Boolean(userIsLocked && lockSettings?.hideViewersCursor),
         hideViewersAnnotation: Boolean(userIsLocked && lockSettings?.hideViewersAnnotation),
+        userScreenshare: Boolean(userIsLocked && lockSettings?.disableMultiScreenshare),
       },
     };
   }, [meeting?.lockSettings, user?.role, user?.locked]);
