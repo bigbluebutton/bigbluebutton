@@ -351,7 +351,8 @@ export class LockViewers extends MultiUsers {
     await this.userPage.waitAndClick(e.wbRectangleShape);
     await this.userPage.waitAndClick(e.whiteboard);
     await this.modPage.page.locator(e.messagesSidebarButton).hover();
-    await this.userPage.page.locator(e.messagesSidebarButton).hover(); // ensure userPage cursor won't be visible on the screenshot
+    // ensure userPage cursor won't be visible on the screenshot
+    await this.userPage.page.locator(e.messagesSidebarButton).hover();
     await this.userPage2.wasRemoved(e.wbDrawnShape, 'should not display the new annotation for the other viewer');
     await this.modPage.page.waitForTimeout(1000); // expected timeout for cursor indicator to disappear
     await expect(user2WbLocator, 'should not display the new annotation for the other viewer').toHaveScreenshot(
@@ -366,7 +367,8 @@ export class LockViewers extends MultiUsers {
     await this.userPage2.hasElement(e.wbDrawnArrow, 'should display the arrow drawn before user join');
     await this.userPage2.hasElement(e.wbDrawnShape, 'should display the rectangle drawn before unlocking user');
     await this.modPage.page.locator(e.messagesSidebarButton).hover();
-    await this.userPage2.page.locator(e.messagesSidebarButton).hover(); // ensure userPage cursor won't be visible on the screenshot
+    // ensure userPage cursor won't be visible on the screenshot
+    await this.userPage2.page.locator(e.messagesSidebarButton).hover();
     await this.modPage.page.waitForTimeout(1000); // expected timeout for cursor indicator to disappear
     await expect(
       user2WbLocator,
@@ -375,7 +377,8 @@ export class LockViewers extends MultiUsers {
     // check if new annotations is displayed after unlocking user
     await drawArrow(this.userPage);
     await this.modPage.page.locator(e.messagesSidebarButton).hover();
-    await this.userPage.page.locator(e.messagesSidebarButton).hover(); // ensure userPage cursor will be visible on the screenshot
+    // ensure userPage cursor will be visible on the screenshot
+    await this.userPage.page.locator(e.messagesSidebarButton).hover();
     await this.userPage2.hasElementCount(e.wbDrawnArrow, 2, 'should display all arrows drawn for unlocked user');
     await this.modPage.page.waitForTimeout(1000); // expected timeout for cursor indicator to disappear
     await expect(user2WbLocator, 'should display all arrows drawn for unlocked user').toHaveScreenshot(
@@ -413,9 +416,12 @@ export class LockViewers extends MultiUsers {
     await attendee2Row.locator(e.moreOptionsUserItemButton).click();
     await this.modPage.page.locator(e.unlockUserButton).last().click();
     await this.modPage.page.waitForTimeout(1000); // ensure the unlock settings are applied
-    await this.modPage.page.locator(e.whiteboard).hover(); // hover modPage cursor on the whiteboard to ensure a new location
-    await this.modPage.page.locator(e.messagesSidebarButton).hover(); // ensure modPage cursor WILL NOT be visible on the screenshot
-    await this.userPage.page.locator(e.whiteboard).hover(); // ensure userPage cursor WILL be visible on the screenshot
+    // hover modPage cursor on the whiteboard to ensure a new location
+    await this.modPage.page.locator(e.whiteboard).hover();
+    // ensure modPage cursor WILL NOT be visible on the screenshot
+    await this.modPage.page.locator(e.messagesSidebarButton).hover();
+    // ensure userPage cursor WILL be visible on the screenshot
+    await this.userPage.page.locator(e.whiteboard).hover();
     await this.userPage.waitAndClick(e.whiteboard);
     await this.userPage2.hasElementCount(
       e.whiteboardCursorIndicator,

@@ -31,6 +31,7 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
   private val polls2x = new Polls
   private val guestsWaiting = new GuestsWaiting
   private val deskshareModel = new ScreenshareModel
+  private val screenshares = new Screenshares
   private val audioCaptions = new AudioCaptions
   private val timerModel = new TimerModel
   private val clientSettingsBeforePluginValidation: Map[String, Object] = ClientSettings.getClientSettingsWithOverride(props.overrideClientSettings)
@@ -42,7 +43,7 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
 
   // We extract the meeting handlers into this class so it is
   // easy to test.
-  private val liveMeeting = new LiveMeeting(props, meetingStatux2x, deskshareModel, audioCaptions, timerModel,
+  private val liveMeeting = new LiveMeeting(props, meetingStatux2x, deskshareModel, screenshares, audioCaptions, timerModel,
     chatModel, externalVideoModel, layouts, pads, registeredUsers, polls2x, wbModel, presModel,
     webcams, voiceUsers, users2x, guestsWaiting, clientSettings, plugins)
 

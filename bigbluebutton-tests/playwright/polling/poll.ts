@@ -33,7 +33,6 @@ export class Polling extends MultiUsers {
     // The slide needs to be uploaded and converted, so wait a bit longer for this step
     await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
     if (!quickPollConfirmationStep) {
-
       await this.userPage.hasElement(
         e.pollingContainer,
         'should display the polling container for the attendee to answer it',
@@ -93,7 +92,10 @@ export class Polling extends MultiUsers {
       'should not display the polling container after the poll is canceled',
     );
 
-    await this.modPage.hasElement(e.pollQuestionArea, 'should display the poll question area after the poll is canceled');
+    await this.modPage.hasElement(
+      e.pollQuestionArea,
+      'should display the poll question area after the poll is canceled',
+    );
   }
 
   async manageResponseChoices() {
@@ -109,7 +111,10 @@ export class Polling extends MultiUsers {
     await this.modPage.waitAndClick(e.addPollItem);
     await this.typeOnLastChoiceInput();
     await this.modPage.waitAndClick(e.startPoll);
-    await this.modPage.hasElementDisabled(e.publishPollingLabel, 'should display the publish poll button disabled before the poll is started');
+    await this.modPage.hasElementDisabled(
+      e.publishPollingLabel,
+      'should display the publish poll button disabled before the poll is started',
+    );
 
     await expect(initialRespCount + 1, 'should display the initial quantity of poll options itens plus 1').toEqual(
       await this.getAnswerOptionCount(),
@@ -120,7 +125,10 @@ export class Polling extends MultiUsers {
     await this.startNewPoll();
     await this.modPage.waitAndClick(e.deletePollOption);
     await this.modPage.waitAndClick(e.startPoll);
-    await this.modPage.hasElementDisabled(e.publishPollingLabel, 'should display the publish poll button disabled before the poll is started');
+    await this.modPage.hasElementDisabled(
+      e.publishPollingLabel,
+      'should display the publish poll button disabled before the poll is started',
+    );
 
     await expect(initialRespCount - 1, 'should display the initial quantity of poll options itens minus 1').toEqual(
       await this.getAnswerOptionCount(),
@@ -130,7 +138,10 @@ export class Polling extends MultiUsers {
     await this.startNewPoll();
     await this.typeOnLastChoiceInput();
     await this.modPage.waitAndClick(e.startPoll);
-    await this.modPage.hasElementDisabled(e.publishPollingLabel, 'should display the publish poll button disabled before the poll is started');
+    await this.modPage.hasElementDisabled(
+      e.publishPollingLabel,
+      'should display the publish poll button disabled before the poll is started',
+    );
 
     await expect(initialRespCount, 'should display the initial quantity of poll options itens').toEqual(
       await this.getAnswerOptionCount(),
@@ -233,7 +244,10 @@ export class Polling extends MultiUsers {
     );
 
     await this.modPage.waitAndClick(e.minimizePolling);
-    await this.modPage.wasRemoved(e.minimizePolling, 'should not display the minimize polling button after the poll is closed');
+    await this.modPage.wasRemoved(
+      e.minimizePolling,
+      'should not display the minimize polling button after the poll is closed',
+    );
   }
 
   async oneOptionAnswer() {
@@ -518,8 +532,8 @@ export class Polling extends MultiUsers {
     if (hasPollStarted) {
       await this.modPage.waitAndClick(e.cancelPollBtn);
       await this.modPage.wasRemoved(
-        e.publishPollingLabel, 
-        'should not display the publish poll button after the poll is canceled'
+        e.publishPollingLabel,
+        'should not display the publish poll button after the poll is canceled',
       );
       await this.userPage.wasRemoved(
         e.pollingContainer,

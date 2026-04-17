@@ -1,11 +1,11 @@
 import { elements as e } from '../core/elements';
+import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { ChangeStyles } from './changeStyles';
 import { DrawShape } from './drawShape';
 import { ShapeOptions } from './shapeOptions';
 import { ShapeTools } from './shapeTools';
 import { TextShape } from './textShape';
-import { linkIssue } from '../core/helpers';
 
 //! @flaky note:
 // all whiteboard tests are flagged as flaky due to unexpected zooming slides
