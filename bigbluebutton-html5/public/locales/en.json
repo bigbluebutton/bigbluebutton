@@ -1213,6 +1213,8 @@
     "app.lock-viewers.locked": "Locked",
     "app.lock-viewers.hideViewersCursor": "See other participants' cursors",
     "app.lock-viewers.hideAnnotationsLabel": "Seeing other participants' annotations on the whiteboard.",
+    "app.lock-viewers.disableMultiScreenshareLabel": "Share screen",
+    "app.lock-viewers.hideViewersScreenshareLabel": "See other participants' screenshares",
     "app.lock-viewers.disablePresenterRequestLabel": "Requesting to become presenter.",
     "app.lock-viewers.tabs.guestPolicy": "Guest Policy",
     "app.lock-viewers.tabs.participantPermissions": "Participant Permissions",
