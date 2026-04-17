@@ -24,7 +24,8 @@ trait GetScreenBroadcastPermissionReqMsgHdlr {
         val reason = "No permission to share the screen."
         PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
       } else if (LockSettingsUtil.isScreenshareBroadcastLocked(user, liveMeeting)) {
-        // Viewer is locked from sharing screen — deny silently
+        val meetingId = liveMeeting.props.meetingProp.intId
+        log.info("Screenshare denied reason=disableMultiScreenshare userId={} meetingId={}", msg.body.userId, meetingId)
       } else if (liveMeeting.props.meetingProp.intId == msg.body.meetingId
         && liveMeeting.props.voiceProp.voiceConf == msg.body.voiceConf) {
         allowed = true

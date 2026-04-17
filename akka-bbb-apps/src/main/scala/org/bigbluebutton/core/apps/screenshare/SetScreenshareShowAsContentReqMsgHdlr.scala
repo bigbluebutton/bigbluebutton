@@ -2,9 +2,10 @@ package org.bigbluebutton.core.apps.screenshare
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.PermissionCheck
+import org.bigbluebutton.core.apps.layout.ScreenshareAsContenthdlrHelper
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.db.ScreenshareDAO
-import org.bigbluebutton.core.models.Screenshares
+import org.bigbluebutton.core.db.{ LayoutDAO, ScreenshareDAO }
+import org.bigbluebutton.core.models.{ Layouts, Screenshares }
 import org.bigbluebutton.core.running.LiveMeeting
 
 trait SetScreenshareShowAsContentReqMsgHdlr {
@@ -54,6 +55,11 @@ trait SetScreenshareShowAsContentReqMsgHdlr {
         Screenshares.setShowAsContent(liveMeeting.screenshares, msg.body.streamId, msg.body.showAsContent)
         ScreenshareDAO.updateShowAsContent(meetingId, msg.body.streamId, msg.body.showAsContent)
         broadcastEvent(msg.body.streamId, msg.body.showAsContent, msg.body.setBy)
+
+        // Notify the recorder so it can track screenshare_as_content correctly
+        Layouts.setScreenshareAsContent(liveMeeting.layouts, msg.body.showAsContent)
+        LayoutDAO.insertOrUpdate(meetingId, liveMeeting.layouts)
+        ScreenshareAsContenthdlrHelper.sendSetScreenshareAsContentEvtMsg(msg.body.setBy, liveMeeting, bus.outGW)
       }
     }
   }
