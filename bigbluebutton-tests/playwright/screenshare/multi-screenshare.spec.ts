@@ -168,6 +168,24 @@ test.describe.parallel('Multi-screenshare', { tag: '@ci' }, () => {
     await screenshare.lockedAttemptNoEject();
   });
 
+  // T14 — Path SFU/Kurento maintains singleton even with multiScreenshare flag on (R22)
+  // Pre-condition: meeting created with screenShareBridge=bbb-webrtc-sfu; multiScreenshare NOT disabled.
+  // Viewer is NEVER promoted to presenter.
+  // Asserts: (1) viewer does NOT see screenshare button (bridge != livekit → multi-screenshare gate closes);
+  //          (2) presenter sees the button (singleton behavior intact).
+  test('SFU bridge keeps singleton behavior even when multiScreenshare flag is on', async ({
+    browser,
+    context,
+    browserName,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not available in Firefox without desktop capture');
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(page, { createParameter: c.sfuScreenShareBridge, testInfo });
+    await screenshare.initUserPage(context, { createParameter: c.sfuScreenShareBridge, testInfo });
+    await screenshare.sfuPathLegacySingleton();
+  });
+
   // T13 — Feature flag off → legacy behavior preserved (R21)
   // Pre-condition: meeting created with disabledFeatures=multiScreenshare; presenter + viewer.
   // Viewer is NEVER promoted to presenter.

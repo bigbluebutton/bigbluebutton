@@ -462,7 +462,7 @@ R18: 🔍 em verificação — código (LockSettingsParams.java com defaults fal
 R19: ✅ fechado — auditoria completa (it 16): zero variantes em Scala/Java/SQL/YAML/TS/JSX; nomes canônicos consistentes ponta a ponta
 R20: ⚪ não verificado — filtro de gravação por showAsContent não encontrado; sem teste
 R21: ✅ fechado — (1) botão non-presenter gateado em useIsMultiScreenshareEnabled(); (2) lock-viewers rows gateados; T13 adicionado (featureFlagOffLegacyBehavior) (937611e)
-R22: 🔍 em verificação — código (livekit bridge separado) mas sem teste T14 (path SFU)
+R22: ✅ fechado — useIsMultiScreenshareEnabled() verifica screenShareBridge==='livekit'; T14 adicionado (sfuPathLegacySingleton) — viewer sem botão quando bridge=SFU com flag on
 R23: ✅ tentativo — webcams não tocadas + teste ("Screenshare coexists with webcam")
 R24: 🔍 em verificação — código (LockSettingsParams com defaults seguros) mas sem teste T17 (API sem novos params)
 R25: 🔍 em verificação — código (cameraAsContent sem alteração) mas sem teste T16

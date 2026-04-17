@@ -87,6 +87,7 @@ export const constants = {
   pollsDisabled: 'disabledFeatures=polls',
   screenshareDisabled: 'disabledFeatures=screenshare',
   multiScreenshareDisabled: 'disabledFeatures=multiScreenshare',
+  sfuScreenShareBridge: 'screenShareBridge=bbb-webrtc-sfu',
   sharedNotesDisabled: 'disabledFeatures=sharedNotes',
   virtualBackgroundsDisabled: 'disabledFeatures=virtualBackgrounds',
   downloadPresentationWithAnnotationsDisabled: 'disabledFeatures=downloadPresentationWithAnnotations',

@@ -1226,6 +1226,27 @@ export class ScreenShare extends MultiUsers {
   }
   /* eslint-enable class-methods-use-this, no-useless-return */
 
+  // T14 — Path SFU/Kurento maintains singleton even with flag on (R22)
+  // Pre-condition: meeting created with screenShareBridge=bbb-webrtc-sfu; multiScreenshare flag ON.
+  // Viewer NEVER promoted to presenter.
+  // Asserts: (1) viewer does NOT see the screenshare button (bridge != livekit → multi disabled);
+  //          (2) presenter CAN see the button (singleton behavior preserved).
+  async sfuPathLegacySingleton() {
+    // Assert (1): viewer must NOT see the screenshare button when bridge is SFU (not livekit)
+    const viewerButton = this.userPage.page.locator(e.startScreenSharing);
+    await expect(
+      viewerButton,
+      'viewer must NOT see the screenshare button when screenShareBridge is SFU (not livekit)',
+    ).toHaveCount(0);
+
+    // Assert (2): presenter still sees the button (singleton preserved)
+    await this.modPage.hasElement(e.startScreenSharing, 'presenter must see the screenshare button with SFU bridge');
+
+    // Anti-shortcut: viewer was never promoted to presenter
+    const viewerIsPresenter = await checkIsPresenter(this.userPage);
+    expect(viewerIsPresenter, 'viewer must not be a presenter at any point during T14').toBeFalsy();
+  }
+
   // T13 — Feature flag OFF → legacy behavior (R21)
   // Pre-condition: meeting created with disabledFeatures=multiScreenshare; presenter + viewer.
   // Viewer NEVER promoted to presenter.
