@@ -193,7 +193,7 @@
     "app.userList.chatListItem.unreadSingular": "Ένα νέο μήνυμα",
     "app.userList.more": "Περισσότερα",
     "app.userList.chatListItem.unreadPlural": "{unreadCount} νέα μηνύματα",
-    "app.userList.chatListItem.unknownParticipant": "Unknown participant",
+    "app.userList.chatListItem.unknownParticipant": "Άγνωστος χρήστης",
     "app.userList.menu.away": "Ορισμός ως απών",
     "app.userList.menu.notAway": "Ορισμός ως παρών",
     "app.userList.menu.chat.label": "Έναρξη ιδιωτικής συνομιλίας",
