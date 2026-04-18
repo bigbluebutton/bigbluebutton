@@ -1536,7 +1536,7 @@
     "app.createBreakoutRoom.callModeratorCooldown": "Si prega di attendere prima di contattare nuovamente i moderatori.",
     "app.createBreakoutRoom.returnToMainSession": "Torna alla sessione principale",
     "app.createBreakoutRoom.listenToRoom": "Ascoltare la stanza",
-    "app.createBreakoutRoom.stopListeningToRoom": "Stop listening",
+    "app.createBreakoutRoom.stopListeningToRoom": "Termina di ascoltare",
     "app.updateBreakoutRoom.modalDesc": "Per aggiornare o invitare un utente basta trascinarlo nell'aula scelta.",
     "app.updateBreakoutRoom.cancelLabel": "Annulla",
     "app.updateBreakoutRoom.title": "Aggiorna aule separate",
