@@ -2,7 +2,15 @@ import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { MultiUsers } from '../user/multiusers';
 import { openLockViewers } from '../user/util';
-import { dwellOnBehavior, expectDecodedFrames, expectVisiblyRendered, startScreenshare } from './util';
+import {
+  dwellOnBehavior,
+  expectDecodedFrames,
+  expectMultipleDecodedVideos,
+  expectVideosRenderedSideBySide,
+  expectVisiblyRendered,
+  stabilityWindow,
+  startScreenshare,
+} from './util';
 
 export class ScreenShare extends MultiUsers {
   async startSharing() {
@@ -229,30 +237,58 @@ export class ScreenShare extends MultiUsers {
     );
   }
 
-  // R2 / T02: Two screenshares active simultaneously; observer sees a decoded stream.
+  // R2 / T02: Two screenshares active simultaneously; observer must see BOTH decoded streams.
   // Actors: broadcaster_moderator (modPage), broadcaster_viewer (userPage),
   //         observer_moderator (modPage2)
+  //
+  // Flow: broadcaster_moderator (presenter) starts first. broadcaster_viewer shares
+  // concurrently as a non-presenter — this is permitted per R1.  Both broadcasters hold
+  // their stop-button before the decisive observer check.
+  //
+  // Expected outcome on the current build: FAIL at the stabilityWindow assertion because the
+  // HTML5 frontend renders a single <video id="screenshareVideo"> element; the observer DOM
+  // can never hold 2 matching elements simultaneously, regardless of how many broadcasters share.
   async twoSharesActiveSide() {
     const { screensharingEnabled } = this.modPage.settings || {};
     if (!screensharingEnabled) return;
 
-    // broadcaster_moderator starts screenshare first (gets showAsContent=true)
+    // Step 2: broadcaster_moderator starts screenshare first.
+    // observer_moderator confirms the first stream is decoding before the second share is added.
     await startScreenshare(this.modPage);
     await this.modPage.hasElement(e.stopScreenSharing, 'broadcaster_moderator should be sharing');
+    await dwellOnBehavior(this.modPage2.page, 'first screenshare active - observer verifying initial stream', 2000);
+    await expectDecodedFrames(this.modPage2.page, 'video[id^="screenshareVideo"]', 10, 2500);
 
-    // broadcaster_viewer starts screenshare simultaneously (second share, coexists)
+    // Step 3: broadcaster_viewer starts a concurrent screenshare as a non-presenter.
+    // Per R1, non-presenters may share.  Both stop-buttons must be visible confirming two
+    // independent share sessions are live from the server's perspective.
     await startScreenshare(this.userPage);
-    await this.userPage.hasElement(e.stopScreenSharing, 'broadcaster_viewer should be sharing');
+    await this.userPage.hasElement(e.stopScreenSharing, 'broadcaster_viewer should be sharing concurrently');
+    await this.modPage.hasElement(
+      e.stopScreenSharing,
+      'broadcaster_moderator share must coexist with broadcaster_viewer share',
+    );
 
-    // Dwell on "both shares active" state - proves simultaneous transmission
-    await dwellOnBehavior(this.modPage2.page, 'two screenshares active simultaneously', 4000);
+    // Dwell so the recording captures the "both sharing" window.
+    await dwellOnBehavior(this.modPage2.page, 'both screenshares active simultaneously - observer perspective', 4000);
 
-    // observer_moderator sees a decoded stream (the primary showAsContent stream)
-    await expectDecodedFrames(this.modPage2.page, 'video[id^="screenshareVideo"]');
+    // Step 4 (DECISIVE): observer_moderator MUST see exactly 2 decoded video elements.
+    // The current frontend renders a single <video id="screenshareVideo"> DOM element;
+    // there is no second video sink.  expectMultipleDecodedVideos will throw:
+    //   "Expected 2 video elements matching 'video[id^="screenshareVideo"]', found 1"
+    await stabilityWindow(this.modPage2.page, 3000, 500, async () => {
+      await expectMultipleDecodedVideos(this.modPage2.page, 'video[id^="screenshareVideo"]', 2, 10, 2500);
+      await expectVideosRenderedSideBySide(this.modPage2.page, 'video[id^="screenshareVideo"]', 2, 120);
+    });
 
-    // Both actors must still have their shares active (server did not stop either)
-    await this.modPage.hasElement(e.stopScreenSharing, 'broadcaster_moderator share still active after coexistence');
-    await this.userPage.hasElement(e.stopScreenSharing, 'broadcaster_viewer share still active after coexistence');
+    // Step 5: broadcaster_moderator stops their share; broadcaster_viewer's share must survive.
+    await this.modPage.waitAndClick(e.stopScreenSharing);
+    await dwellOnBehavior(
+      this.modPage2.page,
+      'only broadcaster_viewer share active after first broadcaster stops',
+      2000,
+    );
+    await expectDecodedFrames(this.modPage2.page, 'video[id^="screenshareVideo"]', 5, 2000);
   }
 
   // R14 / T14 regression: existing lock settings must still apply their effects after multi-screenshare changes.
