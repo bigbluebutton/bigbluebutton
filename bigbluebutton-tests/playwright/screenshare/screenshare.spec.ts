@@ -30,7 +30,9 @@ test.describe.parallel('Screenshare', { tag: '@ci' }, () => {
     await screenshare.viewerCanStartScreenshare();
   });
 
-  // R2: two screenshares coexist simultaneously; observer sees a decoded stream
+  // R2: both screenshares must coexist and be decoded simultaneously on the observer page.
+  // The observer must see TWO independent video elements, each rendering live frames.
+  // Current build FAILS here: the frontend renders a single <video id="screenshareVideo">.
   test('[R2] Two screenshares active simultaneously, observer sees decoded stream', async ({
     browser,
     context,
