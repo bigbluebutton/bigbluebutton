@@ -362,8 +362,9 @@ export const viewScreenshare = (streamId, hasAudio, options = {}) => {
 };
 
 export const screenshareHasStarted = (streamId, hasAudio, isPresenter, options = {}) => {
-  // Presenter's screen preview is local, so skip
-  if (!isPresenter) {
+  // The local broadcaster's preview is attached from gdmStream directly; observers (including
+  // non-sharing presenters and moderators) must subscribe to receive the SFU stream.
+  if (!isSharing()) {
     viewScreenshare(streamId, hasAudio, { outputDeviceId: options.outputDeviceId });
   }
 };

@@ -5,7 +5,7 @@ import org.bigbluebutton.core.apps.layout.ScreenshareAsContenthdlrHelper
 import org.bigbluebutton.core.apps.{ ExternalVideoModel, ScreenshareModel }
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.{ LayoutDAO, ScreenshareDAO }
-import org.bigbluebutton.core.models.{ Layouts, Screenshares, ScreenshareEntry, Users2x, Roles }
+import org.bigbluebutton.core.models.{ Layouts, Screenshares, ScreenshareEntry }
 import org.bigbluebutton.core.models.Users2x.findPresenter
 import org.bigbluebutton.core.running.LiveMeeting
 
@@ -46,15 +46,11 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
       val meetingId = liveMeeting.props.meetingProp.intId
       log.error("Screen sharing is disabled for this meeting, meetingID = {}", meetingId)
     } else {
-      // Determine whether this broadcaster is the presenter or a moderator.
-      val broadcasterIsPresenterOrMod = Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId)
-        .exists(u => u.presenter || u.role == Roles.MODERATOR_ROLE)
-
-      // showAsContent=true only when no other share already occupies the content area AND this user
-      // is the presenter or moderator.  Non-presenter viewer shares always go to the camera dock.
+      // showAsContent=true for the first share that occupies the content area, regardless of role.
+      // Subsequent shares (any role) go to the camera dock.
       val alreadyHasContent = Screenshares.findAll(liveMeeting.screenshares).exists(_.showAsContent) ||
         ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel)
-      val showAsContent = broadcasterIsPresenterOrMod && !alreadyHasContent
+      val showAsContent = !alreadyHasContent
 
       // Register in the multi-share collection (keyed by stream URL).
       val entry = ScreenshareEntry(

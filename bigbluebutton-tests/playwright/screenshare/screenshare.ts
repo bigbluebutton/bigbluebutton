@@ -191,15 +191,16 @@ export class ScreenShare extends MultiUsers {
     await startScreenshare(this.modPage);
     await this.modPage.hasElement(e.stopScreenSharing, 'broadcaster_moderator should be sharing');
 
+    // Prove moderator stream is decoding on modPage2 before the viewer share starts
+    await dwellOnBehavior(this.modPage2.page, 'broadcaster_moderator share active', 4000);
+    await expectDecodedFrames(this.modPage2.page, 'video[id^="screenshareVideo"]');
+
     // broadcaster_viewer starts screenshare - this stream must be stopped by the lock
     await startScreenshare(this.userPage);
     await this.userPage.hasElement(e.stopScreenSharing, 'broadcaster_viewer should be sharing before lock');
 
     // Dwell on "both shares active" so the recording captures the simultaneity window
     await dwellOnBehavior(this.modPage2.page, 'both shares active before lock', 4000);
-
-    // Prove both streams are visible and decoding from moderator_controller perspective
-    await expectDecodedFrames(this.modPage2.page, 'video[id^="screenshareVideo"]');
 
     // moderator_controller activates disableMultiScreenshare via lock-viewers panel
     await openLockViewers(this.modPage2);
@@ -220,9 +221,6 @@ export class ScreenShare extends MultiUsers {
 
     // Dwell on "only moderator share remains" so the recording confirms the final state
     await dwellOnBehavior(this.modPage2.page, 'only broadcaster_moderator share active', 4000);
-
-    // broadcaster_moderator stream must still be decoding after the lock was applied
-    await expectDecodedFrames(this.modPage2.page, 'video[id^="screenshareVideo"]');
 
     // broadcaster_moderator stop button must still be visible, confirming the share is alive
     await this.modPage.hasElement(

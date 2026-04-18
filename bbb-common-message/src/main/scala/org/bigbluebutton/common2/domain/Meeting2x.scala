@@ -1,5 +1,6 @@
 package org.bigbluebutton.common2.domain
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import java.util
 
 case class DurationProps(duration: Int, createdTime: Long, createdDate: String,
@@ -74,9 +75,9 @@ case class LockSettingsProps(
     lockOnJoinConfigurable:  Boolean,
     hideViewersCursor:       Boolean,
     hideViewersAnnotation:   Boolean,
-    presenterPolicy:         String,
-    disableMultiScreenshare: Boolean = false,
-    hideViewersScreenshare:  Boolean = false
+    presenterPolicy:                               String,
+    @JsonProperty(required = false) disableMultiScreenshare: Boolean = false,
+    @JsonProperty(required = false) hideViewersScreenshare:  Boolean = false
 )
 
 case class SystemProps(
