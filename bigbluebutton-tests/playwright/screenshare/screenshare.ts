@@ -229,6 +229,32 @@ export class ScreenShare extends MultiUsers {
     );
   }
 
+  // R2 / T02: Two screenshares active simultaneously; observer sees a decoded stream.
+  // Actors: broadcaster_moderator (modPage), broadcaster_viewer (userPage),
+  //         observer_moderator (modPage2)
+  async twoSharesActiveSide() {
+    const { screensharingEnabled } = this.modPage.settings || {};
+    if (!screensharingEnabled) return;
+
+    // broadcaster_moderator starts screenshare first (gets showAsContent=true)
+    await startScreenshare(this.modPage);
+    await this.modPage.hasElement(e.stopScreenSharing, 'broadcaster_moderator should be sharing');
+
+    // broadcaster_viewer starts screenshare simultaneously (second share, coexists)
+    await startScreenshare(this.userPage);
+    await this.userPage.hasElement(e.stopScreenSharing, 'broadcaster_viewer should be sharing');
+
+    // Dwell on "both shares active" state - proves simultaneous transmission
+    await dwellOnBehavior(this.modPage2.page, 'two screenshares active simultaneously', 4000);
+
+    // observer_moderator sees a decoded stream (the primary showAsContent stream)
+    await expectDecodedFrames(this.modPage2.page, 'video[id^="screenshareVideo"]');
+
+    // Both actors must still have their shares active (server did not stop either)
+    await this.modPage.hasElement(e.stopScreenSharing, 'broadcaster_moderator share still active after coexistence');
+    await this.userPage.hasElement(e.stopScreenSharing, 'broadcaster_viewer share still active after coexistence');
+  }
+
   // R14 / T14 regression: existing lock settings must still apply their effects after multi-screenshare changes.
   // Actors: moderator_controller (modPage), viewer_target (userPage)
   async lockViewersRegressionEffects() {

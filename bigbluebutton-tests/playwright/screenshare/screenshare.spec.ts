@@ -30,6 +30,21 @@ test.describe.parallel('Screenshare', { tag: '@ci' }, () => {
     await screenshare.viewerCanStartScreenshare();
   });
 
+  // R2: two screenshares coexist simultaneously; observer sees a decoded stream
+  test('[R2] Two screenshares active simultaneously, observer sees decoded stream', async ({
+    browser,
+    context,
+    browserName,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not supported in Firefox without desktop');
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(page, { testInfo });
+    await screenshare.initUserPage(context, { testInfo });
+    await screenshare.initModPage2(context, { testInfo });
+    await screenshare.twoSharesActiveSide();
+  });
+
   // R3: lockSettingsDisableMultiScreenshare=true hides the start button for locked viewers
   test('[R3] Viewer screenshare button hidden when disableMultiScreenshare is active via API', async ({
     browser,
