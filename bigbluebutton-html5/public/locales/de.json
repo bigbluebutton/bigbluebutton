@@ -214,7 +214,7 @@
     "app.userList.userOptions.sortedLastName.heading": "Sortiert nach Nachname:",
     "app.userList.userOptions.hideViewersCursor": "Cursor ist für alle gesperrt",
     "app.userList.userOptions.showViewersCursor": "Cursor für alle freigegeben",
-    "app.media.label": "Media",
+    "app.media.label": "Audio/Video",
     "app.media.autoplayAlertDesc": "Zugang erlauben",
     "app.media.screenshare.start": "Bildschirmfreigabe wurde gestartet",
     "app.media.screenshare.end": "Bildschirmfreigabe wurde gestoppt",
