@@ -61,3 +61,127 @@ export async function startScreenshare(testPage: Page) {
   );
   await testPage.hasElement(e.stopScreenSharing, 'should display the stop screen sharing button when start sharing');
 }
+
+// Prove that multiple video surfaces are each decoding live frames simultaneously.
+// Fails immediately if fewer than `count` matching elements exist.
+// For each element, asserts at least `minGrowth` new decoded frames within `sampleMs`.
+export async function expectMultipleDecodedVideos(
+  page: PlaywrightPage,
+  selector: string,
+  count: number,
+  minGrowth = 10,
+  sampleMs = 2500,
+): Promise<void> {
+  const actualCount = await page.locator(selector).count();
+  if (actualCount < count) {
+    throw new Error(
+      `expectMultipleDecodedVideos: Expected ${count} video elements matching "${selector}", found ${actualCount}`,
+    );
+  }
+
+  // Wait for each targeted element to reach a decodable state before sampling
+  for (let i = 0; i < count; i++) {
+    await page.waitForFunction(
+      ([sel, idx]) => {
+        const el = document.querySelectorAll(sel as string)[idx as number] as HTMLVideoElement | null;
+        return el !== null && el.readyState >= 2 && el.videoWidth > 0 && el.videoHeight > 0;
+      },
+      [selector, i],
+    );
+  }
+
+  // Snapshot frame counts before the measurement window
+  const before: number[] = [];
+  for (let i = 0; i < count; i++) {
+    const frames = await page.evaluate(
+      ([sel, idx]) => {
+        const el = document.querySelectorAll(sel as string)[idx as number] as HTMLVideoElement;
+        return el.getVideoPlaybackQuality().totalVideoFrames;
+      },
+      [selector, i],
+    );
+    before.push(frames as number);
+  }
+
+  await page.waitForTimeout(sampleMs);
+
+  // Verify each element grew by at least minGrowth frames over the window
+  for (let i = 0; i < count; i++) {
+    const after = await page.evaluate(
+      ([sel, idx]) => {
+        const el = document.querySelectorAll(sel as string)[idx as number] as HTMLVideoElement;
+        return el.getVideoPlaybackQuality().totalVideoFrames;
+      },
+      [selector, i],
+    );
+    const growth = (after as number) - before[i];
+    if (growth < minGrowth) {
+      const detail = `grew by ${growth} frames, expected >= ${minGrowth}`;
+      throw new Error(`expectMultipleDecodedVideos: video[${i}] ${detail} (selector: "${selector}")`);
+    }
+  }
+}
+
+// Prove that at least `minCount` elements matching `selector` are each rendered with a
+// bounding box of at least `minBBoxPx` x `minBBoxPx` pixels.  All indices are checked
+// independently; the error message lists which passed and which failed.
+export async function expectVideosRenderedSideBySide(
+  page: PlaywrightPage,
+  selector: string,
+  minCount: number,
+  minBBoxPx = 120,
+): Promise<void> {
+  const locators = await page.locator(selector).all();
+
+  if (locators.length < minCount) {
+    throw new Error(
+      `expectVideosRenderedSideBySide: Expected >= ${minCount} elements for "${selector}", found ${locators.length}`,
+    );
+  }
+
+  const results: string[] = [];
+  let anyFailed = false;
+
+  for (let i = 0; i < locators.length; i++) {
+    const bbox = await locators[i].boundingBox();
+    const w = bbox?.width ?? 0;
+    const h = bbox?.height ?? 0;
+    if (!bbox || w < minBBoxPx || h < minBBoxPx) {
+      results.push(`[${i}] FAIL: ${w.toFixed(0)}x${h.toFixed(0)}px (min ${minBBoxPx}x${minBBoxPx})`);
+      anyFailed = true;
+    } else {
+      results.push(`[${i}] PASS: ${w.toFixed(0)}x${h.toFixed(0)}px`);
+    }
+  }
+
+  if (anyFailed) {
+    const summary = `not all ${locators.length} elements meet minimum ${minBBoxPx}x${minBBoxPx}px`;
+    throw new Error(`expectVideosRenderedSideBySide: ${summary}:\n${results.join('\n')}`);
+  }
+}
+
+// Run `assertion` on every poll tick for `durationMs`.  If the assertion throws on ANY
+// tick the error is immediately re-thrown annotated with the tick index and elapsed time.
+// This helper enforces that a condition holds *continuously*, not just once.
+export async function stabilityWindow(
+  page: PlaywrightPage,
+  durationMs: number,
+  pollIntervalMs: number,
+  assertion: () => Promise<void>,
+): Promise<void> {
+  const start = Date.now();
+  let tick = 0;
+  while (Date.now() - start < durationMs) {
+    try {
+      await assertion();
+    } catch (err) {
+      const elapsed = Date.now() - start;
+      const errMsg = err instanceof Error ? err.message : String(err);
+      throw new Error(`stabilityWindow: assertion failed at tick ${tick} (${elapsed}ms elapsed): ${errMsg}`);
+    }
+    tick++;
+    if (Date.now() - start < durationMs) {
+      await page.waitForTimeout(pollIntervalMs);
+    }
+  }
+}
