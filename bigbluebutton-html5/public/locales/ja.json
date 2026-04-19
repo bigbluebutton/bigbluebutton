@@ -1077,7 +1077,7 @@
     "app.guest.guestInvalid": "不正なゲストユーザーです。",
     "app.guest.meetingForciblyEnded": "既に強制終了された会議には参加できません。",
     "app.guest.calculating": "待ち人数を計算中",
-    "app.guest.messageFromHost": "Message from host",
+    "app.guest.messageFromHost": "ホストからのメッセージ",
     "app.guest.waitingForApproval": "Waiting for approval",
     "app.userList.guest.waitingUsers": "承認待ちのユーザー",
     "app.userList.guest.waitingUsersTitle": "ユーザー管理",
