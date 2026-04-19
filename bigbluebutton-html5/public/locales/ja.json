@@ -1521,7 +1521,7 @@
     "app.createBreakoutRoom.notAssignedHelp": "会議の司会者に、小会議室への入室を認めてもらってください",
     "app.createBreakoutRoom.moreOptions": "詳細設定",
     "app.createBreakoutRoom.infoBannerTitle": "ご存知ですか？",
-    "app.createBreakoutRoom.infoBannerText": "You need to drag the names of the users to add them to a Group Room.",
+    "app.createBreakoutRoom.infoBannerText": "ユーザーの名前をドラッグして、各会議室に加えていく必要があります。",
     "app.createBreakoutRoom.infoBannerGotIt": "Got it!",
     "app.createBreakoutRoom.start": "Start",
     "app.createBreakoutRoom.megaphone": "Send message",
