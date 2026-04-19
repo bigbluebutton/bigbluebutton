@@ -1078,7 +1078,7 @@
     "app.guest.meetingForciblyEnded": "既に強制終了された会議には参加できません。",
     "app.guest.calculating": "待ち人数を計算中",
     "app.guest.messageFromHost": "ホストからのメッセージ",
-    "app.guest.waitingForApproval": "Waiting for approval",
+    "app.guest.waitingForApproval": "承認を待っています",
     "app.userList.guest.waitingUsers": "承認待ちのユーザー",
     "app.userList.guest.waitingUsersTitle": "ユーザー管理",
     "app.userList.guest.optionTitle": "保留中のユーザーを確認",
