@@ -1522,7 +1522,7 @@
     "app.createBreakoutRoom.moreOptions": "詳細設定",
     "app.createBreakoutRoom.infoBannerTitle": "ご存知ですか？",
     "app.createBreakoutRoom.infoBannerText": "ユーザーの名前をドラッグして、各会議室に加えていく必要があります。",
-    "app.createBreakoutRoom.infoBannerGotIt": "Got it!",
+    "app.createBreakoutRoom.infoBannerGotIt": "了解！",
     "app.createBreakoutRoom.start": "Start",
     "app.createBreakoutRoom.megaphone": "Send message",
     "app.createBreakoutRoom.megaphoneTooltip": "Send message to all rooms",
