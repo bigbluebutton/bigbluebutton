@@ -822,7 +822,7 @@
     "app.audioNotificaion.reconnectingAsListenOnly": "視聴者のマイクはロックされています。「聴講のみ」の接続を行います。",
     "app.breakoutJoinConfirmation.title": "小会議室に参加",
     "app.breakoutJoinConfirmation.message": "この部屋に入室しますか：",
-    "app.breakoutJoinConfirmation.addedToRoom": "You have been added to {roomName} by the session moderator.",
+    "app.breakoutJoinConfirmation.addedToRoom": "会議の司会者によって {roomName} に加えられました。",
     "app.breakoutJoinConfirmation.willBeRedirected": "You will be redirected to your group room shortly.",
     "app.breakoutJoinConfirmation.enterRoom": "Enter the room",
     "app.breakoutJoinConfirmation.confirmDesc": "小会議室に参加します",
