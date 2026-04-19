@@ -739,7 +739,7 @@
     "app.settings.transcriptionTab.minUtteranceLength": "表示する最短の発言時間（秒）",
     "app.settings.shortcutsTab.label": "キーボードショートカット",
     "app.settings.save-notification.label": "設定が保存されました",
-    "app.settings.unsavedChanges.title": "Oops!",
+    "app.settings.unsavedChanges.title": "おっと！",
     "app.settings.unsavedChanges.message": "保存されていない変更があります。",
     "app.settings.unsavedChanges.ignoreMessage": "変更を保存しない場合、それらは適用されません。",
     "app.settings.unsavedChanges.ignoreButtonLabel": "変更を破棄",
