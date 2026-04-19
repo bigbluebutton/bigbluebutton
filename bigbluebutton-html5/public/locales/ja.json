@@ -1533,7 +1533,7 @@
     "app.createBreakoutRoom.callModerator": "司会者を呼ぶ",
     "app.createBreakoutRoom.callModeratorChatMsg": "{roomName} の {userName} さんが司会者の補助を求めています。",
     "app.createBreakoutRoom.callModeratorSent": "司会者に通知が行きました。",
-    "app.createBreakoutRoom.callModeratorCooldown": "Please wait before calling the moderators again.",
+    "app.createBreakoutRoom.callModeratorCooldown": "司会者をもう一度呼ぶのはしばらくおやめください。",
     "app.createBreakoutRoom.returnToMainSession": "Return to Main Session",
     "app.createBreakoutRoom.listenToRoom": "Listen to room",
     "app.createBreakoutRoom.stopListeningToRoom": "Stop listening",
