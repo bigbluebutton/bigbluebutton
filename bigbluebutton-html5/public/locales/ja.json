@@ -185,7 +185,7 @@
     "app.userList.mobile": "モバイル端末",
     "app.userList.guest": "ゲスト",
     "app.userList.searchUsers": "ユーザーを探す",
-    "app.userList.noSearchResults": "No participants match your search. Try another name.",
+    "app.userList.noSearchResults": "どの参加者にもマッチしません。他の名前を試してみてください。",
     "app.userList.clearSearch": "検索を消去",
     "app.userList.sharingWebcam": "ウェブカメラ",
     "app.userList.menuTitleContext": "使用可能オプション",
