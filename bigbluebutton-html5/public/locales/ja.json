@@ -1047,7 +1047,7 @@
     "app.error.userLoggedOut": "ログアウトしたため、会議の参加許可が無効になっています",
     "app.error.ejectedUser": "強制退出のため、会議の参加許可が無効になっています",
     "app.error.joinedAnotherWindow": "この会議はブラウザの別ウィンドウで既に開かれているようです。",
-    "app.error.userBanned": "You have been removed for the remaining duration of this session.",
+    "app.error.userBanned": "あなたは会議の残り時間、室外に置かれます。",
     "app.error.leaveLabel": "再ログイン",
     "app.error.fallback.presentation.title": "エラーが発生しました",
     "app.error.fallback.presentation.description": "記録されました。ページを再読み込みしてください。",
