@@ -32,7 +32,7 @@
     "app.chat.notAway": "はオンラインに復帰しました",
     "app.chat.isPresenter": "{presenterName} さんが現在の発表者です",
     "app.chat.isPresenterSetBy": "{presenterName} さんが {assignedByName} さんによって発表者に指名されました",
-    "app.chat.breakoutCallModerator": "{userName} from {roomName} is requesting moderator assistance.",
+    "app.chat.breakoutCallModerator": "{roomName} の {userName} さんが司会者の補助を求めています。",
     "app.chat.clearPublicChatMessage": "チャット履歴は司会者により消去されました",
     "app.chat.multi.typing": "複数の人が入力中",
     "app.chat.someone.typing": "誰かが入力中",
