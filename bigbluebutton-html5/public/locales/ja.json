@@ -1536,7 +1536,7 @@
     "app.createBreakoutRoom.callModeratorCooldown": "司会者をもう一度呼ぶのはしばらくおやめください。",
     "app.createBreakoutRoom.returnToMainSession": "メインの会議室に戻る",
     "app.createBreakoutRoom.listenToRoom": "会議室を視聴する",
-    "app.createBreakoutRoom.stopListeningToRoom": "Stop listening",
+    "app.createBreakoutRoom.stopListeningToRoom": "視聴をやめる",
     "app.updateBreakoutRoom.modalDesc": "顔ぶれを新しくしたり新たなユーザーを招待したりするには、単純に名前を希望の会議室にドラッグしてください。",
     "app.updateBreakoutRoom.cancelLabel": "キャンセル",
     "app.updateBreakoutRoom.title": "小会議室を更新",
