@@ -1525,7 +1525,7 @@
     "app.createBreakoutRoom.infoBannerGotIt": "了解！",
     "app.createBreakoutRoom.start": "開始",
     "app.createBreakoutRoom.megaphone": "メッセージを送信",
-    "app.createBreakoutRoom.megaphoneTooltip": "Send message to all rooms",
+    "app.createBreakoutRoom.megaphoneTooltip": "全ての会議室にメッセージを送信",
     "app.createBreakoutRoom.finish": "Finish",
     "app.createBreakoutRoom.durationOfBreakout": "Duration of Breakout Rooms",
     "app.createBreakoutRoom.unassignedUsers": "Unassigned Users",
