@@ -1527,7 +1527,7 @@
     "app.createBreakoutRoom.megaphone": "メッセージを送信",
     "app.createBreakoutRoom.megaphoneTooltip": "全ての会議室にメッセージを送信",
     "app.createBreakoutRoom.finish": "終了",
-    "app.createBreakoutRoom.durationOfBreakout": "Duration of Breakout Rooms",
+    "app.createBreakoutRoom.durationOfBreakout": "小会議室の会議時間",
     "app.createBreakoutRoom.unassignedUsers": "Unassigned Users",
     "app.createBreakoutRoom.youAreInRoom": "You are in {roomName}.",
     "app.createBreakoutRoom.callModerator": "Call Moderators",
