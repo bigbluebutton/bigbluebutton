@@ -1530,7 +1530,7 @@
     "app.createBreakoutRoom.durationOfBreakout": "小会議室の会議時間",
     "app.createBreakoutRoom.unassignedUsers": "割り振られていないユーザー",
     "app.createBreakoutRoom.youAreInRoom": "{roomName} に移されました。",
-    "app.createBreakoutRoom.callModerator": "Call Moderators",
+    "app.createBreakoutRoom.callModerator": "司会者を呼ぶ",
     "app.createBreakoutRoom.callModeratorChatMsg": "{userName} from {roomName} is requesting moderator assistance.",
     "app.createBreakoutRoom.callModeratorSent": "Moderators have been notified.",
     "app.createBreakoutRoom.callModeratorCooldown": "Please wait before calling the moderators again.",
