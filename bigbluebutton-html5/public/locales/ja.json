@@ -1531,7 +1531,7 @@
     "app.createBreakoutRoom.unassignedUsers": "割り振られていないユーザー",
     "app.createBreakoutRoom.youAreInRoom": "{roomName} に移されました。",
     "app.createBreakoutRoom.callModerator": "司会者を呼ぶ",
-    "app.createBreakoutRoom.callModeratorChatMsg": "{userName} from {roomName} is requesting moderator assistance.",
+    "app.createBreakoutRoom.callModeratorChatMsg": "{roomName} の {userName} さんが司会者の補助を求めています。",
     "app.createBreakoutRoom.callModeratorSent": "Moderators have been notified.",
     "app.createBreakoutRoom.callModeratorCooldown": "Please wait before calling the moderators again.",
     "app.createBreakoutRoom.returnToMainSession": "Return to Main Session",
