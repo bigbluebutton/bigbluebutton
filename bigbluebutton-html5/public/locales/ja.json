@@ -1481,7 +1481,7 @@
     "app.createBreakoutRoom.joinAudio": "音声で参加",
     "app.createBreakoutRoom.returnAudio": "音声を戻す",
     "app.createBreakoutRoom.alreadyConnected": "既に会議室内です",
-    "app.createBreakoutRoom.inviteSentToast": "{userName} was invited to {roomName}",
+    "app.createBreakoutRoom.inviteSentToast": "{userName} は {roomName} に招待されました",
     "app.createBreakoutRoom.confirm": "作成",
     "app.createBreakoutRoom.record": "録画",
     "app.createBreakoutRoom.numberOfRooms": "会議室数",
