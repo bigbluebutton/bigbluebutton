@@ -1520,7 +1520,7 @@
     "app.createBreakoutRoom.notAssignedLabel": "小会議室に入る権限がありません",
     "app.createBreakoutRoom.notAssignedHelp": "会議の司会者に、小会議室への入室を認めてもらってください",
     "app.createBreakoutRoom.moreOptions": "詳細設定",
-    "app.createBreakoutRoom.infoBannerTitle": "Did you know?",
+    "app.createBreakoutRoom.infoBannerTitle": "ご存知ですか？",
     "app.createBreakoutRoom.infoBannerText": "You need to drag the names of the users to add them to a Group Room.",
     "app.createBreakoutRoom.infoBannerGotIt": "Got it!",
     "app.createBreakoutRoom.start": "Start",
