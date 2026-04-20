@@ -25,10 +25,10 @@ export async function expectVisiblyRendered(page: PlaywrightPage, selector: stri
   await page.waitForFunction((el) => {
     const e = el as HTMLElement;
     const rect = e.getBoundingClientRect();
-    const style = window.getComputedStyle(e);
+    const style = globalThis.getComputedStyle(e);
     if (rect.width <= 0 || rect.height <= 0) return false;
     if (style.display === 'none' || style.visibility === 'hidden') return false;
-    if (parseFloat(style.opacity) <= 0.01) return false;
+    if (Number.parseFloat(style.opacity) <= 0.01) return false;
     if (style.pointerEvents === 'none') return false;
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
