@@ -102,7 +102,7 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
         msg.body.userId, msg.body.stream, showAsContent
       )
 
-      ScreenshareDAO.insert(liveMeeting.props.meetingProp.intId, msg.body.userId, liveMeeting.screenshareModel, showAsContent)
+      ScreenshareDAO.insert(liveMeeting.props.meetingProp.intId, msg.body.userId, msg.body.stream, liveMeeting.screenshareModel, showAsContent)
 
       // Notify all participants in the meeting.
       val msgEvent = broadcastEvent(msg.body.voiceConf, msg.body.screenshareConf, msg.body.userId, msg.body.stream,
