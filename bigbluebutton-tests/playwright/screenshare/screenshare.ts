@@ -295,15 +295,31 @@ export class ScreenShare extends MultiUsers {
     }
 
     // Step 4c (DECISIVE): observer_moderator MUST see exactly 2 decoded video elements.
+    // Wait for the second screenshare to propagate through the subscription before stability check.
+    await this.modPage2.page.waitForFunction(
+      () => document.querySelectorAll('video[id^="screenshareVideo"]').length >= 2,
+      null,
+      { timeout: 30000 },
+    );
     await stabilityWindow(this.modPage2.page, 3000, 500, async () => {
       await expectMultipleDecodedVideos(this.modPage2.page, 'video[id^="screenshareVideo"]', 2, 10, 2500);
       await expectVideosRenderedSideBySide(this.modPage2.page, 'video[id^="screenshareVideo"]', 2, 120);
     });
 
     // Step 4d: each publisher must also see both streams in their own viewport.
+    await this.modPage.page.waitForFunction(
+      () => document.querySelectorAll('video[id^="screenshareVideo"]').length >= 2,
+      null,
+      { timeout: 30000 },
+    );
     await stabilityWindow(this.modPage.page, 3000, 500, async () => {
       await expectMultipleDecodedVideos(this.modPage.page, 'video[id^="screenshareVideo"]', 2, 10, 2500);
     });
+    await this.userPage.page.waitForFunction(
+      () => document.querySelectorAll('video[id^="screenshareVideo"]').length >= 2,
+      null,
+      { timeout: 30000 },
+    );
     await stabilityWindow(this.userPage.page, 3000, 500, async () => {
       await expectMultipleDecodedVideos(this.userPage.page, 'video[id^="screenshareVideo"]', 2, 10, 2500);
     });

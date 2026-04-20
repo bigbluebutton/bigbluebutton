@@ -137,8 +137,20 @@ class ScreenshareComponent extends React.Component {
 
     let hasPeerShares = false;
     if (isPresenter) {
-      // Presenter broadcaster path: local preview only
+      // Presenter broadcaster path: local preview + subscribe to peer secondary shares
       screenshareHasStarted(streamId, hasAudio, true, { outputDeviceId });
+      const shares = (screenshares && screenshares.length > 0) ? screenshares : [];
+      const secondaryShares = shares.filter((s) => !s.showAsContent);
+      secondaryShares.forEach((share) => {
+        if (share.stream) {
+          screenshareHasStarted(share.stream, share.hasAudio, false, {
+            outputDeviceId,
+            mediaElementId: this.getElementIdForShare(share),
+            publisherUserId: share.userId,
+          });
+        }
+      });
+      this.subscribedShareIds = new Set(shares.map((s) => s.screenshareId).filter(Boolean));
     } else if (isSharing()) {
       // Viewer-broadcaster: subscribe to any peer shares and handle own share preview
       screenshareHasStarted(streamId, hasAudio, false, { outputDeviceId });
@@ -214,7 +226,7 @@ class ScreenshareComponent extends React.Component {
 
   _subscribeToNewShares(prevProps) {
     const { isPresenter, screenshares, outputDeviceId } = this.props;
-    if (!isPresenter && screenshares && screenshares !== prevProps.screenshares) {
+    if (screenshares && screenshares !== prevProps.screenshares) {
       if (!this.subscribedShareIds) this.subscribedShareIds = new Set();
       screenshares.forEach((share) => {
         if (share.screenshareId && !this.subscribedShareIds.has(share.screenshareId)) {
@@ -225,7 +237,9 @@ class ScreenshareComponent extends React.Component {
             const el = document.getElementById(elementId)
               || document.querySelector('video[id^="screenshareVideo"]');
             if (el) attachLocalPreviewStream(el);
-          } else {
+          } else if (!isPresenter || !share.showAsContent) {
+            // Non-presenter: subscribe to all peer shares.
+            // Presenter: subscribe only to secondary (non-primary) shares from viewers.
             screenshareHasStarted(share.stream, share.hasAudio, false, {
               outputDeviceId,
               mediaElementId: elementId,
@@ -606,12 +620,14 @@ class ScreenshareComponent extends React.Component {
   renderScreensharePresenter() {
     const { switched } = this.state;
     const { isGloballyBroadcasting, intl, screenshares } = this.props;
-    // Presenter always shows the primary share (their own stream)
     const primaryShare = screenshares?.find((s) => s.showAsContent);
+    // Secondary shares (from viewers) rendered alongside the presenter's own preview.
+    const secondaryShares = (screenshares || []).filter((s) => !s.showAsContent);
 
     return (
       <>
         {this.renderVideo(switched, primaryShare || null, true)}
+        {secondaryShares.map((share) => this.renderVideo(true, share, false))}
 
         {
           isGloballyBroadcasting
