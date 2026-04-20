@@ -786,7 +786,7 @@
     "app.actionsBar.actionsDropdown.createBreakoutRoomDesc": "Gruppenräume erstellen, um die aktuelle Sitzung aufzuteilen",
     "app.actionsBar.actionsDropdown.captionsLabel": "Untertitel schreiben",
     "app.actionsBar.actionsDropdown.captionsDesc": "Untertitelfenster umschalten",
-    "app.actionsBar.actionsDropdown.takePresenter": "Berechtigung zur Präsentation holen",
+    "app.actionsBar.actionsDropdown.takePresenter": "Präsentationsrechte holen",
     "app.actionsBar.actionsDropdown.takePresenterDesc": "Mich selbst berechtigen zu präsentieren",
     "app.actionsBar.actionsDropdown.requestPresenter": "Präsentationsrechte anfordern",
     "app.actionsBar.actionsDropdown.requestPresenterDesc": "Fordere an, der nächste Präsentator zu werden.",
