@@ -227,7 +227,7 @@
     "app.userList.userOptions.clearAllReactionsLabel": "Alle Reaktionen löschen",
     "app.userList.userOptions.clearAllReactionsDesc": "Entfernt von allen die Reaktions-Emojis",
     "app.userList.userOptions.clearedReactions": "Reaktionen aller Nutzenden gelöscht",
-    "app.userList.userOptions.muteAllExceptPresenterLabel": "Alle stumm schalten bis auf die Person die präsentiert",
+    "app.userList.userOptions.muteAllExceptPresenterLabel": "Alle stumm schalten außer Präsentator:in",
     "app.userList.userOptions.muteAllExceptPresenterDesc": "Schaltet alle Teilnehmer außer dem Präsentator stumm",
     "app.userList.userOptions.lockViewersLabel": "Rechte der Zuschauenden einschränken",
     "app.userList.userOptions.lockViewersDesc": "Sperre bestimmte Funktionalitäten für Teilnehmer der Sitzung",
