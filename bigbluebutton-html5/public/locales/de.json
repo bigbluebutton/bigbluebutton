@@ -1266,7 +1266,7 @@
     "app.connection-status.next": "Nächste Seite",
     "app.connection-status.prev": "Vorherige Seite",
     "app.connection-status.lastTimeActive": "Letzter Zeitpunkt, zu dem der Client eine aktive Verbindung bestätigt hat",
-    "app.notificationBar.connectionCode3001": "Neuverbindung... (Code 3001)",
+    "app.notificationBar.connectionCode3001": "Verbinde erneut... (Code 3001)",
     "app.notificationBar.connectionCode3002": "Verbindung nicht möglich, bitte die Internet-Verbindung überprüfen (Code 3002)",
     "app.notificationBar.connectionCode3003": "Der Server antwortet gerade nicht, Neuverbindung... (Code 3003)",
     "app.notificationBar.connectionCode3004": "Verbindung nicht stabil, bitte die Internet-Verbindung überprüfen (Code 3004)",
