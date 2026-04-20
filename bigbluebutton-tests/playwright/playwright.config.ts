@@ -23,6 +23,8 @@ export default defineConfig({
     trace: CI ? 'retain-on-failure' : 'on',
     video: CI ? 'retain-on-failure' : 'on',
     actionTimeout: ELEMENT_WAIT_LONGER_TIME,
+    ignoreHTTPSErrors: true,
+    ...(process.env.HTTPS_PROXY ? { proxy: { server: process.env.HTTPS_PROXY } } : {}),
   },
   projects: [
     {

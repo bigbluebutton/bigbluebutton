@@ -25,7 +25,11 @@ async function validateEnvironmentAndAPI(): Promise<void> {
   }
 
   // Create a request context for API validation
-  const requestContext = await request.newContext();
+  const proxyServer = process.env.HTTPS_PROXY || process.env.https_proxy;
+  const requestContext = await request.newContext({
+    ignoreHTTPSErrors: true,
+    ...(proxyServer ? { proxy: { server: proxyServer } } : {}),
+  });
 
   try {
     // Test the /create endpoint with a temporary meeting
