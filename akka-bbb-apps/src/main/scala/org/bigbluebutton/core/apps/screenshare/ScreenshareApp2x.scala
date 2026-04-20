@@ -21,14 +21,14 @@ object ScreenshareApp2x {
     }
   }
 
-  /** Stop all active screenshares belonging to locked viewers.
+  /** Stop active screenshares belonging to locked viewers.
    *  Called when disableMultiScreenshare is activated by a moderator. */
   def enforceScreenshareLockSettingsForAllViewers(outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {
     val allShares = Screenshares.findAll(liveMeeting.screenshares)
     allShares.foreach { entry =>
-      val isViewer = Users2x.findWithIntId(liveMeeting.users2x, entry.userId)
-        .exists(u => u.role == Roles.VIEWER_ROLE)
-      if (isViewer) {
+      val isLockedViewer = Users2x.findWithIntId(liveMeeting.users2x, entry.userId)
+        .exists(u => u.role == Roles.VIEWER_ROLE && u.locked)
+      if (isLockedViewer) {
         val event = MsgBuilder.buildScreenBroadcastStopSysMsg(
           liveMeeting.props.meetingProp.intId,
           entry.voiceConf,
@@ -38,15 +38,15 @@ object ScreenshareApp2x {
         outGW.send(event)
       }
     }
-    // Also stop the singleton if it belongs to a viewer.
+    // Also stop the singleton if it belongs to a locked viewer.
     if (ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel)) {
       val singletonUserId = ScreenshareModel.getUserId(liveMeeting.screenshareModel)
       val singletonNotInCollection = !Screenshares.hasStream(
         liveMeeting.screenshares, ScreenshareModel.getRTMPBroadcastingUrl(liveMeeting.screenshareModel))
       if (singletonNotInCollection) {
-        val isViewer = Users2x.findWithIntId(liveMeeting.users2x, singletonUserId)
-          .exists(u => u.role == Roles.VIEWER_ROLE)
-        if (isViewer) {
+        val isLockedViewer = Users2x.findWithIntId(liveMeeting.users2x, singletonUserId)
+          .exists(u => u.role == Roles.VIEWER_ROLE && u.locked)
+        if (isLockedViewer) {
           val event = MsgBuilder.buildScreenBroadcastStopSysMsg(
             liveMeeting.props.meetingProp.intId,
             ScreenshareModel.getVoiceConf(liveMeeting.screenshareModel),
