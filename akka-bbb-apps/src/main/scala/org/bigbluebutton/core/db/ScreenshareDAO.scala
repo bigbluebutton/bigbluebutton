@@ -2,6 +2,7 @@ package org.bigbluebutton.core.db
 
 import org.bigbluebutton.core.apps.ScreenshareModel
 import org.bigbluebutton.core.apps.ScreenshareModel.{ getContentType, getHasAudio, getRTMPBroadcastingUrl, getScreenshareConf, getScreenshareVideoHeight, getScreenshareVideoWidth, getVoiceConf }
+import org.bigbluebutton.core.models.ScreenshareEntry
 import org.bigbluebutton.core.util.RandomStringGenerator
 import slick.jdbc.PostgresProfile.api._
 import slick.lifted.ProvenShape
@@ -40,6 +41,28 @@ class ScreenshareDbTableDef(tag: Tag) extends Table[ScreenshareDbModel](tag, "sc
 }
 
 object ScreenshareDAO {
+  def insertEntry(meetingId: String, entry: ScreenshareEntry) = {
+    DatabaseConnection.enqueue(
+      TableQuery[ScreenshareDbTableDef].forceInsert(
+        ScreenshareDbModel(
+          screenshareId = entry.screenshareId,
+          meetingId = meetingId,
+          voiceConf = entry.voiceConf,
+          screenshareConf = entry.screenshareConf,
+          contentType = entry.contentType,
+          stream = entry.stream,
+          vidWidth = entry.vidWidth,
+          vidHeight = entry.vidHeight,
+          hasAudio = entry.hasAudio,
+          userId = entry.userId,
+          showAsContent = entry.showAsContent,
+          startedAt = new java.sql.Timestamp(entry.startedAt),
+          stoppedAt = None
+        )
+      )
+    )
+  }
+
   def insert(meetingId: String, userId: String, stream: String, screenshareModel: ScreenshareModel, showAsContent: Boolean) = {
     DatabaseConnection.enqueue(
       TableQuery[ScreenshareDbTableDef].forceInsert(
