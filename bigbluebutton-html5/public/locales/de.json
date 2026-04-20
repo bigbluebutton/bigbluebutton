@@ -745,7 +745,7 @@
     "app.settings.unsavedChanges.ignoreButtonLabel": "Änderungen verwerfen",
     "app.statusNotifier.lowerHands": "Hände senken",
     "app.statusNotifier.lowerHandDescOneUser": "Hand senken",
-    "app.statusNotifier.raisedHandsTitle": "Gehobene Hände",
+    "app.statusNotifier.raisedHandsTitle": "Gehobene Hände ({count})",
     "app.statusNotifier.raisedHandsTitleNotifier": "Erhobene Hände",
     "app.statusNotifier.raisedHandDesc": "{userNames} hob die Hand",
     "app.statusNotifier.raisedHandDescOneUser": "{userNames} haben die Hand gehoben",
