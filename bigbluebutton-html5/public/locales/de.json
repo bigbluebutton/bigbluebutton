@@ -1463,7 +1463,7 @@
     "app.videoDock.webcamExitFullscreenLabel": "Vollbilddarstellung der Webkamera beenden",
     "app.videoDock.webcamSqueezedButtonLabel": "Webcameinstellungen",
     "app.videoDock.webcamUnpinLabel": "Lösen",
-    "app.videoDock.webcamUnpinLabelDisabled": "Nur Moderatoren können Teilnehmer lösen",
+    "app.videoDock.webcamUnpinLabelDisabled": "Nur die Moderation kann Teilnehmer loslösen",
     "app.videoDock.webcamUnpinDesc": "Ausgewählte Webcam lösen",
     "app.videoDock.webcamPresenterLabel": "Präsentator",
     "app.videoDock.autoplayBlockedDesc": "Wir benötigen eine Zustimmung, um die Webcams anderer Teilnehmer zu zeigen.",
