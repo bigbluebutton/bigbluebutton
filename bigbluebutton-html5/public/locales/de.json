@@ -296,7 +296,7 @@
     "app.meeting.meetingTimeHasEnded": "Zeit abgelaufen. Sitzung wird bald geschlossen",
     "app.meeting.endedByUserMessage": "{userName} hat die Sitzung beendet",
     "app.meeting.endedByNoModeratorMessageSingular": "Die Sitzung wurde beendet, weil seit einer Minute keine Moderation anwesend ist",
-    "app.meeting.endedByNoModeratorMessagePlural": "Die Sitzung wurde beendet, weil seit {timeInMinutes} Minuten kein Moderator anwesend ist",
+    "app.meeting.endedByNoModeratorMessagePlural": "Die Sitzung wurde beendet, weil seit {timeInMinutes} Minuten keine Moderation anwesend ist",
     "app.meeting.endedMessage": "Weiterleitung zum Startbildschirm",
     "app.meeting.alertMeetingEndsUnderMinutesSingular": "Sitzung endet in einer Minute.",
     "app.meeting.alertMeetingEndsUnderMinutesPlural": "Sitzung wird in {timeInMinutes} Minuten geschlossen.",
