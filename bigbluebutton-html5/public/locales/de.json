@@ -530,7 +530,7 @@
     "app.requestPresenter.notification.description": "{userName} möchte gerne etwas präsentieren.",
     "app.requestPresenter.notification.confirm.label": "Erlauben",
     "app.requestPresenter.notification.deny.label": "Abbrechen",
-    "app.requestPresenter.notification.denied": "Die Bitte etwas zu präsentieren wurde vom Moderator abgelehnt.",
+    "app.requestPresenter.notification.denied": "Die Bitte etwas zu präsentieren wurde von der Moderation abgelehnt.",
     "app.navBar.leaveMeetingBtnLabel": "Verlassen",
     "app.navBar.leaveMeetingBtnDesc": "Konferenz verlassen",
     "app.navBar.optionsDropdown.optionsLabel": "Einstellungen",
