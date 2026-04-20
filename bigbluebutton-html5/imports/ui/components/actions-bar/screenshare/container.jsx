@@ -18,7 +18,7 @@ const ScreenshareButtonContainer = (props) => {
   const screenIsBroadcasting = useIsScreenBroadcasting();
   const { screenIsShared: isScreenGloballyBroadcasting } = useIsScreenGloballyBroadcasting();
   const enabled = useIsScreenSharingEnabled();
-  const { userLocks, isLocked } = useLockContext();
+  const { userLocks } = useLockContext();
   const isScreenshareLocked = userLocks.userScreenshare;
   // True only when THIS client is personally sharing a screenshare (local state).
   const isSharing = useIsSharing();
@@ -40,7 +40,6 @@ const ScreenshareButtonContainer = (props) => {
       isScreenGloballyBroadcasting={isScreenGloballyBroadcasting}
       enabled={enabled}
       isScreenshareLocked={isScreenshareLocked}
-      isLocked={isLocked}
       amIPersonallySharing={amIPersonallySharing}
       {...props}
     />
