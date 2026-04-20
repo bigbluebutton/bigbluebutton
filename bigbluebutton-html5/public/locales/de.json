@@ -1528,7 +1528,7 @@
     "app.createBreakoutRoom.megaphoneTooltip": "Send message to all rooms",
     "app.createBreakoutRoom.finish": "Finish",
     "app.createBreakoutRoom.durationOfBreakout": "Dauer der Gruppenräume",
-    "app.createBreakoutRoom.unassignedUsers": "Unassigned Users",
+    "app.createBreakoutRoom.unassignedUsers": "Noch nicht zugewiesene Personen",
     "app.createBreakoutRoom.youAreInRoom": "You are in {roomName}.",
     "app.createBreakoutRoom.callModerator": "Call Moderators",
     "app.createBreakoutRoom.callModeratorChatMsg": "{userName} from {roomName} is requesting moderator assistance.",
