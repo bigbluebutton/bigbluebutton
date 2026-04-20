@@ -739,7 +739,7 @@
     "app.settings.transcriptionTab.minUtteranceLength": "Minimale Länge einer Äußerung (in Sekunden)",
     "app.settings.shortcutsTab.label": "Tastenkombinationen",
     "app.settings.save-notification.label": "Einstellungen wurden gespeichert",
-    "app.settings.unsavedChanges.title": "Oops!",
+    "app.settings.unsavedChanges.title": "Hoppla!",
     "app.settings.unsavedChanges.message": "Es gibt ungespeicherte Einstellungen.",
     "app.settings.unsavedChanges.ignoreMessage": "Ungespeicherte Änderungen gehen verloren",
     "app.settings.unsavedChanges.ignoreButtonLabel": "Änderungen verwerfen",
