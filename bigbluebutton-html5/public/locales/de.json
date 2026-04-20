@@ -790,7 +790,7 @@
     "app.actionsBar.actionsDropdown.takePresenterDesc": "Mich selbst berechtigen zu präsentieren",
     "app.actionsBar.actionsDropdown.requestPresenter": "Präsentationsrechte anfordern",
     "app.actionsBar.actionsDropdown.requestPresenterDesc": "Fordere an, der nächste Präsentator zu werden.",
-    "app.actionsBar.actionsDropdown.waitingForModerator": "Warte auf Antwort eines Moderators...",
+    "app.actionsBar.actionsDropdown.waitingForModerator": "Warte auf Antwort der Moderation...",
     "app.actionsBar.actionsDropdown.waitingForModeratorDesc": "Warte auf Zustimmung eines moderators.",
     "app.actionsBar.reactions.reactionsButtonLabel": "Reaktionen",
     "app.actionsBar.reactions.removeReactionLabel": "Reaktion zurückziehen",
