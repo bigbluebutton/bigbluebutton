@@ -1719,6 +1719,6 @@
     "mobileApp.portals.addPortalPopup.confirm.button.label": "Speichern",
     "mobileApp.portals.drawerNavigation.button.label": "Portale",
     "mobileApp.portals.addPortalPopup.validation.emptyFields": "Benötigte Felder",
-    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "Name existiert bereits",
+    "mobileApp.portals.addPortalPopup.validation.portalNameAlreadyExists": "Name wird bereits benutzt",
     "mobileApp.portals.addPortalPopup.validation.urlInvalid": "Fehler beim Laden der Seite - URL und Netzwerkverbindung prüfen"
 }
