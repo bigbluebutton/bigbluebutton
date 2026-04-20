@@ -502,7 +502,7 @@
     "app.poll.quiz.options.correct": "Richtige Antwort",
     "app.poll.quiz.options.incorrect": "Falsche Antwort",
     "app.poll.quiz.liveResult.title.correct": "Richtig",
-    "app.poll.quiz.options.responseNotSecret": "Quiz – der Moderator kann Ihre Antwort sehen.",
+    "app.poll.quiz.options.responseNotSecret": "Quiz – die Moderation kann die Antwort sehen.",
     "app.poll.tabSelector.ariaLabel": "Tab-Auswahl für Quiz und Umfrage",
     "app.polling.pollingTitle": "Antworten",
     "app.polling.pollQuestionTitle": "Umfrage",
