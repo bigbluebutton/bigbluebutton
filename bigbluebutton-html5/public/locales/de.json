@@ -33,7 +33,7 @@
     "app.chat.isPresenter": "{presenterName} präsentiert jetzt",
     "app.chat.isPresenterSetBy": "{presenterName} ist nun Präsentator:in, durch {assignedByName} erlaubt",
     "app.chat.breakoutCallModerator": "{userName} aus {roomName} bittet um Unterstützung durch die Moderation.",
-    "app.chat.clearPublicChatMessage": "Der öffentliche Chatverlauf wurde von einem Moderator gelöscht",
+    "app.chat.clearPublicChatMessage": "Der öffentliche Chatverlauf wurde von der Moderation gelöscht",
     "app.chat.multi.typing": "Mehrere tippen",
     "app.chat.someone.typing": "Jemand schreibt gerade",
     "app.chat.one.typing": "{userName} tippt",
