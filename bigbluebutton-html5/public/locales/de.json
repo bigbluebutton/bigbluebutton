@@ -822,7 +822,7 @@
     "app.audioNotificaion.reconnectingAsListenOnly": "Mikrofone sind für Zuschauende gesperrt, es ist nur Zuhören möglich",
     "app.breakoutJoinConfirmation.title": "Gruppenraum beitreten",
     "app.breakoutJoinConfirmation.message": "Jetzt der Gruppe beitreten",
-    "app.breakoutJoinConfirmation.addedToRoom": "You have been added to {roomName} by the session moderator.",
+    "app.breakoutJoinConfirmation.addedToRoom": "Du wurdest durch die Moderation zu {roomName} hinzugefügt.",
     "app.breakoutJoinConfirmation.willBeRedirected": "You will be redirected to your group room shortly.",
     "app.breakoutJoinConfirmation.enterRoom": "Enter the room",
     "app.breakoutJoinConfirmation.confirmDesc": "Dem Gruppenraum beitreten",
