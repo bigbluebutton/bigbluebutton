@@ -1531,7 +1531,7 @@
     "app.createBreakoutRoom.unassignedUsers": "Noch nicht zugewiesene Personen",
     "app.createBreakoutRoom.youAreInRoom": "Du bist in {roomName}.",
     "app.createBreakoutRoom.callModerator": "Moderation rufen",
-    "app.createBreakoutRoom.callModeratorChatMsg": "{userName} from {roomName} is requesting moderator assistance.",
+    "app.createBreakoutRoom.callModeratorChatMsg": "{userName} aus {roomName} bittet um Unterstützung durch die Moderation.",
     "app.createBreakoutRoom.callModeratorSent": "Die Moderation wurde benachrichtigt.",
     "app.createBreakoutRoom.callModeratorCooldown": "Please wait before calling the moderators again.",
     "app.createBreakoutRoom.returnToMainSession": "Return to Main Session",
