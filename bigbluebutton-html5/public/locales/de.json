@@ -1525,7 +1525,7 @@
     "app.createBreakoutRoom.infoBannerGotIt": "Got it!",
     "app.createBreakoutRoom.start": "Start",
     "app.createBreakoutRoom.megaphone": "Send message",
-    "app.createBreakoutRoom.megaphoneTooltip": "Send message to all rooms",
+    "app.createBreakoutRoom.megaphoneTooltip": "Nachricht an alle Räume senden",
     "app.createBreakoutRoom.finish": "Finish",
     "app.createBreakoutRoom.durationOfBreakout": "Dauer der Gruppenräume",
     "app.createBreakoutRoom.unassignedUsers": "Noch nicht zugewiesene Personen",
