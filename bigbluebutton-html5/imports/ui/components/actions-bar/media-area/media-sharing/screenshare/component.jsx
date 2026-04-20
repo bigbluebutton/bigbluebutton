@@ -192,8 +192,7 @@ const ScreenshareButton = ({
           ? (
             <MediaButton
               disabled={
-                (!isConnected && !isScreenBroadcasting) || !screenshareDataSavingSetting
-                || !amIPresenter || loading
+                (!isConnected && !isScreenBroadcasting) || !screenshareDataSavingSetting || loading
               }
               data-test={dataTest}
               color={amIBroadcasting ? 'primary' : 'default'}

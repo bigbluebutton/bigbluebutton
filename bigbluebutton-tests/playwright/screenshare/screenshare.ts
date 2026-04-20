@@ -281,13 +281,31 @@ export class ScreenShare extends MultiUsers {
     // Dwell so the recording captures the "both sharing" window.
     await dwellOnBehavior(this.modPage2.page, 'both screenshares active simultaneously - observer perspective', 4000);
 
-    // Step 4 (DECISIVE): observer_moderator MUST see exactly 2 decoded video elements.
-    // The current frontend renders a single <video id="screenshareVideo"> DOM element;
-    // there is no second video sink.  expectMultipleDecodedVideos will throw:
-    //   "Expected 2 video elements matching 'video[id^="screenshareVideo"]', found 1"
+    // Step 4a: broadcaster_viewer must NOT have been promoted to presenter during share startup.
+    // Use page.evaluate rather than checkIsPresenter() to avoid the sidebar-closed crash.
+    const viewerIsPresenter = await this.userPage.page.evaluate(
+      ([currentUserSel, avatarSel]) => {
+        const el = document.querySelectorAll(`${currentUserSel} ${avatarSel}`)[0];
+        return el ? el.hasAttribute('data-test-presenter') : false;
+      },
+      [e.currentUser, e.userAvatar],
+    );
+    if (viewerIsPresenter) {
+      throw new Error('twoSharesActiveSide: broadcaster_viewer was promoted to presenter — R2 regression');
+    }
+
+    // Step 4c (DECISIVE): observer_moderator MUST see exactly 2 decoded video elements.
     await stabilityWindow(this.modPage2.page, 3000, 500, async () => {
       await expectMultipleDecodedVideos(this.modPage2.page, 'video[id^="screenshareVideo"]', 2, 10, 2500);
       await expectVideosRenderedSideBySide(this.modPage2.page, 'video[id^="screenshareVideo"]', 2, 120);
+    });
+
+    // Step 4d: each publisher must also see both streams in their own viewport.
+    await stabilityWindow(this.modPage.page, 3000, 500, async () => {
+      await expectMultipleDecodedVideos(this.modPage.page, 'video[id^="screenshareVideo"]', 2, 10, 2500);
+    });
+    await stabilityWindow(this.userPage.page, 3000, 500, async () => {
+      await expectMultipleDecodedVideos(this.userPage.page, 'video[id^="screenshareVideo"]', 2, 10, 2500);
     });
 
     // Step 5: broadcaster_moderator stops their share; broadcaster_viewer's share must survive.
