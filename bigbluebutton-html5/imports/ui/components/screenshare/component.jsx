@@ -175,34 +175,18 @@ class ScreenshareComponent extends React.Component {
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    const {
-      isPresenter, outputDeviceId, shouldShowScreenshare, screenshares,
-    } = this.props;
-    const { videoTagRef } = this.state;
-    if (prevProps.isPresenter && !isPresenter) {
-      screenshareHasEnded();
-    }
-
-    if (prevProps.outputDeviceId !== outputDeviceId && !isPresenter) {
-      setOutputDeviceId(outputDeviceId);
-    }
-
-    if (isPresenter) setStreamEnabled(shouldShowScreenshare);
-
+  _updateVolumeOnVisibilityChange(prevProps) {
+    const { shouldShowScreenshare } = this.props;
     if (prevProps.shouldShowScreenshare && !shouldShowScreenshare) {
       setVolume(0);
     } else if (!prevProps.shouldShowScreenshare && shouldShowScreenshare) {
       this.volume = this.volume || 1;
-      // if this.volume is 0, means user didn't change the volume, so we set it to 1
       setVolume(this.volume);
     }
+  }
 
-    if ((prevState.videoTagRef !== videoTagRef) && videoTagRef) {
-      videoTagRef.addEventListener('mousemove', this.handleMouseMovement);
-    }
-
-    // Subscribe to any newly added screenshare streams (observer path only)
+  _subscribeToNewShares(prevProps) {
+    const { isPresenter, screenshares, outputDeviceId } = this.props;
     if (!isPresenter && !isSharing() && screenshares && screenshares !== prevProps.screenshares) {
       if (!this.subscribedShareIds) this.subscribedShareIds = new Set();
       screenshares.forEach((share) => {
@@ -216,10 +200,12 @@ class ScreenshareComponent extends React.Component {
         }
       });
     }
+  }
 
-    // Detect observer→broadcaster transition: user started sharing while this component
-    // was already mounted as an observer.
-    const { streamId, hasAudio } = this.props;
+  _handleSharingTransition() {
+    const {
+      isPresenter, streamId, hasAudio, outputDeviceId,
+    } = this.props;
     const nowSharing = isSharing();
     if (nowSharing && !this.previousIsSharing && !isPresenter) {
       this.previousIsSharing = true;
@@ -228,6 +214,31 @@ class ScreenshareComponent extends React.Component {
     } else if (!nowSharing && this.previousIsSharing) {
       this.previousIsSharing = false;
     }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const {
+      isPresenter, outputDeviceId, shouldShowScreenshare,
+    } = this.props;
+    const { videoTagRef } = this.state;
+    if (prevProps.isPresenter && !isPresenter) {
+      screenshareHasEnded();
+    }
+
+    if (prevProps.outputDeviceId !== outputDeviceId && !isPresenter) {
+      setOutputDeviceId(outputDeviceId);
+    }
+
+    if (isPresenter) setStreamEnabled(shouldShowScreenshare);
+
+    this._updateVolumeOnVisibilityChange(prevProps);
+
+    if ((prevState.videoTagRef !== videoTagRef) && videoTagRef) {
+      videoTagRef.addEventListener('mousemove', this.handleMouseMovement);
+    }
+
+    this._subscribeToNewShares(prevProps);
+    this._handleSharingTransition();
   }
 
   componentWillUnmount() {
@@ -555,7 +566,7 @@ class ScreenshareComponent extends React.Component {
     const { switched } = this.state;
     const { isGloballyBroadcasting, intl, screenshares } = this.props;
     // Presenter always shows the primary share (their own stream)
-    const primaryShare = screenshares && screenshares.find((s) => s.showAsContent);
+    const primaryShare = screenshares?.find((s) => s.showAsContent);
 
     return (
       <>
@@ -601,11 +612,11 @@ class ScreenshareComponent extends React.Component {
         </Styled.MultiScreenshareGrid>
         {loaded && enableVolumeControl && this.renderVolumeSlider()}
         <Styled.ScreenshareContainerDefault>
-          {!loaded
-            ? ScreenshareComponent.renderScreenshareContainerInside(
+          {loaded
+            ? null
+            : ScreenshareComponent.renderScreenshareContainerInside(
               intl.formatMessage(this.locales.viewerLoadingLabel),
-            )
-            : null}
+            )}
         </Styled.ScreenshareContainerDefault>
       </>
     );
@@ -764,4 +775,7 @@ ScreenshareComponent.propTypes = {
     showAsContent: PropTypes.bool,
   })),
   isBot: PropTypes.bool.isRequired,
+  shouldShowScreenshare: PropTypes.bool,
+  hasAudio: PropTypes.bool,
+  isGloballyBroadcasting: PropTypes.bool,
 };
