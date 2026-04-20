@@ -13,7 +13,7 @@
     "app.chat.loadMoreButtonLabel": "Weitere laden",
     "app.chat.inputPlaceholder": "Nachricht {chatName}",
     "app.chat.titlePublic": "Gemeinsamer Chat",
-    "app.chat.titlePrivate": "Privater Chat mit {participantName}",
+    "app.chat.titlePrivate": "Privater Chat",
     "app.chat.titlePrivateToUser": "Direkte Unterhaltung mit {participantName}",
     "app.chat.partnerDisconnected": "{participantName} hat die Sitzung verlassen",
     "app.chat.moreMessages": "Weitere Nachrichten unten",
