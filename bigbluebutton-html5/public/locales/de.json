@@ -177,7 +177,7 @@
     "app.userList.presenter": "Präsentation",
     "app.userList.you": "Ich",
     "app.userList.locked": "Gesperrt",
-    "app.userList.byModerator": "(vom Moderator)",
+    "app.userList.byModerator": "(von der Moderation)",
     "app.userList.label": "Teilnehmerliste",
     "app.userList.toggleCompactView.label": "Kompaktansichtmodus wechseln",
     "app.userList.bot": "Automatisiert",
