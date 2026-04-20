@@ -181,7 +181,7 @@
     "app.userList.label": "Teilnehmerliste",
     "app.userList.toggleCompactView.label": "Kompaktansichtmodus wechseln",
     "app.userList.bot": "Automatisiert",
-    "app.userList.moderator": "Moderator",
+    "app.userList.moderator": "Moderation",
     "app.userList.mobile": "Mobil",
     "app.userList.guest": "Gast",
     "app.userList.searchUsers": "Nutzende suchen",
