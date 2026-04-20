@@ -1533,7 +1533,7 @@
     "app.createBreakoutRoom.callModerator": "Moderation rufen",
     "app.createBreakoutRoom.callModeratorChatMsg": "{userName} aus {roomName} bittet um Unterstützung durch die Moderation.",
     "app.createBreakoutRoom.callModeratorSent": "Die Moderation wurde benachrichtigt.",
-    "app.createBreakoutRoom.callModeratorCooldown": "Please wait before calling the moderators again.",
+    "app.createBreakoutRoom.callModeratorCooldown": "Bitte warte, bevor du die Moderation erneut rufst.",
     "app.createBreakoutRoom.returnToMainSession": "Return to Main Session",
     "app.createBreakoutRoom.listenToRoom": "Listen to room",
     "app.createBreakoutRoom.stopListeningToRoom": "Stop listening",
