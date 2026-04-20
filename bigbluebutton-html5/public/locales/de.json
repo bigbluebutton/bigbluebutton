@@ -823,7 +823,7 @@
     "app.breakoutJoinConfirmation.title": "Gruppenraum beitreten",
     "app.breakoutJoinConfirmation.message": "Jetzt der Gruppe beitreten",
     "app.breakoutJoinConfirmation.addedToRoom": "Du wurdest durch die Moderation zu {roomName} hinzugefügt.",
-    "app.breakoutJoinConfirmation.willBeRedirected": "You will be redirected to your group room shortly.",
+    "app.breakoutJoinConfirmation.willBeRedirected": "Du wirst gleich zum Gruppenraum weitergeleitet.",
     "app.breakoutJoinConfirmation.enterRoom": "Enter the room",
     "app.breakoutJoinConfirmation.confirmDesc": "Dem Gruppenraum beitreten",
     "app.breakoutJoinConfirmation.dismissLabel": "Abbrechen",
