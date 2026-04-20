@@ -17,6 +17,7 @@ import {
   SCREENSHARE_MEDIA_ELEMENT_NAME,
   screenshareHasEnded,
   screenshareHasStarted,
+  isSharing,
   setOutputDeviceId,
   getMediaElement,
   getMediaElementDimensions,
@@ -63,6 +64,9 @@ const renderPluginItems = (pluginItems, bottom, right) => {
   return (<></>);
 };
 
+// Methods are grouped by concern (lifecycle → handlers → helpers → render), not by
+// airbnb sort-comp ordering, to keep multi-stream logic together with its siblings.
+/* eslint-disable react/sort-comp */
 class ScreenshareComponent extends React.Component {
   static renderScreenshareContainerInside(mainText) {
     return (
@@ -110,6 +114,10 @@ class ScreenshareComponent extends React.Component {
 
     this.volume = getVolume();
     this.mobileHoverSetTimeout = null;
+    // Tracks which screenshare IDs have already been subscribed (observer multi-stream path)
+    this.subscribedShareIds = new Set();
+    // Tracks previous isSharing() value to detect observer→broadcaster transition
+    this.previousIsSharing = false;
   }
 
   componentDidMount() {
@@ -123,9 +131,27 @@ class ScreenshareComponent extends React.Component {
       isSharedNotesPinned,
       hasAudio,
       streamId,
+      screenshares,
     } = this.props;
 
-    screenshareHasStarted(streamId, hasAudio, isPresenter, { outputDeviceId });
+    if (isPresenter || isSharing()) {
+      // Broadcaster path: local presenter preview (also covers non-presenter viewers sharing)
+      screenshareHasStarted(streamId, hasAudio, isPresenter, { outputDeviceId });
+    } else {
+      // Observer: subscribe to every active screenshare, each into its own video element
+      const shares = (screenshares && screenshares.length > 0) ? screenshares : [];
+      shares.forEach((share) => {
+        if (share.stream) {
+          screenshareHasStarted(share.stream, share.hasAudio, false, {
+            outputDeviceId,
+            mediaElementId: this.getElementIdForShare(share),
+            publisherUserId: share.userId,
+          });
+        }
+      });
+      this.subscribedShareIds = new Set(shares.map((s) => s.screenshareId).filter(Boolean));
+    }
+
     // Autoplay failure handling
     window.addEventListener('screensharePlayFailed', this.handlePlayElementFailed);
     // Attaches the local stream if it exists to serve as the local presenter preview
@@ -150,7 +176,9 @@ class ScreenshareComponent extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { isPresenter, outputDeviceId, shouldShowScreenshare } = this.props;
+    const {
+      isPresenter, outputDeviceId, shouldShowScreenshare, screenshares,
+    } = this.props;
     const { videoTagRef } = this.state;
     if (prevProps.isPresenter && !isPresenter) {
       screenshareHasEnded();
@@ -172,6 +200,33 @@ class ScreenshareComponent extends React.Component {
 
     if ((prevState.videoTagRef !== videoTagRef) && videoTagRef) {
       videoTagRef.addEventListener('mousemove', this.handleMouseMovement);
+    }
+
+    // Subscribe to any newly added screenshare streams (observer path only)
+    if (!isPresenter && !isSharing() && screenshares && screenshares !== prevProps.screenshares) {
+      if (!this.subscribedShareIds) this.subscribedShareIds = new Set();
+      screenshares.forEach((share) => {
+        if (share.screenshareId && !this.subscribedShareIds.has(share.screenshareId)) {
+          screenshareHasStarted(share.stream, share.hasAudio, false, {
+            outputDeviceId,
+            mediaElementId: this.getElementIdForShare(share),
+            publisherUserId: share.userId,
+          });
+          this.subscribedShareIds.add(share.screenshareId);
+        }
+      });
+    }
+
+    // Detect observer→broadcaster transition: user started sharing while this component
+    // was already mounted as an observer.
+    const { streamId, hasAudio } = this.props;
+    const nowSharing = isSharing();
+    if (nowSharing && !this.previousIsSharing && !isPresenter) {
+      this.previousIsSharing = true;
+      screenshareHasStarted(streamId, hasAudio, false, { outputDeviceId });
+      attachLocalPreviewStream(getMediaElement());
+    } else if (!nowSharing && this.previousIsSharing) {
+      this.previousIsSharing = false;
     }
   }
 
@@ -326,6 +381,16 @@ class ScreenshareComponent extends React.Component {
     this.debouncedDispatchScreenShareSize();
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  getElementIdForShare(share) {
+    // Primary share keeps the plain legacy id; secondary shares get a suffixed id.
+    // Both ids start with SCREENSHARE_MEDIA_ELEMENT_NAME so video[id^="screenshareVideo"]
+    // matches all of them. Kept as an instance method to stay consistent with the other
+    // renderVideo helpers on this component.
+    if (share.showAsContent) return SCREENSHARE_MEDIA_ELEMENT_NAME;
+    return `${SCREENSHARE_MEDIA_ELEMENT_NAME}-${share.screenshareId}`;
+  }
+
   renderFullscreenButton() {
     const {
       intl,
@@ -380,7 +445,7 @@ class ScreenshareComponent extends React.Component {
     );
   }
 
-  renderMobileVolumeControlOverlay () {
+  renderMobileVolumeControlOverlay() {
     return (
       <Styled.MobileControlsOverlay
         key="mobile-overlay-screenshare"
@@ -430,29 +495,28 @@ class ScreenshareComponent extends React.Component {
     ];
   }
 
-  renderVideo(switched) {
+  renderVideo(switched, share, isPrimary) {
     const { isGloballyBroadcasting } = this.props;
     const { videoTagRef } = this.state;
+    const elementId = share ? this.getElementIdForShare(share) : SCREENSHARE_MEDIA_ELEMENT_NAME;
 
     return (
       <Styled.ScreenshareVideo
-        id={SCREENSHARE_MEDIA_ELEMENT_NAME}
-        key={SCREENSHARE_MEDIA_ELEMENT_NAME}
-        unhealthyStream={!isGloballyBroadcasting}
+        id={elementId}
+        key={elementId}
+        unhealthyStream={isPrimary && !isGloballyBroadcasting}
         style={switched
           ? { maxHeight: '100%', width: '100%', height: '100%' }
           : { maxHeight: '25%', width: '25%', height: '25%' }}
         playsInline
-        onLoadedData={this.onLoadedData}
-        onLoadedMetadata={this.onLoadedMetadata}
-        ref={(ref) => {
+        onLoadedData={isPrimary ? this.onLoadedData : undefined}
+        onLoadedMetadata={isPrimary ? this.onLoadedMetadata : undefined}
+        ref={isPrimary ? (ref) => {
           this.videoTag = ref;
           if (!videoTagRef && ref) {
-            this.setState({
-              videoTagRef: ref,
-            });
+            this.setState({ videoTagRef: ref });
           }
-        }}
+        } : undefined}
         muted
       />
     );
@@ -489,11 +553,13 @@ class ScreenshareComponent extends React.Component {
 
   renderScreensharePresenter() {
     const { switched } = this.state;
-    const { isGloballyBroadcasting, intl } = this.props;
+    const { isGloballyBroadcasting, intl, screenshares } = this.props;
+    // Presenter always shows the primary share (their own stream)
+    const primaryShare = screenshares && screenshares.find((s) => s.showAsContent);
 
     return (
       <>
-        {this.renderVideo(switched)}
+        {this.renderVideo(switched, primaryShare || null, true)}
 
         {
           isGloballyBroadcasting
@@ -514,22 +580,32 @@ class ScreenshareComponent extends React.Component {
   }
 
   renderScreenshareDefault() {
-    const { intl, enableVolumeControl } = this.props;
+    const { intl, enableVolumeControl, screenshares } = this.props;
     const { loaded } = this.state;
+    const shares = screenshares && screenshares.length > 0 ? screenshares : [];
+
+    // Always use MultiScreenshareGrid so video elements keep their DOM identity
+    // when a second share is added (avoids unmount/remount of the primary video).
+    const sortedShares = [...shares].sort((a, b) => {
+      if (a.showAsContent && !b.showAsContent) return -1;
+      if (!a.showAsContent && b.showAsContent) return 1;
+      return 0;
+    });
 
     return (
       <>
-        {this.renderVideo(true)}
-        {loaded && enableVolumeControl && this.renderVolumeSlider() }
-
+        <Styled.MultiScreenshareGrid>
+          {sortedShares.length > 0
+            ? sortedShares.map((share, idx) => this.renderVideo(true, share, idx === 0))
+            : this.renderVideo(true, null, true)}
+        </Styled.MultiScreenshareGrid>
+        {loaded && enableVolumeControl && this.renderVolumeSlider()}
         <Styled.ScreenshareContainerDefault>
-          {
-            !loaded
-              ? ScreenshareComponent.renderScreenshareContainerInside(
-                intl.formatMessage(this.locales.viewerLoadingLabel),
-              )
-              : null
-          }
+          {!loaded
+            ? ScreenshareComponent.renderScreenshareContainerInside(
+              intl.formatMessage(this.locales.viewerLoadingLabel),
+            )
+            : null}
         </Styled.ScreenshareContainerDefault>
       </>
     );
@@ -605,7 +681,11 @@ class ScreenshareComponent extends React.Component {
     const shouldRenderConnectingState = !loaded
       || (isPresenter && !isGloballyBroadcasting);
 
-    const display = (width > 0 && height > 0) && shouldShowScreenshare ? 'inherit' : 'none';
+    // For the local broadcaster (presenter or non-presenter viewer sharing), always show
+    // the preview regardless of shouldShowScreenshare which depends on server-side layout flags
+    // that are not set for non-presenter shares.
+    const isBroadcasting = isPresenter || isSharing();
+    const display = (width > 0 && height > 0) && (shouldShowScreenshare || isBroadcasting) ? 'inherit' : 'none';
     const Settings = getSettingsSingletonInstance();
     const { animations } = Settings.application;
 
@@ -653,7 +733,7 @@ class ScreenshareComponent extends React.Component {
           id="screenshareContainer"
         >
           {this.renderScreenshareButtons()}
-          {isPresenter
+          {(isPresenter || isSharing())
             ? this.renderScreensharePresenter()
             : this.renderScreenshareDefault()}
         </Styled.ScreenshareContainer>
@@ -664,6 +744,7 @@ class ScreenshareComponent extends React.Component {
 
 export default injectIntl(ScreenshareComponent);
 
+/* eslint-enable react/sort-comp */
 ScreenshareComponent.propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
@@ -675,6 +756,12 @@ ScreenshareComponent.propTypes = {
   layoutContextDispatch: PropTypes.func.isRequired,
   enableVolumeControl: PropTypes.bool.isRequired,
   outputDeviceId: PropTypes.string,
-  streamId: PropTypes.string.isRequired,
+  streamId: PropTypes.string,
+  screenshares: PropTypes.arrayOf(PropTypes.shape({
+    screenshareId: PropTypes.string,
+    stream: PropTypes.string,
+    hasAudio: PropTypes.bool,
+    showAsContent: PropTypes.bool,
+  })),
   isBot: PropTypes.bool.isRequired,
 };

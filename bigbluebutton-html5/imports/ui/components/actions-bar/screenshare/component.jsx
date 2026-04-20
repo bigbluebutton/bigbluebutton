@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -27,11 +27,9 @@ const propTypes = {
   intl: PropTypes.objectOf(Object).isRequired,
   enabled: PropTypes.bool.isRequired,
   amIPresenter: PropTypes.bool,
-  isScreenBroadcasting: PropTypes.bool.isRequired,
   isScreenGloballyBroadcasting: PropTypes.bool.isRequired,
   isConnected: PropTypes.bool.isRequired,
   isScreenshareLocked: PropTypes.bool,
-  isLocked: PropTypes.bool,
   amIPersonallySharing: PropTypes.bool,
 };
 
@@ -99,7 +97,7 @@ const intlMessages = defineMessages({
   toastHelpLabel: {
     id: 'app.screenshare.screenshareToastHelpLabel',
     description: 'Label of the help button in toast notifications that opens external link',
-  }
+  },
 });
 
 const getErrorLocale = (errorCode) => {
@@ -147,16 +145,15 @@ const getToastType = (errorCode) => {
 const ScreenshareButton = ({
   intl,
   enabled,
-  isScreenBroadcasting,
   isScreenGloballyBroadcasting,
   amIPresenter = false,
   isConnected,
   screenshareDataSavingSetting,
   isScreenshareLocked = false,
-  isLocked = false,
   amIPersonallySharing = false,
 }) => {
-  const TROUBLESHOOTING_URLS = window.meetingClientSettings.public.media.screenshareTroubleshootingLinks;
+  const TROUBLESHOOTING_URLS = window.meetingClientSettings
+    .public.media.screenshareTroubleshootingLinks;
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
   const isCameraAsContentBroadcasting = useIsCameraAsContentBroadcasting();
 
@@ -188,7 +185,7 @@ const ScreenshareButton = ({
     } = error;
 
     const localizedError = getErrorLocale(errorCode);
-    const helpInfo =  getHelpInfoForError(errorCode);
+    const helpInfo = getHelpInfoForError(errorCode);
     const toastType = getToastType(errorCode);
 
     if (localizedError) {
@@ -230,7 +227,7 @@ const ScreenshareButton = ({
   // screenshare (isScreenshareLocked = userIsLocked && disableMultiScreenshare).
   // Presenters, moderators (never locked), and viewers when disableMultiScreenshare=false
   // can all share screens.
-  const canShare = amIPresenter || showButtonForNonPresenters || !isScreenshareLocked;
+  const canShare = amIPresenter || (showButtonForNonPresenters && !isScreenshareLocked);
   const shouldAllowScreensharing = enabled
     && (!isMobile || isTabletApp)
     && canShare;

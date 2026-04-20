@@ -13,6 +13,7 @@ import {
   useIsCameraAsContentBroadcasting,
   useScreenshareHasAudio,
   useScreenshareStreamId,
+  useScreenshares,
   useBroadcastContentType,
   setBridge,
 } from './service';
@@ -160,6 +161,7 @@ const ScreenshareContainer = (props) => {
   const isCameraAsContentBroadcasting = useIsCameraAsContentBroadcasting();
   const hasAudio = useScreenshareHasAudio();
   const streamId = useScreenshareStreamId();
+  const screenshares = useScreenshares();
 
   let pluginScreenshareHelperItems = [];
   if (pluginsExtensibleAreasAggregatedState.screenshareHelperItems) {
@@ -188,7 +190,7 @@ const ScreenshareContainer = (props) => {
           outputDeviceId,
           enableVolumeControl,
           hasAudio,
-          isGloballyBroadcasting: screenIsGloballyBroadcasting
+          isGloballyBroadcasting: screenIsGloballyBroadcasting?.screenIsShared
             || cameraAsContentIsGloballyBroadcasting,
           hidePresentationOnJoin: getFromUserSettings(
             'bbb_hide_presentation_on_join',
@@ -197,6 +199,7 @@ const ScreenshareContainer = (props) => {
           ...selectedInfo,
           isPresenter,
           streamId,
+          screenshares,
           shouldShowScreenshare,
           isBot,
         }

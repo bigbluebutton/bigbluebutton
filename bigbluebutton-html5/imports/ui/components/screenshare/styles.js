@@ -26,6 +26,22 @@ const ScreenshareVideo = styled.video`
   `}
 `;
 
+const MultiScreenshareGrid = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+  gap: 4px;
+
+  & > video {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    max-height: 100%;
+    object-fit: contain;
+  }
+`;
+
 const ScreenshareContainer = styled.div`
   position: relative;
   background-color: ${colorContentBackground};
@@ -122,6 +138,7 @@ export default {
   ScreenshareContainerInside,
   MainText,
   ScreenshareVideo,
+  MultiScreenshareGrid,
   ScreenshareContainer,
   ScreenshareContainerDefault,
   SpinnerWrapper,

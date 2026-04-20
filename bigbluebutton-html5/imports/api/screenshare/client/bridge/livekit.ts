@@ -92,6 +92,9 @@ export default class LiveKitScreenshareBridge {
 
   private readonly subscriptions: Map<string, PublicationData> = new Map();
 
+  // Maps each subscribed streamId to the DOM element id it should render into
+  private readonly streamElementIds: Map<string, string> = new Map();
+
   private readonly bridgeName: string;
 
   private role?: string;
@@ -182,7 +185,8 @@ export default class LiveKitScreenshareBridge {
     if (publications) {
       publications.set(publication.trackSid, publication);
 
-      if (publication.trackSid === this.streamId && this.role === RECV_ROLE) {
+      // Subscribe for any stream we are watching (supports concurrent multi-stream views)
+      if (this.streamElementIds.has(publication.trackSid) && this.role === RECV_ROLE) {
         this.subscribe(publication as RemoteTrackPublication);
       }
     }
@@ -284,7 +288,8 @@ export default class LiveKitScreenshareBridge {
 
     const { trackSid, source, trackName } = publication;
     this.setSubscription(trackSid, track, publication);
-    if (trackSid === this.streamId) this.handleViewerStart(trackSid);
+    // Trigger viewer start for any trackSid we are explicitly watching
+    if (this.streamElementIds.has(trackSid)) this.handleViewerStart(trackSid);
     logger.debug({
       logCode: 'livekit_screenshare_subscribed',
       extraInfo: {
@@ -332,47 +337,49 @@ export default class LiveKitScreenshareBridge {
   }
 
   private resyncOnReconnection(): void {
-    if (this.role !== RECV_ROLE || !this.streamId) return;
+    if (this.role !== RECV_ROLE || this.streamElementIds.size === 0) return;
 
     this.findInitialRemotePublications();
 
-    const publication = this.getPublication(this.streamId);
+    this.streamElementIds.forEach((_elementId, sid) => {
+      const publication = this.getPublication(sid);
 
-    if (!publication || !(publication instanceof RemoteTrackPublication)) {
-      logger.error({
-        logCode: 'livekit_screenshare_reconnection_pub_not_found',
-        extraInfo: {
-          bridgeName: this.bridgeName,
-          streamId: this.streamId,
-          role: this.role,
-        },
-      }, `LiveKit: screenshare pub not found on reconnection - streamId: ${this.streamId}`);
-      return;
-    }
+      if (!publication || !(publication instanceof RemoteTrackPublication)) {
+        logger.error({
+          logCode: 'livekit_screenshare_reconnection_pub_not_found',
+          extraInfo: {
+            bridgeName: this.bridgeName,
+            streamId: sid,
+            role: this.role,
+          },
+        }, `LiveKit: screenshare pub not found on reconnection - streamId: ${sid}`);
+        return;
+      }
 
-    if (publication.isSubscribed && publication.track) {
-      this.setSubscription(this.streamId, publication.track, publication);
-      this.handleViewerStart(this.streamId);
+      if (publication.isSubscribed && publication.track) {
+        this.setSubscription(sid, publication.track, publication);
+        this.handleViewerStart(sid);
 
-      logger.warn({
-        logCode: 'livekit_screenshare_reconnection_reattached',
-        extraInfo: {
-          bridgeName: this.bridgeName,
-          streamId: this.streamId,
-          role: this.role,
-        },
-      }, `LiveKit: screenshare track reattached on reconnection - streamId: ${this.streamId}`);
-    } else {
-      this.subscribe(publication);
-      logger.warn({
-        logCode: 'livekit_screenshare_reconnection_resubscribed',
-        extraInfo: {
-          bridgeName: this.bridgeName,
-          streamId: this.streamId,
-          role: this.role,
-        },
-      }, `LiveKit: screenshare resubscribed on reconnection - streamId: ${this.streamId}`);
-    }
+        logger.warn({
+          logCode: 'livekit_screenshare_reconnection_reattached',
+          extraInfo: {
+            bridgeName: this.bridgeName,
+            streamId: sid,
+            role: this.role,
+          },
+        }, `LiveKit: screenshare track reattached on reconnection - streamId: ${sid}`);
+      } else {
+        this.subscribe(publication);
+        logger.warn({
+          logCode: 'livekit_screenshare_reconnection_resubscribed',
+          extraInfo: {
+            bridgeName: this.bridgeName,
+            streamId: sid,
+            role: this.role,
+          },
+        }, `LiveKit: screenshare resubscribed on reconnection - streamId: ${sid}`);
+      }
+    });
   }
 
   private handleConnectionStateChanged(): void {
@@ -448,10 +455,12 @@ export default class LiveKitScreenshareBridge {
       // @ts-ignore
       const withSelectiveSubscription = window.meetingClientSettings.public.media?.livekit?.selectiveSubscription
         || false;
-      const { track } = mainPublication;
-      const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG) as HTMLMediaElement;
+      const { track, trackSid } = mainPublication;
+      const elementId = this.streamElementIds.get(trackSid) || SCREENSHARE_VIDEO_TAG;
+      const mediaElement = document.getElementById(elementId) as HTMLMediaElement;
 
       if (track) track.detach(mediaElement);
+      this.streamElementIds.delete(trackSid);
 
       if (withSelectiveSubscription) {
         const audioPublications = Array.from(this.audioPublications.values()) as RemoteTrackPublication[];
@@ -549,7 +558,8 @@ export default class LiveKitScreenshareBridge {
     if (publicationData && publicationData.track) {
       try {
         const { track } = publicationData;
-        const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG) as HTMLMediaElement;
+        const elementId = this.streamElementIds.get(streamId) || SCREENSHARE_VIDEO_TAG;
+        const mediaElement = document.getElementById(elementId) as HTMLMediaElement;
 
         if (mediaElement) {
           if (this.hasAudio && this.outputDeviceId && typeof this.outputDeviceId === 'string') {
@@ -575,11 +585,12 @@ export default class LiveKitScreenshareBridge {
 
   async view(
     streamId: string,
-    options: Options = { hasAudio: false, outputDeviceId: '' },
+    options: Options & { mediaElementId?: string } = { hasAudio: false, outputDeviceId: '' },
   ): Promise<void> {
     this.streamId = streamId;
     this.role = RECV_ROLE;
     this.hasAudio = options.hasAudio || false;
+    this.streamElementIds.set(streamId, options.mediaElementId || SCREENSHARE_VIDEO_TAG);
 
     const doSubscribe = () => {
       this.findInitialRemotePublications();
@@ -705,8 +716,6 @@ export default class LiveKitScreenshareBridge {
   }
 
   async stop(): Promise<void> {
-    const mediaElement = document.getElementById(SCREENSHARE_VIDEO_TAG) as HTMLMediaElement;
-
     if (this.role === SEND_ROLE) {
       try {
         await this.liveKitRoom.localParticipant.setScreenShareEnabled(false);
@@ -714,7 +723,6 @@ export default class LiveKitScreenshareBridge {
         logger.error({
           logCode: 'livekit_screenshare_exit_error',
           extraInfo: {
-
             errorName: (error as Error).name,
             errorMessage: (error as Error).message,
             errorStack: (error as Error).stack,
@@ -724,15 +732,25 @@ export default class LiveKitScreenshareBridge {
           },
         }, 'Failed to exit screenshare');
       }
-    } else if (this.role === RECV_ROLE && this.streamId) {
-      const publication = this.getPublication(this.streamId) as RemoteTrackPublication;
-
-      if (publication) this.unsubscribe(publication);
+    } else if (this.role === RECV_ROLE) {
+      // Unsubscribe and clear all tracked viewer streams
+      this.streamElementIds.forEach((elementId, sid) => {
+        const publication = this.getPublication(sid) as RemoteTrackPublication;
+        if (publication) this.unsubscribe(publication);
+        const el = document.getElementById(elementId) as HTMLMediaElement;
+        if (el && typeof el.pause === 'function') {
+          el.pause();
+          el.srcObject = null;
+        }
+      });
+      this.streamElementIds.clear();
     }
 
-    if (mediaElement && typeof mediaElement.pause === 'function') {
-      mediaElement.pause();
-      mediaElement.srcObject = null;
+    // Clean up the primary element too (for SEND role or single-stream legacy path)
+    const primaryEl = document.getElementById(SCREENSHARE_VIDEO_TAG) as HTMLMediaElement;
+    if (primaryEl && typeof primaryEl.pause === 'function') {
+      primaryEl.pause();
+      primaryEl.srcObject = null;
     }
 
     if (this.gdmStream) {

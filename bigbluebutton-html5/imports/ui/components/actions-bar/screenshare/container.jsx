@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import ScreenshareButton from './component';
 import { useIsScreenSharingEnabled } from '/imports/ui/services/features';
 import {
@@ -7,6 +7,7 @@ import {
   useIsSharing,
   useSharingContentType,
   CONTENT_TYPE_SCREENSHARE,
+  screenshareHasEnded,
 } from '/imports/ui/components/screenshare/service';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
@@ -23,6 +24,15 @@ const ScreenshareButtonContainer = (props) => {
   const isSharing = useIsSharing();
   const sharingContentType = useSharingContentType();
   const amIPersonallySharing = isSharing && sharingContentType === CONTENT_TYPE_SCREENSHARE;
+
+  const prevIsScreenshareLocked = useRef(isScreenshareLocked);
+  useEffect(() => {
+    if (!prevIsScreenshareLocked.current && isScreenshareLocked && amIPersonallySharing) {
+      screenshareHasEnded();
+    }
+    prevIsScreenshareLocked.current = isScreenshareLocked;
+  }, [isScreenshareLocked, amIPersonallySharing]);
+
   return (
     <ScreenshareButton
       screenshareDataSavingSetting={screenshareDataSavingSetting}
