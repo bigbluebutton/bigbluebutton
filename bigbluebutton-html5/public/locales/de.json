@@ -1237,7 +1237,7 @@
     "app.guest-policy.button.alwaysAcceptAuth": "Always accept authenticated",
     "app.guest-policy.button.alwaysDeny": "Immer verweigern",
     "app.guest-policy.policyBtnDesc": "Grundregeln für den Gastzugang festlegen",
-    "app.guest-policy.feedbackMessage": "The guest policy is now: {policy}",
+    "app.guest-policy.feedbackMessage": "Die Gäste-Berechtigung ist jetzt: {policy}",
     "app.connection-status.ariaTitle": "Verbindungsstatus",
     "app.connection-status.title": "Verbindungsstatus",
     "app.connection-status.description": "Verbindungsstatus der Teilnehmer anzeigen",
