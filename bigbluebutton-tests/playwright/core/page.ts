@@ -406,7 +406,7 @@ export class Page {
           const element = document.querySelector(el);
           if (!element) return false;
 
-          const afterElement = getComputedStyle(element, 'after');
+          const afterElement = getComputedStyle(element, '::after');
           if (afterElement && afterElement.content !== 'none') {
             return true;
           }

@@ -38,8 +38,8 @@ export async function expectVisiblyRendered(page: PlaywrightPage, selector: stri
 }
 
 // Hold the current state on screen long enough for the recorded video to capture it.
-// Default 4.00ms because half-second transitions are invisible on a reviewer's scrub.
-export async function dwellOnBehavior(page: PlaywrightPage, label: string, ms = 4.0) {
+// Default 4000 ms because half-second transitions are invisible on a reviewer's scrub.
+export async function dwellOnBehavior(page: PlaywrightPage, label: string, ms = 4000) {
   await page.evaluate((text) => console.log(`DWELL: ${text}`), label);
   await page.waitForTimeout(ms);
 }

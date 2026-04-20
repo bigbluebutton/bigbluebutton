@@ -116,7 +116,12 @@ export class ScreenShare extends MultiUsers {
 
   // R3: disableMultiScreenshare=true hides the button from locked viewers (API-param path)
   async viewerScreenshareLockedByApiParam() {
-    // With lockSettingsDisableMultiScreenshare=true and lockOnJoin=true,
+    const { screensharingEnabled } = this.modPage.settings || {};
+    if (!screensharingEnabled) {
+      await this.userPage.wasRemoved(e.startScreenSharing, 'screenshare feature disabled');
+      return;
+    }
+    // With lockSettingsDisableMultiScreenshare=true and lockSettingsLockOnJoin=true,
     // the viewer is locked and disableMultiScreenshare is active.
     // The start screenshare button should not be visible.
     await this.userPage.wasRemoved(
@@ -193,7 +198,11 @@ export class ScreenShare extends MultiUsers {
   //   moderator_controller  = modPage2 (applies the lock, observes the outcome)
   async enableDisableMultiScreenshareStopsViewerShare() {
     const { screensharingEnabled } = this.modPage.settings || {};
-    if (!screensharingEnabled) return;
+    if (!screensharingEnabled) {
+      await this.modPage.wasRemoved(e.startScreenSharing, 'screenshare feature disabled');
+      await this.userPage.wasRemoved(e.startScreenSharing, 'screenshare feature disabled');
+      return;
+    }
 
     // broadcaster_moderator starts screenshare - this stream must survive the lock
     await startScreenshare(this.modPage);

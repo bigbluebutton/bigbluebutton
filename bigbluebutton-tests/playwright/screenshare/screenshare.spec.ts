@@ -56,7 +56,7 @@ test.describe.parallel('Screenshare', { tag: '@ci' }, () => {
     const screenshare = new ScreenShare(browser, context);
     await screenshare.initModPage(page, {
       testInfo,
-      createParameter: `${c.lockSettingsDisableMultiScreenshare}&lockOnJoin=true`,
+      createParameter: `${c.lockSettingsDisableMultiScreenshare}&lockSettingsLockOnJoin=true`,
     });
     await screenshare.initUserPage(context, { testInfo });
     await screenshare.viewerScreenshareLockedByApiParam();
