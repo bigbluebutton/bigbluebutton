@@ -25,6 +25,7 @@ module.exports = {
   },
   globals: {
     browser: 'writable',
+    globalThis: 'readonly',
   },
   overrides: [
     {

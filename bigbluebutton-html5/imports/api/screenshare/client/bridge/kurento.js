@@ -278,7 +278,7 @@ export default class KurentoScreenshareBridge {
   _handleViewerStartForStream(streamId, mediaElementId, broker) {
     const mediaElement = document.getElementById(mediaElementId);
 
-    if (mediaElement && broker && broker.webRtcPeer) {
+    if (mediaElement && broker?.webRtcPeer) {
       const stream = broker.webRtcPeer.getRemoteStream();
 
       if (this.hasAudio && this.outputDeviceId && typeof this.outputDeviceId === 'string') {
@@ -401,7 +401,7 @@ export default class KurentoScreenshareBridge {
     this.broker = broker;
 
     broker.onstart = this._handleViewerStartForStream.bind(this, streamId, mediaElementId, broker);
-    broker.onerror = this.handleBrokerFailure.bind(this);
+    broker.onerror = (error) => { this.handleBrokerFailure(error); };
     if (!this.reconnecting) {
       broker.onended = this.handleEnded.bind(this);
     }
@@ -486,7 +486,7 @@ export default class KurentoScreenshareBridge {
       };
 
       const publisherSessionBridge = Auth.userID
-        ? `${BridgeService.getConferenceBridge()}:${Auth.userID}`
+        ? `${BridgeService.getConferenceBridge()}:${String(Auth.userID)}`
         : BridgeService.getConferenceBridge();
       this.broker = new ScreenshareBroker(
         Auth.authenticateURL(SFU_URL),
@@ -533,7 +533,9 @@ export default class KurentoScreenshareBridge {
     this._viewerBrokers.forEach(({ broker, mediaElementId }) => {
       try {
         broker.stop();
-      } catch (_) { /* ignore */ }
+      } catch (e) {
+        logger.warn({ logCode: 'screenshare_stop_broker_ignored' }, `Ignoring error stopping viewer broker: ${e?.message}`);
+      }
       const el = document.getElementById(mediaElementId);
       if (el && typeof el.pause === 'function') {
         el.pause();
