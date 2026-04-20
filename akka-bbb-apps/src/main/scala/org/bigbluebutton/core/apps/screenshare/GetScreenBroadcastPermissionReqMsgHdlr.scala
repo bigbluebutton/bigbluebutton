@@ -28,11 +28,7 @@ trait GetScreenBroadcastPermissionReqMsgHdlr {
         // Viewers that are locked and disableMultiScreenshare is active are denied.
         val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
         val isLockedViewer = user.role == Roles.VIEWER_ROLE && user.locked
-        if (isLockedViewer && permissions.disableMultiScreenshare) {
-          val meetingId = liveMeeting.props.meetingProp.intId
-          val reason = "Screen sharing is disabled for locked viewers."
-          PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
-        } else {
+        if (!(isLockedViewer && permissions.disableMultiScreenshare)) {
           allowed = true
         }
       }
