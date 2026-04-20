@@ -1714,7 +1714,7 @@
     "mobileApp.portals.list.empty.orUseOurDemoServer.label": "oder unseren Demo-Server benutzen.",
     "mobileApp.portals.list.add.button.label": "Portal hinzufügen",
     "mobileApp.portals.fields.name.label": "Portalname",
-    "mobileApp.portals.fields.name.placeholder": "BigBlueButton Demo",
+    "mobileApp.portals.fields.name.placeholder": "BigBlueButton-Demo",
     "mobileApp.portals.fields.url.label": "Server-URL",
     "mobileApp.portals.addPortalPopup.confirm.button.label": "Speichern",
     "mobileApp.portals.drawerNavigation.button.label": "Portale",
