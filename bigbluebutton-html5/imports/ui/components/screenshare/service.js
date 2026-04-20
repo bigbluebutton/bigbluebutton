@@ -379,7 +379,9 @@ export const viewScreenshare = (streamId, hasAudio, options = {}) => {
 export const screenshareHasStarted = (streamId, hasAudio, isPresenter, options = {}) => {
   // The local broadcaster's preview is attached from gdmStream directly; observers (including
   // non-sharing presenters and moderators) must subscribe to receive the SFU stream.
-  if (!isSharing()) {
+  // When a specific mediaElementId is provided the caller is subscribing to a peer's stream
+  // while already sharing themselves — allow it even when isSharing() is true.
+  if (!isSharing() || options.mediaElementId) {
     viewScreenshare(streamId, hasAudio, {
       outputDeviceId: options.outputDeviceId,
       mediaElementId: options.mediaElementId,
