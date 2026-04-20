@@ -165,7 +165,7 @@
     "app.userList.usersTitle": "Teilnehmer ({userCount})",
     "app.userList.usersStaticTitle": "Teilnehmerliste",
     "app.userList.profileTitle": "Profil",
-    "app.userList.lockedUsersTitle": "Moderatoren ({userCount})",
+    "app.userList.lockedUsersTitle": "Moderation ({userCount})",
     "app.userList.participantsTitle": "Teilnehmer",
     "app.userList.learningDashboardLabel": "Lernanalyse-Dashboard",
     "app.userList.settingsTitle": "Einstellungen",
