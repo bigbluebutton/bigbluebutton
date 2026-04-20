@@ -585,12 +585,12 @@ export default class LiveKitScreenshareBridge {
 
   async view(
     streamId: string,
-    options: Options & { mediaElementId?: string } = { hasAudio: false, outputDeviceId: '' },
+    options?: Options & { mediaElementId?: string },
   ): Promise<void> {
     this.streamId = streamId;
     this.role = RECV_ROLE;
-    this.hasAudio = options.hasAudio || false;
-    this.streamElementIds.set(streamId, options.mediaElementId || SCREENSHARE_VIDEO_TAG);
+    this.hasAudio = options?.hasAudio || false;
+    this.streamElementIds.set(streamId, options?.mediaElementId || SCREENSHARE_VIDEO_TAG);
 
     const doSubscribe = () => {
       this.findInitialRemotePublications();
