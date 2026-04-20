@@ -19,15 +19,20 @@ trait ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgHdlr {
     val removedEntry = Screenshares.remove(liveMeeting.screenshares, stream)
     log.info("Removed screenshare entry from collection: {}", removedEntry.isDefined)
 
-    // Update the database record for this stream.
-    ScreenshareDAO.updateStopped(liveMeeting.props.meetingProp.intId, stream)
+    // Update the database record only for streams we were actually tracking.
+    val singletonMatches = ScreenshareModel.getRTMPBroadcastingUrl(liveMeeting.screenshareModel) == stream
+    if (removedEntry.isDefined || singletonMatches) {
+      ScreenshareDAO.updateStopped(liveMeeting.props.meetingProp.intId, stream)
+    }
 
     // If the stopped stream was the one tracked by the legacy singleton, clear it.
     // The singleton will reflect the next active stream if any, or remain cleared.
-    if (ScreenshareModel.getRTMPBroadcastingUrl(liveMeeting.screenshareModel) == stream) {
+    if (singletonMatches) {
       broadcastStopped(bus.outGW, liveMeeting)
-      // After clearing the singleton, restore it to the next active stream if one exists.
-      Screenshares.findAll(liveMeeting.screenshares).headOption.foreach { next =>
+      // After clearing the singleton, prefer the share that occupies the content area for continuity.
+      val remaining = Screenshares.findAll(liveMeeting.screenshares)
+      val nextOpt = remaining.find(_.showAsContent).orElse(remaining.headOption)
+      nextOpt.foreach { next =>
         ScreenshareModel.setRTMPBroadcastingUrl(liveMeeting.screenshareModel, next.stream)
         ScreenshareModel.broadcastingRTMPStarted(liveMeeting.screenshareModel)
         ScreenshareModel.setUserId(liveMeeting.screenshareModel, next.userId)

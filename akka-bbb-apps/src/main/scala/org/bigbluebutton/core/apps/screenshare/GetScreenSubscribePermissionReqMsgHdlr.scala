@@ -30,12 +30,18 @@ trait GetScreenSubscribePermissionReqMsgHdlr {
           val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
           val isLockedViewer = user.role == Roles.VIEWER_ROLE && user.locked
           if (isLockedViewer && permissions.hideViewersScreenshare) {
-            // Check whether the stream belongs to a viewer.
-            val broadcasterIsViewer = Screenshares.findByStream(liveMeeting.screenshares, streamId)
-              .exists { entry =>
-                Users2x.findWithIntId(liveMeeting.users2x, entry.userId)
-                  .exists(_.role == Roles.VIEWER_ROLE)
-              }
+            // Resolve the broadcaster's userId from the collection, falling back to the singleton.
+            val broadcasterUserId = Screenshares.findByStream(liveMeeting.screenshares, streamId)
+              .map(_.userId)
+              .orElse(
+                if (ScreenshareModel.getRTMPBroadcastingUrl(liveMeeting.screenshareModel) == streamId)
+                  Some(ScreenshareModel.getUserId(liveMeeting.screenshareModel))
+                else None
+              )
+            val broadcasterIsViewer = broadcasterUserId.exists { uid =>
+              Users2x.findWithIntId(liveMeeting.users2x, uid)
+                .exists(_.role == Roles.VIEWER_ROLE)
+            }
             if (!broadcasterIsViewer) allowed = true
             // Subscription to viewer streams is blocked; to moderator/presenter streams it is not.
           } else {
