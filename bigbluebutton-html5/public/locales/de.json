@@ -1518,7 +1518,7 @@
     "app.createBreakoutRoom.currentSlideLabel": "Aktuelle Folie",
     "app.createBreakoutRoom.inProgressLabel": "Gruppenräume sind aktiv",
     "app.createBreakoutRoom.notAssignedLabel": "Sie sind keinem Gruppenraum beigetreten",
-    "app.createBreakoutRoom.notAssignedHelp": "Ask the session moderator to add you to a Breakout Room.",
+    "app.createBreakoutRoom.notAssignedHelp": "Bitte die Moderation, dich zu einem Gruppenraum hinzuzufügen. ",
     "app.createBreakoutRoom.moreOptions": "Mehr Optionen",
     "app.createBreakoutRoom.infoBannerTitle": "Schon gewusst?",
     "app.createBreakoutRoom.infoBannerText": "Ziehe den Namen auf den gewünschten Gruppenraum, um die Person hinzuzufügen.",
