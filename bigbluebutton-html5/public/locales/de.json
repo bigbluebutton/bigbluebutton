@@ -1532,7 +1532,7 @@
     "app.createBreakoutRoom.youAreInRoom": "Du bist in {roomName}.",
     "app.createBreakoutRoom.callModerator": "Call Moderators",
     "app.createBreakoutRoom.callModeratorChatMsg": "{userName} from {roomName} is requesting moderator assistance.",
-    "app.createBreakoutRoom.callModeratorSent": "Moderators have been notified.",
+    "app.createBreakoutRoom.callModeratorSent": "Die Moderation wurde benachrichtigt.",
     "app.createBreakoutRoom.callModeratorCooldown": "Please wait before calling the moderators again.",
     "app.createBreakoutRoom.returnToMainSession": "Return to Main Session",
     "app.createBreakoutRoom.listenToRoom": "Listen to room",
