@@ -1524,7 +1524,7 @@
     "app.createBreakoutRoom.infoBannerText": "Ziehe den Namen auf den gewünschten Gruppenraum, um die Person hinzuzufügen.",
     "app.createBreakoutRoom.infoBannerGotIt": "Got it!",
     "app.createBreakoutRoom.start": "Start",
-    "app.createBreakoutRoom.megaphone": "Send message",
+    "app.createBreakoutRoom.megaphone": "Nachricht senden",
     "app.createBreakoutRoom.megaphoneTooltip": "Nachricht an alle Räume senden",
     "app.createBreakoutRoom.finish": "Finish",
     "app.createBreakoutRoom.durationOfBreakout": "Dauer der Gruppenräume",
