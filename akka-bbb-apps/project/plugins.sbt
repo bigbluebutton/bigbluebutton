@@ -4,7 +4,7 @@ addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "5.2.4")
 
 addSbtPlugin("org.scalariform" % "sbt-scalariform" % "1.8.2")
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.3.15")
+addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.10.7")
 
 addSbtPlugin("net.vonbuchholtz" % "sbt-dependency-check" % "0.2.9")
 
