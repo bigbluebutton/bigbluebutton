@@ -744,7 +744,7 @@
     "app.settings.unsavedChanges.ignoreMessage": "Ungespeicherte Änderungen gehen verloren",
     "app.settings.unsavedChanges.ignoreButtonLabel": "Änderungen verwerfen",
     "app.statusNotifier.lowerHands": "Hände senken",
-    "app.statusNotifier.lowerHandDescOneUser": "Hand von {userName} senken",
+    "app.statusNotifier.lowerHandDescOneUser": "Hand senken",
     "app.statusNotifier.raisedHandsTitle": "Gehobene Hände",
     "app.statusNotifier.raisedHandsTitleNotifier": "Erhobene Hände",
     "app.statusNotifier.raisedHandDesc": "{userNames} hob die Hand",
