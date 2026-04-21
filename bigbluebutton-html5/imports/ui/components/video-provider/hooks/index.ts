@@ -548,7 +548,7 @@ export const useVideoStreams = () => {
         );
 
         if (uniqueAudioOnly.length > 0) {
-          const availableSlots = myPageSize - pinnedAndLocalCount;
+          const availableSlots = Math.max(0, myPageSize - pinnedAndLocalCount);
           const maxAudioOnlySlots = Math.min(availableSlots, maxAudioOnlyUsers);
           audioOnlySlotsUsedOnPage1 = Math.min(uniqueAudioOnly.length, maxAudioOnlySlots);
         }
