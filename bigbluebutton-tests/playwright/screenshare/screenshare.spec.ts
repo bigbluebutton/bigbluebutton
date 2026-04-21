@@ -145,6 +145,22 @@ test.describe.parallel('Screenshare', { tag: '@ci' }, () => {
     await screenshare.soloPublisherDockPreview();
   });
 
+  // Phase C: presenter A and publisher B both share. A toggles B to content, then A back to content.
+  // Verifies per-stream showAsContent toggle works and mutual exclusion is enforced.
+  test('[C1][R2-inverse] Presenter toggles showAsContent between two active screenshares', async ({
+    browser,
+    context,
+    browserName,
+    page,
+  }, testInfo) => {
+    test.skip(browserName === 'firefox', 'Screenshare tests not supported in Firefox without desktop');
+    const screenshare = new ScreenShare(browser, context);
+    await screenshare.initModPage(page, { testInfo });
+    await screenshare.initUserPage(context, { testInfo });
+    await screenshare.initModPage2(context, { testInfo });
+    await screenshare.inverseR2ToggleShowAsContent();
+  });
+
   // Phase B-2: two publishers simultaneously; each sees peer in main area and own share in dock.
   // Observer sees both streams decoded; no dock tile for observer.
   test('[B2] Sibling publishers: own share in dock, peer share in main area', async ({

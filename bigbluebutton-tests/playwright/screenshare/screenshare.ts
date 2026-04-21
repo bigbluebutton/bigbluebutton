@@ -475,6 +475,78 @@ export class ScreenShare extends MultiUsers {
     }
   }
 
+  // [R2][Inverse] Phase C: presenter A and publisher B both share.
+  // A uses the per-tile dropdown to promote B to content, then promotes A back to content.
+  // Actors: publisher_presenter_a (modPage), publisher_b (modPage2), observer (userPage)
+  async inverseR2ToggleShowAsContent() {
+    const { screensharingEnabled } = this.modPage.settings || {};
+    if (!screensharingEnabled) return;
+
+    // A (presenter) starts first — server marks A as showAsContent=true automatically
+    // (only share in meeting, falls back to content).
+    await startScreensharePhaseB(this.modPage);
+    await this.modPage.hasElement(e.stopScreenSharing, 'publisher_a should be sharing');
+
+    // B starts — becomes thumbnail (showAsContent=false, A already holds content).
+    await startScreensharePhaseB(this.modPage2);
+    await this.modPage2.hasElement(e.stopScreenSharing, 'publisher_b should be sharing concurrently');
+
+    // Observer sees both streams decoding simultaneously.
+    await this.userPage.page.waitForFunction(
+      () => document.querySelectorAll('video[id^="screenshareVideo"]').length >= 2,
+      null,
+      { timeout: 30000 },
+    );
+    await dwellOnBehavior(this.userPage.page, 'C-inverse-R2: both shares active, observer confirms 2 streams', 3000);
+    await expectMultipleDecodedVideos(this.userPage.page, 'video[id^="screenshareVideo"]', 2, 5, 2500);
+
+    // ---- Toggle 1: A promotes B to content ----
+    // A's viewport: B's share tile is in the screenshare component (not in dock).
+    // A's own share tile is in the camera dock (selfScreenshareDockItem).
+    // Click the screenshareActionsBtn that is NOT inside selfScreenshareDockItem (= B's tile).
+    await this.modPage.page.evaluate((selectors) => {
+      const dock = document.querySelector(selectors.dockItem);
+      const allBtns = Array.from(document.querySelectorAll<HTMLElement>(selectors.actionBtn));
+      const bBtn = allBtns.find((btn) => !dock?.contains(btn));
+      if (!bBtn) throw new Error('inverseR2: could not find B screenshare action button outside dock');
+      bBtn.click();
+    }, { dockItem: e.selfScreenshareDockItem, actionBtn: e.screenshareActionsBtn });
+    await this.modPage.page.waitForSelector(e.screenshareShowAsContentBtn, { state: 'visible', timeout: 5000 });
+    await this.modPage.page.click(e.screenshareShowAsContentBtn);
+
+    await dwellOnBehavior(
+      this.userPage.page,
+      'C-inverse-R2: B promoted to content, observer sees B in main area',
+      3000,
+    );
+
+    // Observer: main area video must still decode (now B's stream).
+    await expectDecodedFrames(this.userPage.page, 'video[id="screenshareVideo"]', 5, 2500);
+
+    // ---- Toggle 2: A promotes A back to content ----
+    // A's dock tile now has "Show as main content" action (A is currently thumbnail).
+    await this.modPage.page.waitForSelector(
+      `${e.selfScreenshareDockItem} ${e.screenshareActionsBtn}`,
+      { state: 'visible', timeout: 10000 },
+    );
+    await this.modPage.page.click(`${e.selfScreenshareDockItem} ${e.screenshareActionsBtn}`);
+    await this.modPage.page.waitForSelector(e.screenshareShowAsContentBtn, { state: 'visible', timeout: 5000 });
+    await this.modPage.page.click(e.screenshareShowAsContentBtn);
+
+    await dwellOnBehavior(
+      this.userPage.page,
+      'C-inverse-R2: A promoted back to content, observer sees A in main area',
+      3000,
+    );
+
+    // Observer: main area video must still decode (back to A's stream).
+    await expectDecodedFrames(this.userPage.page, 'video[id="screenshareVideo"]', 5, 2500);
+
+    // Both publishers must still be sharing (stop buttons visible).
+    await this.modPage.hasElement(e.stopScreenSharing, 'publisher_a must still be sharing after toggle');
+    await this.modPage2.hasElement(e.stopScreenSharing, 'publisher_b must still be sharing after toggle');
+  }
+
   // R14 / T14 regression: existing lock settings must still apply their effects after multi-screenshare changes.
   // Actors: moderator_controller (modPage), viewer_target (userPage)
   async lockViewersRegressionEffects() {

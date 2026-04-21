@@ -514,6 +514,10 @@ export const elements = {
   hideViewersCursor: 'input[data-test="hideViewersCursor"]',
   lockScreenshare: 'input[data-test="lockScreenshare"]',
   hideViewersScreenshare: 'input[data-test="hideViewersScreenshare"]',
+  screenshareActionsBtn: 'button[data-test="screenshareActionsBtn"]',
+  screenshareShowAsContentBtn: 'li[data-test="screenshareShowAsContentBtn"]',
+  screenshareMoveToThumbnailBtn: 'li[data-test="screenshareMoveToThumbnailBtn"]',
+  selfScreenshareDockItem: '[data-test="selfScreenshareDockItem"]',
   whiteboardCursorIndicator: 'svg use[href="#cursor"]',
 
   // Locales
