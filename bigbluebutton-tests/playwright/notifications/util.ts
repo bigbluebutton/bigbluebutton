@@ -13,6 +13,11 @@ export async function enableUserJoinPopup(testPage: Page) {
   await testPage.waitAndClickElement(e.userJoinPushAlerts);
 }
 
+export async function enableUserLeavePopup(testPage: Page) {
+  await testPage.waitAndClick(e.notificationsTab);
+  await testPage.waitAndClickElement(e.userLeavePushAlerts);
+}
+
 export async function saveSettings(testPage: Page) {
   await testPage.waitAndClick(e.modalConfirmButton);
 }
