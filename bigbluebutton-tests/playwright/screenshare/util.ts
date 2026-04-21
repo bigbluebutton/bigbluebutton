@@ -62,6 +62,17 @@ export async function startScreenshare(testPage: Page) {
   await testPage.hasElement(e.stopScreenSharing, 'should display the stop screen sharing button when start sharing');
 }
 
+// Phase B variant: own share moves to camera dock, so video[id="screenshareVideo"] may not
+// appear in the main area for the publisher.  Confirm startup via the stop button instead.
+export async function startScreensharePhaseB(testPage: Page) {
+  await testPage.waitAndClick(e.startScreenSharing);
+  await testPage.hasElement(
+    e.stopScreenSharing,
+    'should display the stop screen sharing button when start sharing (Phase B)',
+    ELEMENT_WAIT_EXTRA_LONG_TIME,
+  );
+}
+
 // Prove that multiple video surfaces are each decoding live frames simultaneously.
 // Fails immediately if fewer than `count` matching elements exist.
 // For each element, asserts at least `minGrowth` new decoded frames within `sampleMs`.

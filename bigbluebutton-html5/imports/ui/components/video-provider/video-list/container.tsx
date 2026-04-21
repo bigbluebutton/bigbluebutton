@@ -15,6 +15,10 @@ import { HookEvents } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { DomElementManipulationHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/enums';
 import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import { UserCameraHelperAreas } from '../../plugins-engine/extensible-areas/components/user-camera-helper/types';
+// useIsSharing: true only when the current user is actively broadcasting a screenshare.
+// useIsScreenBroadcasting returns true for all users whenever anyone in the meeting shares.
+import { useIsSharing } from '/imports/ui/components/screenshare/service';
+import SelfScreenshareDockTile from '/imports/ui/components/screenshare/self-screenshare-dock-tile';
 
 interface VideoListContainerProps {
   streams: VideoItem[];
@@ -45,6 +49,8 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
     onVirtualBgDrop,
   } = props;
   const numberOfPages = useNumberOfPages();
+  const isSelfSharing = useIsSharing();
+  const selfScreenshareTile = isSelfSharing ? <SelfScreenshareDockTile /> : undefined;
 
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
 
@@ -98,28 +104,27 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
     });
   }
 
+  if (!streams.length && !selfScreenshareTile) return null;
+
   return (
-    !streams.length
-      ? null
-      : (
-        <VideoList
-          pluginUserCameraHelperPerPosition={pluginUserCameraHelperPerPosition}
-          layoutType={layoutType}
-          setUserCamerasRequestedFromPlugin={setUserCamerasRequestedFromPlugin}
-          layoutContextDispatch={layoutContextDispatch}
-          numberOfPages={numberOfPages}
-          currentVideoPageIndex={currentVideoPageIndex}
-          cameraDock={cameraDock}
-          focusedId={focusedId}
-          handleVideoFocus={handleVideoFocus}
-          isGridEnabled={isGridEnabled}
-          overflowCount={overflowCount}
-          streams={streams}
-          onVideoItemMount={onVideoItemMount}
-          onVideoItemUnmount={onVideoItemUnmount}
-          onVirtualBgDrop={onVirtualBgDrop}
-        />
-      )
+    <VideoList
+      pluginUserCameraHelperPerPosition={pluginUserCameraHelperPerPosition}
+      layoutType={layoutType}
+      setUserCamerasRequestedFromPlugin={setUserCamerasRequestedFromPlugin}
+      layoutContextDispatch={layoutContextDispatch}
+      numberOfPages={numberOfPages}
+      currentVideoPageIndex={currentVideoPageIndex}
+      cameraDock={cameraDock}
+      focusedId={focusedId}
+      handleVideoFocus={handleVideoFocus}
+      isGridEnabled={isGridEnabled}
+      overflowCount={overflowCount}
+      streams={streams}
+      onVideoItemMount={onVideoItemMount}
+      onVideoItemUnmount={onVideoItemUnmount}
+      onVirtualBgDrop={onVirtualBgDrop}
+      selfScreenshareTile={selfScreenshareTile}
+    />
   );
 };
 

@@ -10,6 +10,7 @@ import {
   expectVisiblyRendered,
   stabilityWindow,
   startScreenshare,
+  startScreensharePhaseB,
 } from './util';
 
 export class ScreenShare extends MultiUsers {
@@ -332,6 +333,146 @@ export class ScreenShare extends MultiUsers {
       2000,
     );
     await expectDecodedFrames(this.modPage2.page, 'video[id^="screenshareVideo"]', 5, 2000);
+  }
+
+  // Phase B-1: solo publisher sees own share only in camera dock (not in main area).
+  // Actors: publisher_solo (modPage)
+  //
+  // Expected: publisher's main area shows presenterSharingLabel (no peer content share),
+  // camera dock shows the self-screenshare thumbnail tile, and the dock video is decoding.
+  async soloPublisherDockPreview() {
+    const { screensharingEnabled } = this.modPage.settings || {};
+    if (!screensharingEnabled) return;
+
+    await startScreensharePhaseB(this.modPage);
+    await dwellOnBehavior(
+      this.modPage.page,
+      'Phase B-1: solo publisher - own share in dock, label in main area',
+      4000,
+    );
+
+    // Main area must show the "you are sharing" label, not a raw video element.
+    await this.modPage.hasElement(e.isSharingScreen, 'main area must show sharing label for solo publisher');
+
+    // Exact-ID check: no video[id="screenshareVideo"] in the main screenshare area
+    // (own share moved to dock, no peer primary share).
+    const mainAreaPrimaryCount = await this.modPage.page.locator('video[id="screenshareVideo"]').count();
+    if (mainAreaPrimaryCount !== 0) {
+      throw new Error(
+        `Phase B-1: expected 0 main-area primary video elements, found ${mainAreaPrimaryCount}`,
+      );
+    }
+
+    // Camera dock must contain the self-screenshare preview tile.
+    await this.modPage.page.waitForSelector('[data-test="selfScreenshareDockItem"]', {
+      state: 'attached',
+      timeout: 20000,
+    });
+
+    // Dock video must be actively decoding frames (proves stream is live, not a static placeholder).
+    await expectDecodedFrames(
+      this.modPage.page,
+      'video[id="screenshareVideo-self-dock"]',
+      5,
+      2500,
+    );
+  }
+
+  // Phase B-2: sibling publishers each see peer share in main area and own share in dock.
+  // Actors: publisher_presenter (modPage), publisher_viewer (userPage), observer (modPage2)
+  //
+  // From publisher_viewer (userPage): presenter's primary share visible in main area +
+  //   own share as dock tile decoding frames.
+  // From publisher_presenter (modPage): peer secondary share present somewhere +
+  //   own share as dock tile decoding frames; no primary video in main area
+  //   (peer share is asContent=false).
+  // From observer (modPage2): 2 decoded video elements matching video[id^="screenshareVideo"],
+  //   no selfScreenshareDockItem (observer is not sharing).
+  async siblingPublishersDockSelfPreview() {
+    const { screensharingEnabled } = this.modPage.settings || {};
+    if (!screensharingEnabled) return;
+
+    // publisher_presenter starts screenshare first (no peer shares yet - uses PhaseB start).
+    await startScreensharePhaseB(this.modPage);
+
+    // publisher_viewer starts screenshare concurrently.
+    // Presenter's primary share should be visible as video[id="screenshareVideo"] before
+    // userPage starts, so the standard startScreenshare check is valid here.
+    await startScreensharePhaseB(this.userPage);
+
+    await dwellOnBehavior(
+      this.modPage2.page,
+      'Phase B-2: both publishers sharing - checking dock tiles and main area',
+      4000,
+    );
+
+    // --- publisher_viewer (userPage) perspective ---
+    // Presenter's primary share (asContent=true) must be in main area.
+    await this.userPage.page.waitForSelector('video[id="screenshareVideo"]', {
+      state: 'attached',
+      timeout: 30000,
+    });
+    await expectDecodedFrames(
+      this.userPage.page,
+      'video[id="screenshareVideo"]',
+      5,
+      2500,
+    );
+    // Own share (publisher_viewer) must be in dock, not main area.
+    await this.userPage.page.waitForSelector('[data-test="selfScreenshareDockItem"]', {
+      state: 'attached',
+      timeout: 20000,
+    });
+    await expectDecodedFrames(
+      this.userPage.page,
+      'video[id="screenshareVideo-self-dock"]',
+      5,
+      2500,
+    );
+
+    // --- publisher_presenter (modPage) perspective ---
+    // Own primary share must NOT be in main area.
+    const presenterMainPrimary = await this.modPage.page.locator('video[id="screenshareVideo"]').count();
+    if (presenterMainPrimary !== 0) {
+      throw new Error(
+        `Phase B-2: publisher_presenter main area should have 0 primary videos, found ${presenterMainPrimary}`,
+      );
+    }
+    // Own share must be in dock.
+    await this.modPage.page.waitForSelector('[data-test="selfScreenshareDockItem"]', {
+      state: 'attached',
+      timeout: 20000,
+    });
+    await expectDecodedFrames(
+      this.modPage.page,
+      'video[id="screenshareVideo-self-dock"]',
+      5,
+      2500,
+    );
+
+    // --- observer (modPage2) perspective ---
+    // Both shares must be visible as decoded video elements (using prefix selector).
+    await this.modPage2.page.waitForFunction(
+      () => document.querySelectorAll('video[id^="screenshareVideo"]').length >= 2,
+      null,
+      { timeout: 30000 },
+    );
+    await stabilityWindow(this.modPage2.page, 3000, 500, async () => {
+      await expectMultipleDecodedVideos(
+        this.modPage2.page,
+        'video[id^="screenshareVideo"]',
+        2,
+        5,
+        2500,
+      );
+    });
+    // Observer is not sharing, so no dock tile for the observer.
+    const observerDockTile = await this.modPage2.page.locator('[data-test="selfScreenshareDockItem"]').count();
+    if (observerDockTile !== 0) {
+      throw new Error(
+        `Phase B-2: observer should not see selfScreenshareDockItem, found ${observerDockTile}`,
+      );
+    }
   }
 
   // R14 / T14 regression: existing lock settings must still apply their effects after multi-screenshare changes.

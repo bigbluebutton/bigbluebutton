@@ -25,6 +25,7 @@ import { VideoItem } from '/imports/ui/components/video-provider/types';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import useSettings from '../../services/settings/hooks/useSettings';
+import { useIsSharing } from '/imports/ui/components/screenshare/service';
 import { SETTINGS } from '../../services/settings/enums';
 import { INITIAL_INPUT_STATE } from '../layout/initState';
 import { contentSidebarMarginToMedia } from '../../stylesheets/styled-components/general';
@@ -368,8 +369,9 @@ const WebcamContainer: React.FC = () => {
   }
 
   const audioModalIsOpen = useStorageKey('audioModalIsOpen');
+  const isSelfSharing = useIsSharing();
 
-  return cameraDock?.display && !audioModalIsOpen && (usersVideo.length > 0 || isGridEnabled)
+  return cameraDock?.display && !audioModalIsOpen && (usersVideo.length > 0 || isGridEnabled || isSelfSharing)
     ? (
       <WebcamComponent
         {...{

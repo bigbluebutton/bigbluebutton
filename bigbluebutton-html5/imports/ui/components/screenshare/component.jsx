@@ -620,23 +620,23 @@ class ScreenshareComponent extends React.Component {
   renderScreensharePresenter() {
     const { switched } = this.state;
     const { isGloballyBroadcasting, intl, screenshares } = this.props;
-    const primaryShare = screenshares?.find((s) => s.showAsContent);
-    // Secondary shares (from viewers) rendered alongside the presenter's own preview.
-    const secondaryShares = (screenshares || []).filter((s) => !s.showAsContent);
+    // Own share goes to the camera dock as a self-preview tile; exclude from main area.
+    const peerShares = (screenshares || []).filter((s) => s.userId !== Auth.userID);
+    const primaryShare = peerShares.find((s) => s.showAsContent) || null;
+    const secondaryShares = peerShares.filter((s) => !s.showAsContent);
 
     return (
       <>
-        {this.renderVideo(switched, primaryShare || null, true)}
+        {primaryShare && this.renderVideo(switched, primaryShare, true)}
         {secondaryShares.map((share) => this.renderVideo(true, share, false))}
 
         {
           isGloballyBroadcasting
             ? (
               <div data-test="isSharingScreen">
-                {!switched
-                  && ScreenshareComponent.renderScreenshareContainerInside(
-                    intl.formatMessage(this.locales.presenterSharingLabel),
-                  )}
+                {ScreenshareComponent.renderScreenshareContainerInside(
+                  intl.formatMessage(this.locales.presenterSharingLabel),
+                )}
               </div>
             )
             : ScreenshareComponent.renderScreenshareContainerInside(
@@ -652,9 +652,30 @@ class ScreenshareComponent extends React.Component {
     const { loaded } = this.state;
     const shares = screenshares && screenshares.length > 0 ? screenshares : [];
 
+    // When self-broadcasting, own share goes to camera dock; exclude from main area.
+    const sharesForMainArea = isSharing()
+      ? shares.filter((s) => s.userId !== Auth.userID)
+      : shares;
+
+    const hasPeerContentShares = sharesForMainArea.some((s) => s.showAsContent);
+
+    // Solo broadcaster with no peer asContent shares: show label, own share is in dock.
+    if (isSharing() && !hasPeerContentShares) {
+      return (
+        <>
+          <div data-test="isSharingScreen">
+            {ScreenshareComponent.renderScreenshareContainerInside(
+              intl.formatMessage(this.locales.presenterSharingLabel),
+            )}
+          </div>
+          {loaded && enableVolumeControl && this.renderVolumeSlider()}
+        </>
+      );
+    }
+
     // Always use MultiScreenshareGrid so video elements keep their DOM identity
     // when a second share is added (avoids unmount/remount of the primary video).
-    const sortedShares = [...shares].sort((a, b) => {
+    const sortedShares = [...sharesForMainArea].sort((a, b) => {
       if (a.showAsContent && !b.showAsContent) return -1;
       if (!a.showAsContent && b.showAsContent) return 1;
       return 0;
