@@ -83,6 +83,8 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
     if (!isEtherpadSharedNotes) {
       const urlParams = new URLSearchParams(window.location.search);
       const sessionToken = urlParams.get('sessionToken');
+      const hocuspocusServer = window.meetingClientSettings.public.sharedNotes.serverHostname
+        || window.location.hostname;
 
       menuItems.push(
         {
@@ -91,7 +93,7 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
           dataTest: 'exportNotesAsPDF',
           label: intl.formatMessage(intlMessages.exportAsPDFLabel),
           onClick: () => {
-            window.open(`/hocuspocus/api/documents/${padId}/export/pdf?sessionToken=${sessionToken}`);
+            window.open(`https://${hocuspocusServer}/hocuspocus/api/documents/${padId}/export/pdf?sessionToken=${sessionToken}`);
           },
         },
       );

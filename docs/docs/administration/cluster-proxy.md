@@ -128,7 +128,7 @@ public:
   presentation:
     uploadEndpoint: 'https://bbb-01.example.com/bigbluebutton/presentation/upload'
   sharedNotes:
-    serverUrl: wss://bbb-01.example.com/hocuspocus/collaboration
+    serverHostname: bbb-01.example.com
   # for BBB 2.4:
   note:
     url: 'https://bbb-01.example.com/pad'
