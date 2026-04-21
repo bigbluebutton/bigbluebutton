@@ -103,11 +103,11 @@ const AppContainer: React.FC<AppContainerProps> = ({ pluginConfig }) => {
   const {
     hasExternalVideo = false,
     hasCameraAsContent = false,
-    hasScreenshare = false,
+    hasScreenshareAsContent = false,
   } = currentMeeting?.componentsFlags || {};
   const shouldShowExternalVideo = isExternalVideoEnabled && hasExternalVideo;
   const shouldShowScreenshare = (viewScreenshare || presenter)
-    && (hasScreenshare || hasCameraAsContent) && showScreenshare;
+    && (hasScreenshareAsContent || hasCameraAsContent) && showScreenshare;
   const shouldShowPresentation = !shouldShowScreenshare && !isSharedNotesPinned
     && !shouldShowExternalVideo && (presentationIsOpen || presentationRestoreOnUpdate)
     && isPresentationEnabled;

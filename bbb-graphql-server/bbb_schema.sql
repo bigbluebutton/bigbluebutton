@@ -2479,9 +2479,9 @@ select "meeting"."meetingId",
         exists (
             select 1
             from "v_screenshare"
-            join "v_layout" on "v_layout"."meetingId" = "v_screenshare"."meetingId" and "v_layout"."screenshareAsContent" is true
             where "v_screenshare"."meetingId" = "meeting"."meetingId"
             and "contentType" = 'screenshare'
+            and "showAsContent" is true
         ) as "hasScreenshareAsContent",
         exists (
             select 1
