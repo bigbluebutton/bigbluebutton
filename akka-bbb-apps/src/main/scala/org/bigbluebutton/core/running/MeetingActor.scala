@@ -735,8 +735,8 @@ class MeetingActor(
       case m: SetScreenshareShowAsContentReqMsg =>
         screenshareApp2x.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
-      case m: GetScreenBroadcastPermissionReqMsg             => handleGetScreenBroadcastPermissionReqMsg(m)
-      case m: GetScreenSubscribePermissionReqMsg             => handleGetScreenSubscribePermissionReqMsg(m)
+      case m: GetScreenBroadcastPermissionReqMsg => handleGetScreenBroadcastPermissionReqMsg(m)
+      case m: GetScreenSubscribePermissionReqMsg => handleGetScreenSubscribePermissionReqMsg(m)
 
       // AudioCaptions
       case m: UpdateTranscriptPubMsg =>

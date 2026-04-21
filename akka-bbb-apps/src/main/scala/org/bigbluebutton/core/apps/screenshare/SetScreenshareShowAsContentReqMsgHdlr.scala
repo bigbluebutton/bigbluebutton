@@ -22,7 +22,7 @@ trait SetScreenshareShowAsContentReqMsgHdlr {
       bus.outGW.send(BbbCommonEnvCoreMsg(envelope, event))
     }
 
-    val notPresenter = PermissionCheck.permissionFailed(
+    val notPresenter = !PermissionCheck.isAllowed(
       PermissionCheck.GUEST_LEVEL,
       PermissionCheck.PRESENTER_LEVEL,
       liveMeeting.users2x,
