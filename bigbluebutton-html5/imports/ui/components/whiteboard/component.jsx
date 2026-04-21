@@ -2343,6 +2343,16 @@ const Whiteboard = React.memo((props) => {
         tools={customTools}
         overrides={customUiOverrides}
       />
+      {!isPresenter && !hasWBAccess && (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 300,
+            touchAction: 'none',
+          }}
+        />
+      )}
       <Styled.TldrawV2GlobalStyle
         {...{
           hasWBAccess,
