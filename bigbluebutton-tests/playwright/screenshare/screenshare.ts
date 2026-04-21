@@ -325,6 +325,7 @@ export class ScreenShare extends MultiUsers {
       await expectMultipleDecodedVideos(this.userPage.page, 'video[id^="screenshareVideo"]', 2, 10, 2500);
     });
 
+
     // Step 5: broadcaster_moderator stops their share; broadcaster_viewer's share must survive.
     await this.modPage.waitAndClick(e.stopScreenSharing);
     await dwellOnBehavior(

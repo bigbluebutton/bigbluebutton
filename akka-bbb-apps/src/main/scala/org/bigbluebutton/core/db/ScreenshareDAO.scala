@@ -63,7 +63,7 @@ object ScreenshareDAO {
     )
   }
 
-  def insert(meetingId: String, userId: String, stream: String, screenshareModel: ScreenshareModel, showAsContent: Boolean) = {
+  def insert(meetingId: String, userId: String, screenshareModel: ScreenshareModel, showAsContent: Boolean) = {
     DatabaseConnection.enqueue(
       TableQuery[ScreenshareDbTableDef].forceInsert(
         ScreenshareDbModel(
@@ -72,7 +72,7 @@ object ScreenshareDAO {
           voiceConf = getVoiceConf(screenshareModel),
           screenshareConf = getScreenshareConf(screenshareModel),
           contentType = getContentType(screenshareModel),
-          stream = stream,
+          stream = getRTMPBroadcastingUrl(screenshareModel),
           vidWidth = getScreenshareVideoWidth(screenshareModel),
           vidHeight = getScreenshareVideoHeight(screenshareModel),
           hasAudio = getHasAudio(screenshareModel),
