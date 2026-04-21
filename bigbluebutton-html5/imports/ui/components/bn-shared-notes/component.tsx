@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { BlockNoteView } from '@blocknote/mantine';
 import * as BlockNoteLocales from '@blocknote/core/locales';
-import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
+import { Block, BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
 import '@blocknote/core/fonts/inter.css';
 import '@blocknote/mantine/style.css';
 import { HocuspocusProvider } from '@hocuspocus/provider';
@@ -190,11 +190,22 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   const [isDocumentEmpty, setIsDocumentEmpty] = React.useState(true);
 
   React.useEffect(() => {
+    const hasBlockContent = (blocks: Block[]): boolean => {
+      const queue = [...blocks];
+      // Running BFS on block array.
+      for (let i = 0; i < queue.length; i += 1) {
+        const block = queue[i];
+        const hasContent = Array.isArray(block.content)
+          ? block.content.length > 0
+          : block.content !== undefined;
+        if (hasContent) return true;
+        queue.push(...block.children);
+      }
+      return false;
+    };
+
     const checkEmpty = () => {
-      const doc = editor.document;
-      const firstContent = doc[0]?.content;
-      const empty = doc.length === 1 && Array.isArray(firstContent) && firstContent.length === 0;
-      setIsDocumentEmpty(empty);
+      setIsDocumentEmpty(!hasBlockContent(editor.document));
     };
     const unsubscribe = editor.onChange(checkEmpty);
     checkEmpty();
