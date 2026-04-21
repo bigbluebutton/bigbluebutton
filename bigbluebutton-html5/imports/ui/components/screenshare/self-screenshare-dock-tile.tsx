@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useIntl } from 'react-intl';
 import { attachLocalPreviewStream } from '/imports/ui/components/screenshare/service';
+import ScreenshareActions from './screenshare-actions/component';
 
 // Video element ID for the self-screenshare preview in the camera dock.
 // Uses the same prefix as SCREENSHARE_MEDIA_ELEMENT_NAME so the service's
@@ -8,7 +9,17 @@ import { attachLocalPreviewStream } from '/imports/ui/components/screenshare/ser
 // no peer primary share occupies the main area element.
 export const SELF_DOCK_VIDEO_ID = 'screenshareVideo-self-dock';
 
-const SelfScreenshareDockTile: React.FC = () => {
+interface SelfScreenshareDockTileProps {
+  streamId?: string;
+  showAsContent?: boolean;
+  isPresenter?: boolean;
+}
+
+const SelfScreenshareDockTile: React.FC<SelfScreenshareDockTileProps> = ({
+  streamId,
+  showAsContent = false,
+  isPresenter = false,
+}) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const intl = useIntl();
 
@@ -34,7 +45,7 @@ const SelfScreenshareDockTile: React.FC = () => {
         alignItems: 'center',
         justifyContent: 'center',
       }}
-      data-test="selfScreenshareDockTile"
+      data-test="selfScreenshareDockItem"
     >
       <video
         id={SELF_DOCK_VIDEO_ID}
@@ -61,6 +72,9 @@ const SelfScreenshareDockTile: React.FC = () => {
       >
         {label}
       </span>
+      {isPresenter && streamId && (
+        <ScreenshareActions streamId={streamId} showAsContent={showAsContent} />
+      )}
     </div>
   );
 };

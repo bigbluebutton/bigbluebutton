@@ -26,6 +26,7 @@ import {
   getVolume,
   setStreamEnabled,
 } from '/imports/ui/components/screenshare/service';
+import ScreenshareActions from './screenshare-actions/component';
 import { ACTIONS, PRESENTATION_AREA } from '/imports/ui/components/layout/enums';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Auth from '/imports/ui/services/auth';
@@ -561,19 +562,21 @@ class ScreenshareComponent extends React.Component {
     ];
   }
 
-  renderVideo(switched, share, isPrimary) {
+  renderVideo(switched, share, isPrimary, inContainer = false) {
     const { isGloballyBroadcasting } = this.props;
     const { videoTagRef } = this.state;
     const elementId = share ? this.getElementIdForShare(share) : SCREENSHARE_MEDIA_ELEMENT_NAME;
+    const fullSize = inContainer || switched;
+    const sizeStyle = fullSize
+      ? { maxHeight: '100%', width: '100%', height: '100%' }
+      : { maxHeight: '25%', width: '25%', height: '25%' };
 
     return (
       <Styled.ScreenshareVideo
         id={elementId}
         key={elementId}
         unhealthyStream={isPrimary && !isGloballyBroadcasting}
-        style={switched
-          ? { maxHeight: '100%', width: '100%', height: '100%' }
-          : { maxHeight: '25%', width: '25%', height: '25%' }}
+        style={sizeStyle}
         playsInline
         onLoadedData={isPrimary ? this.onLoadedData : undefined}
         onLoadedMetadata={isPrimary ? this.onLoadedMetadata : undefined}
@@ -585,6 +588,26 @@ class ScreenshareComponent extends React.Component {
         } : undefined}
         muted
       />
+    );
+  }
+
+  renderVideoWithActions(switched, share, isPrimary) {
+    const { isPresenter } = this.props;
+    if (!isPresenter || !share) return this.renderVideo(switched, share, isPrimary);
+
+    const containerStyle = switched
+      ? {
+        position: 'relative', width: '100%', height: '100%',
+      }
+      : {
+        position: 'relative', maxHeight: '25%', width: '25%', height: '25%',
+      };
+
+    return (
+      <div key={`wa-${this.getElementIdForShare(share)}`} style={containerStyle}>
+        {this.renderVideo(switched, share, isPrimary, true)}
+        <ScreenshareActions streamId={share.stream} showAsContent={share.showAsContent} />
+      </div>
     );
   }
 
@@ -627,8 +650,8 @@ class ScreenshareComponent extends React.Component {
 
     return (
       <>
-        {primaryShare && this.renderVideo(switched, primaryShare, true)}
-        {secondaryShares.map((share) => this.renderVideo(true, share, false))}
+        {primaryShare && this.renderVideoWithActions(switched, primaryShare, true)}
+        {secondaryShares.map((share) => this.renderVideoWithActions(true, share, false))}
 
         {
           isGloballyBroadcasting
