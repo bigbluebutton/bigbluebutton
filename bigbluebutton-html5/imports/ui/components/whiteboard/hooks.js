@@ -261,7 +261,7 @@ const useMouseEvents = ({
   });
 
   const handlePointerDown = (event) => {
-    if (!event.isPrimary && !isPresenterRef.current) {
+    if (!event.isPrimary && event.pointerType === 'touch' && !isPresenterRef.current) {
       event.stopPropagation();
       tlEditorRef.current?.cancel();
     }
@@ -394,10 +394,10 @@ const useMouseEvents = ({
         presentationWrapper.removeEventListener('mouseup', handleMouseUp);
         presentationWrapper.removeEventListener('mouseenter', handleMouseEnter);
         presentationWrapper.removeEventListener('mouseleave', handleMouseLeave);
-        presentationWrapper.removeEventListener('wheel', handleMouseWheel);
-        presentationWrapper.removeEventListener('pointerdown', handlePointerDown);
-        presentationWrapper.removeEventListener('touchstart', handleTouchStart);
-        presentationWrapper.removeEventListener('touchend', handleTouchEnd);
+        presentationWrapper.removeEventListener('wheel', handleMouseWheel, { capture: true });
+        presentationWrapper.removeEventListener('pointerdown', handlePointerDown, { capture: true });
+        presentationWrapper.removeEventListener('touchstart', handleTouchStart, { capture: true });
+        presentationWrapper.removeEventListener('touchend', handleTouchEnd, { capture: true });
         presentationWrapper.removeEventListener('touchmove', handleTouchMove);
       }
       window.removeEventListener('mousedown', handleMouseDownWindow);

@@ -2345,6 +2345,7 @@ const Whiteboard = React.memo((props) => {
       />
       {!isPresenter && !hasWBAccess && (
         <div
+          aria-hidden="true"
           style={{
             position: 'absolute',
             inset: 0,
