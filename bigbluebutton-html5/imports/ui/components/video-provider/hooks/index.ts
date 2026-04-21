@@ -540,6 +540,7 @@ export const useVideoStreams = () => {
       );
 
       // This is needed to adjust pagination for displaced video streams
+      const pinnedAndLocalCount = pin.length + mine.length;
       let audioOnlySlotsUsedOnPage1 = 0;
       if (showAudioOnlyOnFirstPage && audioOnlyUsers.length > 0) {
         const uniqueAudioOnly = audioOnlyUsers.filter(
@@ -547,16 +548,23 @@ export const useVideoStreams = () => {
         );
 
         if (uniqueAudioOnly.length > 0) {
-          const pinnedAndLocalCount = pin.length + mine.length;
           const availableSlots = myPageSize - pinnedAndLocalCount;
           const maxAudioOnlySlots = Math.min(availableSlots, maxAudioOnlyUsers);
           audioOnlySlotsUsedOnPage1 = Math.min(uniqueAudioOnly.length, maxAudioOnlySlots);
         }
       }
-      totalNumberOfOtherStreams = others.length + audioOnlySlotsUsedOnPage1;
+      if (audioOnlySlotsUsedOnPage1 > 0 && pinnedAndLocalCount > 0) {
+        const othersOnPage0 = Math.max(0, myPageSize - pinnedAndLocalCount - audioOnlySlotsUsedOnPage1);
+        const remainingOthers = Math.max(0, others.length - othersOnPage0);
+        const additionalPages = remainingOthers > 0 ? Math.ceil(remainingOthers / myPageSize) : 0;
+        totalNumberOfOtherStreams = (1 + additionalPages) * myPageSize;
+      } else {
+        totalNumberOfOtherStreams = others.length + audioOnlySlotsUsedOnPage1;
+      }
 
-      const effectiveChunkIndex = currentVideoPageIndex > 0
-        ? chunkIndex - audioOnlySlotsUsedOnPage1
+      const effectiveChunkIndex = currentVideoPageIndex > 0 && audioOnlySlotsUsedOnPage1 > 0
+        ? Math.max(0, myPageSize - pinnedAndLocalCount - audioOnlySlotsUsedOnPage1)
+          + (currentVideoPageIndex - 1) * myPageSize
         : chunkIndex;
 
       let paginatedStreams = sortVideoStreams(others, sortingMethod)
@@ -568,7 +576,6 @@ export const useVideoStreams = () => {
           (audioUser) => !streams.find((s) => s.userId === audioUser.userId),
         );
 
-        const pinnedAndLocalCount = pin.length + mine.length;
         const availableSlots = myPageSize - pinnedAndLocalCount;
         const audioOnlyToAdd = uniqueAudioOnly.slice(0, audioOnlySlotsUsedOnPage1);
 
