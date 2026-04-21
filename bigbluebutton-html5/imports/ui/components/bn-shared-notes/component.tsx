@@ -187,6 +187,20 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
 
   const editable = !disableNotes || !currentUserIsLocked || currentUserIsModerator;
 
+  const [isDocumentEmpty, setIsDocumentEmpty] = React.useState(true);
+
+  React.useEffect(() => {
+    const checkEmpty = () => {
+      const doc = editor.document;
+      const firstContent = doc[0]?.content;
+      const empty = doc.length === 1 && Array.isArray(firstContent) && firstContent.length === 0;
+      setIsDocumentEmpty(empty);
+    };
+    const unsubscribe = editor.onChange(checkEmpty);
+    checkEmpty();
+    return unsubscribe;
+  }, [editor]);
+
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <style>
@@ -221,6 +235,11 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
             bottom: auto !important;
             transform: translateY(0) !important;
           }
+          ${!isDocumentEmpty ? `
+          .bn-block-content[data-is-empty-and-focused]::after {
+            content: none !important;
+          }
+          ` : ''}
         `}
       </style>
       {notificationErrorMessage && (
