@@ -571,6 +571,7 @@ export const useVideoStreams = () => {
         .slice(effectiveChunkIndex, (effectiveChunkIndex + myPageSize)) || [];
 
       // Add audio-only users only on page 1
+      let audioOnlyStreams: StreamItem[] = [];
       if (showAudioOnlyOnFirstPage && currentVideoPageIndex === 0 && audioOnlySlotsUsedOnPage1 > 0) {
         const uniqueAudioOnly = audioOnlyUsers.filter(
           (audioUser) => !streams.find((s) => s.userId === audioUser.userId),
@@ -584,13 +585,13 @@ export const useVideoStreams = () => {
           paginatedStreams = paginatedStreams.slice(0, Math.max(0, remoteStreamsToKeep));
         }
 
-        paginatedStreams = [...paginatedStreams, ...audioOnlyToAdd];
+        audioOnlyStreams = audioOnlyToAdd;
       }
 
       if (sortingConfig.localFirst) {
-        streams = [...pin, ...mine, ...paginatedStreams];
+        streams = [...pin, ...mine, ...paginatedStreams, ...audioOnlyStreams];
       } else {
-        streams = [...pin, ...paginatedStreams, ...mine];
+        streams = [...pin, ...paginatedStreams, ...mine, ...audioOnlyStreams];
       }
     }
   } else {
