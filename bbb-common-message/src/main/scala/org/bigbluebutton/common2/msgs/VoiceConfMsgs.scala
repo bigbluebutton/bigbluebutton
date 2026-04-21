@@ -134,6 +134,20 @@ case class ScreenBroadcastStopSysMsgBody(
 )
 
 /**
+ * Sent from client to toggle which screenshare stream occupies the content area.
+ */
+object SetScreenshareShowAsContentReqMsg { val NAME = "SetScreenshareShowAsContentReqMsg" }
+case class SetScreenshareShowAsContentReqMsg(header: BbbClientMsgHeader, body: SetScreenshareShowAsContentReqMsgBody) extends StandardMsg
+case class SetScreenshareShowAsContentReqMsgBody(streamId: String, showAsContent: Boolean, setBy: String)
+
+/**
+ * Broadcast to all clients that a screenshare stream's showAsContent flag changed.
+ */
+object SetScreenshareShowAsContentEvtMsg { val NAME = "SetScreenshareShowAsContentEvtMsg" }
+case class SetScreenshareShowAsContentEvtMsg(header: BbbClientMsgHeader, body: SetScreenshareShowAsContentEvtMsgBody) extends BbbCoreMsg
+case class SetScreenshareShowAsContentEvtMsgBody(streamId: String, showAsContent: Boolean, setBy: String)
+
+/**
  * Sent to FS to eject all users from the voice conference.
  */
 object EjectAllFromVoiceConfMsg { val NAME = "EjectAllFromVoiceConfMsg" }

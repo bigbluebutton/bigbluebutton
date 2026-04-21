@@ -732,6 +732,9 @@ class MeetingActor(
       case m: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg => screenshareApp2x.handle(m, liveMeeting, msgBus)
       case m: ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg => screenshareApp2x.handle(m, liveMeeting, msgBus)
       case m: GetScreenshareStatusReqMsg                     => screenshareApp2x.handle(m, liveMeeting, msgBus)
+      case m: SetScreenshareShowAsContentReqMsg =>
+        screenshareApp2x.handle(m, liveMeeting, msgBus)
+        updateUserLastActivity(m.header.userId)
       case m: GetScreenBroadcastPermissionReqMsg             => handleGetScreenBroadcastPermissionReqMsg(m)
       case m: GetScreenSubscribePermissionReqMsg             => handleGetScreenSubscribePermissionReqMsg(m)
 
