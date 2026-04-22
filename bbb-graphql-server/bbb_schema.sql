@@ -1111,6 +1111,8 @@ CREATE UNLOGGED TABLE "chat" (
     "access" varchar(20),
     "createdBy" varchar(25),
     "pinnedMessageId" varchar(100),
+    "pinnedByUserId" varchar(100),
+    "pinnedAt" timestamp with time zone,
     CONSTRAINT "chat_pkey" PRIMARY KEY ("meetingId", "chatId")
 );
 CREATE INDEX "idx_chat_pk_reverse" ON "chat"("chatId","meetingId");
@@ -1195,8 +1197,6 @@ CREATE UNLOGGED TABLE "chat_message" (
 	"editedAt" timestamp with time zone,
 	"deletedByUserId" varchar(100),
 	"deletedAt" timestamp with time zone,
-    "pinnedByUserId" varchar(100),
-    "pinnedAt" timestamp with time zone,
     CONSTRAINT chat_fk FOREIGN KEY ("chatId", "meetingId") REFERENCES "chat"("chatId", "meetingId") ON DELETE CASCADE
 );
 CREATE INDEX "idx_chat_message_chatId" ON "chat_message"("chatId","meetingId");
@@ -1374,7 +1374,9 @@ SELECT 	"user"."meetingId",
 		cu."totalUnreadMessages" AS "totalUnread",
 		cu."lastSeenAt",
 		CASE WHEN "chat"."access" = 'PUBLIC_ACCESS' THEN true ELSE false end "public",
-        "chat"."pinnedMessageId"
+        "chat"."pinnedMessageId",
+        "chat"."pinnedByUserId",
+        "chat"."pinnedAt"
 FROM "user"
 JOIN "chat_user" cu ON cu."meetingId" = "user"."meetingId" AND cu."userId" = "user"."userId"
 --now it will always add chat_user for public chat onUserJoin
@@ -1414,8 +1416,6 @@ SELECT  cu."meetingId",
         cm."editedAt",
         cm."deletedByUserId",
         cm."deletedAt",
-        cm."pinnedByUserId",
-        cm."pinnedAt",
         CASE WHEN chat_with."lastSeenAt" >= cm."createdAt" THEN true ELSE false end "recipientHasSeen"
 FROM chat_message cm
 JOIN chat_user cu ON cu."meetingId" = cm."meetingId" AND cu."chatId" = cm."chatId"

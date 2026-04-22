@@ -24,6 +24,10 @@ const CHATS_SUBSCRIPTION = gql`
       public
       lastSeenAt
       pinnedMessageId
+      pinnedAt
+      pinnedBy {
+        name
+      }
     }
   }
 `;

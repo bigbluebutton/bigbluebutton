@@ -10,9 +10,6 @@ export interface Message {
   deletedBy: {
     name: string;
   } | null;
-  pinnedBy: {
-    name: string;
-  } | null;
   meetingId: string;
   message: string;
   messageAsHtml: string;

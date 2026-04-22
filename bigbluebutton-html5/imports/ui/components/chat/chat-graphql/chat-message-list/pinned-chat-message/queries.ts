@@ -5,7 +5,7 @@ export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
   subscription chatMessages($messageIds: [String!]) {
     chat_message_public(
       where: { messageId: { _in: $messageIds } }
-      order_by: { pinnedAt: desc }
+      order_by: { createdAt: asc }
     ) {
       user {
         name
@@ -26,10 +26,6 @@ export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
       editedAt
       deletedAt
       deletedBy {
-        name
-      }
-      pinnedAt
-      pinnedBy {
         name
       }
       messageMetadata

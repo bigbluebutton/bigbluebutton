@@ -19,7 +19,7 @@ import { useIsChatPinningEnabled } from '/imports/ui/services/features';
 
 export const PinnedChatMessageContainer: React.FC<PinnedChatMessageProps> = ({ openChatId }) => {
   const { data: chats } = useChat(
-    (chat) => ({ chatId: chat.chatId, pinnedMessageId: chat.pinnedMessageId }),
+    (chat) => ({ chatId: chat.chatId, pinnedMessageId: chat.pinnedMessageId, pinnedBy: chat.pinnedBy }),
     { chatId: openChatId, skip: !openChatId },
   );
 
@@ -32,6 +32,7 @@ export const PinnedChatMessageContainer: React.FC<PinnedChatMessageProps> = ({ o
 
   const isPublicChat = openChatId && openChatId === PUBLIC_GROUP_CHAT_KEY;
   const pinnedMessageId = chat?.pinnedMessageId ?? null;
+  const pinnedBy = chat?.pinnedBy ?? null;
   const pinnedMessagesIds = useMemo(() => (pinnedMessageId ? [pinnedMessageId] : []), [pinnedMessageId]);
 
   const {
@@ -85,7 +86,7 @@ export const PinnedChatMessageContainer: React.FC<PinnedChatMessageProps> = ({ o
   if (displayedMessages.length === 0) return null;
 
   return (
-    <PinnedMessageComponent messages={displayedMessages} isModerator={isModerator} />
+    <PinnedMessageComponent messages={displayedMessages} isModerator={isModerator} pinnedBy={pinnedBy} />
   );
 };
 

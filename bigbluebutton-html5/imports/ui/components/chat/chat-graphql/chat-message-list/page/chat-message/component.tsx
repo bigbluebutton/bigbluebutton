@@ -563,7 +563,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   });
   const editTime = message.editedAt ? new Date(message.editedAt) : null;
   const deleteTime = message.deletedAt ? new Date(message.deletedAt) : null;
-  const isPinned = !!(message?.pinnedBy?.name);
+  const isPinned = message.messageId === currentPinnedMessageId;
 
   const msgTime = formattedTime;
   const clearMessage = `${msgTime} ${intl.formatMessage(intlMessages.chatClear)}`;
@@ -1275,7 +1275,6 @@ const propsToCompare = [
   'message.user.currentlyInMeeting',
   'message.reactions.length',
   'message.replyToMessage.message',
-  'message.pinnedBy',
 ] as const;
 
 function areChatMessagesEqual(prevProps: ChatMessageProps, nextProps: ChatMessageProps) {

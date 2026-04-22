@@ -17,16 +17,6 @@ object_relationships:
         remote_table:
           name: v_user_ref
           schema: public
-  - name: pinnedBy
-    using:
-      manual_configuration:
-        column_mapping:
-          pinnedByUserId: userId
-          meetingId: meetingId
-        insertion_order: null
-        remote_table:
-          name: v_user_ref
-          schema: public
   - name: replyToMessage
     using:
       manual_configuration:
@@ -66,7 +56,6 @@ select_permissions:
         - correlationId
         - createdAt
         - deletedAt
-        - pinnedAt
         - message
         - messageAsHtml
         - messageId

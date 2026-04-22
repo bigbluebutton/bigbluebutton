@@ -73,9 +73,10 @@ const intlMessages = defineMessages({
 interface PinnedMessageComponentProps {
   messages: Message[];
   isModerator: boolean;
+  pinnedBy: { name: string } | null;
 }
 
-export default function PinnedMessageComponent({ messages, isModerator }: PinnedMessageComponentProps) {
+export default function PinnedMessageComponent({ messages, isModerator, pinnedBy }: PinnedMessageComponentProps) {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isOverflowing, setIsOverflowing] = useState(false);
@@ -151,7 +152,7 @@ export default function PinnedMessageComponent({ messages, isModerator }: Pinned
 
   if (!messages || messages.length === 0) return null;
 
-  const pinnedByName = activeMessage?.pinnedBy?.name || '';
+  const pinnedByName = pinnedBy?.name || '';
   const formattedTime = activeMessage?.createdAt ? intl.formatTime(activeMessage.createdAt) : '';
   const messageAsHtml = activeMessage?.messageAsHtml ?? '';
 
