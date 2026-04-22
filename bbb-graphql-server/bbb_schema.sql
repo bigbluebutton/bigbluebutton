@@ -1110,6 +1110,7 @@ CREATE UNLOGGED TABLE "chat" (
     "chatId"  varchar(100),
     "access" varchar(20),
     "createdBy" varchar(25),
+    "totalMessages" integer,
     "pinnedMessageId" varchar(100),
     "pinnedByUserId" varchar(100),
     "pinnedAt" timestamp with time zone,

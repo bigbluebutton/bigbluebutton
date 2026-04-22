@@ -27,8 +27,6 @@ class ChatDbTableDef(tag: Tag) extends Table[ChatDbModel](tag, None, "chat") {
 }
 
 object ChatDAO {
-  private val logger = org.slf4j.LoggerFactory.getLogger(this.getClass)
-
   def insert(meetingId: String, groupChat: GroupChat) = {
     DatabaseConnection.enqueue(
       TableQuery[ChatDbTableDef].insertOrUpdate(

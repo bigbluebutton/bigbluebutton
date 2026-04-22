@@ -132,16 +132,9 @@ export function useIsChatMessageReactionsEnabled() {
   );
 }
 
-export function useIsChatPinningEnabled() {
-  return useDisabledFeatures().indexOf('chatPinning') === -1;
-}
-
 export function useIsPinChatMessageEnabled() {
-  const chatPinningEnabled = useIsChatPinningEnabled();
-  const disabledFeatures = useDisabledFeatures();
   return (
-    chatPinningEnabled
-    && disabledFeatures.indexOf('pinChatMessage') === -1
+    useDisabledFeatures().indexOf('pinChatMessage') === -1
     && window.meetingClientSettings.public.chat.toolbar.includes('pin')
   );
 }

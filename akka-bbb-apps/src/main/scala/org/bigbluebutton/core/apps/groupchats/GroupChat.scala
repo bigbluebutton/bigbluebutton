@@ -56,7 +56,6 @@ object GroupChatApp {
   }
 
   def deleteGroupChatMessage(meetingId: String, chat: GroupChat, chats: GroupChats, msg: GroupChatMessage, deletedBy: String): GroupChats = {
-    // Remove pinned message if the deleted message is pinned
     ChatDAO.clearPinnedMessage(meetingId, chat.id, msg.id)
 
     ChatMessageDAO.softDelete(meetingId, chat.id, msg.id, deletedBy)
@@ -65,15 +64,11 @@ object GroupChatApp {
     chats.update(c)
   }
 
-  // Returns (updated GroupChats, optional evicted message id if eviction occurred)
   def pinGroupChatMessage(meetingId: String, chat: GroupChat, chats: GroupChats, msg: GroupChatMessage, pinnedByUserId: String): GroupChats = {
-    // No-op if already pinned
     if (chat.pinnedMessageId.contains(msg.id)) return chats
 
-    // Persist pinned message id, pinnedByUserId, and pinnedAt in chat table atomically
     ChatDAO.setPinnedMessage(meetingId, chat.id, msg.id, pinnedByUserId)
 
-    // Update in-memory chat with the new pin
     val updatedChat = chat.pin(msg.id)
 
     chats.update(updatedChat)

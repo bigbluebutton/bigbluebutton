@@ -2,35 +2,17 @@ import { gql } from '@apollo/client';
 import { Message } from '/imports/ui/Types/message';
 
 export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
-  subscription chatMessages($messageIds: [String!]) {
+  subscription pinnedChatMessage($messageId: String) {
     chat_message_public(
-      where: { messageId: { _in: $messageIds } }
-      order_by: { createdAt: asc }
+      where: { messageId: { _eq: $messageId } }
     ) {
-      user {
-        name
-        userId
-        avatar
-        currentlyInMeeting
-        isModerator
-        color
-      }
-      messageType
-      chatEmphasizedText
-      chatId
-      message
-      messageAsHtml
       messageId
+      chatId
       messageSequence
       createdAt
+      message
+      messageAsHtml
       editedAt
-      deletedAt
-      deletedBy {
-        name
-      }
-      messageMetadata
-      senderName
-      senderRole
     }
   }
 `;

@@ -15,7 +15,7 @@ import {
 import { PinnedChatMessageProps } from './types';
 import PinnedMessageComponent from './component';
 import useStabilizedList from '/imports/ui/core/hooks/useStabilizedList';
-import { useIsChatPinningEnabled } from '/imports/ui/services/features';
+import { useIsPinChatMessageEnabled } from '/imports/ui/services/features';
 
 export const PinnedChatMessageContainer: React.FC<PinnedChatMessageProps> = ({ openChatId }) => {
   const { data: chats } = useChat(
@@ -33,7 +33,6 @@ export const PinnedChatMessageContainer: React.FC<PinnedChatMessageProps> = ({ o
   const isPublicChat = openChatId && openChatId === PUBLIC_GROUP_CHAT_KEY;
   const pinnedMessageId = chat?.pinnedMessageId ?? null;
   const pinnedBy = chat?.pinnedBy ?? null;
-  const pinnedMessagesIds = useMemo(() => (pinnedMessageId ? [pinnedMessageId] : []), [pinnedMessageId]);
 
   const {
     data: pinnedMessagesData,
@@ -41,8 +40,8 @@ export const PinnedChatMessageContainer: React.FC<PinnedChatMessageProps> = ({ o
   } = useDeduplicatedSubscription<ChatMessageSubscriptionResponse>(
     CHAT_MESSAGE_PUBLIC_SUBSCRIPTION,
     {
-      variables: { messageIds: pinnedMessagesIds },
-      skip: pinnedMessagesIds.length === 0,
+      variables: { messageId: pinnedMessageId },
+      skip: !pinnedMessageId,
     },
   );
 
@@ -51,7 +50,7 @@ export const PinnedChatMessageContainer: React.FC<PinnedChatMessageProps> = ({ o
   // prevents pinned messages "blink" effect when a new message is pinned or unpinned
   const displayedMessages = useStabilizedList<Message>(pinnedMessages, {
     getId: (m) => m.messageId,
-    expectedIds: pinnedMessagesIds,
+    expectedIds: pinnedMessageId ? [pinnedMessageId] : [],
     areEqual: (a, b) => {
       if (a.length !== b.length) return false;
       for (let i = 0; i < a.length; i += 1) {
@@ -66,7 +65,7 @@ export const PinnedChatMessageContainer: React.FC<PinnedChatMessageProps> = ({ o
   const { data: currentUser } = useCurrentUser((u) => ({ isModerator: u.isModerator }));
   const isModerator = currentUser?.isModerator ?? false;
   const pinnedMessagesHidden = usePinnedChatMessagesHidden();
-  const chatPinningEnabled = useIsChatPinningEnabled();
+  const chatPinningEnabled = useIsPinChatMessageEnabled();
 
   useEffect(() => {
     // the pinned messages header shortcut should vanish when there is no pinned message.

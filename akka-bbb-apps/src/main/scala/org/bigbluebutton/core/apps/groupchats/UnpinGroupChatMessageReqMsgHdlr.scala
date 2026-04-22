@@ -13,7 +13,7 @@ trait UnpinGroupChatMessageReqMsgHdlr extends HandlerHelpers {
 
   def handle(msg: UnpinGroupChatMessageReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
     val chatDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("chat")
-    val chatPinningDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("chatPinning")
+    val chatPinningDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("pinChatMessage")
     var newState = state
 
     for {
@@ -35,14 +35,13 @@ trait UnpinGroupChatMessageReqMsgHdlr extends HandlerHelpers {
           } else if (!messageIsPinned) {
             // nothing to do: message is not pinned
           } else {
-            val logger = org.slf4j.LoggerFactory.getLogger(this.getClass)
-            logger.info(s"Unpin requested by user=${msg.header.userId} for message=${gcMessage.id} chat=${msg.body.chatId} in meeting=${liveMeeting.props.meetingProp.intId}")
+            log.info(s"Unpin requested by user=${msg.header.userId} for message=${gcMessage.id} chat=${msg.body.chatId} in meeting=${liveMeeting.props.meetingProp.intId}")
 
             val updatedGroupChat = GroupChatApp.unpinGroupChatMessage(liveMeeting.props.meetingProp.intId, groupChat, state.groupChats, gcMessage)
 
             val event = buildGroupChatMessageUnpinEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.chatId, msg.header.userId, gcMessage.id)
             bus.outGW.send(event)
-            logger.info(s"Unpin event sent for message=${gcMessage.id} chat=${msg.body.chatId}")
+            log.info(s"Unpin event sent for message=${gcMessage.id} chat=${msg.body.chatId}")
             newState = state.update(updatedGroupChat)
           }
         }
