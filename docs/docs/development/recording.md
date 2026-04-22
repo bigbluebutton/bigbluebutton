@@ -909,7 +909,7 @@ The sections that follow cover the types of events you will encounter in `events
 | ---------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------- |
 | timestampUTC           | String  | UTC timestamp of the event                                                                                              |
 | date                   | String  | Date of the event                                                                                                       |
-| layout                 | String  | Active layout. One of `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS`                              |
+| layout                 | String  | Active layout. One of `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS`, `UNIFIED_LAYOUT`                              |
 | cameraPosition         | String  | Position of the camera dock. One of `contentTop`, `contentRight`, `contentBottom`, `contentLeft`, `sidebarContentBottom` |
 | presentationVideoRate  | Float   | Number between 0 and 1 indicating the ratio of the camera dock size relative to the window size                         |
 | presentationIsOpen     | Boolean | Whether the presentation area is open                                                                                   |
