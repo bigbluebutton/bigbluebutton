@@ -280,14 +280,10 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
             } );
         }
 
-        // Handle screenshare stop
-        const KurentoScreenShareBridge = require('/imports/api/screenshare/client/bridge/index.js').default;
-        //Kurento Screen Share
-        var stopOriginal = KurentoScreenShareBridge.stop.bind(KurentoScreenShareBridge);
-        KurentoScreenShareBridge.stop = function(){
-            callNativeMethod('stopScreenShare')
-            logger.debug(`BBB-MOBILE - Click on stop screen share`);
-            stopOriginal()
+        // Create methods to be called from the BBB component when screen share stop is requested
+        window.bbbMobileApp = {};
+        window.bbbMobileApp.onScreenshareStopRequest = () => {
+            callNativeMethod('stopScreenShare');
         }
 
         // Handle screenshare stop requested by application (i.e. stopped the broadcast extension)
@@ -297,5 +293,3 @@ import { fetchStunTurnServers } from '/imports/utils/fetchStunTurnServers';
 
     }
 })();
-
-

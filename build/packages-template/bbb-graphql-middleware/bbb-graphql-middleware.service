@@ -13,7 +13,7 @@ WorkingDirectory=/usr/bin
 ExecStart=/usr/bin/bbb-graphql-middleware
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=always
-RestartSec=60
+RestartSec=1
 SuccessExitStatus=143
 TimeoutStopSec=5
 PermissionsStartOnly=true
@@ -21,4 +21,3 @@ LimitNOFILE=4096
 
 [Install]
 WantedBy=multi-user.target bigbluebutton.target
-

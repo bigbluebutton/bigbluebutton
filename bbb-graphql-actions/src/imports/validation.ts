@@ -12,12 +12,22 @@ export const throwErrorIfNotPresenter = (sessionVariables: Record<string, unknow
     }
 };
 
+export const throwErrorIfNotPresenterNorModerator = (sessionVariables: Record<string, unknown>) => {
+    if(sessionVariables['x-hasura-presenterinmeeting'] == "" && sessionVariables['x-hasura-moderatorinmeeting'] == "") {
+        throw new ValidationError('Permission Denied (not presenter or moderator).', 403);
+    }
+};
+
 export const isModerator = (sessionVariables: Record<string, unknown>) => {
     return (sessionVariables['x-hasura-moderatorinmeeting'] !== "");
 };
 
 export const isPresenter = (sessionVariables: Record<string, unknown>) => {
     return (sessionVariables['x-hasura-presenterinmeeting'] !== "");
+};
+
+export const isBreakout = (sessionVariables: Record<string, unknown>) => {
+    return (sessionVariables['x-hasura-isbreakout'] === "true");
 };
 
 export type InputParam = {
@@ -62,14 +72,14 @@ export const throwErrorIfInvalidInput = (input: Record<string, unknown>, expecte
                     }
                     break;
                 case 'json':
-                    if (typeof value !== 'object') {
+                    if (typeof value !== 'object' || value === null) {
                         throw new ValidationError(`Parameter '${param.name}' should be of type ${param.type}`, 400);
                     }
                     try {
                         const jsonString = JSON.stringify(value);
                         JSON.parse(jsonString);
                     } catch (e) {
-                        throw new ValidationError(`Parameter '${param.name}' contains an invalid Json.`, 400);
+                        throw new ValidationError(`Parameter '${param.name}' contains an invalid Json`, 400);
                     }
                     break;
                 case 'jsonArray':

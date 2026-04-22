@@ -21,7 +21,7 @@ object TestWorksheet {
     answers(0) = new Answer(0, "N", Some("No"))
     answers(1) = new Answer(1, "Y", Some("Yes"))
     
-    new Question(0, YesNoPollType, false, None, answers)
+    new Question(0, YesNoPollType, false, false, None, answers, None)
   }                                               //> processYesNoPollType: (qType: String)org.bigbluebutton.core.apps.Question
   
   def processTrueFalsePollType(qType: String):Question = {
@@ -30,7 +30,7 @@ object TestWorksheet {
     answers(0) = new Answer(0, "F", Some("False"))
     answers(1) = new Answer(1, "T", Some("True"))
     
-    new Question(0, TrueFalsePollType, false, None, answers)
+    new Question(0, TrueFalsePollType, false, false, None, answers, None)
   }                                               //> processTrueFalsePollType: (qType: String)org.bigbluebutton.core.apps.Questio
                                                   //| n
   
@@ -46,7 +46,7 @@ object TestWorksheet {
       var i = 0
       for ( i <- 0 until numQs ) {
         answers(i) = new Answer(i, LetterArray(i), Some(LetterArray(i)))
-        val question = new Question(0, LetterPollType, multiResponse, None, answers)
+        val question = new Question(0, LetterPollType, multiResponse, false, None, answers, None)
         questionOption = Some(question)
       }
     }
@@ -66,7 +66,7 @@ object TestWorksheet {
       var i = 0
       for ( i <- 0 until numQs ) {
         answers(i) = new Answer(i, NumberArray(i), Some(NumberArray(i)))
-        val question = new Question(0, NumberPollType, multiResponse, None, answers)
+        val question = new Question(0, NumberPollType, multiResponse, false, None, answers, None)
         questionOption = Some(question)
       }
     }

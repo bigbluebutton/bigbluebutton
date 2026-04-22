@@ -6,6 +6,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   throwErrorIfInvalidInput(input,
       [
         {name: 'pollId', type: 'string', required: true},
+        {name: 'showAnswer', type: 'boolean', required: false},
       ]
   )
 
@@ -16,7 +17,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     userId: sessionVariables['x-hasura-userid'] as String
   };
 
-  const header = { 
+  const header = {
     name: eventName,
     meetingId: routing.meetingId,
     userId: routing.userId
@@ -24,7 +25,8 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
 
   const body = {
     requesterId: routing.userId,
-    pollId: input.pollId
+    pollId: input.pollId,
+    showAnswer: input.showAnswer || false
   };
 
   return { eventName, routing, header, body };

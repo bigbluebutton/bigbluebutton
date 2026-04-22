@@ -115,6 +115,7 @@ public class SlidesGenerationProgressNotifier {
             pres.getNumberOfPages(),
             slidesCompleted,
             generateBasePresUrl(pres),
+            pres.getUploadedFile().getParent(),
             pageGenerated,
             (pageGenerated == 1));
     messagingService.sendDocConversionMsg(progress);

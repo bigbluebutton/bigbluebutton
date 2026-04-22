@@ -1,20 +1,23 @@
 import { gql } from '@apollo/client';
 
-export interface PinnedPadSubscriptionResponse {
+export interface GetPadIdQueryResponse {
   sharedNotes: Array<{
-    pinned: boolean;
+    padId: string;
     sharedNotesExtId: string;
+    sharedNotesEditor: string;
   }>;
 }
 
-export const PINNED_PAD_SUBSCRIPTION = gql`
-  subscription isSharedNotesPinned {
-    sharedNotes(where: { pinned: { _eq: true } }) {
-      pinned
+export const GET_PAD_ID = gql`
+  query getPadId($externalId: String!) {
+    sharedNotes(where: { sharedNotesExtId: { _eq: $externalId } }) {
+      padId
       sharedNotesExtId
-      model
+      sharedNotesEditor
     }
   }
 `;
 
-export default { PINNED_PAD_SUBSCRIPTION };
+export default {
+  GET_PAD_ID,
+};

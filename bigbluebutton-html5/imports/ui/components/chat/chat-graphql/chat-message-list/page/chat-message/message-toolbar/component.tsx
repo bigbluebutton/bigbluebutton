@@ -41,9 +41,9 @@ const intlMessages = defineMessages({
 });
 
 interface ChatMessageToolbarProps {
+  isCustomPluginMessage: boolean;
   own: boolean;
   amIModerator: boolean;
-  isBreakoutRoom: boolean;
   messageSequence: number;
   onReactionPopoverOpenChange(open: boolean): void;
   reactionPopoverIsOpen: boolean;
@@ -61,7 +61,7 @@ interface ChatMessageToolbarProps {
 
 const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const {
-    deleted, messageSequence, own, amIModerator, isBreakoutRoom,
+    isCustomPluginMessage, deleted, messageSequence, own, amIModerator,
     locked, onReactionPopoverOpenChange, reactionPopoverIsOpen, hasToolbar,
     chatDeleteEnabled, chatEditEnabled, chatReactionsEnabled, chatReplyEnabled,
     onDelete, onEdit, onReply,
@@ -77,8 +77,8 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
 
   const showReplyButton = chatReplyEnabled;
   const showReactionsButton = chatReactionsEnabled;
-  const showEditButton = chatEditEnabled && own;
-  const showDeleteButton = chatDeleteEnabled && (own || (amIModerator && !isBreakoutRoom));
+  const showEditButton = chatEditEnabled && own && !isCustomPluginMessage;
+  const showDeleteButton = chatDeleteEnabled && (own || amIModerator);
   const showDivider = (showReplyButton || showReactionsButton) && (showEditButton || showDeleteButton);
 
   const container = (
@@ -86,7 +86,7 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
       {showReplyButton && (
         <Tooltip title={intl.formatMessage(intlMessages.replyTooltip)}>
           <EmojiButton
-            aria-label={intl.formatMessage(intlMessages.reply, { 0: messageSequence })}
+            aria-label={intl.formatMessage(intlMessages.reply, { messageSequence })}
             icon="undo"
             color="light"
             onClick={onReply}

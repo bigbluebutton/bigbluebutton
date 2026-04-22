@@ -47,7 +47,7 @@ trait LockUserInMeetingCmdMsgHdlr extends RightsManagementTrait {
           GraphqlMiddleware.requestGraphqlReconnection(u.sessionToken, "lock_user_changed")
         }
 
-        log.info("Lock user.  meetingId=" + props.meetingProp.intId + " userId=" + uvo.intId + " locked=" + uvo.locked)
+        log.info("Lock user.  meetingId=" + props.meetingProp.intId + " userId=" + uvo.intId + " locked=" + uvo.locked + " performedByUserId=" + msg.body.lockedBy)
         val event = build(props.meetingProp.intId, uvo.intId, msg.body.lockedBy, uvo.locked)
         outGW.send(event)
       }

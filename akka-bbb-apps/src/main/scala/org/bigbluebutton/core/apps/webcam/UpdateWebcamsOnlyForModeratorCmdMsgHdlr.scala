@@ -62,7 +62,7 @@ trait UpdateWebcamsOnlyForModeratorCmdMsgHdlr {
                 "lock",
                 "app.userList.userOptions.webcamsOnlyForModerator",
                 "Label to disable all webcams except for the moderators cam",
-                Vector()
+                Map()
               )
               bus.outGW.send(notifyEvent)
               NotificationDAO.insert(notifyEvent)
@@ -73,7 +73,7 @@ trait UpdateWebcamsOnlyForModeratorCmdMsgHdlr {
                 "lock",
                 "app.userList.userOptions.enableOnlyModeratorWebcam",
                 "Label to enable all webcams except for the moderators cam",
-                Vector()
+                Map()
               )
               bus.outGW.send(notifyEvent)
               NotificationDAO.insert(notifyEvent)

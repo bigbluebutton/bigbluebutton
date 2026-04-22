@@ -61,7 +61,7 @@ trait RegisterUserReqMsgHdlr {
     val regUser = RegisteredUsers.create(liveMeeting.props.meetingProp.intId, msg.body.intUserId, msg.body.extUserId,
       msg.body.name, msg.body.firstName, msg.body.lastName, msg.body.role, msg.body.authToken, Vector(msg.body.sessionToken),
       msg.body.avatarURL, msg.body.webcamBackgroundURL, ColorPicker.nextColor(liveMeeting.props.meetingProp.intId), msg.body.bot,
-      msg.body.guest, msg.body.authed, guestStatus, msg.body.excludeFromDashboard, msg.body.enforceLayout, msg.body.logoutUrl, msg.body.userMetadata, loggedOut = false)
+      msg.body.guest, msg.body.authed, guestStatus, msg.body.excludeFromDashboard, msg.body.enforceLayout, msg.body.logoutUrl, msg.body.joinRequestMetadata, msg.body.userMetadata, loggedOut = false)
 
     checkUserConcurrentAccesses(regUser)
     RegisteredUsers.add(liveMeeting.registeredUsers, regUser, liveMeeting.props.meetingProp.intId)
@@ -91,7 +91,7 @@ trait RegisterUserReqMsgHdlr {
         "user",
         "app.userList.guest.pendingGuestAlert",
         "Notification that a new guest user joined the session",
-        Vector(s"${regUser.name}")
+        Map("0" -> s"${regUser.name}")
       )
       outGW.send(notifyEvent)
       NotificationDAO.insert(notifyEvent)

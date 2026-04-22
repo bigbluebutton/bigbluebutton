@@ -12,7 +12,7 @@ import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.common2.domain.{ DefaultProps, LockSettingsProps }
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
-import org.bigbluebutton.core.apps.audiogroups.AudioGroupHdlrs
+import org.bigbluebutton.core.apps.mediagroups.{ MediaGroupApp, MediaGroupHdlrs, PublicMediaGroupIds }
 import org.bigbluebutton.core.apps.caption.CaptionApp2x
 import org.bigbluebutton.core.apps.chat.ChatApp2x
 import org.bigbluebutton.core.apps.externalvideo.ExternalVideoApp2x
@@ -42,13 +42,23 @@ import scala.concurrent.duration._
 import org.bigbluebutton.core.apps.layout.LayoutApp2x
 import org.bigbluebutton.core.apps.plugin.PluginHdlrs
 import org.bigbluebutton.core.apps.users.ChangeLockSettingsInMeetingCmdMsgHdlr
-import org.bigbluebutton.core.db.{ MeetingDAO, MeetingVoiceDAO, NotificationDAO, TimerDAO, UserDAO, UserStateDAO }
+import org.bigbluebutton.core.db.{
+  MeetingDAO,
+  MeetingVoiceDAO,
+  NotificationDAO,
+  TimerDAO,
+  UserDAO,
+  UserStateDAO,
+  MediaGroupDAO,
+  MediaGroupUserDAO
+}
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models.VoiceUsers.{ findAllFreeswitchCallers, findAllListenOnlyVoiceUsers }
 import org.bigbluebutton.core.models.Webcams.findAll
 import org.bigbluebutton.core2.MeetingStatus2x.hasAuthedUserJoined
 import org.bigbluebutton.core2.message.senders.{ MsgBuilder, Sender }
 
+import java.time._
 import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -100,6 +110,7 @@ class MeetingActor(
   object MeetingTasksExecutor
   object MeetingInfoAnalyticsMsg
   object MeetingInfoAnalyticsLogMsg
+  object CheckPresentationConversions
 
   override val supervisorStrategy = OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
     case e: Exception => {
@@ -137,7 +148,7 @@ class MeetingActor(
   val wbApp = new WhiteboardApp2x
   val timerApp2x = new TimerApp2x
   val pluginHdlrs = new PluginHdlrs
-  val audioGroupHdlrs = new AudioGroupHdlrs
+  val mediaGroupHdlrs = new MediaGroupHdlrs
 
   object ExpiryTrackerHelper extends MeetingExpiryTrackerHelper
 
@@ -167,7 +178,8 @@ class MeetingActor(
     None,
     expiryTracker,
     recordingTracker,
-    new AudioGroups(Map.empty)
+    new MediaGroups(Map.empty),
+    PresentationConversions(Map.empty)
   )
 
   var lastRttTestSentOn = System.currentTimeMillis()
@@ -181,6 +193,13 @@ class MeetingActor(
 
   // Create a default public group chat
   state = groupChatApp.handleCreateDefaultPublicGroupChat(state, liveMeeting, msgBus)
+
+  // Create explicit public media groups. See media groups apps and models and
+  // associated commit history for those.
+  state = state.update(MediaGroupApp.createPublicMediaGroups(state.mediaGroups))
+  state.mediaGroups.findAllMediaGroups().filter(mg => PublicMediaGroupIds.isPublicGroup(mg.id)).foreach { mg =>
+    MediaGroupDAO.insert(liveMeeting.props.meetingProp.intId, mg)
+  }
 
   //state = GroupChatApp.genTestChatMsgHistory(GroupChatApp.MAIN_PUBLIC_CHAT, state, BbbSystemConst.SYSTEM_USER, liveMeeting)
   // Create a default public group chat **DEPRECATED, NOT GOING TO WORK ANYMORE**
@@ -250,6 +269,13 @@ class MeetingActor(
     MeetingTasksExecutor
   )
 
+  context.system.scheduler.scheduleWithFixedDelay(
+    60 seconds,
+    60 seconds,
+    self,
+    CheckPresentationConversions
+  )
+
   def receive = {
     case SyncVoiceUserStatusInternalMsg =>
       checkVoiceConfUsersStatus()
@@ -261,6 +287,8 @@ class MeetingActor(
       handleMeetingInfoAnalyticsService()
     case MeetingTasksExecutor =>
       handleMeetingTasksExecutor()
+    case CheckPresentationConversions =>
+      state = handleCheckPresentationConversions()
     //=============================
 
     // 2x messages
@@ -295,7 +323,7 @@ class MeetingActor(
     case msg: BreakoutRoomCreatedInternalMsg       => state = handleBreakoutRoomCreatedInternalMsg(msg, state)
     case msg: SendBreakoutUsersAuditInternalMsg    => handleSendBreakoutUsersUpdateInternalMsg(msg)
     case msg: BreakoutRoomUsersUpdateInternalMsg   => state = handleBreakoutRoomUsersUpdateInternalMsg(msg, state)
-    case msg: EndBreakoutRoomInternalMsg           => handleEndBreakoutRoomInternalMsg(msg)
+    case msg: EndBreakoutRoomInternalMsg           => handleEndBreakoutRoomInternalMsg(msg, state)
     case msg: UpdateBreakoutRoomTimeInternalMsg    => state = handleUpdateBreakoutRoomTimeInternalMsgHdlr(msg, state)
     case msg: EjectUserFromBreakoutInternalMsg     => handleEjectUserFromBreakoutInternalMsgHdlr(msg)
     case msg: BreakoutRoomEndedInternalMsg         => state = handleBreakoutRoomEndedInternalMsg(msg, state)
@@ -330,16 +358,29 @@ class MeetingActor(
       alternativeValue = true
     )
 
-    if (sharedNotesEnabledInClientSettings && !liveMeeting.props.meetingProp.disabledFeatures.contains("sharedNotes")) {
+    val isSharedNotesEnabled = (sharedNotesEnabledInClientSettings
+      && !liveMeeting.props.meetingProp.disabledFeatures.contains("sharedNotes"))
+
+    val isEtherpadType = liveMeeting.props.meetingProp.sharedNotesEditor == "etherpad"
+
+    if (isSharedNotesEnabled) {
       val sharedNotesPadId = getConfigPropertyValueByPathAsStringOrElse(
         liveMeeting.clientSettings,
         "public.notes.id",
         alternativeValue = ""
       )
-
       if (!Pads.hasGroup(liveMeeting.pads, sharedNotesPadId)) {
         Pads.addGroup(liveMeeting.pads, sharedNotesPadId, sharedNotesPadId, sharedNotesPadId, "SYSTEM")
-        PadslHdlrHelpers.broadcastPadCreateGroupCmdMsg(outGW, liveMeeting.props.meetingProp.intId, sharedNotesPadId, sharedNotesPadId)
+      }
+      if (isEtherpadType) {
+        PadslHdlrHelpers.broadcastPadCreateGroupCmdMsg(
+          outGW, liveMeeting.props.meetingProp.intId, sharedNotesPadId, sharedNotesPadId
+        )
+      } else {
+        PadslHdlrHelpers.broadcastBNSharedNotesCreateCmdMsg(
+          outGW, liveMeeting.props.meetingProp.intId,
+          sharedNotesPadId, sharedNotesPadId, liveMeeting.props.meetingProp.sharedNotesInitialContentJson
+        )
       }
     }
   }
@@ -449,6 +490,9 @@ class MeetingActor(
       case m: ChangeUserReactionEmojiReqMsg =>
         usersApp.handleChangeUserReactionEmojiReqMsg(m)
         updateUserLastActivity(m.header.userId)
+      case m: SetUserWhiteboardWriteAccessReqMsg =>
+        usersApp.handleSetUserWhiteboardWriteAccessReqMsg(m)
+        updateUserLastActivity(m.header.userId)
       case m: ChangeUserRaiseHandReqMsg =>
         usersApp.handleChangeUserRaiseHandReqMsg(m)
         updateUserLastActivity(m.header.userId)
@@ -487,13 +531,7 @@ class MeetingActor(
       case m: SendCursorPositionPubMsg =>
         wbApp.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
-      case m: ClearWhiteboardPubMsg =>
-        wbApp.handle(m, liveMeeting, msgBus)
-        updateUserLastActivity(m.header.userId)
       case m: DeleteWhiteboardAnnotationsPubMsg =>
-        wbApp.handle(m, liveMeeting, msgBus)
-        updateUserLastActivity(m.header.userId)
-      case m: ModifyWhiteboardAccessPubMsg =>
         wbApp.handle(m, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
       case m: SendWhiteboardAnnotationsPubMsg =>
@@ -533,19 +571,21 @@ class MeetingActor(
       case m: SendMessageToAllBreakoutRoomsReqMsg  => state = handleSendMessageToAllBreakoutRoomsMsg(m, state)
       case m: ChangeUserBreakoutReqMsg             => state = handleChangeUserBreakoutReqMsg(m, state)
 
-      // Audio Groups
-      case m: CreateAudioGroupReqMsg               => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: DestroyAudioGroupReqMsg              => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: GetAudioGroupsReqMsg                 => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: AudioGroupAddParticipantsReqMsg      => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: AudioGroupRemoveParticipantsReqMsg   => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: JoinAudioGroupReqMsg                 => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: LeaveAudioGroupReqMsg                => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
-      case m: AudioGroupUpdateParticipantReqMsg    => state = audioGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      // Media Groups
+      case m: CreateMediaGroupReqMsg =>
+        state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+        updateUserLastActivity(m.header.userId)
+      case m: DestroyMediaGroupReqMsg =>
+        state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+        updateUserLastActivity(m.header.userId)
+      case m: GetMediaGroupsReqMsg => state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: SetUserMediaGroupStateReqMsg =>
+        state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+        updateUserLastActivity(m.header.userId)
 
       // Voice
-      case m: UserLeftVoiceConfEvtMsg              => handleUserLeftVoiceConfEvtMsg(m)
-      case m: UserMutedInVoiceConfEvtMsg           => handleUserMutedInVoiceConfEvtMsg(m)
+      case m: UserLeftVoiceConfEvtMsg    => handleUserLeftVoiceConfEvtMsg(m)
+      case m: UserMutedInVoiceConfEvtMsg => handleUserMutedInVoiceConfEvtMsg(m)
       case m: UserTalkingInVoiceConfEvtMsg =>
         updateVoiceUserLastActivity(m.body.voiceUserId)
         handleUserTalkingInVoiceConfEvtMsg(m)
@@ -557,10 +597,11 @@ class MeetingActor(
       case m: RecordingStartedVoiceConfEvtMsg => handleRecordingStartedVoiceConfEvtMsg(m)
       case m: AudioFloorChangedVoiceConfEvtMsg =>
         handleAudioFloorChangedVoiceConfEvtMsg(m)
-        audioCaptionsApp2x.handle(m, liveMeeting)
       case m: MuteUserCmdMsg =>
         usersApp.handleMuteUserCmdMsg(m)
         updateUserLastActivity(m.body.mutedBy)
+      case m: SetUserListenOnlyInputCmdMsg =>
+        handleSetUserListenOnlyInputCmdMsg(m)
       case m: MuteAllExceptPresentersCmdMsg =>
         handleMuteAllExceptPresentersCmdMsg(m)
         updateUserLastActivity(m.body.mutedBy)
@@ -596,6 +637,8 @@ class MeetingActor(
       case m: PadGroupCreatedEvtMsg         => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadCreateReqMsg               => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadCreatedEvtMsg              => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: BNSharedNotesCreatedEvtMsg    => padsApp2x.handle(m, liveMeeting, msgBus)
+      case m: BNSharedNotesUpdatedEvtMsg    => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadCreateSessionReqMsg        => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadSessionCreatedEvtMsg       => padsApp2x.handle(m, liveMeeting, msgBus)
       case m: PadSessionDeletedSysMsg       => padsApp2x.handle(m, liveMeeting, msgBus)
@@ -652,6 +695,7 @@ class MeetingActor(
       case m: RemovePresentationPubMsg                         => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: SetPresentationDownloadablePubMsg                => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationConversionUpdateSysPubMsg            => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationConversionStartedSysPubMsg           => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationUploadedFileTooLargeErrorSysPubMsg   => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationHasInvalidMimeTypeErrorSysPubMsg     => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PresentationUploadedFileTimeoutErrorSysPubMsg    => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
@@ -829,8 +873,26 @@ class MeetingActor(
 
   private def handleMeetingTasksExecutor(): Unit = {
     clearExpiredReactionEmojis()
-    stopFinishedTimer()
     endTimedOutBreakoutRooms()
+  }
+
+  private def handleCheckPresentationConversions(): MeetingState2x = {
+    val now = Instant.now()
+
+    def conversionFilter(entry: (String, PresentationConversion)): Boolean = {
+      val (presId, conversion) = entry
+      val start = Instant.ofEpochMilli(conversion.startTime)
+      val maxDuration = java.time.Duration.ofSeconds(conversion.maxDuration)
+      if (java.time.Duration.between(start, now).compareTo(maxDuration) > 0) {
+        log.warning(s"Presentation $presId in meeting ${props.meetingProp.intId} has been converting for longer than $maxDuration. Presentation conversion may be down on this server!")
+        false
+      } else {
+        true
+      }
+    }
+
+    val presentationConversions = state.presentationConversions.filter(conversionFilter)
+    state.update(presentationConversions)
   }
 
   private def clearExpiredReactionEmojis(): Unit = {
@@ -845,12 +907,6 @@ class MeetingActor(
           Users2x.setReactionEmoji(liveMeeting.users2x, user.intId, "none", 0)
         }
       }
-    }
-  }
-
-  private def stopFinishedTimer(): Unit = {
-    if (TimerModel.resetTimerIfFinished(liveMeeting.timerModel)) {
-      TimerDAO.update(liveMeeting.props.meetingProp.intId, liveMeeting.timerModel)
     }
   }
 
@@ -1097,16 +1153,35 @@ class MeetingActor(
         val userLeftMeetingEvent = MsgBuilder.buildUserLeftMeetingEvtMsg(liveMeeting.props.meetingProp.intId, u.intId)
         outGW.send(userLeftMeetingEvent)
 
-        val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
-          liveMeeting.props.meetingProp.intId,
-          "info",
-          "user",
-          "app.notification.userLeavePushAlert",
-          "Notification for a user leaves the meeting",
-          Vector(s"${u.name}")
-        )
-        outGW.send(notifyEvent)
-        NotificationDAO.insert(notifyEvent)
+        val leaverName = u.name
+        if (MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList && u.role != Roles.MODERATOR_ROLE) {
+          Users2x.findAll(liveMeeting.users2x)
+            .filter(recipient => !recipient.userLeftFlag.left && (!recipient.locked || recipient.role == Roles.MODERATOR_ROLE))
+            .foreach { recipient =>
+              val notifyEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
+                recipient.intId,
+                liveMeeting.props.meetingProp.intId,
+                "info",
+                "user",
+                "app.notification.userLeavePushAlert",
+                "Notification for a user leaves the meeting",
+                Map("userName" -> leaverName)
+              )
+              outGW.send(notifyEvent)
+              NotificationDAO.insert(notifyEvent)
+            }
+        } else {
+          val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+            liveMeeting.props.meetingProp.intId,
+            "info",
+            "user",
+            "app.notification.userLeavePushAlert",
+            "Notification for a user leaves the meeting",
+            Map("userName" -> leaverName)
+          )
+          outGW.send(notifyEvent)
+          NotificationDAO.insert(notifyEvent)
+        }
 
         if (u.presenter) {
           log.info("removeUsersWithExpiredUserLeftFlag will cause an automaticallyAssignPresenter because user={} left", u)

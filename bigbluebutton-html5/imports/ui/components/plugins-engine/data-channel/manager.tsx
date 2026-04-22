@@ -16,7 +16,7 @@ const PluginDataChannelManager: React.ElementType<PluginDataChannelManagerProps>
   props: PluginDataChannelManagerProps,
 ) => {
   const {
-    pluginApi,
+    pluginApi, dataChannelEntries,
   } = props;
 
   const { pluginName: pluginNameInUse } = pluginApi;
@@ -103,14 +103,21 @@ const PluginDataChannelManager: React.ElementType<PluginDataChannelManagerProps>
           const identifier = createChannelIdentifier(
             channelName, subChannelName, pluginNameInUse,
           );
+          const filteredDataChannelEntries = dataChannelEntries.filter((entry) => {
+            const currentIdentifier = createChannelIdentifier(
+              entry.channelName, entry.subChannelName, entry.pluginName,
+            );
+            return identifier === currentIdentifier;
+          });
           return (
             <DataChannelItemManager
+              key={identifier}
               {...{
-                key: identifier,
                 identifier,
                 pluginName: pluginNameInUse,
                 channelName,
                 subChannelName,
+                dataChannelEntries: filteredDataChannelEntries,
                 dataChannelTypes: mapOfDataChannelInformation.get(keyIdentifier)!.types,
                 pluginApi,
               }}

@@ -6,6 +6,7 @@ import { uniqueId } from '/imports/utils/string-utils';
 import { useIsImportPresentationWithAnnotationsFromBreakoutRoomsEnabled, useIsImportSharedNotesFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { useLazyQuery, useQuery, useMutation } from '@apollo/client';
+import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
 import Styled from './styles';
 import {
   getBreakouts,
@@ -15,7 +16,7 @@ import {
   getUser,
   getUserResponse,
 } from './queries';
-import { PRESENTATIONS_SUBSCRIPTION } from '/imports/ui/components/whiteboard/queries';
+import { PRESENTATIONS_SUBSCRIPTION, PresentationsSubscriptionResponse } from '/imports/ui/components/whiteboard/queries';
 import logger from '/imports/startup/client/logger';
 import BreakoutRoomUserAssignment from './breakout-room-user-assignment/component';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -35,8 +36,9 @@ import { notify } from '/imports/ui/services/notification';
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import { getRemainingMeetingTime, isNewTimeValid } from '/imports/ui/core/utils/calculateRemaingTime';
 
-const MIN_BREAKOUT_ROOMS = 2;
+const MIN_BREAKOUT_ROOMS = 1;
 const MIN_BREAKOUT_TIME = 5;
+const DEFAULT_BREAKOUT_ROOMS = 2;
 const DEFAULT_BREAKOUT_TIME = 15;
 const CURRENT_SLIDE_PREFIX = 'current-';
 
@@ -184,10 +186,6 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.record',
     description: 'label for checkbox to allow record',
   },
-  roomTime: {
-    id: 'app.createBreakoutRoom.roomTime',
-    description: 'used to provide current room time for aria label',
-  },
   numberOfRoomsIsValid: {
     id: 'app.createBreakoutRoom.numberOfRoomsError',
     description: 'Label an error message',
@@ -211,10 +209,6 @@ const intlMessages = defineMessages({
   roomNameInputDesc: {
     id: 'app.createBreakoutRoom.roomNameInputDesc',
     description: 'aria description for room name change',
-  },
-  movedUserLabel: {
-    id: 'app.createBreakoutRoom.movedUserLabel',
-    description: 'screen reader alert when users are moved to rooms',
   },
   manageRooms: {
     id: 'app.createBreakoutRoom.manageRoomsLabel',
@@ -248,7 +242,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   const { isMobile } = deviceInfo;
   const intl = useIntl();
 
-  const initialNumberOfRooms = runningRooms.length > 0 ? runningRooms.length : MIN_BREAKOUT_ROOMS;
+  const initialNumberOfRooms = runningRooms.length > 0 ? runningRooms.length : DEFAULT_BREAKOUT_ROOMS;
 
   const isImportPresentationWithAnnotationsEnabled = useIsImportPresentationWithAnnotationsFromBreakoutRoomsEnabled();
   const isImportSharedNotesEnabled = useIsImportSharedNotesFromBreakoutRoomsEnabled();
@@ -299,6 +293,18 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
     return `${CURRENT_SLIDE_PREFIX}${currentPresentation}`;
   };
 
+  const getCaptureFilename = (roomName: string, slides: boolean = true) => {
+    const captureType = slides
+      ? intl.formatMessage(intlMessages.captureSlidesType)
+      : intl.formatMessage(intlMessages.captureNotesType);
+
+    const fileName = `${roomName.replace(/\s/g, '_')}_${captureType}`.replace(/ /g, '_');
+
+    const fileNameDuplicatedCount = presentations.filter((pres) => pres.name?.startsWith(fileName)).length;
+
+    return fileNameDuplicatedCount === 0 ? fileName : `${fileName}(${fileNameDuplicatedCount + 1})`;
+  };
+
   const createRoom = () => {
     const remainingTime = getRemainingMeetingTime(
       durationInSeconds,
@@ -319,10 +325,10 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         roomsArray.push({
           name: r.name,
           sequence: r.id,
-          captureNotesFilename: `${r.name.replace(/\s/g, '_')}_${intl.formatMessage(intlMessages.captureNotesType)}`,
-          captureSlidesFilename: `${r.name.replace(/\s/g, '_')}_${intl.formatMessage(intlMessages.captureSlidesType)}`,
+          captureNotesFilename: getCaptureFilename(r.name, false),
+          captureSlidesFilename: getCaptureFilename(r.name, true),
           isDefaultName: r.name === intl.formatMessage(intlMessages.breakoutRoom, {
-            0: r.id,
+            roomNumber: r.id,
           }),
           users: r.users.map((u) => u.userId),
           freeJoin,
@@ -332,14 +338,14 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         });
       } else {
         const defaultName = intl.formatMessage(intlMessages.breakoutRoom, {
-          0: roomNumber,
+          roomNumber,
         });
 
         roomsArray.push({
           name: defaultName,
           sequence: roomNumber,
-          captureNotesFilename: `${defaultName.replace(/\s/g, '_')}_${intl.formatMessage(intlMessages.captureNotesType)}`,
-          captureSlidesFilename: `${defaultName.replace(/\s/g, '_')}_${intl.formatMessage(intlMessages.captureSlidesType)}`,
+          captureNotesFilename: getCaptureFilename(defaultName, false),
+          captureSlidesFilename: getCaptureFilename(defaultName, true),
           isDefaultName: true,
           freeJoin,
           shortName: defaultName,
@@ -380,8 +386,8 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         moveUser({
           variables: {
             userId,
-            fromBreakoutRoomId: fromRoomId || '',
-            toBreakoutRoomId: toRoomId || '',
+            fromBreakoutRoomMeetingId: fromRoomId || '',
+            toBreakoutRoomMeetingId: toRoomId || '',
           },
         });
       }
@@ -532,7 +538,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
                   {
                     intl.formatMessage(
                       intlMessages.minimumDurationWarnBreakout,
-                      { 0: MIN_BREAKOUT_TIME },
+                      { timeInMinutes: MIN_BREAKOUT_TIME },
                     )
                   }
                 </Styled.SpanWarn>
@@ -647,6 +653,7 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
     breakoutPolicies: m.breakoutPolicies,
     durationInSeconds: m.durationInSeconds,
     createdTime: m.createdTime,
+    meetingId: m.meetingId,
   }));
 
   const {
@@ -672,9 +679,13 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
     data: meetingGroupData,
     loading: meetingGroupLoading,
     error: meetingGroupError,
-  } = useQuery<getMeetingGroupResponse>(getMeetingGroup);
+  } = useQuery<getMeetingGroupResponse>(getMeetingGroup, {
+    fetchPolicy: 'cache-first',
+  });
 
-  const { data: presentationData } = useDeduplicatedSubscription(PRESENTATIONS_SUBSCRIPTION);
+  const { data: presentationData } = useDeduplicatedSubscription<PresentationsSubscriptionResponse>(
+    PRESENTATIONS_SUBSCRIPTION,
+  );
   const presentations = presentationData?.pres_presentation || [];
   const currentPresentation = presentations.find((p: Presentation) => p.current)?.presentationId || '';
 
@@ -711,7 +722,14 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
       priority={priority}
       isUpdate={isUpdate}
       isBreakoutRecordable={currentMeeting?.breakoutPolicies?.record ?? true}
-      users={usersData?.user ?? []}
+      users={currentMeeting?.meetingId
+        ? filterByMeetingId(
+          usersData?.user,
+          currentMeeting.meetingId,
+          getUser,
+          (u) => ({ mismatchedUserId: u.userId, mismatchedName: u.name }),
+        )
+        : []}
       runningRooms={breakoutsData?.breakoutRoom ?? []}
       presentations={presentations}
       currentPresentation={currentPresentation}

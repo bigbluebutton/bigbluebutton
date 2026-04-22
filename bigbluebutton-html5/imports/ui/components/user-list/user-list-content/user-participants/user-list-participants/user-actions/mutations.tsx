@@ -33,9 +33,18 @@ export const CHAT_CREATE_WITH_USER = gql`
   }
 `;
 
+export const SET_LISTEN_ONLY_INPUT_DEVICE = gql`
+  mutation UserSetListenOnlyInput($listenOnlyInputDevice: Boolean!) {
+    userSetListenOnlyInput(
+      listenOnlyInputDevice: $listenOnlyInputDevice,
+    )
+  }
+`;
+
 export default {
   SET_AWAY,
   SET_ROLE,
   USER_EJECT_CAMERAS,
   CHAT_CREATE_WITH_USER,
+  SET_LISTEN_ONLY_INPUT_DEVICE,
 };

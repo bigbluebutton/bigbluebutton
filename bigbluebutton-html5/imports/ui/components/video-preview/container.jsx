@@ -14,6 +14,10 @@ import {
 } from '/imports/ui/components/video-provider/hooks';
 import { useStorageKey } from '../../services/storage/hooks';
 import { useIsCustomVirtualBackgroundsEnabled, useIsVirtualBackgroundsEnabled } from '../../services/features';
+import { SET_AWAY } from '../user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
+import useCurrentUser from '../../core/hooks/useCurrentUser';
+import { layoutSelectInput } from '../layout/context';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const VideoPreviewContainer = (props) => {
   const {
@@ -22,6 +26,7 @@ const VideoPreviewContainer = (props) => {
   } = props;
   const cameraAsContentDeviceId = ScreenShareService.useCameraAsContentDeviceIdType();
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
+  const [setAway] = useMutation(SET_AWAY);
   const streams = useStreams();
   const exitVideo = useExitVideo();
   const stopVideo = useStopVideo();
@@ -34,7 +39,12 @@ const VideoPreviewContainer = (props) => {
   const isVirtualBackgroundsEnabled = useIsVirtualBackgroundsEnabled();
   const isCustomVirtualBackgroundsEnabled = useIsCustomVirtualBackgroundsEnabled();
   const isCameraAsContentBroadcasting = ScreenShareService.useIsCameraAsContentBroadcasting();
-
+  const { data: currentUser } = useCurrentUser((u) => ({
+    away: u.away,
+  }));
+  const { hideNotificationToasts } = layoutSelectInput((i) => i.notificationsBar);
+  const hideNotifications = hideNotificationToasts
+    || getFromUserSettings('bbb_hide_notifications', false);
   const stopSharing = (deviceId) => {
     callbackToClose();
     setIsOpen(false);
@@ -103,6 +113,9 @@ const VideoPreviewContainer = (props) => {
         webcamDeviceId,
         isVirtualBackgroundsEnabled,
         isCustomVirtualBackgroundsEnabled,
+        setAway,
+        isAway: currentUser?.away ?? false,
+        hideNotificationToasts: hideNotifications,
         ...props,
       }}
     />

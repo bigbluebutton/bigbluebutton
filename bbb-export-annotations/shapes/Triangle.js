@@ -10,9 +10,9 @@ import {Geo} from './Geo.js';
 export class Triangle extends Geo {
   /**
      * Draws a triangle shape on the SVG canvas.
-     * @return {G} Returns the SVG group element containing the triangle.
+     * @return {Promise<G>} Returns the SVG group element containing the triangle.
      */
-  draw() {
+  async draw() {
     const width = this.w;
     const height = this.h + this.growY;
     const halfWidth = width / 2;
@@ -34,7 +34,7 @@ export class Triangle extends Geo {
 
     this.setFill(triangle);
     triangleGroup.add(triangle);
-    this.drawLabel(triangleGroup);
+    await this.drawLabel(triangleGroup);
 
     return triangleGroup;
   }

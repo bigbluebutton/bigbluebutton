@@ -10,8 +10,6 @@ export interface LockSettings {
   hideViewersAnnotation: false,
   meetingId: boolean;
   webcamsOnlyForModerator: boolean;
-  lockOnJoin: boolean;
-  lockOnJoinConfigurable: boolean;
 }
 
 export interface groups {
@@ -56,6 +54,7 @@ export interface UsersPolicies {
   meetingLayout: string;
   userCameraCap: number;
   webcamsOnlyForModerator: boolean;
+  multiUserWhiteboardEnabled: boolean;
   guestLobbyMessage: string | null;
 }
 
@@ -74,7 +73,7 @@ export interface BreakoutPolicies {
   captureSlides: string;
   captureSlidesFilename: string;
   freeJoin: boolean;
-  parentId: string;
+  parentMeetingId: string;
   privateChatEnabled: boolean;
   record: boolean;
   sequence: number;
@@ -112,6 +111,10 @@ export interface ComponentsFlags {
   showRemainingTime: boolean;
   hasCameraAsContent: boolean;
   hasScreenshareAsContent: boolean;
+  hasCurrentPresentation: boolean;
+  hasSharedNotes: boolean;
+  isSharedNotesPinned: boolean;
+  isEtherpadSharedNotes: boolean;
 }
 
 export interface Meeting {

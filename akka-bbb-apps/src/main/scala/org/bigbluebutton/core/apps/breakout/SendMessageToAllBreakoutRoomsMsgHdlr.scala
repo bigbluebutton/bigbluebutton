@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.apps.breakout
 
+import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsIntOrElse
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.SendMessageToBreakoutRoomInternalMsg
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
@@ -22,33 +23,44 @@ trait SendMessageToAllBreakoutRoomsMsgHdlr extends RightsManagementTrait {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
       state
     } else {
-      for {
-        breakoutModel <- state.breakout
-        senderUser <- RegisteredUsers.findWithUserId(msg.header.userId, liveMeeting.registeredUsers)
-      } yield {
-        breakoutModel.rooms.values.foreach { room =>
-          eventBus.publish(BigBlueButtonEvent(room.id, SendMessageToBreakoutRoomInternalMsg(props.breakoutProps.parentId, room.id, senderUser.name, msg.body.msg)))
+      val minMsgLen = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.chat.min_message_length", 1)
+      val maxMsgLen = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.chat.max_message_length", 5000)
+      val msgLen = msg.body.msg.length
+
+      if (msgLen < minMsgLen || msgLen > maxMsgLen) {
+        log.warning(
+          s"Ignoring breakout message from user ${msg.header.userId} in meeting ${liveMeeting.props.meetingProp.intId}: message length $msgLen out of bounds [$minMsgLen, $maxMsgLen]"
+        )
+        state
+      } else {
+        for {
+          breakoutModel <- state.breakout
+          senderUser <- RegisteredUsers.findWithUserId(msg.header.userId, liveMeeting.registeredUsers)
+        } yield {
+          breakoutModel.rooms.values.foreach { room =>
+            eventBus.publish(BigBlueButtonEvent(room.id, SendMessageToBreakoutRoomInternalMsg(props.breakoutProps.parentId, room.id, senderUser.name, msg.body.msg)))
+          }
+
+          val event = buildSendMessageToAllBreakoutRoomsEvtMsg(msg.header.userId, msg.body.msg, breakoutModel.rooms.size)
+          outGW.send(event)
+
+          val notifyUserEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
+            msg.header.userId,
+            liveMeeting.props.meetingProp.intId,
+            "info",
+            "group_chat",
+            "app.createBreakoutRoom.msgToBreakoutsSent",
+            "Message for chat sent successfully",
+            Map("numberOfBreakouts" -> s"${breakoutModel.rooms.size}")
+          )
+          outGW.send(notifyUserEvent)
+          NotificationDAO.insert(notifyUserEvent)
+
+          log.debug("Sending message '{}' to all breakout rooms in meeting {}", msg.body.msg, props.meetingProp.intId)
         }
 
-        val event = buildSendMessageToAllBreakoutRoomsEvtMsg(msg.header.userId, msg.body.msg, breakoutModel.rooms.size)
-        outGW.send(event)
-
-        val notifyUserEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
-          msg.header.userId,
-          liveMeeting.props.meetingProp.intId,
-          "info",
-          "group_chat",
-          "app.createBreakoutRoom.msgToBreakoutsSent",
-          "Message for chat sent successfully",
-          Vector(s"${breakoutModel.rooms.size}")
-        )
-        outGW.send(notifyUserEvent)
-        NotificationDAO.insert(notifyUserEvent)
-
-        log.debug("Sending message '{}' to all breakout rooms in meeting {}", msg.body.msg, props.meetingProp.intId)
+        state
       }
-
-      state
     }
   }
 

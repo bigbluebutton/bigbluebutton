@@ -17,6 +17,7 @@ import {
 import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/errors';
 import Button from '/imports/ui/components/common/button/component';
 import { EXTERNAL_VIDEO_STOP } from '../../external-video-player/mutations';
+import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const { isMobile } = deviceInfo;
 const { isSafari, isTabletApp } = browserInfo;
@@ -27,7 +28,7 @@ const propTypes = {
   amIPresenter: PropTypes.bool,
   isScreenBroadcasting: PropTypes.bool.isRequired,
   isScreenGloballyBroadcasting: PropTypes.bool.isRequired,
-  isMeteorConnected: PropTypes.bool.isRequired,
+  isConnected: PropTypes.bool.isRequired,
 };
 
 const intlMessages = defineMessages({
@@ -137,7 +138,7 @@ const getErrorLocale = (errorCode) => {
 const getToastType = (errorCode) => {
   if ([SCREENSHARING_ERRORS.NotAllowedError.errorCode].includes(errorCode)) return 'warning';
   return 'error';
-}
+};
 
 const ScreenshareButton = ({
   intl,
@@ -145,14 +146,21 @@ const ScreenshareButton = ({
   isScreenBroadcasting,
   isScreenGloballyBroadcasting,
   amIPresenter = false,
-  isMeteorConnected,
+  isConnected,
   screenshareDataSavingSetting,
 }) => {
   const TROUBLESHOOTING_URLS = window.meetingClientSettings.public.media.screenshareTroubleshootingLinks;
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
   const isCameraAsContentBroadcasting = useIsCameraAsContentBroadcasting();
 
-  const [isScreenshareUnavailableModalOpen, setScreenshareUnavailableModalIsOpen] = useState(false);
+  const {
+    isOpen: isScreenshareUnavailableModalOpen,
+    open: openScreenshareUnavailableModal,
+    close: closeScreenshareUnavailableModal,
+  } = useModalRegistration({
+    id: 'screenshareUnavailableModal',
+    priority: 'low',
+  });
 
   const getHelpInfoForError = (errorCode) => {
     if (TROUBLESHOOTING_URLS && Object.keys(TROUBLESHOOTING_URLS).includes(errorCode)) {
@@ -162,7 +170,7 @@ const ScreenshareButton = ({
       };
     }
     return {};
-  }
+  };
 
   // This is the failure callback that will be passed to the /api/screenshare/kurento.js
   // script on the presenter's call
@@ -177,7 +185,7 @@ const ScreenshareButton = ({
     const toastType = getToastType(errorCode);
 
     if (localizedError) {
-      notify(intl.formatMessage(localizedError, { 0: errorCode }), toastType, 'desktop', { ...helpInfo });
+      notify(intl.formatMessage(localizedError, { errorCode }), toastType, 'desktop', { ...helpInfo });
       logger.error({
         logCode: 'screenshare_failed',
         extraInfo: { errorCode, errorMessage },
@@ -228,7 +236,7 @@ const ScreenshareButton = ({
           ? (
             <Styled.Container>
               <Button
-                disabled={(!isMeteorConnected && !isScreenBroadcasting) || !screenshareDataSavingSetting || !amIPresenter}
+                disabled={(!isConnected && !isScreenBroadcasting) || !screenshareDataSavingSetting || !amIPresenter}
                 icon={amIBroadcasting ? 'desktop' : 'desktop_off'}
                 data-test={dataTest}
                 label={intl.formatMessage(intlMessages[`${info}Label`])}
@@ -242,7 +250,7 @@ const ScreenshareButton = ({
                   ? screenshareHasEnded
                   : () => {
                     if (isSafari && !ScreenshareBridgeService.HAS_DISPLAY_MEDIA) {
-                      setScreenshareUnavailableModalIsOpen(true);
+                      openScreenshareUnavailableModal();
                     } else {
                       // eslint-disable-next-line max-len
                       shareScreen(isCameraAsContentBroadcasting, stopExternalVideoShare, amIPresenter, handleFailure);
@@ -253,18 +261,15 @@ const ScreenshareButton = ({
             </Styled.Container>
           ) : null
       }
-      {
-        isScreenshareUnavailableModalOpen ? (
-          <RenderScreenshareUnavailableModal
-            {...{
-              onRequestClose: () => setScreenshareUnavailableModalIsOpen(false),
-              priority: 'low',
-              setIsOpen: setScreenshareUnavailableModalIsOpen,
-              isOpen: isScreenshareUnavailableModalOpen,
-            }}
-          />
-        ) : null
-      }
+      {isScreenshareUnavailableModalOpen && (
+        <RenderScreenshareUnavailableModal
+          onRequestClose={closeScreenshareUnavailableModal}
+          priority="low"
+          setIsOpen={isScreenshareUnavailableModalOpen
+            ? closeScreenshareUnavailableModal : openScreenshareUnavailableModal}
+          isOpen={isScreenshareUnavailableModalOpen}
+        />
+      )}
     </>
   );
 };

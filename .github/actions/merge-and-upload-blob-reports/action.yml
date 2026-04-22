@@ -3,7 +3,6 @@ description: Merge and upload the blob reports to GitHub Actions Artifacts
 runs:
   using: composite
   steps:
-    - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
       with:
         node-version: 22
@@ -25,10 +24,15 @@ runs:
     - name: Merge into HTML Report
       shell: bash
       working-directory: ./bigbluebutton-tests/playwright
-      run: npx playwright merge-reports --reporter html ./all-blob-reports
+      run: npx playwright merge-reports --reporter html ./all-blob-reports -c playwright.config.ts
     - name: Upload HTML tests report
       uses: actions/upload-artifact@v4
       with:
         name: tests-report
         overwrite: true
         path: bigbluebutton-tests/playwright/playwright-report
+    - name: Delete unnecessary merged blob reports artifact
+      uses: geekyeggo/delete-artifact@v5
+      with:
+        name: all-blob-reports
+        failOnError: false

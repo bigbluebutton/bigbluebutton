@@ -34,17 +34,9 @@ object ClientToServerLatencyTracerMsg { val NAME = "ClientToServerLatencyTracerM
 case class ClientToServerLatencyTracerMsg(header: BbbClientMsgHeader, body: ClientToServerLatencyTracerMsgBody) extends StandardMsg
 case class ClientToServerLatencyTracerMsgBody(timestampUTC: Long, rtt: Long, senderId: String)
 
-object ClearWhiteboardPubMsg { val NAME = "ClearWhiteboardPubMsg" }
-case class ClearWhiteboardPubMsg(header: BbbClientMsgHeader, body: ClearWhiteboardPubMsgBody) extends StandardMsg
-case class ClearWhiteboardPubMsgBody(whiteboardId: String)
-
 object GetWhiteboardAnnotationsReqMsg { val NAME = "GetWhiteboardAnnotationsReqMsg" }
 case class GetWhiteboardAnnotationsReqMsg(header: BbbClientMsgHeader, body: GetWhiteboardAnnotationsReqMsgBody) extends StandardMsg
 case class GetWhiteboardAnnotationsReqMsgBody(whiteboardId: String)
-
-object ModifyWhiteboardAccessPubMsg { val NAME = "ModifyWhiteboardAccessPubMsg" }
-case class ModifyWhiteboardAccessPubMsg(header: BbbClientMsgHeader, body: ModifyWhiteboardAccessPubMsgBody) extends StandardMsg
-case class ModifyWhiteboardAccessPubMsgBody(whiteboardId: String, multiUser: Array[String])
 
 object SendCursorPositionPubMsg { val NAME = "SendCursorPositionPubMsg" }
 case class SendCursorPositionPubMsg(header: BbbClientMsgHeader, body: SendCursorPositionPubMsgBody) extends StandardMsg
@@ -76,13 +68,9 @@ object GetWhiteboardAnnotationsRespMsg { val NAME = "GetWhiteboardAnnotationsRes
 case class GetWhiteboardAnnotationsRespMsg(header: BbbClientMsgHeader, body: GetWhiteboardAnnotationsRespMsgBody) extends BbbCoreMsg
 case class GetWhiteboardAnnotationsRespMsgBody(whiteboardId: String, annotations: Array[AnnotationVO], multiUser: Array[String])
 
-object ModifyWhiteboardAccessEvtMsg { val NAME = "ModifyWhiteboardAccessEvtMsg" }
-case class ModifyWhiteboardAccessEvtMsg(header: BbbClientMsgHeader, body: ModifyWhiteboardAccessEvtMsgBody) extends BbbCoreMsg
-case class ModifyWhiteboardAccessEvtMsgBody(whiteboardId: String, multiUser: Array[String])
-
 object SendCursorPositionEvtMsg { val NAME = "SendCursorPositionEvtMsg" }
 case class SendCursorPositionEvtMsg(header: BbbClientMsgHeader, body: SendCursorPositionEvtMsgBody) extends BbbCoreMsg
-case class SendCursorPositionEvtMsgBody(whiteboardId: String, xPercent: Double, yPercent: Double)
+case class SendCursorPositionEvtMsgBody(whiteboardId: String, userIsViewer: Boolean, xPercent: Double, yPercent: Double)
 
 object SendWhiteboardAnnotationsEvtMsg { val NAME = "SendWhiteboardAnnotationsEvtMsg" }
 case class SendWhiteboardAnnotationsEvtMsg(header: BbbClientMsgHeader, body: SendWhiteboardAnnotationsEvtMsgBody) extends BbbCoreMsg

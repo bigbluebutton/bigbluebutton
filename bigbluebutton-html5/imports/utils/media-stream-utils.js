@@ -74,6 +74,7 @@ const getMediaStreamLogData = (stream) => {
     const videoTracks = getVideoTracks(stream);
 
     return {
+      valid: true,
       active: stream.active,
       id: stream.id,
       audio: audioTracks.map((track) => ({
@@ -90,7 +91,7 @@ const getMediaStreamLogData = (stream) => {
       })),
     };
   } catch (error) {
-    return { audio: [], video: [] };
+    return { audio: [], video: [], valid: false };
   }
 };
 

@@ -10,6 +10,7 @@ public class CreateBreakoutRoom implements IMessage {
     public final String name; // The name of the breakout room
     public final Integer sequence; // The sequence number of the breakout room
     public final String shortName; // Name used in breakout rooms list
+    public final String sharedNotesEditor; // Editor used for shared notes - blockNote or etherpad
     public final Boolean isDefaultName; // Inform if using default name or changed by moderator
     public final Boolean freeJoin; // Allow users to freely join the conference
                                    // in the client
@@ -31,12 +32,14 @@ public class CreateBreakoutRoom implements IMessage {
     public final String audioBridge;
     public final String cameraBridge;
     public final String screenShareBridge;
+    public final Boolean disablePrivChat;
 
     public CreateBreakoutRoom(String meetingId,
 															String parentMeetingId,
 															String name,
 															Integer sequence,
 															String shortName,
+                                                            String sharedNotesEditor,
 															Boolean isDefaultName,
 															Boolean freeJoin,
 															String dialNumber,
@@ -56,12 +59,14 @@ public class CreateBreakoutRoom implements IMessage {
                                                             ArrayList<String> disabledFeatures,
                                                             String audioBridge,
                                                             String cameraBridge,
-                                                            String screenShareBridge) {
+                                                            String screenShareBridge,
+                                                            Boolean disablePrivChat) {
         this.meetingId = meetingId;
         this.parentMeetingId = parentMeetingId;
         this.name = name;
         this.sequence = sequence;
         this.shortName = shortName;
+        this.sharedNotesEditor = sharedNotesEditor;
         this.isDefaultName = isDefaultName;
         this.freeJoin = freeJoin;
         this.dialNumber = dialNumber;
@@ -82,5 +87,6 @@ public class CreateBreakoutRoom implements IMessage {
         this.audioBridge = audioBridge;
         this.cameraBridge = cameraBridge;
         this.screenShareBridge = screenShareBridge;
+        this.disablePrivChat = disablePrivChat;
     }
 }

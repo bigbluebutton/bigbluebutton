@@ -1,9 +1,6 @@
 import React, {
   useCallback,
-  useEffect,
   useMemo,
-  useRef,
-  useState,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import {
@@ -11,8 +8,6 @@ import {
 } from '@apollo/client';
 import Header from '/imports/ui/components/common/control-header/component';
 import Styled from './styles';
-import GET_TIMER, { GetTimerResponse, TimerData } from '../../../core/graphql/queries/timer';
-import logger from '/imports/startup/client/logger';
 import { layoutDispatch } from '../../layout/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
 import {
@@ -23,9 +18,10 @@ import {
   TIMER_STOP,
   TIMER_SWITCH_MODE,
 } from '../mutations';
-import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
-import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import useTimer from '/imports/ui/core/hooks/useTimer';
+import { TimerData } from '/imports/ui/core/graphql/queries/timer';
+import logger from '/imports/startup/client/logger';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const MAX_HOURS = 23;
@@ -103,7 +99,7 @@ const intlMessages = defineMessages({
   },
 });
 
-interface TimerPanelProps extends Omit<TimerData, 'elapsed'> {
+interface TimerPanelProps extends Omit<TimerData, 'active' | 'elapsed' | 'startedAt' | 'accumulated'> {
   timePassed: number;
 }
 
@@ -113,8 +109,6 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
   time,
   running,
   timePassed,
-  startedOn,
-  active,
 }) => {
   const [timerReset] = useMutation(TIMER_RESET);
   const [timerStart] = useMutation(TIMER_START);
@@ -125,9 +119,6 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
 
   const intl = useIntl();
   const layoutContextDispatch = layoutDispatch();
-
-  const [runningTime, setRunningTime] = useState<number>(0);
-  const intervalRef = useRef<ReturnType<typeof setInterval>>();
 
   const headerMessage = useMemo(() => {
     return stopwatch ? intlMessages.stopwatch : intlMessages.timer;
@@ -199,54 +190,6 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
       value: PANELS.NONE,
     });
   }, []);
-
-  useEffect(() => {
-    setRunningTime(timePassed);
-  }, []);
-
-  // if startedOn is 0, means the time was reset
-  useEffect(() => {
-    if (startedOn === 0) {
-      setRunningTime(timePassed);
-    }
-  }, [startedOn]);
-
-  // updates the timer every second locally
-  useEffect(() => {
-    if (running) {
-      setRunningTime(timePassed < 0 ? 0 : timePassed);
-      intervalRef.current = setInterval(() => {
-        setRunningTime((prev) => {
-          const calcTime = (Math.round(prev / 1000) * 1000);
-          if (stopwatch) {
-            return (calcTime < 0 ? 0 : calcTime) + 1000;
-          }
-          const t = (calcTime) - 1000;
-          return t < 0 ? 0 : t;
-        });
-      }, 1000);
-    } else if (!running) {
-      clearInterval(intervalRef.current);
-    }
-  }, [running]);
-
-  // sync local time with server time
-  useEffect(() => {
-    if (!running) return;
-
-    const time = timePassed >= 0 ? timePassed : 0;
-
-    setRunningTime((prev) => {
-      if (time) return timePassed;
-      return prev;
-    });
-  }, [timePassed, stopwatch, startedOn]);
-
-  useEffect(() => {
-    if (!active) {
-      closePanel();
-    }
-  }, [active]);
 
   const timerControls = useMemo(() => {
     const timeFormatedString = humanizeSeconds(Math.floor(time / 1000));
@@ -398,7 +341,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
           aria-hidden
           data-test="timerCurrent"
         >
-          {humanizeSeconds(Math.floor(runningTime / 1000))}
+          {humanizeSeconds(Math.floor(timePassed / 1000))}
         </Styled.TimerCurrent>
         <Styled.TimerType>
           <Styled.TimerSwitchButton
@@ -429,15 +372,13 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
 };
 
 const TimerPanelContaier: React.FC = () => {
-  const [timeSync] = useTimeSync();
   const {
+    data: timerData,
     loading: timerLoading,
     error: timerError,
-    data: timerData,
-  } = useDeduplicatedSubscription<GetTimerResponse>(GET_TIMER);
+  } = useTimer();
 
   if (timerLoading || !timerData) return null;
-
   if (timerError) {
     connectionStatus.setSubscriptionFailed(true);
     logger.error(
@@ -452,29 +393,21 @@ const TimerPanelContaier: React.FC = () => {
     return null;
   }
 
-  const timer = timerData.timer[0];
-
-  const currentDate: Date = new Date();
-  const startedAtDate: Date = new Date(timer.startedAt);
-  const adjustedCurrent: Date = new Date(currentDate.getTime() + timeSync);
-  const timeDifferenceMs: number = adjustedCurrent.getTime() - startedAtDate.getTime();
-
-  const timePassed = timer.stopwatch ? (
-    Math.floor(((timer.running ? timeDifferenceMs : 0) + timer.accumulated))
-  ) : (
-    Math.floor(((timer.time) - (timer.accumulated + (timer.running ? timeDifferenceMs : 0)))));
+  const {
+    stopwatch,
+    songTrack,
+    running,
+    time,
+    timePassed = 0,
+  } = timerData;
 
   return (
     <TimerPanel
-      stopwatch={timer.stopwatch ?? false}
-      songTrack={timer.songTrack ?? 'noTrack'}
-      running={timer.running ?? false}
+      stopwatch={stopwatch}
+      songTrack={songTrack}
+      running={running}
       timePassed={timePassed}
-      accumulated={timer.accumulated}
-      active={timer.active ?? false}
-      time={timer.time}
-      startedOn={timer.startedOn}
-      startedAt={timer.startedAt}
+      time={time}
     />
   );
 };

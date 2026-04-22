@@ -1,13 +1,16 @@
 package websrv
 
 import (
-	"bbb-graphql-middleware/config"
-	"bbb-graphql-middleware/internal/common"
 	"context"
 	"encoding/json"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
+
+	"bbb-graphql-middleware/config"
+	"bbb-graphql-middleware/internal/common"
+	streamingserver "bbb-graphql-middleware/internal/streaming_server"
 
 	"github.com/redis/go-redis/v9"
 	log "github.com/sirupsen/logrus"
@@ -23,10 +26,26 @@ func GetRedisConn() *redis.Client {
 	return redisClient
 }
 
+var allowedMessages = []string{
+	"ForceUserGraphqlReconnectionSysMsg",
+	"ForceUserGraphqlDisconnectionSysMsg",
+	"CheckGraphqlMiddlewareAlivePingSysMsg",
+	"SendCursorPositionEvtMsg",
+	"SetCurrentPageEvtMsg",
+	"NotifyAllInMeetingEvtMsg",
+	"NotifyUserInMeetingEvtMsg",
+	"NotifyRoleInMeetingEvtMsg",
+	"GroupChatMessageBroadcastEvtMsg",
+	"ModifyWhiteboardAccessEvtMsg",
+	"UserVoiceStateEvtMsg",
+	"UserLeftMeetingEvtMsg",
+	"MeetingEndedEvtMsg",
+}
+
 func StartRedisListener() {
 	log := log.WithField("_routine", "StartRedisListener")
 
-	var ctx = context.Background()
+	ctx := context.Background()
 
 	subscriber := GetRedisConn().Subscribe(ctx, "from-akka-apps-redis-channel")
 
@@ -36,54 +55,122 @@ func StartRedisListener() {
 			log.Errorf("error: %v", err)
 		}
 
-		// Skip parsing unnecessary messages
-		if !strings.Contains(msg.Payload, "ForceUserGraphqlReconnectionSysMsg") &&
-			!strings.Contains(msg.Payload, "ForceUserGraphqlDisconnectionSysMsg") &&
-			!strings.Contains(msg.Payload, "CheckGraphqlMiddlewareAlivePingSysMsg") {
+		var receivedRedisMessageEnvelope struct {
+			Envelope struct {
+				Name string `json:"name"`
+			} `json:"envelope"`
+		}
+
+		err = json.Unmarshal([]byte(msg.Payload), &receivedRedisMessageEnvelope)
+		if err != nil {
 			continue
 		}
 
-		var message interface{}
-		if err := json.Unmarshal([]byte(msg.Payload), &message); err != nil {
-			panic(err)
+		// Skip parsing unnecessary messages
+		if !slices.Contains(allowedMessages, receivedRedisMessageEnvelope.Envelope.Name) {
+			continue
 		}
 
-		messageAsMap := message.(map[string]interface{})
+		log.Debugf("Received Redis Message: %s\n", receivedRedisMessageEnvelope.Envelope.Name)
 
-		messageEnvelopeAsMap := messageAsMap["envelope"].(map[string]interface{})
+		var receivedMessage common.RedisMessage
 
-		messageType := messageEnvelopeAsMap["name"]
+		if err := json.Unmarshal([]byte(msg.Payload), &receivedMessage); err != nil {
+			continue
+		}
 
-		if messageType == "ForceUserGraphqlReconnectionSysMsg" {
-			messageCoreAsMap := messageAsMap["core"].(map[string]interface{})
-			messageBodyAsMap := messageCoreAsMap["body"].(map[string]interface{})
-			sessionTokenToInvalidate := messageBodyAsMap["sessionToken"]
-			reason := messageBodyAsMap["reason"]
-			log.Debugf("Received reconnection request for sessionToken %v (%v)", sessionTokenToInvalidate, reason)
+		messageName := receivedRedisMessageEnvelope.Envelope.Name
+
+		if messageName == "ForceUserGraphqlReconnectionSysMsg" {
+			sessionTokenToInvalidate := receivedMessage.Core.Body["sessionToken"]
+			reason := receivedMessage.Core.Body["reason"]
+			log.Infof("Received reconnection request for sessionToken %v (%v)", sessionTokenToInvalidate, reason)
 
 			go InvalidateSessionTokenHasuraConnections(sessionTokenToInvalidate.(string))
 		}
 
-		if messageType == "ForceUserGraphqlDisconnectionSysMsg" {
-			messageCoreAsMap := messageAsMap["core"].(map[string]interface{})
-			messageBodyAsMap := messageCoreAsMap["body"].(map[string]interface{})
-			sessionTokenToInvalidate := messageBodyAsMap["sessionToken"]
-			reason := messageBodyAsMap["reason"]
-			reasonMsgId := messageBodyAsMap["reasonMessageId"]
-			log.Debugf("Received disconnection request for sessionToken %v (%s - %s)", sessionTokenToInvalidate, reasonMsgId, reason)
+		if messageName == "ForceUserGraphqlDisconnectionSysMsg" {
+			sessionTokenToInvalidate := receivedMessage.Core.Body["sessionToken"]
+			reason := receivedMessage.Core.Body["reason"]
+			reasonMsgId := receivedMessage.Core.Body["reasonMessageId"]
+			log.Infof("Received disconnection request for sessionToken %v (%s - %s)", sessionTokenToInvalidate, reasonMsgId, reason)
 
-			//Not being used yet
+			// Not being used yet
 			go InvalidateSessionTokenBrowserConnections(sessionTokenToInvalidate.(string), reasonMsgId.(string), reason.(string))
 		}
 
-		//Ping message requires a response with a Pong message
-		if messageType == "CheckGraphqlMiddlewareAlivePingSysMsg" &&
+		// Clear cursor position history on SetCurrentPage or ModifyWhiteboardAccess
+		if messageName == "SetCurrentPageEvtMsg" || messageName == "ModifyWhiteboardAccessEvtMsg" {
+			log.Debugf("Removing cursor positions for meeting: %s", receivedMessage.Core.Header.MeetingId)
+			go streamingserver.RemoveMeetingCursorsCache(receivedMessage.Core.Header.MeetingId)
+		}
+		if messageName == "MeetingEndedEvtMsg" {
+			log.Debugf("Removing cursor positions for meeting: %s", receivedMessage.Core.Body["meetingId"].(string))
+			go streamingserver.RemoveMeetingCursorsCache(receivedMessage.Core.Body["meetingId"].(string))
+			go streamingserver.RemoveMeetingUserVoiceStatesCache(receivedMessage.Core.Body["meetingId"].(string))
+			go common.RemoveMeetingHasuraMessageCache(receivedMessage.Core.Body["meetingId"].(string))
+			go common.RemoveMeetingPatchedMessageCache(receivedMessage.Core.Body["meetingId"].(string))
+			go common.RemoveMeetingStreamCursorValueCache(receivedMessage.Core.Body["meetingId"].(string))
+		}
+		if messageName == "UserLeftMeetingEvtMsg" {
+			log.Debugf("Removing cursor positions for meeting: %s, user: %s", receivedMessage.Core.Header.MeetingId, receivedMessage.Core.Header.UserId)
+			go streamingserver.RemoveUserCursorsCache(receivedMessage.Core.Header.MeetingId, receivedMessage.Core.Header.UserId)
+		}
+
+		if messageName == "SendCursorPositionEvtMsg" {
+			go streamingserver.HandleSendCursorPositionEvtMsg(
+				receivedMessage,
+				BrowserConnectionsMutex,
+				BrowserConnections,
+			)
+		}
+
+		if messageName == "NotifyAllInMeetingEvtMsg" {
+			go streamingserver.HandleNotifyAllInMeetingEvtMsg(
+				receivedMessage,
+				BrowserConnectionsMutex,
+				BrowserConnections,
+			)
+		}
+
+		if messageName == "NotifyUserInMeetingEvtMsg" {
+			go streamingserver.HandleNotifyUserInMeetingEvtMsg(
+				receivedMessage,
+				BrowserConnectionsMutex,
+				BrowserConnections,
+			)
+		}
+
+		if messageName == "NotifyRoleInMeetingEvtMsg" {
+			go streamingserver.HandleNotifyRoleInMeetingEvtMsg(
+				receivedMessage,
+				BrowserConnectionsMutex,
+				BrowserConnections,
+			)
+		}
+
+		if messageName == "GroupChatMessageBroadcastEvtMsg" {
+			go streamingserver.HandleGroupChatMessageBroadcastEvtMsg(
+				receivedMessage,
+				BrowserConnectionsMutex,
+				BrowserConnections,
+			)
+		}
+
+		if messageName == "UserVoiceStateEvtMsg" {
+			go streamingserver.HandleUserVoiceStateEvtMsg(
+				receivedMessage,
+				BrowserConnectionsMutex,
+				BrowserConnections,
+			)
+		}
+
+		// Ping message requires a response with a Pong message
+		if messageName == "CheckGraphqlMiddlewareAlivePingSysMsg" &&
 			strings.Contains(msg.Payload, common.GetUniqueID()) {
-			messageCoreAsMap := messageAsMap["core"].(map[string]interface{})
-			messageBodyAsMap := messageCoreAsMap["body"].(map[string]interface{})
-			middlewareUID := messageBodyAsMap["middlewareUID"]
+			middlewareUID := receivedMessage.Core.Body["middlewareUID"]
 			if middlewareUID == common.GetUniqueID() {
-				log.Debugf("Received ping message from akka-apps")
+				log.Infof("Received ping message from akka-apps")
 				go SendCheckGraphqlMiddlewareAlivePongSysMsg()
 			}
 		}
@@ -127,11 +214,16 @@ func sendBbbCoreMsgToRedis(name string, body map[string]interface{}) {
 		return
 	}
 
+	if log.IsLevelEnabled(log.DebugLevel) {
+		if bodyAsJson, err := json.Marshal(body); err == nil {
+			log.Debugf("Redis message sent %s: %s", name, bodyAsJson)
+		}
+	}
 	log.Tracef("JSON message sent to channel %s:\n%s\n", channelName, string(messageJSON))
 }
 
 func SendUserGraphqlReconnectionForcedEvtMsg(sessionToken string) {
-	var body = map[string]interface{}{
+	body := map[string]interface{}{
 		"middlewareUID": common.GetUniqueID(),
 		"sessionToken":  sessionToken,
 	}
@@ -140,7 +232,7 @@ func SendUserGraphqlReconnectionForcedEvtMsg(sessionToken string) {
 }
 
 func SendUserGraphqlDisconnectionForcedEvtMsg(sessionToken string) {
-	var body = map[string]interface{}{
+	body := map[string]interface{}{
 		"middlewareUID": common.GetUniqueID(),
 		"sessionToken":  sessionToken,
 	}
@@ -153,8 +245,9 @@ func SendUserGraphqlConnectionEstablishedSysMsg(
 	clientSessionUUID string,
 	clientType string,
 	clientIsMobile bool,
-	browserConnectionId string) {
-	var body = map[string]interface{}{
+	browserConnectionId string,
+) {
+	body := map[string]interface{}{
 		"middlewareUID":       common.GetUniqueID(),
 		"sessionToken":        sessionToken,
 		"clientSessionUUID":   clientSessionUUID,
@@ -167,7 +260,7 @@ func SendUserGraphqlConnectionEstablishedSysMsg(
 }
 
 func SendUserGraphqlConnectionClosedSysMsg(sessionToken string, browserConnectionId string) {
-	var body = map[string]interface{}{
+	body := map[string]interface{}{
 		"middlewareUID":       common.GetUniqueID(),
 		"sessionToken":        sessionToken,
 		"browserConnectionId": browserConnectionId,
@@ -177,7 +270,7 @@ func SendUserGraphqlConnectionClosedSysMsg(sessionToken string, browserConnectio
 }
 
 func SendCheckGraphqlMiddlewareAlivePongSysMsg() {
-	var body = map[string]interface{}{
+	body := map[string]interface{}{
 		"middlewareUID": common.GetUniqueID(),
 	}
 

@@ -1,12 +1,13 @@
 import React, { useEffect, useMemo } from 'react';
 
-import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/consts';
-import { UserListUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/user-list/types';
+import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data/hooks/consts';
+import { UserListUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data/domain/user-list/types';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { User } from '/imports/ui/Types/user';
 import Styled from './styles';
 import {
   USER_AGGREGATE_COUNT_SUBSCRIPTION,
+  UsersCountSubscriptionResponse,
 } from './queries';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import UserListParticipantsPageContainer from './page/component';
@@ -24,7 +25,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   const [visibleUsers, setVisibleUsers] = React.useState<{
     [key: number]: User[];
   }>({});
-  const userListRef = React.useRef<HTMLDivElement | null>(null);
+  const userListRef = React.useRef<HTMLUListElement | null>(null);
   const selectedUserRef = React.useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -82,12 +83,11 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   return (
     (
       <Styled.UserListColumn
-        // @ts-ignore
         onKeyDown={rove}
         tabIndex={0}
         role="list"
       >
-        <Styled.VirtualizedList ref={userListRef}>
+        <Styled.VirtualizedList as="ul" ref={userListRef}>
           {
             Array.from({ length: amountOfPages }).map((_, i) => {
               const isLastItem = amountOfPages === (i + 1);
@@ -131,7 +131,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
 const UserListParticipantsContainer: React.FC = () => {
   const {
     data: countData,
-  } = useDeduplicatedSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
+  } = useDeduplicatedSubscription<UsersCountSubscriptionResponse>(USER_AGGREGATE_COUNT_SUBSCRIPTION);
   const count = countData?.user_aggregate?.aggregate?.count || 0;
 
   return (

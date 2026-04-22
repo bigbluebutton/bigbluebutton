@@ -1,9 +1,10 @@
 import { gql } from '@apollo/client';
 
 export const POLL_PUBLISH_RESULT = gql`
-  mutation PollPublishResult($pollId: String!) {
+  mutation PollPublishResult($pollId: String!, $showAnswer: Boolean) {
     pollPublishResult(
       pollId: $pollId,
+      showAnswer: $showAnswer,
     )
   }
 `;
@@ -38,16 +39,20 @@ export const POLL_CREATE = gql`
     $pollId: String!,
     $secretPoll: Boolean!,
     $question: String!,
-    $isMultipleResponse: Boolean!,
+    $multipleResponse: Boolean!,
+    $quiz: Boolean!,
     $answers: [String]!
+    $correctAnswer: String,
   ) {
     pollCreate(
       pollType: $pollType,
       pollId: $pollId,
       secretPoll: $secretPoll,
       question: $question,
-      isMultipleResponse: $isMultipleResponse,
+      multipleResponse: $multipleResponse,
+      quiz: $quiz,
       answers: $answers,
+      correctAnswer: $correctAnswer,
     )
   }
 `;

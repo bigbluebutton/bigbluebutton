@@ -15,10 +15,11 @@ var sessionVarsHookUrl = config.GetConfig().SessionVarsHook.Url
 var internalError = fmt.Errorf("server internal error")
 var internalErrorId = "internal_error"
 
-func AkkaAppsGetSessionVariablesFrom(browserConnectionId string, sessionToken string) (map[string]string, error, string) {
+func AkkaAppsGetSessionVariablesFrom(browserConnectionId string, sessionToken string, clientSessionUUID string) (map[string]string, error, string) {
 	logger := log.WithField("_routine", "AkkaAppsClient").
 		WithField("browserConnectionId", browserConnectionId).
-		WithField("sessionToken", sessionToken)
+		WithField("sessionToken", sessionToken).
+		WithField("clientSessionUUID", clientSessionUUID)
 
 	logger.Debug("Starting AkkaAppsClient")
 	defer logger.Debug("Finished AkkaAppsClient")

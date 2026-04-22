@@ -26,7 +26,7 @@ trait MuteMeetingCmdMsgHdlr extends RightsManagementTrait {
             "mute",
             "app.toast.usersJoinMutedOn.label",
             "Message used when Users Join Muted mode was enabled",
-            Vector()
+            Map()
           )
           outGW.send(notifyEvent)
           NotificationDAO.insert(notifyEvent)
@@ -39,7 +39,7 @@ trait MuteMeetingCmdMsgHdlr extends RightsManagementTrait {
             "unmute",
             "app.toast.usersJoinMutedOff.label",
             "Message used when Users Join Muted mode was disabled",
-            Vector()
+            Map()
           )
           outGW.send(notifyEvent)
           NotificationDAO.insert(notifyEvent)

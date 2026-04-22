@@ -1,13 +1,13 @@
 package org.bigbluebutton.core.apps.breakout
 
-import org.bigbluebutton.ClientSettings.{getConfigPropertyValueByPath, getConfigPropertyValueByPathAsIntOrElse}
+import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPath, getConfigPropertyValueByPathAsIntOrElse }
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.{BreakoutModel, PermissionCheck, RightsManagementTrait}
+import org.bigbluebutton.core.apps.{ BreakoutModel, PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.db.BreakoutRoomDAO
-import org.bigbluebutton.core.domain.{BreakoutRoom2x, MeetingState2x}
+import org.bigbluebutton.core.domain.{ BreakoutRoom2x, MeetingState2x }
 import org.bigbluebutton.core.models.PluginModel.getPlugins
-import org.bigbluebutton.core.models.{Plugin, PresentationInPod}
-import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
+import org.bigbluebutton.core.models.{ Plugin, PresentationInPod }
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.running.MeetingActor
 
 import java.util
@@ -21,8 +21,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
 
   def handleCreateBreakoutRoomsCmdMsg(msg: CreateBreakoutRoomsCmdMsg, state: MeetingState2x): MeetingState2x = {
 
-
-    val minOfRooms = 2
+    val minOfRooms = 1
     val maxOfRooms = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.app.breakouts.breakoutRoomLimit", 16)
 
     if (liveMeeting.props.meetingProp.disabledFeatures.contains("breakoutRooms")) {
@@ -36,7 +35,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId,
         reason, outGW, liveMeeting)
       state
-    } else if(msg.body.rooms.length > maxOfRooms || msg.body.rooms.length < minOfRooms) {
+    } else if (msg.body.rooms.length > maxOfRooms || msg.body.rooms.length < minOfRooms) {
       log.warning(
         "Attempt to create breakout rooms with invalid number of rooms (rooms: {}, max: {}, min: {}) in meeting {}",
         msg.body.rooms.size,
@@ -65,7 +64,10 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
     var rooms = new collection.immutable.HashMap[String, BreakoutRoom2x]
     val filteredPluginProp = liveMeeting.props.pluginProp.asScala
       .filter { case (key, _) =>
-        getPlugins(liveMeeting.plugins).get(key).exists(_.manifest.content.enabledForBreakoutRooms)
+        getPlugins(liveMeeting.plugins).get(key).exists(_.manifest.content match {
+          case Some(pluginManifestContent)   => pluginManifestContent.enabledForBreakoutRooms
+          case None                          => false
+        })
       }
       .asJava
 
@@ -88,11 +90,17 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
     for (breakout <- rooms.values.toVector) {
 
       val roomSlides = if (breakout.allPages) -1 else presSlide;
-      val roomDetail = new BreakoutRoomDetail(
-        breakout.id, breakout.name,
+
+      // get lock settings from parent meeting
+      val lockSettings = org.bigbluebutton.core2.MeetingStatus2x.getPermissions(liveMeeting.status)
+
+      val roomDetail = BreakoutRoomDetail(
+        breakout.id,
+        breakout.name,
         liveMeeting.props.meetingProp.intId,
         breakout.sequence,
         breakout.shortName,
+        liveMeeting.props.meetingProp.sharedNotesEditor,
         breakout.isDefaultName,
         breakout.freeJoin,
         liveMeeting.props.voiceProp.dialNumber,
@@ -113,6 +121,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         liveMeeting.props.meetingProp.audioBridge,
         liveMeeting.props.meetingProp.cameraBridge,
         liveMeeting.props.meetingProp.screenShareBridge,
+        lockSettings.disablePrivChat
       )
 
       val event = buildCreateBreakoutRoomSysCmdMsg(liveMeeting.props.meetingProp.intId, roomDetail)

@@ -1,168 +1,63 @@
-import { useEffect, useRef, useState } from 'react';
-import { makeVar, useReactiveVar } from '@apollo/client';
-import { VoiceActivityResponse } from '/imports/ui/core/graphql/queries/whoIsTalking';
-import { partition } from '/imports/utils/array-utils';
+import { useMemo } from 'react';
+import useShouldUseLiveKitAudioState from './livekit/useShouldUseLiveKitAudioState';
+import useTalkingUsersLiveKit, {
+  useTalkingUserConsumersCount as useTalkingUserConsumersCountLiveKit,
+  setTalkingUserLoading as setTalkingUserLoadingLiveKit,
+  dispatchTalkingUserUpdate as dispatchTalkingUserUpdateLiveKit,
+} from './livekit/useTalkingUsersLiveKit';
+import useTalkingUsersGraphql, {
+  useTalkingUserConsumersCount as useTalkingUserConsumersCountGraphql,
+  dispatchTalkingUserUpdate as dispatchTalkingUserUpdateGraphql,
+  setTalkingUserLoading as setTalkingUserLoadingGraphql,
+} from './useTalkingUsersGraphql';
+import { TalkingUsersHookResult } from './types';
+import { VoiceActivityResponse } from '../graphql/queries/voiceActivity';
 
-type VoiceItem = VoiceActivityResponse['user_voice_activity_stream'][number];
+/**
+ * Router hook that conditionally uses either BBB's GraphQL or LiveKit's
+ * client-side state to provide the talking users state.
+ *
+ * When `useLiveKitAudioState` is enabled AND `audioBridge === 'livekit'`,
+ * this hook uses LiveKit's participant speaking state combined with user metadata, else BBB's.
+ */
+const useTalkingUsers = (): TalkingUsersHookResult => {
+  const shouldUseLiveKit = useShouldUseLiveKitAudioState();
+  const bbbTalkingUsersState = useTalkingUsersGraphql();
+  const liveKitTalkingUsersState = useTalkingUsersLiveKit();
 
-const TALKING_INDICATOR_TIMEOUT = 6000;
+  return useMemo(() => {
+    if (shouldUseLiveKit) return liveKitTalkingUsersState;
 
-const createUseTalkingUsers = () => {
-  const countVar = makeVar(0);
-  const stateVar = makeVar<VoiceActivityResponse['user_voice_activity_stream'] | undefined>([]);
-  const loadingVar = makeVar(true);
-
-  const dispatchTalkingUserUpdate = (data?: VoiceActivityResponse['user_voice_activity_stream']) => stateVar(data);
-
-  const setTalkingUserLoading = (loading: boolean) => loadingVar(loading);
-
-  const useTalkingUserConsumersCount = () => useReactiveVar(countVar);
-
-  const useTalkingUsers = () => {
-    const voiceActivity = useReactiveVar(stateVar);
-    const loading = useReactiveVar(loadingVar);
-    const mutedTimeoutRegistry = useRef<Record<string, ReturnType<typeof setTimeout> | null>>({});
-    const spokeTimeoutRegistry = useRef<Record<string, ReturnType<typeof setTimeout> | null>>({});
-    const [record, setRecord] = useState<Record<string, VoiceItem>>({});
-
-    useEffect(() => {
-      countVar(countVar() + 1);
-      return () => {
-        countVar(countVar() - 1);
-      };
-    }, []);
-
-    useEffect(() => {
-      if (!voiceActivity) {
-        setRecord({});
-        return;
-      }
-
-      const [muted, unmuted] = partition(
-        voiceActivity,
-        (v: VoiceItem) => v.muted,
-      ) as [VoiceItem[], VoiceItem[]];
-
-      unmuted.forEach((voice) => {
-        const {
-          endTime, startTime, talking, userId,
-        } = voice;
-        const currentSpokeTimeout = spokeTimeoutRegistry.current[userId];
-        const currentMutedTimeout = mutedTimeoutRegistry.current[userId];
-
-        // User has never talked
-        if (!(endTime || startTime)) return;
-
-        setRecord((previousRecord) => {
-          const previousIndicator = previousRecord[userId];
-
-          if (!previousIndicator && !talking) {
-            return previousRecord;
-          }
-
-          // Cancel any deletion if user has started talking
-          if (talking) {
-            if (currentSpokeTimeout) {
-              clearTimeout(currentSpokeTimeout);
-              spokeTimeoutRegistry.current[userId] = null;
-            }
-            if (currentMutedTimeout) {
-              clearTimeout(currentMutedTimeout);
-              mutedTimeoutRegistry.current[userId] = null;
-            }
-          }
-
-          // User has stopped talking
-          if (endTime && !currentSpokeTimeout) {
-            spokeTimeoutRegistry.current[userId] = setTimeout(() => {
-              setRecord((previousRecord) => {
-                const newRecord = { ...previousRecord };
-                delete newRecord[userId];
-                return newRecord;
-              });
-            }, TALKING_INDICATOR_TIMEOUT);
-          }
-
-          return {
-            ...previousRecord,
-            [userId]: Object.assign(
-              previousRecord[userId] || {},
-              voice,
-            ),
-          };
-        });
-      });
-
-      muted.forEach((voice) => {
-        const { userId, endTime, startTime } = voice;
-        const currentSpokeTimeout = spokeTimeoutRegistry.current[userId];
-        const currentMutedTimeout = mutedTimeoutRegistry.current[userId];
-
-        // User has never talked or exited audio
-        if (!(endTime || startTime)) {
-          setRecord((previousRecord) => {
-            const newRecord = { ...previousRecord };
-            delete newRecord[userId];
-            return newRecord;
-          });
-          return;
-        }
-
-        setRecord((previousRecord) => {
-          const previousIndicator = previousRecord[userId];
-
-          if (!previousIndicator) {
-            return previousRecord;
-          }
-
-          if (!currentMutedTimeout && !currentSpokeTimeout) {
-            mutedTimeoutRegistry.current[userId] = setTimeout(() => {
-              setRecord((previousRecord) => {
-                const newRecord = { ...previousRecord };
-                delete newRecord[userId];
-                return newRecord;
-              });
-              mutedTimeoutRegistry.current[userId] = null;
-            }, TALKING_INDICATOR_TIMEOUT);
-          }
-
-          return {
-            ...previousRecord,
-            [userId]: Object.assign(
-              previousRecord[userId] || {},
-              voice,
-            ),
-          };
-        });
-      });
-    }, [voiceActivity]);
-
-    return {
-      error: undefined,
-      loading,
-      data: record,
-    };
-  };
-
-  return [
-    useTalkingUsers,
-    useTalkingUserConsumersCount,
-    dispatchTalkingUserUpdate,
-    setTalkingUserLoading,
-  ] as const;
+    return bbbTalkingUsersState;
+  }, [shouldUseLiveKit, bbbTalkingUsersState, liveKitTalkingUsersState]);
 };
 
-const [
-  useTalkingUsers,
-  useTalkingUserConsumersCount,
-  dispatchTalkingUserUpdate,
-  setTalkingUserLoading,
-] = createUseTalkingUsers();
+const useTalkingUserConsumersCount = () => {
+  const shouldUseLiveKit = useShouldUseLiveKitAudioState();
+  const bbbCount = useTalkingUserConsumersCountGraphql();
+  const livekitCount = useTalkingUserConsumersCountLiveKit();
+
+  return useMemo(() => {
+    if (shouldUseLiveKit) return livekitCount;
+
+    return bbbCount;
+  }, [shouldUseLiveKit, bbbCount, livekitCount]);
+};
+
+const setTalkingUserLoading = (loading: boolean) => {
+  setTalkingUserLoadingGraphql(loading);
+  setTalkingUserLoadingLiveKit(loading);
+};
+
+const dispatchTalkingUserUpdate = (data?: VoiceActivityResponse['user_voice_activity_stream']) => {
+  dispatchTalkingUserUpdateLiveKit(data);
+  dispatchTalkingUserUpdateGraphql(data);
+};
 
 export {
   useTalkingUserConsumersCount,
-  dispatchTalkingUserUpdate,
   setTalkingUserLoading,
+  dispatchTalkingUserUpdate,
 };
 
 export default useTalkingUsers;

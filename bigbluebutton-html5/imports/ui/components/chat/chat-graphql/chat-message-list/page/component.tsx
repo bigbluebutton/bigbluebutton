@@ -41,15 +41,14 @@ interface ChatListPageCommonProps {
   currentUserIsLocked: boolean;
   currentUserId: string;
   currentUserDisablePublicChat: boolean;
-  isBreakoutRoom: boolean;
   messageToolbarIsEnabled: boolean;
   chatReplyEnabled: boolean;
   chatDeleteEnabled: boolean;
   chatEditEnabled: boolean;
   chatReactionsEnabled: boolean;
   focusedSequence: number;
-  sendReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
-  deleteReaction: (reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string) => void;
+  sendReaction: (reactionEmoji: string, chatId: string, messageId: string) => void;
+  deleteReaction: (reactionEmoji: string, chatId: string, messageId: string) => void;
   allPagesLoaded: boolean;
 }
 
@@ -123,7 +122,6 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   currentUserDisablePublicChat,
   currentUserIsLocked,
   currentUserIsModerator,
-  isBreakoutRoom,
   isPublicChat,
   messageToolbarIsEnabled,
   chatDeleteEnabled,
@@ -261,7 +259,6 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
             currentUserDisablePublicChat={currentUserDisablePublicChat}
             currentUserIsLocked={currentUserIsLocked}
             currentUserIsModerator={currentUserIsModerator}
-            isBreakoutRoom={isBreakoutRoom}
             isPublicChat={isPublicChat}
             hasToolbar={messageToolbarIsEnabled && !!message.user}
             chatDeleteEnabled={chatDeleteEnabled}
@@ -295,7 +292,6 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
   currentUserDisablePublicChat,
   currentUserIsLocked,
   currentUserIsModerator,
-  isBreakoutRoom,
   messageToolbarIsEnabled,
   chatDeleteEnabled,
   chatEditEnabled,
@@ -368,7 +364,6 @@ const ChatListPageContainer: React.FC<ChatListPageContainerProps> = ({
       currentUserDisablePublicChat={currentUserDisablePublicChat}
       currentUserIsLocked={currentUserIsLocked}
       currentUserIsModerator={currentUserIsModerator}
-      isBreakoutRoom={isBreakoutRoom}
       isPublicChat={isPublicChat}
       messageToolbarIsEnabled={messageToolbarIsEnabled}
       chatDeleteEnabled={chatDeleteEnabled}

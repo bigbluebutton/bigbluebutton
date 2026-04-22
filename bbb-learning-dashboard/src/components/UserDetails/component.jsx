@@ -47,8 +47,17 @@ const UserDatailsComponent = (props) => {
   if (!isOpen) return null;
 
   const {
-    createdOn, endedOn, polls, users,
+    createdOn, endedOn, polls: pollsAndQuizzes, users,
   } = dataJson;
+
+  const polls = Object.fromEntries(Object
+    .values(pollsAndQuizzes)
+    .filter((pnq) => !pnq.quiz)
+    .map((p) => ([p.pollId, p])));
+  const quizzes = Object.fromEntries(Object
+    .values(pollsAndQuizzes)
+    .filter((pnq) => pnq.quiz)
+    .map((q) => ([q.pollId, q])));
 
   const currTime = () => new Date().getTime();
 
@@ -115,7 +124,7 @@ const UserDatailsComponent = (props) => {
   const usersReactions = allUsersArr.map((currUser) => currUser.reactions.length);
   const usersRaiseHands = allUsersArr.map((currUser) => currUser.raiseHand.length);
   const usersAnswers = allUsersArr.map((currUser) => Object.values(currUser.answers || {}).length);
-  const totalPolls = Object.values(polls || {}).length;
+  const totalPolls = Object.values(pollsAndQuizzes || {}).length;
 
   function getPointsOfTalk(u) {
     const maxTalkTime = Math.max(...usersTalkTime);
@@ -256,6 +265,72 @@ const UserDatailsComponent = (props) => {
     );
   }
 
+  function renderQuizItem(quiz, data) {
+    const { isCorrect, response } = data;
+    const { anonymous: isAnonymous, question } = quiz;
+    let variant;
+    let label = response;
+
+    if (isCorrect == null) {
+      variant = 'default';
+      label = intl.formatMessage({
+        id: 'app.learningDashboard.quizzes.noResponse',
+        defaultMessage: 'No response',
+      });
+    } else if (isCorrect) {
+      variant = 'success';
+    } else {
+      variant = 'error';
+    }
+
+    const variants = {
+      success: '',
+      error: '',
+      default: 'bg-gray-500/10 text-gray-700 border border-gray-300 rounded-full px-2 font-bold',
+    };
+
+    return (
+      <tr>
+        <td className="min-w-[40%] text-ellipsis p-6 py-2">{question}</td>
+        { isAnonymous ? (
+          <td
+            className="min-w-[20%] grow text-center mx-3 p-6 py-2"
+          >
+            <span
+              title={intl.formatMessage({
+                id: 'app.learningDashboard.userDetails.quizAnonymousAnswer',
+                defaultMessage: 'Anonymous Quiz',
+              })}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4 inline"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </span>
+          </td>
+        ) : (
+          <td className="min-w-[20%] grow text-center mx-3 p-6 py-2">
+            <span className={`overflow-hidden text-ellipsis w-full ${variants[variant]}`}>
+              {variant === 'success' && <>&#9989;&nbsp;</>}
+              {variant === 'error' && <>&#10060;&nbsp;</>}
+              {label}
+            </span>
+          </td>
+        ) }
+      </tr>
+    );
+  }
+
   function renderActivityScoreItem(
     category, average, activityPoints, totalOfActivity,
   ) {
@@ -297,13 +372,23 @@ const UserDatailsComponent = (props) => {
     );
   }
 
-  function getUserAnswer(poll) {
+  function getUserPollAnswer(poll) {
     if (typeof user.answers[poll.pollId] !== 'undefined') {
       return Array.isArray(user.answers[poll.pollId])
         ? user.answers[poll.pollId]
         : [user.answers[poll.pollId]];
     }
     return [];
+  }
+
+  function getUserQuizAnswer(quiz) {
+    if (typeof user.answers[quiz.pollId] !== 'undefined') {
+      return {
+        isCorrect: (user.answers[quiz.pollId] ?? [])[0] === quiz.correctOption,
+        response: (user.answers[quiz.pollId] ?? []).join(', '),
+      };
+    }
+    return null;
   }
 
   const Duration = new Date(getSumOfTime(Object.values(user.intIds)))
@@ -355,7 +440,7 @@ const UserDatailsComponent = (props) => {
               <div className="bg-gray-500 [--line-height:2px] h-[var(--line-height)] absolute top-[calc(50%-var(--line-height)/2)] left-[10px] right-[10px] rounded-2xl" />
               <div
                 role="progressbar"
-                aria-label={`${`${intl.formatMessage({ id: 'app.learningDashboard.userDetails.onlineIndicator', defaultMessage: '{0} online time' }, { 0: user.name })} ${Duration}`}`}
+                aria-label={`${`${intl.formatMessage({ id: 'app.learningDashboard.userDetails.onlineIndicator', defaultMessage: '{userName} online time' }, { userName: user.name })} ${Duration}`}`}
                 className="ltr:bg-gradient-to-br rtl:bg-gradient-to-bl from-green-100 to-green-600 absolute h-full rounded-2xl text-right rtl:text-left text-ellipsis overflow-hidden"
                 style={{
                   right: `calc(${document.dir === 'ltr' ? userEndOffsetTime : userStartOffsetTime}% + 10px)`,
@@ -470,7 +555,7 @@ const UserDatailsComponent = (props) => {
                 }) }
               </table>
             </div>
-            <div className="bg-white shadow rounded">
+            <div className="bg-white shadow rounded mb-4">
               <div className="p-6 text-lg flex items-center">
                 <div className="p-2 rounded-full bg-blue-100 text-blue-700">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -488,7 +573,28 @@ const UserDatailsComponent = (props) => {
                 { Object.values(polls || {})
                   .map((poll) => renderPollItem(
                     poll,
-                    getUserAnswer(poll),
+                    getUserPollAnswer(poll),
+                  )) }
+              </table>
+            </div>
+            <div className="bg-white shadow rounded">
+              <div className="p-6 text-lg flex items-center">
+                <div className="p-2 rounded-full bg-orange-100 text-orange-700">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                  </svg>
+                </div>
+                <h3 className="ltr:ml-2 rtl:mr-2"><FormattedMessage id="app.learningDashboard.indicators.quizzes" defaultMessage="Quizzes" /></h3>
+              </div>
+              <table className="w-full">
+                <tr className="p-6 py-2 m-px bg-gray-200 text-xs text-gray-700">
+                  <th aria-label="Quiz" className="min-w-[40%] text-ellipsis font-normal text-left p-6 py-2"><FormattedMessage id="app.learningDashboard.userDetails.quiz" defaultMessage="Quiz" /></th>
+                  <th aria-label="Response" className="grow text-center font-normal p-6 py-2"><FormattedMessage id="app.learningDashboard.userDetails.response" defaultMessage="Response" /></th>
+                </tr>
+                { Object.values(quizzes || {})
+                  .map((quiz) => renderQuizItem(
+                    quiz,
+                    getUserQuizAnswer(quiz),
                   )) }
               </table>
             </div>

@@ -55,6 +55,20 @@ You can do that by running the following command:
 docker exec -it greenlight-v3 bundle exec rake user:set_admin_role['email']
 ```
 
+### Update a user password
+
+Open a Rails console in the container:
+```bash
+docker exec -it greenlight-v3 bundle exec rails console
+
+```
+After entering the console, run:
+```ruby
+user = User.find_by!(email: 'user@example.com')
+user.update!(password: 'NewPassword', password_confirmation: 'NewPassword')
+```
+Note: This applies to locally authenticated users. If you use External Authentication (OpenID Connect), reset the password at your identity provider instead.
+
 ## Installing on a Standalone Server
 ### Greenlight Install Script
 If you're installing Greenlight on a standalone server (a server where you don't want to include BigBlueButton), we've created an install script to simplify the steps required to get Greenlight up and running.

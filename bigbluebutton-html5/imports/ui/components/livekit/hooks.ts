@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import logger from '/imports/startup/client/logger';
 
 interface StunServer {
   url: string;
@@ -29,7 +30,7 @@ interface UseIceServersResult {
   isLoading: boolean;
   error: Error | null;
   hasTurnServer: boolean;
-  refetch: () => Promise<void>;
+  refetch: () => Promise<RTCIceServer[]>;
 }
 
 const FETCH_TIMEOUT = 5000;
@@ -117,28 +118,46 @@ export const useIceServers = (sessionToken: string): UseIceServersResult => {
 
   const fetchServers = useCallback(async () => {
     try {
+      const now = Math.floor(Date.now() / 1000);
+
       setIsLoading(true);
       setError(null);
 
-      const MEDIA = window.meetingClientSettings.public.media;
-      const CACHE_STUN_TURN = MEDIA.cacheStunTurnServers;
-      const now = Math.floor(Date.now() / 1000);
-
-      if (cachedServers && CACHE_STUN_TURN && cacheValidUntil && now < cacheValidUntil) {
+      if (cachedServers && (
+        // If no TTL is set, we assume the cache is valid indefinitely
+        cacheValidUntil == null || now < cacheValidUntil
+      )) {
         setIceServers(cachedServers);
         setIsLoading(false);
-        return;
+
+        return cachedServers;
       }
 
       const stDictionary = await fetchIceServers();
       const mapped = mapIceServers(stDictionary);
+
       if (mapped?.length > 0) {
         setCachedServers(mapped);
         setIceServers(mapped);
       }
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to fetch STUN/TURN servers'));
-      setIceServers(getMappedFallbackStun());
+
+      return mapped;
+    } catch (error) {
+      const fallbackStun = getMappedFallbackStun();
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+
+      setError(error as Error);
+      setIceServers(fallbackStun);
+
+      logger.error({
+        logCode: 'ice_servers_fetch_failed',
+        extraInfo: {
+          errorMessage,
+          errorStack: (error as Error)?.stack,
+        },
+      }, `Failed to fetch STUN/TURN servers: ${errorMessage}`);
+
+      return fallbackStun;
     } finally {
       setIsLoading(false);
     }

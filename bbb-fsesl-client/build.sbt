@@ -52,7 +52,7 @@ crossPaths := false
 // This forbids including Scala related libraries into the dependency
 autoScalaLibrary := false
 
-scalaVersion := "2.13.9"
+scalaVersion := "2.13.18"
 
 publishTo := Some(Resolver.file("file", new File(Path.userHome.absolutePath + "/.m2/repository")))
 

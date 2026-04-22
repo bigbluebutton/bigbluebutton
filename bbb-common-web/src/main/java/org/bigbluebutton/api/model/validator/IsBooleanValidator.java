@@ -2,8 +2,8 @@ package org.bigbluebutton.api.model.validator;
 
 import org.bigbluebutton.api.model.constraint.IsBooleanConstraint;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import java.util.Locale;
 
 public class IsBooleanValidator implements ConstraintValidator<IsBooleanConstraint, String> {
@@ -13,7 +13,6 @@ public class IsBooleanValidator implements ConstraintValidator<IsBooleanConstrai
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-
         if(value == null || value.equals("")) {
             return true;
         }

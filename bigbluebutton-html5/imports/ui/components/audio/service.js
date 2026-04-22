@@ -11,9 +11,8 @@ import {
   toggleMuteMicrophone,
   toggleMuteMicrophoneSystem,
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
-import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
-import { MEETING_IS_BREAKOUT } from '/imports/ui/components/audio/audio-graphql/audio-controls/queries';
 import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
+import meetingStaticData from '../../core/singletons/meetingStaticData';
 
 const MUTED_KEY = 'muted';
 export const CLIENT_DID_USER_SELECT_MICROPHONE_KEY = 'clientUserSelectedMicrophone';
@@ -35,36 +34,30 @@ export const didUserSelectListenOnly = () => (
   !!Storage.getItem(CLIENT_DID_USER_SELECT_LISTEN_ONLY_KEY)
 );
 
+const getStorageMuteStateKey = () => {
+  const meetingStaticStore = meetingStaticData.getMeetingData();
+  const isBreakout = meetingStaticStore?.isBreakout;
+  const parentMeetingId = meetingStaticStore?.breakoutPolicies?.parentMeetingId;
+  const meetingId = isBreakout && parentMeetingId
+    ? parentMeetingId
+    : Auth.meetingID;
+
+  return `${MUTED_KEY}_${meetingId}`;
+};
+
+const getStorageMuteState = () => Storage.getItem(getStorageMuteStateKey());
+
 const recoverMicState = (toggleVoice) => {
-  const recover = (storageKey) => {
-    const muted = Storage.getItem(storageKey);
+  const muted = getStorageMuteState();
 
-    if ((muted === undefined) || (muted === null) || AudioManager.inputDeviceId === 'listen-only') {
-      return;
-    }
+  if ((muted === undefined) || (muted === null) || AudioManager.inputDeviceId === 'listen-only') {
+    return;
+  }
 
-    logger.debug({
-      logCode: 'audio_recover_mic_state',
-    }, `Audio recover previous mic state: muted = ${muted}`);
-    toggleVoice(Auth.userID, muted);
-  };
-
-  apolloContextHolder.getClient().query({
-    query: MEETING_IS_BREAKOUT,
-    fetchPolicy: 'cache-first',
-  }).then((result) => {
-    const meeting = result?.data?.meeting?.[0];
-    const meetingId = meeting?.isBreakout && meeting?.breakoutPolicies?.parentId
-      ? meeting.breakoutPolicies.parentId
-      : Auth.meetingID;
-    const storageKey = `${MUTED_KEY}_${meetingId}`;
-
-    recover(storageKey);
-  }).catch(() => {
-    // Fallback
-    const storageKey = `${MUTED_KEY}_${Auth.meetingID}`;
-    recover(storageKey);
-  });
+  logger.debug({
+    logCode: 'audio_recover_mic_state',
+  }, `Audio recover previous mic state: muted = ${muted}`);
+  toggleVoice(Auth.userID, muted);
 };
 
 const audioEventHandler = (toggleVoice) => (event) => {
@@ -214,8 +207,8 @@ export default {
     outputDeviceId,
     isLive,
   ) => AudioManager.changeOutputDevice(outputDeviceId, isLive),
-  updateInputDevices: (devices) => { AudioManager.inputDevices = devices },
-  updateOutputDevices: (devices) => { AudioManager.outputDevices = devices },
+  updateInputDevices: (devices) => { AudioManager.inputDevices = devices; },
+  updateOutputDevices: (devices) => { AudioManager.outputDevices = devices; },
   toggleMuteMicrophone,
   toggleMuteMicrophoneSystem,
   isConnectedToBreakout: () => {
@@ -242,7 +235,6 @@ export default {
   handleAllowAutoplay: () => AudioManager.handleAllowAutoplay(),
   playAlertSound: (url) => AudioManager.playAlertSound(url),
   updateAudioConstraints: (constraints) => AudioManager.updateAudioConstraints(constraints),
-  recoverMicState,
   setBreakoutAudioTransferStatus: (status) => AudioManager
     .setBreakoutAudioTransferStatus(status),
   getBreakoutAudioTransferStatus: () => AudioManager
@@ -258,4 +250,6 @@ export default {
   didUserSelectListenOnly,
   setUserSelectedMicrophone,
   setUserSelectedListenOnly,
+  getStorageMuteStateKey,
+  getStorageMuteState,
 };

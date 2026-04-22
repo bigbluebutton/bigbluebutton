@@ -10,6 +10,7 @@ export default function Selector({
   defaultOption = options[0],
   onChange,
   width = 140,
+  dataTest = '',
 }: SelectorProps): React.ReactNode {
   const [selected, setSelected] = React.useState<string | number>(defaultOption.value);
 
@@ -45,6 +46,7 @@ export default function Selector({
           onChange={handleChange}
           displayEmpty
           hasTitle={!!title}
+          data-test={dataTest}
         >
           {children}
         </Styled.Select>

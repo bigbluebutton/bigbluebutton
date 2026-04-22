@@ -20,7 +20,7 @@ const intlMessages = defineMessages({
   },
 });
 
-export const onSaveUserNames = (intl: IntlShape, meetingName: string, users: [User]) => {
+export const onSaveUserNames = (intl: IntlShape, meetingName: string, users: Partial<User>[]) => {
   const Settings = getSettingsSingletonInstance();
   // @ts-ignore - temporary while settings are still in .js
   const lang = Settings.application.locale;
@@ -31,8 +31,8 @@ export const onSaveUserNames = (intl: IntlShape, meetingName: string, users: [Us
 
   getUserNamesLink(
     intl.formatMessage(intlMessages.savedNamesListTitle, {
-      0: meetingName,
-      1: `${dateString}:${timeString}`,
+      meetingName,
+      dateAndTime: `${dateString}:${timeString}`,
     }),
     intl.formatMessage(intlMessages.sortedFirstNameHeading),
     intl.formatMessage(intlMessages.sortedLastNameHeading),

@@ -176,6 +176,22 @@ fi
 
 BBB_WEB_CONFIG="$SERVLET_DIR/WEB-INF/classes/bigbluebutton.properties"
 BBB_WEB_ETC_CONFIG="/etc/bigbluebutton/bbb-web.properties"
+
+# Properties that have been retired and should no longer be set by administrators.
+# bbb-conf --check will warn if any of these are found in $BBB_WEB_ETC_CONFIG.
+RETIRED_BBB_WEB_PROPERTIES=(
+    breakoutRoomsEnabled              # Removed in BBB 3.0
+    learningDashboardEnabled          # Removed in BBB 3.0
+    defaultGuestWaitURL               # Removed in BBB 3.0
+    pdfToSvgTimeout                   # Removed in BBB 3.0.13
+    pngCreationWait                   # Removed in BBB 3.0.13
+    maxConversionTime                 # Removed in BBB 3.0.15
+    pngCreationExecTimeoutInMs        # Renamed in BBB 3.0.17 (use pngCreationExecTimeout instead)
+    thumbnailCreationExecTimeoutInMs  # Renamed in BBB 3.0.17 (use thumbnailCreationExecTimeout instead)
+    textFileCreationExecTimeoutInMs   # Renamed in BBB 3.0.17 (use textFileCreationExecTimeout instead)
+    insertDocumentSupportedProtocols  # Renamed in BBB 3.0.23 (use fetchUrlSupportedProtocols instead)
+    insertDocumentBlockedHosts        # Renamed in BBB 3.0.23 (use fetchUrlBlockedExternalHosts instead)
+)
 NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1 | head -n 1)
 SIP_CONFIG=/usr/share/bigbluebutton/nginx/sip.nginx
 SIP_NGINX_IP=$(cat $SIP_CONFIG |  grep -v '#' | sed -n '/proxy_pass/{s/.*proxy_pass http[s]*:\/\///;s/:.*//;p}' | head -n 1)
@@ -440,6 +456,10 @@ display_bigbluebutton_status () {
         units="$units livekit-server"
     fi
 
+    if [ -f /usr/lib/systemd/system/bbb-shared-notes-server.service ]; then
+        units="$units bbb-shared-notes-server"
+    fi
+
     line='—————————————————————————————►'
     for unit in $units; do
         status=$(systemctl is-active "$unit")
@@ -696,6 +716,8 @@ check_configuration() {
     ignore_configs_args+=(-e "redisPassword")
     ignore_configs_args+=(-e "disabledFeatures")
     ignore_configs_args+=(-e "pluginManifests")
+    ignore_configs_args+=(-e "fetchUrlBlockedExternalHosts")
+    ignore_configs_args+=(-e "fetchUrlAllowedLocalHosts")
 
     for file in $CONFIG_FILES ; do
         if [ ! -f $file ]; then
@@ -791,6 +813,24 @@ check_configuration() {
        echo "#     https://docs.bigbluebutton.org/administration/firewall-configuration"
        echo "#"
        echo
+    fi
+
+    #
+    # Check for retired bbb-web properties that should no longer be used
+    #
+    RETIRED_FOUND=0
+    for prop in "${RETIRED_BBB_WEB_PROPERTIES[@]}"; do
+        if grep -q "^${prop}[[:space:]]*=" "$BBB_WEB_ETC_CONFIG" 2>/dev/null; then
+            if [ $RETIRED_FOUND -eq 0 ]; then
+                echo
+                echo "# Warning: The following retired bbb-web properties were found in $BBB_WEB_ETC_CONFIG and should be removed:"
+                RETIRED_FOUND=1
+            fi
+            echo "#   $prop"
+        fi
+    done
+    if [ $RETIRED_FOUND -eq 1 ]; then
+        echo
     fi
 
 }
@@ -1132,7 +1172,7 @@ check_state() {
 
 	# stun is from the stun-client package, which is available on both bionic and focal
 	# stunclient is from the stuntman-client package, which is available on bionic but was removed from focal
-	if which stun > /dev/null 2>&1; then
+	if which stun > /dev/null 2>&1 && ! which turnutils_stunclient > /dev/null 2>&1; then
 	  # stun return codes, from its client.cxx
 	  # low nibble: open (0), various STUN combinations (2-9), firewall (a), blocked (c), unknown (e), error (f)
 	  # high nibble: hairpin (1)
@@ -1145,7 +1185,7 @@ check_state() {
             echo "#    stun $STUN_SERVER"
             echo "#"
           fi
-        elif which stunclient > /dev/null 2>&1; then
+        elif which stunclient > /dev/null 2>&1 && ! which turnutils_stunclient > /dev/null 2>&1; then
           if echo $STUN_SERVER | grep -q ':'; then
             STUN_SERVER="$(echo $STUN_SERVER | sed 's/:.*//g') $(echo $STUN_SERVER | sed 's/.*://g')"
           else
@@ -1157,6 +1197,18 @@ check_state() {
             echo "# Warning: Failed to verify STUN server at $STUN_SERVER with command"
             echo "#"
             echo "#    stunclient $STUN_SERVER"
+            echo "#"
+          fi
+        elif which turnutils_stunclient > /dev/null 2>&1; then
+          # turnutils_stunclient comes from the coturn package, stun-client package uses old stun version which doesn't work with out-of-the-box security settings from coturn
+          # (no-rfc5780, no-stun-backward-compatibility, response-origin-only-with-rfc5780)
+          turnutils_stunclient $STUN_SERVER > /dev/null 2>&1
+          if [ $? -ne 0 ]; then
+            echo
+            echo "#"
+            echo "# Warning: Failed to verify STUN server at $STUN_SERVER with command"
+            echo "#"
+            echo "#    turnutils_stunclient $STUN_SERVER"
             echo "#"
           fi
         fi

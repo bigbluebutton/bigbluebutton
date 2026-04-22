@@ -7,10 +7,11 @@ import BridgeService from '/imports/api/screenshare/client/bridge/service';
 import logger from '/imports/startup/client/logger';
 import AudioService from '/imports/ui/components/audio/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
-import ConnectionStatusService from '/imports/ui/components/connection-status/service';
 import browserInfo from '/imports/utils/browserInfo';
-import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
 import { SCREENSHARE_SUBSCRIPTION } from './queries';
+import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
+import useMeeting from '../../core/hooks/useMeeting';
+import { liveKitScreenshareHasAudioVar } from './livekit-screenshare-state';
 
 let screenShareBridge = sfuScreenShareBridge;
 
@@ -59,7 +60,29 @@ export const isSharingVar = makeVar(false);
 export const sharingContentTypeVar = makeVar(false);
 export const cameraAsContentDeviceIdTypeVar = makeVar('');
 
-export const useScreenshare = createUseSubscription(SCREENSHARE_SUBSCRIPTION, {}, true);
+export const useScreenshare = () => {
+  const {
+    data: meeting,
+    loading: meetingLoading,
+  } = useMeeting((m) => ({
+    componentsFlags: m.componentsFlags,
+  }));
+
+  const { data, loading, error } = useDeduplicatedSubscription(
+    SCREENSHARE_SUBSCRIPTION,
+    {
+      skip: meetingLoading
+      || !(meeting?.componentsFlags?.hasScreenshare
+        || meeting?.componentsFlags?.hasCameraAsContent),
+    },
+  );
+
+  return {
+    data: data?.screenshare || [],
+    loading,
+    error,
+  };
+};
 
 export const useIsSharing = () => useReactiveVar(isSharingVar);
 export const useSharingContentType = () => useReactiveVar(sharingContentTypeVar);
@@ -202,6 +225,10 @@ export const screenshareHasEnded = () => {
   }
 
   screenShareBridge.stop();
+
+  if (window.bbbMobileApp && window.bbbMobileApp.onScreenshareStopRequest) {
+    window.bbbMobileApp.onScreenshareStopRequest();
+  }
 };
 
 export const _handleStreamTermination = () => {
@@ -232,8 +259,13 @@ export const useShouldEnableVolumeControl = () => {
   const SCREENSHARE_CONFIG = window.meetingClientSettings.public.kurento.screenshare;
   const VOLUME_CONTROL_ENABLED = SCREENSHARE_CONFIG.enableVolumeControl;
   const hasAudio = useScreenshareHasAudio();
+  // When LiveKit is the screenshare bridge, server-side hasAudio is unreliable
+  // (always true because it can't be determined at signaling time).
+  // Use client-side ScreenShareAudio track detection instead.
+  const liveKitHasAudio = useReactiveVar(liveKitScreenshareHasAudioVar);
+  const isLiveKit = screenShareBridge?.bridgeName === 'livekit';
 
-  return VOLUME_CONTROL_ENABLED && hasAudio;
+  return VOLUME_CONTROL_ENABLED && hasAudio && (!isLiveKit || liveKitHasAudio);
 };
 
 export const useShowButtonForNonPresenters = () => {
@@ -301,7 +333,11 @@ export const shareScreen = async (
     let stream;
     let contentType = CONTENT_TYPE_SCREENSHARE;
     if (options.stream == null) {
-      stream = await BridgeService.getScreenStream();
+      const isLiveKit = screenShareBridge.bridgeName === 'livekit';
+      const constraints = isLiveKit
+        ? window.meetingClientSettings.public.media?.livekit?.screenshare?.constraints
+        : undefined;
+      stream = await BridgeService.getScreenStream(constraints);
     } else {
       contentType = CONTENT_TYPE_CAMERA;
       stream = options.stream;
@@ -400,21 +436,8 @@ export const getStats = async (statsTypes = DEFAULT_SCREENSHARE_STATS_TYPES) => 
   return { screenshareStats };
 };
 
-// This method may throw errors
-export const isMediaFlowing = (previousStats, currentStats) => {
-  const bpsData = ConnectionStatusService.calculateBitsPerSecond(
-    currentStats?.screenshareStats,
-    previousStats?.screenshareStats,
-  );
-  const bpsDataAggr = Object.values(bpsData)
-    .reduce((sum, partialBpsData = 0) => sum + parseFloat(partialBpsData), 0);
-
-  return bpsDataAggr > 0;
-};
-
 export default {
   SCREENSHARE_MEDIA_ELEMENT_NAME,
-  isMediaFlowing,
   screenshareHasEnded,
   screenshareHasStarted,
   shareScreen,

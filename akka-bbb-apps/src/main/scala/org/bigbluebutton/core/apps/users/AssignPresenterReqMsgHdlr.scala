@@ -34,7 +34,7 @@ trait AssignPresenterReqMsgHdlr extends RightsManagementTrait {
 object AssignPresenterActionHandler extends RightsManagementTrait {
 
   def handleAction(liveMeeting: LiveMeeting, outGW: OutMsgRouter, assignedBy: String, newPresenterId: String): Unit = {
-    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, assignedBy)) {
+    if (!liveMeeting.props.meetingProp.isBreakout && permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, assignedBy)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to change presenter in meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, assignedBy, reason, outGW, liveMeeting)
@@ -134,7 +134,7 @@ object AssignPresenterActionHandler extends RightsManagementTrait {
         val msgMeta = Map(
           "assignedBy" -> assignedByName
         )
-        ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", GroupChatMessageType.USER_IS_PRESENTER_MSG, msgMeta, newPres.name)
+        ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", "", GroupChatMessageType.USER_IS_PRESENTER_MSG, msgMeta, newPres.name)
       }
     }
 

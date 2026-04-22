@@ -17,13 +17,25 @@ const intlMessages = defineMessages({
     id: 'app.polling.pollQuestionTitle',
     description: 'polling question header',
   },
+  correctAnswerSelected: {
+    id: 'app.poll.quiz.correctAnswerSelected',
+    description: 'Label indicating that a correct answer has been selected in a quiz',
+  },
+  selectCorrectAnswer: {
+    id: 'app.poll.quiz.selectCorrectAnswer',
+    description: 'Label prompting the user to select a correct answer in a quiz',
+  },
+  quizAnswerChoicesLabel: {
+    id: 'app.poll.quiz.answerChoices.label',
+    description: 'Label for the answer choices in a quiz',
+  },
 });
 
 interface ResponseChoicesProps {
   type: string | null;
-  toggleIsMultipleResponse: () => void;
-  isMultipleResponse: boolean;
-  optList: Array<{ val: string }>;
+  toggleMultipleResponse: () => void;
+  multipleResponse: boolean;
+  optList: Array<{ key: string; val: string }>;
   handleAddOption: () => void;
   secretPoll: boolean;
   question: string | string[];
@@ -35,12 +47,18 @@ interface ResponseChoicesProps {
   handleRemoveOption: (i: number) => void;
   customInput: boolean;
   questionAndOptions: string[] | string;
+  isQuiz: boolean;
+  correctAnswer: {
+    text: string;
+    index: number;
+  };
+  setCorrectAnswer: (param: {text: string, index: number }) => void;
 }
 
 const ResponseChoices: React.FC<ResponseChoicesProps> = ({
   type,
-  toggleIsMultipleResponse,
-  isMultipleResponse,
+  toggleMultipleResponse,
+  multipleResponse,
   optList,
   handleAddOption,
   secretPoll,
@@ -53,6 +71,9 @@ const ResponseChoices: React.FC<ResponseChoicesProps> = ({
   handleRemoveOption,
   customInput,
   questionAndOptions,
+  isQuiz,
+  correctAnswer,
+  setCorrectAnswer,
 }) => {
   const intl = useIntl();
   if ((!customInput && type) || (questionAndOptions && customInput)) {
@@ -68,9 +89,28 @@ const ResponseChoices: React.FC<ResponseChoicesProps> = ({
             </Styled.PollParagraph>
           </Styled.Question>
         )}
-        <Styled.SectionHeading>
-          {intl.formatMessage(intlMessages.responseChoices)}
-        </Styled.SectionHeading>
+        <Styled.ResponseHeader>
+          <Styled.SectionHeading>
+            {
+              isQuiz
+                ? intl.formatMessage(intlMessages.quizAnswerChoicesLabel)
+                : intl.formatMessage(intlMessages.responseChoices)
+            }
+          </Styled.SectionHeading>
+          {isQuiz && (
+            <Styled.SelectedCorrectAnswerIndicator hasCorrectAnswer={correctAnswer.index !== -1}>
+              {correctAnswer.index !== -1 ? (
+                <span>
+                  {intl.formatMessage(intlMessages.correctAnswerSelected)}
+                </span>
+              ) : (
+                <span>
+                  {intl.formatMessage(intlMessages.selectCorrectAnswer)}
+                </span>
+              )}
+            </Styled.SelectedCorrectAnswerIndicator>
+          )}
+        </Styled.ResponseHeader>
         {type === pollTypes.Response && (
           <Styled.PollParagraph>
             <span>{intl.formatMessage(intlMessages.typedResponseDesc)}</span>
@@ -79,8 +119,8 @@ const ResponseChoices: React.FC<ResponseChoicesProps> = ({
         <ResponseArea
           error={error}
           type={type}
-          toggleIsMultipleResponse={toggleIsMultipleResponse}
-          isMultipleResponse={isMultipleResponse}
+          toggleMultipleResponse={toggleMultipleResponse}
+          multipleResponse={multipleResponse}
           optList={optList}
           handleAddOption={handleAddOption}
           secretPoll={secretPoll}
@@ -90,6 +130,9 @@ const ResponseChoices: React.FC<ResponseChoicesProps> = ({
           handleToggle={handleToggle}
           handleInputChange={handleInputChange}
           handleRemoveOption={handleRemoveOption}
+          isQuiz={isQuiz}
+          correctAnswer={correctAnswer}
+          setCorrectAnswer={setCorrectAnswer}
         />
       </div>
     );

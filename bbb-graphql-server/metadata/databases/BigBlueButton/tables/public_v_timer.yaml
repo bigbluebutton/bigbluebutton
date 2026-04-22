@@ -15,7 +15,6 @@ select_permissions:
         - running
         - songTrack
         - startedAt
-        - startedOn
         - stopwatch
         - time
         - elapsed

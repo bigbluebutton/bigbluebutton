@@ -15,11 +15,13 @@ import {
 import logger from '/imports/startup/client/logger';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { POLL_CANCEL, POLL_PUBLISH_RESULT } from '../mutations';
-import { layoutDispatch } from '../../layout/context';
+import { layoutDispatch, layoutSelect, layoutSelectOutput } from '../../layout/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import CustomizedAxisTick from './CustomizedAxisTick';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
+import Tooltip from '../../common/tooltip/component';
+import { Layout, Output } from '../../layout/layoutTypes';
 
 const intlMessages = defineMessages({
   usersTitle: {
@@ -58,6 +60,42 @@ const intlMessages = defineMessages({
     id: 'app.poll.activePollInstruction',
     description: 'instructions displayed when a poll is active',
   },
+  true: {
+    id: 'app.poll.t',
+    description: 'Poll true option value',
+  },
+  false: {
+    id: 'app.poll.f',
+    description: 'Poll false option value',
+  },
+  yes: {
+    id: 'app.poll.y',
+    description: 'Poll yes option value',
+  },
+  no: {
+    id: 'app.poll.n',
+    description: 'Poll no option value',
+  },
+  abstention: {
+    id: 'app.poll.abstention',
+    description: 'Poll Abstention option value',
+  },
+  showCorrectAnswerLabel: {
+    id: 'app.poll.quiz.showCorrectAnswer',
+    description: 'Label for checkbox to show correct answer in quiz poll',
+  },
+  correctAnswerTitle: {
+    id: 'app.poll.quiz.liveResult.title.correct',
+    description: 'Title for correct answer in quiz poll live result',
+  },
+  correctOption: {
+    id: 'app.poll.quiz.options.correct',
+    description: 'Label for correct answer option in quiz poll',
+  },
+  incorrectOption: {
+    id: 'app.poll.quiz.options.incorrect',
+    description: 'Label for incorrect answer option in quiz poll',
+  },
 });
 
 interface LiveResultProps {
@@ -69,6 +107,8 @@ interface LiveResultProps {
   pollId: string;
   users: Array<UserInfo>;
   isSecret: boolean;
+  isQuiz: boolean;
+  type: string;
 }
 
 const LiveResult: React.FC<LiveResultProps> = ({
@@ -80,6 +120,8 @@ const LiveResult: React.FC<LiveResultProps> = ({
   pollId,
   users,
   isSecret,
+  isQuiz,
+  type,
 }) => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_group_id;
@@ -87,15 +129,28 @@ const LiveResult: React.FC<LiveResultProps> = ({
   const intl = useIntl();
   const [pollPublishResult] = useMutation(POLL_PUBLISH_RESULT);
   const [stopPoll] = useMutation(POLL_CANCEL);
+  const [shouldShowCorrectAnswer, setShouldShowCorrectAnswers] = React.useState(true);
 
   const layoutContextDispatch = layoutDispatch();
-  const publishPoll = useCallback((pId: string) => {
+  const sidebarContent: Output['sidebarContent'] = layoutSelectOutput((i: Output) => i.sidebarContent);
+  const fontSize: Layout['fontSize'] = layoutSelect((i: Layout) => i.fontSize);
+  const publishPoll = useCallback((pId: string, showAnswer: boolean) => {
     pollPublishResult({
       variables: {
         pollId: pId,
+        showAnswer,
       },
     });
   }, []);
+
+  const translatedResponses = responses.map((response) => {
+    const translationKey = intlMessages[response.optionDesc.toLowerCase() as keyof typeof intlMessages];
+    const optionDesc = translationKey ? intl.formatMessage(translationKey) : response.optionDesc;
+    return {
+      ...response,
+      optionDesc,
+    };
+  });
 
   return (
     <div>
@@ -109,8 +164,8 @@ const LiveResult: React.FC<LiveResultProps> = ({
             ? (
               <span>
                 {`${intl.formatMessage(intlMessages.waitingLabel, {
-                  0: numberOfAnswerCount,
-                  1: usersCount,
+                  current: numberOfAnswerCount,
+                  total: usersCount,
                 })} `}
               </span>
             )
@@ -118,24 +173,42 @@ const LiveResult: React.FC<LiveResultProps> = ({
           {usersCount !== numberOfAnswerCount
             ? <Styled.ConnectingAnimation animations={animations} /> : null}
         </Styled.Status>
-        <ResponsiveContainer width="90%" height={250}>
+        <ResponsiveContainer width="90%" height={translatedResponses.length * 50}>
           <BarChart
-            data={responses}
+            data={translatedResponses}
             layout="vertical"
           >
             <XAxis type="number" allowDecimals={false} />
-            <YAxis width={70} type="category" dataKey="optionDesc" tick={<CustomizedAxisTick />} />
+            <YAxis width={type === 'R-' ? (sidebarContent.width / 3) : 70} fontSize={fontSize} type="category" dataKey="optionDesc" tick={<CustomizedAxisTick />} />
             <Bar dataKey="optionResponsesCount" fill="#0C57A7" />
           </BarChart>
         </ResponsiveContainer>
       </Styled.Stats>
+      {
+        isQuiz && (
+          <Styled.ShowCorrectAnswerLabel
+            htmlFor="showCorrectAnswerCheckbox"
+            data-test="showCorrectAnswerCheckbox"
+          >
+            <input
+              id="showCorrectAnswerCheckbox"
+              type="checkbox"
+              checked={shouldShowCorrectAnswer}
+              onChange={(e) => {
+                setShouldShowCorrectAnswers(e.target.checked);
+              }}
+            />
+            {intl.formatMessage(intlMessages.showCorrectAnswerLabel)}
+          </Styled.ShowCorrectAnswerLabel>
+        )
+      }
       {numberOfAnswerCount >= 0
         ? (
           <Styled.ButtonsActions>
             <Styled.PublishButton
               onClick={() => {
                 Session.setItem('pollInitiated', false);
-                publishPoll(pollId);
+                publishPoll(pollId, shouldShowCorrectAnswer);
                 stopPoll();
                 layoutContextDispatch({
                   type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -179,22 +252,54 @@ const LiveResult: React.FC<LiveResultProps> = ({
       {
         !isSecret
           ? (
-            <table>
+            <Styled.LiveResultTable>
               <tbody>
                 <tr>
                   <Styled.THeading>{intl.formatMessage(intlMessages.usersTitle)}</Styled.THeading>
                   <Styled.THeading>{intl.formatMessage(intlMessages.responsesTitle)}</Styled.THeading>
+                  {
+                    isQuiz ? (
+                      <Styled.THeading>{intl.formatMessage(intlMessages.correctAnswerTitle)}</Styled.THeading>
+                    ) : null
+                  }
                 </tr>
                 {
                   users.map((user) => (
                     <tr key={user.user.userId}>
                       <Styled.ResultLeft>{user.user.name}</Styled.ResultLeft>
-                      <Styled.ResultRight data-test="userVoteLiveResult">{user.optionDescIds.join()}</Styled.ResultRight>
+                      <Styled.ResultRight data-test="userVoteLiveResult">
+                        {
+                          user.optionDescIds.map((optDesc) => {
+                            const translationKey = intlMessages[optDesc.toLowerCase() as keyof typeof intlMessages];
+                            return translationKey ? intl.formatMessage(translationKey) : optDesc;
+                          }).join()
+                        }
+                      </Styled.ResultRight>
+                      {
+                        isQuiz ? user.optionDescIds.length > 0 && (
+                          <Styled.ResultRight>
+                            {user.optionDescIds.filter((opt) => {
+                              const response = responses.find((r) => r.optionDesc === opt);
+                              return response && response.correctOption;
+                            }).length > 0
+                              ? (
+                                <Tooltip title={intl.formatMessage(intlMessages.correctOption)}>
+                                  <span aria-label={intl.formatMessage(intlMessages.correctOption)}>✅</span>
+                                </Tooltip>
+                              )
+                              : (
+                                <Tooltip title={intl.formatMessage(intlMessages.incorrectOption)}>
+                                  <span aria-label={intl.formatMessage(intlMessages.incorrectOption)}>❌</span>
+                                </Tooltip>
+                              )}
+                          </Styled.ResultRight>
+                        ) : null
+                      }
                     </tr>
                   ))
                 }
               </tbody>
-            </table>
+            </Styled.LiveResultTable>
           )
           : (
             <div>
@@ -242,6 +347,7 @@ const LiveResultContainer: React.FC = () => {
     responses,
     pollId,
     users,
+    type,
   } = currentPoll;
 
   const numberOfAnswerCount = currentPoll.responses_aggregate.aggregate.sum.optionResponsesCount;
@@ -257,6 +363,8 @@ const LiveResultContainer: React.FC = () => {
       animations={animations}
       pollId={pollId}
       users={users}
+      isQuiz={currentPoll.quiz}
+      type={type}
     />
   );
 };

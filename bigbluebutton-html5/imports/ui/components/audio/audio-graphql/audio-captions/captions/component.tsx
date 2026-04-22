@@ -164,7 +164,7 @@ const AudioCaptionsSelectContainer: React.FC<AudioCaptionsContainerProps> = ({
     }),
   );
   const isEnabled = useIsAudioTranscriptionEnabled();
-  if (!currentUser || !isEnabled || !voices) return null;
+  if (!currentUser || !isEnabled) return null;
 
   return (
     <AudioCaptionsSelect

@@ -39,10 +39,6 @@ const propTypes = {
   handleFiledrop: PropTypes.func.isRequired,
   selectedToBeNextCurrent: PropTypes.string,
   renderPresentationItemStatus: PropTypes.func.isRequired,
-  externalUploadData: PropTypes.shape({
-    presentationUploadExternalDescription: PropTypes.string,
-    presentationUploadExternalUrl: PropTypes.string.isRequired,
-  }).isRequired,
   isPresenter: PropTypes.bool.isRequired,
   exportPresentation: PropTypes.func.isRequired,
 };
@@ -233,14 +229,6 @@ const intlMessages = defineMessages({
   completed: {
     id: 'app.presentationUploder.completed',
     description: 'uploads complete label for toast notification',
-  },
-  item: {
-    id: 'app.presentationUploder.item',
-    description: 'single item label',
-  },
-  itemPlural: {
-    id: 'app.presentationUploder.itemPlural',
-    description: 'plural item label',
   },
   clearErrors: {
     id: 'app.presentationUploder.clearErrors',
@@ -775,8 +763,8 @@ class PresentationUploader extends Component {
     } = this.props;
 
     const options = {
-      0: fileSizeMax / 1000000,
-      1: filePagesMax,
+      maxFileSize: fileSizeMax / 1000000,
+      maxFilePages: filePagesMax,
     };
 
     return (

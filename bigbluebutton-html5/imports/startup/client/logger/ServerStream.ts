@@ -31,6 +31,7 @@ export default class ServerLoggerStream extends ServerStream {
       externUserID: Auth.externUserID,
       logoutUrl: Auth.logoutURL,
       sessionToken: Auth.sessionToken,
+      clientSessionUUID: sessionStorage.getItem('clientSessionUUID') || '0',
     };
 
     return {

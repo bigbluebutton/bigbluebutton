@@ -3,6 +3,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import Styled from '../styles';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
+import useMuteSoundAlert from '/imports/ui/core/hooks/useMuteSoundAlert';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import useToggleVoice from '../../../hooks/useToggleVoice';
 import { SET_AWAY } from '/imports/ui/components/user-list/user-list-content/user-participants/user-list-participants/user-actions/mutations';
@@ -53,6 +54,8 @@ export const MuteToggle: React.FC<MuteToggleProps> = ({
   noInputDevice = false,
   openAudioSettings,
 }) => {
+  useMuteSoundAlert();
+
   const intl = useIntl();
   const toggleMuteShourtcut = useShortcut('toggleMute');
   const toggleVoice = useToggleVoice();

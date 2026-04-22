@@ -9,8 +9,8 @@ import org.bigbluebutton.presentation.messages.PresentationConvertMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;

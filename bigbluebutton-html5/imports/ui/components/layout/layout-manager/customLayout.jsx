@@ -157,9 +157,6 @@ const CustomLayout = (props) => {
                 isOpen: sidebarContentPanel !== PANELS.NONE,
                 sidebarContentPanel: sidebarContent.sidebarContentPanel,
               },
-              sidebarContentHorizontalResizer: {
-                isOpen: false,
-              },
               presentation: {
                 isOpen: presentation.isOpen,
                 slidesLength: presentation.slidesLength,
@@ -168,6 +165,7 @@ const CustomLayout = (props) => {
                 },
               },
               cameraDock: {
+                position: cameraDock.position || DEFAULT_VALUES.cameraPosition,
                 numCameras: cameraDock.numCameras,
               },
               externalVideo: {
@@ -218,9 +216,6 @@ const CustomLayout = (props) => {
                 isOpen: overrideOpenSidebarPanel,
                 sidebarContentPanel: sidebarContentPanelOverride,
               },
-              sidebarContentHorizontalResizer: {
-                isOpen: false,
-              },
               presentation: {
                 isOpen: presentation.isOpen,
                 slidesLength: presentation.slidesLength,
@@ -229,6 +224,7 @@ const CustomLayout = (props) => {
                 },
               },
               cameraDock: {
+                position: cameraDock.position || DEFAULT_VALUES.cameraPosition,
                 numCameras: cameraDock.numCameras,
               },
               externalVideo: {
@@ -352,7 +348,7 @@ const CustomLayout = (props) => {
         );
       }
 
-      cameraDockBounds.top = navBarHeight;
+      cameraDockBounds.top = navBarHeight + bannerAreaHeight();
       cameraDockBounds.left = mediaAreaBounds.left;
       cameraDockBounds.right = isRTL ? sidebarSize : null;
       cameraDockBounds.minWidth = mediaAreaBounds.width;
@@ -715,7 +711,7 @@ const CustomLayout = (props) => {
         left: cameraDockBounds.left,
         right: cameraDockBounds.right,
         tabOrder: 4,
-        isDraggable: !isMobile && !isTablet && presentationInput.isOpen,
+        isDraggable: !isMobile && !isTablet && isMediaOpen,
         resizableEdge: {
           top:
           isMediaOpen

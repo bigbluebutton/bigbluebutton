@@ -8,3 +8,4 @@ sip_port: 5062
 sip_port_listen: 5062
 redis:
   address: localhost:6379
+no_pin_wait_for_subscribe: false

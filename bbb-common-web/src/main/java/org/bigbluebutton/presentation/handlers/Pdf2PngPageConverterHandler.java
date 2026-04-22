@@ -24,4 +24,15 @@ import org.slf4j.LoggerFactory;
 
 public class Pdf2PngPageConverterHandler extends AbstractCommandHandler {
     private static Logger log = LoggerFactory.getLogger(Pdf2PngPageConverterHandler.class);
+
+    private final String id;
+
+    public Pdf2PngPageConverterHandler(String id) {
+        this.id = id;
+    }
+
+    @Override
+    protected String getIdTag() {
+        return id;
+    }
 }

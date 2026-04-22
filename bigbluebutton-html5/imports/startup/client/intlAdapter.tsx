@@ -6,7 +6,7 @@ import Session from '/imports/ui/services/storage/in-memory';
 import { formatLocaleCode } from '/imports/utils/string-utils';
 import useCurrentLocale from '/imports/ui/core/local-states/useCurrentLocale';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
-import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data-hooks/consts';
+import { UI_DATA_LISTENER_SUBSCRIBED } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-data/hooks/consts';
 import intlHolder from '/imports/ui/core/singletons/intlHolder';
 import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/useUserChangedLocalSettings';
 import { localUserSettings } from '/imports/ui/core/local-states/useUserSettings';

@@ -2,7 +2,7 @@ import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled, { DeleteMessage } from './styles';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
-import { messageToQuoteMarkdown } from '/imports/ui/components/chat/chat-graphql/service';
+import { getFirstVisibleLineHtml } from '/imports/ui/components/chat/chat-graphql/service';
 
 const intlMessages = defineMessages({
   deleteMessage: {
@@ -43,18 +43,15 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
     >
       {!deletedByUser && (
         <Styled.Message>
-          <Styled.Markdown
-            linkTarget="_blank"
-            allowedElements={window.meetingClientSettings.public.chat.allowedElements}
-            unwrapDisallowed
-          >
-            {messageToQuoteMarkdown(message)}
-          </Styled.Markdown>
+          <Styled.HtmlContent
+            // eslint-disable-next-line react/no-danger
+            dangerouslySetInnerHTML={{ __html: getFirstVisibleLineHtml(message) }}
+          />
         </Styled.Message>
       )}
       {deletedByUser && (
         <DeleteMessage>
-          {intl.formatMessage(intlMessages.deleteMessage, { 0: deletedByUser })}
+          {intl.formatMessage(intlMessages.deleteMessage, { userName: deletedByUser })}
         </DeleteMessage>
       )}
     </Styled.Container>

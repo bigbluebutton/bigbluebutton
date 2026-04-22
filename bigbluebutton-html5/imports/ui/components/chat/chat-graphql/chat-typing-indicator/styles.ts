@@ -42,7 +42,7 @@ const TypingIndicatorWrapper = styled.div`
   color: ${colorGrayDark};
   text-align: left;
   vertical-align: top;
-  padding: ${smPaddingY} 0;
+  padding: ${smPaddingY} ${smPaddingY} 0;
   height: 1.5rem;
   max-height: 1.5rem;
   line-height: 1;

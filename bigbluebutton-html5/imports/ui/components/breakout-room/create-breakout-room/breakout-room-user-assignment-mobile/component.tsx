@@ -66,7 +66,7 @@ const BreakoutRoomUserAssignmentMobile: React.FC<ChildComponentProps> = ({
                 new Array(numberOfRooms).fill(1).map((_, idx) => (
                   <Styled.RoomItem>
                     <Styled.ItemTitle>
-                      {intl.formatMessage(intlMessages.breakoutRoomLabel, { 0: idx + 1 })}
+                      {intl.formatMessage(intlMessages.breakoutRoomLabel, { roomNumber: idx + 1 })}
                     </Styled.ItemTitle>
                     <Styled.ItemButton
                       label={intl.formatMessage(intlMessages.addParticipantLabel)}

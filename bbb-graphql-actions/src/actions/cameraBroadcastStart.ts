@@ -14,7 +14,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   const allowedContentTypes = ['screenshare', 'camera'];
   if (typeof input.contentType !== 'string' || !allowedContentTypes.includes(input.contentType)) {
     throw new ValidationError(
-        `Field contentType is invalid (allowed ${allowedContentTypes.join(' or ')}).`,
+        `Field contentType is invalid (allowed ${allowedContentTypes.join(' or ')})`,
         400
     );
   }
@@ -26,7 +26,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     userId: sessionVariables['x-hasura-userid'] as String
   };
 
-  const header = { 
+  const header = {
     name: eventName,
     meetingId: routing.meetingId,
     userId: routing.userId

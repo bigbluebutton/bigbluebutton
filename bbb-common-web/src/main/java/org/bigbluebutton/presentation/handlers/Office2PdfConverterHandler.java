@@ -26,4 +26,15 @@ import java.util.regex.Pattern;
 
 public class Office2PdfConverterHandler extends AbstractCommandHandler {
   private static Logger log = LoggerFactory.getLogger(Office2PdfConverterHandler.class);
+
+  private final String id;
+
+  public Office2PdfConverterHandler(String id) {
+    this.id = id;
+  }
+
+  @Override
+  protected String getIdTag() {
+    return id;
+  }
 }

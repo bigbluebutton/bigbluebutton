@@ -8,7 +8,6 @@ import VideoPreviewService from '/imports/ui/components/video-preview/service';
 import Storage from '/imports/ui/services/storage/session';
 import { getStorageSingletonInstance } from '/imports/ui/services/storage';
 import logger from '/imports/startup/client/logger';
-import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
 import {
   setVideoState,
   setConnectingStream,
@@ -21,7 +20,9 @@ import Session from '/imports/ui/services/storage/in-memory';
 import type { Stream, StreamItem, VideoItem } from './types';
 import { VIDEO_TYPES } from './enums';
 import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
-import { getLKStats } from '/imports/ui/services/livekit';
+import {
+  lkToggleMuteCameras,
+} from '/imports/ui/services/livekit';
 
 const TOKEN = '_';
 
@@ -43,8 +44,6 @@ class VideoService {
 
   private record: boolean | null;
 
-  private hackRecordViewer: boolean | null;
-
   private deviceId: string | null = null;
 
   private activePeers: Record<string, RTCPeerConnection>;
@@ -57,7 +56,6 @@ class VideoService {
     this.isSafari = browserInfo.isSafari;
     this.numberOfDevices = 0;
     this.record = null;
-    this.hackRecordViewer = null;
     this.clientSessionUUID = '0';
 
     if (navigator.mediaDevices) {
@@ -204,8 +202,8 @@ class VideoService {
   }
 
   static getMediaServerAdapter() {
-    const DEFAULT_VIDEO_MEDIA_SERVER = window.meetingClientSettings.public.kurento.videoMediaServer;
-    return getFromMeetingSettings('media-server-video', DEFAULT_VIDEO_MEDIA_SERVER);
+    const { videoMediaServer } = window.meetingClientSettings.public.kurento;
+    return videoMediaServer;
   }
 
   static getRoleModerator() {
@@ -224,21 +222,12 @@ class VideoService {
     return PAGE_CHANGE_DEBOUNCE_TIME;
   }
 
-  getRecord(myRole?: string) {
-    const ROLE_MODERATOR = VideoService.getRoleModerator();
-
+  getRecord() {
     if (this.record === null) {
       this.record = getFromUserSettings('bbb_record_video', true);
     }
 
-    if (this.hackRecordViewer === null) {
-      const value = getFromMeetingSettings('hack-record-viewer-video', null);
-      this.hackRecordViewer = value ? value.toLowerCase() === 'true' : true;
-    }
-
-    const hackRecord = myRole === ROLE_MODERATOR || this.hackRecordViewer;
-
-    return this.record && hackRecord;
+    return this.record;
   }
 
   static mirrorOwnWebcam(userId: string | null = null) {
@@ -494,6 +483,9 @@ class VideoService {
         track.enabled = value;
       });
     });
+
+    // LiveKit compatibility
+    lkToggleMuteCameras(!value);
   }
 
   getClientSessionUUID() {
@@ -537,27 +529,6 @@ class VideoService {
         stats[peerId] = videoStats;
       }),
     );
-
-    try {
-      const lkStats = await getLKStats();
-      lkStats.forEach((stat) => {
-        // @ts-expect-error -> Untyped object.
-        const { id, type: statType, kind } = stat;
-
-        if (FILTER_VIDEO_STATS.includes(statType) && (!kind || kind === 'video')) {
-          stats[id] = { [statType]: stat };
-        }
-      });
-    } catch (error) {
-      logger.error({
-        logCode: 'video_provider_livekit_stats_error',
-        extraInfo: {
-          errorName: (error as Error).name,
-          errorMessage: (error as Error).message,
-          errorStack: (error as Error).stack,
-        },
-      }, `Failed to get LiveKit video stats: ${(error as Error).message}`);
-    }
 
     return stats;
   }
@@ -613,7 +584,7 @@ export default {
   joinedVideo: () => VideoService.joinedVideo(),
   exitedVideo: () => videoService.exitedVideo(),
   getPreloadedStream: () => videoService.getPreloadedStream(),
-  getRecord: (myRole?: string) => videoService.getRecord(myRole),
+  getRecord: () => videoService.getRecord(),
   getPageChangeDebounceTime: () => VideoService.getPageChangeDebounceTime(),
   getUserParameterProfile: () => videoService.getUserParameterProfile(),
   isMultipleCamerasEnabled: () => videoService.isMultipleCamerasEnabled(),

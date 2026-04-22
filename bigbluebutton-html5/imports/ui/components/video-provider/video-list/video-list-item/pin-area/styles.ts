@@ -22,12 +22,18 @@ const PinButton = styled(Button)`
   }
 `;
 
+const PresenterButton = styled(PinButton)`
+  cursor: default !important;
+`;
+
 const PinButtonWrapper = styled.div`
   background-color: rgba(0,0,0,.3);
   cursor: pointer;
   border: 0;
   margin: 2px;
   height: fit-content;
+  display: flex;
+  gap: 2px;
 
   [dir="rtl"] & {
     right: auto;
@@ -42,4 +48,5 @@ const PinButtonWrapper = styled.div`
 export default {
   PinButtonWrapper,
   PinButton,
+  PresenterButton,
 };

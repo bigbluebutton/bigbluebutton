@@ -5,7 +5,7 @@ import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import Tooltip from '/imports/ui/components/common/tooltip/container';
-import { messageToQuoteMarkdown } from '/imports/ui/components/chat/chat-graphql/service';
+import { getFirstVisibleLineHtml } from '/imports/ui/components/chat/chat-graphql/service';
 
 const intlMessages = defineMessages({
   cancel: {
@@ -85,15 +85,12 @@ const ChatReplyIntention = () => {
       }}
     >
       <Styled.Message>
-        <Styled.Markdown
-          linkTarget="_blank"
-          allowedElements={window.meetingClientSettings.public.chat.allowedElements}
-          unwrapDisallowed
-        >
-          {messageToQuoteMarkdown(message)}
-        </Styled.Markdown>
+        <Styled.HtmlContent
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: getFirstVisibleLineHtml(message || '') }}
+        />
       </Styled.Message>
-      <Tooltip title={intl.formatMessage(intlMessages.cancel, { 0: CANCEL_KEY })}>
+      <Tooltip title={intl.formatMessage(intlMessages.cancel, { cancelKey: CANCEL_KEY })}>
         <Styled.CloseBtn
           onClick={(e) => {
             e.stopPropagation();
@@ -104,7 +101,7 @@ const ChatReplyIntention = () => {
           icon="close"
           tabIndex={hidden ? -1 : 0}
           aria-hidden={hidden}
-          aria-label={intl.formatMessage(intlMessages.cancel, { 0: CANCEL_KEY })}
+          aria-label={intl.formatMessage(intlMessages.cancel, { cancelKey: CANCEL_KEY })}
           data-test="closeChatReplyIntentionButton"
         />
       </Tooltip>

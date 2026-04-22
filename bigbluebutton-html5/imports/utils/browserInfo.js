@@ -1,7 +1,7 @@
 import Bowser from 'bowser';
 import logger from '/imports/startup/client/logger';
 
-const userAgent = window.navigator.userAgent;
+const { userAgent } = window.navigator;
 const BOWSER_RESULTS = Bowser.parse(userAgent);
 
 const isChrome = BOWSER_RESULTS.browser.name === 'Chrome';
@@ -11,6 +11,7 @@ const isIe = BOWSER_RESULTS.browser.name === 'Internet Explorer';
 const isFirefox = BOWSER_RESULTS.browser.name === 'Firefox';
 
 const browserName = BOWSER_RESULTS.browser.name;
+const browserVersion = BOWSER_RESULTS.browser.version;
 
 const getVersionNumber = () => {
   if (BOWSER_RESULTS.browser.version) return BOWSER_RESULTS.browser.version;
@@ -39,7 +40,7 @@ const isValidSafariVersion = Bowser.getParser(userAgent).satisfies({
   safari: '>12',
 });
 
-const isTabletApp =  !!(userAgent.match(/BigBlueButton-Tablet/i));
+const isTabletApp = !!(userAgent.match(/BigBlueButton-Tablet/i));
 
 const browserInfo = {
   isChrome,
@@ -48,9 +49,10 @@ const browserInfo = {
   isIe,
   isFirefox,
   browserName,
+  browserVersion,
   versionNumber,
   isValidSafariVersion,
-  isTabletApp
+  isTabletApp,
 };
 
 export default browserInfo;

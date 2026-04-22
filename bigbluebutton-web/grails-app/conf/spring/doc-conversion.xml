@@ -21,9 +21,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+			https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
         <property name="locations">
             <list>
                 <value>classpath:bigbluebutton.properties</value>
@@ -39,9 +39,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="officeToPdfConversionService" ref="officeToPdfConversionService"/>
         <property name="presentationFileProcessor" ref="presentationFileProcessor"/>
         <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
+        <property name="maxPageConversionTime" value="${maxPageConversionTime}"/>
     </bean>
 
     <bean id="officeDocumentValidator" class="org.bigbluebutton.presentation.imp.OfficeDocumentValidator2">
+        <property name="presCheckTimeout" value="${officeDocumentValidationTimeout}"/>
+        <property name="execTimeout" value="${officeDocumentValidationExecTimeoutInMs}"/>
         <property name="presCheckExec" value="${presCheckExec}"/>
     </bean>
 
@@ -62,11 +65,21 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="presOfficeConversionMaxConcurrents" value="${officeToPdfMaxConcurrentConversions}"/>
     </bean>
 
-    <bean id="pageExtractor" class="org.bigbluebutton.presentation.imp.PageExtractorImp"/>
+    <bean id="pageExtractor" class="org.bigbluebutton.presentation.imp.PageExtractorImp">
+        <property name="extractTimeoutInMs" value="${extractTimeoutInMs}"/>
+    </bean>
 
-    <bean id="pageCounter" class="org.bigbluebutton.presentation.imp.PdfPageCounter"/>
+    <bean id="pageCounter" class="org.bigbluebutton.presentation.imp.PdfPageCounter">
+        <property name="wait" value="${pdfPageCountWait}"/>
+    </bean>
 
-    <bean id="imageResizer" class="org.bigbluebutton.presentation.imp.ImageResizerImp"/>
+    <bean id="imageResizer" class="org.bigbluebutton.presentation.imp.ImageResizerImp">
+        <property name="wait" value="${imageResizeWait}"/>
+    </bean>
+
+    <bean id="imageResolutionService" class="org.bigbluebutton.presentation.imp.ImageResolutionService">
+        <property name="wait" value="${detectImageDimensionsTimeout}"/>
+    </bean>
 
     <bean id="pageCounterService" class="org.bigbluebutton.presentation.imp.PageCounterService">
         <property name="pageCounter" ref="pageCounter"/>
@@ -75,18 +88,24 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     <bean id="thumbCreator" class="org.bigbluebutton.presentation.imp.ThumbnailCreatorImp">
         <property name="imageMagickDir" value="${imageMagickDir}"/>
         <property name="blankThumbnail" value="${BLANK_THUMBNAIL}"/>
+        <property name="execTimeout" value="${thumbnailCreationExecTimeout}"/>
     </bean>
 
     <bean id="pngCreator" class="org.bigbluebutton.presentation.imp.PngCreatorImp">
         <property name="blankPng" value="${BLANK_PNG}"/>
         <property name="slideWidth" value="${pngSlideWidth}"/>
+        <property name="convTimeout" value="${pngCreationConversionTimeout}"/>
+        <property name="execTimeout" value="${pngCreationExecTimeout}"/>
     </bean>
 
-    <bean id="textFileCreator" class="org.bigbluebutton.presentation.imp.TextFileCreatorImp"/>
+    <bean id="textFileCreator" class="org.bigbluebutton.presentation.imp.TextFileCreatorImp">
+        <property name="execTimeout" value="${textFileCreationExecTimeout}"/>
+    </bean>
 
     <bean id="svgImageCreator" class="org.bigbluebutton.presentation.imp.SvgImageCreatorImp">
     	<property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
         <property name="imageTagThreshold" value="${imageTagThreshold}"/>
+        <property name="useTagThreshold" value="${useTagThreshold}"/>
         <property name="pathsThreshold" value="${placementsThreshold}"/>
         <property name="blankSvg" value="${BLANK_SVG}"/>
         <property name="convPdfToSvgTimeout" value="${svgConversionTimeout}"/>
@@ -96,6 +115,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="forceRasterizeSlides" value="${forceRasterizeSlides}"/>
         <property name="pngWidthRasterizedSlides" value="${pngWidthRasterizedSlides}"/>
         <property name="imageResizer" ref="imageResizer"/>
+        <property name="imageResolutionService" ref="imageResolutionService"/>
+        <property name="maxBigSvgSize" value="${maxBigSvgSize}"/>
     </bean>
 
     <bean id="generatedSlidesInfoHelper" class="org.bigbluebutton.presentation.GeneratedSlidesInfoHelperImp"/>
@@ -114,7 +135,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="textFileCreator" ref="textFileCreator"/>
         <property name="svgImageCreator" ref="svgImageCreator"/>
         <property name="pageExtractor" ref="pageExtractor"/>
-        <property name="maxConversionTime" value="${maxConversionTime}"/>
         <property name="bigPdfSize" value="${bigPdfSize}"/>
         <property name="maxBigPdfPageSize" value="${maxBigPdfPageSize}"/>
         <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
@@ -132,9 +152,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="thumbnailCreator" ref="thumbCreator"/>
         <property name="pngCreator" ref="pngCreator"/>
         <property name="textFileCreator" ref="textFileCreator"/>
-        <property name="maxConversionTime" value="${maxConversionTime}"/>
         <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
         <property name="imageResizer" ref="imageResizer"/>
+        <property name="imageResolutionService" ref="imageResolutionService"/>
         <property name="maxImageWidth" value="${maxImageWidth}"/>
         <property name="maxImageHeight" value="${maxImageHeight}"/>
         <property name="generatePngs" value="${generatePngs}"/>

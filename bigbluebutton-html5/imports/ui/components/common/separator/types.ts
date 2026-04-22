@@ -1,4 +1,7 @@
+import { PluginIconType } from 'bigbluebutton-html-plugin-sdk';
+
 export interface SeparatorProps {
   actionsBar?: boolean;
-  icon?: string;
+  icon?: PluginIconType;
+  dataTest?: string;
 }

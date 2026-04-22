@@ -2,6 +2,8 @@ import React from 'react';
 import {
   IS_TYPING_PUBLIC_SUBSCRIPTION,
   IS_TYPING_PRIVATE_SUBSCRIPTION,
+  IsTypingPublicSubscriptionResponse,
+  IsTypingPrivateSubscriptionResponse,
 } from './queries';
 import {
   defineMessages,
@@ -27,6 +29,7 @@ const DEBUG_CONSOLE = false;
 interface TypingIndicatorProps {
   typingUsers: Array<User>,
   intl: IntlShape,
+  showNames: boolean,
 }
 
 const messages = defineMessages({
@@ -34,68 +37,99 @@ const messages = defineMessages({
     id: 'app.chat.multi.typing',
     description: 'displayed when 4 or more users are typing',
   },
+  someoneTyping: {
+    id: 'app.chat.someone.typing',
+    description: 'label used when one user is typing with disabled name',
+  },
 });
 
 const TypingIndicator: React.FC<TypingIndicatorProps> = ({
   typingUsers,
   intl,
+  showNames,
 }) => {
   const { length } = typingUsers;
-  const isSingleTyper = length === 1;
-  const isCoupleTyper = length === 2;
-  const isMultiTypers = length > 2;
 
   let element = null;
 
-  if (isSingleTyper) {
-    const name = typingUsers[0]?.name;
+  if (showNames) {
+    const isSingleTyper = length === 1;
+    const isCoupleTyper = length === 2;
+    const isMultiTypers = length > 2;
 
-    element = (
-      <FormattedMessage
-        id="app.chat.one.typing"
-        description="label used when one user is typing"
-        values={{
-          0:
-  <Styled.SingleTyper>
-    {`${name}`}
-    &nbsp;
-  </Styled.SingleTyper>,
-        }}
-      />
-    );
-  }
+    if (isSingleTyper) {
+      const name = typingUsers[0]?.name;
 
-  if (isCoupleTyper) {
-    const name = typingUsers[0]?.name;
-    const name2 = typingUsers[1]?.name;
+      element = (
+        <FormattedMessage
+          id="app.chat.one.typing"
+          description="label used when one user is typing"
+          values={{
+            userName: (
+              <Styled.SingleTyper>
+                {`${name}`}
+                &nbsp;
+              </Styled.SingleTyper>
+            ),
+          }}
+        />
+      );
+    }
 
-    element = (
-      <FormattedMessage
-        id="app.chat.two.typing"
-        description="label used when two users are typing"
-        values={{
-          0:
-  <Styled.CoupleTyper>
-    {`${name}`}
-    &nbsp;
-  </Styled.CoupleTyper>,
-          1:
-  <Styled.CoupleTyper>
-    &nbsp;
-    {`${name2}`}
-    &nbsp;
-  </Styled.CoupleTyper>,
-        }}
-      />
-    );
-  }
+    if (isCoupleTyper) {
+      const name = typingUsers[0]?.name;
+      const name2 = typingUsers[1]?.name;
 
-  if (isMultiTypers) {
-    element = (
-      <span>
-        {`${intl.formatMessage(messages.severalPeople)}`}
-      </span>
-    );
+      element = (
+        <FormattedMessage
+          id="app.chat.two.typing"
+          description="label used when two users are typing"
+          values={{
+            userName1: (
+              <Styled.CoupleTyper>
+                {`${name}`}
+                &nbsp;
+              </Styled.CoupleTyper>
+            ),
+            userName2: (
+              <Styled.CoupleTyper>
+                &nbsp;
+                {`${name2}`}
+                &nbsp;
+              </Styled.CoupleTyper>
+            ),
+          }}
+        />
+      );
+    }
+
+    if (isMultiTypers) {
+      element = (
+        <span>
+          {`${intl.formatMessage(messages.severalPeople)}`}
+        </span>
+      );
+    }
+  } else {
+    // Show no names in typing indicator
+    const isSingleTyper = length === 1;
+    const isMultiTypers = length > 1;
+
+    if (isSingleTyper) {
+      element = (
+        <span>
+          {`${intl.formatMessage(messages.someoneTyping)}`}
+        </span>
+      );
+    }
+
+    if (isMultiTypers) {
+      element = (
+        <span>
+          {`${intl.formatMessage(messages.severalPeople)}`}
+        </span>
+      );
+    }
   }
 
   return (
@@ -150,19 +184,22 @@ const TypingIndicatorContainer: React.FC = () => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_GROUP_CHAT_KEY = CHAT_CONFIG.public_group_id;
   const TYPING_INDICATOR_ENABLED = CHAT_CONFIG.typingIndicator.enabled;
+  const TYPING_SHOW_NAMES = CHAT_CONFIG.typingIndicator.showNames;
 
   // eslint-disable-next-line no-unused-expressions, no-console
   DEBUG_CONSOLE && console.log('TypingIndicatorContainer:chat', chat);
-  const typingQuery = idChatOpen === PUBLIC_GROUP_CHAT_KEY ? IS_TYPING_PUBLIC_SUBSCRIPTION
+  const isPublicChatOpen = idChatOpen === PUBLIC_GROUP_CHAT_KEY;
+  const typingQuery = isPublicChatOpen ? IS_TYPING_PUBLIC_SUBSCRIPTION
     : IS_TYPING_PRIVATE_SUBSCRIPTION;
-  const {
-    data: typingUsersData,
-    error: typingUsersError,
-  } = useDeduplicatedSubscription(typingQuery, {
+  const subscriptionOptions = isPublicChatOpen ? {} : {
     variables: {
       chatId: idChatOpen,
     },
-  });
+  };
+  const {
+    data: typingUsersData,
+    error: typingUsersError,
+  } = useDeduplicatedSubscription(typingQuery, subscriptionOptions);
   // eslint-disable-next-line no-unused-expressions, no-console
   DEBUG_CONSOLE && console.log('TypingIndicatorContainer:typingUsersData', typingUsersData);
 
@@ -180,14 +217,14 @@ const TypingIndicatorContainer: React.FC = () => {
     return null;
   }
 
-  const publicTypingUsers = typingUsersData?.user_typing_public || [];
-  const privateTypingUsers = typingUsersData?.user_typing_private || [];
+  const publicTypingUsers = (typingUsersData as IsTypingPublicSubscriptionResponse)?.user_typing_public || [];
+  const privateTypingUsers = (typingUsersData as IsTypingPrivateSubscriptionResponse)?.user_typing_private || [];
 
   const typingUsers = privateTypingUsers.concat(publicTypingUsers);
 
   const typingUsersArray = typingUsers
     .filter((user: { user: object; userId: string; }) => user?.user && user?.userId !== currentUser?.userId)
-    .map((user: { user: object; }) => user.user);
+    .map((user: { user: object; }) => user.user) as Array<User>;
 
   if (locked || !TYPING_INDICATOR_ENABLED || !typingUsers) return null;
 
@@ -195,6 +232,7 @@ const TypingIndicatorContainer: React.FC = () => {
     <TypingIndicator
       typingUsers={typingUsersArray}
       intl={intl}
+      showNames={TYPING_SHOW_NAMES}
     />
   );
 };

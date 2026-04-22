@@ -7,7 +7,6 @@ import {
   fetchWebRTCMappedStunTurnServers,
   getMappedFallbackStun,
 } from '/imports/utils/fetchStunTurnServers';
-import getFromMeetingSettings from '/imports/ui/services/meeting-settings';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import browserInfo from '/imports/utils/browserInfo';
 import {
@@ -55,16 +54,10 @@ const getMediaServerAdapter = (listenOnly = false) => {
   const DEFAULT_FULLAUDIO_MEDIA_SERVER = MEDIA.audio.fullAudioMediaServer;
 
   if (listenOnly) {
-    return getFromMeetingSettings(
-      'media-server-listenonly',
-      DEFAULT_LISTENONLY_MEDIA_SERVER,
-    );
+    return DEFAULT_LISTENONLY_MEDIA_SERVER;
   }
 
-  return getFromMeetingSettings(
-    'media-server-fullaudio',
-    DEFAULT_FULLAUDIO_MEDIA_SERVER,
-  );
+  return DEFAULT_FULLAUDIO_MEDIA_SERVER;
 };
 
 const isTransparentListenOnlyEnabled = () => {

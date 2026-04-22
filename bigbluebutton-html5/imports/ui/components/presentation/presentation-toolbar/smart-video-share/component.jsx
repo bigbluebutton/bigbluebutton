@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages } from 'react-intl';
-import { safeMatch } from '/imports/utils/string-utils';
+import { safeMatch, uniqueId } from '/imports/utils/string-utils';
 import { isUrlValid } from '/imports/ui/components/external-video-player/service';
-import BBBMenu from '/imports/ui/components/common/menu/component';
 import Styled from './styles';
+import Dropdown from '/imports/ui/components/dropdown/component';
 
 const intlMessages = defineMessages({
   externalVideo: {
@@ -17,19 +17,22 @@ const createAction = (url, startWatching) => {
   const finalUrl = hasHttps ? url : `https://${url}`;
   const label = hasHttps ? url?.replace('https://', '') : url;
 
-  if (isUrlValid(finalUrl)) {
-    return {
-      label,
-      onClick: () => startWatching(finalUrl),
-    };
-  }
+  if (!isUrlValid(finalUrl)) return null;
+
+  return (
+    <Dropdown.DropdownListItem
+      label={label}
+      key={uniqueId('quick-external-video-item')}
+      onClick={() => {
+        startWatching(finalUrl);
+      }}
+    />
+  );
 };
 
 export const SmartMediaShare = ({
   currentSlide = undefined,
   intl,
-  isMobile,
-  isRTL,
   startWatching,
 }) => {
   const linkPatt = /(https?:\/\/.*?)(?=\s|$)/g;
@@ -45,12 +48,9 @@ export const SmartMediaShare = ({
 
   if (actions?.length === 0) return null;
 
-  const customStyles = { top: '-1rem' };
-
   return (
-    <BBBMenu
-      customStyles={!isMobile ? customStyles : null}
-      trigger={(
+    <Dropdown>
+      <Dropdown.DropdownTrigger tabIndex={0}>
         <Styled.QuickVideoButton
           role="button"
           label={intl.formatMessage(intlMessages.externalVideo)}
@@ -61,19 +61,13 @@ export const SmartMediaShare = ({
           onClick={() => null}
           hideLabel
         />
-      )}
-      actions={actions}
-      opts={{
-        id: 'external-video-dropdown-menu',
-        keepMounted: true,
-        transitionDuration: 0,
-        elevation: 3,
-        getcontentanchorel: null,
-        fullwidth: 'true',
-        anchorOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
-        transformOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
-      }}
-    />
+      </Dropdown.DropdownTrigger>
+      <Dropdown.DropdownContent>
+        <Dropdown.DropdownList>
+          {actions}
+        </Dropdown.DropdownList>
+      </Dropdown.DropdownContent>
+    </Dropdown>
   );
 };
 
@@ -86,6 +80,4 @@ SmartMediaShare.propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
-  isMobile: PropTypes.bool.isRequired,
-  isRTL: PropTypes.bool.isRequired,
 };

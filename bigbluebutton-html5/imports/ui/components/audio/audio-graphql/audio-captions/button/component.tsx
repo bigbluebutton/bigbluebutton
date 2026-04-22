@@ -306,7 +306,7 @@ const AudioCaptionsButtonContainer: React.FC = () => {
   const currentCaptionLocale = currentUser.captionLocale || '';
   const isSupported = availableVoices.length > 0;
 
-  if (!currentMeetingData.componentsFlags?.hasCaption) return null;
+  if (!currentMeetingData?.componentsFlags?.hasCaption) return null;
 
   return (
     <AudioCaptionsButton

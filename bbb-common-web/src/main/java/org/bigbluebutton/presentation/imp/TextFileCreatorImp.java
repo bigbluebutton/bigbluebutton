@@ -28,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.bigbluebutton.presentation.SupportedFileTypes;
 import org.bigbluebutton.presentation.TextFileCreator;
@@ -40,28 +41,47 @@ import com.google.gson.Gson;
 public class TextFileCreatorImp implements TextFileCreator {
   private static Logger log = LoggerFactory.getLogger(TextFileCreatorImp.class);
 
-  private long execTimeout = 60000;
+  private long execTimeout = 60;
 
   @Override
-  public boolean createTextFile(UploadedPresentation pres, int page) {
+  public boolean createTextFile(UploadedPresentation pres, int page, boolean useBlank) {
     boolean success = false;
     File textfilesDir = determineTextfilesDirectory(pres.getUploadedFile());
     if (!textfilesDir.exists())
       textfilesDir.mkdir();
 
+    if (useBlank) {
+        createBlankTextFile(textfilesDir, page);
+        return true;
+    }
 
     try {
       success = generateTextFile(textfilesDir, pres, page);
     } catch (InterruptedException e) {
-      log.error("Interrupted Exception while generating thumbnails {}", pres.getName(), e);
+      log.error("Interrupted Exception while generating text files {}", pres.getName(), e);
       success = false;
     }
 
-    // TODO: in case that it doesn't generated the textfile, we should create a
-    // textfile with some message
-    // createUnavailableTextFile
+    if (!success) {
+      createBlankTextFile(textfilesDir, page);
+    }
 
     return success;
+  }
+
+  @Override
+  public void createBlank(UploadedPresentation pres, int page) {
+    File dir =  determineTextfilesDirectory(pres.getUploadedFile());
+
+    if (!dir.exists()) {
+      boolean created = dir.mkdir();
+      if (!created) {
+        log.warn("Failed to create text file directory");
+        return;
+      }
+    }
+
+    createBlankTextFile(dir, page);
   }
 
   private boolean generateTextFile(File textfilesDir,
@@ -99,12 +119,18 @@ public class TextFileCreatorImp implements TextFileCreator {
 
     } else {
       // sudo apt-get install xpdf-utils
-        COMMAND = "pdftotext -raw -nopgbrk -enc UTF-8 -f " + page + " -l " + page
+        COMMAND = "pdftotext -layout -nopgbrk -enc UTF-8 -f " + page + " -l " + page
             + " " + source + " " + dest;
 
         //System.out.println(COMMAND);
 
-        boolean done = new ExternalProcessExecutor().exec(COMMAND, execTimeout);
+        long execTimeout = this.execTimeout;
+        long pageConversionTimeoutInMs = pres.getMaxPageConversionTime() * 1000;
+        if (execTimeout > pageConversionTimeoutInMs) {
+            execTimeout = pageConversionTimeoutInMs;
+        }
+
+        boolean done = new ExternalProcessExecutor().exec(COMMAND, TimeUnit.SECONDS.toMillis(execTimeout));
         if (!done) {
           success = false;
 
@@ -128,6 +154,20 @@ public class TextFileCreatorImp implements TextFileCreator {
   private File determineTextfilesDirectory(File presentationFile) {
     return new File(
         presentationFile.getParent() + File.separatorChar + "textfiles");
+  }
+
+  private void createBlankTextFile(File textFilesDir, int page) {
+    File textFile = new File(textFilesDir.getAbsolutePath() + File.separatorChar + "slide-" + page + ".txt");
+    try {
+      boolean created = textFile.createNewFile();
+      if (created) {
+        String text = "No text could be retrieved for the slide";
+        Writer writer = new BufferedWriter(new FileWriter(textFile));
+        writer.write(text);
+      }
+    } catch (Exception e) {
+      log.warn("Failed to create blank text file:", e);
+    }
   }
 
   private void cleanDirectory(File directory) {

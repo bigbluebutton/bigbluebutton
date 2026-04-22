@@ -26,6 +26,12 @@ public class ImageResolutionServiceHandler extends AbstractCommandHandler {
   private static Logger log = LoggerFactory
       .getLogger(ImageResolutionServiceHandler.class);
 
+  private final String id;
+
+  public ImageResolutionServiceHandler(String id) {
+    this.id = id;
+  }
+
   /**
    * @return The resolution of the provided image
    */
@@ -43,6 +49,7 @@ public class ImageResolutionServiceHandler extends AbstractCommandHandler {
     } catch (Exception e) {
       log.error("Exception identifying width of the image", e);
     }
+    log.warn("Unable to determine image width, returning 0 for {}", id);
     return 0;
   }
 
@@ -60,6 +67,12 @@ public class ImageResolutionServiceHandler extends AbstractCommandHandler {
     } catch (Exception e) {
       log.error("Exception identifying height of the image", e);
     }
+    log.warn("Unable to determine image height, returning 0 for {}", id);
     return 0;
+  }
+
+  @Override
+  protected String getIdTag() {
+    return id;
   }
 }

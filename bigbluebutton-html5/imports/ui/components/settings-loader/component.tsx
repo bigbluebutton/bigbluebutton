@@ -6,13 +6,18 @@ import { ErrorScreen } from '/imports/ui/components/error-screen/component';
 import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
 import Session from '/imports/ui/services/storage/in-memory';
 import BBBWeb from '/imports/api/bbb-web-api';
+import MeetingStaticDataStore from '/imports/ui/core/singletons/meetingStaticData';
+import { MeetingStaticData } from '/imports/ui/Types/meetingStaticData';
 
 const connectionTimeout = 60000;
 
+type Meeting = MeetingStaticData & {
+  clientSettings: {
+    clientSettingsJson: MeetingClientSettings;
+  };
+};
 interface Response {
-  meeting_clientSettings: Array<{
-    clientSettingsJson: MeetingClientSettings,
-  }>;
+  meeting: Array<Meeting>;
 }
 
 declare global {
@@ -56,7 +61,7 @@ const SettingsLoader: React.FC<SettingsLoaderProps> = (props) => {
 
     BBBWeb.index(controller.signal)
       .then(({ data }) => {
-        const url = new URL(`${data.graphqlApiUrl}/clientSettings`);
+        const url = new URL(`${data.graphqlApiUrl}/meetingStaticData`);
         fetch(url, {
           method: 'get',
           credentials: 'include',
@@ -68,8 +73,13 @@ const SettingsLoader: React.FC<SettingsLoaderProps> = (props) => {
           .then((resp) => resp.json())
           .then((data: Response) => {
             clearTimeout(timeoutRef.current);
-            const settings = data?.meeting_clientSettings[0].clientSettingsJson;
+            const {
+              clientSettings,
+              ...staticData
+            } = data?.meeting[0];
+            const settings = clientSettings.clientSettingsJson;
             window.meetingClientSettings = JSON.parse(JSON.stringify(settings));
+            MeetingStaticDataStore.setMeetingData(staticData);
             setMeetingSettings(settings);
             setLoading(false);
             setSettingsFetched(true);

@@ -110,6 +110,7 @@ export const allowRedirectToLogoutURL = (logoutURL: string) => {
     // custom logoutURL
     return true;
   }
+
   // no logout url
   return false;
 };

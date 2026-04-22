@@ -47,7 +47,7 @@ The BigBlueButton source code is at [https://github.com/bigbluebutton/bigbluebut
 
 ### What is the open source license used in BigBlueButton?
 
-We use the LGPL license Version 3.0. Some of the open source components we build on use different licenses, such as red5phone uses the GPL license.
+We use the LGPL license Version 3.0.
 
 ### Will BigBlueButton always stay open source?
 
@@ -96,9 +96,7 @@ Like many open source projects, at the core of the project are a team of develop
 Committers:
 
 - Guilherme Pereira Leme, plugins
-- Kert Browne, whiteboard
 - Tainan Felipe Pauli De Almeida, client
-- Anton Barboza De Sa, testing
 - Ramón Souza, client
 - Gustavo Trott, core
 - Lucas Zawacki, core
@@ -114,6 +112,8 @@ Committers:
 
 Past Committers (fondly remembered):
 
+- Anton Barboza De Sa, testing
+- Kert Browne, whiteboard
 - Mario Gasparoni, media
 - Pedro Marin, client
 - Maxim Khlobystov, testing

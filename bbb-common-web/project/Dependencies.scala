@@ -21,11 +21,13 @@ object Dependencies {
     val apacheHttp = "4.5.13"
     val apacheHttpAsync = "4.1.4"
     val jsoup = "1.14.3"
+    val semver = "0.10.2"
+
 
     // Office and document conversion
     val apachePoi = "5.1.0"
     val nuProcess = "2.0.6"
-    val tika = "3.0.0"
+    val tika = "3.2.3"
 
     // Server
     val servlet = "4.0.1"
@@ -57,6 +59,7 @@ object Dependencies {
     val apacheHttp = "org.apache.httpcomponents" % "httpclient" % Versions.apacheHttp
     val apacheHttpAsync = "org.apache.httpcomponents" % "httpasyncclient" % Versions.apacheHttpAsync
     val jsoup = "org.jsoup" % "jsoup" % Versions.jsoup
+    val semver = "com.github.zafarkhaja" % "java-semver" % Versions.semver
 
     val poiXml = "org.apache.poi" % "poi-ooxml" % Versions.apachePoi
     val nuProcess = "com.zaxxer" % "nuprocess" % Versions.nuProcess
@@ -97,6 +100,7 @@ object Dependencies {
     Compile.apacheHttp,
     Compile.apacheHttpAsync,
     Compile.jsoup,
+    Compile.semver,
     Compile.poiXml,
     Compile.nuProcess,
     Compile.tika,
@@ -106,3 +110,4 @@ object Dependencies {
     Compile.apacheText,
     Compile.bbbCommons) ++ testing
 }
+

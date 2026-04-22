@@ -13,6 +13,8 @@ case class MeetingProp(
     extId:                                  String,
     intId:                                  String,
     meetingCameraCap:                       Int,
+    sharedNotesInitialContentJson:          Vector[AnyRef],
+    sharedNotesEditor:                        String,
     maxPinnedCameras:                       Int,
     cameraBridge:                           String,
     screenShareBridge:                      String,
@@ -49,6 +51,7 @@ case class UsersProp(
     maxUsers:                     Int,
     maxUserConcurrentAccesses:    Int,
     webcamsOnlyForModerator:      Boolean,
+    multiUserWhiteboardEnabled:   Boolean,
     userCameraCap:                Int,
     guestPolicy:                  String,
     meetingLayout:                String,
@@ -75,12 +78,13 @@ case class LockSettingsProps(
 )
 
 case class SystemProps(
-    loginUrl: String,
-    logoutUrl: String,
-    customLogoURL: String,
-    customDarkLogoURL: String,
-    bannerText: String,
-    bannerColor: String,
+    loginUrl:               String,
+    logoutUrl:              String,
+    customLogoURL:          String,
+    customDarkLogoURL:      String,
+    bannerText:             String,
+    bannerColor:            String,
+    html5PluginSdkVersion:  String,
 )
 
 case class GroupProps(
@@ -90,19 +94,19 @@ case class GroupProps(
 )
 
 case class DefaultProps(
-    pluginProp:        util.Map[String, AnyRef],
-    meetingProp:       MeetingProp,
-    breakoutProps:     BreakoutProps,
-    durationProps:     DurationProps,
-    password:          PasswordProp,
-    recordProp:        RecordProp,
-    welcomeProp:       WelcomeProp,
-    voiceProp:         VoiceProp,
-    usersProp:         UsersProp,
-    metadataProp:      MetadataProp,
-    lockSettingsProps: LockSettingsProps,
-    systemProps:       SystemProps,
-    groups:            Vector[GroupProps],
+    pluginProp:             util.Map[String, AnyRef],
+    meetingProp:            MeetingProp,
+    breakoutProps:          BreakoutProps,
+    durationProps:          DurationProps,
+    password:               PasswordProp,
+    recordProp:             RecordProp,
+    welcomeProp:            WelcomeProp,
+    voiceProp:              VoiceProp,
+    usersProp:              UsersProp,
+    metadataProp:           MetadataProp,
+    lockSettingsProps:      LockSettingsProps,
+    systemProps:            SystemProps,
+    groups:                 Vector[GroupProps],
     overrideClientSettings: String
 )
 
@@ -116,12 +120,12 @@ case class MeetingStatus(startEndTimeStatus: StartEndTimeStatus, recordingStatus
 case class Meeting2x(defaultProps: DefaultProps, meetingStatus: MeetingStatus)
 
 case class SimpleAnswerOutVO(id: Int, key: String)
-case class SimplePollOutVO(id: String, isMultipleResponse: Boolean, answers: Array[SimpleAnswerOutVO])
-case class SimpleVoteOutVO(id: Int, key: String, numVotes: Int)
-case class SimplePollResultOutVO(id: String, questionType: String, questionText: Option[String], answers: Array[SimpleVoteOutVO], numRespondents: Int, numResponders: Int)
+case class SimplePollOutVO(id: String, multipleResponse: Boolean, quiz: Boolean, answers: Array[SimpleAnswerOutVO], correctAnswer: Option[String])
+case class SimpleVoteOutVO(id: Int, key: String, numVotes: Int, isCorrectAnswer: Boolean)
+case class SimplePollResultOutVO(id: String, questionType: String, questionText: Option[String], answers: Array[SimpleVoteOutVO], quiz: Boolean, correctAnswer: Option[String], numRespondents: Int, numResponders: Int)
 case class Responder(userId: String, name: String)
 case class AnswerVO(id: Int, key: String, text: Option[String], responders: Option[Array[Responder]])
-case class QuestionVO(id: Int, questionType: String, multiResponse: Boolean, questionText: Option[String], answers: Option[Array[AnswerVO]])
+case class QuestionVO(id: Int, questionType: String, multiResponse: Boolean, quiz: Boolean, questionText: Option[String], answers: Option[Array[AnswerVO]], correctAnswer: Option[String])
 case class PollVO(id: String, questions: Array[QuestionVO], title: Option[String], started: Boolean, stopped: Boolean, showResult: Boolean, isSecret: Boolean)
 
 case class UserVO(id: String, externalId: String, name: String, role: String, bot: Boolean,

@@ -7,8 +7,8 @@ import org.bigbluebutton.api.service.ServiceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 public class JoinPasswordValidator implements ConstraintValidator<JoinPasswordConstraint, JoinPassword> {
 
@@ -19,9 +19,6 @@ public class JoinPasswordValidator implements ConstraintValidator<JoinPasswordCo
 
     @Override
     public boolean isValid(JoinPassword joinPassword, ConstraintValidatorContext constraintValidatorContext) {
-        log.info("Validating password {} for meeting with ID {}",
-                joinPassword.getPassword(), joinPassword.getMeetingID());
-
         if(joinPassword.getMeetingID() == null) {
             return false;
         }
@@ -35,10 +32,6 @@ public class JoinPasswordValidator implements ConstraintValidator<JoinPasswordCo
         String moderatorPassword = meeting.getModeratorPassword();
         String attendeePassword = meeting.getViewerPassword();
         String providedPassword = joinPassword.getPassword();
-
-        log.info("Moderator password: {}", moderatorPassword);
-        log.info("Attendee password: {}", attendeePassword);
-        log.info("Provided password: {}", providedPassword);
 
         return true;
     }

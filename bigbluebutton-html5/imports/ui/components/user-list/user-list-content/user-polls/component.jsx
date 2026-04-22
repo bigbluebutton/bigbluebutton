@@ -39,7 +39,7 @@ const UserPolls = ({
   return (
     <Styled.Messages>
       <Styled.Container>
-        <Styled.SmallTitle>
+        <Styled.SmallTitle data-test="pollingAndQuizTitle">
           {intl.formatMessage(intlMessages.pollLabel)}
         </Styled.SmallTitle>
       </Styled.Container>

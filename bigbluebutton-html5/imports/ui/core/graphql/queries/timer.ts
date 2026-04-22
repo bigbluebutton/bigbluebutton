@@ -7,8 +7,7 @@ export interface TimerData {
   time: number;
   stopwatch: boolean;
   running: boolean;
-  startedOn: number;
-  startedAt: string;
+  startedAt: string | null;
   elapsed: boolean;
 }
 
@@ -25,11 +24,12 @@ export const GET_TIMER = gql`
       time
       stopwatch
       running
-      startedOn
       startedAt
       elapsed
     }
   }
 `;
 
-export default GET_TIMER;
+export default {
+  GET_TIMER,
+};

@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPath, getConfigPropertyValueByPathAsIntOrElse }
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.RightsManagementTrait
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.models.{ UserState, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 
@@ -30,14 +30,22 @@ trait ChangeUserReactionEmojiReqMsgHdlr extends RightsManagementTrait {
       outGW.send(msgEventChange)
     }
 
-    //Get durationInSeconds from Client config
-    val userReactionExpire = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.userReaction.expire", 30)
-    for {
-      user <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId)
-      newUserState <- Users2x.setReactionEmoji(liveMeeting.users2x, user.intId, msg.body.reactionEmoji, userReactionExpire)
-    } yield {
-      if (user.reactionEmoji != msg.body.reactionEmoji) {
-        broadcast(newUserState, msg.body.reactionEmoji)
+    val userReactionsIsDisabled = liveMeeting.props.meetingProp.disabledFeatures.contains("userReactions")
+
+    if (userReactionsIsDisabled) {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val reason = "No permission to change reaction."
+      PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
+    } else {
+      //Get durationInSeconds from Client config
+      val userReactionExpire = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.userReaction.expire", 30)
+      for {
+        user <- Users2x.findWithIntId(liveMeeting.users2x, msg.body.userId)
+        newUserState <- Users2x.setReactionEmoji(liveMeeting.users2x, user.intId, msg.body.reactionEmoji, userReactionExpire)
+      } yield {
+        if (user.reactionEmoji != msg.body.reactionEmoji) {
+          broadcast(newUserState, msg.body.reactionEmoji)
+        }
       }
     }
   }

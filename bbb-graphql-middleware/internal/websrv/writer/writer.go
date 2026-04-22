@@ -1,16 +1,19 @@
 package writer
 
 import (
-	"bbb-graphql-middleware/internal/common"
 	"bytes"
 	"encoding/json"
-	"nhooyr.io/websocket"
 	"sync"
+
+	"bbb-graphql-middleware/internal/common"
+
+	"github.com/coder/websocket"
 )
 
 func BrowserConnectionWriter(
 	browserConnection *common.BrowserConnection,
-	wg *sync.WaitGroup) {
+	wg *sync.WaitGroup,
+) {
 	defer browserConnection.Logger.Debugf("finished")
 	browserConnection.Logger.Debugf("starting")
 	defer wg.Done()

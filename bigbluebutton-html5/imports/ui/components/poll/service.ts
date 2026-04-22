@@ -38,6 +38,18 @@ export const pollTypes = {
   Response: 'R-',
 };
 
+export const pollTypesKeys = {
+  yes: 'Yes',
+  no: 'No',
+  abstention: 'Abstention',
+  true: 'True',
+  false: 'False',
+  A: 'A',
+  B: 'B',
+  C: 'C',
+  D: 'D',
+};
+
 const pollAnswerIds = {
   true: {
     id: 'app.poll.answer.true',
@@ -237,7 +249,8 @@ export const getSplittedQuestionAndOptions = (questionAndOptions: string[] | str
 
   const optionsList = optList.map((val) => {
     const option = validateInput(val);
-    return { val: option };
+    // @ts-ignore
+    return { key: pollTypesKeys[option] ?? option, val: option };
   });
 
   return {

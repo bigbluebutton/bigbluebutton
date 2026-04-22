@@ -6,6 +6,7 @@
     <version>${apiVersion}</version>
     <apiVersion>${apiVersion}</apiVersion>
     <bbbVersion>${bbbVersion}</bbbVersion>
+    <html5PluginSdkVersion>${html5PluginSdkVersion}</html5PluginSdkVersion>
     <graphqlWebsocketUrl>${graphqlWebsocketUrl}</graphqlWebsocketUrl>
     <graphqlApiUrl>${graphqlApiUrl}</graphqlApiUrl>
 </response>

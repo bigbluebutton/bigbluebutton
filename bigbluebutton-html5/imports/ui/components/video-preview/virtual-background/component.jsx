@@ -286,7 +286,7 @@ const VirtualBgSelector = ({
           onClick={() => _virtualBgSelected(EFFECT_TYPES.BLUR_TYPE, 'Blur', index)}
         />
         <div aria-hidden className="sr-only" id="vr-cam-btn-blur">
-          {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: EFFECT_TYPES.BLUR_TYPE })}
+          {intl.formatMessage(intlMessages.camBgAriaDesc, { backgroundName: EFFECT_TYPES.BLUR_TYPE })}
         </div>
       </Styled.ThumbnailButtonWrapper>
     );
@@ -317,7 +317,7 @@ const VirtualBgSelector = ({
             data-test="selectDefaultBackground"
           />
           <div aria-hidden className="sr-only" id={`vr-cam-btn-${index + 1}`}>
-            {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: label })}
+            {intl.formatMessage(intlMessages.camBgAriaDesc, { backgroundName: label })}
           </div>
         </Styled.ThumbnailButtonWrapper>
       );
@@ -326,7 +326,7 @@ const VirtualBgSelector = ({
     const renderCustomButton = (background, index) => {
       const { filename, data, uniqueId } = background;
       const label = intl.formatMessage(intlMessages.backgroundWithIndex, {
-        0: index + 1,
+        backgroundIndex: index + 1,
       });
 
       return (
@@ -425,7 +425,7 @@ const VirtualBgSelector = ({
           data-test="noneBackgroundButton"
         />
         <div aria-hidden className="sr-only" id="vr-cam-btn-none">
-          {intl.formatMessage(intlMessages.camBgAriaDesc, { 0: EFFECT_TYPES.NONE_TYPE })}
+          {intl.formatMessage(intlMessages.camBgAriaDesc, { backgroundName: EFFECT_TYPES.NONE_TYPE })}
         </div>
       </>
     );

@@ -22,6 +22,7 @@ import useLockContext from '/imports/ui/components/lock-viewers/hooks/useLockCon
 import deviceInfo from '/imports/utils/deviceInfo';
 import { useIsAudioTranscriptionEnabled } from '/imports/ui/components/audio/audio-graphql/audio-captions/service';
 import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
+import { getStoredAudioInputDeviceId } from '/imports/api/audio/client/bridge/service';
 
 const invalidDialNumbers = ['0', '613-555-1212', '613-555-1234', '0000'];
 
@@ -37,6 +38,7 @@ const AudioModalContainer = (props) => {
   }));
   const usingLiveKit = meeting?.audioBridge === 'livekit';
   const getEchoTest = useStorageKey('getEchoTest', 'session');
+  const storageMuteState = useStorageKey(Service.getStorageMuteStateKey(), 'session');
 
   const away = currentUserData?.away;
   const isModerator = currentUserData?.isModerator;
@@ -95,15 +97,17 @@ const AudioModalContainer = (props) => {
   const { userLocks } = useLockContext();
   const isListenOnlyInputDevice = Service.inputDeviceId() === 'listen-only';
   const devicesAlreadyConfigured = skipEchoTestIfPreviousDevice
-    && Service.inputDeviceId();
+    && !!getStoredAudioInputDeviceId();
   const joinFullAudioImmediately = !isListenOnlyInputDevice
     && (skipCheck || (skipCheckOnJoin && !getEchoTest) || devicesAlreadyConfigured);
   const joinMic = useCallback(
     (options = {}) => joinMicrophone({
       skipEchoTest: options.skipEchoTest || joinFullAudioImmediately,
-      muted: options.muteOnStart || meeting?.voiceSettings?.muteOnStart,
+      muted: options.muteOnStart
+        ?? storageMuteState
+        ?? meeting?.voiceSettings?.muteOnStart,
     }),
-    [skipCheck, skipCheckOnJoin, meeting],
+    [skipCheck, skipCheckOnJoin, meeting, storageMuteState],
   );
   const close = useCallback(() => {
     const handleJoinError = (error, listenOnly) => {
@@ -117,9 +121,11 @@ const AudioModalContainer = (props) => {
       setIsOpen(false);
 
       // When using LiveKit, force joining audio when the modal is closed,
-      // but the user is not connected nor connecting to audio.
+      // but the user is not connected nor connecting to audio. This also means
+      // that the user will join muted as not clicking "Join Audio" signals
+      // that intention.
       if (usingLiveKit && !isConnected && !isConnecting) {
-        joinMic().catch((error) => handleJoinError(error, false));
+        joinMic({ muteOnStart: true }).catch((error) => handleJoinError(error, false));
       }
     };
 

@@ -53,7 +53,7 @@ interface RecordingComponentProps {
   recordingTime: number,
   onRequestClose: () => void;
   toggleRecording: () => void,
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsOpen: (visible: boolean) => void;
 }
 
 const RecordingComponent: React.FC<RecordingComponentProps> = (props) => {

@@ -7,9 +7,11 @@ import {
 } from 'bigbluebutton-html-plugin-sdk';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import * as uuidLib from 'uuid';
+import { isEqual } from 'radash';
 import PluginDataConsumptionManager from './data-consumption/manager';
+import PluginDataCreationManager from './data-creation/manager';
 import PluginsEngineComponent from './component';
-import { EffectivePluginConfig, PluginsEngineManagerProps } from './types';
+import { EffectivePluginConfig, PluginConfigFromGraphql, PluginsEngineManagerProps } from './types';
 import PluginLoaderManager from './loader/manager';
 import ExtensibleAreaStateManager from './extensible-areas/manager';
 import PluginDataChannelManager from './data-channel/manager';
@@ -18,6 +20,10 @@ import PluginDomElementManipulationManager from './dom-element-manipulation/mana
 import PluginServerCommandsHandler from './server-commands/handler';
 import PluginLearningAnalyticsDashboardManager from './learning-analytics-dashboard/manager';
 import PluginEventPersistenceManager from './event-persistence/manager';
+import { DataChannelEntry } from './data-channel/types';
+import createUseSubscription from '../../core/hooks/createUseSubscription';
+import { PLUGIN_DATA_CHANNEL_PUBLIC_SUBSCRIPTION, PLUGIN_DATA_CHANNEL_PRIVATE_SUBSCRIPTION } from './data-channel/subscriptions';
+import { mergeDataChannelEntries } from './data-channel/utils';
 
 const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -29,18 +35,28 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [lastLoadedPlugin, setLastLoadedPlugin] = useState<HTMLScriptElement | undefined>();
   const [effectivePluginsConfig, setEffectivePluginsConfig] = useState<EffectivePluginConfig[] | undefined>();
+  const [failedPlugins, setFailedPlugins] = useState<PluginConfigFromGraphql[]>([]);
   const [numberOfLoadedPlugins, setNumberOfLoadedPlugins] = useState<number>(0);
 
   useEffect(() => {
+    const graphqlFailedPlugins = pluginConfig?.filter(
+      (p) => p.loadFailureReason !== '',
+    );
     setEffectivePluginsConfig(
-      pluginConfig?.map((p) => ({
+      pluginConfig?.filter(
+        (p) => p.loadFailureReason === '',
+      ).map((p) => ({
         ...p,
         name: p.name,
+        loggerSettings: p.loggerSettings,
         url: p.javascriptEntrypointUrl,
         localesBaseUrl: p.localesBaseUrl,
         uuid: uuidLib.v4(),
       } as EffectivePluginConfig)),
     );
+    if (!isEqual(graphqlFailedPlugins, failedPlugins)) {
+      setFailedPlugins(graphqlFailedPlugins || []);
+    }
   }, [
     pluginConfig,
   ]);
@@ -49,9 +65,52 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
   window.React = React;
 
   useEffect(() => {
-    if (totalNumberOfPlugins) logger.info(`${numberOfLoadedPlugins}/${totalNumberOfPlugins} plugins loaded`);
+    if (totalNumberOfPlugins) {
+      logger.info({
+        logCode: 'plugin_loading_status',
+        extraInfo: {
+          numberOfLoadedPlugins,
+          totalNumberOfPlugins,
+        },
+      }, `${numberOfLoadedPlugins}/${totalNumberOfPlugins} plugins loaded`);
+    }
   },
   [numberOfLoadedPlugins, lastLoadedPlugin]);
+
+  useEffect(() => {
+    if (failedPlugins && failedPlugins.length > 0) {
+      failedPlugins.forEach((p) => {
+        logger.debug({
+          logCode: 'plugin_loading_failure',
+          extraInfo: {
+            pluginName: p.name,
+            failureReason: p.loadFailureReason,
+            failureSource: p.loadFailureSource,
+          },
+        }, `Plugin [${p.name}] failed in back-end, error: `, p.loadFailureReason);
+      });
+    }
+  },
+  [failedPlugins]);
+
+  const {
+    data: allPublicEntriesFromDataChannel,
+  } = createUseSubscription<DataChannelEntry>(
+    PLUGIN_DATA_CHANNEL_PUBLIC_SUBSCRIPTION,
+    {}, true,
+  )((obj) => obj);
+
+  const {
+    data: allPrivateEntriesFromDataChannel,
+  } = createUseSubscription<DataChannelEntry>(
+    PLUGIN_DATA_CHANNEL_PRIVATE_SUBSCRIPTION,
+    {}, true,
+  )((obj) => obj);
+
+  const allEntriesFromDataChannel = mergeDataChannelEntries(
+    allPublicEntriesFromDataChannel,
+    allPrivateEntriesFromDataChannel,
+  );
 
   return (
     <>
@@ -60,13 +119,19 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
           containerRef,
         }}
       />
+      <PluginDataCreationManager />
       <PluginDataConsumptionManager />
       <PluginServerCommandsHandler />
       <PluginUiCommandsHandler />
       <PluginDomElementManipulationManager />
       {
         effectivePluginsConfig?.map((effectivePluginConfig: EffectivePluginConfig) => {
-          const { uuid, name: pluginName, localesBaseUrl } = effectivePluginConfig;
+          const {
+            uuid,
+            name: pluginName,
+            localesBaseUrl,
+            loggerSettings,
+          } = effectivePluginConfig;
           const pluginApi: PluginSdk.PluginApi = BbbPluginSdk.getPluginApi(uuid, pluginName, localesBaseUrl);
           return (
             <div key={uuid}>
@@ -76,6 +141,8 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
                   containerRef,
                   setNumberOfLoadedPlugins,
                   setLastLoadedPlugin,
+                  loggerSettings,
+                  pluginApi,
                   pluginConfig: effectivePluginConfig,
                 }}
               />
@@ -88,6 +155,7 @@ const PluginsEngineManager = (props: PluginsEngineManagerProps) => {
               <PluginDataChannelManager
                 {...{
                   pluginApi,
+                  dataChannelEntries: allEntriesFromDataChannel,
                 }}
               />
               <ExtensibleAreaStateManager

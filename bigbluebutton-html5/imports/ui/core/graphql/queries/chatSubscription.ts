@@ -4,15 +4,14 @@ const CHATS_SUBSCRIPTION = gql`
   subscription ChatSubscription {
     chat(
       order_by: [
-        { public: desc }
-        { totalUnread: desc }
-        { participant: { name: asc, userId: asc } }
+        { chatId: asc }
       ]
     ) {
       chatId
       participant {
         userId
         name
+        nameSortable
         role
         color
         loggedOut

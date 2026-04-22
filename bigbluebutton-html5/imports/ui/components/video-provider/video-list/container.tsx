@@ -23,6 +23,7 @@ interface VideoListContainerProps {
   focusedId: string;
   handleVideoFocus: (id: string) => void;
   isGridEnabled: boolean;
+  overflowCount: number;
   onVideoItemMount: (stream: string, video: HTMLVideoElement) => void;
   onVideoItemUnmount: (stream: string) => void;
   onVirtualBgDrop: (stream: string, type: string, name: string, data: string) => Promise<unknown>;
@@ -38,6 +39,7 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
     focusedId,
     handleVideoFocus,
     isGridEnabled,
+    overflowCount,
     onVideoItemMount,
     onVideoItemUnmount,
     onVirtualBgDrop,
@@ -111,6 +113,7 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
           focusedId={focusedId}
           handleVideoFocus={handleVideoFocus}
           isGridEnabled={isGridEnabled}
+          overflowCount={overflowCount}
           streams={streams}
           onVideoItemMount={onVideoItemMount}
           onVideoItemUnmount={onVideoItemUnmount}

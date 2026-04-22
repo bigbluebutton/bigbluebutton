@@ -2,8 +2,8 @@ package org.bigbluebutton.api.model.validator;
 
 import org.bigbluebutton.api.model.constraint.Size;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 public class SizeValidator implements ConstraintValidator<Size, String> {
 

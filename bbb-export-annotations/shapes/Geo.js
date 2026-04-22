@@ -23,6 +23,7 @@ export class Geo extends Shape {
     this.geo = this.props?.geo;
     this.verticalAlign = this.props?.verticalAlign;
     this.labelColor = this.props?.labelColor;
+    this.padding = this.props?.padding ?? 16;
   }
 
   /**

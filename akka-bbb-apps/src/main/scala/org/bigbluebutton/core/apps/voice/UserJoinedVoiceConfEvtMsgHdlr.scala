@@ -3,13 +3,13 @@ package org.bigbluebutton.core.apps.voice
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.db.NotificationDAO
-import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
+import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter, HandlerHelpers }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.util.ColorPicker
 import org.bigbluebutton.core2.MeetingStatus2x
 
-trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
+trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration with HandlerHelpers {
   this: MeetingActor =>
 
   val liveMeeting: LiveMeeting
@@ -39,7 +39,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         "user",
         "app.userList.guest.pendingGuestAlert",
         "Notification that a new guest user joined the session",
-        Vector(s"${guest.name}")
+        Map("0" -> s"${guest.name}")
       )
       outGW.send(notifyEvent)
       NotificationDAO.insert(notifyEvent)
@@ -48,7 +48,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
     def registerUserInRegisteredUsers() = {
       val regUser = RegisteredUsers.create(liveMeeting.props.meetingProp.intId, msg.body.intId, msg.body.voiceUserId,
         msg.body.callerIdName, "", "", Roles.VIEWER_ROLE, msg.body.intId, Vector(""), "", "", userColor, false,
-        true, true, GuestStatus.WAIT, true, "", "", Map(), false)
+        true, true, GuestStatus.WAIT, true, "", "", Map.empty, Map.empty, false)
       RegisteredUsers.add(liveMeeting.registeredUsers, regUser, liveMeeting.props.meetingProp.intId)
     }
 
@@ -69,11 +69,12 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         pin = false,
         mobile = false,
         presenter = false,
+        whiteboardWriteAccess = MeetingStatus2x.multiUserWhiteboardEnabled(liveMeeting.status),
         locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
         avatar = "",
         webcamBackground = "",
         color = userColor,
-        clientType = if (isDialInUser) "dial-in-user" else "",
+        clientType = if (isDialInUser) ClientType.DIAL_IN else "",
         userLeftFlag = UserLeftFlag(false, 0)
       )
       Users2x.add(liveMeeting.users2x, newUser)
@@ -106,6 +107,11 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
     }
 
     def letUserEnter() = {
+      val speechLocale = Users2x.findWithIntId(liveMeeting.users2x, msg.body.intId) match {
+        case Some(u) => u.speechLocale
+        case None    => ""
+      }
+
       VoiceApp.handleUserJoinedVoiceConfEvtMsg(
         liveMeeting,
         outGW,
@@ -117,7 +123,9 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
         msg.body.callerIdName,
         msg.body.callerIdNum,
         userColor,
+        speechLocale,
         msg.body.muted,
+        listenOnlyInputDevice = false,
         deafened = false,
         msg.body.talking,
         "freeswitch",
@@ -137,9 +145,14 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration {
       outGW.send(event)
     } else {
       if (isDialInUser) {
+        // Guest lobby is always disabled for dial-in users joining via LiveKit
+        // as it's not fully supported yet.
+        val enforceGuestPolicy = dialInEnforceGuestPolicy && !isUsingLiveKitAudio(liveMeeting)
+
         registerUserInRegisteredUsers()
         registerUserInUsers2x()
-        if (dialInEnforceGuestPolicy) {
+
+        if (enforceGuestPolicy) {
           guestPolicy match {
             case GuestPolicy(policy, setBy) => {
               policy match {

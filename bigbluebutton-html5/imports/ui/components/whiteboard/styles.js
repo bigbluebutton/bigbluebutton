@@ -64,17 +64,27 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     left: -50px !important;
   }
 
-  ${({ isPresenter, isMultiUserActive }) => !isPresenter && !isMultiUserActive && `
+  ${({ isPresenter, isMultiUserActive, pointerDiameter = 5 }) => {
+    const numericDiameter = Number(pointerDiameter);
+    const safeDiameter = Number.isFinite(numericDiameter) && numericDiameter > 0
+      ? numericDiameter
+      : 5;
+    const scale = safeDiameter / 100;
+    const topOffset = 0;
+    const leftOffset = 0;
+    return !isPresenter && !isMultiUserActive && `
     .tl-cursor use {
-      transform: scale(0.05)!important;
+      transform: scale(${scale})!important;
+      transform-origin: 0 0 !important;
     }
 
     .tl-collaborator__cursor {
       position: absolute !important;
-      left: -7px !important;
-      top: -6px !important;
+      left: ${leftOffset}px !important;
+      top: ${topOffset}px !important;
     }
-  `}
+  `;
+  }}
 
   .tlui-toolbar__extras {
     position: fixed !important;
@@ -164,6 +174,10 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     right: 10px !important;
   }
 
+  .tlui-kbd > span {
+    font-family: 'Arial', sans-serif !important;
+  }
+
   [data-side="bottom"][data-align="end"][data-state="open"][role="dialog"] {
     right: 3.5rem !important;
     bottom: 9.5rem !important;
@@ -226,6 +240,10 @@ const TldrawV2GlobalStyle = createGlobalStyle`
 
     return `.tlui-layout__bottom { top: ${topValue} !important; }${additionalStyles}`;
   }}
+  ${({ hiddenGeoShapes }) => hiddenGeoShapes?.length > 0 && hiddenGeoShapes.map((shape) => `
+    [data-testid="style.geo.${shape}"] { display: none !important; }
+  `).join('')}
+
   [data-darkreader-scheme="dark"] button[data-testid="mobile.styles"] {
     & > div.tlui-icon {
       color: ${colorWhite};

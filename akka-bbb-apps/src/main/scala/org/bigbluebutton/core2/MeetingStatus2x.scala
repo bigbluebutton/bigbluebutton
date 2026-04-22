@@ -93,6 +93,8 @@ object MeetingStatus2x {
 
   def setWebcamsOnlyForModerator(status: MeetingStatus2x, value: Boolean) = status.webcamsOnlyForModerator = value
   def webcamsOnlyForModeratorEnabled(status: MeetingStatus2x): Boolean = status.webcamsOnlyForModerator
+  def setMultiUserWhiteboardEnabled(status: MeetingStatus2x, value: Boolean) = status.multiUserWhiteboardEnabled = value
+  def multiUserWhiteboardEnabled(status: MeetingStatus2x): Boolean = status.multiUserWhiteboardEnabled
   def permisionsInitialized(status: MeetingStatus2x): Boolean = status.permissionsInited
   def initializePermissions(status: MeetingStatus2x) = status.permissionsInited = true
   def audioSettingsInitialized(status: MeetingStatus2x): Boolean = status.audioSettingsInited
@@ -128,6 +130,7 @@ class MeetingStatus2x {
   private var extension = new MeetingExtensionProp
 
   private var webcamsOnlyForModerator = false
+  private var multiUserWhiteboardEnabled = false
 
   private var authedUserHasJoined = false
   private var lastAuthedUserLeftOn = 0L

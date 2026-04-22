@@ -32,7 +32,10 @@ case class GroupChatMsgToUser(
     sender:             GroupChatUser,
     chatEmphasizedText: Boolean       = false,
     message:            String,
+    messageAsHtml:      String,
     replyToMessageId:   String,
+    messageType:        String,
+    metadata:           Map[String, Any],
 )
 case class GroupChatInfo(id: String, access: String, createdBy: GroupChatUser, users: Vector[GroupChatUser])
 
@@ -119,7 +122,7 @@ case class SendGroupChatMessageFromApiSysPubMsgBody(
 
 object GroupChatMessageBroadcastEvtMsg { val NAME = "GroupChatMessageBroadcastEvtMsg" }
 case class GroupChatMessageBroadcastEvtMsg(header: BbbClientMsgHeader, body: GroupChatMessageBroadcastEvtMsgBody) extends BbbCoreMsg
-case class GroupChatMessageBroadcastEvtMsgBody(chatId: String, msg: GroupChatMsgToUser)
+case class GroupChatMessageBroadcastEvtMsgBody(chatId: String, chatParticipants: Vector[String], msg: GroupChatMsgToUser)
 
 object EditGroupChatMessageReqMsg { val NAME = "EditGroupChatMessageReqMsg" }
 case class EditGroupChatMessageReqMsg(header: BbbClientMsgHeader, body: EditGroupChatMessageReqMsgBody) extends StandardMsg
@@ -127,7 +130,7 @@ case class EditGroupChatMessageReqMsgBody(chatId: String, messageId: String, mes
 
 object GroupChatMessageEditedEvtMsg { val NAME = "GroupChatMessageEditedEvtMsg" }
 case class GroupChatMessageEditedEvtMsg(header: BbbClientMsgHeader, body: GroupChatMessageEditedEvtMsgBody) extends BbbCoreMsg
-case class GroupChatMessageEditedEvtMsgBody(chatId: String, messageId: String, message: String)
+case class GroupChatMessageEditedEvtMsgBody(chatId: String, messageId: String, message: String, messageAsHtml: String)
 
 object DeleteGroupChatMessageReqMsg { val NAME = "DeleteGroupChatMessageReqMsg" }
 case class DeleteGroupChatMessageReqMsg(header: BbbClientMsgHeader, body: DeleteGroupChatMessageReqMsgBody) extends StandardMsg
@@ -139,19 +142,19 @@ case class GroupChatMessageDeletedEvtMsgBody(chatId: String, messageId: String)
 
 object SendGroupChatMessageReactionReqMsg { val NAME = "SendGroupChatMessageReactionReqMsg" }
 case class SendGroupChatMessageReactionReqMsg(header: BbbClientMsgHeader, body: SendGroupChatMessageReactionReqMsgBody) extends StandardMsg
-case class SendGroupChatMessageReactionReqMsgBody(chatId: String, messageId: String, reactionEmoji: String, reactionEmojiId: String)
+case class SendGroupChatMessageReactionReqMsgBody(chatId: String, messageId: String, reactionEmoji: String)
 
 object GroupChatMessageReactionSentEvtMsg { val NAME = "GroupChatMessageReactionSentEvtMsg" }
 case class GroupChatMessageReactionSentEvtMsg(header: BbbClientMsgHeader, body: GroupChatMessageReactionSentEvtMsgBody) extends BbbCoreMsg
-case class GroupChatMessageReactionSentEvtMsgBody(chatId: String, messageId: String, reactionEmoji: String, reactionEmojiId: String)
+case class GroupChatMessageReactionSentEvtMsgBody(chatId: String, messageId: String, reactionEmoji: String)
 
 object DeleteGroupChatMessageReactionReqMsg { val NAME = "DeleteGroupChatMessageReactionReqMsg" }
 case class DeleteGroupChatMessageReactionReqMsg(header: BbbClientMsgHeader, body: DeleteGroupChatMessageReactionReqMsgBody) extends StandardMsg
-case class DeleteGroupChatMessageReactionReqMsgBody(chatId: String, messageId: String, reactionEmoji: String, reactionEmojiId: String)
+case class DeleteGroupChatMessageReactionReqMsgBody(chatId: String, messageId: String, reactionEmoji: String)
 
 object GroupChatMessageReactionDeletedEvtMsg { val NAME = "GroupChatMessageReactionDeletedEvtMsg" }
 case class GroupChatMessageReactionDeletedEvtMsg(header: BbbClientMsgHeader, body: GroupChatMessageReactionDeletedEvtMsgBody) extends BbbCoreMsg
-case class GroupChatMessageReactionDeletedEvtMsgBody(chatId: String, messageId: String, reactionEmoji: String, reactionEmojiId: String)
+case class GroupChatMessageReactionDeletedEvtMsgBody(chatId: String, messageId: String, reactionEmoji: String)
 
 object UserTypingPubMsg { val NAME = "UserTypingPubMsg" }
 case class UserTypingPubMsg(header: BbbClientMsgHeader, body: UserTypingPubMsgBody) extends StandardMsg

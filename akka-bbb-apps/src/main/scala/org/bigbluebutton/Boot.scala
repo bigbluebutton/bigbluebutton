@@ -66,7 +66,7 @@ object Boot extends App with SystemConfiguration {
   )
 
   val graphqlConnectionsActor = system.actorOf(
-    GraphqlConnectionsActor.props(system, eventBus, outGW),
+    GraphqlConnectionsActor.props(eventBus, outGW),
     "GraphqlConnectionsActor"
   )
 

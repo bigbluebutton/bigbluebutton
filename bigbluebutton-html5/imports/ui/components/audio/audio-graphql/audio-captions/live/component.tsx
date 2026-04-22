@@ -5,7 +5,7 @@ import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 import useAudioCaptionEnable from '/imports/ui/core/local-states/useAudioCaptionEnable';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { splitTranscript } from '../service';
+import { splitTranscript, captionLimit } from '../service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
@@ -64,6 +64,7 @@ const AudioCaptionsLiveContainer: React.FC = () => {
   } = useCurrentUser((u) => ({
     captionLocale: u.captionLocale,
   }));
+  const [audioCaptionsEnable] = useAudioCaptionEnable();
 
   const {
     data: AudioCaptionsLiveData,
@@ -71,9 +72,8 @@ const AudioCaptionsLiveContainer: React.FC = () => {
     error: AudioCaptionsLiveError,
   } = useDeduplicatedSubscription<getCaptions>(GET_CAPTIONS, {
     variables: { locale: currentUser?.captionLocale ?? 'en-US' },
+    skip: !audioCaptionsEnable || !currentUser?.captionLocale,
   });
-
-  const [audioCaptionsEnable] = useAudioCaptionEnable();
 
   if (AudioCaptionsLiveLoading) return null;
 
@@ -102,7 +102,7 @@ const AudioCaptionsLiveContainer: React.FC = () => {
       captions={AudioCaptionsLiveData.caption.map((c) => {
         const splits = splitTranscript(c);
         return splits;
-      }).flat().filter((c) => c.captionText)}
+      }).flat().filter((c) => c.captionText).slice(-captionLimit())}
     />
   );
 };

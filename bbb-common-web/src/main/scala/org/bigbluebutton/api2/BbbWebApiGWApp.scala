@@ -6,7 +6,7 @@ import org.apache.pekko.event.Logging
 import org.bigbluebutton.api.domain.{BreakoutRoomsParams, Group, LockSettingsParams}
 import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api.messaging.messages.{ChatMessageFromApi, RegisterUserSessionToken}
-import org.bigbluebutton.api.service.ServiceUtils;
+import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.api2.bus._
 import org.bigbluebutton.api2.endpoint.redis.WebRedisSubscriberActor
 import org.bigbluebutton.common2.redis.MessageSender
@@ -125,8 +125,11 @@ class BbbWebApiGWApp(
                     recorded: java.lang.Boolean, voiceBridge: String, duration: java.lang.Integer,
                     autoStartRecording:      java.lang.Boolean,
                     allowStartStopRecording: java.lang.Boolean,
+                    sharedNotesInitialContentJson: java.util.ArrayList[AnyRef],
+                    sharedNotesEditor:         java.lang.String,
                     recordFullDurationMedia: java.lang.Boolean,
                     webcamsOnlyForModerator: java.lang.Boolean,
+                    multiUserWhiteboardEnabled: java.lang.Boolean,
                     meetingCameraCap: java.lang.Integer,
                     userCameraCap:    java.lang.Integer,
                     maxPinnedCameras: java.lang.Integer,
@@ -172,15 +175,19 @@ class BbbWebApiGWApp(
                     presentationUploadExternalDescription:  String,
                     presentationUploadExternalUrl:          String,
                     plugins:                                util.Map[String, AnyRef],
+                    html5PluginSdkVersion:                   String,
                     overrideClientSettings:                 String): Unit = {
 
     val disabledFeaturesAsVector: Vector[String] = disabledFeatures.asScala.toVector
 
+    val sharedNotesInitialContentJsonVector: Vector[AnyRef] = sharedNotesInitialContentJson.asScala.toVector
     val meetingProp = MeetingProp(
       name = meetingName,
       extId = extMeetingId,
       intId = meetingId,
       meetingCameraCap = meetingCameraCap.intValue(),
+      sharedNotesInitialContentJson = sharedNotesInitialContentJsonVector,
+      sharedNotesEditor = sharedNotesEditor,
       maxPinnedCameras = maxPinnedCameras.intValue(),
       cameraBridge,
       screenShareBridge,
@@ -229,6 +236,7 @@ class BbbWebApiGWApp(
       maxUsers = maxUsers.intValue(),
       maxUserConcurrentAccesses = maxUserConcurrentAccesses,
       webcamsOnlyForModerator = webcamsOnlyForModerator.booleanValue(),
+      multiUserWhiteboardEnabled = multiUserWhiteboardEnabled,
       userCameraCap = userCameraCap.intValue(),
       guestPolicy = guestPolicy, meetingLayout = meetingLayout, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue(),
       allowModsToEjectCameras = allowModsToEjectCameras.booleanValue(),
@@ -267,6 +275,7 @@ class BbbWebApiGWApp(
         case c: String => c
         case _ => ""
       },
+      html5PluginSdkVersion,
     )
 
     val groupsAsVector: Vector[GroupProps] = groups.asScala.toVector.map(g => GroupProps(g.getGroupId(), g.getName(), g.getUsersExtId().asScala.toVector))
@@ -285,7 +294,7 @@ class BbbWebApiGWApp(
       lockSettingsProps,
       systemProps,
       groupsAsVector,
-      overrideClientSettings
+      overrideClientSettings,
     )
 
     //meetingManagerActorRef ! new CreateMeetingMsg(defaultProps)
@@ -299,7 +308,8 @@ class BbbWebApiGWApp(
                    role: String, extUserId: String, authToken: String, sessionToken: String,
                    avatarURL: String, webcamBackgroundURL: String, bot: java.lang.Boolean, guest: java.lang.Boolean,
                    authed: java.lang.Boolean, guestStatus: String, excludeFromDashboard: java.lang.Boolean,
-                   enforceLayout: String, logoutUrl: String, userMetadata: java.util.Map[String, String]): Unit = {
+                   enforceLayout: String, logoutUrl: String, joinRequestMetadata: java.util.Map[String, String],
+                   userMetadata: java.util.Map[String, String]): Unit = {
 
     //    meetingManagerActorRef ! new RegisterUser(meetingId = meetingId, intUserId = intUserId, name = name,
     //      role = role, extUserId = extUserId, authToken = authToken, avatarURL = avatarURL,
@@ -312,7 +322,7 @@ class BbbWebApiGWApp(
       role = role, extUserId = extUserId, authToken = authToken, sessionToken = sessionToken,
       avatarURL = avatarURL, webcamBackgroundURL = webcamBackgroundURL, bot = bot.booleanValue(), guest = guest.booleanValue(),
       authed = authed.booleanValue(), guestStatus = guestStatus, excludeFromDashboard = excludeFromDashboard,
-      enforceLayout = enforceLayout, logoutUrl = logoutUrl, userMetadata = (userMetadata).asScala.toMap)
+      enforceLayout = enforceLayout, logoutUrl = logoutUrl, joinRequestMetadata = (joinRequestMetadata).asScala.toMap, userMetadata = (userMetadata).asScala.toMap)
 
     val event = MsgBuilder.buildRegisterUserRequestToAkkaApps(regUser)
     msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
@@ -419,6 +429,9 @@ class BbbWebApiGWApp(
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     } else if (msg.isInstanceOf[UploadFileScanFailedMessage]) {
       val event = MsgBuilder.buildPresentationUploadedFileScanFailedErrorSysPubMsg(msg.asInstanceOf[UploadFileScanFailedMessage])
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+    } else if (msg.isInstanceOf[DocConversionStarted]) {
+      val event = MsgBuilder.buildPresentationConversionStartedSysPubMsg(msg.asInstanceOf[DocConversionStarted])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     }
   }

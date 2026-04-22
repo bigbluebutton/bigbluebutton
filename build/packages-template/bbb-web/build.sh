@@ -55,9 +55,9 @@ cd ..
 
 cd bigbluebutton-web
 # Build new version of bbb-web
-gradle clean
-gradle resolveDeps
-grails assemble
+./gradlew clean
+./gradlew resolveDeps
+./gradlew assemble
 
 # Build presentation checker
 if [ -d pres-checker ]; then
@@ -94,6 +94,10 @@ pwd
 mkdir -p "$STAGING"/usr/share/bigbluebutton/nginx
 cp bbb-web.nginx "$STAGING"/usr/share/bigbluebutton/nginx/web
 cp loadbalancer.nginx "$STAGING"/usr/share/bigbluebutton/nginx/loadbalancer.nginx
+
+# Copy script to run commands through `system-run --user`
+cp run-in-systemd.sh "$STAGING"/usr/share/bbb-web
+chmod 755 "$STAGING"/usr/share/bbb-web
 
 mkdir -p "$STAGING"/var/log/bigbluebutton
 # Copy directive for serving SVG files (HTML5) from nginx

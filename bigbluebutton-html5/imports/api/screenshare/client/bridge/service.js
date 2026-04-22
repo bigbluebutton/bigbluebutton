@@ -2,7 +2,7 @@ import logger from '/imports/startup/client/logger';
 import { fetchWebRTCMappedStunTurnServers, getMappedFallbackStun } from '/imports/utils/fetchStunTurnServers';
 import loadAndPlayMediaStream from '/imports/ui/services/bbb-webrtc-sfu/load-play';
 import { SCREENSHARING_ERRORS } from './errors';
-import getFromMeetingSettings, { getVoiceConf } from '/imports/ui/services/meeting-settings';
+import { getVoiceConf } from '/imports/ui/services/meeting-settings';
 
 const HAS_DISPLAY_MEDIA = (typeof navigator.getDisplayMedia === 'function'
   || (navigator.mediaDevices && typeof navigator.mediaDevices.getDisplayMedia === 'function'));
@@ -21,10 +21,9 @@ const getBoundGDM = () => {
   }
 }
 
-const getScreenStream = async () => {
-  const {
-    constraints: GDM_CONSTRAINTS,
-  } = window.meetingClientSettings.public.kurento.screenshare;
+const getScreenStream = async (constraints) => {
+  const effectiveConstraints = constraints
+    || window.meetingClientSettings.public.kurento.screenshare.constraints;
 
   const gDMCallback = (stream) => {
     // Some older Chromium variants choke on gDM when audio: true by NOT generating
@@ -35,10 +34,10 @@ const getScreenStream = async () => {
     }
 
     if (typeof stream.getVideoTracks === 'function'
-      && typeof GDM_CONSTRAINTS.video === 'object') {
+      && typeof effectiveConstraints.video === 'object') {
       stream.getVideoTracks().forEach(track => {
         if (typeof track.applyConstraints  === 'function') {
-          track.applyConstraints(GDM_CONSTRAINTS.video).catch(error => {
+          track.applyConstraints(effectiveConstraints.video).catch(error => {
             logger.warn({
               logCode: 'screenshare_videoconstraint_failed',
               extraInfo: { errorName: error.name, errorCode: error.code },
@@ -50,10 +49,10 @@ const getScreenStream = async () => {
     }
 
     if (typeof stream.getAudioTracks === 'function'
-      && typeof GDM_CONSTRAINTS.audio === 'object') {
+      && typeof effectiveConstraints.audio === 'object') {
       stream.getAudioTracks().forEach(track => {
         if (typeof track.applyConstraints  === 'function') {
-          track.applyConstraints(GDM_CONSTRAINTS.audio).catch(error => {
+          track.applyConstraints(effectiveConstraints.audio).catch(error => {
             logger.warn({
               logCode: 'screenshare_audioconstraint_failed',
               extraInfo: { errorName: error.name, errorCode: error.code },
@@ -69,7 +68,7 @@ const getScreenStream = async () => {
   const getDisplayMedia = getBoundGDM();
 
   if (typeof getDisplayMedia === 'function') {
-    return getDisplayMedia(GDM_CONSTRAINTS)
+    return getDisplayMedia(effectiveConstraints)
       .then(gDMCallback)
       .catch(error => {
         const normalizedError = normalizeGetDisplayMediaError(error);
@@ -97,10 +96,10 @@ const getIceServers = (sessionToken) => {
 
 const getMediaServerAdapter = () => {
   const {
-    mediaServer: DEFAULT_SCREENSHARE_MEDIA_SERVER,
+    mediaServer,
   } = window.meetingClientSettings.public.kurento.screenshare;
-  return getFromMeetingSettings('media-server-screenshare', DEFAULT_SCREENSHARE_MEDIA_SERVER);
-}
+  return mediaServer;
+};
 
 const getNextReconnectionInterval = (oldInterval) => {
   const {

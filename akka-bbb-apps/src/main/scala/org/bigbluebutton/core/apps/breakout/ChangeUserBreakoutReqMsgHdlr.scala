@@ -33,8 +33,8 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
         for {
           roomFrom <- breakoutModel.rooms.get(msg.body.fromBreakoutId)
         } yield {
-          roomFrom.users.filter(u => u.id == msg.body.userId + "-" + roomFrom.sequence).foreach(user => {
-            eventBus.publish(BigBlueButtonEvent(roomFrom.id, EjectUserFromBreakoutInternalMsg(meetingId, roomFrom.id, user.id, msg.header.userId, "User moved to another room", EjectReasonCode.EJECT_USER, false)))
+          roomFrom.users.filter(u => u.extId == msg.body.userId + "-" + roomFrom.sequence).foreach(user => {
+            eventBus.publish(BigBlueButtonEvent(roomFrom.id, EjectUserFromBreakoutInternalMsg(meetingId, roomFrom.id, user.extId, msg.header.userId, "User moved to another room", EjectReasonCode.EJECT_USER, false)))
           })
         }
 
@@ -74,7 +74,7 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
             "promote",
             "app.updateBreakoutRoom.userChangeRoomNotification",
             "Notification to warn user was moved to another room",
-            Vector(roomTo.shortName)
+            Map("roomName" -> roomTo.shortName)
           )
           outGW.send(notifyUserEvent)
           NotificationDAO.insert(notifyUserEvent)

@@ -6,7 +6,7 @@ export interface BreakoutRoom {
   showInvitation: boolean;
   isLastAssignedRoom: boolean;
   joinURL: string | null;
-  breakoutRoomId: string;
+  breakoutRoomMeetingId: string;
   isDefaultName: boolean;
   isUserCurrentlyInRoom: boolean;
   participants: Array<{
@@ -37,7 +37,7 @@ export const getBreakoutData = gql`
       showInvitation
       isLastAssignedRoom
       joinURL
-      breakoutRoomId
+      breakoutRoomMeetingId
       isDefaultName
       isUserCurrentlyInRoom
       participants(order_by: {userId: asc}) {

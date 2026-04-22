@@ -7,7 +7,7 @@ const MOUNT_DELAY = 1000;
 const UNMOUNT_DELAY = 20000;
 
 interface IntersectionWatcherProps {
-  ParentRef: React.MutableRefObject<HTMLDivElement | null>;
+  ParentRef: React.MutableRefObject<HTMLUListElement | null>;
   children: React.ReactNode;
   isLastItem: boolean;
   restOfUsers: number;

@@ -9,18 +9,21 @@ export interface UserInfo {
 }
 
 export interface ResponseInfo {
+  correctOption: boolean;
   optionResponsesCount: number;
   optionDesc: string;
   pollResponsesCount: number;
 }
 
 export interface PollInfo {
+  quiz: boolean;
   published: boolean;
   pollId: string;
   secret: boolean;
   questionText: string;
   ended: boolean;
   multipleResponses: boolean;
+  type: string;
   users: Array<UserInfo>;
   responses: Array<ResponseInfo>;
   users_aggregate: {
@@ -61,6 +64,8 @@ subscription getCurrentPollData {
       questionText
       ended
       multipleResponses
+      quiz
+      type
       users {
         user {
           name
@@ -68,7 +73,8 @@ subscription getCurrentPollData {
         }
         optionDescIds
       }
-      responses {
+      responses(order_by: {optionId: asc}) {
+        correctOption
         optionResponsesCount
         optionDesc
         pollResponsesCount

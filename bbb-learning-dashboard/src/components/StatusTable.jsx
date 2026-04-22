@@ -23,6 +23,66 @@ const intlMessages = defineMessages({
 });
 
 class StatusTable extends React.Component {
+  static makeLineThrough(userPeriod, period) {
+    const isRTL = document.dir === 'rtl';
+    const { registeredOn, leftOn } = userPeriod;
+    const boundaryLeft = period.start;
+    const boundaryRight = period.end;
+    const interval = period.end - period.start;
+    let roundedLeft = registeredOn >= boundaryLeft
+      && registeredOn <= boundaryRight ? 'rounded-l' : '';
+    let roundedRight = leftOn >= boundaryLeft
+      && leftOn <= boundaryRight ? 'rounded-r' : '';
+    let offsetLeft = 0;
+    let offsetRight = 0;
+    if (registeredOn >= boundaryLeft && registeredOn <= boundaryRight) {
+      offsetLeft = ((registeredOn - boundaryLeft) * 100) / interval;
+    }
+    if (leftOn >= boundaryLeft && leftOn <= boundaryRight) {
+      offsetRight = ((boundaryRight - leftOn) * 100) / interval;
+    }
+    let width = '';
+    if (offsetLeft === 0 && offsetRight >= 99) {
+      width = 'w-1.5';
+    }
+    if (offsetRight === 0 && offsetLeft >= 99) {
+      width = 'w-1.5';
+    }
+    if (offsetLeft && offsetRight) {
+      const variation = offsetLeft - offsetRight;
+      if (variation > -1 && variation < 1) {
+        width = 'w-1.5';
+      }
+    }
+    if (isRTL) {
+      const aux = roundedRight;
+
+      if (roundedLeft !== '') roundedRight = 'rounded-r';
+      else roundedRight = '';
+
+      if (aux !== '') roundedLeft = 'rounded-l';
+      else roundedLeft = '';
+    }
+    const redress = '(0.375rem / 2)';
+    return (
+      <div
+        className={
+          'h-1.5 bg-gray-200 absolute inset-x-0 z-10'
+          + ` ${width} ${roundedLeft} ${roundedRight}`
+        }
+        style={{
+          top: `calc(50% - ${redress})`,
+          left: `${isRTL ? offsetRight : offsetLeft}%`,
+          right: `${isRTL ? offsetLeft : offsetRight}%`,
+        }}
+      />
+    );
+  }
+
+  static tsToHHmmss(ts) {
+    return (new Date(ts).toISOString().substr(11, 8));
+  }
+
   componentDidMount() {
     // This code is needed to prevent reactions from overflowing.
     const reactions = document.getElementsByClassName('timeline-reaction');
@@ -57,10 +117,6 @@ class StatusTable extends React.Component {
     const {
       allUsers, slides, meetingId, intl,
     } = this.props;
-
-    function tsToHHmmss(ts) {
-      return (new Date(ts).toISOString().substr(11, 8));
-    }
 
     const usersPeriods = {};
     Object.values(allUsers || {}).forEach((user) => {
@@ -133,61 +189,6 @@ class StatusTable extends React.Component {
 
     const isRTL = document.dir === 'rtl';
 
-    function makeLineThrough(userPeriod, period) {
-      const { registeredOn, leftOn } = userPeriod;
-      const boundaryLeft = period.start;
-      const boundaryRight = period.end;
-      const interval = period.end - period.start;
-      let roundedLeft = registeredOn >= boundaryLeft
-        && registeredOn <= boundaryRight ? 'rounded-l' : '';
-      let roundedRight = leftOn >= boundaryLeft
-        && leftOn <= boundaryRight ? 'rounded-r' : '';
-      let offsetLeft = 0;
-      let offsetRight = 0;
-      if (registeredOn >= boundaryLeft && registeredOn <= boundaryRight) {
-        offsetLeft = ((registeredOn - boundaryLeft) * 100) / interval;
-      }
-      if (leftOn >= boundaryLeft && leftOn <= boundaryRight) {
-        offsetRight = ((boundaryRight - leftOn) * 100) / interval;
-      }
-      let width = '';
-      if (offsetLeft === 0 && offsetRight >= 99) {
-        width = 'w-1.5';
-      }
-      if (offsetRight === 0 && offsetLeft >= 99) {
-        width = 'w-1.5';
-      }
-      if (offsetLeft && offsetRight) {
-        const variation = offsetLeft - offsetRight;
-        if (variation > -1 && variation < 1) {
-          width = 'w-1.5';
-        }
-      }
-      if (isRTL) {
-        const aux = roundedRight;
-
-        if (roundedLeft !== '') roundedRight = 'rounded-r';
-        else roundedRight = '';
-
-        if (aux !== '') roundedLeft = 'rounded-l';
-        else roundedLeft = '';
-      }
-      const redress = '(0.375rem / 2)';
-      return (
-        <div
-          className={
-            'h-1.5 bg-gray-200 absolute inset-x-0 z-10'
-            + ` ${width} ${roundedLeft} ${roundedRight}`
-          }
-          style={{
-            top: `calc(50% - ${redress})`,
-            left: `${isRTL ? offsetRight : offsetLeft}%`,
-            right: `${isRTL ? offsetLeft : offsetRight}%`,
-          }}
-        />
-      );
-    }
-
     return (
       <table className="w-full">
         <thead>
@@ -250,7 +251,7 @@ class StatusTable extends React.Component {
                           <p id={`thumb-desc-${presentationId}`} className="absolute w-0 h-0 p-0 border-0 m-0 overflow-hidden">
                             {`${intl.formatMessage(intlMessages.thumbnail)} - ${intl.formatMessage(intlMessages.presentation)} ${presentationName} - ${intl.formatMessage(intlMessages.pageNumber)} ${pageNum} - ${intl.formatMessage(intlMessages.setAt)} ${start}`}
                           </p>
-                          <div className="text-xs text-center mt-1 text-gray-500">{tsToHHmmss(slide.setOn - periods[0].start)}</div>
+                          <div className="text-xs text-center mt-1 text-gray-500">{StatusTable.tsToHHmmss(slide.setOn - periods[0].start)}</div>
                         </div>
                       </div>
                     ) }
@@ -308,7 +309,7 @@ class StatusTable extends React.Component {
                                   || (leftOn >= boundaryLeft && leftOn <= boundaryRight)
                                   || (boundaryLeft > registeredOn && boundaryRight < leftOn)
                                   || (boundaryLeft >= registeredOn && leftOn === 0)
-                                  ? makeLineThrough(userPeriod, period)
+                                  ? StatusTable.makeLineThrough(userPeriod, period)
                                   : null }
                                 { userReactionsInPeriod.map((reaction) => {
                                   const offset = ((reaction.sentOn - period.start) * 100)

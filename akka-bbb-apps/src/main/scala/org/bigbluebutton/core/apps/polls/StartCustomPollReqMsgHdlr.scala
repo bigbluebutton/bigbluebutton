@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.apps.polls
 
+import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsIntOrElse
 import org.bigbluebutton.common2.domain.SimplePollOutVO
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
@@ -23,13 +24,20 @@ trait StartCustomPollReqMsgHdlr extends RightsManagementTrait {
       bus.outGW.send(msgEvent)
     }
 
+    val maxCustom = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.poll.maxCustom", 5)
+
     if (permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to start custom poll."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
+    } else if (msg.body.answers.length > maxCustom) {
+      log.warning(
+        "Ignoring custom poll from user {} in meeting {}: number of answers ({}) exceeds maxCustom ({})",
+        msg.header.userId, liveMeeting.props.meetingProp.intId, msg.body.answers.length, maxCustom
+      )
     } else {
       for {
-        pvo <- Polls.handleStartCustomPollReqMsg(state, msg.header.userId, msg.body.pollId, msg.body.pollType, msg.body.secretPoll, msg.body.isMultipleResponse, msg.body.answers, msg.body.question, liveMeeting)
+        pvo <- Polls.handleStartCustomPollReqMsg(state, msg.header.userId, msg, liveMeeting)
       } yield {
         broadcastEvent(msg, pvo)
       }

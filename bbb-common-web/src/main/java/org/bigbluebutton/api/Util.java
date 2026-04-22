@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.SecureRandom;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,6 +19,9 @@ public final class Util {
 	private static final Pattern PRES_ID_PATTERN = Pattern.compile("^[a-z0-9-]+$");
 	// see https://www.baeldung.com/java-regexp-escape-char#1-escaping-using-backslash
 	private static final Pattern PRES_FILE_ID_PATTERN = Pattern.compile("^[a-z0-9-]+\\.[a-zA-Z]{3,4}$");
+
+	private static final SecureRandom RANDOM = new SecureRandom();
+	private static final String CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
 	private Util() {
 		throw new IllegalStateException("Utility class");
@@ -151,5 +155,13 @@ public final class Util {
 		} else if (!downloadable && downloadMarker != null && downloadMarker.exists()) {
 			downloadMarker.delete();
 		}
+	}
+
+	public static String randomAlphanumeric(int count) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < count; i++) {
+			sb.append(CHARS.charAt(RANDOM.nextInt(CHARS.length())));
+		}
+		return sb.toString();
 	}
 }

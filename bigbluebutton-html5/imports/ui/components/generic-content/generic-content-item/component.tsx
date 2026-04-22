@@ -6,6 +6,7 @@ const GenericContentItem: React.FC<GenericContentItemProps> = (props) => {
   const {
     renderFunction,
     width,
+    dataTest,
   } = props;
   const elementRef = useRef(null);
 
@@ -32,6 +33,7 @@ const GenericContentItem: React.FC<GenericContentItemProps> = (props) => {
   }
   return (
     <div
+      data-test={dataTest}
       style={style}
       ref={elementRef}
     />

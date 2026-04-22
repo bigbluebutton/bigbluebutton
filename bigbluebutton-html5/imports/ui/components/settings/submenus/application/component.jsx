@@ -5,7 +5,6 @@ import LocalesDropdown from '/imports/ui/components/common/locales-dropdown/comp
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import Styled from './styles';
-import VideoService from '/imports/ui/components/video-provider/service';
 import WakeLockService from '/imports/ui/components/wake-lock/service';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
@@ -437,7 +436,7 @@ class ApplicationMenu extends BaseMenu {
       '20px': '125%',
     };
 
-    const ariaValueLabel = intl.formatMessage(intlMessages.currentValue, { 0: `${pixelPercentage[settings.fontSize]}` });
+    const ariaValueLabel = intl.formatMessage(intlMessages.currentValue, { size: `${pixelPercentage[settings.fontSize]}` });
 
     const showSelect = allLocales && allLocales.length > 0;
     const Settings = getSettingsSingletonInstance();
@@ -519,6 +518,7 @@ class ApplicationMenu extends BaseMenu {
                   onChange={() => this.handleToggle('whiteboardToolbarAutoHide')}
                   ariaLabel={`${intl.formatMessage(intlMessages.wbToolbarsAutoHideLabel)} - ${displaySettingsStatus(settings.whiteboardToolbarAutoHide, true)}`}
                   showToggleLabel={showToggleLabel}
+                  data-test="autoHideToolbarToggleBtn"
                 />
               </Styled.FormElementRight>
             </Styled.Col>

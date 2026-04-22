@@ -2,8 +2,6 @@ import React from 'react';
 import { useMutation } from '@apollo/client';
 import { SmartMediaShare } from './component';
 import Panopto from '../../../external-video-player/custom-players/panopto';
-import { layoutSelect } from '/imports/ui/components/layout/context';
-import { isMobile } from '/imports/ui/components/layout/utils';
 import { EXTERNAL_VIDEO_START } from '../../../external-video-player/mutations';
 
 const YOUTUBE_SHORTS_REGEX = new RegExp(/^(?:https?:\/\/)?(?:www\.)?(youtube\.com\/shorts)\/.+$/);
@@ -24,13 +22,9 @@ const SmartMediaShareContainer = (props) => {
     startExternalVideo({ variables: { externalVideoUrl } });
   };
 
-  const isRTL = layoutSelect((i) => i.isRTL);
-
   return (
     <SmartMediaShare {...{
       startWatching,
-      isRTL,
-      isMobile: isMobile(),
       ...props,
     }}
     />

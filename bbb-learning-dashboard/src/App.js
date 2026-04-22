@@ -5,6 +5,7 @@ import TabUnstyled from '@mui/base/TabUnstyled';
 import TabsListUnstyled from '@mui/base/TabsListUnstyled';
 import TabPanelUnstyled from '@mui/base/TabPanelUnstyled';
 import TabsUnstyled from '@mui/base/TabsUnstyled';
+import { Stack } from '@mui/material';
 import './App.css';
 import {
   FormattedMessage, FormattedDate, injectIntl, FormattedTime,
@@ -18,12 +19,19 @@ import PollsTable from './components/PollsTable';
 import PluginsTable from './components/PluginsTable';
 import ErrorMessage from './components/ErrorMessage';
 import { makeUserCSVData, tsToHHmmss } from './services/UserService';
+import QuizzesTable from './components/QuizzesTable';
+import QuizzesChart from './components/QuizzesChart';
+import {
+  Modal, ModalBody, ModalContent, ModalDismissButton, ModalTitle,
+} from './components/Modal';
+import Help from './components/Help';
 
 const TABS = {
   OVERVIEW: 0,
   OVERVIEW_ACTIVITY_SCORE: 1,
   TIMELINE: 2,
   POLLING: 3,
+  QUIZZES: 4,
 };
 const LEARNING_DASHBOARD_LEARN_MORE_LINK = 'learning-dashboard-learn-more-link';
 const LEARNING_DASHBOARD_FEEDBACK_LINK = 'learning-dashboard-feedback-link';
@@ -41,7 +49,11 @@ class App extends React.Component {
       ldAccessTokenCopied: false,
       sessionToken: '',
       lastUpdated: null,
+      modalOpen: false,
     };
+
+    this.handleCloseModal = this.handleCloseModal.bind(this);
+    this.handleOpenModal = this.handleOpenModal.bind(this);
   }
 
   componentDidMount() {
@@ -50,8 +62,21 @@ class App extends React.Component {
     });
   }
 
+  handleOpenModal() {
+    if (process.env.REACT_APP_EXTERNAL_HELP_PAGE_URL) {
+      window.open(process.env.REACT_APP_EXTERNAL_HELP_PAGE_URL, '_blank');
+      return;
+    }
+    this.setState({ modalOpen: true });
+  }
+
+  handleCloseModal() {
+    this.setState({ modalOpen: false });
+  }
+
   handleSaveSessionData(e) {
     const { target: downloadButton } = e;
+    const downloadButtonLabel = downloadButton.querySelector('span') || downloadButton;
     const { intl } = this.props;
     const { activitiesJson } = this.state;
     const {
@@ -71,9 +96,9 @@ class App extends React.Component {
     link.style.display = 'none';
     document.body.appendChild(link);
     link.click();
-    downloadButton.innerHTML = intl.formatMessage({ id: 'app.learningDashboard.sessionDataDownloadedLabel', defaultMessage: 'Downloaded!' });
+    downloadButtonLabel.innerHTML = intl.formatMessage({ id: 'app.learningDashboard.sessionDataDownloadedLabel', defaultMessage: 'Downloaded!' });
     setTimeout(() => {
-      downloadButton.innerHTML = intl.formatMessage({ id: 'app.learningDashboard.downloadSessionDataLabel', defaultMessage: 'Download Session Data' });
+      downloadButtonLabel.innerHTML = intl.formatMessage({ id: 'app.learningDashboard.downloadSessionDataLabel', defaultMessage: 'Download Session Data' });
       downloadButton.removeAttribute('disabled');
       downloadButton.style.cursor = 'pointer';
       downloadButton.focus();
@@ -123,6 +148,73 @@ class App extends React.Component {
     this.setState({ learningDashboardAccessToken, meetingId, sessionToken }, () => {
       if (typeof callback === 'function') callback();
     });
+  }
+
+  getAverageActivityScore() {
+    const { activitiesJson } = this.state;
+    let meetingAveragePoints = 0;
+
+    const allUsers = Object.values(activitiesJson.users || {})
+      .filter((currUser) => !currUser.isModerator);
+    const nrOfUsers = allUsers.length;
+
+    if (nrOfUsers === 0) return meetingAveragePoints;
+
+    // Calculate points of Talking
+    const usersTalkTime = allUsers.map((currUser) => currUser.talk.totalTime);
+    const maxTalkTime = Math.max(...usersTalkTime);
+    const totalTalkTime = usersTalkTime.reduce((prev, val) => prev + val, 0);
+    if (totalTalkTime > 0) {
+      meetingAveragePoints += ((totalTalkTime / nrOfUsers) / maxTalkTime) * 2;
+    }
+
+    // Calculate points of Chatting
+    const usersTotalOfMessages = allUsers.map((currUser) => currUser.totalOfMessages);
+    const maxMessages = Math.max(...usersTotalOfMessages);
+    const totalMessages = usersTotalOfMessages.reduce((prev, val) => prev + val, 0);
+    if (maxMessages > 0) {
+      meetingAveragePoints += ((totalMessages / nrOfUsers) / maxMessages) * 2;
+    }
+
+    // Calculate points of Raise hand
+    const usersRaiseHand = allUsers.map((currUser) => currUser?.raiseHand?.length || 0);
+    const maxRaiseHand = Math.max(...usersRaiseHand);
+    const totalRaiseHand = usersRaiseHand.reduce((prev, val) => prev + val, 0);
+    if (maxRaiseHand > 0) {
+      meetingAveragePoints += ((totalRaiseHand / nrOfUsers) / maxRaiseHand) * 2;
+    }
+
+    // Calculate points of Reactions
+    const usersReactions = allUsers.map((currUser) => currUser?.reactions?.length || 0);
+    const maxReactions = Math.max(...usersReactions);
+    const totalReactions = usersReactions.reduce((prev, val) => prev + val, 0);
+    if (maxReactions > 0) {
+      meetingAveragePoints += ((totalReactions / nrOfUsers) / maxReactions) * 2;
+    }
+
+    // Calculate points of Polls
+    const totalOfPolls = Object.values(activitiesJson.polls || {}).length;
+    if (totalOfPolls > 0) {
+      const totalAnswers = allUsers
+        .reduce((prevVal, currUser) => prevVal + Object.values(currUser.answers || {}).length, 0);
+      meetingAveragePoints += ((totalAnswers / nrOfUsers) / totalOfPolls) * 2;
+    }
+
+    return meetingAveragePoints;
+  }
+
+  getErrorMessage() {
+    const { activitiesJson, learningDashboardAccessToken, sessionToken } = this.state;
+    const { intl } = this.props;
+    if (learningDashboardAccessToken === '' && sessionToken === '') {
+      return intl.formatMessage({ id: 'app.learningDashboard.errors.invalidToken', defaultMessage: 'Invalid session token' });
+    }
+
+    if (Object.keys(activitiesJson).length === 0 || typeof activitiesJson.name === 'undefined') {
+      return intl.formatMessage({ id: 'app.learningDashboard.errors.dataUnavailable', defaultMessage: 'Data is no longer available' });
+    }
+
+    return '';
   }
 
   fetchMostUsedReactions() {
@@ -232,133 +324,82 @@ class App extends React.Component {
     }, 10000 * (2 ** invalidSessionCount));
   }
 
+  totalOfReactions() {
+    const { activitiesJson } = this.state;
+    if (activitiesJson && activitiesJson.users) {
+      return Object.values(activitiesJson.users)
+        .reduce((prevVal, elem) => prevVal + elem.reactions.length, 0);
+    }
+    return 0;
+  }
+
+  totalOfActivity() {
+    const { activitiesJson } = this.state;
+
+    const usersTimes = Object.values(activitiesJson.users || {}).reduce((prev, user) => ([
+      ...prev,
+      ...Object.values(user.intIds),
+    ]), []);
+
+    const minTime = Object.values(usersTimes || {}).reduce((prevVal, elem) => {
+      if (prevVal === 0 || elem.sessions[0].registeredOn < prevVal) {
+        return elem.sessions[0].registeredOn;
+      }
+      return prevVal;
+    }, 0);
+
+    const maxTime = Object.values(usersTimes || {}).reduce((prevVal, elem) => {
+      if (elem.sessions[elem.sessions.length - 1].leftOn === 0) return (new Date()).getTime();
+      if (elem.sessions[elem.sessions.length - 1].leftOn > prevVal) {
+        return elem.sessions[elem.sessions.length - 1].leftOn;
+      }
+      return prevVal;
+    }, 0);
+
+    return maxTime - minTime;
+  }
+
   render() {
     const {
-      activitiesJson, tab, sessionToken, loading, lastUpdated,
-      learningDashboardAccessToken, ldAccessTokenCopied,
+      activitiesJson, tab, loading, lastUpdated,
+      ldAccessTokenCopied, modalOpen,
     } = this.state;
     const { intl } = this.props;
 
-    const genericDataCardTitle = activitiesJson?.genericDataTitles?.[0];
+    const pluginUserDataCardTitle = activitiesJson?.pluginUserDataCardTitles?.[0];
     // This line generates an array of all the plugin entries of all users,
     // this might have duplicate entries:
-    const genericDataColumnTitleWithDuplicates = Object.values(
+    const pluginUserDataColumnTitleWithDuplicates = Object.values(
       activitiesJson.users || {}, // Hardcoded for now, we will add cards relative to this key.
     ).flatMap((
       user,
-    ) => user.genericData?.[genericDataCardTitle]).filter((
-      genericDataListForSpecificUser,
+    ) => user.pluginUserData?.[pluginUserDataCardTitle]).filter((
+      pluginUserDataListForSpecificUser,
     ) => !!(
-      genericDataListForSpecificUser?.columnTitle)).map((
-      genericDataListForSpecificUser,
-    ) => genericDataListForSpecificUser?.columnTitle);
+      pluginUserDataListForSpecificUser?.columnTitle)).map((
+      pluginUserDataListForSpecificUser,
+    ) => pluginUserDataListForSpecificUser?.columnTitle);
     // This line will eliminate duplicates.
-    const genericDataColumnTitleList = [...new Set(genericDataColumnTitleWithDuplicates)];
+    const pluginUserDataColumnTitleList = [...new Set(pluginUserDataColumnTitleWithDuplicates)];
 
     document.title = `${intl.formatMessage({ id: 'app.learningDashboard.bigbluebuttonTitle', defaultMessage: 'BigBlueButton' })} - ${intl.formatMessage({ id: 'app.learningDashboard.dashboardTitle', defaultMessage: 'Learning Analytics Dashboard' })} - ${activitiesJson.name}`;
 
-    function totalOfReactions() {
-      if (activitiesJson && activitiesJson.users) {
-        return Object.values(activitiesJson.users)
-          .reduce((prevVal, elem) => prevVal + elem.reactions.length, 0);
-      }
-      return 0;
-    }
-
-    function totalOfActivity() {
-      const usersTimes = Object.values(activitiesJson.users || {}).reduce((prev, user) => ([
-        ...prev,
-        ...Object.values(user.intIds),
-      ]), []);
-
-      const minTime = Object.values(usersTimes || {}).reduce((prevVal, elem) => {
-        if (prevVal === 0 || elem.sessions[0].registeredOn < prevVal) {
-          return elem.sessions[0].registeredOn;
-        }
-        return prevVal;
-      }, 0);
-
-      const maxTime = Object.values(usersTimes || {}).reduce((prevVal, elem) => {
-        if (elem.sessions[elem.sessions.length - 1].leftOn === 0) return (new Date()).getTime();
-        if (elem.sessions[elem.sessions.length - 1].leftOn > prevVal) {
-          return elem.sessions[elem.sessions.length - 1].leftOn;
-        }
-        return prevVal;
-      }, 0);
-
-      return maxTime - minTime;
-    }
-
-    function getAverageActivityScore() {
-      let meetingAveragePoints = 0;
-
-      const allUsers = Object.values(activitiesJson.users || {})
-        .filter((currUser) => !currUser.isModerator);
-      const nrOfUsers = allUsers.length;
-
-      if (nrOfUsers === 0) return meetingAveragePoints;
-
-      // Calculate points of Talking
-      const usersTalkTime = allUsers.map((currUser) => currUser.talk.totalTime);
-      const maxTalkTime = Math.max(...usersTalkTime);
-      const totalTalkTime = usersTalkTime.reduce((prev, val) => prev + val, 0);
-      if (totalTalkTime > 0) {
-        meetingAveragePoints += ((totalTalkTime / nrOfUsers) / maxTalkTime) * 2;
-      }
-
-      // Calculate points of Chatting
-      const usersTotalOfMessages = allUsers.map((currUser) => currUser.totalOfMessages);
-      const maxMessages = Math.max(...usersTotalOfMessages);
-      const totalMessages = usersTotalOfMessages.reduce((prev, val) => prev + val, 0);
-      if (maxMessages > 0) {
-        meetingAveragePoints += ((totalMessages / nrOfUsers) / maxMessages) * 2;
-      }
-
-      // Calculate points of Raise hand
-      const usersRaiseHand = allUsers.map((currUser) => currUser.raiseHand.length);
-      const maxRaiseHand = Math.max(...usersRaiseHand);
-      const totalRaiseHand = usersRaiseHand.reduce((prev, val) => prev + val, 0);
-      if (maxRaiseHand > 0) {
-        meetingAveragePoints += ((totalRaiseHand / nrOfUsers) / maxRaiseHand) * 2;
-      }
-
-      // Calculate points of Reactions
-      const usersReactions = allUsers.map((currUser) => currUser.reactions.length);
-      const maxReactions = Math.max(...usersReactions);
-      const totalReactions = usersReactions.reduce((prev, val) => prev + val, 0);
-      if (maxReactions > 0) {
-        meetingAveragePoints += ((totalReactions / nrOfUsers) / maxReactions) * 2;
-      }
-
-      // Calculate points of Polls
-      const totalOfPolls = Object.values(activitiesJson.polls || {}).length;
-      if (totalOfPolls > 0) {
-        const totalAnswers = allUsers
-          .reduce((prevVal, currUser) => prevVal + Object.values(currUser.answers || {}).length, 0);
-        meetingAveragePoints += ((totalAnswers / nrOfUsers) / totalOfPolls) * 2;
-      }
-
-      return meetingAveragePoints;
-    }
-
-    function getErrorMessage() {
-      if (learningDashboardAccessToken === '' && sessionToken === '') {
-        return intl.formatMessage({ id: 'app.learningDashboard.errors.invalidToken', defaultMessage: 'Invalid session token' });
-      }
-
-      if (activitiesJson === {} || typeof activitiesJson.name === 'undefined') {
-        return intl.formatMessage({ id: 'app.learningDashboard.errors.dataUnavailable', defaultMessage: 'Data is no longer available' });
-      }
-
-      return '';
-    }
-
-    if (loading === false && getErrorMessage() !== '') return <ErrorMessage message={getErrorMessage()} />;
+    if (loading === false && this.getErrorMessage() !== '') return <ErrorMessage message={this.getErrorMessage()} />;
 
     const usersCount = Object.values(activitiesJson.users || {})
       .filter((u) => activitiesJson.endedOn > 0
         || Object.values(u.intIds)[Object.values(u.intIds).length - 1].leftOn === 0)
       .length;
+
+    const polls = Object.fromEntries(Object
+      .values(activitiesJson.polls || {})
+      .filter((p) => !p.quiz)
+      .map((p) => ([p.pollId, p])));
+
+    const quizzes = Object.fromEntries(Object
+      .values(activitiesJson.polls || {})
+      .filter((p) => p.quiz)
+      .map((p) => ([p.pollId, p])));
 
     return (
       <div className="mx-10">
@@ -380,8 +421,8 @@ class App extends React.Component {
               && (
                 <>
                   <span className="text-sm font-light font-base mt-0">
-                    {intl.formatMessage({ id: 'app.learningDashboard.learnMore', defaultMessage: 'Learn more about the use of the Dashboard in {0} from our Knowledge Base.' }, {
-                      0: (
+                    {intl.formatMessage({ id: 'app.learningDashboard.learnMore', defaultMessage: 'Learn more about the use of the Dashboard in {learnMoreLink} from our Knowledge Base.' }, {
+                      learnMoreLink: (
                         <a
                           target="_blank"
                           rel="noreferrer"
@@ -431,7 +472,7 @@ class App extends React.Component {
             <p data-test="meetingDurationTimeDashboard">
               <FormattedMessage id="app.learningDashboard.indicators.duration" defaultMessage="Duration" />
               :&nbsp;
-              {tsToHHmmss(totalOfActivity())}
+              {tsToHHmmss(this.totalOfActivity())}
             </p>
           </div>
         </div>
@@ -479,7 +520,7 @@ class App extends React.Component {
                 <CardContent classes={{ root: '!p-0' }}>
                   <CardBody
                     name={intl.formatMessage({ id: 'app.learningDashboard.indicators.activityScore', defaultMessage: 'Activity Score' })}
-                    number={intl.formatNumber((getAverageActivityScore() || 0), {
+                    number={intl.formatNumber((this.getAverageActivityScore() || 0), {
                       minimumFractionDigits: 0,
                       maximumFractionDigits: 1,
                     })}
@@ -515,7 +556,7 @@ class App extends React.Component {
                 <CardContent classes={{ root: '!p-0' }}>
                   <CardBody
                     name={intl.formatMessage({ id: 'app.learningDashboard.indicators.timeline', defaultMessage: 'Timeline' })}
-                    number={totalOfReactions()}
+                    number={this.totalOfReactions()}
                     cardClass={tab === TABS.TIMELINE ? 'border-purple-500' : 'hover:border-purple-500 border-white'}
                     iconClass="bg-purple-200 text-purple-500"
                   >
@@ -529,7 +570,7 @@ class App extends React.Component {
                 <CardContent classes={{ root: '!p-0' }}>
                   <CardBody
                     name={intl.formatMessage({ id: 'app.learningDashboard.indicators.polls', defaultMessage: 'Polls' })}
-                    number={Object.values(activitiesJson.polls || {}).length}
+                    number={Object.keys(polls).length}
                     cardClass={tab === TABS.POLLING ? 'border-blue-500' : 'hover:border-blue-500 border-white'}
                     iconClass="bg-blue-100 text-blue-500"
                   >
@@ -551,13 +592,29 @@ class App extends React.Component {
                 </CardContent>
               </Card>
             </TabUnstyled>
-            {genericDataColumnTitleList.length && (
+            <TabUnstyled className="rounded focus:outline-none focus:ring focus:ring-orange-500 ring-offset-2" data-test="quizzesPanelDashboard">
+              <Card>
+                <CardContent classes={{ root: '!p-0' }}>
+                  <CardBody
+                    name={intl.formatMessage({ id: 'app.learningDashboard.indicators.quizzes', defaultMessage: 'Quizzes' })}
+                    number={Object.keys(quizzes).length}
+                    cardClass={tab === TABS.QUIZZES ? 'border-orange-500' : 'hover:border-orange-500 border-white'}
+                    iconClass="bg-orange-100 text-orange-500"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                    </svg>
+                  </CardBody>
+                </CardContent>
+              </Card>
+            </TabUnstyled>
+            {pluginUserDataColumnTitleList.length && (
               <TabUnstyled className="rounded focus:outline-none focus:ring focus:ring-red-500 ring-offset-2" data-test="pluginsPanelDashboard">
                 <Card>
                   <CardContent classes={{ root: '!p-0' }}>
                     <CardBody
-                      name={genericDataCardTitle}
-                      number={genericDataColumnTitleList.length}
+                      name={pluginUserDataCardTitle}
+                      number={pluginUserDataColumnTitleList.length}
                       cardClass={tab === TABS.POLLING ? 'border-red-500' : 'hover:border-red-500 border-white'}
                       iconClass="bg-red-100 text-red-500"
                     >
@@ -589,7 +646,7 @@ class App extends React.Component {
               <div className="w-full overflow-x-auto">
                 <UsersTable
                   allUsers={activitiesJson.users}
-                  totalOfActivityTime={totalOfActivity()}
+                  totalOfActivityTime={this.totalOfActivity()}
                   totalOfPolls={Object.values(activitiesJson.polls || {}).length}
                   tab="overview"
                 />
@@ -604,7 +661,7 @@ class App extends React.Component {
               <div className="w-full overflow-x-auto">
                 <UsersTable
                   allUsers={activitiesJson.users}
-                  totalOfActivityTime={totalOfActivity()}
+                  totalOfActivityTime={this.totalOfActivity()}
                   totalOfPolls={Object.values(activitiesJson.polls || {}).length}
                   tab="overview_activityscore"
                 />
@@ -631,19 +688,35 @@ class App extends React.Component {
             </h2>
             <div className="w-full overflow-hidden rounded-md shadow-xs border-2 border-gray-100">
               <div className="w-full overflow-x-auto">
-                <PollsTable polls={activitiesJson.polls} allUsers={activitiesJson.users} />
+                <PollsTable polls={polls} allUsers={activitiesJson.users} />
               </div>
             </div>
           </TabPanelUnstyled>
           <TabPanelUnstyled value={4}>
             <h2 className="block my-2 pr-2 text-xl font-semibold">
-              {genericDataCardTitle}
+              <FormattedMessage id="app.learningDashboard.quizzes.title" defaultMessage="Quiz Results" />
+            </h2>
+            <Stack spacing={2}>
+              <QuizzesChart
+                quizzes={quizzes}
+                allUsers={activitiesJson.users}
+                totalOfPolls={Object.values(activitiesJson.polls || {}).length}
+              />
+              <QuizzesTable
+                quizzes={quizzes}
+                allUsers={activitiesJson.users}
+              />
+            </Stack>
+          </TabPanelUnstyled>
+          <TabPanelUnstyled value={5}>
+            <h2 className="block my-2 pr-2 text-xl font-semibold">
+              {pluginUserDataCardTitle}
             </h2>
             <div className="w-full overflow-hidden rounded-md shadow-xs border-2 border-gray-100">
               <div className="w-full overflow-x-auto">
                 <PluginsTable
-                  genericDataCardTitle={genericDataCardTitle}
-                  genericDataColumnTitleList={genericDataColumnTitleList}
+                  pluginUserDataCardTitle={pluginUserDataCardTitle}
+                  pluginUserDataColumnTitleList={pluginUserDataColumnTitleList}
                   allUsers={activitiesJson.users}
                 />
               </div>
@@ -657,8 +730,8 @@ class App extends React.Component {
           && (
             <>
               <div className="mt-6 mb-4 text-sm font-light font-base text-gray-500">
-                { intl.formatMessage({ id: 'app.learningDashboard.feedback', defaultMessage: 'How has your experience been with this feature? We would love to hear your opinion and even suggestions on how we can improve it. Share with us by clicking {0}.' }, {
-                  0: (
+                { intl.formatMessage({ id: 'app.learningDashboard.feedback', defaultMessage: 'How has your experience been with this feature? We would love to hear your opinion and even suggestions on how we can improve it. Share with us by clicking {feedbackLink}.' }, {
+                  feedbackLink: (
                     <a
                       target="_blank"
                       rel="noreferrer"
@@ -699,23 +772,65 @@ class App extends React.Component {
               }
             </p>
           </div>
-          {
+          <div className="flex gap-2">
+            {
             (activitiesJson.downloadSessionDataEnabled || false)
               ? (
                 <button
                   data-test="downloadSessionDataDashboard"
                   type="button"
-                  className="border-2 text-gray-700 border-gray-200 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring ring-offset-2 focus:ring-gray-500 focus:ring-opacity-50"
+                  className="flex border-2 text-gray-700 border-gray-200 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring ring-offset-2 focus:ring-gray-500 focus:ring-opacity-50"
                   onClick={this.handleSaveSessionData.bind(this)}
                 >
-                  <FormattedMessage
-                    id="app.learningDashboard.downloadSessionDataLabel"
-                    defaultMessage="Download Session Data"
-                  />
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                  </svg>
+                  &nbsp;
+                  <span>
+                    <FormattedMessage
+                      id="app.learningDashboard.downloadSessionDataLabel"
+                      defaultMessage="Download Session Data"
+                    />
+                  </span>
                 </button>
               )
               : null
           }
+            <button
+              type="button"
+              className="border-2 text-gray-700 border-gray-200 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring ring-offset-2 focus:ring-gray-500 focus:ring-opacity-50 flex items-center"
+              onClick={this.handleOpenModal}
+            >
+              {process.env.REACT_APP_EXTERNAL_HELP_PAGE_URL ? (
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                </svg>
+              )}
+              &nbsp;
+              <FormattedMessage
+                id="app.learningDashboard.helpButtonLabel"
+                defaultMessage="Help"
+              />
+            </button>
+            <Modal isOpen={modalOpen}>
+              <ModalContent>
+                <ModalTitle>
+                  <FormattedMessage
+                    id="app.learningDashboard.help.title"
+                    defaultMessage="Learning Dashboard Help"
+                  />
+                </ModalTitle>
+                <ModalDismissButton onClick={this.handleCloseModal} />
+                <ModalBody>
+                  <Help />
+                </ModalBody>
+              </ModalContent>
+            </Modal>
+          </div>
         </div>
       </div>
     );

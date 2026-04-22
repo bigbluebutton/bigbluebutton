@@ -97,6 +97,7 @@ interface VideoProviderProps {
   isGridEnabled: boolean;
   isClientConnected: boolean;
   totalNumberOfStreams: number;
+  overflowCount: number;
   isUserLocked: boolean;
   currentVideoPageIndex: number;
   streams: VideoItem[];
@@ -113,7 +114,6 @@ interface VideoProviderProps {
   stopVideo: (cameraId?: string) => void;
   applyCameraProfile: (peer: WebRtcPeer, profileId: string) => void;
   intl: IntlShape;
-  myRole: string | undefined;
 }
 
 class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
@@ -436,7 +436,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
   findAllPrivilegedStreams() {
     const { streams } = this.props;
     // Privileged streams are: floor holders, pinned users
-    return streams.filter((stream) => stream.type === VIDEO_TYPES.STREAM && (stream.floor || stream.pinned));
+    return streams.filter((stream) => stream.type === VIDEO_TYPES.STREAM && (stream.floor || stream?.pinned));
   }
 
   updateQualityThresholds(numberOfPublishers: number) {
@@ -838,7 +838,6 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
   }
 
   async createWebRTCPeer(stream: string, isLocal: boolean) {
-    const { myRole } = this.props;
     let iceServers = [];
     const role = VideoService.getRole(isLocal);
     const peerBuilderFunc = isLocal
@@ -912,7 +911,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
           role,
           sdpOffer: offer,
           bitrate,
-          record: VideoService.getRecord(myRole),
+          record: VideoService.getRecord(),
           mediaServer: VideoService.getMediaServerAdapter(),
         };
 
@@ -1374,6 +1373,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
       focusedId,
       handleVideoFocus,
       isGridEnabled,
+      overflowCount,
     } = this.props;
 
     return (
@@ -1385,6 +1385,7 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
           focusedId,
           handleVideoFocus,
           isGridEnabled,
+          overflowCount,
         }}
         onVideoItemMount={this.createVideoTag}
         onVideoItemUnmount={this.destroyVideoTag}

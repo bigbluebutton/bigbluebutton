@@ -1,6 +1,6 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { pollTypes } from '../service';
+import { pollTypes, pollTypesKeys } from '../service';
 import Styled from '../styles';
 
 const intlMessages = defineMessages({
@@ -70,7 +70,9 @@ interface ResponseTypesProps {
   customInput: boolean;
   setType: (type: string | null) => void;
   type: string | null;
-  setOptList: (optList: Array<{ val: string }>) => void;
+  setOptList: (optList: Array<{ key: string; val: string }>) => void;
+  isQuiz: boolean;
+  setCorrectAnswer: (correctAnswer: { text: string; index: number }) => void;
 }
 
 const ResponseTypes: React.FC<ResponseTypesProps> = ({
@@ -78,6 +80,8 @@ const ResponseTypes: React.FC<ResponseTypesProps> = ({
   setType,
   type,
   setOptList,
+  isQuiz,
+  setCorrectAnswer,
 }) => {
   const intl = useIntl();
   if (!customInput) {
@@ -97,9 +101,16 @@ const ResponseTypes: React.FC<ResponseTypesProps> = ({
             onClick={() => {
               setType(pollTypes.TrueFalse);
               setOptList([
-                { val: intl.formatMessage(intlMessages.true) },
-                { val: intl.formatMessage(intlMessages.false) },
+                {
+                  key: pollTypesKeys.true,
+                  val: intl.formatMessage(intlMessages.true),
+                },
+                {
+                  key: pollTypesKeys.false,
+                  val: intl.formatMessage(intlMessages.false),
+                },
               ]);
+              setCorrectAnswer({ text: '', index: -1 });
             }}
           />
           <Styled.PollConfigButton
@@ -113,11 +124,12 @@ const ResponseTypes: React.FC<ResponseTypesProps> = ({
               if (!customInput) {
                 setType(pollTypes.Letter);
                 setOptList([
-                  { val: intl.formatMessage(intlMessages.a) },
-                  { val: intl.formatMessage(intlMessages.b) },
-                  { val: intl.formatMessage(intlMessages.c) },
-                  { val: intl.formatMessage(intlMessages.d) },
+                  { key: pollTypesKeys.A, val: intl.formatMessage(intlMessages.a) },
+                  { key: pollTypesKeys.B, val: intl.formatMessage(intlMessages.b) },
+                  { key: pollTypesKeys.C, val: intl.formatMessage(intlMessages.c) },
+                  { key: pollTypesKeys.D, val: intl.formatMessage(intlMessages.d) },
                 ]);
+                setCorrectAnswer({ text: '', index: -1 });
               }
             }}
           />
@@ -132,22 +144,30 @@ const ResponseTypes: React.FC<ResponseTypesProps> = ({
             onClick={() => {
               setType(pollTypes.YesNoAbstention);
               setOptList([
-                { val: intl.formatMessage(intlMessages.yes) },
-                { val: intl.formatMessage(intlMessages.no) },
-                { val: intl.formatMessage(intlMessages.abstention) },
+                { key: pollTypesKeys.yes, val: intl.formatMessage(intlMessages.yes) },
+                { key: pollTypesKeys.no, val: intl.formatMessage(intlMessages.no) },
+                { key: pollTypesKeys.abstention, val: intl.formatMessage(intlMessages.abstention) },
               ]);
+              setCorrectAnswer({ text: '', index: -1 });
             }}
           />
-          <Styled.PollConfigButton
-            selected={type === pollTypes.Response}
-            small={false}
-            full
-            label={intl.formatMessage(intlMessages.userResponse)}
-            aria-describedby="poll-config-button"
-            data-test="userResponseBtn"
-            color="default"
-            onClick={() => { setType(pollTypes.Response); }}
-          />
+          {
+            !isQuiz && (
+              <Styled.PollConfigButton
+                selected={type === pollTypes.Response}
+                small={false}
+                full
+                label={intl.formatMessage(intlMessages.userResponse)}
+                aria-describedby="poll-config-button"
+                data-test="userResponseBtn"
+                color="default"
+                onClick={() => {
+                  setType(pollTypes.Response);
+                  setCorrectAnswer({ text: '', index: -1 });
+                }}
+              />
+            )
+          }
         </Styled.ResponseType>
       </div>
     );

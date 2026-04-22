@@ -51,8 +51,9 @@ trait SetCurrentPresentationPubMsgHdlr extends RightsManagementTrait {
           "presentation",
           "app.presentation.newCurrentPresentationNotification",
           "Notification when a new presentation is set as current",
-          Vector(s"${pres.name}")
+          Map("presentationName" -> s"${pres.name}")
         )
+        bus.outGW.send(notifyEvent)
         NotificationDAO.insert(notifyEvent)
 
         val pods = state.presentationPodManager.addPod(updatedPod)

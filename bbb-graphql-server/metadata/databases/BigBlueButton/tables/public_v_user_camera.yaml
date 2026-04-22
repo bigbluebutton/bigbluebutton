@@ -32,8 +32,9 @@ select_permissions:
     permission:
       columns:
         - contentType
-        - showAsContent
         - hasAudio
+        - meetingId
+        - showAsContent
         - streamId
         - userId
       filter:
@@ -48,4 +49,20 @@ select_permissions:
                   _eq: X-Hasura-WebcamsNotLockedInMeeting
               - userId:
                   _eq: X-Hasura-WebcamsLockedUserId
+      allow_aggregations: true
+  - role: bbb_client_not_in_meeting
+    permission:
+      columns:
+        - contentType
+        - hasAudio
+        - meetingId
+        - showAsContent
+        - streamId
+        - userId
+      filter:
+        _and:
+          - meetingId:
+              _eq: X-Hasura-MeetingId
+          - userId:
+              _eq: X-Hasura-UserId
       allow_aggregations: true

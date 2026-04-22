@@ -13,7 +13,7 @@ import Auth from '/imports/ui/services/auth';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { partition } from '/imports/utils/array-utils';
-import { USER_AGGREGATE_COUNT_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
+import { USER_AGGREGATE_COUNT_SUBSCRIPTION, UsersCountSubscriptionResponse } from '/imports/ui/core/graphql/queries/users';
 import {
   getSortingMethod,
   sortVideoStreams,
@@ -30,12 +30,16 @@ import {
   GRID_USERS_SUBSCRIPTION,
   VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
   VIDEO_STREAMS_SUBSCRIPTION,
+  AUDIO_ONLY_USERS_SUBSCRIPTION,
+  ViewerVideoStreamsSubscriptionResponse,
+  AudioOnlyUsersResponse,
 } from '/imports/ui/components/video-provider/queries';
 import videoService from '/imports/ui/components/video-provider/service';
 import { CAMERA_BROADCAST_STOP } from '/imports/ui/components/video-provider/mutations';
 import {
   GridItem,
   StreamItem,
+  AudioOnlyStream,
   GridUsersResponse,
   OwnVideoStreamsResponse,
   StreamSubscriptionData,
@@ -43,13 +47,24 @@ import {
 import { DesktopPageSizes, MobilePageSizes } from '/imports/ui/Types/meetingClientSettings';
 import logger from '/imports/startup/client/logger';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import { useMeetingIsBreakout } from '/imports/ui/components/app/service';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import ConnectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
+import { layoutSelect } from '/imports/ui/components/layout/context';
+import { Layout } from '/imports/ui/components/layout/layoutTypes';
+import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
+import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
+import {
+  MEDIA_GROUP_STREAMS_SUBSCRIPTION,
+} from '/imports/ui/components/livekit/selective-subscription/queries';
+import {
+  MediaGroupParticipant,
+  MediaType,
+  PUBLIC_GROUP_IDS,
+} from '/imports/ui/components/livekit/selective-subscription/types';
 
 const useVideoStreamsSubscription = createUseSubscription(
   VIDEO_STREAMS_SUBSCRIPTION,
@@ -58,6 +73,7 @@ const useVideoStreamsSubscription = createUseSubscription(
 );
 
 export const useStreams = () => {
+  const { data: meeting } = useMeeting((m) => ({ meetingId: m.meetingId }));
   const { data, loading, errors } = useVideoStreamsSubscription();
 
   if (loading) return [];
@@ -73,14 +89,23 @@ export const useStreams = () => {
     });
   }
 
-  const mappedStreams = (data as StreamSubscriptionData[]).map(({ streamId, user, voice }) => {
+  const filteredStreams = meeting?.meetingId
+    ? filterByMeetingId(
+      data as StreamSubscriptionData[],
+      meeting.meetingId,
+      VIDEO_STREAMS_SUBSCRIPTION,
+      (s) => ({ mismatchedUserId: s.user?.userId, mismatchedName: s.user?.name }),
+    )
+    : [];
+
+  const mappedStreams = filteredStreams.map(({ streamId, user, voice }) => {
     if (!streamId) {
       logger.warn({
         logCode: 'missing_stream_id',
         extraInfo: {
-          userId: user.userId,
-          role: user.role,
-          clientType: user.clientType,
+          userId: user?.userId || '',
+          role: user?.role || '',
+          clientType: user?.clientType || '',
         },
       }, 'Stream entry has no streamId.');
     }
@@ -88,9 +113,9 @@ export const useStreams = () => {
     return {
       stream: streamId ?? '',
       deviceId: streamId?.split?.('_')?.[3] ?? '',
-      name: user.name,
-      nameSortable: user.nameSortable,
-      userId: user.userId,
+      name: user?.name || '',
+      nameSortable: user?.nameSortable || '',
+      userId: user?.userId || '',
       user,
       floor: voice?.floor ?? false,
       lastFloorTime: voice?.lastFloorTime ?? '0',
@@ -150,10 +175,7 @@ export const useLocalVideoStreamsCount = () => {
 
 export const useInfo = () => {
   const { data } = useMeeting((m) => ({
-    voiceSettings: {
-      // @ts-expect-error -> There seems to be a design issue on the projection portion.
-      voiceConf: m.voiceSettings?.voiceConf,
-    },
+    voiceSettings: m.voiceSettings,
   }));
   const voiceBridge = data?.voiceSettings ? data.voiceSettings.voiceConf : null;
   return {
@@ -168,10 +190,7 @@ export const useInfo = () => {
 export const useHasCapReached = () => {
   const { data: meeting } = useMeeting((m) => ({
     meetingCameraCap: m.meetingCameraCap,
-    usersPolicies: {
-      // @ts-expect-error -> There seems to be a design issue on the projection portion.
-      userCameraCap: m.usersPolicies?.userCameraCap,
-    },
+    usersPolicies: m.usersPolicies,
   }));
   const videoStreamsCount = useVideoStreamsCount();
   const localVideoStreamsCount = useLocalVideoStreamsCount();
@@ -179,13 +198,12 @@ export const useHasCapReached = () => {
   // If the meeting prop data is unreachable, force a safe return
   if (
     meeting?.usersPolicies === undefined
-    || !meeting?.meetingCameraCap === undefined
+    || meeting?.meetingCameraCap === undefined
   ) return true;
   const { meetingCameraCap } = meeting;
   const { userCameraCap } = meeting.usersPolicies;
 
-  // @ts-expect-error -> There seems to be a design issue on the projection portion.
-  const meetingCap = meetingCameraCap !== 0 && videoStreamsCount >= meetingCameraCap;
+  const meetingCap = meetingCameraCap !== 0 && videoStreamsCount >= (meetingCameraCap as number);
   const userCap = userCameraCap !== 0 && localVideoStreamsCount >= userCameraCap;
 
   return meetingCap || userCap;
@@ -193,16 +211,13 @@ export const useHasCapReached = () => {
 
 export const useDisableCam = () => {
   const { data: meeting } = useMeeting((m) => ({
-    lockSettings: {
-      // @ts-expect-error -> There seems to be a design issue on the projection portion.
-      disableCam: m.lockSettings?.disableCam,
-    },
+    lockSettings: m.lockSettings,
   }));
   return meeting?.lockSettings ? meeting?.lockSettings.disableCam : false;
 };
 
 const getCountData = () => {
-  const { data: countData } = useDeduplicatedSubscription(
+  const { data: countData } = useDeduplicatedSubscription<UsersCountSubscriptionResponse>(
     USER_AGGREGATE_COUNT_SUBSCRIPTION,
   );
   return countData?.user_aggregate?.aggregate?.count || 0;
@@ -303,8 +318,14 @@ export const useIsPaginationEnabled = () => {
 
 export const useGridUsers = (visibleStreamCount: number) => {
   const gridSize = useGridSize();
+  const userCount = getCountData();
   const isGridEnabled = useStorageKey('isGridEnabled');
   const gridItems = useRef<GridItem[]>([]);
+  const overflowCount = useRef<number>(0);
+
+  const { data: meeting } = useMeeting((m) => ({
+    meetingId: m.meetingId,
+  }));
 
   const {
     data: gridData,
@@ -318,7 +339,7 @@ export const useGridUsers = (visibleStreamCount: number) => {
     },
   );
 
-  if (gridLoading) return gridItems.current;
+  if (gridLoading) return { gridUsers: gridItems.current, overflowCount: overflowCount.current };
 
   if (gridError) {
     logger.error({
@@ -330,17 +351,30 @@ export const useGridUsers = (visibleStreamCount: number) => {
     }, 'Grid users subscription failed.');
   }
 
-  if (gridData) {
-    const newGridUsers = gridData.user.map((user) => ({
+  if (gridData && meeting?.meetingId) {
+    const filteredUsers = filterByMeetingId(
+      gridData.user,
+      meeting.meetingId,
+      GRID_USERS_SUBSCRIPTION,
+      (u) => ({ mismatchedUserId: u.userId, mismatchedName: u.name }),
+    );
+    const newGridUsers = filteredUsers.map((user) => ({
       ...user,
       type: VIDEO_TYPES.GRID,
     }));
     gridItems.current = newGridUsers;
+
+    const overflow = Math.max(userCount - gridSize, 0);
+
+    // if there's overflow, we replace the last grid user with the overflow tile,
+    // so we need to add 1 to the overflow count to account for the replaced user
+    overflowCount.current = overflow > 0 ? overflow + 1 : 0;
   } else {
     gridItems.current = [];
+    overflowCount.current = 0;
   }
 
-  return gridItems.current;
+  return { gridUsers: gridItems.current, overflowCount: overflowCount.current };
 };
 
 export const useSharedDevices = () => {
@@ -388,57 +422,269 @@ export const useGridSize = () => {
   return size;
 };
 
+const useAudioOnlySubscription = createUseSubscription(
+  AUDIO_ONLY_USERS_SUBSCRIPTION,
+  {},
+  true,
+);
+
+const useMediaGroupStreamsSubscription = createUseSubscription(
+  MEDIA_GROUP_STREAMS_SUBSCRIPTION,
+  {},
+  true,
+);
+
+export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
+  const { data: meeting } = useMeeting((m) => ({ meetingId: m.meetingId }));
+  const { data, loading, errors } = useAudioOnlySubscription();
+  const layoutType = layoutSelect((i: Layout) => i.layoutType);
+  const {
+    showAudioOnlyOnFirstPage,
+  } = window.meetingClientSettings.public.kurento.cameraSortingModes;
+
+  const isUnifiedLayout = layoutType === LAYOUT_TYPE.UNIFIED_LAYOUT;
+
+  if (!showAudioOnlyOnFirstPage || !isUnifiedLayout) return [];
+  if (loading) return [];
+
+  if (errors) {
+    errors.forEach((error) => {
+      logger.error({
+        logCode: 'audio_only_users_sub_error',
+        extraInfo: {
+          errorMessage: error.message,
+        },
+      }, 'Audio-only users subscription failed.');
+    });
+  }
+
+  const filteredUsers = meeting?.meetingId
+    ? filterByMeetingId(
+      data as AudioOnlyUsersResponse['user'],
+      meeting.meetingId,
+      AUDIO_ONLY_USERS_SUBSCRIPTION,
+      (u) => ({ mismatchedUserId: u.userId, mismatchedName: u.name }),
+    )
+    : [];
+
+  const mappedAudioStreams: AudioOnlyStream[] = filteredUsers
+    .filter((u) => u.voice && u.voice.joined && !u.voice.listenOnly)
+    .map((user) => ({
+      stream: `audio-only-${user.userId}`,
+      name: user.name || '',
+      nameSortable: user.nameSortable || '',
+      userId: user.userId || '',
+      user,
+      floor: user.voice?.floor ?? false,
+      lastFloorTime: user.voice?.lastFloorTime ?? '0',
+      voice: user.voice!,
+      type: VIDEO_TYPES.AUDIO_ONLY,
+    }));
+
+  return mappedAudioStreams;
+};
+
+const useVideoSenders = () => {
+  const { data, errors } = useMediaGroupStreamsSubscription();
+
+  if (errors) {
+    errors.forEach((error) => {
+      logger.error({
+        logCode: 'video_provider_media_group_sub_error',
+        extraInfo: {
+          errorMessage: error.message,
+          mediaType: MediaType.CAMERA,
+        },
+      }, `VideoProvider: ${MediaType.CAMERA} group participants subscription failed.`);
+    });
+  }
+
+  const mediaGroupParticipants = (data as MediaGroupParticipant[] || []).filter(
+    (mgp) => mgp.mediaType === MediaType.CAMERA,
+  );
+
+  // Groups where I am a receiver - I see the union of senders from all of these
+  const myInboundGroupIds = mediaGroupParticipants.filter(
+    (mgp) => mgp.userId === Auth.userID && mgp.receiver === true,
+  ).map((mgp) => mgp.groupId);
+
+  const inAnyGroup = myInboundGroupIds.length > 0;
+
+  // No explicit group membership = treat as public receiver.
+  // Public receivers receive from: groupless senders + public group senders.
+  // Exclude only senders in non-public mediaGroupParticipants.
+  if (!inAnyGroup) {
+    const senderIdsInPublicGroup = new Set(mediaGroupParticipants
+      .filter((mgp) => mgp.sender === true && mgp.active
+        && mgp.groupId === PUBLIC_GROUP_IDS[MediaType.CAMERA])
+      .map((mgp) => mgp.userId));
+    const senderIdsInNonPublicGroups = new Set(mediaGroupParticipants
+      .filter((mgp) => mgp.sender === true && mgp.active
+        && mgp.groupId !== PUBLIC_GROUP_IDS[MediaType.CAMERA])
+      .map((mgp) => mgp.userId));
+    // Exclude only senders who are active in non-public groups but NOT in the public group.
+    // Users concurrently sending in both public and non-public groups should still be
+    // visible to public receivers.
+    const senderIdsOnlyInNonPublic = new Set(
+      [...senderIdsInNonPublicGroups].filter((id) => !senderIdsInPublicGroup.has(id)),
+    );
+
+    return { senderIds: null, senderIdsInGroups: senderIdsOnlyInNonPublic, inAnyGroup: false };
+  }
+
+  // Union of senders from all mediaGroupParticipants where I am a receiver (public + explicit groups)
+  const senderIds = new Set(mediaGroupParticipants
+    .filter((mgp) => myInboundGroupIds.includes(mgp.groupId))
+    .filter((participant) => participant.sender === true && participant.active)
+    .map((participant) => participant.userId));
+
+  return { senderIds, senderIdsInGroups: null, inAnyGroup: true };
+};
+
 export const useVideoStreams = () => {
   const { viewParticipantsWebcams } = useSettings(SETTINGS.DATA_SAVING) as { viewParticipantsWebcams?: boolean };
   const { currentVideoPageIndex, numberOfPages } = useVideoState();
   const videoStreams = useStreams();
   const connectingStream = useConnectingStream(videoStreams);
+  const audioOnlyUsers = useAudioOnlyUsers();
   const myPageSize = useMyPageSize();
   const isPaginationEnabled = useIsPaginationEnabled();
+  const { senderIds, senderIdsInGroups, inAnyGroup } = useVideoSenders();
   let streams: StreamItem[] = [...videoStreams];
   let totalNumberOfOtherStreams: number | undefined;
 
+  const layoutType = layoutSelect((i: Layout) => i.layoutType);
+  const isUnifiedLayout = layoutType === LAYOUT_TYPE.UNIFIED_LAYOUT;
   const {
     paginationSorting: PAGINATION_SORTING,
     defaultSorting: DEFAULT_SORTING,
+    showAudioOnlyOnFirstPage: showAudioOnlyOnFirstPageSetting,
+    maxAudioOnlyUsers: maxAudioOnlyUsersSetting,
+    partitionPrivilegedStreams,
   } = window.meetingClientSettings.public.kurento.cameraSortingModes;
+
+  const showAudioOnlyOnFirstPage = showAudioOnlyOnFirstPageSetting && isUnifiedLayout;
+  const maxAudioOnlyUsers = isUnifiedLayout ? maxAudioOnlyUsersSetting : 0;
 
   if (connectingStream) streams.push(connectingStream);
 
   if (!viewParticipantsWebcams) {
     streams = streams.filter((vs) => videoService.isLocalStream(vs.stream));
+  } else if (inAnyGroup) {
+    streams = streams.filter((vs) => videoService.isLocalStream(vs.stream)
+      || (senderIds?.has(vs.userId)));
+  } else if (senderIdsInGroups) {
+    streams = streams.filter((vs) => videoService.isLocalStream(vs.stream)
+      || !senderIdsInGroups.has(vs.userId));
   }
 
   if (isPaginationEnabled) {
-    const [filtered, others] = partition(
-      streams,
-      (vs: StreamItem) => videoService.isLocalStream(vs.stream) || (vs.type === VIDEO_TYPES.STREAM && vs.user.pinned),
-    );
-    const [pin, mine] = partition(
-      filtered,
-      (vs: StreamItem) => vs.type === VIDEO_TYPES.STREAM && vs.user.pinned,
-    );
-
-    totalNumberOfOtherStreams = others.length;
     const chunkIndex = currentVideoPageIndex * myPageSize;
     const sortingMethod = (numberOfPages > 1) ? PAGINATION_SORTING : DEFAULT_SORTING;
-    const paginatedStreams = sortVideoStreams(others, sortingMethod)
-      .slice(chunkIndex, (chunkIndex + myPageSize)) || [];
+    const sortingConfig = getSortingMethod(sortingMethod);
 
-    if (getSortingMethod(sortingMethod).localFirst) {
-      streams = [...pin, ...mine, ...paginatedStreams];
+    // Check if this sorting method uses custom pagination logic
+    if (!partitionPrivilegedStreams) {
+      // When partitionPrivilegedStreams is false, paginate all streams equally
+      // This means local/pinned cameras will only appear on their page (where they belong in sort order)
+      const sortedStreams = sortVideoStreams(streams, sortingMethod);
+
+      totalNumberOfOtherStreams = sortedStreams.length;
+      const paginatedStreams = sortedStreams.slice(chunkIndex, chunkIndex + myPageSize) || [];
+
+      const localStreamsNotInPage = sortedStreams.filter(
+        (vs, index) => videoService.isLocalStream(vs.stream)
+        && (index < chunkIndex || index >= chunkIndex + myPageSize),
+      );
+
+      // Mark local cameras not in current page with render: false
+      const localStreamsWithRenderFlag = localStreamsNotInPage.map((stream) => ({
+        ...stream,
+        render: false,
+      }));
+
+      streams = [...paginatedStreams, ...localStreamsWithRenderFlag];
     } else {
-      streams = [...pin, ...paginatedStreams, ...mine];
+      // Original pagination logic (show pinned/local cameras on every page)
+      const [filtered, others] = partition(
+        streams,
+        (vs: StreamItem) => videoService.isLocalStream(vs.stream)
+          || (vs.type === VIDEO_TYPES.STREAM && vs.user?.pinned),
+      );
+      const [pin, mine] = partition(
+        filtered,
+        (vs: StreamItem) => vs.type === VIDEO_TYPES.STREAM && vs.user?.pinned,
+      );
+
+      // This is needed to adjust pagination for displaced video streams
+      let audioOnlySlotsUsedOnPage1 = 0;
+      if (showAudioOnlyOnFirstPage && audioOnlyUsers.length > 0) {
+        const uniqueAudioOnly = audioOnlyUsers.filter(
+          (audioUser) => !streams.find((s) => s.userId === audioUser.userId),
+        );
+
+        if (uniqueAudioOnly.length > 0) {
+          const pinnedAndLocalCount = pin.length + mine.length;
+          const availableSlots = myPageSize - pinnedAndLocalCount;
+          const maxAudioOnlySlots = Math.min(availableSlots, maxAudioOnlyUsers);
+          audioOnlySlotsUsedOnPage1 = Math.min(uniqueAudioOnly.length, maxAudioOnlySlots);
+        }
+      }
+      totalNumberOfOtherStreams = others.length + audioOnlySlotsUsedOnPage1;
+
+      const effectiveChunkIndex = currentVideoPageIndex > 0
+        ? chunkIndex - audioOnlySlotsUsedOnPage1
+        : chunkIndex;
+
+      let paginatedStreams = sortVideoStreams(others, sortingMethod)
+        .slice(effectiveChunkIndex, (effectiveChunkIndex + myPageSize)) || [];
+
+      // Add audio-only users only on page 1
+      if (showAudioOnlyOnFirstPage && currentVideoPageIndex === 0 && audioOnlySlotsUsedOnPage1 > 0) {
+        const uniqueAudioOnly = audioOnlyUsers.filter(
+          (audioUser) => !streams.find((s) => s.userId === audioUser.userId),
+        );
+
+        const pinnedAndLocalCount = pin.length + mine.length;
+        const availableSlots = myPageSize - pinnedAndLocalCount;
+        const audioOnlyToAdd = uniqueAudioOnly.slice(0, audioOnlySlotsUsedOnPage1);
+
+        if (audioOnlyToAdd.length > 0 && paginatedStreams.length + audioOnlyToAdd.length > availableSlots) {
+          const remoteStreamsToKeep = availableSlots - audioOnlyToAdd.length;
+          paginatedStreams = paginatedStreams.slice(0, Math.max(0, remoteStreamsToKeep));
+        }
+
+        paginatedStreams = [...paginatedStreams, ...audioOnlyToAdd];
+      }
+
+      if (sortingConfig.localFirst) {
+        streams = [...pin, ...mine, ...paginatedStreams];
+      } else {
+        streams = [...pin, ...paginatedStreams, ...mine];
+      }
     }
   } else {
     streams = sortVideoStreams(streams, DEFAULT_SORTING);
+
+    // Add up to maxAudioOnlyUsers when pagination is disabled
+    if (showAudioOnlyOnFirstPage && audioOnlyUsers.length > 0) {
+      const uniqueAudioOnly = audioOnlyUsers.filter(
+        (audioUser) => !streams.find((s) => s.userId === audioUser.userId),
+      );
+
+      if (uniqueAudioOnly.length > 0) {
+        const audioOnlyToAdd = uniqueAudioOnly.slice(0, maxAudioOnlyUsers);
+        streams = [...streams, ...audioOnlyToAdd];
+      }
+    }
   }
 
-  const gridUsers = useGridUsers(streams.length);
+  const { gridUsers, overflowCount } = useGridUsers(streams.length);
 
   return {
     streams,
-    gridUsers,
+    gridUsers: gridUsers.filter((u) => !streams.find((s) => s.userId === u.userId)),
+    overflowCount,
     totalNumberOfStreams: streams.length,
     totalNumberOfOtherStreams,
   };
@@ -506,7 +752,9 @@ export const useExitVideo = (forceExit = false) => {
 };
 
 export const useViewersInWebcamCount = (): number => {
-  const { data } = useDeduplicatedSubscription(VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION);
+  const { data } = useDeduplicatedSubscription<ViewerVideoStreamsSubscriptionResponse>(
+    VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
+  );
   return data?.user_camera_aggregate?.aggregate?.count || 0;
 };
 
@@ -553,8 +801,7 @@ export const useShouldRenderPaginationToggle = () => {
 };
 
 export const useIsVideoPinEnabledForCurrentUser = (isModerator: boolean) => {
-  const isBreakout = useMeetingIsBreakout();
   const isPinEnabled = videoService.isPinEnabled();
 
-  return !!(isModerator && isPinEnabled && !isBreakout);
+  return !!(isModerator && isPinEnabled);
 };

@@ -205,7 +205,6 @@ class Presentation extends PureComponent {
       slidePosition,
       presentationIsOpen,
       currentSlide,
-      publishedPoll,
       setPresentationIsOpen,
       restoreOnUpdate,
       layoutContextDispatch,
@@ -251,7 +250,7 @@ class Presentation extends PureComponent {
     ) {
       addAlert(
         intl.formatMessage(intlMessages.slideContentChanged, {
-          0: currentSlide.num,
+          slideNumber: currentSlide.num,
         }),
       );
     }
@@ -281,11 +280,9 @@ class Presentation extends PureComponent {
         const positionChanged = slidePosition.viewBoxHeight
             !== prevProps.slidePosition.viewBoxHeight
           || slidePosition.viewBoxWidth !== prevProps.slidePosition.viewBoxWidth;
-        const pollPublished = publishedPoll && !prevProps.publishedPoll;
         if (
           slideChanged
           || positionChanged
-          || pollPublished
           || (presentationChanged && (hadPresentation || !isDefaultPresentation))
         ) {
           setPresentationIsOpen(layoutContextDispatch, !presentationIsOpen);
@@ -571,8 +568,8 @@ class Presentation extends PureComponent {
       layoutContextDispatch,
       presentationIsOpen,
       slidePosition,
-      addWhiteboardGlobalAccess,
-      removeWhiteboardGlobalAccess,
+      setMultiUserWhiteboardEnabled,
+      setMultiUserWhiteboardDisabled,
       multiUserSize,
       multiUser,
       fitToWidth,
@@ -616,8 +613,8 @@ class Presentation extends PureComponent {
         isFullscreen={fullscreenContext}
         fullscreenAction={ACTIONS.SET_FULLSCREEN_ELEMENT}
         fullscreenRef={this.refPresentationContainer}
-        addWhiteboardGlobalAccess={addWhiteboardGlobalAccess}
-        removeWhiteboardGlobalAccess={removeWhiteboardGlobalAccess}
+        setMultiUserWhiteboardEnabled={setMultiUserWhiteboardEnabled}
+        setMultiUserWhiteboardDisabled={setMultiUserWhiteboardDisabled}
         multiUserSize={multiUserSize}
         multiUser={multiUser}
         whiteboardId={currentSlide?.id}
@@ -692,6 +689,10 @@ class Presentation extends PureComponent {
       darkTheme,
       isViewersAnnotationsLocked,
       fitToWidth,
+      annotationStreamData,
+      initialPageAnnotations,
+      refetchInitialPageAnnotations,
+      restoreOnUpdate,
     } = this.props;
 
     const {
@@ -863,6 +864,10 @@ class Presentation extends PureComponent {
                     darkTheme={darkTheme}
                     isToolbarVisible={isToolbarVisible}
                     isViewersAnnotationsLocked={isViewersAnnotationsLocked}
+                    annotationStreamData={annotationStreamData}
+                    initialPageAnnotations={initialPageAnnotations}
+                    refetchInitialPageAnnotations={refetchInitialPageAnnotations}
+                    restoreOnUpdate={restoreOnUpdate}
                   />
                 </LocatedErrorBoundary>
                 {isFullscreen && <PollingContainer />}
@@ -918,7 +923,6 @@ Presentation.propTypes = {
   currentPresentationId: PropTypes.string,
   presentationIsOpen: PropTypes.bool,
   totalPages: PropTypes.number.isRequired,
-  publishedPoll: PropTypes.bool.isRequired,
   presentationBounds: PropTypes.shape({
     top: PropTypes.number,
     left: PropTypes.number,
@@ -939,8 +943,8 @@ Presentation.propTypes = {
     presentationAreaHeight: PropTypes.number.isRequired,
   }),
   zoomSlide: PropTypes.func.isRequired,
-  addWhiteboardGlobalAccess: PropTypes.func.isRequired,
-  removeWhiteboardGlobalAccess: PropTypes.func.isRequired,
+  setMultiUserWhiteboardEnabled: PropTypes.func.isRequired,
+  setMultiUserWhiteboardDisabled: PropTypes.func.isRequired,
   multiUserSize: PropTypes.number.isRequired,
   layoutType: PropTypes.string.isRequired,
   fullscreenElementId: PropTypes.string.isRequired,

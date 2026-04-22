@@ -75,10 +75,10 @@ class WakeLock extends Component {
     };
 
     const toastType = result.error ? 'error' : 'success';
-    const message = result.error 
-    ? intl.formatMessage(intlMessages.wakeLockDisclaimer,{
-      0: intl.formatMessage(intlMessages[result.locale])
-    } )
+    const message = result.error
+      ? intl.formatMessage(intlMessages.wakeLockDisclaimer, {
+          error: intl.formatMessage(intlMessages[result.locale])
+        })
     : intl.formatMessage(intlMessages.wakeLockAcquireSuccess);
     const feedbackToast = this.getToast('wakeLockToast', message);
     notify(feedbackToast, toastType, 'lock', feedbackToastProps, null, true);

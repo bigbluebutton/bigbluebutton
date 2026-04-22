@@ -11,7 +11,7 @@ import {
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import {
-  PROCESSED_PRESENTATIONS_SUBSCRIPTION,
+  PRESENTATIONS_SUBSCRIPTION,
 } from '/imports/ui/components/whiteboard/queries';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { SET_PRESENTER } from '/imports/ui/core/graphql/mutations/userMutations';
@@ -20,6 +20,7 @@ import Auth from '/imports/ui/services/auth';
 import { PRESENTATION_SET_CURRENT } from '../../presentation/mutations';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import { useMeetingIsBreakout } from '/imports/ui/components/app/service';
+import { useIsQuizEnabled } from '../../../services/features';
 
 const ActionsDropdownContainer = (props) => {
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
@@ -41,7 +42,7 @@ const ActionsDropdownContainer = (props) => {
   const openActions = useShortcut('openActions');
 
   const { data: presentationData } = useDeduplicatedSubscription(
-    PROCESSED_PRESENTATIONS_SUBSCRIPTION,
+    PRESENTATIONS_SUBSCRIPTION,
   );
   const presentations = presentationData?.pres_presentation || [];
 
@@ -90,6 +91,7 @@ const ActionsDropdownContainer = (props) => {
   const isPresentationEnabled = useIsPresentationEnabled();
   const isTimerFeatureEnabled = useIsTimerFeatureEnabled();
   const isCameraAsContentEnabled = useIsCameraAsContentEnabled();
+  const isQuizEnabled = useIsQuizEnabled();
 
   return (
     <ActionsDropdown
@@ -100,7 +102,7 @@ const ActionsDropdownContainer = (props) => {
         isMobile,
         isRTL,
         actionButtonDropdownItems,
-        presentations,
+        presentations: presentations.filter((p) => p).filter((p) => p.uploadCompleted),
         isTimerFeatureEnabled,
         isDropdownOpen,
         setPresentation,
@@ -111,6 +113,8 @@ const ActionsDropdownContainer = (props) => {
         shortcuts: openActions,
         isPresentationEnabled,
         isPresentationManagementDisabled,
+        isQuizEnabled,
+        isBreakout: meetingIsBreakout,
         ...props,
       }}
     />

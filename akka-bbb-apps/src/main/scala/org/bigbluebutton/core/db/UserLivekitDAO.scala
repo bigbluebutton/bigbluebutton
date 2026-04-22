@@ -10,8 +10,8 @@ case class UserLivekitDbModel(
 )
 
 class UserLivekitDbTableDef(tag: Tag) extends Table[UserLivekitDbModel](tag, "user_livekit") {
-  val meetingId = column[String]("meetingId")
-  val userId = column[String]("userId")
+  val meetingId = column[String]("meetingId", O.PrimaryKey)
+  val userId = column[String]("userId", O.PrimaryKey)
   val livekitToken = column[String]("livekitToken")
 
   override def * : ProvenShape[UserLivekitDbModel] = (
@@ -24,7 +24,7 @@ class UserLivekitDbTableDef(tag: Tag) extends Table[UserLivekitDbModel](tag, "us
 object UserLivekitDAO {
   def insert(meetingId: String, userId: String, livekitToken: String) = {
     DatabaseConnection.enqueue(
-      TableQuery[UserLivekitDbTableDef].forceInsert(
+      TableQuery[UserLivekitDbTableDef].insertOrUpdate(
         UserLivekitDbModel(
           meetingId = meetingId,
           userId = userId,
