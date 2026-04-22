@@ -4,9 +4,9 @@
 
 BigBlueButton 3.0 offers users improved usability, increased engagement, and enhanced performance.
 
-- **Usability** – making common functions (such as raising a hand) easier
-- **Engagement** – giving the instructor more ways to engage students
-- **Performance** – increasing overall performance and scalability
+- **Usability** - making common functions (such as raising a hand) easier
+- **Engagement** - giving the instructor more ways to engage students
+- **Performance** - increasing overall performance and scalability
 
 Here's a breakdown of what's new in 3.0.
 
@@ -82,9 +82,10 @@ We have added an indicator showing when your private chat recipient has seen the
 
 ![checkmark beside the message indicating it was seen](/img/30/30-seen-message.png)
 
-#### Push to talk added
+#### Push to talk was added
 
 You can now use the "M" shortcut while in a conference to control how long your microphone is open. If the option for push-to-talk is enabled in `settings.yml`, holding "M" will keep your microphone unmuted for as long as you hold the key down. Releasing it will mute you again.
+To enable see `public.app.defaultSettings.application.pushToTalkEnabled` https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.8/bigbluebutton-html5/private/config/settings.yml#L206
 
 ### Engagement
 
