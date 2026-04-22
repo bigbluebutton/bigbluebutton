@@ -269,6 +269,11 @@ const MessageItemWrapper = styled.div`
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  text-align: left;
+
+  [dir="rtl"] & {
+    text-align: right;
+  }
 `;
 
 export default {
