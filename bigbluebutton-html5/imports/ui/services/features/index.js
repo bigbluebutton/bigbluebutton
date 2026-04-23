@@ -37,7 +37,7 @@ export function useIsChatEnabled() {
 }
 
 export function useIsMultiFunctionalModeEnabled() {
-  return window.meetingClientSettings.public.multiFunctionalMode.enabled;
+  return useDisabledFeatures().indexOf('multiFunctionalMode') === -1 && window.meetingClientSettings.public.multiFunctionalMode.enabled;
 }
 
 export function useIsSharedNotesEnabled() {

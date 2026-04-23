@@ -129,6 +129,7 @@ const SidebarContentAuxiliary = (props: SidebarContentProps) => {
           right: isResizable && resizableEdge?.right,
         }}
         handleWrapperClass="resizeSidebarContentWrapper"
+        data-test="sidebarContentAuxiliary"
         onResizeStart={() => {
           setIsResizing(true);
           setResizeStartWidth(resizableWidth);
