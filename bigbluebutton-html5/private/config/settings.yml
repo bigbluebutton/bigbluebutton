@@ -808,9 +808,9 @@ public:
   pads:
     url: ETHERPAD_HOST
   sharedNotes:
-    # Hocuspocus server url for BlockNote (it will use the client's domain when empty)
-    # e.g: `wss://bbb-host/hocuspocus/collaboration`
-    serverUrl:
+    # Hocuspocus server hostname for BlockNote (it will use the client's hostname when empty)
+    # e.g: `bbb-host` (only the domain without protocol and path)
+    serverHostname:
     maxDocumentChars: 99999
     maxLengthForContentUpdate: 1500
   media:

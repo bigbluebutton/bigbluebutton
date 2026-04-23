@@ -96,34 +96,34 @@ const createEndpointTableData = [
   },
   {
     "name": "parentMeetingID",
-    "required": "(required for breakout room)",
+    "required": false,
     "type": "String",
-    "description": (<>Must be provided when creating a breakout room, the parent room must be running.</>)
+    "description": (<>The ID of the main room where the breakout was initiated. Must be provided when creating a breakout room, the parent room must be running.</>)
   },
   {
     "name": "sequence",
-    "required": "(required for breakout room)",
+    "required": false,
     "type": "Number",
-    "description": (<>The sequence number of the breakout room.</>)
+    "description": (<>The sequence number of the breakout room. Must be provided when creating a breakout room, the parent room must be running.</>)
   },
   {
     "name": "freeJoin",
-    "required": "(only breakout room)",
+    "required": false,
     "type": "Boolean",
-    "description": (<>If set to true, the client will give the user the choice to choose the breakout rooms he wants to join.</>)
+    "description": (<>If set to true, the client will give the user the choice to choose the breakout rooms they want to join. Must be provided when creating a breakout room, the parent room must be running.</>)
   },
   {
     "name": "breakoutRoomsPrivateChatEnabled",
-    "required": "Optional(Breakout Room)",
+    "required": false,
     "type": "Boolean",
-    "default": "true",
+    "default": true,
     "description": (<>If set to false, the private chat will be disabled in breakout rooms.</>)
   },
   {
     "name": "breakoutRoomsRecord",
-    "required": "Optional(Breakout Room)",
+    "required": false,
     "type": "Boolean",
-    "default": "false",
+    "default": false,
     "description": (<>If set to false, breakout rooms will not be recorded.</>)
   },
   {
@@ -136,14 +136,14 @@ const createEndpointTableData = [
     "name": "meta_bbb-anonymize-chat",
     "required": false,
     "type": "Boolean",
-    "default": "false",
+    "default": false,
     "description": (<>Whether to anonymize the sender of chat messages in the processed recordings if the sender is viewer. Overrides the default config in <code className="language-plaintext highlighter-rouge">bigbluebutton.yml</code></>)
   },
   {
     "name": "meta_bbb-anonymize-chat-moderators",
     "required": false,
     "type": "Boolean",
-    "default": "false",
+    "default": false,
     "description": (<>Whether to anonymize the sender of chat messages in the processed recordings if the sender is moderator. Overrides the default config in <code className="language-plaintext highlighter-rouge">bigbluebutton.yml</code></>)
   },
   {
@@ -198,70 +198,70 @@ const createEndpointTableData = [
     "name": "allowModsToUnmuteUsers",
     "required": false,
     "type": "Boolean",
-    "default": "false",
+    "default": false,
     "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will allow moderators to unmute other users in the meeting. (added 2.2)</>)
   },
   {
     "name": "lockSettingsDisableCam",
     "required": false,
     "type": "Boolean",
-    "default": "false",
+    "default": false,
     "description": (<>Setting <code className="language-plaintext highlighter-rouge">true</code> will prevent users from sharing their camera in the meeting. (added 2.2)</>)
   },
   {
     "name": "lockSettingsDisableMic",
     "required": false,
     "type": "Boolean",
-    "default": "false",
+    "default": false,
     "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will only allow user to join listen only. (added 2.2)</>)
   },
   {
     "name": "lockSettingsDisablePrivateChat",
     "required": false,
     "type": "Boolean",
-    "default": "false",
+    "default": false,
     "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will disable private chats in the meeting. (added 2.2)</>)
   },
   {
     "name": "lockSettingsDisablePublicChat",
     "required": false,
     "type": "Boolean",
-    "default": "false",
+    "default": false,
     "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will disable public chat in the meeting. (added 2.2)</>)
   },
   {
     "name": "lockSettingsDisableNotes",
     "required": false,
     "type": "Boolean",
-    "default": "false",
+    "default": false,
     "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will disable notes in the meeting. (added 2.2)</>)
   },
   {
     "name": "lockSettingsHideUserList",
     "required": false,
     "type": "Boolean",
-    "default": "false",
+    "default": false,
     "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will prevent viewers from seeing other viewers in the user list. (added 2.2)</>)
   },
   {
     "name": "lockSettingsLockOnJoin",
     "required": false,
     "type": "Boolean",
-    "default": "true",
+    "default": true,
     "description": (<>Setting to <code className="language-plaintext highlighter-rouge">false</code> will not apply lock setting to users when they join. (added 2.2)</>)
   },
   {
     "name": "lockSettingsLockOnJoinConfigurable",
     "required": false,
     "type": "Boolean",
-    "default": "false",
+    "default": false,
     "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will allow applying of <code className="language-plaintext highlighter-rouge">lockSettingsLockOnJoin</code>.</>)
   },
   {
     "name": "lockSettingsHideViewersCursor",
     "required": false,
     "type": "Boolean",
-    "default": "false",
+    "default": false,
     "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will prevent viewers to see other viewers cursor when multi-user whiteboard is on. (added 2.5)</>)
   },
   {
@@ -280,74 +280,79 @@ const createEndpointTableData = [
   },
   {
     "name": "meetingKeepEvents",
+    "required": false,
     "type": "Boolean",
-    "default": "false",
+    "default": false,
     "description": (<>Defaults to the value of <code className="language-plaintext highlighter-rouge">defaultKeepEvents</code>. If <code className="language-plaintext highlighter-rouge">meetingKeepEvents</code> is true BigBlueButton saves meeting events even if the meeting is not recorded (added in 2.3)</>)
   },
   {
     "name": "endWhenNoModerator",
+    "required": false,
     "type": "Boolean",
-    "default": "false",
+    "default": false,
     "description": (<>Default <code className="language-plaintext highlighter-rouge">endWhenNoModerator=false</code>. If <code className="language-plaintext highlighter-rouge">endWhenNoModerator</code> is true the meeting will end automatically after a delay - see <code className="language-plaintext highlighter-rouge">endWhenNoModeratorDelayInMinutes</code> (added in 2.3)</>)
   },
   {
     "name": "endWhenNoModeratorDelayInMinutes",
+    "required": false,
     "type": "Number",
-    "default": "1",
+    "default": 1,
     "description": (<>Defaults to the value of <code className="language-plaintext highlighter-rouge">endWhenNoModeratorDelayInMinutes=1</code>. If <code className="language-plaintext highlighter-rouge">endWhenNoModerator</code> is true, the meeting will be automatically ended after this many minutes (added in 2.2)</>)
   },
   {
     "name": "meetingLayout",
+    "required": false,
     "type": "Enum",
     "default": "CUSTOM_LAYOUT",
     "description": (<>Will set the default layout for the meeting. Possible values are: CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS. (added 2.4) In version 3.0 a few more possible options were added: CAMERAS_ONLY, PRESENTATION_ONLY, PARTICIPANTS_AND_CHAT_ONLY, MEDIA_ONLY</>)
   },
   {
     "name": "learningDashboardCleanupDelayInMinutes",
+    "required": false,
     "type": "Number",
-    "default": "2",
+    "default": 2,
     "description": (<>Default <code className="language-plaintext highlighter-rouge">learningDashboardCleanupDelayInMinutes=2</code>. This option set the delay (in minutes) before the Learning Dashboard become unavailable after the end of the meeting. If this value is zero, the Learning Dashboard will keep available permanently. (added 2.4)</>)
   },
   {
     "name": "allowModsToEjectCameras",
     "required": false,
     "type": "Boolean",
-    "default": "false",
+    "default": false,
     "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will allow moderators to close other users cameras in the meeting. (added 2.4)</>)
   },
   {
     "name": "allowRequestsWithoutSession",
     "required": false,
     "type": "Boolean",
-    "default": "false",
+    "default": false,
     "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will allow users to join meetings without session cookie's validation. (added 2.4.3)</>)
   },
   {
     "name": "userCameraCap",
     "required": false,
     "type": "Number",
-    "default": "3",
+    "default": 3,
     "description": (<>Setting to <code className="language-plaintext highlighter-rouge">0</code> will disable this threshold. Defines the max number of webcams a single user can share simultaneously. (added 2.4.5)</>)
   },
   {
     "name": "meetingCameraCap",
     "required": false,
     "type": "Number",
-    "default": "0",
+    "default": 0,
     "description": (<>Setting to <code className="language-plaintext highlighter-rouge">0</code> will disable this threshold. Defines the max number of webcams a meeting can have simultaneously. (added 2.5.0)</>)
   },
   {
     "name": "meetingExpireIfNoUserJoinedInMinutes",
     "required": false,
     "type": "Number",
-    "default": "5",
+    "default": 5,
     "description": (<>Automatically end meeting if no user joined within a period of time after meeting created. (added 2.5)</>)
   },
   {
     "name": "meetingExpireWhenLastUserLeftInMinutes",
     "required": false,
     "type": "Number",
-    "default": "1",
+    "default": 1,
     "description": (<>Number of minutes to automatically end meeting after last user left. (added 2.5)<br />Setting to <code className="language-plaintext highlighter-rouge">0</code> will disable this function.</>)
   },
   {
@@ -545,14 +550,14 @@ const createEndpointTableData = [
     "name":"preUploadedPresentationOverrideDefault",
     "required": false,
     "type": "Boolean",
-    "default": "true",
+    "default": true,
     "description": (<>If it is true, the <code>default.pdf</code> document is not sent along with the other presentations in the /create endpoint, on the other hand, if that's false, the <code>default.pdf</code> is sent with the other documents. By default it is true.</>)
   },
   {
     "name": "notifyRecordingIsOn",
     "required": false,
     "type": "Boolean",
-    "default": "false",
+    "default": false,
     "description": (<>If it is true, a modal will be displayed to collect recording consent from users when meeting recording starts (only if <code className="language-plaintext highlighter-rouge">notifyRecordingIsOn=true</code>). By default it is false. (added 2.6)</>)
   },
   {
@@ -577,7 +582,7 @@ const createEndpointTableData = [
     "name": "recordFullDurationMedia",
     "required": false,
     "type": "Boolean",
-    "default": "false",
+    "default": false,
     "description": (<>Controls whether media (audio, cameras and screen sharing) should be captured on their full duration if the meeting's recorded property is true (<code className="language-plaintext highlighter-rouge">recorded=true</code>). Default is false: only captures media while recording is running in the meeting. (added 2.6.9)</>)
   },
   {
@@ -595,7 +600,7 @@ const createEndpointTableData = [
   {
     "name": "allowOverrideClientSettingsOnCreateCall",
     "required": false,
-    "default": "false",
+    "default": false,
     "type": "Boolean",
     "description": (
       <>
@@ -630,7 +635,7 @@ const createEndpointTableData = [
     "name": "allowPromoteGuestToModerator",
     "required": false,
     "type": "Boolean",
-    "default": "false",
+    "default": false,
     "description": (<> If passed as true, we allow moderators to promote guests to moderators even if the authenticatedGuest config is enabled. The defaultAllowPromoteGuestToModerator configuration sets this behaviour globally for all meetings if no api parameter is passed (added in BBB 2.7.9)</>)
   },
   {
