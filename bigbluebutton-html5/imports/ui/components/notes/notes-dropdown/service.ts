@@ -22,7 +22,7 @@ async function convertAndUpload(
   filename = `${filename}.${extension}`;
 
   const PADS_CONFIG = window.meetingClientSettings.public.pads;
-  const hocuspocusServer = window.meetingClientSettings.public.sharedNotes.serverHostname
+  const hocuspocusServerHostname = window.meetingClientSettings.public.sharedNotes.serverHostname
     || window.location.hostname;
 
   let exportUrlString;
@@ -30,7 +30,7 @@ async function convertAndUpload(
   if (isEtherpadEditor) {
     exportUrlString = Auth.authenticateURL(`${PADS_CONFIG.url}/p/${padId}/export/${extension}?${params}`);
   } else {
-    exportUrlString = Auth.authenticateURL(`https://${hocuspocusServer}/hocuspocus/api/documents/${padId}/export/${extension}?${params}`);
+    exportUrlString = Auth.authenticateURL(`https://${hocuspocusServerHostname}/hocuspocus/api/documents/${padId}/export/${extension}?${params}`);
   }
   const exportUrl = Auth.authenticateURL(exportUrlString);
 
