@@ -1521,7 +1521,7 @@
     "app.createBreakoutRoom.notAssignedHelp": "Chiedi al moderatore della sessione di aggiungerti in una stanza separata.",
     "app.createBreakoutRoom.moreOptions": "Altre opzioni",
     "app.createBreakoutRoom.infoBannerTitle": "Lo sapevi?",
-    "app.createBreakoutRoom.infoBannerText": "You need to drag the names of the users to add them to a Breakout Room.",
+    "app.createBreakoutRoom.infoBannerText": "È necessario trascinare i nomi degli utenti per aggiungerli ad una stanza separata.",
     "app.createBreakoutRoom.infoBannerGotIt": "Ho capito!",
     "app.createBreakoutRoom.start": "Avvia",
     "app.createBreakoutRoom.megaphone": "Invia messaggio",
