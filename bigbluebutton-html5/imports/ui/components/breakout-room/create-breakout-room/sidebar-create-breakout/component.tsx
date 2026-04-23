@@ -460,33 +460,41 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
 
       <Styled.ControlsRow>
         <Styled.RoomCountControl>
-          <Styled.RoomCountArrow
-            onClick={decreaseRooms}
-            disabled={numberOfRooms <= MIN_BREAKOUT_ROOMS}
-            aria-label={intl.formatMessage(intlMessages.decreaseRooms)}
-            data-test="decreaseRooms"
-          >
-            ‹
-          </Styled.RoomCountArrow>
+          <TooltipContainer title={intl.formatMessage(intlMessages.decreaseRooms)}>
+            <Styled.RoomCountArrow
+              onClick={decreaseRooms}
+              disabled={numberOfRooms <= MIN_BREAKOUT_ROOMS}
+              aria-label={intl.formatMessage(intlMessages.decreaseRooms)}
+              data-test="decreaseRooms"
+            >
+              ‹
+            </Styled.RoomCountArrow>
+          </TooltipContainer>
           <Styled.RoomCountValue>
             {roomPadNum(numberOfRooms)}
           </Styled.RoomCountValue>
-          <Styled.RoomCountArrow
-            onClick={increaseRooms}
-            disabled={numberOfRooms >= MAX_BREAKOUT_ROOMS}
-            aria-label={intl.formatMessage(intlMessages.increaseRooms)}
-            data-test="increaseRooms"
-          >
-            ›
-          </Styled.RoomCountArrow>
+          <TooltipContainer title={intl.formatMessage(intlMessages.increaseRooms)}>
+            <Styled.RoomCountArrow
+              onClick={increaseRooms}
+              disabled={numberOfRooms >= MAX_BREAKOUT_ROOMS}
+              aria-label={intl.formatMessage(intlMessages.increaseRooms)}
+              data-test="increaseRooms"
+            >
+              ›
+            </Styled.RoomCountArrow>
+          </TooltipContainer>
         </Styled.RoomCountControl>
         {/* @ts-ignore */}
         <Styled.RandomAssignBtn
+          color="primary"
           icon={randomlyAssigned ? 'undo' : 'random'}
           label={randomlyAssigned
             ? intl.formatMessage(intlMessages.resetAssignmentsDesc)
             : intl.formatMessage(intlMessages.randomlyAssignDesc)}
           hideLabel
+          tooltipLabel={randomlyAssigned
+            ? intl.formatMessage(intlMessages.resetAssignmentsDesc)
+            : intl.formatMessage(intlMessages.randomlyAssignDesc)}
           onClick={() => {
             if (randomlyAssigned) {
               resetAssignmentsFunction.current();

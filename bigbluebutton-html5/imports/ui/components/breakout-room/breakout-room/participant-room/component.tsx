@@ -149,7 +149,7 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
   };
   const userRoomName = getUserRoomName();
 
-  useEffect(() => {
+  useEffect(() => () => {
     if (cooldownTimerRef.current) clearTimeout(cooldownTimerRef.current);
   }, []);
 
