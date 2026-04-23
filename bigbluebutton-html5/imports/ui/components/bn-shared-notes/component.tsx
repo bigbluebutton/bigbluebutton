@@ -6,6 +6,7 @@ import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
 import '@blocknote/core/fonts/inter.css';
 import '@blocknote/mantine/style.css';
 import { HocuspocusProvider } from '@hocuspocus/provider';
+import { Awareness } from 'y-protocols/awareness';
 import { useCreateBlockNote } from '@blocknote/react';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { defineMessages, useIntl } from 'react-intl';
@@ -18,6 +19,11 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
 import logger from '/imports/startup/client/logger';
 import { notify } from '../../services/notification';
+
+// Force-retain `Awareness` against a webpack tree-shaking interaction that
+// otherwise drops this class while keeping its `extends Observable` expression,
+// producing `ReferenceError: observable is not defined` in the minified bundle.
+(globalThis as unknown as Record<string, unknown>).bbbAwarenessKeepalive = Awareness;
 
 const maxDocumentCharsPluginKey = new PluginKey('maxDocumentChars');
 
