@@ -209,6 +209,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       serverHostname: '',
       maxDocumentChars: 99999,
       maxLengthForContentUpdate: 512,
+      staticFormattingToolbar: true,
     },
     externalVideoPlayer: {
       enabled: true,
