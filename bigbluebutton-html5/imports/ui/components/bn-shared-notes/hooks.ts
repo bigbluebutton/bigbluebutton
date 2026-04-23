@@ -61,9 +61,9 @@ const useHocuspocusProvider = () => {
         extraInfo: { documentId: documentName },
       }, 'Creating new HocuspocusProvider instance');
 
-      const hocuspocusServer = window.meetingClientSettings.public.sharedNotes.serverHostname
+      const hocuspocusServerHostname = window.meetingClientSettings.public.sharedNotes.serverHostname
         || window.location.hostname;
-      const hocuspocusServerUrl = `wss://${hocuspocusServer}/hocuspocus/collaboration`;
+      const hocuspocusServerUrl = `wss://${hocuspocusServerHostname}/hocuspocus/collaboration`;
 
       const wsProvider = new HocuspocusProviderWebsocket({
         url: `${hocuspocusServerUrl}?sessionToken=${sessionToken}`,
