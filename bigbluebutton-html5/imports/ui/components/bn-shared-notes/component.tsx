@@ -7,7 +7,18 @@ import '@blocknote/core/fonts/inter.css';
 import '@blocknote/mantine/style.css';
 import { HocuspocusProvider } from '@hocuspocus/provider';
 import { Awareness } from 'y-protocols/awareness';
-import { useCreateBlockNote } from '@blocknote/react';
+import {
+  BasicTextStyleButton,
+  BlockTypeSelect,
+  ColorStyleButton,
+  CreateLinkButton,
+  FormattingToolbar,
+  NestBlockButton,
+  TextAlignButton,
+  UnnestBlockButton,
+  useCreateBlockNote,
+} from '@blocknote/react';
+
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
@@ -86,6 +97,9 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   const MAX_UPDATE_SHARED_NOTES = window.meetingClientSettings.public.sharedNotes.maxLengthForContentUpdate;
 
   const MAX_DOCUMENT_CHARS = window.meetingClientSettings?.public?.sharedNotes?.maxDocumentChars || 99999;
+
+  const STATIC_FORMATTING_TOOLBAR_ENABLED = window.meetingClientSettings
+    ?.public?.sharedNotes?.staticFormattingToolbar ?? true;
 
   const MAX_PASTE_SIZE = MAX_UPDATE_SHARED_NOTES * 1024;
 
@@ -216,6 +230,26 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
           .bn-editor {
             padding-inline: 35px 25px;
           }
+          /* Static toolbar at top, editor fills remaining space */
+          .bn-container {
+            display: flex;
+            flex-direction: column-reverse;
+            height: 100%;
+          }
+          .bn-toolbar-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 4px;
+            padding-block: 4px;
+            flex-shrink: 0;
+            border-bottom: 1px solid #d4d9df;
+          }
+          .bn-toolbar-row .bn-formatting-toolbar {
+            box-shadow: none;
+            border: none;
+            padding: 0;
+          }
           /* Make the editor fill the available space so clicks below last line focus it */
           .bn-mantine,
           .bn-editor,
@@ -252,7 +286,30 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         editable={editable}
         editor={editor}
         theme="light"
-      />
+        formattingToolbar={!STATIC_FORMATTING_TOOLBAR_ENABLED}
+      >
+        {STATIC_FORMATTING_TOOLBAR_ENABLED && (
+          <div className="bn-toolbar-row">
+            <FormattingToolbar>
+              <BlockTypeSelect key="blockTypeSelect" />
+              <BasicTextStyleButton basicTextStyle="bold" key="boldStyleButton" />
+              <BasicTextStyleButton basicTextStyle="italic" key="italicStyleButton" />
+              <BasicTextStyleButton basicTextStyle="underline" key="underlineStyleButton" />
+              <BasicTextStyleButton basicTextStyle="strike" key="strikeStyleButton" />
+              <BasicTextStyleButton basicTextStyle="code" key="codeStyleButton" />
+            </FormattingToolbar>
+            <FormattingToolbar>
+              <TextAlignButton textAlignment="left" key="textAlignLeftButton" />
+              <TextAlignButton textAlignment="center" key="textAlignCenterButton" />
+              <TextAlignButton textAlignment="right" key="textAlignRightButton" />
+              <ColorStyleButton key="colorStyleButton" />
+              <NestBlockButton key="nestBlockButton" />
+              <UnnestBlockButton key="unnestBlockButton" />
+              <CreateLinkButton key="createLinkButton" />
+            </FormattingToolbar>
+          </div>
+        )}
+      </BlockNoteView>
     </div>
   );
 }

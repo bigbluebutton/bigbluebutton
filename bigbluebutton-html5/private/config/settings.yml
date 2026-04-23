@@ -813,6 +813,10 @@ public:
     serverHostname:
     maxDocumentChars: 99999
     maxLengthForContentUpdate: 1500
+    # When enabled, the formatting toolbar is rendered statically above the
+    # editor and always visible. When disabled, BlockNote's default floating
+    # toolbar appears only when text is selected.
+    staticFormattingToolbar: true
   media:
     audio:
       # defaultFullAudioBridge: bridge to be used by full audio mechanism.
