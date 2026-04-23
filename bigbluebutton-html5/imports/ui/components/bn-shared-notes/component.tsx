@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { BlockNoteView } from '@blocknote/mantine';
 import * as BlockNoteLocales from '@blocknote/core/locales';
-import { Block, BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
+import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
 import '@blocknote/core/fonts/inter.css';
 import '@blocknote/mantine/style.css';
 import { HocuspocusProvider } from '@hocuspocus/provider';
@@ -95,6 +95,13 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     schema,
     dictionary: {
       ...BlockNoteLocales[blockNoteLocale as keyof typeof BlockNoteLocales],
+      placeholders: {
+        ...BlockNoteLocales[blockNoteLocale as keyof typeof BlockNoteLocales].placeholders,
+        // Override the placeholders to allow placeholder only when the document is empty
+        emptyDocument: BlockNoteLocales[blockNoteLocale as keyof typeof BlockNoteLocales].placeholders.default,
+        default: '',
+        heading: '',
+      },
     },
     pasteHandler: ({ event, defaultPasteHandler }) => {
       try {
@@ -187,31 +194,6 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
 
   const editable = !disableNotes || !currentUserIsLocked || currentUserIsModerator;
 
-  const [isDocumentEmpty, setIsDocumentEmpty] = React.useState(true);
-
-  React.useEffect(() => {
-    const hasBlockContent = (blocks: Block[]): boolean => {
-      const queue = [...blocks];
-      // Running BFS on block array.
-      for (let i = 0; i < queue.length; i += 1) {
-        const block = queue[i];
-        const hasContent = Array.isArray(block.content)
-          ? block.content.length > 0
-          : block.content !== undefined;
-        if (hasContent) return true;
-        queue.push(...block.children);
-      }
-      return false;
-    };
-
-    const checkEmpty = () => {
-      setIsDocumentEmpty(!hasBlockContent(editor.document));
-    };
-    const unsubscribe = editor.onChange(checkEmpty);
-    checkEmpty();
-    return unsubscribe;
-  }, [editor]);
-
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <style>
@@ -246,11 +228,6 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
             bottom: auto !important;
             transform: translateY(0) !important;
           }
-          ${!isDocumentEmpty ? `
-          .bn-block-content[data-is-empty-and-focused]::after {
-            content: none !important;
-          }
-          ` : ''}
         `}
       </style>
       {notificationErrorMessage && (
