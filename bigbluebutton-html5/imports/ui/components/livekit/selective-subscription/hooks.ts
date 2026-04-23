@@ -25,6 +25,7 @@ import {
   PUBLIC_GROUP_IDS,
 } from '/imports/ui/components/livekit/selective-subscription/types';
 import {
+  getBbbUserIdForParticipant,
   isAudioSource,
   selectParticipantsToSubscribe,
 } from '/imports/ui/components/livekit/selective-subscription/service';
@@ -224,8 +225,13 @@ export const useMediaSenders = (
     const senderIdsOnlyInNonPublic = new Set(
       [...senderIdsInNonPublicGroups].filter((id) => !senderIdsInPublicGroup.has(id)),
     );
+    // Media groups use BBB intIds, which differ from LiveKit participant.identity
+    // for dial-in/VO participants (see getBbbUserIdForParticipant).
+    // Map pID to BBB intId when comparing against the non-public-sender set,
+    // but keep senders keyed by participant.identity so downstream code that
+    // looks up participants in the LiveKit room still matches.
     const senders = remoteParticipants
-      .filter((participant) => !senderIdsOnlyInNonPublic.has(participant.identity))
+      .filter((participant) => !senderIdsOnlyInNonPublic.has(getBbbUserIdForParticipant(participant)))
       .map((participant) => ({
         userId: participant.identity,
         groupId: 'default',
@@ -238,17 +244,31 @@ export const useMediaSenders = (
     return { senders, inAnyGroup: false };
   }
 
-  // Union of senders from all groups where I am a receiver
-  const senderStreams = groups
-    .filter((group) => myInboundGroupIds.includes(group.groupId))
-    .filter((stream) => stream.sender === true && stream.active);
-  // Dedupe by userId, keeping first occurrence
-  const seenUserIds = new Set<string>();
-  const senders = senderStreams.filter((stream) => {
-    if (seenUserIds.has(stream.userId)) return false;
-    seenUserIds.add(stream.userId);
-    return true;
+  // Union of senders from all groups where I am a receiver.
+  // Dedupe by userId (first occurrence wins) and rewrite BBB intId to LK
+  // identity as they are not 1:1 compatible for dial-in/VO users (see getBbbUserIdForParticipant).
+  const bbbIdToIdentity = new Map<string, string>();
+  remoteParticipants.forEach((p) => {
+    bbbIdToIdentity.set(getBbbUserIdForParticipant(p), p.identity);
   });
+  const myInboundGroupSet = new Set(myInboundGroupIds);
+  const seenUserIds = new Set<string>();
+  const senders = groups.reduce<MediaGroupStream[]>((acc, stream) => {
+    if (!myInboundGroupSet.has(stream.groupId)) return acc;
+
+    if (!stream.sender || !stream.active) return acc;
+
+    if (seenUserIds.has(stream.userId)) return acc;
+
+    const identity = bbbIdToIdentity.get(stream.userId);
+
+    if (!identity) return acc;
+
+    seenUserIds.add(stream.userId);
+    acc.push({ ...stream, userId: identity });
+
+    return acc;
+  }, []);
 
   return { senders, inAnyGroup };
 };
