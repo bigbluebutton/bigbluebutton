@@ -11,7 +11,7 @@ runs:
     - run: ./build/get_external_dependencies.sh
       shell: bash
     - name: Download all BBB artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: all-bbb-artifacts
         path: artifacts
@@ -27,7 +27,7 @@ runs:
         echo "BBB_LIBREOFFICE_IMAGE_NAME=$(head -n 1 bbb-libreoffice/docker/Dockerfile | cut -d ' ' -f 2)" >> $GITHUB_ENV
     - name: LIBREOFFICE CACHE - Restore bbb-libreoffice.tar from cache
       id: libreoffice-cache
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: bbb-libreoffice.tar
         key: ${{ env.BBB_LIBREOFFICE_IMAGE_NAME }}
@@ -42,7 +42,7 @@ runs:
         sudo chown -R "$USER":"$USER" /var/cache/apt
         sudo chmod -R u+rwX /var/cache/apt
     - name: APT CACHE - Restore from cache (if exists)
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         path: /var/cache/apt/archives
         key: ${{ runner.os }}-apt-${{ hashFiles('bigbluebutton-config/bigbluebutton-release') }}

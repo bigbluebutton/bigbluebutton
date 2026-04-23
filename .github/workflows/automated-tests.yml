@@ -84,12 +84,12 @@ jobs:
     steps:
       - name: Checkout PR's source merged into its target branch
         if: github.event_name == 'pull_request'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: refs/pull/${{ github.event.number }}/merge
       - name: Checkout commit/branch
         if: github.event_name != 'pull_request'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.ref }}
       - name: Set cache-key vars
@@ -107,7 +107,7 @@ jobs:
       - name: Handle cache
         if: matrix.cache-files-list != ''
         id: cache-action
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: artifacts/
           key: ${{ runner.os }}-${{ matrix.package }}-${{ env.BIGBLUEBUTTON_RELEASE }}-commits-${{ env.CACHE_KEY_FILES }}-urls-${{ env.CACHE_KEY_URLS }}
@@ -132,7 +132,7 @@ jobs:
             ls -la artifacts/
           fi
       - name: Archive packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: artifacts_${{ matrix.package }}
           path: artifacts/
@@ -141,12 +141,12 @@ jobs:
     steps:
       - name: Checkout PR's source merged into its target branch
         if: github.event_name == 'pull_request'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: refs/pull/${{ github.event.number }}/merge
       - name: Checkout commit/branch
         if: github.event_name != 'pull_request'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.ref }}
       - name: LIBREOFFICE CACHE - Set cache-key vars
@@ -154,7 +154,7 @@ jobs:
           echo "BBB_LIBREOFFICE_IMAGE_NAME=$(head -n 1 bbb-libreoffice/docker/Dockerfile | cut -d ' ' -f 2)" >> $GITHUB_ENV
       - name: LIBREOFFICE CACHE - Restore docker image from cache
         id: libreoffice-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: bbb-libreoffice.tar
           key: ${{ env.BBB_LIBREOFFICE_IMAGE_NAME }}
@@ -170,72 +170,72 @@ jobs:
       - name: Create all-artifacts directory
         run: mkdir -p all-artifacts
       - name: Download artifacts_bbb-apps-akka
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: artifacts_bbb-apps-akka
           path: all-artifacts
       - name: Download artifacts_bbb-config
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: artifacts_bbb-config
           path: all-artifacts
       - name: Download artifacts_bbb-export-annotations
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: artifacts_bbb-export-annotations
           path: all-artifacts
       - name: Download artifacts_bbb-learning-dashboard
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: artifacts_bbb-learning-dashboard
           path: all-artifacts
       - name: Download artifacts_bbb-playback-record
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: artifacts_bbb-playback-record
           path: all-artifacts
       - name: Download artifacts_bbb-graphql-server
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: artifacts_bbb-graphql-server
           path: all-artifacts
       - name: Download artifacts_bbb-etherpad
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: artifacts_bbb-etherpad
           path: all-artifacts
       - name: Download artifacts_bbb-shared-notes-server
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: artifacts_bbb-shared-notes-server
           path: all-artifacts
       - name: Download artifacts_bbb-freeswitch
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: artifacts_bbb-freeswitch
           path: all-artifacts
       - name: Download artifacts_bbb-webrtc
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: artifacts_bbb-webrtc
           path: all-artifacts
       - name: Download artifacts_bbb-web
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: artifacts_bbb-web
           path: all-artifacts
       - name: Download artifacts_bbb-fsesl-akka
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: artifacts_bbb-fsesl-akka
           path: all-artifacts
       - name: Download artifacts_bbb-html5
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: artifacts_bbb-html5
           path: all-artifacts
       - name: Download artifacts_others
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: artifacts_others
           path: all-artifacts
@@ -244,7 +244,7 @@ jobs:
           echo "Final contents of all-artifacts:"
           ls -la all-artifacts/
       - name: Upload unified all-artifacts directory
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: all-bbb-artifacts
           path: all-artifacts/
@@ -282,25 +282,25 @@ jobs:
     steps:
       - name: Checkout PR's source merged into its target branch
         if: github.event_name == 'pull_request'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: refs/pull/${{ github.event.number }}/merge
       - name: Checkout commit/branch
         if: github.event_name != 'pull_request'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.ref }}
       - name: Install BBB
         timeout-minutes: 60
         uses: ./.github/actions/install-bbb
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         name: PLAYWRIGHT CACHE - Restore Playwright node modules from cache
         with:
           cache: "npm"
           cache-dependency-path: bigbluebutton-tests/playwright/package-lock.json
       - name: PLAYWRIGHT CACHE - Restore Playwright binaries from cache
         id: cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: /home/runner/.cache/ms-playwright/
           key: ${{ runner.os }}-playwright-bins-${{ hashFiles('bigbluebutton-tests/playwright/package-lock.json') }}
@@ -336,7 +336,7 @@ jobs:
           npm run test-firefox-ci -- --shard=${{ env.shard }}
       - if: failure()
         name: Upload blob report to GitHub Actions Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: blob-report-${{ matrix.shard }}
           path: bigbluebutton-tests/playwright/blob-report
@@ -353,13 +353,13 @@ jobs:
           fi
       - if: failure()
         name: Upload shard HTML report to GitHub Actions Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: test-report_shard-${{ matrix.shard }}
           path: bigbluebutton-tests/playwright/playwright-report
       - if: always()
         name: Upload logs folder
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: browser-logs-${{ matrix.shard }}
           path: bigbluebutton-tests/playwright/logs
@@ -368,13 +368,13 @@ jobs:
         uses: ./.github/actions/prepare-artifacts
       - if: failure()
         name: Upload bbb-configs artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: bbb-configs-${{ env.MATRIX_SHARD_UNDERSCORED }}
           path: configs
       - if: failure()
         name: Upload bbb-logs artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: bbb-logs-${{ env.MATRIX_SHARD_UNDERSCORED }}
           path: ./bbb-logs.tar.gz
@@ -392,7 +392,7 @@ jobs:
           echo "hash=$hash" >> $GITHUB_OUTPUT
       - name: APT CACHE - Upload new packages (if changed)
         if: success() && matrix.shard == 1 && github.event_name != 'pull_request'
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: /var/cache/apt/archives
           key: ${{ runner.os }}-apt-${{ hashFiles('bigbluebutton-config/bigbluebutton-release') }}-${{ steps.apt-manifest.outputs.hash }}
@@ -408,12 +408,12 @@ jobs:
     steps:
       - name: Checkout PR's source merged into its target branch
         if: github.event_name == 'pull_request'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: refs/pull/${{ github.event.number }}/merge
       - name: Checkout commit/branch
         if: github.event_name != 'pull_request'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.ref }}
       - name: Install BBB
@@ -436,7 +436,7 @@ jobs:
           mkdir -p bigbluebutton-html-plugin-sdk
           tar -xzf bigbluebutton-html-plugin-sdk.tar.gz -C bigbluebutton-html-plugin-sdk --strip-components=1
       - name: PLAYWRIGHT CACHE (Plugins SDK) - Restore Playwright node modules from cache
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           cache: "npm"
           cache-dependency-path: |
@@ -444,7 +444,7 @@ jobs:
             bigbluebutton-tests/bigbluebutton-html-plugin-sdk/samples/**/package-lock.json
       - name: PLAYWRIGHT CACHE - Restore Playwright binaries from cache
         id: cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: /home/runner/.cache/ms-playwright/
           key: ${{ runner.os }}-playwright-bins-${{ hashFiles('bigbluebutton-tests/bigbluebutton-html-plugin-sdk/package-lock.json') }}
@@ -550,7 +550,7 @@ jobs:
           fi
       - if: failure()
         name: Upload blob report to GitHub Actions Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: blob-report-plugins
           path: bigbluebutton-tests/bigbluebutton-html-plugin-sdk/blob-report
@@ -567,13 +567,13 @@ jobs:
           fi
       - if: failure()
         name: Upload shard HTML report to GitHub Actions Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: test-report_plugins
           path: bigbluebutton-tests/bigbluebutton-html-plugin-sdk/playwright-report
       - if: always()
         name: Upload logs folder
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: browser-logs-plugin
           path: bigbluebutton-tests/bigbluebutton-html-plugin-sdk/logs
@@ -583,13 +583,13 @@ jobs:
         uses: ./.github/actions/prepare-artifacts
       - if: failure()
         name: Upload bbb-configs artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: bbb-configs-plugins
           path: configs
       - if: failure()
         name: Upload bbb-logs artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: bbb-logs-plugins
           path: ./bbb-logs.tar.gz
@@ -602,8 +602,8 @@ jobs:
     env:
       hasFailure: ${{ needs.install-and-run-bbb-tests.result == 'failure' || needs.install-and-run-plugin-tests.result == 'failure' }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
       - name: Check if blob reports exist
@@ -624,7 +624,7 @@ jobs:
           echo ${{ github.run_id }} > ./pr-comment-data/workflow_id
       - name: Upload PR data for auto-comment
         if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: pr-comment-data
           path: pr-comment-data
