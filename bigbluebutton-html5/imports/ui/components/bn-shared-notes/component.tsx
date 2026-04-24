@@ -227,15 +227,14 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
           .bn-mantine .bn-suggestion-menu {
             min-width: 300px;
           }
-          .bn-editor {
-            padding-inline: 35px 25px;
-            font-size: 1rem;
-          }
-          /* Static toolbar at top, editor fills remaining space */
+          /* Static toolbar at top, editor fills remaining space and scrolls internally.
+             Note: .bn-container and .bn-mantine are the same element; its direct flex
+             children are .bn-editor and .bn-toolbar-row. */
           .bn-container {
             display: flex;
             flex-direction: column-reverse;
             height: 100%;
+            min-height: 0;
           }
           .bn-toolbar-row {
             display: flex;
@@ -245,19 +244,19 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
             padding-block: 4px;
             flex-shrink: 0;
             border-bottom: 1px solid #d4d9df;
+            background-color: ${colorWhite};
           }
           .bn-toolbar-row .bn-formatting-toolbar {
             box-shadow: none;
             border: none;
             padding: 0;
           }
-          /* Make the editor fill the available space so clicks below last line focus it */
-          .bn-mantine,
-          .bn-editor,
-          .bn-editor .ProseMirror {
-            height: 100%;
-          }
-          .bn-editor .ProseMirror {
+          .bn-editor {
+            padding-inline: 35px 25px;
+            font-size: 1rem;
+            flex: 1 1 0;
+            min-height: 0;
+            overflow-y: auto;
             box-sizing: border-box;
             cursor: text;
           }
