@@ -11,13 +11,13 @@ keywords:
 We have tools to make it easy for you, a system administrator, to install BigBlueButton on a dedicated Linux server. This document shows you how to install.
 
 
-# BigBlueButton 3.1 is under development. This documentation section is a DRAFT.
+# BigBlueButton 4.0 is under development. This documentation section is a DRAFT.
 
 
 ## Before you install
 
-We recommend installing BigBlueButton with a 'clean' and dedicated Ubuntu 22.04 64-bit server with no prior software installed. If you want to upgrade from BigBlueButton 3.0, you could upgrade using the [3.1 version of the bbb-install script](https://github.com/bigbluebutton/bbb-install/tree/v3.1.x-release).
-Upgrading from an earlier version of BigBlueButton (2.6, 2.7) directly is not supported. We recommend setting up a clean server for BigBlueButton 3.1 on Ubuntu 22.04 and, after setup, [migrate over your existing recordings](/administration/customize#transfer-published-recordings-from-another-server).
+We recommend installing BigBlueButton with a 'clean' and dedicated Ubuntu 24.04 64-bit server with no prior software installed. If you want to upgrade from BigBlueButton 3.0, you could upgrade using the [4.0 version of the bbb-install script](https://github.com/bigbluebutton/bbb-install/tree/v4.0.x-release).
+Upgrading from an earlier version of BigBlueButton (2.6, 2.7, 3.0) directly is not supported. We recommend setting up a clean server for BigBlueButton 4.0 on Ubuntu 24.04 and, after setup, [migrate over your existing recordings](/administration/customize#transfer-published-recordings-from-another-server).
 
 A 'clean' server does not have any previous web servers installed (such as apache) or web applications (such as plesk or webadmin) that are [binding to port 80/443](/support/faq#we-recommend-running-bigbluebutton-on-port-80443). By 'dedicated' we mean that this server won't be used for anything else besides BigBlueButton (and possibly BigBlueButton-related applications such as [Greenlight](/greenlight/v3/install)).
 
@@ -25,7 +25,7 @@ A 'clean' server does not have any previous web servers installed (such as apach
 
 For production, we recommend the following minimum requirements
 
-- Ubuntu 22.04 64-bit OS running Linux kernel 5.x
+- Ubuntu 24.04 64-bit OS running Linux kernel 6.x
 - Latest version of docker installed
 - 16 GB of memory with swap enabled
 - 8 CPU cores, with high single-thread performance
@@ -50,7 +50,7 @@ Regardless of your environment, the setup steps will include configuring a SSL c
 
 ### Pre-installation checks
 
-Got a Ubuntu 22.04 64-bit server ready for installation?  Great! But, before jumping into the installation section below, let's do a few quick configuration checks to make sure your server meets the minimum requirements.
+Got a Ubuntu 24.04 64-bit server ready for installation?  Great! But, before jumping into the installation section below, let's do a few quick configuration checks to make sure your server meets the minimum requirements.
 
 Doing these checks will significantly reduce the chances you'll hit a problem during installation.
 
@@ -95,17 +95,17 @@ Here it shows 15G of memory (that's close enough as the server has 16 gigabytes 
 
 If you see a value for `Mem:` in the `total` column less than 15G, then your server has insufficient memory to run BigBlueButton in production. You need to increase the server's memory to (at least) 16G. (As stated above, if your running this in a development environment, 8G is fine.)
 
-Next, check that the server has Ubuntu 22.04 as its operating system.
+Next, check that the server has Ubuntu 24.04 as its operating system.
 
 ```bash
 $  cat /etc/lsb-release
 DISTRIB_ID=Ubuntu
-DISTRIB_RELEASE=22.04
-DISTRIB_CODENAME=jammy
-DISTRIB_DESCRIPTION="Ubuntu 22.04.3 LTS"
+DISTRIB_RELEASE=24.04
+DISTRIB_CODENAME=noble
+DISTRIB_DESCRIPTION="Ubuntu 24.04 LTS"
 ```
 
-Next, check that your server is running the 64-bit version of Ubuntu 22.04.
+Next, check that your server is running the 64-bit version of Ubuntu 24.04.
 
 ```bash
 $ uname -m
@@ -122,11 +122,11 @@ inet6 ::1/128 scope host
 
 If you do not see the line `inet6 ::1/128 scope host` then after you install BigBlueButton you will need to modify the configuration for FreeSWITCH to [disable support for IPV6](/support/troubleshooting#freeswitch-fails-to-bind-to-port-8021).
 
-Next, check that your server is running Linux kernel 5.x.
+Next, check that your server is running Linux kernel 6.x.
 
 ```bash
 $ uname -r
-6.2.x-xx-generic
+6.8.x-xx-generic
 ```
 
 Next, check that your server has (at least) 8 CPU cores
@@ -156,13 +156,13 @@ sudo ufw allow 80
 sudo ufw allow 443
 ```
 
-Sometimes we get asked "Why are you only supporting Ubuntu 22.04 64-bit?". The answer is based on choosing quality over quantity. Long ago we concluded that its better for the project to have solid, well-tested, well-documented installation for a specific version of Linux that works really, really well than to try and support many variants of Linux and have none of them work well.
+Sometimes we get asked "Why are you only supporting Ubuntu 24.04 64-bit?". The answer is based on choosing quality over quantity. Long ago we concluded that its better for the project to have solid, well-tested, well-documented installation for a specific version of Linux that works really, really well than to try and support many variants of Linux and have none of them work well.
 
-At the moment, the requirement for docker may preclude running 3.1 within some virtualized environments; however, it ensures LibreOffice runs within a restricted sandbox for document conversion.  We are exploring if we can run LibreOffice within systemd (such as systemd-nspawn).
+At the moment, the requirement for docker may preclude running 4.0 within some virtualized environments; however, it ensures LibreOffice runs within a restricted sandbox for document conversion.  We are exploring if we can run LibreOffice within systemd (such as systemd-nspawn).
 
 ## Install
 
-To install BigBlueButton, use [bbb-install.sh](https://github.com/bigbluebutton/bbb-install/blob/v3.1.x-release/bbb-install.sh) script. Notice that this command is slightly different than what we recommended in previous versions of BigBlueButton. The script now resides on a branch specifying the version of BigBlueButton, but otherwise the name of the script is identical across different branches. This makes it more maintainable as patches done to the script in one branch can be easily applied to other branches.
+To install BigBlueButton, use [bbb-install.sh](https://github.com/bigbluebutton/bbb-install/blob/v4.0.x-release/bbb-install.sh) script. Notice that this command is slightly different than what we recommended in previous versions of BigBlueButton. The script now resides on a branch specifying the version of BigBlueButton, but otherwise the name of the script is identical across different branches. This makes it more maintainable as patches done to the script in one branch can be easily applied to other branches.
 
 The above link gives detailed information on using the script. As an example, passing several arguments to the script you can easily have both BigBlueButton and Greenlight or LTI installed on the same server. You could specify if you would like a new certificate to be generated. A firewall could be enabled. For the most up-to-date information, please refer to the instructions in the script. We recommend using Greenlight as a frontend. [API MATE](https://mconf.github.io/api-mate/) can be quite useful when verifying your server is working correctly.
 
@@ -170,20 +170,20 @@ After the `bbb-install.sh` script finishes, you can check the status of your ser
 
 ```bash
 $ sudo bbb-conf --check
-BigBlueButton Server 3.1.0-beta.1 (161)
-                    Kernel version: 5.15.0-113-generic
-                      Distribution: Ubuntu 22.04.5 LTS (64-bit)
+BigBlueButton Server 4.0.0-beta.3 (161)
+                    Kernel version: 6.8.0-generic
+                      Distribution: Ubuntu 24.04 LTS (64-bit)
                             Memory: 8127 MB
                          CPU cores: 4
 
 /etc/bigbluebutton/bbb-web.properties (override for bbb-web)
 /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties (bbb-web)
-       bigbluebutton.web.serverURL: https://test31.bigbluebutton.org
+       bigbluebutton.web.serverURL: https://test40.bigbluebutton.org
                 defaultGuestPolicy: ALWAYS_ACCEPT
               defaultMeetingLayout: CUSTOM_LAYOUT
 
 /etc/nginx/sites-available/bigbluebutton (nginx)
-                       server_name: test31.bigbluebutton.org
+                       server_name: test40.bigbluebutton.org
                               port: 80, [::]:80127.0.0.1:82 http2 proxy_protocol, [::1]:82 http2127.0.0.1:81 proxy_protocol, [::1]:81
 
 /opt/freeswitch/etc/freeswitch/vars.xml (FreeSWITCH)
@@ -204,9 +204,9 @@ UDP port ranges
                     bbb-webrtc-recorder: 24577-32768
 
 /usr/local/bigbluebutton/core/scripts/bigbluebutton.yml (record and playback)
-                     playback_host: test31.bigbluebutton.org
+                     playback_host: test40.bigbluebutton.org
                  playback_protocol: https
-                            ffmpeg: 4.4.2-0ubuntu0.22.04.1
+                            ffmpeg: 6.1.1-3ubuntu5
 
 /usr/share/bigbluebutton/nginx/sip.nginx (sip.nginx)
                         proxy_pass: 143.198.37.212
@@ -231,7 +231,7 @@ UDP port ranges
 /usr/share/bigbluebutton/html5-client/private/config/settings.yml (HTML5 client)
 /etc/bigbluebutton/bbb-html5.yml (HTML5 client config override)
                              build: 64
-                        kurentoUrl: wss://test31.bigbluebutton.org/bbb-webrtc-sfu
+                        kurentoUrl: wss://test40.bigbluebutton.org/bbb-webrtc-sfu
             defaultFullAudioBridge: fullaudio
            defaultListenOnlyBridge: fullaudio
                     sipjsHackViaWs: true
@@ -318,13 +318,13 @@ The link to API-Mate will open a page at [https://mconf.github.io/api-mate/](htt
 
 Do you have a firewall between you and your users? If so, see [configuring your firewall](/administration/firewall-configuration).
 
-### Upgrading BigBlueButton 3.1
+### Upgrading BigBlueButton 4.0
 
-You can upgrade by re-running the `bbb-install.sh` script again -- it will download and install the latest release of BigBlueButton 3.1.
+You can upgrade by re-running the `bbb-install.sh` script again -- it will download and install the latest release of BigBlueButton 4.0.
 
 ### Upgrading from BigBlueButton 3.0
 
-If you were previously running BigBlueButton 3.0 on the server you can upgrade to BigBlueButton 3.1 by running the [3.1 version of the bbb-install script](https://github.com/bigbluebutton/bbb-install/tree/v3.1.x-release) on the server.
+Upgrading directly from BigBlueButton 3.0 (Ubuntu 22.04) to 4.0 (Ubuntu 24.04) in-place is not supported. We recommend setting up a clean server for BigBlueButton 4.0 on Ubuntu 24.04 and, after setup, [migrate over your existing recordings](/administration/customize#transfer-published-recordings-from-another-server).
 
 ### Restart your server
 
@@ -351,7 +351,7 @@ If this server is intended for production, you should also
 We provide publicly accessible servers that you can use for testing:
 
 - [https://demo.bigbluebutton.org](https://demo.bigbluebutton.org/) - a pool of BigBlueButton servers with the Greenlight front-end (sometimes the pool is a mix of different BigBlueButton releases)
-- [https://test31.bigbluebutton.org](https://test31.bigbluebutton.org) - Runs the general build of BigBlueButton 3.1 - usually a few days behind the repository branch `v3.1.x-release`
+- [https://test40.bigbluebutton.org](https://test40.bigbluebutton.org) - Runs the general build of BigBlueButton 4.0 - usually a few days behind the repository branch `v4.0.x-release`
 
 To learn more about integrating BigBlueButton with your application, check out the [BigBlueButton API documentation](/development/api). To see videos of BigBlueButton HTML5 client, see [https://bigbluebutton.org/html5](https://bigbluebutton.org/html5).
 
@@ -407,7 +407,7 @@ dpkg: error processing package bbb-libreoffice-docker (--configure):
  installed bbb-libreoffice-docker package post-installation script subprocess returned error exit status 100
 ```
 
-Ubuntu 22.04 uses systemd-resolved, which presents a local caching resolver and registers this at `/etc/resolv.conf`. If you get the above error and have a local name server, such as `10.11.12.13`, then try adding it with the hosts `resolv.conf`.
+Ubuntu 24.04 uses systemd-resolved, which presents a local caching resolver and registers this at `/etc/resolv.conf`. If you get the above error and have a local name server, such as `10.11.12.13`, then try adding it with the hosts `resolv.conf`.
 
 ```
 echo "nameserver 10.11.12.13" > /etc/resolv.conf

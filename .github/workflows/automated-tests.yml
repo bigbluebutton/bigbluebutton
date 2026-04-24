@@ -295,7 +295,7 @@ jobs:
 
           Package: bigbluebutton
           Version: $META_VERSION
-          Maintainer: ffdixon@bigbluebutton.org
+          Maintainer: Fred Dixon <ffdixon@bigbluebutton.org>
           Depends: $DEPENDENCIES
           Architecture: amd64
           Description: Virtual Classroom

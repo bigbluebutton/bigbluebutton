@@ -1,15 +1,15 @@
 
-![BigBlueButton 3.1 runs on Ubuntu 22.04](/img/30_BBB_header.png)
+![BigBlueButton 4.0 runs on Ubuntu 24.04](/img/30_BBB_header.png)
 
 ## Overview
 
-<!-- BigBlueButton 3.1 offers users improved usability, increased engagement, and more performance. -->
+<!-- BigBlueButton 4.0 offers users improved usability, increased engagement, and more performance. -->
 
 <!-- - **Usability** - making common functions (such as raise hand) easier
 - **Engagement** - giving the instructor more ways to engage students
 - **Performance** - increasing overall performance and scalability -->
 
-Here's a breakdown of what's new in 3.1.
+Here's a breakdown of what's new in 4.0.
 
 ### Usability
 
@@ -99,14 +99,14 @@ or the mailing lists.
 
 ### Upgraded components
 
-Under the hood, BigBlueButton 3.1 installs on Ubuntu 22.04 64-bit, and the following key components have been upgraded
+Under the hood, BigBlueButton 4.0 installs on Ubuntu 24.04 64-bit, and the following key components have been upgraded
 - Grails 7.0.0
 - Gradle 8.14.3
 - Groovy 4.0.21
 - Spring 6.2.11
 - Spring Boot 3.4.9 
 
-For full details on what is new in BigBlueButton 3.1, see the release notes.
+For full details on what is new in BigBlueButton 4.0, see the release notes.
 
 
 Recent releases:
@@ -141,15 +141,15 @@ Added
 
 ### Development
 
-For information on developing in BigBlueButton, see [setting up a development environment for 3.1](/development/guide).
+For information on developing in BigBlueButton, see [setting up a development environment for 4.0](/development/guide).
 
-The build scripts for packaging 3.1 (using fpm) are located in the GitHub repository [here](https://github.com/bigbluebutton/bigbluebutton/tree/v3.1.x-release/build).
+The build scripts for packaging 4.0 (using fpm) are located in the GitHub repository [here](https://github.com/bigbluebutton/bigbluebutton/tree/v4.0.x-release/build).
 
 ### Contribution
 
-We welcome contributors to BigBlueButton 3.1!  The best ways to contribute at the current time are:
+We welcome contributors to BigBlueButton 4.0!  The best ways to contribute at the current time are:
 
-- Help localize BigBlueButton 3.1 on [Transifex project for BBB 3.1](https://www.transifex.com/bigbluebutton/bigbluebutton-v31-html5-client/dashboard/)
-- Try out [installing BigBlueButton 3.1](/administration/install) and see if you spot any issues.
-- Help test a [3.1 pull request](https://github.com/bigbluebutton/bigbluebutton/pulls?q=is%3Aopen+is%3Apr+milestone%3A%22Release+3.1%22) in your development environment.
+- Help localize BigBlueButton 4.0 on [Transifex project for BBB 4.0](https://www.transifex.com/bigbluebutton/bigbluebutton-v40-html5-client/dashboard/)
+- Try out [installing BigBlueButton 4.0](/administration/install) and see if you spot any issues.
+- Help test a [4.0 pull request](https://github.com/bigbluebutton/bigbluebutton/pulls?q=is%3Aopen+is%3Apr+milestone%3A%22Release+4.0%22) in your development environment.
   <!-- TODO create a GitHub label for contributions-welcome and link here -->
