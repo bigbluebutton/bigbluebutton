@@ -135,7 +135,12 @@ const useDebouncedMuteState = (
   useEffect(() => {
     participants.forEach((participant) => {
       const userId = participant.identity;
-      const currUnmuted = unmutedUsers[userId] ?? false;
+      // useWhoIsUnmuted stores keys by LK identity when LK is connected and
+      // by BBB intId when it falls back to the graphql source on LK
+      // disconnect. Check if either variants exist (userId or getBbbUserIdForParticipant(participant))
+      const currUnmuted = unmutedUsers[userId]
+        ?? unmutedUsers[getBbbUserIdForParticipant(participant)]
+        ?? false;
       const prevUnmuted = debouncedStateRef.current[userId] ?? false;
 
       if (currUnmuted === prevUnmuted && !debounceTimers.current.has(userId)) return;
