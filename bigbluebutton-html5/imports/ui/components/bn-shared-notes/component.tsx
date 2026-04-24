@@ -215,6 +215,17 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
 
   const editable = !disableNotes || !currentUserIsLocked || currentUserIsModerator;
 
+  // Keep the editor's focus/selection when tapping a toolbar button by
+  // cancelling the default focus move on mousedown.
+  const toolbarRef = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    const el = toolbarRef.current;
+    if (!el) return undefined;
+    const handler = (e: MouseEvent) => e.preventDefault();
+    el.addEventListener('mousedown', handler);
+    return () => el.removeEventListener('mousedown', handler);
+  }, [editable]);
+
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <style>
@@ -288,7 +299,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         renderEditor={false}
       >
         {STATIC_FORMATTING_TOOLBAR_ENABLED && editable && (
-          <div className="bn-toolbar-row">
+          <div ref={toolbarRef} className="bn-toolbar-row">
             <FormattingToolbar>
               <BlockTypeSelect key="blockTypeSelect" />
               <BasicTextStyleButton basicTextStyle="bold" key="boldStyleButton" />
