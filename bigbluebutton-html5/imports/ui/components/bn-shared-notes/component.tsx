@@ -229,6 +229,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
           }
           .bn-editor {
             padding-inline: 35px 25px;
+            font-size: 1rem;
           }
           /* Static toolbar at top, editor fills remaining space */
           .bn-container {
