@@ -288,7 +288,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         theme="light"
         formattingToolbar={!STATIC_FORMATTING_TOOLBAR_ENABLED}
       >
-        {STATIC_FORMATTING_TOOLBAR_ENABLED && (
+        {STATIC_FORMATTING_TOOLBAR_ENABLED && editable && (
           <div className="bn-toolbar-row">
             <FormattingToolbar>
               <BlockTypeSelect key="blockTypeSelect" />
