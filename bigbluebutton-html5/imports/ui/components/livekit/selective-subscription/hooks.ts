@@ -305,8 +305,10 @@ export const useMediaSubscriptions = (liveKitRoom: Room) => {
       publication: RemoteTrackPublication;
       participantId: string;
     }> = [];
+    const participantsById = new Map<string, RemoteParticipant>();
 
     remoteParticipants.forEach((participant) => {
+      participantsById.set(participant.identity, participant);
       participant.audioTrackPublications.forEach((publication: RemoteTrackPublication) => {
         if (isAudioSource(publication.source)) {
           if (publication.isSubscribed) {
@@ -344,7 +346,7 @@ export const useMediaSubscriptions = (liveKitRoom: Room) => {
     desiredSubscriptions.forEach((participantId) => {
       Object.entries(currentSubscriptions).forEach(([source, subscriptions]) => {
         if (!subscriptions.has(participantId)) {
-          const participant = remoteParticipants.find((p) => p.identity === participantId);
+          const participant = participantsById.get(participantId);
           if (participant) {
             participant.audioTrackPublications.forEach((publication) => {
               const { trackSid } = publication;
@@ -370,7 +372,7 @@ export const useMediaSubscriptions = (liveKitRoom: Room) => {
     Object.values(currentSubscriptions).forEach((subscriptions) => {
       subscriptions.forEach((participantId) => {
         if (!desiredSubscriptions.has(participantId)) {
-          const participant = remoteParticipants.find((p) => p.identity === participantId);
+          const participant = participantsById.get(participantId);
           if (participant) {
             participant.audioTrackPublications.forEach((publication) => {
               // Screen share audio is always subscribed regardless of group membership
