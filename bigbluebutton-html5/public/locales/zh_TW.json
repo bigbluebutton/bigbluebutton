@@ -1343,7 +1343,7 @@
     "app.videoDock.webcamPinDesc": "鎖定選定的攝影機",
     "app.videoDock.webcamFullscreenLabel": "攝影機全屏",
     "app.videoDock.webcamExitFullscreenLabel": "離開全螢幕網路攝影機",
-    "app.videoDock.webcamSqueezedButtonLabel": "攝影機選項",
+    "app.videoDock.webcamSqueezedButtonLabel": "壓縮網路攝影機視角",
     "app.videoDock.webcamUnpinLabel": "取消鎖定",
     "app.videoDock.webcamUnpinLabelDisabled": "只有主持人可以取消鎖定使用者",
     "app.videoDock.webcamUnpinDesc": "取消鎖定選定的攝影機",
