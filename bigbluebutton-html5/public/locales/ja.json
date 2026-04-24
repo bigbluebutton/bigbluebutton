@@ -477,7 +477,7 @@
     "app.downloadPresentationButton.label": "プレゼンのダウンロード",
     "app.connectingMessage": "接続中...",
     "app.reconnectingMessage": "接続が失われました。インターネットを確認してください。",
-    "app.muteWarning.label": "自分のミュートを解除するため{unmuteIcon}をクリック",
+    "app.muteWarning.label": "マイクがミュートされています ― 解除するには{unmuteIcon}をクリックしてください",
     "app.muteWarning.disableMessage": "ミュートの警告は、次にアンミュートするまで無効になります",
     "app.muteWarning.tooltip": "クリックすると閉じます。次にアンミュートするまで警告は無効になります。",
     "app.navBar.leaveMeetingBtnLabel": "退室",
