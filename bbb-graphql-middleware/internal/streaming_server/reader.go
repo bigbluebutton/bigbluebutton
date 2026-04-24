@@ -46,6 +46,10 @@ func ReadNewStreamingSubscription(
 		if browserMessage.Payload.OperationName == "UsersCount" {
 			SendCurrentUsersCount(browserConnection, queryId)
 		}
+
+		if browserMessage.Payload.OperationName == "UsersWithAudioCount" {
+			SendCurrentUsersWithAudioCount(browserConnection, queryId)
+		}
 	}
 
 	return nil

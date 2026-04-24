@@ -40,6 +40,8 @@ var allowedMessages = []string{
 	"UserVoiceStateEvtMsg",
 	"UserJoinedMeetingEvtMsg",
 	"UserLeftMeetingEvtMsg",
+	"UserJoinedVoiceConfToClientEvtMsg",
+	"UserLeftVoiceConfToClientEvtMsg",
 	"MeetingEndedEvtMsg",
 }
 
@@ -110,6 +112,7 @@ func StartRedisListener() {
 			go streamingserver.RemoveMeetingCursorsCache(receivedMessage.Core.Body["meetingId"].(string))
 			go streamingserver.RemoveMeetingUserVoiceStatesCache(receivedMessage.Core.Body["meetingId"].(string))
 			go streamingserver.RemoveMeetingUsersCountCache(receivedMessage.Core.Body["meetingId"].(string))
+			go streamingserver.RemoveMeetingUsersWithAudioCache(receivedMessage.Core.Body["meetingId"].(string))
 			go common.RemoveMeetingHasuraMessageCache(receivedMessage.Core.Body["meetingId"].(string))
 			go common.RemoveMeetingPatchedMessageCache(receivedMessage.Core.Body["meetingId"].(string))
 			go common.RemoveMeetingStreamCursorValueCache(receivedMessage.Core.Body["meetingId"].(string))
@@ -122,10 +125,31 @@ func StartRedisListener() {
 				BrowserConnectionsMutex,
 				BrowserConnections,
 			)
+			go streamingserver.HandleUserLeftMeetingEvtMsgForAudioCount(
+				receivedMessage,
+				BrowserConnectionsMutex,
+				BrowserConnections,
+			)
 		}
 
 		if messageName == "UserJoinedMeetingEvtMsg" {
 			go streamingserver.HandleUserJoinedMeetingEvtMsg(
+				receivedMessage,
+				BrowserConnectionsMutex,
+				BrowserConnections,
+			)
+		}
+
+		if messageName == "UserJoinedVoiceConfToClientEvtMsg" {
+			go streamingserver.HandleUserJoinedVoiceConfToClientEvtMsg(
+				receivedMessage,
+				BrowserConnectionsMutex,
+				BrowserConnections,
+			)
+		}
+
+		if messageName == "UserLeftVoiceConfToClientEvtMsg" {
+			go streamingserver.HandleUserLeftVoiceConfToClientEvtMsg(
 				receivedMessage,
 				BrowserConnectionsMutex,
 				BrowserConnections,
