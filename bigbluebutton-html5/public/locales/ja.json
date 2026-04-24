@@ -823,7 +823,7 @@
     "app.breakoutJoinConfirmation.title": "小会議室に参加",
     "app.breakoutJoinConfirmation.message": "この部屋に入室しますか：",
     "app.breakoutJoinConfirmation.addedToRoom": "あなたは会議の司会者によって {roomName} に加えられました。",
-    "app.breakoutJoinConfirmation.willBeRedirected": "You will be redirected to your breakout room shortly.",
+    "app.breakoutJoinConfirmation.willBeRedirected": "まもなくあなたに割り当てられた小会議室に移ります。",
     "app.breakoutJoinConfirmation.enterRoom": "会議室に入る",
     "app.breakoutJoinConfirmation.confirmDesc": "小会議室に参加します",
     "app.breakoutJoinConfirmation.dismissLabel": "キャンセル",
