@@ -1521,7 +1521,7 @@
     "app.createBreakoutRoom.notAssignedHelp": "Palu sessiooni moderaatoril sind eraldatud ruumi lisada.",
     "app.createBreakoutRoom.moreOptions": "Rohkem valikuid",
     "app.createBreakoutRoom.infoBannerTitle": "Kas teadsid?",
-    "app.createBreakoutRoom.infoBannerText": "You need to drag the names of the users to add them to a Breakout Room.",
+    "app.createBreakoutRoom.infoBannerText": "Kasutajate lisamiseks eraldatud ruumi tuleb nende nimed sinna lohistada.",
     "app.createBreakoutRoom.infoBannerGotIt": "Selge!",
     "app.createBreakoutRoom.start": "Alusta",
     "app.createBreakoutRoom.megaphone": "Saada sõnum",
