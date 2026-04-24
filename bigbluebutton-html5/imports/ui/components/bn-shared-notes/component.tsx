@@ -259,6 +259,12 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
             border: none;
             padding: 0;
           }
+          .bn-toolbar-row [data-test="colors"] .bn-color-icon {
+            font-weight: 700;
+          }
+          .bn-toolbar-row [data-test="colors"] .bn-color-icon[data-text-color="default"] {
+            color: #2f80ed;
+          }
           .bn-editor {
             padding-inline: 35px 25px;
             font-size: 1rem;
