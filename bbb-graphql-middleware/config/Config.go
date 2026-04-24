@@ -126,4 +126,5 @@ var StreamingSubscriptionsManagedByMiddleware = []string{
 	"getNotificationStream",
 	"getChatMessageStream",
 	"getUserVoiceStateStream",
+	"UsersCount",
 }

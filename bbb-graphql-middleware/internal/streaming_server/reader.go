@@ -42,6 +42,10 @@ func ReadNewStreamingSubscription(
 		if browserMessage.Payload.OperationName == "getUserVoiceStateStream" {
 			SendPreviousUserVoiceState(browserConnection, queryId)
 		}
+
+		if browserMessage.Payload.OperationName == "UsersCount" {
+			SendCurrentUsersCount(browserConnection, queryId)
+		}
 	}
 
 	return nil
