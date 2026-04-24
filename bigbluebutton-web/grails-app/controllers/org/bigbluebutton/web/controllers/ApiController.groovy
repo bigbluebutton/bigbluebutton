@@ -228,9 +228,9 @@ class ApiController {
     ApiErrors errors = new ApiErrors()
 
     if (meetingService.createMeeting(newMeeting)) {
+      respondWithConference(newMeeting, null, null)
       // See if the request came with pre-uploading of presentation.
       uploadDocuments(xmlModules, newMeeting, false);  //
-      respondWithConference(newMeeting, null, null)
     } else {
       // Translate the external meeting id into an internal meeting id.
       String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);
