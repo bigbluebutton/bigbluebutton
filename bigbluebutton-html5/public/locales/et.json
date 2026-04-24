@@ -823,7 +823,7 @@
     "app.breakoutJoinConfirmation.title": "Liitu eraldatud ruumiga",
     "app.breakoutJoinConfirmation.message": "Kas soovid liituda ruumiga",
     "app.breakoutJoinConfirmation.addedToRoom": "Sessiooni moderaator lisas sind ruumi {roomName}.",
-    "app.breakoutJoinConfirmation.willBeRedirected": "You will be redirected to your breakout room shortly.",
+    "app.breakoutJoinConfirmation.willBeRedirected": "Sind suunatakse varsti oma eraldatud ruumi.",
     "app.breakoutJoinConfirmation.enterRoom": "Sisene ruumi",
     "app.breakoutJoinConfirmation.confirmDesc": "Ühendab sind eraldatud ruumiga",
     "app.breakoutJoinConfirmation.dismissLabel": "Tühista",
