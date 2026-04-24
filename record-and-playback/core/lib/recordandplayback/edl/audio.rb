@@ -235,7 +235,9 @@ module BigBlueButton
         end
 
         process_dir = File.dirname(output_basename)
-        remove_audio_gaps(edl, audioinfo.keys, process_dir)
+        BigBlueButton.logger.info("Removing audio PTS gaps from EDL")
+        remove_audio_gaps(edl, audioinfo, process_dir)
+        BigBlueButton.logger.info("Adjusting EDL to enforce minimum cut durations")
         enforce_cut_lengths(edl)
 
         dump(edl)
@@ -386,9 +388,9 @@ module BigBlueButton
       # fill the gap, but it enqueues the full length of the gap into the filter chain all at once,
       # which uses a lot of memory. To work around this issue, detect long gaps in the audio files
       # and remove the audio file from the mix for the duration of the gap.
-      def self.remove_audio_gaps(edl, audio_files, process_dir)
-        audio_files.each do |filename|
-          gaps_array = BigBlueButton::EDL::MediaUtils.pts_gaps(process_dir, filename, :audio)
+      def self.remove_audio_gaps(edl, audioinfo, process_dir)
+        audioinfo.each do |filename, info|
+          gaps_array = BigBlueButton::EDL::MediaUtils.pts_gaps(process_dir, filename, :audio, info[:duration])
           next if gaps_array.empty?
 
           BigBlueButton.logger.info("Audio file #{File.basename(filename)} has #{gaps_array.length} gap(s), adjusting EDL")
