@@ -201,6 +201,7 @@ const Whiteboard = React.memo((props) => {
   const isPresenterRef = useRef(isPresenter);
   const pageActualZoomRatioRef = useRef({});
   const calculateZoomValueRef = useRef(null);
+  const calculateZoomWithGapValueRef = useRef(null);
   const fitToWidthRef = useRef(fitToWidth);
   const whiteboardIdRef = React.useRef(whiteboardId);
   const curPageIdRef = React.useRef(curPageId);
@@ -896,6 +897,7 @@ const Whiteboard = React.memo((props) => {
       : calcedZoom;
   };
 
+  // Ref keeps store listeners and RAF callbacks pointing at the latest closure (avoids stale presentationAreaWidth/Height).
   calculateZoomValueRef.current = calculateZoomValue;
 
   const getContainerDimensions = () => {
@@ -955,6 +957,8 @@ const Whiteboard = React.memo((props) => {
       ? calculateZoomValue(localWidth, localHeight) // Fallback to no gap base zoom
       : calcedZoom;
   };
+
+  calculateZoomWithGapValueRef.current = calculateZoomWithGapValue;
 
   // updateCursorZoom is a plain function (not useCallback) so it always closes
   // over fresh presentationAreaWidth/presentationAreaHeight/fitToWidth each render.
@@ -1064,14 +1068,14 @@ const Whiteboard = React.memo((props) => {
         && scaledHeight > 0
         && tlEditorRef.current
       ) {
-        let baseZoom = calculateZoomValue(scaledWidth, scaledHeight);
+        let baseZoom = calculateZoomValueRef.current(scaledWidth, scaledHeight);
         throwIfInvalid(baseZoom, 'baseZoom');
 
         if (isPresenterRef.current) {
           const { widthGap } = getContainerDimensions();
 
           if (widthGap > 0) {
-            const zoomWithGap = calculateZoomWithGapValue(scaledWidth, scaledHeight, widthGap);
+            const zoomWithGap = calculateZoomWithGapValueRef.current(scaledWidth, scaledHeight, widthGap);
             throwIfInvalid(zoomWithGap, 'zoomWithGap');
             baseZoom = zoomWithGap;
           }
@@ -1084,7 +1088,7 @@ const Whiteboard = React.memo((props) => {
           });
         } else if (includeViewerLogic) {
           // Viewer logic
-          baseZoom = calculateZoomValue(scaledViewBoxWidth, scaledViewBoxHeight);
+          baseZoom = calculateZoomValueRef.current(scaledViewBoxWidth, scaledViewBoxHeight);
           coreCameraLogic({
             baseZoom,
             xOffset,
@@ -1464,9 +1468,20 @@ const Whiteboard = React.memo((props) => {
     // No scope filter: camera records may not be in the 'document' scope in this
     // tldraw version, so omitting scope ensures the listener always fires.
     editor.store.listen(
-      ({ changes }) => {
+      ({ changes, source }) => {
         const camKey = `camera:page:${curPageIdRef.current}`;
         if (changes?.updated?.[camKey]) {
+          if (source === 'api' && isPresenterRef.current) {
+            const [, nextCam] = changes.updated[camKey];
+            const baseZ = calculateZoomValueRef.current?.(
+              currentPresentationPageRef.current?.scaledWidth,
+              currentPresentationPageRef.current?.scaledHeight,
+            );
+            if (baseZ > 0) {
+              const pKey = `${presentationIdRef.current}_${curPageIdRef.current}`;
+              pageActualZoomRatioRef.current[pKey] = nextCam.z / baseZ;
+            }
+          }
           updateCursorZoomRef.current?.();
         }
       },
@@ -1822,24 +1837,10 @@ const Whiteboard = React.memo((props) => {
       }
 
       const camera = tlEditorRef.current.getCamera();
-      const viewportBounds = tlEditorRef.current.getViewportScreenBounds();
-      const vw = viewportBounds.width;
-      const vh = viewportBounds.height;
-      const oldZ = camera.z;
       const newZ = adjustedZoom;
 
-      // Only adjust x/y to keep viewport center stable when restoring a stored
-      // zoom ratio (slide switch with user-defined zoom). On initial mount or
-      // fit-to-page operations the camera hasn't been user-positioned yet, so
-      // applying the offset would shift the slide off-center.
       const updatedCurrentCam = {
         ...camera,
-        x: (storedZoomRatio !== undefined && oldZ !== 0 && oldZ !== newZ)
-          ? camera.x + (vw / 2) * (1 / newZ - 1 / oldZ)
-          : camera.x,
-        y: (storedZoomRatio !== undefined && oldZ !== 0 && oldZ !== newZ)
-          ? camera.y + (vh / 2) * (1 / newZ - 1 / oldZ)
-          : camera.y,
         z: newZ,
       };
       tlEditorRef.current.store.mergeRemoteChanges(() => {
@@ -2078,7 +2079,7 @@ const Whiteboard = React.memo((props) => {
         );
       }, isMountedPollingFrameRef);
     });
-  }, [presentationHeight, presentationWidth, curPageId, presentationId]);
+  }, [presentationHeight, presentationWidth, presentationAreaHeight, presentationAreaWidth, curPageId, presentationId]);
 
   React.useEffect(() => {
     if (!isPresenter
