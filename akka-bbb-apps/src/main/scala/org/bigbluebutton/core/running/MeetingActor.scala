@@ -478,7 +478,7 @@ class MeetingActor(
         updateModeratorsPresence()
 
       case m: UserJoinedVoiceConfEvtMsg =>
-        handleUserJoinedVoiceConfEvtMsg(m)
+        state = handleUserJoinedVoiceConfEvtMsg(m, state)
         updateVoiceUserLastActivity(m.body.voiceUserId)
       case m: LogoutAndEndMeetingCmdMsg => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
       case m: SetRecordingStatusCmdMsg =>
