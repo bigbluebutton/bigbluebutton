@@ -9,6 +9,7 @@ import { HocuspocusProvider } from '@hocuspocus/provider';
 import { Awareness } from 'y-protocols/awareness';
 import {
   BasicTextStyleButton,
+  BlockNoteViewEditor,
   BlockTypeSelect,
   ColorStyleButton,
   CreateLinkButton,
@@ -227,14 +228,12 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
           .bn-mantine .bn-suggestion-menu {
             min-width: 300px;
           }
-          /* Static toolbar at top, editor fills remaining space and scrolls internally.
-             Note: .bn-container and .bn-mantine are the same element; its direct flex
-             children are .bn-editor and .bn-toolbar-row. */
+          /* Toolbar and editor are siblings inside .bn-container. DOM order matches
+             visual order (toolbar first, editor second), so tab order is correct. */
           .bn-container {
             display: flex;
-            flex-direction: column-reverse;
+            flex-direction: column;
             height: 100%;
-            min-height: 0;
           }
           .bn-toolbar-row {
             display: flex;
@@ -244,7 +243,6 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
             padding-block: 4px;
             flex-shrink: 0;
             border-bottom: 1px solid #d4d9df;
-            background-color: ${colorWhite};
           }
           .bn-toolbar-row .bn-formatting-toolbar {
             box-shadow: none;
@@ -254,11 +252,11 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
           .bn-editor {
             padding-inline: 35px 25px;
             font-size: 1rem;
+            box-sizing: border-box;
+            cursor: text;
             flex: 1 1 0;
             min-height: 0;
             overflow-y: auto;
-            box-sizing: border-box;
-            cursor: text;
           }
           /* Flip labels to below when near top of scroll container */
           .bn-block-group > .bn-block-outer:first-child
@@ -287,6 +285,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         editor={editor}
         theme="light"
         formattingToolbar={!STATIC_FORMATTING_TOOLBAR_ENABLED}
+        renderEditor={false}
       >
         {STATIC_FORMATTING_TOOLBAR_ENABLED && editable && (
           <div className="bn-toolbar-row">
@@ -309,6 +308,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
             </FormattingToolbar>
           </div>
         )}
+        <BlockNoteViewEditor />
       </BlockNoteView>
     </div>
   );
