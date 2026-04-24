@@ -12,7 +12,6 @@ import {
   BlockNoteViewEditor,
   BlockTypeSelect,
   ColorStyleButton,
-  CreateLinkButton,
   FormattingToolbar,
   NestBlockButton,
   TextAlignButton,
@@ -306,7 +305,6 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
               <BasicTextStyleButton basicTextStyle="italic" key="italicStyleButton" />
               <BasicTextStyleButton basicTextStyle="underline" key="underlineStyleButton" />
               <BasicTextStyleButton basicTextStyle="strike" key="strikeStyleButton" />
-              <BasicTextStyleButton basicTextStyle="code" key="codeStyleButton" />
             </FormattingToolbar>
             <FormattingToolbar>
               <TextAlignButton textAlignment="left" key="textAlignLeftButton" />
@@ -315,7 +313,6 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
               <ColorStyleButton key="colorStyleButton" />
               <NestBlockButton key="nestBlockButton" />
               <UnnestBlockButton key="unnestBlockButton" />
-              <CreateLinkButton key="createLinkButton" />
             </FormattingToolbar>
           </div>
         )}
