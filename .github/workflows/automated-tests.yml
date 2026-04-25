@@ -249,7 +249,7 @@ jobs:
           name: all-bbb-artifacts
           path: all-artifacts/
       - name: Remove individual artifacts
-        uses: geekyeggo/delete-artifact@v5
+        uses: geekyeggo/delete-artifact@v6
         with:
           name: |
             artifacts_bbb-apps-akka
