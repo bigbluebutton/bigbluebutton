@@ -11,7 +11,7 @@ runs:
     - run: ./build/get_external_dependencies.sh
       shell: bash
     - name: Download all BBB artifacts
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v7
       with:
         name: all-bbb-artifacts
         path: artifacts

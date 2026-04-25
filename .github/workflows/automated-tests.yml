@@ -132,7 +132,7 @@ jobs:
             ls -la artifacts/
           fi
       - name: Archive packages
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: artifacts_${{ matrix.package }}
           path: artifacts/
@@ -170,72 +170,72 @@ jobs:
       - name: Create all-artifacts directory
         run: mkdir -p all-artifacts
       - name: Download artifacts_bbb-apps-akka
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: artifacts_bbb-apps-akka
           path: all-artifacts
       - name: Download artifacts_bbb-config
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: artifacts_bbb-config
           path: all-artifacts
       - name: Download artifacts_bbb-export-annotations
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: artifacts_bbb-export-annotations
           path: all-artifacts
       - name: Download artifacts_bbb-learning-dashboard
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: artifacts_bbb-learning-dashboard
           path: all-artifacts
       - name: Download artifacts_bbb-playback-record
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: artifacts_bbb-playback-record
           path: all-artifacts
       - name: Download artifacts_bbb-graphql-server
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: artifacts_bbb-graphql-server
           path: all-artifacts
       - name: Download artifacts_bbb-etherpad
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: artifacts_bbb-etherpad
           path: all-artifacts
       - name: Download artifacts_bbb-shared-notes-server
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: artifacts_bbb-shared-notes-server
           path: all-artifacts
       - name: Download artifacts_bbb-freeswitch
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: artifacts_bbb-freeswitch
           path: all-artifacts
       - name: Download artifacts_bbb-webrtc
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: artifacts_bbb-webrtc
           path: all-artifacts
       - name: Download artifacts_bbb-web
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: artifacts_bbb-web
           path: all-artifacts
       - name: Download artifacts_bbb-fsesl-akka
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: artifacts_bbb-fsesl-akka
           path: all-artifacts
       - name: Download artifacts_bbb-html5
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: artifacts_bbb-html5
           path: all-artifacts
       - name: Download artifacts_others
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: artifacts_others
           path: all-artifacts
@@ -244,7 +244,7 @@ jobs:
           echo "Final contents of all-artifacts:"
           ls -la all-artifacts/
       - name: Upload unified all-artifacts directory
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: all-bbb-artifacts
           path: all-artifacts/
@@ -336,7 +336,7 @@ jobs:
           npm run test-firefox-ci -- --shard=${{ env.shard }}
       - if: failure()
         name: Upload blob report to GitHub Actions Artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: blob-report-${{ matrix.shard }}
           path: bigbluebutton-tests/playwright/blob-report
@@ -353,13 +353,13 @@ jobs:
           fi
       - if: failure()
         name: Upload shard HTML report to GitHub Actions Artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: test-report_shard-${{ matrix.shard }}
           path: bigbluebutton-tests/playwright/playwright-report
       - if: always()
         name: Upload logs folder
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: browser-logs-${{ matrix.shard }}
           path: bigbluebutton-tests/playwright/logs
@@ -368,13 +368,13 @@ jobs:
         uses: ./.github/actions/prepare-artifacts
       - if: failure()
         name: Upload bbb-configs artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: bbb-configs-${{ env.MATRIX_SHARD_UNDERSCORED }}
           path: configs
       - if: failure()
         name: Upload bbb-logs artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: bbb-logs-${{ env.MATRIX_SHARD_UNDERSCORED }}
           path: ./bbb-logs.tar.gz
@@ -550,7 +550,7 @@ jobs:
           fi
       - if: failure()
         name: Upload blob report to GitHub Actions Artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: blob-report-plugins
           path: bigbluebutton-tests/bigbluebutton-html-plugin-sdk/blob-report
@@ -567,13 +567,13 @@ jobs:
           fi
       - if: failure()
         name: Upload shard HTML report to GitHub Actions Artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: test-report_plugins
           path: bigbluebutton-tests/bigbluebutton-html-plugin-sdk/playwright-report
       - if: always()
         name: Upload logs folder
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: browser-logs-plugin
           path: bigbluebutton-tests/bigbluebutton-html-plugin-sdk/logs
@@ -583,13 +583,13 @@ jobs:
         uses: ./.github/actions/prepare-artifacts
       - if: failure()
         name: Upload bbb-configs artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: bbb-configs-plugins
           path: configs
       - if: failure()
         name: Upload bbb-logs artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: bbb-logs-plugins
           path: ./bbb-logs.tar.gz
@@ -624,7 +624,7 @@ jobs:
           echo ${{ github.run_id }} > ./pr-comment-data/workflow_id
       - name: Upload PR data for auto-comment
         if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: pr-comment-data
           path: pr-comment-data
