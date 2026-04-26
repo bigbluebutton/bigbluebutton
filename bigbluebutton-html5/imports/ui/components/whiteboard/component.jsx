@@ -2442,7 +2442,7 @@ const Whiteboard = React.memo((props) => {
     }
 
     // Keep cursor size regardless of the slide zoom or window size change,
-    //   the same behaviour as the presenter's CSS-based laser pointer and a real laser.
+    //   similar to the pointer of the presenter (CSS-based) or the one in the real world.
     laserEl.style.transform = `
       translate(${x - laserDef.cx}px, ${y - laserDef.cy}px)
       scale(${1/zoom})
