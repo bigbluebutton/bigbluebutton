@@ -2421,8 +2421,7 @@ const Whiteboard = React.memo((props) => {
       laserElRef.current = laserEl;
     }
 
-    // Place the laser SVG at where the invisible redPointer,
-    //   whose position is not very precise, is located
+    // Place the laser SVG at the position of redPointer, which is invisible.
     const cursorEl = document.querySelector('.tl-collaborator__cursor');
     if (!cursorEl) return;
 
