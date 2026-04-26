@@ -2208,7 +2208,6 @@ const Whiteboard = React.memo((props) => {
 
   React.useEffect(() => {
     if (!laserMenuVisible) return;
-
     const targetDoc = document;
 
     const handleOutsideClick = (e) => {
