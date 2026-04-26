@@ -181,6 +181,9 @@ const Whiteboard = React.memo((props) => {
   const [cursorType, setCursorType] = React.useState('');
   const [cursorZoom, setCursorZoom] = React.useState({ slideZoom: 1, containerZoom: 1 });
   const updateCursorZoomRef = React.useRef(null);
+  const [laserMenuVisible, setLaserMenuVisible] = React.useState(false);
+  const [laserMenuPos, setLaserMenuPos] = React.useState({ x: 0, y: 0 });
+  const laserMenuRef = React.useRef(null);
   const [laserMode, setLaserMode] = React.useState('');
   
   if (isMounting) {
@@ -228,6 +231,14 @@ const Whiteboard = React.memo((props) => {
 
   currentUserRef.current = currentUser;
 
+  const laserItems = [
+    { key: 'redSmall',   label: '🔴', size: 10 },
+    { key: 'greenSmall', label: '🟢', size: 10 },
+    { key: 'redLarge',   label: '🔴', size: 18 },
+    { key: 'greenLarge', label: '🟢', size: 18 },
+    { key: '',           label: '✋', size: 14 },
+  ];
+  
   const [pageZoomMap, setPageZoomMap] = useState(() => {
     try {
       const saved = localStorage.getItem('pageZoomMap');
@@ -2177,108 +2188,65 @@ const Whiteboard = React.memo((props) => {
     if (!presentationWrapper) return;
     if (!isPresenter) return;
 
-    let menuEl = null;
-
-    const handleOutsideClick = (e) => {
-      if (!menuEl) return;
-      if (menuEl.contains(e.target)) return;
-      removeMenu();
-    };
-
-    const removeMenu = () => {
-      if (menuEl) {
-        menuEl.remove();
-        menuEl = null;
-        targetDoc.removeEventListener('mousedown', handleOutsideClick);
-        targetDoc.removeEventListener('touchstart', handleOutsideClick);
-      }
-    };
-
-    const createMenu = (x, y) => {
-      removeMenu();
-
-      const container =
-        targetDoc.fullscreenElement ||
-        targetDoc.querySelector('#presentationInnerWrapper') ||
-        targetDoc.body;
-
-      menuEl = targetDoc.createElement('div');
-
-      Object.assign(menuEl.style, {
-        position: 'fixed',
-        left: `${x}px`,
-        top: `${y}px`,
-        background: '#1e1e1e',
-        color: '#fff',
-        padding: '6px',
-        borderRadius: '8px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-        zIndex: 99999,
-      });
-
-      const items = [
-        { key: 'redSmall',   label: '🔴', size: 10 },
-        { key: 'greenSmall', label: '🟢', size: 10 },
-        { key: 'redLarge',   label: '🔴', size: 18 },
-        { key: 'greenLarge', label: '🟢', size: 18 },
-        { key: '',           label: '✋', size: 14 },
-      ];
-
-      items.forEach(({ key, label, size }) => {
-        const item = targetDoc.createElement('div');
-        item.innerHTML = `<span style="font-size:${size}px">${label}</span>`;
-
-        Object.assign(item.style, {
-          padding: '6px 10px',
-          cursor: 'pointer',
-          borderRadius: '4px',
-          textAlign: 'center',
-        });
-
-        item.onmouseenter = () => (item.style.background = '#333');
-        item.onmouseleave = () => (item.style.background = 'transparent');
-
-        item.onclick = () => {
-          setLaserMode(key);
-          removeMenu();
-        };
-
-        menuEl.appendChild(item);
-      });
-
-      container.appendChild(menuEl);
-
-      // compensation at the window edge
-      const rect = menuEl.getBoundingClientRect();
-      const vw = targetDoc.defaultView.innerWidth;
-      const vh = targetDoc.defaultView.innerHeight;
-
-      if (rect.right > vw) {
-        menuEl.style.left = `${vw - rect.width - 8}px`;
-      }
-      if (rect.bottom > vh) {
-        menuEl.style.top = `${vh - rect.height - 50}px`;
-      }
-
-      targetDoc.addEventListener('mousedown', handleOutsideClick);
-      targetDoc.addEventListener('touchstart', handleOutsideClick);
-    };
-
     const handleContextMenu = (e) => {
       const tool = tlEditorRef.current?.getCurrentToolId?.();
       if (tool !== 'hand') return;
       if (!presentationWrapper.contains(e.target)) return;
+
       e.preventDefault();
-      createMenu(e.clientX, e.clientY);
+
+      setLaserMenuPos({ x: e.clientX, y: e.clientY });
+      setLaserMenuVisible(true);
     };
 
     targetDoc.addEventListener('contextmenu', handleContextMenu);
 
     return () => {
       targetDoc.removeEventListener('contextmenu', handleContextMenu);
-      removeMenu();
     };
   }, [isPresenter]);
+
+  React.useEffect(() => {
+    if (!laserMenuVisible) return;
+
+    const targetDoc = document;
+
+    const handleOutsideClick = (e) => {
+      if (laserMenuRef.current?.contains(e.target)) return;
+      setLaserMenuVisible(false);
+    };
+
+    targetDoc.addEventListener('mousedown', handleOutsideClick);
+    targetDoc.addEventListener('touchstart', handleOutsideClick);
+
+    return () => {
+      targetDoc.removeEventListener('mousedown', handleOutsideClick);
+      targetDoc.removeEventListener('touchstart', handleOutsideClick);
+    };
+  }, [laserMenuVisible]);
+
+  React.useEffect(() => {
+    // compensation at the window edge
+    if (!laserMenuVisible) return;
+    const targetDoc = document;
+
+    const el = laserMenuRef.current;
+    if (!el) return;
+
+    const rect = el.getBoundingClientRect();
+    const vw = targetDoc.defaultView.innerWidth;
+    const vh = targetDoc.defaultView.innerHeight;
+
+    let x = laserMenuPos.x;
+    let y = laserMenuPos.y;
+
+    if (rect.right > vw) x = vw - rect.width - 8;
+    if (rect.bottom > vh) y = vh - rect.height - 50;
+
+    if (x !== laserMenuPos.x || y !== laserMenuPos.y) {
+      setLaserMenuPos({ x, y });
+    }
+  }, [laserMenuVisible]);
 
   React.useEffect(() => {
     const targetDoc = document;
@@ -2632,6 +2600,27 @@ const Whiteboard = React.memo((props) => {
           hiddenGeoShapes,
         }}
       />
+      {laserMenuVisible && (
+        <Styled.LaserContextMenu
+          ref={laserMenuRef}
+          style={{
+            left: laserMenuPos.x,
+            top: laserMenuPos.y,
+          }}
+        >
+          {laserItems.map(({ key, label, size }) => (
+            <Styled.LaserMenuItem
+              key={key}
+              onClick={() => {
+                setLaserMode(key);
+                setLaserMenuVisible(false);
+              }}
+            >
+              <span style={{ fontSize: size }}>{label}</span>
+            </Styled.LaserMenuItem>
+          ))}
+        </Styled.LaserContextMenu>
+      )}
     </div>
   );
 });
