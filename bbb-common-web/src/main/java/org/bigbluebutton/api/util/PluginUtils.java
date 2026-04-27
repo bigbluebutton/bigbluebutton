@@ -46,10 +46,10 @@ public class PluginUtils {
     private String html5PluginSdkVersion;
     private RedirectFollowerService redirectFollower;
     private PluginRedirectValidatorService pluginRedirectValidator;
-    public String cachedPluginsBaseDirectory;
+    private String cachedPluginsBaseDirectory;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private Boolean pluginManifestCacheEnabled;
+    private Boolean pluginManifestCacheEnabled = true;
 
 
     private static final ConcurrentHashMap<String, Object> PLUGIN_LOCKS = new ConcurrentHashMap<>();
@@ -255,9 +255,6 @@ public class PluginUtils {
             String pluginManifestChecksum = pluginManifest.getChecksum();
             if (pluginManifestCacheEnabled) {
                 pluginManifestContent = getPluginManifestContentFromCache(pluginManifestUrlString);
-                if (pluginManifestContent == null) {
-                    log.info("Cache not found for plugin [{}].", pluginManifestUrlString);
-                }
             }
             boolean isPluginManifestContentCached = pluginManifestContent != null;
             boolean fetchManifestContent = !pluginManifestCacheEnabled || !isPluginManifestContentCached;
@@ -267,10 +264,11 @@ public class PluginUtils {
                 pluginManifestContent = PluginUtils.fetchPluginManifestContentFromUrl(finalUrl);
             }
 
-            boolean isRawPluginManifestContentValid = isPluginManifestChecksumValid(
-                    pluginManifestContent, pluginManifestChecksum)
-                    && !getPluginName(pluginManifestContent).isEmpty();
-
+            String parsedPluginName = getPluginName(pluginManifestContent);
+            boolean isRawPluginManifestContentValid =
+                                        isPluginManifestChecksumValid(pluginManifestContent, pluginManifestChecksum)
+                                        && parsedPluginName != null
+                                        && !parsedPluginName.isEmpty();
 
             try {
                 boolean savePluginManifestInCache = !isPluginManifestContentCached

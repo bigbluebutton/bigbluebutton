@@ -65,7 +65,6 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="pluginManifestFetchTimeout" value="${pluginManifestFetchTimeout}"/>
         <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
         <property name="pluginUtils" ref="pluginUtils"/>
-        <property name="pluginManifestCacheEnabled" value="${pluginManifestCacheEnabled}"/>
         <property name="redirectFollower" ref="redirectFollower"/>
         <property name="sharedNotesRedirectValidator" ref="sharedNotesRedirectValidator"/>
     </bean>

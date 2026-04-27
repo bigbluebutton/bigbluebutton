@@ -94,7 +94,6 @@ public class MeetingService implements MessageListener {
   private CallbackUrlService callbackUrlService;
   private SlidesGenerationProgressNotifier notifier;
 
-  private Boolean pluginManifestCacheEnabled;
   private PluginUtils pluginUtils;
 
   private long usersTimeout;
@@ -1642,10 +1641,6 @@ public class MeetingService implements MessageListener {
 
   public void setSlidesGenerationProgressNotifier(SlidesGenerationProgressNotifier notifier) {
     this.notifier = notifier;
-  }
-
-  public void setPluginManifestCacheEnabled(Boolean pluginManifestCacheEnabled) {
-    this.pluginManifestCacheEnabled = pluginManifestCacheEnabled;
   }
 
   public void setPluginUtils(PluginUtils pluginUtils) {
