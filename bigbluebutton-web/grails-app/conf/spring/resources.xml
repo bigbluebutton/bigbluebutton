@@ -107,13 +107,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="fetchUrlAllowedLocalHosts" value="${fetchUrlAllowedLocalHosts}" />
     </bean>
 
-    <bean id="pluginUtils" class="org.bigbluebutton.api.util.PluginUtils">
+    <bean id="pluginUtils" class="org.bigbluebutton.api.util.PluginUtils"
+          init-method="start" destroy-method="stop">
         <property name="html5PluginSdkVersion" value="${html5PluginSdkVersion}"/>
         <property name="redirectFollower" ref="redirectFollower"/>
         <property name="pluginRedirectValidator" ref="pluginRedirectValidator"/>
         <property name="secureUrlDownloader" ref="secureUrlDownloader"/>
         <property name="pluginManifestCacheEnabled" value="${pluginManifestCacheEnabled}"/>
         <property name="pluginManifestCacheDirectory" value="${pluginManifestCacheDirectory}"/>
+        <property name="pluginManifestCacheRefreshIntervalMinutes" value="${pluginManifestCacheRefreshIntervalMinutes}"/>
         <property name="pluginManifestFetchTimeoutSeconds" value="${pluginManifestFetchTimeout}"/>
         <property name="maxPluginManifestPayloadSizeKib" value="${maxPluginManifestsFetchUrlPayloadSize}"/>
     </bean>

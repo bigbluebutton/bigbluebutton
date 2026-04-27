@@ -132,5 +132,3 @@ docker image prune -f 2>&1 | logger
 #
 find /tmp -name "*.afm" -mtime +$history -delete
 find /tmp -name "*.pfb" -mtime +$history -delete
-
-rm -rf /var/bigbluebutton/plugin-manifests-cache/
