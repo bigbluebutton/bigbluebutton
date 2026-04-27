@@ -46,7 +46,7 @@ public class PluginUtils {
     private String html5PluginSdkVersion;
     private RedirectFollowerService redirectFollower;
     private PluginRedirectValidatorService pluginRedirectValidator;
-    private String cachedPluginsBaseDirectory;
+    private String pluginManifestCacheDirectory;
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private Boolean pluginManifestCacheEnabled = true;
@@ -229,7 +229,7 @@ public class PluginUtils {
     ) throws IOException {
         log.info("Saving cache for plugin [{}].", pluginManifestUrlString);
         Path cachedPluginManifestPath = getCachedPluginManifestPath(pluginManifestUrlString);
-        Path cacheDir = getCachedPluginsBaseDirectory();
+        Path cacheDir = getPluginManifestCacheDirectory();
         Files.createDirectories(cacheDir);
         Files.writeString(cachedPluginManifestPath, manifestContent);
     }
@@ -308,8 +308,8 @@ public class PluginUtils {
         return pluginName;
     }
 
-    public Path getCachedPluginsBaseDirectory() {
-        return Paths.get(cachedPluginsBaseDirectory);
+    public Path getPluginManifestCacheDirectory() {
+        return Paths.get(pluginManifestCacheDirectory);
     }
 
     public Path getCachedPluginManifestPath(String pluginManifestUrlString) {
@@ -317,7 +317,7 @@ public class PluginUtils {
         String formatted = date.format(formatter);
 
         String hashedPluginManifestUrl = DigestUtils.md5Hex(pluginManifestUrlString + formatted);
-        Path cacheDir = Paths.get(cachedPluginsBaseDirectory);
+        Path cacheDir = Paths.get(pluginManifestCacheDirectory);
         return cacheDir.resolve(hashedPluginManifestUrl + ".json");
     }
 
@@ -329,8 +329,8 @@ public class PluginUtils {
         PluginUtils.bbbVersion = bbbVersion;
     }
 
-    public void setCachedPluginsBaseDirectory(String cachedPluginsBaseDirectory) {
-        this.cachedPluginsBaseDirectory = cachedPluginsBaseDirectory;
+    public void setPluginManifestCacheDirectory(String pluginManifestCacheDirectory) {
+        this.pluginManifestCacheDirectory = pluginManifestCacheDirectory;
     }
 
     public void setRedirectFollower(RedirectFollowerService redirectFollower) {

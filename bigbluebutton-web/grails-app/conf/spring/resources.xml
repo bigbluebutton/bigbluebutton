@@ -109,7 +109,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="redirectFollower" ref="redirectFollower"/>
         <property name="pluginRedirectValidator" ref="pluginRedirectValidator"/>
         <property name="pluginManifestCacheEnabled" value="${pluginManifestCacheEnabled}"/>
-        <property name="cachedPluginsBaseDirectory" value="${cachedPluginsBaseDirectory}"/>
+        <property name="pluginManifestCacheDirectory" value="${pluginManifestCacheDirectory}"/>
     </bean>
 
     <bean id="recordingServiceGW" class="org.bigbluebutton.api2.util.RecMetaXmlHelper">
