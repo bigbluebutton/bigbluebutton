@@ -293,12 +293,13 @@ Under the hood, BigBlueButton 3.0 installs on Ubuntu 22.04 64-bit, and the follo
 - Gradle 8.14.3
 - Groovy 4.0.21
 - Spring 6.2.11
-- Spring Boot 3.5.11
+- Spring Boot 3.5.13
 
 For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 
 Recent releases:
+- [3.0.26](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.26)
 - [3.0.25](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.25)
 - [3.0.24](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.24)
 - [3.0.23](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.23)
