@@ -1,4 +1,7 @@
+import path from 'path';
+
 import { linkIssue } from '../core/helpers';
+import { chromiumBaseArgs } from '../core/setup/browsersConfig';
 import { test } from '../core/setup/fixtures';
 import { Presentation } from './presentation';
 
@@ -10,10 +13,23 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.skipSlide();
   });
 
-  test('Share Camera As Content', async ({ browser, context, page }, testInfo) => {
-    const presentation = new Presentation(browser, context);
-    await presentation.initPages(page, testInfo);
-    await presentation.shareCameraAsContent();
+  test('Share Camera As Content', async ({ browser }, testInfo) => {
+    const staticVideoBrowser = await browser.browserType().launch({
+      args: [
+        ...chromiumBaseArgs,
+        `--use-file-for-fake-video-capture=${path.join(__dirname, '../core/media/video-static.y4m')}`,
+      ],
+    });
+    try {
+      const staticContext = await staticVideoBrowser.newContext();
+      const staticPage = await staticContext.newPage();
+      const presentation = new Presentation(staticVideoBrowser, staticContext);
+      await presentation.initModPage(staticPage, { testInfo });
+      await presentation.initUserPage(staticContext, { testInfo });
+      await presentation.shareCameraAsContent();
+    } finally {
+      await staticVideoBrowser.close();
+    }
   });
 
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#minimizerestore-presentation-automated
@@ -21,15 +37,6 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page, testInfo);
     await presentation.hideAndRestorePresentation();
-  });
-
-  // https://docs.bigbluebutton.org/3.0/testing/release-testing/#start-youtube-video-sharing
-  test('Start external video', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
-    // requiring logged user to start external video on CI environment
-    linkIssue(21589);
-    const presentation = new Presentation(browser, context);
-    await presentation.initPages(page, testInfo);
-    await presentation.startExternalVideo();
   });
 
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#fit-to-width-option
@@ -72,6 +79,50 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.selectSlide();
   });
 
+  // All external video tests (youtube) require logged user to start external video on CI environment
+  test.describe.parallel('External Video', { tag: '@flaky' }, () => {
+    // https://docs.bigbluebutton.org/3.0/testing/release-testing/#start-youtube-video-sharing
+    test('Start external video', async ({ browser, context, page }, testInfo) => {
+      linkIssue(21589);
+      const presentation = new Presentation(browser, context);
+      await presentation.initPages(page, testInfo);
+      await presentation.startExternalVideo();
+    });
+
+    test('External video loads correctly after new user joins the meeting', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const presentation = new Presentation(browser, context);
+      await presentation.initPages(page, testInfo);
+      await presentation.startExternalVideo();
+      await presentation.initUserPage2(context, { testInfo });
+      await presentation.checkVideoAfterUserJoins();
+    });
+
+    test('Pause External video', async ({ browser, context, page }, testInfo) => {
+      const presentation = new Presentation(browser, context);
+      await presentation.initPages(page, testInfo);
+      await presentation.startExternalVideo();
+      await presentation.pauseExternalVideo();
+    });
+
+    test('Change presenter while playing external video', async ({ browser, context, page }, testInfo) => {
+      const presentation = new Presentation(browser, context);
+      await presentation.initPages(page, testInfo);
+      await presentation.startExternalVideo();
+      await presentation.changePresenterWhileVideoPlaying();
+    });
+
+    test('End External video', async ({ browser, context, page }, testInfo) => {
+      const presentation = new Presentation(browser, context);
+      await presentation.initPages(page, testInfo);
+      await presentation.startExternalVideo();
+      await presentation.endExternalVideo();
+    });
+  });
+
   test.describe.parallel('Manage', () => {
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#uploading-a-presentation-automated
     test('Upload single presentation', async ({ browser, context, page }, testInfo) => {
@@ -87,7 +138,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     });
 
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#uploading-multiple-presentations-automated
-    test('Upload multiple presentations', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
+    test('Upload multiple presentations', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, testInfo);
       await presentation.uploadMultiplePresentationsTest();

@@ -336,11 +336,13 @@ class App extends Component {
       isNotificationEnabled,
       isNonMediaLayout,
       isRaiseHandEnabled,
+      currentUserHasVoice,
     } = this.props;
 
     const {
       presentationFitToWidth,
     } = this.state;
+
     return (
       <>
         <ScreenReaderAlertAdapter />
@@ -399,6 +401,7 @@ class App extends Component {
                 area="media"
               />
             ) : null}
+
           <AudioCaptionsSpeechContainer />
           {this.renderAudioCaptions()}
           { (
@@ -407,7 +410,7 @@ class App extends Component {
           <UploaderContainer />
           <BreakoutJoinConfirmationContainerGraphQL />
           <BBBLiveKitRoomContainer />
-          <AudioContainer />
+          <AudioContainer currentUserHasVoice={currentUserHasVoice} />
           { (
             !hideNotificationToasts
             && isNotificationEnabled) && <ToastContainer rtl /> }

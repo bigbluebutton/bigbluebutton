@@ -29,7 +29,7 @@ export class LearningDashboard extends MultiUsers {
     await openPublicChat(this.modPage);
     await this.modPage.hasElementCount(e.chatUserMessageText, 0, 'should not have any messages yet');
 
-    await this.modPage.type(e.chatBox, e.message);
+    await this.modPage.fill(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElementCount(e.chatUserMessageText, 1, 'should display the sent message');
     await this.dashboardPage.reloadPage();
@@ -62,7 +62,7 @@ export class LearningDashboard extends MultiUsers {
   async polls() {
     // True/False
     await openPoll(this.modPage);
-    await this.modPage.type(e.pollQuestionArea, 'True/False?');
+    await this.modPage.fill(e.pollQuestionArea, 'True/False?');
     await this.modPage.waitAndClick(e.pollTrueFalse);
     await this.modPage.waitAndClick(e.startPoll);
 
@@ -72,7 +72,7 @@ export class LearningDashboard extends MultiUsers {
 
     // ABCD
     await this.modPage.page.locator(e.pollQuestionArea).fill(' ');
-    await this.modPage.type(e.pollQuestionArea, 'ABCD?');
+    await this.modPage.fill(e.pollQuestionArea, 'ABCD?');
     await this.modPage.waitAndClick(e.pollLetterAlternatives);
     await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
@@ -81,7 +81,7 @@ export class LearningDashboard extends MultiUsers {
 
     // Yes/No/Abstention
     await this.modPage.page.locator(e.pollQuestionArea).fill(' ');
-    await this.modPage.type(e.pollQuestionArea, 'Yes/No/Abstention?');
+    await this.modPage.fill(e.pollQuestionArea, 'Yes/No/Abstention?');
     await this.modPage.waitAndClick(e.pollYesNoAbstentionBtn);
     await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.waitAndClick(e.pollAnswerOptionBtn);
@@ -90,11 +90,11 @@ export class LearningDashboard extends MultiUsers {
 
     // User Response
     await this.modPage.page.locator(e.pollQuestionArea).fill(' ');
-    await this.modPage.type(e.pollQuestionArea, 'User response?');
+    await this.modPage.fill(e.pollQuestionArea, 'User response?');
     await this.modPage.waitAndClick(e.userResponseBtn);
     await this.modPage.waitAndClick(e.startPoll);
     await this.userPage.waitForSelector(e.pollingContainer);
-    await this.userPage.type(e.pollAnswerOptionInput, e.answerMessage);
+    await this.userPage.fill(e.pollAnswerOptionInput, e.answerMessage);
     await this.userPage.waitAndClick(e.pollSubmitAnswer);
     await this.modPage.hasText(e.userVoteLiveResult, e.answerMessage, 'should display the user vote live result');
     await this.modPage.waitAndClick(e.cancelPollBtn);
@@ -111,25 +111,18 @@ export class LearningDashboard extends MultiUsers {
       ELEMENT_WAIT_EXTRA_LONG_TIME,
     );
 
-    // True / False
-    await this.dashboardPage.hasText(e.pollTrueFalseQuestion, 'True/False?', 'should display the correct question');
-    await this.dashboardPage.hasText(e.pollTrueFalseAnswer, 'True', 'should display the correct answer');
+    const checkPollAnswer = async (question: string, answer: string) => {
+      const header = this.dashboardPage.page.locator('div[role="columnheader"]').filter({ hasText: question });
+      await expect(header, `should display the "${question}" column header`).toBeVisible();
+      const field = await header.getAttribute('data-field');
+      const cell = this.dashboardPage.page.locator(`div[role="cell"][data-field="${field}"]`);
+      await expect(cell, `should display the correct answer for "${question}"`).toContainText(answer);
+    };
 
-    // ABCD
-    await this.dashboardPage.hasText(e.pollABCDQuestion, 'ABCD?', 'should display the correct question');
-    await this.dashboardPage.hasText(e.pollABCDAnswer, 'A', 'should display the correct answer');
-
-    // Yes No
-    await this.dashboardPage.hasText(e.pollYesNoQuestion, 'Yes/No/Abstention?', 'should display the correct question');
-    await this.dashboardPage.hasText(e.pollYesNoAnswer, 'Yes', 'should display the correct answer');
-
-    // User Response
-    await this.dashboardPage.hasText(
-      e.pollUserResponseQuestion,
-      'User response?',
-      'should display the correct question',
-    );
-    await this.dashboardPage.hasText(e.pollUserResponseAnswer, e.answerMessage, 'should display the correct answer');
+    await checkPollAnswer('True/False?', 'True');
+    await checkPollAnswer('ABCD?', 'A');
+    await checkPollAnswer('Yes/No/Abstention?', 'Yes');
+    await checkPollAnswer('User response?', e.answerMessage);
   }
 
   async basicInfos() {

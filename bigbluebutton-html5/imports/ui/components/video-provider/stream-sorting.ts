@@ -9,7 +9,6 @@ const DEFAULT_SORTING_MODE = 'LOCAL_ALPHABETICAL';
 export interface SortingMethodConfig {
   sortingMethod: (s1: StreamItem, s2: StreamItem) => number;
   localFirst: boolean;
-  customPagination?: boolean;
 }
 
 // pin first, ignore connecting streams
@@ -149,9 +148,6 @@ const SORTING_METHODS = Object.freeze({
   PRESENTER_LOCAL_PINNED: {
     sortingMethod: sortPresenterLocalPinned,
     localFirst: false,
-    // Custom pagination: this method handles its own sorting logic
-    // and should not have streams pre-separated by the pagination handler
-    customPagination: true,
   },
 });
 

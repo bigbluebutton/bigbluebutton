@@ -348,7 +348,7 @@ const UnifiedLayout = (props) => {
         );
       }
 
-      cameraDockBounds.top = navBarHeight;
+      cameraDockBounds.top = navBarHeight + bannerAreaHeight();
       cameraDockBounds.left = mediaAreaBounds.left;
       cameraDockBounds.right = isRTL ? sidebarSize : null;
       cameraDockBounds.minWidth = mediaAreaBounds.width;
@@ -711,7 +711,7 @@ const UnifiedLayout = (props) => {
         left: cameraDockBounds.left,
         right: cameraDockBounds.right,
         tabOrder: 4,
-        isDraggable: !isMobile && !isTablet && presentationInput.isOpen,
+        isDraggable: !isMobile && !isTablet && isMediaOpen,
         resizableEdge: {
           top:
           isMediaOpen

@@ -7,37 +7,28 @@ type Mutation {
 }
 
 type Mutation {
-  audioGroupCreate(
+  mediaGroupCreate(
     id: String!
-    senders: [AudioGroupParticipant]
-    receivers: [AudioGroupParticipant]
+    mediaType: String!
+    locked: Boolean
+    record: Boolean
+    senders: [MediaGroupParticipant]
+    receivers: [MediaGroupParticipant]
   ): Boolean
 }
 
 type Mutation {
-  audioGroupDestroy(
+  mediaGroupDestroy(
     id: String!
+    mediaType: String!
   ): Boolean
 }
 
 type Mutation {
-  audioGroupJoin(
-    id: String!
-    participant: AudioGroupParticipant!
-  ): Boolean
-}
-
-type Mutation {
-  audioGroupLeave(
-    id: String!
+  mediaGroupSetUserState(
     userId: String!
-  ): Boolean
-}
-
-type Mutation {
-  audioGroupUpdateParticipant(
-    id: String!
-    participant: AudioGroupParticipant!
+    entries: [MediaGroupStateEntry!]!
+    scope: String!
   ): Boolean
 }
 
@@ -59,14 +50,14 @@ type Mutation {
 type Mutation {
   breakoutRoomMoveUser(
     userId: String!
-    fromBreakoutRoomId: String!
-    toBreakoutRoomId: String!
+    fromBreakoutRoomMeetingId: String!
+    toBreakoutRoomMeetingId: String!
   ): Boolean
 }
 
 type Mutation {
   breakoutRoomRequestJoinUrl(
-    breakoutRoomId: String!
+    breakoutRoomMeetingId: String!
   ): Boolean
 }
 
@@ -352,8 +343,24 @@ type Mutation {
 }
 
 type Mutation {
-  pluginLearningAnalyticsDashboardSendGenericData(
-    genericDataForLearningAnalyticsDashboard: json!
+  pluginLearningAnalyticsDashboardUpsertUserData(
+    targetUserId: String!
+    userDataForLearningAnalyticsDashboard: json!
+    pluginName: String!
+  ): Boolean
+}
+
+type Mutation {
+  pluginLearningAnalyticsDashboardDeleteUserData(
+    targetUserId: String!
+    userDataForLearningAnalyticsDashboard: json!
+    pluginName: String!
+  ): Boolean
+}
+
+type Mutation {
+  pluginLearningAnalyticsDashboardClearAllUsersData(
+    cardTitle: String!
     pluginName: String!
   ): Boolean
 }
@@ -488,9 +495,10 @@ type Mutation {
 }
 
 type Mutation {
-  presentationSetWriters(
-    pageId: String!
-    usersIds: [String]!
+  userSetWhiteboardWriteAccess(
+    userIds: [String]
+    allUsers: Boolean!
+    whiteboardWriteAccess: Boolean!
   ): Boolean
 }
 
@@ -753,8 +761,17 @@ input GuestUserApprovalStatus {
   status: String!
 }
 
-input AudioGroupParticipant {
-  id: String!
-  participantType: String!
+input MediaGroupParticipant {
+  userId: String!
+  sender: Boolean!
+  receiver: Boolean!
+  active: Boolean!
+}
+
+input MediaGroupStateEntry {
+  groupId: String!
+  mediaType: String!
+  sender: Boolean!
+  receiver: Boolean!
   active: Boolean!
 }

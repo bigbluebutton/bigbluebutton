@@ -1,17 +1,18 @@
 package org.bigbluebutton.core.running
 
+import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsIntOrElse
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.{ BreakoutRoomEndedInternalMsg, DestroyMeetingInternalMsg, EndBreakoutRoomInternalMsg }
+import org.bigbluebutton.core.api.{BreakoutRoomEndedInternalMsg, DestroyMeetingInternalMsg, EndBreakoutRoomInternalMsg}
 import org.bigbluebutton.core.apps.groupchats.GroupChatApp
 import org.bigbluebutton.core.apps.users.UsersApp
 import org.bigbluebutton.core.apps.voice.VoiceApp
 import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
-import org.bigbluebutton.core.db.{ BreakoutRoomUserDAO, MeetingDAO, MeetingRecordingDAO, NotificationDAO, UserBreakoutRoomDAO }
-import org.bigbluebutton.core.domain.{ MeetingEndReason, MeetingState2x }
+import org.bigbluebutton.core.db.{ MeetingDAO, MeetingRecordingDAO, NotificationDAO }
+import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
-import org.bigbluebutton.core2.message.senders.{ MsgBuilder, UserJoinedMeetingEvtMsgBuilder }
+import org.bigbluebutton.core2.message.senders.{MsgBuilder, UserJoinedMeetingEvtMsgBuilder}
 import org.bigbluebutton.core.util.TimeUtil
 
 trait HandlerHelpers extends SystemConfiguration {
@@ -42,6 +43,21 @@ trait HandlerHelpers extends SystemConfiguration {
         MeetingStatus2x.authUserHadJoined(liveMeeting.status)
       }
 
+      // Check whether the meeting has multiUserWhiteboardEnabled and slots available
+      val whiteboardWriteAccess = {
+        if(MeetingStatus2x.multiUserWhiteboardEnabled(liveMeeting.status)) {
+          val maxNumberOfActiveUsers = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.whiteboard.maxNumberOfActiveUsers", 25)
+          val currentActiveUsersCount = Users2x
+            .findAll(liveMeeting.users2x)
+            .count(_.whiteboardWriteAccess)
+
+          val availableSlots = math.max(0, maxNumberOfActiveUsers - currentActiveUsersCount)
+          availableSlots > 0
+        } else {
+          false
+        }
+      }
+
       UserState(
         intId = regUser.id,
         extId = regUser.externId,
@@ -58,12 +74,14 @@ trait HandlerHelpers extends SystemConfiguration {
         pin = false,
         mobile = mobile,
         presenter = false,
+        whiteboardWriteAccess = whiteboardWriteAccess,
         locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
         avatar = regUser.avatarURL,
         webcamBackground = regUser.webcamBackgroundURL,
         color = regUser.color,
         clientType = clientType,
         userLeftFlag = UserLeftFlag(false, 0),
+        joinRequestMetadata = regUser.joinRequestMetadata,
         userMetadata = regUser.userMetadata
       )
     }
@@ -83,16 +101,34 @@ trait HandlerHelpers extends SystemConfiguration {
             val event = UserJoinedMeetingEvtMsgBuilder.build(liveMeeting.props.meetingProp.intId, newUser)
             outGW.send(event)
 
-            val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
-              liveMeeting.props.meetingProp.intId,
-              "info",
-              "user",
-              "app.notification.userJoinPushAlert",
-              "Notification for a user joins the meeting",
-              Map("userName"->s"${newUser.name}")
-            )
-            outGW.send(notifyEvent)
-            NotificationDAO.insert(notifyEvent)
+            if (MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList && newUser.role != Roles.MODERATOR_ROLE) {
+              Users2x.findAll(liveMeeting.users2x)
+                .filter(r => !r.userLeftFlag.left && (!r.locked || r.role == Roles.MODERATOR_ROLE))
+                .foreach { r =>
+                  val notifyEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
+                    r.intId,
+                    liveMeeting.props.meetingProp.intId,
+                    "info",
+                    "user",
+                    "app.notification.userJoinPushAlert",
+                    "Notification for a user joins the meeting",
+                    Map("userName" -> newUser.name)
+                  )
+                  outGW.send(notifyEvent)
+                  NotificationDAO.insert(notifyEvent)
+                }
+            } else {
+              val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+                liveMeeting.props.meetingProp.intId,
+                "info",
+                "user",
+                "app.notification.userJoinPushAlert",
+                "Notification for a user joins the meeting",
+                Map("userName" -> newUser.name)
+              )
+              outGW.send(notifyEvent)
+              NotificationDAO.insert(notifyEvent)
+            }
 
             val newState = startRecordingIfAutoStart2x(outGW, liveMeeting, state)
             if (!Users2x.hasPresenter(liveMeeting.users2x)) {
@@ -228,7 +264,6 @@ trait HandlerHelpers extends SystemConfiguration {
     } yield {
       model.rooms.values.foreach { room =>
         eventBus.publish(BigBlueButtonEvent(room.id, EndBreakoutRoomInternalMsg(liveMeeting.props.meetingProp.intId, room.id, reason)))
-        UserBreakoutRoomDAO.updateLastBreakoutRoom(liveMeeting.props.meetingProp.intId, Vector(), room)
       }
     }
 

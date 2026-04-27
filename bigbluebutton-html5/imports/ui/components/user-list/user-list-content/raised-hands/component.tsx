@@ -5,6 +5,7 @@ import logger from '/imports/startup/client/logger';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import Styled from './styles';
 import { RAISED_HAND_USERS, RaisedHandUser, RaisedHandUsersSubscriptionResponse } from '/imports/ui/core/graphql/queries/users';
+import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
 import { SET_RAISE_HAND } from '/imports/ui/core/graphql/mutations/userMutations';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import UserListStyles from '../user-participants/user-list-participants/list-item/styles';
@@ -184,7 +185,6 @@ const RaisedHandsContainer: React.FC = () => {
     data: usersData,
     error: usersError,
   } = useDeduplicatedSubscription<RaisedHandUsersSubscriptionResponse>(RAISED_HAND_USERS);
-  const raisedHands: RaisedHandUser[] = usersData?.user ?? [];
 
   const [setRaiseHand] = useMutation(SET_RAISE_HAND);
 
@@ -236,6 +236,13 @@ const RaisedHandsContainer: React.FC = () => {
   if (!meeting || !currentUser || meetingLoading || presentationLoading) {
     return null;
   }
+
+  const raisedHands: RaisedHandUser[] = filterByMeetingId(
+    usersData?.user,
+    meeting?.meetingId,
+    RAISED_HAND_USERS,
+    (u) => ({ mismatchedUserId: u.userId, mismatchedName: u.name }),
+  );
 
   const currentUserRaisedHand = currentUser && currentUser.raiseHand;
   const hideUserList = (currentUser?.locked && meeting?.lockSettings?.hideUserList) ?? false;

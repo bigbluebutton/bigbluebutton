@@ -21,7 +21,7 @@ import {
   filterSupportedConstraints,
   doGUM,
 } from '/imports/api/audio/client/bridge/service';
-import { liveKitRoom, getLKStats } from '/imports/ui/services/livekit';
+import { liveKitRoom, LK_FATAL_ERROR_EVENT } from '/imports/ui/services/livekit';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 
 const BRIDGE_NAME = 'livekit';
@@ -224,6 +224,11 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     const { source } = track;
 
     return source === Track.Source.Microphone;
+  }
+
+  private static isFatalPublishError(error: Error): boolean {
+    return error.name === 'ConnectionError'
+      && error.message?.includes('timed out');
   }
 
   private isLocalPublicationMuted(): boolean {
@@ -435,6 +440,26 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     this.liveKitRoom.localParticipant.off(ParticipantEvent.TrackUnmuted, this.handleLocalTrackUnmuted);
     this.liveKitRoom.localParticipant.off(ParticipantEvent.LocalTrackPublished, this.handleLocalTrackPublished);
     this.liveKitRoom.localParticipant.off(ParticipantEvent.LocalTrackUnpublished, this.handleLocalTrackUnpublished);
+  }
+
+  private handleFatalPublishError(error: Error): void {
+    logger.error({
+      logCode: 'livekit_audio_fatal_publish_error_reconnect',
+      extraInfo: {
+        errorMessage: error?.message,
+        errorName: error?.name,
+        errorStack: error?.stack,
+        bridge: this.bridgeName,
+        role: this.role,
+        inputDeviceId: this.inputDeviceId,
+        streamData: MediaStreamUtils.getMediaStreamLogData(this.inputStream),
+      },
+    }, 'LiveKit: fatal audio publish error detected, triggering reconnection');
+
+    // Handled in /ui/components/livekit/component (BBBLiveKitRoom)
+    window.dispatchEvent(new CustomEvent(LK_FATAL_ERROR_EVENT, {
+      detail: { error, source: 'audio' },
+    }));
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -1227,6 +1252,11 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
           streamData: MediaStreamUtils.getMediaStreamLogData(inputStream || this.originalStream),
         },
       }, 'LiveKit: failed to publish audio track');
+
+      if (LiveKitAudioBridge.isFatalPublishError(error as Error)) {
+        this.handleFatalPublishError(error as Error);
+      }
+
       throw error;
     }
   }
@@ -1295,11 +1325,6 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
   // eslint-disable-next-line class-methods-use-this
   getPeerConnection(): RTCPeerConnection | null {
     return null;
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  async getStats(): Promise<Map<string, unknown>> {
-    return getLKStats();
   }
 
   async joinAudio(

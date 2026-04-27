@@ -11,6 +11,7 @@ select_permissions:
     permission:
       columns:
         - isModerator
+        - meetingId
         - name
         - presenter
         - userId

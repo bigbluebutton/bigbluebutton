@@ -157,6 +157,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[PadCreateReqMsg](envelope, jsonNode)
       case PadCreatedEvtMsg.NAME =>
         routePadMsg[PadCreatedEvtMsg](envelope, jsonNode)
+      case BNSharedNotesCreatedEvtMsg.NAME =>
+        routePadMsg[BNSharedNotesCreatedEvtMsg](envelope, jsonNode)
+      case BNSharedNotesUpdatedEvtMsg.NAME =>
+        routePadMsg[BNSharedNotesUpdatedEvtMsg](envelope, jsonNode)
       case PadCreateSessionReqMsg.NAME =>
         routeGenericMsg[PadCreateSessionReqMsg](envelope, jsonNode)
       case PadSessionCreatedEvtMsg.NAME =>
@@ -172,23 +176,15 @@ class ReceivedJsonMsgHandlerActor(
       case PadPinnedReqMsg.NAME =>
         routeGenericMsg[PadPinnedReqMsg](envelope, jsonNode)
 
-      // Audio groups
-      case GetAudioGroupsReqMsg.NAME =>
-        routeGenericMsg[GetAudioGroupsReqMsg](envelope, jsonNode)
-      case CreateAudioGroupReqMsg.NAME =>
-        routeGenericMsg[CreateAudioGroupReqMsg](envelope, jsonNode)
-      case DestroyAudioGroupReqMsg.NAME =>
-        routeGenericMsg[DestroyAudioGroupReqMsg](envelope, jsonNode)
-      case AudioGroupAddParticipantsReqMsg.NAME =>
-        routeGenericMsg[AudioGroupAddParticipantsReqMsg](envelope, jsonNode)
-      case AudioGroupRemoveParticipantsReqMsg.NAME =>
-        routeGenericMsg[AudioGroupRemoveParticipantsReqMsg](envelope, jsonNode)
-      case JoinAudioGroupReqMsg.NAME =>
-        routeGenericMsg[JoinAudioGroupReqMsg](envelope, jsonNode)
-      case LeaveAudioGroupReqMsg.NAME =>
-        routeGenericMsg[LeaveAudioGroupReqMsg](envelope, jsonNode)
-      case AudioGroupUpdateParticipantReqMsg.NAME =>
-        routeGenericMsg[AudioGroupUpdateParticipantReqMsg](envelope, jsonNode)
+      // Media groups
+      case GetMediaGroupsReqMsg.NAME =>
+        routeGenericMsg[GetMediaGroupsReqMsg](envelope, jsonNode)
+      case CreateMediaGroupReqMsg.NAME =>
+        routeGenericMsg[CreateMediaGroupReqMsg](envelope, jsonNode)
+      case DestroyMediaGroupReqMsg.NAME =>
+        routeGenericMsg[DestroyMediaGroupReqMsg](envelope, jsonNode)
+      case SetUserMediaGroupStateReqMsg.NAME =>
+        routeGenericMsg[SetUserMediaGroupStateReqMsg](envelope, jsonNode)
 
       // Voice
       case RecordingStartedVoiceConfEvtMsg.NAME =>
@@ -280,6 +276,8 @@ class ReceivedJsonMsgHandlerActor(
 
       case UserLeaveReqMsg.NAME =>
         routeGenericMsg[UserLeaveReqMsg](envelope, jsonNode)
+      case SetUserWhiteboardWriteAccessReqMsg.NAME =>
+        routeGenericMsg[SetUserWhiteboardWriteAccessReqMsg](envelope, jsonNode)
       case ChangeUserRaiseHandReqMsg.NAME =>
         routeGenericMsg[ChangeUserRaiseHandReqMsg](envelope, jsonNode)
       case ChangeUserAwayReqMsg.NAME =>
@@ -294,10 +292,6 @@ class ReceivedJsonMsgHandlerActor(
       // Whiteboard
       case SendCursorPositionPubMsg.NAME =>
         routeGenericMsg[SendCursorPositionPubMsg](envelope, jsonNode)
-      case ModifyWhiteboardAccessPubMsg.NAME =>
-        routeGenericMsg[ModifyWhiteboardAccessPubMsg](envelope, jsonNode)
-      case ClearWhiteboardPubMsg.NAME =>
-        routeGenericMsg[ClearWhiteboardPubMsg](envelope, jsonNode)
       case DeleteWhiteboardAnnotationsPubMsg.NAME =>
         routeGenericMsg[DeleteWhiteboardAnnotationsPubMsg](envelope, jsonNode)
       case SendWhiteboardAnnotationsPubMsg.NAME =>
@@ -474,8 +468,12 @@ class ReceivedJsonMsgHandlerActor(
       case PluginDataChannelResetMsg.NAME =>
         routeGenericMsg[PluginDataChannelResetMsg](envelope, jsonNode)
 
-      case PluginLearningAnalyticsDashboardSendGenericDataMsg.NAME =>
-        routeGenericMsg[PluginLearningAnalyticsDashboardSendGenericDataMsg](envelope, jsonNode)
+      case PluginLearningAnalyticsDashboardUpsertUserDataMsg.NAME =>
+        routeGenericMsg[PluginLearningAnalyticsDashboardUpsertUserDataMsg](envelope, jsonNode)
+      case PluginLearningAnalyticsDashboardDeleteUserDataMsg.NAME =>
+        routeGenericMsg[PluginLearningAnalyticsDashboardDeleteUserDataMsg](envelope, jsonNode)
+      case PluginLearningAnalyticsDashboardClearAllUsersDataMsg.NAME =>
+        routeGenericMsg[PluginLearningAnalyticsDashboardClearAllUsersDataMsg](envelope, jsonNode)
 
       case PluginPersistEventMsg.NAME =>
         routeGenericMsg[PluginPersistEventMsg](envelope, jsonNode)

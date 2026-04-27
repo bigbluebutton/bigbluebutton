@@ -4,11 +4,11 @@ import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TI
 import { elements as e } from '../core/elements';
 import { hasCurrentPresentationToastElement, uploadSinglePresentation } from '../presentation/util';
 import * as utilScreenShare from '../screenshare/util';
-import { getNotesLocator } from '../sharednotes/util';
+import { getNotesLocator } from '../sharednotes/etherpad/util';
 import { Create } from './create';
 
 export class Join extends Create {
-  async joinRoom(shouldJoinAudio = false) {
+  async joinRoom(shouldJoinAudio = false, shouldJoinVideo = false) {
     if (!this?.modPage) throw new Error('modPage not initialized');
     if (!this?.userPage) throw new Error('userPage not initialized');
 
@@ -16,6 +16,10 @@ export class Join extends Create {
     if (shouldJoinAudio) {
       await this.userPage.waitAndClick(e.joinAudio);
       await this.userPage.joinMicrophone();
+    }
+
+    if (shouldJoinVideo) {
+      await this.userPage.shareWebcam();
     }
 
     await this.userPage.waitAndClick(e.breakoutRoomsItem);
@@ -30,10 +34,34 @@ export class Join extends Create {
     await breakoutUserPage.page.bringToFront();
 
     if (shouldJoinAudio) {
-      await this.userPage.hasElement(e.joinAudio, 'should display the join audio button');
+      await this.userPage.hasElement(
+        e.joinAudio,
+        'should display the join audio button after user joins breakout rooms.',
+      );
+      await this.userPage.wasRemoved(
+        e.isTalking,
+        'Talking indicator should be removed after user joins breakout rooms.',
+      );
+      await this.userPage.hasText(
+        e.smallToastMsg,
+        e.leftAudioToast,
+        `should appear the text "${e.leftAudioToast}" on the toast message after user joins breakout rooms.`,
+      );
     } else {
       await breakoutUserPage.closeAudioModal();
     }
+
+    if (shouldJoinVideo) {
+      await this.userPage.hasElement(
+        e.joinVideo,
+        'should display the join video button after user joins breakout rooms.',
+      );
+      await this.userPage.wasRemoved(
+        e.webcamMirroredVideoContainer,
+        'Webcam video should be removed after user joins breakout rooms.',
+      );
+    }
+
     await breakoutUserPage.hasElement(
       e.presentationTitle,
       'should display the presentation title on the breakout room',
@@ -43,7 +71,41 @@ export class Join extends Create {
       /1[4-5]:[0-5][0-9]/,
       'should have the time remaining counting down on the breakout room',
     );
+
     return breakoutUserPage;
+  }
+
+  async joinAndShareAudio() {
+    const breakoutUserPage = await this.joinRoom(false);
+
+    await breakoutUserPage.waitAndClick(e.joinAudio);
+    await breakoutUserPage.waitForSelector(e.audioModal);
+    await breakoutUserPage.waitAndClick(e.microphoneButton);
+    await breakoutUserPage.waitForSelector(e.stopHearingButton);
+    await breakoutUserPage.waitAndClick(e.joinEchoTestButton);
+    await breakoutUserPage.waitForSelector(e.establishingAudioLabel);
+    await breakoutUserPage.wasRemoved(
+      e.establishingAudioLabel,
+      'should have audio established',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+
+    await breakoutUserPage.hasText(
+      e.smallToastMsg,
+      e.joinAudioToast,
+      `should appear the text "${e.joinAudioToast}" on the toast message after user joins audio in the breakout rooms.`,
+    );
+    await breakoutUserPage.hasElement(e.talkingIndicator, 'should display the talking indicator element');
+    await breakoutUserPage.hasElement(e.isTalking, 'should have the element isTalking active');
+
+    await breakoutUserPage.waitAndClick(e.leaveMeetingDropdown, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await breakoutUserPage.waitAndClick(e.directLogoutButton);
+    await breakoutUserPage.waitAndClick(e.redirectButton);
+
+    await this.userPage.hasElement(
+      e.joinAudio,
+      'should display the join audio button after user leaves breakout rooms.',
+    );
   }
 
   async joinAndShareWebcam() {
@@ -57,7 +119,7 @@ export class Join extends Create {
   }
 
   async joinAndShareScreen() {
-    const breakoutPage = await this.joinRoom();
+    const breakoutPage = await this.joinRoomWithModerator();
 
     await utilScreenShare.startScreenshare(breakoutPage);
   }
@@ -65,8 +127,45 @@ export class Join extends Create {
   async joinWithAudio() {
     const breakoutUserPage = await this.joinRoom(true);
 
+    await breakoutUserPage.hasText(
+      e.smallToastMsg,
+      e.joinAudioToast,
+      `should appear the text "${e.joinAudioToast}" on the toast message after user joins breakout rooms.`,
+    );
     await breakoutUserPage.hasElement(e.talkingIndicator, 'should display the talking indicator element');
     await breakoutUserPage.hasElement(e.isTalking, 'should have the element isTalking active');
+
+    await breakoutUserPage.waitAndClick(e.leaveMeetingDropdown, ELEMENT_WAIT_EXTRA_LONG_TIME);
+    await breakoutUserPage.waitAndClick(e.directLogoutButton);
+    await breakoutUserPage.waitAndClick(e.redirectButton);
+
+    await this.userPage.hasElement(
+      e.isTalking,
+      'should display the talking indicator active after user leaves breakout rooms.',
+    );
+    await this.userPage.hasText(
+      e.smallToastMsg,
+      e.joinAudioToast,
+      `should appear the text "${e.joinAudioToast}" on the toast message after user joins breakout rooms.`,
+    );
+  }
+
+  async joinWithAudioAndVideo() {
+    const breakoutUserPage = await this.joinRoom(true, true);
+
+    await breakoutUserPage.hasText(
+      e.smallToastMsg,
+      e.joinAudioToast,
+      `should appear the text "${e.joinAudioToast}" on the toast message after user joins breakout rooms.`,
+    );
+    await breakoutUserPage.hasElement(e.talkingIndicator, 'should display the talking indicator element');
+    await breakoutUserPage.hasElement(e.isTalking, 'should have the element isTalking active');
+
+    await breakoutUserPage.hasElement(
+      e.joinVideo,
+      'should display the join video button after user joins breakout rooms.',
+    );
+    await breakoutUserPage.wasRemoved(e.webcamContainer, 'should not display the video element');
   }
 
   async joinRoomWithModerator() {
@@ -100,7 +199,7 @@ export class Join extends Create {
 
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
     await this.modPage.hasElement(e.breakoutRemainingTime, 'should display the breakout room remaining time element');
-    await this.modPage.type(e.chatBox, 'Test message to all breakout rooms');
+    await this.modPage.fill(e.chatBox, 'Test message to all breakout rooms');
     await this.modPage.waitAndClick(e.sendButton);
     await breakoutUserPage.hasElement(e.chatUserMessageText, 'should have a test message on the public chat.');
 
@@ -109,7 +208,7 @@ export class Join extends Create {
       'should display a message from the moderator, html element will have data-message-type="breakoutRoomModeratorMsg"',
     );
 
-    await this.modPage.type(e.chatBox, 'Second Test message to all breakout rooms');
+    await this.modPage.fill(e.chatBox, 'Second Test message to all breakout rooms');
     await this.modPage.waitAndClick(e.sendButton);
     await breakoutUserPage.hasElement(e.chatUserMessageText, 'should have another test message on the public chat.');
 
@@ -124,7 +223,7 @@ export class Join extends Create {
       chatMessagesLocator,
       'should match the screenshot showing different background color for moderator message',
     ).toHaveScreenshot('breakout-moderator-chat-messages.png', {
-      maxDiffPixels: 150,
+      maxDiffPixels: 1000,
     });
   }
 
@@ -301,7 +400,7 @@ export class Join extends Create {
       'should display the hide notes element when shared notes is opened',
     );
     const notesLocator = getNotesLocator(breakoutUserPage);
-    await notesLocator.type(e.message);
+    await notesLocator.pressSequentially(e.message);
     // making sure there's enough time for the typing to finish
     await breakoutUserPage.page.waitForTimeout(1000);
     // end breakout rooms

@@ -20,9 +20,24 @@ export class Create extends MultiUsers {
     if (captureWhiteboard) await this.modPage.page.check(e.captureBreakoutWhiteboard);
     await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
 
-    await this.userPage.hasElement(e.modalConfirmButton, 'should appear the modal confirm button to join breakout');
+    await this.userPage.hasElement(
+      e.modalConfirmButton,
+      'should appear the "modal confirm button" to join breakout rooms',
+    );
     await this.userPage.waitAndClick(e.modalDismissButton);
-    await this.modPage.hasElement(e.breakoutRoomsItem, 'should have the breakout room item');
+    await this.modPage.hasElement(e.breakoutRoomsItem, 'should have the "breakout rooms item" on moderator page');
+    await this.userPage.hasElement(e.breakoutRoomsItem, 'should have the "breakout rooms item" on attendee page');
+
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.wasRemoved(
+      e.createBreakoutRooms,
+      'should not have the "create breakout rooms" option after creating breakout rooms',
+    );
+    await this.modPage.hasElement(
+      e.inviteUsersToBreakoutRooms,
+      'should have the "invite to breakout rooms" option when breakout rooms are created',
+    );
+    await this.modPage.press('Escape'); // close manage users dropdown
   }
 
   async createToAllowChooseOwnRoom() {
@@ -97,10 +112,10 @@ export class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.createBreakoutRooms);
     await this.modPage.waitAndClick(e.randomlyAssign);
     // Change room's name
-    await this.modPage.type(e.roomNameInput, 'Test');
+    await this.modPage.fill(e.roomNameInput1, 'TestRoom 1');
     await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.waitAndClick(e.breakoutRoomsItem);
-    await this.modPage.hasText(e.roomName1Test, /Test/, 'should display the correct breakout room name');
+    await this.modPage.hasText(e.roomName1Test, /TestRoom 1/, 'should display the correct breakout room name');
   }
 
   async removeAndResetAssignments() {

@@ -20,7 +20,8 @@ import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
 import SessionDetailsModal from '/imports/ui/components/session-details/component';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
-import getStorageSingletonInstance from '../../services/storage';
+import { PluginButtonIcon } from '/imports/ui/components/plugins/plugin-icon/styles';
+import SessionStorage from '../../services/storage/session';
 import { ModalRegistration } from '../../core/singletons/modalController';
 
 const intlMessages = defineMessages({
@@ -88,30 +89,42 @@ const renderPluginItems = (pluginItems) => {
           pluginItems.map((pluginItem) => {
             let returnComponent;
             switch (pluginItem.type) {
-              case NavBarItemType.BUTTON:
+              case NavBarItemType.BUTTON: {
+                const navBarIconProps = {};
+                if (typeof pluginItem?.icon === 'string') navBarIconProps.icon = pluginItem.icon;
+                else if (pluginItem?.icon && typeof pluginItem.icon === 'object' && 'iconName' in pluginItem.icon) navBarIconProps.icon = pluginItem.icon.iconName;
+                else if (pluginItem?.icon && typeof pluginItem.icon === 'object' && 'svgContent' in pluginItem.icon) {
+                  navBarIconProps.customIcon = (
+                    <PluginButtonIcon>
+                      {pluginItem.icon.svgContent}
+                    </PluginButtonIcon>
+                  );
+                }
                 returnComponent = (
                   <Styled.PluginComponentWrapper
                     key={`${pluginItem.id}-${pluginItem.type}`}
                   >
                     <Button
                       disabled={pluginItem.disabled}
-                      icon={pluginItem.icon}
                       label={pluginItem.label}
                       aria-label={pluginItem.tooltip}
                       color="primary"
                       tooltip={pluginItem.tooltip}
                       onClick={pluginItem.onClick}
+                      dataTest={pluginItem.dataTest}
+                      {...navBarIconProps}
                     />
                   </Styled.PluginComponentWrapper>
                 );
                 break;
+              }
               case NavBarItemType.INFO:
                 returnComponent = (
                   <Styled.PluginComponentWrapper
                     key={`${pluginItem.id}-${pluginItem.type}`}
                     tooltip={pluginItem.tooltip}
                   >
-                    <Styled.PluginInfoComponent>
+                    <Styled.PluginInfoComponent data-test={pluginItem.dataTest}>
                       {pluginItem.label}
                     </Styled.PluginInfoComponent>
                   </Styled.PluginComponentWrapper>
@@ -207,8 +220,10 @@ class NavBar extends Component {
       showSessionDetailsOnJoin,
       meetingId,
     } = this.props;
-    const ShownId = getStorageSingletonInstance().getItem('alreadyShowSessionDetailsOnJoin');
-    this.setModalIsOpen(showSessionDetailsOnJoin && ShownId !== meetingId);
+    const ShownId = SessionStorage.getItem('alreadyShowSessionDetailsOnJoin');
+    if (showSessionDetailsOnJoin && ShownId !== meetingId) {
+      this.setModalIsOpen(true);
+    }
   }
 
   componentWillUnmount() {
@@ -283,9 +298,9 @@ class NavBar extends Component {
     });
   }
 
-  renderModal(isOpen, setIsOpen, priority, Component, otherOptions) {
+  static renderModal(isOpen, setIsOpen, priority, ModalComponent, otherOptions) {
     return isOpen ? (
-      <Component
+      <ModalComponent
         {...{
           ...otherOptions,
           onRequestClose: () => setIsOpen(false),
@@ -311,7 +326,7 @@ class NavBar extends Component {
       sidebarNavigation,
       currentUserId,
       isDirectLeaveButtonEnabled,
-      isMeteorConnected,
+      isConnected,
       hideTopRow,
     } = this.props;
 
@@ -410,12 +425,12 @@ class NavBar extends Component {
                     this.setModalIsOpen = (value) => {
                       if (!value) {
                         const { meetingId } = this.props;
-                        getStorageSingletonInstance().setItem('alreadyShowSessionDetailsOnJoin', meetingId);
+                        SessionStorage.setItem('alreadyShowSessionDetailsOnJoin', meetingId);
                       }
                       if (value) open();
                       else close();
                     };
-                    return this.renderModal(isOpen, this.setModalIsOpen, 'low', SessionDetailsModal);
+                    return NavBar.renderModal(isOpen, this.setModalIsOpen, 'low', SessionDetailsModal);
                   }
                 }
               </ModalRegistration>
@@ -430,7 +445,7 @@ class NavBar extends Component {
               {renderPluginItems(rightPluginItems)}
               {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
               {ConnectionStatusService.isEnabled() ? <ConnectionStatus /> : null}
-              {isDirectLeaveButtonEnabled && isMeteorConnected
+              {isDirectLeaveButtonEnabled && isConnected
                 ? <LeaveMeetingButtonContainer amIModerator={amIModerator} /> : null}
               <OptionsDropdownContainer
                 amIModerator={amIModerator}

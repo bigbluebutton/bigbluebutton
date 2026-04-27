@@ -16,13 +16,13 @@ Let’s get started!
 
 This is a general instruction on how to use a plugin.
 For a detailed configuration example of each use case,
-have a look at the READMEs in the respective [samples](samples)-folders.
+have a look at the READMEs in the respective [samples](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/tree/v0.0.x/samples)-folders.
 
 ### Running the Plugin from Source
 
 For development purposes you can run a plugin locally from source.
 
-For example if you take the [`sample-action-button-dropdown-plugin`](samples/sample-action-button-dropdown-plugin),
+For example if you take the [`sample-action-button-dropdown-plugin`](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/tree/v0.0.x/samples/sample-action-button-dropdown-plugin),
 you do the following:
 
 *Running from source code with local BBB-server*
@@ -91,7 +91,7 @@ And there you go, you can test it freely.
 ### Building the Plugin (Production)
 
 To build a plugin for production use
-(again, using the example of [`sample-action-button-dropdown-plugin`](samples/sample-action-button-dropdown-plugin)),
+(again, using the example of [`sample-action-button-dropdown-plugin`](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/tree/v0.0.x/samples/sample-action-button-dropdown-plugin)),
 follow these steps:
 
 ```bash
@@ -188,6 +188,22 @@ Here is a complete `manifest.json` example with all possible configurations:
   "javascriptEntrypointUrl": "MyPlugin.js",
   "javascriptEntrypointIntegrity": "sha384-Bwsz2rxm...", // Optional
   "localesBaseUrl": "https://cdn.domain.com/my-plugin/", // Optional
+  "loggerSettings": {                                    // Optional
+    "console": {
+      "enableRuntimeErrorLogging": false,
+      "enabled": true,
+      "level": "debug" // Possible values: info, debug, warn, error
+    },
+    "external": {
+      "enabled": false,
+      "level": "info", // Possible values: info, debug, warn, error
+      "url": "https://LOG_HOST/html5Log",
+      "method": "POST",
+      "throttleInterval": 400,
+      "flushOnClose": true,
+      "logTag": ""
+    }
+  },
   "dataChannels":[
     {
       "name": "public-channel",
@@ -233,6 +249,10 @@ Example:
 `version=0.0.8`
 `javascriptEntrypointUrl=MyPlugin.js`
 Browser will load: `MyPlugin.js?version=0.0.8`.
+
+**loggerSettings:**
+
+The optional loggerSettings directive allows you to override the default logger configuration for a specific plugin. For instance, you could set the client’s log level to info while restricting the plugin’s log level to error. If no settings are provided, the plugin’s logger inherits the default configuration.
 
 **settingsSchema:**
 
@@ -760,11 +780,22 @@ That being said, here are the extensible areas we have so far:
 
 Mind that no plugin will interfere into another's extensible area. So feel free to set whatever you need into a certain plugin with no worries.
 
-### Auxiliary functions:
+### Auxiliaries:
 
 - `getSessionToken`: returns the user session token located on the user's URL.
 - `getJoinUrl`: returns the join url associated with the parameters passed as an argument. Since it fetches the BigBlueButton API, this getter method is asynchronous.
 - `useLocaleMessages`: returns the messages to be used in internationalization functions (recommend to use `react-intl`, as example, refer to official plugins)
+- `logger`: the pluginLogger is part of the API and can be used as pictured ahead: 
+
+```ts
+export const { logger: pluginLogger } = pluginApi;
+// Or in the index file:
+import { BbbPluginSdk } from 'bigbluebutton-html-plugin-sdk';
+
+const uuid = document.currentScript?.getAttribute('uuid') || 'root';
+
+export const { logger: pluginLogger } = BbbPluginSdk.getPluginApi(uuid);
+```
 
 ### Realtime data consumption
 
@@ -777,6 +808,8 @@ Mind that no plugin will interfere into another's extensible area. So feel free 
 - `usePluginSettings` hook: it provides all the specific settings regarding the current plugin it's been loaded from.
 - `useTalkingIndicator` hook: it gives you information on the user-voice data, that is, who is talking or muted.
 - `useMeeting` hook: it gives you information on the current meeting that the user is on.
+- `useMeetingData` hook: provides detailed meeting data with projection support, offering more flexibility than `useMeeting`.
+- `useCustomQuery` hook: similar to `useCustomSubscription`, but for one-time GraphQL queries rather than subscriptions. Note: Make sure that, on BBB version change, the custom queries you make will work as expected.
 
 So for these types of hooks, the return will follow the same structure:
 
@@ -1117,17 +1150,36 @@ If no permission is present in the manifest, then we consider that every user in
 
 ### Learning Analytics Dashboard integration
 
-- `sendGenericDataForLearningAnalyticsDashboard`: This function will send data for the bbb to render inside the plugin's table
+This integration allow you to insert/update entry in LAD (Learning Analytics Dashboard) via `upsertUserData` function and also delete entries via `deleteUserData` function.
 
-The object structure of this function's argument must be:
+It's an object available in the `pluginApi` that wraps those 3 functions:
+
+- `pluginApi.learningAnalyticsDashboard.upsertUserData`
+- `pluginApi.learningAnalyticsDashboard.deleteUserData`
+- `pluginApi.learningAnalyticsDashboard.clearAllUsersData`
+
+For the `upsert` function, the argument's data object structure must be:
 
 ```ts
-interface GenericDataForLearningAnalyticsDashboard {
-  cardTitle: string; // Yet to be implemented (future updates)
+interface LearningAnalyticsDashboardUserData {
+  cardTitle: string;
   columnTitle: string;
   value: string;
 }
 ```
+
+For the `deleteUserData` function, the argument's data object structure must be:
+
+```ts
+interface LearningAnalyticsDashboardDeleteUserData {
+  cardTitle: string;
+  columnTitle: string;
+}
+```
+
+For the `clearAllUsersData` function, the argument is the cardTitle (optionally), and when it's not sent, all the entries for a specific plugin will be deleted. (And if the card ends up empty, it will be removed) 
+
+If the user is a moderator, there is the possibility to publish data on behalf of other users by using the second **optional** parameter named `targetUserId`
 
 So that the data will appear in the following form:
 
@@ -1135,6 +1187,36 @@ So that the data will appear in the following form:
 |    ---    |  :--  |      --:        |
 | user-name |   1   |   `<value>`     |
 
+
+See example of use ahead:
+
+```ts
+const targetUserId = 'abcd-efg';
+pluginApi.learningAnalyticsDashboard.upsertUserData(
+  {
+    cardTitle: 'Example Title',
+    columnTitle: 'link sent by user',
+    value: '[link](https://my-website.com/abc.png)'
+  },
+  targetUserId,
+);
+
+pluginApi.learningAnalyticsDashboard.deleteUserData(
+  {
+    cardTitle: 'Example Title',
+    columnTitle: 'link sent by user',
+  },
+  targetUserId,
+);
+
+pluginApi.learningAnalyticsDashboard.clearAllUsersData(columnTitle);
+
+pluginApi.learningAnalyticsDashboard.clearAllUsersData(); // Or without the Column Title
+```
+
+Note 1: the `value` field (in the upsert function's argument) supports markdown, so feel free to use it as you wish.
+
+Note 2: pluginApi.sendGenericDataForLearningAnalyticsDashboard is now being deprecated, but has the same data structure as upsert (without the possibility to send entry on behalf of another user)
 
 ### External data resources
 
@@ -1320,7 +1402,7 @@ The Plugin SDK provides the `useLocaleMessages` hook, described in the [auxiliar
 
 We also strongly encourage developers to include localization in their plugins. This greatly improves adoption and usability within the community.
 
-For a practical example, see how the [pick-random-user plugin](https://github.com/bigbluebutton/plugin-pick-random-user/blob/7259ec7f32ea0e3d851f4b6636a739a82a385896/src/commons/hooks.ts#L17) uses it in the `useGetInternationalization` hook.
+For a practical example, see how the [pick-random-user plugin](https://github.com/bigbluebutton/bbb-plugin-pick-random-user/blob/7259ec7f32ea0e3d851f4b6636a739a82a385896/src/commons/hooks.ts#L17) uses it in the `useGetInternationalization` hook.
 
 ## Frequently Asked Questions (FAQ)
 

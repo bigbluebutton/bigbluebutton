@@ -21,6 +21,10 @@ import ErrorMessage from './components/ErrorMessage';
 import { makeUserCSVData, tsToHHmmss } from './services/UserService';
 import QuizzesTable from './components/QuizzesTable';
 import QuizzesChart from './components/QuizzesChart';
+import {
+  Modal, ModalBody, ModalContent, ModalDismissButton, ModalTitle,
+} from './components/Modal';
+import Help from './components/Help';
 
 const TABS = {
   OVERVIEW: 0,
@@ -45,7 +49,11 @@ class App extends React.Component {
       ldAccessTokenCopied: false,
       sessionToken: '',
       lastUpdated: null,
+      modalOpen: false,
     };
+
+    this.handleCloseModal = this.handleCloseModal.bind(this);
+    this.handleOpenModal = this.handleOpenModal.bind(this);
   }
 
   componentDidMount() {
@@ -54,8 +62,21 @@ class App extends React.Component {
     });
   }
 
+  handleOpenModal() {
+    if (process.env.REACT_APP_EXTERNAL_HELP_PAGE_URL) {
+      window.open(process.env.REACT_APP_EXTERNAL_HELP_PAGE_URL, '_blank');
+      return;
+    }
+    this.setState({ modalOpen: true });
+  }
+
+  handleCloseModal() {
+    this.setState({ modalOpen: false });
+  }
+
   handleSaveSessionData(e) {
     const { target: downloadButton } = e;
+    const downloadButtonLabel = downloadButton.querySelector('span') || downloadButton;
     const { intl } = this.props;
     const { activitiesJson } = this.state;
     const {
@@ -75,9 +96,9 @@ class App extends React.Component {
     link.style.display = 'none';
     document.body.appendChild(link);
     link.click();
-    downloadButton.innerHTML = intl.formatMessage({ id: 'app.learningDashboard.sessionDataDownloadedLabel', defaultMessage: 'Downloaded!' });
+    downloadButtonLabel.innerHTML = intl.formatMessage({ id: 'app.learningDashboard.sessionDataDownloadedLabel', defaultMessage: 'Downloaded!' });
     setTimeout(() => {
-      downloadButton.innerHTML = intl.formatMessage({ id: 'app.learningDashboard.downloadSessionDataLabel', defaultMessage: 'Download Session Data' });
+      downloadButtonLabel.innerHTML = intl.formatMessage({ id: 'app.learningDashboard.downloadSessionDataLabel', defaultMessage: 'Download Session Data' });
       downloadButton.removeAttribute('disabled');
       downloadButton.style.cursor = 'pointer';
       downloadButton.focus();
@@ -156,7 +177,7 @@ class App extends React.Component {
     }
 
     // Calculate points of Raise hand
-    const usersRaiseHand = allUsers.map((currUser) => currUser.raiseHand.length);
+    const usersRaiseHand = allUsers.map((currUser) => currUser?.raiseHand?.length || 0);
     const maxRaiseHand = Math.max(...usersRaiseHand);
     const totalRaiseHand = usersRaiseHand.reduce((prev, val) => prev + val, 0);
     if (maxRaiseHand > 0) {
@@ -164,7 +185,7 @@ class App extends React.Component {
     }
 
     // Calculate points of Reactions
-    const usersReactions = allUsers.map((currUser) => currUser.reactions.length);
+    const usersReactions = allUsers.map((currUser) => currUser?.reactions?.length || 0);
     const maxReactions = Math.max(...usersReactions);
     const totalReactions = usersReactions.reduce((prev, val) => prev + val, 0);
     if (maxReactions > 0) {
@@ -340,25 +361,26 @@ class App extends React.Component {
 
   render() {
     const {
-      activitiesJson, tab, loading, lastUpdated, ldAccessTokenCopied,
+      activitiesJson, tab, loading, lastUpdated,
+      ldAccessTokenCopied, modalOpen,
     } = this.state;
     const { intl } = this.props;
 
-    const genericDataCardTitle = activitiesJson?.genericDataTitles?.[0];
+    const pluginUserDataCardTitle = activitiesJson?.pluginUserDataCardTitles?.[0];
     // This line generates an array of all the plugin entries of all users,
     // this might have duplicate entries:
-    const genericDataColumnTitleWithDuplicates = Object.values(
+    const pluginUserDataColumnTitleWithDuplicates = Object.values(
       activitiesJson.users || {}, // Hardcoded for now, we will add cards relative to this key.
     ).flatMap((
       user,
-    ) => user.genericData?.[genericDataCardTitle]).filter((
-      genericDataListForSpecificUser,
+    ) => user.pluginUserData?.[pluginUserDataCardTitle]).filter((
+      pluginUserDataListForSpecificUser,
     ) => !!(
-      genericDataListForSpecificUser?.columnTitle)).map((
-      genericDataListForSpecificUser,
-    ) => genericDataListForSpecificUser?.columnTitle);
+      pluginUserDataListForSpecificUser?.columnTitle)).map((
+      pluginUserDataListForSpecificUser,
+    ) => pluginUserDataListForSpecificUser?.columnTitle);
     // This line will eliminate duplicates.
-    const genericDataColumnTitleList = [...new Set(genericDataColumnTitleWithDuplicates)];
+    const pluginUserDataColumnTitleList = [...new Set(pluginUserDataColumnTitleWithDuplicates)];
 
     document.title = `${intl.formatMessage({ id: 'app.learningDashboard.bigbluebuttonTitle', defaultMessage: 'BigBlueButton' })} - ${intl.formatMessage({ id: 'app.learningDashboard.dashboardTitle', defaultMessage: 'Learning Analytics Dashboard' })} - ${activitiesJson.name}`;
 
@@ -586,13 +608,13 @@ class App extends React.Component {
                 </CardContent>
               </Card>
             </TabUnstyled>
-            {genericDataColumnTitleList.length && (
+            {pluginUserDataColumnTitleList.length && (
               <TabUnstyled className="rounded focus:outline-none focus:ring focus:ring-red-500 ring-offset-2" data-test="pluginsPanelDashboard">
                 <Card>
                   <CardContent classes={{ root: '!p-0' }}>
                     <CardBody
-                      name={genericDataCardTitle}
-                      number={genericDataColumnTitleList.length}
+                      name={pluginUserDataCardTitle}
+                      number={pluginUserDataColumnTitleList.length}
                       cardClass={tab === TABS.POLLING ? 'border-red-500' : 'hover:border-red-500 border-white'}
                       iconClass="bg-red-100 text-red-500"
                     >
@@ -688,13 +710,13 @@ class App extends React.Component {
           </TabPanelUnstyled>
           <TabPanelUnstyled value={5}>
             <h2 className="block my-2 pr-2 text-xl font-semibold">
-              {genericDataCardTitle}
+              {pluginUserDataCardTitle}
             </h2>
             <div className="w-full overflow-hidden rounded-md shadow-xs border-2 border-gray-100">
               <div className="w-full overflow-x-auto">
                 <PluginsTable
-                  genericDataCardTitle={genericDataCardTitle}
-                  genericDataColumnTitleList={genericDataColumnTitleList}
+                  pluginUserDataCardTitle={pluginUserDataCardTitle}
+                  pluginUserDataColumnTitleList={pluginUserDataColumnTitleList}
                   allUsers={activitiesJson.users}
                 />
               </div>
@@ -750,23 +772,65 @@ class App extends React.Component {
               }
             </p>
           </div>
-          {
+          <div className="flex gap-2">
+            {
             (activitiesJson.downloadSessionDataEnabled || false)
               ? (
                 <button
                   data-test="downloadSessionDataDashboard"
                   type="button"
-                  className="border-2 text-gray-700 border-gray-200 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring ring-offset-2 focus:ring-gray-500 focus:ring-opacity-50"
+                  className="flex border-2 text-gray-700 border-gray-200 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring ring-offset-2 focus:ring-gray-500 focus:ring-opacity-50"
                   onClick={this.handleSaveSessionData.bind(this)}
                 >
-                  <FormattedMessage
-                    id="app.learningDashboard.downloadSessionDataLabel"
-                    defaultMessage="Download Session Data"
-                  />
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                  </svg>
+                  &nbsp;
+                  <span>
+                    <FormattedMessage
+                      id="app.learningDashboard.downloadSessionDataLabel"
+                      defaultMessage="Download Session Data"
+                    />
+                  </span>
                 </button>
               )
               : null
           }
+            <button
+              type="button"
+              className="border-2 text-gray-700 border-gray-200 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring ring-offset-2 focus:ring-gray-500 focus:ring-opacity-50 flex items-center"
+              onClick={this.handleOpenModal}
+            >
+              {process.env.REACT_APP_EXTERNAL_HELP_PAGE_URL ? (
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                </svg>
+              )}
+              &nbsp;
+              <FormattedMessage
+                id="app.learningDashboard.helpButtonLabel"
+                defaultMessage="Help"
+              />
+            </button>
+            <Modal isOpen={modalOpen}>
+              <ModalContent>
+                <ModalTitle>
+                  <FormattedMessage
+                    id="app.learningDashboard.help.title"
+                    defaultMessage="Learning Dashboard Help"
+                  />
+                </ModalTitle>
+                <ModalDismissButton onClick={this.handleCloseModal} />
+                <ModalBody>
+                  <Help />
+                </ModalBody>
+              </ModalContent>
+            </Modal>
+          </div>
         </div>
       </div>
     );

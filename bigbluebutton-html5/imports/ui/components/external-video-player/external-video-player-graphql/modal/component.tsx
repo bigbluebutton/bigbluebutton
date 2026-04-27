@@ -102,7 +102,7 @@ const ExternalVideoPlayerModal: React.FC<ExternalVideoPlayerModalProps> = ({
             {intl.formatMessage(intlMessages.input)}
             <input
               id="video-modal-input"
-              onChange={(e) => setVideoUrl(e.target.value)}
+              onChange={(e) => setVideoUrl(e.target.value.trim())}
               name="video-modal-input"
               placeholder={intl.formatMessage(intlMessages.urlInput)}
               aria-describedby="exernal-video-note"

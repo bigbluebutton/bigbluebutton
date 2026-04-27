@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"slices"
 	"strings"
 	"sync"
@@ -21,9 +22,12 @@ import (
 )
 
 var (
-	allowedSubscriptions []string
-	deniedSubscriptions  []string
-	jsonPatchDisabled    = config.GetConfig().Server.JsonPatchDisabled
+	allowedSubscriptions    []string
+	deniedSubscriptions     []string
+	jsonPatchDisabled       = config.GetConfig().Server.JsonPatchDisabled
+	dumpQueriesDir          = ""
+	dumpQueriesCounter      = make(map[string]int)
+	dumpQueriesCounterMutex sync.RWMutex
 )
 
 func init() {
@@ -33,6 +37,9 @@ func init() {
 
 	if config.GetConfig().Server.SubscriptionsDeniedList != "" {
 		deniedSubscriptions = strings.Split(config.GetConfig().Server.SubscriptionsDeniedList, ",")
+	}
+	if config.GetConfig().DumpQueriesDir != "" {
+		dumpQueriesDir = config.GetConfig().DumpQueriesDir
 	}
 }
 
@@ -231,9 +238,24 @@ RangeLoop:
 						Inc()
 
 					// Dump of all subscriptions for analysis purpose
-					// queryCounter++
-					// saveItToFile(fmt.Sprintf("%02d-%s-%s", queryCounter, string(messageType), browserMessage.Payload.OperationName), fromBrowserMessage)
-					// saveItToFile(fmt.Sprintf("%s-%s-%02s", string(messageType), operationName, queryId), fromBrowserMessage)
+					if dumpQueriesDir != "" {
+						dumpQueriesCounterMutex.Lock()
+						if _, exists := dumpQueriesCounter[browserConnection.Id]; !exists {
+							dumpQueriesCounter[browserConnection.Id] = 1
+						} else {
+							dumpQueriesCounter[browserConnection.Id]++
+						}
+						counterValue := dumpQueriesCounter[browserConnection.Id]
+						dumpQueriesCounterMutex.Unlock()
+
+						if errSavingQueryDump := saveContentToFile(
+							fmt.Sprintf("/%s/%s", common.GetUniqueID(), browserConnection.Id),
+							fmt.Sprintf("%02d-%s-%s", counterValue, string(messageType), strings.ReplaceAll(browserMessage.Payload.OperationName, "/", "_")),
+							fromBrowserMessage,
+						); errSavingQueryDump != nil {
+							hc.BrowserConn.Logger.Error(errSavingQueryDump)
+						}
+					}
 				}
 
 				if browserMessage.Type == "complete" {
@@ -283,26 +305,33 @@ RangeLoop:
 	}
 }
 
-//
-//var queryCounter = 0
-//
-//func saveItToFile(filename string, contentInBytes []byte) {
-//	filePath := fmt.Sprintf("/tmp/%s.txt", filename)
-//	//message, err := json.Marshal(contentInBytes)
-//
-//	fmt.Printf("Saving %s\n", filePath)
-//
-//	file, err := os.Create(filePath)
-//	if err != nil {
-//		panic(err)
-//	}
-//	defer file.Close()
-//
-//	_, err = file.Write(contentInBytes)
-//	if err != nil {
-//		panic(err)
-//	}
-//}
+func saveContentToFile(subDir string, filename string, contentInBytes []byte) error {
+	fileDir := fmt.Sprintf("%s/%s", dumpQueriesDir, subDir)
+	filePath := fmt.Sprintf("%s/%s.txt", fileDir, filename)
+
+	if _, err := os.Stat(fileDir); os.IsNotExist(err) {
+		// Create directory (and parents if needed)
+		err := os.MkdirAll(fileDir, 0o755)
+		if err != nil {
+			return fmt.Errorf("error creating directory: %v", err)
+		}
+	} else if err != nil {
+		return fmt.Errorf("error checking directory: %v", err)
+	}
+
+	file, err := os.Create(filePath)
+	if err != nil {
+		return fmt.Errorf("error creating query dump: %v", err)
+	}
+	defer file.Close()
+
+	_, err = file.Write(contentInBytes)
+	if err != nil {
+		return fmt.Errorf("error writing query dump: %v", err)
+	}
+
+	return nil
+}
 
 func calculateQueryDepth(query string) (int, error) {
 	src := source.NewSource(&source.Source{

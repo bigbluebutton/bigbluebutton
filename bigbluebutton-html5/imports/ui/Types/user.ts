@@ -3,11 +3,11 @@ export interface Cameras {
 }
 
 export interface LastBreakoutRoom {
-    breakoutRoomId: string;
+    breakoutRoomMeetingId: string;
     isDefaultName: boolean;
     sequence: number;
     shortName: string;
-    currentlyInRoom: boolean;
+    isUserCurrentlyInRoom: boolean;
     meetingId: string;
     userId: string;
 }
@@ -114,6 +114,8 @@ export interface UserBasicInfo {
   userId: string;
   extId: string;
   name: string;
+  nameSortable: string;
+  bot: boolean;
   isModerator: boolean;
   role: string;
   color: string;

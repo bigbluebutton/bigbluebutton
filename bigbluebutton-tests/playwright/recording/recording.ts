@@ -6,7 +6,7 @@ import { elements as e, playbackElements } from '../core/elements';
 import { getRecordings } from '../core/endpoints';
 import { Page } from '../core/page';
 import { skipSlide } from '../presentation/util';
-import { getNotesLocator, startSharedNotes } from '../sharednotes/util';
+import { getNotesLocator, startSharedNotes } from '../sharednotes/etherpad/util';
 import { MultiUsers } from '../user/multiusers';
 
 export class Recording extends MultiUsers {
@@ -66,7 +66,7 @@ export class Recording extends MultiUsers {
 
     // send chat message
     await openPublicChat(this.modPage);
-    await this.modPage.type(e.chatBox, e.message);
+    await this.modPage.fill(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElementCount(e.chatUserMessageText, 1, 'should have on message on the public chat');
 
@@ -76,7 +76,7 @@ export class Recording extends MultiUsers {
     // type on shared notes
     await startSharedNotes(this.modPage);
     const notesLocator = getNotesLocator(this.modPage);
-    await notesLocator.type(e.testMessage);
+    await notesLocator.pressSequentially(e.testMessage);
     await expect(notesLocator, 'should contain the typed text on shared notes').toContainText(e.testMessage, {
       timeout: ELEMENT_WAIT_TIME,
     });

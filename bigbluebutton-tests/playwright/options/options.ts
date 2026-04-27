@@ -64,7 +64,7 @@ export class Options extends MultiUsers {
   async darkMode() {
     await this.modPage.hasElement(e.whiteboard, 'should the whiteboard be display');
     // send chat message
-    await this.modPage.type(e.chatBox, e.message);
+    await this.modPage.fill(e.chatBox, e.message);
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.hasElement(e.chatUserMessageText, 'should the chat message be displayed');
     // set all locators
@@ -198,6 +198,7 @@ export class Options extends MultiUsers {
     await this.modPage.closeAllToastNotifications();
 
     const whiteboardLocator = this.modPage.page.locator(e.whiteboard);
+    await this.modPage.page.waitForTimeout(1000); // wait for the whiteboard zoom to stabilize
     await expect(whiteboardLocator).toHaveScreenshot('whiteboard-with-toolbar-visible.png');
 
     await openSettings(this.modPage);
@@ -218,6 +219,7 @@ export class Options extends MultiUsers {
     await this.modPage.hoverElement(e.chatButton);
     await expect(wbToolbarLocator).toHaveClass(/fade-out/);
 
+    await this.modPage.page.waitForTimeout(1000); // wait for the whiteboard zoom to stabilize
     await expect(whiteboardLocator).toHaveScreenshot('whiteboard-with-toolbar-hidden.png', {
       maxDiffPixels: 1000,
     });

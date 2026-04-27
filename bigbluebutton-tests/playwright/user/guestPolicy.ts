@@ -11,7 +11,7 @@ export class GuestPolicy extends MultiUsers {
     await this.modPage.hasElement(e.waitingUsersBtn, 'should display the waiting users button');
 
     await this.modPage.waitAndClick(e.waitingUsersBtn);
-    await this.modPage.type(e.waitingUsersLobbyMessage, 'test');
+    await this.modPage.fill(e.waitingUsersLobbyMessage, 'test');
     await this.modPage.waitAndClick(e.sendLobbyMessage);
     await this.modPage.hasText(e.lobbyMessage, /test/, 'should the lobby message contain the text "test"');
   }
@@ -82,7 +82,7 @@ export class GuestPolicy extends MultiUsers {
     await this.modPage.waitAndClick(e.waitingUsersBtn);
 
     await this.modPage.waitAndClick(e.privateMessageGuest);
-    await this.modPage.type(e.inputPrivateLobbyMessage, 'test');
+    await this.modPage.fill(e.inputPrivateLobbyMessage, 'test');
     await this.modPage.waitAndClick(e.sendPrivateLobbyMessage);
     await this.userPage.hasText(
       e.guestMessage,

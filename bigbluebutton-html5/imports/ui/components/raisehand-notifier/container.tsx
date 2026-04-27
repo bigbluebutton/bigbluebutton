@@ -2,12 +2,14 @@ import React from 'react';
 import logger from '/imports/startup/client/logger';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { RAISED_HAND_USERS, RaisedHandUsersSubscriptionResponse } from '/imports/ui/core/graphql/queries/users';
 import RaiseHandNotifier from './component';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { User } from '/imports/ui/Types/user';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
+import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
 
 const RaiseHandNotifierContainer: React.FC = () => {
   const { data: currentUser } = useCurrentUser((user: Partial<User>) => ({
@@ -20,7 +22,10 @@ const RaiseHandNotifierContainer: React.FC = () => {
     data: usersData,
     error: usersError,
   } = useDeduplicatedSubscription<RaisedHandUsersSubscriptionResponse>(RAISED_HAND_USERS);
-  const raiseHandUsers = usersData?.user ?? [];
+
+  const { data: meeting } = useMeeting((m) => ({
+    meetingId: m.meetingId,
+  }));
 
   if (usersError) {
     connectionStatus.setSubscriptionFailed(true);
@@ -31,7 +36,14 @@ const RaiseHandNotifierContainer: React.FC = () => {
   }
   // @ts-ignore
   const { raiseHandAudioAlerts, raiseHandPushAlerts } = useSettings(SETTINGS.APPLICATION);
-  if (!currentUser) return null;
+  if (!currentUser || !meeting) return null;
+
+  const raiseHandUsers = filterByMeetingId(
+    usersData?.user,
+    meeting?.meetingId,
+    RAISED_HAND_USERS,
+    (u) => ({ mismatchedUserId: u.userId, mismatchedName: u.name }),
+  );
 
   return (
     <RaiseHandNotifier

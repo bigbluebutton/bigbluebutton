@@ -8,6 +8,7 @@ webrtc_recorder_audio_src: /var/lib/bbb-webrtc-recorder/audio
 raw_deskshare_src: /var/bigbluebutton/deskshare
 raw_presentation_src: /var/bigbluebutton
 notes_endpoint: http://127.0.0.1:9002/p
+bn_notes_endpoint: http://127.0.0.1:8787/api/documents
 # Specify the notes formats we archive
 # txt, doc and odt are also supported
 notes_formats:
@@ -42,6 +43,11 @@ anonymize_chat_moderators: false
 # so when webcamsOnlyForModerator=true, only moderators webcams are included in recordings.
 # Use this option to ignore locks and assume Moderator viewpoint instead.
 show_moderator_viewpoint: false
+
+# Control the number of video "cuts" that will be composited in parallel. Note that each cut
+# will start up multiple ffmpeg processes, and perform multi-threaded video encoding. The actual
+# number of physical CPU threads that will be used will typically be 2-4 times this number.
+video_compositing_parallel_workers: 2
 
 # Sequence of recording steps. Keys are the current step, values
 # are the next step(s). Examples:

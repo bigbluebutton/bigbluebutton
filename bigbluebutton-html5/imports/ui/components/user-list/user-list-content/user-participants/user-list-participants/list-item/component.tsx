@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import React, { useContext } from 'react';
+import React, { ReactNode, useContext } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import {
   UserListItemAdditionalInformationType,
@@ -53,6 +53,32 @@ const messages = defineMessages({
 
 const { isChrome, isFirefox, isEdge } = browserInfo;
 
+const getIconComponent = (
+  icon: PluginSdk.PluginIconType,
+  isUserListAdditionalInformation: boolean = false,
+): React.ReactNode => {
+  if (typeof icon === 'string') {
+    if (isUserListAdditionalInformation) return <Styled.UserAdditionalInformationIcon iconName={icon} />;
+    return <Icon iconName={icon} />;
+  }
+  if (icon && typeof icon === 'object' && 'iconName' in icon) {
+    if (isUserListAdditionalInformation) return <Styled.UserAdditionalInformationIcon iconName={icon.iconName} />;
+    return <Icon iconName={icon.iconName} />;
+  }
+  if (icon && typeof icon === 'object' && 'svgContent' in icon) {
+    const svgContent = icon.svgContent as ReactNode;
+    if (isUserListAdditionalInformation) {
+      return (
+        <Styled.SvgContentUserListIconMargin>
+          {svgContent}
+        </Styled.SvgContentUserListIconMargin>
+      );
+    }
+    return <Styled.SvgContentUserListIcon>{svgContent}</Styled.SvgContentUserListIcon>;
+  }
+  return null;
+};
+
 interface EmojiProps {
   emoji: { native: string; };
   native: string;
@@ -82,8 +108,9 @@ const renderUserListItemIconsFromPlugin = (
   return (
     <Styled.IconRightContainer
       key={item.id}
+      data-test={itemToRender.dataTest}
     >
-      <Icon iconName={itemToRender.icon} />
+      {getIconComponent(itemToRender.icon)}
     </Styled.IconRightContainer>
   );
 });
@@ -133,7 +160,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
       </span>,
     );
   }
-  if (user.lastBreakoutRoom?.currentlyInRoom) {
+  if (user.lastBreakoutRoom?.isUserCurrentlyInRoom) {
     subs.push(
       <span key={uniqueId('breakout-')}>
         <Icon iconName="rooms" />
@@ -160,9 +187,9 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
   ).forEach((item) => {
     const itemToRender = item as PluginSdk.UserListItemLabel;
     subs.push(
-      <span key={itemToRender.id}>
+      <span key={itemToRender.id} data-test={itemToRender.dataTest}>
         { itemToRender.icon
-          && <Styled.UserAdditionalInformationIcon iconName={itemToRender.icon} /> }
+          && getIconComponent(itemToRender.icon, true) }
         {itemToRender.label}
       </span>,
     );
@@ -199,7 +226,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
     return '';
   };
 
-  const avatarContent = user.lastBreakoutRoom?.currentlyInRoom && userAvatarFiltered.length === 0
+  const avatarContent = user.lastBreakoutRoom?.isUserCurrentlyInRoom && userAvatarFiltered.length === 0
     ? user.lastBreakoutRoom?.sequence
     : getIconUser();
 

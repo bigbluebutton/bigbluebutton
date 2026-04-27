@@ -4,6 +4,7 @@ export interface Message {
   messageType: string;
   chatId: string;
   message: string;
+  messageAsHtml: string;
   messageId: string;
   createdAt: string;
   messageMetadata: string | null;
@@ -26,6 +27,7 @@ export const CHAT_MESSAGE_STREAM = gql`
       chatId
       createdAt
       message
+      messageAsHtml
       messageId
       messageMetadata
       messageType

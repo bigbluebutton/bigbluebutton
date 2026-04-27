@@ -1,6 +1,5 @@
 name: Merge conflict check
 on:
-  push:
   pull_request_target:
     types:
       - opened

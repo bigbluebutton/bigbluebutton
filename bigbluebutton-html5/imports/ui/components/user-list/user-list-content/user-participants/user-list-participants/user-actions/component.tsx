@@ -1,4 +1,5 @@
 import React from 'react';
+import { PluginIconType } from 'bigbluebutton-html-plugin-sdk';
 import { User } from '/imports/ui/Types/user';
 import { LockSettings, UsersPolicies } from '/imports/ui/Types/meeting';
 import { useIntl, defineMessages } from 'react-intl';
@@ -36,12 +37,10 @@ import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import { setPendingChat } from '/imports/ui/core/local-states/usePendingChat';
 import Styled from './styles';
-import { useMutation, useLazyQuery } from '@apollo/client';
-import { CURRENT_PAGE_WRITERS_QUERY } from '/imports/ui/components/whiteboard/queries';
-import { PRESENTATION_SET_WRITERS } from '/imports/ui/components/presentation/mutations';
+import { useMutation } from '@apollo/client';
+import { USER_SET_WHITEBOARD_WRITE_ACCESS } from '/imports/ui/components/presentation/mutations';
 import useToggleVoice from '/imports/ui/components/audio/audio-graphql/hooks/useToggleVoice';
 import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
-import { notify } from '/imports/ui/services/notification';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 interface UserActionsProps {
@@ -61,18 +60,15 @@ interface UserActionsProps {
 interface DropdownItem {
   key: string;
   label?: string;
-  icon?: string;
+  icon?: PluginIconType;
   tooltip?: string;
   allowed?: boolean;
-  iconRight?: string;
+  iconRight?: PluginIconType;
   textColor?: string;
   isSeparator?: boolean;
+  dataTest?: string;
   contentFunction?: ((element: HTMLElement) => void);
   onClick?: (() => void);
-}
-
-interface Writer {
-  userId: string;
 }
 
 const messages = defineMessages({
@@ -176,6 +172,7 @@ const makeDropdownPluginItem: (
         tooltip: undefined,
         textColor: undefined,
         allowed: undefined,
+        dataTest: undefined,
       };
       switch (userDropdownItem.type) {
         case UserListDropdownItemType.OPTION: {
@@ -185,6 +182,7 @@ const makeDropdownPluginItem: (
           returnValue.icon = dropdownButton.icon;
           returnValue.allowed = dropdownButton.allowed;
           returnValue.onClick = dropdownButton.onClick;
+          returnValue.dataTest = dropdownButton.dataTest;
           break;
         }
         case UserListDropdownItemType.FIXED_CONTENT_INFORMATION: {
@@ -194,17 +192,21 @@ const makeDropdownPluginItem: (
           returnValue.iconRight = dropdownButton.iconRight;
           returnValue.textColor = dropdownButton.textColor;
           returnValue.allowed = dropdownButton.allowed;
+          returnValue.dataTest = dropdownButton.dataTest;
           break;
         }
         case UserListDropdownItemType.GENERIC_CONTENT_INFORMATION: {
           const dropdownButton = userDropdownItem as PluginSdk.UserListDropdownGenericContentInformation;
           returnValue.allowed = dropdownButton.allowed;
           returnValue.contentFunction = dropdownButton.contentFunction;
+          returnValue.dataTest = dropdownButton.dataTest;
           break;
         }
         case UserListDropdownItemType.SEPARATOR: {
+          const dropdownSeparator = userDropdownItem as PluginSdk.UserListDropdownSeparator;
           returnValue.allowed = true;
           returnValue.isSeparator = true;
+          returnValue.dataTest = dropdownSeparator.dataTest;
           break;
         }
         default:
@@ -244,57 +246,28 @@ const UserActions: React.FC<UserActionsProps> = ({
     else closeConfirmationModal();
   };
 
-  const [presentationSetWriters] = useMutation(PRESENTATION_SET_WRITERS);
-  const [getWriters] = useLazyQuery(
-    CURRENT_PAGE_WRITERS_QUERY,
-    {
-      fetchPolicy: 'no-cache',
-    },
-  );
+  const [userSetWhiteboardWriteAccess] = useMutation(USER_SET_WHITEBOARD_WRITE_ACCESS);
   const voiceToggle = useToggleVoice();
   const isChatEnabled = useIsChatEnabled();
   const isPrivateChatEnabled = useIsPrivateChatEnabled();
 
-  const handleWhiteboardAccessChange = async () => {
+  const handleWhiteboardAccessChange = async (newWhiteboardWriteAccess: boolean) => {
     // There is no presentation available, so access cannot be granted.
     if (!pageId) return;
     try {
-      // Fetch the writers data
-      const { data } = await getWriters();
-      const currentWriters: Writer[] = data?.user_whiteboardWriteAccess || [];
-
       // Determine if the user has access
       const { userId, whiteboardWriteAccess } = user;
-      const hasAccess = whiteboardWriteAccess === true;
 
-      // Prepare the updated list of user IDs for whiteboard access
-      const usersIds = currentWriters?.map((writer: { userId: string }) => writer?.userId);
-      const newUsersIds: string[] = hasAccess
-        ? usersIds.filter((id: string) => id !== userId)
-        : [...usersIds, userId];
-
-      // Check if the maximum number of writers has been reached.
-      // If so, notify the user then return.
-      const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
-      if (newUsersIds.length >= WHITEBOARD_CONFIG.maxNumberOfActiveUsers) {
-        notify(
-          intl.formatMessage(
-            messages.multiUserLimitHasBeenReachedNotification,
-            { numberOfUsers: WHITEBOARD_CONFIG.maxNumberOfActiveUsers },
-          ),
-          'info',
-          'pen_tool',
-        );
-        return;
+      if (newWhiteboardWriteAccess !== whiteboardWriteAccess) {
+        // Update user whiteboardWriteAccess
+        await userSetWhiteboardWriteAccess({
+          variables: {
+            userIds: [userId],
+            allUsers: false,
+            whiteboardWriteAccess: newWhiteboardWriteAccess,
+          },
+        });
       }
-
-      // Update the writers
-      await presentationSetWriters({
-        variables: {
-          pageId,
-          usersIds: newUsersIds,
-        },
-      });
     } catch (error) {
       logger.warn({
         logCode: 'user_action_whiteboard_access_failed',
@@ -388,7 +361,7 @@ const UserActions: React.FC<UserActionsProps> = ({
     )),
     {
       allowed: user?.cameras?.length > 0
-        && isVideoPinEnabledForCurrentUser(currentUser, isBreakout) && type === 'participant',
+        && isVideoPinEnabledForCurrentUser(currentUser) && type === 'participant',
       key: 'pinVideo',
       label: user?.pinned
         ? intl.formatMessage(messages.UnpinUserWebcam)
@@ -407,20 +380,16 @@ const UserActions: React.FC<UserActionsProps> = ({
     {
       allowed: (() => {
         const preventSelfChat = user.userId !== currentUser.userId;
-        const isBreakoutPrivateChatLocked = isBreakout
-          && lockSettings?.disablePrivateChat;
         const moderatorOverride = currentUser.isModerator
           && allowedToChatPrivately;
         const regularUserCondition = (isPrivateChatEnabled
           && isChatEnabled
           && !lockSettings?.disablePrivateChat
-          && !isVoiceOnlyUser(user.userId)
-          && !isBreakout)
+          && !isVoiceOnlyUser(user.userId))
           || user.isModerator;
 
         const isAllowed = preventSelfChat
           && (moderatorOverride || regularUserCondition || !currentUser.locked)
-          && !isBreakoutPrivateChatLocked
           && type === 'participant';
 
         return isAllowed;
@@ -474,7 +443,6 @@ const UserActions: React.FC<UserActionsProps> = ({
     },
     {
       allowed: allowedToMuteAudio
-        && !isBreakout
         && type === 'participant',
       key: 'mute',
       label: intl.formatMessage(messages.MuteUserAudioLabel),
@@ -487,7 +455,6 @@ const UserActions: React.FC<UserActionsProps> = ({
     {
       allowed: allowedToUnmuteAudio
         && !lockSettings?.disableMic
-        && !isBreakout
         && type === 'participant',
       key: 'unmute',
       label: intl.formatMessage(messages.UnmuteUserAudioLabel),
@@ -508,7 +475,7 @@ const UserActions: React.FC<UserActionsProps> = ({
         ? intl.formatMessage(messages.removeWhiteboardAccess)
         : intl.formatMessage(messages.giveWhiteboardAccess),
       onClick: () => {
-        handleWhiteboardAccessChange();
+        handleWhiteboardAccessChange(!hasWhiteboardAccess);
         setOpenUserAction(null);
       },
       icon: 'pen_tool',
@@ -594,7 +561,6 @@ const UserActions: React.FC<UserActionsProps> = ({
     {
       allowed: allowedToEjectCameras
         && user?.cameras?.length > 0
-        && !isBreakout
         && type === 'participant',
       key: 'ejectUserCameras',
       label: intl.formatMessage(messages.ejectUserCamerasLabel),

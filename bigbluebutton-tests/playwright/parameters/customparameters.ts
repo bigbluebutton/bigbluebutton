@@ -251,7 +251,7 @@ export class CustomParameters extends MultiUsers {
 
     await this.modPage.waitAndClick(e.actions);
     await this.modPage.waitAndClick(e.shareExternalVideoBtn);
-    await this.modPage.type(e.videoModalInput, e.youtubeLink);
+    await this.modPage.fill(e.videoModalInput, e.youtubeLink);
     await this.modPage.waitAndClick(e.startShareVideoBtn);
 
     const modFrame = await this.modPage.getYoutubeFrame();
@@ -682,6 +682,8 @@ export class CustomParameters extends MultiUsers {
 
     await this.modPage.shareWebcam();
     await this.userPage.shareWebcam();
+    await this.modPage.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
+    await this.userPage.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
 
     await checkScreenshots(
       this,
@@ -729,11 +731,95 @@ export class CustomParameters extends MultiUsers {
     );
   }
 
+  async predefinedGroups() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+    await this.userPage2.waitForSelector(e.whiteboard);
+
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.createBreakoutRooms);
+
+    await this.modPage.hasElement(e.breakoutBox0, 'should display the breakout box for unassigned users,');
+
+    await this.modPage.hasElement(e.breakoutBox1, 'should display the breakout box for room 1');
+    await this.modPage.hasElementCount(`${e.breakoutBox1} > p`, 1, 'should display only 1 user in the breakout room 1');
+    await this.modPage.hasValue(
+      e.roomNameInput1,
+      'Room 1',
+      'should display the correct name of the group for breakout room 1',
+    );
+
+    await this.modPage.hasElement(e.breakoutBox2, 'should display the breakout box for room 2');
+    await this.modPage.hasElementCount(`${e.breakoutBox2} > p`, 1, 'should display only 1 user in the breakout room 2');
+    await this.modPage.hasValue(
+      `input[data-test=roomName-2]`,
+      'Room 2',
+      'should display the correct name of the group for breakout room 2',
+    );
+
+    await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
+
+    await this.userPage.hasElement(e.modalConfirmButton, 'should appear the modal confirm button to join breakout');
+    await this.userPage.hasText(
+      e.fullscreenModal,
+      'Room 1',
+      'should display the correct breakout room name in the modal',
+    );
+    await this.userPage.waitAndClick(e.modalConfirmButton);
+    await this.userPage.waitAndClick(e.breakoutRoomsItem);
+    await this.userPage.hasElement(
+      e.alreadyConnected,
+      'should display the element alreadyConnected',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+
+    const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);
+    await breakoutUserPage.closeAudioModal();
+    await breakoutUserPage.hasElementCount(
+      e.currentUser,
+      1,
+      'should contain the current user after joining the breakout room',
+    );
+    await breakoutUserPage.hasText(e.presentationTitle, 'Room 1', 'should display the correct breakout room name');
+
+    await this.userPage2.hasElement(e.modalConfirmButton, 'should appear the modal confirm button to join breakout');
+    await this.userPage2.hasText(
+      e.fullscreenModal,
+      'Room 2',
+      'should display the correct breakout room name in the modal',
+    );
+    await this.userPage2.waitAndClick(e.modalConfirmButton);
+    await this.userPage2.waitAndClick(e.breakoutRoomsItem);
+    await this.userPage2.hasElement(
+      e.alreadyConnected,
+      'should display the element alreadyConnected',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+
+    const breakoutUserPage2 = await this.userPage2.getLastTargetPage(this.context);
+    await breakoutUserPage2.closeAudioModal();
+    await breakoutUserPage2.hasElementCount(
+      e.currentUser,
+      1,
+      'should contain the current user after joining the breakout room',
+    );
+    await breakoutUserPage2.hasText(e.presentationTitle, 'Room 2', 'should display the correct breakout room name');
+
+    await this.modPage.waitAndClick(e.breakoutRoomsItem);
+    await this.modPage.hasText(
+      e.userNameBreakoutRoom,
+      /Attendee/,
+      'should have the attendee name on the breakout room below a room on the main breakout panel',
+    );
+  }
+
   async enforceCamerasOnly() {
     await this.modPage.wasRemoved(e.whiteboard, 'should not display the whiteboard');
 
     await this.modPage.shareWebcam();
     await this.userPage.shareWebcam();
+    await this.modPage.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
+    await this.userPage.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
 
     await checkScreenshots(
       this,
@@ -796,6 +882,8 @@ export class CustomParameters extends MultiUsers {
 
     await this.modPage.shareWebcam();
     await this.userPage.shareWebcam();
+    await this.modPage.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
+    await this.userPage.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
 
     await checkScreenshots(
       this,

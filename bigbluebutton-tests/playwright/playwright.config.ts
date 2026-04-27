@@ -2,7 +2,7 @@ import { defineConfig } from '@playwright/test';
 import dotenv from 'dotenv';
 
 import { CI, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from './core/constants';
-import { chromiumConfig, firefoxConfig, webkitConfig } from './core/setup/browsersConfig';
+import { chromiumConfig } from './core/setup/browsersConfig';
 
 dotenv.config();
 
@@ -19,8 +19,8 @@ export default defineConfig({
   },
   use: {
     headless: true,
-    trace: 'on',
     screenshot: 'on',
+    trace: CI ? 'retain-on-failure' : 'on',
     video: CI ? 'retain-on-failure' : 'on',
     actionTimeout: ELEMENT_WAIT_LONGER_TIME,
   },
@@ -33,14 +33,19 @@ export default defineConfig({
       ...chromiumConfig,
       dependencies: ['setup'],
     },
-    {
-      ...firefoxConfig,
-      dependencies: ['setup'],
-    },
-    {
-      ...webkitConfig,
-      dependencies: ['setup'],
-    },
+    /**
+     * ! avoiding following browsers since not fully supported yet
+     * When support is added, uncomment the code and use imports at the top
+     * also update mention on README (bigbluebutton/bigbluebutton-tests/playwright/README.md)
+     */
+    // {
+    //   ...firefoxConfig,
+    //   dependencies: ['setup'],
+    // },
+    // {
+    //   ...webkitConfig,
+    //   dependencies: ['setup'],
+    // },
   ],
   expect: {
     timeout: ELEMENT_WAIT_TIME,

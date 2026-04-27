@@ -113,8 +113,15 @@ Updated in 2.7:
 
 Updated in 3.0:
 
-- **create** - **Added parameters:** `allowOverrideClientSettingsOnCreateCall`, `loginURL`, `pluginManifests`, `pluginManifestsFetchUrl`, `presentationConversionCacheEnabled`, `maxNumPages`. **Removed:** `breakoutRoomsEnabled`, `learningDashboardEnabled`, `virtualBackgroundsDisabled`. Parameter `meetingLayout` supports a few new options: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY, MEDIA_ONLY; **Added POST module:** `clientSettingsOverride`; **Added:** `disabledFeatures` options `infiniteWhiteboard`, `deleteChatMessage`, `editChatMessage`, `replyChatMessage`, `chatMessageReactions`, `raiseHand`, `userReactions`, `chatEmojiPicker`, `quizzes`;
-- **join** - **Added:** `bot`, `enforceLayout`, `logoutURL`, `firstName`, `lastName`, `userdata-bbb_default_layout`, `userdata-bbb_skip_echotest_if_previous_device`, `userdata-bbb_prefer_dark_theme`. `userdata-bbb_hide_notifications`, `userdata-bbb_hide_controls`, `userdata-bbb_initial_selected_tool` **Removed:** `defaultLayout` (replaced by `userdata-bbb_default_layout`) and removed support for all HTTP request methods except GET, `userdata-bbb_ask_for_feedback_on_logout`.
+- **create**
+  - **Added parameters:** `allowOverrideClientSettingsOnCreateCall`, `loginURL`, `pluginManifests`, `pluginManifestsFetchUrl`, `presentationConversionCacheEnabled`, `maxNumPages`, `multiUserWhiteboardEnabled`, `clientSettingsOverrideJsonUrl`, `sharedNotesEditor`.
+  - **Added options:** Parameter `meetingLayout` supports a few new options: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY, MEDIA_ONLY;
+  - **Added options:** Parameter `disabledFeatures` supports a few new options: `infiniteWhiteboard`, `deleteChatMessage`, `editChatMessage`, `replyChatMessage`, `chatMessageReactions`, `raiseHand`, `userReactions`, `chatEmojiPicker`, `quizzes`;
+  - **Added POST module:** `clientSettingsOverride`;
+  - **Removed:** `breakoutRoomsEnabled`, `learningDashboardEnabled`, `virtualBackgroundsDisabled`. 
+- **join**
+  - **Added:** `bot`, `enforceLayout`, `logoutURL`, `firstName`, `lastName`, `userdata-bbb_default_layout`, `userdata-bbb_skip_echotest_if_previous_device`, `userdata-bbb_prefer_dark_theme`. `userdata-bbb_hide_notifications`, `userdata-bbb_hide_controls`, `userdata-bbb_initial_selected_tool`
+  - **Removed:** `defaultLayout` (replaced by `userdata-bbb_default_layout`) and removed support for all HTTP request methods except GET, `userdata-bbb_ask_for_feedback_on_logout`.
 - **sendChatMessage** endpoint was first introduced.
 - **getJoinUrl** endpoint was first introduced.
 - **enter** endpoint was removed. It was only used internally, never part of the api documentation.
@@ -373,6 +380,42 @@ One other think to pay attention is to not include any of the parameters in both
 </response>
 ```
 
+#### Shared Notes Initial Content
+
+If `sharedNotesEditor` is set to `blockNote`, you can send initial content. It can be done with the create parameter `sharedNotesInitialContentJsonUrl` containing the URL from which the content will be fetched, or send the content directly via the `create` payload.
+
+If you choose the second option (sending content directly), the POST request payload must be as follows:
+
+```xml
+<modules>
+   <module name="sharedNotesInitialContentJson">
+      <![CDATA[
+        [
+          {
+            "id": "00000000-0000-0000-0000-000000000000",
+            "type": "paragraph",
+            "props": {
+              "textAlignment": "left",
+              "backgroundColor": "default",
+              "textColor": "default"
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Welcome to BigBlueButton Shared Notes! Start collaborating here...",
+                "styles": {}
+              }
+            ],
+            "children": []
+          }
+        ]
+      ]]>
+   </module>
+</modules>
+```
+
+Pay close attention: the initial content JSON structure must be as described in [BlockNote's documentation](https://www.blocknotejs.org/docs/foundations/document-structure?utm_source=chatgpt.com#block-properties). The same applies to the create parameter `sharedNotesInitialContentJsonUrl` (the content inside the URL must have the same structure).
+
 #### Pre-upload Slides
 
 You can upload slides within the create call. If you do this, the BigBlueButton server will immediately download and process the slides.
@@ -486,6 +529,96 @@ https://myapp.example.com/callback?meetingID=test01&recordingmarks=true
 ```
 
 Another param is the `meetingEndedURL` create param. This create param is a callback to indicate the meeting has ended. This is a duplicate of the endCallbackUrl meta param. We have this separate as we want this param to stay on the server and not propagated to client and recordings. Can be used by scalelite to be notified right away when meeting ends. The meta callback url can be used to inform third parties.
+
+#### Learning Analytics Dashboard callback URL
+
+You can ask the BigBlueButton server to make a callback to your application when the meeting ends. Upon receiving the callback, your application can retrieve and save the Learning Analytics Dashboard data for long-term storage, analysis, or integration with your own learning management system.
+
+To specify the callback to BigBlueButton, pass a URL using the meta-parameter `meta_analytics-callback-url` on the `create` command. When the BigBlueButton server ends the meeting, it will check if `meta_analytics-callback-url` is set and, if so, make an HTTP POST request to the given URL.
+
+For example, to specify the callback URL as
+
+```
+  https://myapp.example.com/analytics-callback?meetingID=test01
+```
+
+add the following parameter to the `create` API call: `&meta_analytics-callback-url=https%3A%2F%2Fmyapp.example.com%2Fanalytics-callback%3FmeetingID%3Dtest01` (note the analytics callback URL needs to be URLEncoded).
+
+The callback will be a POST request with a JSON body containing the complete analytics data. The JSON structure includes:
+
+**Top-level fields:**
+- `version` - API version (e.g., "1.0")
+- `meeting_id` - The meeting ID provided during meeting creation
+- `internal_meeting_id` - The internal meeting ID used by BigBlueButton
+- `data` - Object containing all analytics data (see below)
+
+**Data object structure:**
+- `metadata` - Meeting metadata including:
+  - `analytics_callback_url` - The callback URL that was configured
+  - `is_breakout` - Whether this was a breakout room ("true"/"false")
+  - `meeting_name` - The name of the meeting
+  - Additional custom metadata fields passed during meeting creation
+- `duration` - Total meeting duration in seconds
+- `start` - Meeting start timestamp (ISO 8601 format)
+- `finish` - Meeting end timestamp (ISO 8601 format)
+- `attendees` - Array of attendee objects, each containing:
+  - `ext_user_id` - External user ID
+  - `name` - User's display name
+  - `moderator` - Boolean indicating if user was a moderator
+  - `joins` - Array of join timestamps
+  - `leaves` - Array of leave timestamps
+  - `duration` - Total time user spent in meeting (seconds)
+  - `recent_talking_time` - Recent talking activity
+  - `engagement` - Object with engagement metrics:
+    - `chats` - Number of chat messages sent
+    - `talks` - Number of talk events
+    - `raisehand` - Number of times hand was raised
+    - `emojis` - Number of emoji reactions
+    - `poll_votes` - Number of poll votes cast
+    - `talk_time` - Total talk time in seconds
+  - `sessions` - Array of session objects with detailed join/leave events
+- `files` - Array of presentation files used during the meeting
+- `polls` - Array of poll objects with poll data and results
+
+**Example payload:**
+
+```json
+{
+  "version": "1.0",
+  "meeting_id": "random-1397955",
+  "internal_meeting_id": "82de1f45d28e38b6ab1e304aa39bfece5700cb64-1769423218203",
+  "data": {
+    "metadata": {
+      "analytics_callback_url": "https://myapp.example.com/analytics-callback",
+      "is_breakout": "false",
+      "meeting_name": "My Meeting"
+    },
+    "duration": 16,
+    "start": "2026-01-26T11:26:58.000+01:00",
+    "finish": "2026-01-26T11:27:14.000+01:00",
+    "attendees": [
+      {
+        "ext_user_id": "w_vi6djg93icce",
+        "name": "John Doe",
+        "moderator": true,
+        "joins": ["2026-01-26T11:27:02.000+01:00"],
+        "leaves": ["2026-01-26T11:27:14.000+01:00"],
+        "duration": 12,
+        "engagement": {
+          "chats": 1,
+          "talks": 0,
+          "raisehand": 0,
+          "emojis": 0,
+          "poll_votes": 0,
+          "talk_time": 0
+        }
+      }
+    ],
+    "files": ["presentation.pdf"],
+    "polls": []
+  }
+}
+```
 
 #### Recording ready callback URL
 
@@ -1285,7 +1418,7 @@ http&#58;//yourserver.com/bigbluebutton/api/getJoinUrl?[parameters]
 
 **Example Requests:**
 
-https://bbb30.bbb.imdt.dev/bigbluebutton/api/getJoinUrl?sessionToken=xyn1fbqlrhug1j6z&enforceLayout=PRESENTATION_ONLY&sessionName=Presentation%20session&userdata-bbb_client_title=Presentation%20client
+https://yourserver.com/bigbluebutton/api/getJoinUrl?sessionToken=xyn1fbqlrhug1j6z&enforceLayout=PRESENTATION_ONLY&sessionName=Presentation%20session&userdata-bbb_client_title=Presentation%20client
 
 **Example Response:**
 
@@ -1294,7 +1427,7 @@ https://bbb30.bbb.imdt.dev/bigbluebutton/api/getJoinUrl?sessionToken=xyn1fbqlrhu
     "response": {
         "returncode": "SUCCESS",
         "message": "Join URL provided successfully.",
-        "url": "https://bbb30.bbb.imdt.dev/bigbluebutton/api/join?&redirect=true&existingUserID=w_t18rn7uc1wjm&role=MODERATOR&userdata-bbb_client_title=Presentation+client&sessionName=Presentation+session&fullName=teacher%2B1&meetingID=random-7653737&enforceLayout=PRESENTATION_ONLY&checksum=135f230a2339b9485d91a3e87b1a22420ca57e8b"
+        "url": "https://yourserver.com/bigbluebutton/api/join?&redirect=true&existingUserID=w_t18rn7uc1wjm&role=MODERATOR&userdata-bbb_client_title=Presentation+client&sessionName=Presentation+session&fullName=teacher%2B1&meetingID=random-7653737&enforceLayout=PRESENTATION_ONLY&checksum=135f230a2339b9485d91a3e87b1a22420ca57e8b"
     }
 }
 ```

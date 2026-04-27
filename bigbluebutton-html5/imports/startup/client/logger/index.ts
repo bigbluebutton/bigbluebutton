@@ -7,6 +7,8 @@ import { ClientLog } from '/imports/ui/Types/meetingClientSettings';
 import ServerLoggerStream from './ServerStream';
 import ConsoleStream from './consoleStream';
 import meetingClientSettingsInitialValues from '/imports/ui/core/initial-values/meetingClientSettings';
+import { LoggerSettings } from '/imports/ui/components/plugins-engine/types';
+import { overridePluginSettingsToDefault } from '/imports/ui/components/plugins-engine/utils';
 
 // The logger accepts "console","server", and "external" as targets
 // Multiple targets can be set as an array in the settings under public.log
@@ -18,6 +20,9 @@ import meetingClientSettingsInitialValues from '/imports/ui/core/initial-values/
 // externalURL is the end-point that logs will be sent to
 // Call the logger by doing a function call with the level name, I.e, logger.warn('Hi on warn')
 const FALLBACK_CONFIG = meetingClientSettingsInitialValues.public.clientLog;
+
+const PLUGIN_LOGGER_NAME = 'pluginLogger';
+const CLIENT_LOGGER_NAME = 'clientLogger';
 
 export function createStreamForTarget(
   target: keyof ClientLog,
@@ -64,40 +69,53 @@ export function generateLoggerStreams(config: ClientLog) {
   return result;
 }
 
-class BBBClientLogger {
+class BBBLogger {
   private static fallback: Logger | null = null;
 
   private static default: Logger | null = null;
 
+  private static createLoggerFrom(loggerName: string, loggerConfig: ClientLog) {
+    return createLogger({
+      name: loggerName,
+      streams: generateLoggerStreams(loggerConfig),
+      serializers: stdSerializers,
+      src: true,
+    });
+  }
+
+  public static createPluginLogger(pluginName: string, loggerSettings: LoggerSettings) {
+    const LOG_CONFIG = window.meetingClientSettings?.public?.clientLog;
+    const pluginLoggerConfiguration = LOG_CONFIG || FALLBACK_CONFIG;
+    const effectivePluginLoggerConfigurations = overridePluginSettingsToDefault(
+      loggerSettings,
+      pluginLoggerConfiguration,
+    );
+    return BBBLogger.createLoggerFrom(`${PLUGIN_LOGGER_NAME}(${pluginName})`, effectivePluginLoggerConfigurations);
+  }
+
   public static get logger() {
-    if (BBBClientLogger.default) return BBBClientLogger.default;
+    if (BBBLogger.default) return BBBLogger.default;
 
     const LOG_CONFIG = window.meetingClientSettings?.public?.clientLog;
-    if (LOG_CONFIG && !BBBClientLogger.default) {
-      BBBClientLogger.default = createLogger({
-        name: 'clientLogger',
-        streams: generateLoggerStreams(LOG_CONFIG),
-        serializers: stdSerializers,
-        src: true,
-      });
+    if (LOG_CONFIG && !BBBLogger.default) {
+      BBBLogger.default = BBBLogger.createLoggerFrom(CLIENT_LOGGER_NAME, LOG_CONFIG);
     }
 
-    if (!BBBClientLogger.fallback) {
-      BBBClientLogger.fallback = createLogger({
-        name: 'clientLogger',
-        streams: generateLoggerStreams(FALLBACK_CONFIG),
-        serializers: stdSerializers,
-        src: true,
-      });
+    if (!BBBLogger.fallback) {
+      BBBLogger.fallback = BBBLogger.createLoggerFrom(CLIENT_LOGGER_NAME, FALLBACK_CONFIG);
     }
 
-    return BBBClientLogger.default || BBBClientLogger.fallback;
+    return BBBLogger.default || BBBLogger.fallback;
   }
 }
 
 class LoggerFactory {
+  public static getPluginLogger(pluginName: string, loggerSettings: LoggerSettings) {
+    return BBBLogger.createPluginLogger(pluginName, loggerSettings);
+  }
+
   public static getLogger() {
-    return BBBClientLogger.logger;
+    return BBBLogger.logger;
   }
 
   public static error(...args: any[]) {

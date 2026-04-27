@@ -15,7 +15,8 @@ import SkeletonUserListItem from '../list-item/skeleton/component';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { LockSettings, Meeting, UsersPolicies } from '/imports/ui/Types/meeting';
-import logger from '/imports/startup/client/logger';
+import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
+import { USER_LIST_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
 
 interface UserListParticipantsContainerProps {
   index: number;
@@ -113,28 +114,13 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
     loading: usersLoading,
   } = useLoadedUserList({ offset, limit: limit.current }, (u) => u) as GraphqlDataHookSubscriptionResponse<Array<User>>;
 
-  const users = meeting && usersData
-    ? (usersData as User[]).filter((u: User) => {
-      const isInMeeting = u.meetingId === meeting?.meetingId;
-      if (!isInMeeting) {
-        logger.warn({
-          logCode: 'userlist_meetingid_mismatch',
-          extraInfo: {
-            name: u.name,
-            userId: u.userId,
-            meetingId: u.meetingId,
-            bot: u.bot,
-            disconnected: u.disconnected,
-            guest: u.guest,
-            isDialIn: u.isDialIn,
-            isModerator: u.isModerator,
-            loggedOut: u.loggedOut,
-            presenter: u.presenter,
-          },
-        }, 'userlist: meetingId mismatch, filtering out user');
-      }
-      return isInMeeting;
-    })
+  const users = meeting?.meetingId
+    ? filterByMeetingId(
+      (usersData ?? []) as User[],
+      meeting.meetingId,
+      USER_LIST_SUBSCRIPTION,
+      (u) => ({ mismatchedUserId: u.userId, mismatchedName: u.name }),
+    )
     : [];
 
   const { data: currentUser, loading: currentUserLoading } = useCurrentUser((c: Partial<User>) => ({

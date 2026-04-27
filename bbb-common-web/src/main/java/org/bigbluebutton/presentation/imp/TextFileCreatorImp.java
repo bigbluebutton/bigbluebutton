@@ -44,12 +44,16 @@ public class TextFileCreatorImp implements TextFileCreator {
   private long execTimeout = 60;
 
   @Override
-  public boolean createTextFile(UploadedPresentation pres, int page) {
+  public boolean createTextFile(UploadedPresentation pres, int page, boolean useBlank) {
     boolean success = false;
     File textfilesDir = determineTextfilesDirectory(pres.getUploadedFile());
     if (!textfilesDir.exists())
       textfilesDir.mkdir();
 
+    if (useBlank) {
+        createBlankTextFile(textfilesDir, page);
+        return true;
+    }
 
     try {
       success = generateTextFile(textfilesDir, pres, page);

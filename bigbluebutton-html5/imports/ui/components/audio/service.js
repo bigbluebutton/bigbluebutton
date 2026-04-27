@@ -37,9 +37,9 @@ export const didUserSelectListenOnly = () => (
 const getStorageMuteStateKey = () => {
   const meetingStaticStore = meetingStaticData.getMeetingData();
   const isBreakout = meetingStaticStore?.isBreakout;
-  const parentId = meetingStaticStore?.breakoutPolicies?.parentId;
-  const meetingId = isBreakout && parentId
-    ? parentId
+  const parentMeetingId = meetingStaticStore?.breakoutPolicies?.parentMeetingId;
+  const meetingId = isBreakout && parentMeetingId
+    ? parentMeetingId
     : Auth.meetingID;
 
   return `${MUTED_KEY}_${meetingId}`;

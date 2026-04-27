@@ -17,6 +17,17 @@ object_relationships:
         remote_table:
           name: v_user_ref
           schema: public
+array_relationships:
+  - name: activities
+    using:
+      manual_configuration:
+        column_mapping:
+          meetingId: meetingId
+          userId: userId
+        insertion_order: null
+        remote_table:
+          name: v_breakoutRoom_user_activity
+          schema: public
 select_permissions:
   - role: bbb_client
     permission:
@@ -24,7 +35,7 @@ select_permissions:
         - isAudioOnly
         - userId
       filter:
-        parentMeetingId:
+        meetingId:
           _eq: X-Hasura-MeetingId
       allow_aggregations: true
       query_root_fields: []

@@ -65,7 +65,7 @@ object MsgBuilder {
       authToken = msg.authToken, sessionToken = msg.sessionToken,
       avatarURL = msg.avatarURL, webcamBackgroundURL = msg.webcamBackgroundURL, bot = msg.bot, guest = msg.guest, authed = msg.authed,
       guestStatus = msg.guestStatus, excludeFromDashboard = msg.excludeFromDashboard, enforceLayout = msg.enforceLayout,
-      logoutUrl = logoutUrl, userMetadata = msg.userMetadata)
+      logoutUrl = logoutUrl, joinRequestMetadata = msg.joinRequestMetadata, userMetadata = msg.userMetadata)
     val req = RegisterUserReqMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
@@ -477,7 +477,7 @@ object MsgBuilder {
             val hPx = hRaw.flatMap(parseCssLengthPx)
 
             (wPx, hPx) match {
-              case (Some(w), Some(h)) =>
+              case (Some(w), Some(h)) if w > 0 && h > 0 =>
                 val W = roundPx(w, scale)
                 val H = roundPx(h, scale)
                 return Some(SvgDimensions(W, H))

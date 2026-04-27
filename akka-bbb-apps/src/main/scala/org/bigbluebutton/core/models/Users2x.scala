@@ -1,9 +1,7 @@
 package org.bigbluebutton.core.models
 
 import com.softwaremill.quicklens._
-import org.bigbluebutton.core.db.{ UserDAO, UserLockSettingsDAO, UserReactionDAO, UserStateDAO }
-import org.bigbluebutton.core.util.TimeUtil
-import org.bigbluebutton.core2.message.senders.MsgBuilder
+import org.bigbluebutton.core.db.{ UserLockSettingsDAO, UserReactionDAO, UserStateDAO }
 
 object Users2x {
   def findWithIntId(users: Users2x, intId: String): Option[UserState] = {
@@ -124,6 +122,12 @@ object Users2x {
     newUserState
   }
 
+  def setLoggedOut(users: Users2x, u: UserState): UserState = {
+    val newUserState = modify(u)(_.loggedOut).setTo(true)
+    users.save(newUserState)
+    newUserState
+  }
+
   def setClientType(users: Users2x, u: UserState, clientType: String): UserState = {
     val newUserState = modify(u)(_.clientType).setTo(clientType)
     users.save(newUserState)
@@ -232,6 +236,17 @@ object Users2x {
       u <- findWithIntId(users, intId)
     } yield {
       val newUser = u.modify(_.locked).setTo(locked)
+      users.save(newUser)
+      UserStateDAO.update(newUser)
+      newUser
+    }
+  }
+
+  def setUserWhiteboardWriteAccess(users: Users2x, intId: String, whiteboardWriteAccess: Boolean): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+    } yield {
+      val newUser = u.modify(_.whiteboardWriteAccess).setTo(whiteboardWriteAccess)
       users.save(newUser)
       UserStateDAO.update(newUser)
       newUser
@@ -441,6 +456,7 @@ case class UserState(
     away:                  Boolean,
     locked:                Boolean,
     presenter:             Boolean,
+    whiteboardWriteAccess: Boolean,
     avatar:                String,
     webcamBackground:      String,
     color:                 String,
@@ -449,8 +465,10 @@ case class UserState(
     lastInactivityInspect: Long                = 0,
     clientType:            String,
     userLeftFlag:          UserLeftFlag,
+    loggedOut:             Boolean             = false,
     speechLocale:          String              = "",
     captionLocale:         String              = "",
+    joinRequestMetadata:   Map[String, String] = Map.empty,
     userMetadata:          Map[String, String] = Map.empty,
     userLockSettings:      UserLockSettings    = UserLockSettings()
 )

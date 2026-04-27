@@ -23,23 +23,17 @@ trait SendCursorPositionPubMsgHdlr extends RightsManagementTrait {
       bus.outGW.send(msgEvent)
     }
 
-    if (filterWhiteboardMessage(msg.body.whiteboardId, msg.header.userId, liveMeeting) && permissionFailed(PermissionCheck.GUEST_LEVEL, PermissionCheck.PRESENTER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
-      val meetingId = liveMeeting.props.meetingProp.intId
-      val reason = "No permission to send your cursor position."
-      // Just drop messages as these might be delayed messages from multi-user whiteboard. Don't want to
-      // eject user unnecessarily when switching from multi-user to single user. (ralam feb 7, 2018)
-      //PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
-    } else {
-      for {
-        regUser <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
-      } yield {
-        val userIsViewer = (regUser.role != Roles.MODERATOR_ROLE) && !regUser.presenter
+    for {
+      userState <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
+    } yield {
+      if (userState.whiteboardWriteAccess || userState.presenter) {
+        val userIsViewer = (userState.role != Roles.MODERATOR_ROLE) && !userState.presenter
         broadcastEvent(msg, userIsViewer)
 
         // commenting for now as the new approach to provide cursor position from bbb-graphql-middleware is under testing
         // PresPageCursorDAO.insertOrUpdate(msg.body.whiteboardId, liveMeeting.props.meetingProp.intId, msg.header.userId, msg.body.xPercent, msg.body.yPercent)
       }
-
     }
+
   }
 }

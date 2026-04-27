@@ -52,7 +52,7 @@ export class ErrorLogs extends MultiUsers {
   async sendPublicChatMessage() {
     await openPublicChat(this.modPage);
     const testMessage = 'Test message from error monitoring test';
-    await this.modPage.type(e.chatBox, testMessage);
+    await this.modPage.fill(e.chatBox, testMessage);
     await this.modPage.waitAndClick(e.sendButton);
     // Verify message was sent
     await this.modPage.hasText(e.chatUserMessageText, testMessage, 'should display the sent message');

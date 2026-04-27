@@ -5,7 +5,7 @@ import org.bigbluebutton.core.models.{ RegisteredUser, RegisteredUsers, Roles, U
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.LockSettingsUtil
-import org.bigbluebutton.core.db.{ NotificationDAO, UserDAO }
+import org.bigbluebutton.core.db.{ BreakoutRoomUserDAO, NotificationDAO, UserDAO }
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
@@ -16,7 +16,7 @@ trait ChangeUserRoleCmdMsgHdlr extends RightsManagementTrait {
   val outGW: OutMsgRouter
 
   def handleChangeUserRoleCmdMsg(msg: ChangeUserRoleCmdMsg): Unit = {
-    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId) || liveMeeting.props.meetingProp.isBreakout) {
+    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to change user role in meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
@@ -83,6 +83,9 @@ trait ChangeUserRoleCmdMsgHdlr extends RightsManagementTrait {
 
     // Update the database
     UserDAO.update(newRegUser)
+
+    // Update breakout rooms list
+    BreakoutRoomUserDAO.refreshBreakoutRoomsVisibleForUsers(liveMeeting.props.meetingProp.intId, u.id)
 
     //Send Evt redis msg
     val event = buildUserRoleChangedEvtMsg(liveMeeting.props.meetingProp.intId, u.id, changedBy, newRole)

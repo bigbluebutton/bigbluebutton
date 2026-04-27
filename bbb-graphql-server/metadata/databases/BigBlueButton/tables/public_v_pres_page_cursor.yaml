@@ -23,6 +23,7 @@ select_permissions:
       columns:
         - isCurrentPage
         - lastUpdatedAt
+        - meetingId
         - pageId
         - presentationId
         - userId

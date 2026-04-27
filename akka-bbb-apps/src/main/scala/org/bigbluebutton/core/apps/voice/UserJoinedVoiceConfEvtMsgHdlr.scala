@@ -2,7 +2,9 @@ package org.bigbluebutton.core.apps.voice
 
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.core.apps.mediagroups.MediaGroupApp
 import org.bigbluebutton.core.db.NotificationDAO
+import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter, HandlerHelpers }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 import org.bigbluebutton.core.models._
@@ -15,7 +17,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration with HandlerHelp
   val liveMeeting: LiveMeeting
   val outGW: OutMsgRouter
 
-  def handleUserJoinedVoiceConfEvtMsg(msg: UserJoinedVoiceConfEvtMsg): Unit = {
+  def handleUserJoinedVoiceConfEvtMsg(msg: UserJoinedVoiceConfEvtMsg, state: MeetingState2x): MeetingState2x = {
 
     val guestPolicy = GuestsWaiting.getGuestPolicy(liveMeeting.guestsWaiting)
     val isDialInUser = msg.body.intId.startsWith(IntIdPrefixType.DIAL_IN)
@@ -48,7 +50,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration with HandlerHelp
     def registerUserInRegisteredUsers() = {
       val regUser = RegisteredUsers.create(liveMeeting.props.meetingProp.intId, msg.body.intId, msg.body.voiceUserId,
         msg.body.callerIdName, "", "", Roles.VIEWER_ROLE, msg.body.intId, Vector(""), "", "", userColor, false,
-        true, true, GuestStatus.WAIT, true, "", "", Map(), false)
+        true, true, GuestStatus.WAIT, true, "", "", Map.empty, Map.empty, false)
       RegisteredUsers.add(liveMeeting.registeredUsers, regUser, liveMeeting.props.meetingProp.intId)
     }
 
@@ -69,6 +71,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration with HandlerHelp
         pin = false,
         mobile = false,
         presenter = false,
+        whiteboardWriteAccess = MeetingStatus2x.multiUserWhiteboardEnabled(liveMeeting.status),
         locked = MeetingStatus2x.getPermissions(liveMeeting.status).lockOnJoin,
         avatar = "",
         webcamBackground = "",
@@ -105,7 +108,12 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration with HandlerHelp
       }
     }
 
-    def letUserEnter() = {
+    def letUserEnter(state: MeetingState2x): MeetingState2x = {
+      val speechLocale = Users2x.findWithIntId(liveMeeting.users2x, msg.body.intId) match {
+        case Some(u) => u.speechLocale
+        case None    => ""
+      }
+
       VoiceApp.handleUserJoinedVoiceConfEvtMsg(
         liveMeeting,
         outGW,
@@ -117,7 +125,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration with HandlerHelp
         msg.body.callerIdName,
         msg.body.callerIdNum,
         userColor,
-        speechLocale = "",
+        speechLocale,
         msg.body.muted,
         listenOnlyInputDevice = false,
         deafened = false,
@@ -126,6 +134,17 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration with HandlerHelp
         msg.body.hold,
         msg.body.uuid
       )
+
+      // Dial-in users need to be enrolled in public media groups to be heard
+      // by clients that use selective subscription. Regular web users do this
+      // in UserJoinMeetingReqMsgHdlr
+      if (isDialInUser) {
+        state.update(
+          MediaGroupApp.enrollUserInPublicGroups(liveMeeting, msg.body.intId, state.mediaGroups)
+        )
+      } else {
+        state
+      }
     }
 
     //Firs of all we check whether the user is banned from the meeting
@@ -137,6 +156,7 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration with HandlerHelp
         msg.body.voiceUserId
       )
       outGW.send(event)
+      state
     } else {
       if (isDialInUser) {
         // Guest lobby is always disabled for dial-in users joining via LiveKit
@@ -150,20 +170,24 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration with HandlerHelp
           guestPolicy match {
             case GuestPolicy(policy, setBy) => {
               policy match {
-                case GuestPolicyType.ALWAYS_ACCEPT => letUserEnter()
-                case GuestPolicyType.ALWAYS_DENY   => VoiceApp.removeUserFromVoiceConf(liveMeeting, outGW, msg.body.voiceUserId)
-                case GuestPolicyType.ASK_MODERATOR => registerUserAsGuest()
+                case GuestPolicyType.ALWAYS_ACCEPT => letUserEnter(state)
+                case GuestPolicyType.ALWAYS_DENY =>
+                  VoiceApp.removeUserFromVoiceConf(liveMeeting, outGW, msg.body.voiceUserId)
+                  state
+                case GuestPolicyType.ASK_MODERATOR =>
+                  registerUserAsGuest()
+                  state
               }
             }
           }
         } else {
-          letUserEnter()
+          letUserEnter(state)
         }
       } else {
-        // Regular users reach this point after beeing
-        // allowed to join
-        letUserEnter()
+        // Regular users reach this point after being allowed to join
+        letUserEnter(state)
       }
     }
   }
+
 }

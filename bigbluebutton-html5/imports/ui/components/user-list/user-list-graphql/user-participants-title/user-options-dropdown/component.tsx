@@ -28,8 +28,20 @@ import { SET_MUTED } from './mutations';
 import { CLEAR_ALL_REACTION } from '/imports/ui/core/graphql/mutations/userMutations';
 import { GET_USER_NAMES } from '/imports/ui/core/graphql/queries/users';
 import logger from '/imports/startup/client/logger';
+import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
 import { notify } from '/imports/ui/services/notification';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
+
+interface GetUserNamesResponse {
+  user: Array<{
+    meetingId: string;
+    name: string;
+    nameSortable: string;
+    firstNameSortable: string;
+    lastNameSortable: string;
+    userId: string;
+  }>;
+}
 
 const intlMessages = defineMessages({
   optionsLabel: {
@@ -134,6 +146,7 @@ interface UserTitleOptionsProps {
   hasBreakoutRooms: boolean | undefined;
   meetingName: string | undefined;
   learningDashboardToken: string | undefined;
+  meetingId: string | undefined;
 }
 
 const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
@@ -144,6 +157,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
   hasBreakoutRooms,
   meetingName,
   learningDashboardToken,
+  meetingId,
 }) => {
   const intl = useIntl();
   const { locale } = intl;
@@ -165,7 +179,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
 
   const [setMuted] = useMutation(SET_MUTED);
   const [clearAllReaction] = useMutation(CLEAR_ALL_REACTION);
-  const [getUsers, { data: usersData, error: usersError }] = useLazyQuery(GET_USER_NAMES, { fetchPolicy: 'no-cache' });
+  const [getUsers, { data: usersData, error: usersError }] = useLazyQuery<GetUserNamesResponse>(GET_USER_NAMES, { fetchPolicy: 'no-cache' });
   const users = usersData?.user || [];
   const isLearningDashboardEnabled = useIsLearningDashboardEnabled();
   const isBreakoutRoomsEnabled = useIsBreakoutRoomsEnabled();
@@ -184,10 +198,16 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
 
   // users will only be fetched when getUsers is called
   useEffect(() => {
-    if (users.length > 0) {
-      onSaveUserNames(intl, meetingName ?? '', users);
+    if (users.length > 0 && meetingId) {
+      const filteredUsers = filterByMeetingId(
+        users,
+        meetingId,
+        GET_USER_NAMES,
+        (u) => ({ mismatchedUserId: u.userId, mismatchedName: u.name }),
+      );
+      onSaveUserNames(intl, meetingName ?? '', filteredUsers);
     }
-  }, [users]);
+  }, [users, meetingId]);
 
   const callSetMuted = (muted: boolean, exceptPresenter: boolean) => {
     setMuted({
@@ -259,7 +279,7 @@ const UserTitleOptions: React.FC<UserTitleOptionsProps> = ({
         dataTest: 'lockViewersButton',
       },
       {
-        allow: dynamicGuestPolicy,
+        allow: dynamicGuestPolicy && !isBreakout,
         key: uuids.current[3],
         icon: 'user',
         label: intl.formatMessage(intlMessages.guestPolicyLabel),
@@ -394,6 +414,7 @@ const UserTitleOptionsContainer: React.FC = () => {
     componentsFlags: meeting?.componentsFlags,
     name: meeting?.name,
     learningDashboardAccessToken: meeting.learningDashboardAccessToken,
+    meetingId: meeting?.meetingId,
   }));
 
   const { data: currentUser } = useCurrentUser((user: Partial<User>) => ({
@@ -414,6 +435,7 @@ const UserTitleOptionsContainer: React.FC = () => {
       hasBreakoutRooms={hasBreakoutRooms}
       meetingName={meetingInfo?.name}
       learningDashboardToken={meetingInfo?.learningDashboardAccessToken}
+      meetingId={meetingInfo?.meetingId}
     />
   );
 };

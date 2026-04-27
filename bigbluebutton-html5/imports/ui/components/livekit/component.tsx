@@ -1,4 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import {
   LiveKitRoom,
@@ -19,6 +21,7 @@ import {
   type InternalRoomOptions,
   type RoomConnectOptions,
 } from 'livekit-client';
+import { defineMessages, useIntl } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
 import AudioManager from '/imports/ui/services/audio-manager';
 import logger from '/imports/startup/client/logger';
@@ -27,6 +30,7 @@ import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
   liveKitRoom,
+  LK_FATAL_ERROR_EVENT,
 } from '/imports/ui/services/livekit';
 import {
   USER_SET_DEAFENED,
@@ -34,9 +38,11 @@ import {
 } from '/imports/ui/components/livekit/mutations';
 import { useIceServers } from '/imports/ui/components/livekit/hooks';
 import LKAutoplayModalContainer from '/imports/ui/components/livekit/autoplay-modal/container';
+import { ForcedReconnectionError } from '/imports/ui/components/livekit/errors';
 import connectionStatus, { MetricStatus } from '/imports/ui/core/graphql/singletons/connectionStatus';
 import SelectiveSubscription from '/imports/ui/components/livekit/selective-subscription/component';
 import { useSpeakerLevel } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
+import { notify } from '/imports/ui/services/notification';
 
 interface BBBLiveKitRoomProps {
   url?: string;
@@ -47,6 +53,7 @@ interface BBBLiveKitRoomProps {
   usingAudio: boolean;
   usingScreenShare: boolean;
   withSelectiveSubscription: boolean;
+  reconnectOnFatalFailures?: boolean;
 }
 
 interface ObserverProps {
@@ -56,6 +63,13 @@ interface ObserverProps {
 }
 
 const MAX_CONN_ATTEMPTS = 10;
+
+const intlMessages = defineMessages({
+  mediaReconnecting: {
+    id: 'app.media.mediaReconnecting',
+    description: 'Media reconnection in progress toast message',
+  },
+});
 
 const LiveKitObserver = ({
   room,
@@ -160,6 +174,7 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
   usingAudio,
   usingScreenShare,
   withSelectiveSubscription,
+  reconnectOnFatalFailures = true,
 }) => {
   const [connAttempts, setConnAttempts] = useState(0);
   const [connError, setConnError] = useState<Error | null>(null);
@@ -168,6 +183,8 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
   const isClientConnected = useReactiveVar(connectionStatus.getConnectedStatusVar());
   const { iceServers, isLoading: iceServersLoading } = useIceServers(bbbSessionToken);
   const speakerLevel = useSpeakerLevel();
+  const intl = useIntl();
+  const isReconnectingRef = useRef(false);
 
   const onDisconnected = useCallback((reason?: DisconnectReason) => {
     logger.warn({
@@ -195,7 +212,7 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
       },
     }, `LiveKit room error: ${error.message}`);
     setConnError(error);
-    setConnAttempts(connAttempts + 1);
+    setConnAttempts((prev) => prev + 1);
   }, [isClientConnected, url, iceServers, connAttempts]);
 
   const onConnected = useCallback(() => {
@@ -222,7 +239,8 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
       return;
     }
 
-    if (!(connError instanceof ConnectionError)) {
+    if (!(connError instanceof ConnectionError)
+      && !(connError instanceof ForcedReconnectionError)) {
       logger.warn({
         logCode: 'livekit_room_skip_retry',
         extraInfo: {
@@ -323,6 +341,69 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
     };
   }, []);
 
+  // Handle fatal errors emitted from other parts of the app to trigger
+  // a reconnection. This is used as a mitigation mechanism for certain
+  // LiveKit-originated issues that we can only address via a full reconnect.
+  const handleFatalError = useCallback((event: CustomEvent) => {
+    const { error, source } = event.detail;
+
+    logger.error({
+      logCode: 'livekit_fatal_error_reconnect',
+      extraInfo: {
+        errorMessage: error?.message,
+        errorName: error?.name,
+        errorStack: error?.stack,
+        source,
+        reconnectOnFatalFailures,
+      },
+    }, `LiveKit: fatal error detected - ${error?.message}, reconnect=${reconnectOnFatalFailures}`);
+
+    if (!reconnectOnFatalFailures) return;
+
+    if (isReconnectingRef.current || connAttempts >= MAX_CONN_ATTEMPTS) {
+      logger.debug({
+        logCode: 'livekit_fatal_error_reconnect_skipped',
+        extraInfo: {
+          errorMessage: error?.message,
+          errorName: error?.name,
+          errorStack: error?.stack,
+          source,
+          inProgress: isReconnectingRef.current,
+          maxAttempts: connAttempts >= MAX_CONN_ATTEMPTS,
+        },
+      }, 'LiveKit: skipping fatal error reconnect');
+      return;
+    }
+
+    notify(intl.formatMessage(intlMessages.mediaReconnecting), 'warning', 'warning');
+    isReconnectingRef.current = true;
+    liveKitRoom.disconnect().then(() => {
+      const fatalError = new ForcedReconnectionError('Fatal error recovery');
+      setConnError(fatalError);
+      setConnAttempts((prev) => prev + 1);
+    }).catch((disconnectError: Error) => {
+      logger.error({
+        logCode: 'livekit_fatal_error_disconnect_failed',
+        extraInfo: {
+          errorMessage: disconnectError?.message,
+          errorName: disconnectError?.name,
+          errorStack: disconnectError?.stack,
+          source,
+        },
+      }, 'LiveKit: failed to disconnect during fatal error recovery');
+    }).finally(() => {
+      isReconnectingRef.current = false;
+    });
+  }, [intl, reconnectOnFatalFailures, connAttempts]);
+
+  useEffect(() => {
+    window.addEventListener(LK_FATAL_ERROR_EVENT, handleFatalError as EventListener);
+
+    return () => {
+      window.removeEventListener(LK_FATAL_ERROR_EVENT, handleFatalError as EventListener);
+    };
+  }, [handleFatalError]);
+
   // Screen share requires audio playback as well (Chrome supports it)
   const withAudioPlayback = usingAudio || usingScreenShare;
 
@@ -362,13 +443,14 @@ const BBBLiveKitRoomContainer: React.FC = () => {
   const [meetingSettings] = useMeetingSettings();
   const url = meetingSettings.public.media?.livekit?.url
     || `wss://${window.location.hostname}/livekit`;
-  const withSelectiveSubscription = meetingSettings.public.media?.livekit?.selectiveSubscription ?? false;
+  const withSelectiveSubscription = meetingSettings.public.media?.livekit?.selectiveSubscription?.enabled ?? true;
   const logLevel = meetingSettings.public.media?.livekit?.logLevel ?? LogLevel.warn;
   const roomOptions = meetingSettings.public.media?.livekit?.roomOptions ?? {
     adaptiveStream: true,
     dynacast: true,
     stopLocalTrackOnUnpublish: false,
   };
+  const reconnectOnFatalFailures = meetingSettings.public.media?.livekit?.reconnectOnFatalFailures ?? true;
   const { data: bridges } = useMeeting((m) => ({
     cameraBridge: m.cameraBridge,
     screenShareBridge: m.screenShareBridge,
@@ -390,6 +472,7 @@ const BBBLiveKitRoomContainer: React.FC = () => {
       usingAudio={bridges?.audioBridge === 'livekit'}
       usingScreenShare={bridges?.screenShareBridge === 'livekit'}
       withSelectiveSubscription={withSelectiveSubscription}
+      reconnectOnFatalFailures={reconnectOnFatalFailures}
     />
   );
 };

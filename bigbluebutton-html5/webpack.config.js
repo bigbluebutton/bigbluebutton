@@ -5,6 +5,7 @@ const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
+const CompressionPlugin = require('compression-webpack-plugin');
 
 const env = process.env.NODE_ENV || 'development';
 const detailedLogs = process.env.DETAILED_LOGS || false;
@@ -14,7 +15,7 @@ const devEnv = 'development';
 const isDev = env === devEnv;
 const isSafariTarget = process.env.TARGET === 'safari';
 
-console.log(`Building: ${process.env.TARGET}`);
+process.stdout.write(`Building: ${process.env.TARGET}\n`);
 
 const config = {
   entry: './client/main.tsx',
@@ -69,6 +70,7 @@ const config = {
     }),
     (isDev && hotReload) && new ReactRefreshWebpackPlugin({
       overlay: false,
+      exclude: /worker\.ts$/,
     }),
   ],
   resolve: {
@@ -79,6 +81,8 @@ const config = {
     alias: {
       '/client': path.resolve(__dirname, 'client/'),
       '/imports': path.resolve(__dirname, '/imports/'),
+      '@tiptap/core/jsx-runtime': path.resolve(__dirname, 'node_modules/@tiptap/core/dist/jsx-runtime/jsx-runtime.js'),
+      yjs: path.resolve(__dirname, 'node_modules/yjs'),
     },
   },
   module: {
@@ -131,17 +135,11 @@ const config = {
 };
 
 if (env === prodEnv) {
+  config.plugins.push(new CompressionPlugin());
   config.mode = prodEnv;
   config.optimization = {
     minimize: true,
-    minimizer: isSafariTarget ? [] : [new TerserPlugin({
-      terserOptions: {
-        keep_classnames: true,
-        keep_fnames: true,
-      },
-      extractComments: false,
-      parallel: true,
-    })],
+    minimizer: isSafariTarget ? [] : [new TerserPlugin()],
   };
   config.performance = {
     hints: 'warning',

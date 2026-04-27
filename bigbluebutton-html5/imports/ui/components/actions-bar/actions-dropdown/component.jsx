@@ -36,6 +36,7 @@ const propTypes = {
     }),
   ).isRequired,
   isPresentationManagementDisabled: PropTypes.bool,
+  isBreakout: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -43,6 +44,7 @@ const defaultProps = {
   isPresentationManagementDisabled: false,
   amIPresenter: false,
   amIModerator: false,
+  isBreakout: false,
 };
 
 const intlMessages = defineMessages({
@@ -175,6 +177,7 @@ class ActionsDropdown extends PureComponent {
       isPresentationEnabled,
       isPresentationManagementDisabled,
       isQuizEnabled,
+      isBreakout,
     } = this.props;
 
     const {
@@ -227,7 +230,7 @@ class ActionsDropdown extends PureComponent {
       });
     }
 
-    if (!amIPresenter && amIModerator) {
+    if (!amIPresenter && (amIModerator || isBreakout)) {
       actions.push({
         icon: 'presentation',
         label: formatMessage(takePresenter),
@@ -342,7 +345,7 @@ class ActionsDropdown extends PureComponent {
       intl,
       amIPresenter,
       shortcuts: OPEN_ACTIONS_AK,
-      isMeteorConnected,
+      isConnected,
       isDropdownOpen,
       isMobile,
       isRTL,
@@ -356,7 +359,7 @@ class ActionsDropdown extends PureComponent {
 
     const customStyles = { top: '-1rem' };
 
-    if (availableActions.length === 0 || !isMeteorConnected) {
+    if (availableActions.length === 0 || !isConnected) {
       return null;
     }
 

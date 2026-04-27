@@ -2,10 +2,10 @@
 /* eslint-disable */
 import styled from 'styled-components';
 import { colorOffWhite } from '/imports/ui/stylesheets/styled-components/palette';
-import { TextElipsis, DivElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
-import { landscape, mediumUp } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { fontSizeSmaller } from '/imports/ui/stylesheets/styled-components/typography';
 import Button from '/imports/ui/components/common/button/component';
+import { TextElipsis, DivElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
+import { landscape, mediumUp } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const DropdownTrigger = styled(DivElipsis)<{
   $isRTL: boolean;
@@ -115,7 +115,7 @@ const OptionsButton = styled(Button)`
     color: white !important;
     opacity: 100% !important;
   }
-  
+
   &:hover {
     transform: scale(1.3);
     transition-duration: 150ms;

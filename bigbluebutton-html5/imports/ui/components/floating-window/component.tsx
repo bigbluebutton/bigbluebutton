@@ -13,6 +13,8 @@ interface FloatingWindowProps {
   backgroundColor: string;
   boxShadow: string;
   isDraggable: boolean;
+  dataTest?: string;
+  zIndex?: number;
   renderFunction: (element: HTMLElement) => ReactDOM.Root;
 }
 
@@ -21,17 +23,25 @@ const renderComponent = (
   id: string,
   backgroundColor: string,
   boxShadow: string,
-) => (
-  <Styled.FloatingWindowContent
-    ref={elementRef}
-    id={id}
-    className="floating-window-content"
-    style={{
-      backgroundColor,
-      boxShadow,
-    }}
-  />
-);
+  dataTest?: string,
+  zIndex?: number,
+) => {
+  const style: React.CSSProperties = {
+    backgroundColor,
+    boxShadow,
+  };
+
+  if (zIndex) style.zIndex = zIndex;
+  return (
+    <Styled.FloatingWindowContent
+      ref={elementRef}
+      id={id}
+      className="floating-window-content"
+      data-test={dataTest}
+      style={style}
+    />
+  );
+};
 
 const FloatingWindow: React.FC<FloatingWindowProps> = ({
   left,
@@ -40,6 +50,8 @@ const FloatingWindow: React.FC<FloatingWindowProps> = ({
   backgroundColor,
   boxShadow,
   isDraggable,
+  dataTest,
+  zIndex,
   renderFunction,
 }) => {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -69,6 +81,8 @@ const FloatingWindow: React.FC<FloatingWindowProps> = ({
     id,
     backgroundColor,
     boxShadow,
+    dataTest,
+    zIndex,
   );
 
   return (

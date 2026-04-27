@@ -42,12 +42,21 @@ public class SvgImageCreatorImp implements SvgImageCreator {
     private ImageResizer imageResizer;
     private ImageResolutionService imageResolutionService;
 
+    private long maxBigSvgSize;
+
     @Override
-    public boolean createSvgImage(UploadedPresentation pres, int page) throws TimeoutException{
+    public boolean createSvgImage(UploadedPresentation pres, int page, boolean useBlank) throws TimeoutException{
         boolean success = false;
         File svgImagesPresentationDir = determineSvgImagesDirectory(pres.getUploadedFile());
         if (!svgImagesPresentationDir.exists())
             svgImagesPresentationDir.mkdir();
+
+        File destSvg = new File(svgImagesPresentationDir.getAbsolutePath() + File.separatorChar + "slide" + page + ".svg");
+
+        if (useBlank) {
+            copyBlankSvg(destSvg);
+            return true;
+        }
 
         try {
             success = generateSvgImage(svgImagesPresentationDir, pres, page);
@@ -57,7 +66,6 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         }
 
         if (!success) {
-            File destSvg = new File(svgImagesPresentationDir.getAbsolutePath() + File.separatorChar + "slide" + page + ".svg");
             if (destSvg.exists()) {
                 destSvg.delete();
             }
@@ -297,8 +305,8 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                     if (base64Size > browserLimit) {
                         log.error("Encoded PNG is too large for the browser");
                     } else {
-                        int width = 500;
-                        int height = 500;
+                        int width = MAX_SVG_WIDTH;
+                        int height = MAX_SVG_HEIGHT;
 
                         ImageResolution imageResolution = imageResolutionService.identifyImageResolution(tempPng);
                         log.debug("Identified page {} image {} width={} and height={}", page, pres.getName(), imageResolution.getWidth(), imageResolution.getHeight());
@@ -312,8 +320,13 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                             log.info("The image exceeds max dimension allowed, it will be resized.");
                             imageResizer.resize(tempPng, MAX_SVG_WIDTH + "x" + MAX_SVG_HEIGHT);
                             imageResolution = imageResolutionService.identifyImageResolution(tempPng);
-                            width = imageResolution.getWidth();
-                            height = imageResolution.getHeight();
+                            if (imageResolution.getWidth() != 0 && imageResolution.getHeight() != 0) {
+                                width = imageResolution.getWidth();
+                                height = imageResolution.getHeight();
+                            } else {
+                                log.warn("Image resolution after resize returned 0 for page {} of {}, using defaults {}x{}",
+                                         page, pres.getName(), width, height);
+                            }
                         }
 
                         String svg = createSvgWithEmbeddedPng(base64encodedPng, width, height);
@@ -361,7 +374,11 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
         long endConv = System.currentTimeMillis();
 
-        //System.out.println("******** CREATING SVG page " + page + " " + (endConv - startConv));
+        long svgLength = destsvg.length();
+        if (maxBigSvgSize > 0 && svgLength > maxBigSvgSize) {
+            log.warn("Generated SVG [{}] is too large: {}; using blank SVG instead", destsvg, svgLength);
+            return false;
+        }
 
         if (done) {
             return true;
@@ -505,5 +522,9 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
     public void setImageResolutionService(ImageResolutionService imageResolutionService) {
         this.imageResolutionService = imageResolutionService;
+    }
+
+    public void setMaxBigSvgSize(long maxBigSvgSize) {
+        this.maxBigSvgSize = maxBigSvgSize;
     }
 }

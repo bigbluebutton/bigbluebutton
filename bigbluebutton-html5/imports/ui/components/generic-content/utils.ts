@@ -1,8 +1,10 @@
-import { difference } from 'ramda';
+import { differenceWith } from 'ramda';
 
-const getDifferenceBetweenLists = <T>(previousState: T[], currentState: T[]): T[][] => {
-  const added = difference(currentState, previousState);
-  const removed = difference(previousState, currentState);
+const cmp = (x: { id: string; }, y: { id: string; }) => x.id === y.id;
+
+const getDifferenceBetweenLists = <T extends { id: string; }>(previousState: T[], currentState: T[]): T[][] => {
+  const added = differenceWith(cmp, currentState, previousState);
+  const removed = differenceWith(cmp, previousState, currentState);
   return [added, removed];
 };
 
