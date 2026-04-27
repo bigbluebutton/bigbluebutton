@@ -1,12 +1,13 @@
 /* eslint-disable jsx-a11y/no-access-key */
 import React, { useCallback, useEffect, memo } from 'react';
+import { useReactiveVar } from '@apollo/client';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import { defineMessages, useIntl } from 'react-intl';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { useShortcut } from '../../../core/hooks/useShortcut';
 import { useIsChatEnabled } from '/imports/ui/services/features';
-import useHasUnreadChatMessages from '../../chat/hooks/useHasUnreadChatMessages';
+import useHasUnreadChatMessages, { hasUnreadMentionVar } from '../../chat/hooks/useHasUnreadChatMessages';
 import SidebarNavigationButton from '/imports/ui/components/sidebar-navigation/sidebar-navigation-button/component';
 import useIsSpecificPanelOpened from '../hooks/useIsSpecificPanelOpened';
 
@@ -34,8 +35,17 @@ const ChatListItem: React.FC = () => {
   const {
     hasUnreadMessages,
     hasUnreadPrivateMessages,
+    rawTotalUnread,
     activeChat,
   } = useHasUnreadChatMessages({ isChatPanelOpened: isOpened });
+
+  const hasUnreadMention = useReactiveVar(hasUnreadMentionVar);
+
+  useEffect(() => {
+    if (rawTotalUnread === 0 && hasUnreadMention) {
+      hasUnreadMentionVar(false);
+    }
+  }, [rawTotalUnread, hasUnreadMention]);
 
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
   const isChatEnabled = useIsChatEnabled();
@@ -74,7 +84,7 @@ const ChatListItem: React.FC = () => {
       id="chat-toggle-button"
       dataTest="messagesSidebarButton"
       hasNotification={hasUnreadMessages}
-      hasPrivateNotification={hasUnreadPrivateMessages}
+      hasPrivateNotification={hasUnreadPrivateMessages || hasUnreadMention}
       onToggle={handleChatToggle}
     />
   );

@@ -1,9 +1,10 @@
 import React, {
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
-import { useQuery } from '@apollo/client';
+import { useSubscription } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
 import { GET_MENTION_USERS, GetMentionUsersResponse, MentionUser } from './queries';
@@ -20,8 +21,6 @@ const intlMessages = defineMessages({
   },
 });
 
-const MAX_VISIBLE = 6;
-
 interface ChatMentionPickerProps {
   searchText: string;
   onSelect: (name: string) => void;
@@ -34,17 +33,16 @@ const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
   onClose,
 }) => {
   const intl = useIntl();
-  const { data } = useQuery<GetMentionUsersResponse>(GET_MENTION_USERS, {
-    fetchPolicy: 'cache-and-network',
-  });
+  const { data } = useSubscription<GetMentionUsersResponse>(GET_MENTION_USERS);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const listRef = useRef<HTMLUListElement>(null);
 
-  const filtered: MentionUser[] = (data?.user ?? [])
-    .filter((u) => u.userId !== Auth.userID)
-    .filter((u) => u.name.toLowerCase().startsWith(searchText.toLowerCase()))
-    .slice(0, MAX_VISIBLE);
+  const filtered = useMemo<MentionUser[]>(
+    () => (data?.user ?? [])
+      .filter((u) => u.userId !== Auth.userID && u.name.toLowerCase().startsWith(searchText.toLowerCase())),
+    [data?.user, searchText],
+  );
 
   useEffect(() => {
     setActiveIndex(0);
@@ -57,29 +55,41 @@ const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
     }
   }, [activeIndex]);
 
+  const filteredRef = useRef(filtered);
+  const activeIndexRef = useRef(activeIndex);
+  const onSelectRef = useRef(onSelect);
+  const onCloseRef = useRef(onClose);
+  filteredRef.current = filtered;
+  activeIndexRef.current = activeIndex;
+  onSelectRef.current = onSelect;
+  onCloseRef.current = onClose;
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        setActiveIndex((prev) => (prev + 1) % Math.max(1, filtered.length));
+        setActiveIndex((prev) => (prev + 1) % Math.max(1, filteredRef.current.length));
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        setActiveIndex((prev) => (prev - 1 + Math.max(1, filtered.length)) % Math.max(1, filtered.length));
+        setActiveIndex(
+          (prev) => (prev - 1 + Math.max(1, filteredRef.current.length)) % Math.max(1, filteredRef.current.length),
+        );
       } else if (e.key === 'Enter') {
         e.preventDefault();
         e.stopPropagation();
-        if (filtered[activeIndex]) {
-          onSelect(filtered[activeIndex].name);
+        const current = filteredRef.current[activeIndexRef.current];
+        if (current) {
+          onSelectRef.current(current.name);
         }
       } else if (e.key === 'Escape') {
         e.preventDefault();
-        onClose();
+        onCloseRef.current();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown, true);
     return () => window.removeEventListener('keydown', handleKeyDown, true);
-  }, [filtered, activeIndex, onSelect, onClose]);
+  }, []);
 
   return (
     <Styled.PickerContainer role="listbox" aria-label={intl.formatMessage(intlMessages.title)}>

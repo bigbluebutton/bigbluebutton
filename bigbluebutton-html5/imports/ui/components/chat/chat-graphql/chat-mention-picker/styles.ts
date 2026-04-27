@@ -41,7 +41,7 @@ export const UserList = styled.ul`
   margin: 0;
   padding: 4px 0;
   overflow-y: auto;
-  flex: 1;
+  max-height: 152px;
 `;
 
 interface UserItemProps {

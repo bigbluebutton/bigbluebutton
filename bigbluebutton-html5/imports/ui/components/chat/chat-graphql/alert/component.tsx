@@ -24,6 +24,7 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import Auth from '/imports/ui/services/auth';
+import { hasUnreadMentionVar } from '/imports/ui/components/chat/hooks/useHasUnreadChatMessages';
 
 const intlMessages = defineMessages({
   appToastChatPublic: {
@@ -125,9 +126,12 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
     if (shouldRenderChatAlerts) {
       chatUnreadMessages.forEach((m) => {
         history.current.add(m.messageId);
+        if (m.senderId !== Auth.userID && isMentioned(m)) {
+          hasUnreadMentionVar(true);
+        }
       });
     }
-  });
+  }, [shouldRenderChatAlerts, chatUnreadMessages, isMentioned]);
 
   let playAudioAlert = false;
 

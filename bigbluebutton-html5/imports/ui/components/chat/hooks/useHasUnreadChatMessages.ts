@@ -1,3 +1,4 @@
+import { makeVar } from '@apollo/client';
 import {
   useEffect, useMemo, useState, useCallback,
 } from 'react';
@@ -6,6 +7,8 @@ import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import useChat from '/imports/ui/core/hooks/useChat';
 import { Chat } from '/imports/ui/Types/chat';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
+
+export const hasUnreadMentionVar = makeVar<boolean>(false);
 
 interface UseUnreadChatMessagesProps {
   isChatPanelOpened: boolean;
@@ -63,6 +66,7 @@ const useHasUnreadChatMessages = ({ isChatPanelOpened, skip = false }: UseUnread
       totalUnreadMessages: isChatPanelOpened ? 0 : totalUnread,
       hasUnreadMessages: !isChatPanelOpened && totalUnread > 0,
       hasUnreadPrivateMessages,
+      rawTotalUnread: totalUnread,
       activeChat,
       chatIds,
     };
