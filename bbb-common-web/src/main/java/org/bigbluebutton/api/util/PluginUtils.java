@@ -71,8 +71,7 @@ public class PluginUtils {
                 .replace(MEETING_ID, meetingId);
     }
 
-    private String extractFinalPluginManifestUrl(String rawManifestUrl, String meetingId) {
-        String manifestUrlBeforeRedirections = replaceAllPlaceholdersInManifestUrls(rawManifestUrl, meetingId);
+    private String followManifestRedirects(String manifestUrlBeforeRedirections, String meetingId) {
         String finalUrl = redirectFollower.followRedirect(
                 meetingId, manifestUrlBeforeRedirections, 0, manifestUrlBeforeRedirections,
                 pluginRedirectValidator, 6000
@@ -90,7 +89,7 @@ public class PluginUtils {
             JsonObject pluginManifestJsonObj = pluginManifestJson.getAsJsonObject();
             if (pluginManifestJsonObj.has("url")) {
                 String barePluginManifestUrl = pluginManifestJsonObj.get("url").getAsString();
-                String url = extractFinalPluginManifestUrl(barePluginManifestUrl, meetingId);
+                String url = replaceAllPlaceholdersInManifestUrls(barePluginManifestUrl, meetingId);
                 PluginManifest newPlugin = new PluginManifest(url);
                 if (pluginManifestJsonObj.has("checksum")) {
                     newPlugin.setChecksum(pluginManifestJsonObj.get("checksum").getAsString());
@@ -252,14 +251,13 @@ public class PluginUtils {
     }
 
     public String getRawPluginManifestContent(
-            PluginManifest pluginManifest
+            PluginManifest pluginManifest, String meetingId
     ) throws IOException, InterruptedException {
         String pluginManifestUrlString = pluginManifest.getUrl();
         synchronized (getLockFor(pluginManifestUrlString)) {
             String pluginManifestContent = null;
             String pluginManifestChecksum = pluginManifest.getChecksum();
             if (pluginManifestCacheEnabled) {
-                log.info("Cache enabled. Trying to get saved cache for plugin [{}].", pluginManifestUrlString);
                 pluginManifestContent = getPluginManifestContentFromCache(pluginManifestUrlString);
                 if (pluginManifestContent == null) {
                     log.info("Cache not found for plugin [{}].", pluginManifestUrlString);
@@ -268,8 +266,9 @@ public class PluginUtils {
             boolean isPluginManifestContentCached = pluginManifestContent != null;
             boolean fetchManifestContent = !pluginManifestCacheEnabled || !isPluginManifestContentCached;
             if (fetchManifestContent) {
-                log.info("Fetching plugin manifest content for [{}]", pluginManifestUrlString);
-                pluginManifestContent = PluginUtils.fetchPluginManifestContentFromUrl(pluginManifestUrlString);
+                String finalUrl = followManifestRedirects(pluginManifestUrlString, meetingId);
+                log.info("Fetching plugin manifest content for [{}]", finalUrl);
+                pluginManifestContent = PluginUtils.fetchPluginManifestContentFromUrl(finalUrl);
             }
 
             boolean isRawPluginManifestContentValid = isPluginManifestChecksumValid(

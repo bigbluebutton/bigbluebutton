@@ -441,7 +441,7 @@ public class MeetingService implements MessageListener {
 
       CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
         try {
-          String pluginManifestContent = pluginUtils.getRawPluginManifestContent(pluginManifest);
+          String pluginManifestContent = pluginUtils.getRawPluginManifestContent(pluginManifest, m.getInternalId());
 
           // Validate checksum if any
           String pluginManifestChecksum = pluginManifest.getChecksum();
