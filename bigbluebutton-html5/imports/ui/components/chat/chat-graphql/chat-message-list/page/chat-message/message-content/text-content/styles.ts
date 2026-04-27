@@ -3,6 +3,7 @@ import {
   colorDangerDark,
   colorBorder,
   colorOffWhite,
+  colorPrimary,
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
@@ -75,6 +76,14 @@ export const ChatMessage = styled.div<ChatMessageProps>`
   }
   & h6 {
     margin: 0;
+  }
+
+  & span.chat-mention {
+    color: ${colorPrimary};
+    font-weight: 600;
+    background-color: var(--mention-bg, rgba(82, 122, 206, 0.12));
+    border-radius: 3px;
+    padding: 0 2px;
   }
 `;
 

@@ -38,6 +38,10 @@ const intlMessages = defineMessages({
     id: 'app.toast.chat.system',
     description: 'system for use',
   },
+  appToastChatMention: {
+    id: 'app.toast.chat.mention',
+    description: 'when the current user is mentioned in a message',
+  },
   publicChatClear: {
     id: 'app.chat.clearPublicChatMessage',
     description: 'message of when clear the public chat',
@@ -95,11 +99,23 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
   const shouldRenderChatAlerts = chatMessagesDidChange
     && !!chatUnreadMessages
     && chatUnreadMessages.length > 0;
+
+  const isMentioned = useCallback((m: Message): boolean => {
+    if (!m.messageMetadata) return false;
+    try {
+      const metadata = JSON.parse(m.messageMetadata);
+      const ids: string[] = metadata?.mentionedUserIds ?? [];
+      return ids.includes(Auth.userID as string);
+    } catch {
+      return false;
+    }
+  }, []);
+
   const shouldPlayAudioAlert = useCallback(
     (m: Message) => (m.senderId !== Auth.userID
-      && (m.chatId !== idChatOpen || !tabIsFocused)
+      && (m.chatId !== idChatOpen || !tabIsFocused || isMentioned(m))
       && !history.current.has(m.messageId)),
-    [history.current, idChatOpen, tabIsFocused],
+    [history.current, idChatOpen, tabIsFocused, isMentioned],
   );
 
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
@@ -161,11 +177,13 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
 
   const renderToast = (message: Message) => {
     if (history.current.has(message.messageId)) return null;
-    if (message.chatId === idChatOpen) return null;
+    const mentionedMe = isMentioned(message);
+    if (message.chatId === idChatOpen && !mentionedMe) return null;
 
     const isPublicChatMessage = message.chatId === PUBLIC_GROUP_CHAT_ID;
     const isPollResult = message.messageType === ChatMessageType.POLL;
     let content;
+    let titleContent;
 
     if (isPollResult) {
       content = createPollMessage();
@@ -173,16 +191,20 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
       content = createMessage(message);
     }
 
+    if (mentionedMe) {
+      titleContent = <span>{intl.formatMessage(intlMessages.appToastChatMention)}</span>;
+    } else if (isPublicChatMessage) {
+      titleContent = <span>{intl.formatMessage(intlMessages.appToastChatPublic)}</span>;
+    } else {
+      titleContent = <span>{intl.formatMessage(intlMessages.appToastChatPrivate)}</span>;
+    }
+
     return (
       <ChatPushAlert
-        key={message.chatId}
+        key={`${message.chatId}-${message.messageId}`}
         chatId={message.chatId}
         content={content}
-        title={
-          isPublicChatMessage
-            ? <span>{intl.formatMessage(intlMessages.appToastChatPublic)}</span>
-            : <span>{intl.formatMessage(intlMessages.appToastChatPrivate)}</span>
-        }
+        title={titleContent}
         alertDuration={ALERT_DURATION}
         layoutContextDispatch={layoutContextDispatch}
       />

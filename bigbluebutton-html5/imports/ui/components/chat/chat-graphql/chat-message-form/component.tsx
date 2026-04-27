@@ -36,6 +36,7 @@ import { Layout } from '../../../layout/layoutTypes';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 import ChatOfflineIndicator from './chat-offline-indicator/component';
+import ChatMentionPicker from '../chat-mention-picker/component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import { CHAT_SEND_MESSAGE, CHAT_SET_TYPING } from './mutations';
 import Storage from '/imports/ui/services/storage/session';
@@ -145,6 +146,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [error, setError] = React.useState<string | null>(null);
   const [message, setMessage] = React.useState('');
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
+  const [mentionSearchText, setMentionSearchText] = React.useState<string | null>(null);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const emojiPickerButtonRef = useRef<HTMLButtonElement>(null);
   const emojiPickerPreviousFocusRef = useRef<HTMLElement | null>(null);
@@ -347,6 +349,17 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     return result;
   };
 
+  const getMentionSearchAtCursor = (text: string, cursorPos: number): string | null => {
+    const textBeforeCursor = text.slice(0, cursorPos);
+    const atIndex = textBeforeCursor.lastIndexOf('@');
+    if (atIndex === -1) return null;
+    const charBefore = textBeforeCursor[atIndex - 1];
+    if (charBefore !== undefined && !/\s/.test(charBefore)) return null;
+    const afterAt = textBeforeCursor.slice(atIndex + 1);
+    if (/\s/.test(afterAt)) return null;
+    return afterAt;
+  };
+
   const handleMessageChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     let newMessage = null;
     let newError = null;
@@ -366,6 +379,28 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     setMessage(newMessage);
     setError(newError);
     throttleHandleUserTyping(newError != null);
+
+    const cursorPos = e.target.selectionStart ?? newMessage.length;
+    const searchText = getMentionSearchAtCursor(newMessage, cursorPos);
+    setMentionSearchText(searchText);
+  };
+
+  const handleMentionSelect = (name: string) => {
+    const txtArea = textAreaRef?.current?.textarea;
+    const cursorPos = txtArea?.selectionStart ?? message.length;
+    const textBeforeCursor = message.slice(0, cursorPos);
+    const atIndex = textBeforeCursor.lastIndexOf('@');
+    if (atIndex === -1) return;
+    const newMessage = `${message.slice(0, atIndex)}@${name} ${message.slice(cursorPos)}`;
+    setMessage(newMessage);
+    setMentionSearchText(null);
+    setTimeout(() => {
+      if (txtArea) {
+        const newPos = atIndex + name.length + 2;
+        txtArea.focus();
+        txtArea.setSelectionRange(newPos, newPos);
+      }
+    }, 0);
   };
 
   useEffect(() => {
@@ -659,6 +694,13 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         onSubmit={handleSubmit}
         isRTL={isRTL}
       >
+        {mentionSearchText !== null ? (
+          <ChatMentionPicker
+            searchText={mentionSearchText}
+            onSelect={handleMentionSelect}
+            onClose={() => setMentionSearchText(null)}
+          />
+        ) : null}
         {showEmojiPicker ? (
           <Styled.EmojiPickerWrapper ref={emojiPickerRef}>
             <Styled.EmojiPicker

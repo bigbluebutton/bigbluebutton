@@ -176,4 +176,102 @@ object MarkdownUtil {
     val chosenRenderer = if (enableImages) rendererWithImages else rendererNoImages
     chosenRenderer.render(doc)
   }
+
+  def processMentions(html: String, userNameToId: Map[String, String]): (String, List[String]) = {
+    if (userNameToId.isEmpty) return (html, List.empty)
+
+    val sortedNames = userNameToId.keys.toSeq.sortBy(-_.length)
+
+    val escapedAlternatives = sortedNames.map(n => Pattern.quote(n)).mkString("|")
+    val mentionPattern: Pattern = Pattern.compile(
+      s"@($escapedAlternatives)(?=[\\s,\\.!\\?;:\\)\\]>\"']|&nbsp;|<|$$)",
+      Pattern.CASE_INSENSITIVE
+    )
+
+    val tagPattern: Pattern = Pattern.compile("<[^>]+>")
+    val tagMatcher = tagPattern.matcher(html)
+
+    val result = new StringBuilder(html.length + 128)
+    val mentionedIds = scala.collection.mutable.LinkedHashSet.empty[String]
+
+    var skipDepth = 0
+    var lastEnd = 0
+
+    while (tagMatcher.find()) {
+      val tagStart = tagMatcher.start()
+      val tagEnd = tagMatcher.end()
+      val tag = tagMatcher.group()
+      val tagLower = tag.toLowerCase
+
+      if (tagStart > lastEnd) {
+        val textNode = html.substring(lastEnd, tagStart)
+        if (skipDepth == 0) {
+          val (processed, ids) = replaceMentionsInText(textNode, mentionPattern, userNameToId)
+          result.append(processed)
+          mentionedIds ++= ids
+        } else {
+          result.append(textNode)
+        }
+      }
+
+      val isClosingTag = tagLower.startsWith("</")
+      val isSelfClosing = tagLower.endsWith("/>") || tagLower.matches("<(br|hr|img|input)[^>]*/?>")
+      val tagName = tagLower.replaceAll("[<>/\\s].*", "").replaceAll("[<>/]", "").trim
+
+      if (!isSelfClosing) {
+        if (isClosingTag && Seq("code", "pre", "a").contains(tagName)) {
+          skipDepth = math.max(0, skipDepth - 1)
+        } else if (!isClosingTag && Seq("code", "pre", "a").contains(tagName)) {
+          skipDepth += 1
+        }
+      }
+
+      result.append(tag)
+      lastEnd = tagEnd
+    }
+
+    if (lastEnd < html.length) {
+      val textNode = html.substring(lastEnd)
+      if (skipDepth == 0) {
+        val (processed, ids) = replaceMentionsInText(textNode, mentionPattern, userNameToId)
+        result.append(processed)
+        mentionedIds ++= ids
+      } else {
+        result.append(textNode)
+      }
+    }
+
+    (result.toString(), mentionedIds.toList)
+  }
+
+  private def replaceMentionsInText(
+    text:           String,
+    pattern:        Pattern,
+    userNameToId:   Map[String, String]
+  ): (String, List[String]) = {
+    val m = pattern.matcher(text)
+    val sb = new StringBuilder(text.length + 64)
+    val ids = scala.collection.mutable.ListBuffer.empty[String]
+    var last = 0
+
+    while (m.find()) {
+      sb.append(text.substring(last, m.start()))
+      val matchedName = m.group(1)
+      // Case-insensitive lookup
+      val userId = userNameToId
+        .find { case (k, _) => k.equalsIgnoreCase(matchedName) }
+        .map(_._2)
+        .getOrElse("")
+      if (userId.nonEmpty) {
+        ids += userId
+        sb.append(s"""<span class="chat-mention" data-userid="$userId">@$matchedName</span>""")
+      } else {
+        sb.append(m.group())
+      }
+      last = m.end()
+    }
+
+    sb.append(text.substring(last))
+    (sb.toString(), ids.toList)
+  }
 }

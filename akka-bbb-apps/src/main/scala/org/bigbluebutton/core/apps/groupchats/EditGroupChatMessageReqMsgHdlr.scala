@@ -68,7 +68,23 @@ trait EditGroupChatMessageReqMsgHdlr extends HandlerHelpers {
               if (userIsOwner) {
 
                 val allowedHtmlElements = getConfigPropertyValueByPathAsBooleanOrElse(liveMeeting.clientSettings, "public.chat.markdownImageAllowed", false)
-                val editedGCMessage = gcMessage.copy(message = msg.body.message, messageAsHtml = MarkdownUtil.markdownToSafeHtml(msg.body.message, allowedHtmlElements))
+                val editedHtml = MarkdownUtil.markdownToSafeHtml(msg.body.message, allowedHtmlElements)
+
+                val userNameToId: Map[String, String] = Users2x.findAll(liveMeeting.users2x)
+                  .filterNot(_.bot)
+                  .map(u => u.name -> u.intId)
+                  .toMap
+                val (mentionedHtml, mentionedUserIds) = MarkdownUtil.processMentions(editedHtml, userNameToId)
+                val updatedMetadata = if (mentionedUserIds.nonEmpty) {
+                  gcMessage.metadata + ("mentionedUserIds" -> mentionedUserIds)
+                } else {
+                  gcMessage.metadata - "mentionedUserIds"
+                }
+                val editedGCMessage = gcMessage.copy(
+                  message = msg.body.message,
+                  messageAsHtml = mentionedHtml,
+                  metadata = updatedMetadata
+                )
                 val updatedGroupChat = GroupChatApp.updateGroupChatMessage(liveMeeting.props.meetingProp.intId, groupChat, state.groupChats, editedGCMessage)
 
                 val event = buildGroupChatMessageEditedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.chatId, msg.header.userId, editedGCMessage)
