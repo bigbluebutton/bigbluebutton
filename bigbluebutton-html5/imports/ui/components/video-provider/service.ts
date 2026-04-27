@@ -431,7 +431,7 @@ class VideoService {
 
   static getStreamsToConnectAndDisconnect(allStreams: VideoItem[], connectedStreamIds: string[]) {
     const cameraIds = allStreams
-      .filter((s) => s?.type !== VIDEO_TYPES.GRID)
+      .filter((s) => s?.type !== VIDEO_TYPES.GRID && s?.type !== VIDEO_TYPES.AUDIO_ONLY)
       .map((s) => (s as StreamItem).stream);
     const streamsToConnect = cameraIds.filter((stream) => {
       return !connectedStreamIds.includes(stream);

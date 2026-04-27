@@ -29,6 +29,7 @@ module BigBlueButton
       # @param process_dir [String] path to directory for temporary processing files
       # @param filename [String] path to the media file
       # @param stream_type [:audio, :video] The type of media stream to inspect
+      # @param duration [Numeric] The expected duration of the media stream (ms)
       # @param min_gap [Numeric] Only include gaps which are at least this long (ms)
       #   Default is 60 seconds, long enough that it won't be hit for short dropouts, but short
       #   enough that it won't cause excessive memory use when ffmpeg fills the gap.
@@ -37,7 +38,7 @@ module BigBlueButton
       #   start of the gap (the moment when the last frame of media before the gap finishes) and
       #   the second element is the end of the gap (the moment when the next frame of media after
       #   the gap starts). All timestamps in ms.
-      def self.pts_gaps(process_dir, filename, stream_type, min_gap = 60_000)
+      def self.pts_gaps(process_dir, filename, stream_type, duration, min_gap = 60_000)
         stream_specifier =
           case stream_type
           when :audio then 'a:0'
@@ -90,6 +91,13 @@ module BigBlueButton
 
                 prev_end = pts
                 prev_end += (row[:duration_time] * 1000).round unless row[:duration_time] == 'N/A'
+              end
+
+              if prev_end < duration
+                gap = duration - prev_end
+                BigBlueButton.logger.info("PTS gap detected between #{prev_end}ms and end of file at #{duration}ms (#{gap}ms long)")
+                # Using Infinity as end time to avoid rounding issues causing a tiny cut near the file end
+                pts_gaps << [prev_end, Float::INFINITY]
               end
             ensure
               _pid, status = Process.wait2(pid)

@@ -124,6 +124,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     document.addEventListener('gesturestart', function (e) {
       e.preventDefault();
     });
+    document.addEventListener('gesturechange', function (e) {
+      e.preventDefault();
+    });
   </script>
   <script src="compatibility/sip.js?v=VERSION" language="javascript"></script>
   <script src="compatibility/tflite-simd.js?v=VERSION" language="javascript"></script>

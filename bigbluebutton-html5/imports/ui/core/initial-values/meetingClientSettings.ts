@@ -206,9 +206,10 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       showConnectionErrors: [3001, 3002, 3003, 3004, 3005, 3006],
     },
     sharedNotes: {
-      serverUrl: '',
+      serverHostname: '',
       maxDocumentChars: 99999,
       maxLengthForContentUpdate: 512,
+      staticFormattingToolbar: true,
     },
     externalVideoPlayer: {
       enabled: true,
@@ -655,7 +656,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           muteDebounceMs: 2500,
         },
         logLevel: LogLevel.warn,
-        reconnectOnFatalFailures: false,
+        reconnectOnFatalFailures: true,
         roomOptions: {
           adaptiveStream: true,
           dynacast: true,

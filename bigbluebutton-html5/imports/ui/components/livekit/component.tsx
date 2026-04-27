@@ -174,7 +174,7 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
   usingAudio,
   usingScreenShare,
   withSelectiveSubscription,
-  reconnectOnFatalFailures = false,
+  reconnectOnFatalFailures = true,
 }) => {
   const [connAttempts, setConnAttempts] = useState(0);
   const [connError, setConnError] = useState<Error | null>(null);
@@ -450,7 +450,7 @@ const BBBLiveKitRoomContainer: React.FC = () => {
     dynacast: true,
     stopLocalTrackOnUnpublish: false,
   };
-  const reconnectOnFatalFailures = meetingSettings.public.media?.livekit?.reconnectOnFatalFailures ?? false;
+  const reconnectOnFatalFailures = meetingSettings.public.media?.livekit?.reconnectOnFatalFailures ?? true;
   const { data: bridges } = useMeeting((m) => ({
     cameraBridge: m.cameraBridge,
     screenShareBridge: m.screenShareBridge,

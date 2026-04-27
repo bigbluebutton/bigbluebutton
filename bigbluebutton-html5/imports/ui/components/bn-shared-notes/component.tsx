@@ -6,7 +6,19 @@ import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
 import '@blocknote/core/fonts/inter.css';
 import '@blocknote/mantine/style.css';
 import { HocuspocusProvider } from '@hocuspocus/provider';
-import { useCreateBlockNote } from '@blocknote/react';
+import { Awareness } from 'y-protocols/awareness';
+import {
+  BasicTextStyleButton,
+  BlockNoteViewEditor,
+  BlockTypeSelect,
+  ColorStyleButton,
+  FormattingToolbar,
+  NestBlockButton,
+  TextAlignButton,
+  UnnestBlockButton,
+  useCreateBlockNote,
+} from '@blocknote/react';
+
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
@@ -18,6 +30,11 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
 import logger from '/imports/startup/client/logger';
 import { notify } from '../../services/notification';
+
+// Force-retain `Awareness` against a webpack tree-shaking interaction that
+// otherwise drops this class while keeping its `extends Observable` expression,
+// producing `ReferenceError: observable is not defined` in the minified bundle.
+(globalThis as unknown as Record<string, unknown>).bbbAwarenessKeepalive = Awareness;
 
 const maxDocumentCharsPluginKey = new PluginKey('maxDocumentChars');
 
@@ -81,6 +98,9 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
 
   const MAX_DOCUMENT_CHARS = window.meetingClientSettings?.public?.sharedNotes?.maxDocumentChars || 99999;
 
+  const STATIC_FORMATTING_TOOLBAR_ENABLED = window.meetingClientSettings
+    ?.public?.sharedNotes?.staticFormattingToolbar ?? true;
+
   const MAX_PASTE_SIZE = MAX_UPDATE_SHARED_NOTES * 1024;
 
   const editor = useCreateBlockNote({
@@ -97,8 +117,8 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
       ...BlockNoteLocales[blockNoteLocale as keyof typeof BlockNoteLocales],
       placeholders: {
         ...BlockNoteLocales[blockNoteLocale as keyof typeof BlockNoteLocales].placeholders,
-        // Override the placeholders to prevent line wrapping in the narrow panel
-        emptyDocument: '',
+        // Override the placeholders to allow placeholder only when the document is empty
+        emptyDocument: BlockNoteLocales[blockNoteLocale as keyof typeof BlockNoteLocales].placeholders.default,
         default: '',
         heading: '',
       },
@@ -194,6 +214,17 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
 
   const editable = !disableNotes || !currentUserIsLocked || currentUserIsModerator;
 
+  // Keep the editor's focus/selection when tapping a toolbar button by
+  // cancelling the default focus move on mousedown.
+  const toolbarRef = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    const el = toolbarRef.current;
+    if (!el) return undefined;
+    const handler = (e: MouseEvent) => e.preventDefault();
+    el.addEventListener('mousedown', handler);
+    return () => el.removeEventListener('mousedown', handler);
+  }, [editable]);
+
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <style>
@@ -207,18 +238,41 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
           .bn-mantine .bn-suggestion-menu {
             min-width: 300px;
           }
-          .bn-editor {
-            padding-inline: 35px 25px;
-          }
-          /* Make the editor fill the available space so clicks below last line focus it */
-          .bn-mantine,
-          .bn-editor,
-          .bn-editor .ProseMirror {
+          /* Toolbar and editor are siblings inside .bn-container. DOM order matches
+             visual order (toolbar first, editor second), so tab order is correct. */
+          .bn-container {
+            display: flex;
+            flex-direction: column;
             height: 100%;
           }
-          .bn-editor .ProseMirror {
+          .bn-toolbar-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 4px;
+            padding-block: 4px;
+            flex-shrink: 0;
+            border-bottom: 1px solid #d4d9df;
+          }
+          .bn-toolbar-row .bn-formatting-toolbar {
+            box-shadow: none;
+            border: none;
+            padding: 0;
+          }
+          .bn-toolbar-row [data-test="colors"] .bn-color-icon {
+            font-weight: 700;
+          }
+          .bn-toolbar-row [data-test="colors"] .bn-color-icon[data-text-color="default"] {
+            color: #2f80ed;
+          }
+          .bn-editor {
+            padding-inline: 35px 25px;
+            font-size: 1rem;
             box-sizing: border-box;
             cursor: text;
+            flex: 1 1 0;
+            min-height: 0;
+            overflow-y: auto;
           }
           /* Flip labels to below when near top of scroll container */
           .bn-block-group > .bn-block-outer:first-child
@@ -246,7 +300,30 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         editable={editable}
         editor={editor}
         theme="light"
-      />
+        formattingToolbar={!STATIC_FORMATTING_TOOLBAR_ENABLED}
+        renderEditor={false}
+      >
+        {STATIC_FORMATTING_TOOLBAR_ENABLED && editable && (
+          <div ref={toolbarRef} className="bn-toolbar-row">
+            <FormattingToolbar>
+              <BlockTypeSelect key="blockTypeSelect" />
+              <BasicTextStyleButton basicTextStyle="bold" key="boldStyleButton" />
+              <BasicTextStyleButton basicTextStyle="italic" key="italicStyleButton" />
+              <BasicTextStyleButton basicTextStyle="underline" key="underlineStyleButton" />
+              <BasicTextStyleButton basicTextStyle="strike" key="strikeStyleButton" />
+            </FormattingToolbar>
+            <FormattingToolbar>
+              <TextAlignButton textAlignment="left" key="textAlignLeftButton" />
+              <TextAlignButton textAlignment="center" key="textAlignCenterButton" />
+              <TextAlignButton textAlignment="right" key="textAlignRightButton" />
+              <ColorStyleButton key="colorStyleButton" />
+              <NestBlockButton key="nestBlockButton" />
+              <UnnestBlockButton key="unnestBlockButton" />
+            </FormattingToolbar>
+          </div>
+        )}
+        <BlockNoteViewEditor />
+      </BlockNoteView>
     </div>
   );
 }

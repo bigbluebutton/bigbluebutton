@@ -576,9 +576,10 @@ export interface Pads {
 }
 
 export interface SharedNotes {
-  serverUrl: string
+  serverHostname: string
   maxDocumentChars: number
   maxLengthForContentUpdate: number
+  staticFormattingToolbar: boolean
 }
 
 export interface Media {

@@ -13,7 +13,7 @@ runs:
   steps:
     - name: Check if artifact exists
       id: check
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       with:
         script: |
           const runId = context.payload.workflow_run?.id ?? context.runId;
