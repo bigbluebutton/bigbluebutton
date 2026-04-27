@@ -224,10 +224,6 @@ public class PluginUtils {
         return content;
     }
 
-    public boolean hasPluginManifestContentCacheFile(String pluginManifestUrlString) throws IOException {
-        return getPluginManifestContentFromCache(pluginManifestUrlString) != null;
-    }
-
     public void savePluginManifestContentInCache(
             String pluginManifestUrlString, String manifestContent
     ) throws IOException {
@@ -277,7 +273,7 @@ public class PluginUtils {
 
 
             try {
-                boolean savePluginManifestInCache = !hasPluginManifestContentCacheFile(pluginManifestUrlString)
+                boolean savePluginManifestInCache = !isPluginManifestContentCached
                         && isRawPluginManifestContentValid
                         && pluginManifestCacheEnabled;
 
