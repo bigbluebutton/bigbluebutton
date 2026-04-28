@@ -107,15 +107,6 @@ public class LearningDashboardService {
         directory.delete();
     }
 
-    public boolean isValidAccessToken(String meetingId, String accessToken) {
-        if (meetingId == null || meetingId.isEmpty() || accessToken == null || accessToken.isEmpty()) {
-            return false;
-        }
-        String path = getDestinationBaseDirectoryName(meetingId, accessToken)
-                + File.separatorChar + "learning_dashboard_data.json";
-        return new File(path).exists();
-    }
-
     public void setLearningDashboardFilesDir(String dir) {
         learningDashboardFilesDir = dir;
     }

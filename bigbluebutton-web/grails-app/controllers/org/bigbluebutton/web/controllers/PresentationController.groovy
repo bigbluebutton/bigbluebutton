@@ -20,7 +20,6 @@ package org.bigbluebutton.web.controllers
 
 
 import org.apache.commons.io.FilenameUtils
-import org.bigbluebutton.api.LearningDashboardService
 import org.bigbluebutton.api.MeetingService
 import org.bigbluebutton.api.ParamsProcessorUtil
 import org.bigbluebutton.api.Util
@@ -41,7 +40,6 @@ import java.util.regex.Pattern
 class PresentationController {
   MeetingService meetingService
   PresentationService presentationService
-  LearningDashboardService learningDashboardService
   ParamsProcessorUtil paramsProcessorUtil
   DefaultMimeUtility grailsMimeUtility
 
@@ -70,123 +68,84 @@ class PresentationController {
         return
       }
 
-      response.addHeader("Cache-Control", "no-cache")
-      response.contentType = 'plain/text'
-
-      def uriPath = uri.split('\\?')[0]
-
-      // Try session token authentication first
       def sessionToken = ParamsUtil.getSessionToken(uri)
       UserSession userSession = meetingService.getUserSessionWithSessionToken(sessionToken)
       Boolean allowRequestsWithoutSession = meetingService.getAllowRequestsWithoutSession(sessionToken)
-      Boolean isSessionValid = userSession != null && (session[sessionToken] || allowRequestsWithoutSession)
+      Boolean isSessionTokenInvalid = !session[sessionToken] && !allowRequestsWithoutSession
 
-      if (isSessionValid) {
-        if (authorizeWithSession(uri, uriPath, userSession)) return
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'plain/text'
+
+      if (userSession == null || isSessionTokenInvalid) {
+        response.setStatus(401)
+        response.outputStream << 'unauthorized'
+        return
       }
 
-      // Fall back to learning dashboard access token
-      if (authorizeWithLdToken(uri, uriPath)) return
+      def uriPath = uri.split('\\?')[0]
 
-      response.setStatus(401)
-      response.outputStream << 'unauthorized'
+      def slideMatcher = SLIDE_URI_PATTERN.matcher(uriPath)
+      if (slideMatcher.matches()) {
+        def meetingIdFromUri = slideMatcher.group(2)
+        if (meetingIdFromUri != userSession.meetingID) {
+          response.setStatus(403)
+          response.outputStream << 'forbidden'
+          return
+        }
+
+        def presToken = extractQueryParam(uri, "presToken")
+        if (presentationService.presTokenSecret) {
+          def presId = slideMatcher.group(3)
+          def pageNum = slideMatcher.group(5)
+          def expectedToken = generatePresToken(presId, Integer.parseInt(pageNum), presentationService.presTokenSecret)
+          if (presToken == null || presToken != expectedToken) {
+            response.setStatus(403)
+            response.outputStream << 'invalid-token'
+            return
+          }
+        }
+
+        response.setStatus(200)
+        response.outputStream << 'authorized'
+        return
+      }
+
+      def downloadMatcher = DOWNLOAD_URI_PATTERN.matcher(uriPath)
+      if (downloadMatcher.matches()) {
+        def meetingIdFromUri = downloadMatcher.group(1)
+        if (meetingIdFromUri != userSession.meetingID) {
+          response.setStatus(403)
+          response.outputStream << 'forbidden'
+          return
+        }
+
+        response.setStatus(200)
+        response.outputStream << 'authorized'
+        return
+      }
+
+      def pdfMatcher = PDF_URI_PATTERN.matcher(uriPath)
+      if (pdfMatcher.matches()) {
+        def meetingIdFromUri = pdfMatcher.group(2)
+        if (meetingIdFromUri != userSession.meetingID) {
+          response.setStatus(403)
+          response.outputStream << 'forbidden'
+          return
+        }
+
+        response.setStatus(200)
+        response.outputStream << 'authorized'
+        return
+      }
+
+      response.setStatus(403)
+      response.outputStream << 'forbidden'
     } catch (Exception e) {
       log.error("Error in checkPresentationAuthorization.\n" + e.getMessage())
       response.setStatus(401)
       response.contentType = 'plain/text'
       response.outputStream << 'unauthorized'
     }
-  }
-
-  private boolean authorizeWithSession(String uri, String uriPath, UserSession userSession) {
-    def slideMatcher = SLIDE_URI_PATTERN.matcher(uriPath)
-    if (slideMatcher.matches()) {
-      def meetingIdFromUri = slideMatcher.group(2)
-      if (meetingIdFromUri != userSession.meetingID) {
-        response.setStatus(403)
-        response.outputStream << 'forbidden'
-        return true
-      }
-
-      if (presentationService.presTokenSecret) {
-        def presToken = extractQueryParam(uri, "presToken")
-        def presId = slideMatcher.group(3)
-        def pageNum = slideMatcher.group(5)
-        def expectedToken = generatePresToken(presId, Integer.parseInt(pageNum), presentationService.presTokenSecret)
-        if (presToken == null || presToken != expectedToken) {
-          response.setStatus(403)
-          response.outputStream << 'invalid-token'
-          return true
-        }
-      }
-
-      response.setStatus(200)
-      response.outputStream << 'authorized'
-      return true
-    }
-
-    def downloadMatcher = DOWNLOAD_URI_PATTERN.matcher(uriPath)
-    if (downloadMatcher.matches()) {
-      def meetingIdFromUri = downloadMatcher.group(1)
-      if (meetingIdFromUri != userSession.meetingID) {
-        response.setStatus(403)
-        response.outputStream << 'forbidden'
-        return true
-      }
-
-      response.setStatus(200)
-      response.outputStream << 'authorized'
-      return true
-    }
-
-    def pdfMatcher = PDF_URI_PATTERN.matcher(uriPath)
-    if (pdfMatcher.matches()) {
-      def meetingIdFromUri = pdfMatcher.group(2)
-      if (meetingIdFromUri != userSession.meetingID) {
-        response.setStatus(403)
-        response.outputStream << 'forbidden'
-        return true
-      }
-
-      response.setStatus(200)
-      response.outputStream << 'authorized'
-      return true
-    }
-
-    return false
-  }
-
-  private boolean authorizeWithLdToken(String uri, String uriPath) {
-    def ldToken = extractQueryParam(uri, "ldToken")
-    if (ldToken == null || !ldToken.matches('[a-z0-9]+')) {
-      return false
-    }
-
-    def meetingId = extractMeetingIdFromUri(uriPath)
-    if (meetingId == null) {
-      return false
-    }
-
-    if (learningDashboardService.isValidAccessToken(meetingId, ldToken)) {
-      response.setStatus(200)
-      response.outputStream << 'authorized'
-      return true
-    }
-
-    return false
-  }
-
-  private static String extractMeetingIdFromUri(String uriPath) {
-    def slideMatcher = SLIDE_URI_PATTERN.matcher(uriPath)
-    if (slideMatcher.matches()) return slideMatcher.group(2)
-
-    def downloadMatcher = DOWNLOAD_URI_PATTERN.matcher(uriPath)
-    if (downloadMatcher.matches()) return downloadMatcher.group(1)
-
-    def pdfMatcher = PDF_URI_PATTERN.matcher(uriPath)
-    if (pdfMatcher.matches()) return pdfMatcher.group(2)
-
-    return null
   }
 
   private static String extractQueryParam(String uri, String paramName) {
