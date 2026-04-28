@@ -1,13 +1,11 @@
 import React, {
   useMemo,
-  useEffect,
 } from 'react';
 import useChat from '/imports/ui/core/hooks/useChat';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import logger from '/imports/startup/client/logger';
 import { Message } from '/imports/ui/Types/message';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import { usePinnedChatMessagesHidden, setPinnedChatMessagesHidden } from '/imports/ui/components/chat/chat-graphql/service';
 import {
   CHAT_MESSAGE_PUBLIC_SUBSCRIPTION,
   ChatMessageSubscriptionResponse,
@@ -63,16 +61,9 @@ export const PinnedChatMessageContainer: React.FC<PinnedChatMessageProps> = ({ o
   });
 
   const { data: currentUser } = useCurrentUser((u) => ({ isModerator: u.isModerator }));
-  const isModerator = currentUser?.isModerator ?? false;
-  const pinnedMessagesHidden = usePinnedChatMessagesHidden();
-  const chatPinningEnabled = useIsPinChatMessageEnabled();
 
-  useEffect(() => {
-    // the pinned messages header shortcut should vanish when there is no pinned message.
-    if (!isPublicChat || !openChatId || displayedMessages.length === 0) {
-      setPinnedChatMessagesHidden(false);
-    }
-  }, [isPublicChat, openChatId, displayedMessages]);
+  const isModerator = currentUser?.isModerator ?? false;
+  const chatPinningEnabled = useIsPinChatMessageEnabled();
 
   if (pinnedMessagesError) {
     logger.error({
@@ -81,7 +72,7 @@ export const PinnedChatMessageContainer: React.FC<PinnedChatMessageProps> = ({ o
     }, `Error subscribing to pinned messages: ${pinnedMessagesError}`);
     return null;
   }
-  if (!chatPinningEnabled || pinnedMessagesHidden || !isPublicChat || !openChatId) return null;
+  if (!chatPinningEnabled || !isPublicChat || !openChatId) return null;
   if (displayedMessages.length === 0) return null;
 
   return (

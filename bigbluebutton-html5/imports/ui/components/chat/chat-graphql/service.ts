@@ -1,5 +1,3 @@
-import { makeVar, useReactiveVar } from '@apollo/client';
-
 export const getFirstVisibleLineHtml = (htmlContent: string): string => {
   if (!htmlContent.trim()) return '';
 
@@ -40,11 +38,6 @@ export const getFirstVisibleLineHtml = (htmlContent: string): string => {
 
   return root.outerHTML;
 };
-
-const pinnedChatMessagesHiddenVar = makeVar<boolean>(false);
-export const usePinnedChatMessagesHidden = () => useReactiveVar(pinnedChatMessagesHiddenVar);
-export const setPinnedChatMessagesHidden = (v: boolean) => pinnedChatMessagesHiddenVar(v);
-export const getPinnedChatMessagesHidden = () => pinnedChatMessagesHiddenVar();
 
 export default {
   getFirstVisibleLineHtml,

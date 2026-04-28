@@ -88,7 +88,7 @@ const MessagePreview = styled.div<{ $collapsed?: boolean }>`
   font-size: ${fontSizeLarge};
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: ${({ $collapsed }) => ($collapsed ? 2 : 8)};
+  -webkit-line-clamp: ${({ $collapsed }) => ($collapsed ? 1 : 8)};
   overflow: hidden;
   text-overflow: ellipsis;
   /* prevent long continuous text/URLs from overflowing the preview */

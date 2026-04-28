@@ -420,15 +420,9 @@
 .icon-bbb-pin_filled:before {
   content: "\e984";
 }
-.icon-bbb-visibility_off:before {
+.icon-bbb-arrow_forward_up:before {
   content: "\e985";
 }
-.icon-bbb-visibility_on:before {
-  content: "\e986";
-}
-.icon-bbb-arrow_forward_up:before {
-  content: "\e987";
-}
 .icon-bbb-arrow_forward_down:before {
-  content: "\e988";
+  content: "\e986";
 }

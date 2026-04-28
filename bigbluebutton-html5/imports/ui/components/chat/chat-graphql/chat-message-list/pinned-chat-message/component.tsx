@@ -1,10 +1,9 @@
 import React, {
-  useState, useMemo, useRef, useLayoutEffect, useCallback,
+  useState, useMemo, useRef, useLayoutEffect,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import { Message } from '/imports/ui/Types/message';
-import { setPinnedChatMessagesHidden } from '/imports/ui/components/chat/chat-graphql/service';
 import { CHAT_SET_PINNED_MUTATION } from '/imports/ui/components/chat/chat-graphql/chat-message-list/page/chat-message/mutations';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import ConfirmModal from '/imports/ui/components/common/modal/confirmation/component';
@@ -19,10 +18,6 @@ const intlMessages = defineMessages({
   pinnedByLabel: {
     id: 'app.chat.pinnedMessages.pinnedBy',
     description: 'Pinned by label',
-  },
-  hidePinned: {
-    id: 'app.chat.pinnedMessages.hidePinned',
-    description: 'Hide pinned messages button label',
   },
   unpinMessage: {
     id: 'app.chat.pinnedMessages.unpin',
@@ -52,10 +47,6 @@ const intlMessages = defineMessages({
     id: 'app.chat.pinnedMessages.tooltipUnpin',
     description: 'Tooltip for unpin button in pinned messages section',
   },
-  hideTooltip: {
-    id: 'app.chat.pinnedMessages.tooltipHide',
-    description: 'Tooltip for hide button in pinned messages section',
-  },
   expandTooltip: {
     id: 'app.chat.pinnedMessages.tooltipExpand',
     description: 'Tooltip for expand button in pinned messages section',
@@ -78,8 +69,7 @@ interface PinnedMessageComponentProps {
 
 export default function PinnedMessageComponent({ messages, isModerator, pinnedBy }: PinnedMessageComponentProps) {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isOverflowing, setIsOverflowing] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const messagePreviewRef = useRef<HTMLDivElement>(null);
 
   const activeMessage = useMemo(() => messages[0] || null, [messages]);
@@ -87,20 +77,9 @@ export default function PinnedMessageComponent({ messages, isModerator, pinnedBy
 
   const [unpinMessage] = useMutation(CHAT_SET_PINNED_MUTATION);
 
-  const checkOverflow = useCallback(() => {
-    const el = messagePreviewRef.current;
-    if (el) {
-      setIsOverflowing(el.scrollHeight > el.clientHeight);
-    }
-  }, []);
-
   useLayoutEffect(() => {
-    setIsExpanded(false);
+    setIsExpanded(true);
   }, [activeMessage?.messageId, activeMessage?.messageAsHtml]);
-
-  useLayoutEffect(() => {
-    checkOverflow();
-  }, [isExpanded, activeMessage?.messageId, activeMessage?.messageAsHtml]);
 
   const handleUnpin = () => {
     setIsConfirmModalOpen(true);
@@ -178,24 +157,14 @@ export default function PinnedMessageComponent({ messages, isModerator, pinnedBy
               </Styled.ToggleButton>
             </Tooltip>
           )}
-          <Tooltip title={intl.formatMessage(intlMessages.hideTooltip)}>
+          <Tooltip title={intl.formatMessage(isExpanded ? intlMessages.collapseTooltip : intlMessages.expandTooltip)}>
             <Styled.ToggleButton
-              aria-label={intl.formatMessage(intlMessages.hidePinned)}
-              onClick={() => setPinnedChatMessagesHidden(true)}
+              onClick={() => setIsExpanded((prev) => !prev)}
+              aria-label={intl.formatMessage(isExpanded ? intlMessages.collapseTooltip : intlMessages.expandTooltip)}
             >
-              <Styled.Icon iconName="visibility_off" />
+              <Styled.Icon iconName={isExpanded ? 'arrow_forward_up' : 'arrow_forward_down'} />
             </Styled.ToggleButton>
           </Tooltip>
-          {(isOverflowing || isExpanded) && (
-            <Tooltip title={intl.formatMessage(isExpanded ? intlMessages.collapseTooltip : intlMessages.expandTooltip)}>
-              <Styled.ToggleButton
-                onClick={() => setIsExpanded((prev) => !prev)}
-                aria-label={intl.formatMessage(isExpanded ? intlMessages.collapseTooltip : intlMessages.expandTooltip)}
-              >
-                <Styled.Icon iconName={isExpanded ? 'arrow_forward_up' : 'arrow_forward_down'} />
-              </Styled.ToggleButton>
-            </Tooltip>
-          )}
         </Styled.Controls>
       </Styled.Header>
 
@@ -215,18 +184,20 @@ export default function PinnedMessageComponent({ messages, isModerator, pinnedBy
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: messageAsHtml }}
       />
-      <Styled.Footer>
-        <Styled.FooterUserInfo>
-          <Styled.FooterSenderName>
-            {activeMessage?.senderName}
-          </Styled.FooterSenderName>
-          <Styled.FooterTime>
-            {intl.formatMessage(intlMessages.sentAt)}
-            {' '}
-            {formattedTime}
-          </Styled.FooterTime>
-        </Styled.FooterUserInfo>
-      </Styled.Footer>
+      {isExpanded && (
+        <Styled.Footer>
+          <Styled.FooterUserInfo>
+            <Styled.FooterSenderName>
+              {activeMessage?.senderName}
+            </Styled.FooterSenderName>
+            <Styled.FooterTime>
+              {intl.formatMessage(intlMessages.sentAt)}
+              {' '}
+              {formattedTime}
+            </Styled.FooterTime>
+          </Styled.FooterUserInfo>
+        </Styled.Footer>
+      )}
 
       {isConfirmModalOpen && (
         <ConfirmModal
