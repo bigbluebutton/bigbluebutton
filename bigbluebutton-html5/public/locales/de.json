@@ -1227,7 +1227,7 @@
     "app.lock-viewers.presentationPermissions.moderatorOnly.tooltip": "Nur die Moderation kann Präsentationsrechte erteilen.",
     "app.lock-viewers.presentationPermissions.requireApproval": "Teilnehmenden das Recht zur Präsentation mit Moderationszustimmung erteilen",
     "app.lock-viewers.presentationPermissions.requireApproval.tooltip": "Teilnehmende können Präsentationsrechte anfordern, die Moderation muss aber die Zustimmung erteilen.",
-    "app.lock-viewers.presentationPermissions.freeForAll": "Allow participants to present freely",
+    "app.lock-viewers.presentationPermissions.freeForAll": "Teilnehmenden Rechte zur freien Präsentation erteilen",
     "app.lock-viewers.presentationPermissions.freeForAll.tooltip": "Alle Teilnehmenden können sich ohne Moderationsgenehmigung Präsentationsrechte nehmen.",
     "app.guest-policy.ariaTitle": "Einstellungsdialog für Gastzugangsregelung",
     "app.guest-policy.title": "Gastzugang regeln",
