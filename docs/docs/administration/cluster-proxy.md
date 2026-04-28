@@ -127,6 +127,8 @@ public:
     wsUrl: wss://bbb-01.example.com/bbb-webrtc-sfu
   presentation:
     uploadEndpoint: 'https://bbb-01.example.com/bigbluebutton/presentation/upload'
+  sharedNotes:
+    serverHostname: bbb-01.example.com
   # for BBB 2.4:
   note:
     url: 'https://bbb-01.example.com/pad'

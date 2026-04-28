@@ -21,7 +21,7 @@ If you would like to help translate BigBlueButton into your language, or you see
 
 2. Choose the project
 
-For helping to translate, visit the [BigBlueButton on Transifex](https://www.transifex.com/bigbluebutton/) (needs a login).
+For helping to translate, visit the [BigBlueButton on Transifex](https://app.transifex.com/bigbluebutton/) (needs a login).
 
 You'll see a list of languages and components of BigBlueButton ready for translation.
 

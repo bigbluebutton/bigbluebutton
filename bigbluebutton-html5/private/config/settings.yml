@@ -2,7 +2,6 @@ public:
   app:
     mobileFontSize: 16px
     desktopFontSize: 14px
-    audioChatNotification: false
     # Shows the audio modal when user joins the room. The audio modal prompts
     # user to select an option ("Microphone" and/or "Listen only") for joining
     # audio
@@ -28,7 +27,6 @@ public:
     #
     skipEchoTestIfPreviousDevice: false
     clientTitle: BigBlueButton
-    appName: BigBlueButton HTML5 Client
     bbbServerVersion: HTML5_FULL_BBB_VERSION
     displayBbbServerVersion: true
     copyright: '©2026 BigBlueButton Inc.'
@@ -129,7 +127,6 @@ public:
       interval: 200
       threshold: -50
       duration: 4000
-    remainingTimeThreshold: 30
     remainingTimeAlertThresholdArray: [1,5]
     enableDebugWindow: true
     # Warning: increasing the limit of breakout rooms per meeting
@@ -292,15 +289,10 @@ public:
       displayBrandingArea: true
     connectionTimeout: 60000
     showHelpButton: true
-    effectiveConnection:
-      - critical
-      - danger
-      - warning
     # Whether the fallback mechanism should be used
     # when the locale string is empty. If false, the empty
     # string will be returned.
     fallbackOnEmptyLocaleString: true
-    disableWebsocketFallback: true
     # Maximum number of bytes allowed in each mutation message payload.
     # Defaults to 10485760 (10MB)
     maxMutationPayloadSize: 10485760
@@ -323,12 +315,8 @@ public:
   kurento:
     wsUrl: HOST
     cameraWsOptions:
-      # Valid for video-provider. Time (ms) before its WS connection times out
-      # and tries to reconnect.
-      wsConnectionTimeout: 4000
-      # maxRetries: max reconnection retries
+      connectionTimeout: 4000
       maxRetries: 7
-      # debug: console trace logging for video-provider's ws
       debug: false
       heartbeat:
         interval: 15000
@@ -592,9 +580,6 @@ public:
           desktopPageSizes:
             moderator: 6
             viewer: 4
-  syncUsersWithConnectionManager:
-    enabled: false
-    syncInterval: 60000
   poll:
     enabled: true
     allowCustomResponseInput: true
@@ -606,9 +591,6 @@ public:
       enabled: true
       quickPollCorrectAnswerSuffix: "__"
   captions:
-    enabled: true
-    id: captions
-    dictation: false
     background: '#000000'
     font:
       color: '#ffffff'
@@ -622,9 +604,6 @@ public:
     lines: 2
     # time the captions will hang on screen after last updated
     time: 5000
-    # Default pad which will store automatically generated captions
-    defaultPad: en
-    showButton: false
     locales:
       - locale: "af"
         name: "Afrikaans"
@@ -750,24 +729,20 @@ public:
         name: "中文（台灣"
   timer:
     enabled: true
-    alarm: true
+    time: 5
     music:
       enabled: false
       volume: 0.4
       track1: "RelaxingMusic"
       track2: "CalmMusic"
       track3: "aristocratDrums"
-    time: 5
   chat:
     enabled: true
     itemsPerPage: 100
-    timeBetweenFetchs: 1000
     enableSaveAndCopyPublicChat: true
-    bufferChatInsertsMs: 0
     startClosed: false
     min_message_length: 1
     max_message_length: 5000
-    grouping_messages_window: 10000
     type_system: SYSTEM_MESSAGE
     type_public: PUBLIC_ACCESS
     type_private: PRIVATE_ACCESS
@@ -832,6 +807,16 @@ public:
     enableDeprecatedLayoutSelection: true
   pads:
     url: ETHERPAD_HOST
+  sharedNotes:
+    # Hocuspocus server hostname for BlockNote (it will use the client's hostname when empty)
+    # e.g: `bbb-host` (only the domain without protocol and path)
+    serverHostname:
+    maxDocumentChars: 99999
+    maxLengthForContentUpdate: 1500
+    # When enabled, the formatting toolbar is rendered statically above the
+    # editor and always visible. When disabled, BlockNote's default floating
+    # toolbar appears only when text is selected.
+    staticFormattingToolbar: true
   media:
     audio:
       # defaultFullAudioBridge: bridge to be used by full audio mechanism.
@@ -960,21 +945,32 @@ public:
     livekit:
       # livekit.url is the URL of the LiveKit server. Default value is 'wss://{window.location.hostname}/livekit'
       #url: wss://LIVEKIT_HOST/livekit
-      # livekit.selectiveSubscription: whether to use selective subscription all
-      # applicable track sources. Default value is false. This overrides autoSubscribe
-      # when set to true and in effect (conditional to client behavior).
-      selectiveSubscription: true
+      # livekit.selectiveSubscription: whether to use selective subscription for all
+      # applicable track sources. This overrides autoSubscribe.
+      selectiveSubscription:
+        enabled: true
+        # audioSubscriptionPoolSize: maximum number of simultaneously subscribed
+        # audio tracks. 0 means unlimited. Exemptions that may exceed the pool:
+        # screen audio, unmuted users.
+        audioSubscriptionPoolSize: 0
+        # muteDebounceMs: debounce time in milliseconds for mute state
+        # transitions that would trigger unsubscribe operations.
+        muteDebounceMs: 2500
       logLevel: 3
       # reconnectOnFatalFailures: whether to trigger LK room reconnections when
-      # fatal errors occur (e.g.: unrecoverable publish timeouts). Default is false.
-      reconnectOnFatalFailures: false
+      # fatal errors occur (e.g.: unrecoverable publish timeouts).
+      reconnectOnFatalFailures: true
       roomOptions:
         adaptiveStream: true
         dynacast: true
         stopLocalTrackOnUnpublish: false
+        singlePeerConnection: false
       audio:
         # unpublishOnMute: whether to unpublish audio tracks when muted. Default is true.
         unpublishOnMute: true
+        # useLiveKitAudioState: whether to use LiveKit's client-side audio state
+        # instead of BBB's audio state. Default is false.
+        useLiveKitAudioState: false
         # publishOptions: see https://docs.livekit.io/client-sdk-js/interfaces/TrackPublishOptions.html
         publishOptions:
           audioPreset:
@@ -987,9 +983,36 @@ public:
       camera:
         publishOptions:
           videoCodec: 'vp8'
+        # presets: optional explicit simulcast presets. When specified,
+        # overrides automatic profile-to-layer mapping from cameraProfiles.
+        # Ordered lowest to highest quality.
+        # Array of VideoPreset objects (see https://docs.livekit.io/reference/client-sdk-js/variables/VideoPresets.html).
+        #presets: []
       screenshare:
         publishOptions:
           videoCodec: 'vp8'
+        # constraints: independent from kurento.screenshare.constraints
+        constraints:
+          video:
+            frameRate:
+              ideal: 15
+              max: 15
+            width:
+              max: 2560
+            height:
+              max: 1600
+          audio: true
+        # livekit.screenshare.presets: ordered lowest to highest quality.
+        # Entries are VideoPreset objects (see https://docs.livekit.io/reference/client-sdk-js/variables/VideoPresets.html).
+        # Presets may be partially specified - missing bitrate/FPS entries will
+        # be interpolated by the client. Resolution defaults to capture resolution.
+        presets:
+          - maxBitrate: 500000
+            maxFramerate: 5
+            priority: medium
+          - maxBitrate: 1500000
+            maxFramerate: 15
+            priority: medium
   stats:
     enabled: true
     interval: 10000
@@ -1007,7 +1030,6 @@ public:
       danger: 1000
       critical: 2000
     help: STATS_HELP_URL
-    lastEntriesCap: 20
   presentation:
     allowDownloadOriginal: true
     allowDownloadWithAnnotations: true
@@ -1068,7 +1090,7 @@ public:
       sharingWebcam: true
   whiteboard:
     annotationsQueueProcessInterval: 60
-    cursorInterval: 150
+    cursorInterval: 100
     allowInfiniteWhiteboard: false
     allowInfiniteWhiteboardInBreakouts: false
     pointerDiameter: 5
@@ -1195,18 +1217,7 @@ public:
       - coffeeshop.jpg
       - board.jpg
 private:
-  analytics:
-    includeChat: true
+  analytics: {}
   app:
     host: 127.0.0.1
     localesUrl: /locale-list
-    pencilChunkLength: 100
-    loadSlidesFromHttpAlways: false
-  # Direct Prometheus instrumentation.
-  # EXPERIMENTAL, so disabled by default.
-  prometheus:
-    enabled: false
-    # Metrics endpoint path
-    path: '/metrics'
-    # Whether default metrics for Node.js processes should be exported
-    collectDefaultMetrics: false
