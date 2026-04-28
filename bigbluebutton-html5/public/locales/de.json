@@ -1078,7 +1078,7 @@
     "app.guest.meetingForciblyEnded": "An einer Sitzung, die bereits beendet wurde, kann nicht teilgenommen werden",
     "app.guest.calculating": "Berechne Position in der Warteschlange",
     "app.guest.messageFromHost": "Message from host",
-    "app.guest.waitingForApproval": "Waiting for approval",
+    "app.guest.waitingForApproval": "Warte auf die Genehmigung",
     "app.userList.guest.waitingUsers": "Wartende Personen",
     "app.userList.guest.waitingUsersTitle": "Verwaltung der Personen",
     "app.userList.guest.optionTitle": "Unbearbeitete Personen überprüfen",
