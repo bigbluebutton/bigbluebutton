@@ -13,7 +13,7 @@ import {
 import { PinnedChatMessageProps } from './types';
 import PinnedMessageComponent from './component';
 import useStabilizedList from '/imports/ui/core/hooks/useStabilizedList';
-import { useIsPinChatMessageEnabled } from '/imports/ui/services/features';
+import { useIsPinChatMessageFeatureEnabled } from '/imports/ui/services/features';
 
 export const PinnedChatMessageContainer: React.FC<PinnedChatMessageProps> = ({ openChatId }) => {
   const { data: chats } = useChat(
@@ -63,7 +63,7 @@ export const PinnedChatMessageContainer: React.FC<PinnedChatMessageProps> = ({ o
   const { data: currentUser } = useCurrentUser((u) => ({ isModerator: u.isModerator }));
 
   const isModerator = currentUser?.isModerator ?? false;
-  const chatPinningEnabled = useIsPinChatMessageEnabled();
+  const chatPinningEnabled = useIsPinChatMessageFeatureEnabled();
 
   if (pinnedMessagesError) {
     logger.error({
