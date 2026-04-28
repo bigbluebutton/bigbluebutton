@@ -1238,7 +1238,7 @@ BEGIN
      AND u."userId"    = cu."userId"
     WHERE cm."meetingId" = cu."meetingId"
       AND cm."chatId"    = cu."chatId"
-      AND cm."senderId" <> cu."userId"
+      AND cm."senderId" IS DISTINCT FROM cu."userId"
       AND cm."createdAt" > COALESCE(cu."lastSeenAt", u."registeredAt")
   )
   WHERE cu."meetingId" = _meetingId
@@ -1252,7 +1252,7 @@ BEGIN
        AND u."userId"    = cu."userId"
       WHERE cm."meetingId" = cu."meetingId"
         AND cm."chatId"    = cu."chatId"
-        AND cm."senderId" <> cu."userId"
+        AND cm."senderId" IS DISTINCT FROM cu."userId"
         AND cm."createdAt" > COALESCE(cu."lastSeenAt", u."registeredAt")
     );
 END;
@@ -1303,7 +1303,7 @@ BEGIN
   SET "totalUnreadMessages" = coalesce("totalUnreadMessages",0) + 1
   WHERE cu."meetingId" = NEW."meetingId"
     AND cu."chatId"    = NEW."chatId"
-    AND cu."userId"    != NEW."senderId";
+    AND cu."userId" IS DISTINCT FROM NEW."senderId";
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
