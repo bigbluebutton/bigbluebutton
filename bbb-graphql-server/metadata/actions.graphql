@@ -46,7 +46,7 @@ type Mutation {
     record: Boolean!
     captureNotes: Boolean!
     captureSlides: Boolean!
-    durationInMinutes: Int!
+    durationInSeconds: Int!
     sendInviteToModerators: Boolean!
     rooms: [BreakoutRoom]!
   ): Boolean
@@ -88,7 +88,7 @@ type Mutation {
 
 type Mutation {
   breakoutRoomSetTime(
-    timeInMinutes: Int!
+    timeInSeconds: Int!
   ): Boolean
 }
 

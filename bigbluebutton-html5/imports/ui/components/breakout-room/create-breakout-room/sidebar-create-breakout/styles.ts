@@ -97,7 +97,7 @@ export const TimerColon = styled.span`
 
 export const ControlsRow = styled.div`
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-between;
   padding: 0.75rem 1rem;
   gap: 0.75rem;
@@ -111,7 +111,8 @@ export const RoomCountControl = styled.div`
   gap: 0.5rem;
   background: ${colorGrayUserListToolbar};
   border-radius: 2rem;
-  padding: 0.75rem 1rem;
+  height: 2.75rem;
+  padding: 0 1rem;
   flex: 1;
 `;
 
@@ -158,25 +159,14 @@ interface ButtonProps {
 
 // @ts-ignore - Button is a JS component
 export const RandomAssignBtn = styled<ButtonProps>(Button)`
-  background: ${colorPrimary};
-  border: none;
-  border-radius: 2rem;
-  padding: 0.75rem 1.5rem;
-  color: ${colorWhite};
-  cursor: pointer;
-  display: flex;
+  border-radius: 2rem !important;
+  flex: 1;
+  display: flex !important;
   align-items: center;
   justify-content: center;
-  flex: 1;
-  font-size: 1.1rem;
 
-  & > span > i {
-    color: ${colorWhite} !important;
+  & i {
     font-size: 1.3rem;
-  }
-
-  &:hover {
-    opacity: 0.9;
   }
 `;
 

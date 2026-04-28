@@ -5,7 +5,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   throwErrorIfNotModerator(sessionVariables);
   throwErrorIfInvalidInput(input,
       [
-        {name: 'timeInMinutes', type: 'int', required: true},
+        {name: 'timeInSeconds', type: 'int', required: true},
       ]
   )
 
@@ -24,7 +24,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
 
   const body = {
     meetingId: routing.meetingId,
-    timeInMinutes: input.timeInMinutes
+    timeInSeconds: input.timeInSeconds
   };
 
   return { eventName, routing, header, body };

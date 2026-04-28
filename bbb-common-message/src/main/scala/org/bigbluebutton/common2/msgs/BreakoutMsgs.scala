@@ -47,7 +47,7 @@ case class BreakoutRoomDetail(
     freeJoin:                Boolean,
     dialNumber:              String,
     voiceConfId:             String,
-    durationInMinutes:       Int,
+    durationInSeconds:       Int,
     moderatorPassword:       String,
     viewerPassword:          String,
     sourcePresentationId:    String,
@@ -71,7 +71,7 @@ case class BreakoutRoomDetail(
  */
 object CreateBreakoutRoomsCmdMsg { val NAME = "CreateBreakoutRoomsCmdMsg" }
 case class CreateBreakoutRoomsCmdMsg(header: BbbClientMsgHeader, body: CreateBreakoutRoomsCmdMsgBody) extends StandardMsg
-case class CreateBreakoutRoomsCmdMsgBody(meetingId: String, durationInMinutes: Int, record: Boolean, captureNotes: Boolean, captureSlides: Boolean, rooms: Vector[BreakoutRoomMsgBody], sendInviteToModerators: Boolean)
+case class CreateBreakoutRoomsCmdMsgBody(meetingId: String, durationInSeconds: Int, record: Boolean, captureNotes: Boolean, captureSlides: Boolean, rooms: Vector[BreakoutRoomMsgBody], sendInviteToModerators: Boolean)
 case class BreakoutRoomMsgBody(name: String, sequence: Int, shortName: String, captureNotesFilename: String, captureSlidesFilename: String, isDefaultName: Boolean, freeJoin: Boolean, users: Vector[String], allPages: Boolean, presId: String)
 
 // Sent by user to request ending all the breakout rooms
@@ -101,11 +101,11 @@ case class TransferUserToMeetingRequestMsgBody(fromMeetingId: String, toMeetingI
 
 object UpdateBreakoutRoomsTimeReqMsg { val NAME = "UpdateBreakoutRoomsTimeReqMsg" }
 case class UpdateBreakoutRoomsTimeReqMsg(header: BbbClientMsgHeader, body: UpdateBreakoutRoomsTimeReqMsgBody) extends StandardMsg
-case class UpdateBreakoutRoomsTimeReqMsgBody(meetingId: String, timeInMinutes: Int)
+case class UpdateBreakoutRoomsTimeReqMsgBody(meetingId: String, timeInSeconds: Int)
 
 object UpdateBreakoutRoomsTimeEvtMsg { val NAME = "UpdateBreakoutRoomsTimeEvtMsg" }
 case class UpdateBreakoutRoomsTimeEvtMsg(header: BbbClientMsgHeader, body: UpdateBreakoutRoomsTimeEvtMsgBody) extends BbbCoreMsg
-case class UpdateBreakoutRoomsTimeEvtMsgBody(meetingId: String, timeInMinutes: Int)
+case class UpdateBreakoutRoomsTimeEvtMsgBody(meetingId: String, timeInSeconds: Int)
 
 object SendMessageToAllBreakoutRoomsReqMsg { val NAME = "SendMessageToAllBreakoutRoomsReqMsg" }
 case class SendMessageToAllBreakoutRoomsReqMsg(header: BbbClientMsgHeader, body: SendMessageToAllBreakoutRoomsReqMsgBody) extends StandardMsg

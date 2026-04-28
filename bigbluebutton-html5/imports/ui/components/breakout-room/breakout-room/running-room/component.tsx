@@ -8,7 +8,6 @@ import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
 import {
   BREAKOUT_ROOM_END_ALL,
-  BREAKOUT_ROOM_SET_TIME,
   BREAKOUT_ROOM_MOVE_USER,
   BREAKOUT_ROOM_SEND_MESSAGE_TO_ALL,
   BREAKOUT_ROOM_REQUEST_JOIN_URL,
@@ -16,8 +15,8 @@ import {
 } from '../../mutations';
 import { BreakoutRoom as BreakoutRoomType } from '../queries';
 import { getUserSubscription, type getUserResponse } from '../../create-breakout-room/queries';
-import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import BreakoutTimerEditor from '../breakout-timer-editor/component';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { setBreakoutWindowRef } from '../service';
 import { notify } from '/imports/ui/services/notification';
@@ -31,10 +30,6 @@ const intlMessages = defineMessages({
   dismissLabel: {
     id: 'app.presentationUploder.dismissLabel',
     description: 'dismiss label',
-  },
-  durationOfBreakout: {
-    id: 'app.createBreakoutRoom.durationOfBreakout',
-    description: 'Duration of Breakout Rooms label',
   },
   unassignedUsers: {
     id: 'app.createBreakoutRoom.unassignedUsers',
@@ -100,6 +95,10 @@ const intlMessages = defineMessages({
     id: 'app.chat.submitLabel',
     description: 'Send message button label',
   },
+  roomOptions: {
+    id: 'app.createBreakoutRoom.roomOptions',
+    description: 'Room options button label',
+  },
 });
 
 interface RunningBreakoutRoomProps {
@@ -109,8 +108,6 @@ interface RunningBreakoutRoomProps {
   closePanel: () => void;
 }
 
-const DEBOUNCE_DELAY = 1500;
-
 const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
   breakouts,
   userId,
@@ -118,14 +115,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
   closePanel,
 }) => {
   const intl = useIntl();
-  const [timeSync] = useTimeSync();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const innerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [selectedTimerField, setSelectedTimerField] = useState<'h' | 'm' | 's'>('m');
-  const [remainingTime, setRemainingTime] = useState<number>(0);
-  const [editingTime, setEditingTime] = useState<number | null>(null);
   const [megaphoneOpen, setMegaphoneOpen] = useState(false);
   const [megaphoneMessage, setMegaphoneMessage] = useState('');
 
@@ -139,7 +129,6 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
   const menuPortalRef = useRef<HTMLDivElement | null>(null);
 
   const [breakoutRoomEndAll] = useMutation(BREAKOUT_ROOM_END_ALL);
-  const [breakoutRoomSetTime] = useMutation(BREAKOUT_ROOM_SET_TIME);
   const [breakoutRoomMoveUser] = useMutation(BREAKOUT_ROOM_MOVE_USER);
   const [sendMessageToAll] = useMutation(BREAKOUT_ROOM_SEND_MESSAGE_TO_ALL);
   const [requestJoinUrl] = useMutation(BREAKOUT_ROOM_REQUEST_JOIN_URL);
@@ -178,37 +167,6 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
       !u.isModerator || sendInvitationToModerators) && !assignedUserIds.has(u.userId)),
     [allUsers, assignedUserIds, sendInvitationToModerators],
   );
-
-  useEffect(() => {
-    const calcRemaining = () => {
-      if (!Number.isFinite(breakoutStartedAt) || breakoutStartedAt === 0
-        || !Number.isFinite(breakoutDurationInSeconds)) {
-        return 0;
-      }
-      const now = Date.now() + timeSync;
-      const end = breakoutStartedAt + (breakoutDurationInSeconds * 1000);
-      return Math.max(0, Math.floor((end - now) / 1000));
-    };
-
-    if (editingTime === null) {
-      setRemainingTime(calcRemaining());
-    }
-
-    timerIntervalRef.current = setInterval(() => {
-      if (editingTime === null) {
-        setRemainingTime(calcRemaining());
-      }
-    }, 1000);
-
-    return () => {
-      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
-    };
-  }, [breakoutDurationInSeconds, breakoutStartedAt, timeSync, editingTime]);
-
-  useEffect(() => () => {
-    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-    if (innerTimerRef.current) clearTimeout(innerTimerRef.current);
-  }, []);
 
   useEffect(() => {
     if (!requestingJoinForRoomId) return;
@@ -268,53 +226,9 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
     }
   }, [listeningToRoomId, breakoutRoomTransfer, meetingId]);
 
-  const displayedTime = editingTime ?? remainingTime;
-  const hours = Math.floor(displayedTime / 3600);
-  const minutes = Math.floor((displayedTime % 3600) / 60);
-  const seconds = displayedTime % 60;
   const padNum = (n: number) => n.toString().padStart(2, '0');
 
   const openBreakout = breakouts.find((b) => b.breakoutRoomMeetingId === openMenuBreakoutId);
-
-  const commitTimeChange = useCallback((newTotalSeconds: number) => {
-    const clamped = Math.max(60, newTotalSeconds);
-    setEditingTime(clamped);
-
-    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-
-    debounceTimerRef.current = setTimeout(() => {
-      const newMinutes = Math.max(1, Math.ceil(clamped / 60));
-      breakoutRoomSetTime({ variables: { timeInMinutes: newMinutes } });
-      if (innerTimerRef.current) clearTimeout(innerTimerRef.current);
-      innerTimerRef.current = setTimeout(() => setEditingTime(null), 500);
-    }, DEBOUNCE_DELAY);
-  }, [breakoutRoomSetTime]);
-
-  const adjustTime = useCallback((delta: number) => {
-    let deltaSeconds = 0;
-    if (selectedTimerField === 'h') deltaSeconds = delta * 3600;
-    else if (selectedTimerField === 'm') deltaSeconds = delta * 60;
-    else deltaSeconds = delta;
-
-    const base = editingTime ?? remainingTime;
-    commitTimeChange(base + deltaSeconds);
-  }, [selectedTimerField, editingTime, remainingTime, commitTimeChange]);
-
-  const handleTimerInputChange = useCallback((
-    field: 'h' | 'm' | 's',
-    value: number,
-  ) => {
-    let newH = hours;
-    let newM = minutes;
-    let newS = seconds;
-
-    if (field === 'h') newH = Math.max(0, Math.min(23, value));
-    else if (field === 'm') newM = Math.max(0, Math.min(59, value));
-    else newS = Math.max(0, Math.min(59, value));
-
-    const totalSeconds = (newH * 3600) + (newM * 60) + newS;
-    commitTimeChange(totalSeconds);
-  }, [hours, minutes, seconds, commitTimeChange]);
 
   const handleFinish = useCallback(() => {
     closePanel();
@@ -425,71 +339,10 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
       />
       <Styled.Separator />
 
-      <Styled.TimerSection>
-        <Styled.TimerLabel>
-          {intl.formatMessage(intlMessages.durationOfBreakout)}
-        </Styled.TimerLabel>
-        <Styled.TimerRow>
-          <Styled.TimerTimeBtn
-            $variant="minus"
-            onClick={() => adjustTime(-1)}
-            aria-label="Decrease time"
-            data-test="decreaseBreakoutTimeButton"
-          >
-            −
-          </Styled.TimerTimeBtn>
-          <Styled.TimerDisplay data-test="breakoutRemainingTime">
-            <Styled.TimerInput
-              type="number"
-              min={0}
-              max={23}
-              value={padNum(hours)}
-              $selected={selectedTimerField === 'h'}
-              onClick={() => setSelectedTimerField('h')}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                handleTimerInputChange('h', Number(e.target.value));
-              }}
-              aria-label="Hours"
-              data-test="breakoutRoomTimerHoursInput"
-            />
-            <Styled.TimerColon>:</Styled.TimerColon>
-            <Styled.TimerInput
-              type="number"
-              min={0}
-              max={59}
-              value={padNum(minutes)}
-              $selected={selectedTimerField === 'm'}
-              onClick={() => setSelectedTimerField('m')}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                handleTimerInputChange('m', Number(e.target.value));
-              }}
-              aria-label="Minutes"
-              data-test="breakoutRoomTimerMinutesInput"
-            />
-            <Styled.TimerColon>:</Styled.TimerColon>
-            <Styled.TimerInput
-              type="number"
-              min={0}
-              max={59}
-              value={padNum(seconds)}
-              $selected={selectedTimerField === 's'}
-              onClick={() => setSelectedTimerField('s')}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                handleTimerInputChange('s', Number(e.target.value));
-              }}
-              aria-label="Seconds"
-            />
-          </Styled.TimerDisplay>
-          <Styled.TimerTimeBtn
-            $variant="plus"
-            onClick={() => adjustTime(1)}
-            aria-label="Increase time"
-            data-test="increaseBreakoutTimeButton"
-          >
-            +
-          </Styled.TimerTimeBtn>
-        </Styled.TimerRow>
-      </Styled.TimerSection>
+      <BreakoutTimerEditor
+        breakoutDurationInSeconds={breakoutDurationInSeconds}
+        breakoutStartedAt={breakoutStartedAt}
+      />
 
       <Styled.Separator />
 
@@ -617,7 +470,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                         }
                       }}
                       data-test={`roomOptions${breakout.sequence}`}
-                      aria-label="Room options"
+                      aria-label={intl.formatMessage(intlMessages.roomOptions)}
                       title={isListening
                         ? intl.formatMessage(intlMessages.stopListeningToRoom)
                         : intl.formatMessage(intlMessages.listenToRoom)}

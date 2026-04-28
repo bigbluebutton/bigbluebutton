@@ -26,7 +26,7 @@ import {
   useIsImportSharedNotesFromBreakoutRoomsEnabled,
 } from '/imports/ui/services/features';
 
-const MIN_BREAKOUT_TIME = 5;
+const MIN_BREAKOUT_TIME = 300;
 const DEFAULT_SIDEBAR_BREAKOUT_TIME = 15;
 const CURRENT_SLIDE_PREFIX = 'current-';
 
@@ -127,6 +127,26 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.minimumDurationWarnBreakout',
     description: 'Warning: minimum breakout duration',
   },
+  timerHours: {
+    id: 'app.createBreakoutRoom.timerHours',
+    description: 'Timer hours field label',
+  },
+  timerMinutes: {
+    id: 'app.createBreakoutRoom.timerMinutes',
+    description: 'Timer minutes field label',
+  },
+  timerSeconds: {
+    id: 'app.createBreakoutRoom.timerSeconds',
+    description: 'Timer seconds field label',
+  },
+  decreaseRooms: {
+    id: 'app.createBreakoutRoom.decreaseRooms',
+    description: 'Decrease number of rooms button label',
+  },
+  increaseRooms: {
+    id: 'app.createBreakoutRoom.increaseRooms',
+    description: 'Increase number of rooms button label',
+  },
 });
 
 interface SidebarCreateBreakoutProps {
@@ -200,10 +220,10 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
   const resetAssignmentsFunction = useRef<() => void>(() => {});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  const setRoomsRef = (rooms: Rooms) => { roomsRef.current = rooms; };
-  const setMoveRegisterRef = (moveRegister: moveUserRegistery) => {
+  const setRoomsRef = useCallback((rooms: Rooms) => { roomsRef.current = rooms; }, []);
+  const setMoveRegisterRef = useCallback((moveRegister: moveUserRegistery) => {
     moveRegisterRef.current = moveRegister;
-  };
+  }, []);
 
   const SCROLL_ZONE = 60;
   const SCROLL_SPEED = 8;
@@ -222,7 +242,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
     }
   }, []);
 
-  const durationTime = (hours * 60) + minutes + (seconds > 0 ? 1 : 0);
+  const breakoutDuration = (hours * 3600) + (minutes * 60) + seconds;
 
   const getRoomPresentation = (position: number) => {
     if (roomPresentations[position]) return roomPresentations[position];
@@ -250,11 +270,10 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
   };
 
   const handleCreateRoom = useCallback(() => {
-    const totalMinutes = durationTime;
-    if (totalMinutes < MIN_BREAKOUT_TIME) return;
+    if (breakoutDuration < MIN_BREAKOUT_TIME) return;
 
     const remainingTime = getRemainingMeetingTime(durationInSeconds, createdTime, timeSync);
-    if (!isNewTimeValid(remainingTime, totalMinutes)) return;
+    if (!isNewTimeValid(remainingTime, breakoutDuration)) return;
 
     const rooms = roomsRef.current;
     const roomsArray: RoomToWithSettings[] = [];
@@ -302,7 +321,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
         record,
         captureNotes,
         captureSlides,
-        durationInMinutes: totalMinutes,
+        durationInSeconds: breakoutDuration,
         sendInviteToModerators: inviteMods,
         rooms: roomsArray,
       },
@@ -311,19 +330,19 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
       layoutContextDispatch({ type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL, value: PANELS.BREAKOUT });
     });
   }, [
-    numberOfRooms, durationTime, freeJoin, record, captureNotes,
+    numberOfRooms, breakoutDuration, freeJoin, record, captureNotes,
     captureSlides, inviteMods, roomPresentations,
   ]);
 
   const roomPadNum = (n: number) => n.toString().padStart(2, '0');
 
-  const canStart = durationTime >= MIN_BREAKOUT_TIME && (freeJoin || leastOneUserIsValid);
+  const canStart = breakoutDuration >= MIN_BREAKOUT_TIME && (freeJoin || leastOneUserIsValid);
 
   const tooltipText = (() => {
-    if (durationTime < MIN_BREAKOUT_TIME) {
+    if (breakoutDuration < MIN_BREAKOUT_TIME) {
       return intl.formatMessage(
         intlMessages.minimumDurationWarnBreakout,
-        { timeInMinutes: MIN_BREAKOUT_TIME },
+        { timeInMinutes: MIN_BREAKOUT_TIME / 60 },
       );
     }
     if (!freeJoin && !leastOneUserIsValid) {
@@ -399,7 +418,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
               const v = Math.max(0, Math.min(23, Number(e.target.value)));
               setHours(v);
             }}
-            aria-label="Hours"
+            aria-label={intl.formatMessage(intlMessages.timerHours)}
           />
           <Styled.TimerColon>:</Styled.TimerColon>
           <Styled.TimerInput
@@ -411,7 +430,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
               const v = Math.max(0, Math.min(59, Number(e.target.value)));
               setMinutes(v);
             }}
-            aria-label="Minutes"
+            aria-label={intl.formatMessage(intlMessages.timerMinutes)}
             data-test="durationTime"
           />
           <Styled.TimerColon>:</Styled.TimerColon>
@@ -424,14 +443,14 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
               const v = Math.max(0, Math.min(59, Number(e.target.value)));
               setSeconds(v);
             }}
-            aria-label="Seconds"
+            aria-label={intl.formatMessage(intlMessages.timerSeconds)}
           />
         </Styled.TimerDisplay>
-        {durationTime < MIN_BREAKOUT_TIME && (
+        {breakoutDuration < MIN_BREAKOUT_TIME && (
           <Styled.TimerWarning data-test="minimumDurationWarnBreakout">
             {intl.formatMessage(
               intlMessages.minimumDurationWarnBreakout,
-              { timeInMinutes: MIN_BREAKOUT_TIME },
+              { timeInMinutes: MIN_BREAKOUT_TIME / 60 },
             )}
           </Styled.TimerWarning>
         )}
@@ -441,33 +460,41 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
 
       <Styled.ControlsRow>
         <Styled.RoomCountControl>
-          <Styled.RoomCountArrow
-            onClick={decreaseRooms}
-            disabled={numberOfRooms <= MIN_BREAKOUT_ROOMS}
-            aria-label="Decrease rooms"
-            data-test="decreaseRooms"
-          >
-            ‹
-          </Styled.RoomCountArrow>
+          <TooltipContainer title={intl.formatMessage(intlMessages.decreaseRooms)}>
+            <Styled.RoomCountArrow
+              onClick={decreaseRooms}
+              disabled={numberOfRooms <= MIN_BREAKOUT_ROOMS}
+              aria-label={intl.formatMessage(intlMessages.decreaseRooms)}
+              data-test="decreaseRooms"
+            >
+              ‹
+            </Styled.RoomCountArrow>
+          </TooltipContainer>
           <Styled.RoomCountValue>
             {roomPadNum(numberOfRooms)}
           </Styled.RoomCountValue>
-          <Styled.RoomCountArrow
-            onClick={increaseRooms}
-            disabled={numberOfRooms >= MAX_BREAKOUT_ROOMS}
-            aria-label="Increase rooms"
-            data-test="increaseRooms"
-          >
-            ›
-          </Styled.RoomCountArrow>
+          <TooltipContainer title={intl.formatMessage(intlMessages.increaseRooms)}>
+            <Styled.RoomCountArrow
+              onClick={increaseRooms}
+              disabled={numberOfRooms >= MAX_BREAKOUT_ROOMS}
+              aria-label={intl.formatMessage(intlMessages.increaseRooms)}
+              data-test="increaseRooms"
+            >
+              ›
+            </Styled.RoomCountArrow>
+          </TooltipContainer>
         </Styled.RoomCountControl>
         {/* @ts-ignore */}
         <Styled.RandomAssignBtn
+          color="primary"
           icon={randomlyAssigned ? 'undo' : 'random'}
           label={randomlyAssigned
             ? intl.formatMessage(intlMessages.resetAssignmentsDesc)
             : intl.formatMessage(intlMessages.randomlyAssignDesc)}
           hideLabel
+          tooltipLabel={randomlyAssigned
+            ? intl.formatMessage(intlMessages.resetAssignmentsDesc)
+            : intl.formatMessage(intlMessages.randomlyAssignDesc)}
           onClick={() => {
             if (randomlyAssigned) {
               resetAssignmentsFunction.current();
