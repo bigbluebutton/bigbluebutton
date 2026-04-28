@@ -1047,7 +1047,7 @@
     "app.error.userLoggedOut": "Teilnehmer hat einen ungültigen Konferenz-Token, weil ausgeloggt",
     "app.error.ejectedUser": "Teilnehmer hat einen ungültigen Konferenz-Token, weil gesperrt",
     "app.error.joinedAnotherWindow": "Diese Konferenz scheint in einem anderen Browserfenster geöffnet zu sein.",
-    "app.error.userBanned": "You have been removed for the remaining duration of this session.",
+    "app.error.userBanned": "Sie wurden aus der Sitzung entfernt",
     "app.error.leaveLabel": "Erneut einloggen",
     "app.error.fallback.presentation.title": "Es ist ein Fehler aufgetreten",
     "app.error.fallback.presentation.description": "Er wurde protokolliert. Bitte versuchen, die Seite neu zu laden.",
