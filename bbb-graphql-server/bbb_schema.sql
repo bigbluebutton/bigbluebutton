@@ -1221,6 +1221,28 @@ FOR EACH ROW
 EXECUTE FUNCTION "update_chatMessage_messageSequence"();
 
 
+CREATE OR REPLACE FUNCTION "update_chat_totalMessages"()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF TG_OP = 'INSERT' THEN
+        UPDATE "chat"
+        SET "totalMessages" = COALESCE("totalMessages", 0) + 1
+        WHERE "meetingId" = NEW."meetingId"
+        AND "chatId" = NEW."chatId";
+       ELSIF TG_OP = 'DELETE' THEN
+        UPDATE "chat"
+        SET "totalMessages" = GREATEST(COALESCE("totalMessages", 0) - 1, 0)
+        WHERE "meetingId" = OLD."meetingId"
+        AND "chatId" = OLD."chatId";
+       END IF;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "trigger_update_chat_totalMessages"
+AFTER INSERT OR DELETE ON "chat_message" FOR EACH ROW
+EXECUTE FUNCTION "update_chat_totalMessages"();
+
 -- Start of Triggers related with totalUnreadMessages
 
 CREATE OR REPLACE FUNCTION "update_chat_user_totalUnreadMessages"(_meetingId text, _chatId text, _userId text DEFAULT NULL)
