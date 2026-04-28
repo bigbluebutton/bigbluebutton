@@ -824,7 +824,7 @@
     "app.breakoutJoinConfirmation.message": "Jetzt der Gruppe beitreten",
     "app.breakoutJoinConfirmation.addedToRoom": "Du wurdest durch die Moderation zu {roomName} hinzugefügt.",
     "app.breakoutJoinConfirmation.willBeRedirected": "Du wirst gleich in den Gruppenraum weitergeleitet.",
-    "app.breakoutJoinConfirmation.enterRoom": "Enter the room",
+    "app.breakoutJoinConfirmation.enterRoom": "Raum betreten",
     "app.breakoutJoinConfirmation.confirmDesc": "Dem Gruppenraum beitreten",
     "app.breakoutJoinConfirmation.dismissLabel": "Abbrechen",
     "app.breakoutJoinConfirmation.dismissDesc": "Schließen und die Teilnahme im Gruppenraum verweigern",
