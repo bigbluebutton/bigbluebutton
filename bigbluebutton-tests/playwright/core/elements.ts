@@ -380,7 +380,7 @@ export const elements = {
   multiWhiteboardTool: 'span[data-test="multiWhiteboardTool"]',
   manageUsers: 'button[data-test="manageUsers"]',
   presenterClassName: 'presenter--',
-  userListToggleBtn: 'button[data-test="toggleUserList"]',
+  userListToggleBtn: 'button[data-test="toggleUserList"], button[data-test="hasUnreadMessages"]',
   mobileUser: 'span[data-test="mobileUser"]',
   connectionStatusBtn: 'button[data-test="connectionStatusButton"]',
   connectionStatusModal: 'div[data-test="connectionStatusModal"]',
