@@ -1234,7 +1234,7 @@
     "app.guest-policy.description": "Grundregeln für den Gastzugang anpassen",
     "app.guest-policy.button.askModerator": "Moderation fragen",
     "app.guest-policy.button.alwaysAccept": "Immer akzeptieren",
-    "app.guest-policy.button.alwaysAcceptAuth": "Always accept authenticated",
+    "app.guest-policy.button.alwaysAcceptAuth": "Alle Angemeldeten immer akzeptieren",
     "app.guest-policy.button.alwaysDeny": "Immer verweigern",
     "app.guest-policy.policyBtnDesc": "Grundregeln für den Gastzugang festlegen",
     "app.guest-policy.feedbackMessage": "Die Gäste-Berechtigung ist jetzt: {policy}",
