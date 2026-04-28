@@ -1481,7 +1481,7 @@
     "app.createBreakoutRoom.joinAudio": "Audio starten",
     "app.createBreakoutRoom.returnAudio": "Audio zurückgeben",
     "app.createBreakoutRoom.alreadyConnected": "Bereits im Raum",
-    "app.createBreakoutRoom.inviteSentToast": "{userName} was invited to {roomName}",
+    "app.createBreakoutRoom.inviteSentToast": "{userName} wurde eingeladen zu {roomName}",
     "app.createBreakoutRoom.confirm": "Erstellen",
     "app.createBreakoutRoom.record": "Aufzeichnen",
     "app.createBreakoutRoom.numberOfRooms": "Anzahl der Räume",
