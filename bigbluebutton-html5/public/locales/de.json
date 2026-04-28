@@ -1535,7 +1535,7 @@
     "app.createBreakoutRoom.callModeratorCooldown": "Bitte warte, bevor du die Moderation erneut rufst.",
     "app.createBreakoutRoom.returnToMainSession": "Zurück in den Hauptraum",
     "app.createBreakoutRoom.listenToRoom": "Dem Raum zuhören",
-    "app.createBreakoutRoom.stopListeningToRoom": "Stop listening",
+    "app.createBreakoutRoom.stopListeningToRoom": "Zuhören stoppen",
     "app.updateBreakoutRoom.modalDesc": "Um eine Person zu aktualisieren oder einzuladen, diese einfach in den gewünschten Raum ziehen.",
     "app.updateBreakoutRoom.cancelLabel": "Abbrechen",
     "app.updateBreakoutRoom.title": "Gruppenräume aktualisieren",
