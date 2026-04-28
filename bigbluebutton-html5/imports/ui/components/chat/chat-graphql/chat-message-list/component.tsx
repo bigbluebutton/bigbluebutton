@@ -207,6 +207,9 @@ const ChatMessageList: React.FC<ChatListProps> = ({
   const [userLoadedBackUntilPage, setUserLoadedBackUntilPage] = useState<number | null>(null);
   const [lastMessageCreatedAt, setLastMessageCreatedAt] = useState<string>('');
   const [followingTail, setFollowingTail] = React.useState(true);
+  // Guards against the IntersectionObserver firing false during initial DOM layout
+  // before the sentinel has ever been painted, which would incorrectly flip followingTail.
+  const hasEndSentinelBeenVisible = React.useRef(false);
   const [showStartSentinel, setShowStartSentinel] = React.useState(false);
   const [focusedMessageElement, setFocusedMessageElement] = React.useState<HTMLElement | null>();
   const [loadingPages, setLoadingPages] = useState(new Set<number>());
@@ -298,11 +301,15 @@ const ChatMessageList: React.FC<ChatListProps> = ({
 
   useEffect(() => {
     if (isEndSentinelVisible) {
+      hasEndSentinelBeenVisible.current = true;
       startObservingStickyScroll();
+      toggleFollowingTail(true);
     } else {
       stopObservingStickyScroll();
+      if (hasEndSentinelBeenVisible.current) {
+        toggleFollowingTail(false);
+      }
     }
-    toggleFollowingTail(isEndSentinelVisible);
   }, [isEndSentinelVisible]);
 
   useEffect(() => {
