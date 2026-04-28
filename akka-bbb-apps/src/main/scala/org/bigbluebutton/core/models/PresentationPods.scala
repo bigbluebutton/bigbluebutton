@@ -33,7 +33,8 @@ case class PresentationPage(
     height:             Double              = 1080D,
     converted:          Boolean             = false,
     infiniteWhiteboard: Boolean             = false,
-    fitToWidth:         Boolean             = false
+    fitToWidth:         Boolean             = false,
+    presToken:          String              = ""
 )
 
 object PresentationInPod {

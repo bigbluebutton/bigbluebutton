@@ -105,7 +105,8 @@ object MsgBuilder {
   }
 
   def generatePresentationPage(presId: String, presBaseUrl: String, presParentPath: String, page: Int, presTokenSecret: String = ""): PresentationPageConvertedVO = {
-    val tokenParam = if (presTokenSecret.nonEmpty) "?presToken=" + generatePresToken(presId, page, presTokenSecret) else ""
+    val presToken = if (presTokenSecret.nonEmpty) generatePresToken(presId, page, presTokenSecret) else ""
+    val tokenParam = if (presToken.nonEmpty) "?presToken=" + presToken else ""
     val thumbUrl = presBaseUrl + "/thumbnail/" + page + tokenParam
     val txtUrl = presBaseUrl + "/textfiles/" + page + tokenParam
     val svgUrl = presBaseUrl + "/svg/" + page + tokenParam
@@ -156,7 +157,8 @@ object MsgBuilder {
       content = content,
       current = page == 1,
       width = width,
-      height = height
+      height = height,
+      presToken = presToken
     )
   }
 
@@ -262,14 +264,15 @@ object MsgBuilder {
       val id = presId + "/" + i
       val num = i
       val current = if (i == 1) true else false
-      val tokenParam = if (presTokenSecret.nonEmpty) "?presToken=" + generatePresToken(presId, i, presTokenSecret) else ""
+      val presToken = if (presTokenSecret.nonEmpty) generatePresToken(presId, i, presTokenSecret) else ""
+      val tokenParam = if (presToken.nonEmpty) "?presToken=" + presToken else ""
       val thumbnail = presBaseUrl + "/thumbnail/" + i + tokenParam
 
       val txtUri = presBaseUrl + "/textfiles/" + i + tokenParam
       val svgUri = presBaseUrl + "/svg/" + i + tokenParam
 
       val p = PageVO(id = id, num = num, thumbUri = thumbnail,
-        txtUri = txtUri, svgUri = svgUri, current = current)
+        txtUri = txtUri, svgUri = svgUri, current = current, presToken = presToken)
       pages += p.id -> p
     }
 

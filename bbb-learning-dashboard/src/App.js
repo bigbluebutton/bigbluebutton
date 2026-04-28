@@ -340,7 +340,7 @@ class App extends React.Component {
 
   render() {
     const {
-      activitiesJson, tab, loading, lastUpdated, ldAccessTokenCopied,
+      activitiesJson, tab, loading, lastUpdated, ldAccessTokenCopied, sessionToken,
     } = this.state;
     const { intl } = this.props;
 
@@ -656,6 +656,7 @@ class App extends React.Component {
                   allUsers={activitiesJson.users}
                   slides={activitiesJson.presentationSlides}
                   meetingId={activitiesJson.intId}
+                  sessionToken={sessionToken}
                 />
               </div>
             </div>
