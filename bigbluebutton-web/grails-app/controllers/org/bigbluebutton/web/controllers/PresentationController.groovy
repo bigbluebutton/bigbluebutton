@@ -93,12 +93,12 @@ class PresentationController {
           return
         }
 
-        def presToken = extractQueryParam(uri, "presToken")
-        if (presentationService.presTokenSecret) {
+        def pageToken = extractQueryParam(uri, "pageToken")
+        if (presentationService.pageTokenSecret) {
           def presId = slideMatcher.group(3)
           def pageNum = slideMatcher.group(5)
-          def expectedToken = generatePresToken(presId, Integer.parseInt(pageNum), presentationService.presTokenSecret)
-          if (presToken == null || presToken != expectedToken) {
+          def expectedToken = generatePageToken(presId, Integer.parseInt(pageNum), presentationService.pageTokenSecret)
+          if (pageToken == null || pageToken != expectedToken) {
             response.setStatus(403)
             response.outputStream << 'invalid-token'
             return
@@ -152,7 +152,7 @@ class PresentationController {
     return UriComponentsBuilder.fromUriString(uri).build().getQueryParams().getFirst(paramName)
   }
 
-  private static String generatePresToken(String presId, int page, String secret) {
+  private static String generatePageToken(String presId, int page, String secret) {
     Mac mac = Mac.getInstance("HmacSHA256")
     mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"))
     return mac.doFinal("${presId}|${page}".getBytes(StandardCharsets.UTF_8)).collect { String.format('%02x', it) }.join()
@@ -375,10 +375,10 @@ class PresentationController {
     def slide = params.id
 
     if (conf != userSession.meetingID) { response.setStatus(403); return }
-    if (presentationService.presTokenSecret) {
-      def presToken = params.presToken
-      def expected = generatePresToken(presentationName, Integer.parseInt(slide), presentationService.presTokenSecret)
-      if (presToken == null || presToken != expected) { response.setStatus(403); return }
+    if (presentationService.pageTokenSecret) {
+      def pageToken = params.pageToken
+      def expected = generatePageToken(presentationName, Integer.parseInt(slide), presentationService.pageTokenSecret)
+      if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
     }
 
     log.error("Nginx should be serving this SVG file! meetingId=" + conf + ",presId=" + presentationName + ",page=" + slide);
@@ -408,10 +408,10 @@ class PresentationController {
     def thumb = params.id
 
     if (conf != userSession.meetingID) { response.setStatus(403); return }
-    if (presentationService.presTokenSecret) {
-      def presToken = params.presToken
-      def expected = generatePresToken(presentationName, Integer.parseInt(thumb), presentationService.presTokenSecret)
-      if (presToken == null || presToken != expected) { response.setStatus(403); return }
+    if (presentationService.pageTokenSecret) {
+      def pageToken = params.pageToken
+      def expected = generatePageToken(presentationName, Integer.parseInt(thumb), presentationService.pageTokenSecret)
+      if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
     }
 
     log.error("Nginx should be serving this thumb file! meetingId=" + conf + ",presId=" + presentationName + ",page=" + thumb);
@@ -442,10 +442,10 @@ class PresentationController {
     def png = params.id
 
     if (conf != userSession.meetingID) { response.setStatus(403); return }
-    if (presentationService.presTokenSecret) {
-      def presToken = params.presToken
-      def expected = generatePresToken(presentationName, Integer.parseInt(png), presentationService.presTokenSecret)
-      if (presToken == null || presToken != expected) { response.setStatus(403); return }
+    if (presentationService.pageTokenSecret) {
+      def pageToken = params.pageToken
+      def expected = generatePageToken(presentationName, Integer.parseInt(png), presentationService.pageTokenSecret)
+      if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
     }
 
     InputStream is = null;
@@ -473,10 +473,10 @@ class PresentationController {
     def textfile = params.id
 
     if (conf != userSession.meetingID) { response.setStatus(403); return }
-    if (presentationService.presTokenSecret) {
-      def presToken = params.presToken
-      def expected = generatePresToken(presentationName, Integer.parseInt(textfile), presentationService.presTokenSecret)
-      if (presToken == null || presToken != expected) { response.setStatus(403); return }
+    if (presentationService.pageTokenSecret) {
+      def pageToken = params.pageToken
+      def expected = generatePageToken(presentationName, Integer.parseInt(textfile), presentationService.pageTokenSecret)
+      if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
     }
 
     log.debug "Controller: Show textfile request for $presentationName $textfile"

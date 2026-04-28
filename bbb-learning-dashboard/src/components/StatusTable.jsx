@@ -221,7 +221,7 @@ class StatusTable extends React.Component {
                 const padding = isRTL ? 'paddingLeft' : 'paddingRight';
                 const URLPrefix = `/bigbluebutton/presentation/${meetingId}/${meetingId}`;
                 const {
-                  presentationId, pageNum, presToken, presentationName,
+                  presentationId, pageNum, pageToken, presentationName,
                 } = slide || {};
                 return (
                   <td
@@ -233,14 +233,14 @@ class StatusTable extends React.Component {
                       <div className="flex">
                         <div className="my-4">
                           <a
-                            href={`${URLPrefix}/${presentationId}/svg/${pageNum}?presToken=${presToken}&sessionToken=${sessionToken}`}
+                            href={`${URLPrefix}/${presentationId}/svg/${pageNum}?pageToken=${pageToken}&sessionToken=${sessionToken}`}
                             className="block border-2 border-gray-300"
                             target="_blank"
                             rel="noreferrer"
                             aria-describedby={`thumb-desc-${presentationId}`}
                           >
                             <img
-                              src={`${URLPrefix}/${presentationId}/thumbnail/${pageNum}?presToken=${presToken}&sessionToken=${sessionToken}`}
+                              src={`${URLPrefix}/${presentationId}/thumbnail/${pageNum}?pageToken=${pageToken}&sessionToken=${sessionToken}`}
                               alt={`${intl.formatMessage(intlMessages.thumbnail)} - ${intl.formatMessage(intlMessages.presentation)} ${presentationName} - ${intl.formatMessage(intlMessages.pageNumber)} ${pageNum}`}
                               style={{
                                 maxWidth: '150px',

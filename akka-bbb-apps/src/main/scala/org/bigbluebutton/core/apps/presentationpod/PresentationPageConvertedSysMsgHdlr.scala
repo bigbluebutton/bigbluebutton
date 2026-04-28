@@ -60,7 +60,7 @@ trait PresentationPageConvertedSysMsgHdlr {
       width = msg.body.page.width,
       height = msg.body.page.height,
       converted = true,
-      presToken = msg.body.page.presToken
+      pageToken = msg.body.page.pageToken
     )
 
     val newState = for {

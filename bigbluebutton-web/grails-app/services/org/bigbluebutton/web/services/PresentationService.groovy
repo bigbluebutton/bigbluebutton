@@ -40,7 +40,7 @@ class PresentationService {
 	def presentationBaseUrl
 	def preUploadedPresentationOverrideDefault
 	def scanUploadedPresentationFiles
-	def presTokenSecret
+	def pageTokenSecret
 
 	def deletePresentation = {conf, room, filename ->
 		def directory = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + filename)

@@ -7,7 +7,7 @@ case class PresentationVO(id: String, temporaryPresentationId: String, name: Str
 case class PageVO(id: String, num: Int, thumbUri: String = "",
                   txtUri: String, svgUri: String, current: Boolean = false, xOffset: Double = 0,
                   yOffset: Double = 0, widthRatio: Double = 100D, heightRatio: Double = 100D, width: Double = 1440D, height: Double = 1080D,
-                  presToken: String = "")
+                  pageToken: String = "")
 
 case class PresentationPodVO(id: String, currentPresenter: String,
                              presentations: Vector[PresentationVO])
@@ -20,7 +20,7 @@ case class PresentationPageConvertedVO(
     current:   Boolean             = false,
     width:     Double              = 1440D,
     height:    Double              = 1080D,
-    presToken: String              = ""
+    pageToken: String              = ""
 )
 
 case class PresentationPageVO(

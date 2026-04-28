@@ -25,7 +25,7 @@ object MsgBuilder {
   private lazy val imageResolutionService: ImageResolutionService = new ImageResolutionService
   private lazy val logger: Logger = LoggerFactory.getLogger("msg-builder")
 
-  private def generatePresToken(presId: String, page: Int, secret: String): String = {
+  private def generatePageToken(presId: String, page: Int, secret: String): String = {
     val mac = Mac.getInstance("HmacSHA256")
     mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"))
     mac.doFinal(s"$presId|$page".getBytes(StandardCharsets.UTF_8)).map("%02x".format(_)).mkString
@@ -104,9 +104,9 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
-  def generatePresentationPage(presId: String, presBaseUrl: String, presParentPath: String, page: Int, presTokenSecret: String = ""): PresentationPageConvertedVO = {
-    val presToken = if (presTokenSecret.nonEmpty) generatePresToken(presId, page, presTokenSecret) else ""
-    val tokenParam = if (presToken.nonEmpty) "?presToken=" + presToken else ""
+  def generatePresentationPage(presId: String, presBaseUrl: String, presParentPath: String, page: Int, pageTokenSecret: String = ""): PresentationPageConvertedVO = {
+    val pageToken = if (pageTokenSecret.nonEmpty) generatePageToken(presId, page, pageTokenSecret) else ""
+    val tokenParam = if (pageToken.nonEmpty) "?pageToken=" + pageToken else ""
     val thumbUrl = presBaseUrl + "/thumbnail/" + page + tokenParam
     val txtUrl = presBaseUrl + "/textfiles/" + page + tokenParam
     val svgUrl = presBaseUrl + "/svg/" + page + tokenParam
@@ -158,16 +158,16 @@ object MsgBuilder {
       current = page == 1,
       width = width,
       height = height,
-      presToken = presToken
+      pageToken = pageToken
     )
   }
 
-  def buildPresentationPageConvertedSysMsg(msg: DocPageGeneratedProgress, presTokenSecret: String = ""): BbbCommonEnvCoreMsg = {
+  def buildPresentationPageConvertedSysMsg(msg: DocPageGeneratedProgress, pageTokenSecret: String = ""): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(PresentationPageConvertedSysMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationPageConvertedSysMsg.NAME, msg.meetingId, msg.authzToken)
 
-    val page = generatePresentationPage(msg.presId, msg.presBaseUrl, msg.presParentPath, msg.page.intValue(), presTokenSecret)
+    val page = generatePresentationPage(msg.presId, msg.presBaseUrl, msg.presParentPath, msg.page.intValue(), pageTokenSecret)
 
     val body = PresentationPageConvertedSysMsgBody(
       podId = msg.podId,
@@ -241,12 +241,12 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
-  def buildPresentationConversionCompletedSysPubMsg(msg: DocPageCompletedProgress, presTokenSecret: String = ""): BbbCommonEnvCoreMsg = {
+  def buildPresentationConversionCompletedSysPubMsg(msg: DocPageCompletedProgress, pageTokenSecret: String = ""): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(PresentationConversionCompletedSysPubMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationConversionCompletedSysPubMsg.NAME, msg.meetingId, msg.authzToken)
 
-    val pages = generatePresentationPages(msg.presId, msg.numPages.intValue(), msg.presBaseUrl, presTokenSecret)
+    val pages = generatePresentationPages(msg.presId, msg.numPages.intValue(), msg.presBaseUrl, pageTokenSecret)
     val presentation = PresentationVO(msg.presId, msg.temporaryPresentationId, msg.filename,
       current = msg.current.booleanValue(), pages.values.toVector, msg.downloadable.booleanValue(),
       msg.removable.booleanValue(),
@@ -258,21 +258,21 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
-  def generatePresentationPages(presId: String, numPages: Int, presBaseUrl: String, presTokenSecret: String = ""): scala.collection.immutable.Map[String, PageVO] = {
+  def generatePresentationPages(presId: String, numPages: Int, presBaseUrl: String, pageTokenSecret: String = ""): scala.collection.immutable.Map[String, PageVO] = {
     val pages = new scala.collection.mutable.HashMap[String, PageVO]
     for (i <- 1 to numPages) {
       val id = presId + "/" + i
       val num = i
       val current = if (i == 1) true else false
-      val presToken = if (presTokenSecret.nonEmpty) generatePresToken(presId, i, presTokenSecret) else ""
-      val tokenParam = if (presToken.nonEmpty) "?presToken=" + presToken else ""
+      val pageToken = if (pageTokenSecret.nonEmpty) generatePageToken(presId, i, pageTokenSecret) else ""
+      val tokenParam = if (pageToken.nonEmpty) "?pageToken=" + pageToken else ""
       val thumbnail = presBaseUrl + "/thumbnail/" + i + tokenParam
 
       val txtUri = presBaseUrl + "/textfiles/" + i + tokenParam
       val svgUri = presBaseUrl + "/svg/" + i + tokenParam
 
       val p = PageVO(id = id, num = num, thumbUri = thumbnail,
-        txtUri = txtUri, svgUri = svgUri, current = current, presToken = presToken)
+        txtUri = txtUri, svgUri = svgUri, current = current, pageToken = pageToken)
       pages += p.id -> p
     }
 
