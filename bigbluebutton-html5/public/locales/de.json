@@ -1533,7 +1533,7 @@
     "app.createBreakoutRoom.callModerator": "Moderation rufen",
     "app.createBreakoutRoom.callModeratorSent": "Die Moderation wurde benachrichtigt.",
     "app.createBreakoutRoom.callModeratorCooldown": "Bitte warte, bevor du die Moderation erneut rufst.",
-    "app.createBreakoutRoom.returnToMainSession": "Return to Main Session",
+    "app.createBreakoutRoom.returnToMainSession": "Zurück in den Hauptraum",
     "app.createBreakoutRoom.listenToRoom": "Listen to room",
     "app.createBreakoutRoom.stopListeningToRoom": "Stop listening",
     "app.updateBreakoutRoom.modalDesc": "Um eine Person zu aktualisieren oder einzuladen, diese einfach in den gewünschten Raum ziehen.",
