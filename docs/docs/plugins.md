@@ -1041,6 +1041,8 @@ As seen for the `useUiData`, the return type is well defined by the enum chosen 
 - presentation-area:
   - open: this function will open the presentation area content automatically;
   - close: this function will close the presentation area content automatically;
+- screenshare:
+  - stop: Stops broadcasting the screenshare if user is presenter and is sharing screen (it is ignored otherwise);
 - sidekick-options-container: **(deprecated - use [sidekickArea](#sidekickarea-ui-commands) instead)**
   - open: this function will open the sidekick options panel automatically;
   - close: this function will close the sidekick options panel automatically (and also the sidebar content if open, to avoid inconsistencies in ui);
@@ -1128,6 +1130,9 @@ For a complete working example, see the [sample-generic-content-sidekick-plugin]
   - caption:
     - save: this function saves the given text, locale and caption type
     - addLocale: this function sends a locale to be added to the available options
+  
+  - presentation:
+    - upload: uploads a new presentation to BigBlueButton;
 
 As these commands can change state in the back-end, "permission control" is available based on role for some of the Commands (in the manifest), those are:
   - chat:
