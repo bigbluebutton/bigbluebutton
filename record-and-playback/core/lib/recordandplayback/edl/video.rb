@@ -397,7 +397,7 @@ module BigBlueButton
           source_for_entry: ->(entry, filename) { find_video(entry, filename) },
           split_entry: ->(entries, entry_i, rec_time) { split_edl_at(entries, entry_i, rec_time) },
           remove_source: ->(entry, filename) { remove_video(entry, filename) },
-          min_gap: 30_000,
+          min_gap: 30_000
         )
       end
 

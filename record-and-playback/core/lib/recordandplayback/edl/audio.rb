@@ -407,7 +407,7 @@ module BigBlueButton
           split_entry: ->(entries, entry_i, rec_time) { split_edl_at(entries, entry_i, rec_time) },
           remove_source: lambda { |entry, filename|
             entry[:audios]&.reject! { |audio| audio[:filename] == filename }
-          },
+          }
         )
       end
 

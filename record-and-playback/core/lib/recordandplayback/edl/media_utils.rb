@@ -161,7 +161,8 @@ module BigBlueButton
           next if gaps_array.empty?
 
           BigBlueButton.logger.info(
-            "#{stream_type.to_s.capitalize} file #{File.basename(source_id.to_s)} has #{gaps_array.length} gap(s), adjusting EDL",
+            "#{stream_type.to_s.capitalize} file #{File.basename(source_id.to_s)} " \
+            "has #{gaps_array.length} gap(s), adjusting EDL"
           )
 
           next_entry_i = 0
@@ -187,7 +188,7 @@ module BigBlueButton
 
             BigBlueButton.logger.debug(
               "Processing gap [#{gap_start}ms, #{gap_end}ms) " \
-              "in EDL entry #{entry_i} (timestamp=#{entry[:timestamp]}ms)",
+              "in EDL entry #{entry_i} (timestamp=#{entry[:timestamp]}ms)"
             )
 
             # If gap starts in this EDL entry, then it needs to be split
