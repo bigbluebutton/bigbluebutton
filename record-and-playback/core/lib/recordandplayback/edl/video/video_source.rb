@@ -7,6 +7,15 @@ module BigBlueButton
       class VideoSource
         READ_VIDEO_INFO_FLAGS = ['-select_streams', 'v:0', '-count_frames', '-read_intervals', '%+#10'].freeze
 
+        # The filename currently used to read this source. This can differ from
+        # the original filename if the source was remuxed.
+        attr_reader :filename
+
+        # Duration of the current video source in milliseconds.
+        def duration
+          @info&.dig(:duration)
+        end
+
         # Initialize a video source from a video file
         #
         # @param filename [String] path to the video file
