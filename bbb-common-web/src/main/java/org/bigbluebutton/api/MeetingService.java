@@ -47,6 +47,8 @@ import org.bigbluebutton.api.messaging.converters.messages.UnpublishedRecordingM
 import org.bigbluebutton.api.messaging.converters.messages.DeletedRecordingMessage;
 import org.bigbluebutton.api.messaging.messages.*;
 import org.bigbluebutton.api.service.impl.SharedNotesRedirectValidatorService;
+import org.bigbluebutton.api.service.SecureUrlDownloader;
+import org.bigbluebutton.api.service.ValidatedUrl;
 import org.bigbluebutton.api.util.PluginUtils;
 import org.bigbluebutton.api.service.RedirectFollowerService;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
@@ -98,6 +100,8 @@ public class MeetingService implements MessageListener {
   private long usersTimeout;
   private int numPluginManifestsFetchingThreads;
   private long pluginManifestFetchTimeout;
+  private SecureUrlDownloader secureUrlDownloader;
+  private int maxPluginManifestPayloadSizeKib;
   private long waitingGuestUsersTimeout;
   private int sessionsCleanupDelayInMinutes;
   private long enteredUsersTimeout;
@@ -438,10 +442,20 @@ public class MeetingService implements MessageListener {
       log.info("Fetching plugin [{}].", pluginManifestUrlString);
       CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
         try {
-          URL url = new URL(pluginManifestUrlString);
-          String content;
-          try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()))) {
-            content = in.lines().collect(Collectors.joining("\n"));
+          ValidatedUrl validatedUrl = pluginManifest.getValidatedUrl();
+          if (validatedUrl == null) {
+            log.error("Plugin [{}] missing validated URL data; skipping.", pluginManifestUrlString);
+            pluginsResult.put(pluginManifestUrlString, PluginUtils.createEmptyPluginObjectWithError(
+                    "Plugin manifest URL missing security validation data", pluginManifestUrlString));
+            return;
+          }
+          int timeoutMs = (int) (pluginManifestFetchTimeout * 1000);
+          String content = secureUrlDownloader.downloadToString(
+                  m.getInternalId(), validatedUrl, timeoutMs, maxPluginManifestPayloadSizeKib);
+          if (content == null) {
+            pluginsResult.put(pluginManifestUrlString, PluginUtils.createEmptyPluginObjectWithError(
+                    "Failed to download plugin manifest securely", pluginManifestUrlString));
+            return;
           }
 
           // Parse the JSON content
@@ -488,21 +502,11 @@ public class MeetingService implements MessageListener {
           Map<String, Object> manifestWrapper = new HashMap<>();
           manifestWrapper.put("manifest", manifestObject);
           pluginsResult.put(pluginKey, manifestWrapper);
-        } catch (MalformedURLException e) {
-          String clientErrorMessage = "Invalid URL/Malformed URl when processing a plugin. For more information, see bbb-web";
-          pluginsResult.put(pluginManifestUrlString, PluginUtils.createEmptyPluginObjectWithError(
-                  clientErrorMessage, pluginManifestUrlString));
-          log.error("Invalid URL/Malformed URL for plugin [{}]", pluginManifestUrlString, e);
         } catch (JsonProcessingException e) {
           String clientErrorMessage = "Failed to parse manifest JSON from a plugin URL. For more information, see bbb-web";
           pluginsResult.put(pluginManifestUrlString, PluginUtils.createEmptyPluginObjectWithError(
                   clientErrorMessage, pluginManifestUrlString));
           log.error("Failed to parse manifest JSON from URL [{}]", pluginManifestUrlString, e);
-        } catch (IOException e) {
-          String clientErrorMessage = "I/O error when fetching a plugin URL. For more information, see bbb-web";
-          pluginsResult.put(pluginManifestUrlString, PluginUtils.createEmptyPluginObjectWithError(
-                  clientErrorMessage, pluginManifestUrlString));
-          log.error("I/O error when fetching URL [{}]", pluginManifestUrlString, e);
         } catch (PluginMetadataException e) {
           String pluginName = e.getPluginName();
           String clientErrorMessage = String.format(
@@ -1642,6 +1646,14 @@ public class MeetingService implements MessageListener {
 
   public void setPluginManifestFetchTimeout(long value) {
     pluginManifestFetchTimeout = value;
+  }
+
+  public void setSecureUrlDownloader(SecureUrlDownloader secureUrlDownloader) {
+    this.secureUrlDownloader = secureUrlDownloader;
+  }
+
+  public void setMaxPluginManifestPayloadSizeKib(int value) {
+    maxPluginManifestPayloadSizeKib = value;
   }
 
   public void setSessionsCleanupDelayInMinutes(int value) {
