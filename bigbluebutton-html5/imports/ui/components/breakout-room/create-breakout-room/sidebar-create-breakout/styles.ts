@@ -214,7 +214,7 @@ export const RoomCountControl = styled.div`
   justify-content: center;
   gap: 0.5rem;
   background: ${colorGrayUserListToolbar};
-  border-radius: 2rem;
+  border-radius: 1rem;
   height: 2.75rem;
   padding: 0 1rem;
   flex: 1;
@@ -263,7 +263,7 @@ interface ButtonProps {
 
 // @ts-ignore - Button is a JS component
 export const RandomAssignBtn = styled<ButtonProps>(Button)`
-  border-radius: 2rem !important;
+  border-radius: 1rem !important;
   flex: 1;
   display: flex !important;
   align-items: center;

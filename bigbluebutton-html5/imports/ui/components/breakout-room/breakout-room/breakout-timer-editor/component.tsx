@@ -34,6 +34,30 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.increaseBreakoutTime',
     description: 'Increase breakout time button label',
   },
+  decrementHours: {
+    id: 'app.timer.aria.decrementHours',
+    description: 'Aria label: Decrease hours by {amount}',
+  },
+  incrementHours: {
+    id: 'app.timer.aria.incrementHours',
+    description: 'Aria label: Increase hours by {amount}',
+  },
+  decrementMinutes: {
+    id: 'app.timer.aria.decrementMinutes',
+    description: 'Aria label: Decrease minutes by {amount}',
+  },
+  incrementMinutes: {
+    id: 'app.timer.aria.incrementMinutes',
+    description: 'Aria label: Increase minutes by {amount}',
+  },
+  decrementSeconds: {
+    id: 'app.timer.aria.decrementSeconds',
+    description: 'Aria label: Decrease seconds by {amount}',
+  },
+  incrementSeconds: {
+    id: 'app.timer.aria.incrementSeconds',
+    description: 'Aria label: Increase seconds by {amount}',
+  },
 });
 
 interface BreakoutTimerEditorProps {
@@ -106,7 +130,18 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
 
   const adjustTime = useCallback((deltaSeconds: number) => {
     const base = editingTime ?? remainingTime;
-    commitTimeChange(base + deltaSeconds);
+    const baseH = Math.floor(base / 3600);
+    const baseM = Math.floor((base % 3600) / 60);
+    const baseS = base % 60;
+    const absD = Math.abs(deltaSeconds);
+    const sign = deltaSeconds > 0 ? 1 : -1;
+    let newH = baseH;
+    let newM = baseM;
+    let newS = baseS;
+    if (absD >= 3600) newH = Math.max(0, Math.min(23, baseH + sign));
+    else if (absD >= 60) newM = Math.max(0, Math.min(59, baseM + sign));
+    else newS = Math.max(0, Math.min(59, baseS + sign));
+    commitTimeChange((newH * 3600) + (newM * 60) + newS);
   }, [editingTime, remainingTime, commitTimeChange]);
 
   const handleTimerInputChange = useCallback((
@@ -144,12 +179,12 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
             <Styled.InputArrowButton
               type="button"
               onClick={() => adjustTime(3600)}
-              aria-label={intl.formatMessage(intlMessages.increaseBreakoutTime)}
+              aria-label={intl.formatMessage(intlMessages.incrementHours, { amount: 1 })}
             />
             <Styled.InputArrowButtonDown
               type="button"
               onClick={() => adjustTime(-3600)}
-              aria-label={intl.formatMessage(intlMessages.decreaseBreakoutTime)}
+              aria-label={intl.formatMessage(intlMessages.decrementHours, { amount: 1 })}
             />
           </Styled.InputArrows>
           <Styled.TimeUnitLabel>
@@ -174,12 +209,12 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
             <Styled.InputArrowButton
               type="button"
               onClick={() => adjustTime(60)}
-              aria-label={intl.formatMessage(intlMessages.increaseBreakoutTime)}
+              aria-label={intl.formatMessage(intlMessages.incrementMinutes, { amount: 1 })}
             />
             <Styled.InputArrowButtonDown
               type="button"
               onClick={() => adjustTime(-60)}
-              aria-label={intl.formatMessage(intlMessages.decreaseBreakoutTime)}
+              aria-label={intl.formatMessage(intlMessages.decrementMinutes, { amount: 1 })}
             />
           </Styled.InputArrows>
           <Styled.TimeUnitLabel>
@@ -204,12 +239,12 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
             <Styled.InputArrowButton
               type="button"
               onClick={() => adjustTime(1)}
-              aria-label={intl.formatMessage(intlMessages.increaseBreakoutTime)}
+              aria-label={intl.formatMessage(intlMessages.incrementSeconds, { amount: 1 })}
             />
             <Styled.InputArrowButtonDown
               type="button"
               onClick={() => adjustTime(-1)}
-              aria-label={intl.formatMessage(intlMessages.decreaseBreakoutTime)}
+              aria-label={intl.formatMessage(intlMessages.decrementSeconds, { amount: 1 })}
             />
           </Styled.InputArrows>
           <Styled.TimeUnitLabel>

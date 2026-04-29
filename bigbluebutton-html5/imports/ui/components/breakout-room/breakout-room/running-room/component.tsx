@@ -429,10 +429,8 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                     </Styled.RoomCardCountLeft>
                   </Styled.RoomCardLeft>
                   <Styled.RoomCardMenuWrapper>
-                    {/* @ts-ignore */}
                     <BBBMenu
                       trigger={(
-                        // @ts-ignore
                         <Trigger
                           label={intl.formatMessage(intlMessages.roomOptions)}
                           aria-label={intl.formatMessage(intlMessages.roomOptions)}
@@ -466,7 +464,6 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                         keepMounted: true,
                         transitionDuration: 0,
                         elevation: 3,
-                        getcontentanchorel: null,
                         anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
                         transformOrigin: { vertical: 'top', horizontal: 'left' },
                       }}
