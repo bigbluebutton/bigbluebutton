@@ -34,7 +34,7 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "@blocknote/server-util": "^0.47.1",
+    "@blocknote/server-util": "^0.49.0",
     "@hocuspocus/extension-database": "^3.4.4",
     "@hocuspocus/server": "^3.4.4",
     "@types/express": "^5.0.6",
