@@ -1,11 +1,12 @@
 import React, {
   useState, useCallback, useRef, useEffect, useMemo,
 } from 'react';
-import { createPortal } from 'react-dom';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
+import BBBMenu from '/imports/ui/components/common/menu/component';
+import Trigger from '/imports/ui/components/common/control-header/right/component';
 import {
   BREAKOUT_ROOM_END_ALL,
   BREAKOUT_ROOM_MOVE_USER,
@@ -119,14 +120,11 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
   const [megaphoneOpen, setMegaphoneOpen] = useState(false);
   const [megaphoneMessage, setMegaphoneMessage] = useState('');
 
-  const [openMenuBreakoutId, setOpenMenuBreakoutId] = useState<string | null>(null);
   const [editingRoomId, setEditingRoomId] = useState<string | null>(null);
+
   const [localRoomNames, setLocalRoomNames] = useState<Record<string, string>>({});
   const [requestingJoinForRoomId, setRequestingJoinForRoomId] = useState<string | null>(null);
   const [listeningToRoomId, setListeningToRoomId] = useState<string | null>(null);
-  const roomMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
-  const menuPortalRef = useRef<HTMLDivElement | null>(null);
 
   const [breakoutRoomEndAll] = useMutation(BREAKOUT_ROOM_END_ALL);
   const [breakoutRoomMoveUser] = useMutation(BREAKOUT_ROOM_MOVE_USER);
@@ -170,6 +168,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
 
   useEffect(() => {
     if (!requestingJoinForRoomId) return;
+
     const breakout = breakouts.find((b) => b.breakoutRoomMeetingId === requestingJoinForRoomId);
     if (breakout?.joinURL) {
       const win = window.open(breakout.joinURL, '_blank');
@@ -178,24 +177,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
     }
   }, [breakouts, requestingJoinForRoomId]);
 
-  useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (!openMenuBreakoutId) return;
-      const wrapperEl = roomMenuRefs.current[openMenuBreakoutId];
-      const portalEl = menuPortalRef.current;
-      const isInsideWrapper = wrapperEl?.contains(e.target as Node) ?? false;
-      const isInsidePortal = portalEl?.contains(e.target as Node) ?? false;
-      if (!isInsideWrapper && !isInsidePortal) {
-        setOpenMenuBreakoutId(null);
-        setMenuPosition(null);
-      }
-    };
-    document.addEventListener('mousedown', handleOutsideClick);
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
-  }, [openMenuBreakoutId]);
-
   const handleEnterRoom = useCallback((breakout: BreakoutRoomType) => {
-    setOpenMenuBreakoutId(null);
     if (breakout.joinURL) {
       const win = window.open(breakout.joinURL, '_blank');
       if (win) setBreakoutWindowRef(win);
@@ -206,7 +188,6 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
   }, [requestJoinUrl]);
 
   const handleListenToRoom = useCallback((breakout: BreakoutRoomType) => {
-    setOpenMenuBreakoutId(null);
     if (listeningToRoomId === breakout.breakoutRoomMeetingId) {
       breakoutRoomTransfer({
         variables: {
@@ -227,8 +208,6 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
   }, [listeningToRoomId, breakoutRoomTransfer, meetingId]);
 
   const padNum = (n: number) => n.toString().padStart(2, '0');
-
-  const openBreakout = breakouts.find((b) => b.breakoutRoomMeetingId === openMenuBreakoutId);
 
   const handleFinish = useCallback(() => {
     closePanel();
@@ -396,7 +375,6 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
               : breakout.shortName;
 
             const displayName = localRoomNames[breakout.breakoutRoomMeetingId] ?? roomName;
-            const isMenuOpen = openMenuBreakoutId === breakout.breakoutRoomMeetingId;
             const isEditing = editingRoomId === breakout.breakoutRoomMeetingId;
             const isListening = listeningToRoomId === breakout.breakoutRoomMeetingId;
 
@@ -450,33 +428,49 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                       <Icon iconName="user_list" />
                     </Styled.RoomCardCountLeft>
                   </Styled.RoomCardLeft>
-                  <Styled.RoomCardMenuWrapper
-                    ref={(el) => { roomMenuRefs.current[breakout.breakoutRoomMeetingId] = el; }}
-                  >
-                    <Styled.RoomCardMenuBtn
-                      $listening={isListening}
-                      onClick={(e: React.MouseEvent) => {
-                        e.stopPropagation();
-                        if (isMenuOpen) {
-                          setOpenMenuBreakoutId(null);
-                          setMenuPosition(null);
-                        } else {
-                          const wrapper = roomMenuRefs.current[breakout.breakoutRoomMeetingId];
-                          if (wrapper) {
-                            const rect = wrapper.getBoundingClientRect();
-                            setMenuPosition({ top: rect.bottom + 4, left: rect.left });
-                          }
-                          setOpenMenuBreakoutId(breakout.breakoutRoomMeetingId);
-                        }
+                  <Styled.RoomCardMenuWrapper>
+                    {/* @ts-ignore */}
+                    <BBBMenu
+                      trigger={(
+                        // @ts-ignore
+                        <Trigger
+                          label={intl.formatMessage(intlMessages.roomOptions)}
+                          aria-label={intl.formatMessage(intlMessages.roomOptions)}
+                          hideLabel
+                          icon="more"
+                          data-test={`roomOptions${breakout.sequence}`}
+                          onClick={() => {}}
+                        />
+                      )}
+                      actions={[
+                        {
+                          key: `join-${breakout.breakoutRoomMeetingId}`,
+                          label: breakout.isUserCurrentlyInRoom
+                            ? intl.formatMessage(intlMessages.alreadyConnected)
+                            : intl.formatMessage(intlMessages.joinRoom),
+                          disabled: breakout.isUserCurrentlyInRoom,
+                          dataTest: breakout.isUserCurrentlyInRoom ? 'alreadyConnected' : `askToJoinRoom${breakout.sequence}`,
+                          onClick: () => handleEnterRoom(breakout),
+                        },
+                        {
+                          key: `listen-${breakout.breakoutRoomMeetingId}`,
+                          label: isListening
+                            ? intl.formatMessage(intlMessages.stopListeningToRoom)
+                            : intl.formatMessage(intlMessages.listenToRoom),
+                          dataTest: 'listenToBreakoutRoomButton',
+                          onClick: () => handleListenToRoom(breakout),
+                        },
+                      ]}
+                      opts={{
+                        id: `breakout-room-options-${breakout.breakoutRoomMeetingId}`,
+                        keepMounted: true,
+                        transitionDuration: 0,
+                        elevation: 3,
+                        getcontentanchorel: null,
+                        anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
+                        transformOrigin: { vertical: 'top', horizontal: 'left' },
                       }}
-                      data-test={`roomOptions${breakout.sequence}`}
-                      aria-label={intl.formatMessage(intlMessages.roomOptions)}
-                      title={isListening
-                        ? intl.formatMessage(intlMessages.stopListeningToRoom)
-                        : intl.formatMessage(intlMessages.listenToRoom)}
-                    >
-                      ···
-                    </Styled.RoomCardMenuBtn>
+                    />
                   </Styled.RoomCardMenuWrapper>
                 </Styled.RoomCardHeader>
                 {totalRoomUsers > 0 && (
@@ -568,36 +562,6 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
           data-test="finishBreakoutButton"
         />
       </Styled.BottomBar>
-      {openMenuBreakoutId && menuPosition && openBreakout && createPortal(
-        <div
-          ref={menuPortalRef}
-          style={{
-            position: 'fixed', top: menuPosition.top, left: menuPosition.left, zIndex: 9999,
-          }}
-        >
-          <Styled.RoomCardMenu>
-            <Styled.RoomCardMenuItem
-              onClick={() => handleEnterRoom(openBreakout)}
-              data-test={openBreakout.isUserCurrentlyInRoom ? 'alreadyConnected' : `askToJoinRoom${openBreakout.sequence}`}
-              $disabled={openBreakout.isUserCurrentlyInRoom}
-            >
-              {openBreakout.isUserCurrentlyInRoom
-                ? intl.formatMessage(intlMessages.alreadyConnected)
-                : intl.formatMessage(intlMessages.joinRoom)}
-            </Styled.RoomCardMenuItem>
-            <Styled.RoomCardMenuItem
-              onClick={() => handleListenToRoom(openBreakout)}
-              $active={listeningToRoomId === openBreakout.breakoutRoomMeetingId}
-              data-test="listenToBreakoutRoomButton"
-            >
-              {listeningToRoomId === openBreakout.breakoutRoomMeetingId
-                ? intl.formatMessage(intlMessages.stopListeningToRoom)
-                : intl.formatMessage(intlMessages.listenToRoom)}
-            </Styled.RoomCardMenuItem>
-          </Styled.RoomCardMenu>
-        </div>,
-        document.body,
-      )}
     </Styled.PanelContent>
   );
 };

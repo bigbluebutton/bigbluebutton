@@ -104,18 +104,10 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
     }, DEBOUNCE_DELAY);
   }, [breakoutRoomSetTime]);
 
-  const adjustTime = useCallback((delta: number) => {
-    let deltaSeconds: number;
-    if (selectedTimerField === 'h') {
-      deltaSeconds = delta * 3600;
-    } else if (selectedTimerField === 'm') {
-      deltaSeconds = delta * 60;
-    } else {
-      deltaSeconds = delta;
-    }
+  const adjustTime = useCallback((deltaSeconds: number) => {
     const base = editingTime ?? remainingTime;
     commitTimeChange(base + deltaSeconds);
-  }, [selectedTimerField, editingTime, remainingTime, commitTimeChange]);
+  }, [editingTime, remainingTime, commitTimeChange]);
 
   const handleTimerInputChange = useCallback((
     field: 'h' | 'm' | 's',
@@ -133,16 +125,8 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
       <Styled.TimerLabel>
         {intl.formatMessage(intlMessages.durationOfBreakout)}
       </Styled.TimerLabel>
-      <Styled.TimerRow>
-        <Styled.TimerTimeBtn
-          $variant="minus"
-          onClick={() => adjustTime(-1)}
-          aria-label={intl.formatMessage(intlMessages.decreaseBreakoutTime)}
-          data-test="decreaseBreakoutTimeButton"
-        >
-          −
-        </Styled.TimerTimeBtn>
-        <Styled.TimerDisplay data-test="breakoutRemainingTime">
+      <Styled.TimeInputGroup data-test="breakoutRemainingTime">
+        <Styled.TimeUnitContainer>
           <Styled.TimerInput
             type="number"
             min={0}
@@ -156,7 +140,23 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
             aria-label={intl.formatMessage(intlMessages.timerHours)}
             data-test="breakoutRoomTimerHoursInput"
           />
-          <Styled.TimerColon>:</Styled.TimerColon>
+          <Styled.InputArrows $selected={selectedTimerField === 'h'}>
+            <Styled.InputArrowButton
+              type="button"
+              onClick={() => adjustTime(3600)}
+              aria-label={intl.formatMessage(intlMessages.increaseBreakoutTime)}
+            />
+            <Styled.InputArrowButtonDown
+              type="button"
+              onClick={() => adjustTime(-3600)}
+              aria-label={intl.formatMessage(intlMessages.decreaseBreakoutTime)}
+            />
+          </Styled.InputArrows>
+          <Styled.TimeUnitLabel>
+            {intl.formatMessage(intlMessages.timerHours)}
+          </Styled.TimeUnitLabel>
+        </Styled.TimeUnitContainer>
+        <Styled.TimeUnitContainer>
           <Styled.TimerInput
             type="number"
             min={0}
@@ -170,7 +170,23 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
             aria-label={intl.formatMessage(intlMessages.timerMinutes)}
             data-test="breakoutRoomTimerMinutesInput"
           />
-          <Styled.TimerColon>:</Styled.TimerColon>
+          <Styled.InputArrows $selected={selectedTimerField === 'm'}>
+            <Styled.InputArrowButton
+              type="button"
+              onClick={() => adjustTime(60)}
+              aria-label={intl.formatMessage(intlMessages.increaseBreakoutTime)}
+            />
+            <Styled.InputArrowButtonDown
+              type="button"
+              onClick={() => adjustTime(-60)}
+              aria-label={intl.formatMessage(intlMessages.decreaseBreakoutTime)}
+            />
+          </Styled.InputArrows>
+          <Styled.TimeUnitLabel>
+            {intl.formatMessage(intlMessages.timerMinutes)}
+          </Styled.TimeUnitLabel>
+        </Styled.TimeUnitContainer>
+        <Styled.TimeUnitContainer>
           <Styled.TimerInput
             type="number"
             min={0}
@@ -184,16 +200,23 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
             aria-label={intl.formatMessage(intlMessages.timerSeconds)}
             data-test="breakoutRoomTimerSecondsInput"
           />
-        </Styled.TimerDisplay>
-        <Styled.TimerTimeBtn
-          $variant="plus"
-          onClick={() => adjustTime(1)}
-          aria-label={intl.formatMessage(intlMessages.increaseBreakoutTime)}
-          data-test="increaseBreakoutTimeButton"
-        >
-          +
-        </Styled.TimerTimeBtn>
-      </Styled.TimerRow>
+          <Styled.InputArrows $selected={selectedTimerField === 's'}>
+            <Styled.InputArrowButton
+              type="button"
+              onClick={() => adjustTime(1)}
+              aria-label={intl.formatMessage(intlMessages.increaseBreakoutTime)}
+            />
+            <Styled.InputArrowButtonDown
+              type="button"
+              onClick={() => adjustTime(-1)}
+              aria-label={intl.formatMessage(intlMessages.decreaseBreakoutTime)}
+            />
+          </Styled.InputArrows>
+          <Styled.TimeUnitLabel>
+            {intl.formatMessage(intlMessages.timerSeconds)}
+          </Styled.TimeUnitLabel>
+        </Styled.TimeUnitContainer>
+      </Styled.TimeInputGroup>
     </Styled.TimerSection>
   );
 };
