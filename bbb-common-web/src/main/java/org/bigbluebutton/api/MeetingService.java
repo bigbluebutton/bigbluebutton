@@ -20,7 +20,9 @@ package org.bigbluebutton.api;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.*;
@@ -66,6 +68,7 @@ import com.google.gson.Gson;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.*;
 
