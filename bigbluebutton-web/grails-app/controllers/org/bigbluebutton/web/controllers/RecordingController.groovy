@@ -9,7 +9,7 @@ import org.bigbluebutton.api.ApiErrors
 import org.bigbluebutton.api.ApiParams
 import org.apache.commons.lang3.StringUtils
 import org.json.JSONArray
-import org.apache.commons.lang.LocaleUtils
+import org.apache.commons.lang3.LocaleUtils
 
 class RecordingController {
   private static final String CONTROLLER_NAME = 'RecordingController'

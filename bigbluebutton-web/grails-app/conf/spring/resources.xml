@@ -73,8 +73,15 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <constructor-arg index="0" ref="redisMessageHandler"/>
     </bean>
 
+    <bean id="callbackRedirectValidator" class="org.bigbluebutton.api.service.impl.CallbackRedirectValidatorService">
+        <property name="fetchUrlSupportedProtocols" value="${fetchUrlSupportedProtocols}" />
+        <property name="fetchUrlBlockedExternalHosts" value="${fetchUrlBlockedExternalHosts}" />
+        <property name="fetchUrlAllowedLocalHosts" value="${fetchUrlAllowedLocalHosts}" />
+    </bean>
+
     <bean id="callbackUrlService" class="org.bigbluebutton.web.services.callback.CallbackUrlService"
           init-method="start" destroy-method="stop">
+        <property name="callbackRedirectValidator" ref="callbackRedirectValidator"/>
     </bean>
 
     <bean id="bbbWebApiGWApp" class="org.bigbluebutton.api2.BbbWebApiGWApp">

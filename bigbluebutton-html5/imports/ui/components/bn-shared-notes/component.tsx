@@ -7,8 +7,20 @@ import '@blocknote/core/fonts/inter.css';
 import '@blocknote/mantine/style.css';
 import { HocuspocusProvider } from '@hocuspocus/provider';
 import { Awareness } from 'y-protocols/awareness';
-import { useCreateBlockNote } from '@blocknote/react';
+import {
+  BasicTextStyleButton,
+  BlockNoteViewEditor,
+  BlockTypeSelect,
+  ColorStyleButton,
+  FormattingToolbar,
+  NestBlockButton,
+  TextAlignButton,
+  UnnestBlockButton,
+  useCreateBlockNote,
+} from '@blocknote/react';
+
 import { Plugin, PluginKey } from '@tiptap/pm/state';
+import { Extension } from '@tiptap/core';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 import Button from '/imports/ui/components/common/button/component';
@@ -26,6 +38,31 @@ import { notify } from '../../services/notification';
 (globalThis as unknown as Record<string, unknown>).bbbAwarenessKeepalive = Awareness;
 
 const maxDocumentCharsPluginKey = new PluginKey('maxDocumentChars');
+
+const createMaxDocumentCharsExtension = (
+  maxChars: number,
+  onExceed: (charCount: number) => void,
+) => Extension.create({
+  name: 'bbbMaxDocumentChars',
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        key: maxDocumentCharsPluginKey,
+        filterTransaction(tr) {
+          if (!tr.docChanged) return true;
+          let charCount = 0;
+          tr.doc.descendants((node) => {
+            if (node.isText) charCount += node.text?.length ?? 0;
+          });
+          if (charCount > maxChars) {
+            onExceed(charCount);
+          }
+          return charCount <= maxChars;
+        },
+      }),
+    ];
+  },
+});
 
 const intlMessages = defineMessages({
   payloadSizeError: {
@@ -87,7 +124,29 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
 
   const MAX_DOCUMENT_CHARS = window.meetingClientSettings?.public?.sharedNotes?.maxDocumentChars || 99999;
 
+  const STATIC_FORMATTING_TOOLBAR_ENABLED = window.meetingClientSettings
+    ?.public?.sharedNotes?.staticFormattingToolbar ?? true;
+
   const MAX_PASTE_SIZE = MAX_UPDATE_SHARED_NOTES * 1024;
+
+  const intlRef = React.useRef(intl);
+  intlRef.current = intl;
+
+  const maxDocumentCharsExtension = React.useMemo(
+    () => createMaxDocumentCharsExtension(MAX_DOCUMENT_CHARS, (charCount) => {
+      logger.warn({
+        logCode: 'max_number_char_typed',
+        extraInfo: {
+          charCount,
+          maxCharCount: MAX_DOCUMENT_CHARS,
+        },
+      }, 'User typed more characters than allowed');
+      notify(intlRef.current.formatMessage(intlMessages.maxCharCountError, {
+        maxCharCount: MAX_DOCUMENT_CHARS,
+      }), 'warning');
+    }),
+    [MAX_DOCUMENT_CHARS],
+  );
 
   const editor = useCreateBlockNote({
     collaboration: {
@@ -108,6 +167,9 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         default: '',
         heading: '',
       },
+    },
+    _tiptapOptions: {
+      extensions: [maxDocumentCharsExtension],
     },
     pasteHandler: ({ event, defaultPasteHandler }) => {
       try {
@@ -163,42 +225,18 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     },
   }, [blockNoteLocale, notificationErrorMessage]);
 
-  React.useEffect(() => {
-    const tiptapEditor = Reflect.get(editor, '_tiptapEditor') as {
-      registerPlugin: (plugin: Plugin) => void;
-      unregisterPlugin: (key: PluginKey) => void;
-    };
-    if (!tiptapEditor) return () => {};
-    const plugin = new Plugin({
-      key: maxDocumentCharsPluginKey,
-      filterTransaction(tr) {
-        if (!tr.docChanged) return true;
-        let charCount = 0;
-        tr.doc.descendants((node) => {
-          if (node.isText) charCount += node.text?.length ?? 0;
-        });
-        if (charCount > MAX_DOCUMENT_CHARS) {
-          logger.warn({
-            logCode: 'max_number_char_typed',
-            extraInfo: {
-              charCount,
-              maxCharCount: MAX_DOCUMENT_CHARS,
-            },
-          }, 'User typed more characters than allowed');
-          notify(intl.formatMessage(intlMessages.maxCharCountError, {
-            maxCharCount: MAX_DOCUMENT_CHARS,
-          }), 'warning');
-        }
-        return charCount <= MAX_DOCUMENT_CHARS;
-      },
-    });
-    tiptapEditor.registerPlugin(plugin);
-    return () => {
-      tiptapEditor.unregisterPlugin(maxDocumentCharsPluginKey);
-    };
-  }, [editor]);
-
   const editable = !disableNotes || !currentUserIsLocked || currentUserIsModerator;
+
+  // Keep the editor's focus/selection when tapping a toolbar button by
+  // cancelling the default focus move on mousedown.
+  const toolbarRef = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    const el = toolbarRef.current;
+    if (!el) return undefined;
+    const handler = (e: MouseEvent) => e.preventDefault();
+    el.addEventListener('mousedown', handler);
+    return () => el.removeEventListener('mousedown', handler);
+  }, [editable]);
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -213,18 +251,41 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
           .bn-mantine .bn-suggestion-menu {
             min-width: 300px;
           }
-          .bn-editor {
-            padding-inline: 35px 25px;
-          }
-          /* Make the editor fill the available space so clicks below last line focus it */
-          .bn-mantine,
-          .bn-editor,
-          .bn-editor .ProseMirror {
+          /* Toolbar and editor are siblings inside .bn-container. DOM order matches
+             visual order (toolbar first, editor second), so tab order is correct. */
+          .bn-container {
+            display: flex;
+            flex-direction: column;
             height: 100%;
           }
-          .bn-editor .ProseMirror {
+          .bn-toolbar-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 4px;
+            padding-block: 4px;
+            flex-shrink: 0;
+            border-bottom: 1px solid #d4d9df;
+          }
+          .bn-toolbar-row .bn-formatting-toolbar {
+            box-shadow: none;
+            border: none;
+            padding: 0;
+          }
+          .bn-toolbar-row [data-test="colors"] .bn-color-icon {
+            font-weight: 700;
+          }
+          .bn-toolbar-row [data-test="colors"] .bn-color-icon[data-text-color="default"] {
+            color: #2f80ed;
+          }
+          .bn-editor {
+            padding-inline: 35px 25px;
+            font-size: 1rem;
             box-sizing: border-box;
             cursor: text;
+            flex: 1 1 0;
+            min-height: 0;
+            overflow-y: auto;
           }
           /* Flip labels to below when near top of scroll container */
           .bn-block-group > .bn-block-outer:first-child
@@ -252,7 +313,30 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         editable={editable}
         editor={editor}
         theme="light"
-      />
+        formattingToolbar={!STATIC_FORMATTING_TOOLBAR_ENABLED}
+        renderEditor={false}
+      >
+        {STATIC_FORMATTING_TOOLBAR_ENABLED && editable && (
+          <div ref={toolbarRef} className="bn-toolbar-row">
+            <FormattingToolbar>
+              <BlockTypeSelect key="blockTypeSelect" />
+              <BasicTextStyleButton basicTextStyle="bold" key="boldStyleButton" />
+              <BasicTextStyleButton basicTextStyle="italic" key="italicStyleButton" />
+              <BasicTextStyleButton basicTextStyle="underline" key="underlineStyleButton" />
+              <BasicTextStyleButton basicTextStyle="strike" key="strikeStyleButton" />
+            </FormattingToolbar>
+            <FormattingToolbar>
+              <TextAlignButton textAlignment="left" key="textAlignLeftButton" />
+              <TextAlignButton textAlignment="center" key="textAlignCenterButton" />
+              <TextAlignButton textAlignment="right" key="textAlignRightButton" />
+              <ColorStyleButton key="colorStyleButton" />
+              <NestBlockButton key="nestBlockButton" />
+              <UnnestBlockButton key="unnestBlockButton" />
+            </FormattingToolbar>
+          </div>
+        )}
+        <BlockNoteViewEditor />
+      </BlockNoteView>
     </div>
   );
 }

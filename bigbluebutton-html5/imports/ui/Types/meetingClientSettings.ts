@@ -579,6 +579,7 @@ export interface SharedNotes {
   serverHostname: string
   maxDocumentChars: number
   maxLengthForContentUpdate: number
+  staticFormattingToolbar: boolean
 }
 
 export interface Media {
