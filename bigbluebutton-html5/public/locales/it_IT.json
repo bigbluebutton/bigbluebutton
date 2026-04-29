@@ -1551,7 +1551,7 @@
     "app.createBreakoutRoom.durationOfBreakout": "Durata delle stanze separate",
     "app.createBreakoutRoom.timerHours": "Ore",
     "app.createBreakoutRoom.timerMinutes": "Minuti",
-    "app.createBreakoutRoom.timerSeconds": "Seconds",
+    "app.createBreakoutRoom.timerSeconds": "Secondi",
     "app.createBreakoutRoom.decreaseBreakoutTime": "Decrease breakout time",
     "app.createBreakoutRoom.increaseBreakoutTime": "Increase breakout time",
     "app.createBreakoutRoom.decreaseRooms": "Decrease number of rooms",
