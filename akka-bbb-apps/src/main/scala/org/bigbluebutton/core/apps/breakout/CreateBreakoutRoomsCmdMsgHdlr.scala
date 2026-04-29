@@ -104,7 +104,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         breakout.freeJoin,
         liveMeeting.props.voiceProp.dialNumber,
         breakout.voiceConf,
-        msg.body.durationInMinutes,
+        msg.body.durationInSeconds,
         liveMeeting.props.password.moderatorPass,
         liveMeeting.props.password.viewerPass,
         breakout.presId,
@@ -127,7 +127,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
       outGW.send(event)
     }
 
-    val breakoutModel = new BreakoutModel(None, msg.body.durationInMinutes * 60, rooms, msg.body.sendInviteToModerators)
+    val breakoutModel = new BreakoutModel(None, msg.body.durationInSeconds, rooms, msg.body.sendInviteToModerators)
     BreakoutRoomDAO.insert(breakoutModel, liveMeeting)
     state.update(Some(breakoutModel))
   }

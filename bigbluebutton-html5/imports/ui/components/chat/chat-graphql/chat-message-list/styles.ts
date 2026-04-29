@@ -20,8 +20,9 @@ export const MessageList = styled(ScrollboxVertical)<MessageListProps>`
   width: 100%;
   z-index: 2;
   overflow-y: auto;
-  position: relative;
-  padding: 0 ${mdPadding};
+  position: absolute;
+  display: flex;
+  padding: 0 ${mdPadding} ${smPaddingX};
 `;
 
 export const UnreadButton = styled(ButtonElipsis)<UnreadButtonProps>`
@@ -45,15 +46,23 @@ export const UnreadButton = styled(ButtonElipsis)<UnreadButtonProps>`
 
 export const PageWrapper = styled.div``;
 
-export const Content = styled.div`
-  height: 100%;
+export const MessageListWrapper = styled.div`
   position: relative;
-  flex-shrink: 1;
+  flex: 1;
   overflow: hidden;
+`;
+
+export const Content = styled.div`
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
 `;
 
 export default {
   MessageList,
+  MessageListWrapper,
   UnreadButton,
   PageWrapper,
   Content,

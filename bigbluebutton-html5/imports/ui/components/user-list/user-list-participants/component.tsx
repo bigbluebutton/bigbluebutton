@@ -5,7 +5,6 @@ import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { User } from '/imports/ui/Types/user';
 import { getUsersPerUserListPage, makeUserSearchWhere } from '/imports/ui/components/user-list/service';
 import UserSearchContainer from '/imports/ui/components/user-list/user-search/container';
-import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import Styled from './styles';
 import {
   USER_AGGREGATE_COUNT_SUBSCRIPTION,
@@ -21,7 +20,6 @@ interface UserListParticipantsProps {
   count: number;
   parentRef: React.RefObject<HTMLDivElement | null>;
   searchQuery: string;
-  isModerator: boolean;
   onSearchChange: (query: string) => void;
   isQueryLoading: boolean;
 }
@@ -30,7 +28,6 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   count,
   parentRef,
   searchQuery,
-  isModerator,
   onSearchChange,
   isQueryLoading,
 }) => {
@@ -139,12 +136,10 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
 
   return (
     <>
-      {isModerator && (
-        <UserSearchContainer
-          onSearchChange={onSearchChange}
-          isQueryLoading={isQueryLoading}
-        />
-      )}
+      <UserSearchContainer
+        onSearchChange={onSearchChange}
+        isQueryLoading={isQueryLoading}
+      />
       <Styled.UserListColumn
         onKeyDown={rove}
         tabIndex={0}
@@ -166,9 +161,6 @@ const UserListParticipantsContainer: React.FC<UserListParticipantsContainerProps
   parentRef,
 }) => {
   const [searchQuery, setSearchQuery] = React.useState('');
-  const { data: currentUserData } = useCurrentUser((user) => ({
-    isModerator: user.isModerator,
-  }));
 
   const where = useMemo(() => makeUserSearchWhere(searchQuery), [searchQuery]);
 
@@ -186,7 +178,6 @@ const UserListParticipantsContainer: React.FC<UserListParticipantsContainerProps
       count={count}
       parentRef={parentRef}
       searchQuery={searchQuery}
-      isModerator={currentUserData?.isModerator ?? false}
       onSearchChange={setSearchQuery}
       isQueryLoading={countLoading}
     />

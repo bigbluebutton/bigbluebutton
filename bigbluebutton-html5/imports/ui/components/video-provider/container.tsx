@@ -96,7 +96,6 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     totalNumberOfStreams,
     totalNumberOfOtherStreams,
   } = useVideoStreams();
-  VideoService.updateActivePeers(streams);
 
   let usersVideo: VideoItem[] = streams;
 

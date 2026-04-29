@@ -345,6 +345,25 @@ trait HandlerHelpers extends SystemConfiguration {
     BbbCommonEnvCoreMsg(envelope, event)
   }
 
+  def buildGroupChatMessagePinEvtMsg(meetingId: String, chatId: String, userId: String, messageId: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+    val envelope = BbbCoreEnvelope(PinGroupChatMessageEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PinGroupChatMessageEvtMsg.NAME, meetingId, userId)
+    val body = PinGroupChatMessageEvtMsgBody(chatId, messageId)
+    val event = PinGroupChatMessageEvtMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+  def buildGroupChatMessageUnpinEvtMsg(meetingId: String, chatId: String, userId: String, messageId: String): BbbCommonEnvCoreMsg = {
+    val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
+    val envelope = BbbCoreEnvelope(UnpinGroupChatMessageEvtMsg.NAME, routing)
+    val header = BbbClientMsgHeader(UnpinGroupChatMessageEvtMsg.NAME, meetingId, userId)
+    val body = UnpinGroupChatMessageEvtMsgBody(chatId, messageId)
+    val event = UnpinGroupChatMessageEvtMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, event)
+  }
+
+
   def buildGroupChatMessageReactionSentEvtMsg(meetingId: String, userId: String, chatId: String, messageId: String, reactionEmoji: String): BbbCommonEnvCoreMsg = {
     val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, meetingId, userId)
     val envelope = BbbCoreEnvelope(GroupChatMessageReactionSentEvtMsg.NAME, routing)

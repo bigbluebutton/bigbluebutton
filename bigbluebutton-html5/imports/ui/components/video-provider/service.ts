@@ -21,9 +21,11 @@ import type { Stream, StreamItem, VideoItem } from './types';
 import { VIDEO_TYPES } from './enums';
 import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
 import {
-  getLKStats,
+  liveKitRoom,
   lkToggleMuteCameras,
 } from '/imports/ui/services/livekit';
+import { getLiveKitStats } from '/imports/ui/services/livekit/stats';
+import { Track } from 'livekit-client';
 
 const TOKEN = '_';
 
@@ -432,7 +434,7 @@ class VideoService {
 
   static getStreamsToConnectAndDisconnect(allStreams: VideoItem[], connectedStreamIds: string[]) {
     const cameraIds = allStreams
-      .filter((s) => s?.type !== VIDEO_TYPES.GRID)
+      .filter((s) => s?.type !== VIDEO_TYPES.GRID && s?.type !== VIDEO_TYPES.AUDIO_ONLY)
       .map((s) => (s as StreamItem).stream);
     const streamsToConnect = cameraIds.filter((stream) => {
       return !connectedStreamIds.includes(stream);
@@ -513,31 +515,51 @@ class VideoService {
     this.activePeers = activePeers;
   }
 
-  async getStats() {
+  async getStats(additionalStatsTypes = []) {
     const stats: Record<string, unknown> = {};
+    const statsToFilter = [...FILTER_VIDEO_STATS, ...additionalStatsTypes];
 
     await Promise.all(
       Object.keys(this.activePeers).map(async (peerId) => {
-        const peerStats = await this.activePeers[peerId].getStats();
+        try {
+          const activePeer = this.activePeers[peerId];
 
-        const videoStats: Record<string, unknown> = {};
+          if (!activePeer || typeof activePeer?.getStats !== 'function') return;
 
-        peerStats.forEach((stat) => {
-          if (FILTER_VIDEO_STATS.includes(stat.type)) {
-            videoStats[stat.type] = stat;
-          }
-        });
-        stats[peerId] = videoStats;
+          const peerStats = await this.activePeers[peerId].getStats();
+          const videoStats: Record<string, unknown> = {};
+
+          peerStats.forEach((stat) => {
+            if (statsToFilter.includes(stat.type)) {
+              videoStats[stat.type] = stat;
+            }
+          });
+          stats[peerId] = videoStats;
+        } catch (error) {
+          logger.warn({
+            logCode: 'video_provider_getstats_error',
+            extraInfo: {
+              peerId,
+              errorName: (error as Error)?.name,
+              errorMessage: (error as Error)?.message,
+              errorStack: (error as Error)?.stack,
+            },
+          }, `Failed to get stats for peer ${peerId}: ${(error as Error)?.message}`);
+        }
       }),
     );
 
     try {
-      const lkStats = await getLKStats();
+      const lkStats = await getLiveKitStats({
+        room: liveKitRoom,
+        kind: 'video',
+        source: Track.Source.Camera,
+      });
       lkStats.forEach((stat) => {
         // @ts-expect-error -> Untyped object.
         const { id, type: statType, kind } = stat;
 
-        if (FILTER_VIDEO_STATS.includes(statType) && (!kind || kind === 'video')) {
+        if (statsToFilter.includes(statType) && (!kind || kind === 'video')) {
           stats[id] = { [statType]: stat };
         }
       });
@@ -552,7 +574,7 @@ class VideoService {
       }, `Failed to get LiveKit video stats: ${(error as Error).message}`);
     }
 
-    return stats;
+    return Object.keys(stats).length === 0 ? null : stats;
   }
 
   static async startVirtualBackground(
@@ -626,7 +648,7 @@ export default {
   getPrefix: videoService.getPrefix.bind(videoService),
   isPinEnabled: VideoService.isPinEnabled,
   updateActivePeers: (streams: StreamItem[]) => videoService.updateActivePeers(streams),
-  getStats: () => videoService.getStats(),
+  getStats: (additionalStatsTypes = []) => videoService.getStats(additionalStatsTypes),
   buildStreamName: (deviceId: string) => videoService.buildStreamName(deviceId),
   startVirtualBackground: VideoService.startVirtualBackground,
 };

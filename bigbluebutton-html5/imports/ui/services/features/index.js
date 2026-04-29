@@ -132,6 +132,10 @@ export function useIsChatMessageReactionsEnabled() {
   );
 }
 
+export function useIsPinChatMessageEnabled() {
+  return useDisabledFeatures().indexOf('pinChatMessage') === -1;
+}
+
 export function useIsPrivateChatEnabled() {
   return useDisabledFeatures().indexOf('privateChat') === -1;
 }

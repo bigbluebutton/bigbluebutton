@@ -49,13 +49,14 @@ import Auth from '/imports/ui/services/auth';
 import KEYS from '/imports/utils/keys';
 import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
 import logger from '/imports/startup/client/logger';
-import { CHAT_DELETE_MESSAGE_MUTATION } from './mutations';
+import { CHAT_DELETE_MESSAGE_MUTATION, CHAT_SET_PINNED_MUTATION } from './mutations';
 import { Popover } from '@mui/material';
 import { EmojiPicker, EmojiPickerWrapper } from './message-toolbar/styles';
 import { isMobile } from '/imports/utils/deviceInfo';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
+import useChat from '/imports/ui/core/hooks/useChat';
 
 interface ChatMessageProps {
   message: Message;
@@ -130,6 +131,46 @@ const intlMessages = defineMessages({
     id: 'app.chat.toolbar.edit.edited',
     description: 'edited message label',
   },
+  pin: {
+    id: 'app.chat.toolbar.pin',
+    description: 'pin message label',
+  },
+  pinConfirmationTitle: {
+    id: 'app.chat.toolbar.pin.confirmationTitle',
+    description: '',
+  },
+  pinConfirmationQuestion: {
+    id: 'app.chat.toolbar.pin.confirmationQuestion',
+    description: 'Simple question to confirm pinning',
+  },
+  pinConfirmationDescription: {
+    id: 'app.chat.toolbar.pin.confirmationDescription',
+    description: '',
+  },
+  replacePinConfirmationTitle: {
+    id: 'app.chat.toolbar.pin.replaceConfirmationTitle',
+    description: 'Title for pin replacement confirmation modal',
+  },
+  replacePinConfirmationDescription: {
+    id: 'app.chat.toolbar.pin.replaceConfirmationDescription',
+    description: 'Description for pin replacement confirmation modal',
+  },
+  replacePinConfirmButton: {
+    id: 'app.chat.toolbar.pin.replaceConfirmButton',
+    description: 'Confirm button label for pin replacement modal',
+  },
+  unpinConfirmationTitle: {
+    id: 'app.chat.pinnedMessages.confirmModal.unpinTitle',
+    description: 'Title for unpin confirmation modal',
+  },
+  unpinConfirmationDescription: {
+    id: 'app.chat.pinnedMessages.confirmModal.unpinMessage',
+    description: 'Description for unpin confirmation modal',
+  },
+  unpinConfirmButton: {
+    id: 'app.chat.pinnedMessages.confirmModal.confirm',
+    description: 'Confirm button label for unpin modal',
+  },
   delete: {
     id: 'app.chat.toolbar.delete',
     description: 'delete label',
@@ -138,11 +179,11 @@ const intlMessages = defineMessages({
     id: 'app.chat.toolbar.delete.cancelLabel',
     description: '',
   },
-  confirmationTitle: {
+  deleteConfirmationTitle: {
     id: 'app.chat.toolbar.delete.confirmationTitle',
     description: '',
   },
-  confirmationDescription: {
+  deleteConfirmationDescription: {
     id: 'app.chat.toolbar.delete.confirmationDescription',
     description: '',
   },
@@ -165,6 +206,10 @@ const intlMessages = defineMessages({
   downloadPollResults: {
     id: 'app.chat.pollResult.download',
     description: 'Download poll results as PNG',
+  },
+  breakoutCallModerator: {
+    id: 'app.chat.breakoutCallModerator',
+    description: 'Breakout room call moderator system message',
   },
 });
 
@@ -213,6 +258,9 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   const [isToolbarReactionPopoverOpen, setIsToolbarReactionPopoverOpen] = React.useState(false);
   const [keyboardFocused, setKeyboardFocused] = React.useState(false);
   const [isTryingToDelete, setIsTryingToDelete] = React.useState(false);
+  const [isTryingToPin, setIsTryingToPin] = React.useState(false);
+  const [isTryingToReplacePin, setIsTryingToReplacePin] = React.useState(false);
+  const [isTryingToUnpin, setIsTryingToUnpin] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const pollActionsRef = React.useRef<ChatPollContentHandle>(null);
   const [pollResultCopied, setPollResultCopied] = React.useState(false);
@@ -221,7 +269,54 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   const animationInitialScrollPosition = React.useRef(0);
   const animationScrollPositionDiff = React.useRef(0);
   const animationInitialBgColor = React.useRef('');
+  const animationScrollDirection = React.useRef<'up' | 'down'>('up');
   const onFocusTrapDeactivation = React.useRef<(() => void) | null>(null);
+
+  const { data: chatData } = useChat(
+    (chat) => ({ chatId: chat.chatId, pinnedMessageId: chat.pinnedMessageId }),
+    { chatId: message.chatId, skip: !message.chatId },
+  );
+  const currentPinnedMessageId: string | null = useMemo(() => {
+    const chat = Array.isArray(chatData) ? chatData[0] : chatData;
+    return chat?.pinnedMessageId ?? null;
+  }, [chatData]);
+
+  const [chatSetPinned] = useMutation(CHAT_SET_PINNED_MUTATION);
+  const pinMessageAction = useCallback(() => {
+    chatSetPinned({
+      variables: {
+        chatId: message.chatId,
+        messageId: message.messageId,
+        pinned: true,
+      },
+    }).catch((e) => {
+      logger.error({
+        logCode: 'chat_set_pinned_error',
+        extraInfo: {
+          errorName: e?.name,
+          errorMessage: e?.message,
+        },
+      }, `Pinning the message failed: ${e?.message}`);
+    });
+  }, [chatSetPinned, message.chatId, message.messageId]);
+
+  const unpinMessageAction = useCallback(() => {
+    chatSetPinned({
+      variables: {
+        chatId: message.chatId,
+        messageId: message.messageId,
+        pinned: false,
+      },
+    }).catch((e) => {
+      logger.error({
+        logCode: 'chat_set_pinned_error',
+        extraInfo: {
+          errorName: e?.name,
+          errorMessage: e?.message,
+        },
+      }, `Unpinning the message failed: ${e?.message}`);
+    });
+  }, [chatSetPinned, message.chatId, message.messageId]);
 
   const [chatDeleteMessage] = useMutation(CHAT_DELETE_MESSAGE_MUTATION);
   const onDeleteConfirmation = useCallback(() => {
@@ -273,15 +368,34 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   }), [message.messageSequence]);
 
   const startScrollAnimation = (timestamp: number) => {
-    if ((containerRef.current?.offsetTop || 0) > (scrollRef.current?.scrollTop || 0)) {
+    const containerOffset = containerRef.current?.offsetTop || 0;
+    const scrollTop = scrollRef.current?.scrollTop || 0;
+    const viewportHeight = scrollRef.current?.offsetHeight || 0;
+
+    // If no scroll is needed (message is already visible)
+    if (containerOffset >= scrollTop && containerOffset <= scrollTop + viewportHeight) {
       requestAnimationFrame(startBackgroundAnimation);
       return;
     }
-    animationInitialScrollPosition.current = scrollRef.current?.scrollTop || 0;
-    animationScrollPositionDiff.current = (scrollRef.current?.scrollTop || 0)
-      - ((containerRef.current?.offsetTop || 0) - ((scrollRef.current?.offsetHeight || 0) / 2));
-    animationInitialTimestamp.current = timestamp;
-    requestAnimationFrame(animateScrollPosition);
+
+    // If scroll up is needed
+    if (containerOffset < scrollTop) {
+      animationScrollDirection.current = 'up';
+      animationInitialScrollPosition.current = scrollTop;
+      animationScrollPositionDiff.current = scrollTop - (containerOffset - (viewportHeight / 2));
+      animationInitialTimestamp.current = timestamp;
+      requestAnimationFrame(animateScrollPosition);
+      return;
+    }
+
+    // If scroll down is needed
+    if (containerOffset > scrollTop + viewportHeight) {
+      animationScrollDirection.current = 'down';
+      animationInitialScrollPosition.current = scrollTop;
+      animationScrollPositionDiff.current = (containerOffset - (viewportHeight / 2)) - scrollTop;
+      animationInitialTimestamp.current = timestamp;
+      requestAnimationFrame(animateScrollPosition);
+    }
   };
 
   const startBackgroundAnimation = (timestamp: number) => {
@@ -296,12 +410,23 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     const { current: messageContainer } = containerRef;
     const { current: initialPosition } = animationInitialScrollPosition;
     const { current: diff } = animationScrollPositionDiff;
+    const { current: direction } = animationScrollDirection;
+
     if (!scrollContainer || !messageContainer) return;
+
     if (value <= 1) {
-      scrollContainer.scrollTop = initialPosition - (value * diff);
+      if (direction === 'up') {
+        scrollContainer.scrollTop = initialPosition - (value * diff);
+      } else {
+        scrollContainer.scrollTop = initialPosition + (value * diff);
+      }
       requestAnimationFrame(animateScrollPosition);
     } else {
-      scrollContainer.scrollTop = initialPosition - diff;
+      if (direction === 'up') {
+        scrollContainer.scrollTop = initialPosition - diff;
+      } else {
+        scrollContainer.scrollTop = initialPosition + diff;
+      }
       requestAnimationFrame(startBackgroundAnimation);
     }
   };
@@ -438,6 +563,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   });
   const editTime = message.editedAt ? new Date(message.editedAt) : null;
   const deleteTime = message.deletedAt ? new Date(message.deletedAt) : null;
+  const isPinned = message.messageId === currentPinnedMessageId;
 
   const msgTime = formattedTime;
   const clearMessage = `${msgTime} ${intl.formatMessage(intlMessages.chatClear)}`;
@@ -573,6 +699,33 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
             <ChatMessageNotificationContent
               iconName="presentation"
               text={userIsPresenterMsg}
+            />
+          ),
+          showAvatar: false,
+          showHeading: false,
+          showToolbar: false,
+        };
+      }
+      case ChatMessageType.BREAKOUT_CALL_MODERATOR: {
+        const meta = (() => {
+          try {
+            const parsed = JSON.parse(message.messageMetadata);
+            return parsed && typeof parsed === 'object' ? parsed : {};
+          } catch { return {}; }
+        })();
+        const callModeratorMsg = intl.formatMessage(intlMessages.breakoutCallModerator, {
+          userName: message.senderName,
+          roomName: meta.roomName || '',
+        });
+        return {
+          name: message.senderName,
+          color: '#0F70D7',
+          isModerator: false,
+          isSystemSender: true,
+          component: (
+            <ChatMessageNotificationContent
+              iconName="rooms"
+              text={callModeratorMsg}
             />
           ),
           showAvatar: false,
@@ -743,6 +896,41 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     }
   }, [messageId, chatId, message, deactivateFocusTrap, keyboardFocused]);
 
+  const togglePin = useCallback((e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.stopPropagation();
+    if (isPinned) {
+      const handler = () => {
+        setIsTryingToUnpin(true);
+      };
+
+      if (keyboardFocused) {
+        onFocusTrapDeactivation.current = handler;
+        deactivateFocusTrap();
+      } else {
+        handler();
+      }
+      return;
+    }
+
+    const otherPinnedIds = currentPinnedMessageId && currentPinnedMessageId !== message.messageId;
+    const hasOtherPinned = !!otherPinnedIds;
+
+    const handler = () => {
+      if (hasOtherPinned) {
+        setIsTryingToReplacePin(true);
+      } else {
+        setIsTryingToPin(true);
+      }
+    };
+
+    if (keyboardFocused) {
+      onFocusTrapDeactivation.current = handler;
+      deactivateFocusTrap();
+    } else {
+      handler();
+    }
+  }, [deactivateFocusTrap, keyboardFocused, isPinned, message.message, currentPinnedMessageId]);
+
   const onDelete = useCallback((e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.stopPropagation();
 
@@ -801,6 +989,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
         hasToolbar={hasToolbar && messageContent.showToolbar}
         locked={locked}
         deleted={!!deleteTime}
+        isPinned={isPinned}
         own={message.user?.userId === currentUserId}
         amIModerator={currentUserIsModerator}
         isBreakoutRoom={isBreakoutRoom}
@@ -814,6 +1003,8 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
         onDelete={onDelete}
         onEdit={onEdit}
         onReply={onReply}
+        togglePin={togglePin}
+        isPublicChat={isPublicChat}
       />
       {message.replyToMessage && !deleteTime && (
         <ChatMessageReplied
@@ -997,6 +1188,30 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           </>
         )}
       </ChatWrapper>
+      {isTryingToPin && (
+        <ConfirmationModal
+          isOpen={isTryingToPin}
+          setIsOpen={setIsTryingToPin}
+          onConfirm={pinMessageAction}
+          title={intl.formatMessage(intlMessages.pinConfirmationTitle)}
+          description={intl.formatMessage(intlMessages.pinConfirmationQuestion)}
+          confirmButtonLabel={intl.formatMessage(intlMessages.pin)}
+          cancelButtonLabel={intl.formatMessage(intlMessages.cancelLabel)}
+          intl={intl}
+        />
+      )}
+      {isTryingToReplacePin && (
+        <ConfirmationModal
+          isOpen={isTryingToReplacePin}
+          setIsOpen={setIsTryingToReplacePin}
+          onConfirm={pinMessageAction}
+          title={intl.formatMessage(intlMessages.replacePinConfirmationTitle)}
+          description={intl.formatMessage(intlMessages.replacePinConfirmationDescription)}
+          confirmButtonLabel={intl.formatMessage(intlMessages.replacePinConfirmButton)}
+          cancelButtonLabel={intl.formatMessage(intlMessages.cancelLabel)}
+          intl={intl}
+        />
+      )}
       {isTryingToDeleteModalOpen && (
         <ConfirmationModal
           isOpen={isTryingToDelete}
@@ -1013,13 +1228,26 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
             tryingToDeleteModalClose();
           }}
           onConfirm={onDeleteConfirmation}
-          title={intl.formatMessage(intlMessages.confirmationTitle)}
+          title={intl.formatMessage(intlMessages.deleteConfirmationTitle)}
           confirmButtonLabel={intl.formatMessage(intlMessages.delete)}
           cancelButtonLabel={intl.formatMessage(intlMessages.cancelLabel)}
-          description={intl.formatMessage(intlMessages.confirmationDescription)}
+          description={intl.formatMessage(intlMessages.deleteConfirmationDescription)}
           confirmButtonColor="danger"
           priority="high"
           confirmButtonDataTest="confirmDeleteChatMessageButton"
+          intl={intl}
+        />
+      )}
+      {isTryingToUnpin && (
+        <ConfirmationModal
+          isOpen={isTryingToUnpin}
+          setIsOpen={setIsTryingToUnpin}
+          onConfirm={unpinMessageAction}
+          title={intl.formatMessage(intlMessages.unpinConfirmationTitle)}
+          description={intl.formatMessage(intlMessages.unpinConfirmationDescription)}
+          confirmButtonLabel={intl.formatMessage(intlMessages.unpinConfirmButton)}
+          cancelButtonLabel={intl.formatMessage(intlMessages.cancelLabel)}
+          intl={intl}
         />
       )}
     </Container>

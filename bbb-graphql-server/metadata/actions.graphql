@@ -46,7 +46,7 @@ type Mutation {
     record: Boolean!
     captureNotes: Boolean!
     captureSlides: Boolean!
-    durationInMinutes: Int!
+    durationInSeconds: Int!
     sendInviteToModerators: Boolean!
     rooms: [BreakoutRoom]!
   ): Boolean
@@ -77,12 +77,18 @@ type Mutation {
 }
 
 type Mutation {
+  breakoutRoomCallModerator(
+    breakoutRoomId: String!
+  ): Boolean
+}
+
+type Mutation {
   breakoutRoomSetInviteDismissed: Boolean
 }
 
 type Mutation {
   breakoutRoomSetTime(
-    timeInMinutes: Int!
+    timeInSeconds: Int!
   ): Boolean
 }
 
@@ -134,6 +140,14 @@ type Mutation {
 type Mutation {
   chatCreateWithUser(
     userId: String!
+  ): Boolean
+}
+
+type Mutation {
+  chatSetPinned(
+    chatId: String!
+    messageId: String!
+    pinned: Boolean!
   ): Boolean
 }
 

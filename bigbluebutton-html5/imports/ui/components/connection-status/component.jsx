@@ -4,9 +4,6 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import PropTypes from 'prop-types';
 import { UPDATE_CONNECTION_ALIVE_AT } from './mutations';
 import { CONNECTION_STATUS_SUBSCRIPTION } from './queries';
-import {
-  handleAudioStatsEvent,
-} from '/imports/ui/components/connection-status/service';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 
 import getBaseUrl from '/imports/ui/core/utils/getBaseUrl';
@@ -142,21 +139,6 @@ const ConnectionStatus = ({
   useEffect(() => {
     // Delay first connectionAlive to avoid high RTT misestimation
     // due to initial subscription and mutation traffic at client render
-
-    const STATS_ENABLED = window.meetingClientSettings.public.stats.enabled;
-
-    if (STATS_ENABLED) {
-      // This will generate metrics usage to determine alert statuses based
-      // on WebRTC stats
-      window.addEventListener('audiostats', handleAudioStatsEvent);
-    }
-
-    return () => {
-      window.removeEventListener('audiostats', handleAudioStatsEvent);
-    };
-  }, []);
-
-  useEffect(() => {
     let rttWorker;
     try {
       rttWorker = createRttWorker();

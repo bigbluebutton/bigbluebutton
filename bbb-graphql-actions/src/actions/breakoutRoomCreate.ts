@@ -11,7 +11,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
         {name: 'record', type: 'boolean', required: true},
         {name: 'captureNotes', type: 'boolean', required: true},
         {name: 'captureSlides', type: 'boolean', required: true},
-        {name: 'durationInMinutes', type: 'int', required: true},
+        {name: 'durationInSeconds', type: 'int', required: true},
         {name: 'sendInviteToModerators', type: 'boolean', required: true},
         {name: 'rooms', type: 'objectArray', required: true},
       ]
@@ -52,7 +52,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     record: input.record,
     captureNotes: input.captureNotes,
     captureSlides: input.captureSlides,
-    durationInMinutes: input.durationInMinutes,
+    durationInSeconds: input.durationInSeconds,
     sendInviteToModerators: input.sendInviteToModerators,
     rooms: input.rooms,
   };

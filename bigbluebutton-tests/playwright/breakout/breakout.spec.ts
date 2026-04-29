@@ -87,7 +87,7 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.joinWithAudioAndVideo();
     });
 
-    test('Message to all rooms', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+    test('Message to all rooms', async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
       await join.create();
@@ -115,7 +115,7 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.showBreakoutRoomTimeRemaining();
     });
 
-    test('End all breakout rooms', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+    test('End all breakout rooms', async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
       await join.create();
@@ -136,7 +136,7 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.moveUserToOtherRoom();
     });
 
-    test('Export breakout room shared notes', { tag: '@flaky-3.1' }, async ({ browser, context, page }, testInfo) => {
+    test('Export breakout room shared notes', async ({ browser, context, page }, testInfo) => {
       linkIssue(24367);
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
@@ -144,17 +144,13 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.exportBreakoutNotes();
     });
 
-    test(
-      'Export breakout room whiteboard annotations',
-      { tag: '@flaky-3.1' },
-      async ({ browser, context, page }, testInfo) => {
-        linkIssue(24367);
-        const join = new Join(browser, context);
-        await join.initPages(page, testInfo);
-        await join.create(false, true);
-        await join.exportBreakoutWhiteboard();
-      },
-    );
+    test('Export breakout room whiteboard annotations', async ({ browser, context, page }, testInfo) => {
+      linkIssue(24367);
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.create(false, true);
+      await join.exportBreakoutWhiteboard();
+    });
 
     test('User can choose a room', async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
@@ -167,6 +163,27 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
       await join.breakoutWithDifferentPresentations();
+    });
+
+    test('Call moderator from breakout room', async ({ browser, context, page }, testInfo) => {
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.create();
+      await join.callModerator();
+    });
+
+    test('Call moderator cooldown', async ({ browser, context, page }, testInfo) => {
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.create();
+      await join.callModeratorCooldown();
+    });
+
+    test('Return to main session from sidebar', async ({ browser, context, page }, testInfo) => {
+      const join = new Join(browser, context);
+      await join.initPages(page, testInfo);
+      await join.create();
+      await join.returnToMainSessionFromSidebar();
     });
   });
 });

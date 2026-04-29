@@ -64,6 +64,7 @@ const ChatActions: React.FC = () => {
     isBreakout: m.isBreakout,
     name: m.name,
   }));
+
   const [
     getChatMessageHistory,
     {
@@ -152,29 +153,31 @@ const ChatActions: React.FC = () => {
   }
 
   return (
-    <BBBMenu
-      trigger={(
-        <Trigger
-          label={intl.formatMessage(intlMessages.options)}
-          aria-label={intl.formatMessage(intlMessages.options)}
-          hideLabel
-          icon="more"
-          data-test="chatOptionsMenu"
-          onClick={() => {}}
-        />
-      )}
-      opts={{
-        id: 'chat-options-dropdown-menu',
-        keepMounted: true,
-        transitionDuration: 0,
-        elevation: 3,
-        getcontentanchorel: null,
-        fullwidth: 'true',
-        anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
-        transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
-      }}
-      actions={actions}
-    />
+    <>
+      <BBBMenu
+        trigger={(
+          <Trigger
+            label={intl.formatMessage(intlMessages.options)}
+            aria-label={intl.formatMessage(intlMessages.options)}
+            hideLabel
+            icon="more"
+            data-test="chatOptionsMenu"
+            onClick={() => {}}
+          />
+        )}
+        opts={{
+          id: 'chat-options-dropdown-menu',
+          keepMounted: true,
+          transitionDuration: 0,
+          elevation: 3,
+          getcontentanchorel: null,
+          fullwidth: 'true',
+          anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
+          transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
+        }}
+        actions={actions}
+      />
+    </>
   );
 };
 

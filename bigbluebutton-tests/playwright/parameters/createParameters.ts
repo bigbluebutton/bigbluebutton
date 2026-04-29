@@ -1,8 +1,7 @@
 import { expect } from '@playwright/test';
 
-import { ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
-import { checkDefaultLocationReset, checkScreenshots } from '../layouts/util';
+import { checkScreenshots } from '../layouts/util';
 import { MultiUsers } from '../user/multiusers';
 import { constants } from './constants';
 
@@ -166,6 +165,14 @@ export class CreateParameters extends MultiUsers {
   async overrideDefaultPresentation() {
     await this.modPage.waitForSelector(e.whiteboard);
     await this.userPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitAndClick(e.mediaAreaButton);
+    await this.modPage.waitAndClick(e.managePresentations);
+    await this.modPage.hasText(
+      e.presentationItem,
+      'ScientificPaper.pdf',
+      'should display the uploaded presentation name in the manage presentations modal',
+    );
+    await this.modPage.press('Escape');
     await this.userPage.page.waitForTimeout(1500); // wait for the whiteboard zoom to stabilize
     await expect(this.modPage.page, 'should display the overridden presentation for the mod').toHaveScreenshot(
       'mod-page-overridden-default-presentation.png',

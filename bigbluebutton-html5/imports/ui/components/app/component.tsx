@@ -34,6 +34,7 @@ import AppService from '/imports/ui/components/app/service';
 import PresentationUploaderToastContainer from '/imports/ui/components/presentation/presentation-toast/presentation-uploader-toast/container';
 import BreakoutJoinConfirmationContainerGraphQL from '../breakout-join-confirmation/breakout-join-confirmation-graphql/component';
 import FloatingWindowContainer from '/imports/ui/components/floating-window/container';
+import WebRTCStatsObserver from '/imports/ui/components/stats/component';
 import ChatAlertContainerGraphql from '../chat/chat-graphql/alert/component';
 import VoiceActivityAdapter from '../../core/adapters/voice-activity';
 import LayoutObserver from '../layout/observer';
@@ -124,6 +125,7 @@ const App: React.FC<AppProps> = ({
     return (
       <>
         <BreakoutRoomsAppObserver />
+        <WebRTCStatsObserver />
         <ScreenReaderAlertAdapter />
         <PluginsEngineManager pluginConfig={pluginConfig} />
         <FloatingWindowContainer />

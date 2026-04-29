@@ -1,331 +1,22 @@
-import { useMutation, useReactiveVar } from '@apollo/client';
 import React, {
   useCallback,
   useEffect,
-  useState,
-  Dispatch,
-  SetStateAction,
 } from 'react';
-import { defineMessages, useIntl } from 'react-intl';
 import {
-  BreakoutRoom as BreakoutRoomType,
   GetBreakoutDataResponse,
   getBreakoutData,
 } from './queries';
 import logger from '/imports/startup/client/logger';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import Icon from '/imports/ui/components/common/icon/component';
-import Styled from './styles';
-import { layoutDispatch, layoutSelect } from '../../layout/context';
+import { layoutDispatch } from '../../layout/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
-import { Layout } from '../../layout/layoutTypes';
-import BreakoutDropdown from '../breakout-room-dropdown/component';
-import { BREAKOUT_ROOM_END_ALL, BREAKOUT_ROOM_REQUEST_JOIN_URL, USER_TRANSFER_VOICE_TO_MEETING } from '../mutations';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import TimeRemaingPanel from './components/timeRemaining';
-import BreakoutMessageForm from './components/messageForm';
-import { useStopMediaOnMainRoom } from '/imports/ui/components/breakout-room/hooks';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import CreateBreakoutRoomContainer from '../create-breakout-room/component';
+import SidebarCreateBreakoutContainer from '../create-breakout-room/sidebar-create-breakout/container';
+import RunningBreakoutRoom from './running-room/component';
+import ParticipantBreakoutRoom from './participant-room/component';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
-import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
-
-interface BreakoutRoomProps {
-  breakouts: BreakoutRoomType[];
-  isModerator: boolean;
-  presenter: boolean;
-  durationInSeconds: number;
-  userJoinedAudio: boolean;
-  userId: string;
-  meetingId: string;
-  setUpdateUsersWhileRunning: Dispatch<SetStateAction<boolean>>;
-  createdTime: number;
-  closePanel: () => void;
-  isConnected: boolean;
-  audioBridge: string;
-}
-
-const intlMessages = defineMessages({
-  breakoutTitle: {
-    id: 'app.createBreakoutRoom.title',
-    description: 'breakout title',
-  },
-  breakoutAriaTitle: {
-    id: 'app.createBreakoutRoom.ariaTitle',
-    description: 'breakout aria title',
-  },
-  breakoutDuration: {
-    id: 'app.createBreakoutRoom.duration',
-    description: 'breakout duration time',
-  },
-  breakoutRoom: {
-    id: 'app.createBreakoutRoom.room',
-    description: 'breakout room',
-  },
-  breakoutJoin: {
-    id: 'app.createBreakoutRoom.join',
-    description: 'label for join breakout room',
-  },
-  breakoutJoinAudio: {
-    id: 'app.createBreakoutRoom.joinAudio',
-    description: 'label for option to transfer audio',
-  },
-  breakoutReturnAudio: {
-    id: 'app.createBreakoutRoom.returnAudio',
-    description: 'label for option to return audio',
-  },
-  askToJoin: {
-    id: 'app.createBreakoutRoom.askToJoin',
-    description: 'label for generate breakout room url',
-  },
-  generatingURL: {
-    id: 'app.createBreakoutRoom.generatingURL',
-    description: 'label for generating breakout room url',
-  },
-  endAllBreakouts: {
-    id: 'app.createBreakoutRoom.endAllBreakouts',
-    description: 'Button label to end all breakout rooms',
-  },
-  chatTitleMsgAllRooms: {
-    id: 'app.createBreakoutRoom.chatTitleMsgAllRooms',
-    description: 'chat title for send message to all rooms',
-  },
-  alreadyConnected: {
-    id: 'app.createBreakoutRoom.alreadyConnected',
-    description: 'label for the user that is already connected to breakout room',
-  },
-  setTimeInMinutes: {
-    id: 'app.createBreakoutRoom.setTimeInMinutes',
-    description: 'Label for input to set time (minutes)',
-  },
-  setTimeLabel: {
-    id: 'app.createBreakoutRoom.setTimeLabel',
-    description: 'Button label to set breakout rooms time',
-  },
-  setTimeCancel: {
-    id: 'app.createBreakoutRoom.setTimeCancel',
-    description: 'Button label to cancel set breakout rooms time',
-  },
-  setTimeHigherThanMeetingTimeError: {
-    id: 'app.createBreakoutRoom.setTimeHigherThanMeetingTimeError',
-    description: 'Label for error when new breakout rooms time would be higher than remaining time in parent meeting',
-  },
-  genericMinimizePanel: {
-    id: 'app.sidebarContent.minimizePanelLabel',
-    description: 'Generic minimize label for panels',
-  },
-  notAssignedLabel: {
-    id: 'app.createBreakoutRoom.notAssignedLabel',
-    description: 'Label telling user they are not in a breakout room',
-  },
-  notAssignedHelp: {
-    id: 'app.createBreakoutRoom.notAssignedHelp',
-    description: 'Text asking user to contact moderator to be assigned',
-  },
-});
-
-const BreakoutRoom: React.FC<BreakoutRoomProps> = ({
-  breakouts,
-  isModerator,
-  durationInSeconds,
-  presenter,
-  userJoinedAudio,
-  userId,
-  meetingId,
-  setUpdateUsersWhileRunning,
-  createdTime,
-  closePanel,
-  isConnected,
-  audioBridge,
-}) => {
-  const [breakoutRoomEndAll] = useMutation(BREAKOUT_ROOM_END_ALL);
-  const [breakoutRoomTransfer] = useMutation(USER_TRANSFER_VOICE_TO_MEETING);
-  const [breakoutRoomRequestJoinURL] = useMutation(BREAKOUT_ROOM_REQUEST_JOIN_URL);
-  const stopMediaOnMainRoom = useStopMediaOnMainRoom();
-
-  const isRTL = layoutSelect((i: Layout) => i.isRTL);
-  const intl = useIntl();
-
-  const panelRef = React.useRef<HTMLDivElement>(null);
-  const [showChangeTimeForm, setShowChangeTimeForm] = React.useState(false);
-  const [requestedBreakoutRoomId, setRequestedBreakoutRoomId] = React.useState<string>('');
-
-  const transferUserToMeeting = (fromMeeting: string, toMeeting: string) => {
-    breakoutRoomTransfer(
-      {
-        variables: {
-          fromMeetingId: fromMeeting,
-          toMeetingId: toMeeting,
-        },
-      },
-    );
-  };
-
-  const requestJoinURL = (breakoutRoomMeetingId: string) => {
-    breakoutRoomRequestJoinURL({ variables: { breakoutRoomMeetingId } });
-  };
-
-  useEffect(() => {
-    if (requestedBreakoutRoomId) {
-      const breakout = breakouts.find((b) => b.breakoutRoomMeetingId === requestedBreakoutRoomId);
-      if (breakout && breakout.joinURL) {
-        window.open(breakout.joinURL, '_blank');
-        setRequestedBreakoutRoomId('');
-        stopMediaOnMainRoom(presenter);
-      }
-    }
-  }, [breakouts, stopMediaOnMainRoom, presenter]);
-
-  const title = intl.formatMessage(intlMessages.breakoutTitle);
-  const minimizeButtonLabel = intl.formatMessage(
-    intlMessages.genericMinimizePanel,
-    { panelName: title },
-  );
-
-  return (
-    <Styled.PanelContent
-      ref={panelRef}
-      onCopy={(e) => {
-        e.preventDefault();
-      }}
-    >
-      <Styled.HeaderContainer
-        title={title}
-        data-test="breakoutRoomManagerHeader"
-        rightButtonProps={{
-          'aria-label': minimizeButtonLabel,
-          label: minimizeButtonLabel,
-          onClick: closePanel,
-          icon: 'minus',
-        }}
-        customRightButton={isModerator && (
-          <BreakoutDropdown
-            openBreakoutTimeManager={() => setShowChangeTimeForm(true)}
-            endAllBreakouts={() => {
-              closePanel();
-              breakoutRoomEndAll();
-            }}
-            isConnected={isConnected}
-            amIModerator={isModerator}
-            isRTL={isRTL}
-            setUpdateUsersWhileRunning={setUpdateUsersWhileRunning}
-          />
-        )}
-      />
-      <Styled.Separator />
-      <Styled.Content id="scroll-box">
-        <TimeRemaingPanel
-          showChangeTimeForm={showChangeTimeForm}
-          isModerator={isModerator}
-          durationInSeconds={durationInSeconds}
-          createdTime={createdTime}
-          toggleShowChangeTimeForm={setShowChangeTimeForm}
-        />
-        {isModerator ? <BreakoutMessageForm /> : null}
-        <Styled.Separator />
-        <Styled.BreakoutsList>
-          {breakouts.length === 0 ? (
-            <>
-              <Styled.NotAssignedWrapper>
-                <Icon iconName="unassigned" />
-                <Styled.NotAssignedMessage>
-                  {intl.formatMessage(intlMessages.notAssignedLabel)}
-                </Styled.NotAssignedMessage>
-              </Styled.NotAssignedWrapper>
-              <Styled.NotAssignedHelpText>
-                {intl.formatMessage(intlMessages.notAssignedHelp)}
-              </Styled.NotAssignedHelpText>
-            </>
-          ) : (
-            breakouts.map((breakout) => {
-              const breakoutLabel = breakout.joinURL
-                ? intl.formatMessage(intlMessages.breakoutJoin)
-                : intl.formatMessage(intlMessages.askToJoin);
-              const dataTest = `${breakout.joinURL ? 'join' : 'askToJoin'}${breakout.shortName.replace(' ', '')}`;
-              const userJoinedDialin = breakout.participants.find((p) => p.userId === userId)?.isAudioOnly ?? false;
-
-              return (
-                <Styled.BreakoutItems key={`breakoutRoomItems-${breakout.breakoutRoomMeetingId}`}>
-                  <Styled.BreakoutRoomList key={`breakoutRoomList-${breakout.breakoutRoomMeetingId}`}>
-                    <Styled.BreakoutRoomListNameLabel data-test={breakout.shortName} aria-hidden>
-                      {breakout.isDefaultName
-                        ? intl.formatMessage(intlMessages.breakoutRoom, { roomNumber: breakout.sequence })
-                        : breakout.shortName}
-                      <Styled.UsersAssignedNumberLabel>
-                        (
-                        {breakout.participants.length}
-                        )
-                      </Styled.UsersAssignedNumberLabel>
-                    </Styled.BreakoutRoomListNameLabel>
-                    {requestedBreakoutRoomId === breakout.breakoutRoomMeetingId ? (
-                      <span>
-                        {intl.formatMessage(intlMessages.generatingURL)}
-                        <Styled.ConnectingAnimation animations />
-                      </span>
-                    ) : (
-                      <Styled.BreakoutActions>
-                        {breakout.isUserCurrentlyInRoom ? (
-                          <Styled.AlreadyConnected data-test="alreadyConnected">
-                            {intl.formatMessage(intlMessages.alreadyConnected)}
-                          </Styled.AlreadyConnected>
-                        ) : (
-                          <Styled.JoinButton
-                            label={breakoutLabel}
-                            data-test={dataTest}
-                            aria-label={`${breakoutLabel} ${breakout.shortName}`}
-                            onClick={() => {
-                              if (!breakout.joinURL) {
-                                setRequestedBreakoutRoomId(breakout.breakoutRoomMeetingId);
-                                requestJoinURL(breakout.breakoutRoomMeetingId);
-                              } else {
-                                window.open(breakout.joinURL, '_blank');
-                                stopMediaOnMainRoom(presenter);
-                              }
-                            }}
-                            disabled={requestedBreakoutRoomId}
-                          />
-                        )}
-                        {isModerator && (userJoinedAudio || userJoinedDialin) && audioBridge !== 'livekit'
-                          ? [
-                            '|',
-                            <Styled.AudioButton
-                              label={
-                                userJoinedDialin
-                                  ? intl.formatMessage(intlMessages.breakoutReturnAudio)
-                                  : intl.formatMessage(intlMessages.breakoutJoinAudio)
-                              }
-                              disabled={false}
-                              key={`join-audio-${breakout.breakoutRoomMeetingId}`}
-                              onClick={
-                                userJoinedDialin
-                                  ? () => transferUserToMeeting(breakout.breakoutRoomMeetingId, meetingId)
-                                  : () => transferUserToMeeting(meetingId, breakout.breakoutRoomMeetingId)
-                              }
-                            />,
-                          ]
-                          : null}
-                      </Styled.BreakoutActions>
-                    )}
-                  </Styled.BreakoutRoomList>
-                  <Styled.JoinedUserNames
-                    data-test={`userNameBreakoutRoom-${breakout.shortName}`}
-                  >
-                    {breakout.participants
-                      .filter((p) => !p.isAudioOnly)
-                      .sort((a, b) => a.user.nameSortable.localeCompare(b.user.nameSortable))
-                      .map((u) => u.user.name)
-                      .join(', ')}
-                  </Styled.JoinedUserNames>
-                </Styled.BreakoutItems>
-              );
-            })
-          )}
-        </Styled.BreakoutsList>
-      </Styled.Content>
-    </Styled.PanelContent>
-  );
-};
 
 const BreakoutRoomContainer: React.FC = () => {
   const layoutContextDispatch = layoutDispatch();
@@ -336,9 +27,9 @@ const BreakoutRoomContainer: React.FC = () => {
     durationInSeconds: m.durationInSeconds,
     createdTime: m.createdTime,
     meetingId: m.meetingId,
+    isBreakout: m.isBreakout,
     componentsFlags: m.componentsFlags,
   }));
-  const breakoutRoomsUpdateUsersModal = useModalRegistration({ id: 'createBreakoutRoomModal', priority: 'low' });
 
   const {
     data: currentUserData,
@@ -375,8 +66,7 @@ const BreakoutRoomContainer: React.FC = () => {
     loading: breakoutLoading,
     error: breakoutError,
   } = useDeduplicatedSubscription<GetBreakoutDataResponse>(getBreakoutData);
-  const [isOpen, setIsOpen] = useState(!hasBreakoutRoom);
-  const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
+
   if (
     breakoutLoading
     || currentUserLoading
@@ -397,45 +87,53 @@ const BreakoutRoomContainer: React.FC = () => {
   }
   if (!currentUserData || !breakoutData || !meetingData) return null; // or loading spinner or error
 
-  return (
-    <>
-      <BreakoutRoom
-        breakouts={breakoutData.breakoutRoom || []}
-        isModerator={currentUserData.isModerator ?? false}
-        presenter={currentUserData.presenter ?? false}
-        durationInSeconds={meetingData.durationInSeconds ?? 0}
-        userJoinedAudio={(currentUserData?.voice?.joined && !currentUserData?.voice?.deafened) ?? false}
-        userId={currentUserData.userId ?? ''}
-        meetingId={meetingData.meetingId ?? ''}
-        setUpdateUsersWhileRunning={
-        breakoutRoomsUpdateUsersModal.isOpen
-          ? breakoutRoomsUpdateUsersModal.close
-          : breakoutRoomsUpdateUsersModal.open
-        }
-        createdTime={meetingData.createdTime ?? 0}
-        isConnected={connected}
-        closePanel={closePanel}
-        audioBridge={meetingData.audioBridge ?? 'livekit'}
-      />
-      {breakoutRoomsUpdateUsersModal.isOpen && (
-      <CreateBreakoutRoomContainer
-        isOpen={isOpen}
+  const isBreakoutMeeting = meetingData?.isBreakout ?? false;
+
+  if (!hasBreakoutRoom && (currentUserData.isModerator ?? false) && !isBreakoutMeeting) {
+    return (
+      <SidebarCreateBreakoutContainer
         setIsOpen={(value: boolean) => {
-          if (!hasBreakoutRoom) {
+          if (!value) {
             closePanel();
           }
-          setIsOpen(value);
         }}
-        priority="low"
-        isUpdate={breakoutRoomsUpdateUsersModal.isOpen}
-        setUpdateUsersWhileRunning={
-          breakoutRoomsUpdateUsersModal.isOpen
-            ? breakoutRoomsUpdateUsersModal.close
-            : breakoutRoomsUpdateUsersModal.open
-        }
       />
-      )}
-    </>
+    );
+  }
+
+  if (hasBreakoutRoom && (currentUserData.isModerator ?? false) && !isBreakoutMeeting) {
+    return (
+      <RunningBreakoutRoom
+        breakouts={breakoutData.breakoutRoom || []}
+        userId={currentUserData.userId ?? ''}
+        meetingId={meetingData.meetingId ?? ''}
+        closePanel={closePanel}
+      />
+    );
+  }
+
+  if (isBreakoutMeeting) {
+    return (
+      <ParticipantBreakoutRoom
+        breakouts={[]}
+        meetingId={meetingData.meetingId ?? ''}
+        presenter={currentUserData.presenter ?? false}
+        userJoinedAudio={(currentUserData?.voice?.joined && !currentUserData?.voice?.deafened) ?? false}
+        closePanel={closePanel}
+        isInBreakout
+        breakoutMeetingId={meetingData.meetingId ?? ''}
+      />
+    );
+  }
+
+  return (
+    <ParticipantBreakoutRoom
+      breakouts={breakoutData.breakoutRoom || []}
+      meetingId={meetingData.meetingId ?? ''}
+      presenter={currentUserData.presenter ?? false}
+      userJoinedAudio={(currentUserData?.voice?.joined && !currentUserData?.voice?.deafened) ?? false}
+      closePanel={closePanel}
+    />
   );
 };
 

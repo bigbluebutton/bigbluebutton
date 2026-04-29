@@ -507,7 +507,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       )}
       {((isSelfViewDisabled && stream.userId === Auth.userID) || disabledCams.includes(cameraId))
       && renderWebcamConnecting()}
-      {renderCameraHelperButtons()}
+      {stream.type !== VIDEO_TYPES.AUDIO_ONLY && renderCameraHelperButtons()}
     </Styled.Content>
   );
 };
