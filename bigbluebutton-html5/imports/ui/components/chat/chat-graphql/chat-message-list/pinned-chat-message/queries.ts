@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 import { Message } from '/imports/ui/Types/message';
 
-export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
+export const CHAT_PINNED_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
   subscription pinnedChatMessage($messageId: String) {
     chat_message_public(
       where: { messageId: { _eq: $messageId } }
@@ -10,9 +10,8 @@ export const CHAT_MESSAGE_PUBLIC_SUBSCRIPTION = gql`
       chatId
       messageSequence
       createdAt
-      message
       messageAsHtml
-      editedAt
+      senderName
     }
   }
 `;

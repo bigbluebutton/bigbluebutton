@@ -2,7 +2,6 @@ package org.bigbluebutton.core.db
 
 import slick.jdbc.PostgresProfile.api._
 import org.bigbluebutton.core.models.{GroupChatFactory, GroupChatMessage}
-import scala.concurrent.ExecutionContext.Implicits.global
 
 case class ChatMessageDbModel(
     messageId:          String,

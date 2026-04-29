@@ -14,7 +14,6 @@ case class MeetingSystemColumnsDbModel(
       bannerColor:                           Option[String],
 )
 
-// Group bridge-related columns into a single nested model to avoid Scala's 22-tuple limitation
 case class MeetingBridgesDbModel(
   cameraBridge: String,
   screenShareBridge: String,
@@ -78,7 +77,6 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val screenShareBridge = column[String]("screenShareBridge")
   val audioBridge = column[String]("audioBridge")
 
-  // composite mapping for the three bridge columns
   val bridges = (cameraBridge, screenShareBridge, audioBridge) <> (MeetingBridgesDbModel.tupled, MeetingBridgesDbModel.unapply)
 
   val notifyRecordingIsOn = column[Boolean]("notifyRecordingIsOn")

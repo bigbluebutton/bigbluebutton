@@ -7,13 +7,13 @@ import logger from '/imports/startup/client/logger';
 import { Message } from '/imports/ui/Types/message';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import {
-  CHAT_MESSAGE_PUBLIC_SUBSCRIPTION,
+  CHAT_PINNED_MESSAGE_PUBLIC_SUBSCRIPTION,
   ChatMessageSubscriptionResponse,
 } from './queries';
 import { PinnedChatMessageProps } from './types';
 import PinnedMessageComponent from './component';
 import useStabilizedList from '/imports/ui/core/hooks/useStabilizedList';
-import { useIsPinChatMessageFeatureEnabled } from '/imports/ui/services/features';
+import { useIsPinChatMessageEnabled } from '/imports/ui/services/features';
 
 export const PinnedChatMessageContainer: React.FC<PinnedChatMessageProps> = ({ openChatId }) => {
   const { data: chats } = useChat(
@@ -33,50 +33,46 @@ export const PinnedChatMessageContainer: React.FC<PinnedChatMessageProps> = ({ o
   const pinnedBy = chat?.pinnedBy ?? null;
 
   const {
-    data: pinnedMessagesData,
-    error: pinnedMessagesError,
+    data: pinnedMessageData,
+    error: pinnedMessageError,
   } = useDeduplicatedSubscription<ChatMessageSubscriptionResponse>(
-    CHAT_MESSAGE_PUBLIC_SUBSCRIPTION,
+    CHAT_PINNED_MESSAGE_PUBLIC_SUBSCRIPTION,
     {
       variables: { messageId: pinnedMessageId },
       skip: !pinnedMessageId,
     },
   );
 
-  const pinnedMessages: Message[] = pinnedMessagesData?.chat_message_public || [];
+  const pinnedMessages: Message[] = pinnedMessageData?.chat_message_public ?? [];
 
-  // prevents pinned messages "blink" effect when a new message is pinned or unpinned
-  const displayedMessages = useStabilizedList<Message>(pinnedMessages, {
+  // prevents pinned message "blink" effect when a new message is pinned or unpinned
+  const stabilized = useStabilizedList<Message>(pinnedMessages, {
     getId: (m) => m.messageId,
     expectedIds: pinnedMessageId ? [pinnedMessageId] : [],
-    areEqual: (a, b) => {
-      if (a.length !== b.length) return false;
-      for (let i = 0; i < a.length; i += 1) {
-        if (a[i].messageId !== b[i].messageId) return false;
-        if (a[i].message !== b[i].message) return false;
-        if (a[i].editedAt !== b[i].editedAt) return false;
-      }
-      return true;
-    },
+    areEqual: (a, b) => (
+      a[0]?.messageId === b[0]?.messageId
+      && a[0]?.messageAsHtml === b[0]?.messageAsHtml
+    ),
   });
+  const displayedMessage = stabilized[0] ?? null;
 
   const { data: currentUser } = useCurrentUser((u) => ({ isModerator: u.isModerator }));
 
   const isModerator = currentUser?.isModerator ?? false;
-  const chatPinningEnabled = useIsPinChatMessageFeatureEnabled();
+  const chatPinningEnabled = useIsPinChatMessageEnabled();
 
-  if (pinnedMessagesError) {
+  if (pinnedMessageError) {
     logger.error({
-      logCode: 'pinned_messages_subscription_error',
-      extraInfo: { error: pinnedMessagesError },
-    }, `Error subscribing to pinned messages: ${pinnedMessagesError}`);
+      logCode: 'pinned_message_subscription_error',
+      extraInfo: { error: pinnedMessageError },
+    }, `Error subscribing to pinned message: ${pinnedMessageError}`);
     return null;
   }
   if (!chatPinningEnabled || !isPublicChat || !openChatId) return null;
-  if (displayedMessages.length === 0) return null;
+  if (!displayedMessage) return null;
 
   return (
-    <PinnedMessageComponent messages={displayedMessages} isModerator={isModerator} pinnedBy={pinnedBy} />
+    <PinnedMessageComponent message={displayedMessage} isModerator={isModerator} pinnedBy={pinnedBy} />
   );
 };
 

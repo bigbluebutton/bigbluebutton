@@ -1,7 +1,6 @@
 package org.bigbluebutton.core.db
 
 import PostgresProfile.api._
-import scala.concurrent.ExecutionContext.Implicits.global
 import org.bigbluebutton.core.models.GroupChat
 
 case class ChatDbModel(

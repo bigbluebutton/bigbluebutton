@@ -1,5 +1,5 @@
 import React, {
-  useState, useMemo, useRef, useLayoutEffect,
+  useState, useRef, useLayoutEffect,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
@@ -62,48 +62,45 @@ const intlMessages = defineMessages({
 });
 
 interface PinnedMessageComponentProps {
-  messages: Message[];
+  message: Message;
   isModerator: boolean;
   pinnedBy: { name: string } | null;
 }
 
-export default function PinnedMessageComponent({ messages, isModerator, pinnedBy }: PinnedMessageComponentProps) {
+export default function PinnedMessageComponent({ message, isModerator, pinnedBy }: PinnedMessageComponentProps) {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
   const messagePreviewRef = useRef<HTMLDivElement>(null);
 
-  const activeMessage = useMemo(() => messages[0] || null, [messages]);
   const intl = useIntl();
 
   const [unpinMessage] = useMutation(CHAT_SET_PINNED_MUTATION);
 
   useLayoutEffect(() => {
     setIsExpanded(true);
-  }, [activeMessage?.messageId, activeMessage?.messageAsHtml]);
+  }, [message.messageId, message.messageAsHtml]);
 
   const handleUnpin = () => {
     setIsConfirmModalOpen(true);
   };
 
   const handleConfirmUnpin = () => {
-    if (activeMessage) {
-      unpinMessage({
-        variables: {
-          chatId: activeMessage.chatId,
-          messageId: activeMessage.messageId,
-          pinned: false,
-        },
-      });
-      setIsConfirmModalOpen(false);
-    }
+    unpinMessage({
+      variables: {
+        chatId: message.chatId,
+        messageId: message.messageId,
+        pinned: false,
+      },
+    });
+    setIsConfirmModalOpen(false);
   };
 
   const dispatchFocusMessage = () => {
-    if (activeMessage?.messageSequence) {
+    if (message.messageSequence) {
       window.dispatchEvent(
         new CustomEvent(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST, {
           detail: {
-            sequence: activeMessage.messageSequence,
+            sequence: message.messageSequence,
           },
         }),
       );
@@ -129,11 +126,9 @@ export default function PinnedMessageComponent({ messages, isModerator, pinnedBy
     dispatchFocusMessage();
   };
 
-  if (!messages || messages.length === 0) return null;
-
   const pinnedByName = pinnedBy?.name || '';
-  const formattedTime = activeMessage?.createdAt ? intl.formatTime(activeMessage.createdAt) : '';
-  const messageAsHtml = activeMessage?.messageAsHtml ?? '';
+  const formattedTime = message.createdAt ? intl.formatTime(message.createdAt) : '';
+  const messageAsHtml = message.messageAsHtml ?? '';
 
   return (
     <Styled.Wrapper role="region" aria-label={intl.formatMessage(intlMessages.pinnedMessagesTitle)}>
@@ -188,7 +183,7 @@ export default function PinnedMessageComponent({ messages, isModerator, pinnedBy
         <Styled.Footer>
           <Styled.FooterUserInfo>
             <Styled.FooterSenderName>
-              {activeMessage?.senderName}
+              {message.senderName}
             </Styled.FooterSenderName>
             <Styled.FooterTime>
               {intl.formatMessage(intlMessages.sentAt)}
