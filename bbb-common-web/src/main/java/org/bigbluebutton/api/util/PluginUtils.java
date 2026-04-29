@@ -112,13 +112,20 @@ public class PluginUtils {
             JsonObject pluginManifestJsonObj = pluginManifestJson.getAsJsonObject();
             if (pluginManifestJsonObj.has("url")) {
                 String barePluginManifestUrl = pluginManifestJsonObj.get("url").getAsString();
-                ValidatedUrl validatedUrl = extractFinalPluginManifestUrl(barePluginManifestUrl, meetingId);
-                if (validatedUrl == null) {
-                    log.error("Plugin manifest URL [{}] rejected for meeting [{}]",
-                            barePluginManifestUrl, meetingId);
-                    return null;
+                String resolvedManifestUrl = replaceAllPlaceholdersInManifestUrls(barePluginManifestUrl, meetingId);
+                PluginManifest newPlugin;
+                if (pluginManifestCacheEnabled && isPluginManifestCached(resolvedManifestUrl)) {
+                    log.debug("Skipping URL validation for cached plugin manifest [{}]", resolvedManifestUrl);
+                    newPlugin = new PluginManifest(resolvedManifestUrl);
+                } else {
+                    ValidatedUrl validatedUrl = extractFinalPluginManifestUrl(barePluginManifestUrl, meetingId);
+                    if (validatedUrl == null) {
+                        log.error("Plugin manifest URL [{}] rejected for meeting [{}]",
+                                barePluginManifestUrl, meetingId);
+                        return null;
+                    }
+                    newPlugin = new PluginManifest(validatedUrl.originalUrl(), validatedUrl);
                 }
-                PluginManifest newPlugin = new PluginManifest(validatedUrl.originalUrl(), validatedUrl);
                 if (pluginManifestJsonObj.has("checksum")) {
                     newPlugin.setChecksum(pluginManifestJsonObj.get("checksum").getAsString());
                 }
@@ -126,6 +133,14 @@ public class PluginUtils {
             }
         }
         return null;
+    }
+
+    private boolean isPluginManifestCached(String pluginManifestUrlString) {
+        try {
+            return Files.isRegularFile(getCachedPluginManifestPath(pluginManifestUrlString));
+        } catch (RuntimeException e) {
+            return false;
+        }
     }
 
     private static boolean matchesPluginParameterFormat(String pluginParameter, String pluginName) {
@@ -356,11 +371,13 @@ public class PluginUtils {
             }
 
             ValidatedUrl validatedUrl = pluginManifest.getValidatedUrl();
-            if (validatedUrl == null) {
-                throw new IOException("Plugin [" + pluginManifestUrlString + "] missing validated URL data");
-            }
             int timeoutMs = (int) Math.min(pluginManifestFetchTimeoutSeconds * 1000L, Integer.MAX_VALUE);
-            String fresh = downloadValidatedManifest(validatedUrl, meetingId, timeoutMs);
+            String fresh;
+            if (validatedUrl != null) {
+                fresh = downloadValidatedManifest(validatedUrl, meetingId, timeoutMs);
+            } else {
+                fresh = revalidateAndFetchPluginManifestContent(pluginManifestUrlString, meetingId);
+            }
 
             ParsedPluginManifest parsed;
             try {
