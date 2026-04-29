@@ -1555,7 +1555,7 @@
     "app.createBreakoutRoom.decreaseBreakoutTime": "Decrease breakout time",
     "app.createBreakoutRoom.increaseBreakoutTime": "Increase breakout time",
     "app.createBreakoutRoom.decreaseRooms": "Riduci il numero delle stanze",
-    "app.createBreakoutRoom.increaseRooms": "Increase number of rooms",
+    "app.createBreakoutRoom.increaseRooms": "Aumenta il numero delle stanze",
     "app.createBreakoutRoom.roomOptions": "Room options",
     "app.createBreakoutRoom.unassignedUsers": "Utenti non assegnati",
     "app.createBreakoutRoom.youAreInRoom": "Ti trovi nella stanza {roomName}.",
