@@ -420,7 +420,7 @@ module BigBlueButton
           edl,
           entry_i,
           rec_time,
-          BigBlueButton::Events.edl_entry_offset_audio,
+          BigBlueButton::Events.edl_entry_offset_audio
         )
       end
 
