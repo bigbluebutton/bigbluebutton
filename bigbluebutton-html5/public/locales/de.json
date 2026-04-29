@@ -11,7 +11,7 @@
     "app.chat.emojiButtonLabel": "Emoji-Auswahl",
     "app.chat.loadMoreButtonLabel": "Weitere laden",
     "app.chat.inputPlaceholder": "Nachricht {chatName}",
-    "app.chat.titlePublic": "gemeinsamer Chat",
+    "app.chat.titlePublic": "Gemeinsamer Chat",
     "app.chat.titlePrivate": "privater Chat mit {participantName}",
     "app.chat.partnerDisconnected": "{participantName} hat die Sitzung verlassen",
     "app.chat.closeChatLabel": "{chatName} schließen",
