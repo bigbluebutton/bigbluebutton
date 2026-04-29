@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -203,79 +204,81 @@ export const useMediaSenders = (
     });
   }
 
-  if (deafened && mediaType === MediaType.AUDIO) return { senders: [], inAnyGroup: false };
+  return useMemo<MediaSendersData>(() => {
+    if (deafened && mediaType === MediaType.AUDIO) return { senders: [], inAnyGroup: false };
 
-  const groups = (data as MediaGroupStream[] || []).filter(
-    (group) => group.mediaType === mediaType,
-  );
-  // Groups where I am a receiver - I see the union of senders from all of these
-  const myInboundGroupIds = groups.filter(
-    (group) => group.userId === Auth.userID && group.receiver === true,
-  ).map((group) => group.groupId);
-  const inAnyGroup = myInboundGroupIds.length > 0;
-
-  // No explicit group membership = treat as public receiver.
-  // Public receivers receive from: groupless senders + public group senders.
-  // Exclude only senders in non-public groups.
-  if (!inAnyGroup) {
-    const senderIdsInNonPublicGroups = new Set(groups
-      .filter((group) => group.sender === true && group.active && group.groupId !== PUBLIC_GROUP_IDS[mediaType])
-      .map((group) => group.userId));
-    const senderIdsInPublicGroup = new Set(groups
-      .filter((g) => g.sender === true && g.active && g.groupId === PUBLIC_GROUP_IDS[mediaType])
-      .map((g) => g.userId));
-    // Exclude only senders who are active in non-public groups but NOT in the public group.
-    // Users concurrently sending in both public and non-public groups should still be
-    // heard by public receivers.
-    const senderIdsOnlyInNonPublic = new Set(
-      [...senderIdsInNonPublicGroups].filter((id) => !senderIdsInPublicGroup.has(id)),
+    const groups = (data as MediaGroupStream[] || []).filter(
+      (group) => group.mediaType === mediaType,
     );
-    // Media groups use BBB intIds, which differ from LiveKit participant.identity
-    // for dial-in/VO participants (see getBbbUserIdForParticipant).
-    // Map pID to BBB intId when comparing against the non-public-sender set,
-    // but keep senders keyed by participant.identity so downstream code that
-    // looks up participants in the LiveKit room still matches.
-    const senders = remoteParticipants
-      .filter((participant) => !senderIdsOnlyInNonPublic.has(getBbbUserIdForParticipant(participant)))
-      .map((participant) => ({
-        userId: participant.identity,
-        groupId: 'default',
-        mediaType,
-        sender: true,
-        receiver: true,
-        active: true,
-      }));
+    // Groups where I am a receiver - I see the union of senders from all of these
+    const myInboundGroupIds = groups.filter(
+      (group) => group.userId === Auth.userID && group.receiver === true,
+    ).map((group) => group.groupId);
+    const inAnyGroup = myInboundGroupIds.length > 0;
 
-    return { senders, inAnyGroup: false };
-  }
+    // No explicit group membership = treat as public receiver.
+    // Public receivers receive from: groupless senders + public group senders.
+    // Exclude only senders in non-public groups.
+    if (!inAnyGroup) {
+      const senderIdsInNonPublicGroups = new Set(groups
+        .filter((group) => group.sender === true && group.active && group.groupId !== PUBLIC_GROUP_IDS[mediaType])
+        .map((group) => group.userId));
+      const senderIdsInPublicGroup = new Set(groups
+        .filter((g) => g.sender === true && g.active && g.groupId === PUBLIC_GROUP_IDS[mediaType])
+        .map((g) => g.userId));
+      // Exclude only senders who are active in non-public groups but NOT in the public group.
+      // Users concurrently sending in both public and non-public groups should still be
+      // heard by public receivers.
+      const senderIdsOnlyInNonPublic = new Set(
+        [...senderIdsInNonPublicGroups].filter((id) => !senderIdsInPublicGroup.has(id)),
+      );
+      // Media groups use BBB intIds, which differ from LiveKit participant.identity
+      // for dial-in/VO participants (see getBbbUserIdForParticipant).
+      // Map pID to BBB intId when comparing against the non-public-sender set,
+      // but keep senders keyed by participant.identity so downstream code that
+      // looks up participants in the LiveKit room still matches.
+      const senders = remoteParticipants
+        .filter((participant) => !senderIdsOnlyInNonPublic.has(getBbbUserIdForParticipant(participant)))
+        .map((participant) => ({
+          userId: participant.identity,
+          groupId: 'default',
+          mediaType,
+          sender: true,
+          receiver: true,
+          active: true,
+        }));
 
-  // Union of senders from all groups where I am a receiver.
-  // Dedupe by userId (first occurrence wins) and rewrite BBB intId to LK
-  // identity as they are not 1:1 compatible for dial-in/VO users (see getBbbUserIdForParticipant).
-  const bbbIdToIdentity = new Map<string, string>();
-  remoteParticipants.forEach((p) => {
-    bbbIdToIdentity.set(getBbbUserIdForParticipant(p), p.identity);
-  });
-  const myInboundGroupSet = new Set(myInboundGroupIds);
-  const seenUserIds = new Set<string>();
-  const senders = groups.reduce<MediaGroupStream[]>((acc, stream) => {
-    if (!myInboundGroupSet.has(stream.groupId)) return acc;
+      return { senders, inAnyGroup: false };
+    }
 
-    if (!stream.sender || !stream.active) return acc;
+    // Union of senders from all groups where I am a receiver.
+    // Dedupe by userId (first occurrence wins) and rewrite BBB intId to LK
+    // identity as they are not 1:1 compatible for dial-in/VO users (see getBbbUserIdForParticipant).
+    const bbbIdToIdentity = new Map<string, string>();
+    remoteParticipants.forEach((p) => {
+      bbbIdToIdentity.set(getBbbUserIdForParticipant(p), p.identity);
+    });
+    const myInboundGroupSet = new Set(myInboundGroupIds);
+    const seenUserIds = new Set<string>();
+    const senders = groups.reduce<MediaGroupStream[]>((acc, stream) => {
+      if (!myInboundGroupSet.has(stream.groupId)) return acc;
 
-    if (seenUserIds.has(stream.userId)) return acc;
+      if (!stream.sender || !stream.active) return acc;
 
-    const identity = bbbIdToIdentity.get(stream.userId);
+      if (seenUserIds.has(stream.userId)) return acc;
 
-    if (!identity) return acc;
+      const identity = bbbIdToIdentity.get(stream.userId);
 
-    seenUserIds.add(stream.userId);
-    acc.push({ ...stream, userId: identity });
+      if (!identity) return acc;
 
-    return acc;
-  }, []);
+      seenUserIds.add(stream.userId);
+      acc.push({ ...stream, userId: identity });
 
-  return { senders, inAnyGroup };
+      return acc;
+    }, []);
+
+    return { senders, inAnyGroup };
+  }, [data, remoteParticipants, deafened, mediaType]);
 };
 
 export const useMediaSubscriptions = (liveKitRoom: Room) => {

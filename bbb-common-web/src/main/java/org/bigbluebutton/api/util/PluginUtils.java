@@ -92,13 +92,33 @@ public class PluginUtils {
                 .replace(MEETING_ID, meetingId);
     }
 
+    private ValidatedUrl extractFinalPluginManifestUrl(String rawManifestUrl, String meetingId) {
+        String manifestUrlBeforeRedirections = replaceAllPlaceholdersInManifestUrls(rawManifestUrl, meetingId);
+        ValidatedUrl validatedUrl = redirectFollower.followRedirectSecure(
+                meetingId, manifestUrlBeforeRedirections, 0, manifestUrlBeforeRedirections,
+                pluginRedirectValidator, 6000
+        );
+        if (validatedUrl != null) {
+            return validatedUrl;
+        } else {
+            log.error("Plugin manifest URL [{}] failed security validation for meeting [{}]",
+                    manifestUrlBeforeRedirections, meetingId);
+            return null;
+        }
+    }
+
     public PluginManifest createPluginManifestFromJson(JsonElement pluginManifestJson, String meetingId) {
         if (pluginManifestJson.isJsonObject()) {
             JsonObject pluginManifestJsonObj = pluginManifestJson.getAsJsonObject();
             if (pluginManifestJsonObj.has("url")) {
                 String barePluginManifestUrl = pluginManifestJsonObj.get("url").getAsString();
-                String url = replaceAllPlaceholdersInManifestUrls(barePluginManifestUrl, meetingId);
-                PluginManifest newPlugin = new PluginManifest(url);
+                ValidatedUrl validatedUrl = extractFinalPluginManifestUrl(barePluginManifestUrl, meetingId);
+                if (validatedUrl == null) {
+                    log.error("Plugin manifest URL [{}] rejected for meeting [{}]",
+                            barePluginManifestUrl, meetingId);
+                    return null;
+                }
+                PluginManifest newPlugin = new PluginManifest(validatedUrl.originalUrl(), validatedUrl);
                 if (pluginManifestJsonObj.has("checksum")) {
                     newPlugin.setChecksum(pluginManifestJsonObj.get("checksum").getAsString());
                 }
@@ -271,23 +291,29 @@ public class PluginUtils {
         });
     }
 
-    private String fetchPluginManifestContent(String pluginManifestUrlString, String meetingId) throws IOException {
+    private String downloadValidatedManifest(ValidatedUrl validatedUrl, String contextId, int timeoutMs)
+            throws IOException {
+        log.info("Fetching plugin manifest content for [{}]", validatedUrl.originalUrl());
+        String content = secureUrlDownloader.downloadToString(
+                contextId, validatedUrl, timeoutMs, maxPluginManifestPayloadSizeKib
+        );
+        if (content == null) {
+            throw new IOException("Failed to download plugin manifest content for " + validatedUrl.originalUrl());
+        }
+        return content;
+    }
+
+    private String revalidateAndFetchPluginManifestContent(String pluginManifestUrlString, String contextId)
+            throws IOException {
         int timeoutMs = (int) Math.min(pluginManifestFetchTimeoutSeconds * 1000L, Integer.MAX_VALUE);
         ValidatedUrl validatedUrl = redirectFollower.followRedirectSecure(
-                meetingId, pluginManifestUrlString, 0, pluginManifestUrlString,
+                contextId, pluginManifestUrlString, 0, pluginManifestUrlString,
                 pluginRedirectValidator, timeoutMs
         );
         if (validatedUrl == null) {
             throw new IOException("Failed to validate or follow redirects for plugin URL " + pluginManifestUrlString);
         }
-        log.info("Fetching plugin manifest content for [{}]", validatedUrl.originalUrl());
-        String content = secureUrlDownloader.downloadToString(
-                meetingId, validatedUrl, timeoutMs, maxPluginManifestPayloadSizeKib
-        );
-        if (content == null) {
-            throw new IOException("Failed to download plugin manifest content for " + pluginManifestUrlString);
-        }
-        return content;
+        return downloadValidatedManifest(validatedUrl, contextId, timeoutMs);
     }
 
     private ParsedPluginManifest parseAndValidate(String content, String checksum)
@@ -329,7 +355,13 @@ public class PluginUtils {
                 }
             }
 
-            String fresh = fetchPluginManifestContent(pluginManifestUrlString, meetingId);
+            ValidatedUrl validatedUrl = pluginManifest.getValidatedUrl();
+            if (validatedUrl == null) {
+                throw new IOException("Plugin [" + pluginManifestUrlString + "] missing validated URL data");
+            }
+            int timeoutMs = (int) Math.min(pluginManifestFetchTimeoutSeconds * 1000L, Integer.MAX_VALUE);
+            String fresh = downloadValidatedManifest(validatedUrl, meetingId, timeoutMs);
+
             ParsedPluginManifest parsed;
             try {
                 parsed = parseAndValidate(fresh, pluginManifestChecksum);
@@ -456,7 +488,7 @@ public class PluginUtils {
             }
             String fresh;
             try {
-                fresh = fetchPluginManifestContent(pluginManifestUrlString, CACHE_REFRESH_CONTEXT_ID);
+                fresh = revalidateAndFetchPluginManifestContent(pluginManifestUrlString, CACHE_REFRESH_CONTEXT_ID);
             } catch (IOException e) {
                 log.warn("Failed to refetch plugin manifest [{}]; keeping previously cached copy",
                         pluginManifestUrlString, e);

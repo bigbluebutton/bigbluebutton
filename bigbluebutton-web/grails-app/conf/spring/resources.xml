@@ -106,6 +106,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="fetchUrlSupportedProtocols" value="${fetchUrlSupportedProtocols}" />
         <property name="fetchUrlBlockedExternalHosts" value="${fetchUrlBlockedExternalHosts}" />
         <property name="fetchUrlAllowedLocalHosts" value="${fetchUrlAllowedLocalHosts}" />
+        <property name="localPluginUrlPrefix" value="${bigbluebutton.web.serverURL}/plugins" />
     </bean>
 
     <bean id="clientSettingsOverrideUrlValidator" class="org.bigbluebutton.api.service.impl.ClientSettingsOverrideUrlValidator">
@@ -269,6 +270,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="html5PluginSdkVersion" value="${html5PluginSdkVersion}"/>
         <property name="pluginUtils" ref="pluginUtils"/>
         <property name="clientSettingsOverrideUrlValidator" ref="clientSettingsOverrideUrlValidator"/>
+        <property name="pluginUrlValidator" ref="pluginRedirectValidator"/>
         <property name="redirectFollower" ref="redirectFollower"/>
         <property name="secureUrlDownloader" ref="secureUrlDownloader"/>
         <property name="maxNumPages" value="${maxNumPages}"/>
