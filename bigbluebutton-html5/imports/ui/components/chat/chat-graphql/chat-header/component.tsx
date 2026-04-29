@@ -24,6 +24,7 @@ const intlMessages = defineMessages({
     id: 'app.userList.messagesTitle',
     description: 'Title for the messages list',
   },
+
 });
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({

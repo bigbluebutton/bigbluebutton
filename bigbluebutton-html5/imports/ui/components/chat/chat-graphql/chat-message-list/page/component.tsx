@@ -222,7 +222,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
       messageRefs.current[chatFocusMessageRequest].requestFocus();
       Storage.removeItem(ChatEvents.CHAT_FOCUS_MESSAGE_REQUEST);
     }
-  }, [allPagesLoaded]);
+  }, [allPagesLoaded, chatFocusMessageRequest]);
 
   const updateMessageRef = useCallback((ref: ChatMessageRef | null) => {
     if (!ref) return;

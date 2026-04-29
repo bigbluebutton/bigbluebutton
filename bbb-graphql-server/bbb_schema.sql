@@ -1106,12 +1106,15 @@ create index "idx_user_activity_orderBy" on "user_activity" ("meetingId", "userI
 
 
 CREATE UNLOGGED TABLE "chat" (
-	"meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
-	"chatId"  varchar(100),
-	"access" varchar(20),
-	"createdBy" varchar(25),
-	"totalMessages" integer,
-	CONSTRAINT "chat_pkey" PRIMARY KEY ("meetingId", "chatId")
+    "meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
+    "chatId"  varchar(100),
+    "access" varchar(20),
+    "createdBy" varchar(25),
+    "totalMessages" integer,
+    "pinnedMessageId" varchar(100),
+    "pinnedByUserId" varchar(100),
+    "pinnedAt" timestamp with time zone,
+    CONSTRAINT "chat_pkey" PRIMARY KEY ("meetingId", "chatId")
 );
 CREATE INDEX "idx_chat_pk_reverse" ON "chat"("chatId","meetingId");
 
@@ -1226,12 +1229,12 @@ BEGIN
         SET "totalMessages" = COALESCE("totalMessages", 0) + 1
         WHERE "meetingId" = NEW."meetingId"
         AND "chatId" = NEW."chatId";
-	ELSIF TG_OP = 'DELETE' THEN
+       ELSIF TG_OP = 'DELETE' THEN
         UPDATE "chat"
         SET "totalMessages" = GREATEST(COALESCE("totalMessages", 0) - 1, 0)
         WHERE "meetingId" = OLD."meetingId"
         AND "chatId" = OLD."chatId";
-	END IF;
+       END IF;
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1393,7 +1396,10 @@ SELECT 	"user"."meetingId",
 		"chat"."totalMessages",
 		cu."totalUnreadMessages" AS "totalUnread",
 		cu."lastSeenAt",
-		CASE WHEN "chat"."access" = 'PUBLIC_ACCESS' THEN true ELSE false end "public"
+		CASE WHEN "chat"."access" = 'PUBLIC_ACCESS' THEN true ELSE false end "public",
+        "chat"."pinnedMessageId",
+        "chat"."pinnedByUserId",
+        "chat"."pinnedAt"
 FROM "user"
 JOIN "chat_user" cu ON cu."meetingId" = "user"."meetingId" AND cu."userId" = "user"."userId"
 --now it will always add chat_user for public chat onUserJoin

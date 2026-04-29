@@ -10,4 +10,10 @@ export interface Chat {
   userId: string;
   participant?: User;
   lastSeenAt: string;
+  pinnedMessageId: string | null;
+  pinnedByUserId: string | null;
+  pinnedAt: string | null;
+  pinnedBy: {
+    name: string;
+  } | null;
 }

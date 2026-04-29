@@ -2,6 +2,7 @@ package org.bigbluebutton.core.apps.groupchats
 
 import org.bigbluebutton.common2.msgs.{ GroupChatAccess, GroupChatMessageType, GroupChatMsgFromUser, GroupChatMsgToUser, GroupChatUser }
 import org.bigbluebutton.core.db.ChatMessageDAO
+import org.bigbluebutton.core.db.ChatDAO
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.LiveMeeting
@@ -55,9 +56,28 @@ object GroupChatApp {
   }
 
   def deleteGroupChatMessage(meetingId: String, chat: GroupChat, chats: GroupChats, msg: GroupChatMessage, deletedBy: String): GroupChats = {
+    ChatDAO.clearPinnedMessage(meetingId, chat.id, msg.id)
+
     ChatMessageDAO.softDelete(meetingId, chat.id, msg.id, deletedBy)
 
     val c = chat.delete(msg.id)
+    chats.update(c)
+  }
+
+  def pinGroupChatMessage(meetingId: String, chat: GroupChat, chats: GroupChats, msg: GroupChatMessage, pinnedByUserId: String): GroupChats = {
+    if (chat.pinnedMessageId.contains(msg.id)) return chats
+
+    ChatDAO.setPinnedMessage(meetingId, chat.id, msg.id, pinnedByUserId)
+
+    val updatedChat = chat.pin(msg.id)
+
+    chats.update(updatedChat)
+  }
+
+  def unpinGroupChatMessage(meetingId: String, chat: GroupChat, chats: GroupChats, msg: GroupChatMessage): GroupChats = {
+    ChatDAO.clearPinnedMessage(meetingId, chat.id, msg.id)
+
+    val c = chat.unpin(msg.id)
     chats.update(c)
   }
 

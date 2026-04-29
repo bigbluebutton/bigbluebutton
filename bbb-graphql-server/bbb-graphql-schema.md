@@ -34,6 +34,7 @@
 ### Relationships:
 - `breakoutPolicies: Object` [Type meeting_breakoutPolicies](#type-meeting_breakoutPolicies)
 - `clientSettings: Object` [Type meeting_clientSettings](#type-meeting_clientSettings)
+- `chat: Object` [Type meeting_chat](#type-meeting_chat)
 - `componentsFlags: Object` **Type meeting_componentsFlags**
   - `hasBreakoutRoom: Boolean`
   - `hasCameraAsContent: Boolean`
@@ -568,6 +569,7 @@ Permission: Restricted to Presenter
 - `totalMessages`
 - `totalUnread`
 - `visible`
+- `pinnedMessageId`
 ### Relationships:
 - `participant: Object` [Type User](#type-user)
 

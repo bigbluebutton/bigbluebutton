@@ -144,6 +144,14 @@ type Mutation {
 }
 
 type Mutation {
+  chatSetPinned(
+    chatId: String!
+    messageId: String!
+    pinned: Boolean!
+  ): Boolean
+}
+
+type Mutation {
   chatDeleteMessage(
     chatId: String!
     messageId: String!

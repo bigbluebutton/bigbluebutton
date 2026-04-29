@@ -758,6 +758,12 @@ class MeetingActor(
       case m: DeleteGroupChatMessageReqMsg =>
         state = groupChatApp.handle(m, state, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
+      case m: PinGroupChatMessageReqMsg =>
+        state = groupChatApp.handle(m, state, liveMeeting, msgBus)
+        updateUserLastActivity(m.header.userId)
+      case m: UnpinGroupChatMessageReqMsg =>
+        state = groupChatApp.handle(m, state, liveMeeting, msgBus)
+        updateUserLastActivity(m.header.userId)
       case m: SendGroupChatMessageReactionReqMsg =>
         groupChatApp.handle(m, state, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
