@@ -389,14 +389,18 @@ module BigBlueButton
 
       # Check video files for large gaps in timestamps and remove them from the EDL for the duration of the gap.
       def self.remove_video_gaps(edl, video_files, process_dir)
+        source_handlers = {
+          source_for_entry: ->(entry, filename) { find_video(entry, filename) },
+          split_entry: ->(entries, entry_i, rec_time) { split_edl_at(entries, entry_i, rec_time) },
+          remove_source: ->(entry, filename) { remove_video(entry, filename) },
+        }
+
         BigBlueButton::EDL::MediaUtils.remove_pts_gaps_from_edl(
           edl,
           video_files,
           process_dir,
           stream_type: :video,
-          source_for_entry: ->(entry, filename) { find_video(entry, filename) },
-          split_entry: ->(entries, entry_i, rec_time) { split_edl_at(entries, entry_i, rec_time) },
-          remove_source: ->(entry, filename) { remove_video(entry, filename) },
+          source_handlers: source_handlers,
           min_gap: 30_000
         )
       end

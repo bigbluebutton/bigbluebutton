@@ -396,18 +396,22 @@ module BigBlueButton
           }
         end
 
-        BigBlueButton::EDL::MediaUtils.remove_pts_gaps_from_edl(
-          edl,
-          audio_files,
-          process_dir,
-          stream_type: :audio,
+        source_handlers = {
           source_for_entry: lambda { |entry, filename|
             entry[:audios]&.find { |audio| audio[:filename] == filename }
           },
           split_entry: ->(entries, entry_i, rec_time) { split_edl_at(entries, entry_i, rec_time) },
           remove_source: lambda { |entry, filename|
             entry[:audios]&.reject! { |audio| audio[:filename] == filename }
-          }
+          },
+        }
+
+        BigBlueButton::EDL::MediaUtils.remove_pts_gaps_from_edl(
+          edl,
+          audio_files,
+          process_dir,
+          stream_type: :audio,
+          source_handlers: source_handlers
         )
       end
 
