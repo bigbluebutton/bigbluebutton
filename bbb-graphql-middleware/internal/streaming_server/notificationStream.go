@@ -68,12 +68,13 @@ func HandleNotifyRoleInMeetingEvtMsg(receivedMessage common.RedisMessage, browse
 	browserConnectionsToSendCursor := make([]*common.BrowserConnection, 0)
 	browserConnectionsMutex.RLock()
 	for _, bc := range browserConnections {
-		if bc.MeetingId == receivedMessage.Core.Header.MeetingId {
-			if strings.EqualFold(role, "moderator") && bc.BBBWebSessionVariables["x-hasura-moderatorinmeeting"] == receivedMessage.Core.Header.MeetingId {
-				browserConnectionsToSendCursor = append(browserConnectionsToSendCursor, bc)
-			} else if strings.EqualFold(role, "presenter") && bc.BBBWebSessionVariables["x-hasura-presenterinmeeting"] == receivedMessage.Core.Header.MeetingId {
-				browserConnectionsToSendCursor = append(browserConnectionsToSendCursor, bc)
-			}
+		bc.RLock()
+		matchesMeeting := bc.MeetingId == receivedMessage.Core.Header.MeetingId
+		isModerator := matchesMeeting && strings.EqualFold(role, "moderator") && bc.BBBWebSessionVariables["x-hasura-moderatorinmeeting"] == receivedMessage.Core.Header.MeetingId
+		isPresenter := matchesMeeting && strings.EqualFold(role, "presenter") && bc.BBBWebSessionVariables["x-hasura-presenterinmeeting"] == receivedMessage.Core.Header.MeetingId
+		bc.RUnlock()
+		if isModerator || isPresenter {
+			browserConnectionsToSendCursor = append(browserConnectionsToSendCursor, bc)
 		}
 	}
 	browserConnectionsMutex.RUnlock()
