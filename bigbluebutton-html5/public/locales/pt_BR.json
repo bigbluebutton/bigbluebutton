@@ -1556,7 +1556,7 @@
     "app.createBreakoutRoom.increaseBreakoutTime": "Aumentar o tempo das Salas de Apoio",
     "app.createBreakoutRoom.decreaseRooms": "Diminuir o número de salas",
     "app.createBreakoutRoom.increaseRooms": "Aumentar o número de salas",
-    "app.createBreakoutRoom.roomOptions": "Opções das salas",
+    "app.createBreakoutRoom.roomOptions": "Opções da sala",
     "app.createBreakoutRoom.unassignedUsers": "Usuários não atribuídos",
     "app.createBreakoutRoom.youAreInRoom": "Você está na {roomName}.",
     "app.createBreakoutRoom.callModerator": "Chamar Moderadores",
