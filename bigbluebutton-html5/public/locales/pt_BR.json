@@ -68,7 +68,7 @@
     "app.chat.pinnedMessages.sentAt": "enviada às",
     "app.chat.pinnedMessages.goToMessage": "Ir para a mensagem",
     "app.chat.pinnedMessages.confirmModal.unpinTitle": "Desfixar mensagem",
-    "app.chat.pinnedMessages.confirmModal.unpinMessage": "Are you sure you want to unpin this message?",
+    "app.chat.pinnedMessages.confirmModal.unpinMessage": "Tem certeza de que deseja desfixar esta mensagem?",
     "app.chat.pinnedMessages.confirmModal.confirm": "Unpin",
     "app.chat.pinnedMessages.confirmModal.cancel": "Cancel",
     "app.chat.pinnedMessages.tooltipUnpin": "Unpin message",
