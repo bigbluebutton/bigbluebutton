@@ -1553,7 +1553,7 @@
     "app.createBreakoutRoom.timerMinutes": "Minutes",
     "app.createBreakoutRoom.timerSeconds": "Seconds",
     "app.createBreakoutRoom.decreaseBreakoutTime": "Reduzir o tempo das Salas de Apoio",
-    "app.createBreakoutRoom.increaseBreakoutTime": "Increase breakout time",
+    "app.createBreakoutRoom.increaseBreakoutTime": "Aumentar o tempo das Salas de Apoio",
     "app.createBreakoutRoom.decreaseRooms": "Decrease number of rooms",
     "app.createBreakoutRoom.increaseRooms": "Increase number of rooms",
     "app.createBreakoutRoom.roomOptions": "Room options",
