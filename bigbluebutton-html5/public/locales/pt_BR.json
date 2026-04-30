@@ -80,7 +80,7 @@
     "app.chat.header.tooltipEdit": "Editar mensagem",
     "app.chat.header.tooltipReply": "Responder mensagem",
     "app.chat.header.tooltipDelete": "Excluir mensagem",
-    "app.chat.header.tooltipPin": "Pin message",
+    "app.chat.header.tooltipPin": "Mensagem Fixada",
     "app.chat.header.tooltipUnpin": "Unpin message",
     "app.chat.header.tooltipReact": "Reagir à mensagem",
     "app.chat.content.pollVote": "voto",
