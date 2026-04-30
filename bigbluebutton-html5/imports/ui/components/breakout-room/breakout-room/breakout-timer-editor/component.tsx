@@ -73,7 +73,7 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
   const timerIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const innerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [selectedTimerField, setSelectedTimerField] = useState<'h' | 'm' | 's'>('m');
+  const [selectedTimerField, setSelectedTimerField] = useState<'h' | 'm' | 's' | null>(null);
   const [remainingTime, setRemainingTime] = useState<number>(0);
   const [editingTime, setEditingTime] = useState<number | null>(null);
   const [breakoutRoomSetTime] = useMutation(BREAKOUT_ROOM_SET_TIME);
@@ -160,7 +160,14 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
       <Styled.TimerLabel>
         {intl.formatMessage(intlMessages.durationOfBreakout)}
       </Styled.TimerLabel>
-      <Styled.TimeInputGroup data-test="breakoutRemainingTime">
+      <Styled.TimeInputGroup
+        data-test="breakoutRemainingTime"
+        onBlur={(e: React.FocusEvent<HTMLDivElement>) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+            setSelectedTimerField(null);
+          }
+        }}
+      >
         <Styled.TimeUnitContainer>
           <Styled.TimerInput
             type="number"
@@ -170,7 +177,8 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
             $selected={selectedTimerField === 'h'}
             onClick={() => setSelectedTimerField('h')}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              handleTimerInputChange('h', Number(e.target.value));
+              const val = Number.parseInt(e.target.value, 10);
+              if (!Number.isNaN(val)) handleTimerInputChange('h', val);
             }}
             aria-label={intl.formatMessage(intlMessages.timerHours)}
             data-test="breakoutRoomTimerHoursInput"
@@ -178,12 +186,12 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
           <Styled.InputArrows $selected={selectedTimerField === 'h'}>
             <Styled.InputArrowButton
               type="button"
-              onClick={() => adjustTime(3600)}
+              onClick={() => { setSelectedTimerField('h'); adjustTime(3600); }}
               aria-label={intl.formatMessage(intlMessages.incrementHours, { amount: 1 })}
             />
             <Styled.InputArrowButtonDown
               type="button"
-              onClick={() => adjustTime(-3600)}
+              onClick={() => { setSelectedTimerField('h'); adjustTime(-3600); }}
               aria-label={intl.formatMessage(intlMessages.decrementHours, { amount: 1 })}
             />
           </Styled.InputArrows>
@@ -200,7 +208,8 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
             $selected={selectedTimerField === 'm'}
             onClick={() => setSelectedTimerField('m')}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              handleTimerInputChange('m', Number(e.target.value));
+              const val = Number.parseInt(e.target.value, 10);
+              if (!Number.isNaN(val)) handleTimerInputChange('m', val);
             }}
             aria-label={intl.formatMessage(intlMessages.timerMinutes)}
             data-test="breakoutRoomTimerMinutesInput"
@@ -208,12 +217,12 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
           <Styled.InputArrows $selected={selectedTimerField === 'm'}>
             <Styled.InputArrowButton
               type="button"
-              onClick={() => adjustTime(60)}
+              onClick={() => { setSelectedTimerField('m'); adjustTime(60); }}
               aria-label={intl.formatMessage(intlMessages.incrementMinutes, { amount: 1 })}
             />
             <Styled.InputArrowButtonDown
               type="button"
-              onClick={() => adjustTime(-60)}
+              onClick={() => { setSelectedTimerField('m'); adjustTime(-60); }}
               aria-label={intl.formatMessage(intlMessages.decrementMinutes, { amount: 1 })}
             />
           </Styled.InputArrows>
@@ -230,7 +239,8 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
             $selected={selectedTimerField === 's'}
             onClick={() => setSelectedTimerField('s')}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              handleTimerInputChange('s', Number(e.target.value));
+              const val = Number.parseInt(e.target.value, 10);
+              if (!Number.isNaN(val)) handleTimerInputChange('s', val);
             }}
             aria-label={intl.formatMessage(intlMessages.timerSeconds)}
             data-test="breakoutRoomTimerSecondsInput"
@@ -238,12 +248,12 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
           <Styled.InputArrows $selected={selectedTimerField === 's'}>
             <Styled.InputArrowButton
               type="button"
-              onClick={() => adjustTime(1)}
+              onClick={() => { setSelectedTimerField('s'); adjustTime(1); }}
               aria-label={intl.formatMessage(intlMessages.incrementSeconds, { amount: 1 })}
             />
             <Styled.InputArrowButtonDown
               type="button"
-              onClick={() => adjustTime(-1)}
+              onClick={() => { setSelectedTimerField('s'); adjustTime(-1); }}
               aria-label={intl.formatMessage(intlMessages.decrementSeconds, { amount: 1 })}
             />
           </Styled.InputArrows>

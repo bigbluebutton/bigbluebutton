@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { Select as SelectMui, SelectProps } from '@mui/material';
 import {
   colorWhite,
   colorGrayLighter,
@@ -88,7 +89,7 @@ const EnterButton = styled.button`
   background: ${colorPrimary};
   color: ${colorWhite};
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 1rem;
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
   font-weight: 500;
@@ -105,10 +106,10 @@ const EnterButton = styled.button`
 `;
 
 const CancelButton = styled.button`
-  background: ${colorWhite};
+  background: transparent;
   color: ${colorText};
-  border: 1px solid ${colorGrayLighter};
-  border-radius: 0.5rem;
+  border: none;
+  border-radius: 1rem;
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
   font-weight: 500;
@@ -125,14 +126,29 @@ const SelectParent = styled.div`
   align-items: stretch;
 `;
 
-const Select = styled.select`
+const Select = styled(SelectMui)<SelectProps>`
   background-color: ${colorWhite};
   width: 100%;
   margin: 0.75rem 0;
-  padding: 0.625rem;
-  border: 1px solid ${colorGrayLighter};
-  border-radius: 0.5rem;
-  font-size: 1rem;
+  border-radius: 0.5rem !important;
+  overflow: hidden;
+
+  & .MuiOutlinedInput-notchedOutline {
+    border-color: ${colorGrayLighter};
+  }
+
+  &:hover .MuiOutlinedInput-notchedOutline {
+    border-color: ${colorGray};
+  }
+
+  &.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: ${colorPrimary} !important;
+  }
+
+  & .MuiSelect-select {
+    padding: 0.625rem 0.75rem;
+    font-size: 1rem;
+  }
 `;
 
 export default {

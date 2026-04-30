@@ -171,6 +171,12 @@ export const InputArrowButton = styled.button`
   &:disabled {
     cursor: not-allowed;
   }
+
+  &:focus-visible {
+    outline: 2px solid ${colorPrimary};
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
 `;
 
 export const InputArrowButtonDown = styled.button`
@@ -202,6 +208,12 @@ export const InputArrowButtonDown = styled.button`
 
   &:disabled {
     cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${colorPrimary};
+    outline-offset: 2px;
+    border-radius: 2px;
   }
 `;
 

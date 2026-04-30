@@ -22,6 +22,7 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import { setBreakoutWindowRef } from '../service';
 import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
+import AudioManager from '/imports/ui/services/audio-manager';
 
 const intlMessages = defineMessages({
   breakoutTitle: {
@@ -450,14 +451,14 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                           dataTest: breakout.isUserCurrentlyInRoom ? 'alreadyConnected' : `askToJoinRoom${breakout.sequence}`,
                           onClick: () => handleEnterRoom(breakout),
                         },
-                        {
+                        ...(!AudioManager.isUsingLiveKit() ? [{
                           key: `listen-${breakout.breakoutRoomMeetingId}`,
                           label: isListening
                             ? intl.formatMessage(intlMessages.stopListeningToRoom)
                             : intl.formatMessage(intlMessages.listenToRoom),
                           dataTest: 'listenToBreakoutRoomButton',
                           onClick: () => handleListenToRoom(breakout),
-                        },
+                        }] : []),
                       ]}
                       opts={{
                         id: `breakout-room-options-${breakout.breakoutRoomMeetingId}`,

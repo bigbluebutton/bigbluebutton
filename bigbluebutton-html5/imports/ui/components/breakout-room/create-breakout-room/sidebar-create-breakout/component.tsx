@@ -191,6 +191,7 @@ const CreateTimerPicker = React.memo(({ minBreakoutTime, onDurationChange }: Cre
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(DEFAULT_SIDEBAR_BREAKOUT_TIME);
   const [seconds, setSeconds] = useState(0);
+  const [selectedField, setSelectedField] = useState<'h' | 'm' | 's' | null>(null);
   const padNum = (n: number) => n.toString().padStart(2, '0');
   const duration = (hours * 3600) + (minutes * 60) + seconds;
 
@@ -214,27 +215,36 @@ const CreateTimerPicker = React.memo(({ minBreakoutTime, onDurationChange }: Cre
       <Styled.TimerLabel>
         {intl.formatMessage(intlMessages.durationOfBreakout)}
       </Styled.TimerLabel>
-      <Styled.TimeInputGroup>
+      <Styled.TimeInputGroup
+        onBlur={(e: React.FocusEvent<HTMLDivElement>) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+            setSelectedField(null);
+          }
+        }}
+      >
         <Styled.TimeUnitContainer>
           <Styled.TimerInput
             type="number"
             min={0}
             max={23}
             value={padNum(hours)}
+            $selected={selectedField === 'h'}
+            onClick={() => setSelectedField('h')}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              updateHours(Math.max(0, Math.min(23, Number(e.target.value))));
+              const val = Number.parseInt(e.target.value, 10);
+              if (!Number.isNaN(val)) updateHours(Math.max(0, Math.min(23, val)));
             }}
             aria-label={intl.formatMessage(intlMessages.timerHours)}
           />
-          <Styled.InputArrows>
+          <Styled.InputArrows $selected={selectedField === 'h'}>
             <Styled.InputArrowButton
               type="button"
-              onClick={() => updateHours(Math.min(23, hours + 1))}
+              onClick={() => { setSelectedField('h'); updateHours(Math.min(23, hours + 1)); }}
               aria-label={intl.formatMessage(intlMessages.incrementHours, { amount: 1 })}
             />
             <Styled.InputArrowButtonDown
               type="button"
-              onClick={() => updateHours(Math.max(0, hours - 1))}
+              onClick={() => { setSelectedField('h'); updateHours(Math.max(0, hours - 1)); }}
               aria-label={intl.formatMessage(intlMessages.decrementHours, { amount: 1 })}
             />
           </Styled.InputArrows>
@@ -248,21 +258,24 @@ const CreateTimerPicker = React.memo(({ minBreakoutTime, onDurationChange }: Cre
             min={0}
             max={59}
             value={padNum(minutes)}
+            $selected={selectedField === 'm'}
+            onClick={() => setSelectedField('m')}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              updateMinutes(Math.max(0, Math.min(59, Number(e.target.value))));
+              const val = Number.parseInt(e.target.value, 10);
+              if (!Number.isNaN(val)) updateMinutes(Math.max(0, Math.min(59, val)));
             }}
             aria-label={intl.formatMessage(intlMessages.timerMinutes)}
             data-test="durationTime"
           />
-          <Styled.InputArrows>
+          <Styled.InputArrows $selected={selectedField === 'm'}>
             <Styled.InputArrowButton
               type="button"
-              onClick={() => updateMinutes(Math.min(59, minutes + 1))}
+              onClick={() => { setSelectedField('m'); updateMinutes(Math.min(59, minutes + 1)); }}
               aria-label={intl.formatMessage(intlMessages.incrementMinutes, { amount: 1 })}
             />
             <Styled.InputArrowButtonDown
               type="button"
-              onClick={() => updateMinutes(Math.max(0, minutes - 1))}
+              onClick={() => { setSelectedField('m'); updateMinutes(Math.max(0, minutes - 1)); }}
               aria-label={intl.formatMessage(intlMessages.decrementMinutes, { amount: 1 })}
             />
           </Styled.InputArrows>
@@ -276,20 +289,23 @@ const CreateTimerPicker = React.memo(({ minBreakoutTime, onDurationChange }: Cre
             min={0}
             max={59}
             value={padNum(seconds)}
+            $selected={selectedField === 's'}
+            onClick={() => setSelectedField('s')}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              updateSeconds(Math.max(0, Math.min(59, Number(e.target.value))));
+              const val = Number.parseInt(e.target.value, 10);
+              if (!Number.isNaN(val)) updateSeconds(Math.max(0, Math.min(59, val)));
             }}
             aria-label={intl.formatMessage(intlMessages.timerSeconds)}
           />
-          <Styled.InputArrows>
+          <Styled.InputArrows $selected={selectedField === 's'}>
             <Styled.InputArrowButton
               type="button"
-              onClick={() => updateSeconds(Math.min(59, seconds + 1))}
+              onClick={() => { setSelectedField('s'); updateSeconds(Math.min(59, seconds + 1)); }}
               aria-label={intl.formatMessage(intlMessages.incrementSeconds, { amount: 1 })}
             />
             <Styled.InputArrowButtonDown
               type="button"
-              onClick={() => updateSeconds(Math.max(0, seconds - 1))}
+              onClick={() => { setSelectedField('s'); updateSeconds(Math.max(0, seconds - 1)); }}
               aria-label={intl.formatMessage(intlMessages.decrementSeconds, { amount: 1 })}
             />
           </Styled.InputArrows>

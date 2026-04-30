@@ -3,6 +3,8 @@ import React, {
   useCallback, useEffect, useMemo, useRef,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import MenuItem from '@mui/material/MenuItem';
+import { SelectChangeEvent } from '@mui/material';
 import Styled from './styles';
 import {
   BreakoutRoom,
@@ -100,6 +102,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
       || breakouts[0]?.breakoutRoomMeetingId;
 
   const [selectValue, setSelectValue] = React.useState('');
+  const selectInitialized = useRef(false);
 
   const requestJoinURL = (breakoutRoomMeetingId: string) => {
     breakoutRoomRequestJoinURL({ variables: { breakoutRoomMeetingId } });
@@ -116,20 +119,21 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
     }
   }
 
-  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectValue(event.target.value);
+  const handleSelectChange = (event: SelectChangeEvent<unknown>) => {
+    const value = event.target.value as string;
+    setSelectValue(value);
     const selectedBreakout = breakouts.find(
-      ({ breakoutRoomMeetingId }) => breakoutRoomMeetingId === event.target.value,
+      ({ breakoutRoomMeetingId }) => breakoutRoomMeetingId === value,
     );
     if (!selectedBreakout?.joinURL) {
-      requestJoinURL(event.target.value);
-      setWaiting(true);
+      requestJoinURL(value); // pré-busca silenciosa; não bloqueia o select
     }
   };
 
   useEffect(() => {
-    if (defaultSelectedBreakoutId) {
+    if (defaultSelectedBreakoutId && !selectInitialized.current) {
       setSelectValue(defaultSelectedBreakoutId);
+      selectInitialized.current = true;
     }
   }, [defaultSelectedBreakoutId]);
 
@@ -142,33 +146,29 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   const handleJoinBreakoutConfirmation = useCallback(() => {
     stopMediaOnMainRoom(presenter);
 
-    if (breakouts.length === 1 || !freeJoin) {
-      const breakout = freeJoin
-        ? breakouts.find(({ breakoutRoomMeetingId }) => breakoutRoomMeetingId === selectValue)
-        : breakouts.find((br) => br.showInvitation || br.isLastAssignedRoom) || breakouts[0];
+    const breakout = freeJoin
+      ? breakouts.find(({ breakoutRoomMeetingId }) => breakoutRoomMeetingId === selectValue)
+      : breakouts.find((br) => br.showInvitation || br.isLastAssignedRoom) || breakouts[0];
 
-      if (breakout?.joinURL) {
-        const win = window.open(breakout.joinURL, '_blank');
-        if (win) setBreakoutWindowRef(win);
-      }
-      setIsOpen(false);
-      setDismissedInvitationKey(currentInvitationKey);
-    } else {
-      const selectedBreakout = breakouts.find(
-        ({ breakoutRoomMeetingId }) => breakoutRoomMeetingId === selectValue,
-      );
-      if (selectedBreakout?.joinURL) {
-        logger.info({
-          logCode: 'breakoutroom_freejoin_selected',
-          extraInfo: { selectedBreakout },
-        }, 'User selected breakout room to join');
-        const win2 = window.open(selectedBreakout.joinURL, '_blank');
-        if (win2) setBreakoutWindowRef(win2);
-      }
-      setIsOpen(false);
-      setDismissedInvitationKey(currentInvitationKey);
+    if (!breakout) return;
+
+    if (!breakout.joinURL) {
+      requestJoinURL(breakout.breakoutRoomMeetingId);
+      setWaiting(true);
+      return;
     }
-  }, [breakouts, selectValue, presenter, stopMediaOnMainRoom, freeJoin]);
+
+    if (freeJoin) {
+      logger.info({
+        logCode: 'breakoutroom_freejoin_selected',
+        extraInfo: { breakout },
+      }, 'User selected breakout room to join');
+    }
+    const win = window.open(breakout.joinURL, '_blank');
+    if (win) setBreakoutWindowRef(win);
+    setIsOpen(false);
+    setDismissedInvitationKey(currentInvitationKey);
+  }, [breakouts, selectValue, presenter, stopMediaOnMainRoom, freeJoin, currentInvitationKey]);
 
   const assignedBreakout = breakouts.find((br) => br.showInvitation || br.isLastAssignedRoom) || breakouts[0];
   const roomName = assignedBreakout.isDefaultName
@@ -185,18 +185,18 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
           value={selectValue}
           onChange={handleSelectChange}
           disabled={waiting}
-          data-test="selectBreakoutRoomBtn"
+          inputProps={{ 'data-test': 'selectBreakoutRoomBtn' }}
         >
           {[...breakouts].sort((a, b) => a.sequence - b.sequence).map(({
             shortName, breakoutRoomMeetingId, isDefaultName, sequence,
           }) => (
-            <option
+            <MenuItem
               data-test="roomOption"
               key={breakoutRoomMeetingId}
               value={breakoutRoomMeetingId}
             >
               {isDefaultName ? intl.formatMessage(intlMessages.breakoutRoom, { roomNumber: sequence }) : shortName}
-            </option>
+            </MenuItem>
           ))}
         </Styled.Select>
         {waiting ? (
@@ -213,6 +213,16 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
       );
       if (breakout?.joinURL) {
         setWaiting(false);
+        if (freeJoin) {
+          logger.info({
+            logCode: 'breakoutroom_freejoin_selected',
+            extraInfo: { breakout },
+          }, 'User selected breakout room to join');
+        }
+        const win = window.open(breakout.joinURL, '_blank');
+        if (win) setBreakoutWindowRef(win);
+        setIsOpen(false);
+        setDismissedInvitationKey(currentInvitationKey);
       }
     }
   }, [breakouts, waiting]);
@@ -232,10 +242,8 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
     }
   }, []);
 
-  const handleOverlayClick = useCallback((e: React.MouseEvent) => {
-    if (dialogRef.current && !dialogRef.current.contains(e.target as Node)) {
-      handleClose();
-    }
+  const handleOverlayClick = useCallback(() => {
+    handleClose();
   }, [handleClose]);
 
   useEffect(() => {
@@ -288,7 +296,14 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
 
   return (
     <Styled.Overlay onClick={handleOverlayClick}>
-      <Styled.Dialog ref={dialogRef} role="dialog" aria-modal="true" aria-label={roomName} data-test="breakoutJoinConfirmationDialog">
+      <Styled.Dialog
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={roomName}
+        data-test="breakoutJoinConfirmationDialog"
+        onClick={(e) => e.stopPropagation()}
+      >
         <Styled.Header>
           <Styled.Title>{roomName}</Styled.Title>
           <Styled.CloseButton

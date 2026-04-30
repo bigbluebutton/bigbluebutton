@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { styled as materialStyled } from '@mui/material/styles';
 import { Switch } from '@mui/material';
 import Select from '@mui/material/Select';
@@ -23,6 +23,11 @@ import {
 } from '/imports/ui/components/sidebar-content/styles';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import Button from '/imports/ui/components/common/button/component';
+
+import {
+  InputArrowButton,
+  InputArrowButtonDown,
+} from '../../breakout-room/running-room/styles';
 
 export const PanelContent = styled(BasePanelContent)`
   display: flex;
@@ -77,10 +82,12 @@ export const TimeUnitContainer = styled.div`
   gap: 0.25rem;
 `;
 
-export const TimerInput = styled.input`
+export const TimerInput = styled.input<{ $selected?: boolean }>`
   background: none;
   border: none;
-  background-color: color-mix(in srgb, ${colorBlueLighter} 20%, transparent);
+  background-color: ${({ $selected }) => ($selected
+    ? `color-mix(in srgb, ${colorPrimary} 15%, transparent)`
+    : `color-mix(in srgb, ${colorBlueLighter} 20%, transparent)`)};
   color: ${colorPrimary};
   font-family: inherit;
   font-size: 2rem;
@@ -107,6 +114,11 @@ export const TimerInput = styled.input`
     background-color: color-mix(in srgb, ${colorPrimary} 15%, transparent);
     box-shadow: 0 0 0 0.125rem ${colorPrimary};
   }
+
+  ${({ $selected }) => $selected && css`
+    background-color: color-mix(in srgb, ${colorPrimary} 15%, transparent);
+    box-shadow: 0 0 0 0.125rem ${colorPrimary};
+  `}
 `;
 
 export const TimeUnitLabel = styled.span`
@@ -115,7 +127,7 @@ export const TimeUnitLabel = styled.span`
   text-transform: capitalize;
 `;
 
-export const InputArrows = styled.div`
+export const InputArrows = styled.div<{ $selected?: boolean }>`
   position: absolute;
   right: 0;
   padding-top: 0.2rem;
@@ -130,74 +142,14 @@ export const InputArrows = styled.div`
   opacity: 0.8;
   background: none;
   border: none;
-  background-color: color-mix(in srgb, ${colorBlueLighter} 20%, transparent);
+  background-color: ${({ $selected }) => ($selected
+    ? `color-mix(in srgb, ${colorPrimary} 15%, transparent)`
+    : `color-mix(in srgb, ${colorBlueLighter} 20%, transparent)`)};
   border-radius: ${borderRadiusRounded};
   transition: all 150ms ease;
 `;
 
-export const InputArrowButton = styled.button`
-  flex: 1;
-  min-width: auto;
-  padding: 0;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &::before {
-    content: '';
-    display: block;
-    width: 0;
-    height: 0;
-    border-left: 0.25rem solid transparent;
-    border-right: 0.25rem solid transparent;
-    border-bottom: 0.28rem solid ${colorPrimary};
-    margin: auto;
-    transition: border-bottom-color 120ms ease;
-  }
-
-  &:hover::before {
-    opacity: 1;
-  }
-
-  &:disabled {
-    cursor: not-allowed;
-  }
-`;
-
-export const InputArrowButtonDown = styled.button`
-  flex: 1;
-  min-width: auto;
-  padding: 0;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &::before {
-    content: '';
-    display: block;
-    width: 0;
-    height: 0;
-    border-left: 0.25rem solid transparent;
-    border-right: 0.25rem solid transparent;
-    border-top: 0.28rem solid ${colorPrimary};
-    margin: auto;
-    transition: border-top-color 120ms ease;
-  }
-
-  &:hover::before {
-    opacity: 1;
-  }
-
-  &:disabled {
-    cursor: not-allowed;
-  }
-`;
+export { InputArrowButton, InputArrowButtonDown };
 
 export const ControlsRow = styled.div`
   display: flex;
