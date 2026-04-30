@@ -1012,15 +1012,29 @@ class LearningDashboardActor(
     )
   }
 
+  private def firstSessionStartedAfter(user: User, timestamp: Long): Option[Long] = {
+    user.intIds.valuesIterator
+      .flatMap(_.sessions.iterator)
+      .filter(_.registeredOn > timestamp)
+      .map(_.registeredOn)
+      .toVector
+      .sorted
+      .headOption
+  }
+
   private def findNextRegisteredUserAfterDisconnection(meeting: Meeting, user: User): Option[User] = {
     if(user.lastUserDisconnectionOn == null || userHasActiveSession(user)) {
       None
     } else {
-      meeting.users.values.filter(candidate => {
-        candidate.userKey != user.userKey &&
-          candidate.extId == user.extId &&
-          candidate.registeredInLadOn > user.lastUserDisconnectionOn
-      }).toVector.sortBy(_.registeredInLadOn).headOption
+      val disconnectionOn = user.lastUserDisconnectionOn.longValue()
+
+      meeting.users.values.flatMap(candidate => {
+        firstSessionStartedAfter(candidate, disconnectionOn)
+          .filter(_ => candidate.userKey != user.userKey && candidate.extId == user.extId)
+          .map(sessionStartedOn => (candidate, sessionStartedOn))
+      }).toVector.sortBy {
+        case (candidate, sessionStartedOn) => (sessionStartedOn, candidate.registeredInLadOn)
+      }.headOption.map(_._1)
     }
   }
 
