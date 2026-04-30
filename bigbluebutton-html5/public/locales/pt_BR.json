@@ -58,7 +58,7 @@
     "app.chat.toolbar.pin": "Pin",
     "app.chat.toolbar.pin.confirmationTitle": "Pin message",
     "app.chat.toolbar.pin.confirmationDescription": "Fixar esta mensagem a manterá no topo da conversa para que todos os usuários possam vê-la. Tem certeza de que deseja fixar esta mensagem?",
-    "app.chat.toolbar.pin.confirmationQuestion": "Do you want to pin this message?",
+    "app.chat.toolbar.pin.confirmationQuestion": "Você quer fixar esta mensagem?",
     "app.chat.toolbar.pin.replaceConfirmationTitle": "Replace pinned message",
     "app.chat.toolbar.pin.replaceConfirmationDescription": "It will replace the previous pinned message. Confirm?",
     "app.chat.toolbar.pin.replaceConfirmButton": "Replace",
