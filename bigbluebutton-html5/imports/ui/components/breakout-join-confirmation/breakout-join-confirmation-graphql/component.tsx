@@ -126,7 +126,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
       ({ breakoutRoomMeetingId }) => breakoutRoomMeetingId === value,
     );
     if (!selectedBreakout?.joinURL) {
-      requestJoinURL(value); // pré-busca silenciosa; não bloqueia o select
+      requestJoinURL(value);
     }
   };
 
@@ -144,13 +144,13 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   }, [callHandleInviteDismissedAt, currentInvitationKey]);
 
   const handleJoinBreakoutConfirmation = useCallback(() => {
-    stopMediaOnMainRoom(presenter);
-
     const breakout = freeJoin
       ? breakouts.find(({ breakoutRoomMeetingId }) => breakoutRoomMeetingId === selectValue)
       : breakouts.find((br) => br.showInvitation || br.isLastAssignedRoom) || breakouts[0];
 
     if (!breakout) return;
+
+    stopMediaOnMainRoom(presenter);
 
     if (!breakout.joinURL) {
       requestJoinURL(breakout.breakoutRoomMeetingId);
@@ -185,7 +185,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
           value={selectValue}
           onChange={handleSelectChange}
           disabled={waiting}
-          inputProps={{ 'data-test': 'selectBreakoutRoomBtn' }}
+          SelectDisplayProps={{ 'data-test': 'selectBreakoutRoomBtn' } as React.HTMLAttributes<HTMLDivElement>}
         >
           {[...breakouts].sort((a, b) => a.sequence - b.sequence).map(({
             shortName, breakoutRoomMeetingId, isDefaultName, sequence,

@@ -451,14 +451,14 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                           dataTest: breakout.isUserCurrentlyInRoom ? 'alreadyConnected' : `askToJoinRoom${breakout.sequence}`,
                           onClick: () => handleEnterRoom(breakout),
                         },
-                        ...(!AudioManager.isUsingLiveKit() ? [{
+                        ...(AudioManager.isUsingLiveKit() ? [] : [{
                           key: `listen-${breakout.breakoutRoomMeetingId}`,
                           label: isListening
                             ? intl.formatMessage(intlMessages.stopListeningToRoom)
                             : intl.formatMessage(intlMessages.listenToRoom),
                           dataTest: 'listenToBreakoutRoomButton',
                           onClick: () => handleListenToRoom(breakout),
-                        }] : []),
+                        }]),
                       ]}
                       opts={{
                         id: `breakout-room-options-${breakout.breakoutRoomMeetingId}`,

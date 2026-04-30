@@ -29,6 +29,8 @@ import {
   InputArrowButtonDown,
 } from '../../breakout-room/running-room/styles';
 
+export { InputArrowButton, InputArrowButtonDown } from '../../breakout-room/running-room/styles';
+
 export const PanelContent = styled(BasePanelContent)`
   display: flex;
   flex-direction: column;
@@ -148,8 +150,6 @@ export const InputArrows = styled.div<{ $selected?: boolean }>`
   border-radius: ${borderRadiusRounded};
   transition: all 150ms ease;
 `;
-
-export { InputArrowButton, InputArrowButtonDown };
 
 export const ControlsRow = styled.div`
   display: flex;

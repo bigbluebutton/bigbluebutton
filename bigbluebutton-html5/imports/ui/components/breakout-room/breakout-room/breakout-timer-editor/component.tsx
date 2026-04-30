@@ -219,11 +219,13 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
               type="button"
               onClick={() => { setSelectedTimerField('m'); adjustTime(60); }}
               aria-label={intl.formatMessage(intlMessages.incrementMinutes, { amount: 1 })}
+              data-test="increaseBreakoutTimeButton"
             />
             <Styled.InputArrowButtonDown
               type="button"
               onClick={() => { setSelectedTimerField('m'); adjustTime(-60); }}
               aria-label={intl.formatMessage(intlMessages.decrementMinutes, { amount: 1 })}
+              data-test="decreaseBreakoutTimeButton"
             />
           </Styled.InputArrows>
           <Styled.TimeUnitLabel>
