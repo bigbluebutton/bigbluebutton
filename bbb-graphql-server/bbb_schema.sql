@@ -1325,9 +1325,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER "update_chatUser_clear_lastTypingAt_trigger" AFTER INSERT ON chat_message FOR EACH ROW
+CREATE TRIGGER "update_chatUser_clear_lastTypingAt_trigger" AFTER INSERT OR UPDATE ON chat_message FOR EACH ROW
 EXECUTE FUNCTION "update_chatUser_clear_lastTypingAt_trigger_func"();
-
 
 
 CREATE UNLOGGED TABLE "chat_message_history" (
