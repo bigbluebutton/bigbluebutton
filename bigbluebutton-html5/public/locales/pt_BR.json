@@ -72,7 +72,7 @@
     "app.chat.pinnedMessages.confirmModal.confirm": "Desfixar",
     "app.chat.pinnedMessages.confirmModal.cancel": "Cancelar",
     "app.chat.pinnedMessages.tooltipUnpin": "Desfixar Mensagem",
-    "app.chat.pinnedMessages.tooltipExpand": "Expand pinned message",
+    "app.chat.pinnedMessages.tooltipExpand": "Expandir mensagem fixada",
     "app.chat.pinnedMessages.tooltipCollapse": "Collapse pinned message",
     "app.chat.toolbar.delete.cancelLabel": "Cancelar",
     "app.chat.toolbar.delete.confirmationTitle": "Tem certeza?",
