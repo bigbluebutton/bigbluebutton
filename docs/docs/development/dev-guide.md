@@ -128,7 +128,7 @@ It includes all you need to be able to run a local BigBlueButton development env
 First, you need to install the core development tools.
 
 ```bash
-sudo apt-get install git-core openjdk-17-jdk-headless
+sudo apt-get install git-core openjdk-21-jdk-headless
 ```
 
 With the JDK installed, you need to set the JAVA_HOME variable. Edit `~/.profile` (here we are using vim to edit the file)
@@ -140,7 +140,7 @@ vi ~/.profile
 Add the following line at the end of the file
 
 ```bash
-export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
 ```
 
 Reload your profile (this will happen automatically when you next login, but we'll do it explicitly here to load the new environment variable).
@@ -153,7 +153,7 @@ Do a quick test to ensure JAVA_HOME is set.
 
 ```bash
 $ echo $JAVA_HOME
-/usr/lib/jvm/java-17-openjdk-amd64
+/usr/lib/jvm/java-21-openjdk-amd64
 ```
 
 In the next step, you need to install a number of tools using sdkman.
@@ -566,15 +566,15 @@ The above will re-sync your clock.
 
 ### Resolving Conflicts Between Java Versions
 
-In situations where multiple versions of Java are installed, BBB components may encounter build errors. One such error message could state, for example, that `'17' is not a valid choice for '-release'`. This specific error arises when the `bbb-common-message` component requires Java 17 for its operation, but the `sbt` build tool is using Java 11 instead.
+In situations where multiple versions of Java are installed, BBB components may encounter build errors. One such error message could state, for example, that `'21' is not a valid choice for '-release'`. This specific error arises when the `bbb-common-message` component requires Java 21 for its operation, but the `sbt` build tool is using an older version instead.
 
-To address this, you need to set the appropriate Java version. The following command will set Java 17 as the active version:
+To address this, you need to set the appropriate Java version. The following command will set Java 21 as the active version:
 
 ```bash
-update-java-alternatives -s java-1.17.0-openjdk-amd64
+update-java-alternatives -s java-1.21.0-openjdk-amd64
 ```
 
-By executing this command, the system is instructed to use Java 17, i.e., the version with which BBB is currently compatible.
+By executing this command, the system is instructed to use Java 21, i.e., the version with which BBB is currently compatible.
 
 ## Set up HTTPS
 
