@@ -1554,7 +1554,7 @@
     "app.createBreakoutRoom.timerSeconds": "Segundos",
     "app.createBreakoutRoom.decreaseBreakoutTime": "Reduzir o tempo das Salas de Apoio",
     "app.createBreakoutRoom.increaseBreakoutTime": "Aumentar o tempo das Salas de Apoio",
-    "app.createBreakoutRoom.decreaseRooms": "Decrease number of rooms",
+    "app.createBreakoutRoom.decreaseRooms": "Aumentar o número de salas",
     "app.createBreakoutRoom.increaseRooms": "Increase number of rooms",
     "app.createBreakoutRoom.roomOptions": "Room options",
     "app.createBreakoutRoom.unassignedUsers": "Usuários não atribuídos",
