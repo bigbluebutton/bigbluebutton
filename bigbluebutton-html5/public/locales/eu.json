@@ -772,7 +772,7 @@
     "app.statusNotifier.raisedHandDescOneUser": "{userNames} esku altxatuta",
     "app.statusNotifier.and": "eta",
     "app.switch.onLabel": "PIZTU",
-    "app.switch.offLabel": "ITZALI",
+    "app.switch.offLabel": "EZ",
     "app.talkingIndicator.ariaMuteDesc": "Aukeratu erabiltzailea isilarazteko",
     "app.talkingIndicator.isTalking": "{userName} hitz egiten ari da",
     "app.talkingIndicator.moreThanMaxIndicatorsTalking": "{userCount}+ hitz egiten ari dira",
