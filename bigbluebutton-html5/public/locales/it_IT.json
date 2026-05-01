@@ -68,7 +68,7 @@
     "app.chat.pinnedMessages.sentAt": "inviato a",
     "app.chat.pinnedMessages.goToMessage": "Vai al messaggio",
     "app.chat.pinnedMessages.confirmModal.unpinTitle": "Rimuovi messaggio appuntato",
-    "app.chat.pinnedMessages.confirmModal.unpinMessage": "Are you sure you want to unpin this message?",
+    "app.chat.pinnedMessages.confirmModal.unpinMessage": "Sei sicuro di voler rimuovere il messaggio appuntato?",
     "app.chat.pinnedMessages.confirmModal.confirm": "Unpin",
     "app.chat.pinnedMessages.confirmModal.cancel": "Annulla",
     "app.chat.pinnedMessages.tooltipUnpin": "Unpin message",
