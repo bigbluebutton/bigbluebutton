@@ -64,7 +64,7 @@
     "app.chat.toolbar.pin.replaceConfirmButton": "Sostituisci",
     "app.chat.pinnedMessages.title": "Messaggi appuntati",
     "app.chat.pinnedMessages.pinnedBy": "Appuntato da",
-    "app.chat.pinnedMessages.unpin": "Unpin message",
+    "app.chat.pinnedMessages.unpin": "Rimuovi messaggio appuntato",
     "app.chat.pinnedMessages.sentAt": "inviato a",
     "app.chat.pinnedMessages.goToMessage": "Vai al messaggio",
     "app.chat.pinnedMessages.confirmModal.unpinTitle": "Unpin message",
