@@ -60,7 +60,7 @@
     "app.chat.toolbar.pin.confirmationDescription": "Appunta questo messaggio, rimarrà in alto nella chat in modo che sia visibile a tutti gli utenti. Vuoi davvero appuntare questo messaggio?",
     "app.chat.toolbar.pin.confirmationQuestion": " Vuoi appuntare questo messaggio?",
     "app.chat.toolbar.pin.replaceConfirmationTitle": "Sostituisci messaggio appuntato",
-    "app.chat.toolbar.pin.replaceConfirmationDescription": "It will replace the previous pinned message. Confirm?",
+    "app.chat.toolbar.pin.replaceConfirmationDescription": " Sostituirà il messaggio precedente appuntato. Confermare?",
     "app.chat.toolbar.pin.replaceConfirmButton": "Replace",
     "app.chat.pinnedMessages.title": "Pinned messages",
     "app.chat.pinnedMessages.pinnedBy": "Pinned by",
