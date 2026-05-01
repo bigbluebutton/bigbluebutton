@@ -55,7 +55,7 @@
     "app.chat.toolbar.edit.editing": "Modifica del messaggio",
     "app.chat.toolbar.edit.cancel": "Premere {cancelKey} per annullare.",
     "app.chat.toolbar.edit.edited": "Modificato",
-    "app.chat.toolbar.pin": "Pin",
+    "app.chat.toolbar.pin": "Appunta",
     "app.chat.toolbar.pin.confirmationTitle": "Pin message",
     "app.chat.toolbar.pin.confirmationDescription": "Appunta questo messaggio, rimarrà in alto nella chat in modo che sia visibile a tutti gli utenti. Vuoi davvero appuntare questo messaggio?",
     "app.chat.toolbar.pin.confirmationQuestion": "Do you want to pin this message?",
