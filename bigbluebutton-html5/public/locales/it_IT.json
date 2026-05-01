@@ -57,7 +57,7 @@
     "app.chat.toolbar.edit.edited": "Modificato",
     "app.chat.toolbar.pin": "Pin",
     "app.chat.toolbar.pin.confirmationTitle": "Pin message",
-    "app.chat.toolbar.pin.confirmationDescription": "Pinning this message will keep it at the top of the chat for all users to see. Are you sure you want to pin this message?",
+    "app.chat.toolbar.pin.confirmationDescription": "Appunta questo messaggio, rimarrà in alto nella chat in modo che sia visibile a tutti gli utenti. Vuoi davvero appuntare questo messaggio?",
     "app.chat.toolbar.pin.confirmationQuestion": "Do you want to pin this message?",
     "app.chat.toolbar.pin.replaceConfirmationTitle": "Replace pinned message",
     "app.chat.toolbar.pin.replaceConfirmationDescription": "It will replace the previous pinned message. Confirm?",
