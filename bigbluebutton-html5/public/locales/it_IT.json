@@ -61,7 +61,7 @@
     "app.chat.toolbar.pin.confirmationQuestion": " Vuoi appuntare questo messaggio?",
     "app.chat.toolbar.pin.replaceConfirmationTitle": "Sostituisci messaggio appuntato",
     "app.chat.toolbar.pin.replaceConfirmationDescription": " Sostituirà il messaggio precedente appuntato. Confermare?",
-    "app.chat.toolbar.pin.replaceConfirmButton": "Replace",
+    "app.chat.toolbar.pin.replaceConfirmButton": "Sostituisci",
     "app.chat.pinnedMessages.title": "Pinned messages",
     "app.chat.pinnedMessages.pinnedBy": "Pinned by",
     "app.chat.pinnedMessages.unpin": "Unpin message",
