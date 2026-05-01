@@ -71,7 +71,7 @@
     "app.chat.pinnedMessages.confirmModal.unpinMessage": "Sei sicuro di voler rimuovere il messaggio appuntato?",
     "app.chat.pinnedMessages.confirmModal.confirm": "Rimuovere",
     "app.chat.pinnedMessages.confirmModal.cancel": "Annulla",
-    "app.chat.pinnedMessages.tooltipUnpin": "Unpin message",
+    "app.chat.pinnedMessages.tooltipUnpin": "Rimuovi messaggio appuntato",
     "app.chat.pinnedMessages.tooltipExpand": "Expand pinned message",
     "app.chat.pinnedMessages.tooltipCollapse": "Collapse pinned message",
     "app.chat.toolbar.delete.cancelLabel": "Annulla",
