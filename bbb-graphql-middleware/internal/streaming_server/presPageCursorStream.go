@@ -23,8 +23,8 @@ func HandleSendCursorPositionEvtMsg(receivedMessage common.RedisMessage, browser
 	item := map[string]any{
 		"xPercent":   xPercent,
 		"yPercent":   yPercent,
-		"userId":     receivedMessage.Core.Header.UserId,
 		"laserType":  laserType,
+		"userId":     receivedMessage.Core.Header.UserId,
 		"__typename": "pres_page_cursor",
 	}
 
