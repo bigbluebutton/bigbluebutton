@@ -655,6 +655,8 @@ export interface LiveKitSettings {
   logLevel?: LogLevel
   roomOptions?: Partial<InternalRoomOptions>
   reconnectOnFatalFailures?: boolean
+  forceRelay?: boolean
+  forceRelayOnFirefox?: boolean
   audio?: LiveKitAudioSettings
   camera?: LiveKitCameraSettings
   screenshare?: LiveKitScreenShareSettings

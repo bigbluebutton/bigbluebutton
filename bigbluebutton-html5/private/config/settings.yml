@@ -960,6 +960,10 @@ public:
       # reconnectOnFatalFailures: whether to trigger LK room reconnections when
       # fatal errors occur (e.g.: unrecoverable publish timeouts).
       reconnectOnFatalFailures: true
+      # livekit.forceRelay: forces TURN/relay usage on all UAs when using LK.
+      forceRelay: false
+      # livekit.forceRelayOnFirefox: forces TURN/relay usage on Firefox when using LK.
+      forceRelayOnFirefox: false
       roomOptions:
         adaptiveStream: true
         dynacast: true
