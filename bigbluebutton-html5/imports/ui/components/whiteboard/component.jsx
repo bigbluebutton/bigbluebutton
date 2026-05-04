@@ -2383,16 +2383,18 @@ const Whiteboard = React.memo((props) => {
     if (isPresenter && !isMobile) return;
     //if (isMultiUserActive) return;
 
+    const targetDoc = isPresentationDetached && popupWindow?.document ? popupWindow.document : document;
+
     //Comment out below if we do not want to show laser when a presenter uses drawing tools on mobile devices.
     // Note a problem that the laser remains on the screen after switching to drawing tools.
     //const tool = tlEditorRef.current?.getCurrentToolId?.();
     //if (isPresenter && isPhone && tool !== 'hand') return;
 
-    const tlContainer = document.querySelector('.tl-container');
+    const tlContainer = targetDoc.querySelector('.tl-container');
 
     let layer = laserLayerRef.current;
-    if (!layer || !document.contains(layer)) {
-      layer = document.querySelector('.tl-overlays > .tl-html-layer');
+    if (!layer || !targetDoc.contains(layer)) {
+      layer = targetDoc.querySelector('.tl-overlays > .tl-html-layer');
       laserLayerRef.current = layer;
     }
 
@@ -2424,7 +2426,7 @@ const Whiteboard = React.memo((props) => {
     if (!laserDef) return; // meaning that hand tool is selected, so we move forward to draw laser pointer
 
     if (!laserEl && layer) {
-      laserEl = createLaserElement(laserSvgs[laserKey], document, laserDef);
+      laserEl = createLaserElement(laserSvgs[laserKey], targetDoc, laserDef);
       layer.appendChild(laserEl);
       laserElRef.current = laserEl;
     }
