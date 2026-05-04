@@ -37,6 +37,56 @@ export const useStopMediaOnMainRoom = () => {
   return stop;
 };
 
+export const useDragAndDrop = (
+  moveUser: (userId: string, from: number, to: number) => void,
+  setSelectedId: (id: string) => void,
+  afterDrop?: () => void,
+) => {
+  const dragStart = useCallback((ev: React.DragEvent<HTMLElement>) => {
+    const el = ev.target as HTMLElement;
+    ev.dataTransfer.setData('text', el.id);
+    setSelectedId(el.id);
+    const ghost = document.createElement('div');
+    ghost.textContent = el.textContent || '';
+    ghost.style.cssText = 'position:absolute;top:-9999px;padding:4px 8px;background:#fff;border:1px solid #ccc;border-radius:4px;font-size:0.85rem;white-space:nowrap;color:#000;';
+    document.body.appendChild(ghost);
+    ev.dataTransfer.setDragImage(ghost, 0, 0);
+    requestAnimationFrame(() => ghost.remove());
+  }, [setSelectedId]);
+
+  const dragEnd = useCallback(() => {
+    setSelectedId('');
+  }, [setSelectedId]);
+
+  const allowDrop = useCallback((ev: React.DragEvent) => {
+    ev.preventDefault();
+  }, []);
+
+  const drop = useCallback((roomNumber: number) => (ev: React.DragEvent) => {
+    ev.preventDefault();
+    const data = ev.dataTransfer.getData('text');
+    const separatorIndex = data.lastIndexOf('-');
+    if (separatorIndex <= 0) {
+      setSelectedId('');
+      return;
+    }
+    const userId = data.substring(0, separatorIndex);
+    const from = data.substring(separatorIndex + 1);
+    if (!userId || Number.isNaN(Number(from))) {
+      setSelectedId('');
+      return;
+    }
+    moveUser(userId, Number(from), roomNumber);
+    setSelectedId('');
+    if (afterDrop) afterDrop();
+  }, [moveUser, setSelectedId, afterDrop]);
+
+  return {
+    dragStart, dragEnd, allowDrop, drop,
+  };
+};
+
 export default {
   useStopMediaOnMainRoom,
+  useDragAndDrop,
 };
