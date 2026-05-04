@@ -1,4 +1,4 @@
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import { styled as materialStyled } from '@mui/material/styles';
 import { Switch } from '@mui/material';
 import Select from '@mui/material/Select';
@@ -12,10 +12,8 @@ import {
   colorText,
   btnPrimaryBg,
   colorDanger,
-  colorBlueLighter,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeSmall, fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
-import { borderRadiusRounded } from '/imports/ui/stylesheets/styled-components/general';
 import {
   PanelContent as BasePanelContent,
   HeaderContainer as BaseHeaderContainer,
@@ -23,13 +21,23 @@ import {
 } from '/imports/ui/components/sidebar-content/styles';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import Button from '/imports/ui/components/common/button/component';
-
 import {
+  TimeUnitContainer,
+  TimerInput,
+  TimeUnitLabel,
+  InputArrows,
   InputArrowButton,
   InputArrowButtonDown,
 } from '../../breakout-room/running-room/styles';
 
-export { InputArrowButton, InputArrowButtonDown } from '../../breakout-room/running-room/styles';
+export {
+  TimeUnitContainer,
+  TimerInput,
+  TimeUnitLabel,
+  InputArrows,
+  InputArrowButton,
+  InputArrowButtonDown,
+} from '../../breakout-room/running-room/styles';
 
 export const PanelContent = styled(BasePanelContent)`
   display: flex;
@@ -74,81 +82,6 @@ export const TimeInputGroup = styled.div`
   align-items: center;
   justify-content: center;
   gap: 1rem;
-`;
-
-export const TimeUnitContainer = styled.div`
-  position: relative;
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
-`;
-
-export const TimerInput = styled.input<{ $selected?: boolean }>`
-  background: none;
-  border: none;
-  background-color: ${({ $selected }) => ($selected
-    ? `color-mix(in srgb, ${colorPrimary} 15%, transparent)`
-    : `color-mix(in srgb, ${colorBlueLighter} 20%, transparent)`)};
-  color: ${colorPrimary};
-  font-family: inherit;
-  font-size: 2rem;
-  line-height: 1.2;
-  font-weight: 600;
-  border-radius: ${borderRadiusRounded};
-  font-variant-numeric: tabular-nums;
-  text-align: center;
-  width: 5rem;
-  height: 2.8rem;
-  padding: 0.4rem 1rem 0.2rem 0;
-  -moz-appearance: textfield;
-  outline: none;
-  transition: all 150ms ease;
-
-  &::-webkit-outer-spin-button,
-  &::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
-  &:focus {
-    outline: none;
-    background-color: color-mix(in srgb, ${colorPrimary} 15%, transparent);
-    box-shadow: 0 0 0 0.125rem ${colorPrimary};
-  }
-
-  ${({ $selected }) => $selected && css`
-    background-color: color-mix(in srgb, ${colorPrimary} 15%, transparent);
-    box-shadow: 0 0 0 0.125rem ${colorPrimary};
-  `}
-`;
-
-export const TimeUnitLabel = styled.span`
-  font-size: 0.80rem;
-  color: ${colorGray};
-  text-transform: capitalize;
-`;
-
-export const InputArrows = styled.div<{ $selected?: boolean }>`
-  position: absolute;
-  right: 0;
-  padding-top: 0.2rem;
-  padding-bottom: 0.2rem;
-  padding-right: 0.1rem;
-  height: 2.8rem;
-  width: 1.6rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: stretch;
-  align-items: stretch;
-  opacity: 0.8;
-  background: none;
-  border: none;
-  background-color: ${({ $selected }) => ($selected
-    ? `color-mix(in srgb, ${colorPrimary} 15%, transparent)`
-    : `color-mix(in srgb, ${colorBlueLighter} 20%, transparent)`)};
-  border-radius: ${borderRadiusRounded};
-  transition: all 150ms ease;
 `;
 
 export const ControlsRow = styled.div`

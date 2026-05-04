@@ -139,6 +139,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
 
   const handleClose = useCallback(() => {
     setIsOpen(false);
+    setWaiting(false);
     setDismissedInvitationKey(currentInvitationKey);
     callHandleInviteDismissedAt();
   }, [callHandleInviteDismissedAt, currentInvitationKey]);
@@ -149,8 +150,6 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
       : breakouts.find((br) => br.showInvitation || br.isLastAssignedRoom) || breakouts[0];
 
     if (!breakout) return;
-
-    stopMediaOnMainRoom(presenter);
 
     if (!breakout.joinURL) {
       requestJoinURL(breakout.breakoutRoomMeetingId);
@@ -165,7 +164,10 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
       }, 'User selected breakout room to join');
     }
     const win = window.open(breakout.joinURL, '_blank');
-    if (win) setBreakoutWindowRef(win);
+    if (win) {
+      stopMediaOnMainRoom(presenter);
+      setBreakoutWindowRef(win);
+    }
     setIsOpen(false);
     setDismissedInvitationKey(currentInvitationKey);
   }, [breakouts, selectValue, presenter, stopMediaOnMainRoom, freeJoin, currentInvitationKey]);
@@ -207,6 +209,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   }, [breakouts, waiting, selectValue]);
 
   useEffect(() => {
+    if (!isOpen) return;
     if (waiting) {
       const breakout = breakouts.find(
         ({ breakoutRoomMeetingId }) => breakoutRoomMeetingId === selectValue,
@@ -220,12 +223,15 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
           }, 'User selected breakout room to join');
         }
         const win = window.open(breakout.joinURL, '_blank');
-        if (win) setBreakoutWindowRef(win);
+        if (win) {
+          stopMediaOnMainRoom(presenter);
+          setBreakoutWindowRef(win);
+        }
         setIsOpen(false);
         setDismissedInvitationKey(currentInvitationKey);
       }
     }
-  }, [breakouts, waiting]);
+  }, [breakouts, waiting, isOpen]);
 
   useEffect(() => {
     if (breakouts?.length > 0 && !currentUserJoined && !isDismissed) {
