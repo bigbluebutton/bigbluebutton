@@ -1974,7 +1974,7 @@ const Whiteboard = React.memo((props) => {
     ])
   );
 
-  const createLaserElement = (svgString, targetDoc, def) => {
+  const createLaserElement = (svgString, targetDoc) => {
     const wrapper = targetDoc.createElement('div');
     wrapper.className = 'custom-laser';
     wrapper.innerHTML = svgString;
@@ -2427,7 +2427,7 @@ const Whiteboard = React.memo((props) => {
     if (!laserDef) return; // meaning that hand tool is selected, so we move forward to draw laser pointer
 
     if (!laserEl && layer) {
-      laserEl = createLaserElement(laserSvgs[laserKey], targetDoc, laserDef);
+      laserEl = createLaserElement(laserSvgs[laserKey], targetDoc);
       layer.appendChild(laserEl);
       laserElRef.current = laserEl;
     }
