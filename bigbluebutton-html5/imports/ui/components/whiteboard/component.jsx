@@ -2374,7 +2374,8 @@ const Whiteboard = React.memo((props) => {
 
   const removeViewerLaser = () => {
     laserElRef.current = null;
-    const lasers = document.querySelectorAll('.bbb-laser-pointer');
+    const targetDoc = isPresentationDetached && popupWindow?.document ? popupWindow.document : document;
+    const lasers = targetDoc.querySelectorAll('.bbb-laser-pointer');
     lasers.forEach(el => el.remove());
   };
 
