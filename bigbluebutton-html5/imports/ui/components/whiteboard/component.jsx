@@ -2194,33 +2194,63 @@ const Whiteboard = React.memo((props) => {
       if (!presentationWrapper.contains(e.target)) return;
 
       e.preventDefault();
+      e.stopPropagation();
 
       setLaserMenuPos({ x: e.clientX, y: e.clientY });
       setLaserMenuVisible(true);
     };
 
-    targetDoc.addEventListener('contextmenu', handleContextMenu);
+    let timer = null;
+
+    const handleTouchStart = (e) => {
+      const tool = tlEditorRef.current?.getCurrentToolId?.();
+     if (tool !== 'hand') return;
+      if (!presentationWrapper.contains(e.target)) return;
+
+      const touch = e.touches[0];
+
+      timer = setTimeout(() => {
+        setLaserMenuPos({
+          x: touch.clientX,
+          y: touch.clientY,
+        });
+        setLaserMenuVisible(true);
+      }, 500);
+    };
+
+    const cancel = () => {
+      clearTimeout(timer);
+    };
+
+    presentationWrapper.addEventListener('contextmenu', handleContextMenu, true);
+    presentationWrapper.addEventListener('touchstart', handleTouchStart, true);
+    presentationWrapper.addEventListener('touchend', cancel, true);
+    presentationWrapper.addEventListener('touchmove', cancel, true);
 
     return () => {
-      targetDoc.removeEventListener('contextmenu', handleContextMenu);
+      presentationWrapper.removeEventListener('contextmenu', handleContextMenu, true);
+      presentationWrapper.removeEventListener('touchstart', handleTouchStart, true);
+      presentationWrapper.removeEventListener('touchend', cancel, true);
+      presentationWrapper.removeEventListener('touchmove', cancel, true);
     };
   }, [isPresenter]);
 
   React.useEffect(() => {
     if (!laserMenuVisible) return;
+    
     const targetDoc = document;
+    const presentationWrapper = targetDoc.querySelector('#presentationInnerWrapper');
+    if (!presentationWrapper) return;
 
     const handleOutsideClick = (e) => {
       if (laserMenuRef.current?.contains(e.target)) return;
       setLaserMenuVisible(false);
     };
 
-    targetDoc.addEventListener('mousedown', handleOutsideClick);
-    targetDoc.addEventListener('touchstart', handleOutsideClick);
+    presentationWrapper.addEventListener('pointerdown', handleOutsideClick, true);
 
     return () => {
-      targetDoc.removeEventListener('mousedown', handleOutsideClick);
-      targetDoc.removeEventListener('touchstart', handleOutsideClick);
+      presentationWrapper.removeEventListener('pointerdown', handleOutsideClick, true);
     };
   }, [laserMenuVisible]);
 
@@ -2347,7 +2377,7 @@ const Whiteboard = React.memo((props) => {
 
   // Show viewers Laser SVG
   React.useEffect(() => {
-    if (isPresenter) return;
+    if (isPresenter && !isPhone) return;
     //if (isMultiUserActive) return;
 
     const tlContainer = document.querySelector('.tl-container');
@@ -2361,6 +2391,8 @@ const Whiteboard = React.memo((props) => {
     let laserEl = laserElRef.current;
 
     const presenterCursor = otherCursors.find(c => c.presenter);
+    if (!presenterCursor) return;
+    
     const laserKey = presenterCursor?.laserType;
     const laserDef = laserDefs[laserKey];
 
@@ -2380,7 +2412,8 @@ const Whiteboard = React.memo((props) => {
       }
     }
 
-    if (!laserDef) return; // hand tool, so laser pointer is drawn
+    if (!layer) return;
+    if (!laserDef) return; // meaning that hand tool is selected, so we move forward to draw laser pointer
 
     if (!laserEl && layer) {
       laserEl = createLaserElement(laserSvgs[laserKey], document, laserDef);
@@ -2388,12 +2421,13 @@ const Whiteboard = React.memo((props) => {
       laserElRef.current = laserEl;
     }
 
-    // Place the laser SVG at the position of redPointer, which is invisible.
+    // Now we place the laser SVG at the position of redPointer, which is invisible.
+    
     //const cursorEl = document.querySelector('.tl-collaborator__cursor');
     //if (!cursorEl) return;
 
     //const zoom = parseFloat(getComputedStyle(tlContainer).getPropertyValue('--tl-zoom')) || 1;
-    const { z: zoom } = tlEditorRef.current.getCamera();
+    const { z: zoom } = tlEditorRef.current ? tlEditorRef.current.getCamera() : 1;
 
     //const transform = cursorEl.style.transform;
     //if (!transform) return;
