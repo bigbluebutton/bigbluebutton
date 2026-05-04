@@ -434,7 +434,7 @@ const WhiteboardContainer = (props) => {
 
   const bgShape = [];
 
-  const { isIphone, isPhone } = deviceInfo;
+  const { isIphone, isPhone, isMobile } = deviceInfo;
 
   const assetId = AssetRecordType.createId(curPageNum);
   const assets = [{
@@ -536,6 +536,7 @@ const WhiteboardContainer = (props) => {
           toggleToolsAnimations,
           isIphone,
           isPhone,
+          isMobile,
           currentPresentationPage,
           numberOfPages: currentPresentationPage?.totalPages,
           presentationId,
