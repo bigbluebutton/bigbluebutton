@@ -2,7 +2,7 @@ import styled, { createGlobalStyle } from 'styled-components';
 import { colorOffWhite, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 
 const TldrawV2GlobalStyle = createGlobalStyle`
-  ${({ isPresenter, hasWBAccess }) => (!isPresenter && hasWBAccess) && `
+  ${({ isPresenter, hasWBAccess, viewerCanPan }) => (!isPresenter && hasWBAccess && !viewerCanPan) && `
     [data-testid="tools.hand"] {
       display: none !important;
     }

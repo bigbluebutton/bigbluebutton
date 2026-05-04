@@ -173,6 +173,14 @@ const Whiteboard = React.memo((props) => {
     pointerDiameter = 5,
   } = props;
 
+  const allowInfiniteWhiteboardPanForViewers = window.meetingClientSettings?.public?.whiteboard?.allowInfiniteWhiteboardPanForViewers;
+
+  const viewerCanPan = allowInfiniteWhiteboardPanForViewers
+    && isInfiniteWhiteboard
+    && !isPresenter
+    && !isModerator
+    && hasWBAccess;
+
   clearTldrawCache();
 
   const [isMounting, setIsMounting] = React.useState(true);
@@ -278,9 +286,15 @@ const Whiteboard = React.memo((props) => {
       if (shouldBypassFiltering) {
         return toolbarItems;
       }
+
       // PEN-ONLY for everyone who's NOT mod or presenter
       if (bbbMultiUserPenOnly && !isModerator && !isPresenter) {
-        return toolbarItems.filter((item) => item.id === 'draw');
+        const items = toolbarItems.filter((item) => item.id === 'draw');
+        if (viewerCanPan) {
+          const handItem = toolbarItems.find((item) => item.id === 'hand');
+          if (handItem) items.unshift(handItem);
+        }
+        return items;
       }
 
       // PRESENTER-TOOLS mode for presenters
@@ -290,7 +304,12 @@ const Whiteboard = React.memo((props) => {
 
       // MULTI-USER-TOOLS for anyone who's NOT a moderator
       if (bbbMultiUserTools.length >= 1 && !isModerator) {
-        return toolbarItems.filter((item) => bbbMultiUserTools.includes(item.id));
+        const items = toolbarItems.filter((item) => bbbMultiUserTools.includes(item.id));
+        if (viewerCanPan && !items.some((item) => item.id === 'hand')) {
+          const handItem = toolbarItems.find((item) => item.id === 'hand');
+          if (handItem) items.push(handItem);
+        }
+        return items;
       }
       // full toolbar
       return toolbarItems;
@@ -309,7 +328,7 @@ const Whiteboard = React.memo((props) => {
       };
       return acc;
     }, {}),
-  }), [intl, currentUser?.presenter, currentUser?.userId, isModerator]);
+  }), [intl, currentUser?.presenter, currentUser?.userId, isModerator, viewerCanPan]);
 
   const presenterChanged = usePrevious(isPresenter) !== isPresenter;
   const pageChanged = usePrevious(curPageId) !== curPageId;
@@ -448,6 +467,15 @@ const Whiteboard = React.memo((props) => {
       tlEditorRef?.current?.setCurrentTool('noop');
     }
   }, [isPresenter]);
+
+  React.useEffect(() => {
+    if (allowInfiniteWhiteboardPanForViewers
+      && !isPresenterRef.current
+      && !isModeratorRef.current
+      && hasWBAccessRef.current) {
+      tlEditorRef?.current?.setCurrentTool(isInfiniteWhiteboard ? 'hand' : 'noop');
+    }
+  }, [isInfiniteWhiteboard]);
 
   React.useEffect(() => {
     fitToWidthRef.current = fitToWidth;
@@ -674,7 +702,7 @@ const Whiteboard = React.memo((props) => {
       },
       e: () => tlEditorRef.current?.setCurrentTool('eraser'),
       h: () => {
-        if (isPresenterRef.current) {
+        if (isPresenterRef.current || viewerCanPan) {
           tlEditorRef.current?.setCurrentTool('hand');
         }
       },
@@ -2366,6 +2394,7 @@ const Whiteboard = React.memo((props) => {
           cursorType,
           pointerDiameter,
           hiddenGeoShapes,
+          viewerCanPan,
         }}
       />
     </div>
