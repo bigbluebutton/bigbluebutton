@@ -2380,6 +2380,11 @@ const Whiteboard = React.memo((props) => {
     if (isPresenter && !isPhone) return;
     //if (isMultiUserActive) return;
 
+    //Comment out below if we do not want to show laser when a presenter uses drawing tools on mobile devices.
+    // Note a problem that the laser remains on the screen after switching to drawing tools.
+    //const tool = tlEditorRef.current?.getCurrentToolId?.();
+    //if (isPresenter && isPhone && tool !== 'hand') return;
+
     const tlContainer = document.querySelector('.tl-container');
 
     let layer = laserLayerRef.current;
