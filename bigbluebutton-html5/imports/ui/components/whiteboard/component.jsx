@@ -167,6 +167,7 @@ const Whiteboard = React.memo((props) => {
     isInfiniteWhiteboard,
     whiteboardWriters,
     isPhone,
+    isMobile,
     setEditor,
     lockToolbarTools,
     layoutChanged,
@@ -2377,7 +2378,7 @@ const Whiteboard = React.memo((props) => {
 
   // Show viewers Laser SVG
   React.useEffect(() => {
-    if (isPresenter && !isPhone) return;
+    if (isPresenter && !isMobile) return;
     //if (isMultiUserActive) return;
 
     //Comment out below if we do not want to show laser when a presenter uses drawing tools on mobile devices.
