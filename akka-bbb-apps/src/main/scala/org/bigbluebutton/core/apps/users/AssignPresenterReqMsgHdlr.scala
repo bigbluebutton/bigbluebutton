@@ -126,12 +126,13 @@ object AssignPresenterActionHandler extends RightsManagementTrait {
       )
 
       if (announcePresenterChangeInChat) {
-        val assignedByUser = Users2x.findWithIntId(liveMeeting.users2x, assignedBy)
-        val assignedByName = assignedByUser.map(_.name).getOrElse("")
+        val assignedByName = Users2x.findWithIntId(liveMeeting.users2x, assignedBy).get match {
+          case u: UserState => u.name
+          case _            => ""
+        }
 
         val hideUserList = MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList
-        val assignedByIsViewer = assignedByUser.exists(_.role == Roles.VIEWER_ROLE)
-        val shouldSkip = hideUserList && (newPres.role == Roles.VIEWER_ROLE || assignedByIsViewer)
+        val shouldSkip = hideUserList && newPres.role == Roles.VIEWER_ROLE
 
         if (!shouldSkip) {
           val msgMeta = Map("assignedBy" -> assignedByName)
