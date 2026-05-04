@@ -28,7 +28,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     whiteboardId: input.whiteboardId,
     xPercent: input.xPercent,
     yPercent: input.yPercent,
-    laserType: input.laserType,
+    laserType: input.laserType ?? '',
   };
 
   return { eventName, routing, header, body };
