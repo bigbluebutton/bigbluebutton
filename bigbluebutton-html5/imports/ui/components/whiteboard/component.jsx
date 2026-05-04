@@ -2283,6 +2283,8 @@ const Whiteboard = React.memo((props) => {
     if (!isPresenter) return;
     const el = targetDoc.querySelector('.tl-container');
     if (!el) return;
+
+    removeViewerLaser();
     
     const laser = cursorLasers[laserMode];
     if (laser) {
