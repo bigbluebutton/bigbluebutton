@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { Select as SelectMui, type SelectProps } from '@mui/material';
 import {
   colorWhite,
   colorGrayLighter,
@@ -125,14 +126,20 @@ const SelectParent = styled.div`
   align-items: stretch;
 `;
 
-const Select = styled.select`
-  background-color: ${colorWhite};
+const Select = styled(SelectMui)<SelectProps>`
   width: 100%;
   margin: 0.75rem 0;
-  padding: 0.625rem;
-  border: 1px solid ${colorGrayLighter};
-  border-radius: 0.5rem;
-  font-size: 1rem;
+
+  .MuiOutlinedInput-notchedOutline {
+    border-color: ${colorGrayLighter};
+    border-radius: 0.5rem;
+  }
+
+  .MuiSelect-select {
+    padding: 0.625rem;
+    font-size: 1rem;
+    background-color: ${colorWhite};
+  }
 `;
 
 export default {

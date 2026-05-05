@@ -5,6 +5,7 @@ import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
 import Auth from '/imports/ui/services/auth';
 import { ChildComponentProps } from '../room-managment-state/types';
+import { useDragAndDrop } from '../../hooks';
 
 const intlMessages = defineMessages({
   unassignedUsers: {
@@ -57,43 +58,9 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
     }
   }, [numberOfRooms, resetRooms]);
 
-  const dragStart = (ev: React.DragEvent<HTMLDivElement>) => {
-    const el = ev.target as HTMLDivElement;
-    ev.dataTransfer.setData('text', el.id);
-    setSelectedId(el.id);
-    const ghost = document.createElement('div');
-    ghost.textContent = el.textContent || '';
-    ghost.style.cssText = 'position:absolute;top:-9999px;padding:4px 8px;background:#fff;border:1px solid #ccc;border-radius:4px;font-size:0.85rem;white-space:nowrap;';
-    document.body.appendChild(ghost);
-    ev.dataTransfer.setDragImage(ghost, 0, 0);
-    requestAnimationFrame(() => ghost.remove());
-  };
-
-  const dragEnd = () => {
-    setSelectedId('');
-  };
-
-  const allowDrop = (ev: React.DragEvent) => {
-    ev.preventDefault();
-  };
-
-  const drop = (roomNumber: number) => (ev: React.DragEvent) => {
-    ev.preventDefault();
-    const data = ev.dataTransfer.getData('text');
-    const separatorIndex = data.lastIndexOf('-');
-    if (separatorIndex <= 0) {
-      setSelectedId('');
-      return;
-    }
-    const userId = data.substring(0, separatorIndex);
-    const from = data.substring(separatorIndex + 1);
-    if (!userId || Number.isNaN(Number(from))) {
-      setSelectedId('');
-      return;
-    }
-    moveUser(userId, Number(from), roomNumber);
-    setSelectedId('');
-  };
+  const {
+    dragStart, dragEnd, allowDrop, drop,
+  } = useDragAndDrop(moveUser, setSelectedId);
 
   const unassignedRoom = rooms[0];
   const unassignedUsers = unassignedRoom?.users || [];

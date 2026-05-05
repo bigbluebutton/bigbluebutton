@@ -7,6 +7,7 @@ import Styled from '../styles';
 import Auth from '/imports/ui/services/auth';
 import RoomUserList from './room-user-list/component';
 import { ChildComponentProps } from '../room-managment-state/types';
+import { useDragAndDrop } from '../../hooks';
 
 const intlMessages = defineMessages({
   breakoutRoomTitle: {
@@ -232,31 +233,9 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
     updateSortedRooms();
   }, [rooms]);
 
-  const dragStart = (ev: React.DragEvent<HTMLParagraphElement>) => {
-    const paragraphElement = ev.target as HTMLParagraphElement;
-    ev.dataTransfer.setData('text', paragraphElement.id);
-    setSelectedId(paragraphElement.id);
-  };
-
-  const dragEnd = () => {
-    setSelectedId('');
-  };
-
-  const allowDrop = (ev: React.DragEvent) => {
-    ev.preventDefault();
-  };
-
-  const drop = (roomNumber: number) => (ev: React.DragEvent) => {
-    if (ev.preventDefault) {
-      ev.preventDefault();
-    }
-
-    const data = ev.dataTransfer.getData('text');
-    const [userId, from] = data.split('-');
-    moveUser(userId, Number(from), roomNumber);
-    setSelectedId('');
-    updateSortedRooms();
-  };
+  const {
+    dragStart, dragEnd, allowDrop, drop,
+  } = useDragAndDrop(moveUser, setSelectedId, updateSortedRooms);
 
   const hasNameDuplicated = (room: number) => {
     const roomName = rooms[room]?.name || '';
