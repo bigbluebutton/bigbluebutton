@@ -2110,6 +2110,7 @@ const Whiteboard = React.memo((props) => {
 
   React.useEffect(() => {
     if (!isPresenter
+      && !viewerCanPan
       && tlEditorRef.current
       && initialViewBoxWidthRef.current
       && initialViewBoxHeightRef.current
@@ -2129,7 +2130,7 @@ const Whiteboard = React.memo((props) => {
         adjustedYPos,
       );
     }
-  }, [currentPresentationPage, isPresenter]);
+  }, [currentPresentationPage, isPresenter, viewerCanPan]);
 
   React.useEffect(() => {
     if (tlEditorRef.current) {
