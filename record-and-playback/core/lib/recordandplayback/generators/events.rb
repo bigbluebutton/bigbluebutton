@@ -1074,7 +1074,16 @@ module BigBlueButton
         s = { :timestamp => event['timestamp'].to_i }
         external_videos_events << s
       end
-      external_videos_events.sort_by {|a| a[:timestamp]}
+      sorted = external_videos_events.sort_by {|a| a[:timestamp]}
+      paired = []
+      sorted.each_with_index do |event, i|
+        if event.key?(:external_video_url)
+          paired << event
+          nxt = sorted[i+1]
+          paired << nxt if nxt && !nxt.key?(:external_video_url)
+        end
+      end
+      paired
     end
 
     # Get events when the moderator wants the recording to start or stop
