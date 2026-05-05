@@ -207,6 +207,7 @@ const Whiteboard = React.memo((props) => {
   const isWheelZoomRef = useRef(false);
   const pageJustChangedRef = useRef(false);
   const isPresenterRef = useRef(isPresenter);
+  const viewerCanPanRef = useRef(viewerCanPan);
   const pageActualZoomRatioRef = useRef({});
   const calculateZoomValueRef = useRef(null);
   const fitToWidthRef = useRef(fitToWidth);
@@ -461,6 +462,10 @@ const Whiteboard = React.memo((props) => {
   }, [hasWBAccess]);
 
   React.useEffect(() => {
+    viewerCanPanRef.current = viewerCanPan;
+  }, [viewerCanPan]);
+
+  React.useEffect(() => {
     isPresenterRef.current = isPresenter;
 
     if (!hasWBAccessRef.current && !isPresenter) {
@@ -655,7 +660,7 @@ const Whiteboard = React.memo((props) => {
       return;
     }
 
-    if (isPresenterRef.current && event.keyCode === KEY_CODES.SPACE && tlEditorRef.current?.getCurrentToolId() !== 'hand') {
+    if ((isPresenterRef.current || viewerCanPanRef.current) && event.keyCode === KEY_CODES.SPACE && tlEditorRef.current?.getCurrentToolId() !== 'hand') {
       event.preventDefault();
       event.stopPropagation();
       previousTool.current = tlEditorRef.current?.getCurrentToolId();
@@ -2266,6 +2271,12 @@ const Whiteboard = React.memo((props) => {
 
       toggleToolbarIfNeeded();
       resetSlideState();
+
+      if (viewerCanPanRef.current) {
+        pollInnerWrapperDimensionsUntilStable(() => {
+          adjustCameraOnMount(true);
+        });
+      }
     }
   }, [curPageId]);
 
