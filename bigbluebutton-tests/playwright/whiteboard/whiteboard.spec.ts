@@ -10,7 +10,7 @@ import { TextShape } from './textShape';
 import { WhiteboardResize } from './whiteboardResize';
 
 async function runResizeTest(
-  method: 'cameraResync' | 'cameraResyncVisual' | 'cameraResyncZoomedVisual',
+  method: 'cameraResync' | 'cameraResyncVisual' | 'cameraResyncZoomedVisual' | 'cameraResyncAfterMinimizeRestore',
   browser: Browser,
   context: BrowserContext,
   page: Page,
@@ -188,5 +188,9 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
 
   test('Camera re-sync visual regression after resize with canvas zoom', async ({ browser, context, page }, testInfo) => {
     await runResizeTest('cameraResyncZoomedVisual', browser, context, page, testInfo);
+  });
+
+  test('Camera zoom is preserved after minimizing and restoring the presentation', async ({ browser, context, page }, testInfo) => {
+    await runResizeTest('cameraResyncAfterMinimizeRestore', browser, context, page, testInfo);
   });
 });

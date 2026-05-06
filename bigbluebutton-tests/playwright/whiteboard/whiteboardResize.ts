@@ -122,11 +122,12 @@ export class WhiteboardResize extends DrawShape {
     expect(modAfterZoom, '[mod] camera zoom should be positive after expanding back').toBeGreaterThan(0);
     expect(modAfterWidth, '[mod] slide wrapper width should be positive after expanding back').toBeGreaterThan(0);
 
-    // Wrapper must return to (approximately) its original width after expanding back.
+    // Wrapper must return to approximately its original width after expanding back.
+    // Allow ±2 px for browser layout rounding after viewport resize/restore.
     expect(
-      modAfterWidth,
-      '[mod] slide wrapper width should return to original after expanding back',
-    ).toBe(modInitialWidth);
+      Math.abs(modAfterWidth - modInitialWidth),
+      '[mod] slide wrapper width should return close to original after expanding back (within 2px)',
+    ).toBeLessThanOrEqual(2);
 
     // Invariant: camera.z / svgWidth = 1/scaledWidth (constant regardless of container size).
     // Bug present  → modAfterZoom stays stale → ratio shifts
@@ -267,14 +268,7 @@ export class WhiteboardResize extends DrawShape {
 
     await this.modPage.page.waitForTimeout(5000);
 
-    // ── 5. Screenshot B — shrunk state (written as baseline; same reasoning) ────
-    const modShrunkPath = path.join(snapshotDir, 'mod-whiteboard-resize-zoomed-shrunk-Chromium-linux.png');
-    const userShrunkPath = path.join(snapshotDir, 'user-whiteboard-resize-zoomed-shrunk-Chromium-linux.png');
-
-    fs.writeFileSync(modShrunkPath, await this.modPage.page.screenshot());
-    fs.writeFileSync(userShrunkPath, await this.userPage.page.screenshot());
-
-    // ── 6. Expand back to original size ───────────────────────────────────────
+    // ── 5. Expand back to original size ───────────────────────────────────────
     await this.modPage.page.setViewportSize({ width: viewport.width, height: viewport.height });
 
     await this.modPage.page.waitForTimeout(5000);
@@ -284,6 +278,103 @@ export class WhiteboardResize extends DrawShape {
     // camera was NOT restored to the zoomed position after the expand (the bug).
     await expect(this.modPage.page).toHaveScreenshot('mod-whiteboard-resize-zoomed-initial.png', { maxDiffPixels: 1000 });
     await expect(this.userPage.page).toHaveScreenshot('user-whiteboard-resize-zoomed-initial.png', { maxDiffPixels: 1000 });
+  }
+
+  async cameraResyncAfterMinimizeRestore() {
+    // ── 1. Wait for the whiteboard and slide image to be ready ───────────────────
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.waitForSelector(e.whiteboard);
+    await this.modPage.waitForSelector(e.resetZoomButton);
+
+    const modSlideImg = this.modPage.page.locator('#whiteboard-element .tl-image').first();
+
+    await modSlideImg.waitFor({ state: 'visible', timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    // Let the camera-mount polling chain settle.
+    await this.modPage.page.waitForTimeout(5000);
+
+    // ── 2. Record fit-zoom baseline ──────────────────────────────────────────────
+    const fitZoom = await getCameraZoom(this.modPage.page);
+    expect(fitZoom, '[mod] camera zoom should be positive after mount').toBeGreaterThan(0);
+
+    // ── 3. Zoom in 2× via direct tldraw editor access (no server round-trip) ─────
+    // Using the editor API avoids server round-trips and zoomValue changes, making
+    // this a pure test of the component's own ratio-preservation mechanism.
+    const zoomed = await this.modPage.page.evaluate(() => {
+      const whiteboard = document.getElementById('whiteboard-element');
+      if (!whiteboard) return false;
+      const fiberKey = Object.keys(whiteboard as unknown as Record<string, unknown>)
+        .find((k) => k.startsWith('__reactFiber'));
+      if (!fiberKey) return false;
+
+      let fiber = (whiteboard as unknown as Record<string, unknown>)[fiberKey] as { memoizedState: unknown; return: unknown } | null;
+      while (fiber) {
+        let hook = fiber.memoizedState as { memoizedState: unknown; next: unknown } | null;
+        while (hook) {
+          const ms = hook.memoizedState as { current?: { setCamera?: unknown; getCamera?: unknown; getViewportScreenBounds?: unknown } } | null;
+          if (ms && ms.current && typeof ms.current.setCamera === 'function') {
+            const editor = ms.current as {
+              setCamera: (cam: { x: number; y: number; z: number }, opts?: { immediate?: boolean }) => void;
+              getCamera: () => { x: number; y: number; z: number };
+              getViewportScreenBounds: () => { w: number; h: number };
+            };
+            const cam = editor.getCamera();
+            const vb = editor.getViewportScreenBounds();
+            const newZ = cam.z * 2;
+            editor.setCamera({
+              x: cam.x + (vb.w / 2) * (1 / newZ - 1 / cam.z),
+              y: cam.y + (vb.h / 2) * (1 / newZ - 1 / cam.z),
+              z: newZ,
+            }, { immediate: true });
+            return true;
+          }
+          hook = hook.next as typeof hook;
+        }
+        fiber = fiber.return as typeof fiber;
+      }
+      return false;
+    });
+
+    expect(zoomed, 'tldraw editor must be accessible via React fiber for direct camera zoom').toBe(true);
+
+    // Let the zoomed camera settle and allow the store listener to record the ratio.
+    await this.modPage.page.waitForTimeout(3000);
+
+    // ── 4. Verify the zoom was applied (pre-condition for the restore assertion) ──
+    const zoomBeforeMinimize = await getCameraZoom(this.modPage.page);
+    expect(zoomBeforeMinimize, '[mod] camera zoom must be readable after fiber zoom').not.toBeNull();
+    const zoomRatio = zoomBeforeMinimize! / fitZoom!;
+    expect(
+      zoomRatio,
+      `[mod] fiber zoom should have produced approximately 2× zoom (got ${zoomRatio.toFixed(2)}×)`,
+    ).toBeGreaterThan(1.8);
+
+    // ── 5. Minimize then restore presentation ────────────────────────────────────
+    await this.modPage.waitAndClick(e.minimizePresentation);
+    // Wait for the whiteboard to unmount (presentation container leaves the DOM).
+    await this.modPage.page.locator(e.presentationContainer)
+      .waitFor({ state: 'detached', timeout: 10000 })
+      .catch(() => {});
+    await this.modPage.page.waitForTimeout(2000);
+
+    await this.modPage.waitAndClick(e.restorePresentation);
+    // Wait for the whiteboard to remount and for the camera polling to settle.
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.page.waitForTimeout(5000);
+
+    // ── 6. Verify zoom is preserved after restore (the key invariant) ────────────
+    // Bug present → camera returns to fit zoom (zoomAfter ≈ fitZoom).
+    // Bug fixed   → camera is restored from the per-page ratio cache (zoomAfter ≈ zoomBeforeMinimize).
+    const zoomAfterRestore = await getCameraZoom(this.modPage.page);
+    expect(zoomAfterRestore, '[mod] camera zoom must be readable after restore').not.toBeNull();
+
+    const deviation = Math.abs(zoomAfterRestore! - zoomBeforeMinimize!) / zoomBeforeMinimize!;
+    expect(
+      deviation,
+      `[mod] camera zoom should be preserved after minimize/restore `
+      + `(before: ${zoomBeforeMinimize!.toFixed(4)}, after: ${zoomAfterRestore!.toFixed(4)}, `
+      + `deviation: ${(deviation * 100).toFixed(1)} %, expected < 5 %)`,
+    ).toBeLessThan(0.05);
   }
 
   async cameraResyncVisual() {
