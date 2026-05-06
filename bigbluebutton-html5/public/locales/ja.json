@@ -59,7 +59,7 @@
     "app.chat.toolbar.pin.confirmationTitle": "メッセージをピン留めする",
     "app.chat.toolbar.pin.confirmationDescription": "ピン留めすることで、すべてのユーザーが見られるように、チャットの最上部にこのメッセージが残ります。本当にこのメッセージをピン留めしますか？",
     "app.chat.toolbar.pin.confirmationQuestion": "このメッセージをピン留めしますか？",
-    "app.chat.toolbar.pin.replaceConfirmationTitle": "Replace pinned message",
+    "app.chat.toolbar.pin.replaceConfirmationTitle": "ピン留めされるメッセージを変更",
     "app.chat.toolbar.pin.replaceConfirmationDescription": "It will replace the previous pinned message. Confirm?",
     "app.chat.toolbar.pin.replaceConfirmButton": "Replace",
     "app.chat.pinnedMessages.title": "Pinned messages",
