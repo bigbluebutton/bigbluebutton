@@ -577,7 +577,7 @@ export const useVideoStreams = () => {
           (audioUser) => !streams.find((s) => s.userId === audioUser.userId),
         );
 
-        const availableSlots = myPageSize - pinnedAndLocalCount;
+        const availableSlots = Math.max(0, myPageSize - pinnedAndLocalCount);
         const audioOnlyToAdd = uniqueAudioOnly.slice(0, audioOnlySlotsUsedOnPage1);
 
         if (audioOnlyToAdd.length > 0 && paginatedStreams.length + audioOnlyToAdd.length > availableSlots) {
