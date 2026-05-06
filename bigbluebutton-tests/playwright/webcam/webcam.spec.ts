@@ -11,8 +11,7 @@ test.describe.parallel('Webcam', { tag: '@ci' }, () => {
     await webcam.share();
   });
 
-  // current check content function returns false comparison, likely due to static video used in tests
-  test('Checks content of webcam', { tag: '@flaky' }, async ({ browser, page }, testInfo) => {
+  test('Checks content of webcam', async ({ browser, page }, testInfo) => {
     const webcam = new Webcam(browser, page);
     await webcam.init(true, { testInfo });
     await webcam.checksContent();
@@ -39,8 +38,7 @@ test.describe.parallel('Webcam', { tag: '@ci' }, () => {
     await webcam.pinningWebcams();
   });
 
-  test('Change video quality', { tag: '@flaky' }, async ({ browser, page }, testInfo) => {
-    // Current approach is not reliable enough to ensure the video quality is changed
+  test('Change video quality', async ({ browser, page }, testInfo) => {
     const webcam = new Webcam(browser, page);
     await webcam.init(true, { testInfo });
     await webcam.changeVideoQuality();

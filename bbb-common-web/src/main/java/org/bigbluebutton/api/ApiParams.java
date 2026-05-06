@@ -22,6 +22,8 @@ package org.bigbluebutton.api;
 public class ApiParams {
 
     public static final String ALLOW_START_STOP_RECORDING = "allowStartStopRecording";
+    public static final String SHARED_NOTES_EDITOR = "sharedNotesEditor";
+    public static final String SHARED_NOTES_INITIAL_CONTENT_JSON_URL = "sharedNotesInitialContentJsonUrl";
     public static final String ATTENDEE_PW = "attendeePW";
     public static final String AUTO_START_RECORDING = "autoStartRecording";
     public static final String BANNER_COLOR = "bannerColor";
@@ -78,6 +80,7 @@ public class ApiParams {
     public static final String DISABLED_FEATURES = "disabledFeatures";
     public static final String PLUGIN_MANIFESTS = "pluginManifests";
     public static final String PLUGIN_MANIFESTS_FETCH_URL = "pluginManifestsFetchUrl";
+    public static final String CLIENT_SETTINGS_OVERRIDE_JSON_URL = "clientSettingsOverrideJsonUrl";
     public static final String DISABLED_FEATURES_EXCLUDE = "disabledFeaturesExclude";
     public static final String NOTIFY_RECORDING_IS_ON = "notifyRecordingIsOn";
 

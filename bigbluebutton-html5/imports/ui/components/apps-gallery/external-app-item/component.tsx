@@ -12,13 +12,14 @@ import {
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/ui-commands/sidekick-area/options/types';
 import AppItem from '/imports/ui/components/apps-gallery/app-item/component';
 import { PANELS } from '/imports/ui/components/layout/enums';
+import { PluginIconType } from 'bigbluebutton-html-plugin-sdk';
 import Styled from './styles';
 
 interface ExternalAppItemProps {
   appKey: string;
   dataTest?: string;
   name: string;
-  icon: string;
+  icon: PluginIconType;
   isPinned: boolean;
   onClick?: (() => void) | undefined;
   pinnedAppsLength: number;

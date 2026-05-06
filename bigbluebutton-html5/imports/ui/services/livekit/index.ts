@@ -15,6 +15,10 @@ export const lkIsCameraSource = (track: TrackPublication | RemoteTrack): boolean
   return track.kind === Track.Kind.Video && track.source === Track.Source.Camera;
 };
 
+export const isLiveKitBridge = (bridgeName: string): boolean => {
+  return bridgeName === 'livekit';
+};
+
 export const lkToggleMuteCameras = (mute: boolean): void => {
   const localParticipant = liveKitRoom?.localParticipant;
 

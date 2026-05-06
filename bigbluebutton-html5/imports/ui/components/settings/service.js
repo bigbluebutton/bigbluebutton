@@ -4,7 +4,7 @@ import intlHolder from '../../core/singletons/intlHolder';
 
 export const updateSettings = (obj, msgDescriptor, mutation) => {
   const Settings = getSettingsSingletonInstance();
-  Object.keys(obj).forEach(k => (Settings[k] = obj[k]));
+  Object.keys(obj).forEach((k) => { Settings[k] = obj[k]; });
   Settings.save(mutation);
 
   if (msgDescriptor) {
@@ -20,7 +20,9 @@ export const updateSettings = (obj, msgDescriptor, mutation) => {
 
 export const getAvailableLocales = () => fetch('./locales/')
   .then((locales) => locales.json())
-  .then((locales) => locales.filter((locale) => locale.name !== 'index.json'));
+  .then((locales) => locales.filter((locale) => (
+    locale.name !== 'index.json' && !locale.name.endsWith('.gz')
+  )));
 
 export const FALLBACK_LOCALES = {
   dv: {

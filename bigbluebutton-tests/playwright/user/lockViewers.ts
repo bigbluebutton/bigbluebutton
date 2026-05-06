@@ -1,9 +1,11 @@
 import { expect } from '@playwright/test';
 
 import { hoverLastMessage } from '../chat/util';
-import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
+import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, USER_LEFT_NOTIFICATION_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
-import { getNotesLocator } from '../sharednotes/util';
+import { enableUserJoinPopup, enableUserLeavePopup, saveSettings } from '../notifications/util';
+import { openSettings } from '../options/util';
+import { getNotesLocator } from '../sharednotes/etherpad/util';
 import { MultiUsers } from './multiusers';
 import { drawArrow, openLockViewers, setPresentationPermission } from './util';
 
@@ -501,6 +503,399 @@ export class LockViewers extends MultiUsers {
       e.wbToolbar,
       'should display the whiteboard toolbar after viewer takes presenter under freeForAll policy',
       ELEMENT_WAIT_LONGER_TIME,
+    );
+  }
+
+  /**
+   * Regression test for issue #24888:
+   * When hideUserList (lockUserList) is active, a locked viewer must NOT receive
+   * join notifications for other users — those names were leaking via the
+   * notification stream even though the user list was hidden.
+   *
+   * Fix (issue #24888): when hideUserList=true the backend sends per-user
+   * NotifyUserInMeetingEvtMsg only to moderators and unlocked viewers, instead of
+   * broadcasting NotifyAllInMeetingEvtMsg to everyone.
+   *
+   * Flow that reproduces the original bug:
+   *   1. Mod joins.
+   *   2. Mod enables lockUserList (hideUserList=true, lockOnJoin=true).
+   *   3. Viewer1 joins → automatically locked (lockOnJoin=true).
+   *   4. Both mod and Viewer1 enable "user join" push alerts.
+   *   5. Viewer2 joins.
+   *   Expected: Viewer1 sees NO toast; Mod DOES see the toast.
+   */
+  async hideUserListSuppressesJoinNotification() {
+    // Step 2: apply hideUserList lock BEFORE the viewer joins so that the
+    // viewer gets locked=true via lockOnJoin.
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClickElement(e.lockUserList);
+    await this.modPage.waitAndClick(e.applyLockSettings);
+    await this.modPage.closeAllToastNotifications();
+
+    // Step 3: Viewer1 joins after lock is active → locked=true.
+    await this.initUserPage();
+
+    // Step 4: both pages enable join push alerts.
+    await openSettings(this.modPage);
+    await enableUserJoinPopup(this.modPage);
+    await saveSettings(this.modPage);
+
+    await openSettings(this.userPage);
+    await enableUserJoinPopup(this.userPage);
+    await saveSettings(this.userPage);
+
+    // Clear any notifications that appeared during setup.
+    await this.modPage.closeAllToastNotifications();
+    await this.userPage.closeAllToastNotifications();
+
+    // Step 5: Viewer2 joins.
+    await this.initUserPage2();
+
+    // Wait until Viewer2 is confirmed as present in the mod's user list before
+    // asserting the absence of a notification on Viewer1's page.
+    await expect(
+      this.modPage.page.locator(e.userListItem, { hasText: this.userPage2.username }),
+      'Viewer2 should appear in the moderator user list after joining',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    // Moderator MUST still receive the join notification (per-user route after fix).
+    // Assert positive first to confirm the notification was actually emitted before
+    // checking the locked viewer never received it.
+    await this.modPage.hasText(
+      e.smallToastMsg,
+      `${this.userPage2.username} joined the session`,
+      'Moderator must still receive the join notification when hideUserList is active',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+
+    // Locked viewer must NOT receive the join notification (regression for #24888).
+    await this.userPage.wasRemoved(
+      e.smallToastMsg,
+      'Locked viewer must not receive a join notification when hideUserList is active',
+      ELEMENT_WAIT_TIME,
+    );
+  }
+
+  /**
+   * Regression test for issue #24888 — leave notification variant.
+   * Same root cause: the leave notification also used NotifyAllInMeetingEvtMsg,
+   * leaking the departing user's name to locked viewers.
+   *
+   * Flow:
+   *   1. Mod joins.
+   *   2. Mod enables lockUserList.
+   *   3. Viewer1 joins (locked).
+   *   4. Viewer2 joins (locked).
+   *   5. Both mod and Viewer1 enable "user leave" push alerts.
+   *   6. Viewer2 leaves.
+   *   Expected: Viewer1 sees NO toast; Mod DOES see the toast.
+   */
+  async hideUserListSuppressesLeaveNotification() {
+    // Step 2: enable hideUserList before viewers join.
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClickElement(e.lockUserList);
+    await this.modPage.waitAndClick(e.applyLockSettings);
+    await this.modPage.closeAllToastNotifications();
+
+    // Steps 3 & 4: both viewers join while lockOnJoin=true → locked=true.
+    await this.initUserPage();
+    await this.initUserPage2();
+
+    // Wait for Viewer2 to fully join before setting up notifications.
+    await expect(
+      this.modPage.page.locator(e.userListItem, { hasText: this.userPage2.username }),
+      'Viewer2 should appear in the moderator user list',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    // Step 5: enable leave push alerts on mod and Viewer1.
+    await openSettings(this.modPage);
+    await enableUserLeavePopup(this.modPage);
+    await saveSettings(this.modPage);
+
+    await openSettings(this.userPage);
+    await enableUserLeavePopup(this.userPage);
+    await saveSettings(this.userPage);
+
+    // Clear any notifications accumulated during setup.
+    await this.modPage.closeAllToastNotifications();
+    await this.userPage.closeAllToastNotifications();
+
+    // Step 6: Viewer2 leaves the meeting.
+    const leavingUsername = this.userPage2.username;
+    await this.userPage2.waitAndClick(e.leaveMeetingDropdown, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage2.waitAndClick(e.directLogoutButton, ELEMENT_WAIT_LONGER_TIME);
+
+    // Moderator MUST receive the notification. The leave notification is deferred:
+    // the backend sets a userLeftFlag on V2, then after a 10s expiry the periodic
+    // audit removes the user and sends the notification (monitor ticks every 10s),
+    // so the toast can take up to ~20s to arrive — use a 30s timeout.
+    await this.modPage.hasText(
+      e.smallToastMsg,
+      `${leavingUsername} left the session`,
+      'Moderator must still receive the leave notification when hideUserList is active',
+      USER_LEFT_NOTIFICATION_WAIT_TIME,
+    );
+
+    // Locked viewer must NOT have received any notification (regression for #24888).
+    await this.userPage.wasRemoved(
+      e.smallToastMsg,
+      'Locked viewer must not receive a leave notification when hideUserList is active',
+      ELEMENT_WAIT_TIME,
+    );
+  }
+
+  /**
+   * Regression test for issue #24888, including the unlocked-viewer route.
+   *
+   * Expected behavior when hideUserList is active:
+   * - locked viewer: no join notification
+   * - unlocked viewer: receives join notification
+   * - moderator: receives join notification
+   */
+  async hideUserListJoinNotificationVisibleForUnlockedAndModOnly() {
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClickElement(e.lockUserList);
+    await this.modPage.waitAndClick(e.applyLockSettings);
+    await this.modPage.closeAllToastNotifications();
+
+    // Viewer1 joins locked.
+    await this.initUserPage();
+    // Viewer2 joins locked, then is explicitly unlocked.
+    await this.initUserPage2();
+
+    const unlockedViewerName = this.userPage2.username;
+    await this.modPage.page.locator(e.userListItem).filter({ hasText: unlockedViewerName }).click();
+    await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
+    const unlockedViewer = this.userPage2;
+
+    await openSettings(this.modPage);
+    await enableUserJoinPopup(this.modPage);
+    await saveSettings(this.modPage);
+
+    await openSettings(this.userPage);
+    await enableUserJoinPopup(this.userPage);
+    await saveSettings(this.userPage);
+
+    await openSettings(unlockedViewer);
+    await enableUserJoinPopup(unlockedViewer);
+    await saveSettings(unlockedViewer);
+
+    await this.modPage.closeAllToastNotifications();
+    await this.userPage.closeAllToastNotifications();
+    await unlockedViewer.closeAllToastNotifications();
+
+    // Viewer3 joins after subscriptions are active.
+    await this.initUserPage2(undefined, { fullName: 'Attendee3' });
+    const viewer3 = this.userPage2;
+
+    await expect(
+      this.modPage.page.locator(e.userListItem, { hasText: viewer3.username }),
+      'Viewer3 should appear in moderator user list after joining',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    // Assert positives first to confirm notifications were emitted before checking
+    // the locked viewer never received one.
+    await this.modPage.hasText(
+      e.smallToastMsg,
+      `${viewer3.username} joined the session`,
+      'Moderator must receive join notification when hideUserList is active',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+
+    await unlockedViewer.hasText(
+      e.smallToastMsg,
+      `${viewer3.username} joined the session`,
+      'Unlocked viewer must receive join notification when hideUserList is active',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+
+    await this.userPage.wasRemoved(
+      e.smallToastMsg,
+      'Locked viewer must not receive join notification when hideUserList is active',
+      ELEMENT_WAIT_TIME,
+    );
+  }
+
+  /**
+   * Regression test for issue #24888, including the unlocked-viewer route.
+   *
+   * Expected behavior when hideUserList is active:
+   * - locked viewer: no leave notification
+   * - unlocked viewer: receives leave notification
+   * - moderator: receives leave notification
+   */
+  async hideUserListLeaveNotificationVisibleForUnlockedAndModOnly() {
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClickElement(e.lockUserList);
+    await this.modPage.waitAndClick(e.applyLockSettings);
+    await this.modPage.closeAllToastNotifications();
+
+    // Viewer1 joins locked.
+    await this.initUserPage();
+    // Viewer2 joins locked, then is explicitly unlocked.
+    await this.initUserPage2();
+    const unlockedViewerName = this.userPage2.username;
+    await this.modPage.page.locator(e.userListItem).filter({ hasText: unlockedViewerName }).click();
+    await this.modPage.waitAndClick(`${e.unlockUserButton}>>nth=1`);
+    const unlockedViewer = this.userPage2;
+
+    // Viewer3 stays locked and will leave.
+    await this.initUserPage2(undefined, { fullName: 'Attendee3' });
+    const leavingViewer = this.userPage2;
+
+    await expect(
+      this.modPage.page.locator(e.userListItem, { hasText: leavingViewer.username }),
+      'Viewer3 should appear in moderator user list before leaving',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    await openSettings(this.modPage);
+    await enableUserLeavePopup(this.modPage);
+    await saveSettings(this.modPage);
+
+    await openSettings(this.userPage);
+    await enableUserLeavePopup(this.userPage);
+    await saveSettings(this.userPage);
+
+    await openSettings(unlockedViewer);
+    await enableUserLeavePopup(unlockedViewer);
+    await saveSettings(unlockedViewer);
+
+    await this.modPage.closeAllToastNotifications();
+    await this.userPage.closeAllToastNotifications();
+    await unlockedViewer.closeAllToastNotifications();
+
+    await leavingViewer.waitAndClick(e.leaveMeetingDropdown, ELEMENT_WAIT_LONGER_TIME);
+    await leavingViewer.waitAndClick(e.directLogoutButton, ELEMENT_WAIT_LONGER_TIME);
+
+    await this.modPage.hasText(
+      e.smallToastMsg,
+      `${leavingViewer.username} left the session`,
+      'Moderator must receive leave notification when hideUserList is active',
+      USER_LEFT_NOTIFICATION_WAIT_TIME,
+    );
+
+    await unlockedViewer.hasText(
+      e.smallToastMsg,
+      `${leavingViewer.username} left the session`,
+      'Unlocked viewer must receive leave notification when hideUserList is active',
+      USER_LEFT_NOTIFICATION_WAIT_TIME,
+    );
+
+    await this.userPage.wasRemoved(
+      e.smallToastMsg,
+      'Locked viewer must not receive leave notification when hideUserList is active',
+      ELEMENT_WAIT_TIME,
+    );
+  }
+
+  /**
+   * Regression test for Ramon's review on PR #24924.
+   *
+   * When hideUserList is active and a MODERATOR joins, even locked viewers must
+   * receive the notification — moderators are never hidden by hideUserList.
+   *
+   * Flow:
+   *   1. Mod1 joins.
+   *   2. Mod1 enables lockUserList (lockOnJoin=true).
+   *   3. Viewer joins (automatically locked).
+   *   4. Both Mod1 and Viewer enable "user join" push alerts.
+   *   5. Mod2 joins as a moderator.
+   *   Expected: Viewer DOES see Mod2's join toast; Mod1 DOES see it too.
+   */
+  async hideUserListModeratorJoinNotificationVisibleToAll() {
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClickElement(e.lockUserList);
+    await this.modPage.waitAndClick(e.applyLockSettings);
+    await this.modPage.closeAllToastNotifications();
+
+    await this.initUserPage();
+
+    await openSettings(this.modPage);
+    await enableUserJoinPopup(this.modPage);
+    await saveSettings(this.modPage);
+
+    await openSettings(this.userPage);
+    await enableUserJoinPopup(this.userPage);
+    await saveSettings(this.userPage);
+
+    await this.modPage.closeAllToastNotifications();
+    await this.userPage.closeAllToastNotifications();
+
+    await this.initModPage2();
+    const mod2Name = this.modPage2.username;
+
+    await expect(
+      this.modPage.page.locator(e.userListItem, { hasText: mod2Name }),
+      'Mod2 should appear in Mod1 user list after joining',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    await this.modPage.hasText(
+      e.smallToastMsg,
+      `${mod2Name} joined the session`,
+      'Mod1 must receive join notification when a moderator joins (hideUserList active)',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+
+    await this.userPage.hasText(
+      e.smallToastMsg,
+      `${mod2Name} joined the session`,
+      'Locked viewer must receive join notification when a MODERATOR joins (hideUserList active)',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+  }
+
+  /**
+   * Regression test for Ramon's review on PR #24924 — leave variant.
+   *
+   * When hideUserList is active and a MODERATOR leaves, even locked viewers must
+   * receive the leave notification.
+   *
+   * Flow:
+   *   1. Mod1 joins.
+   *   2. Mod2 joins as moderator.
+   *   3. Mod1 enables lockUserList.
+   *   4. Viewer joins (automatically locked).
+   *   5. Mod1 and Viewer enable "user leave" push alerts.
+   *   6. Mod2 leaves.
+   *   Expected: Viewer DOES see Mod2's leave toast; Mod1 DOES see it too.
+   */
+  async hideUserListModeratorLeaveNotificationVisibleToAll() {
+    await this.initModPage2();
+    const mod2Name = this.modPage2.username;
+
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClickElement(e.lockUserList);
+    await this.modPage.waitAndClick(e.applyLockSettings);
+    await this.modPage.closeAllToastNotifications();
+
+    await this.initUserPage();
+
+    await openSettings(this.modPage);
+    await enableUserLeavePopup(this.modPage);
+    await saveSettings(this.modPage);
+
+    await openSettings(this.userPage);
+    await enableUserLeavePopup(this.userPage);
+    await saveSettings(this.userPage);
+
+    await this.modPage.closeAllToastNotifications();
+    await this.userPage.closeAllToastNotifications();
+
+    await this.modPage2.waitAndClick(e.leaveMeetingDropdown, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage2.waitAndClick(e.directLogoutButton, ELEMENT_WAIT_LONGER_TIME);
+
+    await this.modPage.hasText(
+      e.smallToastMsg,
+      `${mod2Name} left the session`,
+      'Mod1 must receive leave notification when a moderator leaves (hideUserList active)',
+      USER_LEFT_NOTIFICATION_WAIT_TIME,
+    );
+
+    await this.userPage.hasText(
+      e.smallToastMsg,
+      `${mod2Name} left the session`,
+      'Locked viewer must receive leave notification when a MODERATOR leaves (hideUserList active)',
+      USER_LEFT_NOTIFICATION_WAIT_TIME,
     );
   }
 }

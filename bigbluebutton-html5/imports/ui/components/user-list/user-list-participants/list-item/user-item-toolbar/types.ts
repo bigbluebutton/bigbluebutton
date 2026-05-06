@@ -24,10 +24,10 @@ export interface UserItemToolbarProps {
 export interface DropdownItem {
   key: string;
   label?: string;
-  icon?: string;
+  icon?: PluginSdk.PluginIconType;
   tooltip?: string;
   allowed?: boolean;
-  iconRight?: string;
+  iconRight?: PluginSdk.PluginIconType;
   textColor?: string;
   isSeparator?: boolean;
   dataTest?: string;

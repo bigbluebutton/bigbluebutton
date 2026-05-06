@@ -837,6 +837,8 @@ export const { logger: pluginLogger } = BbbPluginSdk.getPluginApi(uuid);
 - `usePluginSettings` hook: it provides all the specific settings regarding the current plugin it's been loaded from.
 - `useTalkingIndicator` hook: it gives you information on the user-voice data, that is, who is talking or muted.
 - `useMeeting` hook: it gives you information on the current meeting that the user is on.
+- `useMeetingData` hook: provides detailed meeting data with projection support, offering more flexibility than `useMeeting`.
+- `useCustomQuery` hook: similar to `useCustomSubscription`, but for one-time GraphQL queries rather than subscriptions. Note: Make sure that, on BBB version change, the custom queries you make will work as expected.
 
 So for these types of hooks, the return will follow the same structure:
 
@@ -1429,7 +1431,7 @@ The Plugin SDK provides the `useLocaleMessages` hook, described in the [auxiliar
 
 We also strongly encourage developers to include localization in their plugins. This greatly improves adoption and usability within the community.
 
-For a practical example, see how the [pick-random-user plugin](https://github.com/bigbluebutton/plugin-pick-random-user/blob/7259ec7f32ea0e3d851f4b6636a739a82a385896/src/commons/hooks.ts#L17) uses it in the `useGetInternationalization` hook.
+For a practical example, see how the [pick-random-user plugin](https://github.com/bigbluebutton/bbb-plugin-pick-random-user/blob/7259ec7f32ea0e3d851f4b6636a739a82a385896/src/commons/hooks.ts#L17) uses it in the `useGetInternationalization` hook.
 
 ## Frequently Asked Questions (FAQ)
 

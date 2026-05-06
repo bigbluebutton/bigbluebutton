@@ -19,7 +19,6 @@ Here's a breakdown of what's new in 3.1.
 
 <!-- ### Analytics -->
 
-
 ### Behind the scenes
 
 
@@ -35,7 +34,7 @@ Under the hood, BigBlueButton 3.1 installs on Ubuntu 22.04 64-bit, and the follo
 - Gradle 8.14.3
 - Groovy 4.0.21
 - Spring 6.2.11
-- Spring Boot 3.4.9 
+- Spring Boot 3.5.13
 
 For full details on what is new in BigBlueButton 3.1, see the release notes.
 
@@ -59,7 +58,7 @@ The `layouts` option has been removed from `disabledFeatures`.
 ### Changes to events.xml
 
 
-#### bbb-web properties changes
+### bbb-web properties changes
 
 Removed
 
@@ -70,13 +69,13 @@ Added
 
 
 
-### Development
+## Development
 
 For information on developing in BigBlueButton, see [setting up a development environment for 3.1](/development/guide).
 
 The build scripts for packaging 3.1 (using fpm) are located in the GitHub repository [here](https://github.com/bigbluebutton/bigbluebutton/tree/v3.1.x-release/build).
 
-### Contribution
+## Contribution
 
 We welcome contributors to BigBlueButton 3.1!  The best ways to contribute at the current time are:
 

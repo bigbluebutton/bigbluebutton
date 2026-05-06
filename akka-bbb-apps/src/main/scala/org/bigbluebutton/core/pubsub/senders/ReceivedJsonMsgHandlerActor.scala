@@ -160,6 +160,10 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[PadCreateReqMsg](envelope, jsonNode)
       case PadCreatedEvtMsg.NAME =>
         routePadMsg[PadCreatedEvtMsg](envelope, jsonNode)
+      case BNSharedNotesCreatedEvtMsg.NAME =>
+        routePadMsg[BNSharedNotesCreatedEvtMsg](envelope, jsonNode)
+      case BNSharedNotesUpdatedEvtMsg.NAME =>
+        routePadMsg[BNSharedNotesUpdatedEvtMsg](envelope, jsonNode)
       case PadCreateSessionReqMsg.NAME =>
         routeGenericMsg[PadCreateSessionReqMsg](envelope, jsonNode)
       case PadSessionCreatedEvtMsg.NAME =>
@@ -175,23 +179,15 @@ class ReceivedJsonMsgHandlerActor(
       case PadPinnedReqMsg.NAME =>
         routeGenericMsg[PadPinnedReqMsg](envelope, jsonNode)
 
-      // Audio groups
-      case GetAudioGroupsReqMsg.NAME =>
-        routeGenericMsg[GetAudioGroupsReqMsg](envelope, jsonNode)
-      case CreateAudioGroupReqMsg.NAME =>
-        routeGenericMsg[CreateAudioGroupReqMsg](envelope, jsonNode)
-      case DestroyAudioGroupReqMsg.NAME =>
-        routeGenericMsg[DestroyAudioGroupReqMsg](envelope, jsonNode)
-      case AudioGroupAddParticipantsReqMsg.NAME =>
-        routeGenericMsg[AudioGroupAddParticipantsReqMsg](envelope, jsonNode)
-      case AudioGroupRemoveParticipantsReqMsg.NAME =>
-        routeGenericMsg[AudioGroupRemoveParticipantsReqMsg](envelope, jsonNode)
-      case JoinAudioGroupReqMsg.NAME =>
-        routeGenericMsg[JoinAudioGroupReqMsg](envelope, jsonNode)
-      case LeaveAudioGroupReqMsg.NAME =>
-        routeGenericMsg[LeaveAudioGroupReqMsg](envelope, jsonNode)
-      case AudioGroupUpdateParticipantReqMsg.NAME =>
-        routeGenericMsg[AudioGroupUpdateParticipantReqMsg](envelope, jsonNode)
+      // Media groups
+      case GetMediaGroupsReqMsg.NAME =>
+        routeGenericMsg[GetMediaGroupsReqMsg](envelope, jsonNode)
+      case CreateMediaGroupReqMsg.NAME =>
+        routeGenericMsg[CreateMediaGroupReqMsg](envelope, jsonNode)
+      case DestroyMediaGroupReqMsg.NAME =>
+        routeGenericMsg[DestroyMediaGroupReqMsg](envelope, jsonNode)
+      case SetUserMediaGroupStateReqMsg.NAME =>
+        routeGenericMsg[SetUserMediaGroupStateReqMsg](envelope, jsonNode)
 
       // Voice
       case RecordingStartedVoiceConfEvtMsg.NAME =>

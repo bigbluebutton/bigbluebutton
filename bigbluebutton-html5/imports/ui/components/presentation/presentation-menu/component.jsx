@@ -217,7 +217,7 @@ const PresentationMenu = (props) => {
             uiDataGetter:
               PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_PAGE_SNAPSHOT,
           },
-        }, `UI data getter failed to fetch [${PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_PAGE_SNAPSHOT}]`);
+        }, `UI data getter failed to fetch [${PluginSdk.PresentationWhiteboardUiDataNames.CURRENT_PAGE_SNAPSHOT}]: ${e}`);
       }
     };
 
@@ -231,7 +231,7 @@ const PresentationMenu = (props) => {
         updateUiDataHookPCurrentWhiteboardSVGWithAnnotationsForPlugin,
       );
     };
-  }, []);
+  }, [tldrawAPI, slideNum]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const toastId = useRef('presentation-menu-toast');
   const dropdownRef = useRef(null);

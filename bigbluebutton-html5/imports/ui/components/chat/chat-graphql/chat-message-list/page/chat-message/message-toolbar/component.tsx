@@ -54,7 +54,6 @@ interface ChatMessageToolbarProps {
   isCustomPluginMessage: boolean;
   own: boolean;
   amIModerator: boolean;
-  isBreakoutRoom: boolean;
   messageSequence: number;
   onReactionPopoverOpenChange(open: boolean): void;
   reactionPopoverIsOpen: boolean;
@@ -75,7 +74,7 @@ interface ChatMessageToolbarProps {
 
 const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const {
-    isCustomPluginMessage, deleted, isPinned, messageSequence, own, amIModerator, isBreakoutRoom,
+    isCustomPluginMessage, deleted, isPinned, messageSequence, own, amIModerator,
     locked, onReactionPopoverOpenChange, reactionPopoverIsOpen, hasToolbar,
     chatDeleteEnabled, chatEditEnabled, chatReactionsEnabled, chatReplyEnabled,
     onDelete, onEdit, onReply, togglePin, isPublicChat,
@@ -95,7 +94,7 @@ const ChatMessageToolbar: React.FC<ChatMessageToolbarProps> = (props) => {
   const showReplyButton = chatReplyEnabled;
   const showReactionsButton = chatReactionsEnabled;
   const showEditButton = chatEditEnabled && own && !isCustomPluginMessage;
-  const showDeleteButton = chatDeleteEnabled && (own || (amIModerator && !isBreakoutRoom));
+  const showDeleteButton = chatDeleteEnabled && (own || amIModerator);
   const showPinMessageButton = chatPinEnabled && SHOW_PIN_MESSAGE_TOOL
     && amIModerator && !isCustomPluginMessage && isPublicChat;
   const showDivider = (showReplyButton || showReactionsButton || showPinMessageButton)

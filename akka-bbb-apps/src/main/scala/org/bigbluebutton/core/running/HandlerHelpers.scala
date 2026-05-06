@@ -101,16 +101,34 @@ trait HandlerHelpers extends SystemConfiguration {
             val event = UserJoinedMeetingEvtMsgBuilder.build(liveMeeting.props.meetingProp.intId, newUser)
             outGW.send(event)
 
-            val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
-              liveMeeting.props.meetingProp.intId,
-              "info",
-              "user",
-              "app.notification.userJoinPushAlert",
-              "Notification for a user joins the meeting",
-              Map("userName"->s"${newUser.name}")
-            )
-            outGW.send(notifyEvent)
-            NotificationDAO.insert(notifyEvent)
+            if (MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList && newUser.role != Roles.MODERATOR_ROLE) {
+              Users2x.findAll(liveMeeting.users2x)
+                .filter(r => !r.userLeftFlag.left && (!r.locked || r.role == Roles.MODERATOR_ROLE))
+                .foreach { r =>
+                  val notifyEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
+                    r.intId,
+                    liveMeeting.props.meetingProp.intId,
+                    "info",
+                    "user",
+                    "app.notification.userJoinPushAlert",
+                    "Notification for a user joins the meeting",
+                    Map("userName" -> newUser.name)
+                  )
+                  outGW.send(notifyEvent)
+                  NotificationDAO.insert(notifyEvent)
+                }
+            } else {
+              val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+                liveMeeting.props.meetingProp.intId,
+                "info",
+                "user",
+                "app.notification.userJoinPushAlert",
+                "Notification for a user joins the meeting",
+                Map("userName" -> newUser.name)
+              )
+              outGW.send(notifyEvent)
+              NotificationDAO.insert(notifyEvent)
+            }
 
             val newState = startRecordingIfAutoStart2x(outGW, liveMeeting, state)
             if (!Users2x.hasPresenter(liveMeeting.users2x)) {

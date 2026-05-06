@@ -3,12 +3,14 @@ import {
   lgPaddingY,
   smPaddingY,
   borderSize,
+  smPaddingX,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   listItemBgHover,
   itemFocusBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
+import { PluginButtonIcon } from '/imports/ui/components/plugins/plugin-icon/styles';
 
 interface AvatarProps {
   moderator?: boolean;
@@ -119,6 +121,15 @@ const IconRightContainer = styled.div`
   align-content: center;
 `;
 
+const SvgContentUserListIcon = styled(PluginButtonIcon)`
+  display: inline-flex;
+  align-items: center;
+`;
+
+const SvgContentUserListIconMargin = styled(PluginButtonIcon)`
+  margin-right: ${smPaddingX};
+`;
+
 // ===== Raised-Hands Avatar =====
 const RaiseHandAvatar = styled(UserAvatar as React.ComponentType<RaisedHandAvatarProps>)<RaisedHandAvatarProps>`
   position: relative;
@@ -136,5 +147,7 @@ export default {
   Avatar,
   UserItemContents,
   IconRightContainer,
+  SvgContentUserListIcon,
+  SvgContentUserListIconMargin,
   RaiseHandAvatar,
 };
