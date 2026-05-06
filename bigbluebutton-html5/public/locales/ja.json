@@ -56,7 +56,7 @@
     "app.chat.toolbar.edit.cancel": "キャンセルするには{cancelKey}を押してください",
     "app.chat.toolbar.edit.edited": "編集済み",
     "app.chat.toolbar.pin": "Pin",
-    "app.chat.toolbar.pin.confirmationTitle": "Pin message",
+    "app.chat.toolbar.pin.confirmationTitle": "メッセージをピン留め",
     "app.chat.toolbar.pin.confirmationDescription": "Pinning this message will keep it at the top of the chat for all users to see. Are you sure you want to pin this message?",
     "app.chat.toolbar.pin.confirmationQuestion": "Do you want to pin this message?",
     "app.chat.toolbar.pin.replaceConfirmationTitle": "Replace pinned message",
