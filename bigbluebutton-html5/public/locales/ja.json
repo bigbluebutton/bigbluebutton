@@ -1556,7 +1556,7 @@
     "app.createBreakoutRoom.increaseBreakoutTime": "小会議室の制限時間を増やす",
     "app.createBreakoutRoom.decreaseRooms": "部屋の数を減らす",
     "app.createBreakoutRoom.increaseRooms": "部屋の数を増やす",
-    "app.createBreakoutRoom.roomOptions": "Room options",
+    "app.createBreakoutRoom.roomOptions": "部屋の詳細",
     "app.createBreakoutRoom.unassignedUsers": "割り振られていないユーザー",
     "app.createBreakoutRoom.youAreInRoom": "{roomName} に移されました。",
     "app.createBreakoutRoom.callModerator": "司会者を呼ぶ",
