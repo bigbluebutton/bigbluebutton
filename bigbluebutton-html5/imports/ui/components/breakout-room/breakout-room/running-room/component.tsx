@@ -382,6 +382,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
               <Styled.RoomCard
                 id={`breakoutBox-${breakout.sequence}`}
                 key={breakout.breakoutRoomMeetingId}
+                data-test={breakout.isUserCurrentlyInRoom ? 'alreadyConnected' : undefined}
                 onDrop={handleDrop(breakout.breakoutRoomMeetingId)}
                 onDragOver={(ev) => {
                   ev.preventDefault();
