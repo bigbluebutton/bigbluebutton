@@ -1,3 +1,0 @@
-# NOTE: The behaviorbot/welcome app (https://github.com/apps/welcome) that used
-# this config is no longer functional. The welcome message for first-time
-# contributors is now handled by .github/workflows/welcome.yml instead.
