@@ -70,7 +70,7 @@
     "app.chat.pinnedMessages.confirmModal.unpinTitle": "メッセージのピン留めを外す",
     "app.chat.pinnedMessages.confirmModal.unpinMessage": "本当にピン留めを外してよいですか？",
     "app.chat.pinnedMessages.confirmModal.confirm": "ピン留めを外す",
-    "app.chat.pinnedMessages.confirmModal.cancel": "Cancel",
+    "app.chat.pinnedMessages.confirmModal.cancel": "やめる",
     "app.chat.pinnedMessages.tooltipUnpin": "Unpin message",
     "app.chat.pinnedMessages.tooltipExpand": "Expand pinned message",
     "app.chat.pinnedMessages.tooltipCollapse": "Collapse pinned message",
