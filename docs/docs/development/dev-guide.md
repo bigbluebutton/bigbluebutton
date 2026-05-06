@@ -69,9 +69,9 @@ To develop BigBlueButton from within Windows, you have two options:
 - use Windows Subsystem for Linux
 - use VMWare Player or VirtualBox to create a virtual machine (VM).
 
-Choose the OS to be Ubuntu 22.04 64-bit. The associated documentation for VMWare Player and VirtualBox or WSL will guide you on setting up a new 22.04 64-bit VM.
+Choose the OS to be Ubuntu 24.04 64-bit. The associated documentation for VMWare Player and VirtualBox or WSL will guide you on setting up a new 24.04 64-bit VM.
 
-**Note:** When setting up the VM, it does not matter to BigBlueButton if you set up Ubuntu 22.04 server or desktop. If you install desktop, you'll have the option of using a graphical interface to edit files. When running the VM, you will need a host operating system capable of running a [64-bit virtual machine](https://stackoverflow.com/questions/56124/can-i-run-a-64-bit-vmware-image-on-a-32-bit-machine).
+**Note:** When setting up the VM, it does not matter to BigBlueButton if you set up Ubuntu 24.04 server or desktop. If you install desktop, you'll have the option of using a graphical interface to edit files. When running the VM, you will need a host operating system capable of running a [64-bit virtual machine](https://stackoverflow.com/questions/56124/can-i-run-a-64-bit-vmware-image-on-a-32-bit-machine).
 
 #### Developing on Linux host via container
 
@@ -288,7 +288,8 @@ Next, override the `wsURL` so that it remains the same even if you switch branch
 
 ```bash
 HOST=$(grep -v '#' /etc/bigbluebutton/bbb-web.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-sudo yq e -i ".public.kurento.wsUrl = \"wss://$HOST/bbb-webrtc-sfu\"" /etc/bigbluebutton/bbb-html5.yml
+sudo test -s /etc/bigbluebutton/bbb-html5.yml || sudo sh -c "echo '{}' > /etc/bigbluebutton/bbb-html5.yml"
+sudo yq -y -i ".public.kurento.wsUrl = \"wss://$HOST/bbb-webrtc-sfu\"" /etc/bigbluebutton/bbb-html5.yml
 sudo bbb-conf --restart
 ```
 
@@ -311,8 +312,8 @@ or `deploy.sh` to run in production mode and have the client files served by Ngi
 
 You may see the error "Call timeout (Error 1006)" during the microphone echo test after starting the developing HTML5 client by "npm start". A misconfiguration of Freeswitch may account for it, especially when BigBlueButton is set up with bbb-install.sh script. Try setting "sipjsHackViaWs" to true for the client:
 
-`touch /etc/bigbluebutton/bbb-html5.yml`
-`yq e -i '.public.media.sipjsHackViaWs = true' /etc/bigbluebutton/bbb-html5.yml`
+`test -s /etc/bigbluebutton/bbb-html5.yml || echo '{}' > /etc/bigbluebutton/bbb-html5.yml`
+`yq -y -i '.public.media.sipjsHackViaWs = true' /etc/bigbluebutton/bbb-html5.yml`
 
 ### `/private/config`
 

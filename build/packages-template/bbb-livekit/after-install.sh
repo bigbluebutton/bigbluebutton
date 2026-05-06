@@ -29,8 +29,8 @@ EOT
 
 else
   # If livekit.yaml exists, extract the API key and secret
-  API_KEY=$(yq e '.keys | keys | .[0]' /etc/bigbluebutton/livekit.yaml)
-  API_SECRET=$(yq e ".keys.[\"$API_KEY\"]" /etc/bigbluebutton/livekit.yaml)
+  API_KEY=$(yq -r '.keys | keys | .[0]' /etc/bigbluebutton/livekit.yaml)
+  API_SECRET=$(yq -r ".keys.[\"$API_KEY\"]" /etc/bigbluebutton/livekit.yaml)
 fi
 
 # Update bbb-webrtc-sfu's and recorder's overrides with the generated keys.
@@ -40,20 +40,20 @@ fi
 # This part is *temporary* to facilitate testing while the pkg is experimental.
 # We MUST move it to the SFU/recorder packages (and use the /usr/local file instead)
 # after bbb-livekit becomes mandatory and bbb-webrtc-sfu/recorder depends on it.
-if [ ! -f /etc/bigbluebutton/bbb-webrtc-sfu/production.yml ]; then
+if [ ! -s /etc/bigbluebutton/bbb-webrtc-sfu/production.yml ]; then
   mkdir -p /etc/bigbluebutton/bbb-webrtc-sfu
-  touch /etc/bigbluebutton/bbb-webrtc-sfu/production.yml
+  echo '{}' > /etc/bigbluebutton/bbb-webrtc-sfu/production.yml
   chown bigbluebutton:bigbluebutton /etc/bigbluebutton/bbb-webrtc-sfu/production.yml
 fi
 
 # If key and secret are not the same as the ones in livekit.yaml, update them
-SFU_KEY=$(yq e '.livekit.key' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml)
-SFU_SECRET=$(yq e '.livekit.secret' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml)
+SFU_KEY=$(yq -r '.livekit.key' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml)
+SFU_SECRET=$(yq -r '.livekit.secret' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml)
 
 if [ "$SFU_KEY" = "null" ] || [ -z "$SFU_KEY" ] || [ "$SFU_KEY" != "$API_KEY" ] || \
    [ "$SFU_SECRET" = "null" ] || [ -z "$SFU_SECRET" ] || [ "$SFU_SECRET" != "$API_SECRET" ]; then
-  yq e -i ".livekit.key = \"$API_KEY\"" /etc/bigbluebutton/bbb-webrtc-sfu/production.yml
-  yq e -i ".livekit.secret = \"$API_SECRET\"" /etc/bigbluebutton/bbb-webrtc-sfu/production.yml
+  yq -y -i ".livekit.key = \"$API_KEY\"" /etc/bigbluebutton/bbb-webrtc-sfu/production.yml
+  yq -y -i ".livekit.secret = \"$API_SECRET\"" /etc/bigbluebutton/bbb-webrtc-sfu/production.yml
 fi
 
 # For the recorder, add as env vars to /etc/default/bbb-webrtc-recorder
