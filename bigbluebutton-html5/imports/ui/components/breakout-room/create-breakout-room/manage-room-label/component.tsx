@@ -23,28 +23,38 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.randomlyAssignDesc',
     description: 'randomly assign label description',
   },
+  assignModeratorsRandomly: {
+    id: 'app.createBreakoutRoom.assignModeratorsRandomly',
+    description: 'assign moderators randomly label',
+  },
+  assignModeratorsRandomlyDesc: {
+    id: 'app.createBreakoutRoom.assignModeratorsRandomlyDesc',
+    description: 'assign moderators randomly label description',
+  },
 });
 
 interface ManageRoomLabelProps {
   numberOfRoomsIsValid: boolean;
   leastOneUserIsValid: boolean;
+  allUnassignedAreModerators: boolean;
   onAssignReset: () => void;
   onAssignRandomly: () => void;
+  onAssignModeratorsRandomly: () => void;
 }
 
 const ManageRoomLabel: React.FC<ManageRoomLabelProps> = ({
   numberOfRoomsIsValid,
   leastOneUserIsValid,
+  allUnassignedAreModerators,
   onAssignReset,
   onAssignRandomly,
+  onAssignModeratorsRandomly,
 }) => {
   const intl = useIntl();
-  return (
-    <Styled.AssignBtnsContainer>
-      <Styled.LabelText bold aria-hidden>
-        {intl.formatMessage(intlMessages.manageRooms)}
-      </Styled.LabelText>
-      {leastOneUserIsValid ? (
+
+  const renderAssignButton = () => {
+    if (leastOneUserIsValid) {
+      return (
         <Styled.AssignBtns
           data-test="resetAssignments"
           label={intl.formatMessage(intlMessages.resetAssignments)}
@@ -54,17 +64,40 @@ const ManageRoomLabel: React.FC<ManageRoomLabelProps> = ({
           color="default"
           disabled={!numberOfRoomsIsValid}
         />
-      ) : (
+      );
+    }
+    if (allUnassignedAreModerators) {
+      return (
         <Styled.AssignBtns
           $random
-          data-test="randomlyAssign"
-          label={intl.formatMessage(intlMessages.randomlyAssign)}
-          aria-describedby="randomlyAssignDesc"
-          onClick={onAssignRandomly}
+          data-test="assignModeratorsRandomly"
+          label={intl.formatMessage(intlMessages.assignModeratorsRandomly)}
+          aria-describedby="assignModeratorsRandomlyDesc"
+          onClick={onAssignModeratorsRandomly}
           size="sm"
           color="default"
         />
-      )}
+      );
+    }
+    return (
+      <Styled.AssignBtns
+        $random
+        data-test="randomlyAssign"
+        label={intl.formatMessage(intlMessages.randomlyAssign)}
+        aria-describedby="randomlyAssignDesc"
+        onClick={onAssignRandomly}
+        size="sm"
+        color="default"
+      />
+    );
+  };
+
+  return (
+    <Styled.AssignBtnsContainer>
+      <Styled.LabelText bold aria-hidden>
+        {intl.formatMessage(intlMessages.manageRooms)}
+      </Styled.LabelText>
+      {renderAssignButton()}
     </Styled.AssignBtnsContainer>
   );
 };

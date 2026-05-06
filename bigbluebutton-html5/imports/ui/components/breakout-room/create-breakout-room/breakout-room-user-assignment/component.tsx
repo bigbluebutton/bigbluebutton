@@ -187,6 +187,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
   numberOfRooms,
   setSelectedId,
   randomlyAssign,
+  randomlyAssignModerators,
   resetRooms,
   users,
   currentSlidePrefix,
@@ -356,8 +357,13 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
       <ManageRoomLabel
         onAssignReset={() => { resetRooms(0); }}
         onAssignRandomly={randomlyAssign}
+        onAssignModeratorsRandomly={randomlyAssignModerators}
         numberOfRoomsIsValid={numberOfRooms > 0}
-        leastOneUserIsValid={rooms[0]?.users?.length < users.length}
+        leastOneUserIsValid={(rooms[0]?.users?.length ?? 0) === 0}
+        allUnassignedAreModerators={
+          (rooms[0]?.users?.length ?? 0) > 0
+          && rooms[0].users.every((u) => u.isModerator)
+        }
       />
       <Styled.ContentContainer>
         <Styled.Alert valid role="alert">

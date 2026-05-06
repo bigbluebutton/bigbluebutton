@@ -45,6 +45,7 @@ export type ChildComponentProps = {
   selectedRoom: number;
   setSelectedRoom: (id: number) => void;
   randomlyAssign: () => void;
+  randomlyAssignModerators: () => void;
   resetRooms: (cap: number) => void;
   users: BreakoutUser[];
   currentSlidePrefix: string;

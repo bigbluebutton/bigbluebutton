@@ -168,6 +168,38 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
     setUserAssignedRooms(updatedUserAssignedRooms);
   };
 
+  const randomlyAssignModerators = () => {
+    const updatedUserAssignedRooms = { ...userAssignedRooms };
+    const unassignedModerators = users.filter((user) => user.isModerator && (
+      (updatedUserAssignedRooms[user.userId] ?? []).length === 0
+      || (updatedUserAssignedRooms[user.userId] ?? []).includes(0)
+    ));
+    const userIds = unassignedModerators.sort(() => Math.random() - 0.5).map((user) => user.userId);
+    const numberOfUsers = userIds.length;
+    const assignments = new Array(numberOfUsers);
+
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < numberOfUsers; i++) {
+      assignments[i] = (i % numberOfRooms) + 1;
+    }
+
+    const updatedMovementRegistered = { ...movementRegistered };
+    userIds.forEach((userId, index) => {
+      const roomNumber = assignments[index];
+      const runningRoom = runningRooms?.find((r) => r.participants.some((p) => p.user.userId === userId));
+      updatedUserAssignedRooms[userId] = [roomNumber];
+      updatedMovementRegistered[userId] = {
+        fromSequence: runningRoom?.sequence ?? 0,
+        toSequence: roomNumber,
+        fromRoomId: runningRoom?.breakoutRoomMeetingId,
+        toRoomId: runningRooms?.find((r) => r.sequence === roomNumber)?.breakoutRoomMeetingId,
+      };
+    });
+    setMovementRegistered(updatedMovementRegistered);
+    setMoveRegisterRef(updatedMovementRegistered);
+    setUserAssignedRooms(updatedUserAssignedRooms);
+  };
+
   const getUserIdsByNumber = (n: number) => {
     if (n === 0) {
       // Return keys with empty arrays
@@ -373,6 +405,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
       selectedRoom={selectedRoom}
       setSelectedRoom={setSelectedRoom}
       randomlyAssign={randomlyAssign}
+      randomlyAssignModerators={randomlyAssignModerators}
       resetRooms={resetRooms}
       users={users}
       currentSlidePrefix={currentSlidePrefix}
