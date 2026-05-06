@@ -116,7 +116,7 @@ export function createMeetingUrl(createParameter?: string, customMeetingId?: str
 
 export function createMeetingPromise(createParameter?: string, customMeetingId?: string): Promise<AxiosResponse> {
   const url = createMeetingUrl(createParameter, customMeetingId);
-  return axios.get(url, { adapter: 'http' });
+  return axios.get(url, { adapter: 'http', headers: { Accept: 'text/xml' } });
 }
 
 export async function createMeeting(createParameter?: string, customMeetingId?: string): Promise<string> {

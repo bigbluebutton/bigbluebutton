@@ -35,7 +35,9 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
         lockOnJoinConfigurable = msg.body.lockOnJoinConfigurable,
         hideViewersCursor = msg.body.hideViewersCursor,
         hideViewersAnnotation = msg.body.hideViewersAnnotation,
-        presenterPolicy = msg.body.presenterPolicy
+        presenterPolicy = msg.body.presenterPolicy,
+        disableMultiScreenshare = msg.body.disableMultiScreenshare,
+        hideViewersScreenshare = msg.body.hideViewersScreenshare
       )
 
       if (!MeetingStatus2x.permissionsEqual(liveMeeting.status, settings) || !MeetingStatus2x.permisionsInitialized(liveMeeting.status)) {
@@ -234,6 +236,45 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
           }
         }
 
+        if (oldPermissions.disableMultiScreenshare != settings.disableMultiScreenshare) {
+          if (settings.disableMultiScreenshare) {
+            val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+              liveMeeting.props.meetingProp.intId,
+              "info",
+              "lock",
+              "app.userList.userOptions.disableMultiScreenshare",
+              "Label to disable multi screenshare notification",
+              Map()
+            )
+            outGW.send(notifyEvent)
+            NotificationDAO.insert(notifyEvent)
+            LockSettingsUtil.enforceScreenshareLockSettingsForAllViewers(liveMeeting, outGW)
+          } else {
+            val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+              liveMeeting.props.meetingProp.intId,
+              "info",
+              "lock",
+              "app.userList.userOptions.enableMultiScreenshare",
+              "Label to enable multi screenshare notification",
+              Map()
+            )
+            outGW.send(notifyEvent)
+            NotificationDAO.insert(notifyEvent)
+          }
+        }
+
+        if (oldPermissions.hideViewersScreenshare != settings.hideViewersScreenshare) {
+          val (msgId, msgDesc) = if (settings.hideViewersScreenshare)
+            ("app.userList.userOptions.hideViewersScreenshare", "Label to hide viewers screenshare notification")
+          else
+            ("app.userList.userOptions.showViewersScreenshare", "Label to show viewers screenshare notification")
+          val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+            liveMeeting.props.meetingProp.intId, "info", "lock", msgId, msgDesc, Map()
+          )
+          outGW.send(notifyEvent)
+          NotificationDAO.insert(notifyEvent)
+        }
+
         if (oldPermissions.presenterPolicy != settings.presenterPolicy) {
           val (messageId, messageDescription) = settings.presenterPolicy match {
             case "moderatorOnly" =>
@@ -277,7 +318,9 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
           hideViewersCursor = settings.hideViewersCursor,
           hideViewersAnnotation = settings.hideViewersAnnotation,
           presenterPolicy = settings.presenterPolicy,
-          msg.body.setBy
+          msg.body.setBy,
+          disableMultiScreenshare = settings.disableMultiScreenshare,
+          hideViewersScreenshare = settings.hideViewersScreenshare
         )
         val header = BbbClientMsgHeader(
           LockSettingsInMeetingChangedEvtMsg.NAME,

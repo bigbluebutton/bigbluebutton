@@ -282,6 +282,8 @@ class ReceivedJsonMsgHandlerActor(
         routeGenericMsg[BroadcastPushLayoutMsg](envelope, jsonNode)
       case SetScreenshareAsContentReqMsg.NAME =>
         routeGenericMsg[SetScreenshareAsContentReqMsg](envelope, jsonNode)
+      case SetScreenshareShowAsContentReqMsg.NAME =>
+        routeGenericMsg[SetScreenshareShowAsContentReqMsg](envelope, jsonNode)
 
       case UserLeaveReqMsg.NAME =>
         routeGenericMsg[UserLeaveReqMsg](envelope, jsonNode)

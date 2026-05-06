@@ -55,7 +55,11 @@ export class Recording extends MultiUsers {
 
     // start recording
     await this.modPage.waitAndClick(e.recordingIndicator);
-    await this.modPage.hasNElements(e.toastContainer, 2, 'should display 2 toasts when starting recording, one for no mic and one for the options');
+    await this.modPage.hasNElements(
+      e.toastContainer,
+      2,
+      'should display 2 toasts when starting recording, one for no mic and one for the options',
+    );
     await this.modPage.hasElement(e.cancelRecordingButton, 'should display the Cancel button in the recording toast');
     await this.modPage.hasElement(e.confirmRecordingButton, 'should display the Confirm button in the recording toast');
     await this.modPage.waitAndClick(e.confirmRecordingButton);
@@ -87,9 +91,11 @@ export class Recording extends MultiUsers {
       const match = text?.match(/(\d+):(\d+)/);
       expect(match, 'should find time pattern in recording button text').not.toBeNull();
       const [, minutes, seconds] = match!;
-      const totalSeconds = Number.parseInt(minutes) * 60 + Number.parseInt(seconds);
+      const totalSeconds = Number.parseInt(minutes, 10) * 60 + Number.parseInt(seconds, 10);
       expect(totalSeconds).toBeGreaterThan(5);
-    }, 'should display more than 5 seconds on the recording button counter').toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    }, 'should display more than 5 seconds on the recording button counter').toPass({
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
     await this.modPage.waitAndClick(e.leaveMeetingDropdown);
     await this.modPage.waitAndClick(e.endMeetingButton);
     await this.modPage.hasElement(e.simpleModal, 'should display the confirm meeting end modal');

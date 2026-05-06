@@ -32,6 +32,7 @@ import {
   useVideoState,
 } from './state';
 import { VIDEO_TYPES } from './enums';
+import { useIsSharing } from '/imports/ui/components/screenshare/service';
 
 interface VideoProviderContainerProps {
   focusedId: string;
@@ -128,6 +129,7 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
   const { numberOfPages } = useVideoState();
   const isPaginationEnabled = useIsPaginationEnabled();
   const isGridEnabled = useStorageKey('isGridEnabled') as boolean;
+  const isSelfSharing = useIsSharing();
 
   useEffect(() => {
     if (isPaginationEnabled) {
@@ -162,7 +164,7 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     if (streamIsConnected) setConnectingStream(null);
   }, [streams, connectingStream]);
 
-  if (!usersVideo.length && !isGridEnabled) return null;
+  if (!usersVideo.length && !isGridEnabled && !isSelfSharing) return null;
 
   const providerProps = {
     cameraDock,

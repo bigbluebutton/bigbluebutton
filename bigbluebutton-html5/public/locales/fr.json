@@ -279,6 +279,8 @@
     "app.screenshare.screenshareUnsupportedEnv": "Code {errorCode}. Le navigateur n'est pas pris en charge. Essayez à nouveau en utilisant un autre navigateur ou un appareil différent.",
     "app.screenshare.screensharePermissionError": "Code {errorCode}. Les captures d'écran sont soumises à autorisation.",
     "app.screenshare.screenshareToastHelpLabel": "En savoir plus",
+    "app.screenshare.showAsContentLabel": "Afficher comme contenu principal",
+    "app.screenshare.moveToThumbnailLabel": "Déplacer en miniature",
     "app.cameraAsContent.presenterLoadingLabel": "Votre caméra est en cours de chargement",
     "app.cameraAsContent.viewerLoadingLabel": "La caméra du présentateur est en cours de chargement",
     "app.cameraAsContent.presenterSharingLabel": "Vous présentez maintenant votre caméra",

@@ -329,7 +329,9 @@ class MeetingActor(
       lockOnJoinConfigurable = lockSettingsProp.lockOnJoinConfigurable,
       hideViewersCursor = lockSettingsProp.hideViewersCursor,
       hideViewersAnnotation = lockSettingsProp.hideViewersAnnotation,
-      presenterPolicy = lockSettingsProp.presenterPolicy
+      presenterPolicy = lockSettingsProp.presenterPolicy,
+      disableMultiScreenshare = lockSettingsProp.disableMultiScreenshare,
+      hideViewersScreenshare = lockSettingsProp.hideViewersScreenshare
     )
 
     MeetingStatus2x.initializePermissions(liveMeeting.status)
@@ -730,8 +732,11 @@ class MeetingActor(
       case m: ScreenshareRtmpBroadcastStartedVoiceConfEvtMsg => screenshareApp2x.handle(m, liveMeeting, msgBus)
       case m: ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsg => screenshareApp2x.handle(m, liveMeeting, msgBus)
       case m: GetScreenshareStatusReqMsg                     => screenshareApp2x.handle(m, liveMeeting, msgBus)
-      case m: GetScreenBroadcastPermissionReqMsg             => handleGetScreenBroadcastPermissionReqMsg(m)
-      case m: GetScreenSubscribePermissionReqMsg             => handleGetScreenSubscribePermissionReqMsg(m)
+      case m: SetScreenshareShowAsContentReqMsg =>
+        screenshareApp2x.handle(m, liveMeeting, msgBus)
+        updateUserLastActivity(m.header.userId)
+      case m: GetScreenBroadcastPermissionReqMsg => handleGetScreenBroadcastPermissionReqMsg(m)
+      case m: GetScreenSubscribePermissionReqMsg => handleGetScreenSubscribePermissionReqMsg(m)
 
       // AudioCaptions
       case m: UpdateTranscriptPubMsg =>

@@ -13,7 +13,10 @@ export class ChatNotifications extends MultiUsers {
     await this.modPage.page.waitForTimeout(1000);
     await util.publicChatMessageToast(this.modPage, this.userPage);
     await this.modPage.waitAndClick(e.chatTitle);
-    await this.modPage.hasNotificationIcon(e.publicChatButton, 'should display the notification icon on the public messages button');
+    await this.modPage.hasNotificationIcon(
+      e.publicChatButton,
+      'should display the notification icon on the public messages button',
+    );
     await util.checkNotificationText(this.modPage, e.publicChatToast);
   }
 
@@ -30,7 +33,10 @@ export class ChatNotifications extends MultiUsers {
       e.smallToastMsg,
       'should the small toast message with the new text sent on the private chat',
     );
-    await this.modPage.hasNotificationIcon(e.privateChatButton, 'should display the notification icon on the private messages button');
+    await this.modPage.hasNotificationIcon(
+      e.privateChatButton,
+      'should display the notification icon on the private messages button',
+    );
     await util.checkNotificationText(this.modPage, e.privateChatToast);
   }
 }

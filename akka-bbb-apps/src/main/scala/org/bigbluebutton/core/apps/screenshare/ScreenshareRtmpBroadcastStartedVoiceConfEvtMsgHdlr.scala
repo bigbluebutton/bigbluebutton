@@ -5,7 +5,7 @@ import org.bigbluebutton.core.apps.layout.ScreenshareAsContenthdlrHelper
 import org.bigbluebutton.core.apps.{ ExternalVideoModel, ScreenshareModel }
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.{ LayoutDAO, ScreenshareDAO }
-import org.bigbluebutton.core.models.Layouts
+import org.bigbluebutton.core.models.{ Layouts, Screenshares, ScreenshareEntry }
 import org.bigbluebutton.core.models.Users2x.findPresenter
 import org.bigbluebutton.core.running.LiveMeeting
 
@@ -32,9 +32,10 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
       BbbCommonEnvCoreMsg(envelope, event)
     }
 
-    log.info("handleScreenshareRTMPBroadcastStartedRequest: isBroadcastingRTMP=" +
-      ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel) +
-      " URL:" + ScreenshareModel.getRTMPBroadcastingUrl(liveMeeting.screenshareModel))
+    log.info(
+      "handleScreenshareRTMPBroadcastStartedRequest: stream={} userId={}",
+      msg.body.stream, msg.body.userId
+    )
 
     if (msg.body.contentType == "camera" && liveMeeting.props.meetingProp.disabledFeatures.contains("cameraAsContent")) {
       log.error(
@@ -45,11 +46,31 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
       val meetingId = liveMeeting.props.meetingProp.intId
       log.error("Screen sharing is disabled for this meeting, meetingID = {}", meetingId)
     } else {
-      // only valid if not broadcasting yet
-      if (!ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel)) {
-        // Stop external video if it's running
-        ExternalVideoModel.stop(bus.outGW, liveMeeting)
+      // showAsContent=true for the first share that occupies the content area, regardless of role.
+      // Subsequent shares (any role) go to the camera dock.
+      val alreadyHasContent = Screenshares.findAll(liveMeeting.screenshares).exists(_.showAsContent) ||
+        ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel)
+      val showAsContent = !alreadyHasContent
 
+      // Register in the multi-share collection (keyed by stream URL).
+      val entry = ScreenshareEntry(
+        screenshareId = msg.body.stream,
+        userId = msg.body.userId,
+        stream = msg.body.stream,
+        voiceConf = msg.body.voiceConf,
+        screenshareConf = msg.body.screenshareConf,
+        vidWidth = msg.body.vidWidth,
+        vidHeight = msg.body.vidHeight,
+        hasAudio = msg.body.hasAudio,
+        contentType = msg.body.contentType,
+        showAsContent = showAsContent,
+        startedAt = System.currentTimeMillis()
+      )
+      Screenshares.add(liveMeeting.screenshares, entry)
+
+      // Keep the legacy singleton model in sync for backward compatibility with existing consumers
+      // that still reference liveMeeting.screenshareModel (subscribe permission handler, broadcastStopped).
+      if (!ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel)) {
         ScreenshareModel.setRTMPBroadcastingUrl(liveMeeting.screenshareModel, msg.body.stream)
         ScreenshareModel.broadcastingRTMPStarted(liveMeeting.screenshareModel)
         ScreenshareModel.setScreenshareVideoWidth(liveMeeting.screenshareModel, msg.body.vidWidth)
@@ -60,10 +81,11 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
         ScreenshareModel.setHasAudio(liveMeeting.screenshareModel, msg.body.hasAudio)
         ScreenshareModel.setContentType(liveMeeting.screenshareModel, msg.body.contentType)
         ScreenshareModel.setUserId(liveMeeting.screenshareModel, msg.body.userId)
+      }
 
-        log.info("START broadcast ALLOWED when isBroadcastingRTMP=false")
-
-        ScreenshareDAO.insert(liveMeeting.props.meetingProp.intId, liveMeeting.screenshareModel)
+      // When a presenter/mod share takes the content area, stop external video if running.
+      if (showAsContent) {
+        ExternalVideoModel.stop(bus.outGW, liveMeeting)
         if (!Layouts.getScreenshareAsContent(liveMeeting.layouts)) {
           Layouts.setScreenshareAsContent(liveMeeting.layouts, true)
           LayoutDAO.insertOrUpdate(liveMeeting.props.meetingProp.intId, liveMeeting.layouts)
@@ -73,14 +95,19 @@ trait ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr {
             ScreenshareAsContenthdlrHelper.sendSetScreenshareAsContentEvtMsg(presenter.intId, liveMeeting, bus.outGW)
           }
         }
-
-        // Notify viewers in the meeting that there's an rtmp stream to view
-        val msgEvent = broadcastEvent(msg.body.voiceConf, msg.body.screenshareConf, msg.body.userId, msg.body.stream,
-          msg.body.vidWidth, msg.body.vidHeight, msg.body.timestamp, msg.body.hasAudio, msg.body.contentType)
-        bus.outGW.send(msgEvent)
-      } else {
-        log.info("START broadcast NOT ALLOWED when isBroadcastingRTMP=true")
       }
+
+      log.info(
+        "START broadcast ALLOWED: userId={} stream={} showAsContent={}",
+        msg.body.userId, msg.body.stream, showAsContent
+      )
+
+      ScreenshareDAO.insertEntry(liveMeeting.props.meetingProp.intId, entry)
+
+      // Notify all participants in the meeting.
+      val msgEvent = broadcastEvent(msg.body.voiceConf, msg.body.screenshareConf, msg.body.userId, msg.body.stream,
+        msg.body.vidWidth, msg.body.vidHeight, msg.body.timestamp, msg.body.hasAudio, msg.body.contentType)
+      bus.outGW.send(msgEvent)
     }
   }
 

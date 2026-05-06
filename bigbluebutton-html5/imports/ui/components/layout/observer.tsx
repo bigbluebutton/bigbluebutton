@@ -17,6 +17,7 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import MediaService from '/imports/ui/components/media/service';
 import { useVideoStreams, useVideoStreamsCount } from '/imports/ui/components/video-provider/hooks';
 import { useIsChatEnabled, useIsPresentationEnabled, useIsScreenSharingEnabled } from '/imports/ui/services/features';
+import { useIsSharing } from '/imports/ui/components/screenshare/service';
 import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/useUserChangedLocalSettings';
 import Session from '/imports/ui/services/storage/in-memory';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -46,6 +47,7 @@ const LayoutObserver: React.FC = () => {
 
   const isThereWebcam = useVideoStreamsCount() > 0;
   const { streams: videoStream } = useVideoStreams();
+  const isSelfSharing = useIsSharing();
   const isScreenSharingEnabled = useIsScreenSharingEnabled();
   const isPresentationEnabled = useIsPresentationEnabled();
   const isChatEnabled = useIsChatEnabled();
@@ -201,9 +203,9 @@ const LayoutObserver: React.FC = () => {
   useEffect(() => {
     layoutContextDispatch({
       type: ACTIONS.SET_NUM_CAMERAS,
-      value: videoStream.length,
+      value: videoStream.length + (isSelfSharing ? 1 : 0),
     });
-  }, [videoStream.length]);
+  }, [videoStream.length, isSelfSharing]);
 
   useEffect(() => {
     if (layoutIsReady) {

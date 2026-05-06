@@ -3,6 +3,7 @@ package org.bigbluebutton.core.apps.screenshare
 import org.apache.pekko.actor.ActorContext
 import org.apache.pekko.event.Logging
 import org.bigbluebutton.core.apps.ScreenshareModel
+import org.bigbluebutton.core.models.{ Screenshares, Roles, Users2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
@@ -16,8 +17,45 @@ object ScreenshareApp2x {
         ScreenshareModel.getUserId(liveMeeting.screenshareModel),
         ScreenshareModel.getRTMPBroadcastingUrl(liveMeeting.screenshareModel),
       )
-
       outGW.send(event)
+    }
+  }
+
+  /** Stop all active screenshares belonging to locked viewers.
+   *  Called when disableMultiScreenshare is activated by a moderator. */
+  def enforceScreenshareLockSettingsForAllViewers(outGW: OutMsgRouter, liveMeeting: LiveMeeting): Unit = {
+    val allShares = Screenshares.findAll(liveMeeting.screenshares)
+    allShares.foreach { entry =>
+      val isViewer = Users2x.findWithIntId(liveMeeting.users2x, entry.userId)
+        .exists(u => u.role == Roles.VIEWER_ROLE)
+      if (isViewer) {
+        val event = MsgBuilder.buildScreenBroadcastStopSysMsg(
+          liveMeeting.props.meetingProp.intId,
+          entry.voiceConf,
+          entry.userId,
+          entry.stream
+        )
+        outGW.send(event)
+      }
+    }
+    // Also stop the singleton if it belongs to a viewer.
+    if (ScreenshareModel.isBroadcastingRTMP(liveMeeting.screenshareModel)) {
+      val singletonUserId = ScreenshareModel.getUserId(liveMeeting.screenshareModel)
+      val singletonNotInCollection = !Screenshares.hasStream(
+        liveMeeting.screenshares, ScreenshareModel.getRTMPBroadcastingUrl(liveMeeting.screenshareModel))
+      if (singletonNotInCollection) {
+        val isViewer = Users2x.findWithIntId(liveMeeting.users2x, singletonUserId)
+          .exists(u => u.role == Roles.VIEWER_ROLE)
+        if (isViewer) {
+          val event = MsgBuilder.buildScreenBroadcastStopSysMsg(
+            liveMeeting.props.meetingProp.intId,
+            ScreenshareModel.getVoiceConf(liveMeeting.screenshareModel),
+            singletonUserId,
+            ScreenshareModel.getRTMPBroadcastingUrl(liveMeeting.screenshareModel)
+          )
+          outGW.send(event)
+        }
+      }
     }
   }
 
@@ -51,7 +89,8 @@ object ScreenshareApp2x {
 class ScreenshareApp2x(implicit val context: ActorContext)
   extends GetScreenshareStatusReqMsgHdlr
   with ScreenshareRtmpBroadcastStartedVoiceConfEvtMsgHdlr
-  with ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgHdlr {
+  with ScreenshareRtmpBroadcastStoppedVoiceConfEvtMsgHdlr
+  with SetScreenshareShowAsContentReqMsgHdlr {
 
   val log = Logging(context.system, getClass)
 

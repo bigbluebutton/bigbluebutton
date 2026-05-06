@@ -195,7 +195,9 @@ create unlogged table "meeting_lockSettings" (
     "lockOnJoinConfigurable" boolean,
     "hideViewersCursor"      boolean,
     "hideViewersAnnotation"  boolean,
-    "presenterPolicy"        varchar(50) DEFAULT 'requireApproval' NOT NULL
+    "presenterPolicy"        varchar(50) DEFAULT 'requireApproval' NOT NULL,
+    "disableMultiScreenshare" boolean DEFAULT FALSE NOT NULL,
+    "hideViewersScreenshare"  boolean DEFAULT FALSE NOT NULL
 );
 
 CREATE OR REPLACE VIEW "v_meeting_lockSettings" AS
@@ -212,6 +214,8 @@ SELECT
 	mls."presenterPolicy",
 	mls."lockOnJoin",
     mls."lockOnJoinConfigurable",
+	mls."disableMultiScreenshare",
+	mls."hideViewersScreenshare",
 	mup."webcamsOnlyForModerator",
 	CASE WHEN
 	mls."disableCam" IS TRUE THEN TRUE
@@ -223,6 +227,8 @@ SELECT
 	WHEN mls."hideViewersCursor"  IS TRUE THEN TRUE
 	WHEN mls."hideViewersAnnotation"  IS TRUE THEN TRUE
 	WHEN mls."presenterPolicy" = 'moderatorOnly' THEN TRUE
+	WHEN mls."disableMultiScreenshare" IS TRUE THEN TRUE
+	WHEN mls."hideViewersScreenshare" IS TRUE THEN TRUE
 	WHEN mup."webcamsOnlyForModerator"  IS TRUE THEN TRUE
 	ELSE FALSE
 	END "hasActiveLockSetting"
@@ -1855,9 +1861,10 @@ create unlogged table "screenshare"(
 "vidWidth" integer,
 "vidHeight" integer,
 "hasAudio" boolean,
+"userId" varchar(50) DEFAULT '' NOT NULL,
+"showAsContent" boolean DEFAULT FALSE NOT NULL,
 "startedAt" timestamp with time zone,
 "stoppedAt" timestamp with time zone
-
 );
 create index "screenshare_meetingId" on "screenshare"("meetingId");
 create index "screenshare_meetingId_current" on "screenshare"("meetingId") WHERE "stoppedAt" IS NULL;
@@ -2478,9 +2485,9 @@ select "meeting"."meetingId",
         exists (
             select 1
             from "v_screenshare"
-            join "v_layout" on "v_layout"."meetingId" = "v_screenshare"."meetingId" and "v_layout"."screenshareAsContent" is true
             where "v_screenshare"."meetingId" = "meeting"."meetingId"
             and "contentType" = 'screenshare'
+            and "showAsContent" is true
         ) as "hasScreenshareAsContent",
         exists (
             select 1

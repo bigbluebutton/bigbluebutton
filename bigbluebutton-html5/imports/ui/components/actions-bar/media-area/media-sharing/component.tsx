@@ -6,7 +6,7 @@ import { btnDefaultColor, colorPrimary } from '/imports/ui/stylesheets/styled-co
 import CoPresentIcon from '@mui/icons-material/CoPresent';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import KEYS from '/imports/utils/keys';
-import { useIsScreenGloballyBroadcasting, screenshareHasEnded } from '/imports/ui/components/screenshare/service';
+import { useIsScreenGloballyBroadcasting, screenshareHasEnded, useShowButtonForNonPresenters } from '/imports/ui/components/screenshare/service';
 import { defineMessages, IntlShape } from 'react-intl';
 import { MediaAreaItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/media-area-item/enums';
 import Styled from './styles';
@@ -164,6 +164,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   const animations = getSettingsSingletonInstance().application?.animations ?? true;
   const actionsBarStyle = layoutSelectOutput((i: Output) => i.actionBar);
   const { screenIsShared: isScreenGloballyBroadcasting } = useIsScreenGloballyBroadcasting();
+  const showScreenshareForNonPresenter = useShowButtonForNonPresenters();
   const [currentView, setCurrentView] = useState<'main' | 'presentation' | 'externalVideo' | 'cameraAsContent'>('main');
   const [localRequestingPresenter, setLocalRequestingPresenter] = useState(false);
 
@@ -453,7 +454,18 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
         reducedWidth={!amIPresenter && amIModerator}
       >
         {!amIPresenter
-          ? renderTakePresenterView()
+          ? (
+            <>
+              {showScreenshareForNonPresenter && (
+                <Styled.ContentContainer>
+                  <Styled.MediaGrid isMobile={isMobile}>
+                    <ScreenshareButtonContainer {...{ amIPresenter, isConnected }} />
+                  </Styled.MediaGrid>
+                </Styled.ContentContainer>
+              )}
+              {renderTakePresenterView()}
+            </>
+          )
           : (
             <>
               <Styled.HeaderContainer>

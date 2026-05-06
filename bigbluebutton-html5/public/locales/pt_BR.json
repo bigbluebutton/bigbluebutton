@@ -300,6 +300,8 @@
     "app.screenshare.screenshareUnsupportedEnv": "Código {errorCode}. O navegador não é compatível. Tente novamente usando um navegador ou dispositivo diferente.",
     "app.screenshare.screensharePermissionError": "Código {errorCode}. A permissão de compartilhamento de tela deve ser concedida.",
     "app.screenshare.screenshareToastHelpLabel": "Saber mais",
+    "app.screenshare.showAsContentLabel": "Exibir como conteúdo principal",
+    "app.screenshare.moveToThumbnailLabel": "Mover para miniatura",
     "app.cameraAsContent.presenterLoadingLabel": "Sua câmera está carregando",
     "app.cameraAsContent.viewerLoadingLabel": "A câmera do apresentador está carregando",
     "app.cameraAsContent.presenterSharingLabel": "Sua câmera está sendo transmitida",

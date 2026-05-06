@@ -85,6 +85,8 @@ interface VideoListProps {
   onVideoItemMount: (stream: string, video: HTMLVideoElement) => void;
   onVideoItemUnmount: (stream: string) => void;
   onVirtualBgDrop: (stream: string, type: string, name: string, data: string) => Promise<unknown>;
+  // Self-screenshare preview tile injected by the container when user is broadcasting.
+  selfScreenshareTile?: React.ReactNode;
 }
 
 interface VideoListState {
@@ -227,11 +229,12 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       streams,
       cameraDock,
       layoutContextDispatch,
+      selfScreenshareTile,
     } = this.props;
     const visibleStreams = streams.filter(
       (item) => item.type === VIDEO_TYPES.GRID || !('render' in item) || item.render !== false,
     );
-    let numItems = visibleStreams.length;
+    let numItems = visibleStreams.length + (selfScreenshareTile ? 1 : 0);
 
     if (numItems < 1 || !this.canvas || !this.grid) {
       return;
@@ -365,6 +368,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       pluginUserCameraHelperPerPosition,
       isGridEnabled,
       overflowCount,
+      selfScreenshareTile,
     } = this.props;
     const numOfStreams = streams.filter(
       (item) => item.type === VIDEO_TYPES.GRID || !('render' in item) || item.render !== false,
@@ -438,6 +442,18 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       );
     }
 
+    if (selfScreenshareTile) {
+      videoItems.push(
+        <Styled.VideoListItem
+          key="self-screenshare-dock-tile"
+          $focused={false}
+          data-test="selfScreenshareDockItem"
+        >
+          {selfScreenshareTile}
+        </Styled.VideoListItem>,
+      );
+    }
+
     return videoItems;
   }
 
@@ -447,6 +463,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       intl,
       cameraDock,
       isGridEnabled,
+      selfScreenshareTile,
     } = this.props;
     const { optimalGrid, autoplayBlocked } = this.state;
     const { position } = cameraDock;
@@ -463,7 +480,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       >
         {this.renderPreviousPageButton()}
 
-        {!streams.length && !isGridEnabled ? null : (
+        {!streams.length && !isGridEnabled && !selfScreenshareTile ? null : (
           <Styled.VideoList
             ref={(ref) => {
               this.grid = ref;

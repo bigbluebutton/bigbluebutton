@@ -74,6 +74,8 @@ export const meetingComparator = <T>(
   if ((als?.hideViewersAnnotation ?? false) !== (bls?.hideViewersAnnotation ?? false)) return false;
   if ((als?.meetingId ?? false) !== (bls?.meetingId ?? false)) return false;
   if ((als?.webcamsOnlyForModerator ?? false) !== (bls?.webcamsOnlyForModerator ?? false)) return false;
+  if ((als?.disableMultiScreenshare ?? false) !== (bls?.disableMultiScreenshare ?? false)) return false;
+  if ((als?.hideViewersScreenshare ?? false) !== (bls?.hideViewersScreenshare ?? false)) return false;
 
   const avs = aData.voiceSettings;
   const bvs = bData.voiceSettings;

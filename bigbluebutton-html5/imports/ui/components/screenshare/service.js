@@ -210,6 +210,13 @@ export const useScreenshareStreamId = () => {
   return data?.[0]?.stream;
 };
 
+// Returns the full screenshare array for multi-stream rendering
+export const useScreenshares = () => {
+  const { data } = useScreenshare();
+
+  return data || [];
+};
+
 export const screenshareHasEnded = () => {
   if (isSharingVar()) {
     setIsSharing(false);
@@ -229,7 +236,8 @@ export const _handleStreamTermination = () => {
   screenshareHasEnded();
 };
 
-export const getMediaElement = () => document.getElementById(SCREENSHARE_MEDIA_ELEMENT_NAME);
+export const getMediaElement = () => document.getElementById(SCREENSHARE_MEDIA_ELEMENT_NAME)
+  || document.querySelector(`video[id^="${SCREENSHARE_MEDIA_ELEMENT_NAME}"]`);
 
 export const getMediaElementDimensions = () => {
   const element = getMediaElement();
@@ -277,7 +285,8 @@ export const attachLocalPreviewStream = (mediaElement) => {
 };
 
 export const setOutputDeviceId = (outputDeviceId) => {
-  const screenShareElement = document.getElementById(SCREENSHARE_MEDIA_ELEMENT_NAME);
+  const screenShareElement = document.getElementById(SCREENSHARE_MEDIA_ELEMENT_NAME)
+    || document.querySelector(`video[id^="${SCREENSHARE_MEDIA_ELEMENT_NAME}"]`);
   const sinkIdSupported = screenShareElement && typeof screenShareElement.setSinkId === 'function';
   const srcStream = screenShareElement?.srcObject;
 
@@ -329,11 +338,6 @@ export const shareScreen = async (
     }
     _trackStreamTermination(stream, _handleStreamTermination);
 
-    if (!isPresenter) {
-      MediaStreamUtils.stopMediaStreamTracks(stream);
-      return;
-    }
-
     await screenShareBridge.share(stream, onFail, contentType);
 
     // Stream might have been disabled in the meantime. I love badly designed
@@ -354,22 +358,35 @@ export const shareScreen = async (
 };
 
 export const viewScreenshare = (streamId, hasAudio, options = {}) => {
-  screenShareBridge.view(streamId, { hasAudio, outputDeviceId: options.outputDeviceId })
-    .catch((error) => {
-      logger.error({
-        logCode: 'screenshare_view_failed',
-        extraInfo: {
-          errorName: error.name,
-          errorMessage: error.message,
-        },
-      }, 'Screenshare viewer failure');
-    });
+  screenShareBridge.view(streamId, {
+    hasAudio,
+    outputDeviceId: options.outputDeviceId,
+    mediaElementId: options.mediaElementId,
+    publisherUserId: options.publisherUserId,
+  }).catch((error) => {
+    logger.error({
+      logCode: 'screenshare_view_failed',
+      extraInfo: {
+        errorName: error.name,
+        errorMessage: error.message,
+        streamId,
+        mediaElementId: options.mediaElementId,
+      },
+    }, 'Screenshare viewer failure');
+  });
 };
 
 export const screenshareHasStarted = (streamId, hasAudio, isPresenter, options = {}) => {
-  // Presenter's screen preview is local, so skip
-  if (!isPresenter) {
-    viewScreenshare(streamId, hasAudio, { outputDeviceId: options.outputDeviceId });
+  // The local broadcaster's preview is attached from gdmStream directly; observers (including
+  // non-sharing presenters and moderators) must subscribe to receive the SFU stream.
+  // When a specific mediaElementId is provided the caller is subscribing to a peer's stream
+  // while already sharing themselves — allow it even when isSharing() is true.
+  if (!isSharing() || options.mediaElementId) {
+    viewScreenshare(streamId, hasAudio, {
+      outputDeviceId: options.outputDeviceId,
+      mediaElementId: options.mediaElementId,
+      publisherUserId: options.publisherUserId,
+    });
   }
 };
 
@@ -430,4 +447,5 @@ export default {
   useScreenshareHasAudio,
   useBroadcastContentType,
   useScreenshareStreamId,
+  useScreenshares,
 };

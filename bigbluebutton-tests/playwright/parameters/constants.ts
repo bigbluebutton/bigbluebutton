@@ -22,6 +22,8 @@ export const constants = {
   lockSettingsDisableMic: 'lockSettingsDisableMic=true',
   lockSettingsDisablePublicChat: 'lockSettingsDisablePublicChat=true',
   lockSettingsHideUserList: 'lockSettingsHideUserList=true',
+  lockSettingsDisableMultiScreenshare: 'lockSettingsDisableMultiScreenshare=true',
+  lockSettingsHideViewersScreenshare: 'lockSettingsHideViewersScreenshare=true',
   allowModsToEjectCameras: 'allowModsToEjectCameras=true',
   notifyRecordingIsOn: 'notifyRecordingIsOn=true&notifyRecordingIsOn=true',
   preUploadedPresentation:

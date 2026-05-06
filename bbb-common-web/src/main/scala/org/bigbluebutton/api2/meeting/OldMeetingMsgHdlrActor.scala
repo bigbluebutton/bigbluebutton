@@ -69,6 +69,8 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
                                             msg.body.hideViewersCursor,
                                             msg.body.hideViewersAnnotation,
                                             msg.body.presenterPolicy,
+                                            msg.body.disableMultiScreenshare,
+                                            msg.body.hideViewersScreenshare,
     ))
   }
 

@@ -401,35 +401,34 @@ export class Page {
 
   async hasNotificationIcon(selector: string, description: string, timeout = ELEMENT_WAIT_TIME) {
     await expect(async () => {
-      const hasNotificationIcon = await this.page.evaluate(({
-        el,
-        publicIndicator,
-        privateIndicator,
-      }) => {
-        const element = document.querySelector(el);
-        if (!element) return false;
-        
-        const afterElement = getComputedStyle(element, 'after');
-        if (afterElement && afterElement.content !== 'none') {
-          return true;
-        }
-        
-        // Check for unread indicator in public/private buttons inside the chat panel
-        const publicBadge = element.querySelector(publicIndicator);
-        if (publicBadge) {
-          return true;
-        }
-        const privateBadge = element.querySelector(privateIndicator);
-        if (privateBadge) {
-          return true;
-        }
-        
-        return false;
-      }, {
-        el: selector,
-        publicIndicator: e.publicUnreadIndicator,
-        privateIndicator: e.privateUnreadIndicator,
-      });
+      const hasNotificationIcon = await this.page.evaluate(
+        ({ el, publicIndicator, privateIndicator }) => {
+          const element = document.querySelector(el);
+          if (!element) return false;
+
+          const afterElement = getComputedStyle(element, '::after');
+          if (afterElement && afterElement.content !== 'none') {
+            return true;
+          }
+
+          // Check for unread indicator in public/private buttons inside the chat panel
+          const publicBadge = element.querySelector(publicIndicator);
+          if (publicBadge) {
+            return true;
+          }
+          const privateBadge = element.querySelector(privateIndicator);
+          if (privateBadge) {
+            return true;
+          }
+
+          return false;
+        },
+        {
+          el: selector,
+          publicIndicator: e.publicUnreadIndicator,
+          privateIndicator: e.privateUnreadIndicator,
+        },
+      );
       expect(hasNotificationIcon).toBeTruthy();
     }, description).toPass({ timeout });
   }
@@ -542,7 +541,7 @@ export class Page {
   async checkTooltip(selector: string, text: string) {
     await this.hoverElement(selector);
     const locatorTooltip = this.page.locator(`text=${text}`);
-    await expect(locatorTooltip).toBeVisible({ timeout: 10000});
+    await expect(locatorTooltip).toBeVisible({ timeout: 10000 });
   }
 
   async getYoutubeFrame(): Promise<Frame> {

@@ -112,6 +112,14 @@ const intlMessages = defineMessages({
     id: 'app.lock-viewers.hideAnnotationsLabel',
     description: 'label for other viewers annotation',
   },
+  disableMultiScreenshareLabel: {
+    id: 'app.lock-viewers.disableMultiScreenshareLabel',
+    description: 'label for disabling viewer screenshares',
+  },
+  hideViewersScreenshareLabel: {
+    id: 'app.lock-viewers.hideViewersScreenshareLabel',
+    description: 'label for hiding viewer screenshares from other viewers',
+  },
   submitLabel: {
     id: 'app.chat.submitLabel',
     description: 'Submit button label',
@@ -168,6 +176,8 @@ const propTypes = {
       hideViewersAnnotation: PropTypes.bool,
       lockOnJoin: PropTypes.bool,
       lockOnJoinConfigurable: PropTypes.bool,
+      disableMultiScreenshare: PropTypes.bool,
+      hideViewersScreenshare: PropTypes.bool,
     }),
     usersPolicies: PropTypes.shape({
       guestPolicy: PropTypes.string,
@@ -458,6 +468,20 @@ class LockViewersComponent extends Component {
         checked: !lockSettingsProps.hideViewersAnnotation,
         toggle: () => this.toggleLockSettings('hideViewersAnnotation'),
         dataTest: 'lockShareWhiteboard',
+      },
+      {
+        key: 'disableMultiScreenshare',
+        label: intlMessages.disableMultiScreenshareLabel,
+        checked: !lockSettingsProps.disableMultiScreenshare,
+        toggle: () => this.toggleLockSettings('disableMultiScreenshare'),
+        dataTest: 'lockScreenshare',
+      },
+      {
+        key: 'hideViewersScreenshare',
+        label: intlMessages.hideViewersScreenshareLabel,
+        checked: !lockSettingsProps.hideViewersScreenshare,
+        toggle: () => this.toggleLockSettings('hideViewersScreenshare'),
+        dataTest: 'hideViewersScreenshare',
       },
     );
 
