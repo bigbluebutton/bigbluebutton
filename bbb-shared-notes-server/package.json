@@ -39,7 +39,7 @@
     "@hocuspocus/server": "^3.4.4",
     "@types/express": "^5.0.6",
     "@types/node": "^22.19.15",
-    "axios": "^1.15.0",
+    "axios": "^1.15.2",
     "claude": "^0.1.2",
     "express": "^5.2.1",
     "express-rate-limit": "^8.3.0",
