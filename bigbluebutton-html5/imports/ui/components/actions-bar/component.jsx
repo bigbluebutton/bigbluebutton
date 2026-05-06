@@ -3,6 +3,7 @@ import { defineMessages } from 'react-intl';
 import { ActionsBarItemType, ActionsBarPosition } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/actions-bar-item/enums';
 import Styled from './styles';
 import MediaAreaContainer from './media-area/container';
+import { PluginButtonIcon } from '/imports/ui/components/plugins/plugin-icon/styles';
 import AudioCaptionsButtonContainer from '/imports/ui/components/audio/audio-graphql/audio-captions/button/component';
 import ScreenshareButtonContainer from '/imports/ui/components/actions-bar/screenshare/container';
 import AudioControlsContainer from '../audio/audio-graphql/audio-controls/component';
@@ -52,13 +53,15 @@ class ActionsBar extends PureComponent {
                   label: plugin.tooltip,
                   dataTest: plugin.dataTest,
                 };
-                if (plugin?.icon && typeof plugin.icon === 'object' && 'iconName' in plugin.icon) {
+                if (typeof plugin?.icon === 'string') {
+                  buttonProps.icon = plugin.icon;
+                } else if (plugin?.icon && typeof plugin.icon === 'object' && 'iconName' in plugin.icon) {
                   buttonProps.icon = plugin.icon.iconName;
                 } else if (plugin?.icon && typeof plugin.icon === 'object' && 'svgContent' in plugin.icon) {
                   buttonProps.customIcon = (
-                    <i>
+                    <PluginButtonIcon>
                       {plugin.icon.svgContent}
-                    </i>
+                    </PluginButtonIcon>
                   );
                 }
                 actionBarItemToReturn = (

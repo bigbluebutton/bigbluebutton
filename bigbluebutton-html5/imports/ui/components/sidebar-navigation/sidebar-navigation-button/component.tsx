@@ -1,12 +1,26 @@
 /* eslint-disable jsx-a11y/no-access-key */
-import React, { useCallback, memo } from 'react';
+import React, { useCallback, memo, ReactNode } from 'react';
 import KEYS from '/imports/utils/keys';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import Icon from '/imports/ui/components/common/icon/component';
+import { PluginIconType } from 'bigbluebutton-html-plugin-sdk';
 import { SidebarNavigationButtonProps } from './types';
 import Styled from './styles';
+import { PluginButtonIcon } from '/imports/ui/components/plugins/plugin-icon/styles';
+
+const getIcon = (icon: PluginIconType): React.ReactNode => {
+  if (typeof icon === 'string') return <Icon iconName={icon} />;
+  if (icon && typeof icon === 'object' && 'iconName' in icon) {
+    return <Icon iconName={icon.iconName} />;
+  }
+  if (icon && typeof icon === 'object' && 'svgContent' in icon) {
+    const svgContent = icon.svgContent as ReactNode;
+    return <PluginButtonIcon>{svgContent}</PluginButtonIcon>;
+  }
+  return null;
+};
 
 const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
   panel,
@@ -90,7 +104,7 @@ const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
         $disabled={isDisabled}
         $locked={isLocked}
       >
-        <Icon iconName={iconName} />
+        {getIcon(iconName)}
         {children}
       </Styled.ListItem>
     </TooltipContainer>

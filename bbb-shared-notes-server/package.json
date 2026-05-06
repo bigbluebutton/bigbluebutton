@@ -1,0 +1,68 @@
+{
+  "name": "bbb-shared-notes-server",
+  "homepage": "https://github.com/bigbluebutton/bigbluebutton/tree/develop/bbb-shared-notes-server#readme",
+  "version": "0.0.1",
+  "description": "A server component designed to interface between Hasura GraphQL actions and BigBlueButton ecosystem.",
+  "main": "index.ts",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon --watch src --ext ts,json --exec tsx src/index.ts",
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "serve": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "lint": "eslint src --max-warnings 0",
+    "clean": "rimraf dist && rimraf types",
+    "typecheck": "tsc --noEmit",
+    "postinstall": "node scripts/download-twemoji-assets.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bigbluebutton/bigbluebutton/tree/develop/bbb-shared-notes-server"
+  },
+  "keywords": [
+    "bigbluebutton",
+    "shared-notes",
+    "hocuspocus",
+    "blocknote"
+  ],
+  "author": "BigBlueButton Inc.",
+  "license": "LGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/bigbluebutton/bigbluebutton/issues"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@blocknote/server-util": "^0.47.1",
+    "@hocuspocus/extension-database": "^3.4.4",
+    "@hocuspocus/server": "^3.4.4",
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.19.15",
+    "axios": "^1.15.0",
+    "claude": "^0.1.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.3.0",
+    "express-ws": "^5.0.2",
+    "form-data": "^4.0.5",
+    "js-yaml": "^4.1.1",
+    "pg": "^8.20.0",
+    "redis": "^5.11.0",
+    "twemoji": "^14.0.2",
+    "yjs": "^13.6.23"
+  },
+  "devDependencies": {
+    "@types/async-lock": "^1.4.2",
+    "@types/express-ws": "^3.0.6",
+    "@types/js-yaml": "^4.0.9",
+    "@types/pg": "^8.18.0",
+    "@types/ws": "^8.18.1",
+    "nodemon": "^3.1.14",
+    "prettier": "^3.8.1",
+    "rimraf": "^6.1.3",
+    "tsup": "^8.5.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.1"
+  }
+}

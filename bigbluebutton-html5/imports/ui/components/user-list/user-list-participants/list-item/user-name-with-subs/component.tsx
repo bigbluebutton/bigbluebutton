@@ -1,7 +1,7 @@
 import React from 'react';
 import { defineMessages } from 'react-intl';
 import { UserListItemAdditionalInformationType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-list-item-additional-information/enums';
-import { UserListItemLabel } from 'bigbluebutton-html-plugin-sdk';
+import { PluginIconType, UserListItemLabel } from 'bigbluebutton-html-plugin-sdk';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import { isMe } from '../service';
@@ -47,6 +47,24 @@ const intlMessages = defineMessages({
     description: 'Text for identifying your user',
   },
 });
+
+const getIconComponent = (icon: PluginIconType): React.ReactNode => {
+  if (typeof icon === 'string') {
+    return <Styled.UserAdditionalInformationIcon iconName={icon} />;
+  }
+  if (icon && typeof icon === 'object' && 'iconName' in icon) {
+    return <Styled.UserAdditionalInformationIcon iconName={icon.iconName} />;
+  }
+  if (icon && typeof icon === 'object' && 'svgContent' in icon) {
+    const svgContent = icon.svgContent as React.ReactNode;
+    return (
+      <Styled.SvgContentUserListIconMargin>
+        {svgContent}
+      </Styled.SvgContentUserListIconMargin>
+    );
+  }
+  return null;
+};
 
 const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
   intl,
@@ -115,7 +133,7 @@ const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
     subs.push(
       <span key={itemToRender.id} data-test={itemToRender.dataTest}>
         { itemToRender.icon
-          && <Styled.UserAdditionalInformationIcon iconName={itemToRender.icon} /> }
+          && getIconComponent(itemToRender.icon)}
         {itemToRender.label}
       </span>,
     );

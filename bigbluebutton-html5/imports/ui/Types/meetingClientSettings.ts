@@ -13,7 +13,6 @@ export interface Public {
   app: App
   externalVideoPlayer: ExternalVideoPlayer
   kurento: Kurento
-  syncUsersWithConnectionManager: SyncUsersWithConnectionManager
   poll: Poll
   captions: Captions
   timer: Timer
@@ -23,6 +22,7 @@ export interface Public {
   layout: Layout
   sidebarNavigation: SidebarNavigation
   pads: Pads
+  sharedNotes: SharedNotes
   media: Media
   stats: Stats
   presentation: Presentation
@@ -31,7 +31,6 @@ export interface Public {
   whiteboard: Whiteboard
   clientLog: ClientLog
   virtualBackgrounds: VirtualBackgrounds
-  minBrowserVersions: MinBrowserVersions
 }
 export interface Locales {
   locale: string
@@ -40,7 +39,6 @@ export interface Locales {
 export interface App {
   mobileFontSize: string
   desktopFontSize: string
-  audioChatNotification: boolean
   autoJoin: boolean
   listenOnlyMode: boolean
   forceListenOnly: boolean
@@ -48,7 +46,6 @@ export interface App {
   skipCheckOnJoin: boolean
   enableDynamicAudioDeviceSelection: boolean
   clientTitle: string
-  appName: string
   bbbServerVersion: string
   displayBbbServerVersion: boolean
   copyright: string
@@ -86,7 +83,6 @@ export interface App {
   audioCaptions: AudioCaptions
   mutedAlert: MutedAlert
   appsGallery: AppsGallery
-  remainingTimeThreshold: number
   remainingTimeAlertThresholdArray: number[]
   enableDebugWindow: boolean
   breakouts: Breakouts
@@ -102,9 +98,7 @@ export interface App {
   branding: Branding
   connectionTimeout: number
   showHelpButton: boolean
-  effectiveConnection: string[]
   fallbackOnEmptyLocaleString: boolean
-  disableWebsocketFallback: boolean
   maxMutationPayloadSize: number
   enableApolloDevTools: boolean
   terminateAndRetryConnection: number
@@ -337,7 +331,7 @@ export interface Kurento {
 }
 
 export interface CameraWsOptions {
-  wsConnectionTimeout: number
+  connectionTimeout: number
   maxRetries: number
   debug: boolean
   heartbeat: Heartbeat
@@ -474,11 +468,6 @@ export interface DesktopPageSizes2 {
   viewer: number
 }
 
-export interface SyncUsersWithConnectionManager {
-  enabled: boolean
-  syncInterval: number
-}
-
 export interface Poll {
   enabled: boolean
   allowCustomResponseInput: boolean
@@ -493,16 +482,11 @@ export interface Poll {
 }
 
 export interface Captions {
-  enabled: boolean
-  id: string
-  dictation: boolean
   background: string
   font: Font
   lines: number
   time: number
   locales: Locales[]
-  defaultPad: string
-  showButton: boolean
   lineLimit: number
   captionLimit: number
 }
@@ -513,18 +497,7 @@ export interface Font {
   size: string
 }
 
-export interface Timer {
-  enabled: boolean
-  alarm: boolean
-  music: Music
-  time: number
-  maxHours: number
-  presets: number[]
-  quickAddButtons: number[]
-  serverSyncTimeInterval: number
-}
-
-export interface Music {
+export interface TimerMusic {
   enabled: boolean
   volume: number
   track1: string
@@ -532,16 +505,23 @@ export interface Music {
   track3: string
 }
 
+export interface Timer {
+  enabled: boolean
+  time: number
+  music: TimerMusic
+  maxHours: number
+  presets: number[]
+  quickAddButtons: number[]
+  serverSyncTimeInterval: number
+}
+
 export interface Chat {
   enabled: boolean
   itemsPerPage: number
-  timeBetweenFetchs: number
   enableSaveAndCopyPublicChat: boolean
-  bufferChatInsertsMs: number
   startClosed: boolean
   min_message_length: number
   max_message_length: number
-  grouping_messages_window: number
   type_system: string
   type_public: string
   type_private: string
@@ -615,6 +595,13 @@ export interface Pads {
   url: string
 }
 
+export interface SharedNotes {
+  serverHostname: string
+  maxDocumentChars: number
+  maxLengthForContentUpdate: number
+  staticFormattingToolbar: boolean
+}
+
 export interface Media {
   audio: Audio2
   screenshare: Screenshare2,
@@ -651,10 +638,10 @@ export interface Media {
 }
 
 export interface LiveKitPresetConfig {
-  width: number
-  height: number
-  maxBitrate: number
-  maxFramerate: number
+  width?: number
+  height?: number
+  maxBitrate?: number
+  maxFramerate?: number
   priority?: RTCPriorityType
 }
 
@@ -666,17 +653,25 @@ export interface LiveKitCameraSettings {
 export interface LiveKitScreenShareSettings {
   publishOptions?: TrackPublishOptions
   presets?: LiveKitPresetConfig[]
+  constraints?: Constraints
 }
 
 export interface LiveKitAudioSettings {
   publishOptions?: TrackPublishOptions
   unpublishOnMute?: boolean
   unpublishAfterMuteMs?: number
+  useLiveKitAudioState?: boolean
 }
+
+export type SelectiveSubscriptionConfig = {
+  enabled: boolean;
+  audioSubscriptionPoolSize: number;
+  muteDebounceMs: number;
+};
 
 export interface LiveKitSettings {
   url?: string
-  selectiveSubscription?: boolean
+  selectiveSubscription?: SelectiveSubscriptionConfig
   logLevel?: LogLevel
   roomOptions?: Partial<InternalRoomOptions>
   reconnectOnFatalFailures?: boolean
@@ -884,18 +879,13 @@ export interface VirtualBackgrounds {
 export interface Private {
   analytics: Analytics
   app: App2
-  prometheus: Prometheus
 }
 
-export interface Analytics {
-  includeChat: boolean
-}
+export type Analytics = Record<string, never>
 
 export interface App2 {
   host: string
   localesUrl: string
-  pencilChunkLength: number
-  loadSlidesFromHttpAlways: boolean
 }
 
 export interface Metrics {
@@ -908,25 +898,6 @@ export interface Metrics {
 export interface Channels {
   toAkkaApps: string
   toThirdParty: string
-}
-
-export interface mobileBrowsers {
-  safari: string
-  chrome: string
-}
-
-export interface MinBrowserVersions {
-  safari: string
-  chrome: string
-  firefox: string
-  edge: string
-  mobile: mobileBrowsers
-}
-
-export interface Prometheus {
-  enabled: boolean
-  path: string
-  collectDefaultMetrics: boolean
 }
 
 export default MeetingClientSettings;

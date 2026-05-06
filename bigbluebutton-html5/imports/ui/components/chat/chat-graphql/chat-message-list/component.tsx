@@ -655,7 +655,6 @@ const ChatMessageList: React.FC<ChatListProps> = ({
                         currentUserId={currentUser?.userId ?? ''}
                         currentUserIsLocked={!!currentUser?.locked}
                         currentUserIsModerator={!!currentUser?.isModerator}
-                        isBreakoutRoom={!!meeting?.isBreakout}
                         messageToolbarIsEnabled={messageToolbarIsEnabled}
                         chatDeleteEnabled={CHAT_DELETE_ENABLED}
                         chatEditEnabled={CHAT_EDIT_ENABLED}

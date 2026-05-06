@@ -3,6 +3,7 @@ import Icon from '/imports/ui/components/common/icon/component';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
+import { PluginIconType } from 'bigbluebutton-html-plugin-sdk';
 import Styled from '../styles';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 
@@ -10,7 +11,7 @@ interface AppItemProps {
   appKey: string;
   dataTest?: string;
   name: string;
-  icon: string;
+  icon: PluginIconType;
   isPinned: boolean;
   isNew?: boolean;
   onClick?: (() => void) | undefined;

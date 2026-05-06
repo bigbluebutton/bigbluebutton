@@ -1,0 +1,88 @@
+import { useEffect } from 'react';
+import { isEqual } from 'radash';
+import { makeVar, useReactiveVar } from '@apollo/client';
+
+const createUseWhoIsTalkingGraphql = () => {
+  const countVar = makeVar(0);
+  const stateVar = makeVar<Record<string, boolean>>({});
+  const loadingVar = makeVar(true);
+
+  const setWhoIsTalkingState = (newState: Record<string, boolean>) => stateVar(newState);
+
+  const setWhoIsTalkingLoading = (loading: boolean) => loadingVar(loading);
+
+  const getWhoIsTalking = () => stateVar();
+
+  const dispatchWhoIsTalkingUpdate = (data?: { userId: string; talking: boolean; muted: boolean }[]) => {
+    if (countVar() === 0) return;
+
+    if (!data) {
+      stateVar({});
+      return;
+    }
+
+    const newTalkingUsers = { ...getWhoIsTalking() };
+
+    data.forEach((voice) => {
+      const { userId, talking, muted } = voice;
+
+      // Delete the user key instead of setting it to false
+      // to keep the state object small and easy to compare with isEqual
+      if (!talking || muted) {
+        delete newTalkingUsers[userId];
+        return;
+      }
+
+      newTalkingUsers[userId] = true;
+    });
+
+    if (isEqual(getWhoIsTalking(), newTalkingUsers)) return;
+
+    setWhoIsTalkingState(newTalkingUsers);
+  };
+
+  const useWhoIsTalkingConsumersCount = () => useReactiveVar(countVar);
+
+  const useWhoIsTalkingGraphql = () => {
+    const talkingUsers = useReactiveVar(stateVar);
+    const loading = useReactiveVar(loadingVar);
+
+    useEffect(() => {
+      countVar(countVar() + 1);
+      return () => {
+        countVar(countVar() - 1);
+        if (countVar() === 0) {
+          setWhoIsTalkingState({});
+        }
+      };
+    }, []);
+
+    return {
+      data: talkingUsers,
+      loading,
+    };
+  };
+
+  return [
+    useWhoIsTalkingGraphql,
+    useWhoIsTalkingConsumersCount,
+    setWhoIsTalkingLoading,
+    dispatchWhoIsTalkingUpdate,
+  ] as const;
+};
+
+const [
+  useWhoIsTalkingGraphql,
+  useWhoIsTalkingConsumersCount,
+  setWhoIsTalkingLoading,
+  dispatchWhoIsTalkingUpdate,
+] = createUseWhoIsTalkingGraphql();
+
+export {
+  useWhoIsTalkingGraphql,
+  useWhoIsTalkingConsumersCount,
+  setWhoIsTalkingLoading,
+  dispatchWhoIsTalkingUpdate,
+};
+
+export default useWhoIsTalkingGraphql;

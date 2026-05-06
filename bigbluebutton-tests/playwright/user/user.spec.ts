@@ -265,6 +265,56 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
         await lockViewers.initPages(page, testInfo);
         await lockViewers.lockSeeOtherViewersCursor();
       });
+
+      // Regression tests for issue #24888:
+      // usernames must not leak through join/leave notifications when hideUserList is active.
+      test('Hide user list suppresses join notification for locked viewer', async ({ browser, context, page }, testInfo) => {
+        const lockViewers = new LockViewers(browser, context);
+        await lockViewers.initModPage(page, { testInfo });
+        await lockViewers.hideUserListSuppressesJoinNotification();
+      });
+
+      test('Hide user list suppresses leave notification for locked viewer', async ({ browser, context, page }, testInfo) => {
+        const lockViewers = new LockViewers(browser, context);
+        await lockViewers.initModPage(page, { testInfo });
+        await lockViewers.hideUserListSuppressesLeaveNotification();
+      });
+
+      test(
+        'Hide user list join notification is shown only to moderator and unlocked viewer',
+        async ({ browser, context, page }, testInfo) => {
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initModPage(page, { testInfo });
+          await lockViewers.hideUserListJoinNotificationVisibleForUnlockedAndModOnly();
+        },
+      );
+
+      test(
+        'Hide user list leave notification is shown only to moderator and unlocked viewer',
+        async ({ browser, context, page }, testInfo) => {
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initModPage(page, { testInfo });
+          await lockViewers.hideUserListLeaveNotificationVisibleForUnlockedAndModOnly();
+        },
+      );
+
+      test(
+        'Hide user list join notification is visible to locked viewer when a moderator joins',
+        async ({ browser, context, page }, testInfo) => {
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initModPage(page, { testInfo });
+          await lockViewers.hideUserListModeratorJoinNotificationVisibleToAll();
+        },
+      );
+
+      test(
+        'Hide user list leave notification is visible to locked viewer when a moderator leaves',
+        async ({ browser, context, page }, testInfo) => {
+          const lockViewers = new LockViewers(browser, context);
+          await lockViewers.initModPage(page, { testInfo });
+          await lockViewers.hideUserListModeratorLeaveNotificationVisibleToAll();
+        },
+      );
     });
 
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#saving-usernames

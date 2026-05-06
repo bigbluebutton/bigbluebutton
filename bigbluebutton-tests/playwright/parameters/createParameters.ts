@@ -1,5 +1,6 @@
 import { expect } from '@playwright/test';
 
+import { VIDEO_LOADING_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { checkScreenshots } from '../layouts/util';
 import { MultiUsers } from '../user/multiusers';
@@ -188,6 +189,8 @@ export class CreateParameters extends MultiUsers {
 
     await this.modPage.shareWebcam();
     await this.userPage.shareWebcam();
+    await this.modPage.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
+    await this.userPage.waitForSelector(e.webcamContainer, VIDEO_LOADING_WAIT_TIME);
 
     await this.modPage.page.waitForTimeout(1000);
 

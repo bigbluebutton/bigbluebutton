@@ -73,7 +73,6 @@ interface ChatMessageProps {
   currentUserIsLocked: boolean;
   currentUserId: string;
   currentUserDisablePublicChat: boolean;
-  isBreakoutRoom: boolean;
   isPublicChat: boolean;
   hasToolbar: boolean;
   chatReplyEnabled: boolean;
@@ -241,7 +240,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   currentUserId,
   currentUserIsLocked,
   currentUserIsModerator,
-  isBreakoutRoom,
   isPublicChat,
   hasToolbar,
   chatDeleteEnabled,
@@ -559,7 +557,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
   const formattedTime = intl.formatTime(dateTime, {
     hour: 'numeric',
     minute: 'numeric',
-    hour12: false,
   });
   const editTime = message.editedAt ? new Date(message.editedAt) : null;
   const deleteTime = message.deletedAt ? new Date(message.deletedAt) : null;
@@ -992,7 +989,6 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
         isPinned={isPinned}
         own={message.user?.userId === currentUserId}
         amIModerator={currentUserIsModerator}
-        isBreakoutRoom={isBreakoutRoom}
         messageSequence={message.messageSequence}
         onReactionPopoverOpenChange={setIsToolbarReactionPopoverOpen}
         reactionPopoverIsOpen={isToolbarReactionPopoverOpen}
@@ -1035,14 +1031,14 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
             })}
             {' '}
             &nbsp;
-            <FormattedTime value={dateTime} hour12={false} />
+            <FormattedTime value={dateTime} />
           </PluginInformationMetadata>
         )
       }
       {((sameSender || (isSystemSender && !messagesWithHeaders)) && !isCustomMessageFromPlugin) && (
         <ChatContentFooter>
           {!deleteTime && editTime && (
-            <Tooltip title={intl.formatTime(editTime, { hour12: false })}>
+            <Tooltip title={intl.formatTime(editTime)}>
               <EditLabel>
                 <Icon iconName="pen_tool" />
                 <span>{intl.formatMessage(intlMessages.edited)}</span>
@@ -1050,7 +1046,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
             </Tooltip>
           )}
           <ChatTime>
-            <FormattedTime value={dateTime} hour12={false} />
+            <FormattedTime value={dateTime} />
           </ChatTime>
         </ChatContentFooter>
       )}

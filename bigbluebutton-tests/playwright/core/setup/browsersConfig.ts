@@ -1,6 +1,14 @@
 import { devices, Project } from '@playwright/test';
 import path from 'path';
 
+export const chromiumBaseArgs = [
+  '--no-sandbox',
+  '--ignore-certificate-errors',
+  '--use-fake-ui-for-media-stream',
+  '--use-fake-device-for-media-stream',
+  '--allow-file-access-from-files',
+];
+
 export const chromiumConfig: Project = {
   name: 'Chromium',
   use: {
@@ -9,11 +17,7 @@ export const chromiumConfig: Project = {
     viewport: { width: 1366, height: 768 },
     launchOptions: {
       args: [
-        '--no-sandbox',
-        '--ignore-certificate-errors',
-        '--use-fake-ui-for-media-stream',
-        '--use-fake-device-for-media-stream',
-        '--allow-file-access-from-files',
+        ...chromiumBaseArgs,
         `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video.y4m')}`,
         '--font-render-hinting=none',
       ],

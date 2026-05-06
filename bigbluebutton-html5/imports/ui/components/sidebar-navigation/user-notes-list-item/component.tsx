@@ -7,6 +7,9 @@ import SidebarNavigationButton from '/imports/ui/components/sidebar-navigation/s
 import { BaseSidebarButtonProps } from '../types';
 import { PANELS } from '/imports/ui/components/layout/enums';
 import useLockContext from '/imports/ui/components/lock-viewers/hooks/useLockContext';
+import { GET_PAD_ID, GetPadIdQueryResponse } from '/imports/ui/components/notes/queries';
+import { useQuery } from '@apollo/client';
+import logger from '/imports/startup/client/logger';
 
 const intlMessages = defineMessages({
   title: {
@@ -49,11 +52,22 @@ const UserNotesListItemContainerGraphql: React.FC<BaseSidebarButtonProps> = (pro
   const { userLocks } = useLockContext();
   const disableNotes = userLocks.userNotes;
   const hasUnreadNotes = useHasUnreadNotes({ isNotesPanelOpened: isOpened });
+
   const {
     data: currentMeeting,
   } = useMeeting((meeting) => ({
     componentsFlags: meeting.componentsFlags,
   }));
+
+  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
+  const { data: padIdData, loading: padIdLoading } = useQuery<GetPadIdQueryResponse>(
+    GET_PAD_ID,
+    { variables: { externalId: NOTES_CONFIG.id } },
+  );
+
+  const padId = padIdData?.sharedNotes[0]?.padId;
+  const sharedNotesEditor = padIdData?.sharedNotes[0]?.sharedNotesEditor;
+
   const isPinned = currentMeeting?.componentsFlags?.isSharedNotesPinned ?? false;
 
   const isEnabled = NotesService.useIsEnabled();
@@ -63,6 +77,18 @@ const UserNotesListItemContainerGraphql: React.FC<BaseSidebarButtonProps> = (pro
     ? `${intl.formatMessage(intlMessages.locked)} ${intl.formatMessage(intlMessages.byModerator)}`
     : intl.formatMessage(isPinned ? intlMessages.sharedNotesPinned : intlMessages.sharedNotes);
   if (!isEnabled) return null;
+
+  if (!padIdLoading && (!padId || !sharedNotesEditor)) {
+    logger.error({
+      logCode: 'shared_notes_not_configured',
+      extraInfo: {
+        padId,
+        sharedNotesEditor,
+      },
+    }, 'No padId or shared-notes editor found, ignoring...');
+    return null;
+  }
+  if (padIdLoading) return null;
   return (
     <SidebarNavigationButton
       panel={PANELS.SHARED_NOTES}

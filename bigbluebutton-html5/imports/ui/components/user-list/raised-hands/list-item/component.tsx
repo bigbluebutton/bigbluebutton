@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { ReactNode, useContext, useMemo } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { defineMessages, IntlShape } from 'react-intl';
 import {
@@ -41,6 +41,20 @@ const intlMessages = defineMessages({
     description: 'Text for identifying your user',
   },
 });
+
+const getIconComponent = (icon: PluginSdk.PluginIconType): React.ReactNode => {
+  if (typeof icon === 'string') {
+    return <Icon iconName={icon} />;
+  }
+  if (icon && typeof icon === 'object' && 'iconName' in icon) {
+    return <Icon iconName={icon.iconName} />;
+  }
+  if (icon && typeof icon === 'object' && 'svgContent' in icon) {
+    const svgContent = icon.svgContent as ReactNode;
+    return <Styled.SvgContentUserListIcon>{svgContent}</Styled.SvgContentUserListIcon>;
+  }
+  return null;
+};
 
 const RaisedHandUserName: React.FC<{ user: User; intl: IntlShape }> = ({ user, intl }) => {
   const subs = [];
@@ -92,7 +106,7 @@ const renderUserListItemIconsFromPlugin = (
   const itemToRender = item as PluginSdk.UserListItemIcon;
   return (
     <Styled.IconRightContainer key={item.id} data-test={itemToRender.dataTest}>
-      <Icon iconName={itemToRender.icon} />
+      {getIconComponent(itemToRender.icon)}
     </Styled.IconRightContainer>
   );
 });

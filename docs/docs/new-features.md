@@ -19,7 +19,6 @@ Here's a breakdown of what's new in 4.0.
 
 <!-- ### Analytics -->
 
-
 ### Behind the scenes
 
 
@@ -104,7 +103,7 @@ Under the hood, BigBlueButton 4.0 installs on Ubuntu 24.04 64-bit, and the follo
 - Gradle 8.14.3
 - Groovy 4.0.21
 - Spring 6.2.11
-- Spring Boot 3.4.9 
+- Spring Boot 3.5.13
 
 For full details on what is new in BigBlueButton 4.0, see the release notes.
 
@@ -128,7 +127,7 @@ The `layouts` option has been removed from `disabledFeatures`.
 ### Changes to events.xml
 
 
-#### bbb-web properties changes
+### bbb-web properties changes
 
 Removed
 
@@ -139,13 +138,13 @@ Added
 
 
 
-### Development
+## Development
 
 For information on developing in BigBlueButton, see [setting up a development environment for 4.0](/development/guide).
 
 The build scripts for packaging 4.0 (using fpm) are located in the GitHub repository [here](https://github.com/bigbluebutton/bigbluebutton/tree/v4.0.x-release/build).
 
-### Contribution
+## Contribution
 
 We welcome contributors to BigBlueButton 4.0!  The best ways to contribute at the current time are:
 

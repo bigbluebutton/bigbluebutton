@@ -456,6 +456,10 @@ display_bigbluebutton_status () {
         units="$units livekit-server"
     fi
 
+    if [ -f /usr/lib/systemd/system/bbb-shared-notes-server.service ]; then
+        units="$units bbb-shared-notes-server"
+    fi
+
     line='—————————————————————————————►'
     for unit in $units; do
         status=$(systemctl is-active "$unit")

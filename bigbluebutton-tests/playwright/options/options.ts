@@ -196,6 +196,7 @@ export class Options extends MultiUsers {
     await this.modPage.closeAllToastNotifications();
 
     const whiteboardLocator = this.modPage.page.locator(e.whiteboard);
+    await this.modPage.page.waitForTimeout(1000); // wait for the whiteboard zoom to stabilize
     await expect(whiteboardLocator).toHaveScreenshot('whiteboard-with-toolbar-visible.png');
 
     await openSettings(this.modPage);
@@ -216,6 +217,7 @@ export class Options extends MultiUsers {
     await this.modPage.hoverElement(e.messagesSidebarButton);
     await expect(wbToolbarLocator).toHaveClass(/fade-out/);
 
+    await this.modPage.page.waitForTimeout(1000); // wait for the whiteboard zoom to stabilize
     await expect(whiteboardLocator).toHaveScreenshot('whiteboard-with-toolbar-hidden.png', {
       maxDiffPixels: 1000,
     });

@@ -46,7 +46,9 @@ import org.bigbluebutton.api.messaging.converters.messages.PublishedRecordingMes
 import org.bigbluebutton.api.messaging.converters.messages.UnpublishedRecordingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.DeletedRecordingMessage;
 import org.bigbluebutton.api.messaging.messages.*;
+import org.bigbluebutton.api.service.impl.SharedNotesRedirectValidatorService;
 import org.bigbluebutton.api.util.PluginUtils;
+import org.bigbluebutton.api.service.RedirectFollowerService;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.api2.domain.UploadedTrack;
 import org.bigbluebutton.common2.redis.RedisStorageService;
@@ -102,6 +104,8 @@ public class MeetingService implements MessageListener {
 
   private ParamsProcessorUtil paramsProcessorUtil;
   private PresentationUrlDownloadService presDownloadService;
+  private RedirectFollowerService redirectFollower;
+  private SharedNotesRedirectValidatorService sharedNotesRedirectValidator;
 
   private IBbbWebApiGWApp gw;
 
@@ -368,6 +372,60 @@ public class MeetingService implements MessageListener {
       : Collections.unmodifiableCollection(sessions.values());
   }
 
+  public ArrayList<Object> getSharedNotesInitialContent(Meeting m) {
+    ArrayList<Object> initialContent;
+    String sharedNotesInitialContentJsonUrl = m.getSharedNotesInitialContentJsonUrl();
+    String sharedNotesInitialContentJsonFromPayload = m.getSharedNotesInitialContentJsonFromPayload();
+
+    if (!sharedNotesInitialContentJsonUrl.isEmpty()) {
+      initialContent = requestSharedNotesInitialContentFromUrl(m.getInternalId(), sharedNotesInitialContentJsonUrl);
+    } else {
+      initialContent = parseSharedNotesInitialContent(sharedNotesInitialContentJsonFromPayload);
+    }
+
+    return initialContent;
+  }
+
+  public ArrayList<Object> requestSharedNotesInitialContentFromUrl(String meetingId, String initialContentJsonUrl) {
+    ArrayList<Object> initialContent = new ArrayList<>();
+    if (!initialContentJsonUrl.isEmpty()) {
+      try {
+        String finalInitialContentJsonUrl = redirectFollower.followRedirect(
+                meetingId, initialContentJsonUrl, 0, initialContentJsonUrl, sharedNotesRedirectValidator, 6000
+        );
+
+        URL url = new URL(finalInitialContentJsonUrl);
+        String content;
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()))) {
+          content = in.lines().collect(Collectors.joining("\n"));
+        }
+        initialContent = parseSharedNotesInitialContent(content);
+      } catch (MalformedURLException e) {
+        log.error(
+                "Malformed URL for sharedNotesInitialContentJsonUrl: [{}]", initialContentJsonUrl);
+      } catch (IOException e) {
+        log.error(
+                "Something went wrong while processing [{}]. Error: {}", initialContentJsonUrl, e.getMessage());
+      }
+    }
+    return initialContent;
+  }
+
+  public ArrayList<Object> parseSharedNotesInitialContent(String content) {
+    ArrayList<Object> initialContent = null;
+    try {
+      JsonNode jsonNode = objectMapper.readTree(content);
+      initialContent = objectMapper.convertValue(jsonNode, new TypeReference<>() {});
+    } catch (JsonProcessingException e) {
+      log.error(
+              "Error while processing json for sharedNotesInitialContent: [{}]", e.getMessage());
+    } catch (IllegalArgumentException e) {
+      log.warn("Structure mismatched, ignoring initial content for shared notes.");
+    }
+    if (initialContent == null) return new ArrayList<>();
+    return initialContent;
+  }
+
   public Map<String, Object> requestPluginManifests(Meeting m) {
     Map<String, Object> pluginsResult = new ConcurrentHashMap<>();
     Map<String, String> metadata = m.getMetadata();
@@ -513,13 +571,15 @@ public class MeetingService implements MessageListener {
     if (existingId == null && existingTelVoice == null && existingWebVoice == null) {
       meetings.put(m.getInternalId(), m);
       Map<String, Object> pluginsMap;
-      if (m.isBreakout()) {
+      ArrayList<Object> sharedNotesInitialContentMap = getSharedNotesInitialContent(m);
+      if (m.isBreakout() || m.getDisabledFeatures().contains("plugins")) {
         pluginsMap = plugins;
       } else {
         pluginsMap = requestPluginManifests(m);
       }
 
       m.setPlugins(pluginsMap);
+      m.setSharedNotesInitialContentJson(sharedNotesInitialContentMap);
       handle(new CreateMeeting(m));
       return true;
     }
@@ -597,7 +657,7 @@ public class MeetingService implements MessageListener {
 
     gw.createMeeting(m.getInternalId(), m.getExternalId(), m.getParentMeetingId(), m.getName(), m.isRecord(),
             m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording(),
-            m.getRecordFullDurationMedia(),
+            m.getSharedNotesInitialContentJson(), m.getSharedNotesEditor(), m.getRecordFullDurationMedia(),
             m.getWebcamsOnlyForModerator(), m.getMultiUserWhiteboardEnabled(), m.getMeetingCameraCap(), m.getUserCameraCap(), m.getMaxPinnedCameras(),
             m.getCameraBridge(),
             m.getScreenShareBridge(),
@@ -840,6 +900,7 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.IS_BREAKOUT, "true");
       params.put(ApiParams.SEQUENCE, message.sequence.toString());
       params.put(ApiParams.FREE_JOIN, message.freeJoin.toString());
+      params.put(ApiParams.SHARED_NOTES_EDITOR, message.sharedNotesEditor);
       params.put(ApiParams.BREAKOUT_ROOMS_CAPTURE_SLIDES, message.captureSlides.toString());
       params.put(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES, message.captureNotes.toString());
       params.put(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES_FILENAME, message.captureNotesFilename.toString());
@@ -856,6 +917,7 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.SCREEN_SHARE_BRIDGE, message.screenShareBridge);
       params.put(ApiParams.NOTIFY_RECORDING_IS_ON,parentMeeting.getNotifyRecordingIsOn().toString());
       params.put(ApiParams.DISABLED_FEATURES,String.join(",", message.disabledFeatures));
+      params.put(ApiParams.GUEST_POLICY, GuestPolicy.ALWAYS_ACCEPT);
 
       // Apply private chat lock settings from parent meeting to breakout room
       params.put(ApiParams.LOCK_SETTINGS_DISABLE_PRIVATE_CHAT, message.disablePrivChat.toString());
@@ -1593,6 +1655,14 @@ public class MeetingService implements MessageListener {
 
   public void setSlidesGenerationProgressNotifier(SlidesGenerationProgressNotifier notifier) {
     this.notifier = notifier;
+  }
+
+  public void setRedirectFollower(RedirectFollowerService redirectFollower) {
+    this.redirectFollower = redirectFollower;
+  }
+
+  public void setSharedNotesRedirectValidator(SharedNotesRedirectValidatorService sharedNotesRedirectValidator) {
+    this.sharedNotesRedirectValidator = sharedNotesRedirectValidator;
   }
 
 }

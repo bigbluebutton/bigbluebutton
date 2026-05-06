@@ -1,7 +1,6 @@
 import Auth from '/imports/ui/services/auth';
 import { MutationFunction } from '@apollo/client';
 import { IntlShape, defineMessages } from 'react-intl';
-import getFromUserSettings from '/imports/ui/services/users-settings';
 import { User } from '/imports/ui/Types/user';
 import {
   LockSettings,
@@ -153,9 +152,6 @@ export const generateActionsPermissions = (
   const isSubjectUserModerator = subjectUser.isModerator;
   const isSubjectUserGuest = subjectUser.guest;
   const isSubjectUserBot = subjectUser.bot;
-  // Breakout rooms mess up with role permissions
-  // A breakout room user that has a moderator role in it's parent room
-  const parentRoomModerator = getFromUserSettings('bbb_parent_room_moderator', false);
   const hasAuthority = currentUserIsModerator || amISubjectUser;
 
   const userChatIsLocked = currentUserLocked && lockSettings?.disablePrivateChat;
@@ -176,7 +172,6 @@ export const generateActionsPermissions = (
     && !isMuted
     && !subjectUserVoice?.listenOnly
     && !isSubjectUserBot
-    && !isBreakout
     && (type === 'participant' || type === 'raised-hand');
 
   const allowedToUnmuteAudio = hasAuthority
@@ -185,14 +180,12 @@ export const generateActionsPermissions = (
     && isMuted
     && (amISubjectUser || usersPolicies?.allowModsToUnmuteUsers)
     && !lockSettings?.disableMic
-    && !isBreakout
     && (type === 'participant' || type === 'raised-hand');
 
   const allowedToChangeWhiteboardAccess = currentUserIsPresenter
       && !amISubjectUser && !subjectUser.presenter
       && !isSubjectUserBot
       && !isDialInUser
-      && !isBreakout
       && (type === 'participant' || type === 'raised-hand');
 
   const allowedToSetPresenter = (amIModerator || isBreakout)
@@ -204,14 +197,12 @@ export const generateActionsPermissions = (
   // if currentUser is a moderator, allow removing other users
   const allowedToRemove = amIModerator
     && !amISubjectUser
-    && (!isBreakout || parentRoomModerator)
     && (type === 'participant' || type === 'raised-hand');
 
   const allowedToPromote = amIModerator
     && !amISubjectUser
     && !isSubjectUserModerator
     && !isDialInUser
-    && !isBreakout
     && !isSubjectUserBot
     && !(isSubjectUserGuest && usersPolicies?.authenticatedGuest && !usersPolicies?.allowPromoteGuestToModerator)
     && (type === 'participant' || type === 'raised-hand');
@@ -220,7 +211,6 @@ export const generateActionsPermissions = (
     && !amISubjectUser
     && isSubjectUserModerator
     && !isDialInUser
-    && !isBreakout
     && !isSubjectUserBot
     && !(isSubjectUserGuest && usersPolicies?.authenticatedGuest && !usersPolicies?.allowPromoteGuestToModerator)
     && (type === 'participant' || type === 'raised-hand');
