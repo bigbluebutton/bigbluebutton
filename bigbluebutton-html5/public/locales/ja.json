@@ -80,7 +80,7 @@
     "app.chat.header.tooltipEdit": "メッセージを編集",
     "app.chat.header.tooltipReply": "メッセージに返信",
     "app.chat.header.tooltipDelete": "メッセージを削除",
-    "app.chat.header.tooltipPin": "Pin message",
+    "app.chat.header.tooltipPin": "メッセージをピン留め",
     "app.chat.header.tooltipUnpin": "Unpin message",
     "app.chat.header.tooltipReact": "メッセージに反応",
     "app.chat.content.pollVote": "投票",
