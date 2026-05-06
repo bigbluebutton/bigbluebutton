@@ -2386,7 +2386,7 @@ const Whiteboard = React.memo((props) => {
 
   const removeViewerLaser = () => {
     laserElRef.current = null;
-    const targetDoc = isPresentationDetached && popupWindow?.document ? popupWindow.document : document;
+    const targetDoc = document;
     const lasers = targetDoc.querySelectorAll('.bbb-laser-pointer');
     lasers.forEach(el => el.remove());
   };
@@ -2396,7 +2396,7 @@ const Whiteboard = React.memo((props) => {
     if (isPresenter) return;
     //if (isMultiUserActive) return;
 
-    const targetDoc = isPresentationDetached && popupWindow?.document ? popupWindow.document : document;
+    const targetDoc = document;
 
     //Comment out below if we do not want to show laser when a presenter uses drawing tools on mobile devices.
     // Note a problem that the laser remains on the screen after switching to drawing tools.
