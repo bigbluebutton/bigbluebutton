@@ -1554,7 +1554,7 @@
     "app.createBreakoutRoom.timerSeconds": "秒",
     "app.createBreakoutRoom.decreaseBreakoutTime": "小会議室の制限時間を減らす",
     "app.createBreakoutRoom.increaseBreakoutTime": "小会議室の制限時間を増やす",
-    "app.createBreakoutRoom.decreaseRooms": "Decrease number of rooms",
+    "app.createBreakoutRoom.decreaseRooms": "部屋の数を減らす",
     "app.createBreakoutRoom.increaseRooms": "Increase number of rooms",
     "app.createBreakoutRoom.roomOptions": "Room options",
     "app.createBreakoutRoom.unassignedUsers": "割り振られていないユーザー",
