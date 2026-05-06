@@ -1552,7 +1552,7 @@
     "app.createBreakoutRoom.timerHours": "時間",
     "app.createBreakoutRoom.timerMinutes": "分",
     "app.createBreakoutRoom.timerSeconds": "秒",
-    "app.createBreakoutRoom.decreaseBreakoutTime": "Decrease breakout time",
+    "app.createBreakoutRoom.decreaseBreakoutTime": "小会議室の制限時間を減らす",
     "app.createBreakoutRoom.increaseBreakoutTime": "Increase breakout time",
     "app.createBreakoutRoom.decreaseRooms": "Decrease number of rooms",
     "app.createBreakoutRoom.increaseRooms": "Increase number of rooms",
