@@ -155,7 +155,7 @@ runs:
         sudo -i <<'EOF'
         set -e
         cd /root/
-        wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v4.0.x-release-ubuntu-24/bbb-install.sh -O bbb-install.sh
+        wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v4.0.x-release/bbb-install.sh -O bbb-install.sh
         sed -i "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" bbb-install.sh
         chmod +x bbb-install.sh
 

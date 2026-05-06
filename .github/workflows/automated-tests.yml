@@ -460,8 +460,7 @@ jobs:
           key: ${{ runner.os }}-apt-${{ hashFiles('bigbluebutton-config/bigbluebutton-release') }}-${{ steps.apt-manifest.outputs.hash }}
   push-debs-to-package-repo:
     needs: unify-artifacts
-    # if: github.event_name == 'push'
-    if: github.event_name == 'push' || github.event_name == 'pull_request' # TODO revert to 'push' only
+    if: github.event_name == 'push'
     runs-on: ubuntu-24.04
     environment: apt-repo
     steps:
