@@ -42,7 +42,7 @@
     "axios": "^1.15.2",
     "claude": "^0.1.2",
     "express": "^5.2.1",
-    "express-rate-limit": "^8.3.0",
+    "express-rate-limit": "^8.5.1",
     "express-ws": "^5.0.2",
     "form-data": "^4.0.5",
     "js-yaml": "^4.1.1",
