@@ -11,6 +11,7 @@ import browserInfo from '/imports/utils/browserInfo';
 import { SCREENSHARE_SUBSCRIPTION } from './queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import useMeeting from '../../core/hooks/useMeeting';
+import { liveKitScreenshareHasAudioVar } from './livekit-screenshare-state';
 
 let screenShareBridge = sfuScreenShareBridge;
 
@@ -258,8 +259,13 @@ export const useShouldEnableVolumeControl = () => {
   const SCREENSHARE_CONFIG = window.meetingClientSettings.public.kurento.screenshare;
   const VOLUME_CONTROL_ENABLED = SCREENSHARE_CONFIG.enableVolumeControl;
   const hasAudio = useScreenshareHasAudio();
+  // When LiveKit is the screenshare bridge, server-side hasAudio is unreliable
+  // (always true because it can't be determined at signaling time).
+  // Use client-side ScreenShareAudio track detection instead.
+  const liveKitHasAudio = useReactiveVar(liveKitScreenshareHasAudioVar);
+  const isLiveKit = screenShareBridge?.bridgeName === 'livekit';
 
-  return VOLUME_CONTROL_ENABLED && hasAudio;
+  return VOLUME_CONTROL_ENABLED && hasAudio && (!isLiveKit || liveKitHasAudio);
 };
 
 export const useShowButtonForNonPresenters = () => {
@@ -327,7 +333,11 @@ export const shareScreen = async (
     let stream;
     let contentType = CONTENT_TYPE_SCREENSHARE;
     if (options.stream == null) {
-      stream = await BridgeService.getScreenStream();
+      const isLiveKit = screenShareBridge.bridgeName === 'livekit';
+      const constraints = isLiveKit
+        ? window.meetingClientSettings.public.media?.livekit?.screenshare?.constraints
+        : undefined;
+      stream = await BridgeService.getScreenStream(constraints);
     } else {
       contentType = CONTENT_TYPE_CAMERA;
       stream = options.stream;

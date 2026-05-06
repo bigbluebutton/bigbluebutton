@@ -84,7 +84,6 @@ object BreakoutRoomDAO {
 
       val nonAssignedUsers = Users2x.findAll(liveMeeting.users2x)
         .filterNot(user => assignedUsers.contains(user.intId))
-        .filterNot(user => user.presenter)
         .filter(user => user.role != Roles.MODERATOR_ROLE || breakout.sendInviteToModerators)
         .map(_.intId)
 

@@ -124,6 +124,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     document.addEventListener('gesturestart', function (e) {
       e.preventDefault();
     });
+    document.addEventListener('gesturechange', function (e) {
+      e.preventDefault();
+    });
   </script>
   <script src="compatibility/sip.js?v=VERSION" language="javascript"></script>
   <script src="compatibility/tflite-simd.js?v=VERSION" language="javascript"></script>
@@ -161,9 +164,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <div id="aria-polite-alert" aria-live="polite" aria-atomic="false" class="sr-only"></div>
   <svg style="display: none; width: 1px; height: 1px;">
     <defs>
-      <symbol id="redPointer" viewBox="0 0 10 10">
-        <circle cx="5" cy="5" r="4" fill="red" />
-      </symbol>
+      <g id="redPointer">
+        <circle cx="0" cy="0" r="60" fill="red" />
+      </g>
     </defs>
   </svg>
   <main>

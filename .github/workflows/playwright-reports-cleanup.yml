@@ -1,6 +1,6 @@
 name: Cleanup Playwright reports
 on:
-  pull_request:
+  pull_request_target:
     types:
       - closed
 jobs:
@@ -9,7 +9,7 @@ jobs:
     if: ${{ github.repository_owner == 'bigbluebutton' }}
     steps:
       - name: Checkout reports repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ${{ github.repository_owner }}/bbb-ci-playwright-reports
           token: ${{ secrets.PLAYWRIGHT_REPORTS_REPO_TOKEN }}

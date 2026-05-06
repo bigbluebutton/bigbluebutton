@@ -15,6 +15,7 @@ import {
 
 import Service from './service';
 import AudioModalContainer from './audio-modal/container';
+import useAudioManagerStateSync from './hooks/useAudioManagerStateSync';
 import useToggleVoice from './audio-graphql/hooks/useToggleVoice';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -137,7 +138,7 @@ const AudioContainer = (props) => {
 
   const audioModal = useModalRegistration({
     id: 'audioModal',
-    priority: 'medium',
+    priority: 'high',
   });
 
   const meetingIsBreakout = useMeetingIsBreakout();
@@ -147,7 +148,9 @@ const AudioContainer = (props) => {
       voiceConf: m?.voiceSettings?.voiceConf,
       muteOnStart: m?.voiceSettings?.muteOnStart,
     },
+    lockSettings: m.lockSettings,
   }));
+  const lockSettingsLoaded = meeting?.lockSettings !== undefined;
 
   const { data: currentUser } = useCurrentUser((u) => ({
     userId: u.userId,
@@ -195,10 +198,10 @@ const AudioContainer = (props) => {
     }
     Session.setItem('audioModalIsOpen', true);
     if (enableVideo && autoShareWebcam) {
-      openVideoPreviewModal();
       if (!currentUserHasVoice) {
         openAudioModal();
       }
+      openVideoPreviewModal();
       didMountAutoJoin = true;
     } else if (!(
       userSelectedMicrophone
@@ -217,6 +220,9 @@ const AudioContainer = (props) => {
 
   const { data: unmutedUsers } = useWhoIsUnmuted();
   const currentUserMuted = currentUser?.userId && !unmutedUsers[currentUser.userId];
+
+  // Sync AudioManager muted/talking states when using LiveKit audio state.
+  useAudioManagerStateSync();
 
   const joinAudio = useCallback(() => {
     if (Service.isConnected()) return;
@@ -242,13 +248,15 @@ const AudioContainer = (props) => {
     // We don't know whether the meeting is a breakout or not.
     // So, postpone the decision.
     if (meetingIsBreakout === undefined) return;
+
+    if (!lockSettingsLoaded) return;
     init().then(() => {
       // Skip auto join audio if user has already joined in another tab (currentUserHasVoice)
       if (meetingIsBreakout && !Service.isUsingAudio() && !currentUserHasVoice) {
         joinAudio();
       }
     });
-  }, [meetingIsBreakout]);
+  }, [meetingIsBreakout, lockSettingsLoaded]);
 
   useEffect(() => {
     if (userIsReturningFromBreakoutRoom) {
@@ -294,7 +302,7 @@ const AudioContainer = (props) => {
       {audioModal.isOpen ? (
         <AudioModalContainer
           {...{
-            priority: 'medium',
+            priority: 'high',
             setIsOpen: audioModal.isOpen ? audioModal.close : audioModal.open,
             isOpen: audioModal.isOpen,
           }}

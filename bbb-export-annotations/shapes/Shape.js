@@ -509,14 +509,15 @@ export class Shape {
     // Do nothing if there is no text
     if (!this.text) return;
 
-    // Sticky notes have a width and height of 200 and can't be resized,
-    // unless the text becomes too long.
+    // Sticky notes have a fixed width/height of 200 and can't be resized.
+    // For other shapes, use actual dimensions or a large fallback to avoid
+    // incorrect text wrapping (see issue #24566).
     if (!this.w) {
-      this.w = 200;
+      this.w = this.type === 'note' ? 200 : Number.MAX_SAFE_INTEGER;
     }
 
     if (!this.h) {
-      this.h = 200;
+      this.h = this.type === 'note' ? 200 : Number.MAX_SAFE_INTEGER;
     }
 
     if (!this.growY) {

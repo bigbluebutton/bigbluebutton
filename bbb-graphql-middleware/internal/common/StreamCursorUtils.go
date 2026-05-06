@@ -33,11 +33,11 @@ func GetStreamCursorPropsFromBrowserMessage(browserMessage BrowserSubscribeMessa
 	return streamCursorField, streamCursorVariableName, streamCursorInitialValue
 }
 
-func GetLastStreamCursorValueFromReceivedMessage(message []byte, streamCursorField string) interface{} {
+func GetLastStreamCursorValueFromReceivedMessage(message []byte, streamCursorField string, meetingId string) interface{} {
 	dataChecksum := crc32.ChecksumIEEE(message)
 	GlobalCacheLocks.Lock(uint64(dataChecksum))
 
-	if streamCursorValueCache, streamCursorValueCacheExists := GetStreamCursorValueCache(dataChecksum); streamCursorValueCacheExists {
+	if streamCursorValueCache, streamCursorValueCacheExists := GetStreamCursorValueCache(meetingId, dataChecksum); streamCursorValueCacheExists {
 		// Unlock immediately once the cache was already created by other routine
 		GlobalCacheLocks.Unlock(uint64(dataChecksum))
 		return streamCursorValueCache
@@ -73,7 +73,7 @@ func GetLastStreamCursorValueFromReceivedMessage(message []byte, streamCursorFie
 		}
 	}
 
-	StoreStreamCursorValueCache(dataChecksum, lastStreamCursorValue)
+	StoreStreamCursorValueCache(meetingId, dataChecksum, lastStreamCursorValue)
 	return lastStreamCursorValue
 }
 

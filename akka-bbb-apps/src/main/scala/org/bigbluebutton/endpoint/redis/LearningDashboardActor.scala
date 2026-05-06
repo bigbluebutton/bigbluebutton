@@ -893,26 +893,24 @@ class LearningDashboardActor(
   }
 
   private def handleCreateMeetingReqMsg(msg: CreateMeetingReqMsg): Unit = {
-    if (msg.body.props.meetingProp.disabledFeatures.contains("learningDashboard") == false) {
-      val newMeeting = Meeting(
-        msg.body.props.meetingProp.intId,
-        msg.body.props.meetingProp.extId,
-        msg.body.props.meetingProp.name,
-        learningDashboardDisabled = msg.body.props.meetingProp.disabledFeatures.contains("learningDashboard"),
-        downloadSessionDataEnabled = !msg.body.props.meetingProp.disabledFeatures.contains("learningDashboardDownloadSessionData"),
-        pluginUserDataCardTitles = Vector(),
-        other = Map(
-          "learning-dashboard-learn-more-link"  -> msg.body.props.metadataProp.metadata.get("learning-dashboard-learn-more-link").getOrElse(""),
-          "learning-dashboard-feedback-link" -> msg.body.props.metadataProp.metadata.get("learning-dashboard-feedback-link").getOrElse("")
-        ),
-      )
+    val newMeeting = Meeting(
+      msg.body.props.meetingProp.intId,
+      msg.body.props.meetingProp.extId,
+      msg.body.props.meetingProp.name,
+      learningDashboardDisabled = msg.body.props.meetingProp.disabledFeatures.contains("learningDashboard"),
+      downloadSessionDataEnabled = !msg.body.props.meetingProp.disabledFeatures.contains("learningDashboardDownloadSessionData"),
+      pluginUserDataCardTitles = Vector(),
+      other = Map(
+        "learning-dashboard-learn-more-link"  -> msg.body.props.metadataProp.metadata.get("learning-dashboard-learn-more-link").getOrElse(""),
+        "learning-dashboard-feedback-link" -> msg.body.props.metadataProp.metadata.get("learning-dashboard-feedback-link").getOrElse("")
+      ),
+    )
 
-      meetings += (newMeeting.intId -> newMeeting)
-      meetingAccessTokens += (newMeeting.intId -> msg.body.props.password.learningDashboardAccessToken)
+    meetings += (newMeeting.intId -> newMeeting)
+    meetingAccessTokens += (newMeeting.intId -> msg.body.props.password.learningDashboardAccessToken)
 
-      if (msg.body.props.meetingProp.disabledFeatures.contains("learningDashboard")) {
-        log.info(" disabled for meeting {}.",msg.body.props.meetingProp.intId)
-      }
+    if (msg.body.props.meetingProp.disabledFeatures.contains("learningDashboard")) {
+      log.info(" disabled for meeting {}.",msg.body.props.meetingProp.intId)
     }
   }
 

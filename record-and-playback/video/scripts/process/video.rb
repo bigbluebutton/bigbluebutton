@@ -203,6 +203,18 @@ audio_edl = BigBlueButton::AudioEvents.create_audio_edl(events, raw_archive_dir)
 logger.debug 'Audio EDL:'
 BigBlueButton::EDL::Audio.dump(audio_edl)
 
+if BigBlueButton::Events.screenshare_has_audio?(events, "#{raw_archive_dir}/deskshare")
+  logger.info('Generating audio events list for deskshare')
+  deskshare_audio_edl = BigBlueButton::AudioEvents.create_deskshare_audio_edl(events, "#{raw_archive_dir}/deskshare")
+  logger.debug('Deskshare audio EDL:')
+  BigBlueButton::EDL::Audio.dump(deskshare_audio_edl)
+
+  audio_edl = BigBlueButton::EDL::Audio.merge(audio_edl, deskshare_audio_edl)
+
+  logger.debug 'Merged Audio EDL:'
+  BigBlueButton::EDL::Audio.dump(audio_edl)
+end
+
 logger.info 'Applying recording start/stop events to audio'
 audio_edl = BigBlueButton::Events.edl_match_recording_marks_audio(audio_edl, events, initial_timestamp, final_timestamp)
 logger.debug 'Trimmed Audio EDL:'
@@ -210,26 +222,6 @@ BigBlueButton::EDL::Audio.dump(audio_edl)
 
 logger.info 'Rendering audio'
 audio = BigBlueButton::EDL::Audio.render(audio_edl, "#{process_dir}/audio")
-
-if BigBlueButton::Events.screenshare_has_audio?(events, "#{raw_archive_dir}/deskshare")
-  logger.info('Generating audio events list for deskshare')
-  deskshare_audio_edl = BigBlueButton::AudioEvents.create_deskshare_audio_edl(events, "#{raw_archive_dir}/deskshare")
-  logger.debug('Deskshare audio EDL:')
-  BigBlueButton::EDL::Audio.dump(deskshare_audio_edl)
-
-  logger.info('Applying recording start/stop events to deskshare audio')
-  deskshare_audio_edl = BigBlueButton::Events.edl_match_recording_marks_audio(
-    deskshare_audio_edl, events, initial_timestamp, final_timestamp
-  )
-  logger.debug('Trimmed deskshare audio EDL:')
-  BigBlueButton::EDL::Audio.dump(deskshare_audio_edl)
-
-  logger.info('Rendering deskshare audio')
-  deskshare_audio = BigBlueButton::EDL::Audio.render(deskshare_audio_edl, "#{process_dir}/deskshare_audio")
-
-  logger.info('Mixing meeting audio and deskshare audio')
-  audio = BigBlueButton::EDL::Audio.mixer([audio, deskshare_audio], "#{process_dir}/mixed_audio")
-end
 
 logger.info 'Rendering video'
 video = BigBlueButton::EDL::Video.render(

@@ -1,6 +1,12 @@
 import { expect } from '@playwright/test';
 
-import { CI, ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, UPLOAD_PDF_WAIT_TIME } from '../core/constants';
+import {
+  CI,
+  ELEMENT_WAIT_EXTRA_LONG_TIME,
+  ELEMENT_WAIT_LONGER_TIME,
+  ELEMENT_WAIT_TIME,
+  UPLOAD_PDF_WAIT_TIME,
+} from '../core/constants';
 import { elements as e } from '../core/elements';
 import { checkNotificationText } from '../notifications/util';
 import { MultiUsers } from '../user/multiusers';
@@ -53,12 +59,9 @@ export class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.startSharingWebcam);
     await this.modPage.hasElement(e.screenShareVideo, 'should display the screen share video for the moderator');
     await this.modPage.closeAllToastNotifications();
-    const modWhiteboardLocator = this.modPage.page.locator(e.screenShareVideo);
-    await expect(modWhiteboardLocator, 'should display the same screenshot as taken before').toHaveScreenshot(
+    const modScreenShareVideo = this.modPage.page.locator(e.screenShareVideo);
+    await expect(modScreenShareVideo, 'should display the same screenshot as taken before').toHaveScreenshot(
       'moderator-share-camera-as-content.png',
-      {
-        maxDiffPixels: 1000,
-      },
     );
 
     await this.userPage.wasRemoved(
@@ -67,10 +70,8 @@ export class Presentation extends MultiUsers {
     );
     await this.userPage.hasElement(e.screenShareVideo, 'should display the screen share video for the viewer');
     await this.modPage.closeAllToastNotifications();
-    const viewerWhiteboardLocator = this.userPage.page.locator(e.screenShareVideo);
-    await expect(viewerWhiteboardLocator).toHaveScreenshot('viewer-share-camera-as-content.png', {
-      maxDiffPixels: 1000,
-    });
+    const viewerScreenShareVideo = this.userPage.page.locator(e.screenShareVideo);
+    await expect(viewerScreenShareVideo).toHaveScreenshot('viewer-share-camera-as-content.png');
   }
 
   async hideAndRestorePresentation() {
@@ -121,7 +122,9 @@ export class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.startShareVideoBtn);
 
     const modFrame = await this.modPage.getYoutubeFrame();
+    if (!modFrame) throw Error('Failed to get video frame element for moderator');
     const userFrame = await this.userPage.getYoutubeFrame();
+    if (!userFrame) throw Error('Failed to get video frame element for attendee');
 
     await modFrame.hasElement(
       'video',
@@ -131,6 +134,59 @@ export class Presentation extends MultiUsers {
       'video',
       'should display the element frame for the video that is being shared for the attendee',
     );
+  }
+
+  async checkVideoAfterUserJoins() {
+    await this.modPage.page.waitForTimeout(ELEMENT_WAIT_LONGER_TIME);
+
+    const user2Frame = await this.userPage2.getYoutubeFrame();
+    if (!user2Frame) throw Error('Failed to get video frame element for attendee 2');
+    await user2Frame.hasElement(
+      'video',
+      'should display the element frame for the video that is being shared for the attendee',
+    );
+  }
+
+  async pauseExternalVideo() {
+    const modFrame = await this.modPage.getYoutubeFrame();
+    if (!modFrame) throw Error('Failed to get video frame element');
+
+    await modFrame.hasElement('video', 'should display the video element before pausing');
+
+    const playButton = modFrame.frame.locator('.ytp-play-button');
+    await playButton.waitFor({ state: 'visible', timeout: 5000 });
+
+    await expect(playButton).toHaveAttribute('data-title-no-tooltip', 'Pause');
+
+    await playButton.click();
+    await this.modPage.page.waitForTimeout(ELEMENT_WAIT_TIME);
+
+    await expect(playButton).toHaveAttribute('data-title-no-tooltip', 'Play');
+  }
+
+  async changePresenterWhileVideoPlaying() {
+    await this.modPage.waitAndClick(e.userListItem);
+    await this.modPage.waitAndClick(e.makePresenter);
+    await this.userPage.closeAllToastNotifications();
+
+    const userFrame = await this.userPage.getYoutubeFrame();
+    if (!userFrame) throw Error('Failed to get video frame element');
+
+    await userFrame.hasElement('video', 'should display the element frame for the video that is being shared');
+    await this.modPage.wasRemoved(
+      e.stopExternalVideoBtn,
+      'should remove the stop external video button from the moderator when presenter change',
+    );
+
+    await this.userPage.hasElement(
+      e.stopExternalVideoBtn,
+      'should display the stop external video button for the new presenter',
+    );
+  }
+
+  async endExternalVideo() {
+    await this.modPage.waitAndClick(e.stopExternalVideoBtn);
+    await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard after stopping the external video');
   }
 
   async uploadSinglePresentationTest() {

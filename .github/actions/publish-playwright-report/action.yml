@@ -13,11 +13,14 @@ inputs:
   report-path:
     description: Local path to the Playwright HTML report directory
     required: true
+  workflow-id:
+    description: Workflow run ID used for pr-<number>/<workflow_id> folder
+    required: true
 runs:
   using: composite
   steps:
     - name: Checkout reports repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         repository: ${{ inputs.reports-repo }}
         token: ${{ inputs.token }}
@@ -27,6 +30,7 @@ runs:
       env:
         REPORT_PATH: ${{ inputs.report-path }}
         PR_NUMBER: ${{ inputs.pr-number }}
+        WORKFLOW_ID: ${{ inputs.workflow-id }}
       run: |
         set -euo pipefail
 
@@ -40,8 +44,14 @@ runs:
           exit 1
         fi
 
-        dest_dir="reports-repo/pr-$PR_NUMBER"
-        rm -rf "$dest_dir"
+        pr_dir="reports-repo/pr-$PR_NUMBER"
+        if [ -d "$pr_dir" ]; then
+          commit_action="Update"
+        else
+          commit_action="Add"
+        fi
+        dest_dir="$pr_dir/$WORKFLOW_ID"
+        rm -rf "$pr_dir"
         mkdir -p "$dest_dir"
         rsync -a --delete "$REPORT_PATH/" "$dest_dir/"
         touch reports-repo/.nojekyll
@@ -49,7 +59,7 @@ runs:
         git -C reports-repo config user.email "github-actions[bot]@users.noreply.github.com"
         if [ -n "$(git -C reports-repo status --porcelain)" ]; then
           git -C reports-repo add .
-          git -C reports-repo commit -m "Add Playwright report for PR #$PR_NUMBER"
+          git -C reports-repo commit -m "$commit_action Playwright report for PR #$PR_NUMBER - workflow $WORKFLOW_ID"
           git -C reports-repo push
         else
           echo "No changes to publish"

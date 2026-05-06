@@ -67,8 +67,13 @@ object UsersApp {
     ScreenshareApp2x.requestBroadcastStop(outGW, liveMeeting)
 
     val meetingId = liveMeeting.props.meetingProp.intId
+    val presenterCandidate = if (liveMeeting.props.meetingProp.isBreakout) {
+      Users2x.findModerator(liveMeeting.users2x).orElse(Users2x.findAll(liveMeeting.users2x).headOption)
+    } else {
+      Users2x.findModerator(liveMeeting.users2x)
+    }
     for {
-      moderator <- Users2x.findModerator(liveMeeting.users2x)
+      moderator <- presenterCandidate
       regUser <- RegisteredUsers.findWithUserId(moderator.intId, liveMeeting.registeredUsers)
       newPresenter <- Users2x.makePresenter(liveMeeting.users2x, moderator.intId)
     } yield {

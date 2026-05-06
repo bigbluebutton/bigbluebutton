@@ -21,7 +21,6 @@ import type { Stream, StreamItem, VideoItem } from './types';
 import { VIDEO_TYPES } from './enums';
 import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
 import {
-  getLKStats,
   lkToggleMuteCameras,
 } from '/imports/ui/services/livekit';
 
@@ -432,7 +431,7 @@ class VideoService {
 
   static getStreamsToConnectAndDisconnect(allStreams: VideoItem[], connectedStreamIds: string[]) {
     const cameraIds = allStreams
-      .filter((s) => s?.type !== VIDEO_TYPES.GRID)
+      .filter((s) => s?.type !== VIDEO_TYPES.GRID && s?.type !== VIDEO_TYPES.AUDIO_ONLY)
       .map((s) => (s as StreamItem).stream);
     const streamsToConnect = cameraIds.filter((stream) => {
       return !connectedStreamIds.includes(stream);
@@ -530,27 +529,6 @@ class VideoService {
         stats[peerId] = videoStats;
       }),
     );
-
-    try {
-      const lkStats = await getLKStats();
-      lkStats.forEach((stat) => {
-        // @ts-expect-error -> Untyped object.
-        const { id, type: statType, kind } = stat;
-
-        if (FILTER_VIDEO_STATS.includes(statType) && (!kind || kind === 'video')) {
-          stats[id] = { [statType]: stat };
-        }
-      });
-    } catch (error) {
-      logger.error({
-        logCode: 'video_provider_livekit_stats_error',
-        extraInfo: {
-          errorName: (error as Error).name,
-          errorMessage: (error as Error).message,
-          errorStack: (error as Error).stack,
-        },
-      }, `Failed to get LiveKit video stats: ${(error as Error).message}`);
-    }
 
     return stats;
   }

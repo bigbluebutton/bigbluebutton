@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { useQuery } from '@apollo/client';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Trigger from '/imports/ui/components/common/control-header/right/component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -11,7 +10,6 @@ import {
   PresentationsSubscriptionResponse,
 } from '/imports/ui/components/whiteboard/queries';
 import Service from './service';
-import { GET_PAD_ID, GetPadIdQueryResponse } from './queries';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 
 const DEBOUNCE_TIMEOUT = 15000;
@@ -20,6 +18,10 @@ const intlMessages = defineMessages({
   convertAndUploadLabel: {
     id: 'app.notes.notesDropdown.covertAndUpload',
     description: 'Export shared notes as a PDF and upload to the main room',
+  },
+  exportAsPDFLabel: {
+    id: 'app.notes.notesDropdown.exportAsPDF',
+    description: 'Export shared notes as a PDF file',
   },
   pinNotes: {
     id: 'app.notes.notesDropdown.pinNotes',
@@ -34,6 +36,8 @@ const intlMessages = defineMessages({
 interface NotesDropdownContainerGraphqlProps {
   handlePinSharedNotes: (pinned: boolean) => void;
   presentationEnabled: boolean;
+  padId: string;
+  isEtherpadSharedNotes: boolean;
 }
 
 interface NotesDropdownGraphqlProps extends NotesDropdownContainerGraphqlProps {
@@ -46,7 +50,7 @@ interface NotesDropdownGraphqlProps extends NotesDropdownContainerGraphqlProps {
 
 const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
   const {
-    amIPresenter, presentations, handlePinSharedNotes, isRTL, padId, presentationEnabled,
+    amIPresenter, presentations, handlePinSharedNotes, isRTL, padId, presentationEnabled, isEtherpadSharedNotes,
   } = props;
   const [converterButtonDisabled, setConverterButtonDisabled] = useState(false);
   const intl = useIntl();
@@ -55,6 +59,7 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
   const getAvailableActions = () => {
     const uploadIcon = 'upload';
     const pinIcon = 'presentation';
+    const downloadIcon = 'download';
 
     const menuItems = [];
 
@@ -69,7 +74,26 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
           onClick: () => {
             setConverterButtonDisabled(true);
             setTimeout(() => setConverterButtonDisabled(false), DEBOUNCE_TIMEOUT);
-            return Service.convertAndUpload(presentations, padId, presentationEnabled);
+            return Service.convertAndUpload(presentations, padId, isEtherpadSharedNotes, presentationEnabled);
+          },
+        },
+      );
+    }
+
+    if (!isEtherpadSharedNotes) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const sessionToken = urlParams.get('sessionToken');
+      const hocuspocusServerHostname = window.meetingClientSettings.public.sharedNotes.serverHostname
+        || window.location.hostname;
+
+      menuItems.push(
+        {
+          key: uniqueId('notes-option-'),
+          icon: downloadIcon,
+          dataTest: 'exportNotesAsPDF',
+          label: intl.formatMessage(intlMessages.exportAsPDFLabel),
+          onClick: () => {
+            window.open(`https://${hocuspocusServerHostname}/hocuspocus/api/documents/${padId}/export/pdf?sessionToken=${sessionToken}`);
           },
         },
       );
@@ -125,7 +149,9 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
 };
 
 const NotesDropdownContainerGraphql: React.FC<NotesDropdownContainerGraphqlProps> = (props) => {
-  const { handlePinSharedNotes, presentationEnabled } = props;
+  const {
+    handlePinSharedNotes, presentationEnabled, padId, isEtherpadSharedNotes,
+  } = props;
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
   }));
@@ -138,14 +164,6 @@ const NotesDropdownContainerGraphql: React.FC<NotesDropdownContainerGraphqlProps
   );
   const presentations = presentationData?.pres_presentation || [];
 
-  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
-
-  const { data: padIdData } = useQuery<GetPadIdQueryResponse>(
-    GET_PAD_ID,
-    { variables: { externalId: NOTES_CONFIG.id } },
-  );
-  const padId = padIdData?.sharedNotes?.[0]?.padId;
-
   if (!padId) return null;
 
   return (
@@ -156,6 +174,7 @@ const NotesDropdownContainerGraphql: React.FC<NotesDropdownContainerGraphqlProps
       handlePinSharedNotes={handlePinSharedNotes}
       presentationEnabled={presentationEnabled}
       padId={padId}
+      isEtherpadSharedNotes={isEtherpadSharedNotes}
     />
   );
 };

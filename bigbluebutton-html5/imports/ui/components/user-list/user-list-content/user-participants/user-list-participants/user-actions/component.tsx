@@ -1,4 +1,5 @@
 import React from 'react';
+import { PluginIconType } from 'bigbluebutton-html-plugin-sdk';
 import { User } from '/imports/ui/Types/user';
 import { LockSettings, UsersPolicies } from '/imports/ui/Types/meeting';
 import { useIntl, defineMessages } from 'react-intl';
@@ -59,10 +60,10 @@ interface UserActionsProps {
 interface DropdownItem {
   key: string;
   label?: string;
-  icon?: string;
+  icon?: PluginIconType;
   tooltip?: string;
   allowed?: boolean;
-  iconRight?: string;
+  iconRight?: PluginIconType;
   textColor?: string;
   isSeparator?: boolean;
   dataTest?: string;
@@ -360,7 +361,7 @@ const UserActions: React.FC<UserActionsProps> = ({
     )),
     {
       allowed: user?.cameras?.length > 0
-        && isVideoPinEnabledForCurrentUser(currentUser, isBreakout) && type === 'participant',
+        && isVideoPinEnabledForCurrentUser(currentUser) && type === 'participant',
       key: 'pinVideo',
       label: user?.pinned
         ? intl.formatMessage(messages.UnpinUserWebcam)
@@ -379,20 +380,16 @@ const UserActions: React.FC<UserActionsProps> = ({
     {
       allowed: (() => {
         const preventSelfChat = user.userId !== currentUser.userId;
-        const isBreakoutPrivateChatLocked = isBreakout
-          && lockSettings?.disablePrivateChat;
         const moderatorOverride = currentUser.isModerator
           && allowedToChatPrivately;
         const regularUserCondition = (isPrivateChatEnabled
           && isChatEnabled
           && !lockSettings?.disablePrivateChat
-          && !isVoiceOnlyUser(user.userId)
-          && !isBreakout)
+          && !isVoiceOnlyUser(user.userId))
           || user.isModerator;
 
         const isAllowed = preventSelfChat
           && (moderatorOverride || regularUserCondition || !currentUser.locked)
-          && !isBreakoutPrivateChatLocked
           && type === 'participant';
 
         return isAllowed;
@@ -446,7 +443,6 @@ const UserActions: React.FC<UserActionsProps> = ({
     },
     {
       allowed: allowedToMuteAudio
-        && !isBreakout
         && type === 'participant',
       key: 'mute',
       label: intl.formatMessage(messages.MuteUserAudioLabel),
@@ -459,7 +455,6 @@ const UserActions: React.FC<UserActionsProps> = ({
     {
       allowed: allowedToUnmuteAudio
         && !lockSettings?.disableMic
-        && !isBreakout
         && type === 'participant',
       key: 'unmute',
       label: intl.formatMessage(messages.UnmuteUserAudioLabel),
@@ -566,7 +561,6 @@ const UserActions: React.FC<UserActionsProps> = ({
     {
       allowed: allowedToEjectCameras
         && user?.cameras?.length > 0
-        && !isBreakout
         && type === 'participant',
       key: 'ejectUserCameras',
       label: intl.formatMessage(messages.ejectUserCamerasLabel),
