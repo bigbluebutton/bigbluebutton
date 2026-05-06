@@ -14,11 +14,9 @@ import {
   ColorStyleButton,
   FormattingToolbar,
   NestBlockButton,
-  TextAlignButton,
   UnnestBlockButton,
   useCreateBlockNote,
 } from '@blocknote/react';
-
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { Extension } from '@tiptap/core';
 import { defineMessages, useIntl } from 'react-intl';
@@ -31,6 +29,7 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
 import logger from '/imports/startup/client/logger';
 import { notify } from '../../services/notification';
+import TextAlignSelect from './text-align-select/component';
 
 // Force-retain `Awareness` against a webpack tree-shaking interaction that
 // otherwise drops this class while keeping its `extends Observable` expression,
@@ -242,6 +241,12 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <style>
         {`
+          .mantine-Button-label {
+            display: none;
+          }
+          .mantine-Button-inner > .mantine-Button-section:first-child {
+            margin: 0;
+          }
           .bn-collaboration-cursor__label {
             color: ${colorWhite} !important;
           }
@@ -326,9 +331,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
               <BasicTextStyleButton basicTextStyle="strike" key="strikeStyleButton" />
             </FormattingToolbar>
             <FormattingToolbar>
-              <TextAlignButton textAlignment="left" key="textAlignLeftButton" />
-              <TextAlignButton textAlignment="center" key="textAlignCenterButton" />
-              <TextAlignButton textAlignment="right" key="textAlignRightButton" />
+              <TextAlignSelect key="textAlignSelect" />
               <ColorStyleButton key="colorStyleButton" />
               <NestBlockButton key="nestBlockButton" />
               <UnnestBlockButton key="unnestBlockButton" />
