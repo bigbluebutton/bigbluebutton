@@ -1,7 +1,3 @@
-# Configuration for new-pr-welcome - https://github.com/behaviorbot/new-pr-welcome
-
-# Comment to be posted to on PRs from first time contributors in your repository
-newPRWelcomeComment: >
-  Thank you for this contribution!
-  Could you please confirm if you already sent in the signed Contributor License Agreement? See https://docs.bigbluebutton.org/support/faq.html#why-do-i-need-to-sign-a-contributor-license-agreement-to-contribute-source-code
-  Thanks in advance!
+# NOTE: The behaviorbot/welcome app (https://github.com/apps/welcome) that used
+# this config is no longer functional. The welcome message for first-time
+# contributors is now handled by .github/workflows/welcome.yml instead.
