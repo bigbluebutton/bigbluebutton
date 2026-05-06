@@ -183,14 +183,14 @@ class PresentationController {
           log.debug "OPTIONS SUCCESS \n"
           response.setStatus(200)
           response.addHeader("Cache-Control", "no-cache")
-          response.contentType = 'plain/text'
+          response.contentType = 'text/plain'
           response.outputStream << 'upload-success';
           return;
         } else {
           log.debug "OPTIONS FAIL\n"
           response.setStatus(403)
           response.addHeader("Cache-Control", "no-cache")
-          response.contentType = 'plain/text'
+          response.contentType = 'text/plain'
           response.outputStream << 'upload-fail';
           return;
         }

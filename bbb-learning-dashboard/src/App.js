@@ -361,7 +361,7 @@ class App extends React.Component {
 
   render() {
     const {
-      activitiesJson, tab, loading, lastUpdated, ldAccessTokenCopied, sessionToken, modelOpen,
+      activitiesJson, tab, loading, lastUpdated, ldAccessTokenCopied, sessionToken, modalOpen,
     } = this.state;
     const { intl } = this.props;
 
