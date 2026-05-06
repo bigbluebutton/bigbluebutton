@@ -186,6 +186,7 @@ const Whiteboard = React.memo((props) => {
   const [laserMenuPos, setLaserMenuPos] = React.useState({ x: 0, y: 0 });
   const laserMenuRef = React.useRef(null);
   const [laserMode, setLaserMode] = React.useState('');
+  const [presenterCursorPoint, setPresenterCursorPoint] = React.useState( { x: -1, y: -1} );
   
   if (isMounting) {
     setDefaultEditorAssetUrls(getCustomEditorAssetUrls());
@@ -2372,6 +2373,17 @@ const Whiteboard = React.memo((props) => {
     }
   }, [otherCursors, whiteboardWriters]);
 
+  // Store presenter's cursor position to draw laser for mobile presenter
+  React.useEffect(() => {
+    tlEditorRef.current?.store.listen(({ changes }) => {
+      const p = tlEditorRef.current?.inputs.currentPagePoint;
+      if (p && tlEditorRef.current) {
+        const screenPos = tlEditorRef.current.pageToScreen(p);
+        setPresenterCursorPoint( {x: screenPos.x, y: screenPos.y} );
+      }
+    })
+  }, [tlEditorRef.current]);
+
   const removeViewerLaser = () => {
     laserElRef.current = null;
     const targetDoc = isPresentationDetached && popupWindow?.document ? popupWindow.document : document;
@@ -2381,7 +2393,7 @@ const Whiteboard = React.memo((props) => {
 
   // Show viewers Laser SVG
   React.useEffect(() => {
-    if (isPresenter && !isMobile) return;
+    if (isPresenter) return;
     //if (isMultiUserActive) return;
 
     const targetDoc = isPresentationDetached && popupWindow?.document ? popupWindow.document : document;
@@ -2644,6 +2656,28 @@ const Whiteboard = React.memo((props) => {
           hiddenGeoShapes,
         }}
       />
+      { (isPresenter && isMobile) && (() => {
+        const svg = laserSvgs[laserMode];
+        if (!svg) return null;
+        const tool = tlEditorRef.current?.getCurrentToolId?.();
+        if (tool !== 'hand') return;
+        const svgMobilePresenter = svg.replace(
+          'bbb-laser-pointer',
+          'bbb-laser-pointer-mobile-presenter'
+        );
+        return (
+          <div
+            style={{
+              position: 'fixed',
+              left: presenterCursorPoint.x - laserDefs[laserMode].cx,
+              top: presenterCursorPoint.y - laserDefs[laserMode].cy,
+              pointerEvents: 'none',
+              zIndex: 200,
+            }}
+            dangerouslySetInnerHTML={{ __html: svgMobilePresenter}}
+          />
+        );
+      })()}
       {laserMenuVisible && (
         <Styled.LaserContextMenu
           ref={laserMenuRef}
