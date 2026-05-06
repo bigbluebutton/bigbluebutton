@@ -123,7 +123,7 @@ runs:
         systemctl daemon-reload
 
         #Install Sipp for dial-in tests
-        apt install -y pkg-config dh-autoreconf ncurses-dev build-essential libssl-dev libpcap-dev libncurses5-dev libsctp-dev lksctp-tools cmake
+        apt install -y pkg-config dh-autoreconf ncurses-dev build-essential libssl-dev libpcap-dev libncurses-dev libsctp-dev lksctp-tools cmake
         git clone --recurse-submodules https://github.com/SIPp/sipp.git /opt/sipp
         cd /opt/sipp
         git checkout 4682fdba2b63007f13a632c6eb06f0ece84cb7df #Set an old commit as the current code is not working
@@ -155,18 +155,18 @@ runs:
         sudo -i <<'EOF'
         set -e
         cd /root/
-        wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v3.0.x-release/bbb-install.sh -O bbb-install.sh
+        wget -nv https://raw.githubusercontent.com/bigbluebutton/bbb-install/v4.0.x-release/bbb-install.sh -O bbb-install.sh
         sed -i "s|> /etc/apt/sources.list.d/bigbluebutton.list||g" bbb-install.sh
         chmod +x bbb-install.sh
 
-        ./bbb-install.sh -v jammy-30-dev -s bbb-ci.test -j -d /certs/
+        ./bbb-install.sh -v noble-40-dev -s bbb-ci.test -r packages.bigbluebutton.org -j -d /certs/
 
         bbb-conf --salt bbbci
         sed -i "s/\"minify\": true,/\"minify\": false,/" /usr/share/etherpad-lite/settings.json
         sed -i "s/\"loglevel\": \"INFO\"/\"loglevel\": \"DEBUG\"/" /usr/share/etherpad-lite/settings.json
         sed -i "s/\"level\": \"info\"/\"level\": \"debug\"/" /usr/local/bigbluebutton/bbb-pads/config/settings.json
         sed -i "s/exports.DEBUG = false/exports.DEBUG = true/" /usr/local/bigbluebutton/bbb-graphql-actions/config.js
-        sudo yq e -i '.log_level = "TRACE"' /usr/share/bbb-graphql-middleware/config.yml
+        sudo yq -y -i '.log_level = "TRACE"' /usr/share/bbb-graphql-middleware/config.yml
         echo "HASURA_GRAPHQL_LOG_LEVEL=debug" | tee -a /etc/bigbluebutton/bbb-graphql-server.env
         cat > /etc/bigbluebutton/bbb-conf/apply-config.sh << HERE
         #!/bin/bash

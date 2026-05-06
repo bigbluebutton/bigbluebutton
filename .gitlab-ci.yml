@@ -12,7 +12,7 @@ stages:
 
 # define which docker image to use for builds
 default:
-  image: bigbluebutton/bbb-build:v3.0.x-release--2026-03-20-151540
+  image: bigbluebutton/bbb-build:v4.0.x-release-wip--2026-04-06-212725
 
 # This stage uses git to find out since when each package has been unmodified.
 # it then checks an API endpoint on the package server to find out for which of

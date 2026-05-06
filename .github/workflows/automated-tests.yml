@@ -22,7 +22,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build-package:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -79,7 +79,7 @@ jobs:
             build-list: bbb-webrtc-sfu bbb-webrtc-recorder
             cache-files-list: bbb-webrtc-sfu.placeholder.sh bbb-webrtc-recorder.placeholder.sh
           - package: others
-            build-list: bbb-mkclean bbb-pads bbb-libreoffice-docker bbb-transcription-controller bigbluebutton bbb-livekit
+            build-list: bbb-mkclean bbb-pads bbb-libreoffice-docker bbb-transcription-controller bbb-livekit
             cache-files-list: bbb-pads.placeholder.sh bbb-libreoffice bbb-transcription-controller.placeholder.sh
     steps:
       - name: Checkout PR's source merged into its target branch
@@ -102,8 +102,9 @@ jobs:
           echo "CACHE_KEY_FILES=$CACHE_DIGEST" >> $GITHUB_ENV
           echo "CACHE_KEY_URLS=$(echo '${{ matrix.cache-urls-list }}' | xargs -r -n 1 curl -Is | grep -i 'Last-Modified' | md5sum | cut -c1-10)" >> $GITHUB_ENV
           cat bigbluebutton-config/bigbluebutton-release >> $GITHUB_ENV
-          echo "FORCE_GIT_REV=0" >> $GITHUB_ENV #used by setup.sh
-          echo "FORCE_COMMIT_DATE=0" >> $GITHUB_ENV #used by setup.sh
+          # GIT_REV and COMMIT_DATE are not forced to 0 — each package gets
+          # a unique version based on its build time. The bigbluebutton meta-package
+          # is built in unify-artifacts where it reads actual .deb versions.
       - name: Handle cache
         if: matrix.cache-files-list != ''
         id: cache-action
@@ -117,6 +118,22 @@ jobs:
         run: |
           ./build/get_external_dependencies.sh
           echo "${{ matrix.build-list || matrix.package }}" | xargs -n 1 ./build/setup.sh
+      - name: Include external dependency .debs in artifacts
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          # Download external deps if not already present (e.g. from cache hit)
+          if [ ! -d "bbb-presentation-video" ]; then
+            bash -xe bbb-presentation-video.placeholder.sh || true
+          fi
+          # Copy any external dep .debs into artifacts
+          for dir in bbb-presentation-video; do
+            if [ -d "$dir" ]; then
+              echo "Including external deps from $dir/"
+              ls "$dir"/*.deb 2>/dev/null
+              cp "$dir"/*.deb artifacts/ 2>/dev/null || true
+            fi
+          done
       - name: Sanitize artifact filenames
         shell: bash
         run: |
@@ -137,7 +154,7 @@ jobs:
           name: artifacts_${{ matrix.package }}
           path: artifacts/
   bbb-libreoffice-image:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout PR's source merged into its target branch
         if: github.event_name == 'pull_request'
@@ -165,7 +182,7 @@ jobs:
           docker save docker.io/${{ env.BBB_LIBREOFFICE_IMAGE_NAME }} -o bbb-libreoffice.tar
   unify-artifacts:
     needs: build-package
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Create all-artifacts directory
         run: mkdir -p all-artifacts
@@ -243,6 +260,60 @@ jobs:
         run: |
           echo "Final contents of all-artifacts:"
           ls -la all-artifacts/
+      - name: Build bigbluebutton meta-package
+        run: |
+          sudo apt-get install -y -qq equivs
+
+          DEBS_DIR="all-artifacts"
+          PKGS="bbb-apps-akka bbb-config bbb-etherpad bbb-export-annotations
+                bbb-freeswitch-core bbb-freeswitch-sounds bbb-fsesl-akka bbb-html5
+                bbb-learning-dashboard bbb-libreoffice-docker bbb-mkclean bbb-pads
+                bbb-playback bbb-playback-presentation bbb-record-core bbb-web
+                bbb-webrtc-sfu bbb-webrtc-recorder"
+
+          # Use the version from the first .deb we find as the meta-package version
+          FIRST_DEB=$(ls "$DEBS_DIR"/*.deb | head -1)
+          META_VERSION=$(dpkg-deb --show --showformat='${Version}' "$FIRST_DEB")
+          echo "Meta-package version: $META_VERSION"
+
+          # Build dependency list with real versions from actual .debs
+          DEPENDENCIES=""
+          for PKG in $PKGS; do
+            DEB_FILE=$(find "$DEBS_DIR" -maxdepth 1 -name "${PKG}_*.deb" 2>/dev/null | head -1)
+            if [ -z "$DEB_FILE" ]; then
+              # Try with underscores (e.g. bbb_apps_akka)
+              DEB_FILE=$(find "$DEBS_DIR" -maxdepth 1 -name "${PKG//-/_}_*.deb" 2>/dev/null | head -1)
+            fi
+            if [ -n "$DEB_FILE" ]; then
+              PKG_VERSION=$(dpkg-deb --show --showformat='${Version}' "$DEB_FILE")
+              echo "  $PKG = $PKG_VERSION (from $(basename $DEB_FILE))"
+            else
+              echo "  WARNING: No .deb found for $PKG, using meta version"
+              PKG_VERSION="$META_VERSION"
+            fi
+            if [ -n "$DEPENDENCIES" ]; then DEPENDENCIES="${DEPENDENCIES},"; fi
+            DEPENDENCIES="${DEPENDENCIES} ${PKG} (= ${PKG_VERSION})"
+          done
+
+          cat > /tmp/control <<EOF
+          Section: web
+          Priority: optional
+          Homepage: https://bigbluebutton.org/
+          Standards-Version: 3.9.2
+
+          Package: bigbluebutton
+          Version: $META_VERSION
+          Maintainer: Fred Dixon <ffdixon@bigbluebutton.org>
+          Depends: $DEPENDENCIES
+          Architecture: amd64
+          Description: Virtual Classroom
+           BigBlueButton is a virtual classroom for online teaching and learning.
+          EOF
+
+          cd /tmp && equivs-build control
+          cp /tmp/bigbluebutton_*.deb "$GITHUB_WORKSPACE/all-artifacts/"
+          echo "Built bigbluebutton meta-package:"
+          dpkg-deb --info "$GITHUB_WORKSPACE"/all-artifacts/bigbluebutton_*.deb | head -20
       - name: Upload unified all-artifacts directory
         uses: actions/upload-artifact@v6
         with:
@@ -271,7 +342,7 @@ jobs:
     needs:
       - unify-artifacts
       - bbb-libreoffice-image
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -396,11 +467,43 @@ jobs:
         with:
           path: /var/cache/apt/archives
           key: ${{ runner.os }}-apt-${{ hashFiles('bigbluebutton-config/bigbluebutton-release') }}-${{ steps.apt-manifest.outputs.hash }}
+  push-debs-to-package-repo:
+    needs: unify-artifacts
+    if: github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    environment: apt-repo
+    steps:
+      - name: Download unified artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: all-bbb-artifacts
+          path: all-artifacts
+      - name: Add repo host to known_hosts
+        env:
+          REPO_HOST: ${{ secrets.PKG_REPO_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          [ -n "$REPO_HOST" ] && ssh-keyscan -H "$REPO_HOST" >> ~/.ssh/known_hosts || echo "PKG_REPO_HOST not set, skipping"
+      - name: Push .deb to package repo
+        env:
+          SSH_KEY: ${{ secrets.PKG_REPO_SSH_KEY }}
+          REPO_HOST: ${{ secrets.PKG_REPO_HOST }}
+          REPO_USER: ${{ secrets.PKG_REPO_USER }}
+        run: |
+          eval $(ssh-agent -s)
+          trap 'ssh-agent -k' EXIT
+          echo "$SSH_KEY" | tr -d '\r' | ssh-add -
+          rsync -avz -e "ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=10" \
+            all-artifacts/*.deb ${REPO_USER}@${REPO_HOST}:/srv/apt-incoming/
+          # Trigger processing for the target codename (e.g. noble-40 or noble-41 or noble-41-dev)
+          ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=10 \
+            ${REPO_USER}@${REPO_HOST} \
+            "sudo -u aptrepo /usr/local/bin/repo-process-incoming noble-40-dev"
   install-and-run-plugin-tests:
     needs:
       - unify-artifacts
       - bbb-libreoffice-image
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
     env:
@@ -598,7 +701,7 @@ jobs:
     needs:
       - install-and-run-bbb-tests
       - install-and-run-plugin-tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     env:
       hasFailure: ${{ needs.install-and-run-bbb-tests.result == 'failure' || needs.install-and-run-plugin-tests.result == 'failure' }}
     steps:

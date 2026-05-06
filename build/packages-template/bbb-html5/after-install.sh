@@ -5,6 +5,11 @@ BBB_HTML5_SETTINGS_FILE=/usr/share/bigbluebutton/html5-client/private/config/set
 BBB_RELEASE_FILE=/etc/bigbluebutton/bigbluebutton-release
 
 HOST=$(grep -v '#' /etc/bigbluebutton/bbb-web.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+if grep -v '#' /etc/bigbluebutton/bbb-web.properties | grep -q '^bigbluebutton.web.serverURL=https'; then
+  PROTOCOL=https
+else
+  PROTOCOL=http
+fi
 
 chown -R $BIGBLUEBUTTON_USER:$BIGBLUEBUTTON_USER /usr/share/bigbluebutton/html5-client/
 
@@ -16,9 +21,9 @@ fi
 
 WSURL=$(grep -v '#' /etc/bigbluebutton/bbb-web.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}' | sed 's/https/wss/g' | sed s'/http/ws/g')
 
-yq e -i ".public.kurento.wsUrl = \"$WSURL/bbb-webrtc-sfu\"" $BBB_HTML5_SETTINGS_FILE
+yq -y -i ".public.kurento.wsUrl = \"$WSURL/bbb-webrtc-sfu\"" $BBB_HTML5_SETTINGS_FILE
 
-yq e -i  ".public.pads.url = \"$PROTOCOL://$HOST/pad\"" $BBB_HTML5_SETTINGS_FILE
+yq -y -i  ".public.pads.url = \"$PROTOCOL://$HOST/pad\"" $BBB_HTML5_SETTINGS_FILE
 
 sed -i "s/proxy_pass .*/proxy_pass http:\/\/$IP:5066;/g" /usr/share/bigbluebutton/nginx/sip.nginx
 sed -i "s/server_name  .*/server_name  $IP;/g" /etc/nginx/sites-available/bigbluebutton
@@ -27,7 +32,7 @@ sed -i "s/server_name  .*/server_name  $IP;/g" /etc/nginx/sites-available/bigblu
 if [ -f $BBB_RELEASE_FILE ] && [ -f $BBB_HTML5_SETTINGS_FILE ]; then
   BBB_FULL_VERSION=$(cat $BBB_RELEASE_FILE | sed -n '/^BIGBLUEBUTTON_RELEASE/{s/.*=//;p}' | tail -n 1)
   echo "setting public.app.bbbServerVersion: $BBB_FULL_VERSION in $BBB_HTML5_SETTINGS_FILE "
-  yq e -i ".public.app.bbbServerVersion = \"$BBB_FULL_VERSION\"" $BBB_HTML5_SETTINGS_FILE
+  yq -y -i ".public.app.bbbServerVersion = \"$BBB_FULL_VERSION\"" $BBB_HTML5_SETTINGS_FILE
 fi
 
 # Remove old overrides 

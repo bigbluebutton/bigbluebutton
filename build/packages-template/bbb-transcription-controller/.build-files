@@ -2,4 +2,4 @@ after-install.sh
 bbb-transcription-controller.service
 before-remove.sh
 build.sh
-opts-focal.sh
+opts-noble.sh

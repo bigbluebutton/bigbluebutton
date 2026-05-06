@@ -9,3 +9,7 @@ MSG
 curl -Lf -o bbb-presentation-video.zip "https://github.com/bigbluebutton/bbb-presentation-video/releases/download/${RELEASE}/ubuntu-22.04.zip"
 rm -rf bbb-presentation-video
 unzip -o bbb-presentation-video.zip -d bbb-presentation-video
+
+# Download python3-perfect-freehand dependency
+curl -Lf -o bbb-presentation-video/python3-perfect-freehand_1.2.0_all.deb \
+  "https://github.com/bigbluebutton/perfect-freehand-python/releases/download/1.2.0/python3-perfect-freehand_1.2.0_all.deb"

@@ -6,7 +6,7 @@ PartOf=bigbluebutton.target
 
 [Service]
 Type=exec
-ExecStartPre=-bash -c "umask 077; yq eval-all '. as $item ireduce ({}; . * $item )' /usr/share/livekit-server/livekit.yaml /etc/bigbluebutton/livekit.yaml > ${RUNTIME_DIRECTORY}/livekit.yaml"
+ExecStartPre=-bash -c "umask 077; yq -y -s 'reduce .[] as $item ({}; . * $item)' /usr/share/livekit-server/livekit.yaml /etc/bigbluebutton/livekit.yaml > ${RUNTIME_DIRECTORY}/livekit.yaml"
 ExecStart=/usr/bin/livekit-server --config "${RUNTIME_DIRECTORY}/livekit.yaml"
 ExecStopPost=rm ${RUNTIME_DIRECTORY}/livekit.yaml
 RuntimeDirectory=livekit-server

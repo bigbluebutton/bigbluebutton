@@ -11,7 +11,7 @@ permissions:
   contents: read
 jobs:
   ts-code-validation:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout PR's source merged into its target branch
         if: github.event_name == 'pull_request'
