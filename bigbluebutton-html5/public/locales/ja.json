@@ -66,7 +66,7 @@
     "app.chat.pinnedMessages.pinnedBy": "ピン留めした人",
     "app.chat.pinnedMessages.unpin": "メッセージのピン留めを外す",
     "app.chat.pinnedMessages.sentAt": "送り先",
-    "app.chat.pinnedMessages.goToMessage": "Go to message",
+    "app.chat.pinnedMessages.goToMessage": "メッセージに移動",
     "app.chat.pinnedMessages.confirmModal.unpinTitle": "Unpin message",
     "app.chat.pinnedMessages.confirmModal.unpinMessage": "Are you sure you want to unpin this message?",
     "app.chat.pinnedMessages.confirmModal.confirm": "Unpin",
