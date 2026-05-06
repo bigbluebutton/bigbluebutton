@@ -1441,7 +1441,7 @@ Restart BigBlueButton with `sudo bbb-conf --restart` and you should now see the 
 
 To use gladia.io for automatic speech-to-text transcriptions, you first need to obtain an API key from [gladia.io](https://www.gladia.io).  You can sign up for free credentials to test the integration. _Note: The "Free Trial" plan only allows up to 1 concurrent session_
 
-Next, you must be using BigBlueButton 2.7.4+ (pass `-v focal-270`) or BigBlueButton 3.0.0-alpha.7+ (pass `-v jammy-300`) or later on a BigBlueButton server with a public  IP and hostname.
+Next, you must be using BigBlueButton 2.7.4+ (pass `-v focal-270`), BigBlueButton 3.0.0-alpha.7+ (pass `-v jammy-300`), or BigBlueButton 4.0+ (pass `-v noble-400`) on a BigBlueButton server with a public IP and hostname.
 
 Once you have BigBlueButton installed, run `sudo apt install bbb-transcription-controller` to install BigBlueButton's transcription service which supports gladia.io.
 
