@@ -11,7 +11,11 @@ jobs:
       pull-requests: write
     steps:
       - name: Welcome first-time contributor
-        if: github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
+        if: >-
+          contains(
+            fromJSON('["FIRST_TIME_CONTRIBUTOR", "FIRST_TIMER", "NONE"]'),
+            github.event.pull_request.author_association
+          )
         uses: actions/github-script@v8
         with:
           script: |
