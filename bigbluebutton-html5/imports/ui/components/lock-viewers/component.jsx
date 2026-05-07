@@ -225,10 +225,14 @@ class LockViewersComponent extends Component {
     this.handleIgnoreChanges = this.handleIgnoreChanges.bind(this);
   }
 
+  componentWillUnmount() {
+    clearTimeout(this.messageSentTimer);
+  }
+
   handleSendLobbyMessage() {
     const { setLobbyMessage: setMsg } = this.props;
     const { lobbyMessage: msg } = this.state;
-    if (!msg) return;
+    if (!msg.trim()) return;
     setMsg(msg);
     this.setState({ lobbyMessage: '', messageSent: true }, () => {
       const btn = this.sendButtonRef.current;
