@@ -3,7 +3,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 
 import {
-  getSpeechVoices,
+  getAvailableTranscriptionLanguages,
   setUserLocaleProperty,
   useFixedLocale,
   isGladia,
@@ -148,7 +148,7 @@ const AudioCaptionsSelectContainer: React.FC<AudioCaptionsContainerProps> = ({
   showTitleLabel = true,
 }) => {
   const [voicesList, setVoicesList] = React.useState<string[]>([]);
-  const voices = getSpeechVoices();
+  const voices = getAvailableTranscriptionLanguages();
 
   useEffect(() => {
     if ((voices && voices.length > 0) && voicesList.length === 0) {

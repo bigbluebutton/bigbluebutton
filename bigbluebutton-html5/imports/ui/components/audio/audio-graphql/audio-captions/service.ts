@@ -65,18 +65,47 @@ const getSpeechProvider = () => {
 export const isWebSpeechApi = () => getSpeechProvider() === 'webspeech';
 export const isGladia = () => getSpeechProvider() === 'gladia';
 
-export const getSpeechVoices = () => {
-  const LANGUAGES = window.meetingClientSettings.public.app.audioCaptions.language.available;
+// Module-level cache so language availability is only checked once
+let cachedTranscriptionLanguages: string[] | null = null;
+
+/**
+ * Checks whether a given language is supported for speech recognition
+ * using the SpeechRecognition.available() static method.
+ * Returns true if the API is unavailable (i.e. we cannot determine support).
+ */
+const isSpeechRecognitionLanguageSupported = (lang: string): boolean => {
+  try {
+    // @ts-ignore - SR types is not yet in the TS types
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) return false;
+    if (typeof SR.available === 'function') {
+      return SR.available(lang);
+    }
+    // If SpeechRecognition.available() is not implemented in this browser,
+    // fall back to assuming all languages are supported.
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
+/**
+ * Returns the list of languages available for speech recognition (transcription).
+ * For the webspeech provider, each configured language is validated using the
+ * SpeechRecognition.available() static method. The result is cached after the
+ * first call so that language checks are only performed once.
+ */
+export const getAvailableTranscriptionLanguages = (): string[] | null => {
+  const LANGUAGES: string[] = window.meetingClientSettings.public.app.audioCaptions.language.available;
+
   if (!isWebSpeechApi()) return LANGUAGES;
   if (!hasSpeechRecognitionSupport()) return null;
 
-  return unique(
-    window
-      .speechSynthesis
-      .getVoices()
-      .map((v) => v.lang)
-      .filter((v) => LANGUAGES.includes(v)),
-  );
+  if (cachedTranscriptionLanguages !== null) return cachedTranscriptionLanguages;
+
+  cachedTranscriptionLanguages = unique(LANGUAGES).filter(isSpeechRecognitionLanguageSupported);
+
+  return cachedTranscriptionLanguages;
 };
 
 export const setAudioCaptions = (value: boolean) => {
@@ -112,7 +141,7 @@ export const getLocaleName = (locale: string) => {
 };
 
 export default {
-  getSpeechVoices,
+  getAvailableTranscriptionLanguages,
   useIsAudioTranscriptionEnabled,
   setUserLocaleProperty,
   setSpeechLocale,
