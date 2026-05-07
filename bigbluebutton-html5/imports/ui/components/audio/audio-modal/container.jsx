@@ -22,7 +22,7 @@ import useLockContext from '/imports/ui/components/lock-viewers/hooks/useLockCon
 import deviceInfo from '/imports/utils/deviceInfo';
 import { useIsAudioTranscriptionEnabled } from '/imports/ui/components/audio/audio-graphql/audio-captions/service';
 import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
-import { getStoredAudioInputDeviceId, DEFAULT_INPUT_DEVICE_ID } from '/imports/api/audio/client/bridge/service';
+import { getStoredAudioInputDeviceId } from '/imports/api/audio/client/bridge/service';
 
 const invalidDialNumbers = ['0', '613-555-1212', '613-555-1234', '0000'];
 
@@ -78,10 +78,7 @@ const AudioModalContainer = (props) => {
   } = window.meetingClientSettings.public.media.localEchoTest;
 
   const forceListenOnlyAttendee = forceListenOnly && !isModerator;
-  const rawInputDeviceId = useReactiveVar(AudioManager._inputDeviceId.value);
-  const inputDeviceId = rawInputDeviceId === 'listen-only'
-    ? (getStoredAudioInputDeviceId() || DEFAULT_INPUT_DEVICE_ID)
-    : rawInputDeviceId;
+  const inputDeviceId = useReactiveVar(AudioManager._inputDeviceId.value);
   const outputDeviceId = useReactiveVar(AudioManager._outputDeviceId.value);
   const showPermissionsOvelay = useReactiveVar(AudioManager._isWaitingPermissions.value);
   const isConnecting = useReactiveVar(AudioManager._isConnecting.value);
