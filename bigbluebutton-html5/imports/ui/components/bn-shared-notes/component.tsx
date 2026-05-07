@@ -241,10 +241,10 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <style>
         {`
-          .mantine-Button-label {
+          .bn-toolbar-row .mantine-Button-label {
             display: none;
           }
-          .mantine-Button-inner > .mantine-Button-section:first-child {
+          .bn-toolbar-row .mantine-Button-inner > .mantine-Button-section:first-child {
             margin: 0;
           }
           .bn-collaboration-cursor__label {

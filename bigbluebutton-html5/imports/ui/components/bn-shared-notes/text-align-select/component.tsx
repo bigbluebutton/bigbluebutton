@@ -2,6 +2,7 @@ import * as React from 'react';
 import {
   useBlockNoteEditor,
   useComponentsContext,
+  useDictionary,
   useEditorState,
 } from '@blocknote/react';
 import {
@@ -13,16 +14,17 @@ import {
 
 type TextAlignment = 'left' | 'center' | 'right' | 'justify';
 
-const ALIGN_ITEMS: { value: TextAlignment; label: string; icon: React.ReactElement }[] = [
-  { value: 'left', label: 'Left', icon: <RiAlignLeft size={16} /> },
-  { value: 'center', label: 'Center', icon: <RiAlignCenter size={16} /> },
-  { value: 'right', label: 'Right', icon: <RiAlignRight size={16} /> },
-  { value: 'justify', label: 'Justify', icon: <RiAlignJustify size={16} /> },
+const ALIGN_ITEMS: { value: TextAlignment; icon: React.ReactElement }[] = [
+  { value: 'left', icon: <RiAlignLeft size={16} /> },
+  { value: 'center', icon: <RiAlignCenter size={16} /> },
+  { value: 'right', icon: <RiAlignRight size={16} /> },
+  { value: 'justify', icon: <RiAlignJustify size={16} /> },
 ];
 
 function TextAlignSelect(): React.ReactElement | null {
   const Components = useComponentsContext()!;
   const editor = useBlockNoteEditor();
+  const dict = useDictionary();
 
   const state = useEditorState({
     editor,
@@ -41,7 +43,7 @@ function TextAlignSelect(): React.ReactElement | null {
     <Components.FormattingToolbar.Select
       className="bn-select"
       items={ALIGN_ITEMS.map((a) => ({
-        text: a.label,
+        text: dict.formatting_toolbar[`align_${a.value}`].tooltip,
         icon: a.icon,
         isSelected: state.alignment === a.value,
         onClick: () => {
