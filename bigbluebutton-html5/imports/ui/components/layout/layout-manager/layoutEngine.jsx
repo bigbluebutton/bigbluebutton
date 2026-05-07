@@ -282,8 +282,6 @@ const LayoutEngine = () => {
       sidebarContentMaxWidth,
     } = DEFAULT_VALUES;
 
-    const isAuxiliaryOpen = sidebarContentAuxiliaryInput.isOpen;
-
     const { isOpen, width: sidebarContentWidth } = auxiliary
       ? sidebarContentAuxiliaryInput : sidebarContentInput;
 
@@ -297,7 +295,7 @@ const LayoutEngine = () => {
         width = windowWidth();
         maxWidth = windowWidth();
       } else {
-        if (sidebarContentWidth === 0 || isAuxiliaryOpen) {
+        if (sidebarContentWidth === 0) {
           width = min(
             max((windowWidth() * 0.2), sidebarContentMinWidth), sidebarContentMaxWidth,
           );
@@ -305,8 +303,8 @@ const LayoutEngine = () => {
           width = min(max(sidebarContentWidth, sidebarContentMinWidth),
             sidebarContentMaxWidth);
         }
-        minWidth = isAuxiliaryOpen ? windowWidth() * 0.2 : sidebarContentMinWidth;
-        maxWidth = isAuxiliaryOpen ? windowWidth() * 0.2 : sidebarContentMaxWidth;
+        minWidth = sidebarContentMinWidth;
+        maxWidth = sidebarContentMaxWidth;
       }
     }
     return {

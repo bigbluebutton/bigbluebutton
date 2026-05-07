@@ -749,9 +749,9 @@ const UnifiedLayout = (props) => {
       type: ACTIONS.SET_SIDEBAR_CONTENT_RESIZABLE_EDGE,
       value: {
         top: false,
-        right: sidebarContentAuxiliaryInput.isOpen ? false : !isRTL,
+        right: !isRTL,
         bottom: false,
-        left: sidebarContentAuxiliaryInput.isOpen ? false : isRTL,
+        left: isRTL,
       },
     });
 
@@ -759,9 +759,9 @@ const UnifiedLayout = (props) => {
       type: ACTIONS.SET_SIDEBAR_CONTENT_AUXILIARY_RESIZABLE_EDGE,
       value: {
         top: false,
-        right: false,
+        right: !isRTL,
         bottom: false,
-        left: false,
+        left: isRTL,
       },
     });
 

@@ -47,16 +47,6 @@ test.describe.parallel('Multifunctional Mode', () => {
     await mfm.reopeningAuxiliaryShowsEmptyPanelWhenPreviousPanelOpenedInMain();
   });
 
-  test('Should not allow resizing main sidebar panel while auxiliary sidebar is open', async ({
-    browser,
-    context,
-    page,
-  }, testInfo) => {
-    const mfm = new MultifunctionalMode(browser, context);
-    await mfm.initModPage(page, { testInfo });
-    await mfm.cannotResizeMainSidebarWithAuxiliaryOpen();
-  });
-
   test('Breakout panel in auxiliary closes when breakouts end, then reopening shows empty panel', async ({
     browser,
     context,

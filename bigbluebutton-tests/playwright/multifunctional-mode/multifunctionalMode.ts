@@ -184,46 +184,6 @@ export class MultifunctionalMode extends MultiUsers {
     );
   }
 
-  async cannotResizeMainSidebarWithAuxiliaryOpen() {
-    const { multiFunctionalModeEnabled } = this.modPage.settings || {};
-    if (!multiFunctionalModeEnabled) return;
-
-    const { page } = this.modPage;
-
-    // Open chat in main sidebar
-    const isChatInMain = await this.modPage.checkElement(`${e.sidebarContentMain} ${e.hidePublicChat}`);
-    if (!isChatInMain) {
-      await this.modPage.waitAndClick(e.messagesSidebarButton);
-    }
-    await this.modPage.hasElement(
-      `${e.sidebarContentMain} ${e.hidePublicChat}`,
-      'chat panel should be in main sidebar',
-    );
-
-    const boxBefore = await this.modPage.getElementBoundingBox(e.sidebarContentMain);
-    const widthBefore = boxBefore!.width;
-    await this.modPage.dragResizeHandle(e.resizeSidebarContentMain, 100);
-    const boxAfterResize = await this.modPage.getElementBoundingBox(e.sidebarContentMain);
-    const widthAfterResize = boxAfterResize!.width;
-    if (widthAfterResize <= widthBefore) {
-      throw new Error(
-        `Expected main sidebar to grow after resize (before: ${widthBefore}px, after: ${widthAfterResize}px)`,
-      );
-    }
-
-    await expect(page, 'main sidebar width should change after resizing without auxiliary open').toHaveScreenshot(
-      'sidebar-main-resized.png',
-      { mask: [page.locator(e.whiteboard)] },
-    );
-
-    await this.openAuxiliarySidebar();
-    await this.modPage.wasRemoved(e.resizeSidebarContentMain, 'resize handle should be removed from main sidebar');
-    await this.modPage.wasRemoved(
-      e.resizeSidebarContentAuxiliary,
-      'resize handle should be removed from auxiliary sidebar',
-    );
-  }
-
   async breakoutPanelInAuxiliaryClosesWhenBreakoutsEnd() {
     if (!this?.modPage) throw new Error('modPage not initialized');
     if (!this?.userPage) throw new Error('userPage not initialized');
