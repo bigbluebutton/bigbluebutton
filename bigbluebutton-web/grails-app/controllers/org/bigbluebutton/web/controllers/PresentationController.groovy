@@ -63,7 +63,7 @@ class PresentationController {
       if (uri == null) {
         response.setStatus(401)
         response.addHeader("Cache-Control", "no-cache")
-        response.contentType = 'plain/text'
+        response.contentType = 'text/plain'
         response.outputStream << 'unauthorized'
         return
       }
@@ -74,7 +74,7 @@ class PresentationController {
       Boolean isSessionTokenInvalid = !session[sessionToken] && !allowRequestsWithoutSession
 
       response.addHeader("Cache-Control", "no-cache")
-      response.contentType = 'plain/text'
+      response.contentType = 'text/plain'
 
       if (userSession == null || isSessionTokenInvalid) {
         response.setStatus(401)
@@ -143,7 +143,7 @@ class PresentationController {
     } catch (Exception e) {
       log.error("Error in checkPresentationAuthorization.\n" + e.getMessage())
       response.setStatus(401)
-      response.contentType = 'plain/text'
+      response.contentType = 'text/plain'
       response.outputStream << 'unauthorized'
     }
   }
@@ -203,7 +203,7 @@ class PresentationController {
         log.debug "SUCCESS\n"
         response.setStatus(200);
         response.addHeader("Cache-Control", "no-cache")
-        response.contentType = 'plain/text'
+        response.contentType = 'text/plain'
         response.outputStream << 'upload-success';
       } else {
         log.debug "NO SUCCESS \n"
@@ -215,7 +215,7 @@ class PresentationController {
         response.setStatus(403);
         response.addHeader("Cache-Control", "no-cache")
         response.addHeader("x-file-too-large", "1")
-        response.contentType = 'plain/text'
+        response.contentType = 'text/plain'
         response.outputStream << 'file-empty';
       }
     } catch (IOException e) {
@@ -228,7 +228,7 @@ class PresentationController {
     if (null == params.authzToken || !meetingService.authzTokenIsValid(params.authzToken)) {
       log.debug "WARNING! AuthzToken=" + params.authzToken + " was not valid in meetingId=" + params.conference
       response.addHeader("Cache-Control", "no-cache")
-      response.contentType = 'plain/text'
+      response.contentType = 'text/plain'
       response.outputStream << 'invalid auth token'
       return
     }
@@ -242,14 +242,14 @@ class PresentationController {
       if (meeting == null) {
         log.debug("Upload failed. No meeting running " + meetingId)
         response.addHeader("Cache-Control", "no-cache")
-        response.contentType = 'plain/text'
+        response.contentType = 'text/plain'
         response.outputStream << 'no-meeting'
         return
       }
     } else {
       log.debug("Upload failed. Invalid meeting id format " + meetingId)
       response.addHeader("Cache-Control", "no-cache")
-      response.contentType = 'plain/text'
+      response.contentType = 'text/plain'
       response.outputStream << 'no-meeting';
       return
     }
@@ -257,7 +257,7 @@ class PresentationController {
     if (meetingService.isMeetingWithDisabledPresentation(meetingId)) {
       log.error "This meeting has presentation as a disabledFeature, it is not possible to upload anything"
       response.addHeader("Cache-Control", "no-cache")
-      response.contentType = 'plain/text'
+      response.contentType = 'text/plain'
       response.outputStream << 'presentation in disabled features'
       return
     }
@@ -335,7 +335,7 @@ class PresentationController {
       presentationService.processUploadedPresentation(uploadedPres)
       log.debug("file upload success " + presFilename)
       response.addHeader("Cache-Control", "no-cache")
-      response.contentType = 'plain/text'
+      response.contentType = 'text/plain'
       response.outputStream << 'upload-success'
     } else {
       def mimeType = SupportedFileTypes.detectMimeType(pres)
@@ -343,7 +343,7 @@ class PresentationController {
       org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
       log.debug("file upload failed " + presFilename)
       response.addHeader("Cache-Control", "no-cache")
-      response.contentType = 'plain/text'
+      response.contentType = 'text/plain'
       response.outputStream << 'upload-failed'
     }
   }
@@ -494,7 +494,7 @@ class PresentationController {
 
         def bytes = pres.readBytes()
         response.addHeader("Cache-Control", "no-cache")
-        response.contentType = 'plain/text'
+        response.contentType = 'text/plain'
         response.outputStream << bytes;
       } else {
         log.debug "$pres does not exist."
