@@ -27,7 +27,8 @@ const SearchContainer = styled.div`
   height: 40px;
   overflow: hidden;
   box-shadow: none;
-  
+  cursor: text;
+
   &:focus-within {
     box-shadow: 0 0 0 ${xsPadding} ${colorBorder};
   }

@@ -28,6 +28,7 @@ const UserSearch: React.FC<UserSearchProps> = ({
 }) => {
   const intl = useIntl();
   const [internalValue, setInternalValue] = useState('');
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -50,9 +51,16 @@ const UserSearch: React.FC<UserSearchProps> = ({
   }, [onSearchChange]);
 
   return (
-    <Styled.SearchContainer>
+    <Styled.SearchContainer
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          inputRef.current?.focus();
+        }
+      }}
+    >
       <Icon iconName="search" />
       <Styled.SearchInput
+        ref={inputRef}
         type="text"
         placeholder={intl.formatMessage(intlMessages.searchUsers)}
         value={internalValue}
