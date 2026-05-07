@@ -103,6 +103,7 @@ class MeetingActor(
   with DestroyMeetingSysCmdMsgHdlr
   with ChangeLockSettingsInMeetingCmdMsgHdlr
   with ClientToServerLatencyTracerMsgHdlr
+  with GetMeetingInfoMsgHdlr
   with UserActivitySignCmdMsgHdlr {
 
   object CheckVoiceRecordingInternalMsg
@@ -187,6 +188,9 @@ class MeetingActor(
   // Send new 2x message
   val msgEvent = MsgBuilder.buildMeetingCreatedEvtMsg(liveMeeting.props.meetingProp.intId, liveMeeting.props)
   outGW.send(msgEvent)
+
+  val meetingStartTme = System.currentTimeMillis()
+  var meetingEndTime = 0L
 
   //Insert meeting into the database
   MeetingDAO.insert(liveMeeting.props, liveMeeting.clientSettings, liveMeeting.plugins)
@@ -303,7 +307,9 @@ class MeetingActor(
     case m: GetUserApiMsg                         => usersApp.handleGetUserApiMsg(m, sender)
 
     // Meeting
-    case m: DestroyMeetingSysCmdMsg               => handleDestroyMeetingSysCmdMsg(m)
+    case m: DestroyMeetingSysCmdMsg =>
+      meetingEndTime = System.currentTimeMillis()
+      handleDestroyMeetingSysCmdMsg(m)
 
     //======================================
 
@@ -318,6 +324,10 @@ class MeetingActor(
     case msg: UserEstablishedGraphqlConnectionInternalMsg =>
       state = handleUserEstablishedGraphqlConnectionInternalMsg(msg, state)
       updateModeratorsPresence()
+
+    // Internal gRPC messages
+    case msg: GetMeetingInfo                       => sender() ! handleGetMeetingInfo()
+    case msg: HasUserJoined                        => sender() ! hasAuthedUserJoined(liveMeeting.status)
 
     case msg: ExtendMeetingDuration                => handleExtendMeetingDuration(msg)
     case msg: BreakoutRoomCreatedInternalMsg       => state = handleBreakoutRoomCreatedInternalMsg(msg, state)
@@ -1220,6 +1230,7 @@ class MeetingActor(
       Users2x.numUsers(liveMeeting.users2x) == 0
       && !state.expiryTracker.lastUserLeftOnInMs.isDefined) {
       log.info("Setting meeting no more users. meetingId=" + props.meetingProp.intId)
+      meetingEndTime = System.currentTimeMillis()
       val tracker = state.expiryTracker.setLastUserLeftOn(TimeUtil.timeNowInMs())
       state.update(tracker)
     } else {

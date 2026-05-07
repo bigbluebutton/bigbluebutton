@@ -49,6 +49,8 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
   }
 
   private def handleSuccessfulUserJoin(msg: UserJoinMeetingReqMsg, regUser: RegisteredUser, state: MeetingState2x) = {
+    if (Users2x.numUsers(liveMeeting.users2x) == 0) meetingEndTime = 0
+
     var newState = userJoinMeeting(outGW, msg.body.authToken, msg.body.clientType, msg.body.clientIsMobile, liveMeeting, state)
 
     // Enroll user in public media groups
