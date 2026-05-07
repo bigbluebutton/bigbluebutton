@@ -377,6 +377,7 @@ class PresentationController {
     if (conf != userSession.meetingID) { response.setStatus(403); return }
     if (presentationService.pageTokenSecret) {
       def pageToken = params.pageToken
+      if (!slide?.isInteger()) { response.setStatus(403); return }
       def expected = generatePageToken(presentationName, Integer.parseInt(slide), presentationService.pageTokenSecret)
       if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
     }
@@ -410,6 +411,7 @@ class PresentationController {
     if (conf != userSession.meetingID) { response.setStatus(403); return }
     if (presentationService.pageTokenSecret) {
       def pageToken = params.pageToken
+      if (!thumb?.isInteger()) { response.setStatus(403); return }
       def expected = generatePageToken(presentationName, Integer.parseInt(thumb), presentationService.pageTokenSecret)
       if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
     }
@@ -444,6 +446,7 @@ class PresentationController {
     if (conf != userSession.meetingID) { response.setStatus(403); return }
     if (presentationService.pageTokenSecret) {
       def pageToken = params.pageToken
+      if (!png?.isInteger()) { response.setStatus(403); return }
       def expected = generatePageToken(presentationName, Integer.parseInt(png), presentationService.pageTokenSecret)
       if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
     }
@@ -475,6 +478,7 @@ class PresentationController {
     if (conf != userSession.meetingID) { response.setStatus(403); return }
     if (presentationService.pageTokenSecret) {
       def pageToken = params.pageToken
+      if (!textfile?.isInteger()) { response.setStatus(403); return }
       def expected = generatePageToken(presentationName, Integer.parseInt(textfile), presentationService.pageTokenSecret)
       if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
     }
