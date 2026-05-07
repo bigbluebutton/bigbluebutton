@@ -139,9 +139,11 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
     data: meetingData,
   } = useMeeting((m) => ({
     breakoutRoomsCommonProperties: m.breakoutRoomsCommonProperties,
+    audioBridge: m.audioBridge,
   }));
 
   const breakoutProps = meetingData?.breakoutRoomsCommonProperties;
+  const isUsingLiveKit = meetingData?.audioBridge === 'livekit';
   const sendInvitationToModerators = breakoutProps?.sendInvitationToModerators ?? false;
   const breakoutDurationInSeconds = breakoutProps?.durationInSeconds ?? 0;
   const parsedStartedAt = new Date(breakoutProps?.startedAt ?? '').getTime();
@@ -453,14 +455,14 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                           dataTest: breakout.isUserCurrentlyInRoom ? 'alreadyConnected' : `askToJoinRoom${breakout.sequence}`,
                           onClick: () => handleEnterRoom(breakout),
                         },
-                        {
+                        ...(!isUsingLiveKit ? [{
                           key: `listen-${breakout.breakoutRoomMeetingId}`,
                           label: isListening
                             ? intl.formatMessage(intlMessages.stopListeningToRoom)
                             : intl.formatMessage(intlMessages.listenToRoom),
                           dataTest: 'listenToBreakoutRoomButton',
                           onClick: () => handleListenToRoom(breakout),
-                        },
+                        }] : []),
                       ]}
                       opts={{
                         id: `breakout-room-options-${breakout.breakoutRoomMeetingId}`,
