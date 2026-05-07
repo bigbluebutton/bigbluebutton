@@ -116,6 +116,10 @@ const intlMessages = defineMessages({
     id: 'app.chat.submitLabel',
     description: 'Submit button label',
   },
+  lobbyMessageSent: {
+    id: 'app.lock-viewers.guestPolicy.lobbyMessageSent',
+    description: 'Confirmation shown after lobby message is sent',
+  },
   presentationPermissionsTitle: {
     id: 'app.lock-viewers.presentationPermissions.title',
     description: 'Presentation permissions section title',
@@ -203,6 +207,7 @@ class LockViewersComponent extends Component {
       lobbyMessage: props.guestLobbyMessage || '',
       presentationPolicy,
       unsavedModalOpen: false,
+      messageSent: false,
     };
 
     this.initialState = {
@@ -214,8 +219,27 @@ class LockViewersComponent extends Component {
       presentationPolicy,
     };
 
+    this.sendButtonRef = React.createRef();
+    this.handleSendLobbyMessage = this.handleSendLobbyMessage.bind(this);
     this.handleClose = this.handleClose.bind(this);
     this.handleIgnoreChanges = this.handleIgnoreChanges.bind(this);
+  }
+
+  handleSendLobbyMessage() {
+    const { setLobbyMessage: setMsg } = this.props;
+    const { lobbyMessage: msg } = this.state;
+    if (!msg) return;
+    setMsg(msg);
+    this.setState({ lobbyMessage: '', messageSent: true }, () => {
+      const btn = this.sendButtonRef.current;
+      if (btn && btn._tippy) btn._tippy.show();
+    });
+    clearTimeout(this.messageSentTimer);
+    this.messageSentTimer = setTimeout(() => {
+      this.setState({ messageSent: false });
+      const btn = this.sendButtonRef.current;
+      if (btn && btn._tippy) btn._tippy.hide();
+    }, 2000);
   }
 
   handleClose() {
@@ -308,7 +332,9 @@ class LockViewersComponent extends Component {
 
   renderGuestPolicyTab() {
     const { intl } = this.props;
-    const { guestPolicy, lobbyMessageEnabled, lobbyMessage } = this.state;
+    const {
+      guestPolicy, lobbyMessageEnabled, lobbyMessage, messageSent,
+    } = this.state;
 
     return (
       <Styled.TabContent>
@@ -359,18 +385,21 @@ class LockViewersComponent extends Component {
                 placeholder={intl.formatMessage(intlMessages.lobbyMessageLabel)}
                 value={lobbyMessage}
                 onChange={(e) => this.setState({ lobbyMessage: e.target.value })}
+                onKeyDown={(e) => { if (e.key === 'Enter') this.handleSendLobbyMessage(); }}
                 data-test="lobbyMessageInput"
               />
-              <Styled.LobbyInputSendButton
-                aria-label={intl.formatMessage(intlMessages.submitLabel)}
-                onClick={() => {
-                  const { setLobbyMessage: setMsg } = this.props;
-                  const { lobbyMessage: msg } = this.state;
-                  setMsg(msg);
-                }}
+              <TooltipContainer
+                title={messageSent ? intl.formatMessage(intlMessages.lobbyMessageSent) : ''}
+                position="top"
               >
-                ▶
-              </Styled.LobbyInputSendButton>
+                <Styled.LobbyInputSendButton
+                  ref={this.sendButtonRef}
+                  aria-label={intl.formatMessage(intlMessages.submitLabel)}
+                  onClick={this.handleSendLobbyMessage}
+                >
+                  ▶
+                </Styled.LobbyInputSendButton>
+              </TooltipContainer>
             </Styled.LobbyInputWrapper>
           )}
         </Styled.LobbyMessageSection>
