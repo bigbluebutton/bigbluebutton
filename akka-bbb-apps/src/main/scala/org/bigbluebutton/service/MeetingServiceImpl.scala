@@ -127,6 +127,8 @@ class MeetingServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
         extId = meetingSettings.meetingExtId,
         intId = meetingSettings.meetingIntId,
         meetingCameraCap = meetingSettings.meetingCameraCap,
+        sharedNotesInitialContentJson = Vector.empty,
+        sharedNotesEditor = "",
         maxPinnedCameras = meetingSettings.maxPinnedCameras,
         cameraBridge = meetingSettings.cameraBridge,
         screenShareBridge = meetingSettings.screenShareBridge,
@@ -201,10 +203,12 @@ class MeetingServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
         maxUsers = userSettings.maxUsers,
         maxUserConcurrentAccesses = userSettings.maxUserConcurrentAccesses,
         webcamsOnlyForModerator = userSettings.webcamsOnlyForMod,
+        multiUserWhiteboardEnabled = false,
         userCameraCap = userSettings.userCameraCap,
         guestPolicy = userSettings.guestPolicy,
         meetingLayout = userSettings.meetingLayout,
         allowModsToUnmuteUsers = userSettings.allowModsUnmuteUsers,
+        requireUserConsentBeforeUnmuting = false,
         allowModsToEjectCameras = userSettings.allowModsEjectCameras,
         authenticatedGuest = userSettings.authenticatedGuest,
         allowPromoteGuestToModerator = userSettings.allowPromoteGuest,
@@ -227,7 +231,8 @@ class MeetingServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
         lockOnJoin = lockSettings.lockOnJoin,
         lockOnJoinConfigurable = lockSettings.lockOnJoinConfigurable,
         hideViewersCursor = lockSettings.hideViewersCursor,
-        hideViewersAnnotation = lockSettings.hideViewersAnnotation
+        hideViewersAnnotation = lockSettings.hideViewersAnnotation,
+        presenterPolicy = ""
       )
 
       val systemSettings = settings.systemSettings.get
@@ -237,7 +242,8 @@ class MeetingServiceImpl(implicit materializer: Materializer, bbbActor: ActorRef
         customLogoURL = systemSettings.customLogoUrl,
         customDarkLogoURL = systemSettings.customDarkLogoUrl,
         bannerText = systemSettings.bannerText,
-        bannerColor = systemSettings.bannerColour
+        bannerColor = systemSettings.bannerColour,
+        html5PluginSdkVersion = ""
       )
 
       val groups = settings.groupSettings.map(g => GroupProps(
