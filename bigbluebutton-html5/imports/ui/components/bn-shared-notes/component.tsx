@@ -263,6 +263,9 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
             flex-direction: column;
             height: 100%;
           }
+          .bn-mantine button, .bn-mantine select {
+            height: 100%;
+          }
           .bn-toolbar-row {
             display: flex;
             flex-wrap: wrap;
@@ -331,8 +334,8 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
               <BasicTextStyleButton basicTextStyle="strike" key="strikeStyleButton" />
             </FormattingToolbar>
             <FormattingToolbar>
-              <TextAlignSelect key="textAlignSelect" />
               <ColorStyleButton key="colorStyleButton" />
+              <TextAlignSelect key="textAlignSelect" />
               <NestBlockButton key="nestBlockButton" />
               <UnnestBlockButton key="unnestBlockButton" />
             </FormattingToolbar>
