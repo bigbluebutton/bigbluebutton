@@ -20,6 +20,7 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import BreakoutTimerEditor from '../breakout-timer-editor/component';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { setBreakoutWindowRef } from '../service';
+import { useStopMediaOnMainRoom } from '/imports/ui/components/breakout-room/hooks';
 import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
 
@@ -131,6 +132,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
   const [sendMessageToAll] = useMutation(BREAKOUT_ROOM_SEND_MESSAGE_TO_ALL);
   const [requestJoinUrl] = useMutation(BREAKOUT_ROOM_REQUEST_JOIN_URL);
   const [breakoutRoomTransfer] = useMutation(USER_TRANSFER_VOICE_TO_MEETING);
+  const stopMediaOnMainRoom = useStopMediaOnMainRoom();
 
   const { data: usersData } = useDeduplicatedSubscription<getUserResponse>(getUserSubscription);
   const allUsers = usersData?.user ?? [];
@@ -176,18 +178,20 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
       const win = window.open(breakout.joinURL, '_blank');
       if (win) setBreakoutWindowRef(win);
       setRequestingJoinForRoomId(null);
+      stopMediaOnMainRoom(false);
     }
-  }, [breakouts, requestingJoinForRoomId]);
+  }, [breakouts, requestingJoinForRoomId, stopMediaOnMainRoom]);
 
   const handleEnterRoom = useCallback((breakout: BreakoutRoomType) => {
     if (breakout.joinURL) {
       const win = window.open(breakout.joinURL, '_blank');
       if (win) setBreakoutWindowRef(win);
+      stopMediaOnMainRoom(false);
     } else {
       requestJoinUrl({ variables: { breakoutRoomMeetingId: breakout.breakoutRoomMeetingId } });
       setRequestingJoinForRoomId(breakout.breakoutRoomMeetingId);
     }
-  }, [requestJoinUrl]);
+  }, [requestJoinUrl, stopMediaOnMainRoom]);
 
   const handleListenToRoom = useCallback((breakout: BreakoutRoomType) => {
     if (listeningToRoomId === breakout.breakoutRoomMeetingId) {
