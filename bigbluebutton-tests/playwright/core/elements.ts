@@ -89,7 +89,7 @@ export const elements = {
   randomlyAssign: 'button[data-test="randomlyAssign"]',
   resetAssignments: 'button[data-test="resetAssignments"]',
   breakoutRoomsItem: 'div[data-test="breakoutRoomsItem"]',
-  alreadyConnected: 'div[data-test="alreadyConnected"]',
+  alreadyConnected: 'button[data-test="alreadyConnected"], li[data-test="alreadyConnected"]',
   askJoinRoom1: 'li[data-test="askToJoinRoom1"]',
   askJoinRoom2: 'li[data-test="askToJoinRoom2"]',
   roomOptions2: 'button[data-test="roomOptions2"]',
