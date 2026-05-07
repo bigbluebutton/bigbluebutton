@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+message User {
+  string user_id = 1;
+  string full_name = 2;
+  string role = 3;
+  bool is_presenter = 4;
+  bool is_listening_only = 5;
+  bool has_joined_voice = 6;
+  bool has_video = 7;
+  string clientType = 8;
+  map<string, string> custom_data = 9;
+}

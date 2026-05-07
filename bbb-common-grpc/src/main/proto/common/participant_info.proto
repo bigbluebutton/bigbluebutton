@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+message ParticipantInfo {
+  bool has_user_joined = 1;
+  int32 participant_count = 2;
+  int32 listener_count = 3;
+  int32 voice_participant_count = 4;
+  int32 video_count = 5;
+  int32 max_users = 6;
+  int32 moderator_count = 7;
+}

@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+import "common/plugin_manifest.proto";
+
+message PluginSettings {
+  repeated PluginManifest plugin_manifests = 1;
+}

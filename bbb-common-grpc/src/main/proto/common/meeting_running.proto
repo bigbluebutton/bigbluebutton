@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+message MeetingRunning {
+  // A boolean indicating whether the meeting is running or not.
+  // Value will be false if the meeting does not exist.
+  bool is_running = 1;
+}

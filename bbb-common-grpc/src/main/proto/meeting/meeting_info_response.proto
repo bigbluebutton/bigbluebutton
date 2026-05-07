@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+import "common/meeting_info.proto";
+
+message MeetingInfoResponse {
+  // Information describing the current state of the meeting.
+  MeetingInfo meeting_info = 1;
+}
