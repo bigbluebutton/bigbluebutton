@@ -4,20 +4,24 @@ require 'minitest/autorun'
 require 'recordandplayback'
 
 class TestReadProps < Minitest::Test
+  DEFAULT_PROPS_PATH = File.join('/tmp', 'rap', 'scripts', 'bigbluebutton.yml')
+  OVERRIDE_PROPS_PATH = '/etc/bigbluebutton/recording/recording.yml'
+
   def test_read_props_reloads_recording_override_on_each_call
-    default_props_path = '/tmp/rap/scripts/bigbluebutton.yml'
-    override_props_path = '/etc/bigbluebutton/recording/recording.yml'
     BigBlueButton.instance_variable_set(:@props, nil)
 
     BigBlueButton.stub(:rap_scripts_path, '/tmp/rap/scripts') do
-      File.stub(:file?, ->(path) { path == override_props_path }) do
+      File.stub(:file?, ->(path) { path == OVERRIDE_PROPS_PATH }) do
         override_hosts = ['first.example.com', 'second.example.com']
+        override_read_count = 0
         File.stub(:read, lambda { |path|
           case path
-          when default_props_path
+          when DEFAULT_PROPS_PATH
             "playback_protocol: http\nplayback_host: default.example.com\n"
-          when override_props_path
-            "playback_protocol: https\nplayback_host: #{override_hosts.shift}\n"
+          when OVERRIDE_PROPS_PATH
+            host = override_hosts[override_read_count]
+            override_read_count += 1
+            "playback_protocol: https\nplayback_host: #{host}\n"
           else
             raise "Unexpected path: #{path}"
           end
