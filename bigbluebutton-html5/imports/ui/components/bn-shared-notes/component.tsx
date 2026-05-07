@@ -244,8 +244,11 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
           .bn-toolbar-row .mantine-Button-label {
             display: none;
           }
-          .bn-toolbar-row .mantine-Button-inner > .mantine-Button-section:first-child {
+          .bn-toolbar-row .mantine-Button-inner > .mantine-Button-section {
             margin: 0;
+          }
+          .bn-toolbar-row [data-with-left-section] {
+            padding: 0 .25rem
           }
           .bn-collaboration-cursor__label {
             color: ${colorWhite} !important;
