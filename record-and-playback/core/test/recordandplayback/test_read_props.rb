@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'minitest/autorun'
-require 'stringio'
-
 require 'recordandplayback'
 
 class TestReadProps < Minitest::Test
@@ -14,12 +12,12 @@ class TestReadProps < Minitest::Test
     BigBlueButton.stub(:rap_scripts_path, '/tmp/rap/scripts') do
       File.stub(:file?, ->(path) { path == override_props_path }) do
         override_hosts = ['first.example.com', 'second.example.com']
-        File.stub(:open, lambda { |path|
+        File.stub(:read, lambda { |path|
           case path
           when default_props_path
-            StringIO.new("playback_protocol: http\nplayback_host: default.example.com\n")
+            "playback_protocol: http\nplayback_host: default.example.com\n"
           when override_props_path
-            StringIO.new("playback_protocol: https\nplayback_host: #{override_hosts.shift}\n")
+            "playback_protocol: https\nplayback_host: #{override_hosts.shift}\n"
           else
             raise "Unexpected path: #{path}"
           end
