@@ -19,7 +19,7 @@ class TestReadProps < Minitest::Test
           when DEFAULT_PROPS_PATH
             "playback_protocol: http\nplayback_host: default.example.com\n"
           when OVERRIDE_PROPS_PATH
-            host = override_hosts[override_read_count]
+            host = override_hosts.fetch(override_read_count, override_hosts.last)
             override_read_count += 1
             "playback_protocol: https\nplayback_host: #{host}\n"
           else
