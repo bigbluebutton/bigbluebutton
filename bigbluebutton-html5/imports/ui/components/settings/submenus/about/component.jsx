@@ -75,7 +75,7 @@ class About extends Component {
     } = settings;
 
     return (
-      <div>
+      <div tabIndex="-1">
         <Styled.Form>
           <Styled.Content>
             <Styled.Title>{intl.formatMessage(intlMessages.title)}</Styled.Title>
