@@ -38,7 +38,7 @@ async function exportDocumentToHtml(documentName: string): Promise<string> {
     /<span\b([^>]*)>/g,
     (match, attrs) => {
       if (/\bdata-style-type=/.test(attrs)) {
-        return `<span${attrs.replace(/\s*style="[^"]*"/, '')}>`;
+        return `<span${attrs.replace(/\sstyle\s*=\s*(?:"[^"]*"|'[^']*')/i, '')}>`;
       }
       return match;
     }
@@ -98,6 +98,11 @@ async function exportDocumentToHtml(documentName: string): Promise<string> {
       '  background-color: #1f1f1f;',
       '  color: #cfcfcf;',
       '}',
+      'html.dark code { background-color: #2b2f36; color: #e6edf3; }',
+      'html.dark pre { background-color: #2b2f36; }',
+      'html.dark blockquote { border-left-color: #3b434d; color: #9da7b3; }',
+      'html.dark table th { background-color: #2b2f36; }',
+      'html.dark table th, html.dark table td { border-color: #3b434d; }',
       '[data-style-type="textColor"][data-value="gray"]   { color: var(--bn-text-gray); }',
       '[data-style-type="textColor"][data-value="brown"]  { color: var(--bn-text-brown); }',
       '[data-style-type="textColor"][data-value="red"]    { color: var(--bn-text-red); }',
