@@ -1066,7 +1066,7 @@
     "app.videoPreview.wholeImageBrightnessLabel": "Hele bildet",
     "app.videoPreview.wholeImageBrightnessDesc": "Gir lysstyrke til strømmen og bakgrunnsbildet",
     "app.videoPreview.sliderDesc": "Øk eller reduser lysstyrkenivået",
-    "app.video.joinVideo": "Del webcam",
+    "app.video.joinVideo": "Del webkamera",
     "app.video.connecting": "Deling av webkameraer begynner...",
     "app.video.leaveVideo": "Stopp webcamdeling",
     "app.video.videoSettings": "Innstillinger for video",
