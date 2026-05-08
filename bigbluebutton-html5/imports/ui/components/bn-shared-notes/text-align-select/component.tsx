@@ -30,6 +30,9 @@ const ALIGN_ITEMS: { value: TextAlignment; icon: React.ReactElement }[] = [
   { value: 'justify', icon: <RiAlignJustify size={16} /> },
 ];
 
+// TODO: PR https://github.com/TypeCellOS/BlockNote/pull/2728 has been sent to BlockNote
+// to have this implemented there - If it's merged, we need to remove this code and use
+// their native component.
 function TextAlignSelect(): React.ReactElement | null {
   const Components = useComponentsContext()!;
   const editor = useBlockNoteEditor();
