@@ -1,10 +1,19 @@
 import * as React from 'react';
+import { useCallback } from 'react';
 import {
   useBlockNoteEditor,
   useComponentsContext,
   useDictionary,
   useEditorState,
 } from '@blocknote/react';
+import {
+  blockHasType,
+  defaultProps,
+  editorHasBlockWithType,
+  mapTableCell,
+  TableContent,
+} from '@blocknote/core';
+import { TableHandlesExtension } from '@blocknote/core/extensions';
 import {
   RiAlignCenter,
   RiAlignJustify,
@@ -31,11 +40,63 @@ function TextAlignSelect(): React.ReactElement | null {
     selector: ({ editor: e }) => {
       if (!e.isEditable) return null;
       const blocks = e.getSelection()?.blocks ?? [e.getTextCursorPosition().block];
-      const alignment = (blocks[0].props as Record<string, unknown>)?.textAlignment;
-      if (typeof alignment !== 'string') return null;
-      return { alignment: alignment as TextAlignment, blocks };
+      const firstBlock = blocks[0];
+
+      if (blockHasType(firstBlock, e, firstBlock.type, { textAlignment: defaultProps.textAlignment })) {
+        return { alignment: firstBlock.props.textAlignment as TextAlignment, blocks };
+      }
+
+      if (blocks.length === 1 && blockHasType(firstBlock, e, 'table')) {
+        const cellSelection = e.getExtension(TableHandlesExtension)?.getCellSelection();
+        if (!cellSelection) return null;
+        const firstCell = mapTableCell(
+          (firstBlock.content as TableContent<never, never>).rows[0].cells[0],
+        );
+        return { alignment: firstCell.props.textAlignment as TextAlignment, blocks };
+      }
+
+      return null;
     },
   });
+
+  const setTextAlignment = useCallback(
+    (alignment: TextAlignment) => {
+      if (!state) return;
+      editor.focus();
+      state.blocks.forEach((block) => {
+        if (
+          blockHasType(block, editor, block.type, { textAlignment: defaultProps.textAlignment })
+          && editorHasBlockWithType(editor, block.type, { textAlignment: defaultProps.textAlignment })
+        ) {
+          editor.updateBlock(block, { props: { textAlignment: alignment } as never });
+        } else if (block.type === 'table') {
+          const cellSelection = editor.getExtension(TableHandlesExtension)?.getCellSelection();
+          if (!cellSelection) return;
+
+          const newTable = (block.content as TableContent<never, never>).rows.map((row) => ({
+            ...row,
+            cells: row.cells.map((cell) => mapTableCell(cell)),
+          }));
+
+          cellSelection.cells.forEach(({ row, col }) => {
+            newTable[row].cells[col].props.textAlignment = alignment;
+          });
+
+          editor.updateBlock(block, {
+            type: 'table',
+            content: {
+              ...(block.content as TableContent<never, never>),
+              type: 'tableContent',
+              rows: newTable,
+            } as never,
+          });
+
+          editor.setTextCursorPosition(block);
+        }
+      });
+    },
+    [editor, state],
+  );
 
   if (!state) return null;
 
@@ -46,12 +107,7 @@ function TextAlignSelect(): React.ReactElement | null {
         text: dict.formatting_toolbar[`align_${a.value}`].tooltip,
         icon: a.icon,
         isSelected: state.alignment === a.value,
-        onClick: () => {
-          editor.focus();
-          state.blocks.forEach((block) => {
-            editor.updateBlock(block, { props: { textAlignment: a.value } as never });
-          });
-        },
+        onClick: () => setTextAlignment(a.value),
       }))}
     />
   );
