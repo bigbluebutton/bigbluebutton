@@ -48,11 +48,12 @@ function TextAlignSelect(): React.ReactElement | null {
 
       if (blocks.length === 1 && blockHasType(firstBlock, e, 'table')) {
         const cellSelection = e.getExtension(TableHandlesExtension)?.getCellSelection();
-        if (!cellSelection) return null;
-        const firstCell = mapTableCell(
-          (firstBlock.content as TableContent<never, never>).rows[0].cells[0],
-        );
-        return { alignment: firstCell.props.textAlignment as TextAlignment, blocks };
+        if (!cellSelection || cellSelection.cells.length === 0) return null;
+        const { row, col } = cellSelection.cells[0];
+        const tableContent = firstBlock.content as TableContent<never, never>;
+        const selectedCell = tableContent.rows[row]?.cells[col];
+        if (!selectedCell) return null;
+        return { alignment: mapTableCell(selectedCell).props.textAlignment as TextAlignment, blocks };
       }
 
       return null;
@@ -79,7 +80,13 @@ function TextAlignSelect(): React.ReactElement | null {
           }));
 
           cellSelection.cells.forEach(({ row, col }) => {
-            newTable[row].cells[col].props.textAlignment = alignment;
+            newTable[row].cells[col] = {
+              ...newTable[row].cells[col],
+              props: {
+                ...newTable[row].cells[col].props,
+                textAlignment: alignment,
+              },
+            };
           });
 
           editor.updateBlock(block, {
