@@ -1108,7 +1108,7 @@
     "app.lock-viewers.microphoneLable": "Del mikrofon",
     "app.lock-viewers.PublicChatLabel": "Send gruppechat",
     "app.lock-viewers.PrivateChatLable": "Send privatmelding",
-    "app.lock-viewers.notesLabel": "Rediger delt notat",
+    "app.lock-viewers.notesLabel": "Rediger delte notater",
     "app.lock-viewers.userListLabel": "See andre brukere i brukerlisten",
     "app.lock-viewers.ariaTitle": "Lås brukerinnstillingsvinduet",
     "app.lock-viewers.button.apply": "Bruk",
