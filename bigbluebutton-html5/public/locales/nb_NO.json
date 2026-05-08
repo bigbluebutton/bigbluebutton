@@ -903,7 +903,7 @@
     "app.lock-viewers.locked": "Låst",
     "app.lock-viewers.hideViewersCursor": "Se musmarkøren til andre brukere",
     "app.guest-policy.ariaTitle": "Dialogboks for gjesteinnstillinger",
-    "app.guest-policy.title": "Gjesteinnstillinger",
+    "app.guest-policy.title": "Retningslinjer for gjester",
     "app.guest-policy.description": "Endre innstillingene for gjester",
     "app.guest-policy.button.askModerator": "Spør moderator",
     "app.guest-policy.button.alwaysAccept": "Godta alltid",
