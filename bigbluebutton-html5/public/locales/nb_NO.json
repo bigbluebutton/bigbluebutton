@@ -146,7 +146,7 @@
     "app.userList.userOptions.unmuteAllDesc": "Skrur av mikrofondemping for møtet",
     "app.userList.userOptions.lockViewersLabel": "Lås deltagere",
     "app.userList.userOptions.lockViewersDesc": "Lås spesifikke funksjoner for deltagere i møtet",
-    "app.userList.userOptions.guestPolicyLabel": "Gjesteinnstillinger",
+    "app.userList.userOptions.guestPolicyLabel": "Retningslinjer for gjester",
     "app.userList.userOptions.guestPolicyDesc": "Endre innstillingene for gjester",
     "app.userList.userOptions.disableCam": "Deltageres webkamera er deaktivert",
     "app.userList.userOptions.disableMic": "Deltageres mikrofoner er deaktivert",
