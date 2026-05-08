@@ -84,6 +84,10 @@ public class PluginUtils {
         return parsedVersion.majorVersion() + "." + parsedVersion.minorVersion();
     }
 
+    public static boolean urlContainsMeetingIdPlaceholder(String url) {
+        return url != null && url.contains(MEETING_ID);
+    }
+
     public String replaceAllPlaceholdersInManifestUrls(String url, String meetingId) {
         return url.replace(HTML5_PLUGIN_SDK_VERSION, html5PluginSdkVersion)
                 .replace(HTML5_PLUGIN_SDK_MAIN_VERSION, getMainVersion(html5PluginSdkVersion))
@@ -112,12 +116,16 @@ public class PluginUtils {
             JsonObject pluginManifestJsonObj = pluginManifestJson.getAsJsonObject();
             if (pluginManifestJsonObj.has("url")) {
                 String barePluginManifestUrl = pluginManifestJsonObj.get("url").getAsString();
-                String resolvedManifestUrl = replaceAllPlaceholdersInManifestUrls(barePluginManifestUrl, meetingId);
-                PluginManifest newPlugin;
-                if (pluginManifestCacheEnabled && isPluginManifestCached(resolvedManifestUrl)) {
-                    log.debug("Skipping URL validation for cached plugin manifest [{}]", resolvedManifestUrl);
-                    newPlugin = new PluginManifest(resolvedManifestUrl);
-                } else {
+                boolean cacheable = !urlContainsMeetingIdPlaceholder(barePluginManifestUrl);
+                PluginManifest newPlugin = null;
+                if (cacheable && pluginManifestCacheEnabled) {
+                    String resolvedManifestUrl = replaceAllPlaceholdersInManifestUrls(barePluginManifestUrl, meetingId);
+                    if (isPluginManifestCached(resolvedManifestUrl)) {
+                        log.debug("Skipping URL validation for cached plugin manifest [{}]", resolvedManifestUrl);
+                        newPlugin = new PluginManifest(resolvedManifestUrl);
+                    }
+                }
+                if (newPlugin == null) {
                     ValidatedUrl validatedUrl = extractFinalPluginManifestUrl(barePluginManifestUrl, meetingId);
                     if (validatedUrl == null) {
                         log.error("Plugin manifest URL [{}] rejected for meeting [{}]",
@@ -126,6 +134,7 @@ public class PluginUtils {
                     }
                     newPlugin = new PluginManifest(validatedUrl.originalUrl(), validatedUrl);
                 }
+                newPlugin.setCacheable(cacheable);
                 if (pluginManifestJsonObj.has("checksum")) {
                     newPlugin.setChecksum(pluginManifestJsonObj.get("checksum").getAsString());
                 }
@@ -345,9 +354,10 @@ public class PluginUtils {
             throws IOException, PluginManifestChecksumMismatchException {
         String pluginManifestUrlString = pluginManifest.getUrl();
         String pluginManifestChecksum = pluginManifest.getChecksum();
+        boolean useCache = pluginManifestCacheEnabled && pluginManifest.isCacheable();
 
         synchronized (getLockFor(pluginManifestUrlString)) {
-            if (pluginManifestCacheEnabled) {
+            if (useCache) {
                 String cached = null;
                 try {
                     cached = readFromCache(pluginManifestUrlString);
@@ -387,7 +397,7 @@ public class PluginUtils {
             }
 
             boolean nameUsable = parsed.pluginName() != null && !parsed.pluginName().isEmpty();
-            if (pluginManifestCacheEnabled && nameUsable) {
+            if (useCache && nameUsable) {
                 try {
                     writeToCache(pluginManifestUrlString, fresh);
                 } catch (IOException e) {
