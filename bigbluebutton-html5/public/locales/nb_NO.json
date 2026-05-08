@@ -217,7 +217,7 @@
     "app.userList.chatListItem.unreadSingular": "Èn ny melding",
     "app.userList.more": "Mer",
     "app.userList.chatListItem.unreadPlural": "{unreadCount} ny melding",
-    "app.userList.chatListItem.unknownParticipant": "Unknown participant",
+    "app.userList.chatListItem.unknownParticipant": "Ukjent deltaker",
     "app.userList.menu.away": "Sett deg selv som fraværende",
     "app.userList.menu.notAway": "Sett deg selv som aktiv",
     "app.userList.menu.chat.label": "Start en privat chat",
