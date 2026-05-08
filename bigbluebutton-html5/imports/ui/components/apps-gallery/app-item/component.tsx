@@ -76,9 +76,29 @@ const AppItem: React.FC<AppItemProps> = ({
 
   const functionToBeCalled = typeof onClick === 'function' ? onClick : openAppPanel;
 
+  const handleClickableAreaKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      functionToBeCalled();
+    }
+  };
+
+  const handlePinKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      togglePinApp(e);
+    }
+  };
+
   return (
     <Styled.RegisteredAppContent key={`${appKey}${isPinned}`} data-test={dataTest}>
-      <Styled.ClickableArea onClick={functionToBeCalled}>
+      <Styled.ClickableArea
+        role="button"
+        tabIndex={0}
+        aria-label={name}
+        onClick={functionToBeCalled}
+        onKeyDown={handleClickableAreaKeyDown}
+      >
         <Styled.OpenButton
           key={`OPEN${appKey}`}
           color="primary"
@@ -86,6 +106,8 @@ const AppItem: React.FC<AppItemProps> = ({
           icon={icon}
           $pinned={isPinned}
           label=""
+          aria-hidden="true"
+          tabIndex={-1}
           onClick={() => {}}
         />
         <Styled.AppTitle>{name}</Styled.AppTitle>
@@ -93,7 +115,14 @@ const AppItem: React.FC<AppItemProps> = ({
         {children}
       </Styled.ClickableArea>
       <TooltipContainer title={isPinned ? unpinTooltip : pinTooltip}>
-        <Styled.PinApp role="button" onClick={togglePinApp} tabIndex={0} pinned={isPinned}>
+        <Styled.PinApp
+          role="button"
+          aria-label={isPinned ? unpinTooltip : pinTooltip}
+          onClick={togglePinApp}
+          onKeyDown={handlePinKeyDown}
+          tabIndex={0}
+          pinned={isPinned}
+        >
           <Icon iconName={isPinned ? 'pin-video_on' : 'pin-video_off'} />
         </Styled.PinApp>
       </TooltipContainer>
