@@ -1581,7 +1581,7 @@
     "app.learningDashboard.statusTimelineTable.setAt": "Sett kl",
     "app.learningDashboard.errors.invalidToken": "Ugyldig session token",
     "app.learningDashboard.errors.dataUnavailable": "Data er ikke lenger tilgjengelig",
-    "app.learningDashboard.closeHelpModal": "Lukk hjelpevinduet i dashbordet",
+    "app.learningDashboard.closeHelpModal": "Lukk hjelpevinduet til dashbordet",
     "app.learningDashboard.helpButtonLabel": "Hjelp",
     "app.learningDashboard.help.title": "Hjelp til Learning Dashboard",
     "app.learningDashboard.help.activityScore.title": "Hvordan aktivitetsresultatet beregnes",
