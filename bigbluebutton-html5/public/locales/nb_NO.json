@@ -1343,7 +1343,7 @@
     "app.videoDock.webcamPinDesc": "Fest det valgte webkameraet",
     "app.videoDock.webcamFullscreenLabel": "Webkamera i fullskjermvisning",
     "app.videoDock.webcamExitFullscreenLabel": "Avslutt webkamera i fullskjermvisning",
-    "app.videoDock.webcamSqueezedButtonLabel": "Forvrengt webkameravisning",
+    "app.videoDock.webcamSqueezedButtonLabel": "Komprimert webkamera-visning",
     "app.videoDock.webcamUnpinLabel": "Frigjør",
     "app.videoDock.webcamUnpinLabelDisabled": "Bare moderatorer kan frigjøre brukere",
     "app.videoDock.webcamUnpinDesc": "Frigjør det valgte webkameraet",
