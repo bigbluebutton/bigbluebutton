@@ -1505,7 +1505,7 @@
     "app.createBreakoutRoom.joinAudio": "Bli med i lydkonferansen",
     "app.createBreakoutRoom.returnAudio": "Gå ut av lydkonferansen",
     "app.createBreakoutRoom.alreadyConnected": "Allerede i rommet",
-    "app.createBreakoutRoom.inviteSentToast": "{userName} was invited to {roomName}",
+    "app.createBreakoutRoom.inviteSentToast": "{userName} ble invitert til {roomName}",
     "app.createBreakoutRoom.confirm": "Opprett",
     "app.createBreakoutRoom.record": "Spill inn",
     "app.createBreakoutRoom.numberOfRooms": "Antall rom",
