@@ -46,7 +46,7 @@ export const useDragAndDrop = (
   afterDrop?: () => void,
 ) => {
   const dragStart = useCallback((ev: React.DragEvent<HTMLElement>) => {
-    const el = ev.target as HTMLElement;
+    const el = ev.currentTarget as HTMLElement;
     ev.dataTransfer.setData('text', el.id);
     setSelectedId(el.id);
     const ghost = document.createElement('div');

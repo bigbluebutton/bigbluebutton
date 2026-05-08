@@ -144,12 +144,14 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
             <Styled.InputArrowButton
               type="button"
               onClick={() => adjustTime(3600)}
-              aria-label={intl.formatMessage(intlMessages.increaseBreakoutTime)}
+              aria-label={`${intl.formatMessage(intlMessages.increaseBreakoutTime)}
+              ${intl.formatMessage(intlMessages.timerHours)}`}
             />
             <Styled.InputArrowButtonDown
               type="button"
               onClick={() => adjustTime(-3600)}
-              aria-label={intl.formatMessage(intlMessages.decreaseBreakoutTime)}
+              aria-label={`${intl.formatMessage(intlMessages.decreaseBreakoutTime)}
+              ${intl.formatMessage(intlMessages.timerHours)}`}
             />
           </Styled.InputArrows>
           <Styled.TimeUnitLabel>
@@ -174,13 +176,15 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
             <Styled.InputArrowButton
               type="button"
               onClick={() => adjustTime(60)}
-              aria-label={intl.formatMessage(intlMessages.increaseBreakoutTime)}
+              aria-label={`${intl.formatMessage(intlMessages.increaseBreakoutTime)}
+              ${intl.formatMessage(intlMessages.timerMinutes)}`}
               data-test="increaseBreakoutTimeButton"
             />
             <Styled.InputArrowButtonDown
               type="button"
               onClick={() => adjustTime(-60)}
-              aria-label={intl.formatMessage(intlMessages.decreaseBreakoutTime)}
+              aria-label={`${intl.formatMessage(intlMessages.decreaseBreakoutTime)}
+              ${intl.formatMessage(intlMessages.timerMinutes)}`}
               data-test="decreaseBreakoutTimeButton"
             />
           </Styled.InputArrows>
@@ -206,12 +210,14 @@ const BreakoutTimerEditorComponent: React.FC<BreakoutTimerEditorProps> = ({
             <Styled.InputArrowButton
               type="button"
               onClick={() => adjustTime(1)}
-              aria-label={intl.formatMessage(intlMessages.increaseBreakoutTime)}
+              aria-label={`${intl.formatMessage(intlMessages.increaseBreakoutTime)}
+              ${intl.formatMessage(intlMessages.timerSeconds)}`}
             />
             <Styled.InputArrowButtonDown
               type="button"
               onClick={() => adjustTime(-1)}
-              aria-label={intl.formatMessage(intlMessages.decreaseBreakoutTime)}
+              aria-label={`${intl.formatMessage(intlMessages.decreaseBreakoutTime)}
+              ${intl.formatMessage(intlMessages.timerSeconds)}`}
             />
           </Styled.InputArrows>
           <Styled.TimeUnitLabel>
