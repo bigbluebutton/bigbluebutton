@@ -22,14 +22,9 @@ export async function checkSvgIndex(testPage: Page, element: string) {
   await expect(check).toBeTruthy();
 }
 
-// Strip the URL query string from the returned HTML
 export async function getSlideOuterHtml(testPage: Page) {
   await testPage.waitForSelector(e.currentSlideImg);
-  const outerHtml = await testPage.page.evaluate(
-    ([slideImg]) => document.querySelector(slideImg)?.outerHTML,
-    [e.currentSlideImg],
-  );
-  return outerHtml?.replace(/\?[^"&]*(?:&amp;[^"]*)?/g, '');
+  return testPage.page.evaluate(([slideImg]) => document.querySelector(slideImg)?.outerHTML, [e.currentSlideImg]);
 }
 
 // Cross-page comparison can race against subscription propagation
