@@ -12,6 +12,7 @@ import { checkNotificationText } from '../notifications/util';
 import { MultiUsers } from '../user/multiusers';
 import {
   checkSvgIndex,
+  expectSlidesEqualBetweenPages,
   getCurrentPresentationHeight,
   getSlideOuterHtml,
   uploadMultiplePresentations,
@@ -344,16 +345,21 @@ export class Presentation extends MultiUsers {
     );
 
     const modSlides0 = await getSlideOuterHtml(this.modPage);
-    const userSlides0 = await getSlideOuterHtml(this.userPage);
-    await expect(modSlides0).toEqual(userSlides0);
+    await expectSlidesEqualBetweenPages(
+      this.modPage,
+      this.userPage,
+      'should the moderator slide and the attendee slide to be equal before upload',
+    );
 
     await uploadMultiplePresentations(this.modPage, [e.questionSlideFileName, e.uploadPresentationFileName]);
 
+    await expectSlidesEqualBetweenPages(
+      this.modPage,
+      this.userPage,
+      'moderator slide 1 should be equal to the user slide 1',
+    );
     const modSlides1 = await getSlideOuterHtml(this.modPage);
-    const userSlides1 = await getSlideOuterHtml(this.userPage);
-    await expect(modSlides1, 'moderator slide 1 should be equal to the user slide 1').toEqual(userSlides1);
     await expect(modSlides0, 'moderator slide 0 should not be equal to moderator slide 1').not.toEqual(modSlides1);
-    await expect(userSlides0, 'user slide 0 should not be equal to the user slide 1').not.toEqual(userSlides1);
   }
 
   async fitToWidthTest() {
@@ -484,11 +490,12 @@ export class Presentation extends MultiUsers {
   async uploadAndRemoveAllPresentations() {
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
-    await this.modPage.page.waitForTimeout(1000); // timeout to avoid trying to get the slide data before it's ready
 
-    const modSlides1 = await getSlideOuterHtml(this.modPage);
-    const userSlides1 = await getSlideOuterHtml(this.userPage);
-    await expect(modSlides1, 'should the moderator slide and the attendee slide to be equal').toEqual(userSlides1);
+    await expectSlidesEqualBetweenPages(
+      this.modPage,
+      this.userPage,
+      'should the moderator slide and the attendee slide to be equal',
+    );
 
     // Remove
     await this.modPage.waitAndClick(e.actions);
@@ -533,9 +540,11 @@ export class Presentation extends MultiUsers {
     await this.modPage.closeAllToastNotifications();
     await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName);
 
-    const modSlides1 = await getSlideOuterHtml(this.modPage);
-    const userSlides1 = await getSlideOuterHtml(this.userPage);
-    await expect(modSlides1, 'should the moderator slide and the attendee slide to be equal').toEqual(userSlides1);
+    await expectSlidesEqualBetweenPages(
+      this.modPage,
+      this.userPage,
+      'should the moderator slide and the attendee slide to be equal',
+    );
 
     await this.modPage.waitAndClick(e.userListItem);
     await this.modPage.waitAndClick(e.makePresenter);

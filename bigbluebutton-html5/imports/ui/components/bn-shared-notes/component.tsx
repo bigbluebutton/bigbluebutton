@@ -20,6 +20,7 @@ import {
 } from '@blocknote/react';
 
 import { Plugin, PluginKey } from '@tiptap/pm/state';
+import { Extension } from '@tiptap/core';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 import Button from '/imports/ui/components/common/button/component';
@@ -37,6 +38,31 @@ import { notify } from '../../services/notification';
 (globalThis as unknown as Record<string, unknown>).bbbAwarenessKeepalive = Awareness;
 
 const maxDocumentCharsPluginKey = new PluginKey('maxDocumentChars');
+
+const createMaxDocumentCharsExtension = (
+  maxChars: number,
+  onExceed: (charCount: number) => void,
+) => Extension.create({
+  name: 'bbbMaxDocumentChars',
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        key: maxDocumentCharsPluginKey,
+        filterTransaction(tr) {
+          if (!tr.docChanged) return true;
+          let charCount = 0;
+          tr.doc.descendants((node) => {
+            if (node.isText) charCount += node.text?.length ?? 0;
+          });
+          if (charCount > maxChars) {
+            onExceed(charCount);
+          }
+          return charCount <= maxChars;
+        },
+      }),
+    ];
+  },
+});
 
 const intlMessages = defineMessages({
   payloadSizeError: {
@@ -103,6 +129,25 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
 
   const MAX_PASTE_SIZE = MAX_UPDATE_SHARED_NOTES * 1024;
 
+  const intlRef = React.useRef(intl);
+  intlRef.current = intl;
+
+  const maxDocumentCharsExtension = React.useMemo(
+    () => createMaxDocumentCharsExtension(MAX_DOCUMENT_CHARS, (charCount) => {
+      logger.warn({
+        logCode: 'max_number_char_typed',
+        extraInfo: {
+          charCount,
+          maxCharCount: MAX_DOCUMENT_CHARS,
+        },
+      }, 'User typed more characters than allowed');
+      notify(intlRef.current.formatMessage(intlMessages.maxCharCountError, {
+        maxCharCount: MAX_DOCUMENT_CHARS,
+      }), 'warning');
+    }),
+    [MAX_DOCUMENT_CHARS],
+  );
+
   const editor = useCreateBlockNote({
     collaboration: {
       provider: { awareness: hocuspocusProvider.awareness || undefined },
@@ -122,6 +167,9 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         default: '',
         heading: '',
       },
+    },
+    _tiptapOptions: {
+      extensions: [maxDocumentCharsExtension],
     },
     pasteHandler: ({ event, defaultPasteHandler }) => {
       try {
@@ -176,41 +224,6 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
       }
     },
   }, [blockNoteLocale, notificationErrorMessage]);
-
-  React.useEffect(() => {
-    const tiptapEditor = Reflect.get(editor, '_tiptapEditor') as {
-      registerPlugin: (plugin: Plugin) => void;
-      unregisterPlugin: (key: PluginKey) => void;
-    };
-    if (!tiptapEditor) return () => {};
-    const plugin = new Plugin({
-      key: maxDocumentCharsPluginKey,
-      filterTransaction(tr) {
-        if (!tr.docChanged) return true;
-        let charCount = 0;
-        tr.doc.descendants((node) => {
-          if (node.isText) charCount += node.text?.length ?? 0;
-        });
-        if (charCount > MAX_DOCUMENT_CHARS) {
-          logger.warn({
-            logCode: 'max_number_char_typed',
-            extraInfo: {
-              charCount,
-              maxCharCount: MAX_DOCUMENT_CHARS,
-            },
-          }, 'User typed more characters than allowed');
-          notify(intl.formatMessage(intlMessages.maxCharCountError, {
-            maxCharCount: MAX_DOCUMENT_CHARS,
-          }), 'warning');
-        }
-        return charCount <= MAX_DOCUMENT_CHARS;
-      },
-    });
-    tiptapEditor.registerPlugin(plugin);
-    return () => {
-      tiptapEditor.unregisterPlugin(maxDocumentCharsPluginKey);
-    };
-  }, [editor]);
 
   const editable = !disableNotes || !currentUserIsLocked || currentUserIsModerator;
 
