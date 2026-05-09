@@ -1,7 +1,12 @@
 import { expect, Locator } from '@playwright/test';
 import path from 'path';
 
-import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_TIME, UPLOAD_PDF_WAIT_TIME } from '../core/constants';
+import {
+  ELEMENT_WAIT_EXTRA_LONG_TIME,
+  ELEMENT_WAIT_LONGER_TIME,
+  ELEMENT_WAIT_TIME,
+  UPLOAD_PDF_WAIT_TIME,
+} from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 
@@ -17,9 +22,26 @@ export async function checkSvgIndex(testPage: Page, element: string) {
   await expect(check).toBeTruthy();
 }
 
+// Strip the URL query string from the returned HTML
 export async function getSlideOuterHtml(testPage: Page) {
   await testPage.waitForSelector(e.currentSlideImg);
-  return testPage.page.evaluate(([slideImg]) => document.querySelector(slideImg)?.outerHTML, [e.currentSlideImg]);
+  const outerHtml = await testPage.page.evaluate(
+    ([slideImg]) => document.querySelector(slideImg)?.outerHTML,
+    [e.currentSlideImg],
+  );
+  return outerHtml?.replace(/\?[^"&]*(?:&amp;[^"]*)?/g, '');
+}
+
+// Cross-page comparison can race against subscription propagation
+// Poll the user page until it matches the (already-stable) moderator slide.
+export async function expectSlidesEqualBetweenPages(
+  modPage: Page,
+  userPage: Page,
+  description: string,
+  timeout = ELEMENT_WAIT_LONGER_TIME,
+) {
+  const modSlide = await getSlideOuterHtml(modPage);
+  await expect.poll(() => getSlideOuterHtml(userPage), { message: description, timeout }).toBe(modSlide);
 }
 
 export async function getCurrentPresentationHeight(locator: Locator) {
@@ -118,10 +140,11 @@ export async function uploadMultiplePresentations(
     );
 
     await testPage.hasNElements(
-    e.uploadDoneIcon,
-    fileNames.length,
-    'should display the upload done icon after all presentations are successfully uploaded',);
-    } catch {
+      e.uploadDoneIcon,
+      fileNames.length,
+      'should display the upload done icon after all presentations are successfully uploaded',
+    );
+  } catch {
     await testPage.hasNElements(
       e.uploadDoneIcon,
       fileNames.length,
