@@ -21,7 +21,7 @@ Starting with BigBlueButton 2.3 many of the configuration files have local overr
 
 | Package                                                                 | Override                                         | Notes                                                                            |
 | :---------------------------------------------------------------------- | :----------------------------------------------- | -------------------------------------------------------------------------------- |
-| /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties             | /etc/bigbluebutton/bbb-web.properties            | Minimum containing general configuration (`securitySalt` and `serverURL`) |
+| /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties             | /etc/bigbluebutton/bbb-web.properties            | Can override any `bbb-web` property (typically includes `securitySalt` and `bigbluebutton.web.serverURL`) |
 | /usr/share/bbb-apps-akka/conf/application.conf                          | /etc/bigbluebutton/bbb-apps-akka.conf            |                                                                                  |
 | /usr/share/bbb-fsesl-akka/conf/application.conf                         | /etc/bigbluebutton/bbb-fsesl-akka.conf           |                                                                                  |
 | /usr/share/bigbluebutton/html5-client/private/config/settings.yml       | /etc/bigbluebutton/bbb-html5.yml                 | Arrays are merged by replacement (as of 2.4-rc-5)                                |
@@ -38,7 +38,7 @@ Starting with BigBlueButton 2.3 many of the configuration files have local overr
 
 <br /><br />
 
-For `bbb-web.properties`, the settings are name/value pair. For example, the following `bbb-web.properties` overrides the settings for `bigbluebutton.web.serverURL` and `securitySalt` (shared secret).
+For `bbb-web.properties`, the settings are name/value pair. You can override any setting from `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties`. For example, the following `bbb-web.properties` overrides the settings for `bigbluebutton.web.serverURL` and `securitySalt` (shared secret).
 
 ```
 #
