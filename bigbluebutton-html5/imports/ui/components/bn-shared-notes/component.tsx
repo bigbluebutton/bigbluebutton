@@ -14,11 +14,9 @@ import {
   ColorStyleButton,
   FormattingToolbar,
   NestBlockButton,
-  TextAlignButton,
   UnnestBlockButton,
   useCreateBlockNote,
 } from '@blocknote/react';
-
 import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { Extension } from '@tiptap/core';
 import { defineMessages, useIntl } from 'react-intl';
@@ -31,6 +29,7 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
 import logger from '/imports/startup/client/logger';
 import { notify } from '../../services/notification';
+import TextAlignSelect from './text-align-select/component';
 
 // Force-retain `Awareness` against a webpack tree-shaking interaction that
 // otherwise drops this class while keeping its `extends Observable` expression,
@@ -242,6 +241,15 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <style>
         {`
+          .bn-toolbar-row .mantine-Button-label {
+            display: none;
+          }
+          .bn-toolbar-row .mantine-Button-inner > .mantine-Button-section {
+            margin: 0;
+          }
+          .bn-toolbar-row [data-with-left-section] {
+            padding: 0 .25rem
+          }
           .bn-collaboration-cursor__label {
             color: ${colorWhite} !important;
           }
@@ -256,6 +264,9 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
           .bn-container {
             display: flex;
             flex-direction: column;
+            height: 100%;
+          }
+          .bn-mantine button, .bn-mantine select {
             height: 100%;
           }
           .bn-toolbar-row {
@@ -326,10 +337,8 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
               <BasicTextStyleButton basicTextStyle="strike" key="strikeStyleButton" />
             </FormattingToolbar>
             <FormattingToolbar>
-              <TextAlignButton textAlignment="left" key="textAlignLeftButton" />
-              <TextAlignButton textAlignment="center" key="textAlignCenterButton" />
-              <TextAlignButton textAlignment="right" key="textAlignRightButton" />
               <ColorStyleButton key="colorStyleButton" />
+              <TextAlignSelect key="textAlignSelect" />
               <NestBlockButton key="nestBlockButton" />
               <UnnestBlockButton key="unnestBlockButton" />
             </FormattingToolbar>
