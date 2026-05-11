@@ -1484,7 +1484,7 @@ Ensure that the parameter `displayBrandingArea` is set to `true` in bbb-html5's 
 To update the default logo, navigate to the `images` folder located at `/var/www/bigbluebutton-default/assets/images/`, and replace the `logo.png` file with your new logo.
 
 ### Other meeting configs available
-These configs can be set in `/etc/bigbluebutton/bbb-web.properties`
+This table lists common meeting-related `bbb-web` configs. Any `bbb-web` property can be set in `/etc/bigbluebutton/bbb-web.properties`.
 
 | Parameter                                | Description                                                                                   | Options                                                      | Default value                  |
 |------------------------------------------|-----------------------------------------------------------------------------------------------|--------------------------------------------------------------|--------------------------------|
