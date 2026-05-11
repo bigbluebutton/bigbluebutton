@@ -176,7 +176,7 @@
     "typescript": "5.5.3",
     "webpack": "5.105.2",
     "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^5.2.3"
+    "webpack-dev-server": "^5.2.4"
   },
   "resolutions": {
     "trim-newlines": "^4.0.1"
