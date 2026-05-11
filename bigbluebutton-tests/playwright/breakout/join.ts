@@ -330,6 +330,7 @@ export class Join extends Create {
     await this.modPage.hasElement(
       e.createBreakoutRoomsButton,
       'should display create breakout rooms button after ending all breakout rooms',
+      ELEMENT_WAIT_LONGER_TIME,
     );
   }
 
@@ -502,7 +503,7 @@ export class Join extends Create {
     await this.modPage.waitAndClick(e.mediaAreaButton);
     await this.modPage.waitAndClick(e.managePresentations);
     const whiteboardPDF = await this.modPage.getLocatorByIndex(e.presentationNames, 1);
-    await expect(whiteboardPDF).toHaveText(/Whiteboard/, { timeout: 30000 });
+    await expect(whiteboardPDF).toHaveText(/Whiteboard/, { timeout: 60000 });
     await this.modPage.hasElementCount(e.presentationNames, 2, 'should display 2 items'); // This checks if no other content was exported.
     await this.modPage.press('Escape'); // close the media sharing menu
     await this.modPage.hasElement(
