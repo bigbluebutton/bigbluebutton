@@ -326,7 +326,18 @@ export class Join extends Create {
     if (!this?.userPage) throw new Error('userPage not initialized');
 
     await this.modPage.waitAndClick(e.finishBreakoutButton);
-    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+
+    // Wait for breakout teardown to finish before touching the sidebar again.
+    await this.modPage.wasRemoved(
+      e.breakoutRoomList,
+      'should close breakout room panel after ending all breakout rooms',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+
+    const createButton = this.modPage.page.locator(e.createBreakoutRoomsButton);
+    if (!(await createButton.isVisible().catch(() => false))) {
+      await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    }
     await this.modPage.hasElement(
       e.createBreakoutRoomsButton,
       'should display create breakout rooms button after ending all breakout rooms',

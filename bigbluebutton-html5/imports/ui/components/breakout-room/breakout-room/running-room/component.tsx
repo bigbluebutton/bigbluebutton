@@ -368,7 +368,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
           </Styled.UsersSection>
         )}
 
-        <Styled.RoomCardsContainer>
+        <Styled.RoomCardsContainer data-test="breakoutRoomList">
           {breakouts.map((breakout) => {
             const roomParticipants = breakout.participants.filter((p) => !p.isAudioOnly);
             const totalRoomUsers = roomParticipants.length;
