@@ -27,6 +27,18 @@ export async function getSlideOuterHtml(testPage: Page) {
   return testPage.page.evaluate(([slideImg]) => document.querySelector(slideImg)?.outerHTML, [e.currentSlideImg]);
 }
 
+// sessionToken is per-user, so it differs between moderator and attendee pages.
+// Strip it from the slide URL query string so cross-page comparisons match.
+function stripSessionToken(html: string | undefined): string | undefined {
+  if (!html) return html;
+  return html
+    .replace(/&amp;sessionToken=[^&"'\s<>]*/g, '')
+    .replace(/&sessionToken=[^&"'\s<>]*/g, '')
+    .replace(/\?sessionToken=[^&"'\s<>]*&amp;/g, '?')
+    .replace(/\?sessionToken=[^&"'\s<>]*&/g, '?')
+    .replace(/\?sessionToken=[^&"'\s<>]*/g, '');
+}
+
 // Cross-page comparison can race against subscription propagation
 // Poll the user page until it matches the (already-stable) moderator slide.
 export async function expectSlidesEqualBetweenPages(
@@ -35,8 +47,10 @@ export async function expectSlidesEqualBetweenPages(
   description: string,
   timeout = ELEMENT_WAIT_LONGER_TIME,
 ) {
-  const modSlide = await getSlideOuterHtml(modPage);
-  await expect.poll(() => getSlideOuterHtml(userPage), { message: description, timeout }).toBe(modSlide);
+  const modSlide = stripSessionToken(await getSlideOuterHtml(modPage));
+  await expect
+    .poll(async () => stripSessionToken(await getSlideOuterHtml(userPage)), { message: description, timeout })
+    .toBe(modSlide);
 }
 
 export async function getCurrentPresentationHeight(locator: Locator) {

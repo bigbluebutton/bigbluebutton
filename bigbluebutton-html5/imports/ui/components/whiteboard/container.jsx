@@ -444,7 +444,8 @@ const WhiteboardContainer = (props) => {
     props: {
       w: currentPresentationPage?.scaledWidth,
       h: currentPresentationPage?.scaledHeight,
-      src: currentPresentationPage?.svgUrl,
+      src: currentPresentationPage?.svgUrl
+        ? Auth.authenticateURL(currentPresentationPage.svgUrl) : undefined,
       name: '',
       isAnimated: false,
       mimeType: null,
