@@ -63,9 +63,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="enteredUsersTimeout" value="${enteredUsersTimeout}"/>
         <property name="numPluginManifestsFetchingThreads" value="${numPluginManifestsFetchingThreads}"/>
         <property name="pluginManifestFetchTimeout" value="${pluginManifestFetchTimeout}"/>
-        <property name="secureUrlDownloader" ref="secureUrlDownloader"/>
-        <property name="maxPluginManifestPayloadSizeKib" value="${maxPluginManifestsFetchUrlPayloadSize}"/>
         <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
+        <property name="pluginUtils" ref="pluginUtils"/>
         <property name="redirectFollower" ref="redirectFollower"/>
         <property name="sharedNotesRedirectValidator" ref="sharedNotesRedirectValidator"/>
     </bean>
@@ -116,10 +115,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="fetchUrlAllowedLocalHosts" value="${fetchUrlAllowedLocalHosts}" />
     </bean>
 
-    <bean id="pluginUtils" class="org.bigbluebutton.api.util.PluginUtils">
+    <bean id="pluginUtils" class="org.bigbluebutton.api.util.PluginUtils"
+          init-method="start" destroy-method="stop">
         <property name="html5PluginSdkVersion" value="${html5PluginSdkVersion}"/>
         <property name="redirectFollower" ref="redirectFollower"/>
         <property name="pluginRedirectValidator" ref="pluginRedirectValidator"/>
+        <property name="secureUrlDownloader" ref="secureUrlDownloader"/>
+        <property name="pluginManifestCacheEnabled" value="${pluginManifestCacheEnabled}"/>
+        <property name="pluginManifestCacheDirectory" value="${pluginManifestCacheDirectory}"/>
+        <property name="pluginManifestCacheRefreshIntervalMinutes" value="${pluginManifestCacheRefreshIntervalMinutes}"/>
+        <property name="pluginManifestFetchTimeoutSeconds" value="${pluginManifestFetchTimeout}"/>
+        <property name="maxPluginManifestPayloadSizeKib" value="${maxPluginManifestsFetchUrlPayloadSize}"/>
     </bean>
 
     <bean id="recordingServiceGW" class="org.bigbluebutton.api2.util.RecMetaXmlHelper">
