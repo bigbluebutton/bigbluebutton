@@ -1,4 +1,4 @@
-import React, { memo, ReactNode } from 'react';
+import React, { memo, ReactNode, useCallback } from 'react';
 import Icon from '/imports/ui/components/common/icon/component';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
@@ -6,6 +6,7 @@ import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { PluginIconType } from 'bigbluebutton-html-plugin-sdk';
 import Styled from '../styles';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
+import KEYS from '/imports/utils/keys';
 
 interface AppItemProps {
   appKey: string;
@@ -76,19 +77,19 @@ const AppItem: React.FC<AppItemProps> = ({
 
   const functionToBeCalled = typeof onClick === 'function' ? onClick : openAppPanel;
 
-  const handleClickableAreaKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'Enter' || e.key === ' ') {
+  const handleClickableAreaKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === KEYS.ENTER || e.key === KEYS.SPACE) {
       e.preventDefault();
       functionToBeCalled();
     }
-  };
+  }, [functionToBeCalled]);
 
-  const handlePinKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'Enter' || e.key === ' ') {
+  const handlePinKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === KEYS.ENTER || e.key === KEYS.SPACE) {
       e.preventDefault();
       togglePinApp(e);
     }
-  };
+  }, [togglePinApp]);
 
   return (
     <Styled.RegisteredAppContent key={`${appKey}${isPinned}`} data-test={dataTest}>
