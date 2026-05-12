@@ -109,6 +109,15 @@ const GenericContentPluginStateContainer = ((
         },
       });
     });
+    // If multiple sidekick items are registered with open: true, only the last one is opened.
+    const lastOpenSidekick = genericContentSidekickArea.findLast((gci) => gci.open);
+    if (lastOpenSidekick) {
+      layoutContextDispatch({
+        type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+        value: genericContentSidekickId(lastOpenSidekick.id),
+      });
+      layoutContextDispatch({ type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN, value: true });
+    }
   }, [genericContentItems, setPluginsExtensibleAreasAggregatedState]);
 
   pluginApi.setGenericContentItems = (items: PluginSdk.GenericContentInterface[]) => {
