@@ -27,10 +27,10 @@ jobs:
         working-directory: ./docs
     steps:
       # Setup
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0  # Needed for build.sh to access other branches/tags
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 20
           cache: npm
@@ -44,7 +44,7 @@ jobs:
       - name: Build website
         run: npm run docusaurus build
       - name: upload build artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ./docs/build
 
@@ -65,4 +65,4 @@ jobs:
     steps:
       - name: deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
