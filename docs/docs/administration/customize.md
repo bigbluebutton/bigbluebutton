@@ -1488,7 +1488,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 
 | Parameter | Description | Options | Default value |
 |---|---|---|---|
-| `defaultMeetingLayout` | Default meeting layout | UNIFIED_LAYOUT, CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS | CUSTOM_LAYOUT _`overwritable`_ (via `meetingLayout`) |
+| `defaultMeetingLayout` | Default meeting layout | UNIFIED_LAYOUT, CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS, PARTICIPANTS_AND_CHAT_ONLY, CAMERAS_ONLY, PRESENTATION_ONLY, MEDIA_ONLY | CUSTOM_LAYOUT _`overwritable`_ (via `meetingLayout`) |
 | `defaultMaxUsers` | Maximum number of users a meeting can have | Integer (0=disable) | 0 _`overwritable`_ (via `maxParticipants`) |
 | `maxUserConcurrentAccesses` | Maximum number of sessions a single user (extId) can open simultaneously in the same meeting; oldest session is ended when exceeded | Integer (0=disable) | 3 |
 | `defaultMeetingDuration` | Default duration of the meeting in minutes | Integer (0=disable) | 0 _`overwritable`_ (via `duration`) |
