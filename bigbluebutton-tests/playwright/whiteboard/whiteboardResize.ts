@@ -7,6 +7,17 @@ import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { DrawShape } from './drawShape';
 
+// Read the zoom percentage text from the toolbar's resetZoomButton (e.g. "150%").
+// customIcon renders the stateZoomPct string directly as text inside the button;
+// innerText excludes the visually-hidden ButtonLabel (font-size:0), so we get
+// only the percentage string.
+async function getToolbarZoomText(page: Page): Promise<string | null> {
+  return page.evaluate(() => {
+    const btn = document.querySelector('[data-test="resetZoomButton"]') as HTMLElement | null;
+    return btn ? (btn.innerText?.trim() ?? null) : null;
+  });
+}
+
 // Read camera.z from the tldraw shapes layer inline style transform.
 // tldraw applies the transform imperatively via:
 //   el.style.setProperty("transform", `scale(${z}) translate(${x}px, ${y}px)`)
@@ -297,57 +308,34 @@ export class WhiteboardResize extends DrawShape {
     const fitZoom = await getCameraZoom(this.modPage.page);
     expect(fitZoom, '[mod] camera zoom should be positive after mount').toBeGreaterThan(0);
 
-    // ── 3. Zoom in 2× via direct tldraw editor access (no server round-trip) ─────
-    // Using the editor API avoids server round-trips and zoomValue changes, making
-    // this a pure test of the component's own ratio-preservation mechanism.
-    const zoomed = await this.modPage.page.evaluate(() => {
-      const whiteboard = document.getElementById('whiteboard-element');
-      if (!whiteboard) return false;
-      const fiberKey = Object.keys(whiteboard as unknown as Record<string, unknown>)
-        .find((k) => k.startsWith('__reactFiber'));
-      if (!fiberKey) return false;
+    // ── 3. Zoom in via toolbar (2 clicks of +25% each = 150%) ────────────────────
+    // Using the real toolbar path exercises the full flow:
+    //   zoomChanger → Presentation.zoom state → whiteboard effect →
+    //   syncCameraOnPresenterZoom → editor.setCamera (api source) →
+    //   pageActualZoomRatioRef cache updated.
+    // This lets us verify both camera AND toolbar % are preserved after restore.
+    await this.modPage.waitAndClick(e.zoomInButton);
+    // Wait longer than the zoomChanger debounce (200 ms) so the first click's
+    // setState commits before the second click reads stateZoomValue; otherwise
+    // both clicks see stateZoomValue=100 and only one +25% step is applied.
+    await this.modPage.page.waitForTimeout(600);
+    await this.modPage.waitAndClick(e.zoomInButton);
 
-      let fiber = (whiteboard as unknown as Record<string, unknown>)[fiberKey] as { memoizedState: unknown; return: unknown } | null;
-      while (fiber) {
-        let hook = fiber.memoizedState as { memoizedState: unknown; next: unknown } | null;
-        while (hook) {
-          const ms = hook.memoizedState as { current?: { setCamera?: unknown; getCamera?: unknown; getViewportScreenBounds?: unknown } } | null;
-          if (ms && ms.current && typeof ms.current.setCamera === 'function') {
-            const editor = ms.current as {
-              setCamera: (cam: { x: number; y: number; z: number }, opts?: { immediate?: boolean }) => void;
-              getCamera: () => { x: number; y: number; z: number };
-              getViewportScreenBounds: () => { w: number; h: number };
-            };
-            const cam = editor.getCamera();
-            const vb = editor.getViewportScreenBounds();
-            const newZ = cam.z * 2;
-            editor.setCamera({
-              x: cam.x + (vb.w / 2) * (1 / newZ - 1 / cam.z),
-              y: cam.y + (vb.h / 2) * (1 / newZ - 1 / cam.z),
-              z: newZ,
-            }, { immediate: true });
-            return true;
-          }
-          hook = hook.next as typeof hook;
-        }
-        fiber = fiber.return as typeof fiber;
-      }
-      return false;
-    });
-
-    expect(zoomed, 'tldraw editor must be accessible via React fiber for direct camera zoom').toBe(true);
-
-    // Let the zoomed camera settle and allow the store listener to record the ratio.
+    // Wait for: zoomChanger debounce (200 ms) + syncCameraOnPresenterZoom + store settle.
     await this.modPage.page.waitForTimeout(3000);
 
-    // ── 4. Verify the zoom was applied (pre-condition for the restore assertion) ──
+    // ── 4. Record pre-minimize state ─────────────────────────────────────────────
+    const toolbarZoomBefore = await getToolbarZoomText(this.modPage.page);
     const zoomBeforeMinimize = await getCameraZoom(this.modPage.page);
-    expect(zoomBeforeMinimize, '[mod] camera zoom must be readable after fiber zoom').not.toBeNull();
+
+    expect(zoomBeforeMinimize, '[mod] camera zoom must be readable after toolbar zoom').not.toBeNull();
+    expect(toolbarZoomBefore, '[mod] toolbar zoom text must be readable').not.toBeNull();
+
     const zoomRatio = zoomBeforeMinimize! / fitZoom!;
     expect(
       zoomRatio,
-      `[mod] fiber zoom should have produced approximately 2× zoom (got ${zoomRatio.toFixed(2)}×)`,
-    ).toBeGreaterThan(1.8);
+      `[mod] 2 toolbar clicks should have produced ≥ 1.4× zoom (got ${zoomRatio.toFixed(2)}×)`,
+    ).toBeGreaterThan(1.4);
 
     // ── 5. Minimize then restore presentation ────────────────────────────────────
     await this.modPage.waitAndClick(e.minimizePresentation);
@@ -362,7 +350,7 @@ export class WhiteboardResize extends DrawShape {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.page.waitForTimeout(5000);
 
-    // ── 6. Verify zoom is preserved after restore (the key invariant) ────────────
+    // ── 6. Verify camera zoom is preserved after restore ─────────────────────────
     // Bug present → camera returns to fit zoom (zoomAfter ≈ fitZoom).
     // Bug fixed   → camera is restored from the per-page ratio cache (zoomAfter ≈ zoomBeforeMinimize).
     const zoomAfterRestore = await getCameraZoom(this.modPage.page);
@@ -375,6 +363,18 @@ export class WhiteboardResize extends DrawShape {
       + `(before: ${zoomBeforeMinimize!.toFixed(4)}, after: ${zoomAfterRestore!.toFixed(4)}, `
       + `deviation: ${(deviation * 100).toFixed(1)} %, expected < 5 %)`,
     ).toBeLessThan(0.05);
+
+    // ── 7. Verify toolbar zoom % is preserved after restore ───────────────────────
+    // Bug: on remount usePrevious(curPageId) returns undefined → false-positive
+    // pageChanged → zoomChanger(100) called from empty pageZoomMap → toolbar resets to 100%.
+    // Fix: guard in the zoomValue effect skips the zoomChanger call when prevCurPageId
+    // is undefined (first mount), so the Presentation.zoom state (and toolbar) stays intact.
+    const toolbarZoomAfter = await getToolbarZoomText(this.modPage.page);
+    expect(
+      toolbarZoomAfter,
+      `[mod] toolbar zoom % should be preserved after minimize/restore `
+      + `(before: "${toolbarZoomBefore}", after: "${toolbarZoomAfter}")`,
+    ).toBe(toolbarZoomBefore);
   }
 
   async cameraResyncVisual() {

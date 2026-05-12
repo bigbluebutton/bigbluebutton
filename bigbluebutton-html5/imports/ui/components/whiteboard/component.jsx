@@ -318,7 +318,8 @@ const Whiteboard = React.memo((props) => {
   }), [intl, currentUser?.presenter, currentUser?.userId, isModerator]);
 
   const presenterChanged = usePrevious(isPresenter) !== isPresenter;
-  const pageChanged = usePrevious(curPageId) !== curPageId;
+  const prevCurPageId = usePrevious(curPageId);
+  const pageChanged = prevCurPageId !== curPageId;
 
   let clipboardContent = null;
   let isPasting = false;
@@ -2018,6 +2019,14 @@ const Whiteboard = React.memo((props) => {
     }));
 
     if (pageChanged) {
+      // On first mount, usePrevious returns undefined, causing a false-positive
+      // pageChanged that would call zoomChanger(100) from an empty pageZoomMap
+      // (cleared on unmount). Guard against it to preserve the toolbar zoom value
+      // after a minimize → restore cycle.
+      if (prevCurPageId === undefined) {
+        prevZoomValueRef.current = zoomValue;
+        return;
+      }
       const storedZoom = pageZoomMap[`${presentationIdRef.current}_${curPageIdRef.current}`] || HUNDRED_PERCENT;
       zoomChanger(storedZoom);
       // If storedZoom === zoomValue, zoomChanger is a no-op and no follow-up effect will fire.
