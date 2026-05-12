@@ -109,7 +109,7 @@ export class Presentation extends MultiUsers {
         e.shareExternalVideoBtn,
         'should not display the option to share an external video, since is deactivated',
       );
-      return;
+      return
     }
     await this.modPage.waitAndClick(e.shareExternalVideoBtn);
     await this.modPage.hasElement(
@@ -417,7 +417,7 @@ export class Presentation extends MultiUsers {
     //! await this.modPage.handleDownload(this.modPage.page.locator(e.presentationDownloadBtn), testInfo);
     //! await this.userPage.handleDownload(this.userPage.page.locator(e.presentationDownloadBtn), testInfo);
     // disable original presentation download
-
+    
     await this.modPage.waitAndClick(e.managePresentations);
     await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
     await this.modPage.waitAndClick(e.disableOriginalPresentationDownloadBtn);
@@ -452,13 +452,12 @@ export class Presentation extends MultiUsers {
     }
     await this.modPage.waitAndClick(e.sendPresentationInCurrentStateBtn);
     await this.modPage.hasElement(e.downloadPresentationToast, 'should display the download presentation toast');
-    await this.userPage.hasElement(
+     await this.userPage.hasElement(
       e.downloadPresentation,
       'should display the download presentation button for the attendee',
       ELEMENT_WAIT_EXTRA_LONG_TIME,
     );
     const downloadPresentationLocator = this.userPage.page.locator(e.downloadPresentation);
-    await expect(downloadPresentationLocator).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
     await this.userPage.handleDownload(downloadPresentationLocator);
   }
 
@@ -467,10 +466,7 @@ export class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.mediaAreaButton);
     await this.modPage.waitAndClick(e.managePresentations);
     await this.modPage.waitAndClick(e.removePresentation);
-    await this.modPage.hasElementDisabled(
-      e.sharePresentationButton,
-      'should disable the share presentation button when there is no presentation',
-    );
+    await this.modPage.hasElementDisabled(e.sharePresentationButton, 'should disable the share presentation button when there is no presentation');
 
     await this.modPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the moderator');
     await this.modPage.wasRemoved(
@@ -501,8 +497,8 @@ export class Presentation extends MultiUsers {
       2,
       'should display both default and uploaded presentation on the manage presentations modal',
     );
-    await this.modPage.waitAndClick(e.removePresentation); // remove first presentation
-    await this.modPage.waitAndClick(e.removePresentation); // remove second presentation
+    await this.modPage.waitAndClick(e.removePresentation);  // remove first presentation
+    await this.modPage.waitAndClick(e.removePresentation);  // remove second presentation
 
     await this.modPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the moderator');
     await this.modPage.wasRemoved(

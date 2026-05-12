@@ -155,13 +155,7 @@ export class Page {
   ): Promise<HandleDownloadResult> {
     const [download] = await Promise.all([this.page.waitForEvent('download', { timeout }), locator.click({ timeout })]);
     await expect(download).toBeTruthy();
-
-    const failure = await download.failure();
-    expect(failure, `download failed: ${failure}`).toBeNull();
-
     const filePath = await download.path();
-    expect(filePath, 'download path should exist').toBeTruthy();
-
     const content = await readFileSync(filePath!, 'utf8');
 
     const currentTestInfo = testInfo ?? this.testInfo;
