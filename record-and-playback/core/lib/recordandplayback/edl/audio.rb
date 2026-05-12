@@ -389,29 +389,14 @@ module BigBlueButton
       # which uses a lot of memory. To work around this issue, detect long gaps in the audio files
       # and remove the audio file from the mix for the duration of the gap.
       def self.remove_audio_gaps(edl, audioinfo, process_dir)
-        audio_files = audioinfo.each_with_object({}) do |(filename, info), files|
-          files[filename] = {
-            filename: filename,
-            duration: info[:duration],
-          }
+        audio_gaps = audioinfo.each_with_object({}) do |(filename, info), gaps|
+          gaps[filename] = BigBlueButton::EDL::MediaUtils.pts_gaps(process_dir, filename, :audio, info[:duration])
         end
-
-        source_handlers = {
-          source_for_entry: lambda { |entry, filename|
-            entry[:audios]&.find { |audio| audio[:filename] == filename }
-          },
-          split_entry: ->(entries, entry_i, rec_time) { split_edl_at(entries, entry_i, rec_time) },
-          remove_source: lambda { |entry, filename|
-            entry[:audios]&.reject! { |audio| audio[:filename] == filename }
-          },
-        }
 
         BigBlueButton::EDL::MediaUtils.remove_pts_gaps_from_edl(
           edl,
-          audio_files,
-          process_dir,
-          stream_type: :audio,
-          source_handlers: source_handlers
+          audio_gaps,
+          stream_type: :audio
         )
       end
 

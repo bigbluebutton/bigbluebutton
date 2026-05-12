@@ -24,9 +24,7 @@ require 'tempfile'
 module BigBlueButton
   module EDL
     module MediaUtils
-      DEFAULT_PTS_GAP_MS = 60_000
-      # Ignore tiny EOF deltas caused by timestamp rounding, but still catch real EOF gaps.
-      EOF_GAP_TOLERANCE_MS = 100
+      DEFAULT_PTS_GAP_MS = 30_000
 
       # Split an EDL entry into two entries at a recording timestamp.
       #
@@ -51,7 +49,7 @@ module BigBlueButton
       # @param stream_type [:audio, :video] The type of media stream to inspect
       # @param duration [Numeric, nil] The expected duration of the media stream (ms), if known
       # @param min_gap [Numeric] Only include gaps which are at least this long (ms)
-      #   Default is 60 seconds, long enough that it won't be hit for short dropouts, but short
+      #   Default is 30 seconds, long enough that it won't be hit for short dropouts, but short
       #   enough that it won't cause excessive memory use when ffmpeg fills the gap.
       #
       # @return [Array<Array<Numeric>>] A list of gaps. For each gap, the first element is the
@@ -115,14 +113,12 @@ module BigBlueButton
 
               if duration && prev_end < duration
                 gap = duration - prev_end
-                if gap > EOF_GAP_TOLERANCE_MS
-                  BigBlueButton.logger.info(
-                    "PTS gap detected between #{prev_end}ms and end of file at #{duration}ms " \
-                    "(#{gap}ms long)"
-                  )
-                  # Using Infinity as end time to avoid rounding issues causing a tiny cut near the file end
-                  pts_gaps << [prev_end, Float::INFINITY]
-                end
+                BigBlueButton.logger.info(
+                  "PTS gap detected between #{prev_end}ms and end of file at #{duration}ms " \
+                  "(#{gap}ms long)"
+                )
+                # Using Infinity as end time to avoid rounding issues causing a tiny cut near the file end
+                pts_gaps << [prev_end, Float::INFINITY]
               end
             ensure
               _pid, status = Process.wait2(pid)
@@ -144,28 +140,48 @@ module BigBlueButton
       # Remove sources from an EDL for time ranges where the underlying media stream has large PTS gaps.
       #
       # @param edl [Array<Hash>] EDL to modify in place
-      # @param sources [Hash{String => Hash}] mapping of logical source ids to probe metadata hashes with :filename
-      #   and optional :duration
-      # @param process_dir [String] path to directory for temporary processing files
-      # @param stream_type [:audio, :video] media stream type to inspect
-      # @param source_handlers [Hash{Symbol => Proc}] callbacks to find, split, and remove sources
-      # @param min_gap [Numeric] Only include gaps which are at least this long (ms)
-      def self.remove_pts_gaps_from_edl(
-        edl,
-        sources,
-        process_dir,
-        stream_type:,
-        source_handlers:,
-        min_gap: DEFAULT_PTS_GAP_MS
-      )
-        source_for_entry = source_handlers.fetch(:source_for_entry)
-        split_entry = source_handlers.fetch(:split_entry)
-        remove_source = source_handlers.fetch(:remove_source)
+      # @param source_gaps [Hash{Object => Array<Array<Numeric>>}] mapping of logical source ids to PTS gaps
+      # @param stream_type [:audio, :video] media stream type to remove
+      def self.remove_pts_gaps_from_edl(edl, source_gaps, stream_type:)
+        source_for_entry, split_entry, remove_source =
+          case stream_type
+          when :audio
+            [
+              lambda { |entry, filename|
+                entry[:audios]&.find { |audio| audio[:filename] == filename }
+              },
+              lambda { |entries, entry_i, rec_time|
+                split_edl_entry(entries, entry_i, rec_time, BigBlueButton::Events.edl_entry_offset_audio)
+              },
+              lambda { |entry, filename|
+                entry[:audios]&.reject! { |audio| audio[:filename] == filename }
+              },
+            ]
+          when :video
+            [
+              lambda { |entry, filename|
+                source = nil
+                entry[:areas].each_value do |videos|
+                  source = videos.find { |video| video[:filename] == filename }
+                  break unless source.nil?
+                end
+                source
+              },
+              lambda { |entries, entry_i, rec_time|
+                split_edl_entry(entries, entry_i, rec_time, BigBlueButton::Events.edl_entry_offset_video)
+              },
+              lambda { |entry, filename|
+                entry[:areas].each_value do |videos|
+                  videos.reject! { |video| video[:filename] == filename }
+                end
+              },
+            ]
+          else
+            raise ArgumentError, "Unexpected stream_type #{stream_type.inspect}"
+          end
 
-        sources.each do |source_id, probe_info|
-          probe_filename = probe_info.fetch(:filename)
-          gaps_array = pts_gaps(process_dir, probe_filename, stream_type, probe_info[:duration], min_gap)
-          next if gaps_array.empty?
+        source_gaps.each do |source_id, gaps_array|
+          next if gaps_array.nil? || gaps_array.empty?
 
           BigBlueButton.logger.info(
             "#{stream_type.to_s.capitalize} file #{File.basename(source_id.to_s)} " \

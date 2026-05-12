@@ -298,15 +298,20 @@ module BigBlueButton
           end
         end
 
-        gap_probe_files = video_sources.each_with_object({}) do |(filename, video_source), files|
-          next if corrupt_videos.include?(filename)
+        video_gaps = {}
+        (0...(edl.length - 1)).each do |i|
+          edl[i][:areas].each_value do |videos|
+            videos.each do |video|
+              next if video_gaps.key?(video[:filename])
 
-          files[filename] = {
-            filename: video_source.filename,
-            duration: video_source.duration,
-          }
+              source = video[:source]
+              next if source.nil? || source.corrupt?
+
+              video_gaps[video[:filename]] = source.pts_gaps
+            end
+          end
         end
-        remove_video_gaps(edl, gap_probe_files, process_dir)
+        remove_video_gaps(edl, video_gaps)
         # Gap removal can add cuts, so enforce the minimum length on the final EDL.
         enforce_cut_lengths(edl, layout[:framerate])
 
@@ -388,48 +393,15 @@ module BigBlueButton
       end
 
       # Check video files for large gaps in timestamps and remove them from the EDL for the duration of the gap.
-      def self.remove_video_gaps(edl, video_files, process_dir)
-        source_handlers = {
-          source_for_entry: ->(entry, filename) { find_video(entry, filename) },
-          split_entry: ->(entries, entry_i, rec_time) { split_edl_at(entries, entry_i, rec_time) },
-          remove_source: ->(entry, filename) { remove_video(entry, filename) },
-        }
-
+      def self.remove_video_gaps(edl, video_gaps)
         BigBlueButton::EDL::MediaUtils.remove_pts_gaps_from_edl(
           edl,
-          video_files,
-          process_dir,
-          stream_type: :video,
-          source_handlers: source_handlers,
-          min_gap: 30_000
+          video_gaps,
+          stream_type: :video
         )
       end
 
       # The methods below are for private use
-
-      def self.find_video(entry, filename)
-        entry[:areas].each_value do |videos|
-          video = videos.find { |candidate| candidate[:filename] == filename }
-          return video unless video.nil?
-        end
-
-        nil
-      end
-
-      def self.remove_video(entry, filename)
-        entry[:areas].each_value do |videos|
-          videos.reject! { |video| video[:filename] == filename }
-        end
-      end
-
-      def self.split_edl_at(edl, entry_i, rec_time)
-        BigBlueButton::EDL::MediaUtils.split_edl_entry(
-          edl,
-          entry_i,
-          rec_time,
-          BigBlueButton::Events.edl_entry_offset_video
-        )
-      end
 
       def self.ms_to_s(timestamp)
         s = timestamp / 1000
