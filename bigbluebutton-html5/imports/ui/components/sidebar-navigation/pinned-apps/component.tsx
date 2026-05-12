@@ -2,13 +2,12 @@ import React, { memo } from 'react';
 import {
   InjectedAppGalleryItem,
   InjectedWidget,
-  Input,
   SidebarNavigation,
 } from '/imports/ui/components/layout/layoutTypes';
 import PinnedAppBase from './pinned-app-list-item/component';
 import ExternalPinnedApp from './external-pinned-app-list-item/component';
-import { layoutSelectInput } from '/imports/ui/components/layout/context';
 import { PANELS } from '/imports/ui/components/layout/enums';
+import useIsPanelOpened from '../hooks/useIsPanelOpened';
 
 interface PinnedAppsProps {
   sidebarNavigationInput: SidebarNavigation;
@@ -16,11 +15,10 @@ interface PinnedAppsProps {
 
 const PinnedApps = ({ sidebarNavigationInput }: PinnedAppsProps) => {
   const { registeredApps = {}, pinnedApps = [] } = sidebarNavigationInput;
-  const { sidebarContentPanel } = layoutSelectInput((i: Input) => i.sidebarContent);
+  const isPanelOpened = useIsPanelOpened();
 
   return pinnedApps.map((pinnedAppKey: string) => {
     const pinnedAppInfo = registeredApps[pinnedAppKey];
-    const isOpened = sidebarContentPanel === pinnedAppKey;
 
     const Component = pinnedAppKey.startsWith(PANELS.GENERIC_CONTENT_SIDEKICK)
       ? ExternalPinnedApp
@@ -31,7 +29,7 @@ const PinnedApps = ({ sidebarNavigationInput }: PinnedAppsProps) => {
         key={pinnedAppKey}
         appKey={pinnedAppKey}
         appInfo={pinnedAppInfo}
-        isOpened={isOpened}
+        isOpened={isPanelOpened(pinnedAppKey)}
       />
     );
   });

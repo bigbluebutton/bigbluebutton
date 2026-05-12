@@ -63,6 +63,7 @@ export const ACTIONS = {
   SET_LAYOUT_INPUT: 'setLayoutInput',
 
   SET_SIDEBAR_CONTENT_PANEL: 'setSidebarcontentPanel',
+  SET_SIDEBAR_CONTENT_AUXILIARY_PANEL: 'setSidebarcontentAuxiliaryPanel',
 
   SET_ID_CHAT_OPEN: 'setIdChatOpen',
 
@@ -93,6 +94,12 @@ export const ACTIONS = {
   SET_SIDEBAR_CONTENT_OUTPUT: 'setSidebarContentOutput',
   SET_SIDEBAR_CONTENT_IS_RESIZABLE: 'setSidebarContentIsResizable',
   SET_SIDEBAR_CONTENT_RESIZABLE_EDGE: 'setSidebarContentResizableEdge',
+
+  SET_SIDEBAR_CONTENT_AUXILIARY_IS_OPEN: 'setSidebarContentAuxiliaryIsOpen',
+  SET_SIDEBAR_CONTENT_AUXILIARY_SIZE: 'setSidebarContentAuxiliarySize',
+  SET_SIDEBAR_CONTENT_AUXILIARY_OUTPUT: 'setSidebarContentAuxiliaryOutput',
+  SET_SIDEBAR_CONTENT_AUXILIARY_IS_RESIZABLE: 'setSidebarContentAuxiliaryIsResizable',
+  SET_SIDEBAR_CONTENT_AUXILIARY_RESIZABLE_EDGE: 'setSidebarContentAuxiliaryResizableEdge',
 
   SET_MEDIA_AREA_SIZE: 'setMediaAreaSize',
 

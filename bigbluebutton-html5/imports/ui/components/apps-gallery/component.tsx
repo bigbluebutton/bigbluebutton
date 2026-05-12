@@ -6,15 +6,15 @@ import React, {
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { AppsGalleryProps } from './types';
-import { layoutDispatch, layoutSelect } from '/imports/ui/components/layout/context';
-import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
-import { InjectedAppGalleryItem, Layout } from '/imports/ui/components/layout/layoutTypes';
+import { PANELS } from '/imports/ui/components/layout/enums';
+import { InjectedAppGalleryItem } from '/imports/ui/components/layout/layoutTypes';
 import Styled from './styles';
 import TooManyPinnedAppsModal from './modal/component';
 import AppItem from './app-item/component';
 import ExternalAppItem from './external-app-item/component';
 import { isPluginNew } from './service';
 import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
+import PanelHeader from '/imports/ui/components/common/panel-header/component';
 
 const intlMessages = defineMessages({
   appsGalleryTitle: {
@@ -45,8 +45,6 @@ const intlMessages = defineMessages({
 
 const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps }) => {
   const MAX_PINNED_APPS_GALLERY = window.meetingClientSettings.public.app.appsGallery.maxPinnedApps;
-  const layoutContextDispatch = layoutDispatch();
-  const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const intl = useIntl();
   const title = intl.formatMessage(intlMessages.appsGalleryTitle);
   const [error, setError] = useState(false);
@@ -134,34 +132,11 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
           pinnedAppsNumber={pinnedApps.length}
         />
       )}
-      <Styled.HeaderContainer
-        isRTL={isRTL}
-        data-test="appsGalleryTitle"
+      <PanelHeader
+        panelId={PANELS.APPS_GALLERY}
         title={title}
-        leftButtonProps={{}}
-        rightButtonProps={{
-          'aria-label': intl.formatMessage(
-            intlMessages.minimize,
-            { panelName: intl.formatMessage(intlMessages.appsGalleryTitle) },
-          ),
-          'data-test': 'hideAppsGallery',
-          icon: 'minus',
-          label: intl.formatMessage(
-            intlMessages.minimize,
-            { panelName: intl.formatMessage(intlMessages.appsGalleryTitle) },
-          ),
-          onClick: () => {
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-              value: false,
-            });
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-              value: PANELS.NONE,
-            });
-          },
-        }}
-        customRightButton={null}
+        dataTest="appsGalleryTitle"
+        closeButtonDataTest="hideAppsGallery"
       />
       <Styled.Separator />
 

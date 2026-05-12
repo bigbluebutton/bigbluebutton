@@ -24,13 +24,10 @@ import { TextElipsis } from '../../../stylesheets/styled-components/placeholders
 import Button from '/imports/ui/components/common/button/component';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import {
-  HeaderContainer as BaseHeaderContainer,
   Separator as BaseSeparator,
   PanelContent as BasePanelContent,
 } from '/imports/ui/components/sidebar-content/styles';
 import { fontSizeBase, textFontWeight } from '../../../stylesheets/styled-components/typography';
-
-const HeaderContainer = styled(BaseHeaderContainer)``;
 
 const Separator = styled(BaseSeparator)``;
 
@@ -551,7 +548,6 @@ const FooterSeparator = styled(BaseSeparator)`
 `;
 
 export default {
-  HeaderContainer,
   Separator,
   TimerSidebarContent,
   TimerTitle,

@@ -28,12 +28,9 @@ import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scr
 import Button from '/imports/ui/components/common/button/component';
 import TextareaAutosize from 'react-autosize-textarea';
 import {
-  HeaderContainer as BaseHeaderContainer,
   Separator as BaseSeparator,
   PanelContent as BasePanelContent,
 } from '/imports/ui/components/sidebar-content/styles';
-
-const HeaderContainer = styled(BaseHeaderContainer)``;
 
 const Separator = styled(BaseSeparator)``;
 
@@ -365,7 +362,6 @@ const NotAssignedHelpText = styled.p`
 `;
 
 export default {
-  HeaderContainer,
   Separator,
   PanelContent,
   BreakoutActions,

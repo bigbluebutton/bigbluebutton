@@ -543,6 +543,9 @@ const createEndpointTableData = [
                 </li>
               </ul>
             </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">multiFunctionalMode</code> - <b>Multi-Functional Mode - multiple sidebars</b>
+            </li>
           </ul>
         </>
     ),

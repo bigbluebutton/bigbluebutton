@@ -722,6 +722,15 @@ export const elements = {
   userActivityScoreDashboard: 'td[data-test="userActivityScoreDashboard"]',
   activityScorePanelDashboard: 'button[data-test="activityScorePanelDashboard"]',
   downloadSessionLearningDashboard: 'button[data-test="downloadSessionDataDashboard"]',
+
+  // Multifunctional mode
+  sidebarContentMain: '[data-test="sidebarContentMain"]',
+  sidebarContentAuxiliary: '[data-test="sidebarContentAuxiliary"]',
+  enableMultiFunctionalMode: 'button[data-test="enableMultiFunctionalMode"]',
+  emptyPanelTitle: '[data-test="emptyPanelTitle"]',
+  emptyPanelCloseButton: 'button[data-test="emptyPanelCloseButton"]',
+  resizeSidebarContentMain: '[data-test="sidebarContentMain"] > .resizeSidebarContentWrapper > div',
+  resizeSidebarContentAuxiliary: '[data-test="sidebarContentAuxiliary"] > .resizeSidebarContentWrapper > div',
 };
 
 // Recording playback

@@ -15,13 +15,10 @@ import {
 } from '/imports/ui/stylesheets/styled-components/typography';
 import Button from '/imports/ui/components/common/button/component';
 import {
-  HeaderContainer as BaseHeaderContainer,
   Separator as BaseSeparator,
   PanelContent as BasePanelContent,
 } from '/imports/ui/components/sidebar-content/styles';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
-
-const HeaderContainer = styled(BaseHeaderContainer)``;
 
 const Separator = styled(BaseSeparator)``;
 
@@ -240,7 +237,6 @@ const ReturnBtn = styled(Button)`
 `;
 
 export default {
-  HeaderContainer,
   Separator,
   PanelContent,
   TimerSection,

@@ -31,7 +31,6 @@ import {
 import {
   Separator as BaseSeparator,
   PanelContent as BasePanelContent,
-  HeaderContainer as BaseHeaderContainer,
 } from '/imports/ui/components/sidebar-content/styles';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 
@@ -632,8 +631,6 @@ const SidebarPanelContent = styled(BasePanelContent)`
   overflow: hidden;
 `;
 
-const SidebarHeaderContainer = styled(BaseHeaderContainer)``;
-
 const Icon = styled(IconB)`
   color: white;
   background-color: ${colorPrimary};
@@ -689,5 +686,4 @@ export default {
   AddParticipantButton,
   Icon,
   SidebarPanelContent,
-  SidebarHeaderContainer,
 };

@@ -18,6 +18,8 @@ import { getUserSubscription, type getUserResponse } from '../../create-breakout
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import BreakoutTimerEditor from '../breakout-timer-editor/component';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { PANELS } from '/imports/ui/components/layout/enums';
+import PanelHeader from '/imports/ui/components/common/panel-header/component';
 import { setBreakoutWindowRef } from '../service';
 import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
@@ -50,10 +52,6 @@ const intlMessages = defineMessages({
   finishLabel: {
     id: 'app.createBreakoutRoom.finish',
     description: 'Finish button label',
-  },
-  genericMinimizePanel: {
-    id: 'app.sidebarContent.minimizePanelLabel',
-    description: 'Generic minimize label for panels',
   },
   you: {
     id: 'app.userList.you',
@@ -318,24 +316,15 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
   }, []);
 
   const title = intl.formatMessage(intlMessages.breakoutTitle);
-  const minimizeLabel = intl.formatMessage(
-    intlMessages.genericMinimizePanel,
-    { panelName: title },
-  );
 
   const chatTitle = intl.formatMessage(intlMessages.chatTitleMsgAllRooms);
 
   return (
     <Styled.PanelContent>
-      <Styled.HeaderContainer
+      <PanelHeader
+        panelId={PANELS.BREAKOUT}
         title={title}
-        data-test="breakoutRoomManagerHeader"
-        rightButtonProps={{
-          'aria-label': minimizeLabel,
-          label: minimizeLabel,
-          onClick: closePanel,
-          icon: 'minus',
-        }}
+        dataTest="breakoutRoomManagerHeader"
       />
       <Styled.Separator />
 

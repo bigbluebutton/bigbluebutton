@@ -16,13 +16,7 @@ import logger from '/imports/startup/client/logger';
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import SidebarCreateBreakout from './component';
 
-interface SidebarCreateBreakoutContainerProps {
-  setIsOpen: (value: boolean) => void;
-}
-
-const SidebarCreateBreakoutContainer: React.FC<SidebarCreateBreakoutContainerProps> = ({
-  setIsOpen,
-}) => {
+const SidebarCreateBreakoutContainer: React.FC = () => {
   const intl = useIntl();
   const [timeSync] = useTimeSync();
 
@@ -96,7 +90,6 @@ const SidebarCreateBreakoutContainer: React.FC<SidebarCreateBreakoutContainerPro
       currentPresentation={currentPresentation}
       isBreakoutRecordable={currentMeeting?.breakoutPolicies?.record ?? true}
       groups={meetingGroupData?.meeting_group ?? []}
-      setIsOpen={setIsOpen}
       durationInSeconds={currentMeeting?.durationInSeconds ?? 0}
       createdTime={currentMeeting?.createdTime ?? 0}
       timeSync={timeSync}

@@ -28,6 +28,7 @@ const LayoutEngine = () => {
   const navBarOutput = layoutSelectOutput((i) => i.navBar);
   const sidebarNavigationInput = layoutSelectInput((i) => i.sidebarNavigation);
   const sidebarContentInput = layoutSelectInput((i) => i.sidebarContent);
+  const sidebarContentAuxiliaryInput = layoutSelectInput((i) => i.sidebarContentAuxiliary);
   const externalVideoInput = layoutSelectInput((i) => i.externalVideo);
   const genericMainContentInput = layoutSelectInput((i) => i.genericMainContent);
   const screenShareInput = layoutSelectInput((i) => i.screenShare);
@@ -275,13 +276,14 @@ const LayoutEngine = () => {
     };
   };
 
-  const calculatesSidebarContentWidth = () => {
+  const calculatesSidebarContentWidth = (auxiliary = false) => {
     const {
       sidebarContentMinWidth,
       sidebarContentMaxWidth,
     } = DEFAULT_VALUES;
 
-    const { isOpen, width: sidebarContentWidth } = sidebarContentInput;
+    const { isOpen, width: sidebarContentWidth } = auxiliary
+      ? sidebarContentAuxiliaryInput : sidebarContentInput;
 
     let minWidth = 0;
     let width = 0;

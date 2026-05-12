@@ -16,6 +16,7 @@ import {
   validateInput,
 } from './service';
 import Toggle from '/imports/ui/components/common/switch/component';
+import PanelHeader from '/imports/ui/components/common/panel-header/component';
 import Styled from './styles';
 import ResponseChoices from './components/ResponseChoices';
 import ResponseTypes from './components/ResponseTypes';
@@ -33,14 +34,6 @@ const intlMessages = defineMessages({
   pollPaneTitle: {
     id: 'app.poll.pollPaneTitle',
     description: 'heading label for the poll menu',
-  },
-  minimize: {
-    id: 'app.sidebarContent.minimizePanelLabel',
-    description: 'label for poll pane minimize button',
-  },
-  hidePollDesc: {
-    id: 'app.poll.hidePollDesc',
-    description: 'aria label description for hide poll button',
   },
   quickPollInstruction: {
     id: 'app.poll.quickPollInstruction',
@@ -229,15 +222,10 @@ const intlMessages = defineMessages({
 });
 
 interface PollCreationPanelProps {
-  layoutContextDispatch: (action: {
-    type: string;
-    value: string | boolean;
-  }) => void;
   hasPoll: boolean;
 }
 
 const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
-  layoutContextDispatch,
   hasPoll,
 }) => {
   const POLL_SETTINGS = window.meetingClientSettings.public.poll;
@@ -761,50 +749,11 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
 
   return (
     <>
-      <Styled.HeaderContainer
-        data-test="pollPaneTitle"
+      <PanelHeader
+        panelId={PANELS.POLL}
         title={intl.formatMessage(intlMessages.pollPaneTitle)}
-        bottomless
-        leftButtonProps={{
-          'aria-label': intl.formatMessage(intlMessages.hidePollDesc),
-          'data-test': 'hidePollDesc',
-          label: intl.formatMessage(intlMessages.pollPaneTitle),
-          onClick: () => {
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-              value: false,
-            });
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-              value: PANELS.NONE,
-            });
-          },
-        }}
-        rightButtonProps={{
-          'aria-label': intl.formatMessage(
-            intlMessages.minimize,
-            { panelName: intl.formatMessage(intlMessages.pollPaneTitle) },
-          ),
-          'data-test': 'minimizePolling',
-          icon: 'minus',
-          label: intl.formatMessage(
-            intlMessages.minimize,
-            { panelName: intl.formatMessage(intlMessages.pollPaneTitle) },
-          ),
-          onClick: () => {
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-              value: false,
-            });
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-              value: PANELS.NONE,
-            });
-            Session.setItem('forcePollOpen', false);
-            Session.setItem('pollInitiated', false);
-          },
-        }}
-        customRightButton={null}
+        dataTest="pollPaneTitle"
+        closeButtonDataTest="minimizePolling"
       />
       <Styled.Separator />
       <Styled.ContentWrapper
@@ -863,7 +812,6 @@ const PollCreationPanelContainer: React.FC = () => {
 
   return (
     <PollCreationPanel
-      layoutContextDispatch={layoutContextDispatch}
       hasPoll={currentMeeting?.componentsFlags?.hasPoll ?? false}
     />
   );

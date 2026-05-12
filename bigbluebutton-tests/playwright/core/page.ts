@@ -466,6 +466,33 @@ export class Page {
     await this.page.mouse.up();
   }
 
+  async dragWebcam(
+    cameraSelector: string,
+    targetSelector: string | null,
+    midDragCallback?: () => Promise<void>,
+  ): Promise<void> {
+    await this.page.locator(cameraSelector).first().hover({ timeout: 5000 });
+    await this.page.mouse.down();
+    await this.page.locator(e.whiteboard).hover({ timeout: 5000 }); // dispatches isDragging event
+    if (midDragCallback) {
+      await midDragCallback();
+    }
+    if (targetSelector) {
+      await this.page.locator(targetSelector).hover({ timeout: 5000 });
+    }
+    await this.page.mouse.up();
+  }
+
+  async dragResizeHandle(selector: string, deltaX: number): Promise<void> {
+    const handle = this.page.locator(selector).first();
+    await handle.hover({ timeout: 5000 });
+    const box = await handle.boundingBox();
+    if (!box) throw new Error(`Resize handle not found: ${selector}`);
+    await this.page.mouse.down();
+    await this.page.mouse.move(box.x + box.width / 2 + deltaX, box.y + box.height / 2, { steps: 10 });
+    await this.page.mouse.up();
+  }
+
   async hasElementCount(selector: string, count: number, description: string): Promise<void> {
     const locator = await this.getVisibleLocator(selector);
     await expect(locator, description).toHaveCount(count, { timeout: ELEMENT_WAIT_TIME });

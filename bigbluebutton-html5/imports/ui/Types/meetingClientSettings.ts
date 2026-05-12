@@ -17,6 +17,7 @@ export interface Public {
   captions: Captions
   timer: Timer
   chat: Chat
+  multiFunctionalMode: MultiFunctionalMode
   userReaction: UserReaction
   notes: Notes
   layout: Layout
@@ -541,6 +542,10 @@ export interface Chat {
   disableEmojis: string[]
   markdownImageAllowed: boolean
   toolbar: string[]
+}
+
+export interface MultiFunctionalMode {
+  enabled: boolean;
 }
 
 export interface SystemMessagesKeys {

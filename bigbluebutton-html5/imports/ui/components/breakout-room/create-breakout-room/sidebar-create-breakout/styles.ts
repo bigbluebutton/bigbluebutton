@@ -16,7 +16,6 @@ import {
 import { fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   PanelContent as BasePanelContent,
-  HeaderContainer as BaseHeaderContainer,
   Separator as BaseSeparator,
 } from '/imports/ui/components/sidebar-content/styles';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
@@ -28,8 +27,6 @@ export const PanelContent = styled(BasePanelContent)`
   height: 100%;
   overflow: hidden;
 `;
-
-export const HeaderContainer = styled(BaseHeaderContainer)``;
 
 export const Separator = styled(BaseSeparator)``;
 
@@ -546,7 +543,6 @@ export const MaterialSwitch = materialStyled(Switch)(({ theme }) => ({
 
 export default {
   PanelContent,
-  HeaderContainer,
   Separator,
   ScrollContent,
   TimerSection,
