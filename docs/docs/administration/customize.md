@@ -1547,7 +1547,6 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `allowRequestsWithoutSession` | Allow requests without `JSESSIONID` to be handled (reduces security; only enable for trusted integrations like iframes) | true/false | false _`overwritable`_ |
 | `supportedChecksumAlgorithms` | Hash algorithms accepted when validating API checksums (comma-separated) | sha1, sha256, sha384, sha512 | sha1,sha256,sha384,sha512 |
 | `allowRevealOfBBBVersion` | Allow the `getMeetings` endpoint to reveal the current BigBlueButton version | true/false | false |
-| `allowDuplicateExtUserid` | Legacy flag — prefer `maxUserConcurrentAccesses` instead | true/false | true |
 
 - _`overwritable`_: The default is replaced when the matching parameter is present on an API `/create` request. Where the create-side name differs from the property name, it is shown in parentheses (e.g., `defaultMeetingLayout` → `meetingLayout`).
 
