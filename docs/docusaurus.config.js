@@ -31,9 +31,21 @@ const config = {
         locales: ['en'],
     },
 
-    scripts: [
+    headTags: [
         // Cookie consent control required for GDPR. Token is not required to be renewed. Update hN querystring to match domain.
-        'https://cdn.baycloud.com/cl.js?cid=9be233bfe3004dc49e742fd0fa98642c&hN=docs.bigbluebutton.org'
+        {
+            tagName: 'script',
+            attributes: {
+                src: 'https://cdn.baycloud.com/cl.js?cid=9be233bfe3004dc49e742fd0fa98642c&hN=docs.bigbluebutton.org',
+            },
+        },
+        // baycloud's cl.js monkey-patches window.Worker and assumes a string URL (calls .includes/.replace).
+        // docusaurus-search-local 0.52+ passes a URL object — coerce it back to a string here so search works.
+        {
+            tagName: 'script',
+            attributes: {},
+            innerHTML: "(function(){if(typeof window==='undefined'||typeof window.Worker!=='function')return;var P=window.Worker;window.Worker=new Proxy(P,{construct:function(t,a){var u=a[0];if(u&&typeof u!=='string'&&typeof u.toString==='function')a=[u.toString()].concat(a.slice(1));return Reflect.construct(t,a)}})})();",
+        },
     ],
     
     presets: [
