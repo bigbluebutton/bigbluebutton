@@ -119,6 +119,11 @@ const intlMessages = defineMessages({
   },
 });
 
+// Persists the presenter's actual zoom ratio across React unmount/remount cycles
+// (e.g. minimize → restore presentation). A plain module-level object outlives
+// any individual component instance without serialization overhead.
+const _pageZoomRatioCache = {};
+
 const Whiteboard = React.memo((props) => {
   const {
     isPresenter = false,
@@ -199,8 +204,9 @@ const Whiteboard = React.memo((props) => {
   const isWheelZoomRef = useRef(false);
   const pageJustChangedRef = useRef(false);
   const isPresenterRef = useRef(isPresenter);
-  const pageActualZoomRatioRef = useRef({});
+  const pageActualZoomRatioRef = useRef(_pageZoomRatioCache);
   const calculateZoomValueRef = useRef(null);
+  const calculateZoomWithGapValueRef = useRef(null);
   const fitToWidthRef = useRef(fitToWidth);
   const whiteboardIdRef = React.useRef(whiteboardId);
   const curPageIdRef = React.useRef(curPageId);
@@ -312,7 +318,8 @@ const Whiteboard = React.memo((props) => {
   }), [intl, currentUser?.presenter, currentUser?.userId, isModerator]);
 
   const presenterChanged = usePrevious(isPresenter) !== isPresenter;
-  const pageChanged = usePrevious(curPageId) !== curPageId;
+  const prevCurPageId = usePrevious(curPageId);
+  const pageChanged = prevCurPageId !== curPageId;
 
   let clipboardContent = null;
   let isPasting = false;
@@ -896,6 +903,7 @@ const Whiteboard = React.memo((props) => {
       : calcedZoom;
   };
 
+  // Ref keeps store listeners and RAF callbacks pointing at the latest closure (avoids stale presentationAreaWidth/Height).
   calculateZoomValueRef.current = calculateZoomValue;
 
   const getContainerDimensions = () => {
@@ -955,6 +963,8 @@ const Whiteboard = React.memo((props) => {
       ? calculateZoomValue(localWidth, localHeight) // Fallback to no gap base zoom
       : calcedZoom;
   };
+
+  calculateZoomWithGapValueRef.current = calculateZoomWithGapValue;
 
   // updateCursorZoom is a plain function (not useCallback) so it always closes
   // over fresh presentationAreaWidth/presentationAreaHeight/fitToWidth each render.
@@ -1064,14 +1074,14 @@ const Whiteboard = React.memo((props) => {
         && scaledHeight > 0
         && tlEditorRef.current
       ) {
-        let baseZoom = calculateZoomValue(scaledWidth, scaledHeight);
+        let baseZoom = calculateZoomValueRef.current(scaledWidth, scaledHeight);
         throwIfInvalid(baseZoom, 'baseZoom');
 
         if (isPresenterRef.current) {
           const { widthGap } = getContainerDimensions();
 
           if (widthGap > 0) {
-            const zoomWithGap = calculateZoomWithGapValue(scaledWidth, scaledHeight, widthGap);
+            const zoomWithGap = calculateZoomWithGapValueRef.current(scaledWidth, scaledHeight, widthGap);
             throwIfInvalid(zoomWithGap, 'zoomWithGap');
             baseZoom = zoomWithGap;
           }
@@ -1084,7 +1094,7 @@ const Whiteboard = React.memo((props) => {
           });
         } else if (includeViewerLogic) {
           // Viewer logic
-          baseZoom = calculateZoomValue(scaledViewBoxWidth, scaledViewBoxHeight);
+          baseZoom = calculateZoomValueRef.current(scaledViewBoxWidth, scaledViewBoxHeight);
           coreCameraLogic({
             baseZoom,
             xOffset,
@@ -1093,7 +1103,17 @@ const Whiteboard = React.memo((props) => {
           });
         }
 
-        isMountedRef.current = true;
+        // coreCameraLogic calls store.put which schedules _flushHistory via
+        // throttledRaf — the user-source listener fires ASYNCHRONOUSLY in the
+        // next animation frame, AFTER this function returns. If we set
+        // isMountedRef.current = true here, the async listener sees it as true
+        // and overwrites the stored zoom ratio with fit-zoom (ratio=1.0).
+        // Double-rAF guarantees we only become "mounted" after that flush fires.
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            isMountedRef.current = true;
+          });
+        });
       }
     } catch (error) {
       logger.error({ logCode: 'AdjustCameraOnMount' }, `Failed to store viewbox: ${error}`);
@@ -1378,7 +1398,7 @@ const Whiteboard = React.memo((props) => {
           const panned = prevCam.x !== nextCam.x || prevCam.y !== nextCam.y;
 
           const zoomed = prevCam.z !== nextCam.z;
-          if (isPresenterRef.current && (panned || zoomed)) {
+          if (isPresenterRef.current && (panned || zoomed) && isMountedRef.current) {
             const baseZ = calculateZoomValueRef.current?.(
               currentPresentationPageRef.current?.scaledWidth,
               currentPresentationPageRef.current?.scaledHeight,
@@ -1464,9 +1484,20 @@ const Whiteboard = React.memo((props) => {
     // No scope filter: camera records may not be in the 'document' scope in this
     // tldraw version, so omitting scope ensures the listener always fires.
     editor.store.listen(
-      ({ changes }) => {
+      ({ changes, source }) => {
         const camKey = `camera:page:${curPageIdRef.current}`;
         if (changes?.updated?.[camKey]) {
+          if (source === 'api' && isPresenterRef.current && isMountedRef.current) {
+            const [, nextCam] = changes.updated[camKey];
+            const baseZ = calculateZoomValueRef.current?.(
+              currentPresentationPageRef.current?.scaledWidth,
+              currentPresentationPageRef.current?.scaledHeight,
+            );
+            if (baseZ > 0) {
+              const pKey = `${presentationIdRef.current}_${curPageIdRef.current}`;
+              pageActualZoomRatioRef.current[pKey] = nextCam.z / baseZ;
+            }
+          }
           updateCursorZoomRef.current?.();
         }
       },
@@ -1822,24 +1853,10 @@ const Whiteboard = React.memo((props) => {
       }
 
       const camera = tlEditorRef.current.getCamera();
-      const viewportBounds = tlEditorRef.current.getViewportScreenBounds();
-      const vw = viewportBounds.width;
-      const vh = viewportBounds.height;
-      const oldZ = camera.z;
       const newZ = adjustedZoom;
 
-      // Only adjust x/y to keep viewport center stable when restoring a stored
-      // zoom ratio (slide switch with user-defined zoom). On initial mount or
-      // fit-to-page operations the camera hasn't been user-positioned yet, so
-      // applying the offset would shift the slide off-center.
       const updatedCurrentCam = {
         ...camera,
-        x: (storedZoomRatio !== undefined && oldZ !== 0 && oldZ !== newZ)
-          ? camera.x + (vw / 2) * (1 / newZ - 1 / oldZ)
-          : camera.x,
-        y: (storedZoomRatio !== undefined && oldZ !== 0 && oldZ !== newZ)
-          ? camera.y + (vh / 2) * (1 / newZ - 1 / oldZ)
-          : camera.y,
         z: newZ,
       };
       tlEditorRef.current.store.mergeRemoteChanges(() => {
@@ -2002,6 +2019,14 @@ const Whiteboard = React.memo((props) => {
     }));
 
     if (pageChanged) {
+      // On first mount, usePrevious returns undefined, causing a false-positive
+      // pageChanged that would call zoomChanger(100) from an empty pageZoomMap
+      // (cleared on unmount). Guard against it to preserve the toolbar zoom value
+      // after a minimize → restore cycle.
+      if (prevCurPageId === undefined) {
+        prevZoomValueRef.current = zoomValue;
+        return;
+      }
       const storedZoom = pageZoomMap[`${presentationIdRef.current}_${curPageIdRef.current}`] || HUNDRED_PERCENT;
       zoomChanger(storedZoom);
       // If storedZoom === zoomValue, zoomChanger is a no-op and no follow-up effect will fire.
@@ -2078,7 +2103,7 @@ const Whiteboard = React.memo((props) => {
         );
       }, isMountedPollingFrameRef);
     });
-  }, [presentationHeight, presentationWidth, curPageId, presentationId]);
+  }, [presentationHeight, presentationWidth, presentationAreaHeight, presentationAreaWidth, curPageId, presentationId]);
 
   React.useEffect(() => {
     if (!isPresenter
@@ -2241,6 +2266,7 @@ const Whiteboard = React.memo((props) => {
       localStorage.removeItem('initialViewBoxWidth');
       localStorage.removeItem('initialViewBoxHeight');
       localStorage.removeItem('pageZoomMap');
+      localStorage.removeItem('pageActualZoomRatioMap');
       if (mountedTimeoutIdRef.current) {
         clearTimeout(mountedTimeoutIdRef.current);
       }
