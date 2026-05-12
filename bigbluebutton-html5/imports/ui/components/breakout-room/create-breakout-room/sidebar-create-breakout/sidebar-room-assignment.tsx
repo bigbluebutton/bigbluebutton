@@ -5,7 +5,7 @@ import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
 import Auth from '/imports/ui/services/auth';
 import { ChildComponentProps } from '../room-managment-state/types';
-import { useDragAndDrop } from '../../hooks';
+import { useDragAndDrop, useRoverNavigation } from '../../hooks';
 
 const intlMessages = defineMessages({
   unassignedUsers: {
@@ -62,6 +62,8 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
     dragStart, dragEnd, allowDrop, drop,
   } = useDragAndDrop(moveUser, setSelectedId);
 
+  const rover = useRoverNavigation('draggableUser', moveUser, numberOfRooms);
+
   const unassignedRoom = rooms[0];
   const unassignedUsers = unassignedRoom?.users || [];
 
@@ -71,6 +73,8 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
         id="breakoutBox-0"
         onDrop={drop(0)}
         onDragOver={allowDrop}
+        tabIndex={0}
+        onKeyDown={rover}
       >
         <Styled.UsersSectionHeader>
           <span>{intl.formatMessage(intlMessages.unassignedUsers)}</span>
@@ -84,6 +88,7 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
                 id={`${user.userId}-0`}
                 data-test="draggableUser"
                 draggable
+                tabIndex={-1}
                 onDragStart={dragStart}
                 onDragEnd={dragEnd}
               >
@@ -107,6 +112,8 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
               key={`room-card-${roomNum}`}
               onDrop={drop(roomNum)}
               onDragOver={allowDrop}
+              tabIndex={0}
+              onKeyDown={rover}
             >
               <Styled.RoomCardHeader>
                 {editingRoom === roomNum ? (
@@ -175,6 +182,7 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
                       id={`${user.userId}-${roomNum}`}
                       data-test="draggableUser"
                       draggable
+                      tabIndex={-1}
                       onDragStart={dragStart}
                       onDragEnd={dragEnd}
                     >

@@ -7,6 +7,7 @@ import {
   stopVideo,
 } from '/imports/ui/components/breakout-room/breakout-room/service';
 import VideoService from '/imports/ui/components/video-provider/service';
+import KEYS from '/imports/utils/keys';
 
 export const useStopMediaOnMainRoom = () => {
   const exitVideo = useExitVideo(true);
@@ -91,8 +92,66 @@ export const useDragAndDrop = (
     drop,
   };
 };
+export const useRoverNavigation = (
+  userItemSelector: string,
+  moveUser: MoveUserFn,
+  numberOfRooms: number,
+  afterMove?: () => void,
+) => {
+  const rover = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    const element = e.target as HTMLElement;
+
+    if (element.id.includes('breakoutBox')) {
+      if (e.key === KEYS.ENTER || e.key === KEYS.ARROW_DOWN) {
+        e.preventDefault();
+        e.stopPropagation();
+        const firstChild = element.querySelector(
+          `[data-test="${userItemSelector}"]`,
+        ) as HTMLElement;
+        if (firstChild) firstChild.focus();
+      }
+      return;
+    }
+
+    if (element?.dataset?.test === userItemSelector) {
+      const splitted = element.id.split('-');
+      const [userId, stringFrom] = splitted;
+      const from = Number(stringFrom);
+
+      if (e.key === KEYS.ARROW_DOWN || e.key === KEYS.ARROW_UP) {
+        e.preventDefault();
+        e.stopPropagation();
+        const nextElement = e.key === KEYS.ARROW_DOWN
+          ? element.nextElementSibling
+          : element.previousElementSibling;
+        if (nextElement) (nextElement as HTMLElement).focus();
+      }
+
+      if (e.key === KEYS.ARROW_RIGHT) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (from + 1 <= numberOfRooms) {
+          moveUser(userId, from, from + 1);
+          if (afterMove) afterMove();
+        }
+      }
+
+      if (e.key === KEYS.ARROW_LEFT) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (from - 1 >= 0) {
+          moveUser(userId, from, from - 1);
+          if (afterMove) afterMove();
+        }
+      }
+    }
+  }, [userItemSelector, moveUser, numberOfRooms, afterMove]);
+
+  return rover;
+};
 
 export default {
   useStopMediaOnMainRoom,
   useDragAndDrop,
+  useRoverNavigation,
 };
