@@ -1074,7 +1074,16 @@ module BigBlueButton
         s = { :timestamp => event['timestamp'].to_i }
         external_videos_events << s
       end
-      external_videos_events.sort_by {|a| a[:timestamp]}
+      sorted = external_videos_events.sort_by {|a| a[:timestamp]}
+      paired = []
+      sorted.each_with_index do |event, i|
+        if event.key?(:external_video_url)
+          paired << event
+          nxt = sorted[i+1]
+          paired << nxt if nxt && !nxt.key?(:external_video_url)
+        end
+      end
+      paired
     end
 
     # Get events when the moderator wants the recording to start or stop
@@ -1350,21 +1359,32 @@ module BigBlueButton
       return false
     end
 
-    def self.get_screenshare_as_content_events(events)
-      BigBlueButton.logger.info("Extracting SetScreenshareAsContentEvent")
+    # Get a list of layout events (screenshare as content and presentation open)
+    #
+    # The returned events account for recording start/stop events and have timestamps relative to the start of the
+    # recording. Only changes in state are included.
+    #
+    # @param events [Nokogiri::XML::Document] The parsed events.xml document
+    # @param start_time [Integer] The recording segment start timestamp (ms)
+    # @param end_time [Integer] The recording segment end timestamp (ms)
+    # @return [Array<Hash>] An array of events, each with a timestamp and the changed layout state keys
+    #   (:screenshareAsContent, :presentationIsOpen)
+    def self.get_layout_events(events, start_time, end_time)
+      layout_edl = BigBlueButton::Events.create_layout_edl(events)
+      layout_edl = BigBlueButton::Events.edl_match_recording_marks_video(layout_edl, events, start_time, end_time)
 
-      screenshare_content_events = []
+      layout_edl.each_with_object([]) do |entry, layout_events|
+        next unless entry[:conditions] &&
+                    !entry[:conditions][:screenshare_as_content].nil? &&
+                    !entry[:conditions][:presentation_is_open].nil?
 
-      events.xpath("/recording/event[@eventname='SetScreenshareAsContentEvent']").each do |event|
-        screenshare_content_events << {
-          timestamp: event['timestamp'].to_i,
-          timestampUTC: event.at_xpath('timestampUTC')&.text.to_i,
-          date: event.at_xpath('date')&.text,
-          screenshareAsContent: event.at_xpath('screenshareAsContent')&.text == "true"
+        layout_events << {
+          timestamp: entry[:timestamp],
+          screenshareAsContent: entry[:conditions][:screenshare_as_content],
+          presentationIsOpen: entry[:conditions][:presentation_is_open]
         }
-      end
 
-      screenshare_content_events
+      end
     end
   end
 end

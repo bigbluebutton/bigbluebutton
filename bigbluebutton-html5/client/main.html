@@ -196,7 +196,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
           var miuiVersion = parseVersion(/MiuiBrowser\/(\d+)/);
 
           var tooOld =
-            (safariVersion && safariVersion < MIN_VERSIONS.safari) ||
+            (isSafari && safariVersion && safariVersion < MIN_VERSIONS.safari) ||
             (chromeVersion && chromeVersion < MIN_VERSIONS.chrome) ||
             (firefoxVersion && firefoxVersion < MIN_VERSIONS.firefox) ||
             (edgeVersion && edgeVersion < MIN_VERSIONS.edge)||

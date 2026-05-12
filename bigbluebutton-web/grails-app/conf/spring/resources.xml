@@ -63,9 +63,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="enteredUsersTimeout" value="${enteredUsersTimeout}"/>
         <property name="numPluginManifestsFetchingThreads" value="${numPluginManifestsFetchingThreads}"/>
         <property name="pluginManifestFetchTimeout" value="${pluginManifestFetchTimeout}"/>
-        <property name="secureUrlDownloader" ref="secureUrlDownloader"/>
-        <property name="maxPluginManifestPayloadSizeKib" value="${maxPluginManifestsFetchUrlPayloadSize}"/>
         <property name="slidesGenerationProgressNotifier" ref="slidesGenerationProgressNotifier"/>
+        <property name="pluginUtils" ref="pluginUtils"/>
         <property name="redirectFollower" ref="redirectFollower"/>
         <property name="sharedNotesRedirectValidator" ref="sharedNotesRedirectValidator"/>
     </bean>
@@ -91,6 +90,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <constructor-arg index="2" value="${redisPort}"/>
         <constructor-arg index="3" value="${redisPassword}"/>
         <constructor-arg index="4" value="${redisKeyExpiry}"/>
+        <constructor-arg index="5" value="${pageTokenSecret}"/>
     </bean>
 
     <bean id="recordingServiceHelper" class="org.bigbluebutton.api.util.RecordingMetadataReaderHelper">
@@ -116,10 +116,17 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="fetchUrlAllowedLocalHosts" value="${fetchUrlAllowedLocalHosts}" />
     </bean>
 
-    <bean id="pluginUtils" class="org.bigbluebutton.api.util.PluginUtils">
+    <bean id="pluginUtils" class="org.bigbluebutton.api.util.PluginUtils"
+          init-method="start" destroy-method="stop">
         <property name="html5PluginSdkVersion" value="${html5PluginSdkVersion}"/>
         <property name="redirectFollower" ref="redirectFollower"/>
         <property name="pluginRedirectValidator" ref="pluginRedirectValidator"/>
+        <property name="secureUrlDownloader" ref="secureUrlDownloader"/>
+        <property name="pluginManifestCacheEnabled" value="${pluginManifestCacheEnabled}"/>
+        <property name="pluginManifestCacheDirectory" value="${pluginManifestCacheDirectory}"/>
+        <property name="pluginManifestCacheRefreshIntervalMinutes" value="${pluginManifestCacheRefreshIntervalMinutes}"/>
+        <property name="pluginManifestFetchTimeoutSeconds" value="${pluginManifestFetchTimeout}"/>
+        <property name="maxPluginManifestPayloadSizeKib" value="${maxPluginManifestsFetchUrlPayloadSize}"/>
     </bean>
 
     <bean id="recordingServiceGW" class="org.bigbluebutton.api2.util.RecMetaXmlHelper">
@@ -281,6 +288,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="presentationBaseUrl" value="${presentationBaseURL}"/>
         <property name="preUploadedPresentationOverrideDefault" value="${beans.presentationService.preUploadedPresentationOverrideDefault}"/>
         <property name="scanUploadedPresentationFiles" value="${scanUploadedPresentationFiles}"/>
+        <property name="pageTokenSecret" value="${pageTokenSecret}"/>
     </bean>
 
     <bean id="pdfPageDownscaler" class="org.bigbluebutton.presentation.imp.PdfPageDownscaler">

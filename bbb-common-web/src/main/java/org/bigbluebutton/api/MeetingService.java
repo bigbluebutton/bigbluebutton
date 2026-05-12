@@ -37,6 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.bigbluebutton.api.domain.*;
 import org.bigbluebutton.api.exception.PluginMalformedParametersException;
+import org.bigbluebutton.api.exception.PluginManifestChecksumMismatchException;
 import org.bigbluebutton.api.exception.PluginMetadataException;
 import org.bigbluebutton.api.exception.PluginMissingNameException;
 import org.bigbluebutton.api.messaging.MessageListener;
@@ -47,8 +48,7 @@ import org.bigbluebutton.api.messaging.converters.messages.UnpublishedRecordingM
 import org.bigbluebutton.api.messaging.converters.messages.DeletedRecordingMessage;
 import org.bigbluebutton.api.messaging.messages.*;
 import org.bigbluebutton.api.service.impl.SharedNotesRedirectValidatorService;
-import org.bigbluebutton.api.service.SecureUrlDownloader;
-import org.bigbluebutton.api.service.ValidatedUrl;
+import org.bigbluebutton.api.util.ParsedPluginManifest;
 import org.bigbluebutton.api.util.PluginUtils;
 import org.bigbluebutton.api.service.RedirectFollowerService;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
@@ -97,11 +97,11 @@ public class MeetingService implements MessageListener {
   private CallbackUrlService callbackUrlService;
   private SlidesGenerationProgressNotifier notifier;
 
+  private PluginUtils pluginUtils;
+
   private long usersTimeout;
   private int numPluginManifestsFetchingThreads;
   private long pluginManifestFetchTimeout;
-  private SecureUrlDownloader secureUrlDownloader;
-  private int maxPluginManifestPayloadSizeKib;
   private long waitingGuestUsersTimeout;
   private int sessionsCleanupDelayInMinutes;
   private long enteredUsersTimeout;
@@ -440,73 +440,50 @@ public class MeetingService implements MessageListener {
     for (PluginManifest pluginManifest : m.getPluginManifests()) {
       String pluginManifestUrlString = pluginManifest.getUrl();
       log.info("Fetching plugin [{}].", pluginManifestUrlString);
+
       CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
         try {
-          ValidatedUrl validatedUrl = pluginManifest.getValidatedUrl();
-          if (validatedUrl == null) {
-            log.error("Plugin [{}] missing validated URL data; skipping.", pluginManifestUrlString);
-            pluginsResult.put(pluginManifestUrlString, PluginUtils.createEmptyPluginObjectWithError(
-                    "Plugin manifest URL missing security validation data", pluginManifestUrlString));
-            return;
-          }
-          int timeoutMs = (int) (pluginManifestFetchTimeout * 1000);
-          String content = secureUrlDownloader.downloadToString(
-                  m.getInternalId(), validatedUrl, timeoutMs, maxPluginManifestPayloadSizeKib);
-          if (content == null) {
-            pluginsResult.put(pluginManifestUrlString, PluginUtils.createEmptyPluginObjectWithError(
-                    "Failed to download plugin manifest securely", pluginManifestUrlString));
-            return;
-          }
+          ParsedPluginManifest parsed = pluginUtils.getParsedPluginManifest(pluginManifest, m.getInternalId());
 
-          // Parse the JSON content
-          JsonNode jsonNode = objectMapper.readTree(content);
+          String pluginName = parsed.pluginName();
+          if (pluginName == null || pluginName.isEmpty()) throw new PluginMissingNameException(
+                  "For url " + pluginManifestUrlString + " there is no name field configured.",
+                  pluginManifestUrlString
+          );
 
-          // Validate checksum if any
-          String paramChecksum = pluginManifest.getChecksum();
-          if (!StringUtils.isEmpty(paramChecksum)) {
-            String hash = DigestUtils.sha256Hex(content);
-            if (!paramChecksum.equals(hash)) {
-              String clientErrorMessage = "Plugin's manifest.json checksum mismatch with that of the URL parameter. For more information, see bbb-web";
-              pluginsResult.put(pluginManifestUrlString, PluginUtils.createEmptyPluginObjectWithError(
-                      clientErrorMessage,
-                      pluginManifestUrlString
-              ));
-              log.info("Plugin's manifest.json checksum mismatch with that of the URL parameter for [{}].",
-                      pluginManifestUrlString);
-              log.info("Plugin {} is not going to be loaded", pluginManifestUrlString);
-              return;
-            }
-          }
-
-          // Get the "name" field
-          String pluginName;
-          if (jsonNode.has("name")) {
-            pluginName = jsonNode.get("name").asText();
-          } else {
-            throw new PluginMissingNameException(
-                    "For url " + pluginManifestUrlString + " there is no name field configured.",
-                    pluginManifestUrlString
-            );
-          }
-
-
-          String pluginKey = pluginName;
           HashMap<String, Object> manifestObject = new HashMap<>();
           manifestObject.put("url", pluginManifestUrlString);
           String manifestContent = PluginUtils.replaceMetadataParametersIntoManifestTemplate(
-                  pluginName, content, metadata, pluginMetadataParameter);
+                  pluginName, parsed.rawContent(), metadata, pluginMetadataParameter);
 
           Map<String, Object> mappedManifestContent = objectMapper.readValue(manifestContent, new TypeReference<Map<String, Object>>() {});
           manifestObject.put("content", mappedManifestContent);
 
           Map<String, Object> manifestWrapper = new HashMap<>();
           manifestWrapper.put("manifest", manifestObject);
-          pluginsResult.put(pluginKey, manifestWrapper);
+          pluginsResult.put(pluginName, manifestWrapper);
+
+        } catch (PluginManifestChecksumMismatchException e) {
+          String clientErrorMessage = "Plugin's manifest.json checksum mismatch with that of the URL parameter. For more information, see bbb-web";
+          pluginsResult.put(pluginManifestUrlString, PluginUtils.createEmptyPluginObjectWithError(
+                  clientErrorMessage, pluginManifestUrlString));
+          log.info("Plugin's manifest.json checksum mismatch with that of the URL parameter for [{}]. Plugin not loaded.",
+                  pluginManifestUrlString);
+        } catch (MalformedURLException e) {
+          String clientErrorMessage = "Invalid URL/Malformed URl when processing a plugin. For more information, see bbb-web";
+          pluginsResult.put(pluginManifestUrlString, PluginUtils.createEmptyPluginObjectWithError(
+                  clientErrorMessage, pluginManifestUrlString));
+          log.error("Invalid URL/Malformed URL for plugin [{}]", pluginManifestUrlString, e);
         } catch (JsonProcessingException e) {
           String clientErrorMessage = "Failed to parse manifest JSON from a plugin URL. For more information, see bbb-web";
           pluginsResult.put(pluginManifestUrlString, PluginUtils.createEmptyPluginObjectWithError(
                   clientErrorMessage, pluginManifestUrlString));
           log.error("Failed to parse manifest JSON from URL [{}]", pluginManifestUrlString, e);
+        } catch (IOException e) {
+          String clientErrorMessage = "I/O error when fetching a plugin URL. For more information, see bbb-web";
+          pluginsResult.put(pluginManifestUrlString, PluginUtils.createEmptyPluginObjectWithError(
+                  clientErrorMessage, pluginManifestUrlString));
+          log.error("I/O error when fetching URL [{}]", pluginManifestUrlString, e);
         } catch (PluginMetadataException e) {
           String pluginName = e.getPluginName();
           String clientErrorMessage = String.format(
@@ -1648,14 +1625,6 @@ public class MeetingService implements MessageListener {
     pluginManifestFetchTimeout = value;
   }
 
-  public void setSecureUrlDownloader(SecureUrlDownloader secureUrlDownloader) {
-    this.secureUrlDownloader = secureUrlDownloader;
-  }
-
-  public void setMaxPluginManifestPayloadSizeKib(int value) {
-    maxPluginManifestPayloadSizeKib = value;
-  }
-
   public void setSessionsCleanupDelayInMinutes(int value) {
     sessionsCleanupDelayInMinutes = value;
   }
@@ -1666,6 +1635,10 @@ public class MeetingService implements MessageListener {
 
   public void setSlidesGenerationProgressNotifier(SlidesGenerationProgressNotifier notifier) {
     this.notifier = notifier;
+  }
+
+  public void setPluginUtils(PluginUtils pluginUtils) {
+    this.pluginUtils = pluginUtils;
   }
 
   public void setRedirectFollower(RedirectFollowerService redirectFollower) {
