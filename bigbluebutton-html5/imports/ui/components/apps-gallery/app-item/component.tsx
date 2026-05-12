@@ -31,6 +31,13 @@ const intlMessages = defineMessages({
   },
 });
 
+const resolveIcon = (iconProp: PluginIconType): React.ReactNode => {
+  if (typeof iconProp === 'string') return <Icon iconName={iconProp} />;
+  if (iconProp && 'iconName' in iconProp) return <Icon iconName={iconProp.iconName} />;
+  if (iconProp && 'svgContent' in iconProp) return iconProp.svgContent as React.ReactNode;
+  return null;
+};
+
 const AppItem: React.FC<AppItemProps> = ({
   appKey,
   dataTest,
@@ -100,17 +107,9 @@ const AppItem: React.FC<AppItemProps> = ({
         onClick={functionToBeCalled}
         onKeyDown={handleClickableAreaKeyDown}
       >
-        <Styled.OpenButton
-          key={`OPEN${appKey}`}
-          color="primary"
-          type="button"
-          icon={icon}
-          $pinned={isPinned}
-          label=""
-          aria-hidden="true"
-          tabIndex={-1}
-          onClick={() => {}}
-        />
+        <Styled.OpenButton $pinned={isPinned} aria-hidden="true">
+          {resolveIcon(icon)}
+        </Styled.OpenButton>
         <Styled.AppTitle>{name}</Styled.AppTitle>
         {isNew && <Styled.NewLabel>{intl.formatMessage(intlMessages.newAppLabel)}</Styled.NewLabel>}
         {children}
@@ -119,6 +118,7 @@ const AppItem: React.FC<AppItemProps> = ({
         <Styled.PinApp
           role="button"
           aria-label={isPinned ? unpinTooltip : pinTooltip}
+          aria-pressed={isPinned}
           onClick={togglePinApp}
           onKeyDown={handlePinKeyDown}
           tabIndex={0}
