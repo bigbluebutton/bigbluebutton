@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { range } from '/imports/utils/array-utils';
+import KEYS from '/imports/utils/keys';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import Styled from '../styles';
 import Auth from '/imports/ui/services/auth';
@@ -280,7 +281,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
                   role="button"
                   aria-label={intl.formatMessage(intlMessages.resetUserRoom)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === KEYS.ENTER || e.key === KEYS.SPACE) {
                       moveUser(user.userId, room, 0);
                       updateSortedRooms();
                     }
