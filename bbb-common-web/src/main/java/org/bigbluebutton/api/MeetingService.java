@@ -909,7 +909,8 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.MODERATOR_PW, message.moderatorPassword);
       params.put(ApiParams.DIAL_NUMBER, message.dialNumber);
       params.put(ApiParams.VOICE_BRIDGE, message.voiceConfId);
-      params.put(ApiParams.DURATION, message.durationInMinutes.toString());
+      int durationInMinutes = message.durationInSeconds > 0 ? ((message.durationInSeconds + 59) / 60) : 0;
+      params.put(ApiParams.DURATION, Integer.toString(durationInMinutes));
       params.put(ApiParams.RECORD, message.record.toString());
       params.put(ApiParams.WELCOME, getMeeting(message.parentMeetingId).getWelcomeMessageTemplate());
       params.put(ApiParams.AUDIO_BRIDGE, message.audioBridge);

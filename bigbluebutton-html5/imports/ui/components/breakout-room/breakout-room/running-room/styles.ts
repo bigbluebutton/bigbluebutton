@@ -1,4 +1,5 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
+import { borderRadiusRounded } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorPrimary,
   colorGray,
@@ -7,9 +8,9 @@ import {
   colorGrayUserListToolbar,
   colorText,
   colorDanger,
-  colorBlueAux,
+  colorBlueLighter,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
+import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   PanelContent as BasePanelContent,
   Separator as BaseSeparator,
@@ -43,62 +44,45 @@ export const TimerSection = styled.div`
 `;
 
 export const TimerLabel = styled.span`
-  font-size: ${fontSizeSmall};
+  font-size: ${fontSizeBase};
   color: ${colorText};
 `;
 
-export const TimerRow = styled.div`
+export const TimeInputGroup = styled.div`
   display: flex;
   align-items: center;
+  font-size: 2.2rem;
+  color: ${colorText};
   justify-content: center;
-  gap: 0.75rem;
-  width: 100%;
+  gap: 1rem;
 `;
 
-export const TimerTimeBtn = styled.button<{ $variant?: 'minus' | 'plus' }>`
-  width: 3rem;
-  height: 1.75rem;
-  border-radius: 1rem;
-  border: none;
-  cursor: pointer;
-  display: flex;
+export const TimeUnitContainer = styled.div`
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: ${colorWhite};
-  background: ${colorPrimary};
-  flex-shrink: 0;
-  transition: opacity 0.15s;
-
-  &:hover {
-    opacity: 0.85;
-  }
-
-  &:active {
-    opacity: 0.7;
-  }
-`;
-
-export const TimerDisplay = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.2rem;
+  gap: 0.25rem;
 `;
 
 export const TimerInput = styled.input<{ $selected?: boolean }>`
-  width: 2.5rem;
-  text-align: center;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: ${colorText};
+  background: none;
   border: none;
-  border-bottom: 2px solid ${({ $selected }) => ($selected ? colorPrimary : 'transparent')};
-  background: transparent;
-  padding: 0;
-  outline: none;
+  background-color: color-mix(in srgb, ${colorBlueLighter} 20%, transparent);
+  color: ${colorPrimary};
+  font-family: inherit;
+  font-size: 2rem;
+  line-height: 1.2;
+  font-weight: 600;
+  border-radius: ${borderRadiusRounded};
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  width: 5rem;
+  height: 2.8rem;
+  padding: 0.4rem 1rem 0.2rem 0;
   -moz-appearance: textfield;
-  transition: border-color 0.15s;
+  outline: none;
+  transition: all 150ms ease;
 
   &::-webkit-outer-spin-button,
   &::-webkit-inner-spin-button {
@@ -107,14 +91,115 @@ export const TimerInput = styled.input<{ $selected?: boolean }>`
   }
 
   &:focus {
-    border-bottom: 2px solid ${colorPrimary};
+    outline: none;
+    background-color: color-mix(in srgb, ${colorPrimary} 15%, transparent);
+    box-shadow: 0 0 0 0.125rem ${colorPrimary};
+  }
+
+  ${({ $selected }) => $selected && css`
+    background-color: color-mix(in srgb, ${colorPrimary} 15%, transparent);
+    box-shadow: 0 0 0 0.125rem ${colorPrimary};
+  `}
+
+  &:disabled,
+  &[disabled] {
+    cursor: not-allowed;
+    opacity: .75;
+    background-color: transparent;
   }
 `;
 
-export const TimerColon = styled.span`
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: ${colorText};
+export const TimeUnitLabel = styled.span`
+  font-size: 0.80rem;
+  color: ${colorGray};
+  text-transform: capitalize;
+`;
+
+export const InputArrows = styled.div<{ disabled?: boolean; $selected?: boolean }>`
+  position: absolute;
+  right: 0;
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+  padding-right: 0.1rem;
+  height: 2.8rem;
+  width: 1.6rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  align-items: stretch;
+  opacity: ${({ disabled }) => (disabled ? 0.4 : 0.8)};
+  pointer-events: ${({ disabled }) => (disabled ? 'none' : 'auto')};
+  background: none;
+  border: none;
+  background-color: ${({ $selected }) => ($selected
+    ? `color-mix(in srgb, ${colorPrimary} 15%, transparent)`
+    : `color-mix(in srgb, ${colorBlueLighter} 20%, transparent)`)};
+  border-radius: ${borderRadiusRounded};
+  transition: all 150ms ease;
+`;
+
+export const InputArrowButton = styled.button`
+  flex: 1;
+  min-width: auto;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &::before {
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    border-left: 0.25rem solid transparent;
+    border-right: 0.25rem solid transparent;
+    border-bottom: 0.28rem solid ${colorPrimary};
+    margin: auto;
+    transition: border-bottom-color 120ms ease;
+  }
+
+  &:hover::before {
+    opacity: 1;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+`;
+
+export const InputArrowButtonDown = styled.button`
+  flex: 1;
+  min-width: auto;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &::before {
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    border-left: 0.25rem solid transparent;
+    border-right: 0.25rem solid transparent;
+    border-top: 0.28rem solid ${colorPrimary};
+    margin: auto;
+    transition: border-top-color 120ms ease;
+  }
+
+  &:hover::before {
+    opacity: 1;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
 `;
 
 export const UsersSection = styled.div`
@@ -138,14 +223,14 @@ export const UsersSectionHeader = styled.div`
   justify-content: space-between;
   padding: 0.6rem 0.75rem;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: ${fontSizeBase};
   color: ${colorText};
 `;
 
 export const UserCount = styled.span`
   color: ${colorGray};
   font-weight: 400;
-  font-size: 0.8rem;
+  font-size: ${fontSizeBase};
 `;
 
 export const UsersList = styled.div`
@@ -156,7 +241,7 @@ export const UsersList = styled.div`
 
 export const UserItem = styled.div`
   padding: 0.3rem 0.25rem;
-  font-size: ${fontSizeSmall};
+  font-size: ${fontSizeBase};
   color: ${colorText};
   cursor: grab;
   user-select: none;
@@ -211,7 +296,7 @@ export const RoomCardLeft = styled.div`
 `;
 
 export const RoomCardName = styled.span`
-  font-size: 0.85rem;
+  font-size: ${fontSizeBase};
   font-weight: 700;
   color: ${colorText};
   white-space: nowrap;
@@ -227,7 +312,7 @@ export const RoomCardName = styled.span`
 `;
 
 export const RoomNameInput = styled.input`
-  font-size: 0.85rem;
+  font-size: ${fontSizeBase};
   font-weight: 700;
   color: ${colorText};
   border: none;
@@ -244,70 +329,23 @@ export const RoomCardCountLeft = styled.span`
   display: flex;
   align-items: center;
   gap: 0.2rem;
-  font-size: ${fontSizeSmall};
+  font-size: ${fontSizeBase};
   color: ${colorGray};
   white-space: nowrap;
   flex-shrink: 0;
 
   & > i {
     color: ${colorPrimary};
-    font-size: 0.9rem;
+    font-size: ${fontSizeBase};
   }
 `;
 
 export const RoomCardMenuWrapper = styled.div`
   position: relative;
   flex-shrink: 0;
-`;
 
-export const RoomCardMenuBtn = styled.button<{ $listening?: boolean }>`
-  background: ${({ $listening }) => ($listening ? colorPrimary : 'transparent')};
-  border: none;
-  border-radius: 0.375rem;
-  color: ${({ $listening }) => ($listening ? colorWhite : colorGray)};
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-  width: 1.75rem;
-  height: 1.5rem;
-  padding: 0;
-`;
-
-export const RoomCardMenu = styled.div`
-  background: ${colorWhite};
-  border: 1px solid ${colorGrayLighter};
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  overflow: hidden;
-  white-space: nowrap;
-`;
-
-export const RoomCardMenuItem = styled.button<{ $active?: boolean; $disabled?: boolean }>`
-  display: block;
-  width: 100%;
-  padding: 0.45rem 0.75rem;
-  font-size: 0.85rem;
-  font-weight: ${({ $active }) => ($active ? 600 : 400)};
-  color: ${({ $active, $disabled }) => {
-    if ($disabled) return colorGray;
-    if ($active) return colorPrimary;
-    return colorText;
-  }};
-  background: ${({ $active }) => ($active ? colorBlueAux : 'transparent')};
-  border: none;
-  cursor: ${({ $disabled }) => ($disabled ? 'default' : 'pointer')};
-  text-align: left;
-  white-space: nowrap;
-  transition: background 0.12s;
-  opacity: ${({ $disabled }) => ($disabled ? 0.6 : 1)};
-  pointer-events: ${({ $disabled }) => ($disabled ? 'none' : 'auto')};
-
-  &:hover {
-    background: ${colorGrayLighter};
+  button {
+    color: ${colorGray};
   }
 `;
 
@@ -323,7 +361,7 @@ export const RoomCardUserItem = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 0.25rem 0.25rem;
-  font-size: ${fontSizeSmall};
+  font-size: ${fontSizeBase};
   color: ${colorText};
   cursor: grab;
   user-select: none;
@@ -463,7 +501,7 @@ export const MegaphoneChatInput = styled.input`
   padding: 0.5rem 0.75rem;
   border: 1px solid ${colorGrayLighter};
   border-radius: 1.5rem;
-  font-size: 0.85rem;
+  font-size: ${fontSizeBase};
   outline: none;
   color: ${colorText};
   background: ${colorWhite};
@@ -508,11 +546,13 @@ export default {
   ScrollContent,
   TimerSection,
   TimerLabel,
-  TimerRow,
-  TimerTimeBtn,
-  TimerDisplay,
+  TimeInputGroup,
+  TimeUnitContainer,
   TimerInput,
-  TimerColon,
+  TimeUnitLabel,
+  InputArrows,
+  InputArrowButton,
+  InputArrowButtonDown,
   UsersSection,
   UsersSectionHeader,
   UserCount,
@@ -526,9 +566,6 @@ export default {
   RoomNameInput,
   RoomCardCountLeft,
   RoomCardMenuWrapper,
-  RoomCardMenuBtn,
-  RoomCardMenu,
-  RoomCardMenuItem,
   RoomCardUserList,
   RoomCardUserItem,
   UserRemoveBtn,

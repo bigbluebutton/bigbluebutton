@@ -112,9 +112,11 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
     createdTime: m.createdTime,
     breakoutPolicies: m.breakoutPolicies,
     name: m.name,
+    audioBridge: m.audioBridge,
   }));
 
   const freeJoin = meetingData?.breakoutRoomsCommonProperties?.freeJoin ?? false;
+  const isUsingLiveKit = meetingData?.audioBridge === 'livekit';
 
   const breakoutDurationInSeconds = isInBreakout
     ? (meetingData?.durationInSeconds ?? 0)
@@ -232,7 +234,7 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
       return;
     }
     closeBreakoutWindow();
-    if (userJoinedAudio && userRoom) {
+    if (!isUsingLiveKit && userJoinedAudio && userRoom) {
       breakoutRoomTransfer({
         variables: {
           fromMeetingId: userRoom.breakoutRoomMeetingId,

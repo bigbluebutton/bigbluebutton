@@ -18,7 +18,7 @@ public class CreateBreakoutRoom implements IMessage {
     public final String voiceConfId; // The voice conference id
     public final String viewerPassword;
     public final String moderatorPassword;
-    public final Integer durationInMinutes; // The duration of the breakout room
+    public final Integer durationInSeconds; // The duration of the breakout room
     public final String sourcePresentationId;
     public final Integer sourcePresentationSlide;
     public final Boolean record;
@@ -73,7 +73,7 @@ public class CreateBreakoutRoom implements IMessage {
         this.voiceConfId = voiceConfId;
         this.viewerPassword = viewerPassword;
         this.moderatorPassword = moderatorPassword;
-        this.durationInMinutes = duration;
+        this.durationInSeconds = duration;
         this.sourcePresentationId = sourcePresentationId;
         this.sourcePresentationSlide = sourcePresentationSlide;
         this.record = record;

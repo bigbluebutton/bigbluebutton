@@ -7,6 +7,7 @@ import Styled from '../styles';
 import Auth from '/imports/ui/services/auth';
 import RoomUserList from './room-user-list/component';
 import { ChildComponentProps } from '../room-managment-state/types';
+import { useDragAndDrop, useRoverNavigation } from '../../hooks';
 
 const intlMessages = defineMessages({
   breakoutRoomTitle: {
@@ -232,31 +233,9 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
     updateSortedRooms();
   }, [rooms]);
 
-  const dragStart = (ev: React.DragEvent<HTMLParagraphElement>) => {
-    const paragraphElement = ev.target as HTMLParagraphElement;
-    ev.dataTransfer.setData('text', paragraphElement.id);
-    setSelectedId(paragraphElement.id);
-  };
-
-  const dragEnd = () => {
-    setSelectedId('');
-  };
-
-  const allowDrop = (ev: React.DragEvent) => {
-    ev.preventDefault();
-  };
-
-  const drop = (roomNumber: number) => (ev: React.DragEvent) => {
-    if (ev.preventDefault) {
-      ev.preventDefault();
-    }
-
-    const data = ev.dataTransfer.getData('text');
-    const [userId, from] = data.split('-');
-    moveUser(userId, Number(from), roomNumber);
-    setSelectedId('');
-    updateSortedRooms();
-  };
+  const {
+    dragStart, dragEnd, allowDrop, drop,
+  } = useDragAndDrop(moveUser, setSelectedId, updateSortedRooms);
 
   const hasNameDuplicated = (room: number) => {
     const roomName = rooms[room]?.name || '';
@@ -301,9 +280,11 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
                   className="close"
                   role="button"
                   aria-label={intl.formatMessage(intlMessages.resetUserRoom)}
-                  onKeyDown={() => {
-                    moveUser(user.userId, room, 0);
-                    updateSortedRooms();
+                  onKeyDown={(e) => {
+                    if (e.key === KEYS.ENTER || e.key === KEYS.SPACE) {
+                      moveUser(user.userId, room, 0);
+                      updateSortedRooms();
+                    }
                   }}
                   onClick={() => {
                     moveUser(user.userId, room, 0);
@@ -320,43 +301,7 @@ const BreakoutRoomUserAssignment: React.FC<ChildComponentProps> = ({
     return '';
   };
 
-  const rover = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const element = e.target as HTMLElement;
-    if (element.id.includes('breakoutBox')) {
-      if (e.key === KEYS.ENTER || e.key === KEYS.ARROW_DOWN) {
-        (element.firstChild as HTMLElement).focus();
-      }
-    }
-
-    if (element?.dataset?.test?.includes('roomUserItem')) {
-      const splitted = element.id.split('-');
-      const [userId, StringFrom] = splitted;
-      const from = Number(StringFrom);
-      const maxRooms = numberOfRooms;
-      if (e.key === KEYS.ARROW_DOWN || e.key === KEYS.ARROW_UP) {
-        const nextElement = e.key === KEYS.ARROW_DOWN ? element.nextSibling : element.previousSibling;
-        if (nextElement) (nextElement as HTMLElement).focus();
-      }
-
-      if (e.key === KEYS.ARROW_RIGHT) {
-        const nextRoom = from + 1;
-        if (nextRoom <= maxRooms) {
-          moveUser(userId, from, from + 1);
-          updateSortedRooms();
-        }
-      }
-
-      if (e.key === KEYS.ARROW_LEFT) {
-        const prevRoom = from - 1;
-        if (prevRoom >= 0) {
-          moveUser(userId, from, from - 1 < 0 ? 0 : from - 1);
-          updateSortedRooms();
-        }
-      }
-    }
-  };
+  const rover = useRoverNavigation('roomUserItem', moveUser, numberOfRooms, updateSortedRooms);
 
   const renderParticipantsNames = (roomNumber: number) => {
     if (!isMobile) {

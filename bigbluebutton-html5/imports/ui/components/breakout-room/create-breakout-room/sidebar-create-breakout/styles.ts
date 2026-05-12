@@ -12,8 +12,10 @@ import {
   colorText,
   btnPrimaryBg,
   colorDanger,
+  colorBlueLighter,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
+import { fontSizeSmall, fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
+import { borderRadiusRounded } from '/imports/ui/stylesheets/styled-components/general';
 import {
   PanelContent as BasePanelContent,
   Separator as BaseSeparator,
@@ -47,7 +49,7 @@ export const TimerSection = styled.div`
 `;
 
 export const TimerLabel = styled.span`
-  font-size: ${fontSizeSmall};
+  font-size: ${fontSizeBase};
   color: ${colorText};
 `;
 
@@ -57,23 +59,39 @@ export const TimerWarning = styled.span`
   margin-top: 0.15rem;
 `;
 
-export const TimerDisplay = styled.div`
+export const TimeInputGroup = styled.div`
   display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+`;
+
+export const TimeUnitContainer = styled.div`
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
   align-items: center;
   gap: 0.25rem;
 `;
 
 export const TimerInput = styled.input`
-  width: 2.5rem;
-  text-align: center;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: ${colorText};
+  background: none;
   border: none;
-  background: transparent;
-  padding: 0;
-  outline: none;
+  background-color: color-mix(in srgb, ${colorBlueLighter} 20%, transparent);
+  color: ${colorPrimary};
+  font-family: inherit;
+  font-size: 2rem;
+  line-height: 1.2;
+  font-weight: 600;
+  border-radius: ${borderRadiusRounded};
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  width: 5rem;
+  height: 2.8rem;
+  padding: 0.4rem 1rem 0.2rem 0;
   -moz-appearance: textfield;
+  outline: none;
+  transition: all 150ms ease;
 
   &::-webkit-outer-spin-button,
   &::-webkit-inner-spin-button {
@@ -82,14 +100,100 @@ export const TimerInput = styled.input`
   }
 
   &:focus {
-    border-bottom: 2px solid ${colorPrimary};
+    outline: none;
+    background-color: color-mix(in srgb, ${colorPrimary} 15%, transparent);
+    box-shadow: 0 0 0 0.125rem ${colorPrimary};
   }
 `;
 
-export const TimerColon = styled.span`
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: ${colorText};
+export const TimeUnitLabel = styled.span`
+  font-size: 0.80rem;
+  color: ${colorGray};
+  text-transform: capitalize;
+`;
+
+export const InputArrows = styled.div`
+  position: absolute;
+  right: 0;
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+  padding-right: 0.1rem;
+  height: 2.8rem;
+  width: 1.6rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  align-items: stretch;
+  opacity: 0.8;
+  background: none;
+  border: none;
+  background-color: color-mix(in srgb, ${colorBlueLighter} 20%, transparent);
+  border-radius: ${borderRadiusRounded};
+  transition: all 150ms ease;
+`;
+
+export const InputArrowButton = styled.button`
+  flex: 1;
+  min-width: auto;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &::before {
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    border-left: 0.25rem solid transparent;
+    border-right: 0.25rem solid transparent;
+    border-bottom: 0.28rem solid ${colorPrimary};
+    margin: auto;
+    transition: border-bottom-color 120ms ease;
+  }
+
+  &:hover::before {
+    opacity: 1;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+`;
+
+export const InputArrowButtonDown = styled.button`
+  flex: 1;
+  min-width: auto;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &::before {
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    border-left: 0.25rem solid transparent;
+    border-right: 0.25rem solid transparent;
+    border-top: 0.28rem solid ${colorPrimary};
+    margin: auto;
+    transition: border-top-color 120ms ease;
+  }
+
+  &:hover::before {
+    opacity: 1;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
 `;
 
 export const ControlsRow = styled.div`
@@ -176,7 +280,7 @@ export const MoreOptionsToggle = styled.button`
   cursor: pointer;
   padding: 0.5rem 1rem;
   color: ${colorText};
-  font-size: ${fontSizeSmall};
+  font-size: ${fontSizeBase};
   font-weight: 600;
   flex-shrink: 0;
 `;
@@ -216,7 +320,7 @@ export const OptionRow = styled.label`
   align-items: center;
   gap: 0.5rem;
   padding: 0.35rem 0;
-  font-size: ${fontSizeSmall};
+  font-size: ${fontSizeBase};
   color: ${colorText};
   cursor: pointer;
 `;
@@ -250,7 +354,7 @@ export const InfoIcon = styled.span`
 `;
 
 export const InfoText = styled.div`
-  font-size: ${fontSizeSmall};
+  font-size: ${fontSizeBase};
   color: ${colorText};
   line-height: 1.4;
 
@@ -282,7 +386,7 @@ export const InfoGotItBtn = styled.button`
   border: none;
   cursor: pointer;
   color: ${colorPrimary};
-  font-size: ${fontSizeSmall};
+  font-size: ${fontSizeBase};
   font-weight: 600;
   padding: 0;
   text-decoration: underline;
@@ -305,7 +409,7 @@ export const UsersSectionHeader = styled.div`
   justify-content: space-between;
   padding: 0.6rem 0.75rem;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 1rem;
   color: ${colorText};
 `;
 
@@ -323,7 +427,7 @@ export const UsersList = styled.div`
 
 export const UserItem = styled.div`
   padding: 0.3rem 0;
-  font-size: ${fontSizeSmall};
+  font-size: ${fontSizeBase};
   color: ${colorText};
   cursor: grab;
   user-select: none;
@@ -366,7 +470,7 @@ export const RoomCardHeader = styled.div`
 `;
 
 export const RoomCardName = styled.span`
-  font-size: 0.85rem;
+  font-size: ${fontSizeBase};
   font-weight: 500;
   color: ${colorText};
   white-space: nowrap;
@@ -377,7 +481,7 @@ export const RoomCardName = styled.span`
 `;
 
 export const RoomNameInput = styled.input`
-  font-size: 0.85rem;
+  font-size: ${fontSizeBase};
   font-weight: 500;
   color: ${colorText};
   border: none;
@@ -398,7 +502,7 @@ export const RoomCardRight = styled.div`
 `;
 
 export const RoomCardCount = styled.span`
-  font-size: ${fontSizeSmall};
+  font-size: ${fontSizeBase};
   color: ${colorGray};
 `;
 
@@ -416,7 +520,7 @@ export const RoomCardUserList = styled.div`
 
 export const RoomCardUserItem = styled.div`
   padding: 0.25rem 0.25rem;
-  font-size: ${fontSizeSmall};
+  font-size: ${fontSizeBase};
   color: ${colorText};
   cursor: grab;
   user-select: none;
@@ -548,9 +652,13 @@ export default {
   TimerSection,
   TimerLabel,
   TimerWarning,
-  TimerDisplay,
+  TimeInputGroup,
+  TimeUnitContainer,
   TimerInput,
-  TimerColon,
+  TimeUnitLabel,
+  InputArrows,
+  InputArrowButton,
+  InputArrowButtonDown,
   ControlsRow,
   RoomCountControl,
   RoomCountArrow,

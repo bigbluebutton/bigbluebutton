@@ -545,9 +545,10 @@ export class Join extends Create {
 
     await this.userPage.hasElementEnabled(e.selectBreakoutRoomBtn, 'should display the select breakout room button');
     await this.userPage.hasElementEnabled(e.modalConfirmButton, 'should display the modal confirm button');
-    await this.userPage.hasHiddenElementCount(e.roomOption, 2, 'should display 2 room options');
 
-    await this.userPage.page.locator(e.selectBreakoutRoomBtn).selectOption({ index: 1 });
+    await this.userPage.waitAndClick(e.selectBreakoutRoomBtn);
+    await this.userPage.hasNElements(e.roomOption, 2, 'should display 2 room options');
+    await this.userPage.page.locator(e.roomOption).nth(1).click();
     await this.userPage.waitAndClick(e.modalConfirmButton);
 
     const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);

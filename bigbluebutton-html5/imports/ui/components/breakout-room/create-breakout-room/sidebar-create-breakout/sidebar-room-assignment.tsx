@@ -5,6 +5,7 @@ import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
 import Auth from '/imports/ui/services/auth';
 import { ChildComponentProps } from '../room-managment-state/types';
+import { useDragAndDrop, useRoverNavigation } from '../../hooks';
 
 const intlMessages = defineMessages({
   unassignedUsers: {
@@ -57,43 +58,11 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
     }
   }, [numberOfRooms, resetRooms]);
 
-  const dragStart = (ev: React.DragEvent<HTMLDivElement>) => {
-    const el = ev.target as HTMLDivElement;
-    ev.dataTransfer.setData('text', el.id);
-    setSelectedId(el.id);
-    const ghost = document.createElement('div');
-    ghost.textContent = el.textContent || '';
-    ghost.style.cssText = 'position:absolute;top:-9999px;padding:4px 8px;background:#fff;border:1px solid #ccc;border-radius:4px;font-size:0.85rem;white-space:nowrap;';
-    document.body.appendChild(ghost);
-    ev.dataTransfer.setDragImage(ghost, 0, 0);
-    requestAnimationFrame(() => ghost.remove());
-  };
+  const {
+    dragStart, dragEnd, allowDrop, drop,
+  } = useDragAndDrop(moveUser, setSelectedId);
 
-  const dragEnd = () => {
-    setSelectedId('');
-  };
-
-  const allowDrop = (ev: React.DragEvent) => {
-    ev.preventDefault();
-  };
-
-  const drop = (roomNumber: number) => (ev: React.DragEvent) => {
-    ev.preventDefault();
-    const data = ev.dataTransfer.getData('text');
-    const separatorIndex = data.lastIndexOf('-');
-    if (separatorIndex <= 0) {
-      setSelectedId('');
-      return;
-    }
-    const userId = data.substring(0, separatorIndex);
-    const from = data.substring(separatorIndex + 1);
-    if (!userId || Number.isNaN(Number(from))) {
-      setSelectedId('');
-      return;
-    }
-    moveUser(userId, Number(from), roomNumber);
-    setSelectedId('');
-  };
+  const rover = useRoverNavigation('draggableUser', moveUser, numberOfRooms);
 
   const unassignedRoom = rooms[0];
   const unassignedUsers = unassignedRoom?.users || [];
@@ -104,6 +73,8 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
         id="breakoutBox-0"
         onDrop={drop(0)}
         onDragOver={allowDrop}
+        tabIndex={0}
+        onKeyDown={rover}
       >
         <Styled.UsersSectionHeader>
           <span>{intl.formatMessage(intlMessages.unassignedUsers)}</span>
@@ -117,6 +88,7 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
                 id={`${user.userId}-0`}
                 data-test="draggableUser"
                 draggable
+                tabIndex={-1}
                 onDragStart={dragStart}
                 onDragEnd={dragEnd}
               >
@@ -140,6 +112,8 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
               key={`room-card-${roomNum}`}
               onDrop={drop(roomNum)}
               onDragOver={allowDrop}
+              tabIndex={0}
+              onKeyDown={rover}
             >
               <Styled.RoomCardHeader>
                 {editingRoom === roomNum ? (
@@ -208,6 +182,7 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
                       id={`${user.userId}-${roomNum}`}
                       data-test="draggableUser"
                       draggable
+                      tabIndex={-1}
                       onDragStart={dragStart}
                       onDragEnd={dragEnd}
                     >
