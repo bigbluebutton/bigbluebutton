@@ -32,7 +32,7 @@ jobs:
           fetch-depth: 0  # Needed for build.sh to access other branches/tags
       - uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
           cache-dependency-path: ./docs/package-lock.json
       - name: Install dependencies
