@@ -714,7 +714,7 @@ const Whiteboard = React.memo((props) => {
       },
       e: () => tlEditorRef.current?.setCurrentTool('eraser'),
       h: () => {
-        if (isPresenterRef.current || viewerCanPan) {
+        if (isPresenterRef.current || viewerCanPanRef.current) {
           tlEditorRef.current?.setCurrentTool('hand');
         }
       },
