@@ -976,7 +976,7 @@
     "app.guest.missingSession": "Gast fehlt in der Konferenz.",
     "app.guest.missingMeeting": "Sitzung existiert nicht.",
     "app.guest.meetingEnded": "Sitzung beendet.",
-    "app.guest.guestWait": "Bitte warten bis ein Moderator den Beitritt genehmigt.",
+    "app.guest.guestWait": "Bitte warten, bis ein Moderator den Beitritt genehmigt.",
     "app.guest.guestDeny": "Teilnahme des Gastes abgelehnt.",
     "app.guest.seatWait": "Gast wartet auf Teilnahme.",
     "app.guest.allow": "Gast zugelassen zur Teilnahme.",
