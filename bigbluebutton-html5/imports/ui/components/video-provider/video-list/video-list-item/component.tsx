@@ -364,11 +364,11 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   const renderDefaultButtons = () => (
     <>
       <Styled.TopBar>
-        {renderRaiseHandElement()}
         <PinArea
           stream={stream}
           amIModerator={amIModerator}
         />
+        {renderRaiseHandElement()}
       </Styled.TopBar>
       <Styled.BottomBar>
         <UserActions
