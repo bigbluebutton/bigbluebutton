@@ -173,7 +173,7 @@
     "app.disableMultiFunctionalMode": "多機能モードを無効にする",
     "app.emptyPanel.multifunctionalPanelTitle": "多機能モード",
     "app.emptyPanel.multifunctionalTitle": "多機能モードが有効になりました",
-    "app.emptyPanel.multifunctionalDescription": "Choose another functionality to split the screen with the previous main function by simply clicking on the functionality you want.",
+    "app.emptyPanel.multifunctionalDescription": "希望する機能をクリックし、別の機能を選ぶことで、これまでの主機能と画面を分けて表示させてください。",
     "app.appsGallery.maxpinnedApps": "{maxPinned} 個のアプリのうち {pinnedCount} 個がピン留め",
     "app.appsGallery.maxpinnedAppsContinue": "（サイドバー）",
     "app.appsGallery.pinTooltip": "アプリをピン留めする",
