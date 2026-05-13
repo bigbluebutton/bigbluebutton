@@ -823,6 +823,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       lockToolbarTools: false,
       allowInfiniteWhiteboard: false,
       allowInfiniteWhiteboardInBreakouts: false,
+      allowInfiniteWhiteboardPanForViewers: false,
       annotations: {
         status: {
           start: 'DRAW_START',
