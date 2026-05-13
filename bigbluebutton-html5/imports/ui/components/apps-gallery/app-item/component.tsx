@@ -1,4 +1,4 @@
-import React, { memo, ReactNode } from 'react';
+import React, { memo, ReactNode, useCallback } from 'react';
 import Icon from '/imports/ui/components/common/icon/component';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
@@ -6,6 +6,7 @@ import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { PluginIconType } from 'bigbluebutton-html-plugin-sdk';
 import Styled from '../styles';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
+import KEYS from '/imports/utils/keys';
 
 interface AppItemProps {
   appKey: string;
@@ -29,6 +30,13 @@ const intlMessages = defineMessages({
     description: 'Label for inidicate new apps in gallery panel title',
   },
 });
+
+const resolveIcon = (iconProp: PluginIconType): React.ReactNode => {
+  if (typeof iconProp === 'string') return <Icon iconName={iconProp} />;
+  if (iconProp && 'iconName' in iconProp) return <Icon iconName={iconProp.iconName} />;
+  if (iconProp && 'svgContent' in iconProp) return iconProp.svgContent as React.ReactNode;
+  return null;
+};
 
 const AppItem: React.FC<AppItemProps> = ({
   appKey,
@@ -76,24 +84,46 @@ const AppItem: React.FC<AppItemProps> = ({
 
   const functionToBeCalled = typeof onClick === 'function' ? onClick : openAppPanel;
 
+  const handleClickableAreaKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === KEYS.ENTER || e.key === KEYS.SPACE) {
+      e.preventDefault();
+      functionToBeCalled();
+    }
+  }, [functionToBeCalled]);
+
+  const handlePinKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === KEYS.ENTER || e.key === KEYS.SPACE) {
+      e.preventDefault();
+      togglePinApp(e);
+    }
+  }, [togglePinApp]);
+
   return (
     <Styled.RegisteredAppContent key={`${appKey}${isPinned}`} data-test={dataTest}>
-      <Styled.ClickableArea onClick={functionToBeCalled}>
-        <Styled.OpenButton
-          key={`OPEN${appKey}`}
-          color="primary"
-          type="button"
-          icon={icon}
-          $pinned={isPinned}
-          label=""
-          onClick={() => {}}
-        />
+      <Styled.ClickableArea
+        role="button"
+        tabIndex={0}
+        aria-label={name}
+        onClick={functionToBeCalled}
+        onKeyDown={handleClickableAreaKeyDown}
+      >
+        <Styled.OpenButton $pinned={isPinned} aria-hidden="true">
+          {resolveIcon(icon)}
+        </Styled.OpenButton>
         <Styled.AppTitle>{name}</Styled.AppTitle>
         {isNew && <Styled.NewLabel>{intl.formatMessage(intlMessages.newAppLabel)}</Styled.NewLabel>}
         {children}
       </Styled.ClickableArea>
       <TooltipContainer title={isPinned ? unpinTooltip : pinTooltip}>
-        <Styled.PinApp role="button" onClick={togglePinApp} tabIndex={0} pinned={isPinned}>
+        <Styled.PinApp
+          role="button"
+          aria-label={isPinned ? unpinTooltip : pinTooltip}
+          aria-pressed={isPinned}
+          onClick={togglePinApp}
+          onKeyDown={handlePinKeyDown}
+          tabIndex={0}
+          pinned={isPinned}
+        >
           <Icon iconName={isPinned ? 'pin-video_on' : 'pin-video_off'} />
         </Styled.PinApp>
       </TooltipContainer>
