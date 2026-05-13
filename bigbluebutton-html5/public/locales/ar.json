@@ -1343,7 +1343,7 @@
     "app.videoDock.webcamPinDesc": "ثبّت الكاميرا المحددة",
     "app.videoDock.webcamFullscreenLabel": "كاميرا ويب كاملة الشاشة",
     "app.videoDock.webcamExitFullscreenLabel": "الخروج من كاميرا الويب في وضع ملء الشاشة",
-    "app.videoDock.webcamSqueezedButtonLabel": "خيارات كاميرا الويب",
+    "app.videoDock.webcamSqueezedButtonLabel": "عرض كاميرا الويب المضغوط",
     "app.videoDock.webcamUnpinLabel": "فك التثبيت",
     "app.videoDock.webcamUnpinLabelDisabled": "يمكن للمشرفين فقط إلغاء تثبيت المستخدمين",
     "app.videoDock.webcamUnpinDesc": "إلغاء تثبيت الكاميرا المحددة",
