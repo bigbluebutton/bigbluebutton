@@ -1543,9 +1543,14 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `sharedNotesEditor` | Type of shared notes editor to use | etherpad, blockNote | etherpad _`overwritable`_ |
 | `allowOverrideClientSettingsOnCreateCall` | Allow `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` to be passed on `/create` | true/false | false |
 | `pluginManifests` | List of plugin manifests as a JSON array, e.g. `[{"url": "https://example.com/manifest.json"}]` | JSON array | _(empty)_ _`overwritable`_ |
+| `pluginManifestCacheEnabled` | Cache plugin manifests on disk to speed up `/create` calls | true/false | false |
+| `pluginManifestCacheDirectory` | Base directory for cached plugin manifest files. The directory is wiped every time bbb-web starts; entries idle for over a week are also evicted automatically by the periodic refresh task | path | `/var/bigbluebutton/plugin-manifests-cache/` |
+| `pluginManifestCacheRefreshIntervalMinutes` | How often (in minutes) the plugin manifest cache refresh task runs | Integer | 60 |
 | `serviceEnabled` | Whether the BigBlueButton API is enabled | true/false | true |
 | `allowRequestsWithoutSession` | Allow requests without `JSESSIONID` to be handled (reduces security; only enable for trusted integrations like iframes) | true/false | false _`overwritable`_ |
 | `supportedChecksumAlgorithms` | Hash algorithms accepted when validating API checksums (comma-separated) | sha1, sha256, sha384, sha512 | sha1,sha256,sha384,sha512 |
+| `pageTokenSecret` | Secret used to generate per-page presentation access tokens (HMAC-SHA256). Override for additional security separation between presentation tokens and the rest of bbb-web | String | _(defaults to `${securitySalt}`)_ |
+| `beans.presentationService.pageTokenSecret` | Grails bean wiring that injects `pageTokenSecret` into the presentation service. Override only if the presentation service should use a different secret than `pageTokenSecret` | String | _(defaults to `${pageTokenSecret}`)_ |
 | `allowRevealOfBBBVersion` | Allow the `getMeetings` endpoint to reveal the current BigBlueButton version | true/false | false |
 
 - _`overwritable`_: The default is replaced when the matching parameter is present on an API `/create` request. Where the create-side name differs from the property name, it is shown in parentheses (e.g., `defaultMeetingLayout` → `meetingLayout`).
