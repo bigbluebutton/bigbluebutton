@@ -1763,7 +1763,7 @@
     "app.learningDashboard.help.activityScore.maxMetricPointsLabel": "2 分",
     "app.learningDashboard.help.activityScore.maxPointsLabel": "10 分",
     "app.learningDashboard.help.activityScore.sumLabel": "以上所有元素的總合",
-    "app.learningDashboard.help.activityScore.moderatorWarning": "Moderators always receive a score of 0 and do not participate in the metrics computation.",
+    "app.learningDashboard.help.activityScore.moderatorWarning": "主持人總會收到分數 0，而且不會參與指標的計算。",
     "app.sessionDetails.title": "會話詳情",
     "app.sessionDetails.dismissLabel": "關閉",
     "app.sessionDetails.dismissDesc": "關閉模型",
