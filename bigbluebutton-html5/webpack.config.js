@@ -12,7 +12,7 @@ const detailedLogs = process.env.DETAILED_LOGS || false;
 const hotReload = String(process.env.HOT_RELOAD).toLowerCase() === 'true';
 const prodEnv = 'production';
 const devEnv = 'development';
-const isDev = env === devEnv;
+const isDev = env === devEnv && false;
 const isSafariTarget = process.env.TARGET === 'safari';
 
 process.stdout.write(`Building: ${process.env.TARGET}\n`);
@@ -30,6 +30,19 @@ const config = {
     type: 'filesystem',
     allowCollectingMemory: true,
     maxAge: 86400000,
+  },
+  snapshot: {
+    // Exclude tldraw from version-based managed-path caching so webpack uses
+    // content hashing instead. Without this, webpack treats the package as
+    // unchanged because yalc never bumps the version (2.0.0-alpha.33 forever).
+    managedPaths: [/^(.+?[\\/]node_modules[\\/])(?!@bigbluebutton[\\/]tldraw[\\/])/],
+  },
+  watchOptions: {
+    // Ignore .yalc/ so that yalc remove+add operations don't trigger webpack
+    // rebuilds mid-flight (which would ENOENT on partially-deleted files and
+    // cache that failure). Only our explicit triggerWebpackRebuild touch
+    // (component.jsx) should start a tldraw rebuild.
+    ignored: /node_modules|\.yalc/,
   },
   devtool: 'source-map',
   plugins: [
