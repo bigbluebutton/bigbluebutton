@@ -1238,7 +1238,7 @@ BEGIN
      AND u."userId"    = cu."userId"
     WHERE cm."meetingId" = cu."meetingId"
       AND cm."chatId"    = cu."chatId"
-      AND cm."senderId" <> cu."userId"
+      AND cm."senderId" IS DISTINCT FROM cu."userId"
       AND cm."createdAt" > COALESCE(cu."lastSeenAt", u."registeredAt")
   )
   WHERE cu."meetingId" = _meetingId
@@ -1252,7 +1252,7 @@ BEGIN
        AND u."userId"    = cu."userId"
       WHERE cm."meetingId" = cu."meetingId"
         AND cm."chatId"    = cu."chatId"
-        AND cm."senderId" <> cu."userId"
+        AND cm."senderId" IS DISTINCT FROM cu."userId"
         AND cm."createdAt" > COALESCE(cu."lastSeenAt", u."registeredAt")
     );
 END;
@@ -1303,7 +1303,7 @@ BEGIN
   SET "totalUnreadMessages" = coalesce("totalUnreadMessages",0) + 1
   WHERE cu."meetingId" = NEW."meetingId"
     AND cu."chatId"    = NEW."chatId"
-    AND cu."userId"    != NEW."senderId";
+    AND cu."userId" IS DISTINCT FROM NEW."senderId";
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1325,9 +1325,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER "update_chatUser_clear_lastTypingAt_trigger" AFTER INSERT ON chat_message FOR EACH ROW
+CREATE TRIGGER "update_chatUser_clear_lastTypingAt_trigger" AFTER INSERT OR UPDATE ON chat_message FOR EACH ROW
 EXECUTE FUNCTION "update_chatUser_clear_lastTypingAt_trigger_func"();
-
 
 
 CREATE UNLOGGED TABLE "chat_message_history" (
@@ -1478,9 +1477,10 @@ CREATE INDEX "idx_pres_presentation_meetingId_curr" ON "pres_presentation"("meet
 --Populate preloadNextPages, which will be used to provide the SVG of next slides at pres_page_curr
 CREATE OR REPLACE FUNCTION "update_preloadNextPages"() RETURNS TRIGGER AS $$
 BEGIN
-    SELECT coalesce(("clientSettingsJson"->'public'->'app'->'preloadNextSlides')::int,0) INTO NEW."preloadNextPages"
-    from "meeting_clientSettings" mcs
-    where mcs."meetingId" = NEW."meetingId";
+    SELECT coalesce(("clientSettingsJson"->'public'->'app'->'preloadNextSlides')::int, 0)
+    INTO NEW."preloadNextPages"
+    FROM "meeting_clientSettings" mcs
+    WHERE mcs."meetingId" = NEW."meetingId";
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
