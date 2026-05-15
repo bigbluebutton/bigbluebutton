@@ -13,7 +13,7 @@ const detailedLogs = process.env.DETAILED_LOGS || false;
 const hotReload = String(process.env.HOT_RELOAD).toLowerCase() === 'true';
 const prodEnv = 'production';
 const devEnv = 'development';
-const isDev = env === devEnv && false;
+const isDev = env === devEnv;
 const isSafariTarget = process.env.TARGET === 'safari';
 
 process.stdout.write(`Building: ${process.env.TARGET}\n`);
