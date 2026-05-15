@@ -1157,7 +1157,7 @@
     "app.notification.userJoinPushAlert": "{userName} oturuma katıldı",
     "app.notification.userLeavePushAlert": "{userName} oturumdan ayrıldı",
     "app.notification.presenterRequestApproved.title": "{presenterName} sunucu oldu",
-    "app.notification.presenterRequestApproved": "Set by: {approvedByName}",
+    "app.notification.presenterRequestApproved": "Ayarlayan: {approvedByName}",
     "app.submenu.notification.raiseHandLabel": "El kaldır",
     "app.shortcut-help.title": "Klavye kısayolları",
     "app.shortcut-help.pushToTalk": "Bas konuş için basılı tutun",
