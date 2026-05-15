@@ -1540,7 +1540,7 @@
     "app.createBreakoutRoom.emptyRoomNameError": "Oda adı boş olamaz.",
     "app.createBreakoutRoom.setTimeInMinutes": "Süreyi ayarla (dakika)",
     "app.createBreakoutRoom.setTimeLabel": "Uygula",
-    "app.createBreakoutRoom.setTimeCancel": "Vazgeç",
+    "app.createBreakoutRoom.setTimeCancel": "İptal",
     "app.createBreakoutRoom.setTimeHigherThanMeetingTimeError": "Çalışma grubu odalarının süresi, oturumun kalan süresini aşamaz.",
     "app.createBreakoutRoom.roomNameInputDesc": "Çalışma grubu odasının adını günceller",
     "app.createBreakoutRoom.currentSlideLabel": "Geçerli slayt",
