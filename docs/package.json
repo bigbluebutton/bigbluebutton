@@ -41,5 +41,7 @@
   "engines": {
     "node": ">=18.0"
   },
-  "overrides": {}
+  "overrides": {
+    "serialize-javascript": "^7.0.5"
+  }
 }
