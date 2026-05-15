@@ -163,12 +163,12 @@ const config = {
                 },
                 items: [
                     {to: 'https://bigbluebutton.org/teachers/tutorials/', label: 'Teaching', position: 'left'},
-                    {to: '/development/guide', label: 'Development', position: 'left'},
-                    {to: '/administration/install', label: 'Administration', position: 'left'},
-                    {to: '/greenlight/v3/install', label: 'Greenlight', position: 'left'},
-                    {to: '/new-features', label: 'New Features', position: 'left'},
-                    {to: '/plugins', label: 'Plugins', position: 'left'},
-                    {to: '/support/getting-help', label: 'Support', position: 'left'},
+                    {type: 'doc', docId: 'development/guide',      label: 'Development',    position: 'left'},
+                    {type: 'doc', docId: 'administration/install', label: 'Administration', position: 'left'},
+                    {type: 'doc', docId: 'greenlight/v3/install',  label: 'Greenlight',     position: 'left'},
+                    {type: 'doc', docId: 'new-features',           label: 'New Features',   position: 'left'},
+                    {type: 'doc', docId: 'plugins',                label: 'Plugins',        position: 'left'},
+                    {type: 'doc', docId: 'support/getting-help',   label: 'Support',        position: 'left'},
                     {
                         type: 'docsVersionDropdown',
                         position: 'right',
