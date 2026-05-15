@@ -97,7 +97,7 @@
     "app.errorBoundary.attemptingToRecover": "Bir sorun çıktı. Düzeltilmeye çalışılıyor...",
     "app.errorBoundary.unableToRecover": "Birkaç denemeden sonra düzeltilemedi.",
     "app.errorBoundary.reloadPage": "Sayfayı yeniden yükle",
-    "app.timer.title": "Zamanlayıcı ve sayaç",
+    "app.timer.title": "Süre",
     "app.timer.stopwatch.title": "Sayaç",
     "app.timer.timer.title": "Zamanlayıcı",
     "app.timer.hideTimerLabel": "Süreyi gizle",
