@@ -1,5 +1,6 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
@@ -30,6 +31,14 @@ const config = {
     type: 'filesystem',
     allowCollectingMemory: true,
     maxAge: 86400000,
+    // Only active during local yalc-based tldraw development. When the file exists,
+    // webpack discards its cache on each rebuild so stale ENOENT errors can't persist.
+    // Absent in production / CI (package comes from npm), so no effect there.
+    ...(fs.existsSync(path.join(__dirname, '.tldraw-build-id')) && {
+      buildDependencies: {
+        tldraw: [path.join(__dirname, '.tldraw-build-id')],
+      },
+    }),
   },
   snapshot: {
     // Exclude tldraw from version-based managed-path caching so webpack uses
