@@ -1,5 +1,6 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
@@ -30,6 +31,27 @@ const config = {
     type: 'filesystem',
     allowCollectingMemory: true,
     maxAge: 86400000,
+    // Only active during local yalc-based tldraw development. When the file exists,
+    // webpack discards its cache on each rebuild so stale ENOENT errors can't persist.
+    // Absent in production / CI (package comes from npm), so no effect there.
+    ...(fs.existsSync(path.join(__dirname, '.tldraw-build-id')) && {
+      buildDependencies: {
+        tldraw: [path.join(__dirname, '.tldraw-build-id')],
+      },
+    }),
+  },
+  snapshot: {
+    // Exclude tldraw from version-based managed-path caching so webpack uses
+    // content hashing instead. Without this, webpack treats the package as
+    // unchanged because yalc never bumps the version (2.0.0-alpha.33 forever).
+    managedPaths: [/^(.+?[\\/]node_modules[\\/])(?!@bigbluebutton[\\/]tldraw[\\/])/],
+  },
+  watchOptions: {
+    // Ignore .yalc/ so that yalc remove+add operations don't trigger webpack
+    // rebuilds mid-flight (which would ENOENT on partially-deleted files and
+    // cache that failure). Only our explicit triggerWebpackRebuild touch
+    // (component.jsx) should start a tldraw rebuild.
+    ignored: /node_modules|\.yalc/,
   },
   devtool: 'source-map',
   plugins: [
