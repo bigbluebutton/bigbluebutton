@@ -885,7 +885,7 @@
     "app.audioModal.helpSubtitleMic": "Mikrofonunuz açılamadı",
     "app.audioModal.helpSubtitleGeneric": "Ses bağlantısı kurmakta sorun yaşıyoruz",
     "app.audioModal.helpSubtitlePermission": "Mikrofonunuza erişmemiz gerekiyor",
-    "app.audioModal.helpPermissionStep1": "Bir çağrıya katılırken, tüm mikrofonunuzu kullanma izni isteklerini onaylayın.",
+    "app.audioModal.helpPermissionStep1": "Bir çağrıya katılırken, tüm mikrofonunuza erişme izni isteklerini onaylayın.",
     "app.audioModal.helpPermissionStep2": "Tarayıcı ve aygıt ayarlarından mikrofona erişme izni verildiğinden emin olun.",
     "app.audioModal.helpPermissionStep3": "Sayfayı yenileyip yeniden deneyin.",
     "app.audioModal.helpSubtitleNoDevice": "Mikrofonunuz bulunamadı",
