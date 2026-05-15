@@ -940,7 +940,7 @@
     "app.audio.audioSettings.retryMicLabel": "Yeniden dene",
     "app.audio.audioSettings.fallbackInputLabel": "{index} ses girişi",
     "app.audio.audioSettings.fallbackOutputLabel": "{index} ses çıkışı",
-    "app.audio.audioSettings.fallbackNoPermission": "(aygıt izni yok)",
+    "app.audio.audioSettings.fallbackNoPermission": "(aygıta erişme izni yok)",
     "app.audio.audioSettings.defaultOutputDeviceLabel": "Varsayılan",
     "app.audio.audioSettings.findingDevicesLabel": "Ses aygıtları aranıyor...",
     "app.audio.audioSettings.confirmLabel": "Onayla",
