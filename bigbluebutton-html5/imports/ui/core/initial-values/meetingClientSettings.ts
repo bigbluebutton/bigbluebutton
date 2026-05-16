@@ -817,6 +817,8 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       pointerDiameter: 5,
       laserRadiusSmall: 10,
       laserRadiusLarge: 16,
+      laserRedColor: '#ff1414',
+      laserGreenColor: '#14ff14',
       maxStickyNoteLength: 1000,
       maxNumberOfAnnotations: 300,
       maxNumberOfActiveUsers: 25,
