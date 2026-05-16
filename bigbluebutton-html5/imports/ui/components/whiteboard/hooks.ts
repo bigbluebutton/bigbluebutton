@@ -86,7 +86,6 @@ export const useMergedCursorData = () => {
           return {
             ...coordinates,
             ...cursor,
-            //laserType: coordinates.laserType,
           };
         }
 
