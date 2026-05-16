@@ -462,7 +462,9 @@ const WhiteboardContainer = (props) => {
   const sidebarNavigationWidth = layoutSelect(
     (i) => i?.output?.sidebarNavigation?.width,
   );
-  const { maxStickyNoteLength, maxNumberOfAnnotations, lockToolbarTools, pointerDiameter, laserRadiusSmall, laserRadiusLarge } = WHITEBOARD_CONFIG;
+  const { maxStickyNoteLength, maxNumberOfAnnotations, lockToolbarTools, pointerDiameter,
+    laserRadiusSmall, laserRadiusLarge, laserRedColor, laserGreenColor,
+  } = WHITEBOARD_CONFIG;
   const fontFamily = WHITEBOARD_CONFIG.styles.text.family;
   const {
     colorStyle, dashStyle, fillStyle, fontStyle, sizeStyle,
@@ -511,6 +513,8 @@ const WhiteboardContainer = (props) => {
           pointerDiameter,
           laserRadiusSmall,
           laserRadiusLarge,
+          laserRedColor,
+          laserGreenColor,
           fontFamily,
           colorStyle,
           dashStyle,
