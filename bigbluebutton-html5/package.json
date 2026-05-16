@@ -19,6 +19,8 @@
     ]
   },
   "overrides": {
+    "@mantine/core": "^8.3.11",
+    "@mantine/hooks": "^8.3.11",
     "react-autosize-textarea": {
       "react": "^18.0.0",
       "react-dom": "^18.0.0"
@@ -52,9 +54,9 @@
     "@apollo/client": "^3.10.4",
     "@babel/runtime": "^7.26.10",
     "@bigbluebutton/tldraw": "^2.0.0-alpha.33",
-    "@blocknote/core": "^0.48.1",
-    "@blocknote/mantine": "^0.48.1",
-    "@blocknote/react": "^0.48.1",
+    "@blocknote/core": "^0.51.0",
+    "@blocknote/mantine": "^0.51.0",
+    "@blocknote/react": "^0.51.0",
     "@browser-bunyan/console-formatted-stream": "^1.8.0",
     "@browser-bunyan/console-raw-stream": "^1.8.0",
     "@browser-bunyan/levels": "^1.8.0",
