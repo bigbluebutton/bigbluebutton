@@ -12,8 +12,6 @@ const logger = new Logger('express-websocket-api');
 
 const websocketApi: WebsocketApi = {
   collaboration: async (websocket, request) => {
-    logger.info('=== WebSocket Request Data ===');
-
     const isHeaderValid = validateHeaderInformation(request.headers);
     if (!isHeaderValid) {
       websocket.close(4001, 'User not authorized to connect');
@@ -33,7 +31,30 @@ const websocketApi: WebsocketApi = {
       websocket,
       userInformation,
     }
-    hocuspocus.handleConnection(websocket, request, context);
+
+    const requestHeaders = new Headers();
+    for (const [key, value] of Object.entries(request.headers)) {
+      if (value !== undefined) {
+        if (Array.isArray(value)) {
+          value.forEach(v => requestHeaders.append(key, v));
+        } else {
+          requestHeaders.set(key, value);
+        }
+      }
+    }
+    const webRequest = new Request(url.toString(), { headers: requestHeaders });
+
+    // hocuspocus v4 no longer auto-wires WebSocket events in handleConnection.
+    // We must manually forward message and close events to the ClientConnection.
+    const clientConnection = hocuspocus.handleConnection(websocket, webRequest, context);
+
+    websocket.on('message', (data: Buffer) => {
+      clientConnection.handleMessage(data);
+    });
+
+    websocket.on('close', (code: number, reason: Buffer) => {
+      clientConnection.handleClose({ code, reason: reason?.toString() });
+    });
   }
 }
 
