@@ -49,7 +49,7 @@ const websocketApi: WebsocketApi = {
     const clientConnection = hocuspocus.handleConnection(websocket, webRequest, context);
 
     websocket.on('message', (data: Buffer) => {
-      clientConnection.handleMessage(data);
+      clientConnection.handleMessage(new Uint8Array(data));
     });
 
     websocket.on('close', (code: number, reason: Buffer) => {
