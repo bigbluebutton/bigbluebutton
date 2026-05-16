@@ -42,7 +42,7 @@ const hocuspocus = new Hocuspocus({
       userId,
       meetingId,
       intUserId,
-      userIsModerator,
+      userHasNotesEnabled,
     } = userInformation;
 
     if (meetingId !== meetingIdFromClient) {
@@ -53,7 +53,7 @@ const hocuspocus = new Hocuspocus({
 
     const isMeetingLocked = meetingLockMap.get(meetingId)?.viewerReadOnly;
 
-    const isConnectionReadOnly = isMeetingLocked && !userIsModerator;
+    const isConnectionReadOnly = isMeetingLocked && !userHasNotesEnabled;
     if (isConnectionReadOnly) {
       data.connectionConfig.readOnly = true;
     }
