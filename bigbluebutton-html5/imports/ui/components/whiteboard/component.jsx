@@ -174,6 +174,8 @@ const Whiteboard = React.memo((props) => {
     pointerDiameter = 5,
     laserRadiusSmall,
     laserRadiusLarge,
+    laserRedColor,
+    laserGreenColor,
   } = props;
 
   clearTldrawCache();
@@ -1946,16 +1948,11 @@ const Whiteboard = React.memo((props) => {
       `.replace(/\s+/g, ' ').trim();
   };
 
-  const c = {
-    red:   'rgba(255, 20, 20)',
-    green: 'rgba(20, 255, 20)',
-  };
-
   const laserDefs = {
-    redSmall:   { color: c.red,   cx: laserRadiusSmall+2, cy: laserRadiusSmall+2, r: laserRadiusSmall },
-    greenSmall: { color: c.green, cx: laserRadiusSmall+2, cy: laserRadiusSmall+2, r: laserRadiusSmall },
-    redLarge:   { color: c.red,   cx: laserRadiusLarge+2, cy: laserRadiusLarge+2, r: laserRadiusLarge },
-    greenLarge: { color: c.green, cx: laserRadiusLarge+2, cy: laserRadiusLarge+2, r: laserRadiusLarge },
+    redSmall:   { color: laserRedColor,   cx: laserRadiusSmall+2, cy: laserRadiusSmall+2, r: laserRadiusSmall },
+    greenSmall: { color: laserGreenColor, cx: laserRadiusSmall+2, cy: laserRadiusSmall+2, r: laserRadiusSmall },
+    redLarge:   { color: laserRedColor,   cx: laserRadiusLarge+2, cy: laserRadiusLarge+2, r: laserRadiusLarge },
+    greenLarge: { color: laserGreenColor, cx: laserRadiusLarge+2, cy: laserRadiusLarge+2, r: laserRadiusLarge },
   };
 
   const laserSvgs = Object.fromEntries(
