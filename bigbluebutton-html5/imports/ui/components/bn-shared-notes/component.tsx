@@ -254,6 +254,28 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
 
   const editable = !disableNotes || !currentUserIsLocked || currentUserIsModerator;
 
+  // When read-only, clear local awareness so the provider's reconnect logic and
+  // the 30 s refresh timer do not re-broadcast this user's cursor/presence.
+  // setLocalState(null) also makes all future setLocalStateField calls no-ops,
+  // so y-prosemirror and BlockNote cannot re-populate the state either.
+  //
+  // When editable again, restore awareness if it is still null. This handles a
+  // race where the new provider syncs before GraphQL delivers the lock-removal
+  // update: the useEffect fires with editable=false on the fresh Awareness,
+  // nulling it out; later editable flips to true but BlockNote's init already
+  // ran, so we must re-seed the state ourselves.
+  React.useEffect(() => {
+    const { awareness } = hocuspocusProvider;
+    if (!awareness) return;
+    if (!editable) {
+      awareness.setLocalState(null);
+    } else if (awareness.getLocalState() === null) {
+      awareness.setLocalState({
+        user: { name: userName || '', color: userColor || '' },
+      });
+    }
+  }, [editable, hocuspocusProvider.awareness, userName, userColor]);
+
   // Keep the editor's focus/selection when tapping a toolbar button by
   // cancelling the default focus move on mousedown.
   const toolbarRef = React.useRef<HTMLDivElement>(null);
