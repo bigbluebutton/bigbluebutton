@@ -2424,11 +2424,11 @@ const Whiteboard = React.memo((props) => {
       laserElRef.current = null;
       const defaultPointer = document.getElementById('redPointer');
       if (!laserDef) {
-        // Presenter uses hand tool and the default red pointer is visible for viewers
-        defaultPointer.style.setProperty('display', 'block');
+        // Presenter uses hand tool, so the default red pointer is visible for viewers
+        defaultPointer?.style.setProperty('display', 'block');
       } else {
-        // Presenter uses laser pointer and the default red pointer is invisible for viewers
-        defaultPointer.style.setProperty('display', 'none');
+        // Presenter uses laser pointer, so the default red pointer is invisible for viewers
+        defaultPointer?.style.setProperty('display', 'none');
       }
     }
 
@@ -2705,6 +2705,7 @@ export default Whiteboard;
 Whiteboard.propTypes = {
   isPresenter: PropTypes.bool,
   isPhone: PropTypes.bool,
+  isMobile: PropTypes.bool,
   removeShapes: PropTypes.func.isRequired,
   persistShapeWrapper: PropTypes.func.isRequired,
   notifyNotAllowedChange: PropTypes.func.isRequired,
@@ -2736,6 +2737,8 @@ Whiteboard.propTypes = {
   pointerDiameter: PropTypes.number,
   laserRadiusSmall: PropTypes.number.isRequired,
   laserRadiusLarge: PropTypes.number.isRequired,
+  laserRedColor: PropTypes.string.isRequired,
+  laserGreenColor: PropTypes.string.isRequired,
   setTldrawIsMounting: PropTypes.func.isRequired,
   presentationId: PropTypes.string,
   setTldrawAPI: PropTypes.func.isRequired,
