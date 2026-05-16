@@ -747,6 +747,8 @@ export interface Whiteboard {
   pointerDiameter: number
   laserRadiusSmall: number
   laserRadiusLarge: number
+  laserRedColor: string
+  laserGreenColor: string
   maxStickyNoteLength: number
   maxNumberOfAnnotations: number
   maxNumberOfActiveUsers: number
