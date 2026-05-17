@@ -2395,11 +2395,6 @@ const Whiteboard = React.memo((props) => {
 
     const targetDoc = document;
 
-    //Comment out below if we do not want to show laser when a presenter uses drawing tools on mobile devices.
-    // Note a problem that the laser remains on the screen after switching to drawing tools.
-    //const tool = tlEditorRef.current?.getCurrentToolId?.();
-    //if (isPresenter && isMobile && tool !== 'hand') return;
-
     const tlContainer = targetDoc.querySelector('.tl-container');
 
     let layer = laserLayerRef.current;
@@ -2441,20 +2436,8 @@ const Whiteboard = React.memo((props) => {
       laserElRef.current = laserEl;
     }
 
-    // Now we place the laser SVG at the position of redPointer, which is invisible.
-    
-    //const cursorEl = document.querySelector('.tl-collaborator__cursor');
-    //if (!cursorEl) return;
-
-    //const zoom = parseFloat(getComputedStyle(tlContainer).getPropertyValue('--tl-zoom')) || 1;
     const { z: zoom } = tlEditorRef.current ? tlEditorRef.current.getCamera() : 1;
 
-    //const transform = cursorEl.style.transform;
-    //if (!transform) return;
-    //const match = transform.match(/translate\(([^,]+)px,\s*([^)]+)px\)/);
-    //if (!match) return;
-    //const x = parseFloat(match[1]);
-    //const y = parseFloat(match[2]);
     const x = presenterCursor.xPercent;
     const y = presenterCursor.yPercent;
     if (x === -1 || y === -1) {
