@@ -807,7 +807,7 @@
     "app.audioManager.mediaError": "Hata: Ortam aygıtlarınıza erişilirken bir sorun çıktı",
     "app.audio.joinAudio": "Ses ile katıl",
     "app.audio.joinAudioAndSetActive": "Ses ile katıl ve beni etkin olarak ayarla",
-    "app.audio.leaveAudio": "Ses ile katılımı kapat",
+    "app.audio.leaveAudio": "Ses ile katılmayı kapat",
     "app.audio.changeAudioDevice": "Ses aygıtını değiştir",
     "app.audio.enterSessionLabel": "Oturuma katıl",
     "app.audio.playSoundLabel": "Sesi oynat",
