@@ -10,6 +10,7 @@ location /hocuspocus/collaboration {
   auth_request_set $user_name $sent_http_user_name;
   auth_request_set $user_is_moderator $sent_http_user_is_moderator;
   auth_request_set $user_is_presenter $sent_http_user_is_presenter;
+  auth_request_set $user_notes_enabled $sent_http_user_notes_enabled;
 
   gzip_static on;
   proxy_pass http://localhost:8787/collaboration;
@@ -25,6 +26,7 @@ location /hocuspocus/collaboration {
   proxy_set_header User-Name $user_name;
   proxy_set_header User-Is-Moderator $user_is_moderator;
   proxy_set_header User-Is-Presenter $user_is_presenter;
+  proxy_set_header User-Notes-Enabled $user_notes_enabled;
 }
 
 location /bigbluebutton/connection/checkHocuspocusAuthorization {
