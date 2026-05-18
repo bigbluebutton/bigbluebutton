@@ -1233,7 +1233,7 @@
     "app.lock-viewers.microphoneLabel": "Mikrofonu paylaşma",
     "app.lock-viewers.PublicChatLabel": "Herkese açık iletiler gönderme",
     "app.lock-viewers.PrivateChatLabel": "Özel iletiler gönderme",
-    "app.lock-viewers.notesLabel": "Paylaşılmış notları paylaşma",
+    "app.lock-viewers.notesLabel": "Paylaşılmış notları düzenleme",
     "app.lock-viewers.userListLabel": "Kullanıcı listesindeki diğer katılımcıları görme",
     "app.lock-viewers.ariaTitle": "Katılımcılar üste açılan penceresini engelleme",
     "app.lock-viewers.button.apply": "Uygula",
