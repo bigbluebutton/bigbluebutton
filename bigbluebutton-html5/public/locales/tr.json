@@ -1434,7 +1434,7 @@
     "app.layout.modal.title": "Ekran yerleşimleri",
     "app.layoutUpdate.label": "Ekran yerleşimi güncellemeleri herkese uygulandı",
     "app.layout.modal.update": "Güncelle",
-    "app.layout.modal.updateAll": "Herkese güncelle",
+    "app.layout.modal.updateAll": "Herkeste güncelle",
     "app.layout.modal.followPresentersLayout": "Sunucunun ekran yerleşimine uyulsun",
     "app.layout.modal.pushToggleWarningTooltip": "Açıldığında, tüm katılımcıların ekran yerleşimi sunum yapan kişinin ekran yerleşimine uydurulur.",
     "app.layout.modal.layoutLabel": "Ekran yerleşiminizi seçin",
