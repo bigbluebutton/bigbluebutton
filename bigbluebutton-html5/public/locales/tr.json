@@ -1494,7 +1494,7 @@
     "app.videoDock.webcamUnpinLabelDisabled": "Yalnızca sorumlular kullanıcıların sabitlemesini kaldırabilir",
     "app.videoDock.webcamUnpinDesc": "Seçilmiş kamera görüntüsünün sabitlemesini kaldırır",
     "app.videoDock.webcamPresenterLabel": "Sunucu",
-    "app.videoDock.autoplayBlockedDesc": "Diğer kullanıcıların kameralarını size görüntülyebilmemiz için izniniz gerekli.",
+    "app.videoDock.autoplayBlockedDesc": "Diğer kullanıcıların kameralarını size görüntüleyebilmemiz için izin vermeniz gerekiyor.",
     "app.videoDock.autoplayAllowLabel": "Kameraları görüntüle",
     "app.createBreakoutRoom.title": "Çalışma grubu odaları",
     "app.createBreakoutRoom.ariaTitle": "Çalışma grubu odalarını gizle",
