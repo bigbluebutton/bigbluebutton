@@ -23,6 +23,7 @@ import { Layout, Output } from '/imports/ui/components/layout/layoutTypes';
 interface ChatPollContentProps {
   metadata: string;
   height?: number;
+  createdAt?: string;
 }
 
 export interface ChatPollContentHandle {
@@ -107,7 +108,7 @@ function assertAsMetadata(metadata: unknown): asserts metadata is Metadata {
 }
 
 const ChatPollContent = forwardRef<ChatPollContentHandle, ChatPollContentProps>((
-  { metadata, height },
+  { metadata, height, createdAt },
   ref,
 ) => {
   const intl = useIntl();
@@ -130,10 +131,10 @@ const ChatPollContent = forwardRef<ChatPollContentHandle, ChatPollContentProps>(
   });
 
   const handleCopy = useCallback((onDone: () => void) => {
-    const now = new Date();
+    const pollDate = createdAt ? new Date(createdAt) : new Date();
     const pad = (n: number) => n.toString().padStart(2, '0');
-    const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
-      + ` ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    const dateStr = `${pollDate.getFullYear()}-${pad(pollDate.getMonth() + 1)}-${pad(pollDate.getDate())}`
+      + ` ${pad(pollDate.getHours())}:${pad(pollDate.getMinutes())}:${pad(pollDate.getSeconds())}`;
     const lines = [
       `[${dateStr}]`,
       pollData.questionText,
@@ -167,10 +168,10 @@ const ChatPollContent = forwardRef<ChatPollContentHandle, ChatPollContentProps>(
   const handleDownload = useCallback(() => {
     if (!chartRef.current) return;
     const chartNode = chartRef.current;
-    const now = new Date();
+    const pollDate = createdAt ? new Date(createdAt) : new Date();
     const pad = (n: number) => n.toString().padStart(2, '0');
-    const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
-      + `_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
+    const dateStr = `${pollDate.getFullYear()}-${pad(pollDate.getMonth() + 1)}-${pad(pollDate.getDate())}`
+      + `_${pad(pollDate.getHours())}-${pad(pollDate.getMinutes())}-${pad(pollDate.getSeconds())}`;
     const fileName = `poll-result_${dateStr}.png`;
     toPng(chartNode, { backgroundColor: '#fff' }).then((dataUrl) => {
       const anchor = document.createElement('a');
