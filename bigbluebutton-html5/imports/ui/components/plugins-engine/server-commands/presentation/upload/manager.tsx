@@ -63,6 +63,18 @@ const toFile = async (
   throw new Error('Object type not supported.');
 };
 
+const isValidUploadEvent = (event: CustomEvent<UploadPresentationCommandArguments>) => {
+  if (
+    !(event instanceof CustomEvent)
+      || event.detail == null
+      || typeof event.detail.mimeType !== 'string'
+      || event.detail.content == null
+  ) {
+    return false;
+  }
+  return true;
+};
+
 const PluginUploadPresentationServerCommandsManager = () => {
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
@@ -75,6 +87,12 @@ const PluginUploadPresentationServerCommandsManager = () => {
       logger.warn({
         logCode: 'plugin_presentation_upload_not_allowed',
       }, 'Plugin tried to upload a presentation but user is not a presenter');
+      return;
+    }
+    if (!isValidUploadEvent(event)) {
+      logger.error({
+        logCode: 'plugin_presentation_upload',
+      }, 'Failed to upload presentation from plugin command: malformed event detail');
       return;
     }
     toFile(event.detail.content, event.detail.mimeType, event.detail.filename).then((file) => {
