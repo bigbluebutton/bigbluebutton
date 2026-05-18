@@ -9,6 +9,28 @@ import {
 import { uniqueId } from '/imports/utils/string-utils';
 import PresentationUploaderService from '/imports/ui/components/presentation/presentation-uploader/service';
 import logger from '/imports/startup/client/logger';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+
+const getMaxBytes = (): number => window.meetingClientSettings?.public?.presentation
+  ?.mirroredFromBBBCore?.uploadSizeMax ?? 30_000_000;
+
+const assertSize = (bytes: number) => {
+  const maxBytes = getMaxBytes();
+  if (bytes > maxBytes) {
+    throw new Error(`Presentation payload exceeds the maximum allowed size of ${maxBytes} bytes.`);
+  }
+};
+
+const decodeBase64ToFile = (
+  rawBase64: string,
+  mimeType: string,
+  presentationName: string,
+): File => {
+  // base64 encodes 3 bytes as 4 chars; this gives the upper-bound decoded size.
+  assertSize(Math.ceil((rawBase64.length * 3) / 4));
+  const bytes = Uint8Array.from(atob(rawBase64), (c) => c.charCodeAt(0));
+  return new File([new Blob([bytes], { type: mimeType })], presentationName, { type: mimeType });
+};
 
 const toFile = async (
   content: UploadPresentationContent,
@@ -17,28 +39,50 @@ const toFile = async (
 ): Promise<File> => {
   const ext = mimeType.split('/')[1] || 'pdf';
   const presentationName = name || `Plugin_Presentation.${ext}`;
-  if ('base64' in content) {
-    const { base64 } = content;
-    const dataUrlMatch = base64.match(/^data:[^;]+;base64,(.+)$/);
-    const rawBase64 = dataUrlMatch ? dataUrlMatch[1] : base64;
-    const binaryStr = atob(rawBase64);
-    const bytes = Uint8Array.from(binaryStr, (c) => c.charCodeAt(0));
-    const blob = new Blob([bytes], { type: mimeType });
-    return new File([blob], presentationName, { type: mimeType });
+
+  if ('file' in content) {
+    assertSize(content.file.size);
+    return content.file;
   }
+
+  if ('blob' in content) {
+    assertSize(content.blob.size);
+    return new File([content.blob], presentationName, { type: mimeType });
+  }
+
+  if ('dataUrl' in content) {
+    const match = content.dataUrl.match(/^data:[^;]+;base64,(.+)$/);
+    if (!match) throw new Error('Invalid or non-base64 dataURL.');
+    return decodeBase64ToFile(match[1], mimeType, presentationName);
+  }
+
+  if ('base64' in content) {
+    return decodeBase64ToFile(content.base64, mimeType, presentationName);
+  }
+
   throw new Error('Object type not supported.');
 };
 
 const PluginUploadPresentationServerCommandsManager = () => {
+  const { data: currentUserData } = useCurrentUser((user) => ({
+    presenter: user.presenter,
+  }));
+
   const handleUploadPresentation = ((
     event: CustomEvent<UploadPresentationCommandArguments>,
   ) => {
+    if (!currentUserData?.presenter) {
+      logger.warn({
+        logCode: 'plugin_presentation_upload_not_allowed',
+      }, 'Plugin tried to upload a presentation but user is not a presenter');
+      return;
+    }
     toFile(event.detail.content, event.detail.mimeType, event.detail.filename).then((file) => {
       const id = uniqueId(file.name);
       PresentationUploaderService.handleSavePresentation([], false, {
         file,
         presentationId: id,
-        isDownloadable: false,
+        downloadable: false,
         isRemovable: true,
         name: file.name,
         current: true,
@@ -63,7 +107,7 @@ const PluginUploadPresentationServerCommandsManager = () => {
     return () => {
       window.removeEventListener(PresentationCommandsEnum.UPLOAD, handleUploadPresentation);
     };
-  }, []);
+  }, [currentUserData]);
 
   return null;
 };

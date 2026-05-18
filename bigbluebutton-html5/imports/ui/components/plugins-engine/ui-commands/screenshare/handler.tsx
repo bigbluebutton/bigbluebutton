@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { screenshareHasEnded, useIsScreenBroadcasting } from '/imports/ui/components/screenshare/service';
-
-const STOP_SCREENSHARE_COMMAND = 'STOP_SCREENSHARE_COMMAND';
+import { ScreenshareCommandsEnum } from 'bigbluebutton-html-plugin-sdk';
+import logger from '/imports/startup/client/logger';
 
 const PluginScreenshareUiCommandsHandler = () => {
   const { data: currentUserData } = useCurrentUser((user) => ({
@@ -13,14 +13,19 @@ const PluginScreenshareUiCommandsHandler = () => {
   useEffect(() => {
     const handleStopScreenshare = () => {
       const amIBroadcasting = isScreenBroadcasting && currentUserData?.presenter;
-      if (!amIBroadcasting) return;
+      if (!amIBroadcasting) {
+        logger.warn({
+          logCode: 'plugin_screenshare_stop_not_allowed',
+        }, 'Plugin tried to stop screenshare but user is not broadcasting');
+        return;
+      }
       screenshareHasEnded();
     };
 
-    window.addEventListener(STOP_SCREENSHARE_COMMAND, handleStopScreenshare);
+    window.addEventListener(ScreenshareCommandsEnum.STOP, handleStopScreenshare);
 
     return () => {
-      window.removeEventListener(STOP_SCREENSHARE_COMMAND, handleStopScreenshare);
+      window.removeEventListener(ScreenshareCommandsEnum.STOP, handleStopScreenshare);
     };
   }, [currentUserData, isScreenBroadcasting]);
 
