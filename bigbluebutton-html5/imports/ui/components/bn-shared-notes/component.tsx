@@ -176,6 +176,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   );
 
   const editor = useCreateBlockNote({
+    tabBehavior: 'prefer-indent',
     collaboration: {
       provider: { awareness: hocuspocusProvider.awareness || undefined },
       fragment,
