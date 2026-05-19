@@ -287,6 +287,25 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     return () => el.removeEventListener('mousedown', handler);
   }, [editable]);
 
+  // Keep editor focus when clicking SideMenu/DragHandleMenu items.
+  // Skip draggable="true" elements — preventDefault on mousedown prevents drag.
+  React.useEffect(() => {
+    const { portalElement } = editor;
+    const mousedownHandler = (e: MouseEvent) => {
+      if ((e.target as HTMLElement).closest('[draggable="true"]')) return;
+      e.preventDefault();
+      editor.focus();
+    };
+    // dragend bubbles from the drag handle after the drop — restore focus.
+    const dragendHandler = () => editor.focus();
+    portalElement.addEventListener('mousedown', mousedownHandler);
+    portalElement.addEventListener('dragend', dragendHandler);
+    return () => {
+      portalElement.removeEventListener('mousedown', mousedownHandler);
+      portalElement.removeEventListener('dragend', dragendHandler);
+    };
+  }, [editor]);
+
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <style>
