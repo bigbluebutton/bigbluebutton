@@ -991,7 +991,7 @@ class LearningDashboardActor(
     first.copy(
       currentIntId = if(second.currentIntId != null) second.currentIntId else first.currentIntId,
       intIds = mergeIntIds(first.intIds, second.intIds),
-      isModerator = first.isModerator || second.isModerator,
+      isModerator = second.isModerator,
       isDialIn = first.isDialIn || second.isDialIn,
       avatar = if(first.avatar == null || first.avatar.isEmpty) second.avatar else first.avatar,
       answers = mergeVectorMap(first.answers, second.answers),
