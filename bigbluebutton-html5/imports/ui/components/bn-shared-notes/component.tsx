@@ -14,6 +14,7 @@ import {
   ColorStyleButton,
   FormattingToolbar,
   NestBlockButton,
+  SideMenuController,
   UnnestBlockButton,
   useCreateBlockNote,
 } from '@blocknote/react';
@@ -31,6 +32,7 @@ import useCurrentUser from '../../core/hooks/useCurrentUser';
 import logger from '/imports/startup/client/logger';
 import { notify } from '../../services/notification';
 import TextAlignSelect from './text-align-select/component';
+import FocusRestoredSideMenu from './side-menu-controller/component';
 
 // Force-retain `Awareness` against a webpack tree-shaking interaction that
 // otherwise drops this class while keeping its `extends Observable` expression,
@@ -354,7 +356,9 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         theme="light"
         formattingToolbar={!STATIC_FORMATTING_TOOLBAR_ENABLED}
         renderEditor={false}
+        sideMenu={false}
       >
+        <SideMenuController sideMenu={FocusRestoredSideMenu} />
         {STATIC_FORMATTING_TOOLBAR_ENABLED && editable && (
           <div ref={toolbarRef} className="bn-toolbar-row">
             <FormattingToolbar>
