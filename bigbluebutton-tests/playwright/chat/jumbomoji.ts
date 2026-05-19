@@ -16,6 +16,8 @@ const JUMBO_CASES: ReadonlyArray<[label: string, text: string]> = [
   ['heart with VS16', '❤️'],
   ['keycap digit', '1️⃣'],
   ['rainbow flag (ZWJ)', '🏳️‍🌈'],
+  ['Fitzpatrick skin tone modifier', '👋🏿'],
+  ['skin tone in ZWJ chain', '👨🏿‍💻'],
 ];
 
 const REGULAR_CASES: ReadonlyArray<[label: string, text: string]> = [
