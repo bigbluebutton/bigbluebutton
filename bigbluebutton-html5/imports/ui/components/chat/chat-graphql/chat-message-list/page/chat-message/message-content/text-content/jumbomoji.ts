@@ -5,8 +5,11 @@ export const MAX_JUMBOMOJI_COUNT = 3;
 // Matches a single emoji grapheme:
 //  - regional indicator pair (country flags)
 //  - keycap sequences (0-9, #, *)
-//  - extended_pictographic with optional VS16 and ZWJ chains
-const EMOJI_GRAPHEME_SOURCE = '(?:\\p{RI}\\p{RI}|[0-9#*]\\uFE0F?\\u20E3|\\p{Extended_Pictographic}\\uFE0F?(?:\\u200D\\p{Extended_Pictographic}\\uFE0F?)*)';
+//  - extended_pictographic with optional VS16, optional Fitzpatrick skin-tone
+//    modifier, and ZWJ chains where each segment can carry its own modifier
+//    (e.g. 👨🏿‍💻 = man + dark skin + ZWJ + computer)
+const EMOJI_COMPONENT = '\\p{Extended_Pictographic}\\uFE0F?\\p{Emoji_Modifier}?';
+const EMOJI_GRAPHEME_SOURCE = `(?:\\p{RI}\\p{RI}|[0-9#*]\\uFE0F?\\u20E3|${EMOJI_COMPONENT}(?:\\u200D${EMOJI_COMPONENT})*)`;
 const EMOJI_GRAPHEME_GLOBAL = new RegExp(EMOJI_GRAPHEME_SOURCE, 'gu');
 
 const stripHtml = (html: string): string => {
