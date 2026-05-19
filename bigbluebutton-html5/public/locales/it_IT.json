@@ -1343,7 +1343,7 @@
     "app.videoDock.webcamPinDesc": "Aggancia la webcam selezionata",
     "app.videoDock.webcamFullscreenLabel": "Webcam a tutto schermo",
     "app.videoDock.webcamExitFullscreenLabel": "Esci dalla webcam a schermo intero",
-    "app.videoDock.webcamSqueezedButtonLabel": "Opzioni webcam",
+    "app.videoDock.webcamSqueezedButtonLabel": "Vista webcam compressa",
     "app.videoDock.webcamUnpinLabel": "Sgancia",
     "app.videoDock.webcamUnpinLabelDisabled": "Solo i moderatori possono sganciare gli utenti",
     "app.videoDock.webcamUnpinDesc": "Sgancia le webcam selezionate",

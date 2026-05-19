@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { notify } from '/imports/ui/services/notification';
 import Presentation from '/imports/ui/components/presentation/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import Auth from '/imports/ui/services/auth';
 import {
   useMutation, useSubscription, useQuery,
 } from '@apollo/client';
@@ -43,7 +44,8 @@ const PresentationContainer = (props) => {
 
   const { pres_page_curr: presentationPageArray } = (presentationPageData || {});
   const currentPresentationPage = presentationPageArray?.[0];
-  const slideSvgUrl = currentPresentationPage?.svgUrl;
+  const slideSvgUrl = currentPresentationPage?.svgUrl
+    ? Auth.authenticateURL(currentPresentationPage.svgUrl) : undefined;
   const currentPageId = currentPresentationPage?.pageId;
 
   const currentPresentationId = currentPresentationPage?.presentationId;
@@ -198,11 +200,8 @@ const PresentationContainer = (props) => {
       && !presentation.fetchedSlide[currentSlide.num + PRELOAD_NEXT_SLIDE]
       && presentation.canFetch) {
       const nextSlidesSvgUrl = (currentPresentationPage.nextPagesSvg || [])
-        .map((url) => ({ svgUrl: url }));
-      const slidesToFetch = [
-        currentPresentationPage,
-        ...nextSlidesSvgUrl,
-      ];
+        .map((url) => ({ svgUrl: Auth.authenticateURL(url) }));
+      const slidesToFetch = nextSlidesSvgUrl;
 
       const promiseImageGet = slidesToFetch
         .filter((s) => !fetchedpresentation[presentationId].fetchedSlide[s.svgUrl])
@@ -269,7 +268,9 @@ const PresentationContainer = (props) => {
           currentSlide,
           slidePosition,
           hasWBAccess: currentUser?.whiteboardWriteAccess,
-          downloadPresentationUri: `${APP_CONFIG.bbbWebBase}/${currentPresentationPage?.downloadFileUri}`,
+          downloadPresentationUri: currentPresentationPage?.downloadFileUri
+            ? Auth.authenticateURL(`${APP_CONFIG.bbbWebBase}/${currentPresentationPage.downloadFileUri}`)
+            : undefined,
           multiUser: (multiUserWhiteboardEnabled || multiUserData.active) && presentationIsOpen,
           presentationIsDownloadable: currentPresentationPage?.downloadable,
           mountPresentation: !!currentSlide,

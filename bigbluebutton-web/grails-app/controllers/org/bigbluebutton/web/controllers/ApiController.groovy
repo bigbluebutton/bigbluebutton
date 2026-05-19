@@ -26,8 +26,8 @@ import groovy.xml.XmlSlurper
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.io.FilenameUtils
-import org.apache.commons.lang.RandomStringUtils
-import org.apache.commons.lang.StringUtils
+import org.apache.commons.lang3.RandomStringUtils
+import org.apache.commons.lang3.StringUtils
 import org.bigbluebutton.api.*
 import org.bigbluebutton.api.domain.GuestPolicy
 import org.bigbluebutton.api.domain.Meeting
@@ -228,9 +228,9 @@ class ApiController {
     ApiErrors errors = new ApiErrors()
 
     if (meetingService.createMeeting(newMeeting)) {
+      respondWithConference(newMeeting, null, null)
       // See if the request came with pre-uploading of presentation.
       uploadDocuments(xmlModules, newMeeting, false);  //
-      respondWithConference(newMeeting, null, null)
     } else {
       // Translate the external meeting id into an internal meeting id.
       String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);

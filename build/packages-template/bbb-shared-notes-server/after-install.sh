@@ -19,8 +19,6 @@ case "$1" in
 
 runuser -u postgres -- psql -U postgres -d blocknote_app -q -f /usr/share/bbb-shared-notes-server/blocknote_schema.sql --set ON_ERROR_STOP=on
 
-  if [ ! -f /.dockerenv ]; then
-
 
   # This drop-in configures the `bbb-shared-notes-server` system service to support `systemd-run --user` in headless environments.
   # It sets the required `XDG_RUNTIME_DIR` and `DBUS_SESSION_BUS_ADDRESS` environment variables so the Java process
@@ -52,11 +50,13 @@ EOF
   echo "Drop-in created sucessfuly: $DROPIN_FILE"
   systemctl daemon-reexec
 
+  if [ ! -f /.dockerenv ]; then
     systemctl enable bbb-shared-notes-server.service
     systemctl daemon-reload
     reloadService nginx
-    startService bbb-shared-notes-server.service || echo "bbb-shared-notes-server service could not be registered or started"
   fi
+
+  startService bbb-shared-notes-server.service || echo "bbb-shared-notes-server service could not be registered or started"
 
   echo "Shared-Notes-Server after-install finished"
 

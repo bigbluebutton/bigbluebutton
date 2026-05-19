@@ -260,8 +260,19 @@ const useMouseEvents = ({
     setWheelZoomTimeout();
   });
 
+  const handlePointerDown = (event) => {
+    if (!event.isPrimary && event.pointerType === 'touch' && !isPresenterRef.current) {
+      event.stopPropagation();
+      tlEditorRef.current?.cancel();
+    }
+  };
+
   const handleTouchStart = (event) => {
     if (event.touches.length === 2) {
+      if (!isPresenterRef.current) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
       fingerCountRef.current = 2;
       isPinchingRef.current = false;
       const [t1, t2] = event.touches;
@@ -371,6 +382,7 @@ const useMouseEvents = ({
       presentationWrapper.addEventListener('mouseenter', handleMouseEnter);
       presentationWrapper.addEventListener('mouseleave', handleMouseLeave);
       presentationWrapper.addEventListener('wheel', handleMouseWheel, { passive: false, capture: true });
+      presentationWrapper.addEventListener('pointerdown', handlePointerDown, { capture: true });
       presentationWrapper.addEventListener('touchstart', handleTouchStart, { passive: false, capture: true });
       presentationWrapper.addEventListener('touchend', handleTouchEnd, { passive: false, capture: true });
       presentationWrapper.addEventListener('touchmove', handleTouchMove, { passive: false });
@@ -382,9 +394,10 @@ const useMouseEvents = ({
         presentationWrapper.removeEventListener('mouseup', handleMouseUp);
         presentationWrapper.removeEventListener('mouseenter', handleMouseEnter);
         presentationWrapper.removeEventListener('mouseleave', handleMouseLeave);
-        presentationWrapper.removeEventListener('wheel', handleMouseWheel);
-        presentationWrapper.removeEventListener('touchstart', handleTouchStart);
-        presentationWrapper.removeEventListener('touchend', handleTouchEnd);
+        presentationWrapper.removeEventListener('wheel', handleMouseWheel, { capture: true });
+        presentationWrapper.removeEventListener('pointerdown', handlePointerDown, { capture: true });
+        presentationWrapper.removeEventListener('touchstart', handleTouchStart, { capture: true });
+        presentationWrapper.removeEventListener('touchend', handleTouchEnd, { capture: true });
         presentationWrapper.removeEventListener('touchmove', handleTouchMove);
       }
       window.removeEventListener('mousedown', handleMouseDownWindow);

@@ -17,6 +17,25 @@ import org.bigbluebutton.core.util.TimeUtil
 
 trait HandlerHelpers extends SystemConfiguration {
 
+  def extractMainRoomInternalUserId(breakoutRoomUserId: String): String = {
+    val lastHyphenIdx = breakoutRoomUserId.lastIndexOf('-')
+    if (lastHyphenIdx == -1) breakoutRoomUserId else breakoutRoomUserId.substring(0, lastHyphenIdx)
+  }
+
+  def matchByBreakoutRoomExtUserId[T](users: Vector[T], breakoutRoomExtUserId: String)(extractInternalUserId: T => String): Option[T] = {
+    // The external id of the user in the breakout is the internal id of the user in the main room appended by the room sequence
+    val mainRoomInternalUserId = extractMainRoomInternalUserId(breakoutRoomExtUserId)
+    users.find(user => extractInternalUserId(user) == mainRoomInternalUserId)
+  }
+
+  def findUserInMainRoom(users: Users2x, breakoutRoomExtUserId: String): Option[UserState] = {
+    matchByBreakoutRoomExtUserId(Users2x.findAll(users), breakoutRoomExtUserId)(_.intId)
+  }
+
+  def findUserInMainRoom(users: RegisteredUsers, breakoutRoomExtUserId: String): Option[RegisteredUser] = {
+    matchByBreakoutRoomExtUserId(RegisteredUsers.findAll(users), breakoutRoomExtUserId)(_.id)
+  }
+
   def sendUserLeftFlagUpdatedEvtMsg(
       outGW:       OutMsgRouter,
       liveMeeting: LiveMeeting,
@@ -101,16 +120,34 @@ trait HandlerHelpers extends SystemConfiguration {
             val event = UserJoinedMeetingEvtMsgBuilder.build(liveMeeting.props.meetingProp.intId, newUser)
             outGW.send(event)
 
-            val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
-              liveMeeting.props.meetingProp.intId,
-              "info",
-              "user",
-              "app.notification.userJoinPushAlert",
-              "Notification for a user joins the meeting",
-              Map("userName"->s"${newUser.name}")
-            )
-            outGW.send(notifyEvent)
-            NotificationDAO.insert(notifyEvent)
+            if (MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList && newUser.role != Roles.MODERATOR_ROLE) {
+              Users2x.findAll(liveMeeting.users2x)
+                .filter(r => !r.userLeftFlag.left && (!r.locked || r.role == Roles.MODERATOR_ROLE))
+                .foreach { r =>
+                  val notifyEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
+                    r.intId,
+                    liveMeeting.props.meetingProp.intId,
+                    "info",
+                    "user",
+                    "app.notification.userJoinPushAlert",
+                    "Notification for a user joins the meeting",
+                    Map("userName" -> newUser.name)
+                  )
+                  outGW.send(notifyEvent)
+                  NotificationDAO.insert(notifyEvent)
+                }
+            } else {
+              val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+                liveMeeting.props.meetingProp.intId,
+                "info",
+                "user",
+                "app.notification.userJoinPushAlert",
+                "Notification for a user joins the meeting",
+                Map("userName" -> newUser.name)
+              )
+              outGW.send(notifyEvent)
+              NotificationDAO.insert(notifyEvent)
+            }
 
             val newState = startRecordingIfAutoStart2x(outGW, liveMeeting, state)
             if (!Users2x.hasPresenter(liveMeeting.users2x)) {

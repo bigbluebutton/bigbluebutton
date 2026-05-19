@@ -6,8 +6,20 @@ import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
 import '@blocknote/core/fonts/inter.css';
 import '@blocknote/mantine/style.css';
 import { HocuspocusProvider } from '@hocuspocus/provider';
-import { useCreateBlockNote } from '@blocknote/react';
-import { Plugin, PluginKey } from '@tiptap/pm/state';
+import { Awareness } from 'y-protocols/awareness';
+import {
+  BasicTextStyleButton,
+  BlockNoteViewEditor,
+  BlockTypeSelect,
+  ColorStyleButton,
+  FormattingToolbar,
+  NestBlockButton,
+  UnnestBlockButton,
+  useCreateBlockNote,
+} from '@blocknote/react';
+
+import { Plugin, PluginKey, TextSelection } from '@tiptap/pm/state';
+import { Extension } from '@tiptap/core';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
 import Button from '/imports/ui/components/common/button/component';
@@ -18,8 +30,66 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
 import logger from '/imports/startup/client/logger';
 import { notify } from '../../services/notification';
+import TextAlignSelect from './text-align-select/component';
+
+// Force-retain `Awareness` against a webpack tree-shaking interaction that
+// otherwise drops this class while keeping its `extends Observable` expression,
+// producing `ReferenceError: observable is not defined` in the minified bundle.
+(globalThis as unknown as Record<string, unknown>).bbbAwarenessKeepalive = Awareness;
 
 const maxDocumentCharsPluginKey = new PluginKey('maxDocumentChars');
+
+const createMaxDocumentCharsExtension = (
+  maxChars: number,
+  onExceed: (charCount: number) => void,
+) => Extension.create({
+  name: 'bbbMaxDocumentChars',
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        key: maxDocumentCharsPluginKey,
+        filterTransaction(tr) {
+          if (!tr.docChanged) return true;
+          let charCount = 0;
+          tr.doc.descendants((node) => {
+            if (node.isText) charCount += node.text?.length ?? 0;
+          });
+          if (charCount > maxChars) {
+            onExceed(charCount);
+          }
+          return charCount <= maxChars;
+        },
+      }),
+    ];
+  },
+});
+
+// The left margin of the table Block as the first block is buggy when used with static toolbar;
+// ideally the fix would come from BlockNote
+// (wait for https://github.com/TypeCellOS/BlockNote/issues/2748 to be resolved)
+// TODO: After the issue on BlockNote is resolved, update BlockNote and remove the
+// fixCursorAtOriginExtension and the fixCursorAtOriginPluginKey
+const fixCursorAtOriginPluginKey = new PluginKey('fixCursorAtOrigin');
+const fixCursorAtOriginExtension = Extension.create({
+  name: 'bbbFixCursorAtOrigin',
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        key: fixCursorAtOriginPluginKey,
+        appendTransaction(_transactions, _oldState, newState) {
+          const { selection } = newState;
+          if (selection.$from.pos > 2 || selection.$to.pos > 2) return null;
+          const firstBlockContent = newState.doc.firstChild?.firstChild?.firstChild;
+          if (!firstBlockContent || firstBlockContent.type.name !== 'table') return null;
+          if (newState.doc.content.size < 1) return null;
+          const safeSelection = TextSelection.near(newState.doc.resolve(1), 1);
+          if (safeSelection.from === 0) return null;
+          return newState.tr.setSelection(safeSelection);
+        },
+      }),
+    ];
+  },
+});
 
 const intlMessages = defineMessages({
   payloadSizeError: {
@@ -81,7 +151,29 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
 
   const MAX_DOCUMENT_CHARS = window.meetingClientSettings?.public?.sharedNotes?.maxDocumentChars || 99999;
 
+  const STATIC_FORMATTING_TOOLBAR_ENABLED = window.meetingClientSettings
+    ?.public?.sharedNotes?.staticFormattingToolbar ?? true;
+
   const MAX_PASTE_SIZE = MAX_UPDATE_SHARED_NOTES * 1024;
+
+  const intlRef = React.useRef(intl);
+  intlRef.current = intl;
+
+  const maxDocumentCharsExtension = React.useMemo(
+    () => createMaxDocumentCharsExtension(MAX_DOCUMENT_CHARS, (charCount) => {
+      logger.warn({
+        logCode: 'max_number_char_typed',
+        extraInfo: {
+          charCount,
+          maxCharCount: MAX_DOCUMENT_CHARS,
+        },
+      }, 'User typed more characters than allowed');
+      notify(intlRef.current.formatMessage(intlMessages.maxCharCountError, {
+        maxCharCount: MAX_DOCUMENT_CHARS,
+      }), 'warning');
+    }),
+    [MAX_DOCUMENT_CHARS],
+  );
 
   const editor = useCreateBlockNote({
     collaboration: {
@@ -97,11 +189,14 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
       ...BlockNoteLocales[blockNoteLocale as keyof typeof BlockNoteLocales],
       placeholders: {
         ...BlockNoteLocales[blockNoteLocale as keyof typeof BlockNoteLocales].placeholders,
-        // Override the placeholders to prevent line wrapping in the narrow panel
-        emptyDocument: '',
+        // Override the placeholders to allow placeholder only when the document is empty
+        emptyDocument: BlockNoteLocales[blockNoteLocale as keyof typeof BlockNoteLocales].placeholders.default,
         default: '',
         heading: '',
       },
+    },
+    _tiptapOptions: {
+      extensions: [maxDocumentCharsExtension, fixCursorAtOriginExtension],
     },
     pasteHandler: ({ event, defaultPasteHandler }) => {
       try {
@@ -157,47 +252,54 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     },
   }, [blockNoteLocale, notificationErrorMessage]);
 
-  React.useEffect(() => {
-    const tiptapEditor = Reflect.get(editor, '_tiptapEditor') as {
-      registerPlugin: (plugin: Plugin) => void;
-      unregisterPlugin: (key: PluginKey) => void;
-    };
-    if (!tiptapEditor) return () => {};
-    const plugin = new Plugin({
-      key: maxDocumentCharsPluginKey,
-      filterTransaction(tr) {
-        if (!tr.docChanged) return true;
-        let charCount = 0;
-        tr.doc.descendants((node) => {
-          if (node.isText) charCount += node.text?.length ?? 0;
-        });
-        if (charCount > MAX_DOCUMENT_CHARS) {
-          logger.warn({
-            logCode: 'max_number_char_typed',
-            extraInfo: {
-              charCount,
-              maxCharCount: MAX_DOCUMENT_CHARS,
-            },
-          }, 'User typed more characters than allowed');
-          notify(intl.formatMessage(intlMessages.maxCharCountError, {
-            maxCharCount: MAX_DOCUMENT_CHARS,
-          }), 'warning');
-        }
-        return charCount <= MAX_DOCUMENT_CHARS;
-      },
-    });
-    tiptapEditor.registerPlugin(plugin);
-    return () => {
-      tiptapEditor.unregisterPlugin(maxDocumentCharsPluginKey);
-    };
-  }, [editor]);
-
   const editable = !disableNotes || !currentUserIsLocked || currentUserIsModerator;
+
+  // When read-only, clear local awareness so the provider's reconnect logic and
+  // the 30 s refresh timer do not re-broadcast this user's cursor/presence.
+  // setLocalState(null) also makes all future setLocalStateField calls no-ops,
+  // so y-prosemirror and BlockNote cannot re-populate the state either.
+  //
+  // When editable again, restore awareness if it is still null. This handles a
+  // race where the new provider syncs before GraphQL delivers the lock-removal
+  // update: the useEffect fires with editable=false on the fresh Awareness,
+  // nulling it out; later editable flips to true but BlockNote's init already
+  // ran, so we must re-seed the state ourselves.
+  React.useEffect(() => {
+    const { awareness } = hocuspocusProvider;
+    if (!awareness) return;
+    if (!editable) {
+      awareness.setLocalState(null);
+    } else if (awareness.getLocalState() === null) {
+      awareness.setLocalState({
+        user: { name: userName || '', color: userColor || '' },
+      });
+    }
+  }, [editable, hocuspocusProvider.awareness, userName, userColor]);
+
+  // Keep the editor's focus/selection when tapping a toolbar button by
+  // cancelling the default focus move on mousedown.
+  const toolbarRef = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    const el = toolbarRef.current;
+    if (!el) return undefined;
+    const handler = (e: MouseEvent) => e.preventDefault();
+    el.addEventListener('mousedown', handler);
+    return () => el.removeEventListener('mousedown', handler);
+  }, [editable]);
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <style>
         {`
+          .bn-toolbar-row .mantine-Button-label {
+            display: none;
+          }
+          .bn-toolbar-row .mantine-Button-inner > .mantine-Button-section {
+            margin: 0;
+          }
+          .bn-toolbar-row [data-with-left-section] {
+            padding: 0 .25rem
+          }
           .bn-collaboration-cursor__label {
             color: ${colorWhite} !important;
           }
@@ -207,18 +309,44 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
           .bn-mantine .bn-suggestion-menu {
             min-width: 300px;
           }
-          .bn-editor {
-            padding-inline: 35px 25px;
-          }
-          /* Make the editor fill the available space so clicks below last line focus it */
-          .bn-mantine,
-          .bn-editor,
-          .bn-editor .ProseMirror {
+          /* Toolbar and editor are siblings inside .bn-container. DOM order matches
+             visual order (toolbar first, editor second), so tab order is correct. */
+          .bn-container {
+            display: flex;
+            flex-direction: column;
             height: 100%;
           }
-          .bn-editor .ProseMirror {
+          .bn-mantine button, .bn-mantine select {
+            height: 100%;
+          }
+          .bn-toolbar-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 4px;
+            padding-block: 4px;
+            flex-shrink: 0;
+            border-bottom: 1px solid #d4d9df;
+          }
+          .bn-toolbar-row .bn-formatting-toolbar {
+            box-shadow: none;
+            border: none;
+            padding: 0;
+          }
+          .bn-toolbar-row [data-test="colors"] .bn-color-icon {
+            font-weight: 700;
+          }
+          .bn-toolbar-row [data-test="colors"] .bn-color-icon[data-text-color="default"] {
+            color: #2f80ed;
+          }
+          .bn-editor {
+            padding-inline: 35px 25px;
+            font-size: 1rem;
             box-sizing: border-box;
             cursor: text;
+            flex: 1 1 0;
+            min-height: 0;
+            overflow-y: auto;
           }
           /* Flip labels to below when near top of scroll container */
           .bn-block-group > .bn-block-outer:first-child
@@ -246,7 +374,28 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         editable={editable}
         editor={editor}
         theme="light"
-      />
+        formattingToolbar={!STATIC_FORMATTING_TOOLBAR_ENABLED}
+        renderEditor={false}
+      >
+        {STATIC_FORMATTING_TOOLBAR_ENABLED && editable && (
+          <div ref={toolbarRef} className="bn-toolbar-row">
+            <FormattingToolbar>
+              <BlockTypeSelect key="blockTypeSelect" />
+              <BasicTextStyleButton basicTextStyle="bold" key="boldStyleButton" />
+              <BasicTextStyleButton basicTextStyle="italic" key="italicStyleButton" />
+              <BasicTextStyleButton basicTextStyle="underline" key="underlineStyleButton" />
+              <BasicTextStyleButton basicTextStyle="strike" key="strikeStyleButton" />
+            </FormattingToolbar>
+            <FormattingToolbar>
+              <ColorStyleButton key="colorStyleButton" />
+              <TextAlignSelect key="textAlignSelect" />
+              <NestBlockButton key="nestBlockButton" />
+              <UnnestBlockButton key="unnestBlockButton" />
+            </FormattingToolbar>
+          </div>
+        )}
+        <BlockNoteViewEditor />
+      </BlockNoteView>
     </div>
   );
 }

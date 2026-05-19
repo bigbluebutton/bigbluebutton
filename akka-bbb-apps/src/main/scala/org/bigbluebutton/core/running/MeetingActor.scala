@@ -478,7 +478,7 @@ class MeetingActor(
         updateModeratorsPresence()
 
       case m: UserJoinedVoiceConfEvtMsg =>
-        handleUserJoinedVoiceConfEvtMsg(m)
+        state = handleUserJoinedVoiceConfEvtMsg(m, state)
         updateVoiceUserLastActivity(m.body.voiceUserId)
       case m: LogoutAndEndMeetingCmdMsg => usersApp.handleLogoutAndEndMeetingCmdMsg(m, state)
       case m: SetRecordingStatusCmdMsg =>
@@ -578,14 +578,14 @@ class MeetingActor(
       case m: DestroyMediaGroupReqMsg =>
         state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
-      case m: GetMediaGroupsReqMsg                 => state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
+      case m: GetMediaGroupsReqMsg => state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
       case m: SetUserMediaGroupStateReqMsg =>
         state = mediaGroupHdlrs.handle(m, state, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
 
       // Voice
-      case m: UserLeftVoiceConfEvtMsg              => handleUserLeftVoiceConfEvtMsg(m)
-      case m: UserMutedInVoiceConfEvtMsg           => handleUserMutedInVoiceConfEvtMsg(m)
+      case m: UserLeftVoiceConfEvtMsg    => handleUserLeftVoiceConfEvtMsg(m)
+      case m: UserMutedInVoiceConfEvtMsg => handleUserMutedInVoiceConfEvtMsg(m)
       case m: UserTalkingInVoiceConfEvtMsg =>
         updateVoiceUserLastActivity(m.body.voiceUserId)
         handleUserTalkingInVoiceConfEvtMsg(m)
@@ -1153,16 +1153,35 @@ class MeetingActor(
         val userLeftMeetingEvent = MsgBuilder.buildUserLeftMeetingEvtMsg(liveMeeting.props.meetingProp.intId, u.intId)
         outGW.send(userLeftMeetingEvent)
 
-        val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
-          liveMeeting.props.meetingProp.intId,
-          "info",
-          "user",
-          "app.notification.userLeavePushAlert",
-          "Notification for a user leaves the meeting",
-          Map("userName" -> s"${u.name}")
-        )
-        outGW.send(notifyEvent)
-        NotificationDAO.insert(notifyEvent)
+        val leaverName = u.name
+        if (MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList && u.role != Roles.MODERATOR_ROLE) {
+          Users2x.findAll(liveMeeting.users2x)
+            .filter(recipient => !recipient.userLeftFlag.left && (!recipient.locked || recipient.role == Roles.MODERATOR_ROLE))
+            .foreach { recipient =>
+              val notifyEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
+                recipient.intId,
+                liveMeeting.props.meetingProp.intId,
+                "info",
+                "user",
+                "app.notification.userLeavePushAlert",
+                "Notification for a user leaves the meeting",
+                Map("userName" -> leaverName)
+              )
+              outGW.send(notifyEvent)
+              NotificationDAO.insert(notifyEvent)
+            }
+        } else {
+          val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+            liveMeeting.props.meetingProp.intId,
+            "info",
+            "user",
+            "app.notification.userLeavePushAlert",
+            "Notification for a user leaves the meeting",
+            Map("userName" -> leaverName)
+          )
+          outGW.send(notifyEvent)
+          NotificationDAO.insert(notifyEvent)
+        }
 
         if (u.presenter) {
           log.info("removeUsersWithExpiredUserLeftFlag will cause an automaticallyAssignPresenter because user={} left", u)

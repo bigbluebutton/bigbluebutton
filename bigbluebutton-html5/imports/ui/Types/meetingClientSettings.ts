@@ -576,9 +576,10 @@ export interface Pads {
 }
 
 export interface SharedNotes {
-  serverUrl: string
+  serverHostname: string
   maxDocumentChars: number
   maxLengthForContentUpdate: number
+  staticFormattingToolbar: boolean
 }
 
 export interface Media {
@@ -753,6 +754,7 @@ export interface Whiteboard {
   annotations: Annotations
   allowInfiniteWhiteboard: boolean
   allowInfiniteWhiteboardInBreakouts: boolean
+  allowInfiniteWhiteboardPanForViewers: boolean
   styles: Styles
   toolbar: Toolbar
 }

@@ -10,6 +10,7 @@ location /hocuspocus/collaboration {
   auth_request_set $user_name $sent_http_user_name;
   auth_request_set $user_is_moderator $sent_http_user_is_moderator;
   auth_request_set $user_is_presenter $sent_http_user_is_presenter;
+  auth_request_set $user_notes_enabled $sent_http_user_notes_enabled;
 
   gzip_static on;
   proxy_pass http://localhost:8787/collaboration;
@@ -25,6 +26,7 @@ location /hocuspocus/collaboration {
   proxy_set_header User-Name $user_name;
   proxy_set_header User-Is-Moderator $user_is_moderator;
   proxy_set_header User-Is-Presenter $user_is_presenter;
+  proxy_set_header User-Notes-Enabled $user_notes_enabled;
 }
 
 location /bigbluebutton/connection/checkHocuspocusAuthorization {
@@ -41,6 +43,18 @@ location /bigbluebutton/connection/checkHocuspocusAuthorization {
 }
 
 location /hocuspocus/api/ {
+  if ($request_method = 'OPTIONS') {
+    add_header 'Access-Control-Allow-Origin' $http_origin always;
+    add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
+    add_header 'Access-Control-Allow-Headers' 'Authorization, Content-Type' always;
+    add_header 'Access-Control-Allow-Credentials' 'true' always;
+    add_header 'Content-Length' 0;
+    return 204;
+  }
+
+  add_header 'Access-Control-Allow-Origin' $http_origin always;
+  add_header 'Access-Control-Allow-Credentials' 'true' always;
+
   auth_request /bigbluebutton/connection/checkAuthorization;
   auth_request_set $auth_status $upstream_status;
   auth_request_set $meeting_id $sent_http_meeting_id;
@@ -62,4 +76,3 @@ location /hocuspocus/sample {
   proxy_http_version 1.1;
   proxy_set_header Host $host;
 }
-

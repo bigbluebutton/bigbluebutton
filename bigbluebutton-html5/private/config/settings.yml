@@ -808,11 +808,15 @@ public:
   pads:
     url: ETHERPAD_HOST
   sharedNotes:
-    # Hocuspocus server url for BlockNote (it will use the client's domain when empty)
-    # e.g: `wss://bbb-host/hocuspocus/collaboration`
-    serverUrl:
+    # Hocuspocus server hostname for BlockNote (it will use the client's hostname when empty)
+    # e.g: `bbb-host` (only the domain without protocol and path)
+    serverHostname:
     maxDocumentChars: 99999
     maxLengthForContentUpdate: 1500
+    # When enabled, the formatting toolbar is rendered statically above the
+    # editor and always visible. When disabled, BlockNote's default floating
+    # toolbar appears only when text is selected.
+    staticFormattingToolbar: true
   media:
     audio:
       # defaultFullAudioBridge: bridge to be used by full audio mechanism.
@@ -954,8 +958,8 @@ public:
         muteDebounceMs: 2500
       logLevel: 3
       # reconnectOnFatalFailures: whether to trigger LK room reconnections when
-      # fatal errors occur (e.g.: unrecoverable publish timeouts). Default is false.
-      reconnectOnFatalFailures: false
+      # fatal errors occur (e.g.: unrecoverable publish timeouts).
+      reconnectOnFatalFailures: true
       roomOptions:
         adaptiveStream: true
         dynacast: true
@@ -1089,6 +1093,7 @@ public:
     cursorInterval: 100
     allowInfiniteWhiteboard: false
     allowInfiniteWhiteboardInBreakouts: false
+    allowInfiniteWhiteboardPanForViewers: false
     pointerDiameter: 5
     maxStickyNoteLength: 1000
     # limit number of annotations per slide

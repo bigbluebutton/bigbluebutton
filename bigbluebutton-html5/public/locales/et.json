@@ -1343,7 +1343,7 @@
     "app.videoDock.webcamPinDesc": "Kinnita valitud veebikaamera",
     "app.videoDock.webcamFullscreenLabel": "Veebikaamera täisekraanile",
     "app.videoDock.webcamExitFullscreenLabel": "Välju veebikaamera täisekraanilt",
-    "app.videoDock.webcamSqueezedButtonLabel": "Veebikaamera valikud",
+    "app.videoDock.webcamSqueezedButtonLabel": "Vähendatud veebikaameravaade",
     "app.videoDock.webcamUnpinLabel": "Vabasta",
     "app.videoDock.webcamUnpinLabelDisabled": "Veebikaameraid saab vabastada ainult moderaator",
     "app.videoDock.webcamUnpinDesc": "Vabasta valitud veebikaamera",
