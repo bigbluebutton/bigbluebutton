@@ -140,8 +140,8 @@ public:
 ---
 
 Create a new file in `/etc/bigbluebutton/nginx/bbb-cluster.nginx`
-- raplace bbb-proxy.example.com with your proxy for $bbb_cors_origin
-- prepend the mount point of bbb-html5 in all location sections
+- replace `bbb-proxy.example.com` with your proxy origin in `$bbb_cors_origin`
+- prepend the `bbb-html5` mount point in all `location` sections
 
 
 ```
