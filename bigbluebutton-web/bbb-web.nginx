@@ -131,25 +131,6 @@ location = /bigbluebutton/connection/validatePad {
 }
 
 location ~ "^/bigbluebutton\/textTrack\/(?<textTrackToken>[a-zA-Z0-9]+)\/(?<recordId>[a-zA-Z0-9_-]+)\/(?<textTrack>.+)$" {
-	# Allow 30M uploaded presentation document.
-	client_max_body_size       30m;
-	client_body_buffer_size    128k;
-
-	proxy_http_version 1.1;
-	proxy_connect_timeout      90;
-	proxy_send_timeout         90;
-	proxy_read_timeout         90;
-	proxy_buffer_size          4k;
-	proxy_buffers              4 32k;
-	proxy_busy_buffers_size    64k;
-	proxy_temp_file_write_size 64k;
-	proxy_request_buffering    off;
-
-	# Workaround IE refusal to set cookies in iframe
-	add_header P3P 'CP="No P3P policy available"';
-
-	include    fastcgi_params;
-
 	# Send a sub-request to allow bbb-web to refuse before loading
 	auth_request /bigbluebutton/textTrack/validateAuthToken;
 
