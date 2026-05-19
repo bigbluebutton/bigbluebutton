@@ -31,8 +31,6 @@ location ~ "^\/bigbluebutton\/presentation\/(?<prestoken>[a-zA-Z0-9_-]+)/upload$
 	proxy_busy_buffers_size    64k;
 	proxy_temp_file_write_size 64k;
 
-	include    fastcgi_params;
-
 	proxy_request_buffering off;
 
 	# Send a sub-request to allow bbb-web to refuse before loading
