@@ -379,7 +379,9 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     const shouldShowOverflowTile = isGridEnabled && overflowCount > 0;
 
     const streamsToHide = (numOfStreams - gridSize + 1) * -1;
-    const streamsToRender = shouldShowOverflowTile ? streams.slice(0, streamsToHide) : streams;
+    const streamsToRender = shouldShowOverflowTile && streamsToHide < 0
+      ? streams.slice(0, streamsToHide)
+      : streams;
 
     const videoItems = streamsToRender.map((item) => {
       const { userId, name } = item;
