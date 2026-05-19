@@ -292,6 +292,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   // Skip draggable="true" elements — preventDefault on mousedown prevents drag.
   React.useEffect(() => {
     const { portalElement } = editor;
+    if (!portalElement) return undefined;
     const mousedownHandler = (e: MouseEvent) => {
       if ((e.target as HTMLElement).closest('[draggable="true"]')) return;
       e.preventDefault();
