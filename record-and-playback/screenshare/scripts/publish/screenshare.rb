@@ -90,7 +90,7 @@ FileUtils.cp_r("#{process_dir}/js", publish_dir)
 FileUtils.cp_r("#{process_dir}/video-js", publish_dir)
 
 logger.info "Cleaning up processed files"
-FileUtils.rm_rf(Dir.glob("#{process_dir}/*"))
+FileUtils.rm_r(Dir.glob("#{process_dir}/*"))
 
 # Create the done file
 File.open(donefile, 'w') do |done|
