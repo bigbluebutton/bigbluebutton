@@ -188,6 +188,7 @@ Here is a complete `manifest.json` example with all possible configurations:
   "javascriptEntrypointUrl": "MyPlugin.js",
   "javascriptEntrypointIntegrity": "sha384-Bwsz2rxm...", // Optional
   "localesBaseUrl": "https://cdn.domain.com/my-plugin/", // Optional
+  "enabledForBreakoutRooms": false, // Optional, defaults to false
   "loggerSettings": {                                    // Optional
     "console": {
       "enableRuntimeErrorLogging": false,
@@ -282,6 +283,44 @@ public:
           abc: my123
           def: 3234
 ```
+
+**enabledForBreakoutRooms:**
+
+By default, plugins are **not** loaded in breakout rooms. Setting `enabledForBreakoutRooms` to `true` makes the plugin available inside breakout rooms as well as the main room.
+
+```json
+{
+  "enabledForBreakoutRooms": true
+}
+```
+
+When this property is `false` (or omitted), the server filters the plugin out before creating any breakout room, so it never loads for breakout participants.
+
+**javascriptEntrypointIntegrity:**
+
+An optional [Subresource Integrity (SRI)](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity) hash for the plugin's JavaScript bundle. When present, the browser verifies the fetched file matches the hash before executing it, protecting against tampered or malicious substitutions of the plugin file.
+
+The value must follow the SRI format `<algorithm>-<base64-hash>` (e.g. `sha384-Bwsz2rxm...`).
+
+```json
+{
+  "javascriptEntrypointIntegrity": "sha384-Bwsz2rxm..."
+}
+```
+
+If omitted, no integrity check is performed.
+
+**localesBaseUrl:**
+
+An optional base URL from which the plugin SDK loads locale (i18n) message files for the plugin. This enables internationalization support — the SDK fetches locale files relative to this URL when the client switches languages.
+
+```json
+{
+  "localesBaseUrl": "https://cdn.domain.com/my-plugin/"
+}
+```
+
+If the URL is relative, the server automatically resolves it relative to the manifest's own URL, the same way `javascriptEntrypointUrl` is resolved. If omitted, locale files will not be loaded for the plugin.
 
 ## Examples
 
