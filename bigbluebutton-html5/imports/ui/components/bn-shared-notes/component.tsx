@@ -360,38 +360,6 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
           .bn-toolbar-row [data-test="colors"] .bn-color-icon[data-text-color="default"] {
             color: #2f80ed;
           }
-
-          /* BEGIN TEMPORARY STYLE TO FIX BLOCKNOTE ISSUE */
-          */ track https://github.com/TypeCellOS/BlockNote/issues/2732 */
-          .bn-color-icon[data-text-color="gray"] { color: var(--bn-colors-highlights-gray-text); }
-          .bn-color-icon[data-text-color="brown"] { color: var(--bn-colors-highlights-brown-text); }
-          .bn-color-icon[data-text-color="red"] { color: var(--bn-colors-highlights-red-text); }
-          .bn-color-icon[data-text-color="orange"] { color: var(--bn-colors-highlights-orange-text); }
-          .bn-color-icon[data-text-color="yellow"] { color: var(--bn-colors-highlights-yellow-text); }
-          .bn-color-icon[data-text-color="green"] { color: var(--bn-colors-highlights-green-text); }
-          .bn-color-icon[data-text-color="blue"] { color: var(--bn-colors-highlights-blue-text); }
-          .bn-color-icon[data-text-color="purple"] { color: var(--bn-colors-highlights-purple-text); }
-          .bn-color-icon[data-text-color="pink"] { color: var(--bn-colors-highlights-pink-text); }
-          .bn-color-icon[data-background-color="gray"]
-            { background-color: var(--bn-colors-highlights-gray-background); }
-          .bn-color-icon[data-background-color="brown"]
-            { background-color: var(--bn-colors-highlights-brown-background); }
-          .bn-color-icon[data-background-color="red"]
-            { background-color: var(--bn-colors-highlights-red-background); }
-          .bn-color-icon[data-background-color="orange"]
-            { background-color: var(--bn-colors-highlights-orange-background); }
-          .bn-color-icon[data-background-color="yellow"]
-            { background-color: var(--bn-colors-highlights-yellow-background); }
-          .bn-color-icon[data-background-color="green"]
-            { background-color: var(--bn-colors-highlights-green-background); }
-          .bn-color-icon[data-background-color="blue"]
-            { background-color: var(--bn-colors-highlights-blue-background); }
-          .bn-color-icon[data-background-color="purple"]
-            { background-color: var(--bn-colors-highlights-purple-background); }
-          .bn-color-icon[data-background-color="pink"]
-            { background-color: var(--bn-colors-highlights-pink-background); }
-          /* END TEMPORARY STYLE TO FIX BLOCKNOTE ISSUE */
-
           .bn-editor {
             padding-inline: 35px 25px;
             font-size: 1rem;
