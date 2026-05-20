@@ -1522,7 +1522,7 @@ begin
         BigBlueButton.logger.info('Finished publishing script presentation.rb successfully.')
 
         BigBlueButton.logger.info('Removing processed and published files.')
-        FileUtils.rm_rf([Dir.glob("#{@process_dir}/*"), Dir.glob("#{target_dir}/*")])
+        FileUtils.rm_r([Dir.glob("#{@process_dir}/*"), Dir.glob("#{target_dir}/*")])
       rescue StandardError => e
         BigBlueButton.logger.error(e.message)
         e.backtrace.each do |traceline|
