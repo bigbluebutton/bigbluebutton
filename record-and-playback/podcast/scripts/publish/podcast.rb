@@ -124,10 +124,10 @@ begin
       BigBlueButton.logger.info("Finished publishing script podcast.rb successfully.")
 
       BigBlueButton.logger.info("Removing processed files.")
-      FileUtils.rm_r(process_dir)
+      FileUtils.rm_rf(process_dir)
 
       BigBlueButton.logger.info("Removing published files.")
-      FileUtils.rm_r(target_dir)
+      FileUtils.rm_rf(target_dir)
 
       publish_done = File.new("#{recording_dir}/status/published/#{meeting_id}-podcast.done", "w")
       publish_done.write("Published #{meeting_id}")
