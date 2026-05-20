@@ -56,6 +56,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.randomlyAssignDesc',
     description: 'randomly assign label description',
   },
+  assignModeratorsRandomlyDesc: {
+    id: 'app.createBreakoutRoom.assignModeratorsRandomlyDesc',
+    description: 'assign moderators randomly label description',
+  },
   resetAssignmentsDesc: {
     id: 'app.createBreakoutRoom.resetAssignmentsDesc',
     description: 'Reset all user room assignments',
@@ -333,13 +337,14 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
   const [inviteMods, setInviteMods] = useState(inviteModsByDefault);
   const [leastOneUserIsValid, setLeastOneUserIsValid] = useState(false);
   const [roomPresentations, setRoomPresentations] = useState<RoomPresentations>([]);
-  const [randomlyAssigned, setRandomlyAssigned] = useState(false);
+  const [assignmentState, setAssignmentState] = useState<'hasViewers' | 'onlyModerators' | 'allAssigned'>('hasViewers');
 
   const [createBreakoutRoom] = useMutation(BREAKOUT_ROOM_CREATE);
 
   const roomsRef = useRef<Rooms>({});
   const moveRegisterRef = useRef<moveUserRegistery>({});
   const randomlyAssignFunction = useRef<() => void>(() => {});
+  const randomlyAssignModeratorsFunction = useRef<() => void>(() => {});
   const resetAssignmentsFunction = useRef<() => void>(() => {});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const breakoutDurationRef = useRef<number>(DEFAULT_SIDEBAR_BREAKOUT_TIME * 60);
@@ -562,27 +567,43 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
           </TooltipContainer>
         </Styled.RoomCountControl>
         {/* @ts-ignore */}
-        <Styled.RandomAssignBtn
-          color="primary"
-          icon={randomlyAssigned ? 'undo' : 'random'}
-          label={randomlyAssigned
-            ? intl.formatMessage(intlMessages.resetAssignmentsDesc)
-            : intl.formatMessage(intlMessages.randomlyAssignDesc)}
-          hideLabel
-          tooltipLabel={randomlyAssigned
-            ? intl.formatMessage(intlMessages.resetAssignmentsDesc)
-            : intl.formatMessage(intlMessages.randomlyAssignDesc)}
-          onClick={() => {
-            if (randomlyAssigned) {
-              resetAssignmentsFunction.current();
-              setRandomlyAssigned(false);
-            } else {
-              randomlyAssignFunction.current();
-              setRandomlyAssigned(true);
-            }
-          }}
-          data-test="randomlyAssign"
-        />
+        {(() => {
+          let assignBtnLabel: string;
+          let assignBtnTooltip: string;
+          let assignBtnDataTest: string;
+          if (assignmentState === 'allAssigned') {
+            assignBtnLabel = intl.formatMessage(intlMessages.resetAssignmentsDesc);
+            assignBtnTooltip = intl.formatMessage(intlMessages.resetAssignmentsDesc);
+            assignBtnDataTest = 'resetAssignments';
+          } else if (assignmentState === 'onlyModerators') {
+            assignBtnLabel = intl.formatMessage(intlMessages.assignModeratorsRandomlyDesc);
+            assignBtnTooltip = intl.formatMessage(intlMessages.assignModeratorsRandomlyDesc);
+            assignBtnDataTest = 'assignModeratorsRandomly';
+          } else {
+            assignBtnLabel = intl.formatMessage(intlMessages.randomlyAssignDesc);
+            assignBtnTooltip = intl.formatMessage(intlMessages.randomlyAssignDesc);
+            assignBtnDataTest = 'randomlyAssign';
+          }
+          return (
+            <Styled.RandomAssignBtn
+              color="primary"
+              icon={assignmentState === 'allAssigned' ? 'undo' : 'random'}
+              label={assignBtnLabel}
+              hideLabel
+              tooltipLabel={assignBtnTooltip}
+              onClick={() => {
+                if (assignmentState === 'allAssigned') {
+                  resetAssignmentsFunction.current();
+                } else if (assignmentState === 'onlyModerators') {
+                  randomlyAssignModeratorsFunction.current();
+                } else {
+                  randomlyAssignFunction.current();
+                }
+              }}
+              data-test={assignBtnDataTest}
+            />
+          );
+        })()}
       </Styled.ControlsRow>
 
       <Styled.MoreOptionsToggle
@@ -654,7 +675,9 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
           groups={groups}
           freeJoin={freeJoin}
           randomlyAssignFunction={(fn: () => void) => { randomlyAssignFunction.current = fn; }}
+          randomlyAssignModeratorsFunction={(fn: () => void) => { randomlyAssignModeratorsFunction.current = fn; }}
           resetAssignmentsFunction={(fn: () => void) => { resetAssignmentsFunction.current = fn; }}
+          onAssignmentStateChange={setAssignmentState}
           isMobile={false}
         />
       </Styled.ScrollContent>
