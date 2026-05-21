@@ -127,6 +127,9 @@ const PinApp = styled.div<{pinned: boolean}>`
 
 const DescWrapper = styled.div`
   padding: 0 ${contentSidebarPadding} 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `;
 
 const BoldText = styled.span`
@@ -181,6 +184,120 @@ const SectionSeparator = styled.hr`
   align-self: center;
 `;
 
+const ViewToggleWrapper = styled.div`
+  display: flex;
+  gap: 0.25rem;
+  flex-shrink: 0;
+`;
+
+const ViewToggleButton = styled.button<{ $active: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: ${borderRadiusRounded};
+  color: ${({ $active }) => ($active ? colorPrimary : unpinnedAppIconColor)};
+
+  > i {
+    font-size: 125%;
+  }
+
+  &:hover {
+    background-color: ${appsGalleryOutlineColor};
+    color: ${colorPrimary};
+  }
+`;
+
+const TileAppsWrapper = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: ${appsPanelItemsSpacing};
+  width: 100%;
+`;
+
+const TileItem = styled.div`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem 0.75rem 0.75rem;
+  border: 1px solid ${colorBorder};
+  border-radius: ${appsButtonsBorderRadius};
+  gap: 0.5rem;
+  cursor: pointer;
+  overflow: hidden;
+
+  &:hover {
+    background-color: ${colorBlueAux};
+  }
+`;
+
+const TileOpenButton = styled.span<{ $pinned: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+
+  ${({ $pinned }) => ($pinned ? `
+    background-color: ${colorPrimary};
+    color: ${colorWhite};
+  ` : `
+    background-color: ${colorBlueAux};
+    color: ${colorPrimary};
+  `)}
+
+  > i {
+    font-size: 160%;
+  }
+`;
+
+const TilePinApp = styled.div<{ pinned: boolean }>`
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  padding: 0.25rem;
+  cursor: pointer;
+
+  > i {
+    font-size: 100%;
+    color: ${({ pinned }) => (pinned ? colorPrimary : unpinnedAppIconColor)};
+  }
+
+  &:hover {
+    background-color: ${appsGalleryOutlineColor};
+  }
+`;
+
+const TileTitle = styled.div`
+  text-align: center;
+  font-size: ${fontSizeBase};
+  font-weight: ${headingsFontWeight};
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+`;
+
+const TileClickableArea = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  cursor: pointer;
+`;
+
 export default {
   PanelContent,
   Separator,
@@ -198,4 +315,12 @@ export default {
   SearchWrapper,
   SearchInput,
   SectionSeparator,
+  ViewToggleWrapper,
+  ViewToggleButton,
+  TileAppsWrapper,
+  TileItem,
+  TileOpenButton,
+  TilePinApp,
+  TileTitle,
+  TileClickableArea,
 };

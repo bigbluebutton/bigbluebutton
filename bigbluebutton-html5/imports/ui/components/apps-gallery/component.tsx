@@ -15,6 +15,8 @@ import { isPluginNew } from './service';
 import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 import PanelHeader from '/imports/ui/components/common/panel-header/component';
 import Icon from '/imports/ui/components/common/icon/component';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const intlMessages = defineMessages({
   appsGalleryTitle: {
@@ -45,19 +47,45 @@ const intlMessages = defineMessages({
     id: 'app.appsGallery.searchPlaceholder',
     description: 'Placeholder text for the apps gallery search input',
   },
+  gridViewLabel: {
+    id: 'app.appsGallery.gridViewLabel',
+    description: 'Tooltip label for the grid view toggle button',
+  },
+  listViewLabel: {
+    id: 'app.appsGallery.listViewLabel',
+    description: 'Tooltip label for the list view toggle button',
+  },
 });
+
+const VIEW_MODE_STORAGE_KEY = 'apps-gallery-view-mode';
+
+const getInitialViewMode = (): 'list' | 'grid' => {
+  if (deviceInfo.isMobile) return 'list';
+  const stored = localStorage.getItem(VIEW_MODE_STORAGE_KEY);
+  if (stored === 'list' || stored === 'grid') return stored;
+  return 'grid';
+};
 
 const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps }) => {
   const MAX_PINNED_APPS_GALLERY = window.meetingClientSettings.public.app.appsGallery.maxPinnedApps;
   const intl = useIntl();
   const title = intl.formatMessage(intlMessages.appsGalleryTitle);
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>(getInitialViewMode);
   const [meetingSettings] = useMeetingSettings();
+  const { isMobile } = deviceInfo;
   const appsToLabelAsNew = meetingSettings?.public?.sidebarNavigation?.appsToLabelAsNew || [];
   const shouldAddIsNewLabel = useCallback((id: string) => appsToLabelAsNew.includes(id), [appsToLabelAsNew]);
 
   const pinTooltip = intl.formatMessage(intlMessages.pinTooltip);
   const unpinTooltip = intl.formatMessage(intlMessages.unpinTooltip);
+  const gridViewLabel = intl.formatMessage(intlMessages.gridViewLabel);
+  const listViewLabel = intl.formatMessage(intlMessages.listViewLabel);
+
+  const handleViewModeChange = (mode: 'list' | 'grid') => {
+    setViewMode(mode);
+    localStorage.setItem(VIEW_MODE_STORAGE_KEY, mode);
+  };
   const normalizedQuery = searchQuery.trim().toLowerCase();
 
   const renderAppItem = (appKey: string, isPinned: boolean) => {
@@ -85,6 +113,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
         onClick={onClick}
         pinTooltip={pinTooltip}
         unpinTooltip={unpinTooltip}
+        viewMode={viewMode}
       />
     );
   };
@@ -94,7 +123,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
       .sort((a, b) => registeredApps[a].name.localeCompare(registeredApps[b].name))
       .filter((key) => !normalizedQuery || registeredApps[key].name.toLowerCase().includes(normalizedQuery))
       .map((key) => renderAppItem(key, true))
-  ), [registeredApps, pinnedApps, normalizedQuery, pinTooltip, unpinTooltip, shouldAddIsNewLabel]);
+  ), [registeredApps, pinnedApps, normalizedQuery, pinTooltip, unpinTooltip, shouldAddIsNewLabel, viewMode]);
 
   const renderedUnpinnedApps = useMemo(() => {
     const unpinnedKeys = Object.keys(registeredApps)
@@ -112,7 +141,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
       .sort((a, b) => registeredApps[a].name.localeCompare(registeredApps[b].name));
 
     return [...newApps, ...regularApps].map((key) => renderAppItem(key, false));
-  }, [registeredApps, pinnedApps, normalizedQuery, pinTooltip, unpinTooltip, shouldAddIsNewLabel]);
+  }, [registeredApps, pinnedApps, normalizedQuery, pinTooltip, unpinTooltip, shouldAddIsNewLabel, viewMode]);
 
   return (
     <>
@@ -136,27 +165,55 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
       </Styled.SearchWrapper>
 
       <Styled.DescWrapper>
-        <Styled.BoldText>
-          {intl.formatMessage(
-            intlMessages.pinnedApps,
-            { pinnedCount: pinnedApps.length, maxPinned: MAX_PINNED_APPS_GALLERY },
-          )}
-        </Styled.BoldText>
-        {intl.formatMessage(intlMessages.pinnedAppsContinue)}
+        <span>
+          <Styled.BoldText>
+            {intl.formatMessage(
+              intlMessages.pinnedApps,
+              { pinnedCount: pinnedApps.length, maxPinned: MAX_PINNED_APPS_GALLERY },
+            )}
+          </Styled.BoldText>
+          {intl.formatMessage(intlMessages.pinnedAppsContinue)}
+        </span>
+        {!isMobile && (
+          <Styled.ViewToggleWrapper>
+            <TooltipContainer title={gridViewLabel}>
+              <Styled.ViewToggleButton
+                $active={viewMode === 'grid'}
+                onClick={() => handleViewModeChange('grid')}
+                aria-pressed={viewMode === 'grid'}
+                aria-label={gridViewLabel}
+                data-test="appsGalleryGridView"
+              >
+                <Icon iconName="apps_tiles" />
+              </Styled.ViewToggleButton>
+            </TooltipContainer>
+            <TooltipContainer title={listViewLabel}>
+              <Styled.ViewToggleButton
+                $active={viewMode === 'list'}
+                onClick={() => handleViewModeChange('list')}
+                aria-pressed={viewMode === 'list'}
+                aria-label={listViewLabel}
+                data-test="appsGalleryListView"
+              >
+                <Icon iconName="apps_list" />
+              </Styled.ViewToggleButton>
+            </TooltipContainer>
+          </Styled.ViewToggleWrapper>
+        )}
       </Styled.DescWrapper>
       <Styled.Wrapper id="scroll-box">
         {renderedPinnedApps.length > 0 && (
-          <Styled.PinnedAppsWrapper>
-            {renderedPinnedApps}
-          </Styled.PinnedAppsWrapper>
+          viewMode === 'grid'
+            ? <Styled.TileAppsWrapper>{renderedPinnedApps}</Styled.TileAppsWrapper>
+            : <Styled.PinnedAppsWrapper>{renderedPinnedApps}</Styled.PinnedAppsWrapper>
         )}
         {renderedPinnedApps.length > 0 && renderedUnpinnedApps.length > 0 && (
           <Styled.SectionSeparator />
         )}
         {renderedUnpinnedApps.length > 0 && (
-          <Styled.UnpinnedAppsWrapper>
-            {renderedUnpinnedApps}
-          </Styled.UnpinnedAppsWrapper>
+          viewMode === 'grid'
+            ? <Styled.TileAppsWrapper>{renderedUnpinnedApps}</Styled.TileAppsWrapper>
+            : <Styled.UnpinnedAppsWrapper>{renderedUnpinnedApps}</Styled.UnpinnedAppsWrapper>
         )}
       </Styled.Wrapper>
     </>

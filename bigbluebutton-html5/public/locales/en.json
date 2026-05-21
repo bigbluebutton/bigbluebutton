@@ -179,6 +179,8 @@
     "app.appsGallery.searchPlaceholder": "Search functionality",
     "app.appsGallery.pinTooltip": "Pin app",
     "app.appsGallery.unpinTooltip": "Unpin app",
+    "app.appsGallery.gridViewLabel": "Grid view",
+    "app.appsGallery.listViewLabel": "List view",
     "app.appsGallery.newAppLabel": "New",
     "app.appsGallery.modal.title": "Oops!",
     "app.appsGallery.modal.subtitle": "You already have {pinnedAppsNumber} pinned apps in the sidebar.",

@@ -19,6 +19,7 @@ interface AppItemProps {
   pinTooltip: string;
   unpinTooltip: string;
   children?: ReactNode;
+  viewMode?: 'list' | 'grid';
 }
 
 const intlMessages = defineMessages({
@@ -46,6 +47,7 @@ const AppItem: React.FC<AppItemProps> = ({
   pinTooltip,
   unpinTooltip,
   children = null,
+  viewMode = 'list',
 }) => {
   const layoutContextDispatch = layoutDispatch();
   const intl = useIntl();
@@ -87,6 +89,40 @@ const AppItem: React.FC<AppItemProps> = ({
       togglePinApp(e);
     }
   }, [togglePinApp]);
+
+  if (viewMode === 'grid') {
+    return (
+      <Styled.TileItem key={`${appKey}${isPinned}`} data-test={dataTest}>
+        <TooltipContainer title={isPinned ? unpinTooltip : pinTooltip}>
+          <Styled.TilePinApp
+            role="button"
+            aria-label={isPinned ? unpinTooltip : pinTooltip}
+            aria-pressed={isPinned}
+            onClick={togglePinApp}
+            onKeyDown={handlePinKeyDown}
+            tabIndex={0}
+            pinned={isPinned}
+          >
+            <Icon iconName={isPinned ? 'pin-video_on' : 'pin-video_off'} />
+          </Styled.TilePinApp>
+        </TooltipContainer>
+        <Styled.TileClickableArea
+          role="button"
+          tabIndex={0}
+          aria-label={name}
+          onClick={functionToBeCalled}
+          onKeyDown={handleClickableAreaKeyDown}
+        >
+          {isNew && <Styled.NewLabel>{intl.formatMessage(intlMessages.newAppLabel)}</Styled.NewLabel>}
+          <Styled.TileOpenButton $pinned={isPinned} aria-hidden="true">
+            {resolveIcon(icon)}
+          </Styled.TileOpenButton>
+          <Styled.TileTitle>{name}</Styled.TileTitle>
+          {children}
+        </Styled.TileClickableArea>
+      </Styled.TileItem>
+    );
+  }
 
   return (
     <Styled.RegisteredAppContent key={`${appKey}${isPinned}`} data-test={dataTest}>

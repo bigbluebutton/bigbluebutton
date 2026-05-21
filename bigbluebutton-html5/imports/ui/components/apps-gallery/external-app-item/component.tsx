@@ -25,6 +25,7 @@ interface ExternalAppItemProps {
   pinTooltip: string;
   unpinTooltip: string;
   isNew?: boolean;
+  viewMode?: 'list' | 'grid';
 }
 
 const ExternalAppItem: React.FC<ExternalAppItemProps> = ({
@@ -37,6 +38,7 @@ const ExternalAppItem: React.FC<ExternalAppItemProps> = ({
   pinTooltip,
   unpinTooltip,
   isNew = false,
+  viewMode = 'list',
 }) => {
   const [nameReplacement, setNameReplacement] = useState<string>(name);
   const [badgeContent, setBadgeContent] = useState<string | null>(null);
@@ -115,6 +117,7 @@ const ExternalAppItem: React.FC<ExternalAppItemProps> = ({
       pinTooltip={pinTooltip}
       unpinTooltip={unpinTooltip}
       isNew={isNew}
+      viewMode={viewMode}
     >
       {badgeContent && (
         <Styled.BadgeCircle>{badgeContent}</Styled.BadgeCircle>
