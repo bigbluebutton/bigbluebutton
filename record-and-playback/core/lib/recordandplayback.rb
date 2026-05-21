@@ -242,9 +242,9 @@ module BigBlueButton
     hasOverride = File.file?(filepathRecOverride)
     
     filepath = File.join(BigBlueButton.rap_scripts_path, 'bigbluebutton.yml')
-    @props = YAML::load(File.read(filepath))
+    @props = YAML::safe_load(File.read(filepath))
     if (hasOverride)
-      recOverrideProps = YAML::load(File.read(filepathRecOverride))
+      recOverrideProps = YAML::safe_load(File.read(filepathRecOverride))
       @props = @props.merge(recOverrideProps)
     end
     @props

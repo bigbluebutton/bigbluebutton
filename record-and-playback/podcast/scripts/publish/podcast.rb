@@ -30,8 +30,8 @@ require 'fastimage' # require fastimage to get the image size of the slides (gem
 
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
-bbb_props = YAML::load(File.read('../../core/scripts/bigbluebutton.yml'))
-podcast_props = YAML::load(File.read('podcast.yml'))
+bbb_props = YAML::safe_load(File.read('../../core/scripts/bigbluebutton.yml'))
+podcast_props = YAML::safe_load(File.read('podcast.yml'))
 
 opts = Optimist::options do
   opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
