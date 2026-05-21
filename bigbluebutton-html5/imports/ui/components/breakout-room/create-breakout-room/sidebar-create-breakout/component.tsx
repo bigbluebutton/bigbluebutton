@@ -566,7 +566,6 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
             </Styled.RoomCountArrow>
           </TooltipContainer>
         </Styled.RoomCountControl>
-        {/* @ts-ignore */}
         {(() => {
           let assignBtnLabel: string;
           let assignBtnTooltip: string;
@@ -585,6 +584,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
             assignBtnDataTest = 'randomlyAssign';
           }
           return (
+            // @ts-ignore
             <Styled.RandomAssignBtn
               color="primary"
               icon={assignmentState === 'allAssigned' ? 'undo' : 'random'}
