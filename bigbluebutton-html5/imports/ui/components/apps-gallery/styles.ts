@@ -12,6 +12,7 @@ import {
   $2xlPadding,
   lgPadding,
   appsButtonsBorderRadius,
+  borderRadiusRounded,
   appsPanelItemsSpacing,
   appsPanelGroupItemsSpacing,
   contentSidebarPadding,
@@ -125,7 +126,7 @@ const PinApp = styled.div<{pinned: boolean}>`
 `;
 
 const DescWrapper = styled.div`
-  padding: ${contentSidebarPadding} ${contentSidebarPadding} 0px;
+  padding: 0 ${contentSidebarPadding} 0;
 `;
 
 const BoldText = styled.span`
@@ -142,6 +143,44 @@ const NewLabel = styled.span`
   flex-shrink: 1;
 `;
 
+const SearchWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1rem ${contentSidebarPadding};
+  padding: 0.4rem 0.75rem;
+  border: 1px solid ${colorBorder};
+  border-radius: ${borderRadiusRounded};
+  background-color: ${colorWhite};
+
+  > i {
+    color: ${unpinnedAppIconColor};
+    font-size: 115%;
+    flex-shrink: 0;
+  }
+`;
+
+const SearchInput = styled.input`
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: ${fontSizeBase};
+  color: inherit;
+
+  &::placeholder {
+    color: ${unpinnedAppIconColor};
+  }
+`;
+
+const SectionSeparator = styled.hr`
+  width: calc(100% - 2 * ${contentSidebarPadding});
+  border: none;
+  border-top: 1px solid ${colorBorder};
+  margin: 0;
+  align-self: center;
+`;
+
 export default {
   PanelContent,
   Separator,
@@ -156,4 +195,7 @@ export default {
   DescWrapper,
   BoldText,
   NewLabel,
+  SearchWrapper,
+  SearchInput,
+  SectionSeparator,
 };

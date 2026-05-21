@@ -522,7 +522,8 @@ const reducer = (state, action) => {
 
       if (!isAppRegistered) return state;
       if ((pin && isAppPinned) || (!pin && !isAppPinned)) return state;
-      if (pin && pinnedApps.length === MAX_PINNED_APPS_GALLERY) return state;
+
+      if (isDefault && pin && pinnedApps.length >= MAX_PINNED_APPS_GALLERY) return state;
 
       if (isDefault && pin) {
         if (_initialPersistedPinnedApps === undefined) getPersistedPinnedApps();
@@ -533,10 +534,12 @@ const reducer = (state, action) => {
         }
       }
 
+      const baseApps = (pin && !isDefault && pinnedApps.length >= MAX_PINNED_APPS_GALLERY)
+        ? pinnedApps.slice(1)
+        : pinnedApps;
+
       const updatedPinnedApps = pin
-        ? [...pinnedApps, appId].sort(
-          (a, b) => registeredApps[a].name.localeCompare(registeredApps[b].name),
-        )
+        ? [...baseApps, appId]
         : pinnedApps.filter((pinnedApp) => pinnedApp !== appId);
 
       setPersistedPinnedApps(updatedPinnedApps);

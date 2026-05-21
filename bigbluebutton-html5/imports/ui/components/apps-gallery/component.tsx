@@ -9,12 +9,12 @@ import { AppsGalleryProps } from './types';
 import { PANELS } from '/imports/ui/components/layout/enums';
 import { InjectedAppGalleryItem } from '/imports/ui/components/layout/layoutTypes';
 import Styled from './styles';
-import TooManyPinnedAppsModal from './modal/component';
 import AppItem from './app-item/component';
 import ExternalAppItem from './external-app-item/component';
 import { isPluginNew } from './service';
 import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 import PanelHeader from '/imports/ui/components/common/panel-header/component';
+import Icon from '/imports/ui/components/common/icon/component';
 
 const intlMessages = defineMessages({
   appsGalleryTitle: {
@@ -41,97 +41,81 @@ const intlMessages = defineMessages({
     id: 'app.appsGallery.unpinTooltip',
     description: 'Tooltip of the unpin buuton',
   },
+  searchPlaceholder: {
+    id: 'app.appsGallery.searchPlaceholder',
+    description: 'Placeholder text for the apps gallery search input',
+  },
 });
 
 const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps }) => {
   const MAX_PINNED_APPS_GALLERY = window.meetingClientSettings.public.app.appsGallery.maxPinnedApps;
   const intl = useIntl();
   const title = intl.formatMessage(intlMessages.appsGalleryTitle);
-  const [error, setError] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [meetingSettings] = useMeetingSettings();
   const appsToLabelAsNew = meetingSettings?.public?.sidebarNavigation?.appsToLabelAsNew || [];
   const shouldAddIsNewLabel = useCallback((id: string) => appsToLabelAsNew.includes(id), [appsToLabelAsNew]);
 
+  const pinTooltip = intl.formatMessage(intlMessages.pinTooltip);
+  const unpinTooltip = intl.formatMessage(intlMessages.unpinTooltip);
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+
+  const renderAppItem = (appKey: string, isPinned: boolean) => {
+    const {
+      name,
+      icon,
+      dataTest,
+      pluginName,
+    } = registeredApps[appKey];
+
+    const isNew = isPluginNew(pluginName) || shouldAddIsNewLabel(appKey);
+    const { onClick } = registeredApps[appKey] as InjectedAppGalleryItem;
+    const isPluginInjectedApp = appKey.startsWith(PANELS.GENERIC_CONTENT_SIDEKICK);
+    const Component = isPluginInjectedApp ? ExternalAppItem : AppItem;
+
+    return (
+      <Component
+        key={`${appKey}${isPinned}`}
+        dataTest={dataTest}
+        appKey={appKey}
+        name={name}
+        icon={icon}
+        isPinned={isPinned}
+        isNew={isNew}
+        onClick={onClick}
+        pinTooltip={pinTooltip}
+        unpinTooltip={unpinTooltip}
+      />
+    );
+  };
+
   const renderedPinnedApps = useMemo(() => (
-    pinnedApps.map((pinnedAppKey) => {
-      const {
-        name,
-        icon,
-        dataTest,
-        pluginName,
-      } = registeredApps[pinnedAppKey];
+    [...pinnedApps]
+      .sort((a, b) => registeredApps[a].name.localeCompare(registeredApps[b].name))
+      .filter((key) => !normalizedQuery || registeredApps[key].name.toLowerCase().includes(normalizedQuery))
+      .map((key) => renderAppItem(key, true))
+  ), [registeredApps, pinnedApps, normalizedQuery, pinTooltip, unpinTooltip, shouldAddIsNewLabel]);
 
-      const isNew = isPluginNew(pluginName) || shouldAddIsNewLabel(pinnedAppKey);
+  const renderedUnpinnedApps = useMemo(() => {
+    const unpinnedKeys = Object.keys(registeredApps)
+      .filter((key) => !pinnedApps.includes(key))
+      .filter((key) => !normalizedQuery || registeredApps[key].name.toLowerCase().includes(normalizedQuery));
 
-      // type guard
-      const { onClick } = registeredApps[pinnedAppKey] as InjectedAppGalleryItem;
-      const isPluginInjectedApp = pinnedAppKey.startsWith(PANELS.GENERIC_CONTENT_SIDEKICK);
-      const Component = isPluginInjectedApp ? ExternalAppItem : AppItem;
-      return (
-        <Component
-          key={`${pinnedAppKey}true`}
-          dataTest={dataTest}
-          appKey={pinnedAppKey}
-          name={name}
-          icon={icon}
-          isPinned
-          isNew={isNew}
-          onClick={onClick}
-          pinnedAppsLength={pinnedApps.length}
-          maxPinned={MAX_PINNED_APPS_GALLERY}
-          setError={setError}
-          pinTooltip={intl.formatMessage(intlMessages.pinTooltip)}
-          unpinTooltip={intl.formatMessage(intlMessages.unpinTooltip)}
-        />
-      );
-    })
-  ), [registeredApps, pinnedApps, shouldAddIsNewLabel]);
+    const isNewApp = (key: string) => isPluginNew(registeredApps[key].pluginName) || shouldAddIsNewLabel(key);
 
-  const renderedUnpinnedApps = useMemo(() => (
-    Object.keys(registeredApps)
-      .filter((registeredObjectKey) => !pinnedApps.includes(registeredObjectKey))
-      .map((unpinnedAppKey) => {
-        const {
-          name,
-          icon,
-          dataTest,
-          pluginName,
-        } = registeredApps[unpinnedAppKey];
+    const newApps = unpinnedKeys
+      .filter((key) => isNewApp(key))
+      .sort((a, b) => registeredApps[a].name.localeCompare(registeredApps[b].name));
 
-        const isNew = isPluginNew(pluginName) || shouldAddIsNewLabel(unpinnedAppKey);
+    const regularApps = unpinnedKeys
+      .filter((key) => !isNewApp(key))
+      .sort((a, b) => registeredApps[a].name.localeCompare(registeredApps[b].name));
 
-        // type guard
-        const { onClick } = registeredApps[unpinnedAppKey] as InjectedAppGalleryItem;
-        const isPluginInjectedApp = unpinnedAppKey.startsWith(PANELS.GENERIC_CONTENT_SIDEKICK);
-        const Component = isPluginInjectedApp ? ExternalAppItem : AppItem;
-        return (
-          <Component
-            key={`${unpinnedAppKey}false`}
-            dataTest={dataTest}
-            appKey={unpinnedAppKey}
-            name={name}
-            icon={icon}
-            isPinned={false}
-            isNew={isNew}
-            onClick={onClick}
-            pinnedAppsLength={pinnedApps.length}
-            maxPinned={MAX_PINNED_APPS_GALLERY}
-            setError={setError}
-            pinTooltip={intl.formatMessage(intlMessages.pinTooltip)}
-            unpinTooltip={intl.formatMessage(intlMessages.unpinTooltip)}
-          />
-        );
-      })
-  ), [registeredApps, pinnedApps, shouldAddIsNewLabel]);
+    return [...newApps, ...regularApps].map((key) => renderAppItem(key, false));
+  }, [registeredApps, pinnedApps, normalizedQuery, pinTooltip, unpinTooltip, shouldAddIsNewLabel]);
 
   return (
     <>
-      { error && (
-        <TooManyPinnedAppsModal
-          setError={setError}
-          pinnedAppsNumber={pinnedApps.length}
-        />
-      )}
       <PanelHeader
         panelId={PANELS.APPS_GALLERY}
         title={title}
@@ -139,6 +123,17 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
         closeButtonDataTest="hideAppsGallery"
       />
       <Styled.Separator />
+
+      <Styled.SearchWrapper>
+        <Icon iconName="search" />
+        <Styled.SearchInput
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder={intl.formatMessage(intlMessages.searchPlaceholder)}
+          aria-label={intl.formatMessage(intlMessages.searchPlaceholder)}
+        />
+      </Styled.SearchWrapper>
 
       <Styled.DescWrapper>
         <Styled.BoldText>
@@ -149,13 +144,14 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
         </Styled.BoldText>
         {intl.formatMessage(intlMessages.pinnedAppsContinue)}
       </Styled.DescWrapper>
-      <Styled.Wrapper
-        id="scroll-box"
-      >
+      <Styled.Wrapper id="scroll-box">
         {renderedPinnedApps.length > 0 && (
           <Styled.PinnedAppsWrapper>
             {renderedPinnedApps}
           </Styled.PinnedAppsWrapper>
+        )}
+        {renderedPinnedApps.length > 0 && renderedUnpinnedApps.length > 0 && (
+          <Styled.SectionSeparator />
         )}
         {renderedUnpinnedApps.length > 0 && (
           <Styled.UnpinnedAppsWrapper>

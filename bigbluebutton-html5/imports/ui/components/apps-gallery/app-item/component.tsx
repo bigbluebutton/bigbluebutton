@@ -16,9 +16,6 @@ interface AppItemProps {
   isPinned: boolean;
   isNew?: boolean;
   onClick?: (() => void) | undefined;
-  pinnedAppsLength: number;
-  maxPinned: number;
-  setError: (v: boolean) => void;
   pinTooltip: string;
   unpinTooltip: string;
   children?: ReactNode;
@@ -46,9 +43,6 @@ const AppItem: React.FC<AppItemProps> = ({
   isPinned,
   isNew = false,
   onClick,
-  pinnedAppsLength,
-  maxPinned,
-  setError,
   pinTooltip,
   unpinTooltip,
   children = null,
@@ -58,10 +52,6 @@ const AppItem: React.FC<AppItemProps> = ({
 
   const togglePinApp = (event: React.MouseEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement>) => {
     event.stopPropagation();
-    if (!isPinned && pinnedAppsLength >= maxPinned) {
-      setError(true);
-      return;
-    }
     layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_NAVIGATION_PIN_APP,
       value: {

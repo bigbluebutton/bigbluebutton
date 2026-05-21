@@ -22,9 +22,6 @@ interface ExternalAppItemProps {
   icon: PluginIconType;
   isPinned: boolean;
   onClick?: (() => void) | undefined;
-  pinnedAppsLength: number;
-  maxPinned: number;
-  setError: (v: boolean) => void;
   pinTooltip: string;
   unpinTooltip: string;
   isNew?: boolean;
@@ -37,9 +34,6 @@ const ExternalAppItem: React.FC<ExternalAppItemProps> = ({
   icon,
   isPinned,
   onClick,
-  pinnedAppsLength,
-  maxPinned,
-  setError,
   pinTooltip,
   unpinTooltip,
   isNew = false,
@@ -118,9 +112,6 @@ const ExternalAppItem: React.FC<ExternalAppItemProps> = ({
       icon={icon}
       isPinned={isPinned}
       onClick={onClick}
-      pinnedAppsLength={pinnedAppsLength}
-      maxPinned={maxPinned}
-      setError={setError}
       pinTooltip={pinTooltip}
       unpinTooltip={unpinTooltip}
       isNew={isNew}
