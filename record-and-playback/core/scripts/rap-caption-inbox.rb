@@ -30,7 +30,7 @@ require 'yaml'
 
 # Read configuration and set up logger
 
-props = YAML.safe_load(File.read(File.expand_path('bigbluebutton.yml', __dir__)))
+props = YAML::safe_load(File.read(File.expand_path('bigbluebutton.yml', __dir__)))
 
 logger = Journald::Logger.new('bbb-rap-caption-inbox')
 BigBlueButton.logger = logger

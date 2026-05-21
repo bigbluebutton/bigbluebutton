@@ -44,7 +44,7 @@ presentation_props = YAML.safe_load(File.read('presentation.yml'))
 filepathPresOverride = "/etc/bigbluebutton/recording/presentation.yml"
 hasOverride = File.file?(filepathPresOverride)
 if (hasOverride)
-  presOverrideProps = YAML::load(File.read(filepathPresOverride))
+  presOverrideProps = YAML::safe_load(File.read(filepathPresOverride))
   presentation_props = presentation_props.merge(presOverrideProps)
 end
 

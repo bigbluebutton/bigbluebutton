@@ -38,9 +38,9 @@ end
 
 # Load parameters and set up paths
 props = BigBlueButton.read_props
-video_props = YAML.safe_load(File.read(File.expand_path('../video.yml', __dir__)))
+video_props = YAML::safe_load(File.read(File.expand_path('../video.yml', __dir__)))
 begin
-  video_props_override = YAML.safe_load(File.read('/etc/bigbluebutton/recording/video.yml'))
+  video_props_override = YAML::safe_load(File.read('/etc/bigbluebutton/recording/video.yml'))
   # Merge the presets separately, to allow someone to use the override file to add additional presets
   if video_props.include?('presets') && video_props_override.include?('presets')
     video_props['presets'].merge!(video_props_override.delete('presets'))

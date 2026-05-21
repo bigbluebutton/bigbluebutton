@@ -40,8 +40,8 @@ begin
 end
 
 # Load parameters and set up paths
-props = YAML::load(File.read(File.expand_path('../../bigbluebutton.yml', __FILE__)))
-screenshare_props = YAML::load(File.read(File.expand_path('../../screenshare.yml', __FILE__)))
+props = YAML::safe_load(File.read(File.expand_path('../../bigbluebutton.yml', __FILE__)))
+screenshare_props = YAML::safe_load(File.read(File.expand_path('../../screenshare.yml', __FILE__)))
 
 recording_dir = props['recording_dir']
 playback_dir = screenshare_props['playback_dir']
@@ -164,7 +164,7 @@ ret = BigBlueButton.exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', pr
 if ret != 0
   raise "Generating closed caption files failed"
 end
-captions = JSON.load(File.read("#{process_dir}/captions.json"))
+captions = JSON.parse(File.read("#{process_dir}/captions.json"))
 
 # Publishing support files
 

@@ -137,7 +137,7 @@ def post_process(meeting_id)
 end
 
 begin
-  props = YAML::load(File.read('bigbluebutton.yml'))
+  props = YAML::safe_load(File.read('bigbluebutton.yml'))
   redis_host = props['redis_host']
   redis_port = props['redis_port']
   redis_password = props['redis_password']

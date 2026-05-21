@@ -165,7 +165,7 @@ begin
 
     # Write JSON data to file.
     File.write(data_json_path, events_data.to_json)
-    data = JSON.load(File.read(data_json_path))
+    data = JSON.parse(File.read(data_json_path))
 
     format_analytics_data!(data)
 
