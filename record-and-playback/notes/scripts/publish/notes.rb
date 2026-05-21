@@ -105,10 +105,8 @@ begin
           }
         end
         ## Write the new metadata.xml
-        metadata_file = File.new("#{target_dir}/metadata.xml","w")
         metadata = Nokogiri::XML(metadata.to_xml) { |x| x.noblanks }
-        metadata_file.write(metadata.root)
-        metadata_file.close
+        File.write("#{target_dir}/metadata.xml", metadata.root)
         BigBlueButton.logger.info("Added playback to metadata.xml")
 
         # Now publish this recording files by copying them into the publish folder.
@@ -134,10 +132,7 @@ begin
       BigBlueButton.logger.info("Removing published files.")
       FileUtils.rm_r(target_dir)
 
-      publish_done = File.new("#{recording_dir}/status/published/#{meeting_id}-notes.done", "w")
-      publish_done.write("Published #{meeting_id}")
-      publish_done.close
-
+      File.write("#{recording_dir}/status/published/#{meeting_id}-notes.done", "Published #{meeting_id}")
     else
       BigBlueButton.logger.info("#{target_dir} is already there")
     end
@@ -149,9 +144,7 @@ rescue Exception => e
   e.backtrace.each do |traceline|
     BigBlueButton.logger.error(traceline)
   end
-  publish_done = File.new("#{recording_dir}/status/published/#{meeting_id}-notes.fail", "w")
-  publish_done.write("Failed Publishing #{meeting_id}")
-  publish_done.close
+  File.write("#{recording_dir}/status/published/#{meeting_id}-notes.fail", "Failed Publishing #{meeting_id}")
 
   exit 1
 end

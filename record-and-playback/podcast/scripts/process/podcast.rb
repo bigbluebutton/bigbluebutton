@@ -66,9 +66,7 @@ if not FileTest.directory?(target_dir)
       b.playback
       b.meta
     }
-    metadata_xml = File.new("#{target_dir}/metadata.xml","w")
-    metadata_xml.write(metaxml)
-    metadata_xml.close
+    File.write("#{target_dir}/metadata.xml", metaxml)
     BigBlueButton.logger.info("Created inital metadata.xml")
 
     BigBlueButton::AudioProcessor.process("#{raw_archive_dir}", "#{target_dir}/audio")
@@ -127,27 +125,21 @@ if not FileTest.directory?(target_dir)
       }
     end
     ## Write the new metadata.xml
-    metadata_file = File.new("#{target_dir}/metadata.xml","w")
     metadata = Nokogiri::XML(metadata.to_xml) { |x| x.noblanks }
-    metadata_file.write(metadata.root)
-    metadata_file.close
+    File.write("#{target_dir}/metadata.xml", metadata.root)
     BigBlueButton.logger.info("Created an updated metadata.xml with start_time and end_time")
 
-    process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-podcast.done", "w")
-    process_done.write("Processed #{meeting_id}")
-    process_done.close
+    File.write("#{recording_dir}/status/processed/#{meeting_id}-podcast.done", "Processed #{meeting_id}")
 
     # Update state in metadata.xml
     ## Load metadata.xml
-    metadata = Nokogiri::XML(File.open("#{target_dir}/metadata.xml"))
+    metadata = Nokogiri::XML(File.read("#{target_dir}/metadata.xml"))
     ## Update status
     recording = metadata.root
     state = recording.at_xpath("state")
     state.content = "processed"
     ## Write the new metadata.xml
-    metadata_file = File.new("#{target_dir}/metadata.xml","w")
-    metadata_file.write(metadata.root)
-    metadata_file.close
+    File.write("#{target_dir}/metadata.xml", metadata.root)
     BigBlueButton.logger.info("Created an updated metadata.xml with state=processed")
 
   rescue Exception => e
