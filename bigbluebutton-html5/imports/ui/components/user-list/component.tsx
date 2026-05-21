@@ -81,6 +81,9 @@ const UserList: React.FC<UserListComponentProps> = () => {
   const [getUsers, { data: usersData, error: usersError }] = useLazyQuery<GetUserNamesResponse>(GET_USER_NAMES, { fetchPolicy: 'no-cache' });
   const users = usersData?.user || [];
   const hideUserList = currentUserData?.locked && meetingInfo?.lockSettings?.hideUserList;
+  const handleGetUsers = useCallback(() => {
+    getUsers();
+  }, [getUsers]);
 
   useEffect(() => {
     if (usersError) {
@@ -161,7 +164,7 @@ const UserList: React.FC<UserListComponentProps> = () => {
             icon="template_download"
             aria-label={intl.formatMessage(intlMessages.saveUsersNames)}
             label={intl.formatMessage(intlMessages.saveUsersNames)}
-            onClick={getUsers}
+            onClick={handleGetUsers}
           />
         )}
       />
