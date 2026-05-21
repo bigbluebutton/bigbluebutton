@@ -308,6 +308,8 @@ The value must follow the SRI format `<algorithm>-<base64-hash>` (e.g. `sha384-B
 }
 ```
 
+> **Cross-origin limitation:** The plugin loader sets the `integrity` attribute on the `<script>` tag but does **not** set the `crossorigin` attribute. Browsers require both `integrity` and `crossorigin="anonymous"` (plus CORS headers from the server) for SRI checks on cross-origin scripts. Without `crossorigin`, the integrity check will fail for plugins hosted on a different domain (e.g. a CDN). SRI integrity verification therefore only works reliably when the plugin file is served from the **same origin** as the BigBlueButton client. Avoid setting this field for CDN-hosted plugins until cross-origin support is added to the loader.
+
 If omitted, no integrity check is performed.
 
 **localesBaseUrl:**
@@ -320,7 +322,15 @@ An optional base URL from which the plugin SDK loads locale (i18n) message files
 }
 ```
 
-If the URL is relative, the server automatically resolves it relative to the manifest's own URL, the same way `javascriptEntrypointUrl` is resolved. If omitted, locale files will not be loaded for the plugin.
+If the URL is relative (does not start with `http://` or `https://`), the server resolves it by appending it to the directory portion of the manifest URL using plain string concatenation. This means a leading `/` is **not** treated as the site root — it will be concatenated literally, producing a broken URL. Use either an absolute URL or a relative path without a leading `/`:
+
+```json
+{ "localesBaseUrl": "locales/" }       // OK — appended to manifest directory
+{ "localesBaseUrl": "https://cdn.example.com/my-plugin/locales/" } // OK — absolute
+{ "localesBaseUrl": "/locales/" }      // BAD — leading slash breaks the URL
+```
+
+If omitted, locale files will not be loaded for the plugin.
 
 ## Examples
 
