@@ -17,7 +17,7 @@ export interface BBBMenuProps {
   onCloseCallback?: () => void;
   dataTest?: string;
   open?: boolean;
-  customStyles?: React.CSSProperties;
+  customStyles?: React.CSSProperties | null;
   opts?: Record<string, unknown>;
   accessKey?: string;
   minContent?: boolean;
