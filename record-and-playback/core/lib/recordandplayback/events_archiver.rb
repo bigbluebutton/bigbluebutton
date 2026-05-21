@@ -24,7 +24,7 @@ require 'yaml'
 require 'fileutils'
 
 module BigBlueButton
-  $bbb_props = YAML::load(File.open(File.expand_path('../../../scripts/bigbluebutton.yml', __FILE__)))
+  $bbb_props = YAML::load(File.read(File.expand_path('../../../scripts/bigbluebutton.yml', __FILE__)))
   $recording_dir = $bbb_props['recording_dir']
   $raw_recording_dir = "#{$recording_dir}/raw"
   $store_recording_status = $bbb_props['store_recording_status']
@@ -252,9 +252,7 @@ module BigBlueButton
       version = BigBlueButton.read_props["bbb_version"]
 
       if File.exist?(events_file)
-        io = File.open(events_file, 'rb')
-        events_doc = Nokogiri::XML::Document.parse(io)
-        io.close
+        events_doc = Nokogiri::XML(File.read(events_file))
         recording = events_doc.at_xpath('/recording')
         if recording.nil?
           raise "recording is nil"
