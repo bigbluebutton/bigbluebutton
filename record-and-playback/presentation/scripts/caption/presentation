@@ -76,9 +76,7 @@ rescue Errno::ENOENT
   logger.info("Playback doesn't have a captions.json - old playback format version?")
   logger.info('Triggering recording reprocessing.')
   archive_done_file = ''
-  File.open(archive_done_file, 'w') do |archive_done|
-    archive_done.write('Reprocessing for captions')
-  end
+  File.write(archive_done_file, 'Reprocessing for captions')
   # Treat this as success, the captions will be integrated during reprocessing
   exit(0)
 end
@@ -134,6 +132,5 @@ end
 logger.info('Saving updated playback captions list')
 # Sort the list by label so the selection menu looks nice
 playback_captions.sort { |a, b| a['localeName'] <=> b['localeName'] }
-File.open(playback_captions_path, 'w') do |json|
-  json.write(JSON.pretty_generate(playback_captions))
-end
+File.write(playback_captions_path, JSON.pretty_generate(playback_captions))
+

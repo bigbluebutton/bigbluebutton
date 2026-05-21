@@ -114,9 +114,9 @@ caption_file_notify = proc do |json_filename|
       # en-US need by presentation 
       new_caption_info['lang'] = new_caption_info['lang'].sub('_', '-')
         
-      file =  File.open(caption_json_file, 'w')
-      file.puts "[{\"localeName\": \"#{new_caption_info['label']}\", \"locale\": \"#{new_caption_info['lang']}\"}]"
-      file.close
+      File.open(caption_json_file, 'w') do |file|
+        file.puts "[{\"localeName\": \"#{new_caption_info['label']}\", \"locale\": \"#{new_caption_info['lang']}\"}]"
+      end
         
       # resetting en-US to en_US
       new_caption_info['lang'] = new_caption_info['lang'].sub('-', '_')
@@ -136,9 +136,7 @@ caption_file_notify = proc do |json_filename|
       FileUtils.cp(final_dest, presentation_dest_dir)
 
       # Finally, save the updated index file that references the new caption
-      File.open(index_filename, 'w') do |file|
-        file.write(JSON.pretty_generate(captions_info))
-      end
+      File.write(index_filename, JSON.pretty_generate(captions_info))
 
       Dir.glob(File.expand_path('captions/*', __dir__)) do |caption_script|
         next unless File.file?(caption_script) && File.executable?(caption_script)

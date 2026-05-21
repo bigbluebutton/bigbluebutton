@@ -83,15 +83,11 @@ begin
   end
 
   logger.info("creating sanity done files")
-  File.open(sanity_done_file, "w") do |sanity_done|
-    sanity_done.write("sanity check #{meeting_id}")
-  end
+  File.write(sanity_done_file, "sanity check #{meeting_id}")
 rescue Exception => e
   BigBlueButton.logger.error("error in sanity check: " + e.message)
   BigBlueButton.logger.error(e.backtrace.join("\n"))
-  File.open(sanity_fail_file, "w") do |sanity_fail|
-    sanity_fail.write("error: " + e.message)
-  end
+  File.write(sanity_fail_file, "error: " + e.message)
 end
 
 

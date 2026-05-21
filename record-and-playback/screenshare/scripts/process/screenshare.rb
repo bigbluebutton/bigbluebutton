@@ -172,9 +172,7 @@ logger.info "Generating index page"
 index_template = "#{playback_dir}/index.html.erb"
 index_erb = ERB.new(File.read(index_template))
 index_erb.filename = index_template
-File.open("#{process_dir}/index.html", 'w') do |index_html|
-  index_html.write(index_erb.result)
-end
+File.write("#{process_dir}/index.html", index_erb.result)
 
 logger.info "Generating metadata xml"
 duration = BigBlueButton::Events.get_recording_length(events)
@@ -203,9 +201,7 @@ metadata_xml = Nokogiri::XML::Builder.new do |xml|
     }
   }
 end
-File.open("#{process_dir}/metadata.xml", 'w') do |metadata_file|
-  metadata_file.write(metadata_xml.to_xml)
-end
+File.write("#{process_dir}/metadata.xml", metadata_xml.to_xml)
 
 logger.info "Copying css and js support files"
 FileUtils.cp_r("#{playback_dir}/css", process_dir)
@@ -214,9 +210,7 @@ FileUtils.cp_r("#{playback_dir}/video-js", process_dir)
 
 logger.info "Processing successfully completed, writing done file"
 
-File.open(donefile, 'w') do |done|
-  done.write("Processed #{meeting_id}")
-end
+File.write(donefile, "Processed #{meeting_id}")
 
 rescue Exception => e
   warn e.message

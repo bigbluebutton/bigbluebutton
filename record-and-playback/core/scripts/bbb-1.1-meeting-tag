@@ -51,9 +51,7 @@ def do_update(recording_dir, format_dir)
 
   doc.at("/recording") << node
 
-  xml_file = File.new(xml_filename, "w")
-  xml_file.write(doc.to_xml(:indent => 2))
-  xml_file.close
+  File.write(xml_filename, doc.to_xml(:indent => 2))
 end
 
 BigBlueButton.logger.info("Updating meeting tag for 1.1.0")

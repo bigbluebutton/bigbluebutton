@@ -65,9 +65,7 @@ def create_api_captions_file(captions_meeting_dir)
     captions_json << caption
   end
 
-  File.open("#{captions_meeting_dir}/captions.json", "w") do |f|
-    f.write(captions_json.to_json)
-  end
+  File.write("#{captions_meeting_dir}/captions.json", captions_json.to_json)
 end
 
 if not FileTest.directory?(target_dir)

@@ -302,12 +302,8 @@ if not archive_has_recording_marks?(meeting_id, raw_archive_dir, break_timestamp
     events_archiver.delete_events(meeting_id)
   end
 
-  File.open(archive_norecord_file, "w") do |archive_norecord|
-    archive_norecord.write("Archived #{meeting_id} (no recording marks")
-  end
+  File.write(archive_norecord_file, "Archived #{meeting_id} (no recording marks")
 
 else
-  File.open(archive_done_file, "w") do |archive_done|
-    archive_done.write("Archived #{meeting_id}")
-  end
+  File.write(archive_done_file, "Archived #{meeting_id}")
 end

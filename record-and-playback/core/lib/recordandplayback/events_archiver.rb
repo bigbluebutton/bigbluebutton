@@ -369,9 +369,7 @@ module BigBlueButton
 
       # Write the events file. Write to a temp file then rename so other
       # scripts running concurrently don't see a partially written file.
-      File.open(events_file + ".tmp", 'wb') do |io|
-        io.write(events_doc.to_xml(indent: 2, encoding: 'UTF-8'))
-      end
+      File.write(events_file + ".tmp", events_doc.to_xml(indent: 2, encoding: 'UTF-8'), mode: 'wb')
       FileUtils.mv(events_file + ".tmp", events_file)
 
       # Once the events file has been written, we can delete this segment's

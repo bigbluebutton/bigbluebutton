@@ -93,9 +93,7 @@ logger.info "Cleaning up processed files"
 FileUtils.rm_r(Dir.glob("#{process_dir}/*"))
 
 # Create the done file
-File.open(donefile, 'w') do |done|
-  done.write("Published #{meeting_id}")
-end
+File.write(donefile, "Published #{meeting_id}")
 
 rescue Exception => e
   warn e.message

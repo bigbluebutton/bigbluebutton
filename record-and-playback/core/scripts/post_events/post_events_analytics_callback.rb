@@ -173,10 +173,7 @@ begin
     events_data = BBBEvents.parse(events_xml_path)
 
     # Write JSON data to file.
-    File.open(data_json_path, 'w') do |f|
-      f.write(events_data.to_json)
-    end
-    
+    File.write(data_json_path, events_data.to_json)
     data = JSON.load(File.read(data_json_path))
 
     format_analytics_data!(data)
