@@ -38,7 +38,7 @@ end
 meeting_id = opts[:meeting_id]
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
-props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
+props = YAML::load(File.read('../../core/scripts/bigbluebutton.yml'))
 
 recording_dir = props['recording_dir']
 raw_archive_dir = "#{recording_dir}/raw/#{meeting_id}"
@@ -54,7 +54,7 @@ target_dir = "#{recording_dir}/process/presentation/#{meeting_id}"
 def create_api_captions_file(captions_meeting_dir)
   BigBlueButton.logger.info("Generating closed captions for API")
 
-  captions = JSON.load(File.new("#{captions_meeting_dir}/captions_playback.json"))
+  captions = JSON.load(File.read("#{captions_meeting_dir}/captions_playback.json"))
   captions_json = []
   captions.each do |track|
     caption = {}

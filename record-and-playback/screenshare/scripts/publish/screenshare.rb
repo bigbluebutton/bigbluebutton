@@ -37,8 +37,8 @@ if playback != 'screenshare'
 end
 
 # Load parameters and set up paths
-props = YAML::load(File.open(File.expand_path('../../bigbluebutton.yml', __FILE__)))
-screenshare_props = YAML::load(File.open(File.expand_path('../../screenshare.yml', __FILE__)))
+props = YAML::load(File.read(File.expand_path('../../bigbluebutton.yml', __FILE__)))
+screenshare_props = YAML::load(File.read(File.expand_path('../../screenshare.yml', __FILE__)))
 
 process_dir = "#{props['recording_dir']}/process/screenshare/#{meeting_id}"
 publish_dir = "#{screenshare_props['publish_dir']}/#{meeting_id}"
@@ -74,7 +74,7 @@ screenshare_props['formats'].each_with_index do |format, i|
 end
 
 # Captions files
-captions = JSON.load(File.new("#{process_dir}/captions.json", 'r'))
+captions = JSON.load(File.read("#{process_dir}/captions.json"))
 FileUtils.cp("#{process_dir}/captions.json", "#{publish_dir}/captions.json")
 captions.each do |caption|
   FileUtils.cp("#{process_dir}/caption_#{caption['locale']}.vtt",

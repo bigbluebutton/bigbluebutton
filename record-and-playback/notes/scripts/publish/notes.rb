@@ -30,8 +30,8 @@ require 'fastimage' # require fastimage to get the image size of the slides (gem
 
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
-bbb_props = YAML::load(File.open('../../core/scripts/bigbluebutton.yml'))
-notes_props = YAML::load(File.open('notes.yml'))
+bbb_props = YAML::load(File.read('../../core/scripts/bigbluebutton.yml'))
+notes_props = YAML::load(File.read('notes.yml'))
 
 opts = Optimist::options do
   opt :meeting_id, "Meeting id to archive", :default => '58f4a6b3-cd07-444d-8564-59116cb53974', :type => String
@@ -73,7 +73,7 @@ begin
         BigBlueButton.logger.info("Copying: #{note_file} to -> #{target_dir}")
         FileUtils.cp(note_file, target_dir)
 
-        @doc = Nokogiri::XML(File.open("#{raw_archive_dir}/events.xml"))
+        @doc = Nokogiri::XML(File.read("#{raw_archive_dir}/events.xml"))
         recording_time = BigBlueButton::Events.get_recording_length(@doc)
 
         BigBlueButton.logger.info("Creating metadata.xml")
@@ -85,7 +85,7 @@ begin
 
         # Update state and add playback to metadata.xml
         ## Load metadata.xml
-        metadata = Nokogiri::XML(File.open("#{target_dir}/metadata.xml"))
+        metadata = Nokogiri::XML(File.read("#{target_dir}/metadata.xml"))
         ## Update state
         recording = metadata.root
         state = recording.at_xpath("state")
