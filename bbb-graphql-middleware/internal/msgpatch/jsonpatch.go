@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"bbb-graphql-middleware/internal/common"
+	"bbb-graphql-middleware/internal/jsonpatcher"
 
 	"github.com/mattbaird/jsonpatch"
 	log "github.com/sirupsen/logrus"
@@ -55,7 +56,7 @@ func GetPatchedMessage(
 		if len(hasuraMessage.Payload.Data[dataKey]) > minLengthToPatch {
 			if string(lastHasuraMessage.Payload.Data[dataKey]) != "" {
 				var shouldUseCustomJsonPatch bool
-				if shouldUseCustomJsonPatch, jsonDiffPatch = common.ValidateIfShouldUseCustomJsonPatch(
+				if shouldUseCustomJsonPatch, jsonDiffPatch = jsonpatcher.ValidateIfShouldUseCustomJsonPatch(
 					lastHasuraMessage.Payload.Data[dataKey],
 					hasuraMessage.Payload.Data[dataKey],
 					"userId"); shouldUseCustomJsonPatch {
