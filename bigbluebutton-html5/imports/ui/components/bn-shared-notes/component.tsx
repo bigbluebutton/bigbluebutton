@@ -67,6 +67,18 @@ const createMaxDocumentCharsExtension = (
 // The left margin of the table Block as the first block is buggy when used with static toolbar;
 // ideally the fix would come from BlockNote
 // (wait for https://github.com/TypeCellOS/BlockNote/issues/2748 to be resolved)
+const escapeBlurExtension = Extension.create({
+  name: 'bbbEscapeBlur',
+  addKeyboardShortcuts() {
+    return {
+      Escape: () => {
+        this.editor.commands.blur();
+        return true;
+      },
+    };
+  },
+});
+
 // TODO: After the issue on BlockNote is resolved, update BlockNote and remove the
 // fixCursorAtOriginExtension and the fixCursorAtOriginPluginKey
 const fixCursorAtOriginPluginKey = new PluginKey('fixCursorAtOrigin');
@@ -197,7 +209,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
       },
     },
     _tiptapOptions: {
-      extensions: [maxDocumentCharsExtension, fixCursorAtOriginExtension],
+      extensions: [maxDocumentCharsExtension, fixCursorAtOriginExtension, escapeBlurExtension],
     },
     pasteHandler: ({ event, defaultPasteHandler }) => {
       try {
