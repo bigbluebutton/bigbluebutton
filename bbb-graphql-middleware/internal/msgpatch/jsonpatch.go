@@ -7,7 +7,7 @@ import (
 	"bbb-graphql-middleware/internal/common"
 	"bbb-graphql-middleware/internal/jsonpatcher"
 
-	"github.com/mattbaird/jsonpatch"
+	"github.com/wI2L/jsondiff"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -61,7 +61,7 @@ func GetPatchedMessage(
 					hasuraMessage.Payload.Data[dataKey],
 					"userId"); shouldUseCustomJsonPatch {
 					common.StorePatchedMessageCache(meetingId, cacheKey, jsonDiffPatch)
-				} else if diffPatch, diffPatchErr := jsonpatch.CreatePatch(lastHasuraMessage.Payload.Data[dataKey], hasuraMessage.Payload.Data[dataKey]); diffPatchErr == nil {
+				} else if diffPatch, diffPatchErr := jsondiff.CompareJSON(lastHasuraMessage.Payload.Data[dataKey], hasuraMessage.Payload.Data[dataKey], jsondiff.LCS()); diffPatchErr == nil {
 					var err error
 					if jsonDiffPatch, err = json.Marshal(diffPatch); err != nil {
 						log.Errorf("Error marshaling patch array: %v", err)

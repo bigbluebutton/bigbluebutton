@@ -7,7 +7,7 @@ import (
 	"sort"
 
 	evanphxjsonpatch "github.com/evanphx/json-patch"
-	"github.com/mattbaird/jsonpatch"
+	"github.com/wI2L/jsondiff"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -72,8 +72,8 @@ func CreateJsonPatch(original []byte, modified []byte, idFieldName string) []byt
 
 // CreateJsonPatchFromMaps builds a minimal RFC 6902 patch from `original` to `modified`,
 // assuming both are arrays of objects keyed by `idFieldName` and that IDs are unique
-// within each array. Falls back to a whole-array mattbaird diff if the produced patch
-// does not round-trip to `modifiedJson`.
+// within each array. Falls back to a whole-array jsondiff (with LCS) if the produced
+// patch does not round-trip to `modifiedJson`.
 func CreateJsonPatchFromMaps(original []map[string]interface{}, modified []map[string]interface{}, modifiedJson []byte, idFieldName string) []byte {
 	if ops, ok := buildPatchOps(original, modified, idFieldName); ok {
 		patchBytes, err := json.Marshal(ops)
@@ -82,12 +82,10 @@ func CreateJsonPatchFromMaps(original []map[string]interface{}, modified []map[s
 				return patchBytes
 			}
 		}
-		log.Error("Custom patch did not round-trip to target, falling back to mattbaird")
+		log.Error("Custom patch did not round-trip to target, falling back to jsondiff")
 	}
 
-	fallback := PatchUsingMattbairdJsonpatch(original, modified)
-	fallbackJson, _ := json.Marshal(fallback)
-	return fallbackJson
+	return fallbackPatchUsingJsondiff(original, modified)
 }
 
 // buildPatchOps produces ops in four phases: replaces (per shared item, at original
@@ -195,7 +193,7 @@ func diffItem(original, modified map[string]interface{}, originalPos int) ([]jso
 	if err != nil {
 		return nil, err
 	}
-	diffs, err := jsonpatch.CreatePatch(origBytes, modBytes)
+	diffs, err := jsondiff.CompareJSON(origBytes, modBytes)
 	if err != nil {
 		return nil, err
 	}
@@ -203,7 +201,7 @@ func diffItem(original, modified map[string]interface{}, originalPos int) ([]jso
 	out := make([]jsonPatchOp, len(diffs))
 	for i, d := range diffs {
 		out[i] = jsonPatchOp{
-			Op:    d.Operation,
+			Op:    d.Type,
 			Path:  prefix + d.Path,
 			Value: d.Value,
 		}
@@ -318,13 +316,24 @@ func applyPatchToMaps(original []map[string]interface{}, patchBytes []byte) ([]b
 	return patch.Apply(originalBytes)
 }
 
-func PatchUsingMattbairdJsonpatch(original []map[string]interface{}, modified []map[string]interface{}) []jsonpatch.JsonPatchOperation {
+// fallbackPatchUsingJsondiff produces a whole-array diff via jsondiff with LCS,
+// used when the per-id custom diff fails to round-trip. LCS keeps the patch
+// compact for array reorderings and partial changes.
+func fallbackPatchUsingJsondiff(original []map[string]interface{}, modified []map[string]interface{}) []byte {
 	oldListJson, _ := json.Marshal(original)
 	newListJson, _ := json.Marshal(modified)
 
-	patches, _ := jsonpatch.CreatePatch(oldListJson, newListJson)
-
-	return patches
+	patch, err := jsondiff.CompareJSON(oldListJson, newListJson, jsondiff.LCS())
+	if err != nil {
+		log.Errorf("jsondiff fallback failed: %v", err)
+		return nil
+	}
+	patchJson, err := json.Marshal(patch)
+	if err != nil {
+		log.Errorf("jsondiff fallback marshal failed: %v", err)
+		return nil
+	}
+	return patchJson
 }
 
 func GetMapFromByte(jsonAsByte []byte) []map[string]interface{} {
@@ -339,12 +348,6 @@ func GetMapFromByte(jsonAsByte []byte) []map[string]interface{} {
 	}
 
 	return jsonAsMap
-}
-
-func PrintJsonPatchOperation(it []jsonpatch.JsonPatchOperation, name string) {
-	fmt.Printf("%s:\n", name)
-	a, _ := json.Marshal(it)
-	PrintJson(a, name)
 }
 
 func PrintMap(it []map[string]interface{}, name string) {
