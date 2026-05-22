@@ -12,11 +12,14 @@ import {
   BlockNoteViewEditor,
   BlockTypeSelect,
   ColorStyleButton,
+  ComponentsContext,
   FormattingToolbar,
   NestBlockButton,
   UnnestBlockButton,
+  useComponentsContext,
   useCreateBlockNote,
 } from '@blocknote/react';
+import { Menu as MantineMenu } from '@mantine/core';
 
 import { Plugin, PluginKey, TextSelection } from '@tiptap/pm/state';
 import { Extension } from '@tiptap/core';
@@ -113,6 +116,43 @@ const intlMessages = defineMessages({
     description: 'Error message for when number of typed characters exceeds the maximum',
   },
 });
+
+// Mantine's Menu defaults to trapFocus:true, trapping Tab inside open dropdowns.
+// Replace Generic.Menu.Root with this to let Tab exit the menu (WAI-ARIA pattern).
+const AccessibleMenuRoot: React.FC<{
+  children: React.ReactNode;
+  onOpenChange?: (open: boolean) => void;
+  position?: string;
+  sub?: boolean;
+// eslint-disable-next-line react/prop-types
+}> = ({ children, onOpenChange, position }) => (
+  <MantineMenu
+    withinPortal={false}
+    middlewares={{ flip: true, shift: true, inline: false, size: true }}
+    trapFocus={false}
+    onChange={onOpenChange}
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    position={position as any}
+    returnFocus={false}
+  >
+    {children}
+  </MantineMenu>
+);
+
+// Patches ComponentsContext so every Generic.Menu.Root in the toolbar uses
+// AccessibleMenuRoot — fixes both ColorStyleButton and TextAlignSelect.
+function ToolbarWithAccessibleMenus({ children }: { children: React.ReactNode }) {
+  const components = useComponentsContext()!;
+  const patchedComponents = React.useMemo(() => ({
+    ...components,
+    Generic: {
+      ...components.Generic,
+      Menu: { ...components.Generic.Menu, Root: AccessibleMenuRoot },
+    },
+  }), [components]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return <ComponentsContext.Provider value={patchedComponents as any}>{children}</ComponentsContext.Provider>;
+}
 
 interface BlockNoteAppProps {
   hocuspocusProvider: HocuspocusProvider;
@@ -411,21 +451,27 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         renderEditor={false}
       >
         {STATIC_FORMATTING_TOOLBAR_ENABLED && editable && (
-          <div ref={toolbarRef} className="bn-toolbar-row">
-            <FormattingToolbar>
-              <BlockTypeSelect key="blockTypeSelect" />
-              <BasicTextStyleButton basicTextStyle="bold" key="boldStyleButton" />
-              <BasicTextStyleButton basicTextStyle="italic" key="italicStyleButton" />
-              <BasicTextStyleButton basicTextStyle="underline" key="underlineStyleButton" />
-              <BasicTextStyleButton basicTextStyle="strike" key="strikeStyleButton" />
-            </FormattingToolbar>
-            <FormattingToolbar>
-              <ColorStyleButton key="colorStyleButton" />
-              <TextAlignSelect key="textAlignSelect" />
-              <NestBlockButton key="nestBlockButton" />
-              <UnnestBlockButton key="unnestBlockButton" />
-            </FormattingToolbar>
-          </div>
+          <ToolbarWithAccessibleMenus>
+            <div
+              ref={toolbarRef}
+              className="bn-toolbar-row"
+              onKeyDown={(e) => { if (e.key === 'Escape') editor.focus(); }}
+            >
+              <FormattingToolbar>
+                <BlockTypeSelect key="blockTypeSelect" />
+                <BasicTextStyleButton basicTextStyle="bold" key="boldStyleButton" />
+                <BasicTextStyleButton basicTextStyle="italic" key="italicStyleButton" />
+                <BasicTextStyleButton basicTextStyle="underline" key="underlineStyleButton" />
+                <BasicTextStyleButton basicTextStyle="strike" key="strikeStyleButton" />
+              </FormattingToolbar>
+              <FormattingToolbar>
+                <ColorStyleButton key="colorStyleButton" />
+                <TextAlignSelect key="textAlignSelect" />
+                <NestBlockButton key="nestBlockButton" />
+                <UnnestBlockButton key="unnestBlockButton" />
+              </FormattingToolbar>
+            </div>
+          </ToolbarWithAccessibleMenus>
         )}
         <BlockNoteViewEditor />
       </BlockNoteView>
