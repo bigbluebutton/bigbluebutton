@@ -1,3 +1,5 @@
+import type { Browser, BrowserContext, Page, TestInfo } from '@playwright/test';
+
 import { elements as e } from '../core/elements';
 import { test } from '../core/setup/fixtures';
 import { ChangeStyles } from './changeStyles';
@@ -6,6 +8,20 @@ import { ShapeOptions } from './shapeOptions';
 import { ShapeTools } from './shapeTools';
 import { TextShape } from './textShape';
 import { linkIssue } from '../core/helpers';
+import { WhiteboardResize } from './whiteboardResize';
+
+async function runResizeTest(
+  method: 'cameraResync' | 'cameraResyncVisual' | 'cameraResyncZoomedVisual' | 'cameraResyncAfterMinimizeRestore',
+  browser: Browser,
+  context: BrowserContext,
+  page: Page,
+  testInfo: TestInfo,
+) {
+  const resize = new WhiteboardResize(browser, context);
+  await resize.initModPage(page, { testInfo });
+  await resize.initUserPage(context, { testInfo });
+  await resize[method]();
+}
 
 //! @flaky note:
 // all whiteboard tests are flagged as flaky due to unexpected zooming slides
@@ -162,5 +178,21 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
       await shapeOptions.initUserPage(context, { testInfo });
       await shapeOptions.rotate();
     });
+  });
+
+  test('Camera re-sync after container resize', async ({ browser, context, page }, testInfo) => {
+    await runResizeTest('cameraResync', browser, context, page, testInfo);
+  });
+
+  test('Camera re-sync visual regression after container resize', async ({ browser, context, page }, testInfo) => {
+    await runResizeTest('cameraResyncVisual', browser, context, page, testInfo);
+  });
+
+  test('Camera re-sync visual regression after resize with canvas zoom', async ({ browser, context, page }, testInfo) => {
+    await runResizeTest('cameraResyncZoomedVisual', browser, context, page, testInfo);
+  });
+
+  test('Camera zoom is preserved after minimizing and restoring the presentation', async ({ browser, context, page }, testInfo) => {
+    await runResizeTest('cameraResyncAfterMinimizeRestore', browser, context, page, testInfo);
   });
 });

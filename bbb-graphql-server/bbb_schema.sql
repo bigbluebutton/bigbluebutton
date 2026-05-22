@@ -1344,9 +1344,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER "update_chatUser_clear_lastTypingAt_trigger" AFTER INSERT ON chat_message FOR EACH ROW
+CREATE TRIGGER "update_chatUser_clear_lastTypingAt_trigger" AFTER INSERT OR UPDATE ON chat_message FOR EACH ROW
 EXECUTE FUNCTION "update_chatUser_clear_lastTypingAt_trigger_func"();
-
 
 
 CREATE UNLOGGED TABLE "chat_message_history" (
@@ -1500,9 +1499,10 @@ CREATE INDEX "idx_pres_presentation_meetingId_curr" ON "pres_presentation"("meet
 --Populate preloadNextPages, which will be used to provide the SVG of next slides at pres_page_curr
 CREATE OR REPLACE FUNCTION "update_preloadNextPages"() RETURNS TRIGGER AS $$
 BEGIN
-    SELECT coalesce(("clientSettingsJson"->'public'->'app'->'preloadNextSlides')::int,0) INTO NEW."preloadNextPages"
-    from "meeting_clientSettings" mcs
-    where mcs."meetingId" = NEW."meetingId";
+    SELECT coalesce(("clientSettingsJson"->'public'->'app'->'preloadNextSlides')::int, 0)
+    INTO NEW."preloadNextPages"
+    FROM "meeting_clientSettings" mcs
+    WHERE mcs."meetingId" = NEW."meetingId";
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
