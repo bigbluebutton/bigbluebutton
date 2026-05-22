@@ -19,6 +19,7 @@ import {
   useComponentsContext,
   useCreateBlockNote,
 } from '@blocknote/react';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { Menu as MantineMenu } from '@mantine/core';
 
 import { Plugin, PluginKey, TextSelection } from '@tiptap/pm/state';
@@ -123,12 +124,12 @@ const AccessibleMenuRoot: React.FC<{
   children: React.ReactNode;
   onOpenChange?: (open: boolean) => void;
   position?: string;
-  sub?: boolean;
-// eslint-disable-next-line react/prop-types
 }> = ({ children, onOpenChange, position }) => (
   <MantineMenu
     withinPortal={false}
-    middlewares={{ flip: true, shift: true, inline: false, size: true }}
+    middlewares={{
+      flip: true, shift: true, inline: false, size: true,
+    }}
     trapFocus={false}
     onChange={onOpenChange}
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -454,6 +455,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
           <ToolbarWithAccessibleMenus>
             <div
               ref={toolbarRef}
+              role="toolbar"
               className="bn-toolbar-row"
               onKeyDown={(e) => { if (e.key === 'Escape') editor.focus(); }}
             >
