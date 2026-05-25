@@ -494,12 +494,18 @@ jobs:
           eval $(ssh-agent -s)
           trap 'ssh-agent -k' EXIT
           echo "$SSH_KEY" | tr -d '\r' | ssh-add -
+          # Pick the target codename based on the branch being built
+          case "${{ github.ref_name }}" in
+            v4.0.x-release) CODENAME="noble-40-prerelease" ;;
+            v4.0.x-develop) CODENAME="noble-40-dev" ;;
+            *) echo "Branch ${{ github.ref_name }} is not mapped to a package repo codename — skipping push."; exit 0 ;;
+          esac
           rsync -avz -e "ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=10" \
             all-artifacts/*.deb ${REPO_USER}@${REPO_HOST}:/srv/apt-incoming/
-          # Trigger processing for the target codename (e.g. noble-40 or noble-41 or noble-41-dev)
+          # Trigger processing for the target codename (e.g. noble-40-dev or noble-40-prerelease or noble-41-dev)
           ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=10 \
             ${REPO_USER}@${REPO_HOST} \
-            "sudo -u aptrepo /usr/local/bin/repo-process-incoming noble-40-dev"
+            "sudo -u aptrepo /usr/local/bin/repo-process-incoming $CODENAME"
   install-and-run-plugin-tests:
     needs:
       - unify-artifacts
