@@ -5,6 +5,7 @@ on:
       - "develop"
       - "v2.[5-9].x-release"
       - "v[3-9].*.x-release"
+      - "v[3-9].*.x-develop"
     paths-ignore:
       - "docs/**"
       - "**/*.md"
