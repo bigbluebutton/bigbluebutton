@@ -65,17 +65,19 @@ export const OWN_VIDEO_STREAMS_QUERY = gql`
 `;
 
 // Grid shows users who aren't displayed as a video tile for the current user.
-// We exclude camera-sharers whose isModerator is in $excludedModeratorValues:
-// [true, false] excludes every camera-sharer, while locked viewers pass [true] so
-// non-moderator camera-sharers they can't see in the video streams still surface here.
+// Camera-sharers are excluded (isSharingCamera = camerasCount > 0). When the user can
+// only see moderator cameras (webcamsOnlyForModerator + locked), non-moderators are
+// dropped too via $moderatorValues = [true]; otherwise [true, false] keeps everyone.
+// NOTE: isSharingCamera is global and ignores per-viewer locks, so it is trusted only for
+// moderators (their cameras reach everyone); non-moderator visibility is handled by role.
+// The current user is intentionally NOT special-cased here (no per-user variable, so
+// Hasura can still multiplex this subscription); self is re-added client-side instead.
 export const GRID_USERS_SUBSCRIPTION = gql`
-  subscription GridUsers($limit: Int!, $excludedModeratorValues: [Boolean!]) {
+  subscription GridUsers($limit: Int!, $moderatorValues: [Boolean!]) {
     user(
       where: {
-        _not: {
-          isSharingCamera: { _eq: true },
-          isModerator: { _in: $excludedModeratorValues },
-        },
+        isSharingCamera: { _eq: false },
+        isModerator: { _in: $moderatorValues },
       },
       limit: $limit,
       order_by: {
@@ -108,14 +110,13 @@ export const GRID_USERS_SUBSCRIPTION = gql`
 `;
 
 // Audio-only shows users with floor time who aren't displayed as a video tile for the current user.
+// Same camera-sharer/role filtering as GRID_USERS_SUBSCRIPTION (see note there).
 export const AUDIO_ONLY_USERS_SUBSCRIPTION = gql`
-  subscription AudioOnlyUsers($excludedModeratorValues: [Boolean!]) {
+  subscription AudioOnlyUsers($moderatorValues: [Boolean!]) {
     user(
       where: {
-        _not: {
-          isSharingCamera: { _eq: true },
-          isModerator: { _in: $excludedModeratorValues },
-        },
+        isSharingCamera: { _eq: false },
+        isModerator: { _in: $moderatorValues },
         lastFloorTime: { _neq: "0" },
       },
       order_by: {
