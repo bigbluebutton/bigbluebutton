@@ -55,11 +55,9 @@ import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
-import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
+import createUseSubscription, { useCreateUseSubscription } from '/imports/ui/core/hooks/createUseSubscription';
 import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
-import {
-  MEDIA_GROUP_STREAMS_SUBSCRIPTION,
-} from '/imports/ui/components/livekit/selective-subscription/queries';
+import useUserMediaGroupStateStream from '/imports/ui/components/livekit/selective-subscription/mediaGroupStateStream';
 import {
   MediaGroupParticipant,
   MediaType,
@@ -320,6 +318,7 @@ export const useGridUsers = (visibleStreamCount: number) => {
   const gridSize = useGridSize();
   const userCount = getCountData();
   const isGridEnabled = useStorageKey('isGridEnabled');
+  const isUserLocked = useIsUserLocked();
   const gridItems = useRef<GridItem[]>([]);
   const overflowCount = useRef<number>(0);
 
@@ -334,7 +333,13 @@ export const useGridUsers = (visibleStreamCount: number) => {
   } = useSubscription<GridUsersResponse>(
     GRID_USERS_SUBSCRIPTION,
     {
-      variables: { limit: Math.max(gridSize - visibleStreamCount, 0) },
+      // Locked viewers can't see non-moderator cameras in the video streams, so only
+      // exclude moderator camera-sharers ([true]); otherwise exclude every
+      // camera-sharer ([true, false]).
+      variables: {
+        limit: Math.max(gridSize - visibleStreamCount, 0),
+        excludedModeratorValues: isUserLocked ? [true] : [true, false],
+      },
       skip: !isGridEnabled,
     },
   );
@@ -422,20 +427,17 @@ export const useGridSize = () => {
   return size;
 };
 
-const useAudioOnlySubscription = createUseSubscription(
-  AUDIO_ONLY_USERS_SUBSCRIPTION,
-  {},
-  true,
-);
-
-const useMediaGroupStreamsSubscription = createUseSubscription(
-  MEDIA_GROUP_STREAMS_SUBSCRIPTION,
-  {},
-  true,
-);
-
 export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
   const { data: meeting } = useMeeting((m) => ({ meetingId: m.meetingId }));
+  const isUserLocked = useIsUserLocked();
+  // Locked viewers can't see non-moderator cameras in the video streams, so only
+  // exclude moderator camera-sharers ([true]); otherwise exclude every camera-sharer
+  // ([true, false]).
+  const useAudioOnlySubscription = useCreateUseSubscription(
+    AUDIO_ONLY_USERS_SUBSCRIPTION,
+    { excludedModeratorValues: isUserLocked ? [true] : [true, false] },
+    true,
+  );
   const { data, loading, errors } = useAudioOnlySubscription();
   const layoutType = layoutSelect((i: Layout) => i.layoutType);
   const {
@@ -485,18 +487,16 @@ export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
 };
 
 const useVideoSenders = () => {
-  const { data, errors } = useMediaGroupStreamsSubscription();
+  const { data, error } = useUserMediaGroupStateStream();
 
-  if (errors) {
-    errors.forEach((error) => {
-      logger.error({
-        logCode: 'video_provider_media_group_sub_error',
-        extraInfo: {
-          errorMessage: error.message,
-          mediaType: MediaType.CAMERA,
-        },
-      }, `VideoProvider: ${MediaType.CAMERA} group participants subscription failed.`);
-    });
+  if (error) {
+    logger.error({
+      logCode: 'video_provider_media_group_sub_error',
+      extraInfo: {
+        errorMessage: error.message,
+        mediaType: MediaType.CAMERA,
+      },
+    }, `VideoProvider: ${MediaType.CAMERA} group participants subscription failed.`);
   }
 
   const mediaGroupParticipants = (data as MediaGroupParticipant[] || []).filter(

@@ -217,6 +217,7 @@ select_permissions:
         - isModerator
         - currentlyInMeeting
         - isRunningEchoTest
+        - isSharingCamera
         - joinErrorCode
         - joinErrorMessage
         - joined
@@ -227,6 +228,7 @@ select_permissions:
         - nameSortable
         - firstName
         - firstNameSortable
+        - lastFloorTime
         - lastName
         - lastNameSortable
         - pinned
@@ -274,9 +276,11 @@ select_permissions:
         - isDialIn
         - isModerator
         - isRunningEchoTest
+        - isSharingCamera
         - joinErrorCode
         - joinErrorMessage
         - joined
+        - lastFloorTime
         - lastName
         - lastNameSortable
         - locked

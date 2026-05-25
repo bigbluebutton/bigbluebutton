@@ -24,7 +24,11 @@ export interface AudioOnlyUsersResponse {
 
 export const VIDEO_STREAMS_SUBSCRIPTION = gql`
   subscription VideoStreams {
-    user_camera {
+    user_camera(
+      order_by: {
+        userId: asc,
+      }
+    ) {
       meetingId
       streamId
       user {
@@ -80,14 +84,17 @@ export const VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION = gql`
   }
 `;
 
+// Grid shows users who aren't displayed as a video tile for the current user.
+// We exclude camera-sharers whose isModerator is in $excludedModeratorValues:
+// [true, false] excludes every camera-sharer, while locked viewers pass [true] so
+// non-moderator camera-sharers they can't see in the video streams still surface here.
 export const GRID_USERS_SUBSCRIPTION = gql`
-  subscription GridUsers($limit: Int!) {
+  subscription GridUsers($limit: Int!, $excludedModeratorValues: [Boolean!]) {
     user(
       where: {
-        cameras_aggregate: {
-          count: {
-            predicate: { _eq: 0 },
-          },
+        _not: {
+          isSharingCamera: { _eq: true },
+          isModerator: { _in: $excludedModeratorValues },
         },
       },
       limit: $limit,
@@ -120,25 +127,20 @@ export const GRID_USERS_SUBSCRIPTION = gql`
   }
 `;
 
+// Audio-only shows users with floor time who aren't displayed as a video tile for the current user.
 export const AUDIO_ONLY_USERS_SUBSCRIPTION = gql`
-  subscription AudioOnlyUsers {
+  subscription AudioOnlyUsers($excludedModeratorValues: [Boolean!]) {
     user(
       where: {
-        cameras_aggregate: {
-          count: {
-            predicate: { _eq: 0 },
-          },
+        _not: {
+          isSharingCamera: { _eq: true },
+          isModerator: { _in: $excludedModeratorValues },
         },
-        voice: {
-          lastFloorTime: {
-            _gt: "0",
-          },
-        },
+        lastFloorTime: { _neq: "0" },
       },
       order_by: {
-        voice: {
-          lastFloorTime: desc,
-        },
+        lastFloorTime: desc,
+        userId: asc,
       },
     ) {
       meetingId
