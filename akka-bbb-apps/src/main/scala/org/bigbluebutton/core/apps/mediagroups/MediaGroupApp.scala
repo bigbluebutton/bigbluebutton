@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps.mediagroups
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core.db.MediaGroupUserDAO
+import org.bigbluebutton.core.db.{ MediaGroupDAO, MediaGroupUserDAO }
 
 // Reserved group IDs for the explicit public space per media type
 object PublicMediaGroupIds {
@@ -187,23 +187,53 @@ object MediaGroupApp {
       }
     }
 
+    // Only persist memberships for public groups that actually exist. Public
+    // groups are created lazily (once a scoped group exists), so a
+    // missing group here means there is nothing to enroll into.
     PublicMediaGroupIds.All.foreach { groupId =>
-      val userAlreadyInGroup = mediaGroups.find(groupId).exists(
-        mg => mg.isUserSending(userId) || mg.isUserReceiving(userId)
-      )
-      if (!userAlreadyInGroup) {
-        MediaGroupUserDAO.insertUser(
-          liveMeeting.props.meetingProp.intId,
-          groupId,
-          userId,
-          sender = true,
-          receiver = true,
-          active = true
-        )
+      mediaGroups.find(groupId).foreach { mg =>
+        val userAlreadyInGroup = mg.isUserSending(userId) || mg.isUserReceiving(userId)
+
+        if (!userAlreadyInGroup) {
+          MediaGroupUserDAO.insertUser(
+            liveMeeting.props.meetingProp.intId,
+            groupId,
+            userId,
+            sender = true,
+            receiver = true,
+            active = true
+          )
+        }
       }
     }
 
     newMgState
+  }
+
+  def publicGroupsExist(mediaGroups: MediaGroups): Boolean =
+    PublicMediaGroupIds.All.exists(groupId => mediaGroups.find(groupId).isDefined)
+
+  // Create three public group containers (model and DB ) and enrolls every
+  // current user as sender+receiver.
+  // Call this before creating the first scoped group in a meeting.
+  def ensurePublicGroupsCreated(
+      liveMeeting: LiveMeeting,
+      mediaGroups: MediaGroups
+  ): MediaGroups = {
+    if (publicGroupsExist(mediaGroups)) {
+      mediaGroups
+    } else {
+      val meetingId = liveMeeting.props.meetingProp.intId
+      val withGroups = createPublicMediaGroups(mediaGroups)
+
+      withGroups.findAllMediaGroups()
+        .filter(mg => PublicMediaGroupIds.isPublicGroup(mg.id))
+        .foreach(mg => MediaGroupDAO.insert(meetingId, mg))
+
+      Users2x.findAll(liveMeeting.users2x).foldLeft(withGroups) { (acc, user) =>
+        enrollUserInPublicGroups(liveMeeting, user.intId, acc)
+      }
+    }
   }
 
   def handleMediaGroupUpdated(
@@ -361,11 +391,13 @@ object MediaGroupApp {
 
         if (!userStillInType) {
           PublicMediaGroupIds.publicGroupIdForMediaType(mediaType).foreach { publicGroupId =>
-            val participant = MediaGroupParticipant(userId, sender = true, receiver = true, active = true)
+            if (updatedMediaGroups.find(publicGroupId).isDefined) {
+              val participant = MediaGroupParticipant(userId, sender = true, receiver = true, active = true)
 
-            updatedMediaGroups = addMediaGroupParticipant(publicGroupId, participant, updatedMediaGroups)
-            MediaGroupUserDAO.insertUser(meetingId, publicGroupId, userId, sender = true, receiver = true, active = true)
-            affectedGroupIds += publicGroupId
+              updatedMediaGroups = addMediaGroupParticipant(publicGroupId, participant, updatedMediaGroups)
+              MediaGroupUserDAO.insertUser(meetingId, publicGroupId, userId, sender = true, receiver = true, active = true)
+              affectedGroupIds += publicGroupId
+            }
           }
         }
       }
