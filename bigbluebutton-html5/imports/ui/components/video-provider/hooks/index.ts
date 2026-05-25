@@ -5,7 +5,6 @@ import {
 } from 'react';
 import {
   useReactiveVar,
-  useLazyQuery,
   useMutation,
   useSubscription,
 } from '@apollo/client';
@@ -26,7 +25,6 @@ import {
   getVideoState,
 } from '/imports/ui/components/video-provider/state';
 import {
-  OWN_VIDEO_STREAMS_QUERY,
   GRID_USERS_SUBSCRIPTION,
   VIDEO_STREAMS_SUBSCRIPTION,
   AUDIO_ONLY_USERS_SUBSCRIPTION,
@@ -39,7 +37,6 @@ import {
   StreamItem,
   AudioOnlyStream,
   GridUsersResponse,
-  OwnVideoStreamsResponse,
   StreamSubscriptionData,
 } from '/imports/ui/components/video-provider/types';
 import { DesktopPageSizes, MobilePageSizes } from '/imports/ui/Types/meetingClientSettings';
@@ -771,24 +768,23 @@ export const useHasVideoStream = () => {
   return !!connectingStream || streams.some((s) => videoService.isLocalStream(s.stream));
 };
 
-const useOwnVideoStreamsQuery = () => useLazyQuery<OwnVideoStreamsResponse>(
-  OWN_VIDEO_STREAMS_QUERY,
-  {
-    variables: {
-      userId: Auth.userID,
-      streamIdPrefix: `${videoService.getPrefix()}%`,
-    },
-    // UID and prefix are stable, so for now we need to bust the cache. If we don't,
-    // users will hit issues where cannot unshare their webcam or unsharing deals
-    // with unexpected behavior. E.g.: a camera was first ejected server side (empty
-    // stream list), or multiple cameras were shared (just the first one is cached).
-    fetchPolicy: 'no-cache',
-  },
-);
+// Returns the current user's own camera streams from the live VIDEO_STREAMS_SUBSCRIPTION.
+// streamId is prefixed with `${userId}_${sessionUUID}`, so isLocalStream reproduces the
+// old OWN_VIDEO_STREAMS_QUERY filter (userId _eq + streamId _like prefix). The streams are
+// kept in a ref so the exit/stop callbacks stay stable while always reading the freshest
+// list at call time — the subscription is live, so there is no cache staleness to bust.
+const useOwnStreamsRef = () => {
+  const streams = useStreams();
+  const ownStreamsRef = useRef<string[]>([]);
+  ownStreamsRef.current = streams
+    .filter((s) => videoService.isLocalStream(s.stream))
+    .map((s) => s.stream);
+  return ownStreamsRef;
+};
 
 export const useExitVideo = (forceExit = false) => {
   const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
-  const [getOwnVideoStreams] = useOwnVideoStreamsQuery();
+  const ownStreamsRef = useOwnStreamsRef();
 
   const exitVideo = useCallback(async () => {
     const { isConnected } = getVideoState();
@@ -798,26 +794,20 @@ export const useExitVideo = (forceExit = false) => {
         return cameraBroadcastStop({ variables: { cameraId } });
       };
 
-      return getOwnVideoStreams().then(async ({ data }) => {
-        if (data) {
-          const streams = data.user_camera || [];
-          const results = streams.map((s) => sendUserUnshareWebcam(s.streamId));
+      const results = ownStreamsRef.current.map((streamId) => sendUserUnshareWebcam(streamId));
 
-          return Promise.all(results).then(() => {
-            videoService.exitedVideo();
-            return true;
-          }).catch((e) => {
-            logger.warn({
-              logCode: 'exit_video_error',
-              extraInfo: {
-                errorMessage: e.message,
-                errorStack: e.stack,
-              },
-            }, `Failed to exit video: ${e.message}`);
-            return false;
-          });
-        }
+      return Promise.all(results).then(() => {
+        videoService.exitedVideo();
         return true;
+      }).catch((e) => {
+        logger.warn({
+          logCode: 'exit_video_error',
+          extraInfo: {
+            errorMessage: e.message,
+            errorStack: e.stack,
+          },
+        }, `Failed to exit video: ${e.message}`);
+        return false;
       });
     }
     return true;
@@ -849,14 +839,13 @@ export const useLockUser = () => {
 
 export const useStopVideo = () => {
   const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
-  const [getOwnVideoStreams] = useOwnVideoStreamsQuery();
+  const ownStreamsRef = useOwnStreamsRef();
 
   return useCallback(async (cameraId?: string) => {
-    const { data } = await getOwnVideoStreams();
-    const streams = data?.user_camera ?? [];
+    const streams = ownStreamsRef.current;
     const connectingStream = getConnectingStream();
-    const hasTargetStream = streams.some((s) => s.streamId === cameraId);
-    const hasOtherStream = streams.some((s) => s.streamId !== cameraId);
+    const hasTargetStream = streams.some((streamId) => streamId === cameraId);
+    const hasOtherStream = streams.some((streamId) => streamId !== cameraId);
 
     if (hasTargetStream) {
       cameraBroadcastStop({ variables: { cameraId } });

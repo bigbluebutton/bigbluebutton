@@ -51,19 +51,6 @@ export const VIDEO_STREAMS_SUBSCRIPTION = gql`
   }
 `;
 
-export const OWN_VIDEO_STREAMS_QUERY = gql`
-  query OwnVideoStreams($userId: String!, $streamIdPrefix: String!) {
-    user_camera(
-      where: {
-        userId: { _eq: $userId },
-        streamId: { _like: $streamIdPrefix }
-      },
-    ) {
-      streamId
-    }
-  }
-`;
-
 // Grid shows users who aren't displayed as a video tile for the current user.
 // Camera-sharers are excluded (isSharingCamera = camerasCount > 0). When the user can
 // only see moderator cameras (webcamsOnlyForModerator + locked), non-moderators are
@@ -152,7 +139,6 @@ export const AUDIO_ONLY_USERS_SUBSCRIPTION = gql`
 `;
 
 export default {
-  OWN_VIDEO_STREAMS_QUERY,
   VIDEO_STREAMS_SUBSCRIPTION,
   GRID_USERS_SUBSCRIPTION,
   AUDIO_ONLY_USERS_SUBSCRIPTION,
