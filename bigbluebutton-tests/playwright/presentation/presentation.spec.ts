@@ -13,6 +13,12 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.skipSlide();
   });
 
+  test('Navigate slides with arrow keys', async ({ browser, context, page }, testInfo) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initModPage(page, { testInfo });
+    await presentation.navigateSlidesWithArrowKeys();
+  });
+
   test('Share Camera As Content', async ({ browser }, testInfo) => {
     const staticVideoBrowser = await browser.browserType().launch({
       args: [
