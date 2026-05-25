@@ -1,14 +1,6 @@
 import { gql } from '@apollo/client';
 import { User } from '/imports/ui/components/video-provider/types';
 
-export interface ViewerVideoStreamsSubscriptionResponse {
-  user_camera_aggregate: {
-    aggregate: {
-      count: number;
-    };
-  };
-}
-
 export interface AudioOnlyUsersResponse {
   user: Array<User & {
     voice: {
@@ -68,18 +60,6 @@ export const OWN_VIDEO_STREAMS_QUERY = gql`
       },
     ) {
       streamId
-    }
-  }
-`;
-
-export const VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION = gql`
-  subscription ViewerVideoStreams {
-    user_camera_aggregate(where: {
-      user: { role: { _eq: "VIEWER" }, presenter: { _eq: false } }
-    }) {
-      aggregate {
-        count
-      }
     }
   }
 `;
@@ -173,7 +153,6 @@ export const AUDIO_ONLY_USERS_SUBSCRIPTION = gql`
 export default {
   OWN_VIDEO_STREAMS_QUERY,
   VIDEO_STREAMS_SUBSCRIPTION,
-  VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
   GRID_USERS_SUBSCRIPTION,
   AUDIO_ONLY_USERS_SUBSCRIPTION,
 };

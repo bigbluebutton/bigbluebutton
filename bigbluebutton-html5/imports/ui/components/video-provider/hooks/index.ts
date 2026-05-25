@@ -28,10 +28,8 @@ import {
 import {
   OWN_VIDEO_STREAMS_QUERY,
   GRID_USERS_SUBSCRIPTION,
-  VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
   VIDEO_STREAMS_SUBSCRIPTION,
   AUDIO_ONLY_USERS_SUBSCRIPTION,
-  ViewerVideoStreamsSubscriptionResponse,
   AudioOnlyUsersResponse,
 } from '/imports/ui/components/video-provider/queries';
 import videoService from '/imports/ui/components/video-provider/service';
@@ -752,10 +750,14 @@ export const useExitVideo = (forceExit = false) => {
 };
 
 export const useViewersInWebcamCount = (): number => {
-  const { data } = useDeduplicatedSubscription<ViewerVideoStreamsSubscriptionResponse>(
-    VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
-  );
-  return data?.user_camera_aggregate?.aggregate?.count || 0;
+  const streams = useStreams();
+  const ROLE_VIEWER = videoService.getRoleViewer();
+
+  // Mirror the VIEWERS_IN_WEBCAM_COUNT aggregate: count camera streams whose
+  // owner is a non-presenter viewer. Each stream maps to one user_camera row.
+  return streams.filter(
+    (s) => s.user?.role === ROLE_VIEWER && s.user?.presenter === false,
+  ).length;
 };
 
 export const useLockUser = () => {
