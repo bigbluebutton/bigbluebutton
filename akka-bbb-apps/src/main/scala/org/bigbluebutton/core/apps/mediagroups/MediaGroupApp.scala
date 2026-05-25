@@ -178,23 +178,13 @@ object MediaGroupApp {
       active = true
     )
 
-    val newMgState = PublicMediaGroupIds.All.foldLeft(mediaGroups) { (acc, groupId) =>
+    // Enroll the user in each public group they are not already in.
+    // Public groups are created lazily (only once a scoped group
+    // exists), so a missing group here means there is nothing to enroll into.
+    PublicMediaGroupIds.All.foldLeft(mediaGroups) { (acc, groupId) =>
       acc.find(groupId) match {
         // Only enroll if not already in the group (e.g.: reconns, multiple sessions)
         case Some(mg) if !mg.isUserSending(userId) && !mg.isUserReceiving(userId) =>
-          addMediaGroupParticipant(groupId, participant, acc)
-        case _ => acc
-      }
-    }
-
-    // Only persist memberships for public groups that actually exist. Public
-    // groups are created lazily (once a scoped group exists), so a
-    // missing group here means there is nothing to enroll into.
-    PublicMediaGroupIds.All.foreach { groupId =>
-      mediaGroups.find(groupId).foreach { mg =>
-        val userAlreadyInGroup = mg.isUserSending(userId) || mg.isUserReceiving(userId)
-
-        if (!userAlreadyInGroup) {
           MediaGroupUserDAO.insertUser(
             liveMeeting.props.meetingProp.intId,
             groupId,
@@ -203,11 +193,10 @@ object MediaGroupApp {
             receiver = true,
             active = true
           )
-        }
+          addMediaGroupParticipant(groupId, participant, acc)
+        case _ => acc
       }
     }
-
-    newMgState
   }
 
   def publicGroupsExist(mediaGroups: MediaGroups): Boolean =
