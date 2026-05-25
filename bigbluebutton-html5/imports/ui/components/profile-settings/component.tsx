@@ -56,6 +56,10 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
     id: 'app.videoPreview.webcamVirtualBackgroundLabel',
     description: 'Title for the virtual background modal',
   },
+  webcamVirtualBackgroundDisabledLabel: {
+    id: 'app.videoPreview.webcamVirtualBackgroundDisabledLabel',
+    description: 'Label for the virtual background toggle when not supported on this device',
+  },
   cameraLabel: {
     id: 'app.videoPreview.cameraLabel',
     description: 'Camera dropdown label',
@@ -699,20 +703,31 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
       sectionIndex, type, name, customParams,
     );
 
+    const switchTitle = (
+      <Styled.SwitchTitle
+        sx={{ margin: 0 }}
+        control={(
+          <Styled.MaterialSwitch
+            sx={{ marginRight: '1rem' }}
+            checked={section.virtualBackgroundChecked}
+            onChange={(_, checked) => handleVirtualBgChange(sectionIndex, checked)}
+            disabled={!isVirtualBackgroundsEnabled || !isVirtualBackgroundSupported() || isCameraLoading}
+            inputProps={{ 'data-test': 'virtualBackgroundToggle' } as React.InputHTMLAttributes<HTMLInputElement>}
+          />
+        )}
+        label={formatMessage(intlMessages.webcamVirtualBackgroundTitle)}
+      />
+    );
+
     return (
       <>
-        <Styled.SwitchTitle
-          sx={{ margin: 0 }}
-          control={(
-            <Styled.MaterialSwitch
-              sx={{ marginRight: '1rem' }}
-              checked={section.virtualBackgroundChecked}
-              onChange={(_, checked) => handleVirtualBgChange(sectionIndex, checked)}
-              disabled={!isVirtualBackgroundsEnabled || isCameraLoading}
-            />
-          )}
-          label={formatMessage(intlMessages.webcamVirtualBackgroundTitle)}
-        />
+        {!isVirtualBackgroundSupported() ? (
+          <Tooltip title={formatMessage(intlMessages.webcamVirtualBackgroundDisabledLabel)}>
+            {switchTitle}
+          </Tooltip>
+        ) : (
+          switchTitle
+        )}
         {section.virtualBackgroundChecked
           && (
             <Styled.VirtualBgSelectorBorder>
