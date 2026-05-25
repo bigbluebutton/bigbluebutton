@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, memo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import { RAISED_HAND_USERS } from '/imports/ui/core/graphql/queries/users';
@@ -25,7 +25,7 @@ const intlMessages = defineMessages({
   },
 });
 
-const RaisedHandsContainer: React.FC = () => {
+const RaisedHandsContainer: React.FC<{ searchQuery?: string }> = ({ searchQuery }) => {
   const intl = useIntl();
   const [setRaiseHand] = useMutation(SET_RAISE_HAND);
 
@@ -67,7 +67,15 @@ const RaisedHandsContainer: React.FC = () => {
     (u) => ({ mismatchedUserId: u.userId, mismatchedName: u.name }),
   );
 
-  if (!meeting || !currentUser || meetingLoading || raisedHands.length === 0) {
+  const searchQueryLower = useMemo(() => searchQuery?.toLowerCase() ?? '', [searchQuery]);
+  const filteredRaisedHands = useMemo(
+    () => (searchQueryLower
+      ? raisedHands.filter((u) => u.name.toLowerCase().includes(searchQueryLower))
+      : raisedHands),
+    [raisedHands, searchQueryLower],
+  );
+
+  if (!meeting || !currentUser || meetingLoading || filteredRaisedHands.length === 0) {
     return null;
   }
 
@@ -83,12 +91,12 @@ const RaisedHandsContainer: React.FC = () => {
       <Styled.RaisedHandsContainer>
         <Styled.TitleContainer>
           <Styled.RaisedHandsTitle>
-            {intl.formatMessage(intlMessages.raisedHandsTitle, { count: raisedHands.length })}
+            {intl.formatMessage(intlMessages.raisedHandsTitle, { count: filteredRaisedHands.length })}
           </Styled.RaisedHandsTitle>
         </Styled.TitleContainer>
 
         <RaisedHandsList
-          raisedHands={raisedHands}
+          raisedHands={filteredRaisedHands}
           currentUser={currentUser as User}
           meeting={{
             isBreakout: meeting.isBreakout ?? false,
@@ -103,7 +111,7 @@ const RaisedHandsContainer: React.FC = () => {
             label={intl.formatMessage(intlMessages.lowerHandsLabel)}
             color="default"
             size="md"
-            onClick={() => raisedHands.forEach((u) => lowerUserHands(u.userId))}
+            onClick={() => filteredRaisedHands.forEach((u) => lowerUserHands(u.userId))}
             data-test="raiseHandRejection"
           />
         )}
@@ -113,4 +121,4 @@ const RaisedHandsContainer: React.FC = () => {
   );
 };
 
-export default RaisedHandsContainer;
+export default memo(RaisedHandsContainer);
