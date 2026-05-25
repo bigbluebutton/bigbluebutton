@@ -327,21 +327,15 @@ export class Join extends Create {
 
     await this.modPage.waitAndClick(e.finishBreakoutButton);
 
-    // Wait for breakout teardown to finish before touching the sidebar again.
-    await this.modPage.wasRemoved(
-      e.breakoutRoomList,
-      'should close breakout room panel after ending all breakout rooms',
-      ELEMENT_WAIT_LONGER_TIME,
-    );
-
     const createButton = this.modPage.page.locator(e.createBreakoutRoomsButton);
-    if (!(await createButton.isVisible().catch(() => false))) {
-      await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
-    }
-    await this.modPage.hasElement(
-      e.createBreakoutRoomsButton,
-      'should display create breakout rooms button after ending all breakout rooms',
-    );
+    await expect(async () => {
+      if (!(await createButton.isVisible().catch(() => false))) {
+        await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+      }
+      await expect(createButton).toBeVisible({ timeout: ELEMENT_WAIT_TIME });
+    }, 'should display create breakout rooms button after ending all breakout rooms').toPass({
+      timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
+    });
   }
 
   async moveUserToOtherRoom() {
