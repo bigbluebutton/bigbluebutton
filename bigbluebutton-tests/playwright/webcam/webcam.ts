@@ -352,4 +352,13 @@ export class Webcam extends Page {
       mask: [this.page.locator(e.currentUserLocalStreamVideo)],
     });
   }
+
+  async virtualBackgroundToggleDisabledOnUnsupportedDevice() {
+    // On mobile viewports the sidebar navigation is collapsed — open it first
+    await this.page.locator(e.toggleSidebarNavigation).click({ force: true });
+    await this.waitAndClick(e.profileSidebarButton);
+    await this.hasElement(e.virtualBackgroundToggle, 'should display the virtual background toggle in profile settings');
+    const toggle = this.page.locator(e.virtualBackgroundToggle);
+    await expect(toggle, 'virtual background toggle should be disabled on unsupported device').toBeDisabled();
+  }
 }
