@@ -2527,6 +2527,7 @@ CREATE UNLOGGED TABLE "user_mediaGroup" (
 	"sender"						boolean NOT NULL DEFAULT false,
 	"receiver"					boolean NOT NULL DEFAULT false,
 	"active"						boolean NOT NULL DEFAULT false,
+	"createdAt"					timestamp with time zone NOT NULL DEFAULT current_timestamp,
 	CONSTRAINT "user_mediaGroup_pkey" PRIMARY KEY ("meetingId", "userId", "groupId"),
 	FOREIGN KEY ("meetingId", "groupId") REFERENCES "mediaGroup"("meetingId", "groupId") ON DELETE CASCADE,
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId", "userId") ON DELETE CASCADE
@@ -2534,6 +2535,8 @@ CREATE UNLOGGED TABLE "user_mediaGroup" (
 
 CREATE INDEX "idx_user_mediaGroup_userId_reverse" ON "user_mediaGroup"("userId", "meetingId");
 CREATE INDEX "idx_user_mediaGroup_groupId_sender_receiver" ON "user_mediaGroup"("meetingId", "groupId", "sender", "receiver");
+CREATE INDEX "idx_user_mediaGroup_createdAt" ON "user_mediaGroup"("meetingId", "createdAt", "userId", "groupId");
+
 CREATE OR REPLACE VIEW "v_user_mediaGroup" AS SELECT umg.*, mg."mediaType"
 FROM "user_mediaGroup" umg
 JOIN "mediaGroup" mg ON mg."meetingId" = umg."meetingId" AND mg."groupId" = umg."groupId";
