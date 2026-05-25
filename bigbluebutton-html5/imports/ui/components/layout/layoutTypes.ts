@@ -280,6 +280,7 @@ interface Input {
     sharedNotes: SharedNotes;
     sidebarContent: SidebarContent;
     sidebarContentHorizontalResizer: SidebarContentHorizontalResizer;
+    sidebarContentAuxiliary: SidebarContent;
     sidebarNavigation: SidebarNavigation;
 }
 
@@ -296,6 +297,7 @@ interface Output {
     screenShare: ScreenShare;
     sharedNotes: SharedNotes;
     sidebarContent: SidebarContent;
+    sidebarContentAuxiliary: SidebarContent;
     sidebarNavigation: SidebarNavigation;
 }
 

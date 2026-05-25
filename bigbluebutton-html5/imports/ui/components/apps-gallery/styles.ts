@@ -7,7 +7,6 @@ import {
   colorWhite,
   colorBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import Button from '/imports/ui/components/common/button/component';
 import { titlesFontWeight, headingsFontWeight, fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   $2xlPadding,
@@ -18,13 +17,10 @@ import {
   contentSidebarPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  HeaderContainer as BaseHeaderContainer,
   PanelContent as BasePanelContent,
   Separator as BaseSeparator,
 } from '/imports/ui/components/sidebar-content/styles';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
-
-const HeaderContainer = styled(BaseHeaderContainer)``;
 
 const PanelContent = styled(BasePanelContent)``;
 
@@ -70,8 +66,10 @@ const RegisteredAppContent = styled.div`
   align-items: center;
 `;
 
-// @ts-expect-error -> Untyped component.
-const OpenButton = styled(Button)<{$pinned: boolean}>`
+const OpenButton = styled.span<{$pinned: boolean}>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: ${$2xlPadding};
   border-radius: ${appsButtonsBorderRadius} 0px 0px ${appsButtonsBorderRadius};
 
@@ -145,7 +143,6 @@ const NewLabel = styled.span`
 `;
 
 export default {
-  HeaderContainer,
   PanelContent,
   Separator,
   Wrapper,

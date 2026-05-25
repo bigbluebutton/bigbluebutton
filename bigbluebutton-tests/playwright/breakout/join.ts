@@ -326,11 +326,16 @@ export class Join extends Create {
     if (!this?.userPage) throw new Error('userPage not initialized');
 
     await this.modPage.waitAndClick(e.finishBreakoutButton);
-    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
-    await this.modPage.hasElement(
-      e.createBreakoutRoomsButton,
-      'should display create breakout rooms button after ending all breakout rooms',
-    );
+
+    const createButton = this.modPage.page.locator(e.createBreakoutRoomsButton);
+    await expect(async () => {
+      if (!(await createButton.isVisible().catch(() => false))) {
+        await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+      }
+      await expect(createButton).toBeVisible({ timeout: ELEMENT_WAIT_TIME });
+    }, 'should display create breakout rooms button after ending all breakout rooms').toPass({
+      timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
+    });
   }
 
   async moveUserToOtherRoom() {
@@ -545,9 +550,10 @@ export class Join extends Create {
 
     await this.userPage.hasElementEnabled(e.selectBreakoutRoomBtn, 'should display the select breakout room button');
     await this.userPage.hasElementEnabled(e.modalConfirmButton, 'should display the modal confirm button');
-    await this.userPage.hasHiddenElementCount(e.roomOption, 2, 'should display 2 room options');
 
-    await this.userPage.page.locator(e.selectBreakoutRoomBtn).selectOption({ index: 1 });
+    await this.userPage.waitAndClick(e.selectBreakoutRoomBtn);
+    await this.userPage.hasNElements(e.roomOption, 2, 'should display 2 room options');
+    await this.userPage.page.locator(e.roomOption).nth(1).click();
     await this.userPage.waitAndClick(e.modalConfirmButton);
 
     const breakoutUserPage = await this.userPage.getLastTargetPage(this.context);

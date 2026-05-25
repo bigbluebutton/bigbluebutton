@@ -17,6 +17,7 @@ export interface Public {
   captions: Captions
   timer: Timer
   chat: Chat
+  multiFunctionalMode: MultiFunctionalMode
   userReaction: UserReaction
   notes: Notes
   layout: Layout
@@ -543,6 +544,10 @@ export interface Chat {
   toolbar: string[]
 }
 
+export interface MultiFunctionalMode {
+  enabled: boolean;
+}
+
 export interface SystemMessagesKeys {
   chat_clear: string
   chat_poll_result: string
@@ -804,6 +809,7 @@ export interface Whiteboard {
   annotations: Annotations
   allowInfiniteWhiteboard: boolean
   allowInfiniteWhiteboardInBreakouts: boolean
+  allowInfiniteWhiteboardPanForViewers: boolean
   styles: Styles
   toolbar: Toolbar
 }

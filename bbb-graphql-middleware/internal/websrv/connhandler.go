@@ -54,8 +54,8 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	newLogger.SetFormatter(&logrus.JSONFormatter{})
 
 	// Obtain id for this connection
-	lastBrowserConnectionId.Add(1)
-	browserConnectionId := "BC" + fmt.Sprintf("%010d", lastBrowserConnectionId.Load())
+	browserId := lastBrowserConnectionId.Add(1)
+	browserConnectionId := "BC" + fmt.Sprintf("%010d", browserId)
 	connectionLogger := newLogger.WithField("browserConnectionId", browserConnectionId)
 
 	// Starts a context that will be dependent on the connection, so we can cancel subroutines when the connection is dropped
@@ -348,7 +348,6 @@ func refreshUserSessionVariables(browserConnection *common.BrowserConnection) (e
 	browserConnection.Lock()
 	browserConnection.BBBWebSessionVariables = sessionVariables
 	browserConnection.CurrentlyInMeeting = hasuraRole == "bbb_client"
-	browserConnection.BBBWebSessionVariables = sessionVariables
 	browserConnection.Unlock()
 
 	return nil, ""

@@ -792,6 +792,8 @@ public:
     # example: ['reply', 'delete']
     toolbar: ['reply', 'delete', 'edit', 'reactions', 'pin']
     announcePresenterChangeInChat: true
+  multiFunctionalMode:
+    enabled: false # Enables an auxiliary sidebar content panel in the UI.
   userReaction:
     enabled: true
     expire: 30
@@ -1148,6 +1150,7 @@ public:
     cursorInterval: 100
     allowInfiniteWhiteboard: false
     allowInfiniteWhiteboardInBreakouts: false
+    allowInfiniteWhiteboardPanForViewers: false
     pointerDiameter: 5
     maxStickyNoteLength: 1000
     # limit number of annotations per slide

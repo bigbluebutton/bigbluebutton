@@ -21,9 +21,6 @@ import {
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import BaseIcon from '/imports/ui/components/common/icon/icon-ts/component';
-import {
-  HeaderContainer as BaseHeaderContainer,
-} from '/imports/ui/components/sidebar-content/styles';
 
 const AudioCaptions = styled(ScrollboxVertical)`
   display: flex;
@@ -43,8 +40,6 @@ const Separator = styled.hr`
   border: 0;
   border-bottom: 1px solid ${colorBorder};
 `;
-
-const HeaderContainer = styled(BaseHeaderContainer)``;
 
 const SwitchTitle = styled(FormControlLabel)`
   flex-shrink: 0;
@@ -133,7 +128,6 @@ const Icon = styled(BaseIcon)`
 
 export default {
   AudioCaptions,
-  HeaderContainer,
   Separator,
   SwitchTitle,
   MaterialSwitch,

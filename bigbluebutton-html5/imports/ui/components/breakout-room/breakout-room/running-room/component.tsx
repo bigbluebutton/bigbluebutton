@@ -1,11 +1,12 @@
 import React, {
   useState, useCallback, useRef, useEffect, useMemo,
 } from 'react';
-import { createPortal } from 'react-dom';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
+import BBBMenu from '/imports/ui/components/common/menu/component';
+import Trigger from '/imports/ui/components/common/control-header/right/component';
 import {
   BREAKOUT_ROOM_END_ALL,
   BREAKOUT_ROOM_MOVE_USER,
@@ -16,9 +17,13 @@ import {
 import { BreakoutRoom as BreakoutRoomType } from '../queries';
 import { getUserSubscription, type getUserResponse } from '../../create-breakout-room/queries';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import BreakoutTimerEditor from '../breakout-timer-editor/component';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { PANELS } from '/imports/ui/components/layout/enums';
+import PanelHeader from '/imports/ui/components/common/panel-header/component';
 import { setBreakoutWindowRef } from '../service';
+import { useStopMediaOnMainRoom } from '/imports/ui/components/breakout-room/hooks';
 import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
 
@@ -50,10 +55,6 @@ const intlMessages = defineMessages({
   finishLabel: {
     id: 'app.createBreakoutRoom.finish',
     description: 'Finish button label',
-  },
-  genericMinimizePanel: {
-    id: 'app.sidebarContent.minimizePanelLabel',
-    description: 'Generic minimize label for panels',
   },
   you: {
     id: 'app.userList.you',
@@ -119,20 +120,20 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
   const [megaphoneOpen, setMegaphoneOpen] = useState(false);
   const [megaphoneMessage, setMegaphoneMessage] = useState('');
 
-  const [openMenuBreakoutId, setOpenMenuBreakoutId] = useState<string | null>(null);
   const [editingRoomId, setEditingRoomId] = useState<string | null>(null);
+
   const [localRoomNames, setLocalRoomNames] = useState<Record<string, string>>({});
   const [requestingJoinForRoomId, setRequestingJoinForRoomId] = useState<string | null>(null);
   const [listeningToRoomId, setListeningToRoomId] = useState<string | null>(null);
-  const roomMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
-  const menuPortalRef = useRef<HTMLDivElement | null>(null);
 
   const [breakoutRoomEndAll] = useMutation(BREAKOUT_ROOM_END_ALL);
   const [breakoutRoomMoveUser] = useMutation(BREAKOUT_ROOM_MOVE_USER);
   const [sendMessageToAll] = useMutation(BREAKOUT_ROOM_SEND_MESSAGE_TO_ALL);
   const [requestJoinUrl] = useMutation(BREAKOUT_ROOM_REQUEST_JOIN_URL);
   const [breakoutRoomTransfer] = useMutation(USER_TRANSFER_VOICE_TO_MEETING);
+  const stopMediaOnMainRoom = useStopMediaOnMainRoom();
+  const { data: currentUserData } = useCurrentUser((u) => ({ presenter: u.presenter }));
+  const isPresenter = currentUserData?.presenter ?? false;
 
   const { data: usersData } = useDeduplicatedSubscription<getUserResponse>(getUserSubscription);
   const allUsers = usersData?.user ?? [];
@@ -141,9 +142,11 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
     data: meetingData,
   } = useMeeting((m) => ({
     breakoutRoomsCommonProperties: m.breakoutRoomsCommonProperties,
+    audioBridge: m.audioBridge,
   }));
 
   const breakoutProps = meetingData?.breakoutRoomsCommonProperties;
+  const isUsingLiveKit = meetingData?.audioBridge === 'livekit';
   const sendInvitationToModerators = breakoutProps?.sendInvitationToModerators ?? false;
   const breakoutDurationInSeconds = breakoutProps?.durationInSeconds ?? 0;
   const parsedStartedAt = new Date(breakoutProps?.startedAt ?? '').getTime();
@@ -170,43 +173,32 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
 
   useEffect(() => {
     if (!requestingJoinForRoomId) return;
+
     const breakout = breakouts.find((b) => b.breakoutRoomMeetingId === requestingJoinForRoomId);
     if (breakout?.joinURL) {
       const win = window.open(breakout.joinURL, '_blank');
-      if (win) setBreakoutWindowRef(win);
+      if (win) {
+        setBreakoutWindowRef(win);
+        stopMediaOnMainRoom(isPresenter);
+      }
       setRequestingJoinForRoomId(null);
     }
-  }, [breakouts, requestingJoinForRoomId]);
-
-  useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (!openMenuBreakoutId) return;
-      const wrapperEl = roomMenuRefs.current[openMenuBreakoutId];
-      const portalEl = menuPortalRef.current;
-      const isInsideWrapper = wrapperEl?.contains(e.target as Node) ?? false;
-      const isInsidePortal = portalEl?.contains(e.target as Node) ?? false;
-      if (!isInsideWrapper && !isInsidePortal) {
-        setOpenMenuBreakoutId(null);
-        setMenuPosition(null);
-      }
-    };
-    document.addEventListener('mousedown', handleOutsideClick);
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
-  }, [openMenuBreakoutId]);
+  }, [breakouts, requestingJoinForRoomId, stopMediaOnMainRoom, isPresenter]);
 
   const handleEnterRoom = useCallback((breakout: BreakoutRoomType) => {
-    setOpenMenuBreakoutId(null);
     if (breakout.joinURL) {
       const win = window.open(breakout.joinURL, '_blank');
-      if (win) setBreakoutWindowRef(win);
+      if (win) {
+        setBreakoutWindowRef(win);
+        stopMediaOnMainRoom(isPresenter);
+      }
     } else {
       requestJoinUrl({ variables: { breakoutRoomMeetingId: breakout.breakoutRoomMeetingId } });
       setRequestingJoinForRoomId(breakout.breakoutRoomMeetingId);
     }
-  }, [requestJoinUrl]);
+  }, [requestJoinUrl, stopMediaOnMainRoom, isPresenter]);
 
   const handleListenToRoom = useCallback((breakout: BreakoutRoomType) => {
-    setOpenMenuBreakoutId(null);
     if (listeningToRoomId === breakout.breakoutRoomMeetingId) {
       breakoutRoomTransfer({
         variables: {
@@ -227,8 +219,6 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
   }, [listeningToRoomId, breakoutRoomTransfer, meetingId]);
 
   const padNum = (n: number) => n.toString().padStart(2, '0');
-
-  const openBreakout = breakouts.find((b) => b.breakoutRoomMeetingId === openMenuBreakoutId);
 
   const handleFinish = useCallback(() => {
     closePanel();
@@ -318,24 +308,15 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
   }, []);
 
   const title = intl.formatMessage(intlMessages.breakoutTitle);
-  const minimizeLabel = intl.formatMessage(
-    intlMessages.genericMinimizePanel,
-    { panelName: title },
-  );
 
   const chatTitle = intl.formatMessage(intlMessages.chatTitleMsgAllRooms);
 
   return (
     <Styled.PanelContent>
-      <Styled.HeaderContainer
+      <PanelHeader
+        panelId={PANELS.BREAKOUT}
         title={title}
-        data-test="breakoutRoomManagerHeader"
-        rightButtonProps={{
-          'aria-label': minimizeLabel,
-          label: minimizeLabel,
-          onClick: closePanel,
-          icon: 'minus',
-        }}
+        dataTest="breakoutRoomManagerHeader"
       />
       <Styled.Separator />
 
@@ -387,7 +368,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
           </Styled.UsersSection>
         )}
 
-        <Styled.RoomCardsContainer>
+        <Styled.RoomCardsContainer data-test="breakoutRoomList">
           {breakouts.map((breakout) => {
             const roomParticipants = breakout.participants.filter((p) => !p.isAudioOnly);
             const totalRoomUsers = roomParticipants.length;
@@ -396,7 +377,6 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
               : breakout.shortName;
 
             const displayName = localRoomNames[breakout.breakoutRoomMeetingId] ?? roomName;
-            const isMenuOpen = openMenuBreakoutId === breakout.breakoutRoomMeetingId;
             const isEditing = editingRoomId === breakout.breakoutRoomMeetingId;
             const isListening = listeningToRoomId === breakout.breakoutRoomMeetingId;
 
@@ -404,6 +384,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
               <Styled.RoomCard
                 id={`breakoutBox-${breakout.sequence}`}
                 key={breakout.breakoutRoomMeetingId}
+                data-test={breakout.isUserCurrentlyInRoom ? 'alreadyConnected' : undefined}
                 onDrop={handleDrop(breakout.breakoutRoomMeetingId)}
                 onDragOver={(ev) => {
                   ev.preventDefault();
@@ -450,33 +431,47 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
                       <Icon iconName="user_list" />
                     </Styled.RoomCardCountLeft>
                   </Styled.RoomCardLeft>
-                  <Styled.RoomCardMenuWrapper
-                    ref={(el) => { roomMenuRefs.current[breakout.breakoutRoomMeetingId] = el; }}
-                  >
-                    <Styled.RoomCardMenuBtn
-                      $listening={isListening}
-                      onClick={(e: React.MouseEvent) => {
-                        e.stopPropagation();
-                        if (isMenuOpen) {
-                          setOpenMenuBreakoutId(null);
-                          setMenuPosition(null);
-                        } else {
-                          const wrapper = roomMenuRefs.current[breakout.breakoutRoomMeetingId];
-                          if (wrapper) {
-                            const rect = wrapper.getBoundingClientRect();
-                            setMenuPosition({ top: rect.bottom + 4, left: rect.left });
-                          }
-                          setOpenMenuBreakoutId(breakout.breakoutRoomMeetingId);
-                        }
+                  <Styled.RoomCardMenuWrapper>
+                    <BBBMenu
+                      trigger={(
+                        <Trigger
+                          label={intl.formatMessage(intlMessages.roomOptions)}
+                          aria-label={intl.formatMessage(intlMessages.roomOptions)}
+                          hideLabel
+                          icon="more"
+                          data-test={`roomOptions${breakout.sequence}`}
+                          onClick={() => {}}
+                        />
+                      )}
+                      actions={[
+                        {
+                          key: `join-${breakout.breakoutRoomMeetingId}`,
+                          label: breakout.isUserCurrentlyInRoom
+                            ? intl.formatMessage(intlMessages.alreadyConnected)
+                            : intl.formatMessage(intlMessages.joinRoom),
+                          disabled: breakout.isUserCurrentlyInRoom,
+                          dataTest: breakout.isUserCurrentlyInRoom ? 'alreadyConnected' : `askToJoinRoom${breakout.sequence}`,
+                          onClick: () => handleEnterRoom(breakout),
+                        },
+                        ...(!isUsingLiveKit ? [{
+                          key: `listen-${breakout.breakoutRoomMeetingId}`,
+                          label: isListening
+                            ? intl.formatMessage(intlMessages.stopListeningToRoom)
+                            : intl.formatMessage(intlMessages.listenToRoom),
+                          dataTest: 'listenToBreakoutRoomButton',
+                          onClick: () => handleListenToRoom(breakout),
+                        }] : []),
+                      ]}
+                      opts={{
+                        id: `breakout-room-options-${breakout.breakoutRoomMeetingId}`,
+                        keepMounted: true,
+                        transitionDuration: 0,
+                        elevation: 3,
+                        getcontentanchorel: null,
+                        anchorOrigin: { vertical: 'bottom', horizontal: 'left' },
+                        transformOrigin: { vertical: 'top', horizontal: 'left' },
                       }}
-                      data-test={`roomOptions${breakout.sequence}`}
-                      aria-label={intl.formatMessage(intlMessages.roomOptions)}
-                      title={isListening
-                        ? intl.formatMessage(intlMessages.stopListeningToRoom)
-                        : intl.formatMessage(intlMessages.listenToRoom)}
-                    >
-                      ···
-                    </Styled.RoomCardMenuBtn>
+                    />
                   </Styled.RoomCardMenuWrapper>
                 </Styled.RoomCardHeader>
                 {totalRoomUsers > 0 && (
@@ -568,36 +563,6 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
           data-test="finishBreakoutButton"
         />
       </Styled.BottomBar>
-      {openMenuBreakoutId && menuPosition && openBreakout && createPortal(
-        <div
-          ref={menuPortalRef}
-          style={{
-            position: 'fixed', top: menuPosition.top, left: menuPosition.left, zIndex: 9999,
-          }}
-        >
-          <Styled.RoomCardMenu>
-            <Styled.RoomCardMenuItem
-              onClick={() => handleEnterRoom(openBreakout)}
-              data-test={openBreakout.isUserCurrentlyInRoom ? 'alreadyConnected' : `askToJoinRoom${openBreakout.sequence}`}
-              $disabled={openBreakout.isUserCurrentlyInRoom}
-            >
-              {openBreakout.isUserCurrentlyInRoom
-                ? intl.formatMessage(intlMessages.alreadyConnected)
-                : intl.formatMessage(intlMessages.joinRoom)}
-            </Styled.RoomCardMenuItem>
-            <Styled.RoomCardMenuItem
-              onClick={() => handleListenToRoom(openBreakout)}
-              $active={listeningToRoomId === openBreakout.breakoutRoomMeetingId}
-              data-test="listenToBreakoutRoomButton"
-            >
-              {listeningToRoomId === openBreakout.breakoutRoomMeetingId
-                ? intl.formatMessage(intlMessages.stopListeningToRoom)
-                : intl.formatMessage(intlMessages.listenToRoom)}
-            </Styled.RoomCardMenuItem>
-          </Styled.RoomCardMenu>
-        </div>,
-        document.body,
-      )}
     </Styled.PanelContent>
   );
 };

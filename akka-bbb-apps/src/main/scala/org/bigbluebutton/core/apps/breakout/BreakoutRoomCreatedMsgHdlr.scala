@@ -3,7 +3,7 @@ package org.bigbluebutton.core.apps.breakout
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.api.BreakoutRoomCreatedInternalMsg
 import org.bigbluebutton.core.apps.BreakoutModel
-import org.bigbluebutton.core.db.BreakoutRoomDAO
+import org.bigbluebutton.core.db.{ BreakoutRoomDAO, MeetingDAO }
 import org.bigbluebutton.core.domain.{ BreakoutRoom2x, MeetingState2x }
 import org.bigbluebutton.core.running.{ LiveMeeting, MeetingActor, OutMsgRouter }
 
@@ -28,6 +28,7 @@ trait BreakoutRoomCreatedMsgHdlr {
       if (updatedModel.hasAllStarted()) {
         updatedModel = updatedModel.copy(startedOn = Some(System.currentTimeMillis()))
         BreakoutRoomDAO.updateRoomsStarted(room.parentId)
+        MeetingDAO.updateMeetingDurationByParentMeeting(room.parentId, updatedModel.durationInSeconds)
         updatedModel = sendBreakoutRoomsList(updatedModel)
       }
       updatedModel

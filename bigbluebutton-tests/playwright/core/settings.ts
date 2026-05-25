@@ -41,6 +41,8 @@ export interface Settings {
   emojiRain?: boolean;
   // Whiteboard
   allowInfiniteWhiteboard?: boolean;
+  // Multifunctional mode
+  multiFunctionalModeEnabled?: boolean;
 }
 
 let settings: Settings | undefined;
@@ -95,6 +97,8 @@ export async function generateSettingsData(page: Page): Promise<Settings | undef
       emojiRain: settingsData.app?.emojiRain?.enabled,
       // Whiteboard
       allowInfiniteWhiteboard: settingsData.whiteboard?.allowInfiniteWhiteboard,
+      // Multifunctional mode
+      multiFunctionalModeEnabled: settingsData.multiFunctionalMode?.enabled,
     };
 
     return settings;

@@ -493,12 +493,13 @@ class PresentationToolbar extends PureComponent {
             aria-label={multiUserLabel}
             color="light"
             disabled={disableStartingMultiUser}
-            icon={multiUser ? 'multi_whiteboard' : 'whiteboard'}
+            icon="multi_whiteboard"
             size="md"
             circle
             onClick={() => this.handleSwitchWhiteboardMode(!multiUser)}
             label={multiUserLabel}
             hideLabel
+            $active={multiUser}
           />
           {multiUser ? (
             <Styled.MultiUserTool

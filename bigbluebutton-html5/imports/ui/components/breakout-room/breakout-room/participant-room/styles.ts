@@ -9,19 +9,18 @@ import {
   colorBlueAux,
   colorText,
   colorGray,
+  colorBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeSmall,
+  fontSizeBase,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import Button from '/imports/ui/components/common/button/component';
 import {
-  HeaderContainer as BaseHeaderContainer,
   Separator as BaseSeparator,
   PanelContent as BasePanelContent,
 } from '/imports/ui/components/sidebar-content/styles';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
-
-const HeaderContainer = styled(BaseHeaderContainer)``;
 
 const Separator = styled(BaseSeparator)``;
 
@@ -38,16 +37,21 @@ const TimerSection = styled.div`
 `;
 
 const TimerLabel = styled.div`
-  font-size: ${fontSizeSmall};
+  font-size: ${fontSizeBase};
   color: ${colorText};
   margin-bottom: 0.25rem;
 `;
 
 const TimerDisplay = styled.div`
-  font-size: 2rem;
-  font-weight: bold;
+  font-size: 2.5rem;
+  font-weight: 600;
   color: ${colorText};
   font-variant-numeric: tabular-nums;
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem 0 1rem;
+  border-bottom: 1px solid ${colorBorder};
+  width: 100%;
 `;
 
 const InfoCard = styled.div`
@@ -81,7 +85,7 @@ const RoomNumberSquare = styled.div`
 `;
 
 const InfoText = styled.p`
-  font-size: ${fontSizeSmall};
+  font-size: ${fontSizeBase};
   color: ${colorText};
   margin: 0;
   text-align: center;
@@ -173,7 +177,7 @@ const FreeJoinRequestBtn = styled.button<{ $isCurrent?: boolean }>`
 `;
 
 const NotAssignedHelpText = styled.p`
-  font-size: ${fontSizeSmall};
+  font-size: ${fontSizeBase};
   color: ${colorText};
   margin: 0.5rem ${contentSidebarPadding} 0;
   text-align: center;
@@ -185,7 +189,7 @@ const EnterRoomBtn = styled.button`
   border: none;
   border-radius: 0.75rem;
   padding: 0.45rem 1.25rem;
-  font-size: ${fontSizeSmall};
+  font-size: ${fontSizeBase};
   font-weight: 600;
   cursor: pointer;
   width: 100%;
@@ -240,7 +244,6 @@ const ReturnBtn = styled(Button)`
 `;
 
 export default {
-  HeaderContainer,
   Separator,
   PanelContent,
   TimerSection,

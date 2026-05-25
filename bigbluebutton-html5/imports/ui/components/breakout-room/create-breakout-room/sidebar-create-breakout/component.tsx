@@ -1,5 +1,5 @@
 import React, {
-  useState, useMemo, useCallback, useRef,
+  useState, useMemo, useCallback, useRef, useEffect,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
@@ -25,6 +25,7 @@ import {
   useIsImportPresentationWithAnnotationsFromBreakoutRoomsEnabled,
   useIsImportSharedNotesFromBreakoutRoomsEnabled,
 } from '/imports/ui/services/features';
+import PanelHeader from '/imports/ui/components/common/panel-header/component';
 
 const MIN_BREAKOUT_TIME = 300;
 const DEFAULT_SIDEBAR_BREAKOUT_TIME = 15;
@@ -139,6 +140,14 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.timerSeconds',
     description: 'Timer seconds field label',
   },
+  decreaseBreakoutTime: {
+    id: 'app.createBreakoutRoom.decreaseBreakoutTime',
+    description: 'Decrease breakout time button label',
+  },
+  increaseBreakoutTime: {
+    id: 'app.createBreakoutRoom.increaseBreakoutTime',
+    description: 'Increase breakout time button label',
+  },
   decreaseRooms: {
     id: 'app.createBreakoutRoom.decreaseRooms',
     description: 'Decrease number of rooms button label',
@@ -149,13 +158,130 @@ const intlMessages = defineMessages({
   },
 });
 
+interface CreateTimerPickerProps {
+  minBreakoutTime: number;
+  onDurationChange: (s: number) => void;
+}
+
+const CreateTimerPicker = React.memo(({ minBreakoutTime, onDurationChange }: CreateTimerPickerProps) => {
+  const intl = useIntl();
+  const [hours, setHours] = useState(0);
+  const [minutes, setMinutes] = useState(DEFAULT_SIDEBAR_BREAKOUT_TIME);
+  const [seconds, setSeconds] = useState(0);
+  const padNum = (n: number) => n.toString().padStart(2, '0');
+  const duration = (hours * 3600) + (minutes * 60) + seconds;
+
+  useEffect(() => {
+    onDurationChange(duration);
+  }, [duration, onDurationChange]);
+
+  return (
+    <Styled.TimerSection>
+      <Styled.TimerLabel>
+        {intl.formatMessage(intlMessages.durationOfBreakout)}
+      </Styled.TimerLabel>
+      <Styled.TimeInputGroup>
+        <Styled.TimeUnitContainer>
+          <Styled.TimerInput
+            type="number"
+            min={0}
+            max={23}
+            value={padNum(hours)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              setHours(Math.max(0, Math.min(23, Number(e.target.value))));
+            }}
+            aria-label={intl.formatMessage(intlMessages.timerHours)}
+          />
+          <Styled.InputArrows>
+            <Styled.InputArrowButton
+              type="button"
+              onClick={() => setHours((h) => Math.min(23, h + 1))}
+              aria-label={intl.formatMessage(intlMessages.increaseBreakoutTime)}
+            />
+            <Styled.InputArrowButtonDown
+              type="button"
+              onClick={() => setHours((h) => Math.max(0, h - 1))}
+              aria-label={intl.formatMessage(intlMessages.decreaseBreakoutTime)}
+            />
+          </Styled.InputArrows>
+          <Styled.TimeUnitLabel>
+            {intl.formatMessage(intlMessages.timerHours)}
+          </Styled.TimeUnitLabel>
+        </Styled.TimeUnitContainer>
+        <Styled.TimeUnitContainer>
+          <Styled.TimerInput
+            type="number"
+            min={0}
+            max={59}
+            value={padNum(minutes)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              setMinutes(Math.max(0, Math.min(59, Number(e.target.value))));
+            }}
+            aria-label={intl.formatMessage(intlMessages.timerMinutes)}
+            data-test="durationTime"
+          />
+          <Styled.InputArrows>
+            <Styled.InputArrowButton
+              type="button"
+              onClick={() => setMinutes((m) => Math.min(59, m + 1))}
+              aria-label={intl.formatMessage(intlMessages.increaseBreakoutTime)}
+            />
+            <Styled.InputArrowButtonDown
+              type="button"
+              onClick={() => setMinutes((m) => Math.max(0, m - 1))}
+              aria-label={intl.formatMessage(intlMessages.decreaseBreakoutTime)}
+            />
+          </Styled.InputArrows>
+          <Styled.TimeUnitLabel>
+            {intl.formatMessage(intlMessages.timerMinutes)}
+          </Styled.TimeUnitLabel>
+        </Styled.TimeUnitContainer>
+        <Styled.TimeUnitContainer>
+          <Styled.TimerInput
+            type="number"
+            min={0}
+            max={59}
+            value={padNum(seconds)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              setSeconds(Math.max(0, Math.min(59, Number(e.target.value))));
+            }}
+            aria-label={intl.formatMessage(intlMessages.timerSeconds)}
+          />
+          <Styled.InputArrows>
+            <Styled.InputArrowButton
+              type="button"
+              onClick={() => setSeconds((s) => Math.min(59, s + 1))}
+              aria-label={intl.formatMessage(intlMessages.increaseBreakoutTime)}
+            />
+            <Styled.InputArrowButtonDown
+              type="button"
+              onClick={() => setSeconds((s) => Math.max(0, s - 1))}
+              aria-label={intl.formatMessage(intlMessages.decreaseBreakoutTime)}
+            />
+          </Styled.InputArrows>
+          <Styled.TimeUnitLabel>
+            {intl.formatMessage(intlMessages.timerSeconds)}
+          </Styled.TimeUnitLabel>
+        </Styled.TimeUnitContainer>
+      </Styled.TimeInputGroup>
+      {duration < minBreakoutTime && (
+        <Styled.TimerWarning data-test="minimumDurationWarnBreakout">
+          {intl.formatMessage(
+            intlMessages.minimumDurationWarnBreakout,
+            { timeInMinutes: minBreakoutTime / 60 },
+          )}
+        </Styled.TimerWarning>
+      )}
+    </Styled.TimerSection>
+  );
+});
+
 interface SidebarCreateBreakoutProps {
   users: BreakoutUser[];
   presentations: Presentation[];
   currentPresentation: string;
   isBreakoutRecordable: boolean;
   groups: Array<{ groupId: string; name: string; usersExtId: string[] }>;
-  setIsOpen: (value: boolean) => void;
   durationInSeconds: number;
   createdTime: number;
   timeSync: number;
@@ -167,7 +293,6 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
   currentPresentation,
   isBreakoutRecordable,
   groups,
-  setIsOpen,
   durationInSeconds,
   createdTime,
   timeSync,
@@ -197,9 +322,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
     && isImportSharedNotesEnabled;
 
   const [numberOfRooms, setNumberOfRooms] = useState(MIN_BREAKOUT_ROOMS);
-  const [hours, setHours] = useState(0);
-  const [minutes, setMinutes] = useState(DEFAULT_SIDEBAR_BREAKOUT_TIME);
-  const [seconds, setSeconds] = useState(0);
+  const [isDurationValid, setIsDurationValid] = useState(true);
   const [moreOptionsOpen, setMoreOptionsOpen] = useState(false);
   const [infoBannerVisible, setInfoBannerVisible] = useState(true);
 
@@ -219,6 +342,12 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
   const randomlyAssignFunction = useRef<() => void>(() => {});
   const resetAssignmentsFunction = useRef<() => void>(() => {});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const breakoutDurationRef = useRef<number>(DEFAULT_SIDEBAR_BREAKOUT_TIME * 60);
+
+  const handleDurationChange = useCallback((secs: number) => {
+    breakoutDurationRef.current = secs;
+    setIsDurationValid(secs >= MIN_BREAKOUT_TIME);
+  }, []);
 
   const setRoomsRef = useCallback((rooms: Rooms) => { roomsRef.current = rooms; }, []);
   const setMoveRegisterRef = useCallback((moveRegister: moveUserRegistery) => {
@@ -241,8 +370,6 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
       container.scrollTop += SCROLL_SPEED;
     }
   }, []);
-
-  const breakoutDuration = (hours * 3600) + (minutes * 60) + seconds;
 
   const getRoomPresentation = (position: number) => {
     if (roomPresentations[position]) return roomPresentations[position];
@@ -270,6 +397,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
   };
 
   const handleCreateRoom = useCallback(() => {
+    const breakoutDuration = breakoutDurationRef.current;
     if (breakoutDuration < MIN_BREAKOUT_TIME) return;
 
     const remainingTime = getRemainingMeetingTime(durationInSeconds, createdTime, timeSync);
@@ -330,16 +458,16 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
       layoutContextDispatch({ type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL, value: PANELS.BREAKOUT });
     });
   }, [
-    numberOfRooms, breakoutDuration, freeJoin, record, captureNotes,
+    numberOfRooms, freeJoin, record, captureNotes,
     captureSlides, inviteMods, roomPresentations,
   ]);
 
   const roomPadNum = (n: number) => n.toString().padStart(2, '0');
 
-  const canStart = breakoutDuration >= MIN_BREAKOUT_TIME && (freeJoin || leastOneUserIsValid);
+  const canStart = isDurationValid && (freeJoin || leastOneUserIsValid);
 
   const tooltipText = (() => {
-    if (breakoutDuration < MIN_BREAKOUT_TIME) {
+    if (!isDurationValid) {
       return intl.formatMessage(
         intlMessages.minimumDurationWarnBreakout,
         { timeInMinutes: MIN_BREAKOUT_TIME / 60 },
@@ -393,68 +521,17 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
 
   return (
     <Styled.PanelContent>
-      <Styled.HeaderContainer
+      <PanelHeader
+        panelId={PANELS.BREAKOUT}
         title={intl.formatMessage(intlMessages.breakoutTitle)}
-        rightButtonProps={{
-          'aria-label': intl.formatMessage(intlMessages.dismissLabel),
-          label: intl.formatMessage(intlMessages.dismissLabel),
-          onClick: () => setIsOpen(false),
-          icon: 'minus',
-        }}
+        closeButtonLabel={intl.formatMessage(intlMessages.dismissLabel)}
       />
       <Styled.Separator />
 
-      <Styled.TimerSection>
-        <Styled.TimerLabel>
-          {intl.formatMessage(intlMessages.durationOfBreakout)}
-        </Styled.TimerLabel>
-        <Styled.TimerDisplay>
-          <Styled.TimerInput
-            type="number"
-            min={0}
-            max={23}
-            value={roomPadNum(hours)}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              const v = Math.max(0, Math.min(23, Number(e.target.value)));
-              setHours(v);
-            }}
-            aria-label={intl.formatMessage(intlMessages.timerHours)}
-          />
-          <Styled.TimerColon>:</Styled.TimerColon>
-          <Styled.TimerInput
-            type="number"
-            min={0}
-            max={59}
-            value={roomPadNum(minutes)}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              const v = Math.max(0, Math.min(59, Number(e.target.value)));
-              setMinutes(v);
-            }}
-            aria-label={intl.formatMessage(intlMessages.timerMinutes)}
-            data-test="durationTime"
-          />
-          <Styled.TimerColon>:</Styled.TimerColon>
-          <Styled.TimerInput
-            type="number"
-            min={0}
-            max={59}
-            value={roomPadNum(seconds)}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              const v = Math.max(0, Math.min(59, Number(e.target.value)));
-              setSeconds(v);
-            }}
-            aria-label={intl.formatMessage(intlMessages.timerSeconds)}
-          />
-        </Styled.TimerDisplay>
-        {breakoutDuration < MIN_BREAKOUT_TIME && (
-          <Styled.TimerWarning data-test="minimumDurationWarnBreakout">
-            {intl.formatMessage(
-              intlMessages.minimumDurationWarnBreakout,
-              { timeInMinutes: MIN_BREAKOUT_TIME / 60 },
-            )}
-          </Styled.TimerWarning>
-        )}
-      </Styled.TimerSection>
+      <CreateTimerPicker
+        minBreakoutTime={MIN_BREAKOUT_TIME}
+        onDurationChange={handleDurationChange}
+      />
 
       <Styled.Separator />
 

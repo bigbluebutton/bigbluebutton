@@ -79,6 +79,7 @@ export const constants = {
   showSessionDetailsOnJoin: 'bbb_show_session_details_on_join=true',
   hideActionsBar: 'userdata-bbb_hide_actions_bar=true',
   overrideDefaultLocale: 'userdata-bbb_override_default_locale=pt-br',
+  overrideDefaultLocaleToRTL: 'userdata-bbb_override_default_locale=ar',
   hideNavBar: 'userdata-bbb_hide_nav_bar=true',
   preferredCameraProfile: 'userdata-bbb_preferred_camera_profile=low',
   webcamBackgroundPassingURL: `webcamBackgroundURL=${serverOrigin}/images/logo.png`,
@@ -131,6 +132,7 @@ export const constants = {
   slideSnapshotExclude: 'disabledFeatures=snapShotOfCurrentSlide,chat&disabledFeaturesExclude=snapShotOfCurrentSlide',
   cameraAsContentExclude: 'disabledFeatures=cameraAsContent,chat&disabledFeaturesExclude=cameraAsContent',
   infiniteWhiteboardExclude: 'disabledFeatures=infiniteWhiteboard,chat&disabledFeaturesExclude=infiniteWhiteboard',
+  multiFunctionalModeDisabled: 'disabledFeatures=multiFunctionalMode',
   // Shortcuts
   shortcuts: 'userdata-bbb_shortcuts=[$]',
   initialShortcuts: [

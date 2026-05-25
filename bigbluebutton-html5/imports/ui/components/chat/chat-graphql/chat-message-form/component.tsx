@@ -641,7 +641,13 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           </Styled.EmojiPickerWrapper>
         ) : null}
         <Styled.Wrapper>
-          <Styled.InputWrapper>
+          <Styled.InputWrapper
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                textAreaRef.current?.textarea.focus();
+              }
+            }}
+          >
             <Styled.Input
               id="message-input"
               ref={textAreaRef}

@@ -2,7 +2,6 @@ import styled, { css, keyframes } from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import {
   Separator as BaseSeparator,
-  HeaderContainer as BaseHeaderContainer,
   PanelContent as BasePanelContent,
 } from '/imports/ui/components/sidebar-content/styles';
 import {
@@ -65,8 +64,6 @@ import {
   lineHeightComputed,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
-
-const HeaderContainer = styled(BaseHeaderContainer)``;
 
 const Separator = styled(BaseSeparator)``;
 
@@ -819,7 +816,6 @@ const PollInputContainer = styled.div`
 `;
 
 export default {
-  HeaderContainer,
   Separator,
   PanelContent,
   ToggleLabel,
