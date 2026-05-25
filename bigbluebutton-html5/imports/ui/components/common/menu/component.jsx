@@ -85,7 +85,7 @@ class BBBMenu extends React.Component {
     if (isMenuOpen && [previousKey, nextKey].includes(event.which)) {
       event.preventDefault();
       event.stopPropagation();
-      const menuItems = Array.from(document.querySelectorAll('[data-key^="menuItem-"]'));
+      const menuItems = Array.from(event.currentTarget.querySelectorAll('[data-key^="menuItem-"]'));
       if (menuItems.length === 0) return;
 
       const focusedIndex = menuItems.findIndex((item) => item === document.activeElement);
@@ -163,7 +163,7 @@ class BBBMenu extends React.Component {
       }
 
       return [
-        (!a.isSeparator && onClick) && (
+        (!a.isSeparator && onClick && !isToggle) && (
           <Styled.BBBMenuItem
             emoji={emojiSelected ? 'yes' : 'no'}
             key={label}
@@ -195,12 +195,21 @@ class BBBMenu extends React.Component {
             </Styled.MenuItemWrapper>
           </Styled.BBBMenuItem>
         ),
-        (!onClick && !a.isSeparator) && (
+        (!a.isSeparator && (!onClick || isToggle)) && (
           <Styled.BBBMenuInformation
             key={a.key}
             isTitle={isTitle}
             isGenericContent={!!contentFunction}
             data-test={dataTest}
+            data-key={isToggle ? `menuItem-${dataTest}` : undefined}
+            tabIndex={isToggle ? 0 : undefined}
+            onClick={isToggle && onClick ? onClick : undefined}
+            onKeyDown={isToggle && onClick ? (e) => {
+              if ([KEY_CODES.ENTER, KEY_CODES.SPACE].includes(e.which)) {
+                e.preventDefault();
+                onClick(e);
+              }
+            } : undefined}
             disabled={disabled || isTitle}
           >
             <Styled.MenuItemWrapper

@@ -269,7 +269,7 @@ class OptionsDropdown extends PureComponent {
             {intl.formatMessage(intlMessages.presenceLabel)}
             <b>{ToggleAFKLabel()}</b>
           </span>
-          <Styled.ToggleButtonWrapper>
+          <Styled.ToggleButtonWrapper onClick={(e) => e.stopPropagation()}>
             <Toggle
               icons={false}
               checked={!away}
@@ -280,8 +280,10 @@ class OptionsDropdown extends PureComponent {
           </Styled.ToggleButtonWrapper>
         </Styled.AwayOption>
       ),
-      key: 'none',
+      key: 'list-item-presence-toggle',
+      dataTest: 'presenceToggle',
       isToggle: true,
+      onClick: handleToggleAFK,
       customStyles: { ...actionCustomStyles, width: 'auto' },
     }, {
       key: 'separator-01',
