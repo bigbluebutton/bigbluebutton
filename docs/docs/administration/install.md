@@ -180,7 +180,7 @@ BigBlueButton Server 4.0.0-beta.3 (0)
 /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties (bbb-web)
        bigbluebutton.web.serverURL: https://test40.bigbluebutton.org
                 defaultGuestPolicy: ALWAYS_ACCEPT
-              defaultMeetingLayout: CUSTOM_LAYOUT
+              defaultMeetingLayout: UNIFIED_LAYOUT
 
 /etc/nginx/sites-available/bigbluebutton (nginx)
                        server_name: test40.bigbluebutton.org
