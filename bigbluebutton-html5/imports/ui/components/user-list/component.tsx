@@ -16,6 +16,9 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
   USER_AGGREGATE_COUNT_SUBSCRIPTION,
 } from './queries';
+import {
+  USER_AGGREGATE_COUNT_SUBSCRIPTION as USER_SEARCH_AGGREGATE_COUNT_SUBSCRIPTION,
+} from './user-list-participants/queries';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { UserAggregateCountSubscriptionResponse, UserListComponentProps } from './types';
 import Styled from './styles';
@@ -76,7 +79,8 @@ const UserList: React.FC<UserListComponentProps> = () => {
   const {
     loading: searchCountLoading,
   } = useDeduplicatedSubscription<
-    UserAggregateCountSubscriptionResponse>(USER_AGGREGATE_COUNT_SUBSCRIPTION, { variables: { where: searchWhere } });
+    UserAggregateCountSubscriptionResponse>(USER_SEARCH_AGGREGATE_COUNT_SUBSCRIPTION,
+      { variables: { where: searchWhere } });
   const { data: raisedHandsData } = useDeduplicatedSubscription<{
     user: RaisedHandUser[]
   }>(RAISED_HAND_USERS);
