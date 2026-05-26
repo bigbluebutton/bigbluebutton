@@ -74,12 +74,8 @@ module BigBlueButton
       {
         extension: 'mp4',
         parameters: [
-          # These settings are appropriate for medium quality at any resolution
-          # Increase -threads (or remove it, to use all cpu cores) to speed up processing
-          # You can also change the preset: try 'fast' or 'faster'
-          # To change quality, adjust the -crf value. Lower numbers are higher quality.
           %w[-c:v copy
-             -c:a aac -b:a 64K
+             -c:a aac -q:a 0.5
              -f mp4 -movflags faststart]
         ],
         postprocess: [ ]
@@ -141,12 +137,8 @@ module BigBlueButton
       {
         extension: 'mp4',
         parameters: [
-          # These settings are appropriate for medium quality at any resolution
-          # Increase -threads (or remove it, to use all cpu cores) to speed up processing
-          # You can also change the preset: try 'fast' or 'faster'
-          # To change quality, adjust the -crf value. Lower numbers are higher quality.
           %w[-c:v copy
-             -c:a aac -b:a 64K
+             -c:a aac -q:a 0.5
              -f mp4 -movflags faststart]
         ],
         postprocess: [ ]
