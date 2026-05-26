@@ -80,8 +80,8 @@ jobs:
             build-list: bbb-webrtc-sfu bbb-webrtc-recorder
             cache-files-list: bbb-webrtc-sfu.placeholder.sh bbb-webrtc-recorder.placeholder.sh
           - package: others
-            build-list: bbb-mkclean bbb-pads bbb-libreoffice-docker bbb-transcription-controller bbb-livekit
-            cache-files-list: bbb-pads.placeholder.sh bbb-libreoffice bbb-transcription-controller.placeholder.sh
+            build-list: bbb-mkclean bbb-pads bbb-libreoffice-docker bbb-transcription-controller bbb-livekit bbb-webhooks
+            cache-files-list: bbb-pads.placeholder.sh bbb-libreoffice bbb-transcription-controller.placeholder.sh bbb-webhooks.placeholder.sh
     steps:
       - name: Checkout PR's source merged into its target branch
         if: github.event_name == 'pull_request'
