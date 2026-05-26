@@ -1543,6 +1543,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `lockSettingsLockOnJoinConfigurable` | Allow the lock-on-join flag to be configured per meeting | true/false | false _`overwritable`_ |
 | `lockSettingsHideViewersCursor` | Default lock setting: hide viewers' cursors from each other | true/false | false _`overwritable`_ |
 | `lockSettingsHideViewersAnnotation` | Default lock setting: hide viewers' annotations from each other | true/false | false _`overwritable`_ |
+| `lockSettingsPresenterPolicy` | Default lock setting: controls who can take over as presenter | requireApproval, moderatorOnly, freeForAll | requireApproval _`overwritable`_ |
 | `breakoutRoomsRecord` | Enable recordings in breakout rooms | true/false | false _`overwritable`_ |
 | `breakoutRoomsPrivateChatEnabled` | Enable private chat in breakout rooms | true/false | true _`overwritable`_ |
 | `breakoutRoomsMultiUserWhiteboardDefaultOn` | Enable multi-user whiteboard by default in breakout rooms | true/false | true |
