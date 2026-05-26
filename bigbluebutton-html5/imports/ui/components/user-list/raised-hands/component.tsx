@@ -1,5 +1,6 @@
 import React, { useMemo, memo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import { useMutation } from '@apollo/client';
 import { RAISED_HAND_USERS } from '/imports/ui/core/graphql/queries/users';
 import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
@@ -93,6 +94,15 @@ const RaisedHandsContainer: React.FC<{ searchQuery?: string }> = ({ searchQuery 
           <Styled.RaisedHandsTitle>
             {intl.formatMessage(intlMessages.raisedHandsTitle, { count: filteredRaisedHands.length })}
           </Styled.RaisedHandsTitle>
+          {canLowerAll && filteredRaisedHands.length > 1 && (
+            <Styled.LowerAllHandsButton
+              onClick={() => filteredRaisedHands.forEach((u) => lowerUserHands(u.userId))}
+              data-test="raiseHandRejection"
+            >
+              <Icon iconName="hand_off" />
+              {intl.formatMessage(intlMessages.lowerHandsLabel)}
+            </Styled.LowerAllHandsButton>
+          )}
         </Styled.TitleContainer>
 
         <RaisedHandsList
@@ -105,16 +115,6 @@ const RaisedHandsContainer: React.FC<{ searchQuery?: string }> = ({ searchQuery 
           }}
           pageId={pageId}
         />
-
-        {canLowerAll && (
-          <Styled.ClearButton
-            label={intl.formatMessage(intlMessages.lowerHandsLabel)}
-            color="default"
-            size="md"
-            onClick={() => filteredRaisedHands.forEach((u) => lowerUserHands(u.userId))}
-            data-test="raiseHandRejection"
-          />
-        )}
       </Styled.RaisedHandsContainer>
       <Styled.Separator />
     </>
