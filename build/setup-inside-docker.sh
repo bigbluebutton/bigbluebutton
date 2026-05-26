@@ -89,7 +89,7 @@ build_package() {
 
     pushd "$TMP/$TARGET"
     echo "starting build.sh: -----------------------------------------"
-    VERSION="$VERSION" EPOCH="$EPOCH" ./build.sh $BUILD_NUMBER
+    VERSION="$VERSION" EPOCH="$EPOCH" COMMIT_DATE="$COMMIT_DATE" ./build.sh $BUILD_NUMBER
     popd
 }
 
