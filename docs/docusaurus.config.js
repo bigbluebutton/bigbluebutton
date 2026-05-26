@@ -71,6 +71,10 @@ const config = {
                         '3.0': {
                             banner: 'none'
                         },
+                        '4.0': {
+                            label: '4.0 (in development)',
+                            banner: 'unreleased'
+                        }
                     }
                 },
                 theme: {
