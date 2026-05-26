@@ -162,11 +162,59 @@ const PresentationMenu = (props) => {
     const backgroundShape = tldrawAPI.getCurrentPageShapes().find((s) => s.id === `shape:BG-${slideNum}`);
     const shapes = tldrawAPI.getCurrentPageShapes();
     const pollShape = shapes.find((shape) => shape.type === 'poll');
-    const svgElem = await tldrawAPI.getSvg(
-      shapes
-        .filter((shape) => shape.type !== 'poll')
-        .map((shape) => shape.id),
-    );
+
+    // In a cluster proxy setup the slide URL is cross-origin.  tldraw's
+    // ImageShapeUtil.toSvg() calls fetch(url) without credentials, so the
+    // nginx auth_request check fails with 401.  Pre-fetch the background asset
+    // with credentials and temporarily swap the store record to a data URL so
+    // tldraw skips its own unauthenticated fetch during getSvg().
+    let originalAsset = null;
+    const assetId = backgroundShape?.props?.assetId;
+    if (assetId) {
+      const asset = tldrawAPI.getAsset(assetId);
+      const src = asset?.props?.src;
+      if (src && !src.startsWith('data:')) {
+        try {
+          const res = await fetch(src, { credentials: 'include' });
+          if (res.ok) {
+            const blob = await res.blob();
+            const dataUrl = await new Promise((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result);
+              reader.onerror = reject;
+              reader.readAsDataURL(blob);
+            });
+            originalAsset = asset;
+            tldrawAPI.store.mergeRemoteChanges(() => {
+              tldrawAPI.store.put([{ ...asset, props: { ...asset.props, src: dataUrl } }]);
+            });
+          }
+        } catch (e) {
+          // CORS rejection is expected in cluster setups where $bbb_cors_origin
+          // is not overridden from the wildcard default; getSvg() will attempt
+          // its own fetch via the browser's same-site cookie rules.
+          logger.debug({
+            logCode: 'presentation_snapshot_prefetch_error',
+          }, `Slide asset pre-fetch for snapshot skipped: ${e}`);
+        }
+      }
+    }
+
+    let svgElem;
+    try {
+      svgElem = await tldrawAPI.getSvg(
+        shapes
+          .filter((shape) => shape.type !== 'poll')
+          .map((shape) => shape.id),
+      );
+    } finally {
+      if (originalAsset) {
+        tldrawAPI.store.mergeRemoteChanges(() => {
+          tldrawAPI.store.put([originalAsset]);
+        });
+      }
+    }
+
     svgElem.setAttribute('width', backgroundShape.props.w);
     svgElem.setAttribute('height', backgroundShape.props.h);
     svgElem.setAttribute('viewBox', `1 1 ${backgroundShape.props.w} ${backgroundShape.props.h}`);
