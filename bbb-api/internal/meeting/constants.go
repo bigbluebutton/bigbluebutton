@@ -93,4 +93,8 @@ const (
 	ClientSettingsOverrideModule = "clientSettingsOverride"
 
 	PluginManifests = "pluginManifests"
+
+	TestMeetingIDSuccess           = "success"
+	TestMeetingIDNotFound          = "not-found"
+	TestMeetingIDConnectionRefused = "conn-refused"
 )
