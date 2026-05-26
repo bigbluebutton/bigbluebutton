@@ -1,5 +1,5 @@
 
-![BigBlueButton 4.0 runs on Ubuntu 24.04](/img/30_BBB_header.png)
+![BigBlueButton 4.0 runs on Ubuntu 24.04](/img/40_BBB_header.png)
 
 ## Overview
 
