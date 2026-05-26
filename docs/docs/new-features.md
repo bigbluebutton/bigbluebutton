@@ -1,5 +1,5 @@
 
-![BigBlueButton 4.0 runs on Ubuntu 24.04](/img/30_BBB_header.png)
+![BigBlueButton 4.0 runs on Ubuntu 24.04](/img/40_BBB_header.png)
 
 ## Overview
 
@@ -129,11 +129,20 @@ The `layouts` option has been removed from `disabledFeatures`.
 
 ### bbb-web properties changes
 
-Removed
+#### Removed
 
-Value changed
+_None._
 
-Added
+#### Value changed
+
+- `defaultMeetingLayout` default changed from `CUSTOM_LAYOUT` to `UNIFIED_LAYOUT`. Accepted values are now `UNIFIED_LAYOUT` (default), plus the hybrid/niche options `CAMERAS_ONLY`, `PARTICIPANTS_CHAT_ONLY`, and `PRESENTATION_ONLY`. The previous values `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, and `VIDEO_FOCUS` are no longer accepted.
+- `html5PluginSdkVersion` bumped from `0.0.99` to `0.1.17`.
+- `disabledFeatures` accepts a new value: `pinChatMessage` (alongside the existing chat-related options).
+
+#### Added
+
+- `lockSettingsPresenterPolicy` added (default `requireApproval`).
+- `requireUserConsentBeforeUnmuting` added (default `false`). Only relevant when `allowModsToUnmuteUsers=true`; when `true`, a consent dialog is shown before a moderator can unmute a participant.
 
 
 

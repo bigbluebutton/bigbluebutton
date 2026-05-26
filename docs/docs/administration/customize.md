@@ -43,7 +43,7 @@ then when called by `bbb-conf`, the above `apply-config.sh` script will
 
 - use the helper function `enableUFWRules` to restrict access to specific ports, and
 
-Notice that `apply-conf.sh` includes a helper script [apply-lib.sh](https://github.com/bigbluebutton/bigbluebutton/blob/v3.1.x-release/bigbluebutton-config/bin/apply-lib.sh).
+Notice that `apply-conf.sh` includes a helper script [apply-lib.sh](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-config/bin/apply-lib.sh).
 This helper script contains some functions to make it easy to apply common configuration changes, along with some helper variables, such as `HTML5_CONFIG`.
 
 The contents of `apply-config.sh` are not owned by any package, so it will never be overwritten.
@@ -1317,10 +1317,10 @@ For example, if you would like to replace `de.json` with the version from a spec
 ```bash
 cd /usr/share/bigbluebutton/html5-client/locales/
 mv de.json /tmp/de.json.old
-wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v3.1.x-release/bigbluebutton-html5/public/locales/de.json
+wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.0.x-release/bigbluebutton-html5/public/locales/de.json
 cd /usr/share/bigbluebutton/html5-client/locales/
 rm de.json
-wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v3.1.x-release/bigbluebutton-html5/public/locales/de.json
+wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.0.x-release/bigbluebutton-html5/public/locales/de.json
 bbb-conf --restart
 ```
 
@@ -1495,7 +1495,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 
 | Parameter | Description | Options | Default value |
 |---|---|---|---|
-| `defaultMeetingLayout` | Default meeting layout | UNIFIED_LAYOUT, CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS, PARTICIPANTS_AND_CHAT_ONLY, CAMERAS_ONLY, PRESENTATION_ONLY, MEDIA_ONLY | CUSTOM_LAYOUT _`overwritable`_ (via `meetingLayout`) |
+| `defaultMeetingLayout` | Default meeting layout | UNIFIED_LAYOUT, CAMERAS_ONLY, PRESENTATION_ONLY, PARTICIPANTS_AND_CHAT_ONLY, MEDIA_ONLY | UNIFIED_LAYOUT _`overwritable`_ (via `meetingLayout`) |
 | `defaultMaxUsers` | Maximum number of users a meeting can have | Integer (0=disable) | 0 _`overwritable`_ (via `maxParticipants`) |
 | `maxUserConcurrentAccesses` | Maximum number of sessions a single user (extId) can open simultaneously in the same meeting; oldest session is ended when exceeded | Integer (0=disable) | 3 |
 | `defaultMeetingDuration` | Default duration of the meeting in minutes | Integer (0=disable) | 0 _`overwritable`_ (via `duration`) |
@@ -1543,6 +1543,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `lockSettingsLockOnJoinConfigurable` | Allow the lock-on-join flag to be configured per meeting | true/false | false _`overwritable`_ |
 | `lockSettingsHideViewersCursor` | Default lock setting: hide viewers' cursors from each other | true/false | false _`overwritable`_ |
 | `lockSettingsHideViewersAnnotation` | Default lock setting: hide viewers' annotations from each other | true/false | false _`overwritable`_ |
+| `lockSettingsPresenterPolicy` | Default lock setting: controls who can take over as presenter | requireApproval, moderatorOnly, freeForAll | requireApproval _`overwritable`_ |
 | `breakoutRoomsRecord` | Enable recordings in breakout rooms | true/false | false _`overwritable`_ |
 | `breakoutRoomsPrivateChatEnabled` | Enable private chat in breakout rooms | true/false | true _`overwritable`_ |
 | `breakoutRoomsMultiUserWhiteboardDefaultOn` | Enable multi-user whiteboard by default in breakout rooms | true/false | true |

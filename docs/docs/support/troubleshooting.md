@@ -692,7 +692,7 @@ For more information see [bbb-conf options](/administration/bbb-conf).
 
 ### Running within an LXD Container
 
-[LXD](https://www.ubuntu.com/containers/lxd) is a very powerful container system for Ubuntu lets you run full Ubuntu 16.04 servers within a container. Because you can easily clone and snapshot LXD containers, they are ideal for development and testing of BigBlueButton.
+[LXD](https://www.ubuntu.com/containers/lxd) is a very powerful container system for Ubuntu lets you run full Ubuntu 24.04 servers within a container. Because you can easily clone and snapshot LXD containers, they are ideal for development and testing of BigBlueButton.
 
 However, if you install BigBlueButton within an LXD container, you will get the following error from `sudo bbb-conf --check`
 
