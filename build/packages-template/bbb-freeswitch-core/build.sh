@@ -31,7 +31,7 @@ if [ ! -d sofia-sip ]; then
   git clone https://github.com/freeswitch/sofia-sip.git
 fi
 cd sofia-sip/
-git checkout v1.13.17
+git checkout v1.13.18
 ./bootstrap.sh
 ./configure
 
@@ -45,7 +45,7 @@ if [ ! -d spandsp ]; then
   git clone https://github.com/freeswitch/spandsp.git
 fi
 cd spandsp/
-git checkout e59ca8fb8b1591e626e6a12fdc60a2ebe83435ed
+git checkout v3.1.1
 ./bootstrap.sh
 ./configure
 
