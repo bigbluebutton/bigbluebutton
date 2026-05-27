@@ -97,11 +97,6 @@ dependencies {
   implementation "com.zaxxer:nuprocess:2.0.6"
   implementation "net.java.dev.jna:jna:5.14.0"
 
-  // Force newer Bouncy Castle to override the 1.81 pulled in transitively via Tika/POI
-  implementation "org.bouncycastle:bcpkix-jdk18on:1.84"
-  implementation "org.bouncycastle:bcprov-jdk18on:1.84"
-  implementation "org.bouncycastle:bcutil-jdk18on:1.84"
-
   console "org.apache.grails:grails-console:${grailsVersion}"
   profile "org.apache.grails.profiles:web"
 
