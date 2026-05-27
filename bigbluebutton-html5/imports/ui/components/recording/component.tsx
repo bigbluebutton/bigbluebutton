@@ -53,27 +53,45 @@ const RecordingComponent: React.FC<RecordingComponentProps> = ({
   recordingStatus, recordingTime, toggleRecording, onRequestClose,
 }) => {
   const intl = useIntl();
+  const [recordingToastId] = React.useState(() => `recording-confirmation-${uuid()}`);
 
-  const handleShowNotification = () => {
-    const isResuming = recordingTime > 0 && !recordingStatus;
-    let title;
+  const isResuming = recordingTime > 0 && !recordingStatus;
+  let notificationTitleMessage = intlMessages.startTitle;
 
-    if (recordingStatus) {
-      title = intl.formatMessage(intlMessages.stopTitle);
-    } else if (isResuming) {
-      title = intl.formatMessage(intlMessages.resumeTitle);
-    } else {
-      title = intl.formatMessage(intlMessages.startTitle);
-    }
+  if (recordingStatus) {
+    notificationTitleMessage = intlMessages.stopTitle;
+  } else if (isResuming) {
+    notificationTitleMessage = intlMessages.resumeTitle;
+  }
 
-    const description = recordingStatus
-      ? intl.formatMessage(intlMessages.stopDescription)
-      : intl.formatMessage(intlMessages.startDescription);
+  const notificationTitle = intl.formatMessage(notificationTitleMessage);
+  const notificationDescription = intl.formatMessage(
+    recordingStatus ? intlMessages.stopDescription : intlMessages.startDescription,
+  );
+  const cancelButtonLabel = intl.formatMessage(intlMessages.cancelButtonLabel);
+  const confirmationButtonLabel = intl.formatMessage(
+    recordingStatus ? intlMessages.stopButtonLabel : intlMessages.recordButtonLabel,
+  );
 
-    const toastId = notify(
+  const dismissRecordingToast = React.useCallback(() => {
+    toast.dismiss(recordingToastId);
+  }, [recordingToastId]);
+
+  const handleCancel = React.useCallback(() => {
+    dismissRecordingToast();
+    onRequestClose();
+  }, [dismissRecordingToast, onRequestClose]);
+
+  const handleConfirm = React.useCallback(() => {
+    dismissRecordingToast();
+    toggleRecording();
+  }, [dismissRecordingToast, toggleRecording]);
+
+  React.useEffect(() => {
+    notify(
       <div>
-        <Styled.TitleText>{title}</Styled.TitleText>
-        <Styled.DescriptionText>{description}</Styled.DescriptionText>
+        <Styled.TitleText>{notificationTitle}</Styled.TitleText>
+        <Styled.DescriptionText>{notificationDescription}</Styled.DescriptionText>
       </div>,
       'default',
       false,
@@ -82,30 +100,20 @@ const RecordingComponent: React.FC<RecordingComponentProps> = ({
         closeButton: false,
         closeOnClick: false,
         disablePointer: true,
-        toastId: `recording-confirmation-${uuid()}`,
+        toastId: recordingToastId,
       },
       (
         <Styled.NotificationContent>
           <Styled.NotificationActions>
             <Styled.CancelButton
               data-test="cancelRecordingButton"
-              onClick={() => {
-                if (toastId != null) {
-                  toast.dismiss(toastId);
-                }
-                onRequestClose();
-              }}
+              onClick={handleCancel}
             >
-              {intl.formatMessage(intlMessages.cancelButtonLabel)}
+              {cancelButtonLabel}
             </Styled.CancelButton>
             <Styled.ConfirmationButton
               data-test="confirmRecordingButton"
-              onClick={() => {
-                if (toastId != null) {
-                  toast.dismiss(toastId);
-                }
-                toggleRecording();
-              }}
+              onClick={handleConfirm}
             >
               <Styled.SvgCapsule>
                 {recordingStatus ? (
@@ -114,9 +122,7 @@ const RecordingComponent: React.FC<RecordingComponentProps> = ({
                   <SvgIcon iconName="recording" />
                 )}
               </Styled.SvgCapsule>
-              {recordingStatus
-                ? intl.formatMessage(intlMessages.stopButtonLabel)
-                : intl.formatMessage(intlMessages.recordButtonLabel)}
+              {confirmationButtonLabel}
             </Styled.ConfirmationButton>
           </Styled.NotificationActions>
         </Styled.NotificationContent>
@@ -124,19 +130,22 @@ const RecordingComponent: React.FC<RecordingComponentProps> = ({
       false,
       false,
     );
-
-    return toastId;
-  };
+  }, [
+    cancelButtonLabel,
+    confirmationButtonLabel,
+    handleCancel,
+    handleConfirm,
+    notificationDescription,
+    notificationTitle,
+    recordingStatus,
+    recordingToastId,
+  ]);
 
   React.useEffect(() => {
-    const toastId = handleShowNotification();
-
     return () => {
-      if (toastId != null) {
-        toast.dismiss(toastId);
-      }
+      dismissRecordingToast();
     };
-  }, [recordingStatus]);
+  }, [dismissRecordingToast]);
 
   return null;
 };
