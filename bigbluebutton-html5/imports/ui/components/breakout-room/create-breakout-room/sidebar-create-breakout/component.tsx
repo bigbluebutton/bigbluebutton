@@ -337,7 +337,9 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
   const [inviteMods, setInviteMods] = useState(inviteModsByDefault);
   const [leastOneUserIsValid, setLeastOneUserIsValid] = useState(false);
   const [roomPresentations, setRoomPresentations] = useState<RoomPresentations>([]);
-  const [assignmentState, setAssignmentState] = useState<'hasViewers' | 'onlyModerators' | 'allAssigned'>('hasViewers');
+  const [assignmentState, setAssignmentState] = useState<'hasViewers' | 'onlyModerators' | 'allAssigned'>(
+    () => (users.every((u) => u.isModerator) ? 'onlyModerators' : 'hasViewers'),
+  );
 
   const [createBreakoutRoom] = useMutation(BREAKOUT_ROOM_CREATE);
 
@@ -471,6 +473,38 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
 
   const canStart = isDurationValid && (freeJoin || leastOneUserIsValid);
 
+  const assignBtnProps = useMemo(() => {
+    if (assignmentState === 'allAssigned') {
+      return {
+        label: intl.formatMessage(intlMessages.resetAssignmentsDesc),
+        tooltip: intl.formatMessage(intlMessages.resetAssignmentsDesc),
+        dataTest: 'resetAssignments',
+      };
+    }
+    if (assignmentState === 'onlyModerators') {
+      return {
+        label: intl.formatMessage(intlMessages.assignModeratorsRandomlyDesc),
+        tooltip: intl.formatMessage(intlMessages.assignModeratorsRandomlyDesc),
+        dataTest: 'assignModeratorsRandomly',
+      };
+    }
+    return {
+      label: intl.formatMessage(intlMessages.randomlyAssignDesc),
+      tooltip: intl.formatMessage(intlMessages.randomlyAssignDesc),
+      dataTest: 'randomlyAssign',
+    };
+  }, [assignmentState, intl]);
+
+  const handleRandomAssign = useCallback(() => {
+    if (assignmentState === 'allAssigned') {
+      resetAssignmentsFunction.current();
+    } else if (assignmentState === 'onlyModerators') {
+      randomlyAssignModeratorsFunction.current();
+    } else {
+      randomlyAssignFunction.current();
+    }
+  }, [assignmentState]);
+
   const tooltipText = (() => {
     if (!isDurationValid) {
       return intl.formatMessage(
@@ -566,44 +600,16 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
             </Styled.RoomCountArrow>
           </TooltipContainer>
         </Styled.RoomCountControl>
-        {(() => {
-          let assignBtnLabel: string;
-          let assignBtnTooltip: string;
-          let assignBtnDataTest: string;
-          if (assignmentState === 'allAssigned') {
-            assignBtnLabel = intl.formatMessage(intlMessages.resetAssignmentsDesc);
-            assignBtnTooltip = intl.formatMessage(intlMessages.resetAssignmentsDesc);
-            assignBtnDataTest = 'resetAssignments';
-          } else if (assignmentState === 'onlyModerators') {
-            assignBtnLabel = intl.formatMessage(intlMessages.assignModeratorsRandomlyDesc);
-            assignBtnTooltip = intl.formatMessage(intlMessages.assignModeratorsRandomlyDesc);
-            assignBtnDataTest = 'assignModeratorsRandomly';
-          } else {
-            assignBtnLabel = intl.formatMessage(intlMessages.randomlyAssignDesc);
-            assignBtnTooltip = intl.formatMessage(intlMessages.randomlyAssignDesc);
-            assignBtnDataTest = 'randomlyAssign';
-          }
-          return (
-            // @ts-ignore
-            <Styled.RandomAssignBtn
-              color="primary"
-              icon={assignmentState === 'allAssigned' ? 'undo' : 'random'}
-              label={assignBtnLabel}
-              hideLabel
-              tooltipLabel={assignBtnTooltip}
-              onClick={() => {
-                if (assignmentState === 'allAssigned') {
-                  resetAssignmentsFunction.current();
-                } else if (assignmentState === 'onlyModerators') {
-                  randomlyAssignModeratorsFunction.current();
-                } else {
-                  randomlyAssignFunction.current();
-                }
-              }}
-              data-test={assignBtnDataTest}
-            />
-          );
-        })()}
+        {/* @ts-ignore */}
+        <Styled.RandomAssignBtn
+          color="primary"
+          icon={assignmentState === 'allAssigned' ? 'undo' : 'random'}
+          label={assignBtnProps.label}
+          hideLabel
+          tooltipLabel={assignBtnProps.tooltip}
+          onClick={handleRandomAssign}
+          data-test={assignBtnProps.dataTest}
+        />
       </Styled.ControlsRow>
 
       <Styled.MoreOptionsToggle
