@@ -45,12 +45,6 @@ export interface GridUsersResponse {
   user: GridUser[];
 }
 
-export interface OwnVideoStreamsResponse {
-  user_camera: {
-    streamId: string;
-  }[];
-}
-
 export type ConnectingStream = {
   userId: string;
   stream: string;
