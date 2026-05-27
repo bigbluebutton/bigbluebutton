@@ -170,7 +170,7 @@ After the `bbb-install.sh` script finishes, you can check the status of your ser
 
 ```bash
 $ sudo bbb-conf --check
-BigBlueButton Server 4.0.0-beta.3 (161)
+BigBlueButton Server 4.0.0-beta.3 (0)
                     Kernel version: 6.8.0-generic
                       Distribution: Ubuntu 24.04 LTS (64-bit)
                             Memory: 8127 MB
@@ -180,7 +180,7 @@ BigBlueButton Server 4.0.0-beta.3 (161)
 /usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties (bbb-web)
        bigbluebutton.web.serverURL: https://test40.bigbluebutton.org
                 defaultGuestPolicy: ALWAYS_ACCEPT
-              defaultMeetingLayout: CUSTOM_LAYOUT
+              defaultMeetingLayout: UNIFIED_LAYOUT
 
 /etc/nginx/sites-available/bigbluebutton (nginx)
                        server_name: test40.bigbluebutton.org
@@ -272,27 +272,33 @@ You can also use `dpkg -l | grep bbb-` to list all the core BigBlueButton packag
 
 ```bash
 # dpkg -l | grep bbb-
-ii  bbb-apps-akka                      1:3.1-10        all          BigBlueButton Apps (Akka)
-ii  bbb-config                         1:3.1-9         amd64        BigBlueButton configuration utilities
-ii  bbb-etherpad                       1:3.1-3         amd64        The EtherPad Lite components for BigBlueButton
-ii  bbb-export-annotations             1:3.1-3         amd64        BigBlueButton Export Annotations
-ii  bbb-freeswitch-core                2:3.1-3         amd64        BigBlueButton build of FreeSWITCH
-ii  bbb-freeswitch-sounds              1:3.1-1         amd64        FreeSWITCH Sounds
-ii  bbb-fsesl-akka                     1:3.1-6         all          BigBlueButton FS-ESL (Akka)
-ii  bbb-graphql-actions                1:3.1-5         amd64        BigBlueButton GraphQL Actions
-ii  bbb-graphql-middleware             1:3.1-6         amd64        GraphQL middleware component for BigBlueButton
-ii  bbb-graphql-server                 1:3.1-11        amd64        GraphQL server component for BigBlueButton
-ii  bbb-html5                          1:3.1-64        amd64        The HTML5 components for BigBlueButton
-ii  bbb-learning-dashboard             1:3.1-5         amd64        BigBlueButton bbb-learning-dashboard
-ii  bbb-libreoffice-docker             1:3.1-1         amd64        BigBlueButton setup for LibreOffice running in docker
-ii  bbb-mkclean                        1:3.1-4         amd64        Clean and optimize Matroska and WebM files
-ii  bbb-pads                           1:3.1-1         amd64        BigBlueButton Pads
-ii  bbb-playback                       1:3.1-1         amd64        Player for BigBlueButton presentation format recordings
-ii  bbb-playback-presentation          1:3.1-4         amd64        BigBlueButton presentation recording format
-ii  bbb-record-core                    1:3.1-5         amd64        BigBlueButton record and playback
-ii  bbb-web                            1:3.1-7         amd64        BigBlueButton API
-ii  bbb-webrtc-recorder                1:3.1-4         amd64        BigBlueButton WebRTC Recorder
-ii  bbb-webrtc-sfu                     1:3.1-6         amd64        BigBlueButton WebRTC SFU
+ii  bbb-apps-akka                        2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f all          BigBlueButton Apps (Akka)
+ii  bbb-config                           2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton configuration utilities
+ii  bbb-etherpad                         2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        The EtherPad Lite components for BigBlueButton
+ii  bbb-export-annotations               2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton Export Annotations
+ii  bbb-freeswitch-core                  2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton build of FreeSWITCH
+ii  bbb-freeswitch-sounds                2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        FreeSWITCH Sounds
+ii  bbb-fsesl-akka                       2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f all          BigBlueButton FS-ESL (Akka)
+ii  bbb-graphql-actions                  2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton GraphQL Actions
+ii  bbb-graphql-middleware               2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        GraphQL middleware component for BigBlueButton
+ii  bbb-graphql-server                   2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        GraphQL server component for BigBlueButton
+ii  bbb-html5                            2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        The HTML5 components for BigBlueButton
+ii  bbb-learning-dashboard               2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton bbb-learning-dashboard
+ii  bbb-libreoffice-docker               2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton setup for LibreOffice running in docker
+ii  bbb-livekit                          2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton build of LiveKit Server
+ii  bbb-mkclean                          2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        Clean and optimize Matroska and WebM files
+ii  bbb-pads                             2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton Pads
+ii  bbb-playback                         2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        Player for BigBlueButton presentation format recordings
+ii  bbb-playback-notes                   2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton notes recording format
+ii  bbb-playback-presentation            2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton presentation recording format
+ii  bbb-playback-screenshare             2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton screenshare recording format
+ii  bbb-playback-video                   2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton video recording format
+ii  bbb-presentation-video               5.1.0~rc3                                                 all          Render BigBlueButton recording events.xml to a video
+ii  bbb-record-core                      2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton record and playback
+ii  bbb-shared-notes-server              2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton Shared Notes Server
+ii  bbb-web                              2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton API
+ii  bbb-webrtc-recorder                  2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton WebRTC Recorder
+ii  bbb-webrtc-sfu                       2:4.0.0~beta.3+20260525T143438-git.local-build-d288a67f8f amd64        BigBlueButton WebRTC SFU
 
 ```
 
@@ -417,4 +423,4 @@ For more details see [this issue](https://github.com/bigbluebutton/bbb-install/i
 
 ## Feedback and reporting bugs
 
-If you found a reproducible bug, please report it in the [GitHub Issues section](https://github.com/bigbluebutton/bigbluebutton/issues) with steps to reproduce (this will make it easier for the developers to fix the bug). Indicate in the body of the bug report that this applies to BigBlueButton 3.1 and give us the client build number, which you can find either with `dpkg -l | grep bbb-html5` or within the client in the `Settings -> About` menu..
+If you found a reproducible bug, please report it in the [GitHub Issues section](https://github.com/bigbluebutton/bigbluebutton/issues) with steps to reproduce (this will make it easier for the developers to fix the bug). Indicate in the body of the bug report that this applies to BigBlueButton 4.0 and give us the client build number, which you can find either with `dpkg -l | grep bbb-html5` or within the client in the `Settings -> About` menu..

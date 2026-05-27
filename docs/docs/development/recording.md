@@ -903,13 +903,13 @@ The sections that follow cover the types of events you will encounter in `events
 | ParticipantStatusChangeEvent | - timestampUTC<br/>- status<br/>- userId<br/>- date<br/>- value                    |
 | LayoutBroadcastedEvent       | - timestampUTC<br/>- focusedCamera<br/>- presentationVideoRate<br/>- date<br/>- cameraPosition<br/>- presentationIsOpen<br/>- layout<br/>- isResizing                    |
 
-**LayoutBroadcastedEvent** — Emitted when a presenter changes the layout while push layout is enabled.
+**LayoutBroadcastedEvent** — Emitted when the meeting layout is updated.
 
 | Attribute              | Type    | Description                                                                                                             |
 | ---------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------- |
 | timestampUTC           | String  | UTC timestamp of the event                                                                                              |
 | date                   | String  | Date of the event                                                                                                       |
-| layout                 | String  | Active layout. One of `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS`, `UNIFIED_LAYOUT`                              |
+| layout                 | String  | Active layout. Currently always `UNIFIED_LAYOUT` in BigBlueButton 4.0.                                                   |
 | cameraPosition         | String  | Position of the camera dock. One of `contentTop`, `contentRight`, `contentBottom`, `contentLeft`, `sidebarContentBottom` |
 | presentationVideoRate  | Float   | Number between 0 and 1 indicating the ratio of the camera dock size relative to the window size                         |
 | presentationIsOpen     | Boolean | Whether the presentation area is open                                                                                   |

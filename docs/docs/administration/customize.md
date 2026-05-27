@@ -43,7 +43,7 @@ then when called by `bbb-conf`, the above `apply-config.sh` script will
 
 - use the helper function `enableUFWRules` to restrict access to specific ports, and
 
-Notice that `apply-conf.sh` includes a helper script [apply-lib.sh](https://github.com/bigbluebutton/bigbluebutton/blob/v3.1.x-release/bigbluebutton-config/bin/apply-lib.sh).
+Notice that `apply-conf.sh` includes a helper script [apply-lib.sh](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-config/bin/apply-lib.sh).
 This helper script contains some functions to make it easy to apply common configuration changes, along with some helper variables, such as `HTML5_CONFIG`.
 
 The contents of `apply-config.sh` are not owned by any package, so it will never be overwritten.
@@ -1317,10 +1317,10 @@ For example, if you would like to replace `de.json` with the version from a spec
 ```bash
 cd /usr/share/bigbluebutton/html5-client/locales/
 mv de.json /tmp/de.json.old
-wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v3.1.x-release/bigbluebutton-html5/public/locales/de.json
+wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.0.x-release/bigbluebutton-html5/public/locales/de.json
 cd /usr/share/bigbluebutton/html5-client/locales/
 rm de.json
-wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v3.1.x-release/bigbluebutton-html5/public/locales/de.json
+wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.0.x-release/bigbluebutton-html5/public/locales/de.json
 bbb-conf --restart
 ```
 
@@ -1491,45 +1491,77 @@ Ensure that the parameter `displayBrandingArea` is set to `true` in bbb-html5's 
 To update the default logo, navigate to the `images` folder located at `/var/www/bigbluebutton-default/assets/images/`, and replace the `logo.png` file with your new logo.
 
 ### Other meeting configs available
-These configs can be set in `/etc/bigbluebutton/bbb-web.properties`
+These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table is synced with [`bigbluebutton.properties`](https://github.com/bigbluebutton/bigbluebutton/blob/develop/bigbluebutton-web/grails-app/conf/bigbluebutton.properties); items marked _`overwritable`_ can be replaced per meeting through the matching [`/create`](/development/api/#create) parameter.
 
-| Parameter                                | Description                                                                                   | Options                                                      | Default value                  |
-|------------------------------------------|-----------------------------------------------------------------------------------------------|--------------------------------------------------------------|--------------------------------|
-| `defaultMeetingLayout`                   | Default Meeting Layout                                                                        | UNIFIED_LAYOUT, CAMERAS_ONLY, PRESENTATION_ONLY, PARTICIPANTS_AND_CHAT_ONLY, MEDIA_ONLY | UNIFIED_LAYOUT _`overwritable`_ |
-| `defaultMaxUsers`                        | Maximum number of users a meeting can have                                                    | Integer `(0=disable)`                                        | 0 _`overwritable`_             |
-| `maxUserConcurrentAccesses`              | Maximum number of sessions that each user (extId) can open simultaneously in the same meeting | Integer (0=disable)                                          | 3                              |
-| `defaultMeetingDuration`                 | Duration of the meeting in minutes                                                            | Integer (0=disable)                                          | 0 _`overwritable`_             |
-| `clientLogoutTimerInMinutes`             | Number of minutes to logout client if user isn't responsive                                   | Integer (0=disable)                                          | 0                              |
-| `meetingExpireIfNoUserJoinedInMinutes`   | End meeting if no user joined within a period of time after meeting created                   | Integer                                                      | 5                              |
-| `meetingExpireWhenLastUserLeftInMinutes` | Number of minutes to end meeting when the last user left                                      | Integer (0=disable)                                          | 1                              |
-| `endWhenNoModerator`                     | End meeting when there are no moderators after a certain period of time                       | true/false                                                   | false _`overwritable`_         |
-| `endWhenNoModeratorDelayInMinutes`       | Number of minutes to wait for moderator rejoin before end meeting                             | Integer                                                      | 1 _`overwritable`_             |
-| `userInactivityInspectTimerInMinutes`    | User inactivity audit timer interval                                                          | Integer (0=disable)                                          | 0                              |
-| `userInactivityThresholdInMinutes`       | Number of minutes to consider a user inactive.                                                | Integer                                                      | 30                             |
-| `userActivitySignResponseDelayInMinutes` | Number of minutes for user to respond to inactivity warning before being logged out           | Integer                                                      | 5                              |
-| `webcamsOnlyForModerator`                | Allow webcams streaming reception only to and from moderators                                 | true/false                                                   | false  _`overwritable`_        |
-| `meetingCameraCap`                       | Per meeting camera share limit                                                                | Integer (0=disable)                                          | 0  _`overwritable`_            |
-| `userCameraCap`                          | Per user camera share limit                                                                   | Integer (0=disable)                                          | 3 _`overwritable`_             |
-| `maxPinnedCameras`                       | Maximum number of cameras pinned simultaneously                                               | Integer (0=disable)                                          | 3                              |
-| `muteOnStart`                            | Mute the meeting on start                                                                     | true/false                                                   | false _`overwritable`_         |
-| `allowModsToUnmuteUsers`                 | Gives moderators permission to unmute other users                                             | true/false                                                   | false _`overwritable`_         |
-| `requireUserConsentBeforeUnmuting`       | Allows participants to accept or decline when a moderator asks them to unmute.                                    | true/false                                                   | false _`overwritable`_         |
-| `allowModsToEjectCameras`                | Gives moderators permission to close other users' webcams                                     | true/false                                                   | false _`overwritable`_         |
-| `usersTimeout`                           | Timeout (millis) to remove a joined user after her/him left meeting without a rejoin          | Integer                                                      | 60000 (60s)                    |
-| `waitingGuestUsersTimeout`               | Timeout (millis) to remove guest users that stopped fetching for her/his status               | Integer                                                      | 30000 (30s)                    |
-| `enteredUsersTimeout`                    | Timeout (millis) to remove users that called the enter API but did not join                   | Integer                                                      | 45000 (45s)                    |
-| `breakoutRoomsRecord`                    | Enable Recordings in Breakout Rooms                                                           | true/false                                                   | false _`overwritable`_         |
-| `breakoutRoomsPrivateChatEnabled`        | Enable private chat in Breakout Rooms                                                         | true/false                                                   | true _`overwritable`_          |
-| `breakoutRoomsMultiUserWhiteboardDefaultOn` | Enable multi-user whiteboard by default in Breakout Rooms   | true/false    | true  |
-| `notifyRecordingIsOn`                    | Notify users that recording is on                                                             | true/false                                                   | false _`overwritable`_         |
-| `learningDashboardCleanupDelayInMinutes` | Number of minutes that Learning Dashboard will be available after the end of the meeting      | Integer (0=disable)                                          | 2 _`overwritable`_             |
-| `serviceEnabled`                         | API enabled                                                                                   | true/false                                                   | true                           |
-| `allowRequestsWithoutSession`            | Allow requests without JSESSIONID to be handled                                               | true/false                                                   | false                          |
-| `supportedChecksumAlgorithms`            | List of supported hash algorithms for validating checksums                                    | sha1, sha256, sha384, sha512                                 | sha1, sha256, sha384, sha512   |
-| `allowRevealOfBBBVersion`                | Allow endpoint with current BigBlueButton version                                             | true/false                                                   | false                          |
-| `recordFullDurationMedia`                | Controls whether media should be captured on their full duration if the meeting's recorded property is true | true/false | false            |
+| Parameter | Description | Options | Default value |
+|---|---|---|---|
+| `defaultMeetingLayout` | Default meeting layout | UNIFIED_LAYOUT, CAMERAS_ONLY, PRESENTATION_ONLY, PARTICIPANTS_AND_CHAT_ONLY, MEDIA_ONLY | UNIFIED_LAYOUT _`overwritable`_ (via `meetingLayout`) |
+| `defaultMaxUsers` | Maximum number of users a meeting can have | Integer (0=disable) | 0 _`overwritable`_ (via `maxParticipants`) |
+| `maxUserConcurrentAccesses` | Maximum number of sessions a single user (extId) can open simultaneously in the same meeting; oldest session is ended when exceeded | Integer (0=disable) | 3 |
+| `defaultMeetingDuration` | Default duration of the meeting in minutes | Integer (0=disable) | 0 _`overwritable`_ (via `duration`) |
+| `defaultGuestPolicy` | Default guest policy applied to meetings | ALWAYS_ACCEPT, ALWAYS_DENY, ASK_MODERATOR | ALWAYS_ACCEPT _`overwritable`_ (via `guestPolicy`) |
+| `authenticatedGuest` | Enable authenticated guest mode | true/false | true |
+| `defaultAllowPromoteGuestToModerator` | Allows moderators to promote guests to moderators when `authenticatedGuest` is enabled | true/false | false _`overwritable`_ (via `allowPromoteGuestToModerator`) |
+| `clientLogoutTimerInMinutes` | Number of minutes to logout client if user isn't responsive | Integer (0=disable) | 0 |
+| `meetingExpireIfNoUserJoinedInMinutes` | End meeting if no user joined within a period of time after meeting created | Integer | 5 _`overwritable`_ |
+| `meetingExpireWhenLastUserLeftInMinutes` | Number of minutes to end meeting when the last user left | Integer (0=disable) | 1 _`overwritable`_ |
+| `endWhenNoModerator` | End meeting when there are no moderators after a certain period of time | true/false | false _`overwritable`_ |
+| `endWhenNoModeratorDelayInMinutes` | Number of minutes to wait for moderator rejoin before end meeting | Integer | 1 _`overwritable`_ |
+| `userInactivityInspectTimerInMinutes` | User inactivity audit timer interval | Integer (0=disable) | 0 |
+| `userInactivityThresholdInMinutes` | Number of minutes to consider a user inactive | Integer | 30 |
+| `userActivitySignResponseDelayInMinutes` | Number of minutes for user to respond to inactivity warning before being logged out | Integer | 5 |
+| `usersTimeout` | Timeout (millis) to remove a joined user after they left without a rejoin | Integer | 60000 (60s) |
+| `waitingGuestUsersTimeout` | Timeout (millis) to remove guest users that stopped fetching for their status | Integer | 30000 (30s) |
+| `enteredUsersTimeout` | Timeout (millis) to remove users that called the enter API but did not join | Integer | 45000 (45s) |
+| `defaultHttpSessionTimeout` | Timeout (seconds) to invalidate inactive HTTP sessions | Integer | 14400 (4h) |
+| `sessionsCleanupDelayInMinutes` | Minutes to wait before removing user sessions after a meeting has ended; during this delay the "Meeting has ended" screen is still reachable | Integer (0=keep indefinitely) | 60 |
+| `webcamsOnlyForModerator` | Allow webcams streaming reception only to and from moderators | true/false | false _`overwritable`_ |
+| `meetingCameraCap` | Per meeting camera share limit | Integer (0=disable) | 0 _`overwritable`_ |
+| `userCameraCap` | Per user camera share limit | Integer (0=disable) | 3 _`overwritable`_ |
+| `maxPinnedCameras` | Maximum number of cameras pinned simultaneously | Integer (0=disable) | 3 |
+| `muteOnStart` | Microphone is muted by default when users start sharing | true/false | true _`overwritable`_ |
+| `allowModsToUnmuteUsers` | Gives moderators permission to unmute other users | true/false | false _`overwritable`_ |
+| `requireUserConsentBeforeUnmuting` | Allows participants to accept or decline when a moderator asks them to unmute. | true/false | false _`overwritable`_ |
+| `allowModsToEjectCameras` | Gives moderators permission to close other users' webcams | true/false | false _`overwritable`_ |
+| `cameraBridge` | Media bridge used for camera streams | bbb-webrtc-sfu, livekit | bbb-webrtc-sfu |
+| `screenShareBridge` | Media bridge used for screen share streams | bbb-webrtc-sfu, livekit | bbb-webrtc-sfu |
+| `audioBridge` | Media bridge used for audio streams | bbb-webrtc-sfu, livekit, freeswitch | bbb-webrtc-sfu |
+| `disableRecordingDefault` | When true, do not record even if the `/create` call sets `record=true` | true/false | false |
+| `autoStartRecording` | Start recording when the first user joins the meeting | true/false | false _`overwritable`_ |
+| `allowStartStopRecording` | Allow users to start/stop recording during the session | true/false | true _`overwritable`_ |
+| `defaultKeepEvents` | Save meeting events even if the meeting is not recorded | true/false | false _`overwritable`_ (via `meetingKeepEvents`) |
+| `allowFetchAllRecordings` | When true, `getRecordings` with no `meetingID` returns every recording on the server (potentially large response) | true/false | true |
+| `recordFullDurationMedia` | Whether media (audio, cameras, screen sharing) is captured on its full duration when `record=true`, ignoring the meeting's current paused/running recording state | true/false | false _`overwritable`_ |
+| `notifyRecordingIsOn` | Notify users that recording is on | true/false | false _`overwritable`_ |
+| `lockSettingsDisableCam` | Default lock setting: disable webcams | true/false | false _`overwritable`_ |
+| `lockSettingsDisableMic` | Default lock setting: disable microphones | true/false | false _`overwritable`_ |
+| `lockSettingsDisablePrivateChat` | Default lock setting: disable private chat | true/false | false _`overwritable`_ |
+| `lockSettingsDisablePublicChat` | Default lock setting: disable public chat | true/false | false _`overwritable`_ |
+| `lockSettingsDisableNotes` | Default lock setting: disable shared notes | true/false | false _`overwritable`_ |
+| `lockSettingsHideUserList` | Default lock setting: hide the user list from non-moderators | true/false | false _`overwritable`_ |
+| `lockSettingsLockOnJoin` | Default lock setting: apply lock settings to all users on join | true/false | true _`overwritable`_ |
+| `lockSettingsLockOnJoinConfigurable` | Allow the lock-on-join flag to be configured per meeting | true/false | false _`overwritable`_ |
+| `lockSettingsHideViewersCursor` | Default lock setting: hide viewers' cursors from each other | true/false | false _`overwritable`_ |
+| `lockSettingsHideViewersAnnotation` | Default lock setting: hide viewers' annotations from each other | true/false | false _`overwritable`_ |
+| `lockSettingsPresenterPolicy` | Default lock setting: controls who can take over as presenter | requireApproval, moderatorOnly, freeForAll | requireApproval _`overwritable`_ |
+| `breakoutRoomsRecord` | Enable recordings in breakout rooms | true/false | false _`overwritable`_ |
+| `breakoutRoomsPrivateChatEnabled` | Enable private chat in breakout rooms | true/false | true _`overwritable`_ |
+| `breakoutRoomsMultiUserWhiteboardDefaultOn` | Enable multi-user whiteboard by default in breakout rooms | true/false | true |
+| `learningDashboardCleanupDelayInMinutes` | Minutes the Learning Dashboard remains available after the meeting ends | Integer (0=keep permanently) | 2 _`overwritable`_ |
+| `disabledFeatures` | Comma-separated list of features to disable (see [`/create` docs](/development/api/#create) for the full list of feature names) | csv | _(empty)_ _`overwritable`_ |
+| `sharedNotesEditor` | Type of shared notes editor to use | etherpad, blockNote | etherpad _`overwritable`_ |
+| `allowOverrideClientSettingsOnCreateCall` | Allow `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` to be passed on `/create` | true/false | false |
+| `pluginManifests` | List of plugin manifests as a JSON array, e.g. `[{"url": "https://example.com/manifest.json"}]` | JSON array | _(empty)_ _`overwritable`_ |
+| `serviceEnabled` | Whether the BigBlueButton API is enabled | true/false | true |
+| `allowRequestsWithoutSession` | Allow requests without `JSESSIONID` to be handled (reduces security; only enable for trusted integrations like iframes) | true/false | false _`overwritable`_ |
+| `supportedChecksumAlgorithms` | Hash algorithms accepted when validating API checksums (comma-separated) | sha1, sha256, sha384, sha512 | sha1,sha256,sha384,sha512 |
+| `allowRevealOfBBBVersion` | Allow the `getMeetings` endpoint to reveal the current BigBlueButton version | true/false | false |
 
-- _`overwritable`_: Config will be overwritten if the param is present in the API `/create` request
+- _`overwritable`_: The default is replaced when the matching parameter is present on an API `/create` request. Where the create-side name differs from the property name, it is shown in parentheses (e.g., `defaultMeetingLayout` → `meetingLayout`).
+
+#### `/create` parameters without a `bigbluebutton.properties` counterpart
+
+Some `/create` parameters set per-meeting state but have no default in `bigbluebutton.properties`. Examples include `name`, `meetingID`, `parentMeetingID`/`sequence`/`freeJoin`/`isBreakout` (breakout-only), `bannerText`/`bannerColor`, `moderatorOnlyMessage`, `meta_*` metadata, `logo`, `multiUserWhiteboardEnabled`, presentation-upload parameters (`preUploadedPresentation*`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`), `sharedNotesInitialContentJsonUrl`, `disabledFeaturesExclude`, `clientSettingsOverride` / `clientSettingsOverrideJsonUrl`, and `pluginManifestsFetchUrl`. See [Create API parameters](/development/api/#create) for the complete list and descriptions.
 
 
 #### Passing user metadata to the client on join

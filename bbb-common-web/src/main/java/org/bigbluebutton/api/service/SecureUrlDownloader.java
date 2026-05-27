@@ -96,13 +96,13 @@ public class SecureUrlDownloader {
                     char[] buf = new char[4096];
                     int n;
                     while ((n = reader.read(buf)) != -1) {
-                        if (remaining <= 0) {
+                        remaining -= n;
+                        if (remaining < 0) {
                             log.warn("Response from [{}] exceeded maximum allowed payload size ({} KiB) for context [{}]",
                                     validatedUrl.originalUrl(), maxSizeKib, contextId);
                             return null;
                         }
                         sb.append(buf, 0, n);
-                        remaining -= n;
                     }
                 }
 
