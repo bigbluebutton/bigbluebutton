@@ -57,6 +57,18 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await create.initPages(page, testInfo);
       await create.modCanDisableInheritedLockInBreakout();
     });
+
+    test('Moderator can apply lock settings in breakout room without inheritance', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.modCanApplyLockSettingsInBreakout();
+    });
+
+    test('Moderator can apply lock settings in breakout room with inheritance', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.modCanApplyLockSettingsInBreakoutWithInheritance();
+    });
   });
 
   test.describe.parallel('After creating', () => {

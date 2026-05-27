@@ -210,6 +210,10 @@ export class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.joinRoom1);
     const breakoutTab = await newTabPromise;
     await breakoutTab.waitForLoadState('domcontentloaded');
+    try {
+      await breakoutTab.waitForSelector(e.audioModal, { timeout: 5000 });
+      await breakoutTab.click(e.closeModal);
+    } catch { /* audio modal not present */ }
 
     // Wait for the React app to be ready in the breakout tab
     await breakoutTab.locator(e.manageUsers).waitFor({ state: 'visible', timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
@@ -226,21 +230,159 @@ export class Create extends MultiUsers {
       'webcam lock should be enabled in breakout room (inherited from main room)',
     ).toBeChecked({ timeout: ELEMENT_WAIT_LONGER_TIME });
 
-    // Mod disables webcam lock — force-click the hidden ScreenreaderInput
+    // Mod disables webcam lock and enables webcamsOnlyForModerator — force-click the hidden ScreenreaderInputs
     await breakoutTab.locator(e.lockShareWebcam).click({ force: true });
+    await breakoutTab.locator(e.lockSeeOtherViewersWebcam).click({ force: true });
 
-    // Verify toggle flipped to unchecked within the same modal (input.checked is native, not subscription-driven)
+    // Verify toggles flipped within the same modal (native input.checked, not subscription-driven)
     await expect(
       breakoutTab.locator(e.lockShareWebcam),
-      'webcam lock toggle should reflect the click before Apply is sent',
+      'webcam lock toggle should be unchecked after click',
     ).not.toBeChecked({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    await expect(
+      breakoutTab.locator(e.lockSeeOtherViewersWebcam),
+      'webcamsOnlyForModerator toggle should be checked after click',
+    ).toBeChecked({ timeout: ELEMENT_WAIT_LONGER_TIME });
 
-    // Apply — with the fix deployed the mod must NOT be ejected; ejection navigates away
+    // Apply — mod must NOT be ejected by either the lockSettings or webcamsOnlyForModerator mutation
     await breakoutTab.locator(e.applyLockSettings).click();
 
     await expect(
       breakoutTab.locator(e.manageUsers),
       'moderator should still be in the breakout room (not ejected by the server after changing lock settings)',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    await breakoutTab.close();
+  }
+
+  async modCanApplyLockSettingsInBreakout() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+
+    // Create breakout without inheriting lock settings (default: all locks off)
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
+    await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.waitAndClick(e.modalDismissButton);
+    await this.modPage.hasElement(e.breakoutRoomsItem, 'should have the breakout rooms item');
+
+    // Mod joins breakout room
+    await this.modPage.waitAndClick(e.breakoutRoomsItem);
+    await this.modPage.waitAndClick(e.askJoinRoom1, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitForSelector(e.joinRoom1, ELEMENT_WAIT_EXTRA_LONG_TIME);
+
+    const newTabPromise = this.modPage.page.context().waitForEvent('page');
+    await this.modPage.waitAndClick(e.joinRoom1);
+    const breakoutTab = await newTabPromise;
+    await breakoutTab.waitForLoadState('domcontentloaded');
+    try {
+      await breakoutTab.waitForSelector(e.audioModal, { timeout: 5000 });
+      await breakoutTab.click(e.closeModal);
+    } catch { /* audio modal not present */ }
+    await breakoutTab.locator(e.manageUsers).waitFor({ state: 'visible', timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+
+    // Open Lock Viewers in breakout
+    await breakoutTab.locator(e.manageUsers).click();
+    await expect(
+      breakoutTab.locator(e.lockViewersButton),
+      'should display Lock Viewers in breakout gear menu',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    await breakoutTab.locator(e.lockViewersButton).click();
+
+    // Enable webcam lock and webcamsOnlyForModerator (both start unchecked)
+    await expect(
+      breakoutTab.locator(e.lockShareWebcam),
+      'webcam lock should be off by default (no inheritance)',
+    ).not.toBeChecked({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    await breakoutTab.locator(e.lockShareWebcam).click({ force: true });
+    await breakoutTab.locator(e.lockSeeOtherViewersWebcam).click({ force: true });
+
+    await expect(
+      breakoutTab.locator(e.lockShareWebcam),
+      'webcam lock toggle should be checked after click',
+    ).toBeChecked({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    await expect(
+      breakoutTab.locator(e.lockSeeOtherViewersWebcam),
+      'webcamsOnlyForModerator toggle should be checked after click',
+    ).toBeChecked({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    // Apply — mod must NOT be ejected by either mutation
+    await breakoutTab.locator(e.applyLockSettings).click();
+
+    await expect(
+      breakoutTab.locator(e.manageUsers),
+      'moderator should still be in the breakout room after applying lock settings without inheritance',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    await breakoutTab.close();
+  }
+
+  async modCanApplyLockSettingsInBreakoutWithInheritance() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+    if (!this?.userPage) throw new Error('userPage not initialized');
+
+    // Enable mic lock in main room (different from webcam to distinguish from modCanDisableInheritedLockInBreakout)
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.lockViewersButton);
+    await this.modPage.page.locator(e.lockShareMicrophone).locator('xpath=..').click();
+    await this.modPage.waitAndClick(e.applyLockSettings);
+
+    // Create breakout with inherited lock settings
+    await this.modPage.waitAndClick(e.manageUsers);
+    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
+    await this.modPage.page.check(e.inheritLockSettingsCheckbox);
+    await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.waitAndClick(e.modalDismissButton);
+    await this.modPage.hasElement(e.breakoutRoomsItem, 'should have the breakout rooms item');
+
+    // Mod joins breakout room
+    await this.modPage.waitAndClick(e.breakoutRoomsItem);
+    await this.modPage.waitAndClick(e.askJoinRoom1, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitForSelector(e.joinRoom1, ELEMENT_WAIT_EXTRA_LONG_TIME);
+
+    const newTabPromise = this.modPage.page.context().waitForEvent('page');
+    await this.modPage.waitAndClick(e.joinRoom1);
+    const breakoutTab = await newTabPromise;
+    await breakoutTab.waitForLoadState('domcontentloaded');
+    try {
+      await breakoutTab.waitForSelector(e.audioModal, { timeout: 5000 });
+      await breakoutTab.click(e.closeModal);
+    } catch { /* audio modal not present */ }
+    await breakoutTab.locator(e.manageUsers).waitFor({ state: 'visible', timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
+
+    // Open Lock Viewers in breakout and verify mic lock was inherited
+    await breakoutTab.locator(e.manageUsers).click();
+    await expect(
+      breakoutTab.locator(e.lockViewersButton),
+      'should display Lock Viewers in breakout gear menu',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    await breakoutTab.locator(e.lockViewersButton).click();
+    await expect(
+      breakoutTab.locator(e.lockShareMicrophone),
+      'mic lock should be enabled in breakout room (inherited from main room)',
+    ).toBeChecked({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    // Disable mic lock and enable webcamsOnlyForModerator
+    await breakoutTab.locator(e.lockShareMicrophone).click({ force: true });
+    await breakoutTab.locator(e.lockSeeOtherViewersWebcam).click({ force: true });
+
+    await expect(
+      breakoutTab.locator(e.lockShareMicrophone),
+      'mic lock toggle should be unchecked after click',
+    ).not.toBeChecked({ timeout: ELEMENT_WAIT_LONGER_TIME });
+    await expect(
+      breakoutTab.locator(e.lockSeeOtherViewersWebcam),
+      'webcamsOnlyForModerator toggle should be checked after click',
+    ).toBeChecked({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    // Apply — mod must NOT be ejected by either mutation
+    await breakoutTab.locator(e.applyLockSettings).click();
+
+    await expect(
+      breakoutTab.locator(e.manageUsers),
+      'moderator should still be in the breakout room after changing inherited lock settings',
     ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
 
     await breakoutTab.close();
