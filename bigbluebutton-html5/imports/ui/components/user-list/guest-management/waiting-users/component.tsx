@@ -101,20 +101,29 @@ const WaitingUserSection: React.FC<WaitingUserSectionProps> = ({
   const [waitingAuthedUsersVisible, setWaitingAuthedUsersVisible] = useState(false);
   const [waitingUnauthedUsersVisible, setWaitingUnauthedUsersVisible] = useState(false);
 
-  const searchQueryLower = useMemo(() => searchQuery?.toLowerCase() ?? '', [searchQuery]);
+  const searchTerms = useMemo(
+    () => (searchQuery ? searchQuery.trim().toLowerCase().split(/\s+/).filter(Boolean) : []),
+    [searchQuery],
+  );
 
   const filteredAuthedUsers = useMemo(
-    () => (searchQueryLower
-      ? authedGuestUsers.filter((u) => u.user.name?.toLowerCase().includes(searchQueryLower))
+    () => (searchTerms.length > 0
+      ? authedGuestUsers.filter((u) => {
+        const nameLower = u.user.name?.toLowerCase() ?? '';
+        return searchTerms.every((term) => nameLower.includes(term));
+      })
       : authedGuestUsers),
-    [authedGuestUsers, searchQueryLower],
+    [authedGuestUsers, searchTerms],
   );
 
   const filteredUnauthedUsers = useMemo(
-    () => (searchQueryLower
-      ? unauthedGuestUsers.filter((u) => u.user.name?.toLowerCase().includes(searchQueryLower))
+    () => (searchTerms.length > 0
+      ? unauthedGuestUsers.filter((u) => {
+        const nameLower = u.user.name?.toLowerCase() ?? '';
+        return searchTerms.every((term) => nameLower.includes(term));
+      })
       : unauthedGuestUsers),
-    [unauthedGuestUsers, searchQueryLower],
+    [unauthedGuestUsers, searchTerms],
   );
 
   const [rememberChoice, setRememberChoice] = useState(false);
@@ -249,7 +258,7 @@ const WaitingUserSection: React.FC<WaitingUserSectionProps> = ({
               intl,
             )
           )}
-          {waitingAuthedUsersVisible && renderActionButtons(filteredAuthedUsers)}
+          {waitingAuthedUsersVisible && renderActionButtons(authedGuestUsers)}
         </>
       )}
       {filteredUnauthedUsers.length > 0 && (
@@ -287,7 +296,7 @@ const WaitingUserSection: React.FC<WaitingUserSectionProps> = ({
               intl,
             )
           )}
-          {waitingUnauthedUsersVisible && renderActionButtons(filteredUnauthedUsers)}
+          {waitingUnauthedUsersVisible && renderActionButtons(unauthedGuestUsers)}
         </>
       )}
     </Styled.Panel>

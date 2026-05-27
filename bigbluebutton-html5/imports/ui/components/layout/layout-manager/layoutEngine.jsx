@@ -295,8 +295,7 @@ const LayoutEngine = () => {
         width = windowWidth();
         maxWidth = windowWidth();
       } else {
-        const effectiveMinWidth = max(SIDEBAR_NAVIGATION_PANEL_WIDTH * 4.72,
-          sidebarContentMinWidth);
+        const effectiveMinWidth = sidebarContentMinWidth;
         if (sidebarContentWidth === 0) {
           width = min(
             max((windowWidth() * 0.2), effectiveMinWidth), sidebarContentMaxWidth,

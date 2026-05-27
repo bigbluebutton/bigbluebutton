@@ -9,6 +9,7 @@ import UserListParticipants from './user-list-participants/component';
 import GuestManagement from './guest-management/component';
 import RaisedHandsContainer from './raised-hands/component';
 import UserSearchContainer from './user-search/container';
+import isUserListSearchEnabled from './user-search/service';
 import { makeUserSearchWhere, onSaveUserNames } from './service';
 import { PANELS } from '/imports/ui/components/layout/enums';
 import CrowActionsButtons from '/imports/ui/components/user-list/crowd-action-buttons/component';
@@ -80,7 +81,10 @@ const UserList: React.FC<UserListComponentProps> = () => {
     loading: searchCountLoading,
   } = useDeduplicatedSubscription<
     UserAggregateCountSubscriptionResponse>(USER_SEARCH_AGGREGATE_COUNT_SUBSCRIPTION,
-      { variables: { where: searchWhere } });
+      {
+        variables: { where: searchWhere },
+        skip: !isUserListSearchEnabled() || !searchQuery,
+      });
   const { data: raisedHandsData } = useDeduplicatedSubscription<{
     user: RaisedHandUser[]
   }>(RAISED_HAND_USERS);

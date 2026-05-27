@@ -68,12 +68,18 @@ const RaisedHandsContainer: React.FC<{ searchQuery?: string }> = ({ searchQuery 
     (u) => ({ mismatchedUserId: u.userId, mismatchedName: u.name }),
   );
 
-  const searchQueryLower = useMemo(() => searchQuery?.toLowerCase() ?? '', [searchQuery]);
+  const searchTerms = useMemo(
+    () => (searchQuery ? searchQuery.trim().toLowerCase().split(/\s+/).filter(Boolean) : []),
+    [searchQuery],
+  );
   const filteredRaisedHands = useMemo(
-    () => (searchQueryLower
-      ? raisedHands.filter((u) => u.name.toLowerCase().includes(searchQueryLower))
+    () => (searchTerms.length > 0
+      ? raisedHands.filter((u) => {
+        const nameLower = u.name.toLowerCase();
+        return searchTerms.every((term) => nameLower.includes(term));
+      })
       : raisedHands),
-    [raisedHands, searchQueryLower],
+    [raisedHands, searchTerms],
   );
 
   if (!meeting || !currentUser || meetingLoading || filteredRaisedHands.length === 0) {
@@ -96,7 +102,7 @@ const RaisedHandsContainer: React.FC<{ searchQuery?: string }> = ({ searchQuery 
           </Styled.RaisedHandsTitle>
           {canLowerAll && filteredRaisedHands.length > 1 && (
             <Styled.LowerAllHandsButton
-              onClick={() => filteredRaisedHands.forEach((u) => lowerUserHands(u.userId))}
+              onClick={() => raisedHands.forEach((u) => lowerUserHands(u.userId))}
               data-test="raiseHandRejection"
             >
               <Icon iconName="hand_off" />
