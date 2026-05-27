@@ -1,8 +1,7 @@
 export interface UserInformation {
-  userId: string;
-  userName: string;
   intUserId: string;
+  userName: string;
+  extUserId: string;
   meetingId: string;
-  userIsModerator: boolean;
   userHasNotesEnabled: boolean;
 }

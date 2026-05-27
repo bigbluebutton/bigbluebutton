@@ -39,7 +39,7 @@ const hocuspocus = new Hocuspocus({
 
     const {
       userName,
-      userId,
+      extUserId,
       meetingId,
       intUserId,
       userHasNotesEnabled,
@@ -51,18 +51,18 @@ const hocuspocus = new Hocuspocus({
       return null;
     }
 
-    const isMeetingLocked = meetingLockMap.get(meetingId)?.viewerReadOnly;
-
-    const isConnectionReadOnly = isMeetingLocked && !userHasNotesEnabled;
+    const isConnectionReadOnly = !userHasNotesEnabled;
     if (isConnectionReadOnly) {
       data.connectionConfig.readOnly = true;
     }
 
+    console.log('isConnectionReadOnly', isConnectionReadOnly);
+    console.log('data.connectionConfig.readOnly', data.connectionConfig.readOnly);
+
     const newConnection: ConnectionInfo = {
       meetingId,
-      userId,
+      extUserId,
       intUserId,
-      moderator: userInformation.userIsModerator,
       notesEnabled: userInformation.userHasNotesEnabled,
       websocket: websocket,
     }
@@ -74,8 +74,8 @@ const hocuspocus = new Hocuspocus({
       user: {
         websocket,
         sessionToken,
-        intUserId,
-        id: userId,
+        extUserId,
+        id: intUserId,
         role: role,
         name: userName,
         meetingId,
