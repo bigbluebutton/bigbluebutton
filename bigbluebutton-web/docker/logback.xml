@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>%-5level %logger{35} - %msg%n</Pattern>
+        </layout>
+    </appender>
+    <logger name="akka" level="BBB_WEB_LOGLEVEL" />
+    <logger name="io.lettuce" level="BBB_WEB_LOGLEVEL" />
+    <logger name="org.bigbluebutton" level="BBB_WEB_LOGLEVEL" />
+    <logger name="grails.app.controllers" level="BBB_WEB_LOGLEVEL" />
+    <logger name="grails.app.services" level="BBB_WEB_LOGLEVEL" />
+    <logger name="org.grails.web.servlet" level="BBB_WEB_LOGLEVEL" />
+    <logger name="org.grails.web.pages" level="BBB_WEB_LOGLEVEL" />
+    <logger name="org.grails.web.sitemesh" level="BBB_WEB_LOGLEVEL" />
+    <logger name="org.grails.web.mapping.filter" level="BBB_WEB_LOGLEVEL" />
+    <logger name="org.grails.web.mapping" level="BBB_WEB_LOGLEVEL" />
+    <logger name="org.grails.commons" level="BBB_WEB_LOGLEVEL" />
+    <logger name="org.springframework" level="BBB_WEB_LOGLEVEL" />
+    <root level="BBB_WEB_LOGLEVEL">
+        <appender-ref ref="STDOUT" />
+    </root>
+</configuration>

@@ -1,0 +1,5 @@
+location /html5client {
+    proxy_pass         http://html5-client:8080;
+    proxy_redirect     default;
+    proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+}
