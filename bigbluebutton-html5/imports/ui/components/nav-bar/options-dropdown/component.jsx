@@ -125,6 +125,10 @@ const intlMessages = defineMessages({
     id: 'app.navBar.optionsDropdown.presenceLabel',
     description: 'Presence Label',
   },
+  presenceLabelDesc: {
+    id: 'app.navBar.optionsDropdown.presenceLabelDesc',
+    description: 'Describes presence toggle option',
+  },
 });
 
 const propTypes = {
@@ -262,6 +266,12 @@ class OptionsDropdown extends PureComponent {
       ? intl.formatMessage(intlMessages.awayLabel)
       : intl.formatMessage(intlMessages.availableLabel));
 
+    const ToggleAFKAriaLabel = () => intl.formatMessage(intlMessages.presenceLabelDesc, {
+      status: away
+        ? intl.formatMessage(intlMessages.availableLabel)
+        : intl.formatMessage(intlMessages.awayLabel),
+    });
+
     this.menuItems.push({
       label: (
         <Styled.AwayOption>
@@ -280,6 +290,7 @@ class OptionsDropdown extends PureComponent {
           </Styled.ToggleButtonWrapper>
         </Styled.AwayOption>
       ),
+      ariaLabel: ToggleAFKAriaLabel(),
       key: 'list-item-presence-toggle',
       dataTest: 'presenceToggle',
       isToggle: true,

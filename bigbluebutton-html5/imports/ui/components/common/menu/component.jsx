@@ -133,7 +133,7 @@ class BBBMenu extends React.Component {
       const {
         dataTest, label, onClick, key, disabled,
         description, selected, textColor, isToggle, loading,
-        isTitle, titleActions, contentFunction,
+        isTitle, titleActions, contentFunction, ariaLabel,
       } = a;
       const emojiSelected = key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase());
 
@@ -211,6 +211,9 @@ class BBBMenu extends React.Component {
               }
             } : undefined}
             disabled={disabled || isTitle}
+            // eslint-disable-next-line no-nested-ternary
+            role={isToggle ? 'menuitemcheckbox' : (isTitle ? 'presentation' : undefined)}
+            aria-label={isToggle ? (ariaLabel || label) : undefined}
           >
             <Styled.MenuItemWrapper
               hasSpaceBetween={isTitle && titleActions}
