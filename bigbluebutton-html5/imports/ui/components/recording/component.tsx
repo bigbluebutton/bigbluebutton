@@ -6,6 +6,8 @@ import SvgIcon from '/imports/ui/components/common/icon-svg/component';
 import Icon from '/imports/ui/components/common/icon/component';
 import Styled from './styles';
 
+let recordingToastSequence = 0;
+
 const intlMessages = defineMessages({
   startTitle: {
     id: 'app.recording.startTitle',
@@ -55,6 +57,7 @@ const RecordingComponent: React.FC<RecordingComponentProps> = ({
 
   const handleShowNotification = () => {
     const isResuming = recordingTime > 0 && !recordingStatus;
+    const recordingToastId = `recording-confirmation-${recordingToastSequence += 1}`;
     let title;
 
     if (recordingStatus) {
@@ -81,6 +84,7 @@ const RecordingComponent: React.FC<RecordingComponentProps> = ({
         closeButton: false,
         closeOnClick: false,
         disablePointer: true,
+        toastId: recordingToastId,
       },
       (
         <Styled.NotificationContent>
@@ -88,7 +92,7 @@ const RecordingComponent: React.FC<RecordingComponentProps> = ({
             <Styled.CancelButton
               data-test="cancelRecordingButton"
               onClick={() => {
-                if (toastId !== null) {
+                if (toastId !== null && toastId !== undefined) {
                   toast.dismiss(toastId);
                 }
                 onRequestClose();
@@ -99,7 +103,7 @@ const RecordingComponent: React.FC<RecordingComponentProps> = ({
             <Styled.ConfirmationButton
               data-test="confirmRecordingButton"
               onClick={() => {
-                if (toastId !== null) {
+                if (toastId !== null && toastId !== undefined) {
                   toast.dismiss(toastId);
                 }
                 toggleRecording();
@@ -122,10 +126,18 @@ const RecordingComponent: React.FC<RecordingComponentProps> = ({
       false,
       false,
     );
+
+    return toastId;
   };
 
   React.useEffect(() => {
-    handleShowNotification();
+    const toastId = handleShowNotification();
+
+    return () => {
+      if (toastId !== null && toastId !== undefined) {
+        toast.dismiss(toastId);
+      }
+    };
   }, [recordingStatus]);
 
   return null;
