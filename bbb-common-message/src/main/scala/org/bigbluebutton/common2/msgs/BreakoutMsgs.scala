@@ -54,6 +54,8 @@ case class BreakoutRoomDetail(
     sourcePresentationId:    String,
     sourcePresentationSlide: Int,
     record:                  Boolean,
+    autoStartRecording:      Boolean,
+    allowStartStopRecording: Boolean,
     privateChatEnabled:      Boolean,
     captureNotes:            Boolean,
     captureSlides:           Boolean,

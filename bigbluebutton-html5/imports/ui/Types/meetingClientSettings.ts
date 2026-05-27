@@ -148,6 +148,7 @@ export interface Breakouts {
   sendInvitationToAssignedModeratorsByDefault: boolean
   breakoutRoomLimit: number
   allowPresentationManagementInBreakouts: boolean
+  lockBreakoutRecording: boolean
 }
 
 export interface RaiseHandActionButton {

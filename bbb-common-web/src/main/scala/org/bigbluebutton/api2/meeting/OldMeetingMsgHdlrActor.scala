@@ -123,6 +123,8 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       msg.body.room.sourcePresentationId,
       msg.body.room.sourcePresentationSlide,
       msg.body.room.record,
+      msg.body.room.autoStartRecording,
+      msg.body.room.allowStartStopRecording,
       msg.body.room.privateChatEnabled,
       msg.body.room.captureNotes,
       msg.body.room.captureSlides,

@@ -22,6 +22,8 @@ public class CreateBreakoutRoom implements IMessage {
     public final String sourcePresentationId;
     public final Integer sourcePresentationSlide;
     public final Boolean record;
+    public final Boolean autoStartRecording;
+    public final Boolean allowStartStopRecording;
     public final Boolean privateChatEnabled;
     public final Boolean captureNotes; // Upload shared notes to main room after breakout room end
     public final Boolean captureSlides; // Upload annotated breakout slides to main room after breakout room end
@@ -50,6 +52,8 @@ public class CreateBreakoutRoom implements IMessage {
 															String sourcePresentationId,
 															Integer sourcePresentationSlide,
 															Boolean record,
+															Boolean autoStartRecording,
+															Boolean allowStartStopRecording,
 															Boolean privateChatEnabled,
                                                             Boolean captureNotes,
                                                             Boolean captureSlides,
@@ -77,6 +81,8 @@ public class CreateBreakoutRoom implements IMessage {
         this.sourcePresentationId = sourcePresentationId;
         this.sourcePresentationSlide = sourcePresentationSlide;
         this.record = record;
+        this.autoStartRecording = autoStartRecording;
+        this.allowStartStopRecording = allowStartStopRecording;
         this.privateChatEnabled = privateChatEnabled;
         this.captureNotes = captureNotes;
         this.captureSlides = captureSlides;

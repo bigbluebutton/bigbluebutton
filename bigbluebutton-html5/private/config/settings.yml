@@ -141,6 +141,7 @@ public:
       sendInvitationToAssignedModeratorsByDefault: false
       breakoutRoomLimit: 16
       allowPresentationManagementInBreakouts: true
+      lockBreakoutRecording: false
     showAllAvailableLocales: true
     # Show "Audio Filters for Microphone" option in settings menu.
     # When set to true, users are able to enable/disable microphone constraints,
