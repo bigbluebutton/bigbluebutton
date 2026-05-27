@@ -13,6 +13,7 @@ SyslogIdentifier=bbb-graphql-actions
 User=bigbluebutton
 Group=bigbluebutton
 Environment=NODE_ENV=production
+EnvironmentFile=-/etc/bigbluebutton/bbb-graphql-actions.env
 RestartSec=1s
 
 [Install]
