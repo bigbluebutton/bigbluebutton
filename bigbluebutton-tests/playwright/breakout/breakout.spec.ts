@@ -39,6 +39,24 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await create.initPages(page, testInfo);
       await create.dragDropUserInRoom();
     });
+
+    test('Inherit lock settings checkbox is visible and unchecked by default', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.inheritLockSettingsCheckboxIsVisible();
+    });
+
+    test('Lock Viewers option is visible in gear menu inside breakout room', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.lockViewersVisibleInBreakoutGearMenu();
+    });
+
+    test('Moderator can disable inherited lock settings in breakout room', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.modCanDisableInheritedLockInBreakout();
+    });
   });
 
   test.describe.parallel('After creating', () => {
