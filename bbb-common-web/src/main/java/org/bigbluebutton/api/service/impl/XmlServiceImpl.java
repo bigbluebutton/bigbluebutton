@@ -24,47 +24,35 @@ public class XmlServiceImpl implements XmlService {
 
     private static Logger logger = LoggerFactory.getLogger(XmlServiceImpl.class);
 
+    private static final String NO_RECORDINGS_RESPONSE =
+            "<response><returncode>SUCCESS</returncode>" +
+            "<messageKey>noRecordings</messageKey>" +
+            "<message>No recordings found. This may occur if you attempt to retrieve all recordings.</message></response>";
+
+    private static final String FAILED_RESPONSE =
+            "<response><returncode>FAILED</returncode>" +
+            "<messageKey>unexpectedError</messageKey>" +
+            "<message>An unexpected error occurred while constructing the response.</message></response>";
+
     private DocumentBuilderFactory factory;
     private DocumentBuilder builder;
 
     @Override
     public String noRecordings() {
         logger.info("Constructing no recordings response");
-
-        try {
-            setup();
-            Document document = builder.newDocument();
-
-            Element rootElement = createElement(document, "response", null);
-            document.appendChild(rootElement);
-
-            Element returnCode = createElement(document, "returncode", "SUCCESS");
-            rootElement.appendChild(returnCode);
-
-            Element messageKey = createElement(document, "messageKey", "noRecordings");
-            rootElement.appendChild(messageKey);
-
-            Element message = createElement(document, "message", "No recordings found. This may occur if you attempt to retrieve all recordings.");
-            rootElement.appendChild(message);
-
-            return documentToString(document);
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-
-        return null;
+        return NO_RECORDINGS_RESPONSE;
     }
 
     @Override
     public String constructPaginatedResponse(Page<?> page, int offset, String response) {
         logger.info("Constructing paginated response");
 
+        if(response == null || response.isEmpty()) {
+            return FAILED_RESPONSE;
+        }
+
         try {
             setup();
-
-            if(response == null || response.equals("")) {
-                return null;
-            }
 
             Document document = builder.parse(new ByteArrayInputStream(response.getBytes()));
             Element rootElement = document.getDocumentElement();
@@ -72,12 +60,12 @@ public class XmlServiceImpl implements XmlService {
             Element totalElements = createElement(document, "totalElements", String.valueOf(page.getTotalElements()));
             rootElement.appendChild(totalElements);
 
-            return documentToString(document);
+            String output = documentToString(document);
+            return (output != null && !output.isEmpty()) ? output : response;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Failed to add pagination info to recordings response", e);
+            return response;
         }
-
-        return null;
     }
 
     private void setup() throws ParserConfigurationException {
@@ -98,8 +86,6 @@ public class XmlServiceImpl implements XmlService {
     }
 
     public String documentToString(Document document) {
-        String output = null;
-
         try {
             TransformerFactory factory = TransformerFactory.newInstance();
             Transformer transformer = factory.newTransformer();
@@ -107,11 +93,10 @@ public class XmlServiceImpl implements XmlService {
             transformer.setOutputProperty(OutputKeys.INDENT, "no");
             StringWriter writer = new StringWriter();
             transformer.transform(new DOMSource(document), new StreamResult(writer));
-            output = writer.toString();
+            return writer.toString();
         } catch(Exception e) {
-            e.printStackTrace();
+            logger.error("Failed to serialize XML document to string", e);
+            return "";
         }
-
-        return output;
     }
 }
