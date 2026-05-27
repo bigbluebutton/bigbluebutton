@@ -3,6 +3,9 @@
   "homepage": "/learning-analytics-dashboard/",
   "version": "0.1.0",
   "private": true,
+  "overrides": {
+    "serialize-javascript": "^7.0.5"
+  },
   "lint-staged": {
     "*.{js,jsx}": [
       "eslint --fix"
