@@ -298,18 +298,10 @@ module BigBlueButton
           end
         end
 
-        video_gaps = {}
-        (0...(edl.length - 1)).each do |i|
-          edl[i][:areas].each_value do |videos|
-            videos.each do |video|
-              next if video_gaps.key?(video[:filename])
+        video_gaps = video_sources.each_with_object({}) do |(filename, source), gaps|
+          next if source.corrupt?
 
-              source = video[:source]
-              next if source.nil? || source.corrupt?
-
-              video_gaps[video[:filename]] = source.pts_gaps
-            end
-          end
+          gaps[filename] = source.pts_gaps
         end
         remove_video_gaps(edl, video_gaps)
         # Gap removal can add cuts, so enforce the minimum length on the final EDL.

@@ -143,42 +143,37 @@ module BigBlueButton
       # @param source_gaps [Hash{Object => Array<Array<Numeric>>}] mapping of logical source ids to PTS gaps
       # @param stream_type [:audio, :video] media stream type to remove
       def self.remove_pts_gaps_from_edl(edl, source_gaps, stream_type:)
-        source_for_entry, split_entry, remove_source =
-          case stream_type
-          when :audio
-            [
-              lambda { |entry, filename|
-                entry[:audios]&.find { |audio| audio[:filename] == filename }
-              },
-              lambda { |entries, entry_i, rec_time|
-                split_edl_entry(entries, entry_i, rec_time, BigBlueButton::Events.edl_entry_offset_audio)
-              },
-              lambda { |entry, filename|
-                entry[:audios]&.reject! { |audio| audio[:filename] == filename }
-              },
-            ]
-          when :video
-            [
-              lambda { |entry, filename|
-                source = nil
-                entry[:areas].each_value do |videos|
-                  source = videos.find { |video| video[:filename] == filename }
-                  break unless source.nil?
-                end
-                source
-              },
-              lambda { |entries, entry_i, rec_time|
-                split_edl_entry(entries, entry_i, rec_time, BigBlueButton::Events.edl_entry_offset_video)
-              },
-              lambda { |entry, filename|
-                entry[:areas].each_value do |videos|
-                  videos.reject! { |video| video[:filename] == filename }
-                end
-              },
-            ]
-          else
-            raise ArgumentError, "Unexpected stream_type #{stream_type.inspect}"
-          end
+        case stream_type
+        when :audio
+          source_for_entry = lambda { |entry, filename|
+            entry[:audios]&.find { |audio| audio[:filename] == filename }
+          }
+          split_entry = lambda { |entries, entry_i, rec_time|
+            split_edl_entry(entries, entry_i, rec_time, BigBlueButton::Events.edl_entry_offset_audio)
+          }
+          remove_source = lambda { |entry, filename|
+            entry[:audios]&.reject! { |audio| audio[:filename] == filename }
+          }
+        when :video
+          source_for_entry = lambda { |entry, filename|
+            source = nil
+            entry[:areas].each_value do |videos|
+              source = videos.find { |video| video[:filename] == filename }
+              break unless source.nil?
+            end
+            source
+          }
+          split_entry = lambda { |entries, entry_i, rec_time|
+            split_edl_entry(entries, entry_i, rec_time, BigBlueButton::Events.edl_entry_offset_video)
+          }
+          remove_source = lambda { |entry, filename|
+            entry[:areas].each_value do |videos|
+              videos.reject! { |video| video[:filename] == filename }
+            end
+          }
+        else
+          raise ArgumentError, "Unexpected stream_type #{stream_type.inspect}"
+        end
 
         source_gaps.each do |source_id, gaps_array|
           next if gaps_array.nil? || gaps_array.empty?
