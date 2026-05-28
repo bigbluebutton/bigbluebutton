@@ -20,6 +20,11 @@ import { useIsChatEnabled, useIsPresentationEnabled, useIsScreenSharingEnabled }
 import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/useUserChangedLocalSettings';
 import Session from '/imports/ui/services/storage/in-memory';
 import deviceInfo from '/imports/utils/deviceInfo';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import {
+  CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+  CurrentPresentationPageSubscriptionResponse,
+} from '/imports/ui/components/whiteboard/queries';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
 
@@ -39,10 +44,50 @@ const LayoutObserver: React.FC = () => {
   const { selectedLayout } = layoutSettings;
   const {
     data: currentMeeting,
+    loading: loadingMeeting,
   } = useMeeting((m) => ({
     layout: m.layout,
     componentsFlags: m.componentsFlags,
+    isBreakout: m.isBreakout,
   }));
+
+  const {
+    data: presentationPageData,
+    loading: loadingPresentationPageData,
+  } = useDeduplicatedSubscription<CurrentPresentationPageSubscriptionResponse>(
+    CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
+  );
+
+  const presentationPageArray = presentationPageData?.pres_page_curr ?? [];
+  const currentPresentationPage = presentationPageArray[0];
+  const currentPageId = currentPresentationPage?.pageId;
+
+  // Track whether the presentation was closed by this effect (no page available),
+  // so it can be re-opened when a page becomes available again (e.g. after a
+  // pre-uploaded presentation finishes converting on slow CI machines).
+  const closedDueToAbsentPresentation = useRef(false);
+
+  useEffect(() => {
+    // close presentation if there isn't any
+    // case when the presentation has been manually removed in the media area drop up
+    // or when defaultUploadedPresentation is null in bigbluebutton.properties
+    if (loadingPresentationPageData || loadingMeeting) return;
+    if (!currentPageId && !currentMeeting?.isBreakout) {
+      closedDueToAbsentPresentation.current = true;
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+        value: false,
+      });
+    } else if (currentPageId && closedDueToAbsentPresentation.current) {
+      // restore presentation when a page becomes available after having been absent
+      // (e.g. preUploadedPresentationOverrideDefault=true on a slow server)
+      closedDueToAbsentPresentation.current = false;
+      layoutContextDispatch({
+        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
+        value: true,
+      });
+    }
+  }, [currentPageId, loadingPresentationPageData, loadingMeeting, currentMeeting?.isBreakout]);
 
   const isThereWebcam = useVideoStreamsCount() > 0;
   const { streams: videoStream } = useVideoStreams();

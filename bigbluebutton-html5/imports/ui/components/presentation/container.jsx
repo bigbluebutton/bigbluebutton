@@ -1,7 +1,5 @@
 import React, {
-  useEffect,
   useMemo,
-  useRef,
   useState,
   useCallback,
   memo,
@@ -20,7 +18,7 @@ import {
   layoutSelectOutput,
   layoutDispatch,
 } from '../layout/context';
-import { DEVICE_TYPE, ACTIONS } from '/imports/ui/components/layout/enums';
+import { DEVICE_TYPE } from '/imports/ui/components/layout/enums';
 import MediaService from '../media/service';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
@@ -50,7 +48,6 @@ const PresentationContainer = ({
 
   const {
     data: presentationPageData,
-    loading: loadingPresentationPageData,
   } = useDeduplicatedSubscription(
     CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   );
@@ -65,39 +62,10 @@ const PresentationContainer = ({
 
   const {
     data: currentMeeting,
-    loading: loadingMeeting,
   } = useMeeting((m) => ({
     createdTime: m.createdTime,
-    isBreakout: m.isBreakout,
     usersPolicies: m.usersPolicies,
   }));
-
-  // Track whether the presentation was closed by this effect (no page available),
-  // so it can be re-opened when a page becomes available again (e.g. after a
-  // pre-uploaded presentation finishes converting on slow CI machines).
-  const closedDueToAbsentPresentation = useRef(false);
-
-  useEffect(() => {
-    // close presentation if there isn't any
-    // case when the presentation has been manually removed in the media area drop up
-    // or when defaultUploadedPresentation is null in bigbluebutton.properties
-    if (loadingPresentationPageData || loadingMeeting) return;
-    if (!currentPageId && !currentMeeting?.isBreakout) {
-      closedDueToAbsentPresentation.current = true;
-      layoutContextDispatch({
-        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-        value: false,
-      });
-    } else if (currentPageId && closedDueToAbsentPresentation.current) {
-      // restore presentation when a page becomes available after having been absent
-      // (e.g. preUploadedPresentationOverrideDefault=true on a slow server)
-      closedDueToAbsentPresentation.current = false;
-      layoutContextDispatch({
-        type: ACTIONS.SET_PRESENTATION_IS_OPEN,
-        value: true,
-      });
-    }
-  }, [currentPageId, loadingPresentationPageData, loadingMeeting, currentMeeting?.isBreakout]);
 
   const { data: whiteboardWritersData } = useDeduplicatedSubscription(
     CURRENT_PAGE_WRITERS_SUBSCRIPTION,
