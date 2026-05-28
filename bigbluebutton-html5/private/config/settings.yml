@@ -133,14 +133,23 @@ public:
     # can generate excessive overhead to the server. We recommend
     # this value to be kept under 16.
     breakouts:
+      # Allow participants to pick their own breakout room instead of being assigned
       allowUserChooseRoomByDefault: false
+      # Show the recording option (if breakout recording is enabled) when creating breakout rooms
       offerRecordingForBreakouts: false
+      # Pre-check the "record breakout room" option
       recordRoomByDefault: false
+      # Pre-check the "capture whiteboard when ending breakouts" option 
       captureWhiteboardByDefault: false
+      # Pre-check the "save shared notes when ending breakouts" option
       captureSharedNotesByDefault: false
+      # Pre-check the "send invitation to assigned moderators" option
       sendInvitationToAssignedModeratorsByDefault: false
+      # Maximum number of breakout rooms that can be created
       breakoutRoomLimit: 16
+      # Allow the presenter role to manage presentations inside breakout rooms
       allowPresentationManagementInBreakouts: true
+      # Set to true to remove the ability to disable recording when setting up breakout rooms
       lockBreakoutRecording: false
     showAllAvailableLocales: true
     # Show "Audio Filters for Microphone" option in settings menu.
