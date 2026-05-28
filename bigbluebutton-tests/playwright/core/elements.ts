@@ -14,6 +14,7 @@ export const elements = {
   pollMenuButton: 'div[data-test="pollMenuButton"]',
   optionsButton: 'button[data-test="optionsButton"]',
   settings: 'li[data-test="settings"]',
+  presenceToggle: 'div[data-test="presenceToggle"]',
   modalConfirmButton: 'button[data-test="modalConfirmButton"]',
   screenshareConnecting: 'div[data-test="screenshareConnecting"]',
   screenShareVideo: 'video[id="screenshareVideo"]',

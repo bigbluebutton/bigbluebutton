@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 
-import { CI } from '../core/constants';
+import { CI, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import * as utilScreenShare from '../screenshare/util';
 import { MultiUsers } from '../user/multiusers';
@@ -298,6 +298,18 @@ export class Options extends MultiUsers {
       e.webcamMirroredVideoContainer,
       'should display the current user webcam for the attendee, as the attendee disabled other participants webcams option',
     );
+  }
+
+  async keyboardNavigationOptionsDropdown() {
+    await this.modPage.page.focus(e.optionsButton);
+    await this.modPage.press('Enter');
+    await this.modPage.waitForSelector(e.settings);
+
+    await this.modPage.press('ArrowDown');
+    await expect(
+      this.modPage.page.locator(e.presenceToggle),
+      'should focus the presence toggle on the first ArrowDown',
+    ).toBeFocused({ timeout: ELEMENT_WAIT_TIME });
   }
 
   async enableOtherParticipantsDesktopSharing() {
