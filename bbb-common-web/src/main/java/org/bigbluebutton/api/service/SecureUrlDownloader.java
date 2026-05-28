@@ -45,10 +45,12 @@ public class SecureUrlDownloader {
      * @param destination  The file to write the downloaded content to.
      * @param timeoutMs    Connect/socket timeout in milliseconds.
      * @param maxBytes     Maximum allowed payload size in bytes. Pass {@link Long#MAX_VALUE} for no limit.
-     * @return {@code true} if the file was created successfully and within the size limit.
+     * @return {@link DownloadResult#SUCCESS} if the file was written within the size limit,
+     *         {@link DownloadResult#TOO_LARGE} if the response exceeded {@code maxBytes},
+     *         or {@link DownloadResult#DOWNLOAD_ERROR} for any other failure.
      */
-    public boolean downloadToFile(String contextId, ValidatedUrl validatedUrl, File destination,
-                                  int timeoutMs, long maxBytes) {
+    public DownloadResult downloadToFile(String contextId, ValidatedUrl validatedUrl, File destination,
+                                         int timeoutMs, long maxBytes) {
         try (CloseableHttpClient httpClient = buildPinnedClient(validatedUrl, timeoutMs)) {
             HttpGet request = buildRequest(validatedUrl);
 
@@ -57,7 +59,8 @@ public class SecureUrlDownloader {
                     throw new ClientProtocolException("Download failed: " + response.getStatusLine());
                 }
                 if (response.getEntity() == null || response.getEntity().getContent() == null) {
-                    return destination.exists();
+                    log.warn("Empty response body from [{}] for context [{}]", validatedUrl.originalUrl(), contextId);
+                    return DownloadResult.DOWNLOAD_ERROR;
                 }
 
                 try (InputStream in = response.getEntity().getContent();
@@ -72,18 +75,18 @@ public class SecureUrlDownloader {
                                     validatedUrl.originalUrl(), maxBytes, contextId);
                             out.close();
                             destination.delete();
-                            return false;
+                            return DownloadResult.TOO_LARGE;
                         }
                         out.write(buf, 0, n);
                     }
                 }
             }
 
-            return destination.exists();
+            return DownloadResult.SUCCESS;
         } catch (IOException e) {
             log.error("IOException while downloading [{}] for context [{}]", validatedUrl.originalUrl(), contextId, e);
             destination.delete();
-            return false;
+            return DownloadResult.DOWNLOAD_ERROR;
         }
     }
 

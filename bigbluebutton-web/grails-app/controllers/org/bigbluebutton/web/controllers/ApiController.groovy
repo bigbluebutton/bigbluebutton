@@ -32,6 +32,7 @@ import org.bigbluebutton.api.*
 import org.bigbluebutton.api.domain.GuestPolicy
 import org.bigbluebutton.api.domain.Meeting
 import org.bigbluebutton.api.domain.UserSession
+import org.bigbluebutton.api.service.DownloadResult
 import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.api.service.ValidationService
 import org.bigbluebutton.api.util.ParamsUtil
@@ -1794,25 +1795,25 @@ class ApiController {
         def newFilename = Util.createNewFilename(presId, filenameExt)
         def newFilePath = uploadDir.absolutePath + File.separatorChar + newFilename
 
-        if(presDownloadService.savePresentation(meetingId, newFilePath, address, maxFileSize)) pres = new File(newFilePath)
-        else {
-          log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${fileName}]")
-          uploadFailReasons.add("failed_to_download_file")
-          uploadFailed = true
-        }
-
-        if (pres != null && pres.length() > maxFileSize) {
-          log.warn("Upload failed. Downloaded file too large: ${pres.length()} bytes exceeds max ${maxFileSize} bytes for meeting=[${meetingId}], url=[${address}]")
-          long downloadedSize = pres.length()
-          pres.delete()
-          pres = null
-          uploadFailReasons.add("file_too_large")
-          uploadFailed = true
-          if (isFromInsertAPI) {
-            meetingService.sendPresentationUploadMaxFilesizeMessage(
-                    presId, "DEFAULT_PRESENTATION_POD", meetingId, presFilename,
-                    "preupload-download-authz-token", (int) downloadedSize, (int) maxFileSize)
-          }
+        def downloadResult = presDownloadService.savePresentation(meetingId, newFilePath, address, maxFileSize)
+        switch (downloadResult) {
+          case DownloadResult.SUCCESS:
+            pres = new File(newFilePath)
+            break
+          case DownloadResult.TOO_LARGE:
+            log.warn("Upload failed. Downloaded file exceeded max ${maxFileSize} bytes for meeting=[${meetingId}], url=[${address}]")
+            uploadFailReasons.add("file_too_large")
+            uploadFailed = true
+            if (isFromInsertAPI) {
+              meetingService.sendPresentationUploadMaxFilesizeMessage(
+                      presId, "DEFAULT_PRESENTATION_POD", meetingId, presFilename,
+                      "preupload-download-authz-token", (int) maxFileSize, (int) maxFileSize)
+            }
+            break
+          default:
+            log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${fileName}]")
+            uploadFailReasons.add("failed_to_download_file")
+            uploadFailed = true
         }
 
         if (pres != null && isPreUploadedPresentationFromParameter && filenameExt.isEmpty()) {

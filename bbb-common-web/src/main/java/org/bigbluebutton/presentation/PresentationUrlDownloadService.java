@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.api.Util;
+import org.bigbluebutton.api.service.DownloadResult;
 import org.bigbluebutton.api.service.RedirectFollowerService;
 import org.bigbluebutton.api.service.SecureUrlDownloader;
 import org.bigbluebutton.api.service.ValidatedUrl;
@@ -164,7 +165,7 @@ public class PresentationUrlDownloadService {
 
 
 
-    public boolean savePresentation(final String meetingId,
+    public DownloadResult savePresentation(final String meetingId,
             final String filename, final String urlString, final long maxBytes) {
 
         ValidatedUrl validatedUrl = redirectFollower.followRedirectSecure(
@@ -173,7 +174,7 @@ public class PresentationUrlDownloadService {
 
         if (validatedUrl == null) {
             log.error("Failed to validate and resolve URL [{}] for meeting [{}]", urlString, meetingId);
-            return false;
+            return DownloadResult.DOWNLOAD_ERROR;
         }
 
         if (!validatedUrl.originalUrl().equals(urlString)) {
