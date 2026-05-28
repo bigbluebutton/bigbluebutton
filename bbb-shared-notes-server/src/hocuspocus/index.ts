@@ -39,7 +39,6 @@ const hocuspocus = new Hocuspocus({
 
     const {
       userName,
-      extUserId,
       meetingId,
       intUserId,
       userHasNotesEnabled,
@@ -58,7 +57,6 @@ const hocuspocus = new Hocuspocus({
 
     const newConnection: ConnectionInfo = {
       meetingId,
-      extUserId,
       intUserId,
       notesEnabled: userInformation.userHasNotesEnabled,
       websocket: websocket,
@@ -71,7 +69,6 @@ const hocuspocus = new Hocuspocus({
       user: {
         websocket,
         sessionToken,
-        extUserId,
         id: intUserId,
         role: role,
         name: userName,
