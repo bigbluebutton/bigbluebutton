@@ -172,6 +172,11 @@ export class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.joinRoom1);
     const breakoutTab = await newTabPromise;
     await breakoutTab.waitForLoadState('domcontentloaded');
+    try {
+      await breakoutTab.waitForSelector(e.audioModal, { timeout: 5000 });
+      await breakoutTab.click(e.closeModal);
+    } catch { /* audio modal not present */ }
+    await breakoutTab.locator(e.manageUsers).waitFor({ state: 'visible', timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
 
     await breakoutTab.locator(e.manageUsers).click();
     await expect(
