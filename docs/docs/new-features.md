@@ -88,10 +88,6 @@ The client UI continued its migration to TypeScript, and large parts of the navi
 
 The client now has first-class handling for **bot users** (joined with `bot=true`). Bots are excluded from the grid layout and screenshare UI, can be given a dedicated user-list label, and skip the logout-URL redirection when the meeting ends.
 
-#### Client-side WebRTC stats logging
-
-A new opt-in **media stats logging** facility (`public.stats.logMediaStats`) lets the client periodically log WebRTC `getStats()` information to the configured logging transports, with configurable probes and additional stat types. This replaces the previous boolean `public.stats.log` flag.
-
 #### Server messages internationalized on the frontend
 
 Strings that were previously emitted as English constants from the server (Akka) — for example some chat/notification messages — are now resolved to i18n keys on the frontend, improving localization coverage.
