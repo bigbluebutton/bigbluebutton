@@ -6,7 +6,6 @@ import {
 import {
   useReactiveVar,
   useMutation,
-  useSubscription,
 } from '@apollo/client';
 import Auth from '/imports/ui/services/auth';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -356,7 +355,7 @@ export const useGridUsers = (visibleStreamCount: number) => {
     data: gridData,
     error: gridError,
     loading: gridLoading,
-  } = useSubscription<GridUsersResponse>(
+  } = useDeduplicatedSubscription<GridUsersResponse>(
     GRID_USERS_SUBSCRIPTION,
     {
       // When the user can only see moderator cameras, drop non-moderators ([true]);
@@ -368,6 +367,7 @@ export const useGridUsers = (visibleStreamCount: number) => {
       },
       skip: !isGridEnabled,
     },
+    true,
   );
 
   if (gridLoading) return { gridUsers: gridItems.current, overflowCount: overflowCount.current };

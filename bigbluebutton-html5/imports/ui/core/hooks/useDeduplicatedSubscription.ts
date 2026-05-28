@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import GrahqlSubscriptionStore, { stringToHash, SubscriptionStructure } from '/imports/ui/core/singletons/subscriptionStore';
 import { DocumentNode, TypedQueryDocumentNode } from 'graphql';
 import {
   OperationVariables, SubscriptionHookOptions, makeVar, useReactiveVar, ReactiveVar,
 } from '@apollo/client';
+import { makePatchedQuery } from '/imports/ui/core/hooks/createUseSubscription';
 
 const initialEmptySub = makeVar<SubscriptionStructure<unknown>>({
   count: 0,
@@ -16,9 +17,16 @@ const initialEmptySub = makeVar<SubscriptionStructure<unknown>>({
 const useDeduplicatedSubscription = <T>(
   subscription: DocumentNode | TypedQueryDocumentNode,
   options?: SubscriptionHookOptions<NoInfer<T>, NoInfer<OperationVariables>>,
+  usePatchedSubscription = false,
 ) => {
+  // When patching is enabled, rename the operation to Patched_* so the middleware streams
+  // JSON patches instead of full datasets; the subscription store applies them automatically.
+  const query = useMemo(
+    () => (usePatchedSubscription ? makePatchedQuery(subscription) : subscription),
+    [subscription, usePatchedSubscription],
+  );
   const subscriptionHash = stringToHash(JSON.stringify({
-    subscription,
+    subscription: query,
     variables: options?.variables,
     skip: options?.skip,
   }));
@@ -38,11 +46,15 @@ const useDeduplicatedSubscription = <T>(
       return () => {};
     }
 
-    const newSubVar = GrahqlSubscriptionStore.makeSubscription<T>(subscription, options?.variables);
+    const newSubVar = GrahqlSubscriptionStore.makeSubscription<T>(
+      query,
+      options?.variables,
+      usePatchedSubscription ? 'no-cache' : undefined,
+    );
     setSubVar(() => newSubVar);
 
     return () => {
-      GrahqlSubscriptionStore.unsubscribe(subscription, options?.variables);
+      GrahqlSubscriptionStore.unsubscribe(query, options?.variables);
     };
   }, [subscriptionHash, options?.skip]);
 
