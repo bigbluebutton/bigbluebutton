@@ -94,6 +94,14 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
       // get lock settings from parent meeting
       val lockSettings = org.bigbluebutton.core2.MeetingStatus2x.getPermissions(liveMeeting.status)
 
+      val (lsPrivChat, lsCam, lsMic, lsPubChat, lsNotes, lsHideUsers, lsLockOnJoin, lsLockOnJoinCfg, lsHideCursor, lsHideAnnotation) =
+        if (msg.body.inheritLockSettings)
+          (lockSettings.disablePrivChat, lockSettings.disableCam, lockSettings.disableMic, lockSettings.disablePubChat,
+            lockSettings.disableNotes, lockSettings.hideUserList, lockSettings.lockOnJoin,
+            lockSettings.lockOnJoinConfigurable, lockSettings.hideViewersCursor, lockSettings.hideViewersAnnotation)
+        else
+          (false, false, false, false, false, false, false, false, false, false)
+
       val roomDetail = BreakoutRoomDetail(
         breakout.id,
         breakout.name,
@@ -123,7 +131,16 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         liveMeeting.props.meetingProp.audioBridge,
         liveMeeting.props.meetingProp.cameraBridge,
         liveMeeting.props.meetingProp.screenShareBridge,
-        lockSettings.disablePrivChat
+        lsPrivChat,
+        lsCam,
+        lsMic,
+        lsPubChat,
+        lsNotes,
+        lsHideUsers,
+        lsLockOnJoin,
+        lsLockOnJoinCfg,
+        lsHideCursor,
+        lsHideAnnotation
       )
 
       val event = buildCreateBreakoutRoomSysCmdMsg(liveMeeting.props.meetingProp.intId, roomDetail)

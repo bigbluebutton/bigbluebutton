@@ -115,6 +115,7 @@ export const elements = {
   timeRemaining: 'span[data-test="timeRemaining"]',
   captureBreakoutSharedNotes: 'input[id="captureNotesBreakoutCheckbox"]',
   captureBreakoutWhiteboard: 'input[id="captureSlidesBreakoutCheckbox"]',
+  inheritLockSettingsCheckbox: 'input[id="inheritLockSettingsCheckbox"]',
   selectBreakoutRoomBtn: 'select[data-test="selectBreakoutRoomBtn"]',
   roomOption: 'option[data-test="roomOption"]',
   changeSlideBreakoutRoom1: 'select[data-test="changeSlideBreakoutRoom1"]',

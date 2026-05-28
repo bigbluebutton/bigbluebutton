@@ -902,8 +902,17 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.DISABLED_FEATURES,String.join(",", message.disabledFeatures));
       params.put(ApiParams.GUEST_POLICY, GuestPolicy.ALWAYS_ACCEPT);
 
-      // Apply private chat lock settings from parent meeting to breakout room
+      // Apply lock settings from parent meeting to breakout room
       params.put(ApiParams.LOCK_SETTINGS_DISABLE_PRIVATE_CHAT, message.disablePrivChat.toString());
+      params.put(ApiParams.LOCK_SETTINGS_DISABLE_CAM, message.disableCam.toString());
+      params.put(ApiParams.LOCK_SETTINGS_DISABLE_MIC, message.disableMic.toString());
+      params.put(ApiParams.LOCK_SETTINGS_DISABLE_PUBLIC_CHAT, message.disablePubChat.toString());
+      params.put(ApiParams.LOCK_SETTINGS_DISABLE_NOTES, message.disableNotes.toString());
+      params.put(ApiParams.LOCK_SETTINGS_HIDE_USER_LIST, message.hideUserList.toString());
+      params.put(ApiParams.LOCK_SETTINGS_LOCK_ON_JOIN, message.lockOnJoin.toString());
+      params.put(ApiParams.LOCK_SETTINGS_LOCK_ON_JOIN_CONFIGURABLE, message.lockOnJoinConfigurable.toString());
+      params.put(ApiParams.LOCK_SETTINGS_HIDE_VIEWERS_CURSOR, message.hideViewersCursor.toString());
+      params.put(ApiParams.LOCK_SETTINGS_HIDE_VIEWERS_ANNOTATION, message.hideViewersAnnotation.toString());
 
       Map<String, String> parentMeetingMetadata = parentMeeting.getMetadata();
 
