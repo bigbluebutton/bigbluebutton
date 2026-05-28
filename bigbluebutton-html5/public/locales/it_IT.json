@@ -504,7 +504,6 @@
     "app.navBar.optionsDropdown.endMeetingLabel": "Termina sessione",
     "app.navBar.optionsDropdown.endMeetingForAllLabel": "Termina la sessione per tutti",
     "app.navBar.optionsDropdown.presenceLabel": "Sono",
-    "app.navBar.optionsDropdown.presenceLabelDesc": "Imposta il tuo stato di presenza su {status}",
     "app.navBar.userListToggleBtnLabel": "Attiva/Disattiva lista utenti",
     "app.navBar.toggleUserList.ariaLabel": "Attiva/disattiva Utenti e messaggi",
     "app.navBar.toggleUserList.newMessages": "con una nuova notifica di messaggio",
