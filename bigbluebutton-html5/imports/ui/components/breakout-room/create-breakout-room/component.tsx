@@ -250,7 +250,12 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   // @ts-ignore
   const BREAKOUT_SETTINGS = window.meetingClientSettings.public.app.breakouts;
 
-  const { allowUserChooseRoomByDefault, recordRoomByDefault, offerRecordingForBreakouts } = BREAKOUT_SETTINGS;
+  const {
+    allowUserChooseRoomByDefault,
+    recordRoomByDefault,
+    offerRecordingForBreakouts,
+    lockBreakoutRecordingSetting,
+  } = BREAKOUT_SETTINGS;
   const captureWhiteboardByDefault = BREAKOUT_SETTINGS.captureWhiteboardByDefault
                                     && isImportPresentationWithAnnotationsEnabled;
   const captureSharedNotesByDefault = BREAKOUT_SETTINGS.captureSharedNotesByDefault
@@ -259,8 +264,9 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
 
   const [numberOfRoomsIsValid, setNumberOfRoomsIsValid] = React.useState(true);
   const [durationIsValid, setDurationIsValid] = React.useState(true);
+  const forceRecord = lockBreakoutRecordingSetting && isBreakoutRecordable;
   const [freeJoin, setFreeJoin] = React.useState(allowUserChooseRoomByDefault);
-  const [record, setRecord] = React.useState(recordRoomByDefault);
+  const [record, setRecord] = React.useState(forceRecord || recordRoomByDefault);
   const [captureSlides, setCaptureSlides] = React.useState(captureWhiteboardByDefault);
   const [leastOneUserIsValid, setLeastOneUserIsValid] = React.useState(false);
   const [captureNotes, setCaptureNotes] = React.useState(captureSharedNotesByDefault);
@@ -419,6 +425,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
       {
         allowed: isBreakoutRecordable && offerRecordingForBreakouts,
         checked: record,
+        disabled: forceRecord,
         htmlFor: 'recordBreakoutCheckbox',
         key: 'record-breakouts',
         id: 'recordBreakoutCheckbox',
@@ -462,6 +469,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
     captureSlides,
     captureNotes,
     inviteMods,
+    forceRecord,
   ]);
 
   const form = useMemo(() => {
@@ -564,6 +572,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
                     onChange={item.onChange}
                     aria-label={item.label}
                     checked={item.checked}
+                    disabled={item.disabled ?? false}
                   />
                   <span aria-hidden>{item.label}</span>
                 </Styled.FreeJoinLabel>
