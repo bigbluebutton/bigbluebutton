@@ -40,6 +40,28 @@ public class XmlServiceImpl implements XmlService {
     @Override
     public String noRecordings() {
         logger.info("Constructing no recordings response");
+
+        try {
+            setup();
+            Document document = builder.newDocument();
+
+            Element rootElement = createElement(document, "response", null);
+            document.appendChild(rootElement);
+
+            Element returnCode = createElement(document, "returncode", "SUCCESS");
+            rootElement.appendChild(returnCode);
+
+            Element messageKey = createElement(document, "messageKey", "noRecordings");
+            rootElement.appendChild(messageKey);
+
+            Element message = createElement(document, "message", "No recordings found. This may occur if you attempt to retrieve all recordings.");
+            rootElement.appendChild(message);
+
+            return documentToString(document);
+        } catch(Exception e) {
+            logger.error("Failed to construct no recordings response", e);
+        }
+
         return NO_RECORDINGS_RESPONSE;
     }
 
@@ -47,7 +69,7 @@ public class XmlServiceImpl implements XmlService {
     public String constructPaginatedResponse(Page<?> page, int offset, String response) {
         logger.info("Constructing paginated response");
 
-        if(response == null || response.isEmpty()) {
+        if(response == null || response.equals("")) {
             return FAILED_RESPONSE;
         }
 
@@ -60,12 +82,12 @@ public class XmlServiceImpl implements XmlService {
             Element totalElements = createElement(document, "totalElements", String.valueOf(page.getTotalElements()));
             rootElement.appendChild(totalElements);
 
-            String output = documentToString(document);
-            return (output != null && !output.isEmpty()) ? output : response;
+            return documentToString(document);
         } catch (Exception e) {
             logger.error("Failed to add pagination info to recordings response", e);
-            return response;
         }
+
+        return response;
     }
 
     private void setup() throws ParserConfigurationException {
@@ -86,6 +108,8 @@ public class XmlServiceImpl implements XmlService {
     }
 
     public String documentToString(Document document) {
+        String output = "";
+
         try {
             TransformerFactory factory = TransformerFactory.newInstance();
             Transformer transformer = factory.newTransformer();
@@ -93,10 +117,11 @@ public class XmlServiceImpl implements XmlService {
             transformer.setOutputProperty(OutputKeys.INDENT, "no");
             StringWriter writer = new StringWriter();
             transformer.transform(new DOMSource(document), new StreamResult(writer));
-            return writer.toString();
+            output = writer.toString();
         } catch(Exception e) {
             logger.error("Failed to serialize XML document to string", e);
-            return "";
         }
+
+        return output;
     }
 }

@@ -142,6 +142,10 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
     }
   }, [openRecordingModal, closeRecordingModal]);
 
+  const closeRecordingConfirmation = useCallback(() => {
+    setIsRecordingModalOpen(false);
+  }, [setIsRecordingModalOpen]);
+
   const {
     isOpen: isRecordingNotifyModalOpen,
     open: openRecordingNotifyModal,
@@ -336,7 +340,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
       {isRecordingModalOpen ? (
         <RecordingContainer
           amIModerator={isModerator}
-          onRequestClose={() => setIsRecordingModalOpen(false)}
+          onRequestClose={closeRecordingConfirmation}
           priority="high"
           setIsOpen={setIsRecordingModalOpen}
           isOpen={isRecordingModalOpen}
