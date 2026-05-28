@@ -56,9 +56,6 @@ const hocuspocus = new Hocuspocus({
       data.connectionConfig.readOnly = true;
     }
 
-    console.log('isConnectionReadOnly', isConnectionReadOnly);
-    console.log('data.connectionConfig.readOnly', data.connectionConfig.readOnly);
-
     const newConnection: ConnectionInfo = {
       meetingId,
       extUserId,
