@@ -197,7 +197,6 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 #### Other removed configuration
 
 - `public.stats.log` was removed and replaced by `public.stats.logMediaStats` (see [Client-side WebRTC stats logging](#client-side-webrtc-stats-logging)).
-- The LiveKit options `public.media.livekit.forceRelay` and `public.media.livekit.forceRelayOnFirefox` were removed.
 
 ### Changes to events.xml
 
