@@ -11,13 +11,24 @@ export interface SortingMethodConfig {
   localFirst: boolean;
 }
 
-// pin first, ignore connecting streams
+const getPinnedTime = (item: StreamItem): number => {
+  if (item.type === VIDEO_TYPES.CONNECTING) return 0;
+  return item.user?.pinnedTime ? new Date(item.user.pinnedTime).getTime() : 0;
+};
+
+// Most recently pinned first.
+const sortByPinnedTime = (s1: StreamItem, s2: StreamItem) => getPinnedTime(s2) - getPinnedTime(s1);
+
+// pin first (most recently pinned ahead), ignore connecting streams
 export const sortPin = (s1: StreamItem, s2: StreamItem) => {
   if (s1.type === VIDEO_TYPES.CONNECTING) {
     return 0;
   }
   if (s2.type === VIDEO_TYPES.CONNECTING) {
     return 0;
+  }
+  if (s1.user?.pinned && s2.user?.pinned) {
+    return sortByPinnedTime(s1, s2);
   }
   if (s1.user?.pinned) {
     return -1;
@@ -97,10 +108,15 @@ export const sortLocalPresenterAlphabetical = (s1: StreamItem, s2: StreamItem) =
     || UserListService.sortUsersByName(s1, s2);
 
 export const sortByPinned = (s1: StreamItem, s2: StreamItem) => {
-  if (s1.type === VIDEO_TYPES.STREAM && s1.user?.pinned) {
+  const s1Pinned = s1.type === VIDEO_TYPES.STREAM && s1.user?.pinned;
+  const s2Pinned = s2.type === VIDEO_TYPES.STREAM && s2.user?.pinned;
+  if (s1Pinned && s2Pinned) {
+    return sortByPinnedTime(s1, s2);
+  }
+  if (s1Pinned) {
     return -1;
   }
-  if (s2.type === VIDEO_TYPES.STREAM && s2.user?.pinned) {
+  if (s2Pinned) {
     return 1;
   }
   return 0;

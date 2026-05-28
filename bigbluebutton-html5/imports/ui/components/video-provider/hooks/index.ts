@@ -16,6 +16,7 @@ import { USER_AGGREGATE_COUNT_SUBSCRIPTION, UsersCountSubscriptionResponse } fro
 import {
   getSortingMethod,
   sortVideoStreams,
+  sortPin,
 } from '/imports/ui/components/video-provider/stream-sorting';
 import {
   useVideoState,
@@ -408,6 +409,7 @@ export const useGridUsers = (visibleStreamCount: number) => {
         name: currentUser.name ?? '',
         nameSortable: currentUser.nameSortable ?? '',
         pinned: currentUser.pinned ?? false,
+        pinnedTime: null,
         away: currentUser.away ?? false,
         disconnected: false,
         role: currentUser.role ?? '',
@@ -687,6 +689,8 @@ export const useVideoStreams = () => {
         filtered,
         (vs: StreamItem) => vs.type === VIDEO_TYPES.STREAM && vs.user?.pinned,
       );
+      // partition keeps subscription order (userId asc); reorder so the most recently pinned is first.
+      pin.sort(sortPin);
 
       // This is needed to adjust pagination for displaced video streams
       let audioOnlySlotsUsedOnPage1 = 0;

@@ -298,6 +298,7 @@ CREATE UNLOGGED TABLE "user" (
 	"ejectedByModerator" varchar(50),
 	"presenter" bool,
 	"pinned" bool,
+	"pinnedTime" timestamp with time zone,
 	"locked" bool,
 	"speechLocale" varchar(255),
 	"captionLocale" varchar(255),
@@ -313,8 +314,8 @@ CREATE UNLOGGED TABLE "user" (
 CREATE INDEX "idx_user_pk_reverse" on "user"("userId", "meetingId");
 CREATE INDEX "idx_user_meetingId_extId" ON "user"("meetingId", "extId");
 
--- user (on update raiseHand or away: set new time)
-CREATE OR REPLACE FUNCTION update_user_raiseHand_away_time_trigger_func()
+-- user (on update raiseHand, away or pinned: set new time)
+CREATE OR REPLACE FUNCTION update_user_raiseHand_away_pinned_time_trigger_func()
 RETURNS TRIGGER AS $$
 BEGIN
     IF NEW."raiseHand" IS DISTINCT FROM OLD."raiseHand" THEN
@@ -331,12 +332,19 @@ BEGIN
             NEW."awayTime" := NOW();
         END IF;
     END IF;
+    IF NEW."pinned" IS DISTINCT FROM OLD."pinned" THEN
+        IF NEW."pinned" is true THEN
+            NEW."pinnedTime" := NOW();
+        ELSE
+            NEW."pinnedTime" := NULL;
+        END IF;
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_user_raiseHand_away_time_trigger BEFORE UPDATE OF "raiseHand", "away" ON "user"
-    FOR EACH ROW EXECUTE FUNCTION update_user_raiseHand_away_time_trigger_func();
+CREATE TRIGGER update_user_raiseHand_away_pinned_time_trigger BEFORE UPDATE OF "raiseHand", "away", "pinned" ON "user"
+    FOR EACH ROW EXECUTE FUNCTION update_user_raiseHand_away_pinned_time_trigger_func();
 
 
 COMMENT ON COLUMN "user"."disconnected" IS 'This column is set true when the user closes the window or his with the server is over';
@@ -433,6 +441,7 @@ AS SELECT "user"."userId",
     "user"."registeredAt",
     "user"."presenter",
     "user"."pinned",
+    "user"."pinnedTime",
     CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
     "user"."captionLocale",
@@ -520,6 +529,7 @@ AS SELECT "user"."userId",
     "user"."registeredAt",
     "user"."presenter",
     "user"."pinned",
+    "user"."pinnedTime",
     CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
     "user"."captionLocale",
@@ -591,6 +601,7 @@ AS SELECT
     "user"."registeredAt",
     "user"."presenter",
     "user"."pinned",
+    "user"."pinnedTime",
     CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
     "user"."captionLocale",
