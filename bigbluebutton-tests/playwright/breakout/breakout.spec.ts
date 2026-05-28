@@ -1,4 +1,5 @@
 import { test } from '../core/setup/fixtures';
+import { ClientSettingsOverride } from './clientSettingsOverride';
 import { Create } from './create';
 import { Join } from './join';
 
@@ -160,6 +161,12 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
       await join.breakoutWithDifferentPresentations();
+    });
+
+    // https://github.com/bigbluebutton/bigbluebutton/issues/25138
+    test('Breakout room inherits client settings override from parent meeting', async ({ browser, context, page }, testInfo) => {
+      const override = new ClientSettingsOverride(browser, context);
+      await override.testClientSettingsOverrideInheritedByBreakout(page, testInfo);
     });
   });
 });
