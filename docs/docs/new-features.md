@@ -248,8 +248,6 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 
 - `public.layout.showPushLayoutButton`, `public.layout.showPushLayoutToggle`, and `public.layout.enableDeprecatedLayoutSelection`.
 - `public.stats.log` (replaced by `public.stats.logMediaStats`).
-- `public.media.livekit.forceRelay` and `public.media.livekit.forceRelayOnFirefox`.
-
 
 ## Development
 
