@@ -150,7 +150,7 @@ public:
       # Allow the presenter role to manage presentations inside breakout rooms
       allowPresentationManagementInBreakouts: true
       # Set to true to remove the ability for the breakout recording policy to be changed by the moderator at breakout creation time
-      lockBreakoutRecording: false
+      lockBreakoutRecordingSetting: false
     showAllAvailableLocales: true
     # Show "Audio Filters for Microphone" option in settings menu.
     # When set to true, users are able to enable/disable microphone constraints,

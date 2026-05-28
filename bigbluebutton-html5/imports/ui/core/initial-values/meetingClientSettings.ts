@@ -94,7 +94,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         sendInvitationToAssignedModeratorsByDefault: false,
         breakoutRoomLimit: 16,
         allowPresentationManagementInBreakouts: true,
-        lockBreakoutRecording: false,
+        lockBreakoutRecordingSetting: false,
       },
       showAllAvailableLocales: true,
       showAudioFilters: true,

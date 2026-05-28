@@ -254,7 +254,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
     allowUserChooseRoomByDefault,
     recordRoomByDefault,
     offerRecordingForBreakouts,
-    lockBreakoutRecording,
+    lockBreakoutRecordingSetting,
   } = BREAKOUT_SETTINGS;
   const captureWhiteboardByDefault = BREAKOUT_SETTINGS.captureWhiteboardByDefault
                                     && isImportPresentationWithAnnotationsEnabled;
@@ -264,7 +264,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
 
   const [numberOfRoomsIsValid, setNumberOfRoomsIsValid] = React.useState(true);
   const [durationIsValid, setDurationIsValid] = React.useState(true);
-  const forceRecord = lockBreakoutRecording && isBreakoutRecordable;
+  const forceRecord = lockBreakoutRecordingSetting && isBreakoutRecordable;
   const [freeJoin, setFreeJoin] = React.useState(allowUserChooseRoomByDefault);
   const [record, setRecord] = React.useState(forceRecord || recordRoomByDefault);
   const [captureSlides, setCaptureSlides] = React.useState(captureWhiteboardByDefault);
