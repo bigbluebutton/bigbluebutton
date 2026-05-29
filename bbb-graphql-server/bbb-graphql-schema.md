@@ -89,9 +89,11 @@ Permission: Restricted to User Viewing Self-Related Data
 - `isDialIn`
 - `isModerator`
 - `isRunningEchoTest`
+- `isSharingCamera`
 - `joinErrorCode`
 - `joinErrorMessage`
 - `joined`
+- `lastFloorTime`
 - `lastName`
 - `lastNameSortable`
 - `locked`
@@ -211,7 +213,9 @@ Permission: Restricted by Lock Settings
 - `isDialIn`
 - `isModerator`
 - `isRunningEchoTest`
+- `isSharingCamera`
 - `joined`
+- `lastFloorTime`
 - `lastName`
 - `lastNameSortable`
 - `locked`

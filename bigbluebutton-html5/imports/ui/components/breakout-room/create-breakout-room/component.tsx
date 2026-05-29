@@ -218,6 +218,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.sendInvitationToMods',
     description: 'label for checkbox send invitation to moderators',
   },
+  inheritLockSettingsLabel: {
+    id: 'app.createBreakoutRoom.inheritLockSettings',
+    description: 'label for checkbox to propagate lock settings',
+  },
   timeCannotExceedMainRoom: {
     id: 'app.createBreakoutRoom.timeCannotExceedMainRoom',
     description: 'label for checkbox send invitation to moderators',
@@ -250,7 +254,12 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   // @ts-ignore
   const BREAKOUT_SETTINGS = window.meetingClientSettings.public.app.breakouts;
 
-  const { allowUserChooseRoomByDefault, recordRoomByDefault, offerRecordingForBreakouts } = BREAKOUT_SETTINGS;
+  const {
+    allowUserChooseRoomByDefault,
+    recordRoomByDefault,
+    offerRecordingForBreakouts,
+    lockBreakoutRecordingSetting,
+  } = BREAKOUT_SETTINGS;
   const captureWhiteboardByDefault = BREAKOUT_SETTINGS.captureWhiteboardByDefault
                                     && isImportPresentationWithAnnotationsEnabled;
   const captureSharedNotesByDefault = BREAKOUT_SETTINGS.captureSharedNotesByDefault
@@ -259,12 +268,14 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
 
   const [numberOfRoomsIsValid, setNumberOfRoomsIsValid] = React.useState(true);
   const [durationIsValid, setDurationIsValid] = React.useState(true);
+  const forceRecord = lockBreakoutRecordingSetting && isBreakoutRecordable;
   const [freeJoin, setFreeJoin] = React.useState(allowUserChooseRoomByDefault);
-  const [record, setRecord] = React.useState(recordRoomByDefault);
+  const [record, setRecord] = React.useState(forceRecord || recordRoomByDefault);
   const [captureSlides, setCaptureSlides] = React.useState(captureWhiteboardByDefault);
   const [leastOneUserIsValid, setLeastOneUserIsValid] = React.useState(false);
   const [captureNotes, setCaptureNotes] = React.useState(captureSharedNotesByDefault);
   const [inviteMods, setInviteMods] = React.useState(inviteModsByDefault);
+  const [inheritLockSettings, setInheritLockSettings] = React.useState(false);
   const [numberOfRooms, setNumberOfRooms] = React.useState(initialNumberOfRooms);
   const [durationTime, setDurationTime] = React.useState(DEFAULT_BREAKOUT_TIME);
   const [roomPresentations, setRoomPresentations] = React.useState<RoomPresentations>([]);
@@ -371,6 +382,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
           captureSlides,
           durationInMinutes: durationTime,
           sendInviteToModerators: inviteMods,
+          inheritLockSettings,
           rooms: roomsArray,
         },
       },
@@ -419,6 +431,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
       {
         allowed: isBreakoutRecordable && offerRecordingForBreakouts,
         checked: record,
+        disabled: forceRecord,
         htmlFor: 'recordBreakoutCheckbox',
         key: 'record-breakouts',
         id: 'recordBreakoutCheckbox',
@@ -452,6 +465,15 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         onChange: checkboxCallbackFactory(setInviteMods),
         label: intl.formatMessage(intlMessages.sendInvitationToMods),
       },
+      {
+        allowed: true,
+        checked: inheritLockSettings,
+        htmlFor: 'inheritLockSettingsCheckbox',
+        key: 'inherit-lock-settings-breakouts',
+        id: 'inheritLockSettingsCheckbox',
+        onChange: checkboxCallbackFactory(setInheritLockSettings),
+        label: intl.formatMessage(intlMessages.inheritLockSettingsLabel),
+      },
     ];
   }, [
     isBreakoutRecordable,
@@ -462,6 +484,8 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
     captureSlides,
     captureNotes,
     inviteMods,
+    forceRecord,
+    inheritLockSettings,
   ]);
 
   const form = useMemo(() => {
@@ -564,6 +588,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
                     onChange={item.onChange}
                     aria-label={item.label}
                     checked={item.checked}
+                    disabled={item.disabled ?? false}
                   />
                   <span aria-hidden>{item.label}</span>
                 </Styled.FreeJoinLabel>

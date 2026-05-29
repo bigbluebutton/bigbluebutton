@@ -35,6 +35,7 @@ select_permissions:
         - receiver
         - active
         - mediaType
+        - createdAt
       filter:
         _and:
           - meetingId:

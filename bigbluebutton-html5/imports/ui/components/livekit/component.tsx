@@ -37,6 +37,7 @@ import {
   USER_SET_TALKING,
 } from '/imports/ui/components/livekit/mutations';
 import { useIceServers } from '/imports/ui/components/livekit/hooks';
+import shouldForceRelay from '/imports/ui/components/livekit/utils';
 import LKAutoplayModalContainer from '/imports/ui/components/livekit/autoplay-modal/container';
 import { ForcedReconnectionError } from '/imports/ui/components/livekit/errors';
 import connectionStatus, { MetricStatus } from '/imports/ui/core/graphql/singletons/connectionStatus';
@@ -181,7 +182,11 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
   const [lkRoomOptionsAvailable, setLkRoomOptionsAvailable] = useState(false);
   const [connectOptions, setConnectOptions] = useState<RoomConnectOptions | undefined>(undefined);
   const isClientConnected = useReactiveVar(connectionStatus.getConnectedStatusVar());
-  const { iceServers, isLoading: iceServersLoading } = useIceServers(bbbSessionToken);
+  const {
+    iceServers,
+    isLoading: iceServersLoading,
+    hasTurnServer,
+  } = useIceServers(bbbSessionToken);
   const speakerLevel = useSpeakerLevel();
   const intl = useIntl();
   const isReconnectingRef = useRef(false);
@@ -298,10 +303,12 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
       return;
     }
 
+    const forceRelay = shouldForceRelay(hasTurnServer);
     const connOpts: RoomConnectOptions = {
       autoSubscribe: !withSelectiveSubscription,
       rtcConfig: {
         iceServers,
+        iceTransportPolicy: forceRelay ? 'relay' : undefined,
       },
     };
 
@@ -314,9 +321,10 @@ const BBBLiveKitRoom: React.FC<BBBLiveKitRoomProps> = ({
       extraInfo: {
         url,
         iceServers,
+        forceRelay,
       },
     }, 'LiveKit room will connect');
-  }, [token, url, iceServersLoading, iceServers, withSelectiveSubscription]);
+  }, [token, url, iceServersLoading, iceServers, hasTurnServer, withSelectiveSubscription]);
 
   useEffect(() => {
     if (!url) return;
