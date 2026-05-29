@@ -27,7 +27,8 @@ const handleMeetingLocked = async (header: MessageHeader, body: MessageBody): Pr
     const userHasNotesDisabled = !connectionInfo.notesEnabled;
     if (connectionInfo.meetingId == meetingId && disableNotes != userHasNotesDisabled) {
       logger.debug('Removing connection', connectionKey, connectionInfo);
-      connectionInfo.websocket?.close(1008, 'Meeting lockSettings changed.');
+      // the client will reload when receiving `Lock rules changed` message
+      connectionInfo.websocket?.close(1008, 'Lock rules changed.');
       connectionsMap.delete(connectionKey);
     }
   });
@@ -42,6 +43,7 @@ const handleUserLocked = async (header: MessageHeader, body: MessageBody): Promi
   connectionsMap.forEach((connectionInfo, connectionKey) => {
     if (connectionInfo.meetingId == meetingId && connectionInfo.intUserId == userId) {
       logger.debug('Removing connection', connectionKey, connectionInfo);
+      // the client will reload when receiving `Lock rules changed` message
       connectionInfo.websocket?.close(1008, 'Lock rules changed.');
       connectionsMap.delete(connectionKey);
     }
@@ -57,6 +59,7 @@ const handleUserRoleChanged = async (header: MessageHeader, body: MessageBody): 
   connectionsMap.forEach((connectionInfo, connectionKey) => {
     if (connectionInfo.meetingId == meetingId && connectionInfo.intUserId == userId) {
       logger.debug('Removing connection', connectionKey, connectionInfo);
+      // the client will reload when receiving `Role changed` message
       connectionInfo.websocket?.close(1008, 'Role changed.');
       connectionsMap.delete(connectionKey);
     }
