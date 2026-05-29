@@ -1,3 +1,8 @@
+# For cluster-proxy setups it can be overridden in /etc/bigbluebutton/nginx/bbb-cluster.nginx
+if ($bbb_cors_origin = '') {
+        set $bbb_cors_origin '*';
+}
+
 location /hocuspocus/collaboration {
   # Extract sessionToken from query parameter for auth_request
   set $session_token $arg_sessionToken;
@@ -36,7 +41,7 @@ location /bigbluebutton/connection/checkHocuspocusAuthorization {
 
 location /hocuspocus/api/ {
   if ($request_method = 'OPTIONS') {
-    add_header 'Access-Control-Allow-Origin' $http_origin always;
+    add_header 'Access-Control-Allow-Origin' $bbb_cors_origin always;
     add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
     add_header 'Access-Control-Allow-Headers' 'Authorization, Content-Type' always;
     add_header 'Access-Control-Allow-Credentials' 'true' always;
@@ -44,7 +49,7 @@ location /hocuspocus/api/ {
     return 204;
   }
 
-  add_header 'Access-Control-Allow-Origin' $http_origin always;
+  add_header 'Access-Control-Allow-Origin' $bbb_cors_origin always;
   add_header 'Access-Control-Allow-Credentials' 'true' always;
 
   auth_request /bigbluebutton/connection/checkAuthorization;
