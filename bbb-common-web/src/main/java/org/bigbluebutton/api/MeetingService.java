@@ -925,6 +925,9 @@ public class MeetingService implements MessageListener {
 
       Meeting breakout = paramsProcessorUtil.processCreateParams(params);
 
+      // breakout rooms inherit client settings override from the parent
+      breakout.setOverrideClientSettings(parentMeeting.getOverrideClientSettings());
+
       createMeeting(breakout, message.pluginProp);
 
       presDownloadService.extractPresentationPage(message.parentMeetingId,
