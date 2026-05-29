@@ -1,5 +1,5 @@
 import { Hocuspocus } from "@hocuspocus/server";
-import { meetingLockMap, connectionsMap, nextConnectionKey } from "../common/singleton";
+import { connectionsMap, nextConnectionKey } from "../common/singleton";
 import { ConnectionInfo } from "../common/type";
 import { extractMeetingId } from "./utils";
 import postgresqlDB from "./extensions/postgresql";
@@ -69,6 +69,7 @@ const hocuspocus = new Hocuspocus({
       user: {
         websocket,
         sessionToken,
+        intUserId,
         id: intUserId,
         role: role,
         name: userName,
@@ -89,6 +90,7 @@ const hocuspocus = new Hocuspocus({
       intUserId = "SYSTEM";
       if (documentName.includes("__")) meetingId = extractMeetingId(documentName);
     }
+
     if (meetingId) {
       sender.send('sharedNotesUpdated', meetingId, { intUserId, documentName });
     } else {
