@@ -44,6 +44,63 @@ export class Presentation extends MultiUsers {
     await checkSvgIndex(this.modPage, '/svg/1');
   }
 
+  async navigateSlidesWithKeys() {
+    await this.modPage.hasElement(
+      e.whiteboard,
+      'should display the whiteboard when the moderator joins the meeting',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+
+    await checkSvgIndex(this.modPage, '/svg/1');
+
+    // Blur any focused element so keydown events target document.body
+    const blurActive = () => this.modPage.page.evaluate(() => (document.activeElement as HTMLElement)?.blur());
+
+    await blurActive();
+    await this.modPage.press('ArrowRight');
+    await this.modPage.page.waitForFunction(
+       ([whiteboardSelector, expectedSvg]) => {
+         const whiteboard = document.querySelector(whiteboardSelector);
+         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
+       },
+       [e.whiteboard, '/svg/2'],
+       { timeout: ELEMENT_WAIT_LONGER_TIME },
+     );
+
+    await blurActive();
+    await this.modPage.press('ArrowLeft');
+    await this.modPage.page.waitForFunction(
+       ([whiteboardSelector, expectedSvg]) => {
+         const whiteboard = document.querySelector(whiteboardSelector);
+         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
+       },
+       [e.whiteboard, '/svg/1'],
+       { timeout: ELEMENT_WAIT_LONGER_TIME },
+     );
+
+    await blurActive();
+    await this.modPage.press('PageDown');
+    await this.modPage.page.waitForFunction(
+       ([whiteboardSelector, expectedSvg]) => {
+         const whiteboard = document.querySelector(whiteboardSelector);
+         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
+       },
+       [e.whiteboard, '/svg/2'],
+       { timeout: ELEMENT_WAIT_LONGER_TIME },
+     );
+
+    await blurActive();
+    await this.modPage.press('PageUp');
+    await this.modPage.page.waitForFunction(
+       ([whiteboardSelector, expectedSvg]) => {
+         const whiteboard = document.querySelector(whiteboardSelector);
+         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
+       },
+       [e.whiteboard, '/svg/1'],
+       { timeout: ELEMENT_WAIT_LONGER_TIME },
+     );
+  }
+
   async shareCameraAsContent() {
     await this.modPage.hasElement(
       e.whiteboard,
