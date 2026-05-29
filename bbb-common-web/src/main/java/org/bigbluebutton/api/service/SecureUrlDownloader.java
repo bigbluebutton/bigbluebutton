@@ -63,6 +63,12 @@ public class SecureUrlDownloader {
                     return DownloadResult.DOWNLOAD_ERROR;
                 }
 
+                File parent = destination.getParentFile();
+                if (parent != null && !parent.isDirectory() && !parent.mkdirs()) {
+                    log.error("Cannot create parent directory [{}] for context [{}]", parent, contextId);
+                    return DownloadResult.DOWNLOAD_ERROR;
+                }
+
                 try (InputStream in = response.getEntity().getContent();
                      OutputStream out = new FileOutputStream(destination)) {
                     byte[] buf = new byte[8192];

@@ -1715,7 +1715,7 @@ class ApiController {
       if (isFromInsertAPI) {
         meetingService.sendPresentationUploadMaxFilesizeMessage(
                 presId, "DEFAULT_PRESENTATION_POD", meetingId, presFilename,
-                "preupload-raw-authz-token", bytes.length, (int) maxFileSize)
+                "preupload-raw-authz-token", bytes.length, (int) Math.min(maxFileSize, Integer.MAX_VALUE))
       }
     } else {
       String presentationDir = presentationService.getPresentationDir()
@@ -1807,7 +1807,7 @@ class ApiController {
             if (isFromInsertAPI) {
               meetingService.sendPresentationUploadMaxFilesizeMessage(
                       presId, "DEFAULT_PRESENTATION_POD", meetingId, presFilename,
-                      "preupload-download-authz-token", (int) maxFileSize, (int) maxFileSize)
+                      "preupload-download-authz-token", (int) Math.min(maxFileSize, Integer.MAX_VALUE), (int) Math.min(maxFileSize, Integer.MAX_VALUE))
             }
             break
           default:
