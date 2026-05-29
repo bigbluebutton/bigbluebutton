@@ -22,6 +22,12 @@ The native aspect ratio of the video source, if it has one, as a `Rational` obje
 
 Check whether the video source is corrupt. If the video source is corrupt, it cannot be used for EDL rendering (and the `open` method should not be called). The renderer should remove corrupt videos from the EDL prior to rendering.
 
+### pts_gaps
+
+Return a list of large PTS gaps in the source as arrays of `[start_ms, end_ms]`. The end value may be `Float::INFINITY` for a gap that continues to the end of the source. The renderer removes the source from EDL cuts that overlap these ranges before opening cuts, so ffmpeg does not have to process or fill long timestamp gaps.
+
+Sources that read existing media should probe that media and return gaps in the source timeline. Generated sources, or sources that cannot have PTS gaps in their input media, should return an empty array.
+
 ### open(width, height, seek, duration, framerate, name)
 
 Open the video source, which should launch any additional processes needed to read or generate the video data. This method will return a `VideoSourceReader` object which provides the information needed to incorporate the video source into the rendering of an EDL cut. This information includes the process IDs of any external processes launched, the file descriptor for the video data, the command-line arguments required to use the video source as an input on an ffmpeg command, and any ffmpeg filters which should be applied to the video prior to it being used.
