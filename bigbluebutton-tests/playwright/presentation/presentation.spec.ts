@@ -16,7 +16,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
   test('Navigate slides with arrow keys', async ({ browser, context, page }, testInfo) => {
     const presentation = new Presentation(browser, context);
     await presentation.initModPage(page, { testInfo });
-    await presentation.navigateSlidesWithArrowKeys();
+    await presentation.navigateSlidesWithKeys();
   });
 
   test('Share Camera As Content', async ({ browser }, testInfo) => {

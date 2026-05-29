@@ -43,7 +43,7 @@ export class Presentation extends MultiUsers {
     await checkSvgIndex(this.modPage, '/svg/1');
   }
 
-  async navigateSlidesWithArrowKeys() {
+  async navigateSlidesWithKeys() {
     await this.modPage.hasElement(
       e.whiteboard,
       'should display the whiteboard when the moderator joins the meeting',
@@ -57,27 +57,47 @@ export class Presentation extends MultiUsers {
 
     await blurActive();
     await this.modPage.press('ArrowRight');
-    await this.modPage.hasElement(e.whiteboard, 'should display the next slide after pressing ArrowRight');
-    await this.modPage.page.waitForTimeout(1000);
-    await checkSvgIndex(this.modPage, '/svg/2');
+    await this.modPage.page.waitForFunction(
+       ([whiteboardSelector, expectedSvg]) => {
+         const whiteboard = document.querySelector(whiteboardSelector);
+         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
+       },
+       [e.whiteboard, '/svg/2'],
+       { timeout: ELEMENT_WAIT_LONGER_TIME },
+     );
 
     await blurActive();
     await this.modPage.press('ArrowLeft');
-    await this.modPage.hasElement(e.whiteboard, 'should display the previous slide after pressing ArrowLeft');
-    await this.modPage.page.waitForTimeout(1000);
-    await checkSvgIndex(this.modPage, '/svg/1');
+    await this.modPage.page.waitForFunction(
+       ([whiteboardSelector, expectedSvg]) => {
+         const whiteboard = document.querySelector(whiteboardSelector);
+         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
+       },
+       [e.whiteboard, '/svg/1'],
+       { timeout: ELEMENT_WAIT_LONGER_TIME },
+     );
 
     await blurActive();
     await this.modPage.press('PageDown');
-    await this.modPage.hasElement(e.whiteboard, 'should display the next slide after pressing PageDown');
-    await this.modPage.page.waitForTimeout(1000);
-    await checkSvgIndex(this.modPage, '/svg/2');
+    await this.modPage.page.waitForFunction(
+       ([whiteboardSelector, expectedSvg]) => {
+         const whiteboard = document.querySelector(whiteboardSelector);
+         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
+       },
+       [e.whiteboard, '/svg/2'],
+       { timeout: ELEMENT_WAIT_LONGER_TIME },
+     );
 
     await blurActive();
     await this.modPage.press('PageUp');
-    await this.modPage.hasElement(e.whiteboard, 'should display the previous slide after pressing PageUp');
-    await this.modPage.page.waitForTimeout(1000);
-    await checkSvgIndex(this.modPage, '/svg/1');
+    await this.modPage.page.waitForFunction(
+       ([whiteboardSelector, expectedSvg]) => {
+         const whiteboard = document.querySelector(whiteboardSelector);
+         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
+       },
+       [e.whiteboard, '/svg/1'],
+       { timeout: ELEMENT_WAIT_LONGER_TIME },
+     );
   }
 
   async shareCameraAsContent() {
