@@ -24,9 +24,10 @@ const handleMeetingLocked = async (header: MessageHeader, body: MessageBody): Pr
   logger.info(`Meeting lockSettings changed with disableNotes: ${disableNotes}`, meetingId);
 
   connectionsMap.forEach((connectionInfo, connectionKey) => {
-    if (connectionInfo.meetingId == meetingId && disableNotes != !connectionInfo.notesEnabled) {
+    const userHasNotesDisabled = !connectionInfo.notesEnabled;
+    if (connectionInfo.meetingId == meetingId && disableNotes != userHasNotesDisabled) {
       logger.debug('Removing connection', connectionKey, connectionInfo);
-      connectionInfo.websocket?.close(1008, 'Lock rules changed.');
+      connectionInfo.websocket?.close(1008, 'Meeting lockSettings changed.');
       connectionsMap.delete(connectionKey);
     }
   });
