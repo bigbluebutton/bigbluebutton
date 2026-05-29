@@ -706,6 +706,24 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       });
       await customParam.hidePresentationOnJoinUploadLargePresentation();
     });
+    test('Ensure presentation is not restored after pre-uploading heavy presentation and restore on update is false', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, {
+        testInfo,
+        createParameter: c.preUploadedHeavyPresentation,
+        joinParameter: [c.noRestorePresentationOnNewEvents, c.hidePresentationOnJoin].join('&'),
+      });
+      await customParam.initUserPage(context, {
+        useModMeetingId: true,
+        joinParameter: [c.noRestorePresentationOnNewEvents, c.hidePresentationOnJoin].join('&'),
+        testInfo,
+      });
+      await customParam.hidePresentationOnJoinWhenHeavyPresentationUploadAndNoRestoreOnUpdate();
+    });
   });
 
   test.describe.parallel('Presentation', () => {
@@ -718,6 +736,24 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
         testInfo,
       });
       await customParam.forceRestorePresentationOnNewEvents();
+    });
+    test('Ensure presentation is restored after upload completes when restore on update is false', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const customParam = new CustomParameters(browser, context);
+      await customParam.initModPage(page, {
+        testInfo,
+        createParameter: c.preUploadedHeavyPresentation,
+        joinParameter: c.noRestorePresentationOnNewEvents,
+      });
+      await customParam.initUserPage(context, {
+        useModMeetingId: true,
+        joinParameter: c.noRestorePresentationOnNewEvents,
+        testInfo,
+      });
+      await customParam.restorePresentationAfterUpload();
     });
   });
 
