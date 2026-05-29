@@ -21,6 +21,7 @@ require 'json'
 require 'set'
 require 'shellwords'
 
+require_relative 'media_utils'
 require_relative 'video/presentation_video_source'
 require_relative 'video/video_source_reader'
 require_relative 'video/video_source'
@@ -250,6 +251,7 @@ module BigBlueButton
       # @param layouts [Array<Hash>] Additional layouts to select between automatically
       def self.render(edl, layout, output_basename, threads = 2, layouts: nil)
         video_sources = {}
+        process_dir = File.dirname(output_basename)
 
         corrupt_videos = Set.new
 
@@ -257,8 +259,6 @@ module BigBlueButton
         enforce_cut_lengths(edl, layout[:framerate])
 
         (0...(edl.length - 1)).each do |i|
-          # The render scripts need this to calculate cut lengths
-          edl[i][:next_timestamp] = edl[i + 1][:timestamp]
           # Have to fetch information about all the input video files,
           # so collect them.
           edl[i][:areas].each_value do |videos|
@@ -277,7 +277,7 @@ module BigBlueButton
               # Create a new file video source from the filename
               video_source = VideoSource.new(
                 video[:filename],
-                File.dirname(output_basename),
+                process_dir,
                 original_duration: video[:original_duration]
               )
               if video_source.corrupt?
@@ -296,6 +296,20 @@ module BigBlueButton
               videos.delete_if { |video| corrupt_videos.include?(video[:filename]) }
             end
           end
+        end
+
+        video_gaps = video_sources.each_with_object({}) do |(filename, source), gaps|
+          next if source.corrupt?
+
+          gaps[filename] = source.pts_gaps
+        end
+        remove_video_gaps(edl, video_gaps)
+        # Gap removal can add cuts, so enforce the minimum length on the final EDL.
+        enforce_cut_lengths(edl, layout[:framerate])
+
+        (0...(edl.length - 1)).each do |i|
+          # The render scripts need this to calculate cut lengths.
+          edl[i][:next_timestamp] = edl[i + 1][:timestamp]
         end
 
         dump(edl)
@@ -368,6 +382,15 @@ module BigBlueButton
         end
 
         render
+      end
+
+      # Check video files for large gaps in timestamps and remove them from the EDL for the duration of the gap.
+      def self.remove_video_gaps(edl, video_gaps)
+        BigBlueButton::EDL::MediaUtils.remove_pts_gaps_from_edl(
+          edl,
+          video_gaps,
+          stream_type: :video
+        )
       end
 
       # The methods below are for private use
