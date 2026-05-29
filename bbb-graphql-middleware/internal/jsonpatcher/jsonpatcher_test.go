@@ -300,7 +300,7 @@ func TestPatch_FieldChangeInMovedItem(t *testing.T) {
 	orig := makeUsers("a", "A", "b", "B", "c", "C")
 	mod := makeUsers("b", "B2", "a", "A", "c", "C")
 
-	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod,)
+	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod)
 	applyAndExpect(t, orig, mod, patch)
 
 	counts := countOps(t, patch)
