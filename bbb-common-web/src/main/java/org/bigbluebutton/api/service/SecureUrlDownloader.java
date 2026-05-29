@@ -1,6 +1,5 @@
 package org.bigbluebutton.api.service;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.config.RequestConfig;
@@ -14,8 +13,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 
@@ -35,15 +37,18 @@ public class SecureUrlDownloader {
     private static final Logger log = LoggerFactory.getLogger(SecureUrlDownloader.class);
 
     /**
-     * Downloads the content at {@code validatedUrl} and writes it to {@code destination}.
+     * Downloads the content at {@code validatedUrl} and writes it to {@code destination},
+     * aborting (and deleting the partial file) if {@code maxBytes} is exceeded.
      *
-     * @param contextId   Identifier for log messages (e.g. meeting ID).
+     * @param contextId    Identifier for log messages (e.g. meeting ID).
      * @param validatedUrl The pre-validated, DNS-pinned URL to download.
      * @param destination  The file to write the downloaded content to.
      * @param timeoutMs    Connect/socket timeout in milliseconds.
-     * @return {@code true} if the file was created successfully.
+     * @param maxBytes     Maximum allowed payload size in bytes. Pass {@link Long#MAX_VALUE} for no limit.
+     * @return {@code true} if the file was created successfully and within the size limit.
      */
-    public boolean downloadToFile(String contextId, ValidatedUrl validatedUrl, File destination, int timeoutMs) {
+    public boolean downloadToFile(String contextId, ValidatedUrl validatedUrl, File destination,
+                                  int timeoutMs, long maxBytes) {
         try (CloseableHttpClient httpClient = buildPinnedClient(validatedUrl, timeoutMs)) {
             HttpGet request = buildRequest(validatedUrl);
 
@@ -51,14 +56,33 @@ public class SecureUrlDownloader {
                 if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
                     throw new ClientProtocolException("Download failed: " + response.getStatusLine());
                 }
-                if (response.getEntity() != null && response.getEntity().getContent() != null) {
-                    FileUtils.copyInputStreamToFile(response.getEntity().getContent(), destination);
+                if (response.getEntity() == null || response.getEntity().getContent() == null) {
+                    return destination.exists();
+                }
+
+                try (InputStream in = response.getEntity().getContent();
+                     OutputStream out = new FileOutputStream(destination)) {
+                    byte[] buf = new byte[8192];
+                    long total = 0;
+                    int n;
+                    while ((n = in.read(buf)) != -1) {
+                        total += n;
+                        if (total > maxBytes) {
+                            log.warn("Response from [{}] exceeded maximum allowed payload size ({} bytes) for context [{}]",
+                                    validatedUrl.originalUrl(), maxBytes, contextId);
+                            out.close();
+                            destination.delete();
+                            return false;
+                        }
+                        out.write(buf, 0, n);
+                    }
                 }
             }
 
             return destination.exists();
         } catch (IOException e) {
             log.error("IOException while downloading [{}] for context [{}]", validatedUrl.originalUrl(), contextId, e);
+            destination.delete();
             return false;
         }
     }

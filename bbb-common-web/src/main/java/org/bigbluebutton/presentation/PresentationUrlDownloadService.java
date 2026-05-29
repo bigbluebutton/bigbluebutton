@@ -165,7 +165,7 @@ public class PresentationUrlDownloadService {
 
 
     public boolean savePresentation(final String meetingId,
-            final String filename, final String urlString) {
+            final String filename, final String urlString, final long maxBytes) {
 
         ValidatedUrl validatedUrl = redirectFollower.followRedirectSecure(
                 meetingId, urlString, 0, urlString, presRedirectValidator, presDownloadReadTimeoutInMs
@@ -183,7 +183,8 @@ public class PresentationUrlDownloadService {
             log.info("URL [{}] resolved to {} address(es)", urlString, validatedUrl.resolvedAddresses().length);
         }
 
-        return secureUrlDownloader.downloadToFile(meetingId, validatedUrl, new File(filename), presDownloadReadTimeoutInMs);
+        return secureUrlDownloader.downloadToFile(meetingId, validatedUrl, new File(filename),
+                presDownloadReadTimeoutInMs, maxBytes);
     }
 
     public void setPageExtractor(PageExtractor extractor) {

@@ -327,6 +327,13 @@ public class MeetingService implements MessageListener {
     notifier.sendUploadFileTooLargeMessage(presUploadToken, uploadedFileSize, maxUploadFileSize);
   }
 
+  public void sendPresentationUploadMaxFilesizeMessage(String presentationId, String podId, String meetingId,
+                                                       String filename, String authzToken,
+                                                       int uploadedFileSize, int maxUploadFileSize) {
+    notifier.sendUploadFileTooLargeMessage(presentationId, podId, meetingId, filename, authzToken,
+            uploadedFileSize, maxUploadFileSize);
+  }
+
   private void removeUserSessionsFromMeeting(String meetingId) {
     for (String token : sessions.keySet()) {
       UserSession userSession = sessions.get(token);
