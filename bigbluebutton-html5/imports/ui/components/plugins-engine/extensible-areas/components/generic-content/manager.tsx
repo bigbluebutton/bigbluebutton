@@ -110,7 +110,7 @@ const GenericContentPluginStateContainer = ((
       });
     });
     // If multiple sidekick items are registered with open: true, only the last one is opened.
-    const lastOpenSidekick = genericContentSidekickArea.findLast((gci) => gci.open);
+    const lastOpenSidekick = genericContentSidekickArea.slice().reverse().find((gci) => gci.open);
     if (lastOpenSidekick) {
       layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
