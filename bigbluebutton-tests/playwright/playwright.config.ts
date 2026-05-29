@@ -8,7 +8,7 @@ dotenv.config();
 
 export default defineConfig({
   workers: CI ? 1 : 2,
-  timeout: 4 * 60 * 1000,
+  timeout: 3 * 60 * 1000,
   reporter: CI ? [['blob'], ['./core/setup/customReporter.ts']] : [['list'], ['html', { open: 'never' }]],
   reportSlowTests: null,
   forbidOnly: CI,

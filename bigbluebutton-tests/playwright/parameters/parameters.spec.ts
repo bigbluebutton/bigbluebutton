@@ -711,6 +711,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       context,
       page,
     }, testInfo) => {
+      testInfo.setTimeout(4 * 60 * 1000); // 4 minutes, because of uploading heavy presentation on CI
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, {
         testInfo,
@@ -742,6 +743,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       context,
       page,
     }, testInfo) => {
+      testInfo.setTimeout(4 * 60 * 1000); // 4 minutes, because of uploading heavy presentation on CI
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, {
         testInfo,

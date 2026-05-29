@@ -456,17 +456,17 @@ export class CustomParameters extends MultiUsers {
 
     await Promise.all([
       // Very high timeout because the presentation is heavy and might take time on slow machines
-      // - 29 multiplier is a empiric value that works on my machine
+      // - 7 multiplier is a empirical value that works on my machine
       // The upload is assumed to be finished when the toast vanishes
       this.modPage.wasRemoved(
         e.presentationUploadProgressToast,
         'the upload should complete sometime',
-        UPLOAD_PDF_WAIT_TIME * 29,
+        UPLOAD_PDF_WAIT_TIME * 7,
       ),
       this.userPage.wasRemoved(
         e.presentationUploadProgressToast,
         'the upload should complete sometime',
-        UPLOAD_PDF_WAIT_TIME * 29,
+        UPLOAD_PDF_WAIT_TIME * 7,
       ),
     ]);
 
@@ -615,9 +615,9 @@ export class CustomParameters extends MultiUsers {
 
     await Promise.all([
       // Very high timeout because the presentation is heavy and might take time on slow machines
-      // - 29 multiplier is a empiric value that works on my machine
-      this.modPage.waitForSelector(e.whiteboard, UPLOAD_PDF_WAIT_TIME * 29),
-      this.userPage.waitForSelector(e.whiteboard, UPLOAD_PDF_WAIT_TIME * 29),
+      // - 7 multiplier is a empirical value that works on my machine
+      this.modPage.waitForSelector(e.whiteboard, UPLOAD_PDF_WAIT_TIME * 7),
+      this.userPage.waitForSelector(e.whiteboard, UPLOAD_PDF_WAIT_TIME * 7),
     ]);
 
     await Promise.all([

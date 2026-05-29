@@ -27,7 +27,7 @@ export const constants = {
   preUploadedPresentation:
     'preUploadedPresentation=https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v3.0.x-develop/bigbluebutton-tests/playwright/core/media/sample.pdf',
   preUploadedHeavyPresentation:
-    'preUploadedPresentation=https://raw.githubusercontent.com/py-pdf/sample-files/947bdc1682fb4cb6b245a6080a5aedfa71032fea/009-pdflatex-geotopo/GeoTopo.pdf',
+    'preUploadedPresentation=https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.0.x-develop/bigbluebutton-tests/playwright/core/media/GeoTopo.pdf',
   preUploadedPresentationOverrideDefault: 'preUploadedPresentationOverrideDefault=true',
   preUploadedPresentationName: 'preUploadedPresentationName=ScientificPaper.pdf',
   customLayout: 'meetingLayout=CUSTOM_LAYOUT',
