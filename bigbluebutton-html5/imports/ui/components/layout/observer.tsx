@@ -61,6 +61,11 @@ const LayoutObserver: React.FC = () => {
   const presentationPageArray = presentationPageData?.pres_page_curr ?? [];
   const currentPresentationPage = presentationPageArray[0];
   const currentPageId = currentPresentationPage?.pageId;
+  const LAYOUT_CONFIG = window.meetingClientSettings.public.layout;
+  const hidePresentationOnJoin = getFromUserSettings(
+    'bbb_hide_presentation_on_join',
+    LAYOUT_CONFIG.hidePresentationOnJoin,
+  );
 
   // Track whether the presentation was closed by this effect (no page available),
   // so it can be re-opened when a page becomes available again (e.g. after a
@@ -68,6 +73,7 @@ const LayoutObserver: React.FC = () => {
   const closedDueToAbsentPresentation = useRef(false);
 
   useEffect(() => {
+    if (hidePresentationOnJoin) return;
     // close presentation if there isn't any
     // case when the presentation has been manually removed in the media area drop up
     // or when defaultUploadedPresentation is null in bigbluebutton.properties
