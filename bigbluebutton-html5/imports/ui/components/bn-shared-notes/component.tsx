@@ -504,7 +504,7 @@ function BlockNoteContainer(): React.ReactElement {
   const hasError = !!error;
 
   const renderBlockNote = !error && !isAuthenticating
-    && hocuspocusProvider && !connectionClosed && isSynced;
+    && hocuspocusProvider && !connectionClosed && isSynced && !!currentUser;
   return (
     <Styled.Notes id="bn-notes-scroll-container">
       {(hasError) && (

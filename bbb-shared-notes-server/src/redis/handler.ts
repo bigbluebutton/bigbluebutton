@@ -1,6 +1,5 @@
 import { Logger } from '../common/logger';
-import { meetingLockMap, connectionsMap } from '../common/singleton';
-import { MeetingLock } from '../common/type';
+import { connectionsMap } from '../common/singleton';
 import { sender } from './sender';
 import config from '../config';
 import fs from 'node:fs';
@@ -15,12 +14,7 @@ const logger = new Logger('redis handler');
 const handleMeetingCreated = async (header: MessageHeader, body: MessageBody): Promise<void> => {
   const { props: { meetingProp: { intId: meetingId }, lockSettingsProps: { disableNotes } } } = body;
 
-  const meetingLock: MeetingLock = {
-    viewerReadOnly: disableNotes,
-  };
-
   logger.info(`Meeting created with disableNotes: ${disableNotes}`, meetingId);
-  meetingLockMap.set(meetingId, meetingLock);
 };
 
 const handleMeetingLocked = async (header: MessageHeader, body: MessageBody): Promise<void> => {
@@ -28,13 +22,9 @@ const handleMeetingLocked = async (header: MessageHeader, body: MessageBody): Pr
   const { disableNotes } = body;
 
   logger.info(`Meeting lockSettings changed with disableNotes: ${disableNotes}`, meetingId);
-  const meetingLock: MeetingLock = {
-    viewerReadOnly: disableNotes,
-  };
-  meetingLockMap.set(meetingId, meetingLock);
 
   connectionsMap.forEach((connectionInfo, connectionKey) => {
-    if (connectionInfo.meetingId == meetingId && !connectionInfo.moderator) {
+    if (connectionInfo.meetingId == meetingId && disableNotes != !connectionInfo.notesEnabled) {
       logger.debug('Removing connection', connectionKey, connectionInfo);
       connectionInfo.websocket?.close(1008, 'Lock rules changed.');
       connectionsMap.delete(connectionKey);
@@ -49,7 +39,7 @@ const handleUserLocked = async (header: MessageHeader, body: MessageBody): Promi
   logger.debug(`User changed with locked: ${locked}`, userId, meetingId);
 
   connectionsMap.forEach((connectionInfo, connectionKey) => {
-    if (connectionInfo.meetingId == meetingId && connectionInfo.userId == userId) {
+    if (connectionInfo.meetingId == meetingId && connectionInfo.intUserId == userId) {
       logger.debug('Removing connection', connectionKey, connectionInfo);
       connectionInfo.websocket?.close(1008, 'Lock rules changed.');
       connectionsMap.delete(connectionKey);
@@ -64,7 +54,7 @@ const handleUserRoleChanged = async (header: MessageHeader, body: MessageBody): 
   logger.debug(`User role changed: ${role}`, userId, meetingId);
 
   connectionsMap.forEach((connectionInfo, connectionKey) => {
-    if (connectionInfo.meetingId == meetingId && connectionInfo.userId == userId) {
+    if (connectionInfo.meetingId == meetingId && connectionInfo.intUserId == userId) {
       logger.debug('Removing connection', connectionKey, connectionInfo);
       connectionInfo.websocket?.close(1008, 'Role changed.');
       connectionsMap.delete(connectionKey);
@@ -79,7 +69,7 @@ const handleUserLeftMeeting = async (header: MessageHeader, body: MessageBody): 
   logger.debug(`User left meeting, eject: ${eject}`, userId, meetingId);
 
   connectionsMap.forEach((connectionInfo, connectionKey) => {
-    if (connectionInfo.meetingId == meetingId && connectionInfo.userId == userId) {
+    if (connectionInfo.meetingId == meetingId && connectionInfo.intUserId == userId) {
       logger.debug('Removing connection', connectionKey, connectionInfo);
       connectionInfo.websocket?.close(1008, 'User left meeting.');
       connectionsMap.delete(connectionKey);
@@ -99,10 +89,6 @@ const handleMeetingEnded = async (_header: MessageHeader, body: MessageBody): Pr
       connectionsMap.delete(connectionKey);
     }
   });
-
-  if (meetingLockMap.has(meetingId)) {
-    meetingLockMap.delete(meetingId);
-  }
 
   const padId = `${documentNamePrefix}${meetingId}`;
   await markDocumentEnded(padId);
