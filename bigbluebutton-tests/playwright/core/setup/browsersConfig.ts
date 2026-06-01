@@ -19,6 +19,8 @@ export const chromiumConfig: Project = {
       args: [
         ...chromiumBaseArgs,
         `--use-file-for-fake-video-capture=${path.join(__dirname, '../media/video.y4m')}`,
+        `--use-file-for-fake-audio-capture=${path.join(__dirname, '../media/fakespeech.wav')}`,
+        '--font-render-hinting=none',
       ],
     },
   },
