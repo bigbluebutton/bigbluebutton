@@ -173,7 +173,7 @@
     "app.disableMultiFunctionalMode": "Désactiver le mode multi-panneaux",
     "app.emptyPanel.multifunctionalPanelTitle": "Mode multi-panneaux",
     "app.emptyPanel.multifunctionalTitle": "Mode multi-panneaux activé",
-    "app.emptyPanel.multifunctionalDescription": "Choose another functionality to split the screen with the previous main function by simply clicking on the functionality you want.",
+    "app.emptyPanel.multifunctionalDescription": "Choisissez une autre fonction à afficher sous forme de panneau simultanément avec le précédente en cliquant sur la fonction désirée",
     "app.appsGallery.maxpinnedApps": "{pinnedCount} sur {maxPinned} applications épinglées",
     "app.appsGallery.maxpinnedAppsContinue": "dans la barre latérale.",
     "app.appsGallery.pinTooltip": "Épingler l'application",
