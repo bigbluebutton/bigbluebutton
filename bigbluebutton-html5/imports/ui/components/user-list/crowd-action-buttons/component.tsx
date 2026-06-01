@@ -9,7 +9,7 @@ import LockViewersContainer from '../../lock-viewers/container';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 import { layoutSelectOutput } from '/imports/ui/components/layout/context';
 import deviceInfo from '/imports/utils/deviceInfo';
-import { useIsReactionsEnabled } from '/imports/ui/services/features';
+import { useIsLockSettingsEnabled, useIsReactionsEnabled } from '/imports/ui/services/features';
 import { notify } from '/imports/ui/services/notification';
 
 const intlMessages = defineMessages({
@@ -53,6 +53,7 @@ const CrowdActionButtons: React.FC = () => {
   const [clearAllReaction, { loading: isClearingReactions }] = useMutation(CLEAR_ALL_REACTION);
   const isReactionsEnabled = useIsReactionsEnabled();
   const lockViewersModal = useModalRegistration({ id: 'lockViewersModal', priority: 'low' });
+  const isLockSettingsEnabled = useIsLockSettingsEnabled();
   const sidebarContent = layoutSelectOutput((i: { sidebarContent:
     { width: number; minWidth: number; }; }) => i.sidebarContent);
   const isAtMinWidth = Boolean(
@@ -122,21 +123,23 @@ const CrowdActionButtons: React.FC = () => {
             onClick={muteAll}
           />
         </Styled.ActionButtonWrapper>
-        <Styled.ActionButtonWrapper>
-          <Styled.ActionButtonLabel>
-            {intl.formatMessage(intlMessages.lockSettingsButtonLabel)}
-          </Styled.ActionButtonLabel>
-          {/* @ts-ignore - button is js component */}
-          <Styled.ActionButton
-            hideLabel
-            label={intl.formatMessage(intlMessages.lockSettingsButtonDescription)}
-            tooltipLabel={intl.formatMessage(intlMessages.lockSettingsButtonDescription)}
-            icon="lock"
-            size="lg"
-            data-test="lockViewersButton"
-            onClick={openLockSettingsModal}
-          />
-        </Styled.ActionButtonWrapper>
+        {isLockSettingsEnabled && (
+          <Styled.ActionButtonWrapper>
+            <Styled.ActionButtonLabel>
+              {intl.formatMessage(intlMessages.lockSettingsButtonLabel)}
+            </Styled.ActionButtonLabel>
+            {/* @ts-ignore - button is js component */}
+            <Styled.ActionButton
+              hideLabel
+              label={intl.formatMessage(intlMessages.lockSettingsButtonDescription)}
+              tooltipLabel={intl.formatMessage(intlMessages.lockSettingsButtonDescription)}
+              icon="lock"
+              size="lg"
+              data-test="lockViewersButton"
+              onClick={openLockSettingsModal}
+            />
+          </Styled.ActionButtonWrapper>
+        )}
         {isReactionsEnabled && (
           // @ts-ignore - button is js component
           <Styled.ClearReactionsButton

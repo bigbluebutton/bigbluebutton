@@ -119,6 +119,10 @@ When `allowModsToUnmuteUsers` is enabled, BigBlueButton 4.0 can optionally ask t
 
 A new **Multi-Functional Mode** adds an auxiliary sidebar content panel, allowing a second panel to be open alongside the primary one (for example, chat and the user list at the same time). It is disabled by default and enabled with `public.multiFunctionalMode.enabled` in `settings.yml`, and it can be disabled per meeting with the `multiFunctionalMode` value of `disabledFeatures`.
 
+#### Disable lock settings per meeting
+
+Lock settings can now be turned off for a meeting with the new `lockSettings` value of `disabledFeatures`. When listed, the "Lock viewers" control is removed from the moderator's user-list options, and all viewer restrictions stay unlocked for that meeting.
+
 #### Larger emoji-only chat messages (jumbomoji)
 
 A chat message that contains only emoji (up to three emoji, whitespace ignored) is now rendered at a larger font size — matching the "jumbomoji" behavior familiar from popular messengers. Messages with any accompanying text keep the normal size.
@@ -415,6 +419,7 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 - `html5PluginSdkVersion` bumped from `0.1.17` to `1.0.0-beta.3`. Plugins whose `requiredSdkVersion` only covers the `0.x` SDK no longer load; see [Plugin SDK 1.0 pre-release](#plugin-sdk-10-pre-release).
 - `disabledFeatures` accepts a new value: `pinChatMessage` (alongside the existing chat-related options).
 - `disabledFeatures` no longer lists `captions` as an option. It has had no effect since BBB 3.0, when typed captions moved to a plugin. A server that still sets it in `bbb-web.properties` keeps working: the value is accepted and ignored. Use `liveTranscription` to disable automatic transcription.
+- `disabledFeatures` accepts a new value: `lockSettings` (removes the "Lock viewers" moderator control and leaves all viewer restrictions unlocked).
 - `cameraBridge`, `screenShareBridge`, and `audioBridge` default changed from `bbb-webrtc-sfu` to `livekit` (see [LiveKit is the default media framework](#livekit-is-the-default-media-framework)).
 - `getJoinUrlUserdataBlocklist` no longer lists `bbb_fullaudio_bridge`, in BBB 4.0.2. The client has not read that parameter since BBB 3.0 (the audio bridge comes from the `audioBridge` `/create` parameter), so nothing changes in practice.
 
