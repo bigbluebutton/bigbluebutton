@@ -93,6 +93,7 @@ export const constants = {
   learningDashboardDisabled: 'disabledFeatures=learningDashboard',
   pollsDisabled: 'disabledFeatures=polls',
   lockSettingsDisabled: 'disabledFeatures=lockSettings',
+  lockSettingsDisabledWithChatLock: 'disabledFeatures=lockSettings&lockSettingsDisablePublicChat=true',
   screenshareDisabled: 'disabledFeatures=screenshare',
   sharedNotesDisabled: 'disabledFeatures=sharedNotes',
   virtualBackgroundsDisabled: 'disabledFeatures=virtualBackgrounds',

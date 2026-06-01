@@ -75,6 +75,28 @@ export class DisabledFeatures extends MultiUsers {
     await this.modPage.wasRemoved(e.lockViewersButton, 'should not display the lock viewers button');
   }
 
+  async lockSettingsServerEnforcement() {
+    // The meeting was created with disabledFeatures=lockSettings AND
+    // lockSettingsDisablePublicChat=true. Because the feature is disabled, the lock must not
+    // be applied server-side and the moderator control must be hidden.
+    const isMuteAllVisible = await this.modPage.page.locator(e.muteAllUsers)
+      .isVisible({ timeout: ELEMENT_WAIT_TIME }).catch(() => false);
+    if (!isMuteAllVisible) {
+      await this.modPage.waitAndClick(e.usersListSidebarButton);
+    }
+    await this.modPage.wasRemoved(e.lockViewersButton, 'should not display the lock viewers button');
+
+    // The public-chat lock coming from the create parameter must be ignored, so the viewer
+    // can still send public chat messages.
+    await this.userPage.hasElementEnabled(e.chatBox, 'should keep the public chat enabled for the viewer');
+    await this.userPage.fill(e.chatBox, e.message);
+    await this.userPage.waitAndClick(e.sendButton);
+    await this.userPage.hasElement(
+      e.chatUserMessageText,
+      'viewer public chat message should be sent because the lock is not applied',
+    );
+  }
+
   async screenshare() {
     await this.modPage.wasRemoved(e.startScreenSharing, 'should not display the screenshare button');
   }

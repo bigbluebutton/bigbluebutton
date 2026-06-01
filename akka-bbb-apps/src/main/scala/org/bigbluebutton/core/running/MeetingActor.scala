@@ -334,7 +334,7 @@ class MeetingActor(
   }
 
   private def initLockSettings(liveMeeting: LiveMeeting, lockSettingsProp: LockSettingsProps): Unit = {
-    val settings = Permissions(
+    val baseSettings = Permissions(
       disableCam = lockSettingsProp.disableCam,
       disableMic = lockSettingsProp.disableMic,
       disablePrivChat = lockSettingsProp.disablePrivateChat,
@@ -347,6 +347,24 @@ class MeetingActor(
       hideViewersAnnotation = lockSettingsProp.hideViewersAnnotation,
       presenterPolicy = lockSettingsProp.presenterPolicy
     )
+
+    // When lockSettings is in disabledFeatures the feature is fully off: ignore any lock
+    // restrictions coming from create params / server defaults so viewers stay unlocked.
+    val settings = if (liveMeeting.props.meetingProp.disabledFeatures.contains("lockSettings")) {
+      baseSettings.copy(
+        disableCam = false,
+        disableMic = false,
+        disablePrivChat = false,
+        disablePubChat = false,
+        disableNotes = false,
+        hideUserList = false,
+        lockOnJoin = false,
+        hideViewersCursor = false,
+        hideViewersAnnotation = false
+      )
+    } else {
+      baseSettings
+    }
 
     MeetingStatus2x.initializePermissions(liveMeeting.status)
     MeetingStatus2x.setPermissions(liveMeeting.status, settings)

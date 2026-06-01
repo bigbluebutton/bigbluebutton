@@ -19,7 +19,12 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
 
   def handleSetLockSettings(msg: ChangeLockSettingsInMeetingCmdMsg): Unit = {
 
-    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId) || liveMeeting.props.meetingProp.isBreakout) {
+    if (liveMeeting.props.meetingProp.disabledFeatures.contains("lockSettings")) {
+      log.warning(
+        "Ignoring lock settings change because the lockSettings feature is disabled for meeting {}",
+        liveMeeting.props.meetingProp.intId
+      )
+    } else if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId) || liveMeeting.props.meetingProp.isBreakout) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to change lock settings"
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
