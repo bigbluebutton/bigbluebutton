@@ -7,6 +7,7 @@ import { PluginIconType } from 'bigbluebutton-html-plugin-sdk';
 import Styled from '../styles';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import KEYS from '/imports/utils/keys';
+import { APPS_GALLERY_VIEW_MODE, AppsGalleryViewModeType } from '../types';
 
 interface AppItemProps {
   appKey: string;
@@ -19,7 +20,7 @@ interface AppItemProps {
   pinTooltip: string;
   unpinTooltip: string;
   children?: ReactNode;
-  viewMode?: 'list' | 'grid';
+  viewMode?: AppsGalleryViewModeType;
 }
 
 const intlMessages = defineMessages({
@@ -47,7 +48,7 @@ const AppItem: React.FC<AppItemProps> = ({
   pinTooltip,
   unpinTooltip,
   children = null,
-  viewMode = 'list',
+  viewMode = APPS_GALLERY_VIEW_MODE.LIST,
 }) => {
   const layoutContextDispatch = layoutDispatch();
   const intl = useIntl();
@@ -90,7 +91,7 @@ const AppItem: React.FC<AppItemProps> = ({
     }
   }, [togglePinApp]);
 
-  if (viewMode === 'grid') {
+  if (viewMode === APPS_GALLERY_VIEW_MODE.GRID) {
     return (
       <Styled.TileItem key={`${appKey}${isPinned}`} data-test={dataTest}>
         <TooltipContainer title={isPinned ? unpinTooltip : pinTooltip}>

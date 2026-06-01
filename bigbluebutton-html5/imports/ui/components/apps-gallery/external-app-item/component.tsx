@@ -14,6 +14,7 @@ import AppItem from '/imports/ui/components/apps-gallery/app-item/component';
 import { PANELS } from '/imports/ui/components/layout/enums';
 import { PluginIconType } from 'bigbluebutton-html-plugin-sdk';
 import Styled from './styles';
+import { APPS_GALLERY_VIEW_MODE, AppsGalleryViewModeType } from '../types';
 
 interface ExternalAppItemProps {
   appKey: string;
@@ -25,7 +26,7 @@ interface ExternalAppItemProps {
   pinTooltip: string;
   unpinTooltip: string;
   isNew?: boolean;
-  viewMode?: 'list' | 'grid';
+  viewMode?: AppsGalleryViewModeType;
 }
 
 const ExternalAppItem: React.FC<ExternalAppItemProps> = ({
@@ -38,7 +39,7 @@ const ExternalAppItem: React.FC<ExternalAppItemProps> = ({
   pinTooltip,
   unpinTooltip,
   isNew = false,
-  viewMode = 'list',
+  viewMode = APPS_GALLERY_VIEW_MODE.LIST,
 }) => {
   const [nameReplacement, setNameReplacement] = useState<string>(name);
   const [badgeContent, setBadgeContent] = useState<string | null>(null);

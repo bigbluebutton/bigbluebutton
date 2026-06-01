@@ -5,7 +5,7 @@ import React, {
   useState,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { AppsGalleryProps } from './types';
+import { AppsGalleryProps, APPS_GALLERY_VIEW_MODE, AppsGalleryViewModeType } from './types';
 import { PANELS } from '/imports/ui/components/layout/enums';
 import { InjectedAppGalleryItem } from '/imports/ui/components/layout/layoutTypes';
 import Styled from './styles';
@@ -59,11 +59,16 @@ const intlMessages = defineMessages({
 
 const VIEW_MODE_STORAGE_KEY = 'apps-gallery-view-mode';
 
-const getInitialViewMode = (): 'list' | 'grid' => {
-  if (deviceInfo.isMobile) return 'list';
-  const stored = localStorage.getItem(VIEW_MODE_STORAGE_KEY);
-  if (stored === 'list' || stored === 'grid') return stored;
-  return 'grid';
+const getInitialViewMode = (): AppsGalleryViewModeType => {
+  if (deviceInfo.isMobile) return APPS_GALLERY_VIEW_MODE.LIST;
+  try {
+    const stored = localStorage.getItem(VIEW_MODE_STORAGE_KEY);
+    if (stored === APPS_GALLERY_VIEW_MODE.LIST || stored === APPS_GALLERY_VIEW_MODE.GRID) return stored;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Erro ao acessar localStorage.getItem:', error);
+  }
+  return APPS_GALLERY_VIEW_MODE.GRID;
 };
 
 const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps }) => {
@@ -71,7 +76,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
   const intl = useIntl();
   const title = intl.formatMessage(intlMessages.appsGalleryTitle);
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>(getInitialViewMode);
+  const [viewMode, setViewMode] = useState<AppsGalleryViewModeType>(getInitialViewMode);
   const [meetingSettings] = useMeetingSettings();
   const { isMobile } = deviceInfo;
   const appsToLabelAsNew = meetingSettings?.public?.sidebarNavigation?.appsToLabelAsNew || [];
@@ -82,9 +87,14 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
   const gridViewLabel = intl.formatMessage(intlMessages.gridViewLabel);
   const listViewLabel = intl.formatMessage(intlMessages.listViewLabel);
 
-  const handleViewModeChange = (mode: 'list' | 'grid') => {
+  const handleViewModeChange = (mode: AppsGalleryViewModeType) => {
     setViewMode(mode);
-    localStorage.setItem(VIEW_MODE_STORAGE_KEY, mode);
+    try {
+      localStorage.setItem(VIEW_MODE_STORAGE_KEY, mode);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Erro ao acessar localStorage.setItem:', error);
+    }
   };
   const normalizedQuery = searchQuery.trim().toLowerCase();
 
@@ -178,9 +188,9 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
           <Styled.ViewToggleWrapper>
             <TooltipContainer title={gridViewLabel}>
               <Styled.ViewToggleButton
-                $active={viewMode === 'grid'}
-                onClick={() => handleViewModeChange('grid')}
-                aria-pressed={viewMode === 'grid'}
+                $active={viewMode === APPS_GALLERY_VIEW_MODE.GRID}
+                onClick={() => handleViewModeChange(APPS_GALLERY_VIEW_MODE.GRID)}
+                aria-pressed={viewMode === APPS_GALLERY_VIEW_MODE.GRID}
                 aria-label={gridViewLabel}
                 data-test="appsGalleryGridView"
               >
@@ -189,9 +199,9 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
             </TooltipContainer>
             <TooltipContainer title={listViewLabel}>
               <Styled.ViewToggleButton
-                $active={viewMode === 'list'}
-                onClick={() => handleViewModeChange('list')}
-                aria-pressed={viewMode === 'list'}
+                $active={viewMode === APPS_GALLERY_VIEW_MODE.LIST}
+                onClick={() => handleViewModeChange(APPS_GALLERY_VIEW_MODE.LIST)}
+                aria-pressed={viewMode === APPS_GALLERY_VIEW_MODE.LIST}
                 aria-label={listViewLabel}
                 data-test="appsGalleryListView"
               >
@@ -203,7 +213,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
       </Styled.DescWrapper>
       <Styled.Wrapper id="scroll-box">
         {renderedPinnedApps.length > 0 && (
-          viewMode === 'grid'
+          viewMode === APPS_GALLERY_VIEW_MODE.GRID
             ? <Styled.TileAppsWrapper>{renderedPinnedApps}</Styled.TileAppsWrapper>
             : <Styled.PinnedAppsWrapper>{renderedPinnedApps}</Styled.PinnedAppsWrapper>
         )}
@@ -211,7 +221,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
           <Styled.SectionSeparator />
         )}
         {renderedUnpinnedApps.length > 0 && (
-          viewMode === 'grid'
+          viewMode === APPS_GALLERY_VIEW_MODE.GRID
             ? <Styled.TileAppsWrapper>{renderedUnpinnedApps}</Styled.TileAppsWrapper>
             : <Styled.UnpinnedAppsWrapper>{renderedUnpinnedApps}</Styled.UnpinnedAppsWrapper>
         )}

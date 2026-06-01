@@ -176,7 +176,7 @@
     "app.emptyPanel.multifunctionalDescription": "Choose another functionality to split the screen with the previous main function by simply clicking on the functionality you want.",
     "app.appsGallery.maxpinnedApps": "{pinnedCount} out of {maxPinned} pinned apps",
     "app.appsGallery.maxpinnedAppsContinue": " in the sidebar.",
-    "app.appsGallery.searchPlaceholder": "Search functionality",
+    "app.appsGallery.searchPlaceholder": "Search",
     "app.appsGallery.pinTooltip": "Pin app",
     "app.appsGallery.unpinTooltip": "Unpin app",
     "app.appsGallery.gridViewLabel": "Grid view",

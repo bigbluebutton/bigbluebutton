@@ -13,6 +13,7 @@ import {
   lgPadding,
   appsButtonsBorderRadius,
   borderRadiusRounded,
+  lgBorderRadius,
   appsPanelItemsSpacing,
   appsPanelGroupItemsSpacing,
   contentSidebarPadding,
@@ -61,9 +62,7 @@ const RegisteredAppContent = styled.div`
   flex-direction: row;
   flex-grow: 1;
   border-radius: ${appsButtonsBorderRadius};
-  border-top: 1px solid ${colorBorder};
-  border-right: 1px solid ${colorBorder};
-  border-bottom: 1px solid ${colorBorder};
+  border: 1px solid ${colorBorder};
   align-items: center;
 `;
 
@@ -153,8 +152,12 @@ const SearchWrapper = styled.div`
   margin: 1rem ${contentSidebarPadding};
   padding: 0.4rem 0.75rem;
   border: 1px solid ${colorBorder};
-  border-radius: ${borderRadiusRounded};
+  border-radius: ${lgBorderRadius};
   background-color: ${colorWhite};
+
+  &:focus-within {
+    box-shadow: 0 0 0 0.2rem ${colorBorder};
+  }
 
   > i {
     color: ${unpinnedAppIconColor};

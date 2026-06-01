@@ -448,22 +448,19 @@ const reducer = (state, action) => {
       const sortedRegisteredApps = Object.fromEntries(Object.entries(newRegisteredApps)
         .sort(([, a], [, b]) => a.name.localeCompare(b.name)));
 
-      const sortedPinnedApps = pinnedApps
-        .slice()
-        .sort((a, b) => newRegisteredApps[a].name.localeCompare(newRegisteredApps[b].name));
+      const orderedPinnedApps = pinnedApps.slice();
 
-      let restoredPinnedApps = sortedPinnedApps;
+      let restoredPinnedApps = orderedPinnedApps;
       const savedPinnedApps = getPersistedPinnedApps();
 
       if (
         Array.isArray(savedPinnedApps)
         && savedPinnedApps.includes(id)
-        && !sortedPinnedApps.includes(id)
+        && !orderedPinnedApps.includes(id)
       ) {
         const MAX_PINNED = window.meetingClientSettings.public.app.appsGallery.maxPinnedApps;
-        if (sortedPinnedApps.length < MAX_PINNED) {
-          restoredPinnedApps = [...sortedPinnedApps, id]
-            .sort((a, b) => newRegisteredApps[a].name.localeCompare(newRegisteredApps[b].name));
+        if (orderedPinnedApps.length < MAX_PINNED) {
+          restoredPinnedApps = [...orderedPinnedApps, id];
         }
       }
 
