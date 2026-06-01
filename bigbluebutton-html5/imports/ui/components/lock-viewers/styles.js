@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { styled as materialStyled } from '@mui/material/styles';
+import Button from '@mui/material/Button';
 import {
   Checkbox,
   Select,
@@ -17,6 +18,8 @@ import {
   colorWhite,
   colorBorder,
   settingsModalTabSelected,
+  colorGreen600,
+  colorGreen100,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeBase, fontSizeLarger } from '/imports/ui/stylesheets/styled-components/typography';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
@@ -310,17 +313,25 @@ const LobbyInputWrapper = styled.div`
   flex-direction: row;
   width: 100%;
   border-radius: 0.75rem;
-  overflow: hidden;
+  overflow-y: hidden;
   border: 1px solid ${colorBorder};
+  background-color: ${colorWhite};
+  align-items: center;
+  padding: 0.4rem 0.4rem 0.4rem 0;
+  gap: 3px;
+
+  &:focus-within {
+    box-shadow: 0 0 0 2px ${colorBorder};
+  }
 `;
 
 const LobbyInput = styled.input`
   flex: 1;
   border: none;
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 1rem;
   font-size: ${fontSizeBase};
   outline: none;
-  background: ${colorWhite};
+  background: transparent;
   color: ${colorText};
 
   &::placeholder {
@@ -328,20 +339,31 @@ const LobbyInput = styled.input`
   }
 `;
 
-const LobbyInputSendButton = styled.button`
-  background: ${colorPrimary};
-  color: ${colorWhite};
-  border: none;
-  padding: 0.75rem 1rem;
-  cursor: pointer;
-  font-size: 1rem;
+// @ts-ignore
+const LobbyInputSendButton = styled(Button)`
+  align-self: center;
+  font-size: 0.9rem;
+
+  & > span {
+    display: flex;
+    align-items: center;
+    border-radius: 0.75rem;
+  }
+
+  [dir="rtl"] & {
+    transform: scale(-1, 1);
+  }
+`;
+
+const SuccessMessage = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
-
-  &:hover {
-    opacity: 0.9;
-  }
+  gap: 0.35rem;
+  color: ${colorGreen600};
+  background-color: ${colorGreen100};
+  font-size: 0.85rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 0.5rem;
 `;
 
 const CheckboxList = styled.div`
@@ -423,6 +445,7 @@ export default {
   LobbyInputWrapper,
   LobbyInput,
   LobbyInputSendButton,
+  SuccessMessage,
   CheckboxList,
   CheckboxRow,
   CheckboxLabel,

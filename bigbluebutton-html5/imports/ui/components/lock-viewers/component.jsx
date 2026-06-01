@@ -2,12 +2,116 @@ import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { clone } from 'radash';
-import { MenuItem } from '@mui/material';
+import { MenuItem, CircularProgress } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import SendIcon from '@mui/icons-material/Send';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import UnsavedChangesModal from '/imports/ui/components/common/modal/unsaved-changes/component';
 import Styled from './styles';
+
+const LobbyMessageInput = React.memo((
+  {
+    initialMessage, placeholder, submitLabel, successLabel, onSend, onDraftChange,
+  },
+) => {
+  const [message, setMessage] = React.useState(initialMessage);
+  const [isSending, setIsSending] = React.useState(false);
+  const [messageSent, setMessageSent] = React.useState(false);
+  const [lastSentMessage, setLastSentMessage] = React.useState('');
+  const messageSentTimerRef = React.useRef(null);
+  const isSendingTimerRef = React.useRef(null);
+
+  React.useEffect(() => () => {
+    clearTimeout(messageSentTimerRef.current);
+    clearTimeout(isSendingTimerRef.current);
+  }, []);
+
+  const handleSend = React.useCallback(() => {
+    if (!message.trim()) return;
+    onSend(message);
+    setLastSentMessage(message);
+    setMessage('');
+    onDraftChange('');
+    clearTimeout(isSendingTimerRef.current);
+    clearTimeout(messageSentTimerRef.current);
+    setIsSending(true);
+    isSendingTimerRef.current = setTimeout(() => {
+      setIsSending(false);
+      setMessageSent(true);
+      messageSentTimerRef.current = setTimeout(() => setMessageSent(false), 2000);
+    }, 500);
+  }, [message, onSend, onDraftChange]);
+
+  const handleChange = React.useCallback((e) => {
+    const { value } = e.target;
+    setMessage(value);
+    onDraftChange(value);
+  }, [onDraftChange]);
+
+  const handleKeyDown = React.useCallback((e) => {
+    if (e.key === 'Enter') handleSend();
+  }, [handleSend]);
+
+  const sendButton = (
+    <Styled.LobbyInputSendButton
+      sx={{
+        alignSelf: 'center',
+        fontSize: '0.9rem',
+        borderRadius: '0.75rem',
+        minWidth: 'auto',
+        padding: '6px',
+      }}
+      variant="contained"
+      aria-label={submitLabel}
+      onClick={handleSend}
+      disabled={!message.trim() || isSending}
+      data-test="sendLobbyMessageButton"
+    >
+      {isSending ? <CircularProgress size={16} color="inherit" /> : <SendIcon />}
+    </Styled.LobbyInputSendButton>
+  );
+
+  return (
+    <>
+      <Styled.LobbyInputWrapper>
+        <Styled.LobbyInput
+          placeholder={placeholder}
+          value={message}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          data-test="lobbyMessageInput"
+        />
+        {lastSentMessage ? (
+          <TooltipContainer title={lastSentMessage} position="top">
+            <span style={{ display: 'inline-flex', alignSelf: 'center' }}>
+              {sendButton}
+            </span>
+          </TooltipContainer>
+        ) : sendButton}
+      </Styled.LobbyInputWrapper>
+      {messageSent && (
+        <Styled.SuccessMessage>
+          <CheckCircleOutlineIcon fontSize="small" />
+          {successLabel}
+        </Styled.SuccessMessage>
+      )}
+    </>
+  );
+});
+LobbyMessageInput.displayName = 'LobbyMessageInput';
+LobbyMessageInput.propTypes = {
+  initialMessage: PropTypes.string,
+  placeholder: PropTypes.string.isRequired,
+  submitLabel: PropTypes.string.isRequired,
+  successLabel: PropTypes.string.isRequired,
+  onSend: PropTypes.func.isRequired,
+  onDraftChange: PropTypes.func.isRequired,
+};
+LobbyMessageInput.defaultProps = {
+  initialMessage: '',
+};
 
 const PRESENTATION_POLICY = {
   MODERATOR_ONLY: 'moderatorOnly',
@@ -204,11 +308,12 @@ class LockViewersComponent extends Component {
       usersProp: clone(usersPolicies),
       guestPolicy: usersPolicies.guestPolicy || 'ASK_MODERATOR',
       lobbyMessageEnabled: !!props.guestLobbyMessage,
-      lobbyMessage: props.guestLobbyMessage || '',
       presentationPolicy,
       unsavedModalOpen: false,
-      messageSent: false,
     };
+
+    this.lobbyMessageDraft = props.guestLobbyMessage || '';
+    this.lobbyMessageInitial = props.guestLobbyMessage || '';
 
     this.initialState = {
       lockSettingsProps: clone(lockSettings),
@@ -219,31 +324,21 @@ class LockViewersComponent extends Component {
       presentationPolicy,
     };
 
-    this.sendButtonRef = React.createRef();
-    this.handleSendLobbyMessage = this.handleSendLobbyMessage.bind(this);
+    this.handleLobbyMessageChange = this.handleLobbyMessageChange.bind(this);
+    this.handleLobbyMessageSend = this.handleLobbyMessageSend.bind(this);
     this.handleClose = this.handleClose.bind(this);
     this.handleIgnoreChanges = this.handleIgnoreChanges.bind(this);
   }
 
-  componentWillUnmount() {
-    clearTimeout(this.messageSentTimer);
+  handleLobbyMessageChange(value) {
+    this.lobbyMessageDraft = value;
   }
 
-  handleSendLobbyMessage() {
-    const { setLobbyMessage: setMsg } = this.props;
-    const { lobbyMessage: msg } = this.state;
-    if (!msg.trim()) return;
-    setMsg(msg);
-    this.setState({ lobbyMessage: '', messageSent: true }, () => {
-      const btn = this.sendButtonRef.current;
-      if (btn && btn._tippy) btn._tippy.show();
-    });
-    clearTimeout(this.messageSentTimer);
-    this.messageSentTimer = setTimeout(() => {
-      this.setState({ messageSent: false });
-      const btn = this.sendButtonRef.current;
-      if (btn && btn._tippy) btn._tippy.hide();
-    }, 2000);
+  handleLobbyMessageSend(msg) {
+    const { setLobbyMessage } = this.props;
+    setLobbyMessage(msg);
+    this.lobbyMessageDraft = '';
+    this.initialState.lobbyMessage = '';
   }
 
   handleClose() {
@@ -274,7 +369,6 @@ class LockViewersComponent extends Component {
       usersProp,
       guestPolicy,
       lobbyMessageEnabled,
-      lobbyMessage,
       presentationPolicy,
     } = this.state;
 
@@ -287,8 +381,8 @@ class LockViewersComponent extends Component {
 
     if (!lobbyMessageEnabled) {
       setLobbyMessage('');
-    } else if (lobbyMessage) {
-      setLobbyMessage(lobbyMessage);
+    } else if (this.lobbyMessageDraft) {
+      setLobbyMessage(this.lobbyMessageDraft);
     }
 
     closeModal();
@@ -301,7 +395,7 @@ class LockViewersComponent extends Component {
   hasChanges() {
     const {
       lockSettingsProps, usersProp, guestPolicy,
-      lobbyMessageEnabled, lobbyMessage, presentationPolicy,
+      lobbyMessageEnabled, presentationPolicy,
     } = this.state;
     const i = this.initialState;
     return (
@@ -309,7 +403,7 @@ class LockViewersComponent extends Component {
       || JSON.stringify(usersProp) !== JSON.stringify(i.usersProp)
       || guestPolicy !== i.guestPolicy
       || lobbyMessageEnabled !== i.lobbyMessageEnabled
-      || lobbyMessage !== i.lobbyMessage
+      || this.lobbyMessageDraft !== i.lobbyMessage
       || presentationPolicy !== i.presentationPolicy
     );
   }
@@ -337,7 +431,7 @@ class LockViewersComponent extends Component {
   renderGuestPolicyTab() {
     const { intl } = this.props;
     const {
-      guestPolicy, lobbyMessageEnabled, lobbyMessage, messageSent,
+      guestPolicy, lobbyMessageEnabled,
     } = this.state;
 
     return (
@@ -370,41 +464,34 @@ class LockViewersComponent extends Component {
               checked={lobbyMessageEnabled}
               onChange={(_, checked) => {
                 this.setState({ lobbyMessageEnabled: checked });
-                if (!checked) this.setState({ lobbyMessage: '' });
+                if (!checked) {
+                  this.lobbyMessageDraft = '';
+                  this.lobbyMessageInitial = '';
+                }
               }}
             />
             <Styled.SwitchLabel
               onClick={() => {
                 const next = !lobbyMessageEnabled;
                 this.setState({ lobbyMessageEnabled: next });
-                if (!next) this.setState({ lobbyMessage: '' });
+                if (!next) {
+                  this.lobbyMessageDraft = '';
+                  this.lobbyMessageInitial = '';
+                }
               }}
             >
               {intl.formatMessage(intlMessages.lobbyMessageLabel)}
             </Styled.SwitchLabel>
           </Styled.SwitchRow>
           {lobbyMessageEnabled && (
-            <Styled.LobbyInputWrapper>
-              <Styled.LobbyInput
-                placeholder={intl.formatMessage(intlMessages.lobbyMessageLabel)}
-                value={lobbyMessage}
-                onChange={(e) => this.setState({ lobbyMessage: e.target.value })}
-                onKeyDown={(e) => { if (e.key === 'Enter') this.handleSendLobbyMessage(); }}
-                data-test="lobbyMessageInput"
-              />
-              <TooltipContainer
-                title={messageSent ? intl.formatMessage(intlMessages.lobbyMessageSent) : ''}
-                position="top"
-              >
-                <Styled.LobbyInputSendButton
-                  ref={this.sendButtonRef}
-                  aria-label={intl.formatMessage(intlMessages.submitLabel)}
-                  onClick={this.handleSendLobbyMessage}
-                >
-                  ▶
-                </Styled.LobbyInputSendButton>
-              </TooltipContainer>
-            </Styled.LobbyInputWrapper>
+            <LobbyMessageInput
+              initialMessage={this.lobbyMessageInitial}
+              placeholder={intl.formatMessage(intlMessages.lobbyMessageLabel)}
+              submitLabel={intl.formatMessage(intlMessages.submitLabel)}
+              successLabel={intl.formatMessage(intlMessages.lobbyMessageSent)}
+              onSend={this.handleLobbyMessageSend}
+              onDraftChange={this.handleLobbyMessageChange}
+            />
           )}
         </Styled.LobbyMessageSection>
       </Styled.TabContent>
