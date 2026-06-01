@@ -620,7 +620,7 @@ const createEndpointTableData = [
               <code className="language-plaintext highlighter-rouge">webcamGrid</code> - <b>Enable/Disable the webcam grid, ie. the avatar tiles rendered for camera-less users while the presentation is minimized (added in BigBlueButton 4.0)</b>
             </li>
             <li>
-              <code className="language-plaintext highlighter-rouge">lockSettings</code> - <b>Lock viewers settings (added in BigBlueButton 4.0)</b> - hides the "Lock viewers" moderator control; all viewer restrictions remain unlocked
+              <code className="language-plaintext highlighter-rouge">lockSettings</code> - <b>Lock viewers settings (added in BigBlueButton 4.0)</b> - removes the "Lock viewers" moderator control and disables lock enforcement, so all viewer restrictions stay unlocked for the meeting (lock create parameters and server defaults are ignored)
             </li>
           </ul>
         </>
