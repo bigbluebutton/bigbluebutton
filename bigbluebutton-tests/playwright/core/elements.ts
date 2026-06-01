@@ -489,6 +489,7 @@ export const elements = {
   clearStatus: 'li[data-test="clearStatus"]',
 
   // Lock Viewers
+  muteAllUsers: 'button[data-test="muteAllUsers"]',
   lockViewersButton: 'button[data-test="lockViewersButton"]',
   unlockUserButton: 'li[data-test="unlockUserButton"]',
   applyLockSettings: 'button[data-test="applyLockSettings"]',

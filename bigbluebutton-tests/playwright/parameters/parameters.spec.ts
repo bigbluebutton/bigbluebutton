@@ -298,6 +298,14 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     });
 
     test.describe.serial(() => {
+      test('Lock Settings', async ({ browser, context, page }, testInfo) => {
+        const disabledFeatures = new DisabledFeatures(browser, context);
+        await disabledFeatures.initModPage(page, { createParameter: c.lockSettingsDisabled, testInfo });
+        await disabledFeatures.lockSettings();
+      });
+    });
+
+    test.describe.serial(() => {
       test('Screenshare', async ({ browser, context, page }, testInfo) => {
         const disabledFeatures = new DisabledFeatures(browser, context);
         await disabledFeatures.initModPage(page, { createParameter: c.screenshareDisabled, testInfo });

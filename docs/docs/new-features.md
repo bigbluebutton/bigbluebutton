@@ -76,6 +76,10 @@ When `allowModsToUnmuteUsers` is enabled, BigBlueButton 4.0 can optionally ask t
 
 A new **Multi-Functional Mode** adds an auxiliary sidebar content panel, allowing a second panel to be open alongside the primary one (for example, chat and the user list at the same time). It is disabled by default and enabled with `public.multiFunctionalMode.enabled` in `settings.yml`, and it can be disabled per meeting with the `multiFunctionalMode` value of `disabledFeatures`.
 
+#### Disable lock settings per meeting
+
+Lock settings can now be turned off for a meeting with the new `lockSettings` value of `disabledFeatures`. When listed, the "Lock viewers" control is removed from the moderator's user-list options, and all viewer restrictions stay unlocked for that meeting.
+
 <!-- ### Analytics -->
 
 ### Behind the scenes
@@ -212,6 +216,7 @@ _None._
 - `defaultMeetingLayout` default changed from `CUSTOM_LAYOUT` to `UNIFIED_LAYOUT`. Accepted values are now `UNIFIED_LAYOUT` (default), plus the hybrid/niche options `CAMERAS_ONLY`, `PARTICIPANTS_CHAT_ONLY`, and `PRESENTATION_ONLY`. The previous values `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, and `VIDEO_FOCUS` are no longer accepted.
 - `html5PluginSdkVersion` bumped from `0.0.99` to `0.1.17`.
 - `disabledFeatures` accepts a new value: `pinChatMessage` (alongside the existing chat-related options).
+- `disabledFeatures` accepts a new value: `lockSettings` (removes the "Lock viewers" moderator control and leaves all viewer restrictions unlocked).
 
 #### Added
 

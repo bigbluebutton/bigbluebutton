@@ -1,4 +1,4 @@
-import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
+import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { MultiUsers } from '../user/multiusers';
 
@@ -59,6 +59,20 @@ export class DisabledFeatures extends MultiUsers {
 
   async polls() {
     await this.modPage.wasRemoved(e.pollSidebarButton, 'should not display the poll sidebar button');
+  }
+
+  async lockSettings() {
+    // Open the user list if it is not already showing the moderator crowd-action buttons.
+    const isMuteAllVisible = await this.modPage.page.locator(e.muteAllUsers)
+      .isVisible({ timeout: ELEMENT_WAIT_TIME }).catch(() => false);
+    if (!isMuteAllVisible) {
+      await this.modPage.waitAndClick(e.usersListSidebarButton);
+    }
+    // The "mute all except presenter" button shares the moderator crowd-action area and is
+    // not gated, so its presence confirms the area rendered while only the lock viewers
+    // button is hidden by disabledFeatures=lockSettings.
+    await this.modPage.hasElement(e.muteAllUsers, 'should display the moderator crowd action buttons');
+    await this.modPage.wasRemoved(e.lockViewersButton, 'should not display the lock viewers button');
   }
 
   async screenshare() {

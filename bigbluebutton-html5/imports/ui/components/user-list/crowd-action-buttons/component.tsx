@@ -7,6 +7,7 @@ import { CrowdActionButtonsProps } from './types';
 import Styled from './styles';
 import LockViewersContainer from '../../lock-viewers/container';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
+import { useIsLockSettingsEnabled } from '/imports/ui/services/features';
 
 const intlMessages = defineMessages({
   muteAllExceptPresenterLabel: {
@@ -33,6 +34,7 @@ const CrowdActionButtons: React.FC<CrowdActionButtonsProps> = ({
   const intl = useIntl();
   const [setMuted] = useMutation(SET_MUTED);
   const lockViewersModal = useModalRegistration({ id: 'lockViewersModal', priority: 'low' });
+  const isLockSettingsEnabled = useIsLockSettingsEnabled();
 
   const muteAll = () => {
     setMuted({
@@ -80,7 +82,7 @@ const CrowdActionButtons: React.FC<CrowdActionButtonsProps> = ({
             onClick={muteAll}
           />
         </Styled.ActionButtonWrapper>
-        {!isBreakout && (
+        {!isBreakout && isLockSettingsEnabled && (
           <Styled.ActionButtonWrapper>
             <Styled.ActionButtonLabel>
               {intl.formatMessage(intlMessages.lockSettingsButtonLabel)}

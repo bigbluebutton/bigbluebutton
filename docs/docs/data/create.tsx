@@ -548,6 +548,9 @@ const createEndpointTableData = [
             <li>
               <code className="language-plaintext highlighter-rouge">multiFunctionalMode</code> - <b>Multi-Functional Mode - multiple sidebars</b>
             </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">lockSettings</code> - <b>Lock viewers settings (added in BigBlueButton 4.0)</b> - hides the "Lock viewers" moderator control; all viewer restrictions remain unlocked
+            </li>
           </ul>
         </>
     ),
