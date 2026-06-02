@@ -75,6 +75,9 @@ trait SystemConfiguration {
   lazy val transcriptLines = Try(config.getInt("transcript.lines")).getOrElse(2)
 
   lazy val reduceDuplicatedPick = Try(config.getBoolean("apps.reduceDuplicatedPick")).getOrElse(false)
+  lazy val presUploadTokenMaxRequests = Try(config.getInt("apps.presentationUploadTokenMaxRequests")).getOrElse(20)
+  lazy val presUploadTokenWindowSec = Try(config.getInt("apps.presentationUploadTokenWindowSec")).getOrElse(60)
+  lazy val presMaxPerPod = Try(config.getInt("apps.presentationMaxPerPod")).getOrElse(50)
 
   // Redis server configuration
   lazy val redisHost = Try(config.getString("redis.host")).getOrElse("127.0.0.1")
