@@ -21,7 +21,7 @@ Like BigBlueButton sessions, the management of recordings should be handled by [
 
 From a technical point of view, in the BigBlueButton API, when you pass the parameter `record=true` with [create](/development/api#create), BigBlueButton will create a session that has recording enabled. In this case, it will add a new button to the toolbar at the top of the window with a circle icon which a moderator in the session can use to indicate sections of the meeting to be recorded.
 
-In a session with recording enabled, BigBlueButton will save the slides, chat, audio, desktop sharing (deskshare), whiteboard events, shared notes, captions, poll results, and webcams for later processing. This is the unique way to record a meeting, because it provides the ability for different workflows to create recordings with different properties, combining the media in unique ways.
+In a session with recording enabled, BigBlueButton will save the slides, chat, audio, screen sharing, whiteboard events, shared notes, captions, poll results, and webcams for later processing. This is the unique way to record a meeting, because it provides the ability for different workflows to create recordings with different properties, combining the media in unique ways.
 
 After the session finishes, the BigBlueButton server will run an archive script that copies all of the related files to a single directory. It then checks to see if the moderator has clicked the "Record" button during the session to indicate a section of the meeting that should be turned into a recording. If the recording button was not clicked during the session, the files are queued to be deleted after two weeks. (You can override this and force a recording to be processed; see the `bbb-record --rebuild` command below.)
 
@@ -42,9 +42,9 @@ BigBlueButton processes the recordings in the following order:
 
 ### Capture
 
-The Capture phase involves enabling the BigBlueButton modules (chat, presentation, video, voice, etc.) to emit events over an event bus for capture on the BigBlueButton server. Components that generate media (webcam, voice, deskshare) must also store their data streams on the server.
+The Capture phase involves enabling the BigBlueButton modules (chat, presentation, video, voice, etc.) to emit events over an event bus for capture on the BigBlueButton server. Components that generate media (webcam, voice, screenshare) must also store their data streams on the server.
 
-Whiteboard, cursor, chat and other events are stored on Redis. Webcam videos (.flv) and deskshare videos (.flv) are recorded by Red5. The audio conference file (.wav) is recorded by FreeSWITCH. Shared notes and captions are taken from Etherpad.
+Whiteboard, cursor, chat and other events are stored in Redis. Webcam and screen-sharing streams are captured by `bbb-webrtc-recorder` and written under `/var/lib/bbb-webrtc-recorder/`. The audio conference file (.wav) is recorded by FreeSWITCH. Shared notes and captions are taken from the shared notes service (Etherpad, or BlockNote via `bbb-shared-notes-server`).
 
 ### Archive
 
@@ -85,7 +85,7 @@ Some examples of things you might use the post-scripts to do:
 
 ### Playback
 
-The Playback phase involves taking the published files (audio, webcam, deskshare, chat, events, notes, captions, polls, metadata) and playing them in the browser.
+The Playback phase involves taking the published files (audio, webcam, screenshare, chat, events, notes, captions, polls, metadata) and playing them in the browser.
 
 Using the workflow **presentation**, playback is handled by HTML, CSS, and Javascript libraries;
 it is fully available in Mozilla Firefox and Google Chrome (also on Android devices). In other
@@ -137,7 +137,7 @@ BigBlueButton does not have an administrator web interface to control the sessio
 In the terminal of your server you can execute `bbb-record`, which will show you each option with its description:
 
 ```
-BigBlueButton Recording Diagnostic Utility (BigBlueButton Version 2.5.N)
+BigBlueButton Recording Diagnostic Utility (BigBlueButton Version 3.0.N)
 
    bbb-record [options]
 
@@ -176,7 +176,7 @@ Administration:
 
 #### Useful terms
 
-- workflow - is the way a recording is processed, published, and played. In BigBlueButton 2.4 the unique workflow out of the box is the "presentation" format.
+- workflow - is the way a recording is processed, published, and played. The only workflow enabled out of the box is the "presentation" format.
 - internal meetingId - is an alphanumeric string that internally identifies your recorded meeting. It is created internally by BigBlueButton. For example "183f0bf3a0982a127bdb8161e0c44eb696b3e75c-1379693236230".
 - external meetingID - is the id you set to the meeting, like "English 201" or "My Awesome class", "Chemistry 2". It is passed through the create API call.
 - recording - is recorded meeting in BigBlueButton.
@@ -379,7 +379,7 @@ The way to start a recorded session in BigBlueButton is setting the "record" par
 
 The Capture phase is handled by many components.
 
-To understand how it works, you should have basic, intermediate, or advanced understanding about tools like FreeSWITCH, Flex, Red5, and Redis. Dig into the [BigBlueButton source code](https://github.com/bigbluebutton/bigbluebutton) and search for information in the [BigBlueButton mailing list for developers](https://groups.google.com/forum/#!forum/bigbluebutton-dev) if you have more questions.
+To understand how it works, you should have basic, intermediate, or advanced understanding about tools like FreeSWITCH, bbb-webrtc-recorder, mediasoup, and Redis. Dig into the [BigBlueButton source code](https://github.com/bigbluebutton/bigbluebutton) and search for information in the [BigBlueButton mailing list for developers](https://groups.google.com/forum/#!forum/bigbluebutton-dev) if you have more questions.
 
 #### Archive, Sanity, Process and Publish
 
@@ -394,8 +394,17 @@ These phases are handled by Ruby scripts. The directory for those files is `/usr
 │   ├── boot.rb
 │   ├── custom_hash.rb
 │   ├── recordandplayback
+│   │   ├── docs
+│   │   │   └── edl
+│   │   │       ├── video.md
+│   │   │       └── video_source.md
 │   │   ├── edl
 │   │   │   ├── audio.rb
+│   │   │   ├── media_utils.rb
+│   │   │   ├── video
+│   │   │   │   ├── presentation_video_source.rb
+│   │   │   │   ├── video_source.rb
+│   │   │   │   └── video_source_reader.rb
 │   │   │   └── video.rb
 │   │   ├── edl.rb
 │   │   ├── events_archiver.rb
@@ -415,45 +424,163 @@ These phases are handled by Ruby scripts. The directory for those files is `/usr
 │   │   │   ├── publish_worker.rb
 │   │   │   └── sanity_worker.rb
 │   │   └── workers.rb
-│   └── recordandplayback.rb
-└── scripts
-    ├── README
-    ├── archive
-    │   └── archive.rb
-    ├── bbb-0.9-beta-recording-update
-    ├── bbb-0.9-recording-size
-    ├── bbb-1.1-meeting-tag
-    ├── bigbluebutton.yml
-    ├── caption
-    │   └── presentation
-    ├── cleanup.rb
-    ├── post_archive
-    │   └── post_archive.rb.example
-    ├── post_events
-    │   ├── post_events.rb.example
-    │   └── post_events_analytics_callback.rb
-    ├── post_process
-    │   └── post_process.rb.example
-    ├── post_publish
-    │   ├── post_publish.rb.example
-    │   ├── post_publish_recording_ready_callback.rb
-    ├── presentation.yml
-    ├── process
-    │   ├── README
-    │   └── presentation.rb
-    ├── publish
-    │   ├── README
-    │   └── presentation.rb
-    ├── rap-caption-inbox.rb
-    ├── rap-enqueue.rb
-    ├── rap-process-worker.rb
-    ├── rap-starter.rb
-    ├── sanity
-    │   └── sanity.rb
-    └── utils
-        ├── captions.rb
-        ├── gen_poll_svg
-        └── gen_webvtt
+│   ├── recordandplayback.rb
+│   └── transcription
+│       ├── albert_whisper.rb
+│       ├── openai_whisper.rb
+│       ├── transcription.yml
+│       └── transcription_utils.rb
+├── playback
+│   ├── screenshare
+│   │   ├── css
+│   │   │   ├── normalize.css
+│   │   │   └── screenshare.css
+│   │   ├── index.html.erb
+│   │   ├── js
+│   │   │   └── screenshare.js
+│   │   └── video-js
+│   │       ├── font
+│   │       │   ├── VideoJS.eot
+│   │       │   ├── VideoJS.svg
+│   │       │   ├── VideoJS.ttf
+│   │       │   └── VideoJS.woff
+│   │       ├── lang
+│   │       │   ├── ar.js
+│   │       │   ├── ba.js
+│   │       │   ├── bg.js
+│   │       │   ├── ca.js
+│   │       │   ├── cs.js
+│   │       │   ├── da.js
+│   │       │   ├── de.js
+│   │       │   ├── el.js
+│   │       │   ├── en.js
+│   │       │   ├── es.js
+│   │       │   ├── fa.js
+│   │       │   ├── fi.js
+│   │       │   ├── fr.js
+│   │       │   ├── hr.js
+│   │       │   ├── hu.js
+│   │       │   ├── it.js
+│   │       │   ├── ja.js
+│   │       │   ├── ko.js
+│   │       │   ├── nb.js
+│   │       │   ├── nl.js
+│   │       │   ├── nn.js
+│   │       │   ├── pl.js
+│   │       │   ├── pt-BR.js
+│   │       │   ├── ru.js
+│   │       │   ├── sr.js
+│   │       │   ├── sv.js
+│   │       │   ├── tr.js
+│   │       │   ├── uk.js
+│   │       │   ├── vi.js
+│   │       │   ├── zh-CN.js
+│   │       │   └── zh-TW.js
+│   │       ├── video-js.min.css
+│   │       └── video.min.js
+│   └── video
+│       ├── css
+│       │   ├── normalize.css
+│       │   └── video.css
+│       ├── index.html.erb
+│       ├── js
+│       │   ├── popcorn-complete.min.js
+│       │   ├── popcorn.chattimeline.js
+│       │   └── video.js
+│       └── video-js
+│           ├── font
+│           │   ├── VideoJS.eot
+│           │   ├── VideoJS.svg
+│           │   ├── VideoJS.ttf
+│           │   └── VideoJS.woff
+│           ├── lang
+│           │   ├── ar.js
+│           │   ├── ba.js
+│           │   ├── bg.js
+│           │   ├── ca.js
+│           │   ├── cs.js
+│           │   ├── da.js
+│           │   ├── de.js
+│           │   ├── el.js
+│           │   ├── en.js
+│           │   ├── es.js
+│           │   ├── fa.js
+│           │   ├── fi.js
+│           │   ├── fr.js
+│           │   ├── hr.js
+│           │   ├── hu.js
+│           │   ├── it.js
+│           │   ├── ja.js
+│           │   ├── ko.js
+│           │   ├── nb.js
+│           │   ├── nl.js
+│           │   ├── nn.js
+│           │   ├── pl.js
+│           │   ├── pt-BR.js
+│           │   ├── ru.js
+│           │   ├── sr.js
+│           │   ├── sv.js
+│           │   ├── tr.js
+│           │   ├── uk.js
+│           │   ├── vi.js
+│           │   ├── zh-CN.js
+│           │   └── zh-TW.js
+│           ├── video-js.min.css
+│           └── video.min.js
+├── scripts
+│   ├── README
+│   ├── archive
+│   │   └── archive.rb
+│   ├── bbb-0.9-beta-recording-update
+│   ├── bbb-0.9-recording-size
+│   ├── bbb-1.1-meeting-tag
+│   ├── bigbluebutton.yml
+│   ├── caption
+│   │   └── presentation
+│   ├── cleanup.rb
+│   ├── notes-playback.nginx
+│   ├── notes.yml
+│   ├── podcast.nginx
+│   ├── podcast.yml
+│   ├── post_archive
+│   │   ├── post_archive.rb.example
+│   │   └── transcribe_audio.rb
+│   ├── post_events
+│   │   ├── post_events.rb.example
+│   │   └── post_events_analytics_callback.rb
+│   ├── post_process
+│   │   └── post_process.rb.example
+│   ├── post_publish
+│   │   ├── post_publish.rb.example
+│   │   ├── post_publish_recording_ready_callback.rb
+│   │   └── publish_to_docs.rb
+│   ├── presentation.yml
+│   ├── process
+│   │   ├── README
+│   │   ├── notes.rb
+│   │   ├── podcast.rb
+│   │   ├── presentation.rb
+│   │   ├── screenshare.rb
+│   │   └── video.rb
+│   ├── publish
+│   │   ├── README
+│   │   ├── notes.rb
+│   │   ├── podcast.rb
+│   │   ├── presentation.rb
+│   │   ├── screenshare.rb
+│   │   └── video.rb
+│   ├── rap-caption-inbox.rb
+│   ├── rap-enqueue.rb
+│   ├── rap-process-worker.rb
+│   ├── rap-starter.rb
+│   ├── sanity
+│   │   └── sanity.rb
+│   ├── screenshare.yml
+│   ├── utils
+│   │   ├── captions.rb
+│   │   ├── gen_poll_svg
+│   │   └── gen_webvtt
+│   └── video.yml
 ```
 
 The main file is `rap-worker.rb`, it executes all the Record and Playback phases
@@ -510,7 +637,7 @@ You are free to do anything you like inside the post-scripts, including modifyin
 #### Playback phase
 
 Playback works with [bbb-playback](https://github.com/bigbluebutton/bbb-playback), a standalone React app that uses Video.js' media player.
-Slides with annotations, captions, chat, cursor, poll results, deskshares, and webcams are shown according to the current time played in the audio file.
+Slides with annotations, captions, chat, cursor, poll results, screenshares, and webcams are shown according to the current time played in the audio file.
 Playback files are located in `/var/bigbluebutton/playback/presentation/` and used to play any published recording.
 
 #### Manually executing recording scripts
