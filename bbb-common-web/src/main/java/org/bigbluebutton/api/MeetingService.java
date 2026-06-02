@@ -115,7 +115,7 @@ public class MeetingService implements MessageListener {
 
   private IBbbWebApiGWApp gw;
 
-  private  HashMap<String, PresentationUploadToken> uploadAuthzTokens;
+  private  ConcurrentHashMap<String, PresentationUploadToken> uploadAuthzTokens;
 
   ObjectMapper objectMapper = new ObjectMapper();
 
@@ -123,7 +123,7 @@ public class MeetingService implements MessageListener {
     meetings = new ConcurrentHashMap<String, Meeting>(8, 0.9f, 1);
     sessions = new ConcurrentHashMap<String, UserSession>(8, 0.9f, 1);
     removedSessions = new ConcurrentHashMap<String, UserSessionBasicData>(8, 0.9f, 1);
-    uploadAuthzTokens = new HashMap<String, PresentationUploadToken>();
+    uploadAuthzTokens = new ConcurrentHashMap<String, PresentationUploadToken>(8, 0.9f, 1);
   }
 
   public void addUserSession(String token, UserSession user) {
@@ -307,22 +307,21 @@ public class MeetingService implements MessageListener {
     }
   }
 
-  public Boolean authzTokenIsValid(String authzToken) { // Note we DO NOT expire the token
-    return uploadAuthzTokens.containsKey(authzToken);
+  public Boolean authzTokenIsValid(String authzToken) { // Note we DO NOT consume the token
+    return authzToken != null && uploadAuthzTokens.containsKey(authzToken);
   }
 
-  public Boolean authzTokenIsValidAndExpired(String authzToken) {  // Note we DO expire the token
-    Boolean valid = uploadAuthzTokens.containsKey(authzToken);
-    expirePresentationUploadToken(authzToken);
-    return valid;
+  public PresentationUploadToken getPresentationUploadToken(String authzToken) { // Note we DO NOT consume the token
+    if (authzToken == null) return null;
+    return uploadAuthzTokens.get(authzToken);
   }
 
-  public PresentationUploadToken getPresentationUploadToken(String authzToken) {
-    if(uploadAuthzTokens.containsKey(authzToken)) {
-      return uploadAuthzTokens.get(authzToken);
-    } else {
-      return null;
-    }
+  // Atomically validate and consume the single-use upload token. For N concurrent
+  // callers with the same token, exactly one gets the non-null token and the rest
+  // get null, so the token authorizes exactly one upload.
+  public PresentationUploadToken consumePresentationUploadToken(String authzToken) {
+    if (authzToken == null) return null;
+    return uploadAuthzTokens.remove(authzToken);
   }
 
   public void sendPresentationUploadMaxFilesizeMessage(PresentationUploadToken presUploadToken, int uploadedFileSize, int maxUploadFileSize) {
@@ -1038,10 +1037,6 @@ public class MeetingService implements MessageListener {
 
   private void processPresentationUploadToken(PresentationUploadToken message) {
     uploadAuthzTokens.put(message.authzToken, message);
-  }
-
-  public void expirePresentationUploadToken(String usedToken) {
-    uploadAuthzTokens.remove(usedToken);
   }
 
   public void addUserCustomData(String meetingId, String userID,

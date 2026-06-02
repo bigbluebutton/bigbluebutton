@@ -224,17 +224,17 @@ class PresentationController {
   }
 
   def upload = {
-    // check if the authorization token provided is valid
-    if (null == params.authzToken || !meetingService.authzTokenIsValid(params.authzToken)) {
-      log.debug "WARNING! AuthzToken=" + params.authzToken + " was not valid in meetingId=" + params.conference
+    // Atomically validate and consume the single-use authorization token.
+    // Only the first concurrent POST with a given token gets a non-null result;
+    // any replay (or an unknown token) gets null and is rejected.
+    PresentationUploadToken presUploadToken = meetingService.consumePresentationUploadToken(params.authzToken)
+    if (presUploadToken == null) {
+      log.debug "WARNING! AuthzToken=" + params.authzToken + " was not valid (or already used) in meetingId=" + params.conference
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'text/plain'
       response.outputStream << 'invalid auth token'
       return
     }
-
-    PresentationUploadToken presUploadToken = meetingService.getPresentationUploadToken(params.authzToken)
-    meetingService.expirePresentationUploadToken(params.authzToken)
 
     def meetingId = params.conference
     if (Util.isMeetingIdValidFormat(meetingId)) {
