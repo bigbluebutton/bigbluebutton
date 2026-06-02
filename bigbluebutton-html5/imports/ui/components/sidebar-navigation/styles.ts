@@ -14,6 +14,7 @@ import {
   colorBackground,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
+import { Separator as BaseSeparator } from '/imports/ui/components/sidebar-content/styles';
 import Button from '/imports/ui/components/common/button/component';
 
 const smallHeight = '(max-height: 40em)';
@@ -151,6 +152,10 @@ const BadgeCircle = styled.div`
   color: white;
 `;
 
+const Separator = styled(BaseSeparator)`
+    width: 50%;
+`;
+
 export default {
   NavigationSidebarBackdrop,
   NavigationSidebar,
@@ -160,4 +165,5 @@ export default {
   Center,
   Bottom,
   BadgeCircle,
+  Separator,
 };
