@@ -52,7 +52,7 @@ class Dashboard extends React.Component {
 
   setMessages() {
     const fetchMessages = (lang) => new Promise((resolve, reject) => {
-      const localesBase = process.env.REACT_APP_PLAYBACK_MODE === 'true' ? '.' : '/html5client';
+      const localesBase = process.env.REACT_APP_STANDALONE_MODE === 'true' ? '.' : '/html5client';
       const url = `${localesBase}/locales/${normalizeLocale(lang)}.json`;
       fetch(url).then((response) => {
         if (!response.ok) return reject();

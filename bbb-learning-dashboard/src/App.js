@@ -107,12 +107,12 @@ class App extends React.Component {
   }
 
   setDashboardParams(callback) {
-    if (process.env.REACT_APP_PLAYBACK_MODE === 'true') {
+    if (process.env.REACT_APP_STANDALONE_MODE === 'true') {
       const pathParts = window.location.pathname.replace(/\/$/, '').split('/');
       const meetingId = pathParts[pathParts.length - 1] || '';
       if (!meetingId) {
         // eslint-disable-next-line no-console
-        console.warn('Learning Dashboard is running in playback mode but no meetingId could be identified from the URL:', window.location.pathname);
+        console.warn('Learning Dashboard is running in standalone mode but no meetingId could be identified from the URL:', window.location.pathname);
       }
       this.setState({ meetingId, learningDashboardAccessToken: '', sessionToken: '' }, () => {
         if (typeof callback === 'function') callback();
@@ -221,7 +221,7 @@ class App extends React.Component {
       activitiesJson, learningDashboardAccessToken, sessionToken,
     } = this.state;
     const { intl } = this.props;
-    if (process.env.REACT_APP_PLAYBACK_MODE !== 'true'
+    if (process.env.REACT_APP_STANDALONE_MODE !== 'true'
         && learningDashboardAccessToken === '' && sessionToken === '') {
       return intl.formatMessage({ id: 'app.learningDashboard.errors.invalidToken', defaultMessage: 'Invalid session token' });
     }
@@ -308,9 +308,9 @@ class App extends React.Component {
       this.setState({ loading: false, invalidSessionCount: invalidSessionCount + 1 });
     };
 
-    const isPlaybackMode = process.env.REACT_APP_PLAYBACK_MODE === 'true';
+    const isStandaloneMode = process.env.REACT_APP_STANDALONE_MODE === 'true';
 
-    if (isPlaybackMode) {
+    if (isStandaloneMode) {
       const basePath = window.location.pathname.endsWith('/')
         ? window.location.pathname
         : `${window.location.pathname}/`;
@@ -345,7 +345,7 @@ class App extends React.Component {
       handleFailure();
     }
 
-    if (process.env.REACT_APP_PLAYBACK_MODE !== 'true') {
+    if (process.env.REACT_APP_STANDALONE_MODE !== 'true') {
       setTimeout(() => {
         this.fetchActivitiesJson();
       }, 10000 * (2 ** invalidSessionCount));
@@ -393,7 +393,7 @@ class App extends React.Component {
       modalOpen,
     } = this.state;
 
-    const presentationBase = process.env.REACT_APP_PLAYBACK_MODE === 'true'
+    const presentationBase = process.env.REACT_APP_STANDALONE_MODE === 'true'
       ? `${window.location.pathname.replace(/\/?$/, '/')}presentation`
       : null;
     const { intl } = this.props;
