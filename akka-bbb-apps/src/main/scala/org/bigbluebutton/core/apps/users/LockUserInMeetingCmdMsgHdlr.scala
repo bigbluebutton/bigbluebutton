@@ -24,7 +24,12 @@ trait LockUserInMeetingCmdMsgHdlr extends RightsManagementTrait {
       BbbCommonEnvCoreMsg(envelope, event)
     }
 
-    if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
+    if (liveMeeting.props.meetingProp.disabledFeatures.contains("lockSettings")) {
+      log.warning(
+        "Ignoring lock user request because the lockSettings feature is disabled for meeting {}",
+        liveMeeting.props.meetingProp.intId
+      )
+    } else if (permissionFailed(PermissionCheck.MOD_LEVEL, PermissionCheck.VIEWER_LEVEL, liveMeeting.users2x, msg.header.userId)) {
       val meetingId = liveMeeting.props.meetingProp.intId
       val reason = "No permission to lock user in meeting."
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, outGW, liveMeeting)
