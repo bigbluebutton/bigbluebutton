@@ -107,6 +107,19 @@ class App extends React.Component {
   }
 
   setDashboardParams(callback) {
+    if (process.env.REACT_APP_PLAYBACK_MODE === 'true') {
+      const pathParts = window.location.pathname.replace(/\/$/, '').split('/');
+      const meetingId = pathParts[pathParts.length - 1] || '';
+      if (!meetingId) {
+        // eslint-disable-next-line no-console
+        console.warn('Learning Dashboard is running in playback mode but no meetingId could be identified from the URL:', window.location.pathname);
+      }
+      this.setState({ meetingId, learningDashboardAccessToken: '', sessionToken: '' }, () => {
+        if (typeof callback === 'function') callback();
+      });
+      return;
+    }
+
     let learningDashboardAccessToken = '';
     let meetingId = '';
     let sessionToken = '';
@@ -204,9 +217,12 @@ class App extends React.Component {
   }
 
   getErrorMessage() {
-    const { activitiesJson, learningDashboardAccessToken, sessionToken } = this.state;
+    const {
+      activitiesJson, learningDashboardAccessToken, sessionToken,
+    } = this.state;
     const { intl } = this.props;
-    if (learningDashboardAccessToken === '' && sessionToken === '') {
+    if (process.env.REACT_APP_PLAYBACK_MODE !== 'true'
+        && learningDashboardAccessToken === '' && sessionToken === '') {
       return intl.formatMessage({ id: 'app.learningDashboard.errors.invalidToken', defaultMessage: 'Invalid session token' });
     }
 
@@ -278,20 +294,38 @@ class App extends React.Component {
       return newActivivies;
     };
 
-    if (learningDashboardAccessToken !== '') {
+    const handleSuccess = (json) => {
+      this.setState({
+        activitiesJson: convertUserUsessionsFormat(json),
+        loading: false,
+        invalidSessionCount: 0,
+        lastUpdated: Date.now(),
+      });
+      this.updateModalUser();
+    };
+
+    const handleFailure = () => {
+      this.setState({ loading: false, invalidSessionCount: invalidSessionCount + 1 });
+    };
+
+    const isPlaybackMode = process.env.REACT_APP_PLAYBACK_MODE === 'true';
+
+    if (isPlaybackMode) {
+      const basePath = window.location.pathname.endsWith('/')
+        ? window.location.pathname
+        : `${window.location.pathname}/`;
+      fetch(`${basePath}learning_dashboard_data.json`)
+        .then((response) => {
+          if (!response.ok) throw new Error('not found');
+          return response.json();
+        })
+        .then(handleSuccess)
+        .catch(handleFailure);
+    } else if (learningDashboardAccessToken !== '') {
       fetch(`${meetingId}/${learningDashboardAccessToken}/learning_dashboard_data.json`)
         .then((response) => response.json())
-        .then((json) => {
-          this.setState({
-            activitiesJson: convertUserUsessionsFormat(json),
-            loading: false,
-            invalidSessionCount: 0,
-            lastUpdated: Date.now(),
-          });
-          this.updateModalUser();
-        }).catch(() => {
-          this.setState({ loading: false, invalidSessionCount: invalidSessionCount + 1 });
-        });
+        .then(handleSuccess)
+        .catch(handleFailure);
     } else if (sessionToken !== '') {
       const url = new URL('/bigbluebutton/api/learningDashboard', window.location);
       fetch(`${url}?sessionToken=${sessionToken}`, { credentials: 'include' })
@@ -299,29 +333,23 @@ class App extends React.Component {
         .then((json) => {
           if (json.response.returncode === 'SUCCESS') {
             const jsonData = JSON.parse(json.response.data);
-            this.setState({
-              activitiesJson: jsonData,
-              loading: false,
-              invalidSessionCount: 0,
-              lastUpdated: Date.now(),
-            });
-            this.updateModalUser();
+            handleSuccess(jsonData);
           } else {
             // When meeting is ended the sessionToken stop working, check for new cookies
             this.setDashboardParams();
-            this.setState({ loading: false, invalidSessionCount: invalidSessionCount + 1 });
+            handleFailure();
           }
         })
-        .catch(() => {
-          this.setState({ loading: false, invalidSessionCount: invalidSessionCount + 1 });
-        });
+        .catch(handleFailure);
     } else {
-      this.setState({ loading: false });
+      handleFailure();
     }
 
-    setTimeout(() => {
-      this.fetchActivitiesJson();
-    }, 10000 * (2 ** invalidSessionCount));
+    if (process.env.REACT_APP_PLAYBACK_MODE !== 'true') {
+      setTimeout(() => {
+        this.fetchActivitiesJson();
+      }, 10000 * (2 ** invalidSessionCount));
+    }
   }
 
   totalOfReactions() {
@@ -361,8 +389,13 @@ class App extends React.Component {
 
   render() {
     const {
-      activitiesJson, tab, loading, lastUpdated, ldAccessTokenCopied, sessionToken, modalOpen,
+      activitiesJson, tab, loading, lastUpdated, ldAccessTokenCopied, sessionToken,
+      modalOpen,
     } = this.state;
+
+    const presentationBase = process.env.REACT_APP_PLAYBACK_MODE === 'true'
+      ? `${window.location.pathname.replace(/\/?$/, '/')}presentation`
+      : null;
     const { intl } = this.props;
 
     const pluginUserDataCardTitle = activitiesJson?.pluginUserDataCardTitles?.[0];
@@ -678,6 +711,7 @@ class App extends React.Component {
                   slides={activitiesJson.presentationSlides}
                   meetingId={activitiesJson.intId}
                   sessionToken={sessionToken}
+                  presentationBase={presentationBase}
                 />
               </div>
             </div>
