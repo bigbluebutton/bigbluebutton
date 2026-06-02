@@ -182,6 +182,13 @@ class BbbWebApiGWApp(
 
     val disabledFeaturesAsVector: Vector[String] = disabledFeatures.asScala.toVector
 
+    // When lockSettings is in disabledFeatures the feature is fully off. Neutralize every lock
+    // restriction here, at the single point where the meeting props are built, so the DB row the
+    // client reads (v_meeting_lockSettings) and the akka runtime permissions share one source of
+    // truth. Overriding only akka's in-memory permissions later would leave the DB row populated
+    // from the raw create params, keeping hasActiveLockSetting true and the lock controls live.
+    val lockSettingsDisabled: Boolean = disabledFeaturesAsVector.contains("lockSettings")
+
     val sharedNotesInitialContentJsonVector: Vector[AnyRef] = sharedNotesInitialContentJson.asScala.toVector
     val meetingProp = MeetingProp(
       name = meetingName,
@@ -237,7 +244,7 @@ class BbbWebApiGWApp(
     val usersProp = UsersProp(
       maxUsers = maxUsers.intValue(),
       maxUserConcurrentAccesses = maxUserConcurrentAccesses,
-      webcamsOnlyForModerator = webcamsOnlyForModerator.booleanValue(),
+      webcamsOnlyForModerator = if (lockSettingsDisabled) false else webcamsOnlyForModerator.booleanValue(),
       multiUserWhiteboardEnabled = multiUserWhiteboardEnabled,
       userCameraCap = userCameraCap.intValue(),
       guestPolicy = guestPolicy, meetingLayout = meetingLayout, allowModsToUnmuteUsers = allowModsToUnmuteUsers.booleanValue(),
@@ -248,19 +255,37 @@ class BbbWebApiGWApp(
     )
     val metadataProp = MetadataProp(mapAsScalaMap(metadata).toMap)
 
-    val lockSettingsProps = LockSettingsProps(
-      disableCam = lockSettingsParams.disableCam.booleanValue(),
-      disableMic = lockSettingsParams.disableMic.booleanValue(),
-      disablePrivateChat = lockSettingsParams.disablePrivateChat.booleanValue(),
-      disablePublicChat = lockSettingsParams.disablePublicChat.booleanValue(),
-      disableNotes = lockSettingsParams.disableNotes.booleanValue(),
-      hideUserList = lockSettingsParams.hideUserList.booleanValue(),
-      lockOnJoin = lockSettingsParams.lockOnJoin.booleanValue(),
-      lockOnJoinConfigurable = lockSettingsParams.lockOnJoinConfigurable.booleanValue(),
-      hideViewersCursor = lockSettingsParams.hideViewersCursor.booleanValue(),
-      hideViewersAnnotation = lockSettingsParams.hideViewersAnnotation.booleanValue(),
-      presenterPolicy = lockSettingsParams.presenterPolicy
-    )
+    val lockSettingsProps = if (lockSettingsDisabled) {
+      // Feature disabled: every viewer lock restriction forced permissive and presenterPolicy
+      // reset to the default, so neither the stored row nor the runtime restrict viewers.
+      LockSettingsProps(
+        disableCam = false,
+        disableMic = false,
+        disablePrivateChat = false,
+        disablePublicChat = false,
+        disableNotes = false,
+        hideUserList = false,
+        lockOnJoin = false,
+        lockOnJoinConfigurable = lockSettingsParams.lockOnJoinConfigurable.booleanValue(),
+        hideViewersCursor = false,
+        hideViewersAnnotation = false,
+        presenterPolicy = "requireApproval"
+      )
+    } else {
+      LockSettingsProps(
+        disableCam = lockSettingsParams.disableCam.booleanValue(),
+        disableMic = lockSettingsParams.disableMic.booleanValue(),
+        disablePrivateChat = lockSettingsParams.disablePrivateChat.booleanValue(),
+        disablePublicChat = lockSettingsParams.disablePublicChat.booleanValue(),
+        disableNotes = lockSettingsParams.disableNotes.booleanValue(),
+        hideUserList = lockSettingsParams.hideUserList.booleanValue(),
+        lockOnJoin = lockSettingsParams.lockOnJoin.booleanValue(),
+        lockOnJoinConfigurable = lockSettingsParams.lockOnJoinConfigurable.booleanValue(),
+        hideViewersCursor = lockSettingsParams.hideViewersCursor.booleanValue(),
+        hideViewersAnnotation = lockSettingsParams.hideViewersAnnotation.booleanValue(),
+        presenterPolicy = lockSettingsParams.presenterPolicy
+      )
+    }
 
     val systemProps = SystemProps(
       loginUrl match {
