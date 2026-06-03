@@ -139,6 +139,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const emojiPickerButtonRef = useRef<HTMLDivElement>(null);
+  const emojiPickerPreviousFocusRef = useRef<HTMLElement | null>(null);
   const [isTextAreaFocused, setIsTextAreaFocused] = React.useState(false);
   const [repliedMessageId, setRepliedMessageId] = React.useState<string | null>(null);
   const [emojisToExclude, setEmojisToExclude] = React.useState<string[]>([]);
@@ -617,6 +618,16 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       };
     }, []);
 
+    useEffect(() => {
+      if (!showEmojiPicker) {
+        const el = emojiPickerPreviousFocusRef.current;
+        if (el && document.body.contains(el)) {
+          el.focus();
+        }
+        emojiPickerPreviousFocusRef.current = null;
+      }
+    }, [showEmojiPicker]);
+
     return (
       <Styled.Form
         ref={formRef}
@@ -670,7 +681,12 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             {ENABLE_EMOJI_PICKER ? (
               <div ref={emojiPickerButtonRef}>
                 <Styled.EmojiButton
-                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  onClick={() => {
+                    if (!showEmojiPicker) {
+                      emojiPickerPreviousFocusRef.current = document.activeElement as HTMLElement;
+                    }
+                    setShowEmojiPicker(!showEmojiPicker);
+                  }}
                   icon="happy"
                   color="light"
                   ghost

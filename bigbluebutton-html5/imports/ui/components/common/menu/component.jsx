@@ -53,6 +53,7 @@ class BBBMenu extends React.Component {
 
     this.optsToMerge = {};
     this.autoFocus = false;
+    this.previousFocus = null;
 
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleClick = this.handleClick.bind(this);
@@ -106,6 +107,7 @@ class BBBMenu extends React.Component {
   handleClick(event) {
     const { disabled } = this.props;
     if (disabled) return;
+    this.previousFocus = document.activeElement;
     this.setState({ anchorEl: event.currentTarget });
   }
 
@@ -113,15 +115,13 @@ class BBBMenu extends React.Component {
     const { onCloseCallback } = this.props;
     this.setState({ anchorEl: null }, onCloseCallback());
 
-    if (event) {
-      event.persist();
-
-      if (event.type === 'click') {
-        setTimeout(() => {
-          document.activeElement.blur();
-        }, 0);
+    setTimeout(() => {
+      if (this.previousFocus && typeof this.previousFocus.focus === 'function'
+        && document.body.contains(this.previousFocus)) {
+        this.previousFocus.focus();
       }
-    }
+      this.previousFocus = null;
+    }, 0);
   }
 
   makeMenuItems() {
