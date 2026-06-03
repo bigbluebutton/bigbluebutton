@@ -108,15 +108,7 @@ class App extends React.Component {
 
   setDashboardParams(callback) {
     if (process.env.REACT_APP_STANDALONE_MODE === 'true') {
-      const pathParts = window.location.pathname.replace(/\/$/, '').split('/');
-      const meetingId = pathParts[pathParts.length - 1] || '';
-      if (!meetingId) {
-        // eslint-disable-next-line no-console
-        console.warn('Learning Dashboard is running in standalone mode but no meetingId could be identified from the URL:', window.location.pathname);
-      }
-      this.setState({ meetingId, learningDashboardAccessToken: '', sessionToken: '' }, () => {
-        if (typeof callback === 'function') callback();
-      });
+      if (typeof callback === 'function') callback();
       return;
     }
 
@@ -311,10 +303,7 @@ class App extends React.Component {
     const isStandaloneMode = process.env.REACT_APP_STANDALONE_MODE === 'true';
 
     if (isStandaloneMode) {
-      const basePath = window.location.pathname.endsWith('/')
-        ? window.location.pathname
-        : `${window.location.pathname}/`;
-      fetch(`${basePath}learning_dashboard_data.json`)
+      fetch('learning_dashboard_data.json')
         .then((response) => {
           if (!response.ok) throw new Error('not found');
           return response.json();
@@ -394,7 +383,7 @@ class App extends React.Component {
     } = this.state;
 
     const presentationBase = process.env.REACT_APP_STANDALONE_MODE === 'true'
-      ? `${window.location.pathname.replace(/\/?$/, '/')}presentation`
+      ? 'presentation'
       : null;
     const { intl } = this.props;
 
