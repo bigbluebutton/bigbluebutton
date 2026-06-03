@@ -448,22 +448,19 @@ const reducer = (state, action) => {
       const sortedRegisteredApps = Object.fromEntries(Object.entries(newRegisteredApps)
         .sort(([, a], [, b]) => a.name.localeCompare(b.name)));
 
-      const sortedPinnedApps = pinnedApps
-        .slice()
-        .sort((a, b) => newRegisteredApps[a].name.localeCompare(newRegisteredApps[b].name));
+      const orderedPinnedApps = pinnedApps.slice();
 
-      let restoredPinnedApps = sortedPinnedApps;
+      let restoredPinnedApps = orderedPinnedApps;
       const savedPinnedApps = getPersistedPinnedApps();
 
       if (
         Array.isArray(savedPinnedApps)
         && savedPinnedApps.includes(id)
-        && !sortedPinnedApps.includes(id)
+        && !orderedPinnedApps.includes(id)
       ) {
         const MAX_PINNED = window.meetingClientSettings.public.app.appsGallery.maxPinnedApps;
-        if (sortedPinnedApps.length < MAX_PINNED) {
-          restoredPinnedApps = [...sortedPinnedApps, id]
-            .sort((a, b) => newRegisteredApps[a].name.localeCompare(newRegisteredApps[b].name));
+        if (orderedPinnedApps.length < MAX_PINNED) {
+          restoredPinnedApps = [...orderedPinnedApps, id];
         }
       }
 
@@ -522,7 +519,8 @@ const reducer = (state, action) => {
 
       if (!isAppRegistered) return state;
       if ((pin && isAppPinned) || (!pin && !isAppPinned)) return state;
-      if (pin && pinnedApps.length === MAX_PINNED_APPS_GALLERY) return state;
+
+      if (isDefault && pin && pinnedApps.length >= MAX_PINNED_APPS_GALLERY) return state;
 
       if (isDefault && pin) {
         if (_initialPersistedPinnedApps === undefined) getPersistedPinnedApps();
@@ -533,10 +531,12 @@ const reducer = (state, action) => {
         }
       }
 
+      const baseApps = (pin && !isDefault && pinnedApps.length >= MAX_PINNED_APPS_GALLERY)
+        ? pinnedApps.slice(1)
+        : pinnedApps;
+
       const updatedPinnedApps = pin
-        ? [...pinnedApps, appId].sort(
-          (a, b) => registeredApps[a].name.localeCompare(registeredApps[b].name),
-        )
+        ? [...baseApps, appId]
         : pinnedApps.filter((pinnedApp) => pinnedApp !== appId);
 
       setPersistedPinnedApps(updatedPinnedApps);
