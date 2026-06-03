@@ -228,7 +228,6 @@ class Settings extends Component {
       <Styled.SettingsTabs
         onSelect={this.handleSelectTab}
         selectedIndex={selectedTab}
-        role="presentation"
       >
         <Styled.SettingsTabList>
           <Styled.SettingsTabSelector

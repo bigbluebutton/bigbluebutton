@@ -271,6 +271,7 @@
     "app.presentation.endSlideContent": "Slide content end",
     "app.presentation.changedSlideContent": "Presentation changed to slide: {slideNumber}",
     "app.presentation.emptySlideContent": "No content for current slide",
+    "app.presentation.options.label": "Whiteboard options",
     "app.presentation.options.fullscreen": "Fullscreen Presentation",
     "app.presentation.options.exitFullscreen": "Exit Fullscreen",
     "app.presentation.options.minimize": "Minimize",
