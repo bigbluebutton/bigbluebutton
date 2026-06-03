@@ -1,6 +1,6 @@
 package org.bigbluebutton
 
-import org.bigbluebutton.common2.util.YamlUtil
+import org.bigbluebutton.common2.util.{ ConfigOverrideIssue, YamlUtil }
 import org.slf4j.LoggerFactory
 
 import java.io.{ ByteArrayInputStream, File }
@@ -9,45 +9,82 @@ import scala.util.{ Failure, Success }
 
 object ClientSettings extends SystemConfiguration {
   var clientSettingsFromFile: Map[String, Object] = Map("" -> "")
+  // The pristine settings.yml catalog (with `private` still present, before any override-file
+  // merge). Used as the schema that overrides are validated against - see diffOverrideAgainstBase.
+  var clientSettingsCatalog: Map[String, Object] = Map.empty
   val logger = LoggerFactory.getLogger(this.getClass)
 
+  private def readAndClose(source: scala.io.Source): String =
+    try source.mkString finally source.close()
+
   def loadClientSettingsFromFile() = {
-    val clientSettingsFile = scala.io.Source.fromFile(clientSettingsPath, "UTF-8")
+    val baseText = readAndClose(scala.io.Source.fromFile(clientSettingsPath, "UTF-8"))
 
     val clientSettingsFileOverrideToCheck = new File(clientSettingsPathOverride)
+    val hasOverrideFile = clientSettingsFileOverrideToCheck.exists()
 
-    val clientSettingsFileOverride = if (clientSettingsFileOverrideToCheck.exists())
-      scala.io.Source.fromFile(
-        clientSettingsPathOverride,
-        "UTF-8"
-      )
-    else new BufferedSource(new ByteArrayInputStream(Array[Byte]()))
+    val overrideText = readAndClose(
+      if (hasOverrideFile) scala.io.Source.fromFile(clientSettingsPathOverride, "UTF-8")
+      else new BufferedSource(new ByteArrayInputStream(Array[Byte]()))
+    )
 
-    clientSettingsFromFile =
-      common2.util.YamlUtil.mergeImmutableMaps(
-        common2.util.YamlUtil.toMap[Object](clientSettingsFile.mkString) match {
-          case Success(value) => value
-          case Failure(exception) =>
-            println("Error while fetching client Settings: ", exception)
-            Map[String, Object]()
-        },
-        common2.util.YamlUtil.toMap[Object](clientSettingsFileOverride.mkString) match {
-          case Success(value) => value
-          case Failure(exception) =>
-            println("Error while fetching client override Settings: ", exception)
-            Map[String, Object]()
-        }
+    val baseSettings = common2.util.YamlUtil.toMap[Object](baseText) match {
+      case Success(value) => value
+      case Failure(exception) =>
+        logger.error("Error parsing client settings file [{}]; falling back to empty settings", clientSettingsPath, exception)
+        Map[String, Object]()
+    }
+
+    val overrideSettings = common2.util.YamlUtil.toMap[Object](overrideText) match {
+      case Success(value) => value
+      case Failure(exception) =>
+        logger.error("Error parsing client settings override file [{}]; falling back to empty settings", clientSettingsPathOverride, exception)
+        Map[String, Object]()
+    }
+
+    // Keep the pristine catalog (settings.yml, with `private`) to validate overrides against, so a
+    // malformed override file can never extend the schema and `private.*` keys stay recognized.
+    clientSettingsCatalog = baseSettings
+
+    // Validate the override file against the catalog before merging, while it still contains the
+    // `private` section so overrides to `private.*` are checked too. Skip when the catalog failed
+    // to load (empty) - otherwise every override key would be flagged unknown, hiding the real error.
+    if (hasOverrideFile && clientSettingsCatalog.nonEmpty) {
+      logOverrideIssues(
+        YamlUtil.diffOverrideAgainstBase(clientSettingsCatalog, overrideSettings),
+        s"file [$clientSettingsPathOverride]"
       )
+    }
+
+    clientSettingsFromFile = common2.util.YamlUtil.mergeImmutableMaps(baseSettings, overrideSettings)
 
     //Remove `:private` once it's used only by HTML5 client's internal configs
     clientSettingsFromFile -= "private"
   }
 
-  def getClientSettingsWithOverride(clientSettingsOverrideJson: String): Map[String, Object] = {
+  private def logOverrideIssues(issues: List[ConfigOverrideIssue], source: String): Unit = {
+    issues.foreach { issue =>
+      logger.warn(
+        "Client settings override {}: {} '{}' - {}; value is still applied.",
+        source, issue.kind, issue.path, issue.detail
+      )
+    }
+  }
+
+  def getClientSettingsWithOverride(clientSettingsOverrideJson: String, meetingId: String = ""): Map[String, Object] = {
     if (clientSettingsOverrideJson.nonEmpty) {
       val scalaMapClientOverride = common2.util.JsonUtil.toMap[Object](clientSettingsOverrideJson)
       scalaMapClientOverride match {
-        case Success(clientSettingsOverrideAsMap) => YamlUtil.mergeImmutableMaps(clientSettingsFromFile, clientSettingsOverrideAsMap)
+        case Success(clientSettingsOverrideAsMap) =>
+          val meetingSuffix = if (meetingId.nonEmpty) s" (meeting $meetingId)" else ""
+          // Only diagnose when the catalog loaded; an empty catalog would flag every key as unknown.
+          if (clientSettingsCatalog.nonEmpty) {
+            logOverrideIssues(
+              YamlUtil.diffOverrideAgainstBase(clientSettingsCatalog, clientSettingsOverrideAsMap),
+              s"on create call$meetingSuffix"
+            )
+          }
+          YamlUtil.mergeImmutableMaps(clientSettingsFromFile, clientSettingsOverrideAsMap)
         case Failure(msg) =>
           logger.debug("No valid JSON override of client configuration in create call: {}", msg)
           clientSettingsFromFile
