@@ -91,13 +91,14 @@ trait PresentationUploadTokenReqMsgHdlr extends RightsManagementTrait {
           .map(_.getPresentationsSize()).getOrElse(0)
 
         if (podPresCount >= presMaxPerPod) {
-          log.warn("Rejecting presentation upload token request: pod presentation limit reached. " +
+          log.warning("Rejecting presentation upload token request: pod presentation limit reached. " +
             s"meetingId=$meetingId userId=${msg.header.userId} podId=${msg.body.podId} count=$podPresCount limit=$presMaxPerPod")
           broadcastPresentationUploadTokenFailResp(msg)
         } else if (!liveMeeting.presUploadRateLimiter.allow(
           msg.header.userId, System.currentTimeMillis(),
-          presUploadTokenMaxRequests, presUploadTokenWindowSec * 1000L)) {
-          log.warn("Rejecting presentation upload token request: request rate limit exceeded. " +
+          presUploadTokenMaxRequests, presUploadTokenWindowSec * 1000L
+        )) {
+          log.warning("Rejecting presentation upload token request: request rate limit exceeded. " +
             s"meetingId=$meetingId userId=${msg.header.userId} limit=$presUploadTokenMaxRequests windowSec=$presUploadTokenWindowSec")
           broadcastPresentationUploadTokenFailResp(msg)
         } else {
