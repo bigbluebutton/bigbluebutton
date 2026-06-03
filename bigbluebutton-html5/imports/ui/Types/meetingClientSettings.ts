@@ -148,6 +148,7 @@ export interface Breakouts {
   sendInvitationToAssignedModeratorsByDefault: boolean
   breakoutRoomLimit: number
   allowPresentationManagementInBreakouts: boolean
+  lockBreakoutRecordingSetting: boolean
 }
 
 export interface RaiseHandActionButton {
@@ -655,6 +656,8 @@ export interface LiveKitSettings {
   logLevel?: LogLevel
   roomOptions?: Partial<InternalRoomOptions>
   reconnectOnFatalFailures?: boolean
+  forceRelay?: boolean
+  forceRelayOnFirefox?: boolean
   audio?: LiveKitAudioSettings
   camera?: LiveKitCameraSettings
   screenshare?: LiveKitScreenShareSettings

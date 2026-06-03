@@ -25,9 +25,9 @@ object Dependencies {
 
 
     // Office and document conversion
-    val apachePoi = "5.1.0"
+    val apachePoi = "5.5.1"
     val nuProcess = "2.0.6"
-    val tika = "3.3.0"
+    val tika = "3.3.1"
 
     // Server
     val servlet = "4.0.1"

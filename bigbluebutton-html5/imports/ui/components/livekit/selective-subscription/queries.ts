@@ -2,7 +2,13 @@ import { gql } from '@apollo/client';
 
 export const MEDIA_GROUP_STREAMS_SUBSCRIPTION = gql`
   subscription MediaGroupStreams {
-    user_mediaGroup {
+    user_mediaGroup(
+      order_by: [
+        { createdAt: asc }
+        { userId: asc }
+        { groupId: asc }
+      ]
+    ) {
       userId
       groupId
       mediaType

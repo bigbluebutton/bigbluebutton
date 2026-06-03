@@ -1,4 +1,5 @@
 import { test } from '../core/setup/fixtures';
+import { ClientSettingsOverride } from './clientSettingsOverride';
 import { Create } from './create';
 import { Join } from './join';
 
@@ -38,6 +39,48 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       const create = new Create(browser, context);
       await create.initPages(page, testInfo);
       await create.dragDropUserInRoom();
+    });
+
+    test('Inherit lock settings checkbox is visible and unchecked by default', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.inheritLockSettingsCheckboxIsVisible();
+    });
+
+    test('Lock Viewers option is visible in gear menu inside breakout room', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.lockViewersVisibleInBreakoutGearMenu();
+    });
+
+    test('Moderator can disable inherited lock settings in breakout room', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.modCanDisableInheritedLockInBreakout();
+    });
+
+    test('Moderator can apply lock settings in breakout room without inheritance', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.modCanApplyLockSettingsInBreakout();
+    });
+
+    test('Moderator can apply lock settings in breakout room with inheritance', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.modCanApplyLockSettingsInBreakoutWithInheritance();
+    });
+
+    test('Lock settings are NOT propagated to breakout when checkbox is unchecked', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.lockSettingsNotPropagatedByDefault();
+    });
+
+    test('Lock settings ARE propagated to breakout when checkbox is checked', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.lockSettingsPropagatedWhenChecked();
     });
   });
 
@@ -160,6 +203,12 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
       await join.breakoutWithDifferentPresentations();
+    });
+
+    // https://github.com/bigbluebutton/bigbluebutton/issues/25138
+    test('Breakout room inherits client settings override from parent meeting', async ({ browser, context, page }, testInfo) => {
+      const override = new ClientSettingsOverride(browser, context);
+      await override.testClientSettingsOverrideInheritedByBreakout(page, testInfo);
     });
   });
 });

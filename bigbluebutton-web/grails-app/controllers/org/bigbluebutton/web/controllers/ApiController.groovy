@@ -32,6 +32,7 @@ import org.bigbluebutton.api.*
 import org.bigbluebutton.api.domain.GuestPolicy
 import org.bigbluebutton.api.domain.Meeting
 import org.bigbluebutton.api.domain.UserSession
+import org.bigbluebutton.api.service.DownloadResult
 import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.api.service.ValidationService
 import org.bigbluebutton.api.util.ParamsUtil
@@ -1626,7 +1627,7 @@ class ApiController {
           }
           downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(),
                   document.current /* default presentation */, '', false,
-                  true, isDefaultPresentation, isPreUploadedPresentationFromParameter);
+                  true, isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI);
         } else {
           log.error "Default presentation could not be read, it is (" + presentationService.defaultUploadedPresentation + ")", "error"
         }
@@ -1661,12 +1662,12 @@ class ApiController {
             fileName = document.@filename.toString();
           }
           downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), isCurrent /* default presentation */,
-                  fileName, isDownloadable, isRemovable, isDefaultPresentation, isPreUploadedPresentationFromParameter);
+                  fileName, isDownloadable, isRemovable, isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI);
         } else if (!StringUtils.isEmpty(document.@name.toString())) {
           def b64 = new Base64()
           def decodedBytes = b64.decode(document.text().getBytes())
           processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
-                  conf.getInternalId(), isCurrent, isDownloadable, isRemovable/* default presentation */, isDefaultPresentation);
+                  conf.getInternalId(), isCurrent, isDownloadable, isRemovable/* default presentation */, isDefaultPresentation, isFromInsertAPI);
         } else {
           log.debug("presentation module config found, but it did not contain url or name attributes");
         }
@@ -1690,9 +1691,10 @@ class ApiController {
   }
 
   private processDocumentFromRawBytes(bytes, presOrigFilename, meetingId, current, isDownloadable, isRemovable,
-                                  isDefaultPresentation) {
+                                  isDefaultPresentation, isFromInsertAPI) {
     def uploadFailed = false
     def uploadFailReasons = new ArrayList<String>()
+    long maxFileSize = paramsProcessorUtil.getMaxPresentationFileUpload()
 
     // Gets the name minus the path from a full fileName.
     // a/b/c.txt --> c.txt
@@ -1705,6 +1707,16 @@ class ApiController {
         log.debug("Upload failed. Invalid filename " + presOrigFilename)
       uploadFailReasons.add("invalid_filename")
       uploadFailed = true
+    } else if (bytes != null && bytes.length > maxFileSize) {
+      log.warn("Upload failed. File too large: ${bytes.length} bytes exceeds max ${maxFileSize} bytes for meeting=[${meetingId}], filename=[${presOrigFilename}]")
+      presId = Util.generatePresentationId(presFilename)
+      uploadFailReasons.add("file_too_large")
+      uploadFailed = true
+      if (isFromInsertAPI) {
+        meetingService.sendPresentationUploadMaxFilesizeMessage(
+                presId, "DEFAULT_PRESENTATION_POD", meetingId, presFilename,
+                "preupload-raw-authz-token", bytes.length, (int) Math.min(maxFileSize, Integer.MAX_VALUE))
+      }
     } else {
       String presentationDir = presentationService.getPresentationDir()
       presId = Util.generatePresentationId(presFilename)
@@ -1746,7 +1758,7 @@ class ApiController {
   }
 
   private downloadAndProcessDocument(address, meetingId, current, fileName, isDownloadable, isRemovable,
-                                 isDefaultPresentation, isPreUploadedPresentationFromParameter) {
+                                 isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI) {
     log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId}, ${fileName})");
     String presOrigFilename;
     if (StringUtils.isEmpty(fileName)) {
@@ -1763,6 +1775,7 @@ class ApiController {
 
     def uploadFailed = false
     def uploadFailReasons = new ArrayList<String>()
+    long maxFileSize = paramsProcessorUtil.getMaxPresentationFileUpload()
 
     // Gets the name minus the path from a full fileName.
     // a/b/c.txt --> c.txt
@@ -1782,14 +1795,28 @@ class ApiController {
         def newFilename = Util.createNewFilename(presId, filenameExt)
         def newFilePath = uploadDir.absolutePath + File.separatorChar + newFilename
 
-        if(presDownloadService.savePresentation(meetingId, newFilePath, address)) pres = new File(newFilePath)
-        else {
-          log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${fileName}]")
-          uploadFailReasons.add("failed_to_download_file")
-          uploadFailed = true
+        def downloadResult = presDownloadService.savePresentation(meetingId, newFilePath, address, maxFileSize)
+        switch (downloadResult) {
+          case DownloadResult.SUCCESS:
+            pres = new File(newFilePath)
+            break
+          case DownloadResult.TOO_LARGE:
+            log.warn("Upload failed. Downloaded file exceeded max ${maxFileSize} bytes for meeting=[${meetingId}], url=[${address}]")
+            uploadFailReasons.add("file_too_large")
+            uploadFailed = true
+            if (isFromInsertAPI) {
+              meetingService.sendPresentationUploadMaxFilesizeMessage(
+                      presId, "DEFAULT_PRESENTATION_POD", meetingId, presFilename,
+                      "preupload-download-authz-token", (int) Math.min(maxFileSize, Integer.MAX_VALUE), (int) Math.min(maxFileSize, Integer.MAX_VALUE))
+            }
+            break
+          default:
+            log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${fileName}]")
+            uploadFailReasons.add("failed_to_download_file")
+            uploadFailed = true
         }
 
-        if (isPreUploadedPresentationFromParameter && filenameExt.isEmpty()) {
+        if (pres != null && isPreUploadedPresentationFromParameter && filenameExt.isEmpty()) {
           String fileExtension = SupportedFileTypes.detectFileExtensionBasedOnMimeType(pres)
           newFilename = Util.createNewFilename(presId, fileExtension)
           newFilePath = uploadDir.absolutePath + File.separatorChar + newFilename
