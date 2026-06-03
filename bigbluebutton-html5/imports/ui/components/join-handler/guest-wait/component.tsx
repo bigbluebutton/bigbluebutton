@@ -8,6 +8,7 @@ import React, {
 import { defineMessages, useIntl } from 'react-intl';
 import { LoadingContext } from '../../common/loading-screen/loading-screen-HOC/component';
 import Styled from './styles';
+import Auth from '/imports/ui/services/auth';
 
 const REDIRECT_TIMEOUT = 15000;
 
@@ -66,18 +67,6 @@ const intlMessages = defineMessages({
   },
 });
 
-function getSearchParam(name: string) {
-  const params = new URLSearchParams(window.location.search);
-
-  if (params && params.has(name)) {
-    const param = params.get(name);
-
-    return param;
-  }
-
-  return null;
-}
-
 interface GuestWaitProps {
   guestStatus: string | null;
   guestLobbyMessage: string | null;
@@ -132,7 +121,7 @@ const GuestWait: React.FC<GuestWaitProps> = (props) => {
   }, []);
 
   useEffect(() => {
-    const sessionToken = getSearchParam('sessionToken');
+    const { sessionToken } = Auth;
 
     if (loadingContextInfo.isLoading) {
       loadingContextInfo.setLoading(false);
