@@ -102,6 +102,13 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         else
           (false, false, false, false, false, false, false, false, false, false)
 
+      // webcamsOnlyForModerator ("See other viewers webcams") is not part of
+      // LockSettingsProps, so propagate it from the parent's live status too.
+      val webcamsOnlyForModerator =
+        if (msg.body.inheritLockSettings)
+          org.bigbluebutton.core2.MeetingStatus2x.webcamsOnlyForModeratorEnabled(liveMeeting.status)
+        else false
+
       val roomDetail = BreakoutRoomDetail(
         breakout.id,
         breakout.name,
@@ -140,7 +147,8 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         lsLockOnJoin,
         lsLockOnJoinCfg,
         lsHideCursor,
-        lsHideAnnotation
+        lsHideAnnotation,
+        webcamsOnlyForModerator
       )
 
       val event = buildCreateBreakoutRoomSysCmdMsg(liveMeeting.props.meetingProp.intId, roomDetail)
