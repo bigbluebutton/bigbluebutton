@@ -9,6 +9,7 @@ import org.bigbluebutton.core.models.PluginModel.getPlugins
 import org.bigbluebutton.core.models.{ Plugin, PresentationInPod }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core2.MeetingStatus2x
 
 import java.util
 import scala.jdk.CollectionConverters._
@@ -92,7 +93,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
       val roomSlides = if (breakout.allPages) -1 else presSlide;
 
       // get lock settings from parent meeting
-      val lockSettings = org.bigbluebutton.core2.MeetingStatus2x.getPermissions(liveMeeting.status)
+      val lockSettings = MeetingStatus2x.getPermissions(liveMeeting.status)
 
       val (lsPrivChat, lsCam, lsMic, lsPubChat, lsNotes, lsHideUsers, lsLockOnJoin, lsLockOnJoinCfg, lsHideCursor, lsHideAnnotation) =
         if (msg.body.inheritLockSettings)
@@ -104,9 +105,11 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
 
       // webcamsOnlyForModerator ("See other viewers webcams") is not part of
       // LockSettingsProps, so propagate it from the parent's live status too.
+      // When not inheriting we send `false` explicitly (mirroring the lock-settings
+      // tuple above), which overrides the bbb-web server-config default for the breakout.
       val webcamsOnlyForModerator =
         if (msg.body.inheritLockSettings)
-          org.bigbluebutton.core2.MeetingStatus2x.webcamsOnlyForModeratorEnabled(liveMeeting.status)
+          MeetingStatus2x.webcamsOnlyForModeratorEnabled(liveMeeting.status)
         else false
 
       val roomDetail = BreakoutRoomDetail(
