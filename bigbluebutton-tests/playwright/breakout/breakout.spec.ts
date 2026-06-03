@@ -88,6 +88,12 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await create.initPages(page, testInfo);
       await create.webcamsOnlyForModeratorPropagatedWhenChecked();
     });
+
+    test('See other viewers webcams (webcamsOnlyForModerator) is NOT propagated to breakout when checkbox is unchecked', async ({ browser, context, page }, testInfo) => {
+      const create = new Create(browser, context);
+      await create.initPages(page, testInfo);
+      await create.webcamsOnlyForModeratorNotPropagatedByDefault();
+    });
   });
 
   test.describe.parallel('After creating', () => {
