@@ -76,6 +76,10 @@ public class ApiErrors {
 		errors.add(new String[] {"guestDeniedAccess", "You have been denied access to this meeting based on the meeting's guest policy"});
 	}
 
+	public void clientSettingsOverrideError(String detail) {
+		errors.add(new String[] {"clientSettingsOverrideValidationError", "The client settings override contains invalid keys: " + detail});
+	}
+
 	public void addError(String[] error) {
 		errors.add(error);
 	}

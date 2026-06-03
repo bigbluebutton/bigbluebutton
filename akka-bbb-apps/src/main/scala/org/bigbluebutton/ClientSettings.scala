@@ -50,10 +50,20 @@ object ClientSettings extends SystemConfiguration {
     // `private` section so overrides to `private.*` are checked too. Skip when the catalog failed
     // to load (empty) - otherwise every override key would be flagged unknown, hiding the real error.
     if (hasOverrideFile && clientSettingsCatalog.nonEmpty) {
-      logOverrideIssues(
-        YamlUtil.diffOverrideAgainstBase(clientSettingsCatalog, overrideSettings),
-        s"file [$clientSettingsPathOverride]"
-      )
+      val issues = YamlUtil.diffOverrideAgainstBase(clientSettingsCatalog, overrideSettings)
+      val source = s"file [$clientSettingsPathOverride]"
+      if (issues.nonEmpty && clientSettingsOverrideStrictValidation) {
+        // Strict mode (test/staging): refuse to boot so a bad config fails the deploy loudly,
+        // instead of silently applying an override the client will ignore.
+        logger.error(
+          "Refusing to start: client settings override {} has {} issue(s) and " +
+            "clientSettingsOverrideStrictValidation is enabled:", source, issues.size.toString
+        )
+        issues.foreach(issue => logger.error("  - {} '{}' - {}", issue.kind, issue.path, issue.detail))
+        System.exit(1)
+      } else {
+        logOverrideIssues(issues, source)
+      }
     }
 
     clientSettingsFromFile = common2.util.YamlUtil.mergeImmutableMaps(baseSettings, overrideSettings)

@@ -160,6 +160,9 @@ public class ParamsProcessorUtil {
     private Boolean allowOverrideClientSettingsOnCreateCall = false;
     private Integer clientSettingsOverrideJsonUrlResponseTimeout;
     private Integer maxClientSettingsOverrideJsonUrlPayloadSize;
+    private Boolean clientSettingsOverrideStrictValidation = false;
+    private String clientSettingsFilePath = "/usr/share/bigbluebutton/html5-client/private/config/settings.yml";
+    private volatile String cachedClientSettingsCatalog = null;
 
     private Integer defaultMaxNumPages;
     private String getJoinUrlUserdataBlocklist;
@@ -1206,6 +1209,34 @@ public class ParamsProcessorUtil {
     return allowOverrideClientSettingsOnCreateCall;
   }
 
+  public Boolean getClientSettingsOverrideStrictValidation() {
+    return clientSettingsOverrideStrictValidation;
+  }
+
+  private String loadClientSettingsCatalog() {
+    if (cachedClientSettingsCatalog == null) {
+      try {
+        cachedClientSettingsCatalog = new String(
+            java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(clientSettingsFilePath)),
+            java.nio.charset.StandardCharsets.UTF_8);
+      } catch (Exception e) {
+        log.error("Could not read client settings catalog [{}] for override validation; skipping strict check.", clientSettingsFilePath, e);
+        cachedClientSettingsCatalog = "";
+      }
+    }
+    return cachedClientSettingsCatalog;
+  }
+
+  /**
+   * Validates a client-settings override (the create-call JSON) against the settings.yml catalog,
+   * reusing the same logic as akka-apps. Returns the list of human-readable issues (empty if valid
+   * or if the check could not run). Does not block on its own - the caller decides.
+   */
+  public java.util.List<String> validateClientSettingsOverride(String overrideJson) {
+    if (StringUtils.isEmpty(overrideJson)) return java.util.Collections.emptyList();
+    return org.bigbluebutton.api2.util.ClientSettingsValidator.validateOverride(loadClientSettingsCatalog(), overrideJson);
+  }
+
     public String processWelcomeMessage(String message, Boolean isBreakout) {
         String welcomeMessage = message;
         if (StringUtils.isEmpty(message)) {
@@ -1895,6 +1926,14 @@ public class ParamsProcessorUtil {
 
 	public void setAllowOverrideClientSettingsOnCreateCall(Boolean allowOverrideClientSettingsOnCreateCall) {
 		this.allowOverrideClientSettingsOnCreateCall = allowOverrideClientSettingsOnCreateCall;
+	}
+
+	public void setClientSettingsOverrideStrictValidation(Boolean clientSettingsOverrideStrictValidation) {
+		this.clientSettingsOverrideStrictValidation = clientSettingsOverrideStrictValidation;
+	}
+
+	public void setClientSettingsFilePath(String clientSettingsFilePath) {
+		this.clientSettingsFilePath = clientSettingsFilePath;
 	}
 
 	public void setMaxNumPages(Integer maxNumPages) { this.defaultMaxNumPages = maxNumPages; }

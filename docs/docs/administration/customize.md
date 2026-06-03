@@ -470,6 +470,19 @@ If you have sessions that like to share lots of webcams, such as ten or more, th
 
 To ensure that your modifications are not lost when a new version of the packages is installed, you can [create the file and] write your changes to `/etc/bigbluebutton/bbb-html5.yml`.
 
+#### Validating client settings overrides
+
+When you override the HTML5 client settings - via `/etc/bigbluebutton/bbb-html5.yml`, or per meeting via the `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` create parameters - keys that do not exist in the base `settings.yml` (typos, obsolete parameters, or values placed at the wrong level in the structure) are merged in but never read by the client, so they are silently ignored.
+
+BigBlueButton logs a `WARN` in `bbb-apps-akka` for each such key so the problem is visible. The warning is non-blocking: the value is still applied.
+
+For test and staging environments you can additionally enable **strict validation**, which turns those warnings into hard failures. It is **disabled by default** and controlled by a single setting, `clientSettingsOverrideStrictValidation`, in `/etc/bigbluebutton/bbb-web.properties`. Both `bbb-web` and `bbb-apps-akka` read this same property (akka reads the file directly at boot), so there is one switch and no risk of the two processes disagreeing. When set to `true`:
+
+- **Filesystem override (`/etc/bigbluebutton/bbb-html5.yml`), enforced by `bbb-apps-akka` at boot.** If the override file has issues, `bbb-apps-akka` logs an explicit error listing each offending key and exits (the service fails to start), so a bad config breaks the deploy instead of running silently wrong.
+- **API override (`clientSettingsOverride` / `clientSettingsOverrideJsonUrl`), enforced by `bbb-web` at create.** If a `/create` call carries an override with issues, the call is rejected with `returncode=FAILED` and `messageKey=clientSettingsOverrideValidationError`, with the offending keys listed in the message; the meeting is not created.
+
+Keep it `false` in production unless you specifically want such overrides to be rejected.
+
 #### Disable webcams
 
 You can disable webcams by setting `enableVideo` to `false` in the `/etc/bigbluebutton/bbb-html5.yml` file for the HTML5 client.
