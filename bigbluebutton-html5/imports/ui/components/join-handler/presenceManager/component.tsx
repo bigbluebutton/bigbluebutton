@@ -17,6 +17,7 @@ import GuestWaitContainer, { GUEST_STATUSES } from '../guest-wait/component';
 import PluginTopLevelManager from '/imports/ui/components/plugin-top-level-manager/component';
 import meetingStaticData from '/imports/ui/core/singletons/meetingStaticData';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import Auth from '/imports/ui/services/auth';
 
 const connectionTimeout = 60000;
 const MESSAGE_TIMEOUT = 3000;
@@ -93,8 +94,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   }, [guestStatus]);
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const sessionToken = urlParams.get('sessionToken') as string;
+    const sessionToken = Auth.sessionToken as string;
     setAuthData({
       meetingId,
       userId,
