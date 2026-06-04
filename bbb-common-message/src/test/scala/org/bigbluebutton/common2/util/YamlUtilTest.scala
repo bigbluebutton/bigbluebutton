@@ -190,4 +190,24 @@ class YamlUtilTest extends UnitSpec2 {
     assert(issues.head.kind == "type-mismatch")
     assert(issues.head.detail == "expected Number, got List")
   }
+
+  it should "not flag an override of a null-default key (e.g. customStyleUrl)" in {
+    // settings.yml declares some keys with a null default (customStyleUrl, overrideLocale),
+    // meaning "no declared type / admin-supplied" - any override value must be accepted.
+    val baseWithNull = Map[String, Object](
+      "public" -> Map[String, Object](
+        "app" -> Map[String, Object](
+          "customStyleUrl" -> null
+        )
+      )
+    )
+    val overrides = Map[String, Object](
+      "public" -> Map[String, Object](
+        "app" -> Map[String, Object](
+          "customStyleUrl" -> "https://example.com/style.css"
+        )
+      )
+    )
+    assert(YamlUtil.diffOverrideAgainstBase(baseWithNull, overrides).isEmpty)
+  }
 }

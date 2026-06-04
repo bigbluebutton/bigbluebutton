@@ -77,7 +77,7 @@ public class ApiErrors {
 	}
 
 	public void clientSettingsOverrideError(String detail) {
-		errors.add(new String[] {"clientSettingsOverrideValidationError", "The client settings override contains invalid keys: " + detail});
+		errors.add(new String[] {"clientSettingsOverrideValidationError", "The client settings override has the following issue(s): " + detail});
 	}
 
 	public void addError(String[] error) {

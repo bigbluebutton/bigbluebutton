@@ -49,6 +49,10 @@ object YamlUtil {
           base.get(key) match {
             case None =>
               List(ConfigOverrideIssue(path, "unknown-key", "not present in settings.yml (possible typo)"))
+            case Some(null) =>
+              // A null default in settings.yml (e.g. customStyleUrl, overrideLocale) means "no
+              // declared type / admin-supplied", so any override value is acceptable.
+              List.empty
             case Some(baseValue) =>
               (baseValue, overrideValue) match {
                 case (baseMap: Map[String, Object] @unchecked, overrideMap: Map[String, Object] @unchecked) =>

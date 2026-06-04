@@ -27,14 +27,16 @@ object ClientSettingsValidator {
     // No catalog -> don't block (mirrors the akka-apps empty-catalog guard).
     if (catalog.isEmpty) return java.util.Collections.emptyList()
 
-    val overrides = JsonUtil.toMap[Object](overrideJson) match {
-      case Success(value) => value
-      case Failure(_)     => Map.empty[String, Object]
+    JsonUtil.toMap[Object](overrideJson) match {
+      case Failure(ex) =>
+        // Unparseable override JSON would otherwise be silently dropped by akka-apps; in strict
+        // mode the caller must fail fast, so report it as an issue rather than an empty result.
+        java.util.Collections.singletonList(s"invalid-json - override is not valid JSON: ${ex.getMessage}")
+      case Success(overrides) =>
+        YamlUtil
+          .diffOverrideAgainstBase(catalog, overrides)
+          .map(issue => s"${issue.kind} '${issue.path}' - ${issue.detail}")
+          .asJava
     }
-
-    YamlUtil
-      .diffOverrideAgainstBase(catalog, overrides)
-      .map(issue => s"${issue.kind} '${issue.path}' - ${issue.detail}")
-      .asJava
   }
 }
