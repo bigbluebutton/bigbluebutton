@@ -109,9 +109,9 @@ const renderPluginItems = (pluginItems) => {
                       label={pluginItem.label}
                       aria-label={pluginItem.tooltip}
                       color={pluginItem.color || 'primary'}
-                      circle={pluginItem.circle !== false}
-                      hideLabel={pluginItem.hideLabel !== false}
-                      size={pluginItem.size || 'sm'}
+                      circle={pluginItem.circle === true}
+                      hideLabel={pluginItem.hideLabel === true}
+                      size={pluginItem.size || 'md'}
                       style={pluginItem.style}
                       tooltipLabel={pluginItem.tooltip}
                       onClick={pluginItem.onClick}
