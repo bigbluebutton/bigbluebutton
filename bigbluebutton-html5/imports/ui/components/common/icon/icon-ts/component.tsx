@@ -16,6 +16,7 @@ const Icon: React.FC<IconProps> = ({
   rotate = false,
 }) => (
   <Styled.Icon
+    aria-hidden="true"
     className={cx(className, [prependIconName, iconName].join(''))}
     $rotate={rotate}
   />
