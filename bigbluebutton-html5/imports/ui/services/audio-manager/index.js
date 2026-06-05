@@ -1,5 +1,4 @@
 import Auth from '/imports/ui/services/auth';
-import SIPBridge from '/imports/api/audio/client/bridge/sip';
 import SFUAudioBridge from '/imports/api/audio/client/bridge/sfu-audio-bridge';
 import LiveKitAudioBridge from '/imports/api/audio/client/bridge/livekit';
 import logger from '/imports/startup/client/logger';
@@ -391,9 +390,6 @@ class AudioManager {
       case 'livekit':
         FullAudioBridge = LiveKitAudioBridge;
         break;
-      case 'sip':
-        FullAudioBridge = SIPBridge;
-        break;
       default:
         logger.warn({
           logCode: 'audiomanager_unknown_fullaudio_bridge',
@@ -410,9 +406,6 @@ class AudioManager {
         break;
       case 'livekit':
         ListenOnlyBridge = LiveKitAudioBridge;
-        break;
-      case 'sip':
-        ListenOnlyBridge = SIPBridge;
         break;
       default:
         logger.warn({
