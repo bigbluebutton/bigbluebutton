@@ -1678,6 +1678,16 @@ class ApiController {
       presentationListHasCurrent = hasCurrent;
     }
 
+    int maxPresentations = paramsProcessorUtil.getMaxPresentationsPerRequest()
+    if (maxPresentations > 0 && listOfPresentation.size() > maxPresentations) {
+      int dropped = listOfPresentation.size() - maxPresentations
+      log.warn("Presentation count {} exceeds maxPresentationsPerRequest {} for meeting {} " +
+               "(isFromInsertAPI={}); processing first {} and dropping {}.",
+               listOfPresentation.size(), maxPresentations, conf.getInternalId(),
+               isFromInsertAPI, maxPresentations, dropped)
+      listOfPresentation = listOfPresentation.take(maxPresentations)
+    }
+
     // Filenames are validated synchronously (on the request thread) while the
     // request is still in scope; the slow download/processing is only submitted
     // afterwards. Collect the submissions and defer them so that, for
