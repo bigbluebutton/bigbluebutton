@@ -1278,7 +1278,6 @@ if [ $CHECK ]; then
     echo "                        ext-rtp-ip: $(xmlstarlet sel -t -m 'profile/settings/param[@name="ext-rtp-ip"]' -v @value $FREESWITCH_EXTERNAL)"
     echo "                        ext-sip-ip: $(xmlstarlet sel -t -m 'profile/settings/param[@name="ext-sip-ip"]' -v @value $FREESWITCH_EXTERNAL)"
     echo "                        ws-binding: $(xmlstarlet sel -t -m 'profile/settings/param[@name="ws-binding"]' -v @value $FREESWITCH_EXTERNAL)"
-    echo "                       wss-binding: $(xmlstarlet sel -t -m 'profile/settings/param[@name="wss-binding"]' -v @value $FREESWITCH_EXTERNAL)"
 
     # awk script from https://stackoverflow.com/a/14527886/1493790
     # open issue: a tool like crudini (https://stackoverflow.com/a/25513632/1493790)

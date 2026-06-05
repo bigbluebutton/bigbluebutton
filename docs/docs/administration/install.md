@@ -195,7 +195,6 @@ BigBlueButton Server 4.0.0-beta.3 (0)
                         ext-rtp-ip: $${local_ip_v4}
                         ext-sip-ip: $${local_ip_v4}
                         ws-binding: 143.198.37.212:5066
-                       wss-binding: 143.198.37.212:7443
 
 UDP port ranges
 

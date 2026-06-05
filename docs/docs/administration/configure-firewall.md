@@ -379,12 +379,6 @@ $ ip addr
 
 You should see the EXTERNAL_IP_ADDRESS for your firewall listed above.
 
-Next, edit `/opt/freeswitch/conf/sip_profiles/external.xml` and ensure the value for `wss-binding` uses the external IP address
-
-```xml
-<param name="wss-binding"  value="EXTERNAL_IP_ADDRESS:7443"/>
-```
-
 At this point, restart your BigBlueButton server with `bbb-conf --restart`, then try connecting to the WebRTC media again.
 
 Finally, to ensure this dummy NIC to be automatically created on restart, edit `/etc/network/interfaces` and add the following
