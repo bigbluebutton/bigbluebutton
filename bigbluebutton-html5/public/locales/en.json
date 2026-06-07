@@ -836,7 +836,6 @@
     "app.actionsBar.captions.stop": "Stop viewing closed captions",
     "app.audioNotification.audioFailedError1001": "WebSocket disconnected (error 1001)",
     "app.audioNotification.audioFailedError1002": "Could not make a WebSocket connection (error 1002)",
-    "app.audioNotification.audioFailedError1003": "Browser version not supported (error 1003)",
     "app.audioNotification.audioFailedError1004": "Failure on call (reason={reason}) (error 1004)",
     "app.audioNotification.audioFailedError1005": "Call ended unexpectedly (error 1005)",
     "app.audioNotification.audioFailedError1006": "Call timed out (error 1006)",
