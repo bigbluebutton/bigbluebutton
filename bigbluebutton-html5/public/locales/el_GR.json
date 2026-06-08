@@ -836,7 +836,6 @@
     "app.actionsBar.captions.stop": "Κλείσιμο προβολής ενδογλωσσικών υποτίτλων",
     "app.audioNotification.audioFailedError1001": "Αποσύνδεση WebSocket (σφάλμα 1001)",
     "app.audioNotification.audioFailedError1002": "Δεν είναι δυνατή η σύνδεση με WebSocket (σφάλμα 1002)",
-    "app.audioNotification.audioFailedError1003": "Η έκδοση του περιηγητή δεν υποστηρίζεται (σφάλμα 1003)",
     "app.audioNotification.audioFailedError1004": "Αποτυχία κλήσης (αιτία={reason}) (σφάλμα 1004)",
     "app.audioNotification.audioFailedError1005": "Η κλήση τερματίστηκε απροσδόκητα (σφάλμα 1005)",
     "app.audioNotification.audioFailedError1006": "Λήξη χρονικού ορίου κλήσης (σφάλμα 1006)",
