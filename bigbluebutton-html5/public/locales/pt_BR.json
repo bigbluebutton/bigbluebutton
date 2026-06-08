@@ -836,7 +836,6 @@
     "app.actionsBar.captions.stop": "Parar legendas",
     "app.audioNotification.audioFailedError1001": "WebSocket desconectado (erro 1001)",
     "app.audioNotification.audioFailedError1002": "Não foi possível estabelecer uma conexão WebSocket (erro 1002)",
-    "app.audioNotification.audioFailedError1003": "Versão do navegador não suportada (erro 1003)",
     "app.audioNotification.audioFailedError1004": "Falha na chamada (motivo = {reason}) (erro 1004)",
     "app.audioNotification.audioFailedError1005": "A chamada terminou inesperadamente (erro 1005)",
     "app.audioNotification.audioFailedError1006": "O tempo limite da chamada expirou (erro 1006)",
