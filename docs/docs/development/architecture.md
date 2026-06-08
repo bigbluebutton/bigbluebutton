@@ -98,15 +98,20 @@ FreeSWITCH to easily create their own integration. Communication between Akka Ap
 
 We think FreeSWITCH is an amazing piece of software for handling audio.
 
-FreeSWITCH provides the voice conferencing capability in BigBlueButton. Users are able to join the voice conference through the headset. Users joining through Google Chrome, Mozilla Firefox, (or other WebRTC compatible browsers) are able to take advantage of higher quality audio by connecting using WebRTC. FreeSWITCH can also be [integrated with VOIP providers](/administration/customize#add-a-phone-number-to-the-conference-bridge) so that users who are not able to join using the headset will be able to call in using their phone.
+In BigBlueButton 4.0, LiveKit (see below) is the default voice backend; FreeSWITCH remains available as an alternative audio bridge for the HTML5 client and powers dial-in/telephony alongside LiveKit as well.
+FreeSWITCH can also be [integrated with VOIP providers](/administration/customize#add-a-phone-number-to-the-conference-bridge) so that users who are not able to join using the headset will be able to call in using their phone.
+
+### LiveKit
+
+[LiveKit](https://livekit.io/) is the default media server, handling audio, camera video, and screen sharing through a single WebRTC SFU. It replaces the mixed FreeSWITCH (audio) plus mediasoup (video) topology with a unified stack. The LiveKit controller module in bbb-webrtc-sfu performs token generation, permission handling, webhook processing, and bbb-webrtc-recorder (capture) orchestration.
 
 ### Mediasoup and WebRTC-SFU
 
-Mediasoup is a media server that implements an SFU model. It is responsible for streaming of webcams, listen-only audio, and screensharing. The WebRTC-SFU acts as the media controller handling negotiations and to manage the media streams.
+Mediasoup is a media server that implements an SFU model. It remains available as an alternative media bridge for streaming of webcams, listen-only audio, and screensharing. The WebRTC-SFU acts as the media controller handling negotiations and to manage the media streams.
 
 ### Joining a voice conference
 
-A user can join the voice conference (running in FreeSWITCH) from the BigBlueButton HTML5 client or through the [phone](/administration/customize#add-a-phone-number-to-the-conference-bridge). When joining through the client, the user can choose to join Microphone or Listen Only, and the BigBlueButton client will make an audio connection to the server via WebRTC. WebRTC provides the user with high-quality audio with lower delay.
+A user can join the voice conference (handled by LiveKit by default, or by FreeSWITCH when configured and for dial-in) from the BigBlueButton HTML5 client or through the [phone](/administration/customize#add-a-phone-number-to-the-conference-bridge). When joining through the client, the user can choose to join Microphone or Listen Only, and the BigBlueButton client will make an audio connection to the server via WebRTC. WebRTC provides the user with high-quality audio with lower delay.
 
 ![Joining Voice Conference](/img/joining-voice-conf.png)
 
