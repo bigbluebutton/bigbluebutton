@@ -836,7 +836,6 @@
     "app.actionsBar.captions.stop": "Interrompi riproduzione sottotitoli",
     "app.audioNotification.audioFailedError1001": "WebSocket disconnesso (errore 1001)",
     "app.audioNotification.audioFailedError1002": "Impossibile stabilire una connessione WebSocket (errore 1002)",
-    "app.audioNotification.audioFailedError1003": "Versione del browser non supportata (errore 1003)",
     "app.audioNotification.audioFailedError1004": "Errore durante la chiamata (motivo={reason}) (errore 1004)",
     "app.audioNotification.audioFailedError1005": "Chiamata chiusa inaspettatamente (errore 1005)",
     "app.audioNotification.audioFailedError1006": "Tempo scaduto per la chiamata (error 1006)",
