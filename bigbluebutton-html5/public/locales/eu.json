@@ -836,7 +836,6 @@
     "app.actionsBar.captions.stop": "Gelditu azpitituluak ikusten",
     "app.audioNotification.audioFailedError1001": "Websocket deskonektatuta (1001 errorea)",
     "app.audioNotification.audioFailedError1002": "Ezin izan da Websocket konexioa egin (1002 errorea)",
-    "app.audioNotification.audioFailedError1003": "Ez da onartzen nabigatzailearen bertsioa (1003 errorea)",
     "app.audioNotification.audioFailedError1004": "Hutsegitea deian  (arrazoia={reason}) (1004 errorea)",
     "app.audioNotification.audioFailedError1005": "Ustekabeko etena deian (1005 errorea)",
     "app.audioNotification.audioFailedError1006": "Deiaren denbora-muga agortu da (1006 errorea)",
