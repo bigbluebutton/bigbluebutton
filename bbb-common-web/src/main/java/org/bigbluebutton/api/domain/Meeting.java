@@ -109,9 +109,9 @@ public class Meeting {
 	private String customDarkLogoURL = "";
 	private String customCopyright = "";
 	private Boolean muteOnStart = false;
-	private String cameraBridge = "bbb-webrtc-sfu";
-	private String screenShareBridge = "bbb-webrtc-sfu";
-	private String audioBridge = "bbb-webrtc-sfu";
+	private String cameraBridge = "livekit";
+	private String screenShareBridge = "livekit";
+	private String audioBridge = "livekit";
 	private Boolean allowModsToUnmuteUsers = false;
 	private Boolean requireUserConsentBeforeUnmuting = false;
 	private Boolean allowRequestsWithoutSession = false;
