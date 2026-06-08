@@ -80,7 +80,7 @@ export class Join extends Create {
 
     await breakoutUserPage.waitAndClick(e.joinAudio);
     await breakoutUserPage.waitForSelector(e.audioModal);
-    await breakoutUserPage.waitAndClick(e.microphoneButton);
+    await breakoutUserPage.clickMicrophoneButton();
     await breakoutUserPage.waitForSelector(e.stopHearingButton);
     await breakoutUserPage.waitAndClick(e.joinEchoTestButton);
     await breakoutUserPage.waitForSelector(e.establishingAudioLabel);

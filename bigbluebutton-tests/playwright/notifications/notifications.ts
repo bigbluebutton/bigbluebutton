@@ -2,6 +2,7 @@ import { expect } from '@playwright/test';
 
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { isLiveKit } from '../core/livekit';
 import { MultiUsers } from '../user/multiusers';
 import * as util from './util';
 
@@ -25,15 +26,18 @@ export class Notifications extends MultiUsers {
     await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.audioDropdownMenu);
     await this.modPage.waitAndClick(e.leaveAudio);
-    await this.modPage.closeAllToastNotifications();
-    await this.modPage.waitAndClick(e.joinAudio);
-    await this.modPage.waitAndClick(e.listenOnlyButton);
-    await this.modPage.wasRemoved(
-      e.establishingAudioLabel,
-      'should remove establish audio element after joining successfully',
-    );
-    await util.checkNotificationText(this.modPage, e.joinAudioToast);
-    await util.checkNotificationIcon(this.modPage, e.listenOnlyIcon);
+    // LiveKit has no dedicated listen-only mode; skip that path there.
+    if (!isLiveKit) {
+      await this.modPage.closeAllToastNotifications();
+      await this.modPage.waitAndClick(e.joinAudio);
+      await this.modPage.waitAndClick(e.listenOnlyButton);
+      await this.modPage.wasRemoved(
+        e.establishingAudioLabel,
+        'should remove establish audio element after joining successfully',
+      );
+      await util.checkNotificationText(this.modPage, e.joinAudioToast);
+      await util.checkNotificationIcon(this.modPage, e.listenOnlyIcon);
+    }
   }
 
   async getUserJoinPopupResponse() {

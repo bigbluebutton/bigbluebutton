@@ -19,7 +19,7 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.navigateSlidesWithKeys();
   });
 
-  test('Share Camera As Content', async ({ browser }, testInfo) => {
+  test('Share Camera As Content', { tag: '@media' }, async ({ browser }, testInfo) => {
     const staticVideoBrowser = await browser.browserType().launch({
       args: [
         ...chromiumBaseArgs,
