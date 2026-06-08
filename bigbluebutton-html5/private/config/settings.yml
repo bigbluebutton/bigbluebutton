@@ -843,7 +843,7 @@ public:
     audio:
       # defaultFullAudioBridge: bridge to be used by full audio mechanism.
       # Deprecated, superseded by `audioBridge` (bigbluebutton.properties, /create)
-      defaultFullAudioBridge: fullaudio
+      defaultFullAudioBridge: livekit
       # fullAudioMediaServer: which bbb-webrtc-sfu media server adapter should
       # be used for microphone audio.
       # Default is undefined, which means the default setting in bbb-webrtc-sfu
@@ -852,7 +852,7 @@ public:
       #
       # defaultListenOnlyBridge: bridge to be used by listen only mechanism.
       # Deprecated, no alternative as this audio mode will be removed.
-      defaultListenOnlyBridge: fullaudio
+      defaultListenOnlyBridge: livekit
       # retryThroughRelay: forces a retry with iceTransportPolicy = 'relay'
       # if the first attempt fails with selected errors codes (eg 1007, 1010)
       retryThroughRelay: false

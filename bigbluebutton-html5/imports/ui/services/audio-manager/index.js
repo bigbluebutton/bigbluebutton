@@ -378,8 +378,8 @@ class AudioManager {
 
     const { fullAudioBridge, listenOnlyBridge } = bridges;
 
-    let FullAudioBridge = SFUAudioBridge;
-    let ListenOnlyBridge = SFUAudioBridge;
+    let FullAudioBridge = LiveKitAudioBridge;
+    let ListenOnlyBridge = LiveKitAudioBridge;
 
     switch (fullAudioBridge) {
       case 'bbb-webrtc-sfu':

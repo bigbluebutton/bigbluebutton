@@ -187,16 +187,16 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
   };
 
   switch (currentMeeting?.cameraBridge) {
-    case 'livekit':
-      return (
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        <LiveKitCameraBridge {...providerProps} />
-      );
     case 'bbb-webrtc-sfu':
-    default:
       return (
         // eslint-disable-next-line react/jsx-props-no-spreading
         <VideoProvider {...providerProps} />
+      );
+    case 'livekit':
+    default:
+      return (
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        <LiveKitCameraBridge {...providerProps} />
       );
   }
 };
