@@ -623,8 +623,8 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     },
     media: {
       audio: {
-        defaultFullAudioBridge: 'fullaudio',
-        defaultListenOnlyBridge: 'fullaudio',
+        defaultFullAudioBridge: 'livekit',
+        defaultListenOnlyBridge: 'livekit',
         retryThroughRelay: false,
         allowAudioJoinCancel: true,
         audioWasmProcessing: {
