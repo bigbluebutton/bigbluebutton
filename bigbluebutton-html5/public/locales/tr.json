@@ -836,7 +836,6 @@
     "app.actionsBar.captions.stop": "Alt yazıları kapat",
     "app.audioNotification.audioFailedError1001": "WebSocket bağlantısı kesildi (1001 hatası)",
     "app.audioNotification.audioFailedError1002": "WebSocket bağlantısı kurulamadı (1002 hatası)",
-    "app.audioNotification.audioFailedError1003": "Tarayıcı sürümü desteklenmiyor (1003 hatası)",
     "app.audioNotification.audioFailedError1004": "Çağrı sırasında sorun çıktı (neden={reason}) (1004 hatası)",
     "app.audioNotification.audioFailedError1005": "Çağrı beklenmedik bir şekilde sona erdi (1005 hatası)",
     "app.audioNotification.audioFailedError1006": "Çağrı zaman aşımına uğradı (1006 hatası)",
