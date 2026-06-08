@@ -703,14 +703,110 @@ jobs:
         with:
           name: bbb-logs-plugins
           path: ./bbb-logs.tar.gz
+  install-and-run-legacy-media-tests:
+    needs:
+      - unify-artifacts
+      - bbb-libreoffice-image
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout PR's source merged into its target branch
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v5
+        with:
+          ref: refs/pull/${{ github.event.number }}/merge
+      - name: Checkout commit/branch
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref }}
+      - name: Install BBB
+        timeout-minutes: 60
+        uses: ./.github/actions/install-bbb
+      - uses: actions/setup-node@v5
+        name: PLAYWRIGHT CACHE - Restore Playwright node modules from cache
+        with:
+          cache: "npm"
+          cache-dependency-path: bigbluebutton-tests/playwright/package-lock.json
+      - name: PLAYWRIGHT CACHE - Restore Playwright binaries from cache
+        id: cache
+        uses: actions/cache@v5
+        with:
+          path: /home/runner/.cache/ms-playwright/
+          key: ${{ runner.os }}-playwright-bins-${{ hashFiles('bigbluebutton-tests/playwright/package-lock.json') }}
+      - name: Install test dependencies
+        working-directory: ./bigbluebutton-tests/playwright
+        timeout-minutes: 25
+        run: |
+          npm ci
+          npx playwright install-deps
+          npx playwright install
+      # This job re-runs the @media-tagged tests against the legacy
+      # bbb-webrtc-sfu bridge, selected per-meeting via MEDIA_BRIDGE create params.
+      - name: Run legacy (bbb-webrtc-sfu) media tests
+        working-directory: ./bigbluebutton-tests/playwright
+        timeout-minutes: 25
+        env:
+          NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
+          ACTIONS_RUNNER_DEBUG: true
+          BBB_URL: https://bbb-ci.test/bigbluebutton/
+          BBB_SECRET: bbbci
+          MEDIA_BRIDGE: bbb-webrtc-sfu
+        run: npx playwright test --project=chromium --grep '(?=.*@ci)(?=.*@media)' --grep-invert '@flaky|@need-update|@only-headed|@setting-required'
+      - if: failure()
+        name: Upload blob report to GitHub Actions Artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: blob-report-legacy
+          path: bigbluebutton-tests/playwright/blob-report
+          if-no-files-found: ignore
+      - if: failure()
+        name: Generate legacy media HTML report from blob report
+        shell: bash
+        working-directory: ./bigbluebutton-tests/playwright
+        run: |
+          if [ -d "./blob-report" ]; then
+            npx playwright merge-reports --reporter html ./blob-report
+          else
+            echo "blob-report directory not found, skipping HTML report generation"
+          fi
+      - if: failure()
+        name: Upload legacy media HTML report to GitHub Actions Artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: test-report_legacy
+          path: bigbluebutton-tests/playwright/playwright-report
+      - if: always()
+        name: Upload logs folder
+        uses: actions/upload-artifact@v6
+        with:
+          name: browser-logs-legacy
+          path: bigbluebutton-tests/playwright/logs
+      - if: failure()
+        name: Prepare artifacts
+        uses: ./.github/actions/prepare-artifacts
+      - if: failure()
+        name: Upload bbb-configs artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: bbb-configs-legacy
+          path: configs
+      - if: failure()
+        name: Upload bbb-logs artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: bbb-logs-legacy
+          path: ./bbb-logs.tar.gz
   publish-report:
     if: always() && !contains(github.event.head_commit.message, 'Merge pull request')
     needs:
       - install-and-run-bbb-tests
       - install-and-run-plugin-tests
+      - install-and-run-legacy-media-tests
     runs-on: ubuntu-24.04
     env:
-      hasFailure: ${{ needs.install-and-run-bbb-tests.result == 'failure' || needs.install-and-run-plugin-tests.result == 'failure' }}
+      hasFailure: ${{ needs.install-and-run-bbb-tests.result == 'failure' || needs.install-and-run-plugin-tests.result == 'failure' || needs.install-and-run-legacy-media-tests.result == 'failure' }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
