@@ -53,6 +53,24 @@ case "$1" in
     echo "Resetting mcs-address from localhost to 127.0.0.1"
     yq -y -i '."mcs-address" = "127.0.0.1"' $TARGET
 
+    # Enable bbb-webrtc-sfu's LiveKit controller module and sync the API
+    # key/secret that the bbb-livekit package generated into livekit.yaml.
+    yq -y -i '.livekit.enabled = true' $TARGET
+
+    set +x  # keep the LiveKit secret out of xtrace/install logs
+    if [ -f /etc/bigbluebutton/livekit.yaml ]; then
+      # webhook.api_key is the active key; use it to pick the matching secret
+      # rather than assuming a single/first entry under .keys.
+      LIVEKIT_KEY=$(yq -r '.webhook.api_key' /etc/bigbluebutton/livekit.yaml)
+      LIVEKIT_SECRET=$(yq -r ".keys.[\"$LIVEKIT_KEY\"]" /etc/bigbluebutton/livekit.yaml)
+      if [ -n "$LIVEKIT_KEY" ] && [ "$LIVEKIT_KEY" != "null" ] \
+        && [ -n "$LIVEKIT_SECRET" ] && [ "$LIVEKIT_SECRET" != "null" ]; then
+        yq -y -i ".livekit.key = \"$LIVEKIT_KEY\"" $TARGET
+        yq -y -i ".livekit.secret = \"$LIVEKIT_SECRET\"" $TARGET
+      fi
+    fi
+    set -x
+
     if id bigbluebutton > /dev/null 2>&1; then
       chown -R bigbluebutton:bigbluebutton /usr/local/bigbluebutton/bbb-webrtc-sfu /var/log/bbb-webrtc-sfu/
     else
@@ -66,7 +84,8 @@ case "$1" in
       mkdir -p /var/mediasoup
     fi
 
-    chmod 644 $TARGET
+    # 0640: $TARGET embeds the LiveKit secret, keep it non-world-readable
+    chmod 640 $TARGET
     chown bigbluebutton:bigbluebutton $TARGET
 
     reloadService nginx
