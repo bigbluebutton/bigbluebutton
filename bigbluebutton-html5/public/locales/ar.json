@@ -836,7 +836,6 @@
     "app.actionsBar.captions.stop": "إيقاف عرض الترجمات",
     "app.audioNotification.audioFailedError1001": "قطع اتصال WebSocket (خطأ 1001)",
     "app.audioNotification.audioFailedError1002": "تعذر إجراء اتصال WebSocket (خطأ 1002)",
-    "app.audioNotification.audioFailedError1003": "إصدار المتصفح غير معتمد (خطأ 1003)",
     "app.audioNotification.audioFailedError1004": "فشل في الاستدعاء (السبب={reason}) (الخطأ 1004)",
     "app.audioNotification.audioFailedError1005": "انتهت المكالمة بشكل غير متوقع (خطأ 1005)",
     "app.audioNotification.audioFailedError1006": "انتهاء مهلة الاتصال (خطأ 1006)",
