@@ -836,7 +836,6 @@
     "app.actionsBar.captions.stop": "字幕を非表示",
     "app.audioNotification.audioFailedError1001": "WebSocketが切断されました (error 1001)",
     "app.audioNotification.audioFailedError1002": "WebSocket接続に失敗しました (error 1002)",
-    "app.audioNotification.audioFailedError1003": "このブラウザのバージョンはサポートされていません (error 1003)",
     "app.audioNotification.audioFailedError1004": "呼び出しに失敗しました (理由={reason}) (error 1004)",
     "app.audioNotification.audioFailedError1005": "通話が予期せず終了しました (error 1005)",
     "app.audioNotification.audioFailedError1006": "呼び出しがタイムアウトしました (error 1006)",
