@@ -836,7 +836,6 @@
     "app.actionsBar.captions.stop": "Ndalni parje titrash të mbyllur",
     "app.audioNotification.audioFailedError1001": "U shkëput WebSocket (gabim 1001)",
     "app.audioNotification.audioFailedError1002": "S’u bë dot një lidhje WebSocket (gabim 1002)",
-    "app.audioNotification.audioFailedError1003": "Version i pambuluar shfletuesi (gabim 1003)",
     "app.audioNotification.audioFailedError1004": "Dështim në thirrje (arsye={reason}) (gabim 1004)",
     "app.audioNotification.audioFailedError1005": "Thirrja përfundoi papritmas (gabim 1005)",
     "app.audioNotification.audioFailedError1006": "Thirrjes i mbaroi koha (gabim 1006)",
