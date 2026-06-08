@@ -181,6 +181,8 @@ export const elements = {
   // Auto Convert Emoji
   autoConvertEmojiMessage: ':)',
   convertedEmojiMessage: '😊',
+  // a leading backslash escapes the conversion: "\:)" should stay ":)" (issue #23344)
+  escapedEmojiMessage: '\\:)',
   // Messages
   message: 'Hello World!',
   testMessage: 'Just a test',
