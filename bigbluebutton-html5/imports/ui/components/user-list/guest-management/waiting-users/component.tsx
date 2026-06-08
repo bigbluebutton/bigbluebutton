@@ -258,7 +258,7 @@ const WaitingUserSection: React.FC<WaitingUserSectionProps> = ({
               intl,
             )
           )}
-          {waitingAuthedUsersVisible && renderActionButtons(authedGuestUsers)}
+          {waitingAuthedUsersVisible && renderActionButtons(filteredAuthedUsers)}
         </>
       )}
       {filteredUnauthedUsers.length > 0 && (
@@ -296,7 +296,7 @@ const WaitingUserSection: React.FC<WaitingUserSectionProps> = ({
               intl,
             )
           )}
-          {waitingUnauthedUsersVisible && renderActionButtons(unauthedGuestUsers)}
+          {waitingUnauthedUsersVisible && renderActionButtons(filteredUnauthedUsers)}
         </>
       )}
     </Styled.Panel>
