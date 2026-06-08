@@ -106,9 +106,9 @@ public class ParamsProcessorUtil {
     private boolean defaultAllowModsToUnmuteUsers = false;
     private boolean defaultRequireUserConsentBeforeUnmuting = false;
     private boolean defaultAllowModsToEjectCameras = false;
-    private String defaultCameraBridge = "bbb-webrtc-sfu";
-    private String defaultScreenShareBridge = "bbb-webrtc-sfu";
-    private String defaultAudioBridge = "bbb-webrtc-sfu";
+    private String defaultCameraBridge = "livekit";
+    private String defaultScreenShareBridge = "livekit";
+    private String defaultAudioBridge = "livekit";
     private String defaultDisabledFeatures;
     private String defaultPluginManifests;
     private Integer pluginManifestsFetchUrlResponseTimeout;
