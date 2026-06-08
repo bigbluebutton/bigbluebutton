@@ -21,6 +21,7 @@ import {
 } from './constants';
 import { elements as e } from './elements';
 import * as helpers from './helpers';
+import { getMediaBridgeCreateParam, isLiveKit } from './livekit';
 import Logger from './logger';
 import { parameters } from './parameters';
 import { generateSettingsData, Settings } from './settings';
@@ -104,8 +105,8 @@ export class Page {
       shouldCloseAudioModal = true,
       fullName,
       meetingId,
-      createParameter,
       createModules,
+      createParameter: callerCreateParameter,
       joinParameter,
       customMeetingId,
       skipSessionDetailsModal = true,
@@ -114,6 +115,15 @@ export class Page {
       forceErrorLogFailure,
       testInfo,
     } = initOptions || {};
+
+    // Route meeting creation through the configured media bridge. On the default
+    // (LiveKit) run no extra params are needed - LiveKit is the server default.
+    // The legacy run appends explicit bbb-webrtc-sfu bridge params to override it.
+    const bridgeParam = getMediaBridgeCreateParam();
+    const createParameter =
+      callerCreateParameter && bridgeParam
+        ? `${callerCreateParameter}&${bridgeParam}`
+        : (callerCreateParameter ?? bridgeParam);
 
     if (!this.testInfo && testInfo) this.testInfo = testInfo;
 
@@ -176,10 +186,16 @@ export class Page {
     return newPage;
   }
 
+  async clickMicrophoneButton(): Promise<void> {
+    // LiveKit meetings do not expose the Microphone/Listen Only phase of the
+    // audio modal, so clicking the microphone button is a no-op there.
+    if (!isLiveKit) await this.waitAndClick(e.microphoneButton);
+  }
+
   async joinMicrophone(options: JoinMicrophoneOptions = {}): Promise<void> {
     const { shouldUnmute = true } = options;
     await this.waitForSelector(e.audioModal);
-    await this.waitAndClick(e.microphoneButton);
+    await this.clickMicrophoneButton();
     await this.waitForSelector(e.stopHearingButton);
     await this.waitAndClick(e.joinEchoTestButton);
     await this.wasRemoved(

@@ -1,4 +1,5 @@
 import { linkIssue } from '../core/helpers';
+import { isLiveKit } from '../core/livekit';
 import { test } from '../core/setup/fixtures';
 import { constants as c, CUSTOM_STYLE_CSS, CUSTOM_STYLE_URL } from './constants';
 import { CreateParameters } from './createParameters';
@@ -53,20 +54,20 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     await createParam.moderatorOnlyMessage();
   });
 
-  test('Webcams Shows Only For Moderators', async ({ browser, context, page }, testInfo) => {
+  test('Webcams Shows Only For Moderators', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, { createParameter: c.webcamsOnlyForModerator, testInfo });
     await createParam.initUserPage2(context, { testInfo });
     await createParam.webcamsOnlyForModerator();
   });
 
-  test('Mute On Start', async ({ browser, context, page }, testInfo) => {
+  test('Mute On Start', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, { createParameter: c.muteOnStart, testInfo });
     await createParam.muteOnStart();
   });
 
-  test('Allow Mods To Unmute Users', async ({ browser, context, page }, testInfo) => {
+  test('Allow Mods To Unmute Users', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, { createParameter: c.allowModsToUnmuteUsers, testInfo });
     await createParam.allowModsToUnmuteUsers();
@@ -101,7 +102,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     await createParam.lockSettingsHideUserList();
   });
 
-  test('Allow Moderator To Eject Cameras', async ({ browser, context, page }, testInfo) => {
+  test('Allow Moderator To Eject Cameras', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, { createParameter: c.allowModsToEjectCameras, testInfo });
     await createParam.initUserPage(context, { testInfo });
@@ -121,7 +122,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
   });
 
   test.describe.parallel('Meeting Layout(default)', () => {
-    test('CAMERAS_ONLY', async ({ browser, context, page }, testInfo) => {
+    test('CAMERAS_ONLY', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
       const createParam = new CreateParameters(browser, context);
       await createParam.initModPage(page, { createParameter: c.camerasOnly, testInfo });
       await createParam.initUserPage(context, { testInfo });
@@ -157,7 +158,7 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
   });
 
   test.describe.parallel('Enforce Layout', { tag: '@flaky-3.1' }, () => {
-    test('CAMERAS_ONLY', async ({ browser, context, page }, testInfo) => {
+    test('CAMERAS_ONLY', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
       linkIssue(24367);
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, { joinParameter: c.enforceCamerasOnly, testInfo });
@@ -506,7 +507,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
     await customParam.displayBrandingArea();
   });
 
-  test('Shortcuts', async ({ browser, context, page }, testInfo) => {
+  test('Shortcuts', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
     const customParam = new CustomParameters(browser, context);
     const shortcutParam = getAllShortcutParams();
     await customParam.initModPage(page, { joinParameter: encodeCustomParams(shortcutParam) });
@@ -553,13 +554,13 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
     await customParam.hideNavBarTest();
   });
 
-  test('Preferred Camera Profile', async ({ browser, context, page }, testInfo) => {
+  test('Preferred Camera Profile', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, { joinParameter: c.preferredCameraProfile, testInfo });
     await customParam.preferredCameraProfileTest();
   });
 
-  test('Set webcam background by passing URL', async ({ browser, context, page }, testInfo) => {
+  test('Set webcam background by passing URL', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, { joinParameter: c.webcamBackgroundPassingURL, testInfo });
     await customParam.webcamBackgroundURL();
@@ -588,19 +589,21 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
   });
 
   test.describe.parallel('Audio', () => {
-    test('Auto join', async ({ browser, context, page }, testInfo) => {
+    test('Auto join', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, { shouldCloseAudioModal: false, joinParameter: c.autoJoin, testInfo });
       await customParam.autoJoin();
     });
 
-    test('Disable Listen Only Mode', async ({ browser, context, page }, testInfo) => {
+    test('Disable Listen Only Mode', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
+      test.skip(isLiveKit, 'LiveKit does not have a dedicated listen-only mode');
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, { shouldCloseAudioModal: false, joinParameter: c.listenOnlyMode, testInfo });
       await customParam.listenOnlyMode();
     });
 
-    test('Force Listen Only', async ({ browser, context }, testInfo) => {
+    test('Force Listen Only', { tag: '@media' }, async ({ browser, context }, testInfo) => {
+      test.skip(isLiveKit, 'LiveKit does not have a dedicated listen-only mode');
       const customParam = new CustomParameters(browser, context);
       await customParam.initUserPage(context, {
         shouldCloseAudioModal: false,
@@ -611,13 +614,13 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       await customParam.forceListenOnly();
     });
 
-    test('Skip audio check', async ({ browser, context, page }, testInfo) => {
+    test('Skip audio check', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, { shouldCloseAudioModal: false, joinParameter: c.skipCheck, testInfo });
       await customParam.skipCheck();
     });
 
-    test('Skip audio check on first join', async ({ browser, context, page }, testInfo) => {
+    test('Skip audio check on first join', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, {
         shouldCloseAudioModal: false,
@@ -627,7 +630,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       await customParam.skipCheckOnFirstJoin();
     });
 
-    test('Skip echo test if previous device', async ({ browser, context, page }, testInfo) => {
+    test('Skip echo test if previous device', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, {
         shouldCloseAudioModal: false,
@@ -650,7 +653,7 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       await customParam.hidePresentationOnJoin();
     });
 
-    test('After Sharing Screen', async ({ browser, context, page }, testInfo) => {
+    test('After Sharing Screen', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, { joinParameter: c.hidePresentationOnJoin, testInfo });
       await customParam.initUserPage(context, {
@@ -766,25 +769,25 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
       await customParam.enableVideo();
     });
 
-    test('Skip Video Preview', async ({ browser, context, page }, testInfo) => {
+    test('Skip Video Preview', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, { joinParameter: c.skipVideoPreview, testInfo });
       await customParam.skipVideoPreview();
     });
 
-    test('Skip Video Preview on First Join', async ({ browser, context, page }, testInfo) => {
+    test('Skip Video Preview on First Join', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, { joinParameter: c.skipVideoPreviewOnFirstJoin, testInfo });
       await customParam.skipVideoPreviewOnFirstJoin();
     });
 
-    test('Skip Video Preview if Previous Device', async ({ browser, context, page }, testInfo) => {
+    test('Skip Video Preview if Previous Device', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, { joinParameter: c.skipVideoPreviewIfPreviousDevice, testInfo });
       await customParam.skipVideoPreviewIfPreviousDevice();
     });
 
-    test('Mirror Own Webcam', async ({ browser, context, page }, testInfo) => {
+    test('Mirror Own Webcam', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
       const customParam = new CustomParameters(browser, context);
       await customParam.initModPage(page, { joinParameter: c.mirrorOwnWebcam, testInfo });
       await customParam.mirrorOwnWebcam();

@@ -144,7 +144,7 @@ export class CustomParameters extends MultiUsers {
   }
 
   async skipCheck() {
-    await this.modPage.waitAndClick(e.microphoneButton);
+    await this.modPage.clickMicrophoneButton();
     await this.modPage.hasElement(e.establishingAudioLabel, 'should establish audio');
     await this.modPage.wasRemoved(
       e.establishingAudioLabel,
@@ -157,14 +157,14 @@ export class CustomParameters extends MultiUsers {
   }
 
   async skipCheckOnFirstJoin() {
-    await this.modPage.waitAndClick(e.microphoneButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.clickMicrophoneButton();
     await this.modPage.hasElement(e.establishingAudioLabel, 'should establish audio');
     await this.modPage.hasElement(e.unmuteMicButton, 'should display the unmute button when user joins audio');
     await this.modPage.waitAndClick(e.unmuteMicButton);
     await this.modPage.hasElement(e.isTalking, 'should display the is talking element after unmuting the mic');
     await this.modPage.leaveAudio();
     await this.modPage.waitAndClick(e.joinAudio);
-    await this.modPage.waitAndClick(e.microphoneButton);
+    await this.modPage.clickMicrophoneButton();
     await this.modPage.hasElement(e.audioSettingsModal, 'should display the audio settings modal');
   }
 
@@ -172,7 +172,7 @@ export class CustomParameters extends MultiUsers {
     await this.modPage.joinMicrophone();
     await this.modPage.leaveAudio();
     await this.modPage.waitAndClick(e.joinAudio);
-    await this.modPage.waitAndClick(e.microphoneButton);
+    await this.modPage.clickMicrophoneButton();
     await this.modPage.wasRemoved(
       e.establishingAudioLabel,
       'should not display the establishing audio label',
