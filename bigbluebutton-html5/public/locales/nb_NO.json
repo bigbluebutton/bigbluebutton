@@ -836,7 +836,6 @@
     "app.actionsBar.captions.stop": "Stopp visning av undertekster",
     "app.audioNotification.audioFailedError1001": "WebSocket Disconnected (error 1002)",
     "app.audioNotification.audioFailedError1002": "Kunne ikke lage en WebSocket tilkobling (error 1002)",
-    "app.audioNotification.audioFailedError1003": "Nettleserversjonen er ikke støttet (error 1003)",
     "app.audioNotification.audioFailedError1004": "Feil ved oppringing (reason={reason}) (error 1004)",
     "app.audioNotification.audioFailedError1005": "Oppringningen stoppet uvventet (error 1005)",
     "app.audioNotification.audioFailedError1006": "Oppringningen tok for lang tid (error 1006)",
