@@ -52,7 +52,7 @@ class ActionsBar extends PureComponent {
                   size: plugin.size || 'lg',
                   circle: plugin.circle !== false,
                   style: plugin.style,
-                  label: plugin.tooltip,
+                  label: plugin.label || plugin.tooltip,
                   tooltipLabel: plugin.tooltip,
                   dataTest: plugin.dataTest,
                 };
