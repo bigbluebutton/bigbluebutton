@@ -75,7 +75,6 @@ public:
     enableCameraBrightness: true
     mirrorOwnWebcam: true
     viewersInWebcam: 8
-    ipv4FallbackDomain: ''
     allowLogout: true
     allowFullscreen: true
     preloadNextSlides: 2
@@ -169,16 +168,6 @@ public:
       numberOfEmojis: 5
       # emojiSize: size of the emoji in 'em' units
       emojiSize: 2
-    # If enabled, before joining microphone the client will perform a trickle
-    # ICE against Kurento and use the information about successful
-    # candidate-pairs to filter out local candidates in SIP.js's SDP.
-    # Try enabling this setting in scenarios where the listenonly mode works,
-    # but microphone doesn't (for example, when using VPN).
-    # For compatibility check "Browser compatibility" section in:
-    # https://developer.mozilla.org/en-US/docs/Web/API/RTCDtlsTransport/iceTransport
-    # This is an EXPERIMENTAL setting and the default value is false
-    # experimentalUseKmsTrickleIceForMicrophone: false
-    #
     # Shows stats about download and upload rates, audio jitter, lost packets
     # and turn information
     enableNetworkStats: true
@@ -880,9 +869,6 @@ public:
     # connection problems unless all traffic is relayed through a turn server.
     forceRelayOnFirefox: true
     mediaTag: '#remote-media'
-    callTransferTimeout: 5000
-    callHangupTimeout: 2000
-    callHangupMaximumRetries: 10
     echoTestNumber: 'echo'
     listenOnlyCallTimeout: 15000
     # skipInitialCamEnumeration: whether to skip the initial camera enumeration
@@ -901,41 +887,8 @@ public:
     fullAudioOffering: true
     # Dev flag. Controls the WebRTC negotiation role for listen only.
     listenOnlyOffering: false
-    #Timeout (ms) for gathering ICE candidates. When this timeout expires
-    #the SDP is sent to the server with the candidates the browser gathered
-    #so far. Increasing this value might help avoiding 1004 error when
-    #user activates microphone.
-    iceGatheringTimeout: 5000
-    # Timeout (ms) for connecting to the audio's signaling websocket.
-    audioConnectionTimeout: 5000
-    # Delay (ms) between each reconnection attempt of the audio's signaling
-    # websocket.
-    audioReconnectionDelay: 5000
-    # Number of reconnection attempts of the signaling websocket, before
-    # showing to the user there's an audio error.
-    audioReconnectionAttempts: 3
-    sipjsHackViaWs: false
-    # sipjsAllowMdns: whether mDNS candidates should be allowed in local SDPs.
-    # Default is false since FreeSWITCH doesn't resolve mDNS by default.
-    sipjsAllowMdns: false
-    # the fqdn of this host.
-    # If you run a traditional setup of multiple nodes behind scalelite and the users see the hostnames of the
-    # individual nodes, you can leave this at the default setting
-    sip_ws_host: ''
     # Mute/umute toggle throttle time
     toggleMuteThrottleTime: 300
-    #Websocket keepAlive interval (seconds). You may set this to prevent
-    #websocket disconnection in some environments. When set, BBB will send
-    #'\r\n\r\n' string through SIP.js's websocket. If not set, default value
-    #is 0.
-    websocketKeepAliveInterval: 30
-    #Debounce time (seconds) for sending SIP.js's websocket keep alive message.
-    #If not set, default value is 10.
-    websocketKeepAliveDebounce: 10
-    #Trace sip/audio messages in browser. If not set, default value is false.
-    traceSip: false
-    # SDP semantics: plan-b|unified-plan
-    sdpSemantics: 'unified-plan'
     # localEchoTest:
     #   enabled: Boolean => enables an experimental, simplified echo test mode
     #   initialHearingState: Boolean => whether users should hear themselves firsthand
