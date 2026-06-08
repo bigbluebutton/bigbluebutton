@@ -8,8 +8,10 @@ import { MultiUsers } from '../user/multiusers';
 // Above this grid size, exceeding the grid would require too many simultaneous
 // webcams to be practical in CI. The environment under test must therefore set
 // public.kurento.pagination.desktopGridSizes to a small value (the issue's own
-// reproduction also required a custom pagination config).
-export const MAX_GRID_SIZE = 8;
+// reproduction also required a custom pagination config). It can be raised via
+// GRID_TILE_COUNT_MAX_GRID_SIZE on a host with enough capacity to run the exact
+// pagination config from the issue (e.g. 24).
+export const MAX_GRID_SIZE = Number(process.env.GRID_TILE_COUNT_MAX_GRID_SIZE) || 8;
 
 export class GridTileCount extends MultiUsers {
   // Reads the effective grid size delivered to the client through meetingClientSettings.

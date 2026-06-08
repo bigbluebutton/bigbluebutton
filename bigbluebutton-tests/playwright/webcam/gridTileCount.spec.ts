@@ -25,6 +25,10 @@ test.describe('Grid layout participant tile count', () => {
         `to exercise the overflow path with a practical number of webcams (configured: ${gridSize})`,
     );
 
+    // The test joins gridSize + 1 webcam users sequentially, so the timeout has to
+    // scale with the grid size (the default would be too short for large grids).
+    test.setTimeout((gridSize + 2) * 25_000 + 60_000);
+
     await gridTileCount.checkTileCountMatchesParticipants(gridSize);
   });
 });
