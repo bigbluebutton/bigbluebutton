@@ -281,6 +281,13 @@ export class Page {
   async closeAudioModal(): Promise<void> {
     await this.hasElement(e.audioModal, 'should display the audio modal', ELEMENT_WAIT_EXTRA_LONG_TIME);
     await this.waitAndClick(e.closeModal);
+    // Under LiveKit, closing the audio modal auto-joins audio muted. Leave it so
+    // closeAudioModal consistently ends with the user not in audio, matching the
+    // legacy bridge behavior the tests rely on.
+    if (isLiveKit) {
+      await this.waitForSelector(e.audioDropdownMenu, ELEMENT_WAIT_LONGER_TIME);
+      await this.leaveAudio();
+    }
   }
 
   async waitForSelector(selector: string, timeout: number = ELEMENT_WAIT_TIME): Promise<void> {
