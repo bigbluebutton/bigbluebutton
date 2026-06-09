@@ -1221,7 +1221,9 @@ public class ParamsProcessorUtil {
             java.nio.charset.StandardCharsets.UTF_8);
       } catch (Exception e) {
         log.error("Could not read client settings catalog [{}] for override validation; skipping strict check.", clientSettingsFilePath, e);
-        cachedClientSettingsCatalog = "";
+        // Do not cache the failure - a transient read error must not disable strict validation for
+        // the rest of the process lifetime; retry on the next call.
+        return "";
       }
     }
     return cachedClientSettingsCatalog;
@@ -1934,6 +1936,8 @@ public class ParamsProcessorUtil {
 
 	public void setClientSettingsFilePath(String clientSettingsFilePath) {
 		this.clientSettingsFilePath = clientSettingsFilePath;
+		// Invalidate any cached catalog so the new path is read on the next validation.
+		this.cachedClientSettingsCatalog = null;
 	}
 
 	public void setMaxNumPages(Integer maxNumPages) { this.defaultMaxNumPages = maxNumPages; }

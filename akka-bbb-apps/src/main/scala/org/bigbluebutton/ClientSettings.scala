@@ -35,7 +35,8 @@ object ClientSettings extends SystemConfiguration {
         Map[String, Object]()
     }
 
-    val overrideSettings = common2.util.YamlUtil.toMap[Object](overrideText) match {
+    val overrideParseResult = common2.util.YamlUtil.toMap[Object](overrideText)
+    val overrideSettings = overrideParseResult match {
       case Success(value) => value
       case Failure(exception) =>
         logger.error("Error parsing client settings override file [{}]; falling back to empty settings", clientSettingsPathOverride, exception)
@@ -50,7 +51,12 @@ object ClientSettings extends SystemConfiguration {
     // `private` section so overrides to `private.*` are checked too. Skip when the catalog failed
     // to load (empty) - otherwise every override key would be flagged unknown, hiding the real error.
     if (hasOverrideFile && clientSettingsCatalog.nonEmpty) {
-      val issues = YamlUtil.diffOverrideAgainstBase(clientSettingsCatalog, overrideSettings)
+      // A malformed override file parses to an empty map above; treat that parse failure as an
+      // issue too, so strict mode refuses to boot instead of silently ignoring the whole file.
+      val parseIssues = overrideParseResult.failed.toOption.toList.map { ex =>
+        ConfigOverrideIssue(clientSettingsPathOverride, "invalid-yaml", Option(ex.getMessage).getOrElse(ex.toString))
+      }
+      val issues = parseIssues ++ YamlUtil.diffOverrideAgainstBase(clientSettingsCatalog, overrideSettings)
       val source = s"file [$clientSettingsPathOverride]"
       if (issues.nonEmpty && clientSettingsOverrideStrictValidation) {
         // Strict mode (test/staging): refuse to boot so a bad config fails the deploy loudly,
