@@ -3,48 +3,50 @@ import { ServerBlockNoteEditor } from "@blocknote/server-util";
 
 async function exportDocumentToHtml(documentName: string): Promise<string> {
   const connection = await hocuspocus.openDirectConnection(documentName);
-  const doc = connection.document;
-
-  if (!doc) {
-    await connection.disconnect();
-    throw new Error('document_not_found');
-  }
-
-  const fragment = doc.getXmlFragment("doc");
 
   // An empty document is a valid state: export it as a blank (but valid)
   // document instead of returning an error. See issue #25122.
   let htmlContent = '';
 
-  if (fragment.length > 0) {
-    // Create a ServerBlockNoteEditor instance
-    const editor = ServerBlockNoteEditor.create();
+  try {
+    const doc = connection.document;
 
-    // Convert Yjs XML Fragment to BlockNote blocks
-    const blocks = editor.yXmlFragmentToBlocks(fragment);
+    if (!doc) {
+      throw new Error('document_not_found');
+    }
 
-    // Convert blocks to HTML (using type assertion to handle schema differences)
-    htmlContent = await editor.blocksToHTMLLossy(blocks as any);
+    const fragment = doc.getXmlFragment("doc");
 
-    // Replace empty paragraph tags with paragraphs containing a <br> tag
-    // This ensures empty lines are preserved in the HTML output
-    htmlContent = htmlContent.replaceAll('<p></p>', '<p><br></p>');
+    if (fragment.length > 0) {
+      // Create a ServerBlockNoteEditor instance
+      const editor = ServerBlockNoteEditor.create();
 
-    // Strip hardcoded inline color styles from BlockNote color spans.
-    // The data-style-type / data-value attributes remain, and the CSS below
-    // re-applies the colors via variables so they adapt to light / dark theme.
-    htmlContent = htmlContent.replace(
-      /<span\b([^>]*)>/g,
-      (match, attrs) => {
-        if (/\bdata-style-type=/.test(attrs)) {
-          return `<span${attrs.replace(/\sstyle\s*=\s*(?:"[^"]*"|'[^']*')/i, '')}>`;
+      // Convert Yjs XML Fragment to BlockNote blocks
+      const blocks = editor.yXmlFragmentToBlocks(fragment);
+
+      // Convert blocks to HTML (using type assertion to handle schema differences)
+      htmlContent = await editor.blocksToHTMLLossy(blocks as any);
+
+      // Replace empty paragraph tags with paragraphs containing a <br> tag
+      // This ensures empty lines are preserved in the HTML output
+      htmlContent = htmlContent.replaceAll('<p></p>', '<p><br></p>');
+
+      // Strip hardcoded inline color styles from BlockNote color spans.
+      // The data-style-type / data-value attributes remain, and the CSS below
+      // re-applies the colors via variables so they adapt to light / dark theme.
+      htmlContent = htmlContent.replace(
+        /<span\b([^>]*)>/g,
+        (match, attrs) => {
+          if (/\bdata-style-type=/.test(attrs)) {
+            return `<span${attrs.replace(/\sstyle\s*=\s*(?:"[^"]*"|'[^']*')/i, '')}>`;
+          }
+          return match;
         }
-        return match;
-      }
-    );
+      );
+    }
+  } finally {
+    await connection.disconnect();
   }
-
-  await connection.disconnect();
 
   // Create HTML document with styling
   const fullHtml = [
