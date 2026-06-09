@@ -139,7 +139,18 @@ if (env === prodEnv) {
   config.mode = prodEnv;
   config.optimization = {
     minimize: true,
-    minimizer: isSafariTarget ? [] : [new TerserPlugin()],
+    minimizer: isSafariTarget ? [] : [new TerserPlugin({
+      // Preserve the `startScreensharing` function name in the minified
+      // bundle. The tablet app (imports/ui/services/mobile-app/index.js)
+      // inspects the JS stack trace for this name to route screen sharing
+      // to the native broadcast upload extension; if the minifier strips
+      // it, the call is misclassified and screen sharing silently fails on
+      // the tablet app. Scoped via regex so the global bundle-size cost of
+      // a blanket keep_fnames is avoided.
+      terserOptions: {
+        keep_fnames: /startScreensharing/,
+      },
+    })],
   };
   config.performance = {
     hints: 'warning',
