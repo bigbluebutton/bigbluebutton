@@ -1,4 +1,4 @@
-import { Browser, BrowserContext, expect, Page as PlaywrightPage, TestInfo } from '@playwright/test';
+import { Browser, BrowserContext, expect, Page as PlaywrightPage, test, TestInfo } from '@playwright/test';
 
 import { ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
@@ -207,6 +207,13 @@ export class MultiUsers {
     // on audio-only tiles, not only on webcam tiles.
     // Requires `public.kurento.cameraSortingModes.showAudioOnlyOnFirstPage` enabled
     // in settings.yml so audio-only users get a placeholder tile in the video grid.
+    // Skip (rather than fail with an opaque "tile never appeared" error) when it is disabled.
+    const showAudioOnlyOnFirstPage = this.modPage.settings?.showAudioOnlyOnFirstPage ?? true;
+    test.skip(
+      !showAudioOnlyOnFirstPage,
+      'requires public.kurento.cameraSortingModes.showAudioOnlyOnFirstPage to be enabled',
+    );
+
     await this.modPage.waitForSelector(e.whiteboard);
 
     // Presenter shares a webcam so the camera dock (and the audio-only tile) is visible.
