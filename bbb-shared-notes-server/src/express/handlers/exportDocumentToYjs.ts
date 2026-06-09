@@ -13,13 +13,10 @@ export async function exportDocumentToYjs(documentName: string): Promise<string>
 
   const fragment = doc.getXmlFragment("doc");
 
-  if (fragment.length === 0) {
-    await connection.disconnect();
-    throw new Error('document_empty');
-  }
-
   const editor = ServerBlockNoteEditor.create();
-  const blocks = editor.yXmlFragmentToBlocks(fragment);
+  // An empty document is a valid state: export it as a valid (empty) Yjs
+  // state instead of returning an error. See issue #25122.
+  const blocks = fragment.length > 0 ? editor.yXmlFragmentToBlocks(fragment) : [];
 
   // Suite Numerique Docs expects BlockNote data in the `document-store` fragment.
   const targetDoc = new Y.Doc();

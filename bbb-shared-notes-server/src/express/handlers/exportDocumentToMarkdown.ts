@@ -12,10 +12,11 @@ export async function exportDocumentToMarkdown(documentName: string): Promise<st
 
   const fragment = doc.getXmlFragment("doc");
 
-  // Check if document is empty
+  // An empty document is a valid state: export it as empty markdown instead
+  // of returning an error. See issue #25122.
   if (fragment.length === 0) {
     await connection.disconnect();
-    throw new Error('document_empty');
+    return '';
   }
 
   // Create a ServerBlockNoteEditor instance

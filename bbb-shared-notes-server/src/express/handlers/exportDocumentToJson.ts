@@ -12,9 +12,11 @@ export async function exportDocumentToJson(documentName: string): Promise<string
 
   const fragment = doc.getXmlFragment("doc");
 
+  // An empty document is a valid state: export it as an empty block array
+  // instead of returning an error. See issue #25122.
   if (fragment.length === 0) {
     await connection.disconnect();
-    throw new Error('document_empty');
+    return JSON.stringify([], null, 2);
   }
 
   const editor = ServerBlockNoteEditor.create();

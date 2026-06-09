@@ -12,37 +12,37 @@ async function exportDocumentToHtml(documentName: string): Promise<string> {
 
   const fragment = doc.getXmlFragment("doc");
 
-  // Check if document is empty
-  if (fragment.length === 0) {
-    await connection.disconnect();
-    throw new Error('document_empty');
-  }
+  // An empty document is a valid state: export it as a blank (but valid)
+  // document instead of returning an error. See issue #25122.
+  let htmlContent = '';
 
-  // Create a ServerBlockNoteEditor instance
-  const editor = ServerBlockNoteEditor.create();
+  if (fragment.length > 0) {
+    // Create a ServerBlockNoteEditor instance
+    const editor = ServerBlockNoteEditor.create();
 
-  // Convert Yjs XML Fragment to BlockNote blocks
-  const blocks = editor.yXmlFragmentToBlocks(fragment);
+    // Convert Yjs XML Fragment to BlockNote blocks
+    const blocks = editor.yXmlFragmentToBlocks(fragment);
 
-  // Convert blocks to HTML (using type assertion to handle schema differences)
-  let htmlContent = await editor.blocksToHTMLLossy(blocks as any);
+    // Convert blocks to HTML (using type assertion to handle schema differences)
+    htmlContent = await editor.blocksToHTMLLossy(blocks as any);
 
-  // Replace empty paragraph tags with paragraphs containing a <br> tag
-  // This ensures empty lines are preserved in the HTML output
-  htmlContent = htmlContent.replaceAll('<p></p>', '<p><br></p>');
+    // Replace empty paragraph tags with paragraphs containing a <br> tag
+    // This ensures empty lines are preserved in the HTML output
+    htmlContent = htmlContent.replaceAll('<p></p>', '<p><br></p>');
 
-  // Strip hardcoded inline color styles from BlockNote color spans.
-  // The data-style-type / data-value attributes remain, and the CSS below
-  // re-applies the colors via variables so they adapt to light / dark theme.
-  htmlContent = htmlContent.replace(
-    /<span\b([^>]*)>/g,
-    (match, attrs) => {
-      if (/\bdata-style-type=/.test(attrs)) {
-        return `<span${attrs.replace(/\sstyle\s*=\s*(?:"[^"]*"|'[^']*')/i, '')}>`;
+    // Strip hardcoded inline color styles from BlockNote color spans.
+    // The data-style-type / data-value attributes remain, and the CSS below
+    // re-applies the colors via variables so they adapt to light / dark theme.
+    htmlContent = htmlContent.replace(
+      /<span\b([^>]*)>/g,
+      (match, attrs) => {
+        if (/\bdata-style-type=/.test(attrs)) {
+          return `<span${attrs.replace(/\sstyle\s*=\s*(?:"[^"]*"|'[^']*')/i, '')}>`;
+        }
+        return match;
       }
-      return match;
-    }
-  );
+    );
+  }
 
   await connection.disconnect();
 
