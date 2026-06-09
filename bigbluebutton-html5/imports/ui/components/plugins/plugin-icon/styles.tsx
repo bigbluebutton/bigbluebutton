@@ -2,11 +2,14 @@ import styled from 'styled-components';
 import { btnSpacing } from '/imports/ui/stylesheets/styled-components/general';
 
 export const PluginButtonIcon = styled.i`
+  display: flex;
+  line-height: 1;
+  font-size: inherit;
   vertical-align: middle;
 
   svg {
-    width: 1.25em;
-    height: 1.25em;
+    height: 1em;
+    width: 1em;
   }
 
   &:before {
