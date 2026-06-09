@@ -128,7 +128,12 @@ export class Webcam extends Page {
     await this.waitAndClick(e.startSharingWebcam);
     await this.waitForSelector(e.currentUserLocalStreamVideo);
     const webcamVideoLocator = await this.page.locator(e.currentUserLocalStreamVideo);
-    await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-home-background.png');
+    // Mask the dropdown and user-status overlays: depending on the media bridge,
+    // audio may auto-connect and change those camera-container items, which would
+    // otherwise cause cross-bridge screenshot flakiness unrelated to this test.
+    await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-home-background.png', {
+      mask: [this.page.locator(e.dropdownWebcamButton), this.page.locator(e.webcamUserStatus)],
+    });
   }
 
   async webcamFullscreen() {
@@ -181,7 +186,11 @@ export class Webcam extends Page {
     await this.waitAndClick(e.startSharingWebcam);
     await this.waitForSelector(e.currentUserLocalStreamVideo);
     const webcamVideoLocator = await this.page.locator(e.currentUserLocalStreamVideo);
-    await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-new-background.png');
+    // Mask the dropdown and user-status overlays (see applyBackground) to avoid
+    // cross-bridge screenshot flakiness from audio-connection state changes.
+    await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-new-background.png', {
+      mask: [this.page.locator(e.dropdownWebcamButton), this.page.locator(e.webcamUserStatus)],
+    });
 
     // Remove
     await this.waitAndClick(e.videoDropdownMenu);
