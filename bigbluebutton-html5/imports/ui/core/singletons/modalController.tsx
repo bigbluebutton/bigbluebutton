@@ -229,10 +229,10 @@ export function useModalRegistration({
   const close = useCallback(() => {
     if (uniqueRef.current) controller.setDesiredOpen(uniqueRef.current, false);
     const el = previousFocusRef.current as HTMLElement | null;
+    previousFocusRef.current = null;
     if (el && typeof el.focus === 'function' && document.body.contains(el)) {
       setTimeout(() => {
         el.focus();
-        previousFocusRef.current = null;
       }, 0);
     }
   }, []);

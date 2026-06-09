@@ -7,19 +7,29 @@ interface IconProps {
   prependIconName?: string;
   rotate?: boolean;
   className?: string;
+  ariaLabel?: string;
+  ariaHidden?: boolean;
 }
 
 const Icon: React.FC<IconProps> = ({
+  ariaHidden,
+  ariaLabel,
   className = '',
   prependIconName = 'icon-bbb-',
   iconName = '',
   rotate = false,
-}) => (
-  <Styled.Icon
-    aria-hidden="true"
-    className={cx(className, [prependIconName, iconName].join(''))}
-    $rotate={rotate}
-  />
-);
+}) => {
+  const isAriaHidden = ariaHidden ?? !ariaLabel;
+
+  return (
+    <Styled.Icon
+      aria-hidden={isAriaHidden}
+      aria-label={isAriaHidden ? undefined : ariaLabel}
+      role={isAriaHidden ? undefined : 'img'}
+      className={cx(className, [prependIconName, iconName].join(''))}
+      $rotate={rotate}
+    />
+  );
+};
 
 export default memo(Icon);
