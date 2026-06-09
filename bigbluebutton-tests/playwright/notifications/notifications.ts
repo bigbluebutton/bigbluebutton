@@ -14,6 +14,10 @@ export class Notifications extends MultiUsers {
   }
 
   async audioNotification() {
+    // Under LiveKit, init leaves audio after the auto-join, which raises a
+    // "left audio" toast. Clear it so the single-notification assertion below
+    // only counts the join toast.
+    await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.joinAudio);
     await this.modPage.joinMicrophone();
     await util.checkNotificationText(this.modPage, e.joinAudioToast);
