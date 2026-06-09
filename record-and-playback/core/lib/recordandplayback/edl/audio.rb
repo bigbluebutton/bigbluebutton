@@ -44,7 +44,9 @@ module BigBlueButton
           audios = entry[:audios]
           if audios && !audios.empty?
             audios.each do |entry|
-              BigBlueButton.logger.debug "    #{entry[:filename]} at #{entry[:timestamp]}"
+              BigBlueButton.logger.debug(
+                "    #{entry[:filename]} at #{entry[:timestamp]} (original duration: #{entry[:original_duration]})"
+              )
             end
           else
             BigBlueButton.logger.debug "    silence"
@@ -206,24 +208,26 @@ module BigBlueButton
 
         # Build a list of audio files to read information from
         edl.each do |entry|
-          if entry[:audios]
-            entry[:audios].each { |a| audioinfo[a[:filename]] ||= {} }
+          entry[:audios]&.each do |a|
+            audioinfo[a[:filename]] ||= {}
+            audioinfo[a[:filename]][:original_duration] = a[:original_duration] if a.include?(:original_duration)
           end
         end
       
         # Read audio metadata
         BigBlueButton.logger.info "Reading source audio information"
-        audioinfo.keys.each do |audiofile|
+        audioinfo.each_key do |audiofile|
           BigBlueButton.logger.debug "  #{audiofile}"
           info = audio_info(audiofile)
           if !info[:audio] || !info[:duration]
-            BigBlueButton.logger.warn "    This audio file is corrupt! It will be removed from the output."
+            BigBlueButton.logger.warn('    This audio file is corrupt! It will be removed from the output.')
             corrupt_audios << audiofile
-          else
-            BigBlueButton.logger.debug "    format: #{info[:format][:format_name]}, codec: #{info[:audio][:codec_name]}"
-            BigBlueButton.logger.debug "    sample rate: #{info[:sample_rate]}, duration: #{info[:duration]}"
-            audioinfo[audiofile] = info
+            next
           end
+
+          BigBlueButton.logger.debug("    format: #{info[:format][:format_name]}, codec: #{info[:audio][:codec_name]}")
+          BigBlueButton.logger.debug("    sample rate: #{info[:sample_rate]}, duration: #{info[:duration]}")
+          audioinfo[audiofile].merge!(info)
         end
 
         if corrupt_audios.any?
@@ -300,10 +304,10 @@ module BigBlueButton
             # by buggy versions of freeswitch in old BigBlueButton
             if ((info[:format][:format_name] == 'wav' ||
                  info[:audio][:codec_name] == 'vorbis') &&
-                 entry[:original_duration] &&
-                 (info[:duration].to_f / entry[:original_duration]) < 0.997 &&
-                 (((entry[:original_duration] - info[:duration]).to_f) / entry[:original_duration]).abs < 0.05)
-              speed = info[:duration].to_f / entry[:original_duration]
+                 info[:original_duration] &&
+                 (info[:duration].to_f / info[:original_duration]) < 0.997 &&
+                 (((info[:original_duration] - info[:duration]).to_f) / info[:original_duration]).abs < 0.05)
+              speed = info[:duration].to_f / info[:original_duration]
               seek = 0
               BigBlueButton.logger.warn "  Audio file length mismatch in #{filename}, adjusting speed to #{speed}"
             end
@@ -392,7 +396,8 @@ module BigBlueButton
       # and remove the audio file from the mix for the duration of the gap.
       def self.remove_audio_gaps(edl, audioinfo, process_dir)
         audio_gaps = audioinfo.each_with_object({}) do |(filename, info), gaps|
-          gaps[filename] = BigBlueButton::EDL::MediaUtils.pts_gaps(process_dir, filename, :audio, info[:duration])
+          duration = info.fetch(:original_duration, info[:duration])
+          gaps[filename] = BigBlueButton::EDL::MediaUtils.pts_gaps(process_dir, filename, :audio, duration)
         end
 
         BigBlueButton::EDL::MediaUtils.remove_pts_gaps_from_edl(
