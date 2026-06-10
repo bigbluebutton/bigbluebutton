@@ -507,6 +507,7 @@ export const elements = {
   webcamConnecting: 'div[data-test="webcamConnecting"]',
   webcamContainer: 'video[data-test="videoContainer"]',
   webcamVideoItem: 'div[data-test="webcamVideoItem"]',
+  overflowTile: 'div[data-test="overflowTile"]',
   videoDropdownMenu: 'button[data-test="videoDropdownMenu"]',
   advancedVideoSettingsBtn: 'li[data-test="advancedVideoSettingsButton"]',
   mirrorWebcamBtn: 'li[data-test="mirrorWebcamBtn"]',
