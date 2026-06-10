@@ -58,6 +58,7 @@ class BBBMenu extends React.Component {
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.handleClose = this.handleClose.bind(this);
+    this.restoreTriggerFocus = this.restoreTriggerFocus.bind(this);
   }
 
   componentDidUpdate() {
@@ -113,15 +114,28 @@ class BBBMenu extends React.Component {
 
   handleClose(event) {
     const { onCloseCallback } = this.props;
-    this.setState({ anchorEl: null }, onCloseCallback());
+    this.setState({ anchorEl: null }, onCloseCallback);
 
     setTimeout(() => {
-      if (this.previousFocus && typeof this.previousFocus.focus === 'function'
-        && document.body.contains(this.previousFocus)) {
-        this.previousFocus.focus();
-      }
+      this.restoreTriggerFocus();
       this.previousFocus = null;
     }, 0);
+  }
+
+  restoreTriggerFocus() {
+    const triggerFocusableElement = this.anchorElRef?.querySelector(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    );
+
+    if (triggerFocusableElement && typeof triggerFocusableElement.focus === 'function') {
+      triggerFocusableElement.focus();
+      return;
+    }
+
+    if (this.previousFocus && typeof this.previousFocus.focus === 'function'
+      && document.body.contains(this.previousFocus)) {
+      this.previousFocus.focus();
+    }
   }
 
   makeMenuItems() {
