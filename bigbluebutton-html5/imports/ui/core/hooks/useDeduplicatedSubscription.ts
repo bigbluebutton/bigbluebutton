@@ -56,7 +56,7 @@ const useDeduplicatedSubscription = <T>(
     return () => {
       GrahqlSubscriptionStore.unsubscribe(query, options?.variables);
     };
-  }, [subscriptionHash, options?.skip]);
+  }, [subscriptionHash, options?.skip, usePatchedSubscription]);
 
   return useReactiveVar(subVar);
 };
