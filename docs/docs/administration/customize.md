@@ -811,6 +811,10 @@ and join an audio session. You should now hear music on hold if there is only on
 
 #### Add a phone number to the conference bridge
 
+:::info
+This dial-in path is handled by FreeSWITCH and applies to meetings that use the **FreeSWITCH audio bridge** (`audioBridge=bbb-webrtc-sfu`). LiveKit is the default audio bridge in BigBlueButton 4.0; to set up dial-in for LiveKit meetings, see [Dial-in with the LiveKit audio bridge](#dial-in-with-the-livekit-audio-bridge-livekit-sip) below.
+:::
+
 The built-in WebRTC-based audio in BigBlueButton is very high quality audio. Still, there may be cases where you want users to be able to dial into the conference bridge using a telephone number.
 
 Before you can configure FreeSWITCH to route the call to the right conference, you need to first obtain a phone number from a [Internet Telephone Service Providers](https://freeswitch.org/confluence/display/FREESWITCH/Providers+ITSPs) and configure FreeSWITCH accordingly to receive incoming calls via session initiation protocol (SIP) from that provider. Ensure that the context is `public` and that the file is called `/opt/freeswitch/conf/sip_profiles/external/YOUR-PROVIDER.xml`. Here is an example; of course, hostname and ALL-CAPS values need to be changed:
@@ -918,6 +922,154 @@ With these rules, you won't get spammed by bots scanning for SIP endpoints and t
 It's also important to note that, alongside the PIN requirement, there are basic dialplan-level checks in place to prevent anonymous dial-in callers from joining BigBlueButton audio conferences.
   - Those checks offer minimal protection regarding blocking anonymous SIP participants and should not be considered a comprehensive solution. For production environments requiring stronger security controls, administrators are responsible for implementing additional measures that match the sensitivity of their deployments.
   - If you want to allow anonymous SIP UAs, you need to remove the `reject_anonymous` extension in `/opt/freeswitch/conf/dialplan/default/bbb_conference.xml`, then restart FreeSWITCH.
+
+#### Dial-in with the LiveKit audio bridge (livekit-sip)
+
+LiveKit is the default audio bridge in BigBlueButton 4.0. For meetings that use the LiveKit audio bridge, telephone dial-in is handled by `livekit-sip`.
+
+The dial-in flow is: the caller reaches a **SIP call gateway** (a FreeSWITCH — either BigBlueButton's bundled one or an external one) that answers the call and prompts for the conference PIN; the gateway then bridges the authenticated call into `livekit-sip`, which joins the LiveKit room as a SIP participant.
+
+LiveKit dial-in is opt-in. Enable the LiveKit SIP controller in `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml`:
+
+```yaml
+livekit:
+  rtcAgent:
+    enabled: true
+  sip:
+    enabled: true
+    requirePin: false # the PIN is enforced by FreeSWITCH, not by livekit-sip
+    dispatch:
+      options:
+        hidePhoneNumber: true
+```
+
+Then set up a SIP call gateway — BigBlueButton's bundled FreeSWITCH, or an external one.
+
+##### Using the bundled FreeSWITCH as the call gateway
+
+In this setup the FreeSWITCH that ships with BigBlueButton plays the call-gateway role: it answers the call, prompts for the PIN, and then bridges the call into `livekit-sip` over a local leg. The PIN is prompted by FreeSWITCH (not by `livekit-sip`). DTMF (e.g. to mute) flows caller → FreeSWITCH (a-leg) → the FreeSWITCH-to-`livekit-sip` bridge (b-leg) → `livekit-sip`; FreeSWITCH converts the inbound DTMF (RFC 2833 or SIP INFO from the trunk) to RFC 2833 on the bridge leg, which is what `livekit-sip` expects by default.
+
+:::note
+For the DID covered by the dialplan below, this replaces the FreeSWITCH-audio-bridge dial-in path: meetings created with `audioBridge=bbb-webrtc-sfu` will no longer be reachable through that DID. To support both audio bridges on the same server, use distinct DIDs and gate the dialplan on `destination_number` (one extension routes to `mod_conference`, the other bridges to `livekit-sip`).
+:::
+
+1. Provision the SIP trunk in the bundled FreeSWITCH exactly as for the FreeSWITCH audio bridge — see [Add a phone number to the conference bridge](#add-a-phone-number-to-the-conference-bridge). That covers the SIP gateway file under `/opt/freeswitch/conf/sip_profiles/external/` and the `defaultDialAccessNumber` / welcome footer in `/etc/bigbluebutton/bbb-web.properties`.
+
+2. Keep `livekit-sip` on port `5062` (its value in `/etc/bigbluebutton/livekit-sip.yaml`):
+
+   ```yaml
+   sip_port: 5062
+   sip_port_listen: 5062
+   ```
+
+3. Instead of the FreeSWITCH-bridge dialplan, install a dialplan that bridges to `livekit-sip` after the PIN prompt. Save it to `/opt/freeswitch/conf/dialplan/public/my_provider.xml` and replace `EXTERNALDID` with the DID configured on the SIP gateway:
+
+   ```xml
+   <include>
+     <extension name="from_my_provider_lk">
+       <condition field="destination_number" expression="^EXTERNALDID">
+         <action application="start_dtmf"/>
+         <action application="answer"/>
+         <action application="sleep" data="1000"/>
+         <action application="play_and_get_digits" data="5 9 3 30000 # conference/conf-pin.wav ivr/ivr-that_was_an_invalid_entry.wav pin \d+"/>
+
+         <!-- Optional: phone-number masking, identical to the FreeSWITCH-bridge example above. -->
+         <!--
+         <action application="set_profile_var" data="caller_id_name=${regex(${caller_id_name}|^.*(.{4})$|xxx-xxx-%1)}"/>
+         -->
+
+         <action application="transfer" data="SEND_TO_LIVEKIT_SIP XML public"/>
+       </condition>
+     </extension>
+
+     <extension name="bbb_lk_sip_bridge">
+       <condition field="destination_number" expression="^SEND_TO_LIVEKIT_SIP$">
+         <!-- Stop in-band DTMF detection so DTMF is not absorbed by FreeSWITCH. -->
+         <action application="stop_dtmf"/>
+         <!-- Force RFC 2833 on the bridged b-leg toward livekit-sip. The BBB
+              external profile defaults to dtmf-type=info; livekit-sip negotiates
+              RFC 2833 by default. -->
+         <action application="bridge" data="{sip_dtmf_type=rfc2833}sofia/external/sip:${pin}@${local_ip_v4}:5062;transport=udp"/>
+         <!-- Control returns here only on failure (on success FreeSWITCH hangs up
+              the a-leg automatically, since hangup_after_bridge defaults to true).
+              On failure (e.g. no LiveKit dispatch for this voice bridge, or
+              livekit-sip down), play bad-pin and re-prompt. -->
+         <action application="transfer" data="LK_BAD_PIN XML public"/>
+       </condition>
+     </extension>
+
+     <extension name="bbb_lk_bad_pin">
+       <condition field="destination_number" expression="^LK_BAD_PIN$">
+         <action application="answer"/>
+         <action application="sleep" data="1000"/>
+         <action application="play_and_get_digits" data="5 9 3 30000 # conference/conf-bad-pin.wav ivr/ivr-that_was_an_invalid_entry.wav pin \d+"/>
+         <action application="transfer" data="SEND_TO_LIVEKIT_SIP XML public"/>
+       </condition>
+     </extension>
+   </include>
+   ```
+
+4. Restart BigBlueButton:
+
+   ```bash
+   sudo bbb-conf --restart
+   ```
+
+5. Verify the components are running, then place a test call:
+
+   ```bash
+   sudo bbb-conf --status
+   sudo systemctl status freeswitch livekit-sip bbb-webrtc-sfu
+   ```
+
+   The caller should hear the BigBlueButton PIN prompt; after entering the meeting's voice bridge, the call should appear in the LiveKit room as a SIP participant. `*` or `0` toggles mute.
+
+##### Using an external call gateway
+
+In this setup an external FreeSWITCH acts as the call gateway (the same role it plays in, for example, a [Scalelite dial-in deployment](https://medium.com/@JesusFederico/scalelite-and-dial-in-numbers-f070fe0059b0)), and `livekit-sip` takes over the SIP port that the bundled FreeSWITCH would otherwise use.
+
+:::warning
+The steps below move the bundled FreeSWITCH off port `5060` and therefore **break FreeSWITCH-based dial-in** (`audioBridge=bbb-webrtc-sfu`) for the whole server. To serve both bridges, the call gateway must be aware of the audio bridge in use — for example, keep the bundled FreeSWITCH on `5060` and `livekit-sip` on `5062`, and have your load balancer build the gateway's dialplan to route to the right port (`5060` for `audioBridge=bbb-webrtc-sfu`, `5062` for `audioBridge=livekit`). If you take that approach, adjust the ports below accordingly.
+:::
+
+1. Configure the external call gateway as you would today (see the [Scalelite dial-in guide](https://medium.com/@JesusFederico/scalelite-and-dial-in-numbers-f070fe0059b0)).
+
+2. Move the bundled FreeSWITCH's SIP bind port off `5060` (to avoid colliding with `livekit-sip`). In `/opt/freeswitch/conf/vars.xml`:
+
+   ```xml
+   <X-PRE-PROCESS cmd="set" data="external_sip_port=5063"/>
+   ```
+
+3. Point `livekit-sip` at `5060`, and give it an RTP port range with connectivity to the call gateway. In `/etc/bigbluebutton/livekit-sip.yaml`:
+
+   ```yaml
+   sip_port: 5060
+   sip_port_listen: 5060
+   rtp_port:
+     port_range_start: <START>
+     port_range_end: <END>
+   ```
+
+4. Restart BigBlueButton:
+
+   ```bash
+   sudo bbb-conf --restart
+   ```
+
+5. Verify all components are running:
+
+   ```bash
+   sudo bbb-conf --status
+   sudo systemctl status livekit-sip
+   ```
+
+##### DTMF troubleshooting
+
+If DTMF passes through to FreeSWITCH during the PIN prompt but does not reach `livekit-sip` after the bridge, confirm that `liberal-dtmf=true` is set on the external SIP profile (it is BigBlueButton's default; `rtp_liberal_dtmf=true` is set globally in `vars.xml`). If that is already correct, further FreeSWITCH DTMF-mode tweaks may be required.
+
+##### Limitations
+
+- The guest lobby is bypassed for SIP dial-in callers.
 
 #### Turn on the "comfort noise" when no one is speaking
 
