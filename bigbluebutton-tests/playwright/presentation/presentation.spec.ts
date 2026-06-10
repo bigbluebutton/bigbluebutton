@@ -174,6 +174,13 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.removeAllPresentation();
     });
 
+    test('Presentation thumbnail loads', async ({ browser, context, page }, testInfo) => {
+      linkIssue(25163);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.presentationThumbnailLoads();
+    });
+
     test('Upload and remove all presentations', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
       // duplicate toast notification displayed
       linkIssue(24056);
