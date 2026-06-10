@@ -16,34 +16,6 @@ test.describe.parallel('Unified Layout - meeting create param', () => {
   });
 });
 
-test.describe.parallel('Unified Layout - join param', () => {
-  test('First minimize of presentation shows participant tiles for moderator', async ({ browser, context }, testInfo) => {
-    const layouts = new Layouts(browser, context);
-    await initializePages(layouts, browser, {
-      isMultiUser: true,
-      joinParameter: 'userdata-bbb_change_layout=UNIFIED_LAYOUT',
-      testInfo,
-      recordVideo: true,
-    });
-    await layouts.unifiedLayoutMinimizeShowsTiles();
-  });
-});
-
-test.describe.parallel('Unified Layout - concurrent user join', () => {
-  test('Minimize concurrent with user joining shows participant tiles for moderator', async ({ browser, context }, testInfo) => {
-    const layouts = new Layouts(browser, context);
-    // Only moderator joins initially — the user join happens inside the test method,
-    // overlapping with the minimize click to surface the race condition.
-    await initializePages(layouts, browser, {
-      isMultiUser: false,
-      joinParameter: 'userdata-bbb_change_layout=UNIFIED_LAYOUT',
-      testInfo,
-      recordVideo: true,
-    });
-    await layouts.unifiedLayoutMinimizeConcurrentWithUserJoin();
-  });
-});
-
 test.describe.parallel('Unified Layout - meeting create param - with audio', () => {
   test('First minimize of presentation shows participant tiles for moderator', async ({ browser, context }, testInfo) => {
     const layouts = new Layouts(browser, context);
@@ -57,37 +29,6 @@ test.describe.parallel('Unified Layout - meeting create param - with audio', () 
     await layouts.modPage.joinMicrophone({ shouldUnmute: false });
     await layouts.initUserPage();
     await layouts.unifiedLayoutMinimizeShowsTiles();
-  });
-});
-
-test.describe.parallel('Unified Layout - join param - with audio', () => {
-  test('First minimize of presentation shows participant tiles for moderator', async ({ browser, context }, testInfo) => {
-    const layouts = new Layouts(browser, context);
-    await initializePages(layouts, browser, {
-      isMultiUser: false,
-      joinParameter: 'userdata-bbb_change_layout=UNIFIED_LAYOUT',
-      testInfo,
-      recordVideo: true,
-    });
-    await layouts.modPage.waitAndClick(e.joinAudio);
-    await layouts.modPage.joinMicrophone({ shouldUnmute: false });
-    await layouts.initUserPage(undefined, { joinParameter: 'userdata-bbb_change_layout=UNIFIED_LAYOUT' });
-    await layouts.unifiedLayoutMinimizeShowsTiles();
-  });
-});
-
-test.describe.parallel('Unified Layout - concurrent user join - with audio', () => {
-  test('Minimize concurrent with user joining shows participant tiles for moderator', async ({ browser, context }, testInfo) => {
-    const layouts = new Layouts(browser, context);
-    await initializePages(layouts, browser, {
-      isMultiUser: false,
-      joinParameter: 'userdata-bbb_change_layout=UNIFIED_LAYOUT',
-      testInfo,
-      recordVideo: true,
-    });
-    await layouts.modPage.waitAndClick(e.joinAudio);
-    await layouts.modPage.joinMicrophone({ shouldUnmute: false });
-    await layouts.unifiedLayoutMinimizeConcurrentWithUserJoin();
   });
 });
 

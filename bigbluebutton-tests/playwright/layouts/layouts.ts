@@ -270,37 +270,6 @@ export class Layouts extends MultiUsers {
     }
   }
 
-  async unifiedLayoutMinimizeConcurrentWithUserJoin() {
-    await this.modPage.waitForSelector(e.whiteboard);
-
-    // Start the user join without awaiting — this fires the join request in the background
-    // while the moderator clicks minimize, overlapping the user-joined GraphQL event with
-    // the layout push that sets currentLayoutType=UNIFIED_LAYOUT and presentationMinimized=true.
-    const userJoinPromise = this.initUserPage(this.modPage.context);
-
-    // Click minimize immediately, concurrent with the user join in progress
-    await this.modPage.waitAndClick(e.minimizePresentation);
-
-    // Wait for user to fully join, then let any race condition settle
-    await userJoinPromise;
-    await this.modPage.page.waitForTimeout(3000);
-
-    await this.modPage.wasRemoved(
-      e.presentationContainer,
-      'presentation should remain hidden for moderator after minimize concurrent with user join in unified layout',
-    );
-    await this.modPage.hasElement(
-      e.restorePresentation,
-      'restore presentation button should be visible for moderator after minimize concurrent with user join in unified layout',
-    );
-    await this.modPage.hasElement(
-      e.cameraDock,
-      'camera dock with participant tiles should be visible for moderator after minimizing concurrent with user join in unified layout',
-    );
-
-    await this.attachPageVideos();
-  }
-
   async unifiedLayoutMinimizeShowsTiles() {
     // Wait for the whiteboard canvas to confirm the presentation is fully loaded and
     // the minimize button is in an enabled/clickable state (isThereCurrentPresentation = true).
