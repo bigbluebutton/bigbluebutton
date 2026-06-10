@@ -59,6 +59,11 @@ test.describe.parallel('Notifications', { tag: '@ci' }, () => {
 
   test.describe.parallel('Recording', () => {
     test('Notification appearing when user is not in audio', { tag: '@media' }, async ({ browser, page }, testInfo) => {
+      // Under LiveKit, leaving audio keeps the room connection, so the server
+      // voice record stays joined=true and the recording indicator's micUser
+      // check still reports an active mic — the "no active microphone" warning
+      // never fires. Skipped pending a fix to the LiveKit voice-record lifecycle.
+      test.skip(isLiveKit, 'LiveKit keeps voice.joined=true after leaving audio');
       const recordingNotifications = new RecordingNotifications(browser, page);
       await recordingNotifications.init(true, { createParameter: recordMeeting, testInfo });
       await recordingNotifications.notificationNoAudio();

@@ -285,8 +285,13 @@ export class Page {
     // closeAudioModal consistently ends with the user not in audio, matching the
     // legacy bridge behavior the tests rely on.
     if (isLiveKit) {
-      await this.waitForSelector(e.audioDropdownMenu, ELEMENT_WAIT_LONGER_TIME);
-      await this.leaveAudio();
+      // The actions bar (and its audio controls) can be hidden by some create
+      // params (e.g. hideActionsBar); only leave audio when the dropdown is
+      // actually reachable, otherwise the muted auto-join is harmless and left.
+      if (await this.checkElement(e.actionsBarBackground)) {
+        await this.waitForSelector(e.audioDropdownMenu, ELEMENT_WAIT_LONGER_TIME);
+        await this.leaveAudio();
+      }
     }
   }
 
