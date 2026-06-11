@@ -72,6 +72,8 @@ interface GuestWaitProps {
   guestLobbyMessage: string | null;
   positionInWaitingQueue: number | null;
   logoutUrl: string;
+  meetingName: string;
+  clientTitle: string;
 }
 
 const GuestWait: React.FC<GuestWaitProps> = (props) => {
@@ -80,6 +82,8 @@ const GuestWait: React.FC<GuestWaitProps> = (props) => {
     guestStatus,
     logoutUrl,
     positionInWaitingQueue,
+    meetingName,
+    clientTitle,
   } = props;
 
   const intl = useIntl();
@@ -117,8 +121,13 @@ const GuestWait: React.FC<GuestWaitProps> = (props) => {
   }, [intl]);
 
   useEffect(() => {
-    document.title = intl.formatMessage(intlMessages.windowTitle);
-  }, []);
+    const lobbyTitle = intl.formatMessage(intlMessages.windowTitle);
+    if (meetingName) {
+      document.title = `${lobbyTitle} - ${meetingName}`;
+      return;
+    }
+    document.title = lobbyTitle;
+  }, [intl, meetingName, clientTitle]);
 
   useEffect(() => {
     const { sessionToken } = Auth;
