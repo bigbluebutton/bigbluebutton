@@ -198,7 +198,7 @@ export class MultiUsers {
     await this.userPage.hasElement(e.lowerHandBtn, 'should display the lower hand button for the attendee');
     await this.userPage.press('Escape');
     await this.modPage.waitAndClick(e.usersListSidebarButton);
-    await this.modPage.waitAndClick(e.raiseHandRejection);
+    await this.modPage.waitAndClick(e.lowerHandUserItem);
     await this.userPage.hasElement(e.raiseHandBtn, 'should display the raise hand button after rejection');
   }
 

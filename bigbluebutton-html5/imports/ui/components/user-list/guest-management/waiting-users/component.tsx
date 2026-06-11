@@ -3,6 +3,7 @@ import React, {
   useState,
   useEffect,
   memo,
+  useMemo,
 } from 'react';
 import { useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
@@ -34,6 +35,7 @@ interface WaitingUserSectionProps {
   unauthedGuestUsers: GuestWaitingUser[];
   guestLobbyMessage: string | null;
   guestPolicy: string;
+  searchQuery?: string;
 }
 
 type SeparatedUsers = {
@@ -91,12 +93,38 @@ const WaitingUserSection: React.FC<WaitingUserSectionProps> = ({
   unauthedGuestUsers,
   guestLobbyMessage,
   guestPolicy,
+  searchQuery,
 }) => {
   const isGuestLobbyMessageEnabled = window.meetingClientSettings.public.app.enableGuestLobbyMessage;
   const intl = useIntl();
   const { isChrome } = browserInfo;
   const [waitingAuthedUsersVisible, setWaitingAuthedUsersVisible] = useState(false);
   const [waitingUnauthedUsersVisible, setWaitingUnauthedUsersVisible] = useState(false);
+
+  const searchTerms = useMemo(
+    () => (searchQuery ? searchQuery.trim().toLowerCase().split(/\s+/).filter(Boolean) : []),
+    [searchQuery],
+  );
+
+  const filteredAuthedUsers = useMemo(
+    () => (searchTerms.length > 0
+      ? authedGuestUsers.filter((u) => {
+        const nameLower = u.user.name?.toLowerCase() ?? '';
+        return searchTerms.every((term) => nameLower.includes(term));
+      })
+      : authedGuestUsers),
+    [authedGuestUsers, searchTerms],
+  );
+
+  const filteredUnauthedUsers = useMemo(
+    () => (searchTerms.length > 0
+      ? unauthedGuestUsers.filter((u) => {
+        const nameLower = u.user.name?.toLowerCase() ?? '';
+        return searchTerms.every((term) => nameLower.includes(term));
+      })
+      : unauthedGuestUsers),
+    [unauthedGuestUsers, searchTerms],
+  );
 
   const [rememberChoice, setRememberChoice] = useState(false);
 
@@ -195,7 +223,7 @@ const WaitingUserSection: React.FC<WaitingUserSectionProps> = ({
 
   return (
     <Styled.Panel isChrome={isChrome}>
-      {authedGuestUsers.length > 0 && (
+      {filteredAuthedUsers.length > 0 && (
         <>
           <Tooltip
             title={
@@ -214,7 +242,7 @@ const WaitingUserSection: React.FC<WaitingUserSectionProps> = ({
                 </Styled.TitleText>
                 <Avatar sx={{ bgcolor: '#F59240', width: '1.25rem', height: '1.25rem' }}>
                   <Styled.GuestNumberIndicator>
-                    {authedGuestUsers.length}
+                    {filteredAuthedUsers.length}
                   </Styled.GuestNumberIndicator>
                 </Avatar>
               </Styled.ButtonContent>
@@ -222,7 +250,7 @@ const WaitingUserSection: React.FC<WaitingUserSectionProps> = ({
           </Tooltip>
           {waitingAuthedUsersVisible && (
             renderPendingUsers(
-              authedGuestUsers,
+              filteredAuthedUsers,
               guestUsersCall,
               setPrivateGuestLobbyMessage,
               getPrivateGuestLobbyMessage,
@@ -230,10 +258,10 @@ const WaitingUserSection: React.FC<WaitingUserSectionProps> = ({
               intl,
             )
           )}
-          {waitingAuthedUsersVisible && renderActionButtons(authedGuestUsers)}
+          {waitingAuthedUsersVisible && renderActionButtons(filteredAuthedUsers)}
         </>
       )}
-      {unauthedGuestUsers.length > 0 && (
+      {filteredUnauthedUsers.length > 0 && (
         <>
           <Tooltip
             title={
@@ -252,7 +280,7 @@ const WaitingUserSection: React.FC<WaitingUserSectionProps> = ({
                 </Styled.TitleText>
                 <Avatar sx={{ bgcolor: '#F59240', width: '1.25rem', height: '1.25rem' }}>
                   <Styled.GuestNumberIndicator>
-                    {unauthedGuestUsers.length}
+                    {filteredUnauthedUsers.length}
                   </Styled.GuestNumberIndicator>
                 </Avatar>
               </Styled.ButtonContent>
@@ -260,7 +288,7 @@ const WaitingUserSection: React.FC<WaitingUserSectionProps> = ({
           </Tooltip>
           {waitingUnauthedUsersVisible && (
             renderPendingUsers(
-              unauthedGuestUsers,
+              filteredUnauthedUsers,
               guestUsersCall,
               setPrivateGuestLobbyMessage,
               getPrivateGuestLobbyMessage,
@@ -268,14 +296,14 @@ const WaitingUserSection: React.FC<WaitingUserSectionProps> = ({
               intl,
             )
           )}
-          {waitingUnauthedUsersVisible && renderActionButtons(unauthedGuestUsers)}
+          {waitingUnauthedUsersVisible && renderActionButtons(filteredUnauthedUsers)}
         </>
       )}
     </Styled.Panel>
   );
 };
 
-const WaitingUserSectionContainer: React.FC = () => {
+const WaitingUserSectionContainer: React.FC<{ searchQuery?: string }> = ({ searchQuery }) => {
   const {
     data: guestWaitingUsersData,
     loading: guestWaitingUsersLoading,
@@ -323,6 +351,7 @@ const WaitingUserSectionContainer: React.FC = () => {
       unauthedGuestUsers={separateGuestUsersByAuthed.unauthed}
       guestLobbyMessage={currentMeeting?.usersPolicies?.guestLobbyMessage ?? null}
       guestPolicy={guestPolicy || ''}
+      searchQuery={searchQuery}
     />
   );
 };
