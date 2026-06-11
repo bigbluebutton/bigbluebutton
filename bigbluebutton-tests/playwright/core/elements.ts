@@ -224,6 +224,7 @@ export const elements = {
   testMessage: 'Just a test',
   message1: 'Hello User2',
   message2: 'Hello User1',
+  messageWithTextBeforeLink: 'Hello https://example.com',
   publicMessage1: 'This is a Public Message from User1',
   publicMessage2: 'This is a Public Message from User2',
   uniqueCharacterMessage: 'A',
