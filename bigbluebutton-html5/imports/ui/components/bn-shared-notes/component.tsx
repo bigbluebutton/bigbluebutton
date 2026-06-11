@@ -28,6 +28,7 @@ import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { useBlockNoteLocaleLanguage, useHocuspocusProvider } from './hooks';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
+import useNotesLastRead from '/imports/ui/components/notes/hooks/useNotesLastRead';
 import logger from '/imports/startup/client/logger';
 import { notify } from '../../services/notification';
 import TextAlignSelect from './text-align-select/component';
@@ -378,10 +379,15 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   );
 }
 
-function BlockNoteContainer(): React.ReactElement {
+interface BlockNoteContainerProps {
+  isVisible: boolean;
+}
+
+function BlockNoteContainer({ isVisible }: BlockNoteContainerProps): React.ReactElement {
   const {
     error, isAuthenticating, hocuspocusProvider, connectionClosed, handleRetry, isSynced,
   } = useHocuspocusProvider();
+  const { markNotesAsRead } = useNotesLastRead();
 
   const { data: currentUser } = useCurrentUser((user) => ({
     color: user.color,
@@ -402,6 +408,19 @@ function BlockNoteContainer(): React.ReactElement {
 
   const renderBlockNote = !error && !isAuthenticating
     && hocuspocusProvider && !connectionClosed && isSynced;
+
+  // The notes are read when the synced editor is on screen. Mirror the
+  // etherpad pad (pads-graphql/component.tsx): mark as read on show and on
+  // hide - the panel stays mounted for NOTES_UNMOUNT_DELAY after closing,
+  // and edits arriving in that window must stay unread.
+  React.useEffect(() => {
+    if (!renderBlockNote) return () => {};
+    if (isVisible) markNotesAsRead();
+    return () => {
+      if (isVisible) markNotesAsRead();
+    };
+  }, [renderBlockNote, isVisible, markNotesAsRead]);
+
   return (
     <Styled.Notes id="bn-notes-scroll-container">
       {(hasError) && (
