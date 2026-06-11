@@ -85,6 +85,7 @@ interface VideoListProps {
   onVideoItemMount: (stream: string, video: HTMLVideoElement) => void;
   onVideoItemUnmount: (stream: string) => void;
   onVirtualBgDrop: (stream: string, type: string, name: string, data: string) => Promise<unknown>;
+  gridSize: number;
 }
 
 interface VideoListState {
@@ -227,11 +228,15 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       streams,
       cameraDock,
       layoutContextDispatch,
+      isGridEnabled,
+      gridSize,
     } = this.props;
     const visibleStreams = streams.filter(
       (item) => item.type === VIDEO_TYPES.GRID || !('render' in item) || item.render !== false,
     );
-    let numItems = visibleStreams.length;
+    let numItems = isGridEnabled
+      ? Math.min(gridSize, visibleStreams.length)
+      : visibleStreams.length;
 
     if (numItems < 1 || !this.canvas || !this.grid) {
       return;
@@ -365,6 +370,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       pluginUserCameraHelperPerPosition,
       isGridEnabled,
       overflowCount,
+      gridSize,
     } = this.props;
     const numOfStreams = streams.filter(
       (item) => item.type === VIDEO_TYPES.GRID || !('render' in item) || item.render !== false,
@@ -372,17 +378,10 @@ class VideoList extends Component<VideoListProps, VideoListState> {
 
     const shouldShowOverflowTile = isGridEnabled && overflowCount > 0;
 
-    let streamsToRender = streams;
-    if (shouldShowOverflowTile) {
-      const lastGridUserIndex = streams.map((s, idx) => ({ s, idx }))
-        .reverse()
-        .find(({ s }) => s.type === VIDEO_TYPES.GRID)?.idx;
-
-      if (lastGridUserIndex !== undefined) {
-        // remove the last grid user to replace it with the overflow tile
-        streamsToRender = streams.filter((_, idx) => idx !== lastGridUserIndex);
-      }
-    }
+    const streamsToHide = (numOfStreams - gridSize + 1) * -1;
+    const streamsToRender = shouldShowOverflowTile && streamsToHide < 0
+      ? streams.slice(0, streamsToHide)
+      : streams;
 
     const videoItems = streamsToRender.map((item) => {
       const { userId, name } = item;

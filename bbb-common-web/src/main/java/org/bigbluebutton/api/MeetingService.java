@@ -920,6 +920,7 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.LOCK_SETTINGS_LOCK_ON_JOIN_CONFIGURABLE, message.lockOnJoinConfigurable.toString());
       params.put(ApiParams.LOCK_SETTINGS_HIDE_VIEWERS_CURSOR, message.hideViewersCursor.toString());
       params.put(ApiParams.LOCK_SETTINGS_HIDE_VIEWERS_ANNOTATION, message.hideViewersAnnotation.toString());
+      params.put(ApiParams.WEBCAMS_ONLY_FOR_MODERATOR, message.webcamsOnlyForModerator.toString());
 
       Map<String, String> parentMeetingMetadata = parentMeeting.getMetadata();
 
