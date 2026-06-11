@@ -20,6 +20,10 @@ public class ServiceUtils {
     public static ValidationService getValidationService() { return validationService; }
 
     public static Meeting findMeetingFromMeetingID(String meetingID) {
+        if (meetingID == null || meetingID.isEmpty()) {
+            return null;
+        }
+
         log.info("Attempting to find meeting with ID {}", meetingID);
         Meeting meeting = meetingService.getMeeting(meetingID);
 
