@@ -389,11 +389,18 @@ export class WhiteboardResize extends DrawShape {
     await modSlideImg.waitFor({ state: 'visible', timeout: ELEMENT_WAIT_LONGER_TIME });
     await userSlideImg.waitFor({ state: 'visible', timeout: ELEMENT_WAIT_LONGER_TIME });
 
+    // Scope the screenshots to the whiteboard canvas only. This is a camera/slide
+    // position regression test, so capturing the full page would couple the
+    // assertion to unrelated, non-deterministic UI (audio toolbar state, the
+    // auto-mute toast, etc.) that differs between local and CI environments.
+    const modWb = this.modPage.page.locator(e.whiteboard);
+    const userWb = this.userPage.page.locator(e.whiteboard);
+
     await this.modPage.page.waitForTimeout(5000);
 
     // ── 2. Screenshot A — initial state (becomes the reference baseline) ────────
-    await expect(this.modPage.page).toHaveScreenshot('mod-whiteboard-resize-initial.png', { maxDiffPixels: 1000 });
-    await expect(this.userPage.page).toHaveScreenshot('user-whiteboard-resize-initial.png', { maxDiffPixels: 1000 });
+    await expect(modWb).toHaveScreenshot('mod-whiteboard-resize-initial.png', { maxDiffPixels: 1000 });
+    await expect(userWb).toHaveScreenshot('user-whiteboard-resize-initial.png', { maxDiffPixels: 1000 });
 
     // ── 3. Shrink moderator viewport (≈ 40 % height) ──────────────────────────
     const viewport = this.modPage.page.viewportSize()!;
@@ -405,8 +412,8 @@ export class WhiteboardResize extends DrawShape {
     await this.modPage.page.waitForTimeout(5000);
 
     // ── 4. Screenshot B — shrunk state (recorded as its own baseline) ──────────
-    await expect(this.modPage.page).toHaveScreenshot('mod-whiteboard-resize-shrunk.png', { maxDiffPixels: 1000 });
-    await expect(this.userPage.page).toHaveScreenshot('user-whiteboard-resize-shrunk.png', { maxDiffPixels: 1000 });
+    await expect(modWb).toHaveScreenshot('mod-whiteboard-resize-shrunk.png', { maxDiffPixels: 1000 });
+    await expect(userWb).toHaveScreenshot('user-whiteboard-resize-shrunk.png', { maxDiffPixels: 1000 });
 
     // ── 5. Expand back to original size ───────────────────────────────────────
     await this.modPage.page.setViewportSize({ width: viewport.width, height: viewport.height });
@@ -417,7 +424,7 @@ export class WhiteboardResize extends DrawShape {
     // Using the same snapshot name as Screenshot A forces Playwright to compare
     // the restored state directly against the initial state.
     // If the slide is displaced after expand, pixels will differ and the test fails.
-    await expect(this.modPage.page).toHaveScreenshot('mod-whiteboard-resize-initial.png', { maxDiffPixels: 1000 });
-    await expect(this.userPage.page).toHaveScreenshot('user-whiteboard-resize-initial.png', { maxDiffPixels: 1000 });
+    await expect(modWb).toHaveScreenshot('mod-whiteboard-resize-initial.png', { maxDiffPixels: 1000 });
+    await expect(userWb).toHaveScreenshot('user-whiteboard-resize-initial.png', { maxDiffPixels: 1000 });
   }
 }
