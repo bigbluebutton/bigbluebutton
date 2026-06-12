@@ -187,12 +187,16 @@ const SidebarNavigation = ({
             <UserNotesListItemContainer isOpened={isOpened(PANELS.SHARED_NOTES)} />
           </Styled.Top>
 
+          <Styled.Separator />
+
           <Styled.Center>
             <AppsListItem isOpened={isOpened(PANELS.APPS_GALLERY)} />
             <PinnedApps
               sidebarNavigationInput={sidebarNavigationInput}
             />
           </Styled.Center>
+
+          <Styled.Separator />
 
           <Styled.Bottom>
             <AudioCaptionsListItem isOpened={isOpened(PANELS.AUDIO_CAPTIONS)} />
