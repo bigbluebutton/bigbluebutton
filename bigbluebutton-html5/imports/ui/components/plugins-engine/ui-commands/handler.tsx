@@ -9,6 +9,7 @@ import { PluginLayoutUiCommandsHandler } from './layout/handler';
 import PluginNavBarUiCommandsHandler from './nav-bar/handler';
 import PluginActionsBarUiCommandsHandler from './actions-bar/handler';
 import PluginCameraUiCommandsHandler from './camera/handler';
+import { PluginDialogsUiCommandsHandler } from './dialogs/handler';
 
 const PluginUiCommandsHandler = () => (
   <>
@@ -22,6 +23,7 @@ const PluginUiCommandsHandler = () => (
     <PluginUserStatusUiCommandsHandler />
     <PluginConferenceUiCommandsHandler />
     <PluginNotificationUiCommandsHandler />
+    <PluginDialogsUiCommandsHandler />
   </>
 );
 
