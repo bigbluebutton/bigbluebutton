@@ -1,12 +1,16 @@
 package org.bigbluebutton.api.model.request;
 
+import org.bigbluebutton.api.model.constraint.ContentTypeConstraint;
 import org.bigbluebutton.api.model.constraint.MeetingIDConstraint;
 import org.bigbluebutton.api.model.constraint.NotNull;
 import org.bigbluebutton.api.model.constraint.Size;
 import org.bigbluebutton.api.model.shared.Checksum;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
+@ContentTypeConstraint
 public class SendChatMessage extends RequestWithChecksum<SendChatMessage.Params> {
 
     public enum Params implements RequestParameters {
@@ -32,6 +36,11 @@ public class SendChatMessage extends RequestWithChecksum<SendChatMessage.Params>
 
     public SendChatMessage(Checksum checksum, HttpServletRequest servletRequest) {
         super(checksum, servletRequest);
+    }
+
+    @Override
+    public Set<String> getSupportedContentTypes() {
+        return Collections.emptySet();
     }
 
     public String getMeetingID() {
