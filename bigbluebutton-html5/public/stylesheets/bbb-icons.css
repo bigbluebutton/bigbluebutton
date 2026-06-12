@@ -429,3 +429,9 @@
 .icon-bbb-add_column:before {
   content: "\e987";
 }
+.icon-bbb-apps_tiles:before {
+  content: "\e988";
+}
+.icon-bbb-apps_list:before {
+  content: "\e989";
+}

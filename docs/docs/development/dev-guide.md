@@ -314,13 +314,6 @@ $ npm start
 The last couple of steps could alternatively be done with the `run-dev.sh` script (running in developer mode)
 or `deploy.sh` to run in production mode and have the client files served by NginX.
 
-### Audio configuration for development environment
-
-You may see the error "Call timeout (Error 1006)" during the microphone echo test after starting the developing HTML5 client by "npm start". A misconfiguration of Freeswitch may account for it, especially when BigBlueButton is set up with bbb-install.sh script. Try setting "sipjsHackViaWs" to true for the client:
-
-`test -s /etc/bigbluebutton/bbb-html5.yml || echo '{}' > /etc/bigbluebutton/bbb-html5.yml`
-`yq -y -i '.public.media.sipjsHackViaWs = true' /etc/bigbluebutton/bbb-html5.yml`
-
 ### `/private/config`
 
 All configurations are located in **/private/config/settings.yml**. Starting with BigBlueButton 3.0 this file is actually picked by `bbb-apps-akka` and the settings are passed to the clients.

@@ -30,6 +30,7 @@ const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
   iconName,
   label,
   hasNotification = false,
+  hasPrivateNotification = false,
   isDisabled = false,
   isLocked = false,
   accessKey,
@@ -117,6 +118,7 @@ const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
         onClick={handleClick}
         onKeyDown={handleKeyDown}
         $hasNotification={hasNotification}
+        $hasPrivateNotification={hasPrivateNotification}
         $disabled={isDisabled}
         $locked={isLocked}
       >

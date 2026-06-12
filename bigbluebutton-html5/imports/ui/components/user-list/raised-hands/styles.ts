@@ -105,6 +105,29 @@ const ListTransition = styled.div`
 
 const TitleContainer = styled.div`
   padding: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const LowerAllHandsButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: ${colorPrimary};
+  font-size: ${fontSizeBase};
+  font-weight: ${textFontWeight};
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 const IndexBadge = styled.div`
@@ -144,6 +167,7 @@ export default {
   List,
   ListTransition,
   TitleContainer,
+  LowerAllHandsButton,
   IndexBadge,
   EmojiContainer,
   Separator,

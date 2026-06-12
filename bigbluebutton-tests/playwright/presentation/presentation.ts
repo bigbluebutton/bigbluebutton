@@ -44,6 +44,63 @@ export class Presentation extends MultiUsers {
     await checkSvgIndex(this.modPage, '/svg/1');
   }
 
+  async navigateSlidesWithKeys() {
+    await this.modPage.hasElement(
+      e.whiteboard,
+      'should display the whiteboard when the moderator joins the meeting',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+
+    await checkSvgIndex(this.modPage, '/svg/1');
+
+    // Blur any focused element so keydown events target document.body
+    const blurActive = () => this.modPage.page.evaluate(() => (document.activeElement as HTMLElement)?.blur());
+
+    await blurActive();
+    await this.modPage.press('ArrowRight');
+    await this.modPage.page.waitForFunction(
+       ([whiteboardSelector, expectedSvg]) => {
+         const whiteboard = document.querySelector(whiteboardSelector);
+         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
+       },
+       [e.whiteboard, '/svg/2'],
+       { timeout: ELEMENT_WAIT_LONGER_TIME },
+     );
+
+    await blurActive();
+    await this.modPage.press('ArrowLeft');
+    await this.modPage.page.waitForFunction(
+       ([whiteboardSelector, expectedSvg]) => {
+         const whiteboard = document.querySelector(whiteboardSelector);
+         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
+       },
+       [e.whiteboard, '/svg/1'],
+       { timeout: ELEMENT_WAIT_LONGER_TIME },
+     );
+
+    await blurActive();
+    await this.modPage.press('PageDown');
+    await this.modPage.page.waitForFunction(
+       ([whiteboardSelector, expectedSvg]) => {
+         const whiteboard = document.querySelector(whiteboardSelector);
+         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
+       },
+       [e.whiteboard, '/svg/2'],
+       { timeout: ELEMENT_WAIT_LONGER_TIME },
+     );
+
+    await blurActive();
+    await this.modPage.press('PageUp');
+    await this.modPage.page.waitForFunction(
+       ([whiteboardSelector, expectedSvg]) => {
+         const whiteboard = document.querySelector(whiteboardSelector);
+         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
+       },
+       [e.whiteboard, '/svg/1'],
+       { timeout: ELEMENT_WAIT_LONGER_TIME },
+     );
+  }
+
   async shareCameraAsContent() {
     await this.modPage.hasElement(
       e.whiteboard,
@@ -484,6 +541,38 @@ export class Presentation extends MultiUsers {
       e.minimizePresentation,
       'should not display the minimize presentation button for the attendee',
     );
+  }
+
+  async presentationThumbnailLoads() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.mediaAreaButton);
+    await this.modPage.waitAndClick(e.managePresentations);
+    await this.modPage.hasElement(
+      e.presentationItem,
+      'should display the presentation item in the manage presentations list',
+    );
+
+    const thumbnail = this.modPage.page.locator(e.presentationThumbnails).first().locator('img');
+
+    // The thumbnail request is authorized only when the client appends the session
+    // token to the URL (the server returns 401 otherwise). Without the token the
+    // image fails to load and naturalWidth stays 0.
+    await expect(thumbnail, 'should append the session token to the thumbnail URL').toHaveAttribute(
+      'src',
+      /sessionToken=/,
+      { timeout: ELEMENT_WAIT_TIME },
+    );
+
+    await expect
+      .poll(
+        async () =>
+          thumbnail.evaluate((img) => (img as HTMLImageElement).complete && (img as HTMLImageElement).naturalWidth > 0),
+        {
+          message: 'should load the presentation thumbnail image (no 401 Unauthorized)',
+          timeout: ELEMENT_WAIT_LONGER_TIME,
+        },
+      )
+      .toBe(true);
   }
 
   async uploadAndRemoveAllPresentations() {

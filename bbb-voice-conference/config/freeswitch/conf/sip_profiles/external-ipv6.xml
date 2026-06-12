@@ -103,7 +103,6 @@
     <!-- TLS version ("sslv23" (default), "tlsv1"). NOTE: Phones may not work with TLSv1 -->
     <param name="tls-version" value="$${sip_tls_version}"/>
     <param name="ws-binding" value=":5066"/>
-    <param name="wss-binding" value=":7443"/>
     <param name="rtcp-audio-interval-msec" value="5000"/>
     <param name="rtcp-video-interval-msec" value="5000"/>
     <param name="dtmf-type" value="info"/>

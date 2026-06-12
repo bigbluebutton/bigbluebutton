@@ -37,6 +37,8 @@ export interface Settings {
   skipVideoPreview?: boolean;
   skipVideoPreviewOnFirstJoin?: boolean;
   skipVideoPreviewIfPreviousDevice?: boolean;
+  // Camera sorting
+  showAudioOnlyOnFirstPage?: boolean;
   // Emoji
   emojiRain?: boolean;
   // Whiteboard
@@ -93,6 +95,8 @@ export async function generateSettingsData(page: Page): Promise<Settings | undef
       skipVideoPreview: settingsData.kurento?.skipVideoPreview,
       skipVideoPreviewOnFirstJoin: settingsData.kurento?.skipVideoPreviewOnFirstJoin,
       skipVideoPreviewIfPreviousDevice: settingsData.kurento?.skipVideoPreviewIfPreviousDevice,
+      // Camera sorting
+      showAudioOnlyOnFirstPage: settingsData.kurento?.cameraSortingModes?.showAudioOnlyOnFirstPage,
       // Emoji
       emojiRain: settingsData.app?.emojiRain?.enabled,
       // Whiteboard

@@ -1471,6 +1471,30 @@ Restart the BigBlueButton server with `bbb-conf --restart`.  You will now be abl
 
 If you are using LiveKit as audio gateway, use [bbb-livekit-stt](https://github.com/bigbluebutton/bbb-livekit-stt) instead of [bbb-transcription-controller](https://github.com/bigbluebutton/bbb-transcription-controller) as gladia proxy.
 
+#### Musician Mode (WASM audio processing)
+
+BigBlueButton 4.0 ships with an optional WASM-based audio processor (internally referred to as "BBBA") that runs on top of the microphone stream. It is exposed to users as **"Musician Mode"** and offers an alternative to the browser's built-in audio processing — useful, for example, when sharing music where the browser's noise suppression and automatic gain control would be undesirable.
+
+It is **disabled by default**. To make it available to users, set `enabled: true` under `public.media.audio.audioWasmProcessing` in `/etc/bigbluebutton/bbb-html5.yml`:
+
+```yaml
+public:
+  media:
+    audio:
+      # audioWasmProcessing: audio input processing through WASM/BBBA
+      #   enabled: whether BBBA should be exposed to users. If false, the
+      #            browser's built-in audio processing is used instead.
+      #   constraints: browser-level audio constraints applied ON TOP of WASM processing.
+      audioWasmProcessing:
+        enabled: true
+        constraints:
+          echoCancellation: true
+          autoGainControl: true
+          noiseSuppression: true
+```
+
+The initial per-user state of the feature is controlled by `public.app.defaultSettings.application.audioWasmProcessing`. Restart BigBlueButton with `sudo bbb-conf --restart` after changing the configuration.
+
 #### Configure guest policy
 
 The policy for guest management on the server is is set in the properties file for `bbb-web`, which is located at `/usr/share/bbb-web/WEB-INF/classes/bigbluebutton.properties`.
@@ -1618,7 +1642,7 @@ Useful tools for development:
 | `userdata-bbb_skip_video_preview_on_first_join=` | (Introduced in BigBlueButton 2.3) If set to `true`, the user will not see a preview of their webcam before sharing it when sharing for the first time in the session. If the user stops sharing, next time they try to share webcam the video preview will be displayed, allowing for configuration changes to be made prior to sharing | `false`       |
 | `userdata-bbb_skip_video_preview_if_previous_device=` | (Introduced in BigBlueButton 3.0) If set to `true`, the user will not see a preview of their webcam before sharing it if session has a valid input device stored previously | `false`       |
 | `userdata-bbb_mirror_own_webcam=`                | If set to `true`, the client will see a mirrored version of their webcam. Doesn't affect the incoming video stream for other users.                                                                                                                                                                                                     | `false`       |
-| `userdata-bbb_fullaudio_bridge=`                 | Specifies the audio bridge to be used in the client. Supported values: `sipjs`, `fullaudio`.                                                                                       | `fullaudio`   |
+| `userdata-bbb_fullaudio_bridge=`                 | Specifies the audio bridge to be used in the client. Supported values: `fullaudio`.                                                                                       | `fullaudio`   |
 | `userdata-bbb_transparent_listen_only=`          | If set to `true`, the experimental "transparent listen only" audio mode will be used                                                                                                                                                                                                                                                    | `false`       |
 
 

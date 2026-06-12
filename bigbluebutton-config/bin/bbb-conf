@@ -193,8 +193,6 @@ RETIRED_BBB_WEB_PROPERTIES=(
     insertDocumentBlockedHosts        # Renamed in BBB 3.0.23 (use fetchUrlBlockedExternalHosts instead)
 )
 NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1 | head -n 1)
-SIP_CONFIG=/usr/share/bigbluebutton/nginx/sip.nginx
-SIP_NGINX_IP=$(cat $SIP_CONFIG |  grep -v '#' | sed -n '/proxy_pass/{s/.*proxy_pass http[s]*:\/\///;s/:.*//;p}' | head -n 1)
 
 NCPU=$(nproc --all)
 
@@ -775,17 +773,6 @@ check_configuration() {
         fi
     fi
 
-    SIP_PROTOCOL=$(cat "$SIP_CONFIG" | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)
-    if [[ $SIP_PROTOCOL == "https" ]]; then
-        if ! grep wss-binding $FREESWITCH_EXTERNAL > /dev/null; then
-            echo "# Warning: Websockets is using HTTPS in $SIP_CONFIG"
-            echo "# but no definition for wss-binding found in "
-            echo "#"
-            echo "#    $FREESWITCH_EXTERNAL"
-            echo
-        fi
-    fi
-
     if [ "$(ls -ld /var/freeswitch/meetings | cut -d' ' -f3)" != "freeswitch" ]; then
         echo "# Warning: Detected the directory"
         echo "#    /var/freeswitch/meetings"
@@ -1060,45 +1047,6 @@ check_state() {
         echo "#"
     fi
 
-    if [ $(echo "$HTML5_CONFIG" | yq -r '.public.media.sipjsHackViaWs') != "true" ]; then
-      if [ "$PROTOCOL" == "https" ]; then
-        if ! cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1 | grep -q https; then
-          echo "# Warning: You have this server defined for https, but in"
-          echo "#"
-          echo "#   $SIP_CONFIG"
-          echo "#"
-          echo "#  did not find the use of https in definition for proxy_pass"
-          echo "#"
-          echo "#    $(cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1)"
-          echo "#"
-        fi
-
-      if [ "$SIP_NGINX_IP" != $IP ]; then
-        if [ "$SIP_NGINX_IP" != "\$freeswitch_addr" ]; then
-          echo "# Warning: The setting of $SIP_NGINX_IP for proxy_pass in"
-          echo "#"
-          echo "#    $SIP_CONFIG"
-          echo "#"
-          echo "# does not match the local IP address ($IP)."
-          echo "# (This is OK if you've manually changed the values)"
-          echo
-        fi
-      fi
-
-        if ! cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1 | grep -q 7443; then
-          echo
-          echo "# Warning: You have this server defined for https, but in"
-          echo "#"
-          echo "#   $SIP_CONFIG"
-          echo "#"
-          echo "#  did not find the use of port 7443 in definition for proxy_pass"
-          echo "#"
-          echo "#    $(cat $SIP_CONFIG |  grep -v '#' | grep proxy_pass | head -n 1)"
-          echo "#"
-        fi
-      fi
-    fi
-
     CHECK="$(get_bbb_web_config_value securitySalt|sha1sum |cut -d' ' -f1)"
     if [ "$CHECK" == "55b727b294158a877212570c3c0524c2b902a62c" ]; then
       echo
@@ -1330,7 +1278,6 @@ if [ $CHECK ]; then
     echo "                        ext-rtp-ip: $(xmlstarlet sel -t -m 'profile/settings/param[@name="ext-rtp-ip"]' -v @value $FREESWITCH_EXTERNAL)"
     echo "                        ext-sip-ip: $(xmlstarlet sel -t -m 'profile/settings/param[@name="ext-sip-ip"]' -v @value $FREESWITCH_EXTERNAL)"
     echo "                        ws-binding: $(xmlstarlet sel -t -m 'profile/settings/param[@name="ws-binding"]' -v @value $FREESWITCH_EXTERNAL)"
-    echo "                       wss-binding: $(xmlstarlet sel -t -m 'profile/settings/param[@name="wss-binding"]' -v @value $FREESWITCH_EXTERNAL)"
 
     # awk script from https://stackoverflow.com/a/14527886/1493790
     # open issue: a tool like crudini (https://stackoverflow.com/a/25513632/1493790)
@@ -1354,13 +1301,6 @@ if [ $CHECK ]; then
         echo "                     playback_host: $(yq -r '.playback_host' $RECORD_CONFIG)"
         echo "                 playback_protocol: $(yq -r '.playback_protocol' $RECORD_CONFIG)"
         echo "                            ffmpeg: $(ffmpeg -version 2>/dev/null | grep ffmpeg | cut -d ' ' -f3 | sed 's/--.*//g' | tr -d '\n')"
-    fi
-
-    if [ -f $SIP_CONFIG ]; then
-        echo
-        echo "$SIP_CONFIG (sip.nginx)"
-        echo "                        proxy_pass: $SIP_NGINX_IP"
-        echo "                          protocol: $(cat "$SIP_CONFIG" | grep -v \# | sed -n '/proxy_pass/{s/.*proxy_pass [ ]*//;s/:.*//;p}' | head -n 1)"
     fi
 
     if [ -n "$WEBRTC_SFU_CONFIG" ]; then
@@ -1408,7 +1348,6 @@ if [ $CHECK ]; then
     echo "                        kurentoUrl: $(echo "$HTML5_CONFIG" | yq -r '.public.kurento.wsUrl')"
     echo "            defaultFullAudioBridge: $(echo "$HTML5_CONFIG" | yq -r '.public.media.audio.defaultFullAudioBridge')"
     echo "           defaultListenOnlyBridge: $(echo "$HTML5_CONFIG" | yq -r '.public.media.audio.defaultListenOnlyBridge')"
-    echo "                    sipjsHackViaWs: $(echo "$HTML5_CONFIG" | yq -r '.public.media.sipjsHackViaWs')"
     fi
 
     if [ ! -z "$STUN" ]; then

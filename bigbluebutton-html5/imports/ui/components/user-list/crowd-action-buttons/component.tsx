@@ -7,6 +7,7 @@ import { CrowdActionButtonsProps } from './types';
 import Styled from './styles';
 import LockViewersContainer from '../../lock-viewers/container';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
+import { layoutSelectOutput } from '/imports/ui/components/layout/context';
 
 const intlMessages = defineMessages({
   muteAllExceptPresenterLabel: {
@@ -33,6 +34,12 @@ const CrowdActionButtons: React.FC<CrowdActionButtonsProps> = ({
   const intl = useIntl();
   const [setMuted] = useMutation(SET_MUTED);
   const lockViewersModal = useModalRegistration({ id: 'lockViewersModal', priority: 'low' });
+  const sidebarContent = layoutSelectOutput((i: { sidebarContent:
+    { width: number; minWidth: number; }; }) => i.sidebarContent);
+  const isAtMinWidth = Boolean(
+    sidebarContent?.width && sidebarContent?.minWidth
+    && sidebarContent.width <= sidebarContent.minWidth + 1,
+  );
 
   const muteAll = () => {
     setMuted({
@@ -64,7 +71,7 @@ const CrowdActionButtons: React.FC<CrowdActionButtonsProps> = ({
           setIsOpen={lockViewersModal.close}
         />
       )}
-      <Styled.ActionButtonsWrapper>
+      <Styled.ActionButtonsWrapper $isMinWidth={isAtMinWidth}>
         <Styled.ActionButtonWrapper>
           <Styled.ActionButtonLabel>
             {intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}

@@ -318,7 +318,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
             color: #2f80ed;
           }
           .bn-editor {
-            padding-inline: 35px 25px;
+            padding-inline: 50px 25px;
             font-size: 1rem;
             box-sizing: border-box;
             cursor: text;
