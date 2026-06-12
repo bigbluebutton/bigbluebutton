@@ -11,10 +11,11 @@ import {
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { ActionButtonProps } from './types';
 
-const ActionButtonsWrapper = styled.div`
+const ActionButtonsWrapper = styled.div<{ $isMinWidth?: boolean }>`
   display: flex;
+  flex-direction: ${({ $isMinWidth }) => ($isMinWidth ? 'column' : 'row')};
   padding: 0rem 0.8rem 0.8rem 0.8rem;
-  align-items: flex-end;
+  align-items: ${({ $isMinWidth }) => ($isMinWidth ? 'stretch' : 'flex-end')};
   gap: 1.5rem;
 `;
 

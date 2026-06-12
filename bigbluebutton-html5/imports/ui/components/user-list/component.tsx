@@ -1,4 +1,6 @@
-import React, { useEffect, useCallback, memo } from 'react';
+import React, {
+  useEffect, useCallback, memo, useState, useMemo,
+} from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useLazyQuery } from '@apollo/client';
 import Trigger from '/imports/ui/components/common/control-header/right/component';
@@ -6,16 +8,21 @@ import PanelHeader from '/imports/ui/components/common/panel-header/component';
 import UserListParticipants from './user-list-participants/component';
 import GuestManagement from './guest-management/component';
 import RaisedHandsContainer from './raised-hands/component';
+import UserSearchContainer from './user-search/container';
+import isUserListSearchEnabled from './user-search/service';
+import { makeUserSearchWhere, onSaveUserNames } from './service';
 import { PANELS } from '/imports/ui/components/layout/enums';
 import CrowActionsButtons from '/imports/ui/components/user-list/crowd-action-buttons/component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
   USER_AGGREGATE_COUNT_SUBSCRIPTION,
 } from './queries';
+import {
+  USER_AGGREGATE_COUNT_SUBSCRIPTION as USER_SEARCH_AGGREGATE_COUNT_SUBSCRIPTION,
+} from './user-list-participants/queries';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { UserAggregateCountSubscriptionResponse, UserListComponentProps } from './types';
 import Styled from './styles';
-import { onSaveUserNames } from './service';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { RAISED_HAND_USERS, GET_USER_NAMES } from '/imports/ui/core/graphql/queries/users';
 import logger from '/imports/startup/client/logger';
@@ -59,6 +66,8 @@ const intlMessages = defineMessages({
 const UserList: React.FC<UserListComponentProps> = () => {
   const intl = useIntl();
   const parentRef = React.useRef<HTMLDivElement | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchWhere = useMemo(() => makeUserSearchWhere(searchQuery), [searchQuery]);
   const { data: currentUserData } = useCurrentUser((user) => ({
     isModerator: user.isModerator,
     locked: user?.locked ?? false,
@@ -68,6 +77,14 @@ const UserList: React.FC<UserListComponentProps> = () => {
   } = useDeduplicatedSubscription<
     UserAggregateCountSubscriptionResponse>(USER_AGGREGATE_COUNT_SUBSCRIPTION);
   const count: number = countData?.user_aggregate?.aggregate?.count || 0;
+  const {
+    loading: searchCountLoading,
+  } = useDeduplicatedSubscription<
+    UserAggregateCountSubscriptionResponse>(USER_SEARCH_AGGREGATE_COUNT_SUBSCRIPTION,
+      {
+        variables: { where: searchWhere },
+        skip: !isUserListSearchEnabled() || !searchQuery,
+      });
   const { data: raisedHandsData } = useDeduplicatedSubscription<{
     user: RaisedHandUser[]
   }>(RAISED_HAND_USERS);
@@ -81,6 +98,9 @@ const UserList: React.FC<UserListComponentProps> = () => {
   const [getUsers, { data: usersData, error: usersError }] = useLazyQuery<GetUserNamesResponse>(GET_USER_NAMES, { fetchPolicy: 'no-cache' });
   const users = usersData?.user || [];
   const hideUserList = currentUserData?.locked && meetingInfo?.lockSettings?.hideUserList;
+  const handleGetUsers = useCallback(() => {
+    getUsers();
+  }, [getUsers]);
 
   useEffect(() => {
     if (usersError) {
@@ -105,17 +125,17 @@ const UserList: React.FC<UserListComponentProps> = () => {
 
   const renderGuestManagement = useCallback(() => {
     if (!currentUserData?.isModerator || meetingInfo?.isBreakout) return null;
-    return <GuestManagement />;
-  }, [currentUserData, meetingInfo]);
+    return <GuestManagement searchQuery={searchQuery} />;
+  }, [currentUserData, meetingInfo, searchQuery]);
 
   const renderScrollableSection = useCallback(() => {
     if (hasRaisedHands) {
       return (
         <Styled.SplitScrollContainer id="scroll-box" ref={parentRef}>
           {renderGuestManagement()}
-          <RaisedHandsContainer />
+          <RaisedHandsContainer searchQuery={searchQuery} />
           <Styled.ParticipantsScrollSection>
-            <UserListParticipants parentRef={parentRef} />
+            <UserListParticipants parentRef={parentRef} searchQuery={searchQuery} />
           </Styled.ParticipantsScrollSection>
         </Styled.SplitScrollContainer>
       );
@@ -124,11 +144,11 @@ const UserList: React.FC<UserListComponentProps> = () => {
     return (
       <Styled.ScrollableSection id="scroll-box" ref={parentRef}>
         {renderGuestManagement()}
-        <RaisedHandsContainer />
-        <UserListParticipants parentRef={parentRef} />
+        <RaisedHandsContainer searchQuery={searchQuery} />
+        <UserListParticipants parentRef={parentRef} searchQuery={searchQuery} />
       </Styled.ScrollableSection>
     );
-  }, [renderGuestManagement]);
+  }, [renderGuestManagement, searchQuery]);
 
   const renderCrowdActionButtons = useCallback(() => {
     if (!currentUserData?.isModerator) return null;
@@ -161,11 +181,15 @@ const UserList: React.FC<UserListComponentProps> = () => {
             icon="template_download"
             aria-label={intl.formatMessage(intlMessages.saveUsersNames)}
             label={intl.formatMessage(intlMessages.saveUsersNames)}
-            onClick={getUsers}
+            onClick={handleGetUsers}
           />
         )}
       />
       <Styled.Separator />
+      <UserSearchContainer
+        onSearchChange={setSearchQuery}
+        isQueryLoading={searchCountLoading}
+      />
       {renderScrollableSection()}
       {renderCrowdActionButtons()}
     </Styled.PanelContent>

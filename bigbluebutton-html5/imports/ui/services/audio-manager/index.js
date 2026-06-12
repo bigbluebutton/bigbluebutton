@@ -1,5 +1,4 @@
 import Auth from '/imports/ui/services/auth';
-import SIPBridge from '/imports/api/audio/client/bridge/sip';
 import SFUAudioBridge from '/imports/api/audio/client/bridge/sfu-audio-bridge';
 import LiveKitAudioBridge from '/imports/api/audio/client/bridge/livekit';
 import logger from '/imports/startup/client/logger';
@@ -8,7 +7,6 @@ import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import {
   getRTCStatsLogMetadata,
 } from '/imports/utils/stats';
-import browserInfo from '/imports/utils/browserInfo';
 import {
   DEFAULT_INPUT_DEVICE_ID,
   reloadAudioElement,
@@ -391,9 +389,6 @@ class AudioManager {
       case 'livekit':
         FullAudioBridge = LiveKitAudioBridge;
         break;
-      case 'sip':
-        FullAudioBridge = SIPBridge;
-        break;
       default:
         logger.warn({
           logCode: 'audiomanager_unknown_fullaudio_bridge',
@@ -410,9 +405,6 @@ class AudioManager {
         break;
       case 'livekit':
         ListenOnlyBridge = LiveKitAudioBridge;
-        break;
-      case 'sip':
-        ListenOnlyBridge = SIPBridge;
         break;
       default:
         logger.warn({
@@ -468,50 +460,6 @@ class AudioManager {
     });
   }
 
-  async trickleIce() {
-    const { isFirefox, isIe, isSafari } = browserInfo;
-
-    if (
-      !this.listenOnlyBridge ||
-      typeof this.listenOnlyBridge.trickleIce !== 'function' ||
-      isFirefox ||
-      isIe ||
-      isSafari
-    ) {
-      return [];
-    }
-
-    if (this.validIceCandidates && this.validIceCandidates.length) {
-      logger.info(
-        { logCode: 'audiomanager_trickle_ice_reuse_candidate' },
-        'Reusing trickle ICE information before activating microphone'
-      );
-      return this.validIceCandidates;
-    }
-
-    logger.info(
-      { logCode: 'audiomanager_trickle_ice_get_local_candidate' },
-      'Performing trickle ICE before activating microphone'
-    );
-
-    try {
-      this.validIceCandidates = await this.listenOnlyBridge.trickleIce();
-      return this.validIceCandidates;
-    } catch (error) {
-      logger.error(
-        {
-          logCode: 'audiomanager_trickle_ice_failed',
-          extraInfo: {
-            errorName: error.name,
-            errorMessage: error.message,
-          },
-        },
-        `Trickle ICE before activating microphone failed: ${error.message}`
-      );
-      return [];
-    }
-  }
-
   joinMicrophone({ muted }) {
     this.isListenOnly = false;
     this.isEchoTest = false;
@@ -535,21 +483,13 @@ class AudioManager {
 
     const MEDIA = window.meetingClientSettings.public.media;
     const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
-    const EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE =
-    window.meetingClientSettings.public.app.experimentalUseKmsTrickleIceForMicrophone;
 
     return this.onAudioJoining({ muted })
-      .then(async () => {
-        let validIceCandidates = [];
-        if (EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE) {
-          validIceCandidates = await this.trickleIce();
-        }
-
+      .then(() => {
         const callOptions = {
           isListenOnly: false,
           extension: ECHO_TEST_NUMBER,
           inputStream: this.inputStream,
-          validIceCandidates,
           bypassGUM: this.shouldBypassGUM(),
           muted,
         };

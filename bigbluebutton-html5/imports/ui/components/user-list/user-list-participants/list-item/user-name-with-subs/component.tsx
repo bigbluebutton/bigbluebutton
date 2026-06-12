@@ -76,6 +76,18 @@ const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
 
   const subs = [];
 
+  const hasActiveLockSettingExcludingPresenterPolicy = !!(lockSettings && (
+    lockSettings.disableCam
+    || lockSettings.disableMic
+    || lockSettings.disablePrivateChat
+    || lockSettings.disablePublicChat
+    || lockSettings.disableNotes
+    || lockSettings.hideUserList
+    || lockSettings.hideViewersCursor
+    || lockSettings.hideViewersAnnotation
+    || lockSettings.webcamsOnlyForModerator
+  ));
+
   if (subjectUser.presenter && LABEL.presenter) {
     subs.push(intl.formatMessage(intlMessages.presenter));
   }
@@ -92,7 +104,7 @@ const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
     subs.push(intl.formatMessage(intlMessages.bot));
   }
   if ((subjectUser.locked || subjectUser.userLockSettings?.disablePublicChat)
-      && (subjectUser.userLockSettings?.disablePublicChat || lockSettings?.hasActiveLockSetting)
+      && (subjectUser.userLockSettings?.disablePublicChat || hasActiveLockSettingExcludingPresenterPolicy)
       && !subjectUser.isModerator
   ) {
     subs.push(

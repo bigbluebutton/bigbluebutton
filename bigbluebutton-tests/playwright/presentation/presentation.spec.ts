@@ -13,6 +13,12 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.skipSlide();
   });
 
+  test('Navigate slides with arrow keys', async ({ browser, context, page }, testInfo) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initModPage(page, { testInfo });
+    await presentation.navigateSlidesWithKeys();
+  });
+
   test('Share Camera As Content', async ({ browser }, testInfo) => {
     const staticVideoBrowser = await browser.browserType().launch({
       args: [
@@ -166,6 +172,13 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, testInfo);
       await presentation.removeAllPresentation();
+    });
+
+    test('Presentation thumbnail loads', async ({ browser, context, page }, testInfo) => {
+      linkIssue(25163);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.presentationThumbnailLoads();
     });
 
     test('Upload and remove all presentations', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {

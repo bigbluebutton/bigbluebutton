@@ -7,6 +7,7 @@ import { PluginIconType } from 'bigbluebutton-html-plugin-sdk';
 import Styled from '../styles';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import KEYS from '/imports/utils/keys';
+import { APPS_GALLERY_VIEW_MODE, AppsGalleryViewModeType } from '../types';
 
 interface AppItemProps {
   appKey: string;
@@ -16,12 +17,10 @@ interface AppItemProps {
   isPinned: boolean;
   isNew?: boolean;
   onClick?: (() => void) | undefined;
-  pinnedAppsLength: number;
-  maxPinned: number;
-  setError: (v: boolean) => void;
   pinTooltip: string;
   unpinTooltip: string;
   children?: ReactNode;
+  viewMode?: AppsGalleryViewModeType;
 }
 
 const intlMessages = defineMessages({
@@ -46,22 +45,16 @@ const AppItem: React.FC<AppItemProps> = ({
   isPinned,
   isNew = false,
   onClick,
-  pinnedAppsLength,
-  maxPinned,
-  setError,
   pinTooltip,
   unpinTooltip,
   children = null,
+  viewMode = APPS_GALLERY_VIEW_MODE.LIST,
 }) => {
   const layoutContextDispatch = layoutDispatch();
   const intl = useIntl();
 
   const togglePinApp = (event: React.MouseEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement>) => {
     event.stopPropagation();
-    if (!isPinned && pinnedAppsLength >= maxPinned) {
-      setError(true);
-      return;
-    }
     layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_NAVIGATION_PIN_APP,
       value: {
@@ -97,6 +90,40 @@ const AppItem: React.FC<AppItemProps> = ({
       togglePinApp(e);
     }
   }, [togglePinApp]);
+
+  if (viewMode === APPS_GALLERY_VIEW_MODE.GRID) {
+    return (
+      <Styled.TileItem key={`${appKey}${isPinned}`} data-test={dataTest}>
+        <TooltipContainer title={isPinned ? unpinTooltip : pinTooltip}>
+          <Styled.TilePinApp
+            role="button"
+            aria-label={isPinned ? unpinTooltip : pinTooltip}
+            aria-pressed={isPinned}
+            onClick={togglePinApp}
+            onKeyDown={handlePinKeyDown}
+            tabIndex={0}
+            pinned={isPinned}
+          >
+            <Icon iconName={isPinned ? 'pin-video_on' : 'pin-video_off'} />
+          </Styled.TilePinApp>
+        </TooltipContainer>
+        <Styled.TileClickableArea
+          role="button"
+          tabIndex={0}
+          aria-label={name}
+          onClick={functionToBeCalled}
+          onKeyDown={handleClickableAreaKeyDown}
+        >
+          {isNew && <Styled.NewLabel>{intl.formatMessage(intlMessages.newAppLabel)}</Styled.NewLabel>}
+          <Styled.TileOpenButton $pinned={isPinned} aria-hidden="true">
+            {resolveIcon(icon)}
+          </Styled.TileOpenButton>
+          <Styled.TileTitle>{name}</Styled.TileTitle>
+          {children}
+        </Styled.TileClickableArea>
+      </Styled.TileItem>
+    );
+  }
 
   return (
     <Styled.RegisteredAppContent key={`${appKey}${isPinned}`} data-test={dataTest}>

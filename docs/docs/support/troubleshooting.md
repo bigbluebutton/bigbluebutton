@@ -157,42 +157,9 @@ Then do `systemctl daemon-reload` and restart BigBlueButton.
 
 ## FreeSWITCH
 
-### Configure BigBluebutton/FreeSWITCH to support IPV6
-
-The HTML5 client now enables users on mobile devices to connect to a BigBlueButton server. However, on some cellular networks iOS devices only receive an IPV6 address.
-
-To enable BigBlueButton (FreeSWITCH) to accept incoming web socket connections on IPV6, the BigBlueButton server must have an IPV6 address. You also need to make the following changes to the server.
-
-First, create the file `/etc/nginx/conf.d/bigbluebutton_sip_addr_map.conf` with this content:
-
-```nginx
-map $remote_addr $freeswitch_addr {
-    "~:"    [2001:db8::1];
-    default    192.0.2.1;
-}
-```
-
-replacing the ip addresses `192.0.2.1` with the system's external IPV4 addresses, and replace `2001:db8::1` with the system's external IPV6 address. Next, edit the file `/etc/bigbluebutton/nginx/sip.nginx` to have the following:
-
-```nginx
-proxy_pass https://$freeswitch_addr:7443;
-```
-
-Next, ensure all of the following params are present in freeswitch's `sip_profiles/external-ipv6.xml`:
-
-- ws-binding
-- wss-binding
-- rtcp-audio-interval-msec
-- rtcp-video-interval-msec
-- dtmf-type
-- liberal-dtmf
-- enable-3pcc
-
-If any are missing, copy them from `sip_profiles/external.xml`, then restart BigBlueButton (`sudo bbb-conf --restart`).
-
 ### FreeSWITCH fails to bind to IPV4
 
-In rare occasions after shutdown/restart, the FreeSWITCH database can get corrupted. This will cause FreeSWITCH to have problems binding to IPV4 address (you may see error 1006 when users try to connect).
+In rare occasions after shutdown/restart, the FreeSWITCH database can get corrupted. This will cause FreeSWITCH to have problems binding to IPV4 address, which may surface to end users as failure to connect to audio.
 
 To check, look in `/opt/freeswitch/var/log/freeswitch/freeswitch.log` for errors related to loading the database.
 
@@ -366,46 +333,6 @@ If you see `SETSCHEDULER` in the error message, edit `/lib/systemd/system/freesw
 
 Save the file, run `systemctl daemon-reload`, and then restart BigBlueButton. FreeSWITCH should now startup without error.
 
-### Users not able to join Listen Only mode
-
-When doing `sudo bbb-conf --check`, you may see the warning
-
-```bash
-voice Application failed to register with sip server
-```
-
-This error occurs when `bbb-apps-sip` isn't able to make a SIP call to FreeSWITCH. You'll see this in BigBlueButton when users click the headset icon and don't join the voice conference.
-
-One possible cause for this is you have just installed BigBlueButton, but not restarted it. The packages do not start up the BigBlueButton components in the right order. To restart BigBlueButton, do the following:
-
-```bash
-$ sudo bbb-conf --restart
-$ sudo bbb-conf --check
-```
-
-If you don't want FreeSWITCH to bind to 127.0.0.1, you need to figure out which IP address its using. First, determine the IP address FreeSWITCH is monitoring for incoming SIP calls with the following command:
-
-```bash
-$ netstat -ant | grep 5060
-```
-
-You should see an output such as
-
-```bash
-tcp        0      0 234.147.116.3:5060    0.0.0.0:*               LISTEN
-```
-
-In this example, FreeSWITCH is listening on IP address 234.147.116.3. The IP address on your server will be different.
-
-Next, edit `/usr/share/red5/webapps/sip/WEB-INF/bigbluebutton-sip.properties` and set the value for `sip.server.host` to the IP address returned from the above command. Save the changes (you'll need to edit the file as root to save changes).
-
-Restart BigBlueButton using the commands and run the built-in diagnostics checks.
-
-```bash
-$ sudo bbb-conf --clean
-$ sudo bbb-conf --check
-```
-
 ### Unable to connect using fs_cli
 
 As of BigBlueButton 2.2.18, the packaging now replaces the default `ClueCon` password for connecting to the FreeSWITCH command line interface (`fs_cli`) with a random password.
@@ -489,21 +416,17 @@ Here are the following lists the possible WebRTC error messages that a user may 
   - Firewall blocking ws protocol
   - Server is down or improperly configured
   - See potential solution [here](https://github.com/bigbluebutton/bigbluebutton/issues/2628).
-- **1003: Browser version not supported** - Browser doesn’t implement the necessary WebRTC API methods. Possible Causes:
-  - Out of date browser
-- **1004: Failure on call** - The call was attempted, but failed. Possible Causes:
-  - For a full list of causes refer [here](https://sipjs.com/api/0.6.0/causes/)
-  - There are 24 different causes so I don’t really want to list all of them
-  - Solution for this issue [outlined here](https://groups.google.com/forum/#!msg/bigbluebutton-setup/F2MlW6Voj-0/ZXDq5_-uEQAJ).
-- **1005: Call ended unexpectedly** - The call was successful, but ended without user requesting to end the session. Possible Causes:
-  - Unknown
-- **1006: Call timed out** - The library took too long to try and connect the call. Possible Causes:
-  - Previously caused by Firefox 33-beta on Mac. We've been unable to reproduce since release of FireFox 34
-- **1007: ICE negotiation failed** - The browser and FreeSWITCH try to negotiate ports to use to stream the media and that negotiation failed. Possible Causes:
+- **1004: Failure on call** - The audio stream was established, but the client could not play it back through the browser's media element. Possible Causes:
+  - The browser failed to start audio playback after the client's automatic retries.
+  - A transient client-side media error; reloading the client usually resolves it.
+  - This is not an autoplay block — autoplay restrictions are handled separately and prompt the user rather than raising this error.
+- **1005: Call ended unexpectedly** - The audio peer connection could not be negotiated, or an established session ended without the user requesting it. Possible Causes:
+  - WebRTC peer negotiation failed: the browser could not create the peer connection, or could not process the media server's SDP offer/answer.
+  - A transient client-side or media-server error during setup. The client retries automatically before surfacing this error.
+- **1007: ICE negotiation failed** - The browser and the media server (mediasoup/bbb-webrtc-sfu) try to negotiate a path to stream the audio and that negotiation failed. Possible Causes:
   - NAT is blocking the connection
   - Firewall is blocking the UDP connection/ports
-- **1008: Call transfer failed** - A timeout while waiting for FreeSWITCH to transfer from the echo test to the real conference. This might be caused by a misconfiguration in FreeSWITCH, or there might be a media error and the DTMF command to transfer didn't go through (In this case, the voice in the echo test probably didn't work either.)
-- **1009: Could not fetch STUN/TURN server information** - This indicates either a BigBlueButton bug (or you're using an unsupported new client/old server combination), but could also happen due to a network interruption.
+  - A TURN server may be required on restrictive networks (see [Configure TURN](/administration/turn-server))
 - **1010: ICE negotiation timeout** - After the call is accepted the client's browser and the server try and negotiate a path for the audio data. In some network setups this negotiation takes an abnormally long time to fail and this timeout is set to avoid the client getting stuck.
 - **1020: Media cloud could not reach the server** - See how to solve this [here](https://github.com/bigbluebutton/bigbluebutton/issues/6797#issuecomment-607866043).
 
@@ -692,7 +615,7 @@ For more information see [bbb-conf options](/administration/bbb-conf).
 
 ### Running within an LXD Container
 
-[LXD](https://www.ubuntu.com/containers/lxd) is a very powerful container system for Ubuntu lets you run full Ubuntu 16.04 servers within a container. Because you can easily clone and snapshot LXD containers, they are ideal for development and testing of BigBlueButton.
+[LXD](https://www.ubuntu.com/containers/lxd) is a very powerful container system for Ubuntu lets you run full Ubuntu 24.04 servers within a container. Because you can easily clone and snapshot LXD containers, they are ideal for development and testing of BigBlueButton.
 
 However, if you install BigBlueButton within an LXD container, you will get the following error from `sudo bbb-conf --check`
 

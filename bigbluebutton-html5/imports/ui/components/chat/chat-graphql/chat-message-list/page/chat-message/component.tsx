@@ -586,7 +586,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           color: '#3B48A9',
           isModerator: true,
           component: (
-            <ChatPollContent ref={pollActionsRef} metadata={message.messageMetadata} />
+            <ChatPollContent ref={pollActionsRef} metadata={message.messageMetadata} createdAt={message.createdAt} />
           ),
           avatarIcon: 'icon-bbb-polling',
           showAvatar: true,

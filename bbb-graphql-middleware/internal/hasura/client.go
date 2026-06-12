@@ -72,7 +72,9 @@ func HasuraClient(
 		ContextCancelFunc: hasuraConnectionContextCancel,
 	}
 
+	browserConnection.Lock()
 	browserConnection.HasuraConnection = &thisConnection
+	browserConnection.Unlock()
 	defer func() {
 		// When Hasura sends an CloseError, it will forward the error to the browser and close the connection
 		if thisConnection.WebsocketCloseError != nil {
@@ -81,7 +83,9 @@ func HasuraClient(
 			browserConnection.ContextCancelFunc()
 		}
 
+		browserConnection.Lock()
 		browserConnection.HasuraConnection = nil
+		browserConnection.Unlock()
 
 		// It's necessary to freeze the channel to avoid client trying to start subscriptions before Hasura connection is initialised
 		// It will unfreeze after `connection_ack` is sent by Hasura

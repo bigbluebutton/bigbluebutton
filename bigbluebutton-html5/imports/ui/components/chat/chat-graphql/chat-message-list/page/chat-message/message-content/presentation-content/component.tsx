@@ -1,5 +1,6 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import Auth from '/imports/ui/services/auth';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
 
@@ -45,7 +46,7 @@ const ChatMessagePresentationContent: React.FC<ChatMessagePresentationContentPro
   // @ts-ignore - temporary, while meteor exists in the project
   const APP_CONFIG = window.meetingClientSettings.public.app;
 
-  const downloadUrl = `${APP_CONFIG.bbbWebBase}/${presentationData.fileURI}`;
+  const downloadUrl = Auth.authenticateURL(`${APP_CONFIG.bbbWebBase}/${presentationData.fileURI}`);
   const parseFilename = (filename = '') => {
     const substrings = filename.split('.');
     substrings.pop();

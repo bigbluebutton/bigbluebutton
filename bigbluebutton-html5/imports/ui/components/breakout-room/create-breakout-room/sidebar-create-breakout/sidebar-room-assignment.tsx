@@ -100,7 +100,7 @@ const SidebarRoomAssignment: React.FC<ChildComponentProps> = ({
         )}
       </Styled.UsersSection>
 
-      <Styled.RoomCardsContainer>
+      <Styled.RoomCardsContainer data-test="breakoutRoomList">
         {Array.from({ length: numberOfRooms }, (_, i) => i + 1).map((roomNum) => {
           const roomData = rooms[roomNum];
           const usersInRoom = roomData?.users || [];

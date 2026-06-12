@@ -18,7 +18,7 @@ const SearchContainer = styled.div`
   display: flex;
   align-items: center;
   position: relative;
-  margin: ${lgPadding} ${lgPadding} 0px ${lgPadding};
+  margin: ${lgPadding};
   background: ${colorWhite};
   border-radius: ${lgBorderRadius};
   border: 1px solid ${colorBorder};

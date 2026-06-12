@@ -9,13 +9,13 @@ keywords:
 - developer
 ---
 
-Welcome to the BigBlueButton Developer's Guide for BigBlueButton 3.1.
+Welcome to the BigBlueButton Developer's Guide for BigBlueButton 4.0.
 
-This document gives you an overview of how to set up a development environment for BigBlueButton 3.1.
+This document gives you an overview of how to set up a development environment for BigBlueButton 4.0.
 
 ## Before you begin
 
-You first need to set up a BigBlueButton 3.1 server. See the instructions at [Install BigBlueButton 3.1](/administration/install).
+You first need to set up a BigBlueButton 4.0 server. See the instructions at [Install BigBlueButton 4.0](/administration/install).
 
 ## Overview
 
@@ -43,7 +43,7 @@ A BigBlueButton server is built from a number of components that correspond to U
 - bbb-shared-notes-server -- Hocuspocus server that acts as the collaboration backend for BlockNote (serving as the Shared Notes component and replacing Etherpad)
 - bbb-webhooks -- an optional componen, listens for all events on BigBlueButton and sends POST requests with details about these events to hooks registered via an API
 
-This document describes how to set up a development environment using an existing BigBlueButton 3.1 server. Once the environment is set up, you will be able to make custom changes to BigBlueButton source code, compile it, and replace the corresponding components on the server (such as updating the BigBlueButton client).
+This document describes how to set up a development environment using an existing BigBlueButton 4.0 server. Once the environment is set up, you will be able to make custom changes to BigBlueButton source code, compile it, and replace the corresponding components on the server (such as updating the BigBlueButton client).
 
 The instructions in this guide are step-by-step so you can understand each step needed to modify a component. If you encounter problems or errors at any section, don't ignore the errors. Stop and double-check that you have done the step correctly. If you are unable to determine the cause of the error, do the following
 
@@ -188,20 +188,20 @@ After cloning, you'll have the following directory (make sure the `bigbluebutton
 /home/bigbluebutton/dev/bigbluebutton
 ```
 
-Confirm that you are working on the `v3.1.x-release` branch.
+Confirm that you are working on the `v4.0.x-release` branch.
 
 ```bash
 cd /home/bigbluebutton/dev/bigbluebutton
 git status
 ```
 
-BigBlueButton 3.1 source code lives on branch `v3.1.x-release`. This is where any patches to 3.1 will be merged. If you are looking to customize your BigBlueButton 3.1 clone to fit your needs, this is the branch to use.
+BigBlueButton 4.0 source code lives on branch `v4.0.x-release`. This is where any patches to 4.0 will be merged. If you are looking to customize your BigBlueButton 4.0 clone to fit your needs, this is the branch to use.
 
-For the purpose of these instructions we'll assume you are only tweaking your clone of BigBlueButton. Thus we recommend you checkout branch `v3.1.x-release`.
+For the purpose of these instructions we'll assume you are only tweaking your clone of BigBlueButton. Thus we recommend you checkout branch `v4.0.x-release`.
 
 ```
-On branch v3.1.x-release
-Your branch is up-to-date with 'origin/v3.1.x-release'.
+On branch v4.0.x-release
+Your branch is up-to-date with 'origin/v4.0.x-release'.
 nothing to commit, working directory clean
 ```
 
@@ -223,10 +223,10 @@ After, we need to fetch the most up to date version of the remote repository.
 git fetch upstream
 ```
 
-You are now ready to create a new branch to start your work and base the `v3.1.x-release` release branch
+You are now ready to create a new branch to start your work and base the `v4.0.x-release` release branch
 
 ```bash
-git checkout -b my-changes-branch upstream/v3.1.x-release
+git checkout -b my-changes-branch upstream/v4.0.x-release
 ```
 
 "checkout" switches branches
@@ -235,7 +235,7 @@ git checkout -b my-changes-branch upstream/v3.1.x-release
 
 "my-changes-branch" will be the name of the new branch
 
-"upstream/v3.1.x-release" is where you want to start your new branch
+"upstream/v4.0.x-release" is where you want to start your new branch
 
 You should now confirm that you are in the correct branch.
 
@@ -313,13 +313,6 @@ $ npm start
 
 The last couple of steps could alternatively be done with the `run-dev.sh` script (running in developer mode)
 or `deploy.sh` to run in production mode and have the client files served by NginX.
-
-### Audio configuration for development environment
-
-You may see the error "Call timeout (Error 1006)" during the microphone echo test after starting the developing HTML5 client by "npm start". A misconfiguration of Freeswitch may account for it, especially when BigBlueButton is set up with bbb-install.sh script. Try setting "sipjsHackViaWs" to true for the client:
-
-`test -s /etc/bigbluebutton/bbb-html5.yml || echo '{}' > /etc/bigbluebutton/bbb-html5.yml`
-`yq -y -i '.public.media.sipjsHackViaWs = true' /etc/bigbluebutton/bbb-html5.yml`
 
 ### `/private/config`
 

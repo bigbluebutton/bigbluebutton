@@ -31,6 +31,19 @@ async function exportDocumentToHtml(documentName: string): Promise<string> {
   // This ensures empty lines are preserved in the HTML output
   htmlContent = htmlContent.replaceAll('<p></p>', '<p><br></p>');
 
+  // Strip hardcoded inline color styles from BlockNote color spans.
+  // The data-style-type / data-value attributes remain, and the CSS below
+  // re-applies the colors via variables so they adapt to light / dark theme.
+  htmlContent = htmlContent.replace(
+    /<span\b([^>]*)>/g,
+    (match, attrs) => {
+      if (/\bdata-style-type=/.test(attrs)) {
+        return `<span${attrs.replace(/\sstyle\s*=\s*(?:"[^"]*"|'[^']*')/i, '')}>`;
+      }
+      return match;
+    }
+  );
+
   await connection.disconnect();
 
   // Create HTML document with styling
@@ -41,6 +54,73 @@ async function exportDocumentToHtml(documentName: string): Promise<string> {
       '<meta charset="UTF-8">',
       `<title>${documentName}</title>`,
       '<style>',
+      ':root {',
+      '  --bn-text-gray: #9b9a97;',
+      '  --bn-text-brown: #64473a;',
+      '  --bn-text-red: #e03e3e;',
+      '  --bn-text-orange: #d9730d;',
+      '  --bn-text-yellow: #dfab01;',
+      '  --bn-text-green: #4d6461;',
+      '  --bn-text-blue: #0b6e99;',
+      '  --bn-text-purple: #6940a5;',
+      '  --bn-text-pink: #ad1a72;',
+      '  --bn-bg-gray: #ebeced;',
+      '  --bn-bg-brown: #e9e5e3;',
+      '  --bn-bg-red: #fbe4e4;',
+      '  --bn-bg-orange: #f6e9d9;',
+      '  --bn-bg-yellow: #fbf3db;',
+      '  --bn-bg-green: #ddedea;',
+      '  --bn-bg-blue: #ddebf1;',
+      '  --bn-bg-purple: #eae4f2;',
+      '  --bn-bg-pink: #f4dfeb;',
+      '}',
+      'html.dark {',
+      '  --bn-text-gray: #bebdb8;',
+      '  --bn-text-brown: #8e6552;',
+      '  --bn-text-red: #ec4040;',
+      '  --bn-text-orange: #e3790d;',
+      '  --bn-text-yellow: #dfab01;',
+      '  --bn-text-green: #6b8b87;',
+      '  --bn-text-blue: #0e87bc;',
+      '  --bn-text-purple: #8552d7;',
+      '  --bn-text-pink: #da208f;',
+      '  --bn-bg-gray: #9b9a97;',
+      '  --bn-bg-brown: #64473a;',
+      '  --bn-bg-red: #be3434;',
+      '  --bn-bg-orange: #b7600a;',
+      '  --bn-bg-yellow: #b58b00;',
+      '  --bn-bg-green: #4d6461;',
+      '  --bn-bg-blue: #0b6e99;',
+      '  --bn-bg-purple: #6940a5;',
+      '  --bn-bg-pink: #ad1a72;',
+      '}',
+      'html.dark body {',
+      '  background-color: #1f1f1f;',
+      '  color: #cfcfcf;',
+      '}',
+      'html.dark code { background-color: #2b2f36; color: #e6edf3; }',
+      'html.dark pre { background-color: #2b2f36; }',
+      'html.dark blockquote { border-left-color: #3b434d; color: #9da7b3; }',
+      'html.dark table th { background-color: #2b2f36; }',
+      'html.dark table th, html.dark table td { border-color: #3b434d; }',
+      '[data-style-type="textColor"][data-value="gray"]   { color: var(--bn-text-gray); }',
+      '[data-style-type="textColor"][data-value="brown"]  { color: var(--bn-text-brown); }',
+      '[data-style-type="textColor"][data-value="red"]    { color: var(--bn-text-red); }',
+      '[data-style-type="textColor"][data-value="orange"] { color: var(--bn-text-orange); }',
+      '[data-style-type="textColor"][data-value="yellow"] { color: var(--bn-text-yellow); }',
+      '[data-style-type="textColor"][data-value="green"]  { color: var(--bn-text-green); }',
+      '[data-style-type="textColor"][data-value="blue"]   { color: var(--bn-text-blue); }',
+      '[data-style-type="textColor"][data-value="purple"] { color: var(--bn-text-purple); }',
+      '[data-style-type="textColor"][data-value="pink"]   { color: var(--bn-text-pink); }',
+      '[data-style-type="backgroundColor"][data-value="gray"]   { background-color: var(--bn-bg-gray); }',
+      '[data-style-type="backgroundColor"][data-value="brown"]  { background-color: var(--bn-bg-brown); }',
+      '[data-style-type="backgroundColor"][data-value="red"]    { background-color: var(--bn-bg-red); }',
+      '[data-style-type="backgroundColor"][data-value="orange"] { background-color: var(--bn-bg-orange); }',
+      '[data-style-type="backgroundColor"][data-value="yellow"] { background-color: var(--bn-bg-yellow); }',
+      '[data-style-type="backgroundColor"][data-value="green"]  { background-color: var(--bn-bg-green); }',
+      '[data-style-type="backgroundColor"][data-value="blue"]   { background-color: var(--bn-bg-blue); }',
+      '[data-style-type="backgroundColor"][data-value="purple"] { background-color: var(--bn-bg-purple); }',
+      '[data-style-type="backgroundColor"][data-value="pink"]   { background-color: var(--bn-bg-pink); }',
       'body {',
       '  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;',
       '  line-height: 1.6;',

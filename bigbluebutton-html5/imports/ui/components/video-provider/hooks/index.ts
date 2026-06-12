@@ -617,6 +617,7 @@ export const useVideoStreams = () => {
       );
 
       // This is needed to adjust pagination for displaced video streams
+      const pinnedAndLocalCount = pin.length + mine.length;
       let audioOnlySlotsUsedOnPage1 = 0;
       if (showAudioOnlyOnFirstPage && audioOnlyUsers.length > 0) {
         const uniqueAudioOnly = audioOnlyUsers.filter(
@@ -624,29 +625,36 @@ export const useVideoStreams = () => {
         );
 
         if (uniqueAudioOnly.length > 0) {
-          const pinnedAndLocalCount = pin.length + mine.length;
-          const availableSlots = myPageSize - pinnedAndLocalCount;
+          const availableSlots = Math.max(0, myPageSize - pinnedAndLocalCount);
           const maxAudioOnlySlots = Math.min(availableSlots, maxAudioOnlyUsers);
           audioOnlySlotsUsedOnPage1 = Math.min(uniqueAudioOnly.length, maxAudioOnlySlots);
         }
       }
-      totalNumberOfOtherStreams = others.length + audioOnlySlotsUsedOnPage1;
+      if (audioOnlySlotsUsedOnPage1 > 0 && pinnedAndLocalCount > 0) {
+        const othersOnPage0 = Math.max(0, myPageSize - pinnedAndLocalCount - audioOnlySlotsUsedOnPage1);
+        const remainingOthers = Math.max(0, others.length - othersOnPage0);
+        const additionalPages = remainingOthers > 0 ? Math.ceil(remainingOthers / myPageSize) : 0;
+        totalNumberOfOtherStreams = (1 + additionalPages) * myPageSize;
+      } else {
+        totalNumberOfOtherStreams = others.length + audioOnlySlotsUsedOnPage1;
+      }
 
-      const effectiveChunkIndex = currentVideoPageIndex > 0
-        ? chunkIndex - audioOnlySlotsUsedOnPage1
+      const effectiveChunkIndex = currentVideoPageIndex > 0 && audioOnlySlotsUsedOnPage1 > 0
+        ? Math.max(0, myPageSize - pinnedAndLocalCount - audioOnlySlotsUsedOnPage1)
+          + (currentVideoPageIndex - 1) * myPageSize
         : chunkIndex;
 
       let paginatedStreams = sortVideoStreams(others, sortingMethod)
         .slice(effectiveChunkIndex, (effectiveChunkIndex + myPageSize)) || [];
 
       // Add audio-only users only on page 1
+      let audioOnlyStreams: StreamItem[] = [];
       if (showAudioOnlyOnFirstPage && currentVideoPageIndex === 0 && audioOnlySlotsUsedOnPage1 > 0) {
         const uniqueAudioOnly = audioOnlyUsers.filter(
           (audioUser) => !streams.find((s) => s.userId === audioUser.userId),
         );
 
-        const pinnedAndLocalCount = pin.length + mine.length;
-        const availableSlots = myPageSize - pinnedAndLocalCount;
+        const availableSlots = Math.max(0, myPageSize - pinnedAndLocalCount);
         const audioOnlyToAdd = uniqueAudioOnly.slice(0, audioOnlySlotsUsedOnPage1);
 
         if (audioOnlyToAdd.length > 0 && paginatedStreams.length + audioOnlyToAdd.length > availableSlots) {
@@ -654,13 +662,13 @@ export const useVideoStreams = () => {
           paginatedStreams = paginatedStreams.slice(0, Math.max(0, remoteStreamsToKeep));
         }
 
-        paginatedStreams = [...paginatedStreams, ...audioOnlyToAdd];
+        audioOnlyStreams = audioOnlyToAdd;
       }
 
       if (sortingConfig.localFirst) {
-        streams = [...pin, ...mine, ...paginatedStreams];
+        streams = [...pin, ...mine, ...paginatedStreams, ...audioOnlyStreams];
       } else {
-        streams = [...pin, ...paginatedStreams, ...mine];
+        streams = [...pin, ...paginatedStreams, ...mine, ...audioOnlyStreams];
       }
     }
   } else {

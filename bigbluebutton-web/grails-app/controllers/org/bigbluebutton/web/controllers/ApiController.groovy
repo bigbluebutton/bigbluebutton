@@ -56,6 +56,15 @@ class ApiController {
   protected static final String RESP_CODE_FAILED = 'FAILED'
   private static final String ROLE_MODERATOR = "MODERATOR"
   private static final String ROLE_ATTENDEE = "VIEWER"
+  private static final String MODULE_PRESENTATION = "presentation"
+  private static final String PARAM_PRE_UPLOADED_PRESENTATION = "preUploadedPresentation"
+  private static final String PARAM_PRE_UPLOADED_PRESENTATION_NAME = "preUploadedPresentationName"
+  private static final String PARAM_PRE_UPLOADED_PRESENTATION_OVERRIDE_DEFAULT = "preUploadedPresentationOverrideDefault"
+  private static final String ERROR_MALFORMED_XML = "malformedXml"
+  private static final String ERROR_MALFORMED_XML_MESSAGE = "The request body contains malformed XML."
+  private static final String ERROR_INVALID_PRESENTATION_URL = "invalidPresentationUrl"
+  private static final String ERROR_INVALID_PRESENTATION_URL_MESSAGE = "Presentation URL is malformed."
+  private static final String URL_ENCODING = "UTF-8"
   protected static Boolean REDIRECT_RESPONSE = true
 
   MeetingService meetingService;
@@ -202,7 +211,8 @@ class ApiController {
     String requestBody = request.inputStream == null ? null : request.inputStream.text
     requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody
 
-    def xmlModules = processRequestXmlModules(requestBody)
+    def xmlModules = processValidatedRequestXmlModules(requestBody)
+    if (xmlModules == null) return
 
     // Set Client Settings Override:
     // clientSettingsOverrideJsonUrl (GET) takes precedence and is already resolved in processCreateParams.
@@ -1171,7 +1181,8 @@ class ApiController {
       String requestBody = request.inputStream == null ? null : request.inputStream.text
       requestBody = StringUtils.isEmpty(requestBody) ? null : requestBody
 
-      def xmlModules = processRequestXmlModules(requestBody)
+      def xmlModules = processValidatedRequestXmlModules(requestBody)
+      if (xmlModules == null) return
       if (uploadDocuments(xmlModules, meeting, true)) {
         withFormat {
           xml {
@@ -1506,7 +1517,7 @@ class ApiController {
   }
 
   private uploadDocuments(xmlModules, conf, isFromInsertAPI) {
-    if (conf.getDisabledFeatures().contains("presentation")) {
+    if (conf.getDisabledFeatures().contains(MODULE_PRESENTATION)) {
       log.warn("Presentation feature is disabled.")
       return false
     }
@@ -1519,7 +1530,7 @@ class ApiController {
 
     Boolean preUploadedPresentationOverrideDefault = true
     if (!isFromInsertAPI) {
-      String[] po = request.getParameterMap().get("preUploadedPresentationOverrideDefault")
+      String[] po = request.getParameterMap().get(PARAM_PRE_UPLOADED_PRESENTATION_OVERRIDE_DEFAULT)
       if (po == null) preUploadedPresentationOverrideDefault = presentationService.preUploadedPresentationOverrideDefault.toBoolean()
       else preUploadedPresentationOverrideDefault = po[0].toBoolean()
     }
@@ -1532,8 +1543,8 @@ class ApiController {
     Boolean hasPresentationUrlInParameter = false
 
 
-    String[] pu = request.getParameterMap().get("preUploadedPresentation")
-    String[] puName = request.getParameterMap().get("preUploadedPresentationName")
+    String[] pu = request.getParameterMap().get(PARAM_PRE_UPLOADED_PRESENTATION)
+    String[] puName = request.getParameterMap().get(PARAM_PRE_UPLOADED_PRESENTATION_NAME)
     if (pu != null) {
       String preUploadedPresentation = pu[0]
       hasPresentationUrlInParameter = true
@@ -1564,7 +1575,7 @@ class ApiController {
     // This part of the code is responsible for organize the presentations in a certain order
     // It selects the one that has the current=true, and put it in the 0th place.
     // Afterwards, the 0th presentation is going to be uploaded first, which spares processing time
-    if (!xmlModules.containsKey("presentation")) {
+    if (!xmlModules.containsKey(MODULE_PRESENTATION)) {
       if (isFromInsertAPI) {
         log.warn("Insert Document API called without a payload - ignoring")
         return;
@@ -1580,8 +1591,8 @@ class ApiController {
     } else {
       Boolean hasCurrent = hasPresentationUrlInParameter;
       Boolean hasPresentationModule = false;
-      if (xmlModules.containsKey("presentation")) {
-        def modulePresentation = xmlModules.get("presentation")
+      if (xmlModules.containsKey(MODULE_PRESENTATION)) {
+        def modulePresentation = xmlModules.get(MODULE_PRESENTATION)
         hasPresentationModule = true
         for (document in modulePresentation.children()) {
           if (!StringUtils.isEmpty(document.@current.toString()) && java.lang.Boolean.parseBoolean(
@@ -1675,7 +1686,7 @@ class ApiController {
     return true
   }
 
-  private processRequestXmlModules(String requestBody) {
+  private Map processRequestXmlModules(String requestBody) {
     def xmlModules = [:]
 
     if (requestBody != null && requestBody != "") {
@@ -1687,6 +1698,78 @@ class ApiController {
     }
 
     return xmlModules
+  }
+
+  private Map processValidatedRequestXmlModules(String requestBody) {
+    Map xmlModules = processRequestXmlModulesSafely(requestBody)
+    if (xmlModules == null) return null
+
+    return validatePresentationUploadUrls(xmlModules) ? xmlModules : null
+  }
+
+  private Map processRequestXmlModulesSafely(String requestBody) {
+    try {
+      return processRequestXmlModules(requestBody)
+    } catch (org.xml.sax.SAXException e) {
+      log.warn("Malformed XML request body: {}", e.getMessage())
+      invalid(ERROR_MALFORMED_XML, ERROR_MALFORMED_XML_MESSAGE)
+      return null
+    }
+  }
+
+  private Boolean validatePresentationUploadUrls(Map xmlModules) {
+    if (!validatePresentationUploadUrl(getFirstRequestParameter(PARAM_PRE_UPLOADED_PRESENTATION))) return false
+
+    if (xmlModules.containsKey(MODULE_PRESENTATION)) {
+      def modulePresentation = xmlModules.get(MODULE_PRESENTATION)
+      for (document in modulePresentation.children()) {
+        if (!validatePresentationUploadUrl(document.@url.toString())) return false
+      }
+    }
+
+    return true
+  }
+
+  private Boolean validatePresentationUploadUrl(String url) {
+    if (StringUtils.isEmpty(url) || isPresentationUrlSyntaxValid(url)) return true
+
+    invalid(ERROR_INVALID_PRESENTATION_URL, ERROR_INVALID_PRESENTATION_URL_MESSAGE)
+    return false
+  }
+
+  private String getFirstRequestParameter(String name) {
+    String[] values = request.getParameterMap().get(name)
+    return values == null || values.length == 0 ? null : values[0]
+  }
+
+  private Boolean isPresentationUrlSyntaxValid(String url) {
+    try {
+      new URI(url)
+      URLDecoder.decode(url, URL_ENCODING)
+      return true
+    } catch (URISyntaxException e) {
+      log.warn("Malformed presentation URL [{}]: {}", url, e.getMessage())
+    } catch (IllegalArgumentException e) {
+      log.warn("Malformed presentation URL [{}]: {}", url, e.getMessage())
+    } catch (UnsupportedEncodingException e) {
+      log.error("Could not validate presentation URL because UTF-8 is not supported", e)
+    }
+
+    return false
+  }
+
+  private String decodePresentationUrlFilename(String address) {
+    try {
+      def urlParts = address.tokenize("/")
+      if (urlParts.isEmpty()) return ""
+      return URLDecoder.decode(urlParts[-1], URL_ENCODING)
+    } catch (IllegalArgumentException e) {
+      log.warn("Could not decode presentation file name from URL [{}]: {}", address, e.getMessage())
+    } catch (UnsupportedEncodingException e) {
+      log.error("Couldn't decode the uploaded file name.", e)
+    }
+
+    return null
   }
 
   private processDocumentFromRawBytes(bytes, presOrigFilename, meetingId, current, isDownloadable, isRemovable,
@@ -1750,13 +1833,8 @@ class ApiController {
     log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId}, ${fileName})");
     String presOrigFilename;
     if (StringUtils.isEmpty(fileName)) {
-      try {
-        presOrigFilename = URLDecoder.decode(address.tokenize("/")[-1], "UTF-8");
-      } catch (UnsupportedEncodingException e) {
-        log.error "Couldn't decode the uploaded file name.", e
-        invalid("fileNameError", "Cannot decode the uploaded file name")
-        return;
-      }
+      presOrigFilename = decodePresentationUrlFilename(address)
+      if (presOrigFilename == null) return
     } else {
       presOrigFilename = fileName;
     }
