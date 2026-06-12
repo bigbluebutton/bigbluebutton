@@ -72,7 +72,12 @@ export async function hasCurrentPresentationToastElement(
   ).toBeVisible({ timeout });
 }
 
-export async function uploadSinglePresentation(testPage: Page, fileName: string, uploadTimeout = UPLOAD_PDF_WAIT_TIME) {
+export async function uploadSinglePresentation(
+  testPage: Page,
+  fileName: string,
+  uploadTimeout = UPLOAD_PDF_WAIT_TIME,
+  thumbnailIndex = 1,
+) {
   const firstSlideSrc = await testPage.page.evaluate(
     ([selector]) => {
       const el = document.querySelector(selector) as HTMLElement | null;
@@ -99,7 +104,7 @@ export async function uploadSinglePresentation(testPage: Page, fileName: string,
   await testPage.waitUntilHaveCountSelector(e.presentationThumbnails, numPresentationsBefore + 1, uploadTimeout);
 
   // select and share the uploaded presentation
-  const newPDFThumbnail = await testPage.getLocatorByIndex(e.presentationThumbnails, 1);
+  const newPDFThumbnail = await testPage.getLocatorByIndex(e.presentationThumbnails, thumbnailIndex);
   await newPDFThumbnail.click();
   await testPage.waitAndClick(e.sharePresentationButton);
   await testPage.press('Escape'); // close the media sharing menu
