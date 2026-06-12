@@ -6,7 +6,7 @@ import React, {
 import { UserCameraHelperButton, UserCameraHelperInterface, UserCameraHelperItemPosition } from 'bigbluebutton-html-plugin-sdk';
 import VideoList from '/imports/ui/components/video-provider/video-list/component';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
-import { useNumberOfPages } from '/imports/ui/components/video-provider/hooks';
+import { useNumberOfPages, useGridSize } from '/imports/ui/components/video-provider/hooks';
 import { VideoItem } from '/imports/ui/components/video-provider/types';
 import { Layout, Output } from '/imports/ui/components/layout/layoutTypes';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
@@ -45,6 +45,7 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
     onVirtualBgDrop,
   } = props;
   const numberOfPages = useNumberOfPages();
+  const gridSize = useGridSize();
 
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
 
@@ -118,6 +119,7 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
           onVideoItemMount={onVideoItemMount}
           onVideoItemUnmount={onVideoItemUnmount}
           onVirtualBgDrop={onVirtualBgDrop}
+          gridSize={gridSize}
         />
       )
   );

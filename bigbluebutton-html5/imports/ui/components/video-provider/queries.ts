@@ -28,6 +28,7 @@ export const VIDEO_STREAMS_SUBSCRIPTION = gql`
         userId
         nameSortable
         pinned
+        pinnedTime
         away
         disconnected
         role
@@ -77,6 +78,7 @@ export const GRID_USERS_SUBSCRIPTION = gql`
       userId
       nameSortable
       pinned
+      pinnedTime
       away
       disconnected
       role
@@ -116,6 +118,7 @@ export const AUDIO_ONLY_USERS_SUBSCRIPTION = gql`
       userId
       nameSortable
       pinned
+      pinnedTime
       away
       disconnected
       role

@@ -21,6 +21,7 @@ const Icon = ({
   ...props
 }) => (
   <Styled.Icon
+    aria-hidden="true"
     color={color}
     className={cx(className, iconName ? [prependIconName, iconName].join('') : '')}
     // ToastContainer from react-toastify passes a useless closeToast prop here

@@ -206,6 +206,7 @@ export function useModalRegistration({
   setPriority: (p: ModalPriority) => void;
 } {
   const uniqueRef = useRef<string | null>(null);
+  const previousFocusRef = useRef<Element | null>(null);
 
   useEffect(() => {
     const uniqueId = controller.register(id, priority);
@@ -221,11 +222,19 @@ export function useModalRegistration({
   const my = uniqueId ? slice.byKey[uniqueId] : undefined;
 
   const open = useCallback(() => {
+    previousFocusRef.current = document.activeElement;
     if (uniqueRef.current) controller.setDesiredOpen(uniqueRef.current, true);
   }, []);
 
   const close = useCallback(() => {
     if (uniqueRef.current) controller.setDesiredOpen(uniqueRef.current, false);
+    const el = previousFocusRef.current as HTMLElement | null;
+    previousFocusRef.current = null;
+    if (el && typeof el.focus === 'function' && document.body.contains(el)) {
+      setTimeout(() => {
+        el.focus();
+      }, 0);
+    }
   }, []);
 
   const setMyPriority = useCallback((p: ModalPriority) => {
