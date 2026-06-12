@@ -1031,9 +1031,9 @@ module BigBlueButton
         when %w[CHAT EditPublicChatMessageRecordEvent]
           next if timestamp < start_time
           message_id = event.at_xpath('./messageId')&.content
-          new_message_content = event.at_xpath('./message')&.content
+          new_message_content = event.at_xpath('./message')&.content&.strip
           index_to_be_edited = chats.index { |message| message[:id] === message_id }
-          chats[index_to_be_edited][:message] = new_message_content unless index_to_be_edited.nil?
+          chats[index_to_be_edited][:message] = linkify(new_message_content) unless index_to_be_edited.nil?
           chats[index_to_be_edited][:lastEditedTimestamp] = timestamp unless index_to_be_edited.nil?
         when %w[PARTICIPANT RecordStatusEvent]
           record = event.at_xpath('status').content == 'true'
