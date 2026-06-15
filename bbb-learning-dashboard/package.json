@@ -1,6 +1,6 @@
 {
   "name": "learning-analytics-dashboard",
-  "homepage": "/learning-analytics-dashboard/",
+  "homepage": ".",
   "version": "0.1.0",
   "private": true,
   "overrides": {
