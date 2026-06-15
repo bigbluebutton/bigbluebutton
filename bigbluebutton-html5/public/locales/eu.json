@@ -466,7 +466,7 @@
     "app.poll.dragDropPollInstruction": "Inkestaren balioak betetzeko, inkestaren balioak dituen fitxategia arrastatu nabarmendutako eremura",
     "app.poll.customPollTextArea": "Bete inkestaren balioak",
     "app.poll.publishLabel": "Zabaldu emaitzak",
-    "app.poll.cancelPollLabel": "Utzi",
+    "app.poll.cancelPollLabel": "Stop poll",
     "app.poll.backLabel": "Hasi inkesta bat",
     "app.poll.ariaInputCount": "Inkesta pertsonalizatuaren aukera  {currentOption}/{totalOptions}",
     "app.poll.closeLabel": "Itxi",
