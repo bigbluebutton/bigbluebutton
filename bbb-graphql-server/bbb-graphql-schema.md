@@ -103,6 +103,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `name`
 - `nameSortable`
 - `pinned`
+- `pinnedTime`
 - `presenter`
 - `raiseHand`
 - `reactionEmoji`
@@ -224,6 +225,7 @@ Permission: Restricted by Lock Settings
 - `name`
 - `nameSortable`
 - `pinned`
+- `pinnedTime`
 - `presenter`
 - `raiseHand`
 - `raiseHandTime`

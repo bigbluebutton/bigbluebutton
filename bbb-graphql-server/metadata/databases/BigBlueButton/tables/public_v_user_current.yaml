@@ -290,6 +290,7 @@ select_permissions:
         - name
         - nameSortable
         - pinned
+        - pinnedTime
         - presenter
         - raiseHand
         - reactionEmoji

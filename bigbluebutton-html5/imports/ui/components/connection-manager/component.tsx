@@ -13,6 +13,7 @@ import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import deviceInfo from '/imports/utils/deviceInfo';
 import BBBWeb from '/imports/api/bbb-web-api';
 import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
+import Auth from '/imports/ui/services/auth';
 
 interface ConnectionManagerProps {
   children: React.ReactNode;
@@ -200,8 +201,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
     );
     loadingContextInfo.setLoading(true);
     if (graphqlUrl) {
-      const urlParams = new URLSearchParams(window.location.search);
-      const sessionToken = urlParams.get('sessionToken');
+      const sessionToken = Auth.sessionToken as string | null;
       if (!sessionToken) {
         loadingContextInfo.setLoading(false);
         throw new Error('Missing session token');
