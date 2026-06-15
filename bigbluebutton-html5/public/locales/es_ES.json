@@ -466,7 +466,7 @@
     "app.poll.dragDropPollInstruction": "Para completar los valores de la encuesta, arrastre un archivo de texto con los valores de la encuesta al campo resaltado",
     "app.poll.customPollTextArea": "Completar valores de la encuesta",
     "app.poll.publishLabel": "Publicar encuesta",
-    "app.poll.cancelPollLabel": "Cancelar",
+    "app.poll.cancelPollLabel": "Stop poll",
     "app.poll.backLabel": "Iniciar una encuesta",
     "app.poll.ariaInputCount": "Opción de encuesta personalizada {currentOption} de {totalOptions}",
     "app.poll.closeLabel": "Cerrar",
