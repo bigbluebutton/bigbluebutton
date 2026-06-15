@@ -228,6 +228,20 @@ class ApiController {
 
     ApiErrors errors = new ApiErrors()
 
+    // Strict client-settings override validation (test/staging only, off by default): reject the
+    // create call when the override (POST body or clientSettingsOverrideJsonUrl) contains
+    // unknown/malformed keys. The meeting is not created and nothing is passed to akka-apps.
+    if (paramsProcessorUtil.getClientSettingsOverrideStrictValidation()
+        && StringUtils.isNotEmpty(newMeeting.getOverrideClientSettings())) {
+      List<String> overrideIssues = paramsProcessorUtil.validateClientSettingsOverride(newMeeting.getOverrideClientSettings())
+      if (!overrideIssues.isEmpty()) {
+        log.warn("Rejecting create for meetingID [{}]: client settings override has issues {}", params.meetingID, overrideIssues)
+        errors.clientSettingsOverrideError(overrideIssues.join("; "))
+        respondWithErrors(errors)
+        return
+      }
+    }
+
     if (meetingService.createMeeting(newMeeting)) {
       respondWithConference(newMeeting, null, null)
       // See if the request came with pre-uploading of presentation.
