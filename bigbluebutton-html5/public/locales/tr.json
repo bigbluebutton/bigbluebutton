@@ -466,7 +466,7 @@
     "app.poll.dragDropPollInstruction": "Oylama değerlerini doldurmak için, oylama değerlerinin bulunduğu yazı dosyasını sürükleyip vurgulanan alana bırakın.",
     "app.poll.customPollTextArea": "Oylama değerlerini doldur",
     "app.poll.publishLabel": "Sonuçları yayınla",
-    "app.poll.cancelPollLabel": "İptal",
+    "app.poll.cancelPollLabel": "Stop poll",
     "app.poll.backLabel": "Bir oylama başlat",
     "app.poll.ariaInputCount": "Özel oylama seçeneği {currentOption} / {totalOptions}",
     "app.poll.closeLabel": "Kapat",
