@@ -220,6 +220,10 @@ You can enable infinite whiteboard via `public.whiteboard.allowInfiniteWhiteboar
 
 Note, circa BigBlueButton 3.0.19 Infinite Whiteboard recording support was finalized and therefore we drop the "experimental" flag from it.
 
+#### Session token removed from the client URL
+
+Starting with BigBlueButton 3.0.30, the HTML5 client removes the `sessionToken` query parameter from the browser address bar after loading, keeping it in session storage instead (and recovering it from there on page reload). This avoids presenters accidentally exposing their token while sharing their screen, and reduces the chance of confusing the client URL with a shareable join URL. The token is still passed on the initial redirect from `join`, so existing integrations are unaffected.
+
 ### Experimental
 
 #### Integration with LiveKit
@@ -299,6 +303,9 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 
 Recent releases:
+- [3.0.30](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.30)
+- [3.0.29](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.29)
+- [3.0.28](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.28)
 - [3.0.27](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.27)
 - [3.0.26](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.26)
 - [3.0.25](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.25)
@@ -480,6 +487,8 @@ Modified/added events
 - `pluginManifestCacheEnabled` added in BBB 3.0.27
 - `pluginManifestCacheDirectory` added in BBB 3.0.27
 - `pluginManifestCacheRefreshIntervalMinutes` added in BBB 3.0.27
+- `clientSettingsOverrideStrictValidation` added in BBB 3.0.30
+- `clientSettingsFilePath` added in BBB 3.0.30
 
 ### Removed support for POST requests on `join` endpoint and Content-Type headers are now required
 
