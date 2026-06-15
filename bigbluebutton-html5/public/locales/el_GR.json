@@ -466,7 +466,7 @@
     "app.poll.dragDropPollInstruction": "Για συμπλήρωση των τιμών της έρευνας, σύρετε το αρχείο με τα στοιχεία στο επισημασμένο πεδίο.",
     "app.poll.customPollTextArea": "Συμπλήρωση των πεδίων δημοσκόπησης",
     "app.poll.publishLabel": "Δημοσίευση αποτελεσμάτων",
-    "app.poll.cancelPollLabel": "Ακύρωση",
+    "app.poll.cancelPollLabel": "Stop poll",
     "app.poll.backLabel": "Ξεκινήστε μια δημοσκόπηση",
     "app.poll.ariaInputCount": "Επιλογή προσαρμοσμένης δημοσκόπησης {currentOption} από {totalOptions}.",
     "app.poll.closeLabel": "Κλείσιμο",
