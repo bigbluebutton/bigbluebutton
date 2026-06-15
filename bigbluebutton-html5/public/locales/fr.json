@@ -466,7 +466,7 @@
     "app.poll.dragDropPollInstruction": "Pour renseigner les valeurs du sondage, faites glisser un fichier texte avec les valeurs sur le champ en surbrillance",
     "app.poll.customPollTextArea": "Renseigner les valeurs du sondage",
     "app.poll.publishLabel": "Publier les résultats",
-    "app.poll.cancelPollLabel": "Annuler",
+    "app.poll.cancelPollLabel": "Stop poll",
     "app.poll.backLabel": "Débuter un sondage",
     "app.poll.ariaInputCount": "Option de sondage personnalisée  {currentOption} sur {totalOptions}  ",
     "app.poll.closeLabel": "Fermer",
