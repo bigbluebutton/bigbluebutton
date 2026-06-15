@@ -589,12 +589,40 @@ export const useVideoStreams = () => {
       // This means local/pinned cameras will only appear on their page (where they belong in sort order)
       const sortedStreams = sortVideoStreams(streams, sortingMethod);
 
-      totalNumberOfOtherStreams = sortedStreams.length;
-      const paginatedStreams = sortedStreams.slice(chunkIndex, chunkIndex + myPageSize) || [];
+      // Audio-only tiles must also surface on the first page in this mode, otherwise
+      // paginated viewers never see them while unpaginated moderators do (issue 25242).
+      const uniqueAudioOnly = (showAudioOnlyOnFirstPage && audioOnlyUsers.length > 0)
+        ? audioOnlyUsers.filter((audioUser) => !sortedStreams.find((s) => s.userId === audioUser.userId))
+        : [];
+      const audioOnlySlotsUsedOnPage1 = uniqueAudioOnly.length > 0
+        ? Math.min(uniqueAudioOnly.length, Math.min(myPageSize, maxAudioOnlyUsers))
+        : 0;
+
+      totalNumberOfOtherStreams = sortedStreams.length + audioOnlySlotsUsedOnPage1;
+
+      // Page 1 reserves slots for the audio-only tiles, so subsequent pages must be
+      // shifted by the number of camera slots actually shown on the first page.
+      const effectiveChunkIndex = currentVideoPageIndex > 0 && audioOnlySlotsUsedOnPage1 > 0
+        ? Math.max(0, myPageSize - audioOnlySlotsUsedOnPage1) + (currentVideoPageIndex - 1) * myPageSize
+        : chunkIndex;
+
+      let paginatedStreams = sortedStreams.slice(effectiveChunkIndex, effectiveChunkIndex + myPageSize) || [];
+
+      // Add audio-only users only on the first page
+      let audioOnlyStreams: StreamItem[] = [];
+      if (currentVideoPageIndex === 0 && audioOnlySlotsUsedOnPage1 > 0) {
+        const audioOnlyToAdd = uniqueAudioOnly.slice(0, audioOnlySlotsUsedOnPage1);
+
+        if (paginatedStreams.length + audioOnlyToAdd.length > myPageSize) {
+          paginatedStreams = paginatedStreams.slice(0, Math.max(0, myPageSize - audioOnlyToAdd.length));
+        }
+
+        audioOnlyStreams = audioOnlyToAdd;
+      }
 
       const localStreamsNotInPage = sortedStreams.filter(
-        (vs, index) => videoService.isLocalStream(vs.stream)
-        && (index < chunkIndex || index >= chunkIndex + myPageSize),
+        (vs) => videoService.isLocalStream(vs.stream)
+        && !paginatedStreams.find((ps) => ps.stream === vs.stream),
       );
 
       // Mark local cameras not in current page with render: false
@@ -603,7 +631,7 @@ export const useVideoStreams = () => {
         render: false,
       }));
 
-      streams = [...paginatedStreams, ...localStreamsWithRenderFlag];
+      streams = [...paginatedStreams, ...audioOnlyStreams, ...localStreamsWithRenderFlag];
     } else {
       // Original pagination logic (show pinned/local cameras on every page)
       const [filtered, others] = partition(

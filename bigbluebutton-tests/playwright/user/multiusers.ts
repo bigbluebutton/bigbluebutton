@@ -246,6 +246,53 @@ export class MultiUsers {
     ).toHaveCount(1);
   }
 
+  async audioOnlyTileVisibleForAttendee() {
+    // Regression test for issue 25242: audio-only tiles (camera-less users that have
+    // taken the floor) must be displayed for attendees too, not only moderators, when
+    // `public.kurento.cameraSortingModes.showAudioOnlyOnFirstPage` is enabled. Moderators
+    // are unpaginated by default (pagination.desktopPageSizes.moderator = 0) and always
+    // show audio-only tiles; attendees are paginated (viewer = 5). The bug surfaced for
+    // attendees when `partitionPrivilegedStreams` is false, where the paginated path
+    // dropped audio-only tiles entirely. Skip (rather than fail with an opaque "tile never
+    // appeared" error) when the feature is disabled.
+    const showAudioOnlyOnFirstPage = this.modPage.settings?.showAudioOnlyOnFirstPage ?? true;
+    test.skip(
+      !showAudioOnlyOnFirstPage,
+      'requires public.kurento.cameraSortingModes.showAudioOnlyOnFirstPage to be enabled',
+    );
+
+    await this.modPage.waitForSelector(e.whiteboard);
+
+    // Moderator shares a webcam so the camera dock is visible over the presentation.
+    // Audio-only tiles are only surfaced in the unified layout, which is the default.
+    await this.modPage.shareWebcam();
+
+    // An attendee joins with microphone and unmutes. Speaking takes the audio floor,
+    // which qualifies the attendee as an audio-only user.
+    await this.initUserPage();
+    await this.userPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitAndClick(e.joinAudio);
+    await this.userPage.joinMicrophone();
+
+    // Wait for the moderator webcam to be fully rendered in the attendee grid first, so
+    // the only remaining placeholder (avatar) tile to match is the audio-only one.
+    await this.userPage.hasElement(e.webcamContainer, 'attendee should receive the moderator webcam');
+
+    const audioOnlyTiles = (testPage: Page) =>
+      testPage.page
+        .locator(`${e.webcamItem}, ${e.webcamItemTalkingUser}`)
+        .filter({ has: testPage.page.locator(e.webcamConnecting) });
+
+    // Control: the moderator (unpaginated) already shows the audio-only tile.
+    await expect(audioOnlyTiles(this.modPage), 'moderator should display the audio-only tile').not.toHaveCount(0);
+
+    // Regression assertion: the attendee (paginated viewer) must also show it (issue 25242).
+    await expect(
+      audioOnlyTiles(this.userPage),
+      'attendee should also display the audio-only tile (issue 25242)',
+    ).not.toHaveCount(0);
+  }
+
   async toggleUserList() {
     await this.modPage.hasElement(e.chatBox, 'should display the public chat box for the moderator');
     await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button for the moderator');

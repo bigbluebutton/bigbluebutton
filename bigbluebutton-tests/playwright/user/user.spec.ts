@@ -30,6 +30,12 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await multiusers.raiseHandIndicatorOnAudioOnlyTile();
     });
 
+    test('Audio-only tile visible for attendee', async ({ browser, context, page }, testInfo) => {
+      const multiusers = new MultiUsers(browser, context);
+      await multiusers.initModPage(page, { testInfo });
+      await multiusers.audioOnlyTileVisibleForAttendee();
+    });
+
     test('Toggle user list', async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
       await multiusers.initModPage(page, { testInfo });
