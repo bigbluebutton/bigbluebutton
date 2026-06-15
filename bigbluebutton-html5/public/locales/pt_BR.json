@@ -466,7 +466,7 @@
     "app.poll.dragDropPollInstruction": "Para preencher as opções da enquete automaticamente, arraste e solte um arquivo de texto com as opções da enquete no campo destacado",
     "app.poll.customPollTextArea": "Preencha as opções da enquete",
     "app.poll.publishLabel": "Publicar enquete",
-    "app.poll.cancelPollLabel": "Cancelar",
+    "app.poll.cancelPollLabel": "Stop poll",
     "app.poll.backLabel": "Iniciar uma enquete",
     "app.poll.ariaInputCount": "Opção de enquete personalizada {currentOption} de {totalOptions}",
     "app.poll.closeLabel": "Fechar",
