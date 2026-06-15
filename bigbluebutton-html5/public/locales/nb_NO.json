@@ -466,7 +466,7 @@
     "app.poll.dragDropPollInstruction": "For å fylle inn avstemningsverdier, dra en tekstfil med avstemningsverdiene til det uthevede feltet",
     "app.poll.customPollTextArea": "Fyll inn avstemmingsverdier",
     "app.poll.publishLabel": "Publiser resultater",
-    "app.poll.cancelPollLabel": "Avbryt",
+    "app.poll.cancelPollLabel": "Stop poll",
     "app.poll.backLabel": "Start en avstemming",
     "app.poll.ariaInputCount": "Tilpasset avstemningsalternativ {currentOption} av {totalOptions}",
     "app.poll.closeLabel": "Lukk",
