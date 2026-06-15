@@ -466,7 +466,7 @@
     "app.poll.dragDropPollInstruction": "Që të plotësohen vlera pyetësori, tërhiqni te fusha e theksuar një kartelë tekst me vlera pyetësori në të",
     "app.poll.customPollTextArea": "Plotësoni vlera pyetësori",
     "app.poll.publishLabel": "Botoni përfundimet",
-    "app.poll.cancelPollLabel": "Anuloje",
+    "app.poll.cancelPollLabel": "Stop poll",
     "app.poll.backLabel": "Filloni Një Pyetësor",
     "app.poll.ariaInputCount": "Mundësi e përshtatur pyetësori {currentOption} nga {totalOptions} gjithsej",
     "app.poll.closeLabel": "Mbylle",
