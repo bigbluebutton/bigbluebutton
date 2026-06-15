@@ -466,7 +466,7 @@
     "app.poll.dragDropPollInstruction": "Küsitluse vastuste määramiseks lohista vastuseid sisaldav tekstifail märgistatud väljale",
     "app.poll.customPollTextArea": "Lisa küsitlusele vastused",
     "app.poll.publishLabel": "Avalda tulemused",
-    "app.poll.cancelPollLabel": "Tühista",
+    "app.poll.cancelPollLabel": "Stop poll",
     "app.poll.backLabel": "Alusta küsitlust",
     "app.poll.ariaInputCount": "Kohandatud vastus {currentOption} / {totalOptions}",
     "app.poll.closeLabel": "Sulge",
