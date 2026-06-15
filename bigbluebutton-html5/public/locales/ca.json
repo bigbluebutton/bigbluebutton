@@ -466,7 +466,7 @@
     "app.poll.dragDropPollInstruction": "Per a emplenar els valors de l'enquesta, arrossega un arxiu de text amb els valors de l'enquesta al camp ressaltat",
     "app.poll.customPollTextArea": "Emplenar els valors de l'enquesta",
     "app.poll.publishLabel": "Publicar enquesta",
-    "app.poll.cancelPollLabel": "Cancel·lar",
+    "app.poll.cancelPollLabel": "Stop poll",
     "app.poll.backLabel": "Iniciar una enquesta",
     "app.poll.ariaInputCount": "Opció d'enquesta personalitzada {currentOption} de {totalOptions}",
     "app.poll.closeLabel": "Tanca",
