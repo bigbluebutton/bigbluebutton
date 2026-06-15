@@ -466,7 +466,7 @@
     "app.poll.dragDropPollInstruction": "投票の内容を入力するには、それを記入したテキストファイルを、ハイライトされた欄にドラッグしてください。",
     "app.poll.customPollTextArea": "投票の内容を入力",
     "app.poll.publishLabel": "結果の表示",
-    "app.poll.cancelPollLabel": "キャンセル",
+    "app.poll.cancelPollLabel": "Stop poll",
     "app.poll.backLabel": "投票を始める",
     "app.poll.ariaInputCount": "カスタム投票の選択肢{totalOptions}の{currentOption}",
     "app.poll.closeLabel": "閉じる",
