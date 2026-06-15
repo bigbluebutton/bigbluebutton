@@ -466,7 +466,7 @@
     "app.poll.dragDropPollInstruction": "Per compilare i valori del sondaggio, trascina un file di testo con i valori del sondaggio sul campo evidenziato",
     "app.poll.customPollTextArea": "Compila i valori del sondaggio",
     "app.poll.publishLabel": "Pubblica i risultati",
-    "app.poll.cancelPollLabel": "Annulla",
+    "app.poll.cancelPollLabel": "Stop poll",
     "app.poll.backLabel": "Crea un sondaggio",
     "app.poll.ariaInputCount": "Opzione sondaggio personalizzato {currentOption} di {totalOptions}",
     "app.poll.closeLabel": "Chiudi",
