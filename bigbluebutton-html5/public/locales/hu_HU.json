@@ -466,7 +466,7 @@
     "app.poll.dragDropPollInstruction": "A szavazáshoz húzz egy szöveges fájlt a a kiemelt mezőre",
     "app.poll.customPollTextArea": "Töltsd ki a szavazás értékeit",
     "app.poll.publishLabel": "Végeredmény közzététele",
-    "app.poll.cancelPollLabel": "Mégsem",
+    "app.poll.cancelPollLabel": "Stop poll",
     "app.poll.backLabel": "Új szavazás indítása",
     "app.poll.ariaInputCount": " {currentOption} / {totalOptions} egyéni szavazási lehetőség",
     "app.poll.closeLabel": "Bezárás",
