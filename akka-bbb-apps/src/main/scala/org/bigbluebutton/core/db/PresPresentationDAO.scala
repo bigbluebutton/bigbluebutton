@@ -255,10 +255,10 @@ object PresPresentationDAO {
     )
   }
 
-  def delete(presentationId: String) = {
+  def delete(meetingId: String, presentationId: String) = {
     DatabaseConnection.enqueue(
       TableQuery[PresPresentationDbTableDef]
-        .filter(_.presentationId === presentationId)
+        .filter(p => p.meetingId === meetingId && p.presentationId === presentationId)
         .delete
     )
   }

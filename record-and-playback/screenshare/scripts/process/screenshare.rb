@@ -71,7 +71,7 @@ events = Nokogiri::XML(File.open("#{raw_archive_dir}/events.xml"))
 initial_timestamp = nil
 final_timestamp = nil
 metadata = events.at_xpath('/recording/metadata')
-meetingName = metadata['meetingName']
+meetingName = metadata['meetingName'].to_s
 begin
   event = events.at_xpath('/recording/event[position()=1]')
   initial_timestamp = event['timestamp'].to_i

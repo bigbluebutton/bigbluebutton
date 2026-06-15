@@ -1,6 +1,8 @@
 // Place your Spring DSL code here
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.boot.web.servlet.FilterRegistrationBean
+import org.grails.web.filters.HiddenHttpMethodFilter
 
 Logger logger = LoggerFactory.getLogger("org.bigbluebutton.web.services.turn.StunTurnService")
 
@@ -14,6 +16,11 @@ beans = {
     logger.info("Overlay stun/turn server config file " + turnConfigFilePath
       + " not found/readable, reading from default config file location")
     importBeans('spring/turn-stun-servers.xml')
+  }
+
+  hiddenHttpMethodFilter(FilterRegistrationBean) {
+    filter = new HiddenHttpMethodFilter()
+    enabled = false
   }
 }
 

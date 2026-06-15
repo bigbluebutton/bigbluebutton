@@ -25,7 +25,8 @@ public class ContentTypeValidator implements ConstraintValidator<ContentTypeCons
         String contentTypeHeader = servletRequest.getHeader("Content-Type");
         log.info("Validating {} request with content type {}", requestMethod, contentType);
 
-        boolean requestBodyPresent = servletRequest.getContentLength() > 0;
+        boolean requestBodyPresent = servletRequest.getContentLengthLong() > 0
+                || servletRequest.getHeader("Transfer-Encoding") != null;
         if (requestBodyPresent) {
             if (contentType == null || contentTypeHeader == null) return false;
             else {
