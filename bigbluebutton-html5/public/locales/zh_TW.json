@@ -466,7 +466,7 @@
     "app.poll.dragDropPollInstruction": "要填寫投票值，將具有投票值的文本文件拖放到突出顯示的字段上",
     "app.poll.customPollTextArea": "填寫投票值",
     "app.poll.publishLabel": "發佈結果",
-    "app.poll.cancelPollLabel": "取消",
+    "app.poll.cancelPollLabel": "Stop poll",
     "app.poll.backLabel": "開始投票",
     "app.poll.ariaInputCount": "自定義投票選項 {currentOption}/{totalOptions}",
     "app.poll.closeLabel": "關閉",
