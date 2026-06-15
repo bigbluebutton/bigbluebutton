@@ -466,7 +466,7 @@
     "app.poll.dragDropPollInstruction": "Um die Umfrageoptionen automatisch auszufüllen, eine Textdatei mit den Umfrageoptionen per Drag&Drop in das hervorgehobene Feld ziehen",
     "app.poll.customPollTextArea": "Umfrageoptionen ausfüllen",
     "app.poll.publishLabel": "Resultate veröffentlichen",
-    "app.poll.cancelPollLabel": "Abbrechen",
+    "app.poll.cancelPollLabel": "Stop poll",
     "app.poll.backLabel": "Umfrage starten",
     "app.poll.ariaInputCount": "Benutzerdefinierte Umfrageoption {currentOption} von {totalOptions}",
     "app.poll.closeLabel": "Schließen",
