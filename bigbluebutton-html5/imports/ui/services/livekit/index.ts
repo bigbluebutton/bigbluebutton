@@ -11,6 +11,20 @@ export const LK_FATAL_ERROR_EVENT = 'liveKitFatalError';
 
 export const liveKitRoom: Room = new Room();
 
+// Expose the main room instance for E2E testing, but only when a test
+// explicitly opts in before load (via Playwright's addInitScript with
+// BBB_EXPOSE_LIVEKIT_ROOM set to true).
+declare global {
+  interface Window {
+    liveKitRoom?: Room;
+    BBB_EXPOSE_LIVEKIT_ROOM?: boolean;
+  }
+}
+
+if (typeof window !== 'undefined' && window.BBB_EXPOSE_LIVEKIT_ROOM) {
+  window.liveKitRoom = liveKitRoom;
+}
+
 export const lkIsCameraSource = (track: TrackPublication | RemoteTrack): boolean => {
   return track.kind === Track.Kind.Video && track.source === Track.Source.Camera;
 };
