@@ -203,6 +203,12 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
         await message.replyMessage();
       });
 
+      test('Reply to a message with text followed by a link', async ({ browser, context, page }, testInfo) => {
+        const message = new MessageActions(browser, context);
+        await message.initModPage(page, { testInfo });
+        await message.replyMessageWithTextBeforeLink();
+      });
+
       test('Cancel a reply to a message', async ({ browser, context, page }, testInfo) => {
         const message = new MessageActions(browser, context);
         await message.initModPage(page, { testInfo });
