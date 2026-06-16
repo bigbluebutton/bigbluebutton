@@ -39,32 +39,30 @@ export class BlockNoteSharedNotes extends MultiUsers {
       timeout: ELEMENT_WAIT_LONGER_TIME,
     });
 
-    // The moderator clicks the link and nudges the caret a few characters inward, so
-    // the node following the caret is link-marked (the condition that makes
-    // y-prosemirror wrap the cursor widget in the link mark).
-    await getBlockNoteLinkLocator(this.modPage).first().click();
-    await this.modPage.page.keyboard.press('ArrowLeft');
-    await this.modPage.page.keyboard.press('ArrowLeft');
-    await this.modPage.page.keyboard.press('ArrowLeft');
+    // Place the moderator's caret a few characters inside the link — keyboard only.
+    // (Clicking the link opens BlockNote's link toolbar, which steals editor focus and
+    // stops y-prosemirror from broadcasting the cursor.) After typing, the caret sits
+    // after the trailing space; stepping left past the space and into the URL makes the
+    // node *after* the caret link-marked, which is what makes y-prosemirror wrap the
+    // remote cursor widget in the link mark — the #25225 trigger.
+    for (let i = 0; i < 9; i += 1) {
+      await this.modPage.page.keyboard.press('ArrowLeft');
+    }
 
-    // Poll until the attendee renders the moderator's remote cursor. The read runs
-    // inside readLinkAndCursorState via page.evaluate, which never focuses/activates
-    // the attendee page, so the moderator editor keeps focus and keeps broadcasting
-    // its cursor. This presence guard also prevents a clean-but-cursorless link from
-    // being a false pass.
+    // Wait until the attendee actually renders the moderator's cursor *inside* the link.
+    // This single poll is the presence guard + the bug precondition + a sync wait: a
+    // remote cursor exists and sits within the <a> (the exact #25225 condition), so a
+    // clean link cannot be a false pass. Reading via page.evaluate never focuses the
+    // attendee page, so the moderator editor keeps focus and keeps broadcasting.
+    // (A future upstream `marks: []` fix would render the widget *outside* the <a>;
+    // this precondition would then need relaxing.)
     await expect
-      .poll(async () => (await readLinkAndCursorState(this.userPage)).remoteCursorCount, {
-        message: 'attendee should render the moderator collaboration cursor',
+      .poll(async () => (await readLinkAndCursorState(this.userPage)).cursorWidgetInsideLink, {
+        message: 'attendee should render the moderator cursor inside the link',
         timeout: ELEMENT_WAIT_LONGER_TIME,
       })
-      .toBeGreaterThan(0);
+      .toBe(true);
     const state = await readLinkAndCursorState(this.userPage);
-
-    // Precondition: the cursor widget is actually positioned inside the link — the exact
-    // condition that triggers #25225. The fix neutralises the text leak without
-    // relocating the widget, so this stays true; a future upstream `marks: []` fix would
-    // move the widget out of the <a> and this guard should then be relaxed.
-    expect(state.cursorWidgetInsideLink, 'precondition: the remote cursor must sit inside the link').toBe(true);
 
     // The bug: the cursor name and U+2060 separators must not pollute the link text.
     expect(state.linkTextHasWordJoiner, 'link text must not contain U+2060 word-joiner separator characters').toBe(
