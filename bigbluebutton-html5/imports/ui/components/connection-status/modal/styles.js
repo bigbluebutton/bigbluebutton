@@ -174,7 +174,6 @@ const CopyContainer = styled.div`
   display: flex;
   justify-content: flex-end;
   border: none;
-  border-top: 1px solid ${colorBorder};
   padding: ${mdPaddingX} 0 0 0;
 `;
 
