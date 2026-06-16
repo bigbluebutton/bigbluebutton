@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/no-access-key */
 import React, { useCallback, memo } from 'react';
 import KEYS from '/imports/utils/keys';
-import resolveIcon from '/imports/ui/components/plugins/plugin-icon/plugin-icon-utils';
+import resolveIcon from '/imports/ui/components/plugins/plugin-icon/utils';
 import { layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
 import { Input } from '/imports/ui/components/layout/layoutTypes';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';

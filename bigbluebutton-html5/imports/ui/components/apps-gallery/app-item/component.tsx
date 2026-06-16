@@ -1,10 +1,10 @@
 import React, { memo, ReactNode, useCallback } from 'react';
 import Icon from '/imports/ui/components/common/icon/component';
-import resolveIcon from '/imports/ui/components/plugins/plugin-icon/plugin-icon-utils';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { PluginIconType } from 'bigbluebutton-html-plugin-sdk';
+import resolveIcon from '/imports/ui/components/plugins/plugin-icon/utils';
 import Styled from '../styles';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import KEYS from '/imports/utils/keys';
