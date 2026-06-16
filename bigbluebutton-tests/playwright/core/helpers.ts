@@ -36,7 +36,7 @@ interface InitOptions {
   createParameter?: string;
   joinParameter?: string;
   testInfo?: TestInfo;
-  recordVideo?: boolean;
+
 }
 
 interface GetJoinUrlProp {
@@ -306,8 +306,10 @@ export async function initializePages(
   browser: Browser,
   initOptions?: InitOptions,
 ): Promise<void> {
-  const { isMultiUser, createParameter, joinParameter, testInfo, recordVideo } = initOptions || {};
-  const context = await browser.newContext(recordVideo ? { recordVideo: { dir: 'test-results/' } } : {});
+  const { isMultiUser, createParameter, joinParameter, testInfo } = initOptions || {};
+  const context = await browser.newContext({
+    ...(testInfo && { recordVideo: { dir: testInfo.outputDir } }),
+  });
   const page = await context.newPage();
   await testInstance.initModPage(page, { createParameter, joinParameter, testInfo });
   if (isMultiUser) await testInstance.initUserPage(context, { createParameter, joinParameter, testInfo });
