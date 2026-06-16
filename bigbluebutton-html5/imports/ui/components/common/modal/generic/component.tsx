@@ -44,7 +44,9 @@ export interface GenericModalProps {
   /** Custom inline styles applied directly to the modal content element. */
   contentStyle?: React.CSSProperties;
   /** Test identifier propagated to the modal wrapper for automated testing. */
-  'data-test'?: string;
+  dataTest?: string;
+  /** Test identifier propagated to the modal close button for automated testing. */
+  closeButtonDataTest?: string;
   /**
    * Document title shown while the modal is open. `true` reuses `title`
    * (or `contentLabel`); a string is used as is.
@@ -96,7 +98,8 @@ const GenericModal: React.FC<GenericModalProps> = ({
   priority,
   contentStyle,
   anchorElement,
-  'data-test': dataTest,
+  dataTest,
+  closeButtonDataTest,
   documentTitle = false,
 }) => {
   const [documentTitleViewId] = useState(() => createDocumentTitleViewId('generic-modal'));
@@ -145,10 +148,6 @@ const GenericModal: React.FC<GenericModalProps> = ({
         overflow: 'visible',
       });
     }
-
-    if (dataTest) {
-      node.setAttribute('data-test', dataTest);
-    }
   }, [anchorElement, contentStyle, dataTest]);
 
   return (
@@ -168,6 +167,8 @@ const GenericModal: React.FC<GenericModalProps> = ({
       contentRef={contentRefCallback}
       parentSelector={() => document.querySelector<HTMLElement>('#modals-container') ?? document.body}
       portalClassName={priority ? `modal-${priority}` : undefined}
+      testId={dataTest}
+      closeButtonDataTest={closeButtonDataTest}
     >
       {children}
     </BBBModal>
