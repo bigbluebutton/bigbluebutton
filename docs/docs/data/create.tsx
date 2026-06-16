@@ -133,6 +133,12 @@ const createEndpointTableData = [
     "description": (<>This is a special parameter type (there is no parameter named just <code className="language-plaintext highlighter-rouge">meta</code>).<br /><br /> You can pass one or more metadata values when creating a meeting. These will be stored by BigBlueButton can be retrieved later via the getMeetingInfo and getRecordings calls.<br /><br /> Examples of the use of the meta parameters are <code className="language-plaintext highlighter-rouge">meta_Presenter=Jane%20Doe</code>, <code className="language-plaintext highlighter-rouge">meta_category=FINANCE</code>, and <code className="language-plaintext highlighter-rouge">meta_TERM=Fall2016</code>.</>)
   },
   {
+    "name": "meta_disable-recording-formats",
+    "required": false,
+    "type": "String",
+    "description": (<>Comma-separated list of recording format names to skip for this meeting, such as <code className="language-plaintext highlighter-rouge">video,presentation</code> or <code className="language-plaintext highlighter-rouge">[video,presentation]</code>. Format names are case-insensitive and match the format part of recording steps such as <code className="language-plaintext highlighter-rouge">process:video</code>. Disabled formats are not processed or published.</>)
+  },
+  {
     "name": "meta_bbb-anonymize-chat",
     "required": false,
     "type": "Boolean",

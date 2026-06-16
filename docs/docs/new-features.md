@@ -182,6 +182,10 @@ Following the license change of Akka back in September 2022, we considered sever
 
 Administrators will appreciate that we now allow the passing of custom client settings through the meeting create API call. You no longer need separate servers to accommodate sessions requiring vastly different `settings.yml` configurations.
 
+#### Disable recording formats per meeting
+
+Integrations can now skip one or more enabled recording formats for a specific meeting by passing `meta_disable-recording-formats` on the `/create` call, for example `meta_disable-recording-formats=video,presentation`. Disabled formats are not processed or published. See the [Create API parameters](/development/api/#get-post-create) and [recording format customization](/administration/customize#install-additional-recording-processing-formats) docs for details.
+
 #### Removal of Meteor and MongoDB
 
 For years, we have discussed internally the topic of replacing Meteor.js with other technologies in order to improve scalability, performance, etc. Over the last year, we have introduced several different new components to replace Meteor. These new components are: `bbb-graphql-server`, `bbb-graphql-middleware`, `bbb-graphql-actions`, PostgreSQL database, and the GraphQL server Hasura. As of BigBlueButton 3.0.0-beta.1, we are no longer using Meteor or MongoDB.
