@@ -4,6 +4,14 @@ import { ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 
+// Locator for audio-only tiles (camera-less users that hold the audio floor): a webcam
+// grid item rendering the connecting/avatar placeholder instead of a <video> element.
+export function audioOnlyTilesLocator(testPage: Page): Locator {
+  return testPage.page
+    .locator(`${e.webcamItem}, ${e.webcamItemTalkingUser}`)
+    .filter({ has: testPage.page.locator(e.webcamConnecting) });
+}
+
 export async function openLockViewers(testPage: Page) {
   const isLockViewersButtonVisible = await testPage.page.locator(e.lockViewersButton).isVisible({ timeout: ELEMENT_WAIT_TIME }).catch(() => false);
   if (!isLockViewersButtonVisible) {

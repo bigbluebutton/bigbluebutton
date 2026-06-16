@@ -541,6 +541,75 @@ const useVideoSenders = () => {
   return { senderIds, senderIdsInGroups: null, inAnyGroup: true };
 };
 
+// Paginates `others` (camera streams) and reserves first-page slots for audio-only
+// tiles (camera-less users that hold the audio floor). Shared by both pagination modes
+// so attendees and moderators surface audio-only tiles consistently (issue 25242).
+// `reservedCount` is the number of always-on-page privileged streams (pinned + local
+// cameras), which is 0 when streams are paginated equally (!partitionPrivilegedStreams).
+const reserveAudioOnlyTiles = ({
+  others,
+  sortingMethod,
+  audioOnlyUsers,
+  excludeStreams,
+  pageSize,
+  currentVideoPageIndex,
+  chunkIndex,
+  maxAudioOnlyUsers,
+  showAudioOnlyOnFirstPage,
+  reservedCount,
+}: {
+  others: StreamItem[];
+  sortingMethod: string;
+  audioOnlyUsers: AudioOnlyStream[];
+  excludeStreams: StreamItem[];
+  pageSize: number;
+  currentVideoPageIndex: number;
+  chunkIndex: number;
+  maxAudioOnlyUsers: number;
+  showAudioOnlyOnFirstPage: boolean;
+  reservedCount: number;
+}): { paginatedStreams: StreamItem[]; audioOnlyStreams: StreamItem[]; totalNumberOfOtherStreams: number } => {
+  const availableSlots = Math.max(0, pageSize - reservedCount);
+  const uniqueAudioOnly = (showAudioOnlyOnFirstPage && audioOnlyUsers.length > 0)
+    ? audioOnlyUsers.filter((audioUser) => !excludeStreams.find((s) => s.userId === audioUser.userId))
+    : [];
+  const audioOnlySlotsUsedOnPage1 = uniqueAudioOnly.length > 0
+    ? Math.min(uniqueAudioOnly.length, Math.min(availableSlots, maxAudioOnlyUsers))
+    : 0;
+
+  let totalNumberOfOtherStreams: number;
+  if (audioOnlySlotsUsedOnPage1 > 0 && reservedCount > 0) {
+    // Privileged streams occupy slots on every page, so audio-only tiles on page 1 push
+    // remote cameras to later pages — size the page count accordingly.
+    const othersOnPage0 = Math.max(0, pageSize - reservedCount - audioOnlySlotsUsedOnPage1);
+    const remainingOthers = Math.max(0, others.length - othersOnPage0);
+    const additionalPages = remainingOthers > 0 ? Math.ceil(remainingOthers / pageSize) : 0;
+    totalNumberOfOtherStreams = (1 + additionalPages) * pageSize;
+  } else {
+    totalNumberOfOtherStreams = others.length + audioOnlySlotsUsedOnPage1;
+  }
+
+  // Page 1 reserves slots for the audio-only tiles, so later pages start after the
+  // remote cameras already shown on the first page.
+  const effectiveChunkIndex = currentVideoPageIndex > 0 && audioOnlySlotsUsedOnPage1 > 0
+    ? Math.max(0, pageSize - reservedCount - audioOnlySlotsUsedOnPage1) + (currentVideoPageIndex - 1) * pageSize
+    : chunkIndex;
+
+  let paginatedStreams = sortVideoStreams(others, sortingMethod)
+    .slice(effectiveChunkIndex, effectiveChunkIndex + pageSize);
+
+  let audioOnlyStreams: StreamItem[] = [];
+  if (currentVideoPageIndex === 0 && audioOnlySlotsUsedOnPage1 > 0) {
+    const audioOnlyToAdd = uniqueAudioOnly.slice(0, audioOnlySlotsUsedOnPage1);
+    if (paginatedStreams.length + audioOnlyToAdd.length > availableSlots) {
+      paginatedStreams = paginatedStreams.slice(0, Math.max(0, availableSlots - audioOnlyToAdd.length));
+    }
+    audioOnlyStreams = audioOnlyToAdd;
+  }
+
+  return { paginatedStreams, audioOnlyStreams, totalNumberOfOtherStreams };
+};
+
 export const useVideoStreams = () => {
   const { viewParticipantsWebcams } = useSettings(SETTINGS.DATA_SAVING) as { viewParticipantsWebcams?: boolean };
   const { currentVideoPageIndex, numberOfPages } = useVideoState();
@@ -583,57 +652,31 @@ export const useVideoStreams = () => {
     const sortingMethod = (numberOfPages > 1) ? PAGINATION_SORTING : DEFAULT_SORTING;
     const sortingConfig = getSortingMethod(sortingMethod);
 
-    // Check if this sorting method uses custom pagination logic
     if (!partitionPrivilegedStreams) {
-      // When partitionPrivilegedStreams is false, paginate all streams equally
-      // This means local/pinned cameras will only appear on their page (where they belong in sort order)
-      const sortedStreams = sortVideoStreams(streams, sortingMethod);
+      // Paginate all streams equally — local/pinned cameras only appear on their own page.
+      const { paginatedStreams, audioOnlyStreams, totalNumberOfOtherStreams: total } = reserveAudioOnlyTiles({
+        others: streams,
+        sortingMethod,
+        audioOnlyUsers,
+        excludeStreams: streams,
+        pageSize: myPageSize,
+        currentVideoPageIndex,
+        chunkIndex,
+        maxAudioOnlyUsers,
+        showAudioOnlyOnFirstPage,
+        reservedCount: 0,
+      });
+      totalNumberOfOtherStreams = total;
 
-      // Audio-only tiles must also surface on the first page in this mode, otherwise
-      // paginated viewers never see them while unpaginated moderators do (issue 25242).
-      const uniqueAudioOnly = (showAudioOnlyOnFirstPage && audioOnlyUsers.length > 0)
-        ? audioOnlyUsers.filter((audioUser) => !sortedStreams.find((s) => s.userId === audioUser.userId))
-        : [];
-      const audioOnlySlotsUsedOnPage1 = uniqueAudioOnly.length > 0
-        ? Math.min(uniqueAudioOnly.length, Math.min(myPageSize, maxAudioOnlyUsers))
-        : 0;
-
-      totalNumberOfOtherStreams = sortedStreams.length + audioOnlySlotsUsedOnPage1;
-
-      // Page 1 reserves slots for the audio-only tiles, so subsequent pages must be
-      // shifted by the number of camera slots actually shown on the first page.
-      const effectiveChunkIndex = currentVideoPageIndex > 0 && audioOnlySlotsUsedOnPage1 > 0
-        ? Math.max(0, myPageSize - audioOnlySlotsUsedOnPage1) + (currentVideoPageIndex - 1) * myPageSize
-        : chunkIndex;
-
-      let paginatedStreams = sortedStreams.slice(effectiveChunkIndex, effectiveChunkIndex + myPageSize) || [];
-
-      // Add audio-only users only on the first page
-      let audioOnlyStreams: StreamItem[] = [];
-      if (currentVideoPageIndex === 0 && audioOnlySlotsUsedOnPage1 > 0) {
-        const audioOnlyToAdd = uniqueAudioOnly.slice(0, audioOnlySlotsUsedOnPage1);
-
-        if (paginatedStreams.length + audioOnlyToAdd.length > myPageSize) {
-          paginatedStreams = paginatedStreams.slice(0, Math.max(0, myPageSize - audioOnlyToAdd.length));
-        }
-
-        audioOnlyStreams = audioOnlyToAdd;
-      }
-
-      const localStreamsNotInPage = sortedStreams.filter(
-        (vs) => videoService.isLocalStream(vs.stream)
-        && !paginatedStreams.find((ps) => ps.stream === vs.stream),
-      );
-
-      // Mark local cameras not in current page with render: false
-      const localStreamsWithRenderFlag = localStreamsNotInPage.map((stream) => ({
-        ...stream,
-        render: false,
-      }));
+      // Keep local cameras that fell off the current page publishing (render: false).
+      const localStreamsWithRenderFlag = streams
+        .filter((vs) => videoService.isLocalStream(vs.stream)
+          && !paginatedStreams.find((ps) => ps.stream === vs.stream))
+        .map((stream) => ({ ...stream, render: false }));
 
       streams = [...paginatedStreams, ...audioOnlyStreams, ...localStreamsWithRenderFlag];
     } else {
-      // Original pagination logic (show pinned/local cameras on every page)
+      // Show pinned/local cameras on every page; paginate the remaining (other) streams.
       const [filtered, others] = partition(
         streams,
         (vs: StreamItem) => videoService.isLocalStream(vs.stream)
@@ -644,54 +687,19 @@ export const useVideoStreams = () => {
         (vs: StreamItem) => vs.type === VIDEO_TYPES.STREAM && vs.user?.pinned,
       );
 
-      // This is needed to adjust pagination for displaced video streams
-      const pinnedAndLocalCount = pin.length + mine.length;
-      let audioOnlySlotsUsedOnPage1 = 0;
-      if (showAudioOnlyOnFirstPage && audioOnlyUsers.length > 0) {
-        const uniqueAudioOnly = audioOnlyUsers.filter(
-          (audioUser) => !streams.find((s) => s.userId === audioUser.userId),
-        );
-
-        if (uniqueAudioOnly.length > 0) {
-          const availableSlots = Math.max(0, myPageSize - pinnedAndLocalCount);
-          const maxAudioOnlySlots = Math.min(availableSlots, maxAudioOnlyUsers);
-          audioOnlySlotsUsedOnPage1 = Math.min(uniqueAudioOnly.length, maxAudioOnlySlots);
-        }
-      }
-      if (audioOnlySlotsUsedOnPage1 > 0 && pinnedAndLocalCount > 0) {
-        const othersOnPage0 = Math.max(0, myPageSize - pinnedAndLocalCount - audioOnlySlotsUsedOnPage1);
-        const remainingOthers = Math.max(0, others.length - othersOnPage0);
-        const additionalPages = remainingOthers > 0 ? Math.ceil(remainingOthers / myPageSize) : 0;
-        totalNumberOfOtherStreams = (1 + additionalPages) * myPageSize;
-      } else {
-        totalNumberOfOtherStreams = others.length + audioOnlySlotsUsedOnPage1;
-      }
-
-      const effectiveChunkIndex = currentVideoPageIndex > 0 && audioOnlySlotsUsedOnPage1 > 0
-        ? Math.max(0, myPageSize - pinnedAndLocalCount - audioOnlySlotsUsedOnPage1)
-          + (currentVideoPageIndex - 1) * myPageSize
-        : chunkIndex;
-
-      let paginatedStreams = sortVideoStreams(others, sortingMethod)
-        .slice(effectiveChunkIndex, (effectiveChunkIndex + myPageSize)) || [];
-
-      // Add audio-only users only on page 1
-      let audioOnlyStreams: StreamItem[] = [];
-      if (showAudioOnlyOnFirstPage && currentVideoPageIndex === 0 && audioOnlySlotsUsedOnPage1 > 0) {
-        const uniqueAudioOnly = audioOnlyUsers.filter(
-          (audioUser) => !streams.find((s) => s.userId === audioUser.userId),
-        );
-
-        const availableSlots = Math.max(0, myPageSize - pinnedAndLocalCount);
-        const audioOnlyToAdd = uniqueAudioOnly.slice(0, audioOnlySlotsUsedOnPage1);
-
-        if (audioOnlyToAdd.length > 0 && paginatedStreams.length + audioOnlyToAdd.length > availableSlots) {
-          const remoteStreamsToKeep = availableSlots - audioOnlyToAdd.length;
-          paginatedStreams = paginatedStreams.slice(0, Math.max(0, remoteStreamsToKeep));
-        }
-
-        audioOnlyStreams = audioOnlyToAdd;
-      }
+      const { paginatedStreams, audioOnlyStreams, totalNumberOfOtherStreams: total } = reserveAudioOnlyTiles({
+        others,
+        sortingMethod,
+        audioOnlyUsers,
+        excludeStreams: streams,
+        pageSize: myPageSize,
+        currentVideoPageIndex,
+        chunkIndex,
+        maxAudioOnlyUsers,
+        showAudioOnlyOnFirstPage,
+        reservedCount: pin.length + mine.length,
+      });
+      totalNumberOfOtherStreams = total;
 
       if (sortingConfig.localFirst) {
         streams = [...pin, ...mine, ...paginatedStreams, ...audioOnlyStreams];

@@ -4,7 +4,7 @@ import { ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { InitOptionsProps, Page } from '../core/page';
 import { checkTextContent } from '../core/util';
-import { checkAvatarIcon, checkMutedUser } from './util';
+import { audioOnlyTilesLocator, checkAvatarIcon, checkMutedUser } from './util';
 
 interface InitExtraPageOptionsProps extends InitOptionsProps {
   useModMeetingId?: boolean;
@@ -230,9 +230,7 @@ export class MultiUsers {
     await this.userPage.joinMicrophone();
 
     // The presenter's grid must contain the audio-only tile (placeholder with avatar).
-    const audioOnlyTiles = this.modPage.page
-      .locator(`${e.webcamItem}, ${e.webcamItemTalkingUser}`)
-      .filter({ has: this.modPage.page.locator(e.webcamConnecting) });
+    const audioOnlyTiles = audioOnlyTilesLocator(this.modPage);
     await expect(audioOnlyTiles, 'should display the audio-only tile in the presenter grid').not.toHaveCount(0);
 
     // The audio-only attendee raises hand.
@@ -247,14 +245,19 @@ export class MultiUsers {
   }
 
   async audioOnlyTileVisibleForAttendee() {
-    // Regression test for issue 25242: audio-only tiles (camera-less users that have
-    // taken the floor) must be displayed for attendees too, not only moderators, when
-    // `public.kurento.cameraSortingModes.showAudioOnlyOnFirstPage` is enabled. Moderators
-    // are unpaginated by default (pagination.desktopPageSizes.moderator = 0) and always
-    // show audio-only tiles; attendees are paginated (viewer = 5). The bug surfaced for
-    // attendees when `partitionPrivilegedStreams` is false, where the paginated path
-    // dropped audio-only tiles entirely. Skip (rather than fail with an opaque "tile never
-    // appeared" error) when the feature is disabled.
+    // Parity check for issue 25242: audio-only tiles (camera-less users that hold the
+    // floor) must be shown to attendees, not only moderators. Moderators are unpaginated
+    // by default (pagination.desktopPageSizes.moderator = 0) and always add audio-only
+    // tiles; attendees are paginated (viewer = 5).
+    //
+    // Coverage note: the original bug lived in the `partitionPrivilegedStreams = false`
+    // pagination branch, which dropped audio-only tiles for paginated viewers. That
+    // setting is config-only (no per-meeting/userdata override exists), so this test
+    // cannot toggle it. With the shipped default (`true`) both roles already pass; this
+    // asserts the parity invariant and fails on the attendee side only when run against a
+    // server configured with `partitionPrivilegedStreams: false`.
+    // Skip when the feature is disabled (rather than fail with an opaque "tile never
+    // appeared" error).
     const showAudioOnlyOnFirstPage = this.modPage.settings?.showAudioOnlyOnFirstPage ?? true;
     test.skip(
       !showAudioOnlyOnFirstPage,
@@ -278,17 +281,14 @@ export class MultiUsers {
     // the only remaining placeholder (avatar) tile to match is the audio-only one.
     await this.userPage.hasElement(e.webcamContainer, 'attendee should receive the moderator webcam');
 
-    const audioOnlyTiles = (testPage: Page) =>
-      testPage.page
-        .locator(`${e.webcamItem}, ${e.webcamItemTalkingUser}`)
-        .filter({ has: testPage.page.locator(e.webcamConnecting) });
-
     // Control: the moderator (unpaginated) already shows the audio-only tile.
-    await expect(audioOnlyTiles(this.modPage), 'moderator should display the audio-only tile').not.toHaveCount(0);
+    await expect(audioOnlyTilesLocator(this.modPage), 'moderator should display the audio-only tile').not.toHaveCount(
+      0,
+    );
 
     // Regression assertion: the attendee (paginated viewer) must also show it (issue 25242).
     await expect(
-      audioOnlyTiles(this.userPage),
+      audioOnlyTilesLocator(this.userPage),
       'attendee should also display the audio-only tile (issue 25242)',
     ).not.toHaveCount(0);
   }
