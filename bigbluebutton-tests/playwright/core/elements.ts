@@ -232,6 +232,7 @@ export const elements = {
   sharedNotesViewingMode: 'iframe[title="shared notes viewing mode"]',
   currentSlideText: 'span[id="currentSlideText"]',
   notesOptions: 'button[data-test="notesOptionsMenu"]',
+  exportNotesAsPDF: '[data-test="exportNotesAsPDF"]',
   showMoreSharedNotesButton: 'span[class="show-more-icon-btn"]',
   exportSharedNotesButton: 'li[data-key="import_export"] button',
   exportPlainButton: 'a[id="exportplaina"] span',
