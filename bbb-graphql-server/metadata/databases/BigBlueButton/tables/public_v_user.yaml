@@ -100,6 +100,7 @@ select_permissions:
         - isModerator
         - currentlyInMeeting
         - isRunningEchoTest
+        - isSharingCamera
         - joined
         - locked
         - loggedOut
@@ -108,9 +109,11 @@ select_permissions:
         - nameSortable
         - firstName
         - firstNameSortable
+        - lastFloorTime
         - lastName
         - lastNameSortable
         - pinned
+        - pinnedTime
         - presenter
         - raiseHand
         - raiseHandTime

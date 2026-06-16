@@ -12,8 +12,7 @@ export class ShapeOptions extends MultiUsers {
     const modWbLocator = this.modPage.page.locator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
     if (!wbBox) throw new Error('whiteboard boundingBox is null');
-    // draw a rectangle
-    await this.modPage.waitAndClick(e.wbShapesButton);
+    // draw a rectangle (lives directly on the toolbar, not inside the "More" popup)
     await this.modPage.waitAndClick(e.wbRectangleShape);
     await this.modPage.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
     await this.modPage.page.mouse.down();
@@ -36,8 +35,7 @@ export class ShapeOptions extends MultiUsers {
     const modWbLocator = this.modPage.page.locator(e.whiteboard);
     const wbBox = await modWbLocator.boundingBox();
     if (!wbBox) throw new Error('whiteboard boundingBox is null');
-    // draw a rectangle
-    await this.modPage.waitAndClick(e.wbShapesButton);
+    // draw a rectangle (lives directly on the toolbar, not inside the "More" popup)
     await this.modPage.waitAndClick(e.wbRectangleShape);
     await this.modPage.page.mouse.move(wbBox.x + 0.3 * wbBox.width, wbBox.y + 0.3 * wbBox.height);
     await this.modPage.page.mouse.down();

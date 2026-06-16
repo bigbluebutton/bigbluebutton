@@ -168,7 +168,11 @@ or the mailing lists.
 ### Upgraded components
 
 Under the hood, BigBlueButton 4.0 installs on Ubuntu 24.04 64-bit, and the following key components have been upgraded
-...
+- Grails 7.0.8
+- Gradle 8.14.3
+- Groovy 4.0.21
+- Spring 6.2.11
+- Spring Boot 3.5.14
 
 For full details on what is new in BigBlueButton 4.0, see the release notes.
 
@@ -178,7 +182,6 @@ Recent releases:
 - [4.0.0-beta.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-beta.3)
 - [3.1.0-beta.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.1.0-beta.2)
 - [3.1.0-beta.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.1.0-beta.1)
-
 
 ### Other notable changes
 
@@ -214,6 +217,54 @@ _None._
 - `disabledFeatures` accepts a new value: `pinChatMessage` (alongside the existing chat-related options).
 
 #### Added
+- `pluginManifestFetchTimeout` added
+- `pluginManifestsFetchUrlResponseTimeout` added
+- `maxPluginManifestsFetchUrlPayloadSize` added
+- `numPluginManifestsFetchingThreads` added
+- `extractTimeoutInMs` added
+- `pngCreationExecTimeoutInMs` added, later (BBB 3.0.17) renamed to `pngCreationExecTimeout`
+- `pngCreationExecTimeout` added (used to be `pngCreationExecTimeoutInMs`)
+- `thumbnailCreationExecTimeoutInMs` added, later (BBB 3.0.17) renamed to `thumbnailCreationExecTimeout`
+- `thumbnailCreationExecTimeout` added (used to be `thumbnailCreationExecTimeoutInMs`)
+- `pdfPageDownscaleExecTimeoutInMs` added
+- `officeDocumentValidationExecTimeoutInMs` added
+- `textFileCreationExecTimeoutInMs` added, later (BBB 3.0.17) renamed to `textFileCreationExecTimeout`
+- `textFileCreationExecTimeout` added (used to be `textFileCreationExecTimeoutInMs`)
+- `presDownloadReadTimeoutInMs` added
+- `pngCreationConversionTimeout` added
+- `imageResizeWait` added
+- `officeDocumentValidationTimeout` added
+- `presOfficeConversionTimeout` added
+- `pdfPageCountWait` added
+- `detectImageDimensionsTimeout` added
+- `presentationConversionCacheEnabled` added
+- `presentationConversionCacheS3AccessKeyId` added
+- `presentationConversionCacheS3AccessKeySecret` added
+- `presentationConversionCacheS3BucketName` added
+- `presentationConversionCacheS3Region` added
+- `presentationConversionCacheS3EndpointURL` added
+- `presentationConversionCacheS3PathStyle` added
+- `cameraBridge` added
+- `screenShareBridge` added
+- `audioBridge` added
+- `pluginManifests` added
+- `scanUploadedPresentationFiles` added
+- `allowOverrideClientSettingsOnCreateCall` added
+- `defaultBotAvatarURL` added
+- `graphqlApiUrl` added
+- `graphqlWebsocketUrl` added
+- `sessionsCleanupDelayInMinutes` added
+- `useDefaultDarkLogo` added
+- `defaultDarkLogoURL` added
+- `maxNumPages` added
+- `fetchUrlAllowedLocalHosts` added
+- `clientSettingsOverrideJsonUrlResponseTimeout` added
+- `maxClientSettingsOverrideJsonUrlPayloadSize` added
+- `pageTokenSecret` added in BBB 3.0.27
+- `beans.presentationService.pageTokenSecret` added in BBB 3.0.27
+- `pluginManifestCacheEnabled` added in BBB 3.0.27
+- `pluginManifestCacheDirectory` added in BBB 3.0.27
+- `pluginManifestCacheRefreshIntervalMinutes` added in BBB 3.0.27
 
 - `lockSettingsPresenterPolicy` added (default `requireApproval`).
 - `requireUserConsentBeforeUnmuting` added (default `false`). Only relevant when `allowModsToUnmuteUsers=true`; when `true`, a consent dialog is shown before a moderator can unmute a participant.

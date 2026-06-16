@@ -53,10 +53,12 @@ class BBBMenu extends React.Component {
 
     this.optsToMerge = {};
     this.autoFocus = false;
+    this.previousFocus = null;
 
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.handleClose = this.handleClose.bind(this);
+    this.restoreTriggerFocus = this.restoreTriggerFocus.bind(this);
   }
 
   componentDidUpdate() {
@@ -86,7 +88,7 @@ class BBBMenu extends React.Component {
     if (isMenuOpen && [previousKey, nextKey].includes(key)) {
       event.preventDefault();
       event.stopPropagation();
-      const menuItems = Array.from(document.querySelectorAll('[data-key^="menuItem-"]'));
+      const menuItems = Array.from(event.currentTarget.querySelectorAll('[data-key^="menuItem-"]'));
       if (menuItems.length === 0) return;
 
       const focusedIndex = menuItems.findIndex((item) => item === document.activeElement);
@@ -107,21 +109,33 @@ class BBBMenu extends React.Component {
   handleClick(event) {
     const { disabled } = this.props;
     if (disabled) return;
+    this.previousFocus = document.activeElement;
     this.setState({ anchorEl: event.currentTarget });
   }
 
   handleClose(event) {
     const { onCloseCallback } = this.props;
-    this.setState({ anchorEl: null }, onCloseCallback());
+    this.setState({ anchorEl: null }, onCloseCallback);
 
-    if (event) {
-      event.persist();
+    setTimeout(() => {
+      this.restoreTriggerFocus();
+      this.previousFocus = null;
+    }, 0);
+  }
 
-      if (event.type === 'click') {
-        setTimeout(() => {
-          document.activeElement.blur();
-        }, 0);
-      }
+  restoreTriggerFocus() {
+    const triggerFocusableElement = this.anchorElRef?.querySelector(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    );
+
+    if (triggerFocusableElement && typeof triggerFocusableElement.focus === 'function') {
+      triggerFocusableElement.focus();
+      return;
+    }
+
+    if (this.previousFocus && typeof this.previousFocus.focus === 'function'
+      && document.body.contains(this.previousFocus)) {
+      this.previousFocus.focus();
     }
   }
 
@@ -134,7 +148,7 @@ class BBBMenu extends React.Component {
       const {
         dataTest, label, onClick, key, disabled,
         description, selected, textColor, isToggle, loading,
-        isTitle, titleActions, contentFunction,
+        isTitle, titleActions, contentFunction, ariaLabel,
       } = a;
       const emojiSelected = key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase());
 
@@ -164,7 +178,7 @@ class BBBMenu extends React.Component {
       }
 
       return [
-        (!a.isSeparator && onClick) && (
+        (!a.isSeparator && onClick && !isToggle) && (
           <Styled.BBBMenuItem
             emoji={emojiSelected ? 'yes' : 'no'}
             key={label}
@@ -196,13 +210,25 @@ class BBBMenu extends React.Component {
             </Styled.MenuItemWrapper>
           </Styled.BBBMenuItem>
         ),
-        (!onClick && !a.isSeparator) && (
+        (!a.isSeparator && (!onClick || isToggle)) && (
           <Styled.BBBMenuInformation
             key={a.key}
             isTitle={isTitle}
             isGenericContent={!!contentFunction}
             data-test={dataTest}
+            data-key={isToggle ? `menuItem-${dataTest}` : undefined}
+            tabIndex={isToggle ? 0 : undefined}
+            onClick={isToggle && onClick ? onClick : undefined}
+            onKeyDown={isToggle && onClick ? (e) => {
+              if ([KEY_CODES.ENTER, KEY_CODES.SPACE].includes(e.which)) {
+                e.preventDefault();
+                onClick(e);
+              }
+            } : undefined}
             disabled={disabled || isTitle}
+            // eslint-disable-next-line no-nested-ternary
+            role={isToggle ? 'menuitemcheckbox' : (isTitle ? 'presentation' : undefined)}
+            aria-label={isToggle ? (ariaLabel || label) : undefined}
           >
             <Styled.MenuItemWrapper
               hasSpaceBetween={isTitle && titleActions}

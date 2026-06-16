@@ -8,7 +8,7 @@ import {
   useExitVideo,
   useInfo,
   useIsPaginationEnabled,
-  useIsUserLocked,
+  useIsCamSharingLocked,
   useLockUser,
   useMyPageSize,
   useStopVideo,
@@ -118,7 +118,7 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     );
   }
 
-  const isUserLocked = useIsUserLocked();
+  const isUserLocked = useIsCamSharingLocked();
   const currentVideoPageIndex = useCurrentVideoPageIndex();
   const exitVideo = useExitVideo();
   const lockUser = useLockUser();

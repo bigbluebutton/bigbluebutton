@@ -16,6 +16,8 @@ export const elements = {
   mediaAreaButton: 'button[data-test="mediaAreaButton"]',
   mediaAreaItem: 'div[id="media-area-dropdown-menu"] ul li',
   optionsButton: 'button[data-test="optionsButton"]',
+  settings: 'li[data-test="settings"]',
+  presenceToggle: 'div[data-test="presenceToggle"]',
   modalConfirmButton: 'button[data-test="modalConfirmButton"]',
   screenshareConnecting: 'div[data-test="screenshareConnecting"]',
   screenShareVideo: 'video[id="screenshareVideo"]',
@@ -137,6 +139,7 @@ export const elements = {
   timeRemaining: 'span[data-test="timeRemaining"]',
   captureBreakoutSharedNotes: 'input[id="opt-captureNotes"]',
   captureBreakoutWhiteboard: 'input[id="opt-captureSlides"]',
+  inheritLockSettingsCheckbox: 'input[id="inheritLockSettingsCheckbox"]',
   selectBreakoutRoomBtn: '[data-test="selectBreakoutRoomBtn"]',
   roomOption: 'li[data-test="roomOption"]',
   changeSlideBreakoutRoom1: 'div[data-test="changeSlideBreakoutRoom1"]',
@@ -220,6 +223,8 @@ export const elements = {
   autoConvertEmojiMessage: ':)',
   convertedEmojiMessage: '😊',
 
+  // a leading backslash escapes the conversion: "\:)" should stay ":)" (issue #23344)
+  escapedEmojiMessage: '\\:)',
   // Messages
   message: 'Hello World!',
   testMessage: 'Just a test',
@@ -591,6 +596,7 @@ export const elements = {
   webcamConnecting: 'div[data-test="webcamConnecting"]',
   webcamContainer: 'video[data-test="videoContainer"]',
   webcamVideoItem: 'div[data-test="webcamVideoItem"]',
+  overflowTile: 'div[data-test="overflowTile"]',
   videoDropdownMenu: 'button[data-test="videoDropdownMenu"]',
   advancedVideoSettingsBtn: 'li[data-test="advancedVideoSettingsButton"]',
   mirrorWebcamBtn: 'li[data-test="mirrorWebcamBtn"]',

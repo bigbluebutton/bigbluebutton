@@ -62,6 +62,7 @@ const TalkingIndicatorButton = styled(Button)`
     text-overflow: ellipsis;
     white-space: nowrap;
     margin: 0 0 0 0 !important;
+    padding-bottom: 1em;
     max-width: ${talkerMaxWidth};
 
     @media ${phoneLandscape} {

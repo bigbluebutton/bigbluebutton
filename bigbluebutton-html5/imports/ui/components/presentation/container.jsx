@@ -218,7 +218,7 @@ const PresentationContainer = ({
         .filter((s) => !fetchedpresentation[presentationId].fetchedSlide[s.svgUrl])
         .map(async (slide) => {
           if (presentation.canFetch) presentation.canFetch = false;
-          const image = await fetch(slide.svgUrl);
+          const image = await fetch(slide.svgUrl, { credentials: 'include' });
           if (image.ok) {
             presentation.fetchedSlide[slide.svgUrl] = true;
           }

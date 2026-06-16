@@ -19,8 +19,9 @@ const UserAvatarVideo: React.FC<UserAvatarVideoProps> = (props) => {
   } = props;
   const data = { ...user, ...stream };
   const {
-    name = '', color = '', avatar = '', isModerator,
+    name = '', color = '', avatar: avatarRaw = '', isModerator,
   } = data;
+  const avatar = avatarRaw ?? '';
   let {
     presenter = false, clientType,
   } = data;

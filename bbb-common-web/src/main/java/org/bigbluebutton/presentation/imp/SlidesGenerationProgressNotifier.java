@@ -40,12 +40,25 @@ public class SlidesGenerationProgressNotifier {
   }
 
   public void sendUploadFileTooLargeMessage(PresentationUploadToken pres, int uploadedFileSize, int maxUploadFileSize) {
-    UploadFileTooLargeMessage progress = new UploadFileTooLargeMessage(
+    sendUploadFileTooLargeMessage(
             pres.presentationId,
             pres.podId,
             pres.meetingId,
             pres.filename,
             pres.authzToken,
+            uploadedFileSize,
+            maxUploadFileSize);
+  }
+
+  public void sendUploadFileTooLargeMessage(String presentationId, String podId, String meetingId,
+                                            String filename, String authzToken,
+                                            int uploadedFileSize, int maxUploadFileSize) {
+    UploadFileTooLargeMessage progress = new UploadFileTooLargeMessage(
+            presentationId,
+            podId,
+            meetingId,
+            filename,
+            authzToken,
             ConversionMessageConstants.FILE_TOO_LARGE,
             uploadedFileSize,
             maxUploadFileSize);

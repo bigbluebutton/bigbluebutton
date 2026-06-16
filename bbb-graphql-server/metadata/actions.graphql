@@ -39,6 +39,7 @@ type Mutation {
     captureSlides: Boolean!
     durationInSeconds: Int!
     sendInviteToModerators: Boolean!
+    inheritLockSettings: Boolean!
     rooms: [BreakoutRoom]!
   ): Boolean
 }
