@@ -61,7 +61,7 @@ export const elements = {
 
   // Audio
   joinAudio: 'button[data-test="joinAudio"]',
-  audioModal: 'div[data-test="audioModal"]',
+  audioModal: 'div[data-testid="audioModal"]',
   audioSettingsModal: 'div[data-test="audioSettingsModal"]',
   listenOnlyButton: 'button[data-test="listenOnlyBtn"]',
   testSpeakerButton: 'button[data-test="testSpeakerButton"]',

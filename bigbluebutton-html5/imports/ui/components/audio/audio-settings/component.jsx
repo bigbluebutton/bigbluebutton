@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
+import AudioModalFooterContext from '../audio-modal/context';
 import AudioTestContainer from '/imports/ui/components/audio/audio-test/container';
 import Styled from './styles';
 import logger from '/imports/startup/client/logger';
@@ -46,8 +47,6 @@ const propTypes = {
   permissionStatus: PropTypes.string,
   isTranscriptionEnabled: PropTypes.bool.isRequired,
   skipAudioOptions: PropTypes.func.isRequired,
-  hideFooter: PropTypes.bool,
-  onConfirmDisabledChange: PropTypes.func,
 };
 
 const defaultProps = {
@@ -56,8 +55,6 @@ const defaultProps = {
   withEcho: false,
   unmuteOnExit: false,
   permissionStatus: null,
-  hideFooter: false,
-  onConfirmDisabledChange: null,
 };
 
 const intlMessages = defineMessages({
@@ -129,7 +126,6 @@ class AudioSettings extends React.Component {
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleOutputChange = this.handleOutputChange.bind(this);
     this.handleConfirmationClick = this.handleConfirmationClick.bind(this);
-    this.handleCancelClick = this.handleCancelClick.bind(this);
     this.unmuteOnExit = this.unmuteOnExit.bind(this);
     this.updateDeviceList = this.updateDeviceList.bind(this);
 
@@ -162,8 +158,6 @@ class AudioSettings extends React.Component {
       checkMicrophonePermission,
       toggleVoice,
       permissionStatus,
-      isConnecting,
-      onConfirmDisabledChange,
     } = this.props;
 
     Session.setItem('inEchoTest', true);
@@ -171,10 +165,7 @@ class AudioSettings extends React.Component {
     // Guarantee initial in/out devices are initialized on all ends
     AudioManager.isEchoTest = true;
 
-    if (onConfirmDisabledChange) {
-      const { producingStreams } = this.state;
-      onConfirmDisabledChange(isConnecting || producingStreams);
-    }
+    this._registerFooter();
     checkMicrophonePermission({ gumOnPrompt: true, permissionStatus })
       .then(this.updateDeviceList)
       .then(() => {
@@ -201,27 +192,33 @@ class AudioSettings extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { permissionStatus, isConnecting, onConfirmDisabledChange } = this.props;
+    const {
+      permissionStatus, isConnecting, isConnected, skipAudioOptions, handleBack,
+    } = this.props;
     const { producingStreams } = this.state;
 
     if (prevProps.permissionStatus !== permissionStatus) {
       this.updateDeviceList();
     }
 
-    if (onConfirmDisabledChange) {
-      const prevDisabled = prevProps.isConnecting || prevState.producingStreams;
-      const currDisabled = isConnecting || producingStreams;
-      if (prevDisabled !== currDisabled) {
-        onConfirmDisabledChange(currDisabled);
-      }
+    const footerChanged = prevProps.isConnecting !== isConnecting
+      || prevProps.isConnected !== isConnected
+      || prevState.producingStreams !== producingStreams
+      || prevProps.skipAudioOptions !== skipAudioOptions
+      || prevProps.handleBack !== handleBack;
+
+    if (footerChanged) {
+      this._registerFooter();
     }
   }
 
   componentWillUnmount() {
     const { stream } = this.state;
+    const { setFooterContent } = this.context;
 
     Session.setItem('inEchoTest', false);
     this._isMounted = false;
+    setFooterContent(null);
 
     if (stream) {
       if (!this._confirmedWithStream) {
@@ -299,12 +296,6 @@ class AudioSettings extends React.Component {
     } else {
       confirm();
     }
-  }
-
-  handleCancelClick() {
-    const { handleBack } = this.props;
-
-    handleBack();
   }
 
   setInputDevice(deviceId) {
@@ -443,6 +434,37 @@ class AudioSettings extends React.Component {
         }, `Audio settings: error changing output device - {${error.name}: ${error.message}}`);
         notify(intl.formatMessage(intlMessages.deviceChangeFailed), true);
       });
+  }
+
+  _registerFooter() {
+    const { setFooterContent } = this.context;
+    const {
+      intl, isConnected, isConnecting, skipAudioOptions, handleBack,
+    } = this.props;
+    const { producingStreams } = this.state;
+
+    setFooterContent(
+      <Styled.SettingsFooter>
+        <Styled.SettingsBackButton
+          label={(isConnected || skipAudioOptions())
+            ? intl.formatMessage(intlMessages.cancelLabel)
+            : intl.formatMessage(intlMessages.backLabel)}
+          color="secondary"
+          onClick={handleBack}
+          disabled={isConnecting}
+        />
+        <Button
+          data-test="joinEchoTestButton"
+          size="md"
+          color="primary"
+          label={isConnected
+            ? intl.formatMessage(intlMessages.confirmLabel)
+            : intl.formatMessage(intlMessages.retryLabel)}
+          onClick={this.handleConfirmationClick}
+          disabled={isConnecting || producingStreams}
+        />
+      </Styled.SettingsFooter>,
+    );
   }
 
   updateDeviceList() {
@@ -649,54 +671,18 @@ class AudioSettings extends React.Component {
   }
 
   render() {
-    const {
-      producingStreams,
-    } = this.state;
-    const {
-      isConnecting,
-      isConnected,
-      skipAudioOptions,
-      intl,
-    } = this.props;
-
-    const { hideFooter } = this.props;
-
     return (
       <Styled.FormWrapper data-test="audioSettingsModal">
         {this.renderAudioNote()}
         <Styled.Form>
           {this.renderDeviceSelectors()}
         </Styled.Form>
-        {!hideFooter && (
-          <>
-            <Styled.BottomSeparator />
-            <Styled.EnterAudio>
-              <Styled.BackButton
-                label={(isConnected || skipAudioOptions())
-                  ? intl.formatMessage(intlMessages.cancelLabel)
-                  : intl.formatMessage(intlMessages.backLabel)}
-                color="secondary"
-                onClick={this.handleCancelClick}
-                disabled={isConnecting}
-              />
-              <Button
-                data-test="joinEchoTestButton"
-                size="md"
-                color="primary"
-                label={isConnected
-                  ? intl.formatMessage(intlMessages.confirmLabel)
-                  : intl.formatMessage(intlMessages.retryLabel)}
-                onClick={this.handleConfirmationClick}
-                disabled={isConnecting || producingStreams}
-              />
-            </Styled.EnterAudio>
-          </>
-        )}
       </Styled.FormWrapper>
     );
   }
 }
 
+AudioSettings.contextType = AudioModalFooterContext;
 AudioSettings.propTypes = propTypes;
 AudioSettings.defaultProps = defaultProps;
 

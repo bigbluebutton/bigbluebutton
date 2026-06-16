@@ -5,7 +5,6 @@ import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   mdPaddingY,
-  mdPaddingX,
   btnSpacing,
 } from '/imports/ui/stylesheets/styled-components/general';
 import { lineHeightComputed } from '/imports/ui/stylesheets/styled-components/typography';
@@ -112,29 +111,6 @@ const ConnectingAnimation = styled.span`
 
 const AudioModal = styled(ModalSimple)``;
 
-const SettingsFooter = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin: 0 ${mdPaddingX};
-
-  [dir="rtl"] & {
-    margin: 0 ${mdPaddingX};
-  }
-`;
-
-const SettingsBackButton = styled(Button)`
-  border: none;
-
-  &:first-child {
-    margin: 0 0.5rem 0 0 !important;
-
-    [dir="rtl"] & {
-      margin: 0 0 0 0.5rem !important;
-    }
-  }
-`;
-
 const BrowserWarning = styled.p`
   margin: ${lineHeightComputed};
   text-align: center;
@@ -202,6 +178,4 @@ export default {
   AudioModal,
   BrowserWarning,
   Content,
-  SettingsFooter,
-  SettingsBackButton,
 };
