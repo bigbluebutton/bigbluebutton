@@ -58,8 +58,7 @@ func GetPatchedMessage(
 				var shouldUseCustomJsonPatch bool
 				if shouldUseCustomJsonPatch, jsonDiffPatch = jsonpatcher.ValidateIfShouldUseCustomJsonPatch(
 					lastHasuraMessage.Payload.Data[dataKey],
-					hasuraMessage.Payload.Data[dataKey],
-					"userId"); shouldUseCustomJsonPatch {
+					hasuraMessage.Payload.Data[dataKey]); shouldUseCustomJsonPatch {
 					common.StorePatchedMessageCache(meetingId, cacheKey, jsonDiffPatch)
 				} else if diffPatch, diffPatchErr := jsondiff.CompareJSON(lastHasuraMessage.Payload.Data[dataKey], hasuraMessage.Payload.Data[dataKey], jsondiff.LCS()); diffPatchErr == nil {
 					var err error
