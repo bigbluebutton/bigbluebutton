@@ -32,11 +32,9 @@ export function readLinkAndCursorState(testPage: Page) {
   return testPage.page.evaluate((sel: string) => {
     const WORD_JOINER = '⁠';
     const anchor = document.querySelector(`${sel} a`) as HTMLAnchorElement | null;
-    const cursorBases = document.querySelectorAll(
-      `${sel} .bn-collaboration-cursor__base, ${sel} .bn-collaboration-cursor__caret`,
-    );
+    // One `__base` element per remote cursor — count bases only for an accurate count.
+    const cursorBases = document.querySelectorAll(`${sel} .bn-collaboration-cursor__base`);
     return {
-      hasAnchor: !!anchor,
       linkText: anchor ? (anchor.textContent ?? '') : '',
       linkHref: anchor ? (anchor.getAttribute('href') ?? '') : '',
       linkTextHasWordJoiner: anchor ? (anchor.textContent ?? '').includes(WORD_JOINER) : false,

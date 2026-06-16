@@ -107,6 +107,9 @@ const fixCursorAtOriginExtension = Extension.create({
   },
 });
 
+// TODO: remove this workaround once y-prosemirror's cursor decoration can set `marks: []`
+// (the upstream-correct fix is `marks: []` on the cursor `Decoration.widget` in
+// y-prosemirror/src/plugins/cursor-plugin.js; related: https://github.com/yjs/y-prosemirror/issues/174).
 // The remote collaboration cursor is a ProseMirror *widget decoration*. y-prosemirror
 // renders it with `side: 10` and no `marks`, so ProseMirror wraps the widget in the
 // marks of the node that follows the caret. When a remote user's caret sits inside (or

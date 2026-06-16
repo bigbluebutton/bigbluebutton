@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 
-import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../../core/constants';
+import { ELEMENT_WAIT_LONGER_TIME } from '../../core/constants';
 import { elements as e } from '../../core/elements';
 import { MultiUsers } from '../../user/multiusers';
 import {
@@ -10,6 +10,7 @@ import {
   startBlockNoteSharedNotes,
 } from './util';
 
+// URL mirrors the link shown in the original #25225 report (it referenced issue 25175).
 const LINK_URL = 'https://github.com/bigbluebutton/bigbluebutton/issues/25175';
 const WORD_JOINER = '⁠';
 
@@ -46,15 +47,24 @@ export class BlockNoteSharedNotes extends MultiUsers {
     await this.modPage.page.keyboard.press('ArrowLeft');
     await this.modPage.page.keyboard.press('ArrowLeft');
 
-    // Allow awareness to broadcast and the attendee to render the remote cursor.
-    // Read via evaluate so the attendee page is not focused/activated (which would
-    // blur the moderator editor and stop its cursor from broadcasting).
-    await this.userPage.page.waitForTimeout(ELEMENT_WAIT_TIME);
+    // Poll until the attendee renders the moderator's remote cursor. The read runs
+    // inside readLinkAndCursorState via page.evaluate, which never focuses/activates
+    // the attendee page, so the moderator editor keeps focus and keeps broadcasting
+    // its cursor. This presence guard also prevents a clean-but-cursorless link from
+    // being a false pass.
+    await expect
+      .poll(async () => (await readLinkAndCursorState(this.userPage)).remoteCursorCount, {
+        message: 'attendee should render the moderator collaboration cursor',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBeGreaterThan(0);
     const state = await readLinkAndCursorState(this.userPage);
 
-    // Presence guard: the moderator's remote cursor must actually be rendered for the
-    // attendee — otherwise a clean link would be a false pass.
-    expect(state.remoteCursorCount, 'attendee should render the moderator collaboration cursor').toBeGreaterThan(0);
+    // Precondition: the cursor widget is actually positioned inside the link — the exact
+    // condition that triggers #25225. The fix neutralises the text leak without
+    // relocating the widget, so this stays true; a future upstream `marks: []` fix would
+    // move the widget out of the <a> and this guard should then be relaxed.
+    expect(state.cursorWidgetInsideLink, 'precondition: the remote cursor must sit inside the link').toBe(true);
 
     // The bug: the cursor name and U+2060 separators must not pollute the link text.
     expect(state.linkTextHasWordJoiner, 'link text must not contain U+2060 word-joiner separator characters').toBe(
