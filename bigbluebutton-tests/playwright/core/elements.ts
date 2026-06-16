@@ -269,6 +269,7 @@ export const elements = {
   etherpadOuter: 'iframe[title="Ether"]',
   etherpadInner: 'iframe[title="pad"]',
   etherpadEditable: 'body[id="innerdocbody"]',
+  blockNoteEditor: 'div#bn-notes-scroll-container div.bn-editor',
   sendNotesToWhiteboard: 'li[data-test="moveNotesToWhiteboard"]',
   presentationUploadProgressToast: 'div[data-test="presentationUploadProgressToast"]',
   sharedNotesViewingMode: 'iframe[title="shared notes viewing mode"]',

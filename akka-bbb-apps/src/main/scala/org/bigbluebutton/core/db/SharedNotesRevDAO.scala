@@ -49,7 +49,7 @@ object SharedNotesRevDAO {
   def insertNextRev(meetingId: String, sharedNotesExtId: String, userId: String) = {
     DatabaseConnection.enqueue(
       sqlu"""
-          insert into "sharedNotes_rev"("meetingId", "sharedNotesExtId", "userId", "rev")
+          insert into "sharedNotes_rev"("meetingId", "sharedNotesExtId", "userId", "rev", "createdAt")
            select
              ${meetingId} as "meetingId",
              ${sharedNotesExtId} as "sharedNotesExtId",
@@ -58,7 +58,8 @@ object SharedNotesRevDAO {
                 from "sharedNotes_rev"
                 where "meetingId" = ${meetingId}
                 and "sharedNotesExtId" = ${sharedNotesExtId}
-             ),0) + 1 as "rev"
+             ),0) + 1 as "rev",
+             current_timestamp as "createdAt"
           """
     )
   }
