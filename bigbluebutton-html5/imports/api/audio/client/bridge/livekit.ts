@@ -80,6 +80,10 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
   // has superseded them.
   private publishGeneration: number;
 
+  // Desired mute state, mirroring the last mute/unmute intent applied via
+  // setSenderTrackEnabled.
+  private shouldBeMuted: boolean;
+
   private static assembleTrackName(
     clientSessionId: string,
     deviceId: string | null | undefined,
@@ -112,9 +116,11 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     this.handleLocalTrackUnmuted = this.handleLocalTrackUnmuted.bind(this);
     this.handleLocalTrackPublished = this.handleLocalTrackPublished.bind(this);
     this.handleLocalTrackUnpublished = this.handleLocalTrackUnpublished.bind(this);
+    this.handleRoomReconnected = this.handleRoomReconnected.bind(this);
     this.unpublishRequest = null;
     this.isPublishPending = false;
     this.publishGeneration = 0;
+    this.shouldBeMuted = true;
 
     this.observeLiveKitEvents();
   }
@@ -377,6 +383,10 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
         isMuted,
       },
     }, `LiveKit: local audio track unmuted - ${trackSid}`);
+
+    // The server is not notified of a track-level unmute, so if BBB's state is
+    // muted we must re-mute here to reconcile states.
+    this.reinforceMuteState('local_track_unmuted');
   }
 
   private handleLocalTrackPublished(publication: LocalTrackPublication): void {
@@ -395,6 +405,11 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
         streamData: MediaStreamUtils.getMediaStreamLogData(this.inputStream),
       },
     }, `LiveKit: audio track published - ${trackSid}`);
+
+    // A (re)published track comes up unmuted (e.g. reconnect republish or a
+    // fresh publish racing a mute). Reinforce the muted state if that is the
+    // intent so audio never flows while the user is meant to be muted.
+    this.reinforceMuteState('local_track_published');
   }
 
   private handleLocalTrackUnpublished(publication: LocalTrackPublication): void {
@@ -415,6 +430,43 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     }, `LiveKit: audio track unpublished - ${trackSid}`);
   }
 
+  private handleRoomReconnected(): void {
+    // A full reconnect republishes local tracks using the SDK's local mute
+    // state, which may have drifted from BBB's authoritative state. Reinforce.
+    this.reinforceMuteState('room_reconnected');
+  }
+
+  // Re-assert the desired muted state onto the local microphone track. LiveKit
+  // reconnects/republishes, and out-of-band track unmutes, can leave the track
+  // sending audio while BBB's state is muted.
+  private reinforceMuteState(reason: string): void {
+    if (!this.shouldBeMuted) return;
+    if (!this.hasMicrophoneTrack() || this.isLocalPublicationMuted()) return;
+
+    logger.warn({
+      logCode: 'livekit_audio_mute_reinforced',
+      extraInfo: {
+        bridge: this.bridgeName,
+        role: this.role,
+        reason,
+      },
+    }, `LiveKit: reinforcing muted state on local audio track - ${reason}`);
+
+    this.liveKitRoom.localParticipant.setMicrophoneEnabled(false).catch((error) => {
+      logger.error({
+        logCode: 'livekit_audio_mute_reinforce_error',
+        extraInfo: {
+          errorMessage: (error as Error)?.message,
+          errorName: (error as Error)?.name,
+          errorStack: (error as Error)?.stack,
+          bridge: this.bridgeName,
+          role: this.role,
+          reason,
+        },
+      }, `LiveKit: failed to reinforce muted state - ${(error as Error)?.message}`);
+    });
+  }
+
   private observeLiveKitEvents(): void {
     if (!this.liveKitRoom) return;
 
@@ -427,6 +479,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     this.liveKitRoom.localParticipant.on(ParticipantEvent.TrackUnmuted, this.handleLocalTrackUnmuted);
     this.liveKitRoom.localParticipant.on(ParticipantEvent.LocalTrackPublished, this.handleLocalTrackPublished);
     this.liveKitRoom.localParticipant.on(ParticipantEvent.LocalTrackUnpublished, this.handleLocalTrackUnpublished);
+    this.liveKitRoom.on(RoomEvent.Reconnected, this.handleRoomReconnected);
   }
 
   private removeLiveKitObservers(): void {
@@ -440,6 +493,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     this.liveKitRoom.localParticipant.off(ParticipantEvent.TrackUnmuted, this.handleLocalTrackUnmuted);
     this.liveKitRoom.localParticipant.off(ParticipantEvent.LocalTrackPublished, this.handleLocalTrackPublished);
     this.liveKitRoom.localParticipant.off(ParticipantEvent.LocalTrackUnpublished, this.handleLocalTrackUnpublished);
+    this.liveKitRoom.off(RoomEvent.Reconnected, this.handleRoomReconnected);
   }
 
   private handleFatalPublishError(error: Error): void {
@@ -781,6 +835,9 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
   }
 
   setSenderTrackEnabled(shouldEnable: boolean): void {
+    // Record the latest mute intent so reconnect/republish/out-of-band track
+    // unmutes can be reconciled against it (see reinforceMuteState).
+    this.shouldBeMuted = !shouldEnable;
     const trackPubs = this.getLocalMicTrackPubs();
     const isCurrentlyMuted = this.isLocalPublicationMuted();
     const hasPublishedTrack = this.hasMicrophoneTrack();
@@ -1340,6 +1397,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     try {
       await this.waitForRoomConnection();
       this.originalStream = inputStream;
+      this.shouldBeMuted = muted;
 
       if (!muted) await this.publish(inputStream);
 
