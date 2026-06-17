@@ -191,6 +191,9 @@ module BigBlueButton
       inactive_videos = []
       video_edl = []
 
+      start_times = {}
+      original_durations = {}
+
       video_edl << {
         :timestamp => 0,
         :areas => { :webcam => [] }
@@ -228,6 +231,7 @@ module BigBlueButton
               }
             end
             video_edl << edl_entry
+            start_times[filename] = timestamp
           when 'StopWebcamShareEvent', 'StopWebRTCShareEvent'
             active_videos.delete(filename)
   
@@ -242,6 +246,7 @@ module BigBlueButton
               }
             end
             video_edl << edl_entry
+            original_durations[filename] = timestamp - start_times[filename] if start_times.include?(filename)
           end
         end
       else
@@ -286,6 +291,7 @@ module BigBlueButton
               inactive_videos << filename
               videos[filename] = { :timestamp => timestamp }
             end
+            start_times[filename] = timestamp
           when 'StopWebcamShareEvent', 'StopWebRTCShareEvent'
             userId = BigBlueButton::Events.get_id_from_filename(filename)
             is_in_forbidden_period = webcamsOnlyForModerator
@@ -308,6 +314,7 @@ module BigBlueButton
             elsif is_in_forbidden_period && !BigBlueButton::Events.is_user_moderator(userId, list_user_info)
               inactive_videos.delete(filename)
             end
+            original_durations[filename] = timestamp - start_times[filename] if start_times.include?(filename)
           when "ParticipantJoinEvent"
             user_id = event.at_xpath('userId').text
             list_user_info[user_id] = event.at_xpath('role').text
@@ -388,6 +395,14 @@ module BigBlueButton
               }
             end
             video_edl << edl_entry
+          end
+        end
+      end
+
+      video_edl.each do |edl_entry|
+        edl_entry[:areas]&.each do |_name, area_videos|
+          area_videos&.each do |video|
+            video[:original_duration] = original_durations[video[:filename]] if original_durations.include?(video[:filename])
           end
         end
       end
@@ -485,13 +500,13 @@ module BigBlueButton
       offset_entry = BigBlueButton::Events.edl_entry_offset_video
 
       deskshare_edl = []
+      start_times = {}
+      original_durations = {}
 
       deskshare_edl << {
         timestamp: 0,
         areas: { deskshare: [] },
       }
-
-      original_durations = {}
 
       events.xpath('/recording/event').each do |event|
         timestamp = event['timestamp'].to_i - initial_timestamp
@@ -518,13 +533,10 @@ module BigBlueButton
           new_entry[:timestamp] = timestamp
           new_entry[:areas][:deskshare] << { filename: filename, timestamp: 0 }
           deskshare_edl << new_entry
+          start_times[filename] = timestamp
 
         when %w[Deskshare DeskshareStoppedEvent], %w[bbb-webrtc-sfu StopWebRTCDesktopShareEvent]
           raise "Couldn't determine video filename" if filename.nil?
-
-          # Save the original duration of the deskshare video if provided (it will be added to the EDL later)
-          duration = event.at_xpath('duration')
-          original_durations[filename] = duration.content.to_i * 1000 if duration
 
           # Create a new EDL entry with the deskshare video removed
           last_entry = deskshare_edl.last
@@ -532,13 +544,14 @@ module BigBlueButton
           new_entry[:timestamp] = timestamp
           new_entry[:areas][:deskshare].reject! { |file| file[:filename] == filename }
           deskshare_edl << new_entry
+          original_durations[filename] = timestamp - start_times[filename] if start_times.include?(filename)
         end
       end
 
       # Add the original duration information to the edl entries
-      unless original_durations.empty?
-        deskshare_edl.each do |entry|
-          entry[:areas][:deskshare].each do |video|
+      deskshare_edl.each do |edl_entry|
+        edl_entry[:areas]&.each do |_name, videos|
+          videos&.each do |video|
             video[:original_duration] = original_durations[video[:filename]] if original_durations.include?(video[:filename])
           end
         end
@@ -718,10 +731,10 @@ module BigBlueButton
         new_entry = { audios: [] }
         if edl_entry[:audios]
           edl_entry[:audios].each do |audio|
-            new_entry[:audios] << {
+            new_entry[:audios] << audio.merge(
               filename: audio[:filename],
               timestamp: audio[:timestamp] + offset
-            }
+            )
           end
         end
         if edl_entry[:original_duration]

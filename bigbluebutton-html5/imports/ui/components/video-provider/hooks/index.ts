@@ -6,7 +6,6 @@ import {
 import {
   useReactiveVar,
   useMutation,
-  useSubscription,
 } from '@apollo/client';
 import Auth from '/imports/ui/services/auth';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -16,6 +15,7 @@ import { USER_AGGREGATE_COUNT_SUBSCRIPTION, UsersCountSubscriptionResponse } fro
 import {
   getSortingMethod,
   sortVideoStreams,
+  sortPin,
 } from '/imports/ui/components/video-provider/stream-sorting';
 import {
   useVideoState,
@@ -356,7 +356,7 @@ export const useGridUsers = (visibleStreamCount: number) => {
     data: gridData,
     error: gridError,
     loading: gridLoading,
-  } = useSubscription<GridUsersResponse>(
+  } = useDeduplicatedSubscription<GridUsersResponse>(
     GRID_USERS_SUBSCRIPTION,
     {
       // When the user can only see moderator cameras, drop non-moderators ([true]);
@@ -368,6 +368,7 @@ export const useGridUsers = (visibleStreamCount: number) => {
       },
       skip: !isGridEnabled,
     },
+    true,
   );
 
   if (gridLoading) return { gridUsers: gridItems.current, overflowCount: overflowCount.current };
@@ -408,6 +409,7 @@ export const useGridUsers = (visibleStreamCount: number) => {
         name: currentUser.name ?? '',
         nameSortable: currentUser.nameSortable ?? '',
         pinned: currentUser.pinned ?? false,
+        pinnedTime: null,
         away: currentUser.away ?? false,
         disconnected: false,
         role: currentUser.role ?? '',
@@ -616,6 +618,10 @@ const useVideoSenders = () => {
 export const useVideoStreams = () => {
   const { viewParticipantsWebcams } = useSettings(SETTINGS.DATA_SAVING) as { viewParticipantsWebcams?: boolean };
   const { currentVideoPageIndex, numberOfPages } = useVideoState();
+  const { data: currentUser } = useCurrentUser((u) => ({ isModerator: u.isModerator }));
+  // Viewers should see pinned moderators ahead of pinned non-moderators; moderators keep
+  // a purely pinnedTime-based order.
+  const moderatorFirst = !currentUser?.isModerator;
   const videoStreams = useStreams();
   const connectingStream = useConnectingStream(videoStreams);
   const audioOnlyUsers = useAudioOnlyUsers();
@@ -659,7 +665,7 @@ export const useVideoStreams = () => {
     if (!partitionPrivilegedStreams) {
       // When partitionPrivilegedStreams is false, paginate all streams equally
       // This means local/pinned cameras will only appear on their page (where they belong in sort order)
-      const sortedStreams = sortVideoStreams(streams, sortingMethod);
+      const sortedStreams = sortVideoStreams(streams, sortingMethod, moderatorFirst);
 
       totalNumberOfOtherStreams = sortedStreams.length;
       const paginatedStreams = sortedStreams.slice(chunkIndex, chunkIndex + myPageSize) || [];
@@ -687,6 +693,9 @@ export const useVideoStreams = () => {
         filtered,
         (vs: StreamItem) => vs.type === VIDEO_TYPES.STREAM && vs.user?.pinned,
       );
+      // partition keeps subscription order (userId asc); reorder pinned tiles (moderators first
+      // for viewers, then most recently pinned).
+      pin.sort((a, b) => sortPin(a, b, moderatorFirst));
 
       // This is needed to adjust pagination for displaced video streams
       let audioOnlySlotsUsedOnPage1 = 0;
@@ -708,7 +717,7 @@ export const useVideoStreams = () => {
         ? chunkIndex - audioOnlySlotsUsedOnPage1
         : chunkIndex;
 
-      let paginatedStreams = sortVideoStreams(others, sortingMethod)
+      let paginatedStreams = sortVideoStreams(others, sortingMethod, moderatorFirst)
         .slice(effectiveChunkIndex, (effectiveChunkIndex + myPageSize)) || [];
 
       // Add audio-only users only on page 1
@@ -736,7 +745,7 @@ export const useVideoStreams = () => {
       }
     }
   } else {
-    streams = sortVideoStreams(streams, DEFAULT_SORTING);
+    streams = sortVideoStreams(streams, DEFAULT_SORTING, moderatorFirst);
 
     // Add up to maxAudioOnlyUsers when pagination is disabled
     if (showAudioOnlyOnFirstPage && audioOnlyUsers.length > 0) {

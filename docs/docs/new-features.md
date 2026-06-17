@@ -182,6 +182,10 @@ Following the license change of Akka back in September 2022, we considered sever
 
 Administrators will appreciate that we now allow the passing of custom client settings through the meeting create API call. You no longer need separate servers to accommodate sessions requiring vastly different `settings.yml` configurations.
 
+#### Disable recording formats per meeting
+
+Integrations can now skip one or more enabled recording formats for a specific meeting by passing `meta_bbb-disable-recording-formats` on the `/create` call, for example `meta_bbb-disable-recording-formats=video,presentation`. Disabled formats are not processed or published. See the [Create API parameters](/development/api/#get-post-create) and [recording format customization](/administration/customize#install-additional-recording-processing-formats) docs for details.
+
 #### Removal of Meteor and MongoDB
 
 For years, we have discussed internally the topic of replacing Meteor.js with other technologies in order to improve scalability, performance, etc. Over the last year, we have introduced several different new components to replace Meteor. These new components are: `bbb-graphql-server`, `bbb-graphql-middleware`, `bbb-graphql-actions`, PostgreSQL database, and the GraphQL server Hasura. As of BigBlueButton 3.0.0-beta.1, we are no longer using Meteor or MongoDB.
@@ -219,6 +223,10 @@ Everyone sees the margins and follows the presenter's point of view. If multi-us
 You can enable infinite whiteboard via `public.whiteboard.allowInfiniteWhiteboard` https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.8/bigbluebutton-html5/private/config/settings.yml#L1047
 
 Note, circa BigBlueButton 3.0.19 Infinite Whiteboard recording support was finalized and therefore we drop the "experimental" flag from it.
+
+#### Session token removed from the client URL
+
+Starting with BigBlueButton 3.0.30, the HTML5 client removes the `sessionToken` query parameter from the browser address bar after loading, keeping it in session storage instead (and recovering it from there on page reload). This avoids presenters accidentally exposing their token while sharing their screen, and reduces the chance of confusing the client URL with a shareable join URL. The token is still passed on the initial redirect from `join`, so existing integrations are unaffected.
 
 ### Experimental
 
@@ -299,6 +307,9 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 
 Recent releases:
+- [3.0.30](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.30)
+- [3.0.29](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.29)
+- [3.0.28](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.28)
 - [3.0.27](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.27)
 - [3.0.26](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.26)
 - [3.0.25](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.25)
@@ -480,6 +491,8 @@ Modified/added events
 - `pluginManifestCacheEnabled` added in BBB 3.0.27
 - `pluginManifestCacheDirectory` added in BBB 3.0.27
 - `pluginManifestCacheRefreshIntervalMinutes` added in BBB 3.0.27
+- `clientSettingsOverrideStrictValidation` added in BBB 3.0.30
+- `clientSettingsFilePath` added in BBB 3.0.30
 
 ### Removed support for POST requests on `join` endpoint and Content-Type headers are now required
 

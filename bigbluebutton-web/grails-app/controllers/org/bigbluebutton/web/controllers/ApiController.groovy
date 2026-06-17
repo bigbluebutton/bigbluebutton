@@ -32,6 +32,7 @@ import org.bigbluebutton.api.*
 import org.bigbluebutton.api.domain.GuestPolicy
 import org.bigbluebutton.api.domain.Meeting
 import org.bigbluebutton.api.domain.UserSession
+import org.bigbluebutton.api.service.DownloadResult
 import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.api.service.ValidationService
 import org.bigbluebutton.api.util.ParamsUtil
@@ -226,6 +227,20 @@ class ApiController {
     }
 
     ApiErrors errors = new ApiErrors()
+
+    // Strict client-settings override validation (test/staging only, off by default): reject the
+    // create call when the override (POST body or clientSettingsOverrideJsonUrl) contains
+    // unknown/malformed keys. The meeting is not created and nothing is passed to akka-apps.
+    if (paramsProcessorUtil.getClientSettingsOverrideStrictValidation()
+        && StringUtils.isNotEmpty(newMeeting.getOverrideClientSettings())) {
+      List<String> overrideIssues = paramsProcessorUtil.validateClientSettingsOverride(newMeeting.getOverrideClientSettings())
+      if (!overrideIssues.isEmpty()) {
+        log.warn("Rejecting create for meetingID [{}]: client settings override has issues {}", params.meetingID, overrideIssues)
+        errors.clientSettingsOverrideError(overrideIssues.join("; "))
+        respondWithErrors(errors)
+        return
+      }
+    }
 
     if (meetingService.createMeeting(newMeeting)) {
       respondWithConference(newMeeting, null, null)
@@ -1714,7 +1729,7 @@ class ApiController {
       if (isFromInsertAPI) {
         meetingService.sendPresentationUploadMaxFilesizeMessage(
                 presId, "DEFAULT_PRESENTATION_POD", meetingId, presFilename,
-                "preupload-raw-authz-token", bytes.length, (int) maxFileSize)
+                "preupload-raw-authz-token", bytes.length, (int) Math.min(maxFileSize, Integer.MAX_VALUE))
       }
     } else {
       String presentationDir = presentationService.getPresentationDir()
@@ -1794,25 +1809,25 @@ class ApiController {
         def newFilename = Util.createNewFilename(presId, filenameExt)
         def newFilePath = uploadDir.absolutePath + File.separatorChar + newFilename
 
-        if(presDownloadService.savePresentation(meetingId, newFilePath, address, maxFileSize)) pres = new File(newFilePath)
-        else {
-          log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${fileName}]")
-          uploadFailReasons.add("failed_to_download_file")
-          uploadFailed = true
-        }
-
-        if (pres != null && pres.length() > maxFileSize) {
-          log.warn("Upload failed. Downloaded file too large: ${pres.length()} bytes exceeds max ${maxFileSize} bytes for meeting=[${meetingId}], url=[${address}]")
-          long downloadedSize = pres.length()
-          pres.delete()
-          pres = null
-          uploadFailReasons.add("file_too_large")
-          uploadFailed = true
-          if (isFromInsertAPI) {
-            meetingService.sendPresentationUploadMaxFilesizeMessage(
-                    presId, "DEFAULT_PRESENTATION_POD", meetingId, presFilename,
-                    "preupload-download-authz-token", (int) downloadedSize, (int) maxFileSize)
-          }
+        def downloadResult = presDownloadService.savePresentation(meetingId, newFilePath, address, maxFileSize)
+        switch (downloadResult) {
+          case DownloadResult.SUCCESS:
+            pres = new File(newFilePath)
+            break
+          case DownloadResult.TOO_LARGE:
+            log.warn("Upload failed. Downloaded file exceeded max ${maxFileSize} bytes for meeting=[${meetingId}], url=[${address}]")
+            uploadFailReasons.add("file_too_large")
+            uploadFailed = true
+            if (isFromInsertAPI) {
+              meetingService.sendPresentationUploadMaxFilesizeMessage(
+                      presId, "DEFAULT_PRESENTATION_POD", meetingId, presFilename,
+                      "preupload-download-authz-token", (int) Math.min(maxFileSize, Integer.MAX_VALUE), (int) Math.min(maxFileSize, Integer.MAX_VALUE))
+            }
+            break
+          default:
+            log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${fileName}]")
+            uploadFailReasons.add("failed_to_download_file")
+            uploadFailed = true
         }
 
         if (pres != null && isPreUploadedPresentationFromParameter && filenameExt.isEmpty()) {

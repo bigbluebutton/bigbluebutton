@@ -380,6 +380,8 @@ This pattern can be repeated for additional recording formats. Note that it's ve
 
 After you edit the configuration file, you must restart the recording processing queue: `systemctl restart bbb-rap-resque-worker.service` in order to pick up the changes.
 
+To disable one or more enabled recording formats for a single meeting, pass `meta_bbb-disable-recording-formats` on the `create` API call with a comma-separated list of format names. For example, `meta_bbb-disable-recording-formats=video,presentation` (or `meta_bbb-disable-recording-formats=[video,presentation]`) skips the `video` and `presentation` recording formats for that meeting. The format names are case-insensitive and match the format part of the recording steps. Disabled formats are not processed or published, so they do not trigger recording-ready callbacks.
+
 The following script will enable the video recording format of a BigBlueButton 2.6+ server.
 
 ```
@@ -469,6 +471,19 @@ The settings for `bitrate` are in kbits/sec (i.e. 100 kbits/sec). After your mod
 If you have sessions that like to share lots of webcams, such as ten or more, then setting the `bitrate` for `low` to 50 and `medium` to 100 will help reduce the overall bandwidth on the server. When many webcams are shared, the size of the webcams get so small that the reduction in `bitrate` will not be noticeable during the live sessions.
 
 To ensure that your modifications are not lost when a new version of the packages is installed, you can [create the file and] write your changes to `/etc/bigbluebutton/bbb-html5.yml`.
+
+#### Validating client settings overrides
+
+When you override the HTML5 client settings - via `/etc/bigbluebutton/bbb-html5.yml`, or per meeting via the `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` create parameters - keys that do not exist in the base `settings.yml` (typos, obsolete parameters, or values placed at the wrong level in the structure) are merged in but never read by the client, so they are silently ignored.
+
+BigBlueButton logs a `WARN` in `bbb-apps-akka` for each such key so the problem is visible. The warning is non-blocking: the value is still applied.
+
+For test and staging environments you can additionally enable **strict validation**, which turns those warnings into hard failures. It is **disabled by default** and controlled by a single setting, `clientSettingsOverrideStrictValidation`, in `/etc/bigbluebutton/bbb-web.properties`. Both `bbb-web` and `bbb-apps-akka` read this same property (akka reads the file directly at boot), so there is one switch and no risk of the two processes disagreeing. When set to `true`:
+
+- **Filesystem override (`/etc/bigbluebutton/bbb-html5.yml`), enforced by `bbb-apps-akka` at boot.** If the override file has issues, `bbb-apps-akka` logs an explicit error listing each offending key and exits (the service fails to start), so a bad config breaks the deploy instead of running silently wrong.
+- **API override (`clientSettingsOverride` / `clientSettingsOverrideJsonUrl`), enforced by `bbb-web` at create.** If a `/create` call carries an override with issues, the call is rejected with `returncode=FAILED` and `messageKey=clientSettingsOverrideValidationError`, with the offending keys listed in the message; the meeting is not created.
+
+Keep it `false` in production unless you specifically want such overrides to be rejected.
 
 #### Disable webcams
 
@@ -1542,6 +1557,8 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `disabledFeatures` | Comma-separated list of features to disable (see [`/create` docs](/development/api/#create) for the full list of feature names) | csv | _(empty)_ _`overwritable`_ |
 | `sharedNotesEditor` | Type of shared notes editor to use | etherpad, blockNote | etherpad _`overwritable`_ |
 | `allowOverrideClientSettingsOnCreateCall` | Allow `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` to be passed on `/create` | true/false | false |
+| `clientSettingsOverrideStrictValidation` | When true, reject the `/create` call (`bbb-web`) and refuse `bbb-apps-akka` boot if a client settings override has unknown or malformed keys. Intended for test/staging (see [Validating client settings overrides](#validating-client-settings-overrides)) | true/false | false |
+| `clientSettingsFilePath` | Path to the `settings.yml` catalog used as the schema for the strict client-settings override validation above | path | `/usr/share/bigbluebutton/html5-client/private/config/settings.yml` |
 | `pluginManifests` | List of plugin manifests as a JSON array, e.g. `[{"url": "https://example.com/manifest.json"}]` | JSON array | _(empty)_ _`overwritable`_ |
 | `pluginManifestCacheEnabled` | Cache plugin manifests on disk to speed up `/create` calls | true/false | false |
 | `pluginManifestCacheDirectory` | Base directory for cached plugin manifest files. The directory is wiped every time bbb-web starts; entries idle for over a week are also evicted automatically by the periodic refresh task | path | `/var/bigbluebutton/plugin-manifests-cache/` |

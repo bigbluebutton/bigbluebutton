@@ -38,8 +38,8 @@ const NotificationsBar = ({
   return (
     <Styled.NotificationsBar
       data-test="notificationBannerBar"
-      role={alert ? 'alert' : ''}
-      aria-live="off"
+      role={alert ? 'alert' : 'status'}
+      aria-live={alert ? 'assertive' : 'polite'}
       isMobile={isMobile}
       style={
         !hasColor ? {
