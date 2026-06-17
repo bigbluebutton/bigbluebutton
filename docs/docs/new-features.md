@@ -184,7 +184,7 @@ Administrators will appreciate that we now allow the passing of custom client se
 
 #### Disable recording formats per meeting
 
-Integrations can now skip one or more enabled recording formats for a specific meeting by passing `meta_disable-recording-formats` on the `/create` call, for example `meta_disable-recording-formats=video,presentation`. Disabled formats are not processed or published. See the [Create API parameters](/development/api/#get-post-create) and [recording format customization](/administration/customize#install-additional-recording-processing-formats) docs for details.
+Integrations can now skip one or more enabled recording formats for a specific meeting by passing `meta_bbb-disable-recording-formats` on the `/create` call, for example `meta_bbb-disable-recording-formats=video,presentation`. Disabled formats are not processed or published. See the [Create API parameters](/development/api/#get-post-create) and [recording format customization](/administration/customize#install-additional-recording-processing-formats) docs for details.
 
 #### Removal of Meteor and MongoDB
 

@@ -126,14 +126,14 @@ module BigBlueButton
         return @disabled_recording_formats unless File.exist?(events_xml)
 
         metadata = BigBlueButton::Events.get_meeting_metadata(events_xml)
-        value = metadata['disable-recording-formats']
+        value = metadata['bbb-disable-recording-formats']
         value = value.nil? ? '' : value.value.to_s
         @disabled_recording_formats = value.delete('[]')
                                            .split(',')
                                            .map { |format| format.strip.downcase }
                                            .reject(&:empty?)
       rescue StandardError => e
-        @logger.warn("Failed to read disable-recording-formats metadata: #{e.message}")
+        @logger.warn("Failed to read bbb-disable-recording-formats metadata: #{e.message}")
         @disabled_recording_formats = []
       end
 
@@ -161,7 +161,7 @@ module BigBlueButton
             step_name, step_format = step.split(':') # e.g. 'process:presentation'
 
             if !step_format.nil? && disabled_recording_formats.include?(step_format.downcase)
-              @logger.info("Skipping #{step}: disabled by meta_disable-recording-formats")
+              @logger.info("Skipping #{step}: disabled by meta_bbb-disable-recording-formats")
               next
             end
 

@@ -380,7 +380,7 @@ This pattern can be repeated for additional recording formats. Note that it's ve
 
 After you edit the configuration file, you must restart the recording processing queue: `systemctl restart bbb-rap-resque-worker.service` in order to pick up the changes.
 
-To disable one or more enabled recording formats for a single meeting, pass `meta_disable-recording-formats` on the `create` API call with a comma-separated list of format names. For example, `meta_disable-recording-formats=video,presentation` (or `meta_disable-recording-formats=[video,presentation]`) skips the `video` and `presentation` recording formats for that meeting. The format names are case-insensitive and match the format part of the recording steps. Disabled formats are not processed or published, so they do not trigger recording-ready callbacks.
+To disable one or more enabled recording formats for a single meeting, pass `meta_bbb-disable-recording-formats` on the `create` API call with a comma-separated list of format names. For example, `meta_bbb-disable-recording-formats=video,presentation` (or `meta_bbb-disable-recording-formats=[video,presentation]`) skips the `video` and `presentation` recording formats for that meeting. The format names are case-insensitive and match the format part of the recording steps. Disabled formats are not processed or published, so they do not trigger recording-ready callbacks.
 
 The following script will enable the video recording format of a BigBlueButton 2.6+ server.
 
