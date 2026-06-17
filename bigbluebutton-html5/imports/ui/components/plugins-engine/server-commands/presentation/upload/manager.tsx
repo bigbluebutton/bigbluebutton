@@ -7,7 +7,7 @@ import {
   PresentationCommandsEnum,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/server-commands/presentation/enum';
 import { uniqueId } from '/imports/utils/string-utils';
-import PresentationUploaderService from '/imports/ui/components/presentation/presentation-uploader/service';
+import PresentationUploaderService from '/imports/ui/components/actions-bar/media-area/media-sharing/presentation/service';
 import logger from '/imports/startup/client/logger';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
