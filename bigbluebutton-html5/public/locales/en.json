@@ -466,7 +466,7 @@
     "app.poll.dragDropPollInstruction": "To fill the poll values, drag a text file with the poll values onto the highlighted field",
     "app.poll.customPollTextArea": "Fill poll values",
     "app.poll.publishLabel": "Publish results",
-    "app.poll.cancelPollLabel": "Cancel",
+    "app.poll.cancelPollLabel": "Stop poll",
     "app.poll.backLabel": "Start A Poll",
     "app.poll.ariaInputCount": "Custom poll option {currentOption} of {totalOptions}",
     "app.poll.closeLabel": "Close",

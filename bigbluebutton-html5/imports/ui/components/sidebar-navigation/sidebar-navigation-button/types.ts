@@ -8,6 +8,7 @@ export interface SidebarNavigationButtonProps {
   iconName: PluginIconType;
   label: string;
   hasNotification?: boolean;
+  hasPrivateNotification?: boolean;
   isDisabled?: boolean;
   isLocked?: boolean;
   accessKey?: string;
@@ -23,6 +24,7 @@ export interface SidebarNavigationButtonProps {
 export interface ListItemProps {
   $active?: boolean;
   $hasNotification?: boolean;
+  $hasPrivateNotification?: boolean;
   $disabled?: boolean;
   $locked?: boolean;
 }

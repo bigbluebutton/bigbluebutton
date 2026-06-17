@@ -130,7 +130,7 @@ export class Presentation extends MultiUsers {
     await expect(viewerScreenShareVideo).toHaveScreenshot('viewer-share-camera-as-content.png');
   }
 
-  async hideAndRestorePresentation() {
+  async hidePresentation() {
     const { presentationHidden } = this.modPage.settings || {};
 
     if (!presentationHidden) {
@@ -145,11 +145,49 @@ export class Presentation extends MultiUsers {
       e.presentationContainer,
       'should not display the presentation container since the presentation is minimized',
     );
+  }
+
+  async hideAndRestorePresentation() {
+    await this.hidePresentation();
 
     await this.modPage.waitAndClick(e.restorePresentation);
     await this.modPage.hasElement(
       e.presentationContainer,
       'should display the presentation container since the presentation was restored',
+    );
+  }
+
+  async hideAndShareNewPresentation() {
+    await this.hidePresentation();
+
+    await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName, UPLOAD_PDF_WAIT_TIME);
+
+    await this.modPage.hasElement(
+      e.presentationContainer,
+      'should display the presentation container after a new presentation is shared',
+    );
+  }
+
+  async shareNewPresentationAfterDelete() {
+    await this.modPage.waitAndClick(e.mediaAreaButton);
+    await this.modPage.waitAndClick(e.managePresentations);
+    await this.modPage.waitAndClick(e.removePresentation);
+    await this.modPage.wasRemoved(
+      e.presentationContainer,
+      'should not display the presentation container after the default presentation is removed',
+    );
+    await this.modPage.press('Escape');
+
+    // because the previous presentation was removed, the one to be uploaded is expected to be the only one (index 0)
+    await uploadSinglePresentation(this.modPage, e.uploadPresentationFileName, UPLOAD_PDF_WAIT_TIME, 0);
+
+    await this.modPage.hasElement(
+      e.presentationContainer,
+      'should display the presentation container for the moderator after the new presentation is shared',
+    );
+    await this.userPage.hasElement(
+      e.presentationContainer,
+      'should display the presentation container for the attendee after the new presentation is shared',
     );
   }
 
@@ -167,7 +205,7 @@ export class Presentation extends MultiUsers {
         e.shareExternalVideoBtn,
         'should not display the option to share an external video, since is deactivated',
       );
-      return
+      return;
     }
     await this.modPage.waitAndClick(e.shareExternalVideoBtn);
     await this.modPage.hasElement(
@@ -480,7 +518,7 @@ export class Presentation extends MultiUsers {
     //! await this.modPage.handleDownload(this.modPage.page.locator(e.presentationDownloadBtn), testInfo);
     //! await this.userPage.handleDownload(this.userPage.page.locator(e.presentationDownloadBtn), testInfo);
     // disable original presentation download
-    
+
     await this.modPage.waitAndClick(e.managePresentations);
     await this.modPage.waitAndClick(e.presentationOptionsDownloadBtn);
     await this.modPage.waitAndClick(e.disableOriginalPresentationDownloadBtn);
@@ -515,7 +553,7 @@ export class Presentation extends MultiUsers {
     }
     await this.modPage.waitAndClick(e.sendPresentationInCurrentStateBtn);
     await this.modPage.hasElement(e.downloadPresentationToast, 'should display the download presentation toast');
-     await this.userPage.hasElement(
+    await this.userPage.hasElement(
       e.downloadPresentation,
       'should display the download presentation button for the attendee',
       ELEMENT_WAIT_EXTRA_LONG_TIME,
@@ -541,6 +579,38 @@ export class Presentation extends MultiUsers {
       e.minimizePresentation,
       'should not display the minimize presentation button for the attendee',
     );
+  }
+
+  async presentationThumbnailLoads() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.mediaAreaButton);
+    await this.modPage.waitAndClick(e.managePresentations);
+    await this.modPage.hasElement(
+      e.presentationItem,
+      'should display the presentation item in the manage presentations list',
+    );
+
+    const thumbnail = this.modPage.page.locator(e.presentationThumbnails).first().locator('img');
+
+    // The thumbnail request is authorized only when the client appends the session
+    // token to the URL (the server returns 401 otherwise). Without the token the
+    // image fails to load and naturalWidth stays 0.
+    await expect(thumbnail, 'should append the session token to the thumbnail URL').toHaveAttribute(
+      'src',
+      /sessionToken=/,
+      { timeout: ELEMENT_WAIT_TIME },
+    );
+
+    await expect
+      .poll(
+        async () =>
+          thumbnail.evaluate((img) => (img as HTMLImageElement).complete && (img as HTMLImageElement).naturalWidth > 0),
+        {
+          message: 'should load the presentation thumbnail image (no 401 Unauthorized)',
+          timeout: ELEMENT_WAIT_LONGER_TIME,
+        },
+      )
+      .toBe(true);
   }
 
   async uploadAndRemoveAllPresentations() {

@@ -45,6 +45,27 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.hideAndRestorePresentation();
   });
 
+  // The presentation should always be restored when a new one is shared. It follows the same behavior as
+  // when the presentar starts sharing screen or sharing camera as content - the presentation area is always restored.
+  test('Presentation is restored when a new one is shared', async ({ browser, context, page }, testInfo) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initPages(page, testInfo);
+    await presentation.hideAndShareNewPresentation();
+  });
+
+  // The presentation should always be restored when a new one is shared. It follows the same behavior as
+  // when the presentar starts sharing screen or sharing camera as content - the presentation area is always restored.
+  test('Presentation is restored when deleted and a new one is shared', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initPages(page, testInfo);
+    await presentation.hidePresentation();
+    await presentation.shareNewPresentationAfterDelete();
+  });
+
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#fit-to-width-option
   test('Presentation fit to width', async ({ browser, context, page }, testInfo) => {
     const presentation = new Presentation(browser, context);
@@ -172,6 +193,13 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, testInfo);
       await presentation.removeAllPresentation();
+    });
+
+    test('Presentation thumbnail loads', async ({ browser, context, page }, testInfo) => {
+      linkIssue(25163);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.presentationThumbnailLoads();
     });
 
     test('Upload and remove all presentations', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {

@@ -422,6 +422,76 @@ export class CustomParameters extends MultiUsers {
     await this.userPage.hasElement(e.whiteboard, 'should display the whiteboard for the attendee');
   }
 
+  async hidePresentationOnJoinWhenHeavyPresentationUploadAndNoRestoreOnUpdate() {
+    await this.modPage.hasElement(
+      e.presentationUploadProgressToast,
+      'should display the presentation upload progress toast',
+      ELEMENT_WAIT_TIME,
+    );
+
+    await Promise.all([
+      this.modPage.wasRemoved(
+        e.restorePresentation,
+        'should not display the restore presentation button for the moderator while upload is in progress',
+      ),
+      this.modPage.wasRemoved(
+        e.whiteboard,
+        'should keep the whiteboard minimized for the moderator while upload is in progress',
+      ),
+      this.userPage.wasRemoved(
+        e.restorePresentation,
+        'should not display the restore presentation button for the attendee while upload is in progress',
+      ),
+      this.userPage.wasRemoved(
+        e.whiteboard,
+        'should keep the whiteboard minimized for the attendee while upload is in progress',
+      ),
+    ]);
+
+    await this.modPage.hasElement(
+      e.presentationUploadProgressToast,
+      'should keep displaying the presentation upload progress toast while upload is in progress',
+      ELEMENT_WAIT_TIME,
+    );
+
+    await Promise.all([
+      // Very high timeout because the presentation is heavy and might take time on slow machines
+      // - 7 multiplier is a empirical value that works on my machine
+      // The upload is assumed to be finished when the toast vanishes
+      this.modPage.wasRemoved(
+        e.presentationUploadProgressToast,
+        'the upload should complete sometime',
+        UPLOAD_PDF_WAIT_TIME * 7,
+      ),
+      this.userPage.wasRemoved(
+        e.presentationUploadProgressToast,
+        'the upload should complete sometime',
+        UPLOAD_PDF_WAIT_TIME * 7,
+      ),
+    ]);
+
+    await Promise.all([
+      this.modPage.wasRemoved(
+        e.whiteboard,
+        'should be no presentation opened for the moderator after upload completes since restore on update is false and presentation hide on join is true',
+        ELEMENT_WAIT_TIME,
+      ),
+      this.userPage.wasRemoved(
+        e.whiteboard,
+        'should be no presentation opened for the attendee after upload completes since restore on update is false and presentation hide on join is true',
+        ELEMENT_WAIT_TIME,
+      ),
+      this.modPage.hasElement(
+        e.restorePresentation,
+        'should display the restore presentation button because the presentation is minimized',
+      ),
+      this.userPage.hasElement(
+        e.restorePresentation,
+        'should display the restore presentation button because the presentation is minimized',
+      ),
+    ]);
+  }
+
   async forceRestorePresentationOnNewEvents() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     const { presentationHidden, pollEnabled } = this.modPage.settings || {};
@@ -509,6 +579,57 @@ export class CustomParameters extends MultiUsers {
       e.minimizePresentation,
       'should display the minimize presentation button when the presentation is restored',
     );
+  }
+
+  async restorePresentationAfterUpload() {
+    await this.modPage.hasElement(
+      e.presentationUploadProgressToast,
+      'should display the presentation upload progress toast',
+      ELEMENT_WAIT_TIME,
+    );
+
+    await Promise.all([
+      this.modPage.wasRemoved(
+        e.restorePresentation,
+        'should not display the restore presentation button for the moderator while upload is in progress',
+      ),
+      this.modPage.wasRemoved(
+        e.whiteboard,
+        'should keep the whiteboard minimized for the moderator while upload is in progress',
+      ),
+      this.userPage.wasRemoved(
+        e.restorePresentation,
+        'should not display the restore presentation button for the attendee while upload is in progress',
+      ),
+      this.userPage.wasRemoved(
+        e.whiteboard,
+        'should keep the whiteboard minimized for the attendee while upload is in progress',
+      ),
+    ]);
+
+    await this.modPage.hasElement(
+      e.presentationUploadProgressToast,
+      'should keep displaying the presentation upload progress toast while upload is in progress',
+      ELEMENT_WAIT_TIME,
+    );
+
+    await Promise.all([
+      // Very high timeout because the presentation is heavy and might take time on slow machines
+      // - 7 multiplier is a empirical value that works on my machine
+      this.modPage.waitForSelector(e.whiteboard, UPLOAD_PDF_WAIT_TIME * 7),
+      this.userPage.waitForSelector(e.whiteboard, UPLOAD_PDF_WAIT_TIME * 7),
+    ]);
+
+    await Promise.all([
+      this.modPage.hasElement(
+        e.minimizePresentation,
+        'should display the minimize presentation button when the presentation is restored',
+      ),
+      this.userPage.hasElement(
+        e.minimizePresentation,
+        'should display the minimize presentation button when the presentation is restored',
+      ),
+    ]);
   }
 
   async enableVideo() {
