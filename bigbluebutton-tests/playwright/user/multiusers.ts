@@ -198,8 +198,8 @@ export class MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard);
 
     // Presenter shares a webcam so the camera dock (and the audio-only tile) is visible.
-    // Audio-only tiles are only surfaced in the unified layout, which is the default
-    // (public.app.defaultSettings.application.selectedLayout = "unified").
+    // Audio-only tiles are only surfaced in the unified layout; the spec creates
+    // this meeting with meetingLayout=UNIFIED_LAYOUT.
     await this.modPage.shareWebcam();
 
     // An attendee joins with microphone and unmutes. Speaking takes the audio floor,

@@ -26,7 +26,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
 
     test('Raise hand indicator on audio-only tile', async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
-      await multiusers.initModPage(page, { testInfo });
+      await multiusers.initModPage(page, { createParameter: 'meetingLayout=UNIFIED_LAYOUT', testInfo });
       await multiusers.raiseHandIndicatorOnAudioOnlyTile();
     });
 
