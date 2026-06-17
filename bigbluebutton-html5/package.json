@@ -79,7 +79,7 @@
     "@types/react": "^18.2.18",
     "autoprefixer": "^10.4.4",
     "babel-runtime": "~6.26.0",
-    "bigbluebutton-html-plugin-sdk": "0.1.17",
+    "bigbluebutton-html-plugin-sdk": "0.1.20",
     "bowser": "^2.12.0",
     "browser-bunyan": "^1.8.0",
     "classnames": "^2.2.6",
