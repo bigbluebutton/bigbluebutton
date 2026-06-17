@@ -367,8 +367,8 @@ module BigBlueButton
               line = "[#{input_index}]"
               line << "atempo=#{speed},atrim=start=#{ms_to_s(audio_data[:timestamp])}," if speed != 1.0
               # Ensure the aresample filter doesn't see the next audio packet after a long pts gap
-              line << "atrim=end=#{ms_to_s(entry[:next_timestamp] - entry[:timestamp])},"
-              line << "#{FFMPEG_ARESAMPLE},#{FFMPEG_AFORMAT},apad"
+              line << "atrim=end=#{ms_to_s(entry[:next_timestamp] - entry[:timestamp])},apad,"
+              line << "#{FFMPEG_ARESAMPLE},#{FFMPEG_AFORMAT}"
               line << "[#{track_label}];"
               filter_lines << line
               track_labels << "[#{track_label}]"
