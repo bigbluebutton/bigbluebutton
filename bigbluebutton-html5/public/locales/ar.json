@@ -466,7 +466,7 @@
     "app.poll.dragDropPollInstruction": "لتعبئة قيم التصويت ، اسحب ملفًا نصيًا بقيم التصويت إلى الحقل المميز",
     "app.poll.customPollTextArea": "قم بتعبئة قيم التصويت",
     "app.poll.publishLabel": "نشر النتائج",
-    "app.poll.cancelPollLabel": "Stop poll",
+    "app.poll.cancelPollLabel": "أوقف الاستطلاع",
     "app.poll.backLabel": "بدء التصويت",
     "app.poll.ariaInputCount": "خيار الاستطلاع المخصص {currentOption} من {totalOptions}",
     "app.poll.closeLabel": "إغلاق",
