@@ -14,6 +14,7 @@ import {
 import { PluginsContext } from '../../../../components-data/plugin-context/context';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
+import { shouldPinPluginAppsInGallery } from '/imports/ui/components/apps-gallery/service';
 
 const GenericContentPluginStateContainer = ((
   props: ExtensibleAreaComponentManagerProps,
@@ -33,6 +34,13 @@ const GenericContentPluginStateContainer = ((
   const {
     setPluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
+
+  // True to pin all, array of ids to pin specific items, false or undefined to not pin any
+  const appsGalleryItemsToPin = shouldPinPluginAppsInGallery(pluginApi.pluginName);
+  const shouldPinAppsGalleryItem = useCallback((id: string) => {
+    return appsGalleryItemsToPin === true || (
+      Array.isArray(appsGalleryItemsToPin) && appsGalleryItemsToPin.includes(id));
+  }, [appsGalleryItemsToPin]);
 
   const excludeById = useCallback(
     (arr1: PluginSdk.GenericContentInterface[], arr2: PluginSdk.GenericContentInterface[]) => {
@@ -96,7 +104,7 @@ const GenericContentPluginStateContainer = ((
     const genericContentSidekickArea = filterSidekick(genericContentItems) as PluginSdk.GenericContentSidekickArea[];
 
     genericContentSidekickArea.forEach((genericContentItem) => {
-      return layoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.REGISTER_SIDEBAR_APP,
         value: {
           id: genericContentSidekickId(genericContentItem.id),
@@ -108,6 +116,16 @@ const GenericContentPluginStateContainer = ((
           pluginName: pluginApi.pluginName,
         },
       });
+      if (shouldPinAppsGalleryItem(genericContentItem.id)) {
+        layoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_NAVIGATION_PIN_APP,
+          value: {
+            id: genericContentSidekickId(genericContentItem.id),
+            pin: true,
+            isPluginDefault: true,
+          },
+        });
+      }
     });
     // If multiple sidekick items are registered with open: true, only the last one is opened.
     const lastOpenSidekick = genericContentSidekickArea.slice().reverse().find((gci) => gci.open);
@@ -118,7 +136,7 @@ const GenericContentPluginStateContainer = ((
       });
       layoutContextDispatch({ type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN, value: true });
     }
-  }, [genericContentItems, setPluginsExtensibleAreasAggregatedState]);
+  }, [genericContentItems, setPluginsExtensibleAreasAggregatedState, shouldPinAppsGalleryItem]);
 
   pluginApi.setGenericContentItems = (items: PluginSdk.GenericContentInterface[]) => {
     const itemsWithId = items.map(generateItemWithId) as PluginSdk.GenericContentInterface[];
