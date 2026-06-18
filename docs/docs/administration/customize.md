@@ -380,6 +380,8 @@ This pattern can be repeated for additional recording formats. Note that it's ve
 
 After you edit the configuration file, you must restart the recording processing queue: `systemctl restart bbb-rap-resque-worker.service` in order to pick up the changes.
 
+To disable one or more enabled recording formats for a single meeting, pass `meta_bbb-disable-recording-formats` on the `create` API call with a comma-separated list of format names. For example, `meta_bbb-disable-recording-formats=video,presentation` (or `meta_bbb-disable-recording-formats=[video,presentation]`) skips the `video` and `presentation` recording formats for that meeting. The format names are case-insensitive and match the format part of the recording steps. Disabled formats are not processed or published, so they do not trigger recording-ready callbacks.
+
 The following script will enable the video recording format of a BigBlueButton 2.6+ server.
 
 ```
@@ -1589,6 +1591,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `sharedNotesEditor` | Type of shared notes editor to use | etherpad, blockNote | etherpad _`overwritable`_ |
 | `allowOverrideClientSettingsOnCreateCall` | Allow `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` to be passed on `/create` | true/false | false |
 | `clientSettingsOverrideStrictValidation` | When true, reject the `/create` call (`bbb-web`) and refuse `bbb-apps-akka` boot if a client settings override has unknown or malformed keys. Intended for test/staging (see [Validating client settings overrides](#validating-client-settings-overrides)) | true/false | false |
+| `clientSettingsFilePath` | Path to the `settings.yml` catalog used as the schema for the strict client-settings override validation above | path | `/usr/share/bigbluebutton/html5-client/private/config/settings.yml` |
 | `pluginManifests` | List of plugin manifests as a JSON array, e.g. `[{"url": "https://example.com/manifest.json"}]` | JSON array | _(empty)_ _`overwritable`_ |
 | `pluginManifestCacheEnabled` | Cache plugin manifests on disk to speed up `/create` calls | true/false | false |
 | `pluginManifestCacheDirectory` | Base directory for cached plugin manifest files. The directory is wiped every time bbb-web starts; entries idle for over a week are also evicted automatically by the periodic refresh task | path | `/var/bigbluebutton/plugin-manifests-cache/` |

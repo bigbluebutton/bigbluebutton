@@ -219,9 +219,6 @@ const documentApi: DocumentApi = {
       if (error && typeof error === 'object' && 'message' in error) {
         if (error.message  === 'document_not_found') {
           return sendExportError(response, 404, 'Document not found');
-        }
-        else if (error.message  === 'document_empty') {
-          return sendExportError(response, 404, 'Document is empty');
         } else {
           logger.error('Error exporting document', { error: error.message, documentName });
           return sendExportError(response, 500, 'Failed to export document');

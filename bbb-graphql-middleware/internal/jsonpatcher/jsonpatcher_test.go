@@ -70,7 +70,7 @@ func TestPatch_Identical(t *testing.T) {
 	orig := makeUsers("a", "A", "b", "B", "c", "C")
 	mod := makeUsers("a", "A", "b", "B", "c", "C")
 
-	ok, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod, "userId")
+	ok, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod)
 	if !ok {
 		t.Fatalf("expected validator to accept the array")
 	}
@@ -85,7 +85,7 @@ func TestPatch_SingleFieldChange(t *testing.T) {
 	orig := makeUsers("a", "A", "b", "B", "c", "C")
 	mod := makeUsers("a", "A", "b", "B2", "c", "C")
 
-	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod, "userId")
+	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod)
 	applyAndExpect(t, orig, mod, patch)
 
 	counts := countOps(t, patch)
@@ -98,7 +98,7 @@ func TestPatch_AddOneAtEnd(t *testing.T) {
 	orig := makeUsers("a", "A", "b", "B")
 	mod := makeUsers("a", "A", "b", "B", "c", "C")
 
-	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod, "userId")
+	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod)
 	applyAndExpect(t, orig, mod, patch)
 
 	counts := countOps(t, patch)
@@ -111,7 +111,7 @@ func TestPatch_AddOneInMiddle(t *testing.T) {
 	orig := makeUsers("a", "A", "c", "C")
 	mod := makeUsers("a", "A", "b", "B", "c", "C")
 
-	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod, "userId")
+	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod)
 	applyAndExpect(t, orig, mod, patch)
 
 	counts := countOps(t, patch)
@@ -124,7 +124,7 @@ func TestPatch_AddOneAtBeginning(t *testing.T) {
 	orig := makeUsers("b", "B", "c", "C")
 	mod := makeUsers("a", "A", "b", "B", "c", "C")
 
-	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod, "userId")
+	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod)
 	applyAndExpect(t, orig, mod, patch)
 
 	counts := countOps(t, patch)
@@ -137,7 +137,7 @@ func TestPatch_RemoveOneFromMiddle(t *testing.T) {
 	orig := makeUsers("a", "A", "b", "B", "c", "C")
 	mod := makeUsers("a", "A", "c", "C")
 
-	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod, "userId")
+	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod)
 	applyAndExpect(t, orig, mod, patch)
 
 	counts := countOps(t, patch)
@@ -150,7 +150,7 @@ func TestPatch_RemoveMultipleFromVariousPositions(t *testing.T) {
 	orig := makeUsers("a", "A", "b", "B", "c", "C", "d", "D", "e", "E")
 	mod := makeUsers("b", "B", "d", "D")
 
-	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod, "userId")
+	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod)
 	applyAndExpect(t, orig, mod, patch)
 
 	counts := countOps(t, patch)
@@ -165,7 +165,7 @@ func TestPatch_RotateByOne_IsSingleMove(t *testing.T) {
 	orig := makeUsers("a", "A", "b", "B", "c", "C", "d", "D", "e", "E")
 	mod := makeUsers("e", "E", "a", "A", "b", "B", "c", "C", "d", "D")
 
-	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod, "userId")
+	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod)
 	applyAndExpect(t, orig, mod, patch)
 
 	counts := countOps(t, patch)
@@ -179,7 +179,7 @@ func TestPatch_SwapTwoElements_IsSingleMove(t *testing.T) {
 	orig := makeUsers("a", "A", "b", "B", "c", "C")
 	mod := makeUsers("b", "B", "a", "A", "c", "C")
 
-	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod, "userId")
+	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod)
 	applyAndExpect(t, orig, mod, patch)
 
 	counts := countOps(t, patch)
@@ -193,7 +193,7 @@ func TestPatch_ReverseEntireArray(t *testing.T) {
 	orig := makeUsers("a", "A", "b", "B", "c", "C", "d", "D", "e", "E")
 	mod := makeUsers("e", "E", "d", "D", "c", "C", "b", "B", "a", "A")
 
-	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod, "userId")
+	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod)
 	applyAndExpect(t, orig, mod, patch)
 
 	counts := countOps(t, patch)
@@ -210,7 +210,7 @@ func TestPatch_AnalysisCase_TwoMovesOptimal(t *testing.T) {
 	orig := makeUsers("a", "A", "b", "B", "c", "C", "d", "D", "e", "E")
 	mod := makeUsers("c", "C", "a", "A", "d", "D", "b", "B", "e", "E")
 
-	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod, "userId")
+	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod)
 	applyAndExpect(t, orig, mod, patch)
 
 	counts := countOps(t, patch)
@@ -224,7 +224,7 @@ func TestPatch_AddRemoveReplaceMove_Combined(t *testing.T) {
 	// remove b, change c, move d before a, add e at end
 	mod := makeUsers("d", "D", "a", "A", "c", "C2", "e", "E")
 
-	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod, "userId")
+	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod)
 	applyAndExpect(t, orig, mod, patch)
 
 	counts := countOps(t, patch)
@@ -247,7 +247,7 @@ func TestPatch_AllRemoved_FallbackPath(t *testing.T) {
 	orig := makeUsers("a", "A", "b", "B", "c", "C")
 	mod := makeUsers("a", "A")
 
-	ok, _ := ValidateIfShouldUseCustomJsonPatch(orig, mod, "userId")
+	ok, _ := ValidateIfShouldUseCustomJsonPatch(orig, mod)
 	if ok {
 		t.Errorf("validator should reject when modified has <=1 items (current policy)")
 	}
@@ -257,7 +257,7 @@ func TestPatch_NoSharedItems_AllAddRemove(t *testing.T) {
 	orig := makeUsers("a", "A", "b", "B")
 	mod := makeUsers("c", "C", "d", "D")
 
-	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod, "userId")
+	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod)
 	applyAndExpect(t, orig, mod, patch)
 
 	counts := countOps(t, patch)
@@ -284,7 +284,7 @@ func TestPatch_RotationsAreSingleMove(t *testing.T) {
 		rotated = append(rotated, ids[0], ids[1])
 		mod := makeUsers(rotated...)
 
-		_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod, "userId")
+		_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod)
 		applyAndExpect(t, orig, mod, patch)
 
 		counts := countOps(t, patch)
@@ -300,7 +300,7 @@ func TestPatch_FieldChangeInMovedItem(t *testing.T) {
 	orig := makeUsers("a", "A", "b", "B", "c", "C")
 	mod := makeUsers("b", "B2", "a", "A", "c", "C")
 
-	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod, "userId")
+	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod)
 	applyAndExpect(t, orig, mod, patch)
 
 	counts := countOps(t, patch)
@@ -323,7 +323,7 @@ func TestPatch_PatchIsSmallerThanFullPayload(t *testing.T) {
 	pairs[1] = "Name 00 changed"
 	mod := makeUsers(pairs...)
 
-	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod, "userId")
+	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod)
 	applyAndExpect(t, orig, mod, patch)
 
 	if len(patch) >= len(mod)/10 {
@@ -342,7 +342,7 @@ func TestValidator_RejectsWhenNoUserTypename(t *testing.T) {
 	items[0]["x"] = 1
 	mod, _ := json.Marshal(items)
 
-	ok, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod, "id")
+	ok, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod)
 	if ok {
 		t.Errorf("expected validator to reject non-user payload; got patch=%s", patch)
 	}
@@ -392,7 +392,7 @@ func TestPatch_IsJSONArray(t *testing.T) {
 	orig := makeUsers("a", "A", "b", "B", "c", "C")
 	mod := makeUsers("c", "C", "b", "B", "a", "A")
 
-	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod, "userId")
+	_, patch := ValidateIfShouldUseCustomJsonPatch(orig, mod)
 	if !strings.HasPrefix(string(patch), "[") {
 		t.Errorf("patch should be a JSON array, got: %s", patch)
 	}

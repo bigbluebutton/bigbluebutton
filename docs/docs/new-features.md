@@ -92,6 +92,55 @@ The client now has first-class handling for **bot users** (joined with `bot=true
 
 Strings that were previously emitted as English constants from the server (Akka) — for example some chat/notification messages — are now resolved to i18n keys on the frontend, improving localization coverage.
 
+#### Override client settings through API create call
+
+Administrators will appreciate that we now allow the passing of custom client settings through the meeting create API call. You no longer need separate servers to accommodate sessions requiring vastly different `settings.yml` configurations.
+
+#### Disable recording formats per meeting
+
+Integrations can now skip one or more enabled recording formats for a specific meeting by passing `meta_bbb-disable-recording-formats` on the `/create` call, for example `meta_bbb-disable-recording-formats=video,presentation`. Disabled formats are not processed or published. See the [Create API parameters](/development/api/#get-post-create) and [recording format customization](/administration/customize#install-additional-recording-processing-formats) docs for details.
+
+#### Removal of Meteor and MongoDB
+
+For years, we have discussed internally the topic of replacing Meteor.js with other technologies in order to improve scalability, performance, etc. Over the last year, we have introduced several different new components to replace Meteor. These new components are: `bbb-graphql-server`, `bbb-graphql-middleware`, `bbb-graphql-actions`, PostgreSQL database, and the GraphQL server Hasura. As of BigBlueButton 3.0.0-beta.1, we are no longer using Meteor or MongoDB.
+
+Note: The services `bbb-html5-backend`, `bbb-html5-frontend`, `bbb-html5`, and `mongod` have been removed. The client code is compacted and served by NginX. The service `disable-transparent-huge-pages.service` was also removed as it was used to improve performance for MongoDB and is now obsolete. The package `bbb-html5-nodejs` is no longer needed.
+
+**Important**: Please make sure you're no longer carrying around NodeJS v14, which we used to deploy in `bbb-html5-nodejs`. Your directory `/usr/lib/bbb-html5/node` should not exist.
+
+#### We have forked the tldraw project and use our fork
+
+We upgraded tl;draw from version 1 to version 2.0.0-alpha.19 (the last version under the Apache 2.0 license). This was quite a significant task but brought better performance, improved aesthetics, enhanced stylus support, and more. Note that we have forked tldraw’s project as of their version 2.0.0-alpha.19 to ensure we remain on the Apache 2.0 license. We will be maintaining the fork to ensure BigBlueButton has a stable whiteboard in the future.
+
+#### Support for Collabora Online as document converter
+
+Collabora Productivity contributed support for an alternative conversion script where Collabora Online (deployed locally [as a docker container] or running remotely) can be used for document conversion. For more information, check the [pull request](https://github.com/bigbluebutton/bigbluebutton/pull/18783).
+
+#### S3-based cache for presentation assets
+
+BigBlueButton now supports caching for presentation assets on Amazon S3/Minio or similar. For details, check the [server customization](/administration/customize/#configure-s3-based-cache-for-presentation-assets) section of the documentation and see the new `/create` parameter to control it per meeting in the [API reference](/development/api/#get-post-create).
+
+#### Support for ClamAV as presentation file scanner
+
+BigBlueButton now supports file scanning (virus detection) for presentation files using ClamAV. For details, check the [ClamAV section](/administration/customize#support-for-clamav-as-presentation-file-scanner) in the server customization documentation.
+
+#### Infinite Whiteboard
+
+We have added initial support for the infinite whiteboard in the live session. Only the presenter can trigger it. It allows for annotations to be created in the margins or for writing content without being limited by space.
+
+![the trigger for infinite whiteboard is in the middle of the presenter toolbar](/img/30/30-trigger-for-infinite-wb.png)
+
+Everyone sees the margins and follows the presenter's point of view. If multi-user whiteboard is also enabled, viewers can roam around the canvas independently.
+
+![with infinite whiteboard enabled annotations can be made on the margins and more](/img/30/30-infinite-wb-in-action.png)
+
+You can enable infinite whiteboard via `public.whiteboard.allowInfiniteWhiteboard` https://github.com/bigbluebutton/bigbluebutton/blob/v3.0.8/bigbluebutton-html5/private/config/settings.yml#L1047
+
+Note, circa BigBlueButton 3.0.19 Infinite Whiteboard recording support was finalized and therefore we drop the "experimental" flag from it.
+
+#### Session token removed from the client URL
+
+Starting with BigBlueButton 3.0.30, the HTML5 client removes the `sessionToken` query parameter from the browser address bar after loading, keeping it in session storage instead (and recovering it from there on page reload). This avoids presenters accidentally exposing their token while sharing their screen, and reduces the chance of confusing the client URL with a shareable join URL. The token is still passed on the initial redirect from `join`, so existing integrations are unaffected.
 
 ### Experimental
 
@@ -265,6 +314,8 @@ _None._
 - `pluginManifestCacheEnabled` added in BBB 3.0.27
 - `pluginManifestCacheDirectory` added in BBB 3.0.27
 - `pluginManifestCacheRefreshIntervalMinutes` added in BBB 3.0.27
+- `clientSettingsOverrideStrictValidation` added in BBB 3.0.30
+- `clientSettingsFilePath` added in BBB 3.0.30
 
 - `lockSettingsPresenterPolicy` added (default `requireApproval`).
 - `requireUserConsentBeforeUnmuting` added (default `false`). Only relevant when `allowModsToUnmuteUsers=true`; when `true`, a consent dialog is shown before a moderator can unmute a participant.

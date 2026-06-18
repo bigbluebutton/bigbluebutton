@@ -336,7 +336,8 @@
     "app.presentation.endSlideContent": "Slaidisisu lõpp",
     "app.presentation.changedSlideContent": "Esitluse slaid on nüüd {slideNumber}",
     "app.presentation.emptySlideContent": "Aktiivsel slaidil puudub sisu",
-    "app.presentation.options.fullscreen": "Esitlus täisekraanil",
+    "app.presentation.options.label": "Tahvli valikud",
+    "app.presentation.options.fullscreen": "Esitlus täisekraanile",
     "app.presentation.options.exitFullscreen": "Välju täisekraanilt",
     "app.presentation.options.minimize": "Minimeeri",
     "app.presentation.options.snapshot": "Praeguse slaidi hetktõmmis",
@@ -1122,9 +1123,14 @@
     "app.userList.guest.acceptLabel": "Luba",
     "app.userList.guest.denyLabel": "Keela",
     "app.userList.guest.feedbackMessage": "Rakendatud tegevus:",
+<<<<<<< HEAD
     "app.userList.guest.showWaitingUsersLabel": "Näita ootavaid kasutajaid",
     "app.userList.guest.hideWaitingUsersLabel": "Peida ootavad kasutajad",
     "app.user-info.title": "Kataloogiotsing",
+=======
+    "app.userList.customLogoAlt": "Kohandatud brändilogo",
+    "app.user-info.title": "Otsi kataloogist",
+>>>>>>> 036fd0b8987bd9c21984563c644fc3dc01cf3175
     "app.toast.breakoutRoomEnded": "Eraldatud ruum on lõppenud. Palun liitu uuesti audioga.",
     "app.toast.breakoutContentUnchangedNotConverted": "Ühes või mitmes eraldatud ruumis puudusid tahvli / jagatud märkmete uuendused, mistõttu neid ei teisendatud slaidideks.",
     "app.toast.chat.public": "Uus avalik sõnum",
