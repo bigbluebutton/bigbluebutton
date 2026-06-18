@@ -262,7 +262,7 @@ _None._
 #### Value changed
 
 - `defaultMeetingLayout` default changed from `CUSTOM_LAYOUT` to `UNIFIED_LAYOUT`. Accepted values are now `UNIFIED_LAYOUT` (default), plus the hybrid/niche options `CAMERAS_ONLY`, `PARTICIPANTS_CHAT_ONLY`, and `PRESENTATION_ONLY`. The previous values `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, and `VIDEO_FOCUS` are no longer accepted.
-- `html5PluginSdkVersion` bumped from `0.0.99` to `0.1.17`.
+- `html5PluginSdkVersion` bumped from `0.1.17` to `0.1.20`.
 - `disabledFeatures` accepts a new value: `pinChatMessage` (alongside the existing chat-related options).
 
 #### Added
