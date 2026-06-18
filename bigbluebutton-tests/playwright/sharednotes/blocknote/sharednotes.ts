@@ -21,7 +21,7 @@ export class BlockNoteSharedNotes extends MultiUsers {
 
     // Open the (empty) BlockNote shared notes panel. Nothing is typed, so the
     // document stays empty.
-    await this.modPage.waitAndClick(e.sharedNotes, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.sharedNotesSidebarButton, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.hasElement(
       e.sharedNotesBackground,
       'should display the shared notes panel',
