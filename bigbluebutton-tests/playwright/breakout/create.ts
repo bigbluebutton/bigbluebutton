@@ -120,26 +120,27 @@ export class Create extends MultiUsers {
   async inheritLockSettingsCheckboxIsVisible() {
     if (!this?.modPage) throw new Error('modPage not initialized');
 
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.waitAndClick(e.moreOptionsToggle);
 
     await this.modPage.hasElement(
       e.inheritLockSettingsCheckbox,
-      'should display the "Propagate the current lock settings" checkbox in the create breakout modal',
+      'should display the "Propagate the current lock settings" checkbox in the create breakout panel',
     );
     const checkbox = this.modPage.page.locator(e.inheritLockSettingsCheckbox);
     await expect(checkbox, 'checkbox should be unchecked by default').not.toBeChecked();
-    await this.modPage.press('Escape');
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
   }
 
   async lockViewersVisibleInBreakoutGearMenu() {
     if (!this?.modPage) throw new Error('modPage not initialized');
     if (!this?.userPage) throw new Error('userPage not initialized');
 
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.page.waitForTimeout(2000);
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
-    await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitAndClick(e.modalDismissButton);
     await this.modPage.hasElement(e.breakoutRoomsItem, 'should have the breakout rooms item');
 
@@ -179,11 +180,13 @@ export class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.applyLockSettings);
 
     // Create breakout with inherited lock settings
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.page.waitForTimeout(2000);
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
+    await this.modPage.waitAndClick(e.moreOptionsToggle);
     await this.modPage.page.check(e.inheritLockSettingsCheckbox);
-    await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitAndClick(e.modalDismissButton);
     await this.modPage.hasElement(e.breakoutRoomsItem, 'should have the breakout rooms item');
 
@@ -239,6 +242,7 @@ export class Create extends MultiUsers {
     ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
 
     await breakoutTab.close();
+    await this.modPage.setHeightWidthViewPortSize();
   }
 
   async modCanApplyLockSettingsInBreakout() {
@@ -246,10 +250,11 @@ export class Create extends MultiUsers {
     if (!this?.userPage) throw new Error('userPage not initialized');
 
     // Create breakout without inheriting lock settings (default: all locks off)
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.page.waitForTimeout(2000);
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
-    await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitAndClick(e.modalDismissButton);
     await this.modPage.hasElement(e.breakoutRoomsItem, 'should have the breakout rooms item');
 
@@ -302,6 +307,7 @@ export class Create extends MultiUsers {
     ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
 
     await breakoutTab.close();
+    await this.modPage.setHeightWidthViewPortSize();
   }
 
   async modCanApplyLockSettingsInBreakoutWithInheritance() {
@@ -315,11 +321,13 @@ export class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.applyLockSettings);
 
     // Create breakout with inherited lock settings
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.page.waitForTimeout(2000);
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
+    await this.modPage.waitAndClick(e.moreOptionsToggle);
     await this.modPage.page.check(e.inheritLockSettingsCheckbox);
-    await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitAndClick(e.modalDismissButton);
     await this.modPage.hasElement(e.breakoutRoomsItem, 'should have the breakout rooms item');
 
@@ -372,6 +380,7 @@ export class Create extends MultiUsers {
     ).toBeVisible({ timeout: ELEMENT_WAIT_LONGER_TIME });
 
     await breakoutTab.close();
+    await this.modPage.setHeightWidthViewPortSize();
   }
 
   async lockSettingsNotPropagatedByDefault() {
@@ -385,10 +394,11 @@ export class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.applyLockSettings);
 
     // Create breakout WITHOUT the "Propagate" checkbox (default: unchecked)
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.page.waitForTimeout(2000);
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
-    await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitAndClick(e.modalDismissButton);
     await this.modPage.hasElement(e.breakoutRoomsItem, 'should have the breakout rooms item');
 
@@ -429,6 +439,7 @@ export class Create extends MultiUsers {
     ).not.toBeChecked({ timeout: ELEMENT_WAIT_LONGER_TIME });
 
     await breakoutTab.close();
+    await this.modPage.setHeightWidthViewPortSize();
   }
 
   async lockSettingsPropagatedWhenChecked() {
@@ -443,11 +454,13 @@ export class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.applyLockSettings);
 
     // Create breakout WITH the "Propagate" checkbox checked
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.page.waitForTimeout(2000);
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
+    await this.modPage.waitAndClick(e.moreOptionsToggle);
     await this.modPage.page.check(e.inheritLockSettingsCheckbox);
-    await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitAndClick(e.modalDismissButton);
     await this.modPage.hasElement(e.breakoutRoomsItem, 'should have the breakout rooms item');
 
@@ -484,6 +497,7 @@ export class Create extends MultiUsers {
     ).toBeChecked({ timeout: ELEMENT_WAIT_LONGER_TIME });
 
     await breakoutTab.close();
+    await this.modPage.setHeightWidthViewPortSize();
   }
 
   async webcamsOnlyForModeratorPropagatedWhenChecked() {
@@ -497,11 +511,13 @@ export class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.applyLockSettings);
 
     // Create breakout WITH the "Propagate the current lock settings" checkbox checked
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.page.waitForTimeout(2000);
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
+    await this.modPage.waitAndClick(e.moreOptionsToggle);
     await this.modPage.page.check(e.inheritLockSettingsCheckbox);
-    await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitAndClick(e.modalDismissButton);
     await this.modPage.hasElement(e.breakoutRoomsItem, 'should have the breakout rooms item');
 
@@ -537,6 +553,7 @@ export class Create extends MultiUsers {
     ).toBeChecked({ timeout: ELEMENT_WAIT_LONGER_TIME });
 
     await breakoutTab.close();
+    await this.modPage.setHeightWidthViewPortSize();
   }
 
   async webcamsOnlyForModeratorNotPropagatedByDefault() {
@@ -550,10 +567,11 @@ export class Create extends MultiUsers {
     await this.modPage.waitAndClick(e.applyLockSettings);
 
     // Create breakout WITHOUT the "Propagate the current lock settings" checkbox (default: unchecked)
-    await this.modPage.waitAndClick(e.manageUsers);
-    await this.modPage.waitAndClick(e.createBreakoutRooms);
+    await this.modPage.setHeightWidthViewPortSize({ width: 1920, height: 1080 });
+    await this.modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await this.modPage.page.waitForTimeout(2000);
     await this.modPage.dragDropSelector(e.attendeeNotAssigned, e.breakoutBox1);
-    await this.modPage.waitAndClick(e.modalConfirmButton, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.createBreakoutRoomsButton, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitAndClick(e.modalDismissButton);
     await this.modPage.hasElement(e.breakoutRoomsItem, 'should have the breakout rooms item');
 
@@ -589,6 +607,7 @@ export class Create extends MultiUsers {
     ).not.toBeChecked({ timeout: ELEMENT_WAIT_LONGER_TIME });
 
     await breakoutTab.close();
+    await this.modPage.setHeightWidthViewPortSize();
   }
 
   async dragDropUserInRoom() {
