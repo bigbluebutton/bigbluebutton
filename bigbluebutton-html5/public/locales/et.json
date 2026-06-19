@@ -1533,6 +1533,7 @@
     "app.createBreakoutRoom.captureNotes": "Salvesta jagatud märkmed",
     "app.createBreakoutRoom.captureSlides": "Salvesta tahvel",
     "app.createBreakoutRoom.sendInvitationToMods": "Saada kutse määratud moderaatoritele",
+    "app.createBreakoutRoom.inheritLockSettings": "Propagate the current lock settings",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Eraldatud ruumi tuleb paigutada vähemalt üks kasutaja",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "Eraldatud ruumi vähim kestus on {timeInMinutes} minutit.",
     "app.createBreakoutRoom.timeCannotExceedMainRoom": "Eraldatud ruumi kestus ei või ületada sessiooni järelejäänud aega.",
