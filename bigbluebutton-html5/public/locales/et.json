@@ -1123,14 +1123,10 @@
     "app.userList.guest.acceptLabel": "Luba",
     "app.userList.guest.denyLabel": "Keela",
     "app.userList.guest.feedbackMessage": "Rakendatud tegevus:",
-<<<<<<< HEAD
     "app.userList.guest.showWaitingUsersLabel": "Näita ootavaid kasutajaid",
     "app.userList.guest.hideWaitingUsersLabel": "Peida ootavad kasutajad",
     "app.user-info.title": "Kataloogiotsing",
-=======
     "app.userList.customLogoAlt": "Kohandatud brändilogo",
-    "app.user-info.title": "Otsi kataloogist",
->>>>>>> 036fd0b8987bd9c21984563c644fc3dc01cf3175
     "app.toast.breakoutRoomEnded": "Eraldatud ruum on lõppenud. Palun liitu uuesti audioga.",
     "app.toast.breakoutContentUnchangedNotConverted": "Ühes või mitmes eraldatud ruumis puudusid tahvli / jagatud märkmete uuendused, mistõttu neid ei teisendatud slaidideks.",
     "app.toast.chat.public": "Uus avalik sõnum",
