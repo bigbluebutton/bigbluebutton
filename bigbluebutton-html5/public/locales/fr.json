@@ -1533,6 +1533,7 @@
     "app.createBreakoutRoom.captureNotes": "Faire une capture des notes partagées lors de la fermeture des groupes de travail",
     "app.createBreakoutRoom.captureSlides": "Faire une capture du tableau blanc lors de la fermeture des groupes de travail",
     "app.createBreakoutRoom.sendInvitationToMods": "Envoyer l'invitation aux modérateurs désignés",
+    "app.createBreakoutRoom.inheritLockSettings": "Propagate the current lock settings",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Vous devez placer au moins un participant dans chaque groupe de travail",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "La durée minimum d'une séance en groupe de travail est de {timeInMinutes} minutes.",
     "app.createBreakoutRoom.timeCannotExceedMainRoom": "La durée des séances en groupe de travail ne peut pas excéder le temps restant pour la séance globale.",
