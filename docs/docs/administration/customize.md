@@ -1490,6 +1490,19 @@ You can overwrite the default guest policy in `/etc/bigbluebutton/bbb-web.proper
 #
 defaultGuestPolicy=ALWAYS_ACCEPT
 ```
+
+#### Configure guest lobby queue position
+
+When the guest policy makes users wait for moderator approval, the HTML5 client shows each guest their position in the waiting queue by default. To hide this position, set `public.app.showGuestLobbyWaitingQueuePosition` to `false` in `/etc/bigbluebutton/bbb-html5.yml`.
+
+```yaml
+public:
+  app:
+    showGuestLobbyWaitingQueuePosition: false
+```
+
+Restart BigBlueButton with `sudo bbb-conf --restart` for the change to take effect.
+
 #### Show a custom logo on the client
 
 Ensure that the parameter `displayBrandingArea` is set to `true` in bbb-html5's configuration, restart BigBlueButton server with `sudo bbb-conf --restart` and pass `logo=<image-url>` in Custom parameters when creating the meeting.

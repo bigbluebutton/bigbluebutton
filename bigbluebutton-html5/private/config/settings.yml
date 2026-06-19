@@ -62,6 +62,8 @@ public:
     skipMeetingEnded: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
+    # Show the guest user's position in the lobby waiting queue.
+    # Set to false when users should not see their place in line.
     showGuestLobbyWaitingQueuePosition: true
     guestPolicyExtraAllowOptions: false
     alwaysShowWaitingRoomUI: true

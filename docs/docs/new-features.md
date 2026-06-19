@@ -394,6 +394,10 @@ In BigBlueButton 2.6.17/2.7.5/3.0.0-alpha.5 we added a new configuration propert
 
 In BigBlueButton 3.0.0-alpha.5 we replaced the JOIN parameter `defaultLayout` with the JOIN parameter `userdata-bbb_default_layout`. If none provided the `meetingLayout` (passed on CREATE) will be used. If none passed, and if none passed there, the `defaultMeetingLayout` from bbb-web will be used.
 
+#### Added new setting to control guest lobby waiting queue position
+
+- Client settings.yml: `showGuestLobbyWaitingQueuePosition`. Defaults to `true`
+
 #### Added new setting and userdata to allow skipping echo test if session has valid input/output devices stored
 
 - Client settings.yml: `skipEchoTestIfPreviousDevice`. Defaults to `false`
