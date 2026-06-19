@@ -1533,6 +1533,7 @@
     "app.createBreakoutRoom.captureNotes": "Hartu partekatutako oharrak atsedenaldi-gelak amaitzen direnean",
     "app.createBreakoutRoom.captureSlides": "Hartu arbela azpitaldeen gelak amaitzen direnean",
     "app.createBreakoutRoom.sendInvitationToMods": "Bidali gonbidapena esleitutako moderatzaileei",
+    "app.createBreakoutRoom.inheritLockSettings": "Propagate the current lock settings",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Azpitalde gela bakoitzean gutxienez erabiltzaile bana kokatu behar duzu.",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "Azpitalde baten gelaren iraupena gutxienez {timeInMinutes} minutukoa izan behar du.",
     "app.createBreakoutRoom.timeCannotExceedMainRoom": "Azpitalde gela baten iraupenak ezin du gainditu saioa amaitzeko geratzen den denbora.",
