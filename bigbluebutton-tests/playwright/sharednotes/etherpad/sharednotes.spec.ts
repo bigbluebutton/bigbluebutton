@@ -18,7 +18,7 @@ test.describe.parallel('Shared Notes - Etherpad', { tag: '@ci' }, () => {
     await sharedNotes.typeInSharedNotes();
   });
 
-  test('Formate text in shared notes', async ({ browser, context }, testInfo) => {
+  test('Format text in shared notes', async ({ browser, context }, testInfo) => {
     const sharedNotes = new SharedNotes(browser, context);
     await initializePages(sharedNotes, browser, { isMultiUser: true, createParameter: CREATE_PARAMETER, testInfo });
     await sharedNotes.formatTextInSharedNotes();
