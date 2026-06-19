@@ -846,6 +846,8 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           }}
           showPreview={false}
           showSkinTones={false}
+          include={window.meetingClientSettings.public.chat.reactions.enabledCategories}
+          exceptEmojis={window.meetingClientSettings.public.chat.reactions.disabledEmojis}
         />
       </EmojiPickerWrapper>
     </Popover>
