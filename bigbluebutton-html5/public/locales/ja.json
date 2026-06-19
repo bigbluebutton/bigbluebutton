@@ -1533,6 +1533,7 @@
     "app.createBreakoutRoom.captureNotes": "小会議室終了時に共有ノートを保存",
     "app.createBreakoutRoom.captureSlides": "小会議室終了時にホワイトボードを保存",
     "app.createBreakoutRoom.sendInvitationToMods": "司会者を割り当てられた人に招待を送る",
+    "app.createBreakoutRoom.inheritLockSettings": "Propagate the current lock settings",
     "app.createBreakoutRoom.leastOneWarnBreakout": "小会議室には最低１人のユーザーが必要です。",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "小会議室の最小利用時間は {timeInMinutes}分です。",
     "app.createBreakoutRoom.timeCannotExceedMainRoom": "小会議室の利用時間は、親会議の残り時間を超えて設定できません。",
