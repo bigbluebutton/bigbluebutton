@@ -42,6 +42,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       skipMeetingEnded: false,
       dynamicGuestPolicy: true,
       enableGuestLobbyMessage: true,
+      showGuestLobbyWaitingQueuePosition: true,
       guestPolicyExtraAllowOptions: false,
       alwaysShowWaitingRoomUI: true,
       enableLimitOfViewersInWebcam: false,
