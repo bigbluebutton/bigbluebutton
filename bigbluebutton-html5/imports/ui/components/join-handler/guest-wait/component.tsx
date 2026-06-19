@@ -93,6 +93,8 @@ const GuestWait: React.FC<GuestWaitProps> = (props) => {
   const lobbyMessageRef = useRef('');
   const positionInWaitingQueueRef = useRef('');
   const loadingContextInfo = useContext(LoadingContext);
+  const showPositionInWaitingQueue = window.meetingClientSettings
+    .public.app.showGuestLobbyWaitingQueuePosition !== false;
 
   const updateLobbyMessage = useCallback((message: string | null) => {
     if (!message) {
@@ -168,7 +170,7 @@ const GuestWait: React.FC<GuestWaitProps> = (props) => {
 
     // WAIT
     updateLobbyMessage(guestLobbyMessage || '');
-    if (positionInWaitingQueue) {
+    if (showPositionInWaitingQueue && positionInWaitingQueue) {
       updatePositionInWaitingQueue(positionInWaitingQueue);
     }
   }, [
@@ -177,6 +179,7 @@ const GuestWait: React.FC<GuestWaitProps> = (props) => {
     logoutUrl,
     positionInWaitingQueue,
     intl,
+    showPositionInWaitingQueue,
     updateLobbyMessage,
     updatePositionInWaitingQueue,
   ]);
@@ -187,9 +190,11 @@ const GuestWait: React.FC<GuestWaitProps> = (props) => {
     <Styled.Container>
       <Styled.Content id="content">
         <Styled.Heading id="heading">{intl.formatMessage(intlMessages.windowTitle)}</Styled.Heading>
-        <Styled.Position id="positionInWaitingQueue">
-          <p aria-live="polite">{positionMessage}</p>
-        </Styled.Position>
+        {showPositionInWaitingQueue && (
+          <Styled.Position id="positionInWaitingQueue">
+            <p aria-live="polite">{positionMessage}</p>
+          </Styled.Position>
+        )}
         {hasCustomMessage && (
           <Styled.MessageContainer>
             <Styled.MessageLabel>
