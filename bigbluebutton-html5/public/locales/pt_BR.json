@@ -1533,6 +1533,7 @@
     "app.createBreakoutRoom.captureNotes": "Salvar notas compartilhadas",
     "app.createBreakoutRoom.captureSlides": "Salvar quadro branco",
     "app.createBreakoutRoom.sendInvitationToMods": "Enviar convite para os moderadores incluídos na atividade",
+    "app.createBreakoutRoom.inheritLockSettings": "Propagate the current lock settings",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Você precisa atribuir pelo menos um usuário a uma sala de apoio",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "A duração mínima de uma sala de apoio é de {timeInMinutes} minutos.",
     "app.createBreakoutRoom.timeCannotExceedMainRoom": "A duração da sala de apoio não pode exceder o tempo restante da sessão.",
