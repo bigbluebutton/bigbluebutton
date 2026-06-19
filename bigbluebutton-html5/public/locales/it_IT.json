@@ -1533,7 +1533,7 @@
     "app.createBreakoutRoom.captureNotes": "Salva le note condivise",
     "app.createBreakoutRoom.captureSlides": "Salva lavagna",
     "app.createBreakoutRoom.sendInvitationToMods": "Manda un invito ai moderatori assegnati",
-    "app.createBreakoutRoom.inheritLockSettings": "Propagate the current lock settings",
+    "app.createBreakoutRoom.inheritLockSettings": "Propaga le impostazioni di blocco correnti",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Devi posizionare almeno un utente nell'aula separata",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "La scadenza minima delle stanze separate è di {timeInMinutes} minuti.",
     "app.createBreakoutRoom.timeCannotExceedMainRoom": "La durata della stanza per sottogruppi di lavoro non può superare il tempo rimanente della sessione.",
