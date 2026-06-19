@@ -1533,6 +1533,7 @@
     "app.createBreakoutRoom.captureNotes": "Paylaşılan notlar kaydedilsin",
     "app.createBreakoutRoom.captureSlides": "Beyaz tahta kaydedilsin",
     "app.createBreakoutRoom.sendInvitationToMods": "Atanmış sorumlulara davet gönder",
+    "app.createBreakoutRoom.inheritLockSettings": "Propagate the current lock settings",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Bir çalışma grubu odasına en az bir kullanıcı göndermelisiniz..",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "En kısa çalışma grubu odası süresi {timeInMinutes} dakikadır.",
     "app.createBreakoutRoom.timeCannotExceedMainRoom": "Çalışma grubu odasının süresi, oturumun kalan süresini aşamaz.",
