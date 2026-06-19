@@ -823,6 +823,12 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       maxNumberOfActiveUsers: 25,
       maxHistoryStackSize: 400,
       lockToolbarTools: false,
+      pacing: {
+        targetAPS: 60,
+        baseMS: 60,
+        maxBatchSize: 32,
+        hardFlushMS: 5000,
+      },
       allowInfiniteWhiteboard: false,
       allowInfiniteWhiteboardInBreakouts: false,
       allowInfiniteWhiteboardPanForViewers: false,

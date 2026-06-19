@@ -746,6 +746,13 @@ export interface Label {
   sharingWebcam: boolean
 }
 
+export interface Pacing {
+  baseMS: number;
+  maxBatchSize: number;
+  hardFlushMS: number;
+  targetAPS: number;
+}
+
 export interface Whiteboard {
   annotationsQueueProcessInterval: number
   cursorInterval: number
@@ -755,6 +762,7 @@ export interface Whiteboard {
   maxNumberOfActiveUsers: number
   maxHistoryStackSize: number
   lockToolbarTools: boolean
+  pacing: Pacing
   annotations: Annotations
   allowInfiniteWhiteboard: boolean
   allowInfiniteWhiteboardInBreakouts: boolean

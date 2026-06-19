@@ -1121,6 +1121,15 @@ public:
     # default value is 400, adjusted for maxNumberOfAnnotations being 300
     maxHistoryStackSize: 400
     lockToolbarTools: false
+    pacing:
+      # Target annotations per second
+      targetAPS: 60
+      # Min interval between flushes (ms)
+      baseMS: 60
+      # Max annotations per flush
+      maxBatchSize: 32
+      # Max time before forced flush (ms)
+      hardFlushMS: 5000
     annotations:
       status:
         start: DRAW_START
