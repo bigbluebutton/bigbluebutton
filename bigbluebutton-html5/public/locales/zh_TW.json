@@ -1533,6 +1533,7 @@
     "app.createBreakoutRoom.captureNotes": "保存共享筆記",
     "app.createBreakoutRoom.captureSlides": "保存白板",
     "app.createBreakoutRoom.sendInvitationToMods": "發送邀請給指定的主持人",
+    "app.createBreakoutRoom.inheritLockSettings": "Propagate the current lock settings",
     "app.createBreakoutRoom.leastOneWarnBreakout": "您必須至少將一名使用者放入分組房間。",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "分組房間的最短持續時間為 {timeInMinutes} 分鐘。",
     "app.createBreakoutRoom.timeCannotExceedMainRoom": "分組房間的持續時間不能超過會議剩餘時間。",
