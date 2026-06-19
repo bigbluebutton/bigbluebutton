@@ -301,7 +301,7 @@ export class Options extends MultiUsers {
   async keyboardNavigationOptionsDropdown() {
     await this.modPage.page.focus(e.optionsButton);
     await this.modPage.press('Enter');
-    await this.modPage.waitForSelector(e.settings);
+    await this.modPage.waitForSelector(e.settingsSidebarButton);
 
     await this.modPage.press('ArrowDown');
     await expect(
