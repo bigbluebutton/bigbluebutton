@@ -7,7 +7,7 @@ import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x.requestBroadcastStop
 import org.bigbluebutton.core.db.ExternalVideoDAO
 import org.bigbluebutton.core.apps.pads.PadsApp2x.setPinned
-import org.bigbluebutton.core.util.UrlTimeExtractor
+import org.bigbluebutton.core.util.ExternalVideoUrlParser
 
 trait StartExternalVideoPubMsgHdlr extends RightsManagementTrait {
   this: ExternalVideoApp2x =>
@@ -41,8 +41,8 @@ trait StartExternalVideoPubMsgHdlr extends RightsManagementTrait {
 
       // Request Shared Notes to unpin
       setPinned(bus.outGW, liveMeeting, "notes", pinned = false)
-
-      val (videoUrl, initialSecond) = UrlTimeExtractor.extractTime(msg.body.externalVideoUrl)
+      val sanitizedUrl = ExternalVideoUrlParser.sanitizeVideoUrl(msg.body.externalVideoUrl)
+      val (videoUrl, initialSecond) = ExternalVideoUrlParser.extractTime(sanitizedUrl)
       ExternalVideoModel.setURL(liveMeeting.externalVideoModel, videoUrl)
       ExternalVideoDAO.insert(liveMeeting.props.meetingProp.intId, videoUrl, initialSecond)
 
