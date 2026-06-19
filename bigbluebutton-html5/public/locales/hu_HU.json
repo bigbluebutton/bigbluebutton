@@ -1533,6 +1533,7 @@
     "app.createBreakoutRoom.captureNotes": "Megosztott jegyzetek mentése",
     "app.createBreakoutRoom.captureSlides": "Rajztábla mentése",
     "app.createBreakoutRoom.sendInvitationToMods": "Meghívó küldése a hozzárendelt szervezőknek",
+    "app.createBreakoutRoom.inheritLockSettings": "Propagate the current lock settings",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Minden csoportterembe legalább egy résztvevőnek kell kerülnie.",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "Egy csoportterem minimális időtartama {timeInMinutes} perc.",
     "app.createBreakoutRoom.timeCannotExceedMainRoom": "A csoporttermek nyitvatartási időtartama nem haladhatja meg a megbeszélésből hátralévő időt.",
