@@ -222,10 +222,16 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             }
         }
 
+        // Masks with color filters (common in scanned PDFs from pdftocairo) often
+        // render incorrectly in browsers, causing blank/dark overlays on slides.
+        // Any presence of masks should trigger rasterization for reliable rendering.
+        boolean hasMasks = pHandler.numberOfMaskTags() > 0;
+
         if (destsvg.length() == 0 ||
                 pHandler.numberOfImageTags() > imageTagThreshold ||
                 pHandler.numberOfPaths() > pathsThreshold ||
                 pHandler.numberOfUseTags() > useTagThreshold ||
+                hasMasks ||
                 rasterizeCurrSlide) {
 
             // We need t delete the destination file as we are starting a
@@ -246,8 +252,10 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 logData.put("fileExists", destsvg.exists());
                 logData.put("numberOfImages", pHandler.numberOfImageTags());
                 logData.put("numberOfPaths", pHandler.numberOfPaths());
+                logData.put("numberOfMasks", pHandler.numberOfMaskTags());
+                logData.put("hasMasks", hasMasks);
                 logData.put("logCode", "potential_problem_with_svg");
-                logData.put("message", "Potential problem with generated SVG");
+                logData.put("message", "Potential problem with generated SVG, triggering rasterization fallback");
                 Gson gson = new Gson();
                 String logStr = gson.toJson(logData);
 
@@ -412,7 +420,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
         rawCommand  += " -q -f " + String.valueOf(page) + " -l " + String.valueOf(page) + " " + source + " " + destFile;
         if (analyze) {
-            rawCommand += " && grep -oE '<image|<path|<use' "+destFile+" | sort | uniq -c ";
+            rawCommand += " && grep -oE '<image|<path|<use|<mask' "+destFile+" | sort | uniq -c ";
         }
 
         return new NuProcessBuilder(Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh", timeout + "s", "/bin/sh", "-c", rawCommand));
