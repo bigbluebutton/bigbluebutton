@@ -94,6 +94,7 @@
     "hark": "^1.2.3",
     "html-to-image": "^1.11.13",
     "immutability-helper": "~2.8.1",
+    "katex": "^0.16.47",
     "langmap": "0.0.16",
     "livekit-client": "2.17.3",
     "makeup-screenreader-trap": "0.0.5",

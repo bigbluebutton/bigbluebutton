@@ -18,9 +18,16 @@ import {
   UnnestBlockButton,
   useComponentsContext,
   useCreateBlockNote,
+  getDefaultReactSlashMenuItems,
+  SuggestionMenuController,
+  DefaultReactSuggestionItem,
 } from '@blocknote/react';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Menu as MantineMenu } from '@mantine/core';
+import {
+  filterSuggestionItems,
+  insertOrUpdateBlockForSlashMenu,
+} from '@blocknote/core/extensions';
 
 import { Plugin, PluginKey, TextSelection } from '@tiptap/pm/state';
 import { Extension } from '@tiptap/core';
@@ -35,6 +42,8 @@ import useCurrentUser from '../../core/hooks/useCurrentUser';
 import logger from '/imports/startup/client/logger';
 import { notify } from '../../services/notification';
 import TextAlignSelect from './text-align-select/component';
+import createLatexBlock from './latex-block/LatexBlock';
+import 'katex/dist/katex.min.css';
 
 // Force-retain `Awareness` against a webpack tree-shaking interaction that
 // otherwise drops this class while keeping its `extends Observable` expression,
@@ -182,6 +191,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   const schema = BlockNoteSchema.create({
     blockSpecs: {
       ...remainingBlockSpecs,
+      latex: createLatexBlock(),
     },
   });
 
@@ -449,8 +459,27 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         editor={editor}
         theme="light"
         formattingToolbar={!STATIC_FORMATTING_TOOLBAR_ENABLED}
+        slashMenu={false}
         renderEditor={false}
       >
+        <SuggestionMenuController
+          triggerCharacter="/"
+          getItems={async (query) => filterSuggestionItems(
+            [
+              ...getDefaultReactSlashMenuItems(editor),
+              {
+                title: 'LaTeX Formula',
+                onItemClick: () => {
+                  insertOrUpdateBlockForSlashMenu(editor, { type: 'latex' });
+                },
+                aliases: ['latex', 'math', 'formula', 'equation'],
+                group: 'Other',
+                subtext: 'Insert a LaTeX math formula',
+              } as DefaultReactSuggestionItem,
+            ],
+            query,
+          )}
+        />
         {STATIC_FORMATTING_TOOLBAR_ENABLED && editable && (
           <ToolbarWithAccessibleMenus>
             <div
