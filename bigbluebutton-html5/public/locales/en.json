@@ -158,6 +158,7 @@
     "app.userList.sharingWebcam": "Webcam",
     "app.userList.menuTitleContext": "Available options",
     "app.userList.chatListItem.unreadSingular": "One new message",
+    "app.userList.searchPlaceholder": "Search",
     "app.userList.chatListItem.unreadPlural": "{unreadCount} new messages",
     "app.userList.menu.away": "Set yourself as away",
     "app.userList.menu.notAway": "Set yourself as active",
