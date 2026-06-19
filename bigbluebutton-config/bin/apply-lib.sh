@@ -127,7 +127,7 @@ enableUFWRules() {
 # Enable firewalld rules to open only
 #
 enableFirewalldRules() {
-  echo "  - Enable Firewalld and opening 22/tcp, 80/tcp, 443/tcp and 16384:32768/udp"
+  echo "  - Enable Firewalld and opening 22/tcp, 80/tcp, 443/tcp, 3478/tcp/udp, 16384:32768/udp (FreeSWITCH RTP), and 32769:65535/udp (external TURN)"
 
   if ! which firewall-cmd > /dev/null; then
     apt-get install -y firewalld
@@ -141,28 +141,19 @@ enableFirewalldRules() {
   firewall-cmd --permanent --add-service=ssh
   firewall-cmd --permanent --add-service=http
   firewall-cmd --permanent --add-service=https
-  firewall-cmd --permanent --add-port=16384-32768/udp
+  
+  # Open Coturn STUN/TURN ports for both internal and external communication
+  firewall-cmd --permanent --add-port=3478/tcp
+  firewall-cmd --permanent --add-port=3478/udp
 
-  # Check if haproxy is running and open port 3478
-  if systemctl is-enabled haproxy > /dev/null 2>&1; then
-    if systemctl -q is-active haproxy; then
-      echo "  - Local haproxy detected and running -- opening port 3478"
-      firewall-cmd --permanent --add-port=3478/tcp
-      firewall-cmd --permanent --add-port=3478/udp
-    else
-      if firewall-cmd --list-ports | grep -q "3478/tcp\|3478/udp"; then
-        echo "  - Local haproxy not running -- closing port 3478"
-        firewall-cmd --permanent --remove-port=3478/tcp
-        firewall-cmd --permanent --remove-port=3478/udp
-      fi
-    fi
-  else
-    if firewall-cmd --list-ports | grep -q "3478/tcp\|3478/udp"; then
-      echo "  - Local haproxy not running -- closing port 3478"
-      firewall-cmd --permanent --remove-port=3478/tcp
-      firewall-cmd --permanent --remove-port=3478/udp
-    fi
-  fi
+  # Open TLS fallback port 443/udp for TURN
+  firewall-cmd --permanent --add-port=443/udp
+
+  # Open FreeSWITCH RTP ports for WebRTC communication (internal TURN)
+  firewall-cmd --permanent --add-port=16384-32768/udp
+  
+  # Open external TURN relay ports for communication beyond internal TURN
+  firewall-cmd --permanent --add-port=32769-65535/udp
 
   # Reload firewalld to apply changes
   firewall-cmd --reload
