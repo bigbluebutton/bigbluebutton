@@ -35,6 +35,10 @@ test.describe.parallel('Options', { tag: '@ci' }, () => {
     await options.autoHideWhiteboardToolbar();
   });
 
+  test('Options dropdown keyboard navigation', async () => {
+    await options.keyboardNavigationOptionsDropdown();
+  });
+
   test.describe('Data savings', () => {
     test('Webcam sharing settings', async () => {
       await options.initUserPage(options.modPage.context);

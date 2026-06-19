@@ -54,6 +54,8 @@ case class BreakoutRoomDetail(
     sourcePresentationId:    String,
     sourcePresentationSlide: Int,
     record:                  Boolean,
+    autoStartRecording:      Boolean,
+    allowStartStopRecording: Boolean,
     privateChatEnabled:      Boolean,
     captureNotes:            Boolean,
     captureSlides:           Boolean,
@@ -64,7 +66,17 @@ case class BreakoutRoomDetail(
     audioBridge:             String,
     cameraBridge:            String,
     screenShareBridge:       String,
-    disablePrivChat:         Boolean
+    disablePrivChat:         Boolean,
+    disableCam:              Boolean,
+    disableMic:              Boolean,
+    disablePubChat:          Boolean,
+    disableNotes:            Boolean,
+    hideUserList:            Boolean,
+    lockOnJoin:              Boolean,
+    lockOnJoinConfigurable:  Boolean,
+    hideViewersCursor:       Boolean,
+    hideViewersAnnotation:   Boolean,
+    webcamsOnlyForModerator: Boolean
 )
 
 /**
@@ -72,7 +84,7 @@ case class BreakoutRoomDetail(
  */
 object CreateBreakoutRoomsCmdMsg { val NAME = "CreateBreakoutRoomsCmdMsg" }
 case class CreateBreakoutRoomsCmdMsg(header: BbbClientMsgHeader, body: CreateBreakoutRoomsCmdMsgBody) extends StandardMsg
-case class CreateBreakoutRoomsCmdMsgBody(meetingId: String, durationInSeconds: Int, record: Boolean, captureNotes: Boolean, captureSlides: Boolean, rooms: Vector[BreakoutRoomMsgBody], sendInviteToModerators: Boolean)
+case class CreateBreakoutRoomsCmdMsgBody(meetingId: String, durationInSeconds: Int, record: Boolean, captureNotes: Boolean, captureSlides: Boolean, rooms: Vector[BreakoutRoomMsgBody], sendInviteToModerators: Boolean, inheritLockSettings: Boolean)
 case class BreakoutRoomMsgBody(name: String, sequence: Int, shortName: String, captureNotesFilename: String, captureSlidesFilename: String, isDefaultName: Boolean, freeJoin: Boolean, users: Vector[String], allPages: Boolean, presId: String)
 
 // Sent by user to request ending all the breakout rooms

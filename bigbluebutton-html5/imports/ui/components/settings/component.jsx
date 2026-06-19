@@ -277,7 +277,6 @@ class Settings extends Component {
       <Styled.SettingsTabs
         onSelect={this.handleSelectTab}
         selectedIndex={selectedTab}
-        role="presentation"
       >
         <Styled.SettingsTabList>
           <Styled.SettingsTabSelector
@@ -287,6 +286,7 @@ class Settings extends Component {
             <span id="appTab">{intl.formatMessage(intlMessages.appTabLabel)}</span>
           </Styled.SettingsTabSelector>
           <Styled.SettingsTabSelector
+            aria-labelledby="notificationTab"
             selectedClassName="is-selected"
           >
             <span id="notificationTab">{intl.formatMessage(intlMessages.notificationLabel)}</span>

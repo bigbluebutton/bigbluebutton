@@ -43,6 +43,9 @@ module BigBlueButton
         :audios => []
       }
 
+      start_times = {}
+      original_durations = {}
+
       # Add events for recording start/stop
       events.xpath('/recording/event[@module="VOICE" or @module="bbb-webrtc-sfu"]').each do |event|
         timestamp = event['timestamp'].to_i - initial_timestamp
@@ -54,16 +57,17 @@ module BigBlueButton
             :timestamp => timestamp,
             :audios => [{ :filename => filename, :timestamp => 0 }]
           }
+          start_times[filename] = timestamp
         when 'StopRecordingEvent'
           filename = event.at_xpath('filename').text
           filename = "#{audio_dir}/#{File.basename(filename)}"
           if audio_edl.last.dig(:audios, 0, :filename) == filename
-            audio_edl.last[:original_duration] = timestamp - audio_edl.last[:timestamp]
             audio_edl << {
               :timestamp => timestamp,
               :audios => []
             }
           end
+          original_durations[filename] = timestamp - start_times[filename] if start_times.include?(filename)
         when 'AudioTrackPublishedEvent'
           filename = event.at_xpath('filename').text
           filename = "#{audio_dir}/#{File.basename(filename)}"
@@ -80,6 +84,7 @@ module BigBlueButton
             }
           end
           audio_edl << edl_entry
+          start_times[filename] = timestamp
         when 'AudioTrackUnpublishedEvent'
           filename = event.at_xpath('filename').text
           filename = "#{audio_dir}/#{File.basename(filename)}"
@@ -95,6 +100,13 @@ module BigBlueButton
             }
           end
           audio_edl << edl_entry
+          original_durations[filename] = timestamp - start_times[filename] if start_times.include?(filename)
+        end
+      end
+
+      audio_edl.each do |edl_entry|
+        edl_entry[:audios].each do |audio|
+          audio[:original_duration] = original_durations[audio[:filename]] if original_durations.include?(audio[:filename])
         end
       end
 
@@ -119,6 +131,9 @@ module BigBlueButton
         :audios => []
       }
 
+      start_times = {}
+      original_durations = {}
+
       events.xpath('/recording/event[@module="bbb-webrtc-sfu" and (@eventname="StartWebRTCDesktopShareEvent" or @eventname="StopWebRTCDesktopShareEvent")]').each do |event|
         filename = event.at_xpath('filename').text
         # Determine the audio filename
@@ -139,24 +154,24 @@ module BigBlueButton
               :timestamp => timestamp,
               :audios => [{ :filename => filename, :timestamp => 0 }]
             }
+            start_times[filename] = timestamp
           when 'StopWebRTCDesktopShareEvent'
             if audio_edl.last.dig(:audios, 0, :filename) == filename
-              # Fill in the original/expected audo duration when available
-              duration = event.at_xpath('duration')
-              if !duration.nil?
-                duration = duration.text.to_i
-                audio_edl.last[:original_duration] = duration * 1000
-              else
-                audio_edl.last[:original_duration] = timestamp - audio_edl.last[:timestamp]
-              end
               audio_edl << {
                 :timestamp => timestamp,
                 :audios => []
               }
             end
+            original_durations[filename] = timestamp - start_times[filename] if start_times.include?(filename)
           end
         else
           BigBlueButton.logger.debug " Screenshare without audio, ignoring..."
+        end
+      end
+
+      audio_edl.each do |edl_entry|
+        edl_entry[:audios].each do |audio|
+          audio[:original_duration] = original_durations[audio[:filename]] if original_durations.include?(audio[:filename])
         end
       end
 

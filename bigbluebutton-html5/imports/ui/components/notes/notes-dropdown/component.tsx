@@ -14,6 +14,7 @@ import Service from './service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { useIsPresentationEnabled } from '/imports/ui/services/features';
 import { NOTES_ARE_PINNABLE } from '../service';
+import Auth from '/imports/ui/services/auth';
 
 const DEBOUNCE_TIMEOUT = 15000;
 
@@ -82,8 +83,7 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
     }
 
     if (!isEtherpadSharedNotes) {
-      const urlParams = new URLSearchParams(window.location.search);
-      const sessionToken = urlParams.get('sessionToken');
+      const { sessionToken } = Auth;
       const hocuspocusServerHostname = window.meetingClientSettings.public.sharedNotes.serverHostname
         || window.location.hostname;
 

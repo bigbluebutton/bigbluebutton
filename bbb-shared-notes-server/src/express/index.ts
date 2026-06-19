@@ -39,12 +39,12 @@ const limiter = rateLimit({
       }
     },
     keyGenerator: (req) => {
-      const userId = req.headers['user-id'];
+      const intUserId = req.headers['user-id'];
       const meetingId = req.headers['meeting-id'];
-      if (typeof userId !== 'string' || typeof meetingId !== 'string') {
+      if (typeof intUserId !== 'string' || typeof meetingId !== 'string') {
         return 'system';
       }
-      return `${userId}-${meetingId}`;
+      return `${intUserId}-${meetingId}`;
     },
 });
 

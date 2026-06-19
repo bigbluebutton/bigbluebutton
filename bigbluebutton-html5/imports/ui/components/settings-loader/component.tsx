@@ -5,6 +5,7 @@ import MeetingClientSettings from '/imports/ui/Types/meetingClientSettings';
 import { ErrorScreen } from '/imports/ui/components/error-screen/component';
 import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
 import Session from '/imports/ui/services/storage/in-memory';
+import Auth from '/imports/ui/services/auth';
 import BBBWeb from '/imports/api/bbb-web-api';
 import MeetingStaticDataStore from '/imports/ui/core/singletons/meetingStaticData';
 import { MeetingStaticData } from '/imports/ui/Types/meetingStaticData';
@@ -50,8 +51,7 @@ const SettingsLoader: React.FC<SettingsLoaderProps> = (props) => {
     const clientSessionUUID = uuid();
     sessionStorage.setItem('clientSessionUUID', clientSessionUUID);
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const sessionToken = urlParams.get('sessionToken');
+    const sessionToken = Auth.sessionToken as string | null;
 
     if (!sessionToken) {
       setLoading(false);
