@@ -1533,6 +1533,7 @@
     "app.createBreakoutRoom.captureNotes": "Capturar notas compartidas cuando finalicen las salas de reuniones",
     "app.createBreakoutRoom.captureSlides": "Capturar el encerado cuando finalicen las salas de reuniones",
     "app.createBreakoutRoom.sendInvitationToMods": "Enviar invitación a moderadores asignados",
+    "app.createBreakoutRoom.inheritLockSettings": "Propagate the current lock settings",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Debe colocar al menos un usuario en la sala externa",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "La duración mínima para una sala de un grupo de trabajo es de {timeInMinutes} minutos.",
     "app.createBreakoutRoom.timeCannotExceedMainRoom": "La duración de la sala de grupo no puede exceder el tiempo restante de la sesión.",
