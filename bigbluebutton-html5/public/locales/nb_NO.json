@@ -1533,6 +1533,7 @@
     "app.createBreakoutRoom.captureNotes": "Lagre delte notater",
     "app.createBreakoutRoom.captureSlides": "Lagre whiteboard",
     "app.createBreakoutRoom.sendInvitationToMods": "Send invitasjon til tildelte moderatorer",
+    "app.createBreakoutRoom.inheritLockSettings": "Propagate the current lock settings",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Du må plassere minst en bruker i et grupperom",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "Minimum varighet for et grupperom er {timeInMinutes} minutter.",
     "app.createBreakoutRoom.timeCannotExceedMainRoom": "Varigheten for grupperommet kan ikke overstige den gjenværende tiden for økten.",
