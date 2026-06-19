@@ -1533,6 +1533,7 @@
     "app.createBreakoutRoom.captureNotes": "Guardar notes compartides",
     "app.createBreakoutRoom.captureSlides": "Guardar pissarra",
     "app.createBreakoutRoom.sendInvitationToMods": "Enviar invitació als moderadors assignats",
+    "app.createBreakoutRoom.inheritLockSettings": "Propagate the current lock settings",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Com a mínim heu d'incloure un usuari en una sala separada.",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "La durada mínima d'una sala de grup és de {timeInMinutes} minuts.",
     "app.createBreakoutRoom.timeCannotExceedMainRoom": "La durada de la sala de treball no pot superar el temps restant de la sessió.",
