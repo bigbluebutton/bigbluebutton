@@ -306,7 +306,9 @@ export async function initializePages(
   initOptions?: InitOptions,
 ): Promise<void> {
   const { isMultiUser, createParameter, joinParameter, testInfo } = initOptions || {};
-  const context = await browser.newContext();
+  const context = await browser.newContext({
+    ...(testInfo && { recordVideo: { dir: testInfo.outputDir } }),
+  });
   const page = await context.newPage();
   await testInstance.initModPage(page, { createParameter, joinParameter, testInfo });
   if (isMultiUser) await testInstance.initUserPage(context, { createParameter, joinParameter, testInfo });

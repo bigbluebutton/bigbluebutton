@@ -356,7 +356,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         renderEditor={false}
       >
         {STATIC_FORMATTING_TOOLBAR_ENABLED && editable && (
-          <div ref={toolbarRef} className="bn-toolbar-row">
+          <div ref={toolbarRef} className="bn-toolbar-row" data-test="blockNoteToolbar">
             <FormattingToolbar>
               <BlockTypeSelect key="blockTypeSelect" />
               <BasicTextStyleButton basicTextStyle="bold" key="boldStyleButton" />
