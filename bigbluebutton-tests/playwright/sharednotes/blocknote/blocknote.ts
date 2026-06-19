@@ -8,11 +8,11 @@ import {
   getBlockNoteLinkLocator,
   readLinkAndCursorState,
   startBlockNoteSharedNotes,
+  WORD_JOINER,
 } from './util';
 
 // URL mirrors the link shown in the original #25225 report (it referenced issue 25175).
 const LINK_URL = 'https://github.com/bigbluebutton/bigbluebutton/issues/25175';
-const WORD_JOINER = '⁠';
 
 export class BlockNoteSharedNotes extends MultiUsers {
   // Reproduces issue #25225: when a remote user's caret sits inside a link, that

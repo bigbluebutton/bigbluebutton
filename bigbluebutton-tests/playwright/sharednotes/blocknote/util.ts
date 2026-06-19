@@ -8,6 +8,10 @@ import { Page } from '../../core/page';
 // is the ProseMirror root `.bn-editor` inside the shared-notes panel.
 export const BLOCKNOTE_EDITOR = '[data-test="notes"] .bn-editor';
 
+// U+2060 word-joiner: y-prosemirror wraps the remote collaboration-cursor name
+// in these invisible separators, which is what #25225 leaked into the link.
+export const WORD_JOINER = '⁠';
+
 export async function startBlockNoteSharedNotes(testPage: Page): Promise<void> {
   await testPage.waitAndClick(e.sharedNotes);
   await testPage.waitForSelector(e.hideNotesLabel, ELEMENT_WAIT_LONGER_TIME);
@@ -29,21 +33,23 @@ export function getBlockNoteLinkLocator(testPage: Page): Locator {
  * cursor owner's editor and stop their awareness cursor from broadcasting).
  */
 export function readLinkAndCursorState(testPage: Page) {
-  return testPage.page.evaluate((sel: string) => {
-    const WORD_JOINER = '⁠';
-    const anchor = document.querySelector(`${sel} a`) as HTMLAnchorElement | null;
-    // One `__base` element per remote cursor — count bases only for an accurate count.
-    const cursorBases = document.querySelectorAll(`${sel} .bn-collaboration-cursor__base`);
-    return {
-      linkText: anchor ? (anchor.textContent ?? '') : '',
-      linkHref: anchor ? (anchor.getAttribute('href') ?? '') : '',
-      linkTextHasWordJoiner: anchor ? (anchor.textContent ?? '').includes(WORD_JOINER) : false,
-      cursorWidgetInsideLink: anchor
-        ? !!anchor.querySelector(
-            '.bn-collaboration-cursor__base, .bn-collaboration-cursor__caret, .bn-collaboration-cursor__label',
-          )
-        : false,
-      remoteCursorCount: cursorBases.length,
-    };
-  }, BLOCKNOTE_EDITOR);
+  return testPage.page.evaluate(
+    ({ sel, wordJoiner }: { sel: string; wordJoiner: string }) => {
+      const anchor = document.querySelector(`${sel} a`) as HTMLAnchorElement | null;
+      // One `__base` element per remote cursor — count bases only for an accurate count.
+      const cursorBases = document.querySelectorAll(`${sel} .bn-collaboration-cursor__base`);
+      return {
+        linkText: anchor ? (anchor.textContent ?? '') : '',
+        linkHref: anchor ? (anchor.getAttribute('href') ?? '') : '',
+        linkTextHasWordJoiner: anchor ? (anchor.textContent ?? '').includes(wordJoiner) : false,
+        cursorWidgetInsideLink: anchor
+          ? !!anchor.querySelector(
+              '.bn-collaboration-cursor__base, .bn-collaboration-cursor__caret, .bn-collaboration-cursor__label',
+            )
+          : false,
+        remoteCursorCount: cursorBases.length,
+      };
+    },
+    { sel: BLOCKNOTE_EDITOR, wordJoiner: WORD_JOINER },
+  );
 }
