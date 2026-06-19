@@ -1533,6 +1533,7 @@
     "app.createBreakoutRoom.captureNotes": "Αποθήκευση των κοινών σημειώσεων κατά τον τερματισμό του τμήματος αίθουσας",
     "app.createBreakoutRoom.captureSlides": "Αποθήκευση ασπροπίνακα κατά τον τερματισμό του τμήματος αίθουσας",
     "app.createBreakoutRoom.sendInvitationToMods": "Αποστολή πρόσκλησης σε καθορισμένους συντονιστές",
+    "app.createBreakoutRoom.inheritLockSettings": "Propagate the current lock settings",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Πρέπει να προσθέσετε τουλάχιστο έναν χρήστη στο τμήμα αίθουσας διάσκεψης.",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "Η ελάχιστη διάρκεια του τμήματος αίθουσας τηλεδιάσκεψης είναι {timeInMinutes} λεπτά.",
     "app.createBreakoutRoom.timeCannotExceedMainRoom": "Η διάρκεια τμήματος αίθουσας δεν μπορεί να υπερβαίνει τον υπολειπόμενο χρόνο της τηλεδιάσκεψης.",
