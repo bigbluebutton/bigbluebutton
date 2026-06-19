@@ -6,6 +6,7 @@ import { LockViewers } from './lockViewers';
 import { MobileDevices } from './mobileDevices';
 import { MultiUsers } from './multiusers';
 import { Timer } from './timer';
+import { AUDIO_ONLY_TILE_SETTINGS_OVERRIDE } from './util';
 
 const iPhone11 = devices['iPhone 11'];
 
@@ -32,7 +33,7 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
 
     test('Audio-only tile visible for attendee', async ({ browser, context, page }, testInfo) => {
       const multiusers = new MultiUsers(browser, context);
-      await multiusers.initModPage(page, { testInfo });
+      await multiusers.initModPage(page, { testInfo, clientSettingsOverrides: AUDIO_ONLY_TILE_SETTINGS_OVERRIDE });
       await multiusers.audioOnlyTileVisibleForAttendee();
     });
 

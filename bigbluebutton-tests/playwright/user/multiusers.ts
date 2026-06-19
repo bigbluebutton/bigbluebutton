@@ -2,9 +2,10 @@ import { Browser, BrowserContext, expect, Page as PlaywrightPage, test, TestInfo
 
 import { ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { linkIssue } from '../core/helpers';
 import { InitOptionsProps, Page } from '../core/page';
 import { checkTextContent } from '../core/util';
-import { audioOnlyTilesLocator, checkAvatarIcon, checkMutedUser } from './util';
+import { AUDIO_ONLY_TILE_SETTINGS_OVERRIDE, audioOnlyTilesLocator, checkAvatarIcon, checkMutedUser } from './util';
 
 interface InitExtraPageOptionsProps extends InitOptionsProps {
   useModMeetingId?: boolean;
@@ -245,24 +246,18 @@ export class MultiUsers {
   }
 
   async audioOnlyTileVisibleForAttendee() {
-    // Parity check for issue 25242: audio-only tiles (camera-less users that hold the
+    // Regression test for issue 25242: audio-only tiles (camera-less users that hold the
     // floor) must be shown to attendees, not only moderators. Moderators are unpaginated
     // by default (pagination.desktopPageSizes.moderator = 0) and always add audio-only
     // tiles; attendees are paginated (viewer = 5).
     //
-    // Coverage note: the original bug lived in the `partitionPrivilegedStreams = false`
-    // pagination branch, which dropped audio-only tiles for paginated viewers. That
-    // setting is config-only (no per-meeting/userdata override exists), so this test
-    // cannot toggle it. With the shipped default (`true`) both roles already pass; this
-    // asserts the parity invariant and fails on the attendee side only when run against a
-    // server configured with `partitionPrivilegedStreams: false`.
-    // Skip when the feature is disabled (rather than fail with an opaque "tile never
-    // appeared" error).
-    const showAudioOnlyOnFirstPage = this.modPage.settings?.showAudioOnlyOnFirstPage ?? true;
-    test.skip(
-      !showAudioOnlyOnFirstPage,
-      'requires public.kurento.cameraSortingModes.showAudioOnlyOnFirstPage to be enabled',
-    );
+    // The original bug lived in the `partitionPrivilegedStreams = false` pagination branch,
+    // which dropped audio-only tiles for paginated viewers. Both that and
+    // `showAudioOnlyOnFirstPage` are config-only (no per-meeting/userdata override), so both
+    // pages are launched with AUDIO_ONLY_TILE_SETTINGS_OVERRIDE (applied via
+    // initModPage in the spec and initUserPage below) to deterministically reproduce the
+    // regression rather than relying on the shipped default.
+    linkIssue(25242);
 
     await this.modPage.waitForSelector(e.whiteboard);
 
@@ -272,7 +267,7 @@ export class MultiUsers {
 
     // An attendee joins with microphone and unmutes. Speaking takes the audio floor,
     // which qualifies the attendee as an audio-only user.
-    await this.initUserPage();
+    await this.initUserPage(undefined, { clientSettingsOverrides: AUDIO_ONLY_TILE_SETTINGS_OVERRIDE });
     await this.userPage.waitForSelector(e.whiteboard);
     await this.userPage.waitAndClick(e.joinAudio);
     await this.userPage.joinMicrophone();
