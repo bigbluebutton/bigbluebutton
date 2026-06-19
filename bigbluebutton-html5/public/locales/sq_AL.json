@@ -1533,6 +1533,7 @@
     "app.createBreakoutRoom.captureNotes": "Ruaji shënimet e përbashkëta",
     "app.createBreakoutRoom.captureSlides": "Ruaje tabelën",
     "app.createBreakoutRoom.sendInvitationToMods": "Dërgojuni ftesë moderatorëve të caktuar",
+    "app.createBreakoutRoom.inheritLockSettings": "Propagate the current lock settings",
     "app.createBreakoutRoom.leastOneWarnBreakout": "Duhet të vendosni të paktën një përdorues në një dhomë grupi pune.",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "Kohëzgjatja minimum për një dhomë grupi pune është {timeInMinutes} minuta.",
     "app.createBreakoutRoom.timeCannotExceedMainRoom": "Kohëzgjatja e dhomës së grupit të punës s’mund të tejkalojë kohën e mbetur për sesionin.",
