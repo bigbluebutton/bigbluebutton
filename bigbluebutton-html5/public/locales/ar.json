@@ -1533,7 +1533,7 @@
     "app.createBreakoutRoom.captureNotes": "حفظ الملاحظات المشتركة",
     "app.createBreakoutRoom.captureSlides": "حفظ السبورة البيضاء",
     "app.createBreakoutRoom.sendInvitationToMods": "إرسال دعوة إلى المشرفين المعينين",
-    "app.createBreakoutRoom.inheritLockSettings": "Propagate the current lock settings",
+    "app.createBreakoutRoom.inheritLockSettings": "نشر إعدادات القفل الحالية",
     "app.createBreakoutRoom.leastOneWarnBreakout": "يجب وضع مستخدم واحد علي الأقل في غرفة جانبية.",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "الحد الأدنى لمدة غرفة الاستراحة هو {timeInMinutes} دقيقة.",
     "app.createBreakoutRoom.timeCannotExceedMainRoom": "لا يمكن أن تتجاوز مدة غرفة الاجتماعات الفرعية الوقت المتبقي للجلسة.",
