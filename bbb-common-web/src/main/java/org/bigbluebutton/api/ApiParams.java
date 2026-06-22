@@ -101,7 +101,8 @@ public class ApiParams {
     public static final String LOCK_SETTINGS_DISABLE_PUBLIC_CHAT = "lockSettingsDisablePublicChat";
     public static final String DEPRECATED_LOCK_SETTINGS_DISABLE_NOTES = "lockSettingsDisableNote";
     public static final String LOCK_SETTINGS_DISABLE_NOTES = "lockSettingsDisableNotes";
-    public static final String LOCK_SETTINGS_HIDE_USER_LIST = "lockSettingsHideUserList";
+    public static final String DEPRECATED_LOCK_SETTINGS_HIDE_USER_LIST = "lockSettingsHideUserList";
+    public static final String LOCK_SETTINGS_ISOLATE_USERS = "lockSettingsIsolateUsers";
     public static final String LOCK_SETTINGS_LOCK_ON_JOIN = "lockSettingsLockOnJoin";
     public static final String LOCK_SETTINGS_LOCK_ON_JOIN_CONFIGURABLE = "lockSettingsLockOnJoinConfigurable";
     public static final String LOCK_SETTINGS_HIDE_VIEWERS_CURSOR = "lockSettingsHideViewersCursor";

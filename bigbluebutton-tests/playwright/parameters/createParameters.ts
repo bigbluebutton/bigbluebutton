@@ -132,7 +132,7 @@ export class CreateParameters extends MultiUsers {
     );
   }
 
-  async lockSettingsHideUserList() {
+  async lockSettingsIsolateUsers() {
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard for the moderator');
     await this.modPage.waitAndClick(e.usersListSidebarButton);
     await this.modPage.hasElementCount(e.userListItem, 2, 'should display the two attendees for the moderator');

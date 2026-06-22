@@ -1577,7 +1577,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `lockSettingsDisablePrivateChat` | Default lock setting: disable private chat | true/false | false _`overwritable`_ |
 | `lockSettingsDisablePublicChat` | Default lock setting: disable public chat | true/false | false _`overwritable`_ |
 | `lockSettingsDisableNotes` | Default lock setting: disable shared notes | true/false | false _`overwritable`_ |
-| `lockSettingsHideUserList` | Default lock setting: hide the user list from non-moderators | true/false | false _`overwritable`_ |
+| `lockSettingsIsolateUsers` | Default lock setting: hide the user list from non-moderators (formerly `lockSettingsHideUserList`, which is deprecated but still accepted) | true/false | false _`overwritable`_ |
 | `lockSettingsLockOnJoin` | Default lock setting: apply lock settings to all users on join | true/false | true _`overwritable`_ |
 | `lockSettingsLockOnJoinConfigurable` | Allow the lock-on-join flag to be configured per meeting | true/false | false _`overwritable`_ |
 | `lockSettingsHideViewersCursor` | Default lock setting: hide viewers' cursors from each other | true/false | false _`overwritable`_ |

@@ -12,7 +12,7 @@ const MEETING_SUBSCRIPTION = gql`
           disablePublicChat
           presenterPolicy
           hasActiveLockSetting
-          hideUserList
+          isolateUsers
           hideViewersCursor
           hideViewersAnnotation
           webcamsOnlyForModerator

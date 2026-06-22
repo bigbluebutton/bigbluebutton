@@ -97,7 +97,7 @@ const UserList: React.FC<UserListComponentProps> = () => {
   }));
   const [getUsers, { data: usersData, error: usersError }] = useLazyQuery<GetUserNamesResponse>(GET_USER_NAMES, { fetchPolicy: 'no-cache' });
   const users = usersData?.user || [];
-  const hideUserList = currentUserData?.locked && meetingInfo?.lockSettings?.hideUserList;
+  const isolateUsers = currentUserData?.locked && meetingInfo?.lockSettings?.isolateUsers;
   const handleGetUsers = useCallback(() => {
     getUsers();
   }, [getUsers]);
@@ -160,7 +160,7 @@ const UserList: React.FC<UserListComponentProps> = () => {
     );
   }, [currentUserData, meetingInfo?.isBreakout]);
 
-  const title = hideUserList
+  const title = isolateUsers
     ? intl.formatMessage(intlMessages.hideUserListTitle, { userCount: count })
     : intl.formatMessage(intlMessages.usersTitle, { userCount: count });
 

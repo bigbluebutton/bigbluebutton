@@ -17,7 +17,7 @@ select_permissions:
         - disablePublicChat
         - presenterPolicy
         - hasActiveLockSetting
-        - hideUserList
+        - isolateUsers
         - hideViewersAnnotation
         - hideViewersCursor
         - lockOnJoin

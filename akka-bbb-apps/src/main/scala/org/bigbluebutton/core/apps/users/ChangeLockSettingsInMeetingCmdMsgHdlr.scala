@@ -30,7 +30,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
         disablePrivChat = msg.body.disablePrivChat,
         disablePubChat = msg.body.disablePubChat,
         disableNotes = msg.body.disableNotes,
-        hideUserList = msg.body.hideUserList,
+        isolateUsers = msg.body.isolateUsers,
         lockOnJoin = msg.body.lockOnJoin,
         lockOnJoinConfigurable = msg.body.lockOnJoinConfigurable,
         hideViewersCursor = msg.body.hideViewersCursor,
@@ -208,13 +208,13 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
           }
         }
 
-        if (oldPermissions.hideUserList != settings.hideUserList) {
-          if (settings.hideUserList) {
+        if (oldPermissions.isolateUsers != settings.isolateUsers) {
+          if (settings.isolateUsers) {
             val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
               liveMeeting.props.meetingProp.intId,
               "info",
               "lock",
-              "app.userList.userOptions.hideUserList",
+              "app.userList.userOptions.isolateUsers",
               "Label to disable user list notification",
               Map()
             )
@@ -271,7 +271,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
           disablePrivChat = settings.disablePrivChat,
           disablePubChat = settings.disablePubChat,
           disableNotes = settings.disableNotes,
-          hideUserList = settings.hideUserList,
+          isolateUsers = settings.isolateUsers,
           lockOnJoin = settings.lockOnJoin,
           lockOnJoinConfigurable = settings.lockOnJoinConfigurable,
           hideViewersCursor = settings.hideViewersCursor,

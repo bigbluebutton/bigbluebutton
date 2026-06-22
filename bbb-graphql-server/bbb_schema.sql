@@ -206,7 +206,7 @@ SELECT
 	mls."disablePrivateChat",
 	mls."disablePublicChat",
 	mls."disableNotes",
-	mls."hideUserList",
+	mls."hideUserList" AS "isolateUsers",
 	mls."hideViewersCursor",
 	mls."hideViewersAnnotation",
 	mls."presenterPolicy",
@@ -581,7 +581,7 @@ and "loggedOut" is false
 and "ejected" is not true;
 
 --v_user_ref will be used only as foreign key (not possible to fetch this table directly through graphql)
---it is necessary because v_user has some conditions like "lockSettings-hideUserList"
+--it is necessary because v_user has some conditions like "lockSettings-isolateUsers"
 --but viewers still needs to query this users as foreign key of chat, cameras, etc
 CREATE OR REPLACE VIEW "v_user_ref"
 AS SELECT

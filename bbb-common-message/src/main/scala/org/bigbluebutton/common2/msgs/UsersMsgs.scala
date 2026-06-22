@@ -375,7 +375,7 @@ case class ChangeLockSettingsInMeetingCmdMsg(
     body:   ChangeLockSettingsInMeetingCmdMsgBody
 ) extends StandardMsg
 case class ChangeLockSettingsInMeetingCmdMsgBody(disableCam: Boolean, disableMic: Boolean, disablePrivChat: Boolean,
-                                                 disablePubChat: Boolean, disableNotes: Boolean, hideUserList: Boolean, lockOnJoin: Boolean,
+                                                 disablePubChat: Boolean, disableNotes: Boolean, isolateUsers: Boolean, lockOnJoin: Boolean,
                                                  lockOnJoinConfigurable: Boolean, hideViewersCursor: Boolean, hideViewersAnnotation: Boolean,
                                                  presenterPolicy: String, setBy: String)
 
@@ -385,7 +385,7 @@ case class LockSettingsInMeetingChangedEvtMsg(
     body:   LockSettingsInMeetingChangedEvtMsgBody
 ) extends BbbCoreMsg
 case class LockSettingsInMeetingChangedEvtMsgBody(disableCam: Boolean, disableMic: Boolean, disablePrivChat: Boolean,
-                                                  disablePubChat: Boolean, disableNotes: Boolean, hideUserList: Boolean, lockOnJoin: Boolean,
+                                                  disablePubChat: Boolean, disableNotes: Boolean, isolateUsers: Boolean, lockOnJoin: Boolean,
                                                   lockOnJoinConfigurable: Boolean, hideViewersCursor: Boolean, hideViewersAnnotation: Boolean,
                                                   presenterPolicy: String, setBy: String)
 
@@ -395,7 +395,7 @@ case class LockSettingsInMeetingChangedEvtMsgBody(disableCam: Boolean, disableMi
 object GetLockSettingsRespMsg { val NAME = "GetLockSettingsRespMsg" }
 case class GetLockSettingsRespMsg(header: BbbClientMsgHeader, body: GetLockSettingsRespMsgBody) extends BbbCoreMsg
 case class GetLockSettingsRespMsgBody(disableCam: Boolean, disableMic: Boolean, disablePrivChat: Boolean,
-                                      disablePubChat: Boolean, disableNotes: Boolean, hideUserList: Boolean, lockOnJoin: Boolean,
+                                      disablePubChat: Boolean, disableNotes: Boolean, isolateUsers: Boolean, lockOnJoin: Boolean,
                                       lockOnJoinConfigurable: Boolean, hideViewersCursor: Boolean, hideViewersAnnotation: Boolean,
                                       presenterPolicy: String)
 

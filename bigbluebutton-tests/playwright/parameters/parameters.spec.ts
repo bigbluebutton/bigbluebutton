@@ -95,10 +95,10 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
 
   test('Lock Settings Hide User List', async ({ browser, context, page }, testInfo) => {
     const createParam = new CreateParameters(browser, context);
-    await createParam.initModPage(page, { createParameter: c.lockSettingsHideUserList, testInfo });
+    await createParam.initModPage(page, { createParameter: c.lockSettingsIsolateUsers, testInfo });
     await createParam.initUserPage(context, { testInfo });
     await createParam.initUserPage2(context, { testInfo });
-    await createParam.lockSettingsHideUserList();
+    await createParam.lockSettingsIsolateUsers();
   });
 
   test('Allow Moderator To Eject Cameras', async ({ browser, context, page }, testInfo) => {

@@ -250,7 +250,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="lockSettingsDisablePrivateChat" value="${lockSettingsDisablePrivateChat}"/>
         <property name="lockSettingsDisablePublicChat" value="${lockSettingsDisablePublicChat}"/>
         <property name="lockSettingsDisableNotes" value="${lockSettingsDisableNotes}"/>
-        <property name="lockSettingsHideUserList" value="${lockSettingsHideUserList}"/>
+        <!-- lockSettingsHideUserList was renamed to lockSettingsIsolateUsers. The old key is still
+             honored as a fallback for existing overrides, but will be removed in a future release. -->
+        <property name="lockSettingsIsolateUsers" value="${lockSettingsIsolateUsers:${lockSettingsHideUserList:false}}"/>
         <property name="lockSettingsLockOnJoin" value="${lockSettingsLockOnJoin}"/>
         <property name="lockSettingsLockOnJoinConfigurable" value="${lockSettingsLockOnJoinConfigurable}"/>
         <property name="lockSettingsHideViewersCursor" value="${lockSettingsHideViewersCursor}"/>
