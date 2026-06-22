@@ -52,9 +52,9 @@ const intlMessages = defineMessages({
     defaultMessage: 'Minimize',
   },
   optionsLabel: {
-    id: 'app.navBar.optionsDropdown.optionsLabel',
-    description: 'Options button label',
-    defaultMessage: 'Options',
+    id: 'app.presentation.options.label',
+    description: 'Whiteboard options button label',
+    defaultMessage: 'Whiteboard options',
   },
   snapshotLabel: {
     id: 'app.presentation.options.snapshot',
@@ -180,6 +180,47 @@ const PresentationMenu = (props) => {
       pollShapeImage.setAttribute('x', pollShape.x);
       pollShapeImage.setAttribute('y', pollShape.y);
       svgElem.appendChild(pollShapeImage);
+    }
+
+    // Embed the slide background as a credentialed data URL before rasterizing.
+    // tldraw's getSvg fetches image assets WITHOUT credentials, so under a
+    // cluster-proxy (client on the proxy origin, slide served by the BBB node
+    // origin) the slide request is answered with 401 and tldraw inlines the
+    // error page instead of the slide - the exported snapshot then shows a
+    // broken image. We re-fetch the slide from its asset src WITH credentials
+    // and replace the broken reference so the export matches what is on screen,
+    // on same-origin and cluster-proxy setups alike.
+    try {
+      const bgAssetId = backgroundShape?.props?.assetId;
+      const asset = bgAssetId
+        ? (tldrawAPI.getAsset?.(bgAssetId) || tldrawAPI.store?.get?.(bgAssetId))
+        : null;
+      const slideSrc = asset?.props?.src;
+      if (slideSrc) {
+        const response = await fetch(slideSrc, { credentials: 'include' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const blob = await response.blob();
+        const slideDataUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+        svgElem.querySelectorAll('image').forEach((imageEl) => {
+          const href = imageEl.getAttribute('href') || imageEl.getAttribute('xlink:href');
+          // Annotations and polls are already valid data:image URIs; only the
+          // slide background fails to inline, so replace anything that is not.
+          if (!href || !href.startsWith('data:image')) {
+            imageEl.removeAttribute('xlink:href');
+            imageEl.setAttribute('href', slideDataUrl);
+          }
+        });
+      }
+    } catch (error) {
+      logger.warn({
+        logCode: 'presentation_snapshot_inline_image_error',
+        extraInfo: { error: error?.message || String(error) },
+      }, `Snapshot: failed to embed slide image for export: ${error?.message || error}`);
     }
 
     if (isIos || isSafari) {

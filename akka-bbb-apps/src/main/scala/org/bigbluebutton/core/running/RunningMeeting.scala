@@ -34,7 +34,7 @@ class RunningMeeting(val props: DefaultProps, outGW: OutMessageGateway,
   private val deskshareModel = new ScreenshareModel
   private val audioCaptions = new AudioCaptions
   private val timerModel = new TimerModel
-  private val clientSettingsBeforePluginValidation: Map[String, Object] = ClientSettings.getClientSettingsWithOverride(props.overrideClientSettings)
+  private val clientSettingsBeforePluginValidation: Map[String, Object] = ClientSettings.getClientSettingsWithOverride(props.overrideClientSettings, props.meetingProp.intId)
   private val (plugins, pluginSettings) = PluginModel.createPluginModelFromJson(props.pluginProp, props.systemProps.html5PluginSdkVersion, clientSettingsBeforePluginValidation)
   val clientSettings: Map[String, Object] = {
     val merged = ClientSettings.mergePluginSettingsIntoClientSettings(

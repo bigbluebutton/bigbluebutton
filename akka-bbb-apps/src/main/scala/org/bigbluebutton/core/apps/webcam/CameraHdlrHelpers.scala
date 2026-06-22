@@ -81,7 +81,6 @@ object CameraHdlrHelpers extends SystemConfiguration with RightsManagementTrait 
       liveMeeting: LiveMeeting,
       userId:      String
   ): Boolean = {
-    val isBreakout = liveMeeting.props.meetingProp.isBreakout
     val hasPermission = !permissionFailed(
       PermissionCheck.MOD_LEVEL,
       PermissionCheck.VIEWER_LEVEL,
@@ -89,7 +88,7 @@ object CameraHdlrHelpers extends SystemConfiguration with RightsManagementTrait 
       userId
     )
 
-    (!isBreakout && hasPermission)
+    hasPermission
   }
 
   def updateWebcamsOnlyForModerator(

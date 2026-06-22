@@ -125,6 +125,8 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       msg.body.room.sourcePresentationId,
       msg.body.room.sourcePresentationSlide,
       msg.body.room.record,
+      msg.body.room.autoStartRecording,
+      msg.body.room.allowStartStopRecording,
       msg.body.room.privateChatEnabled,
       msg.body.room.captureNotes,
       msg.body.room.captureSlides,
@@ -135,7 +137,17 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       msg.body.room.audioBridge,
       msg.body.room.cameraBridge,
       msg.body.room.screenShareBridge,
-      msg.body.room.disablePrivChat
+      msg.body.room.disablePrivChat,
+      msg.body.room.disableCam,
+      msg.body.room.disableMic,
+      msg.body.room.disablePubChat,
+      msg.body.room.disableNotes,
+      msg.body.room.hideUserList,
+      msg.body.room.lockOnJoin,
+      msg.body.room.lockOnJoinConfigurable,
+      msg.body.room.hideViewersCursor,
+      msg.body.room.hideViewersAnnotation,
+      msg.body.room.webcamsOnlyForModerator
     ))
   }
 

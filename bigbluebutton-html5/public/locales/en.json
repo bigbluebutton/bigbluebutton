@@ -1533,6 +1533,7 @@
     "app.createBreakoutRoom.captureNotes": "Save shared notes",
     "app.createBreakoutRoom.captureSlides": "Save whiteboard",
     "app.createBreakoutRoom.sendInvitationToMods": "Send invitation to assigned moderators",
+    "app.createBreakoutRoom.inheritLockSettings": "Propagate the current lock settings",
     "app.createBreakoutRoom.leastOneWarnBreakout": "You must place at least one user in a breakout room.",
     "app.createBreakoutRoom.minimumDurationWarnBreakout": "Minimum duration for a breakout room is {timeInMinutes} minutes.",
     "app.createBreakoutRoom.timeCannotExceedMainRoom": "The breakout room duration cannot exceed the session remaining time.",
