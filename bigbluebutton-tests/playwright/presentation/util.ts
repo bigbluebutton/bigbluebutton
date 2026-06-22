@@ -151,6 +151,7 @@ export async function uploadMultiplePresentations(
     e.presentationUploadProgressToast,
     'should display a toast presentation upload progress after confirming the presentation to be uploaded',
   );
+
   await testPage.hasNElements(
     e.uploadDoneIcon,
     fileNames.length,
@@ -175,6 +176,16 @@ export async function uploadMultiplePresentations(
       timeout: uploadTimeout,
     },
   );
+
+  // Poll row count instead of asserting visibility on transient processing/done icons —
+  // the toast auto-dismisses ~2s after completion and the status span briefly renders 0-height.
+  const uploadItemsLocator = testPage.page.locator(`${e.processingPresentationItem}, ${e.uploadDoneIcon}`);
+  await expect
+    .poll(() => uploadItemsLocator.count(), {
+      message: 'should display one upload row per file in the upload progress toast after confirming the upload',
+      timeout: uploadTimeout,
+    })
+    .toBeGreaterThanOrEqual(fileNames.length);
   await hasCurrentPresentationToastElement(testPage, { timeout: uploadTimeout });
 }
 

@@ -1,0 +1,312 @@
+diff --git a/configure.ac b/configure.ac
+index 469d5399a4..78f9808aac 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -308,6 +308,11 @@ SWITCH_AM_CXXFLAGS="-I${switch_srcdir}/src/include -I${switch_builddir}/src/incl
+ SWITCH_AM_CPPFLAGS="-I${switch_srcdir}/src/include -I${switch_builddir}/src/include -I${switch_srcdir}/libs/libteletone/src"
+ SWITCH_AM_LDFLAGS="-lm"
+ 
++# Cap cJSON parser recursion depth. Default upstream limit (1000) can overflow
++# small thread stacks; both vendored cJSON copies (src/ and libs/esl/) honor this.
++APR_ADDTO(SWITCH_AM_CFLAGS,   [-DCJSON_NESTING_LIMIT=64])
++APR_ADDTO(SWITCH_AM_CXXFLAGS, [-DCJSON_NESTING_LIMIT=64])
++
+ #set SOLINK variable based on compiler and host
+ if test "x${ax_cv_c_compiler_vendor}"  =  "xsun" ; then
+     SOLINK="-Bdynamic -dy -G"
+diff --git a/libs/esl/src/esl.c b/libs/esl/src/esl.c
+index 825d89dd54..1888f0857a 100644
+--- a/libs/esl/src/esl.c
++++ b/libs/esl/src/esl.c
+@@ -1338,12 +1338,22 @@ ESL_DECLARE(esl_status_t) esl_recv_event(esl_handle_t *handle, int check_q, esl_
+ 	if ((cl = esl_event_get_header(revent, "content-length"))) {
+ 		char *body;
+ 		esl_ssize_t sofar = 0;
+-		
++
+ 		len = atol(cl);
+-		body = malloc(len+1);
+-		esl_assert(body);
+-		*(body + len) = '\0';
+-		
++
++		if (len < 0 || len > ESL_MAX_CONTENT_LENGTH) {
++			esl_event_destroy(&revent);
++			goto fail;
++		}
++
++		body = malloc(len + 1);
++		if (!body) {
++			esl_event_destroy(&revent);
++			goto fail;
++		}
++
++		body[len] = '\0';
++
+ 		do {
+ 			esl_ssize_t r,s = esl_buffer_inuse(handle->packet_buf);
+ 
+@@ -1356,6 +1366,7 @@ ESL_DECLARE(esl_status_t) esl_recv_event(esl_handle_t *handle, int check_q, esl_
+ 					if (!(strerror_r(handle->errnum, handle->err, sizeof(handle->err))))
+ 						*(handle->err)=0;
+ 					free(body);
++					esl_event_destroy(&revent);
+ 					goto fail;
+ 				} else if (r == 0) {
+ 					continue;
+diff --git a/libs/esl/src/include/esl.h b/libs/esl/src/include/esl.h
+index 4d2baac871..ab1742be65 100644
+--- a/libs/esl/src/include/esl.h
++++ b/libs/esl/src/include/esl.h
+@@ -217,6 +217,8 @@ typedef enum {
+ #define esl_strlen_zero_buf(s) (*(s) == '\0')
+ #define end_of(_s) *(*_s == '\0' ? _s : _s + strlen(_s) - 1)
+ 
++#define ESL_MAX_CONTENT_LENGTH (16 * 1024 * 1024)
++
+ #ifdef WIN32
+ #include <winsock2.h>
+ #include <windows.h>
+diff --git a/src/switch_stun.c b/src/switch_stun.c
+index d58dd6fd93..35c9daed91 100644
+--- a/src/switch_stun.c
++++ b/src/switch_stun.c
+@@ -239,7 +239,13 @@ SWITCH_DECLARE(switch_stun_packet_t *) switch_stun_packet_parse(uint8_t *buf, ui
+ 		case SWITCH_STUN_ATTR_DESTINATION_ADDRESS:
+ 		case SWITCH_STUN_ATTR_PRIORITY:
+ 			{
+-				switch_stun_ip_t *ip = (switch_stun_ip_t *) attr->value;
++				switch_stun_ip_t *ip;
++
++				if (bytes_left < sizeof(switch_stun_ip_t)) {
++					return NULL;
++				}
++
++				ip = (switch_stun_ip_t *) attr->value;
+ 				ip->port = ntohs(ip->port);
+ 			}
+ 			break;
+@@ -247,6 +253,11 @@ SWITCH_DECLARE(switch_stun_packet_t *) switch_stun_packet_parse(uint8_t *buf, ui
+ 			{
+ 				switch_stun_ip_t *ip;
+ 				uint32_t addr_length = 0;
++
++				if (bytes_left < sizeof(switch_stun_ip_t)) {
++					return NULL;
++				}
++
+ 				ip = (switch_stun_ip_t *) attr->value;
+ 
+ 				switch (ip->family) {
+@@ -277,7 +288,13 @@ SWITCH_DECLARE(switch_stun_packet_t *) switch_stun_packet_parse(uint8_t *buf, ui
+ 		case SWITCH_STUN_ATTR_BANDWIDTH:
+ 		case SWITCH_STUN_ATTR_OPTIONS:
+ 			{
+-				uint32_t *val = (uint32_t *) attr->value;
++				uint32_t *val;
++
++				if (bytes_left < sizeof(uint32_t)) {
++					return NULL;
++				}
++
++				val = (uint32_t *)attr->value;
+ 
+ 				if (attr->length != sizeof(uint32_t)) {
+ 					/* Invalid */
+@@ -289,7 +306,13 @@ SWITCH_DECLARE(switch_stun_packet_t *) switch_stun_packet_parse(uint8_t *buf, ui
+ 			break;
+ 		case SWITCH_STUN_ATTR_ERROR_CODE:	/* ErrorCode */
+ 			{
+-				uint32_t *u = (uint32_t *) attr->value;
++				uint32_t *u;
++
++				if (bytes_left < sizeof(uint32_t)) {
++					return NULL;
++				}
++
++				u = (uint32_t *)attr->value;
+ 				*u = htonl(*u);
+ 			}
+ 			break;
+diff --git a/src/switch_xml.c b/src/switch_xml.c
+index d54294df92..027b8f093b 100644
+--- a/src/switch_xml.c
++++ b/src/switch_xml.c
+@@ -103,6 +103,10 @@ void globfree(glob_t *);
+ #define SWITCH_XML_WS   "\t\r\n "	/* whitespace */
+ #define SWITCH_XML_ERRL 128		/* maximum error string length */
+ 
++/* Limits for entity expansion to prevent excessive resource consumption */
++#define SWITCH_XML_MAX_ENTITY_EXPANSION_DEPTH 20              /* Maximum recursion depth for entity expansion */
++#define SWITCH_XML_MAX_ENTITY_EXPANSION_COUNT 10000           /* Maximum number of entity expansions */
++
+ static void preprocess_exec_set(char *keyval)
+ {
+ 	char *key = keyval;
+@@ -760,25 +764,56 @@ static switch_xml_t switch_xml_close_tag(switch_xml_root_t root, char *name, cha
+ 	return NULL;
+ }
+ 
+-/* checks for circular entity references, returns non-zero if no circular
+-   references are found, zero otherwise */
+-static int switch_xml_ent_ok(char *name, char *s, char **ent)
++/* Depth-limited version with resource limits for entity validation */
++static int switch_xml_ent_ok_with_depth(char *name, char *s, char **ent, int depth, unsigned long *check_count)
+ {
+ 	int i;
+ 
++	/* Prevent excessive recursion during entity validation */
++	if (depth > SWITCH_XML_MAX_ENTITY_EXPANSION_DEPTH) {
++		switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_WARNING,
++			"Entity validation depth limit exceeded (%d > %d) for entity: %s\n",
++			depth, SWITCH_XML_MAX_ENTITY_EXPANSION_DEPTH, name);
++
++		return 0;  /* Treat as invalid - too deep */
++	}
++
+ 	for (;; s++) {
+-		while (*s && *s != '&')
++		while (*s && *s != '&') {
+ 			s++;				/* find next entity reference */
++		}
++
+ 		if (!*s)
+ 			return 1;
++
++		/* Increment check counter for each entity reference found */
++		if (++(*check_count) > SWITCH_XML_MAX_ENTITY_EXPANSION_COUNT) {
++			switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_WARNING,
++				"Entity validation count limit exceeded (%lu > %d) for entity: %s\n",
++				*check_count, SWITCH_XML_MAX_ENTITY_EXPANSION_COUNT, name);
++
++			return 0;  /* Treat as invalid - too many entity references */
++		}
++
+ 		if (!strncmp(s + 1, name, strlen(name)))
+ 			return 0;			/* circular ref. */
++
+ 		for (i = 0; ent[i] && strncmp(ent[i], s + 1, strlen(ent[i])); i += 2);
+-		if (ent[i] && !switch_xml_ent_ok(name, ent[i + 1], ent))
++
++		if (ent[i] && !switch_xml_ent_ok_with_depth(name, ent[i + 1], ent, depth + 1, check_count))
+ 			return 0;
+ 	}
+ }
+ 
++/* checks for circular entity references, returns non-zero if no circular
++   references are found, zero otherwise */
++static int switch_xml_ent_ok(char *name, char *s, char **ent)
++{
++	unsigned long check_count = 0;
++
++	return switch_xml_ent_ok_with_depth(name, s, ent, 0, &check_count);
++}
++
+ /* called when the parser finds a processing instruction */
+ static void switch_xml_proc_inst(switch_xml_root_t root, char *s, switch_size_t len)
+ {
+@@ -838,6 +873,7 @@ static short switch_xml_internal_dtd(switch_xml_root_t root, char *s, switch_siz
+ 	char q, *c, *t, *n = NULL, *v, **ent, **pe;
+ 	int i, j;
+ 	char **sstmp;
++	switch_bool_t disable_dtd = switch_true(switch_core_get_variable("xml_disable_dtd"));
+ 
+ 	pe = (char **) memcpy(switch_must_malloc(sizeof(SWITCH_XML_NIL)), SWITCH_XML_NIL, sizeof(SWITCH_XML_NIL));
+ 
+@@ -847,7 +883,7 @@ static short switch_xml_internal_dtd(switch_xml_root_t root, char *s, switch_siz
+ 
+ 		if (!*s)
+ 			break;
+-		else if (!strncmp(s, "<!ENTITY", 8)) {	/* parse entity definitions */
++		else if (!strncmp(s, "<!ENTITY", 8) && !disable_dtd) {	/* parse entity definitions if dtd is not explicitly disabled */
+ 			int use_pe;
+ 
+ 			c = s += strspn(s + 8, SWITCH_XML_WS) + 8;	/* skip white space separator */
+@@ -881,7 +917,7 @@ static short switch_xml_internal_dtd(switch_xml_root_t root, char *s, switch_siz
+ 				break;
+ 			} else
+ 				ent[i] = n;		/* set entity name */
+-		} else if (!strncmp(s, "<!ATTLIST", 9)) {	/* parse default attributes */
++		} else if (!strncmp(s, "<!ATTLIST", 9) && !disable_dtd) {	/* parse default attributes if dtd is not explicitly disabled */
+ 			t = s + strspn(s + 9, SWITCH_XML_WS) + 9;	/* skip whitespace separator */
+ 			if (!*t) {
+ 				switch_xml_err(root, t, "unclosed <!ATTLIST");
+diff --git a/tests/unit/switch_xml.c b/tests/unit/switch_xml.c
+index 5bdfb6def5..a48aa4f032 100644
+--- a/tests/unit/switch_xml.c
++++ b/tests/unit/switch_xml.c
+@@ -117,6 +117,74 @@ FST_MINCORE_BEGIN("./conf")
+ 			free(xml_string);
+ 		}
+ 		FST_TEST_END()
++
++		FST_TEST_BEGIN(test_dtd)
++		{
++			const char *text = "<xml><!DOCTYPE Response [<!ENTITY lol \"haha\"><!ENTITY lol1 \"&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;\">]><Response><Say>&lol1;</Say></Response></xml>";
++			switch_xml_t xml = switch_xml_parse_str_dynamic((char *)text, SWITCH_TRUE);
++			char *xml_string = NULL;
++
++			fst_requires(xml);
++			xml_string = switch_xml_toxml_ex(xml, SWITCH_FALSE, SWITCH_FALSE);
++			fst_requires(xml_string);
++			fst_check_string_equals(xml_string, "<xml>\n  <Response>\n    <Say>hahahahahahahahahahahahahahahahahahahaha</Say>\n  </Response>\n</xml>\n");
++			free(xml_string);
++			switch_xml_free(xml);
++		}
++		FST_TEST_END()
++
++		FST_TEST_BEGIN(test_dtd_disable)
++		{
++			const char *text = "<xml><!DOCTYPE Response [<!ENTITY lol \"haha\"><!ENTITY lol1 \"&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;\">]><Response><Say>&lol1;</Say></Response></xml>";
++			switch_xml_t xml = NULL;
++			char *xml_string = NULL;
++
++			switch_core_set_variable("xml_disable_dtd", "true");
++			xml = switch_xml_parse_str_dynamic((char *)text, SWITCH_TRUE);
++			fst_requires(xml);
++			xml_string = switch_xml_toxml_ex(xml, SWITCH_FALSE, SWITCH_FALSE);
++			fst_requires(xml_string);
++			fst_check_string_equals(xml_string, "<xml>\n  <Response>\n    <Say>&amp;lol1;</Say>\n  </Response>\n</xml>\n");
++			free(xml_string);
++			switch_xml_free(xml);
++			switch_core_set_variable("xml_disable_dtd", "false");
++		}
++		FST_TEST_END()
++
++		FST_TEST_BEGIN(test_dtd_with_comments)
++		{
++			const char *text = "<xml><!DOCTYPE Response [<!--COMMENT1--><!ENTITY lol \"haha\"><!ENTITY lol1 \"&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;\"><!--COMMENT2-->]><Response><Say>&lol1;</Say></Response></xml>";
++			switch_xml_t xml = NULL;
++			char *xml_string = NULL;
++
++			xml = switch_xml_parse_str_dynamic((char *)text, SWITCH_TRUE);
++			fst_requires(xml);
++			xml_string = switch_xml_toxml_ex(xml, SWITCH_FALSE, SWITCH_FALSE);
++			fst_requires(xml_string);
++			fst_check_string_equals(xml_string, "<xml>\n  <Response>\n    <Say>hahahahahahahahahahahahahahahahahahahaha</Say>\n  </Response>\n</xml>\n");
++			free(xml_string);
++			switch_xml_free(xml);
++		}
++		FST_TEST_END()
++
++		FST_TEST_BEGIN(test_dtd_disable_with_comments)
++		{
++			const char *text = "<xml><!DOCTYPE Response [<!--COMMENT1--><!ENTITY lol \"haha\"><!ENTITY lol1 \"&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;\"><!--COMMENT2-->]><Response><Say>&lol1;</Say></Response></xml>";
++			switch_xml_t xml = NULL;
++			char *xml_string = NULL;
++
++			switch_core_set_variable("xml_disable_dtd", "true");
++			xml = switch_xml_parse_str_dynamic((char *)text, SWITCH_TRUE);
++			fst_requires(xml);
++			xml_string = switch_xml_toxml_ex(xml, SWITCH_FALSE, SWITCH_FALSE);
++			fst_requires(xml_string);
++			fst_check_string_equals(xml_string, "<xml>\n  <Response>\n    <Say>&amp;lol1;</Say>\n  </Response>\n</xml>\n");
++			free(xml_string);
++			switch_xml_free(xml);
++			switch_core_set_variable("xml_disable_dtd", "false");
++		}
++		FST_TEST_END()
++
+ 	}
+ 	FST_SUITE_END()
+ }

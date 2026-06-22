@@ -447,13 +447,20 @@ export class Presentation extends MultiUsers {
 
     await uploadMultiplePresentations(this.modPage, [e.questionSlideFileName, e.uploadPresentationFileName]);
 
+    // The "current presentation" toast can appear before the slide image DOM swaps,
+    // so poll the moderator until the slide actually changes before comparing across pages.
+    await expect
+      .poll(async () => getSlideOuterHtml(this.modPage), {
+        message: 'moderator slide should change after uploading new presentations',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .not.toBe(modSlides0);
+
     await expectSlidesEqualBetweenPages(
       this.modPage,
       this.userPage,
       'moderator slide 1 should be equal to the user slide 1',
     );
-    const modSlides1 = await getSlideOuterHtml(this.modPage);
-    await expect(modSlides0, 'moderator slide 0 should not be equal to moderator slide 1').not.toEqual(modSlides1);
   }
 
   async fitToWidthTest() {

@@ -26,7 +26,7 @@ import {
   getSessionVirtualBackgroundInfo,
 } from '/imports/ui/services/virtual-background/service';
 import {
-  useSharedDevices, useIsUserLocked, useStopVideo, useStreams,
+  useSharedDevices, useIsCamSharingLocked, useStopVideo, useStreams,
 } from '/imports/ui/components/video-provider/hooks';
 import { useIsCustomVirtualBackgroundsEnabled, useIsVirtualBackgroundsEnabled } from '../../services/features';
 import VirtualBgSelector from '/imports/ui/components/video-preview/virtual-background/component';
@@ -193,7 +193,7 @@ interface ProfileSettingsProps {
 const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
   const { formatMessage } = useIntl();
   const sharedDevices = useSharedDevices();
-  const isCamLocked = useIsUserLocked();
+  const isCamLocked = useIsCamSharingLocked();
   const stopVideo = useStopVideo();
   const streams = useStreams();
   const isVirtualBackgroundsEnabled = useIsVirtualBackgroundsEnabled();

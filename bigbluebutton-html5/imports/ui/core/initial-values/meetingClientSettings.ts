@@ -98,6 +98,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         breakoutRoomMinimum: 2,
         breakoutRoomLimit: 16,
         allowPresentationManagementInBreakouts: true,
+        lockBreakoutRecordingSetting: false,
       },
       showAllAvailableLocales: true,
       showAudioFilters: true,
