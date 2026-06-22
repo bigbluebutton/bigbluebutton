@@ -4,6 +4,7 @@ import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { PluginIconType } from 'bigbluebutton-html-plugin-sdk';
+import resolveIcon from '/imports/ui/components/plugins/plugin-icon/utils';
 import Styled from '../styles';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import KEYS from '/imports/utils/keys';
@@ -29,13 +30,6 @@ const intlMessages = defineMessages({
     description: 'Label for inidicate new apps in gallery panel title',
   },
 });
-
-const resolveIcon = (iconProp: PluginIconType): React.ReactNode => {
-  if (typeof iconProp === 'string') return <Icon iconName={iconProp} />;
-  if (iconProp && 'iconName' in iconProp) return <Icon iconName={iconProp.iconName} />;
-  if (iconProp && 'svgContent' in iconProp) return iconProp.svgContent as React.ReactNode;
-  return null;
-};
 
 const AppItem: React.FC<AppItemProps> = ({
   appKey,
