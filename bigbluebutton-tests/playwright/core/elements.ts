@@ -96,6 +96,7 @@ export const elements = {
     'button[data-test="alreadyConnected"], li[data-test="alreadyConnected"], div[data-test="alreadyConnected"]',
   askJoinRoom1: 'li[data-test="askToJoinRoom1"]',
   askJoinRoom2: 'li[data-test="askToJoinRoom2"]',
+  roomOptions1: 'button[data-test="roomOptions1"]',
   roomOptions2: 'button[data-test="roomOptions2"]',
   joinRoom1: 'button[data-test="joinRoom1"]',
   joinFirstRoom: 'button[data-test^="joinRoom"]',
