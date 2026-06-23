@@ -176,7 +176,7 @@
     "app.emptyPanel.multifunctionalDescription": "Choisissez une autre fonction à afficher sous forme de panneau simultanément avec le précédente en cliquant sur la fonction désirée",
     "app.appsGallery.maxpinnedApps": "{pinnedCount} sur {maxPinned} applications épinglées",
     "app.appsGallery.maxpinnedAppsContinue": "dans la barre latérale.",
-    "app.appsGallery.searchPlaceholder": "Search",
+    "app.appsGallery.searchPlaceholder": "Rechercher",
     "app.appsGallery.pinTooltip": "Épingler l'application",
     "app.appsGallery.unpinTooltip": "Désépingler l'application",
     "app.appsGallery.gridViewLabel": "Grid view",
