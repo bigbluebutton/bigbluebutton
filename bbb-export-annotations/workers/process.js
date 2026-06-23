@@ -296,6 +296,39 @@ async function overlayAnnotations(svg, slideAnnotations) {
 }
 
 /**
+ * Ensure a slide background SVG carries a viewBox.
+ *
+ * The background slide is loaded as an `<image>` sized to the slide, but
+ * CairoSVG only rescales the referenced SVG to that box when the file is
+ * resolution-independent (carries a viewBox). Slides converted without one
+ * keep their intrinsic size and render cropped into the top-left corner.
+ * When the attribute is missing, derive it from the SVG's own width and
+ * height so the background scales to fill the slide. See issue #25303.
+ * @param {string} file Path of the slide SVG.
+ * @param {number} page Page number (for logging).
+ */
+function ensureSlideViewBox(file, page) {
+  try {
+    const svg = fs.readFileSync(file, {encoding: 'utf-8'});
+    const svgTag = svg.match(/<svg[^>]*>/)?.[0];
+
+    if (!svgTag || /viewBox=/.test(svgTag)) return;
+
+    const width = svgTag.match(/width="([\d.]+)/)?.[1];
+    const height = svgTag.match(/height="([\d.]+)/)?.[1];
+
+    if (!width || !height) return;
+
+    const patchedTag = svgTag.replace(
+        '<svg', `<svg viewBox="0 0 ${width} ${height}"`);
+    fs.writeFileSync(file, svg.replace(svgTag, patchedTag));
+  } catch (error) {
+    logger.error(`Adding viewBox to slide ${page} ` +
+      `failed for job ${jobId}: ${error.message}`);
+  }
+}
+
+/**
  * Processes presentation slides and associated annotations into
  * a single PDF file.
  * @async
@@ -377,6 +410,16 @@ async function processPresentationAnnotations() {
           'xmlns': 'http://www.w3.org/2000/svg',
           'xmlns:xlink': 'http://www.w3.org/1999/xlink',
         });
+
+    // Guarantee the background slide scales to fill the canvas. CairoSVG only
+    // rescales a referenced SVG when it has a viewBox; converted slides that
+    // lack one would otherwise render cropped (issue #25303).
+    if (backgroundFormat === 'svg') {
+      ensureSlideViewBox(
+          `${dropbox}/slide${currentSlide.page}.${backgroundFormat}`,
+          currentSlide.page,
+      );
+    }
 
     // Add the image element
     canvas
