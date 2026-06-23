@@ -1563,7 +1563,7 @@
     "app.createBreakoutRoom.timerMinutes": "minutes",
     "app.createBreakoutRoom.timerSeconds": "secondes\n",
     "app.createBreakoutRoom.decreaseBreakoutTime": "Diminuer la durée des groupes de travail",
-    "app.createBreakoutRoom.increaseBreakoutTime": "Increase breakout time",
+    "app.createBreakoutRoom.increaseBreakoutTime": "Augmenter la durée des groupes de travail",
     "app.createBreakoutRoom.decreaseRooms": "Decrease number of rooms",
     "app.createBreakoutRoom.increaseRooms": "Increase number of rooms",
     "app.createBreakoutRoom.roomOptions": "Room options",
