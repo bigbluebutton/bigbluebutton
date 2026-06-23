@@ -35,6 +35,7 @@ const ShortcutTable = styled.table`
   border-collapse: collapse;
   margin: 0;
   width: 100%;
+  font-size: 1.125rem;
 
   > tbody > tr:nth-child(even) {
     background-color: ${colorOffWhite};
@@ -82,7 +83,7 @@ const ShortcutsTabSelector = styled(Tab)`
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  font-size: 1rem;
+  font-size: 1.125rem;
   flex: none;
   padding: 1rem;
   color: ${colorGrayDark};

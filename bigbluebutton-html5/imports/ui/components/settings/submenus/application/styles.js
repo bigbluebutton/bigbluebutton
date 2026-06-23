@@ -32,7 +32,7 @@ const FormElement = styled(Styled.FormElement)``;
 const Label = styled(Styled.Label)`
   margin-left: 0.5rem;
   color: ${colorGrayLabel};
-  font-size: 0.9rem;
+  font-size: 1rem;
 `;
 
 const FormElementRight = styled(Styled.FormElementRight)`
