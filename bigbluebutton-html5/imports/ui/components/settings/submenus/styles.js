@@ -19,7 +19,7 @@ const Title = styled.h3`
 `;
 
 const SubTitle = styled.h4`
-  font-size: 0.9rem;
+  font-size: 1rem;
   margin-bottom: 1rem;
 `;
 
@@ -70,7 +70,7 @@ const FormElementRight = styled.div`
 
 const Label = styled.span`
   color: ${colorGrayLabel};
-  font-size: 0.9rem;
+  font-size: 1rem;
 `;
 
 const Select = styled.select`

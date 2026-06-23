@@ -102,6 +102,7 @@ const TimerSwitchButton = styled(Button)`
   height: 3rem;
   border-radius: ${lgBorderRadius};
   margin: 0 .5rem;
+  font-size: ${fontSizeBase};
 `;
 
 const TimeInputWrapper = styled.div`
@@ -251,7 +252,7 @@ const TimeUnitContainer = styled.div`
 `;
 
 const TimeUnitLabel = styled.span`
-  font-size: 0.80rem;
+  font-size: ${fontSizeBase};
   color: ${colorGray};
   text-transform: capitalize;
 `;
@@ -421,7 +422,7 @@ const TimerPresetsRow = styled.div`
 const TimerPresetButton = styled.button<{disabled?: boolean; isActive?: boolean}>`
   all: unset;
   cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
-  font-size: 0.95rem;
+  font-size: ${fontSizeBase};
   line-height: 1;
   color: ${colorGrayDark};
   opacity: ${({ disabled }) => (disabled ? 0.4 : 0.7)};
@@ -494,7 +495,7 @@ const TimerAddsRow = styled.div`
 const TimerAddButton = styled.button<{disabled?: boolean}>`
   all: unset;
   cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
-  font-size: 0.9rem;
+  font-size: ${fontSizeBase};
   line-height: 1.5;
   color: ${colorPrimary};
   background-color: color-mix(in srgb, ${colorBlueLighter} 20%, transparent);
@@ -527,6 +528,7 @@ const ControlButton = styled(Button)`
   border-radius: ${lgBorderRadius};
   height: 3rem;
   width: 100%;
+  font-size: ${fontSizeBase};
 `;
 
 const ResetButton = styled(ControlButton)`
