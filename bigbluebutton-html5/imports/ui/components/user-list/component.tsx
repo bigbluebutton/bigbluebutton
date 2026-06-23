@@ -45,7 +45,7 @@ const intlMessages = defineMessages({
     id: 'app.userList.usersTitle',
     description: 'Title for the Header',
   },
-  hideUserListTitle: {
+  isolateUsersTitle: {
     id: 'app.userList.lockedUsersTitle',
     description: 'Title for the Header when user is locked',
   },
@@ -161,7 +161,7 @@ const UserList: React.FC<UserListComponentProps> = () => {
   }, [currentUserData, meetingInfo?.isBreakout]);
 
   const title = isolateUsers
-    ? intl.formatMessage(intlMessages.hideUserListTitle, { userCount: count })
+    ? intl.formatMessage(intlMessages.isolateUsersTitle, { userCount: count })
     : intl.formatMessage(intlMessages.usersTitle, { userCount: count });
 
   return (
