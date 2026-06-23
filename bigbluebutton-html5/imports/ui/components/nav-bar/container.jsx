@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { defineMessages, useIntl } from 'react-intl';
+import { useReactiveVar } from '@apollo/client';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import NavBar from './component';
@@ -11,21 +11,11 @@ import useChat from '/imports/ui/core/hooks/useChat';
 import useHasUnreadNotes from '../notes/hooks/useHasUnreadNotes';
 import { useShortcut } from '../../core/hooks/useShortcut';
 import useMeeting from '../../core/hooks/useMeeting';
-import { registerTitleView } from '/imports/utils/dom-utils';
-import { useReactiveVar } from '@apollo/client';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
-
-const intlMessages = defineMessages({
-  defaultViewLabel: {
-    id: 'app.title.defaultViewLabel',
-    description: 'view name appended to document title',
-  },
-});
 
 const NavBarContainer = ({ children, ...props }) => {
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   const unread = useHasUnreadNotes();
-  const intl = useIntl();
 
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const sidebarNavigation = layoutSelectInput((i) => i.sidebarNavigation);
@@ -57,7 +47,6 @@ const NavBarContainer = ({ children, ...props }) => {
   const hideNavBar = getFromUserSettings('bbb_hide_nav_bar', false);
 
   const PUBLIC_CONFIG = window.meetingClientSettings.public;
-  const CLIENT_TITLE = getFromUserSettings('bbb_client_title', PUBLIC_CONFIG.app.clientTitle);
   const IS_DIRECT_LEAVE_BUTTON_ENABLED = getFromUserSettings(
     'bbb_direct_leave_button',
     PUBLIC_CONFIG.app.defaultSettings.application.directLeaveButton,
@@ -68,32 +57,15 @@ const NavBarContainer = ({ children, ...props }) => {
   );
 
   let meetingTitle;
-  let breakoutNum;
-  let breakoutName;
-  let meetingName;
   const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
 
   const { data: meeting } = useMeeting((m) => ({
     name: m.name,
     meetingId: m.meetingId,
-    breakoutPolicies: {
-      sequence: m.breakoutPolicies.sequence,
-    },
   }));
 
   if (meeting) {
     meetingTitle = meeting.name;
-    const titleString = `${CLIENT_TITLE} - ${meetingTitle}`;
-    document.title = titleString;
-    registerTitleView(intl.formatMessage(intlMessages.defaultViewLabel));
-
-    if (meeting.breakoutPolicies) {
-      breakoutNum = meeting.breakoutPolicies.sequence;
-      if (breakoutNum > 0) {
-        breakoutName = meetingTitle;
-        meetingName = meetingTitle.replace(`(${breakoutName})`, '').trim();
-      }
-    }
   }
 
   if (hideNavBar || navBar.display === false) return null;
@@ -122,9 +94,6 @@ const NavBarContainer = ({ children, ...props }) => {
         shortcuts: toggleUserList,
         meetingId: meeting?.meetingId,
         presentationTitle: meetingTitle,
-        breakoutNum,
-        breakoutName,
-        meetingName,
         isDirectLeaveButtonEnabled: IS_DIRECT_LEAVE_BUTTON_ENABLED,
         // TODO: Remove/Replace
         isConnected: connected,

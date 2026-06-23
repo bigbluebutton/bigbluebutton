@@ -224,6 +224,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   return (
     <ModalFullscreen
       title={intl.formatMessage(intlMessages.title)}
+      documentTitle={intl.formatMessage(intlMessages.title)}
       confirm={{
         callback: handleJoinBreakoutConfirmation,
         label: intl.formatMessage(intlMessages.confirmLabel),
