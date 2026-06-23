@@ -554,6 +554,9 @@ const createEndpointTableData = [
             <li>
               <code className="language-plaintext highlighter-rouge">multiFunctionalMode</code> - <b>Multi-Functional Mode - multiple sidebars</b>
             </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">lockSettings</code> - <b>Lock viewers settings (added in BigBlueButton 4.0)</b> - removes the "Lock viewers" moderator control and disables lock enforcement, so all viewer restrictions stay unlocked for the meeting (lock create parameters and server defaults are ignored)
+            </li>
           </ul>
         </>
     ),

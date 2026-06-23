@@ -52,6 +52,10 @@ export function useIsBreakoutRoomsEnabled() {
   return useDisabledFeatures().indexOf('breakoutRooms') === -1;
 }
 
+export function useIsLockSettingsEnabled() {
+  return useDisabledFeatures().indexOf('lockSettings') === -1;
+}
+
 export function useIsVirtualBackgroundsEnabled() {
   return useDisabledFeatures().indexOf('virtualBackgrounds') === -1 && window.meetingClientSettings.public.virtualBackgrounds.enabled;
 }

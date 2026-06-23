@@ -325,6 +325,9 @@ class MeetingActor(
   }
 
   private def initLockSettings(liveMeeting: LiveMeeting, lockSettingsProp: LockSettingsProps): Unit = {
+    // lockSettingsProp is already neutralized at meeting-prop build time when lockSettings is in
+    // disabledFeatures (see BbbWebApiGWApp.createMeeting), so the runtime permissions stay in sync
+    // with the meeting_lockSettings DB row by construction.
     val settings = Permissions(
       disableCam = lockSettingsProp.disableCam,
       disableMic = lockSettingsProp.disableMic,

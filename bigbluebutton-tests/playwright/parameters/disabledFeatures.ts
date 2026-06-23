@@ -1,6 +1,7 @@
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { MultiUsers } from '../user/multiusers';
+import { openUserListIfClosed } from '../user/util';
 
 export class DisabledFeatures extends MultiUsers {
   async breakoutRooms() {
@@ -59,6 +60,43 @@ export class DisabledFeatures extends MultiUsers {
 
   async polls() {
     await this.modPage.wasRemoved(e.pollSidebarButton, 'should not display the poll sidebar button');
+  }
+
+  async lockSettings() {
+    await openUserListIfClosed(this.modPage);
+    // The "mute all except presenter" button shares the moderator crowd-action area and is
+    // not gated, so its presence confirms the area rendered while only the lock viewers
+    // button is hidden by disabledFeatures=lockSettings.
+    await this.modPage.hasElement(e.muteAllUsers, 'should display the moderator crowd action buttons');
+    await this.modPage.wasRemoved(e.lockViewersButton, 'should not display the lock viewers button');
+  }
+
+  async lockSettingsServerEnforcement() {
+    // The meeting was created with disabledFeatures=lockSettings AND
+    // lockSettingsDisablePublicChat=true. Because the feature is disabled, the lock must not
+    // be applied server-side and the moderator control must be hidden.
+    await openUserListIfClosed(this.modPage);
+    await this.modPage.wasRemoved(e.lockViewersButton, 'should not display the lock viewers button');
+
+    // The per-user "Lock <user>" option is gated on hasActiveLockSetting. Neutralizing the
+    // lock create params at the source keeps that flag false, so the option must be absent for
+    // the viewer. This is the case that would surface a DB / in-memory divergence.
+    await this.modPage.page.locator(e.userListItem).filter({ hasText: this.userPage.username }).click();
+    await this.modPage.wasRemoved(
+      e.unlockUserButton,
+      'should not offer the per-user lock option when lockSettings is disabled',
+    );
+    await this.modPage.page.keyboard.press('Escape');
+
+    // The public-chat lock coming from the create parameter must be ignored, so the viewer
+    // can still send public chat messages.
+    await this.userPage.hasElementEnabled(e.chatBox, 'should keep the public chat enabled for the viewer');
+    await this.userPage.fill(e.chatBox, e.message);
+    await this.userPage.waitAndClick(e.sendButton);
+    await this.userPage.hasElement(
+      e.chatUserMessageText,
+      'viewer public chat message should be sent because the lock is not applied',
+    );
   }
 
   async screenshare() {
