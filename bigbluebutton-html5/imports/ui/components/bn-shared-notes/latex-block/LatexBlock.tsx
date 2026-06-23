@@ -96,7 +96,6 @@ const LatexBlockContent: React.FC<{
   if (editing) {
     return (
       <div className="latex-block latex-block-editing" contentEditable={false}>
-        <div className="latex-block-label">LaTeX</div>
         <textarea
           ref={textareaRef}
           className="latex-block-textarea"
@@ -107,7 +106,7 @@ const LatexBlockContent: React.FC<{
           }}
           onBlur={() => commitFormula(formula)}
           onKeyDown={handleKeyDown}
-          placeholder="E = mc^2 \\\\ \text{or try: } \\\\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}"
+          placeholder="Write something in LaTeX"
           rows={3}
         />
         {error && <div className="latex-block-error">{error}</div>}
@@ -132,7 +131,6 @@ const LatexBlockContent: React.FC<{
         }
       }}
     >
-      <div className="latex-block-label">LaTeX</div>
       <div className="latex-block-content">{renderFormula()}</div>
     </div>
   );

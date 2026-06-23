@@ -440,6 +440,18 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
             bottom: auto !important;
             transform: translateY(0) !important;
           }
+          /* LaTeX block: remove selection outline and increase rendered formula size */
+          .ProseMirror-selectednode > .bn-block-content > .latex-block,
+          .bn-block-content.ProseMirror-selectednode > .latex-block {
+            outline: none !important;
+            border-radius: 0 !important;
+          }
+          .latex-block .katex {
+            font-size: 1.4em;
+          }
+          .latex-block-textarea::placeholder {
+            color: #9b9a97;
+          }
         `}
       </style>
       {notificationErrorMessage && (
