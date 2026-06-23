@@ -1588,7 +1588,7 @@
     "app.learningDashboard.closeHelpModal": "Fermer la fenêtre d'aide du tableau de bord",
     "app.learningDashboard.helpButtonLabel": "Aide",
     "app.learningDashboard.help.title": "Aide du tableau de bord d'apprentissage",
-    "app.learningDashboard.help.activityScore.title": "Comment est réalisé le calcul du score d'activité",
+    "app.learningDashboard.help.activityScore.title": "Comment est calculé le score d'activité",
     "app.learningDashboard.help.activityScore.desc": "Le score d'activité d'un individu est calculé en fonction de sa participation lors de la séance. Ce sont 5 indicateurs normalisés, chacun pouvant totaliser 2 points, qui permettent d'évaluer la participation. Pour normaliser chaque indicateur, la participation la plus importante se voit octroyer 2 points, les scores plus bas sont calculés en proportion de celle-ci.",
     "app.learningDashboard.help.activityScore.metric": "Métrique",
     "app.learningDashboard.help.activityScore.formula": "Formule",
