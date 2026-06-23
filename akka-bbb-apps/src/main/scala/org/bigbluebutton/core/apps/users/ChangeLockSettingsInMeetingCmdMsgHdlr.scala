@@ -214,7 +214,7 @@ trait ChangeLockSettingsInMeetingCmdMsgHdlr extends RightsManagementTrait {
               liveMeeting.props.meetingProp.intId,
               "info",
               "lock",
-              "app.userList.userOptions.isolateUsers",
+              "app.userList.userOptions.hideUserList",
               "Label to disable user list notification",
               Map()
             )

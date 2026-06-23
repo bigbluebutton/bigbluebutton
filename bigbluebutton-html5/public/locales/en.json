@@ -270,7 +270,7 @@
     "app.userList.userOptions.disablePrivChat": "Private chat is disabled",
     "app.userList.userOptions.disablePubChat": "Public chat is disabled",
     "app.userList.userOptions.disableNotes": "Shared notes are now locked",
-    "app.userList.userOptions.isolateUsers": "User list is now hidden for viewers",
+    "app.userList.userOptions.hideUserList": "User list is now hidden for viewers",
     "app.userList.userOptions.webcamsOnlyForModerator": "Only moderators are able to see viewers' webcams (due to lock settings)",
     "app.userList.userOptions.enableCam": "Viewers' webcams are enabled",
     "app.userList.userOptions.enableMic": "Viewers' microphones are enabled",
