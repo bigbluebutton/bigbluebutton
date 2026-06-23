@@ -101,6 +101,18 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     await createParam.lockSettingsIsolateUsers();
   });
 
+  // Guards the deprecated API-param fallback (ParamsProcessorUtil reads the old
+  // lockSettingsHideUserList when lockSettingsIsolateUsers is absent). The server-side
+  // deprecation log.warn cannot be asserted from Playwright; this test asserts the
+  // functional behavior (viewers are still isolated) when the old param is used.
+  test('Lock Settings Hide User List (deprecated param)', async ({ browser, context, page }, testInfo) => {
+    const createParam = new CreateParameters(browser, context);
+    await createParam.initModPage(page, { createParameter: c.lockSettingsHideUserList, testInfo });
+    await createParam.initUserPage(context, { testInfo });
+    await createParam.initUserPage2(context, { testInfo });
+    await createParam.lockSettingsIsolateUsers();
+  });
+
   test('Allow Moderator To Eject Cameras', async ({ browser, context, page }, testInfo) => {
     const createParam = new CreateParameters(browser, context);
     await createParam.initModPage(page, { createParameter: c.allowModsToEjectCameras, testInfo });
