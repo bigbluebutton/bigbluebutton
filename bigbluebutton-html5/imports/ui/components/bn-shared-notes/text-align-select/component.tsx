@@ -109,7 +109,22 @@ function TextAlignSelect(): React.ReactElement | null {
     [editor, state],
   );
 
-  if (!state) return null;
+  // The selector returns null for blocks without a textAlignment prop (e.g. our
+  // LaTeX custom block, declared `content: 'none'`). Returning null here would
+  // drop this control from the first line of the static toolbar. Instead render
+  // an inert, disabled placeholder so the toolbar layout stays stable; text
+  // alignment does not apply to a rendered formula.
+  if (!state) {
+    return (
+      <Components.FormattingToolbar.Button
+        className="bn-button"
+        isDisabled
+        label={dict.formatting_toolbar.align_left.tooltip}
+        mainTooltip={dict.formatting_toolbar.align_left.tooltip}
+        icon={<RiAlignLeft size={16} />}
+      />
+    );
+  }
 
   const currentItem = ALIGN_ITEMS.find((a) => a.value === state.alignment)!;
 

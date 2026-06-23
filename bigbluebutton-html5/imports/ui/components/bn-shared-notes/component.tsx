@@ -8,14 +8,9 @@ import '@blocknote/mantine/style.css';
 import { HocuspocusProvider } from '@hocuspocus/provider';
 import { Awareness } from 'y-protocols/awareness';
 import {
-  BasicTextStyleButton,
   BlockNoteViewEditor,
-  BlockTypeSelect,
-  ColorStyleButton,
   ComponentsContext,
   FormattingToolbar,
-  NestBlockButton,
-  UnnestBlockButton,
   useComponentsContext,
   useCreateBlockNote,
   getDefaultReactSlashMenuItems,
@@ -42,6 +37,11 @@ import useCurrentUser from '../../core/hooks/useCurrentUser';
 import logger from '/imports/startup/client/logger';
 import { notify } from '../../services/notification';
 import TextAlignSelect from './text-align-select/component';
+import BasicTextStyleButton from './basic-text-style-button/component';
+import BlockTypeSelect from './block-type-select/component';
+import ColorStyleButton from './color-style-button/component';
+import NestBlockButton from './nest-block-button/component';
+import UnnestBlockButton from './unnest-block-button/component';
 import createLatexBlock from './latex-block/LatexBlock';
 import 'katex/dist/katex.min.css';
 
