@@ -314,8 +314,8 @@ function ensureSlideViewBox(file, page) {
 
     if (!svgTag || /viewBox=/.test(svgTag)) return;
 
-    const width = svgTag.match(/width="([\d.]+)/)?.[1];
-    const height = svgTag.match(/height="([\d.]+)/)?.[1];
+    const width = svgTag.match(/(?<![\w-])width\s*=\s*['"]([\d.]+)/i)?.[1];
+    const height = svgTag.match(/(?<![\w-])height\s*=\s*['"]([\d.]+)/i)?.[1];
 
     if (!width || !height) return;
 
