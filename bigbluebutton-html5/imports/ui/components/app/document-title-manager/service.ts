@@ -28,6 +28,8 @@ export const registerDocumentTitleView = (id: string, title: string) => {
   if (!id || !title) return;
 
   const existingView = registeredTitleViews.get(id);
+  if (existingView?.title === title) return;
+
   registeredTitleViews.set(id, {
     title,
     sequence: existingView?.sequence || sequence + 1,

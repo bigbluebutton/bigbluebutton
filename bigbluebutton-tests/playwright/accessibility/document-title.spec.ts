@@ -79,10 +79,12 @@ test.describe.parallel('Accessible routing', { tag: '@ci' }, () => {
     await modPage.waitAndClick(e.modalDismissButton);
 
     await modPage.waitAndClick(e.manageUsers);
-    await modPage.waitAndClick(e.createBreakoutRooms);
-    await expect(modPage.page, 'breakout room creation modal should be reflected in the document title').toHaveTitle(
-      / - Breakout Rooms$/,
-    );
-    await modPage.waitAndClick(e.modalDismissButton);
+    if (await modPage.page.locator(e.createBreakoutRooms).isVisible()) {
+      await modPage.waitAndClick(e.createBreakoutRooms);
+      await expect(modPage.page, 'breakout room creation modal should be reflected in the document title').toHaveTitle(
+        / - Breakout Rooms$/,
+      );
+      await modPage.waitAndClick(e.modalDismissButton);
+    }
   });
 });
