@@ -457,6 +457,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
               ref={toolbarRef}
               role="toolbar"
               className="bn-toolbar-row"
+              data-test="blockNoteToolbar"
               onKeyDown={(e) => { if (e.key === 'Escape') editor.focus(); }}
             >
               <FormattingToolbar>

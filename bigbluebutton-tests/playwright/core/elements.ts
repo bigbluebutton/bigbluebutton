@@ -233,7 +233,7 @@ export const elements = {
   sharedNotesViewingMode: 'iframe[title="shared notes viewing mode"]',
   currentSlideText: 'span[id="currentSlideText"]',
   notesOptions: 'button[data-test="notesOptionsMenu"]',
-  exportNotesAsPDF: '[data-test="exportNotesAsPDF"]',
+  exportNotesAsPDF: 'li[data-test="exportNotesAsPDF"]',
   showMoreSharedNotesButton: 'span[class="show-more-icon-btn"]',
   exportSharedNotesButton: 'li[data-key="import_export"] button',
   exportPlainButton: 'a[id="exportplaina"] span',
@@ -241,6 +241,17 @@ export const elements = {
   unpinNotes: 'button[data-test="unpinNotes"]',
   exportetherpad: 'span[id="exportetherpad"]',
   exporthtml: 'span[id="exporthtml"]',
+
+  // BlockNote specific
+  blockNoteContainer: '#bn-notes-scroll-container',
+  blockNoteEditor: '#bn-notes-scroll-container .bn-editor',
+  blockNoteEditable: '#bn-notes-scroll-container .bn-editor[contenteditable="true"]',
+  blockNoteReadOnly: '#bn-notes-scroll-container .bn-editor[contenteditable="false"]',
+  blockNoteToolbar: 'div[data-test="blockNoteToolbar"]',
+  blockNoteUnderlineButton: 'div[data-test="blockNoteToolbar"] button[aria-label="Underline"]',
+  notesConnectionError: '[data-test="notesError"]',
+  notesRetryButton: 'button[data-test="notesRetryButton"]',
+
   // Notifications
   smallToastMsg: 'div[data-test="toastSmallMsg"]',
   closeToastBtn: 'i[data-test="closeToastBtn"]',
