@@ -6,11 +6,11 @@ import {
   smPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
+  colorBorder,
   userThumbnailBorder,
   btnPrimaryBorder,
   btnDefaultColor,
   colorGrayLabel,
-  colorGrayLighter,
   colorPrimary,
   colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -99,7 +99,7 @@ const Select = styled.select`
   background-color: ${colorWhite};
   border: ${borderSize} solid ${colorWhite};
   border-radius: ${borderSize};
-  border-bottom: 0.1rem solid ${colorGrayLighter};
+  border-bottom: 0.1rem solid ${colorBorder};
   color: ${colorGrayLabel};
   width: 100%;
   height: 1.75rem;

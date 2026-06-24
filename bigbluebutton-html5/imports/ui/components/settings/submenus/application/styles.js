@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 import {
+  colorBorder,
   colorGrayLabel,
   colorPrimary,
   colorWhite,
-  colorGrayLighter,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
 import SpinnerStyles from '/imports/ui/components/common/loading-screen/styles';
@@ -37,7 +37,7 @@ const Bounce2 = styled(SpinnerStyles.Bounce2)``;
 
 const Separator = styled.hr`
   margin: 2.5rem 0;
-  border: 1px solid ${colorGrayLighter};
+  border: 1px solid ${colorBorder};
   opacity: 0.25;
 `;
 
@@ -67,7 +67,7 @@ const LocalesDropdownSelect = styled.div`
     background-color: ${colorWhite};
     border: ${borderSize} solid ${colorWhite};
     border-radius: ${borderSize};
-    border-bottom: 0.1rem solid ${colorGrayLighter};
+    border-bottom: 0.1rem solid ${colorBorder};
     color: ${colorGrayLabel};
     width: 100%;
     height: 1.75rem;

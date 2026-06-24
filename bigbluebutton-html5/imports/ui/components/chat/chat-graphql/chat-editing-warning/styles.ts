@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colorGrayLight, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorBorder, colorGrayLight, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { xlPadding, xsPadding } from '/imports/ui/stylesheets/styled-components/general';
 
 export const Root = styled.div`
@@ -49,7 +49,7 @@ export const Cancel = styled.button`
   }
 
   &:focus {
-    box-shadow: inset 0 0 0.125rem ${colorGrayLight};
+    box-shadow: inset 0 0 0.125rem ${colorBorder};
   }
 `;
 

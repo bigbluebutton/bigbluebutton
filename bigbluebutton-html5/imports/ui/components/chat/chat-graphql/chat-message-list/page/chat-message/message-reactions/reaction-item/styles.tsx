@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colorGrayLightest, colorOffWhite, colorGrayLighter } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorBorder, colorOffWhite } from '/imports/ui/stylesheets/styled-components/palette';
 
 const EmojiWrapper = styled.button<{ highlighted: boolean }>`
   background: none;
@@ -8,7 +8,7 @@ const EmojiWrapper = styled.button<{ highlighted: boolean }>`
   line-height: 1;
   display: flex;
   flex-wrap: nowrap;
-  border: 1px solid ${colorGrayLightest};
+  border: 1px solid ${colorBorder};
   cursor: pointer;
 
   ${({ highlighted }) => highlighted && `
@@ -26,7 +26,7 @@ const EmojiWrapper = styled.button<{ highlighted: boolean }>`
   }
 
   &:hover {
-    border: 1px solid ${colorGrayLighter};
+    border: 1px solid ${colorBorder};
   }
 `;
 

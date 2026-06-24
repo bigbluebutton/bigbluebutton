@@ -9,14 +9,13 @@ import {
   smPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
+  colorBorder,
   colorPrimary,
   colorGray,
   colorDanger,
   userListBg,
   colorWhite,
   colorGrayLighter,
-  colorGrayLightest,
-  colorBlueLight,
   listItemBgHover,
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -184,7 +183,7 @@ const DurationContainer = styled.div<DurationContainerProps>`
   border-radius: ${borderRadius};
   margin-bottom: ${jumboPaddingY};
   padding: 10px;
-  box-shadow: 0 0 1px 1px ${colorGrayLightest};
+  box-shadow: 0 0 1px 1px ${colorBorder};
 `;
 
 const SetTimeContainer = styled.div`
@@ -193,7 +192,7 @@ const SetTimeContainer = styled.div`
 
 const SetDurationInput = styled.input`
   flex: 1;
-  border: 1px solid ${colorGrayLighter};
+  border: 1px solid ${colorBorder};
   width: 50%;
   text-align: center;
   padding: .25rem;
@@ -208,7 +207,7 @@ const SetDurationInput = styled.input`
 
   &:focus {
     border-radius: ${borderSize};
-    box-shadow: 0 0 0 ${borderSize} ${colorBlueLight}, inset 0 0 0 1px ${colorPrimary};
+    box-shadow: 0 0 0 ${borderSize} ${colorPrimary}, inset 0 0 0 1px ${colorPrimary};
   }
 
   &:disabled,
@@ -294,7 +293,7 @@ const Input = styled(TextareaAutosize)`
   line-height: 1;
   min-height: 2.5rem;
   max-height: 10rem;
-  border: 1px solid ${colorGrayLighter};
+  border: 1px solid ${colorBorder};
 
   &:disabled,
   &[disabled] {
@@ -305,7 +304,7 @@ const Input = styled(TextareaAutosize)`
 
   &:focus {
     border-radius: ${borderSize};
-    box-shadow: 0 0 0 ${borderSize} ${colorBlueLight}, inset 0 0 0 1px ${colorPrimary};
+    box-shadow: 0 0 0 ${borderSize} ${colorPrimary}, inset 0 0 0 1px ${colorPrimary};
   }
 
   &:hover,

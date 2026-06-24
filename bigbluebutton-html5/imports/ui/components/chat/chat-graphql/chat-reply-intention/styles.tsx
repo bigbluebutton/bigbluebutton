@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components';
 import {
   colorDangerDark,
-  colorGrayLightest, colorOffWhite,
+  colorBorder, colorOffWhite,
   colorPrimary,
   colorText,
   colorWhite,
@@ -14,7 +14,7 @@ import EmojiButton from '../chat-message-list/page/chat-message/message-toolbar/
 const Container = styled.div<{ $hidden: boolean; $animations: boolean }>`
   border-radius: 0.375rem;
   background-color: ${colorWhite};
-  box-shadow: inset 0 0 0 1px ${colorGrayLightest};
+  box-shadow: inset 0 0 0 1px ${colorBorder};
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -76,7 +76,7 @@ const HtmlContent = styled.div`
 
   & pre:has(code), p code:not(pre > code) {
     background-color: ${colorOffWhite};
-    border: solid 1px ${colorGrayLightest};
+    border: solid 1px ${colorBorder};
     border-radius: 4px;
     padding: 2px;
     margin: 0;

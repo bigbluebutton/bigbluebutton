@@ -7,11 +7,9 @@ import {
   borderRadius,
 } from '../../../stylesheets/styled-components/general';
 import {
+  colorBorder,
   colorGrayDark,
-  colorGrayLighter,
-  colorGrayLightest,
   colorGray,
-  colorBlueLight,
   colorWhite,
   colorPrimary,
 } from '../../../stylesheets/styled-components/palette';
@@ -87,8 +85,8 @@ const TimerContent = styled.div`
 `;
 
 const TimerCurrent = styled.span`
-  border-bottom: 1px solid ${colorGrayLightest};
-  border-top: 1px solid ${colorGrayLightest};
+  border-bottom: 1px solid ${colorBorder};
+  border-top: 1px solid ${colorBorder};
   display: flex;
   font-size: xxx-large;
   justify-content: center;
@@ -211,7 +209,7 @@ const TimerControlButton = styled(Button)`
 
 const TimerInput = styled.input`
   flex: 1;
-  border: 1px solid ${colorGrayLighter};
+  border: 1px solid ${colorBorder};
   width: 50%;
   text-align: center;
   padding: .25rem;
@@ -226,7 +224,7 @@ const TimerInput = styled.input`
 
   &:focus {
     border-radius: ${borderSize};
-    box-shadow: 0 0 0 ${borderSize} ${colorBlueLight}, inset 0 0 0 1px ${colorPrimary};
+    box-shadow: 0 0 0 ${borderSize} ${colorPrimary}, inset 0 0 0 1px ${colorPrimary};
   }
 
   &:disabled,

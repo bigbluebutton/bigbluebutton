@@ -5,14 +5,13 @@ import HoldButton from '/imports/ui/components/presentation/presentation-toolbar
 import Button from '/imports/ui/components/common/button/component';
 import { FlexRow, FlexColumn } from '/imports/ui/stylesheets/styled-components/placeholders';
 import {
+  colorBorder,
   colorDanger,
   colorGray,
   colorGrayLight,
-  colorGrayLighter,
   colorWhite,
   colorPrimary,
   colorBlueLight,
-  colorGrayLightest,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeSmall, fontSizeBase, fontSizeSmaller } from '/imports/ui/stylesheets/styled-components/typography';
 import {
@@ -95,7 +94,7 @@ const BreakoutNameInput = styled.input`
     color: ${colorGray};
     opacity: 1;
   }
-  border: 1px solid ${colorGrayLightest};
+  border: 1px solid ${colorBorder};
   margin-bottom: 1rem;
 
   ${({ readOnly }) => readOnly && `
@@ -106,7 +105,7 @@ const BreakoutNameInput = styled.input`
 const BreakoutBox = styled(ScrollboxVertical)<BreakoutBoxProps>`
   max-width: 13rem;
   height: 10rem;
-  border: 1px solid ${colorGrayLightest};
+  border: 1px solid ${colorBorder};
   border-radius: ${borderRadius};
   padding: ${lgPaddingY} 0;
 
@@ -166,7 +165,7 @@ const FormLabel = styled.p<withValidProp>`
 const InputRooms = styled.select<withValidProp>`
   background-color: ${colorWhite};
   color: ${colorGray};
-  border: 1px solid ${colorGrayLighter};
+  border: 1px solid ${colorBorder};
   border-radius: ${borderRadius};
   width: 100%;
   padding-top: .25rem;
@@ -207,7 +206,7 @@ const DurationArea = styled.div`
 const DurationInput = styled.input`
   background-color: ${colorWhite};
   color: ${colorGray};
-  border: 1px solid ${colorGrayLighter};
+  border: 1px solid ${colorBorder};
   border-radius: ${borderRadius};
   width: 100%;
   text-align: left;
@@ -261,7 +260,7 @@ const Separator = styled.div`
   width: 100%;
   height: 1px;
   margin: 1rem 0;
-  border: 1px solid ${colorGrayLightest};
+  border: 1px solid ${colorBorder};
 `;
 
 const FreeJoinCheckbox = styled.input`

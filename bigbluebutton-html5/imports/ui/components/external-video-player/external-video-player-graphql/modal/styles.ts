@@ -7,9 +7,8 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorText,
-  colorGrayLighter,
+  colorBorder,
   colorGray,
-  colorBlueLight,
   colorPrimary,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
@@ -60,7 +59,7 @@ const VideoUrl = styled.div<urlProps>`
     width: 100%;
     font-family: inherit;
     font-weight: inherit;
-    border: 1px solid ${colorGrayLighter};
+    border: 1px solid ${colorBorder};
     border-radius: ${borderRadius};
 
     ${({ animations }) => animations && `
@@ -70,7 +69,7 @@ const VideoUrl = styled.div<urlProps>`
     &:focus {
       outline: none;
       border-radius: ${borderSize};
-      box-shadow: 0 0 0 ${borderSize} ${colorBlueLight}, inset 0 0 0 1px ${colorPrimary};
+      box-shadow: 0 0 0 ${borderSize} ${colorPrimary}, inset 0 0 0 1px ${colorPrimary};
     }
   }
 
