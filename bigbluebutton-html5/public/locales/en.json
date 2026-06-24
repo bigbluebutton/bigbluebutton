@@ -1387,6 +1387,8 @@
     "app.video.videoMenuDesc": "Open video menu dropdown",
     "app.video.pagination.prevPage": "See previous videos",
     "app.video.pagination.nextPage": "See next videos",
+    "app.video.pagination.page": "Go to page {0}",
+    "app.video.pagination.pageOf": "Page {0} of {1}",
     "app.video.clientDisconnected": "Webcam cannot be shared due to connection issues",
     "app.video.virtualBackground.none": "None",
     "app.video.virtualBackground.blur": "Blur",

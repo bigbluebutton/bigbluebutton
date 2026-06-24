@@ -1,4 +1,5 @@
 import React from 'react';
+import deviceInfo from '/imports/utils/deviceInfo';
 import Button from '/imports/ui/components/common/button/component';
 import SubMenusStyle from '../styles';
 import LocalesDropdown from '/imports/ui/components/common/locales-dropdown/component';
@@ -325,15 +326,20 @@ class ApplicationMenu extends BaseMenu {
     const { intl, displaySettingsStatus } = this.props;
     const { settings } = this.state;
 
+    // On mobile, pagination is always enforced; show the toggle as on and locked.
+    const isMobile = deviceInfo.isMobile;
+    const paginationChecked = isMobile ? true : settings.paginationEnabled;
+
     return (
       <Styled.Row>
         <Styled.Col>
           <Styled.FormElementRight>
             <SubMenusStyle.MaterialSwitch
               icons="false"
-              checked={settings.paginationEnabled}
+              checked={paginationChecked}
+              disabled={isMobile}
               onChange={() => this.handleToggle('paginationEnabled')}
-              aria-label={`${intl.formatMessage(intlMessages.paginationEnabledLabel)} - ${displaySettingsStatus(settings.paginationEnabled, true)}`}
+              aria-label={`${intl.formatMessage(intlMessages.paginationEnabledLabel)} - ${displaySettingsStatus(paginationChecked, true)}`}
               inputProps={{ 'data-test': 'paginationToggleBtn' }}
             />
             <Styled.Label style={{ marginLeft: '0.5rem' }}>

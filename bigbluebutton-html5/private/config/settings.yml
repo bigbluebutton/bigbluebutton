@@ -556,8 +556,8 @@ public:
         viewer: 48
       # grid size for MOBILE endpoints
       mobileGridSizes:
-        moderator: 14
-        viewer: 14
+        moderator: 6
+        viewer: 6
     paginationThresholds:
       enabled: false
       thresholds:
