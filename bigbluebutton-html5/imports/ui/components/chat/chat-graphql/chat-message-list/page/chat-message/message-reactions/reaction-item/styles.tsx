@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colorBorder, colorOffWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorBorder, colorOffWhite, colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 
 const EmojiWrapper = styled.button<{ highlighted: boolean }>`
   background: none;
@@ -26,7 +26,7 @@ const EmojiWrapper = styled.button<{ highlighted: boolean }>`
   }
 
   &:hover {
-    border: 1px solid ${colorBorder};
+    border: 1px solid ${colorPrimary};
   }
 `;
 
