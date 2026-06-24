@@ -14,6 +14,7 @@ import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
 import org.bigbluebutton.core2.message.senders.{MsgBuilder, Sender}
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
 import org.bigbluebutton.core.db.{ChatMessageDAO, UserDAO, UserStateDAO}
+import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 
 object UsersApp {
@@ -67,8 +68,13 @@ object UsersApp {
     ScreenshareApp2x.requestBroadcastStop(outGW, liveMeeting)
 
     val meetingId = liveMeeting.props.meetingProp.intId
+    val presenterCandidate = if (liveMeeting.props.meetingProp.isBreakout) {
+      Users2x.findModerator(liveMeeting.users2x).orElse(Users2x.findAll(liveMeeting.users2x).headOption)
+    } else {
+      Users2x.findModerator(liveMeeting.users2x)
+    }
     for {
-      moderator <- Users2x.findModerator(liveMeeting.users2x)
+      moderator <- presenterCandidate
       regUser <- RegisteredUsers.findWithUserId(moderator.intId, liveMeeting.registeredUsers)
       newPresenter <- Users2x.makePresenter(liveMeeting.users2x, moderator.intId)
     } yield {
@@ -172,8 +178,12 @@ object UsersApp {
     )
 
     if (announcePresenterChangeInChat) {
-      //System message
-      ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", GroupChatMessageType.USER_IS_PRESENTER_MSG, Map(), newPresenter.name)
+      val hideUserList = MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList
+      val shouldSkip = hideUserList && newPresenter.role == Roles.VIEWER_ROLE
+
+      if (!shouldSkip) {
+        ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", "", GroupChatMessageType.USER_IS_PRESENTER_MSG, Map(), newPresenter.name)
+      }
     }
   }
 
@@ -221,6 +231,7 @@ class UsersApp(
   with ChangeUserPinStateReqMsgHdlr
   with UserConnectionAliveReqMsgHdlr
   with ChangeUserReactionEmojiReqMsgHdlr
+  with SetUserWhiteboardWriteAccessReqMsgHdlr
   with ChangeUserRaiseHandReqMsgHdlr
   with ChangeUserAwayReqMsgHdlr
   with EjectUserFromMeetingCmdMsgHdlr

@@ -17,6 +17,18 @@ const intlMessages = defineMessages({
     id: 'app.polling.pollQuestionTitle',
     description: 'polling question header',
   },
+  correctAnswerSelected: {
+    id: 'app.poll.quiz.correctAnswerSelected',
+    description: 'Label indicating that a correct answer has been selected in a quiz',
+  },
+  selectCorrectAnswer: {
+    id: 'app.poll.quiz.selectCorrectAnswer',
+    description: 'Label prompting the user to select a correct answer in a quiz',
+  },
+  quizAnswerChoicesLabel: {
+    id: 'app.poll.quiz.answerChoices.label',
+    description: 'Label for the answer choices in a quiz',
+  },
 });
 
 interface ResponseChoicesProps {
@@ -77,9 +89,28 @@ const ResponseChoices: React.FC<ResponseChoicesProps> = ({
             </Styled.PollParagraph>
           </Styled.Question>
         )}
-        <Styled.SectionHeading>
-          {intl.formatMessage(intlMessages.responseChoices)}
-        </Styled.SectionHeading>
+        <Styled.ResponseHeader>
+          <Styled.SectionHeading>
+            {
+              isQuiz
+                ? intl.formatMessage(intlMessages.quizAnswerChoicesLabel)
+                : intl.formatMessage(intlMessages.responseChoices)
+            }
+          </Styled.SectionHeading>
+          {isQuiz && (
+            <Styled.SelectedCorrectAnswerIndicator hasCorrectAnswer={correctAnswer.index !== -1}>
+              {correctAnswer.index !== -1 ? (
+                <span>
+                  {intl.formatMessage(intlMessages.correctAnswerSelected)}
+                </span>
+              ) : (
+                <span>
+                  {intl.formatMessage(intlMessages.selectCorrectAnswer)}
+                </span>
+              )}
+            </Styled.SelectedCorrectAnswerIndicator>
+          )}
+        </Styled.ResponseHeader>
         {type === pollTypes.Response && (
           <Styled.PollParagraph>
             <span>{intl.formatMessage(intlMessages.typedResponseDesc)}</span>

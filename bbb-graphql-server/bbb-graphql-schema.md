@@ -43,7 +43,8 @@
   - `hasPoll: Boolean`
   - `hasScreenshare: Boolean`
   - `hasTimer: Boolean`
-  - `isSharedNotedPinned: Boolean`
+  - `isSharedNotesPinned: Boolean`
+  - `isEtherpadSharedNotes: Boolean`
   - `showRemainingTime: Boolean`
 - `externalVideo: Object` [Type externalVideo](#type-externalVideo)
 - `groups: Array` [Type meeting_group](#type-meeting_group)
@@ -82,15 +83,17 @@ Permission: Restricted to User Viewing Self-Related Data
 - `firstNameSortable`
 - `guest`
 - `guestStatus`
-- `hasDrawPermissionOnCurrentPage`
+- `whiteboardWriteAccess`
 - `inactivityWarningDisplay`
 - `inactivityWarningTimeoutSecs`
 - `isDialIn`
 - `isModerator`
 - `isRunningEchoTest`
+- `isSharingCamera`
 - `joinErrorCode`
 - `joinErrorMessage`
 - `joined`
+- `lastFloorTime`
 - `lastName`
 - `lastNameSortable`
 - `locked`
@@ -100,6 +103,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `name`
 - `nameSortable`
 - `pinned`
+- `pinnedTime`
 - `presenter`
 - `raiseHand`
 - `reactionEmoji`
@@ -115,19 +119,20 @@ Permission: Restricted to User Viewing Self-Related Data
 - `chats: Array` [Type chat](#type-chat)
 - `connectionStatus: Object` [Type user_connectionStatus](#type-user_connectionstatus)
 - `guestStatusDetails: Object` [Type user_guest](#type-user_guest)
-- `lastBreakoutRoom: Object` [Type user_breakoutroom](#type-user_breakoutroom)
+- `lastBreakoutRoom: Object` [Type breakoutRoom_user](#type-breakoutroom_user)
+- `lastBreakoutRoomAssigned: Object` [Type breakoutRoom_user](#type-breakoutroom_user)
 - `livekit: Object` [Type user_livekit](#type-user_livekit)
 - `meeting: Object` [Type meeting](#type-meeting)
 - `presPagesWritable: Array` [Type pres_page_writers](#type-pres_page_writers)
 - `sessionCurrent: Object` [Type user_session_current](#type-user_session_current)
-- `sharedNotesSession: Object` [Type sharedNotes_session](#type-sharedNotes_session)
-- `transcriptionError: Object` [Type user_transcriptionError](#type-user_transcriptionError)
-- `userClientSettings: Object` [Type user_clientSettings](#type-user_clientSettings)
+- `sharedNotesSession: Object` [Type sharedNotes_session](#type-sharednotes_session)
+- `transcriptionError: Object` [Type user_transcriptionError](#type-user_transcriptionerror)
+- `userClientSettings: Object` [Type user_clientSettings](#type-user_clientsettings)
 - `userLockSettings: Object` **Type user_lockSettings**
   - `disablePublicChat`
 - `userMetadata: Object` [Type user_metadata](#type-user_metadata)
 - `voice: Object` [Type user_voice](#type-user_voice)
-- `welcomeMsgs: Object` [Type user_welcomeMsgs](#type-user_welcomeMsgs)
+- `welcomeMsgs: Object` [Type user_welcomeMsgs](#type-user_welcomemsgs)
 
 ## Type: chat_message_private
 Permission: Restricted to User Viewing Self-Related Data
@@ -139,6 +144,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `deletedAt`
 - `editedAt`
 - `message`
+- `messageAsHtml`
 - `messageId`
 - `messageMetadata`
 - `messageSequence`
@@ -152,7 +158,6 @@ Permission: Restricted to User Viewing Self-Related Data
 - `reactions: Array` **Type chat_message_reaction**
   - `createdAt`
   - `reactionEmoji`
-  - `reactionEmojiId`
   - `userId`
   - `user: Object` [Type User](#type-user)
 - `replyToMessage: Object` [Type chat_message_private](#type-chat_message_private)
@@ -167,6 +172,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `deletedAt`
 - `editedAt`
 - `message`
+- `messageAsHtml`
 - `messageId`
 - `messageMetadata`
 - `messageSequence`
@@ -179,7 +185,6 @@ Permission: Restricted to User Viewing Self-Related Data
 - `reactions: Array` **Type chat_message_reaction**
   - `createdAt`
   - `reactionEmoji`
-  - `reactionEmojiId`
   - `userId`
   - `user: Object` [Type User](#type-user)
 - `replyToMessage: Object` [Type type-chat_message_public](#type-chat_message_public)
@@ -205,11 +210,13 @@ Permission: Restricted by Lock Settings
 - `firstNameSortable`
 - `guest`
 - `guestStatus`
-- `hasDrawPermissionOnCurrentPage`
+- `whiteboardWriteAccess`
 - `isDialIn`
 - `isModerator`
 - `isRunningEchoTest`
+- `isSharingCamera`
 - `joined`
+- `lastFloorTime`
 - `lastName`
 - `lastNameSortable`
 - `locked`
@@ -218,6 +225,7 @@ Permission: Restricted by Lock Settings
 - `name`
 - `nameSortable`
 - `pinned`
+- `pinnedTime`
 - `presenter`
 - `raiseHand`
 - `raiseHandTime`
@@ -230,7 +238,8 @@ Permission: Restricted by Lock Settings
 ### Relationships:
 - `cameras: Array` [Type user_camera](#type-user_camera)
 - `connectionStatus: Object` [Type user_connectionstatus](#type-user_connectionstatus)
-- `lastBreakoutRoom: Object` [Type user_breakoutRoom](#type-user_breakoutRoom)
+- `lastBreakoutRoom: Object` [Type breakoutRoom_user](#type-breakoutroom_user)
+- `lastBreakoutRoomAssigned: Object` [Type breakoutRoom_user](#type-breakoutroom_user)
 - `meeting: Object` [Type meeting](#type-meeting)
 - `presPagesWritable: Array` [Type pres_page_writers](#type-pres_page_writers)
 - `userLockSettings: Object` **Type user_lockSettings**
@@ -275,7 +284,7 @@ Permission: Restricted by Lock Settings
 Permission: Restricted to User Viewing Self-Related Data
 ### Fields:
 - `assignedAt`
-- `breakoutRoomId`
+- `breakoutRoomMeetingId`
 - `inviteDismissedAt`
 - `joinURL`
 - `joinedAt`
@@ -300,7 +309,8 @@ Permission: Restricted to User Viewing Self-Related Data
 - `hasPoll`
 - `hasScreenshare`
 - `hasTimer`
-- `isSharedNotedPinned`
+- `isSharedNotesPinned`
+- `isEtherpadSharedNotes`
 - `showRemainingTime`
 
 ## Type: pres_page
@@ -457,7 +467,7 @@ Permission: Restricted to Poll Owner or User Viewing Self-Related Data
 ## Type: breakoutRoom
 ### Fields:
 - `assignedAt`
-- `breakoutRoomId`
+- `breakoutRoomMeetingId`
 - `durationInSeconds`
 - `endedAt`
 - `freeJoin`
@@ -488,7 +498,6 @@ Permission: Restricted to Poll Owner or User Viewing Self-Related Data
 - `running`
 - `songTrack`
 - `startedAt`
-- `startedOn`
 - `stopwatch`
 - `time`
 
@@ -554,6 +563,7 @@ Permission: Restricted to Presenter
 - `moderatorsCanUnmuteAudio`
 - `userCameraCap`
 - `webcamsOnlyForModerator`
+- `multiUserWhiteboardEnabled`
 
 ## Type: chat
 ### Fields:
@@ -579,6 +589,17 @@ Permission: Restricted to Presenter
 - `toRoles`
 ### Relationships:
 - `creator: Object` [Type User](#type-user)
+
+## Type: pluginDataChannelEntry_public
+### Fields:
+- `channelName`
+- `createdAt`
+- `createdBy`
+- `entryId`
+- `payloadJson`
+- `pluginName`
+- `subChannelName`
+- `toRoles`
 
 ## Type: user_connectionStatus
 ### Fields:
@@ -679,7 +700,6 @@ Permission: Restricted to Moderators or the User Viewing Self-Related Data
 Permission: Restricted to User Viewing Self-Related Data
 ### Fields:
 - `chatId`
-- `isCurrentlyTyping`
 - `lastTypingAt`
 - `startedTypingAt`
 - `userId`
@@ -689,7 +709,6 @@ Permission: Restricted to User Viewing Self-Related Data
 ## Type: user_typing_public
 ### Fields:
 - `chatId`
-- `isCurrentlyTyping`
 - `lastTypingAt`
 - `startedTypingAt`
 - `userId`
@@ -698,11 +717,12 @@ Permission: Restricted to User Viewing Self-Related Data
 
 ## Type: pres_page_writers
 ### Fields:
-- `changedModeOn`
 - `isCurrentPage`
 - `pageId`
 - `presentationId`
 - `userId`
+### Relationships:
+- `user: Object` [Type User](#type-user)
 
 ## Type: screenshare
 ### Fields:
@@ -722,6 +742,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `lastRev`
 - `model`
 - `name`
+- `sharedNotesEditor`
 - `padId`
 - `pinned`
 - `sharedNotesExtId`
@@ -734,15 +755,6 @@ Permission: Restricted to User Viewing Self-Related Data
 - `sharedNotesExtId`
 ### Relationships:
 - `sharedNotes: Object` [Type sharednotes](#type-sharednotes)
-
-## Type: user_breakoutRoom
-### Fields:
-- `breakoutRoomId`
-- `currentlyInRoom`
-- `isDefaultName`
-- `sequence`
-- `shortName`
-- `userId`
 
 ## Type: user_connectionStatusHistory
 Permission: Restricted to Moderators or the User Viewing Self-Related Data
@@ -886,7 +898,7 @@ Permission: Restricted by Lock Settings
 ## Type: breakoutRoom_createdLatest
 Permission: Restricted to Moderators
 ### Fields:
-- `breakoutRoomId`
+- `breakoutRoomMeetingId`
 - `captureNotes`
 - `captureSlides`
 - `createdAt`
@@ -919,4 +931,3 @@ Permission: Restricted to User Viewing Self-Related Data
 - `enforceLayout`
 - `sessionName`
 - `sessionToken`
-

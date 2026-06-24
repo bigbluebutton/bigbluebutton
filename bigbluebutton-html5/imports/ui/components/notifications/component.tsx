@@ -12,7 +12,6 @@ import {
 } from './service';
 import Styled from './styles';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 
 const Notifications: React.FC = () => {
   const [registeredAt, setRegisteredAt] = React.useState<string>(new Date().toISOString());
@@ -37,34 +36,10 @@ const Notifications: React.FC = () => {
     isModerator: u.isModerator,
   }));
 
-  const Settings = getSettingsSingletonInstance();
-  const {
-    userJoinPushAlerts,
-    userJoinAudioAlerts,
-    userLeavePushAlerts,
-    userLeaveAudioAlerts,
-    guestWaitingPushAlerts,
-    guestWaitingAudioAlerts,
-  } = Settings.application;
-
-  const excludedMessageIds = [];
-
-  if (!userJoinPushAlerts && !userJoinAudioAlerts) {
-    excludedMessageIds.push('app.notification.userJoinPushAlert');
-  }
-
-  if (!userLeavePushAlerts && !userLeaveAudioAlerts) {
-    excludedMessageIds.push('app.notification.userLeavePushAlert');
-  }
-
-  if (!guestWaitingPushAlerts && !guestWaitingAudioAlerts) {
-    excludedMessageIds.push('app.userList.guest.pendingGuestAlert');
-  }
-
   const {
     data: notificationsStream,
   } = useDeduplicatedSubscription<NotificationResponse>(getNotificationsStream, {
-    variables: { initialCursor: '2024-04-18', excludedMessageIds },
+    variables: { initialCursor: '2000-01-01' },
   });
 
   const notifier = (notification: Notification) => {

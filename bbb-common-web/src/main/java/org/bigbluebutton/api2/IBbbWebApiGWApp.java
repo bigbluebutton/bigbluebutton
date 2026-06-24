@@ -20,8 +20,11 @@ public interface IBbbWebApiGWApp {
                      String parentMeetingID, String meetingName, Boolean recorded,
                      String voiceBridge, Integer duration, Boolean autoStartRecording,
                      Boolean allowStartStopRecording,
+                     ArrayList<Object> sharedNotesInitialContentJson,
+                     String sharedNotesEditor,
                      Boolean recordFullDurationMedia,
                      Boolean webcamsOnlyForModerator,
+                     Boolean multiUserWhiteboardEnabled,
                      Integer meetingCameraCap,
                      Integer userCameraCap,
                      Integer maxPinnedCameras,
@@ -79,7 +82,7 @@ public interface IBbbWebApiGWApp {
   void registerUser(String meetingID, String internalUserId, String fullname, String firstName, String lastName, String role,
                     String externUserID, String authToken, String sessionToken, String avatarURL, String webcamBackgroundURL,
                     Boolean bot, Boolean guest, Boolean authed, String guestStatus, Boolean excludeFromDashboard,
-                    String enforceLayout, String logoutUrl, Map<String, String> userMetadata);
+                    String enforceLayout, String logoutUrl, Map<String, String> joinRequestMetadata, Map<String, String> userMetadata);
   void registerUserSessionToken(String meetingID, String internalUserId, String sessionToken, String sessionName,
                                 String replaceSessionToken, String enforceLayout, Map<String, String> userSessionMetadata);
 

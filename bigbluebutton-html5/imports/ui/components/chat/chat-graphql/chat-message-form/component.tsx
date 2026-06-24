@@ -20,8 +20,6 @@ import {
   useIsEditChatMessageEnabled, useIsEmojiPickerEnabled,
 } from '/imports/ui/services/features';
 import { checkText } from 'smile2emoji';
-import { findDOMNode } from 'react-dom';
-
 import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { getAllShortCodes } from '/imports/utils/emoji-utils';
@@ -140,7 +138,8 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [message, setMessage] = React.useState('');
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
-  const emojiPickerButtonRef = useRef(null);
+  const emojiPickerButtonRef = useRef<HTMLDivElement>(null);
+  const emojiPickerPreviousFocusRef = useRef<HTMLElement | null>(null);
   const [isTextAreaFocused, setIsTextAreaFocused] = React.useState(false);
   const [repliedMessageId, setRepliedMessageId] = React.useState<string | null>(null);
   const [emojisToExclude, setEmojisToExclude] = React.useState<string[]>([]);
@@ -306,6 +305,23 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const customCheckText = (input: string): string => {
     const placeholderMap: Record<string, string> = {};
 
+    // Escaped emoticons: a leading backslash prevents the conversion of an
+    // emoticon. Consume the backslash and keep the literal text, e.g. "\D:"
+    // is sent as "D:" instead of being turned into an emoji. See issue #23344.
+    let escapeIndex = 0;
+    // eslint-disable-next-line no-param-reassign
+    input = input.split(' ').map((word) => {
+      if (!word.startsWith('\\')) return word;
+      const unescaped = word.slice(1);
+      // Only treat the backslash as an escape when it precedes something
+      // smile2emoji would actually convert; otherwise leave the text as-is.
+      if (checkText(unescaped) === unescaped) return word;
+      const placeholder = `__ESCAPED_EMOJI_${escapeIndex}__`;
+      escapeIndex += 1;
+      placeholderMap[placeholder] = unescaped;
+      return placeholder;
+    }).join(' ');
+
     emojisToExclude.forEach((shortcode, index) => {
       const placeholder = `__EXCLUDE_${index}__`;
       const target = `:${shortcode}:`;
@@ -413,6 +429,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const renderForm = () => {
     const formRef = useRef<HTMLFormElement | null>(null);
     const CHAT_EDIT_ENABLED = useIsEditChatMessageEnabled();
+    const hasSelectedTextInChat = useRef(false);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event) => {
       e.preventDefault();
@@ -469,7 +486,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           sendCancelEvents();
         });
       }
-      const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY);
+      const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) as string[];
 
       // Remove the chat that user send messages from the session.
       if (indexOf(currentClosedChats, chatId) > -1) {
@@ -562,15 +579,37 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       };
     }, []);
 
-    document.addEventListener('click', (event) => {
-      const chatList = document.getElementById('chat-list');
-      if (chatList?.contains(event.target as Node)) {
-        const selection = window.getSelection()?.toString();
-        if (selection?.length === 0) {
-          textAreaRef.current?.textarea.focus();
+    useEffect(() => {
+      const handleClick = (event: MouseEvent) => {
+        const chatList = document.getElementById('chat-list');
+        if (chatList?.contains(event.target as Node)) {
+          const selection = window.getSelection()?.toString();
+          if (selection?.length === 0 && !hasSelectedTextInChat.current) {
+            textAreaRef.current?.textarea.focus();
+          }
         }
-      }
-    });
+      };
+
+      /**
+       * Workaround for Firefox. `Selection.toString()` always returns empty string.
+       */
+      const handleSelectionChange = () => {
+        const selection = window.getSelection();
+        const chatList = document.getElementById('chat-list');
+        hasSelectedTextInChat.current = (
+          (selection?.focusOffset ?? 0) > 0
+          && Boolean(chatList?.contains(selection?.anchorNode as Node))
+        );
+      };
+
+      document.addEventListener('click', handleClick);
+      document.addEventListener('selectionchange', handleSelectionChange);
+
+      return () => {
+        document.removeEventListener('click', handleClick);
+        document.removeEventListener('selectionchange', handleSelectionChange);
+      };
+    }, []);
 
     useEffect(() => {
       if (chatSendMessageError && error == null) {
@@ -581,8 +620,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
     useEffect(() => {
       const handleClickOutside = (event: MouseEvent) => {
-        // eslint-disable-next-line react/no-find-dom-node
-        const button = findDOMNode(emojiPickerButtonRef.current);
+        const button = emojiPickerButtonRef.current;
         if (
           (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node))
           && (button && !button.contains(event.target as Node))
@@ -596,6 +634,16 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         document.removeEventListener('mousedown', handleClickOutside);
       };
     }, []);
+
+    useEffect(() => {
+      if (!showEmojiPicker) {
+        const el = emojiPickerPreviousFocusRef.current;
+        if (el && document.body.contains(el)) {
+          el.focus();
+        }
+        emojiPickerPreviousFocusRef.current = null;
+      }
+    }, [showEmojiPicker]);
 
     return (
       <Styled.Form
@@ -648,19 +696,25 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
               async
             />
             {ENABLE_EMOJI_PICKER ? (
-              <Styled.EmojiButton
-                ref={emojiPickerButtonRef}
-                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                icon="happy"
-                color="light"
-                ghost
-                type="button"
-                circle
-                hideLabel
-                label={intl.formatMessage(messages.emojiButtonLabel)}
-                data-test="emojiPickerButton"
-                disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
-              />
+              <div ref={emojiPickerButtonRef}>
+                <Styled.EmojiButton
+                  onClick={() => {
+                    if (!showEmojiPicker) {
+                      emojiPickerPreviousFocusRef.current = document.activeElement as HTMLElement;
+                    }
+                    setShowEmojiPicker(!showEmojiPicker);
+                  }}
+                  icon="happy"
+                  color="light"
+                  ghost
+                  type="button"
+                  circle
+                  hideLabel
+                  label={intl.formatMessage(messages.emojiButtonLabel)}
+                  data-test="emojiPickerButton"
+                  disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
+                />
+              </div>
             ) : null}
           </Styled.InputWrapper>
           <div style={{ zIndex: 10 }}>

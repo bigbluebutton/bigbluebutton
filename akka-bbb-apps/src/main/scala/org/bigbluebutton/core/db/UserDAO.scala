@@ -1,5 +1,5 @@
 package org.bigbluebutton.core.db
-import org.bigbluebutton.core.models.{RegisteredUser, UserLockSettings, VoiceUserState}
+import org.bigbluebutton.core.models.{ClientType, IntIdPrefixType, RegisteredUser, UserLockSettings, VoiceUserState}
 import slick.jdbc.PostgresProfile.api._
 
 case class UserNameColumnsDbModel(
@@ -110,7 +110,6 @@ object UserDAO {
       )
     )
 
-    UserConnectionStatusDAO.insert(meetingId, regUser.id)
     UserMetadataDAO.insert(meetingId, regUser.id, "", regUser.userMetadata)
     UserLockSettingsDAO.insertOrUpdate(meetingId, regUser.id, UserLockSettings())
     UserClientSettingsDAO.insertOrUpdate(meetingId, regUser.id, JsonUtils.stringToJson("{}"))
@@ -129,12 +128,21 @@ object UserDAO {
   }
 
   def updateVoiceUserJoined(voiceUserState: VoiceUserState) = {
+    val isDialIn = voiceUserState.intId.startsWith(IntIdPrefixType.DIAL_IN)
     DatabaseConnection.enqueue(
-      TableQuery[UserDbTableDef]
-        .filter(_.meetingId === voiceUserState.meetingId)
-        .filter(_.userId === voiceUserState.intId)
-        .map(u => (u.guest, u.guestStatus, u.authed, u.joined))
-        .update((false, "ALLOW", true, true))
+      if (isDialIn) {
+        TableQuery[UserDbTableDef]
+          .filter(_.meetingId === voiceUserState.meetingId)
+          .filter(_.userId === voiceUserState.intId)
+          .map(u => (u.guest, u.guestStatus, u.authed, u.joined))
+          .update((false, "ALLOW", true, true))
+      } else {
+        TableQuery[UserDbTableDef]
+          .filter(_.meetingId === voiceUserState.meetingId)
+          .filter(_.userId === voiceUserState.intId)
+          .map(u => (u.guestStatus, u.authed, u.joined))
+          .update(("ALLOW", true, true))
+      }
     )
   }
 
@@ -199,7 +207,7 @@ object UserDAO {
                "joined",
                "registeredOn",
                true as "transferredFromParentMeeting",
-               'dial-in-user' as "clientType"
+               ${ClientType.DIAL_IN} as "clientType"
               from "user"
               where "userId" = ${userId}
               and "meetingId" = ${meetingIdFrom}

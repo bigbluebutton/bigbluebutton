@@ -118,6 +118,25 @@ module BigBlueButton
         end
       end
 
+      def disabled_recording_formats
+        return @disabled_recording_formats unless @disabled_recording_formats.nil?
+
+        @disabled_recording_formats = []
+        events_xml = File.join(@recording_dir, 'raw', @meeting_id, 'events.xml')
+        return @disabled_recording_formats unless File.exist?(events_xml)
+
+        metadata = BigBlueButton::Events.get_meeting_metadata(events_xml)
+        value = metadata['bbb-disable-recording-formats']
+        value = value.nil? ? '' : value.value.to_s
+        @disabled_recording_formats = value.delete('[]')
+                                           .split(',')
+                                           .map { |format| format.strip.downcase }
+                                           .reject(&:empty?)
+      rescue StandardError => e
+        @logger.warn("Failed to read bbb-disable-recording-formats metadata: #{e.message}")
+        @disabled_recording_formats = []
+      end
+
       def schedule_next_step
         @logger.info("Scheduling next step for #{@step_name}")
 
@@ -140,6 +159,12 @@ module BigBlueButton
         else
           next_step.each do |step|
             step_name, step_format = step.split(':') # e.g. 'process:presentation'
+
+            if !step_format.nil? && disabled_recording_formats.include?(step_format.downcase)
+              @logger.info("Skipping #{step}: disabled by meta_bbb-disable-recording-formats")
+              next
+            end
+
             opts['format_name'] = step_format unless step_format.nil?
 
             @logger.info("Enqueueing #{step_name} worker with #{opts.inspect}")

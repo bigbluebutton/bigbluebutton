@@ -11,3 +11,11 @@ location /html5client/locales {
   autoindex on;
   autoindex_format json;
 }
+
+location /html5client/wasm {
+    types {
+        application/wasm wasm;
+    }
+    gzip_static on;
+    alias /usr/share/bigbluebutton/html5-client/wasm;
+}

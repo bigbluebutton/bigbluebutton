@@ -2,6 +2,8 @@ import React from 'react';
 import {
   IS_TYPING_PUBLIC_SUBSCRIPTION,
   IS_TYPING_PRIVATE_SUBSCRIPTION,
+  IsTypingPublicSubscriptionResponse,
+  IsTypingPrivateSubscriptionResponse,
 } from './queries';
 import {
   defineMessages,
@@ -186,16 +188,18 @@ const TypingIndicatorContainer: React.FC = () => {
 
   // eslint-disable-next-line no-unused-expressions, no-console
   DEBUG_CONSOLE && console.log('TypingIndicatorContainer:chat', chat);
-  const typingQuery = idChatOpen === PUBLIC_GROUP_CHAT_KEY ? IS_TYPING_PUBLIC_SUBSCRIPTION
+  const isPublicChatOpen = idChatOpen === PUBLIC_GROUP_CHAT_KEY;
+  const typingQuery = isPublicChatOpen ? IS_TYPING_PUBLIC_SUBSCRIPTION
     : IS_TYPING_PRIVATE_SUBSCRIPTION;
-  const {
-    data: typingUsersData,
-    error: typingUsersError,
-  } = useDeduplicatedSubscription(typingQuery, {
+  const subscriptionOptions = isPublicChatOpen ? {} : {
     variables: {
       chatId: idChatOpen,
     },
-  });
+  };
+  const {
+    data: typingUsersData,
+    error: typingUsersError,
+  } = useDeduplicatedSubscription(typingQuery, subscriptionOptions);
   // eslint-disable-next-line no-unused-expressions, no-console
   DEBUG_CONSOLE && console.log('TypingIndicatorContainer:typingUsersData', typingUsersData);
 
@@ -213,14 +217,14 @@ const TypingIndicatorContainer: React.FC = () => {
     return null;
   }
 
-  const publicTypingUsers = typingUsersData?.user_typing_public || [];
-  const privateTypingUsers = typingUsersData?.user_typing_private || [];
+  const publicTypingUsers = (typingUsersData as IsTypingPublicSubscriptionResponse)?.user_typing_public || [];
+  const privateTypingUsers = (typingUsersData as IsTypingPrivateSubscriptionResponse)?.user_typing_private || [];
 
   const typingUsers = privateTypingUsers.concat(publicTypingUsers);
 
   const typingUsersArray = typingUsers
     .filter((user: { user: object; userId: string; }) => user?.user && user?.userId !== currentUser?.userId)
-    .map((user: { user: object; }) => user.user);
+    .map((user: { user: object; }) => user.user) as Array<User>;
 
   if (locked || !TYPING_INDICATOR_ENABLED || !typingUsers) return null;
 

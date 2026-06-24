@@ -16,11 +16,12 @@ subscription userCurrentSubscription {
     extId
     guest
     guestStatus
-    hasDrawPermissionOnCurrentPage
+    whiteboardWriteAccess
     inactivityWarningDisplay
     inactivityWarningTimeoutSecs
     isDialIn
     isModerator
+    logoutUrl
     currentlyInMeeting
     joinErrorCode
     joinErrorMessage
@@ -38,8 +39,14 @@ subscription userCurrentSubscription {
     speechLocale
     captionLocale
     userId
+    meeting {
+      ended
+      endedReasonCode
+      endedByUserName
+      logoutUrl
+    }
     lastBreakoutRoom {
-      currentlyInRoom
+      isUserCurrentlyInRoom
       sequence
       shortName
     }
@@ -57,6 +64,7 @@ subscription userCurrentSubscription {
       spoke
       listenOnly
       deafened
+      listenOnlyInputDevice
     }
     userLockSettings {
       disablePublicChat
@@ -66,11 +74,6 @@ subscription userCurrentSubscription {
     }
     livekit {
       livekitToken
-    }
-    presPagesWritable {
-      isCurrentPage
-      pageId
-      userId
     }
   }
 }

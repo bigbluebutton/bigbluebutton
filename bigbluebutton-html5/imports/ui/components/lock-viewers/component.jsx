@@ -114,21 +114,21 @@ class LockViewersComponent extends Component {
 
   toggleLockSettings(property) {
     const { lockSettingsProps } = this.state;
-
-    lockSettingsProps[property] = !lockSettingsProps[property];
+    const lockSettingsPropsLocal = { ...lockSettingsProps };
+    lockSettingsPropsLocal[property] = !lockSettingsPropsLocal[property];
 
     this.setState({
-      lockSettingsProps,
+      lockSettingsProps: lockSettingsPropsLocal,
     });
   }
 
   toggleUserProps(property) {
     const { usersProp } = this.state;
-
-    usersProp[property] = !usersProp[property];
+    const usersPropLocal = { ...usersProp };
+    usersPropLocal[property] = !usersPropLocal[property];
 
     this.setState({
-      usersProp,
+      usersProp: usersPropLocal,
     });
   }
 

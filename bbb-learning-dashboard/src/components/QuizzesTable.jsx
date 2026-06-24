@@ -7,6 +7,49 @@ import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import UserAvatar from './UserAvatar';
 
+const pollAnswerIds = {
+  true: {
+    id: 'app.poll.answer.true',
+    description: 'label for poll answer True',
+  },
+  false: {
+    id: 'app.poll.answer.false',
+    description: 'label for poll answer False',
+  },
+  yes: {
+    id: 'app.poll.answer.yes',
+    description: 'label for poll answer Yes',
+  },
+  no: {
+    id: 'app.poll.answer.no',
+    description: 'label for poll answer No',
+  },
+  abstention: {
+    id: 'app.poll.answer.abstention',
+    description: 'label for poll answer Abstention',
+  },
+  a: {
+    id: 'app.poll.answer.a',
+    description: 'label for poll answer A',
+  },
+  b: {
+    id: 'app.poll.answer.b',
+    description: 'label for poll answer B',
+  },
+  c: {
+    id: 'app.poll.answer.c',
+    description: 'label for poll answer C',
+  },
+  d: {
+    id: 'app.poll.answer.d',
+    description: 'label for poll answer D',
+  },
+  e: {
+    id: 'app.poll.answer.e',
+    description: 'label for poll answer E',
+  },
+};
+
 const QuizzesTable = (props) => {
   const {
     intl,
@@ -170,7 +213,7 @@ const QuizzesTable = (props) => {
 
   const GridCellExpand = React.memo((cellProps) => {
     const {
-      width, value, anonymous, responses, type = 'default',
+      width, anonymous, responses, type = 'default',
     } = cellProps;
     const wrapper = React.useRef(null);
     const cellDiv = React.useRef(null);
@@ -239,6 +282,69 @@ const QuizzesTable = (props) => {
       default: 'bg-gray-500/10 text-gray-700 border border-gray-300 rounded-full px-2 font-bold',
     };
 
+    const symbols = {
+      success: (
+        <span
+          className="select-none"
+          title={intl.formatMessage({
+            id: 'app.learningDashboard.quizzes.successIndicator',
+            defaultMessage: 'Correct answer',
+          })}
+          aria-label={intl.formatMessage({
+            id: 'app.learningDashboard.quizzes.successIndicator',
+            defaultMessage: 'Correct answer',
+          })}
+        >
+          &#9989;
+        </span>
+      ),
+      error: (
+        <span
+          className="select-none"
+          title={intl.formatMessage({
+            id: 'app.learningDashboard.quizzes.errorIndicator',
+            defaultMessage: 'Incorrect answer',
+          })}
+          aria-label={intl.formatMessage({
+            id: 'app.learningDashboard.quizzes.errorIndicator',
+            defaultMessage: 'Incorrect answer',
+          })}
+        >
+          &#10060;
+        </span>
+      ),
+      unknown: (
+        <span
+          className="select-none"
+          title={intl.formatMessage({
+            id: 'app.learningDashboard.quizzes.unknownIndicator',
+            defaultMessage: 'Results not published yet',
+          })}
+          aria-label={intl.formatMessage({
+            id: 'app.learningDashboard.quizzes.unknownIndicator',
+            defaultMessage: 'Results not published yet',
+          })}
+        >
+          &#9203;
+        </span>
+      ),
+      locked: (
+        <span
+          className="select-none"
+          title={intl.formatMessage({
+            id: 'app.learningDashboard.quizzes.lockedIndicator',
+            defaultMessage: 'Correct answer not revealed',
+          })}
+          aria-label={intl.formatMessage({
+            id: 'app.learningDashboard.quizzes.lockedIndicator',
+            defaultMessage: 'Correct answer not revealed',
+          })}
+        >
+          &#128274;
+        </span>
+      ),
+    };
+
     return (
       <Box
         ref={wrapper}
@@ -263,21 +369,31 @@ const QuizzesTable = (props) => {
             display: 'block',
             position: 'absolute',
             top: 0,
+            zIndex: 1,
           }}
         />
         <Box
           ref={cellValue}
-          sx={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+          sx={{
+            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%', zIndex: 2,
+          }}
           className={variants[type]}
         >
-          {type === 'success' && <>&#9989;</>}
-          {type === 'error' && <>&#10060;</>}
-          {responses ? (
+          {['success', 'error', 'unknown', 'locked'].includes(type) && (
             <>
+              {symbols[type]}
               &nbsp;
               {responses}
             </>
-          ) : value}
+          )}
+          {type === 'default' && intl.formatMessage({
+            id: 'app.learningDashboard.quizzes.noResponse',
+            defaultMessage: 'No response',
+          })}
+          {type === 'waiting' && intl.formatMessage({
+            id: 'app.learningDashboard.quizzes.waitingResponse',
+            defaultMessage: 'Waiting user response',
+          })}
         </Box>
         {showPopper && (
           <Popper
@@ -286,7 +402,10 @@ const QuizzesTable = (props) => {
           >
             <Paper elevation={1}>
               <Typography variant="body2" style={{ padding: 8, whiteSpace: 'nowrap' }}>
-                {responses}
+                {responses.length ? responses : intl.formatMessage({
+                  id: 'app.learningDashboard.quizzes.noResponse',
+                  defaultMessage: 'No response',
+                })}
               </Typography>
             </Paper>
           </Popper>
@@ -301,7 +420,7 @@ const QuizzesTable = (props) => {
   const anonGridRow = [];
   const gridRows = [];
 
-  Object.values(quizzes).map((v, i) => {
+  Object.values(quizzes).sort((a, b) => b.createdOn - a.createdOn).map((v, i) => {
     initQuizData[`${v?.pollId}`] = '';
     const headerName = v?.question?.length > 0 ? v?.question : `Quiz ${i + 1}`;
     if (v?.anonymous) {
@@ -318,40 +437,48 @@ const QuizzesTable = (props) => {
     anonGridCols.push({
       ...commonColProps,
       sortable: false,
-      renderCell: (params) => <GridCellExpand value={params?.value || ''} width={params?.colDef?.computedWidth} />,
+      renderCell: (params) => (
+        <GridCellExpand responses={params?.value || []} width={params?.colDef?.computedWidth} />
+      ),
     });
 
     gridCols.push({
       ...commonColProps,
       sortable: true,
       valueGetter: (params) => {
-        const [isCorrect] = params?.value;
-        if (isCorrect == null) {
-          return intl.formatMessage({
-            id: 'app.learningDashboard.quizzes.noResponse',
-            defaultMessage: 'No response',
-          });
-        }
-        return isCorrect ? intl.formatMessage({
-          id: 'app.learningDashboard.quizzes.correct',
-          defaultMessage: 'Correct',
-        }) : intl.formatMessage({
-          id: 'app.learningDashboard.quizzes.incorrect',
-          defaultMessage: 'Incorrect',
-        });
+        const { userAnswers = [] } = params?.value ?? {};
+        return userAnswers.map((response) => {
+          const responseInLowerCase = response.toLowerCase();
+          const key = pollAnswerIds[responseInLowerCase]
+            ? intl.formatMessage(pollAnswerIds[responseInLowerCase]) : response;
+          return key;
+        }).join(', ');
       },
       renderCell: (params) => {
         let type = 'default';
-        const [isCorrect, responses] = params?.row[params?.field];
-        if (isCorrect != null) {
-          type = isCorrect ? 'success' : 'error';
+        const {
+          ended = false, userAnswers = [], correctOption = '',
+        } = params?.row && params?.field && typeof params.row[params.field] === 'object' ? params.row[params.field] : {};
+        const userResponded = !!userAnswers.length;
+        const hasCorrectOption = !!correctOption;
+        if (userResponded && ended) {
+          if (hasCorrectOption) {
+            type = userAnswers.includes(correctOption) ? 'success' : 'error';
+          } else {
+            type = 'locked';
+          }
+        } else if (userResponded && !ended) {
+          type = 'unknown';
+        } else if (!userResponded && ended) {
+          type = 'default';
+        } else if (!userResponded && !ended) {
+          type = 'waiting';
         }
         return (
           <GridCellExpand
-            responses={responses.join(', ')}
             type={type}
             anonymous={v?.anonymous}
-            value={params?.value || ''}
+            responses={params?.value || ''}
             width={params?.colDef?.computedWidth}
           />
         );
@@ -366,9 +493,15 @@ const QuizzesTable = (props) => {
     const result = Object
       .entries(quizzes || {})
       .map(([quizId, quiz]) => {
-        const userAnswers = u.answers[quizId];
-        const isCorrect = userAnswers ? userAnswers.includes(quiz.correctOption) : null;
-        return [quizId, [isCorrect, userAnswers ?? []]];
+        const userAnswers = u.answers[quizId] ?? [];
+        return [
+          quizId,
+          {
+            userAnswers,
+            ended: quiz.ended,
+            correctOption: quiz.correctOption,
+          },
+        ];
       });
 
     gridRows.push({
@@ -387,7 +520,7 @@ const QuizzesTable = (props) => {
       user: {
         name: intl.formatMessage({
           id: 'app.learningDashboard.quizzes.anonymousRowName',
-          defaultMessage: 'Incorrect',
+          defaultMessage: 'Anonymous',
         }),
       },
       ...{ ...initQuizData, ...anonymousQuizData },

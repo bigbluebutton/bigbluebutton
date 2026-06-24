@@ -62,7 +62,7 @@ const DtfInvert = `
   .tl-note__scrim,.tl-arrow-label[data-isediting="true"] > .tl-arrow-label__inner {
     background-color: unset !important;
   }
-  textarea {
+  .tl-container textarea {
     caret-color: black !important;
   }
 `;
@@ -91,7 +91,8 @@ const DtfCss = `
   .tl-note__container,
   .tl-text.tl-text-content,
   .tl-arrow-label,
-  .tl-arrow-label__inner
+  .tl-arrow-label__inner,
+  .bn-mantine *
 `;
 
 const DtfImages = `

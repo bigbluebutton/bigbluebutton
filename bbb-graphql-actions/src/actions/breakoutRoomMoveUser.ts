@@ -7,8 +7,8 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   throwErrorIfInvalidInput(input,
       [
         {name: 'userId', type: 'string', required: true},
-        {name: 'fromBreakoutRoomId', type: 'string', required: true},
-        {name: 'toBreakoutRoomId', type: 'string', required: true},
+        {name: 'fromBreakoutRoomMeetingId', type: 'string', required: true},
+        {name: 'toBreakoutRoomMeetingId', type: 'string', required: true},
       ]
   )
 
@@ -28,8 +28,8 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
   const body = {
     meetingId: routing.meetingId,
     userId: input.userId,
-    fromBreakoutId: input.fromBreakoutRoomId,
-    toBreakoutId: input.toBreakoutRoomId,
+    fromBreakoutId: input.fromBreakoutRoomMeetingId,
+    toBreakoutId: input.toBreakoutRoomMeetingId,
   };
 
   return { eventName, routing, header, body };

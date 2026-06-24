@@ -3,6 +3,7 @@ import { VIDEO_TYPES } from './enums';
 export type User = {
   userId: string;
   pinned: boolean;
+  pinnedTime: string | null;
   nameSortable: string;
   name: string;
   away: boolean;
@@ -30,6 +31,7 @@ interface Voice extends GridVoice {
 
 export interface VideoStreamsResponse {
   user_camera: {
+    meetingId: string;
     streamId: string;
     user: User;
     voice?: Voice;
@@ -42,12 +44,6 @@ export interface GridUser extends User {
 
 export interface GridUsersResponse {
   user: GridUser[];
-}
-
-export interface OwnVideoStreamsResponse {
-  user_camera: {
-    streamId: string;
-  }[];
 }
 
 export type ConnectingStream = {
@@ -69,9 +65,22 @@ export type Stream = {
   lastFloorTime: string;
   voice: Voice | undefined;
   type: typeof VIDEO_TYPES.STREAM;
+  render?: boolean;
 }
 
-export type StreamItem = Stream | ConnectingStream;
+export type AudioOnlyStream = {
+  userId: string;
+  stream: string;
+  name: string;
+  nameSortable: string;
+  user: User;
+  floor: boolean;
+  lastFloorTime: string;
+  voice: Voice;
+  type: typeof VIDEO_TYPES.AUDIO_ONLY;
+}
+
+export type StreamItem = Stream | ConnectingStream | AudioOnlyStream;
 export type GridItem = GridUser & { type: typeof VIDEO_TYPES.GRID };
 export type VideoItem = StreamItem | GridItem;
 export type StreamSubscriptionData = VideoStreamsResponse['user_camera'][number];

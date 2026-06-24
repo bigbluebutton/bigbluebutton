@@ -1,14 +1,15 @@
 package org.bigbluebutton.core.apps.breakout
 
-import org.bigbluebutton.ClientSettings.{getConfigPropertyValueByPath, getConfigPropertyValueByPathAsIntOrElse}
+import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPath, getConfigPropertyValueByPathAsIntOrElse }
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.apps.{BreakoutModel, PermissionCheck, RightsManagementTrait}
+import org.bigbluebutton.core.apps.{ BreakoutModel, PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.db.BreakoutRoomDAO
-import org.bigbluebutton.core.domain.{BreakoutRoom2x, MeetingState2x}
+import org.bigbluebutton.core.domain.{ BreakoutRoom2x, MeetingState2x }
 import org.bigbluebutton.core.models.PluginModel.getPlugins
-import org.bigbluebutton.core.models.{Plugin, PresentationInPod}
-import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
+import org.bigbluebutton.core.models.{ Plugin, PresentationInPod }
+import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.running.MeetingActor
+import org.bigbluebutton.core2.MeetingStatus2x
 
 import java.util
 import scala.jdk.CollectionConverters._
@@ -21,8 +22,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
 
   def handleCreateBreakoutRoomsCmdMsg(msg: CreateBreakoutRoomsCmdMsg, state: MeetingState2x): MeetingState2x = {
 
-
-    val minOfRooms = 2
+    val minOfRooms = 1
     val maxOfRooms = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.app.breakouts.breakoutRoomLimit", 16)
 
     if (liveMeeting.props.meetingProp.disabledFeatures.contains("breakoutRooms")) {
@@ -36,7 +36,7 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId,
         reason, outGW, liveMeeting)
       state
-    } else if(msg.body.rooms.length > maxOfRooms || msg.body.rooms.length < minOfRooms) {
+    } else if (msg.body.rooms.length > maxOfRooms || msg.body.rooms.length < minOfRooms) {
       log.warning(
         "Attempt to create breakout rooms with invalid number of rooms (rooms: {}, max: {}, min: {}) in meeting {}",
         msg.body.rooms.size,
@@ -65,7 +65,10 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
     var rooms = new collection.immutable.HashMap[String, BreakoutRoom2x]
     val filteredPluginProp = liveMeeting.props.pluginProp.asScala
       .filter { case (key, _) =>
-        getPlugins(liveMeeting.plugins).get(key).exists(_.manifest.content.enabledForBreakoutRooms)
+        getPlugins(liveMeeting.plugins).get(key).exists(_.manifest.content match {
+          case Some(pluginManifestContent)   => pluginManifestContent.enabledForBreakoutRooms
+          case None                          => false
+        })
       }
       .asJava
 
@@ -88,11 +91,34 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
     for (breakout <- rooms.values.toVector) {
 
       val roomSlides = if (breakout.allPages) -1 else presSlide;
-      val roomDetail = new BreakoutRoomDetail(
-        breakout.id, breakout.name,
+
+      // get lock settings from parent meeting
+      val lockSettings = MeetingStatus2x.getPermissions(liveMeeting.status)
+
+      val (lsPrivChat, lsCam, lsMic, lsPubChat, lsNotes, lsHideUsers, lsLockOnJoin, lsLockOnJoinCfg, lsHideCursor, lsHideAnnotation) =
+        if (msg.body.inheritLockSettings)
+          (lockSettings.disablePrivChat, lockSettings.disableCam, lockSettings.disableMic, lockSettings.disablePubChat,
+            lockSettings.disableNotes, lockSettings.hideUserList, lockSettings.lockOnJoin,
+            lockSettings.lockOnJoinConfigurable, lockSettings.hideViewersCursor, lockSettings.hideViewersAnnotation)
+        else
+          (false, false, false, false, false, false, false, false, false, false)
+
+      // webcamsOnlyForModerator ("See other viewers webcams") is not part of
+      // LockSettingsProps, so propagate it from the parent's live status too.
+      // When not inheriting we send `false` explicitly (mirroring the lock-settings
+      // tuple above), which overrides the bbb-web server-config default for the breakout.
+      val webcamsOnlyForModerator =
+        if (msg.body.inheritLockSettings)
+          MeetingStatus2x.webcamsOnlyForModeratorEnabled(liveMeeting.status)
+        else false
+
+      val roomDetail = BreakoutRoomDetail(
+        breakout.id,
+        breakout.name,
         liveMeeting.props.meetingProp.intId,
         breakout.sequence,
         breakout.shortName,
+        liveMeeting.props.meetingProp.sharedNotesEditor,
         breakout.isDefaultName,
         breakout.freeJoin,
         liveMeeting.props.voiceProp.dialNumber,
@@ -103,6 +129,8 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         breakout.presId,
         roomSlides,
         msg.body.record,
+        liveMeeting.props.recordProp.autoStartRecording,
+        liveMeeting.props.recordProp.allowStartStopRecording,
         liveMeeting.props.breakoutProps.privateChatEnabled,
         breakout.captureNotes,
         breakout.captureSlides,
@@ -113,6 +141,17 @@ trait CreateBreakoutRoomsCmdMsgHdlr extends RightsManagementTrait {
         liveMeeting.props.meetingProp.audioBridge,
         liveMeeting.props.meetingProp.cameraBridge,
         liveMeeting.props.meetingProp.screenShareBridge,
+        lsPrivChat,
+        lsCam,
+        lsMic,
+        lsPubChat,
+        lsNotes,
+        lsHideUsers,
+        lsLockOnJoin,
+        lsLockOnJoinCfg,
+        lsHideCursor,
+        lsHideAnnotation,
+        webcamsOnlyForModerator
       )
 
       val event = buildCreateBreakoutRoomSysCmdMsg(liveMeeting.props.meetingProp.intId, roomDetail)

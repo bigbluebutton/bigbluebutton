@@ -41,6 +41,15 @@ module BigBlueButton
         @logger.info("Keeping etherpad events for #{@meeting_id}")
         events = Nokogiri::XML(File.open("#{target_dir}/events.xml"))
         notes_id = BigBlueButton::Events.get_notes_id(events)
+        notes_editor = BigBlueButton::Events.get_notes_editor(events)
+        if notes_id.nil? || notes_id.empty? || notes_id == 'undefined'
+          @logger.warn("No notes_id found for #{@meeting_id}, skipping etherpad events")
+          return
+        end
+        unless notes_editor == 'etherpad'
+          @logger.debug('Notes are not using etherpad, no etherpad events to store')
+          return
+        end
 
         events_etherpad = "#{target_dir}/events.etherpad"
         BigBlueButton.try_download("#{@notes_endpoint}/#{CGI.escape notes_id}/export/etherpad", events_etherpad)

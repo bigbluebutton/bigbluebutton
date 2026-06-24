@@ -44,6 +44,8 @@ trait UserLeaveReqMsgHdlr extends HandlerHelpers {
         if (loggedOut) {
           log.info("Setting user logged out flag. user {} meetingId={}", userId, meetingId)
 
+          Users2x.setLoggedOut(liveMeeting.users2x, reconnectingUser)
+
           for {
             ru <- RegisteredUsers.findWithUserId(userId, liveMeeting.registeredUsers)
           } yield {

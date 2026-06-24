@@ -1,6 +1,16 @@
 package websrv
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"time"
+
 	"bbb-graphql-middleware/config"
 	"bbb-graphql-middleware/internal/akka_apps"
 	"bbb-graphql-middleware/internal/bbb_web"
@@ -9,19 +19,11 @@ import (
 	"bbb-graphql-middleware/internal/hasura"
 	"bbb-graphql-middleware/internal/websrv/reader"
 	"bbb-graphql-middleware/internal/websrv/writer"
-	"bytes"
-	"context"
-	"encoding/json"
-	"fmt"
+
+	"github.com/coder/websocket"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/time/rate"
-	"net/http"
-	"nhooyr.io/websocket"
-	"strings"
-	"sync"
-	"sync/atomic"
-	"time"
 )
 
 var lastBrowserConnectionId atomic.Int64
@@ -30,13 +32,14 @@ var lastBrowserConnectionId atomic.Int64
 var bufferSize = 100
 
 // active browser connections
-var BrowserConnections = make(map[string]*common.BrowserConnection)
-var BrowserConnectionsMutex = &sync.RWMutex{}
+var (
+	BrowserConnections      = make(map[string]*common.BrowserConnection)
+	BrowserConnectionsMutex = &sync.RWMutex{}
+)
 
 // Handle client connection
 // This is the connection that comes from browser
 func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
-
 	// Configure logger
 	newLogger := logrus.New()
 	cfg := config.GetConfig()
@@ -51,8 +54,8 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	newLogger.SetFormatter(&logrus.JSONFormatter{})
 
 	// Obtain id for this connection
-	lastBrowserConnectionId.Add(1)
-	browserConnectionId := "BC" + fmt.Sprintf("%010d", lastBrowserConnectionId.Load())
+	browserId := lastBrowserConnectionId.Add(1)
+	browserConnectionId := "BC" + fmt.Sprintf("%010d", browserId)
 	connectionLogger := newLogger.WithField("browserConnectionId", browserConnectionId)
 
 	// Starts a context that will be dependent on the connection, so we can cancel subroutines when the connection is dropped
@@ -63,7 +66,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	var acceptOptions websocket.AcceptOptions
 	acceptOptions.Subprotocols = append(acceptOptions.Subprotocols, "graphql-transport-ws")
 
-	//Add Authorized Cross Origin Url
+	// Add Authorized Cross Origin Url
 	if config.GetConfig().Server.AuthorizedCrossOrigin != "" {
 		acceptOptions.OriginPatterns = append(acceptOptions.OriginPatterns, config.GetConfig().Server.AuthorizedCrossOrigin)
 	}
@@ -74,7 +77,9 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Closing browser connection, reason: request Origin is not authorized", http.StatusForbidden)
 		return
 	}
-	browserWsConn.SetReadLimit(9999999) //10MB
+	browserWsConn.SetReadLimit(9999999) // 10MB
+
+	connectionLogger.Infof("browser connection accepted")
 
 	if common.HasReachedMaxGlobalConnections() {
 		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": "limit of server connections exceeded"}).Inc()
@@ -89,13 +94,14 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	defer browserWsConn.Close(websocket.StatusInternalError, "the sky is falling")
+	defer browserWsConn.Close(websocket.StatusInternalError, "closing websocket connection as the function ended")
 
-	var thisConnection = common.BrowserConnection{
+	thisConnection := common.BrowserConnection{
 		Id:                                 browserConnectionId,
 		Websocket:                          browserWsConn,
 		BrowserRequestCookies:              r.Cookies(),
 		ActiveSubscriptions:                make(map[string]common.GraphQlSubscription, 1),
+		ActiveStreamings:                   make(map[string][]string, 1),
 		Context:                            browserConnectionContext,
 		ContextCancelFunc:                  browserConnectionContextCancel,
 		ConnAckSentToBrowser:               false,
@@ -112,23 +118,23 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 	BrowserConnections[browserConnectionId] = &thisConnection
 	BrowserConnectionsMutex.Unlock()
 
-	defer func() {
-		BrowserConnectionsMutex.Lock()
-		_, bcExists := BrowserConnections[browserConnectionId]
-		if bcExists {
-			sessionTokenRemoved := BrowserConnections[browserConnectionId].SessionToken
-			delete(BrowserConnections, browserConnectionId)
+	thisConnection.Logger.Infof("browser connection stored")
 
-			if sessionTokenRemoved != "" {
-				go SendUserGraphqlConnectionClosedSysMsg(sessionTokenRemoved, browserConnectionId)
-			}
+	defer func() {
+		sessionTokenRemoved := ""
+		BrowserConnectionsMutex.Lock()
+		if _, bcExists := BrowserConnections[browserConnectionId]; bcExists {
+			sessionTokenRemoved = BrowserConnections[browserConnectionId].SessionToken
+			delete(BrowserConnections, browserConnectionId)
 		}
 		BrowserConnectionsMutex.Unlock()
 
+		if sessionTokenRemoved != "" {
+			go SendUserGraphqlConnectionClosedSysMsg(sessionTokenRemoved, browserConnectionId)
+		}
+
 		thisConnection.Logger.Infof("browser connection removed")
 	}()
-
-	thisConnection.Logger.Infof("browser connection accepted")
 
 	// Configure the wait group (to hold this routine execution until both are completed)
 	var wgAll sync.WaitGroup
@@ -148,15 +154,15 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 		thisConnection.Disconnected = true
 	}()
 
-	//Check authorization and obtain user session variables from bbb-web
+	// Check authorization and obtain user session variables from bbb-web
 	if errorOnInitConnection, errorMessageId := connectionInitHandler(&thisConnection); errorOnInitConnection != nil {
 		common.WsConnectionRejectedCounter.With(prometheus.Labels{"reason": errorOnInitConnection.Error()}).Inc()
 		disconnectWithError(
 			browserWsConn,
 			browserConnectionContext,
 			browserConnectionContextCancel,
-			//If the server wishes to reject the connection it is recommended to close the socket with `4403: Forbidden`.
-			//https://github.com/enisdenjo/graphql-ws/blob/63881c3372a3564bf42040e3f572dd74e41b2e49/PROTOCOL.md?plain=1#L36
+			// If the server wishes to reject the connection it is recommended to close the socket with `4403: Forbidden`.
+			// https://github.com/enisdenjo/graphql-ws/blob/63881c3372a3564bf42040e3f572dd74e41b2e49/PROTOCOL.md?plain=1#L36
 			websocket.StatusCode(4403),
 			errorMessageId,
 			errorOnInitConnection.Error(),
@@ -184,7 +190,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 					thisBrowserConnection := BrowserConnections[browserConnectionId]
 					BrowserConnectionsMutex.RUnlock()
 					if thisBrowserConnection != nil {
-						thisConnection.Logger.Debugf("created hasura client")
+						thisConnection.Logger.Infof("created hasura client")
 						hasura.HasuraClient(thisBrowserConnection)
 					}
 					time.Sleep(100 * time.Millisecond)
@@ -209,7 +215,7 @@ func ConnectionHandler(w http.ResponseWriter, r *http.Request) {
 					thisBrowserConnection := BrowserConnections[browserConnectionId]
 					BrowserConnectionsMutex.RUnlock()
 					if thisBrowserConnection != nil {
-						thisConnection.Logger.Debugf("created gql-actions client")
+						thisConnection.Logger.Infof("created gql-actions client")
 
 						thisBrowserConnection.Lock()
 						thisBrowserConnection.GraphqlActionsContext, thisBrowserConnection.GraphqlActionsContextCancel = context.WithCancel(browserConnectionContext)
@@ -251,31 +257,32 @@ func InvalidateSessionTokenHasuraConnections(sessionTokenToInvalidate string) {
 	wg.Wait()
 }
 
-func invalidateHasuraConnectionForSessionToken(bc *common.BrowserConnection, sessionToken string) {
-	bc.RLock()
-	defer bc.RUnlock()
+func invalidateHasuraConnectionForSessionToken(browserConnection *common.BrowserConnection, sessionToken string) {
+	browserConnection.RLock()
+	hasuraConnection := browserConnection.HasuraConnection
+	browserConnection.RUnlock()
 
-	if bc.HasuraConnection == nil {
+	if hasuraConnection == nil {
 		return // If there's no Hasura connection, there's nothing to invalidate.
 	}
 
-	bc.Logger.Debugf("Processing invalidate request for sessionToken %v (hasura connection %v)", sessionToken, bc.HasuraConnection.Id)
+	browserConnection.Logger.Debugf("Processing invalidate request for sessionToken %v (hasura connection %v)", sessionToken, hasuraConnection.Id)
 
 	// Stop receiving new messages from the browser.
-	bc.Logger.Debug("freezing channel fromBrowserToHasuraChannel")
-	bc.FromBrowserToHasuraChannel.FreezeChannel()
+	browserConnection.Logger.Debug("freezing channel fromBrowserToHasuraChannel")
+	browserConnection.FromBrowserToHasuraChannel.FreezeChannel()
 
-	//Update variables for Mutations (gql-actions requests)
-	go refreshUserSessionVariables(bc)
+	// Update variables for Mutations (gql-actions requests)
+	go refreshUserSessionVariables(browserConnection)
 
 	// Cancel the Hasura connection context to clean up resources.
-	if bc.HasuraConnection != nil && bc.HasuraConnection.ContextCancelFunc != nil {
-		bc.HasuraConnection.ContextCancelFunc()
+	if hasuraConnection != nil && hasuraConnection.ContextCancelFunc != nil {
+		hasuraConnection.ContextCancelFunc()
 	}
 
 	// Send a reconnection confirmation message
 	// stop sending this message as no application is handling it
-	//go SendUserGraphqlReconnectionForcedEvtMsg(sessionToken)
+	// go SendUserGraphqlReconnectionForcedEvtMsg(sessionToken)
 }
 
 func InvalidateSessionTokenBrowserConnections(sessionTokenToInvalidate string, reasonMsgId string, reason string) {
@@ -300,9 +307,6 @@ func InvalidateSessionTokenBrowserConnections(sessionTokenToInvalidate string, r
 }
 
 func invalidateBrowserConnectionForSessionToken(bc *common.BrowserConnection, sessionToken string, reasonMsgId string, reason string) {
-	bc.RLock()
-	defer bc.RUnlock()
-
 	bc.Logger.Debugf("Processing disconnection request for sessionToken %v (browser connection %v)", sessionToken, bc.Id)
 
 	// Stop receiving new messages from the browser.
@@ -332,7 +336,8 @@ func refreshUserSessionVariables(browserConnection *common.BrowserConnection) (e
 		browserConnection.Logger.Trace("Session variables obtained successfully")
 	}
 
-	if _, exists := sessionVariables["x-hasura-role"]; !exists {
+	hasuraRole, existsHasuraRole := sessionVariables["x-hasura-role"]
+	if !existsHasuraRole {
 		return fmt.Errorf("error on checking sessionToken authorization, X-Hasura-Role is missing"), "param_missing"
 	}
 
@@ -340,12 +345,9 @@ func refreshUserSessionVariables(browserConnection *common.BrowserConnection) (e
 		return fmt.Errorf("error on checking sessionToken authorization, X-Hasura-UserId is missing"), "param_missing"
 	}
 
-	if _, exists := sessionVariables["x-hasura-meetingid"]; !exists {
-		return fmt.Errorf("error on checking sessionToken authorization, X-Hasura-MeetingId is missing"), "param_missing"
-	}
-
 	browserConnection.Lock()
 	browserConnection.BBBWebSessionVariables = sessionVariables
+	browserConnection.CurrentlyInMeeting = hasuraRole == "bbb_client"
 	browserConnection.Unlock()
 
 	return nil, ""
@@ -356,7 +358,7 @@ func connectionInitHandler(browserConnection *common.BrowserConnection) (error, 
 	for {
 		fromBrowserMessage, ok := browserConnection.FromBrowserToHasuraChannel.Receive()
 		if !ok {
-			//Received all messages. Channel is closed
+			// Received all messages. Channel is closed
 			return fmt.Errorf("error on receiving init connection"), "param_missing"
 		}
 		if bytes.Contains(fromBrowserMessage, []byte("\"connection_init\"")) {
@@ -366,9 +368,9 @@ func connectionInitHandler(browserConnection *common.BrowserConnection) (error, 
 				continue
 			}
 
-			var payloadAsMap = fromBrowserMessageAsMap["payload"].(map[string]interface{})
-			var headersAsMap = payloadAsMap["headers"].(map[string]interface{})
-			var sessionToken, existsSessionToken = headersAsMap["X-Session-Token"].(string)
+			payloadAsMap := fromBrowserMessageAsMap["payload"].(map[string]interface{})
+			headersAsMap := payloadAsMap["headers"].(map[string]interface{})
+			sessionToken, existsSessionToken := headersAsMap["X-Session-Token"].(string)
 			if !existsSessionToken {
 				return fmt.Errorf("X-Session-Token header missing on init connection"), "param_missing"
 			}
@@ -378,18 +380,18 @@ func connectionInitHandler(browserConnection *common.BrowserConnection) (error, 
 				return fmt.Errorf("too many connections"), "too_many_connections"
 			}
 
-			var clientSessionUUID, existsClientSessionUUID = headersAsMap["X-ClientSessionUUID"].(string)
+			clientSessionUUID, existsClientSessionUUID := headersAsMap["X-ClientSessionUUID"].(string)
 			if !existsClientSessionUUID {
 				return fmt.Errorf("X-ClientSessionUUID header missing on init connection"), "param_missing"
 			}
 			browserConnection.Logger = browserConnection.Logger.WithField("clientSessionUUID", clientSessionUUID)
 
-			var clientType, existsClientType = headersAsMap["X-ClientType"].(string)
+			clientType, existsClientType := headersAsMap["X-ClientType"].(string)
 			if !existsClientType {
 				return fmt.Errorf("X-ClientType header missing on init connection"), "param_missing"
 			}
 
-			var clientIsMobile, existsMobile = headersAsMap["X-ClientIsMobile"].(string)
+			clientIsMobile, existsMobile := headersAsMap["X-ClientIsMobile"].(string)
 			if !existsMobile {
 				return fmt.Errorf("X-ClientIsMobile header missing on init connection"), "param_missing"
 			}
@@ -398,7 +400,7 @@ func connectionInitHandler(browserConnection *common.BrowserConnection) (error, 
 			var errCheckAuthorization error
 
 			// Check authorization
-			var numOfAttempts = 0
+			numOfAttempts := 0
 			for {
 				meetingId, userId, errCheckAuthorization = bbb_web.BBBWebCheckAuthorization(browserConnection.Id, sessionToken, clientSessionUUID, browserConnection.BrowserRequestCookies)
 				if errCheckAuthorization != nil {
@@ -463,11 +465,11 @@ func disconnectWithError(
 	wsCloseStatusCode websocket.StatusCode,
 	reasonMessageId string,
 	reasonMessage string,
-	logger *logrus.Entry) {
-
-	//Chromium-based browsers can't read websocket close code/reason, so it will send this message before closing conn
+	logger *logrus.Entry,
+) {
+	// Chromium-based browsers can't read websocket close code/reason, so it will send this message before closing conn
 	browserResponseData := map[string]interface{}{
-		"id":   "-1", //The client recognizes this message ID as a signal to terminate the session
+		"id":   "-1", // The client recognizes this message ID as a signal to terminate the session
 		"type": "error",
 		"payload": []interface{}{
 			map[string]interface{}{
@@ -488,12 +490,10 @@ func disconnectWithError(
 
 	errCloseWs := browserConnectionWs.Close(wsCloseStatusCode, reasonMessage)
 	if errCloseWs != nil {
-		logger.Debugf("Error on close websocket: %v", errCloseWs)
+		logger.Errorf("Error on close websocket: %v", errCloseWs)
 	}
 
 	browserConnectionContextCancel()
-
-	return
 }
 
 var websocketIdleTimeoutSeconds = config.GetConfig().Server.WebsocketIdleTimeoutSeconds
@@ -503,7 +503,13 @@ func InvalidateIdleBrowserConnectionsRoutine() {
 		time.Sleep(15 * time.Second)
 
 		BrowserConnectionsMutex.RLock()
-		for _, browserConnection := range BrowserConnections {
+		browserConnectionsToProcess := make([]*common.BrowserConnection, 0, len(BrowserConnections))
+		for _, bc := range BrowserConnections {
+			browserConnectionsToProcess = append(browserConnectionsToProcess, bc)
+		}
+		BrowserConnectionsMutex.RUnlock()
+
+		for _, browserConnection := range browserConnectionsToProcess {
 			browserConnection.RLock()
 			browserIdleSince := time.Since(browserConnection.LastBrowserMessageTime)
 			browserConnection.RUnlock()
@@ -512,10 +518,9 @@ func InvalidateIdleBrowserConnectionsRoutine() {
 				browserConnection.Logger.Info("Closing browser connection, reason: idle timeout")
 				errCloseWs := browserConnection.Websocket.Close(websocket.StatusNormalClosure, "idle timeout")
 				if errCloseWs != nil {
-					browserConnection.Logger.Debugf("Error on close websocket: %v", errCloseWs)
+					browserConnection.Logger.Warnf("Error on close websocket: %v", errCloseWs)
 				}
 			}
 		}
-		BrowserConnectionsMutex.RUnlock()
 	}
 }

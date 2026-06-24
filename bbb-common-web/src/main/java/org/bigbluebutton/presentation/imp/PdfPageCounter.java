@@ -40,14 +40,14 @@ public class PdfPageCounter implements PageCounter {
     int numPages = 0; // total numbers of this pdf
 
     NuProcessBuilder pdfInfo = new NuProcessBuilder(
-        Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh","10","pdfinfo", presentationFile.getAbsolutePath()));
+        Arrays.asList("/usr/share/bbb-web/run-in-systemd.sh",String.valueOf(wait),"pdfinfo", presentationFile.getAbsolutePath()));
 
     PdfPageCounterHandler pHandler = new PdfPageCounterHandler("pdfpagecount-" + presentationFile.getName());
     pdfInfo.setProcessListener(pHandler);
 
     NuProcess process = pdfInfo.start();
     try {
-      process.waitFor(wait, TimeUnit.SECONDS);
+      process.waitFor(wait + 1, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       log.error("InterruptedException while counting PDF pages {}", presentationFile.getName(), e);
     }

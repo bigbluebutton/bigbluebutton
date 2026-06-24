@@ -1,20 +1,29 @@
 import { gql } from '@apollo/client';
+import type { User } from '/imports/ui/Types/user';
+
+export interface UsersCountSubscriptionResponse {
+  user_aggregate: {
+    aggregate: {
+      count: number;
+    };
+  };
+}
 
 export const USER_LIST_SUBSCRIPTION = gql`
 subscription UserListSubscription($offset: Int!, $limit: Int!) {
-  user(limit:$limit, offset: $offset, 
+  user(limit:$limit, offset: $offset,
                 order_by: [
                   {presenter: desc},
                   {role: asc},
-                  {raiseHandTime: asc_nulls_last},
                   {isDialIn: desc},
-                  {hasDrawPermissionOnCurrentPage: desc},
+                  {whiteboardWriteAccess: desc},
                   {nameSortable: asc},
                   {registeredAt: asc},
                   {userId: asc}
                 ]) {
     isDialIn
     userId
+    meetingId
     extId
     name
     isModerator
@@ -40,20 +49,17 @@ subscription UserListSubscription($offset: Int!, $limit: Int!) {
       deafened
       listenOnly
       voiceUserId
+      listenOnlyInputDevice
     }
     cameras {
       streamId
     }
-    presPagesWritable {
-      isCurrentPage
-      pageId
-      userId
-    }
+    whiteboardWriteAccess
     lastBreakoutRoom {
       isDefaultName
       sequence
       shortName
-      currentlyInRoom
+      isUserCurrentlyInRoom
     }
     userLockSettings {
       disablePublicChat
@@ -71,17 +77,11 @@ export const USER_AGGREGATE_COUNT_SUBSCRIPTION = gql`
   }
 `;
 
-export const GET_USER_IDS = gql`
-  query Users {
+export const GET_USER_NAMES = gql`
+  query GetUserNames {
     user(where: { bot: { _eq: false } } ) {
       userId
-    }
-  }
-`;
-
-export const GET_USER_NAMES = gql`
-  query Users {
-    user(where: { bot: { _eq: false } } ) {
+      meetingId
       name
       nameSortable
       firstNameSortable
@@ -89,3 +89,44 @@ export const GET_USER_NAMES = gql`
     }
   }
 `;
+
+export type RaisedHandUser = Pick<
+User,
+| 'meetingId'
+| 'userId'
+| 'name'
+| 'color'
+| 'presenter'
+| 'isModerator'
+| 'raiseHand'
+| 'whiteboardWriteAccess'
+| 'locked'
+> & {
+  raiseHandTime?: string;
+};
+
+export interface RaisedHandUsersSubscriptionResponse {
+  user: RaisedHandUser[];
+}
+
+export const RAISED_HAND_USERS = gql`
+subscription RaisedHandUsers {
+  user(
+    where: {
+      raiseHand: {_eq: true}
+    },
+    order_by: [
+      {raiseHandTime: asc_nulls_last},
+    ]) {
+    meetingId
+    userId
+    name
+    color
+    presenter
+    isModerator
+    raiseHand
+    raiseHandTime
+    whiteboardWriteAccess
+    locked
+  }
+}`;

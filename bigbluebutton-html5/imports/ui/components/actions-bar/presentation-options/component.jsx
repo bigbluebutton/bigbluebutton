@@ -3,11 +3,10 @@ import PropTypes from 'prop-types';
 import { defineMessages, injectIntl } from 'react-intl';
 import Button from '/imports/ui/components/common/button/component';
 import Session from '/imports/ui/services/storage/in-memory';
-import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
+import { ACTIONS, PANELS, LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 import {
-  layoutSelectInput,
+  layoutSelectInput, layoutSelect,
 } from '/imports/ui/components/layout/context';
-import { useStorageKey } from '/imports/ui/services/storage/hooks';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -67,7 +66,8 @@ const PresentationOptionsContainer = ({
   const sidebarContent = layoutSelectInput((i) => i.sidebarContent);
   const isChatOpen = sidebarContent.sidebarContentPanel === PANELS.CHAT;
   const PUBLIC_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
-  const isGridLayout = useStorageKey('isGridEnabled');
+  const layoutType = layoutSelect((i) => i.layoutType);
+  const isVideoFocusLayout = layoutType === LAYOUT_TYPE.VIDEO_FOCUS;
   return (
     <Button
       icon={`${buttonType}${!presentationIsOpen ? '_off' : ''}`}
@@ -80,7 +80,7 @@ const PresentationOptionsContainer = ({
       circle
       size="lg"
       onClick={() => {
-        if (!isChatOpen && isGridLayout && !presentationIsOpen) {
+        if (!isChatOpen && isVideoFocusLayout && !presentationIsOpen) {
           layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
             value: PANELS.CHAT,

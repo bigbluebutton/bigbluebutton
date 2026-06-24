@@ -1,4 +1,5 @@
-import { PluginConfig } from '../types';
+import { PluginApi } from 'bigbluebutton-html-plugin-sdk';
+import { LoggerSettings, PluginConfig } from '../types';
 
 export interface PluginLoaderManagerProps {
   uuid: string;
@@ -6,4 +7,6 @@ export interface PluginLoaderManagerProps {
   setNumberOfLoadedPlugins: React.Dispatch<React.SetStateAction<number>>;
   setLastLoadedPlugin: React.Dispatch<React.SetStateAction<HTMLScriptElement | undefined>>;
   pluginConfig: PluginConfig;
+  pluginApi: PluginApi;
+  loggerSettings: LoggerSettings;
 }

@@ -5,9 +5,12 @@ import org.bigbluebutton.api.model.shared.Checksum;
 import org.bigbluebutton.api.model.shared.JoinPassword;
 import org.bigbluebutton.api.model.shared.Password;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
+
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 @ContentTypeConstraint
 public class JoinMeeting extends RequestWithChecksum<JoinMeeting.Params> {
@@ -62,6 +65,11 @@ public class JoinMeeting extends RequestWithChecksum<JoinMeeting.Params> {
     public JoinMeeting(Checksum checksum, HttpServletRequest servletRequest) {
         super(checksum, servletRequest);
         joinPassword = new JoinPassword();
+    }
+
+    @Override
+    public Set<String> getSupportedContentTypes() {
+        return Collections.emptySet();
     }
 
     public String getMeetingID() {

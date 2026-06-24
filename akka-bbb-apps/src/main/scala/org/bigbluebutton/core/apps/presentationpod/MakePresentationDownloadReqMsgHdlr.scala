@@ -265,7 +265,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
         "fileURI" -> m.body.annotatedFileURI,
         "filename" -> m.body.fileName
       )
-      ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", GroupChatMessageType.PRESENTATION, presentationDownloadInfo, "")
+      ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", "", GroupChatMessageType.PRESENTATION, presentationDownloadInfo, "")
     } else if (m.body.fileStateType == "Converted") {
       PresPresentationDAO.updateDownloadUri(m.body.presId, m.body.convertedFileURI)
     } else if (m.body.fileStateType == "Original") {

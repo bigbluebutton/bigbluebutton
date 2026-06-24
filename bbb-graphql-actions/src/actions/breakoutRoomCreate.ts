@@ -13,13 +13,14 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
         {name: 'captureSlides', type: 'boolean', required: true},
         {name: 'durationInMinutes', type: 'int', required: true},
         {name: 'sendInviteToModerators', type: 'boolean', required: true},
+        {name: 'inheritLockSettings', type: 'boolean', required: true},
         {name: 'rooms', type: 'objectArray', required: true},
       ]
   )
 
     const breakoutRooms = input['rooms'] as Array<Record<string, unknown>>;
-    if(breakoutRooms.length < 2) {
-        throw new ValidationError('It is required to set two or more rooms.', 400);
+    if(breakoutRooms.length < 1) {
+        throw new ValidationError('It is required to set at least one room', 400);
     }
 
   throwErrorIfInvalidInput(breakoutRooms[0],
@@ -54,6 +55,7 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     captureSlides: input.captureSlides,
     durationInMinutes: input.durationInMinutes,
     sendInviteToModerators: input.sendInviteToModerators,
+    inheritLockSettings: input.inheritLockSettings,
     rooms: input.rooms,
   };
 

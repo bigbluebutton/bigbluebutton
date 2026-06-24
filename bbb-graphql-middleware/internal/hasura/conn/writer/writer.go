@@ -1,26 +1,34 @@
 package writer
 
 import (
-	"bbb-graphql-middleware/config"
-	"bbb-graphql-middleware/internal/common"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/graphql-go/graphql/language/ast"
-	"github.com/graphql-go/graphql/language/parser"
-	"github.com/graphql-go/graphql/language/source"
-	"github.com/prometheus/client_golang/prometheus"
-	"nhooyr.io/websocket"
+	"os"
 	"slices"
 	"strings"
 	"sync"
 	"time"
+
+	"bbb-graphql-middleware/config"
+	"bbb-graphql-middleware/internal/common"
+
+	"github.com/coder/websocket"
+	"github.com/graphql-go/graphql/language/ast"
+	"github.com/graphql-go/graphql/language/parser"
+	"github.com/graphql-go/graphql/language/source"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
-var allowedSubscriptions []string
-var deniedSubscriptions []string
-var jsonPatchDisabled = config.GetConfig().Server.JsonPatchDisabled
+var (
+	allowedSubscriptions    []string
+	deniedSubscriptions     []string
+	jsonPatchDisabled       = config.GetConfig().Server.JsonPatchDisabled
+	dumpQueriesDir          = ""
+	dumpQueriesCounter      = make(map[string]int)
+	dumpQueriesCounterMutex sync.RWMutex
+)
 
 func init() {
 	if config.GetConfig().Server.SubscriptionAllowedList != "" {
@@ -29,6 +37,9 @@ func init() {
 
 	if config.GetConfig().Server.SubscriptionsDeniedList != "" {
 		deniedSubscriptions = strings.Split(config.GetConfig().Server.SubscriptionsDeniedList, ",")
+	}
+	if config.GetConfig().DumpQueriesDir != "" {
+		dumpQueriesDir = config.GetConfig().DumpQueriesDir
 	}
 }
 
@@ -41,14 +52,14 @@ func HasuraConnectionWriter(hc *common.HasuraConnection, wg *sync.WaitGroup, ini
 	defer hc.ContextCancelFunc()
 	defer hc.BrowserConn.Logger.Debugf("finished")
 
-	//Send authentication (init) message at first
-	//It will not use the channel (fromBrowserToHasuraChannel) because this msg must bypass ChannelFreeze
+	// Send authentication (init) message at first
+	// It will not use the channel (fromBrowserToHasuraChannel) because this msg must bypass ChannelFreeze
 	if initMessage == nil {
 		hc.BrowserConn.Logger.Errorf("it can't start Hasura Connection because initMessage is null")
 		return
 	}
 
-	//Send init connection message to Hasura to start
+	// Send init connection message to Hasura to start
 	err := hc.Websocket.Write(hc.Context, websocket.MessageText, initMessage)
 	if err != nil {
 		hc.BrowserConn.Logger.Errorf("error on write authentication (init) message (we're disconnected from hasura): %v", err)
@@ -66,7 +77,7 @@ RangeLoop:
 					continue
 				}
 
-				//var fromBrowserMessageAsMap = fromBrowserMessage.(map[string]interface{})
+				// var fromBrowserMessageAsMap = fromBrowserMessage.(map[string]interface{})
 
 				var browserMessage common.BrowserSubscribeMessage
 				err := json.Unmarshal(fromBrowserMessage, &browserMessage)
@@ -76,9 +87,9 @@ RangeLoop:
 				}
 
 				if browserMessage.Type == "subscribe" {
-					var queryId = browserMessage.ID
+					queryId := browserMessage.ID
 
-					//Rate limiter from config max_connection_queries_per_minute
+					// Rate limiter from config max_connection_queries_per_minute
 					ctxRateLimiter, _ := context.WithTimeout(hc.Context, 30*time.Second)
 					if err := hc.BrowserConn.FromBrowserToHasuraRateLimiter.Wait(ctxRateLimiter); err != nil {
 						sendErrorMessage(
@@ -90,9 +101,10 @@ RangeLoop:
 						continue
 					}
 
-					//Identify type based on query string
+					// Identify type based on query string
 					messageType := common.Query
 					var lastReceivedDataChecksum uint32
+					var lastReceivedData common.HasuraMessage
 					streamCursorField := ""
 					streamCursorVariableName := ""
 					var streamCursorInitialValue interface{}
@@ -139,15 +151,9 @@ RangeLoop:
 								}
 							}
 
-							//Validate if subscription is allowed
+							// Validate if subscription is allowed
 							if len(allowedSubscriptions) > 0 {
-								subscriptionAllowed := false
-								for _, s := range allowedSubscriptions {
-									if s == browserMessage.Payload.OperationName {
-										subscriptionAllowed = true
-										break
-									}
-								}
+								subscriptionAllowed := slices.Contains(allowedSubscriptions, browserMessage.Payload.OperationName)
 
 								if !subscriptionAllowed {
 									hc.BrowserConn.Logger.Infof("Subscription %s not allowed!", browserMessage.Payload.OperationName)
@@ -155,15 +161,9 @@ RangeLoop:
 								}
 							}
 
-							//Validate if subscription is allowed
+							// Validate if subscription is allowed
 							if len(deniedSubscriptions) > 0 {
-								subscriptionAllowed := true
-								for _, s := range deniedSubscriptions {
-									if s == browserMessage.Payload.OperationName {
-										subscriptionAllowed = false
-										break
-									}
-								}
+								subscriptionAllowed := !slices.Contains(deniedSubscriptions, browserMessage.Payload.OperationName)
 
 								if !subscriptionAllowed {
 									hc.BrowserConn.Logger.Infof("Subscription %s not allowed!", browserMessage.Payload.OperationName)
@@ -178,6 +178,7 @@ RangeLoop:
 							browserConnection.ActiveSubscriptionsMutex.RUnlock()
 							if queryIdExists {
 								lastReceivedDataChecksum = existingSubscriptionData.LastReceivedDataChecksum
+								lastReceivedData = existingSubscriptionData.LastReceivedData
 								streamCursorField = existingSubscriptionData.StreamCursorField
 								streamCursorVariableName = existingSubscriptionData.StreamCursorVariableName
 								streamCursorInitialValue = existingSubscriptionData.StreamCursorCurrValue
@@ -188,8 +189,8 @@ RangeLoop:
 								if !queryIdExists {
 									streamCursorField, streamCursorVariableName, streamCursorInitialValue = common.GetStreamCursorPropsFromBrowserMessage(browserMessage)
 
-									//It's necessary to assure the cursor field will return in the result of the query
-									//To be able to store the last received cursor value
+									// It's necessary to assure the cursor field will return in the result of the query
+									// To be able to store the last received cursor value
 									browserMessage.Payload.Query = common.PatchQueryIncludingCursorField(query, streamCursorField)
 
 									newMessageJson, _ := json.Marshal(browserMessage)
@@ -207,8 +208,8 @@ RangeLoop:
 						}
 					}
 
-					//Identify if the client that requested this subscription expects to receive json-patch
-					//Client append `Patched_` to the query operationName to indicate that it supports
+					// Identify if the client that requested this subscription expects to receive json-patch
+					// Client append `Patched_` to the query operationName to indicate that it supports
 					jsonPatchSupported := false
 					if !jsonPatchDisabled && strings.HasPrefix(browserMessage.Payload.OperationName, "Patched_") {
 						jsonPatchSupported = true
@@ -226,50 +227,73 @@ RangeLoop:
 						JsonPatchSupported:         jsonPatchSupported,
 						Type:                       messageType,
 						LastReceivedDataChecksum:   lastReceivedDataChecksum,
+						LastReceivedData:           lastReceivedData,
 					}
 					// hc.BrowserConn.Logger.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
 
-					//Add Prometheus Metrics
+					// Add Prometheus Metrics
 					common.GqlSubscribeCounter.
 						With(prometheus.Labels{
 							"type":          string(messageType),
-							"operationName": browserMessage.Payload.OperationName}).
+							"operationName": browserMessage.Payload.OperationName,
+						}).
 						Inc()
 
-					//Dump of all subscriptions for analysis purpose
-					//queryCounter++
-					//saveItToFile(fmt.Sprintf("%02d-%s-%s", queryCounter, string(messageType), browserMessage.Payload.OperationName), fromBrowserMessage)
-					//saveItToFile(fmt.Sprintf("%s-%s-%02s", string(messageType), operationName, queryId), fromBrowserMessage)
+					// Dump of all subscriptions for analysis purpose
+					if dumpQueriesDir != "" {
+						dumpQueriesCounterMutex.Lock()
+						if _, exists := dumpQueriesCounter[browserConnection.Id]; !exists {
+							dumpQueriesCounter[browserConnection.Id] = 1
+						} else {
+							dumpQueriesCounter[browserConnection.Id]++
+						}
+						counterValue := dumpQueriesCounter[browserConnection.Id]
+						dumpQueriesCounterMutex.Unlock()
+
+						if errSavingQueryDump := saveContentToFile(
+							fmt.Sprintf("/%s/%s", common.GetUniqueID(), browserConnection.Id),
+							fmt.Sprintf("%02d-%s-%s", counterValue, string(messageType), strings.ReplaceAll(browserMessage.Payload.OperationName, "/", "_")),
+							fromBrowserMessage,
+						); errSavingQueryDump != nil {
+							hc.BrowserConn.Logger.Error(errSavingQueryDump)
+						}
+					}
 				}
 
 				if browserMessage.Type == "complete" {
-					//Remove subscriptions from ActivitiesOverview here once Hasura-Reader will ignore "complete" msg for them
+					// Remove subscriptions from ActivitiesOverview here once Hasura-Reader will ignore "complete" msg for them
 					browserConnection.ActiveSubscriptionsMutex.Lock()
 					delete(browserConnection.ActiveSubscriptions, browserMessage.ID)
 					// hc.BrowserConn.Logger.Tracef("Current queries: %v", browserConnection.ActiveSubscriptions)
 					browserConnection.ActiveSubscriptionsMutex.Unlock()
+
+					browserConnection.ActiveStreamingsMutex.Lock()
+					if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, "getCursorCoordinatesStream", browserMessage.ID); removed {
+						browserConnection.ActiveStreamings = newActiveStreamings
+					}
+					if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, "getNotificationStream", browserMessage.ID); removed {
+						browserConnection.ActiveStreamings = newActiveStreamings
+					}
+					if removed, newActiveStreamings := removeValueFromSlice(browserConnection.ActiveStreamings, "getChatMessageStream", browserMessage.ID); removed {
+						browserConnection.ActiveStreamings = newActiveStreamings
+					}
+					browserConnection.ActiveStreamingsMutex.Unlock()
 				}
 
 				if browserMessage.Type == "connection_init" {
-					//browserConnection.ConnectionInitMessage = fromBrowserMessageAsMap
-					//Skip message once it is handled by ConnInitHandler already
+					// browserConnection.ConnectionInitMessage = fromBrowserMessageAsMap
+					// Skip message once it is handled by ConnInitHandler already
 					continue
 				}
 
-				//Check if user is in meeting and avoid sending to Hasura subscriptions that user doesn't have permission
-				userCurrentlyInMeeting := false
-				if hasuraRole, exists := hc.BrowserConn.BBBWebSessionVariables["x-hasura-role"]; exists {
-					userCurrentlyInMeeting = hasuraRole == "bbb_client"
-				}
-
-				if !userCurrentlyInMeeting &&
+				if !hc.BrowserConn.CurrentlyInMeeting && // avoid sending to Hasura subscriptions that user doesn't have permission
 					browserMessage.Type == "subscribe" &&
 					!slices.Contains(config.AllowedSubscriptionsForNotInMeetingUsers, browserMessage.Payload.OperationName) {
 					hc.BrowserConn.Logger.Debugf("Not sending to Hasura %s because the user is not in meeting", browserMessage.Payload.OperationName)
 					continue
 				} else {
-					//Sending to Hasura
+					// Sending to Hasura
 					hc.BrowserConn.Logger.Tracef("sending to hasura: %s", string(fromBrowserMessage))
 					errWrite := hc.Websocket.Write(hc.Context, websocket.MessageText, fromBrowserMessage)
 					if errWrite != nil {
@@ -284,26 +308,33 @@ RangeLoop:
 	}
 }
 
-//
-//var queryCounter = 0
-//
-//func saveItToFile(filename string, contentInBytes []byte) {
-//	filePath := fmt.Sprintf("/tmp/%s.txt", filename)
-//	//message, err := json.Marshal(contentInBytes)
-//
-//	fmt.Printf("Saving %s\n", filePath)
-//
-//	file, err := os.Create(filePath)
-//	if err != nil {
-//		panic(err)
-//	}
-//	defer file.Close()
-//
-//	_, err = file.Write(contentInBytes)
-//	if err != nil {
-//		panic(err)
-//	}
-//}
+func saveContentToFile(subDir string, filename string, contentInBytes []byte) error {
+	fileDir := fmt.Sprintf("%s/%s", dumpQueriesDir, subDir)
+	filePath := fmt.Sprintf("%s/%s.txt", fileDir, filename)
+
+	if _, err := os.Stat(fileDir); os.IsNotExist(err) {
+		// Create directory (and parents if needed)
+		err := os.MkdirAll(fileDir, 0o755)
+		if err != nil {
+			return fmt.Errorf("error creating directory: %v", err)
+		}
+	} else if err != nil {
+		return fmt.Errorf("error checking directory: %v", err)
+	}
+
+	file, err := os.Create(filePath)
+	if err != nil {
+		return fmt.Errorf("error creating query dump: %v", err)
+	}
+	defer file.Close()
+
+	_, err = file.Write(contentInBytes)
+	if err != nil {
+		return fmt.Errorf("error writing query dump: %v", err)
+	}
+
+	return nil
+}
 
 func calculateQueryDepth(query string) (int, error) {
 	src := source.NewSource(&source.Source{
@@ -360,7 +391,7 @@ func traverseSelectionSet(selectionSet *ast.SelectionSet, currentDepth int) int 
 func sendErrorMessage(browserConnection *common.BrowserConnection, messageId string, errorMessage string) {
 	browserConnection.Logger.Errorf(errorMessage)
 
-	//Error on sending action, return error msg to client
+	// Error on sending action, return error msg to client
 	browserResponseData := map[string]interface{}{
 		"id":   messageId,
 		"type": "error",
@@ -371,13 +402,30 @@ func sendErrorMessage(browserConnection *common.BrowserConnection, messageId str
 		},
 	}
 	jsonDataError, _ := json.Marshal(browserResponseData)
-	browserConnection.FromHasuraToBrowserChannel.Send(jsonDataError)
+	browserConnection.FromHasuraToBrowserChannel.SendWait(browserConnection.Context, jsonDataError)
 
-	//Return complete msg to client
+	// Return complete msg to client
 	browserResponseComplete := map[string]interface{}{
 		"id":   messageId,
 		"type": "complete",
 	}
 	jsonDataComplete, _ := json.Marshal(browserResponseComplete)
-	browserConnection.FromHasuraToBrowserChannel.Send(jsonDataComplete)
+	browserConnection.FromHasuraToBrowserChannel.SendWait(browserConnection.Context, jsonDataComplete)
+}
+
+func removeValueFromSlice(mapWithSlices map[string][]string, key string, value string) (bool, map[string][]string) {
+	removed := false
+	if slice, ok := mapWithSlices[key]; ok {
+		if i := slices.Index(slice, value); i >= 0 {
+			slice = slices.Delete(slice, i, i+1)
+			if len(slice) == 0 {
+				delete(mapWithSlices, key)
+			} else {
+				mapWithSlices[key] = slice
+			}
+			removed = true
+		}
+	}
+
+	return removed, mapWithSlices
 }

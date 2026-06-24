@@ -1,0 +1,176 @@
+import { elements as e } from '../core/elements';
+import { parameters } from '../core/parameters';
+
+export const CUSTOM_STYLE_CSS = `${e.presentationTitle}{display: none;}`;
+export const CUSTOM_STYLE_URL = 'http://bbb-test-stub.local/css-test-file.css';
+
+const serverOrigin = parameters.server ? new URL(parameters.server).origin : '';
+
+export const constants = {
+  // Create Parameters
+  bannerText: 'bannerText=some+text',
+  color: '#FFFF00',
+  bannerColor: `bannerColor=${'#FFFF00'}`,
+  maxParticipants: 'maxParticipants=2',
+  duration: 'duration=2',
+  messageModerator: 'This is a moderator only message',
+  moderatorOnlyMessage: `moderatorOnlyMessage=${'This is a moderator only message'}`,
+  webcamsOnlyForModerator: 'webcamsOnlyForModerator=true',
+  muteOnStart: 'muteOnStart=true',
+  allowModsToUnmuteUsers: 'allowModsToUnmuteUsers=true',
+  lockSettingsDisableCam: 'lockSettingsDisableCam=true',
+  lockSettingsDisableMic: 'lockSettingsDisableMic=true',
+  lockSettingsDisablePublicChat: 'lockSettingsDisablePublicChat=true',
+  lockSettingsHideUserList: 'lockSettingsHideUserList=true',
+  allowModsToEjectCameras: 'allowModsToEjectCameras=true',
+  notifyRecordingIsOn: 'notifyRecordingIsOn=true&notifyRecordingIsOn=true',
+  preUploadedPresentation:
+    'preUploadedPresentation=https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v3.0.x-develop/bigbluebutton-tests/playwright/core/media/sample.pdf',
+  preUploadedPresentationOverrideDefault: 'preUploadedPresentationOverrideDefault=true',
+  preUploadedPresentationName: 'preUploadedPresentationName=ScientificPaper.pdf',
+  customLayout: 'meetingLayout=CUSTOM_LAYOUT',
+  smartLayout: 'meetingLayout=SMART_LAYOUT',
+  presentationFocus: 'meetingLayout=PRESENTATION_FOCUS',
+  videoFocus: 'meetingLayout=VIDEO_FOCUS',
+  camerasOnly: 'meetingLayout=CAMERAS_ONLY',
+  presentationOnly: 'meetingLayout=PRESENTATION_ONLY',
+  participantsAndChatOnly: 'meetingLayout=PARTICIPANTS_AND_CHAT_ONLY',
+  mediaOnly: 'meetingLayout=MEDIA_ONLY',
+  enforceCustomLayout: 'enforceLayout=CUSTOM_LAYOUT',
+  enforcePresentationFocus: 'enforceLayout=PRESENTATION_FOCUS',
+  enforceSmartLayout: 'enforceLayout=SMART_LAYOUT',
+  enforceVideoFocus: 'enforceLayout=VIDEO_FOCUS',
+  enforceCamerasOnly: 'enforceLayout=CAMERAS_ONLY',
+  enforcePresentationOnly: 'enforceLayout=PRESENTATION_ONLY',
+  enforceParticipantsAndChatOnly: 'enforceLayout=PARTICIPANTS_AND_CHAT_ONLY',
+  enforceMediaOnly: 'enforceLayout=MEDIA_ONLY',
+  groups:
+    'groups=[{"id":"1","name":"Room 1","roster":["1235"]},{"id":"2","name":"Room 2","roster":["2333","2335"]},{"id":"3","roster":[]}]',
+  // Custom Parameters
+  autoJoin: 'userdata-bbb_auto_join_audio=false',
+  listenOnlyMode: 'userdata-bbb_listen_only_mode=false',
+  forceListenOnly: 'userdata-bbb_force_listen_only=true',
+  skipCheck: 'userdata-bbb_skip_check_audio=true',
+  skipCheckOnFirstJoin: 'userdata-bbb_skip_check_audio_on_first_join=true',
+  skipEchoTestIfPreviousDevice: 'userdata-bbb_skip_echotest_if_previous_device=true',
+  docTitle: 'playwright',
+  clientTitle: `userdata-bbb_client_title=${'playwright'}`,
+  displayBrandingArea: 'userdata-bbb_display_branding_area=true',
+  logo: `logo=${serverOrigin}/images/logo.png`,
+  enableVideo: 'userdata-bbb_enable_video=false',
+  autoShareWebcam: 'userdata-bbb_auto_share_webcam=true',
+  multiUserPenOnly: 'userdata-bbb_multi_user_pen_only=true',
+  presenterTools: 'userdata-bbb_presenter_tools=["select","draw", "arrow"]',
+  multiUserTools: 'userdata-bbb_multi_user_tools=["arrow","text"]',
+  customStyle: `userdata-bbb_custom_style=${CUSTOM_STYLE_CSS}`,
+  customStyleUrl: `userdata-bbb_custom_style_url=${CUSTOM_STYLE_URL}`,
+  autoSwapLayout: 'userdata-bbb_auto_swap_layout=true',
+  hidePresentationOnJoin: 'userdata-bbb_hide_presentation_on_join=true',
+  outsideToggleSelfVoice: 'userdata-bbb_outside_toggle_self_voice=true',
+  outsideToggleRecording: 'userdata-bbb_outside_toggle_recording=true',
+  showPublicChatOnLogin: 'userdata-bbb_show_public_chat_on_login=false',
+  forceRestorePresentationOnNewEvents: 'userdata-bbb_force_restore_presentation_on_new_events=true',
+  recordMeeting: 'record=true',
+  skipVideoPreview: 'userdata-bbb_skip_video_preview=true',
+  skipVideoPreviewOnFirstJoin: 'userdata-bbb_skip_video_preview_on_first_join=true',
+  skipVideoPreviewIfPreviousDevice: 'userdata-bbb_skip_video_preview_if_previous_device=true',
+  mirrorOwnWebcam: 'userdata-bbb_mirror_own_webcam=true',
+  showParticipantsOnLogin: 'userdata-bbb_show_participants_on_login=false',
+  showSessionDetailsOnJoin: 'bbb_show_session_details_on_join=true',
+  hideActionsBar: 'userdata-bbb_hide_actions_bar=true',
+  overrideDefaultLocale: 'userdata-bbb_override_default_locale=pt-br',
+  hideNavBar: 'userdata-bbb_hide_nav_bar=true',
+  preferredCameraProfile: 'userdata-bbb_preferred_camera_profile=low',
+  webcamBackgroundPassingURL: `webcamBackgroundURL=${serverOrigin}/images/logo.png`,
+  logoutURL: 'logoutURL=https://www.google.com',
+  // Disabled Features
+  breakoutRoomsDisabled: 'disabledFeatures=breakoutRooms',
+  speechRecognitionDisabled: 'disabledFeatures=liveTranscription',
+  captionsDisabled: 'disabledFeatures=captions',
+  chatDisabled: 'disabledFeatures=chat',
+  externalVideosDisabled: 'disabledFeatures=externalVideos',
+  learningDashboardDisabled: 'disabledFeatures=learningDashboard',
+  pollsDisabled: 'disabledFeatures=polls',
+  screenshareDisabled: 'disabledFeatures=screenshare',
+  sharedNotesDisabled: 'disabledFeatures=sharedNotes',
+  virtualBackgroundsDisabled: 'disabledFeatures=virtualBackgrounds',
+  downloadPresentationWithAnnotationsDisabled: 'disabledFeatures=downloadPresentationWithAnnotations',
+  importPresentationWithAnnotationsFromBreakoutRoomsDisabled:
+    'disabledFeatures=importPresentationWithAnnotationsFromBreakoutRooms',
+  importSharedNotesFromBreakoutRoomsDisabled: 'disabledFeatures=importSharedNotesFromBreakoutRooms',
+  layoutsDisabled: 'disabledFeatures=layouts',
+  presentationDisabled: 'disabledFeatures=presentation',
+  customVirtualBackgroundDisabled: 'disabledFeatures=customVirtualBackgrounds',
+  slideSnapshotDisabled: 'disabledFeatures=snapshotOfCurrentSlide',
+  cameraAsContent: 'disabledFeatures=cameraAsContent',
+  infiniteWhiteboard: 'disabledFeatures=infiniteWhiteboard',
+  // Disabled Features Exclude
+  breakoutRoomsExclude: 'disabledFeatures=breakoutRooms,presentation,chat&disabledFeaturesExclude=breakoutRooms',
+  speechRecognitionExclude:
+    'disabledFeatures=breakoutRooms,presentation,chat,liveTranscription&disabledFeaturesExclude=liveTranscription',
+  captionsExclude: 'disabledFeatures=captions,presentation,chat&disabledFeaturesExclude=captions',
+  chatExclude: 'disabledFeatures=presentation,chat&disabledFeaturesExclude=chat',
+  externalVideosExclude: 'disabledFeatures=presentation,chat,externalVideos&disabledFeaturesExclude=externalVideos',
+  layoutsExclude: 'disabledFeatures=presentation,chat,layouts&disabledFeaturesExclude=layouts',
+  learningDashboardExclude:
+    'disabledFeatures=presentation,chat,learningDashboard&disabledFeaturesExclude=learningDashboard',
+  pollsExclude: 'disabledFeatures=layouts,polls&disabledFeaturesExclude=polls',
+  screenshareExclude: 'disabledFeatures=presentation,chat,screenshare&disabledFeaturesExclude=screenshare',
+  sharedNotesExclude: 'disabledFeatures=presentation,chat,sharedNotes&disabledFeaturesExclude=sharedNotes',
+  virtualBackgroundsExclude:
+    'disabledFeatures=presentation,chat,virtualBackgrounds&disabledFeaturesExclude=virtualBackgrounds',
+  downloadPresentationWithAnnotationsExclude:
+    'disabledFeatures=chat,downloadPresentationWithAnnotations&disabledFeaturesExclude=downloadPresentationWithAnnotations',
+  importPresentationWithAnnotationsFromBreakoutRoomsExclude:
+    'disabledFeatures=presentation,chat,importPresentationWithAnnotationsFromBreakoutRooms&disabledFeaturesExclude=importPresentationWithAnnotationsFromBreakoutRooms',
+  importSharedNotesFromBreakoutRoomsExclude:
+    'disabledFeatures=presentation,chat,importSharedNotesFromBreakoutRooms&disabledFeaturesExclude=importSharedNotesFromBreakoutRooms',
+  presentationExclude: 'disabledFeatures=presentation,chat&disabledFeaturesExclude=presentation',
+  customVirtualBackgroundExclude:
+    'disabledFeatures=presentation,chat,customVirtualBackground&disabledFeaturesExclude=customVirtualBackground',
+  slideSnapshotExclude: 'disabledFeatures=snapShotOfCurrentSlide,chat&disabledFeaturesExclude=snapShotOfCurrentSlide',
+  cameraAsContentExclude: 'disabledFeatures=cameraAsContent,chat&disabledFeaturesExclude=cameraAsContent',
+  infiniteWhiteboardExclude: 'disabledFeatures=infiniteWhiteboard,chat&disabledFeaturesExclude=infiniteWhiteboard',
+  // Shortcuts
+  shortcuts: 'userdata-bbb_shortcuts=[$]',
+  initialShortcuts: [
+    {
+      param: 'openOptions',
+      key: 'O',
+    },
+    {
+      param: 'toggleUserList',
+      key: 'U',
+    },
+    {
+      param: 'togglePublicChat',
+      key: 'P',
+    },
+    {
+      param: 'openActions',
+      key: 'A',
+    },
+    {
+      param: 'joinAudio',
+      key: 'J',
+    },
+  ],
+  laterShortcuts: [
+    {
+      param: 'toggleMute',
+      key: 'M',
+    },
+    {
+      param: 'leaveAudio',
+      key: 'L',
+    },
+    {
+      param: 'hidePrivateChat',
+      key: 'H',
+    },
+    {
+      param: 'closePrivateChat',
+      key: 'G',
+    },
+  ],
+};

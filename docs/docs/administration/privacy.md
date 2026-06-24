@@ -134,6 +134,22 @@ The above example assumes:
 
 TODO: explain what these uid/gid values are and how to get the correct ones
 
+#### Deleted recordings remain on disk
+
+When recordings are deleted via the `deleteRecordings` API, BigBlueButton does not immediately remove them from disk. Instead, it moves them to the `/var/bigbluebutton/deleted/` directory as part of a soft deletion mechanism. This approach preserves recordings temporarily in case they need to be recovered, but administrators should be aware these files continue to consume storage space and may contain sensitive data subject to compliance requirements. This implementation serves as a safety measure against accidental deletions, but requires explicit administrator action to fully remove recordings and reclaim storage space.
+
+The system does not automatically purge these files, meaning deleted recordings will remain indefinitely until manually removed. Although metadata still appears in API responses, the deleted recordings themselves remain on disk (inaccessible to the public) until manually removed.
+
+##### Resolution
+
+To completely free up disk space, administrators must manually delete the files from the system. The most direct method is running:
+
+```bash
+rm -rf /var/bigbluebutton/deleted/*
+```
+
+This command will permanently erase all content in the deleted recordings directory. Because this action is irreversible, we recommend verifying backups before proceeding.
+
 #### Retention of cache files
 
 BigBlueButton retains various cache and log files. The general retention period for these files can be configured in `/etc/cron.daily/bigbluebutton`.

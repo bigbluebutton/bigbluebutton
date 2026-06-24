@@ -13,7 +13,10 @@ select_permissions:
         - javascriptEntrypointIntegrity
         - javascriptEntrypointUrl
         - name
+        - loggerSettings
         - localesBaseUrl
+        - loadFailureReason
+        - loadFailureSource
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
@@ -24,7 +27,10 @@ select_permissions:
         - javascriptEntrypointIntegrity
         - javascriptEntrypointUrl
         - name
+        - loggerSettings
         - localesBaseUrl
+        - loadFailureReason
+        - loadFailureSource
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId

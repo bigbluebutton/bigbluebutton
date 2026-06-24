@@ -17,6 +17,7 @@ akka-bbb-apps/akka-bbb-apps*.log
 bigbluebutton-web/target-eclipse*
 record-and-playback/.loadpath
 **/.idea/*
+**/.metals/*
 *.iml
 *~
 cache/*

@@ -12,15 +12,14 @@ Group=bigbluebutton
 WorkingDirectory=/usr/share/bbb-web
 EnvironmentFile=/etc/default/bbb-web
 EnvironmentFile=-/etc/bigbluebutton/bbb-web.env
-ExecStart=java -Dgrails.env=${ENV} -Dserver.address=${LISTEN_ADDRESS} -Dserver.port=${LISTEN_PORT} -Dspring.main.allow-circular-references=true -Xms${INITIAL_HEAP_SIZE} -Xmx${MAX_HEAP_SIZE} -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${HEAP_DUMP_PATH} -cp WEB-INF/lib/*:/:WEB-INF/classes/:. org.springframework.boot.loader.WarLauncher
+ExecStart=java -Dgrails.env=${ENV} -Dserver.address=${LISTEN_ADDRESS} -Dserver.port=${LISTEN_PORT} -Dspring.main.allow-circular-references=true -Xms${INITIAL_HEAP_SIZE} -Xmx${MAX_HEAP_SIZE} -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${HEAP_DUMP_PATH} -cp WEB-INF/lib/*:/:WEB-INF/classes/:. org.springframework.boot.loader.launch.WarLauncher
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=always
 RestartSec=60
 SuccessExitStatus=143
 TimeoutStopSec=5
 PermissionsStartOnly=true
-LimitNOFILE=1024
+LimitNOFILE=4096
 
 [Install]
 WantedBy=multi-user.target bigbluebutton.target
-

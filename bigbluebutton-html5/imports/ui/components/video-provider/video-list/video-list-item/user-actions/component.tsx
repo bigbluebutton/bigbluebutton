@@ -78,6 +78,10 @@ const intlMessages = defineMessages({
   disableWarning: {
     id: 'app.videoDock.webcamDisableWarning',
   },
+  you: {
+    id: 'app.userList.you',
+    description: 'Text for identifying your user',
+  },
 });
 
 interface UserActionProps {
@@ -124,6 +128,11 @@ const UserActions: React.FC<UserActionProps> = (props) => {
   const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);
   const pinEnabledForCurrentUser = useIsVideoPinEnabledForCurrentUser(amIModerator);
 
+  const isLocalStream = stream.userId === Auth.userID;
+  const displayName = isLocalStream
+    ? `${name} (${intl.formatMessage(intlMessages.you)})`
+    : name;
+
   useEffect(() => () => {
     if (isFullscreenContext) {
       layoutContextDispatch({
@@ -137,7 +146,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
   }, []);
 
   const getAvailableActions = () => {
-    const pinned = stream.type === VIDEO_TYPES.STREAM && stream.user.pinned;
+    const pinned = stream.type === VIDEO_TYPES.STREAM && stream.user?.pinned;
     const { userId } = stream;
     const isPinnedIntlKey = !pinned ? 'pin' : 'unpin';
     const isFocusedIntlKey = !focused ? 'focus' : 'unfocus';
@@ -149,6 +158,16 @@ const UserActions: React.FC<UserActionProps> = (props) => {
 
     const menuItems = [];
 
+    if (isVideoSqueezed) {
+      menuItems.push({
+        key: `${cameraId}-name`,
+        label: displayName,
+        description: displayName,
+        onClick: () => { },
+        disabled: true,
+      });
+    }
+
     const toggleDisableCam = () => {
       if (!isCameraDisabled) {
         Session.setItem('disabledCams', [...disabledCams, cameraId]);
@@ -157,16 +176,6 @@ const UserActions: React.FC<UserActionProps> = (props) => {
         Session.setItem('disabledCams', disabledCams.filter((cId: string) => cId !== cameraId));
       }
     };
-
-    if (isVideoSqueezed) {
-      menuItems.push({
-        key: `${cameraId}-name`,
-        label: name,
-        description: name,
-        onClick: () => { },
-        disabled: true,
-      });
-    }
 
     if (userId === Auth.userID && isStream && !isSelfViewDisabled) {
       menuItems.push({
@@ -194,7 +203,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
         label: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Label`]),
         description: intl.formatMessage(intlMessages[`${isFocusedIntlKey}Desc`]),
         onClick: () => onHandleVideoFocus?.(cameraId),
-        dataTest: 'FocusWebcamBtn',
+        dataTest: !focused ? 'focusWebcamBtn' : 'unfocusWebcamBtn',
       });
     }
 
@@ -259,6 +268,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
               browserClickEvent: event,
             }),
             icon: optionItem.icon,
+            dataTest: optionItem.dataTest,
           });
           break;
         }
@@ -266,6 +276,7 @@ const UserActions: React.FC<UserActionProps> = (props) => {
           menuItems.push({
             key: pluginItem.id,
             isSeparator: true,
+            dataTest: pluginItem.dataTest,
           });
           break;
         default:
@@ -275,6 +286,45 @@ const UserActions: React.FC<UserActionProps> = (props) => {
 
     return menuItems;
   };
+
+  const renderDefaultButton = () => (
+    <Styled.MenuWrapper>
+      {enableVideoMenu && getAvailableActions().length >= 1
+        ? (
+          <BBBMenu
+            trigger={(
+              <Styled.DropdownTrigger
+                tabIndex={0}
+                data-test="dropdownWebcamButton"
+                $isRTL={isRTL}
+                role="button"
+              >
+                {displayName}
+              </Styled.DropdownTrigger>
+            )}
+            actions={getAvailableActions()}
+            opts={{
+              id: `webcam-${stream.userId}-dropdown-menu`,
+              keepMounted: true,
+              transitionDuration: 0,
+              elevation: 3,
+              getcontentanchorel: null,
+              fullwidth: 'true',
+              anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
+              transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
+              container: isFullscreenContext ? videoContainer?.current : document.body,
+            }}
+          />
+        )
+        : (
+          <Styled.Dropdown $isFirefox={isFirefox}>
+            <Styled.UserName $noMenu={numOfStreams < 3}>
+              {displayName}
+            </Styled.UserName>
+          </Styled.Dropdown>
+        )}
+    </Styled.MenuWrapper>
+  );
 
   const renderSqueezedButton = () => (
     <Styled.MenuWrapperSqueezed>
@@ -298,45 +348,6 @@ const UserActions: React.FC<UserActionProps> = (props) => {
         }}
       />
     </Styled.MenuWrapperSqueezed>
-  );
-
-  const renderDefaultButton = () => (
-    <Styled.MenuWrapper>
-      {enableVideoMenu && getAvailableActions().length >= 1
-        ? (
-          <BBBMenu
-            trigger={(
-              <Styled.DropdownTrigger
-                tabIndex={0}
-                data-test="dropdownWebcamButton"
-                $isRTL={isRTL}
-                role="button"
-              >
-                {name}
-              </Styled.DropdownTrigger>
-            )}
-            actions={getAvailableActions()}
-            opts={{
-              id: `webcam-${stream.userId}-dropdown-menu`,
-              keepMounted: true,
-              transitionDuration: 0,
-              elevation: 3,
-              getcontentanchorel: null,
-              fullwidth: 'true',
-              anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
-              transformOrigin: { vertical: 'top', horizontal: isRTL ? 'right' : 'left' },
-              container: isFullscreenContext ? videoContainer?.current : document.body,
-            }}
-          />
-        )
-        : (
-          <Styled.Dropdown $isFirefox={isFirefox}>
-            <Styled.UserName $noMenu={numOfStreams < 3}>
-              {name}
-            </Styled.UserName>
-          </Styled.Dropdown>
-        )}
-    </Styled.MenuWrapper>
   );
 
   return (

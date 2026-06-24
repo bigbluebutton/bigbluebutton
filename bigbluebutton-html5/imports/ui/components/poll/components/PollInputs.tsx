@@ -25,6 +25,10 @@ const intlMessages = defineMessages({
     id: 'app.poll.quiz.options.tooltip',
     description: 'Tooltip for the correct answer option selection in a quiz',
   },
+  correctAnswerLabel: {
+    id: 'app.poll.quiz.liveResult.title.correct',
+    description: 'Label for the correct answer of a quiz',
+  },
 });
 
 interface PollInputsProps {
@@ -63,24 +67,12 @@ const PollInputs: React.FC<PollInputsProps> = ({
     return (
       <span key={pollOptionKey}>
         <Styled.OptionWrapper>
-          <Styled.PollOptionInput
-            type="text"
-            value={o.val}
-            placeholder={intl.formatMessage(intlMessages.customPlaceholder)}
-            data-test="pollOptionItem"
-            onChange={(e) => handleInputChange(e, i)}
-            maxLength={MAX_INPUT_CHARS}
-            onPaste={(e) => { e.stopPropagation(); }}
-            onCut={(e) => { e.stopPropagation(); }}
-            onCopy={(e) => { e.stopPropagation(); }}
-          />
           {isQuiz && (
             <Tooltip title={intl.formatMessage(intlMessages.correctAnswerSelectionTooltip)}>
-              <Styled.CorrectAnswerCheckbox
-                type="radio"
+              <Styled.QuizCorrectAnswerCheckbox
+                type="checkbox"
                 id={`correct-answer-${i}`}
                 checked={correctAnswer.index === i}
-                disabled={o.val.length === 0}
                 onChange={(ev: React.ChangeEvent<HTMLInputElement>) => {
                   if (ev.target.checked) {
                     setCorrectAnswer({
@@ -92,6 +84,28 @@ const PollInputs: React.FC<PollInputsProps> = ({
               />
             </Tooltip>
           )}
+          <Styled.PollInputContainer>
+            <Styled.PollOptionInput
+              type="text"
+              value={o.val}
+              placeholder={intl.formatMessage(intlMessages.customPlaceholder)}
+              data-test="pollOptionItem"
+              isCorrect={isQuiz && correctAnswer.index === i}
+              onChange={(e) => handleInputChange(e, i)}
+              maxLength={MAX_INPUT_CHARS}
+              onPaste={(e) => { e.stopPropagation(); }}
+              onCut={(e) => { e.stopPropagation(); }}
+              onCopy={(e) => { e.stopPropagation(); }}
+            />
+            {isQuiz && correctAnswer.index === i && (
+              <Styled.CorrectLabel
+                data-test="correctAnswerLabel"
+                aria-label={intl.formatMessage(intlMessages.correctAnswerLabel)}
+              >
+                {intl.formatMessage(intlMessages.correctAnswerLabel)}
+              </Styled.CorrectLabel>
+            )}
+          </Styled.PollInputContainer>
           {optList.length > MIN_OPTIONS_LENGTH && (
             <Styled.DeletePollOptionButton
               label={intl.formatMessage(intlMessages.delete)}

@@ -1,8 +1,5 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
-import Box from '@mui/material/Box';
 import Styled from '../styles';
 
 interface QuizAndPollTabSelectorProps {
@@ -28,21 +25,16 @@ const intlMessages = defineMessages({
 const QuizAndPollTabSelector: React.FC<QuizAndPollTabSelectorProps> = ({ isQuiz, onTabChange }) => {
   const intl = useIntl();
   return (
-    <Styled.TabSelectorWrapper>
-      <Box sx={{ width: '100%' }}>
-        <Tabs
-          value={isQuiz ? 'quiz' : 'poll'}
-          onChange={(_, value) => {
-            onTabChange(value === 'quiz');
-          }}
-          aria-label={intl.formatMessage(intlMessages.tabSelectorAriaLabel)}
-          centered
-        >
-          <Tab value="poll" label={intl.formatMessage(intlMessages.tabPollLabel)} />
-          <Tab value="quiz" label={intl.formatMessage(intlMessages.tabQuizLabel)} />
-        </Tabs>
-      </Box>
-    </Styled.TabSelectorWrapper>
+    <Styled.SegmentedButtonWrapper>
+      <Styled.SegmentedButtonContainer>
+        <Styled.SegmentedButton id="poll" active={!isQuiz} onClick={() => onTabChange(false)}>
+          {intl.formatMessage(intlMessages.tabPollLabel)}
+        </Styled.SegmentedButton>
+        <Styled.SegmentedButton id="quiz" active={isQuiz} onClick={() => onTabChange(true)}>
+          {intl.formatMessage(intlMessages.tabQuizLabel)}
+        </Styled.SegmentedButton>
+      </Styled.SegmentedButtonContainer>
+    </Styled.SegmentedButtonWrapper>
   );
 };
 

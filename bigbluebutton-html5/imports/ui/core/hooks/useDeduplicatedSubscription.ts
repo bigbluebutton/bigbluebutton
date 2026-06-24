@@ -1,64 +1,64 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import GrahqlSubscriptionStore, { stringToHash, SubscriptionStructure } from '/imports/ui/core/singletons/subscriptionStore';
 import { DocumentNode, TypedQueryDocumentNode } from 'graphql';
 import {
-  OperationVariables, SubscriptionHookOptions, makeVar, useReactiveVar,
+  OperationVariables, SubscriptionHookOptions, makeVar, useReactiveVar, ReactiveVar,
 } from '@apollo/client';
-// same as useSubscription type
-//  eslint-disable-next-line @typescript-eslint/no-explicit-any
-const useDeduplicatedSubscription = <T = any>(
+import { makePatchedQuery } from '/imports/ui/core/hooks/createUseSubscription';
+
+const initialEmptySub = makeVar<SubscriptionStructure<unknown>>({
+  count: 0,
+  data: null,
+  error: null,
+  loading: true,
+  sub: null,
+});
+
+const useDeduplicatedSubscription = <T>(
   subscription: DocumentNode | TypedQueryDocumentNode,
   options?: SubscriptionHookOptions<NoInfer<T>, NoInfer<OperationVariables>>,
+  usePatchedSubscription = false,
 ) => {
-  const subscriptionHashRef = useRef<string>('');
-  const subscriptionRef = useRef <DocumentNode | TypedQueryDocumentNode | null>(null);
-  const optionsRef = useRef(options);
+  // When patching is enabled, rename the operation to Patched_* so the middleware streams
+  // JSON patches instead of full datasets; the subscription store applies them automatically.
+  const query = useMemo(
+    () => (usePatchedSubscription ? makePatchedQuery(subscription) : subscription),
+    [subscription, usePatchedSubscription],
+  );
   const subscriptionHash = stringToHash(JSON.stringify({
-    subscription,
+    subscription: query,
     variables: options?.variables,
     skip: options?.skip,
   }));
 
-  useEffect(() => {
-    return () => {
-      GrahqlSubscriptionStore.unsubscribe(subscription, options?.variables);
-    };
-  }, []);
+  const [subVar, setSubVar] = useState<
+    ReactiveVar<SubscriptionStructure<T>>>(() => initialEmptySub as ReactiveVar<SubscriptionStructure<T>>);
 
   useEffect(() => {
     if (options?.skip) {
-      subscriptionHashRef.current = '';
-      if (subscriptionRef.current && optionsRef.current) {
-        GrahqlSubscriptionStore.unsubscribe(subscriptionRef.current, optionsRef.current?.variables);
-        subscriptionRef.current = null;
-        optionsRef.current = undefined;
-      }
-      return;
-    }
-    if (subscriptionHashRef.current !== subscriptionHash) {
-      subscriptionHashRef.current = subscriptionHash;
-      if (subscriptionRef.current && optionsRef.current) {
-        GrahqlSubscriptionStore.unsubscribe(subscriptionRef.current, optionsRef.current?.variables);
-      }
-
-      subscriptionRef.current = subscription;
-      optionsRef.current = options;
-    }
-  }, [subscriptionHash]);
-
-  const sub = useMemo(() => {
-    if (options?.skip) {
-      return makeVar<SubscriptionStructure<T>>({
+      setSubVar(() => makeVar<SubscriptionStructure<T>>({
         count: 0,
         data: null,
         error: null,
         loading: true,
         sub: null,
-      });
+      }));
+      return () => {};
     }
-    return GrahqlSubscriptionStore.makeSubscription<T>(subscription, options?.variables);
-  }, [subscriptionHash]);
-  return useReactiveVar(sub);
+
+    const newSubVar = GrahqlSubscriptionStore.makeSubscription<T>(
+      query,
+      options?.variables,
+      usePatchedSubscription ? 'no-cache' : undefined,
+    );
+    setSubVar(() => newSubVar);
+
+    return () => {
+      GrahqlSubscriptionStore.unsubscribe(query, options?.variables);
+    };
+  }, [subscriptionHash, options?.skip, usePatchedSubscription]);
+
+  return useReactiveVar(subVar);
 };
 
 export default useDeduplicatedSubscription;

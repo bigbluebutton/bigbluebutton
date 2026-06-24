@@ -124,7 +124,7 @@ const UserDatailsComponent = (props) => {
   const usersReactions = allUsersArr.map((currUser) => currUser.reactions.length);
   const usersRaiseHands = allUsersArr.map((currUser) => currUser.raiseHand.length);
   const usersAnswers = allUsersArr.map((currUser) => Object.values(currUser.answers || {}).length);
-  const totalPolls = Object.values(polls || {}).length;
+  const totalPolls = Object.values(pollsAndQuizzes || {}).length;
 
   function getPointsOfTalk(u) {
     const maxTalkTime = Math.max(...usersTalkTime);

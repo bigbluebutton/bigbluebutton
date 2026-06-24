@@ -27,21 +27,20 @@ trait PluginPersistEventMsgHdlr extends HandlerHelpers {
       val reason = "Plugin feature is disabled for this meeting"
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
     } else {
-      PluginModel.getPluginByName(liveMeeting.plugins, msg.body.pluginName) match {
-        case Some(p) =>
-          if (msg.body.eventName.trim.isEmpty) {
-            log.info(s"Empty event name received for plugin '${msg.body.pluginName}'")
-          } else {
-            val eventPersistence = p.manifest.content.eventPersistence
-            eventPersistence match {
-              case Some(permissions) if permissions.isEnabled =>
-                broadcastEvent(msg, bus)
-              case Some(_) =>
-                log.info(s"Event persistence is disabled for plugin '${msg.body.pluginName}'")
-              case None =>
-                log.info(s"Event persistence permissions not defined for plugin '${msg.body.pluginName}'")
-            }
+      PluginModel.getPluginManifestContentByName(liveMeeting.plugins, msg.body.pluginName) match {
+        case Some(pluginManifestContent) => if (msg.body.eventName.trim.isEmpty) {
+          log.info(s"Empty event name received for plugin '${msg.body.pluginName}'")
+        } else {
+          val eventPersistence = pluginManifestContent.eventPersistence
+          eventPersistence match {
+            case Some(permissions) if permissions.isEnabled =>
+              broadcastEvent(msg, bus)
+            case Some(_) =>
+              log.info(s"Event persistence is disabled for plugin '${msg.body.pluginName}'")
+            case None =>
+              log.info(s"Event persistence permissions not defined for plugin '${msg.body.pluginName}'")
           }
+        }
         case None =>
           log.info(s"Plugin '${msg.body.pluginName}' not found.")
       }

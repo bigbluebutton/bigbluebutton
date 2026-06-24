@@ -1,13 +1,16 @@
+import { equals } from 'ramda';
 import {
   DEVICE_TYPE,
   LAYOUT_ELEMENTS,
   LAYOUT_TYPE,
   SYNC,
+  PRESENTATION_AREA,
 } from './enums';
 
 const phoneUpperBoundary = 600;
 const tabletPortraitUpperBoundary = 900;
 const tabletLandscapeUpperBoundary = 1200;
+const WAIT_LAYOUT_PARAMETER = 'waitLayout';
 
 const windowSize = () => window.document.documentElement.clientWidth;
 const isMobile = () => windowSize() <= (phoneUpperBoundary - 1);
@@ -19,6 +22,11 @@ const isTablet = () => windowSize() >= phoneUpperBoundary
   && windowSize() <= (tabletLandscapeUpperBoundary - 1);
 const isDesktop = () => windowSize() >= tabletLandscapeUpperBoundary;
 
+const getWaitLayout = () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(WAIT_LAYOUT_PARAMETER) || false;
+};
+
 const device = {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
 };
@@ -27,6 +35,23 @@ export default device;
 export {
   isMobile, isTablet, isTabletPortrait, isTabletLandscape, isDesktop,
 };
+
+const hasGenericContentChanged = (current, previous) => !equals(
+  current.filter((action) => action?.value?.content === PRESENTATION_AREA.GENERIC_CONTENT)
+    .map((action) => action.value.genericContentId),
+  previous.filter((action) => action?.value?.content === PRESENTATION_AREA.GENERIC_CONTENT)
+    .map((action) => action.value.genericContentId),
+);
+
+export const presentationContentHasChanges = (
+  current,
+  previous,
+  currentLayoutType,
+  previousLayoutType,
+) => !equals(
+  current.map((action) => action.value.content),
+  previous.map((action) => action.value.content),
+) || currentLayoutType !== previousLayoutType || hasGenericContentChanged(current, previous);
 
 // Array for select component to select different layout
 const suportedLayouts = [
@@ -70,6 +95,17 @@ const suportedLayouts = [
       DEVICE_TYPE.DESKTOP,
     ],
   },
+  {
+    layoutKey: LAYOUT_TYPE.UNIFIED_LAYOUT,
+    layoutName: 'Unified Layout',
+    suportedDevices: [
+      DEVICE_TYPE.MOBILE,
+      DEVICE_TYPE.TABLET,
+      DEVICE_TYPE.TABLET_PORTRAIT,
+      DEVICE_TYPE.TABLET_LANDSCAPE,
+      DEVICE_TYPE.DESKTOP,
+    ],
+  },
 ];
 
 const COMMON_ELEMENTS = {
@@ -85,6 +121,10 @@ const COMMON_ELEMENTS = {
 };
 
 const LAYOUTS_SYNC = {
+  [LAYOUT_TYPE.UNIFIED_LAYOUT]: {
+    [SYNC.PROPAGATE_ELEMENTS]: [...COMMON_ELEMENTS.DEFAULT, ...COMMON_ELEMENTS.DOCK],
+    [SYNC.REPLICATE_ELEMENTS]: [...COMMON_ELEMENTS.DEFAULT, ...COMMON_ELEMENTS.DOCK],
+  },
   [LAYOUT_TYPE.CUSTOM_LAYOUT]: {
     [SYNC.PROPAGATE_ELEMENTS]: [...COMMON_ELEMENTS.DEFAULT, ...COMMON_ELEMENTS.DOCK],
     [SYNC.REPLICATE_ELEMENTS]: [...COMMON_ELEMENTS.DEFAULT, ...COMMON_ELEMENTS.DOCK],
@@ -115,6 +155,10 @@ const LAYOUTS_SYNC = {
     [SYNC.PROPAGATE_ELEMENTS]: [],
     [SYNC.REPLICATE_ELEMENTS]: [LAYOUT_ELEMENTS.LAYOUT_TYPE],
   },
+  [LAYOUT_TYPE.PLUGINS_ONLY]: {
+    [SYNC.PROPAGATE_ELEMENTS]: [],
+    [SYNC.REPLICATE_ELEMENTS]: [LAYOUT_ELEMENTS.LAYOUT_TYPE],
+  },
   [LAYOUT_TYPE.MEDIA_ONLY]: {
     [SYNC.PROPAGATE_ELEMENTS]: [],
     [SYNC.REPLICATE_ELEMENTS]: [
@@ -124,4 +168,11 @@ const LAYOUTS_SYNC = {
     ],
   },
 };
-export { suportedLayouts, LAYOUTS_SYNC };
+const isValidSynchronizationLayout = (layout) => layout && LAYOUTS_SYNC[layout] != null;
+
+export {
+  suportedLayouts,
+  LAYOUTS_SYNC,
+  getWaitLayout,
+  isValidSynchronizationLayout,
+};

@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { gql } from '@apollo/client';
-import logger from '/imports/startup/client/logger';
 import { CustomSubscriptionArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/domain/shared/custom-subscription/types';
 import { UpdatedEventDetails } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/types';
 import {
@@ -8,28 +7,19 @@ import {
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/core/enum';
 import { DataConsumptionHooks } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/enums';
 
-import { HookWithArgumentsContainerProps } from './types';
+import { SubscriptionHookWithArgumentsContainerProps } from './types';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const CustomSubscriptionHookContainer = (props: HookWithArgumentsContainerProps) => {
-  const { hookArguments, numberOfUses } = props;
+const CustomSubscriptionHookContainer = (props: SubscriptionHookWithArgumentsContainerProps) => {
+  const { hookArguments, version } = props;
   const { query: queryFromPlugin, variables } = hookArguments;
-  const previousNumberOfUses = usePreviousValue(numberOfUses);
+  const previousVersion = usePreviousValue(version);
 
-  let customSubscriptionData: any;
-  try {
-    const subscriptionResult = useDeduplicatedSubscription(gql`${queryFromPlugin}`, {
-      variables,
-    });
-    customSubscriptionData = subscriptionResult;
-  } catch (err) {
-    logger.error(
-      `Error while querying custom subscriptions for plugins (query: ${queryFromPlugin}) (Error: ${err})`,
-    );
-    customSubscriptionData = 'Error';
-  }
+  const customSubscriptionData = useDeduplicatedSubscription(gql`${queryFromPlugin}`, {
+    variables,
+  });
 
   const updateCustomSubscriptionForPlugin = () => {
     window.dispatchEvent(
@@ -53,11 +43,11 @@ const CustomSubscriptionHookContainer = (props: HookWithArgumentsContainerProps)
     updateCustomSubscriptionForPlugin();
   }, [customSubscriptionData]);
   useEffect(() => {
-    const previousNumberOfUsesValue = previousNumberOfUses || 0;
-    if (numberOfUses > previousNumberOfUsesValue) {
+    const previousVersionValue = previousVersion ?? 0;
+    if (version > previousVersionValue) {
       updateCustomSubscriptionForPlugin();
     }
-  }, [numberOfUses]);
+  }, [version]);
 
   return null;
 };

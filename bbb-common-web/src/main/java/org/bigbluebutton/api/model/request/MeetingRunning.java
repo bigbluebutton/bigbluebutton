@@ -4,7 +4,7 @@ import org.bigbluebutton.api.model.constraint.ContentTypeConstraint;
 import org.bigbluebutton.api.model.constraint.MeetingIDConstraint;
 import org.bigbluebutton.api.model.shared.Checksum;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 @ContentTypeConstraint

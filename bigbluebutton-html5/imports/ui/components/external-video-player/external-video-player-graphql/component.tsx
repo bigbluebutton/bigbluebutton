@@ -37,7 +37,7 @@ import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import ExternalVideoPlayerToolbar from './toolbar/component';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { ACTIONS, PRESENTATION_AREA } from '../../layout/enums';
-import { EXTERNAL_VIDEO_UPDATE } from '../mutations';
+import { EXTERNAL_VIDEO_UPDATE, EXTERNAL_VIDEO_STOP } from '../mutations';
 import { calculateCurrentTime } from '/imports/ui/components/external-video-player/service';
 
 import PeerTube from '../custom-players/peertube';
@@ -63,6 +63,9 @@ const intlMessages = defineMessages({
   },
   subtitlesOff: {
     id: 'app.externalVideo.subtitlesOff',
+  },
+  closeExternalVideoLabel: {
+    id: 'app.externalVideo.stopShareExternalVideo',
   },
 });
 
@@ -159,10 +162,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       youtube: {
         playerVars: {
           autoplay: 1,
-          modestbranding: 1,
-          autohide: 1,
           rel: 0,
-          ecver: 2,
           controls: 1,
           cc_lang_pref: document.getElementsByTagName('html')[0].lang.substring(0, 2),
         },
@@ -199,6 +199,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const firstPlayRef = useRef(true);
   const [playerUrl, setPlayerUrl] = React.useState('');
   const lastCursorRef = useRef<{ position: number, updateAt: number }>({ position: 0, updateAt: 0 });
+  const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
 
   let currentTime = getServerCurrentTime();
 
@@ -247,6 +248,8 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       const internalPlayer = player.getInternalPlayer();
       if (internalPlayer instanceof HTMLVideoElement) {
         internalPlayer.pause();
+      } else if (internalPlayer instanceof HTMLAudioElement) {
+        internalPlayer.pause();
       } else if (internalPlayer.pauseVideo) {
         internalPlayer.pauseVideo();
       } else if (internalPlayer.pause) {
@@ -259,6 +262,8 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     if (player) {
       const internalPlayer = player.getInternalPlayer();
       if (internalPlayer instanceof HTMLVideoElement) {
+        internalPlayer.play();
+      } else if (internalPlayer instanceof HTMLAudioElement) {
         internalPlayer.play();
       } else if (internalPlayer.playVideo) {
         internalPlayer.playVideo();
@@ -274,6 +279,11 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       if (internalPlayer instanceof HTMLVideoElement) {
         return internalPlayer.currentTime;
       }
+
+      if (internalPlayer instanceof HTMLAudioElement) {
+        return internalPlayer.currentTime;
+      }
+
       // Vimeo player returns a promise for getCurrentTime
       try {
         return (await internalPlayer?.getCurrentTime?.()) ?? 0;
@@ -291,6 +301,11 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       if (internalPlayer instanceof HTMLVideoElement) {
         return internalPlayer.playbackRate;
       }
+
+      if (internalPlayer instanceof HTMLAudioElement) {
+        return internalPlayer.playbackRate;
+      }
+
       return internalPlayer?.getPlaybackRate?.() ?? 1;
     }
     return 1;
@@ -300,6 +315,10 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     if (player) {
       const internalPlayer = player.getInternalPlayer();
       if (internalPlayer instanceof HTMLVideoElement) {
+        return internalPlayer.volume;
+      }
+
+      if (internalPlayer instanceof HTMLAudioElement) {
         return internalPlayer.volume;
       }
 
@@ -404,9 +423,9 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     const currentTime = getServerCurrentTime();
     const playerCurrentTime = await getPlayerCurrentTime(playerRef.current as ReactPlayer);
     if (isPresenter && !playing) {
-      const rate = internalPlayer instanceof HTMLVideoElement
+      const rate = (internalPlayer instanceof HTMLVideoElement || internalPlayer instanceof HTMLAudioElement)
         ? internalPlayer.playbackRate
-        : internalPlayer?.getPlaybackRate?.() ?? 1;
+        : await internalPlayer?.getPlaybackRate?.() ?? 1;
 
       sendMessage('start', {
         rate,
@@ -426,9 +445,9 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     const url = new URL(videoUrl);
     const isTwitch = url.hostname === 'twitch.tv' || url.hostname === 'www.twitch.tv';
     if (isPresenter && !playing) {
-      const rate = internalPlayer instanceof HTMLVideoElement
+      const rate = (internalPlayer instanceof HTMLVideoElement || internalPlayer instanceof HTMLAudioElement)
         ? internalPlayer.playbackRate
-        : internalPlayer?.getPlaybackRate?.() ?? 1;
+        : await internalPlayer?.getPlaybackRate?.() ?? 1;
 
       const currentTime = getServerCurrentTime();
 
@@ -459,9 +478,9 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     setReactPlayerPlaying(false);
     if (isPresenter && playing) {
       const internalPlayer = playerRef.current?.getInternalPlayer();
-      let rate = internalPlayer instanceof HTMLVideoElement
+      let rate = (internalPlayer instanceof HTMLVideoElement || internalPlayer instanceof HTMLAudioElement)
         ? internalPlayer.playbackRate
-        : internalPlayer?.getPlaybackRate?.() ?? 1;
+        : await internalPlayer?.getPlaybackRate?.() ?? 1;
 
       if (rate instanceof Promise) {
         rate = await rate;
@@ -485,7 +504,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     if (playing && isPresenter) {
       currentTime = getServerCurrentTime();
     }
-    const interPlayerPlaybackRate = getPlaybackRate(playerRef.current as ReactPlayer);
+    const interPlayerPlaybackRate = await getPlaybackRate(playerRef.current as ReactPlayer);
     if (isPresenter && interPlayerPlaybackRate !== playerPlaybackRate) {
       sendMessage('seek', {
         rate: interPlayerPlaybackRate,
@@ -506,9 +525,9 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const handleOnSeek = async (cursor: { position: number } | number) => {
     if (isPresenter) {
       const internalPlayer = playerRef.current?.getInternalPlayer();
-      let rate = internalPlayer instanceof HTMLVideoElement
+      let rate = (internalPlayer instanceof HTMLVideoElement || internalPlayer instanceof HTMLAudioElement)
         ? internalPlayer.playbackRate
-        : internalPlayer?.getPlaybackRate?.() ?? 1;
+        : await internalPlayer?.getPlaybackRate?.() ?? 1;
       if (rate instanceof Promise) {
         rate = await rate;
       }
@@ -531,7 +550,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const handlePlaybackRateChange = async () => {
     if (isPresenter) {
       const internalPlayer = playerRef.current?.getInternalPlayer();
-      let rate = internalPlayer instanceof HTMLVideoElement
+      let rate = (internalPlayer instanceof HTMLVideoElement || internalPlayer instanceof HTMLAudioElement)
         ? internalPlayer.playbackRate
         : internalPlayer?.getPlaybackRate?.() ?? 1;
       if (rate instanceof Promise) {
@@ -646,6 +665,20 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
             />
           ) : null
         }
+        {
+          isPresenter ? (
+            <Styled.ExternalVideoCloseButton
+              color="primary"
+              icon="close"
+              size="sm"
+              onClick={stopExternalVideoShare}
+              data-test="stopExternalVideoShare"
+              label={intl.formatMessage(intlMessages.closeExternalVideoLabel)}
+              hideLabel
+              className={Styled.ExternalVideoCloseButton}
+            />
+          ) : null
+        }
       </Styled.VideoPlayerWrapper>
     </Styled.Container>
   );
@@ -757,7 +790,6 @@ const ExternalVideoPlayerContainer: React.FC = () => {
       `${UI_DATA_LISTENER_SUBSCRIBED}-${PluginSdk.ExternalVideoVolumeUiDataNames.IS_VOLUME_MUTED}`,
       updateUiDataHookIsMutedPlugin,
     );
-
     // Before component unmount, remove event listeners for plugin ui data hooks
     return () => {
       window.removeEventListener(

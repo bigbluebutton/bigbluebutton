@@ -66,12 +66,12 @@ class LocalesDropdown extends PureComponent {
         {availableLocales.map((localeItem) => {
           const localizedName = localeItem.locale !== value && intl.formatMessage({
             id: `app.submenu.application.localeDropdown.${localeItem.locale}`,
-            defaultMessage: ``,
+            defaultMessage: '-',
           });
 
           return (
             <option key={localeItem.locale} value={localeItem.locale} lang={localeItem.locale}>
-              {localeItem.name}{localizedName && ` - ${localizedName}`}
+              {localeItem.name}{localizedName && localizedName !== '-' && ` - ${localizedName}`}
             </option>
           );
         })}

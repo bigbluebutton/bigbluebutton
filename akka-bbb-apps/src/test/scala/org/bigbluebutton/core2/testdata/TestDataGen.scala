@@ -25,7 +25,7 @@ object TestDataGen {
     ru
   }
 
-  def createVoiceUserForUser(user: RegisteredUser, callingWith: String, muted: Boolean, deafened: Boolean, talking: Boolean,
+  def createVoiceUserForUser(user: RegisteredUser, callingWith: String, muted: Boolean, listenOnlyInputDevice: Boolean, deafened: Boolean, talking: Boolean,
                              listenOnly: Boolean): VoiceUserState = {
     val voiceUserId = RandomStringGenerator.randomAlphanumericString(8)
     VoiceUserState(
@@ -36,7 +36,9 @@ object TestDataGen {
       callerName = user.name,
       callerNum = user.name,
       color = "#ff6242",
+      speechLocale = "",
       muted,
+      listenOnlyInputDevice,
       deafened,
       talking,
       listenOnly,
@@ -48,7 +50,7 @@ object TestDataGen {
       "9b3f4504-275d-4315-9922-21174262d88c")
   }
 
-  def createFakeVoiceOnlyUser(meetingId: String, callingWith: String, muted: Boolean, deafened: Boolean, talking: Boolean,
+  def createFakeVoiceOnlyUser(meetingId: String, callingWith: String, muted: Boolean, listenOnlyInputDevice: Boolean, deafened: Boolean, talking: Boolean,
                               listenOnly: Boolean, name: String): VoiceUserState = {
     val voiceUserId = RandomStringGenerator.randomAlphanumericString(8)
     val intId = "v_" + RandomStringGenerator.randomAlphanumericString(16)
@@ -60,7 +62,9 @@ object TestDataGen {
       callerName = name,
       callerNum = name,
       color = "#ff6242",
+      speechLocale = "",
       muted,
+      listenOnlyInputDevice,
       deafened,
       talking,
       listenOnly,
@@ -81,7 +85,7 @@ object TestDataGen {
     val u = UserState(intId = regUser.id, extId = regUser.externId, meetingId = regUser.meetingId, name = regUser.name,
       role = regUser.role,bot = regUser.bot, guest = regUser.guest, authed = regUser.authed, guestStatus = regUser.guestStatus,
       reactionEmoji = "none", raiseHand = false, away = false, pin = false, mobile = false,
-      locked = false, presenter = false, avatar = regUser.avatarURL, regUser.webcamBackgroundURL, color = "#ff6242",
+      locked = false, presenter = false, whiteboardWriteAccess = false, avatar = regUser.avatarURL, webcamBackground = regUser.webcamBackgroundURL, color = "#ff6242",
       clientType = "unknown", userLeftFlag = UserLeftFlag(false, 0))
     Users2x.add(liveMeeting.users2x, u)
     u

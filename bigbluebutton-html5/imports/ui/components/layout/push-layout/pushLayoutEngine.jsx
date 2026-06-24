@@ -12,8 +12,9 @@ import {
   SYNC,
   LAYOUT_ELEMENTS,
   PANELS,
+  HIDDEN_LAYOUTS,
 } from '../enums';
-import { isMobile, LAYOUTS_SYNC } from '../utils';
+import { isMobile, isValidSynchronizationLayout, LAYOUTS_SYNC } from '../utils';
 import { updateSettings, isKeepPushingLayoutEnabled } from '/imports/ui/components/settings/service';
 import Session from '/imports/ui/services/storage/in-memory';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
@@ -29,10 +30,9 @@ import {
 } from '../context';
 import { calculatePresentationVideoRate } from './service';
 import { useMeetingLayoutUpdater, usePushLayoutUpdater } from './hooks';
-import { changeEnforcedLayout } from '/imports/ui/components/plugins-engine/ui-commands/layout/handler';
+import { setEnforcedLayout } from '/imports/ui/components/plugins-engine/ui-commands/layout/handler';
 import { useIsChatEnabled } from '/imports/ui/services/features';
-import Auth from '/imports/ui/services/auth';
-import Storage from '/imports/ui/services/storage/session';
+import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 
 const equalDouble = (n1, n2) => {
   const precision = 0.01;
@@ -69,6 +69,7 @@ const propTypes = {
   enforceLayoutResult: PropTypes.string,
   setLocalSettings: PropTypes.func.isRequired,
   hasMeetingLayout: PropTypes.bool,
+  isChatEnabled: PropTypes.bool,
 };
 
 const PushLayoutEngine = (props) => {
@@ -124,7 +125,12 @@ const PushLayoutEngine = (props) => {
       actualLayout = actualLayout === 'custom' ? 'smart' : actualLayout;
       Settings.application.selectedLayout = actualLayout;
     }
-    Session.setItem('isGridEnabled', actualLayout === LAYOUT_TYPE.VIDEO_FOCUS);
+
+    if (actualLayout === LAYOUT_TYPE.UNIFIED_LAYOUT) {
+      Session.setItem('isGridEnabled', !presentationIsOpen);
+    } else {
+      Session.setItem('isGridEnabled', actualLayout === LAYOUT_TYPE.VIDEO_FOCUS);
+    }
 
     Settings.save(setLocalSettings);
 
@@ -139,7 +145,7 @@ const PushLayoutEngine = (props) => {
     MediaService.setPresentationIsOpen(layoutContextDispatch, presentationLastState);
     Session.setItem('presentationLastState', presentationLastState);
 
-    if (actualLayout === 'custom') {
+    if (actualLayout === 'custom' || actualLayout === 'unified') {
       setTimeout(() => {
         layoutContextDispatch({
           type: ACTIONS.SET_FOCUSED_CAMERA_ID,
@@ -148,7 +154,7 @@ const PushLayoutEngine = (props) => {
 
         layoutContextDispatch({
           type: ACTIONS.SET_CAMERA_DOCK_POSITION,
-          value: meetingLayoutCameraPosition || 'contentTop',
+          value: meetingLayoutCameraPosition || DEFAULT_VALUES.cameraPosition,
         });
         if (shouldOpenChat && !hasLayoutEngineLoadedOnce) {
           layoutContextDispatch({
@@ -195,7 +201,7 @@ const PushLayoutEngine = (props) => {
   }, [hasMeetingLayout, enforceLayoutResult]);
 
   useEffect(() => {
-    if (!selectedLayout) return () => {};
+    if (!isValidSynchronizationLayout(selectedLayout)) return () => {};
     const meetingLayoutDidChange = meetingLayout !== prevProps.meetingLayout;
     const pushLayoutMeetingDidChange = pushLayoutMeeting !== prevProps.pushLayoutMeeting;
     const enforceLayoutDidChange = enforceLayoutResult !== prevProps.enforceLayoutResult;
@@ -256,7 +262,7 @@ const PushLayoutEngine = (props) => {
         || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
         layoutContextDispatch({
           type: ACTIONS.SET_CAMERA_DOCK_POSITION,
-          value: meetingLayoutCameraPosition,
+          value: meetingLayoutCameraPosition || DEFAULT_VALUES.cameraPosition,
         });
       }
     };
@@ -308,17 +314,22 @@ const PushLayoutEngine = (props) => {
       replicateLayoutType();
     }
     if (!isPresenter) {
+      const { syncCameraDockSizeAndPosition } = window.meetingClientSettings.public.layout;
+
       if (layoutReplicateElements.includes(LAYOUT_ELEMENTS.PRESENTATION_STATE)) {
         replicatePresentationState();
       }
       if (layoutReplicateElements.includes(LAYOUT_ELEMENTS.FOCUSED_CAMERA)) {
         replicateFocusedCamera();
       }
-      if (layoutReplicateElements.includes(LAYOUT_ELEMENTS.CAMERA_DOCK_POSITION)) {
-        replicateCameraDockPosition();
-      }
-      if (layoutReplicateElements.includes(LAYOUT_ELEMENTS.CAMERA_DOCK_SIZE)) {
-        replicateCameraDockSize();
+
+      if (syncCameraDockSizeAndPosition) {
+        if (layoutReplicateElements.includes(LAYOUT_ELEMENTS.CAMERA_DOCK_POSITION)) {
+          replicateCameraDockPosition();
+        }
+        if (layoutReplicateElements.includes(LAYOUT_ELEMENTS.CAMERA_DOCK_SIZE)) {
+          replicateCameraDockSize();
+        }
       }
     }
 
@@ -344,13 +355,21 @@ const PushLayoutEngine = (props) => {
       && layoutPropagateElements.length > 0
     ) {
       if (pushLayout && (layoutChanged || pushLayout !== prevProps.pushLayout)) {
-        setMeetingLayout();
+        setMeetingLayout(pushLayout);
       }
     }
 
-    if (selectedLayout !== prevProps.selectedLayout) {
+    if (selectedLayout !== prevProps.selectedLayout
+      && selectedLayout !== LAYOUT_TYPE.UNIFIED_LAYOUT) {
       Session.setItem('isGridEnabled', selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS);
     }
+
+    if (selectedLayout === LAYOUT_TYPE.UNIFIED_LAYOUT
+      && (selectedLayout !== prevProps.selectedLayout
+        || presentationIsOpen !== prevProps.presentationIsOpen)) {
+      Session.setItem('isGridEnabled', !presentationIsOpen);
+    }
+
     return () => {};
   });
 
@@ -367,15 +386,27 @@ const PushLayoutEngineContainer = (props) => {
   const applicationSettings = useSettings(SETTINGS.APPLICATION);
   const {
     selectedLayout,
+    pushLayout: pushLayoutSetting,
   } = applicationSettings;
 
   const isPushLayoutEnabled = isKeepPushingLayoutEnabled();
 
   const getKeepPushingLayout = () => {
+    // check if current layout is a hidden layout
+    if (selectedLayout
+      && selectedLayout !== LAYOUT_TYPE.UNIFIED_LAYOUT
+      && HIDDEN_LAYOUTS.includes(selectedLayout)) {
+      return false;
+    }
+
+    // always enabled for non-hidden layouts is layout manager is disabled
+    if (!window.meetingClientSettings.public.layout.enableDeprecatedLayoutSelection) {
+      return true;
+    }
+
     if (!isPushLayoutEnabled) return false;
 
-    const storageKey = `keepPushingLayout_${Auth.meetingID}`;
-    return Storage.getItem(storageKey) === true;
+    return pushLayoutSetting;
   };
 
   const {
@@ -391,14 +422,14 @@ const PushLayoutEngineContainer = (props) => {
 
   const horizontalPosition = cameraPosition === 'contentLeft' || cameraPosition === 'contentRight';
 
-  const pluginLayoutChange = useReactiveVar(changeEnforcedLayout);
+  const currentPluginLayoutRaw = useReactiveVar(setEnforcedLayout);
 
   const validatePluginLayout = (layout) => {
     const layoutTypes = Object.keys(LAYOUT_TYPE);
     return layout && layoutTypes.includes(layout) ? layout : null;
   };
   const pluginEnforcedLayout = validatePluginLayout(
-    pluginLayoutChange.pluginEnforcedLayout,
+    currentPluginLayoutRaw.pluginEnforcedLayout,
   );
   const {
     data: currentMeeting,
@@ -418,11 +449,19 @@ const PushLayoutEngineContainer = (props) => {
 
   const { isOpen: presentationIsOpen } = presentationInput;
 
-  const { data: currentUserData } = useCurrentUser((user) => ({
+  const { data: currentUserData, loading: enforcedLayoutLoading } = useCurrentUser((user) => ({
     enforceLayout: user.sessionCurrent?.enforceLayout,
     isModerator: user.isModerator,
     presenter: user.presenter,
   }));
+
+  useEffect(() => {
+    layoutContextDispatch({
+      type: ACTIONS.SET_LAYOUT_LOADING,
+      value: enforcedLayoutLoading,
+    });
+  }, [enforcedLayoutLoading]);
+
   const isModerator = currentUserData?.isModerator;
   const isPresenter = currentUserData?.presenter;
 

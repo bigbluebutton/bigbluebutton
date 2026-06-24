@@ -10,9 +10,9 @@ import {Geo} from './Geo.js';
 export class Diamond extends Geo {
   /**
      * Draws a diamond shape on the SVG canvas.
-     * @return {G} Returns the SVG group element containing the diamond.
+     * @return {Promise<G>} Returns the SVG group element containing the diamond.
      */
-  draw() {
+  async draw() {
     const width = this.w;
     const height = this.h + this.growY;
     const halfWidth = width / 2;
@@ -36,7 +36,7 @@ export class Diamond extends Geo {
 
     this.setFill(diamond);
     diamondGroup.add(diamond);
-    this.drawLabel(diamondGroup);
+    await this.drawLabel(diamondGroup);
 
     return diamondGroup;
   }

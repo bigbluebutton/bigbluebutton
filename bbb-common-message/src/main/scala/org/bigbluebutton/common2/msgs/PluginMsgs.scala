@@ -1,6 +1,6 @@
 package org.bigbluebutton.common2.msgs
 
-import org.bigbluebutton.common2.domain.PluginLearningAnalyticsDashboardGenericData
+import org.bigbluebutton.common2.domain.{PluginLearningAnalyticsDashboardUserData, PluginLearningAnalyticsDashboardUserDataDelete}
 
 // In messages
 
@@ -54,11 +54,26 @@ case class PluginDataChannelResetMsgBody(
                                           channelName: String
                                         )
 
-object PluginLearningAnalyticsDashboardSendGenericDataMsg { val NAME = "PluginLearningAnalyticsDashboardSendGenericDataMsg" }
-case class PluginLearningAnalyticsDashboardSendGenericDataMsg(header: BbbClientMsgHeader, body: PluginLearningAnalyticsDashboardSendGenericDataMsgBody) extends StandardMsg
-case class PluginLearningAnalyticsDashboardSendGenericDataMsgBody(
-                                                            pluginName: String,
-                                                            genericDataForLearningAnalyticsDashboard: PluginLearningAnalyticsDashboardGenericData
+object PluginLearningAnalyticsDashboardUpsertUserDataMsg { val NAME = "PluginLearningAnalyticsDashboardUpsertUserDataMsg" }
+case class PluginLearningAnalyticsDashboardUpsertUserDataMsg(header: BbbClientMsgHeader, body: PluginLearningAnalyticsDashboardUpsertUserDataMsgBody) extends StandardMsg
+case class PluginLearningAnalyticsDashboardUpsertUserDataMsgBody(
+                                                              pluginName: String,
+                                                              userDataForLearningAnalyticsDashboard: PluginLearningAnalyticsDashboardUserData,
+                                                              targetUserId: String
+                                        )
+
+object PluginLearningAnalyticsDashboardDeleteUserDataMsg { val NAME = "PluginLearningAnalyticsDashboardDeleteUserDataMsg" }
+case class PluginLearningAnalyticsDashboardDeleteUserDataMsg(header: BbbClientMsgHeader, body: PluginLearningAnalyticsDashboardDeleteUserDataMsgBody) extends StandardMsg
+case class PluginLearningAnalyticsDashboardDeleteUserDataMsgBody(
+                                                              pluginName: String,
+                                                              userDataForLearningAnalyticsDashboard: PluginLearningAnalyticsDashboardUserDataDelete,
+                                                              targetUserId: String
+                                        )
+object PluginLearningAnalyticsDashboardClearAllUsersDataMsg { val NAME = "PluginLearningAnalyticsDashboardClearAllUsersDataMsg" }
+case class PluginLearningAnalyticsDashboardClearAllUsersDataMsg(header: BbbClientMsgHeader, body: PluginLearningAnalyticsDashboardClearAllUsersDataMsgBody) extends StandardMsg
+case class PluginLearningAnalyticsDashboardClearAllUsersDataMsgBody(
+                                                              pluginName: String,
+                                                              cardTitle: String,
                                         )
 object PluginPersistEventMsg { val NAME = "PluginPersistEventMsg" }
 case class PluginPersistEventMsg(header: BbbClientMsgHeader, body: PluginPersistEventMsgBody) extends StandardMsg

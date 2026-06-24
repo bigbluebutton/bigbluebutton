@@ -20,6 +20,7 @@ object Dependencies {
     val quicklens = "1.7.5"
     val spray = "1.3.6"
     val semver = "0.10.2"
+    val commonmark = "0.27.0"
 
     // Apache Commons
     val lang = "3.12.0"
@@ -55,6 +56,8 @@ object Dependencies {
     val commonsCodec = "commons-codec" % "commons-codec" % Versions.codec
     val sprayJson = "io.spray" % "spray-json_2.13" % Versions.spray
     val semver = "com.github.zafarkhaja" % "java-semver" % Versions.semver
+    val commonmark = "org.commonmark" % "commonmark" % Versions.commonmark
+
 
     val pekkoStream = "org.apache.pekko" %% "pekko-stream" % Versions.pekkoVersion
     val pekkoHttp = "org.apache.pekko" %% "pekko-http" % Versions.pekkoHttpVersion
@@ -102,6 +105,7 @@ object Dependencies {
     Compile.commonsCodec,
     Compile.sprayJson,
     Compile.semver,
+    Compile.commonmark,
     Compile.apacheLang,
     Compile.apacheHttpComponents,
     Compile.pekkoHttp,

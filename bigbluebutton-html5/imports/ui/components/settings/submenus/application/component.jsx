@@ -5,7 +5,6 @@ import LocalesDropdown from '/imports/ui/components/common/locales-dropdown/comp
 import { defineMessages, injectIntl } from 'react-intl';
 import BaseMenu from '../base/component';
 import Styled from './styles';
-import VideoService from '/imports/ui/components/video-provider/service';
 import WakeLockService from '/imports/ui/components/wake-lock/service';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
@@ -519,6 +518,7 @@ class ApplicationMenu extends BaseMenu {
                   onChange={() => this.handleToggle('whiteboardToolbarAutoHide')}
                   ariaLabel={`${intl.formatMessage(intlMessages.wbToolbarsAutoHideLabel)} - ${displaySettingsStatus(settings.whiteboardToolbarAutoHide, true)}`}
                   showToggleLabel={showToggleLabel}
+                  data-test="autoHideToolbarToggleBtn"
                 />
               </Styled.FormElementRight>
             </Styled.Col>
@@ -539,7 +539,7 @@ class ApplicationMenu extends BaseMenu {
                   icons={false}
                   defaultChecked={settings.selfViewDisable}
                   onChange={() => this.handleToggle('selfViewDisable')}
-                  ariaLabel={`${intl.formatMessage(intlMessages.disableLabel)} - ${displaySettingsStatus(settings.selfViewDisable, false)}`}
+                  ariaLabel={`${intl.formatMessage(intlMessages.disableLabel)} - ${displaySettingsStatus(settings.selfViewDisable, true)}`}
                   showToggleLabel={showToggleLabel}
                 />
               </Styled.FormElementRight>
@@ -562,7 +562,7 @@ class ApplicationMenu extends BaseMenu {
                     icons={false}
                     defaultChecked={settings.autoCloseReactionsBar}
                     onChange={() => this.handleToggle('autoCloseReactionsBar')}
-                    ariaLabel={`${intl.formatMessage(intlMessages.autoCloseReactionsBarLabel)} - ${displaySettingsStatus(settings.autoCloseReactionsBar, false)}`}
+                    ariaLabel={`${intl.formatMessage(intlMessages.autoCloseReactionsBarLabel)} - ${displaySettingsStatus(settings.autoCloseReactionsBar, true)}`}
                     showToggleLabel={showToggleLabel}
                   />
                 </Styled.FormElementRight>

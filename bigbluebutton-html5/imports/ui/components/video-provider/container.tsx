@@ -8,7 +8,7 @@ import {
   useExitVideo,
   useInfo,
   useIsPaginationEnabled,
-  useIsUserLocked,
+  useIsCamSharingLocked,
   useLockUser,
   useMyPageSize,
   useStopVideo,
@@ -92,6 +92,7 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
   const {
     streams,
     gridUsers,
+    overflowCount,
     totalNumberOfStreams,
     totalNumberOfOtherStreams,
   } = useVideoStreams();
@@ -118,7 +119,7 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     );
   }
 
-  const isUserLocked = useIsUserLocked();
+  const isUserLocked = useIsCamSharingLocked();
   const currentVideoPageIndex = useCurrentVideoPageIndex();
   const exitVideo = useExitVideo();
   const lockUser = useLockUser();
@@ -174,6 +175,7 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     paginationEnabled,
     viewParticipantsWebcams,
     totalNumberOfStreams,
+    overflowCount,
     isUserLocked,
     currentVideoPageIndex,
     streams: usersVideo,

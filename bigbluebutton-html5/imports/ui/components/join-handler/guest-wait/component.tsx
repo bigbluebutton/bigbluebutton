@@ -8,6 +8,7 @@ import React, {
 import { defineMessages, useIntl } from 'react-intl';
 import { LoadingContext } from '../../common/loading-screen/loading-screen-HOC/component';
 import Styled from './styles';
+import Auth from '/imports/ui/services/auth';
 
 const REDIRECT_TIMEOUT = 15000;
 
@@ -54,25 +55,25 @@ const intlMessages = defineMessages({
     id: 'app.guest.calculating',
     description: '',
   },
+  messageFromHost: {
+    id: 'app.guest.messageFromHost',
+    description: 'Label for host message',
+    defaultMessage: 'Message from host',
+  },
+  waitingForApproval: {
+    id: 'app.guest.waitingForApproval',
+    description: 'Waiting status text',
+    defaultMessage: 'Waiting for approval',
+  },
 });
-
-function getSearchParam(name: string) {
-  const params = new URLSearchParams(window.location.search);
-
-  if (params && params.has(name)) {
-    const param = params.get(name);
-
-    return param;
-  }
-
-  return null;
-}
 
 interface GuestWaitProps {
   guestStatus: string | null;
   guestLobbyMessage: string | null;
   positionInWaitingQueue: number | null;
   logoutUrl: string;
+  meetingName: string;
+  clientTitle: string;
 }
 
 const GuestWait: React.FC<GuestWaitProps> = (props) => {
@@ -81,6 +82,8 @@ const GuestWait: React.FC<GuestWaitProps> = (props) => {
     guestStatus,
     logoutUrl,
     positionInWaitingQueue,
+    meetingName,
+    clientTitle,
   } = props;
 
   const intl = useIntl();
@@ -90,6 +93,8 @@ const GuestWait: React.FC<GuestWaitProps> = (props) => {
   const lobbyMessageRef = useRef('');
   const positionInWaitingQueueRef = useRef('');
   const loadingContextInfo = useContext(LoadingContext);
+  const showPositionInWaitingQueue = window.meetingClientSettings
+    .public.app.showGuestLobbyWaitingQueuePosition !== false;
 
   const updateLobbyMessage = useCallback((message: string | null) => {
     if (!message) {
@@ -112,17 +117,22 @@ const GuestWait: React.FC<GuestWaitProps> = (props) => {
       if (positionInWaitingQueueRef.current === '1') {
         setPositionMessage(intl.formatMessage(intlMessages.firstPosition));
       } else {
-        setPositionMessage(intl.formatMessage(intlMessages.position) + positionInWaitingQueueRef.current);
+        setPositionMessage(`${intl.formatMessage(intlMessages.position).trim()} ${positionInWaitingQueueRef.current}`);
       }
     }
   }, [intl]);
 
   useEffect(() => {
-    document.title = intl.formatMessage(intlMessages.windowTitle);
-  }, []);
+    const lobbyTitle = intl.formatMessage(intlMessages.windowTitle);
+    if (meetingName) {
+      document.title = `${lobbyTitle} - ${meetingName}`;
+      return;
+    }
+    document.title = lobbyTitle;
+  }, [intl, meetingName, clientTitle]);
 
   useEffect(() => {
-    const sessionToken = getSearchParam('sessionToken');
+    const { sessionToken } = Auth;
 
     if (loadingContextInfo.isLoading) {
       loadingContextInfo.setLoading(false);
@@ -160,7 +170,7 @@ const GuestWait: React.FC<GuestWaitProps> = (props) => {
 
     // WAIT
     updateLobbyMessage(guestLobbyMessage || '');
-    if (positionInWaitingQueue) {
+    if (showPositionInWaitingQueue && positionInWaitingQueue) {
       updatePositionInWaitingQueue(positionInWaitingQueue);
     }
   }, [
@@ -169,30 +179,49 @@ const GuestWait: React.FC<GuestWaitProps> = (props) => {
     logoutUrl,
     positionInWaitingQueue,
     intl,
+    showPositionInWaitingQueue,
     updateLobbyMessage,
     updatePositionInWaitingQueue,
   ]);
+
+  const hasCustomMessage = guestLobbyMessage && guestLobbyMessage.length > 0;
 
   return (
     <Styled.Container>
       <Styled.Content id="content">
         <Styled.Heading id="heading">{intl.formatMessage(intlMessages.windowTitle)}</Styled.Heading>
-        {animate && (
-          <Styled.Spinner>
-            <Styled.Bounce1 />
-            <Styled.Bounce2 />
-            <Styled.Bounce />
-          </Styled.Spinner>
+        {showPositionInWaitingQueue && (
+          <Styled.Position id="positionInWaitingQueue">
+            <p aria-live="polite">{positionMessage}</p>
+          </Styled.Position>
         )}
-        <p
-          aria-live="polite"
-          data-test="guestMessage"
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: message }}
-        />
-        <Styled.Position id="positionInWaitingQueue">
-          <p aria-live="polite">{positionMessage}</p>
-        </Styled.Position>
+        {hasCustomMessage && (
+          <Styled.MessageContainer>
+            <Styled.MessageLabel>
+              {intl.formatMessage(intlMessages.messageFromHost)}
+            </Styled.MessageLabel>
+            <Styled.MessageText
+              aria-live="polite"
+              data-test="guestMessage"
+              // eslint-disable-next-line react/no-danger
+              dangerouslySetInnerHTML={{ __html: message }}
+            />
+          </Styled.MessageContainer>
+        )}
+        {!hasCustomMessage && (
+          <p
+            aria-live="polite"
+            data-test="guestMessage"
+            // eslint-disable-next-line react/no-danger
+            dangerouslySetInnerHTML={{ __html: message }}
+          />
+        )}
+        {animate && (
+          <Styled.WaitingIndicator>
+            <Styled.WaitingDot />
+            <span>{intl.formatMessage(intlMessages.waitingForApproval)}</span>
+          </Styled.WaitingIndicator>
+        )}
       </Styled.Content>
     </Styled.Container>
   );

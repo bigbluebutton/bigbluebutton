@@ -1,11 +1,11 @@
 package org.bigbluebutton.endpoint.redis
 
-import org.apache.pekko.actor.{ Actor, ActorLogging, Props, Timers }
+import org.apache.pekko.actor.{Actor, ActorLogging, Props, Timers}
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.OutMessageGateway
-import org.bigbluebutton.core.api.{ UserClosedAllGraphqlConnectionsInternalMsg, UserEstablishedGraphqlConnectionInternalMsg }
-import org.bigbluebutton.core.bus.{ BigBlueButtonEvent, InternalEventBus }
-import org.bigbluebutton.core.db.UserGraphqlConnectionDAO
+import org.bigbluebutton.core.api.{UserClosedAllGraphqlConnectionsInternalMsg, UserEstablishedGraphqlConnectionInternalMsg}
+import org.bigbluebutton.core.bus.{BigBlueButtonEvent, InternalEventBus}
+import org.bigbluebutton.core.db.{UserConnectionStatusDAO, UserGraphqlConnectionDAO}
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 import scala.concurrent.duration._
@@ -186,6 +186,13 @@ class GraphqlConnectionsActor(
           msg.body.clientIsMobile,
           user
         ))
+
+      UserConnectionStatusDAO.insert(
+        user.meetingId,
+        user.intId,
+        msg.body.sessionToken,
+        msg.body.clientSessionUUID,
+      )
     }
   }
 

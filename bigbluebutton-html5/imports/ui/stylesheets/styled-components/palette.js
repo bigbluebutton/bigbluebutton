@@ -123,8 +123,30 @@ const toastErrorBg = `var(--toast-error-bg, ${colorDanger})`;
 const webcamBackgroundColor = 'var(--webcam-background-color, #001428FF)';
 const webcamPlaceholderBorder = 'var(--webcam-placeholder-border, rgba(255, 255, 255, 0.5))'; // colorWhite, 50%
 
+// rgba version of colorPrimary (0F70D7) with 15% opacity for talking indicator background
+const webcamTalkingBackgroundColor = 'var(--webcam-talking-background-color, rgba(13, 109, 252, 0.15))';
+
 const toastWarningColor = `var(--toast-warning-color, ${colorWhite})`;
 const toastWarningBg = `var(--toast-warning-bg, ${colorWarning})`;
+
+const SegmentedButtonRingOffsetShadow = 'var(--ring-offset-shadow, 0 0 #0000)';
+const SegmentedButtonRingShadow = 'var(--ring-shadow, 0 0 #0000)';
+const SegmentedButtonBoxShadowSm = 'var(--shadow, 0 1px 2px 0 rgba(0, 0, 0, 0.05))';
+const slate900 = 'var(--slate-900, #111827)';
+const darkCyanLime = 'var(--dark-cyan-lime, #16A34A)';
+
+const colorInfoBoxQuizText = 'var(--color-info-box-quiz-text, #15803D)';
+const colorInfoBoxQuizBg = 'var(--color-info-box-quiz-bg, #F0FDF4)';
+const colorInfoBoxQuizBorder = 'var(--color-info-box-quiz-border, #BBF7D0)';
+
+const colorSelectedCorrectAnswerText = 'var(--color-selected-correct-answer-text, #A16207)';
+const colorSelectedCorrectAnswerBg = 'var(--color-selected-correct-answer-bg, #FEF9C3)';
+
+const colorSelectedCorrectAnswerTextActive = 'var(--color-selected-correct-answer-text-active, #15803D)';
+const colorSelectedCorrectAnswerBgActive = 'var(--color-selected-correct-answer-bg-active, #DCFCE7)';
+
+const colorGreen600 = 'var(--color-green-600, #16A34A)';
+const colorGreen100 = 'var(--color-green-100, #DCFCE7)';
 
 export {
   colorWhite,
@@ -223,4 +245,19 @@ export {
   toastWarningBg,
   webcamBackgroundColor,
   webcamPlaceholderBorder,
+  webcamTalkingBackgroundColor,
+  SegmentedButtonRingOffsetShadow,
+  SegmentedButtonRingShadow,
+  SegmentedButtonBoxShadowSm,
+  slate900,
+  darkCyanLime,
+  colorInfoBoxQuizText,
+  colorInfoBoxQuizBg,
+  colorInfoBoxQuizBorder,
+  colorSelectedCorrectAnswerText,
+  colorSelectedCorrectAnswerBg,
+  colorSelectedCorrectAnswerTextActive,
+  colorSelectedCorrectAnswerBgActive,
+  colorGreen600,
+  colorGreen100,
 };

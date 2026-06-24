@@ -586,6 +586,8 @@ class VideoPreview extends Component {
       startSharing,
       cameraAsContent,
       startSharingCameraAsContent,
+      setAway,
+      isAway,
     } = this.props;
     const {
       webcamDeviceId,
@@ -620,6 +622,14 @@ class VideoPreview extends Component {
     } else {
       this.cleanupStreamAndVideo();
       startSharingCameraAsContent(webcamDeviceId);
+    }
+
+    if (isAway) {
+      setAway({
+        variables: {
+          away: false,
+        },
+      });
     }
   }
 
@@ -855,9 +865,11 @@ class VideoPreview extends Component {
     this.terminateCameraStream(this.currentVideoStream, webcamDeviceId);
     this.cleanupStreamAndVideo();
 
+    let bbbVideoStream;
+
     try {
       // The return of doGUM is an instance of BBBVideoStream (a thin wrapper over a MediaStream)
-      let bbbVideoStream = await PreviewService.doGUM(deviceId, profile);
+      bbbVideoStream = await PreviewService.doGUM(deviceId, profile);
       this.currentVideoStream = bbbVideoStream;
       const updatedDevice = this.updateDeviceId(deviceId);
 
@@ -1164,7 +1176,7 @@ class VideoPreview extends Component {
   }
 
   renderVirtualBgSelector() {
-    const { isCustomVirtualBackgroundsEnabled } = this.props;
+    const { isCustomVirtualBackgroundsEnabled, hideNotificationToasts } = this.props;
     const { isStartSharingDisabled, webcamDeviceId } = this.state;
     const initialVirtualBgState = this.currentVideoStream ? {
       type: this.currentVideoStream.virtualBgType,
@@ -1175,7 +1187,7 @@ class VideoPreview extends Component {
     const {
       showThumbnails: SHOW_THUMBNAILS = true,
     } = window.meetingClientSettings.public.virtualBackgrounds;
-    
+
     return (
       <VirtualBgSelector
         handleVirtualBgSelected={this.handleVirtualBgSelected}
@@ -1183,6 +1195,7 @@ class VideoPreview extends Component {
         showThumbnails={SHOW_THUMBNAILS}
         initialVirtualBgState={initialVirtualBgState}
         isCustomVirtualBackgroundsEnabled={isCustomVirtualBackgroundsEnabled}
+        hideNotificationToasts={hideNotificationToasts}
       />
     );
   }

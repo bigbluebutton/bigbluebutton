@@ -5,6 +5,7 @@ import {
   ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
 import { getActivityScore } from '../services/UserService';
+import UserAvatar from './UserAvatar';
 
 const QuizzesChart = (props) => {
   const {
@@ -29,22 +30,22 @@ const QuizzesChart = (props) => {
         return [pollId, isCorrect];
       });
 
-    const activityScore = ((getActivityScore(u, allUsers, totalOfPolls) / 10) * 100).toFixed(2);
+    const activityScore = Number(
+      ((getActivityScore(u, allUsers, totalOfPolls) / 10) * 100).toFixed(2),
+    );
     const numberOfCorrectAnswers = result.filter(([, isCorrect]) => isCorrect).length;
     const numberOfQuizzes = Object.values(quizzes).length;
-    const quizPerformance = ((numberOfCorrectAnswers / numberOfQuizzes) * 100).toFixed(2);
+    const quizPerformance = Number(((numberOfCorrectAnswers / numberOfQuizzes) * 100).toFixed(2));
 
     const existingDot = chartData.find((v) => (v.x === activityScore && v.y === quizPerformance));
 
     if (existingDot) {
-      existingDot.ids.push(u.userKey);
-      existingDot.names.push(u.name);
+      existingDot.users.push(u);
       return;
     }
 
     chartData.push({
-      ids: [u.userKey],
-      names: [u.name],
+      users: [u],
       x: activityScore,
       y: quizPerformance,
     });
@@ -58,7 +59,7 @@ const QuizzesChart = (props) => {
           defaultMessage: 'Quiz Performance vs Activity Level',
         })}
       </h2>
-      <ResponsiveContainer width="100%" height={400}>
+      <ResponsiveContainer width="100%" height={450}>
         <ScatterChart
           margin={{
             top: 20,
@@ -71,6 +72,8 @@ const QuizzesChart = (props) => {
           <XAxis
             type="number"
             dataKey="x"
+            height={50}
+            tickMargin={18}
             name={intl.formatMessage({
               id: 'app.learningDashboard.quizzes.activityLevel',
               defaultMessage: 'Activity Level',
@@ -86,6 +89,8 @@ const QuizzesChart = (props) => {
           <YAxis
             type="number"
             dataKey="y"
+            width={80}
+            tickMargin={18}
             name={intl.formatMessage({
               id: 'app.learningDashboard.quizzes.quizScore',
               defaultMessage: 'Quiz Score',
@@ -108,13 +113,24 @@ const QuizzesChart = (props) => {
                 <Paper style={{ visibility: isVisible ? 'visible' : 'hidden' }} className="p-2">
                   {isVisible && (
                     <>
-                      <p className="font-bold">
-                        {[payload[0].payload.names.map((name) => (
-                          <div key={name}>
-                            {name}
+                      <div className="space-y-2">
+                        {payload[0]?.payload.users.map((user) => (
+                          <div key={user.userKey} className="flex items-center">
+                            {user.avatar ? (
+                              <div
+                                style={{ backgroundImage: `url(${user.avatar})` }}
+                                alt={user.name}
+                                className="inline-block w-8 h-8 rounded-full mr-2 bg-cover bg-center"
+                              />
+                            ) : (
+                              <div className="relative hidden w-8 h-8 rounded-full md:block mr-2">
+                                <UserAvatar user={user} />
+                              </div>
+                            )}
+                            <span className="font-bold">{user.name}</span>
                           </div>
-                        ))]}
-                      </p>
+                        ))}
+                      </div>
                       <p className="text-gray-600">
                         {`${intl.formatMessage({
                           id: 'app.learningDashboard.quizzes.activityLevel',
@@ -140,6 +156,42 @@ const QuizzesChart = (props) => {
             })}
             data={chartData}
             fill="#f97316"
+            shape={(data) => {
+              const IMAGE_SIZE = 36;
+              const FALLBACK_IMAGE_SIZE = 32;
+
+              const {
+                x, y, width, height,
+              } = data;
+              const pickedUser = data?.users?.[0];
+              const imageSize = pickedUser?.avatar ? IMAGE_SIZE : FALLBACK_IMAGE_SIZE;
+              const adjustedX = (x - Math.abs(imageSize - width) / 2).toFixed(2);
+              const adjustedY = (y - Math.abs(imageSize - height) / 2).toFixed(2);
+
+              if (!pickedUser) return null;
+
+              return pickedUser.avatar ? (
+                <>
+                  <image
+                    href={pickedUser.avatar}
+                    x={adjustedX}
+                    y={adjustedY}
+                    width={IMAGE_SIZE}
+                    height={IMAGE_SIZE}
+                    clipPath="circle(38.5%)"
+                  />
+                </>
+              ) : (
+                <foreignObject
+                  x={adjustedX}
+                  y={adjustedY}
+                  width={FALLBACK_IMAGE_SIZE}
+                  height={FALLBACK_IMAGE_SIZE}
+                >
+                  <UserAvatar user={pickedUser} />
+                </foreignObject>
+              );
+            }}
           />
         </ScatterChart>
       </ResponsiveContainer>

@@ -9,7 +9,7 @@ case class RegisterUserReqMsgBody(meetingId: String, intUserId: String, name: St
                                   role: String, extUserId: String, authToken: String, sessionToken: String, avatarURL: String,
                                   webcamBackgroundURL: String, bot: Boolean, guest: Boolean, authed: Boolean,
                                   guestStatus: String, excludeFromDashboard: Boolean, enforceLayout: String,
-                                  logoutUrl: String, userMetadata: Map[String, String])
+                                  logoutUrl: String, joinRequestMetadata: Map[String, String], userMetadata: Map[String, String])
 
 object UserRegisteredRespMsg { val NAME = "UserRegisteredRespMsg" }
 case class UserRegisteredRespMsg(
@@ -86,25 +86,26 @@ case class UserJoinedMeetingEvtMsg(
     body:   UserJoinedMeetingEvtMsgBody
 ) extends BbbCoreMsg
 case class UserJoinedMeetingEvtMsgBody(
-    intId:            String,
-    extId:            String,
-    name:             String,
-    role:             String,
-    bot:              Boolean,
-    guest:            Boolean,
-    authed:           Boolean,
-    guestStatus:      String,
-    reactionEmoji:    String,
-    raiseHand:        Boolean,
-    away:             Boolean,
-    pin:              Boolean,
-    presenter:        Boolean,
-    locked:           Boolean,
-    avatar:           String,
-    webcamBackground: String,
-    color:            String,
-    clientType:       String,
-    userMetadata:     Map[String, String]
+    intId:               String,
+    extId:               String,
+    name:                String,
+    role:                String,
+    bot:                 Boolean,
+    guest:               Boolean,
+    authed:              Boolean,
+    guestStatus:         String,
+    reactionEmoji:       String,
+    raiseHand:           Boolean,
+    away:                Boolean,
+    pin:                 Boolean,
+    presenter:           Boolean,
+    locked:              Boolean,
+    avatar:              String,
+    webcamBackground:    String,
+    color:               String,
+    clientType:          String,
+    joinRequestMetadata: Map[String, String],
+    userMetadata:        Map[String, String]
 )
 
 /**
@@ -253,7 +254,15 @@ case class ClearedAllUsersReactionEvtMsgBody()
  */
 object UserConnectionAliveReqMsg { val NAME = "UserConnectionAliveReqMsg" }
 case class UserConnectionAliveReqMsg(header: BbbClientMsgHeader, body: UserConnectionAliveReqMsgBody) extends StandardMsg
-case class UserConnectionAliveReqMsgBody(userId: String, networkRttInMs: Double)
+case class UserConnectionAliveReqMsgBody(
+    userId:             String,
+    sessionToken:       String,
+    serverRequestId:    String,
+    clientSessionUUID:  String,
+    networkRttInMs:     Double,
+    applicationRttInMs: Double,
+    traceLog:           String
+)
 
 /**
  * Sent from client to update clientSettings.
@@ -279,6 +288,17 @@ case class UserMobileFlagChangedEvtMsgBody(userId: String, mobile: Boolean)
 object AssignPresenterReqMsg { val NAME = "AssignPresenterReqMsg" }
 case class AssignPresenterReqMsg(header: BbbClientMsgHeader, body: AssignPresenterReqMsgBody) extends StandardMsg
 case class AssignPresenterReqMsgBody(assignedBy: String, newPresenterId: String)
+
+/**
+ * Sent from client to change the whiteboardWriteAccess of the user in the meeting.
+ */
+object SetUserWhiteboardWriteAccessReqMsg { val NAME = "SetUserWhiteboardWriteAccessReqMsg" }
+case class SetUserWhiteboardWriteAccessReqMsg(header: BbbClientMsgHeader, body: SetUserWhiteboardWriteAccessReqMsgBody) extends StandardMsg
+case class SetUserWhiteboardWriteAccessReqMsgBody(userIds: Vector[String], allUsers: Boolean, whiteboardWriteAccess: Boolean)
+
+object SetUserWhiteboardWriteAccessEvtMsg { val NAME = "SetUserWhiteboardWriteAccessEvtMsg" }
+case class SetUserWhiteboardWriteAccessEvtMsg(header: BbbClientMsgHeader, body: SetUserWhiteboardWriteAccessEvtMsgBody) extends BbbCoreMsg
+case class SetUserWhiteboardWriteAccessEvtMsgBody(userId: String, whiteboardWriteAccess: Boolean)
 
 /**
  * Sent from client to change the video pin of the user in the meeting.

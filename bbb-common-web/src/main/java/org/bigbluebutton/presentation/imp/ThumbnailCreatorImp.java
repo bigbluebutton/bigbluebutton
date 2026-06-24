@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.bigbluebutton.presentation.SupportedFileTypes;
@@ -35,6 +36,7 @@ import org.bigbluebutton.presentation.ThumbnailCreator;
 import org.bigbluebutton.presentation.UploadedPresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 import com.google.gson.Gson;
 
@@ -49,15 +51,20 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 
   private String BLANK_THUMBNAIL;
 
-  private long execTimeout = 10000;
+  private long execTimeout = 10;
 
   @Override
-  public boolean createThumbnail(UploadedPresentation pres, int page, File pageFile) {
+  public boolean createThumbnail(UploadedPresentation pres, int page, File pageFile, boolean useBlank) {
     boolean success = false;
     File thumbsDir = determineThumbnailDirectory(pres.getUploadedFile());
 
     if (!thumbsDir.exists())
       thumbsDir.mkdir();
+
+    if (useBlank) {
+        createBlankThumbnail(thumbsDir, page);
+        return true;
+    }
 
     try {
       success = generateThumbnail(thumbsDir, pres, page, pageFile);
@@ -98,7 +105,13 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
 
     //System.out.println(COMMAND);
 
-    boolean done = new ExternalProcessExecutor().exec(COMMAND, execTimeout);
+    long execTimeout = this.execTimeout;
+    long pageConversionTimeoutInMs = pres.getMaxPageConversionTime() * 1000;
+    if (execTimeout > pageConversionTimeoutInMs) {
+      execTimeout = pageConversionTimeoutInMs;
+    }
+
+    boolean done = new ExternalProcessExecutor().exec(COMMAND, TimeUnit.SECONDS.toMillis(execTimeout));
 
     if (done) {
       return true;
@@ -117,6 +130,21 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
     }
 
     return false;
+  }
+
+  @Override
+  public void createBlank(UploadedPresentation pres, int page) {
+    File dir = determineThumbnailDirectory(pres.getUploadedFile());
+
+    if (!dir.exists()) {
+      boolean created = dir.mkdir();
+      if (!created) {
+        log.warn("Failed to create thumbnail directory");
+        return;
+      }
+    }
+
+    createBlankThumbnail(dir, page);
   }
 
   private File determineThumbnailDirectory(File presentationFile) {
@@ -172,8 +200,6 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
   }
 
   private void createBlankThumbnail(File thumbsDir, int page) {
-    File[] thumbs = thumbsDir.listFiles();
-
     File thumb = new File(thumbsDir.getAbsolutePath() + File.separatorChar + "thumb-" + page + ".png");
     if (!thumb.exists()) {
       log.info("Copying blank thumbnail for slide {}", page);

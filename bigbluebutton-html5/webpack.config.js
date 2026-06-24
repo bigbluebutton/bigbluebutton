@@ -1,18 +1,22 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
 const CopyPlugin = require('copy-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
+const CompressionPlugin = require('compression-webpack-plugin');
 
 const env = process.env.NODE_ENV || 'development';
 const detailedLogs = process.env.DETAILED_LOGS || false;
-
+const hotReload = String(process.env.HOT_RELOAD).toLowerCase() === 'true';
 const prodEnv = 'production';
 const devEnv = 'development';
+const isDev = env === devEnv;
 const isSafariTarget = process.env.TARGET === 'safari';
 
-console.log(`Building: ${process.env.TARGET}`);
+process.stdout.write(`Building: ${process.env.TARGET}\n`);
 
 const config = {
   entry: './client/main.tsx',
@@ -27,6 +31,27 @@ const config = {
     type: 'filesystem',
     allowCollectingMemory: true,
     maxAge: 86400000,
+    // Only active during local yalc-based tldraw development. When the file exists,
+    // webpack discards its cache on each rebuild so stale ENOENT errors can't persist.
+    // Absent in production / CI (package comes from npm), so no effect there.
+    ...(fs.existsSync(path.join(__dirname, '.tldraw-build-id')) && {
+      buildDependencies: {
+        tldraw: [path.join(__dirname, '.tldraw-build-id')],
+      },
+    }),
+  },
+  snapshot: {
+    // Exclude tldraw from version-based managed-path caching so webpack uses
+    // content hashing instead. Without this, webpack treats the package as
+    // unchanged because yalc never bumps the version (2.0.0-alpha.33 forever).
+    managedPaths: [/^(.+?[\\/]node_modules[\\/])(?!@bigbluebutton[\\/]tldraw[\\/])/],
+  },
+  watchOptions: {
+    // Ignore .yalc/ so that yalc remove+add operations don't trigger webpack
+    // rebuilds mid-flight (which would ENOENT on partially-deleted files and
+    // cache that failure). Only our explicit triggerWebpackRebuild touch
+    // (component.jsx) should start a tldraw rebuild.
+    ignored: /node_modules|\.yalc/,
   },
   devtool: 'source-map',
   plugins: [
@@ -65,6 +90,10 @@ const config = {
       'process.env.NODE_ENV': JSON.stringify(env),
       'process.env.DETAILED_LOGS': detailedLogs,
     }),
+    (isDev && hotReload) && new ReactRefreshWebpackPlugin({
+      overlay: false,
+      exclude: /worker\.ts$/,
+    }),
   ],
   resolve: {
     modules: ['node_modules', 'src'],
@@ -74,6 +103,8 @@ const config = {
     alias: {
       '/client': path.resolve(__dirname, 'client/'),
       '/imports': path.resolve(__dirname, '/imports/'),
+      '@tiptap/core/jsx-runtime': path.resolve(__dirname, 'node_modules/@tiptap/core/dist/jsx-runtime/jsx-runtime.js'),
+      yjs: path.resolve(__dirname, 'node_modules/yjs'),
     },
   },
   module: {
@@ -85,7 +116,12 @@ const config = {
           enforceExtension: false,
         },
         exclude: /node_modules/,
-        use: ['babel-loader'],
+        use: {
+          loader: 'babel-loader',
+          options: {
+            plugins: [(isDev && hotReload) && require.resolve('react-refresh/babel')].filter(Boolean),
+          },
+        },
       },
       {
         test: /\.css$/,
@@ -121,10 +157,22 @@ const config = {
 };
 
 if (env === prodEnv) {
+  config.plugins.push(new CompressionPlugin());
   config.mode = prodEnv;
   config.optimization = {
     minimize: true,
-    minimizer: isSafariTarget ? [] : [new TerserPlugin()],
+    minimizer: isSafariTarget ? [] : [new TerserPlugin({
+      // Preserve the `startScreensharing` function name in the minified
+      // bundle. The tablet app (imports/ui/services/mobile-app/index.js)
+      // inspects the JS stack trace for this name to route screen sharing
+      // to the native broadcast upload extension; if the minifier strips
+      // it, the call is misclassified and screen sharing silently fails on
+      // the tablet app. Scoped via regex so the global bundle-size cost of
+      // a blanket keep_fnames is avoided.
+      terserOptions: {
+        keep_fnames: /startScreensharing/,
+      },
+    })],
   };
   config.performance = {
     hints: 'warning',

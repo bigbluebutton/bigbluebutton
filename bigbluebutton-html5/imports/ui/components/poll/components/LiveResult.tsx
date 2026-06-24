@@ -15,12 +15,13 @@ import {
 import logger from '/imports/startup/client/logger';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { POLL_CANCEL, POLL_PUBLISH_RESULT } from '../mutations';
-import { layoutDispatch } from '../../layout/context';
+import { layoutDispatch, layoutSelect, layoutSelectOutput } from '../../layout/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import CustomizedAxisTick from './CustomizedAxisTick';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import Tooltip from '../../common/tooltip/component';
+import { Layout, Output } from '../../layout/layoutTypes';
 
 const intlMessages = defineMessages({
   usersTitle: {
@@ -107,6 +108,7 @@ interface LiveResultProps {
   users: Array<UserInfo>;
   isSecret: boolean;
   isQuiz: boolean;
+  type: string;
 }
 
 const LiveResult: React.FC<LiveResultProps> = ({
@@ -119,6 +121,7 @@ const LiveResult: React.FC<LiveResultProps> = ({
   users,
   isSecret,
   isQuiz,
+  type,
 }) => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_CHAT_KEY = CHAT_CONFIG.public_group_id;
@@ -129,6 +132,8 @@ const LiveResult: React.FC<LiveResultProps> = ({
   const [shouldShowCorrectAnswer, setShouldShowCorrectAnswers] = React.useState(true);
 
   const layoutContextDispatch = layoutDispatch();
+  const sidebarContent: Output['sidebarContent'] = layoutSelectOutput((i: Output) => i.sidebarContent);
+  const fontSize: Layout['fontSize'] = layoutSelect((i: Layout) => i.fontSize);
   const publishPoll = useCallback((pId: string, showAnswer: boolean) => {
     pollPublishResult({
       variables: {
@@ -168,13 +173,13 @@ const LiveResult: React.FC<LiveResultProps> = ({
           {usersCount !== numberOfAnswerCount
             ? <Styled.ConnectingAnimation animations={animations} /> : null}
         </Styled.Status>
-        <ResponsiveContainer width="90%" height={250}>
+        <ResponsiveContainer width="90%" height={translatedResponses.length * 50}>
           <BarChart
             data={translatedResponses}
             layout="vertical"
           >
             <XAxis type="number" allowDecimals={false} />
-            <YAxis width={70} type="category" dataKey="optionDesc" tick={<CustomizedAxisTick />} />
+            <YAxis width={type === 'R-' ? (sidebarContent.width / 3) : 70} fontSize={fontSize} type="category" dataKey="optionDesc" tick={<CustomizedAxisTick />} />
             <Bar dataKey="optionResponsesCount" fill="#0C57A7" />
           </BarChart>
         </ResponsiveContainer>
@@ -342,6 +347,7 @@ const LiveResultContainer: React.FC = () => {
     responses,
     pollId,
     users,
+    type,
   } = currentPoll;
 
   const numberOfAnswerCount = currentPoll.responses_aggregate.aggregate.sum.optionResponsesCount;
@@ -358,6 +364,7 @@ const LiveResultContainer: React.FC = () => {
       pollId={pollId}
       users={users}
       isQuiz={currentPoll.quiz}
+      type={type}
     />
   );
 };

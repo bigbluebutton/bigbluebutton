@@ -37,7 +37,7 @@ export const hasPendingPoll = gql`
           responded
           userId
         }
-        options {
+        options(order_by: {optionId: asc}) {
           optionDesc
           optionId
           pollId

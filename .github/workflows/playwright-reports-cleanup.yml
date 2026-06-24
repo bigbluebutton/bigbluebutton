@@ -1,0 +1,35 @@
+name: Cleanup Playwright reports
+on:
+  pull_request_target:
+    types:
+      - closed
+jobs:
+  cleanup-report:
+    runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'bigbluebutton' }}
+    steps:
+      - name: Checkout reports repository
+        uses: actions/checkout@v5
+        with:
+          repository: ${{ github.repository_owner }}/bbb-ci-playwright-reports
+          token: ${{ secrets.PLAYWRIGHT_REPORTS_REPO_TOKEN }}
+          path: reports-repo
+      - name: Remove PR report
+        shell: bash
+        run: |
+          set -euo pipefail
+          pr_dir="reports-repo/pr-${{ github.event.pull_request.number }}"
+          if [ ! -d "$pr_dir" ]; then
+            echo "No report directory for PR #${{ github.event.pull_request.number }}"
+            exit 0
+          fi
+          rm -rf "$pr_dir"
+          git -C reports-repo config user.name "github-actions[bot]"
+          git -C reports-repo config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git -C reports-repo status --porcelain)" ]; then
+            git -C reports-repo add .
+            git -C reports-repo commit -m "Remove Playwright report for PR #${{ github.event.pull_request.number }}"
+            git -C reports-repo push
+          else
+            echo "No changes to publish"
+          fi

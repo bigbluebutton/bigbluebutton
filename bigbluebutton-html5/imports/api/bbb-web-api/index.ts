@@ -34,6 +34,7 @@ class BBBWebApi {
         'Content-Type': 'application/json',
       },
       signal,
+      credentials: 'omit',
     });
 
     const body: IndexResponse = await response.json();

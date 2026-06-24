@@ -1,16 +1,17 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { useMutation } from '@apollo/client';
+import { useMutation, useReactiveVar } from '@apollo/client';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { useIsInfiniteWhiteboardEnabled, useIsPollingEnabled, useIsQuizEnabled } from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
-import { POLL_CANCEL, POLL_CREATE } from '/imports/ui/components/poll/mutations';
+import { POLL_CREATE } from '/imports/ui/components/poll/mutations';
 import { PRESENTATION_SET_ZOOM, PRESENTATION_SET_PAGE, PRESENTATION_SET_PAGE_INFINITE_WHITEBOARD } from '../mutations';
 import PresentationToolbar from './component';
 import Session from '/imports/ui/services/storage/in-memory';
 import { useMeetingIsBreakout } from '/imports/ui/components/app/service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { USER_AGGREGATE_COUNT_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
+import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 
 const infiniteWhiteboardIcon = (isinfiniteWhiteboard) => {
   if (isinfiniteWhiteboard) {
@@ -94,14 +95,12 @@ const PresentationToolbarContainer = (props) => {
     currentSlideNum,
     presentationId,
     numberOfSlides,
-    hasPoll,
     currentSlide,
     currentPresentationPage,
   } = props;
 
   const handleToggleFullScreen = (ref) => FullscreenService.toggleFullScreen(ref);
 
-  const [stopPoll] = useMutation(POLL_CANCEL);
   const [createPoll] = useMutation(POLL_CREATE);
   const [presentationSetZoom] = useMutation(PRESENTATION_SET_ZOOM);
   const [presentationSetPage] = useMutation(PRESENTATION_SET_PAGE);
@@ -122,10 +121,6 @@ const PresentationToolbarContainer = (props) => {
         heightRatio: 100,
       },
     });
-  };
-
-  const endCurrentPoll = () => {
-    if (hasPoll) stopPoll();
   };
 
   const setPresentationPage = (pageId) => {
@@ -198,9 +193,8 @@ const PresentationToolbarContainer = (props) => {
           secretPoll: false,
           question,
           multipleResponse,
-          quiz: false,
           answers,
-          isQuiz: isQuizEnabled ? isQuiz : false,
+          quiz: isQuizEnabled ? isQuiz : false,
           correctAnswer: isQuizEnabled ? correctAnswer : '',
         },
       });
@@ -214,6 +208,7 @@ const PresentationToolbarContainer = (props) => {
   const allowInfiniteWhiteboard = useIsInfiniteWhiteboardEnabled();
   const { data: countData } = useDeduplicatedSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
   const numberOfJoinedUsers = countData?.user_aggregate?.aggregate?.count || 0;
+  const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
 
   if (userIsPresenter && !layoutSwapped) {
     // Only show controls if user is presenter and layout isn't swapped
@@ -225,12 +220,11 @@ const PresentationToolbarContainer = (props) => {
       <PresentationToolbar
         {...props}
         amIPresenter={userIsPresenter}
-        endCurrentPoll={endCurrentPoll}
         isPollingEnabled={isPollingEnabled}
         allowInfiniteWhiteboardInBreakouts={WHITEBOARD_CONFIG?.allowInfiniteWhiteboardInBreakouts}
         allowInfiniteWhiteboard={allowInfiniteWhiteboard}
         // TODO: Remove this
-        isMeteorConnected
+        isConnected={connected}
         maxNumberOfActiveUsers={WHITEBOARD_CONFIG.maxNumberOfActiveUsers}
         numberOfJoinedUsers={numberOfJoinedUsers}
         {...{
@@ -267,7 +261,20 @@ PresentationToolbarContainer.propTypes = {
 
   userIsPresenter: PropTypes.bool,
   presentationId: PropTypes.string,
-  hasPoll: PropTypes.bool.isRequired,
-  currentSlide: PropTypes.number.isRequired,
-  currentPresentationPage: PropTypes.number.isRequired,
+  currentSlide: PropTypes.shape({
+    content: PropTypes.string.isRequired,
+    current: PropTypes.bool.isRequired,
+    height: PropTypes.number.isRequired,
+    id: PropTypes.string.isRequired,
+    imageUri: PropTypes.string.isRequired,
+    isInfiniteWhiteboard: PropTypes.bool,
+    num: PropTypes.number.isRequired,
+    presentationId: PropTypes.string.isRequired,
+    svgUri: PropTypes.string.isRequired,
+    width: PropTypes.number.isRequired,
+  }),
+  currentPresentationPage: PropTypes.shape({
+    pageId: PropTypes.string.isRequired,
+    num: PropTypes.number.isRequired,
+  }).isRequired,
 };

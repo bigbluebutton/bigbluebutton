@@ -48,7 +48,7 @@ const withFileReader = (
   mimeTypesAllowed,
   maxFileSize,
 ) => (props) => {
-  const { intl } = props;
+  const { intl, hideNotificationToasts } = props;
   const toastId = useRef(null);
 
   const parseFilename = (filename = '') => {
@@ -101,6 +101,11 @@ const withFileReader = (
   };
 
   const renderToast = (text = '', status = STATUS.DONE, callback) => {
+    if (hideNotificationToasts) {
+      if (typeof callback === 'function') callback();
+      return;
+    }
+
     if (toastId.current) {
       toast.dismiss(toastId.current);
     }
@@ -130,21 +135,25 @@ const withFileReader = (
     const sizeInKB = size / 1024;
 
     if (sizeInKB > maxFileSize) {
-      notify(
-        intl.formatMessage(
-          intlMessages.maximumSizeExceeded,
-          { maxFileSize: (maxFileSize / 1000).toFixed(0) },
-        ),
-        'error',
-      );
+      if (!hideNotificationToasts) {
+        notify(
+          intl.formatMessage(
+            intlMessages.maximumSizeExceeded,
+            { maxFileSize: (maxFileSize / 1000).toFixed(0) },
+          ),
+          'error',
+        );
+      }
       return onError(new Error('Maximum file size exceeded.'));
     }
 
     if (!mimeTypesAllowed.includes(type)) {
-      notify(
-        intl.formatMessage(intlMessages.typeNotAllowed),
-        'error',
-      );
+      if (!hideNotificationToasts) {
+        notify(
+          intl.formatMessage(intlMessages.typeNotAllowed),
+          'error',
+        );
+      }
       return onError(new Error('File type not allowed.'));
     }
 

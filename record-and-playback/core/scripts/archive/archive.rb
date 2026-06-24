@@ -45,10 +45,17 @@ def archive_events(meeting_id, redis_host, redis_port, redis_password, raw_archi
   end
 end
 
-def archive_notes(meeting_id, notes_endpoint, notes_formats, raw_archive_dir)
+def archive_notes(meeting_id, etherpad_notes_endpoint, bn_notes_endpoint, notes_formats, raw_archive_dir)
   BigBlueButton.logger.info("Archiving notes for #{meeting_id}")
   events = Nokogiri::XML(File.open("#{raw_archive_dir}/#{meeting_id}/events.xml"))
   notes_id = BigBlueButton::Events.get_notes_id(events)
+  notes_editor = BigBlueButton::Events.get_notes_editor(events)
+
+  is_etherpad_editor = notes_editor.eql? "etherpad"
+
+  notes_endpoint = etherpad_notes_endpoint
+
+  notes_endpoint = bn_notes_endpoint unless is_etherpad_editor
 
   notes_dir = "#{raw_archive_dir}/#{meeting_id}/notes"
   FileUtils.mkdir_p(notes_dir)
@@ -76,7 +83,9 @@ def archive_notes(meeting_id, notes_endpoint, notes_formats, raw_archive_dir)
   end
 
   notes_formats.each do |format|
-    BigBlueButton.try_download("#{notes_endpoint}/#{CGI.escape notes_id}/export/#{format}", "#{notes_dir}/notes.#{format}")
+    unless !(is_etherpad_editor) && format.eql?("etherpad")
+      BigBlueButton.try_download("#{notes_endpoint}/#{CGI.escape notes_id}/export/#{format}", "#{notes_dir}/notes.#{format}")
+    end
   end
 end
 
@@ -221,6 +230,7 @@ webrtc_recorder_screenshare_dir = props['webrtc_recorder_screenshare_src']
 webrtc_recorder_audio_dir = props['webrtc_recorder_audio_src']
 log_dir = props['log_dir']
 notes_endpoint = props['notes_endpoint']
+bn_notes_endpoint = props['bn_notes_endpoint']
 notes_formats = props['notes_formats']
 
 # Determine the filenames for the done and fail files
@@ -240,9 +250,18 @@ archive_events(meeting_id, redis_host, redis_port, redis_password, raw_archive_d
 # FreeSWITCH Audio files
 archive_audio(meeting_id, audio_dir, raw_archive_dir)
 # Etherpad notes
-archive_notes(meeting_id, notes_endpoint, notes_formats, raw_archive_dir)
+archive_notes(meeting_id, notes_endpoint, bn_notes_endpoint, notes_formats, raw_archive_dir)
 # Presentation files
 archive_directory("#{presentation_dir}/#{meeting_id}/#{meeting_id}", "#{target_dir}/presentation")
+# Learning Analytics Dashboard JSON file
+base_id = meeting_id.split('-').first
+if (src = Dir["/var/bigbluebutton/learning-dashboard/#{base_id}-*/**/learning_dashboard_data.json"].first)
+  FileUtils.mkdir_p("#{target_dir}/learning-dashboard")
+  FileUtils.cp(src, "#{target_dir}/learning-dashboard/data.json")
+  BigBlueButton.logger.info("Archived learning dashboard data for #{meeting_id}")
+else
+  BigBlueButton.logger.info("No learning dashboard data found for #{meeting_id}")
+end
 # Kurento media
 remux_and_archive("#{kurento_screenshare_dir}/#{meeting_id}", "#{target_dir}/deskshare")
 remux_and_archive("#{kurento_video_dir}/#{meeting_id}", "#{target_dir}/video/#{meeting_id}")

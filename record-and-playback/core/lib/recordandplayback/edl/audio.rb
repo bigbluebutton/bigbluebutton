@@ -1,4 +1,4 @@
-# encoding: UTF-8
+# frozen_string_literal: true
 
 # BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
 #
@@ -17,14 +17,23 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with BigBlueButton.  If not, see <http://www.gnu.org/licenses/>.
 
+require_relative 'media_utils'
+
 module BigBlueButton
   module EDL
     module Audio
-      FFMPEG_AEVALSRC = "aevalsrc=s=48000:c=stereo:exprs=0|0"
-      FFMPEG_AFORMAT = "aresample=async=1000,aformat=sample_fmts=s16:sample_rates=48000:channel_layouts=stereo"
-      FFMPEG_WF_CODEC = 'libvorbis'
-      FFMPEG_WF_ARGS = ['-c:a', FFMPEG_WF_CODEC, '-q:a', '2', '-f', 'ogg']
-      WF_EXT = 'ogg'
+      SAMPLE_RATE = 48_000
+      FFMPEG_AEVALSRC = "aevalsrc=s=#{SAMPLE_RATE}:c=stereo:exprs=0|0".freeze
+      # Do audio sync to timestamps with a maximum stretch/squeeze rate of 1%
+      # Use first_pts to trim (or pad) audio to start at the correct sample
+      # Set flags=res to force resampler to be used to workaround a bug in ffmpeg 4.4 where it
+      # inserts extra frames with bad timestamps when starting the resampler on-demand.
+      FFMPEG_ARESAMPLE = "aresample=async=#{(SAMPLE_RATE / 100).round}:first_pts=0:flags=res".freeze
+      FFMPEG_AFORMAT = "aformat=sample_fmts=s16:sample_rates=#{SAMPLE_RATE}:channel_layouts=stereo".freeze
+      FFMPEG_WF_CODEC = 'flac'
+      FFMPEG_WF_ARGS = ['-sample_fmt', 's16', '-c:a', FFMPEG_WF_CODEC, '-f', 'flac'].freeze
+      WF_EXT = 'flac'
+      MIN_CUT_LENGTH = 20 # ms (one frame of audio in opus)
 
       def self.dump(edl)
         BigBlueButton.logger.debug "EDL Dump:"
@@ -35,12 +44,140 @@ module BigBlueButton
           audios = entry[:audios]
           if audios && !audios.empty?
             audios.each do |entry|
-              BigBlueButton.logger.debug "    #{entry[:filename]} at #{entry[:timestamp]}"
+              BigBlueButton.logger.debug(
+                "    #{entry[:filename]} at #{entry[:timestamp]} (original duration: #{entry[:original_duration]})"
+              )
             end
           else
             BigBlueButton.logger.debug "    silence"
           end
         end
+      end
+
+      # Merge multiple EDLs into a single EDL
+      #
+      # @param edls [Array<Array<Hash>>] The EDLs to merge
+      # @return [Array<Hash>] The merged EDL
+      def self.merge(*edls)
+        entries_i = Array.new(edls.length, 0)
+        done = Array.new(edls.length, false)
+        merged_edl = [{ timestamp: 0, audios: [] }]
+
+        until done.all?
+          # Figure out what the next entry in each edl is
+          entries = []
+          entries_i.each_with_index do |entry, edl|
+            entries << edls[edl][entry]
+          end
+
+          # Find the next entry - the one with the lowest timestamp
+          next_edl = nil
+          next_entry = nil
+          entries.each_with_index do |entry, edl|
+            next if next_entry && entry[:timestamp] >= next_entry[:timestamp]
+
+            next_edl = edl
+            next_entry = entry
+          end
+
+          # To calculate differences, need the previous entry from the same edl
+          prev_entry = nil
+          prev_entry = edls[next_edl][entries_i[next_edl] - 1] if entries_i[next_edl] > 0
+
+          # Find new audios that were added
+          add_audios = []
+          if prev_entry
+            next_entry[:audios].each do |audio|
+              add_audios << audio unless prev_entry[:audios].find { |a| a[:filename] == audio[:filename] }
+            end
+          else
+            add_audios = next_entry[:audios]
+          end
+
+          # Find audios that were removed
+          del_audios = []
+          if prev_entry
+            prev_entry[:audios].each do |audio|
+              del_audios << audio unless next_entry[:audios].find { |a| a[:filename] == audio[:filename] }
+            end
+          end
+
+          # Determine whether to create a new entry or edit the previous one
+          merged_entry = last_entry = merged_edl.last
+          unless last_entry[:timestamp] == next_entry[:timestamp]
+            # Need to create a new entry
+            offset = next_entry[:timestamp] - last_entry[:timestamp]
+            merged_entry = {
+              timestamp: next_entry[:timestamp],
+              # Copy audios from the last entry into the new entry, updating timestamps
+              audios: last_entry[:audios].map do |audio|
+                audio.merge(timestamp: audio[:timestamp] + offset)
+              end,
+            }
+            merged_edl << merged_entry
+          end
+
+          # Remove deleted audios
+          del_audios.each do |audio|
+            merged_entry[:audios].reject! { |a| a[:filename] == audio[:filename] }
+          end
+          # Add new audios
+          merged_entry[:audios].concat(add_audios)
+
+          # Pull in timestamps from the next entry to respect edit cuts
+          next_entry[:audios].each do |audio|
+            merged_audio = merged_entry[:audios].find { |a| a[:filename] == audio[:filename] }
+            merged_audio[:timestamp] = audio[:timestamp] unless merged_audio.nil?
+          end
+
+          entries_i[next_edl] += 1
+          done[next_edl] = true if entries_i[next_edl] >= edls[next_edl].length
+        end
+
+        merged_edl
+      end
+
+      # Edit the EDL to make sure that every cut has a minimum length
+      def self.enforce_cut_lengths(edl)
+        # Special case handling for the start
+        # If there's a cut immediately after the start, the later logic would delete the first cut,
+        # which would result in desync. Any cuts within MIN_CUT_LENGTH of the start have to be
+        # pushed back to avoid this situation. If multiple cuts are pushed back (they'd all get set
+        #  to the same timestamp), the later logic will clean them up.
+        1.upto(edl.length - 1).each do |i|
+          # We've made it past the problematic point near the start of the recording
+          break if edl[i][:timestamp] >= MIN_CUT_LENGTH
+
+          BigBlueButton.logger.debug("Pushing EDL entry index #{i} from #{edl[i][:timestamp]} to #{MIN_CUT_LENGTH}")
+          offset = MIN_CUT_LENGTH - edl[i][:timestamp]
+          # Move the cut to start at MIN_CUT_LENGTH
+          edl[i][:timestamp] = MIN_CUT_LENGTH
+          # And offset the start times of every audio track to compensate
+          edl[i][:audios]&.each do |audio_data|
+            audio_data[:timestamp] += offset
+          end
+        end
+
+        # Iterate through the edl entries from end to just after the start
+        (edl.length - 1).downto(1).each do |i|
+          duration = edl[i][:timestamp] - edl[i - 1][:timestamp]
+          # If the cut that *ends* at EDL entry i is less than the minimum cut length
+          next unless duration < MIN_CUT_LENGTH
+
+          # Then delete edl entry i - 1 from the list
+          BigBlueButton.logger.debug("Dropping EDL entry index #{i - 1} (#{duration} < #{MIN_CUT_LENGTH})")
+          edl.delete_at(i - 1)
+          # On the next iteration through the loop, we'll be re-checking from the same end point, but a new start
+        end
+
+        # What if all of the cuts got deleted?
+        if edl.length == 1
+          BigBlueButton.logger.debug('EDL contains no cuts - enforcing minimum length')
+          # Add a new end point at the minimum cut length
+          edl << { timestamp: MIN_CUT_LENGTH, audios: [] }
+        end
+
+        nil
       end
 
       def self.mixer(inputs, output_basename)
@@ -64,45 +201,88 @@ module BigBlueButton
 
       def self.render(edl, output_basename)
         audioinfo = {}
+        process_dir = File.dirname(output_basename)
 
         corrupt_audios = Set.new
 
-        BigBlueButton.logger.info "Pre-processing EDL"
-        # The render scripts use this to calculate cut lengths
-        (0...(edl.length - 1)).each do |i|
-          edl[i][:next_timestamp] = edl[i+1][:timestamp]
-        end
-      
+        BigBlueButton.logger.info 'Pre-processing EDL'
+
         # Build a list of audio files to read information from
         edl.each do |entry|
-          if entry[:audios]
-            entry[:audios].each { |a| audioinfo[a[:filename]] ||= {} }
+          entry[:audios]&.each do |a|
+            audioinfo[a[:filename]] ||= {}
+            audioinfo[a[:filename]][:original_duration] = a[:original_duration] if a.include?(:original_duration)
           end
         end
       
         # Read audio metadata
         BigBlueButton.logger.info "Reading source audio information"
-        audioinfo.keys.each do |audiofile|
+        audioinfo.each_key do |audiofile|
           BigBlueButton.logger.debug "  #{audiofile}"
           info = audio_info(audiofile)
           if !info[:audio] || !info[:duration]
-            BigBlueButton.logger.warn "    This audio file is corrupt! It will be removed from the output."
+            BigBlueButton.logger.warn('    This audio file is corrupt! It will be removed from the output.')
             corrupt_audios << audiofile
+            next
+          end
+
+          BigBlueButton.logger.debug("    format: #{info[:format][:format_name]}, codec: #{info[:audio][:codec_name]}")
+          BigBlueButton.logger.debug("    sample rate: #{info[:sample_rate]}, duration: #{info[:duration]}")
+          audioinfo[audiofile].merge!(info)
+        end
+
+        # File containing both audio+video can have strange seek behaviour if there are any
+        # sections with only audio, but no video. Extract the audio to a separate file to avoid
+        # these problems.
+        audio_video_files = audioinfo.select { |_filename, info| info[:video] }
+        audio_video_files.each do |filename, info|
+          next if corrupt_audios.include?(filename)
+
+          BigBlueButton.logger.info("Extracting audio from #{filename}")
+          corrupt_audios << filename
+          out_filename = "#{process_dir}/#{File.basename(filename, '.*')}-audio.mkv"
+          extract_cmd = [*FFMPEG, '-copyts', '-i', filename, '-map', '0:a:0', '-c', 'copy', '-f', 'matroska', out_filename]
+          exitstatus = BigBlueButton.exec_ret(*extract_cmd)
+          next if exitstatus != 0
+
+          new_info = audio_info(out_filename)
+          new_info[:original_duration] = info[:original_duration] if info.include?(:original_duration)
+          if !new_info[:audio] || !new_info[:duration]
+            BigBlueButton.logger.warn('    This audio file is corrupt! It will be removed from the output.')
+            next
           else
-            BigBlueButton.logger.debug "    format: #{info[:format][:format_name]}, codec: #{info[:audio][:codec_name]}"
-            BigBlueButton.logger.debug "    sample rate: #{info[:sample_rate]}, duration: #{info[:duration]}"
-            audioinfo[audiofile] = info
+            BigBlueButton.logger.debug("    format: #{new_info[:format][:format_name]}, codec: #{new_info[:audio][:codec_name]}")
+            BigBlueButton.logger.debug("    sample rate: #{new_info[:sample_rate]}, duration: #{new_info[:duration]}")
+            audioinfo[out_filename] = new_info
+          end
+
+          # Update all the EDL entries to point at the new remuxed file
+          edl.each do |event|
+            audio = event[:audios]&.find { |a| a[:filename] == filename }
+            next unless audio
+
+            audio[:filename] = out_filename
           end
         end
 
         if corrupt_audios.any?
           BigBlueButton.logger.info "Removing corrupt audio files from EDL"
           edl.each do |event|
-            if event[:audios]
-              event[:audios].reject! { |a| corrupt_audios.include?(a[:filename]) }
-            end
+            event[:audios]&.reject! { |a| corrupt_audios.include?(a[:filename]) }
           end
-          dump(edl)
+          corrupt_audios.each { |f| audioinfo.delete(f) }
+        end
+
+        BigBlueButton.logger.info("Removing audio PTS gaps from EDL")
+        remove_audio_gaps(edl, audioinfo, process_dir)
+        BigBlueButton.logger.info("Adjusting EDL to enforce minimum cut durations")
+        enforce_cut_lengths(edl)
+
+        dump(edl)
+
+        # The `process_segment` method uses this to calculate cut lengths
+        (0...(edl.length - 1)).each do |i|
+          edl[i][:next_timestamp] = edl[i + 1][:timestamp]
         end
 
         segment_files = []
@@ -118,13 +298,17 @@ module BigBlueButton
         BigBlueButton.logger.info "Merging #{segment_files.size} segments..."
         concat_list_file = "#{output_basename}_concat_list.txt"
         File.open(concat_list_file, 'w') do |f|
-          f.write("ffconcat version 1.0\n") 
+          f.write("ffconcat version 1.0\n")
           segment_files.each do |segment|
-            f.write("file #{segment[:file]}\n") 
+            f.write("file #{segment[:file]}\n")
           end
         end
 
-        merge_cmd = [*FFMPEG, '-f', 'concat', '-safe', '0', '-i', concat_list_file, '-af', "#{FFMPEG_AFORMAT},asetpts=N"]
+        # The option -safe 0 is required because the concat list file contains absolute paths
+        merge_cmd = [
+          *FFMPEG, '-f', 'concat', '-safe', '0', '-i', concat_list_file,
+          '-af', "#{FFMPEG_ARESAMPLE},#{FFMPEG_AFORMAT}",
+        ]
         output = "#{output_basename}.#{WF_EXT}"
         merge_cmd += ['-vn', *FFMPEG_WF_ARGS, output]
         BigBlueButton.logger.info "Running merge command..."
@@ -133,6 +317,8 @@ module BigBlueButton
 
         output
       end
+
+      # The methods below should be considered private
 
       def self.process_segment(entry, output_basename, i, total_segments, audioinfo)
         BigBlueButton.logger.info "Processing segment #{i} of #{total_segments} (duration: #{entry[:next_timestamp] - entry[:timestamp]} ms, num_audios: #{entry[:audios]&.length || 0})"
@@ -152,10 +338,10 @@ module BigBlueButton
             # by buggy versions of freeswitch in old BigBlueButton
             if ((info[:format][:format_name] == 'wav' ||
                  info[:audio][:codec_name] == 'vorbis') &&
-                 entry[:original_duration] &&
-                 (info[:duration].to_f / entry[:original_duration]) < 0.997 &&
-                 (((entry[:original_duration] - info[:duration]).to_f) / entry[:original_duration]).abs < 0.05)
-              speed = info[:duration].to_f / entry[:original_duration]
+                 info[:original_duration] &&
+                 (info[:duration].to_f / info[:original_duration]) < 0.997 &&
+                 (((info[:original_duration] - info[:duration]).to_f) / info[:original_duration]).abs < 0.05)
+              speed = info[:duration].to_f / info[:original_duration]
               seek = 0
               BigBlueButton.logger.warn "  Audio file length mismatch in #{filename}, adjusting speed to #{speed}"
             end
@@ -164,7 +350,8 @@ module BigBlueButton
             # if events are slightly misaligned and you get unlucky with a start/stop or chapter break.
             if seek < (info[:duration].to_f * speed)
               # For each audio, add a -ss and -i for its input
-              ffmpeg_cmd += ['-ss', ms_to_s(seek)]
+              # Use -noaccurate_seek to read frames before seek point (will be trimmed by resampler)
+              ffmpeg_cmd += ['-noaccurate_seek', '-ss', ms_to_s(seek)]
               # Ensure that the entire contents of freeswitch wav files are read
               if info[:format][:format_name] == 'wav'
                 ffmpeg_cmd += ['-ignore_length', '1']
@@ -177,16 +364,19 @@ module BigBlueButton
 
               # Build track label
               track_label = "t#{i}_#{idx}"
-              line = "[#{input_index}]#{FFMPEG_AFORMAT},apad"
-              line << ",atempo=#{speed},atrim=start=#{ms_to_s(audio_data[:timestamp])}" if speed != 1.0
-              line << ",asetpts=N[#{track_label}];"
+              line = "[#{input_index}]"
+              line << "atempo=#{speed},atrim=start=#{ms_to_s(audio_data[:timestamp])}," if speed != 1.0
+              # Ensure the aresample filter doesn't see the next audio packet after a long pts gap
+              line << "atrim=end=#{ms_to_s(entry[:next_timestamp] - entry[:timestamp])},apad,"
+              line << "#{FFMPEG_ARESAMPLE},#{FFMPEG_AFORMAT}"
+              line << "[#{track_label}];"
               filter_lines << line
               track_labels << "[#{track_label}]"
               input_index += 1
             else
               # If we're seeking past the file end => silence
               track_label = "t#{i}_silence#{idx}"
-              line = "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT},asetpts=N[#{track_label}];"
+              line = "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT}[#{track_label}];"
               filter_lines << line
               track_labels << "[#{track_label}]"
             end
@@ -204,9 +394,9 @@ module BigBlueButton
           end
         else
           BigBlueButton.logger.info "  Generating silence"
-          filter_lines << "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT},asetpts=N,"
+          filter_lines << "#{FFMPEG_AEVALSRC},#{FFMPEG_AFORMAT},"
         end
-      
+
         # Now trim this segment to seg_duration
         filter_lines << "atrim=end=#{ms_to_s(entry[:next_timestamp] - entry[:timestamp])}"
 
@@ -232,7 +422,33 @@ module BigBlueButton
         segment_output
       end
 
-      # The methods below should be considered private
+      # Check audio files for large gaps in timestamps
+      #
+      # When there's a large timestamp gap, the ffmpeg `aresample` filter generates silent audio to
+      # fill the gap, but it enqueues the full length of the gap into the filter chain all at once,
+      # which uses a lot of memory. To work around this issue, detect long gaps in the audio files
+      # and remove the audio file from the mix for the duration of the gap.
+      def self.remove_audio_gaps(edl, audioinfo, process_dir)
+        audio_gaps = audioinfo.each_with_object({}) do |(filename, info), gaps|
+          duration = info.fetch(:original_duration, info[:duration])
+          gaps[filename] = BigBlueButton::EDL::MediaUtils.pts_gaps(process_dir, filename, :audio, duration)
+        end
+
+        BigBlueButton::EDL::MediaUtils.remove_pts_gaps_from_edl(
+          edl,
+          audio_gaps,
+          stream_type: :audio
+        )
+      end
+
+      def self.split_edl_at(edl, entry_i, rec_time)
+        BigBlueButton::EDL::MediaUtils.split_edl_entry(
+          edl,
+          entry_i,
+          rec_time,
+          BigBlueButton::Events.edl_entry_offset_audio
+        )
+      end
 
       def self.audio_info(filename)
         IO.popen([*FFPROBE, filename]) do |probe|
@@ -252,6 +468,10 @@ module BigBlueButton
           return {} if !info[:audio]
 
           info[:sample_rate] = info[:audio][:sample_rate].to_i
+
+          info[:video] = info[:streams].find do |stream|
+            stream[:codec_type] == 'video'
+          end
 
           if info[:format][:format_name] == 'wav'
             # wav files generated by freeswitch can have incorrect length

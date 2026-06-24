@@ -6,6 +6,7 @@ import { uniqueId } from '/imports/utils/string-utils';
 import { useIsImportPresentationWithAnnotationsFromBreakoutRoomsEnabled, useIsImportSharedNotesFromBreakoutRoomsEnabled } from '/imports/ui/services/features';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { useLazyQuery, useQuery, useMutation } from '@apollo/client';
+import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
 import Styled from './styles';
 import {
   getBreakouts,
@@ -15,7 +16,7 @@ import {
   getUser,
   getUserResponse,
 } from './queries';
-import { PRESENTATIONS_SUBSCRIPTION } from '/imports/ui/components/whiteboard/queries';
+import { PRESENTATIONS_SUBSCRIPTION, PresentationsSubscriptionResponse } from '/imports/ui/components/whiteboard/queries';
 import logger from '/imports/startup/client/logger';
 import BreakoutRoomUserAssignment from './breakout-room-user-assignment/component';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -35,8 +36,9 @@ import { notify } from '/imports/ui/services/notification';
 import useTimeSync from '/imports/ui/core/local-states/useTimeSync';
 import { getRemainingMeetingTime, isNewTimeValid } from '/imports/ui/core/utils/calculateRemaingTime';
 
-const MIN_BREAKOUT_ROOMS = 2;
+const MIN_BREAKOUT_ROOMS = 1;
 const MIN_BREAKOUT_TIME = 5;
+const DEFAULT_BREAKOUT_ROOMS = 2;
 const DEFAULT_BREAKOUT_TIME = 15;
 const CURRENT_SLIDE_PREFIX = 'current-';
 
@@ -216,6 +218,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.sendInvitationToMods',
     description: 'label for checkbox send invitation to moderators',
   },
+  inheritLockSettingsLabel: {
+    id: 'app.createBreakoutRoom.inheritLockSettings',
+    description: 'label for checkbox to propagate lock settings',
+  },
   timeCannotExceedMainRoom: {
     id: 'app.createBreakoutRoom.timeCannotExceedMainRoom',
     description: 'label for checkbox send invitation to moderators',
@@ -240,7 +246,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   const { isMobile } = deviceInfo;
   const intl = useIntl();
 
-  const initialNumberOfRooms = runningRooms.length > 0 ? runningRooms.length : MIN_BREAKOUT_ROOMS;
+  const initialNumberOfRooms = runningRooms.length > 0 ? runningRooms.length : DEFAULT_BREAKOUT_ROOMS;
 
   const isImportPresentationWithAnnotationsEnabled = useIsImportPresentationWithAnnotationsFromBreakoutRoomsEnabled();
   const isImportSharedNotesEnabled = useIsImportSharedNotesFromBreakoutRoomsEnabled();
@@ -248,7 +254,12 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
   // @ts-ignore
   const BREAKOUT_SETTINGS = window.meetingClientSettings.public.app.breakouts;
 
-  const { allowUserChooseRoomByDefault, recordRoomByDefault, offerRecordingForBreakouts } = BREAKOUT_SETTINGS;
+  const {
+    allowUserChooseRoomByDefault,
+    recordRoomByDefault,
+    offerRecordingForBreakouts,
+    lockBreakoutRecordingSetting,
+  } = BREAKOUT_SETTINGS;
   const captureWhiteboardByDefault = BREAKOUT_SETTINGS.captureWhiteboardByDefault
                                     && isImportPresentationWithAnnotationsEnabled;
   const captureSharedNotesByDefault = BREAKOUT_SETTINGS.captureSharedNotesByDefault
@@ -257,12 +268,14 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
 
   const [numberOfRoomsIsValid, setNumberOfRoomsIsValid] = React.useState(true);
   const [durationIsValid, setDurationIsValid] = React.useState(true);
+  const forceRecord = lockBreakoutRecordingSetting && isBreakoutRecordable;
   const [freeJoin, setFreeJoin] = React.useState(allowUserChooseRoomByDefault);
-  const [record, setRecord] = React.useState(recordRoomByDefault);
+  const [record, setRecord] = React.useState(forceRecord || recordRoomByDefault);
   const [captureSlides, setCaptureSlides] = React.useState(captureWhiteboardByDefault);
   const [leastOneUserIsValid, setLeastOneUserIsValid] = React.useState(false);
   const [captureNotes, setCaptureNotes] = React.useState(captureSharedNotesByDefault);
   const [inviteMods, setInviteMods] = React.useState(inviteModsByDefault);
+  const [inheritLockSettings, setInheritLockSettings] = React.useState(false);
   const [numberOfRooms, setNumberOfRooms] = React.useState(initialNumberOfRooms);
   const [durationTime, setDurationTime] = React.useState(DEFAULT_BREAKOUT_TIME);
   const [roomPresentations, setRoomPresentations] = React.useState<RoomPresentations>([]);
@@ -291,6 +304,18 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
     return `${CURRENT_SLIDE_PREFIX}${currentPresentation}`;
   };
 
+  const getCaptureFilename = (roomName: string, slides: boolean = true) => {
+    const captureType = slides
+      ? intl.formatMessage(intlMessages.captureSlidesType)
+      : intl.formatMessage(intlMessages.captureNotesType);
+
+    const fileName = `${roomName.replace(/\s/g, '_')}_${captureType}`.replace(/ /g, '_');
+
+    const fileNameDuplicatedCount = presentations.filter((pres) => pres.name?.startsWith(fileName)).length;
+
+    return fileNameDuplicatedCount === 0 ? fileName : `${fileName}(${fileNameDuplicatedCount + 1})`;
+  };
+
   const createRoom = () => {
     const remainingTime = getRemainingMeetingTime(
       durationInSeconds,
@@ -311,8 +336,8 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         roomsArray.push({
           name: r.name,
           sequence: r.id,
-          captureNotesFilename: `${r.name.replace(/\s/g, '_')}_${intl.formatMessage(intlMessages.captureNotesType)}`,
-          captureSlidesFilename: `${r.name.replace(/\s/g, '_')}_${intl.formatMessage(intlMessages.captureSlidesType)}`,
+          captureNotesFilename: getCaptureFilename(r.name, false),
+          captureSlidesFilename: getCaptureFilename(r.name, true),
           isDefaultName: r.name === intl.formatMessage(intlMessages.breakoutRoom, {
             roomNumber: r.id,
           }),
@@ -330,8 +355,8 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         roomsArray.push({
           name: defaultName,
           sequence: roomNumber,
-          captureNotesFilename: `${defaultName.replace(/\s/g, '_')}_${intl.formatMessage(intlMessages.captureNotesType)}`,
-          captureSlidesFilename: `${defaultName.replace(/\s/g, '_')}_${intl.formatMessage(intlMessages.captureSlidesType)}`,
+          captureNotesFilename: getCaptureFilename(defaultName, false),
+          captureSlidesFilename: getCaptureFilename(defaultName, true),
           isDefaultName: true,
           freeJoin,
           shortName: defaultName,
@@ -357,6 +382,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
           captureSlides,
           durationInMinutes: durationTime,
           sendInviteToModerators: inviteMods,
+          inheritLockSettings,
           rooms: roomsArray,
         },
       },
@@ -372,8 +398,8 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         moveUser({
           variables: {
             userId,
-            fromBreakoutRoomId: fromRoomId || '',
-            toBreakoutRoomId: toRoomId || '',
+            fromBreakoutRoomMeetingId: fromRoomId || '',
+            toBreakoutRoomMeetingId: toRoomId || '',
           },
         });
       }
@@ -405,6 +431,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
       {
         allowed: isBreakoutRecordable && offerRecordingForBreakouts,
         checked: record,
+        disabled: forceRecord,
         htmlFor: 'recordBreakoutCheckbox',
         key: 'record-breakouts',
         id: 'recordBreakoutCheckbox',
@@ -438,6 +465,15 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
         onChange: checkboxCallbackFactory(setInviteMods),
         label: intl.formatMessage(intlMessages.sendInvitationToMods),
       },
+      {
+        allowed: true,
+        checked: inheritLockSettings,
+        htmlFor: 'inheritLockSettingsCheckbox',
+        key: 'inherit-lock-settings-breakouts',
+        id: 'inheritLockSettingsCheckbox',
+        onChange: checkboxCallbackFactory(setInheritLockSettings),
+        label: intl.formatMessage(intlMessages.inheritLockSettingsLabel),
+      },
     ];
   }, [
     isBreakoutRecordable,
@@ -448,6 +484,8 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
     captureSlides,
     captureNotes,
     inviteMods,
+    forceRecord,
+    inheritLockSettings,
   ]);
 
   const form = useMemo(() => {
@@ -550,6 +588,7 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
                     onChange={item.onChange}
                     aria-label={item.label}
                     checked={item.checked}
+                    disabled={item.disabled ?? false}
                   />
                   <span aria-hidden>{item.label}</span>
                 </Styled.FreeJoinLabel>
@@ -639,6 +678,7 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
     breakoutPolicies: m.breakoutPolicies,
     durationInSeconds: m.durationInSeconds,
     createdTime: m.createdTime,
+    meetingId: m.meetingId,
   }));
 
   const {
@@ -664,9 +704,13 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
     data: meetingGroupData,
     loading: meetingGroupLoading,
     error: meetingGroupError,
-  } = useQuery<getMeetingGroupResponse>(getMeetingGroup);
+  } = useQuery<getMeetingGroupResponse>(getMeetingGroup, {
+    fetchPolicy: 'cache-first',
+  });
 
-  const { data: presentationData } = useDeduplicatedSubscription(PRESENTATIONS_SUBSCRIPTION);
+  const { data: presentationData } = useDeduplicatedSubscription<PresentationsSubscriptionResponse>(
+    PRESENTATIONS_SUBSCRIPTION,
+  );
   const presentations = presentationData?.pres_presentation || [];
   const currentPresentation = presentations.find((p: Presentation) => p.current)?.presentationId || '';
 
@@ -703,7 +747,14 @@ const CreateBreakoutRoomContainer: React.FC<CreateBreakoutRoomContainerProps> = 
       priority={priority}
       isUpdate={isUpdate}
       isBreakoutRecordable={currentMeeting?.breakoutPolicies?.record ?? true}
-      users={usersData?.user ?? []}
+      users={currentMeeting?.meetingId
+        ? filterByMeetingId(
+          usersData?.user,
+          currentMeeting.meetingId,
+          getUser,
+          (u) => ({ mismatchedUserId: u.userId, mismatchedName: u.name }),
+        )
+        : []}
       runningRooms={breakoutsData?.breakoutRoom ?? []}
       presentations={presentations}
       currentPresentation={currentPresentation}

@@ -1,4 +1,4 @@
-export interface UserCameraButtonsContainterWrapperProps {
+export interface UserCameraButtonsContainerWrapperProps {
   positionXAxis: string;
   positionYAxis: string;
 }

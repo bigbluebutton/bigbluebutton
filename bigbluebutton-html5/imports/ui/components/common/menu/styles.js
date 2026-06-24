@@ -12,6 +12,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { mediumUp } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Menu from '@mui/material/Menu';
+import { PluginButtonIcon } from '/imports/ui/components/plugins/plugin-icon/styles';
 
 const MenuWrapper = styled(Menu)`
   ${({ isMobile }) => isMobile && `
@@ -30,6 +31,11 @@ const MenuWrapper = styled(Menu)`
     }
 
   `}
+`;
+
+const SvgContentIconWrapper = styled(PluginButtonIcon)`
+  display: inline-flex;
+  align-items: center;
 `;
 
 const MenuItemWrapper = styled.div`
@@ -185,7 +191,11 @@ const BBBMenuItem = styled(MenuItem)`
   ${({ $isToggle }) => $isToggle && `
     &:focus,
     &:hover {
+      color: inherit !important;
+      background-color: transparent !important;
+      i {
         color: inherit !important;
+      }
     }
   `}
 `;
@@ -207,6 +217,7 @@ export default {
   Option,
   CloseButton,
   IconRight,
+  SvgContentIconWrapper,
   BBBMenuItem,
   BBBMenuInformation,
   Skeleton,

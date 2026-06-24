@@ -44,6 +44,7 @@ class ModalSimple extends Component {
   constructor(props) {
     super(props);
     this.modalRef = React.createRef();
+    this.previousFocus = null;
     this.handleDismiss = this.handleDismiss.bind(this);
     this.handleRequestClose = this.handleRequestClose.bind(this);
     this.handleOutsideClick = this.handleOutsideClick.bind(this);
@@ -51,6 +52,13 @@ class ModalSimple extends Component {
 
   componentDidMount() {
     document.addEventListener('mousedown', this.handleOutsideClick, false);
+  }
+
+  componentDidUpdate(prevProps) {
+    const { modalIsOpen } = this.props;
+    if (!prevProps.modalIsOpen && modalIsOpen) {
+      this.previousFocus = document.activeElement;
+    }
   }
 
   componentWillUnmount() {
@@ -63,24 +71,24 @@ class ModalSimple extends Component {
     modalHide(dismiss.callback);
   }
 
-  handleRequestClose(event) {
+  handleRequestClose() {
     const { onRequestClose } = this.props;
     const closeModal = onRequestClose || this.handleDismiss;
 
     closeModal();
 
-    if (event && event.type === 'click') {
-      setTimeout(() => {
-        if (document.activeElement) {
-          document.activeElement.blur();
-        }
-      }, 0);
-    }
+    setTimeout(() => {
+      if (this.previousFocus && typeof this.previousFocus.focus === 'function'
+        && document.body.contains(this.previousFocus)) {
+        this.previousFocus.focus();
+      }
+      this.previousFocus = null;
+    }, 0);
   }
 
   handleOutsideClick(e) {
     const { modalIsOpen } = this.props;
-    if (this.modalRef.current && !this.modalRef.current.contains(e.target) && modalIsOpen) {
+    if (this.modalRef.current && e.target?.contains(this.modalRef.current) && modalIsOpen) {
       this.handleRequestClose(e);
     }
   }
@@ -139,7 +147,7 @@ class ModalSimple extends Component {
         style={modalStyles}
         {...otherProps}
       >
-        <FocusTrap active={modalIsOpen} focusTrapOptions={{ initialFocus: false }}>
+        <FocusTrap active={modalIsOpen} focusTrapOptions={{ initialFocus: false, fallbackFocus: '#fallback-element' }}>
           <div ref={this.modalRef}>
             <Styled.Header
               hideBorder={hideBorder}
@@ -156,6 +164,7 @@ class ModalSimple extends Component {
             </Styled.Header>
             <Styled.Content>
               {children}
+              <div id="fallback-element" tabIndex="-1" />
             </Styled.Content>
           </div>
         </FocusTrap>

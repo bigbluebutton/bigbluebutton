@@ -1,11 +1,13 @@
 import React from 'react';
+import { PluginIconType } from 'bigbluebutton-html-plugin-sdk';
 import PluginHelperButtonComponent from './component';
 
 interface PluginButtonContainerProps {
   dark: boolean;
   bottom: boolean;
   right: boolean;
-  icon: string;
+  dataTest?: string;
+  icon: PluginIconType;
   label: string;
   onClick: (args:{ browserClickEvent: React.MouseEvent<HTMLElement> }) => void;
 }
@@ -18,6 +20,7 @@ const PluginButtonContainer = (props: PluginButtonContainerProps) => {
     icon,
     label,
     onClick,
+    dataTest,
   } = props;
   return (
     <PluginHelperButtonComponent
@@ -25,6 +28,7 @@ const PluginButtonContainer = (props: PluginButtonContainerProps) => {
       bottom={bottom}
       right={right}
       icon={icon}
+      dataTest={dataTest}
       label={label}
       onClick={onClick}
     />

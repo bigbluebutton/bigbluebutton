@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 // Rule applied because EventListener is not undefined at all times.
 import React, { useEffect, useState } from 'react';
-import { CustomSubscriptionArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/domain/shared/custom-subscription/types';
+import { DataConsumptionArguments } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/domain/shared/types';
 import { makeCustomHookIdentifierFromArgs } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-consumption/utils';
 import {
   HookEvents,
@@ -14,7 +14,7 @@ import LoadedUserListHookContainer from './domain/users/loaded-user-list/hook-ma
 import CurrentUserHookContainer from './domain/users/current-user/hook-manager';
 import CustomSubscriptionHookContainer from './domain/shared/custom-subscription/hook-manager';
 
-import { ObjectToCustomHookContainerMap, HookWithArgumentsContainerProps, HookWithArgumentContainerToRender } from './domain/shared/custom-subscription/types';
+import { ObjectToCustomSubscriptionHookContainerMap, SubscriptionHookWithArgumentsContainerProps, SubscriptionHookWithArgumentContainerToRender } from './domain/shared/custom-subscription/types';
 import CurrentPresentationHookContainer from './domain/presentations/current-presentation/hook-manager';
 import LoadedChatMessagesHookContainer from './domain/chat/loaded-chat-messages/hook-manager';
 import TalkingIndicatorHookContainer from './domain/user-voice/talking-indicator/hook-manager';
@@ -22,8 +22,14 @@ import { GeneralHookManagerProps } from './types';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { User } from '/imports/ui/Types/user';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
-import { Meeting } from '/imports/ui/Types/meeting';
 import MeetingHookContainer from './domain/meeting/from-core/hook-manager';
+import { updateHookUsage } from './utils';
+import { ObjectToCustomQueryHookContainerMap, QueryHookWithArgumentContainerToRender, QueryHookWithArgumentsContainerProps } from './domain/shared/custom-query/types';
+import CustomQueryHookContainer from './domain/shared/custom-query/hook-manager';
+import CustomDataConsumptionHooksErrorBoundary from './error-boundary/handler';
+import UsersBasicInfoHookContainer from './domain/users/users-basic-info/hook-manager';
+import { EssentialHookInformation } from './domain/shared/types';
+import MeetingDataHookContainer from './domain/meeting/meeting-data/hook-manager';
 
 const hooksMap:{
   [key: string]: React.FunctionComponent<GeneralHookManagerProps>
@@ -34,72 +40,72 @@ const hooksMap:{
   [DataConsumptionHooks.CURRENT_USER]: CurrentUserHookContainer,
   [DataConsumptionHooks.CURRENT_PRESENTATION]: CurrentPresentationHookContainer,
   [DataConsumptionHooks.MEETING]: MeetingHookContainer,
+  [DataConsumptionHooks.MEETING_DATA]: MeetingDataHookContainer,
+  [DataConsumptionHooks.USERS_BASIC_INFO]: UsersBasicInfoHookContainer,
 };
 
-const HooksMapWithArguments:{
-  [key: string]: React.FunctionComponent<HookWithArgumentsContainerProps>
+const SubscriptionHooksMapWithArguments: {
+  [key: string]: React.FunctionComponent<SubscriptionHookWithArgumentsContainerProps>
 } = {
   [DataConsumptionHooks.CUSTOM_SUBSCRIPTION]: CustomSubscriptionHookContainer,
 };
 
+const QueryHooksMapWithArguments: {
+  [key: string]: React.FunctionComponent<QueryHookWithArgumentsContainerProps>
+} = {
+  [DataConsumptionHooks.CUSTOM_QUERY]: CustomQueryHookContainer,
+};
+
 const PluginDataConsumptionManager: React.FC = () => {
   const [
-    hookUtilizationCount,
-    setHookUtilizationCount,
-  ] = useState(new Map<string, number>());
+    hookInfo,
+    setHookInfo,
+  ] = useState(new Map<string, EssentialHookInformation>());
 
   const [
-    hookWithArgumentUtilizationCount,
-    setHookWithArgumentUtilizationCount,
-  ] = useState(new Map<string, Map<string, ObjectToCustomHookContainerMap>>());
+    subscriptionHookWithArgumentInfo,
+    setSubscriptionHookWithArgumentInfo,
+  ] = useState(new Map<string, Map<string, ObjectToCustomSubscriptionHookContainerMap>>());
+
+  const [
+    queryHookWithArgumentInfo,
+    setQueryHookWithArgumentInfo,
+  ] = useState(new Map<string, Map<string, ObjectToCustomQueryHookContainerMap>>());
 
   useEffect(() => {
-    const updateHookUsage = (
-      hookName: string, delta: number, hookArguments?: CustomSubscriptionArguments,
-    ): void => {
-      if (hookName !== DataConsumptionHooks.CUSTOM_SUBSCRIPTION) {
-        setHookUtilizationCount((mapObj) => {
-          const newMap = new Map<string, number>(mapObj.entries());
-          newMap.set(hookName, (mapObj.get(hookName) || 0) + delta);
-          return newMap;
-        });
-      } else {
-        setHookWithArgumentUtilizationCount((mapObj) => {
-          if (hookArguments) {
-            const hookArgumentsAsKey = makeCustomHookIdentifierFromArgs(hookArguments);
-            // Create object from the hook with argument
-            const mapToBeSet = new Map<string, ObjectToCustomHookContainerMap>(mapObj.get(hookName)?.entries());
-            mapToBeSet.set(hookArgumentsAsKey, {
-              count: (mapObj.get(hookName)?.get(hookArgumentsAsKey)?.count || 0) + delta,
-              hookArguments,
-            } as ObjectToCustomHookContainerMap);
-
-            // Create new map with argument
-            const newMap = new Map<string, Map<string, ObjectToCustomHookContainerMap>>(mapObj.entries());
-            newMap.set(hookName, mapToBeSet);
-            return newMap;
-          } return mapObj;
-        });
-      }
-    };
-
     const subscribeHandler: EventListener = (
       (event: HookEventWrapper<void>) => {
-        let hookArguments: CustomSubscriptionArguments | undefined;
-        if (event.detail.hook === DataConsumptionHooks.CUSTOM_SUBSCRIPTION) {
+        let hookArguments: DataConsumptionArguments | undefined;
+        if (
+          event.detail.hook === DataConsumptionHooks.CUSTOM_SUBSCRIPTION
+          || event.detail.hook === DataConsumptionHooks.CUSTOM_QUERY
+        ) {
           const detail = event.detail as SubscribedEventDetails;
-          hookArguments = detail.hookArguments as CustomSubscriptionArguments;
+          hookArguments = detail.hookArguments as DataConsumptionArguments;
         }
-        updateHookUsage(event.detail.hook, 1, hookArguments);
+        updateHookUsage(
+          setHookInfo,
+          setSubscriptionHookWithArgumentInfo,
+          setQueryHookWithArgumentInfo,
+          event.detail.hook, 1, hookArguments,
+        );
       }) as EventListener;
     const unsubscribeHandler: EventListener = (
       (event: HookEventWrapper<void>) => {
-        let hookArguments: CustomSubscriptionArguments | undefined;
-        if (event.detail.hook === DataConsumptionHooks.CUSTOM_SUBSCRIPTION) {
+        let hookArguments: DataConsumptionArguments | undefined;
+        if (
+          event.detail.hook === DataConsumptionHooks.CUSTOM_SUBSCRIPTION
+          || event.detail.hook === DataConsumptionHooks.CUSTOM_QUERY
+        ) {
           const detail = event.detail as SubscribedEventDetails;
-          hookArguments = detail.hookArguments as CustomSubscriptionArguments;
+          hookArguments = detail.hookArguments as DataConsumptionArguments;
         }
-        updateHookUsage(event.detail.hook, -1, hookArguments);
+        updateHookUsage(
+          setHookInfo,
+          setSubscriptionHookWithArgumentInfo,
+          setQueryHookWithArgumentInfo,
+          event.detail.hook, -1, hookArguments,
+        );
       }) as EventListener;
 
     window.addEventListener(HookEvents.PLUGIN_SUBSCRIBED_TO_BBB_CORE, subscribeHandler);
@@ -110,15 +116,31 @@ const PluginDataConsumptionManager: React.FC = () => {
     };
   }, []);
 
-  const HooksWithArgumentContainerToRun: HookWithArgumentContainerToRender[] = [];
-  Object.keys(HooksMapWithArguments).forEach((hookName) => {
-    if (hookWithArgumentUtilizationCount.get(hookName)) {
-      hookWithArgumentUtilizationCount.get(hookName)?.forEach((object) => {
+  const SubscriptionHooksWithArgumentContainerToRun: SubscriptionHookWithArgumentContainerToRender[] = [];
+  Object.keys(SubscriptionHooksMapWithArguments).forEach((hookName) => {
+    if (subscriptionHookWithArgumentInfo.get(hookName)) {
+      subscriptionHookWithArgumentInfo.get(hookName)?.forEach((object) => {
         if (object.count > 0) {
-          HooksWithArgumentContainerToRun.push({
-            componentToRender: HooksMapWithArguments[hookName],
+          SubscriptionHooksWithArgumentContainerToRun.push({
+            componentToRender: SubscriptionHooksMapWithArguments[hookName],
             hookArguments: object.hookArguments,
             numberOfUses: object.count,
+            version: object.version,
+          });
+        }
+      });
+    }
+  });
+
+  const QueryHooksWithArgumentContainerToRun: QueryHookWithArgumentContainerToRender[] = [];
+  Object.keys(QueryHooksMapWithArguments).forEach((hookName) => {
+    if (queryHookWithArgumentInfo.get(hookName)) {
+      queryHookWithArgumentInfo.get(hookName)?.forEach((object) => {
+        if (object.count > 0) {
+          QueryHooksWithArgumentContainerToRun.push({
+            componentToRender: QueryHooksMapWithArguments[hookName],
+            hookArguments: object.hookArguments,
+            version: object.version,
           });
         }
       });
@@ -136,41 +158,72 @@ const PluginDataConsumptionManager: React.FC = () => {
       extId: currentUser.extId,
     }),
   );
-  const meetingInformation = useMeeting((meeting: Partial<Meeting>) => ({
+  const meetingInformation = useMeeting((meeting) => ({
     name: meeting?.name,
     loginUrl: meeting?.loginUrl,
     meetingId: meeting?.meetingId,
   }));
+  const allMeetingInformation = useMeeting((m) => m);
   return (
     <>
       {
         Object.keys(hooksMap)
-          .filter((hookName: string) => hookUtilizationCount.get(hookName)
-            && hookUtilizationCount.get(hookName)! > 0)
+          .filter((hookName: string) => hookInfo.get(hookName)
+            && hookInfo.get(hookName)!.count > 0)
           .map((hookName: string) => {
             let data;
             const HookComponent = hooksMap[hookName];
             if (hookName === DataConsumptionHooks.CURRENT_USER) data = currentUser;
             if (hookName === DataConsumptionHooks.MEETING) data = meetingInformation;
-            const countOfUses = hookUtilizationCount.get(hookName) || 0;
+            if (hookName === DataConsumptionHooks.MEETING_DATA) data = allMeetingInformation;
+            const usage = hookInfo.get(hookName)!;
             return (
               <HookComponent
-                numberOfUses={countOfUses}
                 key={hookName}
+                version={usage.version}
                 data={data}
               />
             );
           })
       }
       {
-        HooksWithArgumentContainerToRun.map((hookWithArguments) => {
+        SubscriptionHooksWithArgumentContainerToRun.map((hookWithArguments) => {
           const HookComponent = hookWithArguments.componentToRender;
           return (
-            <HookComponent
-              numberOfUses={hookWithArguments.numberOfUses}
+            <CustomDataConsumptionHooksErrorBoundary
               key={makeCustomHookIdentifierFromArgs(hookWithArguments.hookArguments)}
-              hookArguments={hookWithArguments.hookArguments}
-            />
+              hookWithArguments={hookWithArguments}
+              dataConsumptionHook={DataConsumptionHooks.CUSTOM_SUBSCRIPTION}
+              setDataConsumptionHookWithArgumentUtilizationCount={setSubscriptionHookWithArgumentInfo}
+            >
+              <HookComponent
+                key={makeCustomHookIdentifierFromArgs(hookWithArguments.hookArguments)}
+                version={hookWithArguments.version}
+                hookArguments={hookWithArguments.hookArguments}
+              />
+            </CustomDataConsumptionHooksErrorBoundary>
+          );
+        })
+      }
+      {
+        QueryHooksWithArgumentContainerToRun.map((hookWithArguments) => {
+          const HookComponent = hookWithArguments.componentToRender;
+          return (
+            <CustomDataConsumptionHooksErrorBoundary
+              key={makeCustomHookIdentifierFromArgs(hookWithArguments.hookArguments)}
+              hookWithArguments={hookWithArguments}
+              dataConsumptionHook={DataConsumptionHooks.CUSTOM_QUERY}
+              setDataConsumptionHookWithArgumentUtilizationCount={setQueryHookWithArgumentInfo}
+            >
+              <HookComponent
+                key={makeCustomHookIdentifierFromArgs(hookWithArguments.hookArguments)}
+                hookArguments={hookWithArguments.hookArguments}
+                resolveQuery={() => {
+                  updateHookUsage(() => {}, () => {}, setQueryHookWithArgumentInfo,
+                    DataConsumptionHooks.CUSTOM_QUERY, -1, hookWithArguments.hookArguments);
+                }}
+              />
+            </CustomDataConsumptionHooksErrorBoundary>
           );
         })
       }

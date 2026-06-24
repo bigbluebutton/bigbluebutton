@@ -12,24 +12,93 @@ export interface CursorCoordinatesResponse {
   pres_page_cursor_stream: CursorCoordinates[];
 }
 
-export interface UserCursor {
+export interface UserWhiteboardWriteAccess {
+  userId: string;
   name: string;
   presenter: boolean;
-  role: string;
 }
 
-export interface userCursorResponse {
+// Interface for the whiteboard writers subscription
+export interface CurrentPageWritersResponse {
+  user_whiteboardWriteAccess: Array<UserWhiteboardWriteAccess>;
+}
+
+export interface UserWhiteboardCursor {
+  meetingId: string;
   userId: string;
-  isCurrentPage: boolean;
-  lastUpdatedAt: string;
-  pageId: string;
-  presentationId: string;
-  user: UserCursor;
+  name: string;
+  presenter: boolean;
 }
 
-// Interface for the pres_page_cursor subscription
-export interface CursorSubscriptionResponse {
-  pres_page_cursor: Array<userCursorResponse>;
+export interface UserWhiteboardCursorResponse {
+  user_whiteboardCursorAccess: Array<UserWhiteboardCursor>;
+}
+
+export interface CurrentPresentationPagesSubscriptionResponse {
+  pres_page_curr: PresentationPage[];
+}
+
+export interface PresentationPage {
+  height: number;
+  isCurrentPage: boolean;
+  num: number;
+  pageId: string;
+  scaledHeight: number;
+  scaledViewBoxHeight: number;
+  scaledViewBoxWidth: number;
+  scaledWidth: number;
+  svgUrl: string;
+  width: number;
+  xOffset: number;
+  yOffset: number;
+  presentationId: string;
+  content: string;
+  downloadFileUri: string;
+  totalPages: number;
+  downloadable: boolean;
+  presentationName: string;
+  isDefaultPresentation: boolean;
+  infiniteWhiteboard: boolean;
+  nextPagesSvg: string;
+  fitToWidth: boolean;
+}
+
+export interface PresentationsSubscriptionResponse {
+  pres_presentation: Presentation[];
+}
+
+export interface Presentation {
+  uploadTemporaryId: string | null;
+  uploadInProgress: boolean;
+  current: boolean;
+  downloadFileUri: string | null;
+  downloadable: boolean;
+  uploadErrorDetailsJson: string | null;
+  uploadErrorMsgKey: string | null;
+  filenameConverted: boolean;
+  isDefault: boolean;
+  name: string;
+  totalPages: number;
+  totalPagesUploaded: number;
+  presentationId: string;
+  removable: boolean;
+  uploadCompletionNotified: boolean;
+  uploadCompleted: boolean;
+  exportToChatInProgress: boolean;
+  exportToChatStatus: string;
+  exportToChatCurrentPage: number;
+  exportToChatHasError: boolean;
+
+}
+
+export interface ProcessedPresentationsSubscriptionResponse {
+  pres_presentation: ProcessedPresentation[];
+}
+
+export interface ProcessedPresentation {
+  current: boolean;
+  name: string;
+  presentationId: string;
 }
 
 export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPresentationPagesSubscription {
@@ -56,76 +125,40 @@ export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPr
     infiniteWhiteboard
     nextPagesSvg
     fitToWidth
-  }  
-}`;
-
-export const PRESENTATIONS_SUBSCRIPTION = gql`subscription PresentationsSubscription {
-  pres_presentation {
-    uploadTemporaryId
-    uploadInProgress
-    current
-    downloadFileUri
-    downloadable
-    uploadErrorDetailsJson
-    uploadErrorMsgKey
-    filenameConverted
-    isDefault
-    name
-    totalPages
-    totalPagesUploaded
-    presentationId
-    removable
-    uploadCompleted
-  }  
-}`;
-
-export const EXPORTING_PRESENTATIONS_SUBSCRIPTION = gql`subscription PresentationsSubscription {
-  pres_presentation {
-    uploadInProgress
-    current
-    downloadFileUri
-    downloadable
-    uploadErrorDetailsJson
-    uploadErrorMsgKey
-    filenameConverted
-    isDefault
-    name
-    totalPages
-    totalPagesUploaded
-    presentationId
-    removable
-    uploadCompletionNotified
-    uploadCompleted
-    exportToChatInProgress
-    exportToChatStatus
-    exportToChatCurrentPage
-    exportToChatHasError
-  }  
-}`;
-
-export const PROCESSED_PRESENTATIONS_SUBSCRIPTION = gql`subscription ProcessedPresentationsSubscription {
-  pres_presentation(where: { uploadCompleted: { _eq: true } }) {
-    current
-    name
-    presentationId
   }
 }`;
+
+export const PRESENTATIONS_SUBSCRIPTION = gql`
+  subscription PresentationsSubscription {
+    pres_presentation {
+      uploadTemporaryId
+      uploadInProgress
+      current
+      downloadFileUri
+      downloadable
+      uploadErrorDetailsJson
+      uploadErrorMsgKey
+      filenameConverted
+      isDefault
+      name
+      totalPages
+      totalPagesUploaded
+      presentationId
+      removable
+      uploadCompletionNotified
+      uploadCompleted
+      exportToChatInProgress
+      exportToChatStatus
+      exportToChatCurrentPage
+      exportToChatHasError
+    }
+  }
+`;
 
 export const CURRENT_PAGE_ANNOTATIONS_QUERY = gql`query CurrentPageAnnotationsQuery($pageId: String!) {
   pres_annotation_curr(
     where: {pageId: {_eq: $pageId}},
     order_by: { lastUpdatedAt: desc }) {
-    annotationId
-    annotationInfo
-    lastUpdatedAt
-    pageId
-    presentationId
-    userId
-  }  
-}`;
-
-export const CURRENT_PAGE_ANNOTATIONS_STREAM = gql`subscription annotationsStream($lastUpdatedAt: timestamptz){
-  pres_annotation_curr_stream(batch_size: 1000, cursor: {initial_value: {lastUpdatedAt: $lastUpdatedAt}}) {
     annotationId
     annotationInfo
     lastUpdatedAt
@@ -153,46 +186,40 @@ export const ANNOTATION_HISTORY_STREAM = gql`
 `;
 
 export const CURRENT_PAGE_WRITERS_SUBSCRIPTION = gql`
-  subscription currentPageWritersSubscription($pageId: String!) {
-    pres_page_writers(where: { pageId: { _eq: $pageId } }) {
-      userId
-    }
-  }
-`;
-
-export const CURRENT_PAGE_WRITERS_QUERY = gql`
-  query currentPageWritersQuery($pageId: String!) {
-    pres_page_writers(where: { pageId: { _eq: $pageId } }) {
-      userId
-      pageId
-    }
-  }
-`;
-
-export const cursorUserSubscription = gql`
-  subscription CursorSubscription {
-    pres_page_cursor(
-      where: {isCurrentPage: {_eq: true}}
+  subscription whiteboardWriteAccessSubscription {
+    user_whiteboardWriteAccess(
       order_by: { userId: asc }
     ) {
       userId
-      user {
-        name
-        presenter
-        role
-      }
-    }  
+      name
+      presenter
+      isModerator
+    }
   }
 `;
 
-export const getCursorsCoordinatesStream = gql`
+export const CURRENT_CURSORS_SUBSCRIPTION = gql`
+  subscription whiteboardCursorAccessSubscription {
+    user_whiteboardCursorAccess(
+      order_by: { userId: asc }
+    ) {
+      meetingId
+      userId
+      name
+      presenter
+      isModerator
+    }
+  }
+`;
+
+// This subscription is handled by bbb-graphql-middleware and its content should not be modified
+export const CURRENT_PAGE_CURSORS_COORDINATES_STREAM = gql`
   subscription getCursorCoordinatesStream {
-    pres_page_cursor_stream(cursor: {initial_value: {lastUpdatedAt: "2020-01-01"}}, 
-                            where: {isCurrentPage: {_eq: true}}, 
+    pres_page_cursor_stream(cursor: {initial_value: {lastUpdatedAt: "2020-01-01"}},
+                            where: {isCurrentPage: {_eq: true}},
                             batch_size: 100) {
       xPercent
       yPercent
-      lastUpdatedAt
       userId
     }
   }

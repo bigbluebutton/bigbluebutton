@@ -55,6 +55,7 @@ trait SystemConfiguration {
   lazy val transparentListenOnlyThreshold = Try(config.getInt("voiceConf.transparentListenOnlyThreshold")).getOrElse(0)
   lazy val muteOnStartThreshold = Try(config.getInt("voiceConf.muteOnStartThreshold")).getOrElse(0)
   lazy val dialInEnforceGuestPolicy = Try(config.getBoolean("voiceConf.dialInEnforceGuestPolicy")).getOrElse(true)
+  lazy val dialInEnforceMuteOnStart = Try(config.getBoolean("voiceConf.dialInEnforceMuteOnStart")).getOrElse(false)
   lazy val floorEnabled = Try(config.getBoolean("voiceConf.floorControl.enabled")).getOrElse(false)
   lazy val minTalkingDuration = Try(config.getDuration(
     "voiceConf.floorControl.minTalkingDuration",
@@ -105,6 +106,20 @@ trait SystemConfiguration {
   lazy val clientSettingsPathOverride = Try(config.getString("client.clientSettingsOverrideFilePath")).getOrElse(
     "/etc/bigbluebutton/bbb-html5.yml"
   )
+  // Strict validation flag - single source of truth, shared with bbb-web. Read directly from
+  // bbb-web's properties so one setting controls both the bbb-web create rejection and this
+  // akka-apps boot refusal (no separate akka flag to drift out of sync). Defaults to false.
+  lazy val clientSettingsOverrideStrictValidation: Boolean = Try {
+    val propsFile = new java.io.File("/etc/bigbluebutton/bbb-web.properties")
+    if (!propsFile.exists()) false
+    else {
+      val props = new java.util.Properties()
+      val in = new java.io.FileInputStream(propsFile)
+      try props.load(in) finally in.close()
+      "true".equalsIgnoreCase(props.getProperty("clientSettingsOverrideStrictValidation", "false").trim)
+    }
+    // A read failure must never take down boot - default to lenient (false).
+  }.getOrElse(false)
 
   // Grab the "interface" parameter from the http config
   val httpHost = config.getString("http.interface")

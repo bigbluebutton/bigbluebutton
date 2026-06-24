@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
-import { 
+import {
   toastMargin,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
@@ -16,4 +16,8 @@ const HelpLinkButton = styled(Button)`
   
 `;
 
-export default { HelpLinkButton };
+const ToastWrapper = styled.div`
+  width: 100%;
+`;
+
+export default { HelpLinkButton, ToastWrapper };

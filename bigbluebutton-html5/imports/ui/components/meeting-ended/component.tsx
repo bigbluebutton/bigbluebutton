@@ -22,6 +22,8 @@ import Styled from './styles';
 import { LoadingContext } from '../common/loading-screen/loading-screen-HOC/component';
 import logger from '/imports/startup/client/logger';
 import apolloContextHolder from '/imports/ui/core/graphql/apolloContextHolder/apolloContextHolder';
+import useMeeting from '../../core/hooks/useMeeting';
+import useCurrentUser from '../../core/hooks/useCurrentUser';
 
 const intlMessage = defineMessages({
   410: {
@@ -336,11 +338,26 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
     data: meetingEndData,
   } = useQuery<MeetingEndDataResponse>(getMeetingEndData);
 
-  if (meetingEndLoading || !meetingEndData) {
+  const {
+    data: meetingData,
+  } = useMeeting((m) => ({
+    isBreakout: m.isBreakout,
+  }));
+
+  const {
+    data: currentUserData,
+    loading: currentUserLoading,
+    errors: currentUserErrors,
+  } = useCurrentUser((u) => ({
+    isModerator: u.isModerator,
+    logoutUrl: u.logoutUrl,
+  }));
+
+  if (meetingEndLoading || !meetingEndData || currentUserLoading || !currentUserData) {
     return null;
   }
 
-  if (meetingEndError) {
+  if (meetingEndError || currentUserErrors) {
     logger.error('Error on fetching meeting end data: ', meetingEndError);
     return (
       <MeetingEnded
@@ -364,21 +381,18 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
   const {
     isModerator,
     logoutUrl,
-    meeting,
-  } = user_current[0];
+  } = currentUserData;
 
   const {
     learningDashboard,
-    isBreakout,
-    clientSettings,
-  } = meeting;
+  } = user_current[0].meeting;
 
   const {
     skipMeetingEnded,
     learningDashboardBase,
-  } = clientSettings;
+  } = window.meetingClientSettings.public.app;
 
-  const allowRedirect = allowRedirectToLogoutURL(logoutUrl);
+  const allowRedirect = allowRedirectToLogoutURL(logoutUrl ?? '');
 
   return (
     <MeetingEnded
@@ -388,10 +402,10 @@ const MeetingEndedContainer: React.FC<MeetingEndedContainerProps> = ({
       allowRedirect={allowRedirect}
       skipMeetingEnded={skipMeetingEnded}
       learningDashboardAccessToken={learningDashboard?.learningDashboardAccessToken}
-      isModerator={isModerator}
-      logoutUrl={logoutUrl}
+      isModerator={isModerator ?? false}
+      logoutUrl={logoutUrl ?? ''}
       learningDashboardBase={learningDashboardBase}
-      isBreakout={isBreakout}
+      isBreakout={meetingData?.isBreakout ?? false}
     />
   );
 };

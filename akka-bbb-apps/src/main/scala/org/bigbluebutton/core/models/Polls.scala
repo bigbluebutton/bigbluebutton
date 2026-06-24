@@ -300,15 +300,48 @@ object Polls {
   ): scala.collection.immutable.Map[String, Object] = {
     val maxImageWidth = 1440
     val maxImageHeight = 1080
-    val poll_width = 300
-    val poll_height = 200
+
+    // Base dimensions for the poll annotation
+    var pollWidth = 300
+    var pollHeight = 200
+
+    val questionText = result.questionText.getOrElse("")
+    val questionLength = questionText.length
+
+    // Adjust width and height based on question length
+    val extraLines = {
+      if (questionLength == 0) {
+        0
+      } else if (questionLength > 60) {
+        // Increase width for long questions
+        pollWidth = 600
+        val charsPerLine = 75
+        questionLength / charsPerLine
+      } else {
+        val charsPerLine = 30
+        questionLength / charsPerLine
+      }
+    }
+    if (extraLines > 1) {
+      // Add height proportional to extra lines needed
+      val additionalHeight = Math.round(extraLines * 45.0)
+      pollHeight += additionalHeight.toInt
+    }
+
+    // Adjust height based on the number of answers
+    val defaultAnswerCount = 3
+    val extraAnswerCount = result.answers.size - defaultAnswerCount
+    if (extraAnswerCount > 0) {
+      val additionalHeight = Math.round(extraAnswerCount * 40.0)
+      pollHeight += additionalHeight.toInt
+    }
 
     val whiteboardRatio = Math.min(maxImageWidth / page.width, maxImageHeight / page.height);
     val scaledWidth = page.width * whiteboardRatio
     val scaledHeight = page.height * whiteboardRatio
 
-    val x: Double = scaledWidth - poll_width
-    val y: Double = scaledHeight - poll_height
+    val x: Double = scaledWidth - pollWidth
+    val y: Double = scaledHeight - pollHeight
 
     val shape = new scala.collection.mutable.HashMap[String, Object]()
     val props = new scala.collection.mutable.HashMap[String, Object]()
@@ -331,8 +364,8 @@ object Polls {
     props += "numResponders" -> Integer.valueOf(result.numResponders)
     props += "questionText" -> result.questionText.getOrElse("")
     props += "questionType" -> result.questionType
-    props += "w" -> Integer.valueOf(poll_width)
-    props += "h" -> Integer.valueOf(poll_height)
+    props += "w" -> Integer.valueOf(pollWidth)
+    props += "h" -> Integer.valueOf(pollHeight)
     props += "fill" -> "black"
     props += "color" -> "black"
     props += "question" -> result.questionText.getOrElse("")

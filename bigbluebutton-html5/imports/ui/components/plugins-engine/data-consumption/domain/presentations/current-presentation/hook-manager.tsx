@@ -16,8 +16,8 @@ const CurrentPresentationHookContainer = (props: GeneralHookManagerProps) => {
     (currentPresentationData: Partial<CurrentPresentation>) => currentPresentationData,
   );
 
-  const { numberOfUses } = props;
-  const previousNumberOfUses = usePreviousValue(numberOfUses);
+  const { version } = props;
+  const previousVersion = usePreviousValue(version);
 
   const updatePresentationForPlugin = () => {
     const formattedCurrentPresentation:
@@ -39,11 +39,11 @@ const CurrentPresentationHookContainer = (props: GeneralHookManagerProps) => {
   };
 
   useEffect(() => {
-    const previousNumberOfUsesValue = previousNumberOfUses || 0;
-    if (numberOfUses > previousNumberOfUsesValue) {
+    const previousVersionValue = previousVersion ?? 0;
+    if (version > previousVersionValue) {
       updatePresentationForPlugin();
     }
-  }, [numberOfUses]);
+  }, [version]);
 
   useEffect(() => {
     updatePresentationForPlugin();

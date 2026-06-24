@@ -1,9 +1,21 @@
 #!/usr/bin/env bash
 cd "$(dirname "$0")"
+
+for var in "$@"
+do
+    if [[ $var == --build ]] ; then
+       echo "Performing a full re-build..."
+       cd ~/src/bbb-common-web
+       ./deploy.sh
+       cd ~/src/bigbluebutton-web/
+    fi
+done
+
 sudo service bbb-web stop
 ./build.sh
 
-grails assemble
+./gradlew clean assemble
+
 mkdir -p exploded && cd exploded
 jar -xvf ../build/libs/bigbluebutton-0.10.0.war
 
@@ -13,10 +25,13 @@ if [ ! -d /usr/share/bbb-web-old ] ; then
 else
 	echo "A backup in /usr/share/bbb-web-old already exists. Skipping.."
 fi
+
 sudo rm -rf /usr/share/bbb-web/assets/ /usr/share/bbb-web/META-INF/ /usr/share/bbb-web/org/ /usr/share/bbb-web/WEB-INF/
 sudo cp -R . /usr/share/bbb-web/
+
 sudo chown bigbluebutton:bigbluebutton /usr/share/bbb-web
 sudo chown -R bigbluebutton:bigbluebutton /usr/share/bbb-web/assets/ /usr/share/bbb-web/META-INF/ /usr/share/bbb-web/org/ /usr/share/bbb-web/WEB-INF/
+
 echo ''
 echo ''
 echo '----------------'
@@ -27,4 +42,3 @@ sudo rm -r exploded
 sudo service bbb-web start
 
 echo 'starting service bbb-web'
-

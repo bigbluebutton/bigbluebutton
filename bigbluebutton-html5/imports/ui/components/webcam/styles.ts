@@ -20,20 +20,14 @@ const ResizableWrapper = styled.div<{
   $vertical: boolean;
 }>`
   ${({ $horizontal }) => $horizontal && css`
-    & > div span div {
-      &:hover {
-        background-color: rgba(255, 255, 255, .3);
-      }
-      width: 100% !important;
+    & > div div[style*="user-select: none"]:hover {
+      background-color: rgba(255, 255, 255, 0.3);
     }
   `}
 
   ${({ $vertical }) => $vertical && css`
-    & > div span div {
-      &:hover {
-        background-color: rgba(255, 255, 255, .3);
-      }
-      height: 100% !important;
+    & > div div[style*="user-select: none"]:hover {
+      background-color: rgba(255, 255, 255, 0.3);
     }
   `}
 `;

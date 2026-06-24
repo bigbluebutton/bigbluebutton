@@ -5,7 +5,7 @@ import { omit } from 'radash';
 import Styled from './styles';
 
 const propTypes = {
-  iconName: PropTypes.string.isRequired,
+  iconName: PropTypes.string,
   prependIconName: PropTypes.string,
   rotate: PropTypes.bool,
   className: PropTypes.string,
@@ -21,8 +21,9 @@ const Icon = ({
   ...props
 }) => (
   <Styled.Icon
+    aria-hidden="true"
     color={color}
-    className={cx(className, [prependIconName, iconName].join(''))}
+    className={cx(className, iconName ? [prependIconName, iconName].join('') : '')}
     // ToastContainer from react-toastify passes a useless closeToast prop here
     {...omit(props, ['closeToast', 'animations', 'loading'])}
     $rotate={rotate}

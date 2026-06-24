@@ -97,7 +97,7 @@ the hook to be removed.
 
 | Param Name | Required / Optional | Type   | Description                                                                     |
 | ---------- | ------------------- | ------ | ------------------------------------------------------------------------------- |
-| hookID     | Required            | Number | The ID of the hook that should be removed, as returned in the create hook call. |
+| hookID     | Required            | String | The ID of the hook that should be removed, as returned in the create hook call. |
 
 **Response when a hook is successfully removed**:
 

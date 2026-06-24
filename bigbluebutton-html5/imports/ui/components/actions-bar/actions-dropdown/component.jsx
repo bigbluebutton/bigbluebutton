@@ -7,11 +7,12 @@ import BBBMenu from '/imports/ui/components/common/menu/component';
 import { ActionButtonDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/action-button-dropdown-item/enums';
 import Styled from './styles';
 import { colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
-import { PANELS, ACTIONS, LAYOUT_TYPE } from '../../layout/enums';
+import { PANELS, ACTIONS } from '../../layout/enums';
 import { uniqueId } from '/imports/utils/string-utils';
 import VideoPreviewContainer from '/imports/ui/components/video-preview/container';
 import { screenshareHasEnded } from '/imports/ui/components/screenshare/service';
 import Session from '/imports/ui/services/storage/in-memory';
+import { ModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const propTypes = {
   amIPresenter: PropTypes.bool,
@@ -26,9 +27,6 @@ const propTypes = {
   allowExternalVideo: PropTypes.bool.isRequired,
   stopExternalVideoShare: PropTypes.func.isRequired,
   isMobile: PropTypes.bool.isRequired,
-  setMeetingLayout: PropTypes.func.isRequired,
-  setPushLayout: PropTypes.func.isRequired,
-  showPushLayout: PropTypes.bool.isRequired,
   isTimerFeatureEnabled: PropTypes.bool.isRequired,
   isCameraAsContentEnabled: PropTypes.bool.isRequired,
   actionButtonDropdownItems: PropTypes.arrayOf(
@@ -38,14 +36,15 @@ const propTypes = {
     }),
   ).isRequired,
   isPresentationManagementDisabled: PropTypes.bool,
+  isBreakout: PropTypes.bool,
 };
 
 const defaultProps = {
   shortcuts: '',
-  settingsLayout: LAYOUT_TYPE.SMART_LAYOUT,
   isPresentationManagementDisabled: false,
   amIPresenter: false,
   amIModerator: false,
+  isBreakout: false,
 };
 
 const intlMessages = defineMessages({
@@ -80,6 +79,10 @@ const intlMessages = defineMessages({
   pollBtnLabel: {
     id: 'app.actionsBar.actionsDropdown.pollBtnLabel',
     description: 'poll menu toggle button label',
+  },
+  pollQuizBtnLabel: {
+    id: 'app.actionsBar.actionsDropdown.pollQuizBtnLabel',
+    description: 'poll/quiz menu toggle button label',
   },
   pollBtnDesc: {
     id: 'app.actionsBar.actionsDropdown.pollBtnDesc',
@@ -126,19 +129,9 @@ class ActionsDropdown extends PureComponent {
     this.takePresenterId = uniqueId('action-item-');
     this.timerId = uniqueId('action-item-');
     this.selectUserRandId = uniqueId('action-item-');
-    this.state = {
-      isExternalVideoModalOpen: false,
-      isLayoutModalOpen: false,
-      isCameraAsContentModalOpen: false,
-    };
 
     this.handleExternalVideoClick = this.handleExternalVideoClick.bind(this);
     this.makePresentationItems = this.makePresentationItems.bind(this);
-    this.setExternalVideoModalIsOpen = this.setExternalVideoModalIsOpen.bind(this);
-    this.setLayoutModalIsOpen = this.setLayoutModalIsOpen.bind(this);
-    this.setCameraAsContentModalIsOpen = this.setCameraAsContentModalIsOpen.bind(this);
-    this.setPropsToPassModal = this.setPropsToPassModal.bind(this);
-    this.setForceOpen = this.setForceOpen.bind(this);
     this.handleTimerClick = this.handleTimerClick.bind(this);
   }
 
@@ -183,9 +176,16 @@ class ActionsDropdown extends PureComponent {
       presentations,
       isPresentationEnabled,
       isPresentationManagementDisabled,
+      isQuizEnabled,
+      isBreakout,
     } = this.props;
 
-    const { pollBtnLabel, presentationLabel, takePresenter } = intlMessages;
+    const {
+      pollBtnLabel,
+      presentationLabel,
+      takePresenter,
+      pollQuizBtnLabel,
+    } = intlMessages;
 
     const { formatMessage } = intl;
 
@@ -211,7 +211,7 @@ class ActionsDropdown extends PureComponent {
       actions.push({
         icon: 'polling',
         dataTest: 'polling',
-        label: formatMessage(pollBtnLabel),
+        label: isQuizEnabled ? formatMessage(pollQuizBtnLabel) : formatMessage(pollBtnLabel),
         key: this.pollId,
         onClick: () => {
           if (Session.equals('pollInitiated', true)) {
@@ -230,7 +230,7 @@ class ActionsDropdown extends PureComponent {
       });
     }
 
-    if (!amIPresenter && amIModerator) {
+    if (!amIPresenter && (amIModerator || isBreakout)) {
       actions.push({
         icon: 'presentation',
         label: formatMessage(takePresenter),
@@ -339,56 +339,17 @@ class ActionsDropdown extends PureComponent {
     return presentationItemElements;
   }
 
-  setExternalVideoModalIsOpen(value) {
-    this.setState({ isExternalVideoModalOpen: value });
-  }
-
-  setLayoutModalIsOpen(value) {
-    this.setState({ isLayoutModalOpen: value });
-  }
-
-  setCameraAsContentModalIsOpen(value) {
-    this.setState({ isCameraAsContentModalOpen: value });
-  }
-
-  setPropsToPassModal(value) {
-    this.setState({ propsToPassModal: value });
-  }
-
-  setForceOpen(value) {
-    this.setState({ forceOpen: value });
-  }
-
-  renderModal(isOpen, setIsOpen, priority, Component) {
-    return isOpen ? (
-      <Component
-        {...{
-          onRequestClose: () => setIsOpen(false),
-          priority,
-          setIsOpen,
-          isOpen,
-        }}
-      />
-    ) : null;
-  }
 
   render() {
     const {
       intl,
       amIPresenter,
       shortcuts: OPEN_ACTIONS_AK,
-      isMeteorConnected,
+      isConnected,
       isDropdownOpen,
       isMobile,
       isRTL,
-      propsToPassModal,
     } = this.props;
-
-    const {
-      isExternalVideoModalOpen,
-      isLayoutModalOpen,
-      isCameraAsContentModalOpen,
-    } = this.state;
 
     const availableActions = this.getAvailableActions();
     const availablePresentations = this.makePresentationItems();
@@ -398,7 +359,7 @@ class ActionsDropdown extends PureComponent {
 
     const customStyles = { top: '-1rem' };
 
-    if (availableActions.length === 0 || !isMeteorConnected) {
+    if (availableActions.length === 0 || !isConnected) {
       return null;
     }
 
@@ -433,39 +394,81 @@ class ActionsDropdown extends PureComponent {
             transformOrigin: { vertical: 'bottom', horizontal: isRTL ? 'right' : 'left' },
           }}
         />
-        {this.renderModal(
-          isExternalVideoModalOpen,
-          this.setExternalVideoModalIsOpen,
-          'low',
-          ExternalVideoModal,
-        )}
-        {this.renderModal(
-          isLayoutModalOpen,
-          this.setLayoutModalIsOpen,
-          'low',
-          LayoutModalContainer,
-        )}
-        {this.renderModal(
-          isCameraAsContentModalOpen,
-          this.setCameraAsContentModalIsOpen,
-          'low',
-          () => (
-            <VideoPreviewContainer
-              cameraAsContent
-              amIPresenter
-              {...{
-                callbackToClose: () => {
-                  this.setPropsToPassModal({});
-                  this.setForceOpen(false);
-                },
-                priority: 'low',
-                setIsOpen: this.setCameraAsContentModalIsOpen,
-                isOpen: isCameraAsContentModalOpen,
-              }}
-              {...propsToPassModal}
-            />
-          ),
-        )}
+            {/* External Video Modal */}
+        <ModalRegistration id="externalVideoModal" priority="low">
+          {({
+            isOpen,
+            id,
+            open,
+            close,
+          }) => {
+            this.setExternalVideoModalIsOpen = (value) => {
+              if (value) open();
+              else close();
+            };
+            return isOpen && (
+              <ExternalVideoModal
+                onRequestClose={close}
+                priority="low"
+                isOpen={isOpen}
+                id={id}
+                setIsOpen={isOpen ? close : open}
+              />
+            );
+          }}
+        </ModalRegistration>
+
+        {/* Layout Modal */}
+        <ModalRegistration id="layoutModal" priority="low">
+          {({
+            isOpen,
+            id,
+            open,
+            close,
+          }) => {
+            this.setLayoutModalIsOpen = (value) => {
+              if (value) open();
+              else close();
+            };
+            return isOpen && (
+              <LayoutModalContainer
+                onRequestClose={close}
+                priority="low"
+                isOpen={isOpen}
+                id={id}
+                setIsOpen={isOpen ? close : open}
+              />
+            );
+          }}
+        </ModalRegistration>
+
+        {/* Camera as Content Modal */}
+        <ModalRegistration id="cameraAsContentModal" priority="low">
+          {({
+            isOpen,
+            id,
+            open,
+            close,
+          }) => {
+            this.setCameraAsContentModalIsOpen = (value) => {
+              if (value) open();
+              else close();
+            };
+            return isOpen && (
+              <VideoPreviewContainer
+                cameraAsContent
+                amIPresenter
+                {...{
+                  callbackToClose: close,
+                  priority: 'low',
+                  setIsOpen: isOpen ? close : open,
+                  isOpen,
+                  id,
+                }}
+              />
+            );
+          }}
+        </ModalRegistration>
       </>
     );
   }

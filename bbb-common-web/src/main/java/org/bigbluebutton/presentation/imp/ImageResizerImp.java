@@ -59,7 +59,7 @@ public class ImageResizerImp implements ImageResizer {
 
         NuProcess process = imgResize.start();
         try {
-            process.waitFor(wait, TimeUnit.SECONDS);
+            process.waitFor(wait + 1, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             log.error(e.getMessage());
             conversionSuccess = false;

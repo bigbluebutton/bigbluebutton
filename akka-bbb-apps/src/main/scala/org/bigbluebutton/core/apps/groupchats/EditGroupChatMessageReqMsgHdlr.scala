@@ -1,78 +1,92 @@
 package org.bigbluebutton.core.apps.groupchats
 
+import org.bigbluebutton.ClientSettings.{ getConfigPropertyValueByPathAsBooleanOrElse, getConfigPropertyValueByPathAsIntOrElse }
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.PermissionCheck
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.{ Roles, Users2x }
 import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting }
+import org.bigbluebutton.core.util.MarkdownUtil
 import org.bigbluebutton.core2.MeetingStatus2x
 
 trait EditGroupChatMessageReqMsgHdlr extends HandlerHelpers {
   this: GroupChatHdlrs =>
 
   def handle(msg: EditGroupChatMessageReqMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): MeetingState2x = {
-    val chatDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("chat")
-    val editChatMessageDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("editChatMessage")
-    var chatLocked: Boolean = false
-    var chatLockedForUser: Boolean = false
+    val maxMsgLen = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.chat.max_message_length", 5000)
+    val minMsgLen = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.chat.min_message_length", 1)
 
-    var newState = state
+    if (msg.body.message.length < minMsgLen || msg.body.message.length > maxMsgLen) {
+      log.warning(
+        s"Ignoring chat edit from user ${msg.header.userId} in meeting ${liveMeeting.props.meetingProp.intId}: message length ${msg.body.message.length} out of bounds [$minMsgLen, $maxMsgLen]"
+      )
+      state
+    } else {
+      val chatDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("chat")
+      val editChatMessageDisabled: Boolean = liveMeeting.props.meetingProp.disabledFeatures.contains("editChatMessage")
+      var chatLocked: Boolean = false
+      var chatLockedForUser: Boolean = false
 
-    for {
-      user <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
-      groupChat <- state.groupChats.find(msg.body.chatId)
-    } yield {
-      if (groupChat.access == GroupChatAccess.PUBLIC && user.userLockSettings.disablePublicChat && user.role != Roles.MODERATOR_ROLE) {
-        chatLockedForUser = true
-      }
+      var newState = state
 
-      val userIsModerator = user.role == Roles.MODERATOR_ROLE
-
-      if (!userIsModerator && user.locked) {
-        val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
-        if (groupChat.access == GroupChatAccess.PRIVATE) {
-          val modMembers = groupChat.users.filter(cu => Users2x.findWithIntId(liveMeeting.users2x, cu.id) match {
-            case Some(user) => user.role == Roles.MODERATOR_ROLE
-            case None       => false
-          })
-          // don't lock private chats that involve a moderator
-          if (modMembers.isEmpty) {
-            chatLocked = permissions.disablePrivChat
-          }
-        } else {
-          chatLocked = permissions.disablePubChat
+      for {
+        user <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
+        groupChat <- state.groupChats.find(msg.body.chatId)
+      } yield {
+        if (groupChat.access == GroupChatAccess.PUBLIC && user.userLockSettings.disablePublicChat && user.role != Roles.MODERATOR_ROLE) {
+          chatLockedForUser = true
         }
-      }
 
-      if (!chatDisabled && !editChatMessageDisabled && !(applyPermissionCheck && chatLocked) && !chatLockedForUser) {
-        for {
-          gcMessage <- groupChat.msgs.find(gcm => gcm.id == msg.body.messageId)
-        } yield {
-          val chatIsPrivate = groupChat.access == GroupChatAccess.PRIVATE
-          val userIsAParticipant = groupChat.users.exists(u => u.id == user.intId)
-          val userIsOwner = gcMessage.sender.id == user.intId
+        val userIsModerator = user.role == Roles.MODERATOR_ROLE
 
-          if ((chatIsPrivate && userIsAParticipant) || !chatIsPrivate) {
-            if (userIsOwner) {
-              val editedGCMessage = gcMessage.copy(message = msg.body.message)
-              val updatedGroupChat = GroupChatApp.updateGroupChatMessage(liveMeeting.props.meetingProp.intId, groupChat, state.groupChats, editedGCMessage)
-
-              val event = buildGroupChatMessageEditedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.chatId, msg.header.userId, editedGCMessage)
-              bus.outGW.send(event)
-              newState = state.update(updatedGroupChat)
-            } else {
-              val reason = "User doesn't have permission to edit chat message"
-              PermissionCheck.ejectUserForFailedPermission(msg.header.meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
+        if (!userIsModerator && user.locked) {
+          val permissions = MeetingStatus2x.getPermissions(liveMeeting.status)
+          if (groupChat.access == GroupChatAccess.PRIVATE) {
+            val modMembers = groupChat.users.filter(cu => Users2x.findWithIntId(liveMeeting.users2x, cu.id) match {
+              case Some(user) => user.role == Roles.MODERATOR_ROLE
+              case None       => false
+            })
+            // don't lock private chats that involve a moderator
+            if (modMembers.isEmpty) {
+              chatLocked = permissions.disablePrivChat
             }
           } else {
-            val reason = "User isn't a participant of the chat"
-            PermissionCheck.ejectUserForFailedPermission(msg.header.meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
+            chatLocked = permissions.disablePubChat
+          }
+        }
+
+        if (!chatDisabled && !editChatMessageDisabled && !(applyPermissionCheck && chatLocked) && !chatLockedForUser) {
+          for {
+            gcMessage <- groupChat.msgs.find(gcm => gcm.id == msg.body.messageId)
+          } yield {
+            val chatIsPrivate = groupChat.access == GroupChatAccess.PRIVATE
+            val userIsAParticipant = groupChat.users.exists(u => u.id == user.intId)
+            val userIsOwner = gcMessage.sender.id == user.intId
+
+            if ((chatIsPrivate && userIsAParticipant) || !chatIsPrivate) {
+              if (userIsOwner) {
+
+                val allowedHtmlElements = getConfigPropertyValueByPathAsBooleanOrElse(liveMeeting.clientSettings, "public.chat.markdownImageAllowed", false)
+                val editedGCMessage = gcMessage.copy(message = msg.body.message, messageAsHtml = MarkdownUtil.markdownToSafeHtml(msg.body.message, allowedHtmlElements))
+                val updatedGroupChat = GroupChatApp.updateGroupChatMessage(liveMeeting.props.meetingProp.intId, groupChat, state.groupChats, editedGCMessage)
+
+                val event = buildGroupChatMessageEditedEvtMsg(liveMeeting.props.meetingProp.intId, msg.body.chatId, msg.header.userId, editedGCMessage)
+                bus.outGW.send(event)
+                newState = state.update(updatedGroupChat)
+              } else {
+                val reason = "User doesn't have permission to edit chat message"
+                PermissionCheck.ejectUserForFailedPermission(msg.header.meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
+              }
+            } else {
+              val reason = "User isn't a participant of the chat"
+              PermissionCheck.ejectUserForFailedPermission(msg.header.meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
+            }
           }
         }
       }
-    }
 
-    newState
+      newState
+    }
   }
 }

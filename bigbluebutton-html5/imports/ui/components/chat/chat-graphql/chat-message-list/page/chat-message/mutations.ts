@@ -13,23 +13,21 @@ const CHAT_DELETE_MESSAGE_MUTATION = gql`
 `;
 
 const CHAT_SEND_REACTION_MUTATION = gql`
-  mutation($chatId: String!, $messageId: String!, $reactionEmoji: String!, $reactionEmojiId: String!) {
+  mutation($chatId: String!, $messageId: String!, $reactionEmoji: String!) {
     chatSendMessageReaction(
       chatId: $chatId,
       messageId: $messageId,
       reactionEmoji: $reactionEmoji,
-      reactionEmojiId: $reactionEmojiId
     )
   }
 `;
 
 const CHAT_DELETE_REACTION_MUTATION = gql`
-  mutation($chatId: String!, $messageId: String!, $reactionEmoji: String!, $reactionEmojiId: String!) {
+  mutation($chatId: String!, $messageId: String!, $reactionEmoji: String!) {
     chatDeleteMessageReaction(
       chatId: $chatId,
       messageId: $messageId,
       reactionEmoji: $reactionEmoji,
-      reactionEmojiId: $reactionEmojiId
     )
   }
 `;

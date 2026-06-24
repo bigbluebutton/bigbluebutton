@@ -11,12 +11,12 @@ import {Rectangle} from './Rectangle.js';
 export class XBox extends Rectangle {
   /**
    * Draws an "XBox" shape on the SVG canvas.
-   * @return {G} Returns the SVG group element
+   * @return {Promise<G>} Returns the SVG group element
    *             containing the rectangle and the X.
    */
-  draw() {
+  async draw() {
     // Draw the base rectangle
-    const rectGroup = super.draw();
+    const rectGroup = await super.draw();
 
     // Add the first diagonal line from upper-left to lower-right
     const line1 = new Line();
@@ -33,7 +33,7 @@ export class XBox extends Rectangle {
     // Add the lines to the group
     rectGroup.add(line1);
     rectGroup.add(line2);
-    this.drawLabel(rectGroup);
+    await await this.drawLabel(rectGroup);
 
     return rectGroup;
   }

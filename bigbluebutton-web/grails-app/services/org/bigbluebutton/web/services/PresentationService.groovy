@@ -40,6 +40,7 @@ class PresentationService {
 	def presentationBaseUrl
 	def preUploadedPresentationOverrideDefault
 	def scanUploadedPresentationFiles
+	def pageTokenSecret
 
 	def deletePresentation = {conf, room, filename ->
 		def directory = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + filename)
@@ -193,8 +194,6 @@ class PresentationService {
 }
 
 /*** Helper classes **/
-import java.io.FilenameFilter;
-import java.io.File;
 class SvgFilter implements FilenameFilter {
 	public boolean accept(File dir, String name) {
 		return (name.endsWith(".svg"));

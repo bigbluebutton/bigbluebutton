@@ -7,6 +7,7 @@ import { User } from '/imports/ui/Types/user';
 import Styled from './styles';
 import {
   USER_AGGREGATE_COUNT_SUBSCRIPTION,
+  UsersCountSubscriptionResponse,
 } from './queries';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import UserListParticipantsPageContainer from './page/component';
@@ -130,7 +131,7 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
 const UserListParticipantsContainer: React.FC = () => {
   const {
     data: countData,
-  } = useDeduplicatedSubscription(USER_AGGREGATE_COUNT_SUBSCRIPTION);
+  } = useDeduplicatedSubscription<UsersCountSubscriptionResponse>(USER_AGGREGATE_COUNT_SUBSCRIPTION);
   const count = countData?.user_aggregate?.aggregate?.count || 0;
 
   return (

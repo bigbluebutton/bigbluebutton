@@ -60,7 +60,7 @@ const PollQuestionArea: React.FC<PollQuestionAreaProps> = ({
     ? intlMessages.questionLabel
     : intlMessages.optionalQuestionLabel;
   return (
-    <div>
+    <Styled.PollQuestionAreaWrapper>
       <Styled.PollQuestionArea
         hasError={hasQuestionError || hasOptionError}
         data-test="pollQuestionArea"
@@ -82,20 +82,21 @@ const PollQuestionArea: React.FC<PollQuestionAreaProps> = ({
         placeholder={intl.formatMessage(customInput ? questionsAndOptionsPlaceholder
           : questionPlaceholder)}
         {...{ MAX_INPUT_CHARS }}
+        handleTextareaChange={handleTextareaChange}
         as={customInput ? DraggableTextArea : 'textarea'}
         ref={textareaRef}
       />
       {hasQuestionError || hasOptionError ? (
         <Styled.InputError>{error}</Styled.InputError>
       ) : (
-        <Styled.ErrorSpacer>&nbsp;</Styled.ErrorSpacer>
+        null
       )}
       {hasWarning ? (
         <Styled.Warning>{warning}</Styled.Warning>
       ) : (
-        <Styled.ErrorSpacer>&nbsp;</Styled.ErrorSpacer>
+        null
       )}
-    </div>
+    </Styled.PollQuestionAreaWrapper>
   );
 };
 

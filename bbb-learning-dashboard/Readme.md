@@ -12,17 +12,19 @@ chown bigbluebutton /var/bigbluebutton/learning-dashboard/
 ## Build instructions
 
 ```
-# verify we are in the bbb-learning-dashboard directory ~/src/bbb-learning-dashboard
-pwd
-
-if [ -d node_modules ]; then rm -r node_modules; fi
-npm install
-npm run build
-cp -r build/* /var/bigbluebutton/learning-dashboard
+cp .env.example .env
 ```
 
-## Update nginx config
+```
+./deploy.sh
+```
+
+## Development instructions
 
 ```
-cp learning-dashboard.nginx /usr/share/bigbluebutton/nginx/
+cp .env.example .env
+```
+
+```
+./run-dev.sh
 ```

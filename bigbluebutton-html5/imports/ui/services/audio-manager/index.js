@@ -6,6 +6,8 @@ import logger from '/imports/startup/client/logger';
 import { notify } from '/imports/ui/services/notification';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import { monitorAudioConnection } from '/imports/utils/stats';
+import { monitorLiveKitAudioStats, stopLiveKitAudioStats } from '/imports/ui/services/livekit/stats';
+import { liveKitRoom } from '/imports/ui/services/livekit';
 import browserInfo from '/imports/utils/browserInfo';
 import {
   DEFAULT_INPUT_DEVICE_ID,
@@ -23,7 +25,7 @@ import { makeVar } from '@apollo/client';
 import { hasMediaDevicesEventTarget } from '/imports/ui/services/webrtc-base/utils';
 import AudioErrors from '/imports/ui/services/audio-manager/error-codes';
 import GrahqlSubscriptionStore, { stringToHash } from '/imports/ui/core/singletons/subscriptionStore';
-import VOICE_ACTIVITY from '../../core/graphql/queries/whoIsTalking';
+import VOICE_ACTIVITY from '../../core/graphql/queries/voiceActivity';
 import {
   setUserSelectedMicrophone,
   setUserSelectedListenOnly,
@@ -128,10 +130,22 @@ class AudioManager {
     this.callStateCallback = this.callStateCallback.bind(this);
     this.onBeforeUnload = this.onBeforeUnload.bind(this);
     this.handleMediaStreamInactive = this.handleMediaStreamInactive.bind(this);
+    this.onAudioJoining = this.onAudioJoining.bind(this);
 
     window.addEventListener('StopAudioTracks', () => this.forceExitAudio());
     window.addEventListener('beforeunload', this.onBeforeUnload);
     checkMediaDevicesTarget();
+  }
+
+  isUsingLiveKit() {
+    return this.bridge?.bridgeName === 'livekit';
+  }
+
+  shouldUseLiveKitAudioState() {
+    const livekitConfig = window?.meetingClientSettings?.public?.media?.livekit;
+    const useLiveKitAudioState = livekitConfig?.audio?.useLiveKitAudioState ?? false;
+
+    return this.isUsingLiveKit() && useLiveKitAudioState;
   }
 
   onBeforeUnload() {
@@ -166,8 +180,10 @@ class AudioManager {
       logger.warn({
         logCode: 'audiomanager_permission_tracking_failed',
         extraInfo: {
+          bridge: this.bridgeName,
           errorName: error.name,
           errorMessage: error.message,
+          errorStack: error?.stack,
         },
       }, `Failed to track microphone permission status: ${error.message}`);
     };
@@ -180,6 +196,7 @@ class AudioManager {
             logger.debug({
               logCode: 'audiomanager_permission_status_changed',
               extraInfo: {
+                bridge: this.bridgeName,
                 newStatus: status.state,
               },
             }, `Microphone permission status changed: ${status.state}`);
@@ -201,16 +218,16 @@ class AudioManager {
           this.outputDeviceId = cachedId;
         })
         .catch((error) => {
-          logger.warn(
-            {
-              logCode: 'audiomanager_output_device_storage_failed',
-              extraInfo: {
-                deviceId: cachedId,
-                errorMessage: error.message,
-              },
+          logger.warn({
+            logCode: 'audiomanager_output_device_storage_failed',
+            extraInfo: {
+              bridge: this.bridgeName,
+              deviceId: cachedId,
+              errorMessage: error.message,
+              errorName: error.name,
+              errorStack: error?.stack,
             },
-            `Failed to apply output audio device from storage: ${error.message}`
-          );
+          }, `Failed to apply output audio device from storage: ${error.message}`);
         });
     }
   }
@@ -300,8 +317,10 @@ class AudioManager {
       logger.warn({
         logCode: 'audiomanager_enumerate_devices_failed',
         extraInfo: {
+          bridge: this.bridgeName,
           errorName: error.name,
           errorMessage: error.message,
+          errorStack: error?.stack,
         },
       }, `Audio manager: error enumerating devices - {${error.name}: ${error.message}}`);
 
@@ -351,7 +370,10 @@ class AudioManager {
     this._applyCachedOutputDeviceId();
     this.transparentListenOnlySupported = this.supportsTransparentListenOnly();
     this.audioEventHandler = audioEventHandler;
-    this.observeVoiceActivity();
+
+    // Only observe GraphQL voice activity if not using LiveKit's audio state
+    if (!this.shouldUseLiveKitAudioState()) this.observeVoiceActivity();
+
     this.initialized = true;
   }
 
@@ -504,8 +526,7 @@ class AudioManager {
     this.isListenOnly = false;
     this.isEchoTest = false;
 
-    return this.onAudioJoining
-      .bind(this)()
+    return this.onAudioJoining({ muted })
       .then(() => {
         const callOptions = {
           isListenOnly: false,
@@ -527,8 +548,7 @@ class AudioManager {
     const EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE =
     window.meetingClientSettings.public.app.experimentalUseKmsTrickleIceForMicrophone;
 
-    return this.onAudioJoining
-      .bind(this)()
+    return this.onAudioJoining({ muted })
       .then(async () => {
         let validIceCandidates = [];
         if (EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE) {
@@ -556,6 +576,18 @@ class AudioManager {
 
   async joinAudio(callOptions, callStateCallback) {
     window.addEventListener('audioPlayFailed', this.handlePlayElementFailed);
+
+    logger.info({
+      logCode: 'audio_joining',
+      extraInfo: {
+        bridge: this.bridgeName,
+        inputDeviceId: this.inputDeviceId,
+        inputDevices: this.inputDevicesJSON,
+        outputDeviceId: this.outputDeviceId,
+        outputDevices: this.outputDevicesJSON,
+        isListenOnly: this.isListenOnly,
+      },
+    }, 'Joining audio');
 
     const enumDevicesIfNecessary = () => {
       // If we don't have I/O devices yet (e.g.: skipCheck/Echo), enumerate
@@ -605,6 +637,7 @@ class AudioManager {
         logCode: 'audio_join_failure',
         extraInfo: {
           secondsToAudioFailure,
+          bridge: this.bridgeName,
           errorName: error.name,
           errorMessage: error.message,
           errorStack: error?.stack,
@@ -640,7 +673,7 @@ class AudioManager {
 
     logger.info({
       logCode: 'audiomanager_join_listenonly',
-      extraInfo: { logType: 'user_action' },
+      extraInfo: { logType: 'user_action', bridge: this.bridgeName },
     }, 'user requested to connect to audio conference as listen only');
 
     // If the bridge supports transparent listen-only, we set the placeholder
@@ -650,7 +683,7 @@ class AudioManager {
       this.inputDeviceId = 'listen-only';
     }
 
-    return this.onAudioJoining.bind(this)()
+    return this.onAudioJoining({ muted: true })
       .then(() => {
         const callOptions = {
           isListenOnly: true,
@@ -661,9 +694,9 @@ class AudioManager {
       });
   }
 
-  onAudioJoining() {
+  onAudioJoining({ muted } = {}) {
     this.isConnecting = true;
-    this.isMuted = true;
+    this.isMuted = (typeof muted === 'boolean') ? muted : true;
     this.error = false;
     // Ensure the local mute state (this.isMuted) is aligned with the initial
     // placeholder value before joining audio.
@@ -698,9 +731,28 @@ class AudioManager {
     return this.bridge.transferCall(this.onAudioJoin.bind(this));
   }
 
-  onVoiceUserChanges(fields = {}) {
-    if (fields.muted !== undefined && fields.muted !== this.isMuted) {
-      this.isMuted = fields.muted;
+  onVoiceUserChanges({
+    leftVoiceConf,
+    muted,
+    talking,
+  } = {}) {
+    // When using LiveKit audio state, mute/talking states are derived
+    // via the useAudioManagerStateSync hook, which pulls data from the unified
+    // audio state hooks (useWhoIsUnmuted and useWhoIsTalking).
+    if (this.shouldUseLiveKitAudioState()) return;
+
+    let newMuteState;
+
+    // when user leaves voice conf, set muted = false
+    // as the user might have been transfered to a breakout room
+    if (leftVoiceConf !== undefined && leftVoiceConf) {
+      newMuteState = false;
+    } else if (muted !== undefined && muted !== this.isMuted) {
+      newMuteState = muted;
+    }
+
+    if (newMuteState !== undefined && newMuteState !== this.isMuted) {
+      this.isMuted = newMuteState;
 
       if (this.isMuted) {
         this.mute();
@@ -709,8 +761,8 @@ class AudioManager {
       }
     }
 
-    if (fields.talking !== undefined && fields.talking !== this.isTalking) {
-      this.isTalking = fields.talking;
+    if (talking !== undefined && talking !== this.isTalking) {
+      this.isTalking = talking;
     }
 
     if (this.isMuted) {
@@ -764,12 +816,16 @@ class AudioManager {
       logger.warn({
         logCode: 'audiomanager_device_enforce_failed',
         extraInfo: {
+          bridge: this.bridgeName,
           errorName: error.name,
           errorMessage: error.message,
+          errorStack: error?.stack,
           inputDeviceId: this.inputDeviceId,
           outputDeviceId: this.outputDeviceId,
         },
       }, `Failed to enforce input/output devices: ${error.message}`);
+    } finally {
+      this.setSenderTrackEnabled(!this.isMuted);
     }
 
     if (!this.isEchoTest) {
@@ -780,6 +836,7 @@ class AudioManager {
         logCode: 'audio_joined',
         extraInfo: {
           secondsToActivateAudio,
+          bridge: this.bridgeName,
           inputDeviceId: this.inputDeviceId,
           inputDevices: this.inputDevicesJSON,
           outputDeviceId: this.outputDeviceId,
@@ -818,6 +875,7 @@ class AudioManager {
     window.removeEventListener('audioPlayFailed', this.handlePlayElementFailed);
     this._resetAudioJoinTime();
     this.notifyAudioExit();
+    stopLiveKitAudioStats();
     this.isConnected = false;
     this.isConnecting = false;
     this.isHangingUp = false;
@@ -866,6 +924,7 @@ class AudioManager {
         logger.info({
           logCode: 'audio_ended',
           extraInfo: {
+            bridge: this.bridgeName,
             inputDeviceId: this.inputDeviceId,
             inputDevices: this.inputDevicesJSON,
             outputDeviceId: this.outputDeviceId,
@@ -951,6 +1010,7 @@ class AudioManager {
     logger.warn({
       logCode: 'audiomanager_stream_inactive',
       extraInfo: {
+        bridge: this.bridgeName,
         currentStreamData: MediaStreamUtils.getMediaStreamLogData(this.inputStream),
         streamData: MediaStreamUtils.getMediaStreamLogData(stream),
       },
@@ -1040,8 +1100,10 @@ class AudioManager {
       logger.error({
         logCode: 'audiomanager_stream_termination_tracking_failed',
         extraInfo: {
+          bridge: this.bridgeName,
           errorName: error.name,
           errorMessage: error.message,
+          errorStack: error?.stack,
         },
       }, `Failed to track stream termination - {${error.name}: ${error.message}}`);
     }
@@ -1055,6 +1117,7 @@ class AudioManager {
     logger.debug({
       logCode: 'audiomanager_input_device_change',
       extraInfo: {
+        bridge: this.bridgeName,
         deviceId: currentDeviceId,
         newDeviceId: deviceId || 'none',
       },
@@ -1065,37 +1128,53 @@ class AudioManager {
 
   liveChangeInputDevice(deviceId) {
     const currentDeviceId = this.inputDeviceId ?? 'none';
+    const updateInputDevice = () => {
+      const extractedDeviceId = MediaStreamUtils.extractDeviceIdFromStream(
+        this.inputStream,
+        'audio',
+      );
+
+      if (extractedDeviceId && extractedDeviceId !== this.inputDeviceId) {
+        this.changeInputDevice(extractedDeviceId);
+      }
+
+      return this.inputDeviceId;
+    };
+
     // we force stream to be null, so MutedAlert will deallocate it and
     // a new one will be created for the new stream
     this.inputStream = null;
+
     return this.bridge
       .liveChangeInputDevice(deviceId)
       .then((stream) => {
         this.inputStream = stream;
-        const extractedDeviceId = MediaStreamUtils.extractDeviceIdFromStream(
-          this.inputStream,
-          'audio',
-        );
-        if (extractedDeviceId && extractedDeviceId !== this.inputDeviceId) {
-          this.changeInputDevice(extractedDeviceId);
-        }
         // Live input device change - add device ID to session storage so it
         // can be re-used on refreshes/other sessions
-        storeAudioInputDeviceId(extractedDeviceId);
-        if (this.isMuted) this.setSenderTrackEnabled(false);
+        const newDeviceId = updateInputDevice();
+        // Only store successfully changed device IDs. In case of failures,
+        // cleanup in case of failures is done elsewhere (see doGUM)
+        storeAudioInputDeviceId(newDeviceId);
+        this.setSenderTrackEnabled(!this.isMuted);
       })
       .catch((error) => {
         logger.error({
           logCode: 'audiomanager_input_live_device_change_failure',
           extraInfo: {
+            bridge: this.bridgeName,
             errorName: error.name,
             errorMessage: error.message,
+            errorStack: error?.stack,
             deviceId: currentDeviceId,
             newDeviceId: deviceId,
             inputDevices: this.inputDevicesJSON,
           },
         }, `Input device live change failed - {${error.name}: ${error.message}}`);
-
+        // Recover input stream from whatever is left in the bridge
+        this.inputStream = this.bridge ? this.bridge.inputStream : this.inputStream;
+        // Rollback input device ID
+        updateInputDevice();
+        this.setSenderTrackEnabled(!this.isMuted);
         throw error;
       });
   }
@@ -1123,6 +1202,7 @@ class AudioManager {
         logger.debug({
           logCode: 'audiomanager_output_device_change',
           extraInfo: {
+            bridge: this.bridgeName,
             deviceId: currentDeviceId,
             newDeviceId: deviceId,
           },
@@ -1138,8 +1218,10 @@ class AudioManager {
         logger.error({
           logCode: 'audiomanager_output_device_change_failure',
           extraInfo: {
+            bridge: this.bridgeName,
             errorName: error.name,
             errorMessage: error.message,
+            errorStack: error?.stack,
             deviceId: currentDeviceId,
             newDeviceId: targetDeviceId,
             outputDevices: this.outputDevicesJSON,
@@ -1166,6 +1248,10 @@ class AudioManager {
 
   get bridge() {
     return this.isListenOnly ? this.listenOnlyBridge : this.fullAudioBridge;
+  }
+
+  get bridgeName() {
+    return this.bridge?.bridgeName;
   }
 
   set inputStream(stream) {
@@ -1251,8 +1337,12 @@ class AudioManager {
   }
 
   monitor() {
-    const peer = this.bridge.getPeerConnection();
-    monitorAudioConnection(peer);
+    if (this.isUsingLiveKit()) {
+      const STATS_INTERVAL = window.meetingClientSettings.public.stats.interval;
+      monitorLiveKitAudioStats(liveKitRoom, STATS_INTERVAL);
+    } else {
+      monitorAudioConnection();
+    }
   }
 
   handleAllowAutoplay() {
@@ -1308,6 +1398,9 @@ class AudioManager {
       // disrupting the join flow.
       logger.info({
         logCode: 'audiomanager_autoplay_prompt',
+        extraInfo: {
+          bridge: this.bridgeName,
+        },
       }, 'Prompting user for action to play listen only media');
       this.callStateCallback({
         status: AUTOPLAY_BLOCKED,
@@ -1343,7 +1436,7 @@ class AudioManager {
 
     if (outputDeviceId && typeof audioAlert.setSinkId === 'function') {
       return audioAlert
-        .setSinkId(outputDeviceId)
+        .setSinkId(outputDeviceId || 'default')
         .then(() => AudioManager.playAudioElement(audioAlert));
     }
 

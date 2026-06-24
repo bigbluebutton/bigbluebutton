@@ -19,12 +19,15 @@ const FloatingWindowContainer = () => {
     return (
       <FloatingWindow
         key={itemToRender.id}
+        id={itemToRender.id}
         top={itemToRender.top}
         left={itemToRender.left}
         backgroundColor={itemToRender.backgroundColor}
         boxShadow={itemToRender.boxShadow}
+        zIndex={itemToRender.zIndex}
         renderFunction={itemToRender.contentFunction}
         isDraggable={itemToRender.movable}
+        dataTest={itemToRender.dataTest}
       />
     );
   });

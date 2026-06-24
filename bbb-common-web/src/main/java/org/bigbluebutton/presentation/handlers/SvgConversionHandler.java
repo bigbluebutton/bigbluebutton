@@ -10,9 +10,13 @@ public class SvgConversionHandler extends AbstractCommandHandler {
     private static Logger log = LoggerFactory.getLogger(SvgConversionHandler.class);
 
     private static String PATH_OUTPUT = "<path";
-    private static String IMAGE_TAG_OUTPUT = "<image";
     private static String PATH_PATTERN = "\\d+\\s" + PATH_OUTPUT;
+
+    private static String IMAGE_TAG_OUTPUT = "<image";
     private static String IMAGE_TAG_PATTERN = "\\d+\\s" + IMAGE_TAG_OUTPUT;
+
+    private static String USE_TAG_OUTPUT = "<use";
+    private static String USE_TAG_PATTERN = "\\d+\\s" + USE_TAG_OUTPUT;
 
     private final String id;
 
@@ -54,6 +58,26 @@ public class SvgConversionHandler extends AbstractCommandHandler {
                 return Integer.parseInt(m.group(0).replace(IMAGE_TAG_OUTPUT, "").trim());
             } catch (Exception e) {
                 log.error("Exception counting the number of image tags", e);
+                return 0;
+            }
+        }
+        return 0;
+    }
+
+    /**
+     *
+     * @return The number of <use/> tags in the generated SVG.
+     */
+    public int numberOfUseTags() {
+        if (stdoutContains(USE_TAG_OUTPUT)) {
+            try {
+                String out = stdoutBuilder.toString();
+                Pattern r = Pattern.compile(USE_TAG_PATTERN);
+                Matcher m = r.matcher(out);
+                m.find();
+                return Integer.parseInt(m.group(0).replace(USE_TAG_OUTPUT, "").trim());
+            } catch (Exception e) {
+                log.error("Exception counting the number of use tags", e);
                 return 0;
             }
         }

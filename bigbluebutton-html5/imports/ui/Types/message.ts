@@ -12,6 +12,7 @@ export interface Message {
   } | null;
   meetingId: string;
   message: string;
+  messageAsHtml: string;
   messageType: string;
   messageId: string;
   senderId: string;
@@ -29,6 +30,7 @@ export interface Message {
     } | null;
     messageSequence: number;
     message: string | null;
+    messageAsHtml: string | null;
     chatEmphasizedText: boolean;
     user: {
       name: string;
@@ -38,7 +40,6 @@ export interface Message {
   reactions: {
     createdAt: string;
     reactionEmoji: string;
-    reactionEmojiId: string;
     user: {
       name: string;
       userId: string;

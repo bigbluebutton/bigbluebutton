@@ -1,23 +1,36 @@
 package org.bigbluebutton.api2
 
-import scala.collection.JavaConverters._
 import org.bigbluebutton.api.messaging.converters.messages._
 import org.bigbluebutton.api.messaging.messages.{ ChatMessageFromApi, RegisterUserSessionToken }
-import org.bigbluebutton.api.service.ServiceUtils;
+import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.api2.meeting.RegisterUser
 import org.bigbluebutton.common2.domain.{ DefaultProps, PageVO, PresentationPageConvertedVO, PresentationVO }
 import org.bigbluebutton.common2.msgs._
+import org.bigbluebutton.presentation.imp.ImageResolutionService
 import org.bigbluebutton.presentation.messages._
+import org.slf4j.{ Logger, LoggerFactory }
 
-import java.io.{ BufferedReader, InputStreamReader }
-import java.net.URL
+import java.io.{ BufferedInputStream, FilterInputStream, InputStream }
 import java.nio.charset.StandardCharsets
-import java.util.stream.Collectors
+import java.nio.file.{ Files, Paths }
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
+import javax.xml.stream.{ XMLInputFactory, XMLStreamConstants }
 import scala.io.Source
-import scala.util.Using
-import scala.xml.XML
+import scala.jdk.CollectionConverters._
+import scala.math.BigDecimal.RoundingMode
+import scala.util.{ Try, Using }
 
 object MsgBuilder {
+  private lazy val imageResolutionService: ImageResolutionService = new ImageResolutionService
+  private lazy val logger: Logger = LoggerFactory.getLogger("msg-builder")
+
+  private def generatePageToken(presId: String, page: Int, secret: String): String = {
+    val mac = Mac.getInstance("HmacSHA256")
+    mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"))
+    mac.doFinal(s"$presId|$page".getBytes(StandardCharsets.UTF_8)).map("%02x".format(_)).mkString
+  }
+
   def buildDestroyMeetingSysCmdMsg(msg: DestroyMeetingMessage): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(DestroyMeetingSysCmdMsg.NAME, routing)
@@ -60,7 +73,7 @@ object MsgBuilder {
       authToken = msg.authToken, sessionToken = msg.sessionToken,
       avatarURL = msg.avatarURL, webcamBackgroundURL = msg.webcamBackgroundURL, bot = msg.bot, guest = msg.guest, authed = msg.authed,
       guestStatus = msg.guestStatus, excludeFromDashboard = msg.excludeFromDashboard, enforceLayout = msg.enforceLayout,
-      logoutUrl = logoutUrl, userMetadata = msg.userMetadata)
+      logoutUrl = logoutUrl, joinRequestMetadata = msg.joinRequestMetadata, userMetadata = msg.userMetadata)
     val req = RegisterUserReqMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)
   }
@@ -91,79 +104,70 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
-  def generatePresentationPage(presId: String, numPages: Int, presBaseUrl: String, page: Int): PresentationPageConvertedVO = {
-    val id = presId + "/" + page
-    val current = if (page == 1) true else false
-    val thumbUrl = presBaseUrl + "/thumbnail/" + page
-
-    val txtUrl = presBaseUrl + "/textfiles/" + page
-    val svgUrl = presBaseUrl + "/svg/" + page
-    val pngUrl = presBaseUrl + "/png/" + page
+  def generatePresentationPage(presId: String, presBaseUrl: String, presParentPath: String, page: Int, pageTokenSecret: String = ""): PresentationPageConvertedVO = {
+    val pageToken = if (pageTokenSecret.nonEmpty) generatePageToken(presId, page, pageTokenSecret) else ""
+    val tokenParam = if (pageToken.nonEmpty) "?pageToken=" + pageToken else ""
+    val thumbUrl = presBaseUrl + "/thumbnail/" + page + tokenParam
+    val txtUrl = presBaseUrl + "/textfiles/" + page + tokenParam
+    val svgUrl = presBaseUrl + "/svg/" + page + tokenParam
+    val pngUrl = presBaseUrl + "/png/" + page + tokenParam
 
     val urls = Map("thumb" -> thumbUrl, "text" -> txtUrl, "svg" -> svgUrl, "png" -> pngUrl)
 
-    val result = Using.Manager { use =>
-      val contentUrl = new URL(txtUrl)
-      val stream = use(new InputStreamReader(contentUrl.openStream(), StandardCharsets.UTF_8))
-      val reader = use(new BufferedReader(stream))
-      val content = reader.lines().collect(Collectors.joining("\n"))
+    // get SVG dimensions
+    var width = 1440D
+    var height = 1080D
+    val pageAbsoluteSvgPath = presParentPath + "/svgs/slide" + page.toString + ".svg"
 
-      val svgSource = Source.fromURL(new URL(svgUrl))
-      val svgContent = svgSource.mkString
-      svgSource.close()
+    val dims = readSvgDims(pageAbsoluteSvgPath)
+    dims match {
+      case Some(d) =>
+        logger.info("Dimensions found from probe")
+        width = d.width
+        height = d.height
+      case None =>
+        logger.info("Falling back to image resolution service")
 
-      // XML parser configuration in use disallows the DOCTYPE declaration within the XML document
-      // Sanitize the XML content removing DOCTYPE
-      val sanitizedSvgContent = "(?i)<!DOCTYPE[^>]*>".r.replaceAllIn(svgContent, "")
-
-      val xmlContent = XML.loadString(sanitizedSvgContent)
-
-      val w = (xmlContent \ "@width").text.replaceAll("[^.0-9]", "")
-      val h = (xmlContent \ "@height").text.replaceAll("[^.0-9]", "")
-
-      val width = w.toDouble
-      val height = h.toDouble
-
-      PresentationPageConvertedVO(
-        id = id,
-        num = page,
-        urls = urls,
-        content = content,
-        current = current,
-        width = width,
-        height = height
-      )
-    } recover {
-      case e: Exception =>
-        e.printStackTrace()
-        PresentationPageConvertedVO(
-          id = id,
-          num = page,
-          urls = urls,
-          content = "",
-          current = current
-        )
+        val imageResolution = imageResolutionService.identifyImageResolution(pageAbsoluteSvgPath)
+        if (imageResolution.getWidth != 0 && imageResolution.getHeight != 0) {
+          width = imageResolution.getWidth
+          height = imageResolution.getHeight
+        }
     }
 
-    val presentationPage = result.getOrElse(
-      PresentationPageConvertedVO(
-        id = id,
-        num = page,
-        urls = urls,
-        content = "",
-        current = current
-      )
-    )
+    val content = Try {
+      val maxChars: Int = 1024 * 1024 // limit ~1 MB to avoid OOM
+      val pageAbsoluteTxtPath = presParentPath + "/textfiles/slide-" + page.toString + ".txt"
+      Using(Source.fromFile(pageAbsoluteTxtPath, StandardCharsets.UTF_8.name())) { source =>
+        val buffer = new StringBuilder
+        val iter = source.iter
+        var count = 0
+        while (iter.hasNext && count < maxChars) {
+          buffer.append(iter.next())
+          count += 1
+        }
+        buffer.toString()
+      }.get
+    }.getOrElse("")
 
-    presentationPage
+    PresentationPageConvertedVO(
+      id = s"$presId/$page",
+      num = page,
+      urls = urls,
+      content = content,
+      current = page == 1,
+      width = width,
+      height = height,
+      pageToken = pageToken
+    )
   }
 
-  def buildPresentationPageConvertedSysMsg(msg: DocPageGeneratedProgress): BbbCommonEnvCoreMsg = {
+  def buildPresentationPageConvertedSysMsg(msg: DocPageGeneratedProgress, pageTokenSecret: String = ""): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(PresentationPageConvertedSysMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationPageConvertedSysMsg.NAME, msg.meetingId, msg.authzToken)
 
-    val page = generatePresentationPage(msg.presId, msg.numPages.intValue(), msg.presBaseUrl, msg.page.intValue())
+    val page = generatePresentationPage(msg.presId, msg.presBaseUrl, msg.presParentPath, msg.page.intValue(), pageTokenSecret)
 
     val body = PresentationPageConvertedSysMsgBody(
       podId = msg.podId,
@@ -202,6 +206,17 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
+  def buildPresentationConversionStartedSysPubMsg(msg: DocConversionStarted): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PresentationConversionStartedSysPubMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationConversionStartedSysPubMsg.NAME, msg.meetingId, msg.authzToken)
+    val common = PresentationConversionCommonBody(podId = msg.podId, meetingId = msg.meetingId, presentationId = msg.presId,
+      presentationName = msg.filename, messageKey = "", temporaryPresentationId = msg.temporaryPresentationId)
+    val body = PresentationConversionStartedSysPubMsgBody(common = common, maxDuration = msg.maxConversionTime)
+    val req = PresentationConversionStartedSysPubMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
   def buildOfficeToPdfConversionFailedMsg(msg: OfficeToPdfConversionFailed): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(PresentationConversionFailedErrorSysPubMsg.NAME, routing)
@@ -226,12 +241,12 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
-  def buildPresentationConversionCompletedSysPubMsg(msg: DocPageCompletedProgress): BbbCommonEnvCoreMsg = {
+  def buildPresentationConversionCompletedSysPubMsg(msg: DocPageCompletedProgress, pageTokenSecret: String = ""): BbbCommonEnvCoreMsg = {
     val routing = collection.immutable.HashMap("sender" -> "bbb-web")
     val envelope = BbbCoreEnvelope(PresentationConversionCompletedSysPubMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationConversionCompletedSysPubMsg.NAME, msg.meetingId, msg.authzToken)
 
-    val pages = generatePresentationPages(msg.presId, msg.numPages.intValue(), msg.presBaseUrl)
+    val pages = generatePresentationPages(msg.presId, msg.numPages.intValue(), msg.presBaseUrl, pageTokenSecret)
     val presentation = PresentationVO(msg.presId, msg.temporaryPresentationId, msg.filename,
       current = msg.current.booleanValue(), pages.values.toVector, msg.downloadable.booleanValue(),
       msg.removable.booleanValue(),
@@ -243,19 +258,21 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
-  def generatePresentationPages(presId: String, numPages: Int, presBaseUrl: String): scala.collection.immutable.Map[String, PageVO] = {
+  def generatePresentationPages(presId: String, numPages: Int, presBaseUrl: String, pageTokenSecret: String = ""): scala.collection.immutable.Map[String, PageVO] = {
     val pages = new scala.collection.mutable.HashMap[String, PageVO]
     for (i <- 1 to numPages) {
       val id = presId + "/" + i
       val num = i
       val current = if (i == 1) true else false
-      val thumbnail = presBaseUrl + "/thumbnail/" + i
+      val pageToken = if (pageTokenSecret.nonEmpty) generatePageToken(presId, i, pageTokenSecret) else ""
+      val tokenParam = if (pageToken.nonEmpty) "?pageToken=" + pageToken else ""
+      val thumbnail = presBaseUrl + "/thumbnail/" + i + tokenParam
 
-      val txtUri = presBaseUrl + "/textfiles/" + i
-      val svgUri = presBaseUrl + "/svg/" + i
+      val txtUri = presBaseUrl + "/textfiles/" + i + tokenParam
+      val svgUri = presBaseUrl + "/svg/" + i + tokenParam
 
       val p = PageVO(id = id, num = num, thumbUri = thumbnail,
-        txtUri = txtUri, svgUri = svgUri, current = current)
+        txtUri = txtUri, svgUri = svgUri, current = current, pageToken = pageToken)
       pages += p.id -> p
     }
 
@@ -442,4 +459,101 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
+  private final case class SvgDimensions(width: Double, height: Double)
+
+  private def readSvgDims(svgPath: String, maxBytes: Long = 10L * 1024 * 1024, scale: Int = 0): Option[SvgDimensions] = {
+    Using.Manager { use =>
+      val in = use(Files.newInputStream(Paths.get(svgPath)))
+      val bis = use(new BufferedInputStream(in))
+      val bounded = use(new BoundedInputStream(bis, if (maxBytes <= 0) Long.MaxValue else maxBytes))
+
+      val f = XMLInputFactory.newFactory()
+      f.setProperty(XMLInputFactory.SUPPORT_DTD, java.lang.Boolean.FALSE)
+      Try(f.setProperty("javax.xml.stream.isSupportingExternalEntities", java.lang.Boolean.FALSE))
+      Try(f.setProperty("javax.xml.stream.isCoalescing", java.lang.Boolean.FALSE))
+      Try(f.setProperty("javax.xml.stream.isNamespaceAware", java.lang.Boolean.TRUE))
+      Try(f.setXMLResolver((_, _, _, _) => null))
+
+      val reader = {
+        val r0 = f.createXMLStreamReader(bounded, StandardCharsets.UTF_8.name())
+        use(new AutoCloseable { override def close(): Unit = r0.close() })
+        r0
+      }
+
+      while (reader.hasNext) {
+        reader.next() match {
+          case XMLStreamConstants.START_ELEMENT if reader.getLocalName.equalsIgnoreCase("svg") =>
+            val wRaw = Option(reader.getAttributeValue(null, "width"))
+            val hRaw = Option(reader.getAttributeValue(null, "height"))
+
+            val wPx = wRaw.flatMap(parseCssLengthPx)
+            val hPx = hRaw.flatMap(parseCssLengthPx)
+
+            (wPx, hPx) match {
+              case (Some(w), Some(h)) if w > 0 && h > 0 =>
+                val W = roundPx(w, scale)
+                val H = roundPx(h, scale)
+                return Some(SvgDimensions(W, H))
+              case _ =>
+                return None
+            }
+          case _ =>
+        }
+      }
+      None
+    }.toOption.flatten
+  }
+
+  private def parseCssLengthPx(s: String): Option[Double] = {
+    if (s == null) return None
+    val t = s.trim
+    if (t.isEmpty || t.endsWith("%")) return None
+    val R = """^\s*([+-]?(?:\d+(?:\.\d*)?|\.\d+))\s*([A-Za-z]*)\s*$""".r
+    t match {
+      case R(num, unit0) =>
+        val n = num.toDouble
+        val px = unit0.toLowerCase match {
+          case "" | "px" => 1.0
+          case "pt"      => 1.0
+          case "pc"      => 16.0
+          case "in"      => 96.0
+          case "cm"      => 96.0 / 2.54
+          case "mm"      => 96.0 / 25.4
+          case "q"       => 96.0 / 25.4 / 4.0
+          case _         => Double.NaN
+        }
+        if (px.isNaN) None else Some(n * px)
+      case _ => None
+    }
+  }
+
+  private def roundPx(d: Double, scale: Int): Double = {
+    if (java.lang.Double.isNaN(d) || java.lang.Double.isInfinite(d)) d
+    else {
+      val r = BigDecimal(d).setScale(scale, RoundingMode.HALF_UP).toDouble
+      if (r == -0.0d) 0.0d else r
+    }
+  }
+
+  private final class BoundedInputStream(in: InputStream, max: Long) extends FilterInputStream(in) {
+    private var remaining = max
+
+    override def read(): Int =
+      if (remaining <= 0) -1
+      else {
+        val r = super.read();
+        if (r >= 0) remaining -= 1;
+        r
+      }
+
+    override def read(b: Array[Byte], off: Int, len: Int): Int = {
+      if (remaining <= 0) -1
+      else {
+        val want = Math.min(len.toLong, Math.max(0L, Math.min(Int.MaxValue.toLong, remaining))).toInt
+        val r = super.read(b, off, want)
+        if (r > 0) remaining -= r
+        r
+      }
+    }
+  }
 }

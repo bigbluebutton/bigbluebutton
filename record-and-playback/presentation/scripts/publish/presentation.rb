@@ -48,27 +48,16 @@ end
 MAGIC_MYSTERY_NUMBER = 2
 
 def scale_to_deskshare_video(width, height)
-  deskshare_video_height = deskshare_video_width = @presentation_props['deskshare_output_height'].to_f
+  deskshare_video_width = @presentation_props['deskshare_output_width'].to_f
+  deskshare_video_height = @presentation_props['deskshare_output_height'].to_f
+
+  return [deskshare_video_width, deskshare_video_height] if width.nil? || height.nil?
 
   scale_min = [deskshare_video_width / width, deskshare_video_height / height].min
   video_width = width * scale_min
   video_height = height * scale_min
 
   [video_width.floor, video_height.floor]
-end
-
-def get_deskshare_video_dimension(deskshare_stream_name)
-  video_width = video_height = @presentation_props['deskshare_output_height'].to_f
-  deskshare_video_filename = "#{@deskshare_dir}/#{deskshare_stream_name}"
-
-  if File.exist?(deskshare_video_filename)
-    video_info = BigBlueButton::EDL::Video.video_info(deskshare_video_filename)
-    video_width, video_height = scale_to_deskshare_video(video_info[:width], video_info[:height])
-  else
-    BigBlueButton.logger.error("Could not find deskshare video: #{deskshare_video_filename}")
-  end
-
-  [video_width, video_height]
 end
 
 #
@@ -957,6 +946,16 @@ def process_presentation(package_dir)
         slide_changed = true
       end
 
+    when 'SetScreenshareAsContentEvent'
+      next unless @presentation_props['include_deskshare']
+      screenshare_as_content = event.at_xpath('screenshareAsContent')&.text == "true"
+      if screenshare_as_content
+        deskshare = slide_changed = true
+      else
+        deskshare = false
+        slide_changed = true
+      end
+
     when 'AddShapeEvent', 'ModifyTextEvent'
       events_parse_shape(shapes, event, current_presentation, current_slide, timestamp)
 
@@ -1164,12 +1163,18 @@ def process_deskshare_events(events)
       stop_timestamp = (translate_timestamp(event[:stop_timestamp].to_f) / 1000).round(1)
       next unless start_timestamp != stop_timestamp
 
-      video_info = BigBlueButton::EDL::Video.video_info("#{@deskshare_dir}/#{event_stream = event[:stream]}")
-      unless video_info[:video]
+      video_source = BigBlueButton::EDL::Video::VideoSource.new(
+        "#{@deskshare_dir}/#{event_stream = event[:stream]}",
+        @process_dir
+      )
+      if video_source.corrupt?
         BigBlueButton.logger.warn("#{event_stream} is not a valid video file, skipping...")
         next
       end
-      video_width, video_height = get_deskshare_video_dimension(event_stream)
+      video_width, video_height = scale_to_deskshare_video(
+        video_source.aspect_ratio&.numerator,
+        video_source.aspect_ratio&.denominator
+      )
       @deskshare_xml.event(start_timestamp: start_timestamp,
                            stop_timestamp: stop_timestamp,
                            video_width: video_width,
@@ -1198,6 +1203,14 @@ end
 
 def get_poll_responders(event)
   event.at_xpath('numResponders')&.text.to_i || 0
+end
+
+def get_poll_show_correct_answer(event)
+  event.at_xpath('showCorrectAnswer')&.text == 'true'
+end
+
+def get_poll_is_quiz(event)
+  event.at_xpath('isQuiz')&.text == 'true'
 end
 
 def get_poll_id(event)
@@ -1240,6 +1253,8 @@ def process_poll_events(events, package_dir)
         answers: get_poll_answers(event),
         respondents: get_poll_respondents(event),
         responders: get_poll_responders(event),
+        showCorrectAnswer: get_poll_show_correct_answer(event),
+        isQuiz: get_poll_is_quiz(event),
       }
     end
   end
@@ -1296,22 +1311,21 @@ def copy_media_files_helper(media, media_files, package_dir)
   end
 end
 
-def process_swap_events(events)
-  BigBlueButton.logger.info("Processing screenshare as content events")
-  swap_events = BigBlueButton::Events.get_screenshare_as_content_events(events)
+def process_layout_events(events)
+  BigBlueButton.logger.info("Processing layout events")
+  layout_events = BigBlueButton::Events.get_layout_events(events, @meeting_start.to_i, @meeting_end.to_i)
   @layout_swap_xml = Builder::XmlMarkup.new(indent: 2)
   @layout_swap_xml.instruct!
 
   @layout_swap_xml.recording('id' => 'layout_swap_events') do
-    swap_events.each do |event|
-      @layout_swap_xml.event(
-        timestamp: (translate_timestamp(event[:timestamp].to_f) / 1000).round(1),
-        show_screenshare: event[:screenshareAsContent],
-      )
+    layout_events.each do |event|
+      attributes = { timestamp: (event[:timestamp].to_f / 1000.0).round(1) }
+      attributes[:show_screenshare] = event[:screenshareAsContent] unless event[:screenshareAsContent].nil?
+      attributes[:show_presentation] = event[:presentationIsOpen] unless event[:presentationIsOpen].nil?
+
+      @layout_swap_xml.event(attributes)
     end
   end
-
-
 end
 
 @shapes_svg_filename = 'shapes.svg'
@@ -1479,7 +1493,7 @@ begin
 
         process_deskshare_events(@doc)
 
-        process_swap_events(@doc)
+        process_layout_events(@doc)
 
         process_poll_events(@doc, package_dir)
 

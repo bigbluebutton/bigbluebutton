@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import React, { useContext } from 'react';
+import React, { ReactNode, useContext } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import {
   UserListItemAdditionalInformationType,
@@ -53,8 +53,34 @@ const messages = defineMessages({
 
 const { isChrome, isFirefox, isEdge } = browserInfo;
 
+const getIconComponent = (
+  icon: PluginSdk.PluginIconType,
+  isUserListAdditionalInformation: boolean = false,
+): React.ReactNode => {
+  if (typeof icon === 'string') {
+    if (isUserListAdditionalInformation) return <Styled.UserAdditionalInformationIcon iconName={icon} />;
+    return <Icon iconName={icon} />;
+  }
+  if (icon && typeof icon === 'object' && 'iconName' in icon) {
+    if (isUserListAdditionalInformation) return <Styled.UserAdditionalInformationIcon iconName={icon.iconName} />;
+    return <Icon iconName={icon.iconName} />;
+  }
+  if (icon && typeof icon === 'object' && 'svgContent' in icon) {
+    const svgContent = icon.svgContent as ReactNode;
+    if (isUserListAdditionalInformation) {
+      return (
+        <Styled.SvgContentUserListIconMargin>
+          {svgContent}
+        </Styled.SvgContentUserListIconMargin>
+      );
+    }
+    return <Styled.SvgContentUserListIcon>{svgContent}</Styled.SvgContentUserListIcon>;
+  }
+  return null;
+};
+
 interface EmojiProps {
-  emoji: { id: string; native: string; };
+  emoji: { native: string; };
   native: string;
   size: number;
 }
@@ -82,8 +108,9 @@ const renderUserListItemIconsFromPlugin = (
   return (
     <Styled.IconRightContainer
       key={item.id}
+      data-test={itemToRender.dataTest}
     >
-      <Icon iconName={itemToRender.icon} />
+      {getIconComponent(itemToRender.icon)}
     </Styled.IconRightContainer>
   );
 });
@@ -133,7 +160,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
       </span>,
     );
   }
-  if (user.lastBreakoutRoom?.currentlyInRoom) {
+  if (user.lastBreakoutRoom?.isUserCurrentlyInRoom) {
     subs.push(
       <span key={uniqueId('breakout-')}>
         <Icon iconName="rooms" />
@@ -147,7 +174,7 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
   if (user?.cameras?.length > 0 && LABEL.sharingWebcam) {
     subs.push(
       <span key={uniqueId('breakout-')}>
-        {user.pinned === true
+        {user?.pinned === true
           ? <Icon iconName="pin-video_on" />
           : <Icon iconName="video" />}
         &nbsp;
@@ -160,9 +187,9 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
   ).forEach((item) => {
     const itemToRender = item as PluginSdk.UserListItemLabel;
     subs.push(
-      <span key={itemToRender.id}>
+      <span key={itemToRender.id} data-test={itemToRender.dataTest}>
         { itemToRender.icon
-          && <Styled.UserAdditionalInformationIcon iconName={itemToRender.icon} /> }
+          && getIconComponent(itemToRender.icon, true) }
         {itemToRender.label}
       </span>,
     );
@@ -170,13 +197,9 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
 
   const reactionsEnabled = useIsReactionsEnabled();
 
-  const userAvatarFiltered = (user.raiseHand === true || user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar;
+  const userAvatarFiltered = (user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none')) ? '' : user.avatar;
 
   const emojiIcons = [
-    {
-      id: 'hand',
-      native: '✋',
-    },
     {
       id: 'clock7',
       native: '⏰',
@@ -189,14 +212,9 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
     if (user.isDialIn) {
       return <Icon iconName="volume_level_2" />;
     }
-    if (user.raiseHand === true) {
-      return reactionsEnabled
-        ? <Emoji key={emojiIcons[0].id} emoji={emojiIcons[0]} native={emojiIcons[0].native} size={emojiSize} />
-        : <Icon iconName="hand" />;
-    }
     if (user.away === true) {
       return reactionsEnabled
-        ? <Emoji key="away" emoji={emojiIcons[1]} native={emojiIcons[1].native} size={emojiSize} />
+        ? <Emoji key="away" emoji={emojiIcons[0]} native={emojiIcons[0].native} size={emojiSize} />
         : <Icon iconName="time" />;
     }
     if (user.reactionEmoji && user.reactionEmoji !== 'none') {
@@ -208,11 +226,11 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
     return '';
   };
 
-  const avatarContent = user.lastBreakoutRoom?.currentlyInRoom && userAvatarFiltered.length === 0
+  const avatarContent = user.lastBreakoutRoom?.isUserCurrentlyInRoom && userAvatarFiltered.length === 0
     ? user.lastBreakoutRoom?.sequence
     : getIconUser();
 
-  const hasWhiteboardAccess = user?.presPagesWritable?.some((page) => page.isCurrentPage);
+  const hasWhiteboardAccess = user?.whiteboardWriteAccess === true;
 
   function addSeparator(elements: (string | JSX.Element)[]) {
     const modifiedElements: (string | JSX.Element)[] = [];
@@ -230,7 +248,14 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
   const animations = Settings?.application?.animations;
 
   return (
-    <Styled.UserItemContents id={`user-index-${index}`} tabIndex={-1} data-test={(user.userId === Auth.userID) ? 'userListItemCurrent' : 'userListItem'} role="listitem">
+    <Styled.UserItemContents
+      id={`user-index-${index}`}
+      tabIndex={-1}
+      data-test={(user.userId === Auth.userID) ? 'userListItemCurrent' : 'userListItem'}
+      role="listitem"
+      aria-label={user.name}
+      data-id={user.extId}
+    >
       <Styled.Avatar
         data-test={user.isModerator ? 'moderatorAvatar' : 'viewerAvatar'}
         data-test-presenter={user.presenter ? '' : undefined}
@@ -239,9 +264,9 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
         presenter={user.presenter}
         talking={voiceUser?.talking}
         muted={voiceUser?.muted}
-        listenOnly={voiceUser?.listenOnly}
-        voice={voiceUser?.joined}
-        noVoice={!voiceUser?.joined}
+        listenOnly={voiceUser?.listenOnly || voiceUser?.listenOnlyInputDevice}
+        voice={voiceUser?.joined && !voiceUser?.deafened}
+        noVoice={!voiceUser?.joined || voiceUser?.deafened}
         color={user.color}
         whiteboardAccess={hasWhiteboardAccess}
         animations={animations}

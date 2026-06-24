@@ -16,10 +16,27 @@ select_permissions:
         - captureSlides
         - captureSlidesFilename
         - freeJoin
-        - parentId
+        - parentMeetingId
         - privateChatEnabled
         - record
         - sequence
       filter:
         meetingId:
           _eq: X-Hasura-MeetingId
+  - role: bbb_client_not_in_meeting
+    permission:
+      columns:
+        - breakoutRooms
+        - captureNotes
+        - captureNotesFilename
+        - captureSlides
+        - captureSlidesFilename
+        - freeJoin
+        - parentMeetingId
+        - privateChatEnabled
+        - record
+        - sequence
+      filter:
+        meetingId:
+          _eq: X-Hasura-MeetingId
+    comment: ""

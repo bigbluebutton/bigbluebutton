@@ -20,6 +20,30 @@ const intlMessages = defineMessages({
   },
 });
 
+const renderIcon = (icon, color, iconKey = 'icon', IconComponent = Icon, iconStyles = {}) => {
+  if (typeof icon === 'string') {
+    return <IconComponent color={color} iconName={icon} key={iconKey} style={iconStyles} />;
+  }
+  if (icon && typeof icon === 'object' && 'iconName' in icon) {
+    return (
+      <IconComponent
+        color={color}
+        iconName={icon.iconName}
+        key={iconKey}
+        style={iconStyles}
+      />
+    );
+  }
+  if (icon && typeof icon === 'object' && 'svgContent' in icon) {
+    return (
+      <Styled.SvgContentIconWrapper key={iconKey}>
+        {icon.svgContent}
+      </Styled.SvgContentIconWrapper>
+    );
+  }
+  return null;
+};
+
 class BBBMenu extends React.Component {
   constructor(props) {
     super(props);
@@ -29,10 +53,12 @@ class BBBMenu extends React.Component {
 
     this.optsToMerge = {};
     this.autoFocus = false;
+    this.previousFocus = null;
 
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.handleClose = this.handleClose.bind(this);
+    this.restoreTriggerFocus = this.restoreTriggerFocus.bind(this);
   }
 
   componentDidUpdate() {
@@ -61,7 +87,7 @@ class BBBMenu extends React.Component {
     if (isMenuOpen && [previousKey, nextKey].includes(event.which)) {
       event.preventDefault();
       event.stopPropagation();
-      const menuItems = Array.from(document.querySelectorAll('[data-key^="menuItem-"]'));
+      const menuItems = Array.from(event.currentTarget.querySelectorAll('[data-key^="menuItem-"]'));
       if (menuItems.length === 0) return;
 
       const focusedIndex = menuItems.findIndex((item) => item === document.activeElement);
@@ -82,21 +108,33 @@ class BBBMenu extends React.Component {
   handleClick(event) {
     const { disabled } = this.props;
     if (disabled) return;
+    this.previousFocus = document.activeElement;
     this.setState({ anchorEl: event.currentTarget });
   }
 
   handleClose(event) {
     const { onCloseCallback } = this.props;
-    this.setState({ anchorEl: null }, onCloseCallback());
+    this.setState({ anchorEl: null }, onCloseCallback);
 
-    if (event) {
-      event.persist();
+    setTimeout(() => {
+      this.restoreTriggerFocus();
+      this.previousFocus = null;
+    }, 0);
+  }
 
-      if (event.type === 'click') {
-        setTimeout(() => {
-          document.activeElement.blur();
-        }, 0);
-      }
+  restoreTriggerFocus() {
+    const triggerFocusableElement = this.anchorElRef?.querySelector(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    );
+
+    if (triggerFocusableElement && typeof triggerFocusableElement.focus === 'function') {
+      triggerFocusableElement.focus();
+      return;
+    }
+
+    if (this.previousFocus && typeof this.previousFocus.focus === 'function'
+      && document.body.contains(this.previousFocus)) {
+      this.previousFocus.focus();
     }
   }
 
@@ -109,7 +147,7 @@ class BBBMenu extends React.Component {
       const {
         dataTest, label, onClick, key, disabled,
         description, selected, textColor, isToggle, loading,
-        isTitle, titleActions, contentFunction,
+        isTitle, titleActions, contentFunction, ariaLabel,
       } = a;
       const emojiSelected = key?.toLowerCase()?.includes(selectedEmoji?.toLowerCase());
 
@@ -139,7 +177,7 @@ class BBBMenu extends React.Component {
       }
 
       return [
-        (!a.isSeparator && onClick) && (
+        (!a.isSeparator && onClick && !isToggle) && (
           <Styled.BBBMenuItem
             emoji={emojiSelected ? 'yes' : 'no'}
             key={label}
@@ -164,28 +202,41 @@ class BBBMenu extends React.Component {
               isMobile={isMobile}
               isEmoji={isEmoji}
             >
-              {a.icon ? <Icon iconName={a.icon} key="icon" /> : null}
+              {renderIcon(a.icon)}
               <Styled.Option hasIcon={!!(a.icon)} isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`} $isToggle={isToggle}>{label}</Styled.Option>
               {description && <div className="sr-only" id={`${key}-option-desc`}>{`${description}${selected ? ` - ${intl.formatMessage(intlMessages.active)}` : ''}`}</div>}
-              {a.iconRight ? <Styled.IconRight iconName={a.iconRight} key="iconRight" style={iconStyles} /> : null}
+              {renderIcon(a.iconRight, undefined, 'iconRight', Styled.IconRight, iconStyles)}
             </Styled.MenuItemWrapper>
           </Styled.BBBMenuItem>
         ),
-        (!onClick && !a.isSeparator) && (
+        (!a.isSeparator && (!onClick || isToggle)) && (
           <Styled.BBBMenuInformation
             key={a.key}
             isTitle={isTitle}
             isGenericContent={!!contentFunction}
+            data-test={dataTest}
+            data-key={isToggle ? `menuItem-${dataTest}` : undefined}
+            tabIndex={isToggle ? 0 : undefined}
+            onClick={isToggle && onClick ? onClick : undefined}
+            onKeyDown={isToggle && onClick ? (e) => {
+              if ([KEY_CODES.ENTER, KEY_CODES.SPACE].includes(e.which)) {
+                e.preventDefault();
+                onClick(e);
+              }
+            } : undefined}
             disabled={disabled || isTitle}
+            // eslint-disable-next-line no-nested-ternary
+            role={isToggle ? 'menuitemcheckbox' : (isTitle ? 'presentation' : undefined)}
+            aria-label={isToggle ? (ariaLabel || label) : undefined}
           >
             <Styled.MenuItemWrapper
               hasSpaceBetween={isTitle && titleActions}
             >
               {!contentFunction ? (
                 <>
-                  {a.icon ? <Icon color={textColor} iconName={a.icon} key="icon" /> : null}
+                  {renderIcon(a.icon, textColor)}
                   <Styled.Option hasIcon={!!(a.icon)} isTitle={isTitle} textColor={textColor} isHorizontal={isHorizontal} isMobile={isMobile} aria-describedby={`${key}-option-desc`} $isToggle={isToggle}>{label}</Styled.Option>
-                  {a.iconRight ? <Styled.IconRight color={textColor} iconName={a.iconRight} key="iconRight" /> : null}
+                  {renderIcon(a.iconRight, textColor, 'iconRight', Styled.IconRight)}
                   {(isTitle && titleActions?.length > 0) ? (
                     titleActions.map((item, index) => (
                       <Styled.TitleAction
@@ -253,9 +304,11 @@ class BBBMenu extends React.Component {
     return (
       <>
         <div
+          role="button"
           onClick={(e) => {
             e.persist();
-            const firefoxInputSource = !([1, 5].includes(e.nativeEvent.mozInputSource)); // 1 = mouse, 5 = touch (firefox only)
+            // 1 = mouse, 5 = touch (firefox only)
+            const firefoxInputSource = !([1, 5].includes(e.nativeEvent.mozInputSource));
             const chromeInputSource = !(['mouse', 'touch'].includes(e.nativeEvent.pointerType));
 
             this.optsToMerge.autoFocus = firefoxInputSource && chromeInputSource;
@@ -264,10 +317,10 @@ class BBBMenu extends React.Component {
           onKeyPress={(e) => {
             e.persist();
             if (e.which !== KEY_CODES.ENTER) return null;
-            this.handleClick(e);
+            return this.handleClick(e);
           }}
           accessKey={accessKey}
-          ref={(ref) => this.anchorElRef = ref}
+          ref={(ref) => { this.anchorElRef = ref; }}
           tabIndex={-1}
         >
           {trigger}
@@ -329,13 +382,13 @@ BBBMenu.propTypes = {
 
   trigger: PropTypes.element.isRequired,
 
-  actions: PropTypes.array.isRequired,
+  actions: PropTypes.arrayOf(PropTypes.shape({})).isRequired,
 
   onCloseCallback: PropTypes.func,
   dataTest: PropTypes.string,
   open: PropTypes.bool,
-  customStyles: PropTypes.object,
-  opts: PropTypes.object,
+  customStyles: PropTypes.shape({}),
+  opts: PropTypes.shape({}),
   accessKey: PropTypes.string,
   minContent: PropTypes.bool,
 };

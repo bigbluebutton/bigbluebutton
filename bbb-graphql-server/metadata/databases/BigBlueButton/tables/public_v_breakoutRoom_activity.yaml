@@ -1,0 +1,19 @@
+table:
+  name: v_breakoutRoom_activity
+  schema: public
+configuration:
+  column_config: {}
+  custom_column_names: {}
+  custom_name: breakoutroom_activity
+  custom_root_fields: {}
+select_permissions:
+  - role: bbb_client
+    permission:
+      columns:
+        - activityName
+        - bucketTime
+        - total
+      filter: {}
+      query_root_fields: []
+      subscription_root_fields: []
+    comment: ""

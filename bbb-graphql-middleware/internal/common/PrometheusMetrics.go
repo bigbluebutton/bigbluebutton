@@ -2,6 +2,7 @@ package common
 
 import (
 	"bbb-graphql-middleware/config"
+
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -78,6 +79,22 @@ var (
 		},
 		[]string{"type", "operationName"},
 	)
+	ApplicationsLatency = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name: "bbb_application_reach_latency_milliseconds",
+			Help: "Time from previous stage until message arrives at the application",
+			Buckets: []float64{
+				50,
+				100,
+				500,
+				1000,
+				2000,
+				4000,
+				8000,
+			},
+		},
+		[]string{"application"},
+	)
 )
 
 func init() {
@@ -92,4 +109,5 @@ func init() {
 	if PrometheusAdvancedMetricsEnabled {
 		prometheus.MustRegister(GqlReceivedDataPayloadLength)
 	}
+	prometheus.MustRegister(ApplicationsLatency)
 }

@@ -20,6 +20,7 @@ import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscri
 import { useIsPollingEnabled } from '../../services/features';
 import logger from '/imports/startup/client/logger';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
+import useMeeting from '../../core/hooks/useMeeting';
 
 const intlMessages = defineMessages({
   pollingTitleLabel: {
@@ -356,11 +357,19 @@ const PollingGraphqlContainer: React.FC = () => {
     userId: u.userId,
     presenter: u.presenter,
   }));
+
+  const {
+    data: meeting,
+    loading: meetingLoading,
+  } = useMeeting((m) => ({
+    componentsFlags: m.componentsFlags,
+  }));
+
   const { data: hasPendingPollData, error, loading } = useDeduplicatedSubscription<HasPendingPollResponse>(
     hasPendingPoll,
     {
       variables: { userId: currentUserData?.userId },
-      skip: !currentUserData,
+      skip: !currentUserData || meetingLoading || !meeting?.componentsFlags?.hasPoll,
     },
   );
   const [pollSubmitUserTypedVote] = useMutation(POLL_SUBMIT_TYPED_VOTE);

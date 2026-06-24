@@ -49,6 +49,7 @@ public class ImageResolutionServiceHandler extends AbstractCommandHandler {
     } catch (Exception e) {
       log.error("Exception identifying width of the image", e);
     }
+    log.warn("Unable to determine image width, returning 0 for {}", id);
     return 0;
   }
 
@@ -66,6 +67,7 @@ public class ImageResolutionServiceHandler extends AbstractCommandHandler {
     } catch (Exception e) {
       log.error("Exception identifying height of the image", e);
     }
+    log.warn("Unable to determine image height, returning 0 for {}", id);
     return 0;
   }
 

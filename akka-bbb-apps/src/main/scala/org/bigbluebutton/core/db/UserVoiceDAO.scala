@@ -12,6 +12,7 @@ case class UserVoiceDbModel(
     joined:                 Boolean,
     listenOnly:             Boolean,
     muted:                  Boolean,
+    listenOnlyInputDevice:  Boolean,
     deafened:               Boolean,
     spoke:                  Boolean,
     talking:                Boolean,
@@ -24,7 +25,7 @@ case class UserVoiceDbModel(
 class UserVoiceDbTableDef(tag: Tag) extends Table[UserVoiceDbModel](tag, None, "user_voice") {
   override def * = (
     meetingId, userId, voiceUserId, callerName, callerNum, callingWith, joined, listenOnly,
-    muted, deafened, spoke, talking, floor, lastFloorTime, startTime, endTime
+    muted, listenOnlyInputDevice, deafened, spoke, talking, floor, lastFloorTime, startTime, endTime
   ) <> (UserVoiceDbModel.tupled, UserVoiceDbModel.unapply)
   val meetingId = column[String]("meetingId", O.PrimaryKey)
   val userId = column[String]("userId", O.PrimaryKey)
@@ -35,6 +36,7 @@ class UserVoiceDbTableDef(tag: Tag) extends Table[UserVoiceDbModel](tag, None, "
   val joined = column[Boolean]("joined")
   val listenOnly = column[Boolean]("listenOnly")
   val muted = column[Boolean]("muted")
+  val listenOnlyInputDevice = column[Boolean]("listenOnlyInputDevice")
   val deafened = column[Boolean]("deafened")
   val spoke = column[Boolean]("spoke")
   val talking = column[Boolean]("talking")
@@ -63,6 +65,7 @@ object UserVoiceDAO {
           joined = true,
           listenOnly = voiceUserState.listenOnly,
           muted = voiceUserState.muted,
+          listenOnlyInputDevice = voiceUserState.listenOnlyInputDevice,
           deafened = voiceUserState.deafened,
           spoke = false,
           talking = voiceUserState.talking,
@@ -79,8 +82,8 @@ object UserVoiceDAO {
     DatabaseConnection.enqueue(
       TableQuery[UserVoiceDbTableDef]
         .filter(_.userId === voiceUserState.intId)
-        .map(u => (u.listenOnly, u.muted, u.deafened, u.floor, u.lastFloorTime))
-        .update((voiceUserState.listenOnly, voiceUserState.muted, voiceUserState.deafened, voiceUserState.floor, voiceUserState.lastFloorTime))
+        .map(u => (u.listenOnly, u.muted, u.listenOnlyInputDevice, u.deafened, u.floor, u.lastFloorTime))
+        .update((voiceUserState.listenOnly, voiceUserState.muted, voiceUserState.listenOnlyInputDevice, voiceUserState.deafened, voiceUserState.floor, voiceUserState.lastFloorTime))
     )
   }
 

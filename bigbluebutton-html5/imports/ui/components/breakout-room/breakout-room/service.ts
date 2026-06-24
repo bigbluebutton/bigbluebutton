@@ -39,7 +39,9 @@ const logUserCouldNotRejoinAudio = () => {
 
 export const rejoinAudio = () => {
   if (didUserSelectMicrophone()) {
-    AudioManager.joinMicrophone({ muted: true }).catch(() => {
+    const storageMuteState = AudioService.getStorageMuteState();
+
+    AudioManager.joinMicrophone({ muted: storageMuteState ?? true }).catch(() => {
       logUserCouldNotRejoinAudio();
     });
   } else if (didUserSelectListenOnly()) {

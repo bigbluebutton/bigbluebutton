@@ -18,8 +18,10 @@ select_permissions:
         - hasPoll
         - hasScreenshare
         - hasScreenshareAsContent
+        - hasSharedNotes
         - hasTimer
-        - isSharedNotedPinned
+        - isSharedNotesPinned
+        - isEtherpadSharedNotes
         - showRemainingTime
       filter:
         meetingId:

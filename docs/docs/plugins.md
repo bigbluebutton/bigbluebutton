@@ -16,13 +16,13 @@ Let’s get started!
 
 This is a general instruction on how to use a plugin.
 For a detailed configuration example of each use case,
-have a look at the READMEs in the respective [samples](samples)-folders.
+have a look at the READMEs in the respective [samples](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/tree/v0.0.x/samples)-folders.
 
 ### Running the Plugin from Source
 
 For development purposes you can run a plugin locally from source.
 
-For example if you take the [`sample-action-button-dropdown-plugin`](samples/sample-action-button-dropdown-plugin),
+For example if you take the [`sample-action-button-dropdown-plugin`](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/tree/v0.0.x/samples/sample-action-button-dropdown-plugin),
 you do the following:
 
 *Running from source code with local BBB-server*
@@ -71,7 +71,7 @@ Right after that, NGROK will create an interface into your terminal and will dis
 
 Here's an example of URL: `https://<uuid>.ngrok-free.app`
 
-You can already interact with this URL and access both 
+You can already interact with this URL and access both
 
 `https://<uuid>.ngrok-free.app/manifest.json`
 
@@ -91,7 +91,7 @@ And there you go, you can test it freely.
 ### Building the Plugin (Production)
 
 To build a plugin for production use
-(again, using the example of [`sample-action-button-dropdown-plugin`](samples/sample-action-button-dropdown-plugin)),
+(again, using the example of [`sample-action-button-dropdown-plugin`](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/tree/v0.0.x/samples/sample-action-button-dropdown-plugin)),
 follow these steps:
 
 ```bash
@@ -178,37 +178,54 @@ In the future, support for additional placeholders may be added.
 
 ### Manifest Json
 
-Here is as complete `manifest.json` example with all possible configurations:
+Here is a complete `manifest.json` example with all possible configurations:
 
 ```json
 {
   "requiredSdkVersion": "~0.0.77",
   "name": "MyPlugin",
+  "version": "0.0.8", // Optional
   "javascriptEntrypointUrl": "MyPlugin.js",
+  "javascriptEntrypointIntegrity": "sha384-Bwsz2rxm...", // Optional
   "localesBaseUrl": "https://cdn.domain.com/my-plugin/", // Optional
+  "enabledForBreakoutRooms": false, // Optional, defaults to false
+  "loggerSettings": {                                    // Optional
+    "console": {
+      "enableRuntimeErrorLogging": false,
+      "enabled": true,
+      "level": "debug" // Possible values: info, debug, warn, error
+    },
+    "external": {
+      "enabled": false,
+      "level": "info", // Possible values: info, debug, warn, error
+      "url": "https://LOG_HOST/html5Log",
+      "method": "POST",
+      "throttleInterval": 400,
+      "flushOnClose": true,
+      "logTag": ""
+    }
+  },
   "dataChannels":[
     {
       "name": "public-channel",
-      "pushPermission": ["moderator","presenter"], // "moderator","presenter", "all"
-      "replaceOrDeletePermission": ["moderator", "creator"] // "moderator", "presenter","all", "creator"
+      "pushPermission": ["moderator","presenter"], // "moderator","presenter", "all", "viewer"
+      "replaceOrDeletePermission": ["moderator", "creator"] // "moderator", "presenter","all", "viewer", "creator"
     }
   ], // One can enable more data-channels to better organize client communication
   "eventPersistence": {
-    "isEnabled": true, // By default it is not enabled
-    "maximumPayloadSizeInBytes": 1024,
-    "rateLimiting": {
-      "messagesAllowedPerSecond": 10,
-      "messagesAllowedPerMinute": 20
-    }
+    "isEnabled": true // By default it is not enabled
   },
   "remoteDataSources": [
     {
       "name": "allUsers",
       "url": "${meta_pluginSettingsUserInformation}",
-      "fetchMode": "onMeetingCreate", // Possible values: "onMeetingCreate", "onDemand" 
+      "fetchMode": "onMeetingCreate", // Possible values: "onMeetingCreate", "onDemand"
       "permissions": ["moderator", "viewer"]
     }
   ],
+  "serverCommandsPermission": {
+    "chat.sendCustomPublicChatMessage": ["presenter", "moderator"] // "moderator","presenter", "all", "viewer"
+  },
   "settingsSchema": [
     {
       "name": "myJson",
@@ -225,9 +242,22 @@ Here is as complete `manifest.json` example with all possible configurations:
 
 To better understand remote-data-sources, please, refer to [this section](#external-data-resources)
 
+**version:**
+
+This refers to the version of the plugin. It prevents browsers from caching old plugin files.
+When set, it appends the version to `javascriptEntrypointUrl`, forcing browsers to fetch the latest file.
+Example: 
+`version=0.0.8`
+`javascriptEntrypointUrl=MyPlugin.js`
+Browser will load: `MyPlugin.js?version=0.0.8`.
+
+**loggerSettings:**
+
+The optional loggerSettings directive allows you to override the default logger configuration for a specific plugin. For instance, you could set the client’s log level to info while restricting the plugin’s log level to error. If no settings are provided, the plugin’s logger inherits the default configuration.
+
 **settingsSchema:**
 
-The settingsSchema serves two main purposes:
+The `settingsSchema` serves two main purposes:
 
 1. **Validation:** Ensures that all required settings are provided for a plugin. If any required setting is missing, the plugin will not load.
 2. **Configuration Exposure:** Lists all available settings for the plugin, enabling external systems—such as a Learning Management System (LMS)—to present these settings to a meeting organizer. This allows the organizer to configure the plugin manually before the meeting begins.
@@ -253,6 +283,54 @@ public:
           abc: my123
           def: 3234
 ```
+
+**enabledForBreakoutRooms:**
+
+By default, plugins are **not** loaded in breakout rooms. Setting `enabledForBreakoutRooms` to `true` makes the plugin available inside breakout rooms as well as the main room.
+
+```json
+{
+  "enabledForBreakoutRooms": true
+}
+```
+
+When this property is `false` (or omitted), the server filters the plugin out before creating any breakout room, so it never loads for breakout participants.
+
+**javascriptEntrypointIntegrity:**
+
+An optional [Subresource Integrity (SRI)](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity) hash for the plugin's JavaScript bundle. When present, the browser verifies the fetched file matches the hash before executing it, protecting against tampered or malicious substitutions of the plugin file.
+
+The value must follow the SRI format `<algorithm>-<base64-hash>` (e.g. `sha384-Bwsz2rxm...`).
+
+```json
+{
+  "javascriptEntrypointIntegrity": "sha384-Bwsz2rxm..."
+}
+```
+
+> **Cross-origin limitation:** The plugin loader sets the `integrity` attribute on the `<script>` tag but does **not** set the `crossorigin` attribute. Browsers require both `integrity` and `crossorigin="anonymous"` (plus CORS headers from the server) for SRI checks on cross-origin scripts. Without `crossorigin`, the integrity check will fail for plugins hosted on a different domain (e.g. a CDN). SRI integrity verification therefore only works reliably when the plugin file is served from the **same origin** as the BigBlueButton client. Avoid setting this field for CDN-hosted plugins until cross-origin support is added to the loader.
+
+If omitted, no integrity check is performed.
+
+**localesBaseUrl:**
+
+An optional base URL from which the plugin SDK loads locale (i18n) message files for the plugin. This enables internationalization support — the SDK fetches locale files relative to this URL when the client switches languages.
+
+```json
+{
+  "localesBaseUrl": "https://cdn.domain.com/my-plugin/"
+}
+```
+
+If the URL is relative (does not start with `http://` or `https://`), the server resolves it by appending it to the directory portion of the manifest URL using plain string concatenation. This means a leading `/` is **not** treated as the site root — it will be concatenated literally, producing a broken URL. Use either an absolute URL or a relative path without a leading `/`:
+
+```json
+{ "localesBaseUrl": "locales/" }       // OK — appended to manifest directory
+{ "localesBaseUrl": "https://cdn.example.com/my-plugin/locales/" } // OK — absolute
+{ "localesBaseUrl": "/locales/" }      // BAD — leading slash breaks the URL
+```
+
+If omitted, locale files will not be loaded for the plugin.
 
 ## Examples
 
@@ -462,8 +540,8 @@ sequenceDiagram
   GraphqlServer->>DataBase: query PluginConfigurationQuery
   DataBase->>GraphqlServer: return PluginConfigurationQuery data
   GraphqlServer->>Client: return PluginConfigurationQuery data
-  Client->>PluginStorageServer: Request Plugin Javascript bundle 
-  PluginStorageServer->>Client: Return Plugin Javascript bundle 
+  Client->>PluginStorageServer: Request Plugin Javascript bundle
+  PluginStorageServer->>Client: Return Plugin Javascript bundle
 ```
 
 As for the second part, when the user joins the meeting:
@@ -641,7 +719,7 @@ Example:
   "bigbluebutton-html-plugin-sdk": "https://codeload.github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/tar.gz/<commit-hash-id>"
 }
 ```
- 
+
 You can get the commit hash from `git log` or directly from the commit list in your `bigbluebutton-html-plugin-sdk` pull request.
 
 Alternatively, it is possible to reference the PR from the `bigbluebutton-html-plugin-sdk` directly. (This implies that you need to first send the PR for this repository and then the PR for `bigbluebutton/bigbluebutton`)
@@ -751,11 +829,22 @@ That being said, here are the extensible areas we have so far:
 
 Mind that no plugin will interfere into another's extensible area. So feel free to set whatever you need into a certain plugin with no worries.
 
-### Auxiliary functions:
+### Auxiliaries:
 
 - `getSessionToken`: returns the user session token located on the user's URL.
 - `getJoinUrl`: returns the join url associated with the parameters passed as an argument. Since it fetches the BigBlueButton API, this getter method is asynchronous.
 - `useLocaleMessages`: returns the messages to be used in internationalization functions (recommend to use `react-intl`, as example, refer to official plugins)
+- `logger`: the pluginLogger is part of the API and can be used as pictured ahead: 
+
+```ts
+export const { logger: pluginLogger } = pluginApi;
+// Or in the index file:
+import { BbbPluginSdk } from 'bigbluebutton-html-plugin-sdk';
+
+const uuid = document.currentScript?.getAttribute('uuid') || 'root';
+
+export const { logger: pluginLogger } = BbbPluginSdk.getPluginApi(uuid);
+```
 
 ### Realtime data consumption
 
@@ -768,6 +857,8 @@ Mind that no plugin will interfere into another's extensible area. So feel free 
 - `usePluginSettings` hook: it provides all the specific settings regarding the current plugin it's been loaded from.
 - `useTalkingIndicator` hook: it gives you information on the user-voice data, that is, who is talking or muted.
 - `useMeeting` hook: it gives you information on the current meeting that the user is on.
+- `useMeetingData` hook: provides detailed meeting data with projection support, offering more flexibility than `useMeeting`.
+- `useCustomQuery` hook: similar to `useCustomSubscription`, but for one-time GraphQL queries rather than subscriptions. Note: Make sure that, on BBB version change, the custom queries you make will work as expected.
 
 So for these types of hooks, the return will follow the same structure:
 
@@ -780,6 +871,86 @@ export interface GraphqlResponseWrapper<TData> {
 ```
 
 So we have the `data`, which is different for each hook, that's why it's a generic, the error, that will be set if, and only if, there is an error, otherwise it is undefined, and loading, which tells the developer if the query is still loading (being fetched) or not.
+
+
+### Realtime Data Creation
+
+**`useCustomMutation` Hook**
+
+The `useCustomMutation` hook enables you to post data to the backend (Postgres) using existing GraphQL mutations, respecting user permissions.
+
+It works similarly to Apollo Client’s `useMutation`, returning a *trigger function* and a *result object* with information about the mutation execution. These will be described in more detail below.
+
+One important difference is that the mutation query **must** be provided as a string. This is due to how the SDK communicates with the HTML5 client. As a consequence, you must explicitly define the type of the `variables` argument for the trigger function, as shown in the example below.
+
+```typescript
+interface MutationVariablesType {
+  reactionEmoji: string;
+}
+
+const [trigger, result] = pluginApi.useCustomMutation<MutationVariablesType>(`
+  mutation SetReactionEmoji($reactionEmoji: String!) {
+    userSetReactionEmoji(reactionEmoji: $reactionEmoji)
+  }
+`);
+
+// Later in the code, you can trigger the mutation:
+trigger({
+  variables: {
+    reactionEmoji: '👏',
+  },
+});
+```
+
+Note that the same type (`MutationVariablesType`) passed as the generic parameter to `useCustomMutation` is also the type of the `variables` object in the trigger function.
+
+The `result` object returned by the hook contains the following fields:
+
+```typescript
+const {
+  called,
+  data,
+  error,
+  loading,
+} = result;
+```
+
+which follow this interface:
+
+```typescript
+interface MutationResultObject {
+  called: boolean;   // Indicates if the trigger function has been called
+  data?: object;     // Response data after the mutation is triggered
+  error?: object;    // Error details from the mutation execution
+  loading: boolean;  // Whether the mutation is currently loading (triggered or in progress)
+}
+```
+
+Now, see a diagram with the communication flow of this hook and how it works under the hood:
+
+```mermaid
+sequenceDiagram
+  participant PLUGIN-SDK
+  participant HTML5
+
+  PLUGIN-SDK->>HTML5: CREATE_NEW_CUSTOM_MUTATION
+  HTML5->>PLUGIN-SDK: MUTATION_READY
+  PLUGIN-SDK->>HTML5: TRIGGER_MUTATION
+  HTML5->>PLUGIN-SDK: MUTATION_RESULT_SENT
+
+```
+
+Following on the diagram with some details:
+- At first, the SDK sends a `windowEvent` (`CREATE_NEW_CUSTOM_MUTATION`) to the HTML5 client and start waiting for an update from the client;
+- At the same, it starts listening to the `MUTATION_READY` event;
+- Once the client receives a request to create a new mutation, it will add this mutation along with its options to a list of active mutations;
+- With the list of active mutations in hand, it will call the handler of each mutation which will create the mutation itself for each of those in the list;
+- When the mutation is created in the HTML5 client, it sends a `windowEvent` (`MUTATION_READY`) to the plugin-sdk to let it knowing that it is ready to be triggered and starts listening for the triggering event;
+- Once the SDK receives the `ready` event, it creates the trigger function and make it available for the plugin;
+- Now, once the plugin triggers the function, a `windowEvent` is sent to the HTML5;
+- HTML5 simply receives it and execute it returning the resulting data for the plugin via `MUTATION_RESULT_SENT` event.
+
+That's the current architecture of this feature
 
 ### Real time data exchange
 
@@ -821,11 +992,11 @@ The data-channel name must be in the `manifest.json` along with all the permissi
     {
       "name": "channel-name",
       "pushPermission": ["moderator","presenter"],
-      "replaceOrDeletePermission": ["moderator", "sender"]
+      "replaceOrDeletePermission": ["moderator", "creator"]
     }
   ]
 }
-``` 
+```
 
 If no permission is mentioned in that file (writing or deleting), no one will be able proceed with that specific action:
 
@@ -895,23 +1066,44 @@ As seen for the `useUiData`, the return type is well defined by the enum chosen 
 
 `uiCommands` object: It basically contains all the possible commands available to the developer to interact with the core BBB UI, see the ones implemented down below:
 
+- actions-bar:
+  - setDisplayActionBar: this function decides whether to display the actions bar
+- camera:
+  - setSelfViewDisableAllDevices: Sets the self-view camera disabled/enabled for all camera devices of a user;
+  - setSelfViewDisable: Sets the self-view camera disabled/enabled for specific camera.
 - chat:
   - form:
-    - open: this function will open the sidebar chat panel automatically;
+    - open: this function will open the sidebar chat panel automatically. Optionally accepts `{chatId: string}` to open a specific chat;
     - fill: this function will fill the form input field of the chat passed in the argument as `{text: string}`
+- conference:
+  - setSpeakerLevel: this function will set the speaker volume level(audio output) of the conference to a certain number between 0 and 1;
 - external-video:
   - volume:
     - set: this function will set the external video volume to a certain number between 0 and 1 (that is 0% and);
-- sidekick-options-container:
-  - open: this function will open the sidekick options panel automatically;
-  - close: this function will close the sidekick options panel automatically (and also the sidebar content if open, to avoid inconsistencies in ui);
+- layout:
+  - changeEnforcedLayout: (deprecated) Changes the enforced layout 
+  - setEnforcedLayout: Sets the enforced layout
+- navBar:
+  - setDisplayNavBar: Sets the displayNavBar to true (show it) or false (hide it).
+- notification:
+  - send: This function will send a notification for the client to render, keep in mind that it's only client-side. Should you want it to be rendered in multiple clients, use this with a data-channel;
 - presentation-area:
   - open: this function will open the presentation area content automatically;
   - close: this function will close the presentation area content automatically;
-- conference:
-  - setSpeakerLevel: this function will set the speaker volume level(audio output) of the conference to a certain number between 0 and 1;
-- notification:
-  - send: This function will send a notification for the client to render, keep in mind that it's only client-side. Should you want it to be rendered in multiple clients, use this with a data-channel;
+- screenshare:
+  - stop: Stops broadcasting the screenshare if user is presenter and is sharing screen (it is ignored otherwise);
+- sidekick-options-container: **(deprecated - use [sidekickArea](#sidekickarea-ui-commands) instead)**
+  - open: this function will open the sidekick options panel automatically;
+  - close: this function will close the sidekick options panel automatically (and also the sidebar content if open, to avoid inconsistencies in ui);
+- sidekickArea:
+  - options:
+    - panel:
+      - open: this function will open the sidekick container automatically;
+      - close: this function will close the sidekick container (and sidebar content panel) automatically;
+    - renameGenericContentMenu: this function renames the menu name (option's name) of a Generic Sidekick Content. Takes `id` (string) and `newName` (string) as parameters;
+    - renameGenericContentSection: this function renames the section name (section that the option belongs to) of a Generic Sidekick Content. Takes `id` (string) and `newName` (string) as parameters;
+    - setMenuBadge: this function sets a badge on the sidekick option menu. Takes `id` (string) and `badgeContent` (string) as parameters;
+    - removeMenuBadge: this function removes the badge from the sidekick option menu. Takes `id` (string) as parameter;
 - user-status:
   - setAwayStatus: this function will set the away status of the user to a certain status;
 
@@ -926,19 +1118,84 @@ See usage ahead:
 
 So the idea is that we have a `uiCommands` object and at a point, there will be the command to do the intended action, such as open the chat form and/or fill it, as demonstrated above
 
-### Server Commands
-  
-  `serverCommands` object: It contains all the possible commands available to the developer to interact with the BBB core server, see the ones implemented down below:
-  
-  - chat:
-    - sendPublicMessage: This function sends a message to the public chat on behalf of the currently logged-in user.
+#### SidekickArea UI Commands
 
-    - sendCustomPublicMessage: This function sends a text message to the public chat, optionally including custom metadata.
+The `sidekickArea` commands allow plugins to control and customize the sidekick panel and its content options. These commands are particularly useful when working with Generic Sidekick Content.
+
+**Panel Controls:**
+
+```ts
+// Open the sidekick container
+pluginApi.uiCommands.sidekickArea.options.panel.open();
+
+// Close the sidekick container
+pluginApi.uiCommands.sidekickArea.options.panel.close();
+```
+
+**Badge Management:**
+
+Badges are visual indicators that can be displayed on sidekick menu options to show notifications or counts.
+
+```ts
+// Set a badge on a sidekick menu option
+pluginApi.uiCommands.sidekickArea.options.setMenuBadge(
+  'my-sidekick-content-id',
+  '5'  // Badge content (e.g., notification count)
+);
+
+// Remove a badge from a sidekick menu option
+pluginApi.uiCommands.sidekickArea.options.removeMenuBadge('my-sidekick-content-id');
+```
+
+**Renaming Content:**
+
+```ts
+// Rename the menu option name
+pluginApi.uiCommands.sidekickArea.options.renameGenericContentMenu(
+  'my-sidekick-content-id',
+  'New Menu Name'
+);
+
+// Rename the section that contains the menu option
+pluginApi.uiCommands.sidekickArea.options.renameGenericContentSection(
+  'my-sidekick-content-id',
+  'New Section Name'
+);
+```
+
+For a complete working example, see the [sample-generic-content-sidekick-plugin](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk/tree/v0.0.x/samples/sample-generic-content-sidekick-plugin) in the SDK repository.
+
+### Server Commands
+
+`serverCommands` object: It contains all the possible commands available to the developer to interact with the BBB core server, see the ones implemented down below:
+
+  - chat:
+    - sendChatMessage: This function sends a message to a specific chat by chatId on behalf of the currently logged-in user
+    - sendPublicChatMessage: This function sends a message to the public chat on behalf of the currently logged-in user
+    - sendCustomPublicMessage: This function sends a text message to the public chat, optionally including custom metadata
       > **Note**: The custom messages sent by plugins are not automatically rendered by the client. To display these messages, a plugin must handle the rendering using `useLoadedChatMessages` and `useChatMessageDomElements`.
+    - createPrivateChat: This function creates a private chat with a specific user
 
   - caption:
     - save: this function saves the given text, locale and caption type
     - addLocale: this function sends a locale to be added to the available options
+  
+  - presentation:
+    - upload: uploads a new presentation to BigBlueButton;
+
+As these commands can change state in the back-end, "permission control" is available based on role for some of the Commands (in the manifest), those are:
+  - chat:
+    - sendCustomPublicMessage;
+
+An example of the usage is displayed in the [Manifest](#manifest-json) section, but in general the idea is to have a similar hierarchy as the server-commands from the SDK, see example ahead:
+
+```json
+"serverCommandsPermission": {
+  "chat.sendCustomPublicChatMessage": ["presenter"] // Could have all the other roles, see manifest section
+}
+```
+
+If no permission is present in the manifest, then we consider that every user in the meeting can use the server-command.
 
 ### Dom Element Manipulation
 
@@ -947,17 +1204,36 @@ So the idea is that we have a `uiCommands` object and at a point, there will be 
 
 ### Learning Analytics Dashboard integration
 
-- `sendGenericDataForLearningAnalyticsDashboard`: This function will send data for the bbb to render inside the plugin's table
+This integration allow you to insert/update entry in LAD (Learning Analytics Dashboard) via `upsertUserData` function and also delete entries via `deleteUserData` function.
 
-The object structure of this function's argument must be:
+It's an object available in the `pluginApi` that wraps those 3 functions:
+
+- `pluginApi.learningAnalyticsDashboard.upsertUserData`
+- `pluginApi.learningAnalyticsDashboard.deleteUserData`
+- `pluginApi.learningAnalyticsDashboard.clearAllUsersData`
+
+For the `upsert` function, the argument's data object structure must be:
 
 ```ts
-interface GenericDataForLearningAnalyticsDashboard {
-  cardTitle: string; // Yet to be implemented (future updates)
+interface LearningAnalyticsDashboardUserData {
+  cardTitle: string;
   columnTitle: string;
   value: string;
 }
 ```
+
+For the `deleteUserData` function, the argument's data object structure must be:
+
+```ts
+interface LearningAnalyticsDashboardDeleteUserData {
+  cardTitle: string;
+  columnTitle: string;
+}
+```
+
+For the `clearAllUsersData` function, the argument is the cardTitle (optionally), and when it's not sent, all the entries for a specific plugin will be deleted. (And if the card ends up empty, it will be removed) 
+
+If the user is a moderator, there is the possibility to publish data on behalf of other users by using the second **optional** parameter named `targetUserId`
 
 So that the data will appear in the following form:
 
@@ -965,6 +1241,36 @@ So that the data will appear in the following form:
 |    ---    |  :--  |      --:        |
 | user-name |   1   |   `<value>`     |
 
+
+See example of use ahead:
+
+```ts
+const targetUserId = 'abcd-efg';
+pluginApi.learningAnalyticsDashboard.upsertUserData(
+  {
+    cardTitle: 'Example Title',
+    columnTitle: 'link sent by user',
+    value: '[link](https://my-website.com/abc.png)'
+  },
+  targetUserId,
+);
+
+pluginApi.learningAnalyticsDashboard.deleteUserData(
+  {
+    cardTitle: 'Example Title',
+    columnTitle: 'link sent by user',
+  },
+  targetUserId,
+);
+
+pluginApi.learningAnalyticsDashboard.clearAllUsersData(columnTitle);
+
+pluginApi.learningAnalyticsDashboard.clearAllUsersData(); // Or without the Column Title
+```
+
+Note 1: the `value` field (in the upsert function's argument) supports markdown, so feel free to use it as you wish.
+
+Note 2: pluginApi.sendGenericDataForLearningAnalyticsDashboard is now being deprecated, but has the same data structure as upsert (without the possibility to send entry on behalf of another user)
 
 ### External data resources
 
@@ -976,12 +1282,12 @@ This is possible by simply configuring the dataResource name in the manifest and
 {
   // ...rest of manifest configuration
   "remoteDataSources": [
-      {
-          "name": "allUsers",
-          "url": "${meta_pluginSettingsUserInformation}",
-          "fetchMode": "onMeetingCreate", // Possible values: "onMeetingCreate", "onDemand" 
-          "permissions": ["moderator", "viewer"] // Possible values: "moderator", "viewer", "presenter"
-      }
+    {
+      "name": "allUsers",
+      "url": "${meta_pluginSettingsUserInformation}",
+      "fetchMode": "onMeetingCreate", // Possible values: "onMeetingCreate", "onDemand"
+      "permissions": ["moderator", "viewer"] // Possible values: "moderator", "viewer", "presenter"
+    }
   ]
 }
 ```
@@ -1040,7 +1346,7 @@ This feature is mainly used for security purposes, see [external data section](#
 plugin_<pluginName>_<parameter-name>
 ```
 
-- `<pluginName>` — The name of the plugin as defined in `manifest.json`.  
+- `<pluginName>` — The name of the plugin as defined in `manifest.json`.
 - `<parameter-name>` — The parameter's name. It may include letters (uppercase or lowercase), numbers and hyphens (`-`).
 
 This naming convention ensures that each plugin has its own namespace for parameters. Other plugins cannot access values outside their own namespace. For example:
@@ -1084,12 +1390,7 @@ To use it, one first need to add the following lines to their `manifest.json`:
 {
   // ...rest of manifest configuration
   "eventPersistence": {
-      "isEnabled": true,
-      "maximumPayloadSizeInBytes": 1024,
-      "rateLimiting": {
-          "messagesAllowedPerSecond": 10,
-          "messagesAllowedPerMinute": 20
-      }
+      "isEnabled": true
   }
 }
 ```
@@ -1131,6 +1432,31 @@ Where `<meeting-id>` is the id of the the meeting you just recorded. Then, among
   <timestampUTC>1730311211929</timestampUTC>
 </event>
 ```
+
+## Guidelines
+
+This section outlines good practices for developing plugins.
+These are mandatory for official plugins developed by the BBB organization and its partners, in order to maintain reliability, security, and accountability.
+
+### Dom element manipulation guidelines
+
+Since plugins are loaded directly into the client, there is no technical restriction preventing developers from manipulating DOM elements arbitrarily. However, we strongly recommend following these practices:
+
+- Whenever possible, manipulate elements using the hooks provided by [dom-element-manipulation](#dom-element-manipulation);
+- If the functionality you need is not available, create an issue in the [SDK repository](https://github.com/bigbluebutton/bigbluebutton-html-plugin-sdk) or check if one of the [extensible areas](#extensible-ui-areas) can meet your needs;
+- **Never edit chat message contents directly** (even with DOM manipulation). Currently, the playback from the recordings portion of BBB does not support plugins or extensions. Any changes made to live chat messages (such as adding or removing words) will not be reflected in the recording, leading to inconsistencies and potential accountability issues.
+
+To emphasize: Do not alter the text content of chat messages. Doing so can cause severe reliability and accountability problems.
+
+Instead, the hook provided can be used to modify how messages are presented — for example, by changing the style to emphasize certain word(s), rendering a special layout for "notification" type messages (similar to the "change presenter" message), or even displaying both the original message text and additional custom-rendered UI elements.
+
+### Localization
+
+The Plugin SDK provides the `useLocaleMessages` hook, described in the [auxiliary functions](#auxiliary-functions) section. While its use is not mandatory, we highly recommend it because it handles certain edge cases that are otherwise difficult to predict.
+
+We also strongly encourage developers to include localization in their plugins. This greatly improves adoption and usability within the community.
+
+For a practical example, see how the [pick-random-user plugin](https://github.com/bigbluebutton/bbb-plugin-pick-random-user/blob/7259ec7f32ea0e3d851f4b6636a739a82a385896/src/commons/hooks.ts#L17) uses it in the `useGetInternationalization` hook.
 
 ## Frequently Asked Questions (FAQ)
 

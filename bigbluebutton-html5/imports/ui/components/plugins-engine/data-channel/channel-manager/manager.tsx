@@ -6,6 +6,7 @@ import { DataChannelTypes } from 'bigbluebutton-html-plugin-sdk/dist/cjs/data-ch
 
 import { DataChannelItemManagerReader } from './reader-manager';
 import DataChannelItemManagerWriter from './writer-manager';
+import { DataChannelEntry } from '../types';
 
 export interface DataChannelItemManagerProps {
   identifier: string;
@@ -13,6 +14,7 @@ export interface DataChannelItemManagerProps {
   channelName: string;
   subChannelName: string;
   pluginApi: PluginSdk.PluginApi;
+  dataChannelEntries: DataChannelEntry[];
   dataChannelTypes: DataChannelTypes[];
 }
 
@@ -26,6 +28,7 @@ export const DataChannelItemManager: React.ElementType<DataChannelItemManagerPro
     pluginApi,
     dataChannelTypes,
     subChannelName,
+    dataChannelEntries,
   } = props;
 
   const dataChannelIdentifier = createChannelIdentifier(channelName, subChannelName, pluginName);
@@ -44,12 +47,13 @@ export const DataChannelItemManager: React.ElementType<DataChannelItemManagerPro
       {
         dataChannelTypes.map((type) => (
           <DataChannelItemManagerReader
+            key={identifier?.concat('::')?.concat(type)}
             {...{
-              key: identifier?.concat('::')?.concat(type),
               pluginName,
               channelName,
               dataChannelType: type,
               subChannelName,
+              dataChannelEntriesReceived: dataChannelEntries,
               dataChannelIdentifier,
             }}
           />

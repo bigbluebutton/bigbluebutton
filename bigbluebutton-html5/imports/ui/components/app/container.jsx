@@ -19,7 +19,6 @@ import {
 import useSetSpeechOptions from '../audio/audio-graphql/hooks/useSetSpeechOptions';
 import { handleIsNotificationEnabled } from '/imports/ui/components/plugins-engine/ui-commands/notification/handler';
 import App from './component';
-import { PINNED_PAD_SUBSCRIPTION } from '../notes/queries';
 import useDeduplicatedSubscription from '../../core/hooks/useDeduplicatedSubscription';
 import useSettings from '../../services/settings/hooks/useSettings';
 import { SETTINGS } from '../../services/settings/enums';
@@ -27,6 +26,8 @@ import usePresentationSwap from '../../core/hooks/usePresentationSwap';
 import { LAYOUT_TYPE } from '../layout/enums';
 import { SET_PRESENTATION_FIT_TO_WIDTH } from './app-graphql/mutations';
 import { CURRENT_PRESENTATION_PAGE_SUBSCRIPTION } from '../whiteboard/queries';
+import { RAISED_HAND_USERS } from '/imports/ui/core/graphql/queries/users';
+import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
 
 const AppContainer = (props) => {
   const {
@@ -43,6 +44,7 @@ const AppContainer = (props) => {
     raiseHand: u.raiseHand,
     userId: u.userId,
     presenter: u.presenter,
+    voice: u.voice,
   }));
 
   const {
@@ -54,6 +56,19 @@ const AppContainer = (props) => {
     name: m.name,
     meetingId: m.meetingId,
   }));
+
+  const { data: usersData } = useDeduplicatedSubscription(RAISED_HAND_USERS);
+  const raisedHandUsers = currentMeeting?.meetingId
+    ? filterByMeetingId(
+      usersData?.user,
+      currentMeeting.meetingId,
+      RAISED_HAND_USERS,
+      (u) => ({ mismatchedUserId: u.userId, mismatchedName: u.name }),
+    )
+    : [];
+  const isCurrentUserNextRaisedHand = raisedHandUsers.length > 0 && currentUser?.raiseHand
+    ? raisedHandUsers[0]?.userId === currentUser?.userId
+    : false;
 
   const { data: currentPageInfo } = useDeduplicatedSubscription(
     CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
@@ -68,8 +83,6 @@ const AppContainer = (props) => {
     'bbb_force_restore_presentation_on_new_events',
     window.meetingClientSettings.public.presentation.restoreOnUpdate,
   );
-
-  const NOTES_CONFIG = window.meetingClientSettings.public.notes;
 
   const {
     darkTheme,
@@ -87,9 +100,7 @@ const AppContainer = (props) => {
     LAYOUT_TYPE.PARTICIPANTS_AND_CHAT_ONLY,
   ].includes(layoutType);
   const setSpeechOptions = useSetSpeechOptions();
-  const { data: pinnedPadData } = useDeduplicatedSubscription(PINNED_PAD_SUBSCRIPTION);
-  const isSharedNotesPinnedFromGraphql = !!pinnedPadData
-    && pinnedPadData.sharedNotes[0]?.sharedNotesExtId === NOTES_CONFIG.id;
+  const isSharedNotesPinnedFromGraphql = currentMeeting?.componentsFlags?.isSharedNotesPinned;
   const isSharedNotesPinned = isSharedNotesPinnedFromGraphql && presentation.isOpen;
   const isExternalVideoEnabled = useIsExternalVideoEnabled();
   const isPresentationEnabled = useIsPresentationEnabled();
@@ -147,7 +158,9 @@ const AppContainer = (props) => {
             || getFromUserSettings('bbb_hide_controls', false),
           isNonMediaLayout,
           currentUserAway: currentUser.away,
-          currentUserRaiseHand: currentUser.raiseHand,
+          currentUserRaiseHand: currentUser?.raiseHand ?? false,
+          currentUserHasVoice: !!currentUser?.voice,
+          isCurrentUserNextRaisedHand,
           captionsStyle,
           presentationIsOpen,
           shouldShowExternalVideo,
@@ -163,9 +176,9 @@ const AppContainer = (props) => {
           hideNotificationToasts: hideNotificationToasts
             || getFromUserSettings('bbb_hide_notifications', false),
           darkTheme,
-          isBreakout: currentMeeting?.isBreakout,
-          meetingName: currentMeeting?.name,
-          meetingId: currentMeeting?.meetingId,
+          isBreakout: currentMeeting?.isBreakout ?? false,
+          meetingName: currentMeeting?.name ?? '',
+          meetingId: currentMeeting?.meetingId ?? '',
         }}
         {...props}
       />

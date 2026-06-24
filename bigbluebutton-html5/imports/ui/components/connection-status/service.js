@@ -8,6 +8,11 @@ import ScreenshareService from '/imports/ui/components/screenshare/service';
 import VideoService from '/imports/ui/components/video-provider/service';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import getStatus from '../../core/utils/getStatus';
+import AudioManager from '/imports/ui/services/audio-manager';
+import { getLiveKitAudioNetworkData, getLiveKitVideoNetworkData } from '/imports/ui/services/livekit/stats';
+import { isLiveKitBridge, liveKitRoom } from '/imports/ui/services/livekit';
+import meetingStaticData from '/imports/ui/core/singletons/meetingStaticData';
+import logger from '/imports/startup/client/logger';
 
 const intlMessages = defineMessages({
   saved: {
@@ -25,6 +30,8 @@ export const NETWORK_MONITORING_INTERVAL_MS = 2000;
 export const lastLevel = makeVar();
 
 let monitoringInterval = null;
+let previousSfuStats = null;
+let previousLkStats = new Map();
 
 export const URL_REGEX = new RegExp(/^(http|https):\/\/[^ "]+$/);
 export const getHelp = () => {
@@ -212,35 +219,6 @@ export const getVideoData = async () => {
 };
 
 /**
- * Get the user, audio and video data from current active streams.
- * For audio, this will get information about the mic/listen-only stream.
- * @returns An Object containing all this data.
- */
-export const getNetworkData = async () => {
-  const audio = await getAudioData();
-
-  const video = await getVideoData();
-
-  const user = {
-    time: new Date(),
-    username: Auth.username,
-    meeting_name: Auth.confname,
-    meeting_id: Auth.meetingID,
-    connection_id: Auth.connectionID,
-    user_id: Auth.userID,
-    extern_user_id: Auth.externUserID,
-  };
-
-  const fullData = {
-    user,
-    audio,
-    video,
-  };
-
-  return fullData;
-};
-
-/**
  * Calculates both upload and download rates using data retrieved from getStats
  * API. For upload (outbound-rtp) we use both bytesSent and timestamp fields.
  * byteSent field contains the number of octets sent at the given timestamp,
@@ -368,6 +346,98 @@ export const calculateBitsPerSecondFromMultipleData = (currentData, previousData
   return result;
 };
 
+// Audio network data collection for the bbb-webrtc-sfu bridge
+const getSFUAudioNetworkData = async () => {
+  const rawAudio = await getAudioData();
+  const {
+    outbound: audioCurrentUploadRate,
+    inbound: audioCurrentDownloadRate,
+  } = previousSfuStats
+    ? calculateBitsPerSecond(rawAudio, previousSfuStats.audio)
+    : { outbound: 0, inbound: 0 };
+
+  const inboundRtp = getDataType(rawAudio, 'inbound-rtp')[0];
+
+  previousSfuStats = {
+    ...previousSfuStats,
+    audio: rawAudio,
+  };
+
+  return {
+    audioCurrentUploadRate,
+    audioCurrentDownloadRate,
+    jitter: inboundRtp ? inboundRtp.jitterBufferAverage : 0,
+    packetsLost: inboundRtp ? inboundRtp.packetsLost : 0,
+    transportStats: rawAudio.transportStats || {},
+  };
+};
+
+// Video network data collection for the bbb-webrtc-sfu bridge
+const getSFUVideoNetworkData = async () => {
+  const rawVideo = await getVideoData();
+  const {
+    outbound: videoCurrentUploadRate,
+    inbound: videoCurrentDownloadRate,
+  } = previousSfuStats
+    ? calculateBitsPerSecondFromMultipleData(rawVideo, previousSfuStats.video)
+    : { outbound: 0, inbound: 0 };
+
+  previousSfuStats = {
+    ...previousSfuStats,
+    video: rawVideo,
+  };
+
+  return {
+    videoCurrentUploadRate,
+    videoCurrentDownloadRate,
+  };
+};
+
+// Get computed network data (bitrates, jitter, loss) for the connection status modal.
+export const getNetworkData = async () => {
+  const user = {
+    time: new Date(),
+    username: Auth.username,
+    meeting_name: Auth.confname,
+    meeting_id: Auth.meetingID,
+    connection_id: Auth.connectionID,
+    user_id: Auth.userID,
+    extern_user_id: Auth.externUserID,
+  };
+
+  const meeting = meetingStaticData.hasData() ? meetingStaticData.getMeetingData() : null;
+  const audioIsLK = AudioManager.isUsingLiveKit();
+  const videoIsLK = isLiveKitBridge(meeting?.cameraBridge)
+    || isLiveKitBridge(meeting?.screenShareBridge);
+
+  let audio;
+
+  if (audioIsLK) {
+    const result = await getLiveKitAudioNetworkData(liveKitRoom, previousLkStats);
+    previousLkStats = new Map([...previousLkStats, ...result.previousStats]);
+    audio = result.data;
+  } else {
+    audio = await getSFUAudioNetworkData();
+  }
+
+  let video;
+
+  if (videoIsLK) {
+    const result = await getLiveKitVideoNetworkData(liveKitRoom, previousLkStats);
+    previousLkStats = new Map([...previousLkStats, ...result.previousStats]);
+    video = result.data;
+  } else {
+    video = await getSFUVideoNetworkData();
+  }
+
+  return {
+    ready: true,
+    user,
+    audio,
+    video,
+  };
+};
+
 export const sortConnectionData = (connectionData) => connectionData
   .sort(sortLevel)
   .sort(sortOnline);
@@ -375,8 +445,8 @@ export const sortConnectionData = (connectionData) => connectionData
 export const stopMonitoringNetwork = () => {
   clearInterval(monitoringInterval);
   monitoringInterval = null;
-  // Reset the network data so that we don't show old data by accident if the
-  // monitoring is started again later.
+  previousSfuStats = null;
+  previousLkStats = new Map();
   connectionStatus.setNetworkData({
     ready: false,
     audio: {
@@ -394,69 +464,30 @@ export const stopMonitoringNetwork = () => {
 };
 
 /**
-   * Start monitoring the network data.
-   * @return {Promise} A Promise that resolves when process started.
-   */
+ * Start monitoring the network data.
+ * @return {Promise} A Promise that resolves when process started.
+ */
 export async function startMonitoringNetwork() {
-  // Reset the monitoring interval if it's already running
   if (monitoringInterval) stopMonitoringNetwork();
 
-  let previousData = await getNetworkData();
-
   monitoringInterval = setInterval(async () => {
-    const data = await getNetworkData();
-
-    const {
-      outbound: audioCurrentUploadRate,
-      inbound: audioCurrentDownloadRate,
-    } = calculateBitsPerSecond(data.audio, previousData.audio);
-
-    const inboundRtp = getDataType(data.audio, 'inbound-rtp')[0];
-
-    const jitter = inboundRtp
-      ? inboundRtp.jitterBufferAverage
-      : 0;
-
-    const packetsLost = inboundRtp
-      ? inboundRtp.packetsLost
-      : 0;
-
-    const audio = {
-      audioCurrentUploadRate,
-      audioCurrentDownloadRate,
-      jitter,
-      packetsLost,
-      transportStats: data.audio.transportStats,
-    };
-
-    const {
-      outbound: videoCurrentUploadRate,
-      inbound: videoCurrentDownloadRate,
-    } = calculateBitsPerSecondFromMultipleData(data.video,
-      previousData.video);
-
-    const video = {
-      videoCurrentUploadRate,
-      videoCurrentDownloadRate,
-    };
-
-    const { user } = data;
-
-    const networkData = {
-      ready: true,
-      user,
-      audio,
-      video,
-    };
-
-    previousData = data;
-
-    connectionStatus.setNetworkData(networkData);
+    try {
+      const networkData = await getNetworkData();
+      connectionStatus.setNetworkData(networkData);
+    } catch (error) {
+      logger.debug({
+        logCode: 'connstats_network_data_error',
+        extraInfo: {
+          errorMessage: error.message,
+        },
+      }, `Network data collection error: ${error.message}`);
+    }
   }, NETWORK_MONITORING_INTERVAL_MS);
 }
 
 export function getWorstStatus(statuses) {
   const statusOrder = {
+    unknown: -1,
     normal: 0,
     warning: 1,
     danger: 2,

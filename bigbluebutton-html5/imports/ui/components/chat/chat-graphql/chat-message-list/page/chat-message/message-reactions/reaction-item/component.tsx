@@ -21,10 +21,9 @@ interface ReactionItemProps {
   userNames: string[];
   reactedByMe: boolean;
   reactionEmoji: string;
-  reactionEmojiId: string;
   shortcodes: string;
-  sendReaction(reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string): void;
-  deleteReaction(reactionEmoji: string, reactionEmojiId: string, chatId: string, messageId: string): void;
+  sendReaction(reactionEmoji: string, chatId: string, messageId: string): void;
+  deleteReaction(reactionEmoji: string, chatId: string, messageId: string): void;
   chatId: string;
   messageId: string;
 }
@@ -34,7 +33,6 @@ const ReactionItem: React.FC<ReactionItemProps> = (props) => {
     count,
     reactedByMe,
     reactionEmoji,
-    reactionEmojiId,
     userNames,
     shortcodes,
     chatId,
@@ -64,7 +62,7 @@ const ReactionItem: React.FC<ReactionItemProps> = (props) => {
   });
 
   return (
-    <TooltipContainer title={label} key={reactionEmojiId}>
+    <TooltipContainer title={label} key={reactionEmoji}>
       <Styled.EmojiWrapper
         data-test="messageReactionItem"
         tabIndex={-1}
@@ -72,9 +70,9 @@ const ReactionItem: React.FC<ReactionItemProps> = (props) => {
         highlighted={reactedByMe}
         onClick={() => {
           if (reactedByMe) {
-            deleteReaction(reactionEmoji, reactionEmojiId, chatId, messageId);
+            deleteReaction(reactionEmoji, chatId, messageId);
           } else {
-            sendReaction(reactionEmoji, reactionEmojiId, chatId, messageId);
+            sendReaction(reactionEmoji, chatId, messageId);
           }
         }}
       >
@@ -83,7 +81,6 @@ const ReactionItem: React.FC<ReactionItemProps> = (props) => {
             window.getComputedStyle(document.documentElement).fontSize,
           )}
           emoji={{
-            id: reactionEmojiId,
             native: reactionEmoji,
           }}
           native={reactionEmoji}
