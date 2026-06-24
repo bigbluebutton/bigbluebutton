@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorWhite, colorGrayLighter } from '/imports/ui/stylesheets/styled-components/palette';
 import { mediumUp } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import { actionsBarHeight, navbarHeight, mdPaddingX } from '/imports/ui/stylesheets/styled-components/general';
 import Button from '/imports/ui/components/common/button/component';
@@ -114,6 +114,71 @@ const Break = styled.div`
   height: 5px;
 `;
 
+const PaginationBar = styled.div`
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 2px 0.5rem 0;
+  z-index: 2;
+`;
+
+const PaginationDots = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+`;
+
+const PaginationDot = styled.button<{ $active: boolean }>`
+  width: 0.5rem;
+  height: 0.5rem;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background-color: ${({ $active }) => ($active ? colorWhite : colorGrayLighter)};
+  opacity: ${({ $active }) => ($active ? 1 : 0.5)};
+  transition: opacity 0.1s, background-color 0.1s;
+`;
+
+const PaginationCounter = styled.div`
+  color: ${colorWhite};
+  font-size: 0.75rem;
+  line-height: 1;
+`;
+
+// @ts-expect-error -> Untyped component.
+const PaginationArrow = styled(Button)`
+  color: ${colorWhite};
+  padding: 0;
+  min-width: 0;
+
+  &&,
+  &&:hover,
+  &&:focus,
+  &&:active,
+  &&:active:focus {
+    background-color: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    color: ${colorWhite} !important;
+    filter: none;
+  }
+
+  i {
+    font-size: 0.5rem;
+  }
+
+  &:active {
+    opacity: 0.5;
+  }
+`;
+
 export default {
   NextPageButton,
   PreviousPageButton,
@@ -121,4 +186,9 @@ export default {
   VideoCanvas,
   VideoList,
   Break,
+  PaginationBar,
+  PaginationDots,
+  PaginationDot,
+  PaginationCounter,
+  PaginationArrow,
 };

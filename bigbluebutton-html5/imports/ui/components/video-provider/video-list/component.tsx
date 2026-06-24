@@ -3,6 +3,7 @@ import { IntlShape, defineMessages, injectIntl } from 'react-intl';
 import { UpdatedDataForUserCameraDomElement } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/user-camera/types';
 import { throttle } from '/imports/utils/throttle';
 import { range } from '/imports/utils/array-utils';
+import deviceInfo from '/imports/utils/deviceInfo';
 import Styled from './styles';
 import VideoListItemContainer from './video-list-item/container';
 import OverflowTile from './overflow-tile/component';
@@ -28,6 +29,12 @@ const intlMessages = defineMessages({
   },
   prevPageLabel: {
     id: 'app.video.pagination.prevPage',
+  },
+  pageLabel: {
+    id: 'app.video.pagination.page',
+  },
+  pageOfLabel: {
+    id: 'app.video.pagination.pageOf',
   },
 });
 
@@ -66,6 +73,7 @@ const findOptimalGrid = (
 };
 
 const ASPECT_RATIO = 4 / 3;
+const MOBILE_MAX_DOTS = 10;
 // const ACTION_NAME_BACKGROUND = 'blurBackground';
 
 interface VideoListProps {
@@ -148,7 +156,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
 
   componentDidUpdate(prevProps: VideoListProps) {
     const {
-      layoutType, cameraDock, streams, focusedId, overflowCount,
+      layoutType, cameraDock, streams, focusedId, overflowCount, numberOfPages,
     } = this.props;
     const { width: cameraDockWidth, height: cameraDockHeight } = cameraDock;
     const {
@@ -157,6 +165,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       streams: prevStreams,
       focusedId: prevFocusedId,
       overflowCount: prevOverflowCount,
+      numberOfPages: prevNumberOfPages,
     } = prevProps;
     const { width: prevCameraDockWidth, height: prevCameraDockHeight } = prevCameraDock;
 
@@ -168,7 +177,8 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       || cameraDockWidth !== prevCameraDockWidth
       || cameraDockHeight !== prevCameraDockHeight
       || streams.length !== prevStreams.length
-      || overflowCount !== prevOverflowCount) {
+      || overflowCount !== prevOverflowCount
+      || numberOfPages !== prevNumberOfPages) {
       this.handleCanvasResize();
     }
   }
@@ -469,6 +479,77 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     return videoItems;
   }
 
+  renderPaginationBar() {
+    const {
+      intl,
+      numberOfPages,
+      currentVideoPageIndex,
+      cameraDock,
+      isGridEnabled,
+    } = this.props;
+    const { optimalGrid } = this.state;
+
+    if (numberOfPages <= 1 || cameraDock.width === 0) return null;
+
+    const currentPage = currentVideoPageIndex + 1;
+    const prevPageLabel = intl.formatMessage(intlMessages.prevPageLabel);
+    const nextPageLabel = intl.formatMessage(intlMessages.nextPageLabel);
+    const useDots = numberOfPages <= MOBILE_MAX_DOTS;
+
+    const barTop = isGridEnabled
+      ? `min(calc(50% + ${optimalGrid.height / 2}px + 0.5rem), calc(100% - 22px))`
+      : 'calc(100% + 0.5rem)';
+
+    return (
+      <Styled.PaginationBar
+        style={{ top: barTop }}
+        data-test="mobilePaginationBar"
+      >
+        <Styled.PaginationArrow
+          role="button"
+          aria-label={prevPageLabel}
+          color="primary"
+          icon="left_arrow"
+          size="sm"
+          hideLabel
+          label={prevPageLabel}
+          onClick={VideoService.getPreviousVideoPage}
+          data-test="mobilePrevPageBtn"
+        />
+        {useDots ? (
+          <Styled.PaginationDots>
+            {range(0, numberOfPages).map((page) => (
+              <Styled.PaginationDot
+                key={`page-dot-${page}`}
+                type="button"
+                $active={page === currentVideoPageIndex}
+                aria-current={page === currentVideoPageIndex}
+                aria-label={intl.formatMessage(intlMessages.pageLabel, { 0: page + 1 })}
+                onClick={() => VideoService.setVideoPage(page)}
+                data-test="mobilePageDot"
+              />
+            ))}
+          </Styled.PaginationDots>
+        ) : (
+          <Styled.PaginationCounter data-test="mobilePageCounter">
+            {intl.formatMessage(intlMessages.pageOfLabel, { 0: currentPage, 1: numberOfPages })}
+          </Styled.PaginationCounter>
+        )}
+        <Styled.PaginationArrow
+          role="button"
+          aria-label={nextPageLabel}
+          color="primary"
+          icon="right_arrow"
+          size="sm"
+          hideLabel
+          label={nextPageLabel}
+          onClick={VideoService.getNextVideoPage}
+          data-test="mobileNextPageBtn"
+        />
+      </Styled.PaginationBar>
+    );
+  }
+
   render() {
     const {
       streams,
@@ -478,6 +559,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     } = this.props;
     const { optimalGrid, autoplayBlocked } = this.state;
     const { position } = cameraDock;
+    const isMobile = deviceInfo.isMobile;
 
     return (
       <Styled.VideoCanvas
@@ -489,7 +571,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
           minHeight: 'inherit',
         }}
       >
-        {this.renderPreviousPageButton()}
+        {!isMobile && this.renderPreviousPageButton()}
 
         {!streams.length && !isGridEnabled ? null : (
           <Styled.VideoList
@@ -516,12 +598,14 @@ class VideoList extends Component<VideoListProps, VideoListState> {
           />
         )}
 
+        {isMobile && this.renderPaginationBar()}
+
         {
-          (position === 'contentRight' || position === 'contentLeft')
+          !isMobile && (position === 'contentRight' || position === 'contentLeft')
           && <Styled.Break />
         }
 
-        {this.renderNextPageButton()}
+        {!isMobile && this.renderNextPageButton()}
       </Styled.VideoCanvas>
     );
   }

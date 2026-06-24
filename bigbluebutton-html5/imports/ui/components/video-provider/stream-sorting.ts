@@ -1,4 +1,4 @@
-import { StreamItem } from './types';
+import { StreamItem, VideoItem } from './types';
 import UserListService from '/imports/ui/components/user-list/service';
 import Auth from '/imports/ui/services/auth';
 import VideoService from './service';
@@ -170,6 +170,42 @@ export const sortPresenterLocalPinned = (s1: StreamItem, s2: StreamItem, moderat
 
   // Finally, sort alphabetically
   return UserListService.sortUsersByName(s1, s2);
+};
+
+// MOBILE sort — pin -> local(own) -> voice activity (desc) -> has camera -> alphabetical.
+const isPinnedItem = (s: VideoItem) => (s.type === VIDEO_TYPES.STREAM && !!s.user?.pinned)
+  || (s.type === VIDEO_TYPES.AUDIO_ONLY && !!s.user?.pinned)
+  || (s.type === VIDEO_TYPES.GRID && !!s.pinned);
+
+const isLocalItem = (s: VideoItem) => ('stream' in s) && VideoService.isLocalStream(s.stream);
+
+const hasCameraItem = (s: VideoItem) => s.type === VIDEO_TYPES.STREAM
+  || s.type === VIDEO_TYPES.CONNECTING;
+
+const lastFloorTimeItem = (s: VideoItem) => (('lastFloorTime' in s) && s.lastFloorTime ? s.lastFloorTime : '0');
+
+export const sortMobile = (s1: VideoItem, s2: VideoItem) => {
+  const p1 = isPinnedItem(s1);
+  const p2 = isPinnedItem(s2);
+  if (p1 && !p2) return -1;
+  if (!p1 && p2) return 1;
+
+  const l1 = isLocalItem(s1);
+  const l2 = isLocalItem(s2);
+  if (l1 && !l2) return -1;
+  if (!l1 && l2) return 1;
+
+  const t1 = lastFloorTimeItem(s1);
+  const t2 = lastFloorTimeItem(s2);
+  if (t2 < t1) return -1;
+  if (t2 > t1) return 1;
+
+  const c1 = hasCameraItem(s1);
+  const c2 = hasCameraItem(s2);
+  if (c1 && !c2) return -1;
+  if (!c1 && c2) return 1;
+
+  return UserListService.sortUsersByName(s1 as StreamItem, s2 as StreamItem);
 };
 
 const SORTING_METHODS = Object.freeze({

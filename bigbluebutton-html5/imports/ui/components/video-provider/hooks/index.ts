@@ -16,6 +16,7 @@ import {
   getSortingMethod,
   sortVideoStreams,
   sortPin,
+  sortMobile,
 } from '/imports/ui/components/video-provider/stream-sorting';
 import {
   useVideoState,
@@ -35,6 +36,7 @@ import { CAMERA_BROADCAST_STOP } from '/imports/ui/components/video-provider/mut
 import {
   GridItem,
   StreamItem,
+  VideoItem,
   AudioOnlyStream,
   GridUsersResponse,
   StreamSubscriptionData,
@@ -293,6 +295,8 @@ export const useMyRole = () => {
 export const useMyPageSize = () => {
   const myRole = useMyRole();
   const pageSizes = usePageSizeDictionary();
+  const gridSize = useGridSize();
+  const isGridEnabled = useStorageKey('isGridEnabled');
   const ROLE_MODERATOR = videoService.getRoleModerator();
   const ROLE_VIEWER = videoService.getRoleViewer();
   let size;
@@ -305,7 +309,11 @@ export const useMyPageSize = () => {
       size = pageSizes?.viewer;
   }
 
-  const actualSize = size ?? 0;
+  let actualSize = size ?? 0;
+
+  if (videoService.isMobile && isGridEnabled) {
+    actualSize = gridSize;
+  }
 
   useEffect(() => {
     setVideoState({ pageSize: actualSize });
@@ -317,6 +325,8 @@ export const useMyPageSize = () => {
 export const useIsPaginationEnabled = () => {
   const myPageSize = useMyPageSize();
   const { paginationEnabled } = useSettings(SETTINGS.APPLICATION) as { paginationEnabled?: boolean };
+  // Mobile always paginates (the settings toggle is locked on for mobile).
+  if (videoService.isMobile) return myPageSize > 0;
   return myPageSize > 0 && paginationEnabled;
 };
 
@@ -355,8 +365,11 @@ export const useGridUsers = (visibleStreamCount: number, visibleUserCount: numbe
     voice: u.voice,
   }));
 
-  const baseGridUserLimit = Math.max(gridSize - visibleStreamCount, 0);
-  const hasOverflow = userCount > gridSize;
+  const baseGridUserLimit = videoService.isMobile
+    ? Math.max(userCount, gridSize)
+    : Math.max(gridSize - visibleStreamCount, 0);
+  // Mobile pages through the full grid instead of showing an overflow tile.
+  const hasOverflow = !videoService.isMobile && userCount > gridSize;
 
   const {
     data: gridData,
@@ -477,8 +490,11 @@ export const useGridUsers = (visibleStreamCount: number, visibleUserCount: numbe
     // stream tiles as a user with several cameras holds several tiles. The
     // overflow tile replaces the last avatar when avatars exist (+1: the
     // replaced user joins the count); on a full-camera page it takes a new
-    // slot instead and replaces no one.
-    const hidden = Math.max(userCount - visibleUserCount - gridItems.current.length, 0);
+    // slot instead and replaces no one. Mobile pages through the full grid
+    // instead of showing an overflow tile, so it never has hidden users.
+    const hidden = videoService.isMobile
+      ? 0
+      : Math.max(userCount - visibleUserCount - gridItems.current.length, 0);
     const replacedAvatar = gridItems.current.length > 0 ? 1 : 0;
     overflowCount.current = hidden > 0 ? hidden + replacedAvatar : 0;
   } else {
@@ -737,6 +753,7 @@ export const useVideoStreams = () => {
   const audioOnlyUsers = useAudioOnlyUsers();
   const myPageSize = useMyPageSize();
   const isPaginationEnabled = useIsPaginationEnabled();
+  const isGridEnabled = useStorageKey('isGridEnabled') as boolean;
   const { senderIds, senderIdsInGroups, inAnyGroup } = useVideoSenders();
   let streams: StreamItem[] = [...videoStreams];
   let totalNumberOfOtherStreams: number | undefined;
@@ -770,7 +787,9 @@ export const useVideoStreams = () => {
   // page — used to recover off-page webcam users for the overflow preview below.
   const allowedStreams = [...streams];
 
-  if (isPaginationEnabled) {
+  if (videoService.isMobile) {
+    // Mobile pagination is handled separately below.
+  } else if (isPaginationEnabled) {
     const chunkIndex = currentVideoPageIndex * myPageSize;
     const sortingMethod = (numberOfPages > 1) ? PAGINATION_SORTING : DEFAULT_SORTING;
     const sortingConfig = getSortingMethod(sortingMethod);
@@ -891,6 +910,38 @@ export const useVideoStreams = () => {
       a.nameSortable.localeCompare(b.nameSortable) || a.userId.localeCompare(b.userId)
     ))
     .slice(0, Math.min(overflowCount, OVERFLOW_TILE_PREVIEW_LIMIT));
+
+  if (videoService.isMobile) {
+    const candidates: VideoItem[] = [...streams];
+    audioOnlyUsers.forEach((au) => {
+      if (!candidates.find((c) => c.userId === au.userId)) candidates.push(au);
+    });
+    if (isGridEnabled) {
+      gridUsers.forEach((gu) => {
+        if (!candidates.find((c) => c.userId === gu.userId)) candidates.push(gu);
+      });
+    }
+
+    const sorted = [...candidates].sort(sortMobile);
+    const total = sorted.length;
+    const chunkIndex = currentVideoPageIndex * myPageSize;
+    const paginated = myPageSize > 0
+      ? sorted.slice(chunkIndex, chunkIndex + myPageSize)
+      : sorted;
+
+    const localOffPage = sorted
+      .filter((vs, index) => videoService.isLocalStream(('stream' in vs) ? vs.stream : '')
+        && (index < chunkIndex || index >= chunkIndex + myPageSize))
+      .map((vs) => ({ ...vs, render: false }));
+
+    return {
+      streams: [...paginated, ...localOffPage] as StreamItem[],
+      gridUsers: [] as GridItem[],
+      overflowCount: 0,
+      totalNumberOfStreams: paginated.length,
+      totalNumberOfOtherStreams: total,
+    };
+  }
 
   return {
     streams,
