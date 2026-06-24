@@ -11,6 +11,7 @@ export interface NonTextContrastViolation {
   property: string;
   color: string;
   backgroundColor: string;
+  adjacentTo: string;
   ratio: number;
   requiredRatio: number;
   cssRule?: string;
@@ -31,7 +32,7 @@ export function formatNonTextContrastViolations(violations: NonTextContrastViola
       [
         `${violation.elementName} (${violation.selector})`,
         `${violation.property}: ${violation.color}`,
-        `background: ${violation.backgroundColor}`,
+        `${violation.adjacentTo}: ${violation.backgroundColor}`,
         `ratio: ${violation.ratio}:1`,
         violation.ancestorContext ? `context: ${violation.ancestorContext}` : undefined,
         violation.cssRule ? `rule: ${violation.cssRule}` : undefined,
@@ -64,6 +65,7 @@ export async function findNonTextContrastViolations(
       type Candidate = {
         property: string;
         color: string;
+        isBorder: boolean;
         sourceProperties: string[];
       };
 
@@ -82,6 +84,7 @@ export async function findNonTextContrastViolations(
         property: string;
         color: string;
         backgroundColor: string;
+        adjacentTo: string;
         ratio: number;
         requiredRatio: number;
         cssRule?: string;
@@ -150,6 +153,12 @@ export async function findNonTextContrastViolations(
 
       const colorToRgbString = (color: Rgba) =>
         `rgb(${Math.round(color.r)}, ${Math.round(color.g)}, ${Math.round(color.b)})`;
+
+      const isSameColor = (first: Rgba, second: Rgba) =>
+        Math.round(first.r) === Math.round(second.r) &&
+        Math.round(first.g) === Math.round(second.g) &&
+        Math.round(first.b) === Math.round(second.b) &&
+        Math.round(first.a * 100) === Math.round(second.a * 100);
 
       const effectiveBackground = (element: Element | null): Rgba => {
         const base = { r: 255, g: 255, b: 255, a: 1 };
@@ -384,6 +393,7 @@ export async function findNonTextContrastViolations(
             {
               property: `border-${side}-color`,
               color,
+              isBorder: true,
               sourceProperties: [`border-${side}-color`, `border-${side}`, 'border-color', 'border'],
             },
           ];
@@ -394,7 +404,12 @@ export async function findNonTextContrastViolations(
         const width = parseFloat(style.outlineWidth);
         if (width < 1 || style.outlineStyle === 'none' || style.outlineStyle === 'hidden') return [];
         return [
-          { property: 'outline-color', color: style.outlineColor, sourceProperties: ['outline-color', 'outline'] },
+          {
+            property: 'outline-color',
+            color: style.outlineColor,
+            isBorder: false,
+            sourceProperties: ['outline-color', 'outline'],
+          },
         ];
       };
 
@@ -406,33 +421,42 @@ export async function findNonTextContrastViolations(
         if (element.closest('svg, canvas, video, iframe')) return;
 
         const style = window.getComputedStyle(element);
-        const background = effectiveBackground(element.parentElement);
+        const outerBackground = effectiveBackground(element.parentElement);
+        const innerBackground = effectiveBackground(element);
         const candidates = [...borderCandidates(style), ...outlineCandidates(style)];
 
         candidates.forEach((candidate) => {
           const parsedColor = parseCssColor(candidate.color);
           if (isTransparent(parsedColor)) return;
 
-          const color = composite(parsedColor as Rgba, background);
-          const ratio = contrastRatio(color, background);
-          if (ratio >= minimumRatio) return;
-          const source = findCssSource(element, candidate);
+          const adjacentColors = [{ name: 'outer background', color: outerBackground }];
+          if (candidate.isBorder && !isSameColor(innerBackground, outerBackground)) {
+            adjacentColors.push({ name: 'inner background', color: innerBackground });
+          }
 
-          violations.push({
-            selector: selectorFor(element),
-            element: labelFor(element),
-            elementName: elementNameFor(element),
-            ancestorContext: ancestorContextFor(element),
-            domPath: domPathFor(element),
-            property: candidate.property,
-            color: colorToRgbString(color),
-            backgroundColor: colorToRgbString(background),
-            ratio: Number(ratio.toFixed(2)),
-            requiredRatio: minimumRatio,
-            cssRule: source.cssRule,
-            cssDeclaration: source.cssDeclaration,
-            stylesheet: source.stylesheet,
-            text: textFor(element),
+          adjacentColors.forEach((adjacentColor) => {
+            const color = composite(parsedColor as Rgba, adjacentColor.color);
+            const ratio = contrastRatio(color, adjacentColor.color);
+            if (ratio >= minimumRatio) return;
+            const source = findCssSource(element, candidate);
+
+            violations.push({
+              selector: selectorFor(element),
+              element: labelFor(element),
+              elementName: elementNameFor(element),
+              ancestorContext: ancestorContextFor(element),
+              domPath: domPathFor(element),
+              property: candidate.property,
+              color: colorToRgbString(color),
+              backgroundColor: colorToRgbString(adjacentColor.color),
+              adjacentTo: adjacentColor.name,
+              ratio: Number(ratio.toFixed(2)),
+              requiredRatio: minimumRatio,
+              cssRule: source.cssRule,
+              cssDeclaration: source.cssDeclaration,
+              stylesheet: source.stylesheet,
+              text: textFor(element),
+            });
           });
         });
       });
