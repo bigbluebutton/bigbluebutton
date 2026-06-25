@@ -72,11 +72,6 @@ const Right = styled.div`
     left: 0;
     display: contents;
   }
-  > *:not(span) {
-    @media ${smallOnly} {
-      margin: 0 ${smPaddingY};
-    }
-  }
   height: 100%;
 `;
 
