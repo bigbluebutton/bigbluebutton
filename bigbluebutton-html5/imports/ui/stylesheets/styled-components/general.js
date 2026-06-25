@@ -42,6 +42,9 @@ const minModalHeight = '20rem';
 const descriptionMargin = '3.5rem';
 const navbarHeight = '3.9375rem';
 const barsPadding = '0.8rem'; // so user-list and chat title is aligned with the presentation title
+const mobileNavbarButtonSize = '1.75rem';
+const mobileNavbarButtonGap = '0.5rem';
+const mobileNavigationSidebarToggleButtonSize = '2rem';
 const navigationSidebarLogoPadding = '15%';
 const navigationSidebarListItemsContainerGap = '2.5rem';
 const navigationSidebarListItemsGap = '0.8rem';
@@ -152,6 +155,9 @@ export {
   descriptionMargin,
   navbarHeight,
   barsPadding,
+  mobileNavbarButtonSize,
+  mobileNavbarButtonGap,
+  mobileNavigationSidebarToggleButtonSize,
   navigationSidebarLogoPadding,
   navigationSidebarListItemsContainerGap,
   navigationSidebarListItemsGap,

@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 import {
   borderSize,
+  mobileNavbarButtonSize,
+  mobileNavigationSidebarToggleButtonSize,
   navigationSidebarBorderRadius,
   navigationSidebarListItemsContainerGap,
   navigationSidebarListItemsGap,
@@ -55,6 +57,19 @@ const NavigationToggleButton = styled(Button)`
   margin: 0;
   z-index: 3;
   align-self: center;
+  margin-top: calc((${mobileNavbarButtonSize} - ${mobileNavigationSidebarToggleButtonSize}) / 2);
+
+  & > span:first-of-type {
+    width: ${mobileNavigationSidebarToggleButtonSize};
+    height: ${mobileNavigationSidebarToggleButtonSize};
+    min-width: ${mobileNavigationSidebarToggleButtonSize};
+    padding: 0 !important;
+    font-size: 0.92rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   ${({ hasNotification }) => hasNotification && `
     position: relative;
 

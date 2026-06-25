@@ -280,7 +280,7 @@ class NavBar extends Component {
                     aria-haspopup="dialog"
                     onClick={() => this.setModalIsOpen(true)}
                   >
-                    {presentationTitle}
+                    <Styled.TitleText>{presentationTitle}</Styled.TitleText>
                     <Icon iconName="device_list_selector" rotate />
                   </Styled.TitleButton>
                 </Tooltip>
