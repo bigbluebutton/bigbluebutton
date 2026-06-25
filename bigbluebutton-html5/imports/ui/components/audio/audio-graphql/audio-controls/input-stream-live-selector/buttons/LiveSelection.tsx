@@ -350,27 +350,11 @@ export const LiveSelection: React.FC<LiveSelectionProps> = ({
           aria-hidden="true"
         />
       ) : null}
-      {(shouldTreatAsMicrophone() && isMobile) && (
-        <MuteToggle
-          talking={talking}
-          muted={muted}
-          disabled={disabled || isAudioLocked}
-          isAudioLocked={isAudioLocked}
-          toggleMuteMicrophone={toggleMuteMicrophone}
-          away={away}
-          noInputDevice={noInputDevice}
-          openAudioSettings={openAudioSettings}
-          showMutedAlert={showMutedAlert}
-          inputStream={inputStream}
-          isModerator={isModerator}
-          isPresenter={isPresenter}
-        />
-      )}
       <BBBMenu
         customStyles={!isMobile ? customStyles : null}
         trigger={(
           <Styled.RelativePositioningContainer>
-            {shouldTreatAsMicrophone() && !isMobile
+            {shouldTreatAsMicrophone()
               ? (
                 <MuteToggle
                   talking={talking}
