@@ -244,12 +244,8 @@ class ApiController {
     }
 
     if (meetingService.createMeeting(newMeeting)) {
-
-      // Run slow pre-uploaded slides handling async for fast API responses
-      task {
-        // See if the request came with pre-uploading of presentation.
-        uploadDocuments(xmlModules, newMeeting, false);
-      }
+      // See if the request came with pre-uploading of presentation.
+      uploadDocuments(xmlModules, newMeeting, false);
 
       respondWithConference(newMeeting, null, null)
     } else {
@@ -1645,9 +1641,13 @@ class ApiController {
           if (document.current) {
             isDefaultPresentation = true
           }
-          downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(),
-                  document.current /* default presentation */, '', false,
-                  true, isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI);
+
+          // Run slow download and processing async for fast API responses
+          task {
+            downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(),
+                    document.current /* default presentation */, '', false,
+                    true, isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI);
+          }
         } else {
           log.error "Default presentation could not be read, it is (" + presentationService.defaultUploadedPresentation + ")", "error"
         }
@@ -1681,8 +1681,12 @@ class ApiController {
             log.debug("user provided filename: [${document.@filename}]");
             fileName = document.@filename.toString();
           }
-          downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), isCurrent /* default presentation */,
-                  fileName, isDownloadable, isRemovable, isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI);
+
+          // Run slow download and processing async for fast API responses
+          task {
+            downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), isCurrent /* default presentation */,
+                    fileName, isDownloadable, isRemovable, isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI);
+          }
         } else if (!StringUtils.isEmpty(document.@name.toString())) {
           def b64 = new Base64()
           def decodedBytes = b64.decode(document.text().getBytes())
