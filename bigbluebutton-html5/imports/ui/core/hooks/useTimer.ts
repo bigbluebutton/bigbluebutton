@@ -37,7 +37,7 @@ export const useTimer = ({
     });
   }, []);
 
-  if (!response.data?.[0]) return { data: undefined };
+  if (!response.data?.[0]) return { data: undefined, loading: response.loading };
   const {
     accumulated = 0,
     active = false,
