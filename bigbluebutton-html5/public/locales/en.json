@@ -1113,7 +1113,7 @@
     "app.userList.guest.waitingUsersTitle": "User Management",
     "app.userList.guest.optionTitle": "Review Pending Users",
     "app.userList.guest.allowAllAuthenticated": "Allow all authenticated",
-    "app.userList.guest.allowAllGuests": "Allow all guests",
+    "app.userList.guest.allowAllGuests": "Allow all",
     "app.userList.guest.allowEveryone": "Allow everyone",
     "app.userList.guest.denyEveryone": "Deny everyone",
     "app.userList.guest.pendingUsers": "{usersCount} Pending Users",
