@@ -243,9 +243,14 @@ class ApiController {
     }
 
     if (meetingService.createMeeting(newMeeting)) {
+
+      // Run slow pre-uploaded slides handling async for fast API responses
+      task {
+        // See if the request came with pre-uploading of presentation.
+        uploadDocuments(xmlModules, newMeeting, false);
+      }
+
       respondWithConference(newMeeting, null, null)
-      // See if the request came with pre-uploading of presentation.
-      uploadDocuments(xmlModules, newMeeting, false);  //
     } else {
       // Translate the external meeting id into an internal meeting id.
       String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);
