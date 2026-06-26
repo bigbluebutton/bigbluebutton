@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, FormattedMessage } from 'react-intl';
 import Styled from './styles';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -28,6 +29,10 @@ const intlMessages = defineMessages({
     id: 'app.unmute.modal.deny.label',
     description: 'Label for the unmute denial button',
   },
+  denyButtonLabelMobile: {
+    id: 'app.unmute.modal.deny.label.mobile',
+    description: 'Label for the unmute denial button on mobile',
+  },
 });
 
 const RequestUnmuteComponent = ({
@@ -39,6 +44,10 @@ const RequestUnmuteComponent = ({
     const alert = new Audio(`${window.meetingClientSettings.public.app.cdn + window.meetingClientSettings.public.app.basename}/resources/sounds/notify.mp3`);
     alert.play();
   }, []);
+
+  const denyLabel = deviceInfo.isMobile
+    ? intl.formatMessage(intlMessages.denyButtonLabelMobile)
+    : intl.formatMessage(intlMessages.denyButtonLabel);
 
   return (
     <Styled.RequestModal
@@ -60,7 +69,7 @@ const RequestUnmuteComponent = ({
           color="primary"
         />
         <Styled.RequestModalButton
-          label={intl.formatMessage(intlMessages.denyButtonLabel)}
+          label={denyLabel}
           data-test="denyUnmute"
           icon="mute"
           onClick={handleDeny}
