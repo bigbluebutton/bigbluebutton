@@ -47,6 +47,7 @@ import org.bigbluebutton.web.services.turn.StunTurnService
 import org.bigbluebutton.web.services.turn.TurnEntry
 import org.codehaus.groovy.util.ListHashMap
 import org.json.JSONArray
+import static grails.async.Promises.*
 
 import jakarta.servlet.ServletRequest
 import jakarta.servlet.http.HttpServletRequest
