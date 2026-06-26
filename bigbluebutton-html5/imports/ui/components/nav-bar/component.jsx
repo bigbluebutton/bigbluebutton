@@ -108,8 +108,12 @@ const renderPluginItems = (pluginItems) => {
                       disabled={pluginItem.disabled}
                       label={pluginItem.label}
                       aria-label={pluginItem.tooltip}
-                      color="primary"
-                      tooltip={pluginItem.tooltip}
+                      color={pluginItem.color || 'primary'}
+                      circle={pluginItem.circle === true}
+                      hideLabel={pluginItem.hideLabel === true}
+                      size={pluginItem.size || 'md'}
+                      style={pluginItem.style}
+                      tooltipLabel={pluginItem.tooltip}
                       onClick={pluginItem.onClick}
                       dataTest={pluginItem.dataTest}
                       {...navBarIconProps}
