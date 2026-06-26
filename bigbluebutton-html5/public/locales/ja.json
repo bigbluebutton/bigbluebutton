@@ -278,6 +278,8 @@
     "app.presentation.options.downloading": "ダウンロード中...",
     "app.presentation.options.downloaded": "プレゼンファイルがダウンロードされました",
     "app.presentation.options.downloadFailed": "プレゼンファイルがダウンロードできませんでした",
+    "app.presentation.options.detachPopup": "プレゼン画面を分離",
+    "app.presentation.options.mergePopup": "メインウィンドウに戻す",
     "app.presentation.presentationToolbar.noNextSlideDesc": "プレゼンテーション終了",
     "app.presentation.presentationToolbar.noPrevSlideDesc": "プレゼンテーション開始",
     "app.presentation.presentationToolbar.selectLabel": "スライド選択",
