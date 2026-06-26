@@ -1690,8 +1690,12 @@ class ApiController {
         } else if (!StringUtils.isEmpty(document.@name.toString())) {
           def b64 = new Base64()
           def decodedBytes = b64.decode(document.text().getBytes())
-          processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
-                  conf.getInternalId(), isCurrent, isDownloadable, isRemovable/* default presentation */, isDefaultPresentation, isFromInsertAPI);
+
+          // Run slow processing async for fast API responses
+          task {
+            processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
+                    conf.getInternalId(), isCurrent, isDownloadable, isRemovable/* default presentation */, isDefaultPresentation, isFromInsertAPI);
+          }
         } else {
           log.debug("presentation module config found, but it did not contain url or name attributes");
         }
