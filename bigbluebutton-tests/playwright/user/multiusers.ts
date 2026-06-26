@@ -1,4 +1,4 @@
-import { Browser, BrowserContext, expect, Page as PlaywrightPage, TestInfo } from '@playwright/test';
+import { Browser, BrowserContext, expect, Page as PlaywrightPage, test, TestInfo } from '@playwright/test';
 
 import { ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
@@ -198,8 +198,52 @@ export class MultiUsers {
     await this.userPage.hasElement(e.lowerHandBtn, 'should display the lower hand button for the attendee');
     await this.userPage.press('Escape');
     await this.modPage.waitAndClick(e.usersListSidebarButton);
-    await this.modPage.waitAndClick(e.raiseHandRejection);
+    await this.modPage.waitAndClick(e.lowerHandUserItem);
     await this.userPage.hasElement(e.raiseHandBtn, 'should display the raise hand button after rejection');
+  }
+
+  async raiseHandIndicatorOnAudioOnlyTile() {
+    // Regression test for issue 25169: the raised hand indicator must also show
+    // on audio-only tiles, not only on webcam tiles.
+    // Requires `public.kurento.cameraSortingModes.showAudioOnlyOnFirstPage` enabled
+    // in settings.yml so audio-only users get a placeholder tile in the video grid.
+    // Skip (rather than fail with an opaque "tile never appeared" error) when it is disabled.
+    const showAudioOnlyOnFirstPage = this.modPage.settings?.showAudioOnlyOnFirstPage ?? true;
+    test.skip(
+      !showAudioOnlyOnFirstPage,
+      'requires public.kurento.cameraSortingModes.showAudioOnlyOnFirstPage to be enabled',
+    );
+
+    await this.modPage.waitForSelector(e.whiteboard);
+
+    // Presenter shares a webcam so the camera dock (and the audio-only tile) is visible.
+    // Audio-only tiles are only surfaced in the unified layout, which is the default
+    // (public.app.defaultSettings.application.selectedLayout = "unified").
+    await this.modPage.shareWebcam();
+
+    // An attendee joins with microphone and unmutes. Speaking takes the audio floor,
+    // which surfaces the attendee's audio-only tile on the first page of the grid
+    // (showAudioOnlyOnFirstPage only lists users with a floor history).
+    await this.initUserPage();
+    await this.userPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitAndClick(e.joinAudio);
+    await this.userPage.joinMicrophone();
+
+    // The presenter's grid must contain the audio-only tile (placeholder with avatar).
+    const audioOnlyTiles = this.modPage.page
+      .locator(`${e.webcamItem}, ${e.webcamItemTalkingUser}`)
+      .filter({ has: this.modPage.page.locator(e.webcamConnecting) });
+    await expect(audioOnlyTiles, 'should display the audio-only tile in the presenter grid').not.toHaveCount(0);
+
+    // The audio-only attendee raises hand.
+    await this.userPage.waitAndClick(e.raiseHandBtn);
+    await this.userPage.hasElement(e.lowerHandBtn, 'should display the lower hand button after raising the hand');
+
+    // The raised hand indicator must appear on exactly one audio-only tile.
+    await expect(
+      audioOnlyTiles.filter({ has: this.modPage.page.locator(e.webcamItemRaisedHand) }),
+      'should display the raised hand indicator on the audio-only tile',
+    ).toHaveCount(1);
   }
 
   async toggleUserList() {

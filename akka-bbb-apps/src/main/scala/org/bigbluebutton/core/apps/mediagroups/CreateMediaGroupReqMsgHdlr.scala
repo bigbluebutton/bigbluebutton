@@ -82,6 +82,9 @@ trait CreateMediaGroupReqMsgHdlr extends RightsManagementTrait {
           MediaGroupApp.handleMediaGroupUpdated(mg.id, updatedGroups, liveMeeting, bus.outGW)
           newState
         case None =>
+          // Lazily create public groups (and enroll all current users)
+          // before creating the first scoped group. No-op once public groups already exist.
+          val baseGroups = MediaGroupApp.ensurePublicGroupsCreated(liveMeeting, state.mediaGroups)
           val mg = MediaGroupApp.createMediaGroup(
             groupId,
             msg.header.userId,
@@ -90,9 +93,9 @@ trait CreateMediaGroupReqMsgHdlr extends RightsManagementTrait {
             msg.body.record,
             senders,
             receivers,
-            state.mediaGroups
+            baseGroups
           )
-          val updatedGroups = MediaGroupApp.addMediaGroup(mg, state.mediaGroups)
+          val updatedGroups = MediaGroupApp.addMediaGroup(mg, baseGroups)
           broadcastEvent(mg)
           MediaGroupDAO.insert(liveMeeting.props.meetingProp.intId, mg)
           insertParticipants(senders, receivers, mg.id)

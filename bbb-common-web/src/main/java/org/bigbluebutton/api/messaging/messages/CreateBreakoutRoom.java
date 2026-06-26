@@ -22,6 +22,8 @@ public class CreateBreakoutRoom implements IMessage {
     public final String sourcePresentationId;
     public final Integer sourcePresentationSlide;
     public final Boolean record;
+    public final Boolean autoStartRecording;
+    public final Boolean allowStartStopRecording;
     public final Boolean privateChatEnabled;
     public final Boolean captureNotes; // Upload shared notes to main room after breakout room end
     public final Boolean captureSlides; // Upload annotated breakout slides to main room after breakout room end
@@ -33,34 +35,56 @@ public class CreateBreakoutRoom implements IMessage {
     public final String cameraBridge;
     public final String screenShareBridge;
     public final Boolean disablePrivChat;
+    public final Boolean disableCam;
+    public final Boolean disableMic;
+    public final Boolean disablePubChat;
+    public final Boolean disableNotes;
+    public final Boolean hideUserList;
+    public final Boolean lockOnJoin;
+    public final Boolean lockOnJoinConfigurable;
+    public final Boolean hideViewersCursor;
+    public final Boolean hideViewersAnnotation;
+    public final Boolean webcamsOnlyForModerator;
 
     public CreateBreakoutRoom(String meetingId,
-															String parentMeetingId,
-															String name,
-															Integer sequence,
-															String shortName,
-                                                            String sharedNotesEditor,
-															Boolean isDefaultName,
-															Boolean freeJoin,
-															String dialNumber,
-															String voiceConfId,
-															String viewerPassword,
-															String moderatorPassword,
-															Integer duration,
-															String sourcePresentationId,
-															Integer sourcePresentationSlide,
-															Boolean record,
-															Boolean privateChatEnabled,
-                                                            Boolean captureNotes,
-                                                            Boolean captureSlides,
-                                                            String captureNotesFilename,
-                                                            String captureSlidesFilename,
-                                                            Map<String, Object> pluginProp,
-                                                            ArrayList<String> disabledFeatures,
-                                                            String audioBridge,
-                                                            String cameraBridge,
-                                                            String screenShareBridge,
-                                                            Boolean disablePrivChat) {
+                              String parentMeetingId,
+                              String name,
+                              Integer sequence,
+                              String shortName,
+                              String sharedNotesEditor,
+                              Boolean isDefaultName,
+                              Boolean freeJoin,
+                              String dialNumber,
+                              String voiceConfId,
+                              String viewerPassword,
+                              String moderatorPassword,
+                              Integer duration,
+                              String sourcePresentationId,
+                              Integer sourcePresentationSlide,
+                              Boolean record,
+                              Boolean autoStartRecording,
+                              Boolean allowStartStopRecording,
+                              Boolean privateChatEnabled,
+                              Boolean captureNotes,
+                              Boolean captureSlides,
+                              String captureNotesFilename,
+                              String captureSlidesFilename,
+                              Map<String, Object> pluginProp,
+                              ArrayList<String> disabledFeatures,
+                              String audioBridge,
+                              String cameraBridge,
+                              String screenShareBridge,
+                              Boolean disablePrivChat,
+                              Boolean disableCam,
+                              Boolean disableMic,
+                              Boolean disablePubChat,
+                              Boolean disableNotes,
+                              Boolean hideUserList,
+                              Boolean lockOnJoin,
+                              Boolean lockOnJoinConfigurable,
+                              Boolean hideViewersCursor,
+                              Boolean hideViewersAnnotation,
+                              Boolean webcamsOnlyForModerator) {
         this.meetingId = meetingId;
         this.parentMeetingId = parentMeetingId;
         this.name = name;
@@ -77,6 +101,8 @@ public class CreateBreakoutRoom implements IMessage {
         this.sourcePresentationId = sourcePresentationId;
         this.sourcePresentationSlide = sourcePresentationSlide;
         this.record = record;
+        this.autoStartRecording = autoStartRecording;
+        this.allowStartStopRecording = allowStartStopRecording;
         this.privateChatEnabled = privateChatEnabled;
         this.captureNotes = captureNotes;
         this.captureSlides = captureSlides;
@@ -88,5 +114,15 @@ public class CreateBreakoutRoom implements IMessage {
         this.cameraBridge = cameraBridge;
         this.screenShareBridge = screenShareBridge;
         this.disablePrivChat = disablePrivChat;
+        this.disableCam = disableCam;
+        this.disableMic = disableMic;
+        this.disablePubChat = disablePubChat;
+        this.disableNotes = disableNotes;
+        this.hideUserList = hideUserList;
+        this.lockOnJoin = lockOnJoin;
+        this.lockOnJoinConfigurable = lockOnJoinConfigurable;
+        this.hideViewersCursor = hideViewersCursor;
+        this.hideViewersAnnotation = hideViewersAnnotation;
+        this.webcamsOnlyForModerator = webcamsOnlyForModerator;
     }
 }

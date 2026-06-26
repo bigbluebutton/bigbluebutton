@@ -5,16 +5,18 @@ import React, {
   useState,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { AppsGalleryProps } from './types';
+import { AppsGalleryProps, APPS_GALLERY_VIEW_MODE, AppsGalleryViewModeType } from './types';
 import { PANELS } from '/imports/ui/components/layout/enums';
 import { InjectedAppGalleryItem } from '/imports/ui/components/layout/layoutTypes';
 import Styled from './styles';
-import TooManyPinnedAppsModal from './modal/component';
 import AppItem from './app-item/component';
 import ExternalAppItem from './external-app-item/component';
 import { isPluginNew } from './service';
 import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
 import PanelHeader from '/imports/ui/components/common/panel-header/component';
+import Icon from '/imports/ui/components/common/icon/component';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const intlMessages = defineMessages({
   appsGalleryTitle: {
@@ -41,97 +43,118 @@ const intlMessages = defineMessages({
     id: 'app.appsGallery.unpinTooltip',
     description: 'Tooltip of the unpin buuton',
   },
+  searchPlaceholder: {
+    id: 'app.appsGallery.searchPlaceholder',
+    description: 'Placeholder text for the apps gallery search input',
+  },
+  gridViewLabel: {
+    id: 'app.appsGallery.gridViewLabel',
+    description: 'Tooltip label for the grid view toggle button',
+  },
+  listViewLabel: {
+    id: 'app.appsGallery.listViewLabel',
+    description: 'Tooltip label for the list view toggle button',
+  },
 });
+
+const VIEW_MODE_STORAGE_KEY = 'apps-gallery-view-mode';
+
+const getInitialViewMode = (): AppsGalleryViewModeType => {
+  if (deviceInfo.isMobile) return APPS_GALLERY_VIEW_MODE.LIST;
+  try {
+    const stored = localStorage.getItem(VIEW_MODE_STORAGE_KEY);
+    if (stored === APPS_GALLERY_VIEW_MODE.LIST || stored === APPS_GALLERY_VIEW_MODE.GRID) return stored;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Erro ao acessar localStorage.getItem:', error);
+  }
+  return APPS_GALLERY_VIEW_MODE.GRID;
+};
 
 const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps }) => {
   const MAX_PINNED_APPS_GALLERY = window.meetingClientSettings.public.app.appsGallery.maxPinnedApps;
   const intl = useIntl();
   const title = intl.formatMessage(intlMessages.appsGalleryTitle);
-  const [error, setError] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<AppsGalleryViewModeType>(getInitialViewMode);
   const [meetingSettings] = useMeetingSettings();
+  const { isMobile } = deviceInfo;
   const appsToLabelAsNew = meetingSettings?.public?.sidebarNavigation?.appsToLabelAsNew || [];
   const shouldAddIsNewLabel = useCallback((id: string) => appsToLabelAsNew.includes(id), [appsToLabelAsNew]);
 
+  const pinTooltip = intl.formatMessage(intlMessages.pinTooltip);
+  const unpinTooltip = intl.formatMessage(intlMessages.unpinTooltip);
+  const gridViewLabel = intl.formatMessage(intlMessages.gridViewLabel);
+  const listViewLabel = intl.formatMessage(intlMessages.listViewLabel);
+
+  const handleViewModeChange = (mode: AppsGalleryViewModeType) => {
+    setViewMode(mode);
+    try {
+      localStorage.setItem(VIEW_MODE_STORAGE_KEY, mode);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Erro ao acessar localStorage.setItem:', error);
+    }
+  };
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+
+  const renderAppItem = (appKey: string, isPinned: boolean) => {
+    const {
+      name,
+      icon,
+      dataTest,
+      pluginName,
+    } = registeredApps[appKey];
+
+    const isNew = isPluginNew(pluginName) || shouldAddIsNewLabel(appKey);
+    const { onClick } = registeredApps[appKey] as InjectedAppGalleryItem;
+    const isPluginInjectedApp = appKey.startsWith(PANELS.GENERIC_CONTENT_SIDEKICK);
+    const Component = isPluginInjectedApp ? ExternalAppItem : AppItem;
+
+    return (
+      <Component
+        key={`${appKey}${isPinned}`}
+        dataTest={dataTest}
+        appKey={appKey}
+        name={name}
+        icon={icon}
+        isPinned={isPinned}
+        isNew={isNew}
+        onClick={onClick}
+        pinTooltip={pinTooltip}
+        unpinTooltip={unpinTooltip}
+        viewMode={viewMode}
+      />
+    );
+  };
+
   const renderedPinnedApps = useMemo(() => (
-    pinnedApps.map((pinnedAppKey) => {
-      const {
-        name,
-        icon,
-        dataTest,
-        pluginName,
-      } = registeredApps[pinnedAppKey];
+    [...pinnedApps]
+      .sort((a, b) => registeredApps[a].name.localeCompare(registeredApps[b].name))
+      .filter((key) => !normalizedQuery || registeredApps[key].name.toLowerCase().includes(normalizedQuery))
+      .map((key) => renderAppItem(key, true))
+  ), [registeredApps, pinnedApps, normalizedQuery, pinTooltip, unpinTooltip, shouldAddIsNewLabel, viewMode]);
 
-      const isNew = isPluginNew(pluginName) || shouldAddIsNewLabel(pinnedAppKey);
+  const renderedUnpinnedApps = useMemo(() => {
+    const unpinnedKeys = Object.keys(registeredApps)
+      .filter((key) => !pinnedApps.includes(key))
+      .filter((key) => !normalizedQuery || registeredApps[key].name.toLowerCase().includes(normalizedQuery));
 
-      // type guard
-      const { onClick } = registeredApps[pinnedAppKey] as InjectedAppGalleryItem;
-      const isPluginInjectedApp = pinnedAppKey.startsWith(PANELS.GENERIC_CONTENT_SIDEKICK);
-      const Component = isPluginInjectedApp ? ExternalAppItem : AppItem;
-      return (
-        <Component
-          key={`${pinnedAppKey}true`}
-          dataTest={dataTest}
-          appKey={pinnedAppKey}
-          name={name}
-          icon={icon}
-          isPinned
-          isNew={isNew}
-          onClick={onClick}
-          pinnedAppsLength={pinnedApps.length}
-          maxPinned={MAX_PINNED_APPS_GALLERY}
-          setError={setError}
-          pinTooltip={intl.formatMessage(intlMessages.pinTooltip)}
-          unpinTooltip={intl.formatMessage(intlMessages.unpinTooltip)}
-        />
-      );
-    })
-  ), [registeredApps, pinnedApps, shouldAddIsNewLabel]);
+    const isNewApp = (key: string) => isPluginNew(registeredApps[key].pluginName) || shouldAddIsNewLabel(key);
 
-  const renderedUnpinnedApps = useMemo(() => (
-    Object.keys(registeredApps)
-      .filter((registeredObjectKey) => !pinnedApps.includes(registeredObjectKey))
-      .map((unpinnedAppKey) => {
-        const {
-          name,
-          icon,
-          dataTest,
-          pluginName,
-        } = registeredApps[unpinnedAppKey];
+    const newApps = unpinnedKeys
+      .filter((key) => isNewApp(key))
+      .sort((a, b) => registeredApps[a].name.localeCompare(registeredApps[b].name));
 
-        const isNew = isPluginNew(pluginName) || shouldAddIsNewLabel(unpinnedAppKey);
+    const regularApps = unpinnedKeys
+      .filter((key) => !isNewApp(key))
+      .sort((a, b) => registeredApps[a].name.localeCompare(registeredApps[b].name));
 
-        // type guard
-        const { onClick } = registeredApps[unpinnedAppKey] as InjectedAppGalleryItem;
-        const isPluginInjectedApp = unpinnedAppKey.startsWith(PANELS.GENERIC_CONTENT_SIDEKICK);
-        const Component = isPluginInjectedApp ? ExternalAppItem : AppItem;
-        return (
-          <Component
-            key={`${unpinnedAppKey}false`}
-            dataTest={dataTest}
-            appKey={unpinnedAppKey}
-            name={name}
-            icon={icon}
-            isPinned={false}
-            isNew={isNew}
-            onClick={onClick}
-            pinnedAppsLength={pinnedApps.length}
-            maxPinned={MAX_PINNED_APPS_GALLERY}
-            setError={setError}
-            pinTooltip={intl.formatMessage(intlMessages.pinTooltip)}
-            unpinTooltip={intl.formatMessage(intlMessages.unpinTooltip)}
-          />
-        );
-      })
-  ), [registeredApps, pinnedApps, shouldAddIsNewLabel]);
+    return [...newApps, ...regularApps].map((key) => renderAppItem(key, false));
+  }, [registeredApps, pinnedApps, normalizedQuery, pinTooltip, unpinTooltip, shouldAddIsNewLabel, viewMode]);
 
   return (
     <>
-      { error && (
-        <TooManyPinnedAppsModal
-          setError={setError}
-          pinnedAppsNumber={pinnedApps.length}
-        />
-      )}
       <PanelHeader
         panelId={PANELS.APPS_GALLERY}
         title={title}
@@ -140,27 +163,67 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
       />
       <Styled.Separator />
 
+      <Styled.SearchWrapper>
+        <Icon iconName="search" />
+        <Styled.SearchInput
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder={intl.formatMessage(intlMessages.searchPlaceholder)}
+          aria-label={intl.formatMessage(intlMessages.searchPlaceholder)}
+        />
+      </Styled.SearchWrapper>
+
       <Styled.DescWrapper>
-        <Styled.BoldText>
-          {intl.formatMessage(
-            intlMessages.pinnedApps,
-            { pinnedCount: pinnedApps.length, maxPinned: MAX_PINNED_APPS_GALLERY },
-          )}
-        </Styled.BoldText>
-        {intl.formatMessage(intlMessages.pinnedAppsContinue)}
+        <span>
+          <Styled.BoldText>
+            {intl.formatMessage(
+              intlMessages.pinnedApps,
+              { pinnedCount: pinnedApps.length, maxPinned: MAX_PINNED_APPS_GALLERY },
+            )}
+          </Styled.BoldText>
+          {intl.formatMessage(intlMessages.pinnedAppsContinue)}
+        </span>
+        {!isMobile && (
+          <Styled.ViewToggleWrapper>
+            <TooltipContainer title={gridViewLabel}>
+              <Styled.ViewToggleButton
+                $active={viewMode === APPS_GALLERY_VIEW_MODE.GRID}
+                onClick={() => handleViewModeChange(APPS_GALLERY_VIEW_MODE.GRID)}
+                aria-pressed={viewMode === APPS_GALLERY_VIEW_MODE.GRID}
+                aria-label={gridViewLabel}
+                data-test="appsGalleryGridView"
+              >
+                <Icon iconName="apps_tiles" />
+              </Styled.ViewToggleButton>
+            </TooltipContainer>
+            <TooltipContainer title={listViewLabel}>
+              <Styled.ViewToggleButton
+                $active={viewMode === APPS_GALLERY_VIEW_MODE.LIST}
+                onClick={() => handleViewModeChange(APPS_GALLERY_VIEW_MODE.LIST)}
+                aria-pressed={viewMode === APPS_GALLERY_VIEW_MODE.LIST}
+                aria-label={listViewLabel}
+                data-test="appsGalleryListView"
+              >
+                <Icon iconName="apps_list" />
+              </Styled.ViewToggleButton>
+            </TooltipContainer>
+          </Styled.ViewToggleWrapper>
+        )}
       </Styled.DescWrapper>
-      <Styled.Wrapper
-        id="scroll-box"
-      >
+      <Styled.Wrapper id="scroll-box">
         {renderedPinnedApps.length > 0 && (
-          <Styled.PinnedAppsWrapper>
-            {renderedPinnedApps}
-          </Styled.PinnedAppsWrapper>
+          viewMode === APPS_GALLERY_VIEW_MODE.GRID
+            ? <Styled.TileAppsWrapper>{renderedPinnedApps}</Styled.TileAppsWrapper>
+            : <Styled.PinnedAppsWrapper>{renderedPinnedApps}</Styled.PinnedAppsWrapper>
+        )}
+        {renderedPinnedApps.length > 0 && renderedUnpinnedApps.length > 0 && (
+          <Styled.SectionSeparator />
         )}
         {renderedUnpinnedApps.length > 0 && (
-          <Styled.UnpinnedAppsWrapper>
-            {renderedUnpinnedApps}
-          </Styled.UnpinnedAppsWrapper>
+          viewMode === APPS_GALLERY_VIEW_MODE.GRID
+            ? <Styled.TileAppsWrapper>{renderedUnpinnedApps}</Styled.TileAppsWrapper>
+            : <Styled.UnpinnedAppsWrapper>{renderedUnpinnedApps}</Styled.UnpinnedAppsWrapper>
         )}
       </Styled.Wrapper>
     </>

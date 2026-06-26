@@ -269,8 +269,8 @@ jobs:
           PKGS="bbb-apps-akka bbb-config bbb-etherpad bbb-export-annotations
                 bbb-freeswitch-core bbb-freeswitch-sounds bbb-fsesl-akka bbb-html5
                 bbb-learning-dashboard bbb-libreoffice-docker bbb-mkclean bbb-pads
-                bbb-playback bbb-playback-presentation bbb-record-core bbb-web
-                bbb-webrtc-sfu bbb-webrtc-recorder"
+                bbb-shared-notes-server bbb-playback bbb-playback-presentation
+                bbb-record-core bbb-web bbb-webrtc-sfu bbb-webrtc-recorder"
 
           # Use the version from the first .deb we find as the meta-package version
           FIRST_DEB=$(ls "$DEBS_DIR"/*.deb | head -1)

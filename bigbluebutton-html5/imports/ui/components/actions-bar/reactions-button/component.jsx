@@ -38,9 +38,6 @@ const ReactionsButton = (props) => {
 
   const handleClose = () => {
     setShowEmojiPicker(false);
-    setTimeout(() => {
-      document.activeElement.blur();
-    }, 0);
   };
 
   const handleReactionSelect = (reaction) => {

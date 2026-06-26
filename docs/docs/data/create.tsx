@@ -133,6 +133,12 @@ const createEndpointTableData = [
     "description": (<>This is a special parameter type (there is no parameter named just <code className="language-plaintext highlighter-rouge">meta</code>).<br /><br /> You can pass one or more metadata values when creating a meeting. These will be stored by BigBlueButton can be retrieved later via the getMeetingInfo and getRecordings calls.<br /><br /> Examples of the use of the meta parameters are <code className="language-plaintext highlighter-rouge">meta_Presenter=Jane%20Doe</code>, <code className="language-plaintext highlighter-rouge">meta_category=FINANCE</code>, and <code className="language-plaintext highlighter-rouge">meta_TERM=Fall2016</code>.</>)
   },
   {
+    "name": "meta_bbb-disable-recording-formats",
+    "required": false,
+    "type": "String",
+    "description": (<>Comma-separated list of recording format names to skip for this meeting, such as <code className="language-plaintext highlighter-rouge">video,presentation</code> or <code className="language-plaintext highlighter-rouge">[video,presentation]</code>. Format names are case-insensitive and match the format part of recording steps such as <code className="language-plaintext highlighter-rouge">process:video</code>. Disabled formats are not processed or published.</>)
+  },
+  {
     "name": "meta_bbb-anonymize-chat",
     "required": false,
     "type": "Boolean",
@@ -279,6 +285,13 @@ const createEndpointTableData = [
     "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will prevent viewers from seeing other viewers' annotations when multi-user whiteboard is on. (added 2.7)</>)
   },
   {
+    "name": "lockSettingsPresenterPolicy",
+    "required": false,
+    "type": "Enum",
+    "default": "requireApproval",
+    "description": (<>Controls how viewers can become presenter ("Request to Present" policy). Possible values are: <code className="language-plaintext highlighter-rouge">moderatorOnly</code> (only moderators assign the presenter), <code className="language-plaintext highlighter-rouge">requireApproval</code> (viewers can request to present and a moderator approves), and <code className="language-plaintext highlighter-rouge">freeForAll</code> (viewers can take the presenter role without approval). (added 4.0)</>)
+  },
+  {
     "name": "guestPolicy",
     "required": false,
     "type": "Enum",
@@ -423,6 +436,9 @@ const createEndpointTableData = [
                 <li>
                   <code className="language-plaintext highlighter-rouge">chatEmojiPicker</code> - <b>Chat emoji picker (added in BigBlueButton 3.0)</b>
                 </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">pinChatMessage</code> - <b>Pin a Chat Message (moderators) (added in BigBlueButton 4.0)</b>
+                </li>
               </ul>
             </li>
             <li>
@@ -524,14 +540,6 @@ const createEndpointTableData = [
                 </li>
                 <li>
                   <code className="language-plaintext highlighter-rouge">learningDashboardDownloadSessionData</code> - <b>Learning Analytics Dashboard Download Session Data (prevents the option to download)</b>
-                </li>
-              </ul>
-            </li>
-            <li>
-              <b>Layouts</b>
-              <ul>
-                <li>
-                  <code className="language-plaintext highlighter-rouge">layouts</code> - <b>Layouts</b> (allow only default layout)
                 </li>
               </ul>
             </li>

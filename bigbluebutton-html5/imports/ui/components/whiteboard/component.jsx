@@ -1550,7 +1550,8 @@ const Whiteboard = React.memo((props) => {
         ? Object.values(shapes)
           .filter((shape) => {
             const shapePresId = shape.meta?.presentationId;
-            return !shapePresId || shapePresId === currentPresId;
+            return (!shapePresId || shapePresId === currentPresId)
+              && isValidShapeType(shape);
           })
           .map((shape) => sanitizeShape(shape))
         : [];

@@ -2,4 +2,4 @@
 
 . ./opts-global.sh
 
-OPTS="$OPTS -t deb -d npm,wkhtmltopdf"
+OPTS="$OPTS -t deb -d npm,wkhtmltopdf,postgresql-16"

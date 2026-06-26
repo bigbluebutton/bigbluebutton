@@ -76,7 +76,6 @@ export interface App {
   enableCameraBrightness: boolean
   mirrorOwnWebcam: boolean
   viewersInWebcam: number
-  ipv4FallbackDomain: string
   allowLogout: boolean
   allowFullscreen: boolean
   preloadNextSlides: number
@@ -158,6 +157,7 @@ export interface Breakouts {
   breakoutRoomMinimum: number
   breakoutRoomLimit: number
   allowPresentationManagementInBreakouts: boolean
+  lockBreakoutRecordingSetting: boolean
 }
 
 export interface RaiseHandActionButton {
@@ -616,26 +616,12 @@ export interface Media {
   forceRelay: boolean
   forceRelayOnFirefox: boolean
   mediaTag: string
-  callTransferTimeout: number
-  callHangupTimeout: number
-  callHangupMaximumRetries: number
   echoTestNumber: string
   listenOnlyCallTimeout: number
   transparentListenOnly: boolean
   fullAudioOffering: boolean
   listenOnlyOffering: boolean
-  iceGatheringTimeout: number
-  audioConnectionTimeout: number
-  audioReconnectionDelay: number
-  audioReconnectionAttempts: number
-  sipjsHackViaWs: boolean
-  sipjsAllowMdns: boolean
-  sip_ws_host: string
   toggleMuteThrottleTime: number
-  websocketKeepAliveInterval: number
-  websocketKeepAliveDebounce: number
-  traceSip: boolean
-  sdpSemantics: string
   localEchoTest: LocalEchoTest
   networkPriorities: MediaNetworkPriorities
   muteAudioOutputWhenAway: boolean
@@ -680,6 +666,8 @@ export interface LiveKitSettings {
   logLevel?: LogLevel
   roomOptions?: Partial<InternalRoomOptions>
   reconnectOnFatalFailures?: boolean
+  forceRelay?: boolean
+  forceRelayOnFirefox?: boolean
   audio?: LiveKitAudioSettings
   camera?: LiveKitCameraSettings
   screenshare?: LiveKitScreenShareSettings

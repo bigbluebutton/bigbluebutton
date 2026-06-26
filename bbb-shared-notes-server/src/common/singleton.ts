@@ -3,7 +3,6 @@ import { MeetingLock, ConnectionInfo } from "./type";
 
 const connectionsMap = new Map<string, ConnectionInfo>();
 const sessionTokenConnectionsMap = new Map<string, number>();
-const meetingLockMap = new Map<string, MeetingLock>();
 let connectionCounter = 0;
 
 const nextConnectionKey = (): string => {
@@ -14,6 +13,5 @@ const nextConnectionKey = (): string => {
 export {
   connectionsMap,
   sessionTokenConnectionsMap,
-  meetingLockMap,
   nextConnectionKey,
 };

@@ -9,7 +9,8 @@
       "strict": true,
       "esModuleInterop": true,
       "skipLibCheck": true,
-      "noImplicitAny": false
+      "noImplicitAny": false,
+      "ignoreDeprecations": "6.0"
     },
     "include": ["src/**/*.ts"],
     "exclude": ["node_modules"]

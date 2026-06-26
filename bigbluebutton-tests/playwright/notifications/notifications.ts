@@ -53,14 +53,14 @@ export class Notifications extends MultiUsers {
     await this.modPage.waitAndClick(e.raiseHandBtn);
     await this.modPage.page.waitForTimeout(1000);
     await this.modPage.hasElement(
-      e.raiseHandRejection,
+      e.lowerHandUserItem,
       'should display raise hand rejection button on toast notification',
     );
     await util.checkNotificationText(this.modPage, e.raisingHandToast);
     await this.modPage.closeAllToastNotifications();
     await this.modPage.waitAndClick(e.lowerHandBtn);
     await this.modPage.wasRemoved(
-      e.raiseHandRejection,
+      e.lowerHandUserItem,
       'should remove the toast notification with the raise hand rejection button',
     );
     await util.checkNotificationText(this.modPage, e.loweringHandToast);

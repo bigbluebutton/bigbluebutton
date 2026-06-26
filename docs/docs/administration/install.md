@@ -195,7 +195,6 @@ BigBlueButton Server 4.0.0-beta.3 (0)
                         ext-rtp-ip: $${local_ip_v4}
                         ext-sip-ip: $${local_ip_v4}
                         ws-binding: 143.198.37.212:5066
-                       wss-binding: 143.198.37.212:7443
 
 UDP port ranges
 
@@ -207,10 +206,6 @@ UDP port ranges
                      playback_host: test40.bigbluebutton.org
                  playback_protocol: https
                             ffmpeg: 6.1.1-3ubuntu5
-
-/usr/share/bigbluebutton/nginx/sip.nginx (sip.nginx)
-                        proxy_pass: 143.198.37.212
-                          protocol: http
 
 /usr/local/bigbluebutton/bbb-webrtc-sfu/config/default.yml (bbb-webrtc-sfu)
 /etc/bigbluebutton/bbb-webrtc-sfu/production.yml (bbb-webrtc-sfu - override)
@@ -234,7 +229,6 @@ UDP port ranges
                         kurentoUrl: wss://test40.bigbluebutton.org/bbb-webrtc-sfu
             defaultFullAudioBridge: fullaudio
            defaultListenOnlyBridge: fullaudio
-                    sipjsHackViaWs: true
 
 
 # Potential problems described below

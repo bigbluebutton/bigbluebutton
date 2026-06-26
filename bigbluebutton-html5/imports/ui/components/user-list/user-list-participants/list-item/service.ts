@@ -413,6 +413,7 @@ export const createToolbarOptions = (
         allowed: allowedToLowerHand,
         key: 'lowerHand',
         label: intl.formatMessage(intlMessages.lowerUserHand),
+        icon: 'hand_off',
         onClick: () => {
           setRaiseHand({
             variables: {

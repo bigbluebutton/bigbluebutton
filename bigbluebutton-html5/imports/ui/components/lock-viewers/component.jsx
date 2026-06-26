@@ -579,14 +579,14 @@ class LockViewersComponent extends Component {
 
     const tabs = [
       {
-        label: intlMessages.guestPolicyTab,
-        icon: 'guest_policy',
-        dataTest: 'guestPolicyTab',
-      },
-      {
         label: intlMessages.participantPermissionsTab,
         icon: 'lock_viewers',
         dataTest: 'participantPermissionsTab',
+      },
+      {
+        label: intlMessages.guestPolicyTab,
+        icon: 'guest_policy',
+        dataTest: 'guestPolicyTab',
       },
       {
         label: intlMessages.presentationPermissionsTab,
@@ -623,10 +623,10 @@ class LockViewersComponent extends Component {
             ))}
           </Styled.SettingsTabList>
           <Styled.SettingsTabPanel selectedClassName="is-selected">
-            {this.renderGuestPolicyTab()}
+            {this.renderParticipantPermissionsTab()}
           </Styled.SettingsTabPanel>
           <Styled.SettingsTabPanel selectedClassName="is-selected">
-            {this.renderParticipantPermissionsTab()}
+            {this.renderGuestPolicyTab()}
           </Styled.SettingsTabPanel>
           <Styled.SettingsTabPanel selectedClassName="is-selected">
             {this.renderPresentationPermissionsTab()}

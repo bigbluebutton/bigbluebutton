@@ -41,7 +41,7 @@ const AudioCaptionsLive: React.FC<AudioCaptionsLiveProps> = ({
                 {!user ? null : (
                   <Styled.UserAvatarWrapper>
                     <Styled.UserAvatar
-                      avatar={user.avatar}
+                      avatar={user?.avatar || ''}
                       color={user.color}
                       moderator={user.isModerator}
                     >

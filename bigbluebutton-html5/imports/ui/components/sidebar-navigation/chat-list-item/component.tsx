@@ -32,6 +32,7 @@ const ChatListItem: React.FC<BaseSidebarButtonProps> = ({ isOpened }) => {
 
   const {
     hasUnreadMessages,
+    hasUnreadPrivateMessages,
     activeChat,
   } = useHasUnreadChatMessages({ isChatPanelOpened: isOpened });
 
@@ -72,6 +73,7 @@ const ChatListItem: React.FC<BaseSidebarButtonProps> = ({ isOpened }) => {
       id="chat-toggle-button"
       dataTest="messagesSidebarButton"
       hasNotification={hasUnreadMessages}
+      hasPrivateNotification={hasUnreadPrivateMessages}
       onToggle={handleChatToggle}
     />
   );
