@@ -557,6 +557,7 @@
     "app.unmute.modal.subtitle": "Please unmute your microphone",
     "app.unmute.modal.confirm.label": "Unmute",
     "app.unmute.modal.deny.label": "Stay Muted",
+    "app.unmute.modal.deny.label.mobile": "Cancel",
     "app.requestPresenter.notification.title": "Make Presenter",
     "app.requestPresenter.notification.description": "{userName} is asking to present in the session.",
     "app.requestPresenter.notification.confirm.label": "Allow",

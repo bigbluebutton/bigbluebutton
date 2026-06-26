@@ -12,9 +12,11 @@ import {
 import {
   jumboPaddingY,
   $2xlPadding,
+  borderSize,
   borderSizeSmall,
   appsButtonsBorderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const RequestModal = styled(ModalSimple)`
   padding: ${$2xlPadding};
@@ -26,9 +28,22 @@ const RequestModal = styled(ModalSimple)`
   button[class*="close"] {
     top: ${$2xlPadding};
     right: ${$2xlPadding};
-    
+
     i {
       font-size: 1.5rem !important;
+    }
+  }
+
+  @media ${smallOnly} {
+    header {
+      padding: 0;
+      align-items: flex-start;
+    }
+
+    h2 {
+      text-transform: none;
+      text-align: left;
+      line-height: 1.3;
     }
   }
 `;
@@ -41,6 +56,11 @@ const Subtitle = styled.p`
   padding-bottom: 1.5rem;
   margin-top: 0rem;
   color: ${colorText};
+
+  @media ${smallOnly} {
+    margin-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
 `;
 
 const RequestModalContent = styled.div`
@@ -50,12 +70,19 @@ const RequestModalContent = styled.div`
   gap: ${$2xlPadding};
   margin-top: 1rem;
   padding: 1rem;
+
+  @media ${smallOnly} {
+    flex-direction: row-reverse;
+    gap: 1rem;
+    margin-top: 0;
+    padding: 0;
+  }
 `;
 
 const RequestModalButton = styled(Button)`
   margin: 0;
   font-weight: 400;
-  
+
   font-size: 1.125rem;
   padding: ${$2xlPadding} ${jumboPaddingY};
   border-radius: 1.25rem;
@@ -94,6 +121,17 @@ const RequestModalButton = styled(Button)`
       }
     }
   `}
+
+  @media ${smallOnly} {
+    flex: 1;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: ${appsButtonsBorderRadius};
+
+    i {
+      display: none;
+    }
+  }
 `;
 
 export default {
