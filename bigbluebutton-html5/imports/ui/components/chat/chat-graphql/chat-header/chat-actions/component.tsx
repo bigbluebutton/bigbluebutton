@@ -165,6 +165,7 @@ const ChatActions: React.FC = () => {
             onClick={() => {}}
           />
         )}
+        overrideMobileStyles
         opts={{
           id: 'chat-options-dropdown-menu',
           keepMounted: true,
