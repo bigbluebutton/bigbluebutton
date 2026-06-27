@@ -575,7 +575,7 @@
     "app.navBar.optionsDropdown.settingsDesc": "Általános beállítások módosítása",
     "app.navBar.optionsDropdown.aboutDesc": "Kliens információ megjelenítése",
     "app.navBar.optionsDropdown.leaveSessionDesc": "Kilépés a munkamenetből",
-    "app.navBar.optionsDropdown.leaveBreakoutDesc": "A csoportterem elhagyása",
+    "app.navBar.optionsDropdown.leaveBreakoutDesc": "Csoportterem elhagyása",
     "app.navBar.optionsDropdown.exitFullscreenDesc": "Teljes képernyős mód bezárása",
     "app.navBar.optionsDropdown.hotkeysLabel": "Gyorsbillentyűk",
     "app.navBar.optionsDropdown.hotkeysDesc": "Elérhető gyorsbillentyűk listája",
