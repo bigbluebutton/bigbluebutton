@@ -51,6 +51,26 @@ const intlMessages = defineMessages({
     id: 'app.presentation.emptySlideContent',
     description: 'No content available for slide',
   },
+  currentSlide: {
+    id: 'app.presentation.currentSlide',
+    description: 'Label for current slide',
+  },
+  nextSlide: {
+    id: 'app.presentation.nextSlide',
+    description: 'Label for next slide',
+  },
+  noCurrentSlide: {
+    id: 'app.presentation.noCurrentSlide',
+    description: 'Message shown when current slide is unavailable',
+  },
+  noNextSlide: {
+    id: 'app.presentation.noNextSlide',
+    description: 'Message shown when next slide is unavailable',
+  },
+  noNotes: {
+    id: 'app.presentation.noNotes',
+    description: 'Message shown when slide notes are unavailable',
+  },
   presentationHeader: {
     id: 'playback.player.presentation.wrapper.aria',
     description: 'Aria label for header navigation',
@@ -89,6 +109,7 @@ class Presentation extends PureComponent {
       isToolbarVisible: true,
       hadPresentation: false,
       ignorePresentationRestoring: true,
+      currentSlideNote: '',
     };
 
     const PAN_ZOOM_INTERV = window.meetingClientSettings.public.presentation.panZoomInterval || 200;
@@ -112,6 +133,7 @@ class Presentation extends PureComponent {
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
     this.setPresentationRef = this.setPresentationRef.bind(this);
     this.setTldrawIsMounting = this.setTldrawIsMounting.bind(this);
+    this.loadCurrentSlideNote = this.loadCurrentSlideNote.bind(this);
     Session.setItem('componentPresentationWillUnmount', false);
   }
 
@@ -200,6 +222,8 @@ class Presentation extends PureComponent {
         value: 0,
       });
     }
+
+    this.loadCurrentSlideNote();
 
     setTimeout(() => {
       this.setState({ ignorePresentationRestoring: false });
@@ -331,6 +355,10 @@ class Presentation extends PureComponent {
 
     if (!userIsPresenter && prevProps.userIsPresenter && fitToWidth) {
       setPresentationFitToWidth(false);
+    }
+
+    if (currentSlide?.svgUri !== prevProps.currentSlide?.svgUri) {
+      this.loadCurrentSlideNote();
     }
   }
 
@@ -884,6 +912,33 @@ class Presentation extends PureComponent {
     zoomSlide(w, h, x, y);
   }
 
+  async loadCurrentSlideNote() {
+    const { currentSlide } = this.props;
+
+    if (!currentSlide?.noteUri) {
+      this.setState({ currentSlideNote: '' });
+      return;
+    }
+
+    try {
+      const response = await fetch(currentSlide.noteUri);
+
+      if (!response.ok) {
+        this.setState({ currentSlideNote: '' });
+        return;
+      }
+
+      const text = await response.text();
+
+      this.setState({
+        currentSlideNote: text.trim(),
+      });
+    } catch (e) {
+      console.error('Failed to load slide note', e);
+      this.setState({ currentSlideNote: '' });
+    }
+  }
+
   renderPresentationToolbar(svgWidth = 0) {
     const {
       currentSlide,
@@ -1239,6 +1294,89 @@ class Presentation extends PureComponent {
     );
   }
 
+  renderPresenterTool() {
+    const {
+      currentSlide,
+      nextSlide,
+      presentationBounds,
+      intl,
+    } = this.props;
+
+    const {
+      currentSlideNote,
+    } = this.state;
+
+    if (
+      !presentationBounds
+      || presentationBounds.width === 0
+      || presentationBounds.height === 0
+    ) {
+      return null;
+    }
+
+    if (!currentSlide && !nextSlide) return null;
+
+    const hasNote = !!currentSlideNote;
+
+    const renderSlideImage = (slide, labelMessage, emptyMessage) => {
+      if (!slide) {
+        return (
+          <Styled.PresenterToolEmptySlide>
+            {intl.formatMessage(emptyMessage)}
+          </Styled.PresenterToolEmptySlide>
+        );
+      }
+
+      const label = intl.formatMessage(labelMessage);
+
+      return (
+        <Styled.PresenterToolSlideFrame>
+          <Styled.PresenterToolSlideLabel>
+            {label}
+          </Styled.PresenterToolSlideLabel>
+
+          <Styled.PresenterToolSlideImage
+            src={slide.svgUri}
+            alt={`${label} ${slide.num || ''}`}
+          />
+        </Styled.PresenterToolSlideFrame>
+      );
+    };
+
+    return (
+      <Styled.PresenterToolContainer
+        style={{
+          top: presentationBounds.top,
+          left: presentationBounds.left,
+          width: presentationBounds.width,
+          height: presentationBounds.height,
+        }}
+      >
+        <Styled.PresenterToolSlidesColumn>
+          <Styled.PresenterToolSlidePane $withBorder>
+            {renderSlideImage(
+              currentSlide,
+              intlMessages.currentSlide,
+              intlMessages.noCurrentSlide,
+            )}
+          </Styled.PresenterToolSlidePane>
+
+          <Styled.PresenterToolSlidePane>
+            {renderSlideImage(
+              nextSlide,
+              intlMessages.nextSlide,
+              intlMessages.noNextSlide,
+            )}
+          </Styled.PresenterToolSlidePane>
+        </Styled.PresenterToolSlidesColumn>
+
+        <Styled.PresenterToolNotesPanel>
+          {hasNote ? currentSlideNote : intl.formatMessage(intlMessages.noNotes)}
+        </Styled.PresenterToolNotesPanel>
+      </Styled.PresenterToolContainer>
+    );
+  }
+
   render() {
     const {
       isPresentationDetached,
@@ -1248,18 +1386,22 @@ class Presentation extends PureComponent {
     const presentationContent = this.renderPresentationContents();
 
     if (isPresentationDetached && popupWindow?.document?.head) {
-      return ReactDOM.createPortal(
-        /* Use StyleSheetManager to inject dynamic stylesheet elements of styled component */
-        /*  such as isToolbarVisible of Styled.TldrawV2GlobalStyle in whiteboard/styles.js */
-        <StyleSheetManager
-          target={popupWindow.document.head}
-        >   
-          {presentationContent}
-        </StyleSheetManager>,
-        popupWindow.document.body
-      );
+      return (
+        <>
+          {ReactDOM.createPortal(
+            /* Use StyleSheetManager to inject dynamic stylesheet elements of styled component */
+            /*  such as isToolbarVisible of Styled.TldrawV2GlobalStyle in whiteboard/styles.js */
+            <StyleSheetManager
+              target={popupWindow.document.head}
+            >   
+              {presentationContent}
+            </StyleSheetManager>,
+            popupWindow.document.body
+          )}
+  
+          {this.renderPresenterTool()}
+        </>
     }
-    
     return presentationContent;
   }
 }
