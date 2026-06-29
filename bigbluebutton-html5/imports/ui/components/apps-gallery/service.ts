@@ -1,7 +1,5 @@
 import Local from '/imports/ui/services/storage/local';
 
-export type PluginSettingsMap = Record<string, boolean>;
-
 interface PluginSettings {
   isNew?: boolean;
   pin?: boolean | string[];
