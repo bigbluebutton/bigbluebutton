@@ -239,6 +239,71 @@ const useExternalUploadData = () => {
   };
 };
 
+const uploadPresentationNotes = (
+  presentationId,
+  file,
+  endpoint,
+  onProgress,
+) => {
+  if (!file) return Promise.resolve();
+
+  const data = new FormData();
+  data.append('notesUpload', file);
+  data.append('conference', Auth.meetingID);
+  data.append('room', Auth.meetingID);
+  data.append('presentationId', presentationId);
+  data.append('pod_id', POD_ID);
+
+  const opts = {
+    method: 'POST',
+    body: data,
+  };
+
+  return futch(
+    Auth.authenticateURL('/bigbluebutton/presentation-notes/upload'),
+    opts,
+    onProgress,
+  )
+    .catch((error) => {
+      logger.debug({
+        logCode: 'presentation_notes_uploader_service',
+        extraInfo: { error },
+      }, 'Presentation notes upload exception');
+
+      return Promise.reject(error);
+    });
+};
+
+const extractPresentationNotesFromExistingPptx = (
+  presentationId,
+) => {
+  if (!presentationId) return Promise.reject(new Error('missing presentationId'));
+
+  const data = new FormData();
+  data.append('conference', Auth.meetingID);
+  data.append('room', Auth.meetingID);
+  data.append('presentationId', presentationId);
+  data.append('pod_id', POD_ID);
+
+  const opts = {
+    method: 'POST',
+    body: data,
+  };
+
+  return futch(
+    Auth.authenticateURL('/bigbluebutton/presentation-notes/extract-existing'),
+    opts,
+  )
+    .catch((error) => {
+      logger.debug({
+        logCode: 'presentation_notes_extract_existing_service',
+        extraInfo: { error },
+      }, 'Presentation notes extract from existing pptx exception');
+
+      return Promise.reject(error);
+    });
+};
+
 function handleFiledrop(files, files2, that, intl, intlMessages) {
   if (that) {
     const { fileValidMimeTypes } = that.props;
@@ -316,4 +381,6 @@ export default {
   uploadAndConvertPresentation,
   handleFiledrop,
   useExternalUploadData,
+  uploadPresentationNotes,
+  extractPresentationNotesFromExistingPptx,
 };
