@@ -1398,9 +1398,9 @@ class Presentation extends PureComponent {
             </StyleSheetManager>,
             popupWindow.document.body
           )}
-  
           {this.renderPresenterTool()}
         </>
+      );
     }
     return presentationContent;
   }
