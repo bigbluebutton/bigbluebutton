@@ -19,9 +19,6 @@
 
 package org.bigbluebutton.api;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
@@ -42,6 +39,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bigbluebutton.api.service.RedirectFollowerService;
+import org.bigbluebutton.api.service.RedirectValidator;
 import org.bigbluebutton.api.service.SecureUrlDownloader;
 import org.bigbluebutton.api.service.ServiceUtils;
 import org.bigbluebutton.api.service.ValidatedUrl;
@@ -162,12 +160,16 @@ public class ParamsProcessorUtil {
     private Boolean allowOverrideClientSettingsOnCreateCall = false;
     private Integer clientSettingsOverrideJsonUrlResponseTimeout;
     private Integer maxClientSettingsOverrideJsonUrlPayloadSize;
+    private Boolean clientSettingsOverrideStrictValidation = false;
+    private String clientSettingsFilePath = "/usr/share/bigbluebutton/html5-client/private/config/settings.yml";
+    private volatile String cachedClientSettingsCatalog = null;
 
     private Integer defaultMaxNumPages;
     private String getJoinUrlUserdataBlocklist;
 
     private PluginUtils pluginUtils;
     private ClientSettingsOverrideUrlValidator clientSettingsOverrideUrlValidator;
+    private RedirectValidator pluginUrlValidator;
     private RedirectFollowerService redirectFollower;
     private SecureUrlDownloader secureUrlDownloader;
 
@@ -502,53 +504,37 @@ public class ParamsProcessorUtil {
     }
 
     private JsonElement processPluginManifestsFetchUrl(String urlStr) {
-        int timeoutConnectionMillis = pluginManifestsFetchUrlResponseTimeout * 1000;
-        try {
-            log.info("Plugin manifests URL provided: [{}]", urlStr);
-            log.info("Attempting to download plugin manifests from [{}]", urlStr);
+        int timeoutMs = pluginManifestsFetchUrlResponseTimeout * 1000;
 
-            HttpURLConnection conn = (HttpURLConnection) new URL(urlStr).openConnection();
-            conn.setConnectTimeout(timeoutConnectionMillis);
-            conn.setReadTimeout(timeoutConnectionMillis);
-            conn.setRequestProperty("Accept", "application/json");
+        log.info("Plugin manifests URL provided: [{}]", urlStr);
 
-            if (conn.getResponseCode() != 200) {
-                log.warn("pluginManifestsFetchUrl responded with HTTP {}", conn.getResponseCode());
-                return null;
-            }
+        ValidatedUrl validatedUrl = redirectFollower.followRedirectSecure(
+                "pluginManifestsFetchUrl", urlStr, 0, urlStr, pluginUrlValidator, timeoutMs
+        );
 
-            StringBuilder sb = new StringBuilder(8192);
-            try (BufferedReader in = new BufferedReader(
-                    new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
-                char[] buf = new char[4096];
-                int n;
-                int max = maxPluginManifestsFetchUrlPayloadSize * 1024; // Default: 1 MiB hard cap
-                while ((n = in.read(buf)) != -1 && max > 0) {
-                    sb.append(buf, 0, n);
-                    max -= n;
-                }
-
-                if (max < 0) {
-                    log.warn(
-                            "Response from pluginManifestsFetchUrl [{}] exceeded maximum allowed payload size ({} KiB); skipping load.",
-                            urlStr, maxPluginManifestsFetchUrlPayloadSize);
-                    return null;
-                }
-            }
-
-            String content = sb.toString();
-            JsonElement payloadResult = new Gson().fromJson(content, JsonElement.class);
-            log.info("Successfully downloaded and parsed plugin manifests from [{}]", urlStr);
-            return payloadResult;
-
-        } catch (MalformedURLException e) {
-            log.error("Invalid pluginManifestsFetchUrl [{}]", urlStr, e);
-        } catch (IOException e) {
-            log.error("I/O error when fetching plugin manifests from [{}]", urlStr, e);
-        } catch (Exception e) {
-            log.error("Unexpected error while processing pluginManifestsFetchUrl [{}]", urlStr, e);
+        if (validatedUrl == null) {
+            log.error("pluginManifestsFetchUrl [{}] failed URL validation; skipping load.", urlStr);
+            return null;
         }
-        return null;
+
+        log.info("Attempting to download plugin manifests from [{}]", validatedUrl.originalUrl());
+
+        String content = secureUrlDownloader.downloadToString(
+                "pluginManifestsFetchUrl", validatedUrl, timeoutMs, maxPluginManifestsFetchUrlPayloadSize
+        );
+
+        if (content == null) {
+            return null;
+        }
+
+        try {
+            JsonElement payloadResult = new Gson().fromJson(content, JsonElement.class);
+            log.info("Successfully downloaded and parsed plugin manifests from [{}]", validatedUrl.originalUrl());
+            return payloadResult;
+        } catch (Exception e) {
+            log.error("Response from pluginManifestsFetchUrl [{}] is not valid JSON; skipping load.", urlStr, e);
+            return null;
+        }
     }
 
     private String fetchClientSettingsOverrideFromUrl(String urlStr) {
@@ -1221,6 +1207,36 @@ public class ParamsProcessorUtil {
 
   public Boolean getAllowOverrideClientSettingsOnCreateCall() {
     return allowOverrideClientSettingsOnCreateCall;
+  }
+
+  public Boolean getClientSettingsOverrideStrictValidation() {
+    return clientSettingsOverrideStrictValidation;
+  }
+
+  private String loadClientSettingsCatalog() {
+    if (cachedClientSettingsCatalog == null) {
+      try {
+        cachedClientSettingsCatalog = new String(
+            java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(clientSettingsFilePath)),
+            java.nio.charset.StandardCharsets.UTF_8);
+      } catch (Exception e) {
+        log.error("Could not read client settings catalog [{}] for override validation; skipping strict check.", clientSettingsFilePath, e);
+        // Do not cache the failure - a transient read error must not disable strict validation for
+        // the rest of the process lifetime; retry on the next call.
+        return "";
+      }
+    }
+    return cachedClientSettingsCatalog;
+  }
+
+  /**
+   * Validates a client-settings override (the create-call JSON) against the settings.yml catalog,
+   * reusing the same logic as akka-apps. Returns the list of human-readable issues (empty if valid
+   * or if the check could not run). Does not block on its own - the caller decides.
+   */
+  public java.util.List<String> validateClientSettingsOverride(String overrideJson) {
+    if (StringUtils.isEmpty(overrideJson)) return java.util.Collections.emptyList();
+    return org.bigbluebutton.api2.util.ClientSettingsValidator.validateOverride(loadClientSettingsCatalog(), overrideJson);
   }
 
     public String processWelcomeMessage(String message, Boolean isBreakout) {
@@ -1914,6 +1930,16 @@ public class ParamsProcessorUtil {
 		this.allowOverrideClientSettingsOnCreateCall = allowOverrideClientSettingsOnCreateCall;
 	}
 
+	public void setClientSettingsOverrideStrictValidation(Boolean clientSettingsOverrideStrictValidation) {
+		this.clientSettingsOverrideStrictValidation = clientSettingsOverrideStrictValidation;
+	}
+
+	public void setClientSettingsFilePath(String clientSettingsFilePath) {
+		this.clientSettingsFilePath = clientSettingsFilePath;
+		// Invalidate any cached catalog so the new path is read on the next validation.
+		this.cachedClientSettingsCatalog = null;
+	}
+
 	public void setMaxNumPages(Integer maxNumPages) { this.defaultMaxNumPages = maxNumPages; }
 
 	public void setPluginManifestsFetchUrlResponseTimeout(Integer pluginManifestsFetchUrlResponseTimeout) {
@@ -1922,6 +1948,10 @@ public class ParamsProcessorUtil {
 
 	public void setClientSettingsOverrideUrlValidator(ClientSettingsOverrideUrlValidator clientSettingsOverrideUrlValidator) {
 		this.clientSettingsOverrideUrlValidator = clientSettingsOverrideUrlValidator;
+	}
+
+	public void setPluginUrlValidator(RedirectValidator pluginUrlValidator) {
+		this.pluginUrlValidator = pluginUrlValidator;
 	}
 
     public void setRedirectFollower(RedirectFollowerService redirectFollower) {

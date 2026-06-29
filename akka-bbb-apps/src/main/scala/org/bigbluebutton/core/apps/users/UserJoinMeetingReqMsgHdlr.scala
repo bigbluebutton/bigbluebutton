@@ -51,10 +51,12 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
   private def handleSuccessfulUserJoin(msg: UserJoinMeetingReqMsg, regUser: RegisteredUser, state: MeetingState2x) = {
     var newState = userJoinMeeting(outGW, msg.body.authToken, msg.body.clientType, msg.body.clientIsMobile, liveMeeting, state)
 
-    // Enroll user in public media groups
-    newState = newState.update(
-      MediaGroupApp.enrollUserInPublicGroups(liveMeeting, regUser.id, newState.mediaGroups)
-    )
+    // Enroll user in the public media groups if they exist.
+    if (MediaGroupApp.publicGroupsExist(newState.mediaGroups)) {
+      newState = newState.update(
+        MediaGroupApp.enrollUserInPublicGroups(liveMeeting, regUser.id, newState.mediaGroups)
+      )
+    }
     updateParentMeetingWithNewListOfUsers()
     notifyPreviousUsersWithSameExtId(regUser)
     clearCachedVoiceUser(regUser)

@@ -54,7 +54,8 @@ object PresentationPodsApp {
           xOffset = page.xOffset,
           yOffset = page.yOffset,
           widthRatio = page.widthRatio,
-          heightRatio = page.heightRatio
+          heightRatio = page.heightRatio,
+          pageToken = page.pageToken
         )
       }
 
@@ -89,7 +90,8 @@ object PresentationPodsApp {
         widthRatio = page.widthRatio,
         heightRatio = page.heightRatio,
         width = page.width,
-        height = page.height
+        height = page.height,
+        pageToken = page.pageToken
       )
     }
     PresentationVO(pres.id, temporaryPresentationId, pres.name, pres.current, pages.toVector, pres.downloadable,

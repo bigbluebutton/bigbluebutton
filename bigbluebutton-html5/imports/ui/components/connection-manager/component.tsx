@@ -13,6 +13,7 @@ import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import deviceInfo from '/imports/utils/deviceInfo';
 import BBBWeb from '/imports/api/bbb-web-api';
 import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
+import Auth from '/imports/ui/services/auth';
 
 interface ConnectionManagerProps {
   children: React.ReactNode;
@@ -110,6 +111,8 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   const [MeetingSettings] = useMeetingSettings();
   const enableDevTools = MeetingSettings.public.app.enableApolloDevTools;
   const terminateAndRetry = MeetingSettings.public.app.terminateAndRetryConnection ?? 30_000; // Default to 30 seconds
+  const hasEverConnectedRef = useRef(false);
+  const tsCurrentConnectingRef = useRef<number>(0);
 
   useEffect(() => {
     BBBWeb.index().then(({ data }) => {
@@ -130,6 +133,15 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
   useEffect(() => {
     const interval = setInterval(() => {
       const tsNow = Date.now();
+
+      // If the initial connection never succeeds within terminateAndRetry ms, give up and show error
+      if (!hasEverConnectedRef.current && tsCurrentConnectingRef.current !== 0) {
+        const elapsed = tsNow - tsCurrentConnectingRef.current;
+        if (elapsed > terminateAndRetry) {
+          setTerminalError(new Error('Unable to connect to server', { cause: 'connection_timeout' }));
+        }
+      }
+
       if (tsLastMessageRef.current !== 0 && tsLastPingMessageRef.current !== 0) {
         if ((tsNow - tsLastMessageRef.current > boundary.current) && connectionStatus.getServerIsResponding()) {
           connectionStatus.setServerIsResponding(false);
@@ -189,8 +201,7 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
     );
     loadingContextInfo.setLoading(true);
     if (graphqlUrl) {
-      const urlParams = new URLSearchParams(window.location.search);
-      const sessionToken = urlParams.get('sessionToken');
+      const sessionToken = Auth.sessionToken as string | null;
       if (!sessionToken) {
         loadingContextInfo.setLoading(false);
         throw new Error('Missing session token');
@@ -276,7 +287,11 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
                   errorMessage: JSON.stringify(error),
                 },
               }, 'Graphql Client Error occurred');
-              loadingContextInfo.setLoading(false);
+              if (!hasEverConnectedRef.current) {
+                loadingContextInfo.setLoading(true);
+              } else {
+                loadingContextInfo.setLoading(false);
+              }
               connectionStatus.setConnectedStatus(false);
               setErrorCounts((prev: number) => prev + 1);
             },
@@ -297,10 +312,13 @@ const ConnectionManager: React.FC<ConnectionManagerProps> = ({ children }): Reac
               }
             },
             connected: (socket) => {
+              hasEverConnectedRef.current = true;
+              tsCurrentConnectingRef.current = 0;
               activeSocket.current = socket as WebSocket;
               connectionStatus.setConnectedStatus(true);
             },
             connecting: () => {
+              tsCurrentConnectingRef.current = Date.now();
               connectionStatus.setConnectedStatus(false);
             },
             message: (message) => {

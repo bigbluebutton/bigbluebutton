@@ -1343,7 +1343,7 @@
     "app.videoDock.webcamPinDesc": "Przypnij wybraną kamerę",
     "app.videoDock.webcamFullscreenLabel": "Kamera na pełny ekran",
     "app.videoDock.webcamExitFullscreenLabel": "Wyjdź z kamery na pełnym ekranie",
-    "app.videoDock.webcamSqueezedButtonLabel": "Opcje kamery",
+    "app.videoDock.webcamSqueezedButtonLabel": "Ściśnięty widok z kamery",
     "app.videoDock.webcamUnpinLabel": "Odepnij",
     "app.videoDock.webcamUnpinLabelDisabled": "Tylko moderatorzy mogą odpiąć uczestników",
     "app.videoDock.webcamUnpinDesc": "Odepnij wybraną kamerę",

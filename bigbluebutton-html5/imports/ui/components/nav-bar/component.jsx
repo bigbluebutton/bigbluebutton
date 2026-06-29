@@ -405,13 +405,15 @@ class NavBar extends Component {
               <Styled.PresentationTitle
                 data-test="presentationTitle"
                 id="presentationTitle"
-                onClick={() => this.setModalIsOpen(true)}
               >
                 <Tooltip title={intl.formatMessage(intlMessages.openDetailsTooltip)}>
-                  <span>
+                  <Styled.TitleButton
+                    aria-haspopup="dialog"
+                    onClick={() => this.setModalIsOpen(true)}
+                  >
                     {presentationTitle}
                     <Icon iconName="device_list_selector" />
-                  </span>
+                  </Styled.TitleButton>
                 </Tooltip>
               </Styled.PresentationTitle>
               <ModalRegistration id="SessionDetailsModal" priority="low">

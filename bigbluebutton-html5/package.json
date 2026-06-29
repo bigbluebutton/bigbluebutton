@@ -19,6 +19,8 @@
     ]
   },
   "overrides": {
+    "@mantine/core": "^8.3.11",
+    "@mantine/hooks": "^8.3.11",
     "react-autosize-textarea": {
       "react": "^18.0.0",
       "react-dom": "^18.0.0"
@@ -42,7 +44,7 @@
     "@tiptap/extension-code": "3.13.0",
     "@tiptap/extension-horizontal-rule": "3.13.0",
     "@tiptap/extension-italic": "3.13.0",
-    "@tiptap/extension-link": "3.13.0",
+    "@tiptap/extension-link": "3.22.1",
     "@tiptap/extension-paragraph": "3.13.0",
     "@tiptap/extension-strike": "3.13.0",
     "@tiptap/extension-text": "3.13.0",
@@ -51,10 +53,10 @@
   "dependencies": {
     "@apollo/client": "^3.10.4",
     "@babel/runtime": "^7.26.10",
-    "@bigbluebutton/tldraw": "^2.0.0-alpha.33",
-    "@blocknote/core": "^0.47.1",
-    "@blocknote/mantine": "^0.47.1",
-    "@blocknote/react": "^0.47.1",
+    "@bigbluebutton/tldraw": "^2.0.0-alpha.35",
+    "@blocknote/core": "^0.51.3",
+    "@blocknote/mantine": "^0.51.3",
+    "@blocknote/react": "^0.51.3",
     "@browser-bunyan/console-formatted-stream": "^1.8.0",
     "@browser-bunyan/console-raw-stream": "^1.8.0",
     "@browser-bunyan/levels": "^1.8.0",
@@ -77,7 +79,7 @@
     "@types/react": "^18.2.18",
     "autoprefixer": "^10.4.4",
     "babel-runtime": "~6.26.0",
-    "bigbluebutton-html-plugin-sdk": "0.0.99",
+    "bigbluebutton-html-plugin-sdk": "0.0.100",
     "bowser": "^2.12.0",
     "browser-bunyan": "^1.8.0",
     "classnames": "^2.2.6",
@@ -93,7 +95,7 @@
     "html-to-image": "^1.11.13",
     "immutability-helper": "~2.8.1",
     "langmap": "0.0.16",
-    "livekit-client": "2.17.1",
+    "livekit-client": "2.17.3",
     "makeup-screenreader-trap": "0.0.5",
     "postcss-nested": "^7.0.2",
     "prop-types": "^15.8.1",
@@ -105,6 +107,7 @@
     "react-dom": "^18.2.0",
     "react-draggable": "^4.4.6",
     "react-dropzone": "^7.0.1",
+    "react-icons": "^5.5.0",
     "react-intl": "^6.1.0",
     "react-loading-skeleton": "^3.0.3",
     "react-modal": "^3.15.1",
@@ -116,17 +119,18 @@
     "react-transition-group": "^4.4.5",
     "recharts": "^2.15.1",
     "reconnecting-websocket": "~v4.4.0",
-    "sanitize-html": "2.12.1",
+    "sanitize-html": "2.17.4",
     "sdp-transform": "2.7.0",
     "smile2emoji": "^3.8.3",
     "string-hash": "~1.1.3",
     "styled-components": "^5.3.3",
     "tippy.js": "^6.3.7",
     "use-context-selector": "^1.3.7",
-    "uuid": "^9.0.0",
+    "uuid": "^14.0.0",
     "validator": "^13.15.22",
     "wasm-feature-detect": "^1.5.1",
     "webrtc-adapter": "^8.1.1",
+    "y-protocols": "^1.0.7",
     "yaml": "^2.8.3"
   },
   "devDependencies": {
@@ -163,7 +167,7 @@
     "husky": "^1.3.1",
     "lint-staged": "11.2.0",
     "mini-css-extract-plugin": "^2.9.0",
-    "postcss": "^8.5.10",
+    "postcss": "^8.5.15",
     "postcss-loader": "^8.1.1",
     "prettier": "3.3.3",
     "react": "18.3.1",
@@ -175,7 +179,7 @@
     "typescript": "5.5.3",
     "webpack": "5.105.2",
     "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^5.2.3"
+    "webpack-dev-server": "^5.2.4"
   },
   "resolutions": {
     "trim-newlines": "^4.0.1"

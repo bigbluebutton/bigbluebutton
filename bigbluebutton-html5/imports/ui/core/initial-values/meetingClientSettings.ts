@@ -42,6 +42,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       skipMeetingEnded: false,
       dynamicGuestPolicy: true,
       enableGuestLobbyMessage: true,
+      showGuestLobbyWaitingQueuePosition: true,
       guestPolicyExtraAllowOptions: false,
       alwaysShowWaitingRoomUI: true,
       enableLimitOfViewersInWebcam: false,
@@ -94,6 +95,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         sendInvitationToAssignedModeratorsByDefault: false,
         breakoutRoomLimit: 16,
         allowPresentationManagementInBreakouts: true,
+        lockBreakoutRecordingSetting: false,
       },
       showAllAvailableLocales: true,
       showAudioFilters: true,
@@ -206,9 +208,10 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       showConnectionErrors: [3001, 3002, 3003, 3004, 3005, 3006],
     },
     sharedNotes: {
-      serverUrl: '',
+      serverHostname: '',
       maxDocumentChars: 99999,
       maxLengthForContentUpdate: 512,
+      staticFormattingToolbar: true,
     },
     externalVideoPlayer: {
       enabled: true,
@@ -655,7 +658,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           muteDebounceMs: 2500,
         },
         logLevel: LogLevel.warn,
-        reconnectOnFatalFailures: false,
+        reconnectOnFatalFailures: true,
         roomOptions: {
           adaptiveStream: true,
           dynacast: true,
@@ -822,6 +825,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       lockToolbarTools: false,
       allowInfiniteWhiteboard: false,
       allowInfiniteWhiteboardInBreakouts: false,
+      allowInfiniteWhiteboardPanForViewers: false,
       annotations: {
         status: {
           start: 'DRAW_START',

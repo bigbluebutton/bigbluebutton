@@ -72,13 +72,6 @@ object RegisteredUsers {
     users.toVector.filter(ru => id == ru.externId)
   }
 
-  def findWithBreakoutRoomId(breakoutRoomId: String, users: RegisteredUsers): Vector[RegisteredUser] = {
-    //userId + "-" + roomSequence
-    val userIdParts = breakoutRoomId.split("-")
-    val userExtId = userIdParts(0)
-    users.toVector.filter(ru => userExtId == ru.id)
-  }
-
   def getRegisteredUserWithToken(token: String, userId: String, regUsers: RegisteredUsers): Option[RegisteredUser] = {
     def isSameUserId(ru: RegisteredUser, userId: String): Option[RegisteredUser] = {
       if (userId.startsWith(ru.id)) {

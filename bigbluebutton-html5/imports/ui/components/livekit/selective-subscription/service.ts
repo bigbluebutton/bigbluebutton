@@ -14,6 +14,21 @@ export const isAudioSource = (source: Track.Source): boolean => (
 );
 
 /**
+ * Maps a LiveKit participant to the BBB user intId.
+ * Mirrors bbb-webrtc-sfu's lkIdToBbbId: web participants are keyed by their
+ * LiveKit identity, which WE specify and have control over; dial-in/voice-only
+ * participants are keyed by "v_<sid>" since their identities are not controlled
+ * by us and sid guarantees a stable-formatted and unique id.
+ */
+export const getBbbUserIdForParticipant = (participant: RemoteParticipant): string => {
+  const { identity, sid } = participant;
+
+  if (identity.startsWith('w_') || identity.startsWith('v_')) return identity;
+
+  return `v_${sid}`;
+};
+
+/**
  * Calculate audio track subscription priorities.
  * Sorts by:
  *   1) active speakers

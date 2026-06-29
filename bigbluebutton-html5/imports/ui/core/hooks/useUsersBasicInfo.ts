@@ -7,6 +7,8 @@ import { filterByMeetingId } from '../utils/subscriptionFilters';
 
 const useUsersBasicInfoSubscription = createUseSubscription<UserBasicInfo>(
   USERS_BASIC_INFO_SUBSCRIPTION,
+  {},
+  true,
 );
 
 const useUsersBasicInfo = (fn: (c: Partial<UserBasicInfo>) => Partial<UserBasicInfo>) => {

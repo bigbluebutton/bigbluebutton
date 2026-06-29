@@ -23,14 +23,19 @@ import org.apache.commons.io.FilenameUtils
 import org.bigbluebutton.api.MeetingService
 import org.bigbluebutton.api.ParamsProcessorUtil
 import org.bigbluebutton.api.Util
+import org.bigbluebutton.api.domain.UserSession
 import org.bigbluebutton.api.messaging.messages.PresentationUploadToken
 import org.bigbluebutton.api.util.ParamsUtil
 import org.bigbluebutton.presentation.SupportedFileTypes
 import org.bigbluebutton.presentation.UploadedPresentation
 import org.bigbluebutton.web.services.PresentationService
 import org.grails.web.mime.DefaultMimeUtility
+import org.springframework.web.util.UriComponentsBuilder
 
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
 import java.nio.charset.StandardCharsets
+import java.util.regex.Pattern
 
 class PresentationController {
   MeetingService meetingService
@@ -38,8 +43,128 @@ class PresentationController {
   ParamsProcessorUtil paramsProcessorUtil
   DefaultMimeUtility grailsMimeUtility
 
+  private static final Pattern SLIDE_URI_PATTERN = Pattern.compile(
+    '/bigbluebutton/presentation/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/(svg|thumbnail|textfiles|png)/(\\d+)'
+  )
+  private static final Pattern DOWNLOAD_URI_PATTERN = Pattern.compile(
+    '/bigbluebutton/presentation/download/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)'
+  )
+  private static final Pattern PDF_URI_PATTERN = Pattern.compile(
+    '/bigbluebutton/presentation/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/pdf/([A-Za-z0-9]+)/annotated_slides\\.pdf'
+  )
+
   def index = {
     render(view: 'upload-file')
+  }
+
+  def checkPresentationAuthorization = {
+    try {
+      def uri = request.getHeader("x-original-uri")
+      if (uri == null) {
+        response.setStatus(401)
+        response.addHeader("Cache-Control", "no-cache")
+        response.contentType = 'text/plain'
+        response.outputStream << 'unauthorized'
+        return
+      }
+
+      def sessionToken = ParamsUtil.getSessionToken(uri)
+      UserSession userSession = meetingService.getUserSessionWithSessionToken(sessionToken)
+      Boolean allowRequestsWithoutSession = meetingService.getAllowRequestsWithoutSession(sessionToken)
+      Boolean isSessionTokenInvalid = !session[sessionToken] && !allowRequestsWithoutSession
+
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'text/plain'
+
+      if (userSession == null || isSessionTokenInvalid) {
+        response.setStatus(401)
+        response.outputStream << 'unauthorized'
+        return
+      }
+
+      def uriPath = uri.split('\\?')[0]
+
+      def slideMatcher = SLIDE_URI_PATTERN.matcher(uriPath)
+      if (slideMatcher.matches()) {
+        def meetingIdFromUri = slideMatcher.group(2)
+        if (meetingIdFromUri != userSession.meetingID) {
+          response.setStatus(403)
+          response.outputStream << 'forbidden'
+          return
+        }
+
+        def pageToken = extractQueryParam(uri, "pageToken")
+        if (presentationService.pageTokenSecret) {
+          def presId = slideMatcher.group(3)
+          def pageNum = slideMatcher.group(5)
+          def expectedToken = generatePageToken(presId, Integer.parseInt(pageNum), presentationService.pageTokenSecret)
+          if (pageToken == null || pageToken != expectedToken) {
+            response.setStatus(403)
+            response.outputStream << 'invalid-token'
+            return
+          }
+        }
+
+        response.setStatus(200)
+        response.outputStream << 'authorized'
+        return
+      }
+
+      def downloadMatcher = DOWNLOAD_URI_PATTERN.matcher(uriPath)
+      if (downloadMatcher.matches()) {
+        def meetingIdFromUri = downloadMatcher.group(1)
+        if (meetingIdFromUri != userSession.meetingID) {
+          response.setStatus(403)
+          response.outputStream << 'forbidden'
+          return
+        }
+
+        response.setStatus(200)
+        response.outputStream << 'authorized'
+        return
+      }
+
+      def pdfMatcher = PDF_URI_PATTERN.matcher(uriPath)
+      if (pdfMatcher.matches()) {
+        def meetingIdFromUri = pdfMatcher.group(2)
+        if (meetingIdFromUri != userSession.meetingID) {
+          response.setStatus(403)
+          response.outputStream << 'forbidden'
+          return
+        }
+
+        response.setStatus(200)
+        response.outputStream << 'authorized'
+        return
+      }
+
+      response.setStatus(403)
+      response.outputStream << 'forbidden'
+    } catch (Exception e) {
+      log.error("Error in checkPresentationAuthorization.\n" + e.getMessage())
+      response.setStatus(401)
+      response.contentType = 'text/plain'
+      response.outputStream << 'unauthorized'
+    }
+  }
+
+  private static String extractQueryParam(String uri, String paramName) {
+    return UriComponentsBuilder.fromUriString(uri).build().getQueryParams().getFirst(paramName)
+  }
+
+  private static String generatePageToken(String presId, int page, String secret) {
+    Mac mac = Mac.getInstance("HmacSHA256")
+    mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"))
+    return mac.doFinal("${presId}|${page}".getBytes(StandardCharsets.UTF_8)).collect { String.format('%02x', it) }.join()
+  }
+
+  private UserSession validateSession() {
+    def sessionToken = params.sessionToken
+    if (!sessionToken) return null
+    UserSession userSession = meetingService.getUserSessionWithSessionToken(sessionToken)
+    Boolean allowRequestsWithoutSession = meetingService.getAllowRequestsWithoutSession(sessionToken)
+    if (userSession == null || (!session[sessionToken] && !allowRequestsWithoutSession)) return null
+    return userSession
   }
 
   def checkPresentationBeforeUploading = {
@@ -58,14 +183,14 @@ class PresentationController {
           log.debug "OPTIONS SUCCESS \n"
           response.setStatus(200)
           response.addHeader("Cache-Control", "no-cache")
-          response.contentType = 'plain/text'
+          response.contentType = 'text/plain'
           response.outputStream << 'upload-success';
           return;
         } else {
           log.debug "OPTIONS FAIL\n"
           response.setStatus(403)
           response.addHeader("Cache-Control", "no-cache")
-          response.contentType = 'plain/text'
+          response.contentType = 'text/plain'
           response.outputStream << 'upload-fail';
           return;
         }
@@ -78,7 +203,7 @@ class PresentationController {
         log.debug "SUCCESS\n"
         response.setStatus(200);
         response.addHeader("Cache-Control", "no-cache")
-        response.contentType = 'plain/text'
+        response.contentType = 'text/plain'
         response.outputStream << 'upload-success';
       } else {
         log.debug "NO SUCCESS \n"
@@ -90,7 +215,7 @@ class PresentationController {
         response.setStatus(403);
         response.addHeader("Cache-Control", "no-cache")
         response.addHeader("x-file-too-large", "1")
-        response.contentType = 'plain/text'
+        response.contentType = 'text/plain'
         response.outputStream << 'file-empty';
       }
     } catch (IOException e) {
@@ -103,7 +228,7 @@ class PresentationController {
     if (null == params.authzToken || !meetingService.authzTokenIsValid(params.authzToken)) {
       log.debug "WARNING! AuthzToken=" + params.authzToken + " was not valid in meetingId=" + params.conference
       response.addHeader("Cache-Control", "no-cache")
-      response.contentType = 'plain/text'
+      response.contentType = 'text/plain'
       response.outputStream << 'invalid auth token'
       return
     }
@@ -117,14 +242,14 @@ class PresentationController {
       if (meeting == null) {
         log.debug("Upload failed. No meeting running " + meetingId)
         response.addHeader("Cache-Control", "no-cache")
-        response.contentType = 'plain/text'
+        response.contentType = 'text/plain'
         response.outputStream << 'no-meeting'
         return
       }
     } else {
       log.debug("Upload failed. Invalid meeting id format " + meetingId)
       response.addHeader("Cache-Control", "no-cache")
-      response.contentType = 'plain/text'
+      response.contentType = 'text/plain'
       response.outputStream << 'no-meeting';
       return
     }
@@ -132,7 +257,7 @@ class PresentationController {
     if (meetingService.isMeetingWithDisabledPresentation(meetingId)) {
       log.error "This meeting has presentation as a disabledFeature, it is not possible to upload anything"
       response.addHeader("Cache-Control", "no-cache")
-      response.contentType = 'plain/text'
+      response.contentType = 'text/plain'
       response.outputStream << 'presentation in disabled features'
       return
     }
@@ -210,7 +335,7 @@ class PresentationController {
       presentationService.processUploadedPresentation(uploadedPres)
       log.debug("file upload success " + presFilename)
       response.addHeader("Cache-Control", "no-cache")
-      response.contentType = 'plain/text'
+      response.contentType = 'text/plain'
       response.outputStream << 'upload-success'
     } else {
       def mimeType = SupportedFileTypes.detectMimeType(pres)
@@ -218,7 +343,7 @@ class PresentationController {
       org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
       log.debug("file upload failed " + presFilename)
       response.addHeader("Cache-Control", "no-cache")
-      response.contentType = 'plain/text'
+      response.contentType = 'text/plain'
       response.outputStream << 'upload-failed'
     }
   }
@@ -229,7 +354,6 @@ class PresentationController {
 
   //handle external presentation server 
   def delegate = {
-
     def presentation_name = request.getParameter('presentation_name')
     def conference = request.getParameter('conference')
     def room = request.getParameter('room')
@@ -242,10 +366,21 @@ class PresentationController {
   }
 
   def showSvgImage = {
+    def userSession = validateSession()
+    if (userSession == null) { response.setStatus(401); return }
+
     def presentationName = params.presentation_name
     def conf = params.conference
     def rm = params.room
     def slide = params.id
+
+    if (conf != userSession.meetingID) { response.setStatus(403); return }
+    if (presentationService.pageTokenSecret) {
+      def pageToken = params.pageToken
+      if (!slide?.isInteger()) { response.setStatus(403); return }
+      def expected = generatePageToken(presentationName, Integer.parseInt(slide), presentationService.pageTokenSecret)
+      if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
+    }
 
     log.error("Nginx should be serving this SVG file! meetingId=" + conf + ",presId=" + presentationName + ",page=" + slide);
 
@@ -265,10 +400,21 @@ class PresentationController {
   }
 
   def showThumbnail = {
+    def userSession = validateSession()
+    if (userSession == null) { response.setStatus(401); return }
+
     def presentationName = params.presentation_name
     def conf = params.conference
     def rm = params.room
     def thumb = params.id
+
+    if (conf != userSession.meetingID) { response.setStatus(403); return }
+    if (presentationService.pageTokenSecret) {
+      def pageToken = params.pageToken
+      if (!thumb?.isInteger()) { response.setStatus(403); return }
+      def expected = generatePageToken(presentationName, Integer.parseInt(thumb), presentationService.pageTokenSecret)
+      if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
+    }
 
     log.error("Nginx should be serving this thumb file! meetingId=" + conf + ",presId=" + presentationName + ",page=" + thumb);
 
@@ -289,10 +435,21 @@ class PresentationController {
   }
 
   def showPng = {
+    def userSession = validateSession()
+    if (userSession == null) { response.setStatus(401); return }
+
     def presentationName = params.presentation_name
     def conf = params.conference
     def rm = params.room
     def png = params.id
+
+    if (conf != userSession.meetingID) { response.setStatus(403); return }
+    if (presentationService.pageTokenSecret) {
+      def pageToken = params.pageToken
+      if (!png?.isInteger()) { response.setStatus(403); return }
+      def expected = generatePageToken(presentationName, Integer.parseInt(png), presentationService.pageTokenSecret)
+      if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
+    }
 
     InputStream is = null;
     try {
@@ -310,12 +467,23 @@ class PresentationController {
   }
 
   def showTextfile = {
+    def userSession = validateSession()
+    if (userSession == null) { response.setStatus(401); return }
+
     def presentationName = params.presentation_name
     def conf = params.conference
     def rm = params.room
     def textfile = params.id
-    log.debug "Controller: Show textfile request for $presentationName $textfile"
 
+    if (conf != userSession.meetingID) { response.setStatus(403); return }
+    if (presentationService.pageTokenSecret) {
+      def pageToken = params.pageToken
+      if (!textfile?.isInteger()) { response.setStatus(403); return }
+      def expected = generatePageToken(presentationName, Integer.parseInt(textfile), presentationService.pageTokenSecret)
+      if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
+    }
+
+    log.debug "Controller: Show textfile request for $presentationName $textfile"
     log.error("Nginx should be serving this text file! meetingId=" + conf + ",presId=" + presentationName + ",page=" + textfile);
 
     InputStream is = null;
@@ -326,7 +494,7 @@ class PresentationController {
 
         def bytes = pres.readBytes()
         response.addHeader("Cache-Control", "no-cache")
-        response.contentType = 'plain/text'
+        response.contentType = 'text/plain'
         response.outputStream << bytes;
       } else {
         log.debug "$pres does not exist."
@@ -338,10 +506,15 @@ class PresentationController {
   }
 
   def downloadFile = {
+    def userSession = validateSession()
+    if (userSession == null) { response.setStatus(401); return }
+
     def presId = params.presId
     def presFilename = params.presFilename
     def meetingId = params.meetingId
     def filename = params.filename
+
+    if (meetingId != userSession.meetingID) { response.setStatus(403); return }
 
     log.debug "Controller: Download request for $presFilename"
 
@@ -377,6 +550,9 @@ class PresentationController {
   }
 
   def thumbnail = {
+    def userSession = validateSession()
+    if (userSession == null) { response.setStatus(401); return }
+
     def filename = params.id.replace('###', '.')
     def presDir = confDir() + File.separatorChar + filename
     try {
@@ -393,9 +569,14 @@ class PresentationController {
   }
 
   def numberOfSlides = {
+    def userSession = validateSession()
+    if (userSession == null) { response.setStatus(401); return }
+
     def presentationName = params.presentation_name
     def conf = params.conference
     def rm = params.room
+
+    if (conf != userSession.meetingID) { response.setStatus(403); return }
 
     def numThumbs = presentationService.numberOfThumbnails(conf, rm, presentationName)
     response.addHeader("Cache-Control", "no-cache")
@@ -417,9 +598,15 @@ class PresentationController {
   }
 
   def numberOfThumbnails = {
+    def userSession = validateSession()
+    if (userSession == null) { response.setStatus(401); return }
+
     def filename = params.presentation_name
     def conf = params.conference
     def rm = params.room
+
+    if (conf != userSession.meetingID) { response.setStatus(403); return }
+
     def numThumbs = presentationService.numberOfThumbnails(conf, rm, filename)
     withFormat {
       xml {
@@ -439,9 +626,15 @@ class PresentationController {
   }
 
   def numberOfSvgs = {
+    def userSession = validateSession()
+    if (userSession == null) { response.setStatus(401); return }
+
     def filename = params.presentation_name
     def conf = params.conference
     def rm = params.room
+
+    if (conf != userSession.meetingID) { response.setStatus(403); return }
+
     def numSvgs = presentationService.numberOfSvgs(conf, rm, filename)
     withFormat {
       xml {
@@ -461,9 +654,15 @@ class PresentationController {
   }
 
   def numberOfTextfiles = {
+    def userSession = validateSession()
+    if (userSession == null) { response.setStatus(401); return }
+
     def filename = params.presentation_name
     def conf = params.conference
     def rm = params.room
+
+    if (conf != userSession.meetingID) { response.setStatus(403); return }
+
     def numFiles = presentationService.numberOfTextfiles(conf, rm, filename)
 
     withFormat {
