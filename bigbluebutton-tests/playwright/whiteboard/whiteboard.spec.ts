@@ -6,6 +6,7 @@ import { ChangeStyles } from './changeStyles';
 import { DrawShape } from './drawShape';
 import { ShapeOptions } from './shapeOptions';
 import { ShapeTools } from './shapeTools';
+import { SlideChangeWhileEditing } from './slideChangeWhileEditing';
 import { TextShape } from './textShape';
 import { WhiteboardResize } from './whiteboardResize';
 
@@ -160,6 +161,28 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     await textShape.initModPage(page, { testInfo });
     await textShape.initUserPage(context, { testInfo });
     await textShape.realTimeTextTyping();
+  });
+
+  test('should not crash when presenter changes slide while viewer is editing a text shape', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const slideChange = new SlideChangeWhileEditing(browser, context);
+    await slideChange.initModPage(page, { testInfo });
+    await slideChange.initUserPage(context, { testInfo });
+    await slideChange.editingShapeDuringSlideChange(e.wbTextShape, 'click');
+  });
+
+  test('should not crash when presenter changes slide while viewer is editing a shape', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const slideChange = new SlideChangeWhileEditing(browser, context);
+    await slideChange.initModPage(page, { testInfo });
+    await slideChange.initUserPage(context, { testInfo });
+    await slideChange.editingShapeDuringSlideChange(e.wbRectangleShape, 'draw');
   });
 
   test.describe.parallel('Shape Options', () => {

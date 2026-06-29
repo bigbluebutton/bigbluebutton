@@ -2270,6 +2270,15 @@ const Whiteboard = React.memo((props) => {
   React.useEffect(() => {
     const formattedPageId = parseInt(curPageIdRef.current, 10);
     if (tlEditorRef.current && formattedPageId !== 0) {
+      // End any in-progress shape edit before switching slides. When the presenter
+      // changes the slide while a viewer is editing a shape, the editor stays in the
+      // "editing_shape" state but its shape is gone, so the next click throws
+      // "Expected an editing shape!" (see issue 25332). Guarding on the state instead
+      // of getEditingShape() also covers the text tool, whose shape is already removed
+      // by the time this effect runs.
+      if (tlEditorRef.current.isIn('select.editing_shape')) {
+        tlEditorRef.current.complete();
+      }
       tlEditorRef.current.store.mergeRemoteChanges(() => {
         tlEditorRef.current.batch(() => {
           const currentPageId = `page:${formattedPageId}`;
