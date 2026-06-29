@@ -62,6 +62,14 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         mobile: false,
         provider: 'webspeech',
         showInSidebarNavigation: false,
+        microphoneAlert: {
+          enabled: true,
+          helpLink: '',
+          threshold: -50,
+          speakingThreshold: 5000,
+          duration: 10000,
+          interval: 200,
+        },
         language: {
           available: [
             'en-US',
