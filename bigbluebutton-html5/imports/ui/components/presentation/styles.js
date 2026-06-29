@@ -216,6 +216,84 @@ const IconWithMask = styled.div.attrs({
   mask: url(${({ mask }) => mask})  center 100% / 100% no-repeat;
 `;
 
+const PresenterToolContainer = styled.div`
+  position: absolute;
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+`;
+
+const PresenterToolSlidesColumn = styled.div`
+  width: 40%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+`;
+
+const PresenterToolSlidePane = styled.div`
+  height: 50%;
+  width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  border-bottom: 1px solid #444;
+`;
+
+const PresenterToolSlideFrame = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #000;
+`;
+
+const PresenterToolSlideLabel = styled.div`
+  position: absolute;
+  top: 0.4rem;
+  left: 0.5rem;
+  z-index: 1;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.25rem;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 0.85rem;
+`;
+
+const PresenterToolSlideImage = styled.img`
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+`;
+
+const PresenterToolEmptySlide = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-size: 1rem;
+`;
+
+const PresenterToolNotesPanel = styled.div`
+  width: 60%;
+  height: 100%;
+  overflow-y: auto;
+  padding: 1.5rem;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+  font-size: 1.2rem;
+  line-height: 1.6;
+  border-left: 1px solid #444;
+  color: white;
+  background: #1e1e1e;
+`;
+
 export default {
   VisuallyHidden,
   PresentationSvg,
@@ -235,4 +313,12 @@ export default {
   Button,
   ExtraTools,
   IconWithMask,
+  PresenterToolContainer,
+  PresenterToolSlidesColumn,
+  PresenterToolSlidePane,
+  PresenterToolSlideFrame,
+  PresenterToolSlideLabel,
+  PresenterToolSlideImage,
+  PresenterToolEmptySlide,
+  PresenterToolNotesPanel,
 };
