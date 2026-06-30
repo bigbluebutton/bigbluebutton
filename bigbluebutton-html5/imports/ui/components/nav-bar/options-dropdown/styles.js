@@ -22,8 +22,8 @@ const DropdownButton = styled(Button)`
 
   @media ${smallOnly} {
     & > span:first-of-type {
-      width: auto;
-      min-width: 0;
+      width: ${mobileNavbarButtonSize};
+      min-width: ${mobileNavbarButtonSize};
       height: ${mobileNavbarButtonSize};
       padding: 0 !important;
       box-sizing: border-box;

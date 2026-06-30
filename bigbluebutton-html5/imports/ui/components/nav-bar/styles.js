@@ -49,7 +49,7 @@ const PresentationTitle = styled.h1`
   color: ${colorWhite};
   font-size: ${fontSizeBase};
   margin: 0;
-  padding: ${lgPadding};
+  padding: 0;
   white-space: nowrap;
   overflow: hidden;
   max-width: 30vw;
@@ -58,6 +58,7 @@ const PresentationTitle = styled.h1`
     min-width: 0;
     max-width: 100%;
     font-size: ${fontSizeSmall};
+    padding: ${lgPadding};
   }
 `;
 
@@ -123,7 +124,7 @@ const Right = styled.div`
 
   @media ${smallOnly} {
     gap: ${mobileNavbarButtonGap};
-    padding-left: ${mobileNavbarButtonGap};
+    padding-inline-start: ${mobileNavbarButtonGap};
 
     & > * {
       margin: 0 !important;
@@ -133,7 +134,7 @@ const Right = styled.div`
     }
 
     & > *:last-child {
-      margin-left: calc(-1 * ${mobileNavbarButtonGap}) !important;
+      margin-inline-start: calc(-1 * ${mobileNavbarButtonGap}) !important;
     }
   }
 `;

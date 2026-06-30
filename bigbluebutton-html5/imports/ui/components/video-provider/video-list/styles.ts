@@ -170,6 +170,11 @@ const PaginationArrow = styled(Button)`
     filter: none;
   }
 
+  &&:focus-visible {
+    outline: 2px solid ${colorWhite};
+    outline-offset: 2px;
+  }
+
   i {
     font-size: 0.5rem;
   }

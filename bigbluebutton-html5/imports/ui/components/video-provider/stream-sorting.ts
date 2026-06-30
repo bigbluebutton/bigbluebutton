@@ -184,11 +184,33 @@ const hasCameraItem = (s: VideoItem) => s.type === VIDEO_TYPES.STREAM
 
 const lastFloorTimeItem = (s: VideoItem) => (('lastFloorTime' in s) && s.lastFloorTime ? s.lastFloorTime : '0');
 
-export const sortMobile = (s1: VideoItem, s2: VideoItem) => {
+const isModeratorItem = (s: VideoItem): boolean => {
+  if (s.type === VIDEO_TYPES.GRID) return !!s.isModerator;
+  if (s.type === VIDEO_TYPES.STREAM || s.type === VIDEO_TYPES.AUDIO_ONLY) return !!s.user?.isModerator;
+  return false;
+};
+
+const pinnedTimeItem = (s: VideoItem): number => {
+  let pinnedTime: string | null | undefined;
+  if (s.type === VIDEO_TYPES.GRID) pinnedTime = s.pinnedTime;
+  else if (s.type === VIDEO_TYPES.STREAM || s.type === VIDEO_TYPES.AUDIO_ONLY) pinnedTime = s.user?.pinnedTime;
+  return pinnedTime ? new Date(pinnedTime).getTime() : 0;
+};
+
+export const sortMobile = (s1: VideoItem, s2: VideoItem, moderatorFirst = false) => {
   const p1 = isPinnedItem(s1);
   const p2 = isPinnedItem(s2);
   if (p1 && !p2) return -1;
   if (!p1 && p2) return 1;
+  if (p1 && p2) {
+    if (moderatorFirst) {
+      const m1 = isModeratorItem(s1);
+      const m2 = isModeratorItem(s2);
+      if (m1 !== m2) return m1 ? -1 : 1;
+    }
+    const pinnedDiff = pinnedTimeItem(s2) - pinnedTimeItem(s1);
+    if (pinnedDiff !== 0) return pinnedDiff;
+  }
 
   const l1 = isLocalItem(s1);
   const l2 = isLocalItem(s2);
