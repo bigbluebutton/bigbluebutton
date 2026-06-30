@@ -136,13 +136,15 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     YouTube: false,
   }), []);
 
+  const showControls = isPresenter && !isBot;
+
   const videoPlayConfig = useMemo(() => {
     return {
       // default option for all players, can be overwritten
       playerOptions: {
         autoPlay: true,
         playsInline: true,
-        controls: !isBot,
+        controls: showControls,
       },
       file: {
         attributes: {
@@ -152,18 +154,18 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         },
       },
       facebook: {
-        controls: !isBot,
+        controls: showControls,
       },
       dailymotion: {
         params: {
-          controls: !isBot,
+          controls: showControls,
         },
       },
       youtube: {
         playerVars: {
           autoplay: 1,
           rel: 0,
-          controls: isBot ? 0 : 1,
+          controls: showControls ? 1 : 0,
           cc_lang_pref: document.getElementsByTagName('html')[0].lang.substring(0, 2),
         },
         embedOptions: {
@@ -175,14 +177,14 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       },
       twitch: {
         options: {
-          controls: !isBot,
+          controls: showControls,
         },
         playerId: 'externalVideoPlayerTwitch',
       },
       preload: true,
       showHoverToolBar: false,
     };
-  }, [isBot]);
+  }, [isBot, isPresenter]);
 
   const [showUnsynchedMsg, setShowUnsynchedMsg] = React.useState(false);
   const [showHoverToolBar, setShowHoverToolBar] = React.useState(false);
@@ -434,8 +436,12 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
       });
     }
 
-    if (currentTime > playerCurrentTime) {
+    if (currentTime > playerCurrentTime && !firstPlayRef.current) {
       playerRef?.current?.seekTo(currentTime, 'seconds');
+    }
+
+    if (firstPlayRef.current) {
+      firstPlayRef.current = false;
     }
   };
 
@@ -457,6 +463,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         && Date.now() - lastCursorRef.current.updateAt < TWITCH_VIDEO_SEEK_TIME_WINDOW * 1000
         ? lastCursorRef.current.position
         : playerCurrentTime;
+
       sendMessage('play', {
         rate,
         // if currentTime is greater than playerCurrentTime, means the video was already played
@@ -467,10 +474,6 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     }
     if (!playing && !isPresenter) {
       stopVideo(playerRef.current as ReactPlayer);
-    }
-
-    if (firstPlayRef.current) {
-      firstPlayRef.current = false;
     }
   };
 
