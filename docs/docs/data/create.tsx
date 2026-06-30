@@ -391,7 +391,7 @@ const createEndpointTableData = [
     "name": "sharedNotesEditor",
     "required": false,
     "type": "String",
-    "default": "etherpad",
+    "default": "blockNote",
     "description": (<>Editor to be rendered in the shared-notes area: `blockNote` or `etherpad`</>)
   },
   {

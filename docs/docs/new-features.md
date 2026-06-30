@@ -234,6 +234,16 @@ Recent releases:
 
 ### Other notable changes
 
+#### Promoted BlockNote shared notes as default
+
+In BigBlueButton 4.0.0-beta.3 we replaced the default choice for Shared Notes component from `bbb-etherpad` (i.e. Etherpad) to `bbb-shared-notes-server` (i.e. BlockNote). This means that `bbb-shared-notes-server` is now a required package, installed by default while `bbb-etherpad` and `bbb-pads` are now optional.
+In the event that you prefer using Etherpad, install the optional packages via
+
+`$ sudo apt install bbb-pads bbb-etherpad`
+
+At this point you can use it in a specific session by passing `sharedNotesEditor=etherpad` on the `/create` call. If you have made up your mind and would like to use it for all sessions, add the same line (`sharedNotesEditor=etherpad`) to `/etc/bigbluebutton/bbb-web.properties` and restart BigBlueButton via `$ sudo bbb-conf --restart`
+
+
 #### Removing deprecated layout options
 
 The layout system has been simplified to use a single unified layout. The following layouts have been removed: `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, and `VIDEO_FOCUS`. The default layout is now `UNIFIED_LAYOUT`.
