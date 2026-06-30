@@ -27,6 +27,15 @@ import { generateSettingsData, Settings } from './settings';
 
 dotenv.config();
 
+/**
+ * A deep-partial of `window.meetingClientSettings`, deep-merged into the live client
+ * settings before the app reads them. Lets tests exercise config-only settings that have
+ * no per-meeting/userdata override (e.g. `kurento.cameraSortingModes.partitionPrivilegedStreams`).
+ */
+export interface ClientSettingsOverrides {
+  [key: string]: string | number | boolean | null | ClientSettingsOverrides;
+}
+
 export interface InitOptionsProps {
   shouldCloseAudioModal?: boolean;
   fullName?: string;
@@ -39,6 +48,7 @@ export interface InitOptionsProps {
   shouldCheckAllInitialSteps?: boolean;
   shouldAvoidLayoutCheck?: boolean;
   forceErrorLogFailure?: boolean;
+  clientSettingsOverrides?: ClientSettingsOverrides;
   testInfo?: TestInfo | null;
 }
 
@@ -110,6 +120,7 @@ export class Page {
       shouldCheckAllInitialSteps,
       shouldAvoidLayoutCheck,
       forceErrorLogFailure,
+      clientSettingsOverrides,
       testInfo,
     } = initOptions || {};
 
@@ -126,6 +137,7 @@ export class Page {
       fullName: this.username,
       options: { isModerator, joinParameter, skipSessionDetailsModal },
     });
+    if (clientSettingsOverrides) await this.applyClientSettingsOverrides(clientSettingsOverrides);
     const response = await this.page.goto(joinUrl);
     await expect(response!.ok()).toBeTruthy();
     const hasErrorLabel = await this.checkElement(e.errorMessageLabel);
@@ -146,6 +158,41 @@ export class Page {
           font-family: 'Liberation Sans', Arial, sans-serif;
         }`,
     });
+  }
+
+  /**
+   * Patches `window.meetingClientSettings` before the client reads it, so tests can drive
+   * config-only settings that have no per-meeting/userdata override. The client assigns
+   * `window.meetingClientSettings` exactly once (settings-loader/component.tsx); we install
+   * an accessor ahead of that assignment and deep-merge the overrides into the value.
+   * Must run before `page.goto()`.
+   */
+  async applyClientSettingsOverrides(overrides: ClientSettingsOverrides): Promise<void> {
+    await this.page.addInitScript((settingsOverrides) => {
+      const isPlainObject = (val: unknown): val is Record<string, unknown> =>
+        typeof val === 'object' && val !== null && !Array.isArray(val);
+      const deepMerge = (base: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> => {
+        const merged: Record<string, unknown> = { ...base };
+        Object.keys(source).forEach((key) => {
+          const sourceValue = source[key];
+          const baseValue = merged[key];
+          merged[key] =
+            isPlainObject(sourceValue) && isPlainObject(baseValue) ? deepMerge(baseValue, sourceValue) : sourceValue;
+        });
+        return merged;
+      };
+
+      let storedSettings: unknown;
+      Object.defineProperty(window, 'meetingClientSettings', {
+        configurable: true,
+        get() {
+          return storedSettings;
+        },
+        set(value: unknown) {
+          storedSettings = isPlainObject(value) ? deepMerge(value, settingsOverrides) : value;
+        },
+      });
+    }, overrides);
   }
 
   async handleDownload(

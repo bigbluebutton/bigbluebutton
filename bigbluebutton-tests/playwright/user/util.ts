@@ -2,7 +2,31 @@ import { Locator } from '@playwright/test';
 
 import { ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
-import { Page } from '../core/page';
+import { ClientSettingsOverrides, Page } from '../core/page';
+
+// Client settings overrides that deterministically reproduce issue 25242 regardless of the
+// server config: the audio-only-tiles feature on, plus the equally-paginated branch
+// (partitionPrivilegedStreams: false) that used to drop audio-only tiles for non-privileged
+// (attendee) streams. Both are config-only settings (no per-meeting/userdata override), so
+// they are injected via `clientSettingsOverrides` in initModPage/initUserPage.
+export const AUDIO_ONLY_TILE_SETTINGS_OVERRIDE: ClientSettingsOverrides = {
+  public: {
+    kurento: {
+      cameraSortingModes: {
+        showAudioOnlyOnFirstPage: true,
+        partitionPrivilegedStreams: false,
+      },
+    },
+  },
+};
+
+// Locator for audio-only tiles (camera-less users that hold the audio floor): a webcam
+// grid item rendering the connecting/avatar placeholder instead of a <video> element.
+export function audioOnlyTilesLocator(testPage: Page): Locator {
+  return testPage.page
+    .locator(`${e.webcamItem}, ${e.webcamItemTalkingUser}`)
+    .filter({ has: testPage.page.locator(e.webcamConnecting) });
+}
 
 export async function openLockViewers(testPage: Page) {
   const isLockViewersButtonVisible = await testPage.page.locator(e.lockViewersButton).isVisible({ timeout: ELEMENT_WAIT_TIME }).catch(() => false);
