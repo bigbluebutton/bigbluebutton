@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+import "common/meeting_data.proto";
+
+message MeetingInfoRequest {
+  MeetingData meeting_data = 1;
+}

@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+message DurationSettings {
+  int32 duration = 1;
+  int64 create_time = 2;
+  string create_date = 3;
+  int32 meeting_exp_no_user_joined_in_min = 4;
+  int32 meeting_exp_last_user_left_in_min = 5;
+  int32 user_inactivity_inspect_time_in_min = 6;
+  int32 user_inactivity_threshold_in_min = 7;
+  int32 user_activity_sign_response_delay_in_min = 8;
+  bool end_when_no_mod = 9;
+  int32 end_when_no_mod_delay_in_min = 10;
+  int32 learning_dashboard_cleanup_delay_in_min = 11;
+}

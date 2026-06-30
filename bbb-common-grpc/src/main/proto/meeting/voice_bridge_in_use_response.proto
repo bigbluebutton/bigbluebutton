@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+import "common/voice_bridge_in_use.proto";
+
+message VoiceBridgeInUseResponse {
+  VoiceBridgeInUse voice_bridge_in_use = 1;
+}

@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+message BreakoutSettings {
+  string parent_meeting_id = 1;
+  int32 sequence = 2;
+  bool free_join = 3;
+  repeated string breakout_rooms = 4;
+  bool record = 5;
+  bool private_chat_enabled = 6;
+  bool capture_notes = 7;
+  bool capture_slides = 8;
+  string capture_notes_file_name = 9;
+  string capture_slides_file_name = 10;
+}

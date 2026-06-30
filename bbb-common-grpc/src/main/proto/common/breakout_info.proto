@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package org.bigbluebutton.protos;
+
+message BreakoutInfo {
+    bool is_breakout = 1;
+    string parent_meeting_id = 2;
+    int32 sequence = 3;
+    bool free_join = 4;
+}
