@@ -409,7 +409,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `disablePrivateChat`
 - `disablePublicChat`
 - `hasActiveLockSetting`
-- `hideUserList`
+- `isolateUsers`
 - `hideViewersAnnotation`
 - `hideViewersCursor`
 - `lockOnJoin`

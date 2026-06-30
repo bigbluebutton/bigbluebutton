@@ -39,7 +39,7 @@ public class CreateBreakoutRoom implements IMessage {
     public final Boolean disableMic;
     public final Boolean disablePubChat;
     public final Boolean disableNotes;
-    public final Boolean hideUserList;
+    public final Boolean isolateUsers;
     public final Boolean lockOnJoin;
     public final Boolean lockOnJoinConfigurable;
     public final Boolean hideViewersCursor;
@@ -79,7 +79,7 @@ public class CreateBreakoutRoom implements IMessage {
                               Boolean disableMic,
                               Boolean disablePubChat,
                               Boolean disableNotes,
-                              Boolean hideUserList,
+                              Boolean isolateUsers,
                               Boolean lockOnJoin,
                               Boolean lockOnJoinConfigurable,
                               Boolean hideViewersCursor,
@@ -118,7 +118,7 @@ public class CreateBreakoutRoom implements IMessage {
         this.disableMic = disableMic;
         this.disablePubChat = disablePubChat;
         this.disableNotes = disableNotes;
-        this.hideUserList = hideUserList;
+        this.isolateUsers = isolateUsers;
         this.lockOnJoin = lockOnJoin;
         this.lockOnJoinConfigurable = lockOnJoinConfigurable;
         this.hideViewersCursor = hideViewersCursor;

@@ -21,6 +21,9 @@ export const constants = {
   lockSettingsDisableCam: 'lockSettingsDisableCam=true',
   lockSettingsDisableMic: 'lockSettingsDisableMic=true',
   lockSettingsDisablePublicChat: 'lockSettingsDisablePublicChat=true',
+  lockSettingsIsolateUsers: 'lockSettingsIsolateUsers=true',
+  // Deprecated alias of lockSettingsIsolateUsers (renamed in 4.0). Kept to exercise
+  // the API-param fallback in ParamsProcessorUtil and guard against regressions.
   lockSettingsHideUserList: 'lockSettingsHideUserList=true',
   allowModsToEjectCameras: 'allowModsToEjectCameras=true',
   notifyRecordingIsOn: 'notifyRecordingIsOn=true&notifyRecordingIsOn=true',

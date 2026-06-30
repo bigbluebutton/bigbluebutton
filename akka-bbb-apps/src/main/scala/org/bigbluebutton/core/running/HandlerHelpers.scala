@@ -120,7 +120,7 @@ trait HandlerHelpers extends SystemConfiguration {
             val event = UserJoinedMeetingEvtMsgBuilder.build(liveMeeting.props.meetingProp.intId, newUser)
             outGW.send(event)
 
-            if (MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList && newUser.role != Roles.MODERATOR_ROLE) {
+            if (MeetingStatus2x.getPermissions(liveMeeting.status).isolateUsers && newUser.role != Roles.MODERATOR_ROLE) {
               Users2x.findAll(liveMeeting.users2x)
                 .filter(r => !r.userLeftFlag.left && (!r.locked || r.role == Roles.MODERATOR_ROLE))
                 .foreach { r =>

@@ -136,7 +136,7 @@ public class ParamsProcessorUtil {
 		private boolean defaultLockSettingsDisablePrivateChat;
 		private boolean defaultLockSettingsDisablePublicChat;
 		private boolean defaultLockSettingsDisableNotes;
-		private boolean defaultLockSettingsHideUserList;
+		private boolean defaultLockSettingsIsolateUsers;
 		private boolean defaultLockSettingsLockOnJoin;
 		private boolean defaultLockSettingsLockOnJoinConfigurable;
 		private boolean defaultLockSettingsHideViewersCursor;
@@ -403,10 +403,17 @@ public class ParamsProcessorUtil {
 				}
 			}
 
-			Boolean lockSettingsHideUserList = defaultLockSettingsHideUserList;
-			String lockSettingsHideUserListParam = params.get(ApiParams.LOCK_SETTINGS_HIDE_USER_LIST);
-			if (!StringUtils.isEmpty(lockSettingsHideUserListParam)) {
-				lockSettingsHideUserList = Boolean.parseBoolean(lockSettingsHideUserListParam);
+			Boolean lockSettingsIsolateUsers = defaultLockSettingsIsolateUsers;
+			String lockSettingsIsolateUsersParam = params.get(ApiParams.LOCK_SETTINGS_ISOLATE_USERS);
+			if (!StringUtils.isEmpty(lockSettingsIsolateUsersParam)) {
+				lockSettingsIsolateUsers = Boolean.parseBoolean(lockSettingsIsolateUsersParam);
+			} else {
+				// To be removed after deprecation period
+				lockSettingsIsolateUsersParam = params.get(ApiParams.DEPRECATED_LOCK_SETTINGS_HIDE_USER_LIST);
+				if (!StringUtils.isEmpty(lockSettingsIsolateUsersParam)) {
+					log.warn("[DEPRECATION] lockSettingsHideUserList is deprecated, use lockSettingsIsolateUsers instead. The old name will be removed in a future release.");
+					lockSettingsIsolateUsers = Boolean.parseBoolean(lockSettingsIsolateUsersParam);
+				}
 			}
 
 			Boolean lockSettingsLockOnJoin = defaultLockSettingsLockOnJoin;
@@ -444,7 +451,7 @@ public class ParamsProcessorUtil {
 							lockSettingsDisablePrivateChat,
 							lockSettingsDisablePublicChat,
 							lockSettingsDisableNotes,
-							lockSettingsHideUserList,
+							lockSettingsIsolateUsers,
 							lockSettingsLockOnJoin,
 							lockSettingsLockOnJoinConfigurable,
                             lockSettingsHideViewersCursor,
@@ -1877,8 +1884,8 @@ public class ParamsProcessorUtil {
 		this.defaultLockSettingsDisableNotes = lockSettingsDisableNotes;
 	}
 
-	public void setLockSettingsHideUserList(Boolean lockSettingsHideUserList) {
-		this.defaultLockSettingsHideUserList = lockSettingsHideUserList;
+	public void setLockSettingsIsolateUsers(Boolean lockSettingsIsolateUsers) {
+		this.defaultLockSettingsIsolateUsers = lockSettingsIsolateUsers;
 	}
 
 	public void setLockSettingsLockOnJoin(Boolean lockSettingsLockOnJoin) {

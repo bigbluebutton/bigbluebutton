@@ -331,7 +331,7 @@ class MeetingActor(
       disablePrivChat = lockSettingsProp.disablePrivateChat,
       disablePubChat = lockSettingsProp.disablePublicChat,
       disableNotes = lockSettingsProp.disableNotes,
-      hideUserList = lockSettingsProp.hideUserList,
+      isolateUsers = lockSettingsProp.isolateUsers,
       lockOnJoin = lockSettingsProp.lockOnJoin,
       lockOnJoinConfigurable = lockSettingsProp.lockOnJoinConfigurable,
       hideViewersCursor = lockSettingsProp.hideViewersCursor,
@@ -1160,7 +1160,7 @@ class MeetingActor(
         outGW.send(userLeftMeetingEvent)
 
         val leaverName = u.name
-        if (MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList && u.role != Roles.MODERATOR_ROLE) {
+        if (MeetingStatus2x.getPermissions(liveMeeting.status).isolateUsers && u.role != Roles.MODERATOR_ROLE) {
           Users2x.findAll(liveMeeting.users2x)
             .filter(recipient => !recipient.userLeftFlag.left && (!recipient.locked || recipient.role == Roles.MODERATOR_ROLE))
             .foreach { recipient =>

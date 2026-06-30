@@ -178,8 +178,8 @@ object UsersApp {
     )
 
     if (announcePresenterChangeInChat) {
-      val hideUserList = MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList
-      val shouldSkip = hideUserList && newPresenter.role == Roles.VIEWER_ROLE
+      val isolateUsers = MeetingStatus2x.getPermissions(liveMeeting.status).isolateUsers
+      val shouldSkip = isolateUsers && newPresenter.role == Roles.VIEWER_ROLE
 
       if (!shouldSkip) {
         ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", "", GroupChatMessageType.USER_IS_PRESENTER_MSG, Map(), newPresenter.name)

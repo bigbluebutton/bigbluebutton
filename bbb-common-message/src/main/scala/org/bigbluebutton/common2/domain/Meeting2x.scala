@@ -71,7 +71,7 @@ case class LockSettingsProps(
     disablePrivateChat:      Boolean,
     disablePublicChat:       Boolean,
     disableNotes:            Boolean,
-    hideUserList:            Boolean,
+    isolateUsers:            Boolean,
     lockOnJoin:              Boolean,
     lockOnJoinConfigurable:  Boolean,
     hideViewersCursor:       Boolean,

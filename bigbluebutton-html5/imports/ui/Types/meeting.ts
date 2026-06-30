@@ -6,7 +6,7 @@ export interface LockSettings {
   disablePublicChat: boolean;
   presenterPolicy: string;
   hasActiveLockSetting: boolean;
-  hideUserList: boolean;
+  isolateUsers: boolean;
   hideViewersCursor: boolean;
   hideViewersAnnotation: boolean,
   meetingId: boolean;

@@ -254,7 +254,7 @@ class BbbWebApiGWApp(
       disablePrivateChat = lockSettingsParams.disablePrivateChat.booleanValue(),
       disablePublicChat = lockSettingsParams.disablePublicChat.booleanValue(),
       disableNotes = lockSettingsParams.disableNotes.booleanValue(),
-      hideUserList = lockSettingsParams.hideUserList.booleanValue(),
+      isolateUsers = lockSettingsParams.isolateUsers.booleanValue(),
       lockOnJoin = lockSettingsParams.lockOnJoin.booleanValue(),
       lockOnJoinConfigurable = lockSettingsParams.lockOnJoinConfigurable.booleanValue(),
       hideViewersCursor = lockSettingsParams.hideViewersCursor.booleanValue(),

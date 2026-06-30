@@ -508,24 +508,24 @@ export class LockViewers extends MultiUsers {
 
   /**
    * Regression test for issue #24888:
-   * When hideUserList (lockUserList) is active, a locked viewer must NOT receive
+   * When isolateUsers (lockUserList) is active, a locked viewer must NOT receive
    * join notifications for other users — those names were leaking via the
    * notification stream even though the user list was hidden.
    *
-   * Fix (issue #24888): when hideUserList=true the backend sends per-user
+   * Fix (issue #24888): when isolateUsers=true the backend sends per-user
    * NotifyUserInMeetingEvtMsg only to moderators and unlocked viewers, instead of
    * broadcasting NotifyAllInMeetingEvtMsg to everyone.
    *
    * Flow that reproduces the original bug:
    *   1. Mod joins.
-   *   2. Mod enables lockUserList (hideUserList=true, lockOnJoin=true).
+   *   2. Mod enables lockUserList (isolateUsers=true, lockOnJoin=true).
    *   3. Viewer1 joins → automatically locked (lockOnJoin=true).
    *   4. Both mod and Viewer1 enable "user join" push alerts.
    *   5. Viewer2 joins.
    *   Expected: Viewer1 sees NO toast; Mod DOES see the toast.
    */
-  async hideUserListSuppressesJoinNotification() {
-    // Step 2: apply hideUserList lock BEFORE the viewer joins so that the
+  async isolateUsersSuppressesJoinNotification() {
+    // Step 2: apply isolateUsers lock BEFORE the viewer joins so that the
     // viewer gets locked=true via lockOnJoin.
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockUserList);
@@ -564,14 +564,14 @@ export class LockViewers extends MultiUsers {
     await this.modPage.hasText(
       e.smallToastMsg,
       `${this.userPage2.username} joined the session`,
-      'Moderator must still receive the join notification when hideUserList is active',
+      'Moderator must still receive the join notification when isolateUsers is active',
       ELEMENT_WAIT_LONGER_TIME,
     );
 
     // Locked viewer must NOT receive the join notification (regression for #24888).
     await this.userPage.wasRemoved(
       e.smallToastMsg,
-      'Locked viewer must not receive a join notification when hideUserList is active',
+      'Locked viewer must not receive a join notification when isolateUsers is active',
       ELEMENT_WAIT_TIME,
     );
   }
@@ -590,8 +590,8 @@ export class LockViewers extends MultiUsers {
    *   6. Viewer2 leaves.
    *   Expected: Viewer1 sees NO toast; Mod DOES see the toast.
    */
-  async hideUserListSuppressesLeaveNotification() {
-    // Step 2: enable hideUserList before viewers join.
+  async isolateUsersSuppressesLeaveNotification() {
+    // Step 2: enable isolateUsers before viewers join.
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockUserList);
     await this.modPage.waitAndClick(e.applyLockSettings);
@@ -632,14 +632,14 @@ export class LockViewers extends MultiUsers {
     await this.modPage.hasText(
       e.smallToastMsg,
       `${leavingUsername} left the session`,
-      'Moderator must still receive the leave notification when hideUserList is active',
+      'Moderator must still receive the leave notification when isolateUsers is active',
       USER_LEFT_NOTIFICATION_WAIT_TIME,
     );
 
     // Locked viewer must NOT have received any notification (regression for #24888).
     await this.userPage.wasRemoved(
       e.smallToastMsg,
-      'Locked viewer must not receive a leave notification when hideUserList is active',
+      'Locked viewer must not receive a leave notification when isolateUsers is active',
       ELEMENT_WAIT_TIME,
     );
   }
@@ -647,12 +647,12 @@ export class LockViewers extends MultiUsers {
   /**
    * Regression test for issue #24888, including the unlocked-viewer route.
    *
-   * Expected behavior when hideUserList is active:
+   * Expected behavior when isolateUsers is active:
    * - locked viewer: no join notification
    * - unlocked viewer: receives join notification
    * - moderator: receives join notification
    */
-  async hideUserListJoinNotificationVisibleForUnlockedAndModOnly() {
+  async isolateUsersJoinNotificationVisibleForUnlockedAndModOnly() {
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockUserList);
     await this.modPage.waitAndClick(e.applyLockSettings);
@@ -698,20 +698,20 @@ export class LockViewers extends MultiUsers {
     await this.modPage.hasText(
       e.smallToastMsg,
       `${viewer3.username} joined the session`,
-      'Moderator must receive join notification when hideUserList is active',
+      'Moderator must receive join notification when isolateUsers is active',
       ELEMENT_WAIT_LONGER_TIME,
     );
 
     await unlockedViewer.hasText(
       e.smallToastMsg,
       `${viewer3.username} joined the session`,
-      'Unlocked viewer must receive join notification when hideUserList is active',
+      'Unlocked viewer must receive join notification when isolateUsers is active',
       ELEMENT_WAIT_LONGER_TIME,
     );
 
     await this.userPage.wasRemoved(
       e.smallToastMsg,
-      'Locked viewer must not receive join notification when hideUserList is active',
+      'Locked viewer must not receive join notification when isolateUsers is active',
       ELEMENT_WAIT_TIME,
     );
   }
@@ -719,12 +719,12 @@ export class LockViewers extends MultiUsers {
   /**
    * Regression test for issue #24888, including the unlocked-viewer route.
    *
-   * Expected behavior when hideUserList is active:
+   * Expected behavior when isolateUsers is active:
    * - locked viewer: no leave notification
    * - unlocked viewer: receives leave notification
    * - moderator: receives leave notification
    */
-  async hideUserListLeaveNotificationVisibleForUnlockedAndModOnly() {
+  async isolateUsersLeaveNotificationVisibleForUnlockedAndModOnly() {
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockUserList);
     await this.modPage.waitAndClick(e.applyLockSettings);
@@ -770,20 +770,20 @@ export class LockViewers extends MultiUsers {
     await this.modPage.hasText(
       e.smallToastMsg,
       `${leavingViewer.username} left the session`,
-      'Moderator must receive leave notification when hideUserList is active',
+      'Moderator must receive leave notification when isolateUsers is active',
       USER_LEFT_NOTIFICATION_WAIT_TIME,
     );
 
     await unlockedViewer.hasText(
       e.smallToastMsg,
       `${leavingViewer.username} left the session`,
-      'Unlocked viewer must receive leave notification when hideUserList is active',
+      'Unlocked viewer must receive leave notification when isolateUsers is active',
       USER_LEFT_NOTIFICATION_WAIT_TIME,
     );
 
     await this.userPage.wasRemoved(
       e.smallToastMsg,
-      'Locked viewer must not receive leave notification when hideUserList is active',
+      'Locked viewer must not receive leave notification when isolateUsers is active',
       ELEMENT_WAIT_TIME,
     );
   }
@@ -791,8 +791,8 @@ export class LockViewers extends MultiUsers {
   /**
    * Regression test for Ramon's review on PR #24924.
    *
-   * When hideUserList is active and a MODERATOR joins, even locked viewers must
-   * receive the notification — moderators are never hidden by hideUserList.
+   * When isolateUsers is active and a MODERATOR joins, even locked viewers must
+   * receive the notification — moderators are never hidden by isolateUsers.
    *
    * Flow:
    *   1. Mod1 joins.
@@ -802,7 +802,7 @@ export class LockViewers extends MultiUsers {
    *   5. Mod2 joins as a moderator.
    *   Expected: Viewer DOES see Mod2's join toast; Mod1 DOES see it too.
    */
-  async hideUserListModeratorJoinNotificationVisibleToAll() {
+  async isolateUsersModeratorJoinNotificationVisibleToAll() {
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClickElement(e.lockUserList);
     await this.modPage.waitAndClick(e.applyLockSettings);
@@ -832,14 +832,14 @@ export class LockViewers extends MultiUsers {
     await this.modPage.hasText(
       e.smallToastMsg,
       `${mod2Name} joined the session`,
-      'Mod1 must receive join notification when a moderator joins (hideUserList active)',
+      'Mod1 must receive join notification when a moderator joins (isolateUsers active)',
       ELEMENT_WAIT_LONGER_TIME,
     );
 
     await this.userPage.hasText(
       e.smallToastMsg,
       `${mod2Name} joined the session`,
-      'Locked viewer must receive join notification when a MODERATOR joins (hideUserList active)',
+      'Locked viewer must receive join notification when a MODERATOR joins (isolateUsers active)',
       ELEMENT_WAIT_LONGER_TIME,
     );
   }
@@ -847,7 +847,7 @@ export class LockViewers extends MultiUsers {
   /**
    * Regression test for Ramon's review on PR #24924 — leave variant.
    *
-   * When hideUserList is active and a MODERATOR leaves, even locked viewers must
+   * When isolateUsers is active and a MODERATOR leaves, even locked viewers must
    * receive the leave notification.
    *
    * Flow:
@@ -859,7 +859,7 @@ export class LockViewers extends MultiUsers {
    *   6. Mod2 leaves.
    *   Expected: Viewer DOES see Mod2's leave toast; Mod1 DOES see it too.
    */
-  async hideUserListModeratorLeaveNotificationVisibleToAll() {
+  async isolateUsersModeratorLeaveNotificationVisibleToAll() {
     await this.initModPage2();
     const mod2Name = this.modPage2.username;
 
@@ -887,14 +887,14 @@ export class LockViewers extends MultiUsers {
     await this.modPage.hasText(
       e.smallToastMsg,
       `${mod2Name} left the session`,
-      'Mod1 must receive leave notification when a moderator leaves (hideUserList active)',
+      'Mod1 must receive leave notification when a moderator leaves (isolateUsers active)',
       USER_LEFT_NOTIFICATION_WAIT_TIME,
     );
 
     await this.userPage.hasText(
       e.smallToastMsg,
       `${mod2Name} left the session`,
-      'Locked viewer must receive leave notification when a MODERATOR leaves (hideUserList active)',
+      'Locked viewer must receive leave notification when a MODERATOR leaves (isolateUsers active)',
       USER_LEFT_NOTIFICATION_WAIT_TIME,
     );
   }
