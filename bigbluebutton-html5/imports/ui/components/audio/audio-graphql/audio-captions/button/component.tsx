@@ -73,6 +73,8 @@ interface AudioCaptionsButtonProps {
 
 const DISABLED = '';
 
+const getStartStopButtonSize = () => (deviceInfo.isMobile ? 'md' : 'lg');
+
 const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
   isRTL,
   currentCaptionLocale,
@@ -232,7 +234,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
       color={active ? 'primary' : 'default'}
       hideLabel
       circle
-      size={deviceInfo.isMobile ? 'md' : 'lg'}
+      size={getStartStopButtonSize()}
       onClick={onToggleClick}
     />
   );

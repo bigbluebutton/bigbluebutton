@@ -332,6 +332,19 @@ export const useIsPaginationEnabled = () => {
 
 const OVERFLOW_TILE_PREVIEW_LIMIT = 3;
 
+const insertGridUserInOrder = (gridUsers: GridItem[], user: GridItem) => {
+  const insertAt = gridUsers.findIndex((u) => (
+    u.nameSortable.localeCompare(user.nameSortable) > 0
+    || (u.nameSortable === user.nameSortable
+      && u.userId.localeCompare(user.userId) > 0)
+  ));
+  if (insertAt === -1) {
+    gridUsers.push(user);
+  } else {
+    gridUsers.splice(insertAt, 0, user);
+  }
+};
+
 export const useGridUsers = (visibleStreamCount: number, visibleUserCount: number) => {
   const gridSize = useGridSize();
   const userCount = getCountData();
@@ -464,18 +477,7 @@ export const useGridUsers = (visibleStreamCount: number, visibleUserCount: numbe
         type: VIDEO_TYPES.GRID,
       };
 
-      // Insert the current user at the position the query's ordering (nameSortable, then
-      // userId) would have placed them, instead of appending last.
-      const insertAt = newGridUsers.findIndex((u) => (
-        u.nameSortable.localeCompare(selfGridUser.nameSortable) > 0
-        || (u.nameSortable === selfGridUser.nameSortable
-          && u.userId.localeCompare(selfGridUser.userId) > 0)
-      ));
-      if (insertAt === -1) {
-        newGridUsers.push(selfGridUser);
-      } else {
-        newGridUsers.splice(insertAt, 0, selfGridUser);
-      }
+      insertGridUserInOrder(newGridUsers, selfGridUser);
     }
 
     // The grid page shows at most baseGridUserLimit avatar users. When there is
@@ -787,9 +789,7 @@ export const useVideoStreams = () => {
   // page — used to recover off-page webcam users for the overflow preview below.
   const allowedStreams = [...streams];
 
-  if (videoService.isMobile) {
-    // Mobile pagination is handled separately below.
-  } else if (isPaginationEnabled) {
+  if (!videoService.isMobile && isPaginationEnabled) {
     const chunkIndex = currentVideoPageIndex * myPageSize;
     const sortingMethod = (numberOfPages > 1) ? PAGINATION_SORTING : DEFAULT_SORTING;
     const sortingConfig = getSortingMethod(sortingMethod);
@@ -854,7 +854,7 @@ export const useVideoStreams = () => {
         streams = [...pin, ...paginatedStreams, ...mine, ...audioOnlyStreams];
       }
     }
-  } else {
+  } else if (!videoService.isMobile) {
     streams = sortVideoStreams(streams, DEFAULT_SORTING, moderatorFirst);
 
     // Add up to maxAudioOnlyUsers when pagination is disabled
@@ -914,11 +914,11 @@ export const useVideoStreams = () => {
   if (videoService.isMobile) {
     const candidates: VideoItem[] = [...streams];
     audioOnlyUsers.forEach((au) => {
-      if (!candidates.find((c) => c.userId === au.userId)) candidates.push(au);
+      if (!candidates.some((c) => c.userId === au.userId)) candidates.push(au);
     });
     if (isGridEnabled) {
       gridUsers.forEach((gu) => {
-        if (!candidates.find((c) => c.userId === gu.userId)) candidates.push(gu);
+        if (!candidates.some((c) => c.userId === gu.userId)) candidates.push(gu);
       });
     }
 
