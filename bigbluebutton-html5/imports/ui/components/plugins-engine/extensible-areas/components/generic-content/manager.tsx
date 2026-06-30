@@ -14,7 +14,7 @@ import {
 import { PluginsContext } from '../../../../components-data/plugin-context/context';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
-import { shouldPinPluginAppsInGallery } from '/imports/ui/components/apps-gallery/service';
+import { shouldPinAppsGalleryItem } from '/imports/ui/components/apps-gallery/service';
 
 const GenericContentPluginStateContainer = ((
   props: ExtensibleAreaComponentManagerProps,
@@ -35,12 +35,7 @@ const GenericContentPluginStateContainer = ((
     setPluginsExtensibleAreasAggregatedState,
   } = useContext(PluginsContext);
 
-  // True to pin all, array of ids to pin specific items, false or undefined to not pin any
-  const appsGalleryItemsToPin = shouldPinPluginAppsInGallery(pluginApi.pluginName);
-  const shouldPinAppsGalleryItem = useCallback((id: string) => {
-    return appsGalleryItemsToPin === true || (
-      Array.isArray(appsGalleryItemsToPin) && appsGalleryItemsToPin.includes(id));
-  }, [appsGalleryItemsToPin]);
+  const { pluginName } = pluginApi;
 
   const excludeById = useCallback(
     (arr1: PluginSdk.GenericContentInterface[], arr2: PluginSdk.GenericContentInterface[]) => {
@@ -87,6 +82,7 @@ const GenericContentPluginStateContainer = ((
   );
 
   useEffect(() => {
+    if (pluginName === undefined) return;
     // Change this plugin provided toolbar items
     extensibleAreaMap[uuid].genericContentItems = genericContentItems;
 
@@ -113,10 +109,10 @@ const GenericContentPluginStateContainer = ((
           contentFunction: genericContentItem.contentFunction,
           dataTest: genericContentItem.dataTest,
           uuid,
-          pluginName: pluginApi.pluginName,
+          pluginName,
         },
       });
-      if (shouldPinAppsGalleryItem(genericContentItem.id)) {
+      if (shouldPinAppsGalleryItem(pluginName, genericContentItem.id)) {
         layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_NAVIGATION_PIN_APP,
           value: {
@@ -136,7 +132,7 @@ const GenericContentPluginStateContainer = ((
       });
       layoutContextDispatch({ type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN, value: true });
     }
-  }, [genericContentItems, setPluginsExtensibleAreasAggregatedState, shouldPinAppsGalleryItem]);
+  }, [genericContentItems, setPluginsExtensibleAreasAggregatedState, pluginName]);
 
   pluginApi.setGenericContentItems = (items: PluginSdk.GenericContentInterface[]) => {
     const itemsWithId = items.map(generateItemWithId) as PluginSdk.GenericContentInterface[];

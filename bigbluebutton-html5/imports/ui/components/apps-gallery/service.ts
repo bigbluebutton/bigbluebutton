@@ -93,3 +93,16 @@ export const shouldPinPluginAppsInGallery = (pluginName?: string): boolean | str
 
   return false;
 };
+
+/**
+ * Determines whether a specific item in the apps gallery should be pinned.
+ *
+ * @param pluginName - The name of the plugin that owns the item.
+ * @param itemId - The ID of the item to check.
+ * @returns `true` if the item should be pinned, `false` otherwise.
+ */
+export const shouldPinAppsGalleryItem = (pluginName: string, itemId: string) => {
+  const appsGalleryItemsToPin = shouldPinPluginAppsInGallery(pluginName);
+  return appsGalleryItemsToPin === true || (
+    Array.isArray(appsGalleryItemsToPin) && appsGalleryItemsToPin.includes(itemId));
+};

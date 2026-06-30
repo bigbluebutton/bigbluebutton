@@ -4,7 +4,7 @@ import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { ExtensibleAreaComponentManagerProps, ExtensibleAreaComponentManager } from '../../types';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
-import { shouldPinPluginAppsInGallery } from '/imports/ui/components/apps-gallery/service';
+import { shouldPinAppsGalleryItem } from '/imports/ui/components/apps-gallery/service';
 
 const AppsGalleryPluginStateContainer = ((
   props: ExtensibleAreaComponentManagerProps,
@@ -21,12 +21,7 @@ const AppsGalleryPluginStateContainer = ((
     setAppsGalleryItems,
   ] = useState<PluginSdk.AppsGalleryInterface[]>([]);
 
-  // True to pin all, array of ids to pin specific items, false or undefined to not pin any
-  const appsGalleryItemsToPin = shouldPinPluginAppsInGallery(pluginApi.pluginName);
-  const shouldPinAppsGalleryItem = useCallback((id: string) => {
-    return appsGalleryItemsToPin === true || (
-      Array.isArray(appsGalleryItemsToPin) && appsGalleryItemsToPin.includes(id));
-  }, [appsGalleryItemsToPin]);
+  const { pluginName } = pluginApi;
 
   const excludeById = useCallback(
     (arr1: PluginSdk.GenericContentInterface[], arr2: PluginSdk.GenericContentInterface[]) => {
@@ -57,6 +52,7 @@ const AppsGalleryPluginStateContainer = ((
   );
 
   useEffect(() => {
+    if (pluginName === undefined) return;
     // Change this plugin provided apps gallery items
     extensibleAreaMap[uuid].appsGalleryItems = appsGalleryItems;
 
@@ -70,10 +66,10 @@ const AppsGalleryPluginStateContainer = ((
           onClick: agi.onClick,
           dataTest: agi.dataTest,
           uuid,
-          pluginName: pluginApi.pluginName,
+          pluginName,
         },
       });
-      if (shouldPinAppsGalleryItem(agi.id)) {
+      if (shouldPinAppsGalleryItem(pluginName, agi.id)) {
         layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_NAVIGATION_PIN_APP,
           value: {
@@ -84,7 +80,7 @@ const AppsGalleryPluginStateContainer = ((
         });
       }
     });
-  }, [appsGalleryItems]);
+  }, [appsGalleryItems, pluginName]);
 
   pluginApi.setAppsGalleryItems = (items: PluginSdk.AppsGalleryInterface[]) => {
     const itemsWithId = items.map(generateItemWithId) as PluginSdk.AppsGalleryInterface[];
