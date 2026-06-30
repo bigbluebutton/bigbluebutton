@@ -15,6 +15,14 @@ webhook:
 
 EOT
   ) > /etc/bigbluebutton/livekit.yaml
+fi
+
+# Create livekit-sip.yaml independently of livekit.yaml: on upgrades from a
+# pre-SIP install livekit.yaml already exists, so deriving the credentials from
+# it here keeps the SIP service from starting without a config file.
+if [ ! -f /etc/bigbluebutton/livekit-sip.yaml ]; then
+  API_KEY=${API_KEY:-$(yq -r '.webhook.api_key' /etc/bigbluebutton/livekit.yaml)}
+  API_SECRET=${API_SECRET:-$(yq -r ".keys.[\"$API_KEY\"]" /etc/bigbluebutton/livekit.yaml)}
 (umask 007; cat << EOT
 # This file will be merged with /usr/share/livekit-server/livekit-sip.yaml
 # on startup. Settings specified here will take  precedence.
@@ -24,55 +32,21 @@ api_secret: $API_SECRET
 
 EOT
   ) > /etc/bigbluebutton/livekit-sip.yaml
-  chown bigbluebutton:bigbluebutton /etc/bigbluebutton/livekit.yaml
-  chown bigbluebutton:bigbluebutton /etc/bigbluebutton/livekit-sip.yaml
-
-else
-  # If livekit.yaml exists, extract the API key and secret
-  API_KEY=$(yq -r '.keys | keys | .[0]' /etc/bigbluebutton/livekit.yaml)
-  API_SECRET=$(yq -r ".keys.[\"$API_KEY\"]" /etc/bigbluebutton/livekit.yaml)
 fi
 
-# Update bbb-webrtc-sfu's and recorder's overrides with the generated keys.
-# We're opting not to use the /usr/local file because it may be overwritten
-# on package upgrades. It also only runs when livekit installed and secrets
-# are not set on apps, so it won't overwrite any meaningful admin configs.
-# This part is *temporary* to facilitate testing while the pkg is experimental.
-# We MUST move it to the SFU/recorder packages (and use the /usr/local file instead)
-# after bbb-livekit becomes mandatory and bbb-webrtc-sfu/recorder depends on it.
-if [ ! -s /etc/bigbluebutton/bbb-webrtc-sfu/production.yml ]; then
-  mkdir -p /etc/bigbluebutton/bbb-webrtc-sfu
-  echo '{}' > /etc/bigbluebutton/bbb-webrtc-sfu/production.yml
-  chown bigbluebutton:bigbluebutton /etc/bigbluebutton/bbb-webrtc-sfu/production.yml
-fi
-
-# If key and secret are not the same as the ones in livekit.yaml, update them
-SFU_KEY=$(yq -r '.livekit.key' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml)
-SFU_SECRET=$(yq -r '.livekit.secret' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml)
-
-if [ "$SFU_KEY" = "null" ] || [ -z "$SFU_KEY" ] || [ "$SFU_KEY" != "$API_KEY" ] || \
-   [ "$SFU_SECRET" = "null" ] || [ -z "$SFU_SECRET" ] || [ "$SFU_SECRET" != "$API_SECRET" ]; then
-  yq -y -i ".livekit.key = \"$API_KEY\"" /etc/bigbluebutton/bbb-webrtc-sfu/production.yml
-  yq -y -i ".livekit.secret = \"$API_SECRET\"" /etc/bigbluebutton/bbb-webrtc-sfu/production.yml
-fi
-
-# For the recorder, add as env vars to /etc/default/bbb-webrtc-recorder
-if [ ! -f /etc/default/bbb-webrtc-recorder ]; then
-  touch /etc/default/bbb-webrtc-recorder
-  chown bigbluebutton:bigbluebutton /etc/default/bbb-webrtc-recorder
-fi
-
-if ! grep -q "BBBRECORDER_LIVEKIT_APIKEY" /etc/default/bbb-webrtc-recorder; then
-  echo "BBBRECORDER_LIVEKIT_APIKEY=$API_KEY" >> /etc/default/bbb-webrtc-recorder
-fi
-
-if ! grep -q "BBBRECORDER_LIVEKIT_APISECRET" /etc/default/bbb-webrtc-recorder; then
-  echo "BBBRECORDER_LIVEKIT_APISECRET=$API_SECRET" >> /etc/default/bbb-webrtc-recorder
-fi
+# Enforce ownership for already existing files.
+for f in /etc/bigbluebutton/livekit.yaml /etc/bigbluebutton/livekit-sip.yaml; do
+  if [ -f "$f" ]; then
+    chown bigbluebutton:bigbluebutton "$f"
+    chmod 0640 "$f"
+  fi
+done
 
 if [ ! -f /.dockerenv ]; then
   systemctl enable livekit-server.service
+  systemctl enable livekit-sip.service
   systemctl daemon-reload
   reloadService nginx
   startService livekit-server.service || echo "livekit-server service could not be registered or started"
+  startService livekit-sip.service || echo "livekit-sip service could not be registered or started"
 fi

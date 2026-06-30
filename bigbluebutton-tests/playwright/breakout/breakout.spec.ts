@@ -106,36 +106,40 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.joinRoom();
     });
 
-    test('Join Breakout room and share webcam', async ({ browser, context, page }, testInfo) => {
+    test('Join Breakout room and share webcam', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
       await join.create();
       await join.joinAndShareWebcam();
     });
 
-    test('Join Breakout room and share screen', async ({ browser, context, page, browserName }, testInfo) => {
-      test.skip(browserName === 'firefox', 'Firefox is too heavy for this test, needs improvement.');
-      const join = new Join(browser, context);
-      await join.initPages(page, testInfo);
-      await join.create();
-      await join.joinAndShareScreen();
-    });
+    test(
+      'Join Breakout room and share screen',
+      { tag: '@media' },
+      async ({ browser, context, page, browserName }, testInfo) => {
+        test.skip(browserName === 'firefox', 'Firefox is too heavy for this test, needs improvement.');
+        const join = new Join(browser, context);
+        await join.initPages(page, testInfo);
+        await join.create();
+        await join.joinAndShareScreen();
+      },
+    );
 
-    test('Join Breakout room and share Audio', async ({ browser, context, page }, testInfo) => {
+    test('Join Breakout room and share Audio', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
       await join.create();
       await join.joinAndShareAudio();
     });
 
-    test('Join Breakout room with Audio', async ({ browser, context, page }, testInfo) => {
+    test('Join Breakout room with Audio', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
       await join.create();
       await join.joinWithAudio();
     });
 
-    test('Join Breakout room with Audio and Video', async ({ browser, context, page }, testInfo) => {
+    test('Join Breakout room with Audio and Video', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
       await join.create();
