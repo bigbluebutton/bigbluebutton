@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import {
   colorText,
   colorBorder,
+  colorPrimary,
   colorDanger,
   colorGrayDark,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -178,7 +179,8 @@ const InputWrapper = styled.div`
   }
 
   &:focus-within {
-    border: 1px solid ${colorBorder};
+    border-color: ${colorPrimary};
+    box-shadow: 0 0 0 ${borderSize} ${colorPrimary};
   }
 `;
 
