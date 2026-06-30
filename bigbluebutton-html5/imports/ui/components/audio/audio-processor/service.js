@@ -208,7 +208,7 @@ const isWasmProcessorSupported = () => {
 };
 
 // load processor files, trigger Promise resolve when all done
-const loadWasmProcessorFiles = () => new Promise((resolve, reject) => {
+const loadWasmProcessorFiles = (settings) => new Promise((resolve, reject) => {
   // early check
   if (!isWasmProcessorSupported()) {
     reject(wasmProcessorUnsupportedError);
@@ -247,23 +247,21 @@ const loadWasmProcessorFiles = () => new Promise((resolve, reject) => {
   );
 
   // load wasm files and worklet
-  const pathMatch = window.location.pathname.match('^(.*)/html5client/?$');
-  const serverPathPrefix = pathMatch ? pathMatch[1] : '';
-  const basepath = `${serverPathPrefix}/html5client/wasm/`;
+  const { cdn, basename } = settings.public.app;
   const suffix = supportsSIMD ? '' : '-nosimd';
-  fetch(`${basepath}BBBA${suffix}-mapi.wasm`).then((resp) => {
+  fetch(`${cdn + basename}/BBBA${suffix}-mapi.wasm`).then((resp) => {
     resp.arrayBuffer().then((bytes) => {
       loadedFiles.wasmBlob = bytes;
       checkResolved();
     }).catch(catchHandler);
   }).catch(catchHandler);
-  fetch(`${basepath}BBBA${suffix}-mapi.js`).then((resp) => {
+  fetch(`${cdn + basename}/BBBA${suffix}-mapi.js`).then((resp) => {
     resp.text().then((text) => {
       loadedFiles.wasmJS = text;
       checkResolved();
     }).catch(catchHandler);
   }).catch(catchHandler);
-  fetch(`${basepath}mapi-proc.js`).then((resp) => {
+  fetch(`${cdn + basename}/mapi-proc.js`).then((resp) => {
     resp.text().then((text) => {
       loadedFiles.worklet = text;
       checkResolved();
