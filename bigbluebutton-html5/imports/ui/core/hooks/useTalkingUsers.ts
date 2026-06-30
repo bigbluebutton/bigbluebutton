@@ -10,8 +10,14 @@ import useTalkingUsersGraphql, {
   dispatchTalkingUserUpdate as dispatchTalkingUserUpdateGraphql,
   setTalkingUserLoading as setTalkingUserLoadingGraphql,
 } from './useTalkingUsersGraphql';
-import { TalkingUsersHookResult } from './types';
+import { VoiceItem } from './useTimedTalkingIndicator';
 import { VoiceActivityResponse } from '../graphql/queries/voiceActivity';
+
+export type TalkingUsersHookResult = {
+  error: undefined;
+  loading: boolean;
+  data: Record<string, VoiceItem>;
+};
 
 /**
  * Router hook that conditionally uses either BBB's GraphQL or LiveKit's

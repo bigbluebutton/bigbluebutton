@@ -1,33 +1,35 @@
-import { useEffect } from 'react';
 import { isEqual } from 'radash';
-import { makeVar, useReactiveVar } from '@apollo/client';
+import createReactiveRecordStateHook, {
+  PerKeyDataResult,
+  FullStateDataResult,
+} from './createReactiveRecordStateHook';
+
+type UseWhoIsUnmutedGraphqlHook = {
+  (): FullStateDataResult;
+  (userId: string): PerKeyDataResult;
+};
 
 const createUseWhoIsUnmutedGraphql = () => {
-  const countVar = makeVar(0);
-  const stateVar = makeVar<Record<string, boolean>>({});
-  const loadingVar = makeVar(true);
+  const {
+    useData,
+    useConsumersCount,
+    setLoading,
+    getState,
+    setState,
+  } = createReactiveRecordStateHook();
 
-  const setWhoIsUnmutedState = (newState: Record<string, boolean>) => stateVar(newState);
-
-  const setWhoIsUnmutedLoading = (loading: boolean) => loadingVar(loading);
-
-  const getWhoIsUnmuted = () => stateVar();
-
-  const dispatchWhoIsUnmutedUpdate = (data?: { userId: string; muted: boolean; }[]) => {
-    if (countVar() === 0) return;
-
+  const dispatchWhoIsUnmutedUpdate = (data?: { userId: string; muted: boolean }[]) => {
     if (!data) {
-      stateVar({});
+      setState({});
       return;
     }
 
-    const newUnmutedUsers = { ...getWhoIsUnmuted() };
+    const currentState = getState();
+    const newUnmutedUsers = { ...currentState };
 
     data.forEach((voice) => {
       const { userId, muted } = voice;
 
-      // Delete the user key instead of setting it to false
-      // to keep the state object small and easy to compare with isEqual
       if (muted) {
         delete newUnmutedUsers[userId];
         return;
@@ -36,49 +38,23 @@ const createUseWhoIsUnmutedGraphql = () => {
       newUnmutedUsers[userId] = true;
     });
 
-    if (isEqual(getWhoIsUnmuted(), newUnmutedUsers)) {
-      return;
-    }
-
-    setWhoIsUnmutedState(newUnmutedUsers);
+    if (!isEqual(currentState, newUnmutedUsers)) setState(newUnmutedUsers);
   };
 
-  const useWhoIsUnmutedConsumersCount = () => useReactiveVar(countVar);
-
-  const useWhoIsUnmutedGraphql = () => {
-    const unmutedUsers = useReactiveVar(stateVar);
-    const loading = useReactiveVar(loadingVar);
-
-    useEffect(() => {
-      countVar(countVar() + 1);
-      return () => {
-        countVar(countVar() - 1);
-        if (countVar() === 0) {
-          setWhoIsUnmutedState({});
-        }
-      };
-    }, []);
-
-    return {
-      data: unmutedUsers,
-      loading,
-    };
-  };
-
-  return [
-    useWhoIsUnmutedGraphql,
-    useWhoIsUnmutedConsumersCount,
-    setWhoIsUnmutedLoading,
+  return {
+    useWhoIsUnmutedGraphql: useData as UseWhoIsUnmutedGraphqlHook,
+    useWhoIsUnmutedConsumersCount: useConsumersCount,
+    setWhoIsUnmutedLoading: setLoading,
     dispatchWhoIsUnmutedUpdate,
-  ] as const;
+  };
 };
 
-const [
+const {
   useWhoIsUnmutedGraphql,
   useWhoIsUnmutedConsumersCount,
   setWhoIsUnmutedLoading,
   dispatchWhoIsUnmutedUpdate,
-] = createUseWhoIsUnmutedGraphql();
+} = createUseWhoIsUnmutedGraphql();
 
 export {
   useWhoIsUnmutedGraphql,
