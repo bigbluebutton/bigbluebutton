@@ -126,7 +126,17 @@ export interface AudioCaptions {
   mobile: boolean
   provider: string
   showInSidebarNavigation: boolean
+  microphoneAlert: MicrophoneAlert
   language: Language
+}
+
+export interface MicrophoneAlert {
+  enabled: boolean
+  helpLink: string
+  threshold: number
+  speakingThreshold: number
+  duration: number
+  interval: number
 }
 
 export interface Language {

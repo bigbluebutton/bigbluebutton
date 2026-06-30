@@ -5,7 +5,10 @@ import React, {
 } from 'react';
 // @ts-ignore - it has no types
 import { diff } from '@mconf/bbb-diff';
+// @ts-ignore - it has no types
+import hark from 'hark';
 import { useReactiveVar, useMutation } from '@apollo/client';
+import { defineMessages, useIntl } from 'react-intl';
 import { debounce } from '/imports/utils/debounce';
 import {
   SpeechRecognitionAPI,
@@ -29,6 +32,18 @@ import {
 import { SET_SPEECH_LOCALE } from '/imports/ui/core/graphql/mutations/userMutations';
 import { SUBMIT_TEXT } from './mutations';
 import useIsAudioConnected from '/imports/ui/components/audio/audio-graphql/hooks/useIsAudioConnected';
+import { notify } from '/imports/ui/services/notification';
+
+const intlMessages = defineMessages({
+  microphoneAlertMessage: {
+    id: 'app.audio.captions.speech.microphoneAlert.message',
+    description: 'Alert when WebSpeech is active but audio energy is detected without transcription',
+  },
+  microphoneAlertHelpLabel: {
+    id: 'app.audio.captions.speech.microphoneAlert.helpLabel',
+    description: 'Label for the knowledge base link in the microphone alert toast',
+  },
+});
 
 const THROTTLE_TIMEOUT = 200;
 
@@ -51,6 +66,7 @@ interface AudioCaptionsSpeechProps {
   locale: string;
   connected: boolean;
   muted: boolean;
+  inputStream: MediaStream | null;
 }
 const speechHasStarted = {
   started: false,
@@ -59,7 +75,9 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   locale,
   connected,
   muted,
+  inputStream,
 }) => {
+  const intl = useIntl();
   const resultRef = useRef({
     id: generateId(),
     transcript: '',
@@ -72,6 +90,11 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
   const speechRecognitionRef = useRef<ReturnType<typeof SpeechRecognitionAPI>>(null);
   const prevIdRef = useRef('');
   const prevTranscriptRef = useRef('');
+  const lastTranscriptionAtRef = useRef<number>(0);
+  const alertShownRef = useRef<boolean>(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const harkInstanceRef = useRef<any>(null);
+  const speakingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [setSpeechLocaleMutation] = useMutation(SET_SPEECH_LOCALE);
   const isAudioTranscriptionEnabled = useIsAudioTranscriptionEnabled();
   const fixedLocaleResult = useFixedLocale();
@@ -205,6 +228,9 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
 
     logger.debug('Transcription event', resultIndex, results, target);
 
+    lastTranscriptionAtRef.current = Date.now();
+    alertShownRef.current = false;
+
     const { id } = resultRef.current;
 
     const { transcript } = results[resultIndex][0];
@@ -334,6 +360,72 @@ const AudioCaptionsSpeech: React.FC<AudioCaptionsSpeechProps> = ({
     }
   }, [connected, muted, locale]);
 
+  useEffect(() => {
+    const MICROPHONE_ALERT_CONFIG = window.meetingClientSettings.public.app.audioCaptions.microphoneAlert;
+    const {
+      enabled,
+      interval,
+      threshold,
+      speakingThreshold,
+      duration,
+      helpLink,
+    } = MICROPHONE_ALERT_CONFIG;
+
+    if (
+      !enabled
+      || !isWebSpeechApi()
+      || !isAudioTranscriptionEnabled
+      || locale === ''
+      || muted
+      || !connected
+      || !inputStream
+    ) {
+      return () => {};
+    }
+
+    alertShownRef.current = false;
+
+    harkInstanceRef.current = hark(inputStream, { interval, threshold });
+
+    harkInstanceRef.current.on('speaking', () => {
+      if (alertShownRef.current) return;
+      if (speakingTimerRef.current) return;
+
+      const speakingStartedAt = Date.now();
+      speakingTimerRef.current = setTimeout(() => {
+        if (alertShownRef.current) return;
+        if (lastTranscriptionAtRef.current >= speakingStartedAt) return;
+
+        alertShownRef.current = true;
+        const message = intl.formatMessage(intlMessages.microphoneAlertMessage);
+        const options: Record<string, unknown> = { autoClose: duration || false };
+        if (helpLink) {
+          options.helpLink = helpLink;
+          options.helpLabel = intl.formatMessage(intlMessages.microphoneAlertHelpLabel);
+        }
+        notify(message, 'warning', 'warning', options);
+      }, speakingThreshold);
+    });
+
+    harkInstanceRef.current.on('stopped_speaking', () => {
+      if (speakingTimerRef.current) {
+        clearTimeout(speakingTimerRef.current);
+        speakingTimerRef.current = null;
+      }
+    });
+
+    return () => {
+      if (speakingTimerRef.current) {
+        clearTimeout(speakingTimerRef.current);
+        speakingTimerRef.current = null;
+      }
+      if (harkInstanceRef.current) {
+        harkInstanceRef.current.stop();
+        harkInstanceRef.current = null;
+      }
+    };
+  }, [connected, muted, inputStream, locale, isAudioTranscriptionEnabled]);
+
   return null;
 };
 
@@ -341,6 +433,8 @@ const AudioCaptionsSpeechContainer: React.FC = () => {
   /* eslint no-underscore-dangle: 0 */
   // @ts-ignore
   const isMuted = useReactiveVar(AudioManager._isMuted.value) as boolean;
+  // @ts-ignore
+  const inputStream = useReactiveVar(AudioManager._inputStream) as MediaStream | null;
   const isConnected = useIsAudioConnected();
 
   const {
@@ -359,6 +453,7 @@ const AudioCaptionsSpeechContainer: React.FC = () => {
       locale={currentUser.speechLocale ?? ''}
       connected={isConnected}
       muted={isMuted}
+      inputStream={inputStream}
     />
   );
 };

@@ -98,6 +98,23 @@ public:
       # If true, the transcriptions and captions settings are displayed as an
       # entry in the sidebar navigation rather than a button in the actions bar
       showInSidebarNavigation: false
+      # Alert shown when WebSpeech is enabled and the user is on floor but nothing is being
+      # transcribed, suggesting a wrong microphone device or noisy environment.
+      microphoneAlert:
+        enabled: true
+        # URL to a knowledge base article about microphone settings (empty = no link shown)
+        helpLink: ''
+        # Audio energy threshold (dB) used to detect that the user is speaking.
+        # More negative values are more sensitive (e.g. -60 picks up quieter audio).
+        threshold: -50
+        # How long (ms) the user must be speaking with no transcription result
+        # before the alert is triggered.
+        speakingThreshold: 5000
+        # How long (ms) the alert toast stays on screen before auto-dismissing.
+        # Set to 0 to require manual dismissal.
+        duration: 10000
+        # How often (ms) the audio energy is checked to determine if the user is speaking.
+        interval: 200
       language:
         # Available languages will depend on the transcription service
         # Google: https://cloud.google.com/speech-to-text/docs/speech-to-text-supported-languages
