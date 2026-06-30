@@ -251,6 +251,7 @@ export const elements = {
   usersList: 'div[data-test="userList"]',
   selectCameraQualityId: 'select[id="setQuality"]',
   virtualBackgrounds: 'div[data-test="virtualBackground"]',
+  virtualBackgroundToggle: 'input[data-test="virtualBackgroundToggle"]',
 
   // Timer
   timerContainer: 'div[data-test="timerContainer"]',
