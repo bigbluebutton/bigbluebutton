@@ -1,0 +1,9 @@
+[
+  {
+    "name": "plugin-pick-random-user",
+    "repo": "bigbluebutton/bbb-plugin-pick-random-user",
+    "ref": "v0.0.x",
+    "servePath": "assets/plugins/pick-random-user-plugin",
+    "flakyTests": []
+  }
+]

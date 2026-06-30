@@ -2,7 +2,7 @@
 
 This directory contains GitHub Actions workflows and related configuration files.
 
-## ci-tested-plugins.yml
+## ci-tested-plugins.json
 
 Defines the list of official BigBlueButton plugins that are cloned, built, and tested as part of the automated CI pipeline (`workflows/automated-tests.yml`).
 
@@ -20,12 +20,17 @@ To add a new official plugin to CI testing, add an entry to this file following 
 
 ### Example
 
-```yaml
-- name: plugin-pick-random-user
-  repo: bigbluebutton/bbb-plugin-pick-random-user
-  ref: v0.0.x
-  servePath: assets/plugins/pick-random-user-plugin
-  flakyTests:
-    - My Suite › should do something when button is clicked
-    - Another Suite › should handle edge case correctly
+```json
+[
+  {
+    "name": "plugin-pick-random-user",
+    "repo": "bigbluebutton/bbb-plugin-pick-random-user",
+    "ref": "v0.0.x",
+    "servePath": "assets/plugins/pick-random-user-plugin",
+    "flakyTests": [
+      "My Suite › should do something when button is clicked",
+      "Another Suite › should handle edge case correctly"
+    ]
+  }
+]
 ```
