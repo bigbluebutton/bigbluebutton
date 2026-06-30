@@ -1,10 +1,14 @@
 import * as redis from 'redis';
-import { REDIS_HOST, REDIS_PORT } from '../config';
+import { REDIS_HOST, REDIS_PORT, REDIS_PASSWORD } from '../config';
 
 export const createRedisClient = () => {
+  // Build Redis URL, including password if provided.
+  const redisPassword = REDIS_PASSWORD ? `:${encodeURIComponent(REDIS_PASSWORD)}@` : '';
+  const redisUrl = `redis://${redisPassword}${REDIS_HOST}:${REDIS_PORT}`;
+
   // Create Redis Client with the specified options.
   const redisClient = redis.createClient({
-    url: `redis://${REDIS_HOST}:${REDIS_PORT}`, // Construct URL from host and port.
+    url: redisUrl, // Construct URL from host, port, and optional password.
     disableOfflineQueue: true, // Disable offline queueing of commands.
     name: 'bbb-graphql-actions', // Assign a name to this client.
     socket: {
