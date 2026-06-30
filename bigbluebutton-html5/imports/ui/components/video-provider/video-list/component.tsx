@@ -11,6 +11,7 @@ import AutoplayOverlay from '/imports/ui/components/media/autoplay-overlay/compo
 import logger from '/imports/startup/client/logger';
 import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import VideoService from '/imports/ui/components/video-provider/service';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { VideoItem } from '/imports/ui/components/video-provider/types';
@@ -284,6 +285,8 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     const { currentVideoPageIndex, numberOfPages } = this.props;
 
     if (!this.grid || typeof this.grid.animate !== 'function') return;
+    const animations = getSettingsSingletonInstance()?.application?.animations ?? true;
+    if (!animations) return;
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const forward = currentVideoPageIndex === (prevIndex + 1) % numberOfPages;

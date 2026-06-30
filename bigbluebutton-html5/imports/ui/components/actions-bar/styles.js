@@ -83,6 +83,15 @@ const PresentationButtonsWrapper = styled.div`
   gap: .2rem;
   align-items: center;
   height: 100%;
+
+  @media ${smallOnly} {
+    height: 2.5rem;
+    margin-left: ${smPaddingX};
+    [dir="rtl"] & {
+      margin-left: 0;
+      margin-right: ${smPaddingX};
+    }
+  }
 `;
 
 const Divider = styled.div`
