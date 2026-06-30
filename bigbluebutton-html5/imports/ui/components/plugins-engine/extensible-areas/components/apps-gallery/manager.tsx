@@ -4,6 +4,7 @@ import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { ExtensibleAreaComponentManagerProps, ExtensibleAreaComponentManager } from '../../types';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
+import { shouldPinAppsGalleryItem } from '/imports/ui/components/apps-gallery/service';
 
 const AppsGalleryPluginStateContainer = ((
   props: ExtensibleAreaComponentManagerProps,
@@ -19,6 +20,8 @@ const AppsGalleryPluginStateContainer = ((
     appsGalleryItems,
     setAppsGalleryItems,
   ] = useState<PluginSdk.AppsGalleryInterface[]>([]);
+
+  const { pluginName } = pluginApi;
 
   const excludeById = useCallback(
     (arr1: PluginSdk.GenericContentInterface[], arr2: PluginSdk.GenericContentInterface[]) => {
@@ -49,11 +52,12 @@ const AppsGalleryPluginStateContainer = ((
   );
 
   useEffect(() => {
+    if (pluginName === undefined) return;
     // Change this plugin provided apps gallery items
     extensibleAreaMap[uuid].appsGalleryItems = appsGalleryItems;
 
     (appsGalleryItems as PluginSdk.AppsGalleryEntry[]).forEach((agi) => {
-      return layoutContextDispatch({
+      layoutContextDispatch({
         type: ACTIONS.REGISTER_SIDEBAR_APP,
         value: {
           id: agi.id,
@@ -62,11 +66,21 @@ const AppsGalleryPluginStateContainer = ((
           onClick: agi.onClick,
           dataTest: agi.dataTest,
           uuid,
-          pluginName: pluginApi.pluginName,
+          pluginName,
         },
       });
+      if (shouldPinAppsGalleryItem(pluginName, agi.id)) {
+        layoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_NAVIGATION_PIN_APP,
+          value: {
+            id: agi.id,
+            pin: true,
+            isPluginDefault: true,
+          },
+        });
+      }
     });
-  }, [appsGalleryItems]);
+  }, [appsGalleryItems, pluginName]);
 
   pluginApi.setAppsGalleryItems = (items: PluginSdk.AppsGalleryInterface[]) => {
     const itemsWithId = items.map(generateItemWithId) as PluginSdk.AppsGalleryInterface[];
