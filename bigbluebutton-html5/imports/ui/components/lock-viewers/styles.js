@@ -90,7 +90,7 @@ const SettingsTabSelector = styled(Tab)`
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  font-size: 0.9rem;
+  font-size: 1.125rem;
   flex: none;
   padding: 0.85rem;
   color: ${colorGrayDark};

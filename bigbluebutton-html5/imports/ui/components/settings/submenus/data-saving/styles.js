@@ -36,7 +36,7 @@ const FormElementRight = styled(Styled.FormElementRight)`
 
 const Label = styled(Styled.Label)`
   margin-left: 0.5rem;
-  font-size: 0.9rem;
+  font-size: 1rem;
 `;
 
 export default {

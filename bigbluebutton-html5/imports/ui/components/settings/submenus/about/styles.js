@@ -13,7 +13,7 @@ const Content = styled.div`
 
 const Text = styled.p`
   margin: 8px 0;
-  font-size: 14px;
+  font-size: 1rem;
   color: #333;
 `;
 
