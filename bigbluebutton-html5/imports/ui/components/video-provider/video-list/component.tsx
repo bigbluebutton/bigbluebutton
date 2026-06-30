@@ -74,6 +74,9 @@ const findOptimalGrid = (
 
 const ASPECT_RATIO = 4 / 3;
 const MOBILE_MAX_DOTS = 10;
+const MOBILE_SWIPE_THRESHOLD = 50;
+const MOBILE_PAGE_ANIM_MS = 220;
+const MOBILE_PAGE_ANIM_OFFSET = 24;
 // const ACTION_NAME_BACKGROUND = 'blurBackground';
 
 interface VideoListProps {
@@ -118,6 +121,10 @@ class VideoList extends Component<VideoListProps, VideoListState> {
 
   private autoplayWasHandled: boolean;
 
+  private touchStartX: number | null;
+
+  private touchStartY: number | null;
+
   constructor(props: VideoListProps) {
     super(props);
 
@@ -144,7 +151,11 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     this.setOptimalGrid = this.setOptimalGrid.bind(this);
     this.handleAllowAutoplay = this.handleAllowAutoplay.bind(this);
     this.handlePlayElementFailed = this.handlePlayElementFailed.bind(this);
+    this.handleTouchStart = this.handleTouchStart.bind(this);
+    this.handleTouchEnd = this.handleTouchEnd.bind(this);
     this.autoplayWasHandled = false;
+    this.touchStartX = null;
+    this.touchStartY = null;
   }
 
   componentDidMount() {
@@ -155,7 +166,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
 
   componentDidUpdate(prevProps: VideoListProps) {
     const {
-      layoutType, cameraDock, streams, focusedId, numberOfPages,
+      layoutType, cameraDock, streams, focusedId, numberOfPages, currentVideoPageIndex,
     } = this.props;
     const { width: cameraDockWidth, height: cameraDockHeight } = cameraDock;
     const {
@@ -164,6 +175,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       streams: prevStreams,
       focusedId: prevFocusedId,
       numberOfPages: prevNumberOfPages,
+      currentVideoPageIndex: prevVideoPageIndex,
     } = prevProps;
     const { width: prevCameraDockWidth, height: prevCameraDockHeight } = prevCameraDock;
 
@@ -174,6 +186,12 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       || numberOfPages !== prevNumberOfPages
       || streams.length !== prevStreams.length) {
       this.handleCanvasResize();
+    }
+
+    if (deviceInfo.isMobile
+      && numberOfPages > 1
+      && currentVideoPageIndex !== prevVideoPageIndex) {
+      this.playPageTransition(prevVideoPageIndex);
     }
   }
 
@@ -221,6 +239,73 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       }, 'Prompting user for action to play video media');
       this.setState({ autoplayBlocked: true });
     }
+  }
+
+  handleTouchStart(e: React.TouchEvent<HTMLDivElement>) {
+    if (e.touches.length !== 1) {
+      this.touchStartX = null;
+      this.touchStartY = null;
+      return;
+    }
+    const touch = e.touches[0];
+    this.touchStartX = touch.clientX;
+    this.touchStartY = touch.clientY;
+  }
+
+  handleTouchEnd(e: React.TouchEvent<HTMLDivElement>) {
+    const { numberOfPages } = this.props;
+
+    if (this.touchStartX === null || this.touchStartY === null) return;
+    if (numberOfPages <= 1) {
+      this.touchStartX = null;
+      this.touchStartY = null;
+      return;
+    }
+
+    const touch = e.changedTouches[0];
+    const deltaX = touch.clientX - this.touchStartX;
+    const deltaY = touch.clientY - this.touchStartY;
+
+    this.touchStartX = null;
+    this.touchStartY = null;
+
+    if (Math.abs(deltaX) < MOBILE_SWIPE_THRESHOLD || Math.abs(deltaX) <= Math.abs(deltaY)) {
+      return;
+    }
+
+    if (deltaX < 0) {
+      VideoService.getNextVideoPage();
+    } else {
+      VideoService.getPreviousVideoPage();
+    }
+  }
+
+  playPageTransition(prevIndex: number) {
+    const { currentVideoPageIndex, numberOfPages } = this.props;
+
+    if (!this.grid || typeof this.grid.animate !== 'function') return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const forward = currentVideoPageIndex === (prevIndex + 1) % numberOfPages;
+    const backward = currentVideoPageIndex === (((prevIndex - 1) % numberOfPages) + numberOfPages) % numberOfPages;
+    let isNext: boolean;
+    if (forward) {
+      isNext = true;
+    } else if (backward) {
+      isNext = false;
+    } else {
+      isNext = currentVideoPageIndex > prevIndex;
+    }
+
+    const fromX = isNext ? MOBILE_PAGE_ANIM_OFFSET : -MOBILE_PAGE_ANIM_OFFSET;
+
+    this.grid.animate(
+      [
+        { opacity: 0, transform: `translateX(${fromX}px)` },
+        { opacity: 1, transform: 'translateX(0)' },
+      ],
+      { duration: MOBILE_PAGE_ANIM_MS, easing: 'ease-out' },
+    );
   }
 
   handleCanvasResize() {
@@ -541,6 +626,8 @@ class VideoList extends Component<VideoListProps, VideoListState> {
         style={{
           minHeight: 'inherit',
         }}
+        onTouchStart={isMobile ? this.handleTouchStart : undefined}
+        onTouchEnd={isMobile ? this.handleTouchEnd : undefined}
       >
         {!isMobile && this.renderPreviousPageButton()}
 
