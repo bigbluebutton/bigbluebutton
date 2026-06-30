@@ -797,17 +797,19 @@ export const useVideoStreams = () => {
       });
     }
 
-    const sorted = [...candidates].sort(sortMobile);
+    const sorted = [...candidates].sort((a, b) => sortMobile(a, b, moderatorFirst));
     const total = sorted.length;
     const chunkIndex = currentVideoPageIndex * myPageSize;
     const paginated = myPageSize > 0
       ? sorted.slice(chunkIndex, chunkIndex + myPageSize)
       : sorted;
 
-    const localOffPage = sorted
-      .filter((vs, index) => videoService.isLocalStream(('stream' in vs) ? vs.stream : '')
-        && (index < chunkIndex || index >= chunkIndex + myPageSize))
-      .map((vs) => ({ ...vs, render: false }));
+    const localOffPage = myPageSize > 0
+      ? sorted
+        .filter((vs, index) => videoService.isLocalStream(('stream' in vs) ? vs.stream : '')
+          && (index < chunkIndex || index >= chunkIndex + myPageSize))
+        .map((vs) => ({ ...vs, render: false }))
+      : [];
 
     return {
       streams: [...paginated, ...localOffPage] as StreamItem[],

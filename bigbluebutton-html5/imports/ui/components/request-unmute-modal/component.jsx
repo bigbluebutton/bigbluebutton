@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, FormattedMessage } from 'react-intl';
 import Styled from './styles';
-import deviceInfo from '/imports/utils/deviceInfo';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -45,7 +45,8 @@ const RequestUnmuteComponent = ({
     alert.play();
   }, []);
 
-  const denyLabel = deviceInfo.isMobile
+  const isSmallViewport = window.matchMedia(smallOnly).matches;
+  const denyLabel = isSmallViewport
     ? intl.formatMessage(intlMessages.denyButtonLabelMobile)
     : intl.formatMessage(intlMessages.denyButtonLabel);
 
