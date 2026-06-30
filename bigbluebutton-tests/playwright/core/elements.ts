@@ -587,6 +587,9 @@ export const elements = {
   wbMoveToFront: 'button[data-testid="menu-item.bring-to-front"]',
   wbPaste: 'button[data-testid="menu-item.paste"]',
   wbTextTrue: 'div[data-hastext="true"]',
+  // tldraw renders this textarea only while a shape is actively being edited
+  // (select.editing_shape state) - used to gate on "is editing", not just "has text"
+  wbEditingTextArea: 'textarea.tl-text-input',
   wbDrawnArrow: 'div[data-shape-type="arrow"]',
   wbAutoHideToggleBtn: 'input[data-test="autoHideToolbarToggleBtn"]',
   turnInfiniteWhiteboardOn: 'button[data-test="turnInfiniteWhiteboardOn"]',
