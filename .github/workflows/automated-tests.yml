@@ -555,13 +555,13 @@ jobs:
           | while IFS=$'\t' read -r NAME REPO REF; do
             echo "Downloading $NAME from $REPO at ref $REF"
             mkdir -p "bigbluebutton-tests/official-plugins/$NAME"
-            wget -q -O "/tmp/${NAME}.tar.gz" "https://github.com/${REPO}/archive/${REF}.tar.gz"
+            wget --no-verbose -O "/tmp/${NAME}.tar.gz" "https://github.com/${REPO}/archive/${REF}.tar.gz"
             tar -xzf "/tmp/${NAME}.tar.gz" -C "bigbluebutton-tests/official-plugins/$NAME" --strip-components=1
           done
       - name: Build and deploy official plugins
         run: |
-          jq -r '.[] | [.name, .repo, .ref, .servePath] | @tsv' .github/ci-tested-plugins.json \
-          | while IFS=$'\t' read -r NAME REPO REF SERVE_PATH; do
+          jq -r '.[] | [.name, .servePath] | @tsv' .github/ci-tested-plugins.json \
+          | while IFS=$'\t' read -r NAME SERVE_PATH; do
             echo "Building $NAME"
             (
               cd "bigbluebutton-tests/official-plugins/$NAME"
@@ -602,14 +602,14 @@ jobs:
                   | sed 's/ › /.*/g'
               }
 
-              {
+              FLAKY_PATTERN="$({
                 if [ -f "flaky-tests.txt" ]; then
-                  normalize_flaky < flaky-tests.txt
+                  normalize_flaky < flaky-tests.txt || true
                 fi
                 jq -r --arg name "$NAME" '.[] | select(.name == $name) | .flakyTests // [] | .[]' \
                   "$GITHUB_WORKSPACE/.github/ci-tested-plugins.json" \
                   | normalize_flaky
-              } | sort -u | paste -sd'|' - | read -r FLAKY_PATTERN || true
+              } | sort -u | paste -sd'|' -)"
 
               if [ -n "$FLAKY_PATTERN" ]; then
                 npm run test-chromium-ci -- --grep-invert "$FLAKY_PATTERN"
