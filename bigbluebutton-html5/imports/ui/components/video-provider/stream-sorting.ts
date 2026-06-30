@@ -197,37 +197,47 @@ const pinnedTimeItem = (s: VideoItem): number => {
   return pinnedTime ? new Date(pinnedTime).getTime() : 0;
 };
 
-export const sortMobile = (s1: VideoItem, s2: VideoItem, moderatorFirst = false) => {
-  const p1 = isPinnedItem(s1);
-  const p2 = isPinnedItem(s2);
-  if (p1 && !p2) return -1;
-  if (!p1 && p2) return 1;
-  if (p1 && p2) {
-    if (moderatorFirst) {
-      const m1 = isModeratorItem(s1);
-      const m2 = isModeratorItem(s2);
-      if (m1 !== m2) return m1 ? -1 : 1;
-    }
-    const pinnedDiff = pinnedTimeItem(s2) - pinnedTimeItem(s1);
-    if (pinnedDiff !== 0) return pinnedDiff;
+const byFlag = (s1: VideoItem, s2: VideoItem, pred: (s: VideoItem) => unknown): number => {
+  const f1 = !!pred(s1);
+  const f2 = !!pred(s2);
+  if (f1 === f2) return 0;
+  return f1 ? -1 : 1;
+};
+
+const comparePinned = (s1: VideoItem, s2: VideoItem, moderatorFirst: boolean): number => {
+  if (moderatorFirst) {
+    const mod = byFlag(s1, s2, isModeratorItem);
+    if (mod !== 0) return mod;
   }
+  return pinnedTimeItem(s2) - pinnedTimeItem(s1);
+};
 
-  const l1 = isLocalItem(s1);
-  const l2 = isLocalItem(s2);
-  if (l1 && !l2) return -1;
-  if (!l1 && l2) return 1;
-
+const compareLastFloor = (s1: VideoItem, s2: VideoItem): number => {
   const t1 = lastFloorTimeItem(s1);
   const t2 = lastFloorTimeItem(s2);
   if (t2 < t1) return -1;
   if (t2 > t1) return 1;
+  return 0;
+};
 
-  const c1 = hasCameraItem(s1);
-  const c2 = hasCameraItem(s2);
-  if (c1 && !c2) return -1;
-  if (!c1 && c2) return 1;
+export const sortMobile = (s1: VideoItem, s2: VideoItem, moderatorFirst = false) => {
+  const pinned = byFlag(s1, s2, isPinnedItem);
+  if (pinned !== 0) return pinned;
+  if (isPinnedItem(s1) && isPinnedItem(s2)) {
+    const tieBreak = comparePinned(s1, s2, moderatorFirst);
+    if (tieBreak !== 0) return tieBreak;
+  }
 
-  return UserListService.sortUsersByName(s1 as StreamItem, s2 as StreamItem);
+  const local = byFlag(s1, s2, isLocalItem);
+  if (local !== 0) return local;
+
+  const floor = compareLastFloor(s1, s2);
+  if (floor !== 0) return floor;
+
+  const camera = byFlag(s1, s2, hasCameraItem);
+  if (camera !== 0) return camera;
+
+  return UserListService.sortUsersByName(s1, s2);
 };
 
 const SORTING_METHODS = Object.freeze({

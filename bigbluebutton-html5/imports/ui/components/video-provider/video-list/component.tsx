@@ -83,6 +83,7 @@ const MOBILE_PAGE_ANIM_OFFSET = 24;
 interface VideoListProps {
   pluginUserCameraHelperPerPosition: UserCameraHelperAreas;
   layoutType: string;
+  isRTL: boolean;
   layoutContextDispatch: (...args: unknown[]) => void;
   numberOfPages: number;
   currentVideoPageIndex: number;
@@ -254,7 +255,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
   }
 
   handleTouchEnd(e: React.TouchEvent<HTMLDivElement>) {
-    const { numberOfPages } = this.props;
+    const { numberOfPages, isRTL } = this.props;
 
     if (this.touchStartX === null || this.touchStartY === null) return;
     if (numberOfPages <= 1) {
@@ -274,7 +275,9 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       return;
     }
 
-    if (deltaX < 0) {
+    // In RTL the horizontal axis is mirrored, so swap the swipe direction.
+    const goToNextPage = isRTL ? deltaX > 0 : deltaX < 0;
+    if (goToNextPage) {
       VideoService.getNextVideoPage();
     } else {
       VideoService.getPreviousVideoPage();
@@ -287,7 +290,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     if (!this.grid || typeof this.grid.animate !== 'function') return;
     const animations = getSettingsSingletonInstance()?.application?.animations ?? true;
     if (!animations) return;
-    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
 
     const forward = currentVideoPageIndex === (prevIndex + 1) % numberOfPages;
     const backward = currentVideoPageIndex === (((prevIndex - 1) % numberOfPages) + numberOfPages) % numberOfPages;
@@ -618,7 +621,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     } = this.props;
     const { optimalGrid, autoplayBlocked } = this.state;
     const { position } = cameraDock;
-    const isMobile = deviceInfo.isMobile;
+    const { isMobile } = deviceInfo;
 
     return (
       <Styled.VideoCanvas

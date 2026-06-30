@@ -12,7 +12,6 @@ import {
 import {
   jumboPaddingY,
   $2xlPadding,
-  borderSize,
   borderSizeSmall,
   appsButtonsBorderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';

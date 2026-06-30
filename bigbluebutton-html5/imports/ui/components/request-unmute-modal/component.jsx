@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, FormattedMessage } from 'react-intl';
 import Styled from './styles';
@@ -45,7 +45,17 @@ const RequestUnmuteComponent = ({
     alert.play();
   }, []);
 
-  const isSmallViewport = window.matchMedia(smallOnly).matches;
+  const [isSmallViewport, setIsSmallViewport] = useState(
+    () => globalThis.matchMedia(smallOnly).matches,
+  );
+
+  useEffect(() => {
+    const mediaQuery = globalThis.matchMedia(smallOnly);
+    const handleChange = (event) => setIsSmallViewport(event.matches);
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
   const denyLabel = isSmallViewport
     ? intl.formatMessage(intlMessages.denyButtonLabelMobile)
     : intl.formatMessage(intlMessages.denyButtonLabel);
