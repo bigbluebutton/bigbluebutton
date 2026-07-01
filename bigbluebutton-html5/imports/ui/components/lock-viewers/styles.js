@@ -305,45 +305,6 @@ const MaterialSwitch = materialStyled(Switch)(({ theme }) => ({
   },
 }));
 
-const LobbyInputWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  border-radius: 0.75rem;
-  overflow: hidden;
-  border: 1px solid ${colorBorder};
-`;
-
-const LobbyInput = styled.input`
-  flex: 1;
-  border: none;
-  padding: 0.75rem 1rem;
-  font-size: ${fontSizeBase};
-  outline: none;
-  background: ${colorWhite};
-  color: ${colorText};
-
-  &::placeholder {
-    color: ${colorGrayLabel};
-  }
-`;
-
-const LobbyInputSendButton = styled.button`
-  background: ${colorPrimary};
-  color: ${colorWhite};
-  border: none;
-  padding: 0.75rem 1rem;
-  cursor: pointer;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &:hover {
-    opacity: 0.9;
-  }
-`;
-
 const CheckboxList = styled.div`
   display: flex;
   flex-direction: column;
@@ -420,9 +381,6 @@ export default {
   SwitchRow,
   SwitchLabel,
   MaterialSwitch,
-  LobbyInputWrapper,
-  LobbyInput,
-  LobbyInputSendButton,
   CheckboxList,
   CheckboxRow,
   CheckboxLabel,
