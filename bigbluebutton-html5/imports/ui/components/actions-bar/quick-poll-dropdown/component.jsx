@@ -341,7 +341,7 @@ const QuickPollDropdown = (props) => {
     poll,
   }));
 
-  const pollQuestion = (question?.length > 0 && question[0]?.replace(/ *\([^)]*\) */g, '')) || '';
+  const pollQuestion = (question?.length > 0 && question[0]) || '';
 
   const slideId = currentSlide.id;
 
