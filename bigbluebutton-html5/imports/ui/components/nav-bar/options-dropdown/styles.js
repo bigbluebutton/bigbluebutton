@@ -6,6 +6,7 @@ import {
   btnPrimaryColor,
   btnPrimaryActiveBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
+import { mobileNavbarButtonSize } from '/imports/ui/stylesheets/styled-components/general';
 
 const DropdownButton = styled(Button)`
   ${({ state }) => state === 'open' && `
@@ -18,6 +19,32 @@ const DropdownButton = styled(Button)`
     margin: 0;
     z-index: 3;
   `}
+
+  @media ${smallOnly} {
+    & > span:first-of-type {
+      width: ${mobileNavbarButtonSize};
+      min-width: ${mobileNavbarButtonSize};
+      height: ${mobileNavbarButtonSize};
+      padding: 0 !important;
+      box-sizing: border-box;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    & > span:first-of-type,
+    & > span:first-of-type:hover,
+    & > span:first-of-type:focus,
+    & > span:first-of-type:active,
+    &:hover > span:first-of-type,
+    &:focus > span:first-of-type,
+    &:active > span:first-of-type {
+      background: transparent !important;
+      background-color: transparent !important;
+      box-shadow: none !important;
+    }
+  }
 `;
 
 const AwayOption = styled.div`

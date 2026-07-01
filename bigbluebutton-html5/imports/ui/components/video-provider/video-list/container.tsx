@@ -31,6 +31,7 @@ interface VideoListContainerProps {
 
 const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
   const layoutType = layoutSelect((i: Layout) => i.layoutType);
+  const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const layoutContextDispatch = layoutDispatch();
   const {
     streams,
@@ -106,6 +107,7 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
         <VideoList
           pluginUserCameraHelperPerPosition={pluginUserCameraHelperPerPosition}
           layoutType={layoutType}
+          isRTL={isRTL}
           setUserCamerasRequestedFromPlugin={setUserCamerasRequestedFromPlugin}
           layoutContextDispatch={layoutContextDispatch}
           numberOfPages={numberOfPages}

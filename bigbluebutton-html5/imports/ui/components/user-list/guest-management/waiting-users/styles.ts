@@ -6,6 +6,7 @@ import {
   colorGray,
   colorWhite,
   colorDanger,
+  colorSuccess,
   colorGrayLighter,
   colorGrayLightest,
   colorText,
@@ -175,23 +176,23 @@ export const AcceptDenyButtonsContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0px 0.5rem 0.5rem;
+
+  @media ${smallOnly} {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
 `;
 
 const AcceptDenyButtonText = styled.div`
   font-size: ${fontSizeSmall};
   font-weight: ${textFontWeight};
   line-height: 120%;
-  text-decoration-line: underline;
-  text-decoration-style: solid;
-  text-decoration-skip-ink: none;
-  text-decoration-thickness: auto;
-  text-underline-offset: auto;
-  text-underline-position: from-font;
 `;
 
 const AcceptAllButton = styled.div`
   display: flex;
-  color: ${colorPrimary};
+  color: ${colorSuccess};
   align-items: center;
   gap: 0.5rem;
   font-size: ${fontSizeSmall};
@@ -421,6 +422,13 @@ export const ActionButtonsWrapper = styled.div`
   display: inline-flex;
   align-items: center;
   gap: 1.5rem;
+
+  @media ${smallOnly} {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
 `;
 
 export default {

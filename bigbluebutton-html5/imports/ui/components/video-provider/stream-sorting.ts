@@ -1,4 +1,4 @@
-import { StreamItem } from './types';
+import { StreamItem, VideoItem } from './types';
 import UserListService from '/imports/ui/components/user-list/service';
 import Auth from '/imports/ui/services/auth';
 import VideoService from './service';
@@ -169,6 +169,74 @@ export const sortPresenterLocalPinned = (s1: StreamItem, s2: StreamItem, moderat
   if (pinnedSort !== 0) return pinnedSort;
 
   // Finally, sort alphabetically
+  return UserListService.sortUsersByName(s1, s2);
+};
+
+// MOBILE sort — pin -> local(own) -> voice activity (desc) -> has camera -> alphabetical.
+const isPinnedItem = (s: VideoItem) => (s.type === VIDEO_TYPES.STREAM && !!s.user?.pinned)
+  || (s.type === VIDEO_TYPES.AUDIO_ONLY && !!s.user?.pinned)
+  || (s.type === VIDEO_TYPES.GRID && !!s.pinned);
+
+const isLocalItem = (s: VideoItem) => ('stream' in s) && VideoService.isLocalStream(s.stream);
+
+const hasCameraItem = (s: VideoItem) => s.type === VIDEO_TYPES.STREAM
+  || s.type === VIDEO_TYPES.CONNECTING;
+
+const lastFloorTimeItem = (s: VideoItem) => (('lastFloorTime' in s) && s.lastFloorTime ? s.lastFloorTime : '0');
+
+const isModeratorItem = (s: VideoItem): boolean => {
+  if (s.type === VIDEO_TYPES.GRID) return !!s.isModerator;
+  if (s.type === VIDEO_TYPES.STREAM || s.type === VIDEO_TYPES.AUDIO_ONLY) return !!s.user?.isModerator;
+  return false;
+};
+
+const pinnedTimeItem = (s: VideoItem): number => {
+  let pinnedTime: string | null | undefined;
+  if (s.type === VIDEO_TYPES.GRID) pinnedTime = s.pinnedTime;
+  else if (s.type === VIDEO_TYPES.STREAM || s.type === VIDEO_TYPES.AUDIO_ONLY) pinnedTime = s.user?.pinnedTime;
+  return pinnedTime ? new Date(pinnedTime).getTime() : 0;
+};
+
+const byFlag = (s1: VideoItem, s2: VideoItem, pred: (s: VideoItem) => unknown): number => {
+  const f1 = !!pred(s1);
+  const f2 = !!pred(s2);
+  if (f1 === f2) return 0;
+  return f1 ? -1 : 1;
+};
+
+const comparePinned = (s1: VideoItem, s2: VideoItem, moderatorFirst: boolean): number => {
+  if (moderatorFirst) {
+    const mod = byFlag(s1, s2, isModeratorItem);
+    if (mod !== 0) return mod;
+  }
+  return pinnedTimeItem(s2) - pinnedTimeItem(s1);
+};
+
+const compareLastFloor = (s1: VideoItem, s2: VideoItem): number => {
+  const t1 = lastFloorTimeItem(s1);
+  const t2 = lastFloorTimeItem(s2);
+  if (t2 < t1) return -1;
+  if (t2 > t1) return 1;
+  return 0;
+};
+
+export const sortMobile = (s1: VideoItem, s2: VideoItem, moderatorFirst = false) => {
+  const pinned = byFlag(s1, s2, isPinnedItem);
+  if (pinned !== 0) return pinned;
+  if (isPinnedItem(s1) && isPinnedItem(s2)) {
+    const tieBreak = comparePinned(s1, s2, moderatorFirst);
+    if (tieBreak !== 0) return tieBreak;
+  }
+
+  const local = byFlag(s1, s2, isLocalItem);
+  if (local !== 0) return local;
+
+  const floor = compareLastFloor(s1, s2);
+  if (floor !== 0) return floor;
+
+  const camera = byFlag(s1, s2, hasCameraItem);
+  if (camera !== 0) return camera;
+
   return UserListService.sortUsersByName(s1, s2);
 };
 

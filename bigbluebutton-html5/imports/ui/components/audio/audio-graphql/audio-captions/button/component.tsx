@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import deviceInfo from '/imports/utils/deviceInfo';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -71,6 +72,8 @@ interface AudioCaptionsButtonProps {
 }
 
 const DISABLED = '';
+
+const getStartStopButtonSize = () => (deviceInfo.isMobile ? 'md' : 'lg');
 
 const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
   isRTL,
@@ -231,7 +234,7 @@ const AudioCaptionsButton: React.FC<AudioCaptionsButtonProps> = ({
       color={active ? 'primary' : 'default'}
       hideLabel
       circle
-      size="lg"
+      size={getStartStopButtonSize()}
       onClick={onToggleClick}
     />
   );

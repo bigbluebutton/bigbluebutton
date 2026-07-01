@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { User } from '/imports/ui/Types/user';
+import deviceInfo from '/imports/utils/deviceInfo';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import { useMutation, useReactiveVar } from '@apollo/client';
@@ -118,7 +119,7 @@ const AudioControls: React.FC<AudioControlsProps> = ({
           data-test="joinAudio"
           color="default"
           icon="no_audio"
-          size="lg"
+          size={deviceInfo.isMobile ? 'md' : 'lg'}
           circle
           accessKey={joinAudioShortcut}
           loading={isConnecting}

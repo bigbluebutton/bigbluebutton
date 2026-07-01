@@ -16,6 +16,7 @@ import {
   getSortingMethod,
   sortVideoStreams,
   sortPin,
+  sortMobile,
 } from '/imports/ui/components/video-provider/stream-sorting';
 import {
   useVideoState,
@@ -35,6 +36,7 @@ import { CAMERA_BROADCAST_STOP } from '/imports/ui/components/video-provider/mut
 import {
   GridItem,
   StreamItem,
+  VideoItem,
   AudioOnlyStream,
   GridUsersResponse,
   StreamSubscriptionData,
@@ -293,6 +295,8 @@ export const useMyRole = () => {
 export const useMyPageSize = () => {
   const myRole = useMyRole();
   const pageSizes = usePageSizeDictionary();
+  const gridSize = useGridSize();
+  const isGridEnabled = useStorageKey('isGridEnabled');
   const ROLE_MODERATOR = videoService.getRoleModerator();
   const ROLE_VIEWER = videoService.getRoleViewer();
   let size;
@@ -305,7 +309,11 @@ export const useMyPageSize = () => {
       size = pageSizes?.viewer;
   }
 
-  const actualSize = size ?? 0;
+  let actualSize = size ?? 0;
+
+  if (videoService.isMobile && isGridEnabled) {
+    actualSize = gridSize;
+  }
 
   useEffect(() => {
     setVideoState({ pageSize: actualSize });
@@ -317,7 +325,22 @@ export const useMyPageSize = () => {
 export const useIsPaginationEnabled = () => {
   const myPageSize = useMyPageSize();
   const { paginationEnabled } = useSettings(SETTINGS.APPLICATION) as { paginationEnabled?: boolean };
+  // Mobile always paginates (the settings toggle is locked on for mobile).
+  if (videoService.isMobile) return myPageSize > 0;
   return myPageSize > 0 && paginationEnabled;
+};
+
+const insertGridUserInOrder = (gridUsers: GridItem[], user: GridItem) => {
+  const insertAt = gridUsers.findIndex((u) => (
+    u.nameSortable.localeCompare(user.nameSortable) > 0
+    || (u.nameSortable === user.nameSortable
+      && u.userId.localeCompare(user.userId) > 0)
+  ));
+  if (insertAt === -1) {
+    gridUsers.push(user);
+  } else {
+    gridUsers.splice(insertAt, 0, user);
+  }
 };
 
 export const useGridUsers = (visibleStreamCount: number) => {
@@ -352,6 +375,10 @@ export const useGridUsers = (visibleStreamCount: number) => {
     voice: u.voice,
   }));
 
+  const limit = videoService.isMobile
+    ? Math.max(userCount, gridSize)
+    : Math.max(gridSize - visibleStreamCount, 0);
+
   const {
     data: gridData,
     error: gridError,
@@ -363,7 +390,7 @@ export const useGridUsers = (visibleStreamCount: number) => {
       // otherwise keep everyone ([true, false]). The current user is re-added client-side
       // below (the query can't reference it without breaking Hasura multiplexing).
       variables: {
-        limit: Math.max(gridSize - visibleStreamCount, 0),
+        limit,
         moderatorValues: canOnlySeeModeratorCameras ? [true] : [true, false],
       },
       skip: !isGridEnabled,
@@ -428,23 +455,12 @@ export const useGridUsers = (visibleStreamCount: number) => {
         type: VIDEO_TYPES.GRID,
       };
 
-      // Insert the current user at the position the query's ordering (nameSortable, then
-      // userId) would have placed them, instead of appending last.
-      const insertAt = newGridUsers.findIndex((u) => (
-        u.nameSortable.localeCompare(selfGridUser.nameSortable) > 0
-        || (u.nameSortable === selfGridUser.nameSortable
-          && u.userId.localeCompare(selfGridUser.userId) > 0)
-      ));
-      if (insertAt === -1) {
-        newGridUsers.push(selfGridUser);
-      } else {
-        newGridUsers.splice(insertAt, 0, selfGridUser);
-      }
+      insertGridUserInOrder(newGridUsers, selfGridUser);
     }
 
     gridItems.current = newGridUsers;
 
-    const overflow = Math.max(userCount - gridSize, 0);
+    const overflow = videoService.isMobile ? 0 : Math.max(userCount - gridSize, 0);
 
     // if there's overflow, we replace the last grid user with the overflow tile,
     // so we need to add 1 to the overflow count to account for the replaced user
@@ -627,6 +643,7 @@ export const useVideoStreams = () => {
   const audioOnlyUsers = useAudioOnlyUsers();
   const myPageSize = useMyPageSize();
   const isPaginationEnabled = useIsPaginationEnabled();
+  const isGridEnabled = useStorageKey('isGridEnabled') as boolean;
   const { senderIds, senderIdsInGroups, inAnyGroup } = useVideoSenders();
   let streams: StreamItem[] = [...videoStreams];
   let totalNumberOfOtherStreams: number | undefined;
@@ -656,7 +673,7 @@ export const useVideoStreams = () => {
       || !senderIdsInGroups.has(vs.userId));
   }
 
-  if (isPaginationEnabled) {
+  if (!videoService.isMobile && isPaginationEnabled) {
     const chunkIndex = currentVideoPageIndex * myPageSize;
     const sortingMethod = (numberOfPages > 1) ? PAGINATION_SORTING : DEFAULT_SORTING;
     const sortingConfig = getSortingMethod(sortingMethod);
@@ -752,7 +769,7 @@ export const useVideoStreams = () => {
         streams = [...pin, ...paginatedStreams, ...mine, ...audioOnlyStreams];
       }
     }
-  } else {
+  } else if (!videoService.isMobile) {
     streams = sortVideoStreams(streams, DEFAULT_SORTING, moderatorFirst);
 
     // Add up to maxAudioOnlyUsers when pagination is disabled
@@ -769,6 +786,40 @@ export const useVideoStreams = () => {
   }
 
   const { gridUsers, overflowCount } = useGridUsers(streams.length);
+
+  if (videoService.isMobile) {
+    const candidates: VideoItem[] = [...streams];
+    audioOnlyUsers.forEach((au) => {
+      if (!candidates.some((c) => c.userId === au.userId)) candidates.push(au);
+    });
+    if (isGridEnabled) {
+      gridUsers.forEach((gu) => {
+        if (!candidates.some((c) => c.userId === gu.userId)) candidates.push(gu);
+      });
+    }
+
+    const sorted = [...candidates].sort((a, b) => sortMobile(a, b, moderatorFirst));
+    const total = sorted.length;
+    const chunkIndex = currentVideoPageIndex * myPageSize;
+    const paginated = myPageSize > 0
+      ? sorted.slice(chunkIndex, chunkIndex + myPageSize)
+      : sorted;
+
+    const localOffPage = myPageSize > 0
+      ? sorted
+        .filter((vs, index) => videoService.isLocalStream(('stream' in vs) ? vs.stream : '')
+          && (index < chunkIndex || index >= chunkIndex + myPageSize))
+        .map((vs) => ({ ...vs, render: false }))
+      : [];
+
+    return {
+      streams: [...paginated, ...localOffPage] as StreamItem[],
+      gridUsers: [] as GridItem[],
+      overflowCount: 0,
+      totalNumberOfStreams: paginated.length,
+      totalNumberOfOtherStreams: total,
+    };
+  }
 
   return {
     streams,
