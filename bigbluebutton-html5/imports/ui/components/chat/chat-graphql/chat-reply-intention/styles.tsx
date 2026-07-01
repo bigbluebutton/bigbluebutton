@@ -69,9 +69,20 @@ const HtmlContent = styled.div`
     max-height: 100%;
   }
 
+  & p,
+  & h1,
+  & h2,
+  & h3,
+  & h4,
+  & h5,
+  & h6 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   & p {
     margin: 0;
-    white-space: pre-wrap;
   }
 
   & pre:has(code), p code:not(pre > code) {
