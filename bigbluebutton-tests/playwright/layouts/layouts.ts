@@ -307,4 +307,43 @@ export class Layouts extends MultiUsers {
 
     await this.attachPageVideos();
   }
+
+  async unifiedLayoutHidesTilesWhenPresentationVisible() {
+    // Wait for the whiteboard so the presentation is fully loaded and the minimize
+    // button is enabled.
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+
+    // Nobody shares a webcam. Both users join audio and unmute so they become
+    // talking, camera-less users (audio-only speakers with a voice floor).
+    await this.modPage.waitAndClick(e.joinAudio);
+    await this.modPage.joinMicrophone({ shouldUnmute: true });
+    await this.userPage.waitAndClick(e.joinAudio);
+    await this.userPage.joinMicrophone({ shouldUnmute: true });
+
+    // Minimize the presentation: in the media-only state the audio-only tiles SHOULD
+    // appear. This is the intended feature and must keep working after the fix.
+    await this.modPage.waitAndClick(e.minimizePresentation);
+    await this.modPage.page.waitForTimeout(3000);
+    await this.modPage.hasElement(
+      e.cameraDock,
+      'audio-only participant tiles should be shown when the presentation is minimized (media-only state)',
+    );
+
+    // Restore the presentation: with no webcams shared and the presentation visible,
+    // the speaking-user avatar tiles must NOT be shown at the top (issue #25235). The
+    // "who is talking" indicators remain visible in the navbar regardless, so the tiles
+    // are redundant and must not steal space from the presentation.
+    await this.modPage.waitAndClick(e.restorePresentation);
+    await this.modPage.hasElement(e.presentationContainer, 'presentation should be visible again after restore');
+    // Allow the audio-only subscription / layout to settle. Before the fix the camera
+    // dock re-appeared here; with the fix it must stay hidden.
+    await this.modPage.page.waitForTimeout(4000);
+    await this.modPage.wasRemoved(
+      e.cameraDock,
+      'no webcam/avatar tiles should be shown at the top when no webcams are shared and the presentation is visible',
+    );
+
+    await this.attachPageVideos();
+  }
 }
