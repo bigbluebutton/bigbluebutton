@@ -19,8 +19,9 @@ interface LobbyMessageInputProps {
   initialMessage?: string;
   placeholder: string;
   submitLabel: string;
-  successLabel: string;
+  successLabel?: string;
   onSend: (message: string) => void;
+  onSent?: () => void;
   onDraftChange?: (message: string) => void;
   maxLength?: number;
   inputDataTest?: string;
@@ -33,6 +34,7 @@ const LobbyMessageInput: React.FC<LobbyMessageInputProps> = ({
   submitLabel,
   successLabel,
   onSend,
+  onSent,
   onDraftChange,
   maxLength = DEFAULT_MAX_LENGTH,
   inputDataTest = 'lobbyMessageInput',
@@ -60,9 +62,10 @@ const LobbyMessageInput: React.FC<LobbyMessageInputProps> = ({
     isSendingTimerRef.current = setTimeout(() => {
       setIsSending(false);
       setMessageSent(true);
+      onSent?.();
       messageSentTimerRef.current = setTimeout(() => setMessageSent(false), SENT_FEEDBACK_MS);
     }, SENDING_DELAY_MS);
-  }, [message, onSend]);
+  }, [message, onSend, onSent]);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -110,7 +113,7 @@ const LobbyMessageInput: React.FC<LobbyMessageInputProps> = ({
           </TooltipContainer>
         ) : sendButton}
       </Styled.InputWrapper>
-      {messageSent && (
+      {messageSent && successLabel && (
         <Styled.SuccessMessage role="status" aria-live="polite">
           <CheckCircleOutlineIcon fontSize="small" />
           {successLabel}
