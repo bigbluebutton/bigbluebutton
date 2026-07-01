@@ -2,116 +2,13 @@ import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { clone } from 'radash';
-import { MenuItem, CircularProgress } from '@mui/material';
+import { MenuItem } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import SendIcon from '@mui/icons-material/Send';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import UnsavedChangesModal from '/imports/ui/components/common/modal/unsaved-changes/component';
 import Styled from './styles';
-
-const LobbyMessageInput = React.memo((
-  {
-    initialMessage, placeholder, submitLabel, successLabel, onSend, onDraftChange,
-  },
-) => {
-  const [message, setMessage] = React.useState(initialMessage);
-  const [isSending, setIsSending] = React.useState(false);
-  const [messageSent, setMessageSent] = React.useState(false);
-  const [lastSentMessage, setLastSentMessage] = React.useState('');
-  const messageSentTimerRef = React.useRef(null);
-  const isSendingTimerRef = React.useRef(null);
-
-  React.useEffect(() => () => {
-    clearTimeout(messageSentTimerRef.current);
-    clearTimeout(isSendingTimerRef.current);
-  }, []);
-
-  const handleSend = React.useCallback(() => {
-    if (!message.trim()) return;
-    onSend(message);
-    setLastSentMessage(message);
-    setMessage('');
-    onDraftChange('');
-    clearTimeout(isSendingTimerRef.current);
-    clearTimeout(messageSentTimerRef.current);
-    setIsSending(true);
-    isSendingTimerRef.current = setTimeout(() => {
-      setIsSending(false);
-      setMessageSent(true);
-      messageSentTimerRef.current = setTimeout(() => setMessageSent(false), 2000);
-    }, 500);
-  }, [message, onSend, onDraftChange]);
-
-  const handleChange = React.useCallback((e) => {
-    const { value } = e.target;
-    setMessage(value);
-    onDraftChange(value);
-  }, [onDraftChange]);
-
-  const handleKeyDown = React.useCallback((e) => {
-    if (e.key === 'Enter') handleSend();
-  }, [handleSend]);
-
-  const sendButton = (
-    <Styled.LobbyInputSendButton
-      sx={{
-        alignSelf: 'center',
-        fontSize: '0.9rem',
-        borderRadius: '0.75rem',
-        minWidth: 'auto',
-        padding: '6px',
-      }}
-      variant="contained"
-      aria-label={submitLabel}
-      onClick={handleSend}
-      disabled={!message.trim() || isSending}
-      data-test="sendLobbyMessageButton"
-    >
-      {isSending ? <CircularProgress size={16} color="inherit" /> : <SendIcon />}
-    </Styled.LobbyInputSendButton>
-  );
-
-  return (
-    <>
-      <Styled.LobbyInputWrapper>
-        <Styled.LobbyInput
-          placeholder={placeholder}
-          value={message}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
-          data-test="lobbyMessageInput"
-        />
-        {lastSentMessage ? (
-          <TooltipContainer title={lastSentMessage} position="top">
-            <span style={{ display: 'inline-flex', alignSelf: 'center' }}>
-              {sendButton}
-            </span>
-          </TooltipContainer>
-        ) : sendButton}
-      </Styled.LobbyInputWrapper>
-      {messageSent && (
-        <Styled.SuccessMessage>
-          <CheckCircleOutlineIcon fontSize="small" />
-          {successLabel}
-        </Styled.SuccessMessage>
-      )}
-    </>
-  );
-});
-LobbyMessageInput.displayName = 'LobbyMessageInput';
-LobbyMessageInput.propTypes = {
-  initialMessage: PropTypes.string,
-  placeholder: PropTypes.string.isRequired,
-  submitLabel: PropTypes.string.isRequired,
-  successLabel: PropTypes.string.isRequired,
-  onSend: PropTypes.func.isRequired,
-  onDraftChange: PropTypes.func.isRequired,
-};
-LobbyMessageInput.defaultProps = {
-  initialMessage: '',
-};
+import LobbyMessageInput from '/imports/ui/components/common/lobby-message-input/component';
 
 const PRESENTATION_POLICY = {
   MODERATOR_ONLY: 'moderatorOnly',
@@ -337,8 +234,9 @@ class LockViewersComponent extends Component {
   handleLobbyMessageSend(msg) {
     const { setLobbyMessage } = this.props;
     setLobbyMessage(msg);
-    this.lobbyMessageDraft = '';
-    this.initialState.lobbyMessage = '';
+    this.lobbyMessageDraft = msg;
+    this.lobbyMessageInitial = msg;
+    this.initialState.lobbyMessage = msg;
   }
 
   handleClose() {

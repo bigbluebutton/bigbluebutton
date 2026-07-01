@@ -1,19 +1,16 @@
 import React, {
-  ChangeEvent,
   useCallback,
   useEffect,
 } from 'react';
 import { useMutation } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
-import KEYS from '/imports/utils/keys';
-import SendIcon from '@mui/icons-material/Send';
-import Tooltip from '/imports/ui/components/common/tooltip/component';
 import {
   GET_GUEST_WAITING_USERS_SUBSCRIPTION,
   GuestWaitingUsers,
 } from '../queries';
 import Styled from './styles';
+import LobbyMessageInput from '/imports/ui/components/common/lobby-message-input/component';
 import browserInfo from '/imports/utils/browserInfo';
 import logger from '/imports/startup/client/logger';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
@@ -59,6 +56,10 @@ const intlMessages = defineMessages({
     id: 'app.textInput.sendLabel',
     description: 'Text input send button label',
   },
+  lobbyMessageSent: {
+    id: 'app.lock-viewers.guestPolicy.lobbyMessageSent',
+    description: 'Confirmation shown after lobby message is sent',
+  },
 });
 
 const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
@@ -72,7 +73,6 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
   const intl = useIntl();
   const { isChrome } = browserInfo;
   const [guestLobbyMessageChecked, setGuestLobbyMessageChecked] = React.useState(false);
-  const [message, setMessage] = React.useState(guestLobbyMessage);
   const [setLobbyMessage] = useMutation(SET_LOBBY_MESSAGE);
 
   const setGuestLobbyMessage = useCallback((message: string) => {
@@ -82,18 +82,6 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
       },
     });
   }, []);
-
-  const handleMessageChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setMessage(e.target.value);
-  };
-
-  const handleMessageKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === KEYS.ENTER && e.shiftKey === false) {
-      e.preventDefault();
-      setGuestLobbyMessage(message as string);
-      setMessage('');
-    }
-  };
 
   useEffect(() => {
     setGuestLobbyMessageChecked(!!guestLobbyMessage);
@@ -114,7 +102,6 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
                   setGuestLobbyMessageChecked(checked);
                   if (!checked) {
                     setGuestLobbyMessage('');
-                    setMessage('');
                   }
                 }}
                 sx={{
@@ -131,46 +118,15 @@ const GuestUsersManagementPanel: React.FC<GuestUsersManagementPanelProps> = ({
                   {guestLobbyMessage}
                 </Styled.GuestLobbyMessage>
               )}
-              <Styled.InputWrapper>
-                <Styled.Input
-                  id="guest-lobby-message-input"
-                  data-test="lobbyMessage"
-                  maxLength={128}
-                  placeholder={intl.formatMessage(intlMessages.inputPlaceholder)}
-                  aria-label={intl.formatMessage(intlMessages.inputPlaceholder)}
-                  autoCorrect="off"
-                  autoComplete="off"
-                  spellCheck="true"
-                  value={message ?? ''}
-                  onChange={handleMessageChange}
-                  onKeyDown={handleMessageKeyDown}
-                  onPaste={(e) => { e.stopPropagation(); }}
-                  onCut={(e) => { e.stopPropagation(); }}
-                  onCopy={(e) => { e.stopPropagation(); }}
-                  async
-                />
-                <div style={{ zIndex: 10 }}>
-                  <Tooltip title={intl.formatMessage(intlMessages.sendLabel)}>
-                    <Styled.SendButton
-                      sx={{
-                        alignSelf: 'center',
-                        fontSize: '0.9rem',
-                        height: '100%',
-                        borderRadius: '0 0.75rem 0.75rem 0',
-                        minWidth: 'auto',
-                        padding: '8px',
-                      }}
-                      variant="contained"
-                      // disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
-                      // type="submit"
-                      data-test="sendMessageButton"
-                      onClick={() => { setGuestLobbyMessage(message as string); }}
-                    >
-                      <SendIcon />
-                    </Styled.SendButton>
-                  </Tooltip>
-                </div>
-              </Styled.InputWrapper>
+              <LobbyMessageInput
+                initialMessage={guestLobbyMessage ?? ''}
+                placeholder={intl.formatMessage(intlMessages.inputPlaceholder)}
+                submitLabel={intl.formatMessage(intlMessages.sendLabel)}
+                successLabel={intl.formatMessage(intlMessages.lobbyMessageSent)}
+                onSend={setGuestLobbyMessage}
+                inputDataTest="lobbyMessage"
+                sendButtonDataTest="sendMessageButton"
+              />
             </>
           ) : (
             <Styled.NoMessageText>
