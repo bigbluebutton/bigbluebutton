@@ -32,6 +32,20 @@ test.describe.parallel('Unified Layout - meeting create param - with audio', () 
   });
 });
 
+test.describe.parallel('Unified Layout - who-is-talking tiles (no webcams)', () => {
+  test('Speaking with no webcams keeps avatar tiles hidden while the presentation is visible', async ({ browser, context }, testInfo) => {
+    linkIssue(25235);
+    const layouts = new Layouts(browser, context);
+    await initializePages(layouts, browser, {
+      isMultiUser: true,
+      createParameter: 'meetingLayout=UNIFIED_LAYOUT',
+      testInfo,
+      recordVideo: true,
+    });
+    await layouts.unifiedLayoutHidesTilesWhenPresentationVisible();
+  });
+});
+
 test.describe.parallel('Layout', { tag: '@flaky-3.1' }, () => {
   let layouts: Layouts;
 
