@@ -589,8 +589,8 @@ jobs:
           BBB_URL: https://bbb-ci.test/bigbluebutton/
           BBB_SECRET: bbbci
         run: |
-          jq -r '.[].name' .github/ci-tested-plugins.json \
-          | while IFS= read -r NAME; do
+          overall_exit=0
+          while IFS= read -r NAME; do
             echo "Running tests for $NAME"
             (
               cd "bigbluebutton-tests/official-plugins/$NAME"
@@ -616,8 +616,9 @@ jobs:
               else
                 npm run test-chromium-ci
               fi
-            )
-          done
+            ) || overall_exit=1
+          done < <(jq -r '.[].name' .github/ci-tested-plugins.json)
+          exit $overall_exit
       - if: failure()
         name: Upload official plugin blob reports
         uses: actions/upload-artifact@v6
