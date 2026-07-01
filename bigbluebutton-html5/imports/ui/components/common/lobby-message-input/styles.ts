@@ -11,6 +11,7 @@ import {
   fontSizeBase,
   fontSizeSmall,
 } from '/imports/ui/stylesheets/styled-components/typography';
+import { xsPadding } from '/imports/ui/stylesheets/styled-components/general';
 
 const InputWrapper = styled.div`
   display: flex;
@@ -25,7 +26,7 @@ const InputWrapper = styled.div`
   gap: 3px;
 
   &:focus-within {
-    box-shadow: 0 0 0 2px ${colorBorder};
+    box-shadow: 0 0 0 ${xsPadding} ${colorBorder};
   }
 `;
 
