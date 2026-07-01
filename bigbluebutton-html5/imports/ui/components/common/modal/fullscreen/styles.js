@@ -12,7 +12,7 @@ import {
   fontSizeLarger,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import {
-  colorGrayLightest,
+  colorBorder,
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
@@ -34,7 +34,7 @@ const FullscreenModal = styled(Styled.BaseModal)`
 const Header = styled.header`
   display: flex;
   padding: ${lineHeightComputed} 0;
-  border-bottom: ${borderSize} solid ${colorGrayLightest};
+  border-bottom: ${borderSize} solid ${colorBorder};
 `;
 
 const Title = styled.h1`

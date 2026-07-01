@@ -1,8 +1,9 @@
 import styled from 'styled-components';
 import {
   colorDangerDark,
+  colorBorder,
   colorGrayLight,
-  colorGrayLightest, colorOffWhite, colorPrimary, colorText, colorWhite,
+  colorOffWhite, colorPrimary, colorText, colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { $3xlPadding, smPadding } from '/imports/ui/stylesheets/styled-components/general';
 
@@ -10,7 +11,7 @@ const Container = styled.div`
   border-top-left-radius: 0.5rem;
   border-top-right-radius: 0.5rem;
   background-color: ${colorWhite};
-  box-shadow: inset 0 0 0 1px ${colorGrayLightest};
+  box-shadow: inset 0 0 0 1px ${colorBorder};
   padding: ${smPadding} ${$3xlPadding};
   position: relative;
   overflow: hidden;
@@ -52,7 +53,7 @@ export const HtmlContent = styled.div`
 
   & pre:has(code), p code:not(pre > code) {
     background-color: ${colorOffWhite};
-    border: solid 1px ${colorGrayLightest};
+    border: solid 1px ${colorBorder};
     border-radius: 4px;
     padding: 2px;
     margin: 0;

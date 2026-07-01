@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { colorWhite, colorGrayLighter } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorWhite, colorBorder } from '/imports/ui/stylesheets/styled-components/palette';
 
 const SelectParent = styled.div`
   display: flex;
@@ -11,7 +11,7 @@ const Select = styled.select`
   background-color: ${colorWhite};
   width: 50%;
   margin: 1rem;
-  border-color: ${colorGrayLighter};
+  border-color: ${colorBorder};
 `;
 
 export default {

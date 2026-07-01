@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import {
   colorDangerDark,
-  colorGrayLightest,
+  colorBorder,
   colorOffWhite,
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -30,7 +30,7 @@ export const ChatMessage = styled.div<ChatMessageProps>`
 
   & pre:has(code), p code:not(pre > code) {
     background-color: ${colorOffWhite};
-    border: solid 1px ${colorGrayLightest};
+    border: solid 1px ${colorBorder};
     border-radius: 4px;
     padding: 2px;
     margin: 0;

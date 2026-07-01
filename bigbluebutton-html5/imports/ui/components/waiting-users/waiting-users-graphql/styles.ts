@@ -3,9 +3,9 @@ import {
   colorPrimary,
   listItemBgHover,
   itemFocusBorder,
+  colorBorder,
   colorGray,
   colorWhite,
-  colorGrayLightest,
   colorOffWhite,
   userListBg,
   colorSuccess,
@@ -216,7 +216,7 @@ const Panel = styled.div<PanelProps>`
 `;
 
 const LobbyMessage = styled.div`
-  border-bottom: 1px solid ${colorGrayLightest};
+  border-bottom: 1px solid ${colorBorder};
   margin: 2px 2px 0 2px;
 
   & > p {
@@ -229,7 +229,7 @@ const LobbyMessage = styled.div`
 `;
 
 const PrivateLobbyMessage = styled.div`
-  border-bottom: 1px solid ${colorGrayLightest};
+  border-bottom: 1px solid ${colorBorder};
   display: none;
   & > p {
     background-color: ${colorOffWhite};

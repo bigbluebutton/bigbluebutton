@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 import QuickPollDropdownContainer from '/imports/ui/components/actions-bar/quick-poll-dropdown/container';
 import {
+  colorBorder,
   colorOffWhite,
-  colorBlueLightest,
   toolbarButtonColor,
   colorDanger,
   colorWhite,
@@ -25,7 +25,7 @@ const PresentationToolbarWrapper = styled.div`
   align-self: center;
   z-index: 1;
   background-color: ${colorOffWhite};
-  border-top: 1px solid ${colorBlueLightest};
+  border-top: 1px solid ${colorBorder};
   min-width: fit-content;
   width: 100%;
   bottom: 0px;
