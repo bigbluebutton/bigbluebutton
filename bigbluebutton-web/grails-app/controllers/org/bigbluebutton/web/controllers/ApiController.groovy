@@ -47,6 +47,7 @@ import org.bigbluebutton.web.services.turn.StunTurnService
 import org.bigbluebutton.web.services.turn.TurnEntry
 import org.codehaus.groovy.util.ListHashMap
 import org.json.JSONArray
+import static grails.async.Promises.*
 
 import jakarta.servlet.ServletRequest
 import jakarta.servlet.http.HttpServletRequest
@@ -243,9 +244,10 @@ class ApiController {
     }
 
     if (meetingService.createMeeting(newMeeting)) {
-      respondWithConference(newMeeting, null, null)
       // See if the request came with pre-uploading of presentation.
-      uploadDocuments(xmlModules, newMeeting, false);  //
+      uploadDocuments(xmlModules, newMeeting, false);
+
+      respondWithConference(newMeeting, null, null)
     } else {
       // Translate the external meeting id into an internal meeting id.
       String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);
@@ -1639,9 +1641,13 @@ class ApiController {
           if (document.current) {
             isDefaultPresentation = true
           }
-          downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(),
-                  document.current /* default presentation */, '', false,
-                  true, isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI);
+
+          // Run slow download and processing async for fast API responses
+          task {
+            downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(),
+                    document.current /* default presentation */, '', false,
+                    true, isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI);
+          }
         } else {
           log.error "Default presentation could not be read, it is (" + presentationService.defaultUploadedPresentation + ")", "error"
         }
@@ -1675,13 +1681,21 @@ class ApiController {
             log.debug("user provided filename: [${document.@filename}]");
             fileName = document.@filename.toString();
           }
-          downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), isCurrent /* default presentation */,
-                  fileName, isDownloadable, isRemovable, isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI);
+
+          // Run slow download and processing async for fast API responses
+          task {
+            downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), isCurrent /* default presentation */,
+                    fileName, isDownloadable, isRemovable, isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI);
+          }
         } else if (!StringUtils.isEmpty(document.@name.toString())) {
           def b64 = new Base64()
           def decodedBytes = b64.decode(document.text().getBytes())
-          processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
-                  conf.getInternalId(), isCurrent, isDownloadable, isRemovable/* default presentation */, isDefaultPresentation, isFromInsertAPI);
+
+          // Run slow processing async for fast API responses
+          task {
+            processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
+                    conf.getInternalId(), isCurrent, isDownloadable, isRemovable/* default presentation */, isDefaultPresentation, isFromInsertAPI);
+          }
         } else {
           log.debug("presentation module config found, but it did not contain url or name attributes");
         }

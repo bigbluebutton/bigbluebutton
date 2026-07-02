@@ -75,7 +75,7 @@ dependencies {
   implementation "org.apache.grails:grails-services"
   implementation "org.apache.grails:grails-url-mappings"
   implementation "org.apache.grails:grails-interceptors"
-
+  implementation "org.apache.grails:grails-async"
   implementation "org.apache.grails:grails-views-gson"
   implementation "org.apache.grails:grails-cache"
 
