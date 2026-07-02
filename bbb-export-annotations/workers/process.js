@@ -388,14 +388,15 @@ async function processPresentationAnnotations() {
     // box. The helper ensures the slide has a viewBox (so slides missing one
     // still fill the raster) and renders at the same resolution as the final
     // SVG->PDF pass (toPx of the slide dims) so the background stays sharp.
-    let backgroundSlide =
-        `${dropbox}/slide${currentSlide.page}.${backgroundFormat}`;
+    let backgroundSlide = `${bgImagePath}.${backgroundFormat}`;
 
     if (backgroundFormat === 'svg') {
       try {
+        // Rasterize the same SVG we validated above (svgBackgroundSlide), not
+        // the dropbox copy, so it is clear which file feeds the raster.
         backgroundSlide = rasterizeSlideBackground(
-            backgroundSlide,
-            `${dropbox}/slide${currentSlide.page}-bg.png`,
+            svgBackgroundSlide,
+            `${bgImagePath}-bg.png`,
             {
               width: toPx(slideWidth),
               height: toPx(slideHeight),
