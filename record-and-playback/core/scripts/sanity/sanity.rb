@@ -51,7 +51,7 @@ logger = BigBlueButton.logger
 def check_events_xml(raw_dir,meeting_id)
   filepath = "#{raw_dir}/#{meeting_id}/events.xml"
   raise Exception,  "Events file doesn't exists." if not File.exists?(filepath)
-  bad_doc = Nokogiri::XML(File.open(filepath)) { |config| config.options = Nokogiri::XML::ParseOptions::STRICT }
+  bad_doc = Nokogiri::XML(File.read(filepath)) { |config| config.options = Nokogiri::XML::ParseOptions::STRICT }
 end
 
 # Determine the filenames for the done and fail files
@@ -83,15 +83,11 @@ begin
   end
 
   logger.info("creating sanity done files")
-  File.open(sanity_done_file, "w") do |sanity_done|
-    sanity_done.write("sanity check #{meeting_id}")
-  end
+  File.write(sanity_done_file, "sanity check #{meeting_id}")
 rescue Exception => e
   BigBlueButton.logger.error("error in sanity check: " + e.message)
   BigBlueButton.logger.error(e.backtrace.join("\n"))
-  File.open(sanity_fail_file, "w") do |sanity_fail|
-    sanity_fail.write("error: " + e.message)
-  end
+  File.write(sanity_fail_file, "error: " + e.message)
 end
 
 

@@ -39,7 +39,7 @@ bbb_props = BigBlueButton.read_props
 filepathPresOverride = "/etc/bigbluebutton/recording/presentation.yml"
 hasOverride = File.file?(filepathPresOverride)
 if (hasOverride)
-  presOverrideProps = YAML::load(File.open(filepathPresOverride))
+  presOverrideProps = YAML::safe_load(File.read(filepathPresOverride))
   @presentation_props = @presentation_props.merge(presOverrideProps)
 end
 
@@ -360,7 +360,7 @@ def svg_render_shape_poll(g, slide, shape)
   svg_file = "#{@process_dir}/presentation/#{presentation}/poll_result#{poll_id}.svg"
 
   # Save the poll json to a temp file
-  File.open(json_file, 'w') { |f| f.write result }
+  File.write(json_file, result)
   # Render the poll svg
   ret = BigBlueButton.exec_ret('utils/gen_poll_svg', '-i', json_file, '-w', width.round.to_s, '-h', height.round.to_s,
                                '-n', num_responders.to_s, '-o', svg_file)
@@ -1295,9 +1295,10 @@ def process_external_video_events(_events, package_dir)
 end
 
 def generate_done_or_fail_file(success)
-  File.open("#{@recording_dir}/status/published/#{@meeting_id}-presentation#{success ? '.done' : '.fail'}", 'w') do |file|
-    file.write("#{success ? 'Published' : 'Failed publishing'} #{@meeting_id}")
-  end
+  File.write(
+    "#{@recording_dir}/status/published/#{@meeting_id}-presentation#{success ? '.done' : '.fail'}", 
+    "#{success ? 'Published' : 'Failed publishing'} #{@meeting_id}"
+  )
 end
 
 def copy_media_files_helper(media, media_files, package_dir)
@@ -1477,7 +1478,7 @@ begin
           end
         end
         ## Write the new metadata.xml
-        File.open("#{package_dir}/metadata.xml", 'w') { |file| file.write(Nokogiri::XML(metadata.to_xml, &:noblanks).root) }
+        File.write("#{package_dir}/metadata.xml", Nokogiri::XML(metadata.to_xml, &:noblanks).root)
         BigBlueButton.logger.info('Added playback to metadata.xml')
 
         # Create slides.xml

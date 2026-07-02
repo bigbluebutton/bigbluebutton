@@ -200,9 +200,7 @@ module BigBlueButton
 
       doc.at(parent_xpath) << node
 
-      xml_file = File.new(xml_filename, "w")
-      xml_file.write(doc.to_xml(:indent => 2))
-      xml_file.close
+      File.write(xml_filename, doc.to_xml(:indent => 2))
     end
   end
 
@@ -244,9 +242,9 @@ module BigBlueButton
     hasOverride = File.file?(filepathRecOverride)
     
     filepath = File.join(BigBlueButton.rap_scripts_path, 'bigbluebutton.yml')
-    @props = YAML::load(File.open(filepath))
+    @props = YAML::safe_load(File.read(filepath))
     if (hasOverride)
-      recOverrideProps = YAML::load(File.open(filepathRecOverride))
+      recOverrideProps = YAML::safe_load(File.read(filepathRecOverride))
       @props = @props.merge(recOverrideProps)
     end
     @props
