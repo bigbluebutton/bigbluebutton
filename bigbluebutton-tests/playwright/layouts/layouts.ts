@@ -324,6 +324,11 @@ export class Layouts extends MultiUsers {
     // Minimize the presentation: in the media-only state the audio-only tiles SHOULD
     // appear. This is the intended feature and must keep working after the fix.
     await this.modPage.waitAndClick(e.minimizePresentation);
+    // Fixed wait (matches the sibling test's style): the layout passes through transient
+    // states while the audio-only subscription settles, so we wait it out before asserting
+    // the tiles are present - otherwise the check could read a transient mid-transition
+    // frame instead of the settled state. A settled-attribute signal would be better but
+    // is out of scope.
     await this.modPage.page.waitForTimeout(3000);
     await this.modPage.hasElement(
       e.cameraDock,
@@ -336,12 +341,24 @@ export class Layouts extends MultiUsers {
     // are redundant and must not steal space from the presentation.
     await this.modPage.waitAndClick(e.restorePresentation);
     await this.modPage.hasElement(e.presentationContainer, 'presentation should be visible again after restore');
-    // Allow the audio-only subscription / layout to settle. Before the fix the camera
-    // dock re-appeared here; with the fix it must stay hidden.
+    // Fixed wait is load-bearing here: on restore the camera dock re-appears in a transient
+    // window before the layout settles, so wasRemoved() would false-pass instantly against
+    // that window and miss the regression. We wait the transient out, then assert the dock
+    // stays hidden. (A settled-attribute signal would be better but is out of scope; this
+    // matches the sibling test's style.)
     await this.modPage.page.waitForTimeout(4000);
     await this.modPage.wasRemoved(
       e.cameraDock,
       'no webcam/avatar tiles should be shown at the top when no webcams are shared and the presentation is visible',
+    );
+    // The tiles are redundant precisely because the navbar "who is talking" indicator keeps
+    // showing the speakers. Assert the indicator is still visible so the redundancy claim is
+    // verified, not just asserted in a comment. (Use the single indicator wrapper rather than
+    // the per-user isTalking buttons: with both users talking there are several of those, and
+    // this matches the sibling breakout test's assertion.)
+    await this.modPage.hasElement(
+      e.talkingIndicator,
+      'the navbar "who is talking" indicator must remain visible after restore, making the top tiles redundant',
     );
 
     await this.attachPageVideos();
