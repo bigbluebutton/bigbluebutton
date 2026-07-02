@@ -336,6 +336,7 @@ class Settings extends Component {
     return (
       <ModalFullscreen
         title={intl.formatMessage(intlMessages.SettingsLabel)}
+        documentTitle={intl.formatMessage(intlMessages.SettingsLabel)}
         confirm={{
           callback: () => {
             this.updateSettings(current, intlMessages.savedAlertLabel, setLocalSettings);

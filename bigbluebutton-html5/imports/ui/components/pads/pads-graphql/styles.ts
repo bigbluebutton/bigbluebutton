@@ -5,7 +5,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorGray,
-  colorGrayLightest,
+  colorBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
 
@@ -38,7 +38,7 @@ const IFrame = styled.iframe`
   height: auto;
   overflow: hidden;
   border-style: none;
-  border-bottom: 1px solid ${colorGrayLightest};
+  border-bottom: 1px solid ${colorBorder};
   padding-bottom: 5px;
 `;
 

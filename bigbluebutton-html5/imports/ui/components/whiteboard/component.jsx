@@ -2270,6 +2270,17 @@ const Whiteboard = React.memo((props) => {
   React.useEffect(() => {
     const formattedPageId = parseInt(curPageIdRef.current, 10);
     if (tlEditorRef.current && formattedPageId !== 0) {
+      // If a viewer is mid-edit (select.editing_shape) when the slide changes,
+      // the store mutation below (cleanupStore + setCurrentPage) removes the shape
+      // being edited out from under tldraw, leaving the editor in editing_shape with
+      // a dangling editingShapeId. The next pointer-down then hits EditingShape's
+      // `Expected an editing shape!` assertion and crashes the client (issue 25332).
+      // Commit the in-progress edit first so tldraw exits editing_shape (running
+      // EditingShape.onExit) while the shape still exists. Guarded so a normal slide
+      // change (no active edit) never resets the presenter's current tool.
+      if (tlEditorRef.current.getEditingShape()) {
+        tlEditorRef.current.complete();
+      }
       tlEditorRef.current.store.mergeRemoteChanges(() => {
         tlEditorRef.current.batch(() => {
           const currentPageId = `page:${formattedPageId}`;
