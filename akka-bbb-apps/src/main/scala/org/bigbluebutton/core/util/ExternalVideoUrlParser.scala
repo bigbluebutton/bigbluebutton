@@ -4,34 +4,67 @@ import scala.util.matching.Regex
 import org.apache.http.client.utils.URIBuilder
 import scala.jdk.CollectionConverters._
 
-object UrlTimeExtractor {
+object ExternalVideoUrlParser {
   private val reHmsParam: Regex = """(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?""".r
   private val reHhmmssParam: Regex = """(?:(\d+):)?(\d+):(\d+)""".r
 
-  def extractTime(urlStr: String): (String, Int) = {
-    def timeParamToSeconds(s: String): Int = {
-      s match {
-        case reHmsParam(h, m, sec) =>
-          Option(h).getOrElse("0").toInt * 3600 +
-            Option(m).getOrElse("0").toInt * 60 +
-            Option(sec).getOrElse("0").toInt
-        case reHhmmssParam(h, m, s) =>
-          Option(h).getOrElse("0").toInt * 3600 +
-            m.toInt * 60 + s.toInt
-        case sec if sec.forall(_.isDigit) =>
-          sec.toInt
-        case _ => 0
-      }
+  private def timeParamToSeconds(s: String): Int = {
+    s match {
+      case reHmsParam(h, m, sec) =>
+        Option(h).getOrElse("0").toInt * 3600 +
+          Option(m).getOrElse("0").toInt * 60 +
+          Option(sec).getOrElse("0").toInt
+      case reHhmmssParam(h, m, s) =>
+        Option(h).getOrElse("0").toInt * 3600 +
+          m.toInt * 60 + s.toInt
+      case sec if sec.forall(_.isDigit) =>
+        sec.toInt
+      case _ => 0
     }
+  }
 
-    def cleanUrlRemoveParams(uriBuilder: URIBuilder, keysToRemove: Set[String]): String = {
-      val queryParams = uriBuilder.getQueryParams.asScala
-      uriBuilder.clearParameters()
-      queryParams
-        .filterNot(param => keysToRemove.contains(param.getName))
-        .foreach(param => uriBuilder.addParameter(param.getName, param.getValue))
-      uriBuilder.build().toString
+  private def cleanUrlRemoveParams(uriBuilder: URIBuilder, keysToRemove: Set[String]): String = {
+    val queryParams = uriBuilder.getQueryParams.asScala
+    uriBuilder.clearParameters()
+    queryParams
+      .filterNot(param => keysToRemove.contains(param.getName))
+      .foreach(param => uriBuilder.addParameter(param.getName, param.getValue))
+    uriBuilder.build().toString
+  }
+
+  def sanitizeVideoUrl(url: String): String = {
+    try {
+      val uri = new URIBuilder(url)
+      val host = uri.getHost
+      val path = uri.getPath
+
+      val normalizedUrl = if (host != null && host.endsWith("youtube.com")) {
+        if (path.startsWith("/shorts/")) {
+          // shorts -> watch
+          val videoId = path.stripPrefix("/shorts/")
+          uri.setPath("/watch")
+          uri.addParameter("v", videoId)
+          uri.toString
+        } else {
+          url
+        }
+      } else {
+        url
+      }
+
+      // clean YouTube query params
+      if (host.endsWith("youtube.com") || host.endsWith("youtu.be")) {
+        val cleanUri = new URIBuilder(normalizedUrl)
+        cleanUrlRemoveParams(cleanUri, Set("list", "index", "start_radio"))
+      } else {
+        normalizedUrl
+      }
+    } catch {
+      case _: Exception => url // fallback in case of parse errors
     }
+  }
+
+  def extractTime(urlStr: String): (String, Int) = {
 
     val uri = new URIBuilder(urlStr)
     val domain = uri.getHost
