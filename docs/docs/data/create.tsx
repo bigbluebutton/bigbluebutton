@@ -59,6 +59,12 @@ const createEndpointTableData = [
     "description": (<>Voice conference number for the FreeSWITCH voice conference associated with this meeting.  This must be a 5-digit number in the range 10000 to 99999.  If you <a href="/2.2/customize.html#add-a-phone-number-to-the-conference-bridge">add a phone number</a> to your BigBlueButton server, This parameter sets the personal identification number (PIN) that FreeSWITCH will prompt for a phone-only user to enter.  If you want to change this range, edit FreeSWITCH dialplan and <code className="language-plaintext highlighter-rouge">defaultNumDigitsForTelVoice</code> of <a href="https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a>.<br /><br />The <code className="language-plaintext highlighter-rouge">voiceBridge</code> number must be different for every meeting.<br /><br />This parameter is optional. If you do not specify a <code className="language-plaintext highlighter-rouge">voiceBridge</code> number, then BigBlueButton will assign a random unused number for the meeting.<br /><br />If do you pass a <code className="language-plaintext highlighter-rouge">voiceBridge</code> number, then you must ensure that each meeting has a unique <code className="language-plaintext highlighter-rouge">voiceBridge</code> number; otherwise, reusing same <code className="language-plaintext highlighter-rouge">voiceBridge</code> number for two different meetings will cause users from one meeting to appear as phone users in the other, which will be very confusing to users in both meetings.</>)
   },
   {
+    "name": "webVoice",
+    "required": false,
+    "type": "String",
+    "description": (<>Voice conference ID for VOIP-only callers. If not provided, this falls back to the meeting's <code className="language-plaintext highlighter-rouge">voiceBridge</code> (a.k.a. <code className="language-plaintext highlighter-rouge">telVoice</code>) number. Use this when a separate VOIP conference identifier is needed alongside the PSTN-friendly <code className="language-plaintext highlighter-rouge">voiceBridge</code>.</>)
+  },
+  {
     "name": "maxParticipants",
     "required": false,
     "type": "Number",
@@ -75,6 +81,12 @@ const createEndpointTableData = [
     "required": false,
     "type": "String",
     "description": (<>The URL that the BigBlueButton client will go to after users click the OK button on the ‘You have been logged out message’.  This overrides the value for <code className="language-plaintext highlighter-rouge">bigbluebutton.web.logoutURL</code> in <a href="https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a>.</>)
+  },
+  {
+    "name": "meetingEndedURL",
+    "required": false,
+    "type": "String",
+    "description": (<>Server-to-server callback URL that BigBlueButton will invoke when the meeting ends. Useful for third-party integrations that need to react to meeting termination. (added 2.2)</>)
   },
   {
     "name": "record",
@@ -125,6 +137,30 @@ const createEndpointTableData = [
     "type": "Boolean",
     "default": false,
     "description": (<>If set to false, breakout rooms will not be recorded.</>)
+  },
+  {
+    "name": "breakoutRoomsCaptureSlides",
+    "required": false,
+    "type": "Boolean",
+    "description": (<>If set to <code className="language-plaintext highlighter-rouge">true</code>, the current slide (with annotations) from each breakout room is exported back to the parent meeting's presentation when the breakout ends. The server-side default is taken from <code className="language-plaintext highlighter-rouge">defaultBreakoutRoomsCaptureSlides</code>. (added 2.6)</>)
+  },
+  {
+    "name": "breakoutRoomsCaptureSlidesFilename",
+    "required": false,
+    "type": "String",
+    "description": (<>Filename template for slides captured from breakout rooms when <code className="language-plaintext highlighter-rouge">breakoutRoomsCaptureSlides=true</code>. (added 2.6)</>)
+  },
+  {
+    "name": "breakoutRoomsCaptureNotes",
+    "required": false,
+    "type": "Boolean",
+    "description": (<>If set to <code className="language-plaintext highlighter-rouge">true</code>, the shared notes from each breakout room are exported back to the parent meeting's presentation when the breakout ends. The server-side default is taken from <code className="language-plaintext highlighter-rouge">defaultBreakoutRoomsCaptureNotes</code>. (added 2.6)</>)
+  },
+  {
+    "name": "breakoutRoomsCaptureNotesFilename",
+    "required": false,
+    "type": "String",
+    "description": (<>Filename template for shared notes captured from breakout rooms when <code className="language-plaintext highlighter-rouge">breakoutRoomsCaptureNotes=true</code>. (added 2.6)</>)
   },
   {
     "name": "meta",
@@ -240,7 +276,7 @@ const createEndpointTableData = [
     "required": false,
     "type": "Boolean",
     "default": false,
-    "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will disable notes in the meeting. (added 2.2)</>)
+    "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will disable notes in the meeting. (added 2.2)<br /><br /><i>Note:</i> <code className="language-plaintext highlighter-rouge">lockSettingsDisableNote</code> (singular) is accepted as a deprecated alias and logs a deprecation warning on the server.</>)
   },
   {
     "name": "lockSettingsHideUserList",
@@ -348,6 +384,30 @@ const createEndpointTableData = [
     "description": (<>Setting to <code className="language-plaintext highlighter-rouge">0</code> will disable this threshold. Defines the max number of webcams a meeting can have simultaneously. (added 2.5.0)</>)
   },
   {
+    "name": "maxPinnedCameras",
+    "required": false,
+    "type": "Number",
+    "description": (<>Per-meeting override of the <code className="language-plaintext highlighter-rouge">maxPinnedCameras</code> property in <code className="language-plaintext highlighter-rouge">bigbluebutton.properties</code>. Caps how many cameras can be pinned simultaneously in this meeting. Only positive values are applied. (added 2.6)</>)
+  },
+  {
+    "name": "cameraBridge",
+    "required": false,
+    "type": "String",
+    "description": (<>Per-meeting override of the <code className="language-plaintext highlighter-rouge">cameraBridge</code> property. Selects the media bridge used for camera streams. Valid values: <code className="language-plaintext highlighter-rouge">bbb-webrtc-sfu</code>, <code className="language-plaintext highlighter-rouge">livekit</code>. (added 3.0)</>)
+  },
+  {
+    "name": "screenShareBridge",
+    "required": false,
+    "type": "String",
+    "description": (<>Per-meeting override of the <code className="language-plaintext highlighter-rouge">screenShareBridge</code> property. Selects the media bridge used for screen share streams. Valid values: <code className="language-plaintext highlighter-rouge">bbb-webrtc-sfu</code>, <code className="language-plaintext highlighter-rouge">livekit</code>. (added 3.0)</>)
+  },
+  {
+    "name": "audioBridge",
+    "required": false,
+    "type": "String",
+    "description": (<>Per-meeting override of the <code className="language-plaintext highlighter-rouge">audioBridge</code> property. Selects the media bridge used for audio streams. Valid values: <code className="language-plaintext highlighter-rouge">bbb-webrtc-sfu</code>, <code className="language-plaintext highlighter-rouge">livekit</code>, <code className="language-plaintext highlighter-rouge">freeswitch</code>. (added 3.0)</>)
+  },
+  {
     "name": "meetingExpireIfNoUserJoinedInMinutes",
     "required": false,
     "type": "Number",
@@ -362,6 +422,12 @@ const createEndpointTableData = [
     "description": (<>Number of minutes to automatically end meeting after last user left. (added 2.5)<br />Setting to <code className="language-plaintext highlighter-rouge">0</code> will disable this function.</>)
   },
   {
+    "name": "logoutTimer",
+    "required": false,
+    "type": "Number",
+    "description": (<>Per-meeting override (in minutes) of the <code className="language-plaintext highlighter-rouge">clientLogoutTimerInMinutes</code> property. Logs out clients that have been unresponsive for this many minutes. <code className="language-plaintext highlighter-rouge">0</code> disables the timer.</>)
+  },
+  {
     "name": "groups",
     "required": false,
     "type": "String",
@@ -372,6 +438,18 @@ const createEndpointTableData = [
     "required": false,
     "type": "String",
     "description": (<>Pass a URL to an image which will then be visible in the area above the participants list if <code>displayBrandingArea</code> is set to <code>true</code> in bbb-html5's configuration</>)
+  },
+  {
+    "name": "darklogo",
+    "required": false,
+    "type": "String",
+    "description": (<>Like <code className="language-plaintext highlighter-rouge">logo</code>, but used when the client is in dark mode. If only <code className="language-plaintext highlighter-rouge">logo</code> is provided, it is used in both light and dark modes. (added 3.0)</>)
+  },
+  {
+    "name": "copyright",
+    "required": false,
+    "type": "String",
+    "description": (<>Custom copyright text shown in the client. Overrides the built-in copyright string for this meeting.</>)
   },
   {
     "name": "sharedNotesEditor",
