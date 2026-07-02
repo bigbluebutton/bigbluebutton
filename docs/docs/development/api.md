@@ -42,6 +42,8 @@ To make an API call to your BigBlueButton server, your application makes HTTPS r
 
 The BigBlueButton server returns an XML response to all API calls.
 
+This API has enabled a [growing list](https://www.bigbluebutton.org/integrations/) of 3rd party integrations with other open source products.
+
 ### Updates to API in BigBlueButton
 
 Updated in 0.9.0:

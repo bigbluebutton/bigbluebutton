@@ -413,6 +413,16 @@ In BigBlueButton 2.7.5/3.0.0-alpha.5 we stopped propagating the events.xml event
 - Client settings.yml: `skipVideoPreviewIfPreviousDevice`. Defaults to `false`
 - Can be overridden on JOIN with Custom Parameter: `userdata-bbb_skip_video_preview_if_previous_device=`
 
+#### Breakout rooms: lock-settings management and recording passthrough
+
+In BigBlueButton 3.0.28 we improved how lock settings and recording behave for breakout rooms:
+
+- Moderators can now manage lock settings from inside a breakout room, the same way they can in the parent meeting.
+- When creating breakout rooms, moderators can optionally **inherit the parent meeting's lock settings**. This is exposed as a checkbox in the create-breakout-rooms dialog; when unchecked, the parent lock settings are not propagated to the breakouts.
+- The recording parameters chosen on the parent meeting are now passed through to the breakout rooms.
+
+A new client setting, `public.app.breakouts.lockBreakoutRecordingSetting` (defaults to `false`), controls whether the breakout recording policy can be changed by the moderator at breakout creation time. Set it to `true` to remove that ability and force breakouts to follow the configured recording behavior.
+
 #### Replaced all user facing instances of "meeting" with the word "session"
 
 The word "session" is more generic and encompasses both educational and work contexts. Up until BigBlueButton 3.0 we were using the two keywords interchangeably. Moving forward we are preferring to use "session".
