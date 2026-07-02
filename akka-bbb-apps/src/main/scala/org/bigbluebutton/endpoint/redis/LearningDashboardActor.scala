@@ -660,7 +660,12 @@ class LearningDashboardActor(
   private def handleUserBroadcastCamStoppedEvtMsg(msg: UserBroadcastCamStoppedEvtMsg) {
     for {
       meeting <- meetings.values.find(m => m.intId == msg.header.meetingId)
+      // Fall back to findUserByAnyIntId: a cam-stopped event can arrive right after the user
+      // already left (session closed and currentIntId nulled), which findUserByIntId can't
+      // resolve. Without this the webcam stays open and gets clamped to the meeting's end,
+      // making webcam time exceed online time.
       user <- findUserByIntId(meeting, msg.body.userId)
+        .orElse(findUserByAnyIntId(meeting, msg.body.userId))
     } yield {
       user.webcams.lastOption match {
         case Some(webcam) if webcam.stoppedOn == 0 =>
@@ -1148,6 +1153,20 @@ class LearningDashboardActor(
     }
   }
 
+  // Latest moment the user was still online: the most recent session end across all their
+  // connections, treating a still-open session (leftOn == 0) as lasting until endedOn.
+  private def lastOnlineTime(user: User, endedOn: Long): Long = {
+    user.intIds.values
+      .map { userId =>
+        userId.sessions.lastOption match {
+          case Some(session) if session.leftOn > 0 => session.leftOn
+          case _                                   => endedOn
+        }
+      }
+      .maxOption
+      .getOrElse(endedOn)
+  }
+
   private def userWithLeftProps(user: User, endedOn: Long, forceFlaggedIdsToLeft: Boolean = true): User = {
     user.copy(
       currentIntId = null,
@@ -1158,9 +1177,15 @@ class LearningDashboardActor(
         totalTime = user.talk.totalTime + (if (user.talk.lastTalkStartedOn > 0) (endedOn - user.talk.lastTalkStartedOn) else 0),
         lastTalkStartedOn = 0
       ),
-      webcams = user.webcams.map { webcam =>
-        if(webcam.stoppedOn > 0) webcam
-        else webcam.copy(stoppedOn = endedOn)
+      // Clamp still-open webcams to when the user actually left, so webcam time can't exceed
+      // online time if a cam-stopped event was missed. Users still connected at the meeting end
+      // have lastOnlineTime == endedOn, preserving the previous behavior.
+      webcams = {
+        val clampTo = lastOnlineTime(user, endedOn)
+        user.webcams.map { webcam =>
+          if (webcam.stoppedOn > 0) webcam
+          else webcam.copy(stoppedOn = clampTo)
+        }
       }
     )
   }
