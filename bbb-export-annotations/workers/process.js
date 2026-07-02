@@ -4,6 +4,7 @@ import {createSVGWindow} from 'svgdom';
 import {SVG as svgCanvas, registerWindow} from '@svgdotjs/svg.js';
 import cp from 'child_process';
 import WorkerStarter from '../lib/utils/worker-starter.js';
+import {rasterizeSlideBackground} from '../lib/utils/slide-background.js';
 import {workerData} from 'worker_threads';
 import path from 'path';
 import sanitize from 'sanitize-filename';
@@ -378,9 +379,40 @@ async function processPresentationAnnotations() {
           'xmlns:xlink': 'http://www.w3.org/1999/xlink',
         });
 
+    // The background slide is composited into the annotated SVG as an <image>
+    // sized to the canvas. When the background is itself an SVG, CairoSVG only
+    // rescales it to that box if it is resolution-independent; slides carrying
+    // absolute units (e.g. width="720pt") keep their intrinsic size and render
+    // cropped into the top-left corner (issue #25303). Rasterizing the slide to
+    // a PNG first sidesteps this: a raster image always scales to the <image>
+    // box. The helper ensures the slide has a viewBox (so slides missing one
+    // still fill the raster) and renders at the same resolution as the final
+    // SVG->PDF pass (toPx of the slide dims) so the background stays sharp.
+    let backgroundSlide = `${bgImagePath}.${backgroundFormat}`;
+
+    if (backgroundFormat === 'svg') {
+      try {
+        // Rasterize the same SVG we validated above (svgBackgroundSlide), not
+        // the dropbox copy, so it is clear which file feeds the raster.
+        backgroundSlide = rasterizeSlideBackground(
+            svgBackgroundSlide,
+            `${bgImagePath}-bg.png`,
+            {
+              width: toPx(slideWidth),
+              height: toPx(slideHeight),
+              cairosvg: config.shared.cairosvg,
+              unsafe: config.process.cairoSVGUnsafeFlag,
+            });
+      } catch (error) {
+        logger.error(`Rasterizing slide ${currentSlide.page} ` +
+          `failed for job ${jobId}: ${error.message}`);
+        statusUpdate.setError();
+      }
+    }
+
     // Add the image element
     canvas
-        .image(`file://${dropbox}/slide${currentSlide.page}.${backgroundFormat}`)
+        .image(`file://${backgroundSlide}`)
         .size(scaledWidth, scaledHeight);
 
     // Add a group element with class 'whiteboard'

@@ -5,7 +5,7 @@ import {
 import {
   colorGrayLabel,
   colorWhite,
-  colorGrayLighter,
+  colorBorder,
   colorPrimary,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
@@ -18,7 +18,7 @@ const CaptionsSelector = styled.div`
 
 const Select = styled.select`
   background-color: ${colorWhite};
-  border: 0.1rem solid ${colorGrayLighter};
+  border: 0.1rem solid ${colorBorder};
   border-radius: ${borderSize};
   color: ${colorGrayLabel};
   width: 100%;

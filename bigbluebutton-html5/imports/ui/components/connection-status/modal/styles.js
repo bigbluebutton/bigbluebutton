@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import {
+  colorBorder,
   colorOffWhite,
   colorGrayDark,
-  colorGrayLightest,
   colorPrimary,
   colorWhite,
   btnPrimaryActiveBg,
@@ -39,7 +39,7 @@ const Item = styled.li`
   display: flex;
   width: 100%;
   height: 4rem;
-  border-bottom: 1px solid ${colorGrayLightest};
+  border-bottom: 1px solid ${colorBorder};
 
   ${({ last }) => last && `
     border: none;

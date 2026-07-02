@@ -20,8 +20,9 @@ import {
   colorSuccess,
   colorBlueLightest,
   colorGrayLight,
-  colorGrayLightest,
+  colorBorder,
   colorGrayDark,
+  colorSelectedCorrectAnswerText,
   emphasizedMessageBackgroundColor,
   highlightedMessageBorderColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -82,7 +83,7 @@ export const ChatWrapper = styled.div<ChatWrapperProps>`
     `}
   ${({ messageHighlight }) => messageHighlight && `
     background-color: #fef9f1;
-    border-left: 2px solid #f5c67f;
+    border-left: 2px solid ${colorSelectedCorrectAnswerText};
     border-radius: 0px 3px 3px 0px;
     padding: 8px 2px;
   `}
@@ -274,7 +275,7 @@ export const PluginInformationMetadata = styled.div`
 export const DeleteMessage = styled.span`
   color: ${colorGrayLight};
   padding: ${mdPadding} ${xlPadding};
-  border: 1px solid ${colorGrayLightest};
+  border: 1px solid ${colorBorder};
   border-radius: 0.375rem;
 `;
 

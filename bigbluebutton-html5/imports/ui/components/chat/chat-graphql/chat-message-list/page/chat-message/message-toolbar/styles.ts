@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components';
 import {
-  colorGrayLighter,
+  colorBorder,
   colorGrayLightest,
   colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -50,7 +50,7 @@ const Container = styled.div`
   display: flex;
   border-radius: 1rem;
   background-color: ${colorWhite};
-  box-shadow: 0 0.125rem 0.125rem 0 ${colorGrayLighter};
+  box-shadow: 0 0.125rem 0.125rem 0 ${colorBorder};
   padding: ${smPadding} ${lgPadding};
   gap: ${smPadding};
 `;
@@ -60,7 +60,7 @@ const EmojiPickerWrapper = styled.div`
   bottom: calc(100% + 0.5rem);
   left: 0;
   right: 0;
-  border: 1px solid ${colorGrayLighter};
+  border: 1px solid ${colorBorder};
   border-radius: ${borderRadius};
   box-shadow: 0 0.125rem 10px rgba(0,0,0,0.1);
   z-index: 1000;

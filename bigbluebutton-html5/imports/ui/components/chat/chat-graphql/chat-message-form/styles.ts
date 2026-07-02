@@ -1,11 +1,10 @@
 import styled from 'styled-components';
 import {
-  colorBlueLight,
   colorText,
-  colorGrayLighter,
+  colorBorder,
+  colorPrimary,
   colorDanger,
   colorGrayDark,
-  colorGrayLightest,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
@@ -124,7 +123,7 @@ position: absolute;
 bottom: calc(100% + 0.5rem);
 left: 0;
 right: 0;
-border: 1px solid ${colorGrayLighter};
+border: 1px solid ${colorBorder};
 border-radius: ${borderRadius};
 box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 z-index: 1000;
@@ -169,7 +168,7 @@ const InputWrapper = styled.div`
   min-width: 0;
   z-index: 0;
   padding: 1px 0 1px 1px;
-  border: 1px solid ${colorGrayLightest};
+  border: 1px solid ${colorBorder};
 
   [dir='ltr'] & {
     border-radius: 0.75rem 0 0 0.75rem;
@@ -180,7 +179,8 @@ const InputWrapper = styled.div`
   }
 
   &:focus-within {
-    border: 1px solid ${colorBlueLight};
+    border-color: ${colorPrimary};
+    box-shadow: 0 0 0 ${borderSize} ${colorPrimary};
   }
 `;
 
