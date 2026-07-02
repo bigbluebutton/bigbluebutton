@@ -1249,6 +1249,7 @@
     "app.lock-viewers.tabs.presentationPermissions": "発表の方針",
     "app.lock-viewers.guestPolicy.title": "ゲストポリシー",
     "app.lock-viewers.guestPolicy.description": "議に参加しようとするゲストの扱いを設定",
+    "app.lock-viewers.guestPolicy.lobbyMessageSent": "Message sent successfully!",
     "app.lock-viewers.participantPermissions.title": "参加者の権限の許可",
     "app.lock-viewers.participantPermissions.description": "以下のオプションは参加者の権限を規定しています。チェックを外すことで、許可を取り消すことができます。",
     "app.lock-viewers.presentationPermissions.title": "発表の方針",
