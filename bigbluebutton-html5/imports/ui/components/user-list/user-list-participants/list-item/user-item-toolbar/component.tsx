@@ -94,7 +94,7 @@ const UserItemToolbar: React.FC<UserItemToolbarProps> = ({
         ...makeDropdownPluginItem(beforeUserDropdownItems),
         ...allowedOtherToolbarOptions,
         ...makeDropdownPluginItem(afterUserDropdownItems),
-      ];
+      ].filter((action) => action.allowed);
       return (
         <>
           {addSeparator && <Styled.Pipe key={uniqueId('separator-toolbar')}> | </Styled.Pipe>}
