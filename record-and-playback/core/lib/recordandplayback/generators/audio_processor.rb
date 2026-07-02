@@ -37,7 +37,7 @@ module BigBlueButton
       BigBlueButton.logger.info("AudioProcessor.process: Processing audio...")
 
       events_xml = "#{archive_dir}/events.xml"
-      events = Nokogiri::XML(File.open(events_xml))
+      events = Nokogiri::XML(File.read(events_xml))
 
       audio_edl = BigBlueButton::AudioEvents.create_audio_edl(events, archive_dir)
       BigBlueButton::EDL::Audio.dump(audio_edl)

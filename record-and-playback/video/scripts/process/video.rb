@@ -42,13 +42,9 @@ end
 
 # Load parameters and set up paths
 props = BigBlueButton.read_props
-video_props = File.open(File.expand_path('../video.yml', __dir__)) do |video_props_file|
-  YAML.safe_load(video_props_file)
-end
+video_props = YAML.safe_load(File.read(File.expand_path('../video.yml', __dir__)))
 begin
-  video_props_override = File.open('/etc/bigbluebutton/recording/video.yml') do |video_props_override_file|
-    YAML.safe_load(video_props_override_file)
-  end
+  video_props_override = YAML.safe_load(File.read('/etc/bigbluebutton/recording/video.yml'))
   # Merge the presets separately, to allow someone to use the override file to add additional presets
   if video_props.include?('presets') && video_props_override.include?('presets')
     video_props['presets'].merge!(video_props_override.delete('presets'))
@@ -77,7 +73,7 @@ end
 FileUtils.mkdir_p process_dir
 
 logger.info 'Reading basic recording information'
-events = Nokogiri::XML(File.open("#{raw_archive_dir}/events.xml"))
+events = Nokogiri::XML(File.read("#{raw_archive_dir}/events.xml"))
 initial_timestamp = BigBlueButton::Events.first_event_timestamp(events)
 final_timestamp = BigBlueButton::Events.last_event_timestamp(events)
 duration = BigBlueButton::Events.get_recording_length(events)

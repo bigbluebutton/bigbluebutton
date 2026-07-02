@@ -59,7 +59,7 @@ meeting_id = options[:meeting_id]
 
 # This script lives in scripts/post_events
 # while properties.yaml lives in scripts/
-props = YAML.safe_load(File.open('../../core/scripts/bigbluebutton.yml'))
+props = YAML.safe_load(File.read('../../core/scripts/bigbluebutton.yml'))
 
 recording_dir = props['recording_dir']
 events_dir = props['events_dir']
@@ -145,7 +145,7 @@ begin
   data_json_path = "#{meeting_events_dir}/data.json"
 
   # Only process meetings that include analytics_callback_url
-  events_xml = File.open(events_xml_path, 'r') { |io| Nokogiri::XML(io) }
+  events_xml = Nokogiri::XML(File.read(events_xml_path))
   metadata = events_xml.at_xpath('/recording/metadata')
 
   analytics_callback_url = metadata.attributes['analytics-callback-url']&.content
@@ -176,9 +176,8 @@ begin
     File.open(data_json_path, 'w') do |f|
       f.write(events_data.to_json)
     end
-
-    json_file = File.open(data_json_path)
-    data = JSON.load(json_file)
+    
+    data = JSON.load(File.read(data_json_path))
 
     format_analytics_data!(data)
 
