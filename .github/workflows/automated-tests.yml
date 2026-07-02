@@ -548,6 +548,113 @@ jobs:
           else
             npm run test-chromium-ci
           fi
+      - name: Download official plugins with tests
+        run: |
+          mkdir -p bigbluebutton-tests/official-plugins
+          jq -r '.[] | [.name, .repo, .ref] | @tsv' .github/ci-tested-plugins.json \
+          | while IFS=$'\t' read -r NAME REPO REF; do
+            echo "Downloading $NAME from $REPO at ref $REF"
+            mkdir -p "bigbluebutton-tests/official-plugins/$NAME"
+            wget --no-verbose -O "/tmp/${NAME}.tar.gz" "https://github.com/${REPO}/archive/${REF}.tar.gz"
+            tar -xzf "/tmp/${NAME}.tar.gz" -C "bigbluebutton-tests/official-plugins/$NAME" --strip-components=1
+          done
+      - name: Build and deploy official plugins
+        run: |
+          jq -r '.[] | [.name, .servePath] | @tsv' .github/ci-tested-plugins.json \
+          | while IFS=$'\t' read -r NAME SERVE_PATH; do
+            echo "Building $NAME"
+            (
+              cd "bigbluebutton-tests/official-plugins/$NAME"
+              npm ci
+              npm run build-bundle
+              sudo mkdir -p "/var/www/bigbluebutton-default/${SERVE_PATH}"
+              sudo cp -r dist "/var/www/bigbluebutton-default/${SERVE_PATH}/"
+            )
+          done
+      - name: Install official plugin playwright browsers
+        run: |
+          jq -r '.[].name' .github/ci-tested-plugins.json \
+          | while IFS= read -r NAME; do
+            echo "Installing Playwright browsers for $NAME"
+            (
+              cd "bigbluebutton-tests/official-plugins/$NAME"
+              npx playwright install chromium
+            )
+          done
+      - name: Run official plugin tests
+        timeout-minutes: 25
+        env:
+          NODE_EXTRA_CA_CERTS: /usr/local/share/ca-certificates/bbb-dev/bbb-dev-ca.crt
+          ACTIONS_RUNNER_DEBUG: true
+          BBB_URL: https://bbb-ci.test/bigbluebutton/
+          BBB_SECRET: bbbci
+        run: |
+          overall_exit=0
+          while IFS= read -r NAME; do
+            echo "Running tests for $NAME"
+            (
+              cd "bigbluebutton-tests/official-plugins/$NAME"
+
+              normalize_flaky() {
+                grep -Ev '^[[:space:]]*(#|$)' \
+                  | sed 's/\r$//' \
+                  | sed -E 's/[][(){}.^$*+?|\]/\\&/g' \
+                  | sed 's/ › /.*/g'
+              }
+
+              FLAKY_PATTERN="$({
+                if [ -f "flaky-tests.txt" ]; then
+                  normalize_flaky < flaky-tests.txt || true
+                fi
+                jq -r --arg name "$NAME" '.[] | select(.name == $name) | .flakyTests // [] | .[]' \
+                  "$GITHUB_WORKSPACE/.github/ci-tested-plugins.json" \
+                  | normalize_flaky
+              } | sort -u | paste -sd'|' -)"
+
+              if [ -n "$FLAKY_PATTERN" ]; then
+                npm run test-chromium-ci -- --grep-invert "$FLAKY_PATTERN"
+              else
+                npm run test-chromium-ci
+              fi
+            ) || overall_exit=1
+          done < <(jq -r '.[].name' .github/ci-tested-plugins.json)
+          exit $overall_exit
+      - if: failure()
+        name: Upload official plugin blob reports
+        uses: actions/upload-artifact@v6
+        with:
+          name: blob-report-official-plugins
+          path: bigbluebutton-tests/official-plugins/**/blob-report
+          if-no-files-found: ignore
+      - if: failure()
+        name: Generate official plugin HTML reports from blob reports
+        shell: bash
+        run: |
+          jq -r '.[].name' .github/ci-tested-plugins.json \
+          | while IFS= read -r NAME; do
+            BLOB_DIR="bigbluebutton-tests/official-plugins/$NAME/blob-report"
+            if [ -d "$BLOB_DIR" ]; then
+              echo "Generating HTML report for $NAME"
+              (
+                cd "bigbluebutton-tests/official-plugins/$NAME"
+                npx playwright merge-reports --reporter html ./blob-report
+              )
+            fi
+          done
+      - if: failure()
+        name: Upload official plugin HTML reports
+        uses: actions/upload-artifact@v6
+        with:
+          name: test-report_official-plugins
+          path: bigbluebutton-tests/official-plugins/**/playwright-report
+          if-no-files-found: ignore
+      - if: always()
+        name: Upload official plugin logs
+        uses: actions/upload-artifact@v6
+        with:
+          name: browser-logs-official-plugins
+          path: bigbluebutton-tests/official-plugins/**/logs
+          if-no-files-found: ignore
       - if: failure()
         name: Upload blob report to GitHub Actions Artifacts
         uses: actions/upload-artifact@v6
