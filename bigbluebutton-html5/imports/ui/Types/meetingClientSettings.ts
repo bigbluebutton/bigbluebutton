@@ -750,6 +750,10 @@ export interface Whiteboard {
   annotationsQueueProcessInterval: number
   cursorInterval: number
   pointerDiameter: number
+  laserRadiusSmall: number
+  laserRadiusLarge: number
+  laserRedColor: string
+  laserGreenColor: string
   maxStickyNoteLength: number
   maxNumberOfAnnotations: number
   maxNumberOfActiveUsers: number

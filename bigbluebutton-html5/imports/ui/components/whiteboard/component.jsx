@@ -172,10 +172,15 @@ const Whiteboard = React.memo((props) => {
     isInfiniteWhiteboard,
     whiteboardWriters,
     isPhone,
+    isMobile,
     setEditor,
     lockToolbarTools,
     layoutChanged,
     pointerDiameter = 5,
+    laserRadiusSmall,
+    laserRadiusLarge,
+    laserRedColor,
+    laserGreenColor,
   } = props;
 
   const allowInfiniteWhiteboardPanForViewers = window.meetingClientSettings?.public?.whiteboard?.allowInfiniteWhiteboardPanForViewers;
@@ -192,7 +197,12 @@ const Whiteboard = React.memo((props) => {
   const [cursorType, setCursorType] = React.useState('');
   const [cursorZoom, setCursorZoom] = React.useState({ slideZoom: 1, containerZoom: 1 });
   const updateCursorZoomRef = React.useRef(null);
-
+  const [laserMenuVisible, setLaserMenuVisible] = React.useState(false);
+  const [laserMenuPos, setLaserMenuPos] = React.useState({ x: 0, y: 0 });
+  const laserMenuRef = React.useRef(null);
+  const [laserMode, setLaserMode] = React.useState('');
+  const [presenterCursorPoint, setPresenterCursorPoint] = React.useState( { x: -1, y: -1} );
+  
   if (isMounting) {
     setDefaultEditorAssetUrls(getCustomEditorAssetUrls());
     setDefaultUiAssetUrls(getCustomAssetUrls());
@@ -234,9 +244,20 @@ const Whiteboard = React.memo((props) => {
   const hasZoomSyncedRef = useRef(false);
   const lastForcedViewRef = useRef(null);
   const currentUserRef = useRef(currentUser);
+  const currentLaserTypeRef = React.useRef(null);
+  const laserLayerRef = React.useRef(null);
+  const laserElRef = React.useRef(null);
 
   currentUserRef.current = currentUser;
 
+  const laserItems = [
+    { key: 'redSmall',   label: '🔴', size: 10 },
+    { key: 'greenSmall', label: '🟢', size: 10 },
+    { key: 'redLarge',   label: '🔴', size: 18 },
+    { key: 'greenLarge', label: '🟢', size: 18 },
+    { key: '',           label: '✋', size: 14 },
+  ];
+  
   const [pageZoomMap, setPageZoomMap] = useState(() => {
     try {
       const saved = localStorage.getItem('pageZoomMap');
@@ -915,6 +936,7 @@ const Whiteboard = React.memo((props) => {
   const updateCursorPosition = useCursor(
     publishCursorUpdate,
     whiteboardIdRef.current,
+    laserMode,
   );
 
   const setCamera = (zoom, x = 0, y = 0) => {
@@ -1964,6 +1986,62 @@ const Whiteboard = React.memo((props) => {
     }
   };
 
+  const makeLaserSvg = ({ color, cx, cy, r }, id) => {
+    const width = cx * 2;
+    const height = cy * 2;
+
+    // On Windows and Linux, it darkens towards the edge
+    return `
+      <svg class="bbb-laser-pointer" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+        <defs>
+          <radialGradient id="g-${id}">
+            <stop offset="0%" stop-color="${color}" stop-opacity="0.95"/>
+            <stop offset="50%" stop-color="${color}" stop-opacity="0.70"/>
+            <stop offset="100%" stop-color="${color}" stop-opacity="0.1"/>
+          </radialGradient>
+        </defs>
+        <circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#g-${id})" />
+      </svg>
+      `.replace(/\s+/g, ' ').trim();
+  };
+
+  const laserDefs = {
+    redSmall:   { color: laserRedColor,   cx: laserRadiusSmall+2, cy: laserRadiusSmall+2, r: laserRadiusSmall },
+    greenSmall: { color: laserGreenColor, cx: laserRadiusSmall+2, cy: laserRadiusSmall+2, r: laserRadiusSmall },
+    redLarge:   { color: laserRedColor,   cx: laserRadiusLarge+2, cy: laserRadiusLarge+2, r: laserRadiusLarge },
+    greenLarge: { color: laserGreenColor, cx: laserRadiusLarge+2, cy: laserRadiusLarge+2, r: laserRadiusLarge },
+  };
+
+  const laserSvgs = Object.fromEntries(
+    Object.entries(laserDefs).map(([key, def]) => [
+      key,
+      makeLaserSvg(def, key),
+    ])
+  );
+
+  const svgToCursor = (svg, x, y) =>
+    `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}") ${x} ${y}, auto`;
+
+  const cursorLasers = Object.fromEntries(
+    Object.entries(laserDefs).map(([key, def]) => [
+      key,
+      svgToCursor(laserSvgs[key], def.cx, def.cy),
+    ])
+  );
+
+  const createLaserElement = (svgString, targetDoc) => {
+    const wrapper = targetDoc.createElement('div');
+    wrapper.className = 'custom-laser';
+    wrapper.innerHTML = svgString;
+    const el = wrapper.firstChild;
+    Object.assign(el.style, {
+      position: 'absolute',
+      pointerEvents: 'none',
+      overflow: 'visible',
+    });
+    return el;
+  };
+
   useMouseEvents(
     {
       whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoomRef, isPresenterRef,
@@ -2170,6 +2248,119 @@ const Whiteboard = React.memo((props) => {
   }, [currentPresentationPage, isPresenter, viewerCanPan]);
 
   React.useEffect(() => {
+    const targetDoc = document;
+    const presentationWrapper = targetDoc.querySelector('#presentationInnerWrapper');
+    if (!presentationWrapper) return;
+    if (!isPresenter) return;
+
+    const handleContextMenu = (e) => {
+      const tool = tlEditorRef.current?.getCurrentToolId?.();
+      if (tool !== 'hand') return;
+      if (!presentationWrapper.contains(e.target)) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      setLaserMenuPos({ x: e.clientX, y: e.clientY });
+      setLaserMenuVisible(true);
+    };
+
+    let timer = null;
+
+    const handleTouchStart = (e) => {
+      const tool = tlEditorRef.current?.getCurrentToolId?.();
+     if (tool !== 'hand') return;
+      if (!presentationWrapper.contains(e.target)) return;
+
+      const touch = e.touches[0];
+
+      timer = setTimeout(() => {
+        setLaserMenuPos({
+          x: touch.clientX,
+          y: touch.clientY,
+        });
+        setLaserMenuVisible(true);
+      }, 500);
+    };
+
+    const cancel = () => {
+      clearTimeout(timer);
+    };
+
+    presentationWrapper.addEventListener('contextmenu', handleContextMenu, true);
+    presentationWrapper.addEventListener('touchstart', handleTouchStart, true);
+    presentationWrapper.addEventListener('touchend', cancel, true);
+    presentationWrapper.addEventListener('touchmove', cancel, true);
+
+    return () => {
+      presentationWrapper.removeEventListener('contextmenu', handleContextMenu, true);
+      presentationWrapper.removeEventListener('touchstart', handleTouchStart, true);
+      presentationWrapper.removeEventListener('touchend', cancel, true);
+      presentationWrapper.removeEventListener('touchmove', cancel, true);
+    };
+  }, [isPresenter]);
+
+  React.useEffect(() => {
+    if (!laserMenuVisible) return;
+    
+    const targetDoc = document;
+    const presentationWrapper = targetDoc.querySelector('#presentationInnerWrapper');
+    if (!presentationWrapper) return;
+
+    const handleOutsideClick = (e) => {
+      if (laserMenuRef.current?.contains(e.target)) return;
+      setLaserMenuVisible(false);
+    };
+
+    presentationWrapper.addEventListener('pointerdown', handleOutsideClick, true);
+
+    return () => {
+      presentationWrapper.removeEventListener('pointerdown', handleOutsideClick, true);
+    };
+  }, [laserMenuVisible]);
+
+  React.useEffect(() => {
+    // compensation at the window edge
+    if (!laserMenuVisible) return;
+    const targetDoc = document;
+
+    const el = laserMenuRef.current;
+    if (!el) return;
+
+    const rect = el.getBoundingClientRect();
+    const vw = targetDoc.defaultView.innerWidth;
+    const vh = targetDoc.defaultView.innerHeight;
+
+    let x = laserMenuPos.x;
+    let y = laserMenuPos.y;
+
+    if (rect.right > vw) x = vw - rect.width - 8;
+    if (rect.bottom > vh) y = vh - rect.height - 50;
+
+    if (x !== laserMenuPos.x || y !== laserMenuPos.y) {
+      setLaserMenuPos({ x, y });
+    }
+  }, [laserMenuVisible]);
+
+  React.useEffect(() => {
+    const targetDoc = document;
+    if (!isPresenter) return;
+    const el = targetDoc.querySelector('.tl-container');
+    if (!el) return;
+
+    removeViewerLaser();
+    
+    const laser = cursorLasers[laserMode];
+    if (laser) {
+      el.style.setProperty('--tl-cursor-grab', laser);
+      el.style.setProperty('--tl-cursor-grabbing', laser);
+    } else {
+      el.style.removeProperty('--tl-cursor-grab');
+      el.style.removeProperty('--tl-cursor-grabbing');
+    }
+  }, [laserMode, isPresenter]);
+
+  React.useEffect(() => {
     if (tlEditorRef.current) {
       const useElement = document.querySelector('.tl-cursor use');
       if (useElement && !isMultiUserActive && !isPresenter) {
@@ -2196,7 +2387,7 @@ const Whiteboard = React.memo((props) => {
 
       const updatedPresences = otherCursors
         .map(({
-          userId, xPercent, yPercent, presenter, name, isModerator,
+          userId, xPercent, yPercent, laserType, presenter, name, isModerator,
         }) => {
           const id = InstancePresenceRecordType.createId(userId);
           const active = xPercent !== -1 && yPercent !== -1;
@@ -2244,6 +2435,94 @@ const Whiteboard = React.memo((props) => {
       }
     }
   }, [otherCursors, whiteboardWriters]);
+
+  // Store presenter's cursor position to draw laser for mobile presenter
+  React.useEffect(() => {
+    tlEditorRef.current?.store.listen(({ changes }) => {
+      const p = tlEditorRef.current?.inputs.currentPagePoint;
+      if (p && tlEditorRef.current) {
+        const screenPos = tlEditorRef.current.pageToScreen(p);
+        setPresenterCursorPoint( {x: screenPos.x, y: screenPos.y} );
+      }
+    })
+  }, [tlEditorRef.current]);
+
+  const removeViewerLaser = () => {
+    laserElRef.current = null;
+    const targetDoc = document;
+    const lasers = targetDoc.querySelectorAll('.bbb-laser-pointer');
+    lasers.forEach(el => el.remove());
+  };
+
+  // Show viewers Laser SVG
+  React.useEffect(() => {
+    if (isPresenter) return;
+    //if (isMultiUserActive) return;
+
+    const targetDoc = document;
+
+    const tlContainer = targetDoc.querySelector('.tl-container');
+
+    let layer = laserLayerRef.current;
+    if (!layer || !targetDoc.contains(layer)) {
+      layer = targetDoc.querySelector('.tl-overlays > .tl-html-layer');
+      laserLayerRef.current = layer;
+    }
+
+    let laserEl = laserElRef.current;
+
+    const presenterCursor = otherCursors.find(c => c.presenter);
+    if (!presenterCursor) return;
+    
+    const laserKey = presenterCursor?.laserType;
+    const laserDef = laserDefs[laserKey];
+
+    const changed = laserKey !== currentLaserTypeRef.current;
+    if (changed) {
+      currentLaserTypeRef.current = laserKey;
+      laserEl?.remove();
+      laserEl = null;
+      laserElRef.current = null;
+      const defaultPointer = document.getElementById('redPointer');
+      if (!laserDef) {
+        // Presenter uses hand tool, so the default red pointer is visible for viewers
+        defaultPointer?.style.setProperty('display', 'block');
+      } else {
+        // Presenter uses laser pointer, so the default red pointer is invisible for viewers
+        defaultPointer?.style.setProperty('display', 'none');
+      }
+    }
+
+    if (!layer) return;
+    if (!laserDef) return; // meaning that hand tool is selected, so we move forward to draw laser pointer
+
+    if (!laserEl && layer) {
+      laserEl = createLaserElement(laserSvgs[laserKey], targetDoc);
+      layer.appendChild(laserEl);
+      laserElRef.current = laserEl;
+    }
+
+    const { z: zoom } = tlEditorRef.current ? tlEditorRef.current.getCamera() : 1;
+
+    const x = presenterCursor.xPercent;
+    const y = presenterCursor.yPercent;
+    if (x === -1 || y === -1) {
+      removeViewerLaser();
+      return;
+    }
+
+    // Keep cursor size regardless of the slide zoom or window size change,
+    //   similar to the pointer of the presenter (CSS-based) or the one in the real world.
+    laserEl.style.transform = `
+      translate(${x - laserDef.cx}px, ${y - laserDef.cy}px)
+      scale(${1/zoom})
+    `;
+    return;
+  }, [otherCursors, isPresenter]);
+
+  React.useEffect(() => {
+    removeViewerLaser();
+  }, [curPageId]);
 
   const updateStore = (pages, cameras) => {
     tlEditorRef.current.store.put(pages);
@@ -2453,6 +2732,49 @@ const Whiteboard = React.memo((props) => {
           viewerCanPan,
         }}
       />
+      { (isPresenter && isMobile) && (() => {
+        const svg = laserSvgs[laserMode];
+        if (!svg) return null;
+        const tool = tlEditorRef.current?.getCurrentToolId?.();
+        if (tool !== 'hand') return;
+        const svgMobilePresenter = svg.replace(
+          'bbb-laser-pointer',
+          'bbb-laser-pointer-mobile-presenter'
+        );
+        return (
+          <div
+            style={{
+              position: 'fixed',
+              left: presenterCursorPoint.x - laserDefs[laserMode].cx,
+              top: presenterCursorPoint.y - laserDefs[laserMode].cy,
+              pointerEvents: 'none',
+              zIndex: 200,
+            }}
+            dangerouslySetInnerHTML={{ __html: svgMobilePresenter}}
+          />
+        );
+      })()}
+      {laserMenuVisible && (
+        <Styled.LaserContextMenu
+          ref={laserMenuRef}
+          style={{
+            left: laserMenuPos.x,
+            top: laserMenuPos.y,
+          }}
+        >
+          {laserItems.map(({ key, label, size }) => (
+            <Styled.LaserMenuItem
+              key={key}
+              onClick={() => {
+                setLaserMode(key);
+                setLaserMenuVisible(false);
+              }}
+            >
+              <span style={{ fontSize: size }}>{label}</span>
+            </Styled.LaserMenuItem>
+          ))}
+        </Styled.LaserContextMenu>
+      )}
     </div>
   );
 });
@@ -2462,6 +2784,7 @@ export default Whiteboard;
 Whiteboard.propTypes = {
   isPresenter: PropTypes.bool,
   isPhone: PropTypes.bool,
+  isMobile: PropTypes.bool,
   removeShapes: PropTypes.func.isRequired,
   persistShapeWrapper: PropTypes.func.isRequired,
   notifyNotAllowedChange: PropTypes.func.isRequired,
@@ -2491,6 +2814,10 @@ Whiteboard.propTypes = {
   presentationAreaWidth: PropTypes.number.isRequired,
   maxNumberOfAnnotations: PropTypes.number.isRequired,
   pointerDiameter: PropTypes.number,
+  laserRadiusSmall: PropTypes.number.isRequired,
+  laserRadiusLarge: PropTypes.number.isRequired,
+  laserRedColor: PropTypes.string.isRequired,
+  laserGreenColor: PropTypes.string.isRequired,
   setTldrawIsMounting: PropTypes.func.isRequired,
   presentationId: PropTypes.string,
   setTldrawAPI: PropTypes.func.isRequired,

@@ -1753,6 +1753,7 @@ CREATE UNLOGGED TABLE "pres_page_cursor" (
     "userId" varchar(50),
     "xPercent" numeric,
     "yPercent" numeric,
+	"laserType" varchar(50),
     "lastUpdatedAt" timestamp with time zone DEFAULT now(),
     CONSTRAINT "pres_page_cursor_pkey" PRIMARY KEY ("pageId","meetingId","userId"),
     FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId","userId") ON DELETE CASCADE

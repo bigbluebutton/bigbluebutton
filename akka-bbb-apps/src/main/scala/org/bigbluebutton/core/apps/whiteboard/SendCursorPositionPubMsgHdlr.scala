@@ -17,7 +17,7 @@ trait SendCursorPositionPubMsgHdlr extends RightsManagementTrait {
       val envelope = BbbCoreEnvelope(SendCursorPositionEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(SendCursorPositionEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
-      val body = SendCursorPositionEvtMsgBody(msg.body.whiteboardId, userIsViewer, msg.body.xPercent, msg.body.yPercent)
+      val body = SendCursorPositionEvtMsgBody(msg.body.whiteboardId, userIsViewer, msg.body.xPercent, msg.body.yPercent, msg.body.laserType)
       val event = SendCursorPositionEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)
