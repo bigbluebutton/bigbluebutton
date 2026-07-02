@@ -45,7 +45,7 @@
     "express-rate-limit": "^8.5.1",
     "express-ws": "^5.0.2",
     "form-data": "^4.0.5",
-    "js-yaml": "^4.1.1",
+    "js-yaml": "^4.2.0",
     "pg": "^8.20.0",
     "redis": "^5.11.0",
     "twemoji": "^14.0.2",
