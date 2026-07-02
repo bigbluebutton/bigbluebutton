@@ -469,6 +469,20 @@ display_bigbluebutton_status () {
             printf "%s %s [✘ - $status]\n" $unit "${line:${#unit}}"
         fi
     done
+
+    # Display firewall status
+    echo
+    local line_offset=10   # length of "└─ Status: " in characters
+    if which ufw > /dev/null 2>&1; then
+        firewall_name="ufw"; firewall_status=$($SUDO ufw status | head -1 | sed 's/Status: //')
+    elif which firewall-cmd > /dev/null 2>&1; then
+        firewall_name="firewalld"; firewall_status=$(firewall-cmd --state > /dev/null 2>&1 && echo "active" || echo "inactive")
+    else
+        firewall_name="none"; firewall_status="inactive"
+    fi
+    checkmark=$([ "$firewall_status" = "active" ] && echo "✔" || echo "✘")
+    echo "Firewall: $firewall_name"
+    echo "└─ Status: ${line:$line_offset} [$checkmark - firewall:$firewall_status]"
 }
 
 if [ $# -eq 0 ]; then
@@ -806,13 +820,22 @@ check_configuration() {
        echo
     fi
 
-    if ! which ufw > /dev/null 2>&1; then
-       echo
-       echo "# Warning: No firewall detected.  Recommend using setting up a firewall for your server"
-       echo "#"
-       echo "#     https://docs.bigbluebutton.org/administration/firewall-configuration"
-       echo "#"
-       echo
+    # Check for firewall presence (ufw or firewalld)
+    FIREWALL_DETECTED=""
+
+    if which ufw > /dev/null 2>&1; then
+        FIREWALL_DETECTED="ufw"
+    elif which firewall-cmd > /dev/null 2>&1; then
+        FIREWALL_DETECTED="firewalld"
+    fi
+
+    if [ -z "$FIREWALL_DETECTED" ]; then
+        echo
+        echo "# Warning: No firewall detected.  Recommend using setting up a firewall for your server"
+        echo "#"
+        echo "#     https://docs.bigbluebutton.org/administration/firewall-configuration"
+        echo "#"
+        echo
     fi
 
     #
