@@ -636,12 +636,15 @@ to pass this to BigBlueButton add the following parameter to the `create` API ca
 
 Later, when the recording is ready, the BigBlueButton server will make an HTTPS POST request to this URL (https is supported and recommended).
 
+If BigBlueButton publishes multiple playback formats for the recording, it will make one callback for each playback format. Each callback URL includes a `type` query parameter with the playback format name, such as `presentation` or `video`, so the callback URL would look like `https://example.com/api/v1/recording_status?type=presentation`.
+
 The POST request body will be in the standard `application/x-www-form-urlencoded` format. The body will contain one parameter, named `signed_parameters`. The value of this parameter is a JWT (JSON Web Tokens) encoded string.
 
-The JWT will be encoded using the "HS256" method. (i.e. the header should be `{ "typ": "JWT", "alg": "HS256" }` ). The payload will contain a the following JSON keys:
+The JWT will be encoded using the "HS256" method. (i.e. the header should be `{ "typ": "JWT", "alg": "HS256" }` ). The payload will contain the following JSON keys:
 
 - `meeting_id` - The value will be the meeting_id (as provided on the BigBlueButton create API call).
 - `record_id` - The identifier of the specific recording to which the notification applies. This corresponds to the IDs returned in the getRecordings api, and the `internalMeetingId` field on the getMeetingInfo request.
+- `type` - The playback format name for this callback, when available. This corresponds to playback format types returned by the getRecordings API, such as `presentation` or `video`.
 
 The secret used to sign the JWT message will be the shared secret of the BigBlueButton API endpoint that was used to create the original meeting.
 
