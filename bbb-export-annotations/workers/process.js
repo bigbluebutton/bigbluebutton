@@ -4,6 +4,7 @@ import {createSVGWindow} from 'svgdom';
 import {SVG as svgCanvas, registerWindow} from '@svgdotjs/svg.js';
 import cp from 'child_process';
 import WorkerStarter from '../lib/utils/worker-starter.js';
+import {rasterizeSlideBackground} from '../lib/utils/slide-background.js';
 import {workerData} from 'worker_threads';
 import path from 'path';
 import sanitize from 'sanitize-filename';
@@ -296,39 +297,6 @@ async function overlayAnnotations(svg, slideAnnotations) {
 }
 
 /**
- * Ensure a slide background SVG carries a viewBox.
- *
- * The background slide is loaded as an `<image>` sized to the slide, but
- * CairoSVG only rescales the referenced SVG to that box when the file is
- * resolution-independent (carries a viewBox). Slides converted without one
- * keep their intrinsic size and render cropped into the top-left corner.
- * When the attribute is missing, derive it from the SVG's own width and
- * height so the background scales to fill the slide. See issue #25303.
- * @param {string} file Path of the slide SVG.
- * @param {number} page Page number (for logging).
- */
-function ensureSlideViewBox(file, page) {
-  try {
-    const svg = fs.readFileSync(file, {encoding: 'utf-8'});
-    const svgTag = svg.match(/<svg[^>]*>/)?.[0];
-
-    if (!svgTag || /viewBox=/.test(svgTag)) return;
-
-    const width = svgTag.match(/(?<![\w-])width\s*=\s*['"]([\d.]+)/i)?.[1];
-    const height = svgTag.match(/(?<![\w-])height\s*=\s*['"]([\d.]+)/i)?.[1];
-
-    if (!width || !height) return;
-
-    const patchedTag = svgTag.replace(
-        '<svg', `<svg viewBox="0 0 ${width} ${height}"`);
-    fs.writeFileSync(file, svg.replace(svgTag, patchedTag));
-  } catch (error) {
-    logger.error(`Adding viewBox to slide ${page} ` +
-      `failed for job ${jobId}: ${error.message}`);
-  }
-}
-
-/**
  * Processes presentation slides and associated annotations into
  * a single PDF file.
  * @async
@@ -411,19 +379,40 @@ async function processPresentationAnnotations() {
           'xmlns:xlink': 'http://www.w3.org/1999/xlink',
         });
 
-    // Guarantee the background slide scales to fill the canvas. CairoSVG only
-    // rescales a referenced SVG when it has a viewBox; converted slides that
-    // lack one would otherwise render cropped (issue #25303).
+    // The background slide is composited into the annotated SVG as an <image>
+    // sized to the canvas. When the background is itself an SVG, CairoSVG only
+    // rescales it to that box if it is resolution-independent; slides carrying
+    // absolute units (e.g. width="720pt") keep their intrinsic size and render
+    // cropped into the top-left corner (issue #25303). Rasterizing the slide to
+    // a PNG first sidesteps this: a raster image always scales to the <image>
+    // box. The helper ensures the slide has a viewBox (so slides missing one
+    // still fill the raster) and renders at the same resolution as the final
+    // SVG->PDF pass (toPx of the slide dims) so the background stays sharp.
+    let backgroundSlide = `${bgImagePath}.${backgroundFormat}`;
+
     if (backgroundFormat === 'svg') {
-      ensureSlideViewBox(
-          `${dropbox}/slide${currentSlide.page}.${backgroundFormat}`,
-          currentSlide.page,
-      );
+      try {
+        // Rasterize the same SVG we validated above (svgBackgroundSlide), not
+        // the dropbox copy, so it is clear which file feeds the raster.
+        backgroundSlide = rasterizeSlideBackground(
+            svgBackgroundSlide,
+            `${bgImagePath}-bg.png`,
+            {
+              width: toPx(slideWidth),
+              height: toPx(slideHeight),
+              cairosvg: config.shared.cairosvg,
+              unsafe: config.process.cairoSVGUnsafeFlag,
+            });
+      } catch (error) {
+        logger.error(`Rasterizing slide ${currentSlide.page} ` +
+          `failed for job ${jobId}: ${error.message}`);
+        statusUpdate.setError();
+      }
     }
 
     // Add the image element
     canvas
-        .image(`file://${dropbox}/slide${currentSlide.page}.${backgroundFormat}`)
+        .image(`file://${backgroundSlide}`)
         .size(scaledWidth, scaledHeight);
 
     // Add a group element with class 'whiteboard'
