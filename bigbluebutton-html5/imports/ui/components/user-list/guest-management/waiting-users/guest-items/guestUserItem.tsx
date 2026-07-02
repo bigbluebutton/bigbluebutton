@@ -1,18 +1,15 @@
-import React, {
-  ChangeEvent,
-} from 'react';
+import React from 'react';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import KEYS from '/imports/utils/keys';
 import IconButton from '@mui/material/IconButton';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircle from '@mui/icons-material/CheckCircle';
 import ForumIcon from '@mui/icons-material/Forum';
 import { defineMessages, IntlShape } from 'react-intl';
-import SendIcon from '@mui/icons-material/Send';
 import Styled from '../styles';
 import { getNameInitials } from '../service';
 import { colorGrayIcons, colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
+import LobbyMessageInput from '/imports/ui/components/common/lobby-message-input/component';
 
 const intlMessages = defineMessages({
   accept: {
@@ -72,21 +69,7 @@ const GuestUserItem: React.FC<GuestUserItemProps> = ({
 }) => {
   const Settings = getSettingsSingletonInstance();
   const animations = Settings?.application?.animations;
-  const [privateMessage, setPrivateMessage] = React.useState('');
   const [showInput, setShowInput] = React.useState(false);
-
-  const handleMessageChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setPrivateMessage(e.target.value);
-  };
-
-  const handleMessageKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === KEYS.ENTER && e.shiftKey === false) {
-      e.preventDefault();
-      setPrivateGuestLobbyMessage(privateMessage);
-      setPrivateMessage('');
-      setShowInput(false);
-    }
-  };
 
   return (
     <React.Fragment key={`user-${userId}`}>
@@ -162,48 +145,14 @@ const GuestUserItem: React.FC<GuestUserItemProps> = ({
             </Styled.GuestLobbyMessage>
           )}
           {showInput && (
-            <Styled.InputWrapper>
-              <Styled.Input
-                id={`privateMessage-${userId}`}
-                data-test="privateLobbyMessage"
-                maxLength={128}
-                placeholder={intl.formatMessage(intlMessages.privateInputPlaceholder, { userName: name })}
-                aria-label={intl.formatMessage(intlMessages.privateInputPlaceholder, { userName: name })}
-                autoCorrect="off"
-                autoComplete="off"
-                spellCheck="true"
-                value={privateMessage ?? ''}
-                onChange={handleMessageChange}
-                onKeyDown={handleMessageKeyDown}
-                onPaste={(e) => { e.stopPropagation(); }}
-                onCut={(e) => { e.stopPropagation(); }}
-                onCopy={(e) => { e.stopPropagation(); }}
-                async
-              />
-              <div style={{ zIndex: 10 }}>
-                <Tooltip title={intl.formatMessage(intlMessages.sendLabel)}>
-                  <Styled.SendButton
-                    sx={{
-                      alignSelf: 'center',
-                      fontSize: '0.9rem',
-                      height: '100%',
-                      borderRadius: '0 0.75rem 0.75rem 0',
-                      minWidth: 'auto',
-                      padding: '8px',
-                    }}
-                    variant="contained"
-                    data-test="sendMessageButton"
-                    onClick={() => {
-                      setPrivateGuestLobbyMessage(privateMessage);
-                      setShowInput(false);
-                      setPrivateMessage('');
-                    }}
-                  >
-                    <SendIcon />
-                  </Styled.SendButton>
-                </Tooltip>
-              </div>
-            </Styled.InputWrapper>
+            <LobbyMessageInput
+              placeholder={intl.formatMessage(intlMessages.privateInputPlaceholder, { userName: name })}
+              submitLabel={intl.formatMessage(intlMessages.sendLabel)}
+              onSend={setPrivateGuestLobbyMessage}
+              onSent={() => setShowInput(false)}
+              inputDataTest="privateLobbyMessage"
+              sendButtonDataTest="sendMessageButton"
+            />
           )}
         </>
       ) : null}

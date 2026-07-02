@@ -8,6 +8,7 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import UnsavedChangesModal from '/imports/ui/components/common/modal/unsaved-changes/component';
 import Styled from './styles';
+import LobbyMessageInput from '/imports/ui/components/common/lobby-message-input/component';
 
 const PRESENTATION_POLICY = {
   MODERATOR_ONLY: 'moderatorOnly',
@@ -116,6 +117,10 @@ const intlMessages = defineMessages({
     id: 'app.chat.submitLabel',
     description: 'Submit button label',
   },
+  lobbyMessageSent: {
+    id: 'app.lock-viewers.guestPolicy.lobbyMessageSent',
+    description: 'Confirmation shown after lobby message is sent',
+  },
   presentationPermissionsTitle: {
     id: 'app.lock-viewers.presentationPermissions.title',
     description: 'Presentation permissions section title',
@@ -200,10 +205,12 @@ class LockViewersComponent extends Component {
       usersProp: clone(usersPolicies),
       guestPolicy: usersPolicies.guestPolicy || 'ASK_MODERATOR',
       lobbyMessageEnabled: !!props.guestLobbyMessage,
-      lobbyMessage: props.guestLobbyMessage || '',
       presentationPolicy,
       unsavedModalOpen: false,
     };
+
+    this.lobbyMessageDraft = props.guestLobbyMessage || '';
+    this.lobbyMessageInitial = props.guestLobbyMessage || '';
 
     this.initialState = {
       lockSettingsProps: clone(lockSettings),
@@ -214,8 +221,22 @@ class LockViewersComponent extends Component {
       presentationPolicy,
     };
 
+    this.handleLobbyMessageChange = this.handleLobbyMessageChange.bind(this);
+    this.handleLobbyMessageSend = this.handleLobbyMessageSend.bind(this);
     this.handleClose = this.handleClose.bind(this);
     this.handleIgnoreChanges = this.handleIgnoreChanges.bind(this);
+  }
+
+  handleLobbyMessageChange(value) {
+    this.lobbyMessageDraft = value;
+  }
+
+  handleLobbyMessageSend(msg) {
+    const { setLobbyMessage } = this.props;
+    setLobbyMessage(msg);
+    this.lobbyMessageDraft = msg;
+    this.lobbyMessageInitial = msg;
+    this.initialState.lobbyMessage = msg;
   }
 
   handleClose() {
@@ -246,7 +267,6 @@ class LockViewersComponent extends Component {
       usersProp,
       guestPolicy,
       lobbyMessageEnabled,
-      lobbyMessage,
       presentationPolicy,
     } = this.state;
 
@@ -259,8 +279,8 @@ class LockViewersComponent extends Component {
 
     if (!lobbyMessageEnabled) {
       setLobbyMessage('');
-    } else if (lobbyMessage) {
-      setLobbyMessage(lobbyMessage);
+    } else if (this.lobbyMessageDraft) {
+      setLobbyMessage(this.lobbyMessageDraft);
     }
 
     closeModal();
@@ -273,7 +293,7 @@ class LockViewersComponent extends Component {
   hasChanges() {
     const {
       lockSettingsProps, usersProp, guestPolicy,
-      lobbyMessageEnabled, lobbyMessage, presentationPolicy,
+      lobbyMessageEnabled, presentationPolicy,
     } = this.state;
     const i = this.initialState;
     return (
@@ -281,7 +301,7 @@ class LockViewersComponent extends Component {
       || JSON.stringify(usersProp) !== JSON.stringify(i.usersProp)
       || guestPolicy !== i.guestPolicy
       || lobbyMessageEnabled !== i.lobbyMessageEnabled
-      || lobbyMessage !== i.lobbyMessage
+      || this.lobbyMessageDraft !== i.lobbyMessage
       || presentationPolicy !== i.presentationPolicy
     );
   }
@@ -308,7 +328,9 @@ class LockViewersComponent extends Component {
 
   renderGuestPolicyTab() {
     const { intl } = this.props;
-    const { guestPolicy, lobbyMessageEnabled, lobbyMessage } = this.state;
+    const {
+      guestPolicy, lobbyMessageEnabled,
+    } = this.state;
 
     return (
       <Styled.TabContent>
@@ -340,38 +362,34 @@ class LockViewersComponent extends Component {
               checked={lobbyMessageEnabled}
               onChange={(_, checked) => {
                 this.setState({ lobbyMessageEnabled: checked });
-                if (!checked) this.setState({ lobbyMessage: '' });
+                if (!checked) {
+                  this.lobbyMessageDraft = '';
+                  this.lobbyMessageInitial = '';
+                }
               }}
             />
             <Styled.SwitchLabel
               onClick={() => {
                 const next = !lobbyMessageEnabled;
                 this.setState({ lobbyMessageEnabled: next });
-                if (!next) this.setState({ lobbyMessage: '' });
+                if (!next) {
+                  this.lobbyMessageDraft = '';
+                  this.lobbyMessageInitial = '';
+                }
               }}
             >
               {intl.formatMessage(intlMessages.lobbyMessageLabel)}
             </Styled.SwitchLabel>
           </Styled.SwitchRow>
           {lobbyMessageEnabled && (
-            <Styled.LobbyInputWrapper>
-              <Styled.LobbyInput
-                placeholder={intl.formatMessage(intlMessages.lobbyMessageLabel)}
-                value={lobbyMessage}
-                onChange={(e) => this.setState({ lobbyMessage: e.target.value })}
-                data-test="lobbyMessageInput"
-              />
-              <Styled.LobbyInputSendButton
-                aria-label={intl.formatMessage(intlMessages.submitLabel)}
-                onClick={() => {
-                  const { setLobbyMessage: setMsg } = this.props;
-                  const { lobbyMessage: msg } = this.state;
-                  setMsg(msg);
-                }}
-              >
-                ▶
-              </Styled.LobbyInputSendButton>
-            </Styled.LobbyInputWrapper>
+            <LobbyMessageInput
+              initialMessage={this.lobbyMessageInitial}
+              placeholder={intl.formatMessage(intlMessages.lobbyMessageLabel)}
+              submitLabel={intl.formatMessage(intlMessages.submitLabel)}
+              successLabel={intl.formatMessage(intlMessages.lobbyMessageSent)}
+              onSend={this.handleLobbyMessageSend}
+              onDraftChange={this.handleLobbyMessageChange}
+            />
           )}
         </Styled.LobbyMessageSection>
       </Styled.TabContent>

@@ -1249,6 +1249,7 @@
     "app.lock-viewers.tabs.presentationPermissions": "Presentation Policy",
     "app.lock-viewers.guestPolicy.title": "Guest Policy",
     "app.lock-viewers.guestPolicy.description": "Configure how guests are handled when trying to join the meeting.",
+    "app.lock-viewers.guestPolicy.lobbyMessageSent": "Message sent successfully!",
     "app.lock-viewers.participantPermissions.title": "Participant Permissions",
     "app.lock-viewers.participantPermissions.description": "The options below define what participants can do in the session. Unchecking an option removes that permission.",
     "app.lock-viewers.presentationPermissions.title": "Presentation Policy",
