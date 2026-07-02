@@ -315,6 +315,10 @@ public:
   # plugins:
   #   - name: SamplePresentationToolbarPlugin
   #     url: https://<your-Host>/plugins/SamplePresentationToolbarPlugin.js
+  #     settings:
+  #       isNew: true to display the new ribbon on the app gallery item of the plugin
+  #       pin: true # pin all plugin-injected items
+  #       # or: pin: ["generic-content-id", "app-gallery-item-id"] # pin only specific IDs
   # Allowed errors to be shown on notifications bar
     showConnectionErrors:
       # - 3001
