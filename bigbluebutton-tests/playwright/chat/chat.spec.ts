@@ -1,5 +1,6 @@
 import { test } from '../core/setup/fixtures';
 import { Chat } from './chat';
+import { Jumbomoji } from './jumbomoji';
 import { MessageActions } from './messageActions';
 
 test.describe.parallel('Chat', { tag: '@ci' }, () => {
@@ -153,6 +154,12 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     const chat = new Chat(browser, context);
     await chat.initPages(page, testInfo);
     await chat.chatDisabledUserLeaves();
+  });
+
+  test('Jumbomoji renders emoji-only messages with larger font', async ({ browser, context, page }, testInfo) => {
+    const jumbomoji = new Jumbomoji(browser, context);
+    await jumbomoji.initModPage(page, { testInfo });
+    await jumbomoji.verifyJumbomoji();
   });
 
   test.describe('Message actions', () => {

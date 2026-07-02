@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import {
   colorDangerDark,
   colorBorder,
@@ -8,7 +8,17 @@ import {
 
 interface ChatMessageProps {
   systemMsg?: boolean;
+  $jumbomoji?: boolean;
 }
+
+const jumbomojiStyles = css`
+  font-size: 2.5em;
+  line-height: 1.2;
+
+  & p {
+    line-height: 1.2;
+  }
+`;
 
 export const ChatMessage = styled.div<ChatMessageProps>`
   flex: 1;
@@ -17,6 +27,8 @@ export const ChatMessage = styled.div<ChatMessageProps>`
   flex-direction: column;
   color: ${colorText};
   word-break: break-word;
+
+  ${({ $jumbomoji }) => $jumbomoji && jumbomojiStyles}
 
   & img {
     max-width: 100%;
