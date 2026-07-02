@@ -1249,6 +1249,7 @@
     "app.lock-viewers.tabs.presentationPermissions": "Πολιτική Παρουσίασης",
     "app.lock-viewers.guestPolicy.title": "Πολιτική Επισκεπτών",
     "app.lock-viewers.guestPolicy.description": "Ρυθμίστε τον τρόπο χειρισμού των προσκεκλημένων όταν προσπαθούν να συμμετάσχουν στην τηλεδιάσκεψη.",
+    "app.lock-viewers.guestPolicy.lobbyMessageSent": "Message sent successfully!",
     "app.lock-viewers.participantPermissions.title": "Δικαιώματα Συμμετεχόντων",
     "app.lock-viewers.participantPermissions.description": "Οι παρακάτω επιλογές καθορίζουν τι μπορούν να κάνουν οι συμμετέχοντες στην περίοδο λειτουργίας. Η κατάργηση της επιλογής καταργεί αυτό το δικαίωμα.",
     "app.lock-viewers.presentationPermissions.title": "Πολιτική Παρουσίασης",
