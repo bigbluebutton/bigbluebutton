@@ -57,6 +57,7 @@ import {
   colorWhite,
   colorGray,
 } from '/imports/ui/stylesheets/styled-components/palette';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import BaseButton from './base/component';
 
 const ButtonIcon = styled(Icon)`
@@ -429,11 +430,13 @@ const ButtonSpan = styled.span`
   `}
 
   ${({ size, circle }) => size === 'md' && circle && `
-    height: 2.5rem;
-    width: 2.5rem;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
+    @media ${smallOnly} {
+      height: 2.5rem;
+      width: 2.5rem;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+    }
   `}
 
   ${({ size }) => size === 'jumbo' && `
