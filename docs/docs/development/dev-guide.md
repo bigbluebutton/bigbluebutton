@@ -340,13 +340,17 @@ cd ~/dev/bigbluebutton/bbb-common-message
 
 ## Developing BBB-Web
 
+Build bbb-common-web:
+
 ```bash
-cd ~/dev/bigbluebutton/bigbluebutton-web
+cd ~/dev/bigbluebutton/bbb-common-web
+./deploy.sh
 ```
 
 To rebuild and deploy your changes, replacing the existing `bbb-web` in `/usr/share/bbb-web`:
 
 ```bash
+cd ~/dev/bigbluebutton/bigbluebutton-web
 ./deploy_to_usr_share.sh
 ```
 
