@@ -3,6 +3,8 @@ import {
   userIndicatorsOffset,
   mdPaddingY,
   indicatorPadding,
+  avatarBorderRadius,
+  moderatorAvatarBorderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorPrimary,
@@ -99,9 +101,8 @@ const Talking = styled.div`
 
 const Avatar = styled.div`
   position: relative;
-  height: 2.25rem;
-  width: 2.25rem;
-  border-radius: 50%;
+  aspect-ratio: 1;
+  border-radius: ${avatarBorderRadius};
   text-align: center;
   font-size: .85rem;
   border: 2px solid transparent;
@@ -152,7 +153,9 @@ const Avatar = styled.div`
   }
 
   ${({ moderator }) => moderator && `
-    border-radius: 5px;
+    border-radius: ${moderatorAvatarBorderRadius};
+    background-color: ${colorUserModerator};
+    color: ${colorUserModerator};
   `}
 
   ${({ presenter }) => presenter && `

@@ -320,13 +320,16 @@ export const useIsPaginationEnabled = () => {
   return myPageSize > 0 && paginationEnabled;
 };
 
-export const useGridUsers = (visibleStreamCount: number) => {
+const OVERFLOW_TILE_PREVIEW_LIMIT = 3;
+
+export const useGridUsers = (visibleStreamCount: number, visibleUserCount: number) => {
   const gridSize = useGridSize();
   const userCount = getCountData();
   const isGridEnabled = useStorageKey('isGridEnabled');
   const canOnlySeeModeratorCameras = useCanOnlySeeModeratorCameras();
   const gridItems = useRef<GridItem[]>([]);
   const overflowCount = useRef<number>(0);
+  const overflowUsers = useRef<GridItem[]>([]);
 
   const { data: meeting } = useMeeting((m) => ({
     meetingId: m.meetingId,
@@ -352,6 +355,9 @@ export const useGridUsers = (visibleStreamCount: number) => {
     voice: u.voice,
   }));
 
+  const baseGridUserLimit = Math.max(gridSize - visibleStreamCount, 0);
+  const hasOverflow = userCount > gridSize;
+
   const {
     data: gridData,
     error: gridError,
@@ -363,7 +369,7 @@ export const useGridUsers = (visibleStreamCount: number) => {
       // otherwise keep everyone ([true, false]). The current user is re-added client-side
       // below (the query can't reference it without breaking Hasura multiplexing).
       variables: {
-        limit: Math.max(gridSize - visibleStreamCount, 0),
+        limit: hasOverflow ? baseGridUserLimit + OVERFLOW_TILE_PREVIEW_LIMIT : baseGridUserLimit,
         moderatorValues: canOnlySeeModeratorCameras ? [true] : [true, false],
       },
       skip: !isGridEnabled,
@@ -371,7 +377,13 @@ export const useGridUsers = (visibleStreamCount: number) => {
     true,
   );
 
-  if (gridLoading) return { gridUsers: gridItems.current, overflowCount: overflowCount.current };
+  if (gridLoading) {
+    return {
+      gridUsers: gridItems.current,
+      overflowCount: overflowCount.current,
+      overflowUsers: overflowUsers.current,
+    };
+  }
 
   if (gridError) {
     logger.error({
@@ -442,19 +454,32 @@ export const useGridUsers = (visibleStreamCount: number) => {
       }
     }
 
-    gridItems.current = newGridUsers;
+    // The grid page shows at most baseGridUserLimit avatar users. When there is
+    // overflow we over-fetch a few extra users (OVERFLOW_TILE_PREVIEW_LIMIT) purely
+    // to preview their avatars inside the overflow tile — those extras must not
+    // land in the grid itself, so keep the grid slice and the preview slice apart.
+    gridItems.current = newGridUsers.slice(0, baseGridUserLimit);
+    overflowUsers.current = newGridUsers.slice(baseGridUserLimit);
 
-    const overflow = Math.max(userCount - gridSize, 0);
-
-    // if there's overflow, we replace the last grid user with the overflow tile,
-    // so we need to add 1 to the overflow count to account for the replaced user
-    overflowCount.current = overflow > 0 ? overflow + 1 : 0;
+    // Hidden users = everyone not visible on this page. Count in USERS, not
+    // stream tiles as a user with several cameras holds several tiles. The
+    // overflow tile replaces the last avatar when avatars exist (+1: the
+    // replaced user joins the count); on a full-camera page it takes a new
+    // slot instead and replaces no one.
+    const hidden = Math.max(userCount - visibleUserCount - gridItems.current.length, 0);
+    const replacedAvatar = gridItems.current.length > 0 ? 1 : 0;
+    overflowCount.current = hidden > 0 ? hidden + replacedAvatar : 0;
   } else {
     gridItems.current = [];
+    overflowUsers.current = [];
     overflowCount.current = 0;
   }
 
-  return { gridUsers: gridItems.current, overflowCount: overflowCount.current };
+  return {
+    gridUsers: gridItems.current,
+    overflowCount: overflowCount.current,
+    overflowUsers: overflowUsers.current,
+  };
 };
 
 export const useSharedDevices = () => {
@@ -760,12 +785,27 @@ export const useVideoStreams = () => {
     }
   }
 
-  const { gridUsers, overflowCount } = useGridUsers(streams.length);
+  // Off-page local cameras stay in the array with render: false. Count only
+  // what actually renders on this page. Slots are tiles (stream count); the
+  // hidden math is per-user (distinct userIds).
+  const renderedStreams = streams.filter((s) => !('render' in s) || s.render !== false);
+  const renderedUserIds = new Set(renderedStreams.map((s) => s.userId));
+  const { gridUsers, overflowCount, overflowUsers } = useGridUsers(
+    renderedStreams.length,
+    renderedUserIds.size,
+  );
+
+  // Preview a few of the hidden users' avatars in the overflow tile, skipping any
+  // who are already rendered on this page so a face never appears twice.
+  const overflowPreviewUsers = overflowUsers
+    .filter((u) => !renderedUserIds.has(u.userId))
+    .slice(0, Math.min(overflowCount, OVERFLOW_TILE_PREVIEW_LIMIT));
 
   return {
     streams,
     gridUsers: gridUsers.filter((u) => !streams.find((s) => s.userId === u.userId)),
     overflowCount,
+    overflowUsers: overflowPreviewUsers,
     totalNumberOfStreams: streams.length,
     totalNumberOfOtherStreams,
   };
