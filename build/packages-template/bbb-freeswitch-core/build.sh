@@ -113,6 +113,9 @@ patch -p0 --ignore-whitespace < $BUILDDIR/audio.patch       # Provisional patch 
 # Enables mod_audio_fork in the build process  (used in built-in speech transcription)
 patch -p1 < $BUILDDIR/mod_audio_fork_build.patch
 
+# Relevant changes from v1.11.0 and v1.11.1
+patch -p1 < $BUILDDIR/1111.patch
+
 ./bootstrap.sh 
 
 ./configure --disable-core-odbc-support --disable-core-pgsql-support \

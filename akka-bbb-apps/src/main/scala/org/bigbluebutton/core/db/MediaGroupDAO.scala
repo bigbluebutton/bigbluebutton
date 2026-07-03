@@ -25,7 +25,7 @@ class MediaGroupDbTableDef(tag: Tag) extends Table[MediaGroupDbModel](tag, None,
 object MediaGroupDAO {
   def insert(meetingId: String, mediaGroup: MediaGroup) = {
     DatabaseConnection.enqueue(
-      TableQuery[MediaGroupDbTableDef].forceInsert(
+      TableQuery[MediaGroupDbTableDef].insertOrUpdate(
         MediaGroupDbModel(
           meetingId = meetingId,
           groupId = mediaGroup.id,

@@ -137,8 +137,9 @@ trait UserJoinedVoiceConfEvtMsgHdlr extends SystemConfiguration with HandlerHelp
 
       // Dial-in users need to be enrolled in public media groups to be heard
       // by clients that use selective subscription. Regular web users do this
-      // in UserJoinMeetingReqMsgHdlr
-      if (isDialInUser) {
+      // in UserJoinMeetingReqMsgHdlr. Only enroll when the public groups have
+      // been created (i.e. the meeting already has a scoped group).
+      if (isDialInUser && MediaGroupApp.publicGroupsExist(state.mediaGroups)) {
         state.update(
           MediaGroupApp.enrollUserInPublicGroups(liveMeeting, msg.body.intId, state.mediaGroups)
         )

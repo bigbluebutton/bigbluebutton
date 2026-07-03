@@ -21,8 +21,8 @@ const FeatureList: FeatureItem[] = [
                 The complete user-guide with all the available features.
             </>
         ),
-        actionText: "Teaching Experience",
-        docId: "https://bigbluebutton.org/teachers/tutorials/"
+        actionText: "User Guide",
+        docId: "https://bigbluebutton.com/docs"
     },
     {
         title: 'I am a developer',

@@ -140,9 +140,16 @@ public:
 ---
 
 Create a new file in `/etc/bigbluebutton/nginx/bbb-cluster.nginx`
-and prepend the mount point of bbb-html5 in all location sections:
+- replace `bbb-proxy.example.com` with your proxy origin in `$bbb_cors_origin`
+- prepend the `bbb-html5` mount point in all `location` sections
+
 
 ```
+# Enable per-origin CORS
+# Required because the HTML5 client is served from the proxy origin while slides (and other requests)
+# are fetched directly from this BBB node with credentials
+set $bbb_cors_origin 'https://bbb-proxy.example.com';
+
 # running in production (static assets)
 location /bbb-01/html5client {
     gzip_static on;

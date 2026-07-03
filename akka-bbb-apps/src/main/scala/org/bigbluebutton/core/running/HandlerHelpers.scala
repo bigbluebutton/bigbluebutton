@@ -17,6 +17,25 @@ import org.bigbluebutton.core.util.TimeUtil
 
 trait HandlerHelpers extends SystemConfiguration {
 
+  def extractMainRoomInternalUserId(breakoutRoomUserId: String): String = {
+    val lastHyphenIdx = breakoutRoomUserId.lastIndexOf('-')
+    if (lastHyphenIdx == -1) breakoutRoomUserId else breakoutRoomUserId.substring(0, lastHyphenIdx)
+  }
+
+  def matchByBreakoutRoomExtUserId[T](users: Vector[T], breakoutRoomExtUserId: String)(extractInternalUserId: T => String): Option[T] = {
+    // The external id of the user in the breakout is the internal id of the user in the main room appended by the room sequence
+    val mainRoomInternalUserId = extractMainRoomInternalUserId(breakoutRoomExtUserId)
+    users.find(user => extractInternalUserId(user) == mainRoomInternalUserId)
+  }
+
+  def findUserInMainRoom(users: Users2x, breakoutRoomExtUserId: String): Option[UserState] = {
+    matchByBreakoutRoomExtUserId(Users2x.findAll(users), breakoutRoomExtUserId)(_.intId)
+  }
+
+  def findUserInMainRoom(users: RegisteredUsers, breakoutRoomExtUserId: String): Option[RegisteredUser] = {
+    matchByBreakoutRoomExtUserId(RegisteredUsers.findAll(users), breakoutRoomExtUserId)(_.id)
+  }
+
   def sendUserLeftFlagUpdatedEvtMsg(
       outGW:       OutMsgRouter,
       liveMeeting: LiveMeeting,

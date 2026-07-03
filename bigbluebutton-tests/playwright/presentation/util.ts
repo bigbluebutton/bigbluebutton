@@ -1,7 +1,12 @@
 import { expect, Locator } from '@playwright/test';
 import path from 'path';
 
-import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_TIME, UPLOAD_PDF_WAIT_TIME } from '../core/constants';
+import {
+  ELEMENT_WAIT_EXTRA_LONG_TIME,
+  ELEMENT_WAIT_LONGER_TIME,
+  ELEMENT_WAIT_TIME,
+  UPLOAD_PDF_WAIT_TIME,
+} from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 
@@ -20,6 +25,32 @@ export async function checkSvgIndex(testPage: Page, element: string) {
 export async function getSlideOuterHtml(testPage: Page) {
   await testPage.waitForSelector(e.currentSlideImg);
   return testPage.page.evaluate(([slideImg]) => document.querySelector(slideImg)?.outerHTML, [e.currentSlideImg]);
+}
+
+// sessionToken is per-user, so it differs between moderator and attendee pages.
+// Strip it from the slide URL query string so cross-page comparisons match.
+function stripSessionToken(html: string | undefined): string | undefined {
+  if (!html) return html;
+  return html
+    .replace(/&amp;sessionToken=[^&"'\s<>]*/g, '')
+    .replace(/&sessionToken=[^&"'\s<>]*/g, '')
+    .replace(/\?sessionToken=[^&"'\s<>]*&amp;/g, '?')
+    .replace(/\?sessionToken=[^&"'\s<>]*&/g, '?')
+    .replace(/\?sessionToken=[^&"'\s<>]*/g, '');
+}
+
+// Cross-page comparison can race against subscription propagation
+// Poll the user page until it matches the (already-stable) moderator slide.
+export async function expectSlidesEqualBetweenPages(
+  modPage: Page,
+  userPage: Page,
+  description: string,
+  timeout = ELEMENT_WAIT_LONGER_TIME,
+) {
+  const modSlide = stripSessionToken(await getSlideOuterHtml(modPage));
+  await expect
+    .poll(async () => stripSessionToken(await getSlideOuterHtml(userPage)), { message: description, timeout })
+    .toBe(modSlide);
 }
 
 export async function getCurrentPresentationHeight(locator: Locator) {
@@ -110,24 +141,15 @@ export async function uploadMultiplePresentations(
     e.presentationUploadProgressToast,
     'should display a toast presentation upload progress after confirming the presentation to be uploaded',
   );
-  try {
-    await testPage.hasNElements(
-      e.processingPresentationItem,
-      fileNames.length,
-      'should display the presentation status info element with converting label after confirmation to upload the new file',
-    );
-
-    await testPage.hasNElements(
-    e.uploadDoneIcon,
-    fileNames.length,
-    'should display the upload done icon after all presentations are successfully uploaded',);
-    } catch {
-    await testPage.hasNElements(
-      e.uploadDoneIcon,
-      fileNames.length,
-      'should display the upload done icon after all presentations are successfully uploaded',
-    );
-  }
+  // Poll row count instead of asserting visibility on transient processing/done icons —
+  // the toast auto-dismisses ~2s after completion and the status span briefly renders 0-height.
+  const uploadItemsLocator = testPage.page.locator(`${e.processingPresentationItem}, ${e.uploadDoneIcon}`);
+  await expect
+    .poll(() => uploadItemsLocator.count(), {
+      message: 'should display one upload row per file in the upload progress toast after confirming the upload',
+      timeout: uploadTimeout,
+    })
+    .toBeGreaterThanOrEqual(fileNames.length);
   await hasCurrentPresentationToastElement(testPage, { timeout: uploadTimeout });
 }
 

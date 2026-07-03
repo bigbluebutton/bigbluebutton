@@ -6,6 +6,7 @@ public class PluginManifest {
     private String url = "";
     private String checksum = "";
     private ValidatedUrl validatedUrl;
+    private boolean cacheable = true;
 
     public PluginManifest(String url, String checksum, ValidatedUrl validatedUrl) {
         this.url = url;
@@ -47,5 +48,13 @@ public class PluginManifest {
 
     public void setValidatedUrl(ValidatedUrl validatedUrl) {
         this.validatedUrl = validatedUrl;
+    }
+
+    public boolean isCacheable() {
+        return cacheable;
+    }
+
+    public void setCacheable(boolean cacheable) {
+        this.cacheable = cacheable;
     }
 }
