@@ -7,7 +7,9 @@ import {
   colorWhite,
   colorBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { titlesFontWeight, headingsFontWeight, fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
+import {
+  titlesFontWeight, headingsFontWeight, fontSizeBase, fontSizeXS,
+} from '/imports/ui/stylesheets/styled-components/typography';
 import {
   $2xlPadding,
   lgPadding,
@@ -226,7 +228,7 @@ const TileItem = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1.5rem 0.75rem 0.75rem;
+  padding: 0.75rem;
   border: 1px solid ${colorBorder};
   border-radius: ${appsButtonsBorderRadius};
   gap: 0.5rem;
@@ -301,6 +303,23 @@ const TileClickableArea = styled.div`
   cursor: pointer;
 `;
 
+const TileHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 1rem;
+`;
+
+const TileNewLabel = styled.span`
+  font-size: ${fontSizeXS};
+  font-weight: ${headingsFontWeight};
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: ${colorPrimary};
+`;
+
 export default {
   PanelContent,
   Separator,
@@ -326,4 +345,6 @@ export default {
   TilePinApp,
   TileTitle,
   TileClickableArea,
+  TileHeader,
+  TileNewLabel,
 };

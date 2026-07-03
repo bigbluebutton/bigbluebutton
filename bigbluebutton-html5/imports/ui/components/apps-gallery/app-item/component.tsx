@@ -108,7 +108,9 @@ const AppItem: React.FC<AppItemProps> = ({
           onClick={functionToBeCalled}
           onKeyDown={handleClickableAreaKeyDown}
         >
-          {isNew && <Styled.NewLabel>{intl.formatMessage(intlMessages.newAppLabel)}</Styled.NewLabel>}
+          <Styled.TileHeader>
+            {isNew && <Styled.TileNewLabel>{intl.formatMessage(intlMessages.newAppLabel)}</Styled.TileNewLabel>}
+          </Styled.TileHeader>
           <Styled.TileOpenButton $pinned={isPinned} aria-hidden="true">
             {resolveIcon(icon)}
           </Styled.TileOpenButton>
