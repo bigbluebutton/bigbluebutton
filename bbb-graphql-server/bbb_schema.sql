@@ -1685,7 +1685,10 @@ SELECT pres_presentation."meetingId",
     pres_page."infiniteWhiteboard",
     pres_page."fitToWidth",
     (
-        select array_agg("nextPages"."urlsJson"->>'svg')
+		select array_agg(
+			"nextPages"."urlsJson"->>'svg'
+			ORDER BY "nextPages".num
+		)
         from pres_page "nextPages"
         where "nextPages"."presentationId" = pres_page."presentationId"
         and "nextPages".num > pres_page."num"
