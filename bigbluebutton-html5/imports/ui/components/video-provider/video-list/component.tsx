@@ -147,7 +147,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
 
   componentDidUpdate(prevProps: VideoListProps) {
     const {
-      layoutType, cameraDock, streams, focusedId,
+      layoutType, cameraDock, streams, focusedId, overflowCount,
     } = this.props;
     const { width: cameraDockWidth, height: cameraDockHeight } = cameraDock;
     const {
@@ -155,14 +155,19 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       cameraDock: prevCameraDock,
       streams: prevStreams,
       focusedId: prevFocusedId,
+      overflowCount: prevOverflowCount,
     } = prevProps;
     const { width: prevCameraDockWidth, height: prevCameraDockHeight } = prevCameraDock;
 
+    // The overflow tile can mount/unmount without a stream-count change (users
+    // joining or leaving with no camera), and a tile the grid template was not
+    // computed for lands in an implicit auto-height row.
     if (layoutType !== prevLayoutType
       || focusedId !== prevFocusedId
       || cameraDockWidth !== prevCameraDockWidth
       || cameraDockHeight !== prevCameraDockHeight
-      || streams.length !== prevStreams.length) {
+      || streams.length !== prevStreams.length
+      || overflowCount !== prevOverflowCount) {
       this.handleCanvasResize();
     }
   }
