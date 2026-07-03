@@ -230,13 +230,21 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       layoutContextDispatch,
       isGridEnabled,
       gridSize,
+      overflowCount,
     } = this.props;
     const visibleStreams = streams.filter(
       (item) => item.type === VIDEO_TYPES.GRID || !('render' in item) || item.render !== false,
     );
+    const videoCount = visibleStreams.filter((item) => item.type !== VIDEO_TYPES.GRID).length;
+    const hasGridItems = visibleStreams.length > videoCount;
+    const overflowTileShown = isGridEnabled && overflowCount > 0;
+    // "grid == page": cameras always get their slots, so capacity grows to the
+    // page when cameras alone meet/exceed the grid size. The overflow tile
+    // consumes an extra slot only when there is no avatar for it to replace.
     let numItems = isGridEnabled
-      ? Math.min(gridSize, visibleStreams.length)
+      ? Math.min(Math.max(gridSize, videoCount), visibleStreams.length)
       : visibleStreams.length;
+    if (overflowTileShown && !hasGridItems) numItems += 1;
 
     if (numItems < 1 || !this.canvas || !this.grid) {
       return;
@@ -370,7 +378,6 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       pluginUserCameraHelperPerPosition,
       isGridEnabled,
       overflowCount,
-      gridSize,
     } = this.props;
     const numOfStreams = streams.filter(
       (item) => item.type === VIDEO_TYPES.GRID || !('render' in item) || item.render !== false,
@@ -378,9 +385,21 @@ class VideoList extends Component<VideoListProps, VideoListState> {
 
     const shouldShowOverflowTile = isGridEnabled && overflowCount > 0;
 
-    const streamsToHide = (numOfStreams - gridSize + 1) * -1;
-    const streamsToRender = shouldShowOverflowTile && streamsToHide < 0
-      ? streams.slice(0, streamsToHide)
+    // The overflow tile may only take an avatar's slot, never a camera's.
+    // Avatars (GRID items) are appended after video streams, so remove the last
+    // GRID item; on a full-camera page there is none and the tile gets its own
+    // slot ("grid == page" keeps every camera of the page visible).
+    let lastGridUserIndex = -1;
+    if (shouldShowOverflowTile) {
+      for (let i = streams.length - 1; i >= 0; i -= 1) {
+        if (streams[i].type === VIDEO_TYPES.GRID) {
+          lastGridUserIndex = i;
+          break;
+        }
+      }
+    }
+    const streamsToRender = lastGridUserIndex !== -1
+      ? streams.filter((_, idx) => idx !== lastGridUserIndex)
       : streams;
 
     const videoItems = streamsToRender.map((item) => {
