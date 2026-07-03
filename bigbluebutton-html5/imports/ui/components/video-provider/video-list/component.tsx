@@ -422,6 +422,8 @@ class VideoList extends Component<VideoListProps, VideoListState> {
           key={key}
           $focused={isFocused}
           data-test="webcamVideoItem"
+          data-video-type={isStream ? 'stream' : 'grid'}
+          data-user-name={name}
         >
           <VideoListItemContainer
             pluginUserCameraHelperPerPosition={pluginUserCameraHelperPerPosition}
@@ -455,6 +457,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
           key="overflow-tile"
           $focused={false}
           data-test="overflowTile"
+          data-overflow-count={overflowCount}
         >
           <OverflowTile overflowCount={overflowCount} />
         </Styled.VideoListItem>,
@@ -488,6 +491,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
 
         {!streams.length && !isGridEnabled ? null : (
           <Styled.VideoList
+            data-test="webcamVideoList"
             ref={(ref) => {
               this.grid = ref;
             }}

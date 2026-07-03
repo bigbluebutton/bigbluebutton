@@ -43,7 +43,10 @@ const OverflowTile: React.FC<OverflowTileProps> = ({ overflowCount }) => {
   const displayCount = Math.min(overflowCount, 3);
 
   return (
-    <Styled.OverflowTileContainer data-test="overflowTile" isClickable={!isUserListPanelOpen} onClick={() => handleOpenUserList()}>
+    <Styled.OverflowTileContainer
+      isClickable={!isUserListPanelOpen}
+      onClick={() => handleOpenUserList()}
+    >
       <Styled.OverflowTileContent>
         <Styled.AvatarsContainer $count={displayCount}>
           {Array.from({ length: displayCount }, (_, index) => (
