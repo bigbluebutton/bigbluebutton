@@ -1093,7 +1093,7 @@ public:
     laserRadiusSmall: 10
     laserRadiusLarge: 16
     laserRedColor: '#ff1414'
-    laserGreenColor: '#14ff14'
+    laserGreenColor: '#00ff00'
     maxStickyNoteLength: 1000
     # limit number of annotations per slide
     maxNumberOfAnnotations: 300
