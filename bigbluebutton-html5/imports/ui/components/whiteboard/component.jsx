@@ -2398,13 +2398,19 @@ const Whiteboard = React.memo((props) => {
 
   // Store presenter's cursor position to draw laser for mobile presenter
   React.useEffect(() => {
-    tlEditorRef.current?.store.listen(({ changes }) => {
-      const p = tlEditorRef.current?.inputs.currentPagePoint;
-      if (p && tlEditorRef.current) {
-        const screenPos = tlEditorRef.current.pageToScreen(p);
-        setPresenterCursorPoint( {x: screenPos.x, y: screenPos.y} );
-      }
-    })
+    const editor = tlEditorRef.current;
+    if (!editor) return undefined;
+
+    const unlisten = editor.store.listen(() => {
+      const p = editor.inputs.currentPagePoint;
+      if (!p) return;
+      const screenPos = editor.pageToScreen(p);
+      setPresenterCursorPoint({ x: screenPos.x, y: screenPos.y });
+    });
+
+    return () => {
+      unlisten?.();
+    };
   }, [tlEditorRef.current]);
 
   const removeViewerLaser = () => {
