@@ -1934,6 +1934,7 @@ const Whiteboard = React.memo((props) => {
     const height = cy * 2;
 
     // On Windows and Linux, it darkens towards the edge
+    /*
     return `
       <svg class="bbb-laser-pointer" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
         <defs>
@@ -1946,6 +1947,31 @@ const Whiteboard = React.memo((props) => {
         <circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#g-${id})" />
       </svg>
       `.replace(/\s+/g, ' ').trim();
+    */
+    return `
+      <svg class="bbb-laser-pointer" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+        <defs>
+          <radialGradient id="g-${id}-core" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+            <stop offset="10%" stop-color="#ffffff" stop-opacity="0.95"/>
+            <stop offset="30%" stop-color="${color}" stop-opacity="0.95"/>
+            <stop offset="60%" stop-color="${color}" stop-opacity="0.65"/>
+            <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="g-${id}-ring" cx="50%" cy="50%" r="50%">
+            <stop offset="60%" stop-color="${color}" stop-opacity="0"/>
+            <stop offset="68%" stop-color="${color}" stop-opacity="0.35"/>
+            <stop offset="74%" stop-color="#ffffff" stop-opacity="0.95"/>
+            <stop offset="84%" stop-color="#ffffff" stop-opacity="0.95"/>
+            <stop offset="90%" stop-color="${color}" stop-opacity="0.65"/>
+            <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#g-${id}-core)" />
+        <circle cx="${cx}" cy="${cy}" r="${r * 0.72}" fill="url(#g-${id}-ring)" />
+        <circle cx="${cx}" cy="${cy}" r="${Math.max(2, r * 0.13)}" fill="#ffffff" />
+      </svg>
+    `.replace(/\s+/g, ' ').trim();
   };
 
   const laserDefs = {
