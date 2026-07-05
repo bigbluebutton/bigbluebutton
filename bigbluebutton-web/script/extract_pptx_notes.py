@@ -123,7 +123,6 @@ def extract_note_from_xml(xml_bytes):
     for sp in root.findall(".//p:sp", NS):
         ph = sp.find(".//p:ph", NS)
 
-        # Speaker note body placeholder
         if ph is None or ph.attrib.get("type") != "body":
             continue
 
