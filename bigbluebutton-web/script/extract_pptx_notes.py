@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copy manually at e.g. /usr/local/bin/
+# Copy manually to e.g. /usr/local/bin/
 
 import argparse
 import posixpath
