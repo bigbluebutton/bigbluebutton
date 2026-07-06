@@ -1,13 +1,11 @@
 import { test } from '../core/setup/fixtures';
-import {
-  AUTO_JOIN_PARAM, LOCK_CAM_PARAM, PRE_FLIGHT_PARAM, PreFlight,
-} from './preflight';
+import { AUTO_JOIN_PARAM, LOCK_CAM_PARAM, PRE_FLIGHT_PARAM, PreFlight } from './preflight';
 
 test.describe.parallel('Pre-flight screen', { tag: '@ci' }, () => {
   test('Join with microphone from the pre-flight screen', async ({ browser, context, page }, testInfo) => {
     const preFlight = new PreFlight(browser, context);
     await preFlight.initModPage(page, {
-      createParameter: PRE_FLIGHT_PARAM,
+      joinParameter: PRE_FLIGHT_PARAM,
       shouldCloseAudioModal: false,
       testInfo,
     });
@@ -16,11 +14,13 @@ test.describe.parallel('Pre-flight screen', { tag: '@ci' }, () => {
 
   // Edge case (a): listen-only / mic-denied affordance is preserved.
   test('Join without microphone (listen only) from the pre-flight screen', async ({
-    browser, context, page,
+    browser,
+    context,
+    page,
   }, testInfo) => {
     const preFlight = new PreFlight(browser, context);
     await preFlight.initModPage(page, {
-      createParameter: PRE_FLIGHT_PARAM,
+      joinParameter: PRE_FLIGHT_PARAM,
       shouldCloseAudioModal: false,
       testInfo,
     });
@@ -31,7 +31,7 @@ test.describe.parallel('Pre-flight screen', { tag: '@ci' }, () => {
   test('Takes precedence over auto join audio', async ({ browser, context, page }, testInfo) => {
     const preFlight = new PreFlight(browser, context);
     await preFlight.initModPage(page, {
-      createParameter: `${PRE_FLIGHT_PARAM}&${AUTO_JOIN_PARAM}`,
+      joinParameter: `${PRE_FLIGHT_PARAM}&${AUTO_JOIN_PARAM}`,
       shouldCloseAudioModal: false,
       testInfo,
     });
@@ -42,12 +42,13 @@ test.describe.parallel('Pre-flight screen', { tag: '@ci' }, () => {
   test('Hides the camera section when webcam sharing is locked', async ({ browser, context, page }, testInfo) => {
     const preFlight = new PreFlight(browser, context);
     await preFlight.initModPage(page, {
-      createParameter: `${PRE_FLIGHT_PARAM}&${LOCK_CAM_PARAM}`,
+      createParameter: LOCK_CAM_PARAM,
+      joinParameter: PRE_FLIGHT_PARAM,
       shouldCloseAudioModal: false,
       testInfo,
     });
     await preFlight.initUserPage(context, {
-      createParameter: `${PRE_FLIGHT_PARAM}&${LOCK_CAM_PARAM}`,
+      joinParameter: PRE_FLIGHT_PARAM,
       shouldCloseAudioModal: false,
       testInfo,
     });

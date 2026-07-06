@@ -92,7 +92,7 @@ export const elements = {
   preFlightVideoPreview: 'video[data-test="preFlightVideoPreview"]',
   preFlightInputDeviceSelector: 'label[for="preFlightInputDeviceSelector"] select',
   preFlightOutputDeviceSelector: 'label[for="preFlightOutputDeviceSelector"] select',
-  preFlightCameraSelect: 'input[data-test="preFlightCameraSelect"]',
+  preFlightCameraSelect: '[data-test="preFlightCameraSelect"]',
   preFlightShareCameraToggle: 'input[data-test="preFlightShareCameraToggle"]',
 
   // Breakout
