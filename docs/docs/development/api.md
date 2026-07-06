@@ -416,6 +416,35 @@ If you choose the second option (sending content directly), the POST request pay
 
 Pay close attention: the initial content JSON structure must be as described in [BlockNote's documentation](https://www.blocknotejs.org/docs/foundations/document-structure?utm_source=chatgpt.com#block-properties). The same applies to the create parameter `sharedNotesInitialContentJsonUrl` (the content inside the URL must have the same structure).
 
+Alternatively, the initial content can be provided as plain Markdown instead of the BlockNote JSON structure. The Markdown is carried untouched through the pipeline and converted to BlockNote blocks on the shared-notes server before seeding the empty document. There are three ways to provide it:
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `sharedNotesInitialContentMarkdown` | create parameter | Raw Markdown sent inline as a `create` parameter. Suitable for short content that fits within URL length limits. |
+| `sharedNotesInitialContentMarkdownUrl` | create parameter | URL from which the raw Markdown will be fetched by the server. |
+| `sharedNotesInitialContentMarkdown` | POST module | Raw Markdown sent in the POST body via an xml module, for content too large for a query string. |
+
+The expected format is raw Markdown (headings, lists, emphasis, etc.), not the BlockNote JSON structure.
+
+To send the Markdown in the POST body, use the same `<modules>` envelope as the JSON variant:
+
+```xml
+<modules>
+   <module name="sharedNotesInitialContentMarkdown">
+      <![CDATA[
+        # Welcome to BigBlueButton Shared Notes
+
+        Start collaborating here...
+
+        - First item
+        - Second item
+      ]]>
+   </module>
+</modules>
+```
+
+**Precedence:** the BlockNote JSON initial content takes precedence over the Markdown. When both JSON and Markdown are supplied, the JSON is used to seed the document, and the Markdown is only used as a fallback when the JSON is absent, empty, or cannot be converted to a valid document. Within the Markdown options, the create parameter `sharedNotesInitialContentMarkdownUrl` is resolved first, then the inline `sharedNotesInitialContentMarkdown` create parameter, and finally the POST module.
+
 #### Pre-upload Slides
 
 You can upload slides within the create call. If you do this, the BigBlueButton server will immediately download and process the slides.

@@ -12,6 +12,7 @@ import {
 import Service from './service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import Auth from '/imports/ui/services/auth';
+import { useSharedNotesImport } from '../../bn-shared-notes/import-context';
 
 const DEBOUNCE_TIMEOUT = 15000;
 
@@ -23,6 +24,14 @@ const intlMessages = defineMessages({
   exportAsPDFLabel: {
     id: 'app.notes.notesDropdown.exportAsPDF',
     description: 'Export shared notes as a PDF file',
+  },
+  exportAsMarkdownLabel: {
+    id: 'app.notes.notesDropdown.exportAsMarkdown',
+    description: 'Export shared notes as a Markdown file',
+  },
+  importFromMarkdownLabel: {
+    id: 'app.notes.notesDropdown.importFromMarkdown',
+    description: 'Import shared notes content from Markdown',
   },
   pinNotes: {
     id: 'app.notes.notesDropdown.pinNotes',
@@ -55,12 +64,14 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
   } = props;
   const [converterButtonDisabled, setConverterButtonDisabled] = useState(false);
   const intl = useIntl();
+  const { openImportModal } = useSharedNotesImport();
   const NOTES_IS_PINNABLE = window.meetingClientSettings.public.notes.pinnable;
 
   const getAvailableActions = () => {
     const uploadIcon = 'upload';
     const pinIcon = 'presentation';
     const downloadIcon = 'download';
+    const importIcon = 'copy';
 
     const menuItems = [];
 
@@ -79,6 +90,18 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
           },
         },
       );
+
+      if (!isEtherpadSharedNotes) {
+        menuItems.push(
+          {
+            key: uniqueId('notes-option-'),
+            icon: importIcon,
+            dataTest: 'importNotesFromMarkdown',
+            label: intl.formatMessage(intlMessages.importFromMarkdownLabel),
+            onClick: () => openImportModal(),
+          },
+        );
+      }
     }
 
     if (!isEtherpadSharedNotes) {
@@ -94,6 +117,15 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
           label: intl.formatMessage(intlMessages.exportAsPDFLabel),
           onClick: () => {
             window.open(`https://${hocuspocusServerHostname}/hocuspocus/api/documents/${padId}/export/pdf?sessionToken=${sessionToken}`);
+          },
+        },
+        {
+          key: uniqueId('notes-option-'),
+          icon: downloadIcon,
+          dataTest: 'exportNotesAsMarkdown',
+          label: intl.formatMessage(intlMessages.exportAsMarkdownLabel),
+          onClick: () => {
+            window.open(`https://${hocuspocusServerHostname}/hocuspocus/api/documents/${padId}/export/md?sessionToken=${sessionToken}`);
           },
         },
       );

@@ -437,6 +437,48 @@ public class MeetingService implements MessageListener {
     return initialContent;
   }
 
+  public String getSharedNotesInitialContentMarkdown(Meeting m) {
+    String sharedNotesInitialContentMarkdownUrl = m.getSharedNotesInitialContentMarkdownUrl();
+
+    if (!sharedNotesInitialContentMarkdownUrl.isEmpty()) {
+      return requestSharedNotesInitialContentMarkdownFromUrl(m.getInternalId(), sharedNotesInitialContentMarkdownUrl);
+    }
+
+    // Raw markdown can arrive either as a create param or, for larger content, in the POST
+    // body via the `sharedNotesInitialContentMarkdown` xml module. The create param wins when
+    // both are present; the payload is the fallback (mirrors sharedNotesInitialContentJson).
+    String markdownFromParam = m.getSharedNotesInitialContentMarkdown();
+    if (markdownFromParam != null && !markdownFromParam.isEmpty()) {
+      return markdownFromParam;
+    }
+
+    String markdownFromPayload = m.getSharedNotesInitialContentMarkdownFromPayload();
+    return markdownFromPayload != null ? markdownFromPayload : "";
+  }
+
+  public String requestSharedNotesInitialContentMarkdownFromUrl(String meetingId, String initialContentMarkdownUrl) {
+    String initialContent = "";
+    if (!initialContentMarkdownUrl.isEmpty()) {
+      try {
+        String finalInitialContentMarkdownUrl = redirectFollower.followRedirect(
+                meetingId, initialContentMarkdownUrl, 0, initialContentMarkdownUrl, sharedNotesRedirectValidator, 6000
+        );
+
+        URL url = new URL(finalInitialContentMarkdownUrl);
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()))) {
+          initialContent = in.lines().collect(Collectors.joining("\n"));
+        }
+      } catch (MalformedURLException e) {
+        log.error(
+                "Malformed URL for sharedNotesInitialContentMarkdownUrl: [{}]", initialContentMarkdownUrl);
+      } catch (IOException e) {
+        log.error(
+                "Something went wrong while processing [{}]. Error: {}", initialContentMarkdownUrl, e.getMessage());
+      }
+    }
+    return initialContent;
+  }
+
   public Map<String, Object> requestPluginManifests(Meeting m) {
     Map<String, Object> pluginsResult = new ConcurrentHashMap<>();
     Map<String, String> metadata = m.getMetadata();
@@ -568,6 +610,7 @@ public class MeetingService implements MessageListener {
 
       m.setPlugins(pluginsMap);
       m.setSharedNotesInitialContentJson(sharedNotesInitialContentMap);
+      m.setSharedNotesInitialContentMarkdown(getSharedNotesInitialContentMarkdown(m));
       handle(new CreateMeeting(m));
       return true;
     }
@@ -645,7 +688,7 @@ public class MeetingService implements MessageListener {
 
     gw.createMeeting(m.getInternalId(), m.getExternalId(), m.getParentMeetingId(), m.getName(), m.isRecord(),
             m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording(),
-            m.getSharedNotesInitialContentJson(), m.getSharedNotesEditor(), m.getRecordFullDurationMedia(),
+            m.getSharedNotesInitialContentJson(), m.getSharedNotesInitialContentMarkdown(), m.getSharedNotesEditor(), m.getRecordFullDurationMedia(),
             m.getWebcamsOnlyForModerator(), m.getMultiUserWhiteboardEnabled(), m.getMeetingCameraCap(), m.getUserCameraCap(), m.getMaxPinnedCameras(),
             m.getCameraBridge(),
             m.getScreenShareBridge(),
