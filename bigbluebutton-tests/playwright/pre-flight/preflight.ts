@@ -66,14 +66,8 @@ export class PreFlight extends MultiUsers {
       e.preFlightModal,
       'should display the pre-flight screen even when auto join audio is enabled',
     );
-    await this.modPage.wasRemoved(
-      e.establishingAudioLabel,
-      'should not auto join audio behind the pre-flight screen',
-    );
-    await this.modPage.hasElement(
-      e.preFlightJoinButton,
-      'should defer the audio join to the pre-flight join button',
-    );
+    await this.modPage.wasRemoved(e.establishingAudioLabel, 'should not auto join audio behind the pre-flight screen');
+    await this.modPage.hasElement(e.preFlightJoinButton, 'should defer the audio join to the pre-flight join button');
     // Confirms the deferred join still works.
     await this.modPage.waitAndClick(e.preFlightJoinButton);
     await this.modPage.hasElement(
