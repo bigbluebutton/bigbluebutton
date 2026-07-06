@@ -47,7 +47,8 @@
 #set -x
 
 unset HEADER WATCH WITHDESC LIST LISTWORKFLOWS LIST WITHDESC REBUILD REBUILDALL \
-      REPUBLISH DELETE DELETEALL CHECK DEBUG CLEAN DISABLE ENABLE TOEXTERNAL TOINTERNAL
+      REPUBLISH DELETE DELETEALL CHECK DEBUG CLEAN DISABLE ENABLE TOEXTERNAL TOINTERNAL \
+      FORMAT
 
 source /etc/bigbluebutton/bigbluebutton-release
 
@@ -94,11 +95,38 @@ declare -r MEETING_PATTERN="^[0-9a-f]\{40\}-[[:digit:]]\{13\}$"
 
 mark_for_rebuild() {
    MEETING_ID=$1
-   echo "Marking for rebuild $MEETING_ID"
+   local FMT=$2
    if [[ ! -d $BASE/raw/$MEETING_ID ]]; then
       echo "Raw files for $MEETING_ID do not exist, can't rebuild"
       exit 1
    fi
+
+  # Single-format rebuild: re-process and re-publish only the requested format,
+  # leaving the sanity step and every other format's output untouched.
+  if [ -n "$FMT" ]; then
+     if ! printf '%s\n' $TYPES | grep -qx "$FMT"; then
+        echo "Unknown format '$FMT'. Valid formats: $(echo $TYPES | tr '\n' ' ')"
+        exit 1
+     fi
+     echo "Marking for rebuild $MEETING_ID (format: $FMT)"
+
+     # Clear out this format's done files only
+     rm -vf "$STATUS"/processed/"$MEETING_ID"-"$FMT".*
+     rm -vf "$STATUS"/published/"$MEETING_ID"-"$FMT".*
+
+     # Remove this format's published + intermediate output
+     rm -rf "${PUBLISHED_DIR:?}"/"$FMT"/"$MEETING_ID"
+     rm -rf "$RAW_PRESENTATION_SRC"/unpublished/"$FMT"/"$MEETING_ID"
+     rm -rf "$RAW_PRESENTATION_SRC"/deleted/"$FMT"/"$MEETING_ID"
+     rm -rf "$BASE"/process/"$FMT"/"$MEETING_ID"
+
+     # Restart processing at the 'process' step for this format only; the steps
+     # workflow chains process:<format> -> publish:<format>.
+     /usr/local/bigbluebutton/core/scripts/rap-enqueue.rb "process:$FMT" "$MEETING_ID"
+     return
+  fi
+
+   echo "Marking for rebuild $MEETING_ID"
 
   # Clear out the relevant done files
   rm -vf "$STATUS"/archived/"$MEETING_ID".norecord
@@ -205,6 +233,8 @@ usage() {
    echo
    echo "Administration:"
    echo "   --rebuild <internal meetingID>     rebuild the output for the given internal meetingID"
+   echo "   --rebuild <internal meetingID> --format <name>"
+   echo "                                      rebuild only one playback format (e.g. presentation, video, ai-summary)"
    echo "   --rebuildall                       rebuild every recording"
    echo "   --delete <internal meetingID>      delete one meeting and recording"
    echo "   --deleteall                        delete all meetings and recordings"
@@ -257,11 +287,19 @@ while [ $# -gt 0 ]; do
    fi
    if [ "$1" = "-rebuild" ] || [ "$1" = "--rebuild" ]; then
       need_root
-      if [ ! -z "${2}" ]; then
+      if [ -n "${2}" ] && [[ "${2}" != -* ]]; then
          MEETING_ID="${2}"
          shift
       fi
       REBUILD=1
+      shift
+      continue
+   fi
+   if [ "$1" = "-format" ] || [ "$1" = "--format" ]; then
+      if [ -n "${2}" ]; then
+         FORMAT="${2}"
+         shift
+      fi
       shift
       continue
    fi
@@ -377,7 +415,7 @@ if [ $REBUILD ]; then
    if [ -z "$MEETING_ID" ]; then
       echo "Pass an internal meeting id as parameter."
    else
-      mark_for_rebuild "$MEETING_ID"
+      mark_for_rebuild "$MEETING_ID" "$FORMAT"
    fi
 fi
 
