@@ -47,7 +47,7 @@ module BigBlueButton
     # Get the meeting metadata
     def self.get_meeting_metadata(events_xml)
       BigBlueButton.logger.info("Task: Getting meeting metadata")
-      doc = Nokogiri::XML(File.open(events_xml))
+      doc = Nokogiri::XML(File.read(events_xml))
       metadata = {}
       doc.xpath("recording/metadata").each do |e|
         e.keys.each do |k|

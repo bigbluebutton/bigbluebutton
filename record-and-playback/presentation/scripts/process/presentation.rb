@@ -40,11 +40,11 @@ meeting_id = opts[:meeting_id]
 
 # This script lives in scripts/archive/steps while properties.yaml lives in scripts/
 props = BigBlueButton.read_props
-presentation_props = YAML.safe_load(File.open('presentation.yml'))
+presentation_props = YAML.safe_load(File.read('presentation.yml'))
 filepathPresOverride = "/etc/bigbluebutton/recording/presentation.yml"
 hasOverride = File.file?(filepathPresOverride)
 if (hasOverride)
-  presOverrideProps = YAML::load(File.open(filepathPresOverride))
+  presOverrideProps = YAML::load(File.read(filepathPresOverride))
   presentation_props = presentation_props.merge(presOverrideProps)
 end
 

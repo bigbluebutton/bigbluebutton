@@ -40,8 +40,8 @@ begin
 end
 
 # Load parameters and set up paths
-props = YAML::load(File.open(File.expand_path('../../bigbluebutton.yml', __FILE__)))
-screenshare_props = YAML::load(File.open(File.expand_path('../../screenshare.yml', __FILE__)))
+props = YAML::load(File.read(File.expand_path('../../bigbluebutton.yml', __FILE__)))
+screenshare_props = YAML::load(File.read(File.expand_path('../../screenshare.yml', __FILE__)))
 
 recording_dir = props['recording_dir']
 playback_dir = screenshare_props['playback_dir']
@@ -67,7 +67,7 @@ begin
 FileUtils.mkdir_p(process_dir)
 
 logger.info "Reading basic recording information"
-events = Nokogiri::XML(File.open("#{raw_archive_dir}/events.xml"))
+events = Nokogiri::XML(File.read("#{raw_archive_dir}/events.xml"))
 initial_timestamp = nil
 final_timestamp = nil
 metadata = events.at_xpath('/recording/metadata')
@@ -164,7 +164,7 @@ ret = BigBlueButton.exec_ret('utils/gen_webvtt', '-i', raw_archive_dir, '-o', pr
 if ret != 0
   raise "Generating closed caption files failed"
 end
-captions = JSON.load(File.new("#{process_dir}/captions.json", 'r'))
+captions = JSON.load(File.read("#{process_dir}/captions.json"))
 
 # Publishing support files
 

@@ -29,7 +29,7 @@ module BigBlueButton
     def self.get_presentations(events_xml)
       BigBlueButton.logger.info("Task: Getting presentations from events")      
       presentations = []
-      doc = Nokogiri::XML(File.open(events_xml))
+      doc = Nokogiri::XML(File.read(events_xml))
       doc.xpath("//event[@eventname='SharePresentationEvent']").each do |presentation_event|
         presentations << presentation_event.xpath("presentationName").text
       end
@@ -114,7 +114,7 @@ module BigBlueButton
       events_xml = "#{process_dir}/events.xml"
       BigBlueButton.logger.info("Task: Getting from events the presentation to be used for preview")
       presentation = {}
-      doc = Nokogiri::XML(File.open(events_xml))
+      doc = Nokogiri::XML(File.read(events_xml))
       presentation_filenames = {}
       doc.xpath("//event[@eventname='ConversionCompletedEvent']").each do |conversion_event|
         presentation_filenames[conversion_event.xpath("presentationName").text] = conversion_event.xpath("originalFilename").text

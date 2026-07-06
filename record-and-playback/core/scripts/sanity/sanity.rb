@@ -51,7 +51,7 @@ logger = BigBlueButton.logger
 def check_events_xml(raw_dir,meeting_id)
   filepath = "#{raw_dir}/#{meeting_id}/events.xml"
   raise Exception,  "Events file doesn't exists." if not File.exists?(filepath)
-  bad_doc = Nokogiri::XML(File.open(filepath)) { |config| config.options = Nokogiri::XML::ParseOptions::STRICT }
+  bad_doc = Nokogiri::XML(File.read(filepath)) { |config| config.options = Nokogiri::XML::ParseOptions::STRICT }
 end
 
 # Determine the filenames for the done and fail files
