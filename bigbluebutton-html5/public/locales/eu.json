@@ -1249,6 +1249,7 @@
     "app.lock-viewers.tabs.presentationPermissions": "Aurkezpen politika",
     "app.lock-viewers.guestPolicy.title": "Gonbidatuen politika",
     "app.lock-viewers.guestPolicy.description": "Konfiguratu gonbidatuak nola kudeatzen diren bilerara sartzen saiatzean.",
+    "app.lock-viewers.guestPolicy.lobbyMessageSent": "Message sent successfully!",
     "app.lock-viewers.participantPermissions.title": "Partaideen baimenak",
     "app.lock-viewers.participantPermissions.description": "Beheko aukerek definitzen dute partaideek saioan zer egin dezaketen. Aukera bat desmarkatzeak baimen hori kentzen du.",
     "app.lock-viewers.presentationPermissions.title": "Aurkezpen politika",

@@ -1249,6 +1249,7 @@
     "app.lock-viewers.tabs.presentationPermissions": "Política de presentación",
     "app.lock-viewers.guestPolicy.title": "Política de invitados",
     "app.lock-viewers.guestPolicy.description": "Configura cómo se gestionan los invitados al intentar unirse a la reunión.",
+    "app.lock-viewers.guestPolicy.lobbyMessageSent": "Message sent successfully!",
     "app.lock-viewers.participantPermissions.title": "Permisos de los participantes",
     "app.lock-viewers.participantPermissions.description": "Las opciones siguientes definen lo que los participantes pueden hacer en la sesión. Al desmarcar una opción, se elimina ese permiso.",
     "app.lock-viewers.presentationPermissions.title": "Política de presentación",

@@ -1249,6 +1249,7 @@
     "app.lock-viewers.tabs.presentationPermissions": "Retningslinjer for presentasjoner",
     "app.lock-viewers.guestPolicy.title": "Retningslinjer for gjester",
     "app.lock-viewers.guestPolicy.description": "Konfigurer hvordan gjester skal håndteres når de prøver å delta i møtet.",
+    "app.lock-viewers.guestPolicy.lobbyMessageSent": "Message sent successfully!",
     "app.lock-viewers.participantPermissions.title": "Deltakertillatelser",
     "app.lock-viewers.participantPermissions.description": "Alternativene nedenfor definerer hva deltakerne kan gjøre i økten. Hvis du fjerner avmerkingen for et alternativ, fjernes denne tillatelsen.",
     "app.lock-viewers.presentationPermissions.title": "Retningslinjer for presentasjoner",
