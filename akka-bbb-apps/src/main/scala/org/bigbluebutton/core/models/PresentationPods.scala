@@ -61,6 +61,10 @@ object PresentationInPod {
     pres.pages.values find (p => p.current)
   }
 
+  def getPageByNum(pres: PresentationInPod, num: Int): Option[PresentationPage] = {
+    pres.pages.values find (p => p.num == num)
+  }
+
 }
 
 case class PresentationInPod(

@@ -70,15 +70,15 @@ case class GetWhiteboardAnnotationsRespMsgBody(whiteboardId: String, annotations
 
 object SendCursorPositionEvtMsg { val NAME = "SendCursorPositionEvtMsg" }
 case class SendCursorPositionEvtMsg(header: BbbClientMsgHeader, body: SendCursorPositionEvtMsgBody) extends BbbCoreMsg
-case class SendCursorPositionEvtMsgBody(whiteboardId: String, userIsViewer: Boolean, xPercent: Double, yPercent: Double)
+case class SendCursorPositionEvtMsgBody(whiteboardId: String, userIsViewer: Boolean, xPercent: Double, yPercent: Double, presentationId: String, pageNum: Int)
 
 object SendWhiteboardAnnotationsEvtMsg { val NAME = "SendWhiteboardAnnotationsEvtMsg" }
 case class SendWhiteboardAnnotationsEvtMsg(header: BbbClientMsgHeader, body: SendWhiteboardAnnotationsEvtMsgBody) extends BbbCoreMsg
-case class SendWhiteboardAnnotationsEvtMsgBody(whiteboardId: String, annotations: Array[AnnotationVO])
+case class SendWhiteboardAnnotationsEvtMsgBody(whiteboardId: String, annotations: Array[AnnotationVO], presentationId: String, pageNum: Int)
 
 object DeleteWhiteboardAnnotationsEvtMsg { val NAME = "DeleteWhiteboardAnnotationsEvtMsg" }
 case class DeleteWhiteboardAnnotationsEvtMsg(header: BbbClientMsgHeader, body: DeleteWhiteboardAnnotationsEvtMsgBody) extends BbbCoreMsg
-case class DeleteWhiteboardAnnotationsEvtMsgBody(whiteboardId: String, annotationsIds: Array[String])
+case class DeleteWhiteboardAnnotationsEvtMsgBody(whiteboardId: String, annotationsIds: Array[String], presentationId: String, pageNum: Int)
 
 // ------------ akka-apps to client ------------
 object StoreAnnotationsInRedisSysMsg { val NAME = "StoreAnnotationsInRedisSysMsg" }

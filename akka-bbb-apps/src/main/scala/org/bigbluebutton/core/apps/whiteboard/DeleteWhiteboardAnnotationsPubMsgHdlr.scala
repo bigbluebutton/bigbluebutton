@@ -2,21 +2,26 @@ package org.bigbluebutton.core.apps.whiteboard
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
+import org.bigbluebutton.core.apps.presentationpod.PresentationPodsApp
 import org.bigbluebutton.core.bus.MessageBus
+import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.Users2x
 import org.bigbluebutton.core.running.LiveMeeting
 
 trait DeleteWhiteboardAnnotationsPubMsgHdlr extends RightsManagementTrait {
   this: WhiteboardApp2x =>
 
-  def handle(msg: DeleteWhiteboardAnnotationsPubMsg, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
+  def handle(msg: DeleteWhiteboardAnnotationsPubMsg, state: MeetingState2x, liveMeeting: LiveMeeting, bus: MessageBus): Unit = {
 
     def broadcastEvent(msg: DeleteWhiteboardAnnotationsPubMsg, removedAnnotationsIds: Array[String]): Unit = {
       val routing = Routing.addMsgToClientRouting(MessageTypes.BROADCAST_TO_MEETING, liveMeeting.props.meetingProp.intId, msg.header.userId)
       val envelope = BbbCoreEnvelope(DeleteWhiteboardAnnotationsEvtMsg.NAME, routing)
       val header = BbbClientMsgHeader(DeleteWhiteboardAnnotationsEvtMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
-      val body = DeleteWhiteboardAnnotationsEvtMsgBody(msg.body.whiteboardId, removedAnnotationsIds)
+      val (presentationId, pageNum) = PresentationPodsApp.findPresentationPage(state, msg.body.whiteboardId)
+        .map { case (pres, page) => (pres.id, page.num) }
+        .getOrElse(("", 0))
+      val body = DeleteWhiteboardAnnotationsEvtMsgBody(msg.body.whiteboardId, removedAnnotationsIds, presentationId, pageNum)
       val event = DeleteWhiteboardAnnotationsEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
       bus.outGW.send(msgEvent)

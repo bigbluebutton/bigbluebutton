@@ -11,6 +11,7 @@ import Session from '/imports/ui/services/storage/in-memory';
 import { useMeetingIsBreakout } from '/imports/ui/components/app/service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { USER_AGGREGATE_COUNT_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
+import { PRESENTATION_PAGES_SUBSCRIPTION } from '/imports/ui/components/whiteboard/queries';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { DEVICE_TYPE } from '/imports/ui/components/layout/enums';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
@@ -110,6 +111,14 @@ const PresentationToolbarContainer = (props) => {
     PRESENTATION_SET_PAGE_INFINITE_WHITEBOARD,
   );
 
+  const { data: presentationPagesData } = useDeduplicatedSubscription(
+    PRESENTATION_PAGES_SUBSCRIPTION,
+    {
+      variables: { presentationId },
+      skip: !userIsPresenter || !presentationId,
+    },
+  );
+
   const resetSlide = () => {
     const { pageId, num } = currentPresentationPage;
     presentationSetZoom({
@@ -135,18 +144,19 @@ const PresentationToolbarContainer = (props) => {
   };
 
   const setPresentationPageInfiniteWhiteboard = (infiniteWhiteboard) => {
-    const pageId = `${presentationId}/${currentSlideNum}`;
     presentationSetPageInfiniteWhiteboard({
       variables: {
-        pageId,
+        pageId: currentPresentationPage?.pageId,
         infiniteWhiteboard,
       },
     });
   };
 
   const skipToSlide = (slideNum) => {
-    const slideId = `${presentationId}/${slideNum}`;
-    setPresentationPage(slideId);
+    const page = (presentationPagesData?.pres_page || []).find((p) => p.num === slideNum);
+    if (page) {
+      setPresentationPage(page.pageId);
+    }
   };
 
   const previousSlide = () => {

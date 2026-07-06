@@ -136,6 +136,24 @@ export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPr
   }
 }`;
 
+export interface PresentationPagesSubscriptionResponse {
+  pres_page: Array<Pick<PresentationPage, 'pageId' | 'num'>>;
+}
+
+// All pages of a presentation (presenter-only permission on pres_page), used to
+// resolve a page number to its opaque pageId without rebuilding the id client-side.
+export const PRESENTATION_PAGES_SUBSCRIPTION = gql`
+  subscription PresentationPagesSubscription($presentationId: String!) {
+    pres_page(
+      where: { presentationId: { _eq: $presentationId } },
+      order_by: { num: asc }
+    ) {
+      pageId
+      num
+    }
+  }
+`;
+
 export const PRESENTATIONS_SUBSCRIPTION = gql`
   subscription PresentationsSubscription {
     pres_presentation {

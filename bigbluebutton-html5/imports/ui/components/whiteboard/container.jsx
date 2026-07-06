@@ -14,6 +14,7 @@ import { throttle } from 'radash';
 import {
   CURRENT_PRESENTATION_PAGE_SUBSCRIPTION,
   CURRENT_PAGE_WRITERS_SUBSCRIPTION,
+  PRESENTATION_PAGES_SUBSCRIPTION,
 } from './queries';
 import {
   initDefaultPages,
@@ -164,6 +165,14 @@ const WhiteboardContainer = (props) => {
     },
   );
 
+  const { data: presentationPagesData } = useDeduplicatedSubscription(
+    PRESENTATION_PAGES_SUBSCRIPTION,
+    {
+      variables: { presentationId },
+      skip: !isPresenter || !presentationId,
+    },
+  );
+
   const whiteboardWriters = whiteboardWritersData?.user_whiteboardWriteAccess || [];
   const wBAccessChanged = usePrevious(hasWBAccess) !== hasWBAccess;
 
@@ -183,8 +192,10 @@ const WhiteboardContainer = (props) => {
   };
 
   const skipToSlide = (slideNum) => {
-    const slideId = `${presentationId}/${slideNum}`;
-    setPresentationPage(slideId);
+    const page = (presentationPagesData?.pres_page || []).find((p) => p.num === slideNum);
+    if (page) {
+      setPresentationPage(page.pageId);
+    }
   };
 
   const removeShapes = (shapeIds) => {
