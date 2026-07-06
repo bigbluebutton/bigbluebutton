@@ -27,6 +27,9 @@ import org.bigbluebutton.presentation.messages.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
+
 public class SlidesGenerationProgressNotifier {
   private static Logger log = LoggerFactory.getLogger(SlidesGenerationProgressNotifier.class);
 
@@ -157,10 +160,45 @@ public class SlidesGenerationProgressNotifier {
       pres.getNumberOfPages(), generateBasePresUrl(pres), pres.isCurrent(), pres.isDefaultPresentation(), pres.getFilenameConverted(),
       pres.getPageIds());
     messagingService.sendDocConversionMsg(progress);
+
+    // For a plugin insert-pages request, splice the freshly converted slide files into the target
+    // presentation directory and notify akka-apps to re-home the pages. Runs after the completed
+    // message (which builds the converted pages in akka state) and covers both the pdf and image
+    // conversion paths, which both funnel through here.
+    if (pres.isInsert()) {
+      sendPagesInsertedMessage(pres);
+    }
   }
 
   private String generateBasePresUrl(UploadedPresentation pres) {
     return pres.getBaseUrl() + "/" + pres.getMeetingId() + "/" + pres.getMeetingId() + "/" + pres.getId();
+  }
+
+  public void sendPagesInsertedMessage(UploadedPresentation pres) {
+    log.info("Sending pages inserted message: {} page(s) from [{}] into target [{}] at position {} in meeting [{}]",
+      pres.getNumberOfPages(), pres.getId(), pres.getTargetPresentationId(), pres.getInsertAtPosition(), pres.getMeetingId());
+
+    File insertDir = pres.getUploadedFile().getParentFile();
+    File targetDir = new File(insertDir.getParentFile(), pres.getTargetPresentationId());
+
+    int position;
+    int totalPagesAfter;
+    try {
+      int[] result = InsertPagesSplicer.splice(insertDir, targetDir, pres.getInsertAtPosition(), pres.getNumberOfPages());
+      position = result[0];
+      totalPagesAfter = result[1];
+    } catch (IOException e) {
+      log.error("Failed to splice inserted pages into target presentation [{}]: {}",
+        pres.getTargetPresentationId(), e.getMessage());
+      return;
+    }
+
+    String presBaseUrl = pres.getBaseUrl() + "/" + pres.getMeetingId() + "/" + pres.getMeetingId()
+      + "/" + pres.getTargetPresentationId();
+    DocPagesInsertedProgress progress = new DocPagesInsertedProgress(
+      pres.getPodId(), pres.getMeetingId(), pres.getTargetPresentationId(),
+      pres.getId(), position, totalPagesAfter, presBaseUrl);
+    messagingService.sendDocConversionMsg(progress);
   }
 
   public void setMessagingService(IBbbWebApiGWApp m) {

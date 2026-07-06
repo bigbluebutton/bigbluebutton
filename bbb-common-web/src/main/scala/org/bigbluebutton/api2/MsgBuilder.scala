@@ -260,6 +260,35 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
+  def buildPresentationPagesInsertedSysMsg(msg: DocPagesInsertedProgress, pageTokenSecret: String = ""): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PresentationPagesInsertedSysMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationPagesInsertedSysMsg.NAME, msg.meetingId, "notUsed")
+
+    // Build the final tokenized urls for every page number of the target presentation. bbb-web owns
+    // pageToken generation, so akka-apps only maps each page id to its new number's urls.
+    val pageUrls = (1 to msg.totalPagesAfter.intValue()).map { i =>
+      val pageToken = if (pageTokenSecret.nonEmpty) generatePageToken(msg.targetPresentationId, i.toString, pageTokenSecret) else ""
+      val tokenParam = if (pageToken.nonEmpty) "?pageToken=" + pageToken else ""
+      InsertedPageUrls(i, Map(
+        "thumb" -> (msg.presBaseUrl + "/thumbnail/" + i + tokenParam),
+        "text" -> (msg.presBaseUrl + "/textfiles/" + i + tokenParam),
+        "svg" -> (msg.presBaseUrl + "/svg/" + i + tokenParam),
+        "png" -> (msg.presBaseUrl + "/png/" + i + tokenParam)
+      ))
+    }.toVector
+
+    val body = PresentationPagesInsertedSysMsgBody(
+      podId = msg.podId,
+      targetPresentationId = msg.targetPresentationId,
+      insertPresentationId = msg.insertPresentationId,
+      insertAtPosition = msg.insertAtPosition.intValue(),
+      pageUrls = pageUrls
+    )
+    val req = PresentationPagesInsertedSysMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
   def generatePresentationPages(presId: String, numPages: Int, presBaseUrl: String,
                                 pageIds: java.util.Map[Integer, String], pageTokenSecret: String = ""): scala.collection.immutable.Map[String, PageVO] = {
     val pages = new scala.collection.mutable.HashMap[String, PageVO]

@@ -272,7 +272,21 @@ class PresentationController {
     if (null != params.current) {
       current = params.current.toBoolean()
     }
-    
+
+    // Plugin insert-pages: when insertAtPosition + targetPresentationId are present, the pages
+    // converted from this upload are spliced into the target presentation at the given 1-based
+    // position instead of surfacing as their own presentation.
+    def insertAtPosition = null
+    def targetPresentationId = params.targetPresentationId
+    if (null != params.insertAtPosition && params.insertAtPosition.isInteger()) {
+      insertAtPosition = params.insertAtPosition as Integer
+    }
+    def isInsert = (insertAtPosition != null && targetPresentationId != null && !targetPresentationId.isEmpty())
+    if (isInsert) {
+      // The transient insert presentation must never become the current presentation.
+      current = false
+    }
+
     log.debug "@Default presentation pod" + podId
 
     def uploadFailed = false
@@ -327,6 +341,10 @@ class PresentationController {
             uploadFailed,
             uploadFailReasons
     )
+    if (isInsert) {
+      uploadedPres.setInsertAtPosition(insertAtPosition)
+      uploadedPres.setTargetPresentationId(targetPresentationId)
+    }
     if (isPresentationMimeTypeValid) {
       if (isDownloadable) {
         log.debug "@Setting file to be downloadable..."

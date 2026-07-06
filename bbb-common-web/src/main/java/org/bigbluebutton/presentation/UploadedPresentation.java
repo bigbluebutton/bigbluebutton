@@ -55,6 +55,12 @@ public final class UploadedPresentation {
   // the id from this map instead of deriving identity from the page number.
   private final ConcurrentHashMap<Integer, String> pageIds = new ConcurrentHashMap<>();
 
+  // When set, this upload is a plugin insert-pages request: the converted pages are spliced
+  // into targetPresentationId at the 1-based insertAtPosition instead of surfacing as their
+  // own presentation.
+  private Integer insertAtPosition = null;
+  private String targetPresentationId = null;
+
   public UploadedPresentation(String podId,
                               String meetingId,
                               String id,
@@ -253,6 +259,26 @@ public final class UploadedPresentation {
   public void setMaxPageConversionTime(long maxPageConversionTime) {
     if (maxPageConversionTime <= 0) maxPageConversionTime = 30L;
     this.maxPageConversionTime = maxPageConversionTime;
+  }
+
+  public Integer getInsertAtPosition() {
+    return insertAtPosition;
+  }
+
+  public void setInsertAtPosition(Integer insertAtPosition) {
+    this.insertAtPosition = insertAtPosition;
+  }
+
+  public String getTargetPresentationId() {
+    return targetPresentationId;
+  }
+
+  public void setTargetPresentationId(String targetPresentationId) {
+    this.targetPresentationId = targetPresentationId;
+  }
+
+  public boolean isInsert() {
+    return insertAtPosition != null && targetPresentationId != null && !targetPresentationId.isEmpty();
   }
 
   public long getMaxTotalConversionTime() {
