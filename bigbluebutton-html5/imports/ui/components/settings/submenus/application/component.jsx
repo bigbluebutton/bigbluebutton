@@ -539,7 +539,7 @@ class ApplicationMenu extends BaseMenu {
                   icons={false}
                   defaultChecked={settings.selfViewDisable}
                   onChange={() => this.handleToggle('selfViewDisable')}
-                  ariaLabel={`${intl.formatMessage(intlMessages.disableLabel)} - ${displaySettingsStatus(settings.selfViewDisable, false)}`}
+                  ariaLabel={`${intl.formatMessage(intlMessages.disableLabel)} - ${displaySettingsStatus(settings.selfViewDisable, true)}`}
                   showToggleLabel={showToggleLabel}
                 />
               </Styled.FormElementRight>
@@ -562,7 +562,7 @@ class ApplicationMenu extends BaseMenu {
                     icons={false}
                     defaultChecked={settings.autoCloseReactionsBar}
                     onChange={() => this.handleToggle('autoCloseReactionsBar')}
-                    ariaLabel={`${intl.formatMessage(intlMessages.autoCloseReactionsBarLabel)} - ${displaySettingsStatus(settings.autoCloseReactionsBar, false)}`}
+                    ariaLabel={`${intl.formatMessage(intlMessages.autoCloseReactionsBarLabel)} - ${displaySettingsStatus(settings.autoCloseReactionsBar, true)}`}
                     showToggleLabel={showToggleLabel}
                   />
                 </Styled.FormElementRight>

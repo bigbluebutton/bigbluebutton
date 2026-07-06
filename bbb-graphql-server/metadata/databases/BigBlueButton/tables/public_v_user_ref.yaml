@@ -37,6 +37,7 @@ select_permissions:
         - lastName
         - lastNameSortable
         - pinned
+        - pinnedTime
         - presenter
         - raiseHand
         - reactionEmoji

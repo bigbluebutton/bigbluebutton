@@ -251,4 +251,50 @@ export class Layouts extends MultiUsers {
     await this.userPage.hasElementCount(e.webcamVideoItem, 2, 'should display 2 webcams for the attendee');
     await checkScreenshots(this, 'pagination should work for the attendees', 'video', 'pagination-second-page');
   }
+
+  private async attachPageVideos() {
+    const testInfo = this.modPage.testInfo;
+    if (!testInfo) return;
+
+    // Register future video paths without closing anything — Playwright's fixture
+    // teardown closes the context, which writes the .webm files, and the reporter
+    // then finds them via these registered paths.
+    const modVideoPath = await this.modPage.page.video()?.path();
+    if (modVideoPath) {
+      testInfo.attachments.push({ name: 'Moderator screen recording', contentType: 'video/webm', path: modVideoPath });
+    }
+
+    const userVideoPath = this.userPage ? await this.userPage.page.video()?.path() : undefined;
+    if (userVideoPath) {
+      testInfo.attachments.push({ name: 'Attendee screen recording', contentType: 'video/webm', path: userVideoPath });
+    }
+  }
+
+  async unifiedLayoutMinimizeShowsTiles() {
+    // Wait for the whiteboard canvas to confirm the presentation is fully loaded and
+    // the minimize button is in an enabled/clickable state (isThereCurrentPresentation = true).
+    await this.modPage.waitForSelector(e.whiteboard);
+
+    await this.modPage.waitAndClick(e.minimizePresentation);
+    // Allow the server round-trip that triggers the race condition (layout push → GraphQL
+    // subscription → hasMeetingLayout: false→true → first useEffect re-fires) to settle.
+    await this.modPage.page.waitForTimeout(3000);
+
+    // Regression: the race condition reset presentationIsOpen=true for the presenter,
+    // hiding the camera dock. The moderator must see the camera dock after minimize.
+    await this.modPage.wasRemoved(
+      e.presentationContainer,
+      'presentation should remain hidden for moderator after the layout push settles in unified layout',
+    );
+    await this.modPage.hasElement(
+      e.restorePresentation,
+      'restore presentation button should be visible for moderator in unified layout after minimize',
+    );
+    await this.modPage.hasElement(
+      e.cameraDock,
+      'camera dock with participant tiles should be visible for moderator after minimizing in unified layout',
+    );
+
+    await this.attachPageVideos();
+  }
 }

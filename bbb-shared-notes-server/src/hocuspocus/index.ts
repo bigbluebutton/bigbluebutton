@@ -1,5 +1,5 @@
 import { Hocuspocus } from "@hocuspocus/server";
-import { meetingLockMap, connectionsMap, nextConnectionKey } from "../common/singleton";
+import { connectionsMap, nextConnectionKey } from "../common/singleton";
 import { ConnectionInfo } from "../common/type";
 import { extractMeetingId } from "./utils";
 import postgresqlDB from "./extensions/postgresql";
@@ -39,7 +39,6 @@ const hocuspocus = new Hocuspocus({
 
     const {
       userName,
-      userId,
       meetingId,
       intUserId,
       userHasNotesEnabled,
@@ -51,18 +50,14 @@ const hocuspocus = new Hocuspocus({
       return null;
     }
 
-    const isMeetingLocked = meetingLockMap.get(meetingId)?.viewerReadOnly;
-
-    const isConnectionReadOnly = isMeetingLocked && !userHasNotesEnabled;
+    const isConnectionReadOnly = !userHasNotesEnabled;
     if (isConnectionReadOnly) {
       data.connectionConfig.readOnly = true;
     }
 
     const newConnection: ConnectionInfo = {
       meetingId,
-      userId,
       intUserId,
-      moderator: userInformation.userIsModerator,
       notesEnabled: userInformation.userHasNotesEnabled,
       websocket: websocket,
     }
@@ -75,7 +70,7 @@ const hocuspocus = new Hocuspocus({
         websocket,
         sessionToken,
         intUserId,
-        id: userId,
+        id: intUserId,
         role: role,
         name: userName,
         meetingId,
@@ -95,6 +90,7 @@ const hocuspocus = new Hocuspocus({
       intUserId = "SYSTEM";
       if (documentName.includes("__")) meetingId = extractMeetingId(documentName);
     }
+
     if (meetingId) {
       sender.send('sharedNotesUpdated', meetingId, { intUserId, documentName });
     } else {

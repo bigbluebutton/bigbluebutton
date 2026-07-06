@@ -47,6 +47,7 @@ import VoiceActivityAdapter from '../../core/adapters/voice-activity';
 import LayoutObserver from '../layout/observer';
 import BBBLiveKitRoomContainer from '/imports/ui/components/livekit/component';
 import RaiseHandNotifier from '/imports/ui/components/raisehand-notifier/container';
+import DocumentTitleManager from './document-title-manager/component';
 
 const intlMessages = defineMessages({
   userListLabel: {
@@ -364,6 +365,7 @@ class App extends Component {
           }}
         >
           <ActivityCheckContainer />
+          <DocumentTitleManager />
           <ScreenReaderAlertContainer />
           <BannerBarContainer />
           <NotificationsBarContainer />

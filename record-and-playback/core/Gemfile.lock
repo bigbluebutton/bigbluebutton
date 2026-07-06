@@ -13,7 +13,7 @@ GEM
       csv
       rexml
     builder (3.2.4)
-    concurrent-ruby (1.3.4)
+    concurrent-ruby (1.3.7)
     crass (1.0.6)
     csv (3.3.5)
     fastimage (2.2.6)

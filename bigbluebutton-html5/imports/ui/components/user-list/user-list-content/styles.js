@@ -10,13 +10,13 @@ import {
   mdPaddingX,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
+  colorBorder,
   colorPrimary,
   userListBg,
   colorWhite,
   colorOffWhite,
   colorGrayDark,
   colorGrayLight,
-  colorGrayLighter,
   unreadMessagesBg,
   colorGrayLightest,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -161,7 +161,7 @@ const Separator = styled.hr`
   margin: 1rem auto;
   width: 2.2rem;
   border: 0;
-  border-top: 1px solid ${colorGrayLighter};
+  border-top: 1px solid ${colorBorder};
 `;
 
 export default {

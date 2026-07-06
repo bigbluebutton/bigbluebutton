@@ -298,6 +298,7 @@ CREATE UNLOGGED TABLE "user" (
 	"ejectedByModerator" varchar(50),
 	"presenter" bool,
 	"pinned" bool,
+	"pinnedTime" timestamp with time zone,
 	"locked" bool,
 	"speechLocale" varchar(255),
 	"captionLocale" varchar(255),
@@ -305,14 +306,16 @@ CREATE UNLOGGED TABLE "user" (
 	"inactivityWarningTimeoutSecs" numeric,
 	"whiteboardWriteAccess" bool default FALSE,
 	"echoTestRunningAt" timestamp with time zone,
+	"lastFloorTime" varchar(25), --replicated from user_voice via trigger
+	"camerasCount" integer default 0, --maintained from user_camera via trigger
 	CONSTRAINT "user_pkey" PRIMARY KEY ("meetingId","userId"),
 	FOREIGN KEY ("meetingId", "guestStatusSetByModerator") REFERENCES "user"("meetingId","userId") ON DELETE SET NULL
 );
-CREATE INDEX "idx_user_pk_reverse" on "user" ("userId", "meetingId");
+CREATE INDEX "idx_user_pk_reverse" on "user"("userId", "meetingId");
 CREATE INDEX "idx_user_meetingId_extId" ON "user"("meetingId", "extId");
 
--- user (on update raiseHand or away: set new time)
-CREATE OR REPLACE FUNCTION update_user_raiseHand_away_time_trigger_func()
+-- user (on update raiseHand, away or pinned: set new time)
+CREATE OR REPLACE FUNCTION update_user_raiseHand_away_pinned_time_trigger_func()
 RETURNS TRIGGER AS $$
 BEGIN
     IF NEW."raiseHand" IS DISTINCT FROM OLD."raiseHand" THEN
@@ -329,12 +332,19 @@ BEGIN
             NEW."awayTime" := NOW();
         END IF;
     END IF;
+    IF NEW."pinned" IS DISTINCT FROM OLD."pinned" THEN
+        IF NEW."pinned" is true THEN
+            NEW."pinnedTime" := NOW();
+        ELSE
+            NEW."pinnedTime" := NULL;
+        END IF;
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_user_raiseHand_away_time_trigger BEFORE UPDATE OF "raiseHand", "away" ON "user"
-    FOR EACH ROW EXECUTE FUNCTION update_user_raiseHand_away_time_trigger_func();
+CREATE TRIGGER update_user_raiseHand_away_pinned_time_trigger BEFORE UPDATE OF "raiseHand", "away", "pinned" ON "user"
+    FOR EACH ROW EXECUTE FUNCTION update_user_raiseHand_away_pinned_time_trigger_func();
 
 
 COMMENT ON COLUMN "user"."disconnected" IS 'This column is set true when the user closes the window or his with the server is over';
@@ -389,6 +399,13 @@ ALTER TABLE "user" ADD COLUMN "currentlyInMeeting" boolean GENERATED ALWAYS AS (
         ELSE false
         END) STORED;
 
+ALTER TABLE "user" ADD COLUMN "isSharingCamera" boolean GENERATED ALWAYS AS (
+    CASE WHEN "user"."camerasCount" > 0
+        THEN true
+        ELSE false
+        END) STORED;
+
+
 CREATE OR REPLACE VIEW "v_user"
 AS SELECT "user"."userId",
     "user"."extId",
@@ -424,13 +441,16 @@ AS SELECT "user"."userId",
     "user"."registeredAt",
     "user"."presenter",
     "user"."pinned",
+    "user"."pinnedTime",
     CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
     "user"."captionLocale",
     CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
     "user"."whiteboardWriteAccess",
     "user"."isModerator",
-    "user"."currentlyInMeeting"
+    "user"."currentlyInMeeting",
+    "user"."lastFloorTime",
+    "user"."isSharingCamera"
   FROM "user"
   WHERE "user"."currentlyInMeeting" is true;
 
@@ -455,6 +475,15 @@ WHERE "currentlyInMeeting" IS TRUE;
 CREATE INDEX "idx_v_user_UsersBasicInfo" ON "user"(
     "meetingId",
     "nameSortable" ASC NULLS LAST,
+    "userId" ASC NULLS LAST
+)
+WHERE "currentlyInMeeting" IS TRUE;
+
+CREATE INDEX "idx_v_user_AudioOnlySubscription" ON "user"(
+    "meetingId",
+    "isSharingCamera",
+    "isModerator",
+    "lastFloorTime" DESC NULLS LAST,
     "userId" ASC NULLS LAST
 )
 WHERE "currentlyInMeeting" IS TRUE;
@@ -500,6 +529,7 @@ AS SELECT "user"."userId",
     "user"."registeredAt",
     "user"."presenter",
     "user"."pinned",
+    "user"."pinnedTime",
     CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
     "user"."captionLocale",
@@ -508,6 +538,8 @@ AS SELECT "user"."userId",
     CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
     "user"."isModerator",
     "user"."currentlyInMeeting",
+    "user"."lastFloorTime",
+    "user"."isSharingCamera",
     "user"."inactivityWarningDisplay",
     "user"."inactivityWarningTimeoutSecs"
    FROM "user";
@@ -569,6 +601,7 @@ AS SELECT
     "user"."registeredAt",
     "user"."presenter",
     "user"."pinned",
+    "user"."pinnedTime",
     CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
     "user"."captionLocale",
@@ -753,6 +786,23 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER "update_user_voice_voiceActivityAt_trigger" BEFORE INSERT OR UPDATE ON "user_voice" FOR EACH ROW
 EXECUTE FUNCTION "update_user_voice_voiceActivityAt_trigger_func"();
 
+--Replicate user_voice.lastFloorTime into user.lastFloorTime
+CREATE OR REPLACE FUNCTION "update_user_lastFloorTime_trigger_func"() RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE "user"
+    SET "lastFloorTime" = NEW."lastFloorTime"
+    WHERE "meetingId" = NEW."meetingId" AND "userId" = NEW."userId";
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "insert_user_lastFloorTime_trigger" AFTER INSERT ON "user_voice"
+    FOR EACH ROW EXECUTE FUNCTION "update_user_lastFloorTime_trigger_func"();
+
+CREATE TRIGGER "update_user_lastFloorTime_trigger" AFTER UPDATE OF "lastFloorTime" ON "user_voice"
+    FOR EACH ROW WHEN (NEW."lastFloorTime" IS DISTINCT FROM OLD."lastFloorTime")
+    EXECUTE FUNCTION "update_user_lastFloorTime_trigger_func"();
+
 CREATE OR REPLACE VIEW "v_user_voice_activity" AS
 select
 	"user_voice"."meetingId",
@@ -792,6 +842,35 @@ SELECT * FROM "user_camera";
 -- this view will be used specifically for the join with user_current
 CREATE OR REPLACE VIEW "v_user_current_camera" AS
 SELECT * FROM "user_camera";
+
+--Maintain user.camerasCount with the count of rows in user_camera for the same (meetingId, userId)
+CREATE OR REPLACE FUNCTION "update_user_camerasCount_trigger_func"() RETURNS TRIGGER AS $$
+DECLARE
+    _meetingId varchar(100);
+    _userId varchar(50);
+BEGIN
+    IF TG_OP = 'DELETE' THEN
+        _meetingId := OLD."meetingId";
+        _userId := OLD."userId";
+    ELSE
+        _meetingId := NEW."meetingId";
+        _userId := NEW."userId";
+    END IF;
+
+    UPDATE "user"
+    SET "camerasCount" = (
+        SELECT count(*) FROM "user_camera"
+        WHERE "meetingId" = _meetingId AND "userId" = _userId
+    )
+    WHERE "meetingId" = _meetingId AND "userId" = _userId;
+
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "update_user_camerasCount_trigger"
+AFTER INSERT OR DELETE ON "user_camera"
+FOR EACH ROW EXECUTE FUNCTION "update_user_camerasCount_trigger_func"();
 
 CREATE UNLOGGED TABLE "user_connectionStatus" (
 	"meetingId" varchar(100),
@@ -2527,6 +2606,7 @@ CREATE UNLOGGED TABLE "user_mediaGroup" (
 	"sender"						boolean NOT NULL DEFAULT false,
 	"receiver"					boolean NOT NULL DEFAULT false,
 	"active"						boolean NOT NULL DEFAULT false,
+	"createdAt"					timestamp with time zone NOT NULL DEFAULT current_timestamp,
 	CONSTRAINT "user_mediaGroup_pkey" PRIMARY KEY ("meetingId", "userId", "groupId"),
 	FOREIGN KEY ("meetingId", "groupId") REFERENCES "mediaGroup"("meetingId", "groupId") ON DELETE CASCADE,
 	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId", "userId") ON DELETE CASCADE
@@ -2534,6 +2614,8 @@ CREATE UNLOGGED TABLE "user_mediaGroup" (
 
 CREATE INDEX "idx_user_mediaGroup_userId_reverse" ON "user_mediaGroup"("userId", "meetingId");
 CREATE INDEX "idx_user_mediaGroup_groupId_sender_receiver" ON "user_mediaGroup"("meetingId", "groupId", "sender", "receiver");
+CREATE INDEX "idx_user_mediaGroup_createdAt" ON "user_mediaGroup"("meetingId", "createdAt", "userId", "groupId");
+
 CREATE OR REPLACE VIEW "v_user_mediaGroup" AS SELECT umg.*, mg."mediaType"
 FROM "user_mediaGroup" umg
 JOIN "mediaGroup" mg ON mg."meetingId" = umg."meetingId" AND mg."groupId" = umg."groupId";
