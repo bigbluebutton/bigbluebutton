@@ -151,7 +151,7 @@ object MsgBuilder {
     }.getOrElse("")
 
     PresentationPageConvertedVO(
-      id = s"$presId/$page",
+      id = java.util.UUID.randomUUID().toString,
       num = page,
       urls = urls,
       content = content,
@@ -261,7 +261,7 @@ object MsgBuilder {
   def generatePresentationPages(presId: String, numPages: Int, presBaseUrl: String, pageTokenSecret: String = ""): scala.collection.immutable.Map[String, PageVO] = {
     val pages = new scala.collection.mutable.HashMap[String, PageVO]
     for (i <- 1 to numPages) {
-      val id = presId + "/" + i
+      val id = java.util.UUID.randomUUID().toString
       val num = i
       val current = if (i == 1) true else false
       val pageToken = if (pageTokenSecret.nonEmpty) generatePageToken(presId, i, pageTokenSecret) else ""

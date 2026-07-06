@@ -532,13 +532,13 @@ class MeetingActor(
 
       // Whiteboard
       case m: SendCursorPositionPubMsg =>
-        wbApp.handle(m, liveMeeting, msgBus)
+        wbApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
         updateUserLastActivity(m.header.userId)
       case m: DeleteWhiteboardAnnotationsPubMsg =>
-        wbApp.handle(m, liveMeeting, msgBus)
+        wbApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
         updateUserLastActivity(m.header.userId)
       case m: SendWhiteboardAnnotationsPubMsg =>
-        wbApp.handle(m, liveMeeting, msgBus)
+        wbApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
         updateUserLastActivity(m.header.userId)
       case m: GetWhiteboardAnnotationsReqMsg => wbApp.handle(m, liveMeeting, msgBus)
 

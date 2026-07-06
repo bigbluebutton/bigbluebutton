@@ -22,7 +22,7 @@ trait SetCurrentPagePubMsgHdlr extends RightsManagementTrait {
       PermissionCheck.ejectUserForFailedPermission(meetingId, msg.header.userId, reason, bus.outGW, liveMeeting)
       state
     } else {
-      def broadcastSetCurrentPageEvtMsg(podId: String, presentationId: String, pageId: String, userId: String): Unit = {
+      def broadcastSetCurrentPageEvtMsg(podId: String, presentationId: String, pageId: String, pageNum: Int, userId: String): Unit = {
         val routing = Routing.addMsgToClientRouting(
           MessageTypes.BROADCAST_TO_MEETING,
           liveMeeting.props.meetingProp.intId, userId
@@ -30,7 +30,7 @@ trait SetCurrentPagePubMsgHdlr extends RightsManagementTrait {
         val envelope = BbbCoreEnvelope(SetCurrentPageEvtMsg.NAME, routing)
         val header = BbbClientMsgHeader(SetCurrentPageEvtMsg.NAME, liveMeeting.props.meetingProp.intId, userId)
 
-        val body = SetCurrentPageEvtMsgBody(podId, presentationId, pageId)
+        val body = SetCurrentPageEvtMsgBody(podId, presentationId, pageId, pageNum)
         val event = SetCurrentPageEvtMsg(header, body)
         val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
         bus.outGW.send(msgEvent)
@@ -43,11 +43,13 @@ trait SetCurrentPagePubMsgHdlr extends RightsManagementTrait {
 
       val newState = for {
         pod <- PresentationPodsApp.getPresentationPodIfPresenter(state, podId, userId)
+        pres <- pod.getPresentation(presentationId)
+        page <- pres.pages.get(pageId)
         updatedPod <- pod.setCurrentPage(presentationId, pageId)
       } yield {
 
         if (pod.currentPresenter == userId) {
-          broadcastSetCurrentPageEvtMsg(pod.id, presentationId, pageId, userId)
+          broadcastSetCurrentPageEvtMsg(pod.id, presentationId, pageId, page.num, userId)
 
           val pods = state.presentationPodManager.addPod(updatedPod)
           state.update(pods)

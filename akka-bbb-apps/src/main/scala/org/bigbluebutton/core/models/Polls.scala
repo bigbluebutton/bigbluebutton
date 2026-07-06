@@ -140,7 +140,9 @@ object Polls {
       val annotationEnvelope = BbbCoreEnvelope(SendWhiteboardAnnotationsEvtMsg.NAME, annotationRouting)
       val annotationHeader = BbbClientMsgHeader(SendWhiteboardAnnotationsEvtMsg.NAME, lm.props.meetingProp.intId, requesterId)
 
-      val annotMsgBody = SendWhiteboardAnnotationsEvtMsgBody(annot.wbId, Array[AnnotationVO](annot))
+      // deskshare polls have no backing presentation page; mirror the recorder's empty defaults
+      val (annotPresId, annotPageNum) = if (annot.wbId == "deskshare") ("", 0) else (pres.id, page.num)
+      val annotMsgBody = SendWhiteboardAnnotationsEvtMsgBody(annot.wbId, Array[AnnotationVO](annot), annotPresId, annotPageNum)
       val annotationEvent = SendWhiteboardAnnotationsEvtMsg(annotationHeader, annotMsgBody)
       val annotationMsgEvent = BbbCommonEnvCoreMsg(annotationEnvelope, annotationEvent)
       bus.outGW.send(annotationMsgEvent)

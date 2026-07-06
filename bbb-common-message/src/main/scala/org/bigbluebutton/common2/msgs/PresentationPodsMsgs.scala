@@ -397,7 +397,7 @@ case class GetAllPresentationPodsRespMsgBody(pods: Vector[PresentationPodVO])
 
 object SetCurrentPageEvtMsg { val NAME = "SetCurrentPageEvtMsg" }
 case class SetCurrentPageEvtMsg(header: BbbClientMsgHeader, body: SetCurrentPageEvtMsgBody) extends BbbCoreMsg
-case class SetCurrentPageEvtMsgBody(podId: String, presentationId: String, pageId: String)
+case class SetCurrentPageEvtMsgBody(podId: String, presentationId: String, pageId: String, pageNum: Int)
 
 object SetPageInfiniteWhiteboardEvtMsg { val NAME = "SetPageInfiniteWhiteboardEvtMsg" }
 case class SetPageInfiniteWhiteboardEvtMsg(header: BbbClientMsgHeader, body: SetPageInfiniteWhiteboardEvtMsgBody) extends BbbCoreMsg
