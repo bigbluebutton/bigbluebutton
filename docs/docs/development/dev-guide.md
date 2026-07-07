@@ -354,7 +354,7 @@ The --build option builds bbb-common-web, which is required when building bbb-we
 Alternatively, to run bbb-web in development mode on port 8090 without replacing the deployed files:
 
 ```bash
-./run-dev.sh
+./run-dev.sh --build
 ```
 
 ## Developing Akka-Apps
