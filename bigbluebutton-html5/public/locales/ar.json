@@ -971,6 +971,8 @@
     "app.audio.captions.speech.disabled": "معطل",
     "app.audio.captions.speech.unsupported": "متصفحك لا يدعم خاصية التعرف على الكلام. لن يتم نسخ صوتك",
     "app.audio.captions.speech.auto": "الكشف التلقائي",
+    "app.audio.captions.speech.microphoneAlert.message": "Audio detected but nothing is being transcribed. Your browser may be using the wrong microphone, or there is too much background noise.",
+    "app.audio.captions.speech.microphoneAlert.helpLabel": "Learn more",
     "app.audio.captions.select.af-ZA": "الأفريكانية",
     "app.audio.captions.select.sq-AL": "الألبانية",
     "app.audio.captions.select.am-ET": "الأمهرية",
