@@ -272,7 +272,8 @@ const AudioContainer = (props) => {
       // Skip auto join audio if user has already joined in another tab (currentUserHasVoice).
       // When the pre-flight screen is enabled it takes precedence: the join is
       // deferred to the pre-flight join button, so skip the breakout auto-join.
-      if (!preFlightScreen && meetingIsBreakout && !Service.isUsingAudio() && !currentUserHasVoice) {
+      const skipBreakoutAutoJoin = preFlightScreen || Service.isUsingAudio() || currentUserHasVoice;
+      if (meetingIsBreakout && !skipBreakoutAutoJoin) {
         joinAudio();
       }
     });

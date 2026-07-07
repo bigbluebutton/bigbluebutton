@@ -41,6 +41,7 @@ export interface App {
   mobileFontSize: string
   desktopFontSize: string
   autoJoin: boolean
+  preFlightScreen: boolean
   listenOnlyMode: boolean
   forceListenOnly: boolean
   skipCheck: boolean

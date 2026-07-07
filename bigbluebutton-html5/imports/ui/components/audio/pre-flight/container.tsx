@@ -14,7 +14,12 @@ interface PreFlightContainerProps {
   onJoined: () => void;
 }
 
-const PreFlightContainer: React.FC<PreFlightContainerProps> = (props) => {
+const PreFlightContainer: React.FC<PreFlightContainerProps> = ({
+  isOpen,
+  setIsOpen,
+  priority,
+  onJoined,
+}) => {
   const { data: meeting } = useMeeting((m) => ({
     voiceSettings: { muteOnStart: m?.voiceSettings?.muteOnStart },
     audioBridge: m.audioBridge,
@@ -41,7 +46,10 @@ const PreFlightContainer: React.FC<PreFlightContainerProps> = (props) => {
 
   return (
     <PreFlight
-      {...props}
+      isOpen={isOpen}
+      setIsOpen={setIsOpen}
+      priority={priority}
+      onJoined={onJoined}
       muted={!!muted}
       localEchoEnabled={!!localEchoEnabled}
       listenOnlyMode={!!listenOnlyMode}

@@ -544,6 +544,7 @@ const Footer = styled.div`
   margin-top: ${spaceMd};
 `;
 
+// @ts-ignore - as button comes from JS, we can't provide its props
 const JoinButton = styled(Button)`
   width: 100%;
   min-height: 3rem;

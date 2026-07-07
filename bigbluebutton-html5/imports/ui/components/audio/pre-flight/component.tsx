@@ -1,9 +1,11 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import React, { useCallback, useRef, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useReactiveVar } from '@apollo/client';
 import logger from '/imports/startup/client/logger';
 import Styled from './styles';
-import PreFlightBody, { PreFlightBodyHandle } from './PreFlightBody';
+import PreFlightBody, { PreFlightBodyHandle, PreFlightFooterContext } from './PreFlightBody';
 import AudioService from '/imports/ui/components/audio/service';
 import {
   joinListenOnly,
@@ -73,6 +75,7 @@ const PreFlight: React.FC<PreFlightProps> = ({
   const intl = useIntl();
   const isCamLocked = useIsCamSharingLocked();
   const supportsTransparentListenOnly = useReactiveVar(
+    // @ts-ignore - temporary while hybrid (meteor+GraphQl)
     AudioManager._transparentListenOnlySupported.value,
   ) as boolean;
   const { data: currentUser } = useCurrentUser((u) => ({ name: u.name }));
@@ -134,15 +137,7 @@ const PreFlight: React.FC<PreFlightProps> = ({
   }, [finalizeJoin]);
 
   const renderFooter = useCallback(
-    ({
-      inputDeviceId,
-      blocked,
-      micMuted,
-    }: {
-      inputDeviceId: string;
-      blocked: boolean;
-      micMuted: boolean;
-    }) => {
+    ({ inputDeviceId, blocked, micMuted }: PreFlightFooterContext) => {
       const isListenOnlySelected = inputDeviceId === LISTEN_ONLY;
       const handleJoin = isListenOnlySelected
         ? handleJoinListenOnly

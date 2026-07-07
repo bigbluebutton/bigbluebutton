@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import React, {
   forwardRef,
   useCallback,
@@ -7,6 +9,7 @@ import React, {
   useState,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+// @ts-ignore - hark has no type declarations
 import hark from 'hark';
 import logger from '/imports/startup/client/logger';
 import Styled from './styles';
@@ -220,6 +223,13 @@ export interface PreFlightBodyHandle {
   releaseStreams: () => void;
 }
 
+// Context handed to the footer renderer so the wrapper can drive the join.
+export type PreFlightFooterContext = {
+  inputDeviceId: string;
+  blocked: boolean;
+  micMuted: boolean;
+};
+
 interface PreFlightBodyProps {
   // When true, device selections are reflected into the AudioManager (post
   // admission). When false, the body stays bridge-free (guest waiting room).
@@ -245,11 +255,7 @@ interface PreFlightBodyProps {
   // Video share function, injected by the post-admission wrapper. Absent in the
   // guest waiting room so this component never imports the join/share path.
   startSharing?: (deviceId: string) => void;
-  renderFooter: (ctx: {
-    inputDeviceId: string;
-    blocked: boolean;
-    micMuted: boolean;
-  }) => React.ReactNode;
+  renderFooter: (ctx: PreFlightFooterContext) => React.ReactNode;
 }
 
 const PreFlightBody = forwardRef<PreFlightBodyHandle, PreFlightBodyProps>(
@@ -272,13 +278,14 @@ const PreFlightBody = forwardRef<PreFlightBodyHandle, PreFlightBodyProps>(
 
     const intl = useIntl();
 
-    const initialInput = useAudioManager
-      ? AudioManager.inputDeviceId || ''
-      : getStoredAudioInputDeviceId() || '';
-    const initialOutput = useAudioManager
-      ? AudioManager.outputDeviceId || ''
-      : getStoredAudioOutputDeviceId() || '';
+    const initialInput: string = useAudioManager
+      ? (AudioManager.inputDeviceId as unknown as string) || ''
+      : (getStoredAudioInputDeviceId() as unknown as string) || '';
+    const initialOutput: string = useAudioManager
+      ? (AudioManager.outputDeviceId as unknown as string) || ''
+      : (getStoredAudioOutputDeviceId() as unknown as string) || '';
     const permissionStatus = useAudioManager
+      // @ts-ignore - temporary while hybrid (meteor+GraphQl)
       ? (AudioManager._permissionStatus.value() as string)
       : null;
 
@@ -302,7 +309,7 @@ const PreFlightBody = forwardRef<PreFlightBodyHandle, PreFlightBodyProps>(
       enableJoinControls ? shareOnJoinDefault : true,
     );
     const [micMuted, setMicMuted] = useState(joinMutedDefault);
-    const [mirrored, setMirrored] = useState(() => VideoService.mirrorOwnWebcam());
+    const [mirrored, setMirrored] = useState<boolean>(() => Boolean(VideoService.mirrorOwnWebcam()));
 
     const isMounted = useRef(true);
     const micStreamRef = useRef<MediaStream | null>(null);
@@ -325,7 +332,7 @@ const PreFlightBody = forwardRef<PreFlightBodyHandle, PreFlightBodyProps>(
       cleanupStreamAndVideo,
       VIEW_STATES,
     } = useVideoPreview({
-      initialDeviceId: PreviewService.webcamDeviceId?.() ?? null,
+      initialDeviceId: (PreviewService.webcamDeviceId?.() as string) ?? null,
       initialProfileId: PreviewService.getDefaultProfile().id,
       forceOpen: true,
       startSharing,
@@ -407,7 +414,7 @@ const PreFlightBody = forwardRef<PreFlightBodyHandle, PreFlightBodyProps>(
             resolvedDeviceId = MediaStreamUtils.extractDeviceIdFromStream(
               stream,
               'audio',
-            );
+            ) as string;
             if (resolvedDeviceId && resolvedDeviceId !== deviceId) {
               applyInputSelection(resolvedDeviceId);
             }
@@ -493,7 +500,7 @@ const PreFlightBody = forwardRef<PreFlightBodyHandle, PreFlightBodyProps>(
       }
       AudioService.hasMicrophonePermission({
         gumOnPrompt: true,
-        permissionStatus,
+        permissionStatus: permissionStatus as string,
       })
         .then(() => updateDeviceList())
         .then(() => {
@@ -507,7 +514,6 @@ const PreFlightBody = forwardRef<PreFlightBodyHandle, PreFlightBodyProps>(
         .catch(() => {
           if (isMounted.current) setFindingDevices(false);
         });
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [micDisabled]);
 
     useEffect(() => {
@@ -518,7 +524,6 @@ const PreFlightBody = forwardRef<PreFlightBodyHandle, PreFlightBodyProps>(
         cleanupMicStream();
       };
       // Run once on mount - device init.
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const onSelectWebcam = useCallback(
