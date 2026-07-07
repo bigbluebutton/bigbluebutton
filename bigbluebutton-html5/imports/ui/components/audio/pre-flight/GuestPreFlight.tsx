@@ -9,6 +9,10 @@ const intlMessages = defineMessages({
     id: 'app.preFlight.guestTitle',
     description: 'Green room title while waiting for approval',
   },
+  subtitle: {
+    id: 'app.preFlight.guestSubtitle',
+    description: 'Green room subtitle',
+  },
   ariaTitle: {
     id: 'app.preFlight.guestAriaTitle',
     description: 'Green room aria title',
@@ -45,11 +49,11 @@ const GuestPreFlight: React.FC<GuestPreFlightProps> = ({ positionMessage, hostMe
   const hasHostMessage = !!hostMessage && hostMessage.length > 0;
 
   const renderFooter = () => (
-    <Styled.WaitingFooter>
-      <Styled.WaitingIndicator>
+    <Styled.StatusBanner data-test="preFlightWaitingStatus">
+      <Styled.StatusHeadline>
         <Styled.WaitingDot />
         <span aria-live="polite">{intl.formatMessage(intlMessages.waitingLabel)}</span>
-      </Styled.WaitingIndicator>
+      </Styled.StatusHeadline>
       {positionMessage ? <Styled.WaitingPosition aria-live="polite">{positionMessage}</Styled.WaitingPosition> : null}
       {hasHostMessage && (
         <Styled.HostMessage>
@@ -62,7 +66,7 @@ const GuestPreFlight: React.FC<GuestPreFlightProps> = ({ positionMessage, hostMe
           />
         </Styled.HostMessage>
       )}
-    </Styled.WaitingFooter>
+    </Styled.StatusBanner>
   );
 
   return (
@@ -71,7 +75,10 @@ const GuestPreFlight: React.FC<GuestPreFlightProps> = ({ positionMessage, hostMe
         aria-label={intl.formatMessage(intlMessages.ariaTitle)}
         data-test="preFlightGuestRoom"
       >
-        <Styled.GuestRoomTitle>{intl.formatMessage(intlMessages.title)}</Styled.GuestRoomTitle>
+        <Styled.Header>
+          <Styled.Title>{intl.formatMessage(intlMessages.title)}</Styled.Title>
+          <Styled.Subtitle>{intl.formatMessage(intlMessages.subtitle)}</Styled.Subtitle>
+        </Styled.Header>
         <PreFlightBody
           ref={bodyRef}
           useAudioManager={false}

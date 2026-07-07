@@ -7,8 +7,6 @@ import React, {
   useState,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { MenuItem, SelectChangeEvent } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 import AudioService from '/imports/ui/components/audio/service';
@@ -45,6 +43,10 @@ const intlMessages = defineMessages({
     id: 'app.preFlight.findingDevicesLabel',
     description: 'Pre-flight finding devices label',
   },
+  permissionDeniedTitle: {
+    id: 'app.preFlight.permissionDeniedTitle',
+    description: 'Pre-flight microphone permission denied title',
+  },
   permissionDeniedLabel: {
     id: 'app.preFlight.permissionDeniedLabel',
     description: 'Pre-flight microphone permission denied label',
@@ -52,6 +54,14 @@ const intlMessages = defineMessages({
   tryAgainLabel: {
     id: 'app.preFlight.tryAgainLabel',
     description: 'Pre-flight retry permission button label',
+  },
+  micLevelLabel: {
+    id: 'app.preFlight.micLevelLabel',
+    description: 'Pre-flight microphone level meter caption',
+  },
+  cameraOffLabel: {
+    id: 'app.preFlight.cameraOffLabel',
+    description: 'Pre-flight camera off label',
   },
   microphoneLabel: {
     id: 'app.audio.audioSettings.microphoneSourceLabel',
@@ -308,9 +318,9 @@ const PreFlightBody = forwardRef<PreFlightBodyHandle, PreFlightBodyProps>((props
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onSelectWebcam = useCallback((e: SelectChangeEvent<unknown>) => {
-    handleSelectWebcam(e as unknown as React.ChangeEvent<HTMLSelectElement>);
-    if (persistDevices) PreviewService.changeWebcam(e.target.value as string);
+  const onSelectWebcam = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    handleSelectWebcam(e);
+    if (persistDevices) PreviewService.changeWebcam(e.target.value);
   }, [handleSelectWebcam, persistDevices]);
 
   useImperativeHandle(ref, () => ({
@@ -334,67 +344,98 @@ const PreFlightBody = forwardRef<PreFlightBodyHandle, PreFlightBodyProps>((props
 
   const blocked = findingDevices || producingStream;
 
-  const renderVideoPreview = () => {
-    if (viewState === VIEW_STATES.error) {
-      return <Styled.PlaceholderText>{deviceError}</Styled.PlaceholderText>;
+  const renderCameraFrame = (locked: boolean) => {
+    if (locked) {
+      return (
+        <Styled.CameraOff>
+          <Styled.CameraOffIcon iconName="lock" />
+          <span>{intl.formatMessage(intlMessages.cameraLockedLabel)}</span>
+        </Styled.CameraOff>
+      );
+    }
+    if (viewState === VIEW_STATES.error || previewError) {
+      return (
+        <Styled.CameraOff>
+          <Styled.CameraOffIcon iconName="video_off" />
+          <Styled.PlaceholderText>{previewError || deviceError}</Styled.PlaceholderText>
+        </Styled.CameraOff>
+      );
     }
     if (viewState === VIEW_STATES.finding) {
       return <Styled.PlaceholderText>{intl.formatMessage(intlMessages.findingDevicesLabel)}</Styled.PlaceholderText>;
     }
-    if (previewError) {
-      return <Styled.PlaceholderText>{previewError}</Styled.PlaceholderText>;
+    if (!availableWebcams || availableWebcams.length === 0) {
+      return (
+        <Styled.CameraOff>
+          <Styled.CameraOffIcon iconName="video_off" />
+          <span>{intl.formatMessage(intlMessages.cameraOffLabel)}</span>
+        </Styled.CameraOff>
+      );
+    }
+    const currentWebcam = availableWebcams.find((w) => w.deviceId === webcamDeviceId);
+    return (
+      <>
+        <Styled.VideoPreview
+          mirrored={VideoService.mirrorOwnWebcam()}
+          data-test="preFlightVideoPreview"
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
+        />
+        {currentWebcam?.label && <Styled.CameraChip>{currentWebcam.label}</Styled.CameraChip>}
+      </>
+    );
+  };
+
+  const renderCameraSelect = () => {
+    if (findingDevices) return <Styled.Skeleton />;
+    if (!availableWebcams || availableWebcams.length === 0) {
+      return <Styled.NotFound>{intl.formatMessage(intlMessages.webcamNotFoundLabel)}</Styled.NotFound>;
     }
     return (
-      <Styled.VideoPreview
-        mirrored={VideoService.mirrorOwnWebcam()}
-        data-test="preFlightVideoPreview"
-        ref={videoRef}
-        autoPlay
-        playsInline
-        muted
-      />
+      <Styled.SelectField>
+        <select
+          id="preFlightCameraSelector"
+          data-test="preFlightCameraSelect"
+          value={webcamDeviceId || ''}
+          onChange={onSelectWebcam}
+        >
+          {availableWebcams.map((webcam, index) => (
+            <option key={webcam.deviceId} value={webcam.deviceId}>
+              {webcam.label || `${intl.formatMessage(intlMessages.cameraLabel)} ${index + 1}`}
+            </option>
+          ))}
+        </select>
+      </Styled.SelectField>
     );
   };
 
   const renderCameraColumn = () => {
-    if (!showCamera) {
-      if (isCamLocked) {
-        return <Styled.LockedNote>{intl.formatMessage(intlMessages.cameraLockedLabel)}</Styled.LockedNote>;
-      }
-      return null;
-    }
+    if (!showCamera && !isCamLocked) return null;
+    const locked = isCamLocked;
     return (
       <Styled.CameraColumn>
-        <Styled.VideoWrapper>{renderVideoPreview()}</Styled.VideoWrapper>
-        <Styled.DeviceGroup>
-          {intl.formatMessage(intlMessages.cameraLabel)}
-          {availableWebcams && availableWebcams.length > 0 ? (
-            <Styled.CameraSelect
-              value={webcamDeviceId || ''}
-              onChange={onSelectWebcam}
-              IconComponent={ExpandMoreIcon}
-              SelectDisplayProps={{ 'data-test': 'preFlightCameraSelect' } as React.HTMLAttributes<HTMLDivElement>}
-            >
-              {availableWebcams.map((webcam, index) => (
-                <MenuItem key={webcam.deviceId} value={webcam.deviceId}>
-                  {webcam.label || `${intl.formatMessage(intlMessages.cameraLabel)} ${index + 1}`}
-                </MenuItem>
-              ))}
-            </Styled.CameraSelect>
-          ) : (
-            <span>{intl.formatMessage(intlMessages.webcamNotFoundLabel)}</span>
-          )}
-        </Styled.DeviceGroup>
-        {enableCameraShareToggle && (
-          <Styled.CameraToggle>
-            <Styled.ToggleInput
-              type="checkbox"
-              checked={shareOnJoin}
-              data-test="preFlightShareCameraToggle"
-              onChange={(e) => setShareOnJoin(e.target.checked)}
-            />
-            {intl.formatMessage(intlMessages.shareCameraLabel)}
-          </Styled.CameraToggle>
+        <Styled.VideoWrapper>{renderCameraFrame(locked)}</Styled.VideoWrapper>
+        {!locked && (
+          <>
+            <Styled.DeviceGroup htmlFor="preFlightCameraSelector">
+              {intl.formatMessage(intlMessages.cameraLabel)}
+              {renderCameraSelect()}
+            </Styled.DeviceGroup>
+            {enableCameraShareToggle && (
+              <Styled.CameraToggle>
+                <Styled.SwitchInput
+                  type="checkbox"
+                  checked={shareOnJoin}
+                  data-test="preFlightShareCameraToggle"
+                  onChange={(e) => setShareOnJoin(e.target.checked)}
+                />
+                <Styled.Switch aria-hidden="true" />
+                {intl.formatMessage(intlMessages.shareCameraLabel)}
+              </Styled.CameraToggle>
+            )}
+          </>
         )}
       </Styled.CameraColumn>
     );
@@ -402,39 +443,54 @@ const PreFlightBody = forwardRef<PreFlightBodyHandle, PreFlightBodyProps>((props
 
   const renderMicSection = () => {
     if (micDisabled) return null;
-    if (permissionDenied) {
-      return (
-        <Styled.PermissionDenied role="alert" data-test="preFlightPermissionDenied">
-          <Styled.PermissionIcon iconName="warning" />
-          <span>{intl.formatMessage(intlMessages.permissionDeniedLabel)}</span>
-          <Styled.RetryButton
-            type="button"
-            data-test="preFlightRetryPermission"
-            onClick={() => setInputDevice('')}
-          >
-            {intl.formatMessage(intlMessages.tryAgainLabel)}
-          </Styled.RetryButton>
-        </Styled.PermissionDenied>
-      );
-    }
     return (
-      <>
-        <Styled.DeviceGroup htmlFor="preFlightInputDeviceSelector">
-          {intl.formatMessage(intlMessages.microphoneLabel)}
-          <DeviceSelector
-            deviceId={inputDeviceId || ''}
-            devices={audioInputDevices}
-            kind="audioinput"
-            blocked={blocked}
-            onChange={setInputDevice}
-            intl={intl}
-            supportsTransparentListenOnly={supportsTransparentListenOnly}
-          />
-        </Styled.DeviceGroup>
-        <Styled.StreamVolumeWrapper>
-          <AudioStreamVolume stream={micStream} />
-        </Styled.StreamVolumeWrapper>
-      </>
+      <Styled.MicSlot>
+        {permissionDenied ? (
+          <Styled.PermissionDenied role="alert" data-test="preFlightPermissionDenied">
+            <Styled.PermissionIconCircle>
+              <Styled.PermissionIcon iconName="warning" />
+            </Styled.PermissionIconCircle>
+            <Styled.PermissionBody>
+              <Styled.PermissionTitle>{intl.formatMessage(intlMessages.permissionDeniedTitle)}</Styled.PermissionTitle>
+              <Styled.PermissionText>{intl.formatMessage(intlMessages.permissionDeniedLabel)}</Styled.PermissionText>
+              <Styled.SecondaryButton
+                type="button"
+                data-test="preFlightRetryPermission"
+                onClick={() => setInputDevice('')}
+              >
+                {intl.formatMessage(intlMessages.tryAgainLabel)}
+              </Styled.SecondaryButton>
+            </Styled.PermissionBody>
+          </Styled.PermissionDenied>
+        ) : (
+          <>
+            <Styled.DeviceGroup htmlFor="preFlightInputDeviceSelector">
+              {intl.formatMessage(intlMessages.microphoneLabel)}
+              {findingDevices ? (
+                <Styled.Skeleton />
+              ) : (
+                <Styled.SelectField>
+                  <DeviceSelector
+                    deviceId={inputDeviceId || ''}
+                    devices={audioInputDevices}
+                    kind="audioinput"
+                    blocked={blocked}
+                    onChange={setInputDevice}
+                    intl={intl}
+                    supportsTransparentListenOnly={supportsTransparentListenOnly}
+                  />
+                </Styled.SelectField>
+              )}
+            </Styled.DeviceGroup>
+            <div>
+              <Styled.MeterCaption>{intl.formatMessage(intlMessages.micLevelLabel)}</Styled.MeterCaption>
+              <Styled.MeterField>
+                <AudioStreamVolume stream={micStream} />
+              </Styled.MeterField>
+            </div>
+          </>
+        )}
+      </Styled.MicSlot>
     );
   };
 
@@ -446,15 +502,21 @@ const PreFlightBody = forwardRef<PreFlightBodyHandle, PreFlightBodyProps>((props
           {renderMicSection()}
           <Styled.DeviceGroup htmlFor="preFlightOutputDeviceSelector">
             {intl.formatMessage(intlMessages.speakerLabel)}
-            <DeviceSelector
-              deviceId={outputDeviceId || ''}
-              devices={audioOutputDevices}
-              kind="audiooutput"
-              blocked={blocked}
-              onChange={setOutputDevice}
-              intl={intl}
-              supportsTransparentListenOnly={supportsTransparentListenOnly}
-            />
+            {findingDevices ? (
+              <Styled.Skeleton />
+            ) : (
+              <Styled.SelectField>
+                <DeviceSelector
+                  deviceId={outputDeviceId || ''}
+                  devices={audioOutputDevices}
+                  kind="audiooutput"
+                  blocked={blocked}
+                  onChange={setOutputDevice}
+                  intl={intl}
+                  supportsTransparentListenOnly={supportsTransparentListenOnly}
+                />
+              </Styled.SelectField>
+            )}
           </Styled.DeviceGroup>
           <Styled.DeviceGroup as="div">
             {intl.formatMessage(intlMessages.testSpeakerLabel)}

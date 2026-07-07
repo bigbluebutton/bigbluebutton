@@ -17,6 +17,10 @@ const intlMessages = defineMessages({
     id: 'app.preFlight.title',
     description: 'Pre-flight screen title',
   },
+  subtitle: {
+    id: 'app.preFlight.subtitle',
+    description: 'Pre-flight screen subtitle',
+  },
   ariaTitle: {
     id: 'app.preFlight.ariaTitle',
     description: 'Pre-flight screen aria title',
@@ -128,7 +132,7 @@ const PreFlight: React.FC<PreFlightProps> = ({
       onRequestClose={() => setIsOpen(false)}
       data-test="preFlightModal"
       contentLabel={intl.formatMessage(intlMessages.ariaTitle)}
-      title={intl.formatMessage(intlMessages.title)}
+      title=""
       {...{
         setIsOpen,
         isOpen,
@@ -136,6 +140,10 @@ const PreFlight: React.FC<PreFlightProps> = ({
         modalIsOpen: isOpen,
       }}
     >
+      <Styled.Header>
+        <Styled.Title>{intl.formatMessage(intlMessages.title)}</Styled.Title>
+        <Styled.Subtitle>{intl.formatMessage(intlMessages.subtitle)}</Styled.Subtitle>
+      </Styled.Header>
       <PreFlightBody
         ref={bodyRef}
         useAudioManager
