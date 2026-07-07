@@ -575,6 +575,11 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       markdownImageAllowed: false,
       toolbar: [],
     },
+    fileUpload: {
+      maxFileSizeKb: 5120,
+      maxImageDimensionPx: 4096,
+      allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
+    },
     userReaction: {
       enabled: true,
       expire: 60,

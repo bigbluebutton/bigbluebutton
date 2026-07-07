@@ -17,6 +17,7 @@ export interface Public {
   captions: Captions
   timer: Timer
   chat: Chat
+  fileUpload: FileUpload
   multiFunctionalMode: MultiFunctionalMode
   userReaction: UserReaction
   notes: Notes
@@ -554,6 +555,12 @@ export interface Chat {
   disableEmojis: string[]
   markdownImageAllowed: boolean
   toolbar: string[]
+}
+
+export interface FileUpload {
+  maxFileSizeKb: number
+  maxImageDimensionPx: number
+  allowedMimeTypes: string[]
 }
 
 export interface MultiFunctionalMode {

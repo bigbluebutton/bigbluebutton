@@ -822,6 +822,12 @@ public:
     # example: ['reply', 'delete']
     toolbar: ['reply', 'delete', 'edit', 'reactions', 'pin']
     announcePresenterChangeInChat: true
+  fileUpload:
+    # Shared limits for pasted-image uploads (chat, shared notes, whiteboard).
+    # The client reads these for UX; the bbb-file-upload service enforces them.
+    maxFileSizeKb: 5120
+    maxImageDimensionPx: 4096 # cap on image width/height, guards against pixel bombs
+    allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
   multiFunctionalMode:
     enabled: false # Enables an auxiliary sidebar content panel in the UI.
   userReaction:
