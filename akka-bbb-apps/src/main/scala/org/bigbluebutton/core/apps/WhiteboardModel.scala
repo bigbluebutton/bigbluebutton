@@ -9,21 +9,65 @@ import org.bigbluebutton.core.db.{ PresAnnotationDAO, PresAnnotationHistoryDAO }
 object WhiteboardModel {
   // Shape types that must never be stored or broadcast as whiteboard
   // annotations. They render embeddable/rich content (iframes, link
-  // previews, external images) instead of being part of the drawing
-  // toolset, so they are rejected server-side regardless of any
-  // client-side checks. Mirrors the client allowlist (isValidShapeType).
-  val DisallowedAnnotationTypes: Set[String] = Set("embed", "bookmark", "image")
+  // previews) instead of being part of the drawing toolset, so they are
+  // rejected server-side regardless of any client-side checks. Mirrors the
+  // client allowlist (isValidShapeType).
+  val DisallowedAnnotationTypes: Set[String] = Set("embed", "bookmark")
 
-  def isAllowedAnnotationType(annotationInfo: Map[String, _]): Boolean = {
+  val ImageAnnotationType: String = "image"
+
+  // Cap on the serialized size of a single image annotation. An image annotation
+  // only carries a relative URL plus geometry, so this is very generous; it
+  // exists to stop a hostile client (bypassing the client by talking to the
+  // mutation directly) from stuffing base64 or other large payloads into the
+  // annotation and bloating Postgres. Non-image annotations are not capped here
+  // (a complex draw can legitimately be large), which keeps the cap targeted.
+  val MaxImageAnnotationSizeBytes: Int = 256 * 1024
+
+  // An image annotation may only reference an upload served same-origin from the
+  // current meeting: /bigbluebutton/fileUpload/{meetingId}/{uuid}.{ext}. This
+  // blocks data: URIs (base64 bloat / bypassing the upload service) and external
+  // origins (privacy / SSRF), and pins the meetingId so an annotation cannot
+  // point at another meeting's uploads. The filename disallows '.' outside the
+  // extension, so path traversal cannot slip through.
+  private def uploadedImageSrcPattern(meetingId: String): scala.util.matching.Regex =
+    ("^/bigbluebutton/fileUpload/" + java.util.regex.Pattern.quote(meetingId) +
+      "/[A-Za-z0-9-]+\\.(png|jpe?g|gif|webp)$").r
+
+  private def getImageSrc(annotationInfo: Map[String, _]): Option[String] = {
+    annotationInfo.get("meta") match {
+      case Some(meta: Map[String, _] @unchecked) =>
+        meta.get("bbbImageSrc") match {
+          case Some(src: String) => Some(src)
+          case _                 => None
+        }
+      case _ => None
+    }
+  }
+
+  private def isValidImageAnnotation(annotationInfo: Map[String, _], meetingId: String): Boolean = {
+    val withinSizeLimit = annotationInfo.toString.length <= MaxImageAnnotationSizeBytes
+    val hasValidSrc = getImageSrc(annotationInfo).exists { src =>
+      uploadedImageSrcPattern(meetingId).findFirstIn(src).isDefined
+    }
+    withinSizeLimit && hasValidSrc
+  }
+
+  // Single ingestion gate for annotations (WhiteboardModel.addAnnotations is the
+  // only writer of pres_annotation). embed/bookmark are always rejected; image is
+  // rejected unless the meeting enabled image paste AND the shape references a
+  // valid same-origin upload within the size cap; every other type is allowed.
+  def isAllowedAnnotation(annotationInfo: Map[String, _], meetingId: String, imagePasteEnabled: Boolean): Boolean = {
     annotationInfo.get("type") match {
-      case Some(annotationType: String) => !DisallowedAnnotationTypes.contains(annotationType)
-      case _                            => true
+      case Some(annotationType: String) if DisallowedAnnotationTypes.contains(annotationType) => false
+      case Some(ImageAnnotationType) => imagePasteEnabled && isValidImageAnnotation(annotationInfo, meetingId)
+      case _                         => true
     }
   }
 }
 
 class WhiteboardModel extends SystemConfiguration {
-  import WhiteboardModel.isAllowedAnnotationType
+  import WhiteboardModel.isAllowedAnnotation
 
   private var _whiteboards = new HashMap[String, Whiteboard]()
 
@@ -61,7 +105,7 @@ class WhiteboardModel extends SystemConfiguration {
       k -> newValue
     }).toMap
 
-  def addAnnotations(wbId: String, meetingId: String, userId: String, annotations: Array[AnnotationVO], isPresenter: Boolean, isModerator: Boolean): Array[AnnotationVO] = {
+  def addAnnotations(wbId: String, meetingId: String, userId: String, annotations: Array[AnnotationVO], isPresenter: Boolean, isModerator: Boolean, imagePasteEnabled: Boolean = false): Array[AnnotationVO] = {
 
     val wb = getWhiteboard(wbId)
 
@@ -83,7 +127,7 @@ class WhiteboardModel extends SystemConfiguration {
             mergedAnnotationInfo
           }
 
-          if (isAllowedAnnotationType(finalAnnotationInfo)) {
+          if (isAllowedAnnotation(finalAnnotationInfo, meetingId, imagePasteEnabled)) {
             val newAnnotation = oldAnnotation.get.copy(annotationInfo = finalAnnotationInfo)
             newAnnotationsMap += (annotation.id -> newAnnotation)
             annotationsAdded :+= newAnnotation
@@ -96,7 +140,7 @@ class WhiteboardModel extends SystemConfiguration {
           println(s"User $userId doesn't have permission to edit annotation ${annotation.id}, ignoring...")
         }
       } else if (annotation.annotationInfo.contains("type")) {
-        if (isAllowedAnnotationType(annotation.annotationInfo)) {
+        if (isAllowedAnnotation(annotation.annotationInfo, meetingId, imagePasteEnabled)) {
           newAnnotationsMap += (annotation.id -> annotation)
           annotationsAdded :+= annotation
           annotationsDiffAdded :+= annotation
