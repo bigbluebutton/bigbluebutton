@@ -971,6 +971,8 @@
     "app.audio.captions.speech.disabled": "Keelatud",
     "app.audio.captions.speech.unsupported": "See brauser ei toeta kõnetuvastust. Sinu audiot ei transkribeerita.",
     "app.audio.captions.speech.auto": "Automaattuvastus",
+    "app.audio.captions.speech.microphoneAlert.message": "Audio detected but nothing is being transcribed. Your browser may be using the wrong microphone, or there is too much background noise.",
+    "app.audio.captions.speech.microphoneAlert.helpLabel": "Learn more",
     "app.audio.captions.select.af-ZA": "Afrikaani",
     "app.audio.captions.select.sq-AL": "Albaania",
     "app.audio.captions.select.am-ET": "Amhara",
