@@ -681,6 +681,10 @@ export const useVideoStreams = () => {
       || !senderIdsInGroups.has(vs.userId));
   }
 
+  // Snapshot of all streams the viewer may see, before pagination trims to the current
+  // page — used to recover off-page webcam users for the overflow preview below.
+  const allowedStreams = [...streams];
+
   if (isPaginationEnabled) {
     const chunkIndex = currentVideoPageIndex * myPageSize;
     const sortingMethod = (numberOfPages > 1) ? PAGINATION_SORTING : DEFAULT_SORTING;
@@ -803,10 +807,35 @@ export const useVideoStreams = () => {
     renderedUserIds.size,
   );
 
-  // Preview a few of the hidden users' avatars in the overflow tile, skipping any
-  // who are already rendered on this page so a face never appears twice.
-  const overflowPreviewUsers = overflowUsers
+  // GRID_USERS_SUBSCRIPTION excludes camera-sharers, so hidden webcam users never reach
+  // `overflowUsers`. Recover them from allowedStreams (deduped by userId) as grid-shaped items.
+  const seenPreviewUserId = new Set<string>();
+  const hiddenCameraUsers: GridItem[] = [];
+  allowedStreams.forEach((s) => {
+    if (
+      s.type !== VIDEO_TYPES.STREAM
+      || renderedUserIds.has(s.userId)
+      || seenPreviewUserId.has(s.userId)
+    ) return;
+    seenPreviewUserId.add(s.userId);
+    hiddenCameraUsers.push({
+      ...s.user,
+      voice: {
+        joined: s.voice?.joined ?? false,
+        listenOnly: s.voice?.listenOnly ?? false,
+        userId: s.userId,
+      },
+      type: VIDEO_TYPES.GRID,
+    });
+  });
+
+  // Preview the first few hidden users' avatars: merge hidden grid + webcam users, order
+  // them like the grid subscription (nameSortable, userId), and drop anyone already on-page.
+  const overflowPreviewUsers = [...overflowUsers, ...hiddenCameraUsers]
     .filter((u) => !renderedUserIds.has(u.userId))
+    .sort((a, b) => (
+      a.nameSortable.localeCompare(b.nameSortable) || a.userId.localeCompare(b.userId)
+    ))
     .slice(0, Math.min(overflowCount, OVERFLOW_TILE_PREVIEW_LIMIT));
 
   return {
