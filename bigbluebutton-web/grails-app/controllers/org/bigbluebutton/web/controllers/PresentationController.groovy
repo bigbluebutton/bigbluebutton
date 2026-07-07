@@ -44,8 +44,9 @@ class PresentationController {
   DefaultMimeUtility grailsMimeUtility
 
   private static final Pattern SLIDE_URI_PATTERN = Pattern.compile(
-    '/bigbluebutton/presentation/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/(svg|thumbnail|textfiles|png)/(\\d+)'
+    '/bigbluebutton/presentation/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/(svg|thumbnail|textfiles|png)/([A-Za-z0-9\\-]+)'
   )
+  private static final Pattern PAGE_ID_PATTERN = Pattern.compile('[A-Za-z0-9\\-]+')
   private static final Pattern DOWNLOAD_URI_PATTERN = Pattern.compile(
     '/bigbluebutton/presentation/download/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)'
   )
@@ -96,8 +97,8 @@ class PresentationController {
         def pageToken = extractQueryParam(uri, "pageToken")
         if (presentationService.pageTokenSecret) {
           def presId = slideMatcher.group(3)
-          def pageNum = slideMatcher.group(5)
-          def expectedToken = generatePageToken(presId, Integer.parseInt(pageNum), presentationService.pageTokenSecret)
+          def pageId = slideMatcher.group(5)
+          def expectedToken = generatePageToken(presId, pageId, presentationService.pageTokenSecret)
           if (pageToken == null || pageToken != expectedToken) {
             response.setStatus(403)
             response.outputStream << 'invalid-token'
@@ -152,10 +153,10 @@ class PresentationController {
     return UriComponentsBuilder.fromUriString(uri).build().getQueryParams().getFirst(paramName)
   }
 
-  private static String generatePageToken(String presId, int page, String secret) {
+  private static String generatePageToken(String presId, String pageId, String secret) {
     Mac mac = Mac.getInstance("HmacSHA256")
     mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"))
-    return mac.doFinal("${presId}|${page}".getBytes(StandardCharsets.UTF_8)).collect { String.format('%02x', it) }.join()
+    return mac.doFinal("${presId}|${pageId}".getBytes(StandardCharsets.UTF_8)).collect { String.format('%02x', it) }.join()
   }
 
   private UserSession validateSession() {
@@ -377,8 +378,8 @@ class PresentationController {
     if (conf != userSession.meetingID) { response.setStatus(403); return }
     if (presentationService.pageTokenSecret) {
       def pageToken = params.pageToken
-      if (!slide?.isInteger()) { response.setStatus(403); return }
-      def expected = generatePageToken(presentationName, Integer.parseInt(slide), presentationService.pageTokenSecret)
+      if (!slide || !PAGE_ID_PATTERN.matcher(slide).matches()) { response.setStatus(403); return }
+      def expected = generatePageToken(presentationName, slide, presentationService.pageTokenSecret)
       if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
     }
 
@@ -411,8 +412,8 @@ class PresentationController {
     if (conf != userSession.meetingID) { response.setStatus(403); return }
     if (presentationService.pageTokenSecret) {
       def pageToken = params.pageToken
-      if (!thumb?.isInteger()) { response.setStatus(403); return }
-      def expected = generatePageToken(presentationName, Integer.parseInt(thumb), presentationService.pageTokenSecret)
+      if (!thumb || !PAGE_ID_PATTERN.matcher(thumb).matches()) { response.setStatus(403); return }
+      def expected = generatePageToken(presentationName, thumb, presentationService.pageTokenSecret)
       if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
     }
 
@@ -446,8 +447,8 @@ class PresentationController {
     if (conf != userSession.meetingID) { response.setStatus(403); return }
     if (presentationService.pageTokenSecret) {
       def pageToken = params.pageToken
-      if (!png?.isInteger()) { response.setStatus(403); return }
-      def expected = generatePageToken(presentationName, Integer.parseInt(png), presentationService.pageTokenSecret)
+      if (!png || !PAGE_ID_PATTERN.matcher(png).matches()) { response.setStatus(403); return }
+      def expected = generatePageToken(presentationName, png, presentationService.pageTokenSecret)
       if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
     }
 
@@ -478,8 +479,8 @@ class PresentationController {
     if (conf != userSession.meetingID) { response.setStatus(403); return }
     if (presentationService.pageTokenSecret) {
       def pageToken = params.pageToken
-      if (!textfile?.isInteger()) { response.setStatus(403); return }
-      def expected = generatePageToken(presentationName, Integer.parseInt(textfile), presentationService.pageTokenSecret)
+      if (!textfile || !PAGE_ID_PATTERN.matcher(textfile).matches()) { response.setStatus(403); return }
+      def expected = generatePageToken(presentationName, textfile, presentationService.pageTokenSecret)
       if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
     }
 

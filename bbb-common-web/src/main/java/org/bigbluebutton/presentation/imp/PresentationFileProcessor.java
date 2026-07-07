@@ -77,6 +77,9 @@ public class PresentationFileProcessor {
                 S3Object s3Object = s3FileManager.download(remoteFileName);
                 File parentDir = new File(pres.getUploadedFile().getParent());
                 TarGzManager.decompress(s3Object, parentDir.getAbsolutePath());
+                // Cached files are named by pageId; without the manifest the
+                // restored files cannot be matched back to page numbers.
+                PageIdManifest.seedFrom(pres);
                 log.info("Presentation outputs restored from cache successfully for {}.", pres.getId());
             }
         } catch (Exception e) {
@@ -91,6 +94,13 @@ public class PresentationFileProcessor {
         } else if (SupportedFileTypes.isImageFile(pres.getFileType())) {
             pres.setNumberOfPages(1);
         }
+
+        // Single mint point: page identity is fixed here, before any file is
+        // written, and recorded in the manifest so cache restores keep it.
+        for (int page = 1; page <= pres.getNumberOfPages(); page++) {
+            pres.getOrMintPageId(page);
+        }
+        PageIdManifest.save(pres);
 
         long maxConversionTime = pres.getMaxTotalConversionTime();
         processUploadedPresentation(pres);

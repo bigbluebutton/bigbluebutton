@@ -21,6 +21,9 @@ package org.bigbluebutton.presentation;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.io.FilenameUtils;
 
 public final class UploadedPresentation {
@@ -46,6 +49,11 @@ public final class UploadedPresentation {
   private long maxPageConversionTime;
 
   private boolean defaultPresentation;
+
+  // Page identity: opaque UUID per page, minted once when the page's files are
+  // first created on disk. Every on-disk filename, URL and message must consume
+  // the id from this map instead of deriving identity from the page number.
+  private final ConcurrentHashMap<Integer, String> pageIds = new ConcurrentHashMap<>();
 
   public UploadedPresentation(String podId,
                               String meetingId,
@@ -252,5 +260,19 @@ public final class UploadedPresentation {
       return maxPageConversionTime;
     }
     return maxPageConversionTime * numberOfPages;
+  }
+
+  public String getOrMintPageId(int page) {
+    return pageIds.computeIfAbsent(page, p -> UUID.randomUUID().toString());
+  }
+
+  // Restores an id minted by a previous conversion (cache manifest); a fresh
+  // mint never overwrites a restored id.
+  public void seedPageId(int page, String pageId) {
+    pageIds.putIfAbsent(page, pageId);
+  }
+
+  public Map<Integer, String> getPageIds() {
+    return pageIds;
   }
 }
