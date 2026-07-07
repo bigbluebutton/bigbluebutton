@@ -54,7 +54,10 @@ trait SendWhiteboardAnnotationsPubMsgHdlr extends RightsManagementTrait {
         val annotations = sendWhiteboardAnnotations(msg.body.whiteboardId, msg.header.userId, msg.body.annotations, liveMeeting, userState.presenter, userState.role == Roles.MODERATOR_ROLE)
         val (presentationId, pageNum) = PresentationPodsApp.findPresentationPage(state, msg.body.whiteboardId)
           .map { case (pres, page) => (pres.id, page.num) }
-          .getOrElse(("", 0))
+          .getOrElse {
+            log.warning(s"page lookup miss for whiteboardId=${msg.body.whiteboardId} in meeting=${liveMeeting.props.meetingProp.intId}; recording fallback values")
+            ("", 0)
+          }
         broadcastEvent(msg, msg.body.whiteboardId, annotations, presentationId, pageNum)
       } else {
         //val meetingId = liveMeeting.props.meetingProp.intId

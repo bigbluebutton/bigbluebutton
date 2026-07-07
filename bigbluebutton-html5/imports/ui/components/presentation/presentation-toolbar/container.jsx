@@ -119,6 +119,10 @@ const PresentationToolbarContainer = (props) => {
     },
   );
 
+  // Navigation resolves slide numbers to page ids through this subscription,
+  // so the controls stay disabled until its first payload arrives.
+  const presentationPagesLoaded = presentationPagesData !== undefined;
+
   const resetSlide = () => {
     const { pageId, num } = currentPresentationPage;
     presentationSetZoom({
@@ -144,9 +148,11 @@ const PresentationToolbarContainer = (props) => {
   };
 
   const setPresentationPageInfiniteWhiteboard = (infiniteWhiteboard) => {
+    const pageId = currentPresentationPage?.pageId;
+    if (!pageId) return;
     presentationSetPageInfiniteWhiteboard({
       variables: {
-        pageId: currentPresentationPage?.pageId,
+        pageId,
         infiniteWhiteboard,
       },
     });
@@ -238,6 +244,7 @@ const PresentationToolbarContainer = (props) => {
         allowInfiniteWhiteboard={allowInfiniteWhiteboard}
         // TODO: Remove this
         isConnected={connected}
+        presentationPagesLoaded={presentationPagesLoaded}
         maxNumberOfActiveUsers={WHITEBOARD_CONFIG.maxNumberOfActiveUsers}
         numberOfJoinedUsers={numberOfJoinedUsers}
         {...{

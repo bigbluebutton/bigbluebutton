@@ -1635,6 +1635,9 @@ CREATE UNLOGGED TABLE "pres_page" (
 );
 CREATE INDEX "idx_pres_page_presentationId" ON "pres_page"("presentationId");
 CREATE INDEX "idx_pres_page_presentationId_curr" ON "pres_page"("presentationId") where "current" is true;
+--Page ids are opaque UUIDs, so this is what keeps a re-sent page notification
+--from silently inserting a duplicate row for the same slide
+CREATE UNIQUE INDEX "idx_pres_page_presentationId_num" ON "pres_page"("presentationId", "num");
 
 CREATE OR REPLACE VIEW public.v_pres_presentation AS
 SELECT pres_presentation."meetingId",

@@ -261,7 +261,10 @@ object MsgBuilder {
   def generatePresentationPages(presId: String, numPages: Int, presBaseUrl: String, pageTokenSecret: String = ""): scala.collection.immutable.Map[String, PageVO] = {
     val pages = new scala.collection.mutable.HashMap[String, PageVO]
     for (i <- 1 to numPages) {
-      val id = java.util.UUID.randomUUID().toString
+      // Placeholder id: the conversion-completed handler rebuilds pages from
+      // meeting state, whose ids were minted in generatePresentationPage. Do
+      // not mint fresh UUIDs here or the same page gets two competing ids.
+      val id = i.toString
       val num = i
       val current = if (i == 1) true else false
       val pageToken = if (pageTokenSecret.nonEmpty) generatePageToken(presId, i, pageTokenSecret) else ""

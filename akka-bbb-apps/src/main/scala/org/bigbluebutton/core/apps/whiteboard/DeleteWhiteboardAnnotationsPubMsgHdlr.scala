@@ -20,7 +20,10 @@ trait DeleteWhiteboardAnnotationsPubMsgHdlr extends RightsManagementTrait {
 
       val (presentationId, pageNum) = PresentationPodsApp.findPresentationPage(state, msg.body.whiteboardId)
         .map { case (pres, page) => (pres.id, page.num) }
-        .getOrElse(("", 0))
+        .getOrElse {
+          log.warning(s"page lookup miss for whiteboardId=${msg.body.whiteboardId} in meeting=${liveMeeting.props.meetingProp.intId}; recording fallback values")
+          ("", 0)
+        }
       val body = DeleteWhiteboardAnnotationsEvtMsgBody(msg.body.whiteboardId, removedAnnotationsIds, presentationId, pageNum)
       val event = DeleteWhiteboardAnnotationsEvtMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)

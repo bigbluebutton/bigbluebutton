@@ -335,6 +335,7 @@ class PresentationToolbar extends PureComponent {
       intl,
       zoom,
       isConnected,
+      presentationPagesLoaded,
       isPollingEnabled,
       amIPresenter,
       startPoll,
@@ -412,7 +413,7 @@ class PresentationToolbar extends PureComponent {
             aria-describedby={
               startOfSlides ? 'noPrevSlideDesc' : 'prevSlideDesc'
             }
-            disabled={startOfSlides || !isConnected}
+            disabled={startOfSlides || !isConnected || !presentationPagesLoaded}
             color="light"
             circle
             icon="left_arrow"
@@ -432,7 +433,7 @@ class PresentationToolbar extends PureComponent {
               aria-describedby="skipSlideDesc"
               aria-live="polite"
               aria-relevant="all"
-              disabled={!isConnected}
+              disabled={!isConnected || !presentationPagesLoaded}
               value={currentSlideNum}
               onChange={this.handleSkipToSlideChange}
               data-test="skipSlide"
@@ -446,7 +447,7 @@ class PresentationToolbar extends PureComponent {
             aria-describedby={
               endOfSlides ? 'noNextSlideDesc' : 'nextSlideDesc'
             }
-            disabled={endOfSlides || !isConnected}
+            disabled={endOfSlides || !isConnected || !presentationPagesLoaded}
             color="light"
             circle
             icon="right_arrow"
@@ -574,6 +575,7 @@ PresentationToolbar.propTypes = {
   fitToWidth: PropTypes.bool.isRequired,
   zoom: PropTypes.number.isRequired,
   isConnected: PropTypes.bool.isRequired,
+  presentationPagesLoaded: PropTypes.bool.isRequired,
   fullscreenElementId: PropTypes.string.isRequired,
   fullscreenAction: PropTypes.string.isRequired,
   isFullscreen: PropTypes.bool.isRequired,
