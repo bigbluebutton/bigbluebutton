@@ -248,6 +248,73 @@ class TestEvents < Minitest::Test
     assert_equal('Nice!', chat[:message])
   end
 
+  def test_rewrite_file_upload_urls_chat_image
+    message = '<p>look <img src="/bigbluebutton/fileUpload/mtg-abc/9f8b7c6d-1234.png" alt="image"></p>'
+    rewritten = BigBlueButton::Events.rewrite_file_upload_urls(message, 'rec-123')
+    assert_equal(
+      '<p>look <img src="/presentation/rec-123/uploads/9f8b7c6d-1234.png" alt="image"></p>',
+      rewritten
+    )
+  end
+
+  def test_rewrite_file_upload_urls_all_image_types
+    %w[png jpg jpeg gif webp].each do |ext|
+      url = "/bigbluebutton/fileUpload/m1/abcdef.#{ext}"
+      assert_equal(
+        "/presentation/r/uploads/abcdef.#{ext}",
+        BigBlueButton::Events.rewrite_file_upload_urls(url, 'r')
+      )
+    end
+  end
+
+  def test_rewrite_file_upload_urls_flattens_meeting_family
+    # An image pasted in a breakout room is served from that room's meetingId,
+    # but the archive flattens the whole family into one uploads directory, so
+    # the rewrite drops the source meetingId and keeps only the file name.
+    parent = '<img src="/bigbluebutton/fileUpload/parent-mtg/aaa.png">'
+    breakout = '<img src="/bigbluebutton/fileUpload/parent-mtg-1/bbb.png">'
+    assert_equal('<img src="/presentation/rec/uploads/aaa.png">',
+                 BigBlueButton::Events.rewrite_file_upload_urls(parent, 'rec'))
+    assert_equal('<img src="/presentation/rec/uploads/bbb.png">',
+                 BigBlueButton::Events.rewrite_file_upload_urls(breakout, 'rec'))
+  end
+
+  def test_rewrite_file_upload_urls_multiple_occurrences
+    text = '["/bigbluebutton/fileUpload/m/one.png","/bigbluebutton/fileUpload/m/two.webp"]'
+    assert_equal(
+      '["/presentation/r/uploads/one.png","/presentation/r/uploads/two.webp"]',
+      BigBlueButton::Events.rewrite_file_upload_urls(text, 'r')
+    )
+  end
+
+  def test_rewrite_file_upload_urls_leaves_other_urls_untouched
+    # External images and unrelated paths must not be rewritten.
+    text = '<img src="https://example.com/tracker.png"> <a href="/bigbluebutton/api">x</a>'
+    assert_equal(text, BigBlueButton::Events.rewrite_file_upload_urls(text, 'rec'))
+  end
+
+  def test_rewrite_file_upload_urls_nil
+    assert_nil(BigBlueButton::Events.rewrite_file_upload_urls(nil, 'rec'))
+  end
+
+  def test_get_breakout_room_ids
+    xml = <<~XML
+      <recording>
+        <breakoutRooms>
+          <breakoutRoom>room-a-1</breakoutRoom>
+          <breakoutRoom>room-a-2</breakoutRoom>
+        </breakoutRooms>
+      </recording>
+    XML
+    ids = BigBlueButton::Events.get_breakout_room_ids(Nokogiri::XML(xml))
+    assert_equal(%w[room-a-1 room-a-2], ids)
+  end
+
+  def test_get_breakout_room_ids_none
+    ids = BigBlueButton::Events.get_breakout_room_ids(@events_legacy)
+    assert_empty(ids)
+  end
+
   def test_get_chat_events_meta_edt
     start_time = BigBlueButton::Events.first_event_timestamp(@events_meta_edt)
     end_time = BigBlueButton::Events.last_event_timestamp(@events_meta_edt)
