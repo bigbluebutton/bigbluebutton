@@ -81,7 +81,7 @@ async function collectAnnotationsFromRedis() {
       const convertedSVG = path.join(
           exportJob.presLocation,
           'svgs',
-          `slide-${p.pageId}.svg`);
+          `slide${p.pageId}.svg`);
 
       const outputFile = path.join(dropbox, `slide${pageNumber}.svg`);
 

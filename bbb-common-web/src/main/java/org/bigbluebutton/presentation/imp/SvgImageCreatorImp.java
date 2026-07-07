@@ -51,7 +51,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         if (!svgImagesPresentationDir.exists())
             svgImagesPresentationDir.mkdir();
 
-        File destSvg = new File(svgImagesPresentationDir.getAbsolutePath() + File.separatorChar + "slide-" + pres.getOrMintPageId(page) + ".svg");
+        File destSvg = new File(svgImagesPresentationDir.getAbsolutePath() + File.separatorChar + "slide" + pres.getOrMintPageId(page) + ".svg");
 
         if (useBlank) {
             copyBlankSvg(destSvg);
@@ -88,7 +88,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             }
         }
 
-        File destSvg = new File(dir.getAbsolutePath() + File.separatorChar + "slide-" + pres.getOrMintPageId(page) + ".svg");
+        File destSvg = new File(dir.getAbsolutePath() + File.separatorChar + "slide" + pres.getOrMintPageId(page) + ".svg");
         copyBlankSvg(destSvg);
     }
 
@@ -132,7 +132,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         String dest;
 
         // Skip processing if the destination file exists, as it was likely restored from the cache
-        File destsvg = new File(imagePresentationDir.getAbsolutePath() + File.separatorChar + "slide-" + pres.getOrMintPageId(page) + ".svg");
+        File destsvg = new File(imagePresentationDir.getAbsolutePath() + File.separatorChar + "slide" + pres.getOrMintPageId(page) + ".svg");
         if(destsvg.exists()) {
             return true;
         }

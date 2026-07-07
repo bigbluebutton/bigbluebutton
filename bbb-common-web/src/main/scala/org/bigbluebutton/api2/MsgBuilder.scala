@@ -119,7 +119,7 @@ object MsgBuilder {
     // get SVG dimensions
     var width = 1440D
     var height = 1080D
-    val pageAbsoluteSvgPath = presParentPath + "/svgs/slide-" + pageId + ".svg"
+    val pageAbsoluteSvgPath = presParentPath + "/svgs/slide" + pageId + ".svg"
 
     val dims = readSvgDims(pageAbsoluteSvgPath)
     dims match {
