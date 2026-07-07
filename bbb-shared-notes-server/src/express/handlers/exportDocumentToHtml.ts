@@ -1,5 +1,6 @@
 import hocuspocus from "../../hocuspocus";
 import { ServerBlockNoteEditor } from "@blocknote/server-util";
+import { inlineHostImages } from "./inlineHostImages";
 
 async function exportDocumentToHtml(documentName: string): Promise<string> {
   const connection = await hocuspocus.openDirectConnection(documentName);
@@ -203,7 +204,10 @@ async function exportDocumentToHtml(documentName: string): Promise<string> {
       '</body>',
       '</html>'
   ].join('\n');
-  return fullHtml;
+
+  // Inline same-origin uploaded images as base64 and strip any external <img>
+  // (self-contained export + same-origin enforcement, see inlineHostImages).
+  return inlineHostImages(fullHtml);
 }
 
 export { exportDocumentToHtml };
