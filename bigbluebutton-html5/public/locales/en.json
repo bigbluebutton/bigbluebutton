@@ -971,6 +971,8 @@
     "app.audio.captions.speech.disabled": "Disabled",
     "app.audio.captions.speech.unsupported": "Your browser doesn't support speech recognition. Your audio won't be transcribed",
     "app.audio.captions.speech.auto": "Auto Detect",
+    "app.audio.captions.speech.microphoneAlert.message": "Audio detected but nothing is being transcribed. Your browser may be using the wrong microphone, or there is too much background noise.",
+    "app.audio.captions.speech.microphoneAlert.helpLabel": "Learn more",
     "app.audio.captions.select.af-ZA": "Afrikaans",
     "app.audio.captions.select.sq-AL": "Albanian",
     "app.audio.captions.select.am-ET": "Amharic",
