@@ -155,6 +155,11 @@ unless FileTest.directory?(target_dir)
       FileUtils.mkdir_p target_pres_dir
       FileUtils.mkdir_p "#{target_pres_dir}/textfiles"
 
+      # Page files are named by pageId on current recordings; carry the
+      # manifest along so the publish step can resolve page numbers too.
+      page_ids = BigBlueButton::Presentation.read_page_id_manifest(pres_dir)
+      FileUtils.cp("#{pres_dir}/pages.json", target_pres_dir) if File.exist?("#{pres_dir}/pages.json")
+
       images = Dir.glob("#{pres_dir}/#{pres}.{jpg,jpeg,png,gif,JPG,JPEG,PNG,GIF}")
       if images.empty?
         pres_name = "#{pres_dir}/#{pres}"
@@ -175,13 +180,15 @@ unless FileTest.directory?(target_dir)
         unless pres_pdf.empty?
           text = {}
           1.upto(num_pages) do |page|
+            page_file_id = page_ids[page] || page
             BigBlueButton::Presentation.extract_png_page_from_pdf(
               page, pres_pdf, "#{target_pres_dir}/slide-#{page}.png", '1600x1600'
             ) if !version_atleast_2_6_0
-            next unless File.exist?("#{pres_dir}/textfiles/slide-#{page}.txt")
-            t = File.read("#{pres_dir}/textfiles/slide-#{page}.txt", encoding: 'UTF-8')
+            next unless File.exist?("#{pres_dir}/textfiles/slide-#{page_file_id}.txt")
+            t = File.read("#{pres_dir}/textfiles/slide-#{page_file_id}.txt", encoding: 'UTF-8')
+            # Key by page number: the json is a positional index for players
             text["slide-#{page}"] = t.encode('UTF-8', invalid: :replace)
-            FileUtils.cp("#{pres_dir}/textfiles/slide-#{page}.txt", "#{target_pres_dir}/textfiles")
+            FileUtils.cp("#{pres_dir}/textfiles/slide-#{page_file_id}.txt", "#{target_pres_dir}/textfiles")
           end
           presentation_text[pres] = text
         end

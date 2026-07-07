@@ -468,9 +468,15 @@ def svg_render_image(svg, slide, shapes, tldraw, tldraw_shapes)
   image['text'] = slide[:text] if slide[:text]
   svg << image
 
-  return if slide_deskshare || !shapes.dig(presentation, slide_number)
+  # Shapes are keyed by page identity. Re-resolve the key on a miss: a slide
+  # without an explicit id (the initial slide of a recording, for example) may
+  # have been resolved before its identity was learned from a shape event.
+  page_shapes = shapes[slide[:page_key]] ||
+                shapes[page_identity_key(nil, presentation, slide_number)]
 
-  shapes = shapes[presentation][slide_number]
+  return if slide_deskshare || !page_shapes
+
+  shapes = page_shapes
 
   if !tldraw
     canvas = doc.create_element('g',
@@ -564,6 +570,42 @@ def determine_slide_number(slide, current_slide)
   slide
 end
 
+# Page identity: shapes, navigation and assets are keyed by the page's stable
+# id, not by its (mutable) number. Current recordings carry the opaque pageId
+# in the events (<id> on GotoSlideEvent, <whiteboardId> on whiteboard events);
+# older recordings carry a composite "<presentationId>/<pageNum>" id or no id
+# at all, in which case the composite form is reconstructed from the number.
+@page_key_by_pres_num = {}
+@page_id_manifests = {}
+
+def presentation_page_id_manifest(presentation)
+  @page_id_manifests[presentation] ||=
+    BigBlueButton::Presentation.read_page_id_manifest("#{@process_dir}/presentation/#{presentation}")
+end
+
+def page_identity_key(explicit_id, presentation, slide_number)
+  return explicit_id unless explicit_id.nil? || explicit_id.empty?
+
+  manifest_id = presentation_page_id_manifest(presentation)[slide_number + 1]
+  return manifest_id if manifest_id
+
+  learned = @page_key_by_pres_num[[presentation, slide_number]]
+  return learned if learned
+
+  # Composite form is 1-based, matching the ids recorded by BBB versions
+  # where the whiteboardId was "<presentationId>/<pageNum>"
+  "#{presentation}/#{slide_number + 1}"
+end
+
+# Remembers an explicit page id seen on a whiteboard event, so slides that
+# never get an explicit id of their own (for example the initial slide of a
+# recording without a manifest) can still be matched to their shapes.
+def learn_page_key(explicit_id, presentation, slide_number)
+  return if explicit_id.nil? || explicit_id.empty?
+
+  @page_key_by_pres_num[[presentation, slide_number]] ||= explicit_id
+end
+
 def clean_arrow_end_or_start_props(props)
   if props['type'] == 'binding'
     # Remove 'x' and 'y' for 'binding' type
@@ -582,12 +624,16 @@ def events_parse_tldraw_shape(shapes, event, current_presentation, current_slide
   presentation = determine_presentation(presentation, current_presentation)
   slide = determine_slide_number(slide, current_slide)
 
+  # Key shapes by the page's stable identity
+  whiteboard_id = event.at_xpath('whiteboardId')&.text
+  learn_page_key(whiteboard_id, presentation, slide)
+  page_key = page_identity_key(whiteboard_id, presentation, slide)
+
   # Set up the shapes data structures if needed
-  shapes[presentation] ||= {}
-  shapes[presentation][slide] ||= []
+  shapes[page_key] ||= []
 
   # We only need to deal with shapes for this slide
-  shapes = shapes[presentation][slide]
+  shapes = shapes[page_key]
 
   # Set up the structure for this shape
   shape = {}
@@ -637,12 +683,16 @@ def events_parse_shape(shapes, event, current_presentation, current_slide, times
   presentation = determine_presentation(presentation, current_presentation)
   slide = determine_slide_number(slide, current_slide)
 
+  # Key shapes by the page's stable identity
+  whiteboard_id = event.at_xpath('whiteboardId')&.text
+  learn_page_key(whiteboard_id, presentation, slide)
+  page_key = page_identity_key(whiteboard_id, presentation, slide)
+
   # Set up the shapes data structures if needed
-  shapes[presentation] ||= {}
-  shapes[presentation][slide] ||= []
+  shapes[page_key] ||= []
 
   # We only need to deal with shapes for this slide
-  shapes = shapes[presentation][slide]
+  shapes = shapes[page_key]
 
   # Set up the structure for this shape
   shape = {}
@@ -764,12 +814,16 @@ def events_parse_undo(shapes, event, current_presentation, current_slide, timest
   # Newer undo messages have the shape id, making this a lot easier
   shape_id = event.at_xpath('shapeId')&.text
 
+  # Key shapes by the page's stable identity
+  whiteboard_id = event.at_xpath('whiteboardId')&.text
+  learn_page_key(whiteboard_id, presentation, slide)
+  page_key = page_identity_key(whiteboard_id, presentation, slide)
+
   # Set up the shapes data structures if needed
-  shapes[presentation] ||= {}
-  shapes[presentation][slide] ||= []
+  shapes[page_key] ||= []
 
   # We only need to deal with shapes for this slide
-  shapes = shapes[presentation][slide]
+  shapes = shapes[page_key]
 
   if shape_id
     # If we have the shape id, we simply have to update the undo time on
@@ -805,12 +859,16 @@ def events_parse_clear(shapes, event, current_presentation, current_slide, times
   full_clear = full_clear ? (full_clear.text == 'true') : true
   user_id = event.at_xpath('userId')&.text
 
+  # Key shapes by the page's stable identity
+  whiteboard_id = event.at_xpath('whiteboardId')&.text
+  learn_page_key(whiteboard_id, presentation, slide)
+  page_key = page_identity_key(whiteboard_id, presentation, slide)
+
   # Set up the shapes data structures if needed
-  shapes[presentation] ||= {}
-  shapes[presentation][slide] ||= []
+  shapes[page_key] ||= []
 
   # We only need to deal with shapes for this slide
-  shapes = shapes[presentation][slide]
+  shapes = shapes[page_key]
 
   if full_clear
     BigBlueButton.logger.info("Clear: removing all shapes")
@@ -837,9 +895,18 @@ def events_get_image_info(slide, tldraw)
     slide[:src] = 'presentation/logo.png'
   else
     slide_nr = slide[:slide] + 1
-    tldraw ? slide[:src] = "presentation/#{slide_presentation}/svgs/slide#{slide_nr}.svg"
-           : slide[:src] = "presentation/#{slide_presentation}/slide-#{slide_nr}.png"
-    slide[:text] = "presentation/#{slide_presentation}/textfiles/slide-#{slide_nr}.txt"
+    page_key = slide[:page_key]
+
+    # Slide files are named by pageId on current recordings and by page
+    # number on older ones: use whichever exists on disk.
+    if tldraw
+      id_src = "presentation/#{slide_presentation}/svgs/slide-#{page_key}.svg"
+      slide[:src] = File.exist?("#{@process_dir}/#{id_src}") ? id_src : "presentation/#{slide_presentation}/svgs/slide#{slide_nr}.svg"
+    else
+      slide[:src] = "presentation/#{slide_presentation}/slide-#{slide_nr}.png"
+    end
+    id_text = "presentation/#{slide_presentation}/textfiles/slide-#{page_key}.txt"
+    slide[:text] = File.exist?("#{@process_dir}/#{id_text}") ? id_text : "presentation/#{slide_presentation}/textfiles/slide-#{slide_nr}.txt"
   end
   image_path = "#{@process_dir}/#{slide[:src]}"
 
@@ -885,8 +952,10 @@ def process_presentation(package_dir)
 
   # Current presentation/slide state
   current_presentation_slide = {}
+  current_presentation_page_key = {}
   current_presentation = ''
   current_slide = 0
+  current_page_key = nil
   # Current pan/zoom state
   current_x_offset = current_y_offset = 0.0
   current_width_ratio = current_height_ratio = 100.0
@@ -923,11 +992,17 @@ def process_presentation(package_dir)
     when 'SharePresentationEvent'
       current_presentation = event.at_xpath('presentationName').text
       current_slide = current_presentation_slide[current_presentation].to_i
+      current_page_key = current_presentation_page_key[current_presentation]
       slide_changed = panzoom_changed = true
 
     when 'GotoSlideEvent'
       current_slide = event.at_xpath('slide').text.to_i
+      # Current recordings identify the page explicitly (opaque pageId; a
+      # composite "presId/num" id on older ones)
+      goto_page_id = event.at_xpath('id')&.text
+      current_page_key = goto_page_id && !goto_page_id.empty? ? goto_page_id : nil
       current_presentation_slide[current_presentation] = current_slide
+      current_presentation_page_key[current_presentation] = current_page_key
       slide_changed = panzoom_changed = true
 
     when 'ResizeAndMoveSlideEvent'
@@ -992,10 +1067,11 @@ def process_presentation(package_dir)
     # Perform slide finalization
     if slide_changed
       slide = slides.last
+      resolved_page_key = page_identity_key(current_page_key, current_presentation, current_slide)
 
       if slide &&
          (slide[:presentation] == current_presentation) &&
-         (slide[:slide] == current_slide) &&
+         (slide[:page_key] == resolved_page_key) &&
          (slide[:deskshare] == deskshare)
         BigBlueButton.logger.info('Presentation/Slide: skipping, no changes')
       else
@@ -1004,10 +1080,11 @@ def process_presentation(package_dir)
           svg_render_image(svg, slide, shapes, tldraw, tldraw_shapes)
         end
 
-        BigBlueButton.logger.info("Presentation #{current_presentation} Slide #{current_slide} Deskshare #{deskshare}")
+        BigBlueButton.logger.info("Presentation #{current_presentation} Slide #{current_slide} Page key #{resolved_page_key} Deskshare #{deskshare}")
         slide = {
           presentation: current_presentation,
           slide: current_slide,
+          page_key: resolved_page_key,
           in: timestamp,
           deskshare: deskshare,
         }
@@ -1467,7 +1544,7 @@ begin
                     presentation[:slides].each do |key, val|
                       attributes = { width: '176', height: '136', alt: val[:alt]&.to_s || '' }
                       xml.image(attributes) do
-                        xml.text("#{playback_protocol}://#{playback_host}/presentation/#{@meeting_id}/presentation/#{presentation[:id]}/thumbnails/thumb-#{key}.png")
+                        xml.text("#{playback_protocol}://#{playback_host}/presentation/#{@meeting_id}/presentation/#{presentation[:id]}/thumbnails/thumb-#{val[:page_file_id] || key}.png")
                       end
                     end
                   end
