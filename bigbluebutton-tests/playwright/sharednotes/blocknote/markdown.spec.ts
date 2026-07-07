@@ -26,6 +26,18 @@ test.describe.parallel('Shared Notes - BlockNote Markdown', { tag: '@ci' }, () =
     test('Import from Markdown propagates to other connected users', async () => {
       await markdownSharedNotes.importFromMarkdownPropagatesToOtherUser();
     });
+
+    test('Import from Markdown loads a valid uploaded .md file', async () => {
+      await markdownSharedNotes.importFromMarkdownUploadFile();
+    });
+
+    test('Import from Markdown rejects a non-markdown uploaded file', async () => {
+      await markdownSharedNotes.importFromMarkdownUploadWrongType();
+    });
+
+    test('Import from Markdown keeps import disabled for an empty uploaded file', async () => {
+      await markdownSharedNotes.importFromMarkdownUploadEmptyFile();
+    });
   });
 
   test.describe('Init from Markdown create parameter', () => {
