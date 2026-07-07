@@ -900,7 +900,7 @@ def events_get_image_info(slide, tldraw)
     # Slide files are named by pageId on current recordings and by page
     # number on older ones: use whichever exists on disk.
     if tldraw
-      id_src = "presentation/#{slide_presentation}/svgs/slide-#{page_key}.svg"
+      id_src = "presentation/#{slide_presentation}/svgs/slide#{page_key}.svg"
       slide[:src] = File.exist?("#{@process_dir}/#{id_src}") ? id_src : "presentation/#{slide_presentation}/svgs/slide#{slide_nr}.svg"
     else
       slide[:src] = "presentation/#{slide_presentation}/slide-#{slide_nr}.png"

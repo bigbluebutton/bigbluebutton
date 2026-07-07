@@ -227,7 +227,7 @@ class StatusTable extends React.Component {
                   ? `?${new URLSearchParams({ pageToken, sessionToken })}`
                   : '';
                 const slideUrl = presentationBase
-                  ? `${presentationBase}/${presentationId}/svgs/slide-${pageId}.svg`
+                  ? `${presentationBase}/${presentationId}/svgs/slide${pageId}.svg`
                   : `${URLPrefix}/${presentationId}/svg/${pageId}${tokenParams}`;
                 const thumbUrl = presentationBase
                   ? `${presentationBase}/${presentationId}/thumbnails/thumb-${pageId}.png`

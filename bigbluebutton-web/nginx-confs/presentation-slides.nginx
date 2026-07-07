@@ -28,7 +28,7 @@
         location ~^\/bigbluebutton\/presentation\/(?<meeting_id_1>[A-Za-z0-9\-]+)\/(?<meeting_id_2>[A-Za-z0-9\-]+)\/(?<pres_id>[A-Za-z0-9\-]+)\/svg\/(?<page_id>[A-Za-z0-9\-]+)$ {
                 auth_request /bigbluebutton/presentation/checkAuthorization;
                 default_type image/svg+xml;
-                alias    /var/bigbluebutton/$meeting_id_2/$meeting_id_2/$pres_id/svgs/slide-$page_id.svg;
+                alias    /var/bigbluebutton/$meeting_id_2/$meeting_id_2/$pres_id/svgs/slide$page_id.svg;
                 add_header 'Access-Control-Allow-Origin' $bbb_cors_origin always;
                 add_header 'Access-Control-Allow-Credentials' 'true' always;
         }

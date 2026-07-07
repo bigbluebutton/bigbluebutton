@@ -121,7 +121,7 @@ class PresentationService {
 	}
 
 	def showSvgImage(String conf, String room, String presentationName, String id) {
-		new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar + "svgs" + File.separatorChar + "slide-${id}.svg")
+		new File(roomDirectory(conf, room).absolutePath + File.separatorChar + presentationName + File.separatorChar + "svgs" + File.separatorChar + "slide${id}.svg")
 	}
 
 	def showThumbnail = {conf, room, presentationName, thumb ->
