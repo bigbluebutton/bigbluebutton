@@ -62,7 +62,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
       thumbsDir.mkdir();
 
     if (useBlank) {
-        createBlankThumbnail(thumbsDir, page);
+        createBlankThumbnail(thumbsDir, pres, page);
         return true;
     }
 
@@ -73,11 +73,11 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
       success = false;
     }
 
-    renameThumbnails(thumbsDir, page);
+    renameThumbnails(thumbsDir, pres, page);
 
     // Create blank thumbnails for pages that failed to generate a thumbnail.
     if (!success) {
-      createBlankThumbnail(thumbsDir, page);
+      createBlankThumbnail(thumbsDir, pres, page);
     }
 
 
@@ -87,7 +87,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
   private boolean generateThumbnail(File thumbsDir, UploadedPresentation pres, int page, File pageFile)
       throws InterruptedException {
     String source = pageFile.getAbsolutePath();
-    String dest = thumbsDir.getAbsolutePath() + File.separatorChar + "thumb-" + page + ".png";
+    String dest = thumbsDir.getAbsolutePath() + File.separatorChar + "thumb-" + pres.getOrMintPageId(page) + ".png";
     String COMMAND = "";
 
     // Skip processing if the destination file exists, as it was likely restored from the cache
@@ -96,7 +96,6 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
     }
 
     if (SupportedFileTypes.isImageFile(pres.getFileType())) {
-      dest = thumbsDir.getAbsolutePath() + File.separatorChar + "thumb-" + page + ".png";
       COMMAND = IMAGEMAGICK_DIR + File.separatorChar + "convert -thumbnail 150x150 "  + source + " " + dest;
     } else {
       String pdftocairoDest = thumbsDir.getAbsolutePath() + File.separatorChar + TEMP_THUMB_NAME + "-" + page; // the "-x.png" is appended automagically
@@ -144,7 +143,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
       }
     }
 
-    createBlankThumbnail(dir, page);
+    createBlankThumbnail(dir, pres, page);
   }
 
   private File determineThumbnailDirectory(File presentationFile) {
@@ -152,7 +151,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
         presentationFile.getParent() + File.separatorChar + "thumbnails");
   }
 
-  private void renameThumbnails(File dir, int page) {
+  private void renameThumbnails(File dir, UploadedPresentation pres, int page) {
     /*
      * If more than 1 file, filename like 'temp-thumb-X.png' else filename is
      * 'temp-thumb.png'
@@ -173,7 +172,7 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
           // We are interested in the second match.
           int pageNum = Integer.valueOf(matcher.group(2).trim()).intValue();
           if (pageNum == page) {
-            String newFilename = "thumb-" + (page) + ".png";
+            String newFilename = "thumb-" + pres.getOrMintPageId(page) + ".png";
             File renamedFile = new File(
                     dir.getAbsolutePath() + File.separatorChar + newFilename);
             file.renameTo(renamedFile);
@@ -183,24 +182,23 @@ public class ThumbnailCreatorImp implements ThumbnailCreator {
     } else if (dir.list().length == 1) {
       File oldFilename = new File(
           dir.getAbsolutePath() + File.separatorChar + dir.list()[0]);
-      String newFilename = "thumb-1.png";
+      int pageNum = 1;
 
       // Might be the first thumbnail of a set and it might be out of order
-      // Avoid setting the second/third/... slide as thumb-1.png
+      // Avoid setting the second/third/... slide as the first page's thumb
       matcher = PAGE_NUMBER_PATTERN.matcher(oldFilename.getAbsolutePath());
       if (matcher.matches()) {
-        int pageNum = Integer.valueOf(matcher.group(2).trim()).intValue();
-        newFilename = "thumb-" + (pageNum) + ".png";
+        pageNum = Integer.valueOf(matcher.group(2).trim()).intValue();
       }
 
       File renamedFile = new File(
-          oldFilename.getParent() + File.separatorChar + newFilename);
+          oldFilename.getParent() + File.separatorChar + "thumb-" + pres.getOrMintPageId(pageNum) + ".png");
       oldFilename.renameTo(renamedFile);
     }
   }
 
-  private void createBlankThumbnail(File thumbsDir, int page) {
-    File thumb = new File(thumbsDir.getAbsolutePath() + File.separatorChar + "thumb-" + page + ".png");
+  private void createBlankThumbnail(File thumbsDir, UploadedPresentation pres, int page) {
+    File thumb = new File(thumbsDir.getAbsolutePath() + File.separatorChar + "thumb-" + pres.getOrMintPageId(page) + ".png");
     if (!thumb.exists()) {
       log.info("Copying blank thumbnail for slide {}", page);
       copyBlankThumbnail(thumb);

@@ -51,7 +51,7 @@ public class TextFileCreatorImp implements TextFileCreator {
       textfilesDir.mkdir();
 
     if (useBlank) {
-        createBlankTextFile(textfilesDir, page);
+        createBlankTextFile(textfilesDir, pres, page);
         return true;
     }
 
@@ -63,7 +63,7 @@ public class TextFileCreatorImp implements TextFileCreator {
     }
 
     if (!success) {
-      createBlankTextFile(textfilesDir, page);
+      createBlankTextFile(textfilesDir, pres, page);
     }
 
     return success;
@@ -81,14 +81,14 @@ public class TextFileCreatorImp implements TextFileCreator {
       }
     }
 
-    createBlankTextFile(dir, page);
+    createBlankTextFile(dir, pres, page);
   }
 
   private boolean generateTextFile(File textfilesDir,
       UploadedPresentation pres, int page) throws InterruptedException {
     boolean success = true;
     String source = pres.getUploadedFile().getAbsolutePath();
-    String dest = textfilesDir.getAbsolutePath() + File.separatorChar + "slide-" + page + ".txt";
+    String dest = textfilesDir.getAbsolutePath() + File.separatorChar + "slide-" + pres.getOrMintPageId(page) + ".txt";
     String COMMAND = "";
 
     // Skip processing if the destination file exists, as it was likely restored from the cache
@@ -97,7 +97,7 @@ public class TextFileCreatorImp implements TextFileCreator {
     }
 
     if (SupportedFileTypes.isImageFile(pres.getFileType())) {
-      dest = textfilesDir.getAbsolutePath() + File.separatorChar + "slide-1.txt";
+      dest = textfilesDir.getAbsolutePath() + File.separatorChar + "slide-" + pres.getOrMintPageId(1) + ".txt";
       String text = "No text could be retrieved for the slide";
 
       File file = new File(dest);
@@ -156,8 +156,8 @@ public class TextFileCreatorImp implements TextFileCreator {
         presentationFile.getParent() + File.separatorChar + "textfiles");
   }
 
-  private void createBlankTextFile(File textFilesDir, int page) {
-    File textFile = new File(textFilesDir.getAbsolutePath() + File.separatorChar + "slide-" + page + ".txt");
+  private void createBlankTextFile(File textFilesDir, UploadedPresentation pres, int page) {
+    File textFile = new File(textFilesDir.getAbsolutePath() + File.separatorChar + "slide-" + pres.getOrMintPageId(page) + ".txt");
     try {
       boolean created = textFile.createNewFile();
       if (created) {

@@ -42,6 +42,13 @@ public class TarGzManager {
                     addFileToTarGz(taos, pageFile, "");
                 }
             }
+
+            // The files above are named by pageId; the manifest is the only way
+            // to map them back to page numbers on a cache restore.
+            File manifestFile = new File(sourceDirectory + "/" + PageIdManifest.FILENAME);
+            if (manifestFile.exists()) {
+                addFileToTarGz(taos, manifestFile, "");
+            }
         }
 
         return tempTarGzFile;

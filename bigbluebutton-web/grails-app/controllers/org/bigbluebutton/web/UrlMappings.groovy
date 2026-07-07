@@ -30,14 +30,14 @@ class UrlMappings {
     "/bigbluebutton/presentation/$conference/$room/$presentation_name/thumbnail/$id"(controller: "presentation") {
       action = [GET: 'showThumbnail']
       constraints {
-        id matches: /\d+/
+        id matches: /[A-Za-z0-9\-]+/
       }
     }
 
     "/bigbluebutton/presentation/$conference/$room/$presentation_name/png/$id"(controller: "presentation") {
       action = [GET: 'showPng']
       constraints {
-        id matches: /\d+/
+        id matches: /[A-Za-z0-9\-]+/
       }
     }
 
@@ -48,7 +48,7 @@ class UrlMappings {
     "/bigbluebutton/presentation/$conference/$room/$presentation_name/svg/$id"(controller: "presentation") {
       action = [GET: 'showSvgImage']
       constraints {
-        id matches: /\d+/
+        id matches: /[A-Za-z0-9\-]+/
       }
     }
 
@@ -59,7 +59,7 @@ class UrlMappings {
     "/bigbluebutton/presentation/$conference/$room/$presentation_name/textfiles/$id"(controller: "presentation") {
       action = [GET: 'showTextfile']
       constraints {
-        id matches: /\d+/
+        id matches: /[A-Za-z0-9\-]+/
       }
     }
 

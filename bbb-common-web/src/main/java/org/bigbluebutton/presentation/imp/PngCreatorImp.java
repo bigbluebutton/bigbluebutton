@@ -60,7 +60,7 @@ public class PngCreatorImp implements PngCreator {
 			pngDir.mkdir();
 
         if (useBlank) {
-            createBlankPng(pngDir, page);
+            createBlankPng(pngDir, pres, page);
             return true;
         }
 
@@ -75,9 +75,9 @@ public class PngCreatorImp implements PngCreator {
 		}
 
 		long start = System.currentTimeMillis();
-		renamePng(pngDir, page);
+		renamePng(pngDir, pres, page);
 		// Create blank thumbnails for pages that failed to generate a thumbnail.
-		createBlankPng(pngDir, page);
+		createBlankPng(pngDir, pres, page);
 		long end = System.currentTimeMillis();
 		//System.out.println("*** GENERATE BLANK PNG " + (end - start));
 
@@ -101,7 +101,7 @@ public class PngCreatorImp implements PngCreator {
 			}
 		}
 
-		createBlankPng(dir, page);
+		createBlankPng(dir, pres, page);
 	}
 
 	private boolean generatePng(File pngsDir, UploadedPresentation pres, int page, File pageFile)
@@ -117,7 +117,7 @@ public class PngCreatorImp implements PngCreator {
 		}
 
 		String source = pageFile.getAbsolutePath();
-		String dest = pngsDir.getAbsolutePath() + File.separator + "slide-" + page + ".png";
+		String dest = pngsDir.getAbsolutePath() + File.separator + "slide-" + pres.getOrMintPageId(page) + ".png";
 
 		// Skip processing if the destination file exists, as it was likely restored from the cache
 		if(Files.exists(Paths.get(dest))) {
@@ -177,7 +177,7 @@ public class PngCreatorImp implements PngCreator {
 		return new File(presentationFile.getParent() + File.separatorChar + "pngs");
 	}
 
-	private void renamePng(File dir, int page) {
+	private void renamePng(File dir, UploadedPresentation pres, int page) {
 		/*
 		 * If more than 1 file, filename like 'temp-png-X.png' else filename is
 		 * 'temp-png.png'
@@ -201,7 +201,7 @@ public class PngCreatorImp implements PngCreator {
 					// We are interested in the second match.
 					int pageNum = Integer.parseInt(matcher.group(2).trim());
 					if (pageNum == page) {
-						String newFilename = "slide-" + (page) + ".png";
+						String newFilename = "slide-" + pres.getOrMintPageId(page) + ".png";
 						File renamedFile = new File(
 								dir.getAbsolutePath() + File.separator + newFilename);
 						files[i].renameTo(renamedFile);
@@ -213,15 +213,15 @@ public class PngCreatorImp implements PngCreator {
 			File oldFilename = new File(
 							dir.getAbsolutePath() + File.separator + dir.list()[0]);
 			//System.out.println("*** PPNG file " + oldFilename.getAbsolutePath());
-			String newFilename = "slide-1.png";
+			String newFilename = "slide-" + pres.getOrMintPageId(1) + ".png";
 			File renamedFile = new File(
 							oldFilename.getParent() + File.separator + newFilename);
 			oldFilename.renameTo(renamedFile);
 		}
 	}
 
-	private void createBlankPng(File pngsDir, int page) {
-		File png = new File(pngsDir.getAbsolutePath() + File.separator + "slide-" + page + ".png");
+	private void createBlankPng(File pngsDir, UploadedPresentation pres, int page) {
+		File png = new File(pngsDir.getAbsolutePath() + File.separator + "slide-" + pres.getOrMintPageId(page) + ".png");
 		if (!png.exists()) {
 			log.info("Copying blank png for slide {}", page);
 			copyBlankPng(png);

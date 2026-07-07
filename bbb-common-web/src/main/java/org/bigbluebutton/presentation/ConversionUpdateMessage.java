@@ -91,11 +91,13 @@ public class ConversionUpdateMessage {
 			ArrayList<Map<String, String>> pages = new ArrayList<Map<String, String>>();
 			
 			for (int i = 1; i <= pres.getNumberOfPages(); i++) {
+				String pageId = pres.getOrMintPageId(i);
 				Map<String, String> page = new HashMap<String, String>();
 				page.put("num", Integer.toString(i));
-				page.put("thumb", basePresUrl + "/thumbnail/" + i);
-				page.put("text", basePresUrl + "/textfiles/" + i);
-				
+				page.put("id", pageId);
+				page.put("thumb", basePresUrl + "/thumbnail/" + pageId);
+				page.put("text", basePresUrl + "/textfiles/" + pageId);
+
 				pages.add(page);
 			}
 			
