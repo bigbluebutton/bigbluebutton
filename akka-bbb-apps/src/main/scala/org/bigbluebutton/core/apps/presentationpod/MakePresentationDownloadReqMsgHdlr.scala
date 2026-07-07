@@ -109,7 +109,7 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
               val height: Double = presentationPage.height
               val whiteboardHistory: Array[AnnotationVO] = liveMeeting.wbModel.getHistory(whiteboardId)
 
-              val page = new PresentationPageForExport(pageNumber, width, height, whiteboardHistory)
+              val page = new PresentationPageForExport(pageNumber, whiteboardId, width, height, whiteboardHistory)
               getPresentationPagesForExport(pages, pageCount, presId, currentPres, liveMeeting, storeAnnotationPages :+ page)
             case None =>
               getPresentationPagesForExport(pages, pageCount, presId, currentPres, liveMeeting, storeAnnotationPages)

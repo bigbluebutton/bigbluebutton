@@ -39,7 +39,7 @@ case class SetPresentationDownloadablePubMsgBody(podId: String, presentationId: 
 object ResizeAndMovePagePubMsg { val NAME = "ResizeAndMovePagePubMsg" }
 case class ResizeAndMovePagePubMsg(header: BbbClientMsgHeader, body: ResizeAndMovePagePubMsgBody) extends StandardMsg
 case class ResizeAndMovePagePubMsgBody(podId: String, presentationId: String, pageId: String, xOffset: Double,
-                                       yOffset: Double, widthRatio: Double, heightRatio: Double, slideNumber: Int)
+                                       yOffset: Double, widthRatio: Double, heightRatio: Double)
 
 object SlideResizedPubMsg { val NAME = "SlideResizedPubMsg" }
 case class SlideResizedPubMsg(header: BbbClientMsgHeader, body: SlideResizedPubMsgBody) extends StandardMsg

@@ -5,6 +5,7 @@ case class AnnotationVO(id: String, annotationInfo: scala.collection.immutable.M
 
 case class PresentationPageForExport(
   page: Int,
+  pageId: String,
   width: Double,
   height: Double,
   annotations: Array[AnnotationVO],

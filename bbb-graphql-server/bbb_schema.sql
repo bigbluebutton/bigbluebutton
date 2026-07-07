@@ -1666,7 +1666,7 @@ SELECT pres_presentation."meetingId",
         SELECT pp."urlsJson"->>'thumb'
         FROM "pres_page" pp
         WHERE pp."presentationId" = pres_presentation."presentationId"
-          AND pp.num = 1
+        ORDER BY pp.num
         LIMIT 1
     ) as "firstPageThumbnailUrl",
     case when pres_presentation."exportToChatStatus" is not null

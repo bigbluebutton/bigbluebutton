@@ -1,11 +1,10 @@
 import { gql } from '@apollo/client';
 
 export const PRESENTATION_SET_ZOOM = gql`
-  mutation PresentationSetZoom($presentationId: String!, $pageId: String!, $pageNum: Int!, $xOffset: Float!, $yOffset: Float!, $widthRatio: Float!, $heightRatio: Float!) {
+  mutation PresentationSetZoom($presentationId: String!, $pageId: String!, $xOffset: Float!, $yOffset: Float!, $widthRatio: Float!, $heightRatio: Float!) {
     presentationSetZoom(
       presentationId: $presentationId,
       pageId: $pageId,
-      pageNum: $pageNum,
       xOffset: $xOffset,
       yOffset: $yOffset,
       widthRatio: $widthRatio,

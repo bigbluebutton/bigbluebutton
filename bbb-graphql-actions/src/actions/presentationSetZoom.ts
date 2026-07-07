@@ -7,7 +7,6 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
       [
         {name: 'presentationId', type: 'string', required: true},
         {name: 'pageId', type: 'string', required: true},
-        {name: 'pageNum', type: 'int', required: true},
         {name: 'xOffset', type: 'number', required: true},
         {name: 'yOffset', type: 'number', required: true},
         {name: 'widthRatio', type: 'number', required: true},
@@ -32,7 +31,6 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     podId: 'DEFAULT_PRESENTATION_POD',
     presentationId: input.presentationId,
     pageId: input.pageId,
-    slideNumber: input.pageNum,
     xOffset: input.xOffset,
     yOffset: input.yOffset,
     widthRatio: input.widthRatio,
