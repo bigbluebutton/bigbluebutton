@@ -221,17 +221,17 @@ class StatusTable extends React.Component {
                 const padding = isRTL ? 'paddingLeft' : 'paddingRight';
                 const URLPrefix = `/bigbluebutton/presentation/${meetingId}/${meetingId}`;
                 const {
-                  presentationId, pageNum, pageToken, presentationName,
+                  presentationId, pageNum, pageId, pageToken, presentationName,
                 } = slide || {};
                 const tokenParams = pageToken && sessionToken
                   ? `?${new URLSearchParams({ pageToken, sessionToken })}`
                   : '';
                 const slideUrl = presentationBase
-                  ? `${presentationBase}/${presentationId}/svgs/slide${pageNum}.svg`
-                  : `${URLPrefix}/${presentationId}/svg/${pageNum}${tokenParams}`;
+                  ? `${presentationBase}/${presentationId}/svgs/slide-${pageId}.svg`
+                  : `${URLPrefix}/${presentationId}/svg/${pageId}${tokenParams}`;
                 const thumbUrl = presentationBase
-                  ? `${presentationBase}/${presentationId}/thumbnails/thumb-${pageNum}.png`
-                  : `${URLPrefix}/${presentationId}/thumbnail/${pageNum}${tokenParams}`;
+                  ? `${presentationBase}/${presentationId}/thumbnails/thumb-${pageId}.png`
+                  : `${URLPrefix}/${presentationId}/thumbnail/${pageId}${tokenParams}`;
                 return (
                   <td
                     style={{

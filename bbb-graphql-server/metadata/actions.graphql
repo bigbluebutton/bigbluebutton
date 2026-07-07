@@ -522,7 +522,6 @@ type Mutation {
   presentationSetZoom(
     presentationId: String!
     pageId: String!
-    pageNum: Int!
     xOffset: Float!
     yOffset: Float!
     widthRatio: Float!

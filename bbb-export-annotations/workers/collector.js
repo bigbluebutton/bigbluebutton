@@ -76,11 +76,12 @@ async function collectAnnotationsFromRedis() {
     // If there's a PDF file, we leverage the existing converted SVG slides
     for (const p of pages) {
       const pageNumber = p.page;
-      const imageName = `slide${pageNumber}`;
+      // On-disk slide files are named by the opaque pageId; the job's dropbox
+      // keeps ordinal names so the downstream steps stay position-based.
       const convertedSVG = path.join(
           exportJob.presLocation,
           'svgs',
-          `${imageName}.svg`);
+          `slide-${p.pageId}.svg`);
 
       const outputFile = path.join(dropbox, `slide${pageNumber}.svg`);
 
