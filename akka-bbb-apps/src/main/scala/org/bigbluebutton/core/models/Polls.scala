@@ -377,7 +377,7 @@ object Polls {
     shape += "isLocked" -> java.lang.Boolean.valueOf(false)
     shape += "index" -> "a1"
     shape += "rotation" -> Integer.valueOf(0)
-    shape += "parentId" -> s"page:${page.num}"
+    shape += "parentId" -> s"page:${page.id}"
     shape += "typeName" -> "shape"
     shape += "opacity" -> Integer.valueOf(1)
     shape += "id" -> s"shape:poll-result-${result.id}"

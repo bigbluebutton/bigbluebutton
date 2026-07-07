@@ -137,7 +137,8 @@ const Whiteboard = React.memo((props) => {
     currentUser = defaultUser,
     whiteboardId = undefined,
     zoomSlide,
-    curPageNum: curPageId,
+    curPageNum,
+    curPageId,
     zoomChanger,
     isMultiUserActive,
     isRTL,
@@ -221,6 +222,7 @@ const Whiteboard = React.memo((props) => {
   const fitToWidthRef = useRef(fitToWidth);
   const whiteboardIdRef = React.useRef(whiteboardId);
   const curPageIdRef = React.useRef(curPageId);
+  const curPageNumRef = React.useRef(curPageNum);
   const hasWBAccessRef = React.useRef(hasWBAccess);
   const isModeratorRef = React.useRef(isModerator);
   const currentPresentationPageRef = React.useRef(currentPresentationPage);
@@ -421,6 +423,10 @@ const Whiteboard = React.memo((props) => {
   React.useEffect(() => {
     curPageIdRef.current = curPageId;
   }, [curPageId]);
+
+  React.useEffect(() => {
+    curPageNumRef.current = curPageNum;
+  }, [curPageNum]);
 
   React.useEffect(() => {
     isModeratorRef.current = isModerator;
@@ -887,7 +893,7 @@ const Whiteboard = React.memo((props) => {
     {
       meta: {},
       id: currentPageId,
-      name: `Slide ${currentPageId?.split(':')[1]}`,
+      name: `Slide ${curPageNumRef.current}`,
       index: 'a1',
       typeName: 'page',
     },
@@ -962,9 +968,8 @@ const Whiteboard = React.memo((props) => {
     throwIfInvalid(yOffset, `camera.y ${description}`);
 
     const camera = tlEditorRef.current.getCamera();
-    const formattedPageId = Number(curPageIdRef.current);
-    if (Number.isNaN(formattedPageId)) {
-      throw new Error(`Invalid formattedPageId ${description}: ${formattedPageId}`);
+    if (!curPageIdRef.current) {
+      throw new Error(`Missing current pageId ${description}`);
     }
 
     const updatedCurrentCam = {
@@ -1535,8 +1540,7 @@ const Whiteboard = React.memo((props) => {
 
     if (editor && curPageIdRef.current) {
       const page = [];
-      const formattedPageId = parseInt(curPageIdRef.current, 10);
-      const currentPageId = `page:${formattedPageId}`;
+      const currentPageId = `page:${curPageIdRef.current}`;
       const currPageExists = tlEditorRef.current?.getPage(currentPageId);
 
       if (!currPageExists) {
@@ -1982,7 +1986,7 @@ const Whiteboard = React.memo((props) => {
 
   React.useEffect(() => {
     const handleArrowPress = (event) => {
-      const currPageNum = parseInt(curPageIdRef.current, 10);
+      const currPageNum = curPageNumRef.current;
       const shapeSelected = tlEditorRef.current.getSelectedShapes()?.length > 0;
       const changeSlide = (direction) => {
         if (!currentPresentationPage) return;
@@ -2265,8 +2269,7 @@ const Whiteboard = React.memo((props) => {
   };
 
   React.useEffect(() => {
-    const formattedPageId = parseInt(curPageIdRef.current, 10);
-    if (tlEditorRef.current && formattedPageId !== 0) {
+    if (tlEditorRef.current && curPageIdRef.current) {
       // If a viewer is mid-edit (select.editing_shape) when the slide changes,
       // the store mutation below (cleanupStore + setCurrentPage) removes the shape
       // being edited out from under tldraw, leaving the editor in editing_shape with
@@ -2280,7 +2283,7 @@ const Whiteboard = React.memo((props) => {
       }
       tlEditorRef.current.store.mergeRemoteChanges(() => {
         tlEditorRef.current.batch(() => {
-          const currentPageId = `page:${formattedPageId}`;
+          const currentPageId = `page:${curPageIdRef.current}`;
           const tlZ = tlEditorRef.current.getCamera()?.z;
           const cameras = [];
           const pages = [];
@@ -2291,10 +2294,10 @@ const Whiteboard = React.memo((props) => {
           }
           const allRecords = tlEditorRef.current.store.allRecords();
           const cameraRecords = allRecords.filter(
-            (record) => record.typeName === 'camera' && record.id === `camera:page:${formattedPageId}`,
+            (record) => record.typeName === 'camera' && record.id === `camera:page:${curPageIdRef.current}`,
           );
           if (cameraRecords?.length < 1) {
-            cameras.push(createCamera(formattedPageId, tlZ));
+            cameras.push(createCamera(curPageIdRef.current, tlZ));
           }
           cleanupStore(currentPageId);
           updateStore(pages, cameras);
@@ -2467,6 +2470,7 @@ Whiteboard.propTypes = {
   whiteboardId: PropTypes.string,
   zoomSlide: PropTypes.func.isRequired,
   curPageNum: PropTypes.number.isRequired,
+  curPageId: PropTypes.string.isRequired,
   presentationWidth: PropTypes.number.isRequired,
   presentationHeight: PropTypes.number.isRequired,
   zoomChanger: PropTypes.func.isRequired,
