@@ -1,6 +1,7 @@
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { MultiUsers } from '../user/multiusers';
+import { setGuestPolicyOption } from '../user/util';
 
 // Enables the pre-flight screen via a create/join userdata parameter, so the
 // test does not depend on the server-side default (which ships disabled).
@@ -90,6 +91,35 @@ export class PreFlight extends MultiUsers {
     await this.userPage.hasElement(
       e.preFlightInputDeviceSelector,
       'should still display the microphone selector for the locked viewer',
+    );
+  }
+
+  // v2 edge case: the pre-flight green room is shown while a guest waits for
+  // approval, before being admitted to the meeting.
+  async showsPreFlightDuringGuestWait() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    await setGuestPolicyOption(this.modPage, e.askModerator);
+    await this.modPage.page.waitForTimeout(500);
+    await this.initUserPage(this.context, {
+      joinParameter: PRE_FLIGHT_PARAM,
+      shouldCloseAudioModal: false,
+      shouldCheckAllInitialSteps: false,
+    });
+
+    if (!this?.userPage) throw new Error('userPage not initialized');
+    await this.userPage.hasElement(
+      e.preFlightGuestRoom,
+      'should display the pre-flight green room while waiting for approval',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.userPage.hasElement(
+      e.preFlightVideoPreview,
+      'should display the camera preview in the waiting room',
+    );
+    await this.userPage.hasElement(
+      e.preFlightInputDeviceSelector,
+      'should display the microphone selector in the waiting room',
     );
   }
 }

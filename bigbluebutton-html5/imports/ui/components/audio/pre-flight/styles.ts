@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import Select from '@mui/material/Select';
 import Button from '/imports/ui/components/common/button/component';
 import Icon from '/imports/ui/components/common/icon/component';
@@ -9,12 +9,24 @@ import {
   colorPrimary,
   colorText,
   colorDanger,
+  colorSuccess,
+  colorWhite,
+  colorOffWhite,
+  colorGrayDark,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   borderSize,
+  borderRadius,
+  borderRadiusRounded,
   mdPaddingX,
   lgPaddingX,
 } from '/imports/ui/stylesheets/styled-components/general';
+import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
+
+const pulse = keyframes`
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+`;
 
 const PreFlightModal = styled(ModalSimple)`
   padding: 1rem;
@@ -188,6 +200,79 @@ const LockedNote = styled.div`
   padding: ${mdPaddingX} 0;
 `;
 
+const GuestRoomContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: ${lgPaddingX};
+`;
+
+const GuestRoomCard = styled.section`
+  background-color: ${colorWhite};
+  border-radius: ${borderRadiusRounded};
+  padding: ${lgPaddingX};
+  width: 100%;
+  max-width: 48rem;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+`;
+
+const GuestRoomTitle = styled.h1`
+  font-size: ${fontSizeLarge};
+  font-weight: 600;
+  color: ${colorGrayDark};
+  margin: 0 0 ${mdPaddingX} 0;
+  text-align: center;
+`;
+
+const WaitingFooter = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: ${borderSize};
+  margin-top: ${mdPaddingX};
+  color: ${colorText};
+`;
+
+const WaitingIndicator = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${borderSize};
+  font-size: 0.85rem;
+`;
+
+const WaitingDot = styled.span`
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background-color: ${colorSuccess};
+  animation: ${pulse} 2s ease-in-out infinite;
+`;
+
+const WaitingPosition = styled.div`
+  font-size: 0.85rem;
+  opacity: 0.85;
+`;
+
+const HostMessage = styled.div`
+  background-color: ${colorOffWhite};
+  border-radius: ${borderRadius};
+  padding: ${mdPaddingX};
+  margin-top: ${borderSize};
+  font-size: 0.85rem;
+  color: ${colorText};
+  text-align: center;
+`;
+
+const HostMessageLabel = styled.div`
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-bottom: ${borderSize};
+`;
+
 export default {
   PreFlightModal,
   Content,
@@ -208,4 +293,13 @@ export default {
   PermissionIcon,
   RetryButton,
   LockedNote,
+  GuestRoomContainer,
+  GuestRoomCard,
+  GuestRoomTitle,
+  WaitingFooter,
+  WaitingIndicator,
+  WaitingDot,
+  WaitingPosition,
+  HostMessage,
+  HostMessageLabel,
 };

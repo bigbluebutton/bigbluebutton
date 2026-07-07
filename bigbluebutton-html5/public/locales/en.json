@@ -343,6 +343,8 @@
     "app.preFlight.findingDevicesLabel": "Finding your devices...",
     "app.preFlight.permissionDeniedLabel": "Microphone access is blocked. Allow it in your browser to use your mic, or continue without a microphone.",
     "app.preFlight.tryAgainLabel": "Try again",
+    "app.preFlight.guestTitle": "Get ready to join",
+    "app.preFlight.guestAriaTitle": "Set up your camera and devices while you wait for approval",
     "app.presentation.hide": "Hide presentation",
     "app.presentation.newCurrentPresentationNotification": "The current presentation is now: {presentationName}",
     "app.presentation.downloadEnabledNotification": "You can now download the presentation",

@@ -10,6 +10,8 @@ import { LoadingContext } from '../../common/loading-screen/loading-screen-HOC/c
 import { JoinErrorCodeTable } from '/imports/ui/components/meeting-ended/service';
 import Styled from './styles';
 import Auth from '/imports/ui/services/auth';
+import GuestPreFlight from '/imports/ui/components/audio/pre-flight/GuestPreFlight';
+import getFromUserSettings from '/imports/ui/services/users-settings';
 
 const REDIRECT_TIMEOUT = 15000;
 
@@ -186,6 +188,21 @@ const GuestWait: React.FC<GuestWaitProps> = (props) => {
   ]);
 
   const hasCustomMessage = guestLobbyMessage && guestLobbyMessage.length > 0;
+
+  // Green room: while still waiting for approval, show the pre-flight device
+  // setup (camera preview + selectors) instead of the plain waiting card. The
+  // body is only mounted while WAIT, so leaving WAIT (ALLOW/DENY) unmounts it
+  // and releases the preview mic/camera streams right away.
+  const APP_CONFIG = window.meetingClientSettings.public.app;
+  const preFlightEnabled = getFromUserSettings('bbb_pre_flight_screen', APP_CONFIG.preFlightScreen);
+  if (preFlightEnabled && guestStatus === GUEST_STATUSES.WAIT) {
+    return (
+      <GuestPreFlight
+        positionMessage={positionMessage}
+        hostMessage={hasCustomMessage ? message : null}
+      />
+    );
+  }
 
   return (
     <Styled.Container>

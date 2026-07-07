@@ -54,4 +54,11 @@ test.describe.parallel('Pre-flight screen', { tag: '@ci' }, () => {
     });
     await preFlight.hidesCameraWhenLocked();
   });
+
+  // v2: the pre-flight green room shows while a guest waits for approval.
+  test('Shows the pre-flight green room during guest waiting', async ({ browser, context, page }, testInfo) => {
+    const preFlight = new PreFlight(browser, context);
+    await preFlight.initModPage(page, { testInfo });
+    await preFlight.showsPreFlightDuringGuestWait();
+  });
 });
