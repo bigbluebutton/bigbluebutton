@@ -64,6 +64,10 @@ async function collectAnnotationsFromRedis() {
     }
   });
 
+  // Copy any user-pasted images referenced by the annotations so the process
+  // worker can inline them (CairoSVG can't read them by path at conversion time).
+  collectUploadedImages(pages);
+
   // Collect the presentation page files (PDF / PNG / JPEG)
   // from the presentation directory
   const presFile = path.join(exportJob.presLocation, exportJob.presId);
@@ -122,6 +126,58 @@ async function collectAnnotationsFromRedis() {
 
   const process = new WorkerStarter({jobId});
   process.process();
+}
+
+/**
+ * Copies the upload files referenced by image annotations into the dropbox so
+ * the process worker can inline them as base64. Uploads live alongside the
+ * meeting's presentations at /var/bigbluebutton/{meetingId}/uploads, i.e. two
+ * levels up from presLocation (/var/bigbluebutton/{meetingId}/{meetingId}/{presId}).
+ *
+ * @function collectUploadedImages
+ * @param {Array} pages - The parsed whiteboard pages, each with `annotations`.
+ * @return {void}
+ */
+function collectUploadedImages(pages) {
+  const uploadsSource = path.resolve(exportJob.presLocation, '..', '..', 'uploads');
+  if (!fs.existsSync(uploadsSource)) {
+    return;
+  }
+
+  const uploadsDest = path.join(dropbox, 'uploads');
+  fs.mkdirSync(uploadsDest, {recursive: true});
+
+  const seen = new Set();
+  for (const page of pages) {
+    for (const annotation of (page.annotations || [])) {
+      const info = annotation?.annotationInfo;
+      if (info?.type !== 'image') {
+        continue;
+      }
+
+      const src = info?.meta?.bbbImageSrc;
+      if (!src) {
+        continue;
+      }
+
+      const filename = sanitize(path.basename(src));
+      if (!filename || seen.has(filename)) {
+        continue;
+      }
+      seen.add(filename);
+
+      const from = path.join(uploadsSource, filename);
+      const to = path.join(uploadsDest, filename);
+      try {
+        if (fs.existsSync(from)) {
+          fs.copyFileSync(from, to);
+        }
+      } catch (error) {
+        logger.error('Failed collecting upload ' + filename +
+          ' in job ' + jobId + ': ' + error.message);
+      }
+    }
+  }
 }
 
 /**

@@ -20,6 +20,7 @@ import {StickyNote} from '../shapes/StickyNote.js';
 import {createGeoObject} from '../shapes/geoFactory.js';
 import {Frame} from '../shapes/Frame.js';
 import {Poll} from '../shapes/Poll.js';
+import {ImageShape} from '../shapes/Image.js';
 
 const jobId = workerData.jobId;
 const logger = new Logger('presAnn Process Worker');
@@ -219,6 +220,20 @@ async function overlayPoll(svg, annotation) {
 }
 
 /**
+ * Adds a user-pasted image shape to the canvas. The referenced upload has been
+ * copied into the dropbox by the collector and is inlined as base64.
+ * @function overlayImage
+ * @param {Object} svg - The SVG element where the image will be added.
+ * @param {Object} annotation - JSON image data.
+ * @return {Promise<void>}
+ */
+async function overlayImage(svg, annotation) {
+  const imageShape = new ImageShape(annotation, path.join(dropbox, 'uploads'));
+  const image = await imageShape.draw();
+  svg.add(image);
+}
+
+/**
  * Determines the annotation type and overlays the corresponding shape
  * onto the SVG element. It delegates the rendering to the specific
  * overlay function based on the annotation type.
@@ -256,6 +271,9 @@ export async function overlayAnnotation(svg, annotation) {
         break;
       case 'poll':
         await overlayPoll(svg, annotation);
+        break;
+      case 'image':
+        await overlayImage(svg, annotation);
         break;
       default:
         logger.info(`Unknown annotation type ${annotation.type}.`);
