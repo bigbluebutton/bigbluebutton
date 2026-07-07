@@ -1,0 +1,45 @@
+expressServer:
+  host: 127.0.0.1
+  port: 8094
+
+storage:
+  # Uploads are stored at {basePath}/{meetingId}/{uploadsDirName}/{uuid}.{ext}
+  basePath: /var/bigbluebutton
+  uploadsDirName: uploads
+
+limits:
+  maxFileSizeKb: 5120
+  # Reject images whose width or height (read from the file header, without
+  # decoding the bitmap) exceeds this value. Guards downstream consumers
+  # (wkhtmltopdf, export-annotations) against decompression bombs.
+  maxImageDimensionPx: 4096
+  allowedMimeTypes:
+    - image/png
+    - image/jpeg
+    - image/gif
+    - image/webp
+  quotaPerMeetingMb: 100
+
+rateLimit:
+  windowInSeconds: 60
+  maxRequestsPerWindow: 60
+
+cleanup:
+  # After a meeting ends, its uploads directory is deleted this many minutes
+  # later, giving the record-and-playback archive time to copy the files first.
+  retentionMinutes: 60
+  # A meeting whose uploads directory contains this marker file is skipped by
+  # cleanup. The record-and-playback archive (phase 5) drops it while it copies
+  # the uploads of a recorded meeting, and removes it when done.
+  recordingHoldMarker: .recording-hold
+
+log:
+  level: info
+
+redis:
+  host: 127.0.0.1
+  port: 6379
+  password: null
+  channels:
+    subscribe:
+      - from-akka-apps-redis-channel
