@@ -11,7 +11,11 @@ import {
   settingsModalTabSelected,
   colorBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
+import {
+  fontSizeBase,
+  fontSizeLarge,
+  fontSizeMedium,
+} from '/imports/ui/stylesheets/styled-components/typography';
 import {
   Tab, Tabs, TabList, TabPanel,
 } from 'react-tabs';
@@ -69,7 +73,7 @@ const SettingsTabSelector = styled(Tab)`
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  font-size: 1.125rem;
+  font-size: ${fontSizeMedium};
   flex: none;
   padding: 1rem;
   color: ${colorGrayDark};
@@ -195,7 +199,7 @@ const ActionButton = styled.button`
   border: none;
   border-radius: 1rem;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: ${fontSizeBase};
   color: #fff;
 
   &:first-child {

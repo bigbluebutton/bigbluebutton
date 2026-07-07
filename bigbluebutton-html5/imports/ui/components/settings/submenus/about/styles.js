@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import Styled from '/imports/ui/components/settings/submenus/styles';
+import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 
 const Title = styled(Styled.Title)``;
 
@@ -13,7 +14,7 @@ const Content = styled.div`
 
 const Text = styled.p`
   margin: 8px 0;
-  font-size: 1rem;
+  font-size: ${fontSizeBase};
   color: #333;
 `;
 
@@ -25,8 +26,7 @@ const TableButton = styled.button`
   color: #333;
   background-color: transparent;
   border: none;
-  font-size: 1rem;
-  font-size: 1rem;
+  font-size: ${fontSizeBase};
   font-weight: 700;
   cursor: pointer;
   padding: 4px 8px;

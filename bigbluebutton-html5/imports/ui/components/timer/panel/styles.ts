@@ -133,7 +133,7 @@ const IncrementDecrementButton = styled(Button)`
   height: 1.2rem;
   min-width: 0;
   padding: 0;
-  font-size: 1rem;
+  font-size: ${fontSizeBase};
   line-height: 0.9;
 `;
 
@@ -471,7 +471,7 @@ const PresetArrowButton = styled(Button)`
   
   i {
     margin: 0;
-    font-size: 1rem;
+    font-size: ${fontSizeBase};
   }
 
   [dir="rtl"] & i {
