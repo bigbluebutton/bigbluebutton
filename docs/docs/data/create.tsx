@@ -387,6 +387,18 @@ const createEndpointTableData = [
     "description": (<>Url from which the shared-notes will fetch the initial content (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise)</>)
   },
   {
+    "name": "sharedNotesInitialContentMarkdown",
+    "required": false,
+    "type": "String",
+    "description": (<>Raw markdown used as the shared-notes initial content (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise). Takes precedence over `sharedNotesInitialContentMarkdownUrl` when both are provided.</>)
+  },
+  {
+    "name": "sharedNotesInitialContentMarkdownUrl",
+    "required": false,
+    "type": "String",
+    "description": (<>Url from which the shared-notes will fetch the initial content as markdown (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise)</>)
+  },
+  {
     "name": "disabledFeatures",
     "required": false,
     "type": "String",

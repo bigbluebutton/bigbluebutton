@@ -432,12 +432,12 @@ To send the Markdown in the POST body, use the same `<modules>` envelope as the 
 <modules>
    <module name="sharedNotesInitialContentMarkdown">
       <![CDATA[
-        # Welcome to BigBlueButton Shared Notes
+# Welcome to BigBlueButton Shared Notes
 
-        Start collaborating here...
+Start collaborating here...
 
-        - First item
-        - Second item
+- First item
+- Second item
       ]]>
    </module>
 </modules>

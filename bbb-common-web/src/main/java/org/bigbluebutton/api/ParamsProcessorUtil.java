@@ -661,26 +661,14 @@ public class ParamsProcessorUtil {
 
         String sharedNotesInitialContentMarkdown = "";
         if (!StringUtils.isEmpty(params.get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_MARKDOWN))) {
-            try {
-                sharedNotesInitialContentMarkdown = params
-                        .get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_MARKDOWN);
-            } catch (Exception ex) {
-                log.warn(
-                        "Invalid param [sharedNotesInitialContentMarkdown] for meeting=[{}]",
-                        internalMeetingId);
-            }
+            sharedNotesInitialContentMarkdown = params
+                    .get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_MARKDOWN);
         }
 
         String sharedNotesInitialContentMarkdownUrl = "";
         if (!StringUtils.isEmpty(params.get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_MARKDOWN_URL))) {
-            try {
-                sharedNotesInitialContentMarkdownUrl = params
-                        .get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_MARKDOWN_URL);
-            } catch (Exception ex) {
-                log.warn(
-                        "Invalid param [sharedNotesInitialContentMarkdownUrl] for meeting=[{}]",
-                        internalMeetingId);
-            }
+            sharedNotesInitialContentMarkdownUrl = params
+                    .get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_MARKDOWN_URL);
         }
 
         String sharedNotesEditor = defaultSharedNotesEditor;
