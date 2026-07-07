@@ -115,13 +115,29 @@ export function createMeetingUrl(createParameter?: string, customMeetingId?: str
   return url;
 }
 
-export function createMeetingPromise(createParameter?: string, customMeetingId?: string): Promise<AxiosResponse> {
+export function createMeetingPromise(
+  createParameter?: string,
+  customMeetingId?: string,
+  createModules?: string,
+): Promise<AxiosResponse> {
   const url = createMeetingUrl(createParameter, customMeetingId);
+  // Modules (e.g. clientSettingsOverride) travel in the POST body; the
+  // checksum covers the query string either way.
+  if (createModules !== undefined) {
+    return axios.post(url, createModules, {
+      adapter: 'http',
+      headers: { 'Content-Type': 'application/xml' },
+    });
+  }
   return axios.get(url, { adapter: 'http' });
 }
 
-export async function createMeeting(createParameter?: string, customMeetingId?: string): Promise<string> {
-  const promise = createMeetingPromise(createParameter, customMeetingId);
+export async function createMeeting(
+  createParameter?: string,
+  customMeetingId?: string,
+  createModules?: string,
+): Promise<string> {
+  const promise = createMeetingPromise(createParameter, customMeetingId, createModules);
   const response = await promise;
   expect(response.status).toEqual(200);
   const xmlResponse = await xml2js.parseStringPromise(response.data);
