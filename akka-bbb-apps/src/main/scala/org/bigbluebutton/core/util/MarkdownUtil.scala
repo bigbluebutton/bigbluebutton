@@ -129,6 +129,37 @@ object MarkdownUtil {
   private def autolinkUrls(root: Node): Unit = {
     root.accept(new AutoLinkVisitor)
   }
+
+  /**
+   * Only relative (same-origin) URLs are allowed as image sources. `sanitizeUrls`
+   * already blocks dangerous schemes (javascript:, data:), but it still lets an
+   * `![](https://tracker.example/pixel.png)` through, turning chat into a
+   * tracking-pixel / IP-leak vector. So, when images are enabled, we drop every
+   * Image node whose destination is not a plain rooted path (e.g. the
+   * `/bigbluebutton/fileUpload/...` URL produced by the upload service). Anything
+   * with a scheme or a protocol-relative authority (`//host`) is removed before
+   * rendering. External images behind a flag can be added later if ever needed.
+   */
+  private def stripExternalImages(root: Node): Unit = {
+    val toRemove = new util.ArrayList[Node]()
+    root.accept(new AbstractVisitor {
+      override def visit(image: Image): Unit = {
+        if (isSameOriginUrl(image.getDestination)) {
+          visitChildren(image)
+        } else {
+          toRemove.add(image)
+        }
+      }
+    })
+    val it = toRemove.iterator()
+    while (it.hasNext) it.next().unlink()
+  }
+
+  private def isSameOriginUrl(url: String): Boolean = {
+    if (url == null) return false
+    val trimmed = url.trim
+    trimmed.startsWith("/") && !trimmed.startsWith("//")
+  }
   private val MaxMessageLength = 5000
 
   private val MarkdownSyntaxChars: Array[Char] =
@@ -173,6 +204,7 @@ object MarkdownUtil {
 
     val doc = parser.parse(processedMd)
     autolinkUrls(doc) // extra step: create links from plain text URLs
+    if (enableImages) stripExternalImages(doc) // same-origin images only (privacy)
     val chosenRenderer = if (enableImages) rendererWithImages else rendererNoImages
     chosenRenderer.render(doc)
   }
