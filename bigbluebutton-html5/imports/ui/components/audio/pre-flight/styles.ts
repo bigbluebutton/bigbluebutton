@@ -13,6 +13,7 @@ import {
   colorWhite,
   colorOffWhite,
   colorGrayDark,
+  colorBackground,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   borderSize,
@@ -31,6 +32,8 @@ const pulse = keyframes`
 const PreFlightModal = styled(ModalSimple)`
   padding: 1rem;
   min-height: 20rem;
+  max-height: 90vh;
+  overflow-y: auto;
 `;
 
 const Content = styled.div`
@@ -71,13 +74,13 @@ const VideoWrapper = styled.div`
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  background-color: #1b3c4b;
-  border-radius: ${borderSize};
+  background-color: ${colorBackground};
+  border-radius: ${borderRadiusRounded};
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  color: #fff;
+  color: ${colorWhite};
   text-align: center;
 `;
 
@@ -97,7 +100,7 @@ const DeviceGroup = styled.label`
 
 const CameraSelect = styled(Select)`
   width: 100%;
-  background-color: #fff;
+  background-color: ${colorWhite};
   border: 0.1rem solid ${colorGrayLighter};
   border-radius: ${borderSize};
   font-size: 0.9rem;
@@ -118,16 +121,23 @@ const StreamVolumeWrapper = styled.div`
 const Footer = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   gap: ${borderSize};
   margin-top: ${mdPaddingX};
 `;
 
 const JoinButton = styled(Button)`
-  min-width: 12rem;
+  width: 100%;
+  font-weight: 600;
+
+  &:focus-visible {
+    outline: 2px solid ${colorPrimary};
+    outline-offset: 2px;
+  }
 `;
 
 const ListenOnlyLink = styled.button`
+  align-self: center;
   background: none;
   border: none;
   color: ${colorPrimary};
@@ -137,7 +147,7 @@ const ListenOnlyLink = styled.button`
   padding: 0.25rem;
 
   &:hover,
-  &:focus {
+  &:focus-visible {
     opacity: 0.8;
   }
 `;
