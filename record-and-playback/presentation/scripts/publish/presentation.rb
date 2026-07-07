@@ -1108,7 +1108,14 @@ def process_presentation(package_dir)
   File.write("#{package_dir}/#{@shapes_svg_filename}", shapes_doc.to_xml)
   File.write("#{package_dir}/#{@panzooms_xml_filename}", panzooms_doc.target!)
   File.write("#{package_dir}/#{@cursor_xml_filename}", cursors_doc.target!)
-  generate_json_file(package_dir, @tldraw_shapes_filename, tldraw_shapes) if tldraw
+  if tldraw
+    # Rewrite pasted-image urls (carried inside image shape data) to the
+    # recording-relative path before writing, same as chat messages. Written
+    # here rather than via generate_json_file so the rewrite runs on the
+    # serialized json - the url can appear anywhere inside the shape data.
+    tldraw_json = BigBlueButton::Events.rewrite_file_upload_urls(tldraw_shapes.to_json, @meeting_id)
+    File.open("#{package_dir}/#{@tldraw_shapes_filename}", 'w') { |f| f.puts(tldraw_json) } unless tldraw_shapes.empty?
+  end
 end
 
 def process_chat_messages(events, bbb_props)
@@ -1125,7 +1132,7 @@ def process_chat_messages(events, bbb_props)
         name: chat[:sender],
         chatEmphasizedText: chat[:chatEmphasizedText],
         senderRole: chat[:senderRole],
-        message: chat[:message],
+        message: BigBlueButton::Events.rewrite_file_upload_urls(chat[:message], @meeting_id),
         replyToMessageId: chat[:replyToMessageId],
         lastEditedTimestamp: chat[:lastEditedTimestamp],
         target: 'chat',
@@ -1507,6 +1514,15 @@ begin
         BigBlueButton.logger.info('Copying files to package dir')
         FileUtils.cp_r("#{@process_dir}/presentation", package_dir)
         BigBlueButton.logger.info('Copied files to package dir')
+
+        # Pasted images (chat/notes/whiteboard). Playback loads them from
+        # /presentation/{recordId}/uploads/{file}, the path the chat and tldraw
+        # url rewrites above point at.
+        uploads_dir = "#{@process_dir}/uploads"
+        if File.directory?(uploads_dir)
+          FileUtils.cp_r(uploads_dir, package_dir)
+          BigBlueButton.logger.info('Copied pasted images to package dir')
+        end
 
         BigBlueButton.logger.info('Publishing slides')
         # Now publish this recording files by copying them into the publish folder.

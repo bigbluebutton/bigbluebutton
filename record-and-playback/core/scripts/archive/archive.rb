@@ -166,6 +166,66 @@ def archive_directory(source, dest)
   end
 end
 
+# Name of the marker file the bbb-file-upload service watches for. While it is
+# present in an uploads directory, that service skips its post-meeting cleanup,
+# so the archive can copy the files without racing the deletion. Must match
+# cleanup.recordingHoldMarker in bbb-file-upload's config/default.yml.
+UPLOADS_RECORDING_HOLD_MARKER = '.recording-hold'
+
+# The internal ids of a meeting's breakout rooms, read from the recording marks
+# events.xml (empty if the meeting had none). A pasted image is visible across
+# the whole meeting family, so an image referenced in the parent may physically
+# live under a breakout room's meetingId; archiving the family keeps those files.
+def breakout_room_ids(meeting_id, raw_archive_dir)
+  events_file = "#{raw_archive_dir}/#{meeting_id}/events.xml"
+  return [] unless File.exist?(events_file)
+
+  BigBlueButton::Events.get_breakout_room_ids(Nokogiri::XML(File.open(events_file)))
+end
+
+# Copy the images pasted into chat/notes/whiteboard (served live by
+# bbb-file-upload from {base_dir}/{meetingId}/uploads) into the recording so they
+# survive the post-meeting cleanup. The meeting's own uploads plus every breakout
+# room's are flattened into one directory - upload file names are uuids, so they
+# never collide, and this is cheaper than tracking which image belongs to which
+# room (playback rewrites the urls to this flat directory anyway).
+def archive_uploads(meeting_id, base_dir, dest_dir, raw_archive_dir)
+  source_ids = [meeting_id] + breakout_room_ids(meeting_id, raw_archive_dir)
+  archived = false
+
+  source_ids.each do |id|
+    uploads_src = "#{base_dir}/#{id}/uploads"
+    next unless File.directory?(uploads_src)
+
+    # Hold off the bbb-file-upload cleanup while we copy, then release it.
+    # A failure here (permissions, disk, a directory vanishing mid-copy) must
+    # never abort the whole recording archive, so warn and move on - the same
+    # resilience the other archive_* helpers use.
+    marker = File.join(uploads_src, UPLOADS_RECORDING_HOLD_MARKER)
+    begin
+      FileUtils.touch(marker)
+      FileUtils.mkdir_p(dest_dir)
+      Dir.glob("#{uploads_src}/*").each do |file|
+        next if File.basename(file) == UPLOADS_RECORDING_HOLD_MARKER
+        next unless File.file?(file)
+
+        FileUtils.cp(file, dest_dir)
+        archived = true
+      end
+    rescue StandardError => e
+      BigBlueButton.logger.warn("Failed to archive uploads for #{id}: #{e.message}")
+    ensure
+      FileUtils.rm_f(marker)
+    end
+  end
+
+  if archived
+    BigBlueButton.logger.info("Archived uploaded files for #{meeting_id}")
+  else
+    BigBlueButton.logger.info("No uploaded files to archive for #{meeting_id}")
+  end
+end
+
 def archive_has_recording_marks?(meeting_id, raw_archive_dir, break_timestamp)
   BigBlueButton.logger.info("Fetching the recording marks for #{meeting_id}.")
 
@@ -253,6 +313,8 @@ archive_audio(meeting_id, audio_dir, raw_archive_dir)
 archive_notes(meeting_id, notes_endpoint, bn_notes_endpoint, notes_formats, raw_archive_dir)
 # Presentation files
 archive_directory("#{presentation_dir}/#{meeting_id}/#{meeting_id}", "#{target_dir}/presentation")
+# Images pasted into chat/notes/whiteboard (bbb-file-upload), including breakout rooms
+archive_uploads(meeting_id, presentation_dir, "#{target_dir}/uploads", raw_archive_dir)
 # Learning Analytics Dashboard JSON file
 base_id = meeting_id.split('-').first
 if (src = Dir["/var/bigbluebutton/learning-dashboard/#{base_id}-*/**/learning_dashboard_data.json"].first)
