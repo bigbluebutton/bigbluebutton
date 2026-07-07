@@ -971,6 +971,8 @@
     "app.audio.captions.speech.disabled": "無効",
     "app.audio.captions.speech.unsupported": "お使いのブラウザは音声認識をサポートしていないため、自動書き起こし機能は使用できません。",
     "app.audio.captions.speech.auto": "自動検出",
+    "app.audio.captions.speech.microphoneAlert.message": "Audio detected but nothing is being transcribed. Your browser may be using the wrong microphone, or there is too much background noise.",
+    "app.audio.captions.speech.microphoneAlert.helpLabel": "Learn more",
     "app.audio.captions.select.af-ZA": "アフリカーンス語",
     "app.audio.captions.select.sq-AL": "アルバニア語",
     "app.audio.captions.select.am-ET": "アムハラ語",
