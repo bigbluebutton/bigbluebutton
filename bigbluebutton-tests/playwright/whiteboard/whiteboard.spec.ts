@@ -11,6 +11,7 @@ import { SlideChangeBlank } from './slideChangeBlank';
 import { SlideChangeWhileEditing } from './slideChangeWhileEditing';
 import { TextShape } from './textShape';
 import { WhiteboardResize } from './whiteboardResize';
+import { WhiteboardImagePaste } from './imagePaste';
 
 async function runResizeTest(
   method: 'cameraResync' | 'cameraResyncVisual' | 'cameraResyncZoomedVisual' | 'cameraResyncAfterMinimizeRestore',
@@ -226,11 +227,35 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     await runResizeTest('cameraResyncVisual', browser, context, page, testInfo);
   });
 
-  test('Camera re-sync visual regression after resize with canvas zoom', async ({ browser, context, page }, testInfo) => {
+  test('Camera re-sync visual regression after resize with canvas zoom', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
     await runResizeTest('cameraResyncZoomedVisual', browser, context, page, testInfo);
   });
 
-  test('Camera zoom is preserved after minimizing and restoring the presentation', async ({ browser, context, page }, testInfo) => {
+  test('Camera zoom is preserved after minimizing and restoring the presentation', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
     await runResizeTest('cameraResyncAfterMinimizeRestore', browser, context, page, testInfo);
+  });
+
+  test.describe('Image paste', { tag: '@setting-required:whiteboard.imagePaste' }, () => {
+    test('Paste an image onto the whiteboard', async ({ browser, context, page }, testInfo) => {
+      const imagePaste = new WhiteboardImagePaste(browser, context);
+      await imagePaste.initModPage(page, { testInfo });
+      await imagePaste.initUserPage(context, { testInfo });
+      await imagePaste.pasteImage();
+    });
+
+    test('Viewer without write access cannot paste an image', async ({ browser, context, page }, testInfo) => {
+      const imagePaste = new WhiteboardImagePaste(browser, context);
+      await imagePaste.initModPage(page, { testInfo });
+      await imagePaste.initUserPage(context, { testInfo });
+      await imagePaste.viewerCannotPasteImage();
+    });
   });
 });

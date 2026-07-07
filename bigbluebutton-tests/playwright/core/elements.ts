@@ -689,6 +689,7 @@ export const elements = {
   wbDrawnShape: 'div[data-shape-type="geo"]',
   wbDraw: 'div[data-shape-type="draw"]',
   wbPollShape: 'div[data-shape-type="poll"]',
+  wbImageShape: 'div[data-shape-type="image"]',
   wbDrawnLine: 'div[data-shape-type="line"]',
   multiUsersWhiteboardOn: 'button[data-test="turnMultiUsersWhiteboardOn"]',
   multiUsersWhiteboardOff: 'button[data-test="turnMultiUsersWhiteboardOff"]',
