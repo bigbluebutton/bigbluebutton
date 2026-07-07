@@ -971,6 +971,8 @@
     "app.audio.captions.speech.disabled": "Desativada",
     "app.audio.captions.speech.unsupported": "Seu navegador não permite legendar sua fala, mas você pode ativar a legenda dos outros participantes da sessão.",
     "app.audio.captions.speech.auto": "Detectar automaticamente",
+    "app.audio.captions.speech.microphoneAlert.message": "Audio detected but nothing is being transcribed. Your browser may be using the wrong microphone, or there is too much background noise.",
+    "app.audio.captions.speech.microphoneAlert.helpLabel": "Learn more",
     "app.audio.captions.select.af-ZA": "Afrikaans",
     "app.audio.captions.select.sq-AL": "Albanês",
     "app.audio.captions.select.am-ET": "Amárico",
