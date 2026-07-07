@@ -83,9 +83,9 @@ export class MarkdownSharedNotes extends MultiUsers {
     await expect(editor, 'should render the seeded list item').toContainText(INIT_MARKDOWN_ITEM);
   }
 
-  // Feature: "Import from Markdown" replaces a non-empty document, but only after
-  // an explicit confirmation.
-  async importFromMarkdownReplacesWithConfirmation() {
+  // Feature: importing in "Replace" mode overwrites a non-empty document with the
+  // imported content, with no confirmation step.
+  async importFromMarkdownReplace() {
     await startBlockNoteSharedNotes(this.modPage);
 
     const editor = getBlockNoteEditorLocator(this.modPage);
@@ -100,11 +100,8 @@ export class MarkdownSharedNotes extends MultiUsers {
     const importedMarkdown = '# Imported Heading\n\nImported paragraph body';
     await this.modPage.page.locator(e.notesImportMarkdownTextarea).fill(importedMarkdown);
 
-    // Document is not empty, so the first click only asks for confirmation.
-    await this.modPage.waitAndClick(e.notesImportMarkdownConfirm);
-    await this.modPage.hasElement(e.notesImportMarkdownWarning, 'should warn before replacing a non-empty document');
-
-    // Confirming applies the replacement.
+    // Choose Replace, then import. There is no confirmation prompt anymore.
+    await this.modPage.page.locator(e.notesImportMarkdownReplaceMode).check();
     await this.modPage.waitAndClick(e.notesImportMarkdownConfirm);
 
     await expect(editor, 'the imported heading should render').toContainText('Imported Heading', {
@@ -112,6 +109,38 @@ export class MarkdownSharedNotes extends MultiUsers {
     });
     await expect(editor, 'the imported paragraph should render').toContainText('Imported paragraph body');
     await expect(editor, 'the original content should have been replaced').not.toContainText(originalText);
+  }
+
+  // Feature: importing in "Append" mode (the default) keeps the existing content and
+  // adds the imported content after it.
+  async importFromMarkdownAppend() {
+    await startBlockNoteSharedNotes(this.modPage);
+
+    const editor = getBlockNoteEditorLocator(this.modPage);
+    await editor.click();
+    const originalText = 'Original content to keep';
+    await this.modPage.page.keyboard.type(originalText);
+    await expect(editor).toContainText(originalText);
+
+    await this.modPage.waitAndClick(e.notesOptions);
+    await this.modPage.waitAndClick(e.importNotesFromMarkdown);
+
+    // Append is the default; assert it is pre-selected so the default is never
+    // silently destructive.
+    await expect(
+      this.modPage.page.locator(e.notesImportMarkdownAppendMode),
+      'append should be the default mode',
+    ).toBeChecked();
+
+    const importedMarkdown = '# Appended Heading\n\nAppended paragraph body';
+    await this.modPage.page.locator(e.notesImportMarkdownTextarea).fill(importedMarkdown);
+    await this.modPage.waitAndClick(e.notesImportMarkdownConfirm);
+
+    await expect(editor, 'the original content should be kept').toContainText(originalText, {
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
+    await expect(editor, 'the appended heading should render').toContainText('Appended Heading');
+    await expect(editor, 'the appended paragraph should render').toContainText('Appended paragraph body');
   }
 
   // Feature: importing markdown propagates to every connected client through the

@@ -19,8 +19,12 @@ test.describe.parallel('Shared Notes - BlockNote Markdown', { tag: '@ci' }, () =
       await markdownSharedNotes.exportAsMarkdown();
     });
 
-    test('Import from Markdown replaces a non-empty document after confirmation', async () => {
-      await markdownSharedNotes.importFromMarkdownReplacesWithConfirmation();
+    test('Import from Markdown in Append mode keeps the existing content', async () => {
+      await markdownSharedNotes.importFromMarkdownAppend();
+    });
+
+    test('Import from Markdown in Replace mode overwrites the existing content', async () => {
+      await markdownSharedNotes.importFromMarkdownReplace();
     });
 
     test('Import from Markdown propagates to other connected users', async () => {

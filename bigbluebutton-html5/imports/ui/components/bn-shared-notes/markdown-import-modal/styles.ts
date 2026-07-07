@@ -10,6 +10,7 @@ import {
   colorDanger,
   colorPrimary,
   colorOffWhite,
+  colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const Container = styled.div`
@@ -154,10 +155,48 @@ const Textarea = styled.textarea`
   font-size: 0.875rem;
 `;
 
-const Warning = styled.p`
-  margin: 0;
-  color: ${colorDanger};
+// Append/Replace selector. Native radio inputs styled with the palette, matching
+// the self-contained styled-components approach the rest of this modal uses.
+const ModeGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const ModeLegend = styled.span`
+  color: ${colorGray};
+  font-size: 0.8125rem;
   font-weight: 600;
+`;
+
+const ModeOption = styled.label`
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  cursor: pointer;
+
+  & > input[type='radio'] {
+    margin-top: 0.2rem;
+    accent-color: ${colorPrimary};
+    cursor: pointer;
+  }
+`;
+
+const ModeText = styled.span`
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+`;
+
+const ModeOptionLabel = styled.span`
+  color: ${colorText};
+  font-size: 0.875rem;
+  font-weight: 600;
+`;
+
+const ModeOptionDescription = styled.span`
+  color: ${colorGrayLight};
+  font-size: 0.75rem;
 `;
 
 const Actions = styled.div`
@@ -180,6 +219,11 @@ export default {
   FileRemove,
   Error,
   Textarea,
-  Warning,
+  ModeGroup,
+  ModeLegend,
+  ModeOption,
+  ModeText,
+  ModeOptionLabel,
+  ModeOptionDescription,
   Actions,
 };

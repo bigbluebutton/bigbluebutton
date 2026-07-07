@@ -13,6 +13,10 @@ const ACCEPTED_EXTENSIONS = ['.md', '.markdown'];
 
 type ImportError = 'invalidType' | 'tooLarge' | 'readFailed' | 'empty';
 
+// How the parsed markdown is written into the current notes. `append` (the default)
+// adds it after the existing content; `replace` overwrites the whole document.
+type ImportMode = 'append' | 'replace';
+
 const intlMessages = defineMessages({
   title: {
     id: 'app.notes.importModal.title',
@@ -22,9 +26,25 @@ const intlMessages = defineMessages({
     id: 'app.notes.importModal.placeholder',
     description: 'Placeholder for the markdown import textarea',
   },
-  replaceWarning: {
-    id: 'app.notes.importModal.replaceWarning',
-    description: 'Warning shown before replacing existing notes',
+  importModeLabel: {
+    id: 'app.notes.importModal.importMode.label',
+    description: 'Label for the append/replace import mode selector',
+  },
+  importModeAppendLabel: {
+    id: 'app.notes.importModal.importMode.append.label',
+    description: 'Label for the append import mode option',
+  },
+  importModeAppendDescription: {
+    id: 'app.notes.importModal.importMode.append.description',
+    description: 'Description of the append import mode option',
+  },
+  importModeReplaceLabel: {
+    id: 'app.notes.importModal.importMode.replace.label',
+    description: 'Label for the replace import mode option',
+  },
+  importModeReplaceDescription: {
+    id: 'app.notes.importModal.importMode.replace.description',
+    description: 'Description of the replace import mode option',
   },
   importLabel: {
     id: 'app.notes.importModal.import',
@@ -104,7 +124,8 @@ const MarkdownImportModal: React.FC<MarkdownImportModalProps> = ({ editor, onClo
   const [fileName, setFileName] = React.useState<string | null>(null);
   const [fileSize, setFileSize] = React.useState<number | null>(null);
   const [error, setError] = React.useState<ImportError | null>(null);
-  const [confirming, setConfirming] = React.useState(false);
+  // Default to `append` so importing never silently destroys existing notes.
+  const [importMode, setImportMode] = React.useState<ImportMode>('append');
 
   const clearFile = React.useCallback(() => {
     setFileName(null);
@@ -154,25 +175,21 @@ const MarkdownImportModal: React.FC<MarkdownImportModalProps> = ({ editor, onClo
     if (file) loadFile(file);
   };
 
-  const documentHasContent = (): boolean => editor.blocksToMarkdownLossy(editor.document).trim().length > 0;
-
   const applyImport = async () => {
     // On the client BlockNote editor this is synchronous, but await keeps it correct
     // if a future version returns a Promise.
     const blocks = await editor.tryParseMarkdownToBlocks(markdown);
-    // Replacing every current top-level block mutates the shared Yjs fragment, so the
-    // change propagates through Hocuspocus to every connected client.
-    editor.replaceBlocks(editor.document, blocks);
-    onClose();
-  };
-
-  const handleImportClick = () => {
-    // Non-empty document: require an explicit confirmation before overwriting.
-    if (documentHasContent() && !confirming) {
-      setConfirming(true);
-      return;
+    // Both paths mutate the shared Yjs fragment, so the change propagates through
+    // Hocuspocus to every connected client.
+    if (importMode === 'replace') {
+      editor.replaceBlocks(editor.document, blocks);
+    } else {
+      // Append: insert the parsed blocks right after the last existing block. The
+      // document always has at least one (trailing) block to anchor to.
+      const lastBlock = editor.document[editor.document.length - 1];
+      editor.insertBlocks(blocks, lastBlock, 'after');
     }
-    applyImport();
+    onClose();
   };
 
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -263,11 +280,49 @@ const MarkdownImportModal: React.FC<MarkdownImportModalProps> = ({ editor, onClo
           value={markdown}
           onChange={handleTextareaChange}
         />
-        {confirming && (
-          <Styled.Warning data-test="notesImportMarkdownWarning">
-            {intl.formatMessage(intlMessages.replaceWarning)}
-          </Styled.Warning>
-        )}
+        <Styled.ModeGroup
+          role="radiogroup"
+          aria-label={intl.formatMessage(intlMessages.importModeLabel)}
+          data-test="notesImportMarkdownModeGroup"
+        >
+          <Styled.ModeLegend>{intl.formatMessage(intlMessages.importModeLabel)}</Styled.ModeLegend>
+          <Styled.ModeOption>
+            <input
+              type="radio"
+              name="notesImportMarkdownMode"
+              value="append"
+              checked={importMode === 'append'}
+              onChange={() => setImportMode('append')}
+              data-test="notesImportMarkdownAppendMode"
+            />
+            <Styled.ModeText>
+              <Styled.ModeOptionLabel>
+                {intl.formatMessage(intlMessages.importModeAppendLabel)}
+              </Styled.ModeOptionLabel>
+              <Styled.ModeOptionDescription>
+                {intl.formatMessage(intlMessages.importModeAppendDescription)}
+              </Styled.ModeOptionDescription>
+            </Styled.ModeText>
+          </Styled.ModeOption>
+          <Styled.ModeOption>
+            <input
+              type="radio"
+              name="notesImportMarkdownMode"
+              value="replace"
+              checked={importMode === 'replace'}
+              onChange={() => setImportMode('replace')}
+              data-test="notesImportMarkdownReplaceMode"
+            />
+            <Styled.ModeText>
+              <Styled.ModeOptionLabel>
+                {intl.formatMessage(intlMessages.importModeReplaceLabel)}
+              </Styled.ModeOptionLabel>
+              <Styled.ModeOptionDescription>
+                {intl.formatMessage(intlMessages.importModeReplaceDescription)}
+              </Styled.ModeOptionDescription>
+            </Styled.ModeText>
+          </Styled.ModeOption>
+        </Styled.ModeGroup>
         <Styled.Actions>
           <Button
             label={intl.formatMessage(intlMessages.cancelLabel)}
@@ -278,7 +333,7 @@ const MarkdownImportModal: React.FC<MarkdownImportModalProps> = ({ editor, onClo
           />
           <Button
             label={intl.formatMessage(intlMessages.importLabel)}
-            onClick={handleImportClick}
+            onClick={applyImport}
             color="primary"
             size="sm"
             disabled={markdown.trim().length === 0}
