@@ -872,6 +872,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     whiteboard: {
       annotationsQueueProcessInterval: 60,
       cursorInterval: 100,
+      imagePaste: {
+        enabled: false,
+      },
       pointerDiameter: 5,
       maxStickyNoteLength: 1000,
       maxNumberOfAnnotations: 300,

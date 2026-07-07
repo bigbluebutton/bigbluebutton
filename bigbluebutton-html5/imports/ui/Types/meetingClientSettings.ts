@@ -830,6 +830,7 @@ export interface Label {
 export interface Whiteboard {
   annotationsQueueProcessInterval: number
   cursorInterval: number
+  imagePaste: WhiteboardImagePaste
   pointerDiameter: number
   maxStickyNoteLength: number
   maxNumberOfAnnotations: number
@@ -843,6 +844,10 @@ export interface Whiteboard {
   allowInfiniteWhiteboardPanForViewers: boolean
   styles: Styles
   toolbar: Toolbar
+}
+
+export interface WhiteboardImagePaste {
+  enabled: boolean
 }
 
 export interface Annotations {

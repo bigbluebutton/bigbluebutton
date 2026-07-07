@@ -1190,6 +1190,11 @@ public:
   whiteboard:
     annotationsQueueProcessInterval: 60
     cursorInterval: 100
+    imagePaste:
+      # Enables pasting/dropping images onto the whiteboard. Uploaded images are
+      # served same-origin from public.fileUpload (limits shared there) and only
+      # users with whiteboard write access (or the presenter) can paste.
+      enabled: false
     allowInfiniteWhiteboard: false
     allowInfiniteWhiteboardInBreakouts: false
     allowInfiniteWhiteboardPanForViewers: false

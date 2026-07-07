@@ -192,3 +192,17 @@ export function useIsSharedNotesImagePasteEnabled() {
   return useDisabledFeatures().indexOf('sharedNotesImagePaste') === -1
     && IMAGE_PASTE_ENABLED;
 }
+
+/**
+ * This hook returns `true` if pasting/dropping images into the whiteboard is
+ * enabled. Requires both the `whiteboardImagePaste` feature (not disabled via
+ * API) and the `public.whiteboard.imagePaste.enabled` client setting. Anyone who
+ * can already draw (presenter or whiteboard write access) can paste; no new
+ * permission is introduced.
+ * @returns {boolean}
+ */
+export function useIsWhiteboardImagePasteEnabled() {
+  const IMAGE_PASTE_ENABLED = window.meetingClientSettings.public.whiteboard.imagePaste.enabled;
+  return useDisabledFeatures().indexOf('whiteboardImagePaste') === -1
+    && IMAGE_PASTE_ENABLED;
+}
