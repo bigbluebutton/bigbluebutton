@@ -817,7 +817,15 @@ public:
     # e.g.: disableEmojis: ['grin','laughing']
     # use the id of the emojis from https://raw.githubusercontent.com/missive/emoji-mart/16978d04a766eec6455e2e8bb21cd8dc0b3c7436/packages/emoji-mart-data/sets/1/all.json
     disableEmojis: []
+    # Renders `![](url)` markdown as sanitized <img> in messages (server-side).
+    # Required for pasted images to be visible; imagePaste below only adds the
+    # capture UI. Kept as a separate key on purpose (not merged/renamed).
     markdownImageAllowed: false
+    imagePaste:
+      # Enables capturing pasted/dropped images in the chat input. The rendered
+      # image also depends on markdownImageAllowed above. Limits are shared under
+      # public.fileUpload.
+      enabled: false
     # available options for toolbar: reply, edit, delete, reactions, pin
     # example: ['reply', 'delete']
     toolbar: ['reply', 'delete', 'edit', 'reactions', 'pin']

@@ -165,3 +165,16 @@ export function useIsEmojiPickerEnabled() {
   return useDisabledFeatures().indexOf('chatEmojiPicker') === -1
     && EMOJI_PICKER_ENABLED;
 }
+
+/**
+ * This hook returns `true` if pasting/dropping images into the chat is enabled.
+ * Requires both the `chatImagePaste` feature (not disabled via API) and the
+ * `public.chat.imagePaste.enabled` client setting. Note the rendered image only
+ * shows up when `public.chat.markdownImageAllowed` is also on (server-side render).
+ * @returns {boolean}
+ */
+export function useIsChatImagePasteEnabled() {
+  const IMAGE_PASTE_ENABLED = window.meetingClientSettings.public.chat.imagePaste.enabled;
+  return useDisabledFeatures().indexOf('chatImagePaste') === -1
+    && IMAGE_PASTE_ENABLED;
+}

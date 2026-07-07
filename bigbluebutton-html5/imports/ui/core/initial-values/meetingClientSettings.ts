@@ -573,6 +573,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
       disableEmojis: [],
       markdownImageAllowed: false,
+      imagePaste: {
+        enabled: false,
+      },
       toolbar: [],
     },
     fileUpload: {

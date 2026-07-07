@@ -554,7 +554,12 @@ export interface Chat {
   emojiPicker: EmojiPicker
   disableEmojis: string[]
   markdownImageAllowed: boolean
+  imagePaste: ChatImagePaste
   toolbar: string[]
+}
+
+export interface ChatImagePaste {
+  enabled: boolean
 }
 
 export interface FileUpload {
