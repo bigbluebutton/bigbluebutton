@@ -134,6 +134,7 @@ class Presentation extends PureComponent {
     this.setPresentationRef = this.setPresentationRef.bind(this);
     this.setTldrawIsMounting = this.setTldrawIsMounting.bind(this);
     this.loadCurrentSlideNote = this.loadCurrentSlideNote.bind(this);
+    this.handlePresentationNotesUpdated = this.handlePresentationNotesUpdated.bind(this);
     Session.setItem('componentPresentationWillUnmount', false);
   }
 
@@ -222,6 +223,11 @@ class Presentation extends PureComponent {
         value: 0,
       });
     }
+
+    window.addEventListener(
+      'presentationNotesUpdated',
+      this.handlePresentationNotesUpdated,
+    );
 
     this.loadCurrentSlideNote();
 
@@ -373,7 +379,12 @@ class Presentation extends PureComponent {
 
     const targetWin = isPresentationDetached && popupWindow ? popupWindow : window;
     targetWin.removeEventListener('resize', this.onResize, false);
-    
+
+    window.removeEventListener(
+      'presentationNotesUpdated',
+      this.handlePresentationNotesUpdated,
+    );
+
     if (this.refPresentationContainer) {
       this.refPresentationContainer.removeEventListener(
         FULLSCREEN_CHANGE_EVENT,
@@ -921,7 +932,9 @@ class Presentation extends PureComponent {
     }
 
     try {
-      const response = await fetch(currentSlide.noteUri);
+      const response = await fetch(currentSlide.noteUri, {
+        cache: 'no-store',
+      });
 
       if (!response.ok) {
         this.setState({ currentSlideNote: '' });
@@ -937,6 +950,15 @@ class Presentation extends PureComponent {
       console.error('Failed to load slide note', e);
       this.setState({ currentSlideNote: '' });
     }
+  }
+
+  handlePresentationNotesUpdated(event) {
+    const { currentSlide } = this.props;
+    const updatedPresentationId = event.detail?.presentationId;
+
+    if (updatedPresentationId !== currentSlide?.presentationId) return;
+
+    this.loadCurrentSlideNote();
   }
 
   renderPresentationToolbar(svgWidth = 0) {
