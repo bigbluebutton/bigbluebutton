@@ -1,8 +1,8 @@
 import React, { memo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { PANELS } from '../../layout/enums';
-import { BaseSidebarButtonProps } from '../types';
 import SidebarNavigationButton from '/imports/ui/components/sidebar-navigation/sidebar-navigation-button/component';
+import useIsSpecificPanelOpened from '../hooks/useIsSpecificPanelOpened';
 
 const intlMessages = defineMessages({
   profileLabel: {
@@ -11,8 +11,9 @@ const intlMessages = defineMessages({
   },
 });
 
-const ProfileListItem: React.FC<BaseSidebarButtonProps> = ({ isOpened }) => {
+const ProfileListItem: React.FC = () => {
   const intl = useIntl();
+  const isOpened = useIsSpecificPanelOpened(PANELS.PROFILE);
 
   const label = intl.formatMessage(intlMessages.profileLabel);
 

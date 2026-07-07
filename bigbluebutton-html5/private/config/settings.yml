@@ -827,6 +827,24 @@ public:
     usersPerUserListPage: 50
     syncCameraDockSizeAndPosition: true
   sidebarNavigation:
+    # Controls which built-in sidebar navigation buttons are rendered, in
+    # which section (top/center/bottom) and in what order. Omitting an id
+    # hides that button. This is a full replacement list, not an allow/deny
+    # list over a hidden default - if you customize it, remember to add any
+    # new ids introduced by future upstream versions.
+    buttons:
+      top:
+        - profile
+        - user-list
+        - chat
+        - notes
+      center:
+        - apps-gallery
+        - pinned-apps
+      bottom:
+        - audio-captions
+        - learning-dashboard
+        - settings
     # Controls which apps should have the "new" label in the apps gallery.
     # Possible values: 'poll', 'breakoutroom', 'timer', 'audio-captions'.
     # For plugins, refer to the isNew flag in the plugin's own settings.

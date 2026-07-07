@@ -609,6 +609,11 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     },
     sidebarNavigation: {
       appsToLabelAsNew: [],
+      buttons: {
+        top: ['profile', 'user-list', 'chat', 'notes'],
+        center: ['apps-gallery', 'pinned-apps'],
+        bottom: ['audio-captions', 'learning-dashboard', 'settings'],
+      },
     },
     pads: {
       url: 'ETHERPAD_HOST',
