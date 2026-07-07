@@ -3,6 +3,7 @@ import type { Page } from '@playwright/test';
 export interface Settings {
   reactionsButton?: boolean;
   sharedNotesEnabled?: boolean;
+  sharedNotesImagePasteEnabled?: boolean;
   directLeaveButton?: boolean;
   // Audio
   autoJoinAudioModal?: boolean;
@@ -63,6 +64,7 @@ export async function generateSettingsData(page: Page): Promise<Settings | undef
     settings = {
       reactionsButton: settingsData.app?.reactionsButton?.enabled,
       sharedNotesEnabled: settingsData.notes?.enabled,
+      sharedNotesImagePasteEnabled: settingsData.app?.sharedNotes?.imagePaste?.enabled,
       directLeaveButton: settingsData.app?.defaultSettings?.application?.directLeaveButton,
       // Audio
       autoJoinAudioModal: settingsData.app?.autoJoin,
