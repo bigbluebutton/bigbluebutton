@@ -35,7 +35,10 @@ interface GuestPreFlightProps {
 // Separate container for the guest waiting room green room. It uses safe
 // defaults and never depends on the post-admission hooks (useLockContext /
 // useMeeting) nor the audio bridge, since there is no AudioManager session yet.
-const GuestPreFlight: React.FC<GuestPreFlightProps> = ({ positionMessage, hostMessage }) => {
+const GuestPreFlight: React.FC<GuestPreFlightProps> = ({
+  positionMessage,
+  hostMessage,
+}) => {
   const intl = useIntl();
   const bodyRef = useRef<PreFlightBodyHandle>(null);
 
@@ -43,8 +46,14 @@ const GuestPreFlight: React.FC<GuestPreFlightProps> = ({ positionMessage, hostMe
   const KURENTO_CONFIG = window.meetingClientSettings.public.kurento;
   const { enabled: localEchoEnabled } = window.meetingClientSettings.public.media.localEchoTest;
 
-  const enableVideo = getFromUserSettings('bbb_enable_video', KURENTO_CONFIG.enableVideo);
-  const forceListenOnly = getFromUserSettings('bbb_force_listen_only', APP_CONFIG.forceListenOnly);
+  const enableVideo = getFromUserSettings(
+    'bbb_enable_video',
+    KURENTO_CONFIG.enableVideo,
+  );
+  const forceListenOnly = getFromUserSettings(
+    'bbb_force_listen_only',
+    APP_CONFIG.forceListenOnly,
+  );
 
   const hasHostMessage = !!hostMessage && hostMessage.length > 0;
 
@@ -52,12 +61,20 @@ const GuestPreFlight: React.FC<GuestPreFlightProps> = ({ positionMessage, hostMe
     <Styled.StatusBanner data-test="preFlightWaitingStatus">
       <Styled.StatusHeadline>
         <Styled.WaitingDot />
-        <span aria-live="polite">{intl.formatMessage(intlMessages.waitingLabel)}</span>
+        <span aria-live="polite">
+          {intl.formatMessage(intlMessages.waitingLabel)}
+        </span>
       </Styled.StatusHeadline>
-      {positionMessage ? <Styled.WaitingPosition aria-live="polite">{positionMessage}</Styled.WaitingPosition> : null}
+      {positionMessage ? (
+        <Styled.WaitingPosition aria-live="polite">
+          {positionMessage}
+        </Styled.WaitingPosition>
+      ) : null}
       {hasHostMessage && (
         <Styled.HostMessage>
-          <Styled.HostMessageLabel>{intl.formatMessage(intlMessages.messageFromHost)}</Styled.HostMessageLabel>
+          <Styled.HostMessageLabel>
+            {intl.formatMessage(intlMessages.messageFromHost)}
+          </Styled.HostMessageLabel>
           <span
             aria-live="polite"
             data-test="guestMessage"
@@ -77,7 +94,9 @@ const GuestPreFlight: React.FC<GuestPreFlightProps> = ({ positionMessage, hostMe
       >
         <Styled.Header>
           <Styled.Title>{intl.formatMessage(intlMessages.title)}</Styled.Title>
-          <Styled.Subtitle>{intl.formatMessage(intlMessages.subtitle)}</Styled.Subtitle>
+          <Styled.Subtitle>
+            {intl.formatMessage(intlMessages.subtitle)}
+          </Styled.Subtitle>
         </Styled.Header>
         <PreFlightBody
           ref={bodyRef}
@@ -88,8 +107,9 @@ const GuestPreFlight: React.FC<GuestPreFlightProps> = ({ positionMessage, hostMe
           isCamLocked={false}
           supportsTransparentListenOnly={false}
           localEchoEnabled={!!localEchoEnabled}
-          enableCameraShareToggle={false}
+          enableJoinControls={false}
           shareOnJoinDefault={false}
+          joinMutedDefault={false}
           renderFooter={renderFooter}
         />
       </Styled.GuestRoomCard>

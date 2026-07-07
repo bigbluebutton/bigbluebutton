@@ -93,7 +93,8 @@ export const elements = {
   preFlightInputDeviceSelector: 'label[for="preFlightInputDeviceSelector"] select',
   preFlightOutputDeviceSelector: 'label[for="preFlightOutputDeviceSelector"] select',
   preFlightCameraSelect: '[data-test="preFlightCameraSelect"]',
-  preFlightShareCameraToggle: 'input[data-test="preFlightShareCameraToggle"]',
+  preFlightShareCameraToggle: 'button[data-test="preFlightShareCameraToggle"]',
+  preFlightMuteToggle: 'button[data-test="preFlightMuteToggle"]',
   preFlightGuestRoom: '[data-test="preFlightGuestRoom"]',
 
   // Breakout

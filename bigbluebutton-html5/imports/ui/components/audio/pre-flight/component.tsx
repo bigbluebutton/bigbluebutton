@@ -1,16 +1,22 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useReactiveVar } from '@apollo/client';
 import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 import PreFlightBody, { PreFlightBodyHandle } from './PreFlightBody';
 import AudioService from '/imports/ui/components/audio/service';
-import { joinListenOnly, joinMicrophone } from '/imports/ui/components/audio/audio-modal/service';
+import {
+  joinListenOnly,
+  joinMicrophone,
+} from '/imports/ui/components/audio/audio-modal/service';
 import AudioManager from '/imports/ui/services/audio-manager';
 import VideoService from '/imports/ui/components/video-provider/service';
 import { useIsCamSharingLocked } from '/imports/ui/components/video-provider/hooks';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 
 const LISTEN_ONLY = 'listen-only';
+// Soft hand-off before unmounting the modal (matches the CardFx transition).
+const JOIN_TRANSITION_MS = 200;
 
 const intlMessages = defineMessages({
   title: {
@@ -28,6 +34,10 @@ const intlMessages = defineMessages({
   joinLabel: {
     id: 'app.preFlight.joinLabel',
     description: 'Pre-flight join button label',
+  },
+  joiningLabel: {
+    id: 'app.preFlight.joiningLabel',
+    description: 'Pre-flight join button loading label',
   },
   listenOnlyLabel: {
     id: 'app.preFlight.listenOnlyLabel',
@@ -65,66 +75,112 @@ const PreFlight: React.FC<PreFlightProps> = ({
   const supportsTransparentListenOnly = useReactiveVar(
     AudioManager._transparentListenOnlySupported.value,
   ) as boolean;
+  const { data: currentUser } = useCurrentUser((u) => ({ name: u.name }));
 
   const bodyRef = useRef<PreFlightBodyHandle>(null);
+  const [isJoining, setIsJoining] = useState(false);
   const showCamera = enableVideo && !isCamLocked;
 
-  const handleJoinMicrophone = useCallback(() => {
-    bodyRef.current?.shareCamera();
+  // Run the card fade/scale-out, then hand off to the meeting. onJoined unmounts
+  // the modal, so the short delay is what makes the commit feel like a hand-off.
+  const finalizeJoin = useCallback(() => {
+    setIsJoining(true);
+    window.setTimeout(() => onJoined(), JOIN_TRANSITION_MS);
+  }, [onJoined]);
 
-    // Hand off the preview stream to the audio manager so the join flow reuses
-    // it instead of firing a second getUserMedia prompt.
-    const micStream = bodyRef.current?.getMicStream();
-    if (micStream) {
-      AudioService.changeInputStream(micStream);
-      bodyRef.current?.markStreamHandedOff();
-    }
+  const handleJoinMicrophone = useCallback(
+    (joinMuted: boolean) => {
+      bodyRef.current?.shareCamera();
 
-    joinMicrophone({ skipEchoTest: true, muted }).catch((error) => {
-      logger.error({
-        logCode: 'preflight_join_microphone_failed',
-        extraInfo: { errorName: error?.name, errorMessage: error?.message },
-      }, 'Pre-flight: join microphone failed');
-    });
-    onJoined();
-  }, [muted, onJoined]);
+      // Hand off the preview stream to the audio manager so the join flow reuses
+      // it instead of firing a second getUserMedia prompt.
+      const micStream = bodyRef.current?.getMicStream();
+      if (micStream) {
+        AudioService.changeInputStream(micStream);
+        bodyRef.current?.markStreamHandedOff();
+      }
+
+      joinMicrophone({ skipEchoTest: true, muted: joinMuted }).catch(
+        (error) => {
+          logger.error(
+            {
+              logCode: 'preflight_join_microphone_failed',
+              extraInfo: {
+                errorName: error?.name,
+                errorMessage: error?.message,
+              },
+            },
+            'Pre-flight: join microphone failed',
+          );
+        },
+      );
+      finalizeJoin();
+    },
+    [finalizeJoin],
+  );
 
   const handleJoinListenOnly = useCallback(() => {
     bodyRef.current?.shareCamera();
     joinListenOnly().catch((error) => {
-      logger.error({
-        logCode: 'preflight_join_listen_only_failed',
-        extraInfo: { errorName: error?.name, errorMessage: error?.message },
-      }, 'Pre-flight: join listen only failed');
+      logger.error(
+        {
+          logCode: 'preflight_join_listen_only_failed',
+          extraInfo: { errorName: error?.name, errorMessage: error?.message },
+        },
+        'Pre-flight: join listen only failed',
+      );
     });
-    onJoined();
-  }, [onJoined]);
+    finalizeJoin();
+  }, [finalizeJoin]);
 
-  const renderFooter = useCallback(({ inputDeviceId, blocked }: { inputDeviceId: string; blocked: boolean }) => {
-    const isListenOnlySelected = inputDeviceId === LISTEN_ONLY;
-    const handleJoin = isListenOnlySelected ? handleJoinListenOnly : handleJoinMicrophone;
-    return (
-      <Styled.Footer>
-        <Styled.JoinButton
-          color="primary"
-          size="md"
-          label={intl.formatMessage(intlMessages.joinLabel)}
-          data-test="preFlightJoinButton"
-          disabled={blocked}
-          onClick={handleJoin}
-        />
-        {listenOnlyMode && !isListenOnlySelected && (
-          <Styled.ListenOnlyLink
-            type="button"
-            data-test="preFlightListenOnlyButton"
-            onClick={handleJoinListenOnly}
-          >
-            {intl.formatMessage(intlMessages.listenOnlyLabel)}
-          </Styled.ListenOnlyLink>
-        )}
-      </Styled.Footer>
-    );
-  }, [intl, listenOnlyMode, handleJoinListenOnly, handleJoinMicrophone]);
+  const renderFooter = useCallback(
+    ({
+      inputDeviceId,
+      blocked,
+      micMuted,
+    }: {
+      inputDeviceId: string;
+      blocked: boolean;
+      micMuted: boolean;
+    }) => {
+      const isListenOnlySelected = inputDeviceId === LISTEN_ONLY;
+      const handleJoin = isListenOnlySelected
+        ? handleJoinListenOnly
+        : () => handleJoinMicrophone(micMuted);
+      return (
+        <Styled.Footer>
+          <Styled.JoinButton
+            color="primary"
+            size="md"
+            customIcon={isJoining ? <Styled.Spinner /> : undefined}
+            label={intl.formatMessage(
+              isJoining ? intlMessages.joiningLabel : intlMessages.joinLabel,
+            )}
+            data-test="preFlightJoinButton"
+            disabled={blocked || isJoining}
+            onClick={handleJoin}
+          />
+          {listenOnlyMode && !isListenOnlySelected && (
+            <Styled.ListenOnlyLink
+              type="button"
+              data-test="preFlightListenOnlyButton"
+              disabled={isJoining}
+              onClick={handleJoinListenOnly}
+            >
+              {intl.formatMessage(intlMessages.listenOnlyLabel)}
+            </Styled.ListenOnlyLink>
+          )}
+        </Styled.Footer>
+      );
+    },
+    [
+      intl,
+      isJoining,
+      listenOnlyMode,
+      handleJoinListenOnly,
+      handleJoinMicrophone,
+    ],
+  );
 
   return (
     <Styled.PreFlightModal
@@ -140,24 +196,30 @@ const PreFlight: React.FC<PreFlightProps> = ({
         modalIsOpen: isOpen,
       }}
     >
-      <Styled.Header>
-        <Styled.Title>{intl.formatMessage(intlMessages.title)}</Styled.Title>
-        <Styled.Subtitle>{intl.formatMessage(intlMessages.subtitle)}</Styled.Subtitle>
-      </Styled.Header>
-      <PreFlightBody
-        ref={bodyRef}
-        useAudioManager
-        persistDevices={false}
-        micDisabled={micDisabled}
-        showCamera={showCamera}
-        isCamLocked={isCamLocked}
-        supportsTransparentListenOnly={supportsTransparentListenOnly}
-        localEchoEnabled={localEchoEnabled}
-        enableCameraShareToggle
-        shareOnJoinDefault={autoShareWebcam}
-        startSharing={(deviceId: string) => VideoService.joinVideo(deviceId, isCamLocked)}
-        renderFooter={renderFooter}
-      />
+      <Styled.CardFx joining={isJoining}>
+        <Styled.Header>
+          <Styled.Title>{intl.formatMessage(intlMessages.title)}</Styled.Title>
+          <Styled.Subtitle>
+            {intl.formatMessage(intlMessages.subtitle)}
+          </Styled.Subtitle>
+        </Styled.Header>
+        <PreFlightBody
+          ref={bodyRef}
+          useAudioManager
+          persistDevices={false}
+          micDisabled={micDisabled}
+          showCamera={showCamera}
+          isCamLocked={isCamLocked}
+          supportsTransparentListenOnly={supportsTransparentListenOnly}
+          localEchoEnabled={localEchoEnabled}
+          enableJoinControls
+          shareOnJoinDefault={autoShareWebcam}
+          joinMutedDefault={muted}
+          userName={currentUser?.name}
+          startSharing={(deviceId: string) => VideoService.joinVideo(deviceId, isCamLocked)}
+          renderFooter={renderFooter}
+        />
+      </Styled.CardFx>
     </Styled.PreFlightModal>
   );
 };

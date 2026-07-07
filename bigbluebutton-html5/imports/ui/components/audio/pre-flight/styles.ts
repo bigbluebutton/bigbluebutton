@@ -4,7 +4,6 @@ import Icon from '/imports/ui/components/common/icon/component';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import {
-  colorGrayLighter,
   colorGrayLightest,
   colorGrayLight,
   colorPrimary,
@@ -35,7 +34,7 @@ import {
   fontSizeBase,
 } from '/imports/ui/stylesheets/styled-components/typography';
 
-// ---- Design tokens (see /tmp/design-guide-preflight.md) --------------------
+// ---- Design tokens (see /tmp/design-guide-preflight.md + v4 delta) ---------
 const spaceXs = smPaddingX; // 0.75rem
 const spaceSm = mdPaddingX; // 1rem
 const spaceMd = jumboPaddingY; // 1.5rem
@@ -43,14 +42,25 @@ const spaceLg = '2rem';
 const radiusControl = borderRadiusRounded; // 0.5rem
 const radiusMedia = '0.75rem';
 const radiusCard = lgBorderRadius; // 1rem
+const radiusPill = '999px';
 const controlHeight = '2.75rem';
+const overlayControl = '2.75rem'; // 44px round on-preview control
 
 // Soft, colorGrayDark-tinted elevation - never pure black.
 const shadowSm = '0 1px 2px rgba(6, 23, 42, 0.06), 0 1px 3px rgba(6, 23, 42, 0.08)';
 const shadowMd = '0 8px 24px rgba(6, 23, 42, 0.12), 0 2px 6px rgba(6, 23, 42, 0.08)';
 const shadowLg = '0 16px 48px rgba(6, 23, 42, 0.18), 0 4px 12px rgba(6, 23, 42, 0.10)';
 const shadowPrimary = '0 4px 12px rgba(15, 112, 215, 0.32)';
-const focusRing = `0 0 0 3px rgba(15, 112, 215, 0.35)`;
+const focusRing = '0 0 0 3px rgba(15, 112, 215, 0.35)';
+
+// v4: controls that sit ON the video need a darker, glassy chrome.
+const glassBg = 'rgba(6, 23, 42, 0.55)';
+const glassBgHover = 'rgba(6, 23, 42, 0.72)';
+const glassBlur = 'blur(10px) saturate(120%)';
+const shadowOverlay = '0 2px 8px rgba(0, 0, 0, 0.28), 0 1px 3px rgba(0, 0, 0, 0.22)';
+const dangerSolidHover = '#C61C1C';
+const netFair = '#E8A33D'; // amber - the only genuinely new color in v4
+const motionEmphasis = '200ms cubic-bezier(0.2, 0, 0, 1)';
 
 const reduceMotion = css`
   @media (prefers-reduced-motion: reduce) {
@@ -62,6 +72,13 @@ const reduceMotion = css`
 const pulse = keyframes`
   0%, 100% { opacity: 0.55; transform: scale(0.85); }
   50% { opacity: 1; transform: scale(1); }
+`;
+
+const spin = keyframes`to { transform: rotate(360deg); }`;
+
+const cardEnter = keyframes`
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 `;
 
 // ---- Modal / card surface --------------------------------------------------
@@ -76,6 +93,17 @@ const PreFlightModal = styled(ModalSimple)`
   @media ${smallOnly} {
     padding: 1.25rem;
   }
+`;
+
+// Fades/lifts the card content in on mount, and softly hands off to the meeting
+// on join (opacity + scale). Both guarded by prefers-reduced-motion.
+const CardFx = styled.div<{ joining?: boolean }>`
+  animation: ${cardEnter} ${motionEmphasis} both;
+  transition:
+    opacity ${motionEmphasis},
+    transform ${motionEmphasis};
+  ${reduceMotion}
+  ${({ joining }) => joining && 'opacity: 0; transform: scale(0.98);'}
 `;
 
 // ---- Header ----------------------------------------------------------------
@@ -116,23 +144,24 @@ const Content = styled.div`
   }
 `;
 
+// v4: preview-dominant split (self-view is the hero, devices recede).
 const CameraColumn = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${spaceSm};
-  flex: 1 1 56%;
+  flex: 1 1 63%;
   min-width: 0;
 `;
 
 const DevicesColumn = styled.div`
   display: flex;
   flex-direction: column;
-  flex: 1 1 40%;
+  flex: 1 1 34%;
   gap: ${spaceMd};
   min-width: 0;
 `;
 
-// ---- Video preview (the hero) ----------------------------------------------
+// ---- Video preview (the hero + its on-preview controls) --------------------
 const VideoWrapper = styled.div`
   position: relative;
   width: 100%;
@@ -145,7 +174,9 @@ const VideoWrapper = styled.div`
   overflow: hidden;
   color: ${colorWhite};
   text-align: center;
-  box-shadow: ${shadowSm}, inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  box-shadow:
+    ${shadowSm},
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 `;
 
 const VideoPreview = styled.video<{ mirrored: boolean }>`
@@ -195,6 +226,176 @@ const PlaceholderText = styled.span`
   color: rgba(255, 255, 255, 0.75);
 `;
 
+// ---- Camera-off avatar (warm initial, never a black void) ------------------
+const Avatar = styled.div`
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  background: ${colorBackground};
+`;
+
+const AvatarCircle = styled.span`
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background: ${colorBlueAux};
+  color: ${colorPrimary};
+  display: grid;
+  place-items: center;
+  font-size: 1.75rem;
+  font-weight: 600;
+`;
+
+const AvatarLabel = styled.span`
+  color: rgba(255, 255, 255, 0.75);
+  font-size: ${fontSizeSmall};
+`;
+
+// ---- On-preview controls (the defining v4 move) ----------------------------
+const OverlayControls = styled.div`
+  position: absolute;
+  bottom: 0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.75rem;
+  z-index: 2;
+`;
+
+const OverlayButton = styled.button<{ off?: boolean }>`
+  width: ${overlayControl};
+  height: ${overlayControl};
+  border-radius: ${radiusPill};
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: ${colorWhite};
+  cursor: pointer;
+  box-shadow: ${shadowOverlay};
+  background: ${({ off }) => (off ? colorDanger : glassBg)};
+  /* backdrop-filter degrades to the solid glassBg where unsupported */
+  backdrop-filter: ${({ off }) => (off ? 'none' : glassBlur)};
+  transition:
+    background-color 150ms ease,
+    transform 150ms ease;
+  ${reduceMotion}
+
+  i {
+    font-size: 1.15rem;
+  }
+  &:hover:not(:disabled) {
+    background: ${({ off }) => (off ? dangerSolidHover : glassBgHover)};
+    transform: scale(1.06);
+  }
+  &:active:not(:disabled) {
+    transform: scale(0.96);
+  }
+  &:focus-visible {
+    outline: none;
+    box-shadow: ${shadowOverlay}, ${focusRing};
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const MirrorButton = styled.button`
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 2;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  border-radius: ${radiusPill};
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: ${colorWhite};
+  background: ${glassBg};
+  backdrop-filter: ${glassBlur};
+  box-shadow: ${shadowOverlay};
+  cursor: pointer;
+  transition: background-color 150ms ease;
+  ${reduceMotion}
+  i {
+    font-size: 1rem;
+  }
+  &:hover {
+    background: ${glassBgHover};
+  }
+  &:focus-visible {
+    outline: none;
+    box-shadow: ${shadowOverlay}, ${focusRing};
+  }
+`;
+
+// ---- Connection readiness (a quiet hint, never a dashboard) ----------------
+const ConnectionBadge = styled.div`
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: ${radiusPill};
+  background: ${glassBg};
+  backdrop-filter: ${glassBlur};
+  color: ${colorWhite};
+  font-size: 0.75rem;
+  font-weight: 600;
+`;
+
+const SignalBars = styled.span<{
+  level: 'good' | 'fair' | 'poor' | 'checking';
+  filled: number;
+}>`
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 0.75rem;
+
+  span {
+    width: 3px;
+    border-radius: 1px;
+    background: rgba(255, 255, 255, 0.35);
+  }
+  span:nth-child(1) {
+    height: 30%;
+  }
+  span:nth-child(2) {
+    height: 55%;
+  }
+  span:nth-child(3) {
+    height: 78%;
+  }
+  span:nth-child(4) {
+    height: 100%;
+  }
+  ${({ level, filled }) => {
+    if (level === 'checking') return '';
+    const colorByLevel = {
+      good: colorGreen600,
+      fair: netFair,
+      poor: colorDanger,
+    };
+    const color = colorByLevel[level] || colorGreen600;
+    return Array.from(
+      { length: filled },
+      (_, i) => `span:nth-child(${i + 1}) { background: ${color}; }`,
+    ).join('\n');
+  }}
+`;
+
 // ---- Device groups / labels ------------------------------------------------
 const DeviceGroup = styled.label`
   display: flex;
@@ -227,7 +428,9 @@ const SelectField = styled.div`
     border-radius: ${radiusControl};
     box-shadow: ${shadowSm};
     cursor: pointer;
-    transition: border-color 150ms ease, box-shadow 150ms ease;
+    transition:
+      border-color 150ms ease,
+      box-shadow 150ms ease;
     ${reduceMotion}
   }
 
@@ -251,7 +454,7 @@ const SelectField = styled.div`
 
   /* custom chevron - identical for all three controls */
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     right: 1rem;
     top: 50%;
@@ -282,43 +485,30 @@ const MicSlot = styled.div`
   min-height: 5.5rem;
 `;
 
-// ---- Mic level meter -------------------------------------------------------
+// ---- Mic level meter (segmented "hardware" bar) ----------------------------
 const MeterCaption = styled.div`
   font-size: ${fontSizeSmall};
   font-weight: 400;
   color: ${colorGrayLight};
 `;
 
-const MeterField = styled.div`
+// 14 rounded ticks that light green with input level, so it reads as alive even
+// at low levels (a hairline never does).
+const MeterTicks = styled.div`
+  display: flex;
+  gap: 2px;
   width: 100%;
+  height: 0.5rem;
 
-  meter {
-    display: block;
-    width: 100%;
-    height: 0.375rem;
-    appearance: none;
-    -webkit-appearance: none;
-    border: none;
-    border-radius: 999px;
+  span {
+    flex: 1;
+    border-radius: 1px;
     background: ${colorOffWhite};
-  }
-  meter::-webkit-meter-bar {
-    background: ${colorOffWhite};
-    border: none;
-    border-radius: 999px;
-    height: 0.375rem;
-  }
-  meter::-webkit-meter-optimum-value,
-  meter::-webkit-meter-suboptimum-value,
-  meter::-webkit-meter-even-less-good-value {
-    background: ${colorGreen600};
-    border-radius: 999px;
-    transition: width 90ms linear;
+    transition: background-color 90ms linear;
     ${reduceMotion}
   }
-  meter::-moz-meter-bar {
+  span[data-on="true"] {
     background: ${colorGreen600};
-    border-radius: 999px;
   }
 `;
 
@@ -361,7 +551,10 @@ const JoinButton = styled(Button)`
   font-weight: 600;
   border-radius: ${radiusControl};
   box-shadow: 0 1px 2px rgba(6, 23, 42, 0.1);
-  transition: background-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+  transition:
+    background-color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
   ${reduceMotion}
 
   &:hover:not(:disabled) {
@@ -378,6 +571,18 @@ const JoinButton = styled(Button)`
     outline: none;
     box-shadow: ${focusRing};
   }
+`;
+
+// Spinner shown inside the Join button while joining.
+const Spinner = styled.span`
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-top-color: ${colorWhite};
+  animation: ${spin} 0.7s linear infinite;
+  ${reduceMotion}
 `;
 
 const ListenOnlyLink = styled.button`
@@ -403,6 +608,10 @@ const ListenOnlyLink = styled.button`
     outline: none;
     box-shadow: ${focusRing};
   }
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
 `;
 
 // Neutral secondary button (retry / test).
@@ -419,7 +628,9 @@ const SecondaryButton = styled.button`
   font-size: ${fontSizeSmall};
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 150ms ease, border-color 150ms ease;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
   ${reduceMotion}
 
   &:hover {
@@ -428,59 +639,6 @@ const SecondaryButton = styled.button`
   }
   &:focus-visible {
     outline: none;
-    box-shadow: ${focusRing};
-  }
-`;
-
-// ---- Camera "join with camera" switch --------------------------------------
-const CameraToggle = styled.label`
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  font-size: ${fontSizeSmall};
-  color: ${colorText};
-  cursor: pointer;
-`;
-
-const Switch = styled.span`
-  position: relative;
-  display: inline-block;
-  flex: 0 0 auto;
-  width: 2.25rem;
-  height: 1.25rem;
-  border-radius: 999px;
-  background: ${colorGrayLighter};
-  transition: background-color 150ms ease;
-  ${reduceMotion}
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 1rem;
-    height: 1rem;
-    border-radius: 50%;
-    background: ${colorWhite};
-    box-shadow: ${shadowSm};
-    transition: transform 150ms ease;
-    ${reduceMotion}
-  }
-`;
-
-const SwitchInput = styled.input`
-  position: absolute;
-  opacity: 0;
-  width: 0;
-  height: 0;
-
-  &:checked + span {
-    background: ${colorPrimary};
-  }
-  &:checked + span::after {
-    transform: translateX(1rem);
-  }
-  &:focus-visible + span {
     box-shadow: ${focusRing};
   }
 `;
@@ -608,6 +766,7 @@ const HostMessageLabel = styled.div`
 
 export default {
   PreFlightModal,
+  CardFx,
   Header,
   Title,
   Subtitle,
@@ -620,20 +779,26 @@ export default {
   CameraOff,
   CameraOffIcon,
   PlaceholderText,
+  Avatar,
+  AvatarCircle,
+  AvatarLabel,
+  OverlayControls,
+  OverlayButton,
+  MirrorButton,
+  ConnectionBadge,
+  SignalBars,
   DeviceGroup,
   SelectField,
   NotFound,
   MicSlot,
   MeterCaption,
-  MeterField,
+  MeterTicks,
   Skeleton,
   Footer,
   JoinButton,
+  Spinner,
   ListenOnlyLink,
   SecondaryButton,
-  CameraToggle,
-  Switch,
-  SwitchInput,
   PermissionDenied,
   PermissionIconCircle,
   PermissionIcon,

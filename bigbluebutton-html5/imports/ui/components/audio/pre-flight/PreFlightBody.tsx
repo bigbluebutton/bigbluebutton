@@ -7,8 +7,10 @@ import React, {
   useState,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import hark from 'hark';
 import logger from '/imports/startup/client/logger';
 import Styled from './styles';
+import Icon from '/imports/ui/components/common/icon/component';
 import AudioService from '/imports/ui/components/audio/service';
 import {
   storeAudioInputDeviceId,
@@ -21,7 +23,6 @@ import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import { destroyWasmProcessor } from '/imports/ui/components/audio/audio-processor/service';
 import { notify } from '/imports/ui/services/notification';
 import DeviceSelector from '/imports/ui/components/audio/device-selector/component';
-import AudioStreamVolume from '/imports/ui/components/audio/audio-stream-volume/component';
 import LocalEchoContainer from '/imports/ui/components/audio/local-echo/container';
 import AudioTestContainer from '/imports/ui/components/audio/audio-test/container';
 import { useVideoPreview } from '/imports/ui/components/video-preview/hooks/useVideoPreview';
@@ -29,12 +30,19 @@ import PreviewService from '/imports/ui/components/video-preview/service';
 import VideoService from '/imports/ui/components/video-provider/service';
 
 const LISTEN_ONLY = 'listen-only';
+// Segmented mic meter: how many ticks the "hardware" bar can light.
+const METER_TICKS = 14;
+
+type ConnectionLevel = 'good' | 'fair' | 'poor' | 'checking';
+// How many of the four signal bars light per level.
+const BARS_BY_LEVEL: Record<ConnectionLevel, number> = {
+  good: 4,
+  fair: 2,
+  poor: 1,
+  checking: 0,
+};
 
 const intlMessages = defineMessages({
-  shareCameraLabel: {
-    id: 'app.preFlight.shareCameraLabel',
-    description: 'Pre-flight join with camera toggle label',
-  },
   cameraLockedLabel: {
     id: 'app.preFlight.cameraLockedLabel',
     description: 'Pre-flight camera locked label',
@@ -63,6 +71,42 @@ const intlMessages = defineMessages({
     id: 'app.preFlight.cameraOffLabel',
     description: 'Pre-flight camera off label',
   },
+  turnCameraOn: {
+    id: 'app.preFlight.turnCameraOn',
+    description: 'Aria label to turn the camera on',
+  },
+  turnCameraOff: {
+    id: 'app.preFlight.turnCameraOff',
+    description: 'Aria label to turn the camera off',
+  },
+  muteMic: {
+    id: 'app.preFlight.muteMic',
+    description: 'Aria label to mute the microphone before joining',
+  },
+  unmuteMic: {
+    id: 'app.preFlight.unmuteMic',
+    description: 'Aria label to unmute the microphone before joining',
+  },
+  mirrorLabel: {
+    id: 'app.preFlight.mirrorLabel',
+    description: 'Aria label to flip the self-view mirroring',
+  },
+  connectionGood: {
+    id: 'app.preFlight.connectionGood',
+    description: 'Good connection hint label',
+  },
+  connectionFair: {
+    id: 'app.preFlight.connectionFair',
+    description: 'Fair connection hint label',
+  },
+  connectionWeak: {
+    id: 'app.preFlight.connectionWeak',
+    description: 'Weak connection hint label',
+  },
+  connectionChecking: {
+    id: 'app.preFlight.connectionChecking',
+    description: 'Checking connection hint label',
+  },
   microphoneLabel: {
     id: 'app.audio.audioSettings.microphoneSourceLabel',
     description: 'Microphone source label',
@@ -89,6 +133,86 @@ const intlMessages = defineMessages({
   },
 });
 
+const connectionLabelByLevel: Record<
+  ConnectionLevel,
+  { id: string; description: string }
+> = {
+  good: intlMessages.connectionGood,
+  fair: intlMessages.connectionFair,
+  poor: intlMessages.connectionWeak,
+  checking: intlMessages.connectionChecking,
+};
+
+// Segmented mic level (0..METER_TICKS) from hark, mirroring the normalization
+// the shared AudioStreamVolume meter uses so the read matches the rest of the
+// client. Returns 0 when there is no stream (e.g. pre-muted / listen only).
+const useMicLevelTicks = (stream: MediaStream | null): number => {
+  const [ticks, setTicks] = useState(0);
+
+  useEffect(() => {
+    if (!stream) {
+      setTicks(0);
+      return undefined;
+    }
+    let observer: { stop: () => void } | undefined;
+    try {
+      observer = hark(stream, { interval: 100 });
+      (
+        observer as unknown as {
+          on: (e: string, cb: (db: number) => void) => void;
+        }
+      ).on('volume_change', (dbVolume: number) => {
+        const linear = 10 ** (dbVolume / 65) * 50;
+        const level = Math.max(0, Math.min(1, linear / 25));
+        setTicks(Math.round(level * METER_TICKS));
+      });
+    } catch (error) {
+      setTicks(0);
+    }
+    return () => observer?.stop();
+  }, [stream]);
+
+  return ticks;
+};
+
+// Honest connection hint: a true WebRTC RTT is not available pre-admission, so
+// this reads navigator.connection.effectiveType and maps it to a coarse level.
+// When the API is absent (Firefox/Safari) we cannot detect a problem, so we
+// report "good" rather than fake a precise measurement.
+const useConnectionLevel = (): ConnectionLevel => {
+  const [level, setLevel] = useState<ConnectionLevel>('checking');
+
+  useEffect(() => {
+    const nav = navigator as Navigator & {
+      connection?: { effectiveType?: string } & Partial<EventTarget>;
+      mozConnection?: unknown;
+      webkitConnection?: unknown;
+    };
+    const conn = (nav.connection
+      || nav.mozConnection
+      || nav.webkitConnection) as
+      | ({ effectiveType?: string } & Partial<EventTarget>)
+      | undefined;
+
+    const compute = () => {
+      const type = conn?.effectiveType;
+      if (!type || type === '4g') {
+        setLevel('good');
+      } else if (type === '3g') {
+        setLevel('fair');
+      } else {
+        setLevel('poor');
+      }
+    };
+
+    compute();
+    conn?.addEventListener?.('change', compute);
+    return () => conn?.removeEventListener?.('change', compute);
+  }, []);
+
+  return level;
+};
+
 export interface PreFlightBodyHandle {
   getMicStream: () => MediaStream | null;
   markStreamHandedOff: () => void;
@@ -107,435 +231,642 @@ interface PreFlightBodyProps {
   isCamLocked: boolean;
   supportsTransparentListenOnly: boolean;
   localEchoEnabled: boolean;
-  // Post-admission only: renders the "join with camera" toggle and lets the
-  // parent trigger the actual share through the ref.
-  enableCameraShareToggle: boolean;
+  // Post-admission only: renders the floating on-preview mic/camera controls and
+  // lets the parent trigger the actual camera share through the ref. The guest
+  // waiting room passes false (there is no join yet).
+  enableJoinControls: boolean;
+  // Initial camera intent (mirrors the meeting auto-share setting). Post
+  // admission it also decides whether the live self-view or the avatar shows first.
   shareOnJoinDefault: boolean;
+  // Initial join-muted intent (mirrors mute-on-start), user-owned via the mic control.
+  joinMutedDefault: boolean;
+  // Name used to derive the camera-off avatar initial.
+  userName?: string;
   // Video share function, injected by the post-admission wrapper. Absent in the
   // guest waiting room so this component never imports the join/share path.
   startSharing?: (deviceId: string) => void;
-  renderFooter: (ctx: { inputDeviceId: string; blocked: boolean }) => React.ReactNode;
+  renderFooter: (ctx: {
+    inputDeviceId: string;
+    blocked: boolean;
+    micMuted: boolean;
+  }) => React.ReactNode;
 }
 
-const PreFlightBody = forwardRef<PreFlightBodyHandle, PreFlightBodyProps>((props, ref) => {
-  const {
-    useAudioManager,
-    persistDevices,
-    micDisabled,
-    showCamera,
-    isCamLocked,
-    supportsTransparentListenOnly,
-    localEchoEnabled,
-    enableCameraShareToggle,
-    shareOnJoinDefault,
-    startSharing,
-    renderFooter,
-  } = props;
+const PreFlightBody = forwardRef<PreFlightBodyHandle, PreFlightBodyProps>(
+  (props, ref) => {
+    const {
+      useAudioManager,
+      persistDevices,
+      micDisabled,
+      showCamera,
+      isCamLocked,
+      supportsTransparentListenOnly,
+      localEchoEnabled,
+      enableJoinControls,
+      shareOnJoinDefault,
+      joinMutedDefault,
+      userName,
+      startSharing,
+      renderFooter,
+    } = props;
 
-  const intl = useIntl();
+    const intl = useIntl();
 
-  const initialInput = useAudioManager
-    ? (AudioManager.inputDeviceId || '')
-    : (getStoredAudioInputDeviceId() || '');
-  const initialOutput = useAudioManager
-    ? (AudioManager.outputDeviceId || '')
-    : (getStoredAudioOutputDeviceId() || '');
-  const permissionStatus = useAudioManager
-    ? (AudioManager._permissionStatus.value() as string)
-    : null;
+    const initialInput = useAudioManager
+      ? AudioManager.inputDeviceId || ''
+      : getStoredAudioInputDeviceId() || '';
+    const initialOutput = useAudioManager
+      ? AudioManager.outputDeviceId || ''
+      : getStoredAudioOutputDeviceId() || '';
+    const permissionStatus = useAudioManager
+      ? (AudioManager._permissionStatus.value() as string)
+      : null;
 
-  const [audioInputDevices, setAudioInputDevices] = useState<MediaDeviceInfo[]>([]);
-  const [audioOutputDevices, setAudioOutputDevices] = useState<MediaDeviceInfo[]>([]);
-  const [inputDeviceId, setInputDeviceId] = useState<string>(micDisabled ? LISTEN_ONLY : initialInput);
-  const [outputDeviceId, setOutputDeviceId] = useState<string>(initialOutput);
-  const [micStream, setMicStream] = useState<MediaStream | null>(null);
-  const [producingStream, setProducingStream] = useState(false);
-  const [findingDevices, setFindingDevices] = useState(true);
-  const [permissionDenied, setPermissionDenied] = useState(false);
-  const [shareOnJoin, setShareOnJoin] = useState(shareOnJoinDefault);
+    const [audioInputDevices, setAudioInputDevices] = useState<
+      MediaDeviceInfo[]
+    >([]);
+    const [audioOutputDevices, setAudioOutputDevices] = useState<
+      MediaDeviceInfo[]
+    >([]);
+    const [inputDeviceId, setInputDeviceId] = useState<string>(
+      micDisabled ? LISTEN_ONLY : initialInput,
+    );
+    const [outputDeviceId, setOutputDeviceId] = useState<string>(initialOutput);
+    const [micStream, setMicStream] = useState<MediaStream | null>(null);
+    const [producingStream, setProducingStream] = useState(false);
+    const [findingDevices, setFindingDevices] = useState(true);
+    const [permissionDenied, setPermissionDenied] = useState(false);
+    // v4: the on-preview controls own these intents (they replace the checkbox).
+    // Guest waiting room (no join controls) always shows the live preview.
+    const [cameraOn, setCameraOn] = useState(
+      enableJoinControls ? shareOnJoinDefault : true,
+    );
+    const [micMuted, setMicMuted] = useState(joinMutedDefault);
+    const [mirrored, setMirrored] = useState(() => VideoService.mirrorOwnWebcam());
 
-  const isMounted = useRef(true);
-  const micStreamRef = useRef<MediaStream | null>(null);
-  const streamHandedOff = useRef(false);
+    const isMounted = useRef(true);
+    const micStreamRef = useRef<MediaStream | null>(null);
+    const streamHandedOff = useRef(false);
 
-  const {
-    availableWebcams,
-    webcamDeviceId,
-    viewState,
-    deviceError,
-    previewError,
-    videoRef,
-    currentVideoStream,
-    handleSelectWebcam,
-    handleStartSharing,
-    terminateCameraStream,
-    cleanupStreamAndVideo,
-    VIEW_STATES,
-  } = useVideoPreview({
-    initialDeviceId: (PreviewService.webcamDeviceId?.() ?? null),
-    initialProfileId: PreviewService.getDefaultProfile().id,
-    forceOpen: true,
-    startSharing,
-  });
+    const micTicks = useMicLevelTicks(micMuted ? null : micStream);
+    const connectionLevel = useConnectionLevel();
 
-  const cleanupMicStream = useCallback(() => {
-    if (micStreamRef.current && !streamHandedOff.current) {
-      destroyWasmProcessor(micStreamRef.current);
-      MediaStreamUtils.stopMediaStreamTracks(micStreamRef.current);
-    }
-    micStreamRef.current = null;
-  }, []);
+    const {
+      availableWebcams,
+      webcamDeviceId,
+      viewState,
+      deviceError,
+      previewError,
+      videoRef,
+      currentVideoStream,
+      handleSelectWebcam,
+      handleStartSharing,
+      terminateCameraStream,
+      cleanupStreamAndVideo,
+      VIEW_STATES,
+    } = useVideoPreview({
+      initialDeviceId: PreviewService.webcamDeviceId?.() ?? null,
+      initialProfileId: PreviewService.getDefaultProfile().id,
+      forceOpen: true,
+      startSharing,
+    });
 
-  const updateDeviceList = useCallback(async () => {
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    const inputs = devices.filter((d) => d.kind === 'audioinput');
-    const outputs = devices.filter((d) => d.kind === 'audiooutput');
-    if (useAudioManager) {
-      AudioService.updateInputDevices(inputs);
-      AudioService.updateOutputDevices(outputs);
-    }
-    if (!isMounted.current) return;
-    setAudioInputDevices(inputs);
-    setAudioOutputDevices(outputs);
-  }, [useAudioManager]);
+    // Honest camera on/off: stop/resume the live video frames under the avatar,
+    // so "off" genuinely goes dark instead of just hiding a running preview.
+    useEffect(() => {
+      const mediaStream = currentVideoStream.current?.mediaStream;
+      mediaStream?.getVideoTracks().forEach((track) => {
+        // eslint-disable-next-line no-param-reassign
+        track.enabled = cameraOn;
+      });
+    }, [cameraOn, viewState, currentVideoStream]);
 
-  const generateInputStream = useCallback(async (deviceId: string) => {
-    cleanupMicStream();
-    if (deviceId === LISTEN_ONLY) return null;
-    const constraints = { audio: AudioService.getAudioConstraints({ deviceId }) };
-    // Preview stream - do not promote its processor as the primary one.
-    return AudioService.doGUM(constraints, { retryOnFailure: true, adoptProcessorAsPrimary: false });
-  }, [cleanupMicStream]);
-
-  const applyInputSelection = useCallback((deviceId: string) => {
-    setInputDeviceId(deviceId);
-    if (useAudioManager) AudioService.changeInputDevice(deviceId);
-    if (persistDevices) storeAudioInputDeviceId(deviceId);
-  }, [useAudioManager, persistDevices]);
-
-  const setInputDevice = useCallback(async (deviceId: string) => {
-    setPermissionDenied(false);
-    applyInputSelection(deviceId);
-
-    if (deviceId === LISTEN_ONLY) {
-      cleanupMicStream();
-      setMicStream(null);
-      return;
-    }
-
-    setProducingStream(true);
-    try {
-      const stream = await generateInputStream(deviceId);
-      let resolvedDeviceId = deviceId;
-
-      if (stream) {
-        resolvedDeviceId = MediaStreamUtils.extractDeviceIdFromStream(stream, 'audio');
-        if (resolvedDeviceId && resolvedDeviceId !== deviceId) {
-          applyInputSelection(resolvedDeviceId);
-        }
+    const cleanupMicStream = useCallback(() => {
+      if (micStreamRef.current && !streamHandedOff.current) {
+        destroyWasmProcessor(micStreamRef.current);
+        MediaStreamUtils.stopMediaStreamTracks(micStreamRef.current);
       }
+      micStreamRef.current = null;
+    }, []);
 
-      if (!isMounted.current) {
-        if (stream) MediaStreamUtils.stopMediaStreamTracks(stream);
+    const updateDeviceList = useCallback(async () => {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const inputs = devices.filter((d) => d.kind === 'audioinput');
+      const outputs = devices.filter((d) => d.kind === 'audiooutput');
+      if (useAudioManager) {
+        AudioService.updateInputDevices(inputs);
+        AudioService.updateOutputDevices(outputs);
+      }
+      if (!isMounted.current) return;
+      setAudioInputDevices(inputs);
+      setAudioOutputDevices(outputs);
+    }, [useAudioManager]);
+
+    const generateInputStream = useCallback(
+      async (deviceId: string) => {
+        cleanupMicStream();
+        if (deviceId === LISTEN_ONLY) return null;
+        const constraints = {
+          audio: AudioService.getAudioConstraints({ deviceId }),
+        };
+        // Preview stream - do not promote its processor as the primary one.
+        return AudioService.doGUM(constraints, {
+          retryOnFailure: true,
+          adoptProcessorAsPrimary: false,
+        });
+      },
+      [cleanupMicStream],
+    );
+
+    const applyInputSelection = useCallback(
+      (deviceId: string) => {
+        setInputDeviceId(deviceId);
+        if (useAudioManager) AudioService.changeInputDevice(deviceId);
+        if (persistDevices) storeAudioInputDeviceId(deviceId);
+      },
+      [useAudioManager, persistDevices],
+    );
+
+    const setInputDevice = useCallback(
+      async (deviceId: string) => {
+        setPermissionDenied(false);
+        applyInputSelection(deviceId);
+
+        if (deviceId === LISTEN_ONLY) {
+          cleanupMicStream();
+          setMicStream(null);
+          return;
+        }
+
+        setProducingStream(true);
+        try {
+          const stream = await generateInputStream(deviceId);
+          let resolvedDeviceId = deviceId;
+
+          if (stream) {
+            resolvedDeviceId = MediaStreamUtils.extractDeviceIdFromStream(
+              stream,
+              'audio',
+            );
+            if (resolvedDeviceId && resolvedDeviceId !== deviceId) {
+              applyInputSelection(resolvedDeviceId);
+            }
+          }
+
+          if (!isMounted.current) {
+            if (stream) MediaStreamUtils.stopMediaStreamTracks(stream);
+            return;
+          }
+
+          micStreamRef.current = stream;
+          setMicStream(stream);
+          await updateDeviceList();
+        } catch (error) {
+          logger.warn(
+            {
+              logCode: 'preflight_input_gum_failed',
+              extraInfo: {
+                errorName: (error as Error & { name: string })?.name,
+                errorMessage: (error as Error)?.message,
+              },
+            },
+            'Pre-flight: failed to acquire microphone.',
+          );
+          // Explicit permission-denied state (does not silently swallow the error):
+          // the audio column shows a retry affordance while listen only stays
+          // available via the footer.
+          if (isMounted.current) {
+            setPermissionDenied(true);
+            setMicStream(null);
+          }
+          applyInputSelection(LISTEN_ONLY);
+        } finally {
+          if (isMounted.current) setProducingStream(false);
+        }
+      },
+      [
+        applyInputSelection,
+        cleanupMicStream,
+        generateInputStream,
+        updateDeviceList,
+      ],
+    );
+
+    const setOutputDevice = useCallback(
+      async (deviceId: string) => {
+        setOutputDeviceId(deviceId);
+        if (persistDevices) storeAudioOutputDeviceId(deviceId);
+        if (!useAudioManager) return;
+        try {
+          await AudioService.changeOutputDevice(deviceId, false);
+        } catch (error) {
+          logger.warn(
+            {
+              logCode: 'preflight_output_device_change_failed',
+              extraInfo: {
+                errorName: (error as Error & { name: string })?.name,
+                errorMessage: (error as Error)?.message,
+              },
+            },
+            'Pre-flight: failed to change output device',
+          );
+          notify(intl.formatMessage(intlMessages.deviceChangeFailed), 'error');
+        }
+      },
+      [intl, persistDevices, useAudioManager],
+    );
+
+    const initDevices = useCallback(() => {
+      setFindingDevices(true);
+      if (micDisabled) {
+        applyInputSelection(LISTEN_ONLY);
+        updateDeviceList()
+          .then(() => {
+            if (!isMounted.current) return;
+            setFindingDevices(false);
+            setOutputDevice(outputDeviceId || '');
+          })
+          .catch(() => {
+            if (isMounted.current) setFindingDevices(false);
+          });
         return;
       }
-
-      micStreamRef.current = stream;
-      setMicStream(stream);
-      await updateDeviceList();
-    } catch (error) {
-      logger.warn({
-        logCode: 'preflight_input_gum_failed',
-        extraInfo: {
-          errorName: (error as Error & { name: string })?.name,
-          errorMessage: (error as Error)?.message,
-        },
-      }, 'Pre-flight: failed to acquire microphone.');
-      // Explicit permission-denied state (does not silently swallow the error):
-      // the audio column shows a retry affordance while listen only stays
-      // available via the footer.
-      if (isMounted.current) {
-        setPermissionDenied(true);
-        setMicStream(null);
-      }
-      applyInputSelection(LISTEN_ONLY);
-    } finally {
-      if (isMounted.current) setProducingStream(false);
-    }
-  }, [applyInputSelection, cleanupMicStream, generateInputStream, updateDeviceList]);
-
-  const setOutputDevice = useCallback(async (deviceId: string) => {
-    setOutputDeviceId(deviceId);
-    if (persistDevices) storeAudioOutputDeviceId(deviceId);
-    if (!useAudioManager) return;
-    try {
-      await AudioService.changeOutputDevice(deviceId, false);
-    } catch (error) {
-      logger.warn({
-        logCode: 'preflight_output_device_change_failed',
-        extraInfo: {
-          errorName: (error as Error & { name: string })?.name,
-          errorMessage: (error as Error)?.message,
-        },
-      }, 'Pre-flight: failed to change output device');
-      notify(intl.formatMessage(intlMessages.deviceChangeFailed), 'error');
-    }
-  }, [intl, persistDevices, useAudioManager]);
-
-  const initDevices = useCallback(() => {
-    setFindingDevices(true);
-    if (micDisabled) {
-      applyInputSelection(LISTEN_ONLY);
-      updateDeviceList()
-        .then(() => {
-          if (!isMounted.current) return;
-          setFindingDevices(false);
-          setOutputDevice(outputDeviceId || '');
-        })
-        .catch(() => { if (isMounted.current) setFindingDevices(false); });
-      return;
-    }
-    AudioService.hasMicrophonePermission({ gumOnPrompt: true, permissionStatus })
-      .then(() => updateDeviceList())
-      .then(() => {
-        if (!isMounted.current) return undefined;
-        setFindingDevices(false);
-        return setInputDevice(initialInput || '');
+      AudioService.hasMicrophonePermission({
+        gumOnPrompt: true,
+        permissionStatus,
       })
-      .then(() => { if (isMounted.current) setOutputDevice(outputDeviceId || ''); })
-      .catch(() => { if (isMounted.current) setFindingDevices(false); });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [micDisabled]);
+        .then(() => updateDeviceList())
+        .then(() => {
+          if (!isMounted.current) return undefined;
+          setFindingDevices(false);
+          return setInputDevice(initialInput || '');
+        })
+        .then(() => {
+          if (isMounted.current) setOutputDevice(outputDeviceId || '');
+        })
+        .catch(() => {
+          if (isMounted.current) setFindingDevices(false);
+        });
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [micDisabled]);
 
-  useEffect(() => {
-    isMounted.current = true;
-    initDevices();
-    return () => {
-      isMounted.current = false;
-      cleanupMicStream();
-    };
-    // Run once on mount - device init.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    useEffect(() => {
+      isMounted.current = true;
+      initDevices();
+      return () => {
+        isMounted.current = false;
+        cleanupMicStream();
+      };
+      // Run once on mount - device init.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-  const onSelectWebcam = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    handleSelectWebcam(e);
-    if (persistDevices) PreviewService.changeWebcam(e.target.value);
-  }, [handleSelectWebcam, persistDevices]);
-
-  useImperativeHandle(ref, () => ({
-    getMicStream: () => micStreamRef.current,
-    markStreamHandedOff: () => { streamHandedOff.current = true; },
-    shareCamera: () => {
-      if (enableCameraShareToggle && shareOnJoin && webcamDeviceId && currentVideoStream.current) {
-        handleStartSharing(webcamDeviceId);
-      }
-    },
-    releaseStreams: () => {
-      cleanupMicStream();
-      setMicStream(null);
-      terminateCameraStream(currentVideoStream.current, webcamDeviceId);
-      cleanupStreamAndVideo();
-    },
-  }), [
-    enableCameraShareToggle, shareOnJoin, webcamDeviceId, handleStartSharing,
-    cleanupMicStream, terminateCameraStream, currentVideoStream, cleanupStreamAndVideo,
-  ]);
-
-  const blocked = findingDevices || producingStream;
-
-  const renderCameraFrame = (locked: boolean) => {
-    if (locked) {
-      return (
-        <Styled.CameraOff>
-          <Styled.CameraOffIcon iconName="lock" />
-          <span>{intl.formatMessage(intlMessages.cameraLockedLabel)}</span>
-        </Styled.CameraOff>
-      );
-    }
-    if (viewState === VIEW_STATES.error || previewError) {
-      return (
-        <Styled.CameraOff>
-          <Styled.CameraOffIcon iconName="video_off" />
-          <Styled.PlaceholderText>{previewError || deviceError}</Styled.PlaceholderText>
-        </Styled.CameraOff>
-      );
-    }
-    if (viewState === VIEW_STATES.finding) {
-      return <Styled.PlaceholderText>{intl.formatMessage(intlMessages.findingDevicesLabel)}</Styled.PlaceholderText>;
-    }
-    if (!availableWebcams || availableWebcams.length === 0) {
-      return (
-        <Styled.CameraOff>
-          <Styled.CameraOffIcon iconName="video_off" />
-          <span>{intl.formatMessage(intlMessages.cameraOffLabel)}</span>
-        </Styled.CameraOff>
-      );
-    }
-    const currentWebcam = availableWebcams.find((w) => w.deviceId === webcamDeviceId);
-    return (
-      <>
-        <Styled.VideoPreview
-          mirrored={VideoService.mirrorOwnWebcam()}
-          data-test="preFlightVideoPreview"
-          ref={videoRef}
-          autoPlay
-          playsInline
-          muted
-        />
-        {currentWebcam?.label && <Styled.CameraChip>{currentWebcam.label}</Styled.CameraChip>}
-      </>
+    const onSelectWebcam = useCallback(
+      (e: React.ChangeEvent<HTMLSelectElement>) => {
+        handleSelectWebcam(e);
+        if (persistDevices) PreviewService.changeWebcam(e.target.value);
+      },
+      [handleSelectWebcam, persistDevices],
     );
-  };
 
-  const renderCameraSelect = () => {
-    if (findingDevices) return <Styled.Skeleton />;
-    if (!availableWebcams || availableWebcams.length === 0) {
-      return <Styled.NotFound>{intl.formatMessage(intlMessages.webcamNotFoundLabel)}</Styled.NotFound>;
-    }
-    return (
-      <Styled.SelectField>
-        <select
-          id="preFlightCameraSelector"
-          data-test="preFlightCameraSelect"
-          value={webcamDeviceId || ''}
-          onChange={onSelectWebcam}
+    useImperativeHandle(
+      ref,
+      () => ({
+        getMicStream: () => micStreamRef.current,
+        markStreamHandedOff: () => {
+          streamHandedOff.current = true;
+        },
+        shareCamera: () => {
+          if (
+            enableJoinControls
+            && cameraOn
+            && webcamDeviceId
+            && currentVideoStream.current
+          ) {
+            handleStartSharing(webcamDeviceId);
+          }
+        },
+        releaseStreams: () => {
+          cleanupMicStream();
+          setMicStream(null);
+          terminateCameraStream(currentVideoStream.current, webcamDeviceId);
+          cleanupStreamAndVideo();
+        },
+      }),
+      [
+        enableJoinControls,
+        cameraOn,
+        webcamDeviceId,
+        handleStartSharing,
+        cleanupMicStream,
+        terminateCameraStream,
+        currentVideoStream,
+        cleanupStreamAndVideo,
+      ],
+    );
+
+    const blocked = findingDevices || producingStream;
+
+    const previewLive = !isCamLocked
+      && viewState !== VIEW_STATES.error
+      && !previewError
+      && viewState !== VIEW_STATES.finding
+      && !!availableWebcams
+      && availableWebcams.length > 0;
+
+    const avatarInitial = (userName || '').trim().charAt(0).toUpperCase();
+
+    const renderConnectionBadge = () => (
+      <Styled.ConnectionBadge data-test="preFlightConnectionBadge">
+        <Styled.SignalBars
+          level={connectionLevel}
+          filled={BARS_BY_LEVEL[connectionLevel]}
+          aria-hidden="true"
         >
-          {availableWebcams.map((webcam, index) => (
-            <option key={webcam.deviceId} value={webcam.deviceId}>
-              {webcam.label || `${intl.formatMessage(intlMessages.cameraLabel)} ${index + 1}`}
-            </option>
-          ))}
-        </select>
-      </Styled.SelectField>
+          <span />
+          <span />
+          <span />
+          <span />
+        </Styled.SignalBars>
+        <span aria-live="polite">
+          {intl.formatMessage(connectionLabelByLevel[connectionLevel])}
+        </span>
+      </Styled.ConnectionBadge>
     );
-  };
 
-  const renderCameraColumn = () => {
-    if (!showCamera && !isCamLocked) return null;
-    const locked = isCamLocked;
-    return (
-      <Styled.CameraColumn>
-        <Styled.VideoWrapper>{renderCameraFrame(locked)}</Styled.VideoWrapper>
-        {!locked && (
-          <>
+    const renderOverlayControls = () => {
+      if (!enableJoinControls) return null;
+      return (
+        <Styled.OverlayControls>
+          <Styled.OverlayButton
+            type="button"
+            off={!cameraOn}
+            aria-pressed={cameraOn}
+            aria-label={intl.formatMessage(
+              cameraOn ? intlMessages.turnCameraOff : intlMessages.turnCameraOn,
+            )}
+            data-test="preFlightShareCameraToggle"
+            onClick={() => setCameraOn((v) => !v)}
+          >
+            <Icon iconName={cameraOn ? 'video' : 'video_off'} />
+          </Styled.OverlayButton>
+          {!micDisabled && (
+            <Styled.OverlayButton
+              type="button"
+              off={micMuted}
+              aria-pressed={!micMuted}
+              aria-label={intl.formatMessage(
+                micMuted ? intlMessages.unmuteMic : intlMessages.muteMic,
+              )}
+              data-test="preFlightMuteToggle"
+              onClick={() => setMicMuted((v) => !v)}
+            >
+              <Icon iconName={micMuted ? 'mute' : 'unmute'} />
+            </Styled.OverlayButton>
+          )}
+        </Styled.OverlayControls>
+      );
+    };
+
+    const renderAvatar = () => (
+      <Styled.Avatar data-test="preFlightAvatar">
+        <Styled.AvatarCircle>
+          {avatarInitial || <Icon iconName="video_off" />}
+        </Styled.AvatarCircle>
+        <Styled.AvatarLabel>
+          {intl.formatMessage(intlMessages.cameraOffLabel)}
+        </Styled.AvatarLabel>
+      </Styled.Avatar>
+    );
+
+    const renderCameraFrame = () => {
+      if (isCamLocked) {
+        return (
+          <Styled.CameraOff>
+            <Styled.CameraOffIcon iconName="lock" />
+            <span>{intl.formatMessage(intlMessages.cameraLockedLabel)}</span>
+          </Styled.CameraOff>
+        );
+      }
+      if (viewState === VIEW_STATES.error || previewError) {
+        return (
+          <Styled.CameraOff>
+            <Styled.CameraOffIcon iconName="video_off" />
+            <Styled.PlaceholderText>
+              {previewError || deviceError}
+            </Styled.PlaceholderText>
+          </Styled.CameraOff>
+        );
+      }
+      if (viewState === VIEW_STATES.finding) {
+        return (
+          <Styled.PlaceholderText>
+            {intl.formatMessage(intlMessages.findingDevicesLabel)}
+          </Styled.PlaceholderText>
+        );
+      }
+      if (!availableWebcams || availableWebcams.length === 0) {
+        return (
+          <Styled.CameraOff>
+            <Styled.CameraOffIcon iconName="video_off" />
+            <span>{intl.formatMessage(intlMessages.cameraOffLabel)}</span>
+          </Styled.CameraOff>
+        );
+      }
+      const currentWebcam = availableWebcams.find(
+        (w) => w.deviceId === webcamDeviceId,
+      );
+      return (
+        <>
+          <Styled.VideoPreview
+            mirrored={mirrored}
+            data-test="preFlightVideoPreview"
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+          />
+          {currentWebcam?.label && cameraOn && (
+            <Styled.CameraChip>{currentWebcam.label}</Styled.CameraChip>
+          )}
+          {!cameraOn && renderAvatar()}
+        </>
+      );
+    };
+
+    const renderCameraSelect = () => {
+      if (findingDevices) return <Styled.Skeleton />;
+      if (!availableWebcams || availableWebcams.length === 0) {
+        return (
+          <Styled.NotFound>
+            {intl.formatMessage(intlMessages.webcamNotFoundLabel)}
+          </Styled.NotFound>
+        );
+      }
+      return (
+        <Styled.SelectField>
+          <select
+            id="preFlightCameraSelector"
+            data-test="preFlightCameraSelect"
+            value={webcamDeviceId || ''}
+            onChange={onSelectWebcam}
+          >
+            {availableWebcams.map((webcam, index) => (
+              <option key={webcam.deviceId} value={webcam.deviceId}>
+                {webcam.label
+                  || `${intl.formatMessage(intlMessages.cameraLabel)} ${index + 1}`}
+              </option>
+            ))}
+          </select>
+        </Styled.SelectField>
+      );
+    };
+
+    const renderCameraColumn = () => {
+      if (!showCamera && !isCamLocked) return null;
+      return (
+        <Styled.CameraColumn>
+          <Styled.VideoWrapper>
+            {renderCameraFrame()}
+            {renderConnectionBadge()}
+            {previewLive && cameraOn && (
+              <Styled.MirrorButton
+                type="button"
+                data-test="preFlightMirrorToggle"
+                aria-pressed={mirrored}
+                aria-label={intl.formatMessage(intlMessages.mirrorLabel)}
+                onClick={() => setMirrored((v) => !v)}
+              >
+                <Icon iconName="undo" />
+              </Styled.MirrorButton>
+            )}
+            {previewLive && renderOverlayControls()}
+          </Styled.VideoWrapper>
+          {!isCamLocked && (
             <Styled.DeviceGroup htmlFor="preFlightCameraSelector">
               {intl.formatMessage(intlMessages.cameraLabel)}
               {renderCameraSelect()}
             </Styled.DeviceGroup>
-            {enableCameraShareToggle && (
-              <Styled.CameraToggle>
-                <Styled.SwitchInput
-                  type="checkbox"
-                  checked={shareOnJoin}
-                  data-test="preFlightShareCameraToggle"
-                  onChange={(e) => setShareOnJoin(e.target.checked)}
-                />
-                <Styled.Switch aria-hidden="true" />
-                {intl.formatMessage(intlMessages.shareCameraLabel)}
-              </Styled.CameraToggle>
-            )}
-          </>
-        )}
-      </Styled.CameraColumn>
-    );
-  };
+          )}
+        </Styled.CameraColumn>
+      );
+    };
 
-  const renderMicSection = () => {
-    if (micDisabled) return null;
+    const renderMicSection = () => {
+      if (micDisabled) return null;
+      return (
+        <Styled.MicSlot>
+          {permissionDenied ? (
+            <Styled.PermissionDenied
+              role="alert"
+              data-test="preFlightPermissionDenied"
+            >
+              <Styled.PermissionIconCircle>
+                <Styled.PermissionIcon iconName="warning" />
+              </Styled.PermissionIconCircle>
+              <Styled.PermissionBody>
+                <Styled.PermissionTitle>
+                  {intl.formatMessage(intlMessages.permissionDeniedTitle)}
+                </Styled.PermissionTitle>
+                <Styled.PermissionText>
+                  {intl.formatMessage(intlMessages.permissionDeniedLabel)}
+                </Styled.PermissionText>
+                <Styled.SecondaryButton
+                  type="button"
+                  data-test="preFlightRetryPermission"
+                  onClick={() => setInputDevice('')}
+                >
+                  {intl.formatMessage(intlMessages.tryAgainLabel)}
+                </Styled.SecondaryButton>
+              </Styled.PermissionBody>
+            </Styled.PermissionDenied>
+          ) : (
+            <>
+              <Styled.DeviceGroup htmlFor="preFlightInputDeviceSelector">
+                {intl.formatMessage(intlMessages.microphoneLabel)}
+                {findingDevices ? (
+                  <Styled.Skeleton />
+                ) : (
+                  <Styled.SelectField>
+                    <DeviceSelector
+                      deviceId={inputDeviceId || ''}
+                      devices={audioInputDevices}
+                      kind="audioinput"
+                      blocked={blocked}
+                      onChange={setInputDevice}
+                      intl={intl}
+                      supportsTransparentListenOnly={
+                        supportsTransparentListenOnly
+                      }
+                    />
+                  </Styled.SelectField>
+                )}
+              </Styled.DeviceGroup>
+              <div>
+                <Styled.MeterCaption>
+                  {intl.formatMessage(intlMessages.micLevelLabel)}
+                </Styled.MeterCaption>
+                <Styled.MeterTicks
+                  data-test={micTicks > 0 ? 'hasVolume' : 'hasNoVolume'}
+                  aria-hidden="true"
+                >
+                  {Array.from({ length: METER_TICKS }, (_, i) => (
+                    // eslint-disable-next-line react/no-array-index-key
+                    <span key={i} data-on={i < micTicks ? 'true' : 'false'} />
+                  ))}
+                </Styled.MeterTicks>
+              </div>
+            </>
+          )}
+        </Styled.MicSlot>
+      );
+    };
+
     return (
-      <Styled.MicSlot>
-        {permissionDenied ? (
-          <Styled.PermissionDenied role="alert" data-test="preFlightPermissionDenied">
-            <Styled.PermissionIconCircle>
-              <Styled.PermissionIcon iconName="warning" />
-            </Styled.PermissionIconCircle>
-            <Styled.PermissionBody>
-              <Styled.PermissionTitle>{intl.formatMessage(intlMessages.permissionDeniedTitle)}</Styled.PermissionTitle>
-              <Styled.PermissionText>{intl.formatMessage(intlMessages.permissionDeniedLabel)}</Styled.PermissionText>
-              <Styled.SecondaryButton
-                type="button"
-                data-test="preFlightRetryPermission"
-                onClick={() => setInputDevice('')}
-              >
-                {intl.formatMessage(intlMessages.tryAgainLabel)}
-              </Styled.SecondaryButton>
-            </Styled.PermissionBody>
-          </Styled.PermissionDenied>
-        ) : (
-          <>
-            <Styled.DeviceGroup htmlFor="preFlightInputDeviceSelector">
-              {intl.formatMessage(intlMessages.microphoneLabel)}
+      <>
+        <Styled.Content aria-busy={blocked}>
+          {renderCameraColumn()}
+          <Styled.DevicesColumn>
+            {renderMicSection()}
+            <Styled.DeviceGroup htmlFor="preFlightOutputDeviceSelector">
+              {intl.formatMessage(intlMessages.speakerLabel)}
               {findingDevices ? (
                 <Styled.Skeleton />
               ) : (
                 <Styled.SelectField>
                   <DeviceSelector
-                    deviceId={inputDeviceId || ''}
-                    devices={audioInputDevices}
-                    kind="audioinput"
+                    deviceId={outputDeviceId || ''}
+                    devices={audioOutputDevices}
+                    kind="audiooutput"
                     blocked={blocked}
-                    onChange={setInputDevice}
+                    onChange={setOutputDevice}
                     intl={intl}
-                    supportsTransparentListenOnly={supportsTransparentListenOnly}
+                    supportsTransparentListenOnly={
+                      supportsTransparentListenOnly
+                    }
                   />
                 </Styled.SelectField>
               )}
             </Styled.DeviceGroup>
-            <div>
-              <Styled.MeterCaption>{intl.formatMessage(intlMessages.micLevelLabel)}</Styled.MeterCaption>
-              <Styled.MeterField>
-                <AudioStreamVolume stream={micStream} />
-              </Styled.MeterField>
-            </div>
-          </>
-        )}
-      </Styled.MicSlot>
-    );
-  };
-
-  return (
-    <>
-      <Styled.Content aria-busy={blocked}>
-        {renderCameraColumn()}
-        <Styled.DevicesColumn>
-          {renderMicSection()}
-          <Styled.DeviceGroup htmlFor="preFlightOutputDeviceSelector">
-            {intl.formatMessage(intlMessages.speakerLabel)}
-            {findingDevices ? (
-              <Styled.Skeleton />
-            ) : (
-              <Styled.SelectField>
-                <DeviceSelector
-                  deviceId={outputDeviceId || ''}
-                  devices={audioOutputDevices}
-                  kind="audiooutput"
-                  blocked={blocked}
-                  onChange={setOutputDevice}
+            <Styled.DeviceGroup as="div">
+              {intl.formatMessage(intlMessages.testSpeakerLabel)}
+              {localEchoEnabled ? (
+                <LocalEchoContainer
                   intl={intl}
-                  supportsTransparentListenOnly={supportsTransparentListenOnly}
+                  outputDeviceId={outputDeviceId}
+                  stream={micStream}
                 />
-              </Styled.SelectField>
-            )}
-          </Styled.DeviceGroup>
-          <Styled.DeviceGroup as="div">
-            {intl.formatMessage(intlMessages.testSpeakerLabel)}
-            {localEchoEnabled ? (
-              <LocalEchoContainer
-                intl={intl}
-                outputDeviceId={outputDeviceId}
-                stream={micStream}
-              />
-            ) : (
-              <AudioTestContainer />
-            )}
-          </Styled.DeviceGroup>
-        </Styled.DevicesColumn>
-      </Styled.Content>
-      {renderFooter({ inputDeviceId, blocked })}
-    </>
-  );
-});
+              ) : (
+                <AudioTestContainer />
+              )}
+            </Styled.DeviceGroup>
+          </Styled.DevicesColumn>
+        </Styled.Content>
+        {renderFooter({ inputDeviceId, blocked, micMuted })}
+      </>
+    );
+  },
+);
 
 PreFlightBody.displayName = 'PreFlightBody';
 
