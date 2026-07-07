@@ -18,12 +18,19 @@ import { layoutSelect } from '/imports/ui/components/layout/context';
 import { defineMessages, useIntl } from 'react-intl';
 import KEYS from '/imports/utils/keys';
 import {
-  useIsEditChatMessageEnabled, useIsEmojiPickerEnabled,
+  useIsEditChatMessageEnabled, useIsEmojiPickerEnabled, useIsChatImagePasteEnabled,
 } from '/imports/ui/services/features';
 import { checkText } from 'smile2emoji';
 import AddReactionIcon from '@mui/icons-material/AddReaction';
+import CloseIcon from '@mui/icons-material/Close';
 import SendIcon from '@mui/icons-material/Send';
 import Tooltip from '@mui/material/Tooltip';
+import {
+  uploadImage,
+  isAllowedImage,
+  isWithinSizeLimit,
+  UploadImageError,
+} from '/imports/ui/services/file-upload';
 
 import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
@@ -98,6 +105,26 @@ const messages = defineMessages({
   errorOnSendMessage: {
     id: 'app.chat.errorOnSendMessage',
   },
+  errorImageType: {
+    id: 'app.chat.imagePaste.errorType',
+    description: 'error shown when a pasted file is not an accepted image type',
+  },
+  errorImageTooLarge: {
+    id: 'app.chat.imagePaste.errorTooLarge',
+    description: 'error shown when a pasted image exceeds the size limit',
+  },
+  errorImageUpload: {
+    id: 'app.chat.imagePaste.errorUpload',
+    description: 'error shown when the image upload fails',
+  },
+  imagePreviewAlt: {
+    id: 'app.chat.imagePaste.previewAlt',
+    description: 'alt text for the pasted image preview thumbnail',
+  },
+  removeImageLabel: {
+    id: 'app.chat.imagePaste.removeLabel',
+    description: 'label for the button that removes the pasted image preview',
+  },
   errorServerDisconnected: {
     id: 'app.chat.disconnected',
   },
@@ -151,6 +178,8 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [isTextAreaFocused, setIsTextAreaFocused] = React.useState(false);
   const [repliedMessageId, setRepliedMessageId] = React.useState<string | null>(null);
   const [emojisToExclude, setEmojisToExclude] = React.useState<string[]>([]);
+  const [pendingImage, setPendingImage] = React.useState<{ file: File; previewUrl: string } | null>(null);
+  const [imageUploading, setImageUploading] = React.useState(false);
   const editingMessage = React.useRef<EditingMessage | null>(null);
   const textAreaRef: RefObject<TextareaAutosize> = useRef<TextareaAutosize>(null);
   const { isMobile } = deviceInfo;
@@ -181,6 +210,45 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const ENABLE_EMOJI_PICKER = useIsEmojiPickerEnabled();
   const ENABLE_TYPING_INDICATOR = CHAT_CONFIG.typingIndicator.enabled;
   const DISABLE_EMOJIS = CHAT_CONFIG.disableEmojis;
+  const ENABLE_IMAGE_PASTE = useIsChatImagePasteEnabled();
+
+  const clearPendingImage = useCallback(() => {
+    setPendingImage((prev) => {
+      if (prev) URL.revokeObjectURL(prev.previewUrl);
+      return null;
+    });
+  }, []);
+
+  // Validates and stages a captured image for preview. Client-side checks are
+  // for fast, friendly feedback only; the upload service enforces them for real.
+  const captureImageFile = (file: File | null): void => {
+    if (!ENABLE_IMAGE_PASTE || !file) return;
+    if (!isAllowedImage(file)) {
+      setError(intl.formatMessage(messages.errorImageType));
+      return;
+    }
+    if (!isWithinSizeLimit(file)) {
+      setError(intl.formatMessage(messages.errorImageTooLarge));
+      return;
+    }
+    setPendingImage((prev) => {
+      if (prev) URL.revokeObjectURL(prev.previewUrl);
+      return { file, previewUrl: URL.createObjectURL(file) };
+    });
+    setError(null);
+  };
+
+  const getImageFromDataTransfer = (data: DataTransfer | null): File | null => {
+    if (!data) return null;
+    const files = Array.from(data.files || []);
+    return files.find((f) => f.type.startsWith('image/')) || null;
+  };
+
+  // Revoke any staged preview URL on unmount, and drop it when switching chats.
+  useEffect(() => () => clearPendingImage(), []);
+  useEffect(() => {
+    clearPendingImage();
+  }, [chatId]);
 
   const handleUserTyping = (hasError?: boolean) => {
     if (hasError || !ENABLE_TYPING_INDICATOR) return;
@@ -443,8 +511,11 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       e.preventDefault();
 
       const msg = message;
+      const hasImage = pendingImage != null;
 
-      if (msg.length < minMessageLength || chatSendMessageLoading) return;
+      if (chatSendMessageLoading || imageUploading) return;
+      // A staged image is enough to submit even with an empty text body.
+      if (msg.length < minMessageLength && !hasImage) return;
 
       if (disabled
         || msg.length > maxMessageLength) {
@@ -465,6 +536,35 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         }
       };
 
+      const clearAfterSend = () => {
+        const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) as string[];
+
+        // Remove the chat that user send messages from the session.
+        if (indexOf(currentClosedChats, chatId) > -1) {
+          Storage.setItem(CLOSED_CHAT_LIST_KEY, without(currentClosedChats, chatId));
+        }
+
+        setMessage('');
+        updateUnsentMessages(chatId, '');
+        setError(null);
+        setHasErrors(false);
+        setShowEmojiPicker(false);
+        const sentMessageEvent = new CustomEvent(ChatEvents.SENT_MESSAGE);
+        window.dispatchEvent(sentMessageEvent);
+      };
+
+      const dispatchSendMessage = (markdown: string) => {
+        chatSendMessage({
+          variables: {
+            chatMessageInMarkdownFormat: markdown,
+            chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
+            replyToMessageId: repliedMessageId,
+          },
+        }).then(() => {
+          sendCancelEvents();
+        });
+      };
+
       if (editingMessage.current && !chatEditMessageLoading) {
         chatEditMessage({
           variables: {
@@ -483,31 +583,45 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             },
           }, `Editing the message failed: ${e?.message}`);
         });
-      } else if (!chatSendMessageLoading) {
-        chatSendMessage({
-          variables: {
-            chatMessageInMarkdownFormat: msg,
-            chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
-            replyToMessageId: repliedMessageId,
-          },
-        }).then(() => {
-          sendCancelEvents();
-        });
-      }
-      const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) as string[];
-
-      // Remove the chat that user send messages from the session.
-      if (indexOf(currentClosedChats, chatId) > -1) {
-        Storage.setItem(CLOSED_CHAT_LIST_KEY, without(currentClosedChats, chatId));
+        clearAfterSend();
+        return;
       }
 
-      setMessage('');
-      updateUnsentMessages(chatId, '');
-      setError(null);
-      setHasErrors(false);
-      setShowEmojiPicker(false);
-      const sentMessageEvent = new CustomEvent(ChatEvents.SENT_MESSAGE);
-      window.dispatchEvent(sentMessageEvent);
+      // The image is uploaded on submit (not on paste) so that pasting and then
+      // giving up never leaves an orphan file on the server. Only after the
+      // upload resolves do we build the markdown and send the message.
+      if (hasImage) {
+        const { file } = pendingImage;
+        setImageUploading(true);
+        uploadImage(file)
+          .then((url) => {
+            const imageMarkdown = `![image](${url})`;
+            const markdown = msg.length > 0 ? `${msg}\n\n${imageMarkdown}` : imageMarkdown;
+            dispatchSendMessage(markdown);
+            clearPendingImage();
+            clearAfterSend();
+          })
+          .catch((err) => {
+            const reason = err instanceof UploadImageError ? err.reason : 'upload-failed';
+            const errorByReason = {
+              'too-large': messages.errorImageTooLarge,
+              'unsupported-type': messages.errorImageType,
+              'upload-failed': messages.errorImageUpload,
+            } as const;
+            setError(intl.formatMessage(errorByReason[reason] ?? messages.errorImageUpload));
+            logger.error({
+              logCode: 'chat_image_upload_error',
+              extraInfo: { reason },
+            }, `Chat image upload failed: ${err?.message}`);
+          })
+          .finally(() => {
+            setImageUploading(false);
+          });
+        return;
+      }
+
+      dispatchSendMessage(msg);
+      clearAfterSend();
     };
 
     const handleMessageKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -668,6 +782,25 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             />
           </Styled.EmojiPickerWrapper>
         ) : null}
+        {pendingImage ? (
+          <Styled.ImagePreview data-test="chatImagePreview">
+            <Styled.ImageThumb
+              src={pendingImage.previewUrl}
+              alt={intl.formatMessage(messages.imagePreviewAlt)}
+            />
+            <Tooltip title={intl.formatMessage(messages.removeImageLabel)}>
+              <Styled.RemoveImageButton
+                type="button"
+                onClick={clearPendingImage}
+                aria-label={intl.formatMessage(messages.removeImageLabel)}
+                data-test="removeChatImageButton"
+                disabled={imageUploading}
+              >
+                <CloseIcon fontSize="small" />
+              </Styled.RemoveImageButton>
+            </Tooltip>
+          </Styled.ImagePreview>
+        ) : null}
         <Styled.Wrapper>
           <Styled.InputWrapper
             onClick={(e) => {
@@ -705,7 +838,27 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
               maxRows={5}
               onChange={handleMessageChange}
               onKeyDown={handleMessageKeyDown}
-              onPaste={(e) => { e.stopPropagation(); }}
+              onPaste={(e) => {
+                e.stopPropagation();
+                const image = getImageFromDataTransfer(e.clipboardData);
+                if (ENABLE_IMAGE_PASTE && image) {
+                  e.preventDefault();
+                  captureImageFile(image);
+                }
+              }}
+              onDrop={(e) => {
+                if (!ENABLE_IMAGE_PASTE) return;
+                const image = getImageFromDataTransfer(e.dataTransfer);
+                if (image) {
+                  e.preventDefault();
+                  captureImageFile(image);
+                }
+              }}
+              onDragOver={(e) => {
+                if (ENABLE_IMAGE_PASTE && Array.from(e.dataTransfer?.types || []).includes('Files')) {
+                  e.preventDefault();
+                }
+              }}
               onCut={(e) => { e.stopPropagation(); }}
               onCopy={(e) => { e.stopPropagation(); }}
               async
@@ -747,7 +900,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
                     backgroundColor: btnPrimaryBg,
                   }}
                   variant="contained"
-                  disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}
+                  disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading || imageUploading}
                   type="submit"
                   data-test="sendMessageButton"
                   aria-label={intl.formatMessage(messages.submitLabel)}

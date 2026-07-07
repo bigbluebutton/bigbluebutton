@@ -211,6 +211,44 @@ const InputWrapper = styled.div`
   padding: 0.75rem !important;
 `;
 
+const ImagePreview = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: ${smPaddingX};
+  padding: ${xsPadding} 0;
+  margin-bottom: ${xsPadding};
+`;
+
+const ImageThumb = styled.img`
+  max-width: 4rem;
+  max-height: 4rem;
+  object-fit: cover;
+  border-radius: ${borderRadius};
+  border: 1px solid ${colorBorder};
+`;
+
+const RemoveImageButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border: none;
+  border-radius: 50%;
+  background-color: ${colorGrayLighter};
+  color: ${colorGrayDark};
+  cursor: pointer;
+
+  &:hover {
+    background-color: ${colorGrayLight};
+  }
+
+  &:disabled,
+  &[disabled] {
+    cursor: not-allowed;
+    opacity: .75;
+  }
+`;
+
 export default {
   Form,
   Wrapper,
@@ -222,4 +260,7 @@ export default {
   EmojiPickerWrapper,
   ChatMessageError,
   InputWrapper,
+  ImagePreview,
+  ImageThumb,
+  RemoveImageButton,
 };
