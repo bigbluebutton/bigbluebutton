@@ -19,6 +19,7 @@ import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import KEYS from '/imports/utils/keys';
 import Spinner from '/imports/ui/components/common/spinner/component';
 import Separator from '/imports/ui/components/common/separator/component';
+import InsertPagesContainer from './insert-pages/container';
 
 const intlMessages = defineMessages({
   previousSlideLabel: {
@@ -351,6 +352,9 @@ class PresentationToolbar extends PureComponent {
       maxNumberOfActiveUsers,
       numberOfJoinedUsers,
       isMobile,
+      insertPagesEnabled,
+      presentationId,
+      skipToSlide,
     } = this.props;
 
     const startOfSlides = !(currentSlideNum > 1);
@@ -457,6 +461,15 @@ class PresentationToolbar extends PureComponent {
             hideLabel
             data-test="nextSlide"
           />
+          {insertPagesEnabled ? (
+            <InsertPagesContainer
+              presentationId={presentationId}
+              currentSlideNum={currentSlideNum}
+              numberOfSlides={numberOfSlides}
+              isConnected={isConnected}
+              skipToSlide={skipToSlide}
+            />
+          ) : null}
         </Styled.PresentationSlideControls>
         <Styled.PresentationZoomControls>
           {(showIWB) && (
@@ -594,10 +607,14 @@ PresentationToolbar.propTypes = {
   maxNumberOfActiveUsers: PropTypes.number.isRequired,
   numberOfJoinedUsers: PropTypes.number.isRequired,
   isMobile: PropTypes.bool.isRequired,
+  insertPagesEnabled: PropTypes.bool,
+  presentationId: PropTypes.string,
 };
 
 PresentationToolbar.defaultProps = {
   fullscreenRef: null,
+  insertPagesEnabled: false,
+  presentationId: undefined,
 };
 
 export default injectWbResizeEvent(injectIntl(PresentationToolbar));

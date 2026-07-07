@@ -90,6 +90,8 @@ const PresentationToolbarContainer = (props) => {
   const { pluginsExtensibleAreasAggregatedState } = pluginsContext;
 
   const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
+  const insertPagesEnabled = window.meetingClientSettings.public.presentation
+    ?.insertPagesEnabled ?? false;
   const isQuizEnabled = useIsQuizEnabled();
 
   const {
@@ -247,6 +249,7 @@ const PresentationToolbarContainer = (props) => {
         presentationPagesLoaded={presentationPagesLoaded}
         maxNumberOfActiveUsers={WHITEBOARD_CONFIG.maxNumberOfActiveUsers}
         numberOfJoinedUsers={numberOfJoinedUsers}
+        insertPagesEnabled={insertPagesEnabled}
         {...{
           pluginProvidedPresentationToolbarItems,
           handleToggleFullScreen,
