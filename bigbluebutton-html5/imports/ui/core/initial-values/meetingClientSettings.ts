@@ -20,6 +20,11 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       html5ClientBuild: 'HTML5_CLIENT_VERSION',
       helpLink: 'https://bigbluebutton.org/html5/',
       delayForUnmountOfSharedNote: 120000,
+      sharedNotes: {
+        imagePaste: {
+          enabled: false,
+        },
+      },
       enableApolloDevTools: false,
       bbbTabletApp: {
         enabled: true,

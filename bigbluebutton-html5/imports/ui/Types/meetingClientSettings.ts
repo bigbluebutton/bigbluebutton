@@ -54,6 +54,7 @@ export interface App {
   html5ClientBuild: string
   helpLink: string
   delayForUnmountOfSharedNote: number
+  sharedNotes: AppSharedNotes
   bbbTabletApp: BbbTabletApp
   cdn: string
   basename: string
@@ -112,6 +113,14 @@ export interface BbbTabletApp {
   enabled: boolean
   iosAppStoreUrl: string
   iosAppUrlScheme: string
+}
+
+export interface AppSharedNotes {
+  imagePaste: SharedNotesImagePaste
+}
+
+export interface SharedNotesImagePaste {
+  enabled: boolean
 }
 
 export interface DarkTheme {
