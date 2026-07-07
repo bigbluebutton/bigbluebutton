@@ -781,6 +781,13 @@ class PresentationUploader extends Component {
     )
       .then(() => {
         toast.dismiss(toastId);
+
+        window.dispatchEvent(new CustomEvent('presentationNotesUpdated', {
+          detail: {
+            presentationId: presentationItem.presentationId,
+          },
+        }));
+
         notify(intl.formatMessage(intlMessages.uploadedNotes), 'success');
       })
       .catch((error) => {
@@ -803,6 +810,11 @@ class PresentationUploader extends Component {
       presentationItem.presentationId,
     )
       .then(() => {
+        window.dispatchEvent(new CustomEvent('presentationNotesUpdated', {
+          detail: {
+            presentationId: presentationItem.presentationId,
+          },
+        }));
         notify(intl.formatMessage(intlMessages.extractedPresentationNotes), 'success');
       })
       .catch((error) => {
