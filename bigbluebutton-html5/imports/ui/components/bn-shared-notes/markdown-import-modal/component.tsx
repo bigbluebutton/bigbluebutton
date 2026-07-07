@@ -2,6 +2,8 @@ import * as React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { BlockNoteEditor } from '@blocknote/core';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { DropzoneRenderFunction } from 'react-dropzone';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import Button from '/imports/ui/components/common/button/component';
 import Icon from '/imports/ui/components/common/icon/component';
@@ -10,6 +12,10 @@ import Styled from './styles';
 // A Markdown file larger than this is rejected before it is read into memory.
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB
 const ACCEPTED_EXTENSIONS = ['.md', '.markdown'];
+// Comma-separated form for the native file picker's `accept` attribute (react-dropzone
+// types it as a single string). The array above stays the source of truth for the
+// authoritative extension check in loadFile.
+const ACCEPTED_EXTENSIONS_ATTR = ACCEPTED_EXTENSIONS.join(',');
 
 type ImportError = 'invalidType' | 'tooLarge' | 'readFailed' | 'empty';
 
@@ -207,6 +213,32 @@ const MarkdownImportModal: React.FC<MarkdownImportModalProps> = ({ editor, onClo
   // The red dashed border only applies to hard errors, not the empty-file notice.
   const hasHardError = error !== null && error !== 'empty';
 
+  // react-dropzone's legacy render-prop children. Typed via DropzoneRenderFunction so
+  // isDragActive is a plain local (destructured in the body, not an inline param type
+  // that react/no-unused-prop-types misreads as a component's declared props).
+  const renderDropzoneContent: DropzoneRenderFunction = (renderProps) => {
+    const { isDragActive } = renderProps;
+    return (
+      <>
+        <Styled.DropzoneIcon iconName="upload" />
+        {isDragActive ? (
+          <Styled.DropzoneLabel>
+            {intl.formatMessage(intlMessages.dropzoneActive)}
+          </Styled.DropzoneLabel>
+        ) : (
+          <Styled.DropzoneLabel>
+            {intl.formatMessage(intlMessages.dropzoneLabel)}
+            {' '}
+            <Styled.Browse>{intl.formatMessage(intlMessages.dropzoneBrowse)}</Styled.Browse>
+          </Styled.DropzoneLabel>
+        )}
+        <Styled.DropzoneHint>
+          {intl.formatMessage(intlMessages.dropzoneHint)}
+        </Styled.DropzoneHint>
+      </>
+    );
+  };
+
   return (
     <ModalSimple
       title={intl.formatMessage(intlMessages.title)}
@@ -218,35 +250,22 @@ const MarkdownImportModal: React.FC<MarkdownImportModalProps> = ({ editor, onClo
       <Styled.Container>
         <Styled.Dropzone
           multiple={false}
-          accept={ACCEPTED_EXTENSIONS}
+          accept={ACCEPTED_EXTENSIONS_ATTR}
           activeClassName="isDragActive"
           onDrop={onDrop}
           inputProps={{
             'aria-label': intl.formatMessage(intlMessages.dropzoneLabel),
-            'data-test': 'notesImportMarkdownFileInput',
+            // data-test is a valid DOM data-* attribute but not in the typed
+            // InputHTMLAttributes; the spread lets it through without a type cast.
+            ...{ 'data-test': 'notesImportMarkdownFileInput' },
           }}
           $hasError={hasHardError}
           data-test="notesImportMarkdownDropzone"
         >
-          {({ isDragActive }: { isDragActive: boolean }) => (
-            <>
-              <Styled.DropzoneIcon iconName="upload" />
-              {isDragActive ? (
-                <Styled.DropzoneLabel>
-                  {intl.formatMessage(intlMessages.dropzoneActive)}
-                </Styled.DropzoneLabel>
-              ) : (
-                <Styled.DropzoneLabel>
-                  {intl.formatMessage(intlMessages.dropzoneLabel)}
-                  {' '}
-                  <Styled.Browse>{intl.formatMessage(intlMessages.dropzoneBrowse)}</Styled.Browse>
-                </Styled.DropzoneLabel>
-              )}
-              <Styled.DropzoneHint>
-                {intl.formatMessage(intlMessages.dropzoneHint)}
-              </Styled.DropzoneHint>
-            </>
-          )}
+          {/* styled(Dropzone) merges the div's ReactNode children with dropzone's
+              render-function children into an intersection that excludes functions, so
+              the valid render-prop is passed through React.ReactNode. */}
+          {renderDropzoneContent as unknown as React.ReactNode}
         </Styled.Dropzone>
 
         {fileName && (
