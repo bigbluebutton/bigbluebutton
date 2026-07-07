@@ -1,9 +1,15 @@
 import styled from 'styled-components';
 import Select from '@mui/material/Select';
 import Button from '/imports/ui/components/common/button/component';
+import Icon from '/imports/ui/components/common/icon/component';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import { colorGrayLighter, colorPrimary, colorText } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  colorGrayLighter,
+  colorPrimary,
+  colorText,
+  colorDanger,
+} from '/imports/ui/stylesheets/styled-components/palette';
 import {
   borderSize,
   mdPaddingX,
@@ -134,6 +140,48 @@ const CameraToggle = styled.label`
   margin-top: ${borderSize};
 `;
 
+const ToggleInput = styled.input`
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+  accent-color: ${colorPrimary};
+
+  &:focus-visible {
+    outline: 2px solid ${colorPrimary};
+    outline-offset: 2px;
+  }
+`;
+
+const PermissionDenied = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: ${borderSize};
+  padding: ${mdPaddingX} 0;
+  font-size: 0.85rem;
+  color: ${colorText};
+`;
+
+const PermissionIcon = styled(Icon)`
+  color: ${colorDanger};
+  font-size: 1.25rem;
+`;
+
+const RetryButton = styled.button`
+  background: none;
+  border: none;
+  color: ${colorPrimary};
+  cursor: pointer;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  padding: 0.25rem 0;
+
+  &:hover,
+  &:focus-visible {
+    opacity: 0.8;
+  }
+`;
+
 const LockedNote = styled.div`
   font-size: 0.85rem;
   color: ${colorText};
@@ -155,5 +203,9 @@ export default {
   JoinButton,
   ListenOnlyLink,
   CameraToggle,
+  ToggleInput,
+  PermissionDenied,
+  PermissionIcon,
+  RetryButton,
   LockedNote,
 };
