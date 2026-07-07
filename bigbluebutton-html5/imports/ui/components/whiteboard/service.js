@@ -385,8 +385,35 @@ const sanitizeShape = (shape) => {
   };
 };
 
+// Only the shape is persisted server-side (annotationInfo); the tldraw asset that
+// an image shape needs to render is rebuilt here from the relative src kept in
+// shape.meta.bbbImageSrc, so pasted images survive reload and reach remote users.
+const reconstructImageAssets = (store, shapes) => {
+  if (!store) return;
+  shapes.forEach((shape) => {
+    const src = shape?.meta?.bbbImageSrc;
+    const assetId = shape?.props?.assetId;
+    if (shape?.type !== 'image' || !src || !assetId || store.get(assetId)) return;
+    store.put([{
+      id: assetId,
+      typeName: 'asset',
+      type: 'image',
+      meta: {},
+      props: {
+        w: shape.props.w,
+        h: shape.props.h,
+        src: Auth.authenticateURL(src),
+        name: '',
+        isAnimated: false,
+        mimeType: null,
+      },
+    }]);
+  });
+};
+
 const debouncedUpdateShapes = debounce((
   shapes, tlEditorRef, presentationIdRef, pageChanged, assets, bgShape, currentUserId,
+  imagePasteEnabled = false,
 ) => {
   if (shapes && Object.keys(shapes).length > 0) {
     tlEditorRef.current?.store.mergeRemoteChanges(() => {
@@ -426,7 +453,7 @@ const debouncedUpdateShapes = debounce((
         if (
           (shape.meta?.presentationId === presentationIdRef.current
           || shape?.whiteboardId?.includes(presentationIdRef.current))
-          && isValidShapeType(shape)
+          && isValidShapeType(shape, imagePasteEnabled)
         ) {
           acc.push(sanitizeShape(shapeToMerge));
         }
@@ -438,6 +465,7 @@ const debouncedUpdateShapes = debounce((
         tlEditorRef.current?.store.put(bgShape);
       }
 
+      reconstructImageAssets(tlEditorRef.current?.store, remoteShapesArray);
       tlEditorRef.current?.store.put(remoteShapesArray);
     });
   }
@@ -483,4 +511,5 @@ export {
   debouncedUpdateShapes,
   sanitizeShape,
   setupColorThemePaletteOverrides,
+  reconstructImageAssets,
 };

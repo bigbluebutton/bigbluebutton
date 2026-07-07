@@ -13,6 +13,8 @@ import {
   DefaultHorizontalAlignStyle,
   DefaultVerticalAlignStyle,
   InstancePresenceRecordType,
+  AssetRecordType,
+  createShapeId,
   setDefaultUiAssetUrls,
   setDefaultEditorAssetUrls,
   toolbarItem,
@@ -39,10 +41,14 @@ import { useMouseEvents, useCursor } from './hooks';
 import {
   notifyShapeNumberExceeded, getCustomEditorAssetUrls, getCustomAssetUrls,
   debouncedUpdateShapes, sanitizeShape, setupColorThemePaletteOverrides,
+  reconstructImageAssets,
 } from './service';
 import NoopTool from './custom-tools/noop-tool/component';
 import DeleteSelectedItemsTool from './custom-tools/delete-selected-items/component';
 import SessionStorage from '/imports/ui/services/storage/session';
+import Auth from '/imports/ui/services/auth';
+import { uploadImage, UploadImageError } from '/imports/ui/services/file-upload';
+import { notify } from '/imports/ui/services/notification';
 
 setupColorThemePaletteOverrides();
 
@@ -100,6 +106,38 @@ const createLookup = (arr) => arr.reduce((acc, entry) => {
   return acc;
 }, {});
 
+// Reads an image's natural dimensions without decoding it into the tldraw store.
+const getImageDimensions = (file) => new Promise((resolve, reject) => {
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+  img.onload = () => {
+    URL.revokeObjectURL(url);
+    resolve({ width: img.naturalWidth, height: img.naturalHeight });
+  };
+  img.onerror = () => {
+    URL.revokeObjectURL(url);
+    reject(new Error('Could not read image dimensions'));
+  };
+  img.src = url;
+});
+
+// Pulls the first image out of async-clipboard items (used for Ctrl+V, which BBB
+// intercepts before tldraw can route it through the drop handler).
+const extractClipboardImageFile = async (items) => {
+  const allowed = window.meetingClientSettings.public.fileUpload.allowedMimeTypes;
+  for (let i = 0; i < items.length; i += 1) {
+    const item = items[i];
+    const type = item.types.find((t) => allowed.includes(t));
+    if (type) {
+      // eslint-disable-next-line no-await-in-loop
+      const blob = await item.getType(type);
+      const ext = type.split('/')[1];
+      return new File([blob], `pasted-image.${ext}`, { type });
+    }
+  }
+  return null;
+};
+
 const defaultUser = {
   userId: '',
 };
@@ -127,7 +165,23 @@ const intlMessages = defineMessages({
     id: 'app.poll.answer.false',
     description: 'Poll option for false/incorrect answer',
   },
+  imagePasteErrorType: {
+    id: 'app.whiteboard.imagePaste.errorType',
+    description: 'Toast shown when a pasted whiteboard file is not a supported image type',
+  },
+  imagePasteErrorTooLarge: {
+    id: 'app.whiteboard.imagePaste.errorTooLarge',
+    description: 'Toast shown when a pasted whiteboard image is too large',
+  },
+  imagePasteErrorUpload: {
+    id: 'app.whiteboard.imagePaste.errorUpload',
+    description: 'Toast shown when a pasted whiteboard image fails to upload',
+  },
 });
+
+// Longest side (in tldraw page units) a pasted image is scaled down to on insert.
+// Keeps large photos from covering the whole slide; the user can still resize.
+const IMAGE_PASTE_MAX_SIZE = 512;
 
 // Persists the presenter's actual zoom ratio across React unmount/remount cycles
 // (e.g. minimize → restore presentation). A plain module-level object outlives
@@ -186,6 +240,7 @@ const Whiteboard = React.memo((props) => {
     lockToolbarTools,
     layoutChanged,
     pointerDiameter = 5,
+    isImagePasteEnabled = false,
   } = props;
 
   const allowInfiniteWhiteboardPanForViewers = window.meetingClientSettings?.public?.whiteboard?.allowInfiniteWhiteboardPanForViewers;
@@ -248,8 +303,10 @@ const Whiteboard = React.memo((props) => {
   const hasZoomSyncedRef = useRef(false);
   const lastForcedViewRef = useRef(null);
   const currentUserRef = useRef(currentUser);
+  const imagePasteEnabledRef = useRef(isImagePasteEnabled);
 
   currentUserRef.current = currentUser;
+  imagePasteEnabledRef.current = isImagePasteEnabled;
 
   const [pageZoomMap, setPageZoomMap] = useState(() => {
     try {
@@ -508,7 +565,7 @@ const Whiteboard = React.memo((props) => {
     }
     debouncedUpdateShapes(
       shapes, tlEditorRef, presentationIdRef, pageChanged, assets, bgShape,
-      currentUser?.userId,
+      currentUser?.userId, imagePasteEnabledRef.current,
     );
   }, [shapes, currentUser?.userId]);
 
@@ -623,6 +680,93 @@ const Whiteboard = React.memo((props) => {
     });
   };
 
+  const notifyImagePasteError = useCallback((err) => {
+    const reason = err instanceof UploadImageError ? err.reason : 'upload-failed';
+    const messageByReason = {
+      'too-large': intlMessages.imagePasteErrorTooLarge,
+      'unsupported-type': intlMessages.imagePasteErrorType,
+      'upload-failed': intlMessages.imagePasteErrorUpload,
+    };
+    const message = messageByReason[reason] || intlMessages.imagePasteErrorUpload;
+    if (intl) notify(intl.formatMessage(message), 'error', 'whiteboard');
+    logger.error(
+      { logCode: 'whiteboard_image_upload_error', extraInfo: { reason } },
+      `Whiteboard image upload failed: ${err?.message}`,
+    );
+  }, [intl]);
+
+  // Uploads image files and inserts them as tldraw image shapes. Shared by the
+  // drop handler (registerExternalContentHandler) and the Ctrl+V paste path.
+  const insertImageFiles = useCallback(async (files, point) => {
+    const editor = tlEditorRef.current;
+    if (!editor || !imagePasteEnabledRef.current) return;
+    if (!(isPresenterRef.current || hasWBAccessRef.current)) return;
+
+    const allowed = window.meetingClientSettings.public.fileUpload.allowedMimeTypes;
+    const imageFiles = Array.from(files || []).filter((f) => f?.type && allowed.includes(f.type));
+    if (imageFiles.length === 0) return;
+
+    const position = point ?? editor.getViewportPageCenter();
+    let offsetX = 0;
+
+    // Sequential so annotation order is deterministic and a failure is per-file.
+    for (let i = 0; i < imageFiles.length; i += 1) {
+      const file = imageFiles[i];
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        const relativeUrl = await uploadImage(file);
+        // eslint-disable-next-line no-await-in-loop
+        const { width, height } = await getImageDimensions(file);
+        const scale = Math.min(1, IMAGE_PASTE_MAX_SIZE / Math.max(width, height, 1));
+        const w = Math.max(1, Math.round(width * scale));
+        const h = Math.max(1, Math.round(height * scale));
+        const assetId = AssetRecordType.createId();
+
+        // The asset is rebuilt locally and never persisted; create it as a remote
+        // change so it does not flow into the annotation persistence batch.
+        editor.store.mergeRemoteChanges(() => {
+          editor.createAssets([{
+            id: assetId,
+            typeName: 'asset',
+            type: 'image',
+            meta: {},
+            props: {
+              w,
+              h,
+              src: Auth.authenticateURL(relativeUrl),
+              name: file.name || '',
+              isAnimated: false,
+              mimeType: file.type,
+            },
+          }]);
+        });
+
+        editor.createShapes([{
+          id: createShapeId(),
+          type: 'image',
+          x: position.x - w / 2 + offsetX,
+          y: position.y - h / 2,
+          opacity: 1,
+          props: { assetId, w, h },
+          // The relative src is the only image data persisted; the asset record is
+          // rebuilt from it on load and the server validates it (WhiteboardModel).
+          meta: { bbbImageSrc: relativeUrl },
+        }]);
+        offsetX += w + 10;
+      } catch (err) {
+        notifyImagePasteError(err);
+      }
+    }
+  }, [tlEditorRef, notifyImagePasteError]);
+
+  const pasteClipboardText = useCallback(() => navigator.clipboard.readText().then((text) => {
+    const match = text.match(/<tldraw>(.*)<\/tldraw>/);
+    if (match && match[1]) {
+      const content = JSON.parse(decompressFromBase64(match[1]));
+      pasteTldrawContent(tlEditorRef.current, content);
+    }
+  }), [tlEditorRef]);
+
   const handlePaste = useCallback(() => {
     if (isPasting) {
       return;
@@ -634,20 +778,34 @@ const Whiteboard = React.memo((props) => {
       if (clipboardContent) {
         pasteTldrawContent(tlEditorRef.current, clipboardContent);
         isPasting = false;
-      } else {
-        navigator.clipboard.readText().then((text) => {
-          const match = text.match(/<tldraw>(.*)<\/tldraw>/);
-          if (match && match[1]) {
-            const content = JSON.parse(decompressFromBase64(match[1]));
-            pasteTldrawContent(tlEditorRef.current, content);
-          }
-          isPasting = false;
-        }).catch(() => {
-          isPasting = false;
-        });
+        return;
       }
+
+      const canPasteImage = imagePasteEnabledRef.current
+        && (isPresenterRef.current || hasWBAccessRef.current)
+        && !!navigator.clipboard?.read;
+
+      if (!canPasteImage) {
+        pasteClipboardText().catch(() => {}).finally(() => { isPasting = false; });
+        return;
+      }
+
+      // Ctrl+V is intercepted by BBB before tldraw sees it, so read the clipboard
+      // ourselves: an image goes through the upload path, anything else falls back
+      // to the internal tldraw-content/text paste.
+      navigator.clipboard.read()
+        .then(async (items) => {
+          const file = await extractClipboardImageFile(items);
+          if (file) {
+            await insertImageFiles([file]);
+          } else {
+            await pasteClipboardText();
+          }
+        })
+        .catch(() => pasteClipboardText().catch(() => {}))
+        .finally(() => { isPasting = false; });
     }, 100);
-  }, [tlEditorRef]);
+  }, [tlEditorRef, insertImageFiles, pasteClipboardText]);
 
   const handleKeyDown = useCallback((event) => {
     if (event.repeat) {
@@ -1263,6 +1421,15 @@ const Whiteboard = React.memo((props) => {
     setTldrawAPI(editor);
     setEditor(editor);
 
+    // Only override the default file handler when the feature is on. When it is
+    // off we leave tldraw's default in place, so a dropped image still becomes an
+    // (invalid) image shape that gets rejected with a notification downstream.
+    if (imagePasteEnabledRef.current) {
+      editor.registerExternalContentHandler('files', async ({ point, files }) => {
+        await insertImageFiles(files, point);
+      });
+    }
+
     let initialColorStyle = colorStyle;
     let initialDashStyle = dashStyle;
     let initialFillStyle = fillStyle;
@@ -1355,7 +1522,8 @@ const Whiteboard = React.memo((props) => {
         const filteredShapes = localShapes?.filter((item) => item?.index !== 'a0') || [];
         const shapeNumberExceeded = filteredShapes
           .length + addedCount - 1 > maxNumberOfAnnotations;
-        const invalidShapeType = Object.keys(added).find((id) => !isValidShapeType(added[id]));
+        const invalidShapeType = Object.keys(added)
+          .find((id) => !isValidShapeType(added[id], imagePasteEnabledRef.current));
 
         if (addedCount > 0 && (shapeNumberExceeded || invalidShapeType)) {
           // notify and undo last command without persisting
@@ -1564,7 +1732,7 @@ const Whiteboard = React.memo((props) => {
           .filter((shape) => {
             const shapePresId = shape.meta?.presentationId;
             return (!shapePresId || shapePresId === currentPresId)
-              && isValidShapeType(shape);
+              && isValidShapeType(shape, imagePasteEnabledRef.current);
           })
           .map((shape) => sanitizeShape(shape))
         : [];
@@ -1576,6 +1744,7 @@ const Whiteboard = React.memo((props) => {
           editor.setCurrentPage(`page:${curPageIdRef.current}`);
           editor.store.put(bgShape);
           if (remoteShapesArray.length > 0) {
+            reconstructImageAssets(editor.store, remoteShapesArray);
             editor.store.put(remoteShapesArray);
           }
           editor.history.clear();
@@ -2576,6 +2745,7 @@ Whiteboard.propTypes = {
   presentationAreaWidth: PropTypes.number.isRequired,
   maxNumberOfAnnotations: PropTypes.number.isRequired,
   pointerDiameter: PropTypes.number,
+  isImagePasteEnabled: PropTypes.bool,
   setTldrawIsMounting: PropTypes.func.isRequired,
   presentationId: PropTypes.string,
   setTldrawAPI: PropTypes.func.isRequired,
