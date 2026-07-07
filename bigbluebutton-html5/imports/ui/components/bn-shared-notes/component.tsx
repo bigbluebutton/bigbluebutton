@@ -37,6 +37,8 @@ import { notify } from '../../services/notification';
 import TextAlignSelect from './text-align-select/component';
 import MarkdownImportModal from './markdown-import-modal/component';
 import { useSharedNotesImport } from './import-context';
+import { useIsSharedNotesImagePasteEnabled } from '/imports/ui/services/features';
+import { uploadImage } from '/imports/ui/services/file-upload';
 
 // Force-retain `Awareness` against a webpack tree-shaking interaction that
 // otherwise drops this class while keeping its `extends Observable` expression,
@@ -211,16 +213,19 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   const blockNoteLocale = useBlockNoteLocaleLanguage();
   const [notificationErrorMessage, setNotificationErrorMessage] = React.useState<string | null>(null);
 
-  // Remove Media block types for now
+  const imagePasteEnabled = useIsSharedNotesImagePasteEnabled();
+
+  // Media blocks are removed by default. The `image` block is reintroduced only
+  // when image paste is enabled; audio/file/video stay out.
   const {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     audio, image, file, video, ...remainingBlockSpecs
   } = defaultBlockSpecs;
 
   const schema = BlockNoteSchema.create({
-    blockSpecs: {
-      ...remainingBlockSpecs,
-    },
+    blockSpecs: imagePasteEnabled
+      ? { ...remainingBlockSpecs, image }
+      : { ...remainingBlockSpecs },
   });
 
   const {
@@ -268,6 +273,12 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
 
   const editor = useCreateBlockNote({
     tabBehavior: 'prefer-indent',
+    // Uploads pasted/dropped images to the meeting-scoped bbb-file-upload service
+    // and stores only the returned same-origin URL in the block. Undefined when the
+    // feature is off, so BlockNote does not accept image content at all.
+    uploadFile: imagePasteEnabled
+      ? (fileToUpload: File) => uploadImage(fileToUpload)
+      : undefined,
     collaboration: {
       provider: { awareness: hocuspocusProvider.awareness || undefined },
       fragment,
@@ -343,7 +354,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         return defaultPasteHandler();
       }
     },
-  }, [blockNoteLocale, notificationErrorMessage]);
+  }, [blockNoteLocale, notificationErrorMessage, imagePasteEnabled]);
 
   const editable = !disableNotes || !currentUserIsLocked || currentUserIsModerator;
 
