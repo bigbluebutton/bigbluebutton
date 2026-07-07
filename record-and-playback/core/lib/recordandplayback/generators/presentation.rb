@@ -22,9 +22,25 @@
 
 require 'rubygems'
 require 'nokogiri'
+require 'json'
 
 module BigBlueButton
   class Presentation
+    # Reads the page-number to pageId manifest (pages.json) written by the
+    # conversion pipeline. On-disk slide files are named by the opaque pageId,
+    # so this is the only way to resolve a page number to its files without
+    # consulting the events. Returns an empty hash for pre-pageId recordings.
+    def self.read_page_id_manifest(presentation_dir)
+      manifest_file = "#{presentation_dir}/pages.json"
+      return {} unless File.exist?(manifest_file)
+      begin
+        JSON.parse(File.read(manifest_file)).transform_keys(&:to_i)
+      rescue StandardError => e
+        BigBlueButton.logger.warn("Ignoring unreadable page id manifest #{manifest_file}: #{e.message}")
+        {}
+      end
+    end
+
     # Get the presentations.
     def self.get_presentations(events_xml)
       BigBlueButton.logger.info("Task: Getting presentations from events")      
@@ -124,16 +140,21 @@ module BigBlueButton
         presentation_id = presentation_event.xpath("presentationName").text
         presentation_filename = presentation_filenames[presentation_id]
         # Set textfile directory
-        textfiles_dir = "#{process_dir}/presentation/#{presentation_id}/textfiles"
+        pres_process_dir = "#{process_dir}/presentation/#{presentation_id}"
+        textfiles_dir = "#{pres_process_dir}/textfiles"
+        # Page files are named by pageId on current recordings; fall back to
+        # the page number for recordings that predate the manifest.
+        manifest = self.read_page_id_manifest(pres_process_dir)
         # Set presentation hashmap to be returned
         unless presentation_filename == "default.pdf"
           presentation[:id] = presentation_id
           presentation[:filename] = presentation_filename
           presentation[:slides] = {}
           for i in 1..3
-            if File.file?("#{textfiles_dir}/slide-#{i}.txt")
-              text_from_slide = self.get_text_from_slide(textfiles_dir, i)
-              presentation[:slides][i] = { :alt => text_from_slide == nil ? '' : text_from_slide }
+            page_file_id = manifest[i] || i
+            if File.file?("#{textfiles_dir}/slide-#{page_file_id}.txt")
+              text_from_slide = self.get_text_from_slide(textfiles_dir, page_file_id)
+              presentation[:slides][i] = { :alt => text_from_slide == nil ? '' : text_from_slide, :page_file_id => page_file_id }
             end
           end
           # Break because something else than default.pdf was found
