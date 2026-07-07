@@ -18,6 +18,8 @@ export interface Settings {
   maxMessageLength?: number;
   emojiPickerEnabled?: boolean;
   autoConvertEmojiEnabled?: boolean;
+  imagePasteEnabled?: boolean;
+  markdownImageAllowed?: boolean;
   // Polling
   pollEnabled?: boolean;
   pollChatMessage?: boolean;
@@ -76,6 +78,8 @@ export async function generateSettingsData(page: Page): Promise<Settings | undef
       maxMessageLength: settingsData.chat?.max_message_length,
       emojiPickerEnabled: settingsData.chat?.emojiPicker?.enable,
       autoConvertEmojiEnabled: settingsData.chat?.autoConvertEmoji,
+      imagePasteEnabled: settingsData.chat?.imagePaste?.enabled,
+      markdownImageAllowed: settingsData.chat?.markdownImageAllowed,
       // Polling
       pollEnabled: settingsData.poll?.enabled,
       pollChatMessage: settingsData.poll?.chatMessage,

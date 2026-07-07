@@ -1,5 +1,6 @@
 import { test } from '../core/setup/fixtures';
 import { Chat } from './chat';
+import { ChatImagePaste } from './imagePaste';
 import { Jumbomoji } from './jumbomoji';
 import { MessageActions } from './messageActions';
 import { PrivateChatListPreview } from './privateChatListPreview';
@@ -275,6 +276,38 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
         await message.initPages(page, testInfo);
         await message.orderReactions();
       });
+    });
+  });
+
+  test.describe('Image paste', { tag: '@setting-required:chat.imagePaste' }, () => {
+    test('Paste an image, preview it and send it', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initPages(page, testInfo);
+      await chat.pasteAndSendImage();
+    });
+
+    test('Remove the pasted image before sending', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.removePreviewBeforeSend();
+    });
+
+    test('Reject an image above the size limit', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.rejectsOversizeImage();
+    });
+
+    test('Reject an unsupported image type', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.rejectsUnsupportedType();
+    });
+
+    test('Strip an externally hosted image from a sent message', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.dropsExternalImage();
     });
   });
 });
