@@ -167,6 +167,9 @@ assets {
 }
 
 test {
+  // Spock 2 runs on the JUnit Platform; without this the test task discovers no
+  // specs ("No tests found") and silently reports success.
+  useJUnitPlatform()
   testLogging {
     events "passed", "failed", "skipped"
     showStandardStreams = true
