@@ -1,9 +1,7 @@
 import Auth from '/imports/ui/services/auth';
-import PollService from '/imports/ui/components/poll/service';
 import { defineMessages } from 'react-intl';
 import { DefaultColorThemePalette } from '@bigbluebutton/tldraw';
 import { notify } from '/imports/ui/services/notification';
-import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { debounce } from '/imports/utils/debounce';
 import { isValidShapeType } from './utils';
 
@@ -153,102 +151,6 @@ const toggleToolsAnimations = (activeAnim, anim, time, hasWBAccess = false) => {
   };
 
   return checkElementsAndRun();
-};
-
-const formatAnnotations = (annotations, intl, curPageId, currentPresentationPage) => {
-  const result = {};
-
-  annotations.forEach((annotation) => {
-    if (!annotation.annotationInfo) return;
-
-    let { annotationInfo } = annotation;
-
-    if (annotationInfo.questionType) {
-      // poll result, convert it to text and create tldraw shape
-      if (!annotationInfo.props) {
-        annotationInfo.answers = annotationInfo.answers.reduce(
-          caseInsensitiveReducer, [],
-        );
-        const pollResult = PollService.getPollResultString(annotationInfo, intl)
-          .split('<br/>').join('\n').replace(/(<([^>]+)>)/ig, '');
-
-        const lines = pollResult.split('\n');
-        const longestLine = lines.reduce((a, b) => (a.length > b.length ? a : b), '').length;
-
-        // Text measurement estimation
-        const averageCharWidth = 14;
-        const lineHeight = 32;
-        const padding = 2;
-
-        const annotationWidth = longestLine * averageCharWidth;
-        const annotationHeight = lines.length * lineHeight;
-
-        const slideWidth = currentPresentationPage?.scaledWidth;
-        const slideHeight = currentPresentationPage?.scaledHeight;
-        const xPosition = slideWidth - annotationWidth - padding;
-        const yPosition = slideHeight - annotationHeight - padding;
-
-        annotationInfo = {
-          x: xPosition,
-          y: yPosition,
-          isLocked: false,
-          rotation: 0,
-          typeName: 'shape',
-          opacity: 1,
-          parentId: `page:${curPageId}`,
-          index: 'a1',
-          id: `${annotationInfo.id}`,
-          meta: {},
-          type: 'poll',
-          props: {
-            color: 'black',
-            fill: 'semi',
-            w: annotationWidth,
-            h: annotationHeight,
-            answers: annotationInfo.answers,
-            numRespondents: annotationInfo.numRespondents,
-            numResponders: annotationInfo.numResponders,
-            questionText: annotationInfo.questionText,
-            questionType: annotationInfo.questionType,
-            question: annotationInfo.question || '',
-          },
-        };
-      } else {
-        annotationInfo = {
-          x: annotationInfo.x,
-          isLocked: annotationInfo.isLocked,
-          y: annotationInfo.y,
-          rotation: annotationInfo.rotation,
-          typeName: annotationInfo.typeName,
-          opacity: annotationInfo.opacity,
-          parentId: annotationInfo.parentId,
-          index: annotationInfo.index,
-          id: annotationInfo.id,
-          meta: annotationInfo.meta,
-          type: 'poll',
-          props: {
-            color: 'black',
-            fill: 'semi',
-            h: annotationInfo.props.h,
-            w: annotationInfo.props.w,
-            answers: annotationInfo.answers,
-            numRespondents: annotationInfo.numRespondents,
-            numResponders: annotationInfo.numResponders,
-            questionText: annotationInfo.questionText,
-            questionType: annotationInfo.questionType,
-            question: annotationInfo.question || '',
-          },
-        };
-      }
-
-      const cpg = parseInt(annotationInfo?.id?.split?.('/')?.[1], 10);
-      if (cpg !== parseInt(curPageId, 10)) return;
-
-      annotationInfo.questionType = false;
-    }
-    result[annotationInfo.id] = annotationInfo;
-  });
-  return result;
 };
 
 const getCustomEditorAssetUrls = () => {
@@ -477,7 +379,6 @@ export {
   notifyNotAllowedChange,
   notifyShapeNumberExceeded,
   toggleToolsAnimations,
-  formatAnnotations,
   getCustomEditorAssetUrls,
   getCustomAssetUrls,
   debouncedUpdateShapes,
