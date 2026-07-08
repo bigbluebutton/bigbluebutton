@@ -4,7 +4,8 @@ import getSDK from './get-sdk';
 // Tenant-agnostic: matches any Panopto host (*.panopto.com, *.panopto.eu, self-hosted).
 // The host capture is restricted to hostname characters plus an optional numeric
 // port, so userinfo ("user@host") or other URL tricks can never reach the SDK.
-const MATCH_URL = /^https?:\/\/([a-zA-Z0-9.-]+(?::\d+)?)\/Panopto\/Pages\/Viewer\.aspx\?id=([-a-zA-Z0-9]+)$/;
+// Extra query params after the id (&autoplay=false...) and fragments are allowed.
+const MATCH_URL = /^https?:\/\/([a-zA-Z0-9.-]+(?::\d+)?)\/Panopto\/Pages\/Viewer\.aspx\?id=([-a-zA-Z0-9]+)(?:&[^#]*)?(?:#.*)?$/;
 
 const SDK_URL = 'https://developers.panopto.com/scripts/embedapi.min.js';
 
