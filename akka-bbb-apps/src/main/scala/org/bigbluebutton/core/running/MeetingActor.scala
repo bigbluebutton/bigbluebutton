@@ -267,6 +267,11 @@ class MeetingActor(
     CheckPresentationConversions
   )
 
+  override def postStop(): Unit = {
+    liveMeeting.audioFloorManager.destroy()
+    super.postStop()
+  }
+
   def receive = {
     case SyncVoiceUserStatusInternalMsg =>
       checkVoiceConfUsersStatus()
