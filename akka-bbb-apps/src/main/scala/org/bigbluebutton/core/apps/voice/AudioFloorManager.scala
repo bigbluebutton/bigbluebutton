@@ -50,10 +50,38 @@ class AudioFloorManager(meetingId: String) extends SystemConfiguration {
       return None
     }
 
+    pruneStaleSpeakingState(timestamp, liveMeeting, outGW)
+
     if (talking) {
       handleStartTalking(userId, timestamp, liveMeeting, outGW)
     } else {
       handleStopTalking(userId, liveMeeting, outGW)
+    }
+  }
+
+  // Catch all for missed stop-talking/left-voice events. Cleanup is important
+  // as stale entries might accumulate and delay actual floor grants for that user
+  // unnecessarily.
+  private def pruneStaleSpeakingState(
+      now:         Long,
+      liveMeeting: LiveMeeting,
+      outGW:       OutMsgRouter
+  )(implicit context: ActorContext): Unit = {
+    // 5 min - likely to be tweaked based on observation (prlanzarin)
+    val ttl = 5 * 60 * 1000L
+    val stale = state.speakingStartTimes.collect {
+      case (userId, startedAt) if now - startedAt >= ttl => userId
+    }.toSet
+
+    if (stale.nonEmpty) {
+      logFloorEvent("none", "stale_speaking_state_pruned", Map(
+        "users" -> stale.mkString(",")
+      ))
+      state = state.copy(speakingStartTimes = state.speakingStartTimes -- stale)
+      if (pendingFloors.exists(pending => stale.contains(pending.userId))) {
+        pendingFloors.filterInPlace(pending => !stale.contains(pending.userId))
+        dispatchPendingGrants(liveMeeting, outGW)
+      }
     }
   }
 
