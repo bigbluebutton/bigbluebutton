@@ -161,9 +161,11 @@ class AudioFloorManager(meetingId: String) extends SystemConfiguration {
       outGW:       OutMsgRouter
   ): Option[String] = {
     if (state.currentHolder.contains(userId)) {
+      // A release does not schedule the switch cooldown - only grants do.
+      // Otherwise a floor holder's departure would defer the grant of the next
+      // speaker until after the cooldown unnecessarily.
       state = state.copy(
-        currentHolder = None,
-        lastFloorSwitch = timestamp
+        currentHolder = None
       )
 
       logFloorEvent(userId, "floor_released", Map(
