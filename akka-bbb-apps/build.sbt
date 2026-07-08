@@ -19,20 +19,24 @@ val compileSettings = Seq(
     "-Ywarn-dead-code",
     "-language:_",
     "-release:21",
-    "-encoding", "UTF-8"
+    "-encoding", "UTF-8",
+    "-Ybackend-parallelism", "4"
   ),
   javacOptions ++= List(
     "-Xlint:unchecked",
     "-Xlint:deprecation"
-  )
+  ),
+
+  // This is an internal service, not a published library - nobody consumes
+  // scaladoc/javadoc for it, and the .deb doesn't bundle it either. `stage`
+  // (used by run.sh/run-dev.sh and by debian:packageBin) otherwise triggers
+  // a full scaladoc compile on every run.
+  Compile / doc / sources := Seq.empty,
+  Compile / packageDoc / publishArtifact := false,
+  Test / packageDoc / publishArtifact := false
 )
 
 publishTo := Some(Resolver.file("file", new File(Path.userHome.absolutePath + "/dev/repo/maven-repo/releases")))
-
-// We want to have our jar files in lib_managed dir.
-// This way we'll have the right path when we import
-// into eclipse.
-retrieveManaged := true
 
 // scalatest is supplied by project/Dependencies.scala (3.2.11). Declaring 3.0.8 here only
 // creates an eviction, and >= 3.2 removed the FlatSpec/Matchers aliases UnitSpec used.
@@ -59,7 +63,7 @@ lazy val bbbAppsAkka = (project in file(".")).settings(name := "bbb-apps-akka", 
 
 // See https://github.com/scala-ide/scalariform
 // Config file is in ./.scalariform.conf
-scalariformAutoformat := true
+scalariformAutoformat := false
 
 scalaVersion := "2.13.18"
 //-----------

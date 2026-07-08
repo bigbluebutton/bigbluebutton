@@ -41,16 +41,13 @@ sed -i "s/EPHEMERAL_VERSION/$EPHEMERAL_VERSION/g" bbb-common-web/project/Depende
 
 echo start building bbb-common-message
 cd bbb-common-message
-sbt publish
-sbt publishLocal
+sbt publish publishLocal
 cd ..
 echo end building bbb-common-message
 
 # New project directory containing parts of bbb-web
 cd bbb-common-web
-sbt update
-sbt publish
-sbt publishLocal
+sbt update publish publishLocal
 cd ..
 
 cd bigbluebutton-web
