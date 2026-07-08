@@ -39,6 +39,7 @@ import MarkdownImportModal from './markdown-import-modal/component';
 import { useSharedNotesImport } from './import-context';
 import { useIsSharedNotesImagePasteEnabled } from '/imports/ui/services/features';
 import { uploadImage } from '/imports/ui/services/file-upload';
+import Auth from '/imports/ui/services/auth';
 
 // Force-retain `Awareness` against a webpack tree-shaking interaction that
 // otherwise drops this class while keeping its `extends Observable` expression,
@@ -279,6 +280,16 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     uploadFile: imagePasteEnabled
       ? (fileToUpload: File) => uploadImage(fileToUpload)
       : undefined,
+    // The raw upload URL is what gets stored in the Yjs document (so it stays
+    // portable and rewritable for recording/playback), but the file-upload
+    // service authorizes the GET from the sessionToken query param. Without this
+    // resolver BlockNote renders `<img src=/bigbluebutton/fileUpload/...>` with no
+    // token and the image 401s for author and everyone. resolveFileUrl runs only
+    // at display time, appending the token via Auth.authenticateURL; non-upload
+    // URLs pass through untouched.
+    resolveFileUrl: async (url: string) => (
+      url.startsWith('/bigbluebutton/fileUpload/') ? Auth.authenticateURL(url) : url
+    ),
     collaboration: {
       provider: { awareness: hocuspocusProvider.awareness || undefined },
       fragment,
