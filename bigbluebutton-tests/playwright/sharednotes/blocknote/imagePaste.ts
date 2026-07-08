@@ -47,6 +47,19 @@ async function openNotes(testPage: Page): Promise<void> {
   await testPage.hasElement(e.sharedNotesBackground, 'should display the shared notes panel', ELEMENT_WAIT_LONGER_TIME);
 }
 
+// Asserting the <img> is present is not enough: a 401 (missing sessionToken on
+// the file-upload GET) still leaves a broken <img> in the DOM. naturalWidth is 0
+// for an image that failed to decode and > 0 only once the bytes actually loaded,
+// so this proves the pasted image really renders. Retried, because the fetch and
+// decode are async.
+async function expectImageRendered(testPage: Page, description: string): Promise<void> {
+  const image = testPage.page.locator(e.blockNoteImage).first();
+  await expect(async () => {
+    const naturalWidth = await image.evaluate((el: HTMLImageElement) => el.naturalWidth);
+    expect(naturalWidth, description).toBeGreaterThan(0);
+  }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
+}
+
 export class BlockNoteImagePaste extends MultiUsers {
   // Paste an image into the notes: with the feature on it becomes an image
   // block that every participant sees; with the feature off it is a no-op.
@@ -66,6 +79,7 @@ export class BlockNoteImagePaste extends MultiUsers {
       'should render the pasted image block for the author',
       ELEMENT_WAIT_LONGER_TIME,
     );
+    await expectImageRendered(this.modPage, 'the pasted image should actually load for the author (naturalWidth > 0)');
 
     // The block syncs over Yjs, so a second participant with notes open sees it.
     await openNotes(this.userPage);
@@ -73,6 +87,10 @@ export class BlockNoteImagePaste extends MultiUsers {
       e.blockNoteImage,
       'should render the pasted image block for the second user',
       ELEMENT_WAIT_LONGER_TIME,
+    );
+    await expectImageRendered(
+      this.userPage,
+      'the pasted image should actually load for the second user (naturalWidth > 0)',
     );
 
     // The stored source must be same-origin (relative to bbb-file-upload), never

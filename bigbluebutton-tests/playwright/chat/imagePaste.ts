@@ -1,6 +1,8 @@
+import { expect } from '@playwright/test';
 import fs from 'fs';
 import path from 'path';
 
+import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { MultiUsers } from '../user/multiusers';
@@ -60,6 +62,18 @@ async function dispatchFile(testPage: Page, selector: string, file: SyntheticFil
   );
 }
 
+// Asserting the <img> is present is not enough: a broken image (e.g. a 401 from
+// the file-upload GET) still leaves an <img> in the DOM. naturalWidth is 0 for an
+// image that failed to decode and > 0 once the bytes actually loaded, so this
+// proves the sent image really renders. Retried, because load/decode are async.
+async function expectChatImageRendered(testPage: Page, description: string): Promise<void> {
+  const image = testPage.page.locator(e.chatUserMessageImage).first();
+  await expect(async () => {
+    const naturalWidth = await image.evaluate((el: HTMLImageElement) => el.naturalWidth);
+    expect(naturalWidth, description).toBeGreaterThan(0);
+  }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
+}
+
 export class ChatImagePaste extends MultiUsers {
   async pasteAndSendImage() {
     const { imagePasteEnabled } = this.modPage.settings || {};
@@ -91,7 +105,15 @@ export class ChatImagePaste extends MultiUsers {
     await this.modPage.waitAndClick(e.sendButton);
     await this.modPage.wasRemoved(e.chatImagePreview, 'should clear the preview after sending');
     await this.modPage.hasElement(e.chatUserMessageImage, 'should render the sent image for the sender');
+    await expectChatImageRendered(
+      this.modPage,
+      'the sent image should actually load for the sender (naturalWidth > 0)',
+    );
     await this.userPage.hasElement(e.chatUserMessageImage, 'should render the sent image for the second user');
+    await expectChatImageRendered(
+      this.userPage,
+      'the sent image should actually load for the second user (naturalWidth > 0)',
+    );
   }
 
   async removePreviewBeforeSend() {

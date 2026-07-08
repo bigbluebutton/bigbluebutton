@@ -5,6 +5,11 @@ import { Jumbomoji } from './jumbomoji';
 import { MessageActions } from './messageActions';
 import { PrivateChatListPreview } from './privateChatListPreview';
 
+// Rendering the sent <img> needs chat.imagePaste (to stage/upload) AND
+// chat.markdownImageAllowed (the akka markdown renderer only emits <img> when this
+// is on); both settings must be enabled for the image-paste tests to pass.
+const imagePasteTags = ['@setting-required:chat.imagePaste', '@setting-required:chat.markdownImageAllowed'];
+
 test.describe.parallel('Chat', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#public-message-automated
   test('Send public message', async ({ browser, context, page }, testInfo) => {
@@ -279,7 +284,7 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     });
   });
 
-  test.describe('Image paste', { tag: '@setting-required:chat.imagePaste' }, () => {
+  test.describe('Image paste', { tag: imagePasteTags }, () => {
     test('Paste an image, preview it and send it', async ({ browser, context, page }, testInfo) => {
       const chat = new ChatImagePaste(browser, context);
       await chat.initPages(page, testInfo);
