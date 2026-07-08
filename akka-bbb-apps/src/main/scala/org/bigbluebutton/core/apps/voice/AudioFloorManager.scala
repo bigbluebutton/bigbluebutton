@@ -1,10 +1,12 @@
 package org.bigbluebutton.core.apps.voice
 
-import java.util.concurrent.{ Executors, ScheduledExecutorService, ScheduledFuture, TimeUnit }
+import org.apache.pekko.actor.{ ActorContext, Cancellable }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.models.VoiceUsers
 import org.bigbluebutton.SystemConfiguration
 import scala.collection.mutable
+import scala.concurrent.duration._
+import scala.util.control.NonFatal
 import org.slf4j.LoggerFactory
 
 case class FloorState(
@@ -15,25 +17,27 @@ case class FloorState(
 
 case class PendingFloor(
     userId:    String,
-    startTime: Long,
-    timer:     ScheduledFuture[_]
+    startTime: Long
 )
 
 object AudioFloorManager {
-  // This timer is shared across all meetings (light load, no need to creat
-  // one per meeting etc)
-  private val scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(r => {
-    val t = new Thread(r, "audio-floor-manager")
-    t.setDaemon(true)
-    t
-  })
+  // Floor grants are sheculed to the meeting actor so they run on the actor
+  // thread, serialized with the rest of the meeting's message handling.
+  case object DispatchFloorGrantsInternalMsg
 }
 
+// All state is confined to the meeting actor: the public entry points run in
+// message handlers and the dispatch timer only enqueues
+// DispatchFloorGrantsInternalMsg back to the same actor.
 class AudioFloorManager(meetingId: String) extends SystemConfiguration {
   private val log = LoggerFactory.getLogger(getClass)
-  private val stateLock = new Object()
   private var state = FloorState()
   private val pendingFloors = mutable.Queue[PendingFloor]()
+  // Single grant dispatch timer that evaluates the queue head. Pending grants
+  // carry no timers of their own: any queue or floor-state change re-runs
+  // the dispatch, so a grant blocked by the cooldown (or by queue order) is
+  // retried when possible.
+  private var grantDispatchTask: Option[Cancellable] = None
 
   def handleUserTalking(
       userId:      String,
@@ -41,17 +45,15 @@ class AudioFloorManager(meetingId: String) extends SystemConfiguration {
       timestamp:   Long         = System.currentTimeMillis(),
       liveMeeting: LiveMeeting,
       outGW:       OutMsgRouter
-  ): Option[String] = {
+  )(implicit context: ActorContext): Option[String] = {
     if (!floorEnabled || liveMeeting.props.meetingProp.audioBridge != "livekit") {
       return None
     }
 
-    stateLock.synchronized {
-      if (talking) {
-        handleStartTalking(userId, timestamp, liveMeeting, outGW)
-      } else {
-        handleStopTalking(userId, timestamp)
-      }
+    if (talking) {
+      handleStartTalking(userId, timestamp, liveMeeting, outGW)
+    } else {
+      handleStopTalking(userId, liveMeeting, outGW)
     }
   }
 
@@ -63,24 +65,52 @@ class AudioFloorManager(meetingId: String) extends SystemConfiguration {
     log.debug(s"Floor control event=${event} meetingId=${meetingId} userId=${userId} currentHolder=${state.currentHolder} logData=${logData}")
   }
 
-  private def scheduleFloorGrant(
-      userId:      String,
-      timestamp:   Long,
+  // Evaluates the floor grant queue: drops stale entries, grants the floor to
+  // the head once both its minimum-talking deadline and the grant cooldown
+  // have elapsed, and otherwise re-schedule itself for the earliest instant a i
+  // grant can succeed.
+  def dispatchPendingGrants(
       liveMeeting: LiveMeeting,
       outGW:       OutMsgRouter
-  ): Unit = {
-    val future = AudioFloorManager.scheduler.schedule(new Runnable {
-      override def run(): Unit = {
-        stateLock.synchronized {
-          if (pendingFloors.nonEmpty && pendingFloors.head.userId == userId) {
-            pendingFloors.dequeue()
-            grantFloor(userId, timestamp + minTalkingDuration, liveMeeting, outGW)
-          }
-        }
-      }
-    }, minTalkingDuration, TimeUnit.MILLISECONDS)
+  )(implicit context: ActorContext): Unit = {
+    grantDispatchTask.foreach(_.cancel())
+    grantDispatchTask = None
 
-    pendingFloors.enqueue(PendingFloor(userId, timestamp, future))
+    while (pendingFloors.headOption.exists(pending => state.currentHolder.contains(pending.userId))) {
+      pendingFloors.dequeue()
+    }
+
+    pendingFloors.headOption.foreach { head =>
+      val now = System.currentTimeMillis()
+      val readyAt = math.max(
+        head.startTime + minTalkingDuration,
+        state.lastFloorSwitch + floorSwitchCooldown
+      )
+
+      if (now >= readyAt) {
+        try {
+          pendingFloors.dequeue()
+          grantFloor(head.userId, now, liveMeeting, outGW)
+          dispatchPendingGrants(liveMeeting, outGW)
+        } catch {
+          // Capture so that the queue doesn't stall
+          case NonFatal(e) =>
+            log.error(s"Floor control grant dispatch failed meetingId=${meetingId}, re-scheduling", e)
+            scheduleGrantDispatch(floorSwitchCooldown)
+        }
+      } else {
+        scheduleGrantDispatch(readyAt - now)
+      }
+    }
+  }
+
+  private def scheduleGrantDispatch(delayMs: Long)(implicit context: ActorContext): Unit = {
+    import context.dispatcher
+    grantDispatchTask = Some(context.system.scheduler.scheduleOnce(
+      delayMs.milliseconds,
+      context.self,
+      AudioFloorManager.DispatchFloorGrantsInternalMsg
+    ))
   }
 
   private def grantFloor(
@@ -160,26 +190,30 @@ class AudioFloorManager(meetingId: String) extends SystemConfiguration {
       timestamp:   Long,
       liveMeeting: LiveMeeting,
       outGW:       OutMsgRouter
-  ): Option[String] = {
+  )(implicit context: ActorContext): Option[String] = {
     if (!state.speakingStartTimes.contains(userId)) {
       state = state.copy(
         speakingStartTimes = state.speakingStartTimes + (userId -> timestamp)
       )
-      scheduleFloorGrant(userId, timestamp, liveMeeting, outGW)
+      pendingFloors.enqueue(PendingFloor(userId, timestamp))
+      dispatchPendingGrants(liveMeeting, outGW)
     }
 
     None
   }
 
-  private def handleStopTalking(userId: String, timestamp: Long): Option[String] = {
-    pendingFloors.find(_.userId == userId).foreach { pending =>
-      pending.timer.cancel(false)
-      pendingFloors.dequeueFirst(_.userId == userId)
-    }
+  private def handleStopTalking(
+      userId:      String,
+      liveMeeting: LiveMeeting,
+      outGW:       OutMsgRouter
+  )(implicit context: ActorContext): Option[String] = {
+    pendingFloors.dequeueFirst(_.userId == userId)
 
     state = state.copy(
       speakingStartTimes = state.speakingStartTimes - userId
     )
+
+    dispatchPendingGrants(liveMeeting, outGW)
 
     None
   }
@@ -189,38 +223,35 @@ class AudioFloorManager(meetingId: String) extends SystemConfiguration {
       timestamp:   Long         = System.currentTimeMillis(),
       liveMeeting: LiveMeeting,
       outGW:       OutMsgRouter
-  ): Option[String] = stateLock.synchronized {
+  )(implicit context: ActorContext): Option[String] = {
     logFloorEvent(userId, "user_left", Map(
       "was_floor_holder" -> state.currentHolder.contains(userId),
       "had_pending_floor" -> pendingFloors.exists(_.userId == userId),
       "speaking_duration" -> state.speakingStartTimes.get(userId).map(timestamp - _)
     ))
 
-    pendingFloors.find(_.userId == userId).foreach { pending =>
-      pending.timer.cancel(false)
-      pendingFloors.dequeueFirst(_.userId == userId)
-    }
+    pendingFloors.dequeueFirst(_.userId == userId)
 
     state = state.copy(
       speakingStartTimes = state.speakingStartTimes - userId
     )
 
-    if (state.currentHolder.contains(userId)) {
+    val wasHolder = state.currentHolder.contains(userId)
+    if (wasHolder) {
       releaseFloor(userId, timestamp, liveMeeting, outGW)
+    }
 
-      pendingFloors.headOption.foreach { next =>
-        grantFloor(next.userId, timestamp, liveMeeting, outGW)
-      }
+    dispatchPendingGrants(liveMeeting, outGW)
 
-      Some(userId)
-    } else None
+    if (wasHolder) Some(userId) else None
   }
 
-  def destroy(): Unit = stateLock.synchronized {
+  def destroy(): Unit = {
     logFloorEvent("none", "floor_manager_destroyed", Map(
       "pending_grants" -> pendingFloors.size
     ))
-    pendingFloors.foreach(_.timer.cancel(false))
+    grantDispatchTask.foreach(_.cancel())
+    grantDispatchTask = None
     pendingFloors.clear()
     state = FloorState()
   }
