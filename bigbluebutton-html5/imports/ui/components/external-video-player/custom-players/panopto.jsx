@@ -2,7 +2,7 @@ import loadScript from 'load-script';
 import React, { Component } from 'react';
 
 // Tenant-agnostic: matches any Panopto host (*.panopto.com, *.panopto.eu, self-hosted)
-const MATCH_URL = /https?:\/\/([^/]+)\/Panopto\/Pages\/Viewer\.aspx\?id=([-a-zA-Z0-9]+)/;
+const MATCH_URL = /^https?:\/\/([^/]+)\/Panopto\/Pages\/Viewer\.aspx\?id=([-a-zA-Z0-9]+)$/;
 
 const SDK_URL = 'https://developers.panopto.com/scripts/embedapi.min.js';
 
@@ -46,6 +46,7 @@ export function getSDK (url, sdkGlobal, sdkReady = null, isLoaded = () => true, 
     fetchScript(url, err => {
       if (err) {
         reject(err);
+        return;
       }
       window[sdkGlobal] = url;
       if (!sdkReady) {
@@ -55,8 +56,8 @@ export function getSDK (url, sdkGlobal, sdkReady = null, isLoaded = () => true, 
   })
 }
 
-export class Panopto extends Component {
-  static displayName = 'Panopto';
+export class PanoptoPlayer extends Component {
+  static displayName = 'PanoptoPlayer';
 
   static canPlay = url => {
     return MATCH_URL.test(url)
@@ -67,6 +68,8 @@ export class Panopto extends Component {
 
     this.player = this;
     this._player = null;
+    // Instance-specific so two mounted players never share a DOM id
+    this.containerId = `panoptoPlayerContainer-${Math.random().toString(36).slice(2)}`;
 
     this.onIframeReady = this.onIframeReady.bind(this);
     this.onReady = this.onReady.bind(this);
@@ -93,7 +96,7 @@ export class Panopto extends Component {
       // The SDK builds the Embed.aspx iframe src itself, only from the
       // regex-validated host (m[1]) and session id (m[2]) captured above -
       // never from the raw user input - and drives it over postMessage.
-      this._player = new window.EmbedApi('panoptoPlayerContainer', {
+      this._player = new window.EmbedApi(this.containerId, {
         width: '100%',
         height: '100%',
         serverName: m[1],
@@ -113,6 +116,11 @@ export class Panopto extends Component {
           onStateChange: this.onStateChange,
         },
       });
+    })
+    .catch((err) => {
+      if (this.props.onError) {
+        this.props.onError(err);
+      }
     });
   }
 
@@ -198,6 +206,8 @@ export class Panopto extends Component {
   }
 
   getSecondsLoaded () {
+    // The Embed API does not expose buffered ranges
+    return 0;
   }
 
   getPlaybackRate () {
@@ -225,7 +235,7 @@ export class Panopto extends Component {
       <div
         key={this.props.url}
         style={style}
-        id={"panoptoPlayerContainer"}
+        id={this.containerId}
         ref={(container) => {
           this.container = container;
         }}
@@ -235,4 +245,4 @@ export class Panopto extends Component {
   }
 }
 
-export default Panopto;
+export default PanoptoPlayer;
