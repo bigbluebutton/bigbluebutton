@@ -9,10 +9,9 @@ import scala.collection.mutable
 import org.slf4j.LoggerFactory
 
 case class FloorState(
-    currentHolder:       Option[String]                     = None,
-    lastFloorSwitch:     Long                               = 0L,
-    speakingStartTimes:  Map[String, Long]                  = Map(),
-    talkingStateChanges: Map[String, List[(Boolean, Long)]] = Map()
+    currentHolder:      Option[String]    = None,
+    lastFloorSwitch:    Long              = 0L,
+    speakingStartTimes: Map[String, Long] = Map()
 )
 
 case class PendingFloor(
@@ -44,8 +43,6 @@ object AudioFloorManager extends SystemConfiguration {
     }
 
     stateLock.synchronized {
-      state = cleanupOldState(state, timestamp)
-
       if (talking) {
         handleStartTalking(userId, timestamp, liveMeeting, outGW)
       } else {
@@ -70,17 +67,6 @@ object AudioFloorManager extends SystemConfiguration {
       logData: Map[String, Any]
   ): Unit = {
     log.debug(s"Floor control event=${event} userId=${userId} currentHolder=${state.currentHolder} logData=${logData}")
-  }
-
-  private def cleanupOldState(state: FloorState, now: Long): FloorState = {
-    val ttl = 5 * 60 * 1000L
-
-    state.copy(
-      talkingStateChanges = state.talkingStateChanges.map {
-        case (userId, changes) =>
-          userId -> changes.filter(_._2 >= (now - ttl))
-      }.filter(_._2.nonEmpty)
-    )
   }
 
   private def scheduleFloorGrant(
@@ -198,8 +184,7 @@ object AudioFloorManager extends SystemConfiguration {
     }
 
     state = state.copy(
-      speakingStartTimes = state.speakingStartTimes - userId,
-      talkingStateChanges = state.talkingStateChanges - userId
+      speakingStartTimes = state.speakingStartTimes - userId
     )
 
     None
@@ -223,8 +208,7 @@ object AudioFloorManager extends SystemConfiguration {
     }
 
     state = state.copy(
-      speakingStartTimes = state.speakingStartTimes - userId,
-      talkingStateChanges = state.talkingStateChanges - userId
+      speakingStartTimes = state.speakingStartTimes - userId
     )
 
     if (state.currentHolder.contains(userId)) {
