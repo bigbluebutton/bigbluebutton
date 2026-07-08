@@ -1,8 +1,10 @@
-import loadScript from 'load-script';
 import React, { Component } from 'react';
+import getSDK from './get-sdk';
 
-// Tenant-agnostic: matches any Panopto host (*.panopto.com, *.panopto.eu, self-hosted)
-const MATCH_URL = /^https?:\/\/([^/]+)\/Panopto\/Pages\/Viewer\.aspx\?id=([-a-zA-Z0-9]+)$/;
+// Tenant-agnostic: matches any Panopto host (*.panopto.com, *.panopto.eu, self-hosted).
+// The host capture is restricted to hostname characters plus an optional numeric
+// port, so userinfo ("user@host") or other URL tricks can never reach the SDK.
+const MATCH_URL = /^https?:\/\/([a-zA-Z0-9.-]+(?::\d+)?)\/Panopto\/Pages\/Viewer\.aspx\?id=([-a-zA-Z0-9]+)$/;
 
 const SDK_URL = 'https://developers.panopto.com/scripts/embedapi.min.js';
 
@@ -17,44 +19,8 @@ const PLAYER_STATE = {
   PAUSED: 2,
 };
 
-// Util function to load an external SDK or return the SDK if it is already loaded
-// From https://github.com/CookPete/react-player/blob/master/src/utils.js
-const resolves = {};
-export function getSDK (url, sdkGlobal, sdkReady = null, isLoaded = () => true, fetchScript = loadScript) {
-  if (window[sdkGlobal] && isLoaded(window[sdkGlobal])) {
-    return Promise.resolve(window[sdkGlobal])
-  }
-  return new Promise((resolve, reject) => {
-    // If we are already loading the SDK, add the resolve
-    // function to the existing array of resolve functions
-    if (resolves[url]) {
-      resolves[url].push(resolve);
-      return
-    }
-    resolves[url] = [resolve];
-    const onLoaded = sdk => {
-      // When loaded, resolve all pending promises
-      resolves[url].forEach(resolve => resolve(sdk))
-    };
-    if (sdkReady) {
-      const previousOnReady = window[sdkReady];
-      window[sdkReady] = function () {
-        if (previousOnReady) previousOnReady();
-        onLoaded(window[sdkGlobal])
-      }
-    }
-    fetchScript(url, err => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      window[sdkGlobal] = url;
-      if (!sdkReady) {
-        onLoaded(window[sdkGlobal])
-      }
-    })
-  })
-}
+// Instance-specific suffix so two mounted players never share a DOM id
+let playerInstanceCount = 0;
 
 export class PanoptoPlayer extends Component {
   static displayName = 'PanoptoPlayer';
@@ -68,8 +34,8 @@ export class PanoptoPlayer extends Component {
 
     this.player = this;
     this._player = null;
-    // Instance-specific so two mounted players never share a DOM id
-    this.containerId = `panoptoPlayerContainer-${Math.random().toString(36).slice(2)}`;
+    playerInstanceCount += 1;
+    this.containerId = `panoptoPlayerContainer-${playerInstanceCount}`;
 
     this.onIframeReady = this.onIframeReady.bind(this);
     this.onReady = this.onReady.bind(this);
