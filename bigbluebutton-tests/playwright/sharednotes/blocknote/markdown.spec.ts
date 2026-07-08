@@ -19,12 +19,28 @@ test.describe.parallel('Shared Notes - BlockNote Markdown', { tag: '@ci' }, () =
       await markdownSharedNotes.exportAsMarkdown();
     });
 
-    test('Import from Markdown replaces a non-empty document after confirmation', async () => {
-      await markdownSharedNotes.importFromMarkdownReplacesWithConfirmation();
+    test('Import from Markdown in Append mode keeps the existing content', async () => {
+      await markdownSharedNotes.importFromMarkdownAppend();
+    });
+
+    test('Import from Markdown in Replace mode overwrites the existing content', async () => {
+      await markdownSharedNotes.importFromMarkdownReplace();
     });
 
     test('Import from Markdown propagates to other connected users', async () => {
       await markdownSharedNotes.importFromMarkdownPropagatesToOtherUser();
+    });
+
+    test('Import from Markdown loads a valid uploaded .md file', async () => {
+      await markdownSharedNotes.importFromMarkdownUploadFile();
+    });
+
+    test('Import from Markdown rejects a non-markdown uploaded file', async () => {
+      await markdownSharedNotes.importFromMarkdownUploadWrongType();
+    });
+
+    test('Import from Markdown keeps import disabled for an empty uploaded file', async () => {
+      await markdownSharedNotes.importFromMarkdownUploadEmptyFile();
     });
   });
 

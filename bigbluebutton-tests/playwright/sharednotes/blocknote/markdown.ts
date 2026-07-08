@@ -83,9 +83,9 @@ export class MarkdownSharedNotes extends MultiUsers {
     await expect(editor, 'should render the seeded list item').toContainText(INIT_MARKDOWN_ITEM);
   }
 
-  // Feature: "Import from Markdown" replaces a non-empty document, but only after
-  // an explicit confirmation.
-  async importFromMarkdownReplacesWithConfirmation() {
+  // Feature: importing in "Replace" mode overwrites a non-empty document with the
+  // imported content, with no confirmation step.
+  async importFromMarkdownReplace() {
     await startBlockNoteSharedNotes(this.modPage);
 
     const editor = getBlockNoteEditorLocator(this.modPage);
@@ -100,11 +100,8 @@ export class MarkdownSharedNotes extends MultiUsers {
     const importedMarkdown = '# Imported Heading\n\nImported paragraph body';
     await this.modPage.page.locator(e.notesImportMarkdownTextarea).fill(importedMarkdown);
 
-    // Document is not empty, so the first click only asks for confirmation.
-    await this.modPage.waitAndClick(e.notesImportMarkdownConfirm);
-    await this.modPage.hasElement(e.notesImportMarkdownWarning, 'should warn before replacing a non-empty document');
-
-    // Confirming applies the replacement.
+    // Choose Replace, then import. There is no confirmation prompt anymore.
+    await this.modPage.page.locator(e.notesImportMarkdownReplaceMode).check();
     await this.modPage.waitAndClick(e.notesImportMarkdownConfirm);
 
     await expect(editor, 'the imported heading should render').toContainText('Imported Heading', {
@@ -112,6 +109,38 @@ export class MarkdownSharedNotes extends MultiUsers {
     });
     await expect(editor, 'the imported paragraph should render').toContainText('Imported paragraph body');
     await expect(editor, 'the original content should have been replaced').not.toContainText(originalText);
+  }
+
+  // Feature: importing in "Append" mode (the default) keeps the existing content and
+  // adds the imported content after it.
+  async importFromMarkdownAppend() {
+    await startBlockNoteSharedNotes(this.modPage);
+
+    const editor = getBlockNoteEditorLocator(this.modPage);
+    await editor.click();
+    const originalText = 'Original content to keep';
+    await this.modPage.page.keyboard.type(originalText);
+    await expect(editor).toContainText(originalText);
+
+    await this.modPage.waitAndClick(e.notesOptions);
+    await this.modPage.waitAndClick(e.importNotesFromMarkdown);
+
+    // Append is the default; assert it is pre-selected so the default is never
+    // silently destructive.
+    await expect(
+      this.modPage.page.locator(e.notesImportMarkdownAppendMode),
+      'append should be the default mode',
+    ).toBeChecked();
+
+    const importedMarkdown = '# Appended Heading\n\nAppended paragraph body';
+    await this.modPage.page.locator(e.notesImportMarkdownTextarea).fill(importedMarkdown);
+    await this.modPage.waitAndClick(e.notesImportMarkdownConfirm);
+
+    await expect(editor, 'the original content should be kept').toContainText(originalText, {
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
+    await expect(editor, 'the appended heading should render').toContainText('Appended Heading');
+    await expect(editor, 'the appended paragraph should render').toContainText('Appended paragraph body');
   }
 
   // Feature: importing markdown propagates to every connected client through the
@@ -133,6 +162,86 @@ export class MarkdownSharedNotes extends MultiUsers {
       timeout: ELEMENT_WAIT_LONGER_TIME,
     });
     await expect(userEditor, 'the attendee should see the imported body').toContainText('Content visible to everyone');
+  }
+
+  // Opens shared notes and the "Import from Markdown" modal as moderator.
+  private async openImportModal() {
+    await startBlockNoteSharedNotes(this.modPage);
+    await this.modPage.waitAndClick(e.notesOptions);
+    await this.modPage.waitAndClick(e.importNotesFromMarkdown);
+  }
+
+  // Loads a file into the dropzone via the hidden file input (drag is not simulated
+  // because it is flaky; setInputFiles exercises the same onDrop path).
+  private async importFromMarkdownUpload({
+    name,
+    mimeType,
+    buffer,
+  }: {
+    name: string;
+    mimeType: string;
+    buffer: Buffer;
+  }) {
+    await this.modPage.page.setInputFiles(e.notesImportMarkdownFileInput, { name, mimeType, buffer });
+  }
+
+  // Feature: uploading a valid .md file loads its content and imports it into the editor.
+  async importFromMarkdownUploadFile() {
+    await this.openImportModal();
+
+    const uploadedMarkdown = '# Uploaded Heading\n\nUploaded from a file';
+    await this.importFromMarkdownUpload({
+      name: 'notes.md',
+      mimeType: 'text/markdown',
+      buffer: Buffer.from(uploadedMarkdown),
+    });
+
+    // The loaded-file chip confirms the upload was accepted.
+    await this.modPage.hasElement(e.notesImportMarkdownFileLoaded, 'the loaded-file chip should appear');
+
+    // The presenter's document starts empty, so import applies without confirmation.
+    await this.modPage.waitAndClick(e.notesImportMarkdownConfirm);
+
+    const editor = getBlockNoteEditorLocator(this.modPage);
+    await expect(editor, 'the uploaded heading should render').toContainText('Uploaded Heading', {
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
+    await expect(editor, 'the uploaded body should render').toContainText('Uploaded from a file');
+  }
+
+  // Feature: uploading a non-markdown file surfaces an error and imports nothing.
+  async importFromMarkdownUploadWrongType() {
+    await this.openImportModal();
+
+    await this.importFromMarkdownUpload({
+      name: 'notes.txt',
+      mimeType: 'text/plain',
+      buffer: Buffer.from('this is not markdown'),
+    });
+
+    await this.modPage.hasElement(e.notesImportMarkdownError, 'a wrong-type error should be shown');
+    await expect(
+      this.modPage.page.locator(e.notesImportMarkdownConfirm),
+      'import should stay disabled for a rejected file',
+    ).toHaveAttribute('aria-disabled', 'true');
+  }
+
+  // Feature: uploading an empty markdown file shows the chip but keeps import disabled.
+  async importFromMarkdownUploadEmptyFile() {
+    await this.openImportModal();
+
+    await this.importFromMarkdownUpload({
+      name: 'empty.md',
+      mimeType: 'text/markdown',
+      buffer: Buffer.from(''),
+    });
+
+    await this.modPage.hasElement(e.notesImportMarkdownFileLoaded, 'the chip should appear for an empty file');
+    await this.modPage.hasElement(e.notesImportMarkdownError, 'an empty-file notice should be shown');
+    await expect(
+      this.modPage.page.locator(e.notesImportMarkdownConfirm),
+      'import should be disabled for an empty file',
+    ).toHaveAttribute('aria-disabled', 'true');
   }
 
   // Creates a meeting with the given modules/params, then joins as moderator.

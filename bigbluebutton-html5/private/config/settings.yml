@@ -830,6 +830,12 @@ public:
     # editor and always visible. When disabled, BlockNote's default floating
     # toolbar appears only when text is selected.
     staticFormattingToolbar: true
+    # When enabled, the "Import from Markdown" option is shown in the shared
+    # notes options menu, letting presenters import Markdown content.
+    importMarkdownEnabled: true
+    # When enabled, the "Export notes as Markdown" option is shown in the
+    # shared notes options menu.
+    exportMarkdownEnabled: true
   media:
     audio:
       # defaultFullAudioBridge: bridge to be used by full audio mechanism.

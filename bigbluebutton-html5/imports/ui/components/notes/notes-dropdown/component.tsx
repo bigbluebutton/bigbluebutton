@@ -66,6 +66,8 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
   const intl = useIntl();
   const { openImportModal } = useSharedNotesImport();
   const NOTES_IS_PINNABLE = window.meetingClientSettings.public.notes.pinnable;
+  const IMPORT_MARKDOWN_ENABLED = window.meetingClientSettings.public.sharedNotes.importMarkdownEnabled;
+  const EXPORT_MARKDOWN_ENABLED = window.meetingClientSettings.public.sharedNotes.exportMarkdownEnabled;
 
   const getAvailableActions = () => {
     const uploadIcon = 'upload';
@@ -76,6 +78,18 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
     const menuItems = [];
 
     if (amIPresenter) {
+      if (!isEtherpadSharedNotes && IMPORT_MARKDOWN_ENABLED) {
+        menuItems.push(
+          {
+            key: uniqueId('notes-option-'),
+            icon: importIcon,
+            dataTest: 'importNotesFromMarkdown',
+            label: intl.formatMessage(intlMessages.importFromMarkdownLabel),
+            onClick: () => openImportModal(),
+          },
+        );
+      }
+
       menuItems.push(
         {
           key: uniqueId('notes-option-'),
@@ -90,18 +104,6 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
           },
         },
       );
-
-      if (!isEtherpadSharedNotes) {
-        menuItems.push(
-          {
-            key: uniqueId('notes-option-'),
-            icon: importIcon,
-            dataTest: 'importNotesFromMarkdown',
-            label: intl.formatMessage(intlMessages.importFromMarkdownLabel),
-            onClick: () => openImportModal(),
-          },
-        );
-      }
     }
 
     if (!isEtherpadSharedNotes) {
@@ -119,16 +121,21 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
             window.open(`https://${hocuspocusServerHostname}/hocuspocus/api/documents/${padId}/export/pdf?sessionToken=${sessionToken}`);
           },
         },
-        {
-          key: uniqueId('notes-option-'),
-          icon: downloadIcon,
-          dataTest: 'exportNotesAsMarkdown',
-          label: intl.formatMessage(intlMessages.exportAsMarkdownLabel),
-          onClick: () => {
-            window.open(`https://${hocuspocusServerHostname}/hocuspocus/api/documents/${padId}/export/md?sessionToken=${sessionToken}`);
-          },
-        },
       );
+
+      if (EXPORT_MARKDOWN_ENABLED) {
+        menuItems.push(
+          {
+            key: uniqueId('notes-option-'),
+            icon: downloadIcon,
+            dataTest: 'exportNotesAsMarkdown',
+            label: intl.formatMessage(intlMessages.exportAsMarkdownLabel),
+            onClick: () => {
+              window.open(`https://${hocuspocusServerHostname}/hocuspocus/api/documents/${padId}/export/md?sessionToken=${sessionToken}`);
+            },
+          },
+        );
+      }
     }
 
     if (amIPresenter && NOTES_IS_PINNABLE) {
