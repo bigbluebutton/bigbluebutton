@@ -454,6 +454,10 @@ display_bigbluebutton_status () {
         units="$units livekit-server"
     fi
 
+    if [ -f /usr/lib/systemd/system/livekit-sip.service ]; then
+        units="$units livekit-sip"
+    fi
+
     if [ -f /usr/lib/systemd/system/bbb-shared-notes-server.service ]; then
         units="$units bbb-shared-notes-server"
     fi
@@ -1331,7 +1335,7 @@ if [ $CHECK ]; then
     if [ -n "$LIVEKIT_SERVER_CONFIG" ]; then
         LIVEKIT_ENABLED_CODECS=$(echo "$LIVEKIT_SERVER_CONFIG" | yq -r '.room.enabled_codecs[] | .mime')
         echo
-        echo "/etc/bigbluebutton/livekit-server.yml (livekit-server)"
+        echo "/etc/bigbluebutton/livekit.yaml (livekit-server)"
         echo "               log_level: $(echo "$LIVEKIT_SERVER_CONFIG" | yq -r '.log_level')"
         echo "               port_range_start: $(echo "$LIVEKIT_SERVER_CONFIG" | yq -r '.rtc.port_range_start')"
         echo "               port_range_end: $(echo "$LIVEKIT_SERVER_CONFIG" | yq -r '.rtc.port_range_end')"
