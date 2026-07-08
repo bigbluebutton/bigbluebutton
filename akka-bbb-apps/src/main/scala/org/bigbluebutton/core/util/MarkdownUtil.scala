@@ -131,14 +131,30 @@ object MarkdownUtil {
   }
 
   /**
-   * Only relative (same-origin) URLs are allowed as image sources. `sanitizeUrls`
-   * already blocks dangerous schemes (javascript:, data:), but it still lets an
+   * A pasted-image source may only reference an upload served same-origin by the
+   * file-upload service: `/bigbluebutton/fileUpload/{meetingId}/{uuid}.{ext}`.
+   * Matching the exact shape (rather than "starts with `/` but not `//`") is
+   * deliberate: a browser folds a backslash in the authority to a forward slash,
+   * so a lax rooted-path check lets `/\evil.com/pixel.png` through and the browser
+   * loads it from `https://evil.com/...`, reintroducing the tracking-pixel /
+   * IP-leak vector. The character class forbids backslashes, control chars and
+   * dots outside the extension, which closes that bypass, and it mirrors the
+   * whiteboard's `uploadedImageSrcPattern`. The meeting-id segment is left generic
+   * here because the renderer is meeting-agnostic and shared across chats;
+   * cross-meeting references are blocked by the GET authorization gate
+   * (`checkFileUploadAuthorization`, by meeting family).
+   */
+  private val UploadedImagePattern: Pattern =
+    Pattern.compile("^/bigbluebutton/fileUpload/[A-Za-z0-9-]+/[A-Za-z0-9-]+\\.(png|jpe?g|gif|webp)$")
+
+  /**
+   * Only same-origin uploads are allowed as image sources. `sanitizeUrls` already
+   * blocks dangerous schemes (javascript:, data:), but it still lets an
    * `![](https://tracker.example/pixel.png)` through, turning chat into a
    * tracking-pixel / IP-leak vector. So, when images are enabled, we drop every
-   * Image node whose destination is not a plain rooted path (e.g. the
-   * `/bigbluebutton/fileUpload/...` URL produced by the upload service). Anything
-   * with a scheme or a protocol-relative authority (`//host`) is removed before
-   * rendering. External images behind a flag can be added later if ever needed.
+   * Image node whose destination is not a valid upload path. Anything with a
+   * scheme, a protocol-relative authority (`//host`), a backslash bypass
+   * (`/\host`) or any other shape is removed before rendering.
    */
   private def stripExternalImages(root: Node): Unit = {
     val toRemove = new util.ArrayList[Node]()
@@ -157,8 +173,7 @@ object MarkdownUtil {
 
   private def isSameOriginUrl(url: String): Boolean = {
     if (url == null) return false
-    val trimmed = url.trim
-    trimmed.startsWith("/") && !trimmed.startsWith("//")
+    UploadedImagePattern.matcher(url.trim).matches()
   }
   private val MaxMessageLength = 5000
 
