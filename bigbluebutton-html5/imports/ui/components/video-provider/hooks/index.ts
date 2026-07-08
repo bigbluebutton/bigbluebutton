@@ -459,7 +459,8 @@ export const useGridUsers = (visibleStreamCount: number, visibleUserCount: numbe
     // to preview their avatars inside the overflow tile — those extras must not
     // land in the grid itself, so keep the grid slice and the preview slice apart.
     gridItems.current = newGridUsers.slice(0, baseGridUserLimit);
-    overflowUsers.current = newGridUsers.slice(baseGridUserLimit);
+    // The tile replaces the last grid avatar, so preview that user too
+    overflowUsers.current = newGridUsers.slice(Math.max(gridItems.current.length - 1, 0));
 
     // Hidden users = everyone not visible on this page. Count in USERS, not
     // stream tiles as a user with several cameras holds several tiles. The
