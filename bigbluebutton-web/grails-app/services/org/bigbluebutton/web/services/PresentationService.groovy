@@ -23,8 +23,13 @@ import org.bigbluebutton.api.service.ServiceUtils
 import org.bigbluebutton.presentation.DocumentConversionService
 import org.bigbluebutton.presentation.UploadedPresentation
 import org.springframework.beans.factory.annotation.Autowired
+import jakarta.annotation.PostConstruct
+import jakarta.annotation.PreDestroy
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.ThreadFactory
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 
 class PresentationService {
 
@@ -41,6 +46,40 @@ class PresentationService {
 	def preUploadedPresentationOverrideDefault
 	def scanUploadedPresentationFiles
 	def pageTokenSecret
+	def numDownloadThreads
+
+	private ExecutorService downloadExecutor
+
+	@PostConstruct
+	void initDownloadExecutor() {
+		int threads = (numDownloadThreads ?: 5) as int
+		AtomicInteger threadSeq = new AtomicInteger()
+		downloadExecutor = Executors.newFixedThreadPool(threads, { Runnable r ->
+			Thread t = new Thread(r, "pres-download-" + threadSeq.incrementAndGet())
+			t.daemon = true
+			return t
+		} as ThreadFactory)
+	}
+
+	@PreDestroy
+	void shutdownDownloadExecutor() {
+		downloadExecutor?.shutdownNow()
+	}
+
+	/**
+	 * Runs presentation download/processing off the request thread so API responses
+	 * are not delayed by it. The pool is bounded (numPresentationDownloadThreads) and
+	 * any failure escaping the work closure is logged with meeting context.
+	 */
+	void submitPresentationTask(String meetingId, String source, Closure work) {
+		downloadExecutor.submit({
+			try {
+				work()
+			} catch (Throwable t) {
+				log.error("Failed to process pre-uploaded presentation for meeting [${meetingId}], source [${source}]", t)
+			}
+		} as Runnable)
+	}
 
 	def deletePresentation = {conf, room, filename ->
 		def directory = new File(roomDirectory(conf, room).absolutePath + File.separatorChar + filename)

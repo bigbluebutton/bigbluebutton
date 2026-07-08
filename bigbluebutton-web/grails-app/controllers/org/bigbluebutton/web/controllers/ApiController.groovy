@@ -47,7 +47,6 @@ import org.bigbluebutton.web.services.turn.StunTurnService
 import org.bigbluebutton.web.services.turn.TurnEntry
 import org.codehaus.groovy.util.ListHashMap
 import org.json.JSONArray
-import static grails.async.Promises.*
 
 import jakarta.servlet.ServletRequest
 import jakarta.servlet.http.HttpServletRequest
@@ -1660,7 +1659,7 @@ class ApiController {
           }
 
           // Run slow download and processing async for fast API responses
-          task {
+          presentationService.submitPresentationTask(conf.getInternalId(), "default presentation") {
             downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(),
                     document.current /* default presentation */, '', false,
                     true, isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI);
@@ -1700,8 +1699,9 @@ class ApiController {
           }
 
           // Run slow download and processing async for fast API responses
-          task {
-            downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), isCurrent /* default presentation */,
+          def documentUrl = document.@url.toString()
+          presentationService.submitPresentationTask(conf.getInternalId(), documentUrl) {
+            downloadAndProcessDocument(documentUrl, conf.getInternalId(), isCurrent /* default presentation */,
                     fileName, isDownloadable, isRemovable, isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI);
           }
         } else if (!StringUtils.isEmpty(document.@name.toString())) {
@@ -1709,8 +1709,9 @@ class ApiController {
           def decodedBytes = b64.decode(document.text().getBytes())
 
           // Run slow processing async for fast API responses
-          task {
-            processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
+          def documentName = document.@name.toString()
+          presentationService.submitPresentationTask(conf.getInternalId(), documentName) {
+            processDocumentFromRawBytes(decodedBytes, documentName,
                     conf.getInternalId(), isCurrent, isDownloadable, isRemovable/* default presentation */, isDefaultPresentation, isFromInsertAPI);
           }
         } else {
@@ -1810,8 +1811,8 @@ class ApiController {
       try {
         presOrigFilename = URLDecoder.decode(address.tokenize("/")[-1], "UTF-8");
       } catch (UnsupportedEncodingException e) {
+        // Runs off the request thread: log only, rendering a response here is not possible
         log.error "Couldn't decode the uploaded file name.", e
-        invalid("fileNameError", "Cannot decode the uploaded file name")
         return;
       }
     } else {

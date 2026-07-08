@@ -607,7 +607,7 @@ const createEndpointTableData = [
     "name": "preUploadedPresentation",
     "required": false,
     "type": "String",
-    "description": (<>If passed with a valid presentation file url, this presentation will override the default presentation. To only upload but not set as default, also pass <code className="language-plaintext highlighter-rouge">preUploadedPresentationOverrideDefault=false</code> (added 2.7.2)</>)
+    "description": (<>If passed with a valid presentation file url, this presentation will override the default presentation. To only upload but not set as default, also pass <code className="language-plaintext highlighter-rouge">preUploadedPresentationOverrideDefault=false</code> (added 2.7.2). The file is downloaded and processed in the background: the create response does not wait for it, and download or conversion failures are reported to meeting clients rather than in the create response.</>)
   },
   {
     "name": "preUploadedPresentationName",
