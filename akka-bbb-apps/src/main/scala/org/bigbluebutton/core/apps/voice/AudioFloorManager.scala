@@ -1,9 +1,8 @@
 package org.bigbluebutton.core.apps.voice
 
-import java.util.concurrent.{ ScheduledFuture, TimeUnit, ScheduledExecutorService, Executors }
+import java.util.concurrent.{ Executors, ScheduledExecutorService, ScheduledFuture, TimeUnit }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
-import org.bigbluebutton.core.models.{ VoiceUsers, VoiceUserState }
-import scala.concurrent.duration._
+import org.bigbluebutton.core.models.VoiceUsers
 import org.bigbluebutton.SystemConfiguration
 import scala.collection.mutable
 import org.slf4j.LoggerFactory
@@ -20,15 +19,20 @@ case class PendingFloor(
     timer:     ScheduledFuture[_]
 )
 
-object AudioFloorManager extends SystemConfiguration {
-  private val log = LoggerFactory.getLogger(getClass)
-  private val stateLock = new Object()
-  private var state = FloorState()
+object AudioFloorManager {
+  // This timer is shared across all meetings (light load, no need to creat
+  // one per meeting etc)
   private val scheduler: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(r => {
     val t = new Thread(r, "audio-floor-manager")
     t.setDaemon(true)
     t
   })
+}
+
+class AudioFloorManager(meetingId: String) extends SystemConfiguration {
+  private val log = LoggerFactory.getLogger(getClass)
+  private val stateLock = new Object()
+  private var state = FloorState()
   private val pendingFloors = mutable.Queue[PendingFloor]()
 
   def handleUserTalking(
@@ -51,22 +55,12 @@ object AudioFloorManager extends SystemConfiguration {
     }
   }
 
-  def getCurrentFloorHolder: Option[String] = stateLock.synchronized {
-    state.currentHolder
-  }
-
-  def clearFloorState(): Unit = stateLock.synchronized {
-    pendingFloors.foreach(_.timer.cancel(false))
-    pendingFloors.clear()
-    state = FloorState()
-  }
-
   private def logFloorEvent(
       userId:  String,
       event:   String,
       logData: Map[String, Any]
   ): Unit = {
-    log.debug(s"Floor control event=${event} userId=${userId} currentHolder=${state.currentHolder} logData=${logData}")
+    log.debug(s"Floor control event=${event} meetingId=${meetingId} userId=${userId} currentHolder=${state.currentHolder} logData=${logData}")
   }
 
   private def scheduleFloorGrant(
@@ -75,7 +69,7 @@ object AudioFloorManager extends SystemConfiguration {
       liveMeeting: LiveMeeting,
       outGW:       OutMsgRouter
   ): Unit = {
-    val future = scheduler.schedule(new Runnable {
+    val future = AudioFloorManager.scheduler.schedule(new Runnable {
       override def run(): Unit = {
         stateLock.synchronized {
           if (pendingFloors.nonEmpty && pendingFloors.head.userId == userId) {
@@ -223,9 +217,11 @@ object AudioFloorManager extends SystemConfiguration {
   }
 
   def destroy(): Unit = stateLock.synchronized {
+    logFloorEvent("none", "floor_manager_destroyed", Map(
+      "pending_grants" -> pendingFloors.size
+    ))
     pendingFloors.foreach(_.timer.cancel(false))
     pendingFloors.clear()
-    scheduler.shutdown()
     state = FloorState()
   }
 }
