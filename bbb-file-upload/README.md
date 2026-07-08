@@ -32,4 +32,5 @@ npm run dev        # tsx, watches src
 npm run lint
 npm run typecheck
 npm run build      # bundles to dist/
+npm test           # node:test suite (magic bytes, dimensions, path traversal, ...)
 ```
