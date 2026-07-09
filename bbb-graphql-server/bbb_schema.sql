@@ -1636,8 +1636,12 @@ CREATE UNLOGGED TABLE "pres_page" (
 CREATE INDEX "idx_pres_page_presentationId" ON "pres_page"("presentationId");
 CREATE INDEX "idx_pres_page_presentationId_curr" ON "pres_page"("presentationId") where "current" is true;
 --Page ids are opaque UUIDs, so this is what keeps a re-sent page notification
---from silently inserting a duplicate row for the same slide
-CREATE UNIQUE INDEX "idx_pres_page_presentationId_num" ON "pres_page"("presentationId", "num");
+--from silently inserting a duplicate row for the same slide. It is deferred to
+--commit time because "num" is a mutable position attribute: renumbering pages
+--in place (e.g. shifting them to open room for an insert) transiently collides
+--within a transaction even though the final state is unique.
+ALTER TABLE "pres_page" ADD CONSTRAINT "pres_page_presentationId_num_unique"
+    UNIQUE ("presentationId", "num") DEFERRABLE INITIALLY DEFERRED;
 
 CREATE OR REPLACE VIEW public.v_pres_presentation AS
 SELECT pres_presentation."meetingId",
