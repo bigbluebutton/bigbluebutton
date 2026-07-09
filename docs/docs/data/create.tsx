@@ -511,6 +511,9 @@ const createEndpointTableData = [
                 <li>
                   <code className="language-plaintext highlighter-rouge">pinChatMessage</code> - <b>Pin a Chat Message (moderators) (added in BigBlueButton 4.0)</b>
                 </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">chatImagePaste</code> - <b>Paste/drop images into the chat input (added in BigBlueButton 4.0)</b>
+                </li>
               </ul>
             </li>
             <li>
@@ -533,6 +536,12 @@ const createEndpointTableData = [
                 </li>
                 <li>
                   <code className="language-plaintext highlighter-rouge">infiniteWhiteboard</code> - <b>Infinite Whiteboard (added in BigBlueButton 3.0)</b>
+                </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">whiteboardImagePaste</code> - <b>Paste/drop images onto the whiteboard (added in BigBlueButton 4.0)</b>
+                </li>
+                <li>
+                  <code className="language-plaintext highlighter-rouge">sharedNotesImagePaste</code> - <b>Paste/drop images into the BlockNote shared notes editor (added in BigBlueButton 4.0)</b>
                 </li>
               </ul>
             </li>

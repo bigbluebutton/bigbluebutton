@@ -135,10 +135,11 @@ Updated in 4.0:
 
 - **create**
   - **Added parameters:** `requireUserConsentBeforeUnmuting` (only relevant when `allowModsToUnmuteUsers=true`; when `true`, the user is shown a consent dialog before a moderator can unmute them), `lockSettingsPresenterPolicy` (controls the "Request to Present" policy; one of `moderatorOnly`, `requireApproval` (default), `freeForAll`), `notifyRecordingAppend` (appends optional plain text to the recording notification dialog when `notifyRecordingIsOn=true`).
-  - **Added options:** Parameter `disabledFeatures` supports new options: `multiFunctionalMode` (the auxiliary/dual sidebar panel) and `pinChatMessage`.
+  - **Added options:** Parameter `disabledFeatures` supports new options: `multiFunctionalMode` (the auxiliary/dual sidebar panel), `pinChatMessage`, `chatImagePaste`, `sharedNotesImagePaste`, and `whiteboardImagePaste` (per-surface toggles for the image-paste feature).
   - **Removed parameter:** `lockSettingsDisableNote` (singular); use `lockSettingsDisableNotes` (plural) instead.
   - **Removed parameter:** `copyright` (it had no effect; the value was stored but never propagated to the client). To customize the copyright text per meeting, override `app.copyright` through `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` (requires `allowOverrideClientSettingsOnCreateCall=true`).
   - **Removed parameter:** `webVoice` (obsolete; it selected a separate voice conference for the old Flash client and had no downstream effect after that client was removed in BBB 2.3, always falling back to `voiceBridge`).
+  - **Breaking:** With the image-paste feature, `public.chat.markdownImageAllowed=true` no longer renders external image URLs in chat messages - only same-origin upload URLs (`/bigbluebutton/fileUpload/...`) render, to prevent IP-leak / tracking-pixel attacks. Deployments relying on external image URLs in chat markdown should host those images on the BBB server instead.
   - **Changed:** Parameter `meetingLayout` default is now `UNIFIED_LAYOUT`. **Removed:** `meetingLayout` no longer supports `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS`. The remaining non-default options targeting hybrid/niche scenarios are `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, `MEDIA_ONLY`.
   - **Removed option:** `layouts` is no longer a valid `disabledFeatures` value (the layout selection UI was removed).
 - **join**

@@ -826,6 +826,11 @@ public:
     # Renders `![](url)` markdown as sanitized <img> in messages (server-side).
     # Required for pasted images to be visible; imagePaste below only adds the
     # capture UI. Kept as a separate key on purpose (not merged/renamed).
+    # IMPORTANT: since image paste was introduced, only same-origin URLs
+    # (/bigbluebutton/fileUpload/...) are rendered. External URLs in markdown
+    # are stripped on the server (MarkdownUtil) to prevent IP-leak / tracking
+    # pixels against chat readers. This is a privacy-first breaking change from
+    # the previous behavior where markdownImageAllowed rendered any URL.
     markdownImageAllowed: false
     imagePaste:
       # Enables capturing pasted/dropped images in the chat input. The rendered

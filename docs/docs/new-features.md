@@ -88,6 +88,22 @@ A chat message that contains only emoji (up to three emoji, whitespace ignored) 
 
 <!-- TODO add screenshot of a jumbomoji chat message -->
 
+#### Image paste in chat, shared notes, and whiteboard
+
+Participants can now **paste (Ctrl+V) or drag-and-drop images** into the chat input, the BlockNote shared notes editor, and the whiteboard. Pasted images are uploaded once to a meeting-scoped storage, served behind the same authorization used for presentation slides, and survive recording/playback.
+
+The feature is **disabled by default** on all three surfaces. Enable them via the per-surface client settings:
+
+- `public.chat.imagePaste.enabled` (also requires `public.chat.markdownImageAllowed` for the server-side image rendering)
+- `public.app.sharedNotes.imagePaste.enabled` (only affects the BlockNote editor; Etherpad is unaffected)
+- `public.whiteboard.imagePaste.enabled`
+
+…or disable any of them per meeting with the `chatImagePaste`, `sharedNotesImagePaste`, and `whiteboardImagePaste` values of `disabledFeatures`.
+
+Shared limits (`public.fileUpload`) apply to all three surfaces: max file size 5 MB, max image dimensions 4096x4096 (anti pixel-bomb), allowed types PNG/JPEG/GIF/WebP (SVG is rejected as an XSS vector), rate limit 60 uploads per 60 seconds per user+meeting, and 100 MB quota per meeting.
+
+**Breaking change to `markdownImageAllowed`:** before this feature, setting `public.chat.markdownImageAllowed` to `true` rendered any `![](url)` markdown as an `<img>`, including external URLs. To prevent IP-leak / tracking-pixel attacks against chat readers, external image URLs are now stripped on the server (only same-origin `/bigbluebutton/fileUpload/...` URLs render). Deployments that relied on external images in chat should host them on the BBB server instead.
+
 <!-- ### Analytics -->
 
 ### Behind the scenes
