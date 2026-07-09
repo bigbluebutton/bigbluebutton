@@ -23,7 +23,7 @@ import VideoListContainer from '/imports/ui/components/video-provider/video-list
 import logger from '/imports/startup/client/logger';
 import { notifyStreamStateChange } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
-import { VideoItem } from '/imports/ui/components/video-provider/types';
+import { GridItem, VideoItem } from '/imports/ui/components/video-provider/types';
 import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 import {
@@ -76,6 +76,7 @@ interface LiveKitCameraBridgeProps {
   lockUser: () => void;
   stopVideo: (cameraId?: string) => void;
   overflowCount: number;
+  overflowUsers: GridItem[];
 }
 
 interface LiveKitCameraBridgeRefs {
@@ -105,6 +106,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
   lockUser,
   stopVideo,
   overflowCount,
+  overflowUsers,
 }) => {
   const intl = useIntl();
   const connectionState = useConnectionState(liveKitRoom);
@@ -636,6 +638,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
     // even if not used explicitly. Not ideal, but it works (_for now_) - prlanzarin
     cameraTracks,
     overflowCount,
+    overflowUsers,
   ]);
 
   useEffect(() => {
@@ -655,6 +658,7 @@ const LiveKitCameraBridge: React.FC<LiveKitCameraBridgeProps> = ({
       onVideoItemUnmount={destroyVideoTag}
       onVirtualBgDrop={startVirtualBackgroundByDrop}
       overflowCount={overflowCount}
+      overflowUsers={overflowUsers}
     />
   );
 };
