@@ -212,8 +212,8 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       maxDocumentChars: 99999,
       maxLengthForContentUpdate: 512,
       staticFormattingToolbar: true,
-      importMarkdownEnabled: true,
-      exportMarkdownEnabled: true,
+      importMarkdownEnabled: false,
+      exportMarkdownEnabled: false,
     },
     externalVideoPlayer: {
       enabled: true,

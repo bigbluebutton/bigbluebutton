@@ -4,7 +4,7 @@ import { ELEMENT_WAIT_LONGER_TIME } from '../../core/constants';
 import { elements as e } from '../../core/elements';
 import { createMeetingWithModules } from '../../core/helpers';
 import { MultiUsers } from '../../user/multiusers';
-import { getBlockNoteEditorLocator, startBlockNoteSharedNotes } from './util';
+import { enableMarkdownNotesOptions, getBlockNoteEditorLocator, startBlockNoteSharedNotes } from './util';
 
 // Markdown seeded through the sharedNotesInitialContentMarkdown create parameter.
 // Kept in sync with the value passed in markdown.spec.ts.
@@ -50,6 +50,7 @@ export function markdownCreateParameter(markdown: string): string {
 export class MarkdownSharedNotes extends MultiUsers {
   // Feature: "Export as Markdown" kebab item downloads a .md file with the notes.
   async exportAsMarkdown() {
+    await enableMarkdownNotesOptions(this.modPage);
     await startBlockNoteSharedNotes(this.modPage);
 
     const editor = getBlockNoteEditorLocator(this.modPage);
@@ -86,6 +87,7 @@ export class MarkdownSharedNotes extends MultiUsers {
   // Feature: importing in "Replace" mode overwrites a non-empty document with the
   // imported content, with no confirmation step.
   async importFromMarkdownReplace() {
+    await enableMarkdownNotesOptions(this.modPage);
     await startBlockNoteSharedNotes(this.modPage);
 
     const editor = getBlockNoteEditorLocator(this.modPage);
@@ -114,6 +116,7 @@ export class MarkdownSharedNotes extends MultiUsers {
   // Feature: importing in "Append" mode (the default) keeps the existing content and
   // adds the imported content after it.
   async importFromMarkdownAppend() {
+    await enableMarkdownNotesOptions(this.modPage);
     await startBlockNoteSharedNotes(this.modPage);
 
     const editor = getBlockNoteEditorLocator(this.modPage);
@@ -146,6 +149,7 @@ export class MarkdownSharedNotes extends MultiUsers {
   // Feature: cancelling the import modal closes it and leaves the document untouched;
   // nothing staged in the modal (textarea content, chosen mode) is imported.
   async importFromMarkdownCancel() {
+    await enableMarkdownNotesOptions(this.modPage);
     await startBlockNoteSharedNotes(this.modPage);
 
     const editor = getBlockNoteEditorLocator(this.modPage);
@@ -172,6 +176,7 @@ export class MarkdownSharedNotes extends MultiUsers {
   // Feature: importing markdown propagates to every connected client through the
   // shared Yjs document (proves the client-side replace is collaborative).
   async importFromMarkdownPropagatesToOtherUser() {
+    await enableMarkdownNotesOptions(this.modPage);
     await startBlockNoteSharedNotes(this.modPage);
     await startBlockNoteSharedNotes(this.userPage);
 
@@ -192,6 +197,7 @@ export class MarkdownSharedNotes extends MultiUsers {
 
   // Opens shared notes and the "Import from Markdown" modal as moderator.
   private async openImportModal() {
+    await enableMarkdownNotesOptions(this.modPage);
     await startBlockNoteSharedNotes(this.modPage);
     await this.modPage.waitAndClick(e.notesOptions);
     await this.modPage.waitAndClick(e.importNotesFromMarkdown);

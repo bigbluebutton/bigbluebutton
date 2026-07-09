@@ -18,6 +18,22 @@ export async function startBlockNoteSharedNotes(testPage: Page): Promise<void> {
   await testPage.waitForSelector(BLOCKNOTE_EDITOR, ELEMENT_WAIT_LONGER_TIME);
 }
 
+// The Markdown import/export options default to disabled (BBB 3.0 keeps the new
+// menu items off in a minor update), so the notes options menu hides them unless
+// the settings are turned on. The notes options menu bakes its items when it mounts
+// (opening the menu does not re-render it), so tests that exercise those items enable
+// both flags on the running client before opening shared notes. They are client-only
+// settings with no create-call parameter to seed them.
+export async function enableMarkdownNotesOptions(testPage: Page): Promise<void> {
+  await testPage.page.evaluate(() => {
+    const { sharedNotes } = (window as unknown as {
+      meetingClientSettings: { public: { sharedNotes: Record<string, boolean> } };
+    }).meetingClientSettings.public;
+    sharedNotes.importMarkdownEnabled = true;
+    sharedNotes.exportMarkdownEnabled = true;
+  });
+}
+
 export function getBlockNoteEditorLocator(testPage: Page): Locator {
   return testPage.page.locator(BLOCKNOTE_EDITOR);
 }
