@@ -445,6 +445,12 @@ Start collaborating here...
 
 **Precedence:** the BlockNote JSON initial content takes precedence over the Markdown. When both JSON and Markdown are supplied, the JSON is used to seed the document, and the Markdown is only used as a fallback when the JSON is absent, empty, or cannot be converted to a valid document. Within the Markdown options, the create parameter `sharedNotesInitialContentMarkdownUrl` is resolved first, then the inline `sharedNotesInitialContentMarkdown` create parameter, and finally the POST module.
 
+**URL fetch constraints:** the two URL variants (`sharedNotesInitialContentJsonUrl` and `sharedNotesInitialContentMarkdownUrl`) are fetched by the server through the same DNS-pinned, hardened path used for plugin, presentation and callback URLs. Integrators must be aware of the following, since a URL that violates them yields empty initial content silently (the meeting is still created):
+
+- **HTTPS only.** By default only `https` URLs are accepted (`fetchUrlSupportedProtocols=https`); an `http://` URL is rejected. Local, loopback, site-local and link-local addresses are always blocked. Use `fetchUrlBlockedExternalHosts` to block additional public hosts, or `fetchUrlAllowedLocalHosts` to allow specific internal hosts to resolve to private addresses.
+- **Payload cap.** The fetched response must not exceed `maxSharedNotesInitialContentUrlPayloadSize` (default `1024` KiB). Larger responses are dropped.
+- **Timeout.** The connect and socket timeout is 6000 ms; a slower endpoint is treated as a failed fetch.
+
 #### Pre-upload Slides
 
 You can upload slides within the create call. If you do this, the BigBlueButton server will immediately download and process the slides.

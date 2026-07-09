@@ -153,6 +153,7 @@
     "app.notes.importModal.error.tooLarge": "This file is too large",
     "app.notes.importModal.error.readFailed": "Could not read the file",
     "app.notes.importModal.error.empty": "The selected file is empty",
+    "app.notes.importModal.error.parseFailed": "Could not parse the markdown. Check the syntax and try again",
     "app.notes.blocknote.payloadSizeError": "Clipboard content too large ({sizeKB}KB). Maximum size for pasting is {maxKB}KB.",
     "app.notes.blocknote.maxCharCountError": "Input limit reached. You cannot type more than {maxCharCount} characters.",
     "app.pads.hint": "Press Esc to focus the pad's toolbar",

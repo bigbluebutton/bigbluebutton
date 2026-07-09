@@ -17,7 +17,7 @@ const ACCEPTED_EXTENSIONS = ['.md', '.markdown'];
 // authoritative extension check in loadFile.
 const ACCEPTED_EXTENSIONS_ATTR = ACCEPTED_EXTENSIONS.join(',');
 
-type ImportError = 'invalidType' | 'tooLarge' | 'readFailed' | 'empty';
+type ImportError = 'invalidType' | 'tooLarge' | 'readFailed' | 'empty' | 'parseFailed';
 
 // How the parsed markdown is written into the current notes. `append` (the default)
 // adds it after the existing content; `replace` overwrites the whole document.
@@ -100,6 +100,10 @@ const intlMessages = defineMessages({
     id: 'app.notes.importModal.error.empty',
     description: 'Message shown when the selected file has no content',
   },
+  errorParseFailed: {
+    id: 'app.notes.importModal.error.parseFailed',
+    description: 'Error shown when the markdown could not be parsed into blocks',
+  },
 });
 
 const errorMessageIds: Record<ImportError, keyof typeof intlMessages> = {
@@ -107,6 +111,7 @@ const errorMessageIds: Record<ImportError, keyof typeof intlMessages> = {
   tooLarge: 'errorTooLarge',
   readFailed: 'errorReadFailed',
   empty: 'errorEmpty',
+  parseFailed: 'errorParseFailed',
 };
 
 // Human readable file size for the loaded-file chip.
@@ -182,20 +187,29 @@ const MarkdownImportModal: React.FC<MarkdownImportModalProps> = ({ editor, onClo
   };
 
   const applyImport = async () => {
-    // On the client BlockNote editor this is synchronous, but await keeps it correct
-    // if a future version returns a Promise.
-    const blocks = await editor.tryParseMarkdownToBlocks(markdown);
-    // Both paths mutate the shared Yjs fragment, so the change propagates through
-    // Hocuspocus to every connected client.
-    if (importMode === 'replace') {
-      editor.replaceBlocks(editor.document, blocks);
-    } else {
-      // Append: insert the parsed blocks right after the last existing block. The
-      // document always has at least one (trailing) block to anchor to.
-      const lastBlock = editor.document[editor.document.length - 1];
-      editor.insertBlocks(blocks, lastBlock, 'after');
+    try {
+      // On the client BlockNote editor this is synchronous, but await keeps it correct
+      // if a future version returns a Promise.
+      const blocks = await editor.tryParseMarkdownToBlocks(markdown);
+      // Both paths mutate the shared Yjs fragment, so the change propagates through
+      // Hocuspocus to every connected client.
+      if (importMode === 'replace') {
+        editor.replaceBlocks(editor.document, blocks);
+      } else {
+        // Append: insert the parsed blocks right after the last existing block. The
+        // document always has at least one (trailing) block to anchor to.
+        const lastBlock = editor.document[editor.document.length - 1];
+        editor.insertBlocks(blocks, lastBlock, 'after');
+      }
+      onClose();
+    } catch (e) {
+      // Malformed markdown (or a parser edge case) rejects the parse promise. Surface
+      // the error and keep the modal open so the user can fix the syntax and retry,
+      // instead of the modal silently freezing.
+      // eslint-disable-next-line no-console
+      console.error('Markdown import failed', e);
+      setError('parseFailed');
     }
-    onClose();
   };
 
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
