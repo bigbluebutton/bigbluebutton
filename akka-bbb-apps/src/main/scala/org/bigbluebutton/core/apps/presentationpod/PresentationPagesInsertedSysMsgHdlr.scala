@@ -22,11 +22,10 @@ trait PresentationPagesInsertedSysMsgHdlr {
     val insertPresId = msg.body.insertPresentationId
     val position = msg.body.insertAtPosition
 
-    // bbb-web already renumbered the physical slide files so slideN matches the final page number,
-    // and precomputed the tokenized urls for every final number; look them up by new number.
-    val urlByNum: Map[Int, Map[String, String]] = msg.body.pageUrls.map(e => e.num -> e.urls).toMap
-    def buildUrls(num: Int, fallback: Map[String, String]): Map[String, String] =
-      urlByNum.getOrElse(num, fallback)
+    // Slide files are named and served by opaque page id, so a page's urls never change with its
+    // num. bbb-web precomputed urls only for the inserted pages (their pageToken now binds to the
+    // target presentation); look them up by page id.
+    val urlsByPageId: Map[String, Map[String, String]] = msg.body.pageUrls.map(e => e.pageId -> e.urls).toMap
 
     val newState = for {
       pod <- PresentationPodsApp.getPresentationPod(state, podId)
@@ -36,18 +35,17 @@ trait PresentationPagesInsertedSysMsgHdlr {
       val insertCount = insertPres.pages.size
 
       // Shift existing target pages at/after the insert position up by insertCount, keeping their
-      // current flag and page ids; rebuild urls to point at their new (renumbered) file.
+      // current flag, page ids and urls; only their num changes.
       val shifted = targetPres.pages.map {
         case (id, pg) =>
-          val newNum = PresentationPagesInsertMath.shiftedTargetPageNum(pg.num, position, insertCount)
-          id -> pg.copy(num = newNum, urls = buildUrls(newNum, pg.urls))
+          id -> pg.copy(num = PresentationPagesInsertMath.shiftedTargetPageNum(pg.num, position, insertCount))
       }
 
       // Re-home the converted pages onto the target at position..position+insertCount-1,
       // preserving their opaque page ids so future annotations stay keyed correctly.
       val inserted = insertPres.pages.values.map { pg =>
         val newNum = PresentationPagesInsertMath.insertedPageNum(pg.num, position)
-        pg.id -> pg.copy(num = newNum, urls = buildUrls(newNum, pg.urls), current = false, converted = true)
+        pg.id -> pg.copy(num = newNum, urls = urlsByPageId.getOrElse(pg.id, pg.urls), current = false, converted = true)
       }.toMap
 
       val mergedPages: Map[String, PresentationPage] = shifted ++ inserted

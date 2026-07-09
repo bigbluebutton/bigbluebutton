@@ -127,21 +127,22 @@ case class PresentationConversionCompletedSysPubMsgBody(podId: String, messageKe
 
 // Sent by bbb-web when a plugin insert-pages command finished converting a file into a
 // separate presentation whose pages must be spliced into an existing (target) presentation
-// at a 1-based position. bbb-web has already renumbered the physical slide files in the
-// target presentation directory so that slideN matches the final page number; akka-apps
-// re-homes the converted pages onto the target presentation, shifts the existing page
-// numbers to make room and rebuilds the page urls from presBaseUrl.
+// at a 1-based position. Slide files are named and served by opaque page id, so bbb-web only
+// moved the inserted pages' artifacts into the target presentation directory; akka-apps
+// re-homes the converted pages onto the target presentation and shifts the existing page
+// numbers to make room, keeping every page's urls keyed by its unchanged page id.
 object PresentationPagesInsertedSysMsg { val NAME = "PresentationPagesInsertedSysMsg" }
 case class PresentationPagesInsertedSysMsg(
     header: BbbClientMsgHeader,
     body:   PresentationPagesInsertedSysMsgBody
 ) extends StandardMsg
-// pageUrls carries the final tokenized urls for every page number 1..totalPagesAfter (bbb-web owns
-// url/pageToken generation), so akka-apps only assigns each page id to its new number.
+// pageUrls carries the tokenized urls of the inserted pages only, keyed by page id (bbb-web owns
+// url/pageToken generation, and the token binds to the target presentation the pages now live in).
+// The shifted target pages keep the urls they already had: only their num changes.
 case class PresentationPagesInsertedSysMsgBody(podId: String, targetPresentationId: String,
                                                insertPresentationId: String, insertAtPosition: Int,
                                                pageUrls: Vector[InsertedPageUrls])
-case class InsertedPageUrls(num: Int, urls: Map[String, String])
+case class InsertedPageUrls(pageId: String, urls: Map[String, String])
 
 object PresentationPageConvertedSysMsg { val NAME = "PresentationPageConvertedSysMsg" }
 case class PresentationPageConvertedSysMsg(

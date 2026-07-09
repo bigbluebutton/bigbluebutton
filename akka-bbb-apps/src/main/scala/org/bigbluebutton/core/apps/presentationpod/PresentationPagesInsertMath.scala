@@ -2,9 +2,8 @@ package org.bigbluebutton.core.apps.presentationpod
 
 /**
  * Pure page-number arithmetic for splicing a converted presentation into a target presentation at a
- * 1-based position. bbb-web has already clamped the position to [1, targetTotal + 1] and renumbered
- * the physical slide files, so these functions only translate logical page numbers; they do not
- * clamp.
+ * 1-based position. bbb-web has already clamped the position to [1, targetTotal + 1], so these
+ * functions only translate logical page numbers; they do not clamp.
  */
 object PresentationPagesInsertMath {
 

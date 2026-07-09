@@ -184,7 +184,7 @@ public class SlidesGenerationProgressNotifier {
     int position;
     int totalPagesAfter;
     try {
-      int[] result = InsertPagesSplicer.splice(insertDir, targetDir, pres.getInsertAtPosition(), pres.getNumberOfPages());
+      int[] result = InsertPagesSplicer.splice(insertDir, targetDir, pres.getInsertAtPosition(), pres.getPageIds());
       position = result[0];
       totalPagesAfter = result[1];
     } catch (IOException e) {
@@ -197,7 +197,7 @@ public class SlidesGenerationProgressNotifier {
       + "/" + pres.getTargetPresentationId();
     DocPagesInsertedProgress progress = new DocPagesInsertedProgress(
       pres.getPodId(), pres.getMeetingId(), pres.getTargetPresentationId(),
-      pres.getId(), position, totalPagesAfter, presBaseUrl);
+      pres.getId(), position, totalPagesAfter, presBaseUrl, pres.getPageIds());
     messagingService.sendDocConversionMsg(progress);
   }
 

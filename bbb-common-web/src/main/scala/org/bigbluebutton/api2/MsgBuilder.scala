@@ -265,18 +265,21 @@ object MsgBuilder {
     val envelope = BbbCoreEnvelope(PresentationPagesInsertedSysMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationPagesInsertedSysMsg.NAME, msg.meetingId, "notUsed")
 
-    // Build the final tokenized urls for every page number of the target presentation. bbb-web owns
-    // pageToken generation, so akka-apps only maps each page id to its new number's urls.
-    val pageUrls = (1 to msg.totalPagesAfter.intValue()).map { i =>
-      val pageToken = if (pageTokenSecret.nonEmpty) generatePageToken(msg.targetPresentationId, i.toString, pageTokenSecret) else ""
-      val tokenParam = if (pageToken.nonEmpty) "?pageToken=" + pageToken else ""
-      InsertedPageUrls(i, Map(
-        "thumb" -> (msg.presBaseUrl + "/thumbnail/" + i + tokenParam),
-        "text" -> (msg.presBaseUrl + "/textfiles/" + i + tokenParam),
-        "svg" -> (msg.presBaseUrl + "/svg/" + i + tokenParam),
-        "png" -> (msg.presBaseUrl + "/png/" + i + tokenParam)
-      ))
-    }.toVector
+    // Build the tokenized urls of the inserted pages, keyed by page id. bbb-web owns pageToken
+    // generation, and the token binds to the target presentation the pages now belong to. The
+    // shifted target pages need no urls here: assets are addressed by page id, so their urls do
+    // not change when only their num does.
+    val pageUrls = msg.insertPageIds.asScala.toVector.sortBy(_._1).map {
+      case (_, pageId) =>
+        val pageToken = if (pageTokenSecret.nonEmpty) generatePageToken(msg.targetPresentationId, pageId, pageTokenSecret) else ""
+        val tokenParam = if (pageToken.nonEmpty) "?pageToken=" + pageToken else ""
+        InsertedPageUrls(pageId, Map(
+          "thumb" -> (msg.presBaseUrl + "/thumbnail/" + pageId + tokenParam),
+          "text" -> (msg.presBaseUrl + "/textfiles/" + pageId + tokenParam),
+          "svg" -> (msg.presBaseUrl + "/svg/" + pageId + tokenParam),
+          "png" -> (msg.presBaseUrl + "/png/" + pageId + tokenParam)
+        ))
+    }
 
     val body = PresentationPagesInsertedSysMsgBody(
       podId = msg.podId,

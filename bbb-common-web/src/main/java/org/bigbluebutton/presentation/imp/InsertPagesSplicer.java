@@ -1,23 +1,30 @@
 package org.bigbluebutton.presentation.imp;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Splices the per-page slide artifacts of a freshly converted presentation (the "insert"
  * presentation) into an existing "target" presentation directory at a 1-based position.
  *
- * <p>BigBlueButton serves slides by page number (svgs/slideN.svg, pngs/slide-N.png,
- * textfiles/slide-N.txt, thumbnails/thumb-N.png) and the recording processor copies the same
- * directories and references them by the integer page number stored in events.xml. So to insert
- * K pages at position P we shift the existing files with number &gt;= P up by K (descending, to
- * avoid collisions) and move the inserted files into the freed slots. After this, slideN on disk
- * matches the final logical page number, keeping both live playback and recordings coherent.
+ * <p>Slide artifacts are named by opaque page id (svgs/slide&lt;pageId&gt;.svg,
+ * pngs/slide-&lt;pageId&gt;.png, textfiles/slide-&lt;pageId&gt;.txt,
+ * thumbnails/thumb-&lt;pageId&gt;.png) and served by page id, so file names never encode position
+ * and inserting pages renames nothing that already exists. The insert amounts to: move the
+ * inserted pages' artifacts into the target directory under their unchanged page-id names, and
+ * re-key the target's pages.json manifest (the num -&gt; pageId source of truth, which an S3 cache
+ * restore reads back through {@link PageIdManifest}) so positions at/after the insert shift up.
  *
  * <p>The combined per-presentation PDF (&lt;presId&gt;.pdf, used only for the download-full feature
  * and the recording search-text loop) is intentionally not spliced here; the visual page set is
@@ -26,7 +33,9 @@ import java.util.regex.Pattern;
 public class InsertPagesSplicer {
   private static final Logger log = LoggerFactory.getLogger(InsertPagesSplicer.class);
 
-  // subdir, filename prefix, extension. svgs use "slideN" (no dash), the rest use a dashed prefix.
+  private static final Type MANIFEST_TYPE = new TypeToken<Map<String, String>>() {}.getType();
+
+  // subdir, filename prefix, extension. svgs use "slide<id>" (no dash), the rest use a dashed prefix.
   private static final String[][] ARTIFACTS = {
       {"svgs", "slide", ".svg"},
       {"pngs", "slide-", ".png"},
@@ -35,65 +44,96 @@ public class InsertPagesSplicer {
   };
 
   /**
+   * @param insertPageIds 1-based page number to pageId of the converted insert presentation.
    * @return a two-element array: [clamped 1-based insert position, total pages after the insert].
    */
-  public static int[] splice(File insertDir, File targetDir, int rawPosition, int insertCount) throws IOException {
+  public static int[] splice(File insertDir, File targetDir, int rawPosition,
+                             Map<Integer, String> insertPageIds) throws IOException {
     if (!targetDir.isDirectory()) {
       throw new IOException("Target presentation dir does not exist: " + targetDir.getAbsolutePath());
     }
+    if (insertPageIds == null || insertPageIds.isEmpty()) {
+      throw new IOException("No page ids for the pages to insert into " + targetDir.getAbsolutePath());
+    }
 
-    int targetTotal = countTargetPages(targetDir);
+    // The manifest is the num -> pageId source of truth for the target; without it we cannot
+    // know how many pages the target has nor which position each id occupies, so abort rather
+    // than guess.
+    TreeMap<Integer, String> targetPages = readManifest(targetDir);
+    int targetTotal = targetPages.size();
+    int insertCount = insertPageIds.size();
     int position = Math.max(1, Math.min(rawPosition, targetTotal + 1));
 
-    // Shift existing target pages [position..targetTotal] up by insertCount, descending to
-    // avoid overwriting a slot we have not moved yet.
-    for (int n = targetTotal; n >= position; n--) {
-      renameAcrossArtifacts(targetDir, n, targetDir, n + insertCount);
+    // Move the inserted pages' artifacts into the target dir. Names are opaque page ids, so
+    // nothing collides and no existing target file is touched.
+    for (String pageId : insertPageIds.values()) {
+      moveArtifacts(insertDir, targetDir, pageId);
     }
 
-    // Move the inserted pages [1..insertCount] into the freed slots [position..position+K-1].
-    for (int k = 1; k <= insertCount; k++) {
-      renameAcrossArtifacts(insertDir, k, targetDir, position + k - 1);
+    // Re-key the manifest: positions at/after the insert shift up by insertCount, the inserted
+    // ids take position..position+insertCount-1.
+    TreeMap<Integer, String> merged = new TreeMap<>();
+    for (Map.Entry<Integer, String> e : targetPages.entrySet()) {
+      int num = e.getKey();
+      merged.put(num >= position ? num + insertCount : num, e.getValue());
     }
+    int nextNum = position;
+    for (Map.Entry<Integer, String> e : new TreeMap<>(insertPageIds).entrySet()) {
+      merged.put(nextNum++, e.getValue());
+    }
+    writeManifest(targetDir, merged);
 
     log.info("Spliced {} page(s) into presentation dir {} at position {} (was {} pages, now {})",
         insertCount, targetDir.getName(), position, targetTotal, targetTotal + insertCount);
     return new int[] { position, targetTotal + insertCount };
   }
 
-  private static void renameAcrossArtifacts(File fromDir, int fromNum, File toDir, int toNum) {
+  private static void moveArtifacts(File fromDir, File toDir, String pageId) {
     for (String[] a : ARTIFACTS) {
-      File subFrom = new File(fromDir, a[0]);
-      File subTo = new File(toDir, a[0]);
-      File src = new File(subFrom, a[1] + fromNum + a[2]);
+      File src = new File(new File(fromDir, a[0]), a[1] + pageId + a[2]);
       if (!src.exists()) {
+        // Tolerated: not every conversion flow produces every artifact type (e.g. no pngs).
         continue;
       }
+      File subTo = new File(toDir, a[0]);
       if (!subTo.isDirectory() && !subTo.mkdirs()) {
         log.warn("Could not create artifact dir {}", subTo.getAbsolutePath());
         continue;
       }
-      File dst = new File(subTo, a[1] + toNum + a[2]);
+      File dst = new File(subTo, a[1] + pageId + a[2]);
       if (!src.renameTo(dst)) {
         log.warn("Failed to move {} -> {}", src.getAbsolutePath(), dst.getAbsolutePath());
       }
     }
   }
 
-  private static int countTargetPages(File targetDir) {
-    File svgs = new File(targetDir, "svgs");
-    File[] files = svgs.listFiles();
-    if (files == null) {
-      return 0;
+  private static TreeMap<Integer, String> readManifest(File targetDir) throws IOException {
+    File manifest = new File(targetDir, PageIdManifest.FILENAME);
+    if (!manifest.exists()) {
+      throw new IOException("Target presentation has no page id manifest: " + manifest.getAbsolutePath());
     }
-    Pattern p = Pattern.compile("^slide(\\d+)\\.svg$");
-    int max = 0;
-    for (File f : files) {
-      Matcher m = p.matcher(f.getName());
-      if (m.matches()) {
-        max = Math.max(max, Integer.parseInt(m.group(1)));
+    String json = new String(Files.readAllBytes(manifest.toPath()), StandardCharsets.UTF_8);
+    Map<String, String> byNum = new Gson().fromJson(json, MANIFEST_TYPE);
+    if (byNum == null || byNum.isEmpty()) {
+      throw new IOException("Target page id manifest is empty: " + manifest.getAbsolutePath());
+    }
+    TreeMap<Integer, String> pages = new TreeMap<>();
+    try {
+      for (Map.Entry<String, String> e : byNum.entrySet()) {
+        pages.put(Integer.parseInt(e.getKey()), e.getValue());
       }
+    } catch (NumberFormatException e) {
+      throw new IOException("Target page id manifest has a non-numeric page number: " + manifest.getAbsolutePath());
     }
-    return max;
+    return pages;
+  }
+
+  private static void writeManifest(File targetDir, TreeMap<Integer, String> pages) throws IOException {
+    Map<String, String> byNum = new LinkedHashMap<>();
+    for (Map.Entry<Integer, String> e : pages.entrySet()) {
+      byNum.put(String.valueOf(e.getKey()), e.getValue());
+    }
+    File manifest = new File(targetDir, PageIdManifest.FILENAME);
+    Files.write(manifest.toPath(), new Gson().toJson(byNum).getBytes(StandardCharsets.UTF_8));
   }
 }
