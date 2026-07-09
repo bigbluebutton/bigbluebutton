@@ -122,4 +122,26 @@ export class PreFlight extends MultiUsers {
       'should display the microphone selector in the waiting room',
     );
   }
+
+  // Regression: closing the pre-flight without joining (ESC / X / click outside)
+  // must reset audioModalIsOpen. The webcam dock is gated on !audioModalIsOpen,
+  // so if the flag stayed true the dock would never render.
+  async dismissWithoutJoiningKeepsWebcamDock() {
+    if (!this?.modPage) throw new Error('modPage not initialized');
+
+    await this.modPage.hasElement(e.preFlightModal, 'should display the pre-flight screen on join');
+    // Dismiss without joining - ModalSimple closes via onRequestClose on ESC.
+    await this.modPage.page.keyboard.press('Escape');
+    await this.modPage.wasRemoved(
+      e.preFlightModal,
+      'should close the pre-flight screen when dismissed without joining',
+    );
+    // Sharing a webcam and seeing the dock proves audioModalIsOpen was reset:
+    // a stuck-true flag would have hidden the dock entirely.
+    await this.modPage.shareWebcam();
+    await this.modPage.hasElement(
+      e.webcamMirroredVideoContainer,
+      'should render the webcam dock after dismissing the pre-flight',
+    );
+  }
 }

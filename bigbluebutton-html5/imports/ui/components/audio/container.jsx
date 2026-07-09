@@ -324,8 +324,10 @@ const AudioContainer = (props) => {
         <PreFlightContainer
           {...{
             priority: 'high',
-            setIsOpen: preFlightModal.isOpen ? preFlightModal.close : preFlightModal.open,
-            isOpen: preFlightModal.isOpen,
+            // This block only renders while the modal is open, so close is the
+            // only meaningful setIsOpen target here.
+            setIsOpen: preFlightModal.close,
+            isOpen: true,
             onJoined: () => {
               Session.setItem('audioModalIsOpen', false);
               preFlightModal.close();

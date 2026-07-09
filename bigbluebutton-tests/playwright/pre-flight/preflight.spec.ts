@@ -61,4 +61,20 @@ test.describe.parallel('Pre-flight screen', { tag: '@ci' }, () => {
     await preFlight.initModPage(page, { testInfo });
     await preFlight.showsPreFlightDuringGuestWait();
   });
+
+  // Regression: dismissing the pre-flight without joining must reset the
+  // audioModalIsOpen flag so the webcam dock keeps rendering.
+  test('Dismissing the pre-flight without joining keeps the webcam dock working', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const preFlight = new PreFlight(browser, context);
+    await preFlight.initModPage(page, {
+      joinParameter: PRE_FLIGHT_PARAM,
+      shouldCloseAudioModal: false,
+      testInfo,
+    });
+    await preFlight.dismissWithoutJoiningKeepsWebcamDock();
+  });
 });

@@ -1,9 +1,12 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import React, { useCallback, useRef, useState } from 'react';
+import React, {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useReactiveVar } from '@apollo/client';
 import logger from '/imports/startup/client/logger';
+import Session from '/imports/ui/services/storage/in-memory';
 import Styled from './styles';
 import PreFlightBody, { PreFlightBodyHandle, PreFlightFooterContext } from './PreFlightBody';
 import AudioService from '/imports/ui/components/audio/service';
@@ -83,6 +86,15 @@ const PreFlight: React.FC<PreFlightProps> = ({
   const bodyRef = useRef<PreFlightBodyHandle>(null);
   const [isJoining, setIsJoining] = useState(false);
   const showCamera = enableVideo && !isCamLocked;
+
+  // Reset the audio-modal flag on ANY exit - join, dismiss (X / ESC / click
+  // outside) or unmount - mirroring the audio-modal cleanup. Without this, a
+  // dismissed pre-flight would leave audioModalIsOpen=true, which hides the
+  // webcam dock (webcam/component.tsx) and suppresses the livekit autoplay
+  // modal until the standard audio modal is reopened.
+  useEffect(() => () => {
+    Session.setItem('audioModalIsOpen', false);
+  }, []);
 
   // Run the card fade/scale-out, then hand off to the meeting. onJoined unmounts
   // the modal, so the short delay is what makes the commit feel like a hand-off.

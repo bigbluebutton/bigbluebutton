@@ -309,6 +309,8 @@ const PreFlightBody = forwardRef<PreFlightBodyHandle, PreFlightBodyProps>(
       enableJoinControls ? shareOnJoinDefault : true,
     );
     const [micMuted, setMicMuted] = useState(joinMutedDefault);
+    // Preview-only mirror flip: seeded from the meeting default, but toggling it
+    // here does NOT persist to the meeting - it only flips this self-view.
     const [mirrored, setMirrored] = useState<boolean>(() => Boolean(VideoService.mirrorOwnWebcam()));
 
     const isMounted = useRef(true);
