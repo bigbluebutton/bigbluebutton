@@ -113,6 +113,14 @@ const messages = defineMessages({
     id: 'app.chat.imagePaste.errorTooLarge',
     description: 'error shown when a pasted image exceeds the size limit',
   },
+  errorImageDimensions: {
+    id: 'app.chat.imagePaste.errorDimensions',
+    description: 'error shown when a pasted image exceeds the maximum dimensions',
+  },
+  errorImageQuota: {
+    id: 'app.chat.imagePaste.errorQuota',
+    description: 'error shown when the meeting storage quota is exceeded',
+  },
   errorImageUpload: {
     id: 'app.chat.imagePaste.errorUpload',
     description: 'error shown when the image upload fails',
@@ -605,10 +613,17 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             const reason = err instanceof UploadImageError ? err.reason : 'upload-failed';
             const errorByReason = {
               'too-large': messages.errorImageTooLarge,
+              'image-too-large': messages.errorImageDimensions,
+              'quota-exceeded': messages.errorImageQuota,
               'unsupported-type': messages.errorImageType,
               'upload-failed': messages.errorImageUpload,
             } as const;
-            setError(intl.formatMessage(errorByReason[reason] ?? messages.errorImageUpload));
+            const dims = err instanceof UploadImageError ? err.dimensions : undefined;
+            setError(
+              reason === 'image-too-large' && dims
+                ? intl.formatMessage(messages.errorImageDimensions, dims)
+                : intl.formatMessage(errorByReason[reason] ?? messages.errorImageUpload),
+            );
             logger.error({
               logCode: 'chat_image_upload_error',
               extraInfo: { reason },

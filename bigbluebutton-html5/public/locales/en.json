@@ -7,6 +7,8 @@
     "app.chat.errorOnSendMessage": "Error on sending chat message",
     "app.chat.imagePaste.errorType": "This image type is not supported",
     "app.chat.imagePaste.errorTooLarge": "The image is too large to be sent",
+    "app.chat.imagePaste.errorDimensions": "The image dimensions exceed the allowed maximum of {maxWidth}x{maxHeight} pixels",
+    "app.chat.imagePaste.errorQuota": "The meeting storage quota has been exceeded",
     "app.chat.imagePaste.errorUpload": "The image could not be uploaded, please try again",
     "app.chat.imagePaste.previewAlt": "Preview of the image to be sent",
     "app.chat.imagePaste.removeLabel": "Remove image",

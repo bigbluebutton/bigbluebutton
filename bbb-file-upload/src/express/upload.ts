@@ -25,13 +25,13 @@ function identity(req: Request): { meetingId: string; userId: string } | null {
 export function handleUpload(req: Request, res: Response): void {
   const who = identity(req);
   if (!who || !isValidMeetingId(who.meetingId)) {
-    res.status(401).json({ error: 'unauthorized' });
+    res.status(401).json({ code: 'unauthorized' });
     return;
   }
 
   const file = req.file;
   if (!file) {
-    res.status(400).json({ error: 'no file provided' });
+    res.status(400).json({ code: 'no_file' });
     return;
   }
 
@@ -42,13 +42,13 @@ export function handleUpload(req: Request, res: Response): void {
       declared: file.mimetype,
       detected: detected?.mime ?? 'unknown',
     });
-    res.status(415).json({ error: 'unsupported media type' });
+    res.status(415).json({ code: 'unsupported_image_type' });
     return;
   }
 
   const dimensions = readDimensions(file.buffer);
   if (!dimensions) {
-    res.status(422).json({ error: 'could not read image dimensions' });
+    res.status(422).json({ code: 'unreadable_dimensions' });
     return;
   }
   if (dimensions.width > limits.maxImageDimensionPx || dimensions.height > limits.maxImageDimensionPx) {
@@ -57,13 +57,19 @@ export function handleUpload(req: Request, res: Response): void {
       width: dimensions.width,
       height: dimensions.height,
     });
-    res.status(422).json({ error: 'image dimensions exceed the allowed maximum' });
+    res.status(422).json({
+      code: 'image_dimensions_exceed_maximum',
+      maxWidth: limits.maxImageDimensionPx,
+      maxHeight: limits.maxImageDimensionPx,
+      sentWidth: dimensions.width,
+      sentHeight: dimensions.height,
+    });
     return;
   }
 
   if (usedBytes(who.meetingId) + file.size > quotaBytes) {
     logger.warn('Rejected upload exceeding meeting quota', { meetingId: who.meetingId });
-    res.status(413).json({ error: 'meeting storage quota exceeded' });
+    res.status(413).json({ code: 'meeting_quota_exceeded' });
     return;
   }
 
@@ -75,7 +81,7 @@ export function handleUpload(req: Request, res: Response): void {
       meetingId: who.meetingId,
       error: error instanceof Error ? error.message : String(error),
     });
-    res.status(500).json({ error: 'failed to store file' });
+    res.status(500).json({ code: 'storage_failed' });
     return;
   }
 

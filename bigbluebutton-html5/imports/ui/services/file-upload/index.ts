@@ -2,15 +2,35 @@ import Auth from '/imports/ui/services/auth';
 
 const UPLOAD_ENDPOINT = '/bigbluebutton/fileUpload/upload';
 
-export type UploadImageErrorReason = 'unsupported-type' | 'too-large' | 'upload-failed';
+export type UploadImageErrorReason =
+  | 'unsupported-type'
+  | 'too-large'
+  | 'image-too-large'
+  | 'quota-exceeded'
+  | 'upload-failed';
+
+export interface ImageDimensionsDetail {
+  maxWidth: number;
+  maxHeight: number;
+  sentWidth: number;
+  sentHeight: number;
+  [key: string]: number;
+}
 
 export class UploadImageError extends Error {
   public readonly reason: UploadImageErrorReason;
 
-  constructor(reason: UploadImageErrorReason, message?: string) {
+  public readonly dimensions?: ImageDimensionsDetail;
+
+  constructor(
+    reason: UploadImageErrorReason,
+    message?: string,
+    dimensions?: ImageDimensionsDetail,
+  ) {
     super(message ?? reason);
     this.name = 'UploadImageError';
     this.reason = reason;
+    this.dimensions = dimensions;
   }
 }
 
@@ -33,6 +53,18 @@ export const isAllowedImage = (file: File): boolean => {
 
 export const isWithinSizeLimit = (file: File): boolean => {
   return file.size <= getLimits().maxFileSizeKb * 1024;
+};
+
+// Map the server's stable error `code` (the canonical machine-readable reason)
+// to the client's UploadImageErrorReason. The server is the source of truth;
+// the client decides the localized message via the reason + details.
+const SERVER_CODE_TO_REASON: Record<string, UploadImageErrorReason> = {
+  unsupported_image_type: 'unsupported-type',
+  file_too_large: 'too-large',
+  meeting_quota_exceeded: 'quota-exceeded',
+  image_dimensions_exceed_maximum: 'image-too-large',
+  unreadable_dimensions: 'unsupported-type',
+  storage_failed: 'upload-failed',
 };
 
 /**
@@ -65,14 +97,20 @@ export const uploadImage = async (file: File): Promise<string> => {
     throw new UploadImageError('upload-failed', error instanceof Error ? error.message : undefined);
   }
 
-  if (response.status === 413) {
-    throw new UploadImageError('too-large');
-  }
-  if (response.status === 415 || response.status === 422) {
-    throw new UploadImageError('unsupported-type');
-  }
   if (!response.ok) {
-    throw new UploadImageError('upload-failed', `unexpected status ${response.status}`);
+    const body = await response.json().catch(() => null) as { code?: string } | null;
+    const code = body?.code ?? '';
+    const reason = SERVER_CODE_TO_REASON[code] ?? 'upload-failed';
+    const dimensions: ImageDimensionsDetail | undefined =
+      reason === 'image-too-large' && body
+        ? {
+            maxWidth: Number((body as { maxWidth?: unknown }).maxWidth ?? 0),
+            maxHeight: Number((body as { maxHeight?: unknown }).maxHeight ?? 0),
+            sentWidth: Number((body as { sentWidth?: unknown }).sentWidth ?? 0),
+            sentHeight: Number((body as { sentHeight?: unknown }).sentHeight ?? 0),
+          }
+        : undefined;
+    throw new UploadImageError(reason, code || `status ${response.status}`, dimensions);
   }
 
   const body = await response.json();
