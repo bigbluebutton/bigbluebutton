@@ -192,6 +192,57 @@ object PresPresentationDAO {
     }
   }
 
+  // Persists a completed page insert as one transaction: re-home/renumber the target's pages,
+  // update its totalPages and delete the transient insert presentation row. All-or-nothing is
+  // required here, not just hygiene: pres_page references pres_presentation with ON DELETE
+  // CASCADE, so a delete landing in a separate transaction from the page upserts could cascade
+  // away the freshly inserted pages. It is also the transaction where the deferred
+  // (presentationId, num) unique constraint gets checked at commit, which is what allows the
+  // in-place renumbering of the shifted pages.
+  def applyInsertedPages(presentation: PresentationInPod, meetingId: String, insertPresentationId: String) = {
+    val pageUpserts = for {
+      page <- presentation.pages
+    } yield {
+      TableQuery[PresPageDbTableDef].insertOrUpdate(
+        PresPageDbModel(
+          pageId = page._2.id,
+          presentationId = presentation.id,
+          num = page._2.num,
+          urlsJson = page._2.urls.toJson,
+          content = page._2.content,
+          slideRevealed = page._2.current,
+          current = page._2.current,
+          xOffset = page._2.xOffset,
+          yOffset = page._2.yOffset,
+          widthRatio = page._2.widthRatio,
+          heightRatio = page._2.heightRatio,
+          width = page._2.width,
+          height = page._2.height,
+          viewBoxWidth = 1,
+          viewBoxHeight = 1,
+          maxImageWidth = 1440,
+          maxImageHeight = 1080,
+          uploadCompleted = page._2.converted,
+          infiniteWhiteboard = page._2.infiniteWhiteboard,
+          fitToWidth = page._2.fitToWidth,
+        )
+      )
+    }
+
+    val updateTotalPages = TableQuery[PresPresentationDbTableDef]
+      .filter(_.presentationId === presentation.id)
+      .map(p => p.totalPages)
+      .update(presentation.numPages)
+
+    val deleteInsertPres = TableQuery[PresPresentationDbTableDef]
+      .filter(p => p.meetingId === meetingId && p.presentationId === insertPresentationId)
+      .delete
+
+    DatabaseConnection.enqueue(
+      DBIO.seq((pageUpserts.toSeq :+ updateTotalPages :+ deleteInsertPres): _*).transactionally
+    )
+  }
+
   def setCurrentPres(presentationId: String) = {
     DatabaseConnection.enqueue(
       sqlu"""UPDATE pres_presentation SET

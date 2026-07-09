@@ -54,11 +54,10 @@ trait PresentationPagesInsertedSysMsgHdlr {
       var pods = state.presentationPodManager.addPod(pod.removePresentation(insertPresId))
       pods = pods.addPresentationToPod(podId, newTargetPres)
 
-      // updatePages repoints the inserted page rows onto the target and rewrites the shifted
-      // rows' num/urls + totalPages in one transaction; deleting the transient insert
-      // presentation afterwards only removes its now-empty presentation row.
-      PresPresentationDAO.updatePages(newTargetPres)
-      PresPresentationDAO.delete(liveMeeting.props.meetingProp.intId, insertPresId)
+      // One transaction: repoint the inserted page rows onto the target, renumber the shifted
+      // rows, update totalPages and delete the transient insert presentation row. Split apart,
+      // the insert-pres delete could cascade away the inserted pages before they are re-homed.
+      PresPresentationDAO.applyInsertedPages(newTargetPres, liveMeeting.props.meetingProp.intId, insertPresId)
 
       state.update(pods)
     }
