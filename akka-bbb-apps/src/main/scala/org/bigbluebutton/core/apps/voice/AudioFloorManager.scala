@@ -21,7 +21,7 @@ case class PendingFloor(
 )
 
 object AudioFloorManager {
-  // Floor grants are sheculed to the meeting actor so they run on the actor
+  // Floor grants are scheduled to the meeting actor so they run on the actor
   // thread, serialized with the rest of the meeting's message handling.
   case object DispatchFloorGrantsInternalMsg
 }
@@ -95,7 +95,7 @@ class AudioFloorManager(meetingId: String) extends SystemConfiguration {
 
   // Evaluates the floor grant queue: drops stale entries, grants the floor to
   // the head once both its minimum-talking deadline and the grant cooldown
-  // have elapsed, and otherwise re-schedule itself for the earliest instant a i
+  // have elapsed, and otherwise re-schedule itself for the earliest instant a
   // grant can succeed.
   def dispatchPendingGrants(
       liveMeeting: LiveMeeting,
@@ -117,8 +117,8 @@ class AudioFloorManager(meetingId: String) extends SystemConfiguration {
 
       if (now >= readyAt) {
         try {
-          pendingFloors.dequeue()
           grantFloor(head.userId, now, liveMeeting, outGW)
+          pendingFloors.dequeue()
           dispatchPendingGrants(liveMeeting, outGW)
         } catch {
           // Capture so that the queue doesn't stall
