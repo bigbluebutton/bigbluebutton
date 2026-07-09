@@ -43,7 +43,10 @@ const OverflowTile: React.FC<OverflowTileProps> = ({ overflowCount, overflowUser
   };
 
   return (
-    <Styled.OverflowTileContainer data-test="overflowTile" isClickable={!isUserListPanelOpen} onClick={() => handleOpenUserList()}>
+    <Styled.OverflowTileContainer
+      isClickable={!isUserListPanelOpen}
+      onClick={() => handleOpenUserList()}
+    >
       <Styled.OverflowTileContent>
         {overflowUsers.length > 0 && (
           <Styled.AvatarsContainer $count={overflowUsers.length}>

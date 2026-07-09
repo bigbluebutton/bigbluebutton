@@ -32,6 +32,7 @@ export interface InitOptionsProps {
   fullName?: string;
   meetingId?: string;
   createParameter?: string;
+  createModules?: string;
   joinParameter?: string;
   customMeetingId?: string;
   isRecording?: boolean;
@@ -104,6 +105,7 @@ export class Page {
       fullName,
       meetingId,
       createParameter,
+      createModules,
       joinParameter,
       customMeetingId,
       isRecording,
@@ -121,7 +123,7 @@ export class Page {
 
     await helpers.setBrowserLogs(this, forceErrorLogFailure);
 
-    this.meetingId = meetingId || (await helpers.createMeeting(createParameter, customMeetingId));
+    this.meetingId = meetingId || (await helpers.createMeeting(createParameter, customMeetingId, createModules));
     const joinUrl = helpers.getJoinURL({
       meetingID: this.meetingId,
       fullName: this.username,

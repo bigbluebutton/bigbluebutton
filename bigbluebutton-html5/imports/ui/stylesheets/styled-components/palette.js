@@ -162,6 +162,7 @@ export {
   colorGrayLightest,
   colorBorder,
   colorTransparent,
+  colorUserModerator,
   colorBlueLight,
   colorBlueLighter,
   colorBlueLightest,

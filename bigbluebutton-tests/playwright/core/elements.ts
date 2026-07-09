@@ -511,6 +511,8 @@ export const elements = {
   webcamConnecting: 'div[data-test="webcamConnecting"]',
   webcamContainer: 'video[data-test="videoContainer"]',
   webcamVideoItem: 'div[data-test="webcamVideoItem"]',
+  webcamStreamItem: 'div[data-test="webcamVideoItem"][data-video-type="stream"]',
+  webcamVideoList: 'div[data-test="webcamVideoList"]',
   overflowTile: 'div[data-test="overflowTile"]',
   videoDropdownMenu: 'button[data-test="videoDropdownMenu"]',
   advancedVideoSettingsBtn: 'li[data-test="advancedVideoSettingsButton"]',
