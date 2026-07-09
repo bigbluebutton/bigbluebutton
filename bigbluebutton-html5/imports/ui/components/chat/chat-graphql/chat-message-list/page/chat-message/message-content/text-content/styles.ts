@@ -31,8 +31,12 @@ export const ChatMessage = styled.div<ChatMessageProps>`
   ${({ $jumbomoji }) => $jumbomoji && jumbomojiStyles}
 
   & img {
-    max-width: 100%;
-    max-height: 100%;
+    max-width: 400px;
+    max-height: 300px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 4px;
   }
 
   & p {

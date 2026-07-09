@@ -167,6 +167,10 @@ const intlMessages = defineMessages({
     id: 'app.notes.blocknote.imagePasteErrorDimensions',
     description: 'Error shown when a pasted image exceeds the maximum dimensions',
   },
+  imagePasteErrorRatio: {
+    id: 'app.notes.blocknote.imagePasteErrorRatio',
+    description: 'Error shown when a pasted image has an extreme aspect ratio',
+  },
   imagePasteErrorQuota: {
     id: 'app.notes.blocknote.imagePasteErrorQuota',
     description: 'Error shown when the meeting storage quota is exceeded',
@@ -310,6 +314,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
           const messageByReason = {
             'too-large': intlMessages.imagePasteErrorTooLarge,
             'image-too-large': intlMessages.imagePasteErrorDimensions,
+            'image-extreme-ratio': intlMessages.imagePasteErrorRatio,
             'quota-exceeded': intlMessages.imagePasteErrorQuota,
             'unsupported-type': intlMessages.imagePasteErrorType,
             'upload-failed': intlMessages.imagePasteErrorUpload,

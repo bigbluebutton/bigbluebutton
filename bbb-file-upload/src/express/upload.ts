@@ -66,6 +66,27 @@ export function handleUpload(req: Request, res: Response): void {
     });
     return;
   }
+  // Reject pathological aspect ratios (e.g. 100x10000) that break layout
+  // without representing a real screenshot/image. maxImageAspectRatio caps
+  // max(w/h, h/w). 10:1 leaves headroom for ultrawide monitors.
+  const aspectRatio = Math.max(dimensions.width, dimensions.height)
+    / Math.min(dimensions.width, dimensions.height);
+  if (aspectRatio > limits.maxImageAspectRatio) {
+    logger.warn('Rejected extreme-aspect-ratio image', {
+      meetingId: who.meetingId,
+      width: dimensions.width,
+      height: dimensions.height,
+      aspectRatio,
+    });
+    res.status(422).json({
+      code: 'image_aspect_ratio_exceeds_maximum',
+      maxAspectRatio: limits.maxImageAspectRatio,
+      sentAspectRatio: Math.round(aspectRatio * 100) / 100,
+      sentWidth: dimensions.width,
+      sentHeight: dimensions.height,
+    });
+    return;
+  }
 
   if (usedBytes(who.meetingId) + file.size > quotaBytes) {
     logger.warn('Rejected upload exceeding meeting quota', { meetingId: who.meetingId });
