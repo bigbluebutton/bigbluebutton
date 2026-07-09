@@ -44,6 +44,10 @@ Guest management now lives in a dedicated panel integrated with the user list. M
 
 The "Lock viewers" / permissions modal was redesigned with a tabbed layout, and the toggle switches were replaced with checkboxes to make the "restrict" action clearer. The modal now warns about unsaved changes before closing. It also surfaces the new presenter policy described under [Request to Present](#request-to-present).
 
+#### Insert pages into the current presentation
+
+The presentation toolbar now has an insert pages (**+**) split button for the presenter, with two actions: **Insert blank page** and **Insert pages from a file...**. The new pages are inserted right after the current slide (existing annotations are preserved), and the presenter is taken to the first inserted page once the insert completes. The button can be hidden with `public.presentation.insertPagesEnabled` in `settings.yml` (default `true`); the plugin SDK `presentation.insertPages` server command works regardless of this flag.
+
 #### "Musician Mode" audio processing
 
 BigBlueButton 4.0 introduces an optional WASM-based audio processor (internally "BBBA") that runs on top of the microphone stream. Exposed to users as **"Musician Mode"**, it provides an alternative to the browser's built-in audio processing for scenarios such as sharing music. It is disabled by default. See [Musician Mode (WASM audio processing)](/administration/customize#musician-mode-wasm-audio-processing) for configuration details.
