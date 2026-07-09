@@ -27,13 +27,23 @@ annotations:
 9. Click "Next Slide" again and verify that annotation `2a` is displayed
    on slide 3 (the original slide 2, shifted).
 
-## Known result on this PR
+## Known result on this branch
 
-Step 9 fails: annotation `2a` is not displayed on slide 3 after the
-shift. The annotation created on the original slide 2 before the insert
-does not survive the renumber. This is being tracked as a follow-up of the
-prerequisite PR #25378 (pageId opaque UUID refactor); see the PR #25380
-discussion for the bug report and the link to the tracking issue/PR.
+All nine steps pass: annotation `1a` stays on slide 1, annotation `1b`
+stays on the inserted blank (slide 2), and annotation `2a` is displayed
+on slide 3 (the original slide 2, shifted by the insert). Annotation
+preservation across the insert is provided by the backend changes in this
+branch: inserted pages are spliced into the presentation by pageId instead
+of physically renumbering the existing pages (commit a824c2247e), the
+insert is persisted as a single transaction (commit ba0c5226b3), and the
+page number unique constraint is deferrable so the renumber cannot collide
+mid-transaction (commit 5b7dccc148).
+
+Capture note: after a slide navigation the tldraw base page can render
+blank for a moment until its SVG background asset settles. This is a
+pre-existing client rendering behavior, unrelated to the insert feature;
+when collecting evidence, wait for the whiteboard content to render after
+each navigation before taking a screenshot.
 
 ## Running
 
