@@ -143,6 +143,32 @@ export class MarkdownSharedNotes extends MultiUsers {
     await expect(editor, 'the appended paragraph should render').toContainText('Appended paragraph body');
   }
 
+  // Feature: cancelling the import modal closes it and leaves the document untouched;
+  // nothing staged in the modal (textarea content, chosen mode) is imported.
+  async importFromMarkdownCancel() {
+    await startBlockNoteSharedNotes(this.modPage);
+
+    const editor = getBlockNoteEditorLocator(this.modPage);
+    await editor.click();
+    const originalText = 'Content that must survive a cancel';
+    await this.modPage.page.keyboard.type(originalText);
+    await expect(editor).toContainText(originalText);
+
+    await this.modPage.waitAndClick(e.notesOptions);
+    await this.modPage.waitAndClick(e.importNotesFromMarkdown);
+
+    // Stage some markdown, then back out with Cancel instead of confirming.
+    const discardedHeading = 'Heading that should never be imported';
+    await this.modPage.page.locator(e.notesImportMarkdownTextarea).fill(`# ${discardedHeading}`);
+    await this.modPage.waitAndClick(e.notesImportMarkdownCancel);
+
+    // The modal closes and nothing is imported: the original content stays, and the
+    // staged markdown never reaches the editor.
+    await this.modPage.wasRemoved(e.notesImportMarkdownModal, 'the import modal should close on cancel');
+    await expect(editor, 'the original content should be untouched').toContainText(originalText);
+    await expect(editor, 'the discarded markdown should not have been imported').not.toContainText(discardedHeading);
+  }
+
   // Feature: importing markdown propagates to every connected client through the
   // shared Yjs document (proves the client-side replace is collaborative).
   async importFromMarkdownPropagatesToOtherUser() {

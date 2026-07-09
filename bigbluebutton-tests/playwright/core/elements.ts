@@ -239,6 +239,7 @@ export const elements = {
   notesImportMarkdownTextarea: 'textarea[data-test="notesImportMarkdownTextarea"]',
   notesImportMarkdownConfirm: 'button[data-test="notesImportMarkdownConfirm"]',
   notesImportMarkdownCancel: 'button[data-test="notesImportMarkdownCancel"]',
+  notesImportMarkdownModal: '[data-test="notesImportMarkdownModal"]',
   notesImportMarkdownModeGroup: '[data-test="notesImportMarkdownModeGroup"]',
   notesImportMarkdownAppendMode: 'input[data-test="notesImportMarkdownAppendMode"]',
   notesImportMarkdownReplaceMode: 'input[data-test="notesImportMarkdownReplaceMode"]',

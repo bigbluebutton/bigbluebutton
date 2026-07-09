@@ -27,6 +27,10 @@ test.describe.parallel('Shared Notes - BlockNote Markdown', { tag: '@ci' }, () =
       await markdownSharedNotes.importFromMarkdownReplace();
     });
 
+    test('Import from Markdown cancel closes the modal and imports nothing', async () => {
+      await markdownSharedNotes.importFromMarkdownCancel();
+    });
+
     test('Import from Markdown propagates to other connected users', async () => {
       await markdownSharedNotes.importFromMarkdownPropagatesToOtherUser();
     });
