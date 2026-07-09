@@ -320,9 +320,12 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
             ? intlRef.current.formatMessage(msgKey, dims)
             : intlRef.current.formatMessage(msgKey);
           notify(formatted, 'error', 'notes');
-          // Re-throw with a stable marker so BlockNote knows the upload failed
-          // and does not insert a broken block; the user already saw the toast.
-          throw err;
+          // Return an empty string so BlockNote inserts an <img src=""> (which
+          // the browser treats as no-op, not a broken/Loading state) instead of
+          // leaving the block stuck in "Loading..." or propagating the rejection
+          // to a global handler that surfaces the error in the wrong surface
+          // (whiteboard). The user has already seen the localized error toast.
+          return '';
         }
       }
       : undefined,
