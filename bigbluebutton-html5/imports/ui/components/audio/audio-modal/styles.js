@@ -35,6 +35,17 @@ const AudioModalButton = styled(Button)`
     }
   }
 
+  // The bbb-icons unmute glyph is drawn bottom-heavy (mic+stand ink sits below the em-box center),
+  // so vertical-align:middle leaves it visibly low vs the symmetric listen glyph. This empirically
+  // validated nudge (-0.08em, confirmed against the headphone glyph) re-centers it. Proportional
+  // across font sizes because the offset is in em units. Scoped to the unmute glyph inside
+  // AudioModalButton only (icon="unmute" is reused in several other components - the mute toggle,
+  // audio test, help - so a global shift would regress them).
+  & span:first-child i[class*="icon-bbb-unmute"] {
+    position: relative;
+    top: -0.08em;
+  }
+
   // When hovering over a button of class audioBtn, change the border colour of first span-child
   &:hover span:first-child,
   &:focus span:first-child {
