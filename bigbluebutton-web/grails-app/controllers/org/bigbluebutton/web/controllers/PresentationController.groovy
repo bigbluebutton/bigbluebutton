@@ -278,6 +278,15 @@ class PresentationController {
     // position instead of surfacing as their own presentation.
     def insertAtPosition = null
     def targetPresentationId = params.targetPresentationId
+    if (targetPresentationId != null && !targetPresentationId.isEmpty()
+            && !Util.isPresIdValidFormat(targetPresentationId)) {
+      log.debug("Upload failed. Invalid targetPresentationId format " + targetPresentationId)
+      response.setStatus(400)
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'text/plain'
+      response.outputStream << 'invalid-target-presentation-id'
+      return
+    }
     if (null != params.insertAtPosition && params.insertAtPosition.isInteger()) {
       insertAtPosition = params.insertAtPosition as Integer
     }
