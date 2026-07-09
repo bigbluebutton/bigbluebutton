@@ -1209,6 +1209,19 @@ class ApiController {
                     RESP_CODE_FAILED), contentType: "text/xml")
           }
         }
+      } else {
+        withFormat {
+          xml {
+            render(text: responseBuilder.buildInsertDocumentResponse(
+                    "Request body must contain a presentation module with at least one document.",
+                    RESP_CODE_FAILED), contentType: "text/xml")
+          }
+          '*' {
+            render(text: responseBuilder.buildInsertDocumentResponse(
+                    "Request body must contain a presentation module with at least one document.",
+                    RESP_CODE_FAILED), contentType: "text/xml")
+          }
+        }
       }
     }else {
       log.warn("Meeting with externalID ${externalMeetingId} doesn't exist.")
@@ -1582,7 +1595,7 @@ class ApiController {
     if (!xmlModules.containsKey("presentation")) {
       if (isFromInsertAPI) {
         log.warn("Insert Document API called without a payload - ignoring")
-        return;
+        return false;
       }
 
      if (hasPresentationUrlInParameter) {
