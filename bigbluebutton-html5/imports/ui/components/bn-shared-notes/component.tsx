@@ -38,7 +38,7 @@ import TextAlignSelect from './text-align-select/component';
 import MarkdownImportModal from './markdown-import-modal/component';
 import { useSharedNotesImport } from './import-context';
 import { useIsSharedNotesImagePasteEnabled } from '/imports/ui/services/features';
-import { uploadImage } from '/imports/ui/services/file-upload';
+import { uploadImage, UploadImageError } from '/imports/ui/services/file-upload';
 import Auth from '/imports/ui/services/auth';
 
 // Force-retain `Awareness` against a webpack tree-shaking interaction that
@@ -154,6 +154,26 @@ const intlMessages = defineMessages({
   maxCharCountError: {
     id: 'app.notes.blocknote.maxCharCountError',
     description: 'Error message for when number of typed characters exceeds the maximum',
+  },
+  imagePasteErrorType: {
+    id: 'app.notes.blocknote.imagePasteErrorType',
+    description: 'Error shown when a pasted image is not an accepted type',
+  },
+  imagePasteErrorTooLarge: {
+    id: 'app.notes.blocknote.imagePasteErrorTooLarge',
+    description: 'Error shown when a pasted image exceeds the size limit',
+  },
+  imagePasteErrorDimensions: {
+    id: 'app.notes.blocknote.imagePasteErrorDimensions',
+    description: 'Error shown when a pasted image exceeds the maximum dimensions',
+  },
+  imagePasteErrorQuota: {
+    id: 'app.notes.blocknote.imagePasteErrorQuota',
+    description: 'Error shown when the meeting storage quota is exceeded',
+  },
+  imagePasteErrorUpload: {
+    id: 'app.notes.blocknote.imagePasteErrorUpload',
+    description: 'Error shown when the image upload fails',
   },
 });
 
@@ -278,7 +298,33 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     // and stores only the returned same-origin URL in the block. Undefined when the
     // feature is off, so BlockNote does not accept image content at all.
     uploadFile: imagePasteEnabled
-      ? (fileToUpload: File) => uploadImage(fileToUpload)
+      ? async (fileToUpload: File) => {
+        try {
+          return await uploadImage(fileToUpload);
+        } catch (err) {
+          // Handle locally so the rejection does not surface as a generic
+          // BlockNote/unhandled-error toast (which the user would see in the
+          // wrong surface, e.g. the whiteboard). Map the stable reason to a
+          // localized message and notify here, in the notes surface.
+          const reason = err instanceof UploadImageError ? err.reason : 'upload-failed';
+          const messageByReason = {
+            'too-large': intlMessages.imagePasteErrorTooLarge,
+            'image-too-large': intlMessages.imagePasteErrorDimensions,
+            'quota-exceeded': intlMessages.imagePasteErrorQuota,
+            'unsupported-type': intlMessages.imagePasteErrorType,
+            'upload-failed': intlMessages.imagePasteErrorUpload,
+          } as const;
+          const dims = err instanceof UploadImageError ? err.dimensions : undefined;
+          const msgKey = messageByReason[reason] ?? intlMessages.imagePasteErrorUpload;
+          const formatted = (reason === 'image-too-large' && dims)
+            ? intlRef.current.formatMessage(msgKey, dims)
+            : intlRef.current.formatMessage(msgKey);
+          notify(formatted, 'error', 'notes');
+          // Re-throw with a stable marker so BlockNote knows the upload failed
+          // and does not insert a broken block; the user already saw the toast.
+          throw err;
+        }
+      }
       : undefined,
     // The raw upload URL is what gets stored in the Yjs document (so it stays
     // portable and rewritable for recording/playback), but the file-upload
