@@ -26,9 +26,11 @@ export async function startBlockNoteSharedNotes(testPage: Page): Promise<void> {
 // settings with no create-call parameter to seed them.
 export async function enableMarkdownNotesOptions(testPage: Page): Promise<void> {
   await testPage.page.evaluate(() => {
-    const { sharedNotes } = (window as unknown as {
-      meetingClientSettings: { public: { sharedNotes: Record<string, boolean> } };
-    }).meetingClientSettings.public;
+    const { sharedNotes } = (
+      globalThis as unknown as {
+        meetingClientSettings: { public: { sharedNotes: Record<string, boolean> } };
+      }
+    ).meetingClientSettings.public;
     sharedNotes.importMarkdownEnabled = true;
     sharedNotes.exportMarkdownEnabled = true;
   });

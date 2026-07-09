@@ -137,7 +137,7 @@ const FileRemove = styled.button`
   }
 `;
 
-const Error = styled.p`
+const ErrorText = styled.p`
   margin: 0;
   color: ${colorDanger};
   font-size: 0.8125rem;
@@ -217,7 +217,7 @@ export default {
   FileName,
   FileSize,
   FileRemove,
-  Error,
+  ErrorText,
   Textarea,
   ModeGroup,
   ModeLegend,

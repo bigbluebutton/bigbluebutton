@@ -66,8 +66,10 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
   const intl = useIntl();
   const { openImportModal } = useSharedNotesImport();
   const NOTES_IS_PINNABLE = window.meetingClientSettings.public.notes.pinnable;
-  const IMPORT_MARKDOWN_ENABLED = window.meetingClientSettings.public.sharedNotes.importMarkdownEnabled;
-  const EXPORT_MARKDOWN_ENABLED = window.meetingClientSettings.public.sharedNotes.exportMarkdownEnabled;
+  // meetingClientSettings is augmented onto Window; globalThis needs the cast to see it.
+  const clientSettings = (globalThis as unknown as Window).meetingClientSettings;
+  const IMPORT_MARKDOWN_ENABLED = clientSettings.public.sharedNotes.importMarkdownEnabled;
+  const EXPORT_MARKDOWN_ENABLED = clientSettings.public.sharedNotes.exportMarkdownEnabled;
 
   const getAvailableActions = () => {
     const uploadIcon = 'upload';

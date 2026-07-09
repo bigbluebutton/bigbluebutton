@@ -17,6 +17,11 @@ const ACCEPTED_EXTENSIONS = ['.md', '.markdown'];
 // authoritative extension check in loadFile.
 const ACCEPTED_EXTENSIONS_ATTR = ACCEPTED_EXTENSIONS.join(',');
 
+// data-test is a valid DOM data-* attribute but not part of the typed
+// InputHTMLAttributes. Spreading it from a named object lets it through the
+// dropzone inputProps without a type cast.
+const FILE_INPUT_PROPS = { 'data-test': 'notesImportMarkdownFileInput' };
+
 type ImportError = 'invalidType' | 'tooLarge' | 'readFailed' | 'empty' | 'parseFailed';
 
 // How the parsed markdown is written into the current notes. `append` (the default)
@@ -143,7 +148,7 @@ const MarkdownImportModal: React.FC<MarkdownImportModalProps> = ({ editor, onClo
     setFileSize(null);
   }, []);
 
-  const loadFile = React.useCallback((file: File) => {
+  const loadFile = React.useCallback(async (file: File) => {
     const name = file.name.toLowerCase();
     const isMarkdown = ACCEPTED_EXTENSIONS.some((ext) => name.endsWith(ext));
     // Error paths never touch `markdown`: text the user may have typed in the textarea
@@ -159,21 +164,18 @@ const MarkdownImportModal: React.FC<MarkdownImportModalProps> = ({ editor, onClo
       return;
     }
 
-    const reader = new FileReader();
-    reader.onerror = () => {
-      setError('readFailed');
-      clearFile();
-    };
-    reader.onload = () => {
-      const text = typeof reader.result === 'string' ? reader.result : '';
+    try {
+      const text = await file.text();
       setFileName(file.name);
       setFileSize(file.size);
       setMarkdown(text);
       // Empty file: keep the chip so the user sees what they loaded, but flag it and
       // leave the import button disabled (markdown is empty).
       setError(text.trim().length === 0 ? 'empty' : null);
-    };
-    reader.readAsText(file);
+    } catch {
+      setError('readFailed');
+      clearFile();
+    }
   }, [clearFile]);
 
   // react-dropzone (the legacy version this repo pins, as used by the presentation
@@ -269,9 +271,7 @@ const MarkdownImportModal: React.FC<MarkdownImportModalProps> = ({ editor, onClo
           onDrop={onDrop}
           inputProps={{
             'aria-label': intl.formatMessage(intlMessages.dropzoneLabel),
-            // data-test is a valid DOM data-* attribute but not in the typed
-            // InputHTMLAttributes; the spread lets it through without a type cast.
-            ...{ 'data-test': 'notesImportMarkdownFileInput' },
+            ...FILE_INPUT_PROPS,
           }}
           $hasError={hasHardError}
           data-test="notesImportMarkdownDropzone"
@@ -299,9 +299,9 @@ const MarkdownImportModal: React.FC<MarkdownImportModalProps> = ({ editor, onClo
         )}
 
         {error && (
-          <Styled.Error role="alert" data-test="notesImportMarkdownError">
+          <Styled.ErrorText role="alert" data-test="notesImportMarkdownError">
             {intl.formatMessage(intlMessages[errorMessageIds[error]])}
-          </Styled.Error>
+          </Styled.ErrorText>
         )}
 
         <Styled.Divider>{intl.formatMessage(intlMessages.orDivider)}</Styled.Divider>
