@@ -14,7 +14,7 @@ case "$1" in
   fi
 
   if [ -f $TARGET ]; then
-    yq -y -i ".playback_host = \"$HOST\"" $TARGET
+    yq e -i ".playback_host = \"$HOST\"" $TARGET
   else
     echo "No: $TARGET"
     exit 1
