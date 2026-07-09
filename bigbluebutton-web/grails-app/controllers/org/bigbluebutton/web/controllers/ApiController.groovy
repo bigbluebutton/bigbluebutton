@@ -1658,11 +1658,18 @@ class ApiController {
             isDefaultPresentation = true
           }
 
-          // Run slow download and processing async for fast API responses
-          presentationService.submitPresentationTask(conf.getInternalId(), "default presentation") {
-            downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(),
-                    document.current /* default presentation */, '', false,
-                    true, isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI);
+          // Validate the filename on the request thread; only then run the slow
+          // download and processing async for fast API responses
+          def defaultPresentationUrl = presentationService.defaultUploadedPresentation
+          def defaultPresFilename = resolvePresentationFilename(defaultPresentationUrl, '', false)
+          if (defaultPresFilename == null) {
+            log.error("Skipping default presentation: could not derive a valid filename from [${defaultPresentationUrl}]")
+          } else {
+            presentationService.submitPresentationTask(conf.getInternalId(), "default presentation") {
+              downloadAndProcessDocument(defaultPresentationUrl, conf.getInternalId(),
+                      document.current /* default presentation */, defaultPresFilename, false,
+                      true, isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI);
+            }
           }
         } else {
           log.error "Default presentation could not be read, it is (" + presentationService.defaultUploadedPresentation + ")", "error"
@@ -1698,21 +1705,32 @@ class ApiController {
             fileName = document.@filename.toString();
           }
 
-          // Run slow download and processing async for fast API responses
+          // Validate the filename on the request thread, where failures are still
+          // tied to the request; only then run the slow download and processing async
           def documentUrl = document.@url.toString()
-          presentationService.submitPresentationTask(conf.getInternalId(), documentUrl) {
-            downloadAndProcessDocument(documentUrl, conf.getInternalId(), isCurrent /* default presentation */,
-                    fileName, isDownloadable, isRemovable, isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI);
+          def presOrigFilename = resolvePresentationFilename(documentUrl, fileName, isPreUploadedPresentationFromParameter)
+          if (presOrigFilename == null) {
+            log.error("Skipping presentation [${documentUrl}]: could not derive a valid filename")
+          } else {
+            presentationService.submitPresentationTask(conf.getInternalId(), documentUrl) {
+              downloadAndProcessDocument(documentUrl, conf.getInternalId(), isCurrent /* default presentation */,
+                      presOrigFilename, isDownloadable, isRemovable, isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI);
+            }
           }
         } else if (!StringUtils.isEmpty(document.@name.toString())) {
-          def b64 = new Base64()
-          def decodedBytes = b64.decode(document.text().getBytes())
+          // Validate the document name on the request thread; only then run the
+          // slow processing async
+          def documentName = resolvePresentationFilename(null, document.@name.toString(), false)
+          if (documentName == null) {
+            log.error("Skipping raw-bytes presentation: invalid document name [${document.@name}]")
+          } else {
+            def b64 = new Base64()
+            def decodedBytes = b64.decode(document.text().getBytes())
 
-          // Run slow processing async for fast API responses
-          def documentName = document.@name.toString()
-          presentationService.submitPresentationTask(conf.getInternalId(), documentName) {
-            processDocumentFromRawBytes(decodedBytes, documentName,
-                    conf.getInternalId(), isCurrent, isDownloadable, isRemovable/* default presentation */, isDefaultPresentation, isFromInsertAPI);
+            presentationService.submitPresentationTask(conf.getInternalId(), documentName) {
+              processDocumentFromRawBytes(decodedBytes, documentName,
+                      conf.getInternalId(), isCurrent, isDownloadable, isRemovable/* default presentation */, isDefaultPresentation, isFromInsertAPI);
+            }
           }
         } else {
           log.debug("presentation module config found, but it did not contain url or name attributes");
@@ -1803,21 +1821,38 @@ class ApiController {
     }
   }
 
-  private downloadAndProcessDocument(address, meetingId, current, fileName, isDownloadable, isRemovable,
-                                 isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI) {
-    log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId}, ${fileName})");
-    String presOrigFilename;
-    if (StringUtils.isEmpty(fileName)) {
+  /**
+   * Derives and validates a presentation's original filename, either from the
+   * caller-provided name or from the last segment of the download address.
+   * Runs on the request thread, before the async download/processing task is
+   * submitted, so invalid filenames are detected while the request is still
+   * being handled. Returns null when no valid filename can be derived.
+   */
+  private String resolvePresentationFilename(address, String providedFilename, Boolean allowMissingExtension) {
+    String presOrigFilename
+    if (StringUtils.isEmpty(providedFilename)) {
       try {
-        presOrigFilename = URLDecoder.decode(address.tokenize("/")[-1], "UTF-8");
-      } catch (UnsupportedEncodingException e) {
-        // Runs off the request thread: log only, rendering a response here is not possible
-        log.error "Couldn't decode the uploaded file name.", e
-        return;
+        presOrigFilename = URLDecoder.decode(address.tokenize("/")[-1], "UTF-8")
+      } catch (UnsupportedEncodingException | IllegalArgumentException e) {
+        log.error "Couldn't decode the uploaded file name from [${address}].", e
+        return null
       }
     } else {
-      presOrigFilename = fileName;
+      presOrigFilename = providedFilename
     }
+
+    String presFilename = FilenameUtils.getName(presOrigFilename)
+    String filenameExt = FilenameUtils.getExtension(presOrigFilename)
+    if (StringUtils.isEmpty(presFilename) || (StringUtils.isEmpty(filenameExt) && !allowMissingExtension)) {
+      log.error("Invalid presentation filename [${presOrigFilename}]")
+      return null
+    }
+    return presOrigFilename
+  }
+
+  private downloadAndProcessDocument(address, meetingId, current, presOrigFilename, isDownloadable, isRemovable,
+                                 isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI) {
+    log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId}, ${presOrigFilename})");
 
     def uploadFailed = false
     def uploadFailReasons = new ArrayList<String>()
@@ -1857,7 +1892,7 @@ class ApiController {
             }
             break
           default:
-            log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${fileName}]")
+            log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${presOrigFilename}]")
             uploadFailReasons.add("failed_to_download_file")
             uploadFailed = true
         }
