@@ -73,26 +73,13 @@ const InsertPagesContainer: React.FC<InsertPagesContainerProps> = ({
   const pendingRef = useRef<PendingInsert | null>(null);
   const progressToastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const completionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const navRetryTimers = useRef<Array<ReturnType<typeof setTimeout>>>([]);
 
   const clearTimers = useCallback(() => {
     if (progressToastTimer.current) clearTimeout(progressToastTimer.current);
     if (completionTimer.current) clearTimeout(completionTimer.current);
-    navRetryTimers.current.forEach(clearTimeout);
-    navRetryTimers.current = [];
     progressToastTimer.current = null;
     completionTimer.current = null;
   }, []);
-
-  // The pages subscription that skipToSlide reads can lag the page-count bump by a few hundred
-  // ms, so a single navigate right after completion may target a page that is not in the list
-  // yet and no-op. Fire it immediately and retry a few times; skipToSlide is idempotent.
-  const autoAdvance = useCallback((target: number) => {
-    skipToSlide(target);
-    [400, 1000, 1800].forEach((delay) => {
-      navRetryTimers.current.push(setTimeout(() => skipToSlide(target), delay));
-    });
-  }, [skipToSlide]);
 
   const resolveInsert = useCallback(() => {
     pendingRef.current = null;
@@ -150,8 +137,11 @@ const InsertPagesContainer: React.FC<InsertPagesContainerProps> = ({
   }, [presentationId, currentSlideNum, numberOfSlides, intl, failInsert]);
 
   // The upload only confirms the server accepted the file; conversion and splicing happen
-  // asynchronously. We detect completion when the current presentation grows past the page
-  // count captured at insert time, then auto-advance to the first inserted page.
+  // asynchronously. We detect completion when the presentation grows past the page count
+  // captured at insert time, then auto-advance to the first inserted page. numberOfSlides is
+  // fed from the same pres_page subscription that skipToSlide resolves numbers against, and
+  // the splice renumbers pages in a single transaction, so any snapshot where the count grew
+  // already maps targetPosition to the inserted page (not to a shifted pre-insert page).
   useEffect(() => {
     const pending = pendingRef.current;
     if (!pending || numberOfSlides <= pending.baseline) return;
@@ -161,7 +151,7 @@ const InsertPagesContainer: React.FC<InsertPagesContainerProps> = ({
       targetPosition, afterSlide, kind, filename,
     } = pending;
     resolveInsert();
-    autoAdvance(Math.min(targetPosition, numberOfSlides));
+    skipToSlide(Math.min(targetPosition, numberOfSlides));
     notify(
       kind === 'blank'
         ? intl.formatMessage(intlMessages.blankSlideInserted, { slide: afterSlide })
@@ -169,7 +159,7 @@ const InsertPagesContainer: React.FC<InsertPagesContainerProps> = ({
       'success',
       'presentation',
     );
-  }, [numberOfSlides, autoAdvance, intl, resolveInsert]);
+  }, [numberOfSlides, skipToSlide, intl, resolveInsert]);
 
   useEffect(() => clearTimers, [clearTimers]);
 

@@ -354,6 +354,7 @@ class PresentationToolbar extends PureComponent {
       isMobile,
       insertPagesEnabled,
       presentationId,
+      presentationPagesCount,
       skipToSlide,
     } = this.props;
 
@@ -462,10 +463,13 @@ class PresentationToolbar extends PureComponent {
             data-test="nextSlide"
           />
           {insertPagesEnabled ? (
+            // numberOfSlides here is sourced from the same pres_page subscription that
+            // skipToSlide resolves slide numbers against (not from totalPages), so the
+            // insert-completion detection and the auto-advance lookup never disagree.
             <InsertPagesContainer
               presentationId={presentationId}
               currentSlideNum={currentSlideNum}
-              numberOfSlides={numberOfSlides}
+              numberOfSlides={presentationPagesCount}
               isConnected={isConnected}
               skipToSlide={skipToSlide}
             />
@@ -609,12 +613,14 @@ PresentationToolbar.propTypes = {
   isMobile: PropTypes.bool.isRequired,
   insertPagesEnabled: PropTypes.bool,
   presentationId: PropTypes.string,
+  presentationPagesCount: PropTypes.number,
 };
 
 PresentationToolbar.defaultProps = {
   fullscreenRef: null,
   insertPagesEnabled: false,
   presentationId: undefined,
+  presentationPagesCount: 0,
 };
 
 export default injectWbResizeEvent(injectIntl(PresentationToolbar));
