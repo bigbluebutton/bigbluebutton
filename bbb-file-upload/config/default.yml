@@ -13,11 +13,6 @@ limits:
   # decoding the bitmap) exceeds this value. Guards downstream consumers
   # (wkhtmltopdf, export-annotations) against decompression bombs.
   maxImageDimensionPx: 4096
-  # Reject images whose aspect ratio (w/h or h/w, whichever is larger) exceeds
-  # this value. Blocks pathological single-dimension images (e.g. 100x10000)
-  # that break chat/whiteboard layout without blocking legitimate screenshots
-  # (an ultrawide 32:9 monitor is ~3.6:1; 10:1 leaves comfortable headroom).
-  maxImageAspectRatio: 10
   allowedMimeTypes:
     - image/png
     - image/jpeg

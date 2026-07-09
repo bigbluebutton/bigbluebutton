@@ -6,7 +6,6 @@ export type UploadImageErrorReason =
   | 'unsupported-type'
   | 'too-large'
   | 'image-too-large'
-  | 'image-extreme-ratio'
   | 'quota-exceeded'
   | 'upload-failed';
 
@@ -64,7 +63,6 @@ const SERVER_CODE_TO_REASON: Record<string, UploadImageErrorReason> = {
   file_too_large: 'too-large',
   meeting_quota_exceeded: 'quota-exceeded',
   image_dimensions_exceed_maximum: 'image-too-large',
-  image_aspect_ratio_exceeds_maximum: 'image-extreme-ratio',
   unreadable_dimensions: 'unsupported-type',
   storage_failed: 'upload-failed',
 };

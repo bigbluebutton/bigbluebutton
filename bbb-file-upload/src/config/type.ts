@@ -11,7 +11,6 @@ export interface StorageConfig {
 export interface LimitsConfig {
   maxFileSizeKb: number;
   maxImageDimensionPx: number;
-  maxImageAspectRatio: number;
   allowedMimeTypes: string[];
   quotaPerMeetingMb: number;
 }
