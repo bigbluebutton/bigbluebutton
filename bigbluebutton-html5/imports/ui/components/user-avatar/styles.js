@@ -13,6 +13,7 @@ import {
   colorSuccess,
   colorDanger,
   colorOffWhite,
+  colorUserModerator,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const Content = styled.div`
