@@ -320,11 +320,32 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
             ? intlRef.current.formatMessage(msgKey, dims)
             : intlRef.current.formatMessage(msgKey);
           notify(formatted, 'error', 'notes');
-          // Return an empty string so BlockNote inserts an <img src=""> (which
-          // the browser treats as no-op, not a broken/Loading state) instead of
-          // leaving the block stuck in "Loading..." or propagating the rejection
-          // to a global handler that surfaces the error in the wrong surface
-          // (whiteboard). The user has already seen the localized error toast.
+          // Remove the image block that BlockNote inserted (it is currently
+          // stuck in "Loading..." because the upload failed). Find the most
+          // recently inserted image-type block whose URL is still empty/missing
+          // (the one we were supposed to fill) and remove it. Returning a value
+          // (even '') leaves the block visible; removing it gives the user the
+          // expected "nothing was inserted" feedback, paired with the toast.
+          try {
+            const blocks = editor.document as Array<{
+              id: string;
+              type: string;
+              props?: { url?: string };
+            }>;
+            for (let i = blocks.length - 1; i >= 0; i -= 1) {
+              const b = blocks[i];
+              if (b.type === 'image' && !(b.props && b.props.url)) {
+                // removeBlocks expects a BlockIdentifier; the id field is enough.
+                editor.removeBlocks([{ id: b.id } as never]);
+                break;
+              }
+            }
+          } catch (removeErr) {
+            // Best-effort: if removeBlocks fails for any reason, do not mask
+            // the original upload error. The toast already informed the user.
+          }
+          // Returning '' also prevents BlockNote from leaving the block in a
+          // pending state if removal did not land (defensive).
           return '';
         }
       }
