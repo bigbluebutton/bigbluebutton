@@ -3,6 +3,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import Styled, { DeleteMessage } from './styles';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import { getFirstVisibleLineHtml } from '/imports/ui/components/chat/chat-graphql/service';
+import { authenticateUploadedImages } from '../message-content/text-content/component';
 
 const intlMessages = defineMessages({
   deleteMessage: {
@@ -45,7 +46,7 @@ const ChatMessageReplied: React.FC<MessageRepliedProps> = (props) => {
         <Styled.Message>
           <Styled.HtmlContent
             // eslint-disable-next-line react/no-danger
-            dangerouslySetInnerHTML={{ __html: getFirstVisibleLineHtml(message) }}
+            dangerouslySetInnerHTML={{ __html: authenticateUploadedImages(getFirstVisibleLineHtml(message)) }}
           />
         </Styled.Message>
       )}

@@ -15,6 +15,8 @@ const authenticateUploadedImages = (html: string): string => html.replace(
   (_match, prefix, url, suffix) => `${prefix}${Auth.authenticateURL(url)}${suffix}`,
 );
 
+export { authenticateUploadedImages };
+
 interface ChatMessageTextContentProps {
   text: string;
   dataTest?: string | null;
