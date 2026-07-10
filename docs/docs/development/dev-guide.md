@@ -289,6 +289,7 @@ Next, override the `wsURL` so that it remains the same even if you switch branch
 
 ```bash
 HOST=$(grep -v '#' /etc/bigbluebutton/bbb-web.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
+sudo test -s /etc/bigbluebutton/bbb-html5.yml || sudo sh -c "echo '{}' > /etc/bigbluebutton/bbb-html5.yml"
 sudo yq-go e -i ".public.kurento.wsUrl = \"wss://$HOST/bbb-webrtc-sfu\"" /etc/bigbluebutton/bbb-html5.yml
 sudo bbb-conf --restart
 ```
