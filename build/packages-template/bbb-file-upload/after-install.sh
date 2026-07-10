@@ -5,7 +5,7 @@ case "$1" in
 
   chmod 755 /usr/share/bbb-file-upload/ -R
 
-  if [ ! -f /.dockerenv ]; then
+  if [[ ! -f /.dockerenv ]]; then
     systemctl enable bbb-file-upload.service
     systemctl daemon-reload
     reloadService nginx

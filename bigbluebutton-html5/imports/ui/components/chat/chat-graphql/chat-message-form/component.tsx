@@ -515,6 +515,50 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     const CHAT_EDIT_ENABLED = useIsEditChatMessageEnabled();
     const hasSelectedTextInChat = useRef(false);
 
+    // Defined at renderForm level (not inside handleSubmit) so the promise
+    // callbacks below stay within the allowed function-nesting depth.
+    const sendCancelEvents = () => {
+      if (repliedMessageId) {
+        window.dispatchEvent(
+          new CustomEvent(ChatEvents.CHAT_CANCEL_REPLY_INTENTION),
+        );
+      }
+      if (editingMessage) {
+        window.dispatchEvent(
+          new CustomEvent(ChatEvents.CHAT_CANCEL_EDIT_REQUEST),
+        );
+      }
+    };
+
+    const clearAfterSend = () => {
+      const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) as string[];
+
+      // Remove the chat that user send messages from the session.
+      if (indexOf(currentClosedChats, chatId) > -1) {
+        Storage.setItem(CLOSED_CHAT_LIST_KEY, without(currentClosedChats, chatId));
+      }
+
+      setMessage('');
+      updateUnsentMessages(chatId, '');
+      setError(null);
+      setHasErrors(false);
+      setShowEmojiPicker(false);
+      const sentMessageEvent = new CustomEvent(ChatEvents.SENT_MESSAGE);
+      window.dispatchEvent(sentMessageEvent);
+    };
+
+    const dispatchSendMessage = (markdown: string) => {
+      chatSendMessage({
+        variables: {
+          chatMessageInMarkdownFormat: markdown,
+          chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
+          replyToMessageId: repliedMessageId,
+        },
+      }).then(() => {
+        sendCancelEvents();
+      });
+    };
+
     const handleSubmit = (e: React.FormEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement> | Event) => {
       e.preventDefault();
 
@@ -530,48 +574,6 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         setHasErrors(true);
         return;
       }
-
-      const sendCancelEvents = () => {
-        if (repliedMessageId) {
-          window.dispatchEvent(
-            new CustomEvent(ChatEvents.CHAT_CANCEL_REPLY_INTENTION),
-          );
-        }
-        if (editingMessage) {
-          window.dispatchEvent(
-            new CustomEvent(ChatEvents.CHAT_CANCEL_EDIT_REQUEST),
-          );
-        }
-      };
-
-      const clearAfterSend = () => {
-        const currentClosedChats = Storage.getItem(CLOSED_CHAT_LIST_KEY) as string[];
-
-        // Remove the chat that user send messages from the session.
-        if (indexOf(currentClosedChats, chatId) > -1) {
-          Storage.setItem(CLOSED_CHAT_LIST_KEY, without(currentClosedChats, chatId));
-        }
-
-        setMessage('');
-        updateUnsentMessages(chatId, '');
-        setError(null);
-        setHasErrors(false);
-        setShowEmojiPicker(false);
-        const sentMessageEvent = new CustomEvent(ChatEvents.SENT_MESSAGE);
-        window.dispatchEvent(sentMessageEvent);
-      };
-
-      const dispatchSendMessage = (markdown: string) => {
-        chatSendMessage({
-          variables: {
-            chatMessageInMarkdownFormat: markdown,
-            chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
-            replyToMessageId: repliedMessageId,
-          },
-        }).then(() => {
-          sendCancelEvents();
-        });
-      };
 
       if (editingMessage.current && !chatEditMessageLoading) {
         chatEditMessage({

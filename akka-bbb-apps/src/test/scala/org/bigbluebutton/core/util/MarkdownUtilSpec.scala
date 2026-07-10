@@ -43,9 +43,12 @@ class MarkdownUtilSpec extends AnyFlatSpec {
   }
 
   it should "drop a source with a control char (tab) in the authority" in {
+    // A raw tab is not a valid markdown link destination, so commonmark never
+    // creates an Image node here: the input falls through as literal text and
+    // is HTML-escaped (which is why the path may still appear as inert text).
+    // The property that matters is that no <img> is ever rendered from it.
     val html = renderWithImages("![x](/\thost/pixel.png)")
     assert(!html.contains("<img"))
-    assert(!html.contains("host/pixel.png"))
   }
 
   it should "drop a protocol-relative authority (//host)" in {

@@ -175,7 +175,7 @@ export function useIsEmojiPickerEnabled() {
  */
 export function useIsChatImagePasteEnabled() {
   const IMAGE_PASTE_ENABLED = window.meetingClientSettings.public.chat.imagePaste.enabled;
-  return useDisabledFeatures().indexOf('chatImagePaste') === -1
+  return !useDisabledFeatures().includes('chatImagePaste')
     && IMAGE_PASTE_ENABLED;
 }
 
@@ -189,7 +189,7 @@ export function useIsChatImagePasteEnabled() {
 export function useIsSharedNotesImagePasteEnabled() {
   const settings = window.meetingClientSettings.public.app.sharedNotes.imagePaste;
   const IMAGE_PASTE_ENABLED = settings.enabled;
-  return useDisabledFeatures().indexOf('sharedNotesImagePaste') === -1
+  return !useDisabledFeatures().includes('sharedNotesImagePaste')
     && IMAGE_PASTE_ENABLED;
 }
 
@@ -203,6 +203,6 @@ export function useIsSharedNotesImagePasteEnabled() {
  */
 export function useIsWhiteboardImagePasteEnabled() {
   const IMAGE_PASTE_ENABLED = window.meetingClientSettings.public.whiteboard.imagePaste.enabled;
-  return useDisabledFeatures().indexOf('whiteboardImagePaste') === -1
+  return !useDisabledFeatures().includes('whiteboardImagePaste')
     && IMAGE_PASTE_ENABLED;
 }

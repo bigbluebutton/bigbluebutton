@@ -343,6 +343,9 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
           } catch (removeErr) {
             // Best-effort: if removeBlocks fails for any reason, do not mask
             // the original upload error. The toast already informed the user.
+            logger.warn({
+              logCode: 'notes_image_block_remove_error',
+            }, `Could not remove failed image block: ${removeErr instanceof Error ? removeErr.message : removeErr}`);
           }
           // Returning '' also prevents BlockNote from leaving the block in a
           // pending state if removal did not land (defensive).

@@ -1,4 +1,4 @@
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { load } from 'js-yaml';
 import { AppSettings } from './type';
 

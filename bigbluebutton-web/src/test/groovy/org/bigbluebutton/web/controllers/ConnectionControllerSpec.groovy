@@ -16,6 +16,11 @@ import spock.lang.Specification
  */
 class ConnectionControllerSpec extends Specification implements ControllerUnitTest<ConnectionController> {
 
+  // Meeting family used across the specs: one main room and two breakouts.
+  private static final String MAIN_MEETING_ID = 'main-x'
+  private static final String BREAKOUT_1_ID = 'brk-1'
+  private static final String BREAKOUT_2_ID = 'brk-2'
+
   MeetingService meetingService
 
   def setup() {
@@ -51,12 +56,12 @@ class ConnectionControllerSpec extends Specification implements ControllerUnitTe
 
   def "valid token and same-meeting path is authorized (200)"() {
     given: "the caller's session and the requested path are the same main meeting"
-    withValidSession('main-x')
-    Meeting main = meetingStub(false, 'main-x', null)
-    meetingService.getMeeting('main-x') >> main
+    withValidSession(MAIN_MEETING_ID)
+    Meeting main = meetingStub(false, MAIN_MEETING_ID, null)
+    meetingService.getMeeting(MAIN_MEETING_ID) >> main
 
     when:
-    requestUri('main-x')
+    requestUri(MAIN_MEETING_ID)
     controller.checkFileUploadAuthorization()
 
     then:
@@ -85,7 +90,7 @@ class ConnectionControllerSpec extends Specification implements ControllerUnitTe
     meetingService.getAllowRequestsWithoutSession(_) >> false
 
     when:
-    requestUri('main-x')
+    requestUri(MAIN_MEETING_ID)
     controller.checkFileUploadAuthorization()
 
     then:
@@ -95,7 +100,7 @@ class ConnectionControllerSpec extends Specification implements ControllerUnitTe
 
   def "malformed meetingId in the path is rejected (403)"() {
     given: "the session is valid, but the path tries to traverse out of the uploads tree"
-    withValidSession('main-x')
+    withValidSession(MAIN_MEETING_ID)
 
     when: "the URI does not match the strict fileUpload pattern"
     request.addHeader('x-original-uri',
@@ -110,12 +115,12 @@ class ConnectionControllerSpec extends Specification implements ControllerUnitTe
 
   def "sibling breakouts of the same parent are authorized (200)"() {
     given: "session is in breakout brk-1, the file lives in sibling breakout brk-2, both under main-x"
-    withValidSession('brk-1')
-    meetingService.getMeeting('brk-1') >> meetingStub(true, 'brk-1', 'main-x')
-    meetingService.getMeeting('brk-2') >> meetingStub(true, 'brk-2', 'main-x')
+    withValidSession(BREAKOUT_1_ID)
+    meetingService.getMeeting(BREAKOUT_1_ID) >> meetingStub(true, BREAKOUT_1_ID, MAIN_MEETING_ID)
+    meetingService.getMeeting(BREAKOUT_2_ID) >> meetingStub(true, BREAKOUT_2_ID, MAIN_MEETING_ID)
 
     when:
-    requestUri('brk-2')
+    requestUri(BREAKOUT_2_ID)
     controller.checkFileUploadAuthorization()
 
     then: "cross-breakout transitivity: both roots resolve to main-x"
@@ -125,12 +130,12 @@ class ConnectionControllerSpec extends Specification implements ControllerUnitTe
 
   def "a file uploaded in the main room is reachable from its breakout (200)"() {
     given: "session is in breakout brk-1, the file lives in the parent main-x"
-    withValidSession('brk-1')
-    meetingService.getMeeting('brk-1') >> meetingStub(true, 'brk-1', 'main-x')
-    meetingService.getMeeting('main-x') >> meetingStub(false, 'main-x', null)
+    withValidSession(BREAKOUT_1_ID)
+    meetingService.getMeeting(BREAKOUT_1_ID) >> meetingStub(true, BREAKOUT_1_ID, MAIN_MEETING_ID)
+    meetingService.getMeeting(MAIN_MEETING_ID) >> meetingStub(false, MAIN_MEETING_ID, null)
 
     when:
-    requestUri('main-x')
+    requestUri(MAIN_MEETING_ID)
     controller.checkFileUploadAuthorization()
 
     then:
@@ -140,8 +145,8 @@ class ConnectionControllerSpec extends Specification implements ControllerUnitTe
 
   def "an unknown meeting in the path is forbidden, not a server error (403)"() {
     given: "the path meeting cannot be resolved"
-    withValidSession('main-x')
-    meetingService.getMeeting('main-x') >> meetingStub(false, 'main-x', null)
+    withValidSession(MAIN_MEETING_ID)
+    meetingService.getMeeting(MAIN_MEETING_ID) >> meetingStub(false, MAIN_MEETING_ID, null)
     meetingService.getMeeting('gone') >> null
 
     when:

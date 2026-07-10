@@ -105,6 +105,46 @@ class WhiteboardModel extends SystemConfiguration {
       k -> newValue
     }).toMap
 
+  // Resolves one incoming annotation to the value to store: the merge into the
+  // existing annotation when the user may edit it, or the annotation itself when
+  // new. None when it is rejected (no permission, disallowed type, no type).
+  private def resolveAnnotation(wb: Whiteboard, annotation: AnnotationVO, meetingId: String, userId: String, isPresenter: Boolean, isModerator: Boolean, imagePasteEnabled: Boolean): Option[AnnotationVO] = {
+    wb.annotationsMap.get(annotation.id) match {
+      case Some(oldAnnotation) =>
+        val hasPermission = isPresenter || isModerator || oldAnnotation.userId == userId
+        if (!hasPermission) {
+          println(s"User $userId doesn't have permission to edit annotation ${annotation.id}, ignoring...")
+          None
+        } else {
+          val mergedAnnotationInfo = deepMerge(oldAnnotation.annotationInfo, annotation.annotationInfo)
+
+          // Apply cleaning if it's an arrow annotation
+          val finalAnnotationInfo = if (oldAnnotation.annotationInfo.get("type").contains("arrow")) {
+            cleanArrowAnnotationProps(mergedAnnotationInfo)
+          } else {
+            mergedAnnotationInfo
+          }
+
+          if (isAllowedAnnotation(finalAnnotationInfo, meetingId, imagePasteEnabled)) {
+            Some(oldAnnotation.copy(annotationInfo = finalAnnotationInfo))
+          } else {
+            println(s"Rejected update of annotation ${annotation.id} with disallowed type on page [${wb.id}], ignoring...")
+            None
+          }
+        }
+      case None if !annotation.annotationInfo.contains("type") =>
+        println(s"New annotation [${annotation.id}] with no type, ignoring...")
+        None
+      case None =>
+        if (isAllowedAnnotation(annotation.annotationInfo, meetingId, imagePasteEnabled)) {
+          Some(annotation)
+        } else {
+          println(s"Rejected annotation ${annotation.id} with disallowed type on page [${wb.id}], ignoring...")
+          None
+        }
+    }
+  }
+
   def addAnnotations(wbId: String, meetingId: String, userId: String, annotations: Array[AnnotationVO], isPresenter: Boolean, isModerator: Boolean, imagePasteEnabled: Boolean = false): Array[AnnotationVO] = {
 
     val wb = getWhiteboard(wbId)
@@ -114,42 +154,11 @@ class WhiteboardModel extends SystemConfiguration {
     var newAnnotationsMap = wb.annotationsMap
 
     for (annotation <- annotations) {
-      val oldAnnotation = wb.annotationsMap.get(annotation.id)
-      if (oldAnnotation.isDefined) {
-        val hasPermission = isPresenter || isModerator || oldAnnotation.get.userId == userId
-        if (hasPermission) {
-          val mergedAnnotationInfo = deepMerge(oldAnnotation.get.annotationInfo, annotation.annotationInfo)
-
-          // Apply cleaning if it's an arrow annotation
-          val finalAnnotationInfo = if (oldAnnotation.get.annotationInfo.get("type").contains("arrow")) {
-            cleanArrowAnnotationProps(mergedAnnotationInfo)
-          } else {
-            mergedAnnotationInfo
-          }
-
-          if (isAllowedAnnotation(finalAnnotationInfo, meetingId, imagePasteEnabled)) {
-            val newAnnotation = oldAnnotation.get.copy(annotationInfo = finalAnnotationInfo)
-            newAnnotationsMap += (annotation.id -> newAnnotation)
-            annotationsAdded :+= newAnnotation
-            annotationsDiffAdded :+= annotation
-            println(s"Updated annotation on page [${wb.id}]. After numAnnotations=[${newAnnotationsMap.size}].")
-          } else {
-            println(s"Rejected update of annotation ${annotation.id} with disallowed type on page [${wb.id}], ignoring...")
-          }
-        } else {
-          println(s"User $userId doesn't have permission to edit annotation ${annotation.id}, ignoring...")
-        }
-      } else if (annotation.annotationInfo.contains("type")) {
-        if (isAllowedAnnotation(annotation.annotationInfo, meetingId, imagePasteEnabled)) {
-          newAnnotationsMap += (annotation.id -> annotation)
-          annotationsAdded :+= annotation
-          annotationsDiffAdded :+= annotation
-          println(s"Adding annotation to page [${wb.id}]. After numAnnotations=[${newAnnotationsMap.size}].")
-        } else {
-          println(s"Rejected annotation ${annotation.id} with disallowed type on page [${wb.id}], ignoring...")
-        }
-      } else {
-        println(s"New annotation [${annotation.id}] with no type, ignoring...")
+      resolveAnnotation(wb, annotation, meetingId, userId, isPresenter, isModerator, imagePasteEnabled).foreach { newAnnotation =>
+        newAnnotationsMap += (annotation.id -> newAnnotation)
+        annotationsAdded :+= newAnnotation
+        annotationsDiffAdded :+= annotation
+        println(s"Stored annotation on page [${wb.id}]. After numAnnotations=[${newAnnotationsMap.size}].")
       }
     }
 

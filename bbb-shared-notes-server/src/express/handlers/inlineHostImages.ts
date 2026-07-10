@@ -9,9 +9,7 @@ const logger = new Logger('inlineHostImages');
 // serving location exactly (meetingId + uuid.ext), so only files that the upload
 // service could have produced are ever read from disk. An optional query string
 // is tolerated but ignored.
-const UPLOAD_SRC_PATTERN = new RegExp(
-  '^/bigbluebutton/fileUpload/([A-Za-z0-9-]+)/([a-f0-9-]+\\.(png|jpe?g|gif|webp))(?:\\?.*)?$',
-);
+const UPLOAD_SRC_PATTERN = /^\/bigbluebutton\/fileUpload\/([A-Za-z0-9-]+)\/([a-f0-9-]+\.(png|jpe?g|gif|webp))(?:\?.*)?$/;
 
 const MIME_BY_EXT: Record<string, string> = {
   png: 'image/png',
