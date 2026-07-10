@@ -398,6 +398,7 @@
     "app.presentationUploader.exportCurrentStatePresentation": "Send out a download link for the presentation including whiteboard annotations",
     "app.presentationUploader.enableOriginalPresentationDownload": "Enable download of the presentation ({fileExtension})",
     "app.presentationUploader.disableOriginalPresentationDownload": "Disable download of the original presentation ({fileExtension})",
+    "app.presentationUploader.export.availableForDownload": "Presentation available for download",
     "app.presentationUploader.export.withWhiteboardAnnotations": "with whiteboard annotations",
     "app.presentationUploader.dropdownExportOptions": "Export options",
     "app.presentationUploader.dropdownExportOptionsUncomplete": "Disabled until upload is complete",
