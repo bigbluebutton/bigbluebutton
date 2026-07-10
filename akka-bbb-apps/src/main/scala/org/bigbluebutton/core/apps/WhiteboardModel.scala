@@ -48,7 +48,9 @@ object WhiteboardModel {
   private def isValidImageAnnotation(annotationInfo: Map[String, _], meetingId: String): Boolean = {
     val withinSizeLimit = annotationInfo.toString.length <= MaxImageAnnotationSizeBytes
     val hasValidSrc = getImageSrc(annotationInfo).exists { src =>
-      uploadedImageSrcPattern(meetingId).findFirstIn(src).isDefined
+      // Full match instead of findFirstIn: even anchored, java.util.regex lets
+      // `$` match before a trailing newline, which a full match does not.
+      uploadedImageSrcPattern(meetingId).matches(src)
     }
     withinSizeLimit && hasValidSrc
   }
