@@ -103,7 +103,7 @@ Accepted values are:
    * The default and fallback values are `auto`.
 
 For example:
-   * To set the number of workers to `cores`: `yq e -i '.mediasoup.workers = "cores"' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
+   * To set the number of workers to `cores`: `yq-go e -i '.mediasoup.workers = "cores"' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
 
 #### mediasoup.dedicatedMediaTypeWorkers
 
@@ -126,7 +126,7 @@ The media types semantics are:
    * `content`: screen sharing streams (audio and video).
 
 For example:
-  * To set the number of dedicated audio workers to `auto`: `yq e -i '.mediasoup.dedicatedMediaTypeWorkers.audio = "auto"' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
+  * To set the number of dedicated audio workers to `auto`: `yq-go e -i '.mediasoup.dedicatedMediaTypeWorkers.audio = "auto"' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
 
 ### Can I scale the number of streams up indefinitely with mediasoup?
 
@@ -381,11 +381,11 @@ Note: If your server has an internal/external IP address, such as on AWS EC2 ser
 
 ### The following packages have unmet dependencies
 
-When installing the latest build of BigBlueButton, the package `bbb-conf` now uses `yq` (the Python/jq-based version by kislyuk) to manage YAML files.
+When installing the latest build of BigBlueButton, the package `bbb-conf` uses `yq-go` (mikefarah's Go implementation of `yq`) to manage YAML files. On Ubuntu 24.04 `yq-go` is a separate package and command from the archive `yq` (the Python/jq-based version by kislyuk), and is installed as the `yq-go` binary.
 
-You can install it with `pip install yq` or via your distribution's package manager.
+You can install it from the [`ppa:martin-uni-mainz/yq-go`](https://launchpad.net/~martin-uni-mainz/+archive/ubuntu/yq-go) PPA with `sudo add-apt-repository ppa:martin-uni-mainz/yq-go && sudo apt-get install yq-go`.
 
-Alternatively, if you have not made any customizations to BigBlueButton (outside of using `bbb-conf`), you can use [bbb-install.sh](https://github.com/bigbluebutton/bbb-install) to install/upgrade to the latest version (the `bbb-install.sh` script will automatically install `yq`).
+Alternatively, if you have not made any customizations to BigBlueButton (outside of using `bbb-conf`), you can use [bbb-install.sh](https://github.com/bigbluebutton/bbb-install) to install/upgrade to the latest version (the `bbb-install.sh` script will automatically install `yq-go`).
 
 ### No Symbolic Link
 

@@ -15,8 +15,8 @@ case "$1" in
     if [ -f /etc/bigbluebutton/livekit.yaml ]; then
       # webhook.api_key is the active key; use it to pick the matching secret
       # rather than assuming a single/first entry under .keys.
-      LIVEKIT_KEY=$(yq e '.webhook.api_key' /etc/bigbluebutton/livekit.yaml)
-      LIVEKIT_SECRET=$(yq e ".keys.[\"$LIVEKIT_KEY\"]" /etc/bigbluebutton/livekit.yaml)
+      LIVEKIT_KEY=$(yq-go e '.webhook.api_key' /etc/bigbluebutton/livekit.yaml)
+      LIVEKIT_SECRET=$(yq-go e ".keys.[\"$LIVEKIT_KEY\"]" /etc/bigbluebutton/livekit.yaml)
 
       if [ -n "$LIVEKIT_KEY" ] && [ "$LIVEKIT_KEY" != "null" ] \
         && [ -n "$LIVEKIT_SECRET" ] && [ "$LIVEKIT_SECRET" != "null" ]; then
