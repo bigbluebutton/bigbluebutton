@@ -15,7 +15,6 @@ import {
   fontSizeSmall,
   fontSizeBase,
 } from '/imports/ui/stylesheets/styled-components/typography';
-import Button from '/imports/ui/components/common/button/component';
 import {
   Separator as BaseSeparator,
   PanelContent as BasePanelContent,
@@ -153,29 +152,6 @@ const FreeJoinRoomCount = styled.span`
   }
 `;
 
-const FreeJoinRequestBtn = styled.button<{ $isCurrent?: boolean }>`
-  background: ${({ $isCurrent }) => ($isCurrent ? colorPrimary : 'transparent')};
-  color: ${({ $isCurrent }) => ($isCurrent ? colorWhite : colorPrimary)};
-  border: 1px solid ${({ $isCurrent }) => ($isCurrent ? colorPrimary : colorGrayLighter)};
-  border-radius: 0.5rem;
-  padding: 0.3rem 0.4rem;
-  font-size: 0.7rem;
-  font-weight: 600;
-  cursor: pointer;
-  width: 100%;
-  text-align: center;
-  line-height: 1.2;
-
-  &:hover:not(:disabled) {
-    opacity: 0.85;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-`;
-
 const NotAssignedHelpText = styled.p`
   font-size: ${fontSizeBase};
   color: ${colorText};
@@ -183,63 +159,32 @@ const NotAssignedHelpText = styled.p`
   text-align: center;
 `;
 
-const EnterRoomBtn = styled.button`
-  background: ${colorPrimary};
-  color: ${colorWhite};
-  border: none;
-  border-radius: 0.75rem;
-  padding: 0.45rem 1.25rem;
-  font-size: ${fontSizeBase};
-  font-weight: 600;
-  cursor: pointer;
-  width: 100%;
-
-  &:hover {
-    opacity: 0.85;
-  }
-`;
-
 const BottomBar = styled.div`
   padding: 0.75rem ${contentSidebarPadding};
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 0.75rem;
   flex-shrink: 0;
   border-top: 1px solid ${colorGrayLighter};
 `;
 
-// @ts-ignore - as Button comes from JS, we can't provide its props
-const CallModeratorBtn = styled(Button)`
-  width: 100%;
-  font-size: 1rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 1rem;
+const ButtonWrapper = styled.div`
+  flex: 1;
+  min-width: 0;
+  display: flex;
 
-  & > span {
+  > * {
+    width: 100%;
+    min-width: 0;
+  }
+
+  button span {
+    display: block;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-`;
-
-// @ts-ignore - as Button comes from JS, we can't provide its props
-const ReturnBtn = styled(Button)`
-  width: 100%;
-  font-size: 1rem;
-  padding: 0.75rem 1.5rem;
-  background-color: ${colorWhite};
-  color: ${colorText};
-  border: 1px solid ${colorGrayLighter};
-  border-radius: 1rem;
-
-  & > span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  &:hover {
-    background-color: ${colorBlueAux};
+    min-width: 0;
   }
 `;
 
@@ -254,15 +199,12 @@ export default {
   InfoText,
   ContentArea,
   NotAssignedHelpText,
-  EnterRoomBtn,
   FreeJoinScrollArea,
   FreeJoinRoomList,
   FreeJoinRoomCard,
   FreeJoinRoomCardHeader,
   FreeJoinRoomName,
   FreeJoinRoomCount,
-  FreeJoinRequestBtn,
   BottomBar,
-  CallModeratorBtn,
-  ReturnBtn,
+  ButtonWrapper,
 };

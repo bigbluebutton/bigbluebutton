@@ -1,6 +1,7 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
+import { BBButton } from '@mconf/bbb-ui-components-react';
 import Styled from '../styles';
 import { pollTypes, checkPollType } from '../service';
 import { POLL_CREATE } from '../mutations';
@@ -118,70 +119,76 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
     isQuiz
     && !(optList[correctAnswer.index]?.key === correctAnswer.text));
   return (
-    <Styled.StartPollBtn
-      data-test="startPoll"
-      label={isQuiz ? intl.formatMessage(intlMessages.startQuizLabel) : intl.formatMessage(intlMessages.startPollLabel)}
-      color="primary"
-      disabled={hasNotMinOptions || quizHasNoCorrectAnswer}
-      title={`${hasNotMinOptions ? intl.formatMessage(intlMessages.minOptionsErr) : ''}\n${quizHasNoCorrectAnswer ? intl.formatMessage(intlMessages.quizErr) : ''}`}
-      onClick={() => {
-        const optionsList = optList.slice(0, MAX_CUSTOM_FIELDS);
-        let hasVal = false;
-        optionsList.forEach((o) => {
-          if (o.val.trim().length > 0) hasVal = true;
-        });
-
-        let err = null;
-        if (hasNotMinOptions) {
-          err = intl.formatMessage(intlMessages.optionErr);
-        }
-        if (type === pollTypes.Response && question.length === 0) {
-          err = intl.formatMessage(intlMessages.questionErr);
-        }
-        if (!hasVal && type !== pollTypes.Response) {
-          err = intl.formatMessage(intlMessages.optionErr);
-        }
-
-        if (err) {
-          setError(err);
-        } else {
-          setIsPolling(true);
-          const verifiedPollType = checkPollType(
-            type,
-            optionsList,
-            intl.formatMessage(intlMessages.yes),
-            intl.formatMessage(intlMessages.no),
-            intl.formatMessage(intlMessages.abstention),
-            intl.formatMessage(intlMessages.true),
-            intl.formatMessage(intlMessages.false),
-          );
-          const verifiedOptions = optionsList.map((o) => {
-            if (o.val.trim().length > 0) return o.val;
-            return null;
+    <Styled.StartPollButtonWrapper>
+      <BBButton
+        variant="primary"
+        dataTest="startPoll"
+        // eslint-disable-next-line max-len
+        label={isQuiz ? intl.formatMessage(intlMessages.startQuizLabel) : intl.formatMessage(intlMessages.startPollLabel)}
+        tooltipLabel={[
+          hasNotMinOptions ? intl.formatMessage(intlMessages.minOptionsErr) : '',
+          quizHasNoCorrectAnswer ? intl.formatMessage(intlMessages.quizErr) : '',
+        ].filter(Boolean).join('\n') || undefined}
+        disabled={hasNotMinOptions || quizHasNoCorrectAnswer}
+        onClick={() => {
+          const optionsList = optList.slice(0, MAX_CUSTOM_FIELDS);
+          let hasVal = false;
+          optionsList.forEach((o) => {
+            if (o.val.trim().length > 0) hasVal = true;
           });
-          if (verifiedPollType === pollTypes.Custom) {
-            startPoll(
-              verifiedPollType,
-              secretPoll,
-              question,
-              multipleResponse,
-              isQuiz,
-              correctAnswer.text,
-              verifiedOptions?.filter(Boolean),
-            );
-          } else {
-            startPoll(
-              verifiedPollType,
-              secretPoll,
-              question,
-              multipleResponse,
-              isQuiz,
-              correctAnswer.text,
-            );
+
+          let err = null;
+          if (hasNotMinOptions) {
+            err = intl.formatMessage(intlMessages.optionErr);
           }
-        }
-      }}
-    />
+          if (type === pollTypes.Response && question.length === 0) {
+            err = intl.formatMessage(intlMessages.questionErr);
+          }
+          if (!hasVal && type !== pollTypes.Response) {
+            err = intl.formatMessage(intlMessages.optionErr);
+          }
+
+          if (err) {
+            setError(err);
+          } else {
+            setIsPolling(true);
+            const verifiedPollType = checkPollType(
+              type,
+              optionsList,
+              intl.formatMessage(intlMessages.yes),
+              intl.formatMessage(intlMessages.no),
+              intl.formatMessage(intlMessages.abstention),
+              intl.formatMessage(intlMessages.true),
+              intl.formatMessage(intlMessages.false),
+            );
+            const verifiedOptions = optionsList.map((o) => {
+              if (o.val.trim().length > 0) return o.val;
+              return null;
+            });
+            if (verifiedPollType === pollTypes.Custom) {
+              startPoll(
+                verifiedPollType,
+                secretPoll,
+                question,
+                multipleResponse,
+                isQuiz,
+                correctAnswer.text,
+                verifiedOptions?.filter(Boolean),
+              );
+            } else {
+              startPoll(
+                verifiedPollType,
+                secretPoll,
+                question,
+                multipleResponse,
+                isQuiz,
+                correctAnswer.text,
+              );
+            }
+          }
+        }}
+      />
+    </Styled.StartPollButtonWrapper>
   );
 };
 

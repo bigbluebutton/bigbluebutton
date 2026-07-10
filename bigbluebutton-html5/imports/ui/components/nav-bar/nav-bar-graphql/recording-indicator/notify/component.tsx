@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { USER_LEAVE_MEETING } from '/imports/ui/core/graphql/mutations/userMutations';
 import { useMutation } from '@apollo/client';
+import { BBButton } from '@mconf/bbb-ui-components-react';
 import Session from '/imports/ui/services/storage/in-memory';
 import logger from '/imports/startup/client/logger';
 
@@ -89,16 +90,17 @@ const RecordingNotifyModal: React.FC<RecordingNotifyModalProps> = ({
           {intl.formatMessage(intlMessages.description)}
         </Styled.Description>
         <Styled.Footer>
-          <Styled.NotifyButton
-            color="primary"
+          <BBButton
+            variant="primary"
             label={intl.formatMessage(intlMessages.continue)}
             onClick={handleContinueInRecordedSession}
-            aria-label={intl.formatMessage(intlMessages.continueAriaLabel)}
+            ariaLabel={intl.formatMessage(intlMessages.continueAriaLabel)}
           />
-          <Styled.NotifyButton
+          <BBButton
+            variant="tertiary"
             label={intl.formatMessage(intlMessages.leave)}
             onClick={skipButtonHandle}
-            aria-label={intl.formatMessage(intlMessages.leaveAriaLabel)}
+            ariaLabel={intl.formatMessage(intlMessages.leaveAriaLabel)}
           />
         </Styled.Footer>
       </Styled.Container>

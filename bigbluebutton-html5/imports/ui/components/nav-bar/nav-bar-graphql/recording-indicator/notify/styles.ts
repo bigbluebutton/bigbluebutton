@@ -12,12 +12,9 @@ const Description = styled(ConfirmationModalStyles.Description)``;
 
 const Footer = styled(ConfirmationModalStyles.Footer)``;
 
-const NotifyButton = styled(ConfirmationModalStyles.ConfirmationButton)``;
-
 export default {
   RecordingNotifyModal,
   Container,
   Description,
   Footer,
-  NotifyButton,
 };

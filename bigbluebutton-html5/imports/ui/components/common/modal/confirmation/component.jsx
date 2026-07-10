@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { defineMessages } from 'react-intl';
 import PropTypes from 'prop-types';
+import { BBButton } from '@mconf/bbb-ui-components-react';
 import Styled from './styles';
 
 const messages = defineMessages({
@@ -110,11 +111,12 @@ class ConfirmationModal extends Component {
 
           <Styled.Footer>
             {!hideConfirmButton && (
-              <Styled.ConfirmationButton
-                color={confirmButtonColor}
+              <BBButton
+                variant="primary"
+                color={confirmButtonColor === 'danger' ? 'danger' : 'default'}
                 label={confirmButtonLabel || intl.formatMessage(messages.yesLabel)}
                 disabled={disableConfirmButton}
-                data-test={confirmButtonDataTest}
+                dataTest={confirmButtonDataTest}
                 onClick={() => {
                   onConfirm(confirmParam, checked);
                   setIsOpen(false);
@@ -123,8 +125,8 @@ class ConfirmationModal extends Component {
             )}
             {!hideCancelButton && (
               <div ref={this.cancelButtonRef}>
-                <Styled.CancelButton
-                  color="secondary"
+                <BBButton
+                  variant="secondary"
                   label={cancelButtonLabel || intl.formatMessage(messages.noLabel)}
                   onClick={handleClose}
                 />

@@ -578,27 +578,10 @@ export const PresentationSelect = styled(Select)`
 export const StartButtonWrapper = styled.div`
   padding: 0.75rem 1rem;
   margin-top: auto;
-`;
+  display: flex;
 
-export const StartButton = styled.button<{ disabled?: boolean }>`
-  width: 100%;
-  padding: 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  color: ${colorWhite};
-  background: ${colorPrimary};
-  border: 2px solid ${colorPrimary};
-  transition: all 0.15s;
-
-  &:hover:not(:disabled) {
-    opacity: 0.85;
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  > * {
+    width: 100%;
   }
 `;
 
@@ -691,6 +674,5 @@ export default {
   UserRemoveBtn,
   PresentationSelect,
   StartButtonWrapper,
-  StartButton,
   MaterialSwitch,
 };

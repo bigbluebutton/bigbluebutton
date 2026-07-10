@@ -2,9 +2,12 @@ import { useMutation } from '@apollo/client';
 import React, {
   useCallback, useEffect, useMemo, useRef,
 } from 'react';
+import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 import { defineMessages, useIntl } from 'react-intl';
 import MenuItem from '@mui/material/MenuItem';
 import { type SelectChangeEvent } from '@mui/material';
+import { BBButton } from '@mconf/bbb-ui-components-react';
+import { MdClose } from 'react-icons/md';
 import Styled from './styles';
 import {
   BreakoutRoom,
@@ -74,7 +77,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   const stopMediaOnMainRoom = useStopMediaOnMainRoom();
   const intl = useIntl();
   const [waiting, setWaiting] = React.useState(false);
-  const [isOpen, setIsOpen] = React.useState(false);
+  const { isOpen, open, close } = useModalRegistration({ id: 'breakoutJoinConfirmation', priority: 'low' });
   const [dismissedInvitationKey, setDismissedInvitationKey] = React.useState<string | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -137,11 +140,11 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
   }, [defaultSelectedBreakoutId]);
 
   const handleClose = useCallback(() => {
-    setIsOpen(false);
+    close();
     setWaiting(false);
     setDismissedInvitationKey(currentInvitationKey);
     callHandleInviteDismissedAt();
-  }, [callHandleInviteDismissedAt, currentInvitationKey]);
+  }, [callHandleInviteDismissedAt, close, currentInvitationKey]);
 
   const handleJoinBreakoutConfirmation = useCallback(() => {
     const breakout = (!freeJoin || breakouts.length === 1)
@@ -164,9 +167,9 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
     const win = window.open(breakout.joinURL, '_blank');
     if (win) setBreakoutWindowRef(win);
     stopMediaOnMainRoom(presenter);
-    setIsOpen(false);
+    close();
     setDismissedInvitationKey(currentInvitationKey);
-  }, [breakouts, selectValue, presenter, stopMediaOnMainRoom, freeJoin, currentInvitationKey]);
+  }, [breakouts, close, selectValue, presenter, stopMediaOnMainRoom, freeJoin, currentInvitationKey]);
 
   const assignedBreakout = breakouts.find((br) => br.showInvitation || br.isLastAssignedRoom) || breakouts[0];
   const roomName = assignedBreakout.isDefaultName
@@ -219,7 +222,7 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
 
   useEffect(() => {
     if (breakouts?.length > 0 && !currentUserJoined && !isDismissed) {
-      setIsOpen(true);
+      open();
     }
   }, [breakouts, currentUserJoined, isDismissed]);
 
@@ -290,12 +293,15 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
       <Styled.Dialog ref={dialogRef} role="dialog" aria-modal="true" aria-label={roomName} data-test="breakoutJoinConfirmationDialog" onClick={(e) => e.stopPropagation()}>
         <Styled.Header>
           <Styled.Title>{roomName}</Styled.Title>
-          <Styled.CloseButton
-            onClick={handleClose}
-            aria-label={intl.formatMessage(intlMessages.closeModal)}
-          >
-            ✕
-          </Styled.CloseButton>
+          <Styled.CloseButtonWrapper>
+            <BBButton
+              layout="circle"
+              variant="subtle"
+              icon={<MdClose size="1.25rem" />}
+              onClick={handleClose}
+              ariaLabel={intl.formatMessage(intlMessages.closeModal)}
+            />
+          </Styled.CloseButtonWrapper>
         </Styled.Header>
         <Styled.Body>
           {freeJoin ? select : (
@@ -310,16 +316,19 @@ const BreakoutJoinConfirmation: React.FC<BreakoutJoinConfirmationProps> = ({
           )}
         </Styled.Body>
         <Styled.Footer>
-          <Styled.CancelButton onClick={handleClose} data-test="modalDismissButton">
-            {intl.formatMessage(intlMessages.dismissLabel)}
-          </Styled.CancelButton>
-          <Styled.EnterButton
+          <BBButton
+            variant="secondary"
+            label={intl.formatMessage(intlMessages.dismissLabel)}
+            onClick={handleClose}
+            dataTest="modalDismissButton"
+          />
+          <BBButton
+            variant="primary"
+            label={intl.formatMessage(intlMessages.enterRoom)}
             onClick={handleJoinBreakoutConfirmation}
             disabled={waiting}
-            data-test="modalConfirmButton"
-          >
-            {intl.formatMessage(intlMessages.enterRoom)}
-          </Styled.EnterButton>
+            dataTest="modalConfirmButton"
+          />
         </Styled.Footer>
       </Styled.Dialog>
     </Styled.Overlay>

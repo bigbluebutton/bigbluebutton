@@ -511,9 +511,10 @@ const TimerAddButton = styled.button<{disabled?: boolean}>`
 const ControlsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   width: 100%;
   padding-top: 1rem;
+  gap: 0.75rem;
 `;
 
 const ButtonRow = styled.div`
@@ -522,26 +523,12 @@ const ButtonRow = styled.div`
   gap: 1rem;
 `;
 
-// @ts-ignore - JS code
-const ControlButton = styled(Button)`
-  flex-grow: 1;
-  border-radius: ${lgBorderRadius};
-  height: 3rem;
-  width: 100%;
-  font-size: ${fontSizeBase};
-`;
+const ButtonWrapper = styled.div`
+  flex: 1;
+  display: flex;
 
-const ResetButton = styled(ControlButton)`
-  border: ${borderSize} solid ${colorPrimary};
-`;
-
-const DeactivateButton = styled(ControlButton)`
-  background: transparent;
-  color: ${colorGrayDark};
-
-  &:hover, &:focus {
-    background: transparent;
-    border-color: transparent !important;
+  > * {
+    width: 100%;
   }
 `;
 
@@ -575,9 +562,7 @@ export default {
   MaterialSwitch,
   ControlsContainer,
   ButtonRow,
-  ControlButton,
-  ResetButton,
-  DeactivateButton,
+  ButtonWrapper,
   FooterSeparator,
   TimerPresetsRow,
   TimerPresetButton,

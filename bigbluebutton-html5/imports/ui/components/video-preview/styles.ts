@@ -24,8 +24,6 @@ import {
 } from '/imports/ui/stylesheets/styled-components/typography';
 import { smallOnly, mediumOnly, landscape } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import ModalSimple from '/imports/ui/components/common/modal/simple/component';
-import ModalStyles from '/imports/ui/components/common/modal/simple/styles';
-import Button from '/imports/ui/components/common/button/component';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import {
   Tab, Tabs, TabList,
@@ -225,11 +223,7 @@ const ExtraActions = styled.div`
   }
 `;
 
-const VideoPreviewModal = styled(ModalSimple)<{
-  isPhone: boolean,
-  isBlurred: boolean
-}>`
-  padding: 1rem;
+const VideoPreviewModal = styled(ModalSimple)`
   min-height: 25rem;
   max-height: 100vh;
 
@@ -237,30 +231,6 @@ const VideoPreviewModal = styled(ModalSimple)<{
     height: unset;
     min-height: 22.5rem;
   }
-
-  ${({ isPhone }) => isPhone && `
-    min-height: 100%;
-    min-width: 100%;
-    border-radius: 0;
-  `}
-
-  ${ModalStyles.Content} {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-  ${({ isBlurred }) => isBlurred && `
-    overlay: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      backdropFilter: 'blur(10px)',
-      zIndex: 998,
-    }
-  `}
 `;
 
 const ellipsis = keyframes`
@@ -395,22 +365,8 @@ const IconSvg = styled.img<{darkThemeState: boolean}>`
 
 `;
 
-// @ts-ignore - Button is JSX element
-const SharingButton = styled(Button)`
+const ButtonWrapper = styled.div`
   margin: 0 0.5rem;
-  height: 2.5rem;
-`;
-
-// @ts-ignore - Button is JSX element
-const CancelButton = styled(Button)`
-  margin: 0 0.5rem;
-  height: 2.5rem;
-`;
-
-// @ts-ignore - Button is JSX element
-const StopAllButton = styled(Button)`
-  margin: 0 0.5rem;
-  height: 2.5rem;
 `;
 
 const Fragment = styled(ScrollboxVertical)`
@@ -434,9 +390,7 @@ export default {
   VideoCol,
   BackgroundCol,
   IconSvg,
-  SharingButton,
-  CancelButton,
-  StopAllButton,
+  ButtonWrapper,
   Label,
   Select,
   Content,
