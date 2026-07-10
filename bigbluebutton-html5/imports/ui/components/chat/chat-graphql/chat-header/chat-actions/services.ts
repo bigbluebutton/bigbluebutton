@@ -3,6 +3,7 @@ import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
 import { IntlShape, defineMessages } from 'react-intl';
 import { ChatMessageType } from '/imports/ui/core/enums/chat';
 import PollService from '/imports/ui/components/poll/service';
+import getPresentationDownloadData from '../../chat-message-list/page/chat-message/message-content/presentation-content/service';
 
 const intlMessages = defineMessages({
   chatClear: {
@@ -33,6 +34,11 @@ const intlMessages = defineMessages({
     id: 'app.chat.isPresenterSetBy',
     description: 'message when user is set presenter by someone else',
   },
+  presentationAvailableForDownload: {
+    id: 'app.presentationUploader.export.availableForDownload',
+    defaultMessage: 'Presentation available for download',
+    description: 'used in exported chat before a presentation download filename and URL',
+  },
 });
 
 export const htmlDecode = (input: string) => {
@@ -51,6 +57,11 @@ export const generateExportedMessages = (
     const hourMin = `[${hour}:${min}]`;
     let userName = message.user ? `[${message.user.name} : ${message.user.role}]: ` : '';
     let messageText = '';
+
+    if (message.deletedBy) {
+      messageText = intl.formatMessage(intlMessages.deleteMessage, { userName: message.deletedBy.name });
+      return `${acc}${hourMin} ${userName}${messageText}\n`;
+    }
 
     switch (message.messageType) {
       case ChatMessageType.CHAT_CLEAR:
@@ -84,11 +95,18 @@ export const generateExportedMessages = (
           : `${message.senderName} ${intl.formatMessage(intlMessages.userNotAway)}`;
         break;
       }
+      case ChatMessageType.PRESENTATION: {
+        const { absoluteDownloadUrl, filename } = getPresentationDownloadData(message.messageMetadata);
+        const presentationAvailable = intl.formatMessage(intlMessages.presentationAvailableForDownload);
+        messageText = `${presentationAvailable}: ${filename} - ${absoluteDownloadUrl}`;
+        break;
+      }
+      case ChatMessageType.API:
+      case ChatMessageType.BREAKOUT_ROOM:
+      case ChatMessageType.PLUGIN:
       case ChatMessageType.TEXT:
       default:
-        messageText = message.message
-          ? htmlDecode(message.message)
-          : intl.formatMessage(intlMessages.deleteMessage, { userName: message.deletedBy?.name });
+        messageText = htmlDecode(message.message || '');
         break;
     }
     return `${acc}${hourMin} ${userName}${messageText}\n`;
