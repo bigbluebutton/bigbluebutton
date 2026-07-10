@@ -101,15 +101,12 @@ export const uploadImage = async (file: File): Promise<string> => {
     const body = await response.json().catch(() => null) as { code?: string } | null;
     const code = body?.code ?? '';
     const reason = SERVER_CODE_TO_REASON[code] ?? 'upload-failed';
-    const dimensions: ImageDimensionsDetail | undefined =
-      reason === 'image-too-large' && body
-        ? {
-            maxWidth: Number((body as { maxWidth?: unknown }).maxWidth ?? 0),
-            maxHeight: Number((body as { maxHeight?: unknown }).maxHeight ?? 0),
-            sentWidth: Number((body as { sentWidth?: unknown }).sentWidth ?? 0),
-            sentHeight: Number((body as { sentHeight?: unknown }).sentHeight ?? 0),
-          }
-        : undefined;
+    const dimensions: ImageDimensionsDetail | undefined = reason === 'image-too-large' && body ? {
+      maxWidth: Number((body as { maxWidth?: unknown }).maxWidth ?? 0),
+      maxHeight: Number((body as { maxHeight?: unknown }).maxHeight ?? 0),
+      sentWidth: Number((body as { sentWidth?: unknown }).sentWidth ?? 0),
+      sentHeight: Number((body as { sentHeight?: unknown }).sentHeight ?? 0),
+    } : undefined;
     throw new UploadImageError(reason, code || `status ${response.status}`, dimensions);
   }
 
