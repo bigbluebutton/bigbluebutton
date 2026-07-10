@@ -89,6 +89,21 @@ const AudioControls: React.FC<AudioControlsProps> = ({
   }, [openAudioModal, closeAudioModal]);
 
   const handleJoinAudio = useCallback((connected: boolean) => {
+    // Clicking "Join audio" is the explicit opt-in that overrides the
+    // deafenAudioUntilExplicitJoin deafen-at-join-time behavior.
+    AudioManager.requestAudioJoin();
+
+    // With deafenAudioUntilExplicitJoin the user may already be connected to the
+    // audio bridge but deafened (transparent listen-only connects on entry, and
+    // we deafen at join time). In that case joining audio just means undeafening
+    // - the connection already exists, so we reuse it instead of reopening the
+    // modal.
+    // @ts-ignore - hybrid meteor/graphql accessor
+    if (AudioManager.isConnected && AudioManager.isDeafened) {
+      AudioManager.setDeafened(false);
+      return;
+    }
+
     if (connected) {
       joinListenOnly();
     } else {
