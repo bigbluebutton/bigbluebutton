@@ -292,6 +292,19 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
+  def buildPresentationPagesInsertFailedSysMsg(msg: DocPagesInsertFailed): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PresentationPagesInsertFailedSysMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationPagesInsertFailedSysMsg.NAME, msg.meetingId, "notUsed")
+    val body = PresentationPagesInsertFailedSysMsgBody(
+      podId = msg.podId,
+      targetPresentationId = msg.targetPresentationId,
+      insertPresentationId = msg.insertPresentationId
+    )
+    val req = PresentationPagesInsertFailedSysMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
   def generatePresentationPages(presId: String, numPages: Int, presBaseUrl: String,
                                 pageIds: java.util.Map[Integer, String], pageTokenSecret: String = ""): scala.collection.immutable.Map[String, PageVO] = {
     val pages = new scala.collection.mutable.HashMap[String, PageVO]

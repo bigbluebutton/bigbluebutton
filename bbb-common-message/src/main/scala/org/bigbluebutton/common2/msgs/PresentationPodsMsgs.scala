@@ -144,6 +144,18 @@ case class PresentationPagesInsertedSysMsgBody(podId: String, targetPresentation
                                                pageUrls: Vector[InsertedPageUrls])
 case class InsertedPageUrls(pageId: String, urls: Map[String, String])
 
+// Sent by bbb-web when an insert-pages upload converted successfully but splicing the converted
+// files into the target presentation directory failed (e.g. the target disappeared meanwhile).
+// bbb-web already removed the insert presentation directory; akka-apps drops the transient insert
+// presentation from pod state and DB and notifies the meeting.
+object PresentationPagesInsertFailedSysMsg { val NAME = "PresentationPagesInsertFailedSysMsg" }
+case class PresentationPagesInsertFailedSysMsg(
+    header: BbbClientMsgHeader,
+    body:   PresentationPagesInsertFailedSysMsgBody
+) extends StandardMsg
+case class PresentationPagesInsertFailedSysMsgBody(podId: String, targetPresentationId: String,
+                                                   insertPresentationId: String)
+
 object PresentationPageConvertedSysMsg { val NAME = "PresentationPageConvertedSysMsg" }
 case class PresentationPageConvertedSysMsg(
     header: BbbClientMsgHeader,

@@ -359,6 +359,7 @@
     "app.meeting.alertBreakoutEndsUnderMinutesSingular": "Breakout is closing in one minute.",
     "app.presentation.hide": "Hide presentation",
     "app.presentation.newCurrentPresentationNotification": "The current presentation is now: {presentationName}",
+    "app.presentation.insertPagesFailedNotification": "Inserting the pages of {presentationName} failed",
     "app.presentation.downloadEnabledNotification": "You can now download the presentation",
     "app.presentation.downloadLabel": "Download",
     "app.presentation.actionsLabel": "Actions",

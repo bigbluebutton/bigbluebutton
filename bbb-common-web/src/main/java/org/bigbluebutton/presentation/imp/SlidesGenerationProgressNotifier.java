@@ -190,6 +190,12 @@ public class SlidesGenerationProgressNotifier {
     } catch (IOException e) {
       log.error("Failed to splice inserted pages into target presentation [{}]: {}",
         pres.getTargetPresentationId(), e.getMessage());
+      // The transient insert presentation must never survive on its own: drop its files here
+      // and tell akka-apps to drop its state and DB row and notify the meeting of the failure.
+      org.bigbluebutton.presentation.Util.deleteDirectory(insertDir);
+      DocPagesInsertFailed failed = new DocPagesInsertFailed(
+        pres.getPodId(), pres.getMeetingId(), pres.getTargetPresentationId(), pres.getId());
+      messagingService.sendDocConversionMsg(failed);
       return;
     }
 

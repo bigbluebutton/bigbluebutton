@@ -10,6 +10,7 @@ class PresentationPodHdlrs(implicit val context: ActorContext)
   with SetCurrentPresentationPubMsgHdlr
   with PresentationConversionCompletedSysPubMsgHdlr
   with PresentationPagesInsertedSysMsgHdlr
+  with PresentationPagesInsertFailedSysMsgHdlr
   with PdfConversionInvalidErrorSysPubMsgHdlr
   with SetCurrentPagePubMsgHdlr
   with SetPageInfiniteWhiteboardPubMsgHdlr
