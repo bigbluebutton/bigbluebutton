@@ -34,7 +34,7 @@ import {
   fontSizeBase,
 } from '/imports/ui/stylesheets/styled-components/typography';
 
-// ---- Design tokens (see /tmp/design-guide-preflight.md + v4 delta) ---------
+// ---- Design tokens ---------------------------------------------------------
 const spaceXs = smPaddingX; // 0.75rem
 const spaceSm = mdPaddingX; // 1rem
 const spaceMd = jumboPaddingY; // 1.5rem

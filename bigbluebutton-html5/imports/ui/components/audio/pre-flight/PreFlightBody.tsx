@@ -220,7 +220,6 @@ export interface PreFlightBodyHandle {
   getMicStream: () => MediaStream | null;
   markStreamHandedOff: () => void;
   shareCamera: () => void;
-  releaseStreams: () => void;
 }
 
 // Context handed to the footer renderer so the wrapper can drive the join.
@@ -330,8 +329,6 @@ const PreFlightBody = forwardRef<PreFlightBodyHandle, PreFlightBodyProps>(
       currentVideoStream,
       handleSelectWebcam,
       handleStartSharing,
-      terminateCameraStream,
-      cleanupStreamAndVideo,
       VIEW_STATES,
     } = useVideoPreview({
       initialDeviceId: (PreviewService.webcamDeviceId?.() as string) ?? null,
@@ -553,22 +550,13 @@ const PreFlightBody = forwardRef<PreFlightBodyHandle, PreFlightBodyProps>(
             handleStartSharing(webcamDeviceId);
           }
         },
-        releaseStreams: () => {
-          cleanupMicStream();
-          setMicStream(null);
-          terminateCameraStream(currentVideoStream.current, webcamDeviceId);
-          cleanupStreamAndVideo();
-        },
       }),
       [
         enableJoinControls,
         cameraOn,
         webcamDeviceId,
         handleStartSharing,
-        cleanupMicStream,
-        terminateCameraStream,
         currentVideoStream,
-        cleanupStreamAndVideo,
       ],
     );
 
