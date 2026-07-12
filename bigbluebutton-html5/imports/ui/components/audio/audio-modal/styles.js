@@ -35,18 +35,19 @@ const AudioModalButton = styled(Button)`
     }
   }
 
-  // The bbb-icons unmute glyph is heavier at the bottom: its solid base bar carries more visual
-  // weight than the listen glyph's thin earcup tips, so at vertical-align:middle the mic reads as
-  // sitting low even when its ink box is roughly centered (perceived optical center != ink centroid).
-  // This nudge lifts it so the base bar clears the headphone base by a small margin and the glyph
-  // looks balanced against the listen glyph. -0.14em was picked empirically against the headphone:
-  // it sits at the center of the target range and over-correcting (>=-0.18em) makes the mic read as
-  // high. Proportional across font sizes because the offset is in em units. Scoped to the unmute
-  // glyph inside AudioModalButton only (icon="unmute" is reused elsewhere - the mute toggle, audio
-  // test, help - so a global shift would regress them).
+  // The bbb-icons unmute (microphone) glyph has a taller ink box than the listen (headphone)
+  // glyph at the same font-size: mic ink is ~61px tall vs the headphone's ~49px at 3.5rem, so
+  // even with their centers aligned the mic overhangs the headphone by ~6px at each end and reads
+  // as a different size inside its circle. scale(0.8) (0.8 = 49/61) shrinks the mic to the
+  // headphone's ink height about the glyph's geometric center (transform-origin defaults to
+  // center), so the two icons occupy the same vertical band. Uniform scale keeps the mic's natural
+  // proportions - scaleY alone flattens it, and a smaller font-size overshoots and re-anchors the
+  // glyph on the text baseline, dropping its center below the headphone's. Scoped to the unmute
+  // glyph inside AudioModalButton so the icon reused elsewhere (mute toggle, audio test) is
+  // untouched.
   & span:first-child i[class*="icon-bbb-unmute"] {
-    position: relative;
-    top: -0.14em;
+    display: inline-block;
+    transform: scale(0.8);
   }
 
   // When hovering over a button of class audioBtn, change the border colour of first span-child
