@@ -44,10 +44,16 @@ public class InsertPagesSplicer {
   };
 
   /**
+   * Synchronized: the manifest re-key below is a read-modify-write of the target's pages.json,
+   * and inserts can complete concurrently (the image path finishes on a supervisor pool thread,
+   * and the plugin command is fire-and-forget). Two unserialized splices into the same target
+   * would lose one insert's manifest entries. A single global lock is enough here: splices are
+   * rare and amount to a few renames plus a small json rewrite.
+   *
    * @param insertPageIds 1-based page number to pageId of the converted insert presentation.
    * @return a two-element array: [clamped 1-based insert position, total pages after the insert].
    */
-  public static int[] splice(File insertDir, File targetDir, int rawPosition,
+  public static synchronized int[] splice(File insertDir, File targetDir, int rawPosition,
                              Map<Integer, String> insertPageIds) throws IOException {
     if (!targetDir.isDirectory()) {
       throw new IOException("Target presentation dir does not exist: " + targetDir.getAbsolutePath());
