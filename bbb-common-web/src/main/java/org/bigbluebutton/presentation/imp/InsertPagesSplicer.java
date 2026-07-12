@@ -35,14 +35,6 @@ public class InsertPagesSplicer {
 
   private static final Type MANIFEST_TYPE = new TypeToken<Map<String, String>>() {}.getType();
 
-  // subdir, filename prefix, extension. svgs use "slide<id>" (no dash), the rest use a dashed prefix.
-  private static final String[][] ARTIFACTS = {
-      {"svgs", "slide", ".svg"},
-      {"pngs", "slide-", ".png"},
-      {"textfiles", "slide-", ".txt"},
-      {"thumbnails", "thumb-", ".png"},
-  };
-
   /**
    * Synchronized: the manifest re-key below is a read-modify-write of the target's pages.json,
    * and inserts can complete concurrently (the image path finishes on a supervisor pool thread,
@@ -73,7 +65,7 @@ public class InsertPagesSplicer {
     // Move the inserted pages' artifacts into the target dir. Names are opaque page ids, so
     // nothing collides and no existing target file is touched.
     for (String pageId : insertPageIds.values()) {
-      moveArtifacts(insertDir, targetDir, pageId);
+      PageArtifacts.move(insertDir, targetDir, pageId);
     }
 
     // Re-key the manifest: positions at/after the insert shift up by insertCount, the inserted
@@ -92,25 +84,6 @@ public class InsertPagesSplicer {
     log.info("Spliced {} page(s) into presentation dir {} at position {} (was {} pages, now {})",
         insertCount, targetDir.getName(), position, targetTotal, targetTotal + insertCount);
     return new int[] { position, targetTotal + insertCount };
-  }
-
-  private static void moveArtifacts(File fromDir, File toDir, String pageId) {
-    for (String[] a : ARTIFACTS) {
-      File src = new File(new File(fromDir, a[0]), a[1] + pageId + a[2]);
-      if (!src.exists()) {
-        // Tolerated: not every conversion flow produces every artifact type (e.g. no pngs).
-        continue;
-      }
-      File subTo = new File(toDir, a[0]);
-      if (!subTo.isDirectory() && !subTo.mkdirs()) {
-        log.warn("Could not create artifact dir {}", subTo.getAbsolutePath());
-        continue;
-      }
-      File dst = new File(subTo, a[1] + pageId + a[2]);
-      if (!src.renameTo(dst)) {
-        log.warn("Failed to move {} -> {}", src.getAbsolutePath(), dst.getAbsolutePath());
-      }
-    }
   }
 
   private static TreeMap<Integer, String> readManifest(File targetDir) throws IOException {

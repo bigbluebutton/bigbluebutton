@@ -77,9 +77,9 @@ public class PresentationFileProcessor {
                 S3Object s3Object = s3FileManager.download(remoteFileName);
                 File parentDir = new File(pres.getUploadedFile().getParent());
                 TarGzManager.decompress(s3Object, parentDir.getAbsolutePath());
-                // Cached files are named by pageId; without the manifest the
-                // restored files cannot be matched back to page numbers.
-                PageIdManifest.seedFrom(pres);
+                // Cached files are named by pageId; the manifest matches them back to page
+                // numbers, and they get renamed under fresh ids minted for this upload.
+                PageIdManifest.restoreWithFreshIds(pres);
                 log.info("Presentation outputs restored from cache successfully for {}.", pres.getId());
             }
         } catch (Exception e) {

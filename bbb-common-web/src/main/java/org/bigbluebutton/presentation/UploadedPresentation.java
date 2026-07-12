@@ -292,12 +292,6 @@ public final class UploadedPresentation {
     return pageIds.computeIfAbsent(page, p -> UUID.randomUUID().toString());
   }
 
-  // Restores an id minted by a previous conversion (cache manifest); a fresh
-  // mint never overwrites a restored id.
-  public void seedPageId(int page, String pageId) {
-    pageIds.putIfAbsent(page, pageId);
-  }
-
   public Map<Integer, String> getPageIds() {
     return pageIds;
   }

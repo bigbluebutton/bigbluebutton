@@ -37,17 +37,24 @@ public class PageIdManifest {
         }
     }
 
-    public static void seedFrom(UploadedPresentation pres) {
-        File manifest = new File(pres.getUploadedFile().getParent() + File.separatorChar + FILENAME);
+    // Matches cache-restored artifact files back to page numbers through the cached manifest,
+    // then re-keys them under freshly minted page ids. The cached ids must not be adopted:
+    // pageId is the global primary key of pres_page and the cache is keyed only by file hash,
+    // so re-using cached ids would collide with the earlier upload that produced the cache
+    // entry (e.g. a second insert of the same blank page) and silently re-home its rows.
+    public static void restoreWithFreshIds(UploadedPresentation pres) {
+        File presDir = pres.getUploadedFile().getParentFile();
+        File manifest = new File(presDir, FILENAME);
         if (!manifest.exists()) return;
         try {
             String json = new String(Files.readAllBytes(manifest.toPath()), StandardCharsets.UTF_8);
             Map<String, String> byPageNum = new Gson().fromJson(json, MAP_TYPE);
             if (byPageNum == null) return;
             for (Map.Entry<String, String> e : byPageNum.entrySet()) {
-                pres.seedPageId(Integer.parseInt(e.getKey()), e.getValue());
+                int pageNum = Integer.parseInt(e.getKey());
+                PageArtifacts.rename(presDir, e.getValue(), pres.getOrMintPageId(pageNum));
             }
-            log.info("Restored {} page ids from manifest for presentation {}", byPageNum.size(), pres.getId());
+            log.info("Restored {} cached pages under fresh page ids for presentation {}", byPageNum.size(), pres.getId());
         } catch (Exception e) {
             log.warn("Ignoring unreadable page id manifest {}: {}", manifest.getAbsolutePath(), e.getMessage());
         }
