@@ -50,16 +50,35 @@ function seedFromJson(
 
 // Seed the fragment from raw markdown. Markdown must be parsed to blocks here
 // because BlockNote is unavailable on the web tier that builds the message.
+// Returns a result when the markdown converts to usable blocks; returns null when
+// it produces no blocks or the conversion fails, so the caller falls back to
+// no_initial_content. Any partial write is rolled back before falling back.
 async function seedFromMarkdown(
   editor: Editor,
   markdown: string,
   fragment: Y.XmlFragment,
   documentName: string,
-): Promise<{ statusCode: string }> {
-  const markdownBlocks = await editor.tryParseMarkdownToBlocks(markdown);
-  editor.blocksToYXmlFragment(markdownBlocks, fragment);
-  logger.info('Document seeded from initial markdown content', { documentName });
-  return { statusCode: "document_loaded" };
+): Promise<{ statusCode: string } | null> {
+  try {
+    const markdownBlocks = await editor.tryParseMarkdownToBlocks(markdown);
+    if (!Array.isArray(markdownBlocks) || markdownBlocks.length === 0) {
+      logger.warn('Markdown parsing produced no usable blocks', { documentName });
+      return null;
+    }
+
+    editor.blocksToYXmlFragment(markdownBlocks, fragment);
+    logger.info('Document seeded from initial markdown content', { documentName });
+    return { statusCode: "document_loaded" };
+  } catch (markdownError) {
+    // Do not crash on malformed markdown; drop anything partially written and
+    // let the caller fall back to no_initial_content.
+    logger.warn('Failed to seed document from markdown', {
+      documentName,
+      error: markdownError instanceof Error ? markdownError.message : String(markdownError),
+    });
+    if (fragment.length > 0) fragment.delete(0, fragment.length);
+    return null;
+  }
 }
 
 export async function pushInitialContent(padId: string, content: InitialContent): Promise<{ statusCode: string; error?: string; }> {
@@ -101,7 +120,10 @@ export async function pushInitialContent(padId: string, content: InitialContent)
     }
 
     if (content.initialContentMarkdown) {
-      return await seedFromMarkdown(editor, content.initialContentMarkdown, fragment, documentName);
+      const markdownResult = await seedFromMarkdown(editor, content.initialContentMarkdown, fragment, documentName);
+      if (markdownResult) {
+        return markdownResult;
+      }
     }
 
     logger.warn('No usable initial content to seed document', { documentName });
