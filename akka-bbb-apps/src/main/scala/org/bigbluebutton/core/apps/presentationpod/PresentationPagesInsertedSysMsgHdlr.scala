@@ -57,7 +57,7 @@ trait PresentationPagesInsertedSysMsgHdlr {
       // One transaction: repoint the inserted page rows onto the target, renumber the shifted
       // rows, update totalPages and delete the transient insert presentation row. Split apart,
       // the insert-pres delete could cascade away the inserted pages before they are re-homed.
-      PresPresentationDAO.applyInsertedPages(newTargetPres, liveMeeting.props.meetingProp.intId, insertPresId)
+      PresPresentationDAO.applyInsertedPages(newTargetPres, liveMeeting.props.meetingProp.intId, insertPresId, inserted.keySet)
 
       state.update(pods)
     }
