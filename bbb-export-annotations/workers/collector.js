@@ -72,8 +72,11 @@ async function collectAnnotationsFromRedis() {
   // Message to display conversion progress toast
   const statusUpdate = new PresAnnStatusMsg(exportJob);
 
-  if (fs.existsSync(pdfFile)) {
-    // If there's a PDF file, we leverage the existing converted SVG slides
+  // A presentation without its own PDF (uploaded as a PNG/JPEG image) normally has a single
+  // page, but insert-pages can splice extra pages into it; the original image then only covers
+  // one of them, so any multi-page presentation must go through the converted SVG slides.
+  if (fs.existsSync(pdfFile) || pages.length > 1) {
+    // Leverage the existing converted SVG slides
     for (const p of pages) {
       const pageNumber = p.page;
       // On-disk slide files are named by the opaque pageId; the job's dropbox
