@@ -287,10 +287,31 @@ class PresentationController {
       response.outputStream << 'invalid-target-presentation-id'
       return
     }
-    if (null != params.insertAtPosition && params.insertAtPosition.isInteger()) {
+    def hasTargetPresentationId = (targetPresentationId != null && !targetPresentationId.isEmpty())
+    if (null != params.insertAtPosition) {
+      // An insert was requested: a malformed position must fail loudly instead of silently
+      // degrading into a regular upload that surfaces as a new presentation.
+      if (!params.insertAtPosition.isInteger() || (params.insertAtPosition as Integer) < 1) {
+        log.debug("Upload failed. Invalid insertAtPosition " + params.insertAtPosition)
+        response.setStatus(400)
+        response.addHeader("Cache-Control", "no-cache")
+        response.contentType = 'text/plain'
+        response.outputStream << 'invalid-insert-at-position'
+        return
+      }
       insertAtPosition = params.insertAtPosition as Integer
     }
-    def isInsert = (insertAtPosition != null && targetPresentationId != null && !targetPresentationId.isEmpty())
+    // insertAtPosition and targetPresentationId only make sense together; one without the
+    // other is a malformed insert request, not a regular upload.
+    if ((insertAtPosition != null) != hasTargetPresentationId) {
+      log.debug("Upload failed. insertAtPosition and targetPresentationId must be provided together.")
+      response.setStatus(400)
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'text/plain'
+      response.outputStream << 'incomplete-insert-request'
+      return
+    }
+    def isInsert = (insertAtPosition != null && hasTargetPresentationId)
     if (isInsert) {
       // The transient insert presentation must never become the current presentation.
       current = false
