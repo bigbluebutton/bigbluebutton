@@ -15,8 +15,8 @@ class BigBlueButtonActorTestsSpec extends TestKit(ActorSystem(
   "BigBlueButtonActorTestsSpec",
   ConfigFactory.parseString(TestKitUsageSpec.config)
 ))
-    with DefaultTimeout with ImplicitSender with WordSpecLike
-    with Matchers with StopSystemAfterAll with AppsTestFixtures with SystemConfiguration {
+  with DefaultTimeout with ImplicitSender with WordSpecLike
+  with Matchers with StopSystemAfterAll with AppsTestFixtures with SystemConfiguration {
 
   // See: http://doc.akka.io/docs/akka/current/scala/testing.html
 

@@ -9,7 +9,6 @@ object Dependencies {
     val scala = "2.13.9"
     val junit = "4.12"
     val junitInterface = "0.11"
-    val scalactic = "3.0.8"
 
     // Libraries
     val pekkoVersion = "1.0.1"
@@ -83,7 +82,6 @@ object Dependencies {
     val scalaTest = "org.scalatest" %% "scalatest" % Versions.scalaTest % "test"
 //    val junit = "junit" % "junit" % Versions.junit % "test"
     val mockitoCore = "org.mockito" % "mockito-core" % Versions.mockito % "test"
-    val scalactic = "org.scalactic" % "scalactic_2.13" % Versions.scalactic % "test"
     val akkaTestKit = "com.typesafe.akka" %% "akka-testkit" % Versions.akkaTestKit % "test"
   }
 
@@ -91,7 +89,6 @@ object Dependencies {
     Test.scalaTest,
 //    Test.junit,
     Test.mockitoCore,
-    Test.scalactic,
     Test.akkaTestKit)
 
   val runtime = Seq(
