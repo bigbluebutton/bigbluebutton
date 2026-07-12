@@ -97,10 +97,15 @@ const AudioControls: React.FC<AudioControlsProps> = ({
     // audio bridge but deafened (transparent listen-only connects on entry, and
     // we deafen at join time). In that case joining audio just means undeafening
     // - the connection already exists, so we reuse it instead of reopening the
-    // modal.
+    // modal. We re-enter onAudioJoin (deafened: false) rather than only flipping
+    // the deafened flag: the initial deafened join returns early and skips the
+    // post-join steps (device selection, monitor, "started" event), so those must
+    // run now that the user opted in. onAudioJoin is idempotent for this path -
+    // the skipped steps run exactly once.
     // @ts-ignore - hybrid meteor/graphql accessor
     if (AudioManager.isConnected && AudioManager.isDeafened) {
-      AudioManager.setDeafened(false);
+      // @ts-ignore - hybrid meteor/graphql accessor
+      AudioManager.onAudioJoin({ deafened: false });
       return;
     }
 

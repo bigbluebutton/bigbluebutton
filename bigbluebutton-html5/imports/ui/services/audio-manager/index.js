@@ -1419,17 +1419,6 @@ class AudioManager {
     this.setSenderTrackEnabled(true);
   }
 
-  // Deafen/undeafen the local user. Deafening is the "no audio" state: the
-  // reactive isDeafened var drives the LiveKit layer to unsubscribe from remote
-  // audio (see useMediaSubscriptions) and to push the deafened state to the
-  // server (see the LiveKit component's userSetDeafened effect). When
-  // deafenAudioUntilExplicitJoin is enabled the user is deafened at join time, and
-  // undeafening them (setDeafened(false)) is how an explicit "Join audio" click
-  // makes them start hearing audio while reusing the existing bridge connection.
-  setDeafened(deafened = true) {
-    this.isDeafened = deafened;
-  }
-
   // Records that the user explicitly asked to join/hear audio. Consumed by
   // onAudioJoin so the deafenAudioUntilExplicitJoin deafen-at-join-time behavior is
   // overridden once the user opts in. Reset on audio exit.
