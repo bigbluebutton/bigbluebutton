@@ -34,6 +34,8 @@ location ~ ^/bigbluebutton/fileUpload/(?<mid>[A-Za-z0-9-]+)/(?<file>[a-f0-9-]+\.
   alias /var/bigbluebutton/$mid/uploads/$file;
 
   add_header X-Content-Type-Options nosniff always;
+  # No Allow-Credentials here: it would contradict the '*' default origin (the
+  # combination is invalid per the CORS spec), and the images are consumed via
+  # plain <img> tags, which do not need credentialed CORS at all.
   add_header 'Access-Control-Allow-Origin' $bbb_cors_origin always;
-  add_header 'Access-Control-Allow-Credentials' 'true' always;
 }
