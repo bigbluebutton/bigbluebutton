@@ -865,9 +865,12 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
               }}
               onDrop={(e) => {
                 if (!ENABLE_IMAGE_PASTE) return;
+                // Always prevent the default drop: onDragOver accepts any file
+                // drag, and without this a non-image drop would navigate the tab
+                // to the file, kicking the user out of the meeting.
+                e.preventDefault();
                 const image = getImageFromDataTransfer(e.dataTransfer);
                 if (image) {
-                  e.preventDefault();
                   captureImageFile(image);
                 }
               }}
