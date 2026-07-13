@@ -137,15 +137,17 @@ object MarkdownUtil {
    * deliberate: a browser folds a backslash in the authority to a forward slash,
    * so a lax rooted-path check lets `/\evil.com/pixel.png` through and the browser
    * loads it from `https://evil.com/...`, reintroducing the tracking-pixel /
-   * IP-leak vector. The character class forbids backslashes, control chars and
-   * dots outside the extension, which closes that bypass, and it mirrors the
-   * whiteboard's `uploadedImageSrcPattern`. The meeting-id segment is left generic
-   * here because the renderer is meeting-agnostic and shared across chats;
-   * cross-meeting references are blocked by the GET authorization gate
+   * IP-leak vector. The character classes forbid backslashes, control chars and
+   * dots outside the extension, which closes that bypass, and they mirror the
+   * serving contract (like the whiteboard's `uploadedImageSrcPattern`): nginx
+   * only serves lowercase-hex uuid filenames, so the filename segment is
+   * `[a-f0-9-]+`. The meeting-id segment is left generic here because the
+   * renderer is meeting-agnostic and shared across chats; cross-meeting
+   * references are blocked by the GET authorization gate
    * (`checkFileUploadAuthorization`, by meeting family).
    */
   private val UploadedImagePattern: Pattern =
-    Pattern.compile("^/bigbluebutton/fileUpload/[A-Za-z0-9-]+/[A-Za-z0-9-]+\\.(png|jpe?g|gif|webp)$")
+    Pattern.compile("^/bigbluebutton/fileUpload/[A-Za-z0-9-]+/[a-f0-9-]+\\.(png|jpe?g|gif|webp)$")
 
   /**
    * Only same-origin uploads are allowed as image sources. `sanitizeUrls` already

@@ -28,11 +28,12 @@ object WhiteboardModel {
   // current meeting: /bigbluebutton/fileUpload/{meetingId}/{uuid}.{ext}. This
   // blocks data: URIs (base64 bloat / bypassing the upload service) and external
   // origins (privacy / SSRF), and pins the meetingId so an annotation cannot
-  // point at another meeting's uploads. The filename disallows '.' outside the
-  // extension, so path traversal cannot slip through.
+  // point at another meeting's uploads. The filename class mirrors the serving
+  // contract (nginx only serves lowercase-hex uuid filenames) and disallows '.'
+  // outside the extension, so path traversal cannot slip through.
   private def uploadedImageSrcPattern(meetingId: String): scala.util.matching.Regex =
     ("^/bigbluebutton/fileUpload/" + java.util.regex.Pattern.quote(meetingId) +
-      "/[A-Za-z0-9-]+\\.(png|jpe?g|gif|webp)$").r
+      "/[a-f0-9-]+\\.(png|jpe?g|gif|webp)$").r
 
   private def getImageSrc(annotationInfo: Map[String, _]): Option[String] = {
     annotationInfo.get("meta") match {
@@ -46,7 +47,10 @@ object WhiteboardModel {
   }
 
   private def isValidImageAnnotation(annotationInfo: Map[String, _], meetingId: String): Boolean = {
-    val withinSizeLimit = annotationInfo.toString.length <= MaxImageAnnotationSizeBytes
+    // Measured in UTF-8 bytes (what actually reaches Postgres), not in UTF-16
+    // chars, so a multi-byte payload cannot stretch the cap.
+    val withinSizeLimit =
+      annotationInfo.toString.getBytes(java.nio.charset.StandardCharsets.UTF_8).length <= MaxImageAnnotationSizeBytes
     val hasValidSrc = getImageSrc(annotationInfo).exists { src =>
       // Full match instead of findFirstIn: even anchored, java.util.regex lets
       // `$` match before a trailing newline, which a full match does not.

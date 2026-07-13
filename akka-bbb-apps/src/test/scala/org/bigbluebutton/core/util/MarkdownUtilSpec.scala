@@ -73,6 +73,15 @@ class MarkdownUtilSpec extends AnyFlatSpec {
     assert(!html.contains("<img"))
   }
 
+  it should "drop an upload path whose filename is not lowercase hex (serving contract)" in {
+    // nginx only serves [a-f0-9-]+ filenames; the renderer mirrors that so it
+    // never emits an <img> that could not be served anyway.
+    val html = renderWithImages("![x](/bigbluebutton/fileUpload/meeting-abc/DEADBEEF-4e5f.png)")
+    assert(!html.contains("<img"))
+    val html2 = renderWithImages("![x](/bigbluebutton/fileUpload/meeting-abc/not-a-uuid.png)")
+    assert(!html2.contains("<img"))
+  }
+
   it should "never render images when the feature flag is off, even for a valid upload" in {
     val html = MarkdownUtil.markdownToSafeHtml(s"![alt]($validSrc)", enableImages = false)
     assert(!html.contains("<img"))

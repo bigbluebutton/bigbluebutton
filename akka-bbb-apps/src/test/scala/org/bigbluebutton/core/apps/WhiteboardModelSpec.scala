@@ -65,12 +65,28 @@ class WhiteboardModelSpec extends AnyFlatSpec {
     assert(!isAllowedAnnotation(imageInfo("//tracker.example/pixel.png"), meetingId, imagePasteEnabled = true))
   }
 
+  it should "reject an image shape whose filename is not lowercase hex (serving contract)" in {
+    // nginx only serves [a-f0-9-]+ filenames, so anything the validator lets
+    // through beyond that could never be served - keep both in lockstep.
+    assert(!isAllowedAnnotation(imageInfo(s"/bigbluebutton/fileUpload/$meetingId/DEADBEEF-4e5f.png"), meetingId, imagePasteEnabled = true))
+    assert(!isAllowedAnnotation(imageInfo(s"/bigbluebutton/fileUpload/$meetingId/not-a-uuid.png"), meetingId, imagePasteEnabled = true))
+  }
+
   it should "reject an image shape with no src in meta" in {
     assert(!isAllowedAnnotation(Map("type" -> "image", "id" -> "shape:1"), meetingId, imagePasteEnabled = true))
   }
 
   it should "reject an image shape whose serialized annotation exceeds the size cap" in {
     val oversizedMeta = Map("bbbImageSrc" -> validSrc, "junk" -> ("x" * (WhiteboardModel.MaxImageAnnotationSizeBytes + 1)))
+    val oversized = Map("type" -> "image", "id" -> "shape:1", "meta" -> oversizedMeta)
+    assert(!isAllowedAnnotation(oversized, meetingId, imagePasteEnabled = true))
+  }
+
+  it should "count the size cap in UTF-8 bytes, not UTF-16 chars" in {
+    // Half the cap in chars, but each char is 2 bytes in UTF-8: under the cap
+    // by char count, over it by byte count.
+    val multiByteJunk = "ä" * (WhiteboardModel.MaxImageAnnotationSizeBytes / 2 + 1)
+    val oversizedMeta = Map("bbbImageSrc" -> validSrc, "junk" -> multiByteJunk)
     val oversized = Map("type" -> "image", "id" -> "shape:1", "meta" -> oversizedMeta)
     assert(!isAllowedAnnotation(oversized, meetingId, imagePasteEnabled = true))
   }
