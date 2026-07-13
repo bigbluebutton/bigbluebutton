@@ -32,12 +32,26 @@ const stripDataUrlAttr = (imgTag: string): string =>
   imgTag.replace(/\s+data-url\s*=\s*"[^"]*"/gi, '');
 
 // Reads an uploaded image from disk and returns a base64 data URI, or null when
-// the src is not a valid same-origin upload or the file is missing on disk.
-const toDataUri = async (src: string): Promise<string | null> => {
+// the src is not a valid same-origin upload, references a different meeting than
+// the one being exported, or the file is missing on disk.
+const toDataUri = async (src: string, expectedMeetingId: string): Promise<string | null> => {
   const match = UPLOAD_SRC_PATTERN.exec(src);
   if (!match) return null;
 
   const [, meetingId, filename] = match;
+
+  // Cross-meeting guard (IDOR): the meetingId in the <img src> comes straight
+  // from the pad document, which any editor can set. Only read uploads that
+  // belong to the meeting whose document is actually being exported; otherwise
+  // drop the tag exactly like an external URL.
+  if (meetingId !== expectedMeetingId) {
+    logger.warn('Image src references a different meeting than the export; dropping it', {
+      srcMeetingId: meetingId,
+      expectedMeetingId,
+    });
+    return null;
+  }
+
   const ext = filename.split('.').pop()?.toLowerCase() ?? '';
   const mime = MIME_BY_EXT[ext];
   if (!mime) return null;
@@ -68,8 +82,12 @@ const toDataUri = async (src: string): Promise<string | null> => {
  *
  * Runs before emoji inlining (exportDocumentToPdf), so the only <img> tags
  * present here come from BlockNote image blocks, never from emoji.
+ *
+ * `expectedMeetingId` is the meeting the exported document belongs to; only
+ * uploads for that meeting are inlined, so a pad editor cannot embed another
+ * meeting's upload path and exfiltrate its images (cross-meeting file read).
  */
-export async function inlineHostImages(html: string): Promise<string> {
+export async function inlineHostImages(html: string, expectedMeetingId: string): Promise<string> {
   const imgTags = html.match(/<img\b[^>]*>/gi);
   if (!imgTags) return html;
 
@@ -83,7 +101,7 @@ export async function inlineHostImages(html: string): Promise<string> {
       replacements.set(tag, stripDataUrlAttr(tag));
       return;
     }
-    const dataUri = src ? await toDataUri(src) : null;
+    const dataUri = src ? await toDataUri(src, expectedMeetingId) : null;
     if (dataUri) {
       const inlined = stripDataUrlAttr(tag).replace(/(\ssrc\s*=\s*")[^"]*(")/, `$1${dataUri}$2`);
       replacements.set(tag, inlined);

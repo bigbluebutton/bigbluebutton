@@ -1,6 +1,7 @@
 import hocuspocus from "../../hocuspocus";
 import { ServerBlockNoteEditor } from "@blocknote/server-util";
 import { inlineHostImages } from "./inlineHostImages";
+import { extractMeetingId } from "../../hocuspocus/utils";
 
 async function exportDocumentToHtml(documentName: string): Promise<string> {
   const connection = await hocuspocus.openDirectConnection(documentName);
@@ -207,7 +208,11 @@ async function exportDocumentToHtml(documentName: string): Promise<string> {
 
   // Inline same-origin uploaded images as base64 and strip any external <img>
   // (self-contained export + same-origin enforcement, see inlineHostImages).
-  return inlineHostImages(fullHtml);
+  // Only this document's own meeting uploads may be inlined: the pad name is
+  // `bn-document__{meetingId}`, so extractMeetingId yields the meeting the
+  // export belongs to and blocks cross-meeting upload paths embedded in the pad.
+  const meetingId = extractMeetingId(documentName);
+  return inlineHostImages(fullHtml, meetingId);
 }
 
 export { exportDocumentToHtml };

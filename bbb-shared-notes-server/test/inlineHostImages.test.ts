@@ -50,11 +50,41 @@ test('inlines a same-origin upload as a base64 data URI', async () => {
   writeUpload(meetingId, filename);
 
   const html = `<p><img src="/bigbluebutton/fileUpload/${meetingId}/${filename}" alt="x"></p>`;
-  const result = await inlineHostImages(html);
+  const result = await inlineHostImages(html, meetingId);
 
   const expected = `data:image/png;base64,${PNG_BYTES.toString('base64')}`;
   assert.equal(result.includes(expected), true, 'src should be replaced with the base64 data URI');
   assert.equal(result.includes('/bigbluebutton/fileUpload/'), false, 'no relative URL should remain');
+});
+
+test('drops an upload <img> that references a DIFFERENT meeting (cross-meeting IDOR)', async () => {
+  // The victim meeting owns an upload on disk...
+  const victimMeetingId = 'meeting-victim';
+  const filename = 'deadbeef-0000-1111-2222-333344445555.png';
+  const secret = Buffer.from('super-secret-image-bytes');
+  writeUpload(victimMeetingId, filename, secret);
+
+  // ...and the attacker exports THEIR OWN pad while embedding the victim's path.
+  const attackerMeetingId = 'meeting-attacker';
+  const html = `<p><img src="/bigbluebutton/fileUpload/${victimMeetingId}/${filename}" alt="steal"></p>`;
+  const result = await inlineHostImages(html, attackerMeetingId);
+
+  const leaked = `data:image/png;base64,${secret.toString('base64')}`;
+  assert.equal(result.includes(leaked), false, "another meeting's upload must not be inlined");
+  assert.equal(result.includes('/bigbluebutton/fileUpload/'), false, 'the foreign upload path must be dropped');
+  assert.equal(result, '<p></p>', 'cross-meeting image tag must be stripped entirely');
+});
+
+test('still inlines the upload when the src meeting matches the export meeting', async () => {
+  const meetingId = 'meeting-match';
+  const filename = '11112222-3333-4444-5555-666677778888.png';
+  writeUpload(meetingId, filename);
+
+  const html = `<p><img src="/bigbluebutton/fileUpload/${meetingId}/${filename}" alt="ok"></p>`;
+  const result = await inlineHostImages(html, meetingId);
+
+  const expected = `data:image/png;base64,${PNG_BYTES.toString('base64')}`;
+  assert.equal(result.includes(expected), true, 'same-meeting upload must still be inlined');
 });
 
 test('inlines src and drops the data-url metadata BlockNote emits', async () => {
@@ -66,7 +96,7 @@ test('inlines src and drops the data-url metadata BlockNote emits', async () => 
   // the upload URL appears in BOTH `src` and `data-url`.
   const url = `/bigbluebutton/fileUpload/${meetingId}/${filename}`;
   const html = `<img src="${url}" alt="" width="256" data-url="${url}" data-preview-width="256">`;
-  const result = await inlineHostImages(html);
+  const result = await inlineHostImages(html, meetingId);
 
   const expected = `data:image/png;base64,${PNG_BYTES.toString('base64')}`;
   assert.equal(result.includes(expected), true, 'src should be replaced with the base64 data URI');
@@ -76,32 +106,32 @@ test('inlines src and drops the data-url metadata BlockNote emits', async () => 
 
 test('strips an external <img> (same-origin enforcement)', async () => {
   const html = '<p><img src="https://evil.example.com/tracker.png" alt="pixel"></p>';
-  const result = await inlineHostImages(html);
+  const result = await inlineHostImages(html, 'meeting-any');
   assert.equal(result.includes('evil.example.com'), false, 'external image must be dropped');
   assert.equal(result, '<p></p>');
 });
 
 test('drops an upload <img> whose file is missing on disk', async () => {
   const html = '<p><img src="/bigbluebutton/fileUpload/meeting-gone/00000000-0000-0000-0000-000000000000.png"></p>';
-  const result = await inlineHostImages(html);
+  const result = await inlineHostImages(html, 'meeting-gone');
   assert.equal(result.includes('fileUpload'), false, 'missing upload must be dropped, not left dangling');
 });
 
 test('rejects a path-traversal src that the regex would not match', async () => {
   const html = '<p><img src="/bigbluebutton/fileUpload/../../etc/passwd"></p>';
-  const result = await inlineHostImages(html);
+  const result = await inlineHostImages(html, 'meeting-any');
   assert.equal(result, '<p></p>', 'traversal payload must not read from disk and must be stripped');
 });
 
 test('leaves already-inlined data URIs untouched', async () => {
   const html = '<p><img src="data:image/png;base64,QUJD" alt="inline"></p>';
-  const result = await inlineHostImages(html);
+  const result = await inlineHostImages(html, 'meeting-any');
   assert.equal(result, html);
 });
 
 test('returns HTML unchanged when there are no images', async () => {
   const html = '<p>hello <strong>world</strong></p>';
-  assert.equal(await inlineHostImages(html), html);
+  assert.equal(await inlineHostImages(html, 'meeting-any'), html);
 });
 
 test('handles several images in one document independently', async () => {
@@ -114,7 +144,7 @@ test('handles several images in one document independently', async () => {
     '<img src="http://tracker.test/p.gif">',
     '<p>text</p>',
   ].join('');
-  const result = await inlineHostImages(html);
+  const result = await inlineHostImages(html, meetingId);
 
   assert.equal(result.includes('data:image/jpeg;base64,'), true, 'good jpeg inlined');
   assert.equal(result.includes('tracker.test'), false, 'external dropped');
