@@ -42,7 +42,16 @@ export function store(meetingId: string, filename: string, buffer: Buffer): stri
   fs.mkdirSync(dir, { recursive: true });
   const finalPath = path.join(dir, filename);
   const tmpPath = `${finalPath}.tmp`;
-  fs.writeFileSync(tmpPath, buffer);
-  fs.renameSync(tmpPath, finalPath);
+  try {
+    fs.writeFileSync(tmpPath, buffer);
+    fs.renameSync(tmpPath, finalPath);
+  } catch (error) {
+    // A failed write or rename can leave a partial .tmp file behind. It would
+    // count toward the meeting quota (usedBytes) and only be reclaimed at
+    // meeting-end, so remove it before propagating the failure. force ignores
+    // the case where the tmp file was never created.
+    fs.rmSync(tmpPath, { force: true });
+    throw error;
+  }
   return finalPath;
 }

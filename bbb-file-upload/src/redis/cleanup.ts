@@ -18,13 +18,19 @@ function isOnRecordingHold(dir: string): boolean {
   return fs.existsSync(path.join(dir, recordingHoldMarker));
 }
 
-function deleteUploads(meetingId: string): void {
+export function deleteUploads(meetingId: string): void {
   const dir = uploadsDir(meetingId);
   if (!fs.existsSync(dir)) {
     return;
   }
   if (isOnRecordingHold(dir)) {
+    // The archive still holds these uploads. Re-arm cleanup for another
+    // retentionMinutes rather than abandoning the one-shot timer, otherwise the
+    // directory would leak until a restart's residual scan re-armed it. Going
+    // back through scheduleCleanup keeps the deferral on the same timer and
+    // never fires immediately, so this cannot become a tight loop.
     logger.info('Skipping cleanup, uploads are on recording hold', { meetingId });
+    scheduleCleanup(meetingId);
     return;
   }
   try {
@@ -41,7 +47,10 @@ function deleteUploads(meetingId: string): void {
 // Schedules deletion of a meeting's uploads retentionMinutes after it ends.
 export function scheduleCleanup(meetingId: string): void {
   logger.info('Scheduling uploads cleanup', { meetingId, retentionMinutes });
-  setTimeout(() => deleteUploads(meetingId), retentionMinutes * 60 * 1000);
+  // unref so a pending cleanup timer never keeps the process alive on its own:
+  // the express server and redis subscriber hold it up in production, and a
+  // stray timer would otherwise stall a graceful shutdown (or a test run).
+  setTimeout(() => deleteUploads(meetingId), retentionMinutes * 60 * 1000).unref();
 }
 
 // The cleanup timer above lives only in memory: if the service crashes or is

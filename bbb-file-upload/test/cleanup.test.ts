@@ -24,15 +24,20 @@ fs.mkdirSync(path.join(tmpRoot, 'config'), { recursive: true });
 fs.writeFileSync(path.join(tmpRoot, 'config/default.yml'), dump(realConfig));
 process.chdir(tmpRoot);
 
-const { residualMeetingsToClean } = await import('../src/redis/cleanup.ts');
+const { residualMeetingsToClean, deleteUploads } = await import('../src/redis/cleanup.ts');
 const config = (await import('../src/config/index.ts')).default;
 
 assert.equal(config.storage.basePath, dataDir, 'test config did not take effect');
 
 const uploadsDirName = config.storage.uploadsDirName;
+const { recordingHoldMarker } = config.cleanup;
+
+function uploadsPath(meetingId: string): string {
+  return path.join(dataDir, meetingId, uploadsDirName);
+}
 
 function makeUploadsDir(meetingId: string): void {
-  const dir = path.join(dataDir, meetingId, uploadsDirName);
+  const dir = uploadsPath(meetingId);
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, 'file.png'), Buffer.from('x'));
 }
@@ -70,4 +75,33 @@ test('mixed tree: ended meetings with uploads are returned, the running one is n
   assert.equal(stale.includes('ended-a'), true);
   assert.equal(stale.includes('ended-b'), true);
   assert.equal(stale.includes('running-c'), false);
+});
+
+test('deleteUploads removes the uploads directory when no recording-hold marker is present', () => {
+  makeUploadsDir('delete-me');
+  assert.equal(fs.existsSync(uploadsPath('delete-me')), true);
+
+  deleteUploads('delete-me');
+
+  assert.equal(fs.existsSync(uploadsPath('delete-me')), false);
+});
+
+test('deleteUploads skips deletion while a recording-hold marker is present', () => {
+  makeUploadsDir('held-meeting');
+  const dir = uploadsPath('held-meeting');
+  fs.writeFileSync(path.join(dir, recordingHoldMarker), '');
+
+  // The archive still holds these files, so cleanup must leave the directory
+  // (and the file inside it) in place and re-arm itself instead of deleting.
+  deleteUploads('held-meeting');
+
+  assert.equal(fs.existsSync(dir), true);
+  assert.equal(fs.existsSync(path.join(dir, 'file.png')), true);
+  assert.equal(fs.existsSync(path.join(dir, recordingHoldMarker)), true);
+});
+
+test('deleteUploads is a no-op for a meeting with no uploads directory', () => {
+  // No throw, nothing created.
+  deleteUploads('never-existed');
+  assert.equal(fs.existsSync(uploadsPath('never-existed')), false);
 });
