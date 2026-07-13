@@ -5,6 +5,7 @@ import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.apps.whiteboard.Whiteboard
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.db.{ PresAnnotationDAO, PresAnnotationHistoryDAO }
+import org.slf4j.LoggerFactory
 
 object WhiteboardModel {
   // Shape types that must never be stored or broadcast as whiteboard
@@ -75,6 +76,8 @@ object WhiteboardModel {
 class WhiteboardModel extends SystemConfiguration {
   import WhiteboardModel.isAllowedAnnotation
 
+  private val log = LoggerFactory.getLogger(getClass)
+
   private var _whiteboards = new HashMap[String, Whiteboard]()
 
   private def saveWhiteboard(wb: Whiteboard) {
@@ -119,7 +122,7 @@ class WhiteboardModel extends SystemConfiguration {
       case Some(oldAnnotation) =>
         val hasPermission = isPresenter || isModerator || oldAnnotation.userId == userId
         if (!hasPermission) {
-          println(s"User $userId doesn't have permission to edit annotation ${annotation.id}, ignoring...")
+          log.warn(s"User $userId doesn't have permission to edit annotation ${annotation.id}, ignoring...")
           None
         } else {
           val mergedAnnotationInfo = deepMerge(oldAnnotation.annotationInfo, annotation.annotationInfo)
@@ -134,18 +137,18 @@ class WhiteboardModel extends SystemConfiguration {
           if (isAllowedAnnotation(finalAnnotationInfo, meetingId, imagePasteEnabled)) {
             Some(oldAnnotation.copy(annotationInfo = finalAnnotationInfo))
           } else {
-            println(s"Rejected update of annotation ${annotation.id} with disallowed type on page [${wb.id}], ignoring...")
+            log.warn(s"Rejected update of annotation ${annotation.id} with disallowed type on page [${wb.id}], ignoring...")
             None
           }
         }
       case None if !annotation.annotationInfo.contains("type") =>
-        println(s"New annotation [${annotation.id}] with no type, ignoring...")
+        log.warn(s"New annotation [${annotation.id}] with no type, ignoring...")
         None
       case None =>
         if (isAllowedAnnotation(annotation.annotationInfo, meetingId, imagePasteEnabled)) {
           Some(annotation)
         } else {
-          println(s"Rejected annotation ${annotation.id} with disallowed type on page [${wb.id}], ignoring...")
+          log.warn(s"Rejected annotation ${annotation.id} with disallowed type on page [${wb.id}], ignoring...")
           None
         }
     }
@@ -164,7 +167,7 @@ class WhiteboardModel extends SystemConfiguration {
         newAnnotationsMap += (annotation.id -> newAnnotation)
         annotationsAdded :+= newAnnotation
         annotationsDiffAdded :+= annotation
-        println(s"Stored annotation on page [${wb.id}]. After numAnnotations=[${newAnnotationsMap.size}].")
+        log.debug(s"Stored annotation on page [${wb.id}]. After numAnnotations=[${newAnnotationsMap.size}].")
       }
     }
 
@@ -225,13 +228,13 @@ class WhiteboardModel extends SystemConfiguration {
         val hasPermission = isPresenter || isModerator || annotation.get.userId == userId
         if (hasPermission) {
           newAnnotationsMap -= annotationId
-          println(s"Removed annotation $annotationId on page [${wb.id}]. After numAnnotations=[${newAnnotationsMap.size}].")
+          log.debug(s"Removed annotation $annotationId on page [${wb.id}]. After numAnnotations=[${newAnnotationsMap.size}].")
           annotationsIdsRemoved :+= annotationId
         } else {
-          println(s"User $userId doesn't have permission to remove annotation $annotationId, ignoring...")
+          log.warn(s"User $userId doesn't have permission to remove annotation $annotationId, ignoring...")
         }
       } else {
-        println(s"Annotation $annotationId not found while trying to delete it.")
+        log.warn(s"Annotation $annotationId not found while trying to delete it.")
       }
     }
 
