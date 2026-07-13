@@ -46,6 +46,7 @@ const intlMessages = defineMessages({
 });
 
 interface PendingInsert {
+  presentationId: string;
   targetPosition: number;
   afterSlide: number;
   baseline: number;
@@ -105,7 +106,7 @@ const InsertPagesContainer: React.FC<InsertPagesContainerProps> = ({
     const afterSlide = currentSlideNum;
     const targetPosition = currentSlideNum + 1;
     pendingRef.current = {
-      targetPosition, afterSlide, baseline: numberOfSlides, kind, filename,
+      presentationId, targetPosition, afterSlide, baseline: numberOfSlides, kind, filename,
     };
     setInFlight(true);
 
@@ -144,7 +145,24 @@ const InsertPagesContainer: React.FC<InsertPagesContainerProps> = ({
   // already maps targetPosition to the inserted page (not to a shifted pre-insert page).
   useEffect(() => {
     const pending = pendingRef.current;
-    if (!pending || numberOfSlides <= pending.baseline) return;
+    if (!pending) return;
+
+    // Both presentationId and numberOfSlides track the *current* presentation. If the
+    // presenter switches presentations mid-insert, a page-count difference between the two
+    // presentations would read as (false) completion of the insert, so the growth check is
+    // scoped to the presentation captured at insert time. On a switch, the optimistic state
+    // is dropped silently: the insert may still land on the original presentation, but its
+    // page count is no longer observable from here, so neither completion nor failure could
+    // be reported honestly.
+    if (presentationId !== pending.presentationId) {
+      logger.info({
+        logCode: 'presentation_insert_pages',
+        extraInfo: { pendingPresentationId: pending.presentationId, presentationId },
+      }, 'Presentation switched mid-insert; dropping insert tracking');
+      resolveInsert();
+      return;
+    }
+    if (numberOfSlides <= pending.baseline) return;
 
     const count = numberOfSlides - pending.baseline;
     const {
@@ -159,7 +177,7 @@ const InsertPagesContainer: React.FC<InsertPagesContainerProps> = ({
       'success',
       'presentation',
     );
-  }, [numberOfSlides, skipToSlide, intl, resolveInsert]);
+  }, [presentationId, numberOfSlides, skipToSlide, intl, resolveInsert]);
 
   useEffect(() => clearTimers, [clearTimers]);
 
