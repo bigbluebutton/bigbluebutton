@@ -34,10 +34,10 @@ stays on the inserted blank (slide 2), and annotation `2a` is displayed
 on slide 3 (the original slide 2, shifted by the insert). Annotation
 preservation across the insert is provided by the backend changes in this
 branch: inserted pages are spliced into the presentation by pageId instead
-of physically renumbering the existing pages (commit a824c2247e), the
-insert is persisted as a single transaction (commit ba0c5226b3), and the
+of physically renumbering the existing pages (commit e19b89371b), the
+insert is persisted as a single transaction (commit ae8f840b6e), and the
 page number unique constraint is deferrable so the renumber cannot collide
-mid-transaction (commit 5b7dccc148).
+mid-transaction (commit 268068a794).
 
 Capture note: after a slide navigation the tldraw base page can render
 blank for a moment until its SVG background asset settles. This is a
