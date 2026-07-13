@@ -248,7 +248,7 @@ const LiveResult: React.FC<LiveResultProps> = ({
           <Styled.ButtonsActions>
             <Styled.ButtonWrapper>
               <BBButton
-                variant="tertiary"
+                variant="primary"
                 onClick={() => stopPoll()}
                 label={intl.formatMessage(intlMessages.backLabel)}
                 dataTest="restartPoll"
