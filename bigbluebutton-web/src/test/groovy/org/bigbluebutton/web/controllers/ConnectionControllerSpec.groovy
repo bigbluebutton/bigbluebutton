@@ -158,6 +158,36 @@ class ConnectionControllerSpec extends Specification implements ControllerUnitTe
     response.text == 'forbidden'
   }
 
+  def "two breakouts with an unset parent sentinel do not look like siblings (403)"() {
+    given: "two unrelated breakouts whose parent id fell back to the bbb-none default"
+    withValidSession(BREAKOUT_1_ID)
+    meetingService.getMeeting(BREAKOUT_1_ID) >> meetingStub(true, BREAKOUT_1_ID, 'bbb-none')
+    meetingService.getMeeting(BREAKOUT_2_ID) >> meetingStub(true, BREAKOUT_2_ID, 'bbb-none')
+
+    when:
+    requestUri(BREAKOUT_2_ID)
+    controller.checkFileUploadAuthorization()
+
+    then: "the shared sentinel must not authorize them as a family"
+    response.status == 403
+    response.text == 'forbidden'
+  }
+
+  def "a breakout with a null parent id never matches another meeting's root (403)"() {
+    given: "a breakout whose parent id is null"
+    withValidSession(BREAKOUT_1_ID)
+    meetingService.getMeeting(BREAKOUT_1_ID) >> meetingStub(true, BREAKOUT_1_ID, null)
+    meetingService.getMeeting(BREAKOUT_2_ID) >> meetingStub(true, BREAKOUT_2_ID, null)
+
+    when:
+    requestUri(BREAKOUT_2_ID)
+    controller.checkFileUploadAuthorization()
+
+    then:
+    response.status == 403
+    response.text == 'forbidden'
+  }
+
   def "a missing original URI header is unauthorized (401)"() {
     when: "nginx did not forward x-original-uri"
     controller.checkFileUploadAuthorization()

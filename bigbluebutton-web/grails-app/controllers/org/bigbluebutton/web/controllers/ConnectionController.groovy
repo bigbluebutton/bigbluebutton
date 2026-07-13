@@ -217,7 +217,9 @@ class ConnectionController {
         return
       }
 
-      if (rootMeetingId(sessionMeeting) != rootMeetingId(pathMeeting)) {
+      String sessionRoot = rootMeetingId(sessionMeeting)
+      String pathRoot = rootMeetingId(pathMeeting)
+      if (sessionRoot == null || pathRoot == null || sessionRoot != pathRoot) {
         response.setStatus(403)
         response.outputStream << 'forbidden'
         return
@@ -234,7 +236,17 @@ class ConnectionController {
   }
 
   private static String rootMeetingId(Meeting m) {
-    return m.isBreakout() ? m.getParentMeetingId() : m.getInternalId()
+    if (!m.isBreakout()) {
+      return m.getInternalId()
+    }
+    String parentId = m.getParentMeetingId()
+    // A breakout whose parent id is unset falls back to the "bbb-none"
+    // sentinel (Meeting's default). Two such meetings must not look like
+    // siblings, so an unusable parent id yields null and the caller denies.
+    if (parentId == null || parentId.isEmpty() || parentId == 'bbb-none') {
+      return null
+    }
+    return parentId
   }
 
   def legacyCheckAuthorization = {
