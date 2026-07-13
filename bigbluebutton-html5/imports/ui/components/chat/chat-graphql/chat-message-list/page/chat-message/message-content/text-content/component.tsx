@@ -1,4 +1,6 @@
-import React, { useMemo } from 'react';
+import React, {
+  useMemo, useState, useCallback, useEffect,
+} from 'react';
 import Styled from './styles';
 import { isJumbomoji } from './jumbomoji';
 import Auth from '/imports/ui/services/auth';
@@ -26,13 +28,48 @@ const ChatMessageTextContent: React.FC<ChatMessageTextContentProps> = ({
   dataTest = 'messageContent',
 }) => {
   const jumbomoji = useMemo(() => isJumbomoji(text), [text]);
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.tagName === 'IMG') {
+      const { src } = target as HTMLImageElement;
+      if (src.includes('/bigbluebutton/fileUpload/')) {
+        e.preventDefault();
+        setLightboxSrc(src);
+      }
+    }
+  }, []);
+
+  const closeLightbox = useCallback(() => setLightboxSrc(null), []);
+
+  useEffect(() => {
+    if (!lightboxSrc) return undefined;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeLightbox();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [lightboxSrc, closeLightbox]);
+
   return (
-    <Styled.ChatMessage
-      // eslint-disable-next-line react/no-danger
-      dangerouslySetInnerHTML={{ __html: authenticateUploadedImages(text) }}
-      data-test={dataTest}
-      $jumbomoji={jumbomoji}
-    />
+    <>
+      <Styled.ChatMessage
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: authenticateUploadedImages(text) }}
+        data-test={dataTest}
+        $jumbomoji={jumbomoji}
+        onClick={handleClick}
+      />
+      {lightboxSrc && (
+        <Styled.ImageLightbox
+          onClick={closeLightbox}
+          data-test="imageLightbox"
+        >
+          <img src={lightboxSrc} alt="" />
+        </Styled.ImageLightbox>
+      )}
+    </>
   );
 };
 export default ChatMessageTextContent;
