@@ -14,6 +14,15 @@ export default function Selector({
 }: SelectorProps): React.ReactNode {
   const [selected, setSelected] = React.useState<string | number>(defaultOption.value);
 
+  // If the currently-selected value is no longer among the options (e.g. a
+  // plugin removed the option that was selected), fall back to the default
+  // rather than rendering an empty value.
+  React.useEffect(() => {
+    const stillValid = options.some((option) => option.value === selected);
+
+    if (!stillValid) setSelected(defaultOption.value);
+  }, [options, defaultOption.value, selected]);
+
   const handleChange = (event: SelectChangeEvent<unknown>) => {
     const value = event.target.value as string | number;
     setSelected(value);
