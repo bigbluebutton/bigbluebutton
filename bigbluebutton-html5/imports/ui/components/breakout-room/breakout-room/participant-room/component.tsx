@@ -267,45 +267,6 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
         </Styled.InfoCard>
       );
     }
-    if (!freeJoin) {
-      if (userRoom) {
-        const isCurrentlyInRoom = userRoom.isUserCurrentlyInRoom;
-        return (
-          <Styled.InfoCard>
-            <Styled.RoomNumberSquare>
-              {userRoom.sequence}
-            </Styled.RoomNumberSquare>
-            <Styled.InfoText>
-              {intl.formatMessage(intlMessages.youAreInRoom, { roomName: userRoomName })}
-            </Styled.InfoText>
-            <Styled.ButtonWrapper>
-              <BBButton
-                variant="primary"
-                dataTest={isCurrentlyInRoom ? 'alreadyConnected' : 'joinRoom'}
-                label={isCurrentlyInRoom
-                  ? intl.formatMessage(intlMessages.alreadyConnected)
-                  : intl.formatMessage(intlMessages.joinRoom)}
-                disabled={isCurrentlyInRoom}
-                onClick={handleEnterRoom}
-              />
-            </Styled.ButtonWrapper>
-          </Styled.InfoCard>
-        );
-      }
-      return (
-        <>
-          <Styled.InfoCard>
-            <Icon iconName="unassigned" />
-            <Styled.InfoText>
-              {intl.formatMessage(intlMessages.notAssignedLabel)}
-            </Styled.InfoText>
-          </Styled.InfoCard>
-          <Styled.NotAssignedHelpText>
-            {intl.formatMessage(intlMessages.notAssignedHelp)}
-          </Styled.NotAssignedHelpText>
-        </>
-      );
-    }
     if (userRoom) {
       const isCurrentlyInRoom = userRoom.isUserCurrentlyInRoom;
       return (
@@ -328,6 +289,21 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
             />
           </Styled.ButtonWrapper>
         </Styled.InfoCard>
+      );
+    }
+    if (!freeJoin) {
+      return (
+        <>
+          <Styled.InfoCard>
+            <Icon iconName="unassigned" />
+            <Styled.InfoText>
+              {intl.formatMessage(intlMessages.notAssignedLabel)}
+            </Styled.InfoText>
+          </Styled.InfoCard>
+          <Styled.NotAssignedHelpText>
+            {intl.formatMessage(intlMessages.notAssignedHelp)}
+          </Styled.NotAssignedHelpText>
+        </>
       );
     }
     return null;
