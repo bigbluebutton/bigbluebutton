@@ -2,6 +2,7 @@
 Description=LiveKit SIP
 Wants=livekit-server.service
 After=syslog.target network.target livekit-server.service
+PartOf=bigbluebutton.target
 
 [Service]
 Type=exec
@@ -18,4 +19,4 @@ CPUSchedulingPolicy=fifo
 Nice=19
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=multi-user.target bigbluebutton.target

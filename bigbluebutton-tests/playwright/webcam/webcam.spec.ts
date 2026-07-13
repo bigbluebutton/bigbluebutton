@@ -1,9 +1,10 @@
+import { devices } from '@playwright/test';
 import { test } from '../core/setup/fixtures';
 import { MultiUsers } from '../user/multiusers';
 import { Webcam } from './webcam';
 import { linkIssue } from '../core/helpers';
 
-test.describe.parallel('Webcam', { tag: '@ci' }, () => {
+test.describe.parallel('Webcam', { tag: ['@ci', '@media'] }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#joining-webcam-automated
   test('Shares webcam', async ({ browser, page }, testInfo) => {
     const webcam = new Webcam(browser, page);
@@ -96,6 +97,17 @@ test.describe.parallel('Webcam', { tag: '@ci' }, () => {
       const webcam = new Webcam(browser, page);
       await webcam.init(true, { testInfo });
       await webcam.keepBackgroundWhenRejoin(context);
+    });
+
+    test('Virtual background toggle is disabled on unsupported devices (iPhone)', async ({ browser }, testInfo) => {
+      linkIssue(23756);
+      const iPhone11 = devices['iPhone 11'];
+      const context = await browser.newContext({ ...iPhone11 });
+      const mobilePage = await context.newPage();
+      const webcam = new Webcam(browser, mobilePage);
+      await webcam.init(true, { testInfo });
+      await webcam.virtualBackgroundToggleDisabledOnUnsupportedDevice();
+      await context.close();
     });
   });
 });

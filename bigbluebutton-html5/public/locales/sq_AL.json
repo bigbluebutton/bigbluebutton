@@ -1249,6 +1249,7 @@
     "app.lock-viewers.tabs.presentationPermissions": "Rregulla Paraqitjeje",
     "app.lock-viewers.guestPolicy.title": "Rregulla Për Vizitorë",
     "app.lock-viewers.guestPolicy.description": "Formësoni se si trajtohen vizitorët, kur provojnë të hyjnë në takim.",
+    "app.lock-viewers.guestPolicy.lobbyMessageSent": "Message sent successfully!",
     "app.lock-viewers.participantPermissions.title": "Leje Pjesëmarrësish",
     "app.lock-viewers.participantPermissions.description": "Mundësitë më poshtë përcaktojnë se ç’munden të bëjnë pjesëmarrësit në sesion. Heqja e shenjës nga një mundësi e heq atë leje.",
     "app.lock-viewers.presentationPermissions.title": "Rregulla Paraqitjeje",

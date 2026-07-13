@@ -1249,6 +1249,7 @@
     "app.lock-viewers.tabs.presentationPermissions": "Sunum ilkesi",
     "app.lock-viewers.guestPolicy.title": "Konuk ilkesi",
     "app.lock-viewers.guestPolicy.description": "Toplantıya katılırken konukların nasıl işleneceğini yapılandırın.",
+    "app.lock-viewers.guestPolicy.lobbyMessageSent": "Message sent successfully!",
     "app.lock-viewers.participantPermissions.title": "Katılımcı izinleri",
     "app.lock-viewers.participantPermissions.description": "Aşağıdaki seçenekler, katılımcıların oturumda neler yapabileceğini belirler. Bir seçeneğin işaretini kaldırmak o izni kaldırır.",
     "app.lock-viewers.presentationPermissions.title": "Sunum ilkesi",

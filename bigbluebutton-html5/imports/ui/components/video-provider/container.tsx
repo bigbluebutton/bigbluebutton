@@ -93,6 +93,7 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     streams,
     gridUsers,
     overflowCount,
+    overflowUsers,
     totalNumberOfStreams,
     totalNumberOfOtherStreams,
   } = useVideoStreams();
@@ -175,6 +176,7 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     viewParticipantsWebcams,
     totalNumberOfStreams,
     overflowCount,
+    overflowUsers,
     isUserLocked,
     currentVideoPageIndex,
     streams: usersVideo,
@@ -187,16 +189,16 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
   };
 
   switch (currentMeeting?.cameraBridge) {
-    case 'livekit':
-      return (
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        <LiveKitCameraBridge {...providerProps} />
-      );
     case 'bbb-webrtc-sfu':
-    default:
       return (
         // eslint-disable-next-line react/jsx-props-no-spreading
         <VideoProvider {...providerProps} />
+      );
+    case 'livekit':
+    default:
+      return (
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        <LiveKitCameraBridge {...providerProps} />
       );
   }
 };

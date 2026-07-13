@@ -251,6 +251,7 @@ export const elements = {
   usersList: 'div[data-test="userList"]',
   selectCameraQualityId: 'select[id="setQuality"]',
   virtualBackgrounds: 'div[data-test="virtualBackground"]',
+  virtualBackgroundToggle: 'input[data-test="virtualBackgroundToggle"]',
 
   // Timer
   timerContainer: 'div[data-test="timerContainer"]',
@@ -599,6 +600,8 @@ export const elements = {
   webcamConnecting: 'div[data-test="webcamConnecting"]',
   webcamContainer: 'video[data-test="videoContainer"]',
   webcamVideoItem: 'div[data-test="webcamVideoItem"]',
+  webcamStreamItem: 'div[data-test="webcamVideoItem"][data-video-type="stream"]',
+  webcamVideoList: 'div[data-test="webcamVideoList"]',
   overflowTile: 'div[data-test="overflowTile"]',
   videoDropdownMenu: 'button[data-test="videoDropdownMenu"]',
   advancedVideoSettingsBtn: 'li[data-test="advancedVideoSettingsButton"]',
@@ -630,6 +633,7 @@ export const elements = {
   webcamItemRaisedHand: 'div[data-test="webcamItemRaisedHand"]',
   webcamSettingsModal: 'div[data-test="webcamSettingsModal"]',
   dropdownWebcamButton: 'div[data-test="dropdownWebcamButton"]',
+  webcamUserStatus: 'div[data-test="webcamUserStatus"]',
   webcamMirroredVideoPreview: 'video[data-test="mirroredVideoPreview"]',
   resizeWebcamHandler: 'div#cameraDock + div > div[style*="user-select: none"]',
 

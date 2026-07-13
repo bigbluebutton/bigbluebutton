@@ -46,7 +46,7 @@ test.describe.parallel('Unified Layout - who-is-talking tiles (no webcams)', () 
   });
 });
 
-test.describe.parallel('Layout', { tag: '@flaky-3.1' }, () => {
+test.describe.parallel('Layout', { tag: ['@flaky-3.1', '@media'] }, () => {
   let layouts: Layouts;
 
   test.beforeEach(async ({ browser, context }, testInfo) => {
