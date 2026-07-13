@@ -45,7 +45,20 @@ export const getFirstVisibleLineHtml = (htmlContent: string): string => {
   const root = doc.body.firstElementChild;
   if (!root) return '';
 
+  // Collect any <img> elements from the full content before truncating, so
+  // that a message with text + image still shows the image in the reply
+  // preview (the truncation drops everything after the first line, which
+  // would lose the image when it follows the text paragraph).
+  const images = Array.from(doc.body.querySelectorAll('img')).map((img) => img.cloneNode(true) as Element);
+
   truncateAtFirstLineBreak(root);
+
+  // Re-append collected images that are no longer in the truncated root.
+  images.forEach((img) => {
+    if (!root.querySelector(`img[src="${img.getAttribute('src')}"]`)) {
+      root.appendChild(img);
+    }
+  });
 
   return root.outerHTML;
 };
