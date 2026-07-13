@@ -19,12 +19,12 @@ export const fetchBlankPageFile = async (): Promise<File> => {
 
 /**
  * Uploads a file and asks the server to splice its converted pages into the given (current)
- * presentation at a 1-based position. Mirrors the plugin-command insert-pages service
- * (plugins-engine/server-commands/presentation/insert-pages/service.ts), reusing the standard
- * presentation upload-token flow; the extra multipart fields (insertAtPosition,
- * targetPresentationId) route the upload to the insert path in bbb-web instead of surfacing as a
- * new presentation. Unlike the fire-and-forget plugin path, this throws on failure so the native
- * toolbar can toast and roll back its optimistic UI.
+ * presentation at a 1-based position. Reuses the standard presentation upload-token flow; the
+ * extra multipart fields (insertAtPosition, targetPresentationId) route the upload to the insert
+ * path in bbb-web instead of surfacing as a new presentation. Throws on failure so callers can
+ * react: the native toolbar toasts and rolls back its optimistic UI, the plugin server-command
+ * manager (plugins-engine/server-commands/presentation/insert-pages/manager.tsx, the other
+ * consumer) logs and drops the command.
  */
 export const insertPagesUpload = async (
   file: File, position: number, targetPresentationId: string,
