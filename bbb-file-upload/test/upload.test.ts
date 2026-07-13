@@ -29,6 +29,10 @@ realConfig.limits.quotaPerMeetingMb = 0.001;
 fs.mkdirSync(path.join(tmpRoot, 'config'), { recursive: true });
 fs.writeFileSync(path.join(tmpRoot, 'config/default.yml'), dump(realConfig));
 process.chdir(tmpRoot);
+// The explicit path (not just the chdir) is what pins the config: on a host
+// with the service package deployed, /usr/share/.../config/default.yml exists
+// and would otherwise win over the scratch ./config/default.yml.
+process.env.BBB_FILE_UPLOAD_CONFIG = path.join(tmpRoot, 'config/default.yml');
 
 const { handleUpload } = await import('../src/express/upload.ts');
 const storage = await import('../src/upload/storage.ts');

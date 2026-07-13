@@ -25,6 +25,10 @@ realConfig.fileUpload.basePath = dataDir;
 fs.mkdirSync(path.join(tmpRoot, 'config'), { recursive: true });
 fs.writeFileSync(path.join(tmpRoot, 'config/default.yml'), dump(realConfig));
 process.chdir(tmpRoot);
+// The explicit path (not just the chdir) is what pins the config: on a host
+// with the service package deployed, /usr/share/.../config/default.yml exists
+// and would otherwise win over the scratch ./config/default.yml.
+process.env.BBB_SHARED_NOTES_SERVER_CONFIG = path.join(tmpRoot, 'config/default.yml');
 
 const config = (await import('../src/config/index.ts')).default;
 const { inlineHostImages } = await import('../src/express/handlers/inlineHostImages.ts');
