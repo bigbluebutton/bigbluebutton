@@ -167,9 +167,12 @@ def archive_directory(source, dest)
 end
 
 # Name of the marker file the bbb-file-upload service watches for. While it is
-# present in an uploads directory, that service skips its post-meeting cleanup,
-# so the archive can copy the files without racing the deletion. Must match
-# cleanup.recordingHoldMarker in bbb-file-upload's config/default.yml.
+# present in an uploads directory, that service defers its post-meeting cleanup,
+# so the archive can copy the files without racing the deletion. bbb-web drops
+# the marker at meeting end for recorded meetings (the archive may only start
+# long after that); the archive releases it once its copy has succeeded. Must
+# match cleanup.recordingHoldMarker in bbb-file-upload's config/default.yml and
+# UPLOADS_RECORDING_HOLD_MARKER in bbb-web's RecordingServiceFileImpl.
 UPLOADS_RECORDING_HOLD_MARKER = '.recording-hold'
 
 # The internal ids of a meeting's breakout rooms, read from the recording marks
@@ -197,10 +200,13 @@ def archive_uploads(meeting_id, base_dir, dest_dir, raw_archive_dir)
     uploads_src = "#{base_dir}/#{id}/uploads"
     next unless File.directory?(uploads_src)
 
-    # Hold off the bbb-file-upload cleanup while we copy, then release it.
-    # A failure here (permissions, disk, a directory vanishing mid-copy) must
-    # never abort the whole recording archive, so warn and move on - the same
-    # resilience the other archive_* helpers use.
+    # Hold off the bbb-file-upload cleanup while we copy (the touch is a no-op
+    # when bbb-web already dropped the marker at meeting end). A failure here
+    # (permissions, disk, a directory vanishing mid-copy) must never abort the
+    # whole recording archive, so warn and move on - the same resilience the
+    # other archive_* helpers use. On failure the marker is kept: it keeps the
+    # uploads deferred from cleanup so a re-run of the archive can still copy
+    # them, instead of the recording silently losing its images.
     marker = File.join(uploads_src, UPLOADS_RECORDING_HOLD_MARKER)
     begin
       FileUtils.touch(marker)
@@ -212,10 +218,9 @@ def archive_uploads(meeting_id, base_dir, dest_dir, raw_archive_dir)
         FileUtils.cp(file, dest_dir)
         archived = true
       end
-    rescue StandardError => e
-      BigBlueButton.logger.warn("Failed to archive uploads for #{id}: #{e.message}")
-    ensure
       FileUtils.rm_f(marker)
+    rescue StandardError => e
+      BigBlueButton.logger.warn("Failed to archive uploads for #{id}: #{e.message}; keeping #{UPLOADS_RECORDING_HOLD_MARKER} for a re-run")
     end
   end
 

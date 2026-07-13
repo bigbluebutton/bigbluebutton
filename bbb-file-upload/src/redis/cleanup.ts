@@ -11,9 +11,10 @@ const { basePath } = config.storage;
 const { retentionMinutes, recordingHoldMarker } = config.cleanup;
 
 // A recorded meeting keeps its uploads until the record-and-playback archive
-// (phase 5) has copied them. The archive drops this marker file in the uploads
-// directory while it works and removes it when done; until then, cleanup skips
-// the directory instead of racing the archive.
+// has copied them. bbb-web drops this marker file in the uploads directory at
+// meeting end for recorded meetings (the archive may only start long after
+// that, even past retentionMinutes) and the archive removes it once its copy
+// succeeds; until then, cleanup defers instead of racing the archive.
 function isOnRecordingHold(dir: string): boolean {
   return fs.existsSync(path.join(dir, recordingHoldMarker));
 }

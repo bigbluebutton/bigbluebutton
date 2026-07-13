@@ -897,6 +897,24 @@ public class MeetingService implements MessageListener {
     handle(new EndMeeting(meetingId));
   }
 
+  // The record-and-playback archive copies the images pasted into
+  // chat/notes/whiteboard into the recording, but it can start long after the
+  // meeting ends - possibly later than bbb-file-upload's retention cleanup.
+  // Holding the uploads at meeting end (instead of only while the archive
+  // copies them) closes that gap; the archive releases the hold once its copy
+  // succeeds. A breakout room's uploads are archived by its parent's archive,
+  // so they are also held when the parent records.
+  private void holdUploadsForRecordedMeeting(Meeting m) {
+    boolean archiveWillNeedUploads = m.isRecord();
+    if (!archiveWillNeedUploads && m.isBreakout()) {
+      Meeting parent = getMeeting(m.getParentMeetingId());
+      archiveWillNeedUploads = parent != null && parent.isRecord();
+    }
+    if (archiveWillNeedUploads) {
+      recordingService.holdUploadsForRecording(m.getInternalId());
+    }
+  }
+
   private void processCreateBreakoutRoom(CreateBreakoutRoom message) {
     Meeting parentMeeting = getMeeting(message.parentMeetingId);
     if (parentMeeting != null) {
@@ -995,6 +1013,7 @@ public class MeetingService implements MessageListener {
     Meeting m = getMeeting(message.meetingId);
     if (m != null) {
       m.setForciblyEnded(true);
+      holdUploadsForRecordedMeeting(m);
       processRecording(m);
       if (m.getMeetingKeepEvents()) {
         // The creation of the ended tag must occur after the creation of the

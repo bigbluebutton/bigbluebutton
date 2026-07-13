@@ -28,9 +28,9 @@ cleanup:
   # After a meeting ends, its uploads directory is deleted this many minutes
   # later, giving the record-and-playback archive time to copy the files first.
   retentionMinutes: 60
-  # A meeting whose uploads directory contains this marker file is skipped by
-  # cleanup. The record-and-playback archive (phase 5) drops it while it copies
-  # the uploads of a recorded meeting, and removes it when done.
+  # A meeting whose uploads directory contains this marker file is deferred by
+  # cleanup. bbb-web drops it at meeting end for recorded meetings and the
+  # record-and-playback archive removes it once it has copied the uploads.
   recordingHoldMarker: .recording-hold
 
 log:
