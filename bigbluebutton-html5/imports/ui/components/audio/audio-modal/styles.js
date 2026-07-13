@@ -46,7 +46,6 @@ const AudioModalButton = styled(Button)`
   // glyph inside AudioModalButton so the icon reused elsewhere (mute toggle, audio test) is
   // untouched.
   & span:first-child i.icon-bbb-unmute {
-    display: inline-block;
     transform: scale(0.8);
   }
 
