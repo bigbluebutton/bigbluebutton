@@ -123,7 +123,7 @@ export const generateExportedMessages = (
       case ChatMessageType.API:
       case ChatMessageType.BREAKOUT_ROOM:
       case ChatMessageType.PLUGIN:
-        messageText = htmlDecode(message.messageAsHtml || message.message || '');
+        messageText = htmlDecode(message.message || message.messageAsHtml || '');
         break;
       case ChatMessageType.TEXT:
       default:
