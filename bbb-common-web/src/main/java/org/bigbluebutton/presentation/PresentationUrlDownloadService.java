@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.bigbluebutton.api.Util;
+import org.bigbluebutton.api.service.DownloadResult;
 import org.bigbluebutton.api.service.RedirectFollowerService;
 import org.bigbluebutton.api.service.SecureUrlDownloader;
 import org.bigbluebutton.api.service.ValidatedUrl;
@@ -164,8 +165,8 @@ public class PresentationUrlDownloadService {
 
 
 
-    public boolean savePresentation(final String meetingId,
-            final String filename, final String urlString) {
+    public DownloadResult savePresentation(final String meetingId,
+            final String filename, final String urlString, final long maxBytes) {
 
         ValidatedUrl validatedUrl = redirectFollower.followRedirectSecure(
                 meetingId, urlString, 0, urlString, presRedirectValidator, presDownloadReadTimeoutInMs
@@ -173,7 +174,7 @@ public class PresentationUrlDownloadService {
 
         if (validatedUrl == null) {
             log.error("Failed to validate and resolve URL [{}] for meeting [{}]", urlString, meetingId);
-            return false;
+            return DownloadResult.DOWNLOAD_ERROR;
         }
 
         if (!validatedUrl.originalUrl().equals(urlString)) {
@@ -183,7 +184,8 @@ public class PresentationUrlDownloadService {
             log.info("URL [{}] resolved to {} address(es)", urlString, validatedUrl.resolvedAddresses().length);
         }
 
-        return secureUrlDownloader.downloadToFile(meetingId, validatedUrl, new File(filename), presDownloadReadTimeoutInMs);
+        return secureUrlDownloader.downloadToFile(meetingId, validatedUrl, new File(filename),
+                presDownloadReadTimeoutInMs, maxBytes);
     }
 
     public void setPageExtractor(PageExtractor extractor) {

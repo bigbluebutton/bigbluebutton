@@ -7,6 +7,7 @@ export const BREAKOUT_ROOM_CREATE = gql`
     $captureSlides: Boolean!,
     $durationInSeconds: Int!,
     $sendInviteToModerators: Boolean!,
+    $inheritLockSettings: Boolean!,
     $rooms: [BreakoutRoom]!,
   ) {
     breakoutRoomCreate(
@@ -15,6 +16,7 @@ export const BREAKOUT_ROOM_CREATE = gql`
       captureSlides: $captureSlides,
       durationInSeconds: $durationInSeconds,
       sendInviteToModerators: $sendInviteToModerators,
+      inheritLockSettings: $inheritLockSettings,
       rooms: $rooms,
     )
   }

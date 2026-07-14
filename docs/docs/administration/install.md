@@ -223,12 +223,15 @@ UDP port ranges
                debug: null
                recorder.directory: /var/lib/bbb-webrtc-recorder
 
+/usr/share/livekit-server/livekit.yaml (livekit-server)
+/etc/bigbluebutton/livekit.yaml (livekit-server - override)
+
 /usr/share/bigbluebutton/html5-client/private/config/settings.yml (HTML5 client)
 /etc/bigbluebutton/bbb-html5.yml (HTML5 client config override)
                              build: 64
                         kurentoUrl: wss://test40.bigbluebutton.org/bbb-webrtc-sfu
-            defaultFullAudioBridge: fullaudio
-           defaultListenOnlyBridge: fullaudio
+            defaultFullAudioBridge: livekit
+           defaultListenOnlyBridge: livekit
 
 
 # Potential problems described below
@@ -252,6 +255,8 @@ bbb-graphql-middleware ———————► [✔ - active]
 bbb-graphql-server ———————————► [✔ - active]
 bbb-webrtc-sfu ———————————————► [✔ - active]
 bbb-webrtc-recorder ——————————► [✔ - active]
+livekit-server ———————————————► [✔ - active]
+livekit-sip ——————————————————► [✔ - active]
 etherpad —————————————————————► [✔ - active]
 bbb-web ——————————————————————► [✔ - active]
 bbb-pads —————————————————————► [✔ - active]

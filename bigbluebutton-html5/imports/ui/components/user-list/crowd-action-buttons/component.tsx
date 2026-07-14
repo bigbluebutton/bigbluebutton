@@ -3,7 +3,6 @@ import { useIntl, defineMessages } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import logger from '/imports/startup/client/logger';
 import { SET_MUTED } from './mutations';
-import { CrowdActionButtonsProps } from './types';
 import Styled from './styles';
 import LockViewersContainer from '../../lock-viewers/container';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
@@ -28,9 +27,7 @@ const intlMessages = defineMessages({
   },
 });
 
-const CrowdActionButtons: React.FC<CrowdActionButtonsProps> = ({
-  isBreakout,
-}) => {
+const CrowdActionButtons: React.FC = () => {
   const intl = useIntl();
   const [setMuted] = useMutation(SET_MUTED);
   const lockViewersModal = useModalRegistration({ id: 'lockViewersModal', priority: 'low' });
@@ -87,23 +84,21 @@ const CrowdActionButtons: React.FC<CrowdActionButtonsProps> = ({
             onClick={muteAll}
           />
         </Styled.ActionButtonWrapper>
-        {!isBreakout && (
-          <Styled.ActionButtonWrapper>
-            <Styled.ActionButtonLabel>
-              {intl.formatMessage(intlMessages.lockSettingsButtonLabel)}
-            </Styled.ActionButtonLabel>
-            {/* @ts-ignore - button is js component */}
-            <Styled.ActionButton
-              hideLabel
-              label={intl.formatMessage(intlMessages.lockSettingsButtonDescription)}
-              tooltipLabel={intl.formatMessage(intlMessages.lockSettingsButtonDescription)}
-              icon="lock"
-              size="lg"
-              data-test="lockViewersButton"
-              onClick={openLockSettingsModal}
-            />
-          </Styled.ActionButtonWrapper>
-        )}
+        <Styled.ActionButtonWrapper>
+          <Styled.ActionButtonLabel>
+            {intl.formatMessage(intlMessages.lockSettingsButtonLabel)}
+          </Styled.ActionButtonLabel>
+          {/* @ts-ignore - button is js component */}
+          <Styled.ActionButton
+            hideLabel
+            label={intl.formatMessage(intlMessages.lockSettingsButtonDescription)}
+            tooltipLabel={intl.formatMessage(intlMessages.lockSettingsButtonDescription)}
+            icon="lock"
+            size="lg"
+            data-test="lockViewersButton"
+            onClick={openLockSettingsModal}
+          />
+        </Styled.ActionButtonWrapper>
       </Styled.ActionButtonsWrapper>
     </>
   );

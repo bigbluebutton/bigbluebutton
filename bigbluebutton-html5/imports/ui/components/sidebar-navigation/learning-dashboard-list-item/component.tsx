@@ -2,6 +2,9 @@ import React, { useCallback, memo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import LearningDashboardService from '/imports/ui/components/learning-dashboard/service';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import { useIsLearningDashboardEnabled } from '/imports/ui/services/features';
+import { User } from '/imports/ui/Types/user';
 import SidebarNavigationButton from '/imports/ui/components/sidebar-navigation/sidebar-navigation-button/component';
 
 const intlMessages = defineMessages({
@@ -13,6 +16,9 @@ const intlMessages = defineMessages({
 
 const LearningDashboardListItem = () => {
   const intl = useIntl();
+  const isLearningDashboardEnabled = useIsLearningDashboardEnabled();
+  const { data: currentUser } = useCurrentUser((u: Partial<User>) => ({ isModerator: u?.isModerator }));
+  const isModerator = currentUser?.isModerator || false;
   const { data: meetingInfo } = useMeeting((meeting) => ({
     learningDashboardAccessToken: meeting.learningDashboardAccessToken,
     isBreakout: meeting?.isBreakout,
@@ -24,7 +30,7 @@ const LearningDashboardListItem = () => {
 
   const label = intl.formatMessage(intlMessages.learningDashboardLabel);
 
-  if (meetingInfo?.isBreakout) return null;
+  if (!isLearningDashboardEnabled || !isModerator || meetingInfo?.isBreakout) return null;
 
   return (
     <SidebarNavigationButton

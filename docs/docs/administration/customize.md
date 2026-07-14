@@ -380,6 +380,8 @@ This pattern can be repeated for additional recording formats. Note that it's ve
 
 After you edit the configuration file, you must restart the recording processing queue: `systemctl restart bbb-rap-resque-worker.service` in order to pick up the changes.
 
+To disable one or more enabled recording formats for a single meeting, pass `meta_bbb-disable-recording-formats` on the `create` API call with a comma-separated list of format names. For example, `meta_bbb-disable-recording-formats=video,presentation` (or `meta_bbb-disable-recording-formats=[video,presentation]`) skips the `video` and `presentation` recording formats for that meeting. The format names are case-insensitive and match the format part of the recording steps. Disabled formats are not processed or published, so they do not trigger recording-ready callbacks.
+
 The following script will enable the video recording format of a BigBlueButton 2.6+ server.
 
 ```
@@ -469,6 +471,19 @@ The settings for `bitrate` are in kbits/sec (i.e. 100 kbits/sec). After your mod
 If you have sessions that like to share lots of webcams, such as ten or more, then setting the `bitrate` for `low` to 50 and `medium` to 100 will help reduce the overall bandwidth on the server. When many webcams are shared, the size of the webcams get so small that the reduction in `bitrate` will not be noticeable during the live sessions.
 
 To ensure that your modifications are not lost when a new version of the packages is installed, you can [create the file and] write your changes to `/etc/bigbluebutton/bbb-html5.yml`.
+
+#### Validating client settings overrides
+
+When you override the HTML5 client settings - via `/etc/bigbluebutton/bbb-html5.yml`, or per meeting via the `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` create parameters - keys that do not exist in the base `settings.yml` (typos, obsolete parameters, or values placed at the wrong level in the structure) are merged in but never read by the client, so they are silently ignored.
+
+BigBlueButton logs a `WARN` in `bbb-apps-akka` for each such key so the problem is visible. The warning is non-blocking: the value is still applied.
+
+For test and staging environments you can additionally enable **strict validation**, which turns those warnings into hard failures. It is **disabled by default** and controlled by a single setting, `clientSettingsOverrideStrictValidation`, in `/etc/bigbluebutton/bbb-web.properties`. Both `bbb-web` and `bbb-apps-akka` read this same property (akka reads the file directly at boot), so there is one switch and no risk of the two processes disagreeing. When set to `true`:
+
+- **Filesystem override (`/etc/bigbluebutton/bbb-html5.yml`), enforced by `bbb-apps-akka` at boot.** If the override file has issues, `bbb-apps-akka` logs an explicit error listing each offending key and exits (the service fails to start), so a bad config breaks the deploy instead of running silently wrong.
+- **API override (`clientSettingsOverride` / `clientSettingsOverrideJsonUrl`), enforced by `bbb-web` at create.** If a `/create` call carries an override with issues, the call is rejected with `returncode=FAILED` and `messageKey=clientSettingsOverrideValidationError`, with the offending keys listed in the message; the meeting is not created.
+
+Keep it `false` in production unless you specifically want such overrides to be rejected.
 
 #### Disable webcams
 
@@ -796,6 +811,10 @@ and join an audio session. You should now hear music on hold if there is only on
 
 #### Add a phone number to the conference bridge
 
+:::info
+This dial-in path is handled by FreeSWITCH and applies to meetings that use the **FreeSWITCH audio bridge** (`audioBridge=bbb-webrtc-sfu`). LiveKit is the default audio bridge in BigBlueButton 4.0; to set up dial-in for LiveKit meetings, see [Dial-in with the LiveKit audio bridge](#dial-in-with-the-livekit-audio-bridge-livekit-sip) below.
+:::
+
 The built-in WebRTC-based audio in BigBlueButton is very high quality audio. Still, there may be cases where you want users to be able to dial into the conference bridge using a telephone number.
 
 Before you can configure FreeSWITCH to route the call to the right conference, you need to first obtain a phone number from a [Internet Telephone Service Providers](https://freeswitch.org/confluence/display/FREESWITCH/Providers+ITSPs) and configure FreeSWITCH accordingly to receive incoming calls via session initiation protocol (SIP) from that provider. Ensure that the context is `public` and that the file is called `/opt/freeswitch/conf/sip_profiles/external/YOUR-PROVIDER.xml`. Here is an example; of course, hostname and ALL-CAPS values need to be changed:
@@ -903,6 +922,154 @@ With these rules, you won't get spammed by bots scanning for SIP endpoints and t
 It's also important to note that, alongside the PIN requirement, there are basic dialplan-level checks in place to prevent anonymous dial-in callers from joining BigBlueButton audio conferences.
   - Those checks offer minimal protection regarding blocking anonymous SIP participants and should not be considered a comprehensive solution. For production environments requiring stronger security controls, administrators are responsible for implementing additional measures that match the sensitivity of their deployments.
   - If you want to allow anonymous SIP UAs, you need to remove the `reject_anonymous` extension in `/opt/freeswitch/conf/dialplan/default/bbb_conference.xml`, then restart FreeSWITCH.
+
+#### Dial-in with the LiveKit audio bridge (livekit-sip)
+
+LiveKit is the default audio bridge in BigBlueButton 4.0. For meetings that use the LiveKit audio bridge, telephone dial-in is handled by `livekit-sip`.
+
+The dial-in flow is: the caller reaches a **SIP call gateway** (a FreeSWITCH — either BigBlueButton's bundled one or an external one) that answers the call and prompts for the conference PIN; the gateway then bridges the authenticated call into `livekit-sip`, which joins the LiveKit room as a SIP participant.
+
+LiveKit dial-in is opt-in. Enable the LiveKit SIP controller in `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml`:
+
+```yaml
+livekit:
+  rtcAgent:
+    enabled: true
+  sip:
+    enabled: true
+    requirePin: false # the PIN is enforced by FreeSWITCH, not by livekit-sip
+    dispatch:
+      options:
+        hidePhoneNumber: true
+```
+
+Then set up a SIP call gateway — BigBlueButton's bundled FreeSWITCH, or an external one.
+
+##### Using the bundled FreeSWITCH as the call gateway
+
+In this setup the FreeSWITCH that ships with BigBlueButton plays the call-gateway role: it answers the call, prompts for the PIN, and then bridges the call into `livekit-sip` over a local leg. The PIN is prompted by FreeSWITCH (not by `livekit-sip`). DTMF (e.g. to mute) flows caller → FreeSWITCH (a-leg) → the FreeSWITCH-to-`livekit-sip` bridge (b-leg) → `livekit-sip`; FreeSWITCH converts the inbound DTMF (RFC 2833 or SIP INFO from the trunk) to RFC 2833 on the bridge leg, which is what `livekit-sip` expects by default.
+
+:::note
+For the DID covered by the dialplan below, this replaces the FreeSWITCH-audio-bridge dial-in path: meetings created with `audioBridge=bbb-webrtc-sfu` will no longer be reachable through that DID. To support both audio bridges on the same server, use distinct DIDs and gate the dialplan on `destination_number` (one extension routes to `mod_conference`, the other bridges to `livekit-sip`).
+:::
+
+1. Provision the SIP trunk in the bundled FreeSWITCH exactly as for the FreeSWITCH audio bridge — see [Add a phone number to the conference bridge](#add-a-phone-number-to-the-conference-bridge). That covers the SIP gateway file under `/opt/freeswitch/conf/sip_profiles/external/` and the `defaultDialAccessNumber` / welcome footer in `/etc/bigbluebutton/bbb-web.properties`.
+
+2. Keep `livekit-sip` on port `5062` (its value in `/etc/bigbluebutton/livekit-sip.yaml`):
+
+   ```yaml
+   sip_port: 5062
+   sip_port_listen: 5062
+   ```
+
+3. Instead of the FreeSWITCH-bridge dialplan, install a dialplan that bridges to `livekit-sip` after the PIN prompt. Save it to `/opt/freeswitch/conf/dialplan/public/my_provider.xml` and replace `EXTERNALDID` with the DID configured on the SIP gateway:
+
+   ```xml
+   <include>
+     <extension name="from_my_provider_lk">
+       <condition field="destination_number" expression="^EXTERNALDID">
+         <action application="start_dtmf"/>
+         <action application="answer"/>
+         <action application="sleep" data="1000"/>
+         <action application="play_and_get_digits" data="5 9 3 30000 # conference/conf-pin.wav ivr/ivr-that_was_an_invalid_entry.wav pin \d+"/>
+
+         <!-- Optional: phone-number masking, identical to the FreeSWITCH-bridge example above. -->
+         <!--
+         <action application="set_profile_var" data="caller_id_name=${regex(${caller_id_name}|^.*(.{4})$|xxx-xxx-%1)}"/>
+         -->
+
+         <action application="transfer" data="SEND_TO_LIVEKIT_SIP XML public"/>
+       </condition>
+     </extension>
+
+     <extension name="bbb_lk_sip_bridge">
+       <condition field="destination_number" expression="^SEND_TO_LIVEKIT_SIP$">
+         <!-- Stop in-band DTMF detection so DTMF is not absorbed by FreeSWITCH. -->
+         <action application="stop_dtmf"/>
+         <!-- Force RFC 2833 on the bridged b-leg toward livekit-sip. The BBB
+              external profile defaults to dtmf-type=info; livekit-sip negotiates
+              RFC 2833 by default. -->
+         <action application="bridge" data="{sip_dtmf_type=rfc2833}sofia/external/sip:${pin}@${local_ip_v4}:5062;transport=udp"/>
+         <!-- Control returns here only on failure (on success FreeSWITCH hangs up
+              the a-leg automatically, since hangup_after_bridge defaults to true).
+              On failure (e.g. no LiveKit dispatch for this voice bridge, or
+              livekit-sip down), play bad-pin and re-prompt. -->
+         <action application="transfer" data="LK_BAD_PIN XML public"/>
+       </condition>
+     </extension>
+
+     <extension name="bbb_lk_bad_pin">
+       <condition field="destination_number" expression="^LK_BAD_PIN$">
+         <action application="answer"/>
+         <action application="sleep" data="1000"/>
+         <action application="play_and_get_digits" data="5 9 3 30000 # conference/conf-bad-pin.wav ivr/ivr-that_was_an_invalid_entry.wav pin \d+"/>
+         <action application="transfer" data="SEND_TO_LIVEKIT_SIP XML public"/>
+       </condition>
+     </extension>
+   </include>
+   ```
+
+4. Restart BigBlueButton:
+
+   ```bash
+   sudo bbb-conf --restart
+   ```
+
+5. Verify the components are running, then place a test call:
+
+   ```bash
+   sudo bbb-conf --status
+   sudo systemctl status freeswitch livekit-sip bbb-webrtc-sfu
+   ```
+
+   The caller should hear the BigBlueButton PIN prompt; after entering the meeting's voice bridge, the call should appear in the LiveKit room as a SIP participant. `*` or `0` toggles mute.
+
+##### Using an external call gateway
+
+In this setup an external FreeSWITCH acts as the call gateway (the same role it plays in, for example, a [Scalelite dial-in deployment](https://medium.com/@JesusFederico/scalelite-and-dial-in-numbers-f070fe0059b0)), and `livekit-sip` takes over the SIP port that the bundled FreeSWITCH would otherwise use.
+
+:::warning
+The steps below move the bundled FreeSWITCH off port `5060` and therefore **break FreeSWITCH-based dial-in** (`audioBridge=bbb-webrtc-sfu`) for the whole server. To serve both bridges, the call gateway must be aware of the audio bridge in use — for example, keep the bundled FreeSWITCH on `5060` and `livekit-sip` on `5062`, and have your load balancer build the gateway's dialplan to route to the right port (`5060` for `audioBridge=bbb-webrtc-sfu`, `5062` for `audioBridge=livekit`). If you take that approach, adjust the ports below accordingly.
+:::
+
+1. Configure the external call gateway as you would today (see the [Scalelite dial-in guide](https://medium.com/@JesusFederico/scalelite-and-dial-in-numbers-f070fe0059b0)).
+
+2. Move the bundled FreeSWITCH's SIP bind port off `5060` (to avoid colliding with `livekit-sip`). In `/opt/freeswitch/conf/vars.xml`:
+
+   ```xml
+   <X-PRE-PROCESS cmd="set" data="external_sip_port=5063"/>
+   ```
+
+3. Point `livekit-sip` at `5060`, and give it an RTP port range with connectivity to the call gateway. In `/etc/bigbluebutton/livekit-sip.yaml`:
+
+   ```yaml
+   sip_port: 5060
+   sip_port_listen: 5060
+   rtp_port:
+     port_range_start: <START>
+     port_range_end: <END>
+   ```
+
+4. Restart BigBlueButton:
+
+   ```bash
+   sudo bbb-conf --restart
+   ```
+
+5. Verify all components are running:
+
+   ```bash
+   sudo bbb-conf --status
+   sudo systemctl status livekit-sip
+   ```
+
+##### DTMF troubleshooting
+
+If DTMF passes through to FreeSWITCH during the PIN prompt but does not reach `livekit-sip` after the bridge, confirm that `liberal-dtmf=true` is set on the external SIP profile (it is BigBlueButton's default; `rtp_liberal_dtmf=true` is set globally in `vars.xml`). If that is already correct, further FreeSWITCH DTMF-mode tweaks may be required.
+
+##### Limitations
+
+- The guest lobby is bypassed for SIP dial-in callers.
 
 #### Turn on the "comfort noise" when no one is speaking
 
@@ -1547,9 +1714,9 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `allowModsToUnmuteUsers` | Gives moderators permission to unmute other users | true/false | false _`overwritable`_ |
 | `requireUserConsentBeforeUnmuting` | Allows participants to accept or decline when a moderator asks them to unmute. | true/false | false _`overwritable`_ |
 | `allowModsToEjectCameras` | Gives moderators permission to close other users' webcams | true/false | false _`overwritable`_ |
-| `cameraBridge` | Media bridge used for camera streams | bbb-webrtc-sfu, livekit | bbb-webrtc-sfu |
-| `screenShareBridge` | Media bridge used for screen share streams | bbb-webrtc-sfu, livekit | bbb-webrtc-sfu |
-| `audioBridge` | Media bridge used for audio streams | bbb-webrtc-sfu, livekit, freeswitch | bbb-webrtc-sfu |
+| `cameraBridge` | Media bridge used for camera streams | livekit, bbb-webrtc-sfu | livekit |
+| `screenShareBridge` | Media bridge used for screen share streams | livekit, bbb-webrtc-sfu | livekit |
+| `audioBridge` | Media bridge used for audio streams | livekit, bbb-webrtc-sfu, freeswitch | livekit |
 | `disableRecordingDefault` | When true, do not record even if the `/create` call sets `record=true` | true/false | false |
 | `autoStartRecording` | Start recording when the first user joins the meeting | true/false | false _`overwritable`_ |
 | `allowStartStopRecording` | Allow users to start/stop recording during the session | true/false | true _`overwritable`_ |
@@ -1575,10 +1742,17 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `disabledFeatures` | Comma-separated list of features to disable (see [`/create` docs](/development/api/#create) for the full list of feature names) | csv | _(empty)_ _`overwritable`_ |
 | `sharedNotesEditor` | Type of shared notes editor to use | etherpad, blockNote | etherpad _`overwritable`_ |
 | `allowOverrideClientSettingsOnCreateCall` | Allow `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` to be passed on `/create` | true/false | false |
+| `clientSettingsOverrideStrictValidation` | When true, reject the `/create` call (`bbb-web`) and refuse `bbb-apps-akka` boot if a client settings override has unknown or malformed keys. Intended for test/staging (see [Validating client settings overrides](#validating-client-settings-overrides)) | true/false | false |
+| `clientSettingsFilePath` | Path to the `settings.yml` catalog used as the schema for the strict client-settings override validation above | path | `/usr/share/bigbluebutton/html5-client/private/config/settings.yml` |
 | `pluginManifests` | List of plugin manifests as a JSON array, e.g. `[{"url": "https://example.com/manifest.json"}]` | JSON array | _(empty)_ _`overwritable`_ |
+| `pluginManifestCacheEnabled` | Cache plugin manifests on disk to speed up `/create` calls | true/false | false |
+| `pluginManifestCacheDirectory` | Base directory for cached plugin manifest files. The directory is wiped every time bbb-web starts; entries idle for over a week are also evicted automatically by the periodic refresh task | path | `/var/bigbluebutton/plugin-manifests-cache/` |
+| `pluginManifestCacheRefreshIntervalMinutes` | How often (in minutes) the plugin manifest cache refresh task runs | Integer | 60 |
 | `serviceEnabled` | Whether the BigBlueButton API is enabled | true/false | true |
 | `allowRequestsWithoutSession` | Allow requests without `JSESSIONID` to be handled (reduces security; only enable for trusted integrations like iframes) | true/false | false _`overwritable`_ |
 | `supportedChecksumAlgorithms` | Hash algorithms accepted when validating API checksums (comma-separated) | sha1, sha256, sha384, sha512 | sha1,sha256,sha384,sha512 |
+| `pageTokenSecret` | Secret used to generate per-page presentation access tokens (HMAC-SHA256). Override for additional security separation between presentation tokens and the rest of bbb-web | String | _(defaults to `${securitySalt}`)_ |
+| `beans.presentationService.pageTokenSecret` | Grails bean wiring that injects `pageTokenSecret` into the presentation service. Override only if the presentation service should use a different secret than `pageTokenSecret` | String | _(defaults to `${pageTokenSecret}`)_ |
 | `allowRevealOfBBBVersion` | Allow the `getMeetings` endpoint to reveal the current BigBlueButton version | true/false | false |
 
 - _`overwritable`_: The default is replaced when the matching parameter is present on an API `/create` request. Where the create-side name differs from the property name, it is shown in parentheses (e.g., `defaultMeetingLayout` → `meetingLayout`).

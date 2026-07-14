@@ -12,7 +12,7 @@ import org.bigbluebutton.core.util.TimeUtil
 import org.bigbluebutton.common2.domain.{ DefaultProps, LockSettingsProps }
 import org.bigbluebutton.core.api._
 import org.bigbluebutton.core.apps._
-import org.bigbluebutton.core.apps.mediagroups.{ MediaGroupApp, MediaGroupHdlrs, PublicMediaGroupIds }
+import org.bigbluebutton.core.apps.mediagroups.MediaGroupHdlrs
 import org.bigbluebutton.core.apps.caption.CaptionApp2x
 import org.bigbluebutton.core.apps.chat.ChatApp2x
 import org.bigbluebutton.core.apps.externalvideo.ExternalVideoApp2x
@@ -48,9 +48,7 @@ import org.bigbluebutton.core.db.{
   NotificationDAO,
   TimerDAO,
   UserDAO,
-  UserStateDAO,
-  MediaGroupDAO,
-  MediaGroupUserDAO
+  UserStateDAO
 }
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models.VoiceUsers.{ findAllFreeswitchCallers, findAllListenOnlyVoiceUsers }
@@ -194,13 +192,6 @@ class MeetingActor(
   // Create a default public group chat
   state = groupChatApp.handleCreateDefaultPublicGroupChat(state, liveMeeting, msgBus)
 
-  // Create explicit public media groups. See media groups apps and models and
-  // associated commit history for those.
-  state = state.update(MediaGroupApp.createPublicMediaGroups(state.mediaGroups))
-  state.mediaGroups.findAllMediaGroups().filter(mg => PublicMediaGroupIds.isPublicGroup(mg.id)).foreach { mg =>
-    MediaGroupDAO.insert(liveMeeting.props.meetingProp.intId, mg)
-  }
-
   //state = GroupChatApp.genTestChatMsgHistory(GroupChatApp.MAIN_PUBLIC_CHAT, state, BbbSystemConst.SYSTEM_USER, liveMeeting)
   // Create a default public group chat **DEPRECATED, NOT GOING TO WORK ANYMORE**
   //state = GroupChatApp.createDefaultPublicGroupChat("TEST_GROUP_CHAT", state)
@@ -276,6 +267,11 @@ class MeetingActor(
     CheckPresentationConversions
   )
 
+  override def postStop(): Unit = {
+    liveMeeting.audioFloorManager.destroy()
+    super.postStop()
+  }
+
   def receive = {
     case SyncVoiceUserStatusInternalMsg =>
       checkVoiceConfUsersStatus()
@@ -289,6 +285,8 @@ class MeetingActor(
       handleMeetingTasksExecutor()
     case CheckPresentationConversions =>
       state = handleCheckPresentationConversions()
+    case AudioFloorManager.DispatchFloorGrantsInternalMsg =>
+      liveMeeting.audioFloorManager.dispatchPendingGrants(liveMeeting, outGW)
     //=============================
 
     // 2x messages

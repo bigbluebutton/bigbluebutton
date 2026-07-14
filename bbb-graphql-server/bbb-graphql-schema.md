@@ -91,9 +91,11 @@ Permission: Restricted to User Viewing Self-Related Data
 - `isDialIn`
 - `isModerator`
 - `isRunningEchoTest`
+- `isSharingCamera`
 - `joinErrorCode`
 - `joinErrorMessage`
 - `joined`
+- `lastFloorTime`
 - `lastName`
 - `lastNameSortable`
 - `locked`
@@ -103,6 +105,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `name`
 - `nameSortable`
 - `pinned`
+- `pinnedTime`
 - `presenter`
 - `raiseHand`
 - `reactionEmoji`
@@ -213,7 +216,9 @@ Permission: Restricted by Lock Settings
 - `isDialIn`
 - `isModerator`
 - `isRunningEchoTest`
+- `isSharingCamera`
 - `joined`
+- `lastFloorTime`
 - `lastName`
 - `lastNameSortable`
 - `locked`
@@ -222,6 +227,7 @@ Permission: Restricted by Lock Settings
 - `name`
 - `nameSortable`
 - `pinned`
+- `pinnedTime`
 - `presenter`
 - `raiseHand`
 - `raiseHandTime`

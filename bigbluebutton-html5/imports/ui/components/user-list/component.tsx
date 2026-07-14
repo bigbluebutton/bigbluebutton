@@ -155,10 +155,10 @@ const UserList: React.FC<UserListComponentProps> = () => {
     return (
       <>
         <Styled.Separator />
-        <CrowActionsButtons isBreakout={meetingInfo?.isBreakout} />
+        <CrowActionsButtons />
       </>
     );
-  }, [currentUserData, meetingInfo?.isBreakout]);
+  }, [currentUserData]);
 
   const title = hideUserList
     ? intl.formatMessage(intlMessages.hideUserListTitle, { userCount: count })

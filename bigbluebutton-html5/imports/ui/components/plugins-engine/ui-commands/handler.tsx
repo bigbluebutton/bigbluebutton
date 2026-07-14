@@ -10,10 +10,12 @@ import PluginNavBarUiCommandsHandler from './nav-bar/handler';
 import PluginActionsBarUiCommandsHandler from './actions-bar/handler';
 import PluginCameraUiCommandsHandler from './camera/handler';
 import PluginCaptionsUiCommandsHandler from './captions/handler';
+import PluginScreenshareUiCommandsHandler from './screenshare/handler';
 
 const PluginUiCommandsHandler = () => (
   <>
     <PluginActionsBarUiCommandsHandler />
+    <PluginScreenshareUiCommandsHandler />
     <PluginLayoutUiCommandsHandler />
     <PluginChatUiCommandsHandler />
     <PluginCameraUiCommandsHandler />

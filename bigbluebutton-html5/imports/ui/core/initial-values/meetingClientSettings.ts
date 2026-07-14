@@ -62,6 +62,14 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         mobile: false,
         provider: 'webspeech',
         showInSidebarNavigation: false,
+        microphoneAlert: {
+          enabled: true,
+          helpLink: '',
+          threshold: -50,
+          speakingThreshold: 5000,
+          duration: 10000,
+          interval: 200,
+        },
         language: {
           available: [
             'en-US',
@@ -98,6 +106,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         breakoutRoomMinimum: 2,
         breakoutRoomLimit: 16,
         allowPresentationManagementInBreakouts: true,
+        lockBreakoutRecordingSetting: false,
       },
       showAllAvailableLocales: true,
       showAudioFilters: true,
@@ -608,14 +617,19 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     },
     sidebarNavigation: {
       appsToLabelAsNew: [],
+      buttons: {
+        top: ['profile', 'user-list', 'chat', 'notes'],
+        center: ['apps-gallery', 'pinned-apps'],
+        bottom: ['audio-captions', 'learning-dashboard', 'settings'],
+      },
     },
     pads: {
       url: 'ETHERPAD_HOST',
     },
     media: {
       audio: {
-        defaultFullAudioBridge: 'fullaudio',
-        defaultListenOnlyBridge: 'fullaudio',
+        defaultFullAudioBridge: 'livekit',
+        defaultListenOnlyBridge: 'livekit',
         retryThroughRelay: false,
         allowAudioJoinCancel: true,
         audioWasmProcessing: {

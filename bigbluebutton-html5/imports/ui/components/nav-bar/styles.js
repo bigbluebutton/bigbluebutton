@@ -50,7 +50,18 @@ const PresentationTitle = styled.h1`
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 30vw;
+`;
+
+const TitleButton = styled.button`
+  all: unset;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+
+  &:focus-visible {
+    outline: 2px solid ${colorWhite};
+    border-radius: 2px;
+  }
 
   > [class^="icon-bbb-"] {
     font-size: 75%;
@@ -107,6 +118,7 @@ export default {
   Left,
   Center,
   PresentationTitle,
+  TitleButton,
   Right,
   Bottom,
   PluginInfoComponent,

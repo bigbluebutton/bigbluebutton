@@ -126,7 +126,17 @@ export interface AudioCaptions {
   mobile: boolean
   provider: string
   showInSidebarNavigation: boolean
+  microphoneAlert: MicrophoneAlert
   language: Language
+}
+
+export interface MicrophoneAlert {
+  enabled: boolean
+  helpLink: string
+  threshold: number
+  speakingThreshold: number
+  duration: number
+  interval: number
 }
 
 export interface Language {
@@ -157,6 +167,7 @@ export interface Breakouts {
   breakoutRoomMinimum: number
   breakoutRoomLimit: number
   allowPresentationManagementInBreakouts: boolean
+  lockBreakoutRecordingSetting: boolean
 }
 
 export interface RaiseHandActionButton {
@@ -591,8 +602,15 @@ export interface Layout {
   showLeaveSessionLabel: boolean
 }
 
+export interface SidebarNavigationButtons {
+  top: string[]
+  center: string[]
+  bottom: string[]
+}
+
 export interface SidebarNavigation {
   appsToLabelAsNew: string[]
+  buttons: SidebarNavigationButtons
 }
 
 export interface Pads {
@@ -665,6 +683,8 @@ export interface LiveKitSettings {
   logLevel?: LogLevel
   roomOptions?: Partial<InternalRoomOptions>
   reconnectOnFatalFailures?: boolean
+  forceRelay?: boolean
+  forceRelayOnFirefox?: boolean
   audio?: LiveKitAudioSettings
   camera?: LiveKitCameraSettings
   screenshare?: LiveKitScreenShareSettings

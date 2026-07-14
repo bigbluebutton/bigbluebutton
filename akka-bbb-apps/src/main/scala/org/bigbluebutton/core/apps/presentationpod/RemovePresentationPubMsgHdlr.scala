@@ -38,12 +38,14 @@ trait RemovePresentationPubMsgHdlr extends RightsManagementTrait {
 
       val podId = msg.body.podId
       val presentationId = msg.body.presentationId
-
-      PresPresentationDAO.delete(presentationId)
+      val meetingId = liveMeeting.props.meetingProp.intId
 
       val newState = for {
         pod <- PresentationPodsApp.getPresentationPod(state, podId)
+        _ <- pod.getPresentation(presentationId)
       } yield {
+        PresPresentationDAO.delete(meetingId, presentationId)
+
         broadcastRemovePresentationEvtMsg(pod.id, msg.header.userId, presentationId)
 
         val pods = state.presentationPodManager.removePresentationInPod(pod.id, presentationId)

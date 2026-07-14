@@ -327,6 +327,13 @@ public class MeetingService implements MessageListener {
     notifier.sendUploadFileTooLargeMessage(presUploadToken, uploadedFileSize, maxUploadFileSize);
   }
 
+  public void sendPresentationUploadMaxFilesizeMessage(String presentationId, String podId, String meetingId,
+                                                       String filename, String authzToken,
+                                                       int uploadedFileSize, int maxUploadFileSize) {
+    notifier.sendUploadFileTooLargeMessage(presentationId, podId, meetingId, filename, authzToken,
+            uploadedFileSize, maxUploadFileSize);
+  }
+
   private void removeUserSessionsFromMeeting(String meetingId) {
     for (String token : sessions.keySet()) {
       UserSession userSession = sessions.get(token);
@@ -893,6 +900,8 @@ public class MeetingService implements MessageListener {
       int durationInMinutes = message.durationInSeconds > 0 ? ((message.durationInSeconds + 59) / 60) : 0;
       params.put(ApiParams.DURATION, Integer.toString(durationInMinutes));
       params.put(ApiParams.RECORD, message.record.toString());
+      params.put(ApiParams.AUTO_START_RECORDING, message.autoStartRecording.toString());
+      params.put(ApiParams.ALLOW_START_STOP_RECORDING, message.allowStartStopRecording.toString());
       params.put(ApiParams.WELCOME, getMeeting(message.parentMeetingId).getWelcomeMessageTemplate());
       params.put(ApiParams.AUDIO_BRIDGE, message.audioBridge);
       params.put(ApiParams.CAMERA_BRIDGE, message.cameraBridge);
@@ -901,8 +910,18 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.DISABLED_FEATURES,String.join(",", message.disabledFeatures));
       params.put(ApiParams.GUEST_POLICY, GuestPolicy.ALWAYS_ACCEPT);
 
-      // Apply private chat lock settings from parent meeting to breakout room
+      // Apply lock settings from parent meeting to breakout room
       params.put(ApiParams.LOCK_SETTINGS_DISABLE_PRIVATE_CHAT, message.disablePrivChat.toString());
+      params.put(ApiParams.LOCK_SETTINGS_DISABLE_CAM, message.disableCam.toString());
+      params.put(ApiParams.LOCK_SETTINGS_DISABLE_MIC, message.disableMic.toString());
+      params.put(ApiParams.LOCK_SETTINGS_DISABLE_PUBLIC_CHAT, message.disablePubChat.toString());
+      params.put(ApiParams.LOCK_SETTINGS_DISABLE_NOTES, message.disableNotes.toString());
+      params.put(ApiParams.LOCK_SETTINGS_HIDE_USER_LIST, message.hideUserList.toString());
+      params.put(ApiParams.LOCK_SETTINGS_LOCK_ON_JOIN, message.lockOnJoin.toString());
+      params.put(ApiParams.LOCK_SETTINGS_LOCK_ON_JOIN_CONFIGURABLE, message.lockOnJoinConfigurable.toString());
+      params.put(ApiParams.LOCK_SETTINGS_HIDE_VIEWERS_CURSOR, message.hideViewersCursor.toString());
+      params.put(ApiParams.LOCK_SETTINGS_HIDE_VIEWERS_ANNOTATION, message.hideViewersAnnotation.toString());
+      params.put(ApiParams.WEBCAMS_ONLY_FOR_MODERATOR, message.webcamsOnlyForModerator.toString());
 
       Map<String, String> parentMeetingMetadata = parentMeeting.getMetadata();
 
@@ -914,6 +933,9 @@ public class MeetingService implements MessageListener {
       }
 
       Meeting breakout = paramsProcessorUtil.processCreateParams(params);
+
+      // breakout rooms inherit client settings override from the parent
+      breakout.setOverrideClientSettings(parentMeeting.getOverrideClientSettings());
 
       createMeeting(breakout, message.pluginProp);
 

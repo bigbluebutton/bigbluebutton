@@ -16,7 +16,7 @@ trait AppsTestFixtures {
   val record = false
   val voiceConfId = "85115"
   val muteOnStart = true
-  val durationInMinutes = 10
+  val durationInSeconds = 10
   val meetingExpireIfNoUserJoinedInMinutes = 5
   val meetingExpireWhenLastUserLeftInMinutes = 10
   val userInactivityInspectTimerInMinutes = 60
@@ -66,7 +66,7 @@ trait AppsTestFixtures {
     screenShareBridge = screenShareBridge,
     audioBridge = audioBridge,
     isBreakout = isBreakout.booleanValue())
-  val durationProps = DurationProps(duration = durationInMinutes, createdTime = createTime, createdDate = createDate,
+  val durationProps = DurationProps(duration = durationInSeconds, createdTime = createTime, createdDate = createDate,
     meetingExpireIfNoUserJoinedInMinutes = meetingExpireIfNoUserJoinedInMinutes, meetingExpireWhenLastUserLeftInMinutes = meetingExpireWhenLastUserLeftInMinutes,
     userInactivityInspectTimerInMinutes = userInactivityInspectTimerInMinutes, userInactivityThresholdInMinutes = userInactivityInspectTimerInMinutes, userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes)
   val password = PasswordProp(moderatorPass = moderatorPassword, viewerPass = viewerPassword, learningDashboardAccessToken = learningDashboardAccessToken)

@@ -27,6 +27,13 @@ module BigBlueButton
           false
         end
 
+        # Presentation video is generated on demand, so it cannot have input file PTS gaps.
+        #
+        # @return [Array] Always empty
+        def pts_gaps
+          []
+        end
+
         # Generate a cut of presentation area video using the bbb-presentation-video tool
         #
         # @param width [Integer] width of the presentation area

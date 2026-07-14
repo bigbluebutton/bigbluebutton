@@ -6,7 +6,7 @@ import {
   showInSidebarNavigation,
   useIsAudioTranscriptionEnabled,
 } from '/imports/ui/components/audio/audio-graphql/audio-captions/service';
-import { BaseSidebarButtonProps } from '../types';
+import useIsSpecificPanelOpened from '../hooks/useIsSpecificPanelOpened';
 
 const intlMessages = defineMessages({
   audioCaptionsLabel: {
@@ -15,8 +15,9 @@ const intlMessages = defineMessages({
   },
 });
 
-const AudioCaptionsListItem: React.FC<BaseSidebarButtonProps> = ({ isOpened }) => {
+const AudioCaptionsListItem: React.FC = () => {
   const intl = useIntl();
+  const isOpened = useIsSpecificPanelOpened(PANELS.AUDIO_CAPTIONS);
   const isEnabled = useIsAudioTranscriptionEnabled();
   const shouldShowInSidebarNavigation = showInSidebarNavigation();
 
