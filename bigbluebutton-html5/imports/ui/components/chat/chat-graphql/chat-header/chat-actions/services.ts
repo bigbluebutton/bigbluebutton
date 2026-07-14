@@ -3,7 +3,7 @@ import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
 import { IntlShape, defineMessages } from 'react-intl';
 import { ChatMessageType } from '/imports/ui/core/enums/chat';
 import PollService from '/imports/ui/components/poll/service';
-import getPresentationDownloadData from '../../chat-message-list/page/chat-message/message-content/presentation-content/service';
+import { parsePresentationMetadata } from '../../chat-message-list/page/chat-message/message-content/presentation-content/service';
 
 const intlMessages = defineMessages({
   chatClear: {
@@ -37,7 +37,7 @@ const intlMessages = defineMessages({
   presentationAvailableForDownload: {
     id: 'app.presentationUploader.export.availableForDownload',
     defaultMessage: 'Presentation available for download',
-    description: 'used in exported chat before a presentation download filename and URL',
+    description: 'used in exported chat before a presentation filename',
   },
 });
 
@@ -96,9 +96,9 @@ export const generateExportedMessages = (
         break;
       }
       case ChatMessageType.PRESENTATION: {
-        const { absoluteDownloadUrl, filename } = getPresentationDownloadData(message.messageMetadata);
+        const { filename } = parsePresentationMetadata(message.messageMetadata);
         const presentationAvailable = intl.formatMessage(intlMessages.presentationAvailableForDownload);
-        messageText = `${presentationAvailable}: ${filename} - ${absoluteDownloadUrl}`;
+        messageText = `${presentationAvailable}: ${filename}`;
         break;
       }
       case ChatMessageType.API:

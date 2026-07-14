@@ -17,18 +17,22 @@ function assertAsPresentationMetadata(metadata: unknown): asserts metadata is Pr
   }
 }
 
-const getPresentationDownloadData = (metadata: string) => {
+export const parsePresentationMetadata = (metadata: string) => {
   const presentationData = JSON.parse(metadata) as unknown;
   assertAsPresentationMetadata(presentationData);
+
+  return presentationData;
+};
+
+const getPresentationDownloadData = (metadata: string) => {
+  const presentationData = parsePresentationMetadata(metadata);
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const APP_CONFIG = window.meetingClientSettings.public.app;
   const downloadUrl = Auth.authenticateURL(`${APP_CONFIG.bbbWebBase}/${presentationData.fileURI}`);
-  const absoluteDownloadUrl = new URL(downloadUrl, window.location.origin).toString();
 
   return {
-    absoluteDownloadUrl,
     downloadUrl,
     filename: presentationData.filename,
   };
