@@ -39,7 +39,13 @@ mkdir -p staging/etc/bigbluebutton/bbb-conf
 mkdir -p staging/usr/lib/bbb-conf
 cp bin/apply-lib.sh staging/usr/lib/bbb-conf
 
-wget https://raw.githubusercontent.com/defnull/bbbctl/refs/tags/v0.5.0/src/bbbctl.py -O staging/usr/bin/bbbctl
+# Download bbbctl v0.5.0
+wget https://raw.githubusercontent.com/defnull/bbbctl/d292591665332513aa4ce0b997440a2b7304ccf6/src/bbbctl.py -O staging/usr/bin/bbbctl
+
+# Check integrity
+echo "f5fb826ed5f3132e01d6c9e30b0225f45838e27e2f87424ee5331ce37e9e7abd staging/usr/bin/bbbctl" > bbbctl.sha256
+sha256sum -c bbbctl.sha256
+rm bbbctl.sha256
 chmod 755 staging/usr/bin/bbbctl
 
 mkdir -p staging/etc/cron.daily
