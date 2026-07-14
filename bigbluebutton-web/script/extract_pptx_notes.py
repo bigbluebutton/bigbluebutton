@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copy manually to e.g. /usr/local/bin/
+# Copy manually to /usr/local/bin/ for instance.
 
 import argparse
 import posixpath
@@ -65,7 +65,6 @@ def get_slide_paths_in_order(z):
 
     presentation = read_xml(z, "ppt/presentation.xml")
     presentation_rels = load_rels(z, "ppt/_rels/presentation.xml.rels")
-
     slide_paths = []
 
     for sld_id in presentation.findall(".//p:sldIdLst/p:sldId", NS):
@@ -76,8 +75,10 @@ def get_slide_paths_in_order(z):
 
         target = presentation_rels[rid]["target"]
 
-        # Usually target is "slides/slide1.xml"
-        slide_path = posixpath.normpath(posixpath.join("ppt", target)).lstrip("/")
+        # Usually target is "slides/slide1.xml".
+        slide_path = posixpath.normpath(
+            posixpath.join("ppt", target)
+        ).lstrip("/")
 
         if slide_path in z.namelist():
             slide_paths.append(slide_path)
@@ -115,26 +116,27 @@ def get_note_path_for_slide(z, slide_path):
 
     return None
 
+
 def extract_note_from_xml(xml_bytes):
     root = ET.fromstring(xml_bytes)
-
     paragraphs = []
 
     for sp in root.findall(".//p:sp", NS):
         ph = sp.find(".//p:ph", NS)
 
+        # Speaker note body placeholder.
         if ph is None or ph.attrib.get("type") != "body":
             continue
 
-        for p in sp.findall(".//a:p", NS):
+        for paragraph in sp.findall(".//a:p", NS):
             runs = []
 
-            for t in p.findall(".//a:t", NS):
-                if t.text:
-                    runs.append(t.text)
+            for text_node in paragraph.findall(".//a:t", NS):
+                if text_node.text:
+                    runs.append(text_node.text)
 
             # Join runs inside the same paragraph.
-            # Do not insert newline between runs, because PowerPoint may split words.
+            # Do not insert a newline between runs because PowerPoint may split words.
             line = "".join(runs).strip()
 
             if line:
@@ -143,13 +145,99 @@ def extract_note_from_xml(xml_bytes):
     return "\n".join(paragraphs)
 
 
-def extract_notes(pptx_path, output_dir):
+def animation_marker_path(original_pptx):
+    """
+    Return the marker path created by PresentationController:
+      original.pptx.expand-animations
+    """
+    return Path(f"{original_pptx}.expand-animations")
+
+
+def expanded_pptx_path(original_pptx):
+    """
+    Return the persistent expanded PPTX path created before LibreOffice:
+      original.expanded.pptx
+    """
+    original_pptx = Path(original_pptx)
+    return original_pptx.with_name(
+        f"{original_pptx.stem}.expanded.pptx"
+    )
+
+
+def is_complete_pptx(path):
+    """
+    Return True only when the file looks like a complete PPTX package.
+    """
+    path = Path(path)
+
+    if not path.is_file() or path.stat().st_size == 0:
+        return False
+
+    if not zipfile.is_zipfile(path):
+        return False
+
+    try:
+        with zipfile.ZipFile(path) as z:
+            if z.testzip() is not None:
+                return False
+
+            required_parts = {
+                "[Content_Types].xml",
+                "ppt/presentation.xml",
+                "ppt/_rels/presentation.xml.rels",
+            }
+            return required_parts.issubset(z.namelist())
+    except (OSError, zipfile.BadZipFile):
+        return False
+
+
+def select_pptx_for_notes(original_pptx):
+    """
+    Select the same PPTX that is used for PDF conversion.
+
+    If animation expansion was not requested, return the original PPTX.
+
+    If the marker exists, use the persistent expanded PPTX. Do not fall back
+    to the original PPTX, because that would produce notes whose slide numbers
+    do not match the expanded PDF/SVG presentation.
+    """
+    original_pptx = Path(original_pptx)
+    marker = animation_marker_path(original_pptx)
+
+    if not marker.exists():
+        print(f"Using original PPTX for note extraction: {original_pptx}")
+        return original_pptx
+
+    expanded = expanded_pptx_path(original_pptx)
+
+    if not is_complete_pptx(expanded):
+        raise FileNotFoundError(
+            "Animation expansion was requested, but the expanded PPTX "
+            f"does not exist or is invalid: {expanded}"
+        )
+
+    print(f"Using expanded PPTX for note extraction: {expanded}")
+    return expanded
+
+def remove_existing_note_files(output_dir):
+    """
+    Remove old numbered note files so that a previous extraction with a
+    different slide count cannot leave extra files behind.
+    """
+    for path in output_dir.glob("*.txt"):
+        if path.stem.isdigit():
+            path.unlink()
+
+
+def extract_notes(original_pptx_path, output_dir):
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+    remove_existing_note_files(output_dir)
+
+    pptx_path = select_pptx_for_notes(original_pptx_path)
 
     with zipfile.ZipFile(pptx_path) as z:
         slide_paths = get_slide_paths_in_order(z)
-
         visible_slide_num = 1
 
         for slide_path in slide_paths:
@@ -167,22 +255,32 @@ def extract_notes(pptx_path, output_dir):
             out_file.write_text(note_text, encoding="utf-8")
 
             print(
-                f"visible slide {visible_slide_num}: "
+                f"Visible slide {visible_slide_num}: "
                 f"{slide_path}, note={note_path or 'none'}"
             )
 
             visible_slide_num += 1
 
+    print(f"Extracted notes for {visible_slide_num - 1} visible slide(s)")
+
+
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("pptx")
+    parser = argparse.ArgumentParser(
+        description=(
+            "Extract PowerPoint speaker notes while keeping slide numbering "
+            "aligned with an animation-expanded BBB presentation."
+        )
+    )
+    parser.add_argument(
+        "pptx",
+        help="path to the original uploaded PPTX",
+    )
     parser.add_argument(
         "-o",
         "--output",
         default="notes",
-        help="output directory"
+        help="output directory",
     )
-
     args = parser.parse_args()
 
     extract_notes(args.pptx, args.output)
@@ -191,6 +289,6 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except Exception as e:
-        print(f"ERROR: {e}", file=sys.stderr)
+    except Exception as error:
+        print(f"ERROR: {error}", file=sys.stderr)
         sys.exit(1)
