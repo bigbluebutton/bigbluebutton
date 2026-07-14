@@ -12,6 +12,14 @@ export const throwErrorIfNotPresenter = (sessionVariables: Record<string, unknow
     }
 };
 
+export const throwErrorIfInvalidLocale = (locale: unknown) => {
+    // Locales are used to build recording caption filenames (caption_<locale>.vtt)
+    // and JSON keys. Restrict to a BCP-47-ish shape as defense-in-depth.
+    if (typeof locale !== 'string' || !/^[A-Za-z0-9-]{2,35}$/.test(locale)) {
+        throw new ValidationError('Invalid locale format.', 400);
+    }
+};
+
 export const throwErrorIfNotPresenterNorModerator = (sessionVariables: Record<string, unknown>) => {
     if(sessionVariables['x-hasura-presenterinmeeting'] == "" && sessionVariables['x-hasura-moderatorinmeeting'] == "") {
         throw new ValidationError('Permission Denied (not presenter or moderator).', 403);

@@ -51,6 +51,10 @@ trait UpdateTranscriptPubMsgHdlr {
         u <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
         voiceUser <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, msg.header.userId)
         if !voiceUser.listenOnly
+        // A muted (or non-speaking) user is not producing audio, so must not be
+        // able to submit live-caption text. The official client already stops
+        // submitting when muted; this enforces it server-side.
+        if !voiceUser.muted
       } yield {
         val (start, end, text) = AudioCaptions.editTranscript(
           liveMeeting.audioCaptions,

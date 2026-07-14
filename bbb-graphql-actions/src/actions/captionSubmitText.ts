@@ -1,5 +1,5 @@
 import { RedisMessage } from '../types';
-import {throwErrorIfInvalidInput} from "../imports/validation";
+import {throwErrorIfInvalidInput, throwErrorIfInvalidLocale} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
   throwErrorIfInvalidInput(input,
@@ -13,6 +13,8 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
         {name: 'isFinal', type: 'boolean', required: true},
       ]
   )
+
+  throwErrorIfInvalidLocale(input.locale);
 
   const eventName = `UpdateTranscriptPubMsg`;
 
