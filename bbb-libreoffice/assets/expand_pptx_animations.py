@@ -25,7 +25,7 @@ Not supported
 
 Usage
 -----
-    pip install lxml
+    pip install lxml (usually unnecessary for normal BBB installation?)
     python3 expand_pptx_animations.py input.pptx output-expanded.pptx
 
 Use --omit-initial to omit the pre-animation state of animated slides.
