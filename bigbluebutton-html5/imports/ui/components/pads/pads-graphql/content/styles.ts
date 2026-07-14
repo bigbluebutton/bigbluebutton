@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import {
   colorGray,
-  colorGrayLightest,
+  colorBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const Wrapper = styled.div`
@@ -43,8 +43,8 @@ white-space: normal;
 const Iframe = styled.iframe`
   border-width: 0;
   width: 100%;
-  border-top: 1px solid ${colorGrayLightest};
-  border-bottom: 1px solid ${colorGrayLightest};
+  border-top: 1px solid ${colorBorder};
+  border-bottom: 1px solid ${colorBorder};
 `;
 
 export default {

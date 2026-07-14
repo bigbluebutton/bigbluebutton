@@ -617,6 +617,11 @@ const CreateBreakoutRoom: React.FC<CreateBreakoutRoomProps> = ({
           ? intl.formatMessage(intlMessages.updateTitle)
           : intl.formatMessage(intlMessages.breakoutRoomTitle)
       }
+      documentTitle={
+        isUpdate
+          ? intl.formatMessage(intlMessages.updateTitle)
+          : intl.formatMessage(intlMessages.breakoutRoomTitle)
+      }
       confirm={
         {
           label: isUpdate

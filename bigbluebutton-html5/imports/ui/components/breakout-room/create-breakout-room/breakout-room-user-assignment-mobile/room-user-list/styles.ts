@@ -2,8 +2,8 @@ import styled from 'styled-components';
 import Button from '/imports/ui/components/common/button/component';
 import { TextElipsis, TitleElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
 import {
+  colorBorder,
   colorWhite,
-  colorGrayLighter,
   colorGrayLight,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { borderSize } from '/imports/ui/stylesheets/styled-components/general';
@@ -124,7 +124,7 @@ const SelectUserScreen = styled.div`
 const Header = styled.header`
   display: flex;
   padding: ${lineHeightComputed} 0;
-  border-bottom: ${borderSize} solid ${colorGrayLighter};
+  border-bottom: ${borderSize} solid ${colorBorder};
   margin: 0 1rem 0 1rem;
 `;
 

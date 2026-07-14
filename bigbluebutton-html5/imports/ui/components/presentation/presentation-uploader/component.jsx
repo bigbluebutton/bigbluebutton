@@ -8,7 +8,6 @@ import update from 'immutability-helper';
 import logger from '/imports/startup/client/logger';
 import { toast } from 'react-toastify';
 import { notify } from '/imports/ui/services/notification';
-import { registerTitleView, unregisterTitleView } from '/imports/utils/dom-utils';
 import Styled from './styles';
 import PresentationDownloadDropdown from './presentation-download-dropdown/component';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
@@ -340,7 +339,11 @@ class PresentationUploader extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { isOpen, presentations: propPresentations, currentPresentation, intl } = this.props;
+    const {
+      isOpen,
+      presentations: propPresentations,
+      currentPresentation,
+    } = this.props;
     const { presentations } = this.state;
     const { presentations: prevPropPresentations } = prevProps;
 
@@ -474,13 +477,8 @@ class PresentationUploader extends Component {
       });
     }
 
-    if (!isOpen && prevProps.isOpen) {
-      unregisterTitleView();
-    }
-
     // Updates presentation list when modal opens to avoid missing presentations
     if (isOpen && !prevProps.isOpen) {
-      registerTitleView(intl.formatMessage(intlMessages.uploadViewTitle));
       const focusableElements = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
       const modal = document.getElementById('upload-modal');
       const firstFocusableElement = modal?.querySelectorAll(focusableElements)[0];
