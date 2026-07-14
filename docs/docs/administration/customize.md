@@ -1199,6 +1199,36 @@ maxPresentationsPerRequest=10
 
 Set the value to `0` to disable the limit entirely.
 
+After you save the changes to `/etc/bigbluebutton/bbb-web.properties`, restart the BigBlueButton server with
+
+```bash
+$ sudo bbb-conf --restart
+```
+
+#### Rate limit presentation uploads
+
+To limit abuse from excessive presentation uploads, `bbb-apps-akka` rate limits presentation upload-token requests and caps how many presentations a single presentation pod can hold. The defaults are:
+
+- **20** upload-token requests per user within a rolling **60-second** window (`presentationUploadTokenMaxRequests` / `presentationUploadTokenWindowSec`).
+- **50** presentations per presentation pod (`presentationMaxPerPod`).
+
+When a user exceeds the per-user request rate, or a pod has already reached the maximum number of presentations, the upload is rejected and a warning is logged in `bbb-apps-akka`.
+
+To change these values, add an overwrite rule in `/etc/bigbluebutton/bbb-apps-akka.conf` under the `apps` block:
+
+```properties
+apps {
+  # Maximum presentation upload-token requests allowed per user within the window below.
+  presentationUploadTokenMaxRequests = 20
+  # Length in seconds of the per-user rate-limit window.
+  presentationUploadTokenWindowSec = 60
+  # Maximum number of presentations allowed in a single presentation pod.
+  presentationMaxPerPod = 50
+}
+```
+
+Restart your server with `sudo bbb-conf --restart` to apply the changes.
+
 #### Add custom fonts for presentation conversion
 
 Starting with BigBlueButton 2.3 we added support for using additional fonts when converting presentation files.
