@@ -1185,6 +1185,20 @@ You will have to additionally increase the size for the HTML5 client, edit `/usr
 
 Restart BigBlueButton with `sudo bbb-conf --restart`. You should now be able to upload larger presentations within the new limit.
 
+#### Limit the number of presentations per API request
+
+By default, BigBlueButton processes at most **10** presentations per `create` or `insertDocument` API call. If a single request references more presentations than this limit, BigBlueButton processes the first `maxPresentationsPerRequest` presentations (in the order they appear in the request) and ignores the rest, logging a warning for each request that exceeds the limit.
+
+To change this limit, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties` and set the `maxPresentationsPerRequest` value:
+
+```properties
+#----------------------------------------------------
+# Maximum number of presentations processed per create/insertDocument API call (default 10).
+maxPresentationsPerRequest=10
+```
+
+Set the value to `0` to disable the limit entirely.
+
 #### Add custom fonts for presentation conversion
 
 Starting with BigBlueButton 2.3 we added support for using additional fonts when converting presentation files.
