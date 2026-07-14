@@ -39,6 +39,10 @@ const intlMessages = defineMessages({
     defaultMessage: 'Presentation available for download',
     description: 'used in exported chat before a presentation filename',
   },
+  breakoutCallModerator: {
+    id: 'app.chat.breakoutCallModerator',
+    description: 'Breakout room call moderator system message',
+  },
 });
 
 export const htmlDecode = (input: string) => {
@@ -99,6 +103,21 @@ export const generateExportedMessages = (
         const { filename } = parsePresentationMetadata(message.messageMetadata);
         const presentationAvailable = intl.formatMessage(intlMessages.presentationAvailableForDownload);
         messageText = `${presentationAvailable}: ${filename}`;
+        break;
+      }
+      case ChatMessageType.BREAKOUT_CALL_MODERATOR: {
+        const metadata = (() => {
+          try {
+            const parsed = JSON.parse(message.messageMetadata);
+            return parsed && typeof parsed === 'object' ? parsed : {};
+          } catch {
+            return {};
+          }
+        })();
+        messageText = intl.formatMessage(intlMessages.breakoutCallModerator, {
+          userName: message.senderName,
+          roomName: metadata.roomName || '',
+        });
         break;
       }
       case ChatMessageType.API:
