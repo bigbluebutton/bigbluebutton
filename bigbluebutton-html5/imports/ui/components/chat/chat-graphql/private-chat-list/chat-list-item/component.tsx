@@ -2,8 +2,10 @@
 /* eslint-disable jsx-a11y/no-access-key */
 import React, { useEffect } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
+import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Styled from './styles';
 import PrivateChatListHeader from '../private-chats-header/component';
 import { Input, Layout } from '/imports/ui/components/layout/layoutTypes';
@@ -36,6 +38,23 @@ interface PrivateChatListItemProps {
   index: number;
   privateChatSelectedCallback: () => void;
 }
+
+// Placeholder shown while the last-message preview is still being fetched, so the
+// item is born at its final height and the list does not reflow (see issue 25416).
+const PreviewSkeleton = () => {
+  const Settings = getSettingsSingletonInstance();
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore - temporary while settings are still in .js
+  const { isRTL } = Settings.application;
+
+  return (
+    <SkeletonTheme baseColor="#DCE4EC">
+      <Styled.PreviewSkeleton data-test="privateChatPreviewSkeleton">
+        <Skeleton direction={isRTL ? 'rtl' : 'ltr'} />
+      </Styled.PreviewSkeleton>
+    </SkeletonTheme>
+  );
+};
 
 const PrivateChatListItem = (props: PrivateChatListItemProps) => {
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
@@ -75,9 +94,13 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
   const variables = { ...defaultVariables, requestedChatId: chat.chatId };
   // Skip subscription if chat has no messages
   const skipSubscription = totalMessages === 0;
+  // A non-empty chat will show a preview, so its item must reserve the preview space
+  // from the first render (empty chats never have a preview and stay shorter).
+  const willHavePreview = totalMessages > 0;
   const useChatMessageSubscription = useCreateUseSubscription<Message>(chatQuery, variables);
   const {
     data: chatMessageData,
+    loading: lastMessageLoading,
   } = useChatMessageSubscription((msg) => msg, skipSubscription) as GraphqlDataHookSubscriptionResponse<Message[]>;
 
   useEffect(() => {
@@ -171,10 +194,10 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
               />
             </Styled.ChatHeading>
           )}
-          {(hasMessages || unreadMessagesToDisplay > 0) && (
+          {(willHavePreview || unreadMessagesToDisplay > 0) && (
             <Styled.ChatContent data-test="private-user-list-content">
               <Styled.MessageItemWrapper>
-                {lastMessage}
+                {lastMessageLoading ? <PreviewSkeleton /> : lastMessage}
               </Styled.MessageItemWrapper>
               {(unreadMessagesToDisplay > 0)
                 ? (

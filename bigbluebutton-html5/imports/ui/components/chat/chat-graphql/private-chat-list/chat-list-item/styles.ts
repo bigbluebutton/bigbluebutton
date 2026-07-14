@@ -276,6 +276,20 @@ const MessageItemWrapper = styled.div`
   }
 `;
 
+// Reserves exactly one text line (line-height 2 on a 1rem font = 2rem) so that swapping
+// the skeleton for the real preview text causes zero height change (issue 25416).
+const PreviewSkeleton = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 2rem;
+
+  & .react-loading-skeleton {
+    width: 70%;
+    height: 1rem;
+  }
+`;
+
 export default {
   ChatListItemLink,
   ChatIcon,
@@ -287,6 +301,7 @@ export default {
   ChatWrapper,
   ChatContent,
   MessageItemWrapper,
+  PreviewSkeleton,
   UnreadMessages,
   UnreadMessagesText,
   UserAvatar,

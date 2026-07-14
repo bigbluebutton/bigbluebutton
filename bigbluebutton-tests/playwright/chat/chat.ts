@@ -19,8 +19,14 @@ export class Chat extends MultiUsers {
 
   async sendPrivateMessage() {
     await this.modPage.hasElement(e.chatBox, 'should display the chat box element when chat is open');
-    await this.modPage.wasRemoved(e.publicChatButton, 'should not display the public chat button when there is no private messages');
-    await this.modPage.wasRemoved(e.privateChatButton, 'should not display the private chat button when there is no private messages');
+    await this.modPage.wasRemoved(
+      e.publicChatButton,
+      'should not display the public chat button when there is no private messages',
+    );
+    await this.modPage.wasRemoved(
+      e.privateChatButton,
+      'should not display the private chat button when there is no private messages',
+    );
     await openPrivateChat(this.modPage);
     await this.modPage.hasElement(
       e.hidePrivateChat,
@@ -32,7 +38,10 @@ export class Chat extends MultiUsers {
     await this.modPage.fill(e.chatBox, e.message1);
     await this.modPage.waitAndClick(e.sendButton);
     await this.userPage.waitAndClick(e.privateChatButton);
-    await this.userPage.hasElement(e.privateChatItem, 'should display the private chat item when user receives a private message');
+    await this.userPage.hasElement(
+      e.privateChatItem,
+      'should display the private chat item when user receives a private message',
+    );
     await this.userPage.waitAndClick(e.privateChatItem);
     await this.userPage.hasElement(
       e.hidePrivateChat,
@@ -65,6 +74,60 @@ export class Chat extends MultiUsers {
     );
     await this.modPage.waitAndClick(e.publicChatButton);
     await this.userPage.waitAndClick(e.publicChatButton);
+  }
+
+  // Regression guard for issue 25416: opening the private chat list used to render each
+  // item short (avatar + name only) and then grow it once the per-item last-message
+  // subscription resolved, making the whole list reflow. The item must now be born at its
+  // final height (a skeleton reserves the preview space) so the height never changes.
+  async privateChatPreviewNoReflow() {
+    // seed a private chat that has a last message, so the item shows a preview
+    await openPrivateChat(this.modPage);
+    await this.modPage.hasElement(e.hidePrivateChat, 'should open the private chat with the last user');
+    // prevent a race condition when running on a deployed server
+    await this.modPage.page.waitForTimeout(500);
+    await this.modPage.fill(e.chatBox, e.message1);
+    await this.modPage.waitAndClick(e.sendButton);
+    await checkLastMessageSent(this.modPage, e.message1);
+    // let the chats-list subscription settle totalMessages (0 -> 1) before measuring, so
+    // the only thing still loading when the list opens is the per-item preview subscription
+    // (the actual bug) and not the brand-new-chat message count
+    await this.modPage.page.waitForTimeout(2000);
+
+    // open the private chat list (first render mounts a cold preview subscription) and
+    // sample the item height from first paint through the preview resolving
+    const probe = await this.modPage.page.evaluate(
+      async ({ itemSel, skeletonSel, buttonSel }) => {
+        const heights = new Set<number>();
+        let skeletonSeen = false;
+        const sample = () => {
+          const items = Array.from(document.querySelectorAll(itemSel));
+          items.forEach((el) => heights.add(Math.round(el.getBoundingClientRect().height)));
+          if (document.querySelector(skeletonSel)) skeletonSeen = true;
+        };
+        (document.querySelector(buttonSel) as HTMLElement)?.click();
+        const start = performance.now();
+        while (performance.now() - start < 2500) {
+          sample();
+          // eslint-disable-next-line no-await-in-loop
+          await new Promise((resolve) => {
+            setTimeout(resolve, 25);
+          });
+        }
+        return { heights: Array.from(heights), skeletonSeen };
+      },
+      { itemSel: e.privateChatItem, skeletonSel: e.privateChatPreviewSkeleton, buttonSel: e.privateChatButton },
+    );
+
+    // primary assertion: the item keeps a single height the whole time (no reflow)
+    expect(
+      probe.heights,
+      `the private chat item height must not change while the preview loads (observed heights: ${probe.heights.join(', ')})`,
+    ).toHaveLength(1);
+    // secondary: the reserved-space placeholder is shown while the last message is fetched
+    expect(probe.skeletonSeen, 'a preview skeleton should reserve the space while the last message is loading').toBe(
+      true,
+    );
   }
 
   async clearChat() {
@@ -262,7 +325,10 @@ export class Chat extends MultiUsers {
     await this.modPage.hasElement(e.sendButton, 'should display the send button element');
     await this.modPage.waitAndClick(e.hidePublicChat);
     await this.modPage.wasRemoved(e.chatTitle, 'should not display the chat title element after hiding the messages');
-    await this.modPage.wasRemoved(e.chatOptions, 'should not display the chat options element after hiding the messages');
+    await this.modPage.wasRemoved(
+      e.chatOptions,
+      'should not display the chat options element after hiding the messages',
+    );
     await this.modPage.wasRemoved(e.chatBox, 'should not display the chat box element after hiding the messages');
     await this.modPage.wasRemoved(e.sendButton, 'should not display the send button element after hiding the messages');
   }
@@ -532,7 +598,10 @@ export class Chat extends MultiUsers {
       return;
     }
     await this.userPage.waitAndClick(e.privateChatButton);
-    await this.userPage.hasElement(e.privateChatItem, 'should display the private chat item when the user receives a private message');
+    await this.userPage.hasElement(
+      e.privateChatItem,
+      'should display the private chat item when the user receives a private message',
+    );
     await this.userPage.waitAndClick(e.privateChatItem);
     // check sent messages
     await checkLastMessageSent(this.modPage, e.convertedEmojiMessage);

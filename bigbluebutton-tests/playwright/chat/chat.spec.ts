@@ -18,6 +18,12 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     await chat.sendPrivateMessage();
   });
 
+  test('Private chat list item reserves preview space (no reflow)', async ({ browser, context, page }, testInfo) => {
+    const chat = new Chat(browser, context);
+    await chat.initPages(page, testInfo);
+    await chat.privateChatPreviewNoReflow();
+  });
+
   test('Clear chat', async ({ browser, context, page }, testInfo) => {
     const chat = new Chat(browser, context);
     await chat.initPages(page, testInfo);

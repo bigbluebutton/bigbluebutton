@@ -171,6 +171,7 @@ export const elements = {
   publicChatButton: 'button[data-test="publicChatButton"]',
   privateChatButton: 'button[data-test="privateChatButton"]',
   privateChatItem: 'button[data-test="privateChatItem"]',
+  privateChatPreviewSkeleton: 'div[data-test="privateChatPreviewSkeleton"]',
   publicUnreadIndicator: 'span[data-test="publicUnreadIndicator"]',
   privateUnreadIndicator: 'span[data-test="privateUnreadIndicator"]',
   privateChats: 'div[data-test="private-user-list-header"]',
