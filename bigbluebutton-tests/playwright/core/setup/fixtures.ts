@@ -19,12 +19,15 @@ const testWithValidation = base.extend<TestFixtures>({
         }
       }
       await Promise.all(contexts.map((context) => context.close()));
-      for (let i = 0; i < videos.length; i++) {
-        try {
-          const videoPath = await videos[i].path();
-          await testInfo.attach(`video-${i + 1}`, { path: videoPath, contentType: 'video/webm' });
-        } catch {
-          // skip if video file unavailable
+      // Only attach videos for failed/timed-out tests to avoid bloating CI artifacts on passing runs
+      if (testInfo.status !== 'passed') {
+        for (let i = 0; i < videos.length; i++) {
+          try {
+            const videoPath = await videos[i].path();
+            await testInfo.attach(`video-${i + 1}`, { path: videoPath, contentType: 'video/webm' });
+          } catch {
+            // skip if video file unavailable
+          }
         }
       }
     },

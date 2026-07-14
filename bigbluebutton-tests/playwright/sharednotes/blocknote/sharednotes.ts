@@ -1,6 +1,6 @@
 import { expect, Response } from '@playwright/test';
 
-import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../../core/constants';
+import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../../core/constants';
 import { elements as e } from '../../core/elements';
 import { MultiUsers } from '../../user/multiusers';
 import { getBlockNoteEditorLocator, getBlockNoteReadOnlyLocator, startSharedNotesBlockNote } from './util';
@@ -106,8 +106,8 @@ export class BlockNoteSharedNotes extends MultiUsers {
     // so the popup tab never navigates; checking the request URL is the reliable approach.
     const [request] = await Promise.all([
       this.modPage.page.context().waitForEvent('request', {
-        predicate: (req) => req.url().includes('/hocuspocus/api/documents/'),
-        timeout: 15000,
+        predicate: (req) => req.url().includes('/hocuspocus/api/documents/') && req.url().includes('/export/pdf'),
+        timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
       }),
       this.modPage.waitAndClick(e.exportNotesAsPDF),
     ]);
@@ -201,7 +201,10 @@ export class BlockNoteSharedNotes extends MultiUsers {
     const editorLocator = getBlockNoteEditorLocator(this.modPage);
     await editorLocator.click();
     await editorLocator.pressSequentially('test');
-    await this.modPage.page.waitForTimeout(1000);
+    await expect(editorLocator, 'should register the typed text before converting to whiteboard').toContainText(
+      'test',
+      { timeout: ELEMENT_WAIT_TIME },
+    );
 
     await this.modPage.waitAndClick(e.notesOptions);
     await this.modPage.waitAndClick(e.sendNotesToWhiteboard);
@@ -322,7 +325,9 @@ export class BlockNoteSharedNotes extends MultiUsers {
     const editorLocator = getBlockNoteEditorLocator(this.modPage);
     await editorLocator.click();
     await editorLocator.pressSequentially('Hello');
-    await this.modPage.page.waitForTimeout(1000); // avoid pinning notes before the text is fully synced
+    await expect(editorLocator, 'should register the typed text before pinning').toContainText(/Hello/, {
+      timeout: ELEMENT_WAIT_TIME,
+    });
     // pin notes
     await this.modPage.waitAndClick(e.notesOptions);
     await this.modPage.waitAndClick(e.pinNotes);
