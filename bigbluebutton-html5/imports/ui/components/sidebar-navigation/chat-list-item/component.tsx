@@ -8,7 +8,7 @@ import { useShortcut } from '../../../core/hooks/useShortcut';
 import { useIsChatEnabled } from '/imports/ui/services/features';
 import useHasUnreadChatMessages from '../../chat/hooks/useHasUnreadChatMessages';
 import SidebarNavigationButton from '/imports/ui/components/sidebar-navigation/sidebar-navigation-button/component';
-import { BaseSidebarButtonProps } from '../types';
+import useIsSpecificPanelOpened from '../hooks/useIsSpecificPanelOpened';
 
 const intlMessages = defineMessages({
   messagesTitle: {
@@ -25,10 +25,11 @@ const intlMessages = defineMessages({
   },
 });
 
-const ChatListItem: React.FC<BaseSidebarButtonProps> = ({ isOpened }) => {
+const ChatListItem: React.FC = () => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
   const intl = useIntl();
+  const isOpened = useIsSpecificPanelOpened(PANELS.CHAT);
 
   const {
     hasUnreadMessages,

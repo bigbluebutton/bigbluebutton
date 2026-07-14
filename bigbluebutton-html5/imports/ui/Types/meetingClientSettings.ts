@@ -602,8 +602,15 @@ export interface Layout {
   showLeaveSessionLabel: boolean
 }
 
+export interface SidebarNavigationButtons {
+  top: string[]
+  center: string[]
+  bottom: string[]
+}
+
 export interface SidebarNavigation {
   appsToLabelAsNew: string[]
+  buttons: SidebarNavigationButtons
 }
 
 export interface Pads {
