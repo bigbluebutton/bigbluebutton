@@ -310,6 +310,7 @@ export const elements = {
   errorNoValueInput: 'div[data-test="errorNoValueInput"]',
   smartSlides1: 'smartSlidesPresentation.pdf',
   smartSlides2: 'SmartSlides.pdf',
+  smartSlidesBugRepro1: 'smart-slides-bug-repro-1.pdf',
   responsePollQuestion: 'div[data-test="pollQuestion"]',
   firstPollAnswerOptionBtn: `${pollAnswersOption}>>nth=0`,
   secondPollAnswerOptionBtn: `${pollAnswersOption}>>nth=1`,
