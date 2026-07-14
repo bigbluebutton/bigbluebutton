@@ -39,6 +39,9 @@ mkdir -p staging/etc/bigbluebutton/bbb-conf
 mkdir -p staging/usr/lib/bbb-conf
 cp bin/apply-lib.sh staging/usr/lib/bbb-conf
 
+wget https://raw.githubusercontent.com/defnull/bbbctl/refs/tags/v0.5.0/src/bbbctl.py -O staging/usr/bin/bbbctl
+chmod 755 staging/usr/bin/bbbctl
+
 mkdir -p staging/etc/cron.daily
 cp cron.daily/* staging/etc/cron.daily
 
