@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useMutation, useReactiveVar } from '@apollo/client';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useMeetingSettings from '/imports/ui/core/local-states/useMeetingSettings';
@@ -15,6 +15,7 @@ import {
   useVideoStreams,
 } from './hooks';
 import { CAMERA_BROADCAST_START } from './mutations';
+import { CustomVirtualBackgroundsContext } from '/imports/ui/components/video-preview/virtual-background/context';
 import VideoProvider from './component';
 import LiveKitCameraBridge from '/imports/ui/components/video-provider/livekit-camera-bridge/component';
 import VideoService from './service';
@@ -129,6 +130,11 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
   const { numberOfPages } = useVideoState();
   const isPaginationEnabled = useIsPaginationEnabled();
   const isGridEnabled = useStorageKey('isGridEnabled') as boolean;
+  // Custom virtual backgrounds (uploads + join-parameter URL background) live in
+  // this context as page-lifetime blob URLs. The SFU bridge needs it to re-apply a
+  // stored background on a reconnection republish, since the join-parameter one is
+  // never persisted to IndexedDB (#25266).
+  const { backgrounds: customBackgrounds } = useContext(CustomVirtualBackgroundsContext) || {};
 
   useEffect(() => {
     if (isPaginationEnabled) {
@@ -186,6 +192,7 @@ const VideoProviderContainer: React.FC<VideoProviderContainerProps> = (props) =>
     lockUser,
     stopVideo,
     applyCameraProfile,
+    customBackgrounds,
   };
 
   switch (currentMeeting?.cameraBridge) {
