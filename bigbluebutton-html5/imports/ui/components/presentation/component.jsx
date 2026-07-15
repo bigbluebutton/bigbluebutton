@@ -110,6 +110,7 @@ class Presentation extends PureComponent {
       hadPresentation: false,
       ignorePresentationRestoring: true,
       currentSlideNote: '',
+      presenterView: null,
     };
 
     const PAN_ZOOM_INTERV = window.meetingClientSettings.public.presentation.panZoomInterval || 200;
@@ -135,6 +136,7 @@ class Presentation extends PureComponent {
     this.setTldrawIsMounting = this.setTldrawIsMounting.bind(this);
     this.loadCurrentSlideNote = this.loadCurrentSlideNote.bind(this);
     this.handlePresentationNotesUpdated = this.handlePresentationNotesUpdated.bind(this);
+    this.handlePresenterViewChange = this.handlePresenterViewChange.bind(this);
     Session.setItem('componentPresentationWillUnmount', false);
   }
 
@@ -961,6 +963,19 @@ class Presentation extends PureComponent {
     this.loadCurrentSlideNote();
   }
 
+  handlePresenterViewChange(presenterView) {
+    const currentPageNum = this.props.currentSlide?.num;
+    if (
+      presenterView
+      && Number(presenterView.pageId) !== Number(currentPageNum)
+    ) {
+      return;
+    }
+    this.setState({
+      presenterView,
+    });
+  }
+
   renderPresentationToolbar(svgWidth = 0) {
     const {
       currentSlide,
@@ -1292,6 +1307,7 @@ class Presentation extends PureComponent {
                     restoreOnUpdate={restoreOnUpdate}
                     isPresentationDetached={isPresentationDetached}
                     popupWindow={popupWindow}
+                    onPresenterViewChange={this.handlePresenterViewChange}
                   />
                 </LocatedErrorBoundary>
                 {isFullscreen && <PollingContainer />}
@@ -1326,6 +1342,7 @@ class Presentation extends PureComponent {
 
     const {
       currentSlideNote,
+      presenterView,
     } = this.state;
 
     if (
@@ -1340,7 +1357,12 @@ class Presentation extends PureComponent {
 
     const hasNote = !!currentSlideNote;
 
-    const renderSlideImage = (slide, labelMessage, emptyMessage) => {
+    const renderSlideImage = (
+      slide,
+      labelMessage,
+      emptyMessage,
+      reflectPresenterView = false,
+    ) => {
       if (!slide) {
         return (
           <Styled.PresenterToolEmptySlide>
@@ -1351,16 +1373,51 @@ class Presentation extends PureComponent {
 
       const label = intl.formatMessage(labelMessage);
 
+      const presenterViewMatchesSlide = (
+        reflectPresenterView
+        && presenterView
+        && Number(presenterView.pageId) === Number(slide.num)
+        && (
+          !presenterView.presentationId
+          || presenterView.presentationId === slide.presentationId
+        )
+      );
+
       return (
         <Styled.PresenterToolSlideFrame>
           <Styled.PresenterToolSlideLabel>
             {label}
           </Styled.PresenterToolSlideLabel>
 
-          <Styled.PresenterToolSlideImage
-            src={slide.svgUri}
-            alt={`${label} ${slide.num || ''}`}
-          />
+          <Styled.PresenterToolSlideContent>
+            {presenterViewMatchesSlide ? (
+              <Styled.PresenterToolSlideViewport
+                $aspectRatio={presenterView.viewportAspectRatio}
+              >
+                <Styled.PresenterToolTransformedSlide
+                  src={slide.svgUri}
+                  alt={`${label} ${slide.num || ''}`}
+                  $leftRatio={presenterView.slide.leftRatio}
+                  $topRatio={presenterView.slide.topRatio}
+                  $widthRatio={presenterView.slide.widthRatio}
+                  $heightRatio={presenterView.slide.heightRatio}
+                />
+
+                {presenterView.cursor.visible && (
+                  <Styled.PresenterToolCursorDot
+                    $leftRatio={presenterView.cursor.leftRatio}
+                    $topRatio={presenterView.cursor.topRatio}
+                  />
+                )}
+              </Styled.PresenterToolSlideViewport>
+            ) : (
+              <Styled.PresenterToolSlideImage
+                src={slide.svgUri}
+                alt={`${label} ${slide.num || ''}`}
+                $compact={!reflectPresenterView}
+              />
+            )}
+          </Styled.PresenterToolSlideContent>
         </Styled.PresenterToolSlideFrame>
       );
     };
@@ -1375,11 +1432,15 @@ class Presentation extends PureComponent {
         }}
       >
         <Styled.PresenterToolSlidesColumn>
-          <Styled.PresenterToolSlidePane $withBorder>
+          <Styled.PresenterToolSlidePane
+            $withBorder
+            $isCurrent
+          >
             {renderSlideImage(
               currentSlide,
               intlMessages.currentSlide,
               intlMessages.noCurrentSlide,
+              true,
             )}
           </Styled.PresenterToolSlidePane>
 
