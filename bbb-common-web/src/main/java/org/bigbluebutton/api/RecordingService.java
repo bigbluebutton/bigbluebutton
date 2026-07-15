@@ -20,7 +20,6 @@
 package org.bigbluebutton.api;
 
 import org.bigbluebutton.api.messaging.messages.MakePresentationDownloadableMsg;
-import org.bigbluebutton.api.model.entity.Recording;
 import org.bigbluebutton.api2.domain.UploadedTrack;
 
 import java.io.File;

@@ -76,23 +76,38 @@ const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
 
   const subs = [];
 
+  const hasActiveLockSettingExcludingPresenterPolicy = !!(lockSettings && (
+    lockSettings.disableCam
+    || lockSettings.disableMic
+    || lockSettings.disablePrivateChat
+    || lockSettings.disablePublicChat
+    || lockSettings.disableNotes
+    || lockSettings.hideUserList
+    || lockSettings.hideViewersCursor
+    || lockSettings.hideViewersAnnotation
+    || lockSettings.webcamsOnlyForModerator
+  ));
+
+  // Labels are wrapped in <span> rather than pushed as bare strings: a bare text
+  // node rendered as a sibling of element nodes is what browser translators
+  // rewrite, desyncing React and crashing the list on re-render (see main.html).
   if (subjectUser.presenter && LABEL.presenter) {
-    subs.push(intl.formatMessage(intlMessages.presenter));
+    subs.push(<span key="bbb-presenter">{intl.formatMessage(intlMessages.presenter)}</span>);
   }
   if (subjectUser.isModerator && LABEL.moderator) {
-    subs.push(intl.formatMessage(intlMessages.moderator));
+    subs.push(<span key="bbb-moderator">{intl.formatMessage(intlMessages.moderator)}</span>);
   }
   if (subjectUser.guest && LABEL.guest) {
-    subs.push(intl.formatMessage(intlMessages.guest));
+    subs.push(<span key="bbb-guest">{intl.formatMessage(intlMessages.guest)}</span>);
   }
   if (subjectUser.mobile && LABEL.mobile) {
-    subs.push(intl.formatMessage(intlMessages.mobile));
+    subs.push(<span key="bbb-mobile">{intl.formatMessage(intlMessages.mobile)}</span>);
   }
   if (subjectUser.bot && LABEL.bot) {
-    subs.push(intl.formatMessage(intlMessages.bot));
+    subs.push(<span key="bbb-bot">{intl.formatMessage(intlMessages.bot)}</span>);
   }
   if ((subjectUser.locked || subjectUser.userLockSettings?.disablePublicChat)
-      && (subjectUser.userLockSettings?.disablePublicChat || lockSettings?.hasActiveLockSetting)
+      && (subjectUser.userLockSettings?.disablePublicChat || hasActiveLockSettingExcludingPresenterPolicy)
       && !subjectUser.isModerator
   ) {
     subs.push(

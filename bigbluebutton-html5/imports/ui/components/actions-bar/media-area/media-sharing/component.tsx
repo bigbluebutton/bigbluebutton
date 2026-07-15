@@ -451,6 +451,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
         isRTL={isRTL}
         actionsBarHeight={actionsBarStyle.height}
         reducedWidth={!amIPresenter && amIModerator}
+        id="mediaAreaDropUp"
       >
         {!amIPresenter
           ? renderTakePresenterView()

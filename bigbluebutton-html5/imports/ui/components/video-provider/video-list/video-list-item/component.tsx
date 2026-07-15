@@ -169,7 +169,8 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   const { animations, webcamBorderHighlightColor } = Settings.application;
   const talking = voiceUser?.talking;
   const raiseHand = (stream.type === VIDEO_TYPES.GRID && stream?.raiseHand)
-    || (stream.type === VIDEO_TYPES.STREAM && stream.user?.raiseHand);
+    || (stream.type === VIDEO_TYPES.STREAM && stream.user?.raiseHand)
+    || (stream.type === VIDEO_TYPES.AUDIO_ONLY && stream.user?.raiseHand);
   const { data: currentUser } = useCurrentUser((u) => ({
     userId: u.userId,
     pinned: u.pinned,
@@ -321,7 +322,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     if (!raiseHand) return null;
 
     return (
-      <Styled.RaiseHand>
+      <Styled.RaiseHand data-test="webcamItemRaisedHand">
         {raisedHandPosition > 0 && <Styled.RaiseHandNumber>{raisedHandPosition}</Styled.RaiseHandNumber>}
         <Styled.RaiseHandEmoji>✋</Styled.RaiseHandEmoji>
       </Styled.RaiseHand>
@@ -364,11 +365,11 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   const renderDefaultButtons = () => (
     <>
       <Styled.TopBar>
-        {renderRaiseHandElement()}
         <PinArea
           stream={stream}
           amIModerator={amIModerator}
         />
+        {renderRaiseHandElement()}
       </Styled.TopBar>
       <Styled.BottomBar>
         <UserActions

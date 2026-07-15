@@ -147,6 +147,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const emojiPickerButtonRef = useRef<HTMLButtonElement>(null);
+  const emojiPickerPreviousFocusRef = useRef<HTMLElement | null>(null);
   const [isTextAreaFocused, setIsTextAreaFocused] = React.useState(false);
   const [repliedMessageId, setRepliedMessageId] = React.useState<string | null>(null);
   const [emojisToExclude, setEmojisToExclude] = React.useState<string[]>([]);
@@ -311,6 +312,23 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
   const customCheckText = (input: string): string => {
     const placeholderMap: Record<string, string> = {};
+
+    // Escaped emoticons: a leading backslash prevents the conversion of an
+    // emoticon. Consume the backslash and keep the literal text, e.g. "\D:"
+    // is sent as "D:" instead of being turned into an emoji. See issue #23344.
+    let escapeIndex = 0;
+    // eslint-disable-next-line no-param-reassign
+    input = input.split(' ').map((word) => {
+      if (!word.startsWith('\\')) return word;
+      const unescaped = word.slice(1);
+      // Only treat the backslash as an escape when it precedes something
+      // smile2emoji would actually convert; otherwise leave the text as-is.
+      if (checkText(unescaped) === unescaped) return word;
+      const placeholder = `__ESCAPED_EMOJI_${escapeIndex}__`;
+      escapeIndex += 1;
+      placeholderMap[placeholder] = unescaped;
+      return placeholder;
+    }).join(' ');
 
     emojisToExclude.forEach((shortcode, index) => {
       const placeholder = `__EXCLUDE_${index}__`;
@@ -625,6 +643,16 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       };
     }, []);
 
+    useEffect(() => {
+      if (!showEmojiPicker) {
+        const el = emojiPickerPreviousFocusRef.current;
+        if (el && document.body.contains(el)) {
+          el.focus();
+        }
+        emojiPickerPreviousFocusRef.current = null;
+      }
+    }, [showEmojiPicker]);
+
     return (
       <Styled.Form
         ref={formRef}
@@ -692,7 +720,12 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
                     minWidth: 'auto',
                     color: 'action.active',
                   }}
-                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  onClick={() => {
+                    if (!showEmojiPicker) {
+                      emojiPickerPreviousFocusRef.current = document.activeElement as HTMLElement;
+                    }
+                    setShowEmojiPicker(!showEmojiPicker);
+                  }}
                   type="button"
                   data-test="emojiPickerButton"
                   disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}

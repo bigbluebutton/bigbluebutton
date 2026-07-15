@@ -26,7 +26,7 @@ import {
   getSessionVirtualBackgroundInfo,
 } from '/imports/ui/services/virtual-background/service';
 import {
-  useSharedDevices, useIsUserLocked, useStopVideo, useStreams,
+  useSharedDevices, useIsCamSharingLocked, useStopVideo, useStreams,
 } from '/imports/ui/components/video-provider/hooks';
 import { useIsCustomVirtualBackgroundsEnabled, useIsVirtualBackgroundsEnabled } from '../../services/features';
 import VirtualBgSelector from '/imports/ui/components/video-preview/virtual-background/component';
@@ -55,6 +55,10 @@ const intlMessages: { [key: string]: { id: string; description?: string } } = de
   webcamVirtualBackgroundTitle: {
     id: 'app.videoPreview.webcamVirtualBackgroundLabel',
     description: 'Title for the virtual background modal',
+  },
+  webcamVirtualBackgroundDisabledLabel: {
+    id: 'app.videoPreview.webcamVirtualBackgroundDisabledLabel',
+    description: 'Label for the virtual background toggle when not supported on this device',
   },
   cameraLabel: {
     id: 'app.videoPreview.cameraLabel',
@@ -193,7 +197,7 @@ interface ProfileSettingsProps {
 const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
   const { formatMessage } = useIntl();
   const sharedDevices = useSharedDevices();
-  const isCamLocked = useIsUserLocked();
+  const isCamLocked = useIsCamSharingLocked();
   const stopVideo = useStopVideo();
   const streams = useStreams();
   const isVirtualBackgroundsEnabled = useIsVirtualBackgroundsEnabled();
@@ -699,20 +703,31 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = () => {
       sectionIndex, type, name, customParams,
     );
 
+    const switchTitle = (
+      <Styled.SwitchTitle
+        sx={{ margin: 0 }}
+        control={(
+          <Styled.MaterialSwitch
+            sx={{ marginRight: '1rem' }}
+            checked={section.virtualBackgroundChecked}
+            onChange={(_, checked) => handleVirtualBgChange(sectionIndex, checked)}
+            disabled={!isVirtualBackgroundsEnabled || !isVirtualBackgroundSupported() || isCameraLoading}
+            inputProps={{ 'data-test': 'virtualBackgroundToggle' } as React.InputHTMLAttributes<HTMLInputElement>}
+          />
+        )}
+        label={formatMessage(intlMessages.webcamVirtualBackgroundTitle)}
+      />
+    );
+
     return (
       <>
-        <Styled.SwitchTitle
-          sx={{ margin: 0 }}
-          control={(
-            <Styled.MaterialSwitch
-              sx={{ marginRight: '1rem' }}
-              checked={section.virtualBackgroundChecked}
-              onChange={(_, checked) => handleVirtualBgChange(sectionIndex, checked)}
-              disabled={!isVirtualBackgroundsEnabled || isCameraLoading}
-            />
-          )}
-          label={formatMessage(intlMessages.webcamVirtualBackgroundTitle)}
-        />
+        {!isVirtualBackgroundSupported() ? (
+          <Tooltip title={formatMessage(intlMessages.webcamVirtualBackgroundDisabledLabel)}>
+            {switchTitle}
+          </Tooltip>
+        ) : (
+          switchTitle
+        )}
         {section.virtualBackgroundChecked
           && (
             <Styled.VirtualBgSelectorBorder>

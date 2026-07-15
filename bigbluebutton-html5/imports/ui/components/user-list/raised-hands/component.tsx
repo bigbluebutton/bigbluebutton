@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useMemo, memo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import { useMutation } from '@apollo/client';
 import { RAISED_HAND_USERS } from '/imports/ui/core/graphql/queries/users';
 import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
@@ -25,7 +26,7 @@ const intlMessages = defineMessages({
   },
 });
 
-const RaisedHandsContainer: React.FC = () => {
+const RaisedHandsContainer: React.FC<{ searchQuery?: string }> = ({ searchQuery }) => {
   const intl = useIntl();
   const [setRaiseHand] = useMutation(SET_RAISE_HAND);
 
@@ -67,7 +68,21 @@ const RaisedHandsContainer: React.FC = () => {
     (u) => ({ mismatchedUserId: u.userId, mismatchedName: u.name }),
   );
 
-  if (!meeting || !currentUser || meetingLoading || raisedHands.length === 0) {
+  const searchTerms = useMemo(
+    () => (searchQuery ? searchQuery.trim().toLowerCase().split(/\s+/).filter(Boolean) : []),
+    [searchQuery],
+  );
+  const filteredRaisedHands = useMemo(
+    () => (searchTerms.length > 0
+      ? raisedHands.filter((u) => {
+        const nameLower = u.name.toLowerCase();
+        return searchTerms.every((term) => nameLower.includes(term));
+      })
+      : raisedHands),
+    [raisedHands, searchTerms],
+  );
+
+  if (!meeting || !currentUser || meetingLoading || filteredRaisedHands.length === 0) {
     return null;
   }
 
@@ -83,12 +98,21 @@ const RaisedHandsContainer: React.FC = () => {
       <Styled.RaisedHandsContainer>
         <Styled.TitleContainer>
           <Styled.RaisedHandsTitle>
-            {intl.formatMessage(intlMessages.raisedHandsTitle, { count: raisedHands.length })}
+            {intl.formatMessage(intlMessages.raisedHandsTitle, { count: filteredRaisedHands.length })}
           </Styled.RaisedHandsTitle>
+          {canLowerAll && filteredRaisedHands.length > 1 && (
+            <Styled.LowerAllHandsButton
+              onClick={() => raisedHands.forEach((u) => lowerUserHands(u.userId))}
+              data-test="raiseHandRejection"
+            >
+              <Icon iconName="hand_off" />
+              {intl.formatMessage(intlMessages.lowerHandsLabel)}
+            </Styled.LowerAllHandsButton>
+          )}
         </Styled.TitleContainer>
 
         <RaisedHandsList
-          raisedHands={raisedHands}
+          raisedHands={filteredRaisedHands}
           currentUser={currentUser as User}
           meeting={{
             isBreakout: meeting.isBreakout ?? false,
@@ -97,20 +121,10 @@ const RaisedHandsContainer: React.FC = () => {
           }}
           pageId={pageId}
         />
-
-        {canLowerAll && (
-          <Styled.ClearButton
-            label={intl.formatMessage(intlMessages.lowerHandsLabel)}
-            color="default"
-            size="md"
-            onClick={() => raisedHands.forEach((u) => lowerUserHands(u.userId))}
-            data-test="raiseHandRejection"
-          />
-        )}
       </Styled.RaisedHandsContainer>
       <Styled.Separator />
     </>
   );
 };
 
-export default RaisedHandsContainer;
+export default memo(RaisedHandsContainer);

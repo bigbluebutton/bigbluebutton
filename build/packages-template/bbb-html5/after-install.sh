@@ -21,18 +21,17 @@ fi
 
 WSURL=$(grep -v '#' /etc/bigbluebutton/bbb-web.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*=//;p}' | sed 's/https/wss/g' | sed s'/http/ws/g')
 
-yq -y -i ".public.kurento.wsUrl = \"$WSURL/bbb-webrtc-sfu\"" $BBB_HTML5_SETTINGS_FILE
+yq-go e -i ".public.kurento.wsUrl = \"$WSURL/bbb-webrtc-sfu\"" $BBB_HTML5_SETTINGS_FILE
 
-yq -y -i  ".public.pads.url = \"$PROTOCOL://$HOST/pad\"" $BBB_HTML5_SETTINGS_FILE
+yq-go e -i  ".public.pads.url = \"$PROTOCOL://$HOST/pad\"" $BBB_HTML5_SETTINGS_FILE
 
-sed -i "s/proxy_pass .*/proxy_pass http:\/\/$IP:5066;/g" /usr/share/bigbluebutton/nginx/sip.nginx
 sed -i "s/server_name  .*/server_name  $IP;/g" /etc/nginx/sites-available/bigbluebutton
 
 # set full BBB version in settings.yml so it can be displayed in the client
 if [ -f $BBB_RELEASE_FILE ] && [ -f $BBB_HTML5_SETTINGS_FILE ]; then
   BBB_FULL_VERSION=$(cat $BBB_RELEASE_FILE | sed -n '/^BIGBLUEBUTTON_RELEASE/{s/.*=//;p}' | tail -n 1)
   echo "setting public.app.bbbServerVersion: $BBB_FULL_VERSION in $BBB_HTML5_SETTINGS_FILE "
-  yq -y -i ".public.app.bbbServerVersion = \"$BBB_FULL_VERSION\"" $BBB_HTML5_SETTINGS_FILE
+  yq-go e -i ".public.app.bbbServerVersion = \"$BBB_FULL_VERSION\"" $BBB_HTML5_SETTINGS_FILE
 fi
 
 # Remove old overrides 

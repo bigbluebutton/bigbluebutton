@@ -295,15 +295,16 @@ const LayoutEngine = () => {
         width = windowWidth();
         maxWidth = windowWidth();
       } else {
+        const effectiveMinWidth = sidebarContentMinWidth;
         if (sidebarContentWidth === 0) {
           width = min(
-            max((windowWidth() * 0.2), sidebarContentMinWidth), sidebarContentMaxWidth,
+            max((windowWidth() * 0.2), effectiveMinWidth), sidebarContentMaxWidth,
           );
         } else {
-          width = min(max(sidebarContentWidth, sidebarContentMinWidth),
+          width = min(max(sidebarContentWidth, effectiveMinWidth),
             sidebarContentMaxWidth);
         }
-        minWidth = sidebarContentMinWidth;
+        minWidth = effectiveMinWidth;
         maxWidth = sidebarContentMaxWidth;
       }
     }

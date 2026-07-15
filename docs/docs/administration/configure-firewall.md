@@ -43,7 +43,11 @@ When BigBlueButton is protected behind a firewall, you need to configure the fir
 
 - TCP/IP port 22 (for SSH)
 - TCP/IP ports 80/443 (for HTTP/HTTPS)
-- UDP ports in the range 16384 - 32768 (for FreeSWITCH/HTML5 RTP streams)
+- UDP ports in the range 16384 - 32768 (for LiveKit/FreeSWITCH/HTML5 RTP streams)
+
+LiveKit reuses the UDP range above for its media (RTP) streams; its signaling is
+proxied through the existing nginx HTTPS endpoint (TCP 443), so no extra ports are
+required for it.
 
 ### EC2
 
@@ -238,8 +242,6 @@ to
 
 so that FreeSWITCH announces the external IP address when a connection is established.
 
-Check `/etc/bigbluebutton/nginx/sip.nginx` to ensure its binding to the external IP address of the firewall.
-
 Check that `enableListenOnly` is set to true in `/etc/bigbluebutton/bbb-html5.yml`, as in
 
 ```bash
@@ -255,9 +257,6 @@ freeswitch:
   sip_ip: 172.30.1.145
   port: 5066
 ```
-
-If your running 2.2.29 or later, the value of `sip_ip` depends on whether you have `sipjsHackViaWs`
-set to true or false in `/etc/bigbluebutton/bbb-html5.yml`.
 
 After making the above changes, restart BigBlueButton.
 
@@ -277,7 +276,7 @@ Detected the following WebRTC issue: Error 1002: Could not make a WebSocket conn
 | 1002: Could not make a WebSocket connection | Note 1         |
 | 1007: ICE negotiation failed                | Note 2         |
 
-For Error 1002, check IP address for `proxy_pass` in `/etc/bigbluebutton/nginx/sip.nginx` is pointing to the external IP address of the firewall. Next, check that FreeSWITCH has started without errors
+For Error 1002, check that FreeSWITCH has started without errors
 
 ```
 ## systemctl status freeswitch
@@ -378,12 +377,6 @@ $ ip addr
 ```
 
 You should see the EXTERNAL_IP_ADDRESS for your firewall listed above.
-
-Next, edit `/opt/freeswitch/conf/sip_profiles/external.xml` and ensure the value for `wss-binding` uses the external IP address
-
-```xml
-<param name="wss-binding"  value="EXTERNAL_IP_ADDRESS:7443"/>
-```
 
 At this point, restart your BigBlueButton server with `bbb-conf --restart`, then try connecting to the WebRTC media again.
 

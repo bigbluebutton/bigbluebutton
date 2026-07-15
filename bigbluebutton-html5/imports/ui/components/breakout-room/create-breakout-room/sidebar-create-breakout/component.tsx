@@ -156,6 +156,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.increaseRooms',
     description: 'Increase number of rooms button label',
   },
+  inheritLockSettings: {
+    id: 'app.createBreakoutRoom.inheritLockSettings',
+    description: 'label for checkbox to propagate lock settings to breakout rooms',
+  },
 });
 
 interface CreateTimerPickerProps {
@@ -334,6 +338,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
   const [leastOneUserIsValid, setLeastOneUserIsValid] = useState(false);
   const [roomPresentations, setRoomPresentations] = useState<RoomPresentations>([]);
   const [randomlyAssigned, setRandomlyAssigned] = useState(false);
+  const [inheritLockSettings, setInheritLockSettings] = useState(false);
 
   const [createBreakoutRoom] = useMutation(BREAKOUT_ROOM_CREATE);
 
@@ -451,6 +456,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
         captureSlides,
         durationInSeconds: breakoutDuration,
         sendInviteToModerators: inviteMods,
+        inheritLockSettings,
         rooms: roomsArray,
       },
     }).then(() => {
@@ -459,7 +465,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
     });
   }, [
     numberOfRooms, freeJoin, record, captureNotes,
-    captureSlides, inviteMods, roomPresentations,
+    captureSlides, inviteMods, inheritLockSettings, roomPresentations,
   ]);
 
   const roomPadNum = (n: number) => n.toString().padStart(2, '0');
@@ -515,7 +521,15 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
       onChange: () => setInviteMods(!inviteMods),
       allowed: true,
     },
-  ], [freeJoin, record, captureSlides, captureNotes, inviteMods,
+    {
+      key: 'inheritLockSettings',
+      inputId: 'inheritLockSettingsCheckbox',
+      label: intl.formatMessage(intlMessages.inheritLockSettings),
+      checked: inheritLockSettings,
+      onChange: () => setInheritLockSettings(!inheritLockSettings),
+      allowed: true,
+    },
+  ], [freeJoin, record, captureSlides, captureNotes, inviteMods, inheritLockSettings,
     isBreakoutRecordable, isImportPresentationWithAnnotationsEnabled,
     isImportSharedNotesEnabled, offerRecordingForBreakouts]);
 
@@ -597,17 +611,20 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
         {intl.formatMessage(intlMessages.moreOptions)}
       </Styled.MoreOptionsToggle>
       <Styled.MoreOptionsContent $expanded={moreOptionsOpen}>
-        {optionsConfig.filter((o) => o.allowed).map((opt) => (
-          <Styled.OptionRow key={opt.key} htmlFor={`opt-${opt.key}`}>
-            <Styled.MaterialSwitch
-              id={`opt-${opt.key}`}
-              checked={opt.checked}
-              onChange={opt.onChange}
-              size="small"
-            />
-            {opt.label}
-          </Styled.OptionRow>
-        ))}
+        {optionsConfig.filter((o) => o.allowed).map((opt) => {
+          const switchId = (opt as { inputId?: string }).inputId ?? `opt-${opt.key}`;
+          return (
+            <Styled.OptionRow key={opt.key} htmlFor={switchId}>
+              <Styled.MaterialSwitch
+                id={switchId}
+                checked={opt.checked}
+                onChange={opt.onChange}
+                size="small"
+              />
+              {opt.label}
+            </Styled.OptionRow>
+          );
+        })}
       </Styled.MoreOptionsContent>
 
       <Styled.ScrollContent ref={scrollContainerRef} onDragOver={handleScrollDragOver}>

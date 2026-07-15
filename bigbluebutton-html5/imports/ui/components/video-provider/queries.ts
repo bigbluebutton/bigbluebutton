@@ -1,14 +1,6 @@
 import { gql } from '@apollo/client';
 import { User } from '/imports/ui/components/video-provider/types';
 
-export interface ViewerVideoStreamsSubscriptionResponse {
-  user_camera_aggregate: {
-    aggregate: {
-      count: number;
-    };
-  };
-}
-
 export interface AudioOnlyUsersResponse {
   user: Array<User & {
     voice: {
@@ -24,7 +16,11 @@ export interface AudioOnlyUsersResponse {
 
 export const VIDEO_STREAMS_SUBSCRIPTION = gql`
   subscription VideoStreams {
-    user_camera {
+    user_camera(
+      order_by: {
+        userId: asc,
+      }
+    ) {
       meetingId
       streamId
       user {
@@ -32,6 +28,7 @@ export const VIDEO_STREAMS_SUBSCRIPTION = gql`
         userId
         nameSortable
         pinned
+        pinnedTime
         away
         disconnected
         role
@@ -55,33 +52,16 @@ export const VIDEO_STREAMS_SUBSCRIPTION = gql`
   }
 `;
 
-export const OWN_VIDEO_STREAMS_QUERY = gql`
-  query OwnVideoStreams($userId: String!, $streamIdPrefix: String!) {
-    user_camera(
-      where: {
-        userId: { _eq: $userId },
-        streamId: { _like: $streamIdPrefix }
-      },
-    ) {
-      streamId
-    }
-  }
-`;
-
-export const VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION = gql`
-  subscription ViewerVideoStreams {
-    user_camera_aggregate(where: {
-      user: { role: { _eq: "VIEWER" }, presenter: { _eq: false } }
-    }) {
-      aggregate {
-        count
-      }
-    }
-  }
-`;
-
+// Grid shows users who aren't displayed as a video tile for the current user.
+// Camera-sharers are excluded (isSharingCamera = camerasCount > 0). When the user can
+// only see moderator cameras (webcamsOnlyForModerator + locked), non-moderators are
+// dropped too via $moderatorValues = [true]; otherwise [true, false] keeps everyone.
+// NOTE: isSharingCamera is global and ignores per-viewer locks, so it is trusted only for
+// moderators (their cameras reach everyone); non-moderator visibility is handled by role.
+// The current user is intentionally NOT special-cased here (no per-user variable, so
+// Hasura can still multiplex this subscription); self is re-added client-side instead.
 export const GRID_USERS_SUBSCRIPTION = gql`
-  subscription GridUsers($limit: Int!) {
+  subscription GridUsers($limit: Int!, $moderatorValues: [Boolean!]) {
     user(
       where: {
         cameras_aggregate: {
@@ -90,6 +70,8 @@ export const GRID_USERS_SUBSCRIPTION = gql`
           },
         },
         bot:{ _eq: false },
+        isSharingCamera: { _eq: false },
+        isModerator: { _in: $moderatorValues },
       },
       limit: $limit,
       order_by: {
@@ -102,6 +84,7 @@ export const GRID_USERS_SUBSCRIPTION = gql`
       userId
       nameSortable
       pinned
+      pinnedTime
       away
       disconnected
       role
@@ -121,25 +104,19 @@ export const GRID_USERS_SUBSCRIPTION = gql`
   }
 `;
 
+// Audio-only shows users with floor time who aren't displayed as a video tile for the current user.
+// Same camera-sharer/role filtering as GRID_USERS_SUBSCRIPTION (see note there).
 export const AUDIO_ONLY_USERS_SUBSCRIPTION = gql`
-  subscription AudioOnlyUsers {
+  subscription AudioOnlyUsers($moderatorValues: [Boolean!]) {
     user(
       where: {
-        cameras_aggregate: {
-          count: {
-            predicate: { _eq: 0 },
-          },
-        },
-        voice: {
-          lastFloorTime: {
-            _gt: "0",
-          },
-        },
+        isSharingCamera: { _eq: false },
+        isModerator: { _in: $moderatorValues },
+        lastFloorTime: { _neq: "0" },
       },
       order_by: {
-        voice: {
-          lastFloorTime: desc,
-        },
+        lastFloorTime: desc,
+        userId: asc,
       },
     ) {
       meetingId
@@ -147,6 +124,7 @@ export const AUDIO_ONLY_USERS_SUBSCRIPTION = gql`
       userId
       nameSortable
       pinned
+      pinnedTime
       away
       disconnected
       role
@@ -170,9 +148,7 @@ export const AUDIO_ONLY_USERS_SUBSCRIPTION = gql`
 `;
 
 export default {
-  OWN_VIDEO_STREAMS_QUERY,
   VIDEO_STREAMS_SUBSCRIPTION,
-  VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
   GRID_USERS_SUBSCRIPTION,
   AUDIO_ONLY_USERS_SUBSCRIPTION,
 };

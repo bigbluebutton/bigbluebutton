@@ -192,6 +192,11 @@ bbb-transcription-controller-build:
   script:
     - build/setup-inside-docker.sh bbb-transcription-controller
 
+bbb-yq-go-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-yq-go
+
 bigbluebutton-build:
   extends: .build_job
   script:

@@ -10,14 +10,14 @@ assignees: ''
 <!--PLEASE DO NOT FILE ISSUES FOR GENERAL SUPPORT QUESTIONS.
 This issue tracker is only for bbb development or docs related issues.-->
 
-**Link to the portion of the docs that is out of date**
-If applicable, link to the section of the docs that is out of date.
+### Link to the portion of the docs that is out of date
+<!-- If applicable, link to the section of the docs that is out of date. -->
 
-**Describe what you believe the correct version should be**
+### Describe what you believe the correct version should be
+<!-- A clear and concise description of the correct content. -->
 
-**Screenshots**
-If applicable, add screenshots to help explain your concern.
+### Screenshots
+<!-- If applicable, add screenshots to help explain your concern. -->
 
-**Additional context**
-Add any other context about the problem here.
-
+### Additional context
+<!-- Add any other context about the problem here. -->

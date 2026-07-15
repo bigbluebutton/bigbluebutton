@@ -1,5 +1,6 @@
 import { test } from '../core/setup/fixtures';
 import { Chat } from './chat';
+import { Jumbomoji } from './jumbomoji';
 import { MessageActions } from './messageActions';
 
 test.describe.parallel('Chat', { tag: '@ci' }, () => {
@@ -115,6 +116,16 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
   );
 
   test(
+    'Escape auto converted emoji with a backslash on public chat',
+    { tag: '@setting-required:chat.autoConvertEmoji' },
+    async ({ browser, context, page }, testInfo) => {
+      const chat = new Chat(browser, context);
+      await chat.initPages(page, testInfo);
+      await chat.autoConvertEmojiEscapePublicChat();
+    },
+  );
+
+  test(
     'Copy chat with auto converted emoji',
     { tag: '@setting-required:chat.autoConvertEmoji' },
     async ({ browser, context, page, browserName }, testInfo) => {
@@ -149,6 +160,12 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     const chat = new Chat(browser, context);
     await chat.initPages(page, testInfo);
     await chat.chatDisabledUserLeaves();
+  });
+
+  test('Jumbomoji renders emoji-only messages with larger font', async ({ browser, context, page }, testInfo) => {
+    const jumbomoji = new Jumbomoji(browser, context);
+    await jumbomoji.initModPage(page, { testInfo });
+    await jumbomoji.verifyJumbomoji();
   });
 
   test.describe('Message actions', () => {
@@ -201,6 +218,12 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
         const message = new MessageActions(browser, context);
         await message.initModPage(page, { testInfo });
         await message.replyMessage();
+      });
+
+      test('Reply to a message with text followed by a link', async ({ browser, context, page }, testInfo) => {
+        const message = new MessageActions(browser, context);
+        await message.initModPage(page, { testInfo });
+        await message.replyMessageWithTextBeforeLink();
       });
 
       test('Cancel a reply to a message', async ({ browser, context, page }, testInfo) => {

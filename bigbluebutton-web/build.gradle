@@ -22,7 +22,7 @@ buildscript {
 version "0.10.0"
 group "org.bigbluebutton.web"
 
-ext['tomcat.version'] = '10.1.54'
+ext['tomcat.version'] = '10.1.55'
 ext['netty.version'] = '4.1.132.Final'
 
 apply plugin: "eclipse"
@@ -61,6 +61,12 @@ dependencies {
   implementation "org.springframework.boot:spring-boot-starter-logging:${springVersion}"
 //  implementation "org.springframework.boot:spring-boot-starter-actuator:${springVersion}"
   implementation "org.springframework.boot:spring-boot-starter-tomcat:${springVersion}"
+
+  // Override transitive tomcat-embed from spring-boot-starter-tomcat.
+  // TODO: remove once springVersion >= 3.5.15 (which will manage a fixed tomcat-embed).
+  implementation "org.apache.tomcat.embed:tomcat-embed-core:10.1.55"
+  implementation "org.apache.tomcat.embed:tomcat-embed-websocket:10.1.55"
+  implementation "org.apache.tomcat.embed:tomcat-embed-el:10.1.55"
 
   implementation "org.apache.grails:grails-core"
   implementation "org.apache.grails:grails-logging"

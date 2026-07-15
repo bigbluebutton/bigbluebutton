@@ -9,17 +9,18 @@ import {
 import { Switch } from '@mui/material';
 import { styled as materialStyled } from '@mui/material/styles';
 import { borderSize, borderSizeLarge } from '/imports/ui/stylesheets/styled-components/general';
+import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 
 const Title = styled.h3`
   color: ${colorGrayDark};
   margin: 0;
-  font-size: 1rem;
+  font-size: ${fontSizeBase};
   font-weight: 600;
   margin-bottom: 0;
 `;
 
 const SubTitle = styled.h4`
-  font-size: 0.9rem;
+  font-size: ${fontSizeBase};
   margin-bottom: 1rem;
 `;
 
@@ -70,7 +71,7 @@ const FormElementRight = styled.div`
 
 const Label = styled.span`
   color: ${colorGrayLabel};
-  font-size: 0.9rem;
+  font-size: ${fontSizeBase};
 `;
 
 const Select = styled.select`

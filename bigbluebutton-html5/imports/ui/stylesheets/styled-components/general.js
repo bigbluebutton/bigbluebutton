@@ -10,6 +10,8 @@ const borderSizeLarge = '3px';
 const borderRadius = '.2rem';
 const lgBorderRadius = '1rem';
 const borderRadiusRounded = '.5rem';
+const avatarBorderRadius = '50%';
+const moderatorAvatarBorderRadius = '5px';
 const smPaddingX = '.75rem';
 const smPaddingY = '.3rem';
 const mdPaddingY = '.45rem';
@@ -45,7 +47,9 @@ const barsPadding = '0.8rem'; // so user-list and chat title is aligned with the
 const navigationSidebarLogoPadding = '15%';
 const navigationSidebarListItemsContainerGap = '2.5rem';
 const navigationSidebarListItemsGap = '0.8rem';
-const navigationSidebarListItemsWidth = '65%';
+const navigationSidebarListItemsWidth = '70%';
+const navigationSidebarNotificationBadgeSize = '16px';
+const navigationSidebarNotificationBadgePosition = '-3px';
 const navigationSidebarBorderRadius = '48px';
 const navigationSidebarPaddingY = '20px';
 const navigationSidebarMargin = `${SIDEBAR_NAVIGATION_MARGIN_PERCENTAGE_WIDTH * 100}vw`;
@@ -154,6 +158,8 @@ export {
   navigationSidebarListItemsContainerGap,
   navigationSidebarListItemsGap,
   navigationSidebarListItemsWidth,
+  navigationSidebarNotificationBadgeSize,
+  navigationSidebarNotificationBadgePosition,
   navigationSidebarBorderRadius,
   navigationSidebarPaddingY,
   navigationSidebarMargin,
@@ -244,4 +250,6 @@ export {
   settingsModalHeight,
   settingsModalWidth,
   borderRadiusRounded,
+  avatarBorderRadius,
+  moderatorAvatarBorderRadius,
 };

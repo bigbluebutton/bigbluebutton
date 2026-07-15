@@ -956,7 +956,7 @@ object VoiceApp extends SystemConfiguration {
         liveMeeting,
         outGW
       )
-      AudioFloorManager.handleUserTalking(
+      liveMeeting.audioFloorManager.handleUserTalking(
         talkingUser.intId,
         talking,
         System.currentTimeMillis(),
