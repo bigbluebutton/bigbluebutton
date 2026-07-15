@@ -695,50 +695,103 @@ def clone_notes_for_slide(
 ) -> int:
     """
     Clone the original notes slide for an additional generated slide.
-
-    This keeps speaker notes available on every generated static slide instead
-    of leaving all clones linked to one notes slide with a stale back-reference.
     """
-    notes_relationship = None
-    for rel in cloned_slide_rels.findall("rel:Relationship", NS):
-        if rel.get("Type") == NOTES_REL_TYPE:
-            notes_relationship = rel
-            break
+    notes_relationships = [
+        rel
+        for rel in cloned_slide_rels.findall(
+            "rel:Relationship",
+            NS,
+        )
+        if rel.get("Type") == NOTES_REL_TYPE
+    ]
 
-    if notes_relationship is None:
+    if not notes_relationships:
         return next_notes_number
+
+    if len(notes_relationships) > 1:
+        raise ConversionError(
+            f"Slide has multiple notes relationships: {slide_part}"
+        )
+
+    notes_relationship = notes_relationships[0]
+    target = notes_relationship.get("Target")
+
+    if not target:
+        raise ConversionError(
+            f"Notes relationship has no target: {slide_part}"
+        )
 
     original_notes_part = rel_target_to_part(
         slide_part,
-        notes_relationship.get("Target", ""),
+        target,
     )
+
     if original_notes_part not in files:
-        cloned_slide_rels.remove(notes_relationship)
-        return next_notes_number
+        raise ConversionError(
+            f"Missing notes slide referenced by {slide_part}: "
+            f"{original_notes_part}"
+        )
 
-    new_notes_part = f"ppt/notesSlides/notesSlide{next_notes_number}.xml"
-    files[new_notes_part] = files[original_notes_part]
-    ensure_override(content_types, new_notes_part, NOTES_CONTENT_TYPE)
+    original_notes_rels_part = relationships_part(
+        original_notes_part
+    )
 
-    original_notes_rels_part = relationships_part(original_notes_part)
+    if original_notes_rels_part not in files:
+        raise ConversionError(
+            f"Missing notes relationships: "
+            f"{original_notes_rels_part}"
+        )
+
+    new_notes_part = (
+        f"ppt/notesSlides/notesSlide{next_notes_number}.xml"
+    )
     new_notes_rels_part = relationships_part(new_notes_part)
 
-    if original_notes_rels_part in files:
-        notes_rels = parse_xml(files[original_notes_rels_part])
+    notes_rels = parse_xml(
+        files[original_notes_rels_part]
+    )
 
-        for rel in notes_rels.findall("rel:Relationship", NS):
-            if rel.get("Type") == SLIDE_REL_TYPE:
-                rel.set(
-                    "Target",
-                    part_to_rel_target(new_notes_part, cloned_slide_part),
-                )
+    slide_back_references = [
+        rel
+        for rel in notes_rels.findall(
+            "rel:Relationship",
+            NS,
+        )
+        if rel.get("Type") == SLIDE_REL_TYPE
+    ]
 
-        files[new_notes_rels_part] = serialize_xml(notes_rels)
+    if not slide_back_references:
+        raise ConversionError(
+            f"Notes slide has no back-reference to its slide: "
+            f"{original_notes_rels_part}"
+        )
+
+    for rel in slide_back_references:
+        rel.set(
+            "Target",
+            part_to_rel_target(
+                new_notes_part,
+                cloned_slide_part,
+            ),
+        )
+
+    files[new_notes_part] = files[original_notes_part]
+    files[new_notes_rels_part] = serialize_xml(notes_rels)
+
+    ensure_override(
+        content_types,
+        new_notes_part,
+        NOTES_CONTENT_TYPE,
+    )
 
     notes_relationship.set(
         "Target",
-        part_to_rel_target(cloned_slide_part, new_notes_part),
+        part_to_rel_target(
+            cloned_slide_part,
+            new_notes_part,
+        ),
     )
+
     return next_notes_number + 1
 
 
