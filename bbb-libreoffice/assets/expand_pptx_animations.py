@@ -854,6 +854,15 @@ def convert(
             if original_slide_rels is not None:
                 cloned_rels = parse_xml(original_slide_rels)
 
+                next_notes_number = clone_notes_for_slide(
+                    files,
+                    slide_part,
+                    cloned_slide_part,
+                    cloned_rels,
+                    content_types,
+                    next_notes_number,
+                )
+
                 files[relationships_part(cloned_slide_part)] = (
                     serialize_xml(cloned_rels)
                 )
