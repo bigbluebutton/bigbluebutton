@@ -1,15 +1,21 @@
-import React, { useCallback, useContext, useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { IntlProvider } from 'react-intl';
-import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
 import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
 import useCurrentLocale from '/imports/ui/core/local-states/useCurrentLocale';
 import logger from './logger';
 
-// Backoff between locale fetch retries: 1s, 2s, then 5s repeated. A network
-// rejection (e.g. ERR_NETWORK_CHANGED) retries indefinitely until it succeeds
-// or the component unmounts (the fetch is aborted); the client must never be
-// left on a blank screen because a transient network blip dropped the locale.
+// Backoff between locale fetch retries: 1s, 2s, then 5s repeated, each with up
+// to 500ms of random jitter to avoid a thundering herd of clients retrying in
+// lockstep after a shared network blip. A network rejection (e.g.
+// ERR_NETWORK_CHANGED) keeps retrying until it succeeds, the component unmounts
+// (the fetch is aborted), or the total retry time exceeds MAX_RETRY_DURATION.
+// The client must never be left on a blank screen because a transient network
+// blip dropped the locale.
 const RETRY_DELAYS = [1000, 2000, 5000];
+// Mirrors CustomUsersSettings' CONNECTION_TIMEOUT (the parent in client/main.tsx):
+// stop retrying after this long and let the failure propagate so the loading
+// state resolves instead of spinning forever.
+const MAX_RETRY_DURATION = 60000;
 
 interface LocaleJson {
   [key: string]: string;
@@ -48,6 +54,7 @@ const waitForDelay = (ms: number, signal: AbortSignal): Promise<boolean> => new 
 const buildFetchLocale = (locale: string, signal: AbortSignal): Promise<unknown> => {
   const clientVersion = window.meetingClientSettings.public.app.html5ClientBuild;
   const url = `locales/${locale !== 'index' ? `${locale}.json?v=${clientVersion}` : ''}`;
+  const startTime = Date.now();
 
   const attempt = async (retryCount: number): Promise<unknown> => {
     try {
@@ -56,16 +63,21 @@ const buildFetchLocale = (locale: string, signal: AbortSignal): Promise<unknown>
       // legitimate fallback, not a transient failure: resolve false so the merge
       // step falls back to another locale. Retrying would never help.
       if (!response.ok) return false;
-      return response.json().catch(() => {
+      return await response.json();
+    } catch (error) {
+      // The component unmounted mid-flight: stop, do not retry.
+      if (signal.aborted) return false;
+      // Malformed JSON is not transient (the file is served but corrupt), so
+      // retrying is pointless. Fall back to another locale.
+      if (error instanceof SyntaxError) {
         logger.error({ logCode: 'intl_parse_locale_SyntaxError' }, `Could not parse locale file ${locale}.json, invalid json`);
         return false;
-      });
-    } catch (error) {
+      }
       // The fetch itself rejected (network down/changed -> TypeError: Failed to
-      // fetch). Retry with backoff until the network recovers, unless the
-      // component has unmounted (signal aborted).
-      if (signal.aborted) return false;
-      const delay = RETRY_DELAYS[Math.min(retryCount, RETRY_DELAYS.length - 1)];
+      // fetch). Retry with backoff until the network recovers, unless we have
+      // already spent MAX_RETRY_DURATION trying: then let the failure propagate.
+      if (Date.now() - startTime > MAX_RETRY_DURATION) throw error;
+      const delay = RETRY_DELAYS[Math.min(retryCount, RETRY_DELAYS.length - 1)] + Math.random() * 500;
       logger.warn(
         {
           logCode: 'intl_fetch_locale_retry',
@@ -144,8 +156,6 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
   currentLocale,
   setCurrentLocale,
 }) => {
-  const loadingContextInfo = useContext(LoadingContext);
-
   const [fetching, setFetching] = React.useState(false);
   const [normalizedLocale, setNormalizedLocale] = React.useState(navigator.language.replace('_', '-'));
   const [messages, setMessages] = React.useState<LocaleJson>({});
@@ -157,6 +167,13 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
     buildFetchLocale('index', signal)
       .then((resp) => {
         if (signal.aborted) return;
+        // The index fetch fell back to false (e.g. 404 or corrupt index.json):
+        // there is no locale list to work from, so resolve the loading state
+        // instead of crashing on .map or spinning on a blank screen.
+        if (!Array.isArray(resp)) {
+          setFetching(false);
+          return;
+        }
         const data = fetchLocaleOptions(
           locale,
           init,
@@ -182,10 +199,9 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
             const typedResp = resp as Array<LocaleJson | boolean>;
             const foundLocales = typedResp.filter((locale) => locale instanceof Object) as LocaleJson[];
             if (foundLocales.length === 0) {
-              const error = `${{ logCode: 'intl_fetch_locale_error' }},Could not fetch any locale file for ${languageSets.join(', ')}`;
-              loadingContextInfo.setLoading(false);
-              logger.error(error);
-              throw new Error(error);
+              logger.error({ logCode: 'intl_fetch_locale_error', extraInfo: { languageSets } }, 'Could not fetch any locale file');
+              setFetching(false);
+              return;
             }
             const mergedLocale = foundLocales
               .reduce((acc, locale: LocaleJson) => Object.assign(acc, locale), {});
@@ -194,16 +210,28 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
             setCurrentLocale(replacedLocale);
             setMessages(mergedLocale);
             if (!init) {
-              loadingContextInfo.setLoading(false);
+              setFetching(false);
             }
           }).catch((error) => {
-            loadingContextInfo.setLoading(false);
-            throw new Error(error);
+            logger.error(
+              {
+                logCode: 'intl_fetch_locale_error',
+                extraInfo: { error: error instanceof Error ? error.message : String(error) },
+              },
+              'Error fetching localized messages',
+            );
+            setFetching(false);
           });
       })
-      .catch(() => {
-        loadingContextInfo.setLoading(false);
-        throw new Error('unable to fetch localized messages');
+      .catch((error) => {
+        logger.error(
+          {
+            logCode: 'intl_fetch_locale_error',
+            extraInfo: { error: error instanceof Error ? error.message : String(error) },
+          },
+          'Unable to fetch localized messages',
+        );
+        setFetching(false);
       });
   }, []);
 
