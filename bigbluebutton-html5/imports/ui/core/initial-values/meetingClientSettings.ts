@@ -13,6 +13,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       skipCheck: false,
       skipCheckOnJoin: false,
       enableDynamicAudioDeviceSelection: true,
+      skipEchoTestIfPreviousDevice: false,
       clientTitle: 'BigBlueButton',
       bbbServerVersion: 'HTML5_FULL_BBB_VERSION',
       displayBbbServerVersion: true,
@@ -83,6 +84,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           defaultSelectLocale: true,
           locale: 'disabled',
         },
+        terms: {},
       },
       mutedAlert: {
         enabled: true,
@@ -141,6 +143,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           raiseHandPushAlerts: true,
           guestWaitingAudioAlerts: true,
           guestWaitingPushAlerts: true,
+          muteUnmuteAudioAlerts: true,
           wakeLock: true,
           paginationEnabled: true,
           whiteboardToolbarAutoHide: false,
@@ -148,8 +151,10 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           autoCloseReactionsBar: true,
           directLeaveButton: true,
           darkTheme: false,
+          webcamBorderHighlightColor: [],
           fallbackLocale: 'en',
           overrideLocale: null,
+          audioWasmProcessing: true,
         },
         audio: {
           inputDeviceId: 'undefined',
@@ -249,12 +254,27 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       },
       gUMTimeout: 20000,
       signalCandidates: false,
+      restartIce: {
+        audio: {
+          enabled: false,
+          retries: 1,
+        },
+        video: {
+          enabled: false,
+          retries: 3,
+        },
+        screenshare: {
+          enabled: false,
+          retries: 3,
+        },
+      },
       traceLogs: false,
       cameraTimeouts: {
         baseTimeout: 30000,
         maxTimeout: 60000,
       },
       screenshare: {
+        showButtonForNonPresenters: false,
         enableVolumeControl: true,
         subscriberOffering: false,
         bitrate: 1500,
@@ -371,6 +391,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       autoShareWebcam: false,
       skipVideoPreview: false,
       skipVideoPreviewOnFirstJoin: false,
+      skipVideoPreviewIfPreviousDevice: false,
       cameraSortingModes: {
         defaultSorting: 'LOCAL_ALPHABETICAL',
         paginationSorting: 'VOICE_ACTIVITY_LOCAL',
@@ -575,6 +596,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       disableEmojis: [],
       markdownImageAllowed: false,
       toolbar: [],
+      announcePresenterChangeInChat: true,
     },
     userReaction: {
       enabled: true,
@@ -617,8 +639,11 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     layout: {
       hidePresentationOnJoin: false,
       showParticipantsOnLogin: true,
+      showSessionDetailsOnJoin: true,
       showScreenshareQuickSwapButton: true,
       showLeaveSessionLabel: false,
+      usersPerUserListPage: 50,
+      syncCameraDockSizeAndPosition: true,
     },
     sidebarNavigation: {
       appsToLabelAsNew: [],
@@ -674,6 +699,10 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         screenshare: 'medium',
       },
       muteAudioOutputWhenAway: false,
+      skipInitialCamEnumeration: false,
+      screenshareTroubleshootingLinks: {
+        1136: 'https://support.bigbluebutton.org/hc/en-us/articles/1500005316582-Share-my-screen#:~:text=Error%201136%3A%20Permission%20to%20capture,able%20to%20screen%20share%20again',
+      },
       screenshare: {
         showButtonForNonPresenters: false,
       },
@@ -686,14 +715,20 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         },
         logLevel: LogLevel.warn,
         reconnectOnFatalFailures: true,
+        forceRelay: false,
+        forceRelayOnFirefox: false,
         roomOptions: {
           adaptiveStream: true,
           dynacast: true,
           stopLocalTrackOnUnpublish: false,
+          singlePeerConnection: false,
         },
         audio: {
           publishOptions: {
-            audioPreset: AudioPresets.music,
+            audioPreset: {
+              ...AudioPresets.music,
+              priority: 'high',
+            },
             dtx: true,
             red: false,
             forceStereo: false,
@@ -711,6 +746,33 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           publishOptions: {
             videoCodec: 'vp8',
           },
+          constraints: {
+            video: {
+              frameRate: {
+                ideal: 15,
+                max: 15,
+              },
+              width: {
+                max: 2560,
+              },
+              height: {
+                max: 1600,
+              },
+            },
+            audio: true,
+          },
+          presets: [
+            {
+              maxBitrate: 500000,
+              maxFramerate: 5,
+              priority: 'medium',
+            },
+            {
+              maxBitrate: 1500000,
+              maxFramerate: 15,
+              priority: 'medium',
+            },
+          ],
         },
       },
     },
@@ -869,6 +931,12 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       allowInfiniteWhiteboard: false,
       allowInfiniteWhiteboardInBreakouts: false,
       allowInfiniteWhiteboardPanForViewers: false,
+      locales: [
+        'ar', 'ca', 'cs', 'da', 'de', 'en', 'es', 'fa', 'fi', 'fr', 'gl', 'he',
+        'hi-in', 'hu', 'it', 'ja', 'ko-kr', 'ku', 'main', 'my', 'ne', 'no',
+        'pl', 'pt-br', 'pt-pt', 'ro', 'ru', 'sv', 'te', 'th', 'tr', 'uk',
+        'vi', 'zh-cn', 'zh-tw',
+      ],
       annotations: {
         status: {
           start: 'DRAW_START',
@@ -955,6 +1023,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     },
     clientLog: {
       console: {
+        enableRuntimeErrorLogging: false,
         enabled: true,
         level: 'debug',
       },
