@@ -224,7 +224,7 @@ Recent releases:
 
 #### Promoted BlockNote shared notes as default
 
-In BigBlueButton 4.0.0-beta.3 we replaced the default choice for Shared Notes component from `bbb-etherpad` (i.e. Etherpad) to `bbb-shared-notes-server` (i.e. BlockNote). This means that `bbb-shared-notes-server` is now a required package, installed by default while `bbb-etherpad` and `bbb-pads` are now optional.
+In BigBlueButton 4.0.0-beta.4 we replaced the default choice for Shared Notes component from `bbb-etherpad` (i.e. Etherpad) to `bbb-shared-notes-server` (i.e. BlockNote). This means that `bbb-shared-notes-server` is now a required package, installed by default while `bbb-etherpad` and `bbb-pads` are now optional.
 In the event that you prefer using Etherpad, install the optional packages via
 
 `$ sudo apt install bbb-pads bbb-etherpad`
