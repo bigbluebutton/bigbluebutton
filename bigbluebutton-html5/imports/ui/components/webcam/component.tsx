@@ -80,6 +80,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   const [draggedAtLeastOneTime, setDraggedAtLeastOneTime] = useState(false);
   const cameraDockRef = useRef(cameraDock);
   const cameraSizeRef = useRef(cameraSize);
+  const cameraDockGridSettleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const intl = useIntl();
 
   cameraDockRef.current = cameraDock;
@@ -106,6 +107,12 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
     return () => {
       document.removeEventListener('visibilitychange', handleVisibility);
     };
+  }, []);
+
+  useEffect(() => () => {
+    if (cameraDockGridSettleTimeoutRef.current !== null) {
+      clearTimeout(cameraDockGridSettleTimeoutRef.current);
+    }
   }, []);
 
   useEffect(() => {
@@ -309,6 +316,10 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
               height: isDragging ? cameraSize?.height : cameraDock.height,
             }}
             onResizeStart={() => {
+              if (cameraDockGridSettleTimeoutRef.current !== null) {
+                clearTimeout(cameraDockGridSettleTimeoutRef.current);
+                cameraDockGridSettleTimeoutRef.current = null;
+              }
               setIsResizing(true);
               setResizeStart({ width: cameraDock.width, height: cameraDock.height });
               onResizeHandle(cameraDock.width, cameraDock.height);
@@ -333,7 +344,11 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
               if (snapToCameraGrid) {
                 // Let the throttled grid calculation observe the final pointer size before
                 // compacting it. This keeps larger row/column transitions reachable.
-                setTimeout(() => {
+                if (cameraDockGridSettleTimeoutRef.current !== null) {
+                  clearTimeout(cameraDockGridSettleTimeoutRef.current);
+                }
+                cameraDockGridSettleTimeoutRef.current = setTimeout(() => {
+                  cameraDockGridSettleTimeoutRef.current = null;
                   snapCameraDockToGrid();
                   stopCameraDockResize();
                 }, CAMERA_DOCK_GRID_SETTLE_DELAY);
