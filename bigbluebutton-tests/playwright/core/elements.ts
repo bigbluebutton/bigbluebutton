@@ -394,6 +394,11 @@ export const elements = {
   uploadPresentationFileName: 'uploadTest.png',
   presentationPPTX: 'BBB.pptx',
   presentationTXT: 'helloWorld.txt',
+  // sample.pdf pages are 595.27x841.89 pt (A4 portrait, ratio ~0.707), a source whose
+  // aspect ratio matches nothing else in the meeting: neither the 1920x1080 (16:9) default
+  // deck nor the 1440x1080 (4:3) fallback. Used to assert that slides keep their real
+  // dimensions - if the upload silently reverted to a default, the ratio would not match.
+  nonDefaultRatioPresentationFileName: 'sample.pdf',
   startScreenSharing: 'button[data-test="startScreenShare"]',
   stopScreenSharing: 'button[data-test="stopScreenShare"]',
   managePresentations: 'div[data-test="managePresentations"]',

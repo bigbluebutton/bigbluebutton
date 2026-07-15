@@ -14,6 +14,7 @@ import {
   checkSvgIndex,
   expectSlidesEqualBetweenPages,
   getCurrentPresentationHeight,
+  getCurrentSlideAspectRatio,
   getSlideOuterHtml,
   uploadMultiplePresentations,
   uploadSinglePresentation,
@@ -618,6 +619,33 @@ export class Presentation extends MultiUsers {
         },
       )
       .toBe(true);
+  }
+
+  async uploadPresentationKeepsSourceDimensions() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitForSelector(e.skipSlide);
+    await this.modPage.closeAllToastNotifications();
+
+    await uploadSinglePresentation(this.modPage, e.nonDefaultRatioPresentationFileName);
+
+    // sample.pdf pages are 595.27x841.89 pt (A4 portrait, ratio ~0.707). bbb-web derives the
+    // slide dimensions from the SVG the converter emits, so the rendered slide must keep that
+    // portrait ratio. No other presentation in the meeting shares it: if the dimensions ever
+    // collapsed to the 1440x1080 (4:3 = 1.33) default, or if the upload silently reverted to
+    // the 1920x1080 (16:9 = 1.78) default deck, the ratio would not match. Both are rejected.
+    //
+    // Coverage scope: this is a regression guard for the dimension pipeline (the width/height
+    // probe that pdftocairo SVGs always satisfy). It does NOT exercise the viewBox fallback in
+    // readSvgDims/parseViewBoxDims - that branch is only reached when width/height are absent
+    // or unparseable, and pdftocairo always emits them. See the PR body for why the viewBox
+    // path is defensive (defence in depth) rather than covered by a real upload.
+    const sourceAspectRatio = 595.27 / 841.89;
+    await expect
+      .poll(async () => getCurrentSlideAspectRatio(this.modPage), {
+        message: 'should render the slide with the source A4-portrait aspect ratio, not a default',
+        timeout: ELEMENT_WAIT_LONGER_TIME,
+      })
+      .toBeCloseTo(sourceAspectRatio, 1);
   }
 
   async uploadAndRemoveAllPresentations() {

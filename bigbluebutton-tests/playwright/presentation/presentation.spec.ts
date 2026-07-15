@@ -202,6 +202,13 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.presentationThumbnailLoads();
     });
 
+    test('Uploaded presentation keeps its source dimensions', async ({ browser, context, page }, testInfo) => {
+      linkIssue(24110);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.uploadPresentationKeepsSourceDimensions();
+    });
+
     test('Upload and remove all presentations', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {
       // duplicate toast notification displayed
       linkIssue(24056);
