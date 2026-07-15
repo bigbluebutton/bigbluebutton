@@ -839,6 +839,12 @@ def convert(
         original_slide_rels_part = relationships_part(slide_part)
         original_slide_rels = files.get(original_slide_rels_part)
 
+        if len(roots) > 1 and original_slide_rels is None:
+            raise ConversionError(
+                f"Missing relationships for slide to be cloned: "
+                f"{original_slide_rels_part}"
+            )
+
         # Additional states become newly numbered slide parts.
         for root in roots[1:]:
             cloned_slide_part = (
