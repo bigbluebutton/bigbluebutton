@@ -1,5 +1,6 @@
 package org.bigbluebutton.core.apps.presentationpod
 
+import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.PresPresentationDAO
@@ -7,7 +8,7 @@ import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.PresentationInPod
 import org.bigbluebutton.core.running.LiveMeeting
 
-trait PresentationPageConversionStartedSysMsgHdlr {
+trait PresentationPageConversionStartedSysMsgHdlr extends SystemConfiguration {
   this: PresentationPodHdlrs =>
 
   def handle(msg: PresentationPageConversionStartedSysMsg, state: MeetingState2x,
@@ -45,28 +46,46 @@ trait PresentationPageConversionStartedSysMsgHdlr {
     val removable = msg.body.removable
     val presentationId = msg.body.presentationId
     val podId = msg.body.podId
+    val meetingId = liveMeeting.props.meetingProp.intId
 
     val pres = new PresentationInPod(presentationId, msg.body.presName, msg.body.default, msg.body.current, Map.empty, downloadable,
       "", removable, filenameConverted = msg.body.presFilenameConverted, uploadCompleted = false, numPages = msg.body.numPages, errorDetails = Map.empty)
 
-    val newState = for {
-      pod <- PresentationPodsApp.getPresentationPod(state, podId)
-    } yield {
-      var pods = state.presentationPodManager.addPod(pod)
-      pods = pods.addPresentationToPod(pod.id, pres)
-      if (msg.body.current) {
-        pods = pods.setCurrentPresentation(pod.id, pres)
-      }
+    PresentationPodsApp.getPresentationPod(state, podId) match {
+      // Enforce the per-pod presentation limit at the single point every upload source
+      // (interactive client, create/insertDocument API) passes through to enter a pod.
+      // The token-request check (PresentationUploadTokenReqMsgHdlr) only gates the
+      // interactive path; this is the authoritative backstop for all sources.
+      case Some(pod) if pod.getPresentationsSize() >= presMaxPerPod =>
+        log.warning("Rejecting presentation: pod presentation limit reached. " +
+          s"meetingId=$meetingId userId=${msg.header.userId} podId=$podId " +
+          s"count=${pod.getPresentationsSize()} limit=$presMaxPerPod presentationId=$presentationId")
+        // Mark the presentation failed so the interactive path (which already inserted a
+        // DB row at token time) does not hang as "uploading". For API uploads no row
+        // exists yet, so this is a no-op UPDATE and no phantom row is created.
+        PresPresentationDAO.updateErrors(
+          presentationId,
+          "PRESENTATION_UPLOAD_POD_LIMIT_REACHED",
+          Map("maxPresentationsPerPod" -> presMaxPerPod.toString)
+        )
+        state
 
-      state.update(pods)
-    }
+      case Some(pod) =>
+        var pods = state.presentationPodManager.addPod(pod)
+        pods = pods.addPresentationToPod(pod.id, pres)
+        if (msg.body.current) {
+          pods = pods.setCurrentPresentation(pod.id, pres)
+        }
+        val ns = state.update(pods)
 
-    PresPresentationDAO.updateConversionStarted(liveMeeting.props.meetingProp.intId, pres)
-    broadcastEvent(msg)
+        PresPresentationDAO.updateConversionStarted(meetingId, pres)
+        broadcastEvent(msg)
+        ns
 
-    newState match {
-      case Some(ns) => ns
-      case None     => state
+      case None =>
+        PresPresentationDAO.updateConversionStarted(meetingId, pres)
+        broadcastEvent(msg)
+        state
     }
 
   }
