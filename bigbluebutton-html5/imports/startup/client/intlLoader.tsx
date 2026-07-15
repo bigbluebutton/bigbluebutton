@@ -1,8 +1,15 @@
 import React, { useCallback, useContext, useEffect } from 'react';
 import { IntlProvider } from 'react-intl';
 import { LoadingContext } from '/imports/ui/components/common/loading-screen/loading-screen-HOC/component';
+import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
 import useCurrentLocale from '/imports/ui/core/local-states/useCurrentLocale';
 import logger from './logger';
+
+// Backoff between locale fetch retries: 1s, 2s, then 5s repeated. A network
+// rejection (e.g. ERR_NETWORK_CHANGED) retries indefinitely until it succeeds
+// or the component unmounts (the fetch is aborted); the client must never be
+// left on a blank screen because a transient network blip dropped the locale.
+const RETRY_DELAYS = [1000, 2000, 5000];
 
 interface LocaleJson {
   [key: string]: string;
@@ -17,24 +24,51 @@ interface IntlLoaderProps extends IntlLoaderContainerProps {
   setCurrentLocale: (locale: string) => void;
 }
 
-const buildFetchLocale = (locale: string) => {
+const buildFetchLocale = (locale: string, signal: AbortSignal): Promise<unknown> => {
   const clientVersion = window.meetingClientSettings.public.app.html5ClientBuild;
   const localesPath = 'locales';
+  const url = `${localesPath}/${locale !== 'index' ? `${locale}.json?v=${clientVersion}` : ''}`;
 
-  return new Promise((resolve) => {
-    fetch(`${localesPath}/${locale !== 'index' ? `${locale}.json?v=${clientVersion}` : ''}`)
-      .then((response) => {
-        if (!response.ok) {
-          return resolve(false);
-        }
-        return response.json()
-          .then((jsonResponse) => resolve(jsonResponse))
-          .catch(() => {
-            logger.error({ logCode: 'intl_parse_locale_SyntaxError' }, `Could not parse locale file ${locale}.json, invalid json`);
-            resolve(false);
-          });
+  const attempt = (retryCount: number): Promise<unknown> => fetch(url, { signal })
+    .then((response) => {
+      // A genuine HTTP error (e.g. 404 for a locale that does not exist) is a
+      // legitimate fallback, not a transient failure: resolve false so the
+      // merge step falls back to another locale. Retrying would never help.
+      if (!response.ok) {
+        return false;
+      }
+      return response.json()
+        .then((jsonResponse) => jsonResponse)
+        .catch(() => {
+          logger.error({ logCode: 'intl_parse_locale_SyntaxError' }, `Could not parse locale file ${locale}.json, invalid json`);
+          return false;
+        });
+    })
+    .catch((error) => {
+      // The fetch itself rejected (network down/changed -> TypeError: Failed to
+      // fetch). Retry with backoff until the network recovers, unless the
+      // component has unmounted (signal aborted).
+      if (signal.aborted) {
+        return false;
+      }
+      const delay = RETRY_DELAYS[Math.min(retryCount, RETRY_DELAYS.length - 1)];
+      logger.warn(
+        {
+          logCode: 'intl_fetch_locale_retry',
+          extraInfo: { locale, retryCount, delay, error: error?.message },
+        },
+        `Locale fetch failed for ${locale}, retrying in ${delay}ms`,
+      );
+      return new Promise((resolve) => {
+        const timer = setTimeout(() => resolve(attempt(retryCount + 1)), delay);
+        signal.addEventListener('abort', () => {
+          clearTimeout(timer);
+          resolve(false);
+        }, { once: true });
       });
-  });
+    });
+
+  return attempt(0);
 };
 
 const fetchLocaleOptions = (locale: string, init: boolean, localesList: string[] = []) => {
@@ -100,10 +134,11 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
   const [fallbackOnEmptyLocaleString, setFallbackOnEmptyLocaleString] = React.useState(false);
   const skipInitialLocaleFetch = React.useRef(true);
 
-  const fetchLocalizedMessages = useCallback((locale: string, init: boolean) => {
+  const fetchLocalizedMessages = useCallback((locale: string, init: boolean, signal: AbortSignal) => {
     setFetching(true);
-    buildFetchLocale('index')
+    buildFetchLocale('index', signal)
       .then((resp) => {
+        if (signal.aborted) return;
         const data = fetchLocaleOptions(
           locale,
           init,
@@ -123,8 +158,9 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
           normalizedLocale,
         ])).filter((locale) => locale);
 
-        Promise.all(languageSets.map((locale) => buildFetchLocale(locale)))
+        Promise.all(languageSets.map((locale) => buildFetchLocale(locale, signal)))
           .then((resp) => {
+            if (signal.aborted) return;
             const typedResp = resp as Array<LocaleJson | boolean>;
             const foundLocales = typedResp.filter((locale) => locale instanceof Object) as LocaleJson[];
             if (foundLocales.length === 0) {
@@ -154,13 +190,16 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
   }, []);
 
   useEffect(() => {
+    const controller = new AbortController();
     const language = navigator.languages ? navigator.languages[0] : navigator.language;
     // if currentLocale was already overridden before this component mounted, use it instead
     if (currentLocale !== normalizedLocale) {
-      fetchLocalizedMessages(currentLocale, false);
+      fetchLocalizedMessages(currentLocale, false, controller.signal);
     } else {
-      fetchLocalizedMessages(language, true);
+      fetchLocalizedMessages(language, true, controller.signal);
     }
+    // Aborts any in-flight fetch and clears a pending retry timeout on unmount.
+    return () => controller.abort();
   }, []);
 
   useEffect(() => {
@@ -168,11 +207,14 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
     // Prevents redundant initial locale fetches when a locale override is detected at mount time
     if (skipInitialLocaleFetch.current) {
       skipInitialLocaleFetch.current = false;
-      return;
+      return undefined;
     }
     if (currentLocale !== normalizedLocale) {
-      fetchLocalizedMessages(currentLocale, false);
+      const controller = new AbortController();
+      fetchLocalizedMessages(currentLocale, false, controller.signal);
+      return () => controller.abort();
     }
+    return undefined;
   }, [currentLocale]);
 
   useEffect(() => {
@@ -197,7 +239,7 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
     >
       {children}
     </IntlProvider>
-  ) : null;
+  ) : <LoadingScreen />;
 };
 
 const IntlLoaderContainer: React.FC<IntlLoaderContainerProps> = ({
