@@ -53,7 +53,7 @@ const Input = styled(TextareaAutosize)`
   font-size: ${fontSizeBase};
   line-height: 1;
   overflow-y: auto;
-  white-space: normal;
+  white-space: pre-wrap;
   border: ${colorBorder};
   box-shadow: none;
   outline: none;
