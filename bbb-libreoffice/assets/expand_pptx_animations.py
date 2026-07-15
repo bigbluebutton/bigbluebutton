@@ -359,7 +359,6 @@ def nearest_node_type(effect: etree._Element) -> Optional[str]:
             return c_tn.get("nodeType")
     return None
 
-
 def extract_click_groups(
     slide_root: etree._Element,
 ) -> tuple[list[list[Action]], list[str]]:
