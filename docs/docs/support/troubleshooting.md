@@ -381,11 +381,11 @@ Note: If your server has an internal/external IP address, such as on AWS EC2 ser
 
 ### The following packages have unmet dependencies
 
-When installing the latest build of BigBlueButton, the package `bbb-conf` uses `yq-go` (mikefarah's Go implementation of `yq`) to manage YAML files. On Ubuntu 24.04 `yq-go` is a separate package and command from the archive `yq` (the Python/jq-based version by kislyuk), and is installed as the `yq-go` binary.
+When installing the latest build of BigBlueButton, `bbb-conf` uses `yq-go` (mikefarah's Go implementation of `yq`) to manage YAML files. On Ubuntu 24.04 `yq-go` is a separate command from the archive `yq` (the Python/jq-based version by kislyuk); BigBlueButton ships it as the **`bbb-yq-go`** package, which installs the `/usr/bin/yq-go` binary.
 
-You can install it from the [`ppa:martin-uni-mainz/yq-go`](https://launchpad.net/~martin-uni-mainz/+archive/ubuntu/yq-go) PPA with `sudo add-apt-repository ppa:martin-uni-mainz/yq-go && sudo apt-get install yq-go`.
+`bbb-yq-go` is pulled in automatically as a dependency of the BigBlueButton packages from BigBlueButton's apt repository. If it is missing, install it with `sudo apt-get install bbb-yq-go`.
 
-Alternatively, if you have not made any customizations to BigBlueButton (outside of using `bbb-conf`), you can use [bbb-install.sh](https://github.com/bigbluebutton/bbb-install) to install/upgrade to the latest version (the `bbb-install.sh` script will automatically install `yq-go`).
+Alternatively, if you have not made any customizations to BigBlueButton (outside of using `bbb-conf`), you can use [bbb-install.sh](https://github.com/bigbluebutton/bbb-install) to install/upgrade to the latest version (which installs `bbb-yq-go` automatically).
 
 ### No Symbolic Link
 
