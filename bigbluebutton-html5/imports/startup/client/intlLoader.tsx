@@ -5,7 +5,7 @@ import { ErrorScreen } from '/imports/ui/components/error-screen/component';
 import useCurrentLocale from '/imports/ui/core/local-states/useCurrentLocale';
 import logger from './logger';
 
-// Backoff between locale fetch retries: 1s, 2s, then 5s repeated, each with full
+// Backoff between locale fetch retries: 1s, 2s, then 5s repeated, each with equal
 // jitter (the effective delay is uniformly random in [base/2, base]) to avoid a
 // thundering herd of clients retrying in lockstep after a shared network blip. A
 // transient failure (a network rejection such as ERR_NETWORK_CHANGED, or a 5xx/429
@@ -24,6 +24,12 @@ const MAX_RETRY_DURATION = 60000;
 
 interface LocaleJson {
   [key: string]: string;
+}
+
+// The locales index is an array of available locale entries; only `name` is used
+// to build the usable-locale list, so that is all we type here.
+interface LocaleIndexEntry {
+  name: string;
 }
 
 interface IntlLoaderContainerProps {
@@ -56,13 +62,30 @@ const waitForDelay = (ms: number, signal: AbortSignal): Promise<boolean> => new 
   signal.addEventListener('abort', onAbort, { once: true });
 });
 
-const buildFetchLocale = (locale: string, signal: AbortSignal, deadline: number): Promise<unknown> => {
+const buildFetchLocale = <T = LocaleJson>(
+  locale: string,
+  signal: AbortSignal,
+  deadline: number,
+): Promise<T | false> => {
   const clientVersion = window.meetingClientSettings.public.app.html5ClientBuild;
   const url = `locales/${locale !== 'index' ? `${locale}.json?v=${clientVersion}` : ''}`;
 
-  const attempt = async (retryCount: number): Promise<unknown> => {
+  const attempt = async (retryCount: number): Promise<T | false> => {
+    // Per-attempt controller: composes the outer unmount signal with a timeout so a
+    // hung fetch (server accepts the connection but never responds) still aborts at
+    // the shared deadline instead of stranding the client on the loading screen.
+    // Aborting attemptController (not the outer signal) keeps the outer/unmount
+    // abort distinguishable from the deadline timeout in the catch below. We do not
+    // use AbortSignal.any(): Safari 16 support is required (see index.html).
+    const attemptController = new AbortController();
+    const onOuterAbort = () => attemptController.abort();
+    signal.addEventListener('abort', onOuterAbort, { once: true });
+    // A once-listener never fires for an already-dispatched abort, so if the outer
+    // signal aborted before this attempt began, mirror it onto attemptController now.
+    if (signal.aborted) attemptController.abort();
+    const timeoutId = setTimeout(() => attemptController.abort(), Math.max(0, deadline - Date.now()));
     try {
-      const response = await fetch(url, { signal });
+      const response = await fetch(url, { signal: attemptController.signal });
       if (!response.ok) {
         // 5xx and 429 are transient (server overloaded / rate limited): fall
         // through to the retry path by throwing so the catch handles the backoff.
@@ -74,7 +97,7 @@ const buildFetchLocale = (locale: string, signal: AbortSignal, deadline: number)
         // step falls back to another locale. Retrying would never help.
         return false;
       }
-      return await response.json();
+      return await response.json() as T;
     } catch (error) {
       // The component unmounted mid-flight: stop, do not retry.
       if (signal.aborted) return false;
@@ -102,7 +125,11 @@ const buildFetchLocale = (locale: string, signal: AbortSignal, deadline: number)
         );
         return false;
       }
-      const baseDelay = RETRY_DELAYS[Math.min(retryCount, RETRY_DELAYS.length - 1)];
+      // Clamp the backoff to the time left before the deadline so the wait cannot
+      // overshoot the budget (which would push the give-up past MAX_RETRY_DURATION).
+      const remaining = deadline - Date.now();
+      const baseDelay = Math.min(RETRY_DELAYS[Math.min(retryCount, RETRY_DELAYS.length - 1)], remaining);
+      // Equal jitter: uniformly random in [base/2, base].
       const delay = baseDelay / 2 + (Math.random() * baseDelay) / 2;
       logger.warn(
         {
@@ -121,6 +148,12 @@ const buildFetchLocale = (locale: string, signal: AbortSignal, deadline: number)
       const completed = await waitForDelay(delay, signal);
       if (!completed) return false;
       return attempt(retryCount + 1);
+    } finally {
+      // Detach this attempt's timeout and outer-abort listener so neither piles up
+      // across retries. Running before the recursive attempt's promise settles is
+      // fine: the next attempt owns its own controller, timeout and listener.
+      clearTimeout(timeoutId);
+      signal.removeEventListener('abort', onOuterAbort);
     }
   };
 
@@ -196,7 +229,7 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
     // this load, so the whole load is bounded by MAX_RETRY_DURATION rather than
     // each fetch getting its own (which could stack to ~2x in the worst case).
     const deadline = Date.now() + MAX_RETRY_DURATION;
-    buildFetchLocale('index', signal, deadline)
+    buildFetchLocale<LocaleIndexEntry[]>('index', signal, deadline)
       .then((resp) => {
         if (signal.aborted) return;
         // The index fetch fell back to false (e.g. 404, corrupt index.json, or the
@@ -211,7 +244,7 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
         const data = fetchLocaleOptions(
           locale,
           init,
-          (resp as { name: string }[]).map((l) => l.name),
+          resp.map((l) => l.name),
         );
 
         const {
@@ -230,8 +263,7 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
         Promise.all(languageSets.map((locale) => buildFetchLocale(locale, signal, deadline)))
           .then((resp) => {
             if (signal.aborted) return;
-            const typedResp = resp as Array<LocaleJson | boolean>;
-            const foundLocales = typedResp.filter((locale) => locale instanceof Object) as LocaleJson[];
+            const foundLocales = resp.filter((locale): locale is LocaleJson => locale !== false);
             if (foundLocales.length === 0) {
               logger.error({ logCode: 'intl_fetch_locale_none_error', extraInfo: { languageSets } }, 'Could not fetch any locale file');
               setHasError(true);
