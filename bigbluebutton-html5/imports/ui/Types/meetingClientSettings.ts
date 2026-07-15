@@ -766,10 +766,15 @@ export interface Stats {
   timeout: number
   logMediaStats: LogMediaStats
   notification: Notification
-  loss: number[]
-  rtt: number[]
-  level: string[]
+  loss: StatsThresholds
+  rtt: StatsThresholds
   help: string
+}
+
+export interface StatsThresholds {
+  warning: number
+  danger: number
+  critical: number
 }
 
 export interface LogMediaStats {

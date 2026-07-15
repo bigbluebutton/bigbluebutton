@@ -794,21 +794,16 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         warning: false,
         error: true,
       },
-      loss: [
-        0.05,
-        0.1,
-        0.2,
-      ],
-      rtt: [
-        500,
-        1000,
-        2000,
-      ],
-      level: [
-        'warning',
-        'danger',
-        'critical',
-      ],
+      loss: {
+        warning: 0.05,
+        danger: 0.1,
+        critical: 0.2,
+      },
+      rtt: {
+        warning: 500,
+        danger: 1000,
+        critical: 2000,
+      },
       help: 'STATS_HELP_URL',
     },
     presentation: {
