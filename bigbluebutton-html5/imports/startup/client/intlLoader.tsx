@@ -24,6 +24,22 @@ interface IntlLoaderProps extends IntlLoaderContainerProps {
   setCurrentLocale: (locale: string) => void;
 }
 
+// Waits `ms` before resolving, but resolves early if the signal aborts. The
+// abort listener is always detached: on normal completion the setTimeout
+// callback removes it, and on abort the once:true listener has already fired.
+// This prevents listeners from piling up across retries on a long-lived signal.
+const waitForDelay = (ms: number, signal: AbortSignal): Promise<void> => new Promise((resolve) => {
+  const onAbort = () => {
+    clearTimeout(timer);
+    resolve();
+  };
+  const timer = setTimeout(() => {
+    signal.removeEventListener('abort', onAbort);
+    resolve();
+  }, ms);
+  signal.addEventListener('abort', onAbort, { once: true });
+});
+
 const buildFetchLocale = (locale: string, signal: AbortSignal): Promise<unknown> => {
   const clientVersion = window.meetingClientSettings.public.app.html5ClientBuild;
   const localesPath = 'locales';
@@ -55,17 +71,16 @@ const buildFetchLocale = (locale: string, signal: AbortSignal): Promise<unknown>
       logger.warn(
         {
           logCode: 'intl_fetch_locale_retry',
-          extraInfo: { locale, retryCount, delay, error: error?.message },
+          extraInfo: {
+            locale,
+            retryCount,
+            delay,
+            error: error?.message,
+          },
         },
         `Locale fetch failed for ${locale}, retrying in ${delay}ms`,
       );
-      return new Promise((resolve) => {
-        const timer = setTimeout(() => resolve(attempt(retryCount + 1)), delay);
-        signal.addEventListener('abort', () => {
-          clearTimeout(timer);
-          resolve(false);
-        }, { once: true });
-      });
+      return waitForDelay(delay, signal).then(() => attempt(retryCount + 1));
     });
 
   return attempt(0);
