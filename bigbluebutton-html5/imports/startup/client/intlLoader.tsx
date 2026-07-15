@@ -24,55 +24,47 @@ interface IntlLoaderProps extends IntlLoaderContainerProps {
   setCurrentLocale: (locale: string) => void;
 }
 
-// Waits `ms` before resolving, but resolves early if the signal aborts. If the
-// signal is already aborted when called, resolve synchronously without arming a
-// timeout. The abort listener is always detached: on normal completion the
-// setTimeout callback removes it, and on abort the once:true listener has
-// already fired. This prevents listeners from piling up across retries on a
-// long-lived signal.
-const waitForDelay = (ms: number, signal: AbortSignal): Promise<void> => new Promise((resolve) => {
+// Waits `ms` and resolves to true, or resolves early to false if the signal
+// aborts (already aborted at call time, or aborts while waiting). The abort
+// listener is always detached: the setTimeout callback removes it on normal
+// completion, and the once:true listener removes itself when it fires. This
+// keeps listeners from piling up across retries on a long-lived signal.
+const waitForDelay = (ms: number, signal: AbortSignal): Promise<boolean> => new Promise((resolve) => {
   if (signal.aborted) {
-    resolve();
+    resolve(false);
     return;
   }
   const onAbort = () => {
     clearTimeout(timer);
-    resolve();
+    resolve(false);
   };
   const timer = setTimeout(() => {
     signal.removeEventListener('abort', onAbort);
-    resolve();
+    resolve(true);
   }, ms);
   signal.addEventListener('abort', onAbort, { once: true });
 });
 
 const buildFetchLocale = (locale: string, signal: AbortSignal): Promise<unknown> => {
   const clientVersion = window.meetingClientSettings.public.app.html5ClientBuild;
-  const localesPath = 'locales';
-  const url = `${localesPath}/${locale !== 'index' ? `${locale}.json?v=${clientVersion}` : ''}`;
+  const url = `locales/${locale !== 'index' ? `${locale}.json?v=${clientVersion}` : ''}`;
 
-  const attempt = (retryCount: number): Promise<unknown> => fetch(url, { signal })
-    .then((response) => {
+  const attempt = async (retryCount: number): Promise<unknown> => {
+    try {
+      const response = await fetch(url, { signal });
       // A genuine HTTP error (e.g. 404 for a locale that does not exist) is a
-      // legitimate fallback, not a transient failure: resolve false so the
-      // merge step falls back to another locale. Retrying would never help.
-      if (!response.ok) {
+      // legitimate fallback, not a transient failure: resolve false so the merge
+      // step falls back to another locale. Retrying would never help.
+      if (!response.ok) return false;
+      return response.json().catch(() => {
+        logger.error({ logCode: 'intl_parse_locale_SyntaxError' }, `Could not parse locale file ${locale}.json, invalid json`);
         return false;
-      }
-      return response.json()
-        .then((jsonResponse) => jsonResponse)
-        .catch(() => {
-          logger.error({ logCode: 'intl_parse_locale_SyntaxError' }, `Could not parse locale file ${locale}.json, invalid json`);
-          return false;
-        });
-    })
-    .catch((error) => {
+      });
+    } catch (error) {
       // The fetch itself rejected (network down/changed -> TypeError: Failed to
       // fetch). Retry with backoff until the network recovers, unless the
       // component has unmounted (signal aborted).
-      if (signal.aborted) {
-        return false;
-      }
+      if (signal.aborted) return false;
       const delay = RETRY_DELAYS[Math.min(retryCount, RETRY_DELAYS.length - 1)];
       logger.warn(
         {
@@ -81,21 +73,18 @@ const buildFetchLocale = (locale: string, signal: AbortSignal): Promise<unknown>
             locale,
             retryCount,
             delay,
-            error: error?.message,
+            error: error instanceof Error ? error.message : String(error),
           },
         },
         `Locale fetch failed for ${locale}, retrying in ${delay}ms`,
       );
-      return waitForDelay(delay, signal).then(() => {
-        // The delay may have resolved early because the signal aborted while we
-        // were waiting. Skip the extra fetch (it would only reject) and fall
-        // back instead.
-        if (signal.aborted) {
-          return false;
-        }
-        return attempt(retryCount + 1);
-      });
-    });
+      // waitForDelay resolves false when the signal aborted before or during the
+      // wait; skip the doomed next fetch and fall back instead.
+      const completed = await waitForDelay(delay, signal);
+      if (!completed) return false;
+      return attempt(retryCount + 1);
+    }
+  };
 
   return attempt(0);
 };
