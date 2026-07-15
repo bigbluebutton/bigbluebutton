@@ -146,6 +146,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           whiteboardToolbarAutoHide: false,
           pushToTalkEnabled: false,
           autoCloseReactionsBar: true,
+          directLeaveButton: true,
           darkTheme: false,
           fallbackLocale: 'en',
           overrideLocale: null,
@@ -876,6 +877,11 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         },
       },
       styles: {
+        colorStyle: 'black',
+        dashStyle: 'draw',
+        fillStyle: 'none',
+        fontStyle: 'draw',
+        sizeStyle: 'm',
         text: {
           family: 'script',
         },

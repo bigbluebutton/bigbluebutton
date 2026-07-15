@@ -222,6 +222,7 @@ export interface Application {
   whiteboardToolbarAutoHide: boolean
   pushToTalkEnabled: boolean
   autoCloseReactionsBar: boolean
+  directLeaveButton: boolean
   darkTheme: boolean
   fallbackLocale: string
   overrideLocale: string | null
@@ -834,6 +835,11 @@ export interface Status {
 }
 
 export interface Styles {
+  colorStyle: string
+  dashStyle: string
+  fillStyle: string
+  fontStyle: string
+  sizeStyle: string
   text: Text
 }
 
