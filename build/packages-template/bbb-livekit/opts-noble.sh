@@ -2,4 +2,4 @@
 
 . ./opts-global.sh
 
-OPTS="$OPTS -t deb -d yq-go"
+OPTS="$OPTS -t deb -d bbb-yq-go"
