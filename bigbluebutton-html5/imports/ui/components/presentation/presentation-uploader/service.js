@@ -264,7 +264,7 @@ function handleFiledrop(files, files2, that, intl, intlMessages) {
       return {
         file,
         downloadable: false, // by default new presentations are set not to be downloadable
-        expandAnimation: false,
+        expandAnimations: false,
         isRemovable: true,
         presentationId: id,
         name: file.name,
