@@ -24,11 +24,17 @@ interface IntlLoaderProps extends IntlLoaderContainerProps {
   setCurrentLocale: (locale: string) => void;
 }
 
-// Waits `ms` before resolving, but resolves early if the signal aborts. The
-// abort listener is always detached: on normal completion the setTimeout
-// callback removes it, and on abort the once:true listener has already fired.
-// This prevents listeners from piling up across retries on a long-lived signal.
+// Waits `ms` before resolving, but resolves early if the signal aborts. If the
+// signal is already aborted when called, resolve synchronously without arming a
+// timeout. The abort listener is always detached: on normal completion the
+// setTimeout callback removes it, and on abort the once:true listener has
+// already fired. This prevents listeners from piling up across retries on a
+// long-lived signal.
 const waitForDelay = (ms: number, signal: AbortSignal): Promise<void> => new Promise((resolve) => {
+  if (signal.aborted) {
+    resolve();
+    return;
+  }
   const onAbort = () => {
     clearTimeout(timer);
     resolve();
@@ -80,7 +86,15 @@ const buildFetchLocale = (locale: string, signal: AbortSignal): Promise<unknown>
         },
         `Locale fetch failed for ${locale}, retrying in ${delay}ms`,
       );
-      return waitForDelay(delay, signal).then(() => attempt(retryCount + 1));
+      return waitForDelay(delay, signal).then(() => {
+        // The delay may have resolved early because the signal aborted while we
+        // were waiting. Skip the extra fetch (it would only reject) and fall
+        // back instead.
+        if (signal.aborted) {
+          return false;
+        }
+        return attempt(retryCount + 1);
+      });
     });
 
   return attempt(0);
