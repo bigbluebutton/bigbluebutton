@@ -225,7 +225,7 @@ const PresenterToolContainer = styled.div`
 `;
 
 const PresenterToolSlidesColumn = styled.div`
-  width: 40%;
+  width: 50%;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -234,18 +234,29 @@ const PresenterToolSlidesColumn = styled.div`
 `;
 
 const PresenterToolSlidePane = styled.div`
-  height: 50%;
-  width: 100%;
+  position: relative;
+
+  flex: ${({ $isCurrent }) => (
+    $isCurrent ? '65 1 0' : '35 1 0'
+  )};
+
+  min-width: 0;
+  min-height: 0;
   overflow: hidden;
   box-sizing: border-box;
-  border-bottom: 1px solid #444;
+  ${({ $withBorder }) => $withBorder && `
+    border-bottom: 1px solid #444;
+  `}
 `;
 
 const PresenterToolSlideFrame = styled.div`
   position: relative;
   width: 100%;
   height: 100%;
+  min-width: 0;
+  min-height: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   overflow: hidden;
@@ -265,9 +276,13 @@ const PresenterToolSlideLabel = styled.div`
 `;
 
 const PresenterToolSlideImage = styled.img`
-  max-width: 100%;
-  max-height: 100%;
+  width: ${({ $compact }) => ($compact ? '78%' : '100%')};
+  height: auto;
+
+  max-width: ${({ $compact }) => ($compact ? '78%' : '100%')};
+  max-height: ${({ $compact }) => ($compact ? '78%' : '100%')};
   object-fit: contain;
+  display: block;
 `;
 
 const PresenterToolEmptySlide = styled.div`
@@ -281,7 +296,7 @@ const PresenterToolEmptySlide = styled.div`
 `;
 
 const PresenterToolNotesPanel = styled.div`
-  width: 60%;
+  width: 50%;
   height: 100%;
   overflow-y: auto;
   padding: 1.5rem;
@@ -292,6 +307,75 @@ const PresenterToolNotesPanel = styled.div`
   border-left: 1px solid #444;
   color: white;
   background: #1e1e1e;
+`;
+
+const PresenterToolSlideContent = styled.div`
+  position: relative;
+  flex: 1 1 0;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+`;
+
+const PresenterToolSlideViewport = styled.div`
+  position: relative;
+
+  width: 100%;
+  height: auto;
+
+  max-width: 100%;
+  max-height: 100%;
+
+  aspect-ratio: ${({ $aspectRatio }) => (
+    Number.isFinite($aspectRatio) && $aspectRatio > 0
+      ? $aspectRatio
+      : (16 / 9)
+  )};
+
+  flex: 0 1 auto;
+  overflow: hidden;
+  background: #000;
+`;
+
+const PresenterToolTransformedSlide = styled.img`
+  position: absolute;
+
+  left: ${({ $leftRatio }) => `${$leftRatio * 100}%`};
+  top: ${({ $topRatio }) => `${$topRatio * 100}%`};
+
+  width: ${({ $widthRatio }) => `${$widthRatio * 100}%`};
+  height: ${({ $heightRatio }) => `${$heightRatio * 100}%`};
+
+  display: block;
+  max-width: none;
+  max-height: none;
+
+  pointer-events: none;
+  user-select: none;
+`;
+
+const PresenterToolCursorDot = styled.div`
+  position: absolute;
+
+  left: ${({ $leftRatio }) => `${$leftRatio * 100}%`};
+  top: ${({ $topRatio }) => `${$topRatio * 100}%`};
+
+  width: 12px;
+  height: 12px;
+
+  border-radius: 50%;
+  background: #ff0000;
+
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 3;
 `;
 
 export default {
@@ -321,4 +405,8 @@ export default {
   PresenterToolSlideImage,
   PresenterToolEmptySlide,
   PresenterToolNotesPanel,
+  PresenterToolSlideContent,
+  PresenterToolSlideViewport,
+  PresenterToolTransformedSlide,
+  PresenterToolCursorDot,
 };
