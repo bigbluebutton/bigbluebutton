@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
 import { v4 as uuid } from 'uuid';
+import { mergeDeepRight } from 'ramda';
 import { setMeetingSettings } from '/imports/ui/core/local-states/useMeetingSettings';
 import MeetingClientSettings from '/imports/ui/Types/meetingClientSettings';
+import meetingClientSettingsInitialValues from '/imports/ui/core/initial-values/meetingClientSettings';
 import { ErrorScreen } from '/imports/ui/components/error-screen/component';
 import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
 import Session from '/imports/ui/services/storage/in-memory';
@@ -78,9 +80,17 @@ const SettingsLoader: React.FC<SettingsLoaderProps> = (props) => {
               ...staticData
             } = data?.meeting[0];
             const settings = clientSettings.clientSettingsJson;
-            window.meetingClientSettings = JSON.parse(JSON.stringify(settings));
+            // Deep-merge over the client defaults so a deployment running an
+            // outdated settings.yml (missing keys added later) falls back to
+            // the default value for those keys instead of crashing on
+            // undefined, while the server's values still take precedence.
+            const mergedSettings = mergeDeepRight(
+              meetingClientSettingsInitialValues,
+              settings,
+            ) as MeetingClientSettings;
+            window.meetingClientSettings = JSON.parse(JSON.stringify(mergedSettings));
             MeetingStaticDataStore.setMeetingData(staticData);
-            setMeetingSettings(settings);
+            setMeetingSettings(mergedSettings);
             setLoading(false);
             setSettingsFetched(true);
           }).catch(() => {
