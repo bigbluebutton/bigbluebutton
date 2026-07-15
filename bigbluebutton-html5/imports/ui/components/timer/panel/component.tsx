@@ -490,7 +490,7 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
   const deactivateButton = (
     <Styled.ButtonWrapper>
       <BBButton
-        variant="tertiary"
+        variant="secondary"
         label={intl.formatMessage(intlMessages.deactivate)}
         onClick={handleDeactivate}
         dataTest="deactivateTimer"

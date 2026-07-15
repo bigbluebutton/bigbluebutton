@@ -677,8 +677,8 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
         />
       </Styled.ScrollContent>
 
-      {tooltipText ? (
-        <TooltipContainer title={tooltipText}>
+      {(() => {
+        const startButton = (
           <Styled.StartButtonWrapper>
             <BBButton
               variant="primary"
@@ -688,18 +688,13 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
               dataTest="createBreakoutRoomsButton"
             />
           </Styled.StartButtonWrapper>
-        </TooltipContainer>
-      ) : (
-        <Styled.StartButtonWrapper>
-          <BBButton
-            variant="primary"
-            disabled={!canStart}
-            onClick={handleCreateRoom}
-            label={intl.formatMessage(intlMessages.startLabel)}
-            dataTest="createBreakoutRoomsButton"
-          />
-        </Styled.StartButtonWrapper>
-      )}
+        );
+        return tooltipText ? (
+          <TooltipContainer title={tooltipText}>
+            {startButton}
+          </TooltipContainer>
+        ) : startButton;
+      })()}
     </Styled.PanelContent>
   );
 };

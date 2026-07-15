@@ -589,7 +589,7 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
               <div style={{ display: 'flex' }}>
                 <Styled.ButtonWrapper>
                   <BBButton
-                    variant="tertiary"
+                    variant="secondary"
                     dataTest="cancelSharingWebcam"
                     label={intl.formatMessage(intlMessages.cancelLabel)}
                     onClick={closeModal}
@@ -657,11 +657,11 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
     <Styled.VideoPreviewModal
       onRequestClose={handleProceed}
       contentLabel={intl.formatMessage(intlMessages.webcamSettingsTitle)}
-      title={getModalTitle()}
+      shouldShowCloseButton={allowCloseModal}
       shouldCloseOnOverlayClick={allowCloseModal}
+      isPhone={deviceInfo.isPhone}
       data-test="webcamSettingsModal"
-      isOpen={isOpen}
-      priority={priority}
+      {...{ isOpen, priority }}
     >
       <Styled.Container>
         <Styled.Header>

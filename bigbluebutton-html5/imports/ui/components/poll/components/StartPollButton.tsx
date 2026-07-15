@@ -2,6 +2,7 @@ import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import { BBButton } from '@mconf/bbb-ui-components-react';
+import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import Styled from '../styles';
 import { pollTypes, checkPollType } from '../service';
 import { POLL_CREATE } from '../mutations';
@@ -118,17 +119,20 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
   const quizHasNoCorrectAnswer = (
     isQuiz
     && !(optList[correctAnswer.index]?.key === correctAnswer.text));
-  return (
+  // Tippy on a disabled BBButton never fires (the library sets
+  // pointer-events: none on disabled buttons), so the tooltip explaining why
+  // the poll/quiz can't start is placed on a wrapper via TooltipContainer.
+  const tooltipText = [
+    hasNotMinOptions ? intl.formatMessage(intlMessages.minOptionsErr) : '',
+    quizHasNoCorrectAnswer ? intl.formatMessage(intlMessages.quizErr) : '',
+  ].filter(Boolean).join('\n');
+  const startPollButton = (
     <Styled.StartPollButtonWrapper>
       <BBButton
         variant="primary"
         dataTest="startPoll"
         // eslint-disable-next-line max-len
         label={isQuiz ? intl.formatMessage(intlMessages.startQuizLabel) : intl.formatMessage(intlMessages.startPollLabel)}
-        tooltipLabel={[
-          hasNotMinOptions ? intl.formatMessage(intlMessages.minOptionsErr) : '',
-          quizHasNoCorrectAnswer ? intl.formatMessage(intlMessages.quizErr) : '',
-        ].filter(Boolean).join('\n') || undefined}
         disabled={hasNotMinOptions || quizHasNoCorrectAnswer}
         onClick={() => {
           const optionsList = optList.slice(0, MAX_CUSTOM_FIELDS);
@@ -190,6 +194,12 @@ const StartPollButton: React.FC<StartPollButtonProps> = ({
       />
     </Styled.StartPollButtonWrapper>
   );
+
+  return tooltipText ? (
+    <TooltipContainer title={tooltipText}>
+      {startPollButton}
+    </TooltipContainer>
+  ) : startPollButton;
 };
 
 export default StartPollButton;

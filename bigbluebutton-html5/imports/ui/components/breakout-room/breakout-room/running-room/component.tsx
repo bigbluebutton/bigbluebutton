@@ -554,6 +554,7 @@ const RunningBreakoutRoom: React.FC<RunningBreakoutRoomProps> = ({
           <BBButton
             variant="secondary"
             label={intl.formatMessage(intlMessages.megaphoneLabel)}
+            tooltipLabel={intl.formatMessage(intlMessages.megaphoneTooltip)}
             onClick={() => setMegaphoneOpen(!megaphoneOpen)}
             dataTest="megaphoneButton"
           />

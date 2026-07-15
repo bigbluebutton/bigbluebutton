@@ -377,7 +377,7 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
           </Styled.ButtonWrapper>
           <Styled.ButtonWrapper>
             <BBButton
-              variant="tertiary"
+              variant="secondary"
               label={intl.formatMessage(intlMessages.returnToMainSession)}
               onClick={handleReturnToMainSession}
               dataTest="returnToMainSessionButton"
