@@ -616,6 +616,10 @@ public class MeetingService implements MessageListener {
     if (m.isBreakout()) {
       Meeting parent = meetings.get(m.getParentMeetingId());
       parent.addBreakoutRoom(m.getExternalId());
+      // Remember whether the parent records: the recording-hold decision at the
+      // breakout's end needs it, and by then the parent may already have been
+      // removed from the meetings map (parent-ends-first race).
+      m.setParentMeetingRecorded(parent.isRecord());
       if (storeEvents(parent)) {
         storeService.addBreakoutRoom(parent.getInternalId(), m.getInternalId());
       }
@@ -907,8 +911,12 @@ public class MeetingService implements MessageListener {
   private void holdUploadsForRecordedMeeting(Meeting m) {
     boolean archiveWillNeedUploads = m.isRecord();
     if (!archiveWillNeedUploads && m.isBreakout()) {
-      Meeting parent = getMeeting(m.getParentMeetingId());
-      archiveWillNeedUploads = parent != null && parent.isRecord();
+      // Use the flag captured at breakout creation: when the parent ends first,
+      // it is removed from the meetings map before the breakout's own
+      // MeetingEnded is processed, so a live getMeeting(parentId) lookup here
+      // would return null and skip the hold, leaving the breakout's uploads
+      // eligible for retention cleanup before the parent's archive copies them.
+      archiveWillNeedUploads = m.isParentMeetingRecorded();
     }
     if (archiveWillNeedUploads) {
       recordingService.holdUploadsForRecording(m.getInternalId());
