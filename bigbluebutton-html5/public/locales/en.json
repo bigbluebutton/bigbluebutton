@@ -1473,6 +1473,8 @@
     "app.whiteboard.annotations.numberExceeded": "The number of annotations exceeded the limit ({limit})",
     "app.whiteboard.imagePaste.errorType": "This image type is not supported",
     "app.whiteboard.imagePaste.errorTooLarge": "This image is too large to paste",
+    "app.whiteboard.imagePaste.errorDimensions": "The image dimensions exceed the allowed maximum of {maxWidth}x{maxHeight} pixels",
+    "app.whiteboard.imagePaste.errorQuota": "The meeting storage quota has been exceeded",
     "app.whiteboard.imagePaste.errorUpload": "The image could not be uploaded. Please try again.",
     "app.whiteboard.toolbar.tools": "Tools",
     "app.whiteboard.toolbar.tools.hand": "Pan",

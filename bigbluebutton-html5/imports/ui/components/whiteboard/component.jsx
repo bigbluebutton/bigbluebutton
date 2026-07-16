@@ -173,6 +173,14 @@ const intlMessages = defineMessages({
     id: 'app.whiteboard.imagePaste.errorTooLarge',
     description: 'Toast shown when a pasted whiteboard image is too large',
   },
+  imagePasteErrorDimensions: {
+    id: 'app.whiteboard.imagePaste.errorDimensions',
+    description: 'Toast shown when a pasted whiteboard image exceeds the maximum pixel dimensions',
+  },
+  imagePasteErrorQuota: {
+    id: 'app.whiteboard.imagePaste.errorQuota',
+    description: 'Toast shown when a pasted whiteboard image exceeds the meeting storage quota',
+  },
   imagePasteErrorUpload: {
     id: 'app.whiteboard.imagePaste.errorUpload',
     description: 'Toast shown when a pasted whiteboard image fails to upload',
@@ -684,11 +692,17 @@ const Whiteboard = React.memo((props) => {
     const reason = err instanceof UploadImageError ? err.reason : 'upload-failed';
     const messageByReason = {
       'too-large': intlMessages.imagePasteErrorTooLarge,
+      'image-too-large': intlMessages.imagePasteErrorDimensions,
+      'quota-exceeded': intlMessages.imagePasteErrorQuota,
       'unsupported-type': intlMessages.imagePasteErrorType,
       'upload-failed': intlMessages.imagePasteErrorUpload,
     };
     const message = messageByReason[reason] || intlMessages.imagePasteErrorUpload;
-    if (intl) notify(intl.formatMessage(message), 'error', 'whiteboard');
+    const dims = err instanceof UploadImageError ? err.dimensions : undefined;
+    const formatted = (reason === 'image-too-large' && dims)
+      ? intl?.formatMessage(message, dims)
+      : intl?.formatMessage(message);
+    if (intl) notify(formatted, 'error', 'whiteboard');
     logger.error(
       { logCode: 'whiteboard_image_upload_error', extraInfo: { reason } },
       `Whiteboard image upload failed: ${err?.message}`,
@@ -713,10 +727,12 @@ const Whiteboard = React.memo((props) => {
     for (let i = 0; i < imageFiles.length; i += 1) {
       const file = imageFiles[i];
       try {
-        // eslint-disable-next-line no-await-in-loop
-        const relativeUrl = await uploadImage(file);
+        // Dimensions are read before uploading so a file the browser cannot
+        // decode fails locally instead of leaving an orphan upload behind.
         // eslint-disable-next-line no-await-in-loop
         const { width, height } = await getImageDimensions(file);
+        // eslint-disable-next-line no-await-in-loop
+        const relativeUrl = await uploadImage(file);
         const scale = Math.min(1, IMAGE_PASTE_MAX_SIZE / Math.max(width, height, 1));
         const w = Math.max(1, Math.round(width * scale));
         const h = Math.max(1, Math.round(height * scale));
