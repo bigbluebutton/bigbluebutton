@@ -971,6 +971,8 @@
     "app.audio.captions.speech.disabled": "E çaktivizuar",
     "app.audio.captions.speech.unsupported": "Shfletuesi juaj s’mbulon njohje të folure. Audioja juaj s’do të transkriptohet",
     "app.audio.captions.speech.auto": "Vetëpikase",
+    "app.audio.captions.speech.microphoneAlert.message": "Audio detected but nothing is being transcribed. Your browser may be using the wrong microphone, or there is too much background noise.",
+    "app.audio.captions.speech.microphoneAlert.helpLabel": "Learn more",
     "app.audio.captions.select.af-ZA": "Afrikaans",
     "app.audio.captions.select.sq-AL": "Shqip",
     "app.audio.captions.select.am-ET": "Amharic",

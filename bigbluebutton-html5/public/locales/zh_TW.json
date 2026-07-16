@@ -971,6 +971,8 @@
     "app.audio.captions.speech.disabled": "已禁用",
     "app.audio.captions.speech.unsupported": "您的瀏覽器不支援語音識別。您的音頻將不會被轉錄",
     "app.audio.captions.speech.auto": "自動偵測",
+    "app.audio.captions.speech.microphoneAlert.message": "Audio detected but nothing is being transcribed. Your browser may be using the wrong microphone, or there is too much background noise.",
+    "app.audio.captions.speech.microphoneAlert.helpLabel": "Learn more",
     "app.audio.captions.select.af-ZA": "南非荷蘭語",
     "app.audio.captions.select.sq-AL": "阿爾巴尼亞語",
     "app.audio.captions.select.am-ET": "阿姆哈拉語",

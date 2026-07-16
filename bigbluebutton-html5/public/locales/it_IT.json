@@ -971,6 +971,8 @@
     "app.audio.captions.speech.disabled": "Disabilitata",
     "app.audio.captions.speech.unsupported": "Il tuo browser non supporta il riconoscimento vocale. L'audio non verrà trascritto",
     "app.audio.captions.speech.auto": "Rilevamento automatico",
+    "app.audio.captions.speech.microphoneAlert.message": "È stato rilevato l'audio, ma non viene trascritto nulla. Il browser potrebbe utilizzare il microfono sbagliato oppure potrebbe esserci troppo rumore di fondo.",
+    "app.audio.captions.speech.microphoneAlert.helpLabel": "Ulteriori informazioni",
     "app.audio.captions.select.af-ZA": "Africano",
     "app.audio.captions.select.sq-AL": "Albanese",
     "app.audio.captions.select.am-ET": "Amarico",
