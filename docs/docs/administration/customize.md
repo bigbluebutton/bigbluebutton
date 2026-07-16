@@ -1503,6 +1503,21 @@ public:
 
 Restart BigBlueButton with `sudo bbb-conf --restart` for the change to take effect.
 
+#### Enable Markdown import/export in shared notes
+
+When the BlockNote shared notes editor is in use (`sharedNotesEditor=blockNote`), presenters can import Markdown into the notes and anyone can export the notes as Markdown. Both actions are **disabled by default** so an upgrade does not add new menu buttons unexpectedly. Enable either or both in `/etc/bigbluebutton/bbb-html5.yml`:
+
+```yaml
+public:
+  sharedNotes:
+    importMarkdownEnabled: true
+    exportMarkdownEnabled: true
+```
+
+Restart BigBlueButton with `sudo bbb-conf --restart` for the change to take effect. With `importMarkdownEnabled`, the presenter gets an **Import from Markdown** option that opens a dialog to upload a Markdown file or paste Markdown, and to choose whether the content is appended to (default) or replaces the existing notes. With `exportMarkdownEnabled`, an **Export notes as Markdown** option downloads the notes as a `.md` file. These toggles only affect the BlockNote editor; they are ignored when Etherpad is used.
+
+To seed a session's shared notes with Markdown at creation time instead, pass the `sharedNotesInitialContentMarkdown` / `sharedNotesInitialContentMarkdownUrl` parameters on the [`/create`](/development/api/#get-post-create) call.
+
 #### Show a custom logo on the client
 
 Ensure that the parameter `displayBrandingArea` is set to `true` in bbb-html5's configuration, restart BigBlueButton server with `sudo bbb-conf --restart` and pass `logo=<image-url>` in Custom parameters when creating the meeting.
