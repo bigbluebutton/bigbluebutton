@@ -1773,6 +1773,13 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `disabledFeatures` | Comma-separated list of features to disable (see [`/create` docs](/development/api/#create) for the full list of feature names) | csv | _(empty)_ _`overwritable`_ |
 | `sharedNotesEditor` | Type of shared notes editor to use | etherpad, blockNote | blockNote _`overwritable`_ |
 | `maxSharedNotesInitialContentUrlPayloadSize` | Maximum size (in KiB) of the response fetched when seeding shared-notes initial content from `sharedNotesInitialContentJsonUrl` / `sharedNotesInitialContentMarkdownUrl` | Integer (KiB) | 1024 |
+| `chat.imagePaste.enabled` | Allow pasting/dropping images into the chat input (requires `markdownImageAllowed` to render them) | true/false | false |
+| `chat.markdownImageAllowed` | Render `![](url)` markdown as sanitized `<img>` in chat messages. **Note:** since image paste was introduced, only same-origin URLs (`/bigbluebutton/fileUpload/...`) render; external URLs are stripped to prevent IP-leak / tracking-pixel attacks | true/false | false |
+| `app.sharedNotes.imagePaste.enabled` | Allow pasting/dropping images into the BlockNote shared notes editor (Etherpad is unaffected) | true/false | false |
+| `whiteboard.imagePaste.enabled` | Allow pasting/dropping images onto the whiteboard (presenter or write-access only) | true/false | false |
+| `fileUpload.maxFileSizeKb` | Maximum size per uploaded image (shared across all three surfaces) | Integer (KB) | 5120 |
+| `fileUpload.maxImageDimensionPx` | Maximum width or height per uploaded image (anti pixel-bomb) | Integer (px) | 4096 |
+| `fileUpload.allowedMimeTypes` | Allowed image MIME types (validated by magic bytes) | List | `['image/png','image/jpeg','image/gif','image/webp']` |
 | `allowOverrideClientSettingsOnCreateCall` | Allow `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` to be passed on `/create` | true/false | false |
 | `clientSettingsOverrideStrictValidation` | When true, reject the `/create` call (`bbb-web`) and refuse `bbb-apps-akka` boot if a client settings override has unknown or malformed keys. Intended for test/staging (see [Validating client settings overrides](#validating-client-settings-overrides)) | true/false | false |
 | `clientSettingsFilePath` | Path to the `settings.yml` catalog used as the schema for the strict client-settings override validation above | path | `/usr/share/bigbluebutton/html5-client/private/config/settings.yml` |
