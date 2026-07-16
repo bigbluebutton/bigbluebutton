@@ -327,11 +327,18 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
           // (even '') leaves the block visible; removing it gives the user the
           // expected "nothing was inserted" feedback, paired with the toast.
           try {
-            const blocks = editor.document as Array<{
+            type EditorBlock = {
               id: string;
               type: string;
               props?: { url?: string };
-            }>;
+              children?: EditorBlock[];
+            };
+            // Depth-first flatten: the failed image block may be nested (e.g.
+            // pasted inside a list item), where a top-level-only scan misses it.
+            const flatten = (bs: EditorBlock[]): EditorBlock[] => bs.flatMap(
+              (b) => [b, ...flatten(b.children ?? [])],
+            );
+            const blocks = flatten(editor.document as EditorBlock[]);
             for (let i = blocks.length - 1; i >= 0; i -= 1) {
               const b = blocks[i];
               if (b.type === 'image' && !(b.props && b.props.url)) {
