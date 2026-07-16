@@ -59,4 +59,4 @@ fpm -s dir -C ./staging -n $PACKAGE \
     --description "BigBlueButton File Upload Server" \
     $DIRECTORIES \
     $OPTS \
-    -d 'nodejs (>= 18)' -d 'nodejs (<< 23)'
+    -d 'nodejs (>= 22)' -d 'nodejs (<< 23)'
