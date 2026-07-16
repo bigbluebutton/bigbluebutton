@@ -422,12 +422,6 @@ const createEndpointTableData = [
     "description": (<>Number of minutes to automatically end meeting after last user left. (added 2.5)<br />Setting to <code className="language-plaintext highlighter-rouge">0</code> will disable this function.</>)
   },
   {
-    "name": "logoutTimer",
-    "required": false,
-    "type": "Number",
-    "description": (<>Per-meeting override (in minutes) of the <code className="language-plaintext highlighter-rouge">clientLogoutTimerInMinutes</code> property. Logs out clients that have been unresponsive for this many minutes. <code className="language-plaintext highlighter-rouge">0</code> disables the timer.</>)
-  },
-  {
     "name": "groups",
     "required": false,
     "type": "String",
@@ -444,12 +438,6 @@ const createEndpointTableData = [
     "required": false,
     "type": "String",
     "description": (<>Like <code className="language-plaintext highlighter-rouge">logo</code>, but used when the client is in dark mode. If only <code className="language-plaintext highlighter-rouge">logo</code> is provided, it is used in both light and dark modes. (added 3.0)</>)
-  },
-  {
-    "name": "copyright",
-    "required": false,
-    "type": "String",
-    "description": (<>Custom copyright text shown in the client. Overrides the built-in copyright string for this meeting.</>)
   },
   {
     "name": "sharedNotesEditor",
