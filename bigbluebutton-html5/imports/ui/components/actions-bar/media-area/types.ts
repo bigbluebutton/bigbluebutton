@@ -1,11 +1,11 @@
 import { IntlShape } from 'react-intl';
 import { MediaAreaItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/media-area-item/enums';
-import { MediaAreaIconType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/media-area-item/types';
+import { PluginIconType } from 'bigbluebutton-html-plugin-sdk';
 
 export interface MediaButtonPluginItem {
   type: MediaAreaItemType;
   id: string;
-  icon?: MediaAreaIconType;
+  icon?: PluginIconType;
   tooltip?: string;
   label?: string;
   onClick?: () => void;

@@ -17,7 +17,7 @@ const useHasUnreadChatMessages = ({ isChatPanelOpened, skip = false }: UseUnread
 
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
 
-  const skipSubscription = isChatPanelOpened || skip;
+  const skipSubscription = skip;
 
   const { data: chats } = useChat(
     (chat) => chat,
@@ -57,14 +57,16 @@ const useHasUnreadChatMessages = ({ isChatPanelOpened, skip = false }: UseUnread
 
   return useMemo(() => {
     const activeChat = getActiveChat(chats, idChatOpen);
+    const hasUnreadPrivateMessages = chats?.some((chat) => !chat.public && chat.totalUnread > 0) ?? false;
 
     return {
       totalUnreadMessages: isChatPanelOpened ? 0 : totalUnread,
       hasUnreadMessages: !isChatPanelOpened && totalUnread > 0,
+      hasUnreadPrivateMessages,
       activeChat,
       chatIds,
     };
-  }, [isChatPanelOpened, totalUnread, idChatOpen, getActiveChat, chatIds]);
+  }, [isChatPanelOpened, totalUnread, idChatOpen, getActiveChat, chatIds, chats]);
 };
 
 export default useHasUnreadChatMessages;

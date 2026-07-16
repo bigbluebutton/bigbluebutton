@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 
-import { CI } from '../core/constants';
+import { CI, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import * as utilScreenShare from '../screenshare/util';
 import { MultiUsers } from '../user/multiusers';
@@ -196,6 +196,7 @@ export class Options extends MultiUsers {
     await this.modPage.closeAllToastNotifications();
 
     const whiteboardLocator = this.modPage.page.locator(e.whiteboard);
+    await this.modPage.page.waitForTimeout(1000); // wait for the whiteboard zoom to stabilize
     await expect(whiteboardLocator).toHaveScreenshot('whiteboard-with-toolbar-visible.png');
 
     await openSettings(this.modPage);
@@ -216,6 +217,7 @@ export class Options extends MultiUsers {
     await this.modPage.hoverElement(e.messagesSidebarButton);
     await expect(wbToolbarLocator).toHaveClass(/fade-out/);
 
+    await this.modPage.page.waitForTimeout(1000); // wait for the whiteboard zoom to stabilize
     await expect(whiteboardLocator).toHaveScreenshot('whiteboard-with-toolbar-hidden.png', {
       maxDiffPixels: 1000,
     });
@@ -294,6 +296,19 @@ export class Options extends MultiUsers {
       e.webcamMirroredVideoContainer,
       'should display the current user webcam for the attendee, as the attendee disabled other participants webcams option',
     );
+  }
+
+  async keyboardNavigationOptionsDropdown() {
+    await this.modPage.page.focus(e.optionsButton);
+    await this.modPage.press('Enter');
+    const fullscreenButton = '#app-settings-dropdown-menu li[role="menuitem"]:has(.icon-bbb-fullscreen)';
+    await this.modPage.waitForSelector(fullscreenButton);
+
+    await this.modPage.press('ArrowDown');
+    await expect(
+      this.modPage.page.locator(fullscreenButton),
+      'should focus the fullscreen option on the first ArrowDown',
+    ).toBeFocused({ timeout: ELEMENT_WAIT_TIME });
   }
 
   async enableOtherParticipantsDesktopSharing() {

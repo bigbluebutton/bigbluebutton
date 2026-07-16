@@ -16,6 +16,8 @@ export const elements = {
   mediaAreaButton: 'button[data-test="mediaAreaButton"]',
   mediaAreaItem: 'div[id="media-area-dropdown-menu"] ul li',
   optionsButton: 'button[data-test="optionsButton"]',
+  settings: 'li[data-test="settings"]',
+  presenceToggle: 'div[data-test="presenceToggle"]',
   modalConfirmButton: 'button[data-test="modalConfirmButton"]',
   screenshareConnecting: 'div[data-test="screenshareConnecting"]',
   screenShareVideo: 'video[id="screenshareVideo"]',
@@ -32,6 +34,7 @@ export const elements = {
   raiseHandBtn: 'button[data-test="raiseHandBtn"]',
   lowerHandBtn: 'button[data-test="lowerHandBtn"]',
   raiseHandRejection: 'button[data-test="raiseHandRejection"]',
+  lowerHandUserItem: 'div[data-test="lowerHand"]',
   raiseHandWrapper: 'div[data-test="raiseHandWrapper"]',
   meetingEndedModal: 'div[data-test="meetingEndedModal"]',
   redirectButton: 'button[data-test="redirectButton"]',
@@ -89,9 +92,11 @@ export const elements = {
   randomlyAssign: 'button[data-test="randomlyAssign"]',
   resetAssignments: 'button[data-test="resetAssignments"]',
   breakoutRoomsItem: 'div[data-test="breakoutRoomsItem"]',
-  alreadyConnected: 'button[data-test="alreadyConnected"]',
-  askJoinRoom1: 'button[data-test="askToJoinRoom1"]',
-  askJoinRoom2: 'button[data-test="askToJoinRoom2"]',
+  alreadyConnected:
+    'button[data-test="alreadyConnected"], li[data-test="alreadyConnected"], div[data-test="alreadyConnected"]',
+  askJoinRoom1: 'li[data-test="askToJoinRoom1"]',
+  askJoinRoom2: 'li[data-test="askToJoinRoom2"]',
+  roomOptions1: 'button[data-test="roomOptions1"]',
   roomOptions2: 'button[data-test="roomOptions2"]',
   joinRoom1: 'button[data-test="joinRoom1"]',
   joinFirstRoom: 'button[data-test^="joinRoom"]',
@@ -135,8 +140,9 @@ export const elements = {
   timeRemaining: 'span[data-test="timeRemaining"]',
   captureBreakoutSharedNotes: 'input[id="opt-captureNotes"]',
   captureBreakoutWhiteboard: 'input[id="opt-captureSlides"]',
-  selectBreakoutRoomBtn: 'select[data-test="selectBreakoutRoomBtn"]',
-  roomOption: 'option[data-test="roomOption"]',
+  inheritLockSettingsCheckbox: 'input[id="inheritLockSettingsCheckbox"]',
+  selectBreakoutRoomBtn: '[data-test="selectBreakoutRoomBtn"]',
+  roomOption: 'li[data-test="roomOption"]',
   changeSlideBreakoutRoom1: 'div[data-test="changeSlideBreakoutRoom1"]',
   slide1BreakoutRoom: 'select[data-test="changeSlideBreakoutRoom"]',
   currentSlideBreakoutOption: 'option[data-test="currentSlideBreakoutOption"]',
@@ -218,11 +224,14 @@ export const elements = {
   autoConvertEmojiMessage: ':)',
   convertedEmojiMessage: '😊',
 
+  // a leading backslash escapes the conversion: "\:)" should stay ":)" (issue #23344)
+  escapedEmojiMessage: '\\:)',
   // Messages
   message: 'Hello World!',
   testMessage: 'Just a test',
   message1: 'Hello User2',
   message2: 'Hello User1',
+  messageWithTextBeforeLink: 'Hello https://example.com',
   publicMessage1: 'This is a Public Message from User1',
   publicMessage2: 'This is a Public Message from User2',
   uniqueCharacterMessage: 'A',
@@ -242,6 +251,7 @@ export const elements = {
   usersList: 'div[data-test="userList"]',
   selectCameraQualityId: 'select[id="setQuality"]',
   virtualBackgrounds: 'div[data-test="virtualBackground"]',
+  virtualBackgroundToggle: 'input[data-test="virtualBackgroundToggle"]',
 
   // Timer
   timerContainer: 'div[data-test="timerContainer"]',
@@ -271,6 +281,7 @@ export const elements = {
   sharedNotesViewingMode: 'iframe[title="shared notes viewing mode"]',
   currentSlideText: 'span[id="currentSlideText"]',
   notesOptions: 'button[data-test="notesOptionsMenu"]',
+  exportNotesAsPDF: '[data-test="exportNotesAsPDF"]',
   showMoreSharedNotesButton: 'span[class="show-more-icon-btn"]',
   exportSharedNotesButton: 'li[data-key="import_export"] button',
   exportPlainButton: 'a[id="exportplaina"] span',
@@ -279,6 +290,16 @@ export const elements = {
   exportetherpad: 'span[id="exportetherpad"]',
   exporthtml: 'span[id="exporthtml"]',
 
+  // BlockNote specific
+  blockNoteContainer: '#bn-notes-scroll-container',
+  blockNoteEditor: '#bn-notes-scroll-container .bn-editor',
+  blockNoteEditable: '#bn-notes-scroll-container .bn-editor[contenteditable="true"]',
+  blockNoteReadOnly: '#bn-notes-scroll-container .bn-editor[contenteditable="false"]',
+  blockNoteToolbar: 'div[data-test="blockNoteToolbar"]',
+  blockNoteUnderlineButton: 'div[data-test="blockNoteToolbar"] button[aria-label="Underline"]',
+  notesConnectionError: '[data-test="notesError"]',
+  notesRetryButton: 'button[data-test="notesRetryButton"]',
+
   // Notifications
   smallToastMsg: 'div[data-test="toastSmallMsg"]',
   closeToastBtn: 'i[data-test="closeToastBtn"]',
@@ -286,6 +307,7 @@ export const elements = {
   chatPopupAlertsBtn: 'input[data-test="chatPopupAlertsBtn"]',
   hasUnreadMessages: 'div[data-test="unreadMessages"]',
   userJoinPushAlerts: 'input[data-test="userJoinPopupAlerts"]',
+  userLeavePushAlerts: 'input[data-test="userLeavePopupAlerts"]',
   toastContainer: 'div[data-test="toastContainer"]',
   presentationStatusInfo: 'span[data-test="presentationStatusInfo"]',
   processingPresentationItem: 'span[data-test="processingPresentationItem"]',
@@ -450,7 +472,7 @@ export const elements = {
   dataSavingScreenshare: 'input[data-test="dataSavingScreenshare"]',
   screenshareLocked: 'button[data-test="screenshareLocked"]',
   connectionStatusItemEmpty: 'li[data-test="connectionStatusItemEmpty"]',
-  connectionStatusTab2: 'li[id="react-tabs-2"]',
+  connectionStatusTab2: 'span[id="my-logs-tab"]',
   connectionStatusItemUser: 'li[data-test="connectionStatusItemUser"]',
   connectionStatusLinkToSettings: `${networkDataContainer} span[role="button"]`,
   dataSavingWebcams: 'input[data-test="dataSavingWebcams"]',
@@ -588,6 +610,9 @@ export const elements = {
   webcamConnecting: 'div[data-test="webcamConnecting"]',
   webcamContainer: 'video[data-test="videoContainer"]',
   webcamVideoItem: 'div[data-test="webcamVideoItem"]',
+  webcamStreamItem: 'div[data-test="webcamVideoItem"][data-video-type="stream"]',
+  webcamVideoList: 'div[data-test="webcamVideoList"]',
+  overflowTile: 'div[data-test="overflowTile"]',
   videoDropdownMenu: 'button[data-test="videoDropdownMenu"]',
   advancedVideoSettingsBtn: 'li[data-test="advancedVideoSettingsButton"]',
   mirrorWebcamBtn: 'li[data-test="mirrorWebcamBtn"]',
@@ -613,9 +638,12 @@ export const elements = {
   nextPageVideoPagination: 'button[data-test="nextPageVideoPaginationBtn"]',
   previousPageVideoPagination: 'button[data-test="previousPageVideoPaginationBtn"]',
   videoQualitySelector: 'select[id="setQuality"]',
+  webcamItem: 'div[data-test="webcamItem"]',
   webcamItemTalkingUser: 'div[data-test="webcamItemTalkingUser"]',
+  webcamItemRaisedHand: 'div[data-test="webcamItemRaisedHand"]',
   webcamSettingsModal: 'div[data-test="webcamSettingsModal"]',
   dropdownWebcamButton: 'div[data-test="dropdownWebcamButton"]',
+  webcamUserStatus: 'div[data-test="webcamUserStatus"]',
   webcamMirroredVideoPreview: 'video[data-test="mirroredVideoPreview"]',
   resizeWebcamHandler: 'div#cameraDock + div > div[style*="user-select: none"]',
 
@@ -721,6 +749,15 @@ export const elements = {
   userActivityScoreDashboard: 'td[data-test="userActivityScoreDashboard"]',
   activityScorePanelDashboard: 'button[data-test="activityScorePanelDashboard"]',
   downloadSessionLearningDashboard: 'button[data-test="downloadSessionDataDashboard"]',
+
+  // Multifunctional mode
+  sidebarContentMain: '[data-test="sidebarContentMain"]',
+  sidebarContentAuxiliary: '[data-test="sidebarContentAuxiliary"]',
+  enableMultiFunctionalMode: 'button[data-test="enableMultiFunctionalMode"]',
+  emptyPanelTitle: '[data-test="emptyPanelTitle"]',
+  emptyPanelCloseButton: 'button[data-test="emptyPanelCloseButton"]',
+  resizeSidebarContentMain: '[data-test="sidebarContentMain"] > .resizeSidebarContentWrapper > div',
+  resizeSidebarContentAuxiliary: '[data-test="sidebarContentAuxiliary"] > .resizeSidebarContentWrapper > div',
 };
 
 // Recording playback

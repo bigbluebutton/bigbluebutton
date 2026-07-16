@@ -304,6 +304,7 @@ CREATE UNLOGGED TABLE "user" (
 	"ejectedByModerator" varchar(50),
 	"presenter" bool,
 	"pinned" bool,
+	"pinnedTime" timestamp with time zone,
 	"locked" bool,
 	"speechLocale" varchar(255),
 	"captionLocale" varchar(255),
@@ -314,14 +315,16 @@ CREATE UNLOGGED TABLE "user" (
 	"whiteboardWriteAccess" bool default FALSE,
 	"echoTestRunningAt" timestamp with time zone,
 	"requestedPresenter" boolean default FALSE,
+	"lastFloorTime" varchar(25), --replicated from user_voice via trigger
+	"camerasCount" integer default 0, --maintained from user_camera via trigger
 	CONSTRAINT "user_pkey" PRIMARY KEY ("meetingId","userId"),
 	FOREIGN KEY ("meetingId", "guestStatusSetByModerator") REFERENCES "user"("meetingId","userId") ON DELETE SET NULL
 );
-CREATE INDEX "idx_user_pk_reverse" on "user" ("userId", "meetingId");
+CREATE INDEX "idx_user_pk_reverse" on "user"("userId", "meetingId");
 CREATE INDEX "idx_user_meetingId_extId" ON "user"("meetingId", "extId");
 
--- user (on update raiseHand or away: set new time)
-CREATE OR REPLACE FUNCTION update_user_raiseHand_away_time_trigger_func()
+-- user (on update raiseHand, away or pinned: set new time)
+CREATE OR REPLACE FUNCTION update_user_raiseHand_away_pinned_time_trigger_func()
 RETURNS TRIGGER AS $$
 BEGIN
     IF NEW."raiseHand" IS DISTINCT FROM OLD."raiseHand" THEN
@@ -338,12 +341,19 @@ BEGIN
             NEW."awayTime" := NOW();
         END IF;
     END IF;
+    IF NEW."pinned" IS DISTINCT FROM OLD."pinned" THEN
+        IF NEW."pinned" is true THEN
+            NEW."pinnedTime" := NOW();
+        ELSE
+            NEW."pinnedTime" := NULL;
+        END IF;
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_user_raiseHand_away_time_trigger BEFORE UPDATE OF "raiseHand", "away" ON "user"
-    FOR EACH ROW EXECUTE FUNCTION update_user_raiseHand_away_time_trigger_func();
+CREATE TRIGGER update_user_raiseHand_away_pinned_time_trigger BEFORE UPDATE OF "raiseHand", "away", "pinned" ON "user"
+    FOR EACH ROW EXECUTE FUNCTION update_user_raiseHand_away_pinned_time_trigger_func();
 
 
 COMMENT ON COLUMN "user"."disconnected" IS 'This column is set true when the user closes the window or his with the server is over';
@@ -398,6 +408,13 @@ ALTER TABLE "user" ADD COLUMN "currentlyInMeeting" boolean GENERATED ALWAYS AS (
         ELSE false
         END) STORED;
 
+ALTER TABLE "user" ADD COLUMN "isSharingCamera" boolean GENERATED ALWAYS AS (
+    CASE WHEN "user"."camerasCount" > 0
+        THEN true
+        ELSE false
+        END) STORED;
+
+
 CREATE OR REPLACE VIEW "v_user"
 AS SELECT "user"."userId",
     "user"."extId",
@@ -434,13 +451,16 @@ AS SELECT "user"."userId",
     "user"."presenter",
     "user"."pinned",
     "user"."requestedPresenter",
+    "user"."pinnedTime",
     CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
     "user"."captionLocale",
     CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
     "user"."whiteboardWriteAccess",
     "user"."isModerator",
-    "user"."currentlyInMeeting"
+    "user"."currentlyInMeeting",
+    "user"."lastFloorTime",
+    "user"."isSharingCamera"
   FROM "user"
   WHERE "user"."currentlyInMeeting" is true;
 
@@ -465,6 +485,15 @@ WHERE "currentlyInMeeting" IS TRUE;
 CREATE INDEX "idx_v_user_UsersBasicInfo" ON "user"(
     "meetingId",
     "nameSortable" ASC NULLS LAST,
+    "userId" ASC NULLS LAST
+)
+WHERE "currentlyInMeeting" IS TRUE;
+
+CREATE INDEX "idx_v_user_AudioOnlySubscription" ON "user"(
+    "meetingId",
+    "isSharingCamera",
+    "isModerator",
+    "lastFloorTime" DESC NULLS LAST,
     "userId" ASC NULLS LAST
 )
 WHERE "currentlyInMeeting" IS TRUE;
@@ -511,6 +540,7 @@ SELECT
     "user"."registeredAt",
     "user"."presenter",
     "user"."pinned",
+    "user"."pinnedTime",
     CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
     "user"."captionLocale",
@@ -519,6 +549,8 @@ SELECT
     CASE WHEN "user"."echoTestRunningAt" > current_timestamp - INTERVAL '3 seconds' THEN TRUE ELSE FALSE END "isRunningEchoTest",
     "user"."isModerator",
     "user"."currentlyInMeeting",
+    "user"."lastFloorTime",
+    "user"."isSharingCamera",
     "user"."inactivityWarningDisplay",
     "user"."inactivityWarningTimeoutSecs",
     "user"."requestedUnmuteByMod",
@@ -584,6 +616,7 @@ AS SELECT
     "user"."presenter",
     "user"."requestedPresenter",
     "user"."pinned",
+    "user"."pinnedTime",
     CASE WHEN "user"."role" = 'MODERATOR' THEN false ELSE "user"."locked" END "locked",
     "user"."speechLocale",
     "user"."captionLocale",
@@ -768,6 +801,23 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER "update_user_voice_voiceActivityAt_trigger" BEFORE INSERT OR UPDATE ON "user_voice" FOR EACH ROW
 EXECUTE FUNCTION "update_user_voice_voiceActivityAt_trigger_func"();
 
+--Replicate user_voice.lastFloorTime into user.lastFloorTime
+CREATE OR REPLACE FUNCTION "update_user_lastFloorTime_trigger_func"() RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE "user"
+    SET "lastFloorTime" = NEW."lastFloorTime"
+    WHERE "meetingId" = NEW."meetingId" AND "userId" = NEW."userId";
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "insert_user_lastFloorTime_trigger" AFTER INSERT ON "user_voice"
+    FOR EACH ROW EXECUTE FUNCTION "update_user_lastFloorTime_trigger_func"();
+
+CREATE TRIGGER "update_user_lastFloorTime_trigger" AFTER UPDATE OF "lastFloorTime" ON "user_voice"
+    FOR EACH ROW WHEN (NEW."lastFloorTime" IS DISTINCT FROM OLD."lastFloorTime")
+    EXECUTE FUNCTION "update_user_lastFloorTime_trigger_func"();
+
 CREATE OR REPLACE VIEW "v_user_voice_activity" AS
 select
 	"user_voice"."meetingId",
@@ -807,6 +857,35 @@ SELECT * FROM "user_camera";
 -- this view will be used specifically for the join with user_current
 CREATE OR REPLACE VIEW "v_user_current_camera" AS
 SELECT * FROM "user_camera";
+
+--Maintain user.camerasCount with the count of rows in user_camera for the same (meetingId, userId)
+CREATE OR REPLACE FUNCTION "update_user_camerasCount_trigger_func"() RETURNS TRIGGER AS $$
+DECLARE
+    _meetingId varchar(100);
+    _userId varchar(50);
+BEGIN
+    IF TG_OP = 'DELETE' THEN
+        _meetingId := OLD."meetingId";
+        _userId := OLD."userId";
+    ELSE
+        _meetingId := NEW."meetingId";
+        _userId := NEW."userId";
+    END IF;
+
+    UPDATE "user"
+    SET "camerasCount" = (
+        SELECT count(*) FROM "user_camera"
+        WHERE "meetingId" = _meetingId AND "userId" = _userId
+    )
+    WHERE "meetingId" = _meetingId AND "userId" = _userId;
+
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "update_user_camerasCount_trigger"
+AFTER INSERT OR DELETE ON "user_camera"
+FOR EACH ROW EXECUTE FUNCTION "update_user_camerasCount_trigger_func"();
 
 CREATE UNLOGGED TABLE "user_connectionStatus" (
 	"meetingId" varchar(100),
@@ -1106,12 +1185,15 @@ create index "idx_user_activity_orderBy" on "user_activity" ("meetingId", "userI
 
 
 CREATE UNLOGGED TABLE "chat" (
-	"meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
-	"chatId"  varchar(100),
-	"access" varchar(20),
-	"createdBy" varchar(25),
-	"totalMessages" integer,
-	CONSTRAINT "chat_pkey" PRIMARY KEY ("meetingId", "chatId")
+    "meetingId" varchar(100) REFERENCES "meeting"("meetingId") ON DELETE CASCADE,
+    "chatId"  varchar(100),
+    "access" varchar(20),
+    "createdBy" varchar(25),
+    "totalMessages" integer,
+    "pinnedMessageId" varchar(100),
+    "pinnedByUserId" varchar(100),
+    "pinnedAt" timestamp with time zone,
+    CONSTRAINT "chat_pkey" PRIMARY KEY ("meetingId", "chatId")
 );
 CREATE INDEX "idx_chat_pk_reverse" ON "chat"("chatId","meetingId");
 
@@ -1226,12 +1308,12 @@ BEGIN
         SET "totalMessages" = COALESCE("totalMessages", 0) + 1
         WHERE "meetingId" = NEW."meetingId"
         AND "chatId" = NEW."chatId";
-	ELSIF TG_OP = 'DELETE' THEN
+       ELSIF TG_OP = 'DELETE' THEN
         UPDATE "chat"
         SET "totalMessages" = GREATEST(COALESCE("totalMessages", 0) - 1, 0)
         WHERE "meetingId" = OLD."meetingId"
         AND "chatId" = OLD."chatId";
-	END IF;
+       END IF;
     RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
@@ -1341,9 +1423,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER "update_chatUser_clear_lastTypingAt_trigger" AFTER INSERT ON chat_message FOR EACH ROW
+CREATE TRIGGER "update_chatUser_clear_lastTypingAt_trigger" AFTER INSERT OR UPDATE ON chat_message FOR EACH ROW
 EXECUTE FUNCTION "update_chatUser_clear_lastTypingAt_trigger_func"();
-
 
 
 CREATE UNLOGGED TABLE "chat_message_history" (
@@ -1393,7 +1474,10 @@ SELECT 	"user"."meetingId",
 		"chat"."totalMessages",
 		cu."totalUnreadMessages" AS "totalUnread",
 		cu."lastSeenAt",
-		CASE WHEN "chat"."access" = 'PUBLIC_ACCESS' THEN true ELSE false end "public"
+		CASE WHEN "chat"."access" = 'PUBLIC_ACCESS' THEN true ELSE false end "public",
+        "chat"."pinnedMessageId",
+        "chat"."pinnedByUserId",
+        "chat"."pinnedAt"
 FROM "user"
 JOIN "chat_user" cu ON cu."meetingId" = "user"."meetingId" AND cu."userId" = "user"."userId"
 --now it will always add chat_user for public chat onUserJoin
@@ -1494,9 +1578,10 @@ CREATE INDEX "idx_pres_presentation_meetingId_curr" ON "pres_presentation"("meet
 --Populate preloadNextPages, which will be used to provide the SVG of next slides at pres_page_curr
 CREATE OR REPLACE FUNCTION "update_preloadNextPages"() RETURNS TRIGGER AS $$
 BEGIN
-    SELECT coalesce(("clientSettingsJson"->'public'->'app'->'preloadNextSlides')::int,0) INTO NEW."preloadNextPages"
-    from "meeting_clientSettings" mcs
-    where mcs."meetingId" = NEW."meetingId";
+    SELECT coalesce(("clientSettingsJson"->'public'->'app'->'preloadNextSlides')::int, 0)
+    INTO NEW."preloadNextPages"
+    FROM "meeting_clientSettings" mcs
+    WHERE mcs."meetingId" = NEW."meetingId";
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1587,10 +1672,10 @@ SELECT pres_presentation."meetingId",
     pres_page."height",
     pres_page."viewBoxWidth",
     pres_page."viewBoxHeight",
-    (pres_page."width" * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledWidth",
-    (pres_page."height" * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledHeight",
-    (pres_page."width" * pres_page."widthRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxWidth",
-    (pres_page."height" * pres_page."heightRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxHeight",
+    (pres_page."width" * LEAST(pres_page."maxImageWidth" / NULLIF(pres_page."width", 0), pres_page."maxImageHeight" / NULLIF(pres_page."height", 0))) AS "scaledWidth",
+    (pres_page."height" * LEAST(pres_page."maxImageWidth" / NULLIF(pres_page."width", 0), pres_page."maxImageHeight" / NULLIF(pres_page."height", 0))) AS "scaledHeight",
+    (pres_page."width" * pres_page."widthRatio" / 100 * LEAST(pres_page."maxImageWidth" / NULLIF(pres_page."width", 0), pres_page."maxImageHeight" / NULLIF(pres_page."height", 0))) AS "scaledViewBoxWidth",
+    (pres_page."height" * pres_page."heightRatio" / 100 * LEAST(pres_page."maxImageWidth" / NULLIF(pres_page."width", 0), pres_page."maxImageHeight" / NULLIF(pres_page."height", 0))) AS "scaledViewBoxHeight",
     pres_page."uploadCompleted",
     pres_page."infiniteWhiteboard",
     pres_page."fitToWidth"
@@ -1622,10 +1707,10 @@ SELECT pres_presentation."meetingId",
     pres_page."height",
     pres_page."viewBoxWidth",
     pres_page."viewBoxHeight",
-    (pres_page."width" * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledWidth",
-    (pres_page."height" * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledHeight",
-    (pres_page."width" * pres_page."widthRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxWidth",
-    (pres_page."height" * pres_page."heightRatio" / 100 * LEAST(pres_page."maxImageWidth" / pres_page."width", pres_page."maxImageHeight" / pres_page."height")) AS "scaledViewBoxHeight",
+    (pres_page."width" * LEAST(pres_page."maxImageWidth" / NULLIF(pres_page."width", 0), pres_page."maxImageHeight" / NULLIF(pres_page."height", 0))) AS "scaledWidth",
+    (pres_page."height" * LEAST(pres_page."maxImageWidth" / NULLIF(pres_page."width", 0), pres_page."maxImageHeight" / NULLIF(pres_page."height", 0))) AS "scaledHeight",
+    (pres_page."width" * pres_page."widthRatio" / 100 * LEAST(pres_page."maxImageWidth" / NULLIF(pres_page."width", 0), pres_page."maxImageHeight" / NULLIF(pres_page."height", 0))) AS "scaledViewBoxWidth",
+    (pres_page."height" * pres_page."heightRatio" / 100 * LEAST(pres_page."maxImageWidth" / NULLIF(pres_page."width", 0), pres_page."maxImageHeight" / NULLIF(pres_page."height", 0))) AS "scaledViewBoxHeight",
     pres_page."infiniteWhiteboard",
     pres_page."fitToWidth",
     (
@@ -2180,7 +2265,8 @@ group by u."meetingId", u."userId";
 create unlogged table "sharedNotes" (
     "meetingId" varchar(100) references "meeting"("meetingId") ON DELETE CASCADE,
     "sharedNotesExtId" varchar(25),
-    "padId" varchar(25),
+    "padId" varchar(100),
+    "sharedNotesEditor" varchar(25),
     "model" varchar(25),
     "name" varchar(25),
     "pinned" boolean,
@@ -2506,6 +2592,12 @@ select "meeting"."meetingId",
         ) as "isSharedNotesPinned",
         exists (
             select 1
+            from "sharedNotes"
+            where "sharedNotes"."meetingId" = "meeting"."meetingId"
+            and "sharedNotes"."sharedNotesEditor" = 'etherpad'
+        ) as "isEtherpadSharedNotes",
+        exists (
+            select 1
             from "v_pres_page_curr"
             where "v_pres_page_curr"."meetingId" = "meeting"."meetingId"
         ) as "hasCurrentPresentation"
@@ -2524,29 +2616,39 @@ CREATE UNLOGGED TABLE "user_livekit"(
 CREATE INDEX "idx_user_livekit_token" ON "user_livekit"("livekitToken");
 CREATE VIEW "v_user_livekit" AS SELECT * FROM "user_livekit";
 
-CREATE UNLOGGED TABLE "audioGroup" (
+CREATE UNLOGGED TABLE "mediaGroup" (
 	"meetingId" 			varchar(100),
 	"groupId"					varchar(100),
+	"mediaType"				varchar(50) NOT NULL,
+	"locked"					boolean NOT NULL DEFAULT false,
+	"record"					boolean NOT NULL DEFAULT false,
 	"createdBy"				varchar(50),
-	CONSTRAINT "audioGroup_pkey" PRIMARY KEY ("meetingId", "groupId"),
+	CONSTRAINT "mediaGroup_pkey" PRIMARY KEY ("meetingId", "groupId"),
 	FOREIGN KEY ("meetingId") REFERENCES "meeting"("meetingId") ON DELETE CASCADE
 );
 
-CREATE VIEW "v_audioGroup" AS SELECT * FROM "audioGroup";
+CREATE VIEW "v_mediaGroup" AS SELECT * FROM "mediaGroup";
 
-CREATE UNLOGGED TABLE "user_audioGroup" (
+CREATE UNLOGGED TABLE "user_mediaGroup" (
 	"meetingId"					varchar(100),
 	"userId"						varchar(50),
 	"groupId"						varchar(100),
-	"participantType"		varchar(50),
-	"active"						boolean,
-	CONSTRAINT "user_audioGroup_pkey" PRIMARY KEY ("meetingId", "userId", "groupId"),
-	FOREIGN KEY ("meetingId", "groupId") REFERENCES "audioGroup"("meetingId", "groupId") ON DELETE CASCADE
+	"sender"						boolean NOT NULL DEFAULT false,
+	"receiver"					boolean NOT NULL DEFAULT false,
+	"active"						boolean NOT NULL DEFAULT false,
+	"createdAt"					timestamp with time zone NOT NULL DEFAULT current_timestamp,
+	CONSTRAINT "user_mediaGroup_pkey" PRIMARY KEY ("meetingId", "userId", "groupId"),
+	FOREIGN KEY ("meetingId", "groupId") REFERENCES "mediaGroup"("meetingId", "groupId") ON DELETE CASCADE,
+	FOREIGN KEY ("meetingId", "userId") REFERENCES "user"("meetingId", "userId") ON DELETE CASCADE
 );
 
-CREATE INDEX "idx_user_audioGroup_userId_reverse" ON "user_audioGroup"("userId", "meetingId");
-CREATE INDEX "idx_user_audioGroup_groupId_participantType" ON "user_audioGroup"("meetingId", "groupId", "participantType");
-CREATE OR REPLACE VIEW "v_user_audioGroup" AS SELECT * FROM "user_audioGroup";
+CREATE INDEX "idx_user_mediaGroup_userId_reverse" ON "user_mediaGroup"("userId", "meetingId");
+CREATE INDEX "idx_user_mediaGroup_groupId_sender_receiver" ON "user_mediaGroup"("meetingId", "groupId", "sender", "receiver");
+CREATE INDEX "idx_user_mediaGroup_createdAt" ON "user_mediaGroup"("meetingId", "createdAt", "userId", "groupId");
+
+CREATE OR REPLACE VIEW "v_user_mediaGroup" AS SELECT umg.*, mg."mediaType"
+FROM "user_mediaGroup" umg
+JOIN "mediaGroup" mg ON mg."meetingId" = umg."meetingId" AND mg."groupId" = umg."groupId";
 
 -- Workaround to prevent Hasura from appending "OR IS NULL" to filters on view columns
 -- By marking certain columns in views as NOT NULL, Hasura treats them as non-nullable and avoids adding unnecessary null checks

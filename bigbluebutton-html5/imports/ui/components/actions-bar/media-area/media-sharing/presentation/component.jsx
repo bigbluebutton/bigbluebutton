@@ -10,6 +10,7 @@ import Styled from './styles';
 import PresentationDownloadDropdown from './presentation-download-dropdown/component';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Session from '/imports/ui/services/storage/in-memory';
+import Auth from '/imports/ui/services/auth';
 import ModalStyled from '../styles';
 
 const { isMobile } = deviceInfo;
@@ -578,7 +579,7 @@ class PresentationUploader extends Component {
           }}
           aria-label={`${item.name}`}
         >
-          <img src={firstPageThumbnailUrl} alt={item.name} />
+          <img src={Auth.authenticateURL(firstPageThumbnailUrl)} alt={item.name} />
         </Styled.PresentationThumbnail>
         <Styled.PresentationItemBottomContainer>
           <Styled.PresentationItemName data-test="presentationName">

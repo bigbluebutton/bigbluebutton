@@ -188,6 +188,7 @@ const InputWrapper = styled.div`
   border: 1px solid ${colorBorder};
   background-color: ${colorWhite};
   gap: 3px;
+  cursor: text;
 
   &:focus-within {
     box-shadow: 0 0 0 ${xsPadding} ${colorBorder};

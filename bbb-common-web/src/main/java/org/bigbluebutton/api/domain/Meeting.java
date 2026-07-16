@@ -69,6 +69,9 @@ public class Meeting {
 	private boolean record;
 	private boolean autoStartRecording = false;
 	private boolean allowStartStopRecording = false;
+	private String sharedNotesEditor = "etherpad";
+	private String sharedNotesInitialContentJsonUrl = "";
+	private ArrayList<Object> sharedNotesInitialContentJson;
 	private boolean presentationConversionCacheEnabled = false;
 	private boolean recordFullDurationMedia = false;
 	private boolean haveRecordingMarks = false;
@@ -106,9 +109,9 @@ public class Meeting {
 	private String customDarkLogoURL = "";
 	private String customCopyright = "";
 	private Boolean muteOnStart = false;
-	private String cameraBridge = "bbb-webrtc-sfu";
-	private String screenShareBridge = "bbb-webrtc-sfu";
-	private String audioBridge = "bbb-webrtc-sfu";
+	private String cameraBridge = "livekit";
+	private String screenShareBridge = "livekit";
+	private String audioBridge = "livekit";
 	private Boolean allowModsToUnmuteUsers = false;
 	private Boolean requireUserConsentBeforeUnmuting = false;
 	private Boolean allowRequestsWithoutSession = false;
@@ -131,6 +134,8 @@ public class Meeting {
 	public final Integer maxUserConcurrentAccesses;
 
 	private String meetingEndedCallbackURL = "";
+
+	private String sharedNotesInitialContentJsonFromPayload;
 
 	private String overrideClientSettings = "";
 
@@ -170,6 +175,8 @@ public class Meeting {
         record = builder.record;
         autoStartRecording = builder.autoStartRecording;
         allowStartStopRecording = builder.allowStartStopRecording;
+        sharedNotesEditor = builder.sharedNotesEditor;
+		sharedNotesInitialContentJsonUrl = builder.sharedNotesInitialContentJsonUrl;
 		presentationConversionCacheEnabled = builder.presentationConversionCacheEnabled;
         recordFullDurationMedia = builder.recordFullDurationMedia;
         webcamsOnlyForModerator = builder.webcamsOnlyForModerator;
@@ -674,6 +681,22 @@ public class Meeting {
 		return allowStartStopRecording;
 	}
 
+	public String getSharedNotesEditor() {
+		return sharedNotesEditor;
+	}
+
+	public String getSharedNotesInitialContentJsonUrl() {
+		return sharedNotesInitialContentJsonUrl;
+	}
+
+	public ArrayList<Object> getSharedNotesInitialContentJson() {
+		return sharedNotesInitialContentJson;
+	}
+
+	public void setSharedNotesInitialContentJson(ArrayList<Object> initialContentJson) {
+		sharedNotesInitialContentJson = initialContentJson;
+	}
+
 	public boolean isPresentationConversionCacheEnabled() {
 		return presentationConversionCacheEnabled;
 	}
@@ -990,6 +1013,14 @@ public class Meeting {
         return pluginMetadataParametersMap;
     }
 
+    public String getSharedNotesInitialContentJsonFromPayload() {
+        return sharedNotesInitialContentJsonFromPayload;
+    }
+
+    public void setSharedNotesInitialContentJsonFromPayload(String sharedNotesInitialContentJsonFromPayload) {
+        this.sharedNotesInitialContentJsonFromPayload = sharedNotesInitialContentJsonFromPayload;
+    }
+
     /***
 	 * Meeting Builder
 	 *
@@ -1003,6 +1034,8 @@ public class Meeting {
     	private boolean autoStartRecording;
     	private boolean recordFullDurationMedia;
         private boolean allowStartStopRecording;
+        private String sharedNotesEditor;
+		private String sharedNotesInitialContentJsonUrl;
         private boolean presentationConversionCacheEnabled;
         private boolean webcamsOnlyForModerator;
         private boolean multiUserWhiteboardEnabled;
@@ -1087,6 +1120,16 @@ public class Meeting {
 
     	public Builder withAllowStartStopRecording(boolean allow) {
     		this.allowStartStopRecording = allow;
+    		return this;
+    	}
+
+		public Builder withSharedNotesEditor(String type) {
+    		this.sharedNotesEditor = type;
+    		return this;
+    	}
+
+		public Builder withSharedNotesInitialContentJsonUrl(String initialContent) {
+    		this.sharedNotesInitialContentJsonUrl = initialContent;
     		return this;
     	}
 

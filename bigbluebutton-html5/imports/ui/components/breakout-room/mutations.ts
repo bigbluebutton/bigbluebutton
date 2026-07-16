@@ -5,16 +5,18 @@ export const BREAKOUT_ROOM_CREATE = gql`
     $record: Boolean!,
     $captureNotes: Boolean!,
     $captureSlides: Boolean!,
-    $durationInMinutes: Int!,
+    $durationInSeconds: Int!,
     $sendInviteToModerators: Boolean!,
+    $inheritLockSettings: Boolean!,
     $rooms: [BreakoutRoom]!,
   ) {
     breakoutRoomCreate(
       record: $record,
       captureNotes: $captureNotes,
       captureSlides: $captureSlides,
-      durationInMinutes: $durationInMinutes,
+      durationInSeconds: $durationInSeconds,
       sendInviteToModerators: $sendInviteToModerators,
+      inheritLockSettings: $inheritLockSettings,
       rooms: $rooms,
     )
   }
@@ -49,9 +51,9 @@ export const BREAKOUT_ROOM_SEND_MESSAGE_TO_ALL = gql`
 `;
 
 export const BREAKOUT_ROOM_SET_TIME = gql`
-  mutation BreakoutRoomSetTime($timeInMinutes: Int!) {
+  mutation BreakoutRoomSetTime($timeInSeconds: Int!) {
     breakoutRoomSetTime(
-      timeInMinutes: $timeInMinutes,
+      timeInSeconds: $timeInSeconds,
     )
   }
 `;

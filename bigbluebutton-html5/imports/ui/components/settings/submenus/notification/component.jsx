@@ -187,6 +187,7 @@ class NotificationMenu extends BaseMenu {
                   inputProps={{
                     'aria-label': `${intl.formatMessage(intlMessages.userLeaveLabel)} ${intl.formatMessage(intlMessages.pushAlertLabel)} - ${displaySettingsStatus(settings.userLeavePushAlerts, true)}`,
                   }}
+                  data-test="userLeavePopupAlerts"
                 />
               </Styled.FormElementRight>
             </Styled.Col>

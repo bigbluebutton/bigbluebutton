@@ -53,7 +53,7 @@ else
 end
 logger = BigBlueButton.logger
 
-if !File.exists?(process_donefile)
+if !File.exist?(process_donefile)
   logger.warn "No done file from the processing step, was processing successful?"
   exit 1
 end

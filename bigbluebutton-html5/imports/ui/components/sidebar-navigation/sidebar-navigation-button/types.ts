@@ -1,12 +1,14 @@
 import { ReactNode } from 'react';
 import { PANELS } from '/imports/ui/components/layout/enums';
+import { PluginIconType } from 'bigbluebutton-html-plugin-sdk';
 
 export interface SidebarNavigationButtonProps {
   panel?: typeof PANELS[keyof typeof PANELS];
   isOpened?: boolean;
-  iconName: string;
+  iconName: PluginIconType;
   label: string;
   hasNotification?: boolean;
+  hasPrivateNotification?: boolean;
   isDisabled?: boolean;
   isLocked?: boolean;
   accessKey?: string;
@@ -22,6 +24,7 @@ export interface SidebarNavigationButtonProps {
 export interface ListItemProps {
   $active?: boolean;
   $hasNotification?: boolean;
+  $hasPrivateNotification?: boolean;
   $disabled?: boolean;
   $locked?: boolean;
 }

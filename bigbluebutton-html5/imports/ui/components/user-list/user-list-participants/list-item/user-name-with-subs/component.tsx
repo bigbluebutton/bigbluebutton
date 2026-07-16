@@ -1,7 +1,7 @@
 import React from 'react';
 import { defineMessages } from 'react-intl';
 import { UserListItemAdditionalInformationType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-list-item-additional-information/enums';
-import { UserListItemLabel } from 'bigbluebutton-html-plugin-sdk';
+import { PluginIconType, UserListItemLabel } from 'bigbluebutton-html-plugin-sdk';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import { isMe } from '../service';
@@ -48,6 +48,24 @@ const intlMessages = defineMessages({
   },
 });
 
+const getIconComponent = (icon: PluginIconType): React.ReactNode => {
+  if (typeof icon === 'string') {
+    return <Styled.UserAdditionalInformationIcon iconName={icon} />;
+  }
+  if (icon && typeof icon === 'object' && 'iconName' in icon) {
+    return <Styled.UserAdditionalInformationIcon iconName={icon.iconName} />;
+  }
+  if (icon && typeof icon === 'object' && 'svgContent' in icon) {
+    const svgContent = icon.svgContent as React.ReactNode;
+    return (
+      <Styled.SvgContentUserListIconMargin>
+        {svgContent}
+      </Styled.SvgContentUserListIconMargin>
+    );
+  }
+  return null;
+};
+
 const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
   intl,
   subjectUser,
@@ -58,23 +76,38 @@ const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
 
   const subs = [];
 
+  const hasActiveLockSettingExcludingPresenterPolicy = !!(lockSettings && (
+    lockSettings.disableCam
+    || lockSettings.disableMic
+    || lockSettings.disablePrivateChat
+    || lockSettings.disablePublicChat
+    || lockSettings.disableNotes
+    || lockSettings.hideUserList
+    || lockSettings.hideViewersCursor
+    || lockSettings.hideViewersAnnotation
+    || lockSettings.webcamsOnlyForModerator
+  ));
+
+  // Labels are wrapped in <span> rather than pushed as bare strings: a bare text
+  // node rendered as a sibling of element nodes is what browser translators
+  // rewrite, desyncing React and crashing the list on re-render (see main.html).
   if (subjectUser.presenter && LABEL.presenter) {
-    subs.push(intl.formatMessage(intlMessages.presenter));
+    subs.push(<span key="bbb-presenter">{intl.formatMessage(intlMessages.presenter)}</span>);
   }
   if (subjectUser.isModerator && LABEL.moderator) {
-    subs.push(intl.formatMessage(intlMessages.moderator));
+    subs.push(<span key="bbb-moderator">{intl.formatMessage(intlMessages.moderator)}</span>);
   }
   if (subjectUser.guest && LABEL.guest) {
-    subs.push(intl.formatMessage(intlMessages.guest));
+    subs.push(<span key="bbb-guest">{intl.formatMessage(intlMessages.guest)}</span>);
   }
   if (subjectUser.mobile && LABEL.mobile) {
-    subs.push(intl.formatMessage(intlMessages.mobile));
+    subs.push(<span key="bbb-mobile">{intl.formatMessage(intlMessages.mobile)}</span>);
   }
   if (subjectUser.bot && LABEL.bot) {
-    subs.push(intl.formatMessage(intlMessages.bot));
+    subs.push(<span key="bbb-bot">{intl.formatMessage(intlMessages.bot)}</span>);
   }
   if ((subjectUser.locked || subjectUser.userLockSettings?.disablePublicChat)
-      && (subjectUser.userLockSettings?.disablePublicChat || lockSettings?.hasActiveLockSetting)
+      && (subjectUser.userLockSettings?.disablePublicChat || hasActiveLockSettingExcludingPresenterPolicy)
       && !subjectUser.isModerator
   ) {
     subs.push(
@@ -115,7 +148,7 @@ const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
     subs.push(
       <span key={itemToRender.id} data-test={itemToRender.dataTest}>
         { itemToRender.icon
-          && <Styled.UserAdditionalInformationIcon iconName={itemToRender.icon} /> }
+          && getIconComponent(itemToRender.icon)}
         {itemToRender.label}
       </span>,
     );

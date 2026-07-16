@@ -38,35 +38,26 @@ const RemainingTime: React.FC<RemainingTimeProps> = (props) => {
   const timeRemainingInterval = React.useRef<ReturnType<typeof setTimeout>>();
   const [remainingTime, setRemainingTime] = useState<number>(-1);
 
-  const currentDate: Date = new Date();
-  const adjustedCurrent: Date = new Date(currentDate.getTime() + timeSync);
-
-  const calculateRemainingTime = () => {
-    const durationInMilliseconds = durationInSeconds * 1000;
-    const adjustedCurrentTime = adjustedCurrent.getTime();
-
-    return Math.floor(((referenceStartedTime + durationInMilliseconds) - adjustedCurrentTime) / 1000);
-  };
-
   useEffect(() => {
-    if (remainingTime && durationInSeconds) {
-      if (durationInSeconds > 0 && timeRemainingInterval && referenceStartedTime) {
-        setRemainingTime(calculateRemainingTime());
-      }
+    if (!durationInSeconds || durationInSeconds <= 0 || !referenceStartedTime) return undefined;
 
-      clearInterval(timeRemainingInterval.current);
-      const remainingMillisecondsDiff = (
-        (referenceStartedTime + (durationInSeconds * 60000)) - adjustedCurrent.getTime()
-      ) % 1000;
-      timeRemainingInterval.current = setInterval(() => {
-        setRemainingTime((currentTime) => currentTime - 1);
-      }, remainingMillisecondsDiff === 0 ? 1000 : remainingMillisecondsDiff);
-    }
+    const calcRemaining = () => {
+      const now = Date.now() + timeSync;
+      const end = referenceStartedTime + (durationInSeconds * 1000);
+      return Math.floor((end - now) / 1000);
+    };
+
+    setRemainingTime(calcRemaining());
+
+    clearInterval(timeRemainingInterval.current);
+    timeRemainingInterval.current = setInterval(() => {
+      setRemainingTime(calcRemaining());
+    }, 1000);
 
     return () => {
       clearInterval(timeRemainingInterval.current);
     };
-  }, [remainingTime, durationInSeconds]);
+  }, [durationInSeconds, referenceStartedTime, timeSync]);
 
   const meetingTimeMessage = React.useRef<string>('');
 

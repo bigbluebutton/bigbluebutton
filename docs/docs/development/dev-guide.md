@@ -9,13 +9,13 @@ keywords:
 - developer
 ---
 
-Welcome to the BigBlueButton Developer's Guide for BigBlueButton 3.1.
+Welcome to the BigBlueButton Developer's Guide for BigBlueButton 4.0.
 
-This document gives you an overview of how to set up a development environment for BigBlueButton 3.1.
+This document gives you an overview of how to set up a development environment for BigBlueButton 4.0.
 
 ## Before you begin
 
-You first need to set up a BigBlueButton 3.1 server. See the instructions at [Install BigBlueButton 3.1](/administration/install).
+You first need to set up a BigBlueButton 4.0 server. See the instructions at [Install BigBlueButton 4.0](/administration/install).
 
 ## Overview
 
@@ -40,9 +40,10 @@ A BigBlueButton server is built from a number of components that correspond to U
 - bbb-pads -- manages the control to Etherpad
 - bbb-transcription-controller -- an optional component managing captions for third party services like VOSK or Gladia
 - bbb-etherpad -- used for shared notes and captions, live edit of text by multiple parties
+- bbb-shared-notes-server -- Hocuspocus server that acts as the collaboration backend for BlockNote (serving as the Shared Notes component and replacing Etherpad)
 - bbb-webhooks -- an optional componen, listens for all events on BigBlueButton and sends POST requests with details about these events to hooks registered via an API
 
-This document describes how to set up a development environment using an existing BigBlueButton 3.1 server. Once the environment is set up, you will be able to make custom changes to BigBlueButton source code, compile it, and replace the corresponding components on the server (such as updating the BigBlueButton client).
+This document describes how to set up a development environment using an existing BigBlueButton 4.0 server. Once the environment is set up, you will be able to make custom changes to BigBlueButton source code, compile it, and replace the corresponding components on the server (such as updating the BigBlueButton client).
 
 The instructions in this guide are step-by-step so you can understand each step needed to modify a component. If you encounter problems or errors at any section, don't ignore the errors. Stop and double-check that you have done the step correctly. If you are unable to determine the cause of the error, do the following
 
@@ -69,9 +70,9 @@ To develop BigBlueButton from within Windows, you have two options:
 - use Windows Subsystem for Linux
 - use VMWare Player or VirtualBox to create a virtual machine (VM).
 
-Choose the OS to be Ubuntu 22.04 64-bit. The associated documentation for VMWare Player and VirtualBox or WSL will guide you on setting up a new 22.04 64-bit VM.
+Choose the OS to be Ubuntu 24.04 64-bit. The associated documentation for VMWare Player and VirtualBox or WSL will guide you on setting up a new 24.04 64-bit VM.
 
-**Note:** When setting up the VM, it does not matter to BigBlueButton if you set up Ubuntu 22.04 server or desktop. If you install desktop, you'll have the option of using a graphical interface to edit files. When running the VM, you will need a host operating system capable of running a [64-bit virtual machine](https://stackoverflow.com/questions/56124/can-i-run-a-64-bit-vmware-image-on-a-32-bit-machine).
+**Note:** When setting up the VM, it does not matter to BigBlueButton if you set up Ubuntu 24.04 server or desktop. If you install desktop, you'll have the option of using a graphical interface to edit files. When running the VM, you will need a host operating system capable of running a [64-bit virtual machine](https://stackoverflow.com/questions/56124/can-i-run-a-64-bit-vmware-image-on-a-32-bit-machine).
 
 #### Developing on Linux host via container
 
@@ -187,20 +188,20 @@ After cloning, you'll have the following directory (make sure the `bigbluebutton
 /home/bigbluebutton/dev/bigbluebutton
 ```
 
-Confirm that you are working on the `v3.1.x-release` branch.
+Confirm that you are working on the `v4.0.x-release` branch.
 
 ```bash
 cd /home/bigbluebutton/dev/bigbluebutton
 git status
 ```
 
-BigBlueButton 3.1 source code lives on branch `v3.1.x-release`. This is where any patches to 3.1 will be merged. If you are looking to customize your BigBlueButton 3.1 clone to fit your needs, this is the branch to use.
+BigBlueButton 4.0 source code lives on branch `v4.0.x-release`. This is where any patches to 4.0 will be merged. If you are looking to customize your BigBlueButton 4.0 clone to fit your needs, this is the branch to use.
 
-For the purpose of these instructions we'll assume you are only tweaking your clone of BigBlueButton. Thus we recommend you checkout branch `v3.1.x-release`.
+For the purpose of these instructions we'll assume you are only tweaking your clone of BigBlueButton. Thus we recommend you checkout branch `v4.0.x-release`.
 
 ```
-On branch v3.1.x-release
-Your branch is up-to-date with 'origin/v3.1.x-release'.
+On branch v4.0.x-release
+Your branch is up-to-date with 'origin/v4.0.x-release'.
 nothing to commit, working directory clean
 ```
 
@@ -222,10 +223,10 @@ After, we need to fetch the most up to date version of the remote repository.
 git fetch upstream
 ```
 
-You are now ready to create a new branch to start your work and base the `v3.1.x-release` release branch
+You are now ready to create a new branch to start your work and base the `v4.0.x-release` release branch
 
 ```bash
-git checkout -b my-changes-branch upstream/v3.1.x-release
+git checkout -b my-changes-branch upstream/v4.0.x-release
 ```
 
 "checkout" switches branches
@@ -234,7 +235,7 @@ git checkout -b my-changes-branch upstream/v3.1.x-release
 
 "my-changes-branch" will be the name of the new branch
 
-"upstream/v3.1.x-release" is where you want to start your new branch
+"upstream/v4.0.x-release" is where you want to start your new branch
 
 You should now confirm that you are in the correct branch.
 
@@ -288,9 +289,15 @@ Next, override the `wsURL` so that it remains the same even if you switch branch
 
 ```bash
 HOST=$(grep -v '#' /etc/bigbluebutton/bbb-web.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
-sudo yq e -i ".public.kurento.wsUrl = \"wss://$HOST/bbb-webrtc-sfu\"" /etc/bigbluebutton/bbb-html5.yml
+sudo test -s /etc/bigbluebutton/bbb-html5.yml || sudo sh -c "echo '{}' > /etc/bigbluebutton/bbb-html5.yml"
+sudo yq-go e -i ".public.kurento.wsUrl = \"wss://$HOST/bbb-webrtc-sfu\"" /etc/bigbluebutton/bbb-html5.yml
 sudo bbb-conf --restart
 ```
+
+Edit `/usr/share/bigbluebutton/nginx/bbb-html5.nginx` and comment the line that includes `bbb-html5.nginx.static`, then uncomment the line that includes `bbb-html5.nginx.dev`.
+After that, restart nginx with: `sudo systemctl restart nginx`
+
+Remember to revert the change when you stop using the development client.
 
 Install the npm dependencies.
 
@@ -306,13 +313,6 @@ $ npm start
 
 The last couple of steps could alternatively be done with the `run-dev.sh` script (running in developer mode)
 or `deploy.sh` to run in production mode and have the client files served by NginX.
-
-### Audio configuration for development environment
-
-You may see the error "Call timeout (Error 1006)" during the microphone echo test after starting the developing HTML5 client by "npm start". A misconfiguration of Freeswitch may account for it, especially when BigBlueButton is set up with bbb-install.sh script. Try setting "sipjsHackViaWs" to true for the client:
-
-`touch /etc/bigbluebutton/bbb-html5.yml`
-`yq e -i '.public.media.sipjsHackViaWs = true' /etc/bigbluebutton/bbb-html5.yml`
 
 ### `/private/config`
 
@@ -331,136 +331,21 @@ cd ~/dev/bigbluebutton/bbb-common-message
 
 ## Developing BBB-Web
 
-Give your user account access to upload slides to the presentation directory and also access to write log files.
+```bash
+cd ~/dev/bigbluebutton/bigbluebutton-web
+```
+
+To rebuild and deploy your changes, replacing the existing `bbb-web` in `/usr/share/bbb-web`:
 
 ```bash
-sudo chmod -R ugo+rwx /var/bigbluebutton
-sudo chmod -R ugo+rwx /var/log/bigbluebutton
+./deploy_to_usr_share.sh
 ```
 
-Open the file `~/.sbt/1.0/global.sbt` using your editor
+Alternatively, to run bbb-web in development mode on port 8090 without replacing the deployed files:
 
 ```bash
-mkdir -p ~/.sbt/1.0
-vi ~/.sbt/1.0/global.sbt
+./run-dev.sh
 ```
-
-Add the following into it
-
-```scala
-resolvers += "Artima Maven Repository" at "https://repo.artima.com/releases"
-updateOptions := updateOptions.value.withCachedResolution(true)
-```
-
-Build bbb-common-web
-
-```bash
-cd ~/dev/bigbluebutton/bbb-common-web
-./deploy.sh
-```
-
-Now let's start building bbb-web
-
-```bash
-cd ~/dev/bigbluebutton/bigbluebutton-web/
-```
-
-We need to stop the bbb-web service
-
-```bash
-sudo service bbb-web stop
-```
-
-Download the necessary libraries.
-
-```bash
-./build.sh
-```
-
-Start grails and tell to listen on port 8090
-
-```bash
-./run.sh
-```
-
-or
-
-```bash
-grails -reloading -Dserver.port=8090 run-app
-```
-
-If you get an error `Could not resolve placeholder 'apiVersion'`, just run `grails -Dserver.port=8090 run-app` again. The error is grails not picking up the "bigbluebutton.properties" the first time.
-
-Now test again if you can create and join a meeting.
-
-The command above will run a development version of bbb-web, but if you want to deploy your custom-built bbb-web you need to package a war file.
-
-**Instructions for deploying bbb-web**
-
-First we need to compile all the project in a single war file.
-
-```bash
-grails assemble
-```
-
-The `war` application is generated under `build/libs/bigbluebutton-0.10.0.war`.
-
-Create a new directory and open it.
-
-```bash
-mkdir exploded && cd exploded
-```
-
-Extract the war content in the newly create directory
-
-```bash
-jar -xvf ../build/libs/bigbluebutton-0.10.0.war
-```
-
-Then copy the `run-prod.sh` after checking all the jar dependencies are listed in
-
-```bash
-cp ../run-prod.sh .
-```
-
-In the next step we will make a copy of the current production directory for `bbb-web`
-
-```bash
-sudo cp -R /usr/share/bbb-web /usr/share/bbb-web-old
-```
-
-Then we will delete all the files we need to be copied for production
-
-```bash
-sudo rm -rf /usr/share/bbb-web/assets/ /usr/share/bbb-web/META-INF/ /usr/share/bbb-web/org/ /usr/share/bbb-web/run-prod.sh  /usr/share/bbb-web/WEB-INF/
-```
-
-Next, let's copy the complied files into the production directory
-
-```bash
-sudo cp -R . /usr/share/bbb-web/
-```
-
-Make sure the copied files have the right user ownership.
-
-```bash
-$ sudo chown bigbluebutton:bigbluebutton /usr/share/bbb-web
-$ sudo chown -R bigbluebutton:bigbluebutton /usr/share/bbb-web/assets/ /usr/share/bbb-web/META-INF/ /usr/share/bbb-web/org/ /usr/share/bbb-web/run-prod.sh /usr/share/bbb-web/WEB-INF/
-```
-
-And finally we run the service.
-
-```bash
-sudo service bbb-web start
-```
-
-If you need to revert back your original production `bbb-web` just run the following command. (Don't forget to stop bbb-web service before doing it)
-
-```bash
-sudo mv /usr/share/bbb-web /usr/share/bbb-web-dev && sudo mv /usr/share/bbb-web-old /usr/share/bbb-web
-```
-
-Your compiled code will be under the `/usr/share/bbb-web-dev` directory and you can safely run the original production ``bbb-web`.
 
 ## Developing Akka-Apps
 

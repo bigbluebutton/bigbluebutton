@@ -4,7 +4,7 @@ import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsStringOrEl
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.CaptionDAO
-import org.bigbluebutton.core.models.{AudioCaptions, UserState, Users2x}
+import org.bigbluebutton.core.models.{AudioCaptions, UserState, Users2x, VoiceUsers}
 import org.bigbluebutton.core.running.LiveMeeting
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -47,39 +47,41 @@ trait UpdateTranscriptPubMsgHdlr {
     val isTranscriptionEnabled = !liveMeeting.props.meetingProp.disabledFeatures.contains("liveTranscription")
 
     if (isTranscriptionEnabled) {
-      val (start, end, text) = AudioCaptions.editTranscript(
-        liveMeeting.audioCaptions,
-        msg.body.transcriptId,
-        msg.body.start,
-        msg.body.end,
-        msg.body.text,
-        msg.body.transcript,
-        msg.body.locale
-      )
-
-      editTranscript(
-        msg.header.userId,
-        start,
-        end,
-        msg.body.locale,
-        text
-      )
-
-      val transcript = AudioCaptions.parseTranscript(msg.body.transcript)
-
       for {
         u <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
+        voiceUser <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, msg.header.userId)
+        if !voiceUser.listenOnly
       } yield {
-        CaptionDAO.insertOrUpdateCaption(msg.body.transcriptId, meetingId, msg.header.userId, transcript, msg.body.locale)
-      }
+        val (start, end, text) = AudioCaptions.editTranscript(
+          liveMeeting.audioCaptions,
+          msg.body.transcriptId,
+          msg.body.start,
+          msg.body.end,
+          msg.body.text,
+          msg.body.transcript,
+          msg.body.locale
+        )
 
-      broadcastEvent(
-        msg.header.userId,
-        msg.body.transcriptId,
-        transcript,
-        msg.body.locale,
-        msg.body.result,
-      )
+        editTranscript(
+          msg.header.userId,
+          start,
+          end,
+          msg.body.locale,
+          text
+        )
+
+        val transcript = AudioCaptions.parseTranscript(msg.body.transcript)
+
+        CaptionDAO.insertOrUpdateCaption(msg.body.transcriptId, meetingId, msg.header.userId, transcript, msg.body.locale)
+
+        broadcastEvent(
+          msg.header.userId,
+          msg.body.transcriptId,
+          transcript,
+          msg.body.locale,
+          msg.body.result,
+        )
+      }
     }
   }
 }

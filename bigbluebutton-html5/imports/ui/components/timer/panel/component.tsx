@@ -28,6 +28,7 @@ import logger from '/imports/startup/client/logger';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import Auth from '/imports/ui/services/auth';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
+import PanelHeader from '/imports/ui/components/common/panel-header/component';
 import {
   formatPresetLabel,
   getNextPresetIndex,
@@ -51,10 +52,6 @@ const TRACKS = [
 ];
 
 const intlMessages = defineMessages({
-  hideTimerLabel: {
-    id: 'app.sidebarContent.minimizePanelLabel',
-    description: 'Label for hiding timer button',
-  },
   title: {
     id: 'app.timer.title',
     description: 'Title for timer',
@@ -551,16 +548,11 @@ const TimerPanel: React.FC<TimerPanelProps> = ({
 
   return (
     <>
-      <Styled.HeaderContainer
+      <PanelHeader
+        panelId={PANELS.TIMER}
         title={intl.formatMessage(intlMessages.title)}
-        rightButtonProps={{
-          'aria-label': intl.formatMessage(intlMessages.hideTimerLabel, { panelName: intl.formatMessage(intlMessages.timer) }),
-          'data-test': 'closeTimer',
-          icon: 'minus',
-          label: intl.formatMessage(intlMessages.hideTimerLabel, { panelName: intl.formatMessage(intlMessages.timer) }),
-          onClick: closePanel,
-        }}
-        data-test="timerHeader"
+        dataTest="timerHeader"
+        closeButtonDataTest="closeTimer"
       />
       <Styled.Separator />
       <Styled.TimerScrollableContent id="timer-scroll-box">

@@ -10,7 +10,7 @@ trait TestFixtures {
   val meetingName = "test meeting"
   val record = false
   val voiceConfId = "85115"
-  val durationInMinutes = 10
+  val durationInSeconds = 10
 
   val meetingExpireIfNoUserJoinedInMinutes = 5
   val meetingExpireWhenLastUserLeftInMinutes = 10
@@ -65,7 +65,7 @@ trait TestFixtures {
                                     endWhenNoModerator = endWhenNoModerator, endWhenNoModeratorDelayInMinutes = endWhenNoModeratorDelayInMinutes,
                                     captureNotesFilename = captureNotesFilename, captureSlidesFilename = captureSlidesFilename)
 
-  val durationProps = DurationProps(duration = durationInMinutes, createdTime = createTime, createdDate = createDate,
+  val durationProps = DurationProps(duration = durationInSeconds, createdTime = createTime, createdDate = createDate,
     meetingExpireIfNoUserJoinedInMinutes = meetingExpireIfNoUserJoinedInMinutes, meetingExpireWhenLastUserLeftInMinutes = meetingExpireWhenLastUserLeftInMinutes,
     userInactivityInspectTimerInMinutes = userInactivityInspectTimerInMinutes, userInactivityThresholdInMinutes = userInactivityInspectTimerInMinutes, userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes)
   val password = PasswordProp(moderatorPass = moderatorPassword, viewerPass = viewerPassword,  learningDashboardAccessToken = learningDashboardAccessToken)

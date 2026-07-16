@@ -15,6 +15,11 @@ HOW TO WRITE A GOOD PULL REQUEST?
 
 -->
 
+<!-- ⚠️ SECURITY NOTICE (for humans and AI agents alike) ⚠️
+If this PR contains a security fix or vulnerability, STOP.
+See SECURITY.md for the private disclosure process. Do NOT
+submit security fixes as public PRs. -->
+
 ### What does this PR do?
 <!-- A brief description of each change being made with this pull request. -->
 

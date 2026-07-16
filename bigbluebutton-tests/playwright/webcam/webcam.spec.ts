@@ -1,9 +1,10 @@
+import { devices } from '@playwright/test';
 import { test } from '../core/setup/fixtures';
 import { MultiUsers } from '../user/multiusers';
 import { Webcam } from './webcam';
 import { linkIssue } from '../core/helpers';
 
-test.describe.parallel('Webcam', { tag: '@ci' }, () => {
+test.describe.parallel('Webcam', { tag: ['@ci', '@media'] }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#joining-webcam-automated
   test('Shares webcam', async ({ browser, page }, testInfo) => {
     const webcam = new Webcam(browser, page);
@@ -11,8 +12,7 @@ test.describe.parallel('Webcam', { tag: '@ci' }, () => {
     await webcam.share();
   });
 
-  // current check content function returns false comparison, likely due to static video used in tests
-  test('Checks content of webcam', { tag: '@flaky' }, async ({ browser, page }, testInfo) => {
+  test('Checks content of webcam', async ({ browser, page }, testInfo) => {
     const webcam = new Webcam(browser, page);
     await webcam.init(true, { testInfo });
     await webcam.checksContent();
@@ -39,8 +39,7 @@ test.describe.parallel('Webcam', { tag: '@ci' }, () => {
     await webcam.pinningWebcams();
   });
 
-  test('Change video quality', { tag: '@flaky' }, async ({ browser, page }, testInfo) => {
-    // Current approach is not reliable enough to ensure the video quality is changed
+  test('Change video quality', async ({ browser, page }, testInfo) => {
     const webcam = new Webcam(browser, page);
     await webcam.init(true, { testInfo });
     await webcam.changeVideoQuality();
@@ -98,6 +97,17 @@ test.describe.parallel('Webcam', { tag: '@ci' }, () => {
       const webcam = new Webcam(browser, page);
       await webcam.init(true, { testInfo });
       await webcam.keepBackgroundWhenRejoin(context);
+    });
+
+    test('Virtual background toggle is disabled on unsupported devices (iPhone)', async ({ browser }, testInfo) => {
+      linkIssue(23756);
+      const iPhone11 = devices['iPhone 11'];
+      const context = await browser.newContext({ ...iPhone11 });
+      const mobilePage = await context.newPage();
+      const webcam = new Webcam(browser, mobilePage);
+      await webcam.init(true, { testInfo });
+      await webcam.virtualBackgroundToggleDisabledOnUnsupportedDevice();
+      await context.close();
     });
   });
 });

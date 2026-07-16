@@ -52,7 +52,6 @@ const GenericContentSidekickContainer: React.FC<GenericContentSidekickContainerP
 
   return (
     <GenericSidekickContent
-      layoutContextDispatch={layoutContextDispatch}
       genericContentId={pickedGenericSidekickContent.id}
       renderFunction={pickedGenericSidekickContent.contentFunction}
       dataTest={dataTest}

@@ -15,6 +15,7 @@ import {
 
 import Service from './service';
 import AudioModalContainer from './audio-modal/container';
+import useAudioManagerStateSync from './hooks/useAudioManagerStateSync';
 import useToggleVoice from './audio-graphql/hooks/useToggleVoice';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -67,10 +68,6 @@ const intlMessages = defineMessages({
     id: 'app.audioManager.mediaError',
     description: 'Media error message',
   },
-  BrowserNotSupported: {
-    id: 'app.audioNotification.audioFailedError1003',
-    description: 'browser not supported error message',
-  },
   reconectingAsListener: {
     id: 'app.audioNotificaion.reconnectingAsListenOnly',
     description: 'ice negotiation error message',
@@ -83,7 +80,12 @@ const intlMessages = defineMessages({
 
 let didMountAutoJoin = false;
 
+// INVALID_ERRORS are error codes that are considered invalid or defunct.
+// The audio error list was originally contiguous, but they may be removed
+// over time.
+const INVALID_ERRORS = new Set([1003]);
 const webRtcError = range(1001, 1011)
+  .filter((code) => !INVALID_ERRORS.has(code))
   .reduce((acc, value) => ({
     ...acc,
     [value]: { id: `app.audioNotification.audioFailedError${value}` },
@@ -102,7 +104,6 @@ const messages = {
     REQUEST_TIMEOUT: intlMessages.requestTimeout,
     INVALID_TARGET: intlMessages.invalidTarget,
     MEDIA_ERROR: intlMessages.mediaError,
-    WEBRTC_NOT_SUPPORTED: intlMessages.BrowserNotSupported,
     DEVICE_CHANGE_FAILED: intlMessages.deviceChangeFailed,
     ...webRtcError,
   },
@@ -219,6 +220,9 @@ const AudioContainer = (props) => {
 
   const { data: unmutedUsers } = useWhoIsUnmuted();
   const currentUserMuted = currentUser?.userId && !unmutedUsers[currentUser.userId];
+
+  // Sync AudioManager muted/talking states when using LiveKit audio state.
+  useAudioManagerStateSync();
 
   const joinAudio = useCallback(() => {
     if (Service.isConnected()) return;

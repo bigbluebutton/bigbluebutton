@@ -55,8 +55,15 @@ const defaultProps = {
 class ModalFullscreen extends PureComponent {
   constructor(props) {
     super(props);
-
+    this.previousFocus = null;
     this.handleAction = this.handleAction.bind(this);
+  }
+
+  componentDidUpdate(prevProps) {
+    const { isOpen } = this.props;
+    if (!prevProps.isOpen && isOpen) {
+      this.previousFocus = document.activeElement;
+    }
   }
 
   handleAction(name) {
@@ -77,7 +84,15 @@ class ModalFullscreen extends PureComponent {
         break;
     }
 
-    return callback();
+    callback();
+
+    setTimeout(() => {
+      if (this.previousFocus && typeof this.previousFocus.focus === 'function'
+        && document.body.contains(this.previousFocus)) {
+        this.previousFocus.focus();
+      }
+      this.previousFocus = null;
+    }, 0);
   }
 
   render() {

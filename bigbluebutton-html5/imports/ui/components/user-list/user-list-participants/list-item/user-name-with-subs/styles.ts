@@ -3,6 +3,7 @@ import { colorGrayDark, colorGrayIcons } from '/imports/ui/stylesheets/styled-co
 import { smPaddingX } from '/imports/ui/stylesheets/styled-components/general';
 import { textFontWeight, titlesFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
+import { PluginButtonIcon } from '/imports/ui/components/plugins/plugin-icon/styles';
 
 const UserNameContainer = styled.div`
   display: flex;
@@ -68,6 +69,15 @@ const UserAdditionalInformationIcon = styled(Icon)`
   margin-right: ${smPaddingX};
 `;
 
+const SvgContentUserListIcon = styled(PluginButtonIcon)`
+  display: inline-flex;
+  align-items: center;
+`;
+
+const SvgContentUserListIconMargin = styled(PluginButtonIcon)`
+  margin-right: ${smPaddingX};
+`;
+
 export default {
   UserNameContainer,
   UserName,
@@ -75,4 +85,6 @@ export default {
   StrongName,
   RegularName,
   UserAdditionalInformationIcon,
+  SvgContentUserListIcon,
+  SvgContentUserListIconMargin,
 };

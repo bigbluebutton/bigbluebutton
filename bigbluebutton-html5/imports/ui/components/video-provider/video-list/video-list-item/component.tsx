@@ -132,6 +132,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   const [isVideoSqueezed, setIsVideoSqueezed] = useState(false);
   const [isVideoPluginHelperSqueezed, setIsVideoPluginHelperSqueezed] = useState(false);
   const [isSelfViewDisabled, setIsSelfViewDisabled] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const pluginSqueezedResizeObserver = new ResizeObserver((entry) => {
     if (entry && entry[0]?.contentRect?.width < VIDEO_CONTAINER_PLUGIN_HELPERS_WIDTH_BOUND) {
@@ -149,6 +150,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
 
   const videoTag = useRef<HTMLVideoElement | null>(null);
   const videoContainer = useRef<HTMLDivElement | null>(null);
+  const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setUserCamerasRequestedFromPlugin((userCamera) => {
@@ -167,7 +169,8 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   const { animations, webcamBorderHighlightColor } = Settings.application;
   const talking = voiceUser?.talking;
   const raiseHand = (stream.type === VIDEO_TYPES.GRID && stream?.raiseHand)
-    || (stream.type === VIDEO_TYPES.STREAM && stream.user?.raiseHand);
+    || (stream.type === VIDEO_TYPES.STREAM && stream.user?.raiseHand)
+    || (stream.type === VIDEO_TYPES.AUDIO_ONLY && stream.user?.raiseHand);
   const { data: currentUser } = useCurrentUser((u) => ({
     userId: u.userId,
     pinned: u.pinned,
@@ -280,6 +283,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       unsubscribeFromStreamStateChange(cameraId, onStreamStateChange);
       onVideoItemUnmount(cameraId);
     }
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
   }, []);
 
   useEffect(() => {
@@ -307,11 +311,18 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       layoutContextDispatch={layoutContextDispatch}
     />
   );
+
+  const renderSqueezedName = () => (
+    <Styled.BottomBar>
+      <Styled.SqueezedName>{name}</Styled.SqueezedName>
+    </Styled.BottomBar>
+  );
+
   const renderRaiseHandElement = () => {
     if (!raiseHand) return null;
 
     return (
-      <Styled.RaiseHand>
+      <Styled.RaiseHand data-test="webcamItemRaisedHand">
         {raisedHandPosition > 0 && <Styled.RaiseHandNumber>{raisedHandPosition}</Styled.RaiseHandNumber>}
         <Styled.RaiseHandEmoji>✋</Styled.RaiseHandEmoji>
       </Styled.RaiseHand>
@@ -354,11 +365,11 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
   const renderDefaultButtons = () => (
     <>
       <Styled.TopBar>
-        {renderRaiseHandElement()}
         <PinArea
           stream={stream}
           amIModerator={amIModerator}
         />
+        {renderRaiseHandElement()}
       </Styled.TopBar>
       <Styled.BottomBar>
         <UserActions
@@ -460,6 +471,28 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       data-test={talking ? 'webcamItemTalkingUser' : 'webcamItem'}
       animations={animations}
       isStream={isStream}
+      onMouseEnter={() => {
+        if (!isVideoSqueezed) return;
+        if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+        setIsHovered(true);
+      }}
+      onMouseLeave={() => {
+        if (!isVideoSqueezed) return;
+        setIsHovered(false);
+      }}
+      onTouchStart={() => {
+        if (!isVideoSqueezed) return;
+        if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+        hoverTimeoutRef.current = setTimeout(() => {
+          setIsHovered(true);
+          hoverTimeoutRef.current = setTimeout(() => setIsHovered(false), 3000);
+        }, 300);
+      }}
+      onTouchMove={() => {
+        if (!isVideoSqueezed) return;
+        if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+        setIsHovered(false);
+      }}
       {...{
         onDragLeave,
         onDragOver,
@@ -496,9 +529,8 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
         </Styled.VideoDisabled>
       )}
 
-      {/* eslint-disable-next-line no-nested-ternary */}
-
       {isVideoSqueezed ? renderSqueezedButton() : renderDefaultButtons()}
+      {isVideoSqueezed && isHovered && renderSqueezedName()}
       {stream.type === VIDEO_TYPES.AUDIO_ONLY && (
         isVideoSqueezed ? renderWebcamConnectingSqueezed() : renderWebcamConnecting()
       )}
@@ -507,7 +539,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
       )}
       {((isSelfViewDisabled && stream.userId === Auth.userID) || disabledCams.includes(cameraId))
       && renderWebcamConnecting()}
-      {renderCameraHelperButtons()}
+      {stream.type !== VIDEO_TYPES.AUDIO_ONLY && renderCameraHelperButtons()}
     </Styled.Content>
   );
 };

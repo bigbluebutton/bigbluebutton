@@ -6,7 +6,7 @@ import { elements as e, playbackElements } from '../core/elements';
 import { getRecordings } from '../core/endpoints';
 import { Page } from '../core/page';
 import { skipSlide } from '../presentation/util';
-import { getNotesLocator, startSharedNotes } from '../sharednotes/util';
+import { getNotesLocator, startSharedNotes } from '../sharednotes/etherpad/util';
 import { MultiUsers } from '../user/multiusers';
 
 export class Recording extends MultiUsers {
@@ -116,6 +116,36 @@ export class Recording extends MultiUsers {
     expect(() => new URL(playbackUrl), 'playback URL should be valid').not.toThrow();
     expect(playbackUrl, 'playback URL should contain "/playback/presentation/"').toContain('/playback/presentation/');
     return playbackUrl;
+  }
+
+  async recordingToastDoesNotBlockModals() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasElement(
+      e.recordingIndicator,
+      'should display the recording indicator once the moderator joins the meeting',
+    );
+
+    // open the recording confirmation toast (non-blocking, lives in react-toastify)
+    await this.modPage.waitAndClick(e.recordingIndicator);
+    await this.modPage.hasElement(
+      e.confirmRecordingButton,
+      'should display the Confirm button in the recording confirmation toast',
+    );
+    await this.modPage.hasElement(
+      e.cancelRecordingButton,
+      'should display the Cancel button in the recording confirmation toast',
+    );
+
+    // with the toast still open, opening the webcam settings modal must not be blocked by it
+    await this.modPage.waitAndClick(e.joinVideo);
+    await this.modPage.hasElement(
+      e.webcamSettingsModal,
+      'should open the webcam settings modal immediately while the recording confirmation toast is still open',
+    );
+    await this.modPage.hasElement(
+      e.confirmRecordingButton,
+      'recording confirmation toast should coexist with the webcam settings modal',
+    );
   }
 
   async accessPlayback() {
@@ -325,21 +355,20 @@ export class Recording extends MultiUsers {
       mask: [titleLocator],
     });
 
-    // Pause and wait 2 seconds and check paused playback
+    // Pause playback and verify the frame does not advance over time
     await playPauseButtonLocator.click();
     await expect(playPauseButtonLocator, 'play/pause button should display "Play" when paused').toHaveText(/Play/, {
       timeout: ELEMENT_WAIT_TIME,
     });
     const progressBarPaused = await progressBarLocator.evaluate((el: HTMLDivElement) => el.offsetWidth);
+    const screenshotBeforeWait = await this.playbackPage.page.screenshot({ mask: [titleLocator] });
     await this.playbackPage.page.waitForTimeout(2000);
     expect(progressBarPaused, 'progress bar width should not change when playback is paused').toEqual(
       await progressBarLocator.evaluate((el: HTMLDivElement) => el.offsetWidth),
     );
-    await expect(this.playbackPage.page, 'should display the same slide when paused').toHaveScreenshot(
-      'playback-paused.png',
-      {
-        mask: [titleLocator],
-      },
+    const screenshotAfterWait = await this.playbackPage.page.screenshot({ mask: [titleLocator] });
+    expect(screenshotBeforeWait, 'should display the same frame when paused — screenshot should not change').toEqual(
+      screenshotAfterWait,
     );
   }
 

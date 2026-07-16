@@ -20,7 +20,7 @@ runs:
   using: composite
   steps:
     - name: Checkout reports repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         repository: ${{ inputs.reports-repo }}
         token: ${{ inputs.token }}

@@ -1,4 +1,7 @@
+import path from 'path';
+
 import { linkIssue } from '../core/helpers';
+import { chromiumBaseArgs } from '../core/setup/browsersConfig';
 import { test } from '../core/setup/fixtures';
 import { Presentation } from './presentation';
 
@@ -10,10 +13,29 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     await presentation.skipSlide();
   });
 
-  test('Share Camera As Content', async ({ browser, context, page }, testInfo) => {
+  test('Navigate slides with arrow keys', async ({ browser, context, page }, testInfo) => {
     const presentation = new Presentation(browser, context);
-    await presentation.initPages(page, testInfo);
-    await presentation.shareCameraAsContent();
+    await presentation.initModPage(page, { testInfo });
+    await presentation.navigateSlidesWithKeys();
+  });
+
+  test('Share Camera As Content', { tag: '@media' }, async ({ browser }, testInfo) => {
+    const staticVideoBrowser = await browser.browserType().launch({
+      args: [
+        ...chromiumBaseArgs,
+        `--use-file-for-fake-video-capture=${path.join(__dirname, '../core/media/video-static.y4m')}`,
+      ],
+    });
+    try {
+      const staticContext = await staticVideoBrowser.newContext();
+      const staticPage = await staticContext.newPage();
+      const presentation = new Presentation(staticVideoBrowser, staticContext);
+      await presentation.initModPage(staticPage, { testInfo });
+      await presentation.initUserPage(staticContext, { testInfo });
+      await presentation.shareCameraAsContent();
+    } finally {
+      await staticVideoBrowser.close();
+    }
   });
 
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#minimizerestore-presentation-automated
@@ -21,6 +43,27 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
     const presentation = new Presentation(browser, context);
     await presentation.initPages(page, testInfo);
     await presentation.hideAndRestorePresentation();
+  });
+
+  // The presentation should always be restored when a new one is shared. It follows the same behavior as
+  // when the presentar starts sharing screen or sharing camera as content - the presentation area is always restored.
+  test('Presentation is restored when a new one is shared', async ({ browser, context, page }, testInfo) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initPages(page, testInfo);
+    await presentation.hideAndShareNewPresentation();
+  });
+
+  // The presentation should always be restored when a new one is shared. It follows the same behavior as
+  // when the presentar starts sharing screen or sharing camera as content - the presentation area is always restored.
+  test('Presentation is restored when deleted and a new one is shared', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const presentation = new Presentation(browser, context);
+    await presentation.initPages(page, testInfo);
+    await presentation.hidePresentation();
+    await presentation.shareNewPresentationAfterDelete();
   });
 
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#fit-to-width-option
@@ -150,6 +193,13 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, testInfo);
       await presentation.removeAllPresentation();
+    });
+
+    test('Presentation thumbnail loads', async ({ browser, context, page }, testInfo) => {
+      linkIssue(25163);
+      const presentation = new Presentation(browser, context);
+      await presentation.initModPage(page, { testInfo });
+      await presentation.presentationThumbnailLoads();
     });
 
     test('Upload and remove all presentations', { tag: '@flaky' }, async ({ browser, context, page }, testInfo) => {

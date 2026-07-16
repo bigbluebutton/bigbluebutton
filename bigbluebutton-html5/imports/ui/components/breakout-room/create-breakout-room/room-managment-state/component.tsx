@@ -1,4 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback, useEffect, useMemo, useState,
+} from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useQuery } from '@apollo/client';
 import {
@@ -128,14 +130,14 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
     return defaultName;
   };
 
-  const changeRoomName = (room: number, name: string) => {
+  const changeRoomName = useCallback((room: number, name: string) => {
     setRoomNames((prev) => ({
       ...prev,
       [room]: name,
     }));
-  };
+  }, []);
 
-  const resetRooms = (cap: number) => {
+  const resetRooms = useCallback((cap: number) => {
     setUserAssignedRooms((prev) => {
       const newUserAssignedRooms = { ...prev };
       Object.keys(newUserAssignedRooms).forEach((userId) => {
@@ -143,7 +145,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
       });
       return newUserAssignedRooms;
     });
-  };
+  }, []);
 
   const randomlyAssign = () => {
     const updatedUserAssignedRooms = { ...userAssignedRooms };
@@ -232,10 +234,7 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
 
   // Manage a running room
   useEffect(() => {
-    if (
-      runningRooms
-      && runningRooms.length > 0
-      && Object.keys(userAssignedRooms).length > 0) {
+    if (runningRooms && runningRooms.length > 0) {
       const assignUsers = runningRooms
         .reduce((
           acc: { [key: string]: number[] },
@@ -259,17 +258,23 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
       }, {});
 
       setNumberOfRooms(runningRooms.length);
-      setUserAssignedRooms((prev) => ({
-        ...prev,
-        ...assignUsers,
-      }));
+      setUserAssignedRooms((prev) => {
+        const updated = { ...prev };
+        users.forEach((user) => {
+          if (!updated[user.userId]) {
+            updated[user.userId] = [];
+          }
+        });
+        Object.assign(updated, assignUsers);
+        return updated;
+      });
 
       setRoomNames((prev) => ({
         ...prev,
         ...roomNames,
       }));
     }
-  }, [runningRooms, Object.keys(userAssignedRooms).length]);
+  }, [runningRooms, users.length]);
 
   useEffect(() => {
     if (getUserIdsByNumber(0).length === users.length) {
@@ -317,14 +322,13 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
   useEffect(() => {
     if (
       groups.length
-      && Object.keys(userAssignedRooms).length > 0
+      && users.length > 0
       && lastBreakoutData
       && !(lastBreakoutData.breakoutRoom_createdLatest.length > 0)
     ) {
-      const updatedUserAssignedRooms = { ...userAssignedRooms };
-      const roomNames: {
-        [key: number]: string;
-      } = {};
+      const roomNamesToSet: { [key: number]: string } = {};
+      const groupUserAssignments: { [key: string]: number[] } = {};
+
       Array.from(groups).forEach((group, index) => {
         const idx = index + 1;
         const userIds = group.usersExtId
@@ -332,23 +336,31 @@ const RoomManagmentState: React.FC<RoomManagmentStateProps> = ({
           .filter((user) => user !== undefined)
           .map((user) => user.userId);
         userIds.forEach((userId) => {
-          if (!updatedUserAssignedRooms[userId]) {
-            updatedUserAssignedRooms[userId] = [idx];
+          if (!groupUserAssignments[userId]) {
+            groupUserAssignments[userId] = [idx];
           } else {
-            updatedUserAssignedRooms[userId].push(idx);
+            groupUserAssignments[userId].push(idx);
           }
         });
-
-        roomNames[idx] = group.name;
+        roomNamesToSet[idx] = group.name;
       });
 
-      setUserAssignedRooms(updatedUserAssignedRooms);
-      setRoomNames(roomNames);
+      setUserAssignedRooms((prev) => {
+        const updated = { ...prev };
+        users.forEach((user) => {
+          if (!updated[user.userId]) {
+            updated[user.userId] = [];
+          }
+        });
+        Object.entries(groupUserAssignments).forEach(([userId, rooms]) => {
+          updated[userId] = rooms;
+        });
+        return updated;
+      });
+
+      setRoomNames(roomNamesToSet);
     }
-  }, [
-    lastBreakoutData,
-    userAssignedRooms,
-  ]);
+  }, [lastBreakoutData, groups, users]);
 
   const rooms = useMemo(() => {
     const roomList: {

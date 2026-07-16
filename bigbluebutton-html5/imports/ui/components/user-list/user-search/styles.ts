@@ -13,12 +13,13 @@ import {
   lgBorderRadius,
   smPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
+import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 
 const SearchContainer = styled.div`
   display: flex;
   align-items: center;
   position: relative;
-  margin: ${lgPadding} ${lgPadding} 0px ${lgPadding};
+  margin: ${lgPadding};
   background: ${colorWhite};
   border-radius: ${lgBorderRadius};
   border: 1px solid ${colorBorder};
@@ -27,7 +28,8 @@ const SearchContainer = styled.div`
   height: 40px;
   overflow: hidden;
   box-shadow: none;
-  
+  cursor: text;
+
   &:focus-within {
     box-shadow: 0 0 0 ${xsPadding} ${colorBorder};
   }
@@ -40,7 +42,7 @@ const SearchInput = styled.input`
   outline: none;
   background: transparent;
   color: ${colorText};
-  font-size: 0.875rem;
+  font-size: ${fontSizeBase};
   padding: 0;
   margin-left: ${smPaddingX};
 

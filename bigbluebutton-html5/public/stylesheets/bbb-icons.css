@@ -417,4 +417,21 @@
 .icon-bbb-co_presentation:before {
   content: "\e983";
 }
-
+.icon-bbb-pin_filled:before {
+  content: "\e984";
+}
+.icon-bbb-arrow_forward_up:before {
+  content: "\e985";
+}
+.icon-bbb-arrow_forward_down:before {
+  content: "\e986";
+}
+.icon-bbb-add_column:before {
+  content: "\e987";
+}
+.icon-bbb-apps_tiles:before {
+  content: "\e988";
+}
+.icon-bbb-apps_list:before {
+  content: "\e989";
+}

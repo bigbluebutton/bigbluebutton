@@ -24,13 +24,10 @@ import { TextElipsis } from '../../../stylesheets/styled-components/placeholders
 import Button from '/imports/ui/components/common/button/component';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import {
-  HeaderContainer as BaseHeaderContainer,
   Separator as BaseSeparator,
   PanelContent as BasePanelContent,
 } from '/imports/ui/components/sidebar-content/styles';
 import { fontSizeBase, textFontWeight } from '../../../stylesheets/styled-components/typography';
-
-const HeaderContainer = styled(BaseHeaderContainer)``;
 
 const Separator = styled(BaseSeparator)``;
 
@@ -105,6 +102,7 @@ const TimerSwitchButton = styled(Button)`
   height: 3rem;
   border-radius: ${lgBorderRadius};
   margin: 0 .5rem;
+  font-size: ${fontSizeBase};
 `;
 
 const TimeInputWrapper = styled.div`
@@ -135,7 +133,7 @@ const IncrementDecrementButton = styled(Button)`
   height: 1.2rem;
   min-width: 0;
   padding: 0;
-  font-size: 1rem;
+  font-size: ${fontSizeBase};
   line-height: 0.9;
 `;
 
@@ -254,7 +252,7 @@ const TimeUnitContainer = styled.div`
 `;
 
 const TimeUnitLabel = styled.span`
-  font-size: 0.80rem;
+  font-size: ${fontSizeBase};
   color: ${colorGray};
   text-transform: capitalize;
 `;
@@ -424,7 +422,7 @@ const TimerPresetsRow = styled.div`
 const TimerPresetButton = styled.button<{disabled?: boolean; isActive?: boolean}>`
   all: unset;
   cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
-  font-size: 0.95rem;
+  font-size: ${fontSizeBase};
   line-height: 1;
   color: ${colorGrayDark};
   opacity: ${({ disabled }) => (disabled ? 0.4 : 0.7)};
@@ -473,7 +471,7 @@ const PresetArrowButton = styled(Button)`
   
   i {
     margin: 0;
-    font-size: 1rem;
+    font-size: ${fontSizeBase};
   }
 
   [dir="rtl"] & i {
@@ -497,7 +495,7 @@ const TimerAddsRow = styled.div`
 const TimerAddButton = styled.button<{disabled?: boolean}>`
   all: unset;
   cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
-  font-size: 0.9rem;
+  font-size: ${fontSizeBase};
   line-height: 1.5;
   color: ${colorPrimary};
   background-color: color-mix(in srgb, ${colorBlueLighter} 20%, transparent);
@@ -530,6 +528,7 @@ const ControlButton = styled(Button)`
   border-radius: ${lgBorderRadius};
   height: 3rem;
   width: 100%;
+  font-size: ${fontSizeBase};
 `;
 
 const ResetButton = styled(ControlButton)`
@@ -551,7 +550,6 @@ const FooterSeparator = styled(BaseSeparator)`
 `;
 
 export default {
-  HeaderContainer,
   Separator,
   TimerSidebarContent,
   TimerTitle,

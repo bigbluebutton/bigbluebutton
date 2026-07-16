@@ -14,6 +14,12 @@ case class MeetingSystemColumnsDbModel(
       bannerColor:                           Option[String],
 )
 
+case class MeetingBridgesDbModel(
+  cameraBridge: String,
+  screenShareBridge: String,
+  audioBridge: String
+)
+
 case class MeetingDbModel(
     meetingId:                             String,
     extId:                                 String,
@@ -21,10 +27,8 @@ case class MeetingDbModel(
     isBreakout:                            Boolean,
     disabledFeatures:                      List[String],
     meetingCameraCap:                      Int,
-    maxPinnedCameras:                      Int,
-    cameraBridge:                          String,
-    screenShareBridge:                     String,
-    audioBridge:                           String,
+    maxPinnedCameras:                     Int,
+    bridges:                               MeetingBridgesDbModel,
     notifyRecordingIsOn:                   Boolean,
     presentationUploadExternalDescription: String,
     presentationUploadExternalUrl:         String,
@@ -48,9 +52,7 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
     disabledFeatures,
     meetingCameraCap,
     maxPinnedCameras,
-    cameraBridge,
-    screenShareBridge,
-    audioBridge,
+    bridges,
     notifyRecordingIsOn,
     presentationUploadExternalDescription,
     presentationUploadExternalUrl,
@@ -74,6 +76,9 @@ class MeetingDbTableDef(tag: Tag) extends Table[MeetingDbModel](tag, None, "meet
   val cameraBridge = column[String]("cameraBridge")
   val screenShareBridge = column[String]("screenShareBridge")
   val audioBridge = column[String]("audioBridge")
+
+  val bridges = (cameraBridge, screenShareBridge, audioBridge) <> (MeetingBridgesDbModel.tupled, MeetingBridgesDbModel.unapply)
+
   val notifyRecordingIsOn = column[Boolean]("notifyRecordingIsOn")
   val presentationUploadExternalDescription = column[String]("presentationUploadExternalDescription")
   val presentationUploadExternalUrl = column[String]("presentationUploadExternalUrl")
@@ -106,9 +111,11 @@ object MeetingDAO {
           disabledFeatures = meetingProps.meetingProp.disabledFeatures.toList,
           meetingCameraCap = meetingProps.meetingProp.meetingCameraCap,
           maxPinnedCameras = meetingProps.meetingProp.maxPinnedCameras,
-          cameraBridge = meetingProps.meetingProp.cameraBridge,
-          screenShareBridge = meetingProps.meetingProp.screenShareBridge,
-          audioBridge = meetingProps.meetingProp.audioBridge,
+          bridges = MeetingBridgesDbModel(
+            cameraBridge = meetingProps.meetingProp.cameraBridge,
+            screenShareBridge = meetingProps.meetingProp.screenShareBridge,
+            audioBridge = meetingProps.meetingProp.audioBridge
+          ),
           notifyRecordingIsOn = meetingProps.meetingProp.notifyRecordingIsOn,
           presentationUploadExternalDescription = meetingProps.meetingProp.presentationUploadExternalDescription,
           presentationUploadExternalUrl = meetingProps.meetingProp.presentationUploadExternalUrl,

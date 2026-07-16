@@ -13,10 +13,6 @@ interface RecordingContainerProps {
   setIsOpen: (visible: boolean) => void;
   amIModerator: boolean;
   onRequestClose: () => void;
-  // eslint-disable-next-line react/no-unused-prop-types
-  priority: string;
-  // eslint-disable-next-line react/no-unused-prop-types
-  isOpen: boolean;
 }
 
 const RecordingContainer: React.FC<RecordingContainerProps> = (props) => {
@@ -43,14 +39,14 @@ const RecordingContainer: React.FC<RecordingContainerProps> = (props) => {
   const time = recordingData?.meeting_recording[0]?.previousRecordedTimeInSeconds ?? 0;
   const allowStartStopRecording = currentMeetingData?.recordingPolicies?.allowStartStopRecording ?? false;
 
-  const toggleRecording = () => {
+  const toggleRecording = React.useCallback(() => {
     setRecordingStatus({
       variables: {
         recording: !recording,
       },
     });
     setIsOpen(false);
-  };
+  }, [recording, setIsOpen, setRecordingStatus]);
 
   const mayIRecord = Service.mayIRecord(amIModerator, allowStartStopRecording);
 

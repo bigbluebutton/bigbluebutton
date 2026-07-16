@@ -37,6 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.bigbluebutton.api.domain.*;
 import org.bigbluebutton.api.exception.PluginMalformedParametersException;
+import org.bigbluebutton.api.exception.PluginManifestChecksumMismatchException;
 import org.bigbluebutton.api.exception.PluginMetadataException;
 import org.bigbluebutton.api.exception.PluginMissingNameException;
 import org.bigbluebutton.api.messaging.MessageListener;
@@ -46,7 +47,10 @@ import org.bigbluebutton.api.messaging.converters.messages.PublishedRecordingMes
 import org.bigbluebutton.api.messaging.converters.messages.UnpublishedRecordingMessage;
 import org.bigbluebutton.api.messaging.converters.messages.DeletedRecordingMessage;
 import org.bigbluebutton.api.messaging.messages.*;
+import org.bigbluebutton.api.service.impl.SharedNotesRedirectValidatorService;
+import org.bigbluebutton.api.util.ParsedPluginManifest;
 import org.bigbluebutton.api.util.PluginUtils;
+import org.bigbluebutton.api.service.RedirectFollowerService;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.api2.domain.UploadedTrack;
 import org.bigbluebutton.common2.redis.RedisStorageService;
@@ -93,6 +97,8 @@ public class MeetingService implements MessageListener {
   private CallbackUrlService callbackUrlService;
   private SlidesGenerationProgressNotifier notifier;
 
+  private PluginUtils pluginUtils;
+
   private long usersTimeout;
   private int numPluginManifestsFetchingThreads;
   private long pluginManifestFetchTimeout;
@@ -102,6 +108,8 @@ public class MeetingService implements MessageListener {
 
   private ParamsProcessorUtil paramsProcessorUtil;
   private PresentationUrlDownloadService presDownloadService;
+  private RedirectFollowerService redirectFollower;
+  private SharedNotesRedirectValidatorService sharedNotesRedirectValidator;
 
   private IBbbWebApiGWApp gw;
 
@@ -319,6 +327,13 @@ public class MeetingService implements MessageListener {
     notifier.sendUploadFileTooLargeMessage(presUploadToken, uploadedFileSize, maxUploadFileSize);
   }
 
+  public void sendPresentationUploadMaxFilesizeMessage(String presentationId, String podId, String meetingId,
+                                                       String filename, String authzToken,
+                                                       int uploadedFileSize, int maxUploadFileSize) {
+    notifier.sendUploadFileTooLargeMessage(presentationId, podId, meetingId, filename, authzToken,
+            uploadedFileSize, maxUploadFileSize);
+  }
+
   private void removeUserSessionsFromMeeting(String meetingId) {
     for (String token : sessions.keySet()) {
       UserSession userSession = sessions.get(token);
@@ -368,6 +383,60 @@ public class MeetingService implements MessageListener {
       : Collections.unmodifiableCollection(sessions.values());
   }
 
+  public ArrayList<Object> getSharedNotesInitialContent(Meeting m) {
+    ArrayList<Object> initialContent;
+    String sharedNotesInitialContentJsonUrl = m.getSharedNotesInitialContentJsonUrl();
+    String sharedNotesInitialContentJsonFromPayload = m.getSharedNotesInitialContentJsonFromPayload();
+
+    if (!sharedNotesInitialContentJsonUrl.isEmpty()) {
+      initialContent = requestSharedNotesInitialContentFromUrl(m.getInternalId(), sharedNotesInitialContentJsonUrl);
+    } else {
+      initialContent = parseSharedNotesInitialContent(sharedNotesInitialContentJsonFromPayload);
+    }
+
+    return initialContent;
+  }
+
+  public ArrayList<Object> requestSharedNotesInitialContentFromUrl(String meetingId, String initialContentJsonUrl) {
+    ArrayList<Object> initialContent = new ArrayList<>();
+    if (!initialContentJsonUrl.isEmpty()) {
+      try {
+        String finalInitialContentJsonUrl = redirectFollower.followRedirect(
+                meetingId, initialContentJsonUrl, 0, initialContentJsonUrl, sharedNotesRedirectValidator, 6000
+        );
+
+        URL url = new URL(finalInitialContentJsonUrl);
+        String content;
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()))) {
+          content = in.lines().collect(Collectors.joining("\n"));
+        }
+        initialContent = parseSharedNotesInitialContent(content);
+      } catch (MalformedURLException e) {
+        log.error(
+                "Malformed URL for sharedNotesInitialContentJsonUrl: [{}]", initialContentJsonUrl);
+      } catch (IOException e) {
+        log.error(
+                "Something went wrong while processing [{}]. Error: {}", initialContentJsonUrl, e.getMessage());
+      }
+    }
+    return initialContent;
+  }
+
+  public ArrayList<Object> parseSharedNotesInitialContent(String content) {
+    ArrayList<Object> initialContent = null;
+    try {
+      JsonNode jsonNode = objectMapper.readTree(content);
+      initialContent = objectMapper.convertValue(jsonNode, new TypeReference<>() {});
+    } catch (JsonProcessingException e) {
+      log.error(
+              "Error while processing json for sharedNotesInitialContent: [{}]", e.getMessage());
+    } catch (IllegalArgumentException e) {
+      log.warn("Structure mismatched, ignoring initial content for shared notes.");
+    }
+    if (initialContent == null) return new ArrayList<>();
+    return initialContent;
+  }
+
   public Map<String, Object> requestPluginManifests(Meeting m) {
     Map<String, Object> pluginsResult = new ConcurrentHashMap<>();
     Map<String, String> metadata = m.getMetadata();
@@ -378,58 +447,35 @@ public class MeetingService implements MessageListener {
     for (PluginManifest pluginManifest : m.getPluginManifests()) {
       String pluginManifestUrlString = pluginManifest.getUrl();
       log.info("Fetching plugin [{}].", pluginManifestUrlString);
+
       CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
         try {
-          URL url = new URL(pluginManifestUrlString);
-          String content;
-          try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()))) {
-            content = in.lines().collect(Collectors.joining("\n"));
-          }
+          ParsedPluginManifest parsed = pluginUtils.getParsedPluginManifest(pluginManifest, m.getInternalId());
 
-          // Parse the JSON content
-          JsonNode jsonNode = objectMapper.readTree(content);
+          String pluginName = parsed.pluginName();
+          if (pluginName == null || pluginName.isEmpty()) throw new PluginMissingNameException(
+                  "For url " + pluginManifestUrlString + " there is no name field configured.",
+                  pluginManifestUrlString
+          );
 
-          // Validate checksum if any
-          String paramChecksum = pluginManifest.getChecksum();
-          if (!StringUtils.isEmpty(paramChecksum)) {
-            String hash = DigestUtils.sha256Hex(content);
-            if (!paramChecksum.equals(hash)) {
-              String clientErrorMessage = "Plugin's manifest.json checksum mismatch with that of the URL parameter. For more information, see bbb-web";
-              pluginsResult.put(pluginManifestUrlString, PluginUtils.createEmptyPluginObjectWithError(
-                      clientErrorMessage,
-                      pluginManifestUrlString
-              ));
-              log.info("Plugin's manifest.json checksum mismatch with that of the URL parameter for [{}].",
-                      pluginManifestUrlString);
-              log.info("Plugin {} is not going to be loaded", pluginManifestUrlString);
-              return;
-            }
-          }
-
-          // Get the "name" field
-          String pluginName;
-          if (jsonNode.has("name")) {
-            pluginName = jsonNode.get("name").asText();
-          } else {
-            throw new PluginMissingNameException(
-                    "For url " + pluginManifestUrlString + " there is no name field configured.",
-                    pluginManifestUrlString
-            );
-          }
-
-
-          String pluginKey = pluginName;
           HashMap<String, Object> manifestObject = new HashMap<>();
           manifestObject.put("url", pluginManifestUrlString);
           String manifestContent = PluginUtils.replaceMetadataParametersIntoManifestTemplate(
-                  pluginName, content, metadata, pluginMetadataParameter);
+                  pluginName, parsed.rawContent(), metadata, pluginMetadataParameter);
 
           Map<String, Object> mappedManifestContent = objectMapper.readValue(manifestContent, new TypeReference<Map<String, Object>>() {});
           manifestObject.put("content", mappedManifestContent);
 
           Map<String, Object> manifestWrapper = new HashMap<>();
           manifestWrapper.put("manifest", manifestObject);
-          pluginsResult.put(pluginKey, manifestWrapper);
+          pluginsResult.put(pluginName, manifestWrapper);
+
+        } catch (PluginManifestChecksumMismatchException e) {
+          String clientErrorMessage = "Plugin's manifest.json checksum mismatch with that of the URL parameter. For more information, see bbb-web";
+          pluginsResult.put(pluginManifestUrlString, PluginUtils.createEmptyPluginObjectWithError(
+                  clientErrorMessage, pluginManifestUrlString));
+          log.info("Plugin's manifest.json checksum mismatch with that of the URL parameter for [{}]. Plugin not loaded.",
+                  pluginManifestUrlString);
         } catch (MalformedURLException e) {
           String clientErrorMessage = "Invalid URL/Malformed URl when processing a plugin. For more information, see bbb-web";
           pluginsResult.put(pluginManifestUrlString, PluginUtils.createEmptyPluginObjectWithError(
@@ -513,13 +559,15 @@ public class MeetingService implements MessageListener {
     if (existingId == null && existingTelVoice == null && existingWebVoice == null) {
       meetings.put(m.getInternalId(), m);
       Map<String, Object> pluginsMap;
-      if (m.isBreakout()) {
+      ArrayList<Object> sharedNotesInitialContentMap = getSharedNotesInitialContent(m);
+      if (m.isBreakout() || m.getDisabledFeatures().contains("plugins")) {
         pluginsMap = plugins;
       } else {
         pluginsMap = requestPluginManifests(m);
       }
 
       m.setPlugins(pluginsMap);
+      m.setSharedNotesInitialContentJson(sharedNotesInitialContentMap);
       handle(new CreateMeeting(m));
       return true;
     }
@@ -597,7 +645,7 @@ public class MeetingService implements MessageListener {
 
     gw.createMeeting(m.getInternalId(), m.getExternalId(), m.getParentMeetingId(), m.getName(), m.isRecord(),
             m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording(),
-            m.getRecordFullDurationMedia(),
+            m.getSharedNotesInitialContentJson(), m.getSharedNotesEditor(), m.getRecordFullDurationMedia(),
             m.getWebcamsOnlyForModerator(), m.getMultiUserWhiteboardEnabled(), m.getMeetingCameraCap(), m.getUserCameraCap(), m.getMaxPinnedCameras(),
             m.getCameraBridge(),
             m.getScreenShareBridge(),
@@ -840,6 +888,7 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.IS_BREAKOUT, "true");
       params.put(ApiParams.SEQUENCE, message.sequence.toString());
       params.put(ApiParams.FREE_JOIN, message.freeJoin.toString());
+      params.put(ApiParams.SHARED_NOTES_EDITOR, message.sharedNotesEditor);
       params.put(ApiParams.BREAKOUT_ROOMS_CAPTURE_SLIDES, message.captureSlides.toString());
       params.put(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES, message.captureNotes.toString());
       params.put(ApiParams.BREAKOUT_ROOMS_CAPTURE_NOTES_FILENAME, message.captureNotesFilename.toString());
@@ -848,17 +897,31 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.MODERATOR_PW, message.moderatorPassword);
       params.put(ApiParams.DIAL_NUMBER, message.dialNumber);
       params.put(ApiParams.VOICE_BRIDGE, message.voiceConfId);
-      params.put(ApiParams.DURATION, message.durationInMinutes.toString());
+      int durationInMinutes = message.durationInSeconds > 0 ? ((message.durationInSeconds + 59) / 60) : 0;
+      params.put(ApiParams.DURATION, Integer.toString(durationInMinutes));
       params.put(ApiParams.RECORD, message.record.toString());
+      params.put(ApiParams.AUTO_START_RECORDING, message.autoStartRecording.toString());
+      params.put(ApiParams.ALLOW_START_STOP_RECORDING, message.allowStartStopRecording.toString());
       params.put(ApiParams.WELCOME, getMeeting(message.parentMeetingId).getWelcomeMessageTemplate());
       params.put(ApiParams.AUDIO_BRIDGE, message.audioBridge);
       params.put(ApiParams.CAMERA_BRIDGE, message.cameraBridge);
       params.put(ApiParams.SCREEN_SHARE_BRIDGE, message.screenShareBridge);
       params.put(ApiParams.NOTIFY_RECORDING_IS_ON,parentMeeting.getNotifyRecordingIsOn().toString());
       params.put(ApiParams.DISABLED_FEATURES,String.join(",", message.disabledFeatures));
+      params.put(ApiParams.GUEST_POLICY, GuestPolicy.ALWAYS_ACCEPT);
 
-      // Apply private chat lock settings from parent meeting to breakout room
+      // Apply lock settings from parent meeting to breakout room
       params.put(ApiParams.LOCK_SETTINGS_DISABLE_PRIVATE_CHAT, message.disablePrivChat.toString());
+      params.put(ApiParams.LOCK_SETTINGS_DISABLE_CAM, message.disableCam.toString());
+      params.put(ApiParams.LOCK_SETTINGS_DISABLE_MIC, message.disableMic.toString());
+      params.put(ApiParams.LOCK_SETTINGS_DISABLE_PUBLIC_CHAT, message.disablePubChat.toString());
+      params.put(ApiParams.LOCK_SETTINGS_DISABLE_NOTES, message.disableNotes.toString());
+      params.put(ApiParams.LOCK_SETTINGS_HIDE_USER_LIST, message.hideUserList.toString());
+      params.put(ApiParams.LOCK_SETTINGS_LOCK_ON_JOIN, message.lockOnJoin.toString());
+      params.put(ApiParams.LOCK_SETTINGS_LOCK_ON_JOIN_CONFIGURABLE, message.lockOnJoinConfigurable.toString());
+      params.put(ApiParams.LOCK_SETTINGS_HIDE_VIEWERS_CURSOR, message.hideViewersCursor.toString());
+      params.put(ApiParams.LOCK_SETTINGS_HIDE_VIEWERS_ANNOTATION, message.hideViewersAnnotation.toString());
+      params.put(ApiParams.WEBCAMS_ONLY_FOR_MODERATOR, message.webcamsOnlyForModerator.toString());
 
       Map<String, String> parentMeetingMetadata = parentMeeting.getMetadata();
 
@@ -870,6 +933,9 @@ public class MeetingService implements MessageListener {
       }
 
       Meeting breakout = paramsProcessorUtil.processCreateParams(params);
+
+      // breakout rooms inherit client settings override from the parent
+      breakout.setOverrideClientSettings(parentMeeting.getOverrideClientSettings());
 
       createMeeting(breakout, message.pluginProp);
 
@@ -1593,6 +1659,18 @@ public class MeetingService implements MessageListener {
 
   public void setSlidesGenerationProgressNotifier(SlidesGenerationProgressNotifier notifier) {
     this.notifier = notifier;
+  }
+
+  public void setPluginUtils(PluginUtils pluginUtils) {
+    this.pluginUtils = pluginUtils;
+  }
+
+  public void setRedirectFollower(RedirectFollowerService redirectFollower) {
+    this.redirectFollower = redirectFollower;
+  }
+
+  public void setSharedNotesRedirectValidator(SharedNotesRedirectValidatorService sharedNotesRedirectValidator) {
+    this.sharedNotesRedirectValidator = sharedNotesRedirectValidator;
   }
 
 }

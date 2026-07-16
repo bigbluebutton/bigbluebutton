@@ -22,8 +22,8 @@ jobs:
         working-directory: ./docs
     steps:
       # Setup
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 20
           cache: npm
@@ -37,9 +37,10 @@ jobs:
       - name: Build website
         run: npm run docusaurus build
       - name: upload build artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ./docs/build
+          include-hidden-files: true
 
   deploy:
     name: Deploy docs to gh-pages
@@ -57,4 +58,4 @@ jobs:
     steps:
       - name: deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v1
+        uses: actions/deploy-pages@v5

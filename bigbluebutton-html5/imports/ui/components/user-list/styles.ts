@@ -15,13 +15,10 @@ import {
   contentSidebarBottomScrollPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  HeaderContainer as BaseHeaderContainer,
   PanelContent as BasePanelContent,
   Separator as BaseSeparator,
 } from '/imports/ui/components/sidebar-content/styles';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
-
-const HeaderContainer = styled(BaseHeaderContainer)``;
 
 const PanelContent = styled(BasePanelContent)`
   display: flex;
@@ -117,7 +114,6 @@ const ListItem = styled.div`
 `;
 
 export default {
-  HeaderContainer,
   PanelContent,
   Separator,
   ScrollableSection,

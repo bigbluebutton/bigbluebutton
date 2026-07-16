@@ -122,6 +122,44 @@ class ApiControllerSpec extends Specification implements ControllerUnitTest<ApiC
     xmlResponseToString() == buildCreateMeetingResponse(controller.meetingService.meetings.getAt(0))
   }
 
+  def "Test create a meeting with malformed XML body"() {
+    when: "necessary meeting parameters are provided with malformed XML"
+    createMeetingWithDefaultParameters()
+    request.contentType = "application/xml"
+    request.content = "<modules><module name=\"presentation\"><document url=\"https://example.com/test.pdf\"></module></modules>".getBytes("UTF-8")
+    setChecksumAndQueryString('create')
+    controller.create()
+
+    then: "respond with an API failure and do not create the meeting"
+    xmlResponseToString() == buildXmlErrorResponse("malformedXml", "The request body contains malformed XML.")
+    controller.meetingService.meetings.isEmpty()
+  }
+
+  def "Test create a meeting with malformed presentation URL"() {
+    when: "necessary meeting parameters are provided with a malformed presentation URL"
+    createMeetingWithDefaultParameters()
+    request.contentType = "application/xml"
+    request.content = "<modules><module name=\"presentation\"><document url=\"https://example.com/%ZZ.pdf\"/></module></modules>".getBytes("UTF-8")
+    setChecksumAndQueryString('create')
+    controller.create()
+
+    then: "respond with an API failure and do not create the meeting"
+    xmlResponseToString() == buildXmlErrorResponse("invalidPresentationUrl", "Presentation URL is malformed.")
+    controller.meetingService.meetings.isEmpty()
+  }
+
+  def "Test create a meeting with malformed pre-uploaded presentation URL"() {
+    when: "necessary meeting parameters are provided with a malformed pre-uploaded presentation URL"
+    createMeetingWithDefaultParameters()
+    params["preUploadedPresentation"] = "https://example.com/%ZZ.pdf"
+    setChecksumAndQueryString('create')
+    controller.create()
+
+    then: "respond with an API failure and do not create the meeting"
+    xmlResponseToString() == buildXmlErrorResponse("invalidPresentationUrl", "Presentation URL is malformed.")
+    controller.meetingService.meetings.isEmpty()
+  }
+
   def "Test join a non existing meeting"() {
     when: "a user tried to join a non-existing meeting"
     createJoinUser()

@@ -48,7 +48,7 @@ trait UserLeftVoiceConfEvtMsgHdlr {
     for {
       user <- VoiceUsers.findWithVoiceUserId(liveMeeting.voiceUsers, msg.body.voiceUserId)
     } yield {
-      AudioFloorManager.handleUserLeftVoice(
+      liveMeeting.audioFloorManager.handleUserLeftVoice(
         user.intId,
         System.currentTimeMillis(),
         liveMeeting,

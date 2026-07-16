@@ -42,7 +42,7 @@ else
     VERSION="${VERSION_NUMBER}~${VERSION_ADDON}+${COMMIT_DATE}-git.${GIT_REV}"
 fi
 
-DISTRO=jammy
+DISTRO=noble
 CACHE_DIR="/root/"
 mkdir -p "$CACHE_DIR"
 
@@ -89,7 +89,7 @@ build_package() {
 
     pushd "$TMP/$TARGET"
     echo "starting build.sh: -----------------------------------------"
-    VERSION="$VERSION" EPOCH="$EPOCH" ./build.sh $BUILD_NUMBER
+    VERSION="$VERSION" EPOCH="$EPOCH" COMMIT_DATE="$COMMIT_DATE" ./build.sh $BUILD_NUMBER
     popd
 }
 

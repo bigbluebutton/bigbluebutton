@@ -8,7 +8,7 @@ import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import SidebarNavigationButton from '/imports/ui/components/sidebar-navigation/sidebar-navigation-button/component';
 import { RAISED_HAND_USERS, RaisedHandUsersSubscriptionResponse, USER_AGGREGATE_COUNT_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
 import { UserAggregateCountSubscriptionResponse } from '/imports/ui/components/user-list/types';
-import { BaseSidebarButtonProps } from '../types';
+import useIsSpecificPanelOpened from '../hooks/useIsSpecificPanelOpened';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -18,9 +18,10 @@ const intlMessages = defineMessages({
   },
 });
 
-const UsersListItem: React.FC<BaseSidebarButtonProps> = ({ isOpened }) => {
+const UsersListItem: React.FC = () => {
   const TOGGLE_USER_LIST_SHORTCUT = useShortcut('toggleUserList');
   const intl = useIntl();
+  const isOpened = useIsSpecificPanelOpened(PANELS.USERLIST);
 
   const {
     data: usersCountData,

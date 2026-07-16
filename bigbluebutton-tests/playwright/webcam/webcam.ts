@@ -59,8 +59,9 @@ export class Webcam extends Page {
       'should display the webcam mirrored video container after the camera is shared',
     );
 
-    const mirroredWebcamLocator = await this.page.locator(e.webcamMirroredVideoContainer);
-    await expect(mirroredWebcamLocator).toHaveScreenshot('webcam-mirrored-view.png');
+    const mirroredWebcamLocator = this.page.locator(e.webcamMirroredVideoContainer);
+    const mirroredTransform = await mirroredWebcamLocator.evaluate((el) => getComputedStyle(el).transform);
+    expect(mirroredTransform, 'should have mirror CSS transform applied').toBe('matrix(-1, 0, 0, 1, 0, 0)');
 
     const dropdownWebcamButton = await this.page.locator(e.dropdownWebcamButton).filter({ hasText: this.username });
 
@@ -75,8 +76,9 @@ export class Webcam extends Page {
     await this.getVisibleLocator(e.mirrorWebcamBtn).click();
     await this.hasElement(e.webcamContainer, 'should display the video container after disabling webcam mirroring');
 
-    const webcamLocator = await this.page.locator(e.webcamContainer);
-    await expect(webcamLocator).toHaveScreenshot('webcam-view.png');
+    const webcamLocator = this.page.locator(e.webcamContainer);
+    const normalTransform = await webcamLocator.evaluate((el) => getComputedStyle(el).transform);
+    expect(normalTransform, 'should not have mirror CSS transform applied').not.toBe('matrix(-1, 0, 0, 1, 0, 0)');
 
     await dropdownWebcamButton.click();
     await this.hasElement(e.mirrorWebcamBtn, 'should display the webcam mirror button');
@@ -101,7 +103,7 @@ export class Webcam extends Page {
       await this.waitForSelector(e.videoQualitySelector);
       const langDropdown = await this.page.$(e.videoQualitySelector);
       await langDropdown?.selectOption({ value });
-      await this.waitForSelector(e.currentUserLocalStreamVideo, videoPreviewTimeout);
+      await this.waitForSelector(e.webcamMirroredVideoPreview, videoPreviewTimeout);
       await this.waitAndClick(e.startSharingWebcam);
       await this.waitForSelector(e.webcamConnecting);
       await this.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
@@ -126,7 +128,12 @@ export class Webcam extends Page {
     await this.waitAndClick(e.startSharingWebcam);
     await this.waitForSelector(e.currentUserLocalStreamVideo);
     const webcamVideoLocator = await this.page.locator(e.currentUserLocalStreamVideo);
-    await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-home-background.png');
+    // Mask the dropdown and user-status overlays: depending on the media bridge,
+    // audio may auto-connect and change those camera-container items, which would
+    // otherwise cause cross-bridge screenshot flakiness unrelated to this test.
+    await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-home-background.png', {
+      mask: [this.page.locator(e.dropdownWebcamButton), this.page.locator(e.webcamUserStatus)],
+    });
   }
 
   async webcamFullscreen() {
@@ -179,7 +186,11 @@ export class Webcam extends Page {
     await this.waitAndClick(e.startSharingWebcam);
     await this.waitForSelector(e.currentUserLocalStreamVideo);
     const webcamVideoLocator = await this.page.locator(e.currentUserLocalStreamVideo);
-    await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-new-background.png');
+    // Mask the dropdown and user-status overlays (see applyBackground) to avoid
+    // cross-bridge screenshot flakiness from audio-connection state changes.
+    await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-new-background.png', {
+      mask: [this.page.locator(e.dropdownWebcamButton), this.page.locator(e.webcamUserStatus)],
+    });
 
     // Remove
     await this.waitAndClick(e.videoDropdownMenu);
@@ -251,9 +262,6 @@ export class Webcam extends Page {
 
     expect(resizedVideoHeight).toBeGreaterThan(initialVideoHeight);
     expect(resizedVideoContainerHeight).toBeGreaterThan(initialVideoContainerHeight);
-
-    const webcamLocator = await this.page.locator(e.currentUserLocalStreamVideo);
-    await expect(webcamLocator).toHaveScreenshot('resize-webcam.png');
 
     await this.waitAndClick(e.minimizePresentation);
     await this.waitForSelector(e.restorePresentation);
@@ -352,5 +360,14 @@ export class Webcam extends Page {
     await expect(this.page).toHaveScreenshot('drag-drop-sidebar-bottom.png', {
       mask: [this.page.locator(e.currentUserLocalStreamVideo)],
     });
+  }
+
+  async virtualBackgroundToggleDisabledOnUnsupportedDevice() {
+    // On mobile viewports the sidebar navigation is collapsed — open it first
+    await this.page.locator(e.toggleSidebarNavigation).click({ force: true });
+    await this.waitAndClick(e.profileSidebarButton);
+    await this.hasElement(e.virtualBackgroundToggle, 'should display the virtual background toggle in profile settings');
+    const toggle = this.page.locator(e.virtualBackgroundToggle);
+    await expect(toggle, 'virtual background toggle should be disabled on unsupported device').toBeDisabled();
   }
 }

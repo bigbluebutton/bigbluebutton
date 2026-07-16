@@ -117,9 +117,9 @@ const UserAvatar = styled.div<UserAvatarProps>`
   text-transform: capitalize;
   display: flex;
   justify-content: center;
-  align-items:center;  
+  align-items:center;
   // ================ content ================
-  & .react-loading-skeleton {    
+  & .react-loading-skeleton {
     height: 2.25rem;
     width: 2.25rem;
   }
@@ -263,9 +263,17 @@ const ChatContent = styled.div`
 `;
 
 const MessageItemWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
+  flex: 1;
+  min-width: 0;
   padding: ${lgPadding} ${xlPadding};
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: left;
+
+  [dir="rtl"] & {
+    text-align: right;
+  }
 `;
 
 export default {

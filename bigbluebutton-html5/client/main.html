@@ -20,6 +20,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta charset="utf-8">
+  <!-- Block browser auto-translation: translators (e.g. Google Translate) rewrite
+       text nodes out from under React, desyncing the virtual DOM and crashing the
+       client (insertBefore NotFoundError) on the next render. Use in-app i18n. -->
+  <meta name="google" content="notranslate">
+  <script>document.documentElement.setAttribute('translate', 'no');</script>
+  <title>BigBlueButton</title>
   <link rel="stylesheet" href="stylesheets/normalize.css" crossorigin="anonymous"/>
   <style>
     html {
@@ -148,8 +154,10 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     document.addEventListener('gesturestart', function (e) {
       e.preventDefault();
     });
+    document.addEventListener('gesturechange', function (e) {
+      e.preventDefault();
+    });
   </script>
-  <script src="compatibility/sip.js?v=VERSION" language="javascript"></script>
   <script src="compatibility/tflite-simd.js?v=VERSION" language="javascript"></script>
   <script src="compatibility/tflite.js?v=VERSION" language="javascript"></script>
   <!-- fonts -->
@@ -185,9 +193,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
   <div id="aria-polite-alert" aria-live="polite" aria-atomic="false" class="sr-only"></div>
   <svg style="display: none; width: 1px; height: 1px;">
     <defs>
-      <symbol id="redPointer" viewBox="0 0 10 10">
-        <circle cx="5" cy="5" r="4" fill="red" />
-      </symbol>
+      <g id="redPointer">
+        <circle cx="0" cy="0" r="60" fill="red" />
+      </g>
     </defs>
   </svg>
   <main>
@@ -231,7 +239,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
             && 'addTrack' in RTCPeerConnection.prototype
           );
           var supportedUA = !(
-            (safariVersion && safariVersion < MIN_VERSIONS.safari) ||
+            (isSafari && safariVersion && safariVersion < MIN_VERSIONS.safari) ||
             (chromeVersion && chromeVersion < MIN_VERSIONS.chrome) ||
             (firefoxVersion && firefoxVersion < MIN_VERSIONS.firefox) ||
             (edgeVersion && edgeVersion < MIN_VERSIONS.edge)||

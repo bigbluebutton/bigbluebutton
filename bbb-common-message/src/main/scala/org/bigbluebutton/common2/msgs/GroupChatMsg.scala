@@ -141,6 +141,22 @@ object GroupChatMessageDeletedEvtMsg { val NAME = "GroupChatMessageDeletedEvtMsg
 case class GroupChatMessageDeletedEvtMsg(header: BbbClientMsgHeader, body: GroupChatMessageDeletedEvtMsgBody) extends BbbCoreMsg
 case class GroupChatMessageDeletedEvtMsgBody(chatId: String, messageId: String)
 
+object PinGroupChatMessageReqMsg { val NAME = "PinGroupChatMessageReqMsg" }
+case class PinGroupChatMessageReqMsg(header: BbbClientMsgHeader, body: PinGroupChatMessageReqMsgBody) extends StandardMsg
+case class PinGroupChatMessageReqMsgBody(chatId: String, messageId: String)
+
+object PinGroupChatMessageEvtMsg { val NAME = "PinGroupChatMessageEvtMsg" }
+case class PinGroupChatMessageEvtMsg(header: BbbClientMsgHeader, body: PinGroupChatMessageEvtMsgBody) extends BbbCoreMsg
+case class PinGroupChatMessageEvtMsgBody(chatId: String, messageId: String)
+
+object UnpinGroupChatMessageReqMsg { val NAME = "UnpinGroupChatMessageReqMsg" }
+case class UnpinGroupChatMessageReqMsg(header: BbbClientMsgHeader, body: UnpinGroupChatMessageReqMsgBody) extends StandardMsg
+case class UnpinGroupChatMessageReqMsgBody(chatId: String, messageId: String)
+
+object UnpinGroupChatMessageEvtMsg { val NAME = "UnpinGroupChatMessageEvtMsg" }
+case class UnpinGroupChatMessageEvtMsg(header: BbbClientMsgHeader, body: UnpinGroupChatMessageEvtMsgBody) extends BbbCoreMsg
+case class UnpinGroupChatMessageEvtMsgBody(chatId: String, messageId: String)
+
 object SendGroupChatMessageReactionReqMsg { val NAME = "SendGroupChatMessageReactionReqMsg" }
 case class SendGroupChatMessageReactionReqMsg(header: BbbClientMsgHeader, body: SendGroupChatMessageReactionReqMsgBody) extends StandardMsg
 case class SendGroupChatMessageReactionReqMsgBody(chatId: String, messageId: String, reactionEmoji: String)

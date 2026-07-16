@@ -32,13 +32,7 @@ rm -rf .git
 # npm install expects this to be a git repository
 git init
 
-if [ "$DISTRO" == "focal" ]; then
-  # this is a workaround so that the post-install command will find the pegjs binary
-  export PATH=$PWD/node_modules/pegjs/bin:$PATH
-  npm install --unsafe-perm --production
-else
-  npm install --unsafe-perm --production
-fi
+npm install --unsafe-perm --production
 
 # clean out stuff that is not required in the final package. Most of this are object files from dependent libraries
 rm -rf node_modules/mediasoup/worker/out/Release/subprojects

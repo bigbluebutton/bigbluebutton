@@ -96,9 +96,7 @@ Like many open source projects, at the core of the project are a team of develop
 Committers:
 
 - Guilherme Pereira Leme, plugins
-- Kert Browne, whiteboard
 - Tainan Felipe Pauli De Almeida, client
-- Anton Barboza De Sa, testing
 - Ramón Souza, client
 - Gustavo Trott, core
 - Lucas Zawacki, core
@@ -114,6 +112,8 @@ Committers:
 
 Past Committers (fondly remembered):
 
+- Anton Barboza De Sa, testing
+- Kert Browne, whiteboard
 - Mario Gasparoni, media
 - Pedro Marin, client
 - Maxim Khlobystov, testing
@@ -309,7 +309,7 @@ Yes. The steps are covered in the [install](/administration/install) documentati
 
 #### Ubuntu
 
-Older versions of BigBlueButton, up to and including version 2.7, required **Ubuntu 20.04 64-bit**.  BigBlueButton 3.1 requires **Ubuntu 22.04 64-bit**.  See [Install BigBlueButton](/administration/install).
+Older versions of BigBlueButton, up to and including version 3.0, required **Ubuntu 22.04 64-bit**. BigBlueButton 4.0 requires **Ubuntu 24.04 64-bit**.  See [Install BigBlueButton](/administration/install).
 
 We (the core developers) have not installed BigBlueButton on any other version of Ubuntu. It probably won't work.
 

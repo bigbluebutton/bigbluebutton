@@ -13,6 +13,15 @@ export async function enableUserJoinPopup(testPage: Page) {
   await testPage.waitAndClickElement(e.userJoinPushAlerts);
 }
 
+export async function enableUserLeavePopup(testPage: Page) {
+  await testPage.waitAndClick(e.notificationsTab);
+  await testPage.waitAndClickElement(e.userLeavePushAlerts);
+}
+
+export async function saveSettings(testPage: Page) {
+  await testPage.waitAndClick(e.modalConfirmButton);
+}
+
 export async function checkNotificationText(testPage: Page, text: string) {
   await testPage.hasText(e.smallToastMsg, text, 'should appear the text on the toast message notification');
 }

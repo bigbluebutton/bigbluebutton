@@ -1,5 +1,4 @@
 import Auth from '/imports/ui/services/auth';
-import SIPBridge from '/imports/api/audio/client/bridge/sip';
 import SFUAudioBridge from '/imports/api/audio/client/bridge/sfu-audio-bridge';
 import LiveKitAudioBridge from '/imports/api/audio/client/bridge/livekit';
 import logger from '/imports/startup/client/logger';
@@ -8,7 +7,6 @@ import playAndRetry from '/imports/utils/mediaElementPlayRetry';
 import {
   getRTCStatsLogMetadata,
 } from '/imports/utils/stats';
-import browserInfo from '/imports/utils/browserInfo';
 import {
   DEFAULT_INPUT_DEVICE_ID,
   reloadAudioElement,
@@ -129,6 +127,13 @@ class AudioManager {
 
   isUsingLiveKit() {
     return this.bridge?.bridgeName === 'livekit';
+  }
+
+  shouldUseLiveKitAudioState() {
+    const livekitConfig = window?.meetingClientSettings?.public?.media?.livekit;
+    const useLiveKitAudioState = livekitConfig?.audio?.useLiveKitAudioState ?? false;
+
+    return this.isUsingLiveKit() && useLiveKitAudioState;
   }
 
   onBeforeUnload() {
@@ -353,7 +358,10 @@ class AudioManager {
     this._applyCachedOutputDeviceId();
     this.transparentListenOnlySupported = this.supportsTransparentListenOnly();
     this.audioEventHandler = audioEventHandler;
-    this.observeVoiceActivity();
+
+    // Only observe GraphQL voice activity if not using LiveKit's audio state
+    if (!this.shouldUseLiveKitAudioState()) this.observeVoiceActivity();
+
     this.initialized = true;
   }
 
@@ -370,8 +378,8 @@ class AudioManager {
 
     const { fullAudioBridge, listenOnlyBridge } = bridges;
 
-    let FullAudioBridge = SFUAudioBridge;
-    let ListenOnlyBridge = SFUAudioBridge;
+    let FullAudioBridge = LiveKitAudioBridge;
+    let ListenOnlyBridge = LiveKitAudioBridge;
 
     switch (fullAudioBridge) {
       case 'bbb-webrtc-sfu':
@@ -380,9 +388,6 @@ class AudioManager {
         break;
       case 'livekit':
         FullAudioBridge = LiveKitAudioBridge;
-        break;
-      case 'sip':
-        FullAudioBridge = SIPBridge;
         break;
       default:
         logger.warn({
@@ -400,9 +405,6 @@ class AudioManager {
         break;
       case 'livekit':
         ListenOnlyBridge = LiveKitAudioBridge;
-        break;
-      case 'sip':
-        ListenOnlyBridge = SIPBridge;
         break;
       default:
         logger.warn({
@@ -458,50 +460,6 @@ class AudioManager {
     });
   }
 
-  async trickleIce() {
-    const { isFirefox, isIe, isSafari } = browserInfo;
-
-    if (
-      !this.listenOnlyBridge ||
-      typeof this.listenOnlyBridge.trickleIce !== 'function' ||
-      isFirefox ||
-      isIe ||
-      isSafari
-    ) {
-      return [];
-    }
-
-    if (this.validIceCandidates && this.validIceCandidates.length) {
-      logger.info(
-        { logCode: 'audiomanager_trickle_ice_reuse_candidate' },
-        'Reusing trickle ICE information before activating microphone'
-      );
-      return this.validIceCandidates;
-    }
-
-    logger.info(
-      { logCode: 'audiomanager_trickle_ice_get_local_candidate' },
-      'Performing trickle ICE before activating microphone'
-    );
-
-    try {
-      this.validIceCandidates = await this.listenOnlyBridge.trickleIce();
-      return this.validIceCandidates;
-    } catch (error) {
-      logger.error(
-        {
-          logCode: 'audiomanager_trickle_ice_failed',
-          extraInfo: {
-            errorName: error.name,
-            errorMessage: error.message,
-          },
-        },
-        `Trickle ICE before activating microphone failed: ${error.message}`
-      );
-      return [];
-    }
-  }
-
   joinMicrophone({ muted }) {
     this.isListenOnly = false;
     this.isEchoTest = false;
@@ -525,21 +483,13 @@ class AudioManager {
 
     const MEDIA = window.meetingClientSettings.public.media;
     const ECHO_TEST_NUMBER = MEDIA.echoTestNumber;
-    const EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE =
-    window.meetingClientSettings.public.app.experimentalUseKmsTrickleIceForMicrophone;
 
     return this.onAudioJoining({ muted })
-      .then(async () => {
-        let validIceCandidates = [];
-        if (EXPERIMENTAL_USE_KMS_TRICKLE_ICE_FOR_MICROPHONE) {
-          validIceCandidates = await this.trickleIce();
-        }
-
+      .then(() => {
         const callOptions = {
           isListenOnly: false,
           extension: ECHO_TEST_NUMBER,
           inputStream: this.inputStream,
-          validIceCandidates,
           bypassGUM: this.shouldBypassGUM(),
           muted,
         };
@@ -711,15 +661,24 @@ class AudioManager {
     return this.bridge.transferCall(this.onAudioJoin.bind(this));
   }
 
-  onVoiceUserChanges(fields = {}) {
+  onVoiceUserChanges({
+    leftVoiceConf,
+    muted,
+    talking,
+  } = {}) {
+    // When using LiveKit audio state, mute/talking states are derived
+    // via the useAudioManagerStateSync hook, which pulls data from the unified
+    // audio state hooks (useWhoIsUnmuted and useWhoIsTalking).
+    if (this.shouldUseLiveKitAudioState()) return;
+
     let newMuteState;
 
     // when user leaves voice conf, set muted = false
     // as the user might have been transfered to a breakout room
-    if (fields.leftVoiceConf !== undefined && fields.leftVoiceConf) {
+    if (leftVoiceConf !== undefined && leftVoiceConf) {
       newMuteState = false;
-    } else if (fields.muted !== undefined && fields.muted !== this.isMuted) {
-      newMuteState = fields.muted;
+    } else if (muted !== undefined && muted !== this.isMuted) {
+      newMuteState = muted;
     }
 
     if (newMuteState !== undefined && newMuteState !== this.isMuted) {
@@ -732,8 +691,8 @@ class AudioManager {
       }
     }
 
-    if (fields.talking !== undefined && fields.talking !== this.isTalking) {
-      this.isTalking = fields.talking;
+    if (talking !== undefined && talking !== this.isTalking) {
+      this.isTalking = talking;
     }
 
     if (this.isMuted) {

@@ -44,6 +44,44 @@ function toPx(pt) {
   return (pt / config.process.pointsPerInch) * config.process.pixelsPerInch;
 }
 
+
+/**
+ * Returns the MIME type for a supported slide background format.
+ *
+ * @param {string} backgroundFormat - The slide background file extension.
+ * @return {string} The MIME type for the background image.
+ */
+function getBackgroundMimeType(backgroundFormat) {
+  switch (backgroundFormat) {
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    case 'png':
+      return 'image/png';
+    case 'svg':
+      return 'image/svg+xml';
+    default:
+      return 'application/octet-stream';
+  }
+}
+
+/**
+ * Builds a data URI for a slide background.
+ *
+ * Embedding the background avoids CairoSVG external file access restrictions,
+ * while keeping the conversion compatible with older CairoSVG versions.
+ *
+ * @param {string} backgroundFile - Absolute path to the background file.
+ * @param {string} backgroundFormat - The slide background file extension.
+ * @return {string} A data URI containing the background image.
+ */
+function getBackgroundDataURI(backgroundFile, backgroundFormat) {
+  const mimeType = getBackgroundMimeType(backgroundFormat);
+  const backgroundData = fs.readFileSync(backgroundFile).toString('base64');
+
+  return `data:${mimeType};base64,${backgroundData}`;
+}
+
 /**
  * Creates a new drawing instance from the provided annotation
  * and then adds the resulting drawn element to the SVG.
@@ -378,9 +416,14 @@ async function processPresentationAnnotations() {
           'xmlns:xlink': 'http://www.w3.org/1999/xlink',
         });
 
+    const backgroundFile = path.join(dropbox,
+        `slide${currentSlide.page}.${backgroundFormat}`);
+    const backgroundDataURI = getBackgroundDataURI(backgroundFile,
+        backgroundFormat);
+
     // Add the image element
     canvas
-        .image(`file://${dropbox}/slide${currentSlide.page}.${backgroundFormat}`)
+        .image(backgroundDataURI)
         .size(scaledWidth, scaledHeight);
 
     // Add a group element with class 'whiteboard'
@@ -450,21 +493,28 @@ async function processPresentationAnnotations() {
     '-dNOPAUSE',
     '-dAutoRotatePages=/None',
     '-sDEVICE=pdfwrite',
-    `-sOUTPUTFILE="${path.join(outputDir, serverFilenameWithExtension)}"`,
-    `-dBATCH`].concat(ghostScriptInput);
+    `-sOUTPUTFILE=${path.join(outputDir, serverFilenameWithExtension)}`,
+    '-dBATCH'].concat(ghostScriptInput);
 
   // Resulting PDF file is stored in the presentation dir
-  try {
-    cp.spawnSync(config.shared.ghostscript, mergePDFs, {shell: false});
-  } catch (error) {
-    const errorMessage = 'GhostScript failed to merge PDFs in job' +
-      `${jobId}: ${error.message}`;
-    return logger.error(errorMessage);
+  const outputFile = path.join(outputDir, serverFilenameWithExtension);
+  const result = cp.spawnSync(config.shared.ghostscript, mergePDFs,
+      {shell: false});
+
+  if (result.error || result.status !== 0 || !fs.existsSync(outputFile)) {
+    const errorMessage = result.error?.message ||
+      result.stderr?.toString() ||
+      `GhostScript exited with status ${result.status}`;
+    statusUpdate.setError();
+    await client.publish(config.redis.channels.publish,
+        statusUpdate.build());
+    await client.disconnect();
+    return logger.error(`GhostScript failed to merge PDFs in job ${jobId}: ` +
+      errorMessage);
   }
 
   // Launch Notifier Worker depending on job type
-  logger.info('Saved PDF at ',
-      `${outputDir}/${serverFilenameWithExtension}`);
+  logger.info('Saved PDF at ', outputFile);
 
   const notifier = new WorkerStarter({
     jobType: exportJob.jobType, jobId,

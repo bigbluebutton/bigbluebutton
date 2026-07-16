@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { useMeeting } from '/imports/ui/core/hooks/useMeeting';
@@ -8,9 +8,11 @@ import { GET_GUEST_WAITING_USERS_SUBSCRIPTION, GuestWaitingUsers } from './waiti
 
 const ASK_MODERATOR = 'ASK_MODERATOR';
 
-interface GuestManagementProps { }
+interface GuestManagementProps {
+  searchQuery?: string;
+}
 
-const GuestManagement: React.FC<GuestManagementProps> = () => {
+const GuestManagement: React.FC<GuestManagementProps> = ({ searchQuery }) => {
   const { data: currentUserData } = useCurrentUser((user) => ({
     isModerator: user.isModerator,
   }));
@@ -33,10 +35,10 @@ const GuestManagement: React.FC<GuestManagementProps> = () => {
 
   return (
     <>
-      <WaitingUserSection />
+      <WaitingUserSection searchQuery={searchQuery} />
       {hasWaitingUsers && <Separator />}
     </>
   );
 };
 
-export default GuestManagement;
+export default memo(GuestManagement);

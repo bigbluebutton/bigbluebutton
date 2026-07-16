@@ -6,7 +6,7 @@ import { EssentialHookInformation } from '../types';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface SubscriptionHookWithArgumentsContainerProps {
-  numberOfUses: number;
+  version: number;
   hookArguments: CustomSubscriptionArguments;
 }
 

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import React, { useContext, useMemo } from 'react';
+import React, { ReactNode, useContext, useMemo } from 'react';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import Auth from '/imports/ui/services/auth';
 import {
@@ -26,6 +26,20 @@ import UserNameWithSubs from './user-name-with-subs/component';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { useUserOperations } from '/imports/ui/components/user-list/hooks/useUserOperations';
 
+const getIconComponent = (icon: PluginSdk.PluginIconType): React.ReactNode => {
+  if (typeof icon === 'string') {
+    return <Icon iconName={icon} />;
+  }
+  if (icon && typeof icon === 'object' && 'iconName' in icon) {
+    return <Icon iconName={icon.iconName} />;
+  }
+  if (icon && typeof icon === 'object' && 'svgContent' in icon) {
+    const svgContent = icon.svgContent as ReactNode;
+    return <Styled.SvgContentUserListIcon>{svgContent}</Styled.SvgContentUserListIcon>;
+  }
+  return null;
+};
+
 const renderUserListItemIconsFromPlugin = (
   userItemsFromPlugin: PluginSdk.UserListItemAdditionalInformationInterface[],
 ) => userItemsFromPlugin.filter(
@@ -37,7 +51,7 @@ const renderUserListItemIconsFromPlugin = (
       key={item.id}
       data-test={itemToRender.dataTest}
     >
-      <Icon iconName={itemToRender.icon} />
+      {getIconComponent(itemToRender.icon)}
     </Styled.IconRightContainer>
   );
 });
@@ -81,9 +95,10 @@ const UserListItem: React.FC<UserListItemProps> = ({
   const isPrivateChatEnabled = useIsPrivateChatEnabled();
 
   const whiteboardAccess = hasWhiteboardWriteAccess(user);
-  const { data: isTalking } = useWhoIsTalking(user.userId);
-  const { data: isUnmuted } = useWhoIsUnmuted(user.userId);
-  const isMuted = !isUnmuted;
+  const { data: talkingUsers } = useWhoIsTalking();
+  const { data: unmutedUsers } = useWhoIsUnmuted();
+  const isMuted = !unmutedUsers[user.userId];
+  const isTalking = talkingUsers[user.userId];
 
   const actionsPermitions = generateActionsPermissions(
     user,

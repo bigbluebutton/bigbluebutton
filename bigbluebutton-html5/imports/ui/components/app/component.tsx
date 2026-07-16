@@ -24,6 +24,7 @@ import LayoutEngine from '../layout/layout-manager/layoutEngine';
 import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
+import SidebarContentAuxiliaryContainer from '/imports/ui/components/sidebar-content/sidebar-content-auxiliary/container';
 import PluginsEngineManager from '../plugins-engine/manager';
 import Notifications from '../notifications/component';
 import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
@@ -151,6 +152,7 @@ const App: React.FC<AppProps> = ({
           <NotificationsBarContainer />
           <SidebarNavigationContainer />
           <SidebarContentContainer isSharedNotesPinned={isSharedNotesPinned} />
+          <SidebarContentAuxiliaryContainer />
           <NavBarContainer main="new" />
           <WebcamContainer />
           {!isNonMediaLayout && <ExternalVideoPlayerContainer />}

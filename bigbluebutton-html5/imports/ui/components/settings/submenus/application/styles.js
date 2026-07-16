@@ -8,6 +8,7 @@ import {
 import { borderSize, borderSizeLarge, lgBorderRadius } from '/imports/ui/stylesheets/styled-components/general';
 import SpinnerStyles from '/imports/ui/components/common/loading-screen/styles';
 import Styled from '/imports/ui/components/settings/submenus/styles';
+import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 
 const Row = styled(Styled.Row)``;
 
@@ -32,7 +33,7 @@ const FormElement = styled(Styled.FormElement)``;
 const Label = styled(Styled.Label)`
   margin-left: 0.5rem;
   color: ${colorGrayLabel};
-  font-size: 0.9rem;
+  font-size: ${fontSizeBase};
 `;
 
 const FormElementRight = styled(Styled.FormElementRight)`
@@ -47,7 +48,7 @@ const Select = styled(Styled.Select)``;
 const Title = styled(Styled.Title)``;
 
 const ApplicationTitle = styled(Styled.Title)`
-  font-size: 1rem;
+  font-size: ${fontSizeBase};
   font-weight: 600;
   margin-bottom: 0;
   padding-bottom: 1.5rem;
@@ -73,7 +74,7 @@ const Separator = styled.hr`
 
 const BoldLabel = styled.label`
   color: ${colorGrayLabel};
-  font-size: 1rem;
+  font-size: ${fontSizeBase};
   font-weight: bold;
 `;
 

@@ -2,7 +2,6 @@ public:
   app:
     mobileFontSize: 16px
     desktopFontSize: 14px
-    audioChatNotification: false
     # Shows the audio modal when user joins the room. The audio modal prompts
     # user to select an option ("Microphone" and/or "Listen only") for joining
     # audio
@@ -28,7 +27,6 @@ public:
     #
     skipEchoTestIfPreviousDevice: false
     clientTitle: BigBlueButton
-    appName: BigBlueButton HTML5 Client
     bbbServerVersion: HTML5_FULL_BBB_VERSION
     displayBbbServerVersion: true
     copyright: '©2026 BigBlueButton Inc.'
@@ -77,7 +75,6 @@ public:
     enableCameraBrightness: true
     mirrorOwnWebcam: true
     viewersInWebcam: 8
-    ipv4FallbackDomain: ''
     allowLogout: true
     allowFullscreen: true
     preloadNextSlides: 2
@@ -101,6 +98,23 @@ public:
       # If true, the transcriptions and captions settings are displayed as an
       # entry in the sidebar navigation rather than a button in the actions bar
       showInSidebarNavigation: false
+      # Alert shown when WebSpeech is enabled and the user is on floor but nothing is being
+      # transcribed, suggesting a wrong microphone device or noisy environment.
+      microphoneAlert:
+        enabled: true
+        # URL to a knowledge base article about microphone settings (empty = no link shown)
+        helpLink: ''
+        # Audio energy threshold (dB) used to detect that the user is speaking.
+        # More negative values are more sensitive (e.g. -60 picks up quieter audio).
+        threshold: -50
+        # How long (ms) the user must be speaking with no transcription result
+        # before the alert is triggered.
+        speakingThreshold: 5000
+        # How long (ms) the alert toast stays on screen before auto-dismissing.
+        # Set to 0 to require manual dismissal.
+        duration: 10000
+        # How often (ms) the audio energy is checked to determine if the user is speaking.
+        interval: 200
       language:
         # Available languages will depend on the transcription service
         # Google: https://cloud.google.com/speech-to-text/docs/speech-to-text-supported-languages
@@ -138,22 +152,32 @@ public:
       duration: 4000
     appsGallery:
       maxPinnedApps: 3
-    remainingTimeThreshold: 30
     remainingTimeAlertThresholdArray: [1,5]
     enableDebugWindow: true
     # Warning: increasing the limit of breakout rooms per meeting
     # can generate excessive overhead to the server. We recommend
     # this value to be kept under 16.
     breakouts:
+      # Allow participants to pick their own breakout room instead of being assigned
       allowUserChooseRoomByDefault: false
+      # Show the recording option (if breakout recording is enabled) when creating breakout rooms
       offerRecordingForBreakouts: false
+      # Pre-check the "record breakout room" option
       recordRoomByDefault: false
+      # Pre-check the "capture whiteboard when ending breakouts" option 
       captureWhiteboardByDefault: false
+      # Pre-check the "save shared notes when ending breakouts" option
       captureSharedNotesByDefault: false
+      # Pre-check the "send invitation to assigned moderators" option
       sendInvitationToAssignedModeratorsByDefault: false
+      # Minimum number of breakout rooms that can be created
       breakoutRoomMinimum: 2
+      # Maximum number of breakout rooms that can be created
       breakoutRoomLimit: 16
+      # Allow the presenter role to manage presentations inside breakout rooms
       allowPresentationManagementInBreakouts: true
+      # Set to true to remove the ability for the breakout recording policy to be changed by the moderator at breakout creation time
+      lockBreakoutRecordingSetting: false
     showAllAvailableLocales: true
     # Show "Audio Filters for Microphone" option in settings menu.
     # When set to true, users are able to enable/disable microphone constraints,
@@ -172,16 +196,6 @@ public:
       numberOfEmojis: 5
       # emojiSize: size of the emoji in 'em' units
       emojiSize: 2
-    # If enabled, before joining microphone the client will perform a trickle
-    # ICE against Kurento and use the information about successful
-    # candidate-pairs to filter out local candidates in SIP.js's SDP.
-    # Try enabling this setting in scenarios where the listenonly mode works,
-    # but microphone doesn't (for example, when using VPN).
-    # For compatibility check "Browser compatibility" section in:
-    # https://developer.mozilla.org/en-US/docs/Web/API/RTCDtlsTransport/iceTransport
-    # This is an EXPERIMENTAL setting and the default value is false
-    # experimentalUseKmsTrickleIceForMicrophone: false
-    #
     # Shows stats about download and upload rates, audio jitter, lost packets
     # and turn information
     enableNetworkStats: true
@@ -305,15 +319,10 @@ public:
       displayBrandingArea: true
     connectionTimeout: 60000
     showHelpButton: true
-    effectiveConnection:
-      - critical
-      - danger
-      - warning
     # Whether the fallback mechanism should be used
     # when the locale string is empty. If false, the empty
     # string will be returned.
     fallbackOnEmptyLocaleString: true
-    disableWebsocketFallback: true
     # Maximum number of bytes allowed in each mutation message payload.
     # Defaults to 10485760 (10MB)
     maxMutationPayloadSize: 10485760
@@ -323,6 +332,10 @@ public:
   # plugins:
   #   - name: SamplePresentationToolbarPlugin
   #     url: https://<your-Host>/plugins/SamplePresentationToolbarPlugin.js
+  #     settings:
+  #       isNew: true to display the new ribbon on the app gallery item of the plugin
+  #       pin: true # pin all plugin-injected items
+  #       # or: pin: ["generic-content-id", "app-gallery-item-id"] # pin only specific IDs
   # Allowed errors to be shown on notifications bar
     showConnectionErrors:
       # - 3001
@@ -336,12 +349,8 @@ public:
   kurento:
     wsUrl: HOST
     cameraWsOptions:
-      # Valid for video-provider. Time (ms) before its WS connection times out
-      # and tries to reconnect.
-      wsConnectionTimeout: 4000
-      # maxRetries: max reconnection retries
+      connectionTimeout: 4000
       maxRetries: 7
-      # debug: console trace logging for video-provider's ws
       debug: false
       heartbeat:
         interval: 15000
@@ -605,9 +614,6 @@ public:
           desktopPageSizes:
             moderator: 6
             viewer: 4
-  syncUsersWithConnectionManager:
-    enabled: false
-    syncInterval: 60000
   poll:
     enabled: true
     allowCustomResponseInput: true
@@ -619,9 +625,6 @@ public:
       enabled: true
       quickPollCorrectAnswerSuffix: "__"
   captions:
-    enabled: true
-    id: captions
-    dictation: false
     background: '#000000'
     font:
       color: '#ffffff'
@@ -635,9 +638,6 @@ public:
     lines: 2
     # time the captions will hang on screen after last updated
     time: 5000
-    # Default pad which will store automatically generated captions
-    defaultPad: en
-    showButton: false
     locales:
       - locale: "af"
         name: "Afrikaans"
@@ -763,14 +763,13 @@ public:
         name: "中文（台灣"
   timer:
     enabled: true
-    alarm: true
+    time: 5
     music:
       enabled: false
       volume: 0.4
       track1: "RelaxingMusic"
       track2: "CalmMusic"
       track3: "aristocratDrums"
-    time: 5
     maxHours: 23
     presets: [60, 300, 600, 900, 1200, 1800, 3600]
     quickAddButtons: [30, 60, 300]
@@ -778,13 +777,10 @@ public:
   chat:
     enabled: true
     itemsPerPage: 100
-    timeBetweenFetchs: 1000
     enableSaveAndCopyPublicChat: true
-    bufferChatInsertsMs: 0
     startClosed: false
     min_message_length: 1
     max_message_length: 5000
-    grouping_messages_window: 10000
     type_system: SYSTEM_MESSAGE
     type_public: PUBLIC_ACCESS
     type_private: PRIVATE_ACCESS
@@ -813,10 +809,12 @@ public:
     # use the id of the emojis from https://raw.githubusercontent.com/missive/emoji-mart/16978d04a766eec6455e2e8bb21cd8dc0b3c7436/packages/emoji-mart-data/sets/1/all.json
     disableEmojis: []
     markdownImageAllowed: false
-    # available options for toolbar: reply, edit, delete, reactions
+    # available options for toolbar: reply, edit, delete, reactions, pin
     # example: ['reply', 'delete']
-    toolbar: ['reply', 'delete', 'edit', 'reactions']
+    toolbar: ['reply', 'delete', 'edit', 'reactions', 'pin']
     announcePresenterChangeInChat: true
+  multiFunctionalMode:
+    enabled: false # Enables an auxiliary sidebar content panel in the UI.
   userReaction:
     enabled: true
     expire: 30
@@ -846,17 +844,45 @@ public:
     usersPerUserListPage: 50
     syncCameraDockSizeAndPosition: true
   sidebarNavigation:
+    # Controls which built-in sidebar navigation buttons are rendered, in
+    # which section (top/center/bottom) and in what order. Omitting an id
+    # hides that button. This is a full replacement list, not an allow/deny
+    # list over a hidden default - if you customize it, remember to add any
+    # new ids introduced by future upstream versions.
+    buttons:
+      top:
+        - profile
+        - user-list
+        - chat
+        - notes
+      center:
+        - apps-gallery
+        - pinned-apps
+      bottom:
+        - audio-captions
+        - learning-dashboard
+        - settings
     # Controls which apps should have the "new" label in the apps gallery.
     # Possible values: 'poll', 'breakoutroom', 'timer', 'audio-captions'.
     # For plugins, refer to the isNew flag in the plugin's own settings.
     appsToLabelAsNew: []
   pads:
     url: ETHERPAD_HOST
+  sharedNotes:
+    # Hocuspocus server hostname for BlockNote (it will use the client's hostname when empty)
+    # e.g: `bbb-host` (only the domain without protocol and path)
+    serverHostname:
+    maxDocumentChars: 99999
+    maxLengthForContentUpdate: 1500
+    # When enabled, the formatting toolbar is rendered statically above the
+    # editor and always visible. When disabled, BlockNote's default floating
+    # toolbar appears only when text is selected.
+    staticFormattingToolbar: true
   media:
     audio:
       # defaultFullAudioBridge: bridge to be used by full audio mechanism.
       # Deprecated, superseded by `audioBridge` (bigbluebutton.properties, /create)
-      defaultFullAudioBridge: fullaudio
+      defaultFullAudioBridge: livekit
       # fullAudioMediaServer: which bbb-webrtc-sfu media server adapter should
       # be used for microphone audio.
       # Default is undefined, which means the default setting in bbb-webrtc-sfu
@@ -865,7 +891,7 @@ public:
       #
       # defaultListenOnlyBridge: bridge to be used by listen only mechanism.
       # Deprecated, no alternative as this audio mode will be removed.
-      defaultListenOnlyBridge: fullaudio
+      defaultListenOnlyBridge: livekit
       # retryThroughRelay: forces a retry with iceTransportPolicy = 'relay'
       # if the first attempt fails with selected errors codes (eg 1007, 1010)
       retryThroughRelay: false
@@ -893,9 +919,6 @@ public:
     # connection problems unless all traffic is relayed through a turn server.
     forceRelayOnFirefox: true
     mediaTag: '#remote-media'
-    callTransferTimeout: 5000
-    callHangupTimeout: 2000
-    callHangupMaximumRetries: 10
     echoTestNumber: 'echo'
     listenOnlyCallTimeout: 15000
     # skipInitialCamEnumeration: whether to skip the initial camera enumeration
@@ -914,41 +937,8 @@ public:
     fullAudioOffering: true
     # Dev flag. Controls the WebRTC negotiation role for listen only.
     listenOnlyOffering: false
-    #Timeout (ms) for gathering ICE candidates. When this timeout expires
-    #the SDP is sent to the server with the candidates the browser gathered
-    #so far. Increasing this value might help avoiding 1004 error when
-    #user activates microphone.
-    iceGatheringTimeout: 5000
-    # Timeout (ms) for connecting to the audio's signaling websocket.
-    audioConnectionTimeout: 5000
-    # Delay (ms) between each reconnection attempt of the audio's signaling
-    # websocket.
-    audioReconnectionDelay: 5000
-    # Number of reconnection attempts of the signaling websocket, before
-    # showing to the user there's an audio error.
-    audioReconnectionAttempts: 3
-    sipjsHackViaWs: false
-    # sipjsAllowMdns: whether mDNS candidates should be allowed in local SDPs.
-    # Default is false since FreeSWITCH doesn't resolve mDNS by default.
-    sipjsAllowMdns: false
-    # the fqdn of this host.
-    # If you run a traditional setup of multiple nodes behind scalelite and the users see the hostnames of the
-    # individual nodes, you can leave this at the default setting
-    sip_ws_host: ''
     # Mute/umute toggle throttle time
     toggleMuteThrottleTime: 300
-    #Websocket keepAlive interval (seconds). You may set this to prevent
-    #websocket disconnection in some environments. When set, BBB will send
-    #'\r\n\r\n' string through SIP.js's websocket. If not set, default value
-    #is 0.
-    websocketKeepAliveInterval: 30
-    #Debounce time (seconds) for sending SIP.js's websocket keep alive message.
-    #If not set, default value is 10.
-    websocketKeepAliveDebounce: 10
-    #Trace sip/audio messages in browser. If not set, default value is false.
-    traceSip: false
-    # SDP semantics: plan-b|unified-plan
-    sdpSemantics: 'unified-plan'
     # localEchoTest:
     #   enabled: Boolean => enables an experimental, simplified echo test mode
     #   initialHearingState: Boolean => whether users should hear themselves firsthand
@@ -990,14 +980,25 @@ public:
     livekit:
       # livekit.url is the URL of the LiveKit server. Default value is 'wss://{window.location.hostname}/livekit'
       #url: wss://LIVEKIT_HOST/livekit
-      # livekit.selectiveSubscription: whether to use selective subscription all
-      # applicable track sources. Default value is false. This overrides autoSubscribe
-      # when set to true and in effect (conditional to client behavior).
-      selectiveSubscription: true
+      # livekit.selectiveSubscription: whether to use selective subscription for all
+      # applicable track sources. This overrides autoSubscribe.
+      selectiveSubscription:
+        enabled: true
+        # audioSubscriptionPoolSize: maximum number of simultaneously subscribed
+        # audio tracks. 0 means unlimited. Exemptions that may exceed the pool:
+        # screen audio, unmuted users.
+        audioSubscriptionPoolSize: 0
+        # muteDebounceMs: debounce time in milliseconds for mute state
+        # transitions that would trigger unsubscribe operations.
+        muteDebounceMs: 2500
       logLevel: 3
       # reconnectOnFatalFailures: whether to trigger LK room reconnections when
-      # fatal errors occur (e.g.: unrecoverable publish timeouts). Default is false.
-      reconnectOnFatalFailures: false
+      # fatal errors occur (e.g.: unrecoverable publish timeouts).
+      reconnectOnFatalFailures: true
+      # livekit.forceRelay: forces TURN/relay usage on all UAs when using LK.
+      forceRelay: false
+      # livekit.forceRelayOnFirefox: forces TURN/relay usage on Firefox when using LK.
+      forceRelayOnFirefox: false
       roomOptions:
         adaptiveStream: true
         dynacast: true
@@ -1006,6 +1007,9 @@ public:
       audio:
         # unpublishOnMute: whether to unpublish audio tracks when muted. Default is true.
         unpublishOnMute: true
+        # useLiveKitAudioState: whether to use LiveKit's client-side audio state
+        # instead of BBB's audio state. Default is false.
+        useLiveKitAudioState: false
         # publishOptions: see https://docs.livekit.io/client-sdk-js/interfaces/TrackPublishOptions.html
         publishOptions:
           audioPreset:
@@ -1018,9 +1022,36 @@ public:
       camera:
         publishOptions:
           videoCodec: 'vp8'
+        # presets: optional explicit simulcast presets. When specified,
+        # overrides automatic profile-to-layer mapping from cameraProfiles.
+        # Ordered lowest to highest quality.
+        # Array of VideoPreset objects (see https://docs.livekit.io/reference/client-sdk-js/variables/VideoPresets.html).
+        #presets: []
       screenshare:
         publishOptions:
           videoCodec: 'vp8'
+        # constraints: independent from kurento.screenshare.constraints
+        constraints:
+          video:
+            frameRate:
+              ideal: 15
+              max: 15
+            width:
+              max: 2560
+            height:
+              max: 1600
+          audio: true
+        # livekit.screenshare.presets: ordered lowest to highest quality.
+        # Entries are VideoPreset objects (see https://docs.livekit.io/reference/client-sdk-js/variables/VideoPresets.html).
+        # Presets may be partially specified - missing bitrate/FPS entries will
+        # be interpolated by the client. Resolution defaults to capture resolution.
+        presets:
+          - maxBitrate: 500000
+            maxFramerate: 5
+            priority: medium
+          - maxBitrate: 1500000
+            maxFramerate: 15
+            priority: medium
   stats:
     enabled: true
     interval: 10000
@@ -1058,7 +1089,6 @@ public:
       danger: 1000
       critical: 2000
     help: STATS_HELP_URL
-    lastEntriesCap: 20
   presentation:
     allowDownloadOriginal: true
     allowDownloadWithAnnotations: true
@@ -1124,9 +1154,10 @@ public:
       enabled: true
   whiteboard:
     annotationsQueueProcessInterval: 60
-    cursorInterval: 150
+    cursorInterval: 100
     allowInfiniteWhiteboard: false
     allowInfiniteWhiteboardInBreakouts: false
+    allowInfiniteWhiteboardPanForViewers: false
     pointerDiameter: 5
     maxStickyNoteLength: 1000
     # limit number of annotations per slide
@@ -1251,18 +1282,7 @@ public:
       - coffeeshop.jpg
       - board.jpg
 private:
-  analytics:
-    includeChat: true
+  analytics: {}
   app:
     host: 127.0.0.1
     localesUrl: /locale-list
-    pencilChunkLength: 100
-    loadSlidesFromHttpAlways: false
-  # Direct Prometheus instrumentation.
-  # EXPERIMENTAL, so disabled by default.
-  prometheus:
-    enabled: false
-    # Metrics endpoint path
-    path: '/metrics'
-    # Whether default metrics for Node.js processes should be exported
-    collectDefaultMetrics: false

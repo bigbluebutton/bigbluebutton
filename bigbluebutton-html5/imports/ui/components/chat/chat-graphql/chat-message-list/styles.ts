@@ -46,15 +46,23 @@ export const UnreadButton = styled(ButtonElipsis)<UnreadButtonProps>`
 
 export const PageWrapper = styled.div``;
 
-export const Content = styled.div`
-  height: 100%;
+export const MessageListWrapper = styled.div`
   position: relative;
-  flex-shrink: 1;
+  flex: 1;
   overflow: hidden;
+`;
+
+export const Content = styled.div`
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
 `;
 
 export default {
   MessageList,
+  MessageListWrapper,
   UnreadButton,
   PageWrapper,
   Content,
