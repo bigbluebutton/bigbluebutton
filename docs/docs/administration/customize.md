@@ -1822,6 +1822,7 @@ Useful tools for development:
 | `userdata-bbb_mirror_own_webcam=`                | If set to `true`, the client will see a mirrored version of their webcam. Doesn't affect the incoming video stream for other users.                                                                                                                                                                                                     | `false`       |
 | `userdata-bbb_fullaudio_bridge=`                 | Specifies the audio bridge to be used in the client. Supported values: `fullaudio`.                                                                                       | `fullaudio`   |
 | `userdata-bbb_transparent_listen_only=`          | If set to `true`, the experimental "transparent listen only" audio mode will be used                                                                                                                                                                                                                                                    | `false`       |
+| `userdata-bbb_transcription_provider=`           | (Introduced in BigBlueButton 3.0) Overrides the speech-to-text provider used for live captions/transcription. Supported values: `webspeech`, `vosk`, `gladia`. Defaults to `public.app.audioCaptions.provider` in `settings.yml`.                                                                                                        | `webspeech`   |
 
 
 #### Presentation parameters
@@ -1864,6 +1865,7 @@ The use of *more will include all shapes listed above.
 | `userdata-bbb_default_layout=`             | The initial layout on client load. Options are: `UNIFIED_LAYOUT`, `CAMERAS_ONLY`, `PRESENTATION_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `MEDIA_ONLY`. If none is provided, the meeting layout (preset in bbb-web) will be used. Introduced in BBB 3.0.0-alpha.5. | `none`       |
 | `userdata-bbb_hide_notifications=`         | When this parameter is set to `true`, all notification toasts are suppressed in the client. Introduced in BBB 3.0.0-beta.4. | `false`       |
 | `userdata-bbb_hide_controls=`              | When this parameter is set to `true`, it hides the actions bar and the top row of the navigation bar (including the close sidebar button, room title, connectivity indicator, and leave meeting button) while keeping the row with the talking indicator and timer indicator visible. Introduced in BBB 3.0.0-beta.4. | `false`    |
+| `userdata-bbb_hide_sidebar_navigation=`    | (Introduced in BigBlueButton 4.0) If set to `true`, the sidebar navigation column (the user-list / apps panel and its toggles) will be hidden on join. | `false`    |
 
 #### Examples
 
