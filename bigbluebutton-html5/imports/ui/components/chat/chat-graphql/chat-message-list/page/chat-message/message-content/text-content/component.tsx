@@ -9,6 +9,19 @@ interface ChatMessageTextContentProps {
   text: string;
   dataTest?: string | null;
 }
+
+// img.src is an absolute URL, so a substring check would also match
+// https://evil.example/bigbluebutton/fileUpload/...; require the same origin
+// plus the upload path prefix instead.
+const isUploadedImageSrc = (src: string): boolean => {
+  try {
+    const url = new URL(src, window.location.href);
+    return url.origin === window.location.origin
+      && url.pathname.startsWith('/bigbluebutton/fileUpload/');
+  } catch {
+    return false;
+  }
+};
 const ChatMessageTextContent: React.FC<ChatMessageTextContentProps> = ({
   text,
   dataTest = 'messageContent',
@@ -20,7 +33,7 @@ const ChatMessageTextContent: React.FC<ChatMessageTextContentProps> = ({
     const target = e.target as HTMLElement;
     if (target.tagName === 'IMG') {
       const { src } = target as HTMLImageElement;
-      if (src.includes('/bigbluebutton/fileUpload/')) {
+      if (isUploadedImageSrc(src)) {
         e.preventDefault();
         setLightboxSrc(src);
       }
