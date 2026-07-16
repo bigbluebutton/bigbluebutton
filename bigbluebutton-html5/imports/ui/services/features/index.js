@@ -168,15 +168,19 @@ export function useIsEmojiPickerEnabled() {
 
 /**
  * This hook returns `true` if pasting/dropping images into the chat is enabled.
- * Requires both the `chatImagePaste` feature (not disabled via API) and the
- * `public.chat.imagePaste.enabled` client setting. Note the rendered image only
- * shows up when `public.chat.markdownImageAllowed` is also on (server-side render).
+ * Requires the `chatImagePaste` feature (not disabled via API) and both the
+ * `public.chat.imagePaste.enabled` and `public.chat.markdownImageAllowed`
+ * client settings. The latter is required because the pasted image is rendered
+ * server-side as markdown: without it the whole paste-upload-send flow would
+ * run only for akka to strip the `<img>` and deliver a blank message.
  * @returns {boolean}
  */
 export function useIsChatImagePasteEnabled() {
   const IMAGE_PASTE_ENABLED = window.meetingClientSettings.public.chat.imagePaste.enabled;
+  const MARKDOWN_IMAGE_ALLOWED = window.meetingClientSettings.public.chat.markdownImageAllowed;
   return !useDisabledFeatures().includes('chatImagePaste')
-    && IMAGE_PASTE_ENABLED;
+    && IMAGE_PASTE_ENABLED
+    && MARKDOWN_IMAGE_ALLOWED;
 }
 
 /**
