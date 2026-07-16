@@ -187,23 +187,8 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
     const currentCameraSize = cameraSizeRef.current;
     const isCurrentCameraTopOrBottom = currentCameraDock.position === CAMERADOCK_POSITION.CONTENT_TOP
       || currentCameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM;
-    const isCurrentCameraLeftOrRight = currentCameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT
-      || currentCameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT;
-    const isCurrentCameraSidebar = currentCameraDock.position
-      === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM;
-    const currentCameraMaxWidth = (isPresenter && currentCameraDock.presenterMaxWidth)
-      ? currentCameraDock.presenterMaxWidth
-      : currentCameraDock.maxWidth;
 
-    const width = isCurrentCameraLeftOrRight
-      ? snapCameraDockDimensionToGrid(
-        currentCameraDock.width,
-        currentCameraSize?.width,
-        currentCameraDock.minWidth,
-        currentCameraMaxWidth,
-      )
-      : currentCameraDock.width;
-    const height = (isCurrentCameraTopOrBottom || isCurrentCameraSidebar)
+    const height = isCurrentCameraTopOrBottom
       ? snapCameraDockDimensionToGrid(
         currentCameraDock.height,
         currentCameraSize?.height,
@@ -212,12 +197,12 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
       )
       : currentCameraDock.height;
 
-    if (width === currentCameraDock.width && height === currentCameraDock.height) return;
+    if (height === currentCameraDock.height) return;
 
     layoutContextDispatch({
       type: ACTIONS.SET_CAMERA_DOCK_SIZE,
       value: {
-        width,
+        width: currentCameraDock.width,
         height,
         browserWidth: window.innerWidth,
         browserHeight: window.innerHeight,
@@ -341,7 +326,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
                 });
               };
 
-              if (snapToCameraGrid) {
+              if (snapToCameraGrid && isCameraTopOrBottom) {
                 // Let the throttled grid calculation observe the final pointer size before
                 // compacting it. This keeps larger row/column transitions reachable.
                 if (cameraDockGridSettleTimeoutRef.current !== null) {
