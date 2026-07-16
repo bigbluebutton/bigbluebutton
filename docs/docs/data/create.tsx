@@ -62,7 +62,7 @@ const createEndpointTableData = [
     "name": "webVoice",
     "required": false,
     "type": "String",
-    "description": (<>Voice conference ID for VOIP-only callers. If not provided, this falls back to the meeting's <code className="language-plaintext highlighter-rouge">voiceBridge</code> (a.k.a. <code className="language-plaintext highlighter-rouge">telVoice</code>) number. Use this when a separate VOIP conference identifier is needed alongside the PSTN-friendly <code className="language-plaintext highlighter-rouge">voiceBridge</code>.</>)
+    "description": (<>Voice conference ID for callers joining audio through the web client over VOIP (mic through the browser), as opposed to <code className="language-plaintext highlighter-rouge">voiceBridge</code> (a.k.a. <code className="language-plaintext highlighter-rouge">telVoice</code>), which is used by phone/PSTN dial-in callers.<br /><br />This parameter is optional and you can normally omit it. If not provided, <code className="language-plaintext highlighter-rouge">webVoice</code> defaults to the meeting's <code className="language-plaintext highlighter-rouge">voiceBridge</code>, so web and phone participants share the same FreeSWITCH conference — which is what you want in almost all cases.<br /><br />Only set <code className="language-plaintext highlighter-rouge">webVoice</code> to a value different from <code className="language-plaintext highlighter-rouge">voiceBridge</code> if you intend to run browser VOIP audio in a separate voice conference from the PSTN dial-in bridge (an advanced, uncommon setup).</>)
   },
   {
     "name": "maxParticipants",
