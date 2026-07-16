@@ -388,12 +388,20 @@ const sanitizeShape = (shape) => {
 // Only the shape is persisted server-side (annotationInfo); the tldraw asset that
 // an image shape needs to render is rebuilt here from the relative src kept in
 // shape.meta.bbbImageSrc, so pasted images survive reload and reach remote users.
+
+// Same shape as the server-side ingestion gate (WhiteboardModel), minus the
+// meetingId pinning that only the server can enforce. Belt and braces: the
+// sessionToken appended below must never travel to anything but our own
+// fileUpload path, even if an invalid src ever slipped into a shape's meta.
+const UPLOADED_IMAGE_SRC_PATTERN = /^\/bigbluebutton\/fileUpload\/[A-Za-z0-9-]+\/[a-f0-9-]+\.(png|jpe?g|gif|webp)$/;
+
 const reconstructImageAssets = (store, shapes) => {
   if (!store) return;
   shapes.forEach((shape) => {
     const src = shape?.meta?.bbbImageSrc;
     const assetId = shape?.props?.assetId;
     if (shape?.type !== 'image' || !src || !assetId || store.get(assetId)) return;
+    if (!UPLOADED_IMAGE_SRC_PATTERN.test(src)) return;
     store.put([{
       id: assetId,
       typeName: 'asset',
