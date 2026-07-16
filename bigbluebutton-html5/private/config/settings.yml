@@ -833,9 +833,10 @@ public:
     # the previous behavior where markdownImageAllowed rendered any URL.
     markdownImageAllowed: false
     imagePaste:
-      # Enables capturing pasted/dropped images in the chat input. The rendered
-      # image also depends on markdownImageAllowed above. Limits are shared under
-      # public.fileUpload.
+      # Enables capturing pasted/dropped images in the chat input. Only takes
+      # effect when markdownImageAllowed above is also on (the pasted image is
+      # rendered server-side as markdown, so without it the upload would only
+      # produce a blank message). Limits are shared under public.fileUpload.
       enabled: false
     # available options for toolbar: reply, edit, delete, reactions, pin
     # example: ['reply', 'delete']
@@ -843,7 +844,12 @@ public:
     announcePresenterChangeInChat: true
   fileUpload:
     # Shared limits for pasted-image uploads (chat, shared notes, whiteboard).
-    # The client reads these for UX; the bbb-file-upload service enforces them.
+    # The client only reads these for UX (fail fast, friendly message); the
+    # authoritative limits live in the bbb-file-upload service config
+    # (/etc/bigbluebutton/bbb-file-upload.yml, defaults in
+    # /usr/share/bbb-file-upload/config/default.yml). When raising a limit,
+    # change it in BOTH places: raising it only here makes uploads pass the
+    # client pre-check and still be rejected by the service.
     maxFileSizeKb: 5120
     maxImageDimensionPx: 4096 # cap on image width/height, guards against pixel bombs
     allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
