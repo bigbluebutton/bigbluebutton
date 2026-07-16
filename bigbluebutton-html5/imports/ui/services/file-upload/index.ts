@@ -84,7 +84,7 @@ export const uploadImage = async (file: File): Promise<string> => {
   const formData = new FormData();
   formData.append('file', file);
 
-  const endpoint = `${UPLOAD_ENDPOINT}?sessionToken=${Auth.sessionToken}`;
+  const endpoint = Auth.authenticateURL(UPLOAD_ENDPOINT);
 
   let response: Response;
   try {
