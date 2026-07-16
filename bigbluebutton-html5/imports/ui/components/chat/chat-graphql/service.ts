@@ -1,3 +1,17 @@
+import Auth from '/imports/ui/services/auth';
+
+// Uploaded images are served behind an auth_request that reads the sessionToken
+// from the query string (same as presentation slides). The markdown stores the
+// bare relative path, so we append the token at render time, mirroring
+// Auth.authenticateURL used for slides. The regex only touches our own
+// fileUpload paths; every other message is left untouched.
+const FILE_UPLOAD_IMG_SRC = /(<img\b[^>]*?\bsrc=")(\/bigbluebutton\/fileUpload\/[^"]+)(")/g;
+
+export const authenticateUploadedImages = (html: string): string => html.replace(
+  FILE_UPLOAD_IMG_SRC,
+  (_match, prefix, url, suffix) => `${prefix}${Auth.authenticateURL(url)}${suffix}`,
+);
+
 const lineBreakingTags = new Set(['P', 'DIV', 'PRE', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'UL', 'OL', 'LI', 'BLOCKQUOTE', 'TABLE', 'TR', 'TD']);
 
 // Truncates the subtree at the first visual line break: a newline inside a
@@ -54,8 +68,10 @@ export const getFirstVisibleLineHtml = (htmlContent: string): string => {
   truncateAtFirstLineBreak(root);
 
   // Re-append collected images that are no longer in the truncated root.
+  // CSS.escape keeps a src containing quotes or backslashes from breaking out
+  // of the attribute selector (a malformed selector throws in querySelector).
   images.forEach((img) => {
-    if (!root.querySelector(`img[src="${img.getAttribute('src')}"]`)) {
+    if (!root.querySelector(`img[src="${CSS.escape(img.getAttribute('src') || '')}"]`)) {
       root.appendChild(img);
     }
   });
@@ -64,5 +80,6 @@ export const getFirstVisibleLineHtml = (htmlContent: string): string => {
 };
 
 export default {
+  authenticateUploadedImages,
   getFirstVisibleLineHtml,
 };

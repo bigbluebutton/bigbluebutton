@@ -2,8 +2,7 @@ import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled, { DeleteMessage } from './styles';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
-import { getFirstVisibleLineHtml } from '/imports/ui/components/chat/chat-graphql/service';
-import { authenticateUploadedImages } from '../message-content/text-content/component';
+import { authenticateUploadedImages, getFirstVisibleLineHtml } from '/imports/ui/components/chat/chat-graphql/service';
 
 const intlMessages = defineMessages({
   deleteMessage: {
