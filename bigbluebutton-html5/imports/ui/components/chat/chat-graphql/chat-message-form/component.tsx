@@ -576,6 +576,10 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       }
 
       if (editingMessage.current && !chatEditMessageLoading) {
+        // Message edits are text-only: a staged image cannot be attached to an
+        // existing message, so unstage it (removing its preview) instead of
+        // silently keeping it staged for the next unrelated send.
+        clearPendingImage();
         chatEditMessage({
           variables: {
             chatId: editingMessage.current.chatId,
@@ -602,11 +606,35 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       // upload resolves do we build the markdown and send the message.
       if (hasImage) {
         const { file } = pendingImage;
+        // The sent markdown appends `![image](<upload-url>)` to the text, and the
+        // upload URL shape is deterministic (/bigbluebutton/fileUpload/<meetingId>/
+        // <36-char uuid>.<up to 4-char ext>), so its length is known before
+        // uploading. Checking the combined length here — the msg.length check
+        // above only covers the text — keeps the server-side maxMessageLength
+        // truncation from cutting the image URL in half, which would deliver
+        // broken markdown and leave an orphan upload counting against the quota.
+        const imageMarkdownLength = '![image]()'.length
+          + '/bigbluebutton/fileUpload/'.length + String(Auth.meetingID ?? '').length + '/'.length
+          + 36 + '.webp'.length;
+        const separatorLength = msg.length > 0 ? '\n\n'.length : 0;
+        if (msg.length + separatorLength + imageMarkdownLength > maxMessageLength) {
+          setError(intl.formatMessage(messages.errorMaxMessageLength, { maxMessageLength }));
+          setHasErrors(true);
+          return;
+        }
         setImageUploading(true);
         uploadImage(file)
           .then((url) => {
             const imageMarkdown = `![image](${url})`;
             const markdown = msg.length > 0 ? `${msg}\n\n${imageMarkdown}` : imageMarkdown;
+            if (markdown.length > maxMessageLength) {
+              // Unreachable while the pre-upload reserve above matches the URL
+              // shape; kept so shape drift rejects the message here instead of
+              // letting the server truncate it into broken markdown.
+              setError(intl.formatMessage(messages.errorMaxMessageLength, { maxMessageLength }));
+              setHasErrors(true);
+              return;
+            }
             dispatchSendMessage(markdown);
             clearPendingImage();
             clearAfterSend();
