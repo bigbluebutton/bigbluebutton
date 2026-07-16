@@ -226,6 +226,10 @@ class ApiController {
       newMeeting.setSharedNotesInitialContentJsonFromPayload(xmlModules.get("sharedNotesInitialContentJson").text())
     }
 
+    if(xmlModules.containsKey("sharedNotesInitialContentMarkdown")) {
+      newMeeting.setSharedNotesInitialContentMarkdownFromPayload(xmlModules.get("sharedNotesInitialContentMarkdown").text())
+    }
+
     ApiErrors errors = new ApiErrors()
 
     // Strict client-settings override validation (test/staging only, off by default): reject the

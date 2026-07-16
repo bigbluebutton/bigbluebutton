@@ -14,6 +14,7 @@ case class MeetingProp(
     intId:                                  String,
     meetingCameraCap:                       Int,
     sharedNotesInitialContentJson:          Vector[AnyRef],
+    sharedNotesInitialContentMarkdown:      String = "",
     sharedNotesEditor:                        String,
     maxPinnedCameras:                       Int,
     cameraBridge:                           String,

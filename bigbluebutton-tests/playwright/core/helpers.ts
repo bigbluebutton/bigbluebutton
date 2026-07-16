@@ -144,6 +144,24 @@ export async function createMeeting(
   return xmlResponse.response.meetingID[0];
 }
 
+// Create a meeting sending an xml `<modules>` payload in the POST body (e.g.
+// sharedNotesInitialContentJson / sharedNotesInitialContentMarkdown). The checksum
+// only covers the query string, so createMeetingUrl still yields a valid URL.
+export async function createMeetingWithModules(
+  modulesXml: string,
+  createParameter?: string,
+  customMeetingId?: string,
+): Promise<string> {
+  const url = createMeetingUrl(createParameter, customMeetingId);
+  const response = await axios.post(url, modulesXml, {
+    adapter: 'http',
+    headers: { 'Content-Type': 'application/xml' },
+  });
+  expect(response.status).toEqual(200);
+  const xmlResponse = await xml2js.parseStringPromise(response.data);
+  return xmlResponse.response.meetingID[0];
+}
+
 export function getJoinURL({ meetingID, fullName, options }: GetJoinUrlProp): string {
   const { isModerator, joinParameter, skipSessionDetailsModal } = options || {};
 
