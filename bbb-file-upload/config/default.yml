@@ -32,6 +32,11 @@ cleanup:
   # cleanup. bbb-web drops it at meeting end for recorded meetings and the
   # record-and-playback archive removes it once it has copied the uploads.
   recordingHoldMarker: .recording-hold
+  # Upper bound on how long the marker above can defer cleanup, measured from
+  # the marker's mtime. If the archive never succeeds (e.g. a broken recording
+  # never removes the marker), the uploads are deleted anyway once this many
+  # hours have passed, instead of leaking forever.
+  recordingHoldMaxHours: 24
 
 log:
   level: info

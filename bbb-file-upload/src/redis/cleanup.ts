@@ -8,15 +8,21 @@ import { getActiveMeetingIds } from '../upload/activeMeetings';
 const logger = new Logger('cleanup');
 
 const { basePath } = config.storage;
-const { retentionMinutes, recordingHoldMarker } = config.cleanup;
+const { retentionMinutes, recordingHoldMarker, recordingHoldMaxHours } = config.cleanup;
 
 // A recorded meeting keeps its uploads until the record-and-playback archive
 // has copied them. bbb-web drops this marker file in the uploads directory at
 // meeting end for recorded meetings (the archive may only start long after
 // that, even past retentionMinutes) and the archive removes it once its copy
-// succeeds; until then, cleanup defers instead of racing the archive.
-function isOnRecordingHold(dir: string): boolean {
-  return fs.existsSync(path.join(dir, recordingHoldMarker));
+// succeeds; until then, cleanup defers instead of racing the archive. Age of
+// the hold, measured from the marker's mtime (stat instead of existsSync so a
+// marker removed in between is not miscounted); null when there is no hold.
+function recordingHoldAgeMs(dir: string): number | null {
+  try {
+    return Date.now() - fs.statSync(path.join(dir, recordingHoldMarker)).mtimeMs;
+  } catch {
+    return null;
+  }
 }
 
 export function deleteUploads(meetingId: string): void {
@@ -24,15 +30,26 @@ export function deleteUploads(meetingId: string): void {
   if (!fs.existsSync(dir)) {
     return;
   }
-  if (isOnRecordingHold(dir)) {
-    // The archive still holds these uploads. Re-arm cleanup for another
-    // retentionMinutes rather than abandoning the one-shot timer, otherwise the
-    // directory would leak until a restart's residual scan re-armed it. Going
-    // back through scheduleCleanup keeps the deferral on the same timer and
-    // never fires immediately, so this cannot become a tight loop.
-    logger.info('Skipping cleanup, uploads are on recording hold', { meetingId });
-    scheduleCleanup(meetingId);
-    return;
+  const holdAgeMs = recordingHoldAgeMs(dir);
+  if (holdAgeMs !== null) {
+    if (holdAgeMs < recordingHoldMaxHours * 60 * 60 * 1000) {
+      // The archive still holds these uploads. Re-arm cleanup for another
+      // retentionMinutes rather than abandoning the one-shot timer, otherwise the
+      // directory would leak until a restart's residual scan re-armed it. Going
+      // back through scheduleCleanup keeps the deferral on the same timer and
+      // never fires immediately, so this cannot become a tight loop.
+      logger.info('Skipping cleanup, uploads are on recording hold', { meetingId });
+      scheduleCleanup(meetingId);
+      return;
+    }
+    // The marker never being released means the archive never succeeded (e.g. a
+    // broken recording). Capping the deferral trades those uploads for not
+    // leaking disk forever; the archive of a recording this stuck would fail
+    // regardless.
+    logger.warn('Recording hold exceeded its maximum age, deleting uploads anyway', {
+      meetingId,
+      recordingHoldMaxHours,
+    });
   }
   try {
     fs.rmSync(dir, { recursive: true, force: true });

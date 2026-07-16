@@ -23,6 +23,7 @@ export interface RateLimitConfig {
 export interface CleanupConfig {
   retentionMinutes: number;
   recordingHoldMarker: string;
+  recordingHoldMaxHours: number;
 }
 
 export interface LogConfig {

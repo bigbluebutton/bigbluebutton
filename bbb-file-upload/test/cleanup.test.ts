@@ -104,6 +104,23 @@ test('deleteUploads skips deletion while a recording-hold marker is present', ()
   assert.equal(fs.existsSync(path.join(dir, recordingHoldMarker)), true);
 });
 
+test('deleteUploads deletes anyway once the recording hold exceeds its maximum age', () => {
+  makeUploadsDir('stuck-hold-meeting');
+  const dir = uploadsPath('stuck-hold-meeting');
+  const marker = path.join(dir, recordingHoldMarker);
+  fs.writeFileSync(marker, '');
+
+  // Backdate the marker past the cap: a hold whose archive never succeeds
+  // (broken recording) must not defer the cleanup forever.
+  const capMs = config.cleanup.recordingHoldMaxHours * 60 * 60 * 1000;
+  const past = new Date(Date.now() - capMs - 60 * 1000);
+  fs.utimesSync(marker, past, past);
+
+  deleteUploads('stuck-hold-meeting');
+
+  assert.equal(fs.existsSync(dir), false);
+});
+
 test('deleteUploads is a no-op for a meeting with no uploads directory', () => {
   // No throw, nothing created.
   deleteUploads('never-existed');
