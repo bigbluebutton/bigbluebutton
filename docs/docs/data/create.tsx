@@ -616,18 +616,6 @@ const createEndpointTableData = [
     "description": (<>If passed it will use this string as the name of the presentation uploaded via <code className="language-plaintext highlighter-rouge">preUploadedPresentation</code> (added 2.7.2)</>)
   },
   {
-    "name": "allowOverrideClientSettingsOnCreateCall",
-    "required": false,
-    "default": false,
-    "type": "Boolean",
-    "description": (
-      <>
-        <p>Whether to allow <a href="#clientsettingsoverride">clientSettingsOverride</a> to be included in the body of a POST request. Because the body of the post request is not signed by the <a href="#api-security-model">checksum</a>, this parameter is set to <code>false</code> by default. If you set this to <code>true</code>, you must make sure that the signed parameters of the create API request are not visible to users.</p>
-        <p><i>Added:</i> 3.0.0-alpha.1</p>
-      </>
-    )
-  },
-  {
     "name": "clientSettingsOverride",
     "required": false,
     "type": "JSON",
