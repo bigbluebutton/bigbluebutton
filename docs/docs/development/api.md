@@ -114,10 +114,10 @@ Updated in 2.7:
 Updated in 3.0:
 
 - **create**
-  - **Added parameters:** `allowOverrideClientSettingsOnCreateCall`, `loginURL`, `pluginManifests`, `pluginManifestsFetchUrl`, `presentationConversionCacheEnabled`, `maxNumPages`, `multiUserWhiteboardEnabled`, `clientSettingsOverrideJsonUrl`, `sharedNotesEditor`.
+  - **Added parameters:** `loginURL`, `pluginManifests`, `pluginManifestsFetchUrl`, `presentationConversionCacheEnabled`, `maxNumPages`, `multiUserWhiteboardEnabled`, `clientSettingsOverrideJsonUrl`, `sharedNotesEditor`.
   - **Added options:** Parameter `meetingLayout` supports a few new options: CAMERAS_ONLY, PARTICIPANTS_AND_CHAT_ONLY, PRESENTATION_ONLY, MEDIA_ONLY;
   - **Added options:** Parameter `disabledFeatures` supports a few new options: `infiniteWhiteboard`, `deleteChatMessage`, `editChatMessage`, `replyChatMessage`, `chatMessageReactions`, `raiseHand`, `userReactions`, `chatEmojiPicker`, `quizzes`;
-  - **Added POST module:** `clientSettingsOverride`;
+  - **Added POST module:** `clientSettingsOverride` (gated by the server-side setting `allowOverrideClientSettingsOnCreateCall` in `bbb-web.properties`);
   - **Removed:** `breakoutRoomsEnabled`, `learningDashboardEnabled`, `virtualBackgroundsDisabled`. 
 - **join**
   - **Added:** `bot`, `enforceLayout`, `logoutURL`, `firstName`, `lastName`, `userdata-bbb_default_layout`, `userdata-bbb_skip_echotest_if_previous_device`, `userdata-bbb_prefer_dark_theme`. `userdata-bbb_hide_notifications`, `userdata-bbb_hide_controls`, `userdata-bbb_initial_selected_tool`
@@ -501,7 +501,9 @@ For more information about the pre-upload slides check the following [link](http
 We support overriding the client settings (the entire set of options can be found in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`) as part of the CREATE call.
 Note that these values would have higher precedence over customizations made in `/etc/bigbluebutton/bbb-html5.yml`.
 
-By default this overriding approach on CREATE is disabled. To enable it, please set `allowOverrideClientSettingsOnCreateCall=true` in `/etc/bigbluebutton/bbb-web.properties` or as part of the CREATE call.
+By default this overriding approach on CREATE is disabled. To enable it, set `allowOverrideClientSettingsOnCreateCall=true` in `/etc/bigbluebutton/bbb-web.properties` and restart bbb-web. This is a **server-side setting only** — it is not read from the create request, so passing `allowOverrideClientSettingsOnCreateCall` as a `/create` parameter has no effect.
+
+Because the POST body is not covered by the `/create` [checksum](#api-security-model), only enable this on servers where the signed parameters of the create request are not visible to users. As an alternative that keeps the settings on a checksummed GET parameter, see [`clientSettingsOverrideJsonUrl`](#get-post-create), which does not require `allowOverrideClientSettingsOnCreateCall`.
 
 You can construct the HTTPS POST request as follows:
 
