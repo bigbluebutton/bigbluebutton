@@ -177,6 +177,7 @@ object MarkdownUtil {
     if (url == null) return false
     UploadedImagePattern.matcher(url.trim).matches()
   }
+
   private val MaxMessageLength = 5000
 
   private val MarkdownSyntaxChars: Array[Char] =

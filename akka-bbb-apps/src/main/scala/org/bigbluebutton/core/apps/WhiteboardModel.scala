@@ -48,8 +48,9 @@ object WhiteboardModel {
   }
 
   private def isValidImageAnnotation(annotationInfo: Map[String, _], meetingId: String): Boolean = {
-    // Measured in UTF-8 bytes (what actually reaches Postgres), not in UTF-16
-    // chars, so a multi-byte payload cannot stretch the cap.
+    // Measures the Map's toString rendering — a close proxy for the JSON that
+    // reaches Postgres, not the serialized JSON itself — in UTF-8 bytes rather
+    // than UTF-16 chars, so a multi-byte payload cannot stretch the cap.
     val withinSizeLimit =
       annotationInfo.toString.getBytes(java.nio.charset.StandardCharsets.UTF_8).length <= MaxImageAnnotationSizeBytes
     val hasValidSrc = getImageSrc(annotationInfo).exists { src =>
