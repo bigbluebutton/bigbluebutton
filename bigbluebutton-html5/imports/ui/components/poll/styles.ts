@@ -19,8 +19,8 @@ import {
 import {
   colorText,
   colorBlueLight,
+  colorBorder,
   colorGray,
-  colorGrayLight,
   colorGrayLighter,
   colorGrayLightest,
   colorDanger,
@@ -46,7 +46,6 @@ import {
   colorSelectedCorrectAnswerBgActive,
   colorGreen600,
   colorGreen100,
-  colorBlueLighter,
   colorBlueLightest,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
@@ -79,7 +78,7 @@ const PollOptionInput = styled.input<PollOptionInputProps>`
   &:focus {
     outline: none;
     border-radius: ${borderSize};
-    box-shadow: 0 0 0 ${borderSize} ${colorBlueLight}, inset 0 0 0 1px ${colorPrimary};
+    box-shadow: 0 0 0 ${borderSize} ${colorPrimary}, inset 0 0 0 1px ${colorPrimary};
   }
 
   width: 100%;
@@ -88,8 +87,8 @@ const PollOptionInput = styled.input<PollOptionInputProps>`
   padding: calc(${smPaddingY} * 2) ${smPaddingX};
   border-radius: ${borderRadius};
   font-size: ${fontSizeBase};
-  border: 1px solid ${colorGrayLighter};
-  box-shadow: 0 0 0 1px ${colorGrayLighter};
+  border: 1px solid ${colorBorder};
+  box-shadow: 0 0 0 1px ${colorBorder};
 
   ${({ isCorrect }) => isCorrect && ` 
     background-color: rgb(240, 253, 244);
@@ -132,7 +131,7 @@ const PollQuestionArea = styled.textarea<PollQuestionAreaProps>`
   &:focus {
     outline: none;
     border-radius: ${borderSize};
-    box-shadow: 0 0 0 ${borderSize} ${colorBlueLight}, inset 0 0 0 1px ${colorPrimary};
+    box-shadow: 0 0 0 ${borderSize} ${colorPrimary}, inset 0 0 0 1px ${colorPrimary};
   }
 
   width: 100%;
@@ -141,8 +140,8 @@ const PollQuestionArea = styled.textarea<PollQuestionAreaProps>`
   padding: calc(${smPaddingY} * 2) ${smPaddingX};
   border-radius: ${borderRadius};
   font-size: ${fontSizeBase};
-  border: 1px solid ${colorGrayLighter};
-  box-shadow: 0 0 0 1px ${colorGrayLighter};
+  border: 1px solid ${colorBorder};
+  box-shadow: 0 0 0 1px ${colorBorder};
 
   ${({ hasError }) => hasError && `
     border-color: ${colorDanger};
@@ -178,7 +177,7 @@ const ResponseType = styled.div`
 
 // @ts-ignore - Button is a JS Component
 const PollConfigButton = styled(Button)`
-  border: solid ${colorGrayLight} 1px;
+  border: solid ${colorBorder} 1px;
   min-height: ${pollInputHeight};
   font-size: ${fontSizeBase};
   white-space: pre-wrap;
@@ -425,7 +424,7 @@ const AnonymousRow = styled(Row)`
 
 const ResultLeft = styled.td`
   padding: 0 .5rem 0 0;
-  border-bottom: 1px solid ${colorGrayLightest};
+  border-bottom: 1px solid ${colorBorder};
 
   [dir="rtl"] & {
     padding: 0 0 0 .5rem;
@@ -464,14 +463,14 @@ const Left = styled.div`
 const Center = styled.div`
   position: relative;
   flex: 3;
-  border-left: 1px solid ${colorGrayLighter};
+  border-left: 1px solid ${colorBorder};
   border-right : none;
   width: 100%;
   height: 100%;
 
   [dir="rtl"] & {
     border-left: none;
-    border-right: 1px solid ${colorGrayLighter};
+    border-right: 1px solid ${colorBorder};
   }
 
   padding: ${smPaddingY};
@@ -711,7 +710,7 @@ const QuizCorrectAnswerCheckbox = styled.input`
   appearance: none;
   aspect-ratio: 1;
   background: var(--backgroundColor, Field);
-  border: 1px solid var(--borderColor, ${colorGrayLight});
+  border: 1px solid var(--borderColor, ${colorBorder});
   border-radius: 50%;
   box-sizing: border-box;
   font-size: 1em;
@@ -756,7 +755,7 @@ const InfoBoxContainer = styled.div<InfoBoxContainerProps>`
 
   color: ${colorBlueLight};
   background-color: ${colorBlueLightest};
-  border: 1px solid ${colorBlueLighter};
+  border: 1px solid ${colorPrimary};
 
   ${({ isQuiz }) => isQuiz && `
     background-color: ${colorInfoBoxQuizBg};

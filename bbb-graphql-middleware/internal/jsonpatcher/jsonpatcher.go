@@ -7,8 +7,8 @@ import (
 	"sort"
 
 	evanphxjsonpatch "github.com/evanphx/json-patch"
-	"github.com/wI2L/jsondiff"
 	log "github.com/sirupsen/logrus"
+	"github.com/wI2L/jsondiff"
 )
 
 // jsonPatchOp is a unified representation for RFC 6902 ops so replaces, removes,
@@ -20,9 +20,13 @@ type jsonPatchOp struct {
 	Value interface{} `json:"value,omitempty"`
 }
 
-func ValidateIfShouldUseCustomJsonPatch(original []byte, modified []byte, idFieldName string) (bool, []byte) {
-	// Temporarily use CustomPatch only for UserList (testing feature)
-	if !bytes.Contains(modified, []byte("\"__typename\":\"user\"}]")) {
+func ValidateIfShouldUseCustomJsonPatch(original []byte, modified []byte) (bool, []byte) {
+	idFieldName := ""
+	if bytes.HasSuffix(modified, []byte("\"__typename\":\"user\"}]")) {
+		idFieldName = "userId"
+	} else if bytes.HasSuffix(modified, []byte("\"__typename\":\"user_camera\"}]")) {
+		idFieldName = "streamId"
+	} else {
 		return false, nil
 	}
 

@@ -424,7 +424,6 @@ const ShortcutHelpComponent = ({
       <Styled.SettingsTabs
         onSelect={(tab) => setSelectedTab(tab)}
         selectedIndex={selectedTab}
-        role="presentation"
       >
         <StyledSettings.SettingsTabList>
           <StyledSettings.SettingsTabSelector selectedClassName="is-selected">

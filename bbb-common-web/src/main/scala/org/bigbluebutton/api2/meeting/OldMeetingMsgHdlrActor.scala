@@ -144,7 +144,8 @@ class OldMeetingMsgHdlrActor(val olgMsgGW: OldMessageReceivedGW)
       msg.body.room.lockOnJoin,
       msg.body.room.lockOnJoinConfigurable,
       msg.body.room.hideViewersCursor,
-      msg.body.room.hideViewersAnnotation
+      msg.body.room.hideViewersAnnotation,
+      msg.body.room.webcamsOnlyForModerator
     ))
   }
 

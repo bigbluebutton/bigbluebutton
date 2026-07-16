@@ -1,3 +1,39 @@
+// Sanitize HTML to allow only safe tags and attributes, preventing XSS
+function sanitizeChatHTML(html) {
+  var temp = document.createElement('div');
+  temp.innerHTML = html;
+  var allowedTags = ['a', 'br'];
+  var allowedAttrs = { 'a': ['href', 'target', 'rel'] };
+  function sanitize(node) {
+    var children = Array.from(node.childNodes);
+    for (var c = 0; c < children.length; c++) {
+      var child = children[c];
+      if (child.nodeType === 1) {
+        if (allowedTags.indexOf(child.tagName.toLowerCase()) === -1) {
+          node.replaceChild(document.createTextNode(child.textContent), child);
+        } else {
+          var tagAttrs = allowedAttrs[child.tagName.toLowerCase()] || [];
+          var attrs = Array.from(child.attributes);
+          for (var a = 0; a < attrs.length; a++) {
+            if (tagAttrs.indexOf(attrs[a].name.toLowerCase()) === -1) {
+              child.removeAttribute(attrs[a].name);
+            }
+          }
+          if (child.hasAttribute('href')) {
+            var href = child.getAttribute('href').replace(/\s/g, '').toLowerCase();
+            if (href.startsWith('javascript:') || href.startsWith('data:')) {
+              child.removeAttribute('href');
+            }
+          }
+          sanitize(child);
+        }
+      }
+    }
+  }
+  sanitize(temp);
+  return temp.innerHTML;
+}
+
 // PLUGIN: Timeline
 (function ( Popcorn ) {
 
@@ -61,7 +97,12 @@
     //  Default to empty if not used
     //options.innerHTML = options.innerHTML || "";
 
-    contentDiv.innerHTML = "<strong>" + options.name + ":</strong>" + options.message;
+    var nameEl = document.createElement('strong');
+    nameEl.textContent = options.name + ':';
+    contentDiv.appendChild(nameEl);
+    var msgEl = document.createElement('span');
+    msgEl.innerHTML = sanitizeChatHTML(options.message);
+    contentDiv.appendChild(msgEl);
 
     return {
 

@@ -53,7 +53,8 @@ module BigBlueButton
         def pts_gaps
           return [] if corrupt?
 
-          BigBlueButton::EDL::MediaUtils.pts_gaps(@process_dir, @filename, :video, @info[:duration])
+          duration = @original_duration || @info[:duration]
+          BigBlueButton::EDL::MediaUtils.pts_gaps(@process_dir, @filename, :video, duration)
         end
 
         # The native aspect ratio of the video source.

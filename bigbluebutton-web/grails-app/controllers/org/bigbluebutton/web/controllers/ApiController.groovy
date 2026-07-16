@@ -228,6 +228,20 @@ class ApiController {
 
     ApiErrors errors = new ApiErrors()
 
+    // Strict client-settings override validation (test/staging only, off by default): reject the
+    // create call when the override (POST body or clientSettingsOverrideJsonUrl) contains
+    // unknown/malformed keys. The meeting is not created and nothing is passed to akka-apps.
+    if (paramsProcessorUtil.getClientSettingsOverrideStrictValidation()
+        && StringUtils.isNotEmpty(newMeeting.getOverrideClientSettings())) {
+      List<String> overrideIssues = paramsProcessorUtil.validateClientSettingsOverride(newMeeting.getOverrideClientSettings())
+      if (!overrideIssues.isEmpty()) {
+        log.warn("Rejecting create for meetingID [{}]: client settings override has issues {}", params.meetingID, overrideIssues)
+        errors.clientSettingsOverrideError(overrideIssues.join("; "))
+        respondWithErrors(errors)
+        return
+      }
+    }
+
     if (meetingService.createMeeting(newMeeting)) {
       respondWithConference(newMeeting, null, null)
       // See if the request came with pre-uploading of presentation.
@@ -1195,6 +1209,19 @@ class ApiController {
                     RESP_CODE_FAILED), contentType: "text/xml")
           }
         }
+      } else {
+        withFormat {
+          xml {
+            render(text: responseBuilder.buildInsertDocumentResponse(
+                    "Request body must contain a presentation module with at least one document.",
+                    RESP_CODE_FAILED), contentType: "text/xml")
+          }
+          '*' {
+            render(text: responseBuilder.buildInsertDocumentResponse(
+                    "Request body must contain a presentation module with at least one document.",
+                    RESP_CODE_FAILED), contentType: "text/xml")
+          }
+        }
       }
     }else {
       log.warn("Meeting with externalID ${externalMeetingId} doesn't exist.")
@@ -1568,7 +1595,7 @@ class ApiController {
     if (!xmlModules.containsKey("presentation")) {
       if (isFromInsertAPI) {
         log.warn("Insert Document API called without a payload - ignoring")
-        return;
+        return false;
       }
 
      if (hasPresentationUrlInParameter) {

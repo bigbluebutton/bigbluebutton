@@ -115,7 +115,7 @@ class StatusTable extends React.Component {
 
   render() {
     const {
-      allUsers, slides, meetingId, sessionToken, intl,
+      allUsers, slides, meetingId, sessionToken, presentationBase, intl,
     } = this.props;
 
     const usersPeriods = {};
@@ -226,6 +226,12 @@ class StatusTable extends React.Component {
                 const tokenParams = pageToken && sessionToken
                   ? `?${new URLSearchParams({ pageToken, sessionToken })}`
                   : '';
+                const slideUrl = presentationBase
+                  ? `${presentationBase}/${presentationId}/svgs/slide${pageNum}.svg`
+                  : `${URLPrefix}/${presentationId}/svg/${pageNum}${tokenParams}`;
+                const thumbUrl = presentationBase
+                  ? `${presentationBase}/${presentationId}/thumbnails/thumb-${pageNum}.png`
+                  : `${URLPrefix}/${presentationId}/thumbnail/${pageNum}${tokenParams}`;
                 return (
                   <td
                     style={{
@@ -236,14 +242,14 @@ class StatusTable extends React.Component {
                       <div className="flex">
                         <div className="my-4">
                           <a
-                            href={`${URLPrefix}/${presentationId}/svg/${pageNum}${tokenParams}`}
+                            href={slideUrl}
                             className="block border-2 border-gray-300"
                             target="_blank"
                             rel="noreferrer"
                             aria-describedby={`thumb-desc-${presentationId}`}
                           >
                             <img
-                              src={`${URLPrefix}/${presentationId}/thumbnail/${pageNum}${tokenParams}`}
+                              src={thumbUrl}
                               alt={`${intl.formatMessage(intlMessages.thumbnail)} - ${intl.formatMessage(intlMessages.presentation)} ${presentationName} - ${intl.formatMessage(intlMessages.pageNumber)} ${pageNum}`}
                               style={{
                                 maxWidth: '150px',

@@ -75,7 +75,8 @@ case class BreakoutRoomDetail(
     lockOnJoin:              Boolean,
     lockOnJoinConfigurable:  Boolean,
     hideViewersCursor:       Boolean,
-    hideViewersAnnotation:   Boolean
+    hideViewersAnnotation:   Boolean,
+    webcamsOnlyForModerator: Boolean
 )
 
 /**
