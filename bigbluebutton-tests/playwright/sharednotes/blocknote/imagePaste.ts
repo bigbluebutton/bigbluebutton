@@ -99,6 +99,53 @@ export class BlockNoteImagePaste extends MultiUsers {
     expect(src, 'the image block should reference a same-origin upload URL').toMatch(/^\/bigbluebutton\/fileUpload\//);
   }
 
+  // Even with the Embed tab removed from the file panel, an external image URL
+  // can still reach the document (pasted HTML, or a crafted client writing the
+  // Yjs doc directly). The display-time gate (resolveFileUrl) must resolve it
+  // to an empty source, so no participant's browser ever contacts the external
+  // host (IP leak / tracking pixel).
+  async externalImageUrlIsBlocked() {
+    const { sharedNotesImagePasteEnabled } = this.modPage.settings || {};
+    if (!sharedNotesImagePasteEnabled) return;
+
+    // .invalid never resolves, but the request attempt (what must not happen)
+    // would still be observable through the page's request events.
+    const externalHost = 'tracking-pixel.invalid';
+    const externalRequests: string[] = [];
+    this.modPage.page.on('request', (request) => {
+      if (request.url().includes(externalHost)) externalRequests.push(request.url());
+    });
+
+    await openNotes(this.modPage);
+    await this.modPage.page.waitForSelector(e.blockNoteEditor, { state: 'visible' });
+    await this.modPage.page.locator(e.blockNoteEditor).click();
+    await this.modPage.page.evaluate(
+      ({ selector, imgUrl }) => {
+        const dataTransfer = new DataTransfer();
+        dataTransfer.setData('text/html', `<p>before-marker</p><img src="${imgUrl}"><p>after-marker</p>`);
+        const element = document.querySelector(selector);
+        if (!element) throw new Error(`element not found: ${selector}`);
+        element.dispatchEvent(
+          new ClipboardEvent('paste', { bubbles: true, cancelable: true, clipboardData: dataTransfer }),
+        );
+      },
+      { selector: e.blockNoteEditor, imgUrl: `https://${externalHost}/pixel.png` },
+    );
+
+    // The paste is processed asynchronously; the trailing paragraph landing in
+    // the editor proves the whole clipboard payload went through the parser.
+    await expect(
+      this.modPage.page.locator(e.blockNoteEditor),
+      'the pasted HTML around the image should land in the editor',
+    ).toContainText('after-marker', { timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    await expect(
+      this.modPage.page.locator(`img[src*="${externalHost}"]`),
+      'no rendered image may point at the external host',
+    ).toHaveCount(0);
+    expect(externalRequests, 'no request may be made to the external host').toHaveLength(0);
+  }
+
   // The exported HTML and PDF must contain the image. The PDF runs in a sandboxed
   // wkhtmltopdf that cannot fetch over the network, so the image is embedded as a
   // base64 data URI; the relative upload URL must not survive into the export.

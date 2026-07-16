@@ -12,11 +12,15 @@ import {
   BlockTypeSelect,
   ColorStyleButton,
   ComponentsContext,
+  FilePanelController,
+  FilePanelProps,
   FormattingToolbar,
   NestBlockButton,
   UnnestBlockButton,
+  UploadTab,
   useComponentsContext,
   useCreateBlockNote,
+  useDictionary,
 } from '@blocknote/react';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Menu as MantineMenu } from '@mantine/core';
@@ -199,6 +203,32 @@ const AccessibleMenuRoot: React.FC<{
   </MantineMenu>
 );
 
+// BlockNote's default file panel always renders an Embed tab, which accepts an
+// arbitrary URL and stores it in the Yjs document, making every participant's
+// browser fetch from that external host (IP leak / tracking pixel — the exact
+// vector the same-origin image gates exist to prevent). This upload-only panel
+// replaces it; display-time enforcement additionally lives in resolveFileUrl.
+function UploadOnlyFilePanel(props: FilePanelProps): React.ReactElement {
+  const { blockId } = props;
+  const Components = useComponentsContext()!;
+  const dict = useDictionary();
+  const [loading, setLoading] = React.useState(false);
+  const uploadTabName = dict.file_panel.upload.title;
+  return (
+    <Components.FilePanel.Root
+      className="bn-panel"
+      defaultOpenTab={uploadTabName}
+      openTab={uploadTabName}
+      setOpenTab={() => {}}
+      tabs={[{
+        name: uploadTabName,
+        tabPanel: <UploadTab blockId={blockId} setLoading={setLoading} />,
+      }]}
+      loading={loading}
+    />
+  );
+}
+
 // Patches ComponentsContext so every Generic.Menu.Root in the toolbar uses
 // AccessibleMenuRoot — fixes both ColorStyleButton and TextAlignSelect.
 function ToolbarWithAccessibleMenus({ children }: { children: React.ReactNode }) {
@@ -364,11 +394,14 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     // portable and rewritable for recording/playback), but the file-upload
     // service authorizes the GET from the sessionToken query param. Without this
     // resolver BlockNote renders `<img src=/bigbluebutton/fileUpload/...>` with no
-    // token and the image 401s for author and everyone. resolveFileUrl runs only
-    // at display time, appending the token via Auth.authenticateURL; non-upload
-    // URLs pass through untouched.
+    // token and the image 401s for author and everyone. resolveFileUrl runs at
+    // display time: same-origin upload URLs get the token via Auth.authenticateURL;
+    // anything else resolves to '' so an image block pointing at an external host
+    // (pasted HTML, or injected straight into the Yjs doc by a crafted client)
+    // never triggers a request that leaks participants' IPs to a third party.
+    // Mirrors the chat renderer's same-origin gate (MarkdownUtil).
     resolveFileUrl: async (url: string) => (
-      url.startsWith('/bigbluebutton/fileUpload/') ? Auth.authenticateURL(url) : url
+      url.startsWith('/bigbluebutton/fileUpload/') ? Auth.authenticateURL(url) : ''
     ),
     collaboration: {
       provider: { awareness: hocuspocusProvider.awareness || undefined },
@@ -606,8 +639,10 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         editor={editor}
         theme="light"
         formattingToolbar={!STATIC_FORMATTING_TOOLBAR_ENABLED}
+        filePanel={false}
         renderEditor={false}
       >
+        <FilePanelController filePanel={UploadOnlyFilePanel} />
         {STATIC_FORMATTING_TOOLBAR_ENABLED && editable && (
           <ToolbarWithAccessibleMenus>
             <div

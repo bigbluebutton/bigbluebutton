@@ -16,6 +16,16 @@ test.describe('Shared Notes - BlockNote image paste', { tag: '@setting-required:
     await sharedNotes.pasteRendersImageBlock();
   });
 
+  test('Pasted HTML with an external image URL never loads from the external host', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const sharedNotes = new BlockNoteImagePaste(browser, context);
+    await sharedNotes.initModPage(page, { createParameter: 'sharedNotesEditor=blockNote', testInfo });
+    await sharedNotes.externalImageUrlIsBlocked();
+  });
+
   test('Export embeds the pasted image as inline base64', async ({ browser, context, page }, testInfo) => {
     const sharedNotes = new BlockNoteImagePaste(browser, context);
     await sharedNotes.initModPage(page, { createParameter: 'sharedNotesEditor=blockNote', testInfo });
