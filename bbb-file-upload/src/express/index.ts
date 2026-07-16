@@ -23,7 +23,7 @@ const limiter = rateLimit({
   limit: config.rateLimit.maxRequestsPerWindow,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: 'too many requests' },
+  message: { code: 'rate_limited' },
   keyGenerator: (req) => {
     const userId = req.headers['user-id'];
     const meetingId = req.headers['meeting-id'];
@@ -34,7 +34,10 @@ const limiter = rateLimit({
   },
 });
 
-export function startExpressApp(): void {
+// Every error response follows the same contract as handleUpload: a stable,
+// machine-readable { code: '...' } body that the client maps to a localized
+// message. The multer and rate-limit layers must not deviate from it.
+export function createApp(): express.Express {
   const app = express();
 
   app.get('/health', (_req, res) => {
@@ -48,10 +51,10 @@ export function startExpressApp(): void {
       upload.single('file')(req, res, (err: unknown) => {
         if (err instanceof multer.MulterError) {
           if (err.code === 'LIMIT_FILE_SIZE') {
-            res.status(413).json({ error: 'file exceeds the allowed size' });
+            res.status(413).json({ code: 'file_too_large' });
             return;
           }
-          res.status(400).json({ error: 'invalid upload' });
+          res.status(400).json({ code: 'invalid_upload' });
           return;
         }
         if (err) {
@@ -63,6 +66,10 @@ export function startExpressApp(): void {
     },
   );
 
+  return app;
+}
+
+export function startExpressApp(): void {
   const { host, port } = config.expressServer;
-  app.listen(port, host, () => logger.info(`Listening on http://${host}:${port}`));
+  createApp().listen(port, host, () => logger.info(`Listening on http://${host}:${port}`));
 }
