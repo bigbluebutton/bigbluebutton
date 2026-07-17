@@ -143,9 +143,9 @@ To enable it, you would first need to install the optional package via
 At this point you can use it in a specific session by passing `sharedNotesEditor=blockNote` on the `/create` call.
 If you have made up your mind and would like to use it for all sessions, add the same line (`sharedNotesEditor=blockNote`) to `/etc/bigbluebutton/bbb-web.properties` and restart BigBlueButton via `$ sudo bbb-conf --restart`
 
-#### Import and export shared notes as Markdown
+#### Import and export BlockNote shared notes as Markdown
 
-The BlockNote shared notes editor can now exchange content as Markdown (available in the next 3.0.x release after 3.0.32). From the shared notes options menu, the presenter can choose **Import from Markdown**, which opens a dialog to either upload a Markdown file (drag-and-drop or file picker) or paste Markdown directly. The imported content can be **appended** to the existing notes (the default, so importing never destroys what is already there) or **replace** the whole document. Separately, an **Export notes as Markdown** option downloads the current notes as a `.md` file.
+The BlockNote shared notes editor can now exchange content as Markdown (available in BigBlueButton 3.0.33). From the shared notes options menu, the presenter can choose **Import from Markdown**, which opens a dialog to either upload a Markdown file (drag-and-drop or file picker) or paste Markdown directly. The imported content can be **appended** to the existing notes (the default, so importing never destroys what is already there) or **replace** the whole document. Separately, an **Export notes as Markdown** option downloads the current notes as a `.md` file.
 
 Both options are **disabled by default** in BigBlueButton 3.0 so that a minor upgrade does not add new menu buttons unexpectedly. Enable either or both in `/etc/bigbluebutton/bbb-html5.yml` and restart with `sudo bbb-conf --restart`:
 
@@ -326,6 +326,7 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 
 Recent releases:
+- [3.0.33](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.33)
 - [3.0.32](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.32)
 - [3.0.31](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.31)
 - [3.0.30](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.30)
@@ -471,7 +472,7 @@ Modified/added events
 - `muteOnStart` default value changed to `true` - which helps now that `transparentListenOnly` is enabled by default too. See [PR 20848](https://github.com/bigbluebutton/bigbluebutton/issues/20848) for more info.
 - `insertDocumentSupportedProtocols` renamed to `fetchUrlSupportedProtocols`
 - `insertDocumentBlockedHosts` renamed to `fetchUrlBlockedExternalHosts`
-- `html5PluginSdkVersion` bumped from `0.0.99` to `0.0.103`
+- `html5PluginSdkVersion` bumped to `0.0.103`
 
 #### Added
 - `pluginManifestFetchTimeout` added
