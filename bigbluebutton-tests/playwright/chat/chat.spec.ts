@@ -314,5 +314,15 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
       await chat.initModPage(page, { testInfo });
       await chat.dropsExternalImage();
     });
+
+    test('Strip an external image nested in the alt text of another image', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.dropsExternalImageNestedInAltText();
+    });
   });
 });

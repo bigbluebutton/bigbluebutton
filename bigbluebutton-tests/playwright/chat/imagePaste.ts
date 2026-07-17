@@ -163,4 +163,36 @@ export class ChatImagePaste extends MultiUsers {
     await this.modPage.hasText(e.chatUserMessageText, marker, 'should deliver the text of the message');
     await this.modPage.hasElementCount(e.chatUserMessageImage, 0, 'should strip the external image from the message');
   }
+
+  // Companion to dropsExternalImage, for an image nested in another image's alt
+  // text. CommonMark allows that, and the alt content of a rejected image is
+  // promoted into the document when the image is unlinked, so a gate that only
+  // recurses into the images it accepts never validates it.
+  async dropsExternalImageNestedInAltText() {
+    const marker = 'nested-image-check';
+    const externalHost = 'tracker.invalid';
+    const requestedExternalUrls: string[] = [];
+    await this.modPage.page.route('**://' + externalHost + '/**', async (route) => {
+      requestedExternalUrls.push(route.request().url());
+      await route.abort();
+    });
+
+    await openPublicChat(this.modPage);
+    await this.modPage.page
+      .locator(e.chatBox)
+      .fill(marker + ' ![foo ![bar](https://' + externalHost + '/pixel.png)](https://' + externalHost + '/outer.png)');
+    await this.modPage.waitAndClick(e.sendButton);
+    await this.modPage.hasText(e.chatUserMessageText, marker, 'should deliver the text of the message');
+
+    await this.modPage.page.waitForTimeout(2000);
+    expect(
+      requestedExternalUrls,
+      'the reader browser must never request ' + externalHost + ' (IP leak / tracking pixel)',
+    ).toEqual([]);
+    await this.modPage.hasElementCount(
+      e.chatUserMessageImage,
+      0,
+      'should strip an external image nested in the alt text of another image',
+    );
+  }
 }
