@@ -24,6 +24,7 @@ export interface CleanupConfig {
   retentionMinutes: number;
   recordingHoldMarker: string;
   recordingHoldMaxHours: number;
+  residualScanIntervalMinutes: number;
 }
 
 export interface LogConfig {

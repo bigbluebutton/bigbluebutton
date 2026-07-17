@@ -8,7 +8,9 @@ import { getActiveMeetingIds } from '../upload/activeMeetings';
 const logger = new Logger('cleanup');
 
 const { basePath } = config.storage;
-const { retentionMinutes, recordingHoldMarker, recordingHoldMaxHours } = config.cleanup;
+const {
+  retentionMinutes, recordingHoldMarker, recordingHoldMaxHours, residualScanIntervalMinutes,
+} = config.cleanup;
 
 // A recorded meeting keeps its uploads until the record-and-playback archive
 // has copied them. bbb-web drops this marker file in the uploads directory at
@@ -113,4 +115,30 @@ export async function scanResidualUploads(): Promise<void> {
     scheduleCleanup(meetingId);
   }
   logger.info('Residual uploads scan complete', { rescheduled: stale.length });
+}
+
+// Runs scanResidualUploads at startup and then on a fixed interval. A single
+// startup scan is not enough: bbb-file-upload usually wins the systemd race
+// against bbb-web (Grails takes tens of seconds to listen), so getActiveMeetingIds
+// returns null and the scan skips - leaving residual uploads leaked until the next
+// restart. Re-running periodically means a later scan lands once bbb-web answers,
+// and it also re-arms timers lost to a crash mid-run. Best-effort: a failed scan
+// is logged and the loop continues. The interval is unref'd so it never keeps the
+// process alive on its own or stalls a graceful shutdown. Returns a stop function
+// (used by tests; production leaves it running for the process lifetime).
+export function startResidualScanLoop(
+  scan: () => Promise<void> = scanResidualUploads,
+  intervalMs: number = residualScanIntervalMinutes * 60 * 1000,
+): () => void {
+  const run = (): void => {
+    scan().catch((err) => {
+      logger.error('Residual uploads scan failed', {
+        error: err instanceof Error ? err.message : String(err),
+      });
+    });
+  };
+  run();
+  const timer = setInterval(run, intervalMs);
+  timer.unref();
+  return () => clearInterval(timer);
 }

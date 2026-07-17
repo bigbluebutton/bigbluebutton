@@ -1,7 +1,11 @@
 [Unit]
 Description=BigBlueButton File Upload Server
-Wants=redis-server.service
-After=syslog.target network.target redis-server.service
+Wants=redis-server.service bbb-web.service
+# Order after bbb-web so the residual-uploads scan has a better chance of reaching
+# it on boot. This only orders start-up, it does not wait for bbb-web to be
+# listening (Grails keeps starting after the unit is active), so the periodic
+# rescan in the service is what actually closes the race.
+After=syslog.target network.target redis-server.service bbb-web.service
 PartOf=bigbluebutton.target
 StartLimitIntervalSec=0
 

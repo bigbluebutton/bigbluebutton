@@ -28,7 +28,7 @@ process.chdir(tmpRoot);
 // and would otherwise win over the scratch ./config/default.yml.
 process.env.BBB_FILE_UPLOAD_CONFIG = path.join(tmpRoot, 'config/default.yml');
 
-const { residualMeetingsToClean, deleteUploads } = await import('../src/redis/cleanup.ts');
+const { residualMeetingsToClean, deleteUploads, startResidualScanLoop } = await import('../src/redis/cleanup.ts');
 const config = (await import('../src/config/index.ts')).default;
 
 assert.equal(config.storage.basePath, dataDir, 'test config did not take effect');
@@ -125,4 +125,20 @@ test('deleteUploads is a no-op for a meeting with no uploads directory', () => {
   // No throw, nothing created.
   deleteUploads('never-existed');
   assert.equal(fs.existsSync(uploadsPath('never-existed')), false);
+});
+
+test('startResidualScanLoop scans immediately and keeps re-scanning (recovers the bbb-web startup race)', async () => {
+  // The startup race is the whole point: the first scan can fail (bbb-web not
+  // up yet), so the loop must run again rather than skip forever. Inject a fake
+  // scan and a tiny interval to prove both the immediate run and the repeat.
+  let calls = 0;
+  const scan = async () => { calls += 1; };
+  const stop = startResidualScanLoop(scan, 15);
+
+  // The immediate run is synchronous, so at least one scan has fired already.
+  assert.equal(calls >= 1, true, 'the loop must scan once immediately at startup');
+
+  await new Promise((resolve) => { setTimeout(resolve, 55); });
+  stop();
+  assert.equal(calls >= 2, true, 'the loop must keep re-scanning on its interval, not run once');
 });

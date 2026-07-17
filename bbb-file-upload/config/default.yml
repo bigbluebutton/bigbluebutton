@@ -37,6 +37,11 @@ cleanup:
   # never removes the marker), the uploads are deleted anyway once this many
   # hours have passed, instead of leaking forever.
   recordingHoldMaxHours: 24
+  # How often to re-scan for uploads whose in-memory cleanup timer was lost to a
+  # crash or restart. It also recovers the startup race against bbb-web: on boot
+  # bbb-web may still be starting, so the first scan cannot list active meetings
+  # and skips; a later scan lands once bbb-web is answering.
+  residualScanIntervalMinutes: 5
 
 log:
   level: info
