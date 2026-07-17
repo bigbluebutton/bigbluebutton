@@ -159,7 +159,7 @@ object MarkdownUtil {
    * (`/\host`) or any other shape is removed before rendering.
    */
   private def stripExternalImages(root: Node): Unit = {
-    val toRemove = new util.ArrayList[Node]()
+    val toRemove = new util.ArrayList[Image]()
     root.accept(new AbstractVisitor {
       override def visit(image: Image): Unit = {
         if (isSameOriginUrl(image.getDestination)) {
@@ -170,7 +170,20 @@ object MarkdownUtil {
       }
     })
     val it = toRemove.iterator()
-    while (it.hasNext) it.next().unlink()
+    while (it.hasNext) {
+      val image = it.next()
+      // Preserve the alt text as literal text instead of discarding the whole
+      // node: an Image's children are its alt/caption inline content, so move
+      // them out before the image and then drop only the image itself. Dropping
+      // the node wholesale silently deleted whatever the user wrote as alt text.
+      var child = image.getFirstChild
+      while (child != null) {
+        val next = child.getNext
+        image.insertBefore(child)
+        child = next
+      }
+      image.unlink()
+    }
   }
 
   private def isSameOriginUrl(url: String): Boolean = {

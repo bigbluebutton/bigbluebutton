@@ -63,6 +63,15 @@ class MarkdownUtilSpec extends AnyFlatSpec {
     assert(!html.contains("tracker.example"))
   }
 
+  it should "preserve the alt text as literal text when dropping an external image" in {
+    // The external URL is dropped, but the user's alt text must survive as plain
+    // text rather than being silently deleted along with the whole image node.
+    val html = renderWithImages("![my caption](https://tracker.example/pixel.png)")
+    assert(!html.contains("<img"))
+    assert(!html.contains("tracker.example"))
+    assert(html.contains("my caption"))
+  }
+
   it should "drop a rooted path that is not a file-upload URL" in {
     val html = renderWithImages("![x](/etc/passwd)")
     assert(!html.contains("<img"))
