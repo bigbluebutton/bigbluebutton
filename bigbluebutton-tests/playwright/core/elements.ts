@@ -303,7 +303,6 @@ export const elements = {
   notesImportMarkdownFileLoaded: '[data-test="notesImportMarkdownFileLoaded"]',
   notesImportMarkdownFileRemove: 'button[data-test="notesImportMarkdownFileRemove"]',
   notesImportMarkdownError: '[data-test="notesImportMarkdownError"]',
-  blockNoteEditor: 'div[data-test="notes"] .bn-editor',
   blockNoteImage: 'div[data-test="notes"] .bn-editor img',
   showMoreSharedNotesButton: 'span[class="show-more-icon-btn"]',
   exportSharedNotesButton: 'li[data-key="import_export"] button',
