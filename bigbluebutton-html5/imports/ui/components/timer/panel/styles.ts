@@ -12,6 +12,7 @@ import {
   contentSidebarPadding,
 } from '../../../stylesheets/styled-components/general';
 import {
+  colorBorder,
   colorGrayDark,
   colorBorder,
   colorWhite,

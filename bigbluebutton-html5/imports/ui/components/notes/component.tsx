@@ -40,6 +40,7 @@ import { NotesRenderModeType } from './types';
 import { NOTES_ID, NOTES_UNMOUNT_DELAY } from './service';
 import { GET_PAD_ID, GetPadIdQueryResponse } from './queries';
 import BlockNoteContainer from '../bn-shared-notes/component';
+import { SharedNotesImportContext } from '../bn-shared-notes/import-context';
 
 const intlMessages = defineMessages({
   title: {
@@ -88,10 +89,19 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     handlePinSharedNotes,
   } = props;
   const [shouldRenderNotes, setShouldRenderNotes] = useState(isVisible);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const intl = useIntl();
 
   const isHidden = (isOnMediaArea && (sharedNotesOutput.width === 0 || sharedNotesOutput.height === 0))
     || (!isVisible && !ignoreDelayforUnmount);
+
+  // Shared between the kebab menu (opens the modal) and the BlockNote editor
+  // (renders the modal and applies the import). See import-context.tsx.
+  const importContextValue = React.useMemo(() => ({
+    isImportModalOpen,
+    openImportModal: () => setIsImportModalOpen(true),
+    closeImportModal: () => setIsImportModalOpen(false),
+  }), [isImportModalOpen]);
 
   const timeoutRef = useRef<NodeJS.Timeout>();
   useEffect(() => {
@@ -145,13 +155,14 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
 
   const isEtherpadSharedNotes = sharedNotesEditor === 'etherpad';
 
-  return shouldRenderNotes && (
-    <Styled.PanelContent
-      data-test="notes"
-      isOnMediaArea={isOnMediaArea}
-      isHidden={isHidden}
-      style={isOnMediaArea ? cssProps : {}}
-    >
+  return (shouldRenderNotes || shouldShowSharedNotesOnPresentationArea) && (
+    <SharedNotesImportContext.Provider value={importContextValue}>
+      <Styled.PanelContent
+        data-test="notes"
+        isOnMediaArea={isOnMediaArea}
+        isHidden={isHidden}
+        style={isOnMediaArea ? cssProps : {}}
+      >
       {!isOnMediaArea ? (
         <>
           <PanelHeader
@@ -161,8 +172,8 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
             closeButtonDataTest="hideNotesLabel"
             customRightButton={(
               <NotesDropdown
-                handlePinSharedNotes={handlePinSharedNotes}
                 isEtherpadSharedNotes={isEtherpadSharedNotes}
+                handlePinSharedNotes={handlePinSharedNotes}
                 padId={padId}
               />
             )}
@@ -183,7 +194,8 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
             isVisible={isVisible}
           />
         ) : <BlockNoteContainer />}
-    </Styled.PanelContent>
+      </Styled.PanelContent>
+    </SharedNotesImportContext.Provider>
   );
 };
 
@@ -215,6 +227,9 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
   const { isOpen: isSidebarContentOpen } = sidebarContent;
   const isOnMediaArea = renderMode === NotesRenderMode.PINNED;
   const isGridLayout = useStorageKey('isGridEnabled');
+
+  const shouldShowSharedNotesOnPresentationArea = isGridLayout ? !!currentMeeting?.componentsFlags?.isSharedNotesPinned
+    && isSidebarContentOpen : !!currentMeeting?.componentsFlags?.isSharedNotesPinned;
 
   const [pinSharedNotes] = useMutation(PIN_NOTES);
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);

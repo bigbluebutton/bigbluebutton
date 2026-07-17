@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import {
+  colorBorder,
   colorGrayLabel,
   colorPrimary,
   colorWhite,
@@ -93,6 +94,7 @@ const LocalesDropdownSelect = styled.div`
     background-color: ${colorWhite};
     border: ${borderSize} solid ${colorBorder};
     border-radius: ${lgBorderRadius};  
+    border-bottom: 0.1rem solid ${colorBorder};
     color: ${colorGrayLabel};
     width: 100%;
     height: 3.5rem;

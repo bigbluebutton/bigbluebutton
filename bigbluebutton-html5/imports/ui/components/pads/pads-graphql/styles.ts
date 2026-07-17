@@ -6,7 +6,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorGray,
-  colorGrayLightest,
+  colorBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
 

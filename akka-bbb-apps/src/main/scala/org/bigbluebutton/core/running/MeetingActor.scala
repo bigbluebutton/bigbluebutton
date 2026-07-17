@@ -378,7 +378,8 @@ class MeetingActor(
       } else {
         PadslHdlrHelpers.broadcastBNSharedNotesCreateCmdMsg(
           outGW, liveMeeting.props.meetingProp.intId,
-          sharedNotesPadId, sharedNotesPadId, liveMeeting.props.meetingProp.sharedNotesInitialContentJson
+          sharedNotesPadId, sharedNotesPadId, liveMeeting.props.meetingProp.sharedNotesInitialContentJson,
+          liveMeeting.props.meetingProp.sharedNotesInitialContentMarkdown
         )
       }
     }

@@ -3,7 +3,6 @@ import QuickPollDropdownContainer from '/imports/ui/components/actions-bar/quick
 import {
   colorPrimary,
   colorOffWhite,
-  colorBlueLightest,
   toolbarButtonColor,
   colorWhite,
   colorGrayDark,
@@ -28,6 +27,7 @@ const PresentationToolbarWrapper = styled.div`
   background-color: ${colorOffWhite};
   border-top: 1px solid ${colorBlueLightest};
   border-radius: 0 0 ${lgBorderRadius} ${lgBorderRadius};
+  min-width: fit-content;
   width: 100%;
   bottom: 0px;
   display: grid;

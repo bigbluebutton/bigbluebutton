@@ -15,6 +15,7 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import { useIsPresentationEnabled } from '/imports/ui/services/features';
 import { NOTES_ARE_PINNABLE } from '../service';
 import Auth from '/imports/ui/services/auth';
+import { useSharedNotesImport } from '../../bn-shared-notes/import-context';
 
 const DEBOUNCE_TIMEOUT = 15000;
 
@@ -26,6 +27,14 @@ const intlMessages = defineMessages({
   exportAsPDFLabel: {
     id: 'app.notes.notesDropdown.exportAsPDF',
     description: 'Export shared notes as a PDF file',
+  },
+  exportAsMarkdownLabel: {
+    id: 'app.notes.notesDropdown.exportAsMarkdown',
+    description: 'Export shared notes as a Markdown file',
+  },
+  importFromMarkdownLabel: {
+    id: 'app.notes.notesDropdown.importFromMarkdown',
+    description: 'Import shared notes content from Markdown',
   },
   pinNotes: {
     id: 'app.notes.notesDropdown.pinNotes',
@@ -57,15 +66,34 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
   } = props;
   const [converterButtonDisabled, setConverterButtonDisabled] = useState(false);
   const intl = useIntl();
+  const { openImportModal } = useSharedNotesImport();
+  const NOTES_IS_PINNABLE = window.meetingClientSettings.public.notes.pinnable;
+  // meetingClientSettings is augmented onto Window; globalThis needs the cast to see it.
+  const clientSettings = (globalThis as unknown as Window).meetingClientSettings;
+  const IMPORT_MARKDOWN_ENABLED = clientSettings.public.sharedNotes.importMarkdownEnabled;
+  const EXPORT_MARKDOWN_ENABLED = clientSettings.public.sharedNotes.exportMarkdownEnabled;
 
   const getAvailableActions = () => {
     const uploadIcon = 'upload';
     const pinIcon = 'presentation';
     const downloadIcon = 'download';
+    const importIcon = 'copy';
 
     const menuItems = [];
 
     if (amIPresenter) {
+      if (!isEtherpadSharedNotes && IMPORT_MARKDOWN_ENABLED) {
+        menuItems.push(
+          {
+            key: uniqueId('notes-option-'),
+            icon: importIcon,
+            dataTest: 'importNotesFromMarkdown',
+            label: intl.formatMessage(intlMessages.importFromMarkdownLabel),
+            onClick: () => openImportModal(),
+          },
+        );
+      }
+
       menuItems.push(
         {
           key: uniqueId('notes-option-'),
@@ -98,6 +126,20 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
           },
         },
       );
+
+      if (EXPORT_MARKDOWN_ENABLED) {
+        menuItems.push(
+          {
+            key: uniqueId('notes-option-'),
+            icon: downloadIcon,
+            dataTest: 'exportNotesAsMarkdown',
+            label: intl.formatMessage(intlMessages.exportAsMarkdownLabel),
+            onClick: () => {
+              window.open(`https://${hocuspocusServerHostname}/hocuspocus/api/documents/${padId}/export/md?sessionToken=${sessionToken}`);
+            },
+          },
+        );
+      }
     }
 
     if (amIPresenter && NOTES_ARE_PINNABLE()) {

@@ -25,10 +25,6 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.room',
     description: 'default breakout room name',
   },
-  leaveMeetingLabel: {
-    id: 'app.navBar.leaveMeetingBtnLabel',
-    description: 'Leave meeting button label',
-  },
   openDetailsTooltip: {
     id: 'app.navBar.openDetailsTooltip',
     description: 'Open details tooltip',
@@ -48,6 +44,7 @@ const propTypes = {
   breakoutNum: PropTypes.number,
   breakoutName: PropTypes.string,
   meetingName: PropTypes.string,
+  shortcuts: PropTypes.string,
   pluginNavBarItems: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string,
   })).isRequired,
@@ -84,8 +81,12 @@ const renderPluginItems = (pluginItems) => {
                       disabled={pluginItem.disabled}
                       label={pluginItem.label}
                       aria-label={pluginItem.tooltip}
-                      color="primary"
-                      tooltip={pluginItem.tooltip}
+                      color={pluginItem.color || 'primary'}
+                      circle={pluginItem.circle === true}
+                      hideLabel={pluginItem.hideLabel === true}
+                      size={pluginItem.size || 'md'}
+                      style={pluginItem.style}
+                      tooltipLabel={pluginItem.tooltip}
                       onClick={pluginItem.onClick}
                       dataTest={pluginItem.dataTest}
                       {...navBarIconProps}
@@ -171,6 +172,22 @@ class NavBar extends Component {
           document.title = `${breakoutName} - ${meetingName}`;
         }
       }
+      shortcuts: TOGGLE_USERLIST_AK,
+    } = this.props;
+
+    const { isFirefox } = browserInfo;
+    const { isMacos } = deviceInfo;
+
+    // accessKey U does not work on firefox for macOS for some unknown reason
+    if (isMacos && isFirefox && TOGGLE_USERLIST_AK === 'U') {
+      document.addEventListener('keyup', (event) => {
+        const { key, code } = event;
+        const eventKey = key?.toUpperCase();
+        const eventCode = code;
+        if (event?.altKey && (eventKey === TOGGLE_USERLIST_AK || eventCode === `Key${TOGGLE_USERLIST_AK}`)) {
+          this.handleToggleUserList();
+        }
+      });
     }
   }
 
