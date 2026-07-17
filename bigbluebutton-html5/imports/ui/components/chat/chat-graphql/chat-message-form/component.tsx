@@ -233,10 +233,12 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     if (!ENABLE_IMAGE_PASTE || !file) return;
     if (!isAllowedImage(file)) {
       setError(intl.formatMessage(messages.errorImageType));
+      setHasErrors(true);
       return;
     }
     if (!isWithinSizeLimit(file)) {
       setError(intl.formatMessage(messages.errorImageTooLarge));
+      setHasErrors(true);
       return;
     }
     setPendingImage((prev) => {
@@ -244,6 +246,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
       return { file, previewUrl: URL.createObjectURL(file) };
     });
     setError(null);
+    setHasErrors(false);
   };
 
   const getImageFromDataTransfer = (data: DataTransfer | null): File | null => {

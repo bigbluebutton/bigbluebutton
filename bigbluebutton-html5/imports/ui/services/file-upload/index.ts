@@ -65,6 +65,11 @@ const SERVER_CODE_TO_REASON: Record<string, UploadImageErrorReason> = {
   image_dimensions_exceed_maximum: 'image-too-large',
   unreadable_dimensions: 'unsupported-type',
   storage_failed: 'upload-failed',
+  // The rate limiter has no dedicated user message: rather than teach the user
+  // about request windows, we surface the generic upload-failed message (a retry
+  // is the right action anyway). Mapped explicitly so it does not silently ride
+  // the `?? 'upload-failed'` fallback.
+  rate_limited: 'upload-failed',
 };
 
 /**
