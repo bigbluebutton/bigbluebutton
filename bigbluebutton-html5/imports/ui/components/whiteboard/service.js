@@ -395,12 +395,19 @@ const sanitizeShape = (shape) => {
 // fileUpload path, even if an invalid src ever slipped into a shape's meta.
 const UPLOADED_IMAGE_SRC_PATTERN = /^\/bigbluebutton\/fileUpload\/[A-Za-z0-9-]+\/[a-f0-9-]+\.(png|jpe?g|gif|webp)$/;
 
+// tldraw record ids are `<typeName>:<uniqueId>`, where uniqueId is a url-safe
+// nanoid. assetId reaches us from a remote shape's props (attacker-controllable),
+// and it becomes the id of the asset record we put into the store, so validate
+// its shape before trusting it - a malformed id must not be inserted as a record.
+const TLDRAW_ASSET_ID_PATTERN = /^asset:[A-Za-z0-9_-]+$/;
+
 const reconstructImageAssets = (store, shapes) => {
   if (!store) return;
   shapes.forEach((shape) => {
     const src = shape?.meta?.bbbImageSrc;
     const assetId = shape?.props?.assetId;
     if (shape?.type !== 'image' || !src || !assetId || store.get(assetId)) return;
+    if (!TLDRAW_ASSET_ID_PATTERN.test(assetId)) return;
     if (!UPLOADED_IMAGE_SRC_PATTERN.test(src)) return;
     store.put([{
       id: assetId,
