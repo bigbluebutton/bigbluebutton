@@ -23,7 +23,12 @@ version "0.10.0"
 group "org.bigbluebutton.web"
 
 ext['tomcat.version'] = '10.1.56'
-ext['netty.version'] = '4.1.132.Final'
+ext['netty.version'] = '4.1.135.Final'
+ext['postgresql.version'] = '42.7.13'
+ext['spring-framework.version'] = '6.2.19'
+ext['jackson-bom.version'] = '2.22.1'
+ext['logback.version'] = '1.5.38'
+ext['spring-data-bom.version'] = '2025.0.13'
 
 apply plugin: "eclipse"
 apply plugin: "idea"
