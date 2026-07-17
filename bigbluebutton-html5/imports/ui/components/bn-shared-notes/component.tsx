@@ -50,6 +50,14 @@ import Auth from '/imports/ui/services/auth';
 // producing `ReferenceError: observable is not defined` in the minified bundle.
 (globalThis as unknown as Record<string, unknown>).bbbAwarenessKeepalive = Awareness;
 
+// Exact shape of a same-origin upload URL, mirroring the server-side gates
+// (akka MarkdownUtil.UploadedImagePattern and the whiteboard's
+// UPLOADED_IMAGE_SRC_PATTERN): /bigbluebutton/fileUpload/{meetingId}/{uuid}.{ext}.
+// A full-shape match (not a `startsWith` prefix) is what blocks a backslash
+// bypass like `/bigbluebutton/fileUpload/\evil.com/x.png`, which a browser folds
+// into an external request.
+const UPLOADED_IMAGE_URL_PATTERN = /^\/bigbluebutton\/fileUpload\/[A-Za-z0-9-]+\/[a-f0-9-]+\.(png|jpe?g|gif|webp)$/;
+
 const maxDocumentCharsPluginKey = new PluginKey('maxDocumentChars');
 
 const createMaxDocumentCharsExtension = (
@@ -395,13 +403,17 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     // service authorizes the GET from the sessionToken query param. Without this
     // resolver BlockNote renders `<img src=/bigbluebutton/fileUpload/...>` with no
     // token and the image 401s for author and everyone. resolveFileUrl runs at
-    // display time: same-origin upload URLs get the token via Auth.authenticateURL;
-    // anything else resolves to '' so an image block pointing at an external host
-    // (pasted HTML, or injected straight into the Yjs doc by a crafted client)
-    // never triggers a request that leaks participants' IPs to a third party.
-    // Mirrors the chat renderer's same-origin gate (MarkdownUtil).
+    // display time: only a URL matching the exact upload shape gets the token via
+    // Auth.authenticateURL; anything else resolves to '' so an image block pointing
+    // at an external host (pasted HTML, or injected straight into the Yjs doc by a
+    // crafted client) never triggers a request that leaks participants' IPs to a
+    // third party. Matching the full shape (not just the `/bigbluebutton/fileUpload/`
+    // prefix) mirrors the chat renderer's same-origin gate (MarkdownUtil's
+    // UploadedImagePattern): a lax prefix check would let `/bigbluebutton/fileUpload/\evil.com/x.png`
+    // through, which a browser folds to `https://evil.com/...` - the exact IP-leak
+    // vector the gate exists to close.
     resolveFileUrl: async (url: string) => (
-      url.startsWith('/bigbluebutton/fileUpload/') ? Auth.authenticateURL(url) : ''
+      UPLOADED_IMAGE_URL_PATTERN.test(url) ? Auth.authenticateURL(url) : ''
     ),
     collaboration: {
       provider: { awareness: hocuspocusProvider.awareness || undefined },
