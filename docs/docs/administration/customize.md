@@ -1503,21 +1503,6 @@ public:
 
 Restart BigBlueButton with `sudo bbb-conf --restart` for the change to take effect.
 
-#### Enable Markdown import/export in shared notes
-
-When the BlockNote shared notes editor is in use (`sharedNotesEditor=blockNote`), presenters can import Markdown into the notes and anyone can export the notes as Markdown. Both actions are **disabled by default** so an upgrade does not add new menu buttons unexpectedly. Enable either or both in `/etc/bigbluebutton/bbb-html5.yml`:
-
-```yaml
-public:
-  sharedNotes:
-    importMarkdownEnabled: true
-    exportMarkdownEnabled: true
-```
-
-Restart BigBlueButton with `sudo bbb-conf --restart` for the change to take effect. With `importMarkdownEnabled`, the presenter gets an **Import from Markdown** option that opens a dialog to upload a Markdown file or paste Markdown, and to choose whether the content is appended to (default) or replaces the existing notes. With `exportMarkdownEnabled`, an **Export notes as Markdown** option downloads the notes as a `.md` file. These toggles only affect the BlockNote editor; they are ignored when Etherpad is used.
-
-To seed a session's shared notes with Markdown at creation time instead, pass the `sharedNotesInitialContentMarkdown` / `sharedNotesInitialContentMarkdownUrl` parameters on the [`/create`](/development/api/#get-post-create) call.
-
 #### Show a custom logo on the client
 
 Ensure that the parameter `displayBrandingArea` is set to `true` in bbb-html5's configuration, restart BigBlueButton server with `sudo bbb-conf --restart` and pass `logo=<image-url>` in Custom parameters when creating the meeting.
@@ -1584,6 +1569,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `learningDashboardCleanupDelayInMinutes` | Minutes the Learning Dashboard remains available after the meeting ends | Integer (0=keep permanently) | 2 _`overwritable`_ |
 | `disabledFeatures` | Comma-separated list of features to disable (see [`/create` docs](/development/api/#create) for the full list of feature names) | csv | _(empty)_ _`overwritable`_ |
 | `sharedNotesEditor` | Type of shared notes editor to use | etherpad, blockNote | etherpad _`overwritable`_ |
+| `maxSharedNotesInitialContentUrlPayloadSize` | Maximum size (in KiB) of the response fetched when seeding shared-notes initial content from `sharedNotesInitialContentJsonUrl` / `sharedNotesInitialContentMarkdownUrl` | Integer (KiB) | 1024 |
 | `allowOverrideClientSettingsOnCreateCall` | Allow `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` to be passed on `/create` | true/false | false |
 | `clientSettingsOverrideStrictValidation` | When true, reject the `/create` call (`bbb-web`) and refuse `bbb-apps-akka` boot if a client settings override has unknown or malformed keys. Intended for test/staging (see [Validating client settings overrides](#validating-client-settings-overrides)) | true/false | false |
 | `clientSettingsFilePath` | Path to the `settings.yml` catalog used as the schema for the strict client-settings override validation above | path | `/usr/share/bigbluebutton/html5-client/private/config/settings.yml` |

@@ -147,7 +147,16 @@ If you have made up your mind and would like to use it for all sessions, add the
 
 The BlockNote shared notes editor can now exchange content as Markdown (available in the next 3.0.x release after 3.0.32). From the shared notes options menu, the presenter can choose **Import from Markdown**, which opens a dialog to either upload a Markdown file (drag-and-drop or file picker) or paste Markdown directly. The imported content can be **appended** to the existing notes (the default, so importing never destroys what is already there) or **replace** the whole document. Separately, an **Export notes as Markdown** option downloads the current notes as a `.md` file.
 
-Both options are disabled by default so that a minor upgrade does not add new menu buttons unexpectedly. Enable them with `public.sharedNotes.importMarkdownEnabled` and `public.sharedNotes.exportMarkdownEnabled` in `/etc/bigbluebutton/bbb-html5.yml` — see [Enable Markdown import/export in shared notes](/administration/customize#enable-markdown-importexport-in-shared-notes).
+Both options are **disabled by default** in BigBlueButton 3.0 so that a minor upgrade does not add new menu buttons unexpectedly. Enable either or both in `/etc/bigbluebutton/bbb-html5.yml` and restart with `sudo bbb-conf --restart`:
+
+```yaml
+public:
+  sharedNotes:
+    importMarkdownEnabled: true
+    exportMarkdownEnabled: true
+```
+
+These toggles only affect the BlockNote editor; they are ignored when Etherpad is used.
 
 Integrations can also seed a session's shared notes with Markdown at creation time using the `sharedNotesInitialContentMarkdown` / `sharedNotesInitialContentMarkdownUrl` create parameters (or a `sharedNotesInitialContentMarkdown` POST module). See the [Create API parameters](/development/api/#get-post-create) for details.
 
