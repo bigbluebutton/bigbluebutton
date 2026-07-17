@@ -72,6 +72,18 @@ class MarkdownUtilSpec extends AnyFlatSpec {
     assert(html.contains("my caption"))
   }
 
+  it should "drop an external image nested in the alt text of another external image" in {
+    // CommonMark allows an image inside another image's alt text. When the
+    // outer image is rejected, its alt content is promoted into the document,
+    // so a gate that only recurses into the images it accepts never validates
+    // the nested one and it would render as a real <img> (IP leak).
+    val html = renderWithImages("![foo ![bar](https://evil.com/p.png)](https://evil.com/o.png)")
+    assert(!html.contains("<img"))
+    assert(!html.contains("evil.com"))
+    assert(html.contains("foo"))
+    assert(html.contains("bar"))
+  }
+
   it should "drop a rooted path that is not a file-upload URL" in {
     val html = renderWithImages("![x](/etc/passwd)")
     assert(!html.contains("<img"))

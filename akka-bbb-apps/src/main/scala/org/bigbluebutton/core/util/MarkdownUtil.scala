@@ -162,11 +162,14 @@ object MarkdownUtil {
     val toRemove = new util.ArrayList[Image]()
     root.accept(new AbstractVisitor {
       override def visit(image: Image): Unit = {
-        if (isSameOriginUrl(image.getDestination)) {
-          visitChildren(image)
-        } else {
+        // Validate every image in the AST, including those nested in another
+        // image's alt text (CommonMark allows that). A rejected image's alt
+        // content is promoted into the document below, so a nested image only
+        // validated when its parent is accepted would survive as a real <img>.
+        if (!isSameOriginUrl(image.getDestination)) {
           toRemove.add(image)
         }
+        visitChildren(image)
       }
     })
     val it = toRemove.iterator()
