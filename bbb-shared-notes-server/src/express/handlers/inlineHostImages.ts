@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { JSDOM } from 'jsdom';
 import { Logger } from '../../common/logger';
 import config from '../../config';
 
@@ -18,18 +19,6 @@ const MIME_BY_EXT: Record<string, string> = {
   gif: 'image/gif',
   webp: 'image/webp',
 };
-
-const extractSrc = (imgTag: string): string | null => {
-  const match = /\ssrc\s*=\s*"([^"]*)"/.exec(imgTag);
-  return match ? match[1] : null;
-};
-
-// BlockNote mirrors the image URL into a `data-url` attribute (editor metadata)
-// alongside `src`. That attribute is meaningless in a static export and would
-// otherwise leak the original relative upload path even after `src` is inlined,
-// so it is removed from every <img> tag we keep.
-const stripDataUrlAttr = (imgTag: string): string =>
-  imgTag.replace(/\s+data-url\s*=\s*"[^"]*"/gi, '');
 
 // Reads an uploaded image from disk and returns a base64 data URI, or null when
 // the src is not a valid same-origin upload, references a different meeting than
@@ -88,28 +77,54 @@ const toDataUri = async (src: string, expectedMeetingId: string): Promise<string
  * meeting's upload path and exfiltrate its images (cross-meeting file read).
  */
 export async function inlineHostImages(html: string, expectedMeetingId: string): Promise<string> {
-  const imgTags = html.match(/<img\b[^>]*>/gi);
-  if (!imgTags) return html;
+  // Parse the HTML into a DOM and rewrite <img> nodes, never with a regex.
+  // HTML attribute values legitimately contain '<', '>' and (as `&quot;`) '"',
+  // and the HTML serialization spec leaves '<'/'>' raw inside a quoted value.
+  // A regex over the raw string cannot tell an attribute boundary from a tag
+  // boundary, so it can stop at a '>' that lives inside an `alt`/`data-caption`
+  // value, truncate the tag, and leave the trailing markup live in the output.
+  // Parsing sidesteps that entire class of bug: the DOM knows exactly where each
+  // <img> begins and ends regardless of what its attributes contain.
+  const isFullDocument = /^\s*<(?:!doctype|html)\b/i.test(html);
+  const dom = new JSDOM(html);
+  const { document } = dom.window;
 
-  const replacements = new Map<string, string>();
-  await Promise.all(imgTags.map(async (tag) => {
-    if (replacements.has(tag)) return;
-    const src = extractSrc(tag);
-    // Already-inlined data URIs are same-origin content, leave them untouched
-    // (but still drop the redundant data-url metadata).
-    if (src && src.startsWith('data:')) {
-      replacements.set(tag, stripDataUrlAttr(tag));
-      return;
-    }
+  // Minimal structural types for the DOM operations used below. The tsconfig
+  // intentionally omits the `dom` lib (this is a node service), so the global
+  // Element/HTMLImageElement types are not in scope and the NodeList elements
+  // would otherwise be `unknown`.
+  type ImgNode = {
+    getAttribute(name: string): string | null;
+    setAttribute(name: string, value: string): void;
+    remove(): void;
+  };
+  type WithAttr = { removeAttribute(name: string): void };
+
+  const imgs = Array.from(document.querySelectorAll('img')) as unknown as ImgNode[];
+  await Promise.all(imgs.map(async (img) => {
+    const src = img.getAttribute('src');
+    // Already-inlined data URIs are same-origin content, leave them untouched.
+    if (src && src.startsWith('data:')) return;
     const dataUri = src ? await toDataUri(src, expectedMeetingId) : null;
     if (dataUri) {
-      const inlined = stripDataUrlAttr(tag).replace(/(\ssrc\s*=\s*")[^"]*(")/, `$1${dataUri}$2`);
-      replacements.set(tag, inlined);
+      img.setAttribute('src', dataUri);
     } else {
       // Not a valid same-origin upload (or missing on disk): drop the tag.
-      replacements.set(tag, '');
+      img.remove();
     }
   }));
 
-  return html.replace(/<img\b[^>]*>/gi, (tag) => replacements.get(tag) ?? '');
+  // BlockNote mirrors the image URL into a `data-url` attribute (editor metadata)
+  // on the image wrapper it emits (<figure>/<div>/<a>) as well as on the <img>.
+  // It is meaningless in a static export and would otherwise leak the original
+  // relative upload path even after `src` is inlined, so it is dropped from every
+  // element that still carries it. (The regex version only ever looked at <img>,
+  // so the wrapper's copy of the path always survived - this closes that leak.)
+  const withDataUrl = Array.from(document.querySelectorAll('[data-url]')) as unknown as WithAttr[];
+  withDataUrl.forEach((el) => el.removeAttribute('data-url'));
+
+  // Serialize back in the same shape we received: dom.serialize() for a full
+  // document (production passes `<!DOCTYPE html>...`), body.innerHTML for a bare
+  // fragment (so a fragment in never grows an <html>/<body> wrapper out).
+  return isFullDocument ? dom.serialize() : document.body.innerHTML;
 }

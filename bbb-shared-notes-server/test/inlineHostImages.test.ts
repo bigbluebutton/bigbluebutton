@@ -5,6 +5,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { load, dump } from 'js-yaml';
+import { ServerBlockNoteEditor } from '@blocknote/server-util';
+import { JSDOM } from 'jsdom';
 
 // inlineHostImages reads uploads from config.fileUpload.basePath, and the config
 // loader reads ./config/default.yml relative to the process cwd. So, before
@@ -136,6 +138,44 @@ test('leaves already-inlined data URIs untouched', async () => {
 test('returns HTML unchanged when there are no images', async () => {
   const html = '<p>hello <strong>world</strong></p>';
   assert.equal(await inlineHostImages(html, 'meeting-any'), html);
+});
+
+// Regression guard for the regex-based rewrite this handler used to do. A
+// BlockNote image caption is attacker-controlled text, and blocksToHTMLLossy
+// serializes it into an attribute value with '"' escaped to `&quot;` but '<'
+// and '>' left raw (per the HTML serialization spec). The old
+// `/<img\b[^>]*>/gi` rewrite stopped at the first raw '>' inside such a value,
+// truncating the tag and leaking the trailing markup, and its data-url strip
+// only ever touched <img> so the wrapper's copy of the upload path always
+// survived. Both are structural regex-on-HTML bugs; parsing kills the class.
+test('a malicious image caption from the real serializer cannot yield a live <script> or leak the upload path', async () => {
+  const meetingId = 'meeting-xss';
+  const filename = 'abcdabcd-1234-5678-9abc-def012345678.png';
+  writeUpload(meetingId, filename);
+
+  const url = `/bigbluebutton/fileUpload/${meetingId}/${filename}`;
+  const editor = ServerBlockNoteEditor.create();
+
+  // Exercise both shapes the serializer emits for an image caption: the
+  // <figure data-caption> wrapper (showPreview) and the plain <img alt> tag.
+  const payload = 'x"><script>alert(document.domain)</script>';
+  const fixtures = await Promise.all([
+    editor.blocksToHTMLLossy([{ type: 'image', props: { url, caption: payload, showPreview: true } }] as never),
+    editor.blocksToHTMLLossy([{ type: 'image', props: { url, name: payload, caption: '', showPreview: true } }] as never),
+  ]);
+
+  for (const html of fixtures) {
+    assert.equal(/<script/i.test(html), true, 'the serializer fixture must actually carry the payload');
+    const result = await inlineHostImages(html, meetingId);
+
+    const dom = new JSDOM(result);
+    assert.equal(dom.window.document.querySelectorAll('script').length, 0, 'no live <script> element may survive');
+
+    const expected = `data:image/png;base64,${PNG_BYTES.toString('base64')}`;
+    assert.equal(result.includes(expected), true, 'the same-origin upload must still be inlined');
+    assert.equal(result.includes('/bigbluebutton/fileUpload/'), false, 'the upload path must not leak (src inlined)');
+    assert.equal(/\sdata-url\s*=/.test(result), false, 'the wrapper data-url metadata must be stripped');
+  }
 });
 
 test('handles several images in one document independently', async () => {
