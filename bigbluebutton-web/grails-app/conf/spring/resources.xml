@@ -43,6 +43,12 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="gw" ref="bbbWebApiGWApp"/>
     </bean>
 
+    <bean id="insertDocumentRateLimiter" class="org.bigbluebutton.api.util.RequestRateLimiter"
+          init-method="start" destroy-method="stop">
+        <property name="maxRequests" value="${insertDocumentMaxRequests}"/>
+        <property name="windowSec" value="${insertDocumentRateWindowSec}"/>
+    </bean>
+
     <bean id="sharedNotesRedirectValidator" class="org.bigbluebutton.api.service.impl.SharedNotesRedirectValidatorService">
         <property name="fetchUrlSupportedProtocols" value="${fetchUrlSupportedProtocols}" />
         <property name="fetchUrlBlockedExternalHosts" value="${fetchUrlBlockedExternalHosts}" />

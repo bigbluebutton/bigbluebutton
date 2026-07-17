@@ -1229,6 +1229,21 @@ apps {
 
 Restart your server with `sudo bbb-conf --restart` to apply the changes.
 
+The `bbb-apps-akka` limits above cover uploads made through the client (which request an upload token). Presentations pushed through the `insertDocument` API do not request an upload token, so they are rate limited separately in `bbb-web`, per meeting:
+
+- **30** `insertDocument` calls per meeting within a rolling **60-second** window (`insertDocumentMaxRequests` / `insertDocumentRateWindowSec`).
+
+When a meeting exceeds this rate, the `insertDocument` request is rejected with a `FAILED` response and a warning is logged in `bbb-web`. To change the values (or set `insertDocumentMaxRequests=0` to disable the limit), add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties`:
+
+```properties
+#----------------------------------------------------
+# Rate limit for the insertDocument API, applied per meeting (defaults: 30 per 60s).
+insertDocumentMaxRequests=30
+insertDocumentRateWindowSec=60
+```
+
+Restart your server with `sudo bbb-conf --restart` to apply the changes.
+
 #### Add custom fonts for presentation conversion
 
 Starting with BigBlueButton 2.3 we added support for using additional fonts when converting presentation files.

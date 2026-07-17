@@ -276,6 +276,8 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 - `requireUserConsentBeforeUnmuting` added (default `false`). Only relevant when `allowModsToUnmuteUsers=true`; when `true`, a consent dialog is shown before a moderator can unmute a participant.
 - `maskTagThreshold` added (default `0` = disabled). When set to `N`, any slide whose generated SVG contains `N` or more `<mask>` tags falls back to full-slide rasterization during conversion; see [Rasterize slides whose SVG contains mask tags](/administration/customize#rasterize-slides-whose-svg-contains-mask-tags).
 - `maxPresentationsPerRequest` added in BBB 3.0
+- `insertDocumentMaxRequests` added in BBB 3.0
+- `insertDocumentRateWindowSec` added in BBB 3.0
 
 ### Client settings (settings.yml) changes
 
