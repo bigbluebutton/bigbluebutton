@@ -52,6 +52,17 @@ else
 	echo "Sudoers file already exists"
 fi;
 
+FILE_SUDOERS_PPTX_CHECK=`[ -f /etc/sudoers.d/zzz-bbb-docker-libreoffice-pptx ] && echo 1 || echo 0`
+if [ "$FILE_SUDOERS_PPTX_CHECK" = "0" ]; then
+	echo "PPTX sudoers file doesn't exist, installing"
+	cp assets/zzz-bbb-docker-libreoffice-pptx \
+		/etc/sudoers.d/zzz-bbb-docker-libreoffice-pptx
+	chmod 0440 /etc/sudoers.d/zzz-bbb-docker-libreoffice-pptx
+	chown root:root /etc/sudoers.d/zzz-bbb-docker-libreoffice-pptx
+else
+	echo "PPTX sudoers file already exists"
+fi
+
 aptInstalledList=$(apt list --installed 2>&1)
 fontInstalled=0
 
