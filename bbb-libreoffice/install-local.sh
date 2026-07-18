@@ -37,6 +37,8 @@ if [ "$FOLDER_CHECK" = "0" ]; then
 	install -Dm755 assets/convert-local.sh /usr/share/bbb-libreoffice-conversion/convert.sh
 	install -Dm755 assets/convert-cool.sh /usr/share/bbb-libreoffice-conversion/convert-cool.sh
 	install -Dm755 assets/etherpad-export.sh /usr/share/bbb-libreoffice-conversion/etherpad-export.sh
+	install -Dm755 assets/run-pptx-fixes-in-container.sh /usr/share/bbb-libreoffice-conversion/run-pptx-fixes-in-container.sh
+	install -Dm644 assets/convert_pptx_with_bullet_and_autofit_fixes.py /usr/share/bbb-libreoffice-conversion/convert_pptx_with_bullet_and_autofit_fixes.py
 	chown -R root /usr/share/bbb-libreoffice-conversion/
 else
 	echo "Install folder already exists"
