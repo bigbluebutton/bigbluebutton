@@ -33,12 +33,13 @@ mkdir -p "${profileDir}"
 
 sofficePid=$!
 
+# Add any of these options below when needed:
+# --skip-bullet-normalization
+# --skip-asian-western-spacing-fix
+# --skip-autofit-relayout
 if ! /opt/libreoffice25.8/program/python \
     /data/convert_pptx_with_bullet_and_autofit_fixes.py \
     "${pipeName}" \
-#    --skip-bullet-normalization \
-#    --skip-asian-western-spacing-fix \
-#    --skip-autofit-relayout \
     /data/file.pptx \
     /data/file.pdf; then
   cat "${logFile}" >&2 || true
