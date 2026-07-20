@@ -6,7 +6,6 @@ java {
 }
 
 version = '0.0.1'
-jar.enabled = true
 base {
     archivesName = 'bbb-pres-check'
 }
@@ -34,10 +33,7 @@ dependencies {
 }
 
 jar {
-    manifest.mainAttributes("Permissions": "all-permissions")
-    manifest.mainAttributes("Codebase": "*")
-    manifest.mainAttributes("Application-Name": "BigBlueButton Presentation Checker")
-    manifest.mainAttributes("Application-Library-Allowable-Codebase": "*")
-    manifest.mainAttributes("Caller-Allowable-Codebase": "*")
-    manifest.mainAttributes("Trusted-Only": "true")
+    manifest {
+        attributes('Main-Class': 'org.bigbluebutton.prescheck.Main')
+    }
 }
