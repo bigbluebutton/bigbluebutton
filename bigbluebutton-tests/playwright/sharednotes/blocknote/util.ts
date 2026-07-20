@@ -71,3 +71,16 @@ export function readLinkAndCursorState(testPage: Page) {
     { sel: BLOCKNOTE_EDITOR, wordJoiner: WORD_JOINER },
   );
 }
+
+// Helpers backported from #25165. On 3.0 the shared-notes sidebar button carries
+// data-test="sharedNotes" (renamed to sharedNotesSidebarButton on 4.0), so this
+// helper opens the panel via e.sharedNotes to match the 3.0 client.
+export async function startSharedNotesBlockNote(testPage: Page) {
+  await testPage.waitAndClick(e.sharedNotes);
+  await testPage.waitForSelector(e.hideNotesLabel, ELEMENT_WAIT_LONGER_TIME);
+  await testPage.hasElement(e.blockNoteEditable, 'should display the BlockNote editor', ELEMENT_WAIT_LONGER_TIME);
+}
+
+export function getBlockNoteReadOnlyLocator(testPage: Page) {
+  return testPage.page.locator(e.blockNoteReadOnly);
+}

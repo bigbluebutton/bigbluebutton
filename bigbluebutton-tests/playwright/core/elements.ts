@@ -255,6 +255,17 @@ export const elements = {
   unpinNotes: 'button[data-test="unpinNotes"]',
   exportetherpad: 'span[id="exportetherpad"]',
   exporthtml: 'span[id="exporthtml"]',
+
+  // BlockNote specific
+  blockNoteContainer: '#bn-notes-scroll-container',
+  blockNoteEditor: '#bn-notes-scroll-container .bn-editor',
+  blockNoteEditable: '#bn-notes-scroll-container .bn-editor[contenteditable="true"]',
+  blockNoteReadOnly: '#bn-notes-scroll-container .bn-editor[contenteditable="false"]',
+  blockNoteToolbar: 'div[data-test="blockNoteToolbar"]',
+  blockNoteUnderlineButton: 'div[data-test="blockNoteToolbar"] button[aria-label="Underline"]',
+  notesConnectionError: '[data-test="notesError"]',
+  notesRetryButton: 'button[data-test="notesRetryButton"]',
+
   // Notifications
   smallToastMsg: 'div[data-test="toastSmallMsg"]',
   closeToastBtn: 'i[data-test="closeToastBtn"]',
