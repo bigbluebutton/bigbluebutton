@@ -109,7 +109,7 @@ rm -rf "$buildbase"
 
 # shellcheck disable=SC2086
 fpm -s dir -C "$DESTDIR" -n "$PACKAGE" \
-    --version "$VERSION" --epoch 2 \
+    --version $VERSION --epoch $EPOCH \
     --before-install before-install.sh \
     --after-install after-install.sh \
     --before-remove before-remove.sh \
