@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { defineMessages, useIntl } from 'react-intl';
 import { useReactiveVar } from '@apollo/client';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';

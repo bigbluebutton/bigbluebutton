@@ -67,7 +67,6 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
   const [converterButtonDisabled, setConverterButtonDisabled] = useState(false);
   const intl = useIntl();
   const { openImportModal } = useSharedNotesImport();
-  const NOTES_IS_PINNABLE = window.meetingClientSettings.public.notes.pinnable;
   // meetingClientSettings is augmented onto Window; globalThis needs the cast to see it.
   const clientSettings = (globalThis as unknown as Window).meetingClientSettings;
   const IMPORT_MARKDOWN_ENABLED = clientSettings.public.sharedNotes.importMarkdownEnabled;

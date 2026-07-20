@@ -6,6 +6,7 @@ import {
   toolbarButtonColor,
   colorWhite,
   colorGrayDark,
+  colorBlueLightest,
   toolbarButtonColorDisabled,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {

@@ -14,8 +14,6 @@ import {
   colorDanger,
   userListBg,
   colorWhite,
-  colorGrayLighter,
-  colorBlueLight,
   colorBlueAux,
   listItemBgHover,
   colorText,

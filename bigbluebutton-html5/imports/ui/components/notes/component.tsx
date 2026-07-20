@@ -20,6 +20,7 @@ import {
   layoutSelect,
 } from '/imports/ui/components/layout/context';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useHasPermission from './hooks/useHasPermission';
 import Styled from './styles';
 import { PIN_NOTES } from './mutations';
@@ -71,6 +72,7 @@ interface NotesGraphqlProps {
   ignoreDelayforUnmount: boolean;
   isRTL: boolean;
   handlePinSharedNotes: (pinned: boolean) => void;
+  shouldShowSharedNotesOnPresentationArea: boolean;
 }
 
 const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
@@ -87,6 +89,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     amIPresenter,
     ignoreDelayforUnmount,
     handlePinSharedNotes,
+    shouldShowSharedNotesOnPresentationArea,
   } = props;
   const [shouldRenderNotes, setShouldRenderNotes] = useState(isVisible);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
@@ -208,6 +211,10 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
     presenter: user.presenter,
   }));
 
+  const { data: currentMeeting } = useMeeting((meeting) => ({
+    componentsFlags: meeting.componentsFlags,
+  }));
+
   const cameraDock = layoutSelectInput((i: Input) => i.cameraDock);
   const sharedNotesOutput = layoutSelectOutput((i: Output) => i.sharedNotes);
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
@@ -270,6 +277,7 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
       amIPresenter={amIPresenter}
       isRTL={isRTL}
       handlePinSharedNotes={handlePinSharedNotes}
+      shouldShowSharedNotesOnPresentationArea={shouldShowSharedNotesOnPresentationArea}
     />
   );
 };
