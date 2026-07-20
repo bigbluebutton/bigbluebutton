@@ -62,7 +62,6 @@ public class Meeting {
 	private String welcomeMsgForModerators = "";
 	private String loginUrl;
 	private String logoutUrl;
-	private int logoutTimer = 0;
 	private int maxUsers;
 	private String bannerColor = "#FFFFFF";
 	private String bannerText = "";
@@ -170,7 +169,6 @@ public class Meeting {
         bannerText = builder.bannerText;
         loginUrl = builder.loginUrl;
         logoutUrl = builder.logoutUrl;
-        logoutTimer = builder.logoutTimer;
         defaultAvatarURL = builder.defaultAvatarURL;
         defaultBotAvatarURL = builder.defaultBotAvatarURL;
 				defaultWebcamBackgroundURL = builder.defaultWebcamBackgroundURL;
@@ -661,10 +659,6 @@ public class Meeting {
 		return maxUserConcurrentAccesses;
 	}
 
-	public int getLogoutTimer() {
-		return logoutTimer;
-	}
-
 	public String getBannerColor() {
 		return bannerColor;
 	}
@@ -1082,7 +1076,6 @@ public class Meeting {
 			private String cameraBridge;
 			private String screenShareBridge;
 			private String audioBridge;
-    	private int logoutTimer;
     	private Map<String, String> metadata;
     	private Map<String, String> pluginMetadataParametersMap;
     	private String dialNumber;
@@ -1314,11 +1307,6 @@ public class Meeting {
     	public Builder withLogoutUrl(String l) {
     	  logoutUrl = l;
     	  return this;
-    	}
-
-    	public Builder withLogoutTimer(int l) {
-    		logoutTimer = l;
-    		return this;
     	}
 
     	public Builder withBannerColor(String c) {

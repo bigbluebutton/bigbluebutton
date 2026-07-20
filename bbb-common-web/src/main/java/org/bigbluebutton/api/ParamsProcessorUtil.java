@@ -143,7 +143,6 @@ public class ParamsProcessorUtil {
 
     private Long maxPresentationFileUpload = 30000000L; // 30MB
 
-    private Integer clientLogoutTimerInMinutes = 0;
     private Integer defaultMeetingExpireIfNoUserJoinedInMinutes = 5;
     private Integer defaultMeetingExpireWhenLastUserLeftInMinutes = 1;
   	private Integer userInactivityInspectTimerInMinutes = 120;
@@ -610,7 +609,6 @@ public class ParamsProcessorUtil {
         boolean record = processRecordMeeting(params.get(ApiParams.RECORD));
         int maxUsers = processMaxUser(params.get(ApiParams.MAX_PARTICIPANTS));
         int meetingDuration = processMeetingDuration(params.get(ApiParams.DURATION));
-        int logoutTimer = processLogoutTimer(params.get(ApiParams.LOGOUT_TIMER));
 
         // Banner parameters
         String bannerText = params.get(ApiParams.BANNER_TEXT);
@@ -993,7 +991,6 @@ public class ParamsProcessorUtil {
                 .withDuration(meetingDuration)
                 .withLoginUrl(loginUrl)
                 .withLogoutUrl(logoutUrl)
-                .withLogoutTimer(logoutTimer)
                 .withBannerText(bannerText).withBannerColor(bannerColor)
                 .withTelVoice(telVoice).withWebVoice(webVoice)
                 .withDialNumber(dialNumber)
@@ -1359,18 +1356,6 @@ public class ParamsProcessorUtil {
     return mDuration;
   }
 
-	public int processLogoutTimer(String logoutTimer) {
-		int mDuration = clientLogoutTimerInMinutes;
-
-		try {
-			mDuration = Integer.parseInt(logoutTimer);
-		} catch(Exception ex) {
-			mDuration = clientLogoutTimerInMinutes;
-		}
-
-		return mDuration;
-	}
-
     public boolean isTestMeeting(String telVoice) {
         return ((!StringUtils.isEmpty(telVoice)) && (!StringUtils.isEmpty(testVoiceBridge))
                 && (telVoice.equals(testVoiceBridge)));
@@ -1683,10 +1668,6 @@ public class ParamsProcessorUtil {
 
     public void setDefaultMeetingLayout(String meetingLayout) {
 		this.defaultMeetingLayout =  meetingLayout;
-	}
-
-	public void setClientLogoutTimerInMinutes(Integer value) {
-		clientLogoutTimerInMinutes = value;
 	}
 
 	public void setMeetingExpireWhenLastUserLeftInMinutes(Integer value) {
