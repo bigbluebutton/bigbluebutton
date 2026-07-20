@@ -46,13 +46,13 @@ fi
 pptxFixer="/usr/share/bbb-libreoffice-conversion/convert_pptx_with_bullet_and_autofit_fixes.py"
 pptxRunner="/usr/share/bbb-libreoffice-conversion/run-pptx-fixes-in-container.sh"
 
-if [[ "${inputForConversion,,}" == *.pptx && "${convertTo,,}" == "pdf" ]]; then
+if [[ "${source,,}" == *.pptx && "${convertTo,,}" == "pdf" ]]; then
   if [[ ! -r "${pptxFixer}" || ! -r "${pptxRunner}" ]]; then
     echo "PPTX conversion helper is not readable" >&2
     exit 1
   fi
 
-  cp "${inputForConversion}" "${tempDir}/file.pptx"
+  cp "${source}" "${tempDir}/file.pptx"
   cp "${pptxFixer}" "${tempDir}/convert_pptx_with_bullet_and_autofit_fixes.py"
   cp "${pptxRunner}" "${tempDir}/run-pptx-fixes-in-container.sh"
 
