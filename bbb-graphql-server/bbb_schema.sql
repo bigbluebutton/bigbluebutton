@@ -1477,7 +1477,10 @@ SELECT 	"user"."meetingId",
 		CASE WHEN "chat"."access" = 'PUBLIC_ACCESS' THEN true ELSE false end "public",
         "chat"."pinnedMessageId",
         "chat"."pinnedByUserId",
-        "chat"."pinnedAt"
+        "chat"."pinnedAt",
+        last_msg."lastMessage",
+        last_msg."lastMessageAt",
+        deleted_by."name" AS "lastMessageDeletedByName"
 FROM "user"
 JOIN "chat_user" cu ON cu."meetingId" = "user"."meetingId" AND cu."userId" = "user"."userId"
 --now it will always add chat_user for public chat onUserJoin
@@ -1487,6 +1490,24 @@ LEFT JOIN "chat_user" chat_with ON chat_with."meetingId" = chat."meetingId" AND
                                     chat_with."chatId" = chat."chatId" AND
                                     chat_with."userId" != cu."userId"  AND
                                     chat_with."chatId" != 'MAIN-PUBLIC-GROUP-CHAT'
+--last message preview for the chats list (issue 25416): resolved here so the private
+--chat list renders the preview from the chats subscription itself, instead of gating it
+--behind a per-item subscription that mounts the row a moment later and shifts the list.
+--Index Scan Backward on idx_v_chat_message_unread ("meetingId","chatId","createdAt") -> rows=1.
+LEFT JOIN LATERAL (
+    SELECT cm."message"         AS "lastMessage",
+           cm."createdAt"       AS "lastMessageAt",
+           cm."deletedByUserId" AS "lastMessageDeletedByUserId"
+    FROM "chat_message" cm
+    WHERE cm."meetingId" = "user"."meetingId"
+      AND cm."chatId"    = cu."chatId"
+    ORDER BY cm."createdAt" DESC
+    LIMIT 1
+) last_msg ON true
+--resolve the deleter's display name so a soft-deleted last message (message=NULL,
+--deletedByUserId set) can reuse the existing "deleted by {userName}" preview label.
+LEFT JOIN "user" deleted_by ON deleted_by."meetingId" = "user"."meetingId"
+                           AND deleted_by."userId"    = last_msg."lastMessageDeletedByUserId"
 WHERE cu."visible" is true;
 
 CREATE INDEX "idx_v_chat_with" on chat_user("meetingId","chatId","userId") WHERE "chatId" != 'MAIN-PUBLIC-GROUP-CHAT';
