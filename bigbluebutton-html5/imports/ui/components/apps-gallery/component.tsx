@@ -7,6 +7,7 @@ import React, {
 import { defineMessages, useIntl } from 'react-intl';
 import { AppsGalleryProps, APPS_GALLERY_VIEW_MODE, AppsGalleryViewModeType } from './types';
 import { PANELS } from '/imports/ui/components/layout/enums';
+import { layoutSelectOutput } from '/imports/ui/components/layout/context';
 import { InjectedAppGalleryItem } from '/imports/ui/components/layout/layoutTypes';
 import Styled from './styles';
 import AppItem from './app-item/component';
@@ -51,6 +52,10 @@ const intlMessages = defineMessages({
     id: 'app.appsGallery.gridViewLabel',
     description: 'Tooltip label for the grid view toggle button',
   },
+  gridViewDisabledLabel: {
+    id: 'app.appsGallery.gridViewDisabledLabel',
+    description: 'Tooltip label for the grid view toggle button when disabled on a narrow panel',
+  },
   listViewLabel: {
     id: 'app.appsGallery.listViewLabel',
     description: 'Tooltip label for the list view toggle button',
@@ -58,6 +63,10 @@ const intlMessages = defineMessages({
 });
 
 const VIEW_MODE_STORAGE_KEY = 'apps-gallery-view-mode';
+
+// Below this sidebar-content width a two-column grid can't fit two legible
+// tiles, so the gallery falls back to the list view regardless of preference.
+const GRID_MIN_SIDEBAR_WIDTH = 340; // px
 
 const getInitialViewMode = (): AppsGalleryViewModeType => {
   if (deviceInfo.isMobile) return APPS_GALLERY_VIEW_MODE.LIST;
@@ -79,12 +88,16 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
   const [viewMode, setViewMode] = useState<AppsGalleryViewModeType>(getInitialViewMode);
   const [meetingSettings] = useMeetingSettings();
   const { isMobile } = deviceInfo;
+  const sidebarContent = layoutSelectOutput((i: { sidebarContent: { width: number } }) => i.sidebarContent);
+  const isNarrow = Boolean(sidebarContent?.width && sidebarContent.width < GRID_MIN_SIDEBAR_WIDTH);
+  const effectiveViewMode = isNarrow ? APPS_GALLERY_VIEW_MODE.LIST : viewMode;
   const appsToLabelAsNew = meetingSettings?.public?.sidebarNavigation?.appsToLabelAsNew || [];
   const shouldAddIsNewLabel = useCallback((id: string) => appsToLabelAsNew.includes(id), [appsToLabelAsNew]);
 
   const pinTooltip = intl.formatMessage(intlMessages.pinTooltip);
   const unpinTooltip = intl.formatMessage(intlMessages.unpinTooltip);
   const gridViewLabel = intl.formatMessage(intlMessages.gridViewLabel);
+  const gridViewDisabledLabel = intl.formatMessage(intlMessages.gridViewDisabledLabel);
   const listViewLabel = intl.formatMessage(intlMessages.listViewLabel);
 
   const handleViewModeChange = (mode: AppsGalleryViewModeType) => {
@@ -123,7 +136,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
         onClick={onClick}
         pinTooltip={pinTooltip}
         unpinTooltip={unpinTooltip}
-        viewMode={viewMode}
+        viewMode={effectiveViewMode}
       />
     );
   };
@@ -133,7 +146,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
       .sort((a, b) => registeredApps[a].name.localeCompare(registeredApps[b].name))
       .filter((key) => !normalizedQuery || registeredApps[key].name.toLowerCase().includes(normalizedQuery))
       .map((key) => renderAppItem(key, true))
-  ), [registeredApps, pinnedApps, normalizedQuery, pinTooltip, unpinTooltip, shouldAddIsNewLabel, viewMode]);
+  ), [registeredApps, pinnedApps, normalizedQuery, pinTooltip, unpinTooltip, shouldAddIsNewLabel, effectiveViewMode]);
 
   const renderedUnpinnedApps = useMemo(() => {
     const unpinnedKeys = Object.keys(registeredApps)
@@ -151,7 +164,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
       .sort((a, b) => registeredApps[a].name.localeCompare(registeredApps[b].name));
 
     return [...newApps, ...regularApps].map((key) => renderAppItem(key, false));
-  }, [registeredApps, pinnedApps, normalizedQuery, pinTooltip, unpinTooltip, shouldAddIsNewLabel, viewMode]);
+  }, [registeredApps, pinnedApps, normalizedQuery, pinTooltip, unpinTooltip, shouldAddIsNewLabel, effectiveViewMode]);
 
   return (
     <>
@@ -186,12 +199,13 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
         </span>
         {!isMobile && (
           <Styled.ViewToggleWrapper>
-            <TooltipContainer title={gridViewLabel}>
+            <TooltipContainer title={isNarrow ? gridViewDisabledLabel : gridViewLabel}>
               <Styled.ViewToggleButton
-                $active={viewMode === APPS_GALLERY_VIEW_MODE.GRID}
-                onClick={() => handleViewModeChange(APPS_GALLERY_VIEW_MODE.GRID)}
-                aria-pressed={viewMode === APPS_GALLERY_VIEW_MODE.GRID}
-                aria-label={gridViewLabel}
+                $active={effectiveViewMode === APPS_GALLERY_VIEW_MODE.GRID}
+                onClick={() => !isNarrow && handleViewModeChange(APPS_GALLERY_VIEW_MODE.GRID)}
+                aria-pressed={effectiveViewMode === APPS_GALLERY_VIEW_MODE.GRID}
+                aria-disabled={isNarrow}
+                aria-label={isNarrow ? gridViewDisabledLabel : gridViewLabel}
                 data-test="appsGalleryGridView"
               >
                 <Icon iconName="apps_tiles" />
@@ -199,9 +213,9 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
             </TooltipContainer>
             <TooltipContainer title={listViewLabel}>
               <Styled.ViewToggleButton
-                $active={viewMode === APPS_GALLERY_VIEW_MODE.LIST}
+                $active={effectiveViewMode === APPS_GALLERY_VIEW_MODE.LIST}
                 onClick={() => handleViewModeChange(APPS_GALLERY_VIEW_MODE.LIST)}
-                aria-pressed={viewMode === APPS_GALLERY_VIEW_MODE.LIST}
+                aria-pressed={effectiveViewMode === APPS_GALLERY_VIEW_MODE.LIST}
                 aria-label={listViewLabel}
                 data-test="appsGalleryListView"
               >
@@ -213,7 +227,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
       </Styled.DescWrapper>
       <Styled.Wrapper id="scroll-box">
         {renderedPinnedApps.length > 0 && (
-          viewMode === APPS_GALLERY_VIEW_MODE.GRID
+          effectiveViewMode === APPS_GALLERY_VIEW_MODE.GRID
             ? <Styled.TileAppsWrapper>{renderedPinnedApps}</Styled.TileAppsWrapper>
             : <Styled.PinnedAppsWrapper>{renderedPinnedApps}</Styled.PinnedAppsWrapper>
         )}
@@ -221,7 +235,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
           <Styled.SectionSeparator />
         )}
         {renderedUnpinnedApps.length > 0 && (
-          viewMode === APPS_GALLERY_VIEW_MODE.GRID
+          effectiveViewMode === APPS_GALLERY_VIEW_MODE.GRID
             ? <Styled.TileAppsWrapper>{renderedUnpinnedApps}</Styled.TileAppsWrapper>
             : <Styled.UnpinnedAppsWrapper>{renderedUnpinnedApps}</Styled.UnpinnedAppsWrapper>
         )}

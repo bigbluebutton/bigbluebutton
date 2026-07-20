@@ -132,8 +132,9 @@ const PinApp = styled.div<{pinned: boolean}>`
 const DescWrapper = styled.div`
   padding: 0 ${contentSidebarPadding} 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  gap: 0.5rem;
 `;
 
 const BoldText = styled.span`
@@ -230,11 +231,20 @@ const ViewToggleButton = styled.button<{ $active: boolean }>`
     background-color: ${appsGalleryOutlineColor};
     color: ${colorPrimary};
   }
+
+  &[aria-disabled="true"] {
+    cursor: not-allowed;
+
+    &:hover {
+      background-color: transparent;
+      color: ${unpinnedAppIconColor};
+    }
+  }
 `;
 
 const TileAppsWrapper = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: ${appsPanelItemsSpacing};
   width: 100%;
 `;
