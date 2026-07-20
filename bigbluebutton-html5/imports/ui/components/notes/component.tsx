@@ -182,7 +182,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
             amIPresenter={amIPresenter}
             isVisible={isVisible}
           />
-        ) : <BlockNoteContainer />}
+        ) : <BlockNoteContainer isVisible={isVisible} />}
     </Styled.PanelContent>
   );
 };
