@@ -1,36 +1,33 @@
 repositories {
   mavenCentral()
   mavenLocal()
-  maven { url "https://repo.grails.org/grails/core" }
+  maven { url = "https://repo.grails.org/grails/core" }
 }
 
 buildscript {
   repositories {
     mavenCentral()
     mavenLocal()
-    maven { url "https://repo.grails.org/grails/core" }
+    maven { url = "https://repo.grails.org/grails/core" }
   }
   dependencies {
     classpath platform("org.apache.grails:grails-gradle-bom:${grailsVersion}")
     classpath "org.apache.grails:grails-gradle-plugins"
     classpath "com.github.erdi:webdriver-binaries-gradle-plugin:3.2"
-    // Asset Pipeline plugin classpath is optional if you use plugins DSL; keeping here is fine:
-    classpath "com.bertramlabs.plugins:asset-pipeline-gradle:5.0.9"
+    // Asset Pipeline moved from com.bertramlabs.plugins to cloud.wondrify for Grails 8
+    classpath "cloud.wondrify:asset-pipeline-gradle:5.2.0-M1"
   }
 }
 
-version "0.10.0"
-group "org.bigbluebutton.web"
-
-ext['tomcat.version'] = '10.1.55'
-ext['netty.version'] = '4.1.132.Final'
+version = "0.10.0"
+group = "org.bigbluebutton.web"
 
 apply plugin: "eclipse"
 apply plugin: "idea"
 apply plugin: "war"
 apply plugin: "org.apache.grails.gradle.grails-web"
 apply plugin: "org.apache.grails.gradle.grails-gsp"
-apply plugin: "com.bertramlabs.asset-pipeline"
+apply plugin: "cloud.wondrify.asset-pipeline"
 apply plugin: "com.github.erdi.webdriver-binaries"
 apply plugin: "org.apache.grails.gradle.grails-gson"
 
@@ -43,7 +40,7 @@ task resolveDeps(type: Copy) {
 }
 
 task copyWebInf(type: Copy) {
-  into("${project.buildDir}/resources/main/")
+  into(layout.buildDirectory.dir("resources/main"))
   from("src/main/webapp")
 }
 processResources.dependsOn copyWebInf
@@ -51,7 +48,7 @@ processResources.dependsOn copyWebInf
 repositories {
   mavenCentral()
   mavenLocal()
-  maven { url "https://repo.grails.org/grails/core" }
+  maven { url = "https://repo.grails.org/grails/core" }
 }
 
 dependencies {
@@ -61,12 +58,6 @@ dependencies {
   implementation "org.springframework.boot:spring-boot-starter-logging:${springVersion}"
 //  implementation "org.springframework.boot:spring-boot-starter-actuator:${springVersion}"
   implementation "org.springframework.boot:spring-boot-starter-tomcat:${springVersion}"
-
-  // Override transitive tomcat-embed from spring-boot-starter-tomcat.
-  // TODO: remove once springVersion >= 3.5.15 (which will manage a fixed tomcat-embed).
-  implementation "org.apache.tomcat.embed:tomcat-embed-core:10.1.55"
-  implementation "org.apache.tomcat.embed:tomcat-embed-websocket:10.1.55"
-  implementation "org.apache.tomcat.embed:tomcat-embed-el:10.1.55"
 
   implementation "org.apache.grails:grails-core"
   implementation "org.apache.grails:grails-logging"
@@ -82,9 +73,9 @@ dependencies {
 //  implementation "org.grails.plugins:external-config:1.2.2"
 //  implementation "org.yaml:snakeyaml:1.33"
 
-  implementation "jakarta.validation:jakarta.validation-api:3.0.2"
-  implementation "org.hibernate.validator:hibernate-validator:8.0.1.Final"
-  implementation "org.glassfish:jakarta.el:4.0.2"
+  // Jakarta EE 11 levels (Spring Boot 4.1 manages HV 9.x; EL impl comes from tomcat-embed-el)
+  implementation "jakarta.validation:jakarta.validation-api:3.1.1"
+  implementation "org.hibernate.validator:hibernate-validator:9.1.0.Final"
 
   implementation "org.apache.xmlbeans:xmlbeans:5.0.3"
   implementation "org.apache.groovy:groovy-xml"
@@ -94,7 +85,7 @@ dependencies {
   implementation "org.bigbluebutton:bbb-common-web:0.0.5-SNAPSHOT"
 
   implementation "io.lettuce:lettuce-core"
-  implementation "io.projectreactor:reactor-core:3.6.0"
+  implementation "io.projectreactor:reactor-core"
   implementation "org.reactivestreams:reactive-streams:1.0.4"
 
   implementation "org.freemarker:freemarker:2.3.34"

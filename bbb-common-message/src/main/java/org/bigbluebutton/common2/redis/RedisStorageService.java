@@ -43,8 +43,9 @@ public class RedisStorageService extends RedisAwareCommunicator {
 
     public void start() {
         log.info("Starting RedisStorageService with client name: clientName={}", clientName);
+        // withPassword(char[]): the String overload was removed in Lettuce 7
         RedisURI redisUri = RedisURI.Builder.redis(this.host, this.port).withClientName(this.clientName)
-                .withPassword(this.password).build();
+                .withPassword(this.password.toCharArray()).build();
 
         redisClient = RedisClient.create(redisUri);
         redisClient.setOptions(ClientOptions.builder().autoReconnect(true).build());
