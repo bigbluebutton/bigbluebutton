@@ -174,6 +174,7 @@ export const elements = {
   publicUnreadIndicator: 'span[data-test="publicUnreadIndicator"]',
   privateUnreadIndicator: 'span[data-test="privateUnreadIndicator"]',
   privateChats: 'div[data-test="private-user-list-header"]',
+  privateChatListContent: 'div[data-test="private-user-list-content"]',
   privateChat: 'div[data-test="messageContent"] p>>nth=1',
   hidePublicChat: 'button[data-test="hidePublicChat"]',
   hidePrivateChat: 'button[data-test="hidePrivateChat"]',

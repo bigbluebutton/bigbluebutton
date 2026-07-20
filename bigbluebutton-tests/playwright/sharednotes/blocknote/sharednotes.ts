@@ -3,7 +3,13 @@ import { expect, Response } from '@playwright/test';
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../../core/constants';
 import { elements as e } from '../../core/elements';
 import { MultiUsers } from '../../user/multiusers';
-import { getBlockNoteEditorLocator, getBlockNoteReadOnlyLocator, startSharedNotesBlockNote } from './util';
+import {
+  getBlockNoteEditorLocator,
+  getBlockNoteReadOnlyLocator,
+  hasNoUnreadNotesIndicator,
+  startSharedNotesBlockNote,
+  unreadNotesIndicatorStaysHidden,
+} from './util';
 
 export class BlockNoteSharedNotes extends MultiUsers {
   async openSharedNotes() {
@@ -404,5 +410,43 @@ export class BlockNoteSharedNotes extends MultiUsers {
     await this.modPage.up('Shift');
     await this.modPage.press('Control+I');
     await this.modPage.press('ArrowLeft');
+  }
+
+  async unreadNotesIndicator() {
+    const { sharedNotesEnabled } = this.modPage.settings || {};
+
+    if (!sharedNotesEnabled) {
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button');
+      await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
+      return;
+    }
+
+    // viewer starts without the unread indicator
+    await this.userPage.hasElement(e.sharedNotesSidebarButton, 'should display the shared notes button');
+    await hasNoUnreadNotesIndicator(this.userPage, 'should not display the unread indicator before any edit');
+
+    // moderator opens the notes and types
+    await startSharedNotesBlockNote(this.modPage);
+    const notesEditor = getBlockNoteEditorLocator(this.modPage);
+    await notesEditor.click();
+    await this.modPage.page.keyboard.type('Hello attendees');
+
+    // viewer (notes panel closed) must see the unread indicator
+    await this.userPage.hasNotificationIcon(e.sharedNotesSidebarButton, 'should display the unread indicator for the viewer');
+
+    // opening the notes clears the indicator
+    await startSharedNotesBlockNote(this.userPage);
+    await hasNoUnreadNotesIndicator(this.userPage, 'should clear the unread indicator when the notes panel is open');
+
+    // closing the panel must not bring the indicator back (notes were read)
+    await this.userPage.waitAndClick(e.hideNotesLabel);
+    await this.userPage.wasRemoved(e.hideNotesLabel, 'should not display the hide notes label');
+    await unreadNotesIndicatorStaysHidden(this.userPage, 'should keep the indicator hidden after reading the notes');
+
+    // new edits after the viewer read the notes must light the indicator again
+    const modNotesEditor = getBlockNoteEditorLocator(this.modPage);
+    await modNotesEditor.click();
+    await this.modPage.page.keyboard.type('New content');
+    await this.userPage.hasNotificationIcon(e.sharedNotesSidebarButton, 'should display the unread indicator again after new edits');
   }
 }
