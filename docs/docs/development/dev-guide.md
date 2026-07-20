@@ -347,13 +347,14 @@ cd ~/dev/bigbluebutton/bigbluebutton-web
 To rebuild and deploy your changes, replacing the existing `bbb-web` in `/usr/share/bbb-web`:
 
 ```bash
-./deploy_to_usr_share.sh
+./deploy_to_usr_share.sh --build
 ```
+The --build option builds bbb-common-web, which is required when building bbb-web for the first time. After that, if you have not changed the bbb-common-web source code, you can omit the --build option.
 
 Alternatively, to run bbb-web in development mode on port 8090 without replacing the deployed files:
 
 ```bash
-./run-dev.sh
+./run-dev.sh --build
 ```
 
 ## Developing Akka-Apps
