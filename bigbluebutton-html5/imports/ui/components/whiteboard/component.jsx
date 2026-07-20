@@ -45,6 +45,11 @@ import DeleteSelectedItemsTool from './custom-tools/delete-selected-items/compon
 import SessionStorage from '/imports/ui/services/storage/session';
 
 const CAMERA_TYPE = 'camera';
+// Upper bound (ms) for waiting on the new slide's background image to decode before
+// swapping the visible page. Warm HTTP cache resolves in sub-frame time; a cold or
+// slow asset falls back to this bound so navigation is never worse than before the
+// decode-gate (issue 25397).
+const SLIDE_SWAP_DECODE_TIMEOUT = 1500;
 const colorStyles = [
   'black',
   'blue',
@@ -2269,15 +2274,35 @@ const Whiteboard = React.memo((props) => {
 
   React.useEffect(() => {
     const formattedPageId = parseInt(curPageIdRef.current, 10);
-    if (tlEditorRef.current && formattedPageId !== 0) {
+    if (!tlEditorRef.current || formattedPageId === 0) return undefined;
+
+    // The visible page swap (cleanupStore + updateStore(bgShape) + setCurrentPage)
+    // used to run synchronously here, so the new page's background image-shape was
+    // mounted before its SVG had been fetched/decoded, leaving the presentation area
+    // blank until the asset arrived (issue 25397). Defer the swap behind a decode-gate
+    // so it only happens once the new slide's background is paintable, double-buffering
+    // the change instead of flashing white.
+    let cancelled = false;
+
+    const applyPageSwap = () => {
+      // Rapid navigation / unmount guard: while we were awaiting the decode the user
+      // may have moved to another slide (or the component unmounted). Both refs are
+      // updated elsewhere (curPageIdRef in its own [curPageId] effect, isMountedRef on
+      // unmount), so a late decode for an abandoned page can't clobber the current one
+      // (e.g. 1 -> 9 -> 3: decode(9) resolving after we already applied 3 is dropped).
+      if (cancelled || !isMountedRef.current) return;
+      if (parseInt(curPageIdRef.current, 10) !== formattedPageId) return;
+
       // If a viewer is mid-edit (select.editing_shape) when the slide changes,
       // the store mutation below (cleanupStore + setCurrentPage) removes the shape
       // being edited out from under tldraw, leaving the editor in editing_shape with
       // a dangling editingShapeId. The next pointer-down then hits EditingShape's
       // `Expected an editing shape!` assertion and crashes the client (issue 25332).
       // Commit the in-progress edit first so tldraw exits editing_shape (running
-      // EditingShape.onExit) while the shape still exists. Guarded so a normal slide
-      // change (no active edit) never resets the presenter's current tool.
+      // EditingShape.onExit) while the shape still exists. Run it here, at the moment
+      // of the swap (not on effect entry), so it stays adjacent to the mutation it
+      // protects. Guarded so a normal slide change (no active edit) never resets the
+      // presenter's current tool.
       if (tlEditorRef.current.getEditingShape()) {
         tlEditorRef.current.complete();
       }
@@ -2314,7 +2339,35 @@ const Whiteboard = React.memo((props) => {
           adjustCameraOnMount(true);
         });
       }
+    };
+
+    // bgShape references the same authenticated, deterministic SVG URL that tldraw will
+    // paint (Auth.authenticateURL is idempotent), so priming a detached Image reuses the
+    // HTTP cache the swap needs - no extra fetch on a warm cache.
+    const bgShapeSrc = assets?.[0]?.props?.src;
+    if (!bgShapeSrc) {
+      // No background asset to wait on (e.g. blank/infinite whiteboard) - swap now.
+      applyPageSwap();
+      return undefined;
     }
+
+    const img = new Image();
+    img.src = bgShapeSrc;
+    let fallbackTimer;
+    Promise.race([
+      // decode() rejects on a broken/401/malformed asset; swallow it so a bad asset
+      // degrades to "apply the swap anyway" (the pre-fix behavior) and never wedges
+      // navigation on the old slide.
+      img.decode().catch(() => {}),
+      new Promise((resolve) => {
+        fallbackTimer = setTimeout(resolve, SLIDE_SWAP_DECODE_TIMEOUT);
+      }),
+    ]).then(applyPageSwap);
+
+    return () => {
+      cancelled = true;
+      if (fallbackTimer) clearTimeout(fallbackTimer);
+    };
   }, [curPageId]);
 
   React.useEffect(() => {
