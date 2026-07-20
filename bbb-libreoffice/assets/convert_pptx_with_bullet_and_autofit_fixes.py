@@ -54,7 +54,7 @@ Run this script with LibreOffice's bundled Python, for example:
         PIPE_NAME input.pptx output.pdf --verbose
 
 LibreOffice must already be running with the same UNO pipe. The companion
-``run_pptx_fixed_conversion.sh`` script starts it automatically.
+``run-pptx-fixes-in-container.sh`` script starts it automatically.
 """
 
 from __future__ import annotations
