@@ -15,15 +15,17 @@ object Dependencies {
     val pekkoVersion = "1.0.1"
     val pekkoHttpVersion = "1.0.0"
     val gson = "2.8.9"
-    val jackson = "2.13.5"
-    val logback = "1.2.13"
+    val jackson = "2.18.9"
+    val netty = "4.1.135.Final"
+    val logback = "1.5.38"
+    val slf4j = "2.0.17"
     val quicklens = "1.7.5"
     val spray = "1.3.6"
     val semver = "0.10.2"
     val commonmark = "0.27.0"
 
     // Apache Commons
-    val lang = "3.12.0"
+    val lang = "3.18.0"
     val codec = "1.15"
     val httpcomponents = "4.5.14"
 
@@ -32,14 +34,14 @@ object Dependencies {
 
     // Database
     val slick = "3.4.1"
-    val postgresql = "42.5.0"
+    val postgresql = "42.7.13"
     val slickPg = "0.21.1"
 
     // Test
     val scalaTest = "3.2.11"
     val mockito = "2.23.0"
     val akkaTestKit = "2.6.0"
-    val jacksonDataFormat = "2.13.5"
+    val jacksonDataFormat = "2.18.9"
   }
 
   object Compile {
@@ -117,4 +119,20 @@ object Dependencies {
     Compile.slickPgSprayJson,
     Compile.postgresql,
     Compile.jacksonDataFormat) ++ testing
+
+  // Force security-patched versions on transitively-pulled artifacts so the
+  // whole jackson suite stays aligned and netty is at a fixed release.
+  val overrides = Seq(
+    "com.fasterxml.jackson.core" % "jackson-databind" % Versions.jackson,
+    "com.fasterxml.jackson.core" % "jackson-core" % Versions.jackson,
+    "com.fasterxml.jackson.core" % "jackson-annotations" % Versions.jackson,
+    "io.netty" % "netty-handler" % Versions.netty,
+    "io.netty" % "netty-codec" % Versions.netty,
+    "io.netty" % "netty-common" % Versions.netty,
+    "io.netty" % "netty-buffer" % Versions.netty,
+    "io.netty" % "netty-transport" % Versions.netty,
+    "io.netty" % "netty-resolver" % Versions.netty,
+    // logback 1.5.x is an slf4j-2.x provider; pin slf4j-api 2.x so the
+    // ServiceLoader binding resolves (pekko-slf4j is runtime-compatible).
+    "org.slf4j" % "slf4j-api" % Versions.slf4j)
 }
