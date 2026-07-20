@@ -1,15 +1,15 @@
 import { expect, TestInfo } from '@playwright/test';
 
-import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
+import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { MultiUsers } from '../user/multiusers';
 import { openPrivateChat } from './util';
 
 // Hold back the per-item chat_message_private frames long enough to be deterministic.
-const PREVIEW_FRAME_DELAY = 4000;
+const PREVIEW_FRAME_DELAY = ELEMENT_WAIT_TIME;
 // The preview must appear well before the delayed per-item frame would arrive.
-const PREVIEW_ASSERT_TIMEOUT = 1500;
+const PREVIEW_ASSERT_TIMEOUT = Math.floor(ELEMENT_WAIT_TIME * 0.3);
 
 export class PrivateChatListPreview extends MultiUsers {
   // Regression test for issue 25416: the private chats list rendered each item header
