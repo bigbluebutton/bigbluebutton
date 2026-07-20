@@ -61,3 +61,15 @@ test.describe.parallel('Recording', { tag: '@ci' }, () => {
     });
   });
 });
+
+test.describe('Recording with audio', { tag: '@ci' }, () => {
+  test('Generate a recording that captures microphone audio', async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    const recording = new Recording(browser, context);
+    // keep the audio modal open so the moderator can join the fake microphone
+    await recording.initModPage(page, { createParameter: c.recordMeeting, shouldCloseAudioModal: false });
+    const playbackUrl = await recording.recordMeetingWithAudio();
+    expect(playbackUrl, 'should return a valid presentation playback URL').toContain('/playback/presentation/');
+  });
+});

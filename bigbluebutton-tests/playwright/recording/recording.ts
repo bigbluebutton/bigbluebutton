@@ -119,6 +119,53 @@ export class Recording extends MultiUsers {
     return playbackUrl;
   }
 
+  // Records a meeting in which the moderator joins the microphone, so the fake audio device
+  // (core/media/fakespeech.wav) is captured into the recording. Exercises the audio-mux path in
+  // publish:presentation that recordMeeting() (which stays mic-less) does not.
+  // The mod page must be initialized with { shouldCloseAudioModal: false } so joinMicrophone can run.
+  async recordMeetingWithAudio() {
+    const recordingIndicatorButton = this.modPage.page.locator(`${e.recordingIndicator} button`);
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+
+    // join audio with the fake microphone, then confirm the fake speech is actually flowing
+    await this.modPage.joinMicrophone();
+    await this.modPage.hasElement(e.isTalking, 'moderator should be talking after joining the fake microphone');
+
+    // start recording — with an active mic there is no "no active microphone" warning toast
+    await this.modPage.waitAndClick(e.recordingIndicator);
+    await this.modPage.hasElement(e.confirmRecordingButton, 'should display the Confirm button in the recording toast');
+    await this.modPage.waitAndClick(e.confirmRecordingButton);
+    await expect(
+      recordingIndicatorButton,
+      'recording indicator button should have a red background color when recording',
+    ).toHaveCSS('background-color', 'rgb(223, 39, 33)');
+
+    // keep the fake audio flowing so the recording captures several seconds of audio
+    await expect(async () => {
+      const text = await recordingIndicatorButton.textContent();
+      const match = text?.match(/(\d+):(\d+)/);
+      expect(match, 'should find time pattern in recording button text').not.toBeNull();
+      const [, minutes, seconds] = match!;
+      const totalSeconds = Number.parseInt(minutes) * 60 + Number.parseInt(seconds);
+      expect(totalSeconds).toBeGreaterThan(8);
+    }, 'should display more than 8 seconds on the recording button counter').toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    // stop recording and end meeting
+    await this.modPage.waitAndClick(e.leaveMeetingDropdown);
+    await this.modPage.waitAndClick(e.endMeetingButton);
+    await this.modPage.hasElement(e.simpleModal, 'should display the confirm meeting end modal');
+    await this.modPage.waitAndClick(e.confirmEndMeetingButton);
+    await this.modPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal for the moderator');
+
+    const { response } = await this.getRecordingsWithRetry();
+    const playbackUrl = response?.recordings?.[0]?.recording?.[0]?.playback?.[0]?.format?.[0]?.url?.[0];
+    if (!playbackUrl) {
+      throw new Error('Playback URL not found in API response');
+    }
+    expect(playbackUrl, 'playback URL should contain "/playback/presentation/"').toContain('/playback/presentation/');
+    return playbackUrl;
+  }
+
   async recordingToastDoesNotBlockModals() {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.modPage.hasElement(
