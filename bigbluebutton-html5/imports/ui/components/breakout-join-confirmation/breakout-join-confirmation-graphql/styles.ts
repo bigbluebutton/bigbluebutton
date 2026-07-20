@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-<<<<<<< HEAD
 import { Select as SelectMui, type SelectProps } from '@mui/material';
 import {
   colorWhite,
@@ -120,7 +119,6 @@ const CancelButton = styled.button`
     background: ${colorGrayLighter};
   }
 `;
-import { colorWhite, colorBorder } from '/imports/ui/stylesheets/styled-components/palette';
 
 const SelectParent = styled.div`
   display: flex;

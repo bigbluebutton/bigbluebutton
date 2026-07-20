@@ -8,7 +8,6 @@ import {
   colorWhite,
   btnPrimaryActiveBg,
   colorDanger,
-  colorBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,

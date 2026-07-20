@@ -4,7 +4,6 @@ import {
   colorGrayLabel,
   colorPrimary,
   colorWhite,
-  colorBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { borderSize, borderSizeLarge, lgBorderRadius } from '/imports/ui/stylesheets/styled-components/general';
 import SpinnerStyles from '/imports/ui/components/common/loading-screen/styles';

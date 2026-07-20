@@ -158,6 +158,7 @@ class NavBar extends Component {
       breakoutNum,
       breakoutName,
       meetingName,
+      shortcuts: TOGGLE_USERLIST_AK,
     } = this.props;
 
     if (breakoutNum && breakoutNum > 0) {
@@ -172,8 +173,7 @@ class NavBar extends Component {
           document.title = `${breakoutName} - ${meetingName}`;
         }
       }
-      shortcuts: TOGGLE_USERLIST_AK,
-    } = this.props;
+    }
 
     const { isFirefox } = browserInfo;
     const { isMacos } = deviceInfo;

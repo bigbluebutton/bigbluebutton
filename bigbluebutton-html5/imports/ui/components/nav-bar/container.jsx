@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 import { useReactiveVar } from '@apollo/client';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import { useReactiveVar } from '@apollo/client';
 import NavBar from './component';
 import { layoutDispatch, layoutSelectOutput } from '../layout/context';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
