@@ -6,7 +6,7 @@ import { elements as e, playbackElements } from '../core/elements';
 import { getRecordings } from '../core/endpoints';
 import { Page } from '../core/page';
 import { skipSlide } from '../presentation/util';
-import { getNotesLocator, startSharedNotes } from '../sharednotes/etherpad/util';
+import { getBlockNoteEditorLocator, startSharedNotesBlockNote } from '../sharednotes/blocknote/util';
 import { MultiUsers } from '../user/multiusers';
 
 export class Recording extends MultiUsers {
@@ -74,8 +74,9 @@ export class Recording extends MultiUsers {
     await skipSlide(this.modPage);
 
     // type on shared notes
-    await startSharedNotes(this.modPage);
-    const notesLocator = getNotesLocator(this.modPage);
+    await startSharedNotesBlockNote(this.modPage);
+    const notesLocator = getBlockNoteEditorLocator(this.modPage);
+    await notesLocator.click();
     await notesLocator.pressSequentially(e.testMessage);
     await expect(notesLocator, 'should contain the typed text on shared notes').toContainText(e.testMessage, {
       timeout: ELEMENT_WAIT_TIME,
