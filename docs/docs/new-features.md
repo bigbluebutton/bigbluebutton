@@ -215,56 +215,10 @@ For full details on what is new in BigBlueButton 4.0, see the release notes.
 
 
 Recent releases:
-- [3.0.31](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.31)
-- [3.0.30](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.30)
-- [3.0.29](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.29)
-- [3.0.28](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.28)
-- [3.0.27](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.27)
-- [3.0.26](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.26)
-- [3.0.25](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.25)
-- [3.0.24](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.24)
-- [3.0.23](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.23)
-- [3.0.22](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.22)
-- [3.0.21](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.21)
-- [3.0.20](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.20)
-- [3.0.19](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.19)
-- [3.0.18](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.18)
-- [3.0.17](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.17)
-- [3.0.16](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.16)
-- [3.0.15](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.15)
-- [3.0.14](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.14)
-- [3.0.13](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.13)
-- [3.0.12](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.12)
-- [3.0.11](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.11)
-- [3.0.10](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.10)
-- [3.0.9](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.9)
-- [3.0.8](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.8)
-- [3.0.7](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.7)
-- [3.0.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.6)
-- [3.0.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.5)
-- [3.0.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.4)
-- [3.0.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.3)
-- [3.0.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.2)
-- [3.0.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.1)
-- [3.0.0](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0)
-- [3.0.0-rc.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-rc.4)
-- [3.0.0-rc.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-rc.3)
-- [3.0.0-rc.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-rc.2)
-- [3.0.0-rc.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-rc.1)
-- [3.0.0-beta.7](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.7)
-- [3.0.0-beta.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.6)
-- [3.0.0-beta.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.5)
-- [3.0.0-beta.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.4)
-- [3.0.0-beta.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.3)
-- [3.0.0-beta.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.2)
-- [3.0.0-beta.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-beta.1)
-- [3.0.0-alpha.7](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.7)
-- [3.0.0-alpha.6](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.6)
-- [3.0.0-alpha.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.5)
-- [3.0.0-alpha.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.4)
-- [3.0.0-alpha.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.3)
-- [3.0.0-alpha.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.2)
-- [3.0.0-alpha.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.0-alpha.1)
+
+- [4.0.0-beta.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-beta.3)
+- [3.1.0-beta.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.1.0-beta.2)
+- [3.1.0-beta.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.1.0-beta.1)
 
 ### Other notable changes
 
@@ -293,36 +247,6 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 #### Other removed configuration
 
 - `public.stats.log` was removed and replaced by `public.stats.logMediaStats` (see [Client-side WebRTC stats logging](#client-side-webrtc-stats-logging)).
-
-#### Improved support for various SHA algorithms for checksum calculation
-
-In BigBlueButton 2.6.17/2.7.5/3.0.0-alpha.5 we added a new configuration property for bbb-apps-akka package under `services` called `checkSumAlgorithmForBreakouts`. By default the value is `"sha256"`. It controls the algorithm for checksum calculation for the breakout rooms join link. In case you overwrite bbb-web's `supportedChecksumAlgorithms` property removing sha256 you will need to set a supported algorithm here too. For example if you want to only use `sha512`, set `supportedChecksumAlgorithms=sha512` in `/etc/bigbluebutton/bbb-web.properties` and also set `checkSumAlgorithmForBreakouts="sha512"` in `/etc/bigbluebutton/bbb-apps-akka.conf` and then restart BigBlueButton.
-
-#### Deprecating join parameter `defaultLayout`, replacing with `userdata-bbb_default_layout`.
-
-In BigBlueButton 3.0.0-alpha.5 we replaced the JOIN parameter `defaultLayout` with the JOIN parameter `userdata-bbb_default_layout`. If none provided the `meetingLayout` (passed on CREATE) will be used. If none passed, and if none passed there, the `defaultMeetingLayout` from bbb-web will be used.
-
-#### Added new setting to control guest lobby waiting queue position
-
-- Client settings.yml: `showGuestLobbyWaitingQueuePosition`. Defaults to `true`
-
-#### Added new setting and userdata to allow skipping echo test if session has valid input/output devices stored
-
-- Client settings.yml: `skipEchoTestIfPreviousDevice`. Defaults to `false`
-- Can be overridden on JOIN with Custom Parameter: `userdata-bbb_skip_echotest_if_previous_device=`
-
-#### Recording event TranscriptUpdatedRecordEvent blocked
-
-In BigBlueButton 2.7.5/3.0.0-alpha.5 we stopped propagating the events.xml event TranscriptUpdatedRecordEvent due to some issues with providing too much and too repetitive data.
-
-#### Added new setting and userdata to allow skipping video preview if session has valid input devices stored
-
-- Client settings.yml: `skipVideoPreviewIfPreviousDevice`. Defaults to `false`
-- Can be overridden on JOIN with Custom Parameter: `userdata-bbb_skip_video_preview_if_previous_device=`
-
-#### Replaced all user facing instances of "meeting" with the word "session"
-
-The word "session" is more generic and encompasses both educational and work contexts. Up until BigBlueButton 3.0 we were using the two keywords interchangeably. Moving forward we are preferring to use "session".
 
 ### Changes to events.xml
 
