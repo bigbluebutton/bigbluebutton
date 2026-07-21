@@ -420,6 +420,7 @@
     "app.presentationUploader.exportCurrentStatePresentation": "Enviar un enllaç de descàrrega de la presentació amb anotacions en la pissarra",
     "app.presentationUploader.enableOriginalPresentationDownload": "Activar la descàrrega de la presentació ({fileExtension})",
     "app.presentationUploader.disableOriginalPresentationDownload": "Desactivar la descarga de la presentación original ({fileExtension})",
+    "app.presentationUploader.export.availableForDownload": "Presentation available for download",
     "app.presentationUploader.export.withWhiteboardAnnotations": "En estat actual",
     "app.presentationUploader.dropdownExportOptions": "Opcions d'exportació",
     "app.presentationUploader.dropdownExportOptionsUncomplete": "Desactivat fins que la pujada es completi",
