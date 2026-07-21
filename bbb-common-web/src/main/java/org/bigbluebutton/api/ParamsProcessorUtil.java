@@ -394,13 +394,6 @@ public class ParamsProcessorUtil {
 			String lockSettingsDisableNotesParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_NOTES);
 			if (!StringUtils.isEmpty(lockSettingsDisableNotesParam)) {
 				lockSettingsDisableNotes = Boolean.parseBoolean(lockSettingsDisableNotesParam);
-			} else {
-				// To be removed after deprecation period
-				lockSettingsDisableNotesParam = params.get(ApiParams.DEPRECATED_LOCK_SETTINGS_DISABLE_NOTES);
-				if (!StringUtils.isEmpty(lockSettingsDisableNotesParam)) {
-					log.warn("[DEPRECATION] use lockSettingsDisableNotes instead of lockSettingsDisableNote");
-					lockSettingsDisableNotes = Boolean.parseBoolean(lockSettingsDisableNotesParam);
-				}
 			}
 
 			Boolean lockSettingsHideUserList = defaultLockSettingsHideUserList;

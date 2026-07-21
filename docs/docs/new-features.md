@@ -255,7 +255,7 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 
 #### Removed
 
-_None._
+- `lockSettingsDisableNote` is no longer recognized; use `lockSettingsDisableNotes` instead. The singular property was renamed in BBB 2.5.
 
 #### Value changed
 
