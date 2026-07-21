@@ -47,6 +47,9 @@ import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import ConnectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
+import { layoutSelect } from '/imports/ui/components/layout/context';
+import { Layout } from '/imports/ui/components/layout/layoutTypes';
+import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 import createUseSubscription, { useCreateUseSubscription } from '/imports/ui/core/hooks/createUseSubscription';
 import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
 import useUserMediaGroupStateStream from '/imports/ui/components/livekit/selective-subscription/mediaGroupStateStream';
@@ -547,12 +550,16 @@ export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
     true,
   );
   const { data, loading, errors } = useAudioOnlySubscription();
-  const isGridEnabled = useStorageKey('isGridEnabled');
+  const layoutType = layoutSelect((i: Layout) => i.layoutType);
   const {
     showAudioOnlyOnFirstPage,
   } = window.meetingClientSettings.public.kurento.cameraSortingModes;
 
-  if (!showAudioOnlyOnFirstPage || !isGridEnabled) return [];
+  const isUnifiedLayout = layoutType === LAYOUT_TYPE.UNIFIED_LAYOUT;
+
+  // Gate on the layout, not isGridEnabled: audio-only tiles must still appear alongside a real
+  // webcam over an open presentation in the unified layout (issues #25235/#25359).
+  if (!showAudioOnlyOnFirstPage || !isUnifiedLayout) return [];
   if (loading) return [];
 
   if (errors) {
@@ -663,7 +670,8 @@ export const useVideoStreams = () => {
   let streams: StreamItem[] = [...videoStreams];
   let totalNumberOfOtherStreams: number | undefined;
 
-  const isGridEnabled = useStorageKey('isGridEnabled') as boolean;
+  const layoutType = layoutSelect((i: Layout) => i.layoutType);
+  const isUnifiedLayout = layoutType === LAYOUT_TYPE.UNIFIED_LAYOUT;
   const {
     paginationSorting: PAGINATION_SORTING,
     defaultSorting: DEFAULT_SORTING,
@@ -672,8 +680,8 @@ export const useVideoStreams = () => {
     partitionPrivilegedStreams,
   } = window.meetingClientSettings.public.kurento.cameraSortingModes;
 
-  const showAudioOnlyOnFirstPage = showAudioOnlyOnFirstPageSetting && isGridEnabled;
-  const maxAudioOnlyUsers = isGridEnabled ? maxAudioOnlyUsersSetting : 0;
+  const showAudioOnlyOnFirstPage = showAudioOnlyOnFirstPageSetting && isUnifiedLayout;
+  const maxAudioOnlyUsers = isUnifiedLayout ? maxAudioOnlyUsersSetting : 0;
 
   if (connectingStream) streams.push(connectingStream);
 
