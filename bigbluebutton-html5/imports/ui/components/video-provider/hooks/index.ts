@@ -47,9 +47,6 @@ import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import ConnectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
-import { layoutSelect } from '/imports/ui/components/layout/context';
-import { Layout } from '/imports/ui/components/layout/layoutTypes';
-import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 import createUseSubscription, { useCreateUseSubscription } from '/imports/ui/core/hooks/createUseSubscription';
 import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
 import useUserMediaGroupStateStream from '/imports/ui/components/livekit/selective-subscription/mediaGroupStateStream';
@@ -377,6 +374,17 @@ export const useGridUsers = (visibleStreamCount: number, visibleUserCount: numbe
     true,
   );
 
+  if (!isGridEnabled) {
+    gridItems.current = [];
+    overflowCount.current = 0;
+    overflowUsers.current = [];
+    return {
+      gridUsers: gridItems.current,
+      overflowCount: overflowCount.current,
+      overflowUsers: overflowUsers.current,
+    };
+  }
+
   if (gridLoading) {
     return {
       gridUsers: gridItems.current,
@@ -539,14 +547,12 @@ export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
     true,
   );
   const { data, loading, errors } = useAudioOnlySubscription();
-  const layoutType = layoutSelect((i: Layout) => i.layoutType);
+  const isGridEnabled = useStorageKey('isGridEnabled');
   const {
     showAudioOnlyOnFirstPage,
   } = window.meetingClientSettings.public.kurento.cameraSortingModes;
 
-  const isUnifiedLayout = layoutType === LAYOUT_TYPE.UNIFIED_LAYOUT;
-
-  if (!showAudioOnlyOnFirstPage || !isUnifiedLayout) return [];
+  if (!showAudioOnlyOnFirstPage || !isGridEnabled) return [];
   if (loading) return [];
 
   if (errors) {
@@ -657,8 +663,7 @@ export const useVideoStreams = () => {
   let streams: StreamItem[] = [...videoStreams];
   let totalNumberOfOtherStreams: number | undefined;
 
-  const layoutType = layoutSelect((i: Layout) => i.layoutType);
-  const isUnifiedLayout = layoutType === LAYOUT_TYPE.UNIFIED_LAYOUT;
+  const isGridEnabled = useStorageKey('isGridEnabled') as boolean;
   const {
     paginationSorting: PAGINATION_SORTING,
     defaultSorting: DEFAULT_SORTING,
@@ -667,8 +672,8 @@ export const useVideoStreams = () => {
     partitionPrivilegedStreams,
   } = window.meetingClientSettings.public.kurento.cameraSortingModes;
 
-  const showAudioOnlyOnFirstPage = showAudioOnlyOnFirstPageSetting && isUnifiedLayout;
-  const maxAudioOnlyUsers = isUnifiedLayout ? maxAudioOnlyUsersSetting : 0;
+  const showAudioOnlyOnFirstPage = showAudioOnlyOnFirstPageSetting && isGridEnabled;
+  const maxAudioOnlyUsers = isGridEnabled ? maxAudioOnlyUsersSetting : 0;
 
   if (connectingStream) streams.push(connectingStream);
 
