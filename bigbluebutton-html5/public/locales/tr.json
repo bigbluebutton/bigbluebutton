@@ -420,6 +420,7 @@
     "app.presentationUploader.exportCurrentStatePresentation": "Sunumun, beyaz tahta açıklamalarının bulunduğu indirme bağlantısını gönderir",
     "app.presentationUploader.enableOriginalPresentationDownload": "Sunum indirme özelliğini aç ({fileExtension})",
     "app.presentationUploader.disableOriginalPresentationDownload": "Sunum indirme özelliğini kapat ({fileExtension})Özgün sunum indirilemesin",
+    "app.presentationUploader.export.availableForDownload": "Presentation available for download",
     "app.presentationUploader.export.withWhiteboardAnnotations": "beyaz tahta açıklamaları ile",
     "app.presentationUploader.dropdownExportOptions": "Dışa aktarma seçenekleri",
     "app.presentationUploader.dropdownExportOptionsUncomplete": "Yükleme tamamlanana kadar kullanılamaz",
