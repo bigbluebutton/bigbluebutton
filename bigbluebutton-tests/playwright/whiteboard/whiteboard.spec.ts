@@ -190,6 +190,17 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     await blank.brokenAssetDegradesWithoutHanging();
   });
 
+  test('Viewer follows a slide change that happens during camera calibration', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    linkIssue(25397);
+    const blank = new SlideChangeBlank(browser, context);
+    await blank.initModPage(page, { testInfo });
+    await blank.viewerFollowsSlideChangeDuringMount();
+  });
+
   test.describe.parallel('Shape Options', () => {
     test('Duplicate', async ({ browser, context, page }, testInfo) => {
       const shapeOptions = new ShapeOptions(browser, context);
@@ -214,19 +225,11 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     await runResizeTest('cameraResyncVisual', browser, context, page, testInfo);
   });
 
-  test('Camera re-sync visual regression after resize with canvas zoom', async ({
-    browser,
-    context,
-    page,
-  }, testInfo) => {
+  test('Camera re-sync visual regression after resize with canvas zoom', async ({ browser, context, page }, testInfo) => {
     await runResizeTest('cameraResyncZoomedVisual', browser, context, page, testInfo);
   });
 
-  test('Camera zoom is preserved after minimizing and restoring the presentation', async ({
-    browser,
-    context,
-    page,
-  }, testInfo) => {
+  test('Camera zoom is preserved after minimizing and restoring the presentation', async ({ browser, context, page }, testInfo) => {
     await runResizeTest('cameraResyncAfterMinimizeRestore', browser, context, page, testInfo);
   });
 });

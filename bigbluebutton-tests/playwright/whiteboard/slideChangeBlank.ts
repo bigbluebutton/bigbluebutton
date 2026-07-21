@@ -4,6 +4,28 @@ import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { MultiUsers } from '../user/multiusers';
 
+// Deferred far-slide index. Slide 1 is the initial page; the forward prefetch window is
+// only 2 slides, so a slide this far ahead is guaranteed cold.
+const TARGET = 9;
+
+// How long the intercepted background SVG response is held back. Must be comfortably
+// shorter than the fix's slideSwapDecodeTimeoutMs (1500ms default) so the decode reliably
+// wins the race and gates the swap, leaving margin for CI scheduling jitter between the
+// fetch starting and the response being delivered (a thin margin lets the fallback timer
+// win under load and flake the test).
+const NET_DELAY_MS = 600;
+
+// Mirror of the source default (component.jsx SLIDE_SWAP_DECODE_TIMEOUT_DEFAULT /
+// meetingClientSettings.public.whiteboard.slideSwapDecodeTimeoutMs). The broken-asset path
+// must resolve the race well before this wall rather than stalling to it.
+const SLIDE_SWAP_DECODE_TIMEOUT_MS = 1500;
+
+// Note on the anchored `/svg/<n>(?:\?|["')]|$)` regex used throughout: it matches a
+// `.tl-image` background-image URL for slide <n> without also matching `/svg/20` or
+// `/svg/21` (the URL is followed by `?` for the sessionToken query, or the closing
+// quote/paren of the CSS url()). It is inlined inside each page.evaluate/waitForFunction
+// because those callbacks run in the browser and cannot close over a Node-scope helper.
+
 // Regression tests for issue 25397 (blank presentation area on slide change).
 //
 // Before the fix, the [curPageId] effect in whiteboard/component.jsx swapped the
@@ -13,15 +35,6 @@ import { MultiUsers } from '../user/multiusers';
 // white until the asset arrived. The fix defers the swap behind an Image.decode()
 // gate (bounded by a timeout) so the page only becomes visible once it is paintable.
 export class SlideChangeBlank extends MultiUsers {
-  // Deferred far-slide index. Slide 1 is the initial page; the forward prefetch
-  // window is only 2 slides, so a slide this far ahead is guaranteed cold.
-  static TARGET = 9;
-
-  // How long the intercepted background SVG response is held back. Must be shorter
-  // than the fix's SLIDE_SWAP_DECODE_TIMEOUT (1500ms) so the decode wins the race
-  // and gates the swap (rather than the timeout fallback firing).
-  static NET_DELAY_MS = 1000;
-
   async waitForFirstSlidePainted() {
     await this.modPage.hasElement(
       e.whiteboard,
@@ -29,8 +42,19 @@ export class SlideChangeBlank extends MultiUsers {
       ELEMENT_WAIT_LONGER_TIME,
     );
     await this.modPage.hasElement(e.currentSlideImg, 'should display the first slide background');
-    // Let slide 1's asset finish loading/decoding so the initial paint is not what we measure.
-    await this.modPage.page.waitForTimeout(3000);
+    // Wait for the actual condition (slide 1's background painted) instead of a fixed
+    // sleep, so the initial paint is settled but we do not burn a flat 3s per test.
+    await this.modPage.page.waitForFunction(
+      () => {
+        const imgs = document.querySelectorAll('.tl-image');
+        return Array.from(imgs).some((el) => {
+          const bg = (el as HTMLElement).style?.backgroundImage || '';
+          return bg.includes('/svg/');
+        });
+      },
+      undefined,
+      { timeout: ELEMENT_WAIT_LONGER_TIME },
+    );
     // The default presentation must have enough slides to jump far ahead.
     await this.modPage.waitForSelector(e.skipSlide);
   }
@@ -41,15 +65,15 @@ export class SlideChangeBlank extends MultiUsers {
   // background-image references `/svg/<target>`) never happens before that response.
   async noBlankOnSlideChange() {
     const { page } = this.modPage;
-    const target = SlideChangeBlank.TARGET;
-    const delayMs = SlideChangeBlank.NET_DELAY_MS;
+    const target = TARGET;
+    const delayMs = NET_DELAY_MS;
 
     await this.waitForFirstSlidePainted();
 
     // Instrument the page: record, on the page clock, the first moment the target
     // slide's background is mounted into the DOM.
     await page.evaluate((tgt) => {
-      const marker = `/svg/${tgt}`;
+      const svgMatches = (bg: string): boolean => new RegExp(`/svg/${tgt}(?:\\?|["')]|$)`).test(bg);
       const probe = { tSwap: null as number | null, tResp: null as number | null };
       (window as unknown as { bbbBlankProbe: typeof probe }).bbbBlankProbe = probe;
       const iv = setInterval(() => {
@@ -60,7 +84,7 @@ export class SlideChangeBlank extends MultiUsers {
         const imgs = document.querySelectorAll('.tl-image');
         for (const el of Array.from(imgs)) {
           const bg = (el as HTMLElement).style?.backgroundImage || '';
-          if (bg.includes(marker)) {
+          if (svgMatches(bg)) {
             probe.tSwap = Date.now();
             clearInterval(iv);
             return;
@@ -132,53 +156,117 @@ export class SlideChangeBlank extends MultiUsers {
   // uncaught rejection or trip the error boundary.
   async brokenAssetDegradesWithoutHanging() {
     const { page } = this.modPage;
-    const target = SlideChangeBlank.TARGET;
+    const target = TARGET;
 
     await this.waitForFirstSlidePainted();
 
+    // Note: route.abort() below makes Playwright log "failed to load resource" console
+    // errors for the aborted SVG. They are harmless here (that is the scenario) but would
+    // trip a run with CONSOLE_FAIL=true (core/helpers.ts). We only assert on pageerror.
     const pageErrors: string[] = [];
-    page.on('pageerror', (err) => pageErrors.push(err.message));
+    const onPageError = (err: Error) => pageErrors.push(err.message);
+    page.on('pageerror', onPageError);
 
-    // Make the target slide's background permanently unreachable (network error ->
-    // Image.decode() rejects).
-    await page.route(`**/svg/${target}**`, (route) => route.abort());
+    try {
+      // Make the target slide's background permanently unreachable (network error ->
+      // Image.decode() rejects).
+      await page.route(`**/svg/${target}**`, (route) => route.abort());
 
-    const start = Date.now();
+      await this.modPage.selectSlide(`Slide ${target}`);
+      // Measure the gate from AFTER selection: a rejected decode short-circuits the race,
+      // so the swap must land well before the fallback wall rather than stalling to it.
+      const start = Date.now();
+
+      // Navigation must still complete: the page swap runs even though the asset is broken
+      // (there is simply nothing to paint). The `.tl-image` for the target page is mounted.
+      // The outer timeout is deliberately larger than the decode-timeout wall so the
+      // elapsed assertion below - not this wait - is what catches a stall.
+      await page.waitForFunction(
+        (tgt) => {
+          const imgs = document.querySelectorAll('.tl-image');
+          return Array.from(imgs).some((el) =>
+            new RegExp(`/svg/${tgt}(?:\\?|["')]|$)`).test((el as HTMLElement).style?.backgroundImage || ''),
+          );
+        },
+        target,
+        { timeout: SLIDE_SWAP_DECODE_TIMEOUT_MS * 4 },
+      );
+      const elapsed = Date.now() - start;
+      expect(
+        elapsed,
+        `a rejected decode must short-circuit the gate, not stall to the ${SLIDE_SWAP_DECODE_TIMEOUT_MS}ms decode wall`,
+      ).toBeLessThan(SLIDE_SWAP_DECODE_TIMEOUT_MS);
+
+      // The whiteboard is still mounted (no error boundary fallback) and no uncaught
+      // decode rejection surfaced.
+      await this.modPage.hasElement(e.whiteboard, 'whiteboard should remain mounted after a broken slide asset');
+      const decodeErrors = pageErrors.filter((m) => /decode|Uncaught \(in promise\)/i.test(m));
+      expect(decodeErrors, `no uncaught decode errors expected (got: ${pageErrors.join(' | ')})`).toHaveLength(0);
+
+      // The client is not wedged: navigating to a healthy slide still swaps normally.
+      await page.unroute(`**/svg/${target}**`);
+      await this.modPage.selectSlide('Slide 2');
+      await page.waitForFunction(
+        () => {
+          const imgs = document.querySelectorAll('.tl-image');
+          return Array.from(imgs).some((el) =>
+            /\/svg\/2(?:\?|["')]|$)/.test((el as HTMLElement).style?.backgroundImage || ''),
+          );
+        },
+        undefined,
+        { timeout: 10000 },
+      );
+    } finally {
+      page.off('pageerror', onPageError);
+    }
+  }
+
+  // Regression guard for the isMountedRef strand (PR #69 review, finding #1). isMountedRef
+  // is not "the component is mounted": it flips true only late, inside adjustCameraOnMount
+  // after camera calibration (~1.5s after the whiteboard mounts). If applyPageSwap gated on
+  // it, a slide change arriving during that calibration window (a viewer following a
+  // presenter who navigates right after the viewer joins) was dropped and never retried
+  // (the effect only re-fires on curPageId change), permanently stranding the viewer on the
+  // wrong slide. The fix removes that guard; the cancelled flag already covers unmount. Here
+  // a viewer joins, the presenter immediately jumps to a far slide, and the viewer MUST
+  // follow. On the unfixed code this hangs on slide 1.
+  async viewerFollowsSlideChangeDuringMount() {
+    const target = TARGET;
+
+    await this.waitForFirstSlidePainted();
+    // Bring a viewer in; they follow the presenter's current slide.
+    await this.initUserPage(this.modPage.context);
+    await this.userPage.hasElement(e.whiteboard, 'viewer should see the whiteboard', ELEMENT_WAIT_LONGER_TIME);
+    await this.userPage.hasElement(e.currentSlideImg, 'viewer should see the first slide background');
+
+    // Navigate immediately, while the viewer is still calibrating (isMountedRef not yet
+    // set). No awaited delay here: the change must land inside that window.
     await this.modPage.selectSlide(`Slide ${target}`);
 
-    // Navigation must still complete: the page swap runs even though the asset is broken
-    // (there is simply nothing to paint). The `.tl-image` for the target page is mounted.
-    await page.waitForFunction(
+    // The viewer must converge to the target slide. Since the buggy drop is permanent, a
+    // generous wait still fails on unfixed code (the viewer stays on slide 1).
+    await this.userPage.page.waitForFunction(
       (tgt) => {
-        const marker = `/svg/${tgt}`;
         const imgs = document.querySelectorAll('.tl-image');
-        return Array.from(imgs).some((el) => ((el as HTMLElement).style?.backgroundImage || '').includes(marker));
+        return Array.from(imgs).some((el) =>
+          new RegExp(`/svg/${tgt}(?:\\?|["')]|$)`).test((el as HTMLElement).style?.backgroundImage || ''),
+        );
       },
       target,
-      // Fix timeout is 1500ms; a rejected decode should resolve well before this bound.
-      { timeout: 8000 },
-    );
-    const elapsed = Date.now() - start;
-    expect(elapsed, 'a broken asset must not stall navigation up to (or past) the decode timeout wall').toBeLessThan(
-      8000,
+      { timeout: 15000 },
     );
 
-    // The whiteboard is still mounted (no error boundary fallback) and no uncaught
-    // decode rejection surfaced.
-    await this.modPage.hasElement(e.whiteboard, 'whiteboard should remain mounted after a broken slide asset');
-    const decodeErrors = pageErrors.filter((m) => /decode|Uncaught \(in promise\)/i.test(m));
-    expect(decodeErrors, `no uncaught decode errors expected (got: ${pageErrors.join(' | ')})`).toHaveLength(0);
-
-    // The client is not wedged: navigating to a healthy slide still swaps normally.
-    await page.unroute(`**/svg/${target}**`);
-    await this.modPage.selectSlide('Slide 2');
-    await page.waitForFunction(
-      () => {
-        const imgs = document.querySelectorAll('.tl-image');
-        return Array.from(imgs).some((el) => ((el as HTMLElement).style?.backgroundImage || '').includes('/svg/2'));
-      },
-      undefined,
-      { timeout: 10000 },
-    );
+    // Confirm it is actually the target slide (not merely still slide 1).
+    const onTarget = await this.userPage.page.evaluate((tgt) => {
+      const imgs = document.querySelectorAll('.tl-image');
+      return Array.from(imgs).some((el) =>
+        new RegExp(`/svg/${tgt}(?:\\?|["')]|$)`).test((el as HTMLElement).style?.backgroundImage || ''),
+      );
+    }, target);
+    expect(
+      onTarget,
+      `viewer must follow the presenter to slide ${target} even when it changes during camera ` +
+        'calibration; a permanent strand here is the isMountedRef guard bug (PR #69 finding #1).',
+    ).toBe(true);
   }
 }
