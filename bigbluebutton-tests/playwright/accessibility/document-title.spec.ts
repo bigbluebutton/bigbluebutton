@@ -34,7 +34,7 @@ test.describe.parallel('Accessible routing', { tag: '@ci' }, () => {
     }
 
     if (modPage.settings?.sharedNotesEnabled) {
-      await modPage.waitAndClick(e.sharedNotes);
+      await modPage.waitAndClick(e.sharedNotesSidebarButton);
       await modPage.hasElement(e.sharedNotesBackground, 'should display shared notes');
       await expect(modPage.page, 'shared notes should be reflected in the document title').toHaveTitle(
         / - Shared Notes$/,
@@ -42,13 +42,15 @@ test.describe.parallel('Accessible routing', { tag: '@ci' }, () => {
     }
 
     if (modPage.settings?.pollEnabled) {
-      await modPage.waitAndClick(e.actions);
-      await modPage.waitAndClick(e.polling);
-      await modPage.hasElement(e.hidePollDesc, 'should display the polling panel');
+      // 4.0 opens the poll panel from the sidebar button (3.0 used the actions menu item),
+      // and the open panel shows the minimize button (3.0's hidePollDesc no longer exists).
+      await modPage.waitAndClick(e.pollSidebarButton);
+      await modPage.hasElement(e.minimizePolling, 'should display the polling panel');
       await expect(modPage.page, 'polling should be reflected in the document title').toHaveTitle(/ - Polling$/);
     }
 
-    await modPage.waitAndClick(e.actions);
+    // 4.0 opens the manage-presentations view from the media-area menu (3.0 used the actions "+" menu).
+    await modPage.waitAndClick(e.mediaAreaButton);
     await modPage.waitAndClick(e.managePresentations);
     await modPage.hasElement(e.presentationFileUpload, 'should display the presentation upload view');
     await expect(modPage.page, 'presentation upload should be reflected in the document title').toHaveTitle(
@@ -76,15 +78,14 @@ test.describe.parallel('Accessible routing', { tag: '@ci' }, () => {
 
     await openSettings(modPage);
     await expect(modPage.page, 'settings modal should be reflected in the document title').toHaveTitle(/ - Settings$/);
-    await modPage.waitAndClick(e.modalDismissButton);
+    // 4.0 settings modal is dismissed via the Save button (3.0 used a generic modal dismiss).
+    await modPage.waitAndClick(e.saveSettingsButton);
 
-    await modPage.waitAndClick(e.manageUsers);
-    if (await modPage.page.locator(e.createBreakoutRooms).isVisible()) {
-      await modPage.waitAndClick(e.createBreakoutRooms);
-      await expect(modPage.page, 'breakout room creation modal should be reflected in the document title').toHaveTitle(
-        / - Breakout Rooms$/,
-      );
-      await modPage.waitAndClick(e.modalDismissButton);
-    }
+    // 4.0 opens breakout-room creation from the sidebar button (3.0 went through the manageUsers
+    // menu). The creation panel is the BREAKOUT sidebar content, which drives the document title.
+    await modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await expect(modPage.page, 'breakout room creation should be reflected in the document title').toHaveTitle(
+      / - Breakout Rooms$/,
+    );
   });
 });
