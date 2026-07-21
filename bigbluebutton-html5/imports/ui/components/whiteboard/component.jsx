@@ -192,8 +192,9 @@ const Whiteboard = React.memo((props) => {
   clearTldrawCache();
 
   const targetWin = isPresentationDetached && popupWindow ? popupWindow : window;
-  const raf = targetWin.requestAnimationFrame;
-  const caf = targetWin.cancelAnimationFrame;
+  const raf = targetWin.requestAnimationFrame.bind(targetWin);
+  const caf = targetWin.cancelAnimationFrame.bind(targetWin);
+
 
   const [isMounting, setIsMounting] = React.useState(true);
   const [cursorType, setCursorType] = React.useState('');
