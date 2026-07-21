@@ -420,6 +420,7 @@
     "app.presentationUploader.exportCurrentStatePresentation": "Versenden eines Links zum Download der Präsentation inklusive Anmerkungen",
     "app.presentationUploader.enableOriginalPresentationDownload": "Download von Präsentation erlauben ({fileExtension})",
     "app.presentationUploader.disableOriginalPresentationDownload": "Herunterladen der Originalpräsentation verbieten ({fileExtension})",
+    "app.presentationUploader.export.availableForDownload": "Presentation available for download",
     "app.presentationUploader.export.withWhiteboardAnnotations": "Im aktuellen Status",
     "app.presentationUploader.dropdownExportOptions": "Exportoptionen",
     "app.presentationUploader.dropdownExportOptionsUncomplete": "Deaktiviert, bis das Hochladen abgeschlossen ist",
