@@ -824,6 +824,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       maxNumberOfAnnotations: 300,
       maxNumberOfActiveUsers: 25,
       maxHistoryStackSize: 400,
+      slideSwapDecodeTimeoutMs: 250,
       lockToolbarTools: false,
       allowInfiniteWhiteboard: false,
       allowInfiniteWhiteboardInBreakouts: false,
