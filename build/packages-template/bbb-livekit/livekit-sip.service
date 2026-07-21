@@ -15,8 +15,6 @@ Restart=always
 TimeoutStopSec=5
 User=bigbluebutton
 Group=bigbluebutton
-CPUSchedulingPolicy=fifo
-Nice=19
 
 [Install]
 WantedBy=multi-user.target bigbluebutton.target

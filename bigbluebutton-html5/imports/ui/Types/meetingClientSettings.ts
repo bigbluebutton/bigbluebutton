@@ -66,6 +66,7 @@ export interface App {
   skipMeetingEnded: boolean
   dynamicGuestPolicy: boolean
   enableGuestLobbyMessage: boolean
+  showGuestLobbyWaitingQueuePosition: boolean
   guestPolicyExtraAllowOptions: boolean
   alwaysShowWaitingRoomUI: boolean
   enableLimitOfViewersInWebcam: boolean
@@ -622,6 +623,8 @@ export interface SharedNotes {
   maxDocumentChars: number
   maxLengthForContentUpdate: number
   staticFormattingToolbar: boolean
+  importMarkdownEnabled: boolean
+  exportMarkdownEnabled: boolean
 }
 
 export interface Media {
