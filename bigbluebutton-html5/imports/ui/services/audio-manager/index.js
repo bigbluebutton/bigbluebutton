@@ -709,6 +709,11 @@ class AudioManager {
         setUserSelectedListenOnly(true);
       }
 
+      // Was this an explicit user choice, as opposed to the default ('')
+      // being resolved to a concrete deviceId by the browser? Captured
+      // before the extraction below can overwrite this.inputDeviceId.
+      const userChoseInputDevice = this.inputDeviceId !== DEFAULT_INPUT_DEVICE_ID;
+
       this.inputStream = this.bridge ? this.bridge.inputStream : null;
       // Enforce correct output device on audio join
       this.changeOutputDevice(this.outputDeviceId, true);
@@ -728,8 +733,11 @@ class AudioManager {
         }
       }
       // Audio joined successfully - add device IDs to session storage so they
-      // can be re-used on refreshes/other sessions
-      storeAudioInputDeviceId(this.inputDeviceId);
+      // can be re-used on refreshes/other sessions. Only persist a device the
+      // user explicitly picked: storing an auto-resolved deviceId here would
+      // turn "follow the OS default" into a permanent pin on next join,
+      // since a stored id is later requested with deviceId: { exact }.
+      if (userChoseInputDevice) storeAudioInputDeviceId(this.inputDeviceId);
     } catch (error) {
       logger.warn({
         logCode: 'audiomanager_device_enforce_failed',

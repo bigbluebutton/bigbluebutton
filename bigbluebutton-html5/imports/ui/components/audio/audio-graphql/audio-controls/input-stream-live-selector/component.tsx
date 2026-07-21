@@ -120,28 +120,9 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
   const { enabled: muteAlertEnabled } = MUTE_ALERT_CONFIG;
 
   const updateRemovedDevices = useCallback((
-    audioInputDevices: MediaDeviceInfo[],
+    audioInputDevices: InputDeviceInfo[],
     audioOutputDevices: MediaDeviceInfo[],
   ) => {
-    if (inputDeviceId
-      && (inputDeviceId !== DEFAULT_DEVICE)
-      && !audioInputDevices.find((d) => d.deviceId === inputDeviceId)) {
-      const fallbackInputDevice = audioInputDevices[0];
-
-      if (fallbackInputDevice?.deviceId) {
-        logger.warn({
-          logCode: 'audio_input_live_selector',
-          extraInfo: {
-            fallbackDeviceId: fallbackInputDevice?.deviceId,
-            fallbackDeviceLabel: fallbackInputDevice?.label,
-          },
-        }, 'Current input device was removed. Fallback to default device');
-        liveChangeInputDevice(fallbackInputDevice.deviceId).catch(() => {
-          notify(intl.formatMessage(intlMessages.deviceChangeFailed), true);
-        });
-      }
-    }
-
     if (outputDeviceId
       && (outputDeviceId !== DEFAULT_DEVICE)
       && !audioOutputDevices.find((d) => d.deviceId === outputDeviceId)) {
@@ -160,7 +141,44 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
         });
       }
     }
-  }, [inputDeviceId, outputDeviceId]);
+
+    // --- Input device (microphone) ---
+    // getUserMedia() locks a live track to a concrete device; the browser
+    // does not automatically migrate it when the OS default changes mid
+    // session (headset unplugged, Bluetooth device swapped, Windows itself
+    // switching the default), so that has to be detected and handled here.
+    const activeInputId = inputDeviceId || DEFAULT_DEVICE;
+    let shouldUpdateInput = false;
+
+    if (activeInputId !== DEFAULT_DEVICE) {
+      // User explicitly picked a specific mic. If it disappeared, fall back.
+      if (!audioInputDevices.find((d) => d.deviceId === activeInputId)) {
+        shouldUpdateInput = true;
+      }
+    } else {
+      // User is on 'default'. The virtual 'default' deviceId string never
+      // changes, so compare groupId (which identifies the physical hardware
+      // behind it) to detect the OS default itself changing.
+      const oldDefault = inputDevices.find((d) => d.deviceId === DEFAULT_DEVICE);
+      const newDefault = audioInputDevices.find((d) => d.deviceId === DEFAULT_DEVICE);
+      if (oldDefault && newDefault && oldDefault.groupId !== newDefault.groupId) {
+        shouldUpdateInput = true;
+      }
+    }
+
+    if (shouldUpdateInput) {
+      logger.warn({
+        logCode: 'audio_input_live_selector',
+        extraInfo: { fallbackDeviceId: DEFAULT_DEVICE },
+      }, 'Current input device was removed or default changed. Fallback to new default device');
+
+      setTimeout(() => {
+        liveChangeInputDevice(DEFAULT_DEVICE).catch(() => {
+          notify(intl.formatMessage(intlMessages.deviceChangeFailed), true);
+        });
+      }, 1500); // Give the OS time to settle before re-requesting the stream
+    }
+  }, [inputDeviceId, outputDeviceId, inputDevices]);
 
   const updateDevices = useCallback(() => {
     navigator.mediaDevices.enumerateDevices()
@@ -173,7 +191,7 @@ const InputStreamLiveSelector: React.FC<InputStreamLiveSelectorProps> = ({
         updateInputDevices(audioInputDevices as InputDeviceInfo[]);
         updateOutputDevices(audioOutputDevices);
 
-        if (inAudio) updateRemovedDevices(audioInputDevices, audioOutputDevices);
+        if (inAudio) updateRemovedDevices(audioInputDevices as InputDeviceInfo[], audioOutputDevices);
       })
       .catch((error) => {
         logger.warn({
