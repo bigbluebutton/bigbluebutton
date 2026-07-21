@@ -420,6 +420,7 @@
     "app.presentationUploader.exportCurrentStatePresentation": "إرسال رابط تنزيل للعرض التقديمي بما في ذلك التعليقات التوضيحية على السبورة البيضاء",
     "app.presentationUploader.enableOriginalPresentationDownload": "تمكين تنزيل العرض التقديمي ({fileExtension})",
     "app.presentationUploader.disableOriginalPresentationDownload": "تعطيل تنزيل العرض التقديمي الأصلي ({fileExtension})",
+    "app.presentationUploader.export.availableForDownload": "Presentation available for download",
     "app.presentationUploader.export.withWhiteboardAnnotations": "مع تعليقات السبورة البيضاء",
     "app.presentationUploader.dropdownExportOptions": "خيارات التصدير",
     "app.presentationUploader.dropdownExportOptionsUncomplete": "معطل حتى اكتمال التحميل",
