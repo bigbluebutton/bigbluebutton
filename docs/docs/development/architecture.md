@@ -18,6 +18,8 @@ The following diagram provides a high-level view of how BigBlueButton's componen
 
 ```mermaid
 flowchart TB
+  %% Blue = new/default in 4.0 · grey-dashed = alternative/opt-in path
+
   %% ── Edge / reverse proxies ──────────────────────────
   client[client]
   haproxy[HAProxy]
@@ -28,16 +30,14 @@ flowchart TB
   nginx --> haproxy
   thirdparty --> nginx
 
-  %% ── HTML5 client, GraphQL stack & datastores ────────
-  html5[bbb-html5]
+  %% ── HTML5 client, GraphQL stack & datastore ─────────
+  html5["bbb-html5<br/>(static client)"]
   gqlmw[graphql-middleware]
   hasura["graphql-server<br/>(Hasura)"]
   gqlactions[graphql-actions]
-  mongo[("MongoDB<br/>(being decommissioned)")]
   postgres[(PostgreSQL)]
 
   html5 --> haproxy
-  html5 <--> mongo
   haproxy <--> gqlmw
   gqlmw <--> hasura
   gqlmw --> gqlactions
@@ -48,29 +48,53 @@ flowchart TB
 
   %% ── Core apps ───────────────────────────────────────
   akkaapps[akka-apps]
-  akkafsesl[akka-fsesl]
   webapi[Web API]
   redis[RedisPubSub]
 
   akkaapps --> postgres
-  akkaapps --> akkafsesl
   akkaapps <--> redis
   akkaapps --> redisdb
   webapi <--> nginx
   webapi <--> redis
 
-  %% ── Media ───────────────────────────────────────────
-  sfu[webrtc-sfu]
-  freeswitch[FreeSWITCH]
-  mediasoup[mediasoup]
+  %% ── Media: LiveKit (default) ─────────────────────────
+  livekit["LiveKit server<br/>(default A/V/screenshare)"]:::neo
+  livekitsip["LiveKit SIP<br/>(dial-in)"]:::neo
+  sfu["bbb-webrtc-sfu<br/>(media controller)"]
   recorder[webrtc-recorder]
 
+  nginx <--> livekit
+  livekitsip --> livekit
+  sfu <--> livekit
   sfu <--> nginx
   sfu <--> redis
+  recorder <--> livekit
   sfu <--> recorder
-  sfu --> mediasoup
-  sfu --> freeswitch
-  akkafsesl <--> freeswitch
+
+  %% ── Media: mediasoup + FreeSWITCH (alternative) ──────
+  mediasoup["mediasoup<br/>(alternative)"]:::alt
+  freeswitch["FreeSWITCH<br/>(alternative / dial-in)"]:::alt
+  akkafsesl[akka-fsesl]:::alt
+
+  sfu -.-> mediasoup
+  mediasoup -.-> freeswitch
+  akkaapps -.-> akkafsesl
+  akkafsesl -.-> freeswitch
+
+  %% ── Shared notes: BlockNote (default) ────────────────
+  sharednotes["bbb-shared-notes-server<br/>(Hocuspocus / Yjs)"]:::neo
+  blocknotedb[("blocknote_app<br/>(Yjs docs)")]:::neo
+
+  nginx <--> sharednotes
+  sharednotes <--> blocknotedb
+  sharednotes <--> redis
+
+  %% ── Shared notes: Etherpad (alternative) ─────────────
+  pads["bbb-pads<br/>(alternative)"]:::alt
+  etherpad["Etherpad<br/>(alternative)"]:::alt
+
+  redis <--> pads
+  pads <--> etherpad
 
   %% ── Presentation conversion & static files ──────────
   prescon[Presentation Conversion]
@@ -81,12 +105,10 @@ flowchart TB
   prescon --> redis
   presfiles --> nginx
 
-  %% ── Recording, pads & other Redis consumers ─────────
+  %% ── Recording & other Redis consumers ────────────────
   exportann[export-annotations]
   webhooks[webhooks]
   transcription[transcription-controller]
-  pads[bbb-pads]
-  etherpad[Etherpad]
   redisdb[(RedisDB)]
   recproc[recording processor]
 
@@ -94,15 +116,13 @@ flowchart TB
   exportann --> presfiles
   redis <--> webhooks
   redis <--> transcription
-  redis <--> pads
-  pads <--> etherpad
   redisdb --> recproc
 
   %% ── Styling ─────────────────────────────────────────
   classDef store fill:#e8ecf3,stroke:#5b6b8c,color:#1c2733;
-  classDef deprecated fill:#f2f2f2,stroke:#b0b0b0,color:#8a8a8a,stroke-dasharray:4 4;
+  classDef alt   fill:#f2f2f2,stroke:#b0b0b0,color:#7a7a7a,stroke-dasharray:4 4;
+  classDef neo   fill:#e6f0ff,stroke:#2b6cb0,color:#12345a;
   class postgres,presfiles,redisdb store;
-  class mongo deprecated;
 ```
 
 We'll break down each component in more detail below.
