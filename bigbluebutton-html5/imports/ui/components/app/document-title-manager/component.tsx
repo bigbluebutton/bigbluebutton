@@ -37,7 +37,7 @@ const intlMessages = defineMessages({
     description: 'view name appended to document title',
   },
   privateChatTitle: {
-    id: 'app.chat.titlePrivate',
+    id: 'app.chat.titlePrivateToUser',
     description: 'view name appended to document title',
   },
   pollTitle: {
