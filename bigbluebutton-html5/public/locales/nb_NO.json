@@ -420,6 +420,7 @@
     "app.presentationUploader.exportCurrentStatePresentation": "Send ut en nedlastingslenke for presentasjonen inkludert tavlekommentarer",
     "app.presentationUploader.enableOriginalPresentationDownload": "Aktivér nedlasting av presentasjonen ({fileExtension})",
     "app.presentationUploader.disableOriginalPresentationDownload": "Deaktiver nedlasting av den opprinnelige presentasjonen ({fileExtension})",
+    "app.presentationUploader.export.availableForDownload": "Presentation available for download",
     "app.presentationUploader.export.withWhiteboardAnnotations": "med whiteboard-merknader",
     "app.presentationUploader.dropdownExportOptions": "Eksportalternativer",
     "app.presentationUploader.dropdownExportOptionsUncomplete": "Deaktivert frem til opplastingen er fullført",
