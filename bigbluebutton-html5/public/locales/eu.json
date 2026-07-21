@@ -420,6 +420,7 @@
     "app.presentationUploader.exportCurrentStatePresentation": "Bidali aurkezpena deskargatzeko esteka arbelaren oharrak barne dituena",
     "app.presentationUploader.enableOriginalPresentationDownload": "Gaitu aurkezpena deskargatzea ({fileExtension})",
     "app.presentationUploader.disableOriginalPresentationDownload": "Desgaitu jatorrizko aurkezpenaren deskarga ({fileExtension})",
+    "app.presentationUploader.export.availableForDownload": "Presentation available for download",
     "app.presentationUploader.export.withWhiteboardAnnotations": "Une honetako egoeran",
     "app.presentationUploader.dropdownExportOptions": "Esportatu aukerak",
     "app.presentationUploader.dropdownExportOptionsUncomplete": "Desgaituta karga osatu arte",
