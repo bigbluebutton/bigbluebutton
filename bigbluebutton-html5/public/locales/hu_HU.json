@@ -420,6 +420,7 @@
     "app.presentationUploader.exportCurrentStatePresentation": "Küldjön el egy letöltési linket a előadáshoz, beleértve a rajztábla-megjegyzéseket",
     "app.presentationUploader.enableOriginalPresentationDownload": "A prezentáció ({fileExtension}) letöltésének engedélyezése",
     "app.presentationUploader.disableOriginalPresentationDownload": "Az eredeti prezentáció ({fileExtension}) letöltésének tiltása",
+    "app.presentationUploader.export.availableForDownload": "Presentation available for download",
     "app.presentationUploader.export.withWhiteboardAnnotations": "rajztábla-megjegyzésekkel",
     "app.presentationUploader.dropdownExportOptions": "Beállítások exportálása",
     "app.presentationUploader.dropdownExportOptionsUncomplete": "A feltöltés végéig letiltva",
