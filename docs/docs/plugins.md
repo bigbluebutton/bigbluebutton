@@ -836,7 +836,7 @@ Plugin-provided **nav bar**, **actions bar**, and **presentation toolbar** butto
 - `color` — button color (e.g. `primary`, `default`). Default: `primary` in the nav bar and actions bar, `default` in the presentation toolbar.
 - `circle` — render as a circular icon button. Default: `true` in the actions bar, `false` in the presentation toolbar and nav-bar.
 - `hideLabel` — hide the text label and show only the icon. Default: `true` in the actions bar, `false` in the presentation toolbar and nav-bar.
-- `size` — button size (`sm`, `md`, `lg`). Default: `sm` in the nav bar, `lg` in the actions bar, `md` in the presentation toolbar.
+- `size` — button size (`sm`, `md`, `lg`). Default: `lg` in the actions bar, `md` in the presentation toolbar and nav-bar.
 - `style` — an inline CSS style object applied to the button.
 
 ### Auxiliaries:
