@@ -420,6 +420,7 @@
     "app.presentationUploader.exportCurrentStatePresentation": "Στείλτε έναν σύνδεσμο λήψης για την παρουσίαση, συμπεριλαμβανομένων των σχολιασμών του πίνακα.",
     "app.presentationUploader.enableOriginalPresentationDownload": "Ενεργοποίηση λήψης της παρουσίασης ({fileExtension})",
     "app.presentationUploader.disableOriginalPresentationDownload": "Απενεργοποίηση λήψης της πρωτότυπης παρουσίασης ({fileExtension})",
+    "app.presentationUploader.export.availableForDownload": "Presentation available for download",
     "app.presentationUploader.export.withWhiteboardAnnotations": "με τις σημειώσεις του λευκοπίνακα",
     "app.presentationUploader.dropdownExportOptions": "Επιλογές εξαγωγής",
     "app.presentationUploader.dropdownExportOptionsUncomplete": "Είναι απενεργοποιημένο μέχρι την ολοκλήρωση της μεταφόρτωσης",
