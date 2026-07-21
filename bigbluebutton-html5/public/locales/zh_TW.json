@@ -420,6 +420,7 @@
     "app.presentationUploader.exportCurrentStatePresentation": "傳送目前簡報的下載連結",
     "app.presentationUploader.enableOriginalPresentationDownload": "啟用下載原始簡報 ({fileExtension})",
     "app.presentationUploader.disableOriginalPresentationDownload": "停用下載原始簡報 ({fileExtension})",
+    "app.presentationUploader.export.availableForDownload": "Presentation available for download",
     "app.presentationUploader.export.withWhiteboardAnnotations": "目前狀態",
     "app.presentationUploader.dropdownExportOptions": "匯出選項",
     "app.presentationUploader.dropdownExportOptionsUncomplete": "直到完成上傳之後先不運作",
