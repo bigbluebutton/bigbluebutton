@@ -829,6 +829,16 @@ That being said, here are the extensible areas we have so far:
 
 Mind that no plugin will interfere into another's extensible area. So feel free to set whatever you need into a certain plugin with no worries.
 
+#### Configurable button styles
+
+Plugin-provided **nav bar**, **actions bar**, and **presentation toolbar** buttons accept a few optional style fields that control the rendered button's shape. They are read when present and fall back to the previous defaults when omitted, so older plugin objects keep rendering exactly as before (requires plugin SDK `0.0.100` or later):
+
+- `color` — button color (e.g. `primary`, `default`). Default: `primary` in the nav bar and actions bar, `default` in the presentation toolbar.
+- `circle` — render as a circular icon button. Default: `true` in the actions bar, `false` in the presentation toolbar and nav-bar.
+- `hideLabel` — hide the text label and show only the icon. Default: `true` in the actions bar, `false` in the presentation toolbar and nav-bar.
+- `size` — button size (`sm`, `md`, `lg`). Default: `lg` in the actions bar, `md` in the presentation toolbar and nav-bar.
+- `style` — an inline CSS style object applied to the button.
+
 ### Auxiliaries:
 
 - `getSessionToken`: returns the user session token located on the user's URL.
