@@ -58,13 +58,15 @@ test.describe('Recording timer', { tag: '@ci' }, () => {
     await modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await modPage.hasElement(e.recordingIndicator, 'should display the recording indicator once joined');
     await modPage.waitAndClick(e.recordingIndicator);
-    await modPage.hasElement(e.simpleModal, 'should display the recording modal');
-    await modPage.hasElement(e.yesButton, 'should display the "Yes" button in the recording modal');
-    await modPage.waitAndClick(e.yesButton);
+    await modPage.hasElement(
+      e.confirmRecordingButton,
+      'should display the Confirm button in the recording confirmation toast',
+    );
+    await modPage.waitAndClick(e.confirmRecordingButton);
     await expect(
       recordingIndicatorButton,
       'recording indicator button should have a red background color when recording',
-    ).toHaveCSS('background-color', 'rgb(174, 16, 16)');
+    ).toHaveCSS('background-color', 'rgb(223, 39, 33)');
 
     // The timer must start near 0:00. With the clock-skew bug it shows ~14:00 instead,
     // because the clamped (>= 0) skew leaves the client's clock offset baked into the

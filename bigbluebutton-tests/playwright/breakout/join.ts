@@ -232,7 +232,7 @@ export class Join extends Create {
     ).toHaveCSS('background-color', 'rgb(254, 249, 241)');
     await expect(chatWrapper, 'should have a left border highlight for breakout room moderator messages').toHaveCSS(
       'border-left-color',
-      'rgb(245, 198, 127)',
+      'rgb(161, 98, 7)',
     );
   }
 
