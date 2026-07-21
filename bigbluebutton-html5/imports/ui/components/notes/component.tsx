@@ -166,37 +166,37 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
         isHidden={isHidden}
         style={isOnMediaArea ? cssProps : {}}
       >
-      {!isOnMediaArea ? (
-        <>
-          <PanelHeader
-            panelId={PANELS.SHARED_NOTES}
-            title={intl.formatMessage(intlMessages.title)}
-            dataTest="notesHeader"
-            closeButtonDataTest="hideNotesLabel"
-            customRightButton={(
-              <NotesDropdown
-                isEtherpadSharedNotes={isEtherpadSharedNotes}
-                handlePinSharedNotes={handlePinSharedNotes}
-                padId={padId}
-              />
-            )}
-          />
-          <Styled.Separator />
-        </>
-      ) : renderHeaderOnMedia()}
-      { isEtherpadSharedNotes
-        ? (
-          <PadContainer
-            isOnMediaArea={isOnMediaArea}
-            externalId={NOTES_ID()}
-            hasPermission={hasPermission}
-            isResizing={isResizing}
-            isLocalChange={isLocalChange}
-            isRTL={isRTL}
-            amIPresenter={amIPresenter}
-            isVisible={isVisible}
-          />
-        ) : <BlockNoteContainer isVisible={isVisible} />}
+        {!isOnMediaArea ? (
+          <>
+            <PanelHeader
+              panelId={PANELS.SHARED_NOTES}
+              title={intl.formatMessage(intlMessages.title)}
+              dataTest="notesHeader"
+              closeButtonDataTest="hideNotesLabel"
+              customRightButton={(
+                <NotesDropdown
+                  isEtherpadSharedNotes={isEtherpadSharedNotes}
+                  handlePinSharedNotes={handlePinSharedNotes}
+                  padId={padId}
+                />
+              )}
+            />
+            <Styled.Separator />
+          </>
+        ) : renderHeaderOnMedia()}
+        { isEtherpadSharedNotes
+          ? (
+            <PadContainer
+              isOnMediaArea={isOnMediaArea}
+              externalId={NOTES_ID()}
+              hasPermission={hasPermission}
+              isResizing={isResizing}
+              isLocalChange={isLocalChange}
+              isRTL={isRTL}
+              amIPresenter={amIPresenter}
+              isVisible={isVisible}
+            />
+          ) : <BlockNoteContainer isVisible={isVisible} />}
       </Styled.PanelContent>
     </SharedNotesImportContext.Provider>
   );
