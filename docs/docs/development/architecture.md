@@ -16,7 +16,94 @@ This page describes the overall architecture of BigBlueButton and how these comp
 
 The following diagram provides a high-level view of how BigBlueButton's components work together.
 
-![Architecture Overview](/img/diagrams/BBB30arch.drawio.png)
+```mermaid
+flowchart TB
+  %% ── Edge / reverse proxies ──────────────────────────
+  client[client]
+  haproxy[HAProxy]
+  nginx[NginX]
+  thirdparty[3rd party]
+
+  client <--> haproxy
+  nginx --> haproxy
+  thirdparty --> nginx
+
+  %% ── HTML5 client, GraphQL stack & datastores ────────
+  html5[bbb-html5]
+  gqlmw[graphql-middleware]
+  hasura["graphql-server<br/>(Hasura)"]
+  gqlactions[graphql-actions]
+  mongo[("MongoDB<br/>(being decommissioned)")]
+  postgres[(PostgreSQL)]
+
+  html5 --> haproxy
+  html5 <--> mongo
+  haproxy <--> gqlmw
+  gqlmw <--> hasura
+  gqlmw --> gqlactions
+  gqlmw <--> redis
+  gqlactions --> redis
+  hasura --> nginx
+  postgres --> hasura
+
+  %% ── Core apps ───────────────────────────────────────
+  akkaapps[akka-apps]
+  akkafsesl[akka-fsesl]
+  webapi[Web API]
+  redis[RedisPubSub]
+
+  akkaapps --> postgres
+  akkaapps --> akkafsesl
+  akkaapps <--> redis
+  akkaapps --> redisdb
+  webapi <--> nginx
+  webapi <--> redis
+
+  %% ── Media ───────────────────────────────────────────
+  sfu[webrtc-sfu]
+  freeswitch[FreeSWITCH]
+  mediasoup[mediasoup]
+  recorder[webrtc-recorder]
+
+  sfu <--> nginx
+  sfu <--> redis
+  sfu <--> recorder
+  sfu --> mediasoup
+  sfu --> freeswitch
+  akkafsesl <--> freeswitch
+
+  %% ── Presentation conversion & static files ──────────
+  prescon[Presentation Conversion]
+  presfiles[(presentation files)]
+
+  webapi --> prescon
+  prescon --> presfiles
+  prescon --> redis
+  presfiles --> nginx
+
+  %% ── Recording, pads & other Redis consumers ─────────
+  exportann[export-annotations]
+  webhooks[webhooks]
+  transcription[transcription-controller]
+  pads[bbb-pads]
+  etherpad[Etherpad]
+  redisdb[(RedisDB)]
+  recproc[recording processor]
+
+  redis <--> exportann
+  exportann --> presfiles
+  redis <--> webhooks
+  redis <--> transcription
+  redis <--> pads
+  pads <--> etherpad
+  redisdb --> recproc
+
+  %% ── Styling ─────────────────────────────────────────
+  classDef store fill:#e8ecf3,stroke:#5b6b8c,color:#1c2733;
+  classDef deprecated fill:#f2f2f2,stroke:#b0b0b0,color:#8a8a8a,stroke-dasharray:4 4;
+  class postgres,presfiles,redisdb store;
+  class mongo deprecated;
+```
 
 We'll break down each component in more detail below.
 
