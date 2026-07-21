@@ -427,6 +427,7 @@ async function processPresentationAnnotations() {
     // still fill the raster) and renders at the same resolution as the final
     // SVG->PDF pass (toPx of the slide dims) so the background stays sharp.
     let backgroundSlide = `${bgImagePath}.${backgroundFormat}`;
+    let backgroundSlideFormat = backgroundFormat;
 
     if (backgroundFormat === 'svg') {
       try {
@@ -441,6 +442,7 @@ async function processPresentationAnnotations() {
               cairosvg: config.shared.cairosvg,
               unsafe: config.process.cairoSVGUnsafeFlag,
             });
+        backgroundSlideFormat = 'png';
       } catch (error) {
         logger.error(`Rasterizing slide ${currentSlide.page} ` +
           `failed for job ${jobId}: ${error.message}`);
@@ -448,9 +450,12 @@ async function processPresentationAnnotations() {
       }
     }
 
+    const backgroundDataURI = getBackgroundDataURI(
+        backgroundSlide, backgroundSlideFormat);
+
     // Add the image element
     canvas
-        .image(`file://${backgroundSlide}`)
+        .image(backgroundDataURI)
         .size(scaledWidth, scaledHeight);
 
     // Add a group element with class 'whiteboard'
