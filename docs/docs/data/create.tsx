@@ -247,7 +247,7 @@ const createEndpointTableData = [
     "required": false,
     "type": "Boolean",
     "default": false,
-    "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will disable notes in the meeting. (added 2.2)</>)
+    "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will disable notes in the meeting. (added 2.2)<br /><br />The deprecated singular alias <code className="language-plaintext highlighter-rouge">lockSettingsDisableNote</code> was removed in 4.0.</>)
   },
   {
     "name": "lockSettingsHideUserList",
