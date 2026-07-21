@@ -49,7 +49,8 @@ test.describe.parallel('Accessible routing', { tag: '@ci' }, () => {
       await expect(modPage.page, 'polling should be reflected in the document title').toHaveTitle(/ - Polling$/);
     }
 
-    await modPage.waitAndClick(e.actions);
+    // 4.0 opens the manage-presentations view from the media-area menu (3.0 used the actions "+" menu).
+    await modPage.waitAndClick(e.mediaAreaButton);
     await modPage.waitAndClick(e.managePresentations);
     await modPage.hasElement(e.presentationFileUpload, 'should display the presentation upload view');
     await expect(modPage.page, 'presentation upload should be reflected in the document title').toHaveTitle(
@@ -80,13 +81,11 @@ test.describe.parallel('Accessible routing', { tag: '@ci' }, () => {
     // 4.0 settings modal is dismissed via the Save button (3.0 used a generic modal dismiss).
     await modPage.waitAndClick(e.saveSettingsButton);
 
-    await modPage.waitAndClick(e.manageUsers);
-    if (await modPage.page.locator(e.createBreakoutRoomsButton).isVisible()) {
-      await modPage.waitAndClick(e.createBreakoutRoomsButton);
-      await expect(modPage.page, 'breakout room creation modal should be reflected in the document title').toHaveTitle(
-        / - Breakout Rooms$/,
-      );
-      await modPage.waitAndClick(e.modalDismissButton);
-    }
+    // 4.0 opens breakout-room creation from the sidebar button (3.0 went through the manageUsers
+    // menu). The creation panel is the BREAKOUT sidebar content, which drives the document title.
+    await modPage.waitAndClick(e.breakoutRoomSidebarButton);
+    await expect(modPage.page, 'breakout room creation should be reflected in the document title').toHaveTitle(
+      / - Breakout Rooms$/,
+    );
   });
 });
