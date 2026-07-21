@@ -420,6 +420,7 @@
     "app.presentationUploader.exportCurrentStatePresentation": "Invia un collegamento per scaricare la presentazione con le annotazioni della lavagna",
     "app.presentationUploader.enableOriginalPresentationDownload": "Abilita il download della presentazione ({fileExtension})",
     "app.presentationUploader.disableOriginalPresentationDownload": "Disabilita il download della presentazione originale ({fileExtension})",
+    "app.presentationUploader.export.availableForDownload": "Presentation available for download",
     "app.presentationUploader.export.withWhiteboardAnnotations": "con le annotazioni della lavagna",
     "app.presentationUploader.dropdownExportOptions": "Opzioni esportazione",
     "app.presentationUploader.dropdownExportOptionsUncomplete": "Disabilitato fino al completamento del caricamento",
