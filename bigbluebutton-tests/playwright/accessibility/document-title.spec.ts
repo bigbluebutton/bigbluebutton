@@ -34,7 +34,7 @@ test.describe.parallel('Accessible routing', { tag: '@ci' }, () => {
     }
 
     if (modPage.settings?.sharedNotesEnabled) {
-      await modPage.waitAndClick(e.sharedNotes);
+      await modPage.waitAndClick(e.sharedNotesSidebarButton);
       await modPage.hasElement(e.sharedNotesBackground, 'should display shared notes');
       await expect(modPage.page, 'shared notes should be reflected in the document title').toHaveTitle(
         / - Shared Notes$/,
@@ -42,9 +42,10 @@ test.describe.parallel('Accessible routing', { tag: '@ci' }, () => {
     }
 
     if (modPage.settings?.pollEnabled) {
-      await modPage.waitAndClick(e.actions);
-      await modPage.waitAndClick(e.polling);
-      await modPage.hasElement(e.hidePollDesc, 'should display the polling panel');
+      // 4.0 opens the poll panel from the sidebar button (3.0 used the actions menu item),
+      // and the open panel shows the minimize button (3.0's hidePollDesc no longer exists).
+      await modPage.waitAndClick(e.pollSidebarButton);
+      await modPage.hasElement(e.minimizePolling, 'should display the polling panel');
       await expect(modPage.page, 'polling should be reflected in the document title').toHaveTitle(/ - Polling$/);
     }
 
@@ -76,11 +77,12 @@ test.describe.parallel('Accessible routing', { tag: '@ci' }, () => {
 
     await openSettings(modPage);
     await expect(modPage.page, 'settings modal should be reflected in the document title').toHaveTitle(/ - Settings$/);
-    await modPage.waitAndClick(e.modalDismissButton);
+    // 4.0 settings modal is dismissed via the Save button (3.0 used a generic modal dismiss).
+    await modPage.waitAndClick(e.saveSettingsButton);
 
     await modPage.waitAndClick(e.manageUsers);
-    if (await modPage.page.locator(e.createBreakoutRooms).isVisible()) {
-      await modPage.waitAndClick(e.createBreakoutRooms);
+    if (await modPage.page.locator(e.createBreakoutRoomsButton).isVisible()) {
+      await modPage.waitAndClick(e.createBreakoutRoomsButton);
       await expect(modPage.page, 'breakout room creation modal should be reflected in the document title').toHaveTitle(
         / - Breakout Rooms$/,
       );
