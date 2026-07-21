@@ -114,6 +114,7 @@ export interface BbbTabletApp {
 
 export interface DarkTheme {
   enabled: boolean
+  autoDetectFromSystem: boolean
 }
 
 export interface WakeLock {

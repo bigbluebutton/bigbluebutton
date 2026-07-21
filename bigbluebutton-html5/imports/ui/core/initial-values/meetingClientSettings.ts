@@ -33,6 +33,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       customStyleUrl: null,
       darkTheme: {
         enabled: true,
+        autoDetectFromSystem: true,
       },
       askForConfirmationOnLeave: false,
       wakeLock: {
