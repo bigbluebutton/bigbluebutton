@@ -45,6 +45,7 @@
                 allowModsToEjectCameras
                 allowModsToUnmuteUsers
                 authenticatedGuest
+                allowPromoteGuestToModerator
                 maxUserConcurrentAccesses
                 maxUsers
                 meetingLayout

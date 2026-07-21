@@ -104,17 +104,19 @@ const handleSharedNotesCreate = async (header: MessageHeader, body: MessageBody)
     externalId,
     model,
     initialContentJson,
+    initialContentMarkdown,
   } = body;
 
   const padId = `${documentNamePrefix}${meetingId}`;
 
-  const validateInitialContentNotEmpty = (): boolean => {
-    return initialContentJson !== undefined
-      && initialContentJson !== null
-      && typeof initialContentJson === "object"
-      && Object.keys(initialContentJson).length > 0
-  }
-  if (validateInitialContentNotEmpty()) {
+  const hasInitialContentJson = initialContentJson !== undefined
+    && initialContentJson !== null
+    && typeof initialContentJson === "object"
+    && Object.keys(initialContentJson).length > 0;
+  const hasInitialContentMarkdown = typeof initialContentMarkdown === "string"
+    && initialContentMarkdown.length > 0;
+
+  if (hasInitialContentMarkdown || hasInitialContentJson) {
     logger.debug(
       'Received initial content', {
         padId,
@@ -122,7 +124,10 @@ const handleSharedNotesCreate = async (header: MessageHeader, body: MessageBody)
       }
     );
     try {
-      const statusReturn = await pushInitialContent(padId, initialContentJson);
+      const statusReturn = await pushInitialContent(padId, {
+        initialContentJson: hasInitialContentJson ? initialContentJson : undefined,
+        initialContentMarkdown: hasInitialContentMarkdown ? initialContentMarkdown : undefined,
+      });
       if (statusReturn.error) {
         logger.error('Error found, see details', {
           logCode: statusReturn.statusCode,

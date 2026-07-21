@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import { useReactiveVar } from '@apollo/client';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import { useReactiveVar } from '@apollo/client';
 import NavBar from './component';
 import { layoutDispatch, layoutSelectOutput } from '../layout/context';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
@@ -33,7 +33,6 @@ const NavBarContainer = (props) => {
   const hideNavBar = getFromUserSettings('bbb_hide_nav_bar', false);
 
   const PUBLIC_CONFIG = window.meetingClientSettings.public;
-  const CLIENT_TITLE = getFromUserSettings('bbb_client_title', PUBLIC_CONFIG.app.clientTitle);
   const IS_DIRECT_LEAVE_BUTTON_ENABLED = getFromUserSettings(
     'bbb_direct_leave_button',
     PUBLIC_CONFIG.app.defaultSettings.application.directLeaveButton,
@@ -44,32 +43,15 @@ const NavBarContainer = (props) => {
   );
 
   let meetingTitle;
-  let breakoutNum;
-  let breakoutName;
-  let meetingName;
   const connected = useReactiveVar(connectionStatus.getConnectedStatusVar());
 
   const { data: meeting } = useMeeting((m) => ({
     name: m.name,
     meetingId: m.meetingId,
-    breakoutPolicies: {
-      sequence: m.breakoutPolicies.sequence,
-    },
   }));
 
   if (meeting) {
     meetingTitle = meeting.name;
-    const titleString = `${CLIENT_TITLE} - ${meetingTitle}`;
-    document.title = titleString;
-    registerTitleView(intl.formatMessage(intlMessages.defaultViewLabel));
-
-    if (meeting.breakoutPolicies) {
-      breakoutNum = meeting.breakoutPolicies.sequence;
-      if (breakoutNum > 0) {
-        breakoutName = meetingTitle;
-        meetingName = meetingTitle.replace(`(${breakoutName})`, '').trim();
-      }
-    }
   }
 
   if (hideNavBar || navBar.display === false) return null;
@@ -90,9 +72,6 @@ const NavBarContainer = (props) => {
         pluginNavBarItems,
         meetingId: meeting?.meetingId,
         presentationTitle: meetingTitle,
-        breakoutNum,
-        breakoutName,
-        meetingName,
         isDirectLeaveButtonEnabled: IS_DIRECT_LEAVE_BUTTON_ENABLED,
         // TODO: Remove/Replace
         isConnected: connected,

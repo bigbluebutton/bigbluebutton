@@ -1,10 +1,10 @@
 import styled from 'styled-components';
 import {
+  colorBorder,
   colorGrayDark,
   colorGrayLabel,
   colorPrimary,
   colorWhite,
-  colorGrayLighter,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { Switch } from '@mui/material';
 import { styled as materialStyled } from '@mui/material/styles';
@@ -83,7 +83,7 @@ const Select = styled.select`
   background-color: ${colorWhite};
   border: ${borderSize} solid ${colorWhite};
   border-radius: ${borderSize};
-  border-bottom: 0.1rem solid ${colorGrayLighter};
+  border-bottom: 0.1rem solid ${colorBorder};
   color: ${colorGrayLabel};
   width: 100%;
   height: 1.75rem;

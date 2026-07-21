@@ -62,6 +62,9 @@ public:
     skipMeetingEnded: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
+    # Show the guest user's position in the lobby waiting queue.
+    # Set to false when users should not see their place in line.
+    showGuestLobbyWaitingQueuePosition: true
     guestPolicyExtraAllowOptions: false
     alwaysShowWaitingRoomUI: true
     enableLimitOfViewersInWebcam: false
@@ -878,6 +881,14 @@ public:
     # editor and always visible. When disabled, BlockNote's default floating
     # toolbar appears only when text is selected.
     staticFormattingToolbar: true
+    # When enabled, the "Import from Markdown" option is shown in the shared
+    # notes options menu, letting presenters import Markdown content. Defaults
+    # to false so a minor update does not add a new menu button unexpectedly.
+    importMarkdownEnabled: false
+    # When enabled, the "Export notes as Markdown" option is shown in the
+    # shared notes options menu. Defaults to false so a minor update does not
+    # add a new menu button unexpectedly.
+    exportMarkdownEnabled: false
   media:
     audio:
       # defaultFullAudioBridge: bridge to be used by full audio mechanism.
