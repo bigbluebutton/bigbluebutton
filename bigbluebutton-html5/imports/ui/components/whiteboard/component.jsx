@@ -45,11 +45,14 @@ import DeleteSelectedItemsTool from './custom-tools/delete-selected-items/compon
 import SessionStorage from '/imports/ui/services/storage/session';
 
 const CAMERA_TYPE = 'camera';
-// Upper bound (ms) for waiting on the new slide's background image to decode before
-// swapping the visible page. Warm HTTP cache resolves in sub-frame time; a cold or
-// slow asset falls back to this bound so navigation is never worse than before the
-// decode-gate (issue 25397).
-const SLIDE_SWAP_DECODE_TIMEOUT = 1500;
+// Fallback upper bound (ms) for waiting on the new slide's background image to decode
+// before swapping the visible page, used when meetingClientSettings does not provide
+// public.whiteboard.slideSwapDecodeTimeoutMs. A warm HTTP cache resolves in sub-frame
+// time; a cold or slow asset falls back to this bound so navigation is never worse than
+// before the decode-gate (issue 25397). Note: on links slower than this bound the timeout
+// fires before the asset is paintable and the original white flash still shows - the gate
+// mitigates the common cold-cache case, it does not eliminate the worst (very slow) case.
+const SLIDE_SWAP_DECODE_TIMEOUT_DEFAULT = 1500;
 const colorStyles = [
   'black',
   'blue',
@@ -2285,12 +2288,17 @@ const Whiteboard = React.memo((props) => {
     let cancelled = false;
 
     const applyPageSwap = () => {
-      // Rapid navigation / unmount guard: while we were awaiting the decode the user
-      // may have moved to another slide (or the component unmounted). Both refs are
-      // updated elsewhere (curPageIdRef in its own [curPageId] effect, isMountedRef on
-      // unmount), so a late decode for an abandoned page can't clobber the current one
-      // (e.g. 1 -> 9 -> 3: decode(9) resolving after we already applied 3 is dropped).
-      if (cancelled || !isMountedRef.current) return;
+      // Rapid navigation / unmount guard: while we were awaiting the decode the user may
+      // have navigated to another slide, or this effect may have been cleaned up (React
+      // runs the cleanup below on unmount and before re-running the effect). The
+      // `cancelled` flag - set in that cleanup - covers both cases fully, so a late decode
+      // for an abandoned page can't clobber the current one (e.g. 1 -> 9 -> 3: decode(9)
+      // resolving after we already applied 3 is dropped because effect(9) was cancelled and
+      // curPageIdRef no longer matches). The editor can also be torn down between the decode
+      // starting and resolving, so re-check tlEditorRef here - it was only checked at effect
+      // entry, synchronously, before we awaited.
+      if (cancelled) return;
+      if (!tlEditorRef.current) return;
       if (parseInt(curPageIdRef.current, 10) !== formattedPageId) return;
 
       // If a viewer is mid-edit (select.editing_shape) when the slide changes,
@@ -2341,12 +2349,24 @@ const Whiteboard = React.memo((props) => {
       }
     };
 
-    // bgShape references the same authenticated, deterministic SVG URL that tldraw will
-    // paint (Auth.authenticateURL is idempotent), so priming a detached Image reuses the
-    // HTTP cache the swap needs - no extra fetch on a warm cache.
+    // `assets` is derived from the same currentPresentationPage as curPageId, in the same
+    // render (container.jsx:137-153, :439-453), so it is never stale relative to the page
+    // being swapped: assets[0].props.src is the background for THIS curPageId. A stale src
+    // would silently disable the gate (the swap just returns) with no symptom other than
+    // the bug returning, so keep that derivation in lock-step with curPageId.
+    //
+    // bgShape references the same authenticated, deterministic, immutable SVG URL that
+    // tldraw will paint (Auth.authenticateURL is idempotent: the same sessionToken yields
+    // the same URL and cache key). presentation-slides.nginx sends
+    // `Cache-Control: private, immutable` on these assets, so priming a detached Image
+    // warms the browser cache and tldraw's later background-image load is a cache hit - no
+    // second network transfer or auth_request subrequest per slide change.
     const bgShapeSrc = assets?.[0]?.props?.src;
     if (!bgShapeSrc) {
-      // No background asset to wait on (e.g. blank/infinite whiteboard) - swap now.
+      // No background asset URL to gate on: currentPresentationPage has no svgUrl, so
+      // container.jsx:447 leaves src undefined. This is the missing-svgUrl case - the src
+      // is derived regardless of infiniteWhiteboard - so there is simply nothing to decode.
+      // Swap now.
       applyPageSwap();
       return undefined;
     }
@@ -2354,19 +2374,38 @@ const Whiteboard = React.memo((props) => {
     const img = new Image();
     img.src = bgShapeSrc;
     let fallbackTimer;
+    const decodeTimeout = window.meetingClientSettings?.public?.whiteboard?.slideSwapDecodeTimeoutMs
+      ?? SLIDE_SWAP_DECODE_TIMEOUT_DEFAULT;
     Promise.race([
       // decode() rejects on a broken/401/malformed asset; swallow it so a bad asset
       // degrades to "apply the swap anyway" (the pre-fix behavior) and never wedges
       // navigation on the old slide.
       img.decode().catch(() => {}),
       new Promise((resolve) => {
-        fallbackTimer = setTimeout(resolve, SLIDE_SWAP_DECODE_TIMEOUT);
+        fallbackTimer = setTimeout(resolve, decodeTimeout);
       }),
-    ]).then(applyPageSwap);
+    ])
+      .then(applyPageSwap)
+      .catch((error) => {
+        // applyPageSwap runs the store mutation that used to run synchronously in the
+        // effect body, where a throw landed in ErrorBoundaryWithReload (container.jsx) and
+        // the client recovered with a reload. Inside this async .then a throw would instead
+        // escape as an unhandled promise rejection - no boundary, no reload, editor left
+        // half-swapped between two pages. Log it so the failure is observable, never silent.
+        logger.error({ logCode: 'SlideSwapDecodeGate' }, `Deferred page swap failed: ${error}`);
+      })
+      .finally(() => {
+        // Clear the fallback timer on the decode-wins path too: the cleanup below only runs
+        // on unmount / effect re-run, not when the race resolves normally.
+        if (fallbackTimer) clearTimeout(fallbackTimer);
+      });
 
     return () => {
       cancelled = true;
       if (fallbackTimer) clearTimeout(fallbackTimer);
+      // Release the detached decode Image so a burst of rapid navigation doesn't pin a
+      // queue of half-decoded SVGs in flight (the rapid-nav case guarded above).
+      img.src = '';
     };
   }, [curPageId]);
 
