@@ -14,7 +14,7 @@ GEM
       csv
       rexml
     builder (3.3.0)
-    concurrent-ruby (1.3.4)
+    concurrent-ruby (1.3.8)
     crass (1.0.7)
     csv (3.3.5)
     fastimage (2.4.1)
@@ -123,4 +123,4 @@ DEPENDENCIES
   tzinfo (>= 1.2.10)
 
 BUNDLED WITH
-   2.1.4
+   2.4.20
