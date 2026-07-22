@@ -27,7 +27,10 @@ import jakarta.annotation.PostConstruct
 import jakarta.annotation.PreDestroy
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.RejectedExecutionException
 import java.util.concurrent.ThreadFactory
+import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -48,17 +51,31 @@ class PresentationService {
 	def pageTokenSecret
 	def numDownloadThreads
 
+	// Bounds how many tasks may wait for a free download thread, as a multiple of
+	// the pool size. Keeps a burst of create/insertDocument requests from queueing
+	// without limit (each raw-bytes task can hold a whole file in memory).
+	private static final int DOWNLOAD_QUEUE_CAPACITY_PER_THREAD = 20
+
 	private ExecutorService downloadExecutor
 
 	@PostConstruct
 	void initDownloadExecutor() {
 		int threads = (numDownloadThreads ?: 5) as int
 		AtomicInteger threadSeq = new AtomicInteger()
-		downloadExecutor = Executors.newFixedThreadPool(threads, { Runnable r ->
+		ThreadFactory threadFactory = { Runnable r ->
 			Thread t = new Thread(r, "pres-download-" + threadSeq.incrementAndGet())
 			t.daemon = true
 			return t
-		} as ThreadFactory)
+		} as ThreadFactory
+		// Fixed pool with a *bounded* queue. Executors.newFixedThreadPool would use an
+		// unbounded queue, letting bursts pile up until the heap is exhausted; here
+		// excess tasks are rejected (see submitPresentationTask) instead.
+		downloadExecutor = new ThreadPoolExecutor(
+				threads, threads,
+				0L, TimeUnit.MILLISECONDS,
+				new LinkedBlockingQueue<Runnable>(threads * DOWNLOAD_QUEUE_CAPACITY_PER_THREAD),
+				threadFactory,
+				new ThreadPoolExecutor.AbortPolicy())
 	}
 
 	@PreDestroy
@@ -69,16 +86,24 @@ class PresentationService {
 	/**
 	 * Runs presentation download/processing off the request thread so API responses
 	 * are not delayed by it. The pool is bounded (numPresentationDownloadThreads) and
-	 * any failure escaping the work closure is logged with meeting context.
+	 * backed by a bounded queue; if it is saturated the task is rejected and logged
+	 * rather than queued without limit. Any failure escaping the work closure is
+	 * logged with meeting context. Returns false when the task could not be accepted.
 	 */
-	void submitPresentationTask(String meetingId, String source, Closure work) {
-		downloadExecutor.submit({
-			try {
-				work()
-			} catch (Throwable t) {
-				log.error("Failed to process pre-uploaded presentation for meeting [${meetingId}], source [${source}]", t)
-			}
-		} as Runnable)
+	boolean submitPresentationTask(String meetingId, String source, Closure work) {
+		try {
+			downloadExecutor.submit({
+				try {
+					work()
+				} catch (Throwable t) {
+					log.error("Failed to process pre-uploaded presentation for meeting [${meetingId}], source [${source}]", t)
+				}
+			} as Runnable)
+			return true
+		} catch (RejectedExecutionException e) {
+			log.error("Rejected pre-uploaded presentation task, download pool saturated for meeting [${meetingId}], source [${source}]", e)
+			return false
+		}
 	}
 
 	def deletePresentation = {conf, room, filename ->

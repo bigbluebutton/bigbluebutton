@@ -966,7 +966,7 @@ $ sudo bbb-conf --restart
 
 #### Tune parallel downloads of pre-uploaded presentations
 
-Presentations pre-uploaded through the `create` or `insertDocument` API calls are downloaded and processed in the background, on a bounded thread pool, so the API response is not delayed. By default up to 5 documents are downloaded in parallel per server; further documents wait in a queue. To change this, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties` and set the `numPresentationDownloadThreads` value:
+Presentations pre-uploaded through the `create` or `insertDocument` API calls are downloaded and processed in the background, on a bounded thread pool, so the API response is not delayed. By default up to 5 documents are downloaded in parallel per server; additional documents wait in a bounded queue. If the server is under sustained overload and that queue is full, further presentation tasks are rejected (and logged) instead of being queued without limit, which protects the server from running out of memory. To change the parallelism, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties` and set the `numPresentationDownloadThreads` value:
 
 ```properties
 numPresentationDownloadThreads=5
@@ -975,7 +975,7 @@ numPresentationDownloadThreads=5
 After you save the changes to `/etc/bigbluebutton/bbb-web.properties`, restart the BigBlueButton server with
 
 ```bash
-$ sudo bbb-conf --restart
+sudo bbb-conf --restart
 ```
 
 #### Increase the file size for an uploaded presentation
