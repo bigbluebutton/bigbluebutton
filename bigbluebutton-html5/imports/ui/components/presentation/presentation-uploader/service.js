@@ -291,7 +291,7 @@ const extractPresentationNotesFromExistingPptx = (
   };
 
   return futch(
-    Auth.authenticateURL('/bigbluebutton/presentation-notes/extract-existing'),
+    Auth.authenticateURL(endpoint),
     opts,
   )
     .catch((error) => {
