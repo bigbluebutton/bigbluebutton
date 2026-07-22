@@ -27,15 +27,21 @@ class WhiteboardModelSpec extends AnyFlatSpec {
     assert(!isAllowedAnnotationType(shapeInfo("image")))
   }
 
-  it should "allow legitimate drawing shape types" in {
-    List("draw", "geo", "arrow", "line", "text", "note", "highlight", "frame", "group").foreach { t =>
+  it should "reject the video shape type and any unknown/future rich-content type" in {
+    assert(!isAllowedAnnotationType(shapeInfo("video")))
+    assert(!isAllowedAnnotationType(shapeInfo("iframe")))
+    assert(!isAllowedAnnotationType(shapeInfo("some-future-embed")))
+  }
+
+  it should "allow legitimate drawing shape types (plus group and the BBB poll shape)" in {
+    List("draw", "geo", "arrow", "line", "text", "note", "highlight", "frame", "group", "poll").foreach { t =>
       assert(isAllowedAnnotationType(shapeInfo(t)), s"expected shape type '$t' to be allowed")
     }
   }
 
-  it should "not reject annotations whose type is absent or non-string (left to the caller)" in {
-    assert(isAllowedAnnotationType(Map.empty[String, Any]))
-    assert(isAllowedAnnotationType(Map("type" -> 123)))
+  it should "reject annotations whose type is absent or non-string" in {
+    assert(!isAllowedAnnotationType(Map.empty[String, Any]))
+    assert(!isAllowedAnnotationType(Map("type" -> 123)))
   }
 
   it should "block what the previous accept-any-type behaviour allowed through" in {

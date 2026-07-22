@@ -7,17 +7,18 @@ import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.db.{ PresAnnotationDAO, PresAnnotationHistoryDAO }
 
 object WhiteboardModel {
-  // Shape types that must never be stored or broadcast as whiteboard
-  // annotations. They render embeddable/rich content (iframes, link
-  // previews, external images) instead of being part of the drawing
-  // toolset, so they are rejected server-side regardless of any
-  // client-side checks. Mirrors the client allowlist (isValidShapeType).
-  val DisallowedAnnotationTypes: Set[String] = Set("embed", "bookmark", "image")
+  // Allowlist of legitimate whiteboard shape types; anything else (rich-content
+  // sinks like embed/bookmark/image/video, unknown/future types, and the
+  // missing/non-string-type edge) is rejected before storage or broadcast.
+  // Keep in sync with the shape types a client can produce (bigbluebutton-html5
+  // whiteboard + the bundled @bigbluebutton/tldraw shape utils).
+  val AllowedAnnotationTypes: Set[String] =
+    Set("draw", "geo", "arrow", "line", "text", "note", "highlight", "frame", "group", "poll")
 
   def isAllowedAnnotationType(annotationInfo: Map[String, _]): Boolean = {
     annotationInfo.get("type") match {
-      case Some(annotationType: String) => !DisallowedAnnotationTypes.contains(annotationType)
-      case _                            => true
+      case Some(annotationType: String) => AllowedAnnotationTypes.contains(annotationType)
+      case _                            => false
     }
   }
 }
