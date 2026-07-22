@@ -2,27 +2,20 @@ import React, {
   useRef,
   useState,
   useEffect,
+  useCallback,
   memo,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import CustomLogo from './custom-logo/component';
-import ProfileListItem from './profile-list-item/component';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import ChatListItem from './chat-list-item/component';
-import UserNotesListItemContainer from './user-notes-list-item/component';
-import UsersListItem from './users-list-item/component';
-import AppsListItem from './apps-list-item/component';
-import AudioCaptionsListItem from './audio-captions-list-item/component';
-import LearningDashboardListItem from './learning-dashboard-list-item/component';
-import SettingsListItem from './settings-list-item/component';
 import PinnedApps from './pinned-apps/component';
+import SIDEBAR_BUTTONS_REGISTRY, { PINNED_APPS_BUTTON_ID } from './buttons-registry';
 import { SidebarNavigation as SidebarNavigationInput } from '../layout/layoutTypes';
 import getSettingsSingletonInstance from '/imports/ui/services/settings';
-import { useIsLearningDashboardEnabled } from '/imports/ui/services/features';
 import { PANELS } from '/imports/ui/components/layout/enums';
 import { layoutSelectInput } from '/imports/ui/components/layout/context';
 import { Input } from '/imports/ui/components/layout/layoutTypes';
-import useIsPanelOpened from './hooks/useIsPanelOpened';
+import logger from '/imports/startup/client/logger';
 import Styled from './styles';
 
 interface SidebarNavigationProps {
@@ -34,7 +27,6 @@ interface SidebarNavigationProps {
   height: number,
   width: number,
   sidebarNavigationInput: SidebarNavigationInput,
-  isModerator: boolean,
   hasUnreadMessages: boolean,
   hasUnreadNotes: boolean,
 }
@@ -69,12 +61,16 @@ const SidebarNavigation = ({
   height,
   width,
   sidebarNavigationInput,
-  isModerator,
   hasUnreadMessages,
   hasUnreadNotes,
 }: SidebarNavigationProps) => {
   const intl = useIntl();
   const showBrandingArea = getFromUserSettings('bbb_display_branding_area', window.meetingClientSettings.public.app.branding.displayBrandingArea);
+  const {
+    top: topButtons = [],
+    center: centerButtons = [],
+    bottom: bottomButtons = [],
+  } = window.meetingClientSettings.public.sidebarNavigation.buttons;
 
   const scrollRef = useRef<HTMLDivElement>(null);
   // Prevents vertical scrollbox background to be shown on dark mode when there is no scroll
@@ -85,9 +81,7 @@ const SidebarNavigation = ({
   const Settings = getSettingsSingletonInstance();
   const animations = Settings?.application?.animations;
   const hasNotification = hasUnreadMessages || hasUnreadNotes;
-  const isLearningDashboardEnabled = useIsLearningDashboardEnabled();
   const { sidebarContentPanel } = layoutSelectInput((i: Input) => i.sidebarContent);
-  const isOpened = useIsPanelOpened();
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -132,6 +126,39 @@ const SidebarNavigation = ({
       setIsExpanded(false);
     }
   }, [sidebarContentPanel]);
+
+  useEffect(() => {
+    [...topButtons, ...centerButtons, ...bottomButtons].forEach((buttonId) => {
+      if (buttonId === PINNED_APPS_BUTTON_ID) return;
+      if (!SIDEBAR_BUTTONS_REGISTRY[buttonId]) {
+        logger.warn({
+          logCode: 'sidebar_navigation_unknown_button_id',
+          extraInfo: { buttonId },
+        }, `Sidebar navigation: unknown button id "${buttonId}" configured in settings.yml, it will not be rendered`);
+      }
+    });
+    // Configured button ids come from static startup settings, validate once on mount.
+  }, []);
+
+  const renderButton = useCallback((buttonId: string) => {
+    if (buttonId === PINNED_APPS_BUTTON_ID) {
+      return (
+        <PinnedApps
+          key={buttonId}
+          sidebarNavigationInput={sidebarNavigationInput}
+        />
+      );
+    }
+
+    const ButtonComponent = SIDEBAR_BUTTONS_REGISTRY[buttonId];
+    if (!ButtonComponent) return null;
+
+    return <ButtonComponent key={buttonId} />;
+  }, [sidebarNavigationInput]);
+
+  const hasTopContent = showBrandingArea || topButtons.length > 0;
+  const hasCenterContent = centerButtons.length > 0;
+  const hasBottomContent = bottomButtons.length > 0;
 
   return (
     <Styled.NavigationSidebarBackdrop
@@ -181,27 +208,19 @@ const SidebarNavigation = ({
         >
           <Styled.Top>
             {showBrandingArea && <CustomLogo />}
-            <ProfileListItem isOpened={isOpened(PANELS.PROFILE)} />
-            <UsersListItem isOpened={isOpened(PANELS.USERLIST)} />
-            <ChatListItem isOpened={isOpened(PANELS.CHAT)} />
-            <UserNotesListItemContainer isOpened={isOpened(PANELS.SHARED_NOTES)} />
+            {topButtons.map((buttonId) => renderButton(buttonId))}
           </Styled.Top>
 
-          <Styled.Separator />
+          {hasTopContent && hasCenterContent && <Styled.Separator />}
 
           <Styled.Center>
-            <AppsListItem isOpened={isOpened(PANELS.APPS_GALLERY)} />
-            <PinnedApps
-              sidebarNavigationInput={sidebarNavigationInput}
-            />
+            {centerButtons.map((buttonId) => renderButton(buttonId))}
           </Styled.Center>
 
-          <Styled.Separator />
+          {hasCenterContent && hasBottomContent && <Styled.Separator />}
 
           <Styled.Bottom>
-            <AudioCaptionsListItem isOpened={isOpened(PANELS.AUDIO_CAPTIONS)} />
-            { isLearningDashboardEnabled && isModerator ? <LearningDashboardListItem /> : null }
-            <SettingsListItem />
+            {bottomButtons.map((buttonId) => renderButton(buttonId))}
           </Styled.Bottom>
         </Styled.NavigationSidebarListItemsContainer>
       </Styled.NavigationSidebar>

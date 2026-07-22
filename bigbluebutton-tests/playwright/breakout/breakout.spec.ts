@@ -106,36 +106,40 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
       await join.joinRoom();
     });
 
-    test('Join Breakout room and share webcam', async ({ browser, context, page }, testInfo) => {
+    test('Join Breakout room and share webcam', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
       await join.create();
       await join.joinAndShareWebcam();
     });
 
-    test('Join Breakout room and share screen', async ({ browser, context, page, browserName }, testInfo) => {
-      test.skip(browserName === 'firefox', 'Firefox is too heavy for this test, needs improvement.');
-      const join = new Join(browser, context);
-      await join.initPages(page, testInfo);
-      await join.create();
-      await join.joinAndShareScreen();
-    });
+    test(
+      'Join Breakout room and share screen',
+      { tag: '@media' },
+      async ({ browser, context, page, browserName }, testInfo) => {
+        test.skip(browserName === 'firefox', 'Firefox is too heavy for this test, needs improvement.');
+        const join = new Join(browser, context);
+        await join.initPages(page, testInfo);
+        await join.create();
+        await join.joinAndShareScreen();
+      },
+    );
 
-    test('Join Breakout room and share Audio', async ({ browser, context, page }, testInfo) => {
+    test('Join Breakout room and share Audio', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
       await join.create();
       await join.joinAndShareAudio();
     });
 
-    test('Join Breakout room with Audio', async ({ browser, context, page }, testInfo) => {
+    test('Join Breakout room with Audio', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
       await join.create();
       await join.joinWithAudio();
     });
 
-    test('Join Breakout room with Audio and Video', async ({ browser, context, page }, testInfo) => {
+    test('Join Breakout room with Audio and Video', { tag: '@media' }, async ({ browser, context, page }, testInfo) => {
       const join = new Join(browser, context);
       await join.initPages(page, testInfo);
       await join.create();
@@ -194,7 +198,11 @@ test.describe.parallel('Breakout', { tag: '@ci' }, () => {
     test('Export breakout room shared notes', async ({ browser, context, page }, testInfo) => {
       linkIssue(24367);
       const join = new Join(browser, context);
-      await join.initPages(page, testInfo);
+      // Pin the editor so the test doesn't depend on the server's default
+      // sharedNotesEditor; the breakout inherits it from the parent meeting, so
+      // only the mod page (which creates the meeting) needs the parameter.
+      await join.initModPage(page, { createParameter: 'sharedNotesEditor=blockNote', testInfo });
+      await join.initUserPage(context, { testInfo });
       await join.create(true);
       await join.exportBreakoutNotes();
     });

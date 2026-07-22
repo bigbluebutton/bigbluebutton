@@ -247,7 +247,7 @@ const createEndpointTableData = [
     "required": false,
     "type": "Boolean",
     "default": false,
-    "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will disable notes in the meeting. (added 2.2)</>)
+    "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will disable notes in the meeting. (added 2.2)<br /><br />The deprecated singular alias <code className="language-plaintext highlighter-rouge">lockSettingsDisableNote</code> was removed in 4.0.</>)
   },
   {
     "name": "lockSettingsHideUserList",
@@ -391,14 +391,26 @@ const createEndpointTableData = [
     "name": "sharedNotesEditor",
     "required": false,
     "type": "String",
-    "default": "etherpad",
+    "default": "blockNote",
     "description": (<>Editor to be rendered in the shared-notes area: `blockNote` or `etherpad`</>)
   },
   {
     "name": "sharedNotesInitialContentJsonUrl",
     "required": false,
     "type": "String",
-    "description": (<>Url from which the shared-notes will fetch the initial content (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise)</>)
+    "description": (<>Url from which the shared-notes will fetch the initial content (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise). The URL must be `https` (`fetchUrlSupportedProtocols`), is capped by `maxSharedNotesInitialContentUrlPayloadSize` (default 1024 KiB) and has a 6000 ms timeout; a URL that violates these yields empty initial content silently.</>)
+  },
+  {
+    "name": "sharedNotesInitialContentMarkdown",
+    "required": false,
+    "type": "String",
+    "description": (<>Raw markdown used as the shared-notes initial content (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise). Takes precedence over `sharedNotesInitialContentMarkdownUrl` when both are provided.</>)
+  },
+  {
+    "name": "sharedNotesInitialContentMarkdownUrl",
+    "required": false,
+    "type": "String",
+    "description": (<>Url from which the shared-notes will fetch the initial content as markdown (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise). The URL must be `https` (`fetchUrlSupportedProtocols`), is capped by `maxSharedNotesInitialContentUrlPayloadSize` (default 1024 KiB) and has a 6000 ms timeout; a URL that violates these yields empty initial content silently.</>)
   },
   {
     "name": "disabledFeatures",
@@ -614,18 +626,6 @@ const createEndpointTableData = [
     "required": false,
     "type": "String",
     "description": (<>If passed it will use this string as the name of the presentation uploaded via <code className="language-plaintext highlighter-rouge">preUploadedPresentation</code> (added 2.7.2)</>)
-  },
-  {
-    "name": "allowOverrideClientSettingsOnCreateCall",
-    "required": false,
-    "default": false,
-    "type": "Boolean",
-    "description": (
-      <>
-        <p>Whether to allow <a href="#clientsettingsoverride">clientSettingsOverride</a> to be included in the body of a POST request. Because the body of the post request is not signed by the <a href="#api-security-model">checksum</a>, this parameter is set to <code>false</code> by default. If you set this to <code>true</code>, you must make sure that the signed parameters of the create API request are not visible to users.</p>
-        <p><i>Added:</i> 3.0.0-alpha.1</p>
-      </>
-    )
   },
   {
     "name": "clientSettingsOverride",

@@ -42,6 +42,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       skipMeetingEnded: false,
       dynamicGuestPolicy: true,
       enableGuestLobbyMessage: true,
+      showGuestLobbyWaitingQueuePosition: true,
       guestPolicyExtraAllowOptions: false,
       alwaysShowWaitingRoomUI: true,
       enableLimitOfViewersInWebcam: false,
@@ -62,6 +63,14 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         mobile: false,
         provider: 'webspeech',
         showInSidebarNavigation: false,
+        microphoneAlert: {
+          enabled: true,
+          helpLink: '',
+          threshold: -50,
+          speakingThreshold: 5000,
+          duration: 10000,
+          interval: 200,
+        },
         language: {
           available: [
             'en-US',
@@ -218,6 +227,8 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       maxDocumentChars: 99999,
       maxLengthForContentUpdate: 512,
       staticFormattingToolbar: true,
+      importMarkdownEnabled: false,
+      exportMarkdownEnabled: false,
     },
     externalVideoPlayer: {
       enabled: true,
@@ -609,14 +620,19 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     },
     sidebarNavigation: {
       appsToLabelAsNew: [],
+      buttons: {
+        top: ['profile', 'user-list', 'chat', 'notes'],
+        center: ['apps-gallery', 'pinned-apps'],
+        bottom: ['audio-captions', 'learning-dashboard', 'settings'],
+      },
     },
     pads: {
       url: 'ETHERPAD_HOST',
     },
     media: {
       audio: {
-        defaultFullAudioBridge: 'fullaudio',
-        defaultListenOnlyBridge: 'fullaudio',
+        defaultFullAudioBridge: 'livekit',
+        defaultListenOnlyBridge: 'livekit',
         retryThroughRelay: false,
         allowAudioJoinCancel: true,
         audioWasmProcessing: {

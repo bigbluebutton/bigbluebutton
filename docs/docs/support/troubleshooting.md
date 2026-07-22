@@ -103,7 +103,7 @@ Accepted values are:
    * The default and fallback values are `auto`.
 
 For example:
-   * To set the number of workers to `cores`: `test -s /etc/bigbluebutton/bbb-webrtc-sfu/production.yml || echo '{}' > /etc/bigbluebutton/bbb-webrtc-sfu/production.yml && yq -y -i '.mediasoup.workers = "cores"' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
+   * To set the number of workers to `cores`: `yq-go e -i '.mediasoup.workers = "cores"' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
 
 #### mediasoup.dedicatedMediaTypeWorkers
 
@@ -126,34 +126,13 @@ The media types semantics are:
    * `content`: screen sharing streams (audio and video).
 
 For example:
-  * To set the number of dedicated audio workers to `auto`: `test -s /etc/bigbluebutton/bbb-webrtc-sfu/production.yml || echo '{}' > /etc/bigbluebutton/bbb-webrtc-sfu/production.yml && yq -y -i '.mediasoup.dedicatedMediaTypeWorkers.audio = "auto"' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
+  * To set the number of dedicated audio workers to `auto`: `yq-go e -i '.mediasoup.dedicatedMediaTypeWorkers.audio = "auto"' /etc/bigbluebutton/bbb-webrtc-sfu/production.yml`
 
 ### Can I scale the number of streams up indefinitely with mediasoup?
 
 No. Scalability improves a lot with mediasoup, but there are still a couple of bottlenecks that can be hit as far  **as far as the media stack is concerned**. Namely:
   - The signaling server (bbb-webrtc-sfu): it does not scale vertically indefinitely. 
   - The mediasoup worker balancing algorithm implemented by bbb-webrtc-sfu is still focused on multiparty meetings with a restrained number of users. If your goal is thousand-user 1-N (streaming-like) meetings, you may max out CPU usage on certain mediasoup workers even though there are other idle workers free.
-
-### bbb-webrtc-sfu fails to start with a SETSCHEDULER error
-
-bbb-webrtc-sfu runs with CPUSchedulingPolicy=fifo. In systems without appropriate capabilities (SYS_NICE), the application will fail to start.
-The error can be verified in journalctl logs as 214/SETSCHEDULER.
-
-Similar to [bbb-html5](#bbb-html5-fails-to-start-with-a-setscheduler-error), you can override this by running
-
-```
-mkdir /etc/systemd/system/bbb-webrtc-sfu.service.d
-```
-
-and creating `/etc/systemd/system/bbb-webrtc-sfu.service.d/override.conf` with the following contents
-
-```
-[Service]
-CPUSchedulingPolicy=other
-Nice=-10
-```
-
-Then do `systemctl daemon-reload` and restart BigBlueButton.
 
 ## FreeSWITCH
 
@@ -381,11 +360,11 @@ Note: If your server has an internal/external IP address, such as on AWS EC2 ser
 
 ### The following packages have unmet dependencies
 
-When installing the latest build of BigBlueButton, the package `bbb-conf` now uses `yq` (the Python/jq-based version by kislyuk) to manage YAML files.
+When installing the latest build of BigBlueButton, `bbb-conf` uses `yq-go` (mikefarah's Go implementation of `yq`) to manage YAML files. On Ubuntu 24.04 `yq-go` is a separate command from the archive `yq` (the Python/jq-based version by kislyuk); BigBlueButton ships it as the **`bbb-yq-go`** package, which installs the `/usr/bin/yq-go` binary.
 
-You can install it with `pip install yq` or via your distribution's package manager.
+`bbb-yq-go` is pulled in automatically as a dependency of the BigBlueButton packages from BigBlueButton's apt repository. If it is missing, install it with `sudo apt-get install bbb-yq-go`.
 
-Alternatively, if you have not made any customizations to BigBlueButton (outside of using `bbb-conf`), you can use [bbb-install.sh](https://github.com/bigbluebutton/bbb-install) to install/upgrade to the latest version (the `bbb-install.sh` script will automatically install `yq`).
+Alternatively, if you have not made any customizations to BigBlueButton (outside of using `bbb-conf`), you can use [bbb-install.sh](https://github.com/bigbluebutton/bbb-install) to install/upgrade to the latest version (which installs `bbb-yq-go` automatically).
 
 ### No Symbolic Link
 
@@ -632,8 +611,6 @@ Optionally, check their errors via `systemctl status <service-name>.service` and
 This error occurs because the default systemd unit scripts for FreeSWITCH, bbb-html5 and bbb-webrtc-sfu try to run with permissions not available to the LXD container.
 To get them working within an LXD container, follow the steps outlined in the following sections:
   - [FreeSWITCH fails to start with a SETSCHEDULER error](#freeswitch-fails-to-start-with-a-setscheduler-error)
-  - [bbb-webrtc-sfu fails to start with a SETSCHEDULER error](#bbb-webrtc-sfu-fails-to-start-with-a-setscheduler-error)
-  - [bbb-html5 fails to start with a SETSCHEDULER error](#bbb-html5-fails-to-start-with-a-setscheduler-error)
 
 You can now run BigBlueButton within a LXD container.
 

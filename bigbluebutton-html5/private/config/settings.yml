@@ -62,6 +62,9 @@ public:
     skipMeetingEnded: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
+    # Show the guest user's position in the lobby waiting queue.
+    # Set to false when users should not see their place in line.
+    showGuestLobbyWaitingQueuePosition: true
     guestPolicyExtraAllowOptions: false
     alwaysShowWaitingRoomUI: true
     enableLimitOfViewersInWebcam: false
@@ -98,6 +101,23 @@ public:
       # If true, the transcriptions and captions settings are displayed as an
       # entry in the sidebar navigation rather than a button in the actions bar
       showInSidebarNavigation: false
+      # Alert shown when WebSpeech is enabled and the user is on floor but nothing is being
+      # transcribed, suggesting a wrong microphone device or noisy environment.
+      microphoneAlert:
+        enabled: true
+        # URL to a knowledge base article about microphone settings (empty = no link shown)
+        helpLink: ''
+        # Audio energy threshold (dB) used to detect that the user is speaking.
+        # More negative values are more sensitive (e.g. -60 picks up quieter audio).
+        threshold: -50
+        # How long (ms) the user must be speaking with no transcription result
+        # before the alert is triggered.
+        speakingThreshold: 5000
+        # How long (ms) the alert toast stays on screen before auto-dismissing.
+        # Set to 0 to require manual dismissal.
+        duration: 10000
+        # How often (ms) the audio energy is checked to determine if the user is speaking.
+        interval: 200
       language:
         # Available languages will depend on the transcription service
         # Google: https://cloud.google.com/speech-to-text/docs/speech-to-text-supported-languages
@@ -315,6 +335,10 @@ public:
   # plugins:
   #   - name: SamplePresentationToolbarPlugin
   #     url: https://<your-Host>/plugins/SamplePresentationToolbarPlugin.js
+  #     settings:
+  #       isNew: true to display the new ribbon on the app gallery item of the plugin
+  #       pin: true # pin all plugin-injected items
+  #       # or: pin: ["generic-content-id", "app-gallery-item-id"] # pin only specific IDs
   # Allowed errors to be shown on notifications bar
     showConnectionErrors:
       # - 3001
@@ -823,6 +847,24 @@ public:
     usersPerUserListPage: 50
     syncCameraDockSizeAndPosition: true
   sidebarNavigation:
+    # Controls which built-in sidebar navigation buttons are rendered, in
+    # which section (top/center/bottom) and in what order. Omitting an id
+    # hides that button. This is a full replacement list, not an allow/deny
+    # list over a hidden default - if you customize it, remember to add any
+    # new ids introduced by future upstream versions.
+    buttons:
+      top:
+        - profile
+        - user-list
+        - chat
+        - notes
+      center:
+        - apps-gallery
+        - pinned-apps
+      bottom:
+        - audio-captions
+        - learning-dashboard
+        - settings
     # Controls which apps should have the "new" label in the apps gallery.
     # Possible values: 'poll', 'breakoutroom', 'timer', 'audio-captions'.
     # For plugins, refer to the isNew flag in the plugin's own settings.
@@ -839,11 +881,19 @@ public:
     # editor and always visible. When disabled, BlockNote's default floating
     # toolbar appears only when text is selected.
     staticFormattingToolbar: true
+    # When enabled, the "Import from Markdown" option is shown in the shared
+    # notes options menu, letting presenters import Markdown content. Defaults
+    # to false so a minor update does not add a new menu button unexpectedly.
+    importMarkdownEnabled: false
+    # When enabled, the "Export notes as Markdown" option is shown in the
+    # shared notes options menu. Defaults to false so a minor update does not
+    # add a new menu button unexpectedly.
+    exportMarkdownEnabled: false
   media:
     audio:
       # defaultFullAudioBridge: bridge to be used by full audio mechanism.
       # Deprecated, superseded by `audioBridge` (bigbluebutton.properties, /create)
-      defaultFullAudioBridge: fullaudio
+      defaultFullAudioBridge: livekit
       # fullAudioMediaServer: which bbb-webrtc-sfu media server adapter should
       # be used for microphone audio.
       # Default is undefined, which means the default setting in bbb-webrtc-sfu
@@ -852,7 +902,7 @@ public:
       #
       # defaultListenOnlyBridge: bridge to be used by listen only mechanism.
       # Deprecated, no alternative as this audio mode will be removed.
-      defaultListenOnlyBridge: fullaudio
+      defaultListenOnlyBridge: livekit
       # retryThroughRelay: forces a retry with iceTransportPolicy = 'relay'
       # if the first attempt fails with selected errors codes (eg 1007, 1010)
       retryThroughRelay: false

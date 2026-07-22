@@ -66,6 +66,7 @@ export interface App {
   skipMeetingEnded: boolean
   dynamicGuestPolicy: boolean
   enableGuestLobbyMessage: boolean
+  showGuestLobbyWaitingQueuePosition: boolean
   guestPolicyExtraAllowOptions: boolean
   alwaysShowWaitingRoomUI: boolean
   enableLimitOfViewersInWebcam: boolean
@@ -126,7 +127,17 @@ export interface AudioCaptions {
   mobile: boolean
   provider: string
   showInSidebarNavigation: boolean
+  microphoneAlert: MicrophoneAlert
   language: Language
+}
+
+export interface MicrophoneAlert {
+  enabled: boolean
+  helpLink: string
+  threshold: number
+  speakingThreshold: number
+  duration: number
+  interval: number
 }
 
 export interface Language {
@@ -592,8 +603,15 @@ export interface Layout {
   showLeaveSessionLabel: boolean
 }
 
+export interface SidebarNavigationButtons {
+  top: string[]
+  center: string[]
+  bottom: string[]
+}
+
 export interface SidebarNavigation {
   appsToLabelAsNew: string[]
+  buttons: SidebarNavigationButtons
 }
 
 export interface Pads {
@@ -605,6 +623,8 @@ export interface SharedNotes {
   maxDocumentChars: number
   maxLengthForContentUpdate: number
   staticFormattingToolbar: boolean
+  importMarkdownEnabled: boolean
+  exportMarkdownEnabled: boolean
 }
 
 export interface Media {

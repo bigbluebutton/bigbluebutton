@@ -1,6 +1,8 @@
 import { test } from '../core/setup/fixtures';
 import { Chat } from './chat';
+import { Jumbomoji } from './jumbomoji';
 import { MessageActions } from './messageActions';
+import { PrivateChatListPreview } from './privateChatListPreview';
 
 test.describe.parallel('Chat', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#public-message-automated
@@ -159,6 +161,29 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     const chat = new Chat(browser, context);
     await chat.initPages(page, testInfo);
     await chat.chatDisabledUserLeaves();
+  });
+
+  test('Jumbomoji renders emoji-only messages with larger font', async ({ browser, context, page }, testInfo) => {
+    const jumbomoji = new Jumbomoji(browser, context);
+    await jumbomoji.initModPage(page, { testInfo });
+    await jumbomoji.verifyJumbomoji();
+  });
+
+  test('Private chat preview renders at first paint', async ({ browser, context, page }, testInfo) => {
+    const preview = new PrivateChatListPreview(browser, context);
+    await preview.initModPage(page, { testInfo });
+    await preview.initUserPageWithDelayedPreview(testInfo);
+    await preview.previewRendersAtFirstPaint();
+  });
+
+  test('Private chat preview shows deleted label for a soft-deleted last message', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const preview = new PrivateChatListPreview(browser, context);
+    await preview.initPages(page, testInfo);
+    await preview.deletedLastMessageRendersDeletedLabel();
   });
 
   test.describe('Message actions', () => {

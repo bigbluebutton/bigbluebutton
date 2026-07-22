@@ -490,7 +490,8 @@ Keep it `false` in production unless you specifically want such overrides to be 
 You can disable webcams by setting `enableVideo` to `false` in the `/etc/bigbluebutton/bbb-html5.yml` file for the HTML5 client.
 
 `test -s /etc/bigbluebutton/bbb-html5.yml || echo '{}' > /etc/bigbluebutton/bbb-html5.yml`
-`yq -y -i '.public.kurento.enableVideo = false' /etc/bigbluebutton/bbb-html5.yml`
+
+`yq-go e -i '.public.kurento.enableVideo = false' /etc/bigbluebutton/bbb-html5.yml`
 
 and run `bbb-conf --restart`
 
@@ -499,7 +500,8 @@ and run `bbb-conf --restart`
 You can disable screen sharing by setting `enableScreensharing` to `false` in the `/etc/bigbluebutton/bbb-html5.yml` file for the HTML5 client.
 
 `test -s /etc/bigbluebutton/bbb-html5.yml || echo '{}' > /etc/bigbluebutton/bbb-html5.yml`
-`yq -y -i '.public.kurento.enableScreensharing = false' /etc/bigbluebutton/bbb-html5.yml`
+
+`yq-go e -i '.public.kurento.enableScreensharing = false' /etc/bigbluebutton/bbb-html5.yml`
 
 #### Reduce bandwidth for webcams
 
@@ -513,23 +515,25 @@ The following command will copy ALL of the DEFAULT camera profiles from the sour
 the override location `/etc/bigbluebutton/bbb-html5.yml`. If you had previous related overrides, you likely do not want to run this command.
 
 `test -s /etc/bigbluebutton/bbb-html5.yml || echo '{}' > /etc/bigbluebutton/bbb-html5.yml`
-`yq -y -i '.public.kurento.cameraProfiles = (load("/usr/share/bigbluebutton/html5-client/private/config/settings.yml") | .public.kurento.cameraProfiles)' /etc/bigbluebutton/bbb-html5.yml`
 
-Now that you have the list of camera profiles in `/etc/bigbluebutton/bbb-html5.yml`, the following `yq` commands will tweak the bitrate and whether the profile is default.
+`yq-go e -i '.public.kurento.cameraProfiles = (load("/usr/share/bigbluebutton/html5-client/private/config/settings.yml") | .public.kurento.cameraProfiles)' /etc/bigbluebutton/bbb-html5.yml`
+
+Now that you have the list of camera profiles in `/etc/bigbluebutton/bbb-html5.yml`, the following `yq-go` commands will tweak the bitrate and whether the profile is default.
 
 ```bash
 echo "  - Setting camera defaults"
+
 test -s /etc/bigbluebutton/bbb-html5.yml || echo '{}' > /etc/bigbluebutton/bbb-html5.yml
 
-yq -y -i '( .public.kurento.cameraProfiles[] | select(.id == "low") ).bitrate = 50' /etc/bigbluebutton/bbb-html5.yml
-yq -y -i '( .public.kurento.cameraProfiles[] | select(.id == "medium") ).bitrate = 100' /etc/bigbluebutton/bbb-html5.yml
-yq -y -i '( .public.kurento.cameraProfiles[] | select(.id == "high") ).bitrate = 200' /etc/bigbluebutton/bbb-html5.yml
-yq -y -i '( .public.kurento.cameraProfiles[] | select(.id == "hd") ).bitrate = 300' /etc/bigbluebutton/bbb-html5.yml
+yq-go e -i '( .public.kurento.cameraProfiles[] | select(.id == "low") ).bitrate = 50' /etc/bigbluebutton/bbb-html5.yml
+yq-go e -i '( .public.kurento.cameraProfiles[] | select(.id == "medium") ).bitrate = 100' /etc/bigbluebutton/bbb-html5.yml
+yq-go e -i '( .public.kurento.cameraProfiles[] | select(.id == "high") ).bitrate = 200' /etc/bigbluebutton/bbb-html5.yml
+yq-go e -i '( .public.kurento.cameraProfiles[] | select(.id == "hd") ).bitrate = 300' /etc/bigbluebutton/bbb-html5.yml
 
-yq -y -i '( .public.kurento.cameraProfiles[] | select(.id == "low") ).default = true' /etc/bigbluebutton/bbb-html5.yml
-yq -y -i '( .public.kurento.cameraProfiles[] | select(.id == "medium") ).default = false' /etc/bigbluebutton/bbb-html5.yml
-yq -y -i '( .public.kurento.cameraProfiles[] | select(.id == "high") ).default = false' /etc/bigbluebutton/bbb-html5.yml
-yq -y -i '( .public.kurento.cameraProfiles[] | select(.id == "hd") ).default = false' /etc/bigbluebutton/bbb-html5.yml
+yq-go e -i '( .public.kurento.cameraProfiles[] | select(.id == "low") ).default = true' /etc/bigbluebutton/bbb-html5.yml
+yq-go e -i '( .public.kurento.cameraProfiles[] | select(.id == "medium") ).default = false' /etc/bigbluebutton/bbb-html5.yml
+yq-go e -i '( .public.kurento.cameraProfiles[] | select(.id == "high") ).default = false' /etc/bigbluebutton/bbb-html5.yml
+yq-go e -i '( .public.kurento.cameraProfiles[] | select(.id == "hd") ).default = false' /etc/bigbluebutton/bbb-html5.yml
 ```
 
 #### Change screen sharing quality parameters
@@ -543,9 +547,9 @@ For **recordings**, the following parameters can be changed (presentation format
   - `/usr/local/bigbluebutton/core/scripts/presentation.yml`: `deskshare_output_framerate` (default: 5)
 
 As an example, suppose you want to increase the output resolution and framerate of the recorded screen share media to match a 1080p/15 FPS stream. The following changes would be necessary:
-  -  `$ yq -y -i '.deskshare_output_width = 1920' /usr/local/bigbluebutton/core/scripts/presentation.yml`
-  -  `$ yq -y -i '.deskshare_output_height = 1080' /usr/local/bigbluebutton/core/scripts/presentation.yml`
-  -  `$ yq -y -i '.deskshare_output_framerate = 15' /usr/local/bigbluebutton/core/scripts/presentation.yml`
+  -  `$ yq-go e -i '.deskshare_output_width = 1920' /usr/local/bigbluebutton/core/scripts/presentation.yml`
+  -  `$ yq-go e -i '.deskshare_output_height = 1080' /usr/local/bigbluebutton/core/scripts/presentation.yml`
+  -  `$ yq-go e -i '.deskshare_output_framerate = 15' /usr/local/bigbluebutton/core/scripts/presentation.yml`
 
 For **live meetings**, the following parameters can be changed:
   - `/etc/bigbluebutton/bbb-html5.yml`: `public.kurento.screenshare.bitrate`
@@ -811,6 +815,10 @@ and join an audio session. You should now hear music on hold if there is only on
 
 #### Add a phone number to the conference bridge
 
+:::info
+This dial-in path is handled by FreeSWITCH and applies to meetings that use the **FreeSWITCH audio bridge** (`audioBridge=bbb-webrtc-sfu`). LiveKit is the default audio bridge in BigBlueButton 4.0; to set up dial-in for LiveKit meetings, see [Dial-in with the LiveKit audio bridge](#dial-in-with-the-livekit-audio-bridge-livekit-sip) below.
+:::
+
 The built-in WebRTC-based audio in BigBlueButton is very high quality audio. Still, there may be cases where you want users to be able to dial into the conference bridge using a telephone number.
 
 Before you can configure FreeSWITCH to route the call to the right conference, you need to first obtain a phone number from a [Internet Telephone Service Providers](https://freeswitch.org/confluence/display/FREESWITCH/Providers+ITSPs) and configure FreeSWITCH accordingly to receive incoming calls via session initiation protocol (SIP) from that provider. Ensure that the context is `public` and that the file is called `/opt/freeswitch/conf/sip_profiles/external/YOUR-PROVIDER.xml`. Here is an example; of course, hostname and ALL-CAPS values need to be changed:
@@ -918,6 +926,154 @@ With these rules, you won't get spammed by bots scanning for SIP endpoints and t
 It's also important to note that, alongside the PIN requirement, there are basic dialplan-level checks in place to prevent anonymous dial-in callers from joining BigBlueButton audio conferences.
   - Those checks offer minimal protection regarding blocking anonymous SIP participants and should not be considered a comprehensive solution. For production environments requiring stronger security controls, administrators are responsible for implementing additional measures that match the sensitivity of their deployments.
   - If you want to allow anonymous SIP UAs, you need to remove the `reject_anonymous` extension in `/opt/freeswitch/conf/dialplan/default/bbb_conference.xml`, then restart FreeSWITCH.
+
+#### Dial-in with the LiveKit audio bridge (livekit-sip)
+
+LiveKit is the default audio bridge in BigBlueButton 4.0. For meetings that use the LiveKit audio bridge, telephone dial-in is handled by `livekit-sip`.
+
+The dial-in flow is: the caller reaches a **SIP call gateway** (a FreeSWITCH — either BigBlueButton's bundled one or an external one) that answers the call and prompts for the conference PIN; the gateway then bridges the authenticated call into `livekit-sip`, which joins the LiveKit room as a SIP participant.
+
+LiveKit dial-in is opt-in. Enable the LiveKit SIP controller in `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml`:
+
+```yaml
+livekit:
+  rtcAgent:
+    enabled: true
+  sip:
+    enabled: true
+    requirePin: false # the PIN is enforced by FreeSWITCH, not by livekit-sip
+    dispatch:
+      options:
+        hidePhoneNumber: true
+```
+
+Then set up a SIP call gateway — BigBlueButton's bundled FreeSWITCH, or an external one.
+
+##### Using the bundled FreeSWITCH as the call gateway
+
+In this setup the FreeSWITCH that ships with BigBlueButton plays the call-gateway role: it answers the call, prompts for the PIN, and then bridges the call into `livekit-sip` over a local leg. The PIN is prompted by FreeSWITCH (not by `livekit-sip`). DTMF (e.g. to mute) flows caller → FreeSWITCH (a-leg) → the FreeSWITCH-to-`livekit-sip` bridge (b-leg) → `livekit-sip`; FreeSWITCH converts the inbound DTMF (RFC 2833 or SIP INFO from the trunk) to RFC 2833 on the bridge leg, which is what `livekit-sip` expects by default.
+
+:::note
+For the DID covered by the dialplan below, this replaces the FreeSWITCH-audio-bridge dial-in path: meetings created with `audioBridge=bbb-webrtc-sfu` will no longer be reachable through that DID. To support both audio bridges on the same server, use distinct DIDs and gate the dialplan on `destination_number` (one extension routes to `mod_conference`, the other bridges to `livekit-sip`).
+:::
+
+1. Provision the SIP trunk in the bundled FreeSWITCH exactly as for the FreeSWITCH audio bridge — see [Add a phone number to the conference bridge](#add-a-phone-number-to-the-conference-bridge). That covers the SIP gateway file under `/opt/freeswitch/conf/sip_profiles/external/` and the `defaultDialAccessNumber` / welcome footer in `/etc/bigbluebutton/bbb-web.properties`.
+
+2. Keep `livekit-sip` on port `5062` (its value in `/etc/bigbluebutton/livekit-sip.yaml`):
+
+   ```yaml
+   sip_port: 5062
+   sip_port_listen: 5062
+   ```
+
+3. Instead of the FreeSWITCH-bridge dialplan, install a dialplan that bridges to `livekit-sip` after the PIN prompt. Save it to `/opt/freeswitch/conf/dialplan/public/my_provider.xml` and replace `EXTERNALDID` with the DID configured on the SIP gateway:
+
+   ```xml
+   <include>
+     <extension name="from_my_provider_lk">
+       <condition field="destination_number" expression="^EXTERNALDID">
+         <action application="start_dtmf"/>
+         <action application="answer"/>
+         <action application="sleep" data="1000"/>
+         <action application="play_and_get_digits" data="5 9 3 30000 # conference/conf-pin.wav ivr/ivr-that_was_an_invalid_entry.wav pin \d+"/>
+
+         <!-- Optional: phone-number masking, identical to the FreeSWITCH-bridge example above. -->
+         <!--
+         <action application="set_profile_var" data="caller_id_name=${regex(${caller_id_name}|^.*(.{4})$|xxx-xxx-%1)}"/>
+         -->
+
+         <action application="transfer" data="SEND_TO_LIVEKIT_SIP XML public"/>
+       </condition>
+     </extension>
+
+     <extension name="bbb_lk_sip_bridge">
+       <condition field="destination_number" expression="^SEND_TO_LIVEKIT_SIP$">
+         <!-- Stop in-band DTMF detection so DTMF is not absorbed by FreeSWITCH. -->
+         <action application="stop_dtmf"/>
+         <!-- Force RFC 2833 on the bridged b-leg toward livekit-sip. The BBB
+              external profile defaults to dtmf-type=info; livekit-sip negotiates
+              RFC 2833 by default. -->
+         <action application="bridge" data="{sip_dtmf_type=rfc2833}sofia/external/sip:${pin}@${local_ip_v4}:5062;transport=udp"/>
+         <!-- Control returns here only on failure (on success FreeSWITCH hangs up
+              the a-leg automatically, since hangup_after_bridge defaults to true).
+              On failure (e.g. no LiveKit dispatch for this voice bridge, or
+              livekit-sip down), play bad-pin and re-prompt. -->
+         <action application="transfer" data="LK_BAD_PIN XML public"/>
+       </condition>
+     </extension>
+
+     <extension name="bbb_lk_bad_pin">
+       <condition field="destination_number" expression="^LK_BAD_PIN$">
+         <action application="answer"/>
+         <action application="sleep" data="1000"/>
+         <action application="play_and_get_digits" data="5 9 3 30000 # conference/conf-bad-pin.wav ivr/ivr-that_was_an_invalid_entry.wav pin \d+"/>
+         <action application="transfer" data="SEND_TO_LIVEKIT_SIP XML public"/>
+       </condition>
+     </extension>
+   </include>
+   ```
+
+4. Restart BigBlueButton:
+
+   ```bash
+   sudo bbb-conf --restart
+   ```
+
+5. Verify the components are running, then place a test call:
+
+   ```bash
+   sudo bbb-conf --status
+   sudo systemctl status freeswitch livekit-sip bbb-webrtc-sfu
+   ```
+
+   The caller should hear the BigBlueButton PIN prompt; after entering the meeting's voice bridge, the call should appear in the LiveKit room as a SIP participant. `*` or `0` toggles mute.
+
+##### Using an external call gateway
+
+In this setup an external FreeSWITCH acts as the call gateway (the same role it plays in, for example, a [Scalelite dial-in deployment](https://medium.com/@JesusFederico/scalelite-and-dial-in-numbers-f070fe0059b0)), and `livekit-sip` takes over the SIP port that the bundled FreeSWITCH would otherwise use.
+
+:::warning
+The steps below move the bundled FreeSWITCH off port `5060` and therefore **break FreeSWITCH-based dial-in** (`audioBridge=bbb-webrtc-sfu`) for the whole server. To serve both bridges, the call gateway must be aware of the audio bridge in use — for example, keep the bundled FreeSWITCH on `5060` and `livekit-sip` on `5062`, and have your load balancer build the gateway's dialplan to route to the right port (`5060` for `audioBridge=bbb-webrtc-sfu`, `5062` for `audioBridge=livekit`). If you take that approach, adjust the ports below accordingly.
+:::
+
+1. Configure the external call gateway as you would today (see the [Scalelite dial-in guide](https://medium.com/@JesusFederico/scalelite-and-dial-in-numbers-f070fe0059b0)).
+
+2. Move the bundled FreeSWITCH's SIP bind port off `5060` (to avoid colliding with `livekit-sip`). In `/opt/freeswitch/conf/vars.xml`:
+
+   ```xml
+   <X-PRE-PROCESS cmd="set" data="external_sip_port=5063"/>
+   ```
+
+3. Point `livekit-sip` at `5060`, and give it an RTP port range with connectivity to the call gateway. In `/etc/bigbluebutton/livekit-sip.yaml`:
+
+   ```yaml
+   sip_port: 5060
+   sip_port_listen: 5060
+   rtp_port:
+     port_range_start: <START>
+     port_range_end: <END>
+   ```
+
+4. Restart BigBlueButton:
+
+   ```bash
+   sudo bbb-conf --restart
+   ```
+
+5. Verify all components are running:
+
+   ```bash
+   sudo bbb-conf --status
+   sudo systemctl status livekit-sip
+   ```
+
+##### DTMF troubleshooting
+
+If DTMF passes through to FreeSWITCH during the PIN prompt but does not reach `livekit-sip` after the bridge, confirm that `liberal-dtmf=true` is set on the external SIP profile (it is BigBlueButton's default; `rtp_liberal_dtmf=true` is set globally in `vars.xml`). If that is already correct, further FreeSWITCH DTMF-mode tweaks may be required.
+
+##### Limitations
+
+- The guest lobby is bypassed for SIP dial-in callers.
 
 #### Turn on the "comfort noise" when no one is speaking
 
@@ -1385,7 +1541,7 @@ The following command can be used too.
 
 ```bash
 $ test -s /etc/bigbluebutton/bbb-html5.yml || echo '{}' > /etc/bigbluebutton/bbb-html5.yml
-$ yq -y -i ".public.app.clientTitle = \"New Title\"" /etc/bigbluebutton/bbb-html5.yml
+$ yq-go e -i ".public.app.clientTitle = \"New Title\"" /etc/bigbluebutton/bbb-html5.yml
 ```
 
 #### Apply lock settings to restrict webcams
@@ -1466,20 +1622,20 @@ Next, to enable gladia.io, run the following two commands
 
 ```bash
 sudo test -s /etc/bigbluebutton/bbb-html5.yml || sudo sh -c "echo '{}' > /etc/bigbluebutton/bbb-html5.yml"
-sudo yq -y -i '.public.app.audioCaptions.enabled = true' /etc/bigbluebutton/bbb-html5.yml
-sudo yq -y -i '.public.app.audioCaptions.provider = "gladia"' /etc/bigbluebutton/bbb-html5.yml
+sudo yq-go e -i '.public.app.audioCaptions.enabled = true' /etc/bigbluebutton/bbb-html5.yml
+sudo yq-go e -i '.public.app.audioCaptions.provider = "gladia"' /etc/bigbluebutton/bbb-html5.yml
 ```
 
 Next, set the gladia.io API key using the command below, replacing \<gladia_api_key\> with a glada.io API key obtained above.
 
 ```bash
-sudo yq -y -i '.gladia.startMessage = "{\"x_gladia_key\": \"<gladia-api-key>\", \"sample_rate\": 0, \"bit_depth\": 16, \"model_type\": \"fast\", \"endpointing\": 10 }"' /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml
+sudo yq-go e -i '.gladia.startMessage = "{\"x_gladia_key\": \"<gladia-api-key>\", \"sample_rate\": 0, \"bit_depth\": 16, \"model_type\": \"fast\", \"endpointing\": 10 }"' /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml
 ```
 
 If you are running BigBlueButton version **3.0** or higher, use release version **>0.3.x** of the [bbb-transcription-controller](https://github.com/bigbluebutton/bbb-transcription-controller/) repository, install the Live Transcription plugin [https://github.com/bigbluebutton/bbb-plugin-live-transcription](https://github.com/bigbluebutton/bbb-plugin-live-transcription) and use the following startMessage:
 
 ```bash
-sudo yq -y -i '.gladia.startMessage = "{\"sample_rate\": 16000, \"bit_depth\": 16, \"endpointing\": 0.01 }"' /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml
+sudo yq-go e -i '.gladia.startMessage = "{\"sample_rate\": 16000, \"bit_depth\": 16, \"endpointing\": 0.01 }"' /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml
 ```
 
 Restart the BigBlueButton server with `bbb-conf --restart`.  You will now be able to select a speech-to-text option when joining audio (including auto translate).  When one or more users have selected the option, a CC button will appear at the bottom and a Transcript panel will also be available.
@@ -1521,6 +1677,19 @@ You can overwrite the default guest policy in `/etc/bigbluebutton/bbb-web.proper
 #
 defaultGuestPolicy=ALWAYS_ACCEPT
 ```
+
+#### Configure guest lobby queue position
+
+When the guest policy makes users wait for moderator approval, the HTML5 client shows each guest their position in the waiting queue by default. To hide this position, set `public.app.showGuestLobbyWaitingQueuePosition` to `false` in `/etc/bigbluebutton/bbb-html5.yml`.
+
+```yaml
+public:
+  app:
+    showGuestLobbyWaitingQueuePosition: false
+```
+
+Restart BigBlueButton with `sudo bbb-conf --restart` for the change to take effect.
+
 #### Show a custom logo on the client
 
 Ensure that the parameter `displayBrandingArea` is set to `true` in bbb-html5's configuration, restart BigBlueButton server with `sudo bbb-conf --restart` and pass `logo=<image-url>` in Custom parameters when creating the meeting.
@@ -1562,9 +1731,9 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `allowModsToUnmuteUsers` | Gives moderators permission to unmute other users | true/false | false _`overwritable`_ |
 | `requireUserConsentBeforeUnmuting` | Allows participants to accept or decline when a moderator asks them to unmute. | true/false | false _`overwritable`_ |
 | `allowModsToEjectCameras` | Gives moderators permission to close other users' webcams | true/false | false _`overwritable`_ |
-| `cameraBridge` | Media bridge used for camera streams | bbb-webrtc-sfu, livekit | bbb-webrtc-sfu |
-| `screenShareBridge` | Media bridge used for screen share streams | bbb-webrtc-sfu, livekit | bbb-webrtc-sfu |
-| `audioBridge` | Media bridge used for audio streams | bbb-webrtc-sfu, livekit, freeswitch | bbb-webrtc-sfu |
+| `cameraBridge` | Media bridge used for camera streams | livekit, bbb-webrtc-sfu | livekit |
+| `screenShareBridge` | Media bridge used for screen share streams | livekit, bbb-webrtc-sfu | livekit |
+| `audioBridge` | Media bridge used for audio streams | livekit, bbb-webrtc-sfu, freeswitch | livekit |
 | `disableRecordingDefault` | When true, do not record even if the `/create` call sets `record=true` | true/false | false |
 | `autoStartRecording` | Start recording when the first user joins the meeting | true/false | false _`overwritable`_ |
 | `allowStartStopRecording` | Allow users to start/stop recording during the session | true/false | true _`overwritable`_ |
@@ -1666,6 +1835,7 @@ Useful tools for development:
 | `userdata-bbb_mirror_own_webcam=`                | If set to `true`, the client will see a mirrored version of their webcam. Doesn't affect the incoming video stream for other users.                                                                                                                                                                                                     | `false`       |
 | `userdata-bbb_fullaudio_bridge=`                 | Specifies the audio bridge to be used in the client. Supported values: `fullaudio`.                                                                                       | `fullaudio`   |
 | `userdata-bbb_transparent_listen_only=`          | If set to `true`, the experimental "transparent listen only" audio mode will be used                                                                                                                                                                                                                                                    | `false`       |
+| `userdata-bbb_transcription_provider=`           | (Introduced in BigBlueButton 3.0) Overrides the speech-to-text provider used for live captions/transcription. Supported values: `webspeech`, `vosk`, `gladia`. Defaults to `public.app.audioCaptions.provider` in `settings.yml`.                                                                                                        | `webspeech`   |
 
 
 #### Presentation parameters
@@ -1708,6 +1878,7 @@ The use of *more will include all shapes listed above.
 | `userdata-bbb_default_layout=`             | The initial layout on client load. Options are: `UNIFIED_LAYOUT`, `CAMERAS_ONLY`, `PRESENTATION_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `MEDIA_ONLY`. If none is provided, the meeting layout (preset in bbb-web) will be used. Introduced in BBB 3.0.0-alpha.5. | `none`       |
 | `userdata-bbb_hide_notifications=`         | When this parameter is set to `true`, all notification toasts are suppressed in the client. Introduced in BBB 3.0.0-beta.4. | `false`       |
 | `userdata-bbb_hide_controls=`              | When this parameter is set to `true`, it hides the actions bar and the top row of the navigation bar (including the close sidebar button, room title, connectivity indicator, and leave meeting button) while keeping the row with the talking indicator and timer indicator visible. Introduced in BBB 3.0.0-beta.4. | `false`    |
+| `userdata-bbb_hide_sidebar_navigation=`    | (Introduced in BigBlueButton 4.0) If set to `true`, the sidebar navigation column (the user-list / apps panel and its toggles) will be hidden on join. | `false`    |
 
 #### Examples
 

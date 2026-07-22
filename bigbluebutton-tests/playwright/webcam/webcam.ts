@@ -128,7 +128,12 @@ export class Webcam extends Page {
     await this.waitAndClick(e.startSharingWebcam);
     await this.waitForSelector(e.currentUserLocalStreamVideo);
     const webcamVideoLocator = await this.page.locator(e.currentUserLocalStreamVideo);
-    await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-home-background.png');
+    // Mask the dropdown and user-status overlays: depending on the media bridge,
+    // audio may auto-connect and change those camera-container items, which would
+    // otherwise cause cross-bridge screenshot flakiness unrelated to this test.
+    await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-home-background.png', {
+      mask: [this.page.locator(e.dropdownWebcamButton), this.page.locator(e.webcamUserStatus)],
+    });
   }
 
   async webcamFullscreen() {
@@ -181,7 +186,11 @@ export class Webcam extends Page {
     await this.waitAndClick(e.startSharingWebcam);
     await this.waitForSelector(e.currentUserLocalStreamVideo);
     const webcamVideoLocator = await this.page.locator(e.currentUserLocalStreamVideo);
-    await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-new-background.png');
+    // Mask the dropdown and user-status overlays (see applyBackground) to avoid
+    // cross-bridge screenshot flakiness from audio-connection state changes.
+    await expect(webcamVideoLocator).toHaveScreenshot('webcam-with-new-background.png', {
+      mask: [this.page.locator(e.dropdownWebcamButton), this.page.locator(e.webcamUserStatus)],
+    });
 
     // Remove
     await this.waitAndClick(e.videoDropdownMenu);
@@ -351,5 +360,14 @@ export class Webcam extends Page {
     await expect(this.page).toHaveScreenshot('drag-drop-sidebar-bottom.png', {
       mask: [this.page.locator(e.currentUserLocalStreamVideo)],
     });
+  }
+
+  async virtualBackgroundToggleDisabledOnUnsupportedDevice() {
+    // On mobile viewports the sidebar navigation is collapsed — open it first
+    await this.page.locator(e.toggleSidebarNavigation).click({ force: true });
+    await this.waitAndClick(e.profileSidebarButton);
+    await this.hasElement(e.virtualBackgroundToggle, 'should display the virtual background toggle in profile settings');
+    const toggle = this.page.locator(e.virtualBackgroundToggle);
+    await expect(toggle, 'virtual background toggle should be disabled on unsupported device').toBeDisabled();
   }
 }

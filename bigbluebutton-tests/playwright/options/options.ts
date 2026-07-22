@@ -301,12 +301,13 @@ export class Options extends MultiUsers {
   async keyboardNavigationOptionsDropdown() {
     await this.modPage.page.focus(e.optionsButton);
     await this.modPage.press('Enter');
-    await this.modPage.waitForSelector(e.settingsSidebarButton);
+    const fullscreenButton = '#app-settings-dropdown-menu li[role="menuitem"]:has(.icon-bbb-fullscreen)';
+    await this.modPage.waitForSelector(fullscreenButton);
 
     await this.modPage.press('ArrowDown');
     await expect(
-      this.modPage.page.locator(e.presenceToggle),
-      'should focus the presence toggle on the first ArrowDown',
+      this.modPage.page.locator(fullscreenButton),
+      'should focus the fullscreen option on the first ArrowDown',
     ).toBeFocused({ timeout: ELEMENT_WAIT_TIME });
   }
 

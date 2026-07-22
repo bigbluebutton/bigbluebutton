@@ -23,6 +23,9 @@ const CHATS_SUBSCRIPTION = gql`
       totalUnread
       public
       lastSeenAt
+      lastMessage
+      lastMessageAt
+      lastMessageDeletedByName
       pinnedMessageId
       pinnedAt
       pinnedBy {

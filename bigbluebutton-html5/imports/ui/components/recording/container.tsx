@@ -13,10 +13,6 @@ interface RecordingContainerProps {
   setIsOpen: (visible: boolean) => void;
   amIModerator: boolean;
   onRequestClose: () => void;
-  // eslint-disable-next-line react/no-unused-prop-types
-  priority: string;
-  // eslint-disable-next-line react/no-unused-prop-types
-  isOpen: boolean;
 }
 
 const RecordingContainer: React.FC<RecordingContainerProps> = (props) => {

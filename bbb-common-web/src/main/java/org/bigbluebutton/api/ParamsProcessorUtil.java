@@ -106,9 +106,9 @@ public class ParamsProcessorUtil {
     private boolean defaultAllowModsToUnmuteUsers = false;
     private boolean defaultRequireUserConsentBeforeUnmuting = false;
     private boolean defaultAllowModsToEjectCameras = false;
-    private String defaultCameraBridge = "bbb-webrtc-sfu";
-    private String defaultScreenShareBridge = "bbb-webrtc-sfu";
-    private String defaultAudioBridge = "bbb-webrtc-sfu";
+    private String defaultCameraBridge = "livekit";
+    private String defaultScreenShareBridge = "livekit";
+    private String defaultAudioBridge = "livekit";
     private String defaultDisabledFeatures;
     private String defaultPluginManifests;
     private Integer pluginManifestsFetchUrlResponseTimeout;
@@ -394,13 +394,6 @@ public class ParamsProcessorUtil {
 			String lockSettingsDisableNotesParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_NOTES);
 			if (!StringUtils.isEmpty(lockSettingsDisableNotesParam)) {
 				lockSettingsDisableNotes = Boolean.parseBoolean(lockSettingsDisableNotesParam);
-			} else {
-				// To be removed after deprecation period
-				lockSettingsDisableNotesParam = params.get(ApiParams.DEPRECATED_LOCK_SETTINGS_DISABLE_NOTES);
-				if (!StringUtils.isEmpty(lockSettingsDisableNotesParam)) {
-					log.warn("[DEPRECATION] use lockSettingsDisableNotes instead of lockSettingsDisableNote");
-					lockSettingsDisableNotes = Boolean.parseBoolean(lockSettingsDisableNotesParam);
-				}
 			}
 
 			Boolean lockSettingsHideUserList = defaultLockSettingsHideUserList;
@@ -666,6 +659,18 @@ public class ParamsProcessorUtil {
                         "Invalid param [sharedNotesInitialContentJsonUrl] for meeting=[{}]",
                         internalMeetingId);
             }
+        }
+
+        String sharedNotesInitialContentMarkdown = "";
+        if (!StringUtils.isEmpty(params.get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_MARKDOWN))) {
+            sharedNotesInitialContentMarkdown = params
+                    .get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_MARKDOWN);
+        }
+
+        String sharedNotesInitialContentMarkdownUrl = "";
+        if (!StringUtils.isEmpty(params.get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_MARKDOWN_URL))) {
+            sharedNotesInitialContentMarkdownUrl = params
+                    .get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_MARKDOWN_URL);
         }
 
         String sharedNotesEditor = defaultSharedNotesEditor;
@@ -1001,6 +1006,8 @@ public class ParamsProcessorUtil {
                 .withAllowStartStopRecording(allowStartStoptRec)
                 .withSharedNotesEditor(sharedNotesEditor)
                 .withSharedNotesInitialContentJsonUrl(sharedNotesInitialContentJsonUrl)
+                .withSharedNotesInitialContentMarkdown(sharedNotesInitialContentMarkdown)
+                .withSharedNotesInitialContentMarkdownUrl(sharedNotesInitialContentMarkdownUrl)
                 .withPresentationConversionCacheEnabled(presentationCacheEnabled)
                 .withRecordFullDurationMedia(_recordFullDurationMedia)
                 .withWebcamsOnlyForModerator(webcamsOnlyForMod)

@@ -492,7 +492,7 @@ export class MultiUsers {
     await this.initUserPage(this.modPage.context, {
       shouldCloseAudioModal: false,
     });
-    await this.userPage.waitAndClick(e.microphoneButton);
+    await this.userPage.clickMicrophoneButton();
     await this.userPage.waitAndClick(e.joinEchoTestButton);
     await this.userPage.wasRemoved(
       e.establishingAudioLabel,
@@ -509,7 +509,7 @@ export class MultiUsers {
     await this.initUserPage2(this.modPage.context, {
       shouldCloseAudioModal: false,
     });
-    await this.userPage2.waitAndClick(e.microphoneButton);
+    await this.userPage2.clickMicrophoneButton();
     await this.userPage2.waitAndClick(e.joinEchoTestButton);
     await this.userPage2.wasRemoved(
       e.establishingAudioLabel,

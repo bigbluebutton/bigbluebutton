@@ -119,10 +119,9 @@ const PushLayoutEngine = (props) => {
     const { selectedLayout: currentLayout } = Settings.layout;
     const hasLayoutEngineLoadedOnce = Session.getItem('hasLayoutEngineLoadedOnce');
 
-    const changeLayout = LAYOUT_TYPE[getFromUserSettings('bbb_change_layout', null)];
     const defaultLayout = LAYOUT_TYPE[getFromUserSettings('bbb_default_layout', null)];
     const enforcedLayout = LAYOUT_TYPE[enforceLayoutResult] || null;
-    const contextLayout = enforcedLayout || changeLayout || defaultLayout
+    const contextLayout = enforcedLayout || defaultLayout
       || meetingLayout || currentLayout;
 
     Session.setItem('isGridEnabled', currentLayout === LAYOUT_TYPE.UNIFIED_LAYOUT && !presentationIsOpen);
