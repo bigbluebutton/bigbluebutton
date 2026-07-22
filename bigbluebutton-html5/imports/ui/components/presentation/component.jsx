@@ -548,8 +548,16 @@ class Presentation extends PureComponent {
         const newStyle = popup.document.createElement('style');
         popup.document.head.appendChild(newStyle);
         const newSheet = newStyle.sheet;
+        if (!newSheet) return;
         Array.from(sheet.cssRules).forEach((rule) => {
-          newSheet.insertRule(rule.cssText);
+          try {
+            newSheet.insertRule(rule.cssText);
+          } catch (error) {
+            console.warn(
+              'Failed to copy an Emotion CSS rule to the presentation popup',
+              error,
+            );
+          }
         });
       });
 
