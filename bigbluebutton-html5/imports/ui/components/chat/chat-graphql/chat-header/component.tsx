@@ -1,18 +1,18 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import { GET_CHAT_DATA, GetChatDataResponse, CLOSE_PRIVATE_CHAT_MUTATION } from './queries';
-import { layoutSelect, layoutDispatch } from '../../../layout/context';
-import { useShortcut } from '../../../../core/hooks/useShortcut';
-import { Layout } from '../../../layout/layoutTypes';
-import { ACTIONS, PANELS } from '../../../layout/enums';
+import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
+import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
+import { Layout } from '/imports/ui/components/layout/layoutTypes';
+import { PANELS } from '/imports/ui/components/layout/enums';
+import PanelHeader from '/imports/ui/components/common/panel-header/component';
 import Styled from './styles';
 
 interface ChatHeaderProps {
   chatId: string;
   isPublicChat: boolean;
   title: string;
-  isRTL: boolean;
 }
 
 const intlMessages = defineMessages({
@@ -28,40 +28,24 @@ const intlMessages = defineMessages({
 });
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({
-  chatId, isPublicChat, title, isRTL,
+  chatId, isPublicChat, title,
 }) => {
   const HIDE_CHAT_AK = useShortcut('hideprivatechat');
   const layoutContextDispatch = layoutDispatch();
-  const intl = useIntl();
   const [updateVisible] = useMutation(CLOSE_PRIVATE_CHAT_MUTATION);
 
+  const onBeforeClose = useCallback(() => {
+    updateVisible({ variables: { chatId, visible: false } });
+  }, [updateVisible, layoutContextDispatch, chatId]);
+
   return (
-    <Styled.HeaderContainer
-      isRTL={isRTL}
-      data-test="chatTitle"
+    <PanelHeader
+      panelId={PANELS.CHAT}
       title={title}
-      rightButtonProps={{
-        accessKey: HIDE_CHAT_AK,
-        'aria-label': intl.formatMessage(intlMessages.genericMinimizePanel, { panelName: title }),
-        'data-test': isPublicChat ? 'hidePublicChat' : 'hidePrivateChat',
-        icon: 'minus',
-        label: intl.formatMessage(intlMessages.genericMinimizePanel, { panelName: title }),
-        onClick: () => {
-          updateVisible({ variables: { chatId, visible: false } });
-          layoutContextDispatch({
-            type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-            value: false,
-          });
-          layoutContextDispatch({
-            type: ACTIONS.SET_ID_CHAT_OPEN,
-            value: '',
-          });
-          layoutContextDispatch({
-            type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-            value: PANELS.NONE,
-          });
-        },
-      }}
+      dataTest="chatTitle"
+      closeButtonDataTest={isPublicChat ? 'hidePublicChat' : 'hidePrivateChat'}
+      closeButtonProps={{ accessKey: HIDE_CHAT_AK }}
+      onBeforeClose={onBeforeClose}
       customRightButton={isPublicChat ? <Styled.ChatActionsContainer /> : null}
     />
   );
@@ -74,7 +58,6 @@ const isChatResponse = (data: unknown): data is GetChatDataResponse => {
 const ChatHeaderContainer: React.FC = () => {
   const intl = useIntl();
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
-  const isRTL = layoutSelect((i: Layout) => i.isRTL);
 
   const {
     data: chatData,
@@ -110,7 +93,6 @@ const ChatHeaderContainer: React.FC = () => {
         chatId={idChatOpen}
         isPublicChat={isPublicChat}
         title={title}
-        isRTL={isRTL}
       />
     </>
   );

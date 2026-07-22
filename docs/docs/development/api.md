@@ -114,10 +114,10 @@ Updated in 2.7:
 Updated in 3.0:
 
 - **create**
-  - **Added parameters:** `allowOverrideClientSettingsOnCreateCall`, `loginURL`, `pluginManifests`, `pluginManifestsFetchUrl`, `presentationConversionCacheEnabled`, `maxNumPages`, `multiUserWhiteboardEnabled`, `clientSettingsOverrideJsonUrl`, `sharedNotesEditor`.
-  - **Added options:** Parameter `meetingLayout` supports a few new options: CAMERAS_ONLY, PARTICIPANTS_CHAT_ONLY, PRESENTATION_ONLY, MEDIA_ONLY;
+  - **Added parameters:** `loginURL`, `pluginManifests`, `pluginManifestsFetchUrl`, `presentationConversionCacheEnabled`, `maxNumPages`, `multiUserWhiteboardEnabled`, `clientSettingsOverrideJsonUrl`, `sharedNotesEditor`.
+  - **Added options:** Parameter `meetingLayout` supports a few new options: CAMERAS_ONLY, PARTICIPANTS_AND_CHAT_ONLY, PRESENTATION_ONLY, MEDIA_ONLY;
   - **Added options:** Parameter `disabledFeatures` supports a few new options: `infiniteWhiteboard`, `deleteChatMessage`, `editChatMessage`, `replyChatMessage`, `chatMessageReactions`, `raiseHand`, `userReactions`, `chatEmojiPicker`, `quizzes`;
-  - **Added POST module:** `clientSettingsOverride`;
+  - **Added POST module:** `clientSettingsOverride` (gated by the server-side setting `allowOverrideClientSettingsOnCreateCall` in `bbb-web.properties`);
   - **Removed:** `breakoutRoomsEnabled`, `learningDashboardEnabled`, `virtualBackgroundsDisabled`. 
 - **join**
   - **Added:** `bot`, `enforceLayout`, `logoutURL`, `firstName`, `lastName`, `userdata-bbb_default_layout`, `userdata-bbb_skip_echotest_if_previous_device`, `userdata-bbb_prefer_dark_theme`. `userdata-bbb_hide_notifications`, `userdata-bbb_hide_controls`, `userdata-bbb_initial_selected_tool`
@@ -130,7 +130,15 @@ Updated in 3.0:
 
 Updated in 4.0:
 
-- **create** - **Added** `meetingLayout` now supports option UNIFIED_LAYOUT **Removed:** Parameter `meetingLayout` no longer supports: CUSTOM_LAYOUT, SMART_LAYOUT, PRESENTATION_FOCUS, VIDEO_FOCUS; 
+- **create**
+  - **Added parameters:** `requireUserConsentBeforeUnmuting` (only relevant when `allowModsToUnmuteUsers=true`; when `true`, the user is shown a consent dialog before a moderator can unmute them), `lockSettingsPresenterPolicy` (controls the "Request to Present" policy; one of `moderatorOnly`, `requireApproval` (default), `freeForAll`).
+  - **Added options:** Parameter `disabledFeatures` supports new options: `multiFunctionalMode` (the auxiliary/dual sidebar panel) and `pinChatMessage`.
+  - **Removed parameter:** `lockSettingsDisableNote` (singular); use `lockSettingsDisableNotes` (plural) instead.
+  - **Changed:** Parameter `meetingLayout` default is now `UNIFIED_LAYOUT`. **Removed:** `meetingLayout` no longer supports `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS`. The remaining non-default options targeting hybrid/niche scenarios are `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, `MEDIA_ONLY`.
+  - **Removed option:** `layouts` is no longer a valid `disabledFeatures` value (the layout selection UI was removed).
+- **join**
+  - **Changed:** Parameter `enforceLayout` accepted values are now `UNIFIED_LAYOUT`, `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, `MEDIA_ONLY` (the deprecated `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS` are no longer accepted).
+- **clientSettings** - The deprecated REST endpoint `/api/rest/clientSettings` was **removed**. Client settings are now served through the GraphQL stack.
 
 ## API Data Types
 
@@ -420,6 +428,41 @@ If you choose the second option (sending content directly), the POST request pay
 
 Pay close attention: the initial content JSON structure must be as described in [BlockNote's documentation](https://www.blocknotejs.org/docs/foundations/document-structure?utm_source=chatgpt.com#block-properties). The same applies to the create parameter `sharedNotesInitialContentJsonUrl` (the content inside the URL must have the same structure).
 
+Alternatively, the initial content can be provided as plain Markdown instead of the BlockNote JSON structure. The Markdown is carried untouched through the pipeline and converted to BlockNote blocks on the shared-notes server before seeding the empty document. There are three ways to provide it:
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `sharedNotesInitialContentMarkdown` | create parameter | Raw Markdown sent inline as a `create` parameter. Suitable for short content that fits within URL length limits. |
+| `sharedNotesInitialContentMarkdownUrl` | create parameter | URL from which the raw Markdown will be fetched by the server. |
+| `sharedNotesInitialContentMarkdown` | POST module | Raw Markdown sent in the POST body via an xml module, for content too large for a query string. |
+
+The expected format is raw Markdown (headings, lists, emphasis, etc.), not the BlockNote JSON structure.
+
+To send the Markdown in the POST body, use the same `<modules>` envelope as the JSON variant:
+
+```xml
+<modules>
+   <module name="sharedNotesInitialContentMarkdown">
+      <![CDATA[
+# Welcome to BigBlueButton Shared Notes
+
+Start collaborating here...
+
+- First item
+- Second item
+      ]]>
+   </module>
+</modules>
+```
+
+**Precedence:** the BlockNote JSON initial content takes precedence over the Markdown. When both JSON and Markdown are supplied, the JSON is used to seed the document, and the Markdown is only used as a fallback when the JSON is absent, empty, or cannot be converted to a valid document. Within the Markdown options, the create parameter `sharedNotesInitialContentMarkdownUrl` is resolved first, then the inline `sharedNotesInitialContentMarkdown` create parameter, and finally the POST module.
+
+**URL fetch constraints:** the two URL variants (`sharedNotesInitialContentJsonUrl` and `sharedNotesInitialContentMarkdownUrl`) are fetched by the server through the same DNS-pinned, hardened path used for plugin, presentation and callback URLs. Integrators must be aware of the following, since a URL that violates them yields empty initial content silently (the meeting is still created):
+
+- **HTTPS only.** By default only `https` URLs are accepted (`fetchUrlSupportedProtocols=https`); an `http://` URL is rejected. Local, loopback, site-local and link-local addresses are always blocked. Use `fetchUrlBlockedExternalHosts` to block additional public hosts, or `fetchUrlAllowedLocalHosts` to allow specific internal hosts to resolve to private addresses.
+- **Payload cap.** The fetched response must not exceed `maxSharedNotesInitialContentUrlPayloadSize` (default `1024` KiB). Larger responses are dropped.
+- **Timeout.** The connect and socket timeout is 6000 ms; a slower endpoint is treated as a failed fetch.
+
 #### Pre-upload Slides
 
 You can upload slides within the create call. If you do this, the BigBlueButton server will immediately download and process the slides.
@@ -442,24 +485,26 @@ In the body part, you would append a simple XML like the example below:
 
 When you need to provide a document using a URL, and the document URL does not contain an extension, you can use the `filename` parameter, such as `filename=test-results.pdf` to help the BigBlueButton server determine the file type (in this example it would be a PDF file).
 
-**From `2.5.x` and on** there are also 2 parameters one can provide the payload to ensure that the document they are uploading can be downloaded or removed from the meeting, those parameters are:
+**From `2.5.x` and on** there are also 3 optional parameters one can provide, those parameters are:
 
-| Parameter      | Description                                    | Default Value |
-| -------------- | ---------------------------------------------- | ------------- |
-| `downloadable` | Dictates if the presentation can be downloaded | `false`        |
-| `removable`    | dictates if one can remove the presentation.   | `true`       |
+| Parameter      | Description                                                          | Default Value |
+| -------------- | -------------------------------------------------------------------- | ------------- |
+| `downloadable` | Dictates if the presentation can be downloaded                       | `false`       |
+| `removable`    | Dictates if one can remove the presentation.                         | `true`        |
+| `current`      | Dictates if the presentation should become the current presentation. | `false`       |
 
 In the payload the variables are passed inside each `<document>` tag of the xml, as follows:
 
 ```xml
 <document downloadable="false" removable="true" url="http://www.sample-pdf.com/sample.pdf" filename="report.pdf"/>
-<document removable="false" name="sample-presentation.pdf">JVBERi0xLjQKJ....
+<document removable="false" current="true" name="sample-presentation.pdf">JVBERi0xLjQKJ....
   [clipped here]
   ....0CiUlRU9GCg==
 </document>
 ```
 
-In the case more than a single document is provided, the first one will be loaded in the client, the processing of the other documents will continue in the background and they will be available for display when the user select one of them from the client.
+The first file with current="true" will be loaded in the client. If no file has current="true", the first one will be loaded in the client.
+The processing of the other documents will continue in the background and they will be available for display when the user select one of them from the client.
 
 For more information about the pre-upload slides check the following [link](http://groups.google.com/group/bigbluebutton-dev/browse_thread/thread/d36ba6ff53e4aa79).
 
@@ -468,7 +513,9 @@ For more information about the pre-upload slides check the following [link](http
 We support overriding the client settings (the entire set of options can be found in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`) as part of the CREATE call.
 Note that these values would have higher precedence over customizations made in `/etc/bigbluebutton/bbb-html5.yml`.
 
-By default this overriding approach on CREATE is disabled. To enable it, please set `allowOverrideClientSettingsOnCreateCall=true` in `/etc/bigbluebutton/bbb-web.properties` or as part of the CREATE call.
+By default this overriding approach on CREATE is disabled. To enable it, set `allowOverrideClientSettingsOnCreateCall=true` in `/etc/bigbluebutton/bbb-web.properties` and restart bbb-web. This is a **server-side setting only** — it is not read from the create request, so passing `allowOverrideClientSettingsOnCreateCall` as a `/create` parameter has no effect.
+
+Because the POST body is not covered by the `/create` [checksum](#api-security-model), only enable this on servers where the signed parameters of the create request are not visible to users. As an alternative that keeps the settings on a checksummed GET parameter, see [`clientSettingsOverrideJsonUrl`](#get-post-create), which does not require `allowOverrideClientSettingsOnCreateCall`.
 
 You can construct the HTTPS POST request as follows:
 
@@ -481,9 +528,6 @@ curl -s -X POST "$URL/$CONTROLLER?$PARAMS&checksum=$CHECKSUM" --header "Content-
             "public": {
                "kurento": {
                   "wsUrl": "wss://test.bigbluebutton.org/bbb-webrtc-sfu"
-               },
-               "media": {
-                  "sipjsHackViaWs": false
                },
                "app": {
                     "appName": "Test",
@@ -749,7 +793,7 @@ curl -s -X POST "https://{your-host}/bigbluebutton/api/insertDocument?meetingID=
 </modules>'
 ```
 
-There is also the possibility of passing the removable and downloadable variables inside the payload, they go in the `document` tag as already demonstrated. The way it works is exactly the same as in the [(POST) create endpoint](#pre-upload-slides)
+There is also the possibility of passing the removable, downloadable and current variables inside the payload, they go in the `document` tag as already demonstrated. The way it works is exactly the same as in the [(POST) create endpoint](#pre-upload-slides)
 
 ### `GET` `POST` isMeetingRunning
 

@@ -6,7 +6,25 @@ import org.bigbluebutton.core.apps.whiteboard.Whiteboard
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.db.{ PresAnnotationDAO, PresAnnotationHistoryDAO }
 
+object WhiteboardModel {
+  // Shape types that must never be stored or broadcast as whiteboard
+  // annotations. They render embeddable/rich content (iframes, link
+  // previews, external images) instead of being part of the drawing
+  // toolset, so they are rejected server-side regardless of any
+  // client-side checks. Mirrors the client allowlist (isValidShapeType).
+  val DisallowedAnnotationTypes: Set[String] = Set("embed", "bookmark", "image")
+
+  def isAllowedAnnotationType(annotationInfo: Map[String, _]): Boolean = {
+    annotationInfo.get("type") match {
+      case Some(annotationType: String) => !DisallowedAnnotationTypes.contains(annotationType)
+      case _                            => true
+    }
+  }
+}
+
 class WhiteboardModel extends SystemConfiguration {
+  import WhiteboardModel.isAllowedAnnotationType
+
   private var _whiteboards = new HashMap[String, Whiteboard]()
 
   private def saveWhiteboard(wb: Whiteboard) {
@@ -65,19 +83,27 @@ class WhiteboardModel extends SystemConfiguration {
             mergedAnnotationInfo
           }
 
-          val newAnnotation = oldAnnotation.get.copy(annotationInfo = finalAnnotationInfo)
-          newAnnotationsMap += (annotation.id -> newAnnotation)
-          annotationsAdded :+= newAnnotation
-          annotationsDiffAdded :+= annotation
-          println(s"Updated annotation on page [${wb.id}]. After numAnnotations=[${newAnnotationsMap.size}].")
+          if (isAllowedAnnotationType(finalAnnotationInfo)) {
+            val newAnnotation = oldAnnotation.get.copy(annotationInfo = finalAnnotationInfo)
+            newAnnotationsMap += (annotation.id -> newAnnotation)
+            annotationsAdded :+= newAnnotation
+            annotationsDiffAdded :+= annotation
+            println(s"Updated annotation on page [${wb.id}]. After numAnnotations=[${newAnnotationsMap.size}].")
+          } else {
+            println(s"Rejected update of annotation ${annotation.id} with disallowed type on page [${wb.id}], ignoring...")
+          }
         } else {
           println(s"User $userId doesn't have permission to edit annotation ${annotation.id}, ignoring...")
         }
       } else if (annotation.annotationInfo.contains("type")) {
-        newAnnotationsMap += (annotation.id -> annotation)
-        annotationsAdded :+= annotation
-        annotationsDiffAdded :+= annotation
-        println(s"Adding annotation to page [${wb.id}]. After numAnnotations=[${newAnnotationsMap.size}].")
+        if (isAllowedAnnotationType(annotation.annotationInfo)) {
+          newAnnotationsMap += (annotation.id -> annotation)
+          annotationsAdded :+= annotation
+          annotationsDiffAdded :+= annotation
+          println(s"Adding annotation to page [${wb.id}]. After numAnnotations=[${newAnnotationsMap.size}].")
+        } else {
+          println(s"Rejected annotation ${annotation.id} with disallowed type on page [${wb.id}], ignoring...")
+        }
       } else {
         println(s"New annotation [${annotation.id}] with no type, ignoring...")
       }

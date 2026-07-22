@@ -1,43 +1,47 @@
 package org.bigbluebutton.api.service.impl;
 
-import org.apache.commons.validator.routines.InetAddressValidator;
-import org.bigbluebutton.api.service.RedirectValidator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.net.URI;
 
-import java.net.InetAddress;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.UnknownHostException;
+public class PluginRedirectValidatorService extends BaseUrlRedirectValidator {
 
-public class PluginRedirectValidatorService implements RedirectValidator {
-    private static final Logger log = LoggerFactory.getLogger(PluginRedirectValidatorService.class);
-    public boolean isRedirectValid(String redirectUrl) {
-        log.info("Validating redirect URL [{}]", redirectUrl);
-        URL url;
+    private String localPluginUrlPrefix;
 
-        try {
-            url = new URL(redirectUrl);
-        } catch(MalformedURLException e) {
-            log.error("Malformed URL [{}]", redirectUrl);
+    @Override
+    protected boolean isUrlBypassed(String redirectUrl) {
+        if (localPluginUrlPrefix == null || localPluginUrlPrefix.isEmpty()
+                || redirectUrl == null || redirectUrl.isEmpty()) {
             return false;
         }
 
         try {
-            InetAddress[] addresses = InetAddress.getAllByName(url.getHost());
-            InetAddressValidator validator = InetAddressValidator.getInstance();
+            URI allowed = URI.create(localPluginUrlPrefix).normalize();
+            URI candidate = URI.create(redirectUrl).normalize();
 
-            for(InetAddress address: addresses) {
-                if(!validator.isValid(address.getHostAddress())) {
-                    log.error("Invalid address [{}]", address.getHostAddress());
-                    return false;
-                }
-            }
-        } catch(UnknownHostException e) {
-            log.error("Unknown host [{}]", url.getHost());
+            String allowedPath = allowed.getRawPath().endsWith("/")
+                    ? allowed.getRawPath()
+                    : allowed.getRawPath() + "/";
+
+            return allowed.getScheme().equalsIgnoreCase(candidate.getScheme())
+                    && allowed.getHost().equalsIgnoreCase(candidate.getHost())
+                    && effectivePort(allowed) == effectivePort(candidate)
+                    && candidate.getRawPath().startsWith(allowedPath);
+        } catch (IllegalArgumentException e) {
             return false;
         }
+    }
 
-        return true;
+    private static int effectivePort(URI uri) {
+        int port = uri.getPort();
+        if (port != -1) {
+            return port;
+        }
+        String scheme = uri.getScheme();
+        if ("https".equalsIgnoreCase(scheme)) return 443;
+        if ("http".equalsIgnoreCase(scheme)) return 80;
+        return -1;
+    }
+
+    public void setLocalPluginUrlPrefix(String localPluginUrlPrefix) {
+        this.localPluginUrlPrefix = localPluginUrlPrefix;
     }
 }

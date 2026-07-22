@@ -23,6 +23,7 @@ bbb-fsesl-akka
 bbb-html5
 bbb-learning-dashboard
 bbb-libreoffice-docker
+bbb-livekit
 bbb-mkclean
 bbb-pads
 bbb-shared-notes-server

@@ -26,9 +26,6 @@ import Switch from '@mui/material/Switch';
 import Slider from '@mui/material/Slider';
 import { styled as materialStyled } from '@mui/material/styles';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import {
-  HeaderContainer as BaseHeaderContainer,
-} from '/imports/ui/components/sidebar-content/styles';
 import Button from '/imports/ui/components/common/button/component';
 
 const RootContainer = styled.div`
@@ -49,8 +46,6 @@ const ProfileSettings = styled(ScrollboxVertical)`
   overflow-y: auto;
   overflow-x: hidden;
 `;
-
-const HeaderContainer = styled(BaseHeaderContainer)``;
 
 interface VideoPreviewProps {
   mirroredVideo: boolean;
@@ -542,7 +537,6 @@ const StopSharingButtonText = styled.div<{ extraPadding?: boolean }>`
 export default {
   RootContainer,
   ProfileSettings,
-  HeaderContainer,
   VideoPreview,
   VideoPreviewContainer,
   VideoPreviewWrapper,

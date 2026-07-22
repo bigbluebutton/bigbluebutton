@@ -48,6 +48,7 @@ const UnifiedLayout = (props) => {
 
   const sidebarNavigationInput = layoutSelectInput((i) => i.sidebarNavigation);
   const sidebarContentInput = layoutSelectInput((i) => i.sidebarContent);
+  const sidebarContentAuxiliaryInput = layoutSelectInput((i) => i.sidebarContentAuxiliary);
   const cameraDockInput = layoutSelectInput((i) => i.cameraDock);
   const actionbarInput = layoutSelectInput((i) => i.actionBar);
   const navbarInput = layoutSelectInput((i) => i.navBar);
@@ -87,6 +88,8 @@ const UnifiedLayout = (props) => {
   }, [input, deviceType, isRTL, fontSize, fullscreen, isPresentationEnabled]);
 
   const calculatesDropAreas = (sidebarNavWidth, sidebarContentWidth, cameraDockBounds) => {
+    const { sidebarContentAuxiliary } = input;
+    const isMultiFunctionalModeActive = sidebarContentAuxiliary.isOpen;
     const { height: actionBarHeight } = calculatesActionbarHeight();
     const mediaAreaHeight = windowHeight() - (DEFAULT_VALUES.navBarHeight + actionBarHeight);
     const sidebarContentMarginToMedia = windowWidth()
@@ -134,14 +137,16 @@ const UnifiedLayout = (props) => {
       zIndex: cameraDockBounds.zIndex,
     };
 
-    dropZones[CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM] = {
-      top: windowHeight() - DROP_ZONE_DEFAUL_SIZE,
-      left: !isRTL ? sidebarNavWidth : null,
-      right: isRTL ? sidebarNavWidth : null,
-      width: sidebarContentWidth ? sidebarContentWidth - sidebarContentMarginToMedia : 0,
-      height: DROP_ZONE_DEFAUL_SIZE,
-      zIndex: cameraDockBounds.zIndex,
-    };
+    if (!isMultiFunctionalModeActive) {
+      dropZones[CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM] = {
+        top: windowHeight() - DROP_ZONE_DEFAUL_SIZE,
+        left: !isRTL ? sidebarNavWidth : null,
+        right: isRTL ? sidebarNavWidth : null,
+        width: sidebarContentWidth ? sidebarContentWidth - sidebarContentMarginToMedia : 0,
+        height: DROP_ZONE_DEFAUL_SIZE,
+        zIndex: cameraDockBounds.zIndex,
+      };
+    }
 
     return dropZones;
   };
@@ -172,6 +177,10 @@ const UnifiedLayout = (props) => {
               sidebarContent: {
                 isOpen: overrideOpenSidebarPanel,
                 sidebarContentPanel: sidebarContent.sidebarContentPanel,
+              },
+              sidebarContentAuxiliary: {
+                isOpen: false,
+                sidebarContentPanel: PANELS.NONE,
               },
               presentation: {
                 isOpen: presentation.isOpen,
@@ -231,6 +240,10 @@ const UnifiedLayout = (props) => {
               sidebarContent: {
                 isOpen: overrideOpenSidebarPanel,
                 sidebarContentPanel: sidebarContentPanelOverride,
+              },
+              sidebarContentAuxiliary: {
+                isOpen: false,
+                sidebarContentPanel: PANELS.NONE,
               },
               presentation: {
                 isOpen: presentation.isOpen,
@@ -591,24 +604,25 @@ const UnifiedLayout = (props) => {
     const sidebarNavWidth = calculatesSidebarNavWidth();
     const sidebarNavHeight = calculatesSidebarNavHeight();
     const sidebarContentWidth = calculatesSidebarContentWidth();
+    const sidebarContentAuxiliaryWidth = calculatesSidebarContentWidth(true);
     const sidebarNavBounds = calculatesSidebarNavBounds();
     const sidebarContentBounds = calculatesSidebarContentBounds(
       sidebarNavWidth.horizontalSpaceOccupied,
     );
     const mediaAreaBounds = calculatesMediaAreaBounds(
       sidebarNavWidth.horizontalSpaceOccupied,
-      sidebarContentWidth.width,
+      sidebarContentWidth.width + sidebarContentAuxiliaryWidth.width,
     );
     const navbarBounds = calculatesNavbarBounds(mediaAreaBounds);
     const actionbarBounds = calculatesActionbarBounds(mediaAreaBounds);
     const cameraDockBounds = calculatesCameraDockBounds(
       sidebarNavWidth.horizontalSpaceOccupied,
-      sidebarContentWidth.width,
+      sidebarContentWidth.width + sidebarContentAuxiliaryWidth.width,
       mediaAreaBounds,
     );
     const dropZoneAreas = calculatesDropAreas(
       sidebarNavWidth.horizontalSpaceOccupied,
-      sidebarContentWidth.width,
+      sidebarContentWidth.width + sidebarContentAuxiliaryWidth.width,
       cameraDockBounds,
     );
     const {
@@ -618,10 +632,11 @@ const UnifiedLayout = (props) => {
     } = calculatesSidebarContentHeight(cameraDockBounds.height);
     const mediaBounds = calculatesMediaBounds(
       sidebarNavWidth.horizontalSpaceOccupied,
-      sidebarContentWidth.width,
+      sidebarContentWidth.width + sidebarContentAuxiliaryWidth.width,
       cameraDockBounds,
     );
-    const sidebarSize = sidebarContentWidth.width + sidebarNavWidth.width;
+    const sidebarSize = sidebarContentWidth.width
+      + sidebarContentAuxiliaryWidth.width + sidebarNavWidth.width;
     const { height: actionBarHeight } = calculatesActionbarHeight();
 
     let horizontalCameraDiff = 0;
@@ -709,7 +724,39 @@ const UnifiedLayout = (props) => {
     });
 
     layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_AUXILIARY_OUTPUT,
+      value: {
+        display: sidebarContentAuxiliaryInput.isOpen,
+        minWidth: sidebarContentAuxiliaryWidth.minWidth,
+        width: sidebarContentAuxiliaryWidth.width,
+        maxWidth: sidebarContentAuxiliaryWidth.maxWidth,
+        height: sidebarContentHeight,
+        minHeight: sidebarContentMinHeight,
+        maxHeight: sidebarContentMaxHeight,
+        top: sidebarContentBounds.top,
+        left: !isRTL ? sidebarContentBounds.left
+          + sidebarContentWidth.width : null,
+        right: isRTL ? sidebarContentBounds.right
+          + sidebarContentWidth.width : null,
+        currentPanelType,
+        tabOrder: DEFAULT_VALUES.sidebarContentTabOrder,
+        isResizable: !isMobile && !isTablet,
+        zIndex: sidebarContentBounds.zIndex,
+      },
+    });
+
+    layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_RESIZABLE_EDGE,
+      value: {
+        top: false,
+        right: !isRTL,
+        bottom: false,
+        left: isRTL,
+      },
+    });
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_AUXILIARY_RESIZABLE_EDGE,
       value: {
         top: false,
         right: !isRTL,

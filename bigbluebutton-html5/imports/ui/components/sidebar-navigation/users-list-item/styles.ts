@@ -1,28 +1,28 @@
 import styled from 'styled-components';
-import { colorGrayIcons, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeSmaller, fontSizeXS, titlesFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
+import { colorWhite, colorGrayLight } from '/imports/ui/stylesheets/styled-components/palette';
+import { fontSizeSmaller, titlesFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
 
 const GuestNumberIndicatorWrapper = styled.div<{ $count: number }>`
-  position: absolute;
-  top: -0.4rem;
-  right: -0.4rem;
-  background-color: ${colorGrayIcons};
-  width: ${({ $count }) => ($count >= 100 ? '1.4rem' : '1.35rem')};
-  height: ${({ $count }) => ($count >= 100 ? '1.4rem' : '1.35rem')};
-  font-size: ${({ $count }) => ($count >= 100 ? `${fontSizeXS}` : `${fontSizeSmaller}`)};
-  border-radius: 50%;
-`;
-
-const GuestNumberIndicator = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
-  color: ${colorWhite};
+  font-size: ${fontSizeSmaller};
+  line-height: 1;
+  margin-top: -0.25rem;
+`;
+
+const GuestNumberIndicator = styled.span`
+  display: block;
+  color: ${colorGrayLight};
   font-style: normal;
   font-weight: ${titlesFontWeight};
   line-height: normal;
   text-align: center;
+
+  [aria-expanded='true'] &,
+  [data-active='true'] & {
+    color: ${colorWhite};
+  }
 `;
 
 export default {

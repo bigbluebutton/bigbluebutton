@@ -6,8 +6,8 @@ import React, {
 import { UserCameraHelperButton, UserCameraHelperInterface, UserCameraHelperItemPosition } from 'bigbluebutton-html-plugin-sdk';
 import VideoList from '/imports/ui/components/video-provider/video-list/component';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
-import { useNumberOfPages } from '/imports/ui/components/video-provider/hooks';
-import { VideoItem } from '/imports/ui/components/video-provider/types';
+import { useNumberOfPages, useGridSize } from '/imports/ui/components/video-provider/hooks';
+import { GridItem, VideoItem } from '/imports/ui/components/video-provider/types';
 import { Layout, Output } from '/imports/ui/components/layout/layoutTypes';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { UpdatedDataForUserCameraDomElement } from 'bigbluebutton-html-plugin-sdk/dist/cjs/dom-element-manipulation/user-camera/types';
@@ -24,6 +24,7 @@ interface VideoListContainerProps {
   handleVideoFocus: (id: string) => void;
   isGridEnabled: boolean;
   overflowCount: number;
+  overflowUsers: GridItem[];
   onVideoItemMount: (stream: string, video: HTMLVideoElement) => void;
   onVideoItemUnmount: (stream: string) => void;
   onVirtualBgDrop: (stream: string, type: string, name: string, data: string) => Promise<unknown>;
@@ -40,11 +41,13 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
     handleVideoFocus,
     isGridEnabled,
     overflowCount,
+    overflowUsers,
     onVideoItemMount,
     onVideoItemUnmount,
     onVirtualBgDrop,
   } = props;
   const numberOfPages = useNumberOfPages();
+  const gridSize = useGridSize();
 
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
 
@@ -114,10 +117,12 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
           handleVideoFocus={handleVideoFocus}
           isGridEnabled={isGridEnabled}
           overflowCount={overflowCount}
+          overflowUsers={overflowUsers}
           streams={streams}
           onVideoItemMount={onVideoItemMount}
           onVideoItemUnmount={onVideoItemUnmount}
           onVirtualBgDrop={onVirtualBgDrop}
+          gridSize={gridSize}
         />
       )
   );

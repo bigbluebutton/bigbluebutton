@@ -5,11 +5,10 @@ import {
 } from '/imports/ui/components/audio/audio-graphql/audio-captions/service';
 import { ActiveCaptionsResponse, GET_ACTIVE_CAPTIONS } from '/imports/ui/components/audio/audio-graphql/audio-captions/button/queries';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
-import { layoutDispatch, layoutSelect } from '/imports/ui/components/layout/context';
-import { Layout } from '/imports/ui/components/layout/layoutTypes';
-import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useAudioCaptionEnable from '/imports/ui/core/local-states/useAudioCaptionEnable';
+import PanelHeader from '/imports/ui/components/common/panel-header/component';
+import { PANELS } from '/imports/ui/components/layout/enums';
 import AudioCaptionsSpeechControls from './speech/component';
 import AudioCaptionsTextControls from './text/component';
 import Styled from './styles';
@@ -18,10 +17,6 @@ const intlMessages = defineMessages({
   panelTitle: {
     id: 'app.audio.captions.panelTitle',
     description: 'Audio captions panel title',
-  },
-  minimize: {
-    id: 'app.sidebarContent.minimizePanelLabel',
-    description: 'Minimize button label',
   },
   disclaimer: {
     id: 'app.audio.captions.disclaimer',
@@ -42,8 +37,6 @@ const AudioCaptionsPanel = () => {
       captionLocale: user.captionLocale,
     }),
   );
-  const layoutContextDispatch = layoutDispatch();
-  const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const [active] = useAudioCaptionEnable();
   const captionsTermsLink = getCaptionsTermsLink(intl.locale);
 
@@ -61,34 +54,11 @@ const AudioCaptionsPanel = () => {
 
   return (
     <>
-      <Styled.HeaderContainer
-        isRTL={isRTL}
-        data-test="audioCaptionsTitle"
+      <PanelHeader
+        panelId={PANELS.AUDIO_CAPTIONS}
         title={intl.formatMessage(intlMessages.panelTitle)}
-        leftButtonProps={{}}
-        rightButtonProps={{
-          'aria-label': intl.formatMessage(
-            intlMessages.minimize,
-            { panelName: intl.formatMessage(intlMessages.panelTitle) },
-          ),
-          'data-test': 'closeAudioCaptionsPanel',
-          icon: 'minus',
-          label: intl.formatMessage(
-            intlMessages.minimize,
-            { panelName: intl.formatMessage(intlMessages.panelTitle) },
-          ),
-          onClick: () => {
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-              value: false,
-            });
-            layoutContextDispatch({
-              type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-              value: PANELS.NONE,
-            });
-          },
-        }}
-        customRightButton={null}
+        dataTest="audioCaptionsTitle"
+        closeButtonDataTest="closeAudioCaptionsPanel"
       />
       <Styled.Separator />
       <Styled.AudioCaptions>

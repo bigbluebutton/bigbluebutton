@@ -47,6 +47,16 @@ module BigBlueButton
           try_remux_video if needs_remux
         end
 
+        # Check this video source for large gaps in timestamps.
+        #
+        # @return [Array<Array<Numeric>>] PTS gaps in the current source file
+        def pts_gaps
+          return [] if corrupt?
+
+          duration = @original_duration || @info[:duration]
+          BigBlueButton::EDL::MediaUtils.pts_gaps(@process_dir, @filename, :video, duration)
+        end
+
         # The native aspect ratio of the video source.
         #
         # @return [Rational, nil] The aspect ratio of the video source, or nil if it is unknown.

@@ -286,7 +286,7 @@ class ConnectionStatusComponent extends PureComponent {
             <Styled.AvatarWrapper>
               <Styled.Avatar
                 you={conn.user.userId === Auth.userID}
-                avatar={conn.user.avatar}
+                avatar={conn.user?.avatar || ''}
                 moderator={conn.user.isModerator}
                 color={conn.user.color}
               >

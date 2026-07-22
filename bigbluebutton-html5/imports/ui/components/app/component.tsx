@@ -24,6 +24,7 @@ import LayoutEngine from '../layout/layout-manager/layoutEngine';
 import NavBarContainer from '../nav-bar/container';
 import SidebarNavigationContainer from '../sidebar-navigation/container';
 import SidebarContentContainer from '../sidebar-content/container';
+import SidebarContentAuxiliaryContainer from '/imports/ui/components/sidebar-content/sidebar-content-auxiliary/container';
 import PluginsEngineManager from '../plugins-engine/manager';
 import Notifications from '../notifications/component';
 import GlobalStyles from '/imports/ui/stylesheets/styled-components/globalStyles';
@@ -50,6 +51,7 @@ import usePollShortcut from './hooks/usePollShortcut';
 import useUserStatusNotifications from './hooks/useUserStatusNotifications';
 import { NotesRenderMode } from '/imports/ui/components/notes/constants';
 import RequestPresenterContainer from '/imports/ui/components/request-presenter/container';
+import DocumentTitleManager from './document-title-manager/component';
 
 interface AppProps {
   darkTheme: boolean;
@@ -145,12 +147,14 @@ const App: React.FC<AppProps> = ({
           }}
         >
           <ActivityCheckContainer />
+          <DocumentTitleManager />
           <RequestUnmuteContainer />
           <ScreenReaderAlertContainer />
           <BannerBarContainer />
           <NotificationsBarContainer />
           <SidebarNavigationContainer />
           <SidebarContentContainer isSharedNotesPinned={isSharedNotesPinned} />
+          <SidebarContentAuxiliaryContainer />
           <NavBarContainer main="new" />
           <WebcamContainer />
           {!isNonMediaLayout && <ExternalVideoPlayerContainer />}

@@ -42,6 +42,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       skipMeetingEnded: false,
       dynamicGuestPolicy: true,
       enableGuestLobbyMessage: true,
+      showGuestLobbyWaitingQueuePosition: true,
       guestPolicyExtraAllowOptions: false,
       alwaysShowWaitingRoomUI: true,
       enableLimitOfViewersInWebcam: false,
@@ -52,7 +53,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       enableCameraBrightness: true,
       mirrorOwnWebcam: false,
       viewersInWebcam: 8,
-      ipv4FallbackDomain: '',
       allowLogout: true,
       allowFullscreen: true,
       preloadNextSlides: 2,
@@ -63,6 +63,14 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         mobile: false,
         provider: 'webspeech',
         showInSidebarNavigation: false,
+        microphoneAlert: {
+          enabled: true,
+          helpLink: '',
+          threshold: -50,
+          speakingThreshold: 5000,
+          duration: 10000,
+          interval: 200,
+        },
         language: {
           available: [
             'en-US',
@@ -99,6 +107,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         breakoutRoomMinimum: 2,
         breakoutRoomLimit: 16,
         allowPresentationManagementInBreakouts: true,
+        lockBreakoutRecordingSetting: false,
       },
       showAllAvailableLocales: true,
       showAudioFilters: true,
@@ -218,6 +227,8 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       maxDocumentChars: 99999,
       maxLengthForContentUpdate: 512,
       staticFormattingToolbar: true,
+      importMarkdownEnabled: false,
+      exportMarkdownEnabled: false,
     },
     externalVideoPlayer: {
       enabled: true,
@@ -593,6 +604,9 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         },
       ],
     },
+    multiFunctionalMode: {
+      enabled: false,
+    },
     notes: {
       enabled: true,
       id: 'notes',
@@ -606,14 +620,19 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
     },
     sidebarNavigation: {
       appsToLabelAsNew: [],
+      buttons: {
+        top: ['profile', 'user-list', 'chat', 'notes'],
+        center: ['apps-gallery', 'pinned-apps'],
+        bottom: ['audio-captions', 'learning-dashboard', 'settings'],
+      },
     },
     pads: {
       url: 'ETHERPAD_HOST',
     },
     media: {
       audio: {
-        defaultFullAudioBridge: 'fullaudio',
-        defaultListenOnlyBridge: 'fullaudio',
+        defaultFullAudioBridge: 'livekit',
+        defaultListenOnlyBridge: 'livekit',
         retryThroughRelay: false,
         allowAudioJoinCancel: true,
         audioWasmProcessing: {
@@ -631,26 +650,12 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       forceRelay: false,
       forceRelayOnFirefox: true,
       mediaTag: '#remote-media',
-      callTransferTimeout: 5000,
-      callHangupTimeout: 2000,
-      callHangupMaximumRetries: 10,
       echoTestNumber: 'echo',
       listenOnlyCallTimeout: 15000,
       transparentListenOnly: false,
       fullAudioOffering: true,
       listenOnlyOffering: false,
-      iceGatheringTimeout: 5000,
-      audioConnectionTimeout: 5000,
-      audioReconnectionDelay: 5000,
-      audioReconnectionAttempts: 3,
-      sipjsHackViaWs: false,
-      sipjsAllowMdns: false,
-      sip_ws_host: '',
       toggleMuteThrottleTime: 300,
-      websocketKeepAliveInterval: 30,
-      websocketKeepAliveDebounce: 10,
-      traceSip: false,
-      sdpSemantics: 'unified-plan',
       localEchoTest: {
         enabled: true,
         initialHearingState: true,
@@ -861,6 +866,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       lockToolbarTools: false,
       allowInfiniteWhiteboard: false,
       allowInfiniteWhiteboardInBreakouts: false,
+      allowInfiniteWhiteboardPanForViewers: false,
       annotations: {
         status: {
           start: 'DRAW_START',

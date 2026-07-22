@@ -43,7 +43,7 @@ then when called by `bbb-conf`, the above `apply-config.sh` script will
 
 - use the helper function `enableUFWRules` to restrict access to specific ports, and
 
-Notice that `apply-conf.sh` includes a helper script [apply-lib.sh](https://github.com/bigbluebutton/bigbluebutton/blob/v3.1.x-release/bigbluebutton-config/bin/apply-lib.sh).
+Notice that `apply-conf.sh` includes a helper script [apply-lib.sh](https://github.com/bigbluebutton/bigbluebutton/blob/v4.0.x-release/bigbluebutton-config/bin/apply-lib.sh).
 This helper script contains some functions to make it easy to apply common configuration changes, along with some helper variables, such as `HTML5_CONFIG`.
 
 The contents of `apply-config.sh` are not owned by any package, so it will never be overwritten.
@@ -380,6 +380,8 @@ This pattern can be repeated for additional recording formats. Note that it's ve
 
 After you edit the configuration file, you must restart the recording processing queue: `systemctl restart bbb-rap-resque-worker.service` in order to pick up the changes.
 
+To disable one or more enabled recording formats for a single meeting, pass `meta_bbb-disable-recording-formats` on the `create` API call with a comma-separated list of format names. For example, `meta_bbb-disable-recording-formats=video,presentation` (or `meta_bbb-disable-recording-formats=[video,presentation]`) skips the `video` and `presentation` recording formats for that meeting. The format names are case-insensitive and match the format part of the recording steps. Disabled formats are not processed or published, so they do not trigger recording-ready callbacks.
+
 The following script will enable the video recording format of a BigBlueButton 2.6+ server.
 
 ```
@@ -470,12 +472,26 @@ If you have sessions that like to share lots of webcams, such as ten or more, th
 
 To ensure that your modifications are not lost when a new version of the packages is installed, you can [create the file and] write your changes to `/etc/bigbluebutton/bbb-html5.yml`.
 
+#### Validating client settings overrides
+
+When you override the HTML5 client settings - via `/etc/bigbluebutton/bbb-html5.yml`, or per meeting via the `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` create parameters - keys that do not exist in the base `settings.yml` (typos, obsolete parameters, or values placed at the wrong level in the structure) are merged in but never read by the client, so they are silently ignored.
+
+BigBlueButton logs a `WARN` in `bbb-apps-akka` for each such key so the problem is visible. The warning is non-blocking: the value is still applied.
+
+For test and staging environments you can additionally enable **strict validation**, which turns those warnings into hard failures. It is **disabled by default** and controlled by a single setting, `clientSettingsOverrideStrictValidation`, in `/etc/bigbluebutton/bbb-web.properties`. Both `bbb-web` and `bbb-apps-akka` read this same property (akka reads the file directly at boot), so there is one switch and no risk of the two processes disagreeing. When set to `true`:
+
+- **Filesystem override (`/etc/bigbluebutton/bbb-html5.yml`), enforced by `bbb-apps-akka` at boot.** If the override file has issues, `bbb-apps-akka` logs an explicit error listing each offending key and exits (the service fails to start), so a bad config breaks the deploy instead of running silently wrong.
+- **API override (`clientSettingsOverride` / `clientSettingsOverrideJsonUrl`), enforced by `bbb-web` at create.** If a `/create` call carries an override with issues, the call is rejected with `returncode=FAILED` and `messageKey=clientSettingsOverrideValidationError`, with the offending keys listed in the message; the meeting is not created.
+
+Keep it `false` in production unless you specifically want such overrides to be rejected.
+
 #### Disable webcams
 
 You can disable webcams by setting `enableVideo` to `false` in the `/etc/bigbluebutton/bbb-html5.yml` file for the HTML5 client.
 
 `test -s /etc/bigbluebutton/bbb-html5.yml || echo '{}' > /etc/bigbluebutton/bbb-html5.yml`
-`yq -y -i '.public.kurento.enableVideo = false' /etc/bigbluebutton/bbb-html5.yml`
+
+`yq-go e -i '.public.kurento.enableVideo = false' /etc/bigbluebutton/bbb-html5.yml`
 
 and run `bbb-conf --restart`
 
@@ -484,7 +500,8 @@ and run `bbb-conf --restart`
 You can disable screen sharing by setting `enableScreensharing` to `false` in the `/etc/bigbluebutton/bbb-html5.yml` file for the HTML5 client.
 
 `test -s /etc/bigbluebutton/bbb-html5.yml || echo '{}' > /etc/bigbluebutton/bbb-html5.yml`
-`yq -y -i '.public.kurento.enableScreensharing = false' /etc/bigbluebutton/bbb-html5.yml`
+
+`yq-go e -i '.public.kurento.enableScreensharing = false' /etc/bigbluebutton/bbb-html5.yml`
 
 #### Reduce bandwidth for webcams
 
@@ -498,23 +515,25 @@ The following command will copy ALL of the DEFAULT camera profiles from the sour
 the override location `/etc/bigbluebutton/bbb-html5.yml`. If you had previous related overrides, you likely do not want to run this command.
 
 `test -s /etc/bigbluebutton/bbb-html5.yml || echo '{}' > /etc/bigbluebutton/bbb-html5.yml`
-`yq -y -i '.public.kurento.cameraProfiles = (load("/usr/share/bigbluebutton/html5-client/private/config/settings.yml") | .public.kurento.cameraProfiles)' /etc/bigbluebutton/bbb-html5.yml`
 
-Now that you have the list of camera profiles in `/etc/bigbluebutton/bbb-html5.yml`, the following `yq` commands will tweak the bitrate and whether the profile is default.
+`yq-go e -i '.public.kurento.cameraProfiles = (load("/usr/share/bigbluebutton/html5-client/private/config/settings.yml") | .public.kurento.cameraProfiles)' /etc/bigbluebutton/bbb-html5.yml`
+
+Now that you have the list of camera profiles in `/etc/bigbluebutton/bbb-html5.yml`, the following `yq-go` commands will tweak the bitrate and whether the profile is default.
 
 ```bash
 echo "  - Setting camera defaults"
+
 test -s /etc/bigbluebutton/bbb-html5.yml || echo '{}' > /etc/bigbluebutton/bbb-html5.yml
 
-yq -y -i '( .public.kurento.cameraProfiles[] | select(.id == "low") ).bitrate = 50' /etc/bigbluebutton/bbb-html5.yml
-yq -y -i '( .public.kurento.cameraProfiles[] | select(.id == "medium") ).bitrate = 100' /etc/bigbluebutton/bbb-html5.yml
-yq -y -i '( .public.kurento.cameraProfiles[] | select(.id == "high") ).bitrate = 200' /etc/bigbluebutton/bbb-html5.yml
-yq -y -i '( .public.kurento.cameraProfiles[] | select(.id == "hd") ).bitrate = 300' /etc/bigbluebutton/bbb-html5.yml
+yq-go e -i '( .public.kurento.cameraProfiles[] | select(.id == "low") ).bitrate = 50' /etc/bigbluebutton/bbb-html5.yml
+yq-go e -i '( .public.kurento.cameraProfiles[] | select(.id == "medium") ).bitrate = 100' /etc/bigbluebutton/bbb-html5.yml
+yq-go e -i '( .public.kurento.cameraProfiles[] | select(.id == "high") ).bitrate = 200' /etc/bigbluebutton/bbb-html5.yml
+yq-go e -i '( .public.kurento.cameraProfiles[] | select(.id == "hd") ).bitrate = 300' /etc/bigbluebutton/bbb-html5.yml
 
-yq -y -i '( .public.kurento.cameraProfiles[] | select(.id == "low") ).default = true' /etc/bigbluebutton/bbb-html5.yml
-yq -y -i '( .public.kurento.cameraProfiles[] | select(.id == "medium") ).default = false' /etc/bigbluebutton/bbb-html5.yml
-yq -y -i '( .public.kurento.cameraProfiles[] | select(.id == "high") ).default = false' /etc/bigbluebutton/bbb-html5.yml
-yq -y -i '( .public.kurento.cameraProfiles[] | select(.id == "hd") ).default = false' /etc/bigbluebutton/bbb-html5.yml
+yq-go e -i '( .public.kurento.cameraProfiles[] | select(.id == "low") ).default = true' /etc/bigbluebutton/bbb-html5.yml
+yq-go e -i '( .public.kurento.cameraProfiles[] | select(.id == "medium") ).default = false' /etc/bigbluebutton/bbb-html5.yml
+yq-go e -i '( .public.kurento.cameraProfiles[] | select(.id == "high") ).default = false' /etc/bigbluebutton/bbb-html5.yml
+yq-go e -i '( .public.kurento.cameraProfiles[] | select(.id == "hd") ).default = false' /etc/bigbluebutton/bbb-html5.yml
 ```
 
 #### Change screen sharing quality parameters
@@ -528,9 +547,9 @@ For **recordings**, the following parameters can be changed (presentation format
   - `/usr/local/bigbluebutton/core/scripts/presentation.yml`: `deskshare_output_framerate` (default: 5)
 
 As an example, suppose you want to increase the output resolution and framerate of the recorded screen share media to match a 1080p/15 FPS stream. The following changes would be necessary:
-  -  `$ yq -y -i '.deskshare_output_width = 1920' /usr/local/bigbluebutton/core/scripts/presentation.yml`
-  -  `$ yq -y -i '.deskshare_output_height = 1080' /usr/local/bigbluebutton/core/scripts/presentation.yml`
-  -  `$ yq -y -i '.deskshare_output_framerate = 15' /usr/local/bigbluebutton/core/scripts/presentation.yml`
+  -  `$ yq-go e -i '.deskshare_output_width = 1920' /usr/local/bigbluebutton/core/scripts/presentation.yml`
+  -  `$ yq-go e -i '.deskshare_output_height = 1080' /usr/local/bigbluebutton/core/scripts/presentation.yml`
+  -  `$ yq-go e -i '.deskshare_output_framerate = 15' /usr/local/bigbluebutton/core/scripts/presentation.yml`
 
 For **live meetings**, the following parameters can be changed:
   - `/etc/bigbluebutton/bbb-html5.yml`: `public.kurento.screenshare.bitrate`
@@ -796,6 +815,10 @@ and join an audio session. You should now hear music on hold if there is only on
 
 #### Add a phone number to the conference bridge
 
+:::info
+This dial-in path is handled by FreeSWITCH and applies to meetings that use the **FreeSWITCH audio bridge** (`audioBridge=bbb-webrtc-sfu`). LiveKit is the default audio bridge in BigBlueButton 4.0; to set up dial-in for LiveKit meetings, see [Dial-in with the LiveKit audio bridge](#dial-in-with-the-livekit-audio-bridge-livekit-sip) below.
+:::
+
 The built-in WebRTC-based audio in BigBlueButton is very high quality audio. Still, there may be cases where you want users to be able to dial into the conference bridge using a telephone number.
 
 Before you can configure FreeSWITCH to route the call to the right conference, you need to first obtain a phone number from a [Internet Telephone Service Providers](https://freeswitch.org/confluence/display/FREESWITCH/Providers+ITSPs) and configure FreeSWITCH accordingly to receive incoming calls via session initiation protocol (SIP) from that provider. Ensure that the context is `public` and that the file is called `/opt/freeswitch/conf/sip_profiles/external/YOUR-PROVIDER.xml`. Here is an example; of course, hostname and ALL-CAPS values need to be changed:
@@ -903,6 +926,154 @@ With these rules, you won't get spammed by bots scanning for SIP endpoints and t
 It's also important to note that, alongside the PIN requirement, there are basic dialplan-level checks in place to prevent anonymous dial-in callers from joining BigBlueButton audio conferences.
   - Those checks offer minimal protection regarding blocking anonymous SIP participants and should not be considered a comprehensive solution. For production environments requiring stronger security controls, administrators are responsible for implementing additional measures that match the sensitivity of their deployments.
   - If you want to allow anonymous SIP UAs, you need to remove the `reject_anonymous` extension in `/opt/freeswitch/conf/dialplan/default/bbb_conference.xml`, then restart FreeSWITCH.
+
+#### Dial-in with the LiveKit audio bridge (livekit-sip)
+
+LiveKit is the default audio bridge in BigBlueButton 4.0. For meetings that use the LiveKit audio bridge, telephone dial-in is handled by `livekit-sip`.
+
+The dial-in flow is: the caller reaches a **SIP call gateway** (a FreeSWITCH — either BigBlueButton's bundled one or an external one) that answers the call and prompts for the conference PIN; the gateway then bridges the authenticated call into `livekit-sip`, which joins the LiveKit room as a SIP participant.
+
+LiveKit dial-in is opt-in. Enable the LiveKit SIP controller in `/etc/bigbluebutton/bbb-webrtc-sfu/production.yml`:
+
+```yaml
+livekit:
+  rtcAgent:
+    enabled: true
+  sip:
+    enabled: true
+    requirePin: false # the PIN is enforced by FreeSWITCH, not by livekit-sip
+    dispatch:
+      options:
+        hidePhoneNumber: true
+```
+
+Then set up a SIP call gateway — BigBlueButton's bundled FreeSWITCH, or an external one.
+
+##### Using the bundled FreeSWITCH as the call gateway
+
+In this setup the FreeSWITCH that ships with BigBlueButton plays the call-gateway role: it answers the call, prompts for the PIN, and then bridges the call into `livekit-sip` over a local leg. The PIN is prompted by FreeSWITCH (not by `livekit-sip`). DTMF (e.g. to mute) flows caller → FreeSWITCH (a-leg) → the FreeSWITCH-to-`livekit-sip` bridge (b-leg) → `livekit-sip`; FreeSWITCH converts the inbound DTMF (RFC 2833 or SIP INFO from the trunk) to RFC 2833 on the bridge leg, which is what `livekit-sip` expects by default.
+
+:::note
+For the DID covered by the dialplan below, this replaces the FreeSWITCH-audio-bridge dial-in path: meetings created with `audioBridge=bbb-webrtc-sfu` will no longer be reachable through that DID. To support both audio bridges on the same server, use distinct DIDs and gate the dialplan on `destination_number` (one extension routes to `mod_conference`, the other bridges to `livekit-sip`).
+:::
+
+1. Provision the SIP trunk in the bundled FreeSWITCH exactly as for the FreeSWITCH audio bridge — see [Add a phone number to the conference bridge](#add-a-phone-number-to-the-conference-bridge). That covers the SIP gateway file under `/opt/freeswitch/conf/sip_profiles/external/` and the `defaultDialAccessNumber` / welcome footer in `/etc/bigbluebutton/bbb-web.properties`.
+
+2. Keep `livekit-sip` on port `5062` (its value in `/etc/bigbluebutton/livekit-sip.yaml`):
+
+   ```yaml
+   sip_port: 5062
+   sip_port_listen: 5062
+   ```
+
+3. Instead of the FreeSWITCH-bridge dialplan, install a dialplan that bridges to `livekit-sip` after the PIN prompt. Save it to `/opt/freeswitch/conf/dialplan/public/my_provider.xml` and replace `EXTERNALDID` with the DID configured on the SIP gateway:
+
+   ```xml
+   <include>
+     <extension name="from_my_provider_lk">
+       <condition field="destination_number" expression="^EXTERNALDID">
+         <action application="start_dtmf"/>
+         <action application="answer"/>
+         <action application="sleep" data="1000"/>
+         <action application="play_and_get_digits" data="5 9 3 30000 # conference/conf-pin.wav ivr/ivr-that_was_an_invalid_entry.wav pin \d+"/>
+
+         <!-- Optional: phone-number masking, identical to the FreeSWITCH-bridge example above. -->
+         <!--
+         <action application="set_profile_var" data="caller_id_name=${regex(${caller_id_name}|^.*(.{4})$|xxx-xxx-%1)}"/>
+         -->
+
+         <action application="transfer" data="SEND_TO_LIVEKIT_SIP XML public"/>
+       </condition>
+     </extension>
+
+     <extension name="bbb_lk_sip_bridge">
+       <condition field="destination_number" expression="^SEND_TO_LIVEKIT_SIP$">
+         <!-- Stop in-band DTMF detection so DTMF is not absorbed by FreeSWITCH. -->
+         <action application="stop_dtmf"/>
+         <!-- Force RFC 2833 on the bridged b-leg toward livekit-sip. The BBB
+              external profile defaults to dtmf-type=info; livekit-sip negotiates
+              RFC 2833 by default. -->
+         <action application="bridge" data="{sip_dtmf_type=rfc2833}sofia/external/sip:${pin}@${local_ip_v4}:5062;transport=udp"/>
+         <!-- Control returns here only on failure (on success FreeSWITCH hangs up
+              the a-leg automatically, since hangup_after_bridge defaults to true).
+              On failure (e.g. no LiveKit dispatch for this voice bridge, or
+              livekit-sip down), play bad-pin and re-prompt. -->
+         <action application="transfer" data="LK_BAD_PIN XML public"/>
+       </condition>
+     </extension>
+
+     <extension name="bbb_lk_bad_pin">
+       <condition field="destination_number" expression="^LK_BAD_PIN$">
+         <action application="answer"/>
+         <action application="sleep" data="1000"/>
+         <action application="play_and_get_digits" data="5 9 3 30000 # conference/conf-bad-pin.wav ivr/ivr-that_was_an_invalid_entry.wav pin \d+"/>
+         <action application="transfer" data="SEND_TO_LIVEKIT_SIP XML public"/>
+       </condition>
+     </extension>
+   </include>
+   ```
+
+4. Restart BigBlueButton:
+
+   ```bash
+   sudo bbb-conf --restart
+   ```
+
+5. Verify the components are running, then place a test call:
+
+   ```bash
+   sudo bbb-conf --status
+   sudo systemctl status freeswitch livekit-sip bbb-webrtc-sfu
+   ```
+
+   The caller should hear the BigBlueButton PIN prompt; after entering the meeting's voice bridge, the call should appear in the LiveKit room as a SIP participant. `*` or `0` toggles mute.
+
+##### Using an external call gateway
+
+In this setup an external FreeSWITCH acts as the call gateway (the same role it plays in, for example, a [Scalelite dial-in deployment](https://medium.com/@JesusFederico/scalelite-and-dial-in-numbers-f070fe0059b0)), and `livekit-sip` takes over the SIP port that the bundled FreeSWITCH would otherwise use.
+
+:::warning
+The steps below move the bundled FreeSWITCH off port `5060` and therefore **break FreeSWITCH-based dial-in** (`audioBridge=bbb-webrtc-sfu`) for the whole server. To serve both bridges, the call gateway must be aware of the audio bridge in use — for example, keep the bundled FreeSWITCH on `5060` and `livekit-sip` on `5062`, and have your load balancer build the gateway's dialplan to route to the right port (`5060` for `audioBridge=bbb-webrtc-sfu`, `5062` for `audioBridge=livekit`). If you take that approach, adjust the ports below accordingly.
+:::
+
+1. Configure the external call gateway as you would today (see the [Scalelite dial-in guide](https://medium.com/@JesusFederico/scalelite-and-dial-in-numbers-f070fe0059b0)).
+
+2. Move the bundled FreeSWITCH's SIP bind port off `5060` (to avoid colliding with `livekit-sip`). In `/opt/freeswitch/conf/vars.xml`:
+
+   ```xml
+   <X-PRE-PROCESS cmd="set" data="external_sip_port=5063"/>
+   ```
+
+3. Point `livekit-sip` at `5060`, and give it an RTP port range with connectivity to the call gateway. In `/etc/bigbluebutton/livekit-sip.yaml`:
+
+   ```yaml
+   sip_port: 5060
+   sip_port_listen: 5060
+   rtp_port:
+     port_range_start: <START>
+     port_range_end: <END>
+   ```
+
+4. Restart BigBlueButton:
+
+   ```bash
+   sudo bbb-conf --restart
+   ```
+
+5. Verify all components are running:
+
+   ```bash
+   sudo bbb-conf --status
+   sudo systemctl status livekit-sip
+   ```
+
+##### DTMF troubleshooting
+
+If DTMF passes through to FreeSWITCH during the PIN prompt but does not reach `livekit-sip` after the bridge, confirm that `liberal-dtmf=true` is set on the external SIP profile (it is BigBlueButton's default; `rtp_liberal_dtmf=true` is set globally in `vars.xml`). If that is already correct, further FreeSWITCH DTMF-mode tweaks may be required.
+
+##### Limitations
+
+- The guest lobby is bypassed for SIP dial-in callers.
 
 #### Turn on the "comfort noise" when no one is speaking
 
@@ -1317,10 +1488,10 @@ For example, if you would like to replace `de.json` with the version from a spec
 ```bash
 cd /usr/share/bigbluebutton/html5-client/locales/
 mv de.json /tmp/de.json.old
-wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v3.1.x-release/bigbluebutton-html5/public/locales/de.json
+wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.0.x-release/bigbluebutton-html5/public/locales/de.json
 cd /usr/share/bigbluebutton/html5-client/locales/
 rm de.json
-wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v3.1.x-release/bigbluebutton-html5/public/locales/de.json
+wget https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.0.x-release/bigbluebutton-html5/public/locales/de.json
 bbb-conf --restart
 ```
 
@@ -1370,7 +1541,7 @@ The following command can be used too.
 
 ```bash
 $ test -s /etc/bigbluebutton/bbb-html5.yml || echo '{}' > /etc/bigbluebutton/bbb-html5.yml
-$ yq -y -i ".public.app.clientTitle = \"New Title\"" /etc/bigbluebutton/bbb-html5.yml
+$ yq-go e -i ".public.app.clientTitle = \"New Title\"" /etc/bigbluebutton/bbb-html5.yml
 ```
 
 #### Apply lock settings to restrict webcams
@@ -1451,25 +1622,49 @@ Next, to enable gladia.io, run the following two commands
 
 ```bash
 sudo test -s /etc/bigbluebutton/bbb-html5.yml || sudo sh -c "echo '{}' > /etc/bigbluebutton/bbb-html5.yml"
-sudo yq -y -i '.public.app.audioCaptions.enabled = true' /etc/bigbluebutton/bbb-html5.yml
-sudo yq -y -i '.public.app.audioCaptions.provider = "gladia"' /etc/bigbluebutton/bbb-html5.yml
+sudo yq-go e -i '.public.app.audioCaptions.enabled = true' /etc/bigbluebutton/bbb-html5.yml
+sudo yq-go e -i '.public.app.audioCaptions.provider = "gladia"' /etc/bigbluebutton/bbb-html5.yml
 ```
 
 Next, set the gladia.io API key using the command below, replacing \<gladia_api_key\> with a glada.io API key obtained above.
 
 ```bash
-sudo yq -y -i '.gladia.startMessage = "{\"x_gladia_key\": \"<gladia-api-key>\", \"sample_rate\": 0, \"bit_depth\": 16, \"model_type\": \"fast\", \"endpointing\": 10 }"' /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml
+sudo yq-go e -i '.gladia.startMessage = "{\"x_gladia_key\": \"<gladia-api-key>\", \"sample_rate\": 0, \"bit_depth\": 16, \"model_type\": \"fast\", \"endpointing\": 10 }"' /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml
 ```
 
 If you are running BigBlueButton version **3.0** or higher, use release version **>0.3.x** of the [bbb-transcription-controller](https://github.com/bigbluebutton/bbb-transcription-controller/) repository, install the Live Transcription plugin [https://github.com/bigbluebutton/bbb-plugin-live-transcription](https://github.com/bigbluebutton/bbb-plugin-live-transcription) and use the following startMessage:
 
 ```bash
-sudo yq -y -i '.gladia.startMessage = "{\"sample_rate\": 16000, \"bit_depth\": 16, \"endpointing\": 0.01 }"' /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml
+sudo yq-go e -i '.gladia.startMessage = "{\"sample_rate\": 16000, \"bit_depth\": 16, \"endpointing\": 0.01 }"' /usr/local/bigbluebutton/bbb-transcription-controller/config/default.yml
 ```
 
 Restart the BigBlueButton server with `bbb-conf --restart`.  You will now be able to select a speech-to-text option when joining audio (including auto translate).  When one or more users have selected the option, a CC button will appear at the bottom and a Transcript panel will also be available.
 
 If you are using LiveKit as audio gateway, use [bbb-livekit-stt](https://github.com/bigbluebutton/bbb-livekit-stt) instead of [bbb-transcription-controller](https://github.com/bigbluebutton/bbb-transcription-controller) as gladia proxy.
+
+#### Musician Mode (WASM audio processing)
+
+BigBlueButton 4.0 ships with an optional WASM-based audio processor (internally referred to as "BBBA") that runs on top of the microphone stream. It is exposed to users as **"Musician Mode"** and offers an alternative to the browser's built-in audio processing — useful, for example, when sharing music where the browser's noise suppression and automatic gain control would be undesirable.
+
+It is **disabled by default**. To make it available to users, set `enabled: true` under `public.media.audio.audioWasmProcessing` in `/etc/bigbluebutton/bbb-html5.yml`:
+
+```yaml
+public:
+  media:
+    audio:
+      # audioWasmProcessing: audio input processing through WASM/BBBA
+      #   enabled: whether BBBA should be exposed to users. If false, the
+      #            browser's built-in audio processing is used instead.
+      #   constraints: browser-level audio constraints applied ON TOP of WASM processing.
+      audioWasmProcessing:
+        enabled: true
+        constraints:
+          echoCancellation: true
+          autoGainControl: true
+          noiseSuppression: true
+```
+
+The initial per-user state of the feature is controlled by `public.app.defaultSettings.application.audioWasmProcessing`. Restart BigBlueButton with `sudo bbb-conf --restart` after changing the configuration.
 
 #### Configure guest policy
 
@@ -1482,6 +1677,19 @@ You can overwrite the default guest policy in `/etc/bigbluebutton/bbb-web.proper
 #
 defaultGuestPolicy=ALWAYS_ACCEPT
 ```
+
+#### Configure guest lobby queue position
+
+When the guest policy makes users wait for moderator approval, the HTML5 client shows each guest their position in the waiting queue by default. To hide this position, set `public.app.showGuestLobbyWaitingQueuePosition` to `false` in `/etc/bigbluebutton/bbb-html5.yml`.
+
+```yaml
+public:
+  app:
+    showGuestLobbyWaitingQueuePosition: false
+```
+
+Restart BigBlueButton with `sudo bbb-conf --restart` for the change to take effect.
+
 #### Show a custom logo on the client
 
 Ensure that the parameter `displayBrandingArea` is set to `true` in bbb-html5's configuration, restart BigBlueButton server with `sudo bbb-conf --restart` and pass `logo=<image-url>` in Custom parameters when creating the meeting.
@@ -1491,45 +1699,84 @@ Ensure that the parameter `displayBrandingArea` is set to `true` in bbb-html5's 
 To update the default logo, navigate to the `images` folder located at `/var/www/bigbluebutton-default/assets/images/`, and replace the `logo.png` file with your new logo.
 
 ### Other meeting configs available
-These configs can be set in `/etc/bigbluebutton/bbb-web.properties`
+These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table is synced with [`bigbluebutton.properties`](https://github.com/bigbluebutton/bigbluebutton/blob/develop/bigbluebutton-web/grails-app/conf/bigbluebutton.properties); items marked _`overwritable`_ can be replaced per meeting through the matching [`/create`](/development/api/#create) parameter.
 
-| Parameter                                | Description                                                                                   | Options                                                      | Default value                  |
-|------------------------------------------|-----------------------------------------------------------------------------------------------|--------------------------------------------------------------|--------------------------------|
-| `defaultMeetingLayout`                   | Default Meeting Layout                                                                        | UNIFIED_LAYOUT, CAMERAS_ONLY, PRESENTATION_ONLY, PARTICIPANTS_AND_CHAT_ONLY, MEDIA_ONLY | UNIFIED_LAYOUT _`overwritable`_ |
-| `defaultMaxUsers`                        | Maximum number of users a meeting can have                                                    | Integer `(0=disable)`                                        | 0 _`overwritable`_             |
-| `maxUserConcurrentAccesses`              | Maximum number of sessions that each user (extId) can open simultaneously in the same meeting | Integer (0=disable)                                          | 3                              |
-| `defaultMeetingDuration`                 | Duration of the meeting in minutes                                                            | Integer (0=disable)                                          | 0 _`overwritable`_             |
-| `clientLogoutTimerInMinutes`             | Number of minutes to logout client if user isn't responsive                                   | Integer (0=disable)                                          | 0                              |
-| `meetingExpireIfNoUserJoinedInMinutes`   | End meeting if no user joined within a period of time after meeting created                   | Integer                                                      | 5                              |
-| `meetingExpireWhenLastUserLeftInMinutes` | Number of minutes to end meeting when the last user left                                      | Integer (0=disable)                                          | 1                              |
-| `endWhenNoModerator`                     | End meeting when there are no moderators after a certain period of time                       | true/false                                                   | false _`overwritable`_         |
-| `endWhenNoModeratorDelayInMinutes`       | Number of minutes to wait for moderator rejoin before end meeting                             | Integer                                                      | 1 _`overwritable`_             |
-| `userInactivityInspectTimerInMinutes`    | User inactivity audit timer interval                                                          | Integer (0=disable)                                          | 0                              |
-| `userInactivityThresholdInMinutes`       | Number of minutes to consider a user inactive.                                                | Integer                                                      | 30                             |
-| `userActivitySignResponseDelayInMinutes` | Number of minutes for user to respond to inactivity warning before being logged out           | Integer                                                      | 5                              |
-| `webcamsOnlyForModerator`                | Allow webcams streaming reception only to and from moderators                                 | true/false                                                   | false  _`overwritable`_        |
-| `meetingCameraCap`                       | Per meeting camera share limit                                                                | Integer (0=disable)                                          | 0  _`overwritable`_            |
-| `userCameraCap`                          | Per user camera share limit                                                                   | Integer (0=disable)                                          | 3 _`overwritable`_             |
-| `maxPinnedCameras`                       | Maximum number of cameras pinned simultaneously                                               | Integer (0=disable)                                          | 3                              |
-| `muteOnStart`                            | Mute the meeting on start                                                                     | true/false                                                   | false _`overwritable`_         |
-| `allowModsToUnmuteUsers`                 | Gives moderators permission to unmute other users                                             | true/false                                                   | false _`overwritable`_         |
-| `requireUserConsentBeforeUnmuting`       | Allows participants to accept or decline when a moderator asks them to unmute.                                    | true/false                                                   | false _`overwritable`_         |
-| `allowModsToEjectCameras`                | Gives moderators permission to close other users' webcams                                     | true/false                                                   | false _`overwritable`_         |
-| `usersTimeout`                           | Timeout (millis) to remove a joined user after her/him left meeting without a rejoin          | Integer                                                      | 60000 (60s)                    |
-| `waitingGuestUsersTimeout`               | Timeout (millis) to remove guest users that stopped fetching for her/his status               | Integer                                                      | 30000 (30s)                    |
-| `enteredUsersTimeout`                    | Timeout (millis) to remove users that called the enter API but did not join                   | Integer                                                      | 45000 (45s)                    |
-| `breakoutRoomsRecord`                    | Enable Recordings in Breakout Rooms                                                           | true/false                                                   | false _`overwritable`_         |
-| `breakoutRoomsPrivateChatEnabled`        | Enable private chat in Breakout Rooms                                                         | true/false                                                   | true _`overwritable`_          |
-| `breakoutRoomsMultiUserWhiteboardDefaultOn` | Enable multi-user whiteboard by default in Breakout Rooms   | true/false    | true  |
-| `notifyRecordingIsOn`                    | Notify users that recording is on                                                             | true/false                                                   | false _`overwritable`_         |
-| `learningDashboardCleanupDelayInMinutes` | Number of minutes that Learning Dashboard will be available after the end of the meeting      | Integer (0=disable)                                          | 2 _`overwritable`_             |
-| `serviceEnabled`                         | API enabled                                                                                   | true/false                                                   | true                           |
-| `allowRequestsWithoutSession`            | Allow requests without JSESSIONID to be handled                                               | true/false                                                   | false                          |
-| `supportedChecksumAlgorithms`            | List of supported hash algorithms for validating checksums                                    | sha1, sha256, sha384, sha512                                 | sha1, sha256, sha384, sha512   |
-| `allowRevealOfBBBVersion`                | Allow endpoint with current BigBlueButton version                                             | true/false                                                   | false                          |
-| `recordFullDurationMedia`                | Controls whether media should be captured on their full duration if the meeting's recorded property is true | true/false | false            |
+| Parameter | Description | Options | Default value |
+|---|---|---|---|
+| `defaultMeetingLayout` | Default meeting layout | UNIFIED_LAYOUT, CAMERAS_ONLY, PRESENTATION_ONLY, PARTICIPANTS_AND_CHAT_ONLY, MEDIA_ONLY | UNIFIED_LAYOUT _`overwritable`_ (via `meetingLayout`) |
+| `defaultMaxUsers` | Maximum number of users a meeting can have | Integer (0=disable) | 0 _`overwritable`_ (via `maxParticipants`) |
+| `maxUserConcurrentAccesses` | Maximum number of sessions a single user (extId) can open simultaneously in the same meeting; oldest session is ended when exceeded | Integer (0=disable) | 3 |
+| `defaultMeetingDuration` | Default duration of the meeting in minutes | Integer (0=disable) | 0 _`overwritable`_ (via `duration`) |
+| `defaultGuestPolicy` | Default guest policy applied to meetings | ALWAYS_ACCEPT, ALWAYS_DENY, ASK_MODERATOR | ALWAYS_ACCEPT _`overwritable`_ (via `guestPolicy`) |
+| `authenticatedGuest` | Enable authenticated guest mode | true/false | true |
+| `defaultAllowPromoteGuestToModerator` | Allows moderators to promote guests to moderators when `authenticatedGuest` is enabled | true/false | false _`overwritable`_ (via `allowPromoteGuestToModerator`) |
+| `clientLogoutTimerInMinutes` | Number of minutes to logout client if user isn't responsive | Integer (0=disable) | 0 |
+| `meetingExpireIfNoUserJoinedInMinutes` | End meeting if no user joined within a period of time after meeting created | Integer | 5 _`overwritable`_ |
+| `meetingExpireWhenLastUserLeftInMinutes` | Number of minutes to end meeting when the last user left | Integer (0=disable) | 1 _`overwritable`_ |
+| `endWhenNoModerator` | End meeting when there are no moderators after a certain period of time | true/false | false _`overwritable`_ |
+| `endWhenNoModeratorDelayInMinutes` | Number of minutes to wait for moderator rejoin before end meeting | Integer | 1 _`overwritable`_ |
+| `userInactivityInspectTimerInMinutes` | User inactivity audit timer interval | Integer (0=disable) | 0 |
+| `userInactivityThresholdInMinutes` | Number of minutes to consider a user inactive | Integer | 30 |
+| `userActivitySignResponseDelayInMinutes` | Number of minutes for user to respond to inactivity warning before being logged out | Integer | 5 |
+| `usersTimeout` | Timeout (millis) to remove a joined user after they left without a rejoin | Integer | 60000 (60s) |
+| `waitingGuestUsersTimeout` | Timeout (millis) to remove guest users that stopped fetching for their status | Integer | 30000 (30s) |
+| `enteredUsersTimeout` | Timeout (millis) to remove users that called the enter API but did not join | Integer | 45000 (45s) |
+| `defaultHttpSessionTimeout` | Timeout (seconds) to invalidate inactive HTTP sessions | Integer | 14400 (4h) |
+| `sessionsCleanupDelayInMinutes` | Minutes to wait before removing user sessions after a meeting has ended; during this delay the "Meeting has ended" screen is still reachable | Integer (0=keep indefinitely) | 60 |
+| `webcamsOnlyForModerator` | Allow webcams streaming reception only to and from moderators | true/false | false _`overwritable`_ |
+| `meetingCameraCap` | Per meeting camera share limit | Integer (0=disable) | 0 _`overwritable`_ |
+| `userCameraCap` | Per user camera share limit | Integer (0=disable) | 3 _`overwritable`_ |
+| `maxPinnedCameras` | Maximum number of cameras pinned simultaneously | Integer (0=disable) | 3 |
+| `muteOnStart` | Microphone is muted by default when users start sharing | true/false | true _`overwritable`_ |
+| `allowModsToUnmuteUsers` | Gives moderators permission to unmute other users | true/false | false _`overwritable`_ |
+| `requireUserConsentBeforeUnmuting` | Allows participants to accept or decline when a moderator asks them to unmute. | true/false | false _`overwritable`_ |
+| `allowModsToEjectCameras` | Gives moderators permission to close other users' webcams | true/false | false _`overwritable`_ |
+| `cameraBridge` | Media bridge used for camera streams | livekit, bbb-webrtc-sfu | livekit |
+| `screenShareBridge` | Media bridge used for screen share streams | livekit, bbb-webrtc-sfu | livekit |
+| `audioBridge` | Media bridge used for audio streams | livekit, bbb-webrtc-sfu, freeswitch | livekit |
+| `disableRecordingDefault` | When true, do not record even if the `/create` call sets `record=true` | true/false | false |
+| `autoStartRecording` | Start recording when the first user joins the meeting | true/false | false _`overwritable`_ |
+| `allowStartStopRecording` | Allow users to start/stop recording during the session | true/false | true _`overwritable`_ |
+| `defaultKeepEvents` | Save meeting events even if the meeting is not recorded | true/false | false _`overwritable`_ (via `meetingKeepEvents`) |
+| `allowFetchAllRecordings` | When true, `getRecordings` with no `meetingID` returns every recording on the server (potentially large response) | true/false | true |
+| `recordFullDurationMedia` | Whether media (audio, cameras, screen sharing) is captured on its full duration when `record=true`, ignoring the meeting's current paused/running recording state | true/false | false _`overwritable`_ |
+| `notifyRecordingIsOn` | Notify users that recording is on | true/false | false _`overwritable`_ |
+| `lockSettingsDisableCam` | Default lock setting: disable webcams | true/false | false _`overwritable`_ |
+| `lockSettingsDisableMic` | Default lock setting: disable microphones | true/false | false _`overwritable`_ |
+| `lockSettingsDisablePrivateChat` | Default lock setting: disable private chat | true/false | false _`overwritable`_ |
+| `lockSettingsDisablePublicChat` | Default lock setting: disable public chat | true/false | false _`overwritable`_ |
+| `lockSettingsDisableNotes` | Default lock setting: disable shared notes | true/false | false _`overwritable`_ |
+| `lockSettingsHideUserList` | Default lock setting: hide the user list from non-moderators | true/false | false _`overwritable`_ |
+| `lockSettingsLockOnJoin` | Default lock setting: apply lock settings to all users on join | true/false | true _`overwritable`_ |
+| `lockSettingsLockOnJoinConfigurable` | Allow the lock-on-join flag to be configured per meeting | true/false | false _`overwritable`_ |
+| `lockSettingsHideViewersCursor` | Default lock setting: hide viewers' cursors from each other | true/false | false _`overwritable`_ |
+| `lockSettingsHideViewersAnnotation` | Default lock setting: hide viewers' annotations from each other | true/false | false _`overwritable`_ |
+| `lockSettingsPresenterPolicy` | Default lock setting: controls who can take over as presenter | requireApproval, moderatorOnly, freeForAll | requireApproval _`overwritable`_ |
+| `breakoutRoomsRecord` | Enable recordings in breakout rooms | true/false | false _`overwritable`_ |
+| `breakoutRoomsPrivateChatEnabled` | Enable private chat in breakout rooms | true/false | true _`overwritable`_ |
+| `breakoutRoomsMultiUserWhiteboardDefaultOn` | Enable multi-user whiteboard by default in breakout rooms | true/false | true |
+| `learningDashboardCleanupDelayInMinutes` | Minutes the Learning Dashboard remains available after the meeting ends | Integer (0=keep permanently) | 2 _`overwritable`_ |
+| `disabledFeatures` | Comma-separated list of features to disable (see [`/create` docs](/development/api/#create) for the full list of feature names) | csv | _(empty)_ _`overwritable`_ |
+| `sharedNotesEditor` | Type of shared notes editor to use | etherpad, blockNote | etherpad _`overwritable`_ |
+| `allowOverrideClientSettingsOnCreateCall` | Allow `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` to be passed on `/create` | true/false | false |
+| `clientSettingsOverrideStrictValidation` | When true, reject the `/create` call (`bbb-web`) and refuse `bbb-apps-akka` boot if a client settings override has unknown or malformed keys. Intended for test/staging (see [Validating client settings overrides](#validating-client-settings-overrides)) | true/false | false |
+| `clientSettingsFilePath` | Path to the `settings.yml` catalog used as the schema for the strict client-settings override validation above | path | `/usr/share/bigbluebutton/html5-client/private/config/settings.yml` |
+| `pluginManifests` | List of plugin manifests as a JSON array, e.g. `[{"url": "https://example.com/manifest.json"}]` | JSON array | _(empty)_ _`overwritable`_ |
+| `pluginManifestCacheEnabled` | Cache plugin manifests on disk to speed up `/create` calls | true/false | false |
+| `pluginManifestCacheDirectory` | Base directory for cached plugin manifest files. The directory is wiped every time bbb-web starts; entries idle for over a week are also evicted automatically by the periodic refresh task | path | `/var/bigbluebutton/plugin-manifests-cache/` |
+| `pluginManifestCacheRefreshIntervalMinutes` | How often (in minutes) the plugin manifest cache refresh task runs | Integer | 60 |
+| `serviceEnabled` | Whether the BigBlueButton API is enabled | true/false | true |
+| `allowRequestsWithoutSession` | Allow requests without `JSESSIONID` to be handled (reduces security; only enable for trusted integrations like iframes) | true/false | false _`overwritable`_ |
+| `supportedChecksumAlgorithms` | Hash algorithms accepted when validating API checksums (comma-separated) | sha1, sha256, sha384, sha512 | sha1,sha256,sha384,sha512 |
+| `pageTokenSecret` | Secret used to generate per-page presentation access tokens (HMAC-SHA256). Override for additional security separation between presentation tokens and the rest of bbb-web | String | _(defaults to `${securitySalt}`)_ |
+| `beans.presentationService.pageTokenSecret` | Grails bean wiring that injects `pageTokenSecret` into the presentation service. Override only if the presentation service should use a different secret than `pageTokenSecret` | String | _(defaults to `${pageTokenSecret}`)_ |
+| `allowRevealOfBBBVersion` | Allow the `getMeetings` endpoint to reveal the current BigBlueButton version | true/false | false |
 
-- _`overwritable`_: Config will be overwritten if the param is present in the API `/create` request
+- _`overwritable`_: The default is replaced when the matching parameter is present on an API `/create` request. Where the create-side name differs from the property name, it is shown in parentheses (e.g., `defaultMeetingLayout` → `meetingLayout`).
+
+#### `/create` parameters without a `bigbluebutton.properties` counterpart
+
+Some `/create` parameters set per-meeting state but have no default in `bigbluebutton.properties`. Examples include `name`, `meetingID`, `parentMeetingID`/`sequence`/`freeJoin`/`isBreakout` (breakout-only), `bannerText`/`bannerColor`, `moderatorOnlyMessage`, `meta_*` metadata, `logo`, `multiUserWhiteboardEnabled`, presentation-upload parameters (`preUploadedPresentation*`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`), `sharedNotesInitialContentJsonUrl`, `disabledFeaturesExclude`, `clientSettingsOverride` / `clientSettingsOverrideJsonUrl`, and `pluginManifestsFetchUrl`. See [Create API parameters](/development/api/#create) for the complete list and descriptions.
 
 
 #### Passing user metadata to the client on join
@@ -1586,8 +1833,9 @@ Useful tools for development:
 | `userdata-bbb_skip_video_preview_on_first_join=` | (Introduced in BigBlueButton 2.3) If set to `true`, the user will not see a preview of their webcam before sharing it when sharing for the first time in the session. If the user stops sharing, next time they try to share webcam the video preview will be displayed, allowing for configuration changes to be made prior to sharing | `false`       |
 | `userdata-bbb_skip_video_preview_if_previous_device=` | (Introduced in BigBlueButton 3.0) If set to `true`, the user will not see a preview of their webcam before sharing it if session has a valid input device stored previously | `false`       |
 | `userdata-bbb_mirror_own_webcam=`                | If set to `true`, the client will see a mirrored version of their webcam. Doesn't affect the incoming video stream for other users.                                                                                                                                                                                                     | `false`       |
-| `userdata-bbb_fullaudio_bridge=`                 | Specifies the audio bridge to be used in the client. Supported values: `sipjs`, `fullaudio`.                                                                                       | `fullaudio`   |
+| `userdata-bbb_fullaudio_bridge=`                 | Specifies the audio bridge to be used in the client. Supported values: `fullaudio`.                                                                                       | `fullaudio`   |
 | `userdata-bbb_transparent_listen_only=`          | If set to `true`, the experimental "transparent listen only" audio mode will be used                                                                                                                                                                                                                                                    | `false`       |
+| `userdata-bbb_transcription_provider=`           | (Introduced in BigBlueButton 3.0) Overrides the speech-to-text provider used for live captions/transcription. Supported values: `webspeech`, `vosk`, `gladia`. Defaults to `public.app.audioCaptions.provider` in `settings.yml`.                                                                                                        | `webspeech`   |
 
 
 #### Presentation parameters
@@ -1630,6 +1878,7 @@ The use of *more will include all shapes listed above.
 | `userdata-bbb_default_layout=`             | The initial layout on client load. Options are: `UNIFIED_LAYOUT`, `CAMERAS_ONLY`, `PRESENTATION_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `MEDIA_ONLY`. If none is provided, the meeting layout (preset in bbb-web) will be used. Introduced in BBB 3.0.0-alpha.5. | `none`       |
 | `userdata-bbb_hide_notifications=`         | When this parameter is set to `true`, all notification toasts are suppressed in the client. Introduced in BBB 3.0.0-beta.4. | `false`       |
 | `userdata-bbb_hide_controls=`              | When this parameter is set to `true`, it hides the actions bar and the top row of the navigation bar (including the close sidebar button, room title, connectivity indicator, and leave meeting button) while keeping the row with the talking indicator and timer indicator visible. Introduced in BBB 3.0.0-beta.4. | `false`    |
+| `userdata-bbb_hide_sidebar_navigation=`    | (Introduced in BigBlueButton 4.0) If set to `true`, the sidebar navigation column (the user-list / apps panel and its toggles) will be hidden on join. | `false`    |
 
 #### Examples
 

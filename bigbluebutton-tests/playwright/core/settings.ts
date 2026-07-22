@@ -37,10 +37,14 @@ export interface Settings {
   skipVideoPreview?: boolean;
   skipVideoPreviewOnFirstJoin?: boolean;
   skipVideoPreviewIfPreviousDevice?: boolean;
+  // Camera sorting
+  showAudioOnlyOnFirstPage?: boolean;
   // Emoji
   emojiRain?: boolean;
   // Whiteboard
   allowInfiniteWhiteboard?: boolean;
+  // Multifunctional mode
+  multiFunctionalModeEnabled?: boolean;
 }
 
 let settings: Settings | undefined;
@@ -91,10 +95,14 @@ export async function generateSettingsData(page: Page): Promise<Settings | undef
       skipVideoPreview: settingsData.kurento?.skipVideoPreview,
       skipVideoPreviewOnFirstJoin: settingsData.kurento?.skipVideoPreviewOnFirstJoin,
       skipVideoPreviewIfPreviousDevice: settingsData.kurento?.skipVideoPreviewIfPreviousDevice,
+      // Camera sorting
+      showAudioOnlyOnFirstPage: settingsData.kurento?.cameraSortingModes?.showAudioOnlyOnFirstPage,
       // Emoji
       emojiRain: settingsData.app?.emojiRain?.enabled,
       // Whiteboard
       allowInfiniteWhiteboard: settingsData.whiteboard?.allowInfiniteWhiteboard,
+      // Multifunctional mode
+      multiFunctionalModeEnabled: settingsData.multiFunctionalMode?.enabled,
     };
 
     return settings;

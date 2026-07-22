@@ -23,9 +23,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/typography';
 import {
   colorText,
-  colorBlueLight,
-  colorGrayLighter,
-  colorOffWhite,
+  colorBorder,
   colorGrayDark,
   colorWhite,
   colorPrimary,
@@ -76,7 +74,7 @@ const TypedResponseInput = styled.input`
   &:focus {
     outline: none;
     border-radius: ${borderSize};
-    box-shadow: 0 0 0 ${borderSize} ${colorBlueLight},
+    box-shadow: 0 0 0 ${borderSize} ${colorPrimary},
       inset 0 0 0 1px ${colorPrimary};
   }
 
@@ -85,8 +83,8 @@ const TypedResponseInput = styled.input`
   padding: calc(${smPaddingY} * 2.5) calc(${smPaddingX} * 1.25);
   border-radius: ${borderRadius};
   font-size: ${fontSizeBase};
-  border: 1px solid ${colorGrayLighter};
-  box-shadow: 0 0 0 1px ${colorGrayLighter};
+  border: 1px solid ${colorBorder};
+  box-shadow: 0 0 0 1px ${colorBorder};
   margin-bottom: 1rem;
 `;
 
@@ -158,7 +156,7 @@ const PollingContainer = styled.aside<{ autoWidth: boolean }>`
   position: absolute;
 
   z-index: ${pollIndex};
-  border: 1px solid ${colorOffWhite};
+  border: 1px solid ${colorBorder};
   border-radius: ${borderRadius};
   box-shadow: ${colorGrayDark} 0px 0px ${lgPaddingY};
   align-items: center;

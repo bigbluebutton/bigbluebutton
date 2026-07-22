@@ -4,6 +4,7 @@ import {createSVGWindow} from 'svgdom';
 import {SVG as svgCanvas, registerWindow} from '@svgdotjs/svg.js';
 import cp from 'child_process';
 import WorkerStarter from '../lib/utils/worker-starter.js';
+import {rasterizeSlideBackground} from '../lib/utils/slide-background.js';
 import {workerData} from 'worker_threads';
 import path from 'path';
 import sanitize from 'sanitize-filename';
@@ -42,6 +43,44 @@ const statusUpdate = new PresAnnStatusMsg(exportJob,
  */
 function toPx(pt) {
   return (pt / config.process.pointsPerInch) * config.process.pixelsPerInch;
+}
+
+
+/**
+ * Returns the MIME type for a supported slide background format.
+ *
+ * @param {string} backgroundFormat - The slide background file extension.
+ * @return {string} The MIME type for the background image.
+ */
+function getBackgroundMimeType(backgroundFormat) {
+  switch (backgroundFormat) {
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    case 'png':
+      return 'image/png';
+    case 'svg':
+      return 'image/svg+xml';
+    default:
+      return 'application/octet-stream';
+  }
+}
+
+/**
+ * Builds a data URI for a slide background.
+ *
+ * Embedding the background avoids CairoSVG external file access restrictions,
+ * while keeping the conversion compatible with older CairoSVG versions.
+ *
+ * @param {string} backgroundFile - Absolute path to the background file.
+ * @param {string} backgroundFormat - The slide background file extension.
+ * @return {string} A data URI containing the background image.
+ */
+function getBackgroundDataURI(backgroundFile, backgroundFormat) {
+  const mimeType = getBackgroundMimeType(backgroundFormat);
+  const backgroundData = fs.readFileSync(backgroundFile).toString('base64');
+
+  return `data:${mimeType};base64,${backgroundData}`;
 }
 
 /**
@@ -378,9 +417,45 @@ async function processPresentationAnnotations() {
           'xmlns:xlink': 'http://www.w3.org/1999/xlink',
         });
 
+    // The background slide is composited into the annotated SVG as an <image>
+    // sized to the canvas. When the background is itself an SVG, CairoSVG only
+    // rescales it to that box if it is resolution-independent; slides carrying
+    // absolute units (e.g. width="720pt") keep their intrinsic size and render
+    // cropped into the top-left corner (issue #25303). Rasterizing the slide to
+    // a PNG first sidesteps this: a raster image always scales to the <image>
+    // box. The helper ensures the slide has a viewBox (so slides missing one
+    // still fill the raster) and renders at the same resolution as the final
+    // SVG->PDF pass (toPx of the slide dims) so the background stays sharp.
+    let backgroundSlide = `${bgImagePath}.${backgroundFormat}`;
+    let backgroundSlideFormat = backgroundFormat;
+
+    if (backgroundFormat === 'svg') {
+      try {
+        // Rasterize the same SVG we validated above (svgBackgroundSlide), not
+        // the dropbox copy, so it is clear which file feeds the raster.
+        backgroundSlide = rasterizeSlideBackground(
+            svgBackgroundSlide,
+            `${bgImagePath}-bg.png`,
+            {
+              width: toPx(slideWidth),
+              height: toPx(slideHeight),
+              cairosvg: config.shared.cairosvg,
+              unsafe: config.process.cairoSVGUnsafeFlag,
+            });
+        backgroundSlideFormat = 'png';
+      } catch (error) {
+        logger.error(`Rasterizing slide ${currentSlide.page} ` +
+          `failed for job ${jobId}: ${error.message}`);
+        statusUpdate.setError();
+      }
+    }
+
+    const backgroundDataURI = getBackgroundDataURI(
+        backgroundSlide, backgroundSlideFormat);
+
     // Add the image element
     canvas
-        .image(`file://${dropbox}/slide${currentSlide.page}.${backgroundFormat}`)
+        .image(backgroundDataURI)
         .size(scaledWidth, scaledHeight);
 
     // Add a group element with class 'whiteboard'
@@ -450,21 +525,28 @@ async function processPresentationAnnotations() {
     '-dNOPAUSE',
     '-dAutoRotatePages=/None',
     '-sDEVICE=pdfwrite',
-    `-sOUTPUTFILE="${path.join(outputDir, serverFilenameWithExtension)}"`,
-    `-dBATCH`].concat(ghostScriptInput);
+    `-sOUTPUTFILE=${path.join(outputDir, serverFilenameWithExtension)}`,
+    '-dBATCH'].concat(ghostScriptInput);
 
   // Resulting PDF file is stored in the presentation dir
-  try {
-    cp.spawnSync(config.shared.ghostscript, mergePDFs, {shell: false});
-  } catch (error) {
-    const errorMessage = 'GhostScript failed to merge PDFs in job' +
-      `${jobId}: ${error.message}`;
-    return logger.error(errorMessage);
+  const outputFile = path.join(outputDir, serverFilenameWithExtension);
+  const result = cp.spawnSync(config.shared.ghostscript, mergePDFs,
+      {shell: false});
+
+  if (result.error || result.status !== 0 || !fs.existsSync(outputFile)) {
+    const errorMessage = result.error?.message ||
+      result.stderr?.toString() ||
+      `GhostScript exited with status ${result.status}`;
+    statusUpdate.setError();
+    await client.publish(config.redis.channels.publish,
+        statusUpdate.build());
+    await client.disconnect();
+    return logger.error(`GhostScript failed to merge PDFs in job ${jobId}: ` +
+      errorMessage);
   }
 
   // Launch Notifier Worker depending on job type
-  logger.info('Saved PDF at ',
-      `${outputDir}/${serverFilenameWithExtension}`);
+  logger.info('Saved PDF at ', outputFile);
 
   const notifier = new WorkerStarter({
     jobType: exportJob.jobType, jobId,

@@ -72,6 +72,8 @@ public class Meeting {
 	private String sharedNotesEditor = "etherpad";
 	private String sharedNotesInitialContentJsonUrl = "";
 	private ArrayList<Object> sharedNotesInitialContentJson;
+	private String sharedNotesInitialContentMarkdownUrl = "";
+	private String sharedNotesInitialContentMarkdown = "";
 	private boolean presentationConversionCacheEnabled = false;
 	private boolean recordFullDurationMedia = false;
 	private boolean haveRecordingMarks = false;
@@ -109,9 +111,9 @@ public class Meeting {
 	private String customDarkLogoURL = "";
 	private String customCopyright = "";
 	private Boolean muteOnStart = false;
-	private String cameraBridge = "bbb-webrtc-sfu";
-	private String screenShareBridge = "bbb-webrtc-sfu";
-	private String audioBridge = "bbb-webrtc-sfu";
+	private String cameraBridge = "livekit";
+	private String screenShareBridge = "livekit";
+	private String audioBridge = "livekit";
 	private Boolean allowModsToUnmuteUsers = false;
 	private Boolean requireUserConsentBeforeUnmuting = false;
 	private Boolean allowRequestsWithoutSession = false;
@@ -136,6 +138,7 @@ public class Meeting {
 	private String meetingEndedCallbackURL = "";
 
 	private String sharedNotesInitialContentJsonFromPayload;
+	private String sharedNotesInitialContentMarkdownFromPayload = "";
 
 	private String overrideClientSettings = "";
 
@@ -177,6 +180,8 @@ public class Meeting {
         allowStartStopRecording = builder.allowStartStopRecording;
         sharedNotesEditor = builder.sharedNotesEditor;
 		sharedNotesInitialContentJsonUrl = builder.sharedNotesInitialContentJsonUrl;
+		sharedNotesInitialContentMarkdownUrl = builder.sharedNotesInitialContentMarkdownUrl;
+		sharedNotesInitialContentMarkdown = builder.sharedNotesInitialContentMarkdown;
 		presentationConversionCacheEnabled = builder.presentationConversionCacheEnabled;
         recordFullDurationMedia = builder.recordFullDurationMedia;
         webcamsOnlyForModerator = builder.webcamsOnlyForModerator;
@@ -697,6 +702,18 @@ public class Meeting {
 		sharedNotesInitialContentJson = initialContentJson;
 	}
 
+	public String getSharedNotesInitialContentMarkdownUrl() {
+		return sharedNotesInitialContentMarkdownUrl;
+	}
+
+	public String getSharedNotesInitialContentMarkdown() {
+		return sharedNotesInitialContentMarkdown;
+	}
+
+	public void setSharedNotesInitialContentMarkdown(String initialContentMarkdown) {
+		sharedNotesInitialContentMarkdown = initialContentMarkdown;
+	}
+
 	public boolean isPresentationConversionCacheEnabled() {
 		return presentationConversionCacheEnabled;
 	}
@@ -1021,6 +1038,14 @@ public class Meeting {
         this.sharedNotesInitialContentJsonFromPayload = sharedNotesInitialContentJsonFromPayload;
     }
 
+    public String getSharedNotesInitialContentMarkdownFromPayload() {
+        return sharedNotesInitialContentMarkdownFromPayload;
+    }
+
+    public void setSharedNotesInitialContentMarkdownFromPayload(String sharedNotesInitialContentMarkdownFromPayload) {
+        this.sharedNotesInitialContentMarkdownFromPayload = sharedNotesInitialContentMarkdownFromPayload;
+    }
+
     /***
 	 * Meeting Builder
 	 *
@@ -1036,6 +1061,8 @@ public class Meeting {
         private boolean allowStartStopRecording;
         private String sharedNotesEditor;
 		private String sharedNotesInitialContentJsonUrl;
+		private String sharedNotesInitialContentMarkdownUrl;
+		private String sharedNotesInitialContentMarkdown;
         private boolean presentationConversionCacheEnabled;
         private boolean webcamsOnlyForModerator;
         private boolean multiUserWhiteboardEnabled;
@@ -1132,6 +1159,16 @@ public class Meeting {
     		this.sharedNotesInitialContentJsonUrl = initialContent;
     		return this;
     	}
+
+		public Builder withSharedNotesInitialContentMarkdownUrl(String initialContent) {
+			this.sharedNotesInitialContentMarkdownUrl = initialContent;
+			return this;
+		}
+
+		public Builder withSharedNotesInitialContentMarkdown(String initialContent) {
+			this.sharedNotesInitialContentMarkdown = initialContent;
+			return this;
+		}
 
 		public Builder withPresentationConversionCacheEnabled(boolean cacheEnabled) {
     		this.presentationConversionCacheEnabled = cacheEnabled;

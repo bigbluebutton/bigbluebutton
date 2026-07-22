@@ -26,11 +26,16 @@ done
 cp bbb-html5.nginx staging/usr/share/bigbluebutton/nginx
 cp bbb-html5.nginx.dev staging/usr/share/bigbluebutton/nginx
 cp bbb-html5.nginx.static staging/usr/share/bigbluebutton/nginx
-cp sip.nginx staging/usr/share/bigbluebutton/nginx
+
+# Prefer the build's COMMIT_DATE (e.g. 20260525T143438, same value baked into the
+# deb VERSION string in setup-inside-docker.sh) so the client's About dialog and
+# the ?v= cache-buster identify each build uniquely. Falls back to the numeric
+# BUILD for release builds where COMMIT_DATE is unset.
+CLIENT_BUILD="${COMMIT_DATE:-$(($BUILD))}"
 
 # New format
 if [ -f private/config/settings.yml ]; then
-  sed -i "s/HTML5_CLIENT_VERSION/$(($BUILD))/g" private/config/settings.yml
+  sed -i "s/HTML5_CLIENT_VERSION/${CLIENT_BUILD}/g" private/config/settings.yml
 fi
 
 echo "Npm version:"
@@ -62,10 +67,10 @@ else
 fi
 cd ..
 
-# replace v=VERSION with build number in head and css files
+# replace v=VERSION with build identifier in head and css files
 if [ -f dist/index.html ] || [ -f dist/stylesheets/fonts.css ]; then
-  sed -i "s/?v=VERSION/?v=$(($BUILD))/g" dist/index.html
-  sed -i "s/?v=VERSION/?v=$(($BUILD))/g" dist/stylesheets/fonts.css
+  sed -i "s/?v=VERSION/?v=${CLIENT_BUILD}/g" dist/index.html
+  sed -i "s/?v=VERSION/?v=${CLIENT_BUILD}/g" dist/stylesheets/fonts.css
 fi
 
 cp -r dist/* staging/usr/share/bigbluebutton/html5-client

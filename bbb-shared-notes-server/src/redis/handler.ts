@@ -1,6 +1,5 @@
 import { Logger } from '../common/logger';
-import { meetingLockMap, connectionsMap } from '../common/singleton';
-import { MeetingLock } from '../common/type';
+import { connectionsMap } from '../common/singleton';
 import { sender } from './sender';
 import config from '../config';
 import fs from 'node:fs';
@@ -15,12 +14,7 @@ const logger = new Logger('redis handler');
 const handleMeetingCreated = async (header: MessageHeader, body: MessageBody): Promise<void> => {
   const { props: { meetingProp: { intId: meetingId }, lockSettingsProps: { disableNotes } } } = body;
 
-  const meetingLock: MeetingLock = {
-    viewerReadOnly: disableNotes,
-  };
-
   logger.info(`Meeting created with disableNotes: ${disableNotes}`, meetingId);
-  meetingLockMap.set(meetingId, meetingLock);
 };
 
 const handleMeetingLocked = async (header: MessageHeader, body: MessageBody): Promise<void> => {
@@ -28,14 +22,12 @@ const handleMeetingLocked = async (header: MessageHeader, body: MessageBody): Pr
   const { disableNotes } = body;
 
   logger.info(`Meeting lockSettings changed with disableNotes: ${disableNotes}`, meetingId);
-  const meetingLock: MeetingLock = {
-    viewerReadOnly: disableNotes,
-  };
-  meetingLockMap.set(meetingId, meetingLock);
 
   connectionsMap.forEach((connectionInfo, connectionKey) => {
-    if (connectionInfo.meetingId == meetingId && !connectionInfo.moderator) {
+    const userHasNotesDisabled = !connectionInfo.notesEnabled;
+    if (connectionInfo.meetingId == meetingId && disableNotes != userHasNotesDisabled) {
       logger.debug('Removing connection', connectionKey, connectionInfo);
+      // the client will reload when receiving `Lock rules changed` message
       connectionInfo.websocket?.close(1008, 'Lock rules changed.');
       connectionsMap.delete(connectionKey);
     }
@@ -49,8 +41,9 @@ const handleUserLocked = async (header: MessageHeader, body: MessageBody): Promi
   logger.debug(`User changed with locked: ${locked}`, userId, meetingId);
 
   connectionsMap.forEach((connectionInfo, connectionKey) => {
-    if (connectionInfo.meetingId == meetingId && connectionInfo.userId == userId) {
+    if (connectionInfo.meetingId == meetingId && connectionInfo.intUserId == userId) {
       logger.debug('Removing connection', connectionKey, connectionInfo);
+      // the client will reload when receiving `Lock rules changed` message
       connectionInfo.websocket?.close(1008, 'Lock rules changed.');
       connectionsMap.delete(connectionKey);
     }
@@ -64,8 +57,9 @@ const handleUserRoleChanged = async (header: MessageHeader, body: MessageBody): 
   logger.debug(`User role changed: ${role}`, userId, meetingId);
 
   connectionsMap.forEach((connectionInfo, connectionKey) => {
-    if (connectionInfo.meetingId == meetingId && connectionInfo.userId == userId) {
+    if (connectionInfo.meetingId == meetingId && connectionInfo.intUserId == userId) {
       logger.debug('Removing connection', connectionKey, connectionInfo);
+      // the client will reload when receiving `Role changed` message
       connectionInfo.websocket?.close(1008, 'Role changed.');
       connectionsMap.delete(connectionKey);
     }
@@ -79,7 +73,7 @@ const handleUserLeftMeeting = async (header: MessageHeader, body: MessageBody): 
   logger.debug(`User left meeting, eject: ${eject}`, userId, meetingId);
 
   connectionsMap.forEach((connectionInfo, connectionKey) => {
-    if (connectionInfo.meetingId == meetingId && connectionInfo.userId == userId) {
+    if (connectionInfo.meetingId == meetingId && connectionInfo.intUserId == userId) {
       logger.debug('Removing connection', connectionKey, connectionInfo);
       connectionInfo.websocket?.close(1008, 'User left meeting.');
       connectionsMap.delete(connectionKey);
@@ -100,10 +94,6 @@ const handleMeetingEnded = async (_header: MessageHeader, body: MessageBody): Pr
     }
   });
 
-  if (meetingLockMap.has(meetingId)) {
-    meetingLockMap.delete(meetingId);
-  }
-
   const padId = `${documentNamePrefix}${meetingId}`;
   await markDocumentEnded(padId);
 };
@@ -114,17 +104,19 @@ const handleSharedNotesCreate = async (header: MessageHeader, body: MessageBody)
     externalId,
     model,
     initialContentJson,
+    initialContentMarkdown,
   } = body;
 
   const padId = `${documentNamePrefix}${meetingId}`;
 
-  const validateInitialContentNotEmpty = (): boolean => {
-    return initialContentJson !== undefined
-      && initialContentJson !== null
-      && typeof initialContentJson === "object"
-      && Object.keys(initialContentJson).length > 0
-  }
-  if (validateInitialContentNotEmpty()) {
+  const hasInitialContentJson = initialContentJson !== undefined
+    && initialContentJson !== null
+    && typeof initialContentJson === "object"
+    && Object.keys(initialContentJson).length > 0;
+  const hasInitialContentMarkdown = typeof initialContentMarkdown === "string"
+    && initialContentMarkdown.length > 0;
+
+  if (hasInitialContentMarkdown || hasInitialContentJson) {
     logger.debug(
       'Received initial content', {
         padId,
@@ -132,7 +124,10 @@ const handleSharedNotesCreate = async (header: MessageHeader, body: MessageBody)
       }
     );
     try {
-      const statusReturn = await pushInitialContent(padId, initialContentJson);
+      const statusReturn = await pushInitialContent(padId, {
+        initialContentJson: hasInitialContentJson ? initialContentJson : undefined,
+        initialContentMarkdown: hasInitialContentMarkdown ? initialContentMarkdown : undefined,
+      });
       if (statusReturn.error) {
         logger.error('Error found, see details', {
           logCode: statusReturn.statusCode,

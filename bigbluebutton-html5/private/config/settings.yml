@@ -62,6 +62,9 @@ public:
     skipMeetingEnded: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
+    # Show the guest user's position in the lobby waiting queue.
+    # Set to false when users should not see their place in line.
+    showGuestLobbyWaitingQueuePosition: true
     guestPolicyExtraAllowOptions: false
     alwaysShowWaitingRoomUI: true
     enableLimitOfViewersInWebcam: false
@@ -75,7 +78,6 @@ public:
     enableCameraBrightness: true
     mirrorOwnWebcam: true
     viewersInWebcam: 8
-    ipv4FallbackDomain: ''
     allowLogout: true
     allowFullscreen: true
     preloadNextSlides: 2
@@ -99,6 +101,23 @@ public:
       # If true, the transcriptions and captions settings are displayed as an
       # entry in the sidebar navigation rather than a button in the actions bar
       showInSidebarNavigation: false
+      # Alert shown when WebSpeech is enabled and the user is on floor but nothing is being
+      # transcribed, suggesting a wrong microphone device or noisy environment.
+      microphoneAlert:
+        enabled: true
+        # URL to a knowledge base article about microphone settings (empty = no link shown)
+        helpLink: ''
+        # Audio energy threshold (dB) used to detect that the user is speaking.
+        # More negative values are more sensitive (e.g. -60 picks up quieter audio).
+        threshold: -50
+        # How long (ms) the user must be speaking with no transcription result
+        # before the alert is triggered.
+        speakingThreshold: 5000
+        # How long (ms) the alert toast stays on screen before auto-dismissing.
+        # Set to 0 to require manual dismissal.
+        duration: 10000
+        # How often (ms) the audio energy is checked to determine if the user is speaking.
+        interval: 200
       language:
         # Available languages will depend on the transcription service
         # Google: https://cloud.google.com/speech-to-text/docs/speech-to-text-supported-languages
@@ -142,15 +161,26 @@ public:
     # can generate excessive overhead to the server. We recommend
     # this value to be kept under 16.
     breakouts:
+      # Allow participants to pick their own breakout room instead of being assigned
       allowUserChooseRoomByDefault: false
+      # Show the recording option (if breakout recording is enabled) when creating breakout rooms
       offerRecordingForBreakouts: false
+      # Pre-check the "record breakout room" option
       recordRoomByDefault: false
+      # Pre-check the "capture whiteboard when ending breakouts" option 
       captureWhiteboardByDefault: false
+      # Pre-check the "save shared notes when ending breakouts" option
       captureSharedNotesByDefault: false
+      # Pre-check the "send invitation to assigned moderators" option
       sendInvitationToAssignedModeratorsByDefault: false
+      # Minimum number of breakout rooms that can be created
       breakoutRoomMinimum: 2
+      # Maximum number of breakout rooms that can be created
       breakoutRoomLimit: 16
+      # Allow the presenter role to manage presentations inside breakout rooms
       allowPresentationManagementInBreakouts: true
+      # Set to true to remove the ability for the breakout recording policy to be changed by the moderator at breakout creation time
+      lockBreakoutRecordingSetting: false
     showAllAvailableLocales: true
     # Show "Audio Filters for Microphone" option in settings menu.
     # When set to true, users are able to enable/disable microphone constraints,
@@ -169,16 +199,6 @@ public:
       numberOfEmojis: 5
       # emojiSize: size of the emoji in 'em' units
       emojiSize: 2
-    # If enabled, before joining microphone the client will perform a trickle
-    # ICE against Kurento and use the information about successful
-    # candidate-pairs to filter out local candidates in SIP.js's SDP.
-    # Try enabling this setting in scenarios where the listenonly mode works,
-    # but microphone doesn't (for example, when using VPN).
-    # For compatibility check "Browser compatibility" section in:
-    # https://developer.mozilla.org/en-US/docs/Web/API/RTCDtlsTransport/iceTransport
-    # This is an EXPERIMENTAL setting and the default value is false
-    # experimentalUseKmsTrickleIceForMicrophone: false
-    #
     # Shows stats about download and upload rates, audio jitter, lost packets
     # and turn information
     enableNetworkStats: true
@@ -315,6 +335,10 @@ public:
   # plugins:
   #   - name: SamplePresentationToolbarPlugin
   #     url: https://<your-Host>/plugins/SamplePresentationToolbarPlugin.js
+  #     settings:
+  #       isNew: true to display the new ribbon on the app gallery item of the plugin
+  #       pin: true # pin all plugin-injected items
+  #       # or: pin: ["generic-content-id", "app-gallery-item-id"] # pin only specific IDs
   # Allowed errors to be shown on notifications bar
     showConnectionErrors:
       # - 3001
@@ -792,6 +816,8 @@ public:
     # example: ['reply', 'delete']
     toolbar: ['reply', 'delete', 'edit', 'reactions', 'pin']
     announcePresenterChangeInChat: true
+  multiFunctionalMode:
+    enabled: false # Enables an auxiliary sidebar content panel in the UI.
   userReaction:
     enabled: true
     expire: 30
@@ -821,6 +847,24 @@ public:
     usersPerUserListPage: 50
     syncCameraDockSizeAndPosition: true
   sidebarNavigation:
+    # Controls which built-in sidebar navigation buttons are rendered, in
+    # which section (top/center/bottom) and in what order. Omitting an id
+    # hides that button. This is a full replacement list, not an allow/deny
+    # list over a hidden default - if you customize it, remember to add any
+    # new ids introduced by future upstream versions.
+    buttons:
+      top:
+        - profile
+        - user-list
+        - chat
+        - notes
+      center:
+        - apps-gallery
+        - pinned-apps
+      bottom:
+        - audio-captions
+        - learning-dashboard
+        - settings
     # Controls which apps should have the "new" label in the apps gallery.
     # Possible values: 'poll', 'breakoutroom', 'timer', 'audio-captions'.
     # For plugins, refer to the isNew flag in the plugin's own settings.
@@ -837,11 +881,19 @@ public:
     # editor and always visible. When disabled, BlockNote's default floating
     # toolbar appears only when text is selected.
     staticFormattingToolbar: true
+    # When enabled, the "Import from Markdown" option is shown in the shared
+    # notes options menu, letting presenters import Markdown content. Defaults
+    # to false so a minor update does not add a new menu button unexpectedly.
+    importMarkdownEnabled: false
+    # When enabled, the "Export notes as Markdown" option is shown in the
+    # shared notes options menu. Defaults to false so a minor update does not
+    # add a new menu button unexpectedly.
+    exportMarkdownEnabled: false
   media:
     audio:
       # defaultFullAudioBridge: bridge to be used by full audio mechanism.
       # Deprecated, superseded by `audioBridge` (bigbluebutton.properties, /create)
-      defaultFullAudioBridge: fullaudio
+      defaultFullAudioBridge: livekit
       # fullAudioMediaServer: which bbb-webrtc-sfu media server adapter should
       # be used for microphone audio.
       # Default is undefined, which means the default setting in bbb-webrtc-sfu
@@ -850,7 +902,7 @@ public:
       #
       # defaultListenOnlyBridge: bridge to be used by listen only mechanism.
       # Deprecated, no alternative as this audio mode will be removed.
-      defaultListenOnlyBridge: fullaudio
+      defaultListenOnlyBridge: livekit
       # retryThroughRelay: forces a retry with iceTransportPolicy = 'relay'
       # if the first attempt fails with selected errors codes (eg 1007, 1010)
       retryThroughRelay: false
@@ -878,9 +930,6 @@ public:
     # connection problems unless all traffic is relayed through a turn server.
     forceRelayOnFirefox: true
     mediaTag: '#remote-media'
-    callTransferTimeout: 5000
-    callHangupTimeout: 2000
-    callHangupMaximumRetries: 10
     echoTestNumber: 'echo'
     listenOnlyCallTimeout: 15000
     # skipInitialCamEnumeration: whether to skip the initial camera enumeration
@@ -899,41 +948,8 @@ public:
     fullAudioOffering: true
     # Dev flag. Controls the WebRTC negotiation role for listen only.
     listenOnlyOffering: false
-    #Timeout (ms) for gathering ICE candidates. When this timeout expires
-    #the SDP is sent to the server with the candidates the browser gathered
-    #so far. Increasing this value might help avoiding 1004 error when
-    #user activates microphone.
-    iceGatheringTimeout: 5000
-    # Timeout (ms) for connecting to the audio's signaling websocket.
-    audioConnectionTimeout: 5000
-    # Delay (ms) between each reconnection attempt of the audio's signaling
-    # websocket.
-    audioReconnectionDelay: 5000
-    # Number of reconnection attempts of the signaling websocket, before
-    # showing to the user there's an audio error.
-    audioReconnectionAttempts: 3
-    sipjsHackViaWs: false
-    # sipjsAllowMdns: whether mDNS candidates should be allowed in local SDPs.
-    # Default is false since FreeSWITCH doesn't resolve mDNS by default.
-    sipjsAllowMdns: false
-    # the fqdn of this host.
-    # If you run a traditional setup of multiple nodes behind scalelite and the users see the hostnames of the
-    # individual nodes, you can leave this at the default setting
-    sip_ws_host: ''
     # Mute/umute toggle throttle time
     toggleMuteThrottleTime: 300
-    #Websocket keepAlive interval (seconds). You may set this to prevent
-    #websocket disconnection in some environments. When set, BBB will send
-    #'\r\n\r\n' string through SIP.js's websocket. If not set, default value
-    #is 0.
-    websocketKeepAliveInterval: 30
-    #Debounce time (seconds) for sending SIP.js's websocket keep alive message.
-    #If not set, default value is 10.
-    websocketKeepAliveDebounce: 10
-    #Trace sip/audio messages in browser. If not set, default value is false.
-    traceSip: false
-    # SDP semantics: plan-b|unified-plan
-    sdpSemantics: 'unified-plan'
     # localEchoTest:
     #   enabled: Boolean => enables an experimental, simplified echo test mode
     #   initialHearingState: Boolean => whether users should hear themselves firsthand
@@ -990,6 +1006,10 @@ public:
       # reconnectOnFatalFailures: whether to trigger LK room reconnections when
       # fatal errors occur (e.g.: unrecoverable publish timeouts).
       reconnectOnFatalFailures: true
+      # livekit.forceRelay: forces TURN/relay usage on all UAs when using LK.
+      forceRelay: false
+      # livekit.forceRelayOnFirefox: forces TURN/relay usage on Firefox when using LK.
+      forceRelayOnFirefox: false
       roomOptions:
         adaptiveStream: true
         dynacast: true
@@ -1148,6 +1168,7 @@ public:
     cursorInterval: 100
     allowInfiniteWhiteboard: false
     allowInfiniteWhiteboardInBreakouts: false
+    allowInfiniteWhiteboardPanForViewers: false
     pointerDiameter: 5
     maxStickyNoteLength: 1000
     # limit number of annotations per slide

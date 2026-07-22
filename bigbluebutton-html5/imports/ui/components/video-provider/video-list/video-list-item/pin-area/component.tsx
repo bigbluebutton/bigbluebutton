@@ -35,7 +35,7 @@ const PinArea: React.FC<PinAreaProps> = (props) => {
 
   const [setCameraPinned] = useMutation(SET_CAMERA_PINNED);
 
-  if (!pinned && !presenter) return <Styled.PinButtonWrapper />;
+  if (!pinned && !presenter) return null;
 
   return (
     <Styled.PinButtonWrapper>

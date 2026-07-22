@@ -23,9 +23,9 @@ async function notifyMeetingActor() {
   const client = redis.createClient({
     password: config.redis.password,
     socket: {
-        host: config.redis.host,
-        port: config.redis.port
-    }
+      host: config.redis.host,
+      port: config.redis.port,
+    },
   });
 
   await client.connect();
@@ -69,21 +69,21 @@ async function upload(filePath) {
 }
 
 if (jobType == 'PresentationWithAnnotationDownloadJob') {
-  notifyMeetingActor();
+  await notifyMeetingActor();
 } else if (jobType == 'PresentationWithAnnotationExportJob') {
   const baseDirectory = exportJob.presLocation;
   const subDirectory = 'pdfs';
   const filePath = path.join(baseDirectory, subDirectory,
       jobId, serverSideFilename);
-  upload(filePath);
+  await upload(filePath);
 } else if (jobType == 'PadCaptureJob') {
   const filePath = `${dropbox}/${serverSideFilename}`;
-  upload(filePath);
+  await upload(filePath);
 } else {
   logger.error(`Notifier received unknown job type ${jobType}`);
 }
 
-// Delete temporary files
+// Delete temporary files after notification/upload completes.
 fs.rm(dropbox, {recursive: true}, (err) => {
   if (err) {
     throw err;

@@ -26,6 +26,8 @@ export const constants = {
   notifyRecordingIsOn: 'notifyRecordingIsOn=true&notifyRecordingIsOn=true',
   preUploadedPresentation:
     'preUploadedPresentation=https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v3.0.x-develop/bigbluebutton-tests/playwright/core/media/sample.pdf',
+  preUploadedHeavyPresentation:
+    'preUploadedPresentation=https://raw.githubusercontent.com/bigbluebutton/bigbluebutton/v4.0.x-develop/bigbluebutton-tests/playwright/core/media/GeoTopo.pdf',
   preUploadedPresentationOverrideDefault: 'preUploadedPresentationOverrideDefault=true',
   preUploadedPresentationName: 'preUploadedPresentationName=ScientificPaper.pdf',
   customLayout: 'meetingLayout=CUSTOM_LAYOUT',
@@ -70,6 +72,7 @@ export const constants = {
   outsideToggleRecording: 'userdata-bbb_outside_toggle_recording=true',
   showPublicChatOnLogin: 'userdata-bbb_show_public_chat_on_login=false',
   forceRestorePresentationOnNewEvents: 'userdata-bbb_force_restore_presentation_on_new_events=true',
+  noRestorePresentationOnNewEvents: 'userdata-bbb_force_restore_presentation_on_new_events=false',
   recordMeeting: 'record=true',
   skipVideoPreview: 'userdata-bbb_skip_video_preview=true',
   skipVideoPreviewOnFirstJoin: 'userdata-bbb_skip_video_preview_on_first_join=true',
@@ -79,6 +82,7 @@ export const constants = {
   showSessionDetailsOnJoin: 'bbb_show_session_details_on_join=true',
   hideActionsBar: 'userdata-bbb_hide_actions_bar=true',
   overrideDefaultLocale: 'userdata-bbb_override_default_locale=pt-br',
+  overrideDefaultLocaleToRTL: 'userdata-bbb_override_default_locale=ar',
   hideNavBar: 'userdata-bbb_hide_nav_bar=true',
   preferredCameraProfile: 'userdata-bbb_preferred_camera_profile=low',
   webcamBackgroundPassingURL: `webcamBackgroundURL=${serverOrigin}/images/logo.png`,
@@ -131,6 +135,7 @@ export const constants = {
   slideSnapshotExclude: 'disabledFeatures=snapShotOfCurrentSlide,chat&disabledFeaturesExclude=snapShotOfCurrentSlide',
   cameraAsContentExclude: 'disabledFeatures=cameraAsContent,chat&disabledFeaturesExclude=cameraAsContent',
   infiniteWhiteboardExclude: 'disabledFeatures=infiniteWhiteboard,chat&disabledFeaturesExclude=infiniteWhiteboard',
+  multiFunctionalModeDisabled: 'disabledFeatures=multiFunctionalMode',
   // Shortcuts
   shortcuts: 'userdata-bbb_shortcuts=[$]',
   initialShortcuts: [

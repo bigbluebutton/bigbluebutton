@@ -3,6 +3,7 @@ import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
 import { IntlShape, defineMessages } from 'react-intl';
 import { ChatMessageType } from '/imports/ui/core/enums/chat';
 import PollService from '/imports/ui/components/poll/service';
+import { parsePresentationMetadata } from '../../chat-message-list/page/chat-message/message-content/presentation-content/service';
 
 const intlMessages = defineMessages({
   chatClear: {
@@ -33,6 +34,15 @@ const intlMessages = defineMessages({
     id: 'app.chat.isPresenterSetBy',
     description: 'message when user is set presenter by someone else',
   },
+  presentationAvailableForDownload: {
+    id: 'app.presentationUploader.export.availableForDownload',
+    defaultMessage: 'Presentation available for download',
+    description: 'used in exported chat before a presentation filename',
+  },
+  breakoutCallModerator: {
+    id: 'app.chat.breakoutCallModerator',
+    description: 'Breakout room call moderator system message',
+  },
 });
 
 export const htmlDecode = (input: string) => {
@@ -51,6 +61,11 @@ export const generateExportedMessages = (
     const hourMin = `[${hour}:${min}]`;
     let userName = message.user ? `[${message.user.name} : ${message.user.role}]: ` : '';
     let messageText = '';
+
+    if (message.deletedBy) {
+      messageText = intl.formatMessage(intlMessages.deleteMessage, { userName: message.deletedBy.name });
+      return `${acc}${hourMin} ${userName}${messageText}\n`;
+    }
 
     switch (message.messageType) {
       case ChatMessageType.CHAT_CLEAR:
@@ -84,11 +99,35 @@ export const generateExportedMessages = (
           : `${message.senderName} ${intl.formatMessage(intlMessages.userNotAway)}`;
         break;
       }
+      case ChatMessageType.PRESENTATION: {
+        const { filename } = parsePresentationMetadata(message.messageMetadata);
+        const presentationAvailable = intl.formatMessage(intlMessages.presentationAvailableForDownload);
+        messageText = `${presentationAvailable}: ${filename}`;
+        break;
+      }
+      case ChatMessageType.BREAKOUT_CALL_MODERATOR: {
+        const metadata = (() => {
+          try {
+            const parsed = JSON.parse(message.messageMetadata);
+            return parsed && typeof parsed === 'object' ? parsed : {};
+          } catch {
+            return {};
+          }
+        })();
+        messageText = intl.formatMessage(intlMessages.breakoutCallModerator, {
+          userName: message.senderName,
+          roomName: metadata.roomName || '',
+        });
+        break;
+      }
+      case ChatMessageType.API:
+      case ChatMessageType.BREAKOUT_ROOM:
+      case ChatMessageType.PLUGIN:
+        messageText = htmlDecode(message.message || message.messageAsHtml || '');
+        break;
       case ChatMessageType.TEXT:
       default:
-        messageText = message.message
-          ? htmlDecode(message.message)
-          : intl.formatMessage(intlMessages.deleteMessage, { userName: message.deletedBy?.name });
+        messageText = htmlDecode(message.message || '');
         break;
     }
     return `${acc}${hourMin} ${userName}${messageText}\n`;

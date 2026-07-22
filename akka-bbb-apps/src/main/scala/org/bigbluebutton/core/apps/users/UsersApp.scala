@@ -14,6 +14,7 @@ import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
 import org.bigbluebutton.core2.message.senders.{MsgBuilder, Sender}
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
 import org.bigbluebutton.core.db.{ChatMessageDAO, UserDAO, UserStateDAO}
+import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 
 object UsersApp {
@@ -177,8 +178,12 @@ object UsersApp {
     )
 
     if (announcePresenterChangeInChat) {
-      //System message
-      ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", "", GroupChatMessageType.USER_IS_PRESENTER_MSG, Map(), newPresenter.name)
+      val hideUserList = MeetingStatus2x.getPermissions(liveMeeting.status).hideUserList
+      val shouldSkip = hideUserList && newPresenter.role == Roles.VIEWER_ROLE
+
+      if (!shouldSkip) {
+        ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", "", GroupChatMessageType.USER_IS_PRESENTER_MSG, Map(), newPresenter.name)
+      }
     }
   }
 

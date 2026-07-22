@@ -16,6 +16,8 @@ import { notify } from '/imports/ui/services/notification';
 import { useStopMediaOnMainRoom } from '/imports/ui/components/breakout-room/hooks';
 import { setBreakoutWindowRef, rejoinAudio, closeBreakoutWindow } from '/imports/ui/components/breakout-room/breakout-room/service';
 import { USER_LEAVE_MEETING } from '/imports/ui/core/graphql/mutations/userMutations';
+import { PANELS } from '/imports/ui/components/layout/enums';
+import PanelHeader from '/imports/ui/components/common/panel-header/component';
 import Session from '/imports/ui/services/storage/in-memory';
 import BreakoutCountdown from '../breakout-countdown/component';
 
@@ -45,10 +47,6 @@ const intlMessages = defineMessages({
   returnToMainSession: {
     id: 'app.createBreakoutRoom.returnToMainSession',
     description: 'Return to main session button label',
-  },
-  genericMinimizePanel: {
-    id: 'app.sidebarContent.minimizePanelLabel',
-    description: 'Generic minimize label for panels',
   },
   breakoutRoom: {
     id: 'app.createBreakoutRoom.room',
@@ -114,9 +112,11 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
     createdTime: m.createdTime,
     breakoutPolicies: m.breakoutPolicies,
     name: m.name,
+    audioBridge: m.audioBridge,
   }));
 
   const freeJoin = meetingData?.breakoutRoomsCommonProperties?.freeJoin ?? false;
+  const isUsingLiveKit = meetingData?.audioBridge === 'livekit';
 
   const breakoutDurationInSeconds = isInBreakout
     ? (meetingData?.durationInSeconds ?? 0)
@@ -234,7 +234,7 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
       return;
     }
     closeBreakoutWindow();
-    if (userJoinedAudio && userRoom) {
+    if (!isUsingLiveKit && userJoinedAudio && userRoom) {
       breakoutRoomTransfer({
         variables: {
           fromMeetingId: userRoom.breakoutRoomMeetingId,
@@ -252,10 +252,6 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
   ]);
 
   const title = intl.formatMessage(intlMessages.breakoutTitle);
-  const minimizeLabel = intl.formatMessage(
-    intlMessages.genericMinimizePanel,
-    { panelName: title },
-  );
 
   const renderRoomInfo = () => {
     if (isInBreakout) {
@@ -342,15 +338,10 @@ const ParticipantBreakoutRoom: React.FC<ParticipantBreakoutRoomProps> = ({
 
   return (
     <Styled.PanelContent>
-      <Styled.HeaderContainer
+      <PanelHeader
+        panelId={PANELS.BREAKOUT}
         title={title}
-        data-test="breakoutRoomParticipantHeader"
-        rightButtonProps={{
-          'aria-label': minimizeLabel,
-          label: minimizeLabel,
-          onClick: closePanel,
-          icon: 'minus',
-        }}
+        dataTest="breakoutRoomParticipantHeader"
       />
       <Styled.Separator />
 

@@ -125,22 +125,11 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
   const showButton = Service.mayIRecord(isModerator, allowStartStopRecording);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
 
-  const {
-    isOpen: isRecordingModalOpen,
-    open: openRecordingModal,
-    close: closeRecordingModal,
-  } = useModalRegistration({
-    id: 'recordingIndicatorModal',
-    priority: 'high',
-  });
+  const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
 
-  const setIsRecordingModalOpen = useCallback((isOpen: boolean) => {
-    if (isOpen) {
-      openRecordingModal();
-    } else {
-      closeRecordingModal();
-    }
-  }, [openRecordingModal, closeRecordingModal]);
+  const closeRecordingConfirmation = useCallback(() => {
+    setIsRecordingModalOpen(false);
+  }, [setIsRecordingModalOpen]);
 
   const {
     isOpen: isRecordingNotifyModalOpen,
@@ -336,10 +325,8 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
       {isRecordingModalOpen ? (
         <RecordingContainer
           amIModerator={isModerator}
-          onRequestClose={() => setIsRecordingModalOpen(false)}
-          priority="high"
+          onRequestClose={closeRecordingConfirmation}
           setIsOpen={setIsRecordingModalOpen}
-          isOpen={isRecordingModalOpen}
         />
       ) : null}
     </>

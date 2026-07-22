@@ -147,6 +147,7 @@ const DtfCss = `
   .tl-text.tl-text-content,
   .tl-arrow-label,
   .tl-arrow-label__inner,
+  .bn-mantine *,
   [data-test="selectDefaultBackground"],
   [data-test="selectCustomBackground"],
   [data-test="noneBackgroundButton"],

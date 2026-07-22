@@ -1,12 +1,12 @@
 import styled from 'styled-components';
 import QuickPollDropdownContainer from '/imports/ui/components/actions-bar/quick-poll-dropdown/container';
 import {
+  colorPrimary,
   colorOffWhite,
-  colorBlueLightest,
   toolbarButtonColor,
-  colorDanger,
   colorWhite,
   colorGrayDark,
+  colorBlueLightest,
   toolbarButtonColorDisabled,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
@@ -28,6 +28,7 @@ const PresentationToolbarWrapper = styled.div`
   background-color: ${colorOffWhite};
   border-top: 1px solid ${colorBlueLightest};
   border-radius: 0 0 ${lgBorderRadius} ${lgBorderRadius};
+  min-width: fit-content;
   width: 100%;
   bottom: 0px;
   display: grid;
@@ -242,13 +243,13 @@ const FitToWidthButton = styled(Button)`
 `;
 
 const MultiUserTool = styled.span`
-  background-color: ${colorDanger};
+  background-color: ${colorPrimary};
   border-radius: 50%;
   width: 1rem;
   height: 1rem;
   position: relative;
   z-index: 2;
-  bottom: 0.5rem;
+  bottom: 0.8rem;
   color: ${colorWhite};
   display: flex;
   justify-content: center;
@@ -259,11 +260,11 @@ const MultiUserTool = styled.span`
   cursor: pointer;
 
   [dir="ltr"] & {
-    right: 1rem;
+    right: .8rem;
   }
 
   [dir="rtl"] & {
-    left: 1rem;
+    left: .8rem;
   }
 `;
 
@@ -298,7 +299,10 @@ const WBAccessButton = styled(Button)`
   }
 
   position: relative;
-  color: ${toolbarButtonColor};
+  color: ${({ $active }) => ($active ? colorPrimary : toolbarButtonColor)};
+  i {
+    color: ${({ $active }) => ($active ? colorPrimary : toolbarButtonColor)};
+  }
   background-color: ${colorOffWhite};
   border-radius: 0;
   box-shadow: none !important;
