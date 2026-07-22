@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { throttle } from 'radash';
 
 const hasBackgroundImageUrl = (el, isDetached = false, p) => {
-  const targetWin = isDetached ? p : window;
+  const targetWin = isDetached && p ? p : window;
   const style = targetWin.getComputedStyle(el);
   const bg = style.backgroundImage || '';
   return bg.includes('url(');
