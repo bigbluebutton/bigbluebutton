@@ -47,6 +47,32 @@ import getStorageSingletonInstance from '/imports/ui/services/storage';
 
 const AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS = 5;
 const TWITCH_VIDEO_SEEK_TIME_WINDOW = 1; // Twitch video seek time in seconds
+// react-player reports onProgress on this interval (its default; BBB does not override it).
+// It is passed to the player explicitly (progressInterval below) so a future prop change
+// cannot silently halve the detector's sensitivity.
+const PROGRESS_INTERVAL_SECONDS = 1;
+// Minimum divergence (seconds) between the expected playback position and the reported one
+// for a tick to be treated as a seek that react-player did not surface via onSeek (which is
+// every provider except FilePlayer, e.g. a YouTube scrub). A normal tick advances by about
+// playerPlaybackRate seconds, so a jump larger than a couple of intervals is a seek.
+// Sub-threshold scrubs (up to ~2s) are NOT broadcast, and nothing re-syncs the viewer
+// position periodically (viewers only re-seek when updatedAt changes), so a missed scrub
+// leaves viewers permanently offset by that amount and repeated small scrubs accumulate.
+// The threshold is a deliberate trade: tiny drags do not yank viewers, at the cost of a
+// standing offset that is only corrected by the next above-threshold seek.
+const SEEK_DETECTION_THRESHOLD_SECONDS = 2 * PROGRESS_INTERVAL_SECONDS;
+// After detecting a discontinuity, stash it and confirm on the next tick that the new
+// position is a sustained playback point before broadcasting. A single-tick glitch (a
+// YouTube ad boundary, where getCurrentTime returns the ad position near 0, or a buffering
+// hiccup) reports a transient position that self-corrects, so demanding two consistent ticks
+// filters it at the cost of ~1s of viewer-follow latency (viewers already lag by about that).
+// This path is the only seek propagation for every provider except FilePlayer, so the
+// insurance is worth it.
+const SEEK_CONFIRMATION_THRESHOLD_SECONDS = SEEK_DETECTION_THRESHOLD_SECONDS;
+// Minimum wall-clock gap between two broadcast seeks from the discontinuity detector. Cheap
+// insurance against a provider whose getCurrentTime oscillates and would otherwise fan out a
+// mutation (a DB write plus a recording event) to every participant every tick.
+const MIN_SEEK_BROADCAST_INTERVAL_SECONDS = 2;
 
 const intlMessages = defineMessages({
   autoPlayWarning: {
@@ -199,10 +225,33 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const presenterRef = useRef(isPresenter);
   const [reactPlayerPlaying, setReactPlayerPlaying] = React.useState(false);
+  // Mirrors reactPlayerPlaying for synchronous reads inside callbacks (avoids a stale
+  // closure): handleOnPlay must know whether this was a real resume or a YouTube re-play
+  // after buffering on a seek.
+  const reactPlayerPlayingRef = useRef(false);
   const firstPlayRef = useRef(true);
   const [playerUrl, setPlayerUrl] = React.useState('');
   const lastCursorRef = useRef<{ position: number, updateAt: number }>({ position: 0, updateAt: 0 });
+  // Tracks the last onProgress tick (playedSeconds + wall-clock) so handleProgress
+  // can detect a seek the player did not surface via onSeek (every provider except
+  // FilePlayer, e.g. a YouTube scrub).
+  const lastProgressRef = useRef<{ playedSeconds: number, at: number } | null>(null);
+  // A detected discontinuity awaiting the two-tick confirmation (see
+  // SEEK_CONFIRMATION_THRESHOLD_SECONDS). Reset wherever the baseline is reset.
+  const pendingSeekRef = useRef<{ playedSeconds: number, at: number } | null>(null);
+  // Wall-clock of the last seek broadcast by the discontinuity detector, for the rate limit.
+  const lastSeekBroadcastAtRef = useRef(0);
+  // Monotonic tick counter: getPlaybackRate can be async (Vimeo), so two handleProgress
+  // invocations can be in flight; a stale tick must not emit or seed the baseline.
+  const tickSeqRef = useRef(0);
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
+
+  // Keep the synchronous mirror ref and the state in sync so the ref never drifts from
+  // reactPlayerPlaying (the ref is read inside async callbacks to dodge a stale closure).
+  const setPlayerPlaying = (value: boolean) => {
+    reactPlayerPlayingRef.current = value;
+    setReactPlayerPlaying(value);
+  };
 
   let currentTime = getServerCurrentTime();
 
@@ -338,6 +387,13 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     } else {
       setPlayerUrl(videoUrl);
     }
+    // New video (or a player remount via playerKey rides the same reset path): clear the
+    // progress baseline so a stale position from the previous video is not misread as a seek
+    // on the first tick, drop any pending discontinuity, and reset the playing mirror so it
+    // does not carry a stale "was playing" into the fresh player.
+    lastProgressRef.current = null;
+    pendingSeekRef.current = null;
+    reactPlayerPlayingRef.current = false;
   }, [videoUrl, isPresenter]);
 
   useEffect(() => {
@@ -418,6 +474,13 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         setVolume(playerVolume > 1 ? playerVolume / 100 : playerVolume);
       }
 
+      // Reset the progress baseline on any presenter change. A stalled or autoplay-blocked
+      // viewer promoted to presenter would otherwise broadcast a spurious seek from its
+      // stale position on the first tick, yanking the whole meeting. A null baseline is the
+      // safe state (the next tick re-seeds).
+      lastProgressRef.current = null;
+      pendingSeekRef.current = null;
+
       presenterRef.current = isPresenter;
     }
   }, [isPresenter]);
@@ -440,10 +503,17 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     if (currentTime > playerCurrentTime) {
       playerRef?.current?.seekTo(currentTime, 'seconds');
     }
+    // Reset the progress baseline; the first onProgress tick after start seeds it. A start is
+    // also the remount path (new player mounts), so reset the pending discontinuity and the
+    // playing mirror too.
+    lastProgressRef.current = null;
+    pendingSeekRef.current = null;
+    reactPlayerPlayingRef.current = false;
   };
 
   const handleOnPlay = async () => {
-    setReactPlayerPlaying(true);
+    const wasPlaying = reactPlayerPlayingRef.current;
+    setPlayerPlaying(true);
     const internalPlayer = playerRef.current?.getInternalPlayer();
     const url = new URL(videoUrl);
     const isTwitch = url.hostname === 'twitch.tv' || url.hostname === 'www.twitch.tv';
@@ -475,10 +545,17 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     if (firstPlayRef.current) {
       firstPlayRef.current = false;
     }
+    // Reset the baseline only on a genuine paused->playing transition. react-player also
+    // fires onPlay when YouTube re-enters PLAYING after buffering on a far seek; nulling
+    // the baseline there would swallow the very discontinuity we need to detect (#25472).
+    if (!wasPlaying) {
+      lastProgressRef.current = null;
+      pendingSeekRef.current = null;
+    }
   };
 
   const handleOnStop = async () => {
-    setReactPlayerPlaying(false);
+    setPlayerPlaying(false);
     if (isPresenter && playing) {
       const internalPlayer = playerRef.current?.getInternalPlayer();
       let rate = (internalPlayer instanceof HTMLVideoElement || internalPlayer instanceof HTMLAudioElement)
@@ -499,21 +576,103 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
     if (!isPresenter && playing) {
       playVideo(playerRef.current as ReactPlayer);
     }
+    // A pause resets the baseline so the following progress tick seeds fresh
+    // instead of accumulating drift against the pre-pause position.
+    lastProgressRef.current = null;
+    pendingSeekRef.current = null;
   };
 
   const handleProgress = async (state: OnProgressProps) => {
     setPlayed(state.played);
     setLoaded(state.loaded);
+    // Snapshot the baseline and wall-clock before the await below. getPlaybackRate can be
+    // async (Vimeo), so an interleaved handleOnSeek could otherwise land between the read
+    // and the write; capturing here keeps this tick consistent and lets the write below be
+    // skipped when a fresher baseline was synced meanwhile.
+    const now = Date.now();
+    const baseline = lastProgressRef.current;
+    // Claim a monotonic sequence for this tick. If a newer tick starts while we await the
+    // (possibly async) rate read below, the newer one owns the cycle and this stale tick must
+    // not emit a seek or seed the baseline. This closes the tick-vs-tick race, distinct from
+    // the interleaved handleOnSeek case the identity guard on the baseline write covers.
+    tickSeqRef.current += 1;
+    const seq = tickSeqRef.current;
     if (playing && isPresenter) {
       currentTime = getServerCurrentTime();
     }
     const interPlayerPlaybackRate = await getPlaybackRate(playerRef.current as ReactPlayer);
-    if (isPresenter && interPlayerPlaybackRate !== playerPlaybackRate) {
-      sendMessage('seek', {
-        rate: interPlayerPlaybackRate,
-        time: currentTime,
-        state: playing ? 'playing' : '',
-      });
+    const isLatestTick = tickSeqRef.current === seq;
+
+    if (isPresenter && isLatestTick) {
+      // Emit at most one seek per tick. A real seek (position discontinuity) takes
+      // precedence over a bare playback-rate change and carries the real local position
+      // (state.playedSeconds) instead of the pre-seek, server-derived currentTime.
+      let seekMessage: { rate: number; time: number; state: string } | null = null;
+
+      // Detect a seek react-player did not surface via onSeek (every provider except
+      // FilePlayer, e.g. a YouTube scrub). Extrapolate the expected position from the last
+      // tick using the real playback rate, then use a SIGNED drift so the three cases stay
+      // separate: a jump AHEAD of the extrapolation is a fast-forward seek; a move BACKWARD
+      // past the last reported position is a backward seek; a playhead that advanced but by
+      // less than wall-clock predicted (drift < -threshold, still moving forward) is a stall,
+      // not a seek, and is left alone. This is why a backgrounded presenter tab does not yank
+      // every viewer backward, and why a small backward scrub is no longer silently dropped.
+      if (playing && baseline) {
+        const elapsedSeconds = (now - baseline.at) / 1000;
+        const expectedPosition = baseline.playedSeconds + (elapsedSeconds * interPlayerPlaybackRate);
+        const drift = state.playedSeconds - expectedPosition;
+        const jumpedAhead = drift > SEEK_DETECTION_THRESHOLD_SECONDS;
+        const jumpedBack = state.playedSeconds < baseline.playedSeconds - SEEK_DETECTION_THRESHOLD_SECONDS;
+        const discontinuity = jumpedAhead || jumpedBack;
+
+        const pending = pendingSeekRef.current;
+        if (pending) {
+          // Two-tick confirmation: broadcast only when this tick continues playback from the
+          // stashed discontinuity (it settled on a sustained position). A one-tick glitch
+          // (a YouTube ad boundary reporting the ad position near 0, or buffering) does not
+          // continue, so it is discarded here instead of yanking the whole meeting to 0:02
+          // and writing that into the recording. Rate-limited as insurance against a provider
+          // whose getCurrentTime oscillates.
+          const pendingElapsed = (now - pending.at) / 1000;
+          const expectedFromPending = pending.playedSeconds + (pendingElapsed * interPlayerPlaybackRate);
+          const confirmed = Math.abs(state.playedSeconds - expectedFromPending) <= SEEK_CONFIRMATION_THRESHOLD_SECONDS;
+          pendingSeekRef.current = null;
+          if (confirmed
+            && (now - lastSeekBroadcastAtRef.current) >= MIN_SEEK_BROADCAST_INTERVAL_SECONDS * 1000) {
+            seekMessage = {
+              rate: interPlayerPlaybackRate,
+              time: state.playedSeconds,
+              state: 'playing',
+            };
+            lastSeekBroadcastAtRef.current = now;
+          } else if (discontinuity) {
+            // Not the continuation we expected, but still discontinuous: re-arm on this new
+            // position so a genuine seek that landed mid-glitch is not lost.
+            pendingSeekRef.current = { playedSeconds: state.playedSeconds, at: now };
+          }
+        } else if (discontinuity) {
+          pendingSeekRef.current = { playedSeconds: state.playedSeconds, at: now };
+        }
+      }
+
+      if (!seekMessage && interPlayerPlaybackRate !== playerPlaybackRate) {
+        seekMessage = {
+          rate: interPlayerPlaybackRate,
+          time: currentTime,
+          state: playing ? 'playing' : '',
+        };
+      }
+
+      if (seekMessage) {
+        sendMessage('seek', seekMessage);
+      }
+    }
+
+    // Seed the baseline for the next tick, but only if this is still the latest tick and no
+    // interleaved handler advanced the baseline while we awaited the playback rate; otherwise
+    // a stale tick would clobber a synced handleOnSeek baseline and cause a duplicate emit.
+    if (isLatestTick && lastProgressRef.current === baseline) {
+      lastProgressRef.current = { playedSeconds: state.playedSeconds, at: now };
     }
 
     const storedVolume = storage.getItem('externalVideoVolume');
@@ -545,6 +704,14 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
         position: typeof cursor === 'number' ? cursor : cursor.position,
         updateAt: Date.now(),
       };
+      // Sync the progress baseline so the next handleProgress tick does not re-detect this
+      // same seek as a discontinuity and emit a duplicate, and drop any pending discontinuity
+      // this native seek supersedes.
+      lastProgressRef.current = {
+        playedSeconds: typeof cursor === 'number' ? cursor : cursor.position,
+        at: Date.now(),
+      };
+      pendingSeekRef.current = null;
     } else {
       playVideo(playerRef.current as ReactPlayer);
     }
@@ -629,6 +796,7 @@ const ExternalVideoPlayer: React.FC<ExternalVideoPlayerProps> = ({
               url={playerUrl}
               playing={playing}
               playbackRate={playerPlaybackRate}
+              progressInterval={PROGRESS_INTERVAL_SECONDS * 1000}
               key={playerKey}
               height="100%"
               width="100%"
