@@ -643,26 +643,27 @@ class Presentation extends PureComponent {
       }
 
       toggleDetachPresentation(popup);
-      popup.addEventListener('beforeunload', () => {
-        // Revert the injection of popup.rAF/cAF
-        window.requestAnimationFrame = originalRAF;
-        window.cancelAnimationFrame = originalCAF;
-        toggleDetachPresentation(null);
-      });
 
       const closePopup = () => {
         if (popup && !popup.closed) popup.close();
       };
 
-      window.addEventListener('beforeunload', closePopup);
-
-      popup.addEventListener('beforeunload', () => {
+      const handlePopupBeforeUnload = () => {
         window.removeEventListener('beforeunload', closePopup);
+
         window.requestAnimationFrame = originalRAF;
         window.cancelAnimationFrame = originalCAF;
-        toggleDetachPresentation(null);
-      });
 
+        toggleDetachPresentation(null);
+      };
+
+      window.addEventListener('beforeunload', closePopup);
+
+      popup.addEventListener(
+        'beforeunload',
+        handlePopupBeforeUnload,
+      );
+      
       popup.addEventListener('resize', () => {
         this.onResize();
       });
