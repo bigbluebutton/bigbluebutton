@@ -322,6 +322,10 @@ const WhiteboardContainer = (props) => {
       }
     }, RECONNECT_SYNC_DELAY_MS);
   }, [
+    // Re-run the synchronization after the tldraw editor becomes available.
+    // This is important to fetch all tldraw drawings when popup/de-popup
+    editor,
+    //
     connectedStatus,
     isMultiUserActive,
     hasWBAccess,
