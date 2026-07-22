@@ -2342,7 +2342,7 @@ const Whiteboard = React.memo((props) => {
         originalHTMLElementRef.current = null;
       }
     };
-  }, [isPresentationDetached, popupWindow]);
+  }, [isPresentationDetached, popupWindow, isPresenter]);
 
   React.useEffect(() => {
     if (tlEditorRef.current) {
