@@ -364,45 +364,72 @@ def extract_click_groups(
     slide_root: etree._Element,
 ) -> tuple[list[list[Action]], list[str]]:
     warnings: list[str] = []
+
     effects = slide_root.xpath(
         ".//p:set | .//p:animEffect",
         namespaces=NS,
     )
+
     groups: list[list[Action]] = []
     anchor_groups: dict[etree._Element, list[Action]] = {}
-    current_fallback: Optional[list[Action]] = None
+
+    # The most recently encountered click group.
+    # withEffect and afterEffect actions belong to this group.
+    current_group: Optional[list[Action]] = None
+
     for effect in effects:
         action, warning = action_from_effect(effect)
+
         if warning:
             warnings.append(warning)
+
         if action is None:
             continue
+
         anchor = click_anchor(effect)
+
         if anchor is not None:
             group = anchor_groups.get(anchor)
+
             if group is None:
                 group = []
                 anchor_groups[anchor] = group
                 groups.append(group)
+
             group.append(action)
-            current_fallback = None
+            current_group = group
             continue
+
         node_type = nearest_node_type(effect)
 
-        if current_fallback is None or node_type == "clickEffect":
-            current_fallback = []
-            groups.append(current_fallback)
-        current_fallback.append(action)
+        # "With Previous" and "After Previous" do not require another click.
+        # They must therefore be included in the preceding click state.
+        if (
+            node_type in {"withEffect", "afterEffect"}
+            and current_group is not None
+        ):
+            current_group.append(action)
+            continue
+
+        # Fallback for an unusual timing structure that cannot be associated
+        # with a preceding click group.
+        current_group = []
+        groups.append(current_group)
+        current_group.append(action)
+
     deduplicated: list[list[Action]] = []
 
     for group in groups:
         seen: set[Action] = set()
         cleaned: list[Action] = []
+
         for action in group:
             if action in seen:
                 continue
+
             seen.add(action)
             cleaned.append(action)
+
         if cleaned:
             deduplicated.append(cleaned)
 
