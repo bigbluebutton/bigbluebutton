@@ -7,7 +7,7 @@ import { MultiUsers } from '../user/multiusers';
 export class Create extends MultiUsers {
   private static async closeAudioModalIfPresent(page: PlaywrightPage) {
     try {
-      await page.locator(e.audioModal).waitFor({ state: 'visible', timeout: ELEMENT_WAIT_TIME });
+      await page.locator(e.audioModal).waitFor({ state: 'visible', timeout: ELEMENT_WAIT_LONGER_TIME });
       await page.locator(e.closeModal).click();
       await page.locator(e.audioModal).waitFor({ state: 'detached', timeout: ELEMENT_WAIT_LONGER_TIME });
     } catch {
@@ -18,13 +18,11 @@ export class Create extends MultiUsers {
   private static async setCheckboxChecked(page: PlaywrightPage, selector: string, checked: boolean) {
     const checkbox = page.locator(selector);
     await checkbox.waitFor({ state: 'attached', timeout: ELEMENT_WAIT_LONGER_TIME });
-    if ((await checkbox.isChecked()) !== checked) await checkbox.click({ force: true });
-
-    if (checked) {
-      await expect(checkbox).toBeChecked({ timeout: ELEMENT_WAIT_LONGER_TIME });
-    } else {
-      await expect(checkbox).not.toBeChecked({ timeout: ELEMENT_WAIT_LONGER_TIME });
-    }
+    // retry the toggle: under load a single click can land before the MUI switch is wired and not register
+    await expect(async () => {
+      if ((await checkbox.isChecked()) !== checked) await checkbox.click({ force: true });
+      await expect(checkbox).toBeChecked({ checked, timeout: ELEMENT_WAIT_TIME });
+    }).toPass({ timeout: ELEMENT_WAIT_EXTRA_LONG_TIME });
   }
 
   private static async setPermissionAllowed(page: PlaywrightPage, selector: string, allowed: boolean) {
@@ -98,11 +96,13 @@ export class Create extends MultiUsers {
 
     const breakoutTab = await newTabPromise;
     await breakoutTab.waitForLoadState('domcontentloaded');
-    await Create.closeAudioModalIfPresent(breakoutTab);
+    // Wait for the breakout client to finish loading BEFORE dismissing the audio modal: under load the
+    // modal can appear well after domcontentloaded, and a late overlay otherwise intercepts later clicks.
     await breakoutTab.locator(e.presentationTitle).waitFor({
       state: 'visible',
       timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
     });
+    await Create.closeAudioModalIfPresent(breakoutTab);
 
     return breakoutTab;
   }
