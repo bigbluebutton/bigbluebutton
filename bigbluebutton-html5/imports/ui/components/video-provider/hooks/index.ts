@@ -940,6 +940,7 @@ export const useVideoStreams = () => {
       streams: [...paginated, ...localOffPage] as StreamItem[],
       gridUsers: [] as GridItem[],
       overflowCount: 0,
+      overflowUsers: [] as GridItem[],
       totalNumberOfStreams: paginated.length,
       totalNumberOfOtherStreams: total,
     };
