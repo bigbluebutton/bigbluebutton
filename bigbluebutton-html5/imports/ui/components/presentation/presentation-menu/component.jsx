@@ -534,9 +534,7 @@ const PresentationMenu = (props) => {
     if (props.amIPresenter && allowPopupPresentation) {
       menuItems.push({
         key: 'list-item-detach-presentation',
-        //label: intl.formatMessage({ id: 'app.presentation.detachPresentation' }),
         label: formattedDetachedLabel(isPresentationDetached),
-        icon: 'external-link',
         icon: isPresentationDetached ? 'minus' : 'popout_window',
         onClick: props.detachPresentation,
       });
