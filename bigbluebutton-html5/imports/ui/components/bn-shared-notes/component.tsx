@@ -35,6 +35,8 @@ import useCurrentUser from '../../core/hooks/useCurrentUser';
 import logger from '/imports/startup/client/logger';
 import { notify } from '../../services/notification';
 import TextAlignSelect from './text-align-select/component';
+import MarkdownImportModal from './markdown-import-modal/component';
+import { useSharedNotesImport } from './import-context';
 
 // Force-retain `Awareness` against a webpack tree-shaking interaction that
 // otherwise drops this class while keeping its `extends Observable` expression,
@@ -203,6 +205,8 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   } = props;
 
   const intl = useIntl();
+
+  const { isImportModalOpen, closeImportModal } = useSharedNotesImport();
 
   const blockNoteLocale = useBlockNoteLocaleLanguage();
   const [notificationErrorMessage, setNotificationErrorMessage] = React.useState<string | null>(null);
@@ -498,6 +502,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
               ref={toolbarRef}
               role="toolbar"
               className="bn-toolbar-row"
+              data-test="blockNoteToolbar"
               onKeyDown={(e) => { if (e.key === 'Escape') editor.focus(); }}
             >
               <FormattingToolbar>
@@ -518,6 +523,12 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         )}
         <BlockNoteViewEditor />
       </BlockNoteView>
+      {isImportModalOpen && editable && (
+        <MarkdownImportModal
+          editor={editor}
+          onClose={closeImportModal}
+        />
+      )}
     </div>
   );
 }

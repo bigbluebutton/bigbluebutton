@@ -659,6 +659,18 @@ public class ParamsProcessorUtil {
             }
         }
 
+        String sharedNotesInitialContentMarkdown = "";
+        if (!StringUtils.isEmpty(params.get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_MARKDOWN))) {
+            sharedNotesInitialContentMarkdown = params
+                    .get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_MARKDOWN);
+        }
+
+        String sharedNotesInitialContentMarkdownUrl = "";
+        if (!StringUtils.isEmpty(params.get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_MARKDOWN_URL))) {
+            sharedNotesInitialContentMarkdownUrl = params
+                    .get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_MARKDOWN_URL);
+        }
+
         String sharedNotesEditor = defaultSharedNotesEditor;
         if (!StringUtils.isEmpty(params.get(ApiParams.SHARED_NOTES_EDITOR))) {
             try {
@@ -992,6 +1004,8 @@ public class ParamsProcessorUtil {
                 .withAllowStartStopRecording(allowStartStoptRec)
                 .withSharedNotesEditor(sharedNotesEditor)
                 .withSharedNotesInitialContentJsonUrl(sharedNotesInitialContentJsonUrl)
+                .withSharedNotesInitialContentMarkdown(sharedNotesInitialContentMarkdown)
+                .withSharedNotesInitialContentMarkdownUrl(sharedNotesInitialContentMarkdownUrl)
                 .withPresentationConversionCacheEnabled(presentationCacheEnabled)
                 .withRecordFullDurationMedia(_recordFullDurationMedia)
                 .withWebcamsOnlyForModerator(webcamsOnlyForMod)

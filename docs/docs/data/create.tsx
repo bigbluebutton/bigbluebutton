@@ -56,7 +56,7 @@ const createEndpointTableData = [
     "name": "voiceBridge",
     "required": false,
     "type": "String",
-    "description": (<>Voice conference number for the FreeSWITCH voice conference associated with this meeting.  This must be a 5-digit number in the range 10000 to 99999.  If you <a href="/2.2/customize.html#add-a-phone-number-to-the-conference-bridge">add a phone number</a> to your BigBlueButton server, This parameter sets the personal identification number (PIN) that FreeSWITCH will prompt for a phone-only user to enter.  If you want to change this range, edit FreeSWITCH dialplan and <code className="language-plaintext highlighter-rouge">defaultNumDigitsForTelVoice</code> of <a href="https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a>.<br /><br />The <code className="language-plaintext highlighter-rouge">voiceBridge</code> number must be different for every meeting.<br /><br />This parameter is optional. If you do not specify a <code className="language-plaintext highlighter-rouge">voiceBridge</code> number, then BigBlueButton will assign a random unused number for the meeting.<br /><br />If do you pass a <code className="language-plaintext highlighter-rouge">voiceBridge</code> number, then you must ensure that each meeting has a unique <code className="language-plaintext highlighter-rouge">voiceBridge</code> number; otherwise, reusing same <code className="language-plaintext highlighter-rouge">voiceBridge</code> number for two different meetings will cause users from one meeting to appear as phone users in the other, which will be very confusing to users in both meetings.</>)
+    "description": (<>Voice conference number for the FreeSWITCH voice conference associated with this meeting.  This must be a 5-digit numeric string in the range 00000 to 99999.  If you <a href="/2.2/customize.html#add-a-phone-number-to-the-conference-bridge">add a phone number</a> to your BigBlueButton server, This parameter sets the personal identification number (PIN) that FreeSWITCH will prompt for a phone-only user to enter.  If you want to change this range, edit FreeSWITCH dialplan and <code className="language-plaintext highlighter-rouge">defaultNumDigitsForTelVoice</code> of <a href="https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a>.<br /><br />The <code className="language-plaintext highlighter-rouge">voiceBridge</code> number must be different for every meeting.<br /><br />This parameter is optional. If you do not specify a <code className="language-plaintext highlighter-rouge">voiceBridge</code> number, then BigBlueButton will assign a random unused number for the meeting.<br /><br />If do you pass a <code className="language-plaintext highlighter-rouge">voiceBridge</code> number, then you must ensure that each meeting has a unique <code className="language-plaintext highlighter-rouge">voiceBridge</code> number; otherwise, reusing same <code className="language-plaintext highlighter-rouge">voiceBridge</code> number for two different meetings will cause users from one meeting to appear as phone users in the other, which will be very confusing to users in both meetings.</>)
   },
   {
     "name": "maxParticipants",
@@ -384,7 +384,19 @@ const createEndpointTableData = [
     "name": "sharedNotesInitialContentJsonUrl",
     "required": false,
     "type": "String",
-    "description": (<>Url from which the shared-notes will fetch the initial content (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise)</>)
+    "description": (<>Url from which the shared-notes will fetch the initial content (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise). The URL must be `https` (`fetchUrlSupportedProtocols`), is capped by `maxSharedNotesInitialContentUrlPayloadSize` (default 1024 KiB) and has a 6000 ms timeout; a URL that violates these yields empty initial content silently.</>)
+  },
+  {
+    "name": "sharedNotesInitialContentMarkdown",
+    "required": false,
+    "type": "String",
+    "description": (<>Raw markdown used as the shared-notes initial content (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise). When `sharedNotesInitialContentMarkdownUrl` is also provided, the URL takes precedence over this inline value; this inline parameter in turn takes precedence over the `sharedNotesInitialContentMarkdown` POST module.</>)
+  },
+  {
+    "name": "sharedNotesInitialContentMarkdownUrl",
+    "required": false,
+    "type": "String",
+    "description": (<>Url from which the shared-notes will fetch the initial content as markdown (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise). When provided, it takes precedence over the inline `sharedNotesInitialContentMarkdown` create parameter and POST module. The URL must be `https` (`fetchUrlSupportedProtocols`), is capped by `maxSharedNotesInitialContentUrlPayloadSize` (default 1024 KiB) and has a 6000 ms timeout; a URL that violates these yields empty initial content silently.</>)
   },
   {
     "name": "disabledFeatures",
@@ -602,18 +614,6 @@ const createEndpointTableData = [
     "required": false,
     "type": "String",
     "description": (<>If passed it will use this string as the name of the presentation uploaded via <code className="language-plaintext highlighter-rouge">preUploadedPresentation</code> (added 2.7.2)</>)
-  },
-  {
-    "name": "allowOverrideClientSettingsOnCreateCall",
-    "required": false,
-    "default": false,
-    "type": "Boolean",
-    "description": (
-      <>
-        <p>Whether to allow <a href="#clientsettingsoverride">clientSettingsOverride</a> to be included in the body of a POST request. Because the body of the post request is not signed by the <a href="#api-security-model">checksum</a>, this parameter is set to <code>false</code> by default. If you set this to <code>true</code>, you must make sure that the signed parameters of the create API request are not visible to users.</p>
-        <p><i>Added:</i> 3.0.0-alpha.1</p>
-      </>
-    )
   },
   {
     "name": "clientSettingsOverride",
