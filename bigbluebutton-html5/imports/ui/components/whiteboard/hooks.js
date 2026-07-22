@@ -420,12 +420,15 @@ const useMouseEvents = ({
   React.useEffect(() => {
     const targetWin = isPresentationDetached && popupWindow ? popupWindow : window;
     const presentationWrapper = targetWin.document.getElementById('presentationInnerWrapper');
+    let stylePanelPopup = null;
+    
     targetWin.addEventListener('mousedown', handleMouseDownWindow);
 
     // Solving a problem that the style changer on the popup continues to select every button
     //  as pointerup event is stolen by the main window to which tldraw attaches the event.
-    if (isPresentationDetached) {
-      const stylePanelPopup = popupWindow.document.getElementsByClassName('tlui-style-panel')[0];
+    if (isPresentationDetached && popupWindow?.document) {
+      stylePanelPopup = popupWindow.document.getElementsByClassName('tlui-style-panel')[0];
+
       if (stylePanelPopup) {
         stylePanelPopup.addEventListener('pointerdown', handlePointerDownStylePanel);
       }
@@ -455,6 +458,12 @@ const useMouseEvents = ({
         presentationWrapper.removeEventListener('touchend', handleTouchEnd, { capture: true });
         presentationWrapper.removeEventListener('touchmove', handleTouchMove);
       }
+      if (stylePanelPopup) {
+        stylePanelPopup.removeEventListener(
+          'pointerdown',
+          handlePointerDownStylePanel,
+        );
+      }
       targetWin.removeEventListener('mousedown', handleMouseDownWindow);
     };
   }, [
@@ -465,6 +474,8 @@ const useMouseEvents = ({
     handleMouseEnter,
     handleMouseLeave,
     handleMouseWheel,
+    isPresentationDetached,
+    popupWindow,
   ]);
 };
 
