@@ -62,7 +62,7 @@ test.describe.parallel('Recording', { tag: '@ci' }, () => {
   });
 });
 
-test.describe('Recording with audio', { tag: '@ci' }, () => {
+test.describe('Recording with audio', { tag: ['@ci', '@media'] }, () => {
   test('Generate a recording that captures microphone audio', async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();
