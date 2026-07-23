@@ -191,7 +191,11 @@ const BBBMenuItem = styled(MenuItem)`
   ${({ $isToggle }) => $isToggle && `
     &:focus,
     &:hover {
+      color: inherit !important;
+      background-color: transparent !important;
+      i {
         color: inherit !important;
+      }
     }
   `}
 `;

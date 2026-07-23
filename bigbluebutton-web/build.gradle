@@ -22,6 +22,14 @@ buildscript {
 version "0.10.0"
 group "org.bigbluebutton.web"
 
+ext['tomcat.version'] = '10.1.56'
+ext['netty.version'] = '4.1.135.Final'
+ext['postgresql.version'] = '42.7.13'
+ext['spring-framework.version'] = '6.2.19'
+ext['jackson-bom.version'] = '2.22.1'
+ext['logback.version'] = '1.5.38'
+ext['spring-data-bom.version'] = '2025.0.13'
+
 apply plugin: "eclipse"
 apply plugin: "idea"
 apply plugin: "war"
@@ -59,6 +67,12 @@ dependencies {
 //  implementation "org.springframework.boot:spring-boot-starter-actuator:${springVersion}"
   implementation "org.springframework.boot:spring-boot-starter-tomcat:${springVersion}"
 
+  // Override transitive tomcat-embed from spring-boot-starter-tomcat.
+  // TODO: remove once springVersion >= 3.5.17 (which will manage a fixed tomcat-embed).
+  implementation "org.apache.tomcat.embed:tomcat-embed-core:10.1.56"
+  implementation "org.apache.tomcat.embed:tomcat-embed-websocket:10.1.56"
+  implementation "org.apache.tomcat.embed:tomcat-embed-el:10.1.56"
+
   implementation "org.apache.grails:grails-core"
   implementation "org.apache.grails:grails-logging"
   implementation "org.apache.grails:grails-rest-transforms"
@@ -79,13 +93,12 @@ dependencies {
 
   implementation "org.apache.xmlbeans:xmlbeans:5.0.3"
   implementation "org.apache.groovy:groovy-xml"
-  implementation "commons-lang:commons-lang:2.6"
   implementation 'org.apache.commons:commons-compress:1.27.0'
 
   implementation "org.bigbluebutton:bbb-common-message_2.13:0.0.22-SNAPSHOT"
   implementation "org.bigbluebutton:bbb-common-web:0.0.5-SNAPSHOT"
 
-  implementation "io.lettuce:lettuce-core:6.3.1.RELEASE"
+  implementation "io.lettuce:lettuce-core"
   implementation "io.projectreactor:reactor-core:3.6.0"
   implementation "org.reactivestreams:reactive-streams:1.0.4"
 
@@ -111,7 +124,7 @@ dependencies {
 configurations.all {
   resolutionStrategy {
     dependencySubstitution {
-      substitute module('org.apache.commons:commons-lang3') using module('org.apache.commons:commons-lang3:3.17.0') because 'commons-compress requires >= 3.12'
+      substitute module('org.apache.commons:commons-lang3') using module('org.apache.commons:commons-lang3:3.20.0')
     }
   }
 }

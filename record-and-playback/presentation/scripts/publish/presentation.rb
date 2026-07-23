@@ -946,6 +946,16 @@ def process_presentation(package_dir)
         slide_changed = true
       end
 
+    when 'SetScreenshareAsContentEvent'
+      next unless @presentation_props['include_deskshare']
+      screenshare_as_content = event.at_xpath('screenshareAsContent')&.text == "true"
+      if screenshare_as_content
+        deskshare = slide_changed = true
+      else
+        deskshare = false
+        slide_changed = true
+      end
+
     when 'AddShapeEvent', 'ModifyTextEvent'
       events_parse_shape(shapes, event, current_presentation, current_slide, timestamp)
 
@@ -1301,22 +1311,21 @@ def copy_media_files_helper(media, media_files, package_dir)
   end
 end
 
-def process_swap_events(events)
-  BigBlueButton.logger.info("Processing screenshare as content events")
-  swap_events = BigBlueButton::Events.get_screenshare_as_content_events(events)
+def process_layout_events(events)
+  BigBlueButton.logger.info("Processing layout events")
+  layout_events = BigBlueButton::Events.get_layout_events(events, @meeting_start.to_i, @meeting_end.to_i)
   @layout_swap_xml = Builder::XmlMarkup.new(indent: 2)
   @layout_swap_xml.instruct!
 
   @layout_swap_xml.recording('id' => 'layout_swap_events') do
-    swap_events.each do |event|
-      @layout_swap_xml.event(
-        timestamp: (translate_timestamp(event[:timestamp].to_f) / 1000).round(1),
-        show_screenshare: event[:screenshareAsContent],
-      )
+    layout_events.each do |event|
+      attributes = { timestamp: (event[:timestamp].to_f / 1000.0).round(1) }
+      attributes[:show_screenshare] = event[:screenshareAsContent] unless event[:screenshareAsContent].nil?
+      attributes[:show_presentation] = event[:presentationIsOpen] unless event[:presentationIsOpen].nil?
+
+      @layout_swap_xml.event(attributes)
     end
   end
-
-
 end
 
 @shapes_svg_filename = 'shapes.svg'
@@ -1484,7 +1493,7 @@ begin
 
         process_deskshare_events(@doc)
 
-        process_swap_events(@doc)
+        process_layout_events(@doc)
 
         process_poll_events(@doc, package_dir)
 

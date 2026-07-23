@@ -42,7 +42,7 @@ testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
 Seq(Revolver.settings: _*)
-lazy val bbbAppsAkka = (project in file(".")).settings(name := "bbb-apps-akka", libraryDependencies ++= Dependencies.runtime).settings(compileSettings)
+lazy val bbbAppsAkka = (project in file(".")).settings(name := "bbb-apps-akka", libraryDependencies ++= Dependencies.runtime, dependencyOverrides ++= Dependencies.overrides).settings(compileSettings)
 
 // See https://github.com/scala-ide/scalariform
 // Config file is in ./.scalariform.conf

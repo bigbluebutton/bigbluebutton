@@ -14,10 +14,13 @@ object Dependencies {
     // Libraries
     val pekkoVersion = "1.0.1"
     val pekkoHttpVersion = "1.0.0"
-    val logback = "1.2.13"
+    val logback = "1.5.38"
+    val jackson = "2.18.9"
+    val netty = "4.1.135.Final"
+    val slf4j = "2.0.17"
 
     // Apache Commons
-    val lang = "3.12.0"
+    val lang = "3.18.0"
     val codec = "1.15"
 
     // BigBlueButton
@@ -83,4 +86,22 @@ object Dependencies {
     Compile.bbbFseslClient,
     Compile.pekkoHttp,
     Compile.pekkoHttpSprayJson) ++ testing
+
+  // Force security-patched versions on transitively-pulled artifacts (jackson
+  // suite kept aligned; netty at a fixed release).
+  val overrides = Seq(
+    "com.fasterxml.jackson.core" % "jackson-databind" % Versions.jackson,
+    "com.fasterxml.jackson.core" % "jackson-core" % Versions.jackson,
+    "com.fasterxml.jackson.core" % "jackson-annotations" % Versions.jackson,
+    "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % Versions.jackson,
+    "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson,
+    "io.netty" % "netty-handler" % Versions.netty,
+    "io.netty" % "netty-codec" % Versions.netty,
+    "io.netty" % "netty-common" % Versions.netty,
+    "io.netty" % "netty-buffer" % Versions.netty,
+    "io.netty" % "netty-transport" % Versions.netty,
+    "io.netty" % "netty-resolver" % Versions.netty,
+    // logback 1.5.x is an slf4j-2.x provider; pin slf4j-api 2.x so the
+    // ServiceLoader binding resolves (pekko-slf4j is runtime-compatible).
+    "org.slf4j" % "slf4j-api" % Versions.slf4j)
 }

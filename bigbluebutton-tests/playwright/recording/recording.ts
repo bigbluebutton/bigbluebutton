@@ -321,21 +321,20 @@ export class Recording extends MultiUsers {
       mask: [titleLocator],
     });
 
-    // Pause and wait 2 seconds and check paused playback
+    // Pause playback and verify the frame does not advance over time
     await playPauseButtonLocator.click();
     await expect(playPauseButtonLocator, 'play/pause button should display "Play" when paused').toHaveText(/Play/, {
       timeout: ELEMENT_WAIT_TIME,
     });
     const progressBarPaused = await progressBarLocator.evaluate((el: HTMLDivElement) => el.offsetWidth);
+    const screenshotBeforeWait = await this.playbackPage.page.screenshot({ mask: [titleLocator] });
     await this.playbackPage.page.waitForTimeout(2000);
     expect(progressBarPaused, 'progress bar width should not change when playback is paused').toEqual(
       await progressBarLocator.evaluate((el: HTMLDivElement) => el.offsetWidth),
     );
-    await expect(this.playbackPage.page, 'should display the same slide when paused').toHaveScreenshot(
-      'playback-paused.png',
-      {
-        mask: [titleLocator],
-      },
+    const screenshotAfterWait = await this.playbackPage.page.screenshot({ mask: [titleLocator] });
+    expect(screenshotBeforeWait, 'should display the same frame when paused — screenshot should not change').toEqual(
+      screenshotAfterWait,
     );
   }
 

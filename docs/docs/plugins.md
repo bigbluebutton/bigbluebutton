@@ -188,6 +188,7 @@ Here is a complete `manifest.json` example with all possible configurations:
   "javascriptEntrypointUrl": "MyPlugin.js",
   "javascriptEntrypointIntegrity": "sha384-Bwsz2rxm...", // Optional
   "localesBaseUrl": "https://cdn.domain.com/my-plugin/", // Optional
+  "enabledForBreakoutRooms": false, // Optional, defaults to false
   "loggerSettings": {                                    // Optional
     "console": {
       "enableRuntimeErrorLogging": false,
@@ -282,6 +283,54 @@ public:
           abc: my123
           def: 3234
 ```
+
+**enabledForBreakoutRooms:**
+
+By default, plugins are **not** loaded in breakout rooms. Setting `enabledForBreakoutRooms` to `true` makes the plugin available inside breakout rooms as well as the main room.
+
+```json
+{
+  "enabledForBreakoutRooms": true
+}
+```
+
+When this property is `false` (or omitted), the server filters the plugin out before creating any breakout room, so it never loads for breakout participants.
+
+**javascriptEntrypointIntegrity:**
+
+An optional [Subresource Integrity (SRI)](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity) hash for the plugin's JavaScript bundle. When present, the browser verifies the fetched file matches the hash before executing it, protecting against tampered or malicious substitutions of the plugin file.
+
+The value must follow the SRI format `<algorithm>-<base64-hash>` (e.g. `sha384-Bwsz2rxm...`).
+
+```json
+{
+  "javascriptEntrypointIntegrity": "sha384-Bwsz2rxm..."
+}
+```
+
+> **Cross-origin limitation:** The plugin loader sets the `integrity` attribute on the `<script>` tag but does **not** set the `crossorigin` attribute. Browsers require both `integrity` and `crossorigin="anonymous"` (plus CORS headers from the server) for SRI checks on cross-origin scripts. Without `crossorigin`, the integrity check will fail for plugins hosted on a different domain (e.g. a CDN). SRI integrity verification therefore only works reliably when the plugin file is served from the **same origin** as the BigBlueButton client. Avoid setting this field for CDN-hosted plugins until cross-origin support is added to the loader.
+
+If omitted, no integrity check is performed.
+
+**localesBaseUrl:**
+
+An optional base URL from which the plugin SDK loads locale (i18n) message files for the plugin. This enables internationalization support — the SDK fetches locale files relative to this URL when the client switches languages.
+
+```json
+{
+  "localesBaseUrl": "https://cdn.domain.com/my-plugin/"
+}
+```
+
+If the URL is relative (does not start with `http://` or `https://`), the server resolves it by appending it to the directory portion of the manifest URL using plain string concatenation. This means a leading `/` is **not** treated as the site root — it will be concatenated literally, producing a broken URL. Use either an absolute URL or a relative path without a leading `/`:
+
+```json
+{ "localesBaseUrl": "locales/" }       // OK — appended to manifest directory
+{ "localesBaseUrl": "https://cdn.example.com/my-plugin/locales/" } // OK — absolute
+{ "localesBaseUrl": "/locales/" }      // BAD — leading slash breaks the URL
+```
+
+If omitted, locale files will not be loaded for the plugin.
 
 ## Examples
 
@@ -780,6 +829,16 @@ That being said, here are the extensible areas we have so far:
 
 Mind that no plugin will interfere into another's extensible area. So feel free to set whatever you need into a certain plugin with no worries.
 
+#### Configurable button styles
+
+Plugin-provided **nav bar**, **actions bar**, and **presentation toolbar** buttons accept a few optional style fields that control the rendered button's shape. They are read when present and fall back to the previous defaults when omitted, so older plugin objects keep rendering exactly as before (requires plugin SDK `0.0.100` or later):
+
+- `color` — button color (e.g. `primary`, `default`). Default: `primary` in the nav bar and actions bar, `default` in the presentation toolbar.
+- `circle` — render as a circular icon button. Default: `true` in the actions bar, `false` in the presentation toolbar and nav-bar.
+- `hideLabel` — hide the text label and show only the icon. Default: `true` in the actions bar, `false` in the presentation toolbar and nav-bar.
+- `size` — button size (`sm`, `md`, `lg`). Default: `lg` in the actions bar, `md` in the presentation toolbar and nav-bar.
+- `style` — an inline CSS style object applied to the button.
+
 ### Auxiliaries:
 
 - `getSessionToken`: returns the user session token located on the user's URL.
@@ -1041,6 +1100,8 @@ As seen for the `useUiData`, the return type is well defined by the enum chosen 
 - presentation-area:
   - open: this function will open the presentation area content automatically;
   - close: this function will close the presentation area content automatically;
+- screenshare:
+  - stop: Stops broadcasting the screenshare if user is presenter and is sharing screen (it is ignored otherwise);
 - sidekick-options-container: **(deprecated - use [sidekickArea](#sidekickarea-ui-commands) instead)**
   - open: this function will open the sidekick options panel automatically;
   - close: this function will close the sidekick options panel automatically (and also the sidebar content if open, to avoid inconsistencies in ui);
@@ -1128,6 +1189,9 @@ For a complete working example, see the [sample-generic-content-sidekick-plugin]
   - caption:
     - save: this function saves the given text, locale and caption type
     - addLocale: this function sends a locale to be added to the available options
+  
+  - presentation:
+    - upload: uploads a new presentation to BigBlueButton;
 
 As these commands can change state in the back-end, "permission control" is available based on role for some of the Commands (in the manifest), those are:
   - chat:

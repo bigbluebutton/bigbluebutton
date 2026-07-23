@@ -1,15 +1,36 @@
 /* eslint prefer-promise-reject-errors: 0 */
 import { makeVar, useReactiveVar } from '@apollo/client';
 import Storage from '/imports/ui/services/storage/session';
-import Session from '/imports/ui/services/storage/in-memory';
+
+function getAndRemoveSessionTokenFromUrl() {
+  const url = new URL(window.location.href);
+  const tokenFromUrl = url.searchParams.get('sessionToken');
+
+  if (!tokenFromUrl) {
+    return null;
+  }
+
+  url.searchParams.delete('sessionToken');
+  window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+  return tokenFromUrl;
+}
 
 class Auth {
   constructor() {
     this._loggedIn = makeVar(false);
 
-    const queryParams = new URLSearchParams(document.location.search);
-    if (queryParams.has('sessionToken')
-      && queryParams.get('sessionToken') !== Session.getItem('sessionToken')) {
+    const storedSessionToken = Storage.getItem('sessionToken');
+    const tokenFromUrl = getAndRemoveSessionTokenFromUrl();
+
+    if (tokenFromUrl) {
+      this.sessionToken = tokenFromUrl;
+    }
+
+    if (
+      tokenFromUrl
+      && storedSessionToken
+      && tokenFromUrl !== storedSessionToken
+    ) {
       return;
     }
 
@@ -33,9 +54,9 @@ class Auth {
     Storage.setItem('meetingID', this._meetingID);
   }
 
-  set _connectionID(connectionId) {
+  set connectionID(connectionId) {
     this._connectionID = connectionId;
-    Storage.setItem('sessionToken', this._connectionID);
+    Storage.setItem('connectionID', this._connectionID);
   }
 
   get sessionToken() {
@@ -182,14 +203,14 @@ class Auth {
 
   logout() {
     if (!this.loggedIn) {
-      if (allowRedirectToLogoutURL()) {
+      if (this.allowRedirectToLogoutURL()) {
         return Promise.resolve(this._logoutURL);
       }
       return Promise.resolve();
     }
 
     return new Promise((resolve) => {
-      if (allowRedirectToLogoutURL()) {
+      if (this.allowRedirectToLogoutURL()) {
         resolve(this._logoutURL);
       }
 

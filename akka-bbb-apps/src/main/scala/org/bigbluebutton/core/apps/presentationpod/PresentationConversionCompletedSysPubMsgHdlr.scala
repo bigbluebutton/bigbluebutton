@@ -58,6 +58,12 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
       pods = pods.addPresentationToPod(pod.id, presWithConvertedName)
 
       PresPresentationDAO.updatePages(presWithConvertedName)
+      if (pres.downloadable) {
+        val originalFileURI = PresentationDownloadUrlBuilder.buildFileUri(
+          meetingId, pres.id, originalDownloadableExtension, pres.name
+        )
+        PresPresentationDAO.updateDownloadUri(pres.id, originalFileURI)
+      }
       if(pres.current) {
         val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
           meetingId,
@@ -93,4 +99,3 @@ trait PresentationConversionCompletedSysPubMsgHdlr {
 
   }
 }
-

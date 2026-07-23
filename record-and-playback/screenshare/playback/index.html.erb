@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title><%= meetingName %></title>
+    <title><%= CGI.escapeHTML(meetingName) %></title>
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="video-js/video-js.min.css">
     <link rel="stylesheet" href="css/screenshare.css">
@@ -11,7 +11,7 @@
   </head>
   <body>
     <header>
-      <h1><%= meetingName %></h1>
+      <h1><%= CGI.escapeHTML(meetingName) %></h1>
     </header>
 
     <main>

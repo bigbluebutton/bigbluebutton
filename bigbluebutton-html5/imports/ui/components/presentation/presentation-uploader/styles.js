@@ -29,6 +29,7 @@ import {
   fontSizeLarger,
 } from '/imports/ui/stylesheets/styled-components/typography';
 import {
+  colorBorder,
   colorGrayLight,
   colorGrayDark,
   colorPrimary,
@@ -125,7 +126,7 @@ const Table = styled.table`
     }
 
     > tr {
-      border-bottom: 1px solid ${colorGrayLight};
+      border-bottom: 1px solid ${colorBorder};
 
       &:last-child {
         border-bottom: 0;
@@ -406,7 +407,7 @@ const ModalHeader = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  border-bottom:${borderSize} solid ${colorGrayLighter};
+  border-bottom:${borderSize} solid ${colorBorder};
   margin-bottom: 2rem;
   padding: ${mdPaddingX} 0;
 

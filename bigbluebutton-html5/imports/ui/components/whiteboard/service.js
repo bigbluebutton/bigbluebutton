@@ -4,6 +4,7 @@ import { defineMessages } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import caseInsensitiveReducer from '/imports/utils/caseInsensitiveReducer';
 import { debounce } from '/imports/utils/debounce';
+import { isValidShapeType } from './utils';
 
 const intlMessages = defineMessages({
   notifyNotAllowedChange: {
@@ -390,8 +391,9 @@ const debouncedUpdateShapes = debounce((
     tlEditorRef.current?.store.mergeRemoteChanges(() => {
       const remoteShapesArray = Object.values(shapes).reduce((acc, shape) => {
         if (
-          shape.meta?.presentationId === presentationIdRef.current
-          || shape?.whiteboardId?.includes(presentationIdRef.current)
+          (shape.meta?.presentationId === presentationIdRef.current
+          || shape?.whiteboardId?.includes(presentationIdRef.current))
+          && isValidShapeType(shape)
         ) {
           acc.push(sanitizeShape(shape));
         }

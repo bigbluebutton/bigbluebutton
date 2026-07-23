@@ -8,7 +8,12 @@ export class DrawShape extends MultiUsers {
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
     await this.userPage.waitForSelector(e.whiteboard);
     // select the shape
-    await this.modPage.waitAndClick(e.wbShapesButton);
+    // shapes inside the "More" geo popup (data-testid="tools.more.*") need the popup opened first;
+    // shapes that live directly on the toolbar (e.g. rectangle, arrow) must be clicked without it,
+    // otherwise the opened popup grid overlaps and intercepts the click on the toolbar button
+    if (shapeSelector.includes('tools.more.')) {
+      await this.modPage.waitAndClick(e.wbShapesButton);
+    }
     await this.modPage.waitAndClick(shapeSelector);
     await this.drawShapeMiddleSlide();
     // check if the ellipse is drawn

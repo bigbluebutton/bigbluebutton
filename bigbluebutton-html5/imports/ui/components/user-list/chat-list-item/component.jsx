@@ -164,7 +164,7 @@ const ChatListItem = ({
             ) : (
               <UserAvatar
                 moderator={chat.isModerator}
-                avatar={chat.avatar}
+                avatar={chat?.avatar || ''}
                 color={chat.color}
               >
                 {chat.name.toLowerCase().slice(0, 2)}

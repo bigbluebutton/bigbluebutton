@@ -11,6 +11,8 @@ import {
 } from '/imports/ui/components/whiteboard/queries';
 import Service from './service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import Auth from '/imports/ui/services/auth';
+import { useSharedNotesImport } from '../../bn-shared-notes/import-context';
 
 const DEBOUNCE_TIMEOUT = 15000;
 
@@ -22,6 +24,14 @@ const intlMessages = defineMessages({
   exportAsPDFLabel: {
     id: 'app.notes.notesDropdown.exportAsPDF',
     description: 'Export shared notes as a PDF file',
+  },
+  exportAsMarkdownLabel: {
+    id: 'app.notes.notesDropdown.exportAsMarkdown',
+    description: 'Export shared notes as a Markdown file',
+  },
+  importFromMarkdownLabel: {
+    id: 'app.notes.notesDropdown.importFromMarkdown',
+    description: 'Import shared notes content from Markdown',
   },
   pinNotes: {
     id: 'app.notes.notesDropdown.pinNotes',
@@ -54,16 +64,34 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
   } = props;
   const [converterButtonDisabled, setConverterButtonDisabled] = useState(false);
   const intl = useIntl();
+  const { openImportModal } = useSharedNotesImport();
   const NOTES_IS_PINNABLE = window.meetingClientSettings.public.notes.pinnable;
+  // meetingClientSettings is augmented onto Window; globalThis needs the cast to see it.
+  const clientSettings = (globalThis as unknown as Window).meetingClientSettings;
+  const IMPORT_MARKDOWN_ENABLED = clientSettings.public.sharedNotes.importMarkdownEnabled;
+  const EXPORT_MARKDOWN_ENABLED = clientSettings.public.sharedNotes.exportMarkdownEnabled;
 
   const getAvailableActions = () => {
     const uploadIcon = 'upload';
     const pinIcon = 'presentation';
     const downloadIcon = 'download';
+    const importIcon = 'copy';
 
     const menuItems = [];
 
     if (amIPresenter) {
+      if (!isEtherpadSharedNotes && IMPORT_MARKDOWN_ENABLED) {
+        menuItems.push(
+          {
+            key: uniqueId('notes-option-'),
+            icon: importIcon,
+            dataTest: 'importNotesFromMarkdown',
+            label: intl.formatMessage(intlMessages.importFromMarkdownLabel),
+            onClick: () => openImportModal(),
+          },
+        );
+      }
+
       menuItems.push(
         {
           key: uniqueId('notes-option-'),
@@ -81,8 +109,9 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
     }
 
     if (!isEtherpadSharedNotes) {
-      const urlParams = new URLSearchParams(window.location.search);
-      const sessionToken = urlParams.get('sessionToken');
+      const { sessionToken } = Auth;
+      const hocuspocusServerHostname = window.meetingClientSettings.public.sharedNotes.serverHostname
+        || window.location.hostname;
 
       menuItems.push(
         {
@@ -91,10 +120,24 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
           dataTest: 'exportNotesAsPDF',
           label: intl.formatMessage(intlMessages.exportAsPDFLabel),
           onClick: () => {
-            window.open(`/hocuspocus/api/documents/${padId}/export/pdf?sessionToken=${sessionToken}`);
+            window.open(`https://${hocuspocusServerHostname}/hocuspocus/api/documents/${padId}/export/pdf?sessionToken=${sessionToken}`);
           },
         },
       );
+
+      if (EXPORT_MARKDOWN_ENABLED) {
+        menuItems.push(
+          {
+            key: uniqueId('notes-option-'),
+            icon: downloadIcon,
+            dataTest: 'exportNotesAsMarkdown',
+            label: intl.formatMessage(intlMessages.exportAsMarkdownLabel),
+            onClick: () => {
+              window.open(`https://${hocuspocusServerHostname}/hocuspocus/api/documents/${padId}/export/md?sessionToken=${sessionToken}`);
+            },
+          },
+        );
+      }
     }
 
     if (amIPresenter && NOTES_IS_PINNABLE) {

@@ -63,6 +63,7 @@ export interface App {
   skipMeetingEnded: boolean
   dynamicGuestPolicy: boolean
   enableGuestLobbyMessage: boolean
+  showGuestLobbyWaitingQueuePosition: boolean
   guestPolicyExtraAllowOptions: boolean
   alwaysShowWaitingRoomUI: boolean
   enableLimitOfViewersInWebcam: boolean
@@ -148,6 +149,7 @@ export interface Breakouts {
   sendInvitationToAssignedModeratorsByDefault: boolean
   breakoutRoomLimit: number
   allowPresentationManagementInBreakouts: boolean
+  lockBreakoutRecordingSetting: boolean
 }
 
 export interface RaiseHandActionButton {
@@ -576,9 +578,12 @@ export interface Pads {
 }
 
 export interface SharedNotes {
-  serverUrl: string
+  serverHostname: string
   maxDocumentChars: number
   maxLengthForContentUpdate: number
+  staticFormattingToolbar: boolean
+  importMarkdownEnabled: boolean
+  exportMarkdownEnabled: boolean
 }
 
 export interface Media {
@@ -654,6 +659,8 @@ export interface LiveKitSettings {
   logLevel?: LogLevel
   roomOptions?: Partial<InternalRoomOptions>
   reconnectOnFatalFailures?: boolean
+  forceRelay?: boolean
+  forceRelayOnFirefox?: boolean
   audio?: LiveKitAudioSettings
   camera?: LiveKitCameraSettings
   screenshare?: LiveKitScreenShareSettings
@@ -753,10 +760,12 @@ export interface Whiteboard {
   maxNumberOfAnnotations: number
   maxNumberOfActiveUsers: number
   maxHistoryStackSize: number
+  slideSwapDecodeTimeoutMs: number
   lockToolbarTools: boolean
   annotations: Annotations
   allowInfiniteWhiteboard: boolean
   allowInfiniteWhiteboardInBreakouts: boolean
+  allowInfiniteWhiteboardPanForViewers: boolean
   styles: Styles
   toolbar: Toolbar
 }

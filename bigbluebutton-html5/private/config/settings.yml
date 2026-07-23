@@ -62,6 +62,9 @@ public:
     skipMeetingEnded: false
     dynamicGuestPolicy: true
     enableGuestLobbyMessage: true
+    # Show the guest user's position in the lobby waiting queue.
+    # Set to false when users should not see their place in line.
+    showGuestLobbyWaitingQueuePosition: true
     guestPolicyExtraAllowOptions: false
     alwaysShowWaitingRoomUI: true
     enableLimitOfViewersInWebcam: false
@@ -133,14 +136,24 @@ public:
     # can generate excessive overhead to the server. We recommend
     # this value to be kept under 16.
     breakouts:
+      # Allow participants to pick their own breakout room instead of being assigned
       allowUserChooseRoomByDefault: false
+      # Show the recording option (if breakout recording is enabled) when creating breakout rooms
       offerRecordingForBreakouts: false
+      # Pre-check the "record breakout room" option
       recordRoomByDefault: false
+      # Pre-check the "capture whiteboard when ending breakouts" option 
       captureWhiteboardByDefault: false
+      # Pre-check the "save shared notes when ending breakouts" option
       captureSharedNotesByDefault: false
+      # Pre-check the "send invitation to assigned moderators" option
       sendInvitationToAssignedModeratorsByDefault: false
+      # Maximum number of breakout rooms that can be created
       breakoutRoomLimit: 16
+      # Allow the presenter role to manage presentations inside breakout rooms
       allowPresentationManagementInBreakouts: true
+      # Set to true to remove the ability for the breakout recording policy to be changed by the moderator at breakout creation time
+      lockBreakoutRecordingSetting: false
     showAllAvailableLocales: true
     # Show "Audio Filters for Microphone" option in settings menu.
     # When set to true, users are able to enable/disable microphone constraints,
@@ -808,11 +821,23 @@ public:
   pads:
     url: ETHERPAD_HOST
   sharedNotes:
-    # Hocuspocus server url for BlockNote (it will use the client's domain when empty)
-    # e.g: `wss://bbb-host/hocuspocus/collaboration`
-    serverUrl:
+    # Hocuspocus server hostname for BlockNote (it will use the client's hostname when empty)
+    # e.g: `bbb-host` (only the domain without protocol and path)
+    serverHostname:
     maxDocumentChars: 99999
     maxLengthForContentUpdate: 1500
+    # When enabled, the formatting toolbar is rendered statically above the
+    # editor and always visible. When disabled, BlockNote's default floating
+    # toolbar appears only when text is selected.
+    staticFormattingToolbar: true
+    # When enabled, the "Import from Markdown" option is shown in the shared
+    # notes options menu, letting presenters import Markdown content. Defaults
+    # to false so a minor update does not add a new menu button unexpectedly.
+    importMarkdownEnabled: false
+    # When enabled, the "Export notes as Markdown" option is shown in the
+    # shared notes options menu. Defaults to false so a minor update does not
+    # add a new menu button unexpectedly.
+    exportMarkdownEnabled: false
   media:
     audio:
       # defaultFullAudioBridge: bridge to be used by full audio mechanism.
@@ -954,8 +979,12 @@ public:
         muteDebounceMs: 2500
       logLevel: 3
       # reconnectOnFatalFailures: whether to trigger LK room reconnections when
-      # fatal errors occur (e.g.: unrecoverable publish timeouts). Default is false.
-      reconnectOnFatalFailures: false
+      # fatal errors occur (e.g.: unrecoverable publish timeouts).
+      reconnectOnFatalFailures: true
+      # livekit.forceRelay: forces TURN/relay usage on all UAs when using LK.
+      forceRelay: false
+      # livekit.forceRelayOnFirefox: forces TURN/relay usage on Firefox when using LK.
+      forceRelayOnFirefox: false
       roomOptions:
         adaptiveStream: true
         dynacast: true
@@ -1089,6 +1118,7 @@ public:
     cursorInterval: 100
     allowInfiniteWhiteboard: false
     allowInfiniteWhiteboardInBreakouts: false
+    allowInfiniteWhiteboardPanForViewers: false
     pointerDiameter: 5
     laserRadiusSmall: 10
     laserRadiusLarge: 16
@@ -1102,6 +1132,12 @@ public:
     # This is the number of times we can press undo (plus 100 providing a safe margin for some shapes with extra entries)
     # default value is 400, adjusted for maxNumberOfAnnotations being 300
     maxHistoryStackSize: 400
+    # Upper bound (ms) for waiting on a new slide's background image to decode before
+    # swapping the visible page (issue 25397). Kept short: a warm/near cache resolves in
+    # sub-frame time and gates the swap, while a cold/slow asset falls through fast to the
+    # old (un-gated) behavior instead of leaving the un-gated toolbar/zoom UI on a stale
+    # slide. Latency above this bound still shows the original white flash.
+    slideSwapDecodeTimeoutMs: 250
     lockToolbarTools: false
     annotations:
       status:

@@ -141,14 +141,17 @@ const UserListItem: React.FC<UserListItemProps> = ({ user, lockSettings, index }
 
   const LABEL = window.meetingClientSettings.public.user.label;
 
+  // Labels are wrapped in <span> rather than pushed as bare strings: a bare text
+  // node rendered as a sibling of element nodes is what browser translators
+  // rewrite, desyncing React and crashing the list on re-render (see main.html).
   if (user.isModerator && LABEL.moderator) {
-    subs.push(intl.formatMessage(messages.moderator));
+    subs.push(<span key="bbb-moderator">{intl.formatMessage(messages.moderator)}</span>);
   }
   if (user.guest && LABEL.guest) {
-    subs.push(intl.formatMessage(messages.guest));
+    subs.push(<span key="bbb-guest">{intl.formatMessage(messages.guest)}</span>);
   }
   if (user.mobile && LABEL.mobile) {
-    subs.push(intl.formatMessage(messages.mobile));
+    subs.push(<span key="bbb-mobile">{intl.formatMessage(messages.mobile)}</span>);
   }
   if ((user.locked || user.userLockSettings?.disablePublicChat)
       && (user.userLockSettings?.disablePublicChat || lockSettings?.hasActiveLockSetting) && !user.isModerator) {

@@ -17,6 +17,8 @@ import GuestWaitContainer, { GUEST_STATUSES } from '../guest-wait/component';
 import PluginTopLevelManager from '/imports/ui/components/plugin-top-level-manager/component';
 import meetingStaticData from '/imports/ui/core/singletons/meetingStaticData';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import getFromUserSettings from '/imports/ui/services/users-settings';
+import Auth from '/imports/ui/services/auth';
 
 const connectionTimeout = 60000;
 const MESSAGE_TIMEOUT = 3000;
@@ -80,6 +82,8 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
   const loadingContextInfo = useContext(LoadingContext);
   const [isGuestAllowed, setIsGuestAllowed] = useState(guestStatus === GUEST_STATUSES.ALLOW);
+  const PUBLIC_CONFIG = window.meetingClientSettings.public;
+  const CLIENT_TITLE = getFromUserSettings('bbb_client_title', PUBLIC_CONFIG.app.clientTitle);
 
   useEffect(() => {
     const allowed = guestStatus === GUEST_STATUSES.ALLOW;
@@ -93,8 +97,7 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
   }, [guestStatus]);
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const sessionToken = urlParams.get('sessionToken') as string;
+    const sessionToken = Auth.sessionToken as string;
     setAuthData({
       meetingId,
       userId,
@@ -186,6 +189,8 @@ const PresenceManager: React.FC<PresenceManagerProps> = ({
         !isGuestAllowed && !(meetingEnded || joinErrorCode || ejectReasonCode || loggedOut)
           ? (
             <GuestWaitContainer
+              meetingName={meetingName}
+              clientTitle={CLIENT_TITLE}
               guestLobbyMessage={guestLobbyMessage}
               guestStatus={guestStatus}
               logoutUrl={logoutUrl}

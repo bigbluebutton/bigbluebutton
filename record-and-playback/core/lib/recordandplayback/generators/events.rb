@@ -191,6 +191,9 @@ module BigBlueButton
       inactive_videos = []
       video_edl = []
 
+      start_times = {}
+      original_durations = {}
+
       video_edl << {
         :timestamp => 0,
         :areas => { :webcam => [] }
@@ -228,6 +231,7 @@ module BigBlueButton
               }
             end
             video_edl << edl_entry
+            start_times[filename] = timestamp
           when 'StopWebcamShareEvent', 'StopWebRTCShareEvent'
             active_videos.delete(filename)
   
@@ -242,6 +246,7 @@ module BigBlueButton
               }
             end
             video_edl << edl_entry
+            original_durations[filename] = timestamp - start_times[filename] if start_times.include?(filename)
           end
         end
       else
@@ -286,6 +291,7 @@ module BigBlueButton
               inactive_videos << filename
               videos[filename] = { :timestamp => timestamp }
             end
+            start_times[filename] = timestamp
           when 'StopWebcamShareEvent', 'StopWebRTCShareEvent'
             userId = BigBlueButton::Events.get_id_from_filename(filename)
             is_in_forbidden_period = webcamsOnlyForModerator
@@ -308,6 +314,7 @@ module BigBlueButton
             elsif is_in_forbidden_period && !BigBlueButton::Events.is_user_moderator(userId, list_user_info)
               inactive_videos.delete(filename)
             end
+            original_durations[filename] = timestamp - start_times[filename] if start_times.include?(filename)
           when "ParticipantJoinEvent"
             user_id = event.at_xpath('userId').text
             list_user_info[user_id] = event.at_xpath('role').text
@@ -388,6 +395,14 @@ module BigBlueButton
               }
             end
             video_edl << edl_entry
+          end
+        end
+      end
+
+      video_edl.each do |edl_entry|
+        edl_entry[:areas]&.each do |_name, area_videos|
+          area_videos&.each do |video|
+            video[:original_duration] = original_durations[video[:filename]] if original_durations.include?(video[:filename])
           end
         end
       end
@@ -485,13 +500,13 @@ module BigBlueButton
       offset_entry = BigBlueButton::Events.edl_entry_offset_video
 
       deskshare_edl = []
+      start_times = {}
+      original_durations = {}
 
       deskshare_edl << {
         timestamp: 0,
         areas: { deskshare: [] },
       }
-
-      original_durations = {}
 
       events.xpath('/recording/event').each do |event|
         timestamp = event['timestamp'].to_i - initial_timestamp
@@ -518,13 +533,10 @@ module BigBlueButton
           new_entry[:timestamp] = timestamp
           new_entry[:areas][:deskshare] << { filename: filename, timestamp: 0 }
           deskshare_edl << new_entry
+          start_times[filename] = timestamp
 
         when %w[Deskshare DeskshareStoppedEvent], %w[bbb-webrtc-sfu StopWebRTCDesktopShareEvent]
           raise "Couldn't determine video filename" if filename.nil?
-
-          # Save the original duration of the deskshare video if provided (it will be added to the EDL later)
-          duration = event.at_xpath('duration')
-          original_durations[filename] = duration.content.to_i * 1000 if duration
 
           # Create a new EDL entry with the deskshare video removed
           last_entry = deskshare_edl.last
@@ -532,13 +544,14 @@ module BigBlueButton
           new_entry[:timestamp] = timestamp
           new_entry[:areas][:deskshare].reject! { |file| file[:filename] == filename }
           deskshare_edl << new_entry
+          original_durations[filename] = timestamp - start_times[filename] if start_times.include?(filename)
         end
       end
 
       # Add the original duration information to the edl entries
-      unless original_durations.empty?
-        deskshare_edl.each do |entry|
-          entry[:areas][:deskshare].each do |video|
+      deskshare_edl.each do |edl_entry|
+        edl_entry[:areas]&.each do |_name, videos|
+          videos&.each do |video|
             video[:original_duration] = original_durations[video[:filename]] if original_durations.include?(video[:filename])
           end
         end
@@ -718,10 +731,10 @@ module BigBlueButton
         new_entry = { audios: [] }
         if edl_entry[:audios]
           edl_entry[:audios].each do |audio|
-            new_entry[:audios] << {
+            new_entry[:audios] << audio.merge(
               filename: audio[:filename],
               timestamp: audio[:timestamp] + offset
-            }
+            )
           end
         end
         if edl_entry[:original_duration]
@@ -1031,9 +1044,9 @@ module BigBlueButton
         when %w[CHAT EditPublicChatMessageRecordEvent]
           next if timestamp < start_time
           message_id = event.at_xpath('./messageId')&.content
-          new_message_content = event.at_xpath('./message')&.content
+          new_message_content = event.at_xpath('./message')&.content&.strip
           index_to_be_edited = chats.index { |message| message[:id] === message_id }
-          chats[index_to_be_edited][:message] = new_message_content unless index_to_be_edited.nil?
+          chats[index_to_be_edited][:message] = linkify(new_message_content) unless index_to_be_edited.nil?
           chats[index_to_be_edited][:lastEditedTimestamp] = timestamp unless index_to_be_edited.nil?
         when %w[PARTICIPANT RecordStatusEvent]
           record = event.at_xpath('status').content == 'true'
@@ -1074,7 +1087,16 @@ module BigBlueButton
         s = { :timestamp => event['timestamp'].to_i }
         external_videos_events << s
       end
-      external_videos_events.sort_by {|a| a[:timestamp]}
+      sorted = external_videos_events.sort_by {|a| a[:timestamp]}
+      paired = []
+      sorted.each_with_index do |event, i|
+        if event.key?(:external_video_url)
+          paired << event
+          nxt = sorted[i+1]
+          paired << nxt if nxt && !nxt.key?(:external_video_url)
+        end
+      end
+      paired
     end
 
     # Get events when the moderator wants the recording to start or stop
@@ -1350,21 +1372,32 @@ module BigBlueButton
       return false
     end
 
-    def self.get_screenshare_as_content_events(events)
-      BigBlueButton.logger.info("Extracting SetScreenshareAsContentEvent")
+    # Get a list of layout events (screenshare as content and presentation open)
+    #
+    # The returned events account for recording start/stop events and have timestamps relative to the start of the
+    # recording. Only changes in state are included.
+    #
+    # @param events [Nokogiri::XML::Document] The parsed events.xml document
+    # @param start_time [Integer] The recording segment start timestamp (ms)
+    # @param end_time [Integer] The recording segment end timestamp (ms)
+    # @return [Array<Hash>] An array of events, each with a timestamp and the changed layout state keys
+    #   (:screenshareAsContent, :presentationIsOpen)
+    def self.get_layout_events(events, start_time, end_time)
+      layout_edl = BigBlueButton::Events.create_layout_edl(events)
+      layout_edl = BigBlueButton::Events.edl_match_recording_marks_video(layout_edl, events, start_time, end_time)
 
-      screenshare_content_events = []
+      layout_edl.each_with_object([]) do |entry, layout_events|
+        next unless entry[:conditions] &&
+                    !entry[:conditions][:screenshare_as_content].nil? &&
+                    !entry[:conditions][:presentation_is_open].nil?
 
-      events.xpath("/recording/event[@eventname='SetScreenshareAsContentEvent']").each do |event|
-        screenshare_content_events << {
-          timestamp: event['timestamp'].to_i,
-          timestampUTC: event.at_xpath('timestampUTC')&.text.to_i,
-          date: event.at_xpath('date')&.text,
-          screenshareAsContent: event.at_xpath('screenshareAsContent')&.text == "true"
+        layout_events << {
+          timestamp: entry[:timestamp],
+          screenshareAsContent: entry[:conditions][:screenshare_as_content],
+          presentationIsOpen: entry[:conditions][:presentation_is_open]
         }
-      end
 
-      screenshare_content_events
+      end
     end
   end
 end

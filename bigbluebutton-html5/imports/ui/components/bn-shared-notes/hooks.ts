@@ -5,6 +5,7 @@ import * as BlockNoteLocales from '@blocknote/core/locales';
 import { useEffect, useState, useRef } from 'react';
 import { GET_PAD_ID, GetPadIdQueryResponse } from '../notes/queries';
 import logger from '/imports/startup/client/logger';
+import Auth from '/imports/ui/services/auth';
 
 const hasSessionToken = (sessionToken?: string | null) => sessionToken != null && sessionToken !== '';
 const checkLockReason = (reason: string): boolean => reason === 'Lock rules changed.' || reason === 'Role changed.';
@@ -27,8 +28,7 @@ const useHocuspocusProvider = () => {
   );
   const padId = padIdData?.sharedNotes?.[0]?.padId;
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const sessionToken = urlParams.get('sessionToken');
+  const sessionToken = Auth.sessionToken as string | null;
 
   const handleRetry = () => {
     if (hocuspocusProviderRef.current) {
@@ -61,8 +61,9 @@ const useHocuspocusProvider = () => {
         extraInfo: { documentId: documentName },
       }, 'Creating new HocuspocusProvider instance');
 
-      const hocuspocusServerUrl = window.meetingClientSettings.public.sharedNotes.serverUrl
-        || `wss://${window.location.hostname}/hocuspocus/collaboration`;
+      const hocuspocusServerHostname = window.meetingClientSettings.public.sharedNotes.serverHostname
+        || window.location.hostname;
+      const hocuspocusServerUrl = `wss://${hocuspocusServerHostname}/hocuspocus/collaboration`;
 
       const wsProvider = new HocuspocusProviderWebsocket({
         url: `${hocuspocusServerUrl}?sessionToken=${sessionToken}`,

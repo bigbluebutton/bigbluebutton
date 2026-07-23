@@ -417,6 +417,51 @@ export class MessageActions extends Chat {
     await expect(messageReplied, 'should display the replied message content in the message sent').toBeVisible();
   }
 
+  async replyMessageWithTextBeforeLink() {
+    await openPublicChat(this.modPage);
+    // send a message containing text followed by a link
+    await this.modPage.fill(e.chatBox, e.messageWithTextBeforeLink);
+    await this.modPage.waitAndClick(e.sendButton);
+    await this.modPage.hasElement(
+      e.chatUserMessageText,
+      'should display the message sent by the moderator on the public chat',
+    );
+    await checkLastMessageSent(this.modPage, e.messageWithTextBeforeLink);
+    const initialMessagesCount = await this.modPage.getSelectorCount(e.chatUserMessageText);
+    // hover message and click to reply
+    const lastMessageItem = this.modPage.page.locator(e.chatMessageItem).last();
+    await lastMessageItem.hover();
+    await expect(
+      lastMessageItem.locator(e.messageToolbar),
+      'should display the message toolbar when hovering a message',
+    ).toBeVisible();
+    await this.modPage.waitAndClick(e.replyMessageButton);
+    // the reply intention preview must keep the whole first line: the text and the link
+    await this.modPage.hasElement(
+      e.chatReplyIntentionContainerContent,
+      'should display the chat reply intention container content',
+    );
+    await this.modPage.hasText(
+      e.chatReplyIntentionContainerContent,
+      e.messageWithTextBeforeLink,
+      'should display the full first line (text and link) in the reply intention preview',
+    );
+    // reply the message
+    await this.modPage.fill(e.chatBox, e.message2);
+    await this.modPage.waitAndClick(e.sendButton);
+    await this.modPage.hasElementCount(
+      e.chatUserMessageText,
+      initialMessagesCount + 1,
+      'should display the reply as a new message',
+    );
+    // the quote inside the sent reply must keep the whole first line as well
+    const messageReplied = this.modPage.page.locator(e.chatMessageItem).last().locator(e.chatMessageReplied);
+    await expect(
+      messageReplied,
+      'should display the full first line (text and link) in the replied message quote',
+    ).toContainText(e.messageWithTextBeforeLink);
+  }
+
   async cancelReplyMessage() {
     await openPublicChat(this.modPage);
     // send a message

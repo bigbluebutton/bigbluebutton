@@ -113,6 +113,14 @@ const ToastIcon = styled.div`
   `}
 `;
 
+const ToastCustomIcon = styled.span`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
 const ToastMessage = styled.div`
   margin-top: auto;
   margin-bottom: auto;
@@ -211,6 +219,7 @@ export default {
   CloseIcon,
   ToastContainer,
   ToastIcon,
+  ToastCustomIcon,
   ToastMessage,
   BackgroundColorInherit,
   Separator,
