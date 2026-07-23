@@ -171,7 +171,7 @@
     "app.notes.importModal.title": "Importa da Markdown",
     "app.notes.importModal.placeholder": "Incolla qui il tuo contenuto Markdown",
     "app.notes.importModal.importMode.label": "Modalità di importazione",
-    "app.notes.importModal.importMode.append.label": "Append",
+    "app.notes.importModal.importMode.append.label": "Accoda",
     "app.notes.importModal.importMode.append.description": "Aggiungi alla fine delle note correnti",
     "app.notes.importModal.importMode.replace.label": "Sostituire",
     "app.notes.importModal.importMode.replace.description": "Sostituisci completamente le note attuali",
