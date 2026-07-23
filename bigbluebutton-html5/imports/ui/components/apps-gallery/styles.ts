@@ -298,6 +298,11 @@ const TilePinApp = styled.div<{ pinned: boolean }>`
   padding: 0.25rem;
   cursor: pointer;
 
+  [dir="rtl"] & {
+    right: auto;
+    left: 0.4rem;
+  }
+
   > i {
     font-size: 100%;
     color: ${({ pinned }) => (pinned ? colorPrimary : unpinnedAppIconColor)};

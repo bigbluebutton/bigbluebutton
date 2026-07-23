@@ -1,14 +1,16 @@
 import React, {
   memo,
   useCallback,
+  useLayoutEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { AppsGalleryProps, APPS_GALLERY_VIEW_MODE, AppsGalleryViewModeType } from './types';
 import { PANELS } from '/imports/ui/components/layout/enums';
-import { layoutSelectOutput } from '/imports/ui/components/layout/context';
 import { InjectedAppGalleryItem } from '/imports/ui/components/layout/layoutTypes';
+import { appsPanelItemsSpacing } from '/imports/ui/stylesheets/styled-components/general';
 import Styled from './styles';
 import AppItem from './app-item/component';
 import ExternalAppItem from './external-app-item/component';
@@ -64,9 +66,11 @@ const intlMessages = defineMessages({
 
 const VIEW_MODE_STORAGE_KEY = 'apps-gallery-view-mode';
 
-// Below this sidebar-content width a two-column grid can't fit two legible
-// tiles, so the gallery falls back to the list view regardless of preference.
-const GRID_MIN_SIDEBAR_WIDTH = 340; // px
+// A two-column grid stays with a good look while each tile is at least this wide;
+// below it the "NEW" pill overlaps the app icon (the case this guards). The
+// switch is computed from the measured content width (see the ResizeObserver in
+// the component) against this floor plus the real column gap
+const MIN_GRID_TILE_WIDTH = 140; // px
 
 const getInitialViewMode = (): AppsGalleryViewModeType => {
   if (deviceInfo.isMobile) return APPS_GALLERY_VIEW_MODE.LIST;
@@ -88,10 +92,32 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
   const [viewMode, setViewMode] = useState<AppsGalleryViewModeType>(getInitialViewMode);
   const [meetingSettings] = useMeetingSettings();
   const { isMobile } = deviceInfo;
-  const sidebarContent = layoutSelectOutput((i: { sidebarContent: { width: number } }) => i.sidebarContent);
-  const isNarrow = Boolean(sidebarContent?.width && sidebarContent.width < GRID_MIN_SIDEBAR_WIDTH);
+  const scrollBoxRef = useRef<HTMLDivElement>(null);
+  const [gridFits, setGridFits] = useState(true);
+  const isNarrow = !gridFits;
   const effectiveViewMode = isNarrow ? APPS_GALLERY_VIEW_MODE.LIST : viewMode;
   const appsToLabelAsNew = meetingSettings?.public?.sidebarNavigation?.appsToLabelAsNew || [];
+
+  // Fall back to the list view whenever the rendered content area can no longer
+  // fit two legible grid tiles, measured from the real element so panel padding
+  // and column changes are accounted for without a hand-tuned breakpoint.
+  useLayoutEffect(() => {
+    const el = scrollBoxRef.current;
+    if (!el) return undefined;
+    const check = () => {
+      const styles = getComputedStyle(el);
+      const contentWidth = el.clientWidth
+        - parseFloat(styles.paddingLeft) - parseFloat(styles.paddingRight);
+      const remInPx = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+      const columnGap = parseFloat(appsPanelItemsSpacing) * remInPx;
+      setGridFits(contentWidth >= 2 * MIN_GRID_TILE_WIDTH + columnGap);
+    };
+    check();
+    if (typeof ResizeObserver === 'undefined') return undefined;
+    const observer = new ResizeObserver(check);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
   const shouldAddIsNewLabel = useCallback((id: string) => appsToLabelAsNew.includes(id), [appsToLabelAsNew]);
 
   const pinTooltip = intl.formatMessage(intlMessages.pinTooltip);
@@ -225,7 +251,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
           </Styled.ViewToggleWrapper>
         )}
       </Styled.DescWrapper>
-      <Styled.Wrapper id="scroll-box">
+      <Styled.Wrapper ref={scrollBoxRef} id="scroll-box">
         {renderedPinnedApps.length > 0 && (
           effectiveViewMode === APPS_GALLERY_VIEW_MODE.GRID
             ? <Styled.TileAppsWrapper>{renderedPinnedApps}</Styled.TileAppsWrapper>
