@@ -291,6 +291,7 @@ const TilePinApp = styled.div<{ pinned: boolean }>`
   position: absolute;
   top: 0.4rem;
   right: 0.4rem;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -332,6 +333,15 @@ const TileClickableArea = styled.div`
   gap: ${appsPanelItemsSpacing};
   width: 100%;
   cursor: pointer;
+
+  /* Stretch the click target over the whole tile so the "NEW" badge and the
+     surrounding padding also open the app; the pin stays clickable via its
+     higher z-index. */
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
 `;
 
 export default {
