@@ -261,4 +261,106 @@ export class Layouts extends MultiUsers {
     await this.userPage.hasElementCount(e.webcamVideoItem, 2, 'should display 2 webcams for the attendee');
     await checkScreenshots(this, 'pagination should work for the attendees', 'video', 'pagination-second-page');
   }
+
+  private async attachPageVideos() {
+    const testInfo = this.modPage.testInfo;
+    if (!testInfo) return;
+
+    // Register future video paths without closing anything — Playwright's fixture
+    // teardown closes the context, which writes the .webm files, and the reporter
+    // then finds them via these registered paths.
+    const modVideoPath = await this.modPage.page.video()?.path();
+    if (modVideoPath) {
+      testInfo.attachments.push({ name: 'Moderator screen recording', contentType: 'video/webm', path: modVideoPath });
+    }
+
+    const userVideoPath = this.userPage ? await this.userPage.page.video()?.path() : undefined;
+    if (userVideoPath) {
+      testInfo.attachments.push({ name: 'Attendee screen recording', contentType: 'video/webm', path: userVideoPath });
+    }
+  }
+
+  async unifiedLayoutMinimizeShowsTiles() {
+    // Wait for the whiteboard canvas to confirm the presentation is fully loaded and
+    // the minimize button is in an enabled/clickable state (isThereCurrentPresentation = true).
+    await this.modPage.waitForSelector(e.whiteboard);
+
+    await this.modPage.waitAndClick(e.minimizePresentation);
+    // Allow the server round-trip that triggers the race condition (layout push → GraphQL
+    // subscription → hasMeetingLayout: false→true → first useEffect re-fires) to settle.
+    await this.modPage.page.waitForTimeout(3000);
+
+    // Regression: the race condition reset presentationIsOpen=true for the presenter,
+    // hiding the camera dock. The moderator must see the camera dock after minimize.
+    await this.modPage.wasRemoved(
+      e.presentationContainer,
+      'presentation should remain hidden for moderator after the layout push settles in unified layout',
+    );
+    await this.modPage.hasElement(
+      e.restorePresentation,
+      'restore presentation button should be visible for moderator in unified layout after minimize',
+    );
+    await this.modPage.hasElement(
+      e.cameraDock,
+      'camera dock with participant tiles should be visible for moderator after minimizing in unified layout',
+    );
+
+    await this.attachPageVideos();
+  }
+
+  async unifiedLayoutHidesTilesWhenPresentationVisible() {
+    // Wait for the whiteboard so the presentation is fully loaded and the minimize
+    // button is enabled.
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+
+    // Nobody shares a webcam. Both users join audio and unmute so they become
+    // talking, camera-less users (audio-only speakers with a voice floor).
+    await this.modPage.waitAndClick(e.joinAudio);
+    await this.modPage.joinMicrophone({ shouldUnmute: true });
+    await this.userPage.waitAndClick(e.joinAudio);
+    await this.userPage.joinMicrophone({ shouldUnmute: true });
+
+    // Minimize the presentation: in the media-only state the audio-only tiles SHOULD
+    // appear. This is the intended feature and must keep working after the fix.
+    await this.modPage.waitAndClick(e.minimizePresentation);
+    // Fixed wait (matches the sibling test's style): the layout passes through transient
+    // states while the audio-only subscription settles, so we wait it out before asserting
+    // the tiles are present - otherwise the check could read a transient mid-transition
+    // frame instead of the settled state. A settled-attribute signal would be better but
+    // is out of scope.
+    await this.modPage.page.waitForTimeout(3000);
+    await this.modPage.hasElement(
+      e.cameraDock,
+      'audio-only participant tiles should be shown when the presentation is minimized (media-only state)',
+    );
+
+    // Restore the presentation: with no webcams shared and the presentation visible,
+    // the speaking-user avatar tiles must NOT be shown at the top (issue #25235). The
+    // "who is talking" indicators remain visible in the navbar regardless, so the tiles
+    // are redundant and must not steal space from the presentation.
+    await this.modPage.waitAndClick(e.restorePresentation);
+    await this.modPage.hasElement(e.presentationContainer, 'presentation should be visible again after restore');
+    // Fixed wait is load-bearing here: on restore the camera dock re-appears in a transient
+    // window before the layout settles, so wasRemoved() would false-pass instantly against
+    // that window and miss the regression. We wait the transient out, then assert the dock
+    // stays hidden. (A settled-attribute signal would be better but is out of scope; this
+    // matches the sibling test's style.)
+    await this.modPage.page.waitForTimeout(4000);
+    await this.modPage.wasRemoved(
+      e.cameraDock,
+      'no webcam/avatar tiles should be shown at the top when no webcams are shared and the presentation is visible',
+    );
+    // The tiles are redundant precisely because the navbar "who is talking" indicator keeps
+    // showing the speakers. Assert the indicator is still visible so the redundancy claim is
+    // verified, not just asserted in a comment. (Use the single indicator wrapper rather than
+    // the per-user isTalking buttons: with both users talking there are several of those, and
+    // this matches the sibling breakout test's assertion.)
+    await this.modPage.hasElement(
+      e.talkingIndicator,
+      'the navbar "who is talking" indicator must remain visible after restore, making the top tiles redundant',
+    );
+
+    await this.attachPageVideos();
+  }
 }

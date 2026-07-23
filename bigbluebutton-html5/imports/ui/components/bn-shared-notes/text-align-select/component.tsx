@@ -20,6 +20,7 @@ import {
   RiAlignLeft,
   RiAlignRight,
 } from 'react-icons/ri';
+import { HiChevronDown } from 'react-icons/hi';
 
 type TextAlignment = 'left' | 'center' | 'right' | 'justify';
 
@@ -110,16 +111,44 @@ function TextAlignSelect(): React.ReactElement | null {
 
   if (!state) return null;
 
+  const currentItem = ALIGN_ITEMS.find((a) => a.value === state.alignment)!;
+
+  type TriggerButtonProps = {
+    className?: string;
+    label?: string;
+    mainTooltip?: string;
+    leftSection?: React.ReactNode;
+    rightSection?: React.ReactNode;
+    children?: React.ReactNode;
+  };
+  const TriggerButton = Components.FormattingToolbar.Button as unknown as React.ComponentType<TriggerButtonProps>;
+
   return (
-    <Components.FormattingToolbar.Select
-      className="bn-select"
-      items={ALIGN_ITEMS.map((a) => ({
-        text: dict.formatting_toolbar[`align_${a.value}`].tooltip,
-        icon: a.icon,
-        isSelected: state.alignment === a.value,
-        onClick: () => setTextAlignment(a.value),
-      }))}
-    />
+    <Components.Generic.Menu.Root>
+      <Components.Generic.Menu.Trigger>
+        <TriggerButton
+          className="bn-button"
+          label={dict.formatting_toolbar[`align_${state.alignment}`].tooltip}
+          mainTooltip={dict.formatting_toolbar[`align_${state.alignment}`].tooltip}
+          leftSection={currentItem.icon}
+          rightSection={<HiChevronDown size={10} />}
+        >
+          <span />
+        </TriggerButton>
+      </Components.Generic.Menu.Trigger>
+      <Components.Generic.Menu.Dropdown className="bn-menu-dropdown">
+        {ALIGN_ITEMS.map((a) => (
+          <Components.Generic.Menu.Item
+            key={a.value}
+            icon={a.icon}
+            checked={state.alignment === a.value}
+            onClick={() => setTextAlignment(a.value)}
+          >
+            {dict.formatting_toolbar[`align_${a.value}`].tooltip}
+          </Components.Generic.Menu.Item>
+        ))}
+      </Components.Generic.Menu.Dropdown>
+    </Components.Generic.Menu.Root>
   );
 }
 

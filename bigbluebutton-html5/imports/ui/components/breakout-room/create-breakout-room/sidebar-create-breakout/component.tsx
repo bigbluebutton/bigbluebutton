@@ -56,6 +56,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.randomlyAssignDesc',
     description: 'randomly assign label description',
   },
+  assignModeratorsRandomlyDesc: {
+    id: 'app.createBreakoutRoom.assignModeratorsRandomlyDesc',
+    description: 'assign moderators randomly label description',
+  },
   resetAssignmentsDesc: {
     id: 'app.createBreakoutRoom.resetAssignmentsDesc',
     description: 'Reset all user room assignments',
@@ -155,6 +159,10 @@ const intlMessages = defineMessages({
   increaseRooms: {
     id: 'app.createBreakoutRoom.increaseRooms',
     description: 'Increase number of rooms button label',
+  },
+  inheritLockSettings: {
+    id: 'app.createBreakoutRoom.inheritLockSettings',
+    description: 'label for checkbox to propagate lock settings to breakout rooms',
   },
 });
 
@@ -333,13 +341,17 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
   const [inviteMods, setInviteMods] = useState(inviteModsByDefault);
   const [leastOneUserIsValid, setLeastOneUserIsValid] = useState(false);
   const [roomPresentations, setRoomPresentations] = useState<RoomPresentations>([]);
-  const [randomlyAssigned, setRandomlyAssigned] = useState(false);
+  const [assignmentState, setAssignmentState] = useState<'hasViewers' | 'onlyModerators' | 'allAssigned'>(
+    () => (users.every((u) => u.isModerator) ? 'onlyModerators' : 'hasViewers'),
+  );
+  const [inheritLockSettings, setInheritLockSettings] = useState(false);
 
   const [createBreakoutRoom] = useMutation(BREAKOUT_ROOM_CREATE);
 
   const roomsRef = useRef<Rooms>({});
   const moveRegisterRef = useRef<moveUserRegistery>({});
   const randomlyAssignFunction = useRef<() => void>(() => {});
+  const randomlyAssignModeratorsFunction = useRef<() => void>(() => {});
   const resetAssignmentsFunction = useRef<() => void>(() => {});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const breakoutDurationRef = useRef<number>(DEFAULT_SIDEBAR_BREAKOUT_TIME * 60);
@@ -451,6 +463,7 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
         captureSlides,
         durationInSeconds: breakoutDuration,
         sendInviteToModerators: inviteMods,
+        inheritLockSettings,
         rooms: roomsArray,
       },
     }).then(() => {
@@ -459,12 +472,44 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
     });
   }, [
     numberOfRooms, freeJoin, record, captureNotes,
-    captureSlides, inviteMods, roomPresentations,
+    captureSlides, inviteMods, inheritLockSettings, roomPresentations,
   ]);
 
   const roomPadNum = (n: number) => n.toString().padStart(2, '0');
 
   const canStart = isDurationValid && (freeJoin || leastOneUserIsValid);
+
+  const assignBtnProps = useMemo(() => {
+    if (assignmentState === 'allAssigned') {
+      return {
+        label: intl.formatMessage(intlMessages.resetAssignmentsDesc),
+        tooltip: intl.formatMessage(intlMessages.resetAssignmentsDesc),
+        dataTest: 'resetAssignments',
+      };
+    }
+    if (assignmentState === 'onlyModerators') {
+      return {
+        label: intl.formatMessage(intlMessages.assignModeratorsRandomlyDesc),
+        tooltip: intl.formatMessage(intlMessages.assignModeratorsRandomlyDesc),
+        dataTest: 'assignModeratorsRandomly',
+      };
+    }
+    return {
+      label: intl.formatMessage(intlMessages.randomlyAssignDesc),
+      tooltip: intl.formatMessage(intlMessages.randomlyAssignDesc),
+      dataTest: 'randomlyAssign',
+    };
+  }, [assignmentState, intl]);
+
+  const handleRandomAssign = useCallback(() => {
+    if (assignmentState === 'allAssigned') {
+      resetAssignmentsFunction.current();
+    } else if (assignmentState === 'onlyModerators') {
+      randomlyAssignModeratorsFunction.current();
+    } else {
+      randomlyAssignFunction.current();
+    }
+  }, [assignmentState]);
 
   const tooltipText = (() => {
     if (!isDurationValid) {
@@ -515,7 +560,15 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
       onChange: () => setInviteMods(!inviteMods),
       allowed: true,
     },
-  ], [freeJoin, record, captureSlides, captureNotes, inviteMods,
+    {
+      key: 'inheritLockSettings',
+      inputId: 'inheritLockSettingsCheckbox',
+      label: intl.formatMessage(intlMessages.inheritLockSettings),
+      checked: inheritLockSettings,
+      onChange: () => setInheritLockSettings(!inheritLockSettings),
+      allowed: true,
+    },
+  ], [freeJoin, record, captureSlides, captureNotes, inviteMods, inheritLockSettings,
     isBreakoutRecordable, isImportPresentationWithAnnotationsEnabled,
     isImportSharedNotesEnabled, offerRecordingForBreakouts]);
 
@@ -564,24 +617,12 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
         {/* @ts-ignore */}
         <Styled.RandomAssignBtn
           color="primary"
-          icon={randomlyAssigned ? 'undo' : 'random'}
-          label={randomlyAssigned
-            ? intl.formatMessage(intlMessages.resetAssignmentsDesc)
-            : intl.formatMessage(intlMessages.randomlyAssignDesc)}
+          icon={assignmentState === 'allAssigned' ? 'undo' : 'random'}
+          label={assignBtnProps.label}
           hideLabel
-          tooltipLabel={randomlyAssigned
-            ? intl.formatMessage(intlMessages.resetAssignmentsDesc)
-            : intl.formatMessage(intlMessages.randomlyAssignDesc)}
-          onClick={() => {
-            if (randomlyAssigned) {
-              resetAssignmentsFunction.current();
-              setRandomlyAssigned(false);
-            } else {
-              randomlyAssignFunction.current();
-              setRandomlyAssigned(true);
-            }
-          }}
-          data-test="randomlyAssign"
+          tooltipLabel={assignBtnProps.tooltip}
+          onClick={handleRandomAssign}
+          data-test={assignBtnProps.dataTest}
         />
       </Styled.ControlsRow>
 
@@ -597,17 +638,20 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
         {intl.formatMessage(intlMessages.moreOptions)}
       </Styled.MoreOptionsToggle>
       <Styled.MoreOptionsContent $expanded={moreOptionsOpen}>
-        {optionsConfig.filter((o) => o.allowed).map((opt) => (
-          <Styled.OptionRow key={opt.key} htmlFor={`opt-${opt.key}`}>
-            <Styled.MaterialSwitch
-              id={`opt-${opt.key}`}
-              checked={opt.checked}
-              onChange={opt.onChange}
-              size="small"
-            />
-            {opt.label}
-          </Styled.OptionRow>
-        ))}
+        {optionsConfig.filter((o) => o.allowed).map((opt) => {
+          const switchId = (opt as { inputId?: string }).inputId ?? `opt-${opt.key}`;
+          return (
+            <Styled.OptionRow key={opt.key} htmlFor={switchId}>
+              <Styled.MaterialSwitch
+                id={switchId}
+                checked={opt.checked}
+                onChange={opt.onChange}
+                size="small"
+              />
+              {opt.label}
+            </Styled.OptionRow>
+          );
+        })}
       </Styled.MoreOptionsContent>
 
       <Styled.ScrollContent ref={scrollContainerRef} onDragOver={handleScrollDragOver}>
@@ -654,7 +698,9 @@ const SidebarCreateBreakout: React.FC<SidebarCreateBreakoutProps> = ({
           groups={groups}
           freeJoin={freeJoin}
           randomlyAssignFunction={(fn: () => void) => { randomlyAssignFunction.current = fn; }}
+          randomlyAssignModeratorsFunction={(fn: () => void) => { randomlyAssignModeratorsFunction.current = fn; }}
           resetAssignmentsFunction={(fn: () => void) => { resetAssignmentsFunction.current = fn; }}
+          onAssignmentStateChange={setAssignmentState}
           isMobile={false}
         />
       </Styled.ScrollContent>

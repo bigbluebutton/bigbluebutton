@@ -189,7 +189,7 @@ const VideoDisabled = styled.div`
   top: 50%;
   left: 50%;
   padding: 20px;
-  backdrop-filter: blur(10px); 
+  backdrop-filter: blur(10px);
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 `;
 
@@ -200,7 +200,8 @@ const TopBar = styled.div`
   z-index: 1;
   top: 0;
   padding: 5px;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 4px;
 `;
 
 const BottomBar = styled.div`

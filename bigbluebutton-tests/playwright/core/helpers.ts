@@ -36,6 +36,7 @@ interface InitOptions {
   createParameter?: string;
   joinParameter?: string;
   testInfo?: TestInfo;
+  recordVideo?: boolean;
 }
 
 interface GetJoinUrlProp {
@@ -114,14 +115,48 @@ export function createMeetingUrl(createParameter?: string, customMeetingId?: str
   return url;
 }
 
-export function createMeetingPromise(createParameter?: string, customMeetingId?: string): Promise<AxiosResponse> {
+export function createMeetingPromise(
+  createParameter?: string,
+  customMeetingId?: string,
+  createModules?: string,
+): Promise<AxiosResponse> {
   const url = createMeetingUrl(createParameter, customMeetingId);
+  // Modules (e.g. clientSettingsOverride) travel in the POST body; the
+  // checksum covers the query string either way.
+  if (createModules !== undefined) {
+    return axios.post(url, createModules, {
+      adapter: 'http',
+      headers: { 'Content-Type': 'application/xml' },
+    });
+  }
   return axios.get(url, { adapter: 'http' });
 }
 
-export async function createMeeting(createParameter?: string, customMeetingId?: string): Promise<string> {
-  const promise = createMeetingPromise(createParameter, customMeetingId);
+export async function createMeeting(
+  createParameter?: string,
+  customMeetingId?: string,
+  createModules?: string,
+): Promise<string> {
+  const promise = createMeetingPromise(createParameter, customMeetingId, createModules);
   const response = await promise;
+  expect(response.status).toEqual(200);
+  const xmlResponse = await xml2js.parseStringPromise(response.data);
+  return xmlResponse.response.meetingID[0];
+}
+
+// Create a meeting sending an xml `<modules>` payload in the POST body (e.g.
+// sharedNotesInitialContentJson / sharedNotesInitialContentMarkdown). The checksum
+// only covers the query string, so createMeetingUrl still yields a valid URL.
+export async function createMeetingWithModules(
+  modulesXml: string,
+  createParameter?: string,
+  customMeetingId?: string,
+): Promise<string> {
+  const url = createMeetingUrl(createParameter, customMeetingId);
+  const response = await axios.post(url, modulesXml, {
+    adapter: 'http',
+    headers: { 'Content-Type': 'application/xml' },
+  });
   expect(response.status).toEqual(200);
   const xmlResponse = await xml2js.parseStringPromise(response.data);
   return xmlResponse.response.meetingID[0];
@@ -305,8 +340,8 @@ export async function initializePages(
   browser: Browser,
   initOptions?: InitOptions,
 ): Promise<void> {
-  const { isMultiUser, createParameter, joinParameter, testInfo } = initOptions || {};
-  const context = await browser.newContext();
+  const { isMultiUser, createParameter, joinParameter, testInfo, recordVideo } = initOptions || {};
+  const context = await browser.newContext(recordVideo ? { recordVideo: { dir: 'test-results/' } } : {});
   const page = await context.newPage();
   await testInstance.initModPage(page, { createParameter, joinParameter, testInfo });
   if (isMultiUser) await testInstance.initUserPage(context, { createParameter, joinParameter, testInfo });

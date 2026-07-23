@@ -41,6 +41,9 @@ select_permissions:
         - pinnedMessageId
         - pinnedByUserId
         - pinnedAt
+        - lastMessage
+        - lastMessageAt
+        - lastMessageDeletedByName
       filter:
         _and:
           - meetingId:

@@ -106,9 +106,9 @@ public class ParamsProcessorUtil {
     private boolean defaultAllowModsToUnmuteUsers = false;
     private boolean defaultRequireUserConsentBeforeUnmuting = false;
     private boolean defaultAllowModsToEjectCameras = false;
-    private String defaultCameraBridge = "bbb-webrtc-sfu";
-    private String defaultScreenShareBridge = "bbb-webrtc-sfu";
-    private String defaultAudioBridge = "bbb-webrtc-sfu";
+    private String defaultCameraBridge = "livekit";
+    private String defaultScreenShareBridge = "livekit";
+    private String defaultAudioBridge = "livekit";
     private String defaultDisabledFeatures;
     private String defaultPluginManifests;
     private Integer pluginManifestsFetchUrlResponseTimeout;
@@ -162,6 +162,9 @@ public class ParamsProcessorUtil {
     private Boolean allowOverrideClientSettingsOnCreateCall = false;
     private Integer clientSettingsOverrideJsonUrlResponseTimeout;
     private Integer maxClientSettingsOverrideJsonUrlPayloadSize;
+    private Boolean clientSettingsOverrideStrictValidation = false;
+    private String clientSettingsFilePath = "/usr/share/bigbluebutton/html5-client/private/config/settings.yml";
+    private volatile String cachedClientSettingsCatalog = null;
 
     private Integer defaultMaxNumPages;
     private String getJoinUrlUserdataBlocklist;
@@ -391,13 +394,6 @@ public class ParamsProcessorUtil {
 			String lockSettingsDisableNotesParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_NOTES);
 			if (!StringUtils.isEmpty(lockSettingsDisableNotesParam)) {
 				lockSettingsDisableNotes = Boolean.parseBoolean(lockSettingsDisableNotesParam);
-			} else {
-				// To be removed after deprecation period
-				lockSettingsDisableNotesParam = params.get(ApiParams.DEPRECATED_LOCK_SETTINGS_DISABLE_NOTES);
-				if (!StringUtils.isEmpty(lockSettingsDisableNotesParam)) {
-					log.warn("[DEPRECATION] use lockSettingsDisableNotes instead of lockSettingsDisableNote");
-					lockSettingsDisableNotes = Boolean.parseBoolean(lockSettingsDisableNotesParam);
-				}
 			}
 
 			Boolean lockSettingsHideUserList = defaultLockSettingsHideUserList;
@@ -663,6 +659,18 @@ public class ParamsProcessorUtil {
                         "Invalid param [sharedNotesInitialContentJsonUrl] for meeting=[{}]",
                         internalMeetingId);
             }
+        }
+
+        String sharedNotesInitialContentMarkdown = "";
+        if (!StringUtils.isEmpty(params.get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_MARKDOWN))) {
+            sharedNotesInitialContentMarkdown = params
+                    .get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_MARKDOWN);
+        }
+
+        String sharedNotesInitialContentMarkdownUrl = "";
+        if (!StringUtils.isEmpty(params.get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_MARKDOWN_URL))) {
+            sharedNotesInitialContentMarkdownUrl = params
+                    .get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_MARKDOWN_URL);
         }
 
         String sharedNotesEditor = defaultSharedNotesEditor;
@@ -998,6 +1006,8 @@ public class ParamsProcessorUtil {
                 .withAllowStartStopRecording(allowStartStoptRec)
                 .withSharedNotesEditor(sharedNotesEditor)
                 .withSharedNotesInitialContentJsonUrl(sharedNotesInitialContentJsonUrl)
+                .withSharedNotesInitialContentMarkdown(sharedNotesInitialContentMarkdown)
+                .withSharedNotesInitialContentMarkdownUrl(sharedNotesInitialContentMarkdownUrl)
                 .withPresentationConversionCacheEnabled(presentationCacheEnabled)
                 .withRecordFullDurationMedia(_recordFullDurationMedia)
                 .withWebcamsOnlyForModerator(webcamsOnlyForMod)
@@ -1219,6 +1229,36 @@ public class ParamsProcessorUtil {
 
   public Boolean getAllowOverrideClientSettingsOnCreateCall() {
     return allowOverrideClientSettingsOnCreateCall;
+  }
+
+  public Boolean getClientSettingsOverrideStrictValidation() {
+    return clientSettingsOverrideStrictValidation;
+  }
+
+  private String loadClientSettingsCatalog() {
+    if (cachedClientSettingsCatalog == null) {
+      try {
+        cachedClientSettingsCatalog = new String(
+            java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(clientSettingsFilePath)),
+            java.nio.charset.StandardCharsets.UTF_8);
+      } catch (Exception e) {
+        log.error("Could not read client settings catalog [{}] for override validation; skipping strict check.", clientSettingsFilePath, e);
+        // Do not cache the failure - a transient read error must not disable strict validation for
+        // the rest of the process lifetime; retry on the next call.
+        return "";
+      }
+    }
+    return cachedClientSettingsCatalog;
+  }
+
+  /**
+   * Validates a client-settings override (the create-call JSON) against the settings.yml catalog,
+   * reusing the same logic as akka-apps. Returns the list of human-readable issues (empty if valid
+   * or if the check could not run). Does not block on its own - the caller decides.
+   */
+  public java.util.List<String> validateClientSettingsOverride(String overrideJson) {
+    if (StringUtils.isEmpty(overrideJson)) return java.util.Collections.emptyList();
+    return org.bigbluebutton.api2.util.ClientSettingsValidator.validateOverride(loadClientSettingsCatalog(), overrideJson);
   }
 
     public String processWelcomeMessage(String message, Boolean isBreakout) {
@@ -1922,6 +1962,16 @@ public class ParamsProcessorUtil {
 
 	public void setAllowOverrideClientSettingsOnCreateCall(Boolean allowOverrideClientSettingsOnCreateCall) {
 		this.allowOverrideClientSettingsOnCreateCall = allowOverrideClientSettingsOnCreateCall;
+	}
+
+	public void setClientSettingsOverrideStrictValidation(Boolean clientSettingsOverrideStrictValidation) {
+		this.clientSettingsOverrideStrictValidation = clientSettingsOverrideStrictValidation;
+	}
+
+	public void setClientSettingsFilePath(String clientSettingsFilePath) {
+		this.clientSettingsFilePath = clientSettingsFilePath;
+		// Invalidate any cached catalog so the new path is read on the next validation.
+		this.cachedClientSettingsCatalog = null;
 	}
 
 	public void setMaxNumPages(Integer maxNumPages) { this.defaultMaxNumPages = maxNumPages; }

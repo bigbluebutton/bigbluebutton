@@ -5,9 +5,7 @@ import {
 } from 'react';
 import {
   useReactiveVar,
-  useLazyQuery,
   useMutation,
-  useSubscription,
 } from '@apollo/client';
 import Auth from '/imports/ui/services/auth';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -17,6 +15,7 @@ import { USER_AGGREGATE_COUNT_SUBSCRIPTION, UsersCountSubscriptionResponse } fro
 import {
   getSortingMethod,
   sortVideoStreams,
+  sortPin,
 } from '/imports/ui/components/video-provider/stream-sorting';
 import {
   useVideoState,
@@ -26,12 +25,9 @@ import {
   getVideoState,
 } from '/imports/ui/components/video-provider/state';
 import {
-  OWN_VIDEO_STREAMS_QUERY,
   GRID_USERS_SUBSCRIPTION,
-  VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
   VIDEO_STREAMS_SUBSCRIPTION,
   AUDIO_ONLY_USERS_SUBSCRIPTION,
-  ViewerVideoStreamsSubscriptionResponse,
   AudioOnlyUsersResponse,
 } from '/imports/ui/components/video-provider/queries';
 import videoService from '/imports/ui/components/video-provider/service';
@@ -41,7 +37,6 @@ import {
   StreamItem,
   AudioOnlyStream,
   GridUsersResponse,
-  OwnVideoStreamsResponse,
   StreamSubscriptionData,
 } from '/imports/ui/components/video-provider/types';
 import { DesktopPageSizes, MobilePageSizes } from '/imports/ui/Types/meetingClientSettings';
@@ -55,11 +50,9 @@ import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
-import createUseSubscription from '/imports/ui/core/hooks/createUseSubscription';
+import createUseSubscription, { useCreateUseSubscription } from '/imports/ui/core/hooks/createUseSubscription';
 import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
-import {
-  MEDIA_GROUP_STREAMS_SUBSCRIPTION,
-} from '/imports/ui/components/livekit/selective-subscription/queries';
+import useUserMediaGroupStateStream from '/imports/ui/components/livekit/selective-subscription/mediaGroupStateStream';
 import {
   MediaGroupParticipant,
   MediaType,
@@ -135,7 +128,7 @@ export const useStatus = () => {
 };
 
 export const useDisableReason = () => {
-  const videoLocked = useIsUserLocked();
+  const videoLocked = useIsCamSharingLocked();
   const hasCapReached = useHasCapReached();
   const hasVideoStream = useHasVideoStream();
   const connected = useReactiveVar(ConnectionStatus.getConnectedStatusVar());
@@ -151,13 +144,24 @@ export const useDisableReason = () => {
   return disableReason;
 };
 
-export const useIsUserLocked = () => {
+export const useIsCamSharingLocked = () => {
   const disableCam = useDisableCam();
   const { data: currentUser } = useCurrentUser((u) => ({
     locked: u.locked,
     isModerator: u.isModerator,
   }));
   return !!currentUser?.locked && !currentUser.isModerator && disableCam;
+};
+
+// Mirrors the webcam visibility lock enforced in video-provider/container.tsx: when
+// webcamsOnlyForModerator is on and the user is locked, only moderator cameras (and the
+// user's own) are visible. Used to drop non-moderators from the grid/audio-only queries.
+export const useCanOnlySeeModeratorCameras = () => {
+  const { data: meeting } = useMeeting((m) => ({
+    usersPolicies: m.usersPolicies,
+  }));
+  const { data: currentUser } = useCurrentUser((u) => ({ locked: u.locked }));
+  return !!meeting?.usersPolicies?.webcamsOnlyForModerator && !!currentUser?.locked;
 };
 
 export const useVideoStreamsCount = () => {
@@ -316,30 +320,81 @@ export const useIsPaginationEnabled = () => {
   return myPageSize > 0 && paginationEnabled;
 };
 
-export const useGridUsers = (visibleStreamCount: number) => {
+const OVERFLOW_TILE_PREVIEW_LIMIT = 3;
+
+export const useGridUsers = (visibleStreamCount: number, visibleUserCount: number) => {
   const gridSize = useGridSize();
   const userCount = getCountData();
   const isGridEnabled = useStorageKey('isGridEnabled');
+  const canOnlySeeModeratorCameras = useCanOnlySeeModeratorCameras();
   const gridItems = useRef<GridItem[]>([]);
   const overflowCount = useRef<number>(0);
+  const overflowUsers = useRef<GridItem[]>([]);
 
   const { data: meeting } = useMeeting((m) => ({
     meetingId: m.meetingId,
   }));
 
+  // Used to re-inject the current user into the grid when the moderator-only filter drops
+  // them (see below). Their own record is already subscribed, so this is free.
+  const { data: currentUser } = useCurrentUser((u) => ({
+    userId: u.userId,
+    name: u.name,
+    nameSortable: u.nameSortable,
+    pinned: u.pinned,
+    away: u.away,
+    role: u.role,
+    avatar: u.avatar,
+    color: u.color,
+    presenter: u.presenter,
+    clientType: u.clientType,
+    raiseHand: u.raiseHand,
+    isModerator: u.isModerator,
+    reactionEmoji: u.reactionEmoji,
+    cameras: u.cameras,
+    voice: u.voice,
+  }));
+
+  const baseGridUserLimit = Math.max(gridSize - visibleStreamCount, 0);
+  const hasOverflow = userCount > gridSize;
+
   const {
     data: gridData,
     error: gridError,
     loading: gridLoading,
-  } = useSubscription<GridUsersResponse>(
+  } = useDeduplicatedSubscription<GridUsersResponse>(
     GRID_USERS_SUBSCRIPTION,
     {
-      variables: { limit: Math.max(gridSize - visibleStreamCount, 0) },
+      // When the user can only see moderator cameras, drop non-moderators ([true]);
+      // otherwise keep everyone ([true, false]). The current user is re-added client-side
+      // below (the query can't reference it without breaking Hasura multiplexing).
+      variables: {
+        limit: hasOverflow ? baseGridUserLimit + OVERFLOW_TILE_PREVIEW_LIMIT : baseGridUserLimit,
+        moderatorValues: canOnlySeeModeratorCameras ? [true] : [true, false],
+      },
       skip: !isGridEnabled,
     },
+    true,
   );
 
-  if (gridLoading) return { gridUsers: gridItems.current, overflowCount: overflowCount.current };
+  if (!isGridEnabled) {
+    gridItems.current = [];
+    overflowCount.current = 0;
+    overflowUsers.current = [];
+    return {
+      gridUsers: gridItems.current,
+      overflowCount: overflowCount.current,
+      overflowUsers: overflowUsers.current,
+    };
+  }
+
+  if (gridLoading) {
+    return {
+      gridUsers: gridItems.current,
+      overflowCount: overflowCount.current,
+      overflowUsers: overflowUsers.current,
+    };
+  }
 
   if (gridError) {
     logger.error({
@@ -362,19 +417,81 @@ export const useGridUsers = (visibleStreamCount: number) => {
       ...user,
       type: VIDEO_TYPES.GRID,
     }));
-    gridItems.current = newGridUsers;
 
-    const overflow = Math.max(userCount - gridSize, 0);
+    // The moderator-only grid filter (webcamsOnlyForModerator + locked) drops the current
+    // user too, since they're a non-moderator. We will re-add current user.
+    if (
+      canOnlySeeModeratorCameras
+      && currentUser?.userId
+      && !currentUser.isModerator
+      && (currentUser.cameras?.length ?? 0) === 0
+      && !newGridUsers.some((u) => u.userId === currentUser.userId)
+    ) {
+      const selfGridUser: GridItem = {
+        userId: currentUser.userId,
+        name: currentUser.name ?? '',
+        nameSortable: currentUser.nameSortable ?? '',
+        pinned: currentUser.pinned ?? false,
+        pinnedTime: null,
+        away: currentUser.away ?? false,
+        disconnected: false,
+        role: currentUser.role ?? '',
+        avatar: currentUser.avatar ?? '',
+        color: currentUser.color ?? '',
+        presenter: currentUser.presenter ?? false,
+        clientType: currentUser.clientType ?? '',
+        raiseHand: currentUser.raiseHand ?? false,
+        isModerator: currentUser.isModerator ?? false,
+        reactionEmoji: currentUser.reactionEmoji ?? '',
+        voice: {
+          joined: currentUser.voice?.joined ?? false,
+          listenOnly: currentUser.voice?.listenOnly ?? false,
+          userId: currentUser.userId,
+        },
+        type: VIDEO_TYPES.GRID,
+      };
 
-    // if there's overflow, we replace the last grid user with the overflow tile,
-    // so we need to add 1 to the overflow count to account for the replaced user
-    overflowCount.current = overflow > 0 ? overflow + 1 : 0;
+      // Insert the current user at the position the query's ordering (nameSortable, then
+      // userId) would have placed them, instead of appending last.
+      const insertAt = newGridUsers.findIndex((u) => (
+        u.nameSortable.localeCompare(selfGridUser.nameSortable) > 0
+        || (u.nameSortable === selfGridUser.nameSortable
+          && u.userId.localeCompare(selfGridUser.userId) > 0)
+      ));
+      if (insertAt === -1) {
+        newGridUsers.push(selfGridUser);
+      } else {
+        newGridUsers.splice(insertAt, 0, selfGridUser);
+      }
+    }
+
+    // The grid page shows at most baseGridUserLimit avatar users. When there is
+    // overflow we over-fetch a few extra users (OVERFLOW_TILE_PREVIEW_LIMIT) purely
+    // to preview their avatars inside the overflow tile — those extras must not
+    // land in the grid itself, so keep the grid slice and the preview slice apart.
+    gridItems.current = newGridUsers.slice(0, baseGridUserLimit);
+    // The tile replaces the last grid avatar, so preview that user too
+    overflowUsers.current = newGridUsers.slice(Math.max(gridItems.current.length - 1, 0));
+
+    // Hidden users = everyone not visible on this page. Count in USERS, not
+    // stream tiles as a user with several cameras holds several tiles. The
+    // overflow tile replaces the last avatar when avatars exist (+1: the
+    // replaced user joins the count); on a full-camera page it takes a new
+    // slot instead and replaces no one.
+    const hidden = Math.max(userCount - visibleUserCount - gridItems.current.length, 0);
+    const replacedAvatar = gridItems.current.length > 0 ? 1 : 0;
+    overflowCount.current = hidden > 0 ? hidden + replacedAvatar : 0;
   } else {
     gridItems.current = [];
+    overflowUsers.current = [];
     overflowCount.current = 0;
   }
 
-  return { gridUsers: gridItems.current, overflowCount: overflowCount.current };
+  return {
+    gridUsers: gridItems.current,
+    overflowCount: overflowCount.current,
+    overflowUsers: overflowUsers.current,
+  };
 };
 
 export const useSharedDevices = () => {
@@ -422,20 +539,16 @@ export const useGridSize = () => {
   return size;
 };
 
-const useAudioOnlySubscription = createUseSubscription(
-  AUDIO_ONLY_USERS_SUBSCRIPTION,
-  {},
-  true,
-);
-
-const useMediaGroupStreamsSubscription = createUseSubscription(
-  MEDIA_GROUP_STREAMS_SUBSCRIPTION,
-  {},
-  true,
-);
-
 export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
   const { data: meeting } = useMeeting((m) => ({ meetingId: m.meetingId }));
+  const canOnlySeeModeratorCameras = useCanOnlySeeModeratorCameras();
+  // When the user can only see moderator cameras, drop non-moderators ([true]); otherwise
+  // keep everyone ([true, false]).
+  const useAudioOnlySubscription = useCreateUseSubscription(
+    AUDIO_ONLY_USERS_SUBSCRIPTION,
+    { moderatorValues: canOnlySeeModeratorCameras ? [true] : [true, false] },
+    true,
+  );
   const { data, loading, errors } = useAudioOnlySubscription();
   const layoutType = layoutSelect((i: Layout) => i.layoutType);
   const {
@@ -444,6 +557,8 @@ export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
 
   const isUnifiedLayout = layoutType === LAYOUT_TYPE.UNIFIED_LAYOUT;
 
+  // Gate on the layout, not isGridEnabled: audio-only tiles must still appear alongside a real
+  // webcam over an open presentation in the unified layout (issues #25235/#25359).
   if (!showAudioOnlyOnFirstPage || !isUnifiedLayout) return [];
   if (loading) return [];
 
@@ -485,18 +600,16 @@ export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
 };
 
 const useVideoSenders = () => {
-  const { data, errors } = useMediaGroupStreamsSubscription();
+  const { data, error } = useUserMediaGroupStateStream();
 
-  if (errors) {
-    errors.forEach((error) => {
-      logger.error({
-        logCode: 'video_provider_media_group_sub_error',
-        extraInfo: {
-          errorMessage: error.message,
-          mediaType: MediaType.CAMERA,
-        },
-      }, `VideoProvider: ${MediaType.CAMERA} group participants subscription failed.`);
-    });
+  if (error) {
+    logger.error({
+      logCode: 'video_provider_media_group_sub_error',
+      extraInfo: {
+        errorMessage: error.message,
+        mediaType: MediaType.CAMERA,
+      },
+    }, `VideoProvider: ${MediaType.CAMERA} group participants subscription failed.`);
   }
 
   const mediaGroupParticipants = (data as MediaGroupParticipant[] || []).filter(
@@ -544,6 +657,10 @@ const useVideoSenders = () => {
 export const useVideoStreams = () => {
   const { viewParticipantsWebcams } = useSettings(SETTINGS.DATA_SAVING) as { viewParticipantsWebcams?: boolean };
   const { currentVideoPageIndex, numberOfPages } = useVideoState();
+  const { data: currentUser } = useCurrentUser((u) => ({ isModerator: u.isModerator }));
+  // Viewers should see pinned moderators ahead of pinned non-moderators; moderators keep
+  // a purely pinnedTime-based order.
+  const moderatorFirst = !currentUser?.isModerator;
   const videoStreams = useStreams();
   const connectingStream = useConnectingStream(videoStreams);
   const audioOnlyUsers = useAudioOnlyUsers();
@@ -578,6 +695,10 @@ export const useVideoStreams = () => {
       || !senderIdsInGroups.has(vs.userId));
   }
 
+  // Snapshot of all streams the viewer may see, before pagination trims to the current
+  // page — used to recover off-page webcam users for the overflow preview below.
+  const allowedStreams = [...streams];
+
   if (isPaginationEnabled) {
     const chunkIndex = currentVideoPageIndex * myPageSize;
     const sortingMethod = (numberOfPages > 1) ? PAGINATION_SORTING : DEFAULT_SORTING;
@@ -587,7 +708,7 @@ export const useVideoStreams = () => {
     if (!partitionPrivilegedStreams) {
       // When partitionPrivilegedStreams is false, paginate all streams equally
       // This means local/pinned cameras will only appear on their page (where they belong in sort order)
-      const sortedStreams = sortVideoStreams(streams, sortingMethod);
+      const sortedStreams = sortVideoStreams(streams, sortingMethod, moderatorFirst);
 
       totalNumberOfOtherStreams = sortedStreams.length;
       const paginatedStreams = sortedStreams.slice(chunkIndex, chunkIndex + myPageSize) || [];
@@ -615,6 +736,9 @@ export const useVideoStreams = () => {
         filtered,
         (vs: StreamItem) => vs.type === VIDEO_TYPES.STREAM && vs.user?.pinned,
       );
+      // partition keeps subscription order (userId asc); reorder pinned tiles (moderators first
+      // for viewers, then most recently pinned).
+      pin.sort((a, b) => sortPin(a, b, moderatorFirst));
 
       // This is needed to adjust pagination for displaced video streams
       const pinnedAndLocalCount = pin.length + mine.length;
@@ -644,7 +768,7 @@ export const useVideoStreams = () => {
           + (currentVideoPageIndex - 1) * myPageSize
         : chunkIndex;
 
-      let paginatedStreams = sortVideoStreams(others, sortingMethod)
+      let paginatedStreams = sortVideoStreams(others, sortingMethod, moderatorFirst)
         .slice(effectiveChunkIndex, (effectiveChunkIndex + myPageSize)) || [];
 
       // Add audio-only users only on page 1
@@ -672,7 +796,7 @@ export const useVideoStreams = () => {
       }
     }
   } else {
-    streams = sortVideoStreams(streams, DEFAULT_SORTING);
+    streams = sortVideoStreams(streams, DEFAULT_SORTING, moderatorFirst);
 
     // Add up to maxAudioOnlyUsers when pagination is disabled
     if (showAudioOnlyOnFirstPage && audioOnlyUsers.length > 0) {
@@ -687,12 +811,52 @@ export const useVideoStreams = () => {
     }
   }
 
-  const { gridUsers, overflowCount } = useGridUsers(streams.length);
+  // Off-page local cameras stay in the array with render: false. Count only
+  // what actually renders on this page. Slots are tiles (stream count); the
+  // hidden math is per-user (distinct userIds).
+  const renderedStreams = streams.filter((s) => !('render' in s) || s.render !== false);
+  const renderedUserIds = new Set(renderedStreams.map((s) => s.userId));
+  const { gridUsers, overflowCount, overflowUsers } = useGridUsers(
+    renderedStreams.length,
+    renderedUserIds.size,
+  );
+
+  // GRID_USERS_SUBSCRIPTION excludes camera-sharers, so hidden webcam users never reach
+  // `overflowUsers`. Recover them from allowedStreams (deduped by userId) as grid-shaped items.
+  const seenPreviewUserId = new Set<string>();
+  const hiddenCameraUsers: GridItem[] = [];
+  allowedStreams.forEach((s) => {
+    if (
+      s.type !== VIDEO_TYPES.STREAM
+      || renderedUserIds.has(s.userId)
+      || seenPreviewUserId.has(s.userId)
+    ) return;
+    seenPreviewUserId.add(s.userId);
+    hiddenCameraUsers.push({
+      ...s.user,
+      voice: {
+        joined: s.voice?.joined ?? false,
+        listenOnly: s.voice?.listenOnly ?? false,
+        userId: s.userId,
+      },
+      type: VIDEO_TYPES.GRID,
+    });
+  });
+
+  // Preview the first few hidden users' avatars: merge hidden grid + webcam users, order
+  // them like the grid subscription (nameSortable, userId), and drop anyone already on-page.
+  const overflowPreviewUsers = [...overflowUsers, ...hiddenCameraUsers]
+    .filter((u) => !renderedUserIds.has(u.userId))
+    .sort((a, b) => (
+      a.nameSortable.localeCompare(b.nameSortable) || a.userId.localeCompare(b.userId)
+    ))
+    .slice(0, Math.min(overflowCount, OVERFLOW_TILE_PREVIEW_LIMIT));
 
   return {
     streams,
     gridUsers: gridUsers.filter((u) => !streams.find((s) => s.userId === u.userId)),
     overflowCount,
+    overflowUsers: overflowPreviewUsers,
     totalNumberOfStreams: streams.length,
     totalNumberOfOtherStreams,
   };
@@ -704,24 +868,23 @@ export const useHasVideoStream = () => {
   return !!connectingStream || streams.some((s) => videoService.isLocalStream(s.stream));
 };
 
-const useOwnVideoStreamsQuery = () => useLazyQuery<OwnVideoStreamsResponse>(
-  OWN_VIDEO_STREAMS_QUERY,
-  {
-    variables: {
-      userId: Auth.userID,
-      streamIdPrefix: `${videoService.getPrefix()}%`,
-    },
-    // UID and prefix are stable, so for now we need to bust the cache. If we don't,
-    // users will hit issues where cannot unshare their webcam or unsharing deals
-    // with unexpected behavior. E.g.: a camera was first ejected server side (empty
-    // stream list), or multiple cameras were shared (just the first one is cached).
-    fetchPolicy: 'no-cache',
-  },
-);
+// Returns the current user's own camera streams from the live VIDEO_STREAMS_SUBSCRIPTION.
+// streamId is prefixed with `${userId}_${sessionUUID}`, so isLocalStream reproduces the
+// old OWN_VIDEO_STREAMS_QUERY filter (userId _eq + streamId _like prefix). The streams are
+// kept in a ref so the exit/stop callbacks stay stable while always reading the freshest
+// list at call time — the subscription is live, so there is no cache staleness to bust.
+const useOwnStreamsRef = () => {
+  const streams = useStreams();
+  const ownStreamsRef = useRef<string[]>([]);
+  ownStreamsRef.current = streams
+    .filter((s) => videoService.isLocalStream(s.stream))
+    .map((s) => s.stream);
+  return ownStreamsRef;
+};
 
 export const useExitVideo = (forceExit = false) => {
   const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
-  const [getOwnVideoStreams] = useOwnVideoStreamsQuery();
+  const ownStreamsRef = useOwnStreamsRef();
 
   const exitVideo = useCallback(async () => {
     const { isConnected } = getVideoState();
@@ -731,26 +894,20 @@ export const useExitVideo = (forceExit = false) => {
         return cameraBroadcastStop({ variables: { cameraId } });
       };
 
-      return getOwnVideoStreams().then(async ({ data }) => {
-        if (data) {
-          const streams = data.user_camera || [];
-          const results = streams.map((s) => sendUserUnshareWebcam(s.streamId));
+      const results = ownStreamsRef.current.map((streamId) => sendUserUnshareWebcam(streamId));
 
-          return Promise.all(results).then(() => {
-            videoService.exitedVideo();
-            return true;
-          }).catch((e) => {
-            logger.warn({
-              logCode: 'exit_video_error',
-              extraInfo: {
-                errorMessage: e.message,
-                errorStack: e.stack,
-              },
-            }, `Failed to exit video: ${e.message}`);
-            return false;
-          });
-        }
+      return Promise.all(results).then(() => {
+        videoService.exitedVideo();
         return true;
+      }).catch((e) => {
+        logger.warn({
+          logCode: 'exit_video_error',
+          extraInfo: {
+            errorMessage: e.message,
+            errorStack: e.stack,
+          },
+        }, `Failed to exit video: ${e.message}`);
+        return false;
       });
     }
     return true;
@@ -760,10 +917,14 @@ export const useExitVideo = (forceExit = false) => {
 };
 
 export const useViewersInWebcamCount = (): number => {
-  const { data } = useDeduplicatedSubscription<ViewerVideoStreamsSubscriptionResponse>(
-    VIEWERS_IN_WEBCAM_COUNT_SUBSCRIPTION,
-  );
-  return data?.user_camera_aggregate?.aggregate?.count || 0;
+  const streams = useStreams();
+  const ROLE_VIEWER = videoService.getRoleViewer();
+
+  // Mirror the VIEWERS_IN_WEBCAM_COUNT aggregate: count camera streams whose
+  // owner is a non-presenter viewer. Each stream maps to one user_camera row.
+  return streams.filter(
+    (s) => s.user?.role === ROLE_VIEWER && s.user?.presenter === false,
+  ).length;
 };
 
 export const useLockUser = () => {
@@ -778,14 +939,13 @@ export const useLockUser = () => {
 
 export const useStopVideo = () => {
   const [cameraBroadcastStop] = useMutation(CAMERA_BROADCAST_STOP);
-  const [getOwnVideoStreams] = useOwnVideoStreamsQuery();
+  const ownStreamsRef = useOwnStreamsRef();
 
   return useCallback(async (cameraId?: string) => {
-    const { data } = await getOwnVideoStreams();
-    const streams = data?.user_camera ?? [];
+    const streams = ownStreamsRef.current;
     const connectingStream = getConnectingStream();
-    const hasTargetStream = streams.some((s) => s.streamId === cameraId);
-    const hasOtherStream = streams.some((s) => s.streamId !== cameraId);
+    const hasTargetStream = streams.some((streamId) => streamId === cameraId);
+    const hasOtherStream = streams.some((streamId) => streamId !== cameraId);
 
     if (hasTargetStream) {
       cameraBroadcastStop({ variables: { cameraId } });

@@ -21,6 +21,7 @@ import {
 } from './constants';
 import { elements as e } from './elements';
 import * as helpers from './helpers';
+import { getMediaBridgeCreateParam, isLiveKit } from './livekit';
 import Logger from './logger';
 import { parameters } from './parameters';
 import { generateSettingsData, Settings } from './settings';
@@ -32,6 +33,7 @@ export interface InitOptionsProps {
   fullName?: string;
   meetingId?: string;
   createParameter?: string;
+  createModules?: string;
   joinParameter?: string;
   customMeetingId?: string;
   isRecording?: boolean;
@@ -103,7 +105,8 @@ export class Page {
       shouldCloseAudioModal = true,
       fullName,
       meetingId,
-      createParameter,
+      createParameter: callerCreateParameter,
+      createModules,
       joinParameter,
       customMeetingId,
       skipSessionDetailsModal = true,
@@ -113,6 +116,15 @@ export class Page {
       testInfo,
     } = initOptions || {};
 
+    // Route meeting creation through the configured media bridge. On the default
+    // (LiveKit) run no extra params are needed - LiveKit is the server default.
+    // The legacy run appends explicit bbb-webrtc-sfu bridge params to override it.
+    const bridgeParam = getMediaBridgeCreateParam();
+    const createParameter =
+      callerCreateParameter && bridgeParam
+        ? `${callerCreateParameter}&${bridgeParam}`
+        : (callerCreateParameter ?? bridgeParam);
+
     if (!this.testInfo && testInfo) this.testInfo = testInfo;
 
     this.username = fullName ?? parameters.fullName;
@@ -120,7 +132,7 @@ export class Page {
 
     await helpers.setBrowserLogs(this, forceErrorLogFailure);
 
-    this.meetingId = meetingId || (await helpers.createMeeting(createParameter, customMeetingId));
+    this.meetingId = meetingId || (await helpers.createMeeting(createParameter, customMeetingId, createModules));
     const joinUrl = helpers.getJoinURL({
       meetingID: this.meetingId,
       fullName: this.username,
@@ -174,10 +186,16 @@ export class Page {
     return newPage;
   }
 
+  async clickMicrophoneButton(): Promise<void> {
+    // LiveKit meetings do not expose the Microphone/Listen Only phase of the
+    // audio modal, so clicking the microphone button is a no-op there.
+    if (!isLiveKit) await this.waitAndClick(e.microphoneButton);
+  }
+
   async joinMicrophone(options: JoinMicrophoneOptions = {}): Promise<void> {
     const { shouldUnmute = true } = options;
     await this.waitForSelector(e.audioModal);
-    await this.waitAndClick(e.microphoneButton);
+    await this.clickMicrophoneButton();
     await this.waitForSelector(e.stopHearingButton);
     await this.waitAndClick(e.joinEchoTestButton);
     await this.wasRemoved(
@@ -265,6 +283,18 @@ export class Page {
   async closeAudioModal(): Promise<void> {
     await this.hasElement(e.audioModal, 'should display the audio modal', ELEMENT_WAIT_EXTRA_LONG_TIME);
     await this.waitAndClick(e.closeModal);
+    // Under LiveKit, closing the audio modal auto-joins audio muted. Leave it so
+    // closeAudioModal consistently ends with the user not in audio, matching the
+    // legacy bridge behavior the tests rely on.
+    if (isLiveKit) {
+      // The actions bar (and its audio controls) can be hidden by some create
+      // params (e.g. hideActionsBar); only leave audio when the dropdown is
+      // actually reachable, otherwise the muted auto-join is harmless and left.
+      if (await this.checkElement(e.actionsBarBackground)) {
+        await this.waitForSelector(e.audioDropdownMenu, ELEMENT_WAIT_LONGER_TIME);
+        await this.leaveAudio();
+      }
+    }
   }
 
   async waitForSelector(selector: string, timeout: number = ELEMENT_WAIT_TIME): Promise<void> {

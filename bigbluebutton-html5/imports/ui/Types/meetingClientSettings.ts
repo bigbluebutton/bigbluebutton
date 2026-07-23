@@ -66,6 +66,7 @@ export interface App {
   skipMeetingEnded: boolean
   dynamicGuestPolicy: boolean
   enableGuestLobbyMessage: boolean
+  showGuestLobbyWaitingQueuePosition: boolean
   guestPolicyExtraAllowOptions: boolean
   alwaysShowWaitingRoomUI: boolean
   enableLimitOfViewersInWebcam: boolean
@@ -76,7 +77,6 @@ export interface App {
   enableCameraBrightness: boolean
   mirrorOwnWebcam: boolean
   viewersInWebcam: number
-  ipv4FallbackDomain: string
   allowLogout: boolean
   allowFullscreen: boolean
   preloadNextSlides: number
@@ -127,7 +127,17 @@ export interface AudioCaptions {
   mobile: boolean
   provider: string
   showInSidebarNavigation: boolean
+  microphoneAlert: MicrophoneAlert
   language: Language
+}
+
+export interface MicrophoneAlert {
+  enabled: boolean
+  helpLink: string
+  threshold: number
+  speakingThreshold: number
+  duration: number
+  interval: number
 }
 
 export interface Language {
@@ -158,6 +168,7 @@ export interface Breakouts {
   breakoutRoomMinimum: number
   breakoutRoomLimit: number
   allowPresentationManagementInBreakouts: boolean
+  lockBreakoutRecordingSetting: boolean
 }
 
 export interface RaiseHandActionButton {
@@ -592,8 +603,15 @@ export interface Layout {
   showLeaveSessionLabel: boolean
 }
 
+export interface SidebarNavigationButtons {
+  top: string[]
+  center: string[]
+  bottom: string[]
+}
+
 export interface SidebarNavigation {
   appsToLabelAsNew: string[]
+  buttons: SidebarNavigationButtons
 }
 
 export interface Pads {
@@ -605,6 +623,8 @@ export interface SharedNotes {
   maxDocumentChars: number
   maxLengthForContentUpdate: number
   staticFormattingToolbar: boolean
+  importMarkdownEnabled: boolean
+  exportMarkdownEnabled: boolean
 }
 
 export interface Media {
@@ -616,26 +636,12 @@ export interface Media {
   forceRelay: boolean
   forceRelayOnFirefox: boolean
   mediaTag: string
-  callTransferTimeout: number
-  callHangupTimeout: number
-  callHangupMaximumRetries: number
   echoTestNumber: string
   listenOnlyCallTimeout: number
   transparentListenOnly: boolean
   fullAudioOffering: boolean
   listenOnlyOffering: boolean
-  iceGatheringTimeout: number
-  audioConnectionTimeout: number
-  audioReconnectionDelay: number
-  audioReconnectionAttempts: number
-  sipjsHackViaWs: boolean
-  sipjsAllowMdns: boolean
-  sip_ws_host: string
   toggleMuteThrottleTime: number
-  websocketKeepAliveInterval: number
-  websocketKeepAliveDebounce: number
-  traceSip: boolean
-  sdpSemantics: string
   localEchoTest: LocalEchoTest
   networkPriorities: MediaNetworkPriorities
   muteAudioOutputWhenAway: boolean
@@ -680,6 +686,8 @@ export interface LiveKitSettings {
   logLevel?: LogLevel
   roomOptions?: Partial<InternalRoomOptions>
   reconnectOnFatalFailures?: boolean
+  forceRelay?: boolean
+  forceRelayOnFirefox?: boolean
   audio?: LiveKitAudioSettings
   camera?: LiveKitCameraSettings
   screenshare?: LiveKitScreenShareSettings

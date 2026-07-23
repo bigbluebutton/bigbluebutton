@@ -4,7 +4,6 @@ import { UserListUiDataPayloads } from 'bigbluebutton-html-plugin-sdk/dist/cjs/u
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { User } from '/imports/ui/Types/user';
 import { getUsersPerUserListPage, makeUserSearchWhere } from '/imports/ui/components/user-list/service';
-import UserSearchContainer from '/imports/ui/components/user-list/user-search/container';
 import Styled from './styles';
 import {
   USER_AGGREGATE_COUNT_SUBSCRIPTION,
@@ -20,16 +19,12 @@ interface UserListParticipantsProps {
   count: number;
   parentRef: React.RefObject<HTMLDivElement | null>;
   searchQuery: string;
-  onSearchChange: (query: string) => void;
-  isQueryLoading: boolean;
 }
 
 const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   count,
   parentRef,
   searchQuery,
-  onSearchChange,
-  isQueryLoading,
 }) => {
   const [visibleUsers, setVisibleUsers] = React.useState<{
     [key: number]: User[];
@@ -136,10 +131,6 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
 
   return (
     <>
-      <UserSearchContainer
-        onSearchChange={onSearchChange}
-        isQueryLoading={isQueryLoading}
-      />
       <Styled.UserListColumn
         onKeyDown={rove}
         tabIndex={0}
@@ -155,18 +146,17 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
 
 interface UserListParticipantsContainerProps {
   parentRef: React.RefObject<HTMLDivElement | null>;
+  searchQuery: string;
 }
 
 const UserListParticipantsContainer: React.FC<UserListParticipantsContainerProps> = ({
   parentRef,
+  searchQuery,
 }) => {
-  const [searchQuery, setSearchQuery] = React.useState('');
-
   const where = useMemo(() => makeUserSearchWhere(searchQuery), [searchQuery]);
 
   const {
     data: countData,
-    loading: countLoading,
   } = useDeduplicatedSubscription<UsersCountSubscriptionResponse>(
     USER_AGGREGATE_COUNT_SUBSCRIPTION,
     { variables: { where } },
@@ -178,8 +168,6 @@ const UserListParticipantsContainer: React.FC<UserListParticipantsContainerProps
       count={count}
       parentRef={parentRef}
       searchQuery={searchQuery}
-      onSearchChange={setSearchQuery}
-      isQueryLoading={countLoading}
     />
   );
 };

@@ -524,56 +524,6 @@ export default class SFUAudioBridge extends BaseAudioBridge {
     }
   }
 
-  trickleIce() {
-    return new Promise((resolve, reject) => {
-      try {
-        fetchWebRTCMappedStunTurnServers(this.sessionToken)
-          .then((iceServers) => {
-            const SETTINGS = window.meetingClientSettings;
-            const MEDIA = SETTINGS.public.media;
-            const SFU_URL = SETTINGS.public.kurento.wsUrl;
-            const TRACE_LOGS = SETTINGS.public.kurento.traceLogs;
-            const GATHERING_TIMEOUT = SETTINGS.public.kurento.gatheringTimeout;
-            const LISTEN_ONLY_OFFERING = MEDIA.listenOnlyOffering;
-
-            const options = {
-              clientSessionNumber: getAudioSessionNumber(),
-              iceServers,
-              offering: LISTEN_ONLY_OFFERING,
-              traceLogs: TRACE_LOGS,
-              gatheringTimeout: GATHERING_TIMEOUT,
-            };
-
-            this.broker = new AudioBroker(
-              Auth.authenticateURL(SFU_URL),
-              RECV_ROLE,
-              options,
-            );
-
-            this.broker.onstart = () => {
-              const { peerConnection } = this.broker.webRtcPeer;
-
-              if (!peerConnection) return resolve(null);
-
-              const selectedCandidatePair = peerConnection.getReceivers()[0]
-                .transport.iceTransport.getSelectedCandidatePair();
-
-              const validIceCandidate = [selectedCandidatePair.local];
-
-              this.broker.stop();
-              return resolve(validIceCandidate);
-            };
-
-            this.broker.joinAudio().catch(reject);
-          });
-      } catch (error) {
-        // Rollback
-        this.exitAudio();
-        reject(error);
-      }
-    });
-  }
-
   exitAudio() {
     const SETTINGS = window.meetingClientSettings;
     const MEDIA = SETTINGS.public.media;

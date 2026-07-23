@@ -6,32 +6,39 @@ import { elements as e, playbackElements } from '../core/elements';
 import { getRecordings } from '../core/endpoints';
 import { Page } from '../core/page';
 import { skipSlide } from '../presentation/util';
-import { getNotesLocator, startSharedNotes } from '../sharednotes/etherpad/util';
+import { getBlockNoteEditorLocator, startSharedNotesBlockNote } from '../sharednotes/blocknote/util';
 import { MultiUsers } from '../user/multiusers';
+
+type RecordingPlaybackFormat = { type?: string[]; url?: string[] };
 
 export class Recording extends MultiUsers {
   public playbackPage!: Page;
 
-  async getRecordingsWithRetry(maxAttempts = 5, delayMs = 5000) {
+  async getRecordingsWithRetry(maxAttempts = 8, delayMs = 5000) {
     await this.modPage.page.waitForTimeout(5000); // minimum wait time expected before first attempt
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       const { data } = await getRecordings(this.modPage.meetingId);
       const { response } = data;
 
-      // Check a successful response with recordings
+      // Wait for the presentation playback format specifically: a server may publish several
+      // formats (podcast, video, screenshare, notes) and presentation is not guaranteed to be ready first.
+      const recording = response.recordings?.[0]?.recording?.[0];
+      const formats: RecordingPlaybackFormat[] = recording?.playback?.[0]?.format ?? [];
+      const hasPresentationFormat = formats.some((format) => format?.type?.[0] === 'presentation');
       if (
         response.returncode?.[0] === 'SUCCESS' &&
         response.messageKey?.[0] !== 'noRecordings' &&
         response.recordings &&
         Array.isArray(response.recordings) &&
-        response.recordings.length > 0
+        response.recordings.length > 0 &&
+        hasPresentationFormat
       ) {
         return { response };
       }
 
       if (attempt < maxAttempts) {
         console.log(
-          `getRecordings (attempt ${attempt}/${maxAttempts}): No recordings found yet, retrying in ${delayMs}ms`,
+          `getRecordings (attempt ${attempt}/${maxAttempts}): presentation format not ready, retrying in ${delayMs}ms`,
         );
         await this.modPage.page.waitForTimeout(delayMs);
       }
@@ -74,8 +81,9 @@ export class Recording extends MultiUsers {
     await skipSlide(this.modPage);
 
     // type on shared notes
-    await startSharedNotes(this.modPage);
-    const notesLocator = getNotesLocator(this.modPage);
+    await startSharedNotesBlockNote(this.modPage);
+    const notesLocator = getBlockNoteEditorLocator(this.modPage);
+    await notesLocator.click();
     await notesLocator.pressSequentially(e.testMessage);
     await expect(notesLocator, 'should contain the typed text on shared notes').toContainText(e.testMessage, {
       timeout: ELEMENT_WAIT_TIME,
@@ -105,8 +113,10 @@ export class Recording extends MultiUsers {
     }
     expect(response?.returncode?.[0], 'getRecordings API call should return "SUCCESS"').toEqual('SUCCESS');
     expect(recordingData?.metadata?.[0]?.isBreakout?.[0], 'metadata.isBreakout should not be true').toEqual('false');
-    // validate recording format
-    const playbackData = recordingData?.playback?.[0]?.format?.[0];
+    // validate recording format — a server may publish multiple formats (podcast, video, etc.),
+    // so select the presentation format explicitly instead of relying on the array order
+    const formats: RecordingPlaybackFormat[] = recordingData?.playback?.[0]?.format ?? [];
+    const playbackData = formats.find((format) => format?.type?.[0] === 'presentation');
     expect(playbackData?.type?.[0], 'playback type should be presentation').toEqual('presentation');
     // validate playback URL
     const playbackUrl = playbackData?.url?.[0];
@@ -116,6 +126,36 @@ export class Recording extends MultiUsers {
     expect(() => new URL(playbackUrl), 'playback URL should be valid').not.toThrow();
     expect(playbackUrl, 'playback URL should contain "/playback/presentation/"').toContain('/playback/presentation/');
     return playbackUrl;
+  }
+
+  async recordingToastDoesNotBlockModals() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.hasElement(
+      e.recordingIndicator,
+      'should display the recording indicator once the moderator joins the meeting',
+    );
+
+    // open the recording confirmation toast (non-blocking, lives in react-toastify)
+    await this.modPage.waitAndClick(e.recordingIndicator);
+    await this.modPage.hasElement(
+      e.confirmRecordingButton,
+      'should display the Confirm button in the recording confirmation toast',
+    );
+    await this.modPage.hasElement(
+      e.cancelRecordingButton,
+      'should display the Cancel button in the recording confirmation toast',
+    );
+
+    // with the toast still open, opening the webcam settings modal must not be blocked by it
+    await this.modPage.waitAndClick(e.joinVideo);
+    await this.modPage.hasElement(
+      e.webcamSettingsModal,
+      'should open the webcam settings modal immediately while the recording confirmation toast is still open',
+    );
+    await this.modPage.hasElement(
+      e.confirmRecordingButton,
+      'recording confirmation toast should coexist with the webcam settings modal',
+    );
   }
 
   async accessPlayback() {
@@ -325,21 +365,20 @@ export class Recording extends MultiUsers {
       mask: [titleLocator],
     });
 
-    // Pause and wait 2 seconds and check paused playback
+    // Pause playback and verify the frame does not advance over time
     await playPauseButtonLocator.click();
     await expect(playPauseButtonLocator, 'play/pause button should display "Play" when paused').toHaveText(/Play/, {
       timeout: ELEMENT_WAIT_TIME,
     });
     const progressBarPaused = await progressBarLocator.evaluate((el: HTMLDivElement) => el.offsetWidth);
+    const screenshotBeforeWait = await this.playbackPage.page.screenshot({ mask: [titleLocator] });
     await this.playbackPage.page.waitForTimeout(2000);
     expect(progressBarPaused, 'progress bar width should not change when playback is paused').toEqual(
       await progressBarLocator.evaluate((el: HTMLDivElement) => el.offsetWidth),
     );
-    await expect(this.playbackPage.page, 'should display the same slide when paused').toHaveScreenshot(
-      'playback-paused.png',
-      {
-        mask: [titleLocator],
-      },
+    const screenshotAfterWait = await this.playbackPage.page.screenshot({ mask: [titleLocator] });
+    expect(screenshotBeforeWait, 'should display the same frame when paused — screenshot should not change').toEqual(
+      screenshotAfterWait,
     );
   }
 

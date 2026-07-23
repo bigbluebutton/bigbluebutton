@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+	import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import Langmap from 'langmap';
 import About from '/imports/ui/components/settings/submenus/about/component';
@@ -277,7 +277,6 @@ class Settings extends Component {
       <Styled.SettingsTabs
         onSelect={this.handleSelectTab}
         selectedIndex={selectedTab}
-        role="presentation"
       >
         <Styled.SettingsTabList>
           <Styled.SettingsTabSelector
@@ -287,6 +286,7 @@ class Settings extends Component {
             <span id="appTab">{intl.formatMessage(intlMessages.appTabLabel)}</span>
           </Styled.SettingsTabSelector>
           <Styled.SettingsTabSelector
+            aria-labelledby="notificationTab"
             selectedClassName="is-selected"
           >
             <span id="notificationTab">{intl.formatMessage(intlMessages.notificationLabel)}</span>
@@ -412,6 +412,26 @@ class Settings extends Component {
         width={modalWidth}
         height={modalHeight}
         modalIsOpen={isOpen}
+        documentTitle={intl.formatMessage(intlMessages.SettingsLabel)}
+        confirm={{
+          callback: () => {
+            this.updateSettings(current, intlMessages.savedAlertLabel, setLocalSettings);
+
+            if (saved.application.locale !== current.application.locale) {
+              const { language } = formatLocaleCode(saved.application.locale);
+              const newLanguage = current.application.locale;
+              setUseCurrentLocale(newLanguage);
+              document.body.classList.remove(`lang-${language}`);
+            }
+
+            /* We need to use setIsOpen(false) here to prevent submenu state updates,
+            *  from re-opening the modal.
+            */
+            setIsOpen(false);
+          },
+          label: intl.formatMessage(intlMessages.SaveLabel),
+          description: intl.formatMessage(intlMessages.SaveLabelDesc),
+        }}
         dismiss={{
           callback: this.handleClose,
         }}

@@ -1,8 +1,52 @@
+import { elements as e } from '../core/elements';
 import { initializePages, linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { Layouts } from './layouts';
 
-test.describe.parallel('Layout', { tag: '@flaky-3.1' }, () => {
+test.describe.parallel('Unified Layout - meeting create param', () => {
+  test('First minimize of presentation shows participant tiles for moderator', async ({ browser, context }, testInfo) => {
+    const layouts = new Layouts(browser, context);
+    await initializePages(layouts, browser, {
+      isMultiUser: true,
+      createParameter: 'meetingLayout=UNIFIED_LAYOUT',
+      testInfo,
+      recordVideo: true,
+    });
+    await layouts.unifiedLayoutMinimizeShowsTiles();
+  });
+});
+
+test.describe.parallel('Unified Layout - meeting create param - with audio', () => {
+  test('First minimize of presentation shows participant tiles for moderator', async ({ browser, context }, testInfo) => {
+    const layouts = new Layouts(browser, context);
+    await initializePages(layouts, browser, {
+      isMultiUser: false,
+      createParameter: 'meetingLayout=UNIFIED_LAYOUT',
+      testInfo,
+      recordVideo: true,
+    });
+    await layouts.modPage.waitAndClick(e.joinAudio);
+    await layouts.modPage.joinMicrophone({ shouldUnmute: false });
+    await layouts.initUserPage();
+    await layouts.unifiedLayoutMinimizeShowsTiles();
+  });
+});
+
+test.describe.parallel('Unified Layout - who-is-talking tiles (no webcams)', () => {
+  test('Speaking with no webcams keeps avatar tiles hidden while the presentation is visible', async ({ browser, context }, testInfo) => {
+    linkIssue(25235);
+    const layouts = new Layouts(browser, context);
+    await initializePages(layouts, browser, {
+      isMultiUser: true,
+      createParameter: 'meetingLayout=UNIFIED_LAYOUT',
+      testInfo,
+      recordVideo: true,
+    });
+    await layouts.unifiedLayoutHidesTilesWhenPresentationVisible();
+  });
+});
+
+test.describe.parallel('Layout', { tag: ['@flaky-3.1', '@media'] }, () => {
   let layouts: Layouts;
 
   test.beforeEach(async ({ browser, context }, testInfo) => {

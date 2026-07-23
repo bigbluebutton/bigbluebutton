@@ -17,7 +17,10 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import { fontSizeLarge } from '/imports/ui/stylesheets/styled-components/typography';
+import {
+  fontSizeLarge,
+  fontSizeMedium,
+} from '/imports/ui/stylesheets/styled-components/typography';
 
 const KeyCell = styled.td`
   text-align: center;
@@ -35,6 +38,7 @@ const ShortcutTable = styled.table`
   border-collapse: collapse;
   margin: 0;
   width: 100%;
+  font-size: ${fontSizeMedium};
 
   > tbody > tr:nth-child(even) {
     background-color: ${colorOffWhite};
@@ -82,7 +86,7 @@ const ShortcutsTabSelector = styled(Tab)`
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  font-size: 1rem;
+  font-size: ${fontSizeMedium};
   flex: none;
   padding: 1rem;
   color: ${colorGrayDark};

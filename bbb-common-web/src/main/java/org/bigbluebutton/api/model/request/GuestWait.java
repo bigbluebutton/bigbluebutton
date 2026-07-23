@@ -8,7 +8,9 @@ import org.bigbluebutton.api.service.SessionService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 @ContentTypeConstraint
 public class GuestWait extends RequestWithSession<GuestWait.Params>{
@@ -35,6 +37,11 @@ public class GuestWait extends RequestWithSession<GuestWait.Params>{
     public GuestWait(HttpServletRequest servletRequest) {
         super(servletRequest);
         sessionService = new SessionService();
+    }
+
+    @Override
+    public Set<String> getSupportedContentTypes() {
+        return Collections.emptySet();
     }
 
     public String getSessionToken() {

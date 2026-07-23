@@ -31,12 +31,12 @@
     "url": "https://github.com/bigbluebutton/bigbluebutton/issues"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "dependencies": {
-    "@blocknote/server-util": "^0.49.0",
-    "@hocuspocus/extension-database": "^3.4.4",
-    "@hocuspocus/server": "^3.4.4",
+    "@blocknote/server-util": "^0.51.0",
+    "@hocuspocus/extension-database": "^4.0.0",
+    "@hocuspocus/server": "^4.0.0",
     "@types/express": "^5.0.6",
     "@types/node": "^22.19.15",
     "axios": "^1.15.2",
@@ -62,7 +62,7 @@
     "rimraf": "^6.1.3",
     "tsup": "^8.5.0",
     "tsx": "^4.19.0",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "typescript-eslint": "^8.56.1"
   }
 }

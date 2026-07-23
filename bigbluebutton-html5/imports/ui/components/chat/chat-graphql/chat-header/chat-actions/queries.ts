@@ -12,6 +12,7 @@ export const GET_CHAT_MESSAGE_HISTORY = gql`
 query getChatMessageHistory {
   chat_message_public(order_by: {createdAt: asc}) {
     message
+    messageAsHtml
     messageId
     messageType
     messageMetadata

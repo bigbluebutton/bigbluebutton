@@ -1,6 +1,8 @@
 import { test } from '../core/setup/fixtures';
 import { Chat } from './chat';
+import { Jumbomoji } from './jumbomoji';
 import { MessageActions } from './messageActions';
+import { PrivateChatListPreview } from './privateChatListPreview';
 
 test.describe.parallel('Chat', { tag: '@ci' }, () => {
   // https://docs.bigbluebutton.org/3.0/testing/release-testing/#public-message-automated
@@ -115,6 +117,16 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
   );
 
   test(
+    'Escape auto converted emoji with a backslash on public chat',
+    { tag: '@setting-required:chat.autoConvertEmoji' },
+    async ({ browser, context, page }, testInfo) => {
+      const chat = new Chat(browser, context);
+      await chat.initPages(page, testInfo);
+      await chat.autoConvertEmojiEscapePublicChat();
+    },
+  );
+
+  test(
     'Copy chat with auto converted emoji',
     { tag: '@setting-required:chat.autoConvertEmoji' },
     async ({ browser, context, page, browserName }, testInfo) => {
@@ -149,6 +161,29 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
     const chat = new Chat(browser, context);
     await chat.initPages(page, testInfo);
     await chat.chatDisabledUserLeaves();
+  });
+
+  test('Jumbomoji renders emoji-only messages with larger font', async ({ browser, context, page }, testInfo) => {
+    const jumbomoji = new Jumbomoji(browser, context);
+    await jumbomoji.initModPage(page, { testInfo });
+    await jumbomoji.verifyJumbomoji();
+  });
+
+  test('Private chat preview renders at first paint', async ({ browser, context, page }, testInfo) => {
+    const preview = new PrivateChatListPreview(browser, context);
+    await preview.initModPage(page, { testInfo });
+    await preview.initUserPageWithDelayedPreview(testInfo);
+    await preview.previewRendersAtFirstPaint();
+  });
+
+  test('Private chat preview shows deleted label for a soft-deleted last message', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const preview = new PrivateChatListPreview(browser, context);
+    await preview.initPages(page, testInfo);
+    await preview.deletedLastMessageRendersDeletedLabel();
   });
 
   test.describe('Message actions', () => {
@@ -201,6 +236,12 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
         const message = new MessageActions(browser, context);
         await message.initModPage(page, { testInfo });
         await message.replyMessage();
+      });
+
+      test('Reply to a message with text followed by a link', async ({ browser, context, page }, testInfo) => {
+        const message = new MessageActions(browser, context);
+        await message.initModPage(page, { testInfo });
+        await message.replyMessageWithTextBeforeLink();
       });
 
       test('Cancel a reply to a message', async ({ browser, context, page }, testInfo) => {

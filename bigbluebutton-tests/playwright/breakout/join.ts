@@ -4,7 +4,7 @@ import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TI
 import { elements as e } from '../core/elements';
 import { hasCurrentPresentationToastElement, uploadSinglePresentation } from '../presentation/util';
 import * as utilScreenShare from '../screenshare/util';
-import { getNotesLocator } from '../sharednotes/etherpad/util';
+import { getBlockNoteEditorLocator } from '../sharednotes/blocknote/util';
 import { Create } from './create';
 
 export class Join extends Create {
@@ -34,6 +34,12 @@ export class Join extends Create {
     await breakoutUserPage.page.bringToFront();
 
     if (shouldJoinAudio) {
+      // Joining a breakout as a separate session makes the main-room session
+      // leave audio (one active audio session per user). Verify the leave via the
+      // Join Audio button reappearing and the talking indicator clearing —
+      // reliable on both bridges. The "You have left the audio conference" toast
+      // is not asserted: it's transient and, under LiveKit, the breakout-triggered
+      // leave doesn't raise it (the leave itself still happens).
       await this.userPage.hasElement(
         e.joinAudio,
         'should display the join audio button after user joins breakout rooms.',
@@ -41,11 +47,6 @@ export class Join extends Create {
       await this.userPage.wasRemoved(
         e.isTalking,
         'Talking indicator should be removed after user joins breakout rooms.',
-      );
-      await this.userPage.hasText(
-        e.smallToastMsg,
-        e.leftAudioToast,
-        `should appear the text "${e.leftAudioToast}" on the toast message after user joins breakout rooms.`,
       );
     } else {
       await breakoutUserPage.closeAudioModal();
@@ -80,10 +81,12 @@ export class Join extends Create {
 
     await breakoutUserPage.waitAndClick(e.joinAudio);
     await breakoutUserPage.waitForSelector(e.audioModal);
-    await breakoutUserPage.waitAndClick(e.microphoneButton);
+    await breakoutUserPage.clickMicrophoneButton();
     await breakoutUserPage.waitForSelector(e.stopHearingButton);
     await breakoutUserPage.waitAndClick(e.joinEchoTestButton);
-    await breakoutUserPage.waitForSelector(e.establishingAudioLabel);
+    // Don't wait for the transient "establishing audio" label to appear: under
+    // LiveKit audio establishes fast enough that it can flash by before the poll
+    // catches it. wasRemoved tolerates the label being already gone.
     await breakoutUserPage.wasRemoved(
       e.establishingAudioLabel,
       'should have audio established',
@@ -229,7 +232,7 @@ export class Join extends Create {
     ).toHaveCSS('background-color', 'rgb(254, 249, 241)');
     await expect(chatWrapper, 'should have a left border highlight for breakout room moderator messages').toHaveCSS(
       'border-left-color',
-      'rgb(245, 198, 127)',
+      'rgb(161, 98, 7)',
     );
   }
 
@@ -414,7 +417,8 @@ export class Join extends Create {
       e.hideNotesLabel,
       'should display the hide notes element when shared notes is opened',
     );
-    const notesLocator = getNotesLocator(breakoutUserPage);
+    const notesLocator = getBlockNoteEditorLocator(breakoutUserPage);
+    await notesLocator.click(); // BlockNote needs focus before typing
     await notesLocator.pressSequentially(e.message);
     // making sure there's enough time for the typing to finish
     await breakoutUserPage.page.waitForTimeout(1000);

@@ -4,6 +4,11 @@ import { defineMessages, injectIntl } from 'react-intl';
 import FocusTrap from 'focus-trap-react';
 import Styled from './styles';
 import deviceInfo from '/imports/utils/deviceInfo';
+import {
+  createDocumentTitleViewId,
+  registerDocumentTitleView,
+  unregisterDocumentTitleView,
+} from '/imports/ui/components/app/document-title-manager/service';
 
 const intlMessages = defineMessages({
   modalClose: {
@@ -29,6 +34,10 @@ const propTypes = {
   width: PropTypes.string,
   height: PropTypes.string,
   padding: PropTypes.string,
+  documentTitle: PropTypes.oneOfType([
+    PropTypes.bool,
+    PropTypes.string,
+  ]),
 };
 
 const defaultProps = {
@@ -41,12 +50,15 @@ const defaultProps = {
   overlayClassName: 'modalOverlay',
   headerPosition: 'inner',
   modalIsOpen: false,
+  documentTitle: false,
 };
 
 class ModalSimple extends Component {
   constructor(props) {
     super(props);
     this.modalRef = React.createRef();
+    this.previousFocus = null;
+    this.documentTitleViewId = createDocumentTitleViewId('simple-modal');
     this.handleDismiss = this.handleDismiss.bind(this);
     this.handleRequestClose = this.handleRequestClose.bind(this);
     this.handleOutsideClick = this.handleOutsideClick.bind(this);
@@ -54,10 +66,20 @@ class ModalSimple extends Component {
 
   componentDidMount() {
     document.addEventListener('mousedown', this.handleOutsideClick, false);
+    this.updateDocumentTitleView();
+  }
+
+  componentDidUpdate(prevProps) {
+    const { modalIsOpen } = this.props;
+    if (!prevProps.modalIsOpen && modalIsOpen) {
+      this.previousFocus = document.activeElement;
+    }
+    this.updateDocumentTitleView();
   }
 
   componentWillUnmount() {
     document.removeEventListener('mousedown', this.handleOutsideClick, false);
+    unregisterDocumentTitleView(this.documentTitleViewId);
   }
 
   handleDismiss() {
@@ -66,19 +88,19 @@ class ModalSimple extends Component {
     modalHide(dismiss.callback);
   }
 
-  handleRequestClose(event) {
+  handleRequestClose() {
     const { onRequestClose } = this.props;
     const closeModal = onRequestClose || this.handleDismiss;
 
     closeModal();
 
-    if (event && event.type === 'click') {
-      setTimeout(() => {
-        if (document.activeElement) {
-          document.activeElement.blur();
-        }
-      }, 0);
-    }
+    setTimeout(() => {
+      if (this.previousFocus && typeof this.previousFocus.focus === 'function'
+        && document.body.contains(this.previousFocus)) {
+        this.previousFocus.focus();
+      }
+      this.previousFocus = null;
+    }, 0);
   }
 
   handleOutsideClick(e) {
@@ -86,6 +108,33 @@ class ModalSimple extends Component {
     if (this.modalRef.current && e.target?.contains(this.modalRef.current) && modalIsOpen) {
       this.handleRequestClose(e);
     }
+  }
+
+  getDocumentTitle() {
+    const {
+      contentLabel,
+      documentTitle,
+      title,
+    } = this.props;
+
+    if (!documentTitle) return null;
+    if (typeof documentTitle === 'string') return documentTitle;
+    return title || contentLabel || null;
+  }
+
+  updateDocumentTitleView() {
+    const {
+      isOpen,
+      modalIsOpen,
+    } = this.props;
+    const documentTitle = this.getDocumentTitle();
+
+    if ((isOpen || modalIsOpen) && documentTitle) {
+      registerDocumentTitleView(this.documentTitleViewId, documentTitle);
+      return;
+    }
+
+    unregisterDocumentTitleView(this.documentTitleViewId);
   }
 
   render() {
@@ -100,6 +149,7 @@ class ModalSimple extends Component {
       onRequestClose,
       shouldShowCloseButton,
       contentLabel,
+      documentTitle,
       headerPosition,
       'data-test': dataTest,
       children,

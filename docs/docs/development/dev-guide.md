@@ -129,7 +129,7 @@ It includes all you need to be able to run a local BigBlueButton development env
 First, you need to install the core development tools.
 
 ```bash
-sudo apt-get install git-core openjdk-17-jdk-headless
+sudo apt-get install git-core openjdk-21-jdk-headless
 ```
 
 With the JDK installed, you need to set the JAVA_HOME variable. Edit `~/.profile` (here we are using vim to edit the file)
@@ -141,7 +141,7 @@ vi ~/.profile
 Add the following line at the end of the file
 
 ```bash
-export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
 ```
 
 Reload your profile (this will happen automatically when you next login, but we'll do it explicitly here to load the new environment variable).
@@ -154,7 +154,7 @@ Do a quick test to ensure JAVA_HOME is set.
 
 ```bash
 $ echo $JAVA_HOME
-/usr/lib/jvm/java-17-openjdk-amd64
+/usr/lib/jvm/java-21-openjdk-amd64
 ```
 
 In the next step, you need to install a number of tools using sdkman.
@@ -290,7 +290,7 @@ Next, override the `wsURL` so that it remains the same even if you switch branch
 ```bash
 HOST=$(grep -v '#' /etc/bigbluebutton/bbb-web.properties | sed -n '/^bigbluebutton.web.serverURL/{s/.*\///;p}')
 sudo test -s /etc/bigbluebutton/bbb-html5.yml || sudo sh -c "echo '{}' > /etc/bigbluebutton/bbb-html5.yml"
-sudo yq -y -i ".public.kurento.wsUrl = \"wss://$HOST/bbb-webrtc-sfu\"" /etc/bigbluebutton/bbb-html5.yml
+sudo yq-go e -i ".public.kurento.wsUrl = \"wss://$HOST/bbb-webrtc-sfu\"" /etc/bigbluebutton/bbb-html5.yml
 sudo bbb-conf --restart
 ```
 
@@ -313,13 +313,6 @@ $ npm start
 
 The last couple of steps could alternatively be done with the `run-dev.sh` script (running in developer mode)
 or `deploy.sh` to run in production mode and have the client files served by NginX.
-
-### Audio configuration for development environment
-
-You may see the error "Call timeout (Error 1006)" during the microphone echo test after starting the developing HTML5 client by "npm start". A misconfiguration of Freeswitch may account for it, especially when BigBlueButton is set up with bbb-install.sh script. Try setting "sipjsHackViaWs" to true for the client:
-
-`test -s /etc/bigbluebutton/bbb-html5.yml || echo '{}' > /etc/bigbluebutton/bbb-html5.yml`
-`yq -y -i '.public.media.sipjsHackViaWs = true' /etc/bigbluebutton/bbb-html5.yml`
 
 ### `/private/config`
 
@@ -345,13 +338,14 @@ cd ~/dev/bigbluebutton/bigbluebutton-web
 To rebuild and deploy your changes, replacing the existing `bbb-web` in `/usr/share/bbb-web`:
 
 ```bash
-./deploy_to_usr_share.sh
+./deploy_to_usr_share.sh --build
 ```
+The --build option builds bbb-common-web, which is required when building bbb-web for the first time. After that, if you have not changed the bbb-common-web source code, you can omit the --build option.
 
 Alternatively, to run bbb-web in development mode on port 8090 without replacing the deployed files:
 
 ```bash
-./run-dev.sh
+./run-dev.sh --build
 ```
 
 ## Developing Akka-Apps
@@ -458,15 +452,15 @@ The above will re-sync your clock.
 
 ### Resolving Conflicts Between Java Versions
 
-In situations where multiple versions of Java are installed, BBB components may encounter build errors. One such error message could state, for example, that `'17' is not a valid choice for '-release'`. This specific error arises when the `bbb-common-message` component requires Java 17 for its operation, but the `sbt` build tool is using Java 11 instead.
+In situations where multiple versions of Java are installed, BBB components may encounter build errors. One such error message could state, for example, that `'21' is not a valid choice for '-release'`. This specific error arises when the `bbb-common-message` component requires Java 21 for its operation, but the `sbt` build tool is using an older version instead.
 
-To address this, you need to set the appropriate Java version. The following command will set Java 17 as the active version:
+To address this, you need to set the appropriate Java version. The following command will set Java 21 as the active version:
 
 ```bash
-update-java-alternatives -s java-1.17.0-openjdk-amd64
+update-java-alternatives -s java-1.21.0-openjdk-amd64
 ```
 
-By executing this command, the system is instructed to use Java 17, i.e., the version with which BBB is currently compatible.
+By executing this command, the system is instructed to use Java 21, i.e., the version with which BBB is currently compatible.
 
 ## Set up HTTPS
 

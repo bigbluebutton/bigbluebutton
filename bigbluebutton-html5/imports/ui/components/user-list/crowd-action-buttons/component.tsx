@@ -3,10 +3,10 @@ import { useIntl, defineMessages } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import logger from '/imports/startup/client/logger';
 import { SET_MUTED } from './mutations';
-import { CrowdActionButtonsProps } from './types';
 import Styled from './styles';
 import LockViewersContainer from '../../lock-viewers/container';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
+import { layoutSelectOutput } from '/imports/ui/components/layout/context';
 
 const intlMessages = defineMessages({
   muteAllExceptPresenterLabel: {
@@ -27,12 +27,16 @@ const intlMessages = defineMessages({
   },
 });
 
-const CrowdActionButtons: React.FC<CrowdActionButtonsProps> = ({
-  isBreakout,
-}) => {
+const CrowdActionButtons: React.FC = () => {
   const intl = useIntl();
   const [setMuted] = useMutation(SET_MUTED);
   const lockViewersModal = useModalRegistration({ id: 'lockViewersModal', priority: 'low' });
+  const sidebarContent = layoutSelectOutput((i: { sidebarContent:
+    { width: number; minWidth: number; }; }) => i.sidebarContent);
+  const isAtMinWidth = Boolean(
+    sidebarContent?.width && sidebarContent?.minWidth
+    && sidebarContent.width <= sidebarContent.minWidth + 1,
+  );
 
   const muteAll = () => {
     setMuted({
@@ -64,7 +68,7 @@ const CrowdActionButtons: React.FC<CrowdActionButtonsProps> = ({
           setIsOpen={lockViewersModal.close}
         />
       )}
-      <Styled.ActionButtonsWrapper>
+      <Styled.ActionButtonsWrapper $isMinWidth={isAtMinWidth}>
         <Styled.ActionButtonWrapper>
           <Styled.ActionButtonLabel>
             {intl.formatMessage(intlMessages.muteAllExceptPresenterLabel)}
@@ -80,23 +84,21 @@ const CrowdActionButtons: React.FC<CrowdActionButtonsProps> = ({
             onClick={muteAll}
           />
         </Styled.ActionButtonWrapper>
-        {!isBreakout && (
-          <Styled.ActionButtonWrapper>
-            <Styled.ActionButtonLabel>
-              {intl.formatMessage(intlMessages.lockSettingsButtonLabel)}
-            </Styled.ActionButtonLabel>
-            {/* @ts-ignore - button is js component */}
-            <Styled.ActionButton
-              hideLabel
-              label={intl.formatMessage(intlMessages.lockSettingsButtonDescription)}
-              tooltipLabel={intl.formatMessage(intlMessages.lockSettingsButtonDescription)}
-              icon="lock"
-              size="lg"
-              data-test="lockViewersButton"
-              onClick={openLockSettingsModal}
-            />
-          </Styled.ActionButtonWrapper>
-        )}
+        <Styled.ActionButtonWrapper>
+          <Styled.ActionButtonLabel>
+            {intl.formatMessage(intlMessages.lockSettingsButtonLabel)}
+          </Styled.ActionButtonLabel>
+          {/* @ts-ignore - button is js component */}
+          <Styled.ActionButton
+            hideLabel
+            label={intl.formatMessage(intlMessages.lockSettingsButtonDescription)}
+            tooltipLabel={intl.formatMessage(intlMessages.lockSettingsButtonDescription)}
+            icon="lock"
+            size="lg"
+            data-test="lockViewersButton"
+            onClick={openLockSettingsModal}
+          />
+        </Styled.ActionButtonWrapper>
       </Styled.ActionButtonsWrapper>
     </>
   );

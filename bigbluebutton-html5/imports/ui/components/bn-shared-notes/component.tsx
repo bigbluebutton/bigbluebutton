@@ -12,11 +12,15 @@ import {
   BlockNoteViewEditor,
   BlockTypeSelect,
   ColorStyleButton,
+  ComponentsContext,
   FormattingToolbar,
   NestBlockButton,
   UnnestBlockButton,
+  useComponentsContext,
   useCreateBlockNote,
 } from '@blocknote/react';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { Menu as MantineMenu } from '@mantine/core';
 
 import { Plugin, PluginKey, TextSelection } from '@tiptap/pm/state';
 import { Extension } from '@tiptap/core';
@@ -28,9 +32,12 @@ import { colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
 import { useBlockNoteLocaleLanguage, useHocuspocusProvider } from './hooks';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useCurrentUser from '../../core/hooks/useCurrentUser';
+import useNotesLastRead from '/imports/ui/components/notes/hooks/useNotesLastRead';
 import logger from '/imports/startup/client/logger';
 import { notify } from '../../services/notification';
 import TextAlignSelect from './text-align-select/component';
+import MarkdownImportModal from './markdown-import-modal/component';
+import { useSharedNotesImport } from './import-context';
 
 // Force-retain `Awareness` against a webpack tree-shaking interaction that
 // otherwise drops this class while keeping its `extends Observable` expression,
@@ -67,6 +74,18 @@ const createMaxDocumentCharsExtension = (
 // The left margin of the table Block as the first block is buggy when used with static toolbar;
 // ideally the fix would come from BlockNote
 // (wait for https://github.com/TypeCellOS/BlockNote/issues/2748 to be resolved)
+const escapeBlurExtension = Extension.create({
+  name: 'bbbEscapeBlur',
+  addKeyboardShortcuts() {
+    return {
+      Escape: () => {
+        this.editor.commands.blur();
+        return true;
+      },
+    };
+  },
+});
+
 // TODO: After the issue on BlockNote is resolved, update BlockNote and remove the
 // fixCursorAtOriginExtension and the fixCursorAtOriginPluginKey
 const fixCursorAtOriginPluginKey = new PluginKey('fixCursorAtOrigin');
@@ -91,6 +110,40 @@ const fixCursorAtOriginExtension = Extension.create({
   },
 });
 
+// TODO: remove this workaround once y-prosemirror's cursor decoration can set `marks: []`
+// (the upstream-correct fix is `marks: []` on the cursor `Decoration.widget` in
+// y-prosemirror/src/plugins/cursor-plugin.js; related: https://github.com/yjs/y-prosemirror/issues/174).
+// The remote collaboration cursor is a ProseMirror *widget decoration*. y-prosemirror
+// renders it with `side: 10` and no `marks`, so ProseMirror wraps the widget in the
+// marks of the node that follows the caret. When a remote user's caret sits inside (or
+// at the edge of) a link, that following node carries the `link` mark, so the cursor
+// widget — and therefore the user's name and the U+2060 word-joiner separators around
+// it — is rendered *inside* the <a>, polluting the link's visible text (issue #25225).
+//
+// y-prosemirror hardcodes the decoration spec and BlockNote exposes no hook for it, so
+// we use BlockNote's supported `renderCursor` hook to render a cursor that carries no
+// document text: the name lives in a `data-cursor-name` attribute shown via the CSS
+// `::after` rule below (pseudo-content is never part of `textContent`), and the U+2060
+// separators are omitted. The widget may still be positioned inside the link mark, but
+// it no longer leaks the name (or any separator characters) into the link's text/href.
+const renderCollaborationCursor = (user: { name: string; color: string }) => {
+  const cursorElement = document.createElement('span');
+  cursorElement.classList.add('bn-collaboration-cursor__base');
+
+  const caret = document.createElement('span');
+  caret.classList.add('bn-collaboration-cursor__caret');
+  caret.setAttribute('style', `background-color: ${user.color}`);
+
+  const label = document.createElement('span');
+  label.classList.add('bn-collaboration-cursor__label');
+  label.setAttribute('style', `background-color: ${user.color}`);
+  label.setAttribute('data-cursor-name', user.name ?? '');
+
+  caret.appendChild(label);
+  cursorElement.appendChild(caret);
+  return cursorElement;
+};
+
 const intlMessages = defineMessages({
   payloadSizeError: {
     id: 'app.notes.blocknote.payloadSizeError',
@@ -101,6 +154,43 @@ const intlMessages = defineMessages({
     description: 'Error message for when number of typed characters exceeds the maximum',
   },
 });
+
+// Mantine's Menu defaults to trapFocus:true, trapping Tab inside open dropdowns.
+// Replace Generic.Menu.Root with this to let Tab exit the menu (WAI-ARIA pattern).
+const AccessibleMenuRoot: React.FC<{
+  children: React.ReactNode;
+  onOpenChange?: (open: boolean) => void;
+  position?: string;
+}> = ({ children, onOpenChange, position }) => (
+  <MantineMenu
+    withinPortal={false}
+    middlewares={{
+      flip: true, shift: true, inline: false, size: true,
+    }}
+    trapFocus={false}
+    onChange={onOpenChange}
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    position={position as any}
+    returnFocus={false}
+  >
+    {children}
+  </MantineMenu>
+);
+
+// Patches ComponentsContext so every Generic.Menu.Root in the toolbar uses
+// AccessibleMenuRoot — fixes both ColorStyleButton and TextAlignSelect.
+function ToolbarWithAccessibleMenus({ children }: { children: React.ReactNode }) {
+  const components = useComponentsContext()!;
+  const patchedComponents = React.useMemo(() => ({
+    ...components,
+    Generic: {
+      ...components.Generic,
+      Menu: { ...components.Generic.Menu, Root: AccessibleMenuRoot },
+    },
+  }), [components]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return <ComponentsContext.Provider value={patchedComponents as any}>{children}</ComponentsContext.Provider>;
+}
 
 interface BlockNoteAppProps {
   hocuspocusProvider: HocuspocusProvider;
@@ -116,6 +206,8 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   } = props;
 
   const intl = useIntl();
+
+  const { isImportModalOpen, closeImportModal } = useSharedNotesImport();
 
   const blockNoteLocale = useBlockNoteLocaleLanguage();
   const [notificationErrorMessage, setNotificationErrorMessage] = React.useState<string | null>(null);
@@ -176,6 +268,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   );
 
   const editor = useCreateBlockNote({
+    tabBehavior: 'prefer-indent',
     collaboration: {
       provider: { awareness: hocuspocusProvider.awareness || undefined },
       fragment,
@@ -183,6 +276,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         name: userName || '',
         color: userColor || '',
       },
+      renderCursor: renderCollaborationCursor,
     },
     schema,
     dictionary: {
@@ -196,7 +290,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
       },
     },
     _tiptapOptions: {
-      extensions: [maxDocumentCharsExtension, fixCursorAtOriginExtension],
+      extensions: [maxDocumentCharsExtension, fixCursorAtOriginExtension, escapeBlurExtension],
     },
     pasteHandler: ({ event, defaultPasteHandler }) => {
       try {
@@ -254,6 +348,28 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
 
   const editable = !disableNotes || !currentUserIsLocked || currentUserIsModerator;
 
+  // When read-only, clear local awareness so the provider's reconnect logic and
+  // the 30 s refresh timer do not re-broadcast this user's cursor/presence.
+  // setLocalState(null) also makes all future setLocalStateField calls no-ops,
+  // so y-prosemirror and BlockNote cannot re-populate the state either.
+  //
+  // When editable again, restore awareness if it is still null. This handles a
+  // race where the new provider syncs before GraphQL delivers the lock-removal
+  // update: the useEffect fires with editable=false on the fresh Awareness,
+  // nulling it out; later editable flips to true but BlockNote's init already
+  // ran, so we must re-seed the state ourselves.
+  React.useEffect(() => {
+    const { awareness } = hocuspocusProvider;
+    if (!awareness) return;
+    if (!editable) {
+      awareness.setLocalState(null);
+    } else if (awareness.getLocalState() === null) {
+      awareness.setLocalState({
+        user: { name: userName || '', color: userColor || '' },
+      });
+    }
+  }, [editable, hocuspocusProvider.awareness, userName, userColor]);
+
   // Keep the editor's focus/selection when tapping a toolbar button by
   // cancelling the default focus move on mousedown.
   const toolbarRef = React.useRef<HTMLDivElement>(null);
@@ -264,6 +380,26 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     el.addEventListener('mousedown', handler);
     return () => el.removeEventListener('mousedown', handler);
   }, [editable]);
+
+  // Keep editor focus when clicking SideMenu/DragHandleMenu items.
+  // Skip draggable="true" elements — preventDefault on mousedown prevents drag.
+  React.useEffect(() => {
+    const { portalElement } = editor;
+    if (!portalElement) return undefined;
+    const mousedownHandler = (e: MouseEvent) => {
+      if ((e.target as HTMLElement).closest('[draggable="true"]')) return;
+      e.preventDefault();
+      editor.focus();
+    };
+    // dragend bubbles from the drag handle after the drop — restore focus.
+    const dragendHandler = () => editor.focus();
+    portalElement.addEventListener('mousedown', mousedownHandler);
+    portalElement.addEventListener('dragend', dragendHandler);
+    return () => {
+      portalElement.removeEventListener('mousedown', mousedownHandler);
+      portalElement.removeEventListener('dragend', dragendHandler);
+    };
+  }, [editor]);
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -280,6 +416,12 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
           }
           .bn-collaboration-cursor__label {
             color: ${colorWhite} !important;
+          }
+          /* The collaborator's name is held in a data attribute (see
+             renderCollaborationCursor) and rendered as pseudo-content so it never
+             becomes part of a surrounding link's text/href — issue #25225. */
+          .bn-collaboration-cursor__label::after {
+            content: attr(data-cursor-name);
           }
           .bn-collaboration-cursor__caret {
             overflow: visible !important;
@@ -318,7 +460,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
             color: #2f80ed;
           }
           .bn-editor {
-            padding-inline: 35px 25px;
+            padding-inline: 50px 25px;
             font-size: 1rem;
             box-sizing: border-box;
             cursor: text;
@@ -356,32 +498,51 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         renderEditor={false}
       >
         {STATIC_FORMATTING_TOOLBAR_ENABLED && editable && (
-          <div ref={toolbarRef} className="bn-toolbar-row">
-            <FormattingToolbar>
-              <BlockTypeSelect key="blockTypeSelect" />
-              <BasicTextStyleButton basicTextStyle="bold" key="boldStyleButton" />
-              <BasicTextStyleButton basicTextStyle="italic" key="italicStyleButton" />
-              <BasicTextStyleButton basicTextStyle="underline" key="underlineStyleButton" />
-              <BasicTextStyleButton basicTextStyle="strike" key="strikeStyleButton" />
-            </FormattingToolbar>
-            <FormattingToolbar>
-              <ColorStyleButton key="colorStyleButton" />
-              <TextAlignSelect key="textAlignSelect" />
-              <NestBlockButton key="nestBlockButton" />
-              <UnnestBlockButton key="unnestBlockButton" />
-            </FormattingToolbar>
-          </div>
+          <ToolbarWithAccessibleMenus>
+            <div
+              ref={toolbarRef}
+              role="toolbar"
+              className="bn-toolbar-row"
+              data-test="blockNoteToolbar"
+              onKeyDown={(e) => { if (e.key === 'Escape') editor.focus(); }}
+            >
+              <FormattingToolbar>
+                <BlockTypeSelect key="blockTypeSelect" />
+                <BasicTextStyleButton basicTextStyle="bold" key="boldStyleButton" />
+                <BasicTextStyleButton basicTextStyle="italic" key="italicStyleButton" />
+                <BasicTextStyleButton basicTextStyle="underline" key="underlineStyleButton" />
+                <BasicTextStyleButton basicTextStyle="strike" key="strikeStyleButton" />
+              </FormattingToolbar>
+              <FormattingToolbar>
+                <ColorStyleButton key="colorStyleButton" />
+                <TextAlignSelect key="textAlignSelect" />
+                <NestBlockButton key="nestBlockButton" />
+                <UnnestBlockButton key="unnestBlockButton" />
+              </FormattingToolbar>
+            </div>
+          </ToolbarWithAccessibleMenus>
         )}
         <BlockNoteViewEditor />
       </BlockNoteView>
+      {isImportModalOpen && editable && (
+        <MarkdownImportModal
+          editor={editor}
+          onClose={closeImportModal}
+        />
+      )}
     </div>
   );
 }
 
-function BlockNoteContainer(): React.ReactElement {
+interface BlockNoteContainerProps {
+  isVisible: boolean;
+}
+
+function BlockNoteContainer({ isVisible }: BlockNoteContainerProps): React.ReactElement {
   const {
     error, isAuthenticating, hocuspocusProvider, connectionClosed, handleRetry, isSynced,
   } = useHocuspocusProvider();
+  const { markNotesAsRead } = useNotesLastRead();
 
   const { data: currentUser } = useCurrentUser((user) => ({
     color: user.color,
@@ -401,7 +562,19 @@ function BlockNoteContainer(): React.ReactElement {
   const hasError = !!error;
 
   const renderBlockNote = !error && !isAuthenticating
-    && hocuspocusProvider && !connectionClosed && isSynced;
+    && hocuspocusProvider && !connectionClosed && isSynced && !!currentUser;
+
+  // The notes are read when the synced editor is on screen. Mirror the
+  // etherpad pad (pads-graphql/component.tsx): mark as read on show and on
+  // hide - the panel stays mounted for NOTES_UNMOUNT_DELAY after closing,
+  // and edits arriving in that window must stay unread.
+  React.useEffect(() => {
+    if (!renderBlockNote) return () => {};
+    if (isVisible) markNotesAsRead();
+    return () => {
+      if (isVisible) markNotesAsRead();
+    };
+  }, [renderBlockNote, isVisible, markNotesAsRead]);
   return (
     <Styled.Notes id="bn-notes-scroll-container">
       {(hasError) && (

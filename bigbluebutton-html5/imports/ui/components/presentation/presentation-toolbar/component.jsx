@@ -203,17 +203,17 @@ class PresentationToolbar extends PureComponent {
   }
 
   switchSlide(event) {
-    const { target, which } = event;
+    const { target, key } = event;
     const isBody = target.nodeName === 'BODY';
     const isWhiteboard = target.classList.contains('tl-container');
 
-    if (which === KEYS.ENTER && (isWhiteboard || isBody)) {
+    if (key === KEYS.ENTER && (isWhiteboard || isBody)) {
       this.fullscreenToggleHandler();
       return;
     }
 
     if (isBody) {
-      switch (which) {
+      switch (key) {
         case KEYS.ARROW_LEFT:
         case KEYS.PAGE_UP:
           this.previousSlideHandler();
@@ -252,6 +252,10 @@ class PresentationToolbar extends PureComponent {
               key={ppbId}
               style={{ marginLeft: '2px', ...ppb.style }}
               label={ppb.label}
+              color={ppb.color || 'default'}
+              circle={ppb.circle === true}
+              hideLabel={ppb.hideLabel === true}
+              size={ppb.size || 'md'}
               onClick={ppb.onClick}
               tooltipLabel={ppb.tooltip}
               dataTest={ppb.dataTest}
@@ -343,9 +347,6 @@ class PresentationToolbar extends PureComponent {
       allowInfiniteWhiteboard,
       allowInfiniteWhiteboardInBreakouts,
       infiniteWhiteboardIcon,
-      resetSlide,
-      zoomChanger,
-      tldrawAPI,
       maxNumberOfActiveUsers,
       numberOfJoinedUsers,
       isMobile,
