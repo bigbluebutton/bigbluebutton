@@ -121,6 +121,18 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.startExternalVideo();
       await presentation.endExternalVideo();
     });
+
+    // https://github.com/bigbluebutton/bigbluebutton/issues/25472
+    // Regression: presenter scrubbing the external video while playing must broadcast the
+    // new position. Adapters like YouTube do not emit a seek event, so before the fix the
+    // viewer stayed stuck. Asserts the viewer's playhead follows the presenter's seek.
+    test('Seek external video while playing', async ({ browser, context, page }, testInfo) => {
+      linkIssue(25472);
+      const presentation = new Presentation(browser, context);
+      await presentation.initPages(page, testInfo);
+      await presentation.startExternalVideo();
+      await presentation.seekExternalVideoWhilePlaying();
+    });
   });
 
   test.describe.parallel('Manage', () => {
