@@ -190,6 +190,100 @@ export class Presentation extends MultiUsers {
     await this.modPage.hasElement(e.whiteboard, 'should display the whiteboard after stopping the external video');
   }
 
+  // Regression test for issue #25472: when the presenter scrubs the external video while
+  // it is playing, the new position must be broadcast so viewers follow. react-player only
+  // surfaces a native seek event for FilePlayer; every hosted provider (YouTube here, plus
+  // Vimeo, Twitch, etc.) does not, so the client detects the discontinuity in onProgress and
+  // re-broadcasts it. This test drives YouTube, the common case. We assert the behaviour
+  // users actually care about: the viewer's playhead advances to the presenter's new
+  // position. That is stronger than counting outbound mutations and immune to WebSocket
+  // timing. Assumes startExternalVideo() already shared the video (chained in the spec).
+  async seekExternalVideoWhilePlaying() {
+    const { externalVideoPlayer } = this.modPage.settings || {};
+    // startExternalVideo() already asserted the share button is absent when the feature is
+    // disabled; nothing to seek in that case.
+    if (!externalVideoPlayer) return;
+
+    // startExternalVideo() already fetched both frames and asserted the video element is
+    // present for moderator and viewer, so we only fetch the handles we need to drive here.
+    const modFrame = await this.modPage.getYoutubeFrame();
+    if (!modFrame) throw Error('Failed to get video frame element for moderator');
+    const userFrame = await this.userPage.getYoutubeFrame();
+    if (!userFrame) throw Error('Failed to get video frame element for attendee');
+
+    const readCurrentTime = (frame: typeof modFrame) =>
+      frame.frame.locator('video').evaluate((v: HTMLVideoElement) => v.currentTime);
+
+    // Let the video play a few onProgress ticks so the presenter's baseline is seeded. Poll
+    // for real advance (one tick is enough) instead of a fixed 15s wait, which cuts most of
+    // that time off this @ci test.
+    const playbackStart = await readCurrentTime(modFrame);
+    await expect
+      .poll(() => readCurrentTime(modFrame), {
+        message: 'moderator video should be playing before the seek',
+        timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
+      })
+      .toBeGreaterThan(playbackStart + 3);
+
+    // Derive the seek target from the real duration instead of a hardcoded value: if
+    // youtubeLink changes, a fixed target could exceed the video length, YouTube would clamp
+    // to the end and fire onEnded, nulling the baseline (an opaque failure). The guard also
+    // covers v.duration being NaN (metadata not loaded), which would otherwise yield
+    // seekTarget = NaN, a no-op seekTo, and an opaque toBeGreaterThan(NaN) failure.
+    const duration = await modFrame.frame.locator('video').evaluate((v: HTMLVideoElement) => v.duration);
+    expect(duration, 'fixture video must be long enough to seek within').toBeGreaterThan(120);
+    const seekTarget = Math.floor(duration * 0.75);
+
+    // Self-validate against a fixture swap: the seek target must be well ahead of where
+    // natural playback has reached, or "the viewer followed the seek" would be satisfied by
+    // ordinary playback and prove nothing.
+    const beforeSeek = await readCurrentTime(userFrame);
+    expect(seekTarget - beforeSeek, 'seek target must be far ahead of natural playback').toBeGreaterThan(60);
+
+    // Scrub the YouTube player forward while it is playing. This is the path that does not
+    // emit a react-player onSeek event (the root cause of #25472). Scope the iframe lookup to
+    // the shared-video container (e.youtubeFrame) for consistency with getYoutubeFrame.
+    await this.modPage.page.evaluate(
+      ({ target, frameSelector }) => {
+        const iframe = document.querySelector<HTMLIFrameElement>(`${frameSelector} iframe`);
+        if (iframe && iframe.contentWindow) {
+          iframe.contentWindow.postMessage(
+            JSON.stringify({ event: 'command', func: 'seekTo', args: [target, true] }),
+            '*',
+          );
+        }
+      },
+      { target: seekTarget, frameSelector: e.youtubeFrame },
+    );
+
+    // Assert the PRESENTER actually seeked before checking the viewer. If the postMessage
+    // silently no-ops (YouTube protocol change, enablejsapi regression, iframe not matched),
+    // failing here points at the command, not at a phantom "viewer did not follow" product bug.
+    await expect
+      .poll(() => readCurrentTime(modFrame), {
+        message: 'presenter should have seeked',
+        timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
+      })
+      .toBeGreaterThan(seekTarget - 5);
+
+    // YouTube re-buffers after a seek, so the viewer lands a little short of the target and
+    // then climbs; allow this much slack below the target when confirming the follow.
+    const VIEWER_FOLLOW_TOLERANCE_SECONDS = 15;
+    await expect
+      .poll(() => readCurrentTime(userFrame), {
+        message: 'viewer should follow the presenter mid-play external video seek',
+        timeout: ELEMENT_WAIT_EXTRA_LONG_TIME,
+      })
+      .toBeGreaterThan(seekTarget - VIEWER_FOLLOW_TOLERANCE_SECONDS);
+
+    // Upper-bound the viewer position so an overshoot to the end (which a one-sided lower
+    // bound would let pass) fails the test instead of reading as a follow.
+    const viewerAfter = await readCurrentTime(userFrame);
+    expect(viewerAfter, 'viewer should land near the seek target, not overshoot to the end').toBeLessThan(
+      seekTarget + 30,
+    );
+  }
+
   async uploadSinglePresentationTest() {
     // wait for whiteboard to load and no notifications
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);

@@ -2,6 +2,7 @@ package org.bigbluebutton.api.model.request;
 
 import org.bigbluebutton.api.model.constraint.ContentTypeConstraint;
 import org.bigbluebutton.api.model.constraint.MeetingIDConstraint;
+import org.bigbluebutton.api.model.constraint.NotNull;
 import org.bigbluebutton.api.model.shared.Checksum;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,6 +21,7 @@ public class MeetingRunning extends RequestWithChecksum<MeetingRunning.Params> {
         public String getValue() { return value; }
     }
 
+    @NotNull(key = "missingParamMeetingID", message = "You must provide a meeting ID")
     @MeetingIDConstraint
     private String meetingID;
 

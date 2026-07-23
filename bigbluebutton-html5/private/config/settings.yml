@@ -830,6 +830,14 @@ public:
     # editor and always visible. When disabled, BlockNote's default floating
     # toolbar appears only when text is selected.
     staticFormattingToolbar: true
+    # When enabled, the "Import from Markdown" option is shown in the shared
+    # notes options menu, letting presenters import Markdown content. Defaults
+    # to false so a minor update does not add a new menu button unexpectedly.
+    importMarkdownEnabled: false
+    # When enabled, the "Export notes as Markdown" option is shown in the
+    # shared notes options menu. Defaults to false so a minor update does not
+    # add a new menu button unexpectedly.
+    exportMarkdownEnabled: false
   media:
     audio:
       # defaultFullAudioBridge: bridge to be used by full audio mechanism.
@@ -1120,6 +1128,12 @@ public:
     # This is the number of times we can press undo (plus 100 providing a safe margin for some shapes with extra entries)
     # default value is 400, adjusted for maxNumberOfAnnotations being 300
     maxHistoryStackSize: 400
+    # Upper bound (ms) for waiting on a new slide's background image to decode before
+    # swapping the visible page (issue 25397). Kept short: a warm/near cache resolves in
+    # sub-frame time and gates the swap, while a cold/slow asset falls through fast to the
+    # old (un-gated) behavior instead of leaving the un-gated toolbar/zoom UI on a stale
+    # slide. Latency above this bound still shows the original white flash.
+    slideSwapDecodeTimeoutMs: 250
     lockToolbarTools: false
     annotations:
       status:

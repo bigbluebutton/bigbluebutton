@@ -168,6 +168,9 @@ runs:
         sed -i "s/exports.DEBUG = false/exports.DEBUG = true/" /usr/local/bigbluebutton/bbb-graphql-actions/config.js
         sudo yq e -i '.log_level = "TRACE"' /usr/share/bbb-graphql-middleware/config.yml
         echo "HASURA_GRAPHQL_LOG_LEVEL=debug" | tee -a /etc/bigbluebutton/bbb-graphql-server.env
+        # Tests provision per-meeting client settings via the clientSettingsOverride
+        # create module (e.g. webcam/gridTileCount); the property defaults to false.
+        echo "allowOverrideClientSettingsOnCreateCall=true" | tee -a /etc/bigbluebutton/bbb-web.properties
         cat > /etc/bigbluebutton/bbb-conf/apply-config.sh << HERE
         #!/bin/bash
 

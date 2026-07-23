@@ -4,9 +4,11 @@ import Styled from './styles';
 import { layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
 import { Input } from '/imports/ui/components/layout/layoutTypes';
 import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
+import { GridItem } from '/imports/ui/components/video-provider/types';
 
 interface OverflowTileProps {
   overflowCount: number;
+  overflowUsers: GridItem[];
 }
 
 const intlMessages = defineMessages({
@@ -16,7 +18,7 @@ const intlMessages = defineMessages({
   },
 });
 
-const OverflowTile: React.FC<OverflowTileProps> = ({ overflowCount }) => {
+const OverflowTile: React.FC<OverflowTileProps> = ({ overflowCount, overflowUsers }) => {
   const intl = useIntl();
   const layoutContextDispatch = layoutDispatch();
 
@@ -40,22 +42,27 @@ const OverflowTile: React.FC<OverflowTileProps> = ({ overflowCount }) => {
     });
   };
 
-  const displayCount = Math.min(overflowCount, 3);
-
   return (
-    <Styled.OverflowTileContainer data-test="overflowTile" isClickable={!isUserListPanelOpen} onClick={() => handleOpenUserList()}>
+    <Styled.OverflowTileContainer
+      isClickable={!isUserListPanelOpen}
+      onClick={() => handleOpenUserList()}
+    >
       <Styled.OverflowTileContent>
-        <Styled.AvatarsContainer $count={displayCount}>
-          {Array.from({ length: displayCount }, (_, index) => (
-            <Styled.AvatarWrapper key={index} $index={index}>
-              <Styled.Avatar $color="#4a148c">
-                <Styled.AvatarInitials>
-                  Us
-                </Styled.AvatarInitials>
-              </Styled.Avatar>
-            </Styled.AvatarWrapper>
-          ))}
-        </Styled.AvatarsContainer>
+        {overflowUsers.length > 0 && (
+          <Styled.AvatarsContainer $count={overflowUsers.length}>
+            {overflowUsers.map((user, index) => (
+              <Styled.AvatarWrapper key={user.userId} $index={index}>
+                <Styled.Avatar $color={user.color} $avatar={user.avatar} $moderator={user.isModerator}>
+                  {!user.avatar && (
+                    <Styled.AvatarInitials>
+                      {user.name.toLowerCase().slice(0, 2)}
+                    </Styled.AvatarInitials>
+                  )}
+                </Styled.Avatar>
+              </Styled.AvatarWrapper>
+            ))}
+          </Styled.AvatarsContainer>
+        )}
         <Styled.OverflowText>
           {intl.formatMessage(intlMessages.overflowUsers, { overflowCount })}
         </Styled.OverflowText>

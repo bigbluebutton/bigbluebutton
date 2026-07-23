@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { Resizable } from 're-resizable';
 import Draggable, { DraggableEvent } from 'react-draggable';
@@ -31,6 +31,22 @@ const intlMessages = defineMessages({
   },
 });
 
+const CAMERA_DOCK_GRID_SNAP_TOLERANCE = 12;
+const CAMERA_DOCK_GRID_SETTLE_DELAY = 100;
+
+const snapCameraDockDimensionToGrid = (
+  dockSize: number,
+  gridSize: number | undefined,
+  minSize: number,
+  maxSize: number,
+) => {
+  if (!gridSize || dockSize - gridSize <= CAMERA_DOCK_GRID_SNAP_TOLERANCE) {
+    return dockSize;
+  }
+
+  return Math.min(Math.max(gridSize, minSize), maxSize);
+};
+
 interface WebcamComponentProps {
   cameraDock: Output['cameraDock'];
   swapLayout: boolean;
@@ -40,6 +56,7 @@ interface WebcamComponentProps {
   isPresenter: boolean;
   displayPresentation: boolean;
   cameraOptimalGridSize: Input['cameraDock']['cameraOptimalGridSize'];
+  snapToCameraGrid: boolean;
   isRTL: boolean;
 }
 
@@ -52,6 +69,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   isPresenter,
   displayPresentation,
   cameraOptimalGridSize: cameraSize,
+  snapToCameraGrid,
   isRTL,
 }) => {
   const [isResizing, setIsResizing] = useState(false);
@@ -60,7 +78,13 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   const [resizeStart, setResizeStart] = useState({ width: 0, height: 0 });
   const [cameraMaxWidth, setCameraMaxWidth] = useState(0);
   const [draggedAtLeastOneTime, setDraggedAtLeastOneTime] = useState(false);
+  const cameraDockRef = useRef(cameraDock);
+  const cameraSizeRef = useRef(cameraSize);
+  const cameraDockGridSettleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const intl = useIntl();
+
+  cameraDockRef.current = cameraDock;
+  cameraSizeRef.current = cameraSize;
 
   const lastSize = Storage.getItem('webcamSize') || { width: 0, height: 0 };
   const { height: lastHeight } = lastSize as { width: number, height: number };
@@ -83,6 +107,12 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
     return () => {
       document.removeEventListener('visibilitychange', handleVisibility);
     };
+  }, []);
+
+  useEffect(() => () => {
+    if (cameraDockGridSettleTimeoutRef.current !== null) {
+      clearTimeout(cameraDockGridSettleTimeoutRef.current);
+    }
   }, []);
 
   useEffect(() => {
@@ -148,6 +178,36 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
         },
       );
     }
+  };
+
+  const snapCameraDockToGrid = () => {
+    if (!snapToCameraGrid) return;
+
+    const currentCameraDock = cameraDockRef.current;
+    const currentCameraSize = cameraSizeRef.current;
+    const isCurrentCameraTopOrBottom = currentCameraDock.position === CAMERADOCK_POSITION.CONTENT_TOP
+      || currentCameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM;
+
+    const height = isCurrentCameraTopOrBottom
+      ? snapCameraDockDimensionToGrid(
+        currentCameraDock.height,
+        currentCameraSize?.height,
+        currentCameraDock.minHeight,
+        currentCameraDock.maxHeight,
+      )
+      : currentCameraDock.height;
+
+    if (height === currentCameraDock.height) return;
+
+    layoutContextDispatch({
+      type: ACTIONS.SET_CAMERA_DOCK_SIZE,
+      value: {
+        width: currentCameraDock.width,
+        height,
+        browserWidth: window.innerWidth,
+        browserHeight: window.innerHeight,
+      },
+    });
   };
 
   const handleWebcamDragStart = () => {
@@ -241,6 +301,10 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
               height: isDragging ? cameraSize?.height : cameraDock.height,
             }}
             onResizeStart={() => {
+              if (cameraDockGridSettleTimeoutRef.current !== null) {
+                clearTimeout(cameraDockGridSettleTimeoutRef.current);
+                cameraDockGridSettleTimeoutRef.current = null;
+              }
               setIsResizing(true);
               setResizeStart({ width: cameraDock.width, height: cameraDock.height });
               onResizeHandle(cameraDock.width, cameraDock.height);
@@ -255,10 +319,27 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
             onResizeStop={() => {
               setResizeStart({ width: 0, height: 0 });
               setTimeout(() => setIsResizing(false), 500);
-              layoutContextDispatch({
-                type: ACTIONS.SET_CAMERA_DOCK_IS_RESIZING,
-                value: false,
-              });
+              const stopCameraDockResize = () => {
+                layoutContextDispatch({
+                  type: ACTIONS.SET_CAMERA_DOCK_IS_RESIZING,
+                  value: false,
+                });
+              };
+
+              if (snapToCameraGrid && isCameraTopOrBottom) {
+                // Let the throttled grid calculation observe the final pointer size before
+                // compacting it. This keeps larger row/column transitions reachable.
+                if (cameraDockGridSettleTimeoutRef.current !== null) {
+                  clearTimeout(cameraDockGridSettleTimeoutRef.current);
+                }
+                cameraDockGridSettleTimeoutRef.current = setTimeout(() => {
+                  cameraDockGridSettleTimeoutRef.current = null;
+                  snapCameraDockToGrid();
+                  stopCameraDockResize();
+                }, CAMERA_DOCK_GRID_SETTLE_DELAY);
+              } else {
+                stopCameraDockResize();
+              }
             }}
             enable={{
               top: !isFullScreen && !isDragging && !swapLayout && cameraDock?.resizableEdge?.top,
@@ -343,6 +424,8 @@ const WebcamContainer: React.FC = () => {
   const { selectedLayout } = useSettings(SETTINGS.APPLICATION) as { selectedLayout: string };
   const isVideoFocus = selectedLayout === LAYOUT_TYPE.VIDEO_FOCUS;
   const isUnifiedLayout = selectedLayout === LAYOUT_TYPE.UNIFIED_LAYOUT;
+  const snapToCameraGrid = selectedLayout === LAYOUT_TYPE.CUSTOM_LAYOUT
+    || selectedLayout === LAYOUT_TYPE.UNIFIED_LAYOUT;
 
   const isGridEnabled = isVideoFocus || (isUnifiedLayout && !presentationIsOpen);
 
@@ -369,6 +452,7 @@ const WebcamContainer: React.FC = () => {
           focusedId: cameraDock.focusedId,
           cameraDock,
           cameraOptimalGridSize,
+          snapToCameraGrid,
           layoutContextDispatch,
           fullscreen,
           isPresenter: currentUserData?.presenter ?? false,

@@ -467,6 +467,71 @@ export class Polling extends MultiUsers {
     );
   }
 
+  // Regression test for issue #25320 (Bug 1), lettered-poll slide: the Smart Slides / Quick Poll
+  // parser used to strip parenthetical clauses from the question and collapse the surrounding
+  // spaces (e.g. "the dose (one per day) for adults" became "the dosefor adults"). The
+  // parenthetical and its spaces must now be preserved.
+  async parentheticalQuestionLetterPoll() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlidesBugRepro1);
+    await this.userPage.hasElement(e.userListItem, 'should display the user list item for the attendee');
+    await this.modPage.closeAllToastNotifications();
+    await this.modPage.page.waitForTimeout(5000);
+
+    // Slide 1 — lettered poll: "What is the dose (one per day) for adults?"
+    await this.modPage.selectSlide('Slide 1');
+    await this.modPage.hasElement(
+      e.quickPoll,
+      'should display the quick poll button once the smart slides deck is converted',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
+    await expect(
+      this.modPage.page.locator(e.pollQuestionArea),
+      'the quick poll question should keep the "(one per day)" clause and its surrounding spaces',
+    ).toHaveValue(/dose \(one per day\) for adults/, { timeout: ELEMENT_WAIT_TIME });
+    await this.modPage.waitAndClick(e.startPoll);
+    await this.modPage.hasText(
+      e.currentPollQuestion,
+      /dose \(one per day\) for adults/,
+      'the started poll question should retain the parenthetical clause',
+    );
+  }
+
+  // Regression test for issue #25320 (Bug 1), typed-response slide: the parenthetical must be
+  // preserved and the surrounding words must not be joined together ("How long (in min) for ..."
+  // used to become "How longfor ...").
+  // NOTE: the superscript flattening (mg/m³ -> mg/m3) is a separate, out-of-scope issue (Bug 2);
+  // we only assert that the parenthetical and its surrounding spaces are kept.
+  async parentheticalQuestionTypedResponse() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await util.uploadSPresentationForTestingPolls(this.modPage, e.smartSlidesBugRepro1);
+    await this.userPage.hasElement(e.userListItem, 'should display the user list item for the attendee');
+    await this.modPage.closeAllToastNotifications();
+    await this.modPage.page.waitForTimeout(5000);
+
+    // Slide 4 — typed response: "How long (in min) for a 2 mg/m3 sample?"
+    await this.modPage.selectSlide('Slide 4');
+    await this.modPage.hasElement(
+      e.quickPoll,
+      'should display the quick poll button once the smart slides deck is converted',
+      ELEMENT_WAIT_EXTRA_LONG_TIME,
+    );
+    // Let the current slide propagate to the quick-poll dropdown before triggering it, otherwise
+    // the click can capture the previous slide's (stale) parsed question.
+    await this.modPage.page.waitForTimeout(3000);
+    await this.modPage.waitAndClick(e.quickPoll, ELEMENT_WAIT_LONGER_TIME);
+    const typedQuestion = this.modPage.page.locator(e.pollQuestionArea);
+    await expect(
+      typedQuestion,
+      'the typed-response question should keep the "(in min)" clause',
+    ).toHaveValue(/How long \(in min\) for/, { timeout: ELEMENT_WAIT_TIME });
+    await expect(
+      typedQuestion,
+      'the words around the parenthetical must not be joined together (no "longfor")',
+    ).not.toHaveValue(/longfor/, { timeout: ELEMENT_WAIT_TIME });
+  }
+
   async pollResultsOnChat() {
     const { pollChatMessage } = this.modPage.settings || {};
 
