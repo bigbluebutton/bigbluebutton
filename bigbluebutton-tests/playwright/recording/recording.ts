@@ -9,29 +9,36 @@ import { skipSlide } from '../presentation/util';
 import { getBlockNoteEditorLocator, startSharedNotesBlockNote } from '../sharednotes/blocknote/util';
 import { MultiUsers } from '../user/multiusers';
 
+type RecordingPlaybackFormat = { type?: string[]; url?: string[] };
+
 export class Recording extends MultiUsers {
   public playbackPage!: Page;
 
-  async getRecordingsWithRetry(maxAttempts = 5, delayMs = 5000) {
+  async getRecordingsWithRetry(maxAttempts = 8, delayMs = 5000) {
     await this.modPage.page.waitForTimeout(5000); // minimum wait time expected before first attempt
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       const { data } = await getRecordings(this.modPage.meetingId);
       const { response } = data;
 
-      // Check a successful response with recordings
+      // Wait for the presentation playback format specifically: a server may publish several
+      // formats (podcast, video, screenshare, notes) and presentation is not guaranteed to be ready first.
+      const recording = response.recordings?.[0]?.recording?.[0];
+      const formats: RecordingPlaybackFormat[] = recording?.playback?.[0]?.format ?? [];
+      const hasPresentationFormat = formats.some((format) => format?.type?.[0] === 'presentation');
       if (
         response.returncode?.[0] === 'SUCCESS' &&
         response.messageKey?.[0] !== 'noRecordings' &&
         response.recordings &&
         Array.isArray(response.recordings) &&
-        response.recordings.length > 0
+        response.recordings.length > 0 &&
+        hasPresentationFormat
       ) {
         return { response };
       }
 
       if (attempt < maxAttempts) {
         console.log(
-          `getRecordings (attempt ${attempt}/${maxAttempts}): No recordings found yet, retrying in ${delayMs}ms`,
+          `getRecordings (attempt ${attempt}/${maxAttempts}): presentation format not ready, retrying in ${delayMs}ms`,
         );
         await this.modPage.page.waitForTimeout(delayMs);
       }
@@ -106,8 +113,10 @@ export class Recording extends MultiUsers {
     }
     expect(response?.returncode?.[0], 'getRecordings API call should return "SUCCESS"').toEqual('SUCCESS');
     expect(recordingData?.metadata?.[0]?.isBreakout?.[0], 'metadata.isBreakout should not be true').toEqual('false');
-    // validate recording format
-    const playbackData = recordingData?.playback?.[0]?.format?.[0];
+    // validate recording format — a server may publish multiple formats (podcast, video, etc.),
+    // so select the presentation format explicitly instead of relying on the array order
+    const formats: RecordingPlaybackFormat[] = recordingData?.playback?.[0]?.format ?? [];
+    const playbackData = formats.find((format) => format?.type?.[0] === 'presentation');
     expect(playbackData?.type?.[0], 'playback type should be presentation').toEqual('presentation');
     // validate playback URL
     const playbackUrl = playbackData?.url?.[0];
@@ -115,6 +124,53 @@ export class Recording extends MultiUsers {
       throw new Error('Playback URL not found in API response');
     }
     expect(() => new URL(playbackUrl), 'playback URL should be valid').not.toThrow();
+    expect(playbackUrl, 'playback URL should contain "/playback/presentation/"').toContain('/playback/presentation/');
+    return playbackUrl;
+  }
+
+  // Records a meeting in which the moderator joins the microphone, so the fake audio device
+  // (core/media/fakespeech.wav) is captured into the recording. Exercises the audio-mux path in
+  // publish:presentation that recordMeeting() (which stays mic-less) does not.
+  // The mod page must be initialized with { shouldCloseAudioModal: false } so joinMicrophone can run.
+  async recordMeetingWithAudio() {
+    const recordingIndicatorButton = this.modPage.page.locator(`${e.recordingIndicator} button`);
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+
+    // join audio with the fake microphone, then confirm the fake speech is actually flowing
+    await this.modPage.joinMicrophone();
+    await this.modPage.hasElement(e.isTalking, 'moderator should be talking after joining the fake microphone');
+
+    // start recording — with an active mic there is no "no active microphone" warning toast
+    await this.modPage.waitAndClick(e.recordingIndicator);
+    await this.modPage.hasElement(e.confirmRecordingButton, 'should display the Confirm button in the recording toast');
+    await this.modPage.waitAndClick(e.confirmRecordingButton);
+    await expect(
+      recordingIndicatorButton,
+      'recording indicator button should have a red background color when recording',
+    ).toHaveCSS('background-color', 'rgb(223, 39, 33)');
+
+    // keep the fake audio flowing so the recording captures several seconds of audio
+    await expect(async () => {
+      const text = await recordingIndicatorButton.textContent();
+      const match = text?.match(/(\d+):(\d+)/);
+      expect(match, 'should find time pattern in recording button text').not.toBeNull();
+      const [, minutes, seconds] = match!;
+      const totalSeconds = Number.parseInt(minutes) * 60 + Number.parseInt(seconds);
+      expect(totalSeconds).toBeGreaterThan(8);
+    }, 'should display more than 8 seconds on the recording button counter').toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    // stop recording and end meeting
+    await this.modPage.waitAndClick(e.leaveMeetingDropdown);
+    await this.modPage.waitAndClick(e.endMeetingButton);
+    await this.modPage.hasElement(e.simpleModal, 'should display the confirm meeting end modal');
+    await this.modPage.waitAndClick(e.confirmEndMeetingButton);
+    await this.modPage.hasElement(e.meetingEndedModal, 'should display the meeting ended modal for the moderator');
+
+    const { response } = await this.getRecordingsWithRetry();
+    const playbackUrl = response?.recordings?.[0]?.recording?.[0]?.playback?.[0]?.format?.[0]?.url?.[0];
+    if (!playbackUrl) {
+      throw new Error('Playback URL not found in API response');
+    }
     expect(playbackUrl, 'playback URL should contain "/playback/presentation/"').toContain('/playback/presentation/');
     return playbackUrl;
   }

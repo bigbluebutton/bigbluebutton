@@ -256,6 +256,9 @@ interface ButtonProps {
   role?: string;
   size?: string;
   icon?: string;
+  hideLabel?: boolean;
+  tooltipLabel?: string;
+  'data-test'?: string;
 }
 
 // @ts-ignore - Button is a JS component

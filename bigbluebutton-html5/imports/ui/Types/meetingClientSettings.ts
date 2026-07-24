@@ -66,6 +66,7 @@ export interface App {
   skipMeetingEnded: boolean
   dynamicGuestPolicy: boolean
   enableGuestLobbyMessage: boolean
+  showGuestLobbyWaitingQueuePosition: boolean
   guestPolicyExtraAllowOptions: boolean
   alwaysShowWaitingRoomUI: boolean
   enableLimitOfViewersInWebcam: boolean
@@ -114,6 +115,7 @@ export interface BbbTabletApp {
 
 export interface DarkTheme {
   enabled: boolean
+  autoDetectFromSystem: boolean
 }
 
 export interface WakeLock {
@@ -622,6 +624,8 @@ export interface SharedNotes {
   maxDocumentChars: number
   maxLengthForContentUpdate: number
   staticFormattingToolbar: boolean
+  importMarkdownEnabled: boolean
+  exportMarkdownEnabled: boolean
 }
 
 export interface Media {

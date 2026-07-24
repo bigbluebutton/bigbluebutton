@@ -16,7 +16,114 @@ This page describes the overall architecture of BigBlueButton and how these comp
 
 The following diagram provides a high-level view of how BigBlueButton's components work together.
 
-![Architecture Overview](/img/diagrams/BBB30arch.drawio.png)
+```mermaid
+flowchart TB
+  %% Blue = new/default in 4.0 · grey-dashed = alternative/opt-in path
+
+  %% ── Edge / reverse proxies ──────────────────────────
+  client[client]
+  haproxy[HAProxy]
+  nginx[NginX]
+  thirdparty[3rd party]
+
+  client <--> haproxy
+  nginx --> haproxy
+  thirdparty --> nginx
+
+  %% ── HTML5 client, GraphQL stack & datastore ─────────
+  html5["bbb-html5<br/>(static client)"]
+  gqlmw[graphql-middleware]
+  hasura["graphql-server<br/>(Hasura)"]
+  gqlactions[graphql-actions]
+  postgres[(PostgreSQL)]
+
+  html5 --> haproxy
+  haproxy <--> gqlmw
+  gqlmw <--> hasura
+  gqlmw --> gqlactions
+  gqlmw <--> redis
+  gqlactions --> redis
+  hasura --> nginx
+  postgres --> hasura
+
+  %% ── Core apps ───────────────────────────────────────
+  akkaapps[akka-apps]
+  webapi[Web API]
+  redis[RedisPubSub]
+
+  akkaapps --> postgres
+  akkaapps <--> redis
+  akkaapps --> redisdb
+  webapi <--> nginx
+  webapi <--> redis
+
+  %% ── Media: LiveKit (default) ─────────────────────────
+  livekit["LiveKit server<br/>(default A/V/screenshare)"]:::neo
+  livekitsip["LiveKit SIP<br/>(dial-in)"]:::neo
+  sfu["bbb-webrtc-sfu<br/>(media controller)"]
+  recorder[webrtc-recorder]
+
+  nginx <--> livekit
+  livekitsip --> livekit
+  sfu <--> livekit
+  sfu <--> nginx
+  sfu <--> redis
+  recorder <--> livekit
+  sfu <--> recorder
+
+  %% ── Media: mediasoup + FreeSWITCH (alternative) ──────
+  mediasoup["mediasoup<br/>(alternative)"]:::alt
+  freeswitch["FreeSWITCH<br/>(alternative / dial-in)"]:::alt
+  akkafsesl[akka-fsesl]:::alt
+
+  sfu -.-> mediasoup
+  mediasoup -.-> freeswitch
+  akkaapps -.-> akkafsesl
+  akkafsesl -.-> freeswitch
+
+  %% ── Shared notes: BlockNote (default) ────────────────
+  sharednotes["bbb-shared-notes-server<br/>(Hocuspocus / Yjs)"]:::neo
+  blocknotedb[("blocknote_app<br/>(Yjs docs)")]:::neo
+
+  nginx <--> sharednotes
+  sharednotes <--> blocknotedb
+  sharednotes <--> redis
+
+  %% ── Shared notes: Etherpad (alternative) ─────────────
+  pads["bbb-pads<br/>(alternative)"]:::alt
+  etherpad["Etherpad<br/>(alternative)"]:::alt
+
+  redis <--> pads
+  pads <--> etherpad
+
+  %% ── Presentation conversion & static files ──────────
+  prescon[Presentation Conversion]
+  presfiles[(presentation files)]
+
+  webapi --> prescon
+  prescon --> presfiles
+  prescon --> redis
+  presfiles --> nginx
+
+  %% ── Recording & other Redis consumers ────────────────
+  exportann[export-annotations]
+  webhooks[webhooks]
+  transcription[transcription-controller]
+  redisdb[(RedisDB)]
+  recproc[recording processor]
+
+  redis <--> exportann
+  exportann --> presfiles
+  redis <--> webhooks
+  redis <--> transcription
+  redisdb --> recproc
+
+  %% ── Styling ─────────────────────────────────────────
+  classDef store fill:#e8ecf3,stroke:#5b6b8c,color:#1c2733;
+  classDef alt   fill:#f2f2f2,stroke:#b0b0b0,color:#7a7a7a,stroke-dasharray:4 4;
+  classDef neo   fill:#e6f0ff,stroke:#2b6cb0,color:#12345a;
+  class postgres,presfiles,redisdb store;
+```
 
 We'll break down each component in more detail below.
 

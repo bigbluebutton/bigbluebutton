@@ -1677,6 +1677,19 @@ You can overwrite the default guest policy in `/etc/bigbluebutton/bbb-web.proper
 #
 defaultGuestPolicy=ALWAYS_ACCEPT
 ```
+
+#### Configure guest lobby queue position
+
+When the guest policy makes users wait for moderator approval, the HTML5 client shows each guest their position in the waiting queue by default. To hide this position, set `public.app.showGuestLobbyWaitingQueuePosition` to `false` in `/etc/bigbluebutton/bbb-html5.yml`.
+
+```yaml
+public:
+  app:
+    showGuestLobbyWaitingQueuePosition: false
+```
+
+Restart BigBlueButton with `sudo bbb-conf --restart` for the change to take effect.
+
 #### Show a custom logo on the client
 
 Ensure that the parameter `displayBrandingArea` is set to `true` in bbb-html5's configuration, restart BigBlueButton server with `sudo bbb-conf --restart` and pass `logo=<image-url>` in Custom parameters when creating the meeting.
@@ -1744,7 +1757,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `breakoutRoomsMultiUserWhiteboardDefaultOn` | Enable multi-user whiteboard by default in breakout rooms | true/false | true |
 | `learningDashboardCleanupDelayInMinutes` | Minutes the Learning Dashboard remains available after the meeting ends | Integer (0=keep permanently) | 2 _`overwritable`_ |
 | `disabledFeatures` | Comma-separated list of features to disable (see [`/create` docs](/development/api/#create) for the full list of feature names) | csv | _(empty)_ _`overwritable`_ |
-| `sharedNotesEditor` | Type of shared notes editor to use | etherpad, blockNote | etherpad _`overwritable`_ |
+| `sharedNotesEditor` | Type of shared notes editor to use | etherpad, blockNote | blockNote _`overwritable`_ |
 | `allowOverrideClientSettingsOnCreateCall` | Allow `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` to be passed on `/create` | true/false | false |
 | `clientSettingsOverrideStrictValidation` | When true, reject the `/create` call (`bbb-web`) and refuse `bbb-apps-akka` boot if a client settings override has unknown or malformed keys. Intended for test/staging (see [Validating client settings overrides](#validating-client-settings-overrides)) | true/false | false |
 | `clientSettingsFilePath` | Path to the `settings.yml` catalog used as the schema for the strict client-settings override validation above | path | `/usr/share/bigbluebutton/html5-client/private/config/settings.yml` |

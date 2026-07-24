@@ -1,5 +1,6 @@
 import ReactPlayer from 'react-player';
 import { MutationFunction } from '@apollo/client';
+
 import { ExternalVideo } from '/imports/ui/Types/meeting';
 
 const YOUTUBE_SHORTS_REGEX = new RegExp(/^(?:https?:\/\/)?(?:www\.)?(youtube\.com\/shorts)\/.+$/);

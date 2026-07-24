@@ -377,6 +377,17 @@ export const useGridUsers = (visibleStreamCount: number, visibleUserCount: numbe
     true,
   );
 
+  if (!isGridEnabled) {
+    gridItems.current = [];
+    overflowCount.current = 0;
+    overflowUsers.current = [];
+    return {
+      gridUsers: gridItems.current,
+      overflowCount: overflowCount.current,
+      overflowUsers: overflowUsers.current,
+    };
+  }
+
   if (gridLoading) {
     return {
       gridUsers: gridItems.current,
@@ -546,6 +557,8 @@ export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
 
   const isUnifiedLayout = layoutType === LAYOUT_TYPE.UNIFIED_LAYOUT;
 
+  // Gate on the layout, not isGridEnabled: audio-only tiles must still appear alongside a real
+  // webcam over an open presentation in the unified layout (issues #25235/#25359).
   if (!showAudioOnlyOnFirstPage || !isUnifiedLayout) return [];
   if (loading) return [];
 
