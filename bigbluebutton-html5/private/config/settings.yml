@@ -53,6 +53,12 @@ public:
     customStyleUrl: null
     darkTheme:
       enabled: true
+      # When true, the client follows the operating system's light/dark
+      # preference (prefers-color-scheme) as the initial theme, and keeps
+      # following it while the user has not chosen a theme manually. The
+      # per-user "Dark mode" toggle and the bbb_prefer_dark_theme parameter
+      # always take precedence over the detected system theme.
+      autoDetectFromSystem: true
     # the default logoutUrl matches window.location.origin i.e. bigbluebutton.org for demo.bigbluebutton.org
     # in some cases we want only custom logoutUrl to be used when provided on meeting create. Default value: true
     askForConfirmationOnLeave: true
