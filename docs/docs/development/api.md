@@ -738,6 +738,8 @@ See [Passing user metadata to the client on join](/administration/customize/#pas
 
 This endpoint insert one or more documents into a running meeting via API call.
 
+The documents are downloaded and converted in the background: a `SUCCESS` response means the request was accepted, not that the documents are already available in the meeting. Download or conversion failures — and, when the server is overloaded, tasks rejected because the background download pool is saturated — are reported to the meeting clients (and the server log), not in the API response. The same applies to presentations pre-uploaded through the `create` call (`preUploadedPresentation` or a request body with a `presentation` module).
+
 **Resource URL:**
 
 https&#58;//yourserver.com/bigbluebutton/api/insertDocument?[parameters]&checksum=[checksum]
