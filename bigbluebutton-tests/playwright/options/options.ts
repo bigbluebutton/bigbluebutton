@@ -304,10 +304,26 @@ export class Options extends MultiUsers {
     const fullscreenButton = '#app-settings-dropdown-menu li[role="menuitem"]:has(.icon-bbb-fullscreen)';
     await this.modPage.waitForSelector(fullscreenButton);
 
+    // Opening the settings menu via keyboard auto-focuses the first menu item
+    // (BBBMenu enables MUI autoFocus for keyboard input sources - the WAI-ARIA
+    // menu-button behavior), so the fullscreen option is focused before any arrow key.
+    await expect(
+      this.modPage.page.locator(fullscreenButton),
+      'should auto-focus the fullscreen option (first item) when opening the menu via keyboard',
+    ).toBeFocused({ timeout: ELEMENT_WAIT_TIME });
+
+    // ArrowDown moves focus off the first item onto the next one...
     await this.modPage.press('ArrowDown');
     await expect(
       this.modPage.page.locator(fullscreenButton),
-      'should focus the fullscreen option on the first ArrowDown',
+      'should move focus off the fullscreen option on ArrowDown',
+    ).not.toBeFocused({ timeout: ELEMENT_WAIT_TIME });
+
+    // ...and ArrowUp returns focus to the fullscreen option.
+    await this.modPage.press('ArrowUp');
+    await expect(
+      this.modPage.page.locator(fullscreenButton),
+      'should return focus to the fullscreen option on ArrowUp',
     ).toBeFocused({ timeout: ELEMENT_WAIT_TIME });
   }
 
