@@ -424,6 +424,10 @@ display_bigbluebutton_status () {
         units="$units bbb-web"
     fi
 
+    if [ -f /usr/lib/systemd/system/bbb-file-upload.service ]; then
+        units="$units bbb-file-upload"
+    fi
+
     if [ -f /usr/lib/systemd/system/bbb-webhooks.service ]; then
         units="$units bbb-webhooks"
     fi
