@@ -6,7 +6,7 @@ PartOf=bigbluebutton.target
 
 [Service]
 Type=exec
-ExecStartPre=-bash -c "umask 077; yq -y -s 'reduce .[] as $item ({}; . * $item)' /usr/share/livekit-server/livekit-sip.yaml /etc/bigbluebutton/livekit-sip.yaml > ${RUNTIME_DIRECTORY}/livekit-sip.yaml"
+ExecStartPre=-bash -c "umask 077; yq-go eval-all '. as $item ireduce ({}; . * $item )' /usr/share/livekit-server/livekit-sip.yaml /etc/bigbluebutton/livekit-sip.yaml > ${RUNTIME_DIRECTORY}/livekit-sip.yaml"
 ExecStart=/usr/bin/livekit-sip --config "${RUNTIME_DIRECTORY}/livekit-sip.yaml"
 ExecStopPost=rm ${RUNTIME_DIRECTORY}/livekit-sip.yaml
 RuntimeDirectory=livekit-sip
@@ -15,8 +15,6 @@ Restart=always
 TimeoutStopSec=5
 User=bigbluebutton
 Group=bigbluebutton
-CPUSchedulingPolicy=fifo
-Nice=19
 
 [Install]
 WantedBy=multi-user.target bigbluebutton.target

@@ -18,15 +18,15 @@ Here's a breakdown of what's new in 4.0.
 
 The client's left-hand navigation has been redesigned into a dedicated navigation sidebar with a cleaner set of buttons (user list, chat, shared notes, timer, settings, and more), notification indicators, and a participant-count badge on the user list button.
 
-Alongside it, a new **Apps Gallery** brings together apps such as Polls, Breakout Rooms, Timer, and Audio Captions — as well as plugins. Frequently used apps can be **pinned**, and pinned apps are persisted and cached across sessions. Recently added apps can be highlighted with a "new" ribbon.
+Alongside it, a new **Apps Gallery** brings together apps such as Polls, Breakout Rooms, Timer, and Audio Captions — as well as plugins. Frequently used apps can be **pinned**, and pinned apps are persisted and cached across sessions. Recently added apps can be highlighted with a "new" ribbon. The gallery can be **searched**, switched between **list and grid views** (the choice is remembered, and mobile defaults to the list view), and pinned apps can be managed directly from the gallery.
 
 <!-- TODO add screenshot of the new navigation sidebar and Apps Gallery -->
 
-The number of apps that can be pinned is controlled by `public.app.appsGallery.maxPinnedApps` (default `3`), and which apps show the "new" label is controlled by `public.sidebarNavigation.appsToLabelAsNew` in `settings.yml`. The sidebar navigation can be hidden per user with the join parameter `userdata-bbb_hide_sidebar_navigation`.
+The number of apps that can be pinned is controlled by `public.app.appsGallery.maxPinnedApps` (default `3`), and which apps show the "new" label is controlled by `public.sidebarNavigation.appsToLabelAsNew` in `settings.yml`. Which built-in buttons appear in the sidebar, in which section, and in what order is controlled by `public.sidebarNavigation.buttons` (see the client-settings changes below). The sidebar navigation can be hidden per user with the join parameter `userdata-bbb_hide_sidebar_navigation`.
 
 #### Search the user list
 
-Moderators and viewers can now search the user list in real time. The search supports full-text and reverse matching and includes the current user in the results. It can be toggled with `public.userList.searchBar.enabled` (default `true`), and the page size of the user list is configurable via `public.layout.usersPerUserListPage` (default `50`).
+Moderators and viewers can now search the user list in real time. The search supports full-text and reverse matching and includes the current user in the results, and it also filters the **raised-hands** and **waiting-guest** sections. It can be toggled with `public.userList.searchBar.enabled` (default `true`), and the page size of the user list is configurable via `public.layout.usersPerUserListPage` (default `50`).
 
 <!-- TODO add screenshot of the user list search -->
 
@@ -36,7 +36,7 @@ The timer received a new design and an improved input experience, including one-
 
 #### Redesigned guest management panel
 
-Guest management now lives in a dedicated panel integrated with the user list. Moderators approving or denying guests in the waiting panel can use a new **"Remember Choice"** option to apply the same decision to subsequent join requests.
+Guest management now lives in a dedicated panel integrated with the user list. Moderators approving or denying guests in the waiting panel can use a new **"Remember Choice"** option to apply the same decision to subsequent join requests. The input for messaging the waiting room now gives visual send-state feedback so moderators can tell their message was delivered.
 
 <!-- TODO add screenshot of the guest management panel -->
 
@@ -47,6 +47,12 @@ The "Lock viewers" / permissions modal was redesigned with a tabbed layout, and 
 #### "Musician Mode" audio processing
 
 BigBlueButton 4.0 introduces an optional WASM-based audio processor (internally "BBBA") that runs on top of the microphone stream. Exposed to users as **"Musician Mode"**, it provides an alternative to the browser's built-in audio processing for scenarios such as sharing music. It is disabled by default. See [Musician Mode (WASM audio processing)](/administration/customize#musician-mode-wasm-audio-processing) for configuration details.
+
+#### Wrong-microphone alert for live captions
+
+When browser-based (WebSpeech) live captions are enabled and a user holds the audio floor but no transcription is produced for a short while, BigBlueButton now shows a toast suggesting the wrong microphone may be selected or the environment is too noisy. The alert can optionally link to a knowledge-base article and is configurable via `public.app.audioCaptions.microphoneAlert` in `settings.yml`.
+
+<!-- TODO add screenshot of the wrong-microphone caption alert -->
 
 ### Engagement
 
@@ -75,6 +81,12 @@ When `allowModsToUnmuteUsers` is enabled, BigBlueButton 4.0 can optionally ask t
 #### Multi-Functional Mode (auxiliary sidebar)
 
 A new **Multi-Functional Mode** adds an auxiliary sidebar content panel, allowing a second panel to be open alongside the primary one (for example, chat and the user list at the same time). It is disabled by default and enabled with `public.multiFunctionalMode.enabled` in `settings.yml`, and it can be disabled per meeting with the `multiFunctionalMode` value of `disabledFeatures`.
+
+#### Larger emoji-only chat messages (jumbomoji)
+
+A chat message that contains only emoji (up to three emoji, whitespace ignored) is now rendered at a larger font size — matching the "jumbomoji" behavior familiar from popular messengers. Messages with any accompanying text keep the normal size.
+
+<!-- TODO add screenshot of a jumbomoji chat message -->
 
 <!-- ### Analytics -->
 
@@ -205,11 +217,12 @@ lists.
 ### Upgraded components
 
 Under the hood, BigBlueButton 4.0 installs on Ubuntu 24.04 64-bit, and the following key components have been upgraded
+- Java 21 (OpenJDK)
 - Grails 7.0.8
 - Gradle 8.14.3
 - Groovy 4.0.21
 - Spring 6.2.11
-- Spring Boot 3.5.14
+- Spring Boot 3.5.16
 
 For full details on what is new in BigBlueButton 4.0, see the release notes.
 
@@ -221,6 +234,16 @@ Recent releases:
 - [3.1.0-beta.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.1.0-beta.1)
 
 ### Other notable changes
+
+#### Promoted BlockNote shared notes as default
+
+In BigBlueButton 4.0.0-beta.4 we replaced the default choice for Shared Notes component from `bbb-etherpad` (i.e. Etherpad) to `bbb-shared-notes-server` (i.e. BlockNote). This means that `bbb-shared-notes-server` is now a required package, installed by default while `bbb-etherpad` and `bbb-pads` are now optional.
+In the event that you prefer using Etherpad, install the optional packages via
+
+`$ sudo apt install bbb-pads bbb-etherpad`
+
+At this point you can use it in a specific session by passing `sharedNotesEditor=etherpad` on the `/create` call. If you have made up your mind and would like to use it for all sessions, add the same line (`sharedNotesEditor=etherpad`) to `/etc/bigbluebutton/bbb-web.properties` and restart BigBlueButton via `$ sudo bbb-conf --restart`
+
 
 #### Removing deprecated layout options
 
@@ -245,13 +268,15 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 
 #### Removed
 
-_None._
+- `lockSettingsDisableNote` is no longer recognized; use `lockSettingsDisableNotes` instead. The singular property was renamed in BBB 2.5.
 
 #### Value changed
 
 - `defaultMeetingLayout` default changed from `CUSTOM_LAYOUT` to `UNIFIED_LAYOUT`. Accepted values are now `UNIFIED_LAYOUT` (default), plus the hybrid/niche options `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, and `MEDIA_ONLY`. The previous values `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, and `VIDEO_FOCUS` are no longer accepted.
 - `html5PluginSdkVersion` bumped from `0.1.17` to `0.1.20`.
 - `disabledFeatures` accepts a new value: `pinChatMessage` (alongside the existing chat-related options).
+- `sharedNotesEditor` default changed from `etherpad` to `blockNote` (BlockNote is now the default shared-notes editor; see [Promoted BlockNote shared notes as default](#promoted-blocknote-shared-notes-as-default)).
+- `cameraBridge`, `screenShareBridge`, and `audioBridge` default changed from `bbb-webrtc-sfu` to `livekit` (see [LiveKit is the default media framework](#livekit-is-the-default-media-framework)).
 
 #### Added
 - `pluginManifestFetchTimeout` added
@@ -325,6 +350,9 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 - `public.app.audioCaptions.showInSidebarNavigation` and `public.app.audioCaptions.terms` - show captions in the sidebar navigation and configure terms-of-service URLs per locale.
 - `public.stats.logMediaStats` and `public.stats.probes` - client-side WebRTC stats logging.
 - `public.layout.showLeaveSessionLabel` (default `false`) and `public.layout.usersPerUserListPage` (default `50`).
+- `public.sidebarNavigation.buttons` - controls which built-in sidebar navigation buttons render, in which section (`top`/`center`/`bottom`) and in what order. It is a full replacement list (omit an id to hide that button; ids introduced by future upstream versions must be added back manually). Defaults: `top: [profile, user-list, chat, notes]`, `center: [apps-gallery, pinned-apps]`, `bottom: [audio-captions, learning-dashboard, settings]`.
+- `public.app.audioCaptions.microphoneAlert` (default `enabled: true`) - shows a warning when WebSpeech live captions are on and the user holds the floor but nothing is being transcribed (a likely wrong-microphone / noisy-environment signal). Configurable via `helpLink` (empty hides the link), `threshold` (dB), `speakingThreshold` (ms), `duration` (ms; `0` = manual dismiss) and `interval` (ms).
+- `public.plugins[].settings.pin` / `.isNew` - a plugin can default-pin the items it injects into the Apps Gallery (`pin: true` pins all injected items; `pin: ["id-a", "id-b"]` pins only those ids; user pin/unpin choices are persisted and respected), and `isNew: true` shows the "new" ribbon on the plugin's gallery item.
 
 #### Value changed
 
@@ -333,11 +361,13 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 - `public.layout.syncCameraDockSizeAndPosition` default changed from `false` to `true`.
 - The default layout under `defaultSettings` moved from `application.selectedLayout: 'custom'` to `layout.selectedLayout: 'unified'` (with `pushLayout` now nested under `layout`).
 - `public.userCamera`'s display labels now include `presenter` and `bot`, and `moderator` defaults to `true`.
+- `public.media.audio.defaultFullAudioBridge` and `public.media.audio.defaultListenOnlyBridge` defaults changed from `fullaudio` to `livekit`, aligning the client fallbacks with LiveKit as the default media framework. (`defaultFullAudioBridge` is superseded by the `audioBridge` create/property setting; both keys are marked deprecated.)
 
 #### Removed
 
 - `public.layout.showPushLayoutButton`, `public.layout.showPushLayoutToggle`, and `public.layout.enableDeprecatedLayoutSelection`.
 - `public.stats.log` (replaced by `public.stats.logMediaStats`).
+- The SIP.js / legacy-audio client settings, removed together with the SIP.js audio bridge now that LiveKit is the default audio path. Under `public.media`: `callTransferTimeout`, `callHangupTimeout`, `callHangupMaximumRetries`, `iceGatheringTimeout`, `audioConnectionTimeout`, `audioReconnectionDelay`, `audioReconnectionAttempts`, `sipjsHackViaWs`, `sipjsAllowMdns`, `sip_ws_host`, `websocketKeepAliveInterval`, `websocketKeepAliveDebounce`, `traceSip`, `sdpSemantics`; plus `public.app.ipv4FallbackDomain`. Any of these still set in `bbb-html5.yml` are now silently ignored.
 
 ## Development
 

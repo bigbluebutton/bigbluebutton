@@ -6,32 +6,39 @@ import { elements as e, playbackElements } from '../core/elements';
 import { getRecordings } from '../core/endpoints';
 import { Page } from '../core/page';
 import { skipSlide } from '../presentation/util';
-import { getNotesLocator, startSharedNotes } from '../sharednotes/etherpad/util';
+import { getBlockNoteEditorLocator, startSharedNotesBlockNote } from '../sharednotes/blocknote/util';
 import { MultiUsers } from '../user/multiusers';
+
+type RecordingPlaybackFormat = { type?: string[]; url?: string[] };
 
 export class Recording extends MultiUsers {
   public playbackPage!: Page;
 
-  async getRecordingsWithRetry(maxAttempts = 5, delayMs = 5000) {
+  async getRecordingsWithRetry(maxAttempts = 8, delayMs = 5000) {
     await this.modPage.page.waitForTimeout(5000); // minimum wait time expected before first attempt
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       const { data } = await getRecordings(this.modPage.meetingId);
       const { response } = data;
 
-      // Check a successful response with recordings
+      // Wait for the presentation playback format specifically: a server may publish several
+      // formats (podcast, video, screenshare, notes) and presentation is not guaranteed to be ready first.
+      const recording = response.recordings?.[0]?.recording?.[0];
+      const formats: RecordingPlaybackFormat[] = recording?.playback?.[0]?.format ?? [];
+      const hasPresentationFormat = formats.some((format) => format?.type?.[0] === 'presentation');
       if (
         response.returncode?.[0] === 'SUCCESS' &&
         response.messageKey?.[0] !== 'noRecordings' &&
         response.recordings &&
         Array.isArray(response.recordings) &&
-        response.recordings.length > 0
+        response.recordings.length > 0 &&
+        hasPresentationFormat
       ) {
         return { response };
       }
 
       if (attempt < maxAttempts) {
         console.log(
-          `getRecordings (attempt ${attempt}/${maxAttempts}): No recordings found yet, retrying in ${delayMs}ms`,
+          `getRecordings (attempt ${attempt}/${maxAttempts}): presentation format not ready, retrying in ${delayMs}ms`,
         );
         await this.modPage.page.waitForTimeout(delayMs);
       }
@@ -74,8 +81,9 @@ export class Recording extends MultiUsers {
     await skipSlide(this.modPage);
 
     // type on shared notes
-    await startSharedNotes(this.modPage);
-    const notesLocator = getNotesLocator(this.modPage);
+    await startSharedNotesBlockNote(this.modPage);
+    const notesLocator = getBlockNoteEditorLocator(this.modPage);
+    await notesLocator.click();
     await notesLocator.pressSequentially(e.testMessage);
     await expect(notesLocator, 'should contain the typed text on shared notes').toContainText(e.testMessage, {
       timeout: ELEMENT_WAIT_TIME,
@@ -105,8 +113,10 @@ export class Recording extends MultiUsers {
     }
     expect(response?.returncode?.[0], 'getRecordings API call should return "SUCCESS"').toEqual('SUCCESS');
     expect(recordingData?.metadata?.[0]?.isBreakout?.[0], 'metadata.isBreakout should not be true').toEqual('false');
-    // validate recording format
-    const playbackData = recordingData?.playback?.[0]?.format?.[0];
+    // validate recording format — a server may publish multiple formats (podcast, video, etc.),
+    // so select the presentation format explicitly instead of relying on the array order
+    const formats: RecordingPlaybackFormat[] = recordingData?.playback?.[0]?.format ?? [];
+    const playbackData = formats.find((format) => format?.type?.[0] === 'presentation');
     expect(playbackData?.type?.[0], 'playback type should be presentation').toEqual('presentation');
     // validate playback URL
     const playbackUrl = playbackData?.url?.[0];

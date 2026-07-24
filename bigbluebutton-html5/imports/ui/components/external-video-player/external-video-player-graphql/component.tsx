@@ -42,6 +42,7 @@ import { calculateCurrentTime } from '/imports/ui/components/external-video-play
 
 import PeerTube from '../custom-players/peertube';
 import { ArcPlayer } from '../custom-players/arc-player';
+import Panopto from '../custom-players/panopto';
 import getStorageSingletonInstance from '/imports/ui/services/storage';
 
 const AUTO_PLAY_BLOCK_DETECTION_TIMEOUT_SECONDS = 5;
@@ -97,6 +98,8 @@ interface ExternalVideoPlayerProps {
 Styled.VideoPlayer.addCustomPlayer(PeerTube);
 // @ts-ignore - ArcPlayer is not typed
 Styled.VideoPlayer.addCustomPlayer(ArcPlayer);
+// @ts-ignore - Panopto is not typed
+Styled.VideoPlayer.addCustomPlayer(Panopto);
 
 const truncateTime = (time: number) => (time < 1 ? 0 : time);
 

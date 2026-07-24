@@ -21,8 +21,8 @@ fi
 # pre-SIP install livekit.yaml already exists, so deriving the credentials from
 # it here keeps the SIP service from starting without a config file.
 if [ ! -f /etc/bigbluebutton/livekit-sip.yaml ]; then
-  API_KEY=${API_KEY:-$(yq -r '.webhook.api_key' /etc/bigbluebutton/livekit.yaml)}
-  API_SECRET=${API_SECRET:-$(yq -r ".keys.[\"$API_KEY\"]" /etc/bigbluebutton/livekit.yaml)}
+  API_KEY=${API_KEY:-$(yq-go e '.webhook.api_key' /etc/bigbluebutton/livekit.yaml)}
+  API_SECRET=${API_SECRET:-$(yq-go e ".keys.[\"$API_KEY\"]" /etc/bigbluebutton/livekit.yaml)}
 (umask 007; cat << EOT
 # This file will be merged with /usr/share/livekit-server/livekit-sip.yaml
 # on startup. Settings specified here will take  precedence.

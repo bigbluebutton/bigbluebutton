@@ -81,6 +81,34 @@ $ npx docusaurus clear  # ensure cached content is not interfering with your cha
 $ rm -r versioned_docs versioned_sidebars versions.json  # if you build multiple versions
 ```
 
+## Diagrams
+
+There are two ways to add a diagram, in order of preference:
+
+1. **Inline Mermaid (preferred).** Mermaid is enabled site-wide
+   (`markdown: { mermaid: true }` plus `@docusaurus/theme-mermaid` in
+   `docusaurus.config.js`), so a fenced ` ```mermaid ` code block renders
+   natively — no image asset to manage, the diagram is diffable and
+   reviewable in the PR, and it follows the site's light/dark theme.
+   The architecture diagram in `docs/development/architecture.md` and the
+   plugin-loading flows in `docs/plugins.md` are authored this way. Edit
+   the text directly and preview with `npx docusaurus start`.
+
+2. **Exported image (for complex / hand-placed diagrams).** Keep the
+   editable source and its exported raster together under one basename in
+   `static/img/diagrams/` (e.g. `my-diagram.drawio` +
+   `my-diagram.drawio.png`) and reference the export with a root-absolute
+   path and meaningful alt text:
+
+   ```markdown
+   ![Descriptive alt text](/img/diagrams/my-diagram.drawio.png)
+   ```
+
+   Keep the path exact — Docusaurus serves `/img/...` from `static/`
+   as-is and will *not* fail the build if the file is missing (the image
+   just 404s / renders broken), unlike a broken doc link, which throws
+   under `onBrokenLinks: 'throw'`.
+
 ## Cutting a new release
 
 The docs for all versions are build and deployed from the `develop`-branch,

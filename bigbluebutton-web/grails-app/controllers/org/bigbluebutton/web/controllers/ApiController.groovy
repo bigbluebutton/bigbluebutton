@@ -236,6 +236,10 @@ class ApiController {
       newMeeting.setSharedNotesInitialContentJsonFromPayload(xmlModules.get("sharedNotesInitialContentJson").text())
     }
 
+    if(xmlModules.containsKey("sharedNotesInitialContentMarkdown")) {
+      newMeeting.setSharedNotesInitialContentMarkdownFromPayload(xmlModules.get("sharedNotesInitialContentMarkdown").text())
+    }
+
     ApiErrors errors = new ApiErrors()
 
     // Strict client-settings override validation (test/staging only, off by default): reject the
@@ -1220,6 +1224,19 @@ class ApiController {
                     RESP_CODE_FAILED), contentType: "text/xml")
           }
         }
+      } else {
+        withFormat {
+          xml {
+            render(text: responseBuilder.buildInsertDocumentResponse(
+                    "Request body must contain a presentation module with at least one document.",
+                    RESP_CODE_FAILED), contentType: "text/xml")
+          }
+          '*' {
+            render(text: responseBuilder.buildInsertDocumentResponse(
+                    "Request body must contain a presentation module with at least one document.",
+                    RESP_CODE_FAILED), contentType: "text/xml")
+          }
+        }
       }
     }else {
       log.warn("Meeting with externalID ${externalMeetingId} doesn't exist.")
@@ -1593,7 +1610,7 @@ class ApiController {
     if (!xmlModules.containsKey(MODULE_PRESENTATION)) {
       if (isFromInsertAPI) {
         log.warn("Insert Document API called without a payload - ignoring")
-        return;
+        return false;
       }
 
      if (hasPresentationUrlInParameter) {

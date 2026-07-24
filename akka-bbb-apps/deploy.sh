@@ -9,5 +9,7 @@ echo ''
 echo '----------------'
 echo 'bbb-apps-akka updated'
 
+sudo systemctl enable bbb-apps-akka.service
+
 sudo service bbb-apps-akka start
 echo 'starting service bbb-apps-akka'
