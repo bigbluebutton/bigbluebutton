@@ -237,7 +237,7 @@ const PresenterToolSlidePane = styled.div`
   position: relative;
 
   flex: ${({ $isCurrent }) => (
-    $isCurrent ? '65 1 0' : '35 1 0'
+    $isCurrent ? '60 1 0' : '40 1 0'
   )};
 
   min-width: 0;
@@ -276,13 +276,17 @@ const PresenterToolSlideLabel = styled.div`
 `;
 
 const PresenterToolSlideImage = styled.img`
-  width: ${({ $compact }) => ($compact ? '78%' : '100%')};
+  width: auto;
   height: auto;
 
-  max-width: ${({ $compact }) => ($compact ? '78%' : '100%')};
-  max-height: ${({ $compact }) => ($compact ? '78%' : '100%')};
-  object-fit: contain;
+  max-width: ${({ $compact }) => ($compact ? '90%' : '100%')};
+  max-height: ${({ $compact }) => ($compact ? '90%' : '100%')};
+
+  background: #fff;
   display: block;
+
+  pointer-events: none;
+  user-select: none;
 `;
 
 const PresenterToolEmptySlide = styled.div`
@@ -322,24 +326,31 @@ const PresenterToolSlideContent = styled.div`
   justify-content: center;
 
   overflow: hidden;
+  container-type: size;
 `;
 
 const PresenterToolSlideViewport = styled.div`
-  position: relative;
-
-  width: 100%;
-  height: auto;
-
-  max-width: 100%;
-  max-height: 100%;
-
-  aspect-ratio: ${({ $aspectRatio }) => (
+  --viewport-ratio: ${({ $aspectRatio }) => (
     Number.isFinite($aspectRatio) && $aspectRatio > 0
       ? $aspectRatio
       : (16 / 9)
   )};
 
-  flex: 0 1 auto;
+  position: relative;
+
+  width: min(
+    100cqw,
+    calc(100cqh * var(--viewport-ratio))
+  );
+
+  height: min(
+    100cqh,
+    calc(100cqw / var(--viewport-ratio))
+  );
+
+  aspect-ratio: var(--viewport-ratio);
+
+  flex: 0 0 auto;
   overflow: hidden;
   background: #000;
 `;
@@ -359,6 +370,7 @@ const PresenterToolTransformedSlide = styled.img`
 
   pointer-events: none;
   user-select: none;
+  background: #fff;
 `;
 
 const PresenterToolCursorDot = styled.div`
