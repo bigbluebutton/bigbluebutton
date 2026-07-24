@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { expect, type Page } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
@@ -269,14 +269,16 @@ export class WhiteboardResize extends DrawShape {
     // Screenshot C (after the expand) is always compared against Screenshot A from
     // the SAME run. This tests "zoom is restored after resize" without relying on
     // an absolute pixel-perfect position across meetings.
-    const snapshotDir = path.join(__dirname, 'whiteboard.spec.ts-snapshots');
-    fs.mkdirSync(snapshotDir, { recursive: true });
+    // Resolve the baseline paths through Playwright's snapshotPath API (rather than a
+    // hard-coded -Chromium-linux suffix) so the write lands exactly where
+    // toHaveScreenshot() reads it, and capture with the same animations/scale
+    // toHaveScreenshot() uses by default so Screenshot A matches Screenshot C.
+    const modInitialPath = test.info().snapshotPath('mod-whiteboard-resize-zoomed-initial.png');
+    const userInitialPath = test.info().snapshotPath('user-whiteboard-resize-zoomed-initial.png');
+    fs.mkdirSync(path.dirname(modInitialPath), { recursive: true });
 
-    const modInitialPath = path.join(snapshotDir, 'mod-whiteboard-resize-zoomed-initial-Chromium-linux.png');
-    const userInitialPath = path.join(snapshotDir, 'user-whiteboard-resize-zoomed-initial-Chromium-linux.png');
-
-    fs.writeFileSync(modInitialPath, await this.modPage.page.screenshot());
-    fs.writeFileSync(userInitialPath, await this.userPage.page.screenshot());
+    fs.writeFileSync(modInitialPath, await this.modPage.page.screenshot({ animations: 'disabled', scale: 'css' }));
+    fs.writeFileSync(userInitialPath, await this.userPage.page.screenshot({ animations: 'disabled', scale: 'css' }));
 
     // ── 4. Shrink moderator viewport (≈ 40 % height) ──────────────────────────
     const viewport = this.modPage.page.viewportSize()!;
@@ -409,15 +411,29 @@ export class WhiteboardResize extends DrawShape {
     await this.modPage.closeAllToastNotifications();
     await this.userPage.closeAllToastNotifications();
 
-    const snapshotDir = path.join(__dirname, 'whiteboard.spec.ts-snapshots');
-    fs.mkdirSync(snapshotDir, { recursive: true });
+    // Resolve the baseline paths through Playwright's snapshotPath API so the files
+    // we write here land exactly where toHaveScreenshot() reads them (across projects
+    // and platforms), instead of hard-coding the -Chromium-linux suffix. Pass the
+    // same animations/scale that toHaveScreenshot() uses by default so the runtime
+    // baseline is captured identically to the comparison screenshot.
+    const modInitialPath = test.info().snapshotPath('mod-whiteboard-resize-initial.png');
+    const userInitialPath = test.info().snapshotPath('user-whiteboard-resize-initial.png');
+    fs.mkdirSync(path.dirname(modInitialPath), { recursive: true });
     fs.writeFileSync(
-      path.join(snapshotDir, 'mod-whiteboard-resize-initial-Chromium-linux.png'),
-      await this.modPage.page.screenshot({ mask: dynamicRegions(this.modPage.page) }),
+      modInitialPath,
+      await this.modPage.page.screenshot({
+        mask: dynamicRegions(this.modPage.page),
+        animations: 'disabled',
+        scale: 'css',
+      }),
     );
     fs.writeFileSync(
-      path.join(snapshotDir, 'user-whiteboard-resize-initial-Chromium-linux.png'),
-      await this.userPage.page.screenshot({ mask: dynamicRegions(this.userPage.page) }),
+      userInitialPath,
+      await this.userPage.page.screenshot({
+        mask: dynamicRegions(this.userPage.page),
+        animations: 'disabled',
+        scale: 'css',
+      }),
     );
 
     // ── 3. Shrink moderator viewport (≈ 40 % height) ──────────────────────────
