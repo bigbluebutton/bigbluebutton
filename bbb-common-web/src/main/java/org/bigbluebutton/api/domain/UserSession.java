@@ -38,7 +38,6 @@ public class UserSession {
   public Boolean guest = false;
   public Boolean authed = false;
   public String voicebridge = null;
-  public String webvoiceconf = null;
   public String mode = null;
   public String record = null;
   public String welcome = null;
@@ -118,10 +117,6 @@ public class UserSession {
 
   public String getVoicebridge() {
     return voicebridge;
-  }
-
-  public String getWebvoiceconf() {
-    return webvoiceconf;
   }
 
   public String getMode() {
