@@ -159,6 +159,20 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.uploadSinglePresentationTest();
     });
 
+    // maskTagThreshold is a SERVER-SIDE bbb-web setting with no client-settings hook, so nothing
+    // applies it automatically: this test requires bbb-web to be restarted with `maskTagThreshold=1`
+    // in /etc/bigbluebutton/bbb-web.properties (rasterize any slide whose generated SVG contains a
+    // <mask> tag). The @setting-required tag keeps it out of the default CI gate.
+    test(
+      'Masked slide is rasterized when maskTagThreshold is set',
+      { tag: '@setting-required:maskTagThreshold' },
+      async ({ browser, context, page }, testInfo) => {
+        const presentation = new Presentation(browser, context);
+        await presentation.initModPage(page, { testInfo });
+        await presentation.maskRasterizationFallbackTest();
+      },
+    );
+
     test('Upload Other Presentations Format', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);
       await presentation.initPages(page, testInfo);
