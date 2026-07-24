@@ -13,6 +13,7 @@ import org.bigbluebutton.common2.redis.MessageSender
 import org.bigbluebutton.api2.meeting.{OldMeetingMsgHdlrActor, RegisterUser}
 import org.bigbluebutton.common2.domain._
 import org.bigbluebutton.common2.util.JsonUtil
+import com.fasterxml.jackson.core.StreamReadConstraints
 import org.bigbluebutton.presentation.messages._
 
 import scala.concurrent.duration._
@@ -35,6 +36,18 @@ class BbbWebApiGWApp(
   implicit val timeout = org.apache.pekko.util.Timeout(3 seconds)
 
   val log = Logging(system, getClass)
+
+  // Jackson 2.15+ enforces a default 20 MB limit on the length of any single
+  // string parsed from JSON. The Grails 8 / Spring Boot 4.1 upgrade moves
+  // bbb-common-web onto Jackson 2.21.5, so that limit now applies to the shared
+  // JsonUtil.mapper in this (the bbb-web) JVM — e.g. when deserializing a large
+  // clientSettingsOverride. Raise it here so oversized-but-legitimate payloads
+  // are not dropped. This is done on the bbb-web side rather than in
+  // bbb-common-message/JsonUtil because that module is still compiled against
+  // Jackson 2.13.5, where StreamReadConstraints does not yet exist.
+  JsonUtil.mapper.getFactory.setStreamReadConstraints(
+    StreamReadConstraints.builder().maxStringLength(100_000_000).build()
+  )
 
   private val jsonMsgToAkkaAppsBus = new JsonMsgToAkkaAppsBus
 
