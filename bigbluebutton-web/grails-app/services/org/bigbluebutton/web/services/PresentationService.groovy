@@ -60,7 +60,11 @@ class PresentationService {
 
 	@PostConstruct
 	void initDownloadExecutor() {
-		int threads = (numDownloadThreads ?: 5) as int
+		// Clamp to at least 1: a configured 0 or negative would make the
+		// ThreadPoolExecutor constructor throw and fail bean initialization.
+		// (numDownloadThreads is injected as a String, so "0" is truthy here and
+		// slips past the Elvis default — only null/empty falls back to 5.)
+		int threads = Math.max(1, (numDownloadThreads ?: 5) as int)
 		AtomicInteger threadSeq = new AtomicInteger()
 		ThreadFactory threadFactory = { Runnable r ->
 			Thread t = new Thread(r, "pres-download-" + threadSeq.incrementAndGet())

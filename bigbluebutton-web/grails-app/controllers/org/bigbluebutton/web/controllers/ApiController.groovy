@@ -248,7 +248,15 @@ class ApiController {
 
     if (meetingService.createMeeting(newMeeting)) {
       // See if the request came with pre-uploading of presentation.
-      uploadDocuments(xmlModules, newMeeting, false);
+      // The meeting is already created and running, so a failure in the
+      // synchronous portion of the upload handling must not turn a successful
+      // creation into a 500 — log it and still respond with success (the actual
+      // download/processing runs async and reports its own failures).
+      try {
+        uploadDocuments(xmlModules, newMeeting, false);
+      } catch (Exception e) {
+        log.error("Failed to handle pre-uploaded presentations for meeting [${newMeeting.getInternalId()}]", e)
+      }
 
       respondWithConference(newMeeting, null, null)
     } else {
