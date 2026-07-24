@@ -16,6 +16,7 @@ import {
 } from '/imports/ui/stylesheets/styled-components/typography';
 import FullscreenButtonContainer from '/imports/ui/components/common/fullscreen-button/container';
 import ToastStyled from '/imports/ui/components/common/toast/styles';
+import { Resizable } from 're-resizable';
 
 const VisuallyHidden = styled.span`
   position: absolute;
@@ -216,17 +217,85 @@ const IconWithMask = styled.div.attrs({
   mask: url(${({ mask }) => mask})  center 100% / 100% no-repeat;
 `;
 
+const PresenterToolSlidesResizable = styled(Resizable)`
+  position: relative;
+  flex: 0 0 auto;
+
+  height: 100%;
+  min-width: 0;
+
+  box-sizing: border-box;
+`;
+
+const PresenterToolResizeHandle = styled.div`
+  position: absolute;
+
+  width: 10px;
+  height: 100%;
+
+  top: 0;
+  right: -5px;
+
+  cursor: col-resize;
+  z-index: 10;
+  user-select: none;
+  touch-action: none;
+
+  &::after {
+    content: '';
+    position: absolute;
+
+    top: 0;
+    bottom: 0;
+    left: 4px;
+
+    width: 2px;
+    background: ${({ theme }) => theme.colorGray};
+  }
+`;
+
+const PresenterToolCurrentSlideResizable = styled(Resizable).attrs({
+  handleStyles: {
+    bottom: {
+      height: '10px',
+      bottom: '-5px',
+      left: '0',
+      width: '100%',
+      cursor: 'row-resize',
+      zIndex: 20,
+      userSelect: 'none',
+      touchAction: 'none',
+    },
+  },
+})`
+  position: relative;
+  flex: 0 0 auto;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  box-sizing: border-box;
+`;
+
 const PresenterToolContainer = styled.div`
   position: absolute;
   overflow: hidden;
   display: flex;
   align-items: stretch;
-  justify-content: center;
+  justify-content: flex-start;
 `;
 
 const PresenterToolSlidesColumn = styled.div`
-  width: 50%;
+  width: 100%;
   height: 100%;
+  
+  min-width: 0;
+  min-height: 0;
+  
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -236,9 +305,10 @@ const PresenterToolSlidesColumn = styled.div`
 const PresenterToolSlidePane = styled.div`
   position: relative;
 
-  flex: ${({ $isCurrent }) => (
-    $isCurrent ? '60 1 0' : '40 1 0'
-  )};
+  flex: 1 1 0;
+  width: 100%;
+
+  height: auto;
 
   min-width: 0;
   min-height: 0;
@@ -300,7 +370,10 @@ const PresenterToolEmptySlide = styled.div`
 `;
 
 const PresenterToolNotesPanel = styled.div`
-  width: 50%;
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+
   height: 100%;
   overflow-y: auto;
   padding: 1.5rem;
@@ -409,6 +482,9 @@ export default {
   Button,
   ExtraTools,
   IconWithMask,
+  PresenterToolSlidesResizable,
+  PresenterToolResizeHandle,
+  PresenterToolCurrentSlideResizable,
   PresenterToolContainer,
   PresenterToolSlidesColumn,
   PresenterToolSlidePane,
