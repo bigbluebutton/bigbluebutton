@@ -36,12 +36,15 @@ export async function checkAvatarIcon(testPage: Page, checkModIcon = true) {
 }
 
 export async function checkIsPresenter(testPage: Page) {
+  // 4.0 no longer emits the data-test-presenter avatar attribute to the DOM. The
+  // current user's role is shown in the user-list item's "userNameSubs" sublabel
+  // (e.g. "Presenter | Moderator"), so detect the presenter role from that text.
   return testPage.page.evaluate(
-    ([currentAvatarSelector, userAvatarSelector]) =>
-      document
-        .querySelectorAll(`${currentAvatarSelector} ${userAvatarSelector}`)[0]
-        .hasAttribute('data-test-presenter'),
-    [e.currentUser, e.userAvatar],
+    ([currentUserSelector, userNameSubsSelector]) => {
+      const subs = document.querySelector(`${currentUserSelector} ${userNameSubsSelector}`);
+      return !!subs && (subs.textContent ?? '').includes('Presenter');
+    },
+    [e.currentUser, e.userNameSubs],
   );
 }
 

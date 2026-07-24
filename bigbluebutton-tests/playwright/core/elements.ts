@@ -3,7 +3,6 @@ const baseBbbIcon: string = 'i.icon-bbb-';
 const pollOptionItem: string = 'input[data-test="pollOptionItem"]';
 const pollAnswerOptionDesc: string = 'div[data-test="optionsAnswers"]';
 const pollAnswersOption: string = 'div[data-test="optionsAnswers"]';
-const userAvatar: string = 'div[data-test-avatar="userAvatar"]';
 const networkDataContainer: string = 'div[data-test="networkDataContainer"]';
 
 export const elements = {
@@ -471,7 +470,6 @@ export const elements = {
   shortcutsTab: 'span[id="shortcutsTab"]',
 
   // User
-  userAvatar,
   moderatorAvatar: 'div[data-test="moderatorAvatar"]',
   viewerAvatar: 'div[data-test="viewerAvatar"]',
   userListItem: 'div[data-test="userListItem"]',

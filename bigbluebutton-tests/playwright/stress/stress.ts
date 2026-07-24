@@ -31,7 +31,10 @@ export class Stress {
     let failureCount = 0;
     for (let i = 1; i <= c.JOIN_AS_MODERATOR_TEST_ROUNDS; i++) {
       await this.modPage.init(true, { fullName: `Moderator-${i}` });
-      await this.modPage.waitForSelector(e.userAvatar);
+      // 4.0 UI: the participants panel is collapsed by default, so the current-user
+      // list item (and its presenter sublabel) is not in the DOM until it is opened.
+      await this.modPage.waitAndClick(e.usersListSidebarButton);
+      await this.modPage.waitForSelector(e.currentUser, c.ELEMENT_WAIT_LONGER_TIME);
       const isPresenter = await checkIsPresenter(this.modPage);
       const canStartPoll = await this.modPage.checkElement(e.pollSidebarButton);
       if (!isPresenter || !canStartPoll) {
