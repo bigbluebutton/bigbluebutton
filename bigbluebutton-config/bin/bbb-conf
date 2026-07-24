@@ -183,6 +183,7 @@ RETIRED_BBB_WEB_PROPERTIES=(
     breakoutRoomsEnabled              # Removed in BBB 3.0
     learningDashboardEnabled          # Removed in BBB 3.0
     defaultGuestWaitURL               # Removed in BBB 3.0
+    virtualBackgroundsDisabled        # Removed in BBB 3.0
     pdfToSvgTimeout                   # Removed in BBB 3.0.13
     pngCreationWait                   # Removed in BBB 3.0.13
     maxConversionTime                 # Removed in BBB 3.0.15
