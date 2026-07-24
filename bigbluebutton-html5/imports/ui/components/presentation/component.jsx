@@ -1440,27 +1440,67 @@ class Presentation extends PureComponent {
           height: presentationBounds.height,
         }}
       >
-        <Styled.PresenterToolSlidesColumn>
-          <Styled.PresenterToolSlidePane
-            $withBorder
-            $isCurrent
-          >
-            {renderSlideImage(
-              currentSlide,
-              intlMessages.currentSlide,
-              intlMessages.noCurrentSlide,
-              true,
-            )}
-          </Styled.PresenterToolSlidePane>
+        <Styled.PresenterToolSlidesResizable
+          defaultSize={{
+            width: '50%',
+            height: '100%',
+          }}
+          minWidth="20%"
+          maxWidth="80%"
+          enable={{
+            top: false,
+            right: true,
+            bottom: false,
+            left: false,
+            topRight: false,
+            bottomRight: false,
+            bottomLeft: false,
+            topLeft: false,
+          }}
+          handleComponent={{
+            right: <Styled.PresenterToolResizeHandle />,
+          }}
+        >
+          <Styled.PresenterToolSlidesColumn>
+            <Styled.PresenterToolCurrentSlideResizable
+              defaultSize={{
+                width: '100%',
+                height: '60%',
+              }}
+              minHeight="20%"
+              maxHeight="85%"
+              enable={{
+                top: false,
+                right: false,
+                bottom: true,
+                left: false,
+                topRight: false,
+                bottomRight: false,
+                bottomLeft: false,
+                topLeft: false,
+              }}
+            >
+              <Styled.PresenterToolSlidePane
+                $withBorder
+              >
+                {renderSlideImage(
+                  currentSlide,
+                  intlMessages.currentSlide,
+                  intlMessages.noCurrentSlide,
+                  true,
+                )}
+              </Styled.PresenterToolSlidePane>
+            </Styled.PresenterToolCurrentSlideResizable>
 
-          <Styled.PresenterToolSlidePane>
-            {renderSlideImage(
-              nextSlide,
-              intlMessages.nextSlide,
-              intlMessages.noNextSlide,
-            )}
-          </Styled.PresenterToolSlidePane>
-        </Styled.PresenterToolSlidesColumn>
+            <Styled.PresenterToolSlidePane>
+              {renderSlideImage(
+                nextSlide,
+                intlMessages.nextSlide,
+                intlMessages.noNextSlide,
+              )}
+            </Styled.PresenterToolSlidePane>
+          </Styled.PresenterToolSlidesColumn>
+        </Styled.PresenterToolSlidesResizable>
 
         <Styled.PresenterToolNotesPanel>
           {hasNote ? currentSlideNote : intl.formatMessage(intlMessages.noNotes)}
