@@ -964,6 +964,20 @@ After you save the changes to `/etc/bigbluebutton/bbb-web.properties`, restart t
 $ sudo bbb-conf --restart
 ```
 
+#### Tune parallel downloads of pre-uploaded presentations
+
+Presentations pre-uploaded through the `create` or `insertDocument` API calls are downloaded and processed in the background, on a bounded thread pool, so the API response is not delayed. By default up to 5 documents are downloaded in parallel per server; additional documents wait in a bounded queue. If the server is under sustained overload and that queue is full, further presentation tasks are rejected (and logged) instead of being queued without limit, which protects the server from running out of memory. A rejected presentation is not uploaded into the meeting, and — like a download or conversion failure — this is not reflected in the `create`/`insertDocument` API response (which has already returned); it is only visible in the server log. To change the parallelism, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties` and set the `numPresentationDownloadThreads` value (values below 1 are treated as 1):
+
+```properties
+numPresentationDownloadThreads=5
+```
+
+After you save the changes to `/etc/bigbluebutton/bbb-web.properties`, restart the BigBlueButton server with
+
+```bash
+sudo bbb-conf --restart
+```
+
 #### Increase the file size for an uploaded presentation
 
 The default maximum file upload size for an uploaded presentation is 30 MB.

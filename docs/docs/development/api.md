@@ -71,7 +71,7 @@ Updated in 2.0:
 
 Updated in 2.2:
 
-- **create** - Added `endWhenNoModerator`.
+- **create** - Added `endWhenNoModerator`, `meetingEndedURL`.
 - **getRecordingTextTracks** - Get a list of the caption/subtitle files currently available for a recording.
 - **putRecordingTextTrack** - Upload a caption or subtitle file to add it to the recording. If there is any existing track with the same values for kind and lang, it will be replaced.
 
@@ -99,7 +99,7 @@ Updated in 2.5:
 
 Updated in 2.6:
 
-- **create** - **Added:** `notifyRecordingIsOn`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`, `recordFullDurationMedia` (v2.6.9); `disabledFeaturesExclude`(2.6.9); Added `liveTranscription` and `presentation` as options for `disabledFeatures`.
+- **create** - **Added:** `notifyRecordingIsOn`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`, `recordFullDurationMedia` (v2.6.9); `disabledFeaturesExclude`(2.6.9); `maxPinnedCameras`, `breakoutRoomsCaptureSlides`, `breakoutRoomsCaptureSlidesFilename`, `breakoutRoomsCaptureNotes`, `breakoutRoomsCaptureNotesFilename`; Added `liveTranscription` and `presentation` as options for `disabledFeatures`.
 
 - **getRecordings** - **Added:** Added support for pagination using `offset`, `limit`
 
@@ -114,7 +114,7 @@ Updated in 2.7:
 Updated in 3.0:
 
 - **create**
-  - **Added parameters:** `loginURL`, `pluginManifests`, `pluginManifestsFetchUrl`, `presentationConversionCacheEnabled`, `maxNumPages`, `multiUserWhiteboardEnabled`, `clientSettingsOverrideJsonUrl`, `sharedNotesEditor`.
+  - **Added parameters:** `loginURL`, `pluginManifests`, `pluginManifestsFetchUrl`, `presentationConversionCacheEnabled`, `maxNumPages`, `multiUserWhiteboardEnabled`, `clientSettingsOverrideJsonUrl`, `sharedNotesEditor`, `cameraBridge`, `screenShareBridge`, `audioBridge`, `darklogo`.
   - **Added options:** Parameter `meetingLayout` supports a few new options: CAMERAS_ONLY, PARTICIPANTS_AND_CHAT_ONLY, PRESENTATION_ONLY, MEDIA_ONLY;
   - **Added options:** Parameter `disabledFeatures` supports a few new options: `infiniteWhiteboard`, `deleteChatMessage`, `editChatMessage`, `replyChatMessage`, `chatMessageReactions`, `raiseHand`, `userReactions`, `chatEmojiPicker`, `quizzes`;
   - **Added POST module:** `clientSettingsOverride` (gated by the server-side setting `allowOverrideClientSettingsOnCreateCall` in `bbb-web.properties`);
@@ -737,6 +737,8 @@ See [Passing user metadata to the client on join](/administration/customize/#pas
 ### `POST` insertDocument
 
 This endpoint insert one or more documents into a running meeting via API call.
+
+The documents are downloaded and converted in the background: a `SUCCESS` response means the request was accepted, not that the documents are already available in the meeting. Download or conversion failures — and, when the server is overloaded, tasks rejected because the background download pool is saturated — are reported to the meeting clients (and the server log), not in the API response. The same applies to presentations pre-uploaded through the `create` call (`preUploadedPresentation` or a request body with a `presentation` module).
 
 **Resource URL:**
 
