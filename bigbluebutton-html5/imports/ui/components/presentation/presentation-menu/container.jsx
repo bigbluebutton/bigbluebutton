@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import PresentationMenu from './component';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { layoutSelect, layoutDispatch } from '/imports/ui/components/layout/context';
+import deviceInfo from '/imports/utils/deviceInfo';
 import { useIsSnapshotOfCurrentSlideEnabled, useIsPopupPresentationEnabled } from '/imports/ui/services/features';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
@@ -20,6 +21,7 @@ const PresentationMenuContainer = (props) => {
   const isFullscreen = currentElement === elementId;
   const Settings = getSettingsSingletonInstance();
   const { isRTL } = Settings.application;
+  const { isMobile } = deviceInfo;
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   let presentationDropdownItems = [];
   if (pluginsExtensibleAreasAggregatedState.presentationDropdownItems) {
@@ -48,6 +50,7 @@ const PresentationMenuContainer = (props) => {
         isFullscreen,
         layoutContextDispatch,
         isRTL,
+        isMobile,
         presentationDropdownItems,
         hasWBAccess,
         meetingName: meetingInfo?.name,
