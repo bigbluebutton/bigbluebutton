@@ -1080,6 +1080,7 @@ class Presentation extends PureComponent {
       fullscreenElementId,
       layoutContextDispatch,
       userIsPresenter,
+      isDesktop,
       currentSlide,
       currentUser,
       isPresentationDetached,
@@ -1097,6 +1098,7 @@ class Presentation extends PureComponent {
         setIsToolbarVisible={this.setIsToolbarVisible}
         isToolbarVisible={isToolbarVisible}
         amIPresenter={userIsPresenter}
+        isDesktop={isDesktop}
         slideNum={currentSlide?.num}
         currentUser={currentUser}
         whiteboardId={currentSlide?.id}
