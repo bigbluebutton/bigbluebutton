@@ -118,6 +118,7 @@ const propTypes = {
   fullscreenRef: PropTypes.instanceOf(Element),
   meetingName: PropTypes.string,
   isIphone: PropTypes.bool,
+  isDesktop: PropTypes.bool,
   elementId: PropTypes.string,
   elementGroup: PropTypes.string,
   currentElement: PropTypes.string,
@@ -150,6 +151,7 @@ const PresentationMenu = (props) => {
     layoutContextDispatch,
     meetingName = '',
     isIphone = false,
+    isDesktop = false,
     isRTL = Settings.application.isRTL,
     isToolbarVisible,
     setIsToolbarVisible,
@@ -531,7 +533,7 @@ const PresentationMenu = (props) => {
       );
     }
 
-    if (props.amIPresenter && allowPopupPresentation) {
+    if (props.amIPresenter && allowPopupPresentation && isDesktop) {
       menuItems.push({
         key: 'list-item-detach-presentation',
         label: formattedDetachedLabel(isPresentationDetached),
