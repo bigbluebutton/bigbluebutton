@@ -283,6 +283,7 @@ const PresentationContainer = (props) => {
           fullscreenContext,
           fullscreenElementId,
           isMobile: deviceType === DEVICE_TYPE.MOBILE,
+          isDesktop: deviceType === DEVICE_TYPE.DESKTOP,
           isIphone,
           currentSlide,
           nextSlide,
