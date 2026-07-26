@@ -247,6 +247,7 @@ class Presentation extends PureComponent {
       restoreOnUpdate,
       layoutContextDispatch,
       userIsPresenter,
+      isPresentationDetached,
       presentationBounds,
       numCameras,
       intl,
@@ -269,6 +270,11 @@ class Presentation extends PureComponent {
       numCameras: prevNumCameras,
       presentationBounds: prevPresentationBounds,
     } = prevProps;
+
+    const presenterRoleLost = (
+      prevProps.userIsPresenter
+      && !userIsPresenter
+    );
 
     if (numCameras !== prevNumCameras) {
       this.onResize();
@@ -354,14 +360,18 @@ class Presentation extends PureComponent {
       });
     }
 
+    if (presenterRoleLost && isPresentationDetached) {
+      this.detachPresentation();
+    }
+
     if (
       (zoom <= HUNDRED_PERCENT && isPanning && !fitToWidth)
-      || (!userIsPresenter && prevProps.userIsPresenter)
+      || presenterRoleLost
     ) {
       this.setIsPanning();
     }
 
-    if (!userIsPresenter && prevProps.userIsPresenter && fitToWidth) {
+    if (presenterRoleLost && fitToWidth) {
       setPresentationFitToWidth(false);
     }
 
