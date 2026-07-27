@@ -202,6 +202,7 @@
     "app.appsGallery.pinTooltip": "Uygulamayı sabitle",
     "app.appsGallery.unpinTooltip": "Uygulamanın sabitlemesini kaldır",
     "app.appsGallery.gridViewLabel": "Grid view",
+    "app.appsGallery.gridViewDisabledLabel": "Not enough space for grid view — expand the panel to use it",
     "app.appsGallery.listViewLabel": "List view",
     "app.appsGallery.newAppLabel": "Yeni",
     "app.appsGallery.modal.title": "Sorun çıktı!",
