@@ -87,6 +87,7 @@ A_P = f"{{{A_NS}}}p"
 A_PPR = f"{{{A_NS}}}pPr"
 A_LST_STYLE = f"{{{A_NS}}}lstStyle"
 A_T = f"{{{A_NS}}}t"
+A_BR = f"{{{A_NS}}}br"
 A_BU_NONE = f"{{{A_NS}}}buNone"
 A_BULLET_ON = {
     f"{{{A_NS}}}buChar",
@@ -192,7 +193,17 @@ def trim_trailing_spaces_from_paragraph(
     Explicit a:br elements, tabs, carriage returns and line feeds are not
     modified. Paragraphs consisting only of spaces are preserved.
     """
-    text_nodes = list(paragraph.iter(A_T))
+    # Only consider text after the final explicit line break. Spaces before
+    # an a:br belong to the preceding line and are not paragraph-final.
+    text_nodes: list[ET.Element] = []
+
+    for child in paragraph:
+        if child.tag == A_BR:
+            text_nodes.clear()
+            continue
+
+        text_nodes.extend(child.iter(A_T))
+
     if not text_nodes:
         return False
 
