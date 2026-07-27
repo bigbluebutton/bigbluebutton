@@ -202,6 +202,7 @@
     "app.appsGallery.pinTooltip": "App anheften",
     "app.appsGallery.unpinTooltip": "App lösen",
     "app.appsGallery.gridViewLabel": "Grid view",
+    "app.appsGallery.gridViewDisabledLabel": "Not enough space for grid view — expand the panel to use it",
     "app.appsGallery.listViewLabel": "List view",
     "app.appsGallery.newAppLabel": "Neu",
     "app.appsGallery.modal.title": "Huch!",
