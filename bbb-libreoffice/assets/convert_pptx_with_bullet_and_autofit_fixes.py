@@ -103,6 +103,10 @@ AUTO_GROW_PROPERTIES = (
     "TextAutoGrowHeight",
 )
 
+# PowerPoint ignores these paragraph-final spaces when determining wrapping,
+# while LibreOffice may include them in the line width.
+TRAILING_SPACES = " \u3000"
+
 ASIAN_WESTERN_ADJACENCY = re.compile(
     r"(?:"
     r"[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]"
@@ -127,6 +131,8 @@ class BulletNormalizationStats:
     modified_paragraphs: int = 0
     attributes_added: int = 0
     unresolved_bullet_paragraphs: int = 0
+    trailing_space_paragraphs: int = 0
+    trailing_space_characters: int = 0
 
 
 # ---------------------------------------------------------------------------
@@ -169,6 +175,100 @@ def paragraph_text(paragraph: ET.Element, limit: int = 70) -> str:
     if len(text) > limit:
         return text[: limit - 1] + "…"
     return text
+
+
+def trim_trailing_spaces_from_paragraph(
+    paragraph: ET.Element,
+    *,
+    part_name: str,
+    body_index: int,
+    paragraph_index: int,
+    stats: BulletNormalizationStats,
+    verbose: bool,
+) -> bool:
+    """
+    Remove paragraph-final normal and ideographic spaces from a:t nodes.
+
+    Explicit a:br elements, tabs, carriage returns and line feeds are not
+    modified. Paragraphs consisting only of spaces are preserved.
+    """
+    text_nodes = list(paragraph.iter(A_T))
+    if not text_nodes:
+        return False
+
+    full_text = "".join(node.text or "" for node in text_nodes)
+    trimmed_full_text = full_text.rstrip(TRAILING_SPACES)
+
+    # Preserve paragraphs made entirely from spaces, because they may be used
+    # intentionally to create visual spacing.
+    if trimmed_full_text == full_text or not trimmed_full_text:
+        return False
+
+    removed_count = 0
+
+    # The trailing spaces may be split across several formatted runs.
+    for text_node in reversed(text_nodes):
+        current_text = text_node.text or ""
+        if not current_text:
+            continue
+
+        trimmed_text = current_text.rstrip(TRAILING_SPACES)
+        removed_from_node = len(current_text) - len(trimmed_text)
+
+        if removed_from_node:
+            text_node.text = trimmed_text
+            removed_count += removed_from_node
+
+        if trimmed_text:
+            break
+
+        if removed_from_node == 0:
+            break
+
+    if removed_count == 0:
+        return False
+
+    stats.trailing_space_paragraphs += 1
+    stats.trailing_space_characters += removed_count
+
+    if verbose:
+        print(
+            "trailing spaces trim: "
+            f"{part_name}, text body {body_index}, "
+            f"paragraph {paragraph_index}: "
+            f"removed {removed_count} character(s); "
+            f"text={paragraph_text(paragraph)!r}"
+        )
+
+    return True
+
+
+def trim_text_body_trailing_spaces(
+    tx_body: ET.Element,
+    *,
+    part_name: str,
+    body_index: int,
+    stats: BulletNormalizationStats,
+    verbose: bool,
+) -> bool:
+    """Trim paragraph-final normal and ideographic spaces in one text body."""
+    changed = False
+
+    for paragraph_index, paragraph in enumerate(
+        tx_body.findall(A_P),
+        start=1,
+    ):
+        if trim_trailing_spaces_from_paragraph(
+            paragraph,
+            part_name=part_name,
+            body_index=body_index,
+            paragraph_index=paragraph_index,
+            stats=stats,
+            verbose=verbose,
+        ):
+            changed = True
+
+    return changed
 
 
 def explicit_bullet_state(properties: ET.Element | None) -> bool | None:
@@ -354,6 +454,16 @@ def normalize_slide_xml(
 
         body_index += 1
         stats.text_bodies += 1
+
+        if trim_text_body_trailing_spaces(
+            element,
+            part_name=part_name,
+            body_index=body_index,
+            stats=stats,
+            verbose=verbose,
+        ):
+            changed = True
+
         if normalize_text_body_bullets(
             element,
             part_name=part_name,
@@ -1079,6 +1189,16 @@ def print_bullet_summary(stats: BulletNormalizationStats) -> None:
     )
 
 
+def print_trailing_space_summary(
+    stats: BulletNormalizationStats,
+) -> None:
+    print(
+        "Trailing paragraph spaces normalization: "
+        f"{stats.trailing_space_paragraphs} paragraph(s) modified, "
+        f"{stats.trailing_space_characters} character(s) removed."
+    )
+
+
 def main() -> int:
     args = parse_args()
     document = None
@@ -1116,6 +1236,7 @@ def main() -> int:
                 )
                 input_for_libreoffice = normalized_path
                 print_bullet_summary(stats)
+                print_trailing_space_summary(stats)
 
                 if args.keep_normalized_pptx:
                     args.keep_normalized_pptx.parent.mkdir(
