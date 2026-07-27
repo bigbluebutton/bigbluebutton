@@ -202,7 +202,7 @@
     "app.appsGallery.pinTooltip": "Appunta app",
     "app.appsGallery.unpinTooltip": "Blocca app",
     "app.appsGallery.gridViewLabel": "Vista a griglia",
-    "app.appsGallery.gridViewDisabledLabel": "Not enough space for grid view — expand the panel to use it",
+    "app.appsGallery.gridViewDisabledLabel": "Spazio insufficiente per la visualizzazione a griglia —  espandi il pannello per utilizzarla",
     "app.appsGallery.listViewLabel": "Vista ad elenco",
     "app.appsGallery.newAppLabel": "Nuova",
     "app.appsGallery.modal.title": "Oops!",
