@@ -202,6 +202,7 @@
     "app.appsGallery.pinTooltip": "Alkalmazás kitűzése",
     "app.appsGallery.unpinTooltip": "Alkalmazás kitűzésének eltávolítása",
     "app.appsGallery.gridViewLabel": "Rácsnézet",
+    "app.appsGallery.gridViewDisabledLabel": "Not enough space for grid view — expand the panel to use it",
     "app.appsGallery.listViewLabel": "Listanézet",
     "app.appsGallery.newAppLabel": "Új",
     "app.appsGallery.modal.title": "Upsz!",
