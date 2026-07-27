@@ -202,6 +202,7 @@
     "app.appsGallery.pinTooltip": "Kinnita rakendus",
     "app.appsGallery.unpinTooltip": "Vabasta rakendus",
     "app.appsGallery.gridViewLabel": "Tabelivaade",
+    "app.appsGallery.gridViewDisabledLabel": "Not enough space for grid view — expand the panel to use it",
     "app.appsGallery.listViewLabel": "Loendivaade",
     "app.appsGallery.newAppLabel": "Uus",
     "app.appsGallery.modal.title": "Ups!",
