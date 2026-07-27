@@ -202,6 +202,7 @@
     "app.appsGallery.pinTooltip": "アプリをピン留めする",
     "app.appsGallery.unpinTooltip": "アプリのピン留めを外す",
     "app.appsGallery.gridViewLabel": "グリッド表示",
+    "app.appsGallery.gridViewDisabledLabel": "Not enough space for grid view — expand the panel to use it",
     "app.appsGallery.listViewLabel": "リスト表示",
     "app.appsGallery.newAppLabel": "New",
     "app.appsGallery.modal.title": "おっと！",
