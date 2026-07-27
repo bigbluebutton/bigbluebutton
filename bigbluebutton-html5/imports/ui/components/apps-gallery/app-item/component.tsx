@@ -88,6 +88,7 @@ const AppItem: React.FC<AppItemProps> = ({
   if (viewMode === APPS_GALLERY_VIEW_MODE.GRID) {
     return (
       <Styled.TileItem key={`${appKey}${isPinned}`} data-test={dataTest}>
+        {isNew && <Styled.TileNewLabel>{intl.formatMessage(intlMessages.newAppLabel)}</Styled.TileNewLabel>}
         <TooltipContainer title={isPinned ? unpinTooltip : pinTooltip}>
           <Styled.TilePinApp
             role="button"
@@ -108,7 +109,6 @@ const AppItem: React.FC<AppItemProps> = ({
           onClick={functionToBeCalled}
           onKeyDown={handleClickableAreaKeyDown}
         >
-          {isNew && <Styled.NewLabel>{intl.formatMessage(intlMessages.newAppLabel)}</Styled.NewLabel>}
           <Styled.TileOpenButton $pinned={isPinned} aria-hidden="true">
             {resolveIcon(icon)}
           </Styled.TileOpenButton>
