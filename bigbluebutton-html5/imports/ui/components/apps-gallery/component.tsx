@@ -86,6 +86,7 @@ const getInitialViewMode = (): AppsGalleryViewModeType => {
 
 const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps }) => {
   const MAX_PINNED_APPS_GALLERY = window.meetingClientSettings.public.app.appsGallery.maxPinnedApps;
+  const effectiveMaxPinnedApps = Math.min(MAX_PINNED_APPS_GALLERY, Object.keys(registeredApps).length);
   const intl = useIntl();
   const title = intl.formatMessage(intlMessages.appsGalleryTitle);
   const [searchQuery, setSearchQuery] = useState('');
@@ -218,7 +219,7 @@ const AppsGallery: React.FC<AppsGalleryProps> = ({ registeredApps, pinnedApps })
           <Styled.BoldText>
             {intl.formatMessage(
               intlMessages.pinnedApps,
-              { pinnedCount: pinnedApps.length, maxPinned: MAX_PINNED_APPS_GALLERY },
+              { pinnedCount: pinnedApps.length, maxPinned: effectiveMaxPinnedApps },
             )}
           </Styled.BoldText>
           {intl.formatMessage(intlMessages.pinnedAppsContinue)}
