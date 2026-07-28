@@ -4,6 +4,7 @@ import PostgresProfile.api._
 import org.bigbluebutton.core.models.PresentationInPod
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{ Failure, Success }
 import spray.json._
 
 case class PresPresentationDbModel(
@@ -249,9 +250,18 @@ object PresPresentationDAO {
       .filter(p => p.meetingId === meetingId && p.presentationId === insertPresentationId)
       .delete
 
-    DatabaseConnection.enqueue(
-      DBIO.seq((pageUpserts.toSeq :+ updateTotalPages :+ deleteInsertPres): _*).transactionally
-    )
+    val transaction = DBIO.seq((pageUpserts.toSeq :+ updateTotalPages :+ deleteInsertPres): _*)
+      .transactionally
+      .asTry
+      .map {
+        case Success(_) => ()
+        case Failure(e) =>
+          DatabaseConnection.logger.error(
+            s"Failed to apply inserted pages to presentation ${presentation.id}: $e"
+          )
+      }
+
+    DatabaseConnection.enqueue(transaction)
   }
 
   def setCurrentPres(presentationId: String) = {

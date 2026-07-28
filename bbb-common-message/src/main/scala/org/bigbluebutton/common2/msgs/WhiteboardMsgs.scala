@@ -63,7 +63,8 @@ case class DoLatencyTracerMsgBody(timestampUTC: Long)
 
 object ClearWhiteboardEvtMsg { val NAME = "ClearWhiteboardEvtMsg" }
 case class ClearWhiteboardEvtMsg(header: BbbClientMsgHeader, body: ClearWhiteboardEvtMsgBody) extends BbbCoreMsg
-case class ClearWhiteboardEvtMsgBody(whiteboardId: String, userId: String, fullClear: Boolean)
+// A future emitter must resolve these fields with PresentationPodsApp.findPresentationPage.
+case class ClearWhiteboardEvtMsgBody(whiteboardId: String, userId: String, fullClear: Boolean, presentationId: String, pageNum: Int)
 
 object GetWhiteboardAnnotationsRespMsg { val NAME = "GetWhiteboardAnnotationsRespMsg" }
 case class GetWhiteboardAnnotationsRespMsg(header: BbbClientMsgHeader, body: GetWhiteboardAnnotationsRespMsgBody) extends BbbCoreMsg

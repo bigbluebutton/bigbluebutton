@@ -1,6 +1,7 @@
 package org.bigbluebutton.presentation.imp;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,7 +93,12 @@ public class InsertPagesSplicer {
       throw new IOException("Target presentation has no page id manifest: " + manifest.getAbsolutePath());
     }
     String json = new String(Files.readAllBytes(manifest.toPath()), StandardCharsets.UTF_8);
-    Map<String, String> byNum = new Gson().fromJson(json, MANIFEST_TYPE);
+    Map<String, String> byNum;
+    try {
+      byNum = new Gson().fromJson(json, MANIFEST_TYPE);
+    } catch (JsonSyntaxException e) {
+      throw new IOException("Target page id manifest contains invalid JSON: " + manifest.getAbsolutePath(), e);
+    }
     if (byNum == null || byNum.isEmpty()) {
       throw new IOException("Target page id manifest is empty: " + manifest.getAbsolutePath());
     }

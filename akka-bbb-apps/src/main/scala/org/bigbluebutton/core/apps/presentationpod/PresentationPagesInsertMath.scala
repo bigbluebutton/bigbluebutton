@@ -7,6 +7,10 @@ package org.bigbluebutton.core.apps.presentationpod
  */
 object PresentationPagesInsertMath {
 
+  /** Clamps a 1-based insert position to the append slot after the target's last page. */
+  def clampedInsertPosition(rawPosition: Int, targetPageCount: Int): Int =
+    math.min(rawPosition, targetPageCount + 1)
+
   /**
    * New page number for an existing target page after `insertCount` pages are inserted at
    * `position`. Pages before the position keep their number; pages at/after it shift up by

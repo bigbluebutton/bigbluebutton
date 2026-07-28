@@ -5,6 +5,10 @@ import org.bigbluebutton.core.apps.presentationpod.PresentationPagesInsertMath
 
 class PresentationPagesInsertMathSpec extends UnitSpec {
 
+  it should "clamp an insert position past the target to an append" in {
+    assert(PresentationPagesInsertMath.clampedInsertPosition(99, 2) == 3)
+  }
+
   it should "leave target pages before the insert position unchanged" in {
     assert(PresentationPagesInsertMath.shiftedTargetPageNum(1, 2, 2) == 1)
   }
@@ -43,5 +47,13 @@ class PresentationPagesInsertMathSpec extends UnitSpec {
     val all = (shifted ++ inserted).sorted
     assert(all == Seq(1, 2, 3, 4, 5))
     assert(all.distinct == all) // no collisions
+  }
+
+  it should "produce a contiguous page set when appending" in {
+    val position = PresentationPagesInsertMath.clampedInsertPosition(99, 3)
+    val shifted = Seq(1, 2, 3).map(PresentationPagesInsertMath.shiftedTargetPageNum(_, position, 1))
+    val inserted = Seq(PresentationPagesInsertMath.insertedPageNum(1, position))
+
+    assert((shifted ++ inserted).sorted == Seq(1, 2, 3, 4))
   }
 }

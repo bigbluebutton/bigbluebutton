@@ -330,29 +330,6 @@ class RedisRecorderActor(
     record(meetingId, ev.toMap.asJava)
   }
 
-  private def getPageNum(id: String): Integer = {
-    val strId = new StringOps(id)
-    val ids = strId.split('/')
-    var pageNum = 0
-    if (ids.length == 2) {
-      pageNum = ids(1).toInt
-    }
-    pageNum
-  }
-
-  private def getPresentationId(whiteboardId: String): String = {
-    // Need to split the whiteboard id into presentation id and page num as the old
-    // recording expects them
-    val strId = new StringOps(whiteboardId)
-    val ids = strId.split('/')
-    var presId: String = ""
-    if (ids.length == 2) {
-      presId = ids(0)
-    }
-
-    presId
-  }
-
   private def handleSendWhiteboardAnnotationsEvtMsg(msg: SendWhiteboardAnnotationsEvtMsg) {
     msg.body.annotations.foreach(annotation => {
       val ev = new AddTldrawShapeWhiteboardRecordEvent()
@@ -384,8 +361,8 @@ class RedisRecorderActor(
   private def handleClearWhiteboardEvtMsg(msg: ClearWhiteboardEvtMsg) {
     val ev = new ClearWhiteboardRecordEvent()
     ev.setMeetingId(msg.header.meetingId)
-    ev.setPresentation(getPresentationId(msg.body.whiteboardId))
-    ev.setPageNumber(getPageNum(msg.body.whiteboardId))
+    ev.setPresentation(msg.body.presentationId)
+    ev.setPageNumber(msg.body.pageNum)
     ev.setWhiteboardId(msg.body.whiteboardId)
     ev.setUserId(msg.body.userId)
     ev.setFullClear(msg.body.fullClear)

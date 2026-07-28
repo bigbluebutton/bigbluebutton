@@ -174,6 +174,26 @@ class InsertPagesSplicerSpec extends UnitSpec {
     }
   }
 
+  it should "raise IOException when the target manifest contains malformed JSON" in {
+    val insertDir = newDir(); seedPages(insertDir, Seq("i1"), "ins")
+    val targetDir = newDir(); seedPages(targetDir, Seq("t1"), "tgt")
+    Files.write(new File(targetDir, PageIdManifest.FILENAME).toPath, "{broken".getBytes("UTF-8"))
+
+    assertThrows[java.io.IOException] {
+      InsertPagesSplicer.splice(insertDir, targetDir, 1, insertIds("i1"))
+    }
+  }
+
+  it should "raise when an inserted artifact would overwrite an existing file" in {
+    val insertDir = newDir(); seedPages(insertDir, Seq("same"), "ins")
+    val targetDir = newDir(); seedPages(targetDir, Seq("same"), "tgt"); writeManifest(targetDir, Seq("same"))
+
+    assertThrows[java.io.IOException] {
+      InsertPagesSplicer.splice(insertDir, targetDir, 1, insertIds("same"))
+    }
+    assert(svgMarker(targetDir, "same") == "tgt-same")
+  }
+
   it should "raise when the target directory does not exist" in {
     val insertDir = newDir(); seedPages(insertDir, Seq("i1"), "ins")
     val missing = new File(newDir(), "does-not-exist")
