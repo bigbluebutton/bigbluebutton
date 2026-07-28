@@ -252,6 +252,10 @@ class PresentationToolbar extends PureComponent {
               key={ppbId}
               style={{ marginLeft: '2px', ...ppb.style }}
               label={ppb.label}
+              color={ppb.color || 'default'}
+              circle={ppb.circle === true}
+              hideLabel={ppb.hideLabel === true}
+              size={ppb.size || 'md'}
               onClick={ppb.onClick}
               tooltipLabel={ppb.tooltip}
               dataTest={ppb.dataTest}
@@ -343,9 +347,6 @@ class PresentationToolbar extends PureComponent {
       allowInfiniteWhiteboard,
       allowInfiniteWhiteboardInBreakouts,
       infiniteWhiteboardIcon,
-      resetSlide,
-      zoomChanger,
-      tldrawAPI,
       maxNumberOfActiveUsers,
       numberOfJoinedUsers,
     } = this.props;

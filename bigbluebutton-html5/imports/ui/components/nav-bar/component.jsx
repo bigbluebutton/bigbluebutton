@@ -41,10 +41,6 @@ const intlMessages = defineMessages({
     id: 'app.navBar.toggleUserList.newMsgAria',
     description: 'label for new message screen reader alert',
   },
-  defaultBreakoutName: {
-    id: 'app.createBreakoutRoom.room',
-    description: 'default breakout room name',
-  },
   leaveMeetingLabel: {
     id: 'app.navBar.leaveMeetingBtnLabel',
     description: 'Leave meeting button label',
@@ -67,9 +63,6 @@ const propTypes = {
   presentationTitle: PropTypes.string,
   hasUnreadMessages: PropTypes.bool,
   shortcuts: PropTypes.string,
-  breakoutNum: PropTypes.number,
-  breakoutName: PropTypes.string,
-  meetingName: PropTypes.string,
   pluginNavBarItems: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string,
   })).isRequired,
@@ -108,8 +101,12 @@ const renderPluginItems = (pluginItems) => {
                       disabled={pluginItem.disabled}
                       label={pluginItem.label}
                       aria-label={pluginItem.tooltip}
-                      color="primary"
-                      tooltip={pluginItem.tooltip}
+                      color={pluginItem.color || 'primary'}
+                      circle={pluginItem.circle === true}
+                      hideLabel={pluginItem.hideLabel === true}
+                      size={pluginItem.size || 'md'}
+                      style={pluginItem.style}
+                      tooltipLabel={pluginItem.tooltip}
                       onClick={pluginItem.onClick}
                       dataTest={pluginItem.dataTest}
                       {...navBarIconProps}
@@ -179,25 +176,7 @@ class NavBar extends Component {
   componentDidMount() {
     const {
       shortcuts: TOGGLE_USERLIST_AK,
-      intl,
-      breakoutNum,
-      breakoutName,
-      meetingName,
     } = this.props;
-
-    if (breakoutNum && breakoutNum > 0) {
-      if (breakoutName && meetingName) {
-        const defaultBreakoutName = intl.formatMessage(intlMessages.defaultBreakoutName, {
-          roomNumber: breakoutNum,
-        });
-
-        if (breakoutName === defaultBreakoutName) {
-          document.title = `${breakoutNum} - ${meetingName}`;
-        } else {
-          document.title = `${breakoutName} - ${meetingName}`;
-        }
-      }
-    }
 
     const { isFirefox } = browserInfo;
     const { isMacos } = deviceInfo;
