@@ -267,6 +267,11 @@ class MeetingActor(
     CheckPresentationConversions
   )
 
+  override def postStop(): Unit = {
+    liveMeeting.audioFloorManager.destroy()
+    super.postStop()
+  }
+
   def receive = {
     case SyncVoiceUserStatusInternalMsg =>
       checkVoiceConfUsersStatus()
@@ -280,6 +285,8 @@ class MeetingActor(
       handleMeetingTasksExecutor()
     case CheckPresentationConversions =>
       state = handleCheckPresentationConversions()
+    case AudioFloorManager.DispatchFloorGrantsInternalMsg =>
+      liveMeeting.audioFloorManager.dispatchPendingGrants(liveMeeting, outGW)
     //=============================
 
     // 2x messages

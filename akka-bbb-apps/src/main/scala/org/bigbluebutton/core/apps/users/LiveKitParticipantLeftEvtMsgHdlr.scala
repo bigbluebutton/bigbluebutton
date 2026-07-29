@@ -9,7 +9,6 @@ import org.bigbluebutton.core.apps.webcam.CameraHdlrHelpers
 import org.bigbluebutton.core.apps.ScreenshareModel
 import org.bigbluebutton.core.db.ScreenshareDAO
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
-import org.bigbluebutton.core.apps.voice.AudioFloorManager
 
 trait LiveKitParticipantLeftEvtMsgHdlr {
   this: BaseMeetingActor =>
@@ -26,7 +25,7 @@ trait LiveKitParticipantLeftEvtMsgHdlr {
     for {
       vu <- VoiceUsers.findWIthIntId(liveMeeting.voiceUsers, userId)
     } yield {
-      AudioFloorManager.handleUserLeftVoice(
+      liveMeeting.audioFloorManager.handleUserLeftVoice(
         vu.intId,
         System.currentTimeMillis(),
         liveMeeting,
