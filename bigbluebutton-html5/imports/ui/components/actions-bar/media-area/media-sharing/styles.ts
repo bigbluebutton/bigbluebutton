@@ -1,7 +1,6 @@
 import styled, { css } from 'styled-components';
-import Button from '/imports/ui/components/common/button/component';
 import {
-  colorDanger, colorWhite, colorGrayUserListToolbar, colorPrimary, appsGalleryOutlineColor,
+  colorWhite, colorGrayUserListToolbar, colorPrimary, appsGalleryOutlineColor,
   colorText, colorGrayIcons, appsPanelTextColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { lgBorderRadius } from '/imports/ui/stylesheets/styled-components/general';
@@ -20,32 +19,6 @@ const Overlay = styled.div`
   height: 100%;
   background: transparent;
   z-index: 1000;
-`;
-
-// @ts-ignore - Button is JSX element
-const ConfirmationButton = styled(Button)`
-  display: flex;
-  width: 100%;
-  height: 3.5rem;
-  padding: 1rem;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
-  flex: 1 0 0;
-  border-radius: ${lgBorderRadius};
-  font-size: 1rem;
-
-  ${({ color }) => color === 'danger' && `
-    border: 1px solid ${colorDanger};
-  `}
-
-  &:hover {
-    opacity: 0.8;
-  }
-
-  i {
-    font-size: 1.5rem;
-  }
 `;
 
 // Modal container positioned in the bottom right corner.
@@ -190,13 +163,6 @@ const BecomePresenterViewContainer = styled.div`
   padding: 1rem;
   flex-direction: column;
   gap: 1rem;
-
-  ${ConfirmationButton} {
-    height: 2.5rem;
-    padding: 0.5rem;
-    border-radius: 0.5rem;
-    min-width: 8.5rem;
-  }
 `;
 
 const BecomePresenterText = styled.div`
@@ -235,7 +201,6 @@ const WaitingButton = styled.button<{ $animations?: boolean }>`
 
 export default {
   Overlay,
-  ConfirmationButton,
   ModalContainer,
   HeaderContainer,
   ContentContainer,

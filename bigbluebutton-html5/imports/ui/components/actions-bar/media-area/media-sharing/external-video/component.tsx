@@ -3,6 +3,8 @@ import { defineMessages, IntlShape } from 'react-intl';
 import TextField from '@mui/material/TextField';
 import Styled from './styles';
 import ModalStyled from '../styles';
+import Icon from '/imports/ui/components/common/icon/component';
+import { BBButton } from '@mconf/bbb-ui-components-react';
 import { isUrlValid, startWatching } from '/imports/ui/components/external-video-player/service';
 import { useMutation } from '@apollo/client';
 import { EXTERNAL_VIDEO_START } from '/imports/ui/components/external-video-player/mutations';
@@ -79,12 +81,12 @@ const ExternalVideoView: React.FC<ExternalVideoViewProps> = ({
         </ModalStyled.SubViewContentText>
       </Styled.Content>
       <ModalStyled.FooterContainer>
-        <ModalStyled.ConfirmationButton
-          // aria-label={footerButtonLabel}
-          data-test={!isSharingVideo ? 'ShareExternalVideo' : 'StopSharingExternalVideo'}
+        <BBButton
+          dataTest={!isSharingVideo ? 'ShareExternalVideo' : 'StopSharingExternalVideo'}
           label={!isSharingVideo
             ? intl.formatMessage(intlMessages.shareLabel) : intl.formatMessage(intlMessages.stopSharingLabel)}
-          color={!isSharingVideo ? 'primary' : 'danger'}
+          variant="primary"
+          color={!isSharingVideo ? 'default' : 'danger'}
           onClick={() => {
             if (!isSharingVideo) {
               startWatchingImp(videoUrl);
@@ -94,7 +96,7 @@ const ExternalVideoView: React.FC<ExternalVideoViewProps> = ({
             }
           }}
           disabled={!canStartSharing && !isSharingVideo}
-          icon={isSharingVideo ? 'external-video_off' : undefined}
+          iconStart={isSharingVideo ? <Icon iconName="external-video_off" /> : undefined}
         />
       </ModalStyled.FooterContainer>
     </>
