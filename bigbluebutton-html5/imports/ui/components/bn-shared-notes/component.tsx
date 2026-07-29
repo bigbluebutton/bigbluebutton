@@ -585,7 +585,7 @@ function BlockNoteContainer({ isVisible }: BlockNoteContainerProps): React.React
     };
   }, [renderBlockNote, isVisible, markNotesAsRead]);
   return (
-    <Styled.Notes id="bn-notes-scroll-container">
+    <Styled.Notes id="bn-notes-scroll-container" isPresenter={currentUser?.presenter ?? false}>
       {(hasError) && (
         <Styled.WarningNotificationContainer data-test="notesError">
           <Styled.ErrorMessage>{error}</Styled.ErrorMessage>
