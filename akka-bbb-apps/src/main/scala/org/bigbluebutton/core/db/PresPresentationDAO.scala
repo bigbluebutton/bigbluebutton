@@ -261,6 +261,9 @@ object PresPresentationDAO {
           )
       }
 
+    // The meeting actor updates its in-memory presentation before this queued
+    // transaction commits. As with other BBB DAOs, a commit failure is logged
+    // but does not roll back actor state, so memory and DB may diverge.
     DatabaseConnection.enqueue(transaction)
   }
 

@@ -2,10 +2,11 @@ package org.bigbluebutton.core.apps.presentationpod
 
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
-import org.bigbluebutton.core.db.PresPresentationDAO
+import org.bigbluebutton.core.db.{ NotificationDAO, PresPresentationDAO }
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.PresentationPage
 import org.bigbluebutton.core.running.LiveMeeting
+import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait PresentationPagesInsertedSysMsgHdlr {
   this: PresentationPodHdlrs =>
@@ -67,10 +68,23 @@ trait PresentationPagesInsertedSysMsgHdlr {
           // One transaction: repoint the inserted page rows onto the target, renumber the shifted
           // rows, update totalPages and delete the transient insert presentation row. Split apart,
           // the insert-pres delete could cascade away the inserted pages before they are re-homed.
+          // The actor state update is fire-and-forget relative to that DAO transaction; a commit
+          // failure is logged but can leave in-memory presentation state ahead of the database.
           PresPresentationDAO.applyInsertedPages(newTargetPres, liveMeeting.props.meetingProp.intId, insertPresId, inserted.keySet)
 
           state.update(pods)
         case None =>
+          val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+            liveMeeting.props.meetingProp.intId,
+            "error",
+            "presentation",
+            "app.presentation.insertPagesFailedNotification",
+            "Notification when inserting pages into a presentation fails",
+            Map("presentationName" -> insertPres.name)
+          )
+          bus.outGW.send(notifyEvent)
+          NotificationDAO.insert(notifyEvent)
+
           PresPresentationDAO.delete(liveMeeting.props.meetingProp.intId, insertPresId)
           state.update(state.presentationPodManager.removePresentationInPod(pod.id, insertPresId))
       }

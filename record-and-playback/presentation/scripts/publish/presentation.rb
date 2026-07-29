@@ -603,6 +603,9 @@ end
 def learn_page_key(explicit_id, presentation, slide_number)
   return if explicit_id.nil? || explicit_id.empty?
 
+  # This cache assumes a presentation's slide number always identifies the same
+  # page during a recording. Inserts that renumber slides mid-recording can
+  # therefore leave a stale page id under the old number.
   @page_key_by_pres_num[[presentation, slide_number]] ||= explicit_id
 end
 

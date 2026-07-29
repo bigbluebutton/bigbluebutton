@@ -32,6 +32,7 @@ const job = fs.readFileSync(path.join(dropbox, 'job'));
 const exportJob = JSON.parse(job);
 const statusUpdate = new PresAnnStatusMsg(exportJob,
     PresAnnStatusMsg.EXPORT_STATUSES.PROCESSING);
+let client;
 
 /**
  * Converts measured points to pixels, using the predefined points-per-inch
@@ -77,6 +78,8 @@ function getBackgroundMimeType(backgroundFormat) {
  * @return {string} A data URI containing the background image.
  */
 function getBackgroundDataURI(backgroundFile, backgroundFormat) {
+  if (!fs.existsSync(backgroundFile)) return null;
+
   const mimeType = getBackgroundMimeType(backgroundFormat);
   const backgroundData = fs.readFileSync(backgroundFile).toString('base64');
 
@@ -342,7 +345,7 @@ async function overlayAnnotations(svg, slideAnnotations) {
  * @return {Promise<void>} A promise that resolves when the process is complete.
  */
 async function processPresentationAnnotations() {
-  const client = redis.createClient({
+  client = redis.createClient({
     password: config.redis.password,
     socket: {
       host: config.redis.host,
@@ -426,7 +429,9 @@ async function processPresentationAnnotations() {
     // box. The helper ensures the slide has a viewBox (so slides missing one
     // still fill the raster) and renders at the same resolution as the final
     // SVG->PDF pass (toPx of the slide dims) so the background stays sharp.
-    let backgroundSlide = `${bgImagePath}.${backgroundFormat}`;
+    let backgroundSlide = backgroundFormat === 'svg' ?
+      svgBackgroundSlide :
+      `${bgImagePath}.${backgroundFormat}`;
     let backgroundSlideFormat = backgroundFormat;
 
     if (backgroundFormat === 'svg') {
@@ -452,6 +457,12 @@ async function processPresentationAnnotations() {
 
     const backgroundDataURI = getBackgroundDataURI(
         backgroundSlide, backgroundSlideFormat);
+    if (!backgroundDataURI) {
+      logger.error(
+          `Skipping slide ${currentSlide.page} (${jobId}): background missing`,
+      );
+      continue;
+    }
 
     // Add the image element
     canvas
@@ -557,4 +568,13 @@ async function processPresentationAnnotations() {
   await client.disconnect();
 }
 
-processPresentationAnnotations();
+processPresentationAnnotations().catch(async (error) => {
+  logger.error(
+      `Processing annotations failed for job ${jobId}: ${error.message}`,
+  );
+  statusUpdate.setError();
+  if (client?.isOpen) {
+    await client.publish(config.redis.channels.publish, statusUpdate.build());
+    await client.disconnect();
+  }
+});

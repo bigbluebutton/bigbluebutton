@@ -64,7 +64,9 @@ public class InsertPagesSplicer {
     int position = Math.max(1, Math.min(rawPosition, targetTotal + 1));
 
     // Move the inserted pages' artifacts into the target dir. Names are opaque page ids, so
-    // nothing collides and no existing target file is touched.
+    // nothing collides and no existing target file is touched. If a move fails mid-loop,
+    // artifacts already moved remain orphaned in targetDir; full rollback is disproportionate
+    // for this very low-probability filesystem failure.
     for (String pageId : insertPageIds.values()) {
       PageArtifacts.move(insertDir, targetDir, pageId);
     }

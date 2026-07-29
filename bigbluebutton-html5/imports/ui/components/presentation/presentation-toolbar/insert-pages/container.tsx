@@ -4,6 +4,11 @@ import React, {
 import { defineMessages, useIntl } from 'react-intl';
 import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import {
+  getNotificationsStream,
+  NotificationResponse,
+} from '/imports/ui/components/notifications/queries';
 import Service from './service';
 import InsertPagesToolbarButton from './component';
 
@@ -74,6 +79,10 @@ const InsertPagesContainer: React.FC<InsertPagesContainerProps> = ({
   const pendingRef = useRef<PendingInsert | null>(null);
   const progressToastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const completionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { data: notificationsStream } = useDeduplicatedSubscription<NotificationResponse>(
+    getNotificationsStream,
+    { variables: { initialCursor: '2000-01-01' } },
+  );
 
   const clearTimers = useCallback(() => {
     if (progressToastTimer.current) clearTimeout(progressToastTimer.current);
@@ -97,6 +106,17 @@ const InsertPagesContainer: React.FC<InsertPagesContainerProps> = ({
       'warning',
     );
   }, [intl, resolveInsert]);
+
+  useEffect(() => {
+    if (!pendingRef.current) return;
+
+    // Inserts are serialized by pendingRef, so any server-side insert failure
+    // received while one is pending resolves the current operation.
+    const insertFailed = notificationsStream?.notification_stream.some(
+      ({ messageId }) => messageId === 'app.presentation.insertPagesFailedNotification',
+    );
+    if (insertFailed) resolveInsert();
+  }, [notificationsStream, resolveInsert]);
 
   const startInsert = useCallback((
     kind: 'blank' | 'file', filePromise: Promise<File>, filename: string,

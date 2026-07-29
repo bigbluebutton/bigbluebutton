@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   InsertPagesCommandArguments,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/server-commands/presentation/types';
@@ -23,10 +23,12 @@ import { toFile } from '../content-to-file';
 const isValidInsertEvent = (event: CustomEvent<InsertPagesCommandArguments>) => (
   event instanceof CustomEvent
     && event.detail != null
-    && typeof event.detail.position === 'number'
+    && Number.isInteger(event.detail.position)
+    && event.detail.position >= 1
 );
 
 const PluginInsertPagesPresentationServerCommandsManager = () => {
+  const uploadInFlight = useRef(false);
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
   }));
@@ -39,6 +41,15 @@ const PluginInsertPagesPresentationServerCommandsManager = () => {
   const currentPresentationId = presentations.find((p) => p.current)?.presentationId;
 
   const handleInsertPages = ((event: CustomEvent<InsertPagesCommandArguments>) => {
+    const presentationSettings = window.meetingClientSettings.public.presentation as {
+      insertPagesEnabled?: boolean;
+    };
+    if (!presentationSettings.insertPagesEnabled) {
+      logger.warn({
+        logCode: 'plugin_presentation_insert_pages_disabled',
+      }, 'Plugin tried to insert pages while the feature is disabled');
+      return;
+    }
     if (!currentUserData?.presenter) {
       logger.warn({
         logCode: 'plugin_presentation_insert_pages_not_allowed',
@@ -57,10 +68,17 @@ const PluginInsertPagesPresentationServerCommandsManager = () => {
       }, 'Insert pages: no current presentation to insert into');
       return;
     }
+    if (uploadInFlight.current) {
+      logger.warn({
+        logCode: 'plugin_presentation_insert_pages_in_flight',
+      }, 'Plugin tried to insert pages while an upload is in flight');
+      return;
+    }
 
     const {
       position, content, mimeType, filename,
     } = event.detail;
+    uploadInFlight.current = true;
 
     // A null content means "insert a blank page": the same server-hosted blank.pdf the native
     // toolbar inserts, so both paths go through the regular conversion pipeline.
@@ -75,6 +93,11 @@ const PluginInsertPagesPresentationServerCommandsManager = () => {
           logCode: 'plugin_presentation_insert_pages',
           extraInfo: { error: (error as Error)?.message },
         }, 'Failed to insert pages from plugin command');
+      })
+      // This guard covers conversion to File and upload only. The asynchronous
+      // splice can still interleave with native or later plugin inserts.
+      .finally(() => {
+        uploadInFlight.current = false;
       });
   }) as EventListener;
 

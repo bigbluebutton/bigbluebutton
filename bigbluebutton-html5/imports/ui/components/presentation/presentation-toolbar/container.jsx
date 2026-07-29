@@ -126,12 +126,11 @@ const PresentationToolbarContainer = (props) => {
   const presentationPagesLoaded = presentationPagesData !== undefined;
 
   const resetSlide = () => {
-    const { pageId, num } = currentPresentationPage;
+    const { pageId } = currentPresentationPage;
     presentationSetZoom({
       variables: {
         presentationId,
         pageId,
-        pageNum: num,
         xOffset: 0,
         yOffset: 0,
         widthRatio: 100,

@@ -406,7 +406,7 @@
     "app.presentation.presentationToolbar.insertingBlankSlide": "Inserting blank slide...",
     "app.presentation.presentationToolbar.convertingFile": "Converting {filename}...",
     "app.presentation.presentationToolbar.blankSlideInserted": "Blank slide inserted after slide {slide}",
-    "app.presentation.presentationToolbar.pagesInserted": "{count} slides inserted from {filename} after slide {slide}",
+    "app.presentation.presentationToolbar.pagesInserted": "{count, plural, one {# slide} other {# slides}} inserted from {filename} after slide {slide}",
     "app.presentation.presentationToolbar.insertPagesError": "Couldn't insert {filename}: {reason}",
     "app.presentation.presentationToolbar.insertPagesTimeoutReason": "the conversion timed out",
     "app.presentation.presentationToolbar.hideToolsDesc": "Hide Toolbars",

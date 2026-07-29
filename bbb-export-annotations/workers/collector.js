@@ -39,9 +39,9 @@ async function collectAnnotationsFromRedis() {
   const client = redis.createClient({
     password: config.redis.password,
     socket: {
-        host: config.redis.host,
-        port: config.redis.port
-    }
+      host: config.redis.host,
+      port: config.redis.port,
+    },
   });
 
   client.on('error', (err) => logger.info('Redis Client Error', err));
@@ -72,9 +72,9 @@ async function collectAnnotationsFromRedis() {
   // Message to display conversion progress toast
   const statusUpdate = new PresAnnStatusMsg(exportJob);
 
-  // A presentation without its own PDF (uploaded as a PNG/JPEG image) normally has a single
-  // page, but insert-pages can splice extra pages into it; the original image then only covers
-  // one of them, so any multi-page presentation must go through the converted SVG slides.
+  // A presentation without its own PDF (uploaded as a PNG/JPEG image) starts
+  // with one page. If pages are later inserted, use the converted SVG slides
+  // because the original image still represents only slide 1.
   if (fs.existsSync(pdfFile) || pages.length > 1) {
     // Leverage the existing converted SVG slides
     for (const p of pages) {
