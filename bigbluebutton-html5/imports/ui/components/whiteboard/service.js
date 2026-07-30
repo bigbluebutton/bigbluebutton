@@ -386,17 +386,39 @@ const sanitizeShape = (shape) => {
 };
 
 const debouncedUpdateShapes = debounce((
-  shapes, tlEditorRef, presentationIdRef, pageChanged, assets, bgShape,
+  shapes, tlEditorRef, presentationIdRef, pageChanged, assets, bgShape, currentUserId,
 ) => {
   if (shapes && Object.keys(shapes).length > 0) {
     tlEditorRef.current?.store.mergeRemoteChanges(() => {
+      const editingShape = tlEditorRef.current?.getEditingShape();
       const remoteShapesArray = Object.values(shapes).reduce((acc, shape) => {
+        const isStaleOwnActiveFrameName = Boolean(currentUserId)
+          && editingShape?.id === shape.id
+          && editingShape.type === 'frame'
+          && shape.type === 'frame'
+          && shape.props?.name !== undefined
+          && shape.meta?.updatedBy === currentUserId
+          && editingShape.props.name !== shape.props.name;
+
+        // A frame name input is controlled by the local tldraw store. Applying an
+        // older echoed name while it is being edited can replace newer keystrokes.
+        // Preserve only the local name so server metadata is still reconciled.
+        const shapeToMerge = isStaleOwnActiveFrameName
+          ? {
+            ...shape,
+            props: {
+              ...shape.props,
+              name: editingShape.props.name,
+            },
+          }
+          : shape;
+
         if (
           (shape.meta?.presentationId === presentationIdRef.current
           || shape?.whiteboardId?.includes(presentationIdRef.current))
           && isValidShapeType(shape)
         ) {
-          acc.push(sanitizeShape(shape));
+          acc.push(sanitizeShape(shapeToMerge));
         }
         return acc;
       }, []);
