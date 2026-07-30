@@ -392,17 +392,19 @@ const debouncedUpdateShapes = debounce((
     tlEditorRef.current?.store.mergeRemoteChanges(() => {
       const editingShape = tlEditorRef.current?.getEditingShape();
       const remoteShapesArray = Object.values(shapes).reduce((acc, shape) => {
+        const remoteVersion = Number(shape.meta?.version ?? 0);
+        const localVersion = Number(editingShape?.meta?.version ?? 0);
         const isStaleOwnActiveFrameName = Boolean(currentUserId)
           && editingShape?.id === shape.id
           && editingShape.type === 'frame'
           && shape.type === 'frame'
           && shape.props?.name !== undefined
           && shape.meta?.updatedBy === currentUserId
+          && remoteVersion >= localVersion
           && editingShape.props.name !== shape.props.name;
 
-        // A frame name input is controlled by the local tldraw store. Applying an
-        // older echoed name while it is being edited can replace newer keystrokes.
-        // Preserve only the local name so server metadata is still reconciled.
+        // A frame name input is controlled by the local tldraw store. Preserve
+        // only its name for current or newer self echoes so metadata is reconciled.
         const shapeToMerge = isStaleOwnActiveFrameName
           ? {
             ...shape,
