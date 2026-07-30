@@ -847,7 +847,7 @@ public:
   layout:
     hidePresentationOnJoin: false
     showParticipantsOnLogin: false
-    showSessionDetailsOnJoin: true
+    showSessionDetailsOnJoin: false
     showScreenshareQuickSwapButton: false
     showLeaveSessionLabel: false
     usersPerUserListPage: 50
