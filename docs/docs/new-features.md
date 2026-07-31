@@ -195,6 +195,23 @@ In the event that you prefer using Etherpad, install the optional packages via
 At this point you can use it in a specific session by passing `sharedNotesEditor=etherpad` on the `/create` call. If you have made up your mind and would like to use it for all sessions, add the same line (`sharedNotesEditor=etherpad`) to `/etc/bigbluebutton/bbb-web.properties` and restart BigBlueButton via `$ sudo bbb-conf --restart`
 
 
+#### New optional package: bbb-coturn
+
+BigBlueButton 4.0 adds `bbb-coturn`, a BigBlueButton build of the [coturn](https://github.com/coturn/coturn) TURN/STUN server. Ubuntu 24.04 only ships coturn 4.6.1; `bbb-coturn` packages coturn 4.15.0.
+
+It is an **optional** package — it is not a dependency of the `bigbluebutton` meta-package and is not installed by default. Install it with
+
+`$ sudo apt install bbb-coturn`
+
+`bbb-coturn` is a drop-in replacement for the distro `coturn` package: it declares `Provides`/`Conflicts`/`Replaces` on `coturn` (so apt swaps one for the other) and keeps the same paths — `/usr/bin/turnserver`, the `/etc/turnserver.conf` config file, and a `coturn.service` systemd unit. Existing systemd drop-ins under `/etc/systemd/system/coturn.service.d/` continue to apply.
+
+Unlike the distro package, `bbb-coturn` does **not** enable or start the service on install. The shipped `/etc/turnserver.conf` is the stock upstream example with every option commented out, and coturn's default in that state is anonymous access — starting it before a real configuration is written would expose an open relay. Once you have configured `/etc/turnserver.conf`, start it with
+
+`$ sudo systemctl enable --now coturn`
+
+See [Turn Server Configuration](/administration/turn-server) for the full configuration.
+
+
 #### Removing deprecated layout options
 
 The layout system has been simplified to use a single unified layout. The following layouts have been removed: `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, and `VIDEO_FOCUS`. The default layout is now `UNIFIED_LAYOUT`.
