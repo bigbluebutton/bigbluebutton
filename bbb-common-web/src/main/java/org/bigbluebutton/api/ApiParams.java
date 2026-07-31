@@ -31,7 +31,6 @@ public class ApiParams {
     public static final String BANNER_COLOR = "bannerColor";
     public static final String BANNER_TEXT = "bannerText";
     public static final String CHECKSUM = "checksum";
-    public static final String COPYRIGHT = "copyright";
     public static final String DIAL_NUMBER = "dialNumber";
     public static final String DURATION = "duration";
     public static final String FREE_JOIN = "freeJoin";
