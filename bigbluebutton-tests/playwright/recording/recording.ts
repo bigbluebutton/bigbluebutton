@@ -55,10 +55,15 @@ export class Recording extends MultiUsers {
       e.recordingIndicator,
       'should the recording indicator to be displayed once the user join the meeting',
     );
+    // Structural assertions, not exact colors: the palette is themeable and
+    // dark theme shifts every computed color.
     await expect(
       recordingIndicatorButton,
-      'recording indicator button should not have any background color when not recording',
-    ).toHaveCSS('background-color', 'rgba(255, 255, 255, 0.1)');
+      'recording indicator button should have no visible border when not recording',
+    ).toHaveCSS('border-top-style', 'none');
+    const idleBackground = await recordingIndicatorButton.evaluate(
+      (el) => getComputedStyle(el).backgroundColor,
+    );
 
     // start recording
     await this.modPage.waitAndClick(e.recordingIndicator);
@@ -68,8 +73,16 @@ export class Recording extends MultiUsers {
     await this.modPage.waitAndClick(e.confirmRecordingButton);
     await expect(
       recordingIndicatorButton,
-      'recording indicator button should have a red background color when recording',
-    ).toHaveCSS('background-color', 'rgb(223, 39, 33)');
+      'recording indicator button should gain a 1px outline when recording',
+    ).toHaveCSS('border-top-style', 'solid');
+    await expect(
+      recordingIndicatorButton,
+      'recording outline should be 1px wide',
+    ).toHaveCSS('border-top-width', '1px');
+    await expect(
+      recordingIndicatorButton,
+      'recording indicator button background should change when recording starts',
+    ).not.toHaveCSS('background-color', idleBackground);
 
     // send chat message
     await openPublicChat(this.modPage);
@@ -146,8 +159,8 @@ export class Recording extends MultiUsers {
     await this.modPage.waitAndClick(e.confirmRecordingButton);
     await expect(
       recordingIndicatorButton,
-      'recording indicator button should have a red background color when recording',
-    ).toHaveCSS('background-color', 'rgb(223, 39, 33)');
+      'recording indicator button should gain a 1px outline when recording',
+    ).toHaveCSS('border-top-style', 'solid');
 
     // keep the fake audio flowing so the recording captures several seconds of audio
     await expect(async () => {

@@ -61,6 +61,10 @@ const btnDefaultGhostBg = 'var(--btn-default-bg, rgba(255, 255, 255, 0.1))'; // 
 const btnDefaultGhostBorder = 'var(--btn-default-border, rgba(255, 255, 255, 0.5))'; // colorWhite, 50%
 const btnDefaultGhostActiveBg = 'var(--btn-default-active-bg, rgba(255, 255, 255, 0.2))'; // colorWhite, 20%
 
+// Recording indicator, active state only; the idle one keeps btnDefaultGhostBg.
+const btnRecordingActiveBg = 'var(--btn-recording-active-bg, #334150)';
+const btnRecordingActiveBorder = 'var(--btn-recording-active-border, #D6232D)';
+
 const btnPrimaryBorder = 'var(--btn-primary-border, rgba(15, 112, 215, 0.5))'; // colorPrimary, 50%
 const btnPrimaryColor = `var(--btn-primary-color, ${colorWhite})`;
 const btnPrimaryBg = `var(--btn-primary-bg, ${colorPrimary})`;
@@ -223,6 +227,8 @@ export {
   btnDefaultGhostBg,
   btnDefaultGhostBorder,
   btnDefaultGhostActiveBg,
+  btnRecordingActiveBg,
+  btnRecordingActiveBorder,
   btnPrimaryBorder,
   btnPrimaryColor,
   btnPrimaryBg,
