@@ -1,6 +1,7 @@
 import React, {
   useMemo, useState, useCallback, useEffect,
 } from 'react';
+import { createPortal } from 'react-dom';
 import Styled from './styles';
 import { isJumbomoji } from './jumbomoji';
 import { authenticateUploadedImages } from '/imports/ui/components/chat/chat-graphql/service';
@@ -60,7 +61,15 @@ const ChatMessageTextContent: React.FC<ChatMessageTextContentProps> = ({
         $jumbomoji={jumbomoji}
         onClick={handleClick}
       />
-      {lightboxSrc && (
+      {/* The lightbox is a position:fixed full-viewport overlay, but it is
+          rendered deep inside the chat message list, whose panel wrapper carries
+          a `transform` (from the sliding-panel animation). Any transform makes an
+          ancestor the containing block for position:fixed descendants, so the
+          overlay would be positioned/clipped to the narrow, overflow:hidden chat
+          panel instead of the viewport (black sliver, image clipped out of view).
+          Portal it to document.body so it escapes that containing block, matching
+          how other BBB overlays (e.g. polling) render. */}
+      {lightboxSrc && createPortal(
         <Styled.ImageLightbox
           onClick={closeLightbox}
           data-test="imageLightbox"
@@ -71,7 +80,8 @@ const ChatMessageTextContent: React.FC<ChatMessageTextContentProps> = ({
               Escape-to-close), since the lightbox has no other focusable child */}
           {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
           <img src={lightboxSrc} alt="" tabIndex={0} />
-        </Styled.ImageLightbox>
+        </Styled.ImageLightbox>,
+        document.body,
       )}
     </>
   );
