@@ -21,6 +21,9 @@ trait LiveKitParticipantLeftEvtMsgHdlr {
     val userId = msg.header.userId
     val isPresenter = Users2x.isPresenter(userId, liveMeeting.users2x)
 
+    // User has been removed from LK - this is an ACK for the reconciler, forget them
+    liveMeeting.voiceUserReconciler.forget(userId)
+
     // Clean up any voice users associated with the user
     for {
       vu <- VoiceUsers.findWIthIntId(liveMeeting.voiceUsers, userId)
