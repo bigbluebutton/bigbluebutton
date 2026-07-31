@@ -77,6 +77,11 @@ bbb-config-build:
   script:
     - build/setup-inside-docker.sh bbb-config
 
+bbb-coturn-build:
+  extends: .build_job
+  script:
+    - build/setup-inside-docker.sh bbb-coturn
+
 bbb-etherpad-build:
   extends: .build_job
   script:
