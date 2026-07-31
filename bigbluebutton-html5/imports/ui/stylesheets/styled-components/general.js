@@ -45,11 +45,17 @@ const descriptionMargin = '3.5rem';
 const navbarHeight = '3.9375rem';
 const barsPadding = '0.8rem'; // so user-list and chat title is aligned with the presentation title
 const navigationSidebarLogoPadding = '15%';
-const navigationSidebarListItemsContainerGap = '2.5rem';
-const navigationSidebarListItemsGap = '0.8rem';
-const navigationSidebarListItemsWidth = '70%';
-const navigationSidebarNotificationBadgeSize = '16px';
-const navigationSidebarNotificationBadgePosition = '-3px';
+const navigationSidebarListItemsContainerGap = 'calc(18rem / 14)';
+const navigationSidebarListItemsContainerGapSmallHeight = 'calc(9rem / 14)';
+const navigationSidebarListItemsGap = 'calc(12rem / 14)';
+const navigationSidebarListItemsGapSmallHeight = 'calc(6rem / 14)';
+const navigationSidebarListItemsWidth = '65%';
+const navigationSidebarIconSize = 'calc(18rem / 14)';
+const navigationSidebarIconSizeSmallHeight = '1rem';
+const navigationSidebarNotificationBadgeSize = '14px';
+const navigationSidebarNotificationBadgeFontSize = '7px';
+const navigationSidebarNotificationBadgeBottom = '-3px';
+const navigationSidebarNotificationBadgeRight = '-1px';
 const navigationSidebarBorderRadius = '48px';
 const navigationSidebarPaddingY = '20px';
 const navigationSidebarMargin = `${SIDEBAR_NAVIGATION_MARGIN_PERCENTAGE_WIDTH * 100}vw`;
@@ -156,10 +162,16 @@ export {
   barsPadding,
   navigationSidebarLogoPadding,
   navigationSidebarListItemsContainerGap,
+  navigationSidebarListItemsContainerGapSmallHeight,
   navigationSidebarListItemsGap,
+  navigationSidebarListItemsGapSmallHeight,
   navigationSidebarListItemsWidth,
+  navigationSidebarIconSize,
+  navigationSidebarIconSizeSmallHeight,
   navigationSidebarNotificationBadgeSize,
-  navigationSidebarNotificationBadgePosition,
+  navigationSidebarNotificationBadgeFontSize,
+  navigationSidebarNotificationBadgeBottom,
+  navigationSidebarNotificationBadgeRight,
   navigationSidebarBorderRadius,
   navigationSidebarPaddingY,
   navigationSidebarMargin,

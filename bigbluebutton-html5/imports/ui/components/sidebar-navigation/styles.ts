@@ -1,9 +1,15 @@
 import styled from 'styled-components';
 import {
   borderSize,
+  borderSizeSmall,
   navigationSidebarBorderRadius,
   navigationSidebarListItemsContainerGap,
+  navigationSidebarListItemsContainerGapSmallHeight,
   navigationSidebarListItemsGap,
+  navigationSidebarListItemsGapSmallHeight,
+  navigationSidebarNotificationBadgeSize,
+  navigationSidebarNotificationBadgeBottom,
+  navigationSidebarNotificationBadgeRight,
   navigationSidebarPaddingY,
   navigationSidebarMargin,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -11,6 +17,7 @@ import {
   colorGrayDark,
   colorWhite,
   colorDanger,
+  notificationBadgeBg,
   colorBackground,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
@@ -62,12 +69,12 @@ const NavigationToggleButton = styled(Button)`
       content: '';
       position: absolute;
       border-radius: 50%;
-      width: 12px;
-      height: 12px;
-      bottom: ${borderSize};
-      right: 3px;
-      background-color: ${colorDanger};
-      border: ${borderSize} solid ${colorGrayDark};
+      width: ${navigationSidebarNotificationBadgeSize};
+      height: ${navigationSidebarNotificationBadgeSize};
+      bottom: ${navigationSidebarNotificationBadgeBottom};
+      right: ${navigationSidebarNotificationBadgeRight};
+      background-color: ${notificationBadgeBg};
+      border: ${borderSizeSmall} solid ${colorWhite};
     }
   `}
 `;
@@ -86,7 +93,7 @@ const NavigationSidebarListItemsContainer = styled(ScrollboxVertical)<{
   border-radius: ${navigationSidebarBorderRadius};
   gap: ${navigationSidebarListItemsContainerGap};
   @media ${smallHeight} {
-    gap: 1.25rem;
+    gap: ${navigationSidebarListItemsContainerGapSmallHeight};
   }
 
   ${({ isExpanded }) => (isExpanded ? `
@@ -120,7 +127,7 @@ const PositionedDiv = styled.div`
   gap: ${navigationSidebarListItemsGap};
 
   @media ${smallHeight} {
-    gap: 0.4rem;
+    gap: ${navigationSidebarListItemsGapSmallHeight};
   }
 `;
 
