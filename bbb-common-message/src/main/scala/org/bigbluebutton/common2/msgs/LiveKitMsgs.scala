@@ -105,3 +105,57 @@ case class LiveKitParticipantLeftEvtMsg(
 case class LiveKitParticipantLeftEvtMsgBody(
     userId: String,
 )
+
+/**
+ * Re-applies a participant's LiveKit permissions on their live session, keyed by
+ * BBB intId (the LiveKit identity for web users). LiveKit writes the change into
+ * the participant's claim grants and refreshes the client's token, so it survives
+ * an ordinary SDK reconnect. Idempotent.
+ */
+object UpdateLiveKitParticipantPermissionsSysMsg { val NAME = "UpdateLiveKitParticipantPermissionsSysMsg" }
+case class UpdateLiveKitParticipantPermissionsSysMsg(
+    header: BbbCoreHeaderWithMeetingId,
+    body:   UpdateLiveKitParticipantPermissionsSysMsgBody
+) extends BbbCoreMsg
+case class UpdateLiveKitParticipantPermissionsSysMsgBody(
+    userId: String,
+    grant:  LiveKitGrant,
+)
+
+/**
+ * Outcome of a media-stack action that akka-apps requested to bbb-webrtc-sfu
+ */
+object MediaActionOutcome {
+  val APPLIED = "applied"
+  val ROOM_ABSENT = "roomAbsent"
+  val PARTICIPANT_ABSENT = "participantAbsent"
+  val FAILED = "failed"
+}
+
+/**
+ * Acknowledges an UpdateLiveKitParticipantPermissionsSysMsg
+ */
+object UpdateLiveKitParticipantPermissionsRespMsg { val NAME = "UpdateLiveKitParticipantPermissionsRespMsg" }
+case class UpdateLiveKitParticipantPermissionsRespMsg(
+    header: BbbClientMsgHeader,
+    body:   UpdateLiveKitParticipantPermissionsRespMsgBody
+) extends StandardMsg
+case class UpdateLiveKitParticipantPermissionsRespMsgBody(
+    grant:   LiveKitGrant,
+    outcome: String,
+)
+
+/**
+ * Acknowledges an EjectUserFromVoiceConfSysMsg. Only the LiveKit bridge sends it;
+ * the FreeSWITCH path reports a leave event instead (as always).
+ */
+object EjectUserFromVoiceConfRespMsg { val NAME = "EjectUserFromVoiceConfRespMsg" }
+case class EjectUserFromVoiceConfRespMsg(
+    header: BbbClientMsgHeader,
+    body:   EjectUserFromVoiceConfRespMsgBody
+) extends StandardMsg
+case class EjectUserFromVoiceConfRespMsgBody(
+    voiceConf:   String,
+    voiceUserId: String,
+    outcome:     String,
+)
