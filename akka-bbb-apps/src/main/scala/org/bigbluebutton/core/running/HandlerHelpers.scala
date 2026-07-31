@@ -117,6 +117,10 @@ trait HandlerHelpers extends SystemConfiguration {
           case None =>
             Users2x.add(liveMeeting.users2x, newUser)
 
+            // Guarantee that an eventual orphaned VoiceUser has its permissions
+            // restored. No-ops if not applicable.
+            liveMeeting.voiceUserReconciler.restorePermissions(liveMeeting, outGW, newUser.intId)
+
             val event = UserJoinedMeetingEvtMsgBuilder.build(liveMeeting.props.meetingProp.intId, newUser)
             outGW.send(event)
 
@@ -406,9 +410,22 @@ trait HandlerHelpers extends SystemConfiguration {
     liveMeeting.props.meetingProp.screenShareBridge == "livekit"
   }
 
-  def isUsingLiveKitAudio(liveMeeting: LiveMeeting): Boolean = {
-    liveMeeting.props.meetingProp.audioBridge == "livekit"
+  def isUsingLiveKitAudio(liveMeeting: LiveMeeting): Boolean =
+    HandlerHelpers.isUsingLiveKitAudio(liveMeeting)
+
+  def buildLiveKitParticipantMetadata(
+    liveMeeting: LiveMeeting,
+  ): LiveKitParticipantMetadata = {
+    LiveKitParticipantMetadata(
+      meetingId = liveMeeting.props.meetingProp.intId,
+      voiceConf = liveMeeting.props.voiceProp.voiceConf
+    )
   }
+}
+
+object HandlerHelpers {
+  def isUsingLiveKitAudio(liveMeeting: LiveMeeting): Boolean =
+    liveMeeting.props.meetingProp.audioBridge == "livekit"
 
   def buildLiveKitTokenGrant(
     room: String,
@@ -443,15 +460,6 @@ trait HandlerHelpers extends SystemConfiguration {
       roomJoin = roomJoin,
       roomList = roomList,
       roomRecord = roomRecord,
-    )
-  }
-
-  def buildLiveKitParticipantMetadata(
-    liveMeeting: LiveMeeting,
-  ): LiveKitParticipantMetadata = {
-    LiveKitParticipantMetadata(
-      meetingId = liveMeeting.props.meetingProp.intId,
-      voiceConf = liveMeeting.props.voiceProp.voiceConf
     )
   }
 }

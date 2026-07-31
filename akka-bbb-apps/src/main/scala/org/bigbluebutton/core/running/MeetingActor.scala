@@ -513,6 +513,9 @@ class MeetingActor(
       case m: SetUserEchoTestRunningReqMsg => usersApp.handleSetUserEchoTestRunningReqMsg(m)
       case m: GenerateLiveKitTokenRespMsg  => handleGenerateLiveKitTokenRespMsg(m)
       case m: LiveKitParticipantLeftEvtMsg => handleLiveKitParticipantLeftEvtMsg(m)
+      case m: UpdateLiveKitParticipantPermissionsRespMsg =>
+        handleUpdateLiveKitParticipantPermissionsRespMsg(m)
+      case m: EjectUserFromVoiceConfRespMsg => handleEjectUserFromVoiceConfRespMsg(m)
 
       // Client requested to eject user
       case m: EjectUserFromMeetingCmdMsg =>
@@ -991,6 +994,9 @@ class MeetingActor(
   def handleMonitorNumberOfUsers(msg: MonitorNumberOfUsersInternalMsg) {
     state = removeUsersWithExpiredUserLeftFlag(liveMeeting, state)
 
+    // Reconcile VoiceUsers <-> Users2x
+    liveMeeting.voiceUserReconciler.reconcile(liveMeeting, outGW)
+
     if (!liveMeeting.props.meetingProp.isBreakout) {
       // Track expiry only for non-breakout rooms. The breakout room lifecycle is
       // driven by the parent meeting.
@@ -1138,6 +1144,10 @@ class MeetingActor(
         ru <- RegisteredUsers.findWithUserId(leftUser.intId, liveMeeting.registeredUsers)
       } yield {
         log.info("Removing user from meeting. meetingId=" + props.meetingProp.intId + " userId=" + u.intId + " user=" + u)
+
+        // Their media session might outlive them (for good reason - e.g.: smoother reconns).
+        // Fence them until restored or ejected.
+        liveMeeting.voiceUserReconciler.fenceRemovedUser(liveMeeting, outGW, u.intId)
 
         val updatedRegUser = RegisteredUsers.updateUserJoin(liveMeeting.registeredUsers, ru, joined = false)
         UserDAO.update(updatedRegUser)
