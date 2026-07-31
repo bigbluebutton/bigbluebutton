@@ -3,6 +3,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import BBBMenu from '/imports/ui/components/common/menu/component';
 import Trigger from '/imports/ui/components/common/control-header/right/component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { uniqueId } from '/imports/utils/string-utils';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import {
@@ -59,12 +60,14 @@ interface NotesDropdownGraphqlProps extends NotesDropdownContainerGraphqlProps {
   isRTL: boolean;
   padId: string;
   presentationEnabled: boolean;
+  meetingName: string;
+  meetingStartTime: number;
 }
 
 const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
   const {
     amIPresenter, presentations, handlePinSharedNotes, isRTL, padId, presentationEnabled,
-    isEtherpadSharedNotes, isPinned,
+    isEtherpadSharedNotes, isPinned, meetingName, meetingStartTime,
   } = props;
   const [converterButtonDisabled, setConverterButtonDisabled] = useState(false);
   const intl = useIntl();
@@ -115,6 +118,10 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
       const { sessionToken } = Auth;
       const hocuspocusServerHostname = window.meetingClientSettings.public.sharedNotes.serverHostname
         || window.location.hostname;
+      // Carry the meeting identity so the server can name the download after the
+      // meeting (name + start time) instead of a generic timestamped filename.
+      const exportMeetingParams = `&meetingName=${encodeURIComponent(meetingName)}`
+        + `&meetingStartTime=${meetingStartTime}`;
 
       menuItems.push(
         {
@@ -123,7 +130,7 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
           dataTest: 'exportNotesAsPDF',
           label: intl.formatMessage(intlMessages.exportAsPDFLabel),
           onClick: () => {
-            window.open(`https://${hocuspocusServerHostname}/hocuspocus/api/documents/${padId}/export/pdf?sessionToken=${sessionToken}`);
+            window.open(`https://${hocuspocusServerHostname}/hocuspocus/api/documents/${padId}/export/pdf?sessionToken=${sessionToken}${exportMeetingParams}`);
           },
         },
       );
@@ -136,7 +143,7 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
             dataTest: 'exportNotesAsMarkdown',
             label: intl.formatMessage(intlMessages.exportAsMarkdownLabel),
             onClick: () => {
-              window.open(`https://${hocuspocusServerHostname}/hocuspocus/api/documents/${padId}/export/md?sessionToken=${sessionToken}`);
+              window.open(`https://${hocuspocusServerHostname}/hocuspocus/api/documents/${padId}/export/md?sessionToken=${sessionToken}${exportMeetingParams}`);
             },
           },
         );
@@ -198,6 +205,10 @@ const NotesDropdownContainerGraphql: React.FC<NotesDropdownContainerGraphqlProps
     presenter: user.presenter,
   }));
   const amIPresenter = !!currentUserData?.presenter;
+  const { data: meetingData } = useMeeting((m) => ({
+    name: m.name,
+    createdTime: m.createdTime,
+  }));
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isRTL = layoutSelect((i: any) => i.isRTL);
   const isPresentationEnabled = useIsPresentationEnabled();
@@ -219,6 +230,8 @@ const NotesDropdownContainerGraphql: React.FC<NotesDropdownContainerGraphqlProps
       padId={padId}
       isEtherpadSharedNotes={isEtherpadSharedNotes}
       isPinned={isPinned}
+      meetingName={meetingData?.name || ''}
+      meetingStartTime={meetingData?.createdTime || 0}
     />
   );
 };

@@ -199,6 +199,17 @@ export class BlockNoteSharedNotes extends MultiUsers {
       'empty shared notes PDF export should return a PDF document',
     ).toContain('application/pdf');
 
+    // Issue #15778: the Content-Disposition filename must identify the meeting
+    //   <sanitized meeting name>_<YYYY-MM-DD_HH-mm meeting start>_Shared_Notes.<ext>
+    // The harness names the meeting after its id (already header-safe ASCII), so the
+    // sanitized name segment equals the meeting id.
+    const filenamePattern = (ext: string) =>
+      new RegExp(`filename="${this.modPage.meetingId}_\\d{4}-\\d{2}-\\d{2}_\\d{2}-\\d{2}_Shared_Notes\\.${ext}"`);
+    expect(
+      pdfResponse.headers()['content-disposition'] || '',
+      'the empty PDF export filename should identify the meeting and be tagged as shared notes',
+    ).toMatch(filenamePattern('pdf'));
+
     // Issue #25122 is general ("empty page should not be an error"), so every
     // export format must treat an empty document as a valid empty file. Reuse
     // the authenticated export URL and assert via API requests, which are
@@ -224,6 +235,10 @@ export class BlockNoteSharedNotes extends MultiUsers {
         response.headers()['content-type'] || '',
         `empty shared notes ${format} export should return ${contentType}`,
       ).toContain(contentType);
+      expect(
+        response.headers()['content-disposition'] || '',
+        `empty shared notes ${format} export filename should identify the meeting`,
+      ).toMatch(filenamePattern(format));
       // eslint-disable-next-line no-await-in-loop
       if (body) body(await response.text());
     }

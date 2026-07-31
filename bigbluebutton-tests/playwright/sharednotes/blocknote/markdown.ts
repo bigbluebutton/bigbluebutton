@@ -67,8 +67,19 @@ export class MarkdownSharedNotes extends MultiUsers {
     );
 
     if (!download?.download) throw new Error('Markdown export download did not start');
-    const extension = download.download.suggestedFilename().split('.').pop();
-    expect(extension, 'the exported file should have a .md extension').toBe('md');
+    const filename = download.download.suggestedFilename();
+
+    // Issue #15778: the download must identify the meeting instead of using a generic
+    // "document_<download-time>" name. Expected shape:
+    //   <sanitized meeting name>_<YYYY-MM-DD_HH-mm meeting start>_Shared_Notes.md
+    // The harness names the meeting after its id (already header/filesystem-safe ASCII),
+    // so the sanitized name segment equals the meeting id.
+    const filenamePattern = new RegExp(
+      `^${this.modPage.meetingId}_\\d{4}-\\d{2}-\\d{2}_\\d{2}-\\d{2}_Shared_Notes\\.md$`,
+    );
+    expect(filename, 'the exported filename should identify the meeting and be tagged as shared notes').toMatch(
+      filenamePattern,
+    );
     expect(download.content, 'the exported markdown should contain the typed note').toContain(noteText);
   }
 

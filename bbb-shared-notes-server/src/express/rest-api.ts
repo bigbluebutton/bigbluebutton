@@ -26,11 +26,48 @@ const sendExportError = (
   );
 };
 
-const getExportFilename = (extension: string): string => {
-  const now = new Date();
+// Meeting names can be long; cap the sanitized segment so the whole filename
+// stays comfortably under the 255-byte filesystem limit (fixed overhead is ~35 chars).
+const MAX_MEETING_NAME_LENGTH = 200;
+
+// Coerce a possibly-array/undefined query value to a plain string (or undefined).
+const firstQueryValue = (value: unknown): string | undefined => {
+  if (Array.isArray(value)) return typeof value[0] === 'string' ? value[0] : undefined;
+  return typeof value === 'string' ? value : undefined;
+};
+
+const formatTimestamp = (date: Date): string => {
   const pad = (n: number) => String(n).padStart(2, '0');
-  const date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}`;
-  return `document_${date}.${extension}`;
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}_${pad(date.getHours())}-${pad(date.getMinutes())}`;
+};
+
+// Same sanitization used for breakout notes capture (redis/handler.ts): keep only
+// header-safe, filesystem-safe ASCII so the value is safe to drop into Content-Disposition.
+const sanitizeMeetingName = (name: string): string =>
+  name
+    .replace(/\s/g, '_')
+    .replace(/[^a-z0-9_.-]/gi, '_')
+    .slice(0, MAX_MEETING_NAME_LENGTH);
+
+// Build the download filename from the meeting identity supplied by the client.
+// Both params are optional: paramless callers (breakout capture, direct API, stale
+// clients) must never make this throw, so every input is defensively coerced.
+const getExportFilename = (
+  extension: string,
+  meetingName?: string,
+  meetingStartTime?: string,
+): string => {
+  const startTime = Number(meetingStartTime);
+  const startDate = new Date(startTime);
+  const date = Number.isFinite(startTime) && startTime > 0 && !Number.isNaN(startDate.getTime()) ? startDate : new Date();
+  const timestamp = formatTimestamp(date);
+
+  const sanitized = typeof meetingName === 'string' ? sanitizeMeetingName(meetingName) : '';
+  const hasName = /[a-z0-9]/i.test(sanitized);
+
+  return hasName
+    ? `${sanitized}_${timestamp}_Shared_Notes.${extension}`
+    : `Shared_Notes_${timestamp}.${extension}`;
 };
 
 const documentApi: DocumentApi = {
@@ -106,6 +143,13 @@ const documentApi: DocumentApi = {
       return sendExportError(response, 400, 'Invalid document name');
     }
 
+    // Meeting identity for the download filename, supplied by the client as query
+    // params (the shared-notes server itself has no access to meeting name/start time).
+    const meetingName = firstQueryValue(request.query.meetingName);
+    const meetingStartTime = firstQueryValue(request.query.meetingStartTime);
+    const buildFilename = (extension: string): string =>
+      getExportFilename(extension, meetingName, meetingStartTime);
+
     try {
       switch (format) {
         case 'html': {
@@ -114,7 +158,7 @@ const documentApi: DocumentApi = {
 
           // Set response headers
           response.setHeader('Content-Type', 'text/html; charset=utf-8');
-          response.setHeader('Content-Disposition', `attachment; filename="${getExportFilename('html')}"`);
+          response.setHeader('Content-Disposition', `attachment; filename="${buildFilename('html')}"`);
 
           // Send HTML
           response.send(fullHtml);
@@ -135,7 +179,7 @@ const documentApi: DocumentApi = {
 
           // Set response headers
           response.setHeader('Content-Type', 'application/pdf');
-          response.setHeader('Content-Disposition', `attachment; filename="${getExportFilename('pdf')}"`);
+          response.setHeader('Content-Disposition', `attachment; filename="${buildFilename('pdf')}"`);
           response.setHeader('Content-Length', pdfBuffer.length);
 
           logger.info('PDF generated successfully', { documentName });
@@ -167,7 +211,7 @@ const documentApi: DocumentApi = {
 
           // Set response headers
           response.setHeader('Content-Type', 'text/plain; charset=utf-8');
-          response.setHeader('Content-Disposition', `attachment; filename="${getExportFilename('txt')}"`);
+          response.setHeader('Content-Disposition', `attachment; filename="${buildFilename('txt')}"`);
 
           logger.info('TXT exported successfully', { documentName });
 
@@ -179,7 +223,7 @@ const documentApi: DocumentApi = {
           const jsonContent = await exportDocumentToJson(documentName);
 
           response.setHeader('Content-Type', 'application/json; charset=utf-8');
-          response.setHeader('Content-Disposition', `attachment; filename="${getExportFilename('json')}"`);
+          response.setHeader('Content-Disposition', `attachment; filename="${buildFilename('json')}"`);
 
           logger.info('JSON exported successfully', { documentName });
 
@@ -190,7 +234,7 @@ const documentApi: DocumentApi = {
           const yjsContent = await exportDocumentToYjs(documentName);
 
           response.setHeader('Content-Type', 'text/plain; charset=utf-8');
-          response.setHeader('Content-Disposition', `attachment; filename="${getExportFilename('yjs')}"`);
+          response.setHeader('Content-Disposition', `attachment; filename="${buildFilename('yjs')}"`);
 
           logger.info('YJS exported successfully', { documentName });
 
@@ -201,7 +245,7 @@ const documentApi: DocumentApi = {
           const markdownContent = await exportDocumentToMarkdown(documentName);
 
           response.setHeader('Content-Type', 'text/plain; charset=utf-8');
-          response.setHeader('Content-Disposition', `attachment; filename="${getExportFilename('md')}"`);
+          response.setHeader('Content-Disposition', `attachment; filename="${buildFilename('md')}"`);
 
           logger.info('Markdown exported successfully', { documentName });
 
