@@ -613,11 +613,14 @@ class VideoPreview extends Component {
     if (!cameraAsContent) {
       // Store selected profile, camera ID and virtual background in the storage
       // for future use
+      const keepModalOpen = VideoService.isMultipleCamerasEnabled();
       PreviewService.changeProfile(selectedProfile);
       PreviewService.changeWebcam(webcamDeviceId);
       this.updateVirtualBackgroundInfo();
       this.updateCameraBrightnessInfo();
-      this.cleanupStreamAndVideo();
+      if (!keepModalOpen) {
+        this.cleanupStreamAndVideo();
+      }
       startSharing(webcamDeviceId);
     } else {
       this.cleanupStreamAndVideo();
@@ -639,12 +642,21 @@ class VideoPreview extends Component {
 
     if (this.isCameraAsContentDevice(webcamDeviceId)) {
       stopSharingCameraAsContent();
+      if (resolve) resolve();
     } else {
+      const shouldKeepModalOpen = VideoService.isMultipleCamerasEnabled();
       PreviewService.deleteStream(webcamDeviceId);
       stopSharing(webcamDeviceId);
-      this.cleanupStreamAndVideo();
+      if (shouldKeepModalOpen) {
+        this.getInitialCameraStream(webcamDeviceId).then(() => {
+          if (this._isMounted) {
+            this.displayPreview();
+          }
+        });
+      } else if (resolve) {
+        resolve();
+      }
     }
-    if (resolve) resolve();
   }
 
   handleStopSharingAll() {
