@@ -647,6 +647,7 @@ class VideoPreview extends Component {
       const shouldKeepModalOpen = VideoService.isMultipleCamerasEnabled();
       PreviewService.deleteStream(webcamDeviceId);
       stopSharing(webcamDeviceId);
+      this.cleanupStreamAndVideo();
       if (shouldKeepModalOpen) {
         this.getInitialCameraStream(webcamDeviceId).then(() => {
           if (this._isMounted) {
