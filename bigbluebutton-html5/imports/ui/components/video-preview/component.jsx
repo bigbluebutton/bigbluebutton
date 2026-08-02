@@ -611,14 +611,13 @@ class VideoPreview extends Component {
     }
 
     if (!cameraAsContent) {
-      const keepModalOpen = VideoService.isMultipleCamerasEnabled();
       // Store selected profile, camera ID and virtual background in the storage
       // for future use
       PreviewService.changeProfile(selectedProfile);
       PreviewService.changeWebcam(webcamDeviceId);
       this.updateVirtualBackgroundInfo();
       this.updateCameraBrightnessInfo();
-      if (!keepModalOpen) {
+      if (!VideoService.isMultipleCamerasEnabled()) {
         this.cleanupStreamAndVideo();
       }
       startSharing(webcamDeviceId);
