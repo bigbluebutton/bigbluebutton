@@ -137,7 +137,7 @@ export const CURRENT_PRESENTATION_PAGE_SUBSCRIPTION = gql`subscription CurrentPr
 }`;
 
 export interface PresentationPagesSubscriptionResponse {
-  pres_page: Array<Pick<PresentationPage, 'pageId' | 'num'>>;
+  pres_page: Array<Pick<PresentationPage, 'pageId' | 'num'> & { insertRequestId?: string }>;
 }
 
 // All pages of a presentation (presenter-only permission on pres_page), used to
@@ -150,6 +150,7 @@ export const PRESENTATION_PAGES_SUBSCRIPTION = gql`
     ) {
       pageId
       num
+      insertRequestId: urlsJson(path: "$.insertRequestId")
     }
   }
 `;

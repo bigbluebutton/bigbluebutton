@@ -247,6 +247,7 @@ const PresentationToolbarContainer = (props) => {
         isConnected={connected}
         presentationPagesLoaded={presentationPagesLoaded}
         presentationPagesCount={(presentationPagesData?.pres_page || []).length}
+        presentationPages={presentationPagesData?.pres_page || []}
         maxNumberOfActiveUsers={WHITEBOARD_CONFIG.maxNumberOfActiveUsers}
         numberOfJoinedUsers={numberOfJoinedUsers}
         insertPagesEnabled={insertPagesEnabled}

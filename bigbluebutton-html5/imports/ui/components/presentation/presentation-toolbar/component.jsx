@@ -355,6 +355,7 @@ class PresentationToolbar extends PureComponent {
       insertPagesEnabled,
       presentationId,
       presentationPagesCount,
+      presentationPages,
       skipToSlide,
     } = this.props;
 
@@ -470,6 +471,7 @@ class PresentationToolbar extends PureComponent {
               presentationId={presentationId}
               currentSlideNum={currentSlideNum}
               numberOfSlides={presentationPagesCount}
+              pages={presentationPages}
               isConnected={isConnected}
               skipToSlide={skipToSlide}
             />
@@ -614,6 +616,10 @@ PresentationToolbar.propTypes = {
   insertPagesEnabled: PropTypes.bool,
   presentationId: PropTypes.string,
   presentationPagesCount: PropTypes.number,
+  presentationPages: PropTypes.arrayOf(PropTypes.shape({
+    pageId: PropTypes.string.isRequired,
+    insertRequestId: PropTypes.string,
+  })),
 };
 
 PresentationToolbar.defaultProps = {
@@ -621,6 +627,7 @@ PresentationToolbar.defaultProps = {
   insertPagesEnabled: false,
   presentationId: undefined,
   presentationPagesCount: 0,
+  presentationPages: [],
 };
 
 export default injectWbResizeEvent(injectIntl(PresentationToolbar));

@@ -9,6 +9,7 @@ import {
   getNotificationsStream,
   NotificationResponse,
 } from '/imports/ui/components/notifications/queries';
+import { uniqueId } from '/imports/utils/string-utils';
 import Service from './service';
 import InsertPagesToolbarButton from './component';
 
@@ -54,7 +55,7 @@ interface PendingInsert {
   presentationId: string;
   targetPosition: number;
   afterSlide: number;
-  baseline: number;
+  requestId: string;
   kind: 'blank' | 'file';
   filename: string;
 }
@@ -63,6 +64,7 @@ interface InsertPagesContainerProps {
   presentationId?: string;
   currentSlideNum: number;
   numberOfSlides: number;
+  pages: Array<{ pageId: string; insertRequestId?: string }>;
   isConnected: boolean;
   skipToSlide: (slideNum: number) => void;
 }
@@ -71,6 +73,7 @@ const InsertPagesContainer: React.FC<InsertPagesContainerProps> = ({
   presentationId,
   currentSlideNum,
   numberOfSlides,
+  pages,
   isConnected,
   skipToSlide,
 }) => {
@@ -125,8 +128,9 @@ const InsertPagesContainer: React.FC<InsertPagesContainerProps> = ({
 
     const afterSlide = currentSlideNum;
     const targetPosition = currentSlideNum + 1;
+    const requestId = uniqueId(filename);
     pendingRef.current = {
-      presentationId, targetPosition, afterSlide, baseline: numberOfSlides, kind, filename,
+      presentationId, targetPosition, afterSlide, requestId, kind, filename,
     };
     setInFlight(true);
 
@@ -147,7 +151,7 @@ const InsertPagesContainer: React.FC<InsertPagesContainerProps> = ({
     }, INSERT_TIMEOUT_MS);
 
     filePromise
-      .then((file) => Service.insertPagesUpload(file, targetPosition, presentationId))
+      .then((file) => Service.insertPagesUpload(file, targetPosition, presentationId, requestId))
       .catch((error) => {
         logger.error({
           logCode: 'presentation_insert_pages',
@@ -155,22 +159,17 @@ const InsertPagesContainer: React.FC<InsertPagesContainerProps> = ({
         }, 'Native insert pages failed');
         failInsert(filename, (error as Error)?.message ?? 'unknown error');
       });
-  }, [presentationId, currentSlideNum, numberOfSlides, intl, failInsert]);
+  }, [presentationId, currentSlideNum, intl, failInsert]);
 
   // The upload only confirms the server accepted the file; conversion and splicing happen
-  // asynchronously. We detect completion when the presentation grows past the page count
-  // captured at insert time, then auto-advance to the first inserted page. numberOfSlides is
-  // fed from the same pres_page subscription that skipToSlide resolves numbers against, and
-  // the splice renumbers pages in a single transaction, so any snapshot where the count grew
-  // already maps targetPosition to the inserted page (not to a shifted pre-insert page).
+  // asynchronously. We detect completion when pages carrying this request's correlation id
+  // appear in the target presentation, then auto-advance to the first inserted page.
   useEffect(() => {
     const pending = pendingRef.current;
     if (!pending) return;
 
-    // Both presentationId and numberOfSlides track the *current* presentation. If the
-    // presenter switches presentations mid-insert, a page-count difference between the two
-    // presentations would read as (false) completion of the insert, so the growth check is
-    // scoped to the presentation captured at insert time. On a switch, the optimistic state
+    // If the presenter switches presentations mid-insert, the target presentation's pages are
+    // no longer observable from here. On a switch, the optimistic state
     // is dropped silently: the insert may still land on the original presentation, but its
     // page count is no longer observable from here, so neither completion nor failure could
     // be reported honestly.
@@ -182,9 +181,10 @@ const InsertPagesContainer: React.FC<InsertPagesContainerProps> = ({
       resolveInsert();
       return;
     }
-    if (numberOfSlides <= pending.baseline) return;
+    const insertedPages = pages.filter((page) => page.insertRequestId === pending.requestId);
+    if (insertedPages.length === 0) return;
 
-    const count = numberOfSlides - pending.baseline;
+    const count = insertedPages.length;
     const {
       targetPosition, afterSlide, kind, filename,
     } = pending;
@@ -197,7 +197,7 @@ const InsertPagesContainer: React.FC<InsertPagesContainerProps> = ({
       'success',
       'presentation',
     );
-  }, [presentationId, numberOfSlides, skipToSlide, intl, resolveInsert]);
+  }, [presentationId, numberOfSlides, pages, skipToSlide, intl, resolveInsert]);
 
   useEffect(() => clearTimers, [clearTimers]);
 

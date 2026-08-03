@@ -140,7 +140,7 @@ case class PresentationPagesInsertedSysMsg(
 // url/pageToken generation, and the token binds to the target presentation the pages now live in).
 // The shifted target pages keep the urls they already had: only their num changes.
 case class PresentationPagesInsertedSysMsgBody(podId: String, targetPresentationId: String,
-                                               insertPresentationId: String, insertAtPosition: Int,
+                                               insertPresentationId: String, insertRequestId: String, insertAtPosition: Int,
                                                pageUrls: Vector[InsertedPageUrls])
 case class InsertedPageUrls(pageId: String, urls: Map[String, String])
 

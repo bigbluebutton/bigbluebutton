@@ -7,6 +7,7 @@ public class DocPagesInsertedProgress implements IDocConversionMsg {
   public final String meetingId;
   public final String targetPresentationId;
   public final String insertPresentationId;
+  public final String insertRequestId;
   public final Integer insertAtPosition;
   public final Integer totalPagesAfter;
   public final String presBaseUrl;
@@ -14,13 +15,14 @@ public class DocPagesInsertedProgress implements IDocConversionMsg {
   public final Map<Integer, String> insertPageIds;
 
   public DocPagesInsertedProgress(String podId, String meetingId, String targetPresentationId,
-                                  String insertPresentationId, Integer insertAtPosition,
+                                  String insertPresentationId, String insertRequestId, Integer insertAtPosition,
                                   Integer totalPagesAfter, String presBaseUrl,
                                   Map<Integer, String> insertPageIds) {
     this.podId = podId;
     this.meetingId = meetingId;
     this.targetPresentationId = targetPresentationId;
     this.insertPresentationId = insertPresentationId;
+    this.insertRequestId = insertRequestId;
     this.insertAtPosition = insertAtPosition;
     this.totalPagesAfter = totalPagesAfter;
     this.presBaseUrl = presBaseUrl;

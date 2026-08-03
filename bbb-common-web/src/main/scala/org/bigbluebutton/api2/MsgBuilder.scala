@@ -285,6 +285,7 @@ object MsgBuilder {
       podId = msg.podId,
       targetPresentationId = msg.targetPresentationId,
       insertPresentationId = msg.insertPresentationId,
+      insertRequestId = msg.insertRequestId,
       insertAtPosition = msg.insertAtPosition.intValue(),
       pageUrls = pageUrls
     )

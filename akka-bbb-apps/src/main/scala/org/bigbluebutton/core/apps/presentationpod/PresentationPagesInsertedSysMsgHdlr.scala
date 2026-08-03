@@ -56,7 +56,8 @@ trait PresentationPagesInsertedSysMsgHdlr {
           // preserving their opaque page ids so future annotations stay keyed correctly.
           val inserted = insertPres.pages.values.map { pg =>
             val newNum = PresentationPagesInsertMath.insertedPageNum(pg.num, position)
-            pg.id -> pg.copy(num = newNum, urls = urlsByPageId.getOrElse(pg.id, pg.urls), current = false, converted = true)
+            val urls = urlsByPageId.getOrElse(pg.id, pg.urls) + ("insertRequestId" -> msg.body.insertRequestId)
+            pg.id -> pg.copy(num = newNum, urls = urls, current = false, converted = true)
           }.toMap
 
           val mergedPages: Map[String, PresentationPage] = shifted ++ inserted

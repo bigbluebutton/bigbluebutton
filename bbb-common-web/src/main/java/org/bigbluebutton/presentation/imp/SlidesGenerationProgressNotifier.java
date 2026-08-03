@@ -203,7 +203,7 @@ public class SlidesGenerationProgressNotifier {
       + "/" + pres.getTargetPresentationId();
     DocPagesInsertedProgress progress = new DocPagesInsertedProgress(
       pres.getPodId(), pres.getMeetingId(), pres.getTargetPresentationId(),
-      pres.getId(), position, totalPagesAfter, presBaseUrl, pres.getPageIds());
+      pres.getId(), pres.getTemporaryPresentationId(), position, totalPagesAfter, presBaseUrl, pres.getPageIds());
     messagingService.sendDocConversionMsg(progress);
   }
 

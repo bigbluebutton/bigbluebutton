@@ -27,21 +27,20 @@ export const fetchBlankPageFile = async (): Promise<File> => {
  * consumer) logs and drops the command.
  */
 export const insertPagesUpload = async (
-  file: File, position: number, targetPresentationId: string,
+  file: File, position: number, targetPresentationId: string, insertRequestId = uniqueId(file.name),
 ): Promise<void> => {
   const meetingId = Auth.meetingID as string;
-  const temporaryPresentationId = uniqueId(file.name);
   const endpoint = window.meetingClientSettings.public.presentation.uploadEndpoint;
 
   const token = await PresentationUploaderService.requestPresentationUploadToken(
-    temporaryPresentationId, meetingId, file.name,
+    insertRequestId, meetingId, file.name,
   );
 
   const data = new FormData();
   data.append('fileUpload', file);
   data.append('conference', meetingId);
   data.append('room', meetingId);
-  data.append('temporaryPresentationId', temporaryPresentationId);
+  data.append('temporaryPresentationId', insertRequestId);
   data.append('pod_id', POD_ID);
   data.append('is_downloadable', 'false');
   data.append('current', 'false');
