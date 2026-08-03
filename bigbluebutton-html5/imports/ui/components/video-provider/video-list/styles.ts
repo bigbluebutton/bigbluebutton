@@ -5,6 +5,8 @@ import { actionsBarHeight, navbarHeight, mdPaddingX } from '/imports/ui/styleshe
 import Button from '/imports/ui/components/common/button/component';
 import { CAMERADOCK_POSITION } from '../../layout/enums';
 
+export const MOBILE_PAGINATION_BAR_HEIGHT = 22;
+
 // @ts-expect-error -> Untyped component.
 const NextPageButton = styled(Button)`
   color: ${colorWhite};
@@ -75,6 +77,7 @@ const VideoListItem = styled.div<{
 
 const VideoCanvas = styled.div<{
   $position: string;
+  $stacked?: boolean;
 }>`
   ${({ $position }) => ($position !== CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM && 'position: absolute')};
   width: 100%;
@@ -87,6 +90,8 @@ const VideoCanvas = styled.div<{
   display: flex;
   align-items: center;
   justify-content: center;
+
+  ${({ $stacked }) => $stacked && 'flex-direction: column;'}
 
   ${({ $position }) => ($position === 'contentRight' || $position === 'contentLeft') && `
     flex-wrap: wrap;
@@ -115,10 +120,11 @@ const Break = styled.div`
 `;
 
 const PaginationBar = styled.div`
-  position: absolute;
-  left: 0;
+  position: relative;
+  flex: 0 0 auto;
+  box-sizing: border-box;
   width: 100%;
-  height: 20px;
+  height: ${MOBILE_PAGINATION_BAR_HEIGHT}px;
   display: flex;
   align-items: center;
   justify-content: space-between;

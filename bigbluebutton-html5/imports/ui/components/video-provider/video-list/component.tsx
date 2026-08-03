@@ -4,7 +4,7 @@ import { UpdatedDataForUserCameraDomElement } from 'bigbluebutton-html-plugin-sd
 import { throttle } from '/imports/utils/throttle';
 import { range } from '/imports/utils/array-utils';
 import deviceInfo from '/imports/utils/deviceInfo';
-import Styled from './styles';
+import Styled, { MOBILE_PAGINATION_BAR_HEIGHT } from './styles';
 import VideoListItemContainer from './video-list-item/container';
 import OverflowTile from './overflow-tile/component';
 import AutoplayOverlay from '/imports/ui/components/media/autoplay-overlay/component';
@@ -358,7 +358,8 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     }
     const { focusedId } = this.props;
     const canvasWidth = cameraDock?.width;
-    const canvasHeight = cameraDock?.height;
+    const canvasHeight = cameraDock?.height
+      - (this.displayMobilePaginationBar() ? MOBILE_PAGINATION_BAR_HEIGHT : 0);
 
     const gridGutter = parseInt(window.getComputedStyle(this.grid)
       .getPropertyValue('grid-row-gap'), 10);
@@ -409,6 +410,13 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     }
 
     return true;
+  }
+
+  displayMobilePaginationBar() {
+    const { numberOfPages, cameraDock } = this.props;
+    const { width: cameraDockWidth } = cameraDock;
+
+    return deviceInfo.isMobile && numberOfPages > 1 && cameraDockWidth !== 0;
   }
 
   renderNextPageButton() {
@@ -575,25 +583,17 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       intl,
       numberOfPages,
       currentVideoPageIndex,
-      cameraDock,
-      isGridEnabled,
     } = this.props;
-    const { optimalGrid } = this.state;
 
-    if (numberOfPages <= 1 || cameraDock.width === 0) return null;
+    if (!this.displayMobilePaginationBar()) return null;
 
     const currentPage = currentVideoPageIndex + 1;
     const prevPageLabel = intl.formatMessage(intlMessages.prevPageLabel);
     const nextPageLabel = intl.formatMessage(intlMessages.nextPageLabel);
     const useDots = numberOfPages <= MOBILE_MAX_DOTS;
 
-    const barTop = isGridEnabled
-      ? `min(calc(50% + ${optimalGrid.height / 2}px + 0.5rem), calc(100% - 22px))`
-      : 'calc(100% + 0.5rem)';
-
     return (
       <Styled.PaginationBar
-        style={{ top: barTop }}
         data-test="mobilePaginationBar"
       >
         <Styled.PaginationArrow
@@ -655,6 +655,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
     return (
       <Styled.VideoCanvas
         $position={position}
+        $stacked={this.displayMobilePaginationBar()}
         ref={(ref) => {
           this.canvas = ref;
         }}
