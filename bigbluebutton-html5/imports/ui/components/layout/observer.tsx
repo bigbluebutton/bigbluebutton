@@ -301,7 +301,7 @@ const LayoutObserver: React.FC = () => {
           value: true,
         });
 
-        if (initialSidebarContentPanel === PANELS.USERLIST && !deviceInfo.isMobile) {
+        if (initialSidebarContentPanel === PANELS.USERLIST && !deviceInfo.isPhone) {
           layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
             value: true,
@@ -312,7 +312,7 @@ const LayoutObserver: React.FC = () => {
           });
         }
 
-        if (initialSidebarContentPanel === PANELS.CHAT && !deviceInfo.isMobile) {
+        if (initialSidebarContentPanel === PANELS.CHAT && !deviceInfo.isPhone) {
           const PUBLIC_GROUP_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
 
           layoutContextDispatch({

@@ -29,7 +29,11 @@ const getWaitLayout = () => {
   return urlParams.get(WAIT_LAYOUT_PARAMETER) || false;
 };
 
+/**
+ * @returns {string | null} PANELS.USERLIST, PANELS.CHAT, or null.
+ */
 const getInitialSidebarContentPanel = (isChatEnabled) => {
+  // Safe at load time: consumers call this after window.meetingClientSettings is populated.
   const { chat, layout } = window.meetingClientSettings.public;
   const shouldOpenParticipants = getFromUserSettings(
     'bbb_show_participants_on_login',
