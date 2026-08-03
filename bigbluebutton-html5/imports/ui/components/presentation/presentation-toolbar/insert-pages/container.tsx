@@ -112,11 +112,14 @@ const InsertPagesContainer: React.FC<InsertPagesContainerProps> = ({
   }, [intl, resolveInsert]);
 
   useEffect(() => {
-    const insertFailed = notificationsStream?.notification_stream.some((notification) => {
+    let insertFailed = false;
+    notificationsStream?.notification_stream.forEach((notification) => {
       const createdAt = new Date(notification.createdAt).getTime();
-      if (createdAt <= lastSeenNotificationAtRef.current) return false;
+      if (createdAt <= lastSeenNotificationAtRef.current) return;
       lastSeenNotificationAtRef.current = createdAt;
-      return notification.messageId === 'app.presentation.insertPagesFailedNotification';
+      if (notification.messageId === 'app.presentation.insertPagesFailedNotification') {
+        insertFailed = true;
+      }
     });
     if (insertFailed) resolveInsert();
   }, [notificationsStream, resolveInsert]);
@@ -168,10 +171,9 @@ const InsertPagesContainer: React.FC<InsertPagesContainerProps> = ({
     const pending = pendingRef.current;
     if (!pending) return;
 
-    // If the presenter switches presentations mid-insert, the target presentation's pages are
-    // no longer observable from here. On a switch, the optimistic state
+    // If the presenter switches presentations mid-insert, the optimistic state
     // is dropped silently: the insert may still land on the original presentation, but its
-    // page count is no longer observable from here, so neither completion nor failure could
+    // completion is no longer observable from here, so neither success nor failure could
     // be reported honestly.
     if (presentationId !== pending.presentationId) {
       logger.info({
