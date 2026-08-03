@@ -29,6 +29,10 @@ export class CustomParameters extends MultiUsers {
   }
 
   async showParticipantsOnLogin() {
+    await this.modPage.hasElement(e.usersList, 'should display the users list');
+  }
+
+  async hideParticipantsOnLogin() {
     await this.modPage.wasRemoved(e.usersList, 'should not display the users list');
   }
 

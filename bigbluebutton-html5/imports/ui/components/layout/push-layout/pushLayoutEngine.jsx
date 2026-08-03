@@ -14,7 +14,7 @@ import {
   PANELS,
   HIDDEN_LAYOUTS,
 } from '../enums';
-import { isValidSynchronizationLayout, LAYOUTS_SYNC } from '../utils';
+import { getInitialSidebarContentPanel, isValidSynchronizationLayout, LAYOUTS_SYNC } from '../utils';
 import { updateSettings } from '/imports/ui/components/settings/service';
 import Session from '/imports/ui/services/storage/in-memory';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
@@ -132,10 +132,8 @@ const PushLayoutEngine = (props) => {
     );
 
     const HIDE_PRESENTATION = window.meetingClientSettings.public.layout.hidePresentationOnJoin;
-    const HIDE_CHAT = window.meetingClientSettings.public.chat.startClosed;
-
     const shouldOpenPresentation = shouldShowScreenshare || shouldShowExternalVideo;
-    const shouldOpenChat = isChatEnabled && getFromUserSettings('bbb_show_public_chat_on_login', !HIDE_CHAT);
+    const initialSidebarContentPanel = getInitialSidebarContentPanel(isChatEnabled);
     let presentationLastState = !getFromUserSettings('bbb_hide_presentation_on_join', HIDE_PRESENTATION);
     presentationLastState = pushLayoutMeeting ? meetingPresentationIsOpen : presentationLastState;
     presentationLastState = shouldOpenPresentation || presentationLastState;
@@ -154,7 +152,7 @@ const PushLayoutEngine = (props) => {
           value: meetingLayoutCameraPosition || DEFAULT_VALUES.cameraPosition,
           isLocalChange: false,
         });
-        if (shouldOpenChat && !hasLayoutEngineLoadedOnce) {
+        if (initialSidebarContentPanel === PANELS.CHAT && !hasLayoutEngineLoadedOnce) {
           layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
             value: true,

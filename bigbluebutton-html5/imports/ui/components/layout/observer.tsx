@@ -6,6 +6,7 @@ import {
 import {
   isMobile,
   getDeviceType,
+  getInitialSidebarContentPanel,
 } from './utils';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { Input, Layout } from './layoutTypes';
@@ -101,6 +102,7 @@ const LayoutObserver: React.FC = () => {
   const isScreenSharingEnabled = useIsScreenSharingEnabled();
   const isPresentationEnabled = useIsPresentationEnabled();
   const isChatEnabled = useIsChatEnabled();
+  const initialSidebarContentPanel = getInitialSidebarContentPanel(isChatEnabled);
 
   const setLocalSettings = useUserChangedLocalSettings();
 
@@ -265,7 +267,7 @@ const LayoutObserver: React.FC = () => {
 
   useEffect(() => {
     if (layoutIsReady) {
-      if (isChatEnabled && getFromUserSettings('bbb_show_public_chat_on_login', !window.meetingClientSettings.public.chat.startClosed) && !deviceInfo.isPhone) {
+      if (initialSidebarContentPanel === PANELS.CHAT && !deviceInfo.isPhone) {
         const PUBLIC_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
         layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -279,14 +281,14 @@ const LayoutObserver: React.FC = () => {
           type: ACTIONS.SET_ID_CHAT_OPEN,
           value: PUBLIC_CHAT_ID,
         });
-      } else {
+      } else if (initialSidebarContentPanel !== PANELS.USERLIST) {
         layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
           value: false,
         });
       }
     }
-  }, [isChatEnabled, layoutIsReady]);
+  }, [initialSidebarContentPanel, layoutIsReady]);
 
   useEffect(() => {
     if (Session.equals('layoutReady', true)) {
@@ -299,8 +301,7 @@ const LayoutObserver: React.FC = () => {
           value: true,
         });
 
-        if (getFromUserSettings('bbb_show_participants_on_login', window.meetingClientSettings.public.layout.showParticipantsOnLogin)
-          && !deviceInfo.isMobile) {
+        if (initialSidebarContentPanel === PANELS.USERLIST && !deviceInfo.isMobile) {
           layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
             value: true,
@@ -311,8 +312,7 @@ const LayoutObserver: React.FC = () => {
           });
         }
 
-        if (isChatEnabled && getFromUserSettings('bbb_show_public_chat_on_login', !window.meetingClientSettings.public.chat.startClosed)
-          && !deviceInfo.isMobile) {
+        if (initialSidebarContentPanel === PANELS.CHAT && !deviceInfo.isMobile) {
           const PUBLIC_GROUP_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
 
           layoutContextDispatch({
