@@ -46,10 +46,12 @@ const RequestUnmuteComponent = ({
   }, []);
 
   const [isSmallViewport, setIsSmallViewport] = useState(
+    // eslint-disable-next-line no-undef
     () => globalThis.matchMedia(smallOnly).matches,
   );
 
   useEffect(() => {
+    // eslint-disable-next-line no-undef
     const mediaQuery = globalThis.matchMedia(smallOnly);
     const handleChange = (event) => setIsSmallViewport(event.matches);
     mediaQuery.addEventListener('change', handleChange);
