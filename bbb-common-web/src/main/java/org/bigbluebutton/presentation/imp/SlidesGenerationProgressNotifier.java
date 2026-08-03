@@ -205,6 +205,7 @@ public class SlidesGenerationProgressNotifier {
       pres.getPodId(), pres.getMeetingId(), pres.getTargetPresentationId(),
       pres.getId(), pres.getTemporaryPresentationId(), position, totalPagesAfter, presBaseUrl, pres.getPageIds());
     messagingService.sendDocConversionMsg(progress);
+    org.bigbluebutton.presentation.Util.deleteDirectory(insertDir);
   }
 
   public void setMessagingService(IBbbWebApiGWApp m) {
