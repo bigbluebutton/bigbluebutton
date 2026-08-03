@@ -70,12 +70,13 @@ export class MarkdownSharedNotes extends MultiUsers {
     const filename = download.download.suggestedFilename();
 
     // Issue #15778: the download must identify the meeting instead of using a generic
-    // "document_<download-time>" name. Expected shape:
-    //   <sanitized meeting name>_<YYYY-MM-DD_HH-mm meeting start>_Shared_Notes.md
+    // "document_<timestamp>" name. Expected shape:
+    //   <sanitized meeting name>_<YYYY-MM-DD_HH-mm-ss-SSS download moment>_Shared_Notes.md
+    // The millisecond segment is what keeps two downloads of the same notes apart.
     // The harness names the meeting after its id (already header/filesystem-safe ASCII),
     // so the sanitized name segment equals the meeting id.
     const filenamePattern = new RegExp(
-      `^${this.modPage.meetingId}_\\d{4}-\\d{2}-\\d{2}_\\d{2}-\\d{2}_Shared_Notes\\.md$`,
+      `^${this.modPage.meetingId}_\\d{4}-\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2}-\\d{3}_Shared_Notes\\.md$`,
     );
     expect(filename, 'the exported filename should identify the meeting and be tagged as shared notes').toMatch(
       filenamePattern,

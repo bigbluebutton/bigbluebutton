@@ -61,13 +61,12 @@ interface NotesDropdownGraphqlProps extends NotesDropdownContainerGraphqlProps {
   padId: string;
   presentationEnabled: boolean;
   meetingName: string;
-  meetingStartTime: number;
 }
 
 const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
   const {
     amIPresenter, presentations, handlePinSharedNotes, isRTL, padId, presentationEnabled,
-    isEtherpadSharedNotes, isPinned, meetingName, meetingStartTime,
+    isEtherpadSharedNotes, isPinned, meetingName,
   } = props;
   const [converterButtonDisabled, setConverterButtonDisabled] = useState(false);
   const intl = useIntl();
@@ -118,10 +117,9 @@ const NotesDropdownGraphql: React.FC<NotesDropdownGraphqlProps> = (props) => {
       const { sessionToken } = Auth;
       const hocuspocusServerHostname = window.meetingClientSettings.public.sharedNotes.serverHostname
         || window.location.hostname;
-      // Carry the meeting identity so the server can name the download after the
-      // meeting (name + start time) instead of a generic timestamped filename.
-      const exportMeetingParams = `&meetingName=${encodeURIComponent(meetingName)}`
-        + `&meetingStartTime=${meetingStartTime}`;
+      // Carry the meeting name so the server can name the download after the meeting
+      // instead of using a generic filename. The server stamps the download moment.
+      const exportMeetingParams = `&meetingName=${encodeURIComponent(meetingName)}`;
 
       menuItems.push(
         {
@@ -207,7 +205,6 @@ const NotesDropdownContainerGraphql: React.FC<NotesDropdownContainerGraphqlProps
   const amIPresenter = !!currentUserData?.presenter;
   const { data: meetingData } = useMeeting((m) => ({
     name: m.name,
-    createdTime: m.createdTime,
   }));
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isRTL = layoutSelect((i: any) => i.isRTL);
@@ -231,7 +228,6 @@ const NotesDropdownContainerGraphql: React.FC<NotesDropdownContainerGraphqlProps
       isEtherpadSharedNotes={isEtherpadSharedNotes}
       isPinned={isPinned}
       meetingName={meetingData?.name || ''}
-      meetingStartTime={meetingData?.createdTime || 0}
     />
   );
 };

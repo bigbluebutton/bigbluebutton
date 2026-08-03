@@ -36,9 +36,14 @@ const firstQueryValue = (value: unknown): string | undefined => {
   return typeof value === 'string' ? value : undefined;
 };
 
+// Millisecond precision: two exports of the same notes are told apart even when
+// they happen within the same second, so a download never silently overwrites the
+// previous one. Separator scheme follows the poll-result download filename
+// (bigbluebutton-html5 .../poll-content/component.tsx).
 const formatTimestamp = (date: Date): string => {
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}_${pad(date.getHours())}-${pad(date.getMinutes())}`;
+  const pad = (n: number, width = 2) => String(n).padStart(width, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+    + `_${pad(date.getHours())}-${pad(date.getMinutes())}-${pad(date.getSeconds())}-${pad(date.getMilliseconds(), 3)}`;
 };
 
 // Same sanitization used for breakout notes capture (redis/handler.ts): keep only
@@ -49,18 +54,15 @@ const sanitizeMeetingName = (name: string): string =>
     .replace(/[^a-z0-9_.-]/gi, '_')
     .slice(0, MAX_MEETING_NAME_LENGTH);
 
-// Build the download filename from the meeting identity supplied by the client.
-// Both params are optional: paramless callers (breakout capture, direct API, stale
-// clients) must never make this throw, so every input is defensively coerced.
+// Build the download filename from the meeting name supplied by the client, stamped
+// with the moment of the download. meetingName is optional: paramless callers
+// (breakout capture, direct API, stale clients) must never make this throw, so the
+// input is defensively coerced.
 const getExportFilename = (
   extension: string,
   meetingName?: string,
-  meetingStartTime?: string,
 ): string => {
-  const startTime = Number(meetingStartTime);
-  const startDate = new Date(startTime);
-  const date = Number.isFinite(startTime) && startTime > 0 && !Number.isNaN(startDate.getTime()) ? startDate : new Date();
-  const timestamp = formatTimestamp(date);
+  const timestamp = formatTimestamp(new Date());
 
   const sanitized = typeof meetingName === 'string' ? sanitizeMeetingName(meetingName) : '';
   const hasName = /[a-z0-9]/i.test(sanitized);
@@ -143,12 +145,11 @@ const documentApi: DocumentApi = {
       return sendExportError(response, 400, 'Invalid document name');
     }
 
-    // Meeting identity for the download filename, supplied by the client as query
-    // params (the shared-notes server itself has no access to meeting name/start time).
+    // Meeting name for the download filename, supplied by the client as a query
+    // param (the shared-notes server itself has no access to the meeting name).
     const meetingName = firstQueryValue(request.query.meetingName);
-    const meetingStartTime = firstQueryValue(request.query.meetingStartTime);
     const buildFilename = (extension: string): string =>
-      getExportFilename(extension, meetingName, meetingStartTime);
+      getExportFilename(extension, meetingName);
 
     try {
       switch (format) {
