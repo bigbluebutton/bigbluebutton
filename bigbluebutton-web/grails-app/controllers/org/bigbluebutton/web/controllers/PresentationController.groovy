@@ -313,6 +313,14 @@ class PresentationController {
     }
     def isInsert = (insertAtPosition != null && hasTargetPresentationId)
     if (isInsert) {
+      if (!presUploadToken.insertPagesEnabled) {
+        log.debug("Upload failed. Insert pages is disabled for meeting " + meetingId)
+        response.setStatus(403)
+        response.addHeader("Cache-Control", "no-cache")
+        response.contentType = 'text/plain'
+        response.outputStream << 'insert-pages-disabled'
+        return
+      }
       // The transient insert presentation must never become the current presentation.
       current = false
     }

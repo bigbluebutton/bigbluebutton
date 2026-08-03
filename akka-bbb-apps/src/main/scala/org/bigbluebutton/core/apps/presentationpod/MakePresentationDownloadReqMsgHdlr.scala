@@ -90,7 +90,9 @@ trait MakePresentationDownloadReqMsgHdlr extends RightsManagementTrait {
     val routing = collection.immutable.HashMap("sender" -> "bbb-apps-akka")
     val envelope = BbbCoreEnvelope(PresentationUploadTokenSysPubMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationUploadTokenSysPubMsg.NAME, parentMeetingId, userId)
-    val body = PresentationUploadTokenSysPubMsgBody("DEFAULT_PRESENTATION_POD", presentationUploadToken, filename, parentMeetingId, presId)
+    val body = PresentationUploadTokenSysPubMsgBody(
+      "DEFAULT_PRESENTATION_POD", presentationUploadToken, filename, parentMeetingId, presId, false
+    )
     val event = PresentationUploadTokenSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }

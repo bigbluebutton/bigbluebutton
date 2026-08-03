@@ -123,7 +123,9 @@ trait EndBreakoutRoomInternalMsgHdlr extends HandlerHelpers {
     val routing = collection.immutable.HashMap("sender" -> BbbAppsAkkaSender)
     val envelope = BbbCoreEnvelope(PresentationUploadTokenSysPubMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationUploadTokenSysPubMsg.NAME, parentMeetingId, userId)
-    val body = PresentationUploadTokenSysPubMsgBody("DEFAULT_PRESENTATION_POD", presentationUploadToken, filename, parentMeetingId, presId)
+    val body = PresentationUploadTokenSysPubMsgBody(
+      "DEFAULT_PRESENTATION_POD", presentationUploadToken, filename, parentMeetingId, presId, false
+    )
     val event = PresentationUploadTokenSysPubMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, event)
   }

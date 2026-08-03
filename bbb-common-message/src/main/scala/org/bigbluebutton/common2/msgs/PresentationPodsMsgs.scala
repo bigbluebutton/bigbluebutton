@@ -465,5 +465,6 @@ case class SetPresentationFitToWidthCmdMsgBody(userId: String, pageId: String, f
 // ------------ akka-apps to bbb-common-web ------------
 object PresentationUploadTokenSysPubMsg { val NAME = "PresentationUploadTokenSysPubMsg" }
 case class PresentationUploadTokenSysPubMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenSysPubMsgBody) extends BbbCoreMsg
-case class PresentationUploadTokenSysPubMsgBody(podId: String, authzToken: String, filename: String, meetingId: String, presentationId: String)
+case class PresentationUploadTokenSysPubMsgBody(podId: String, authzToken: String, filename: String, meetingId: String,
+                                                presentationId: String, insertPagesEnabled: Boolean)
 // ------------ akka-apps to bbb-common-web ------------

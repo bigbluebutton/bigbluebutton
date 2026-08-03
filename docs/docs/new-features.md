@@ -46,7 +46,7 @@ The "Lock viewers" / permissions modal was redesigned with a tabbed layout, and 
 
 #### Insert pages into the current presentation
 
-The presentation toolbar now has an insert pages (**+**) split button for the presenter, with two actions: **Insert blank page** and **Insert pages from a file...**. The new pages are inserted right after the current slide (existing annotations are preserved), and the presenter is taken to the first inserted page once the insert completes. The button can be hidden with `public.presentation.insertPagesEnabled` in `settings.yml` (default `true`); the plugin SDK `presentation.insertPages` server command works regardless of this flag.
+The presentation toolbar now has an insert pages (**+**) split button for the presenter, with two actions: **Insert blank page** and **Insert pages from a file...**. The new pages are inserted right after the current slide (existing annotations are preserved), and the presenter is taken to the first inserted page once the insert completes. Set `public.presentation.insertPagesEnabled` to `false` in `settings.yml` to hide the native button and block inserts requested through the plugin SDK `presentation.insertPages` server command (default `true`).
 
 #### "Musician Mode" audio processing
 

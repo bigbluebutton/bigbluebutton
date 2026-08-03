@@ -9,6 +9,7 @@ import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.db.PresPresentationDAO
 import org.bigbluebutton.core.util.RandomStringGenerator
+import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsBooleanOrElse
 
 trait PresentationUploadTokenReqMsgHdlr extends RightsManagementTrait {
   this: PresentationPodHdlrs =>
@@ -46,7 +47,19 @@ trait PresentationUploadTokenReqMsgHdlr extends RightsManagementTrait {
       val envelope = BbbCoreEnvelope(PresentationUploadTokenSysPubMsg.NAME, routing)
       val header = BbbClientMsgHeader(PresentationUploadTokenSysPubMsg.NAME, liveMeeting.props.meetingProp.intId, msg.header.userId)
 
-      val body = PresentationUploadTokenSysPubMsgBody(msg.body.podId, token, msg.body.filename, liveMeeting.props.meetingProp.intId, presId)
+      val insertPagesEnabled = getConfigPropertyValueByPathAsBooleanOrElse(
+        liveMeeting.clientSettings,
+        "public.presentation.insertPagesEnabled",
+        false
+      )
+      val body = PresentationUploadTokenSysPubMsgBody(
+        msg.body.podId,
+        token,
+        msg.body.filename,
+        liveMeeting.props.meetingProp.intId,
+        presId,
+        insertPagesEnabled
+      )
       val event = PresentationUploadTokenSysPubMsg(header, body)
       val msgEvent = BbbCommonEnvCoreMsg(envelope, event)
 

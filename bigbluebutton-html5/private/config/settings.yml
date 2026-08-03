@@ -1108,9 +1108,8 @@ public:
     allowDownloadOriginal: true
     allowDownloadWithAnnotations: true
     allowSnapshotOfCurrentSlide: true
-    # Shows the native insert-pages (+) split button on the presentation toolbar, letting the
-    # presenter insert a blank slide or pages from a file after the current slide. The plugin SDK
-    # presentation.insertPages command works regardless of this flag.
+    # Enables presenters to insert pages into the current presentation. When disabled, the native
+    # insert-pages (+) button is hidden and plugin SDK presentation.insertPages requests are blocked.
     insertPagesEnabled: true
     panZoomThrottle: 32
     restoreOnUpdate: true
