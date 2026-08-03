@@ -80,6 +80,7 @@ const InsertPagesContainer: React.FC<InsertPagesContainerProps> = ({
   const intl = useIntl();
   const [inFlight, setInFlight] = useState(false);
   const pendingRef = useRef<PendingInsert | null>(null);
+  const lastSeenNotificationAtRef = useRef(0);
   const progressToastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const completionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { data: notificationsStream } = useDeduplicatedSubscription<NotificationResponse>(
@@ -111,13 +112,12 @@ const InsertPagesContainer: React.FC<InsertPagesContainerProps> = ({
   }, [intl, resolveInsert]);
 
   useEffect(() => {
-    if (!pendingRef.current) return;
-
-    // Inserts are serialized by pendingRef, so any server-side insert failure
-    // received while one is pending resolves the current operation.
-    const insertFailed = notificationsStream?.notification_stream.some(
-      ({ messageId }) => messageId === 'app.presentation.insertPagesFailedNotification',
-    );
+    const insertFailed = notificationsStream?.notification_stream.some((notification) => {
+      const createdAt = new Date(notification.createdAt).getTime();
+      if (createdAt <= lastSeenNotificationAtRef.current) return false;
+      lastSeenNotificationAtRef.current = createdAt;
+      return notification.messageId === 'app.presentation.insertPagesFailedNotification';
+    });
     if (insertFailed) resolveInsert();
   }, [notificationsStream, resolveInsert]);
 
