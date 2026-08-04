@@ -132,6 +132,132 @@ const intlMessages = defineMessages({
 // any individual component instance without serialization overhead.
 const _pageZoomRatioCache = {};
 
+const PRESENTER_ANNOTATIONS_UPDATE_INTERVAL = 200;
+
+const isAnnotationShapeRecord = (record) => (
+  record?.typeName === 'shape'
+  && !record.id?.startsWith('shape:BG-')
+);
+
+const hasAnnotationShapeChanges = (changes) => {
+  if (!changes) return false;
+
+  const {
+    added = {},
+    updated = {},
+    removed = {},
+  } = changes;
+
+  return (
+    Object.values(added).some(isAnnotationShapeRecord)
+    || Object.values(updated).some(([previousRecord, nextRecord]) => (
+      isAnnotationShapeRecord(previousRecord)
+      || isAnnotationShapeRecord(nextRecord)
+    ))
+    || Object.values(removed).some(isAnnotationShapeRecord)
+  );
+};
+
+const exportPresenterAnnotations = async (
+  currentEditor,
+  currentPageId,
+) => {
+  if (
+    !currentEditor
+    || typeof currentEditor.getSvg !== 'function'
+    || typeof currentEditor.getShapePageBounds !== 'function'
+  ) {
+    logger.error(
+      { logCode: 'PresenterAnnotationsExport' },
+      'Required tldraw export APIs are unavailable',
+    );
+
+    return {
+      status: 'error',
+    };
+  }
+
+  const expectedTldrawPageId = `page:${currentPageId}`;
+
+  // A slide change may still be updating the tldraw store.
+  if (currentEditor.getCurrentPageId() !== expectedTldrawPageId) {
+    return {
+      status: 'not-ready',
+    };
+  }
+
+  const currentPageShapes =
+    currentEditor.getCurrentPageShapes();
+
+  const backgroundShape = (
+    currentEditor.getShape(`shape:BG-${currentPageId}`)
+    || currentPageShapes.find(
+      (shape) => shape.id.startsWith('shape:BG-'),
+    )
+  );
+
+  if (!backgroundShape) {
+    return {
+      status: 'not-ready',
+    };
+  }
+
+  const annotationShapes = currentPageShapes.filter(
+    isAnnotationShapeRecord,
+  );
+
+  if (annotationShapes.length === 0) {
+    return {
+      status: 'empty',
+    };
+  }
+
+  const slideBounds =
+    currentEditor.getShapePageBounds(backgroundShape);
+
+  if (!slideBounds) {
+    return {
+      status: 'not-ready',
+    };
+  }
+
+  try {
+    const svgElement = await currentEditor.getSvg(
+      annotationShapes,
+      {
+        bounds: slideBounds.clone(),
+        background: false,
+        padding: 0,
+        preserveAspectRatio: 'xMidYMid meet',
+      },
+    );
+
+    if (!svgElement) {
+      return {
+        status: 'error',
+      };
+    }
+
+    const svgMarkup = new XMLSerializer().serializeToString(
+      svgElement,
+    );
+
+    return {
+      status: 'success',
+      svgMarkup,
+    };
+  } catch (error) {
+    logger.error(
+      { logCode: 'PresenterAnnotationsExport' },
+      `Failed to export presenter annotations: ${error}`,
+    );
+
+    return {
+      status: 'error',
+    };
+  }
+};
+
 const Whiteboard = React.memo((props) => {
   const {
     isPresenter = false,
@@ -187,6 +313,7 @@ const Whiteboard = React.memo((props) => {
     isPresentationDetached,
     popupWindow,
     onPresenterViewChange,
+    onPresenterAnnotationsChange,
   } = props;
 
   const allowInfiniteWhiteboardPanForViewers = window.meetingClientSettings?.public?.whiteboard?.allowInfiniteWhiteboardPanForViewers;
@@ -258,7 +385,13 @@ const Whiteboard = React.memo((props) => {
   const presenterViewFrameRef = React.useRef(null);
   const lastPresenterViewRef = React.useRef(null);
   const onPresenterViewChangeRef = React.useRef(onPresenterViewChange);
+  const onPresenterAnnotationsChangeRef = React.useRef(onPresenterAnnotationsChange);
   const isPresentationDetachedRef = React.useRef(isPresentationDetached);
+  const presenterAnnotationsTimerRef = React.useRef(null);
+  const presenterAnnotationsExportingRef = React.useRef(false);
+  const presenterAnnotationsPendingRef = React.useRef(false);
+  const presenterAnnotationsActiveRef = React.useRef(true);
+  const publishPresenterAnnotationsRef = React.useRef(null);
 
   currentUserRef.current = currentUser;
 
@@ -538,6 +671,11 @@ const Whiteboard = React.memo((props) => {
   React.useEffect(() => {
     onPresenterViewChangeRef.current = onPresenterViewChange;
   }, [onPresenterViewChange]);
+
+  React.useEffect(() => {
+    onPresenterAnnotationsChangeRef.current =
+      onPresenterAnnotationsChange;
+  }, [onPresenterAnnotationsChange]);
 
   React.useEffect(() => {
     isPresentationDetachedRef.current = isPresentationDetached;
@@ -1389,6 +1527,125 @@ const Whiteboard = React.memo((props) => {
     });
   };
 
+  const schedulePresenterAnnotationsUpdate = () => {
+    if (
+      !presenterAnnotationsActiveRef.current
+      || !tlEditorRef.current
+      || !isPresenterRef.current
+      || !isPresentationDetachedRef.current
+      || typeof onPresenterAnnotationsChangeRef.current !== 'function'
+    ) {
+      return;
+    }
+
+    // Remember that the store has changed, even if an export is
+    // already running.
+    presenterAnnotationsPendingRef.current = true;
+
+    if (
+      presenterAnnotationsTimerRef.current !== null
+      || presenterAnnotationsExportingRef.current
+    ) {
+      return;
+    }
+
+    presenterAnnotationsTimerRef.current = window.setTimeout(() => {
+      presenterAnnotationsTimerRef.current = null;
+
+      const publish = publishPresenterAnnotationsRef.current;
+      if (typeof publish === 'function') {
+        void publish();
+      }
+    }, PRESENTER_ANNOTATIONS_UPDATE_INTERVAL);
+  };
+
+  const publishPresenterAnnotations = async () => {
+    if (presenterAnnotationsExportingRef.current) {
+      presenterAnnotationsPendingRef.current = true;
+      return;
+    }
+
+    const currentEditor = tlEditorRef.current;
+    const callback = onPresenterAnnotationsChangeRef.current;
+    const currentPageId = Number(curPageIdRef.current);
+    const currentPresentationId = presentationIdRef.current;
+
+    if (
+      !presenterAnnotationsActiveRef.current
+      || !currentEditor
+      || !isPresenterRef.current
+      || !isPresentationDetachedRef.current
+      || typeof callback !== 'function'
+      || !Number.isFinite(currentPageId)
+    ) {
+      return;
+    }
+
+    presenterAnnotationsExportingRef.current = true;
+    presenterAnnotationsPendingRef.current = false;
+
+    try {
+      const exportResult = await exportPresenterAnnotations(
+        currentEditor,
+        currentPageId,
+      );
+
+      /*
+       * getSvg() is asynchronous. The presenter may have changed slides,
+       * closed the popup, or lost presenter status while it was running.
+       */
+      const resultStillCurrent = (
+        presenterAnnotationsActiveRef.current
+        && currentEditor === tlEditorRef.current
+        && isPresenterRef.current
+        && isPresentationDetachedRef.current
+        && Number(curPageIdRef.current) === currentPageId
+        && presentationIdRef.current === currentPresentationId
+        && onPresenterAnnotationsChangeRef.current === callback
+      );
+
+      if (!resultStillCurrent) {
+        presenterAnnotationsPendingRef.current = true;
+        return;
+      }
+
+      if (exportResult.status === 'success') {
+        callback({
+          presentationId: currentPresentationId,
+          pageId: currentPageId,
+          svgMarkup: exportResult.svgMarkup,
+        });
+        return;
+      }
+
+      if (exportResult.status === 'empty') {
+        // Remove an old overlay when the last annotation was deleted.
+        callback({
+          presentationId: currentPresentationId,
+          pageId: currentPageId,
+          svgMarkup: null,
+        });
+      }
+
+      /*
+       * For 'not-ready' and 'error', keep the currently displayed
+       * annotation SVG. A later store or page update will schedule
+       * another export.
+       */
+    } finally {
+      presenterAnnotationsExportingRef.current = false;
+
+      if (
+        presenterAnnotationsPendingRef.current
+        && presenterAnnotationsActiveRef.current
+      ) {
+        schedulePresenterAnnotationsUpdate();
+      }
+    }
+  };
+
+  publishPresenterAnnotationsRef.current = publishPresenterAnnotations;
+
   const handleTldrawMount = (editor) => {
     if (typeof editor.history.setMaxStackSize === 'function') {
       editor.history.setMaxStackSize(window.meetingClientSettings.public.whiteboard.maxHistoryStackSize);
@@ -1687,6 +1944,17 @@ const Whiteboard = React.memo((props) => {
       },
     );
 
+    editor.store.listen(
+      ({ changes }) => {
+        if (hasAnnotationShapeChanges(changes)) {
+          schedulePresenterAnnotationsUpdate();
+        }
+      },
+      {
+        scope: 'document',
+      },
+    );
+
     if (editor && curPageIdRef.current) {
       const page = [];
       const formattedPageId = parseInt(curPageIdRef.current, 10);
@@ -1723,6 +1991,8 @@ const Whiteboard = React.memo((props) => {
           editor.history.clear();
         });
       });
+
+      schedulePresenterAnnotationsUpdate();
 
       // eslint-disable-next-line no-param-reassign
       editor.store.onBeforeChange = (prev, next) => {
@@ -2525,6 +2795,7 @@ const Whiteboard = React.memo((props) => {
 
       raf(() => {
         schedulePresenterViewUpdate(tlEditorRef.current);
+        schedulePresenterAnnotationsUpdate();
       });
 
       if (viewerCanPanRef.current) {
@@ -2591,9 +2862,19 @@ const Whiteboard = React.memo((props) => {
   }, [curPageId]);
 
   React.useEffect(() => {
+    presenterAnnotationsActiveRef.current = true;
     setTldrawIsMounting(true);
     return () => {
       isMountedRef.current = false;
+      presenterAnnotationsActiveRef.current = false;
+      presenterAnnotationsPendingRef.current = false;
+
+      if (presenterAnnotationsTimerRef.current !== null) {
+        window.clearTimeout(
+          presenterAnnotationsTimerRef.current,
+        );
+        presenterAnnotationsTimerRef.current = null;
+      }
 
       if (presenterViewFrameRef.current !== null) {
         caf(presenterViewFrameRef.current);
@@ -2792,5 +3073,6 @@ Whiteboard.propTypes = {
   isInfiniteWhiteboard: PropTypes.bool,
   whiteboardWriters: PropTypes.arrayOf(PropTypes.shape).isRequired,
   onPresenterViewChange: PropTypes.func,
+  onPresenterAnnotationsChange: PropTypes.func,
 };
 
