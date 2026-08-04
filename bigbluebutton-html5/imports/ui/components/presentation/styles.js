@@ -428,7 +428,7 @@ const PresenterToolSlideViewport = styled.div`
   background: #000;
 `;
 
-const PresenterToolTransformedSlide = styled.img`
+const PresenterToolTransformedSlideLayer = styled.div`
   position: absolute;
 
   left: ${({ $leftRatio }) => `${$leftRatio * 100}%`};
@@ -437,7 +437,19 @@ const PresenterToolTransformedSlide = styled.img`
   width: ${({ $widthRatio }) => `${$widthRatio * 100}%`};
   height: ${({ $heightRatio }) => `${$heightRatio * 100}%`};
 
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+`;
+
+const PresenterToolTransformedSlide = styled.img`
+  position: absolute;
+  inset: 0;
+
   display: block;
+  width: 100%;
+  height: 100%;
+
   max-width: none;
   max-height: none;
 
@@ -461,6 +473,23 @@ const PresenterToolCursorDot = styled.div`
   transform: translate(-50%, -50%);
   pointer-events: none;
   z-index: 3;
+`;
+
+const PresenterToolAnnotationsOverlay = styled.img`
+  position: absolute;
+  inset: 0;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  max-width: none;
+  max-height: none;
+
+  pointer-events: none;
+  user-select: none;
+
+  z-index: 1;
 `;
 
 export default {
@@ -495,6 +524,8 @@ export default {
   PresenterToolNotesPanel,
   PresenterToolSlideContent,
   PresenterToolSlideViewport,
+  PresenterToolTransformedSlideLayer,
   PresenterToolTransformedSlide,
+  PresenterToolAnnotationsOverlay,
   PresenterToolCursorDot,
 };
