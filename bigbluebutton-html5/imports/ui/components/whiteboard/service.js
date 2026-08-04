@@ -394,18 +394,26 @@ const debouncedUpdateShapes = debounce((
       const remoteShapesArray = Object.values(shapes).reduce((acc, shape) => {
         const remoteVersion = Number(shape.meta?.version ?? 0);
         const localVersion = Number(editingShape?.meta?.version ?? 0);
-        const isStaleOwnActiveFrameName = Boolean(currentUserId)
+        const echoAuthor = shape.meta?.updatedBy ?? shape.meta?.createdBy;
+        const isOwnActiveFrame = Boolean(currentUserId)
           && editingShape?.id === shape.id
           && editingShape.type === 'frame'
           && shape.type === 'frame'
           && shape.props?.name !== undefined
-          && shape.meta?.updatedBy === currentUserId
-          && remoteVersion >= localVersion
+          && echoAuthor === currentUserId;
+
+        // store.put replaces the whole local record. Ignore older self echoes so
+        // they cannot roll back keystrokes or any other newer local frame fields.
+        if (isOwnActiveFrame && remoteVersion < localVersion) {
+          return acc;
+        }
+
+        const shouldPreserveActiveFrameName = isOwnActiveFrame
           && editingShape.props.name !== shape.props.name;
 
-        // A frame name input is controlled by the local tldraw store. Preserve
-        // only its name for current or newer self echoes so metadata is reconciled.
-        const shapeToMerge = isStaleOwnActiveFrameName
+        // Preserve the locally controlled name for current or newer self echoes
+        // while still reconciling the rest of the server record.
+        const shapeToMerge = shouldPreserveActiveFrameName
           ? {
             ...shape,
             props: {
