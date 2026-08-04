@@ -12,6 +12,7 @@ import {
 import {
   PresentationToolbarItemType,
 } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/presentation-toolbar-item/enums';
+import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import Styled from './styles';
 import ZoomTool from './zoom-tool/component';
 import SmartMediaShareContainer from './smart-video-share/container';
@@ -350,7 +351,12 @@ class PresentationToolbar extends PureComponent {
       maxNumberOfActiveUsers,
       numberOfJoinedUsers,
       isMobile,
+      toolbarWidth,
     } = this.props;
+
+    // Drops the widest optional control when the presentation is too narrow to
+    // hold the whole set of controls.
+    const hasRoomForZoomTool = toolbarWidth >= DEFAULT_VALUES.presentationToolbarMinWidth;
 
     const startOfSlides = !(currentSlideNum > 1);
     const endOfSlides = !(currentSlideNum < numberOfSlides);
@@ -387,7 +393,6 @@ class PresentationToolbar extends PureComponent {
     return (
       <Styled.PresentationToolbarWrapper
         id="presentationToolbarWrapper"
-        isMobile={isMobile}
       >
         {this.renderAriaDescs()}
         <Styled.QuickPollButtonWrapper>
@@ -511,7 +516,7 @@ class PresentationToolbar extends PureComponent {
           ) : (
             <Styled.MUTPlaceholder />
           )}
-          {!isMobile ? (
+          {!isMobile && hasRoomForZoomTool ? (
             <TooltipContainer>
               <ZoomTool
                 slidePosition={slidePosition}
@@ -592,6 +597,7 @@ PresentationToolbar.propTypes = {
   maxNumberOfActiveUsers: PropTypes.number.isRequired,
   numberOfJoinedUsers: PropTypes.number.isRequired,
   isMobile: PropTypes.bool.isRequired,
+  toolbarWidth: PropTypes.number.isRequired,
 };
 
 PresentationToolbar.defaultProps = {

@@ -107,6 +107,9 @@ const SidebarNavigation = ({
         // restore sidebar expanded state if device is not mobile anymore
         setIsExpanded(true);
       }
+      if (!enableScrollBar) {
+        setEnableScrollBar(true);
+      }
       return;
     }
 

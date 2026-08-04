@@ -16,6 +16,9 @@ export const isIphone = !!(userAgent.match(/iPhone/i));
 
 export const isPortrait = () => window.innerHeight > window.innerWidth;
 
+// Tablets are deliberately left out: they keep the regular layout behavior.
+export const isPhoneLandscape = () => isPhone && !isPortrait();
+
 const deviceInfo = {
   isTablet,
   isPhone,
@@ -24,6 +27,7 @@ const deviceInfo = {
   osName,
   osVersion,
   isPortrait,
+  isPhoneLandscape,
   isIos,
   isMacos,
   isIphone,

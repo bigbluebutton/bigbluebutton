@@ -13,6 +13,7 @@ import Storage from '/imports/ui/services/storage/session';
 import { defaultsDeep } from '/imports/utils/array-utils';
 import Session from '/imports/ui/services/storage/in-memory';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -280,16 +281,30 @@ const UnifiedLayout = (props) => {
     throttledCalculatesLayout();
   };
 
-  const calculatesSidebarContentHeight = (cameraDockHeight) => {
-    const { isOpen, slidesLength } = presentationInput;
+  const isMediaContentOff = () => {
+    const { slidesLength } = presentationInput;
     const { hasExternalVideo } = externalVideoInput;
     const { genericContentId } = genericMainContentInput;
     const { hasScreenShare } = screenShareInput;
     const { isPinned: isSharedNotesPinned } = sharedNotesInput;
 
     const hasPresentation = isPresentationEnabled && slidesLength !== 0;
-    const isGeneralMediaOff = !hasPresentation && !hasExternalVideo
+
+    return !hasPresentation && !hasExternalVideo
       && !hasScreenShare && !isSharedNotesPinned && !genericContentId;
+  };
+
+  const isSideBySideCamerasEnforced = () => deviceInfo.isPhoneLandscape()
+    && cameraDockInput.numCameras > 0
+    && presentationInput.isOpen
+    && !isMediaContentOff();
+
+  const getCameraDockPosition = () => (isSideBySideCamerasEnforced()
+    ? CAMERADOCK_POSITION.CONTENT_RIGHT
+    : cameraDockInput.position);
+
+  const calculatesSidebarContentHeight = (cameraDockHeight) => {
+    const { isOpen } = presentationInput;
     const {
       sidebarContentMinHeight,
     } = DEFAULT_VALUES;
@@ -300,9 +315,9 @@ const UnifiedLayout = (props) => {
         sidebarContentHeight = windowHeight() - DEFAULT_VALUES.navBarHeight;
       } else if (
         cameraDockInput.numCameras > 0
-        && cameraDockInput.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM
+        && getCameraDockPosition() === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM
         && isOpen
-        && !isGeneralMediaOff
+        && !isMediaContentOff()
       ) {
         sidebarContentHeight = windowHeight() - cameraDockHeight;
       } else {
@@ -332,6 +347,7 @@ const UnifiedLayout = (props) => {
       camerasMargin,
       cameraDockMinHeight,
       cameraDockMinWidth,
+      phoneLandscapeCameraWidthPercentage,
       presentationToolbarMinWidth,
       sidebarContentMinHeight,
     } = DEFAULT_VALUES;
@@ -349,16 +365,18 @@ const UnifiedLayout = (props) => {
     if (cameraDockInput.isDragging) cameraDockBounds.zIndex = 99;
     else cameraDockBounds.zIndex = 1;
 
-    const isCameraTop = cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_TOP;
-    const isCameraBottom = cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_BOTTOM;
-    const isCameraLeft = cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_LEFT;
-    const isCameraRight = cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_RIGHT;
-    const isCameraSidebar = cameraDockInput.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM;
+    const cameraPosition = getCameraDockPosition();
+    const isEnforcedSideBySide = isSideBySideCamerasEnforced();
+
+    const isCameraTop = cameraPosition === CAMERADOCK_POSITION.CONTENT_TOP;
+    const isCameraBottom = cameraPosition === CAMERADOCK_POSITION.CONTENT_BOTTOM;
+    const isCameraLeft = cameraPosition === CAMERADOCK_POSITION.CONTENT_LEFT;
+    const isCameraRight = cameraPosition === CAMERADOCK_POSITION.CONTENT_RIGHT;
+    const isCameraSidebar = cameraPosition === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM;
 
     const stoppedResizing = prevIsResizing && !isResizing;
     if (stoppedResizing) {
-      const isCameraTopOrBottom = cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_TOP
-        || cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_BOTTOM;
+      const isCameraTopOrBottom = isCameraTop || isCameraBottom;
       const sidebarContentMarginToMedia = windowWidth()
         * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
 
@@ -406,7 +424,15 @@ const UnifiedLayout = (props) => {
     }
 
     if (isCameraLeft || isCameraRight) {
-      if (lastWidth === 0 && !isResizing) {
+      if (isEnforcedSideBySide) {
+        cameraDockWidth = min(
+          max(
+            mediaAreaBounds.width * phoneLandscapeCameraWidthPercentage,
+            cameraDockMinWidth,
+          ),
+          mediaAreaBounds.width - cameraDockMinWidth,
+        );
+      } else if (lastWidth === 0 && !isResizing) {
         cameraDockWidth = min(
           max(mediaAreaBounds.width * 0.2, cameraDockMinWidth),
           mediaAreaBounds.width - cameraDockMinWidth,
@@ -420,16 +446,22 @@ const UnifiedLayout = (props) => {
       }
 
       cameraDockBounds.top = navBarHeight + bannerAreaHeight();
-      cameraDockBounds.minWidth = cameraDockMinWidth;
+      cameraDockBounds.minWidth = isEnforcedSideBySide ? cameraDockWidth : cameraDockMinWidth;
       cameraDockBounds.width = cameraDockWidth;
-      cameraDockBounds.maxWidth = mediaAreaBounds.width * 0.8;
-      cameraDockBounds.presenterMaxWidth = mediaAreaBounds.width
-        - presentationToolbarMinWidth - camerasMargin;
+      cameraDockBounds.maxWidth = isEnforcedSideBySide
+        ? cameraDockWidth
+        : mediaAreaBounds.width * 0.8;
+      cameraDockBounds.presenterMaxWidth = isEnforcedSideBySide
+        ? cameraDockWidth
+        : mediaAreaBounds.width - presentationToolbarMinWidth - camerasMargin;
       cameraDockBounds.minHeight = cameraDockMinHeight;
       cameraDockBounds.height = mediaAreaBounds.height;
       cameraDockBounds.maxHeight = mediaAreaBounds.height;
-      // button size in vertical position
-      cameraDockBounds.height -= 20;
+
+      if (!isEnforcedSideBySide) {
+        // button size in vertical position
+        cameraDockBounds.height -= 20;
+      }
 
       if (isCameraRight) {
         const sizeValue = mediaAreaBounds.left + mediaAreaBounds.width - cameraDockWidth;
@@ -526,7 +558,7 @@ const UnifiedLayout = (props) => {
     const sidebarSize = sidebarNavWidth + sidebarContentWidth;
 
     if (cameraDockInput.numCameras > 0 && !cameraDockInput.isDragging) {
-      switch (cameraDockInput.position) {
+      switch (getCameraDockPosition()) {
         case CAMERADOCK_POSITION.CONTENT_TOP: {
           mediaBounds.width = mediaAreaWidth;
           mediaBounds.height = mediaAreaHeight - cameraDockBounds.height - camerasMargin;
@@ -598,7 +630,8 @@ const UnifiedLayout = (props) => {
       calculatesMediaAreaBounds,
       isTablet,
     } = props;
-    const { position: cameraPosition } = cameraDockInput;
+    const cameraPosition = getCameraDockPosition();
+    const isCameraDockLocked = isSideBySideCamerasEnforced();
     const { camerasMargin, captionsMargin } = DEFAULT_VALUES;
 
     const sidebarNavWidth = calculatesSidebarNavWidth();
@@ -775,12 +808,13 @@ const UnifiedLayout = (props) => {
     });
 
     const isMediaOpen = mediaBounds?.width > 0 && mediaBounds?.height > 0;
+    const canResizeCameraDock = isMediaOpen && !isCameraDockLocked;
 
     layoutContextDispatch({
       type: ACTIONS.SET_CAMERA_DOCK_OUTPUT,
       value: {
         display: cameraDockInput.numCameras > 0 || !presentationInput.isOpen,
-        position: cameraDockInput.position,
+        position: cameraPosition,
         minWidth: cameraDockBounds.minWidth,
         width: cameraDockBounds.width,
         maxWidth: cameraDockBounds.maxWidth,
@@ -792,20 +826,21 @@ const UnifiedLayout = (props) => {
         left: cameraDockBounds.left,
         right: cameraDockBounds.right,
         tabOrder: 4,
-        isDraggable: !isMobile && !isTablet && isMediaOpen,
+        isDraggable: !isMobile && !isTablet && !isCameraDockLocked && isMediaOpen,
         resizableEdge: {
           top:
-          isMediaOpen
+          canResizeCameraDock
             && (input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM
             || (input.cameraDock.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM
             && input.sidebarContent.isOpen)),
           right:
-            isMediaOpen
+            canResizeCameraDock
             && ((!isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT)
             || (isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT)),
-          bottom: isMediaOpen && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_TOP,
+          bottom: canResizeCameraDock
+            && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_TOP,
           left:
-          isMediaOpen
+          canResizeCameraDock
             && ((!isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT)
             || (isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT)),
         },

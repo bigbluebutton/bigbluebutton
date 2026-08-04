@@ -33,6 +33,7 @@ import { useMeetingLayoutUpdater, usePushLayoutUpdater, useLayoutUpdater } from 
 import { setEnforcedLayout } from '/imports/ui/components/plugins-engine/ui-commands/layout/handler';
 import { useIsChatEnabled } from '/imports/ui/services/features';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const equalDouble = (n1, n2) => {
   const precision = 0.01;
@@ -315,7 +316,9 @@ const PushLayoutEngine = (props) => {
         replicateFocusedCamera();
       }
 
-      if (syncCameraDockSizeAndPosition) {
+      // A phone in landscape arranges the dock on its own terms, so it must not
+      // follow the presenter's camera dock position and size.
+      if (syncCameraDockSizeAndPosition && !deviceInfo.isPhoneLandscape()) {
         if (layoutReplicateElements.includes(LAYOUT_ELEMENTS.CAMERA_DOCK_POSITION)) {
           replicateCameraDockPosition();
         }

@@ -28,16 +28,14 @@ const PresentationToolbarWrapper = styled.div`
   background-color: ${colorOffWhite};
   border-top: 1px solid ${colorBlueLightest};
   border-radius: 0 0 ${lgBorderRadius} ${lgBorderRadius};
-  min-width: fit-content;
   width: 100%;
   bottom: 0px;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   padding: 2px;
-  ${({ isMobile }) => (isMobile
-    ? 'overflow: auto;'
-    : 'min-width: fit-content;'
-  )};
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
 
   select {
     &:-moz-focusring {
@@ -94,6 +92,12 @@ const PresentationToolbarWrapper = styled.div`
   &::-webkit-scrollbar-track:hover { background: rgba(0,0,0,.25); }
   &::-webkit-scrollbar-track:active { background: rgba(0,0,0,.25); }
   &::-webkit-scrollbar-corner { background: 0 0; }
+
+  // overrides the scrollbar styling above: the horizontal bar would overlap the
+  // controls and shorten the slide, since the toolbar height is measured
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const QuickPollButton = styled(QuickPollDropdownContainer)`
@@ -144,7 +148,7 @@ const PrevSlideButton = styled(Button)`
 const NextSlideButton = styled(Button)`
   i {
     font-size: 1rem;
-    
+
     [dir="rtl"] & {
       -webkit-transform: scale(-1, 1);
       -moz-transform: scale(-1, 1);
