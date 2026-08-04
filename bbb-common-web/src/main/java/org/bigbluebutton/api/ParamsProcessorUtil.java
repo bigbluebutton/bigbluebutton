@@ -1093,9 +1093,6 @@ public class ParamsProcessorUtil {
             meeting.setCustomDarkLogoURL(this.getDefaultLogoURL());
         }
 
-		if (!StringUtils.isEmpty(params.get(ApiParams.COPYRIGHT))) {
-			meeting.setCustomCopyright(params.get(ApiParams.COPYRIGHT));
-		}
 		Boolean muteOnStart = defaultMuteOnStart;
 		if (!StringUtils.isEmpty(params.get(ApiParams.MUTE_ON_START))) {
         	muteOnStart = Boolean.parseBoolean(params.get(ApiParams.MUTE_ON_START));

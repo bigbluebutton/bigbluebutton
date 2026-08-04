@@ -109,7 +109,6 @@ public class Meeting {
 	private ArrayList<Group> groups = new ArrayList<Group>();
 	private String customLogoURL = "";
 	private String customDarkLogoURL = "";
-	private String customCopyright = "";
 	private Boolean muteOnStart = false;
 	private String cameraBridge = "livekit";
 	private String screenShareBridge = "livekit";
@@ -772,14 +771,6 @@ public class Meeting {
 
 	public void setCustomDarkLogoURL(String url) {
 		customDarkLogoURL = url;
-	}
-
-	public void setCustomCopyright(String copyright) {
-    	customCopyright = copyright;
-	}
-
-	public String getCustomCopyright() {
-    	return customCopyright;
 	}
 
 	public void setMuteOnStart(Boolean mute) {
