@@ -9,7 +9,7 @@ DISTRO=$(echo "$TARGET"  | cut -d'_' -f3)
 # Upstream coturn version to package. Bump here and refresh coturn.sha256sum.
 # Kept independent of the BBB package VERSION above. Ubuntu Noble only ships
 # 4.6.1, which is why we build our own.
-COTURN_VERSION=4.15.0
+COTURN_VERSION=4.16.0
 
 BUILDDIR="$PWD"
 DESTDIR="$BUILDDIR/staging"

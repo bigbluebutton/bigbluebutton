@@ -197,7 +197,7 @@ At this point you can use it in a specific session by passing `sharedNotesEditor
 
 #### New optional package: bbb-coturn
 
-BigBlueButton 4.0 adds `bbb-coturn`, a BigBlueButton build of the [coturn](https://github.com/coturn/coturn) TURN/STUN server. Ubuntu 24.04 only ships coturn 4.6.1; `bbb-coturn` packages coturn 4.15.0.
+BigBlueButton 4.0 adds `bbb-coturn`, a BigBlueButton build of the [coturn](https://github.com/coturn/coturn) TURN/STUN server. Ubuntu 24.04 only ships coturn 4.6.1; `bbb-coturn` packages coturn 4.16.0.
 
 It is an **optional** package — it is not a dependency of the `bigbluebutton` meta-package and is not installed by default. Install it with
 

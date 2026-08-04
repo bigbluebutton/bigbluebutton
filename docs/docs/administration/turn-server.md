@@ -52,7 +52,7 @@ Note: coturn will not automatically start until configuration is applied (see be
 
 #### Using the bbb-coturn package (BigBlueButton 4.0 and later)
 
-Ubuntu 24.04 ships coturn 4.6.1. Starting with BigBlueButton 4.0, an optional `bbb-coturn` package provides a newer coturn (4.15.0) built by the BigBlueButton project. It is not installed by default.
+Ubuntu 24.04 ships coturn 4.6.1. Starting with BigBlueButton 4.0, an optional `bbb-coturn` package provides a newer coturn (4.16.0) built by the BigBlueButton project. It is not installed by default.
 
 `bbb-coturn` is a drop-in replacement for the distro `coturn` package — it declares `Provides`/`Conflicts`/`Replaces` on `coturn`, so apt removes the distro package when you install it, and it keeps the same `/usr/bin/turnserver` binary, `/etc/turnserver.conf` config file, and `coturn.service` unit name. Everything else on this page applies unchanged, including the systemd override and log rotation sections below.
 
