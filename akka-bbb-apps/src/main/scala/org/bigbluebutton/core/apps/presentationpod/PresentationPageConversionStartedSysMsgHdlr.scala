@@ -56,19 +56,25 @@ trait PresentationPageConversionStartedSysMsgHdlr extends SystemConfiguration {
       // (interactive client, create/insertDocument API) passes through to enter a pod.
       // The token-request check (PresentationUploadTokenReqMsgHdlr) only gates the
       // interactive path; this is the authoritative backstop for all sources.
-      case Some(pod) if pod.getPresentationsSize() >= presMaxPerPod =>
+      // 0 disables the cap.
+      case Some(pod) if presMaxPerPod > 0 && pod.getPresentationsSize() >= presMaxPerPod =>
         log.warning("Rejecting presentation: pod presentation limit reached. " +
           s"meetingId=$meetingId userId=${msg.header.userId} podId=$podId " +
           s"count=${pod.getPresentationsSize()} limit=$presMaxPerPod presentationId=$presentationId")
-        // Mark the presentation failed so the interactive path (which already inserted a
-        // DB row at token time) does not hang as "uploading". For API uploads no row
-        // exists yet, so this is a no-op UPDATE and no phantom row is created.
+
+        // Not added to the pod, so it does not occupy a slot. Record the error on the row
+        // instead; the insert is a no-op when a row already exists.
+        PresPresentationDAO.insertUploadTokenIfNotExists(
+          meetingId, "", "", presentationId, "", msg.body.presName
+        )
         PresPresentationDAO.updateErrors(
           presentationId,
           "PRESENTATION_UPLOAD_POD_LIMIT_REACHED",
           Map("maxPresentationsPerPod" -> presMaxPerPod.toString)
         )
-        state
+
+        // Drop any conversion tracker entry for this presentation.
+        state.update(state.presentationConversions.remove(presentationId))
 
       case Some(pod) =>
         var pods = state.presentationPodManager.addPod(pod)

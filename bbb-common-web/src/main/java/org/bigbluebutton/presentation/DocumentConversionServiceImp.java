@@ -23,6 +23,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import org.bigbluebutton.api.util.RequestRateLimiter;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.presentation.imp.*;
 import org.bigbluebutton.presentation.messages.DocConversionRequestReceived;
@@ -48,12 +49,28 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
 
   private PresentationFileProcessor presentationFileProcessor;
 
+  private RequestRateLimiter conversionRateLimiter;
+
   public void processDocument(UploadedPresentation pres, boolean scanUploadedPresentationFiles) {
     if (pres.isUploadFailed()) {
       // We should send a message to the client in the future.
       // ralam may 1, 2020
       log.error("Presentation upload failed for meetingId={} presId={}", pres.getMeetingId(), pres.getId());
       log.error("Presentation upload fail reasons {}", pres.getUploadFailReason());
+      return;
+    }
+
+    // Per-meeting cap on how many presentations may enter the conversion pipeline within a
+    // rolling window. Every upload source reaches this method, and rejecting here happens
+    // before any conversion work is scheduled. Placed after the isUploadFailed check above so
+    // that uploads which are already failing do not consume the budget.
+    if (conversionRateLimiter != null
+            && !conversionRateLimiter.allow(pres.getMeetingId(), System.currentTimeMillis())) {
+      log.warn("Rejecting presentation conversion: per-meeting rate limit exceeded. " +
+                      "meetingId={} podId={} presId={} filename={}",
+              pres.getMeetingId(), pres.getPodId(), pres.getId(), pres.getName());
+      notifier.sendConversionRateLimited(pres);
+      Util.deleteDirectoryFromFileHandlingErrors(pres.getUploadedFile());
       return;
     }
 
@@ -213,6 +230,10 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
 
   public void setPresentationFileProcessor(PresentationFileProcessor presentationFileProcessor) {
       this.presentationFileProcessor = presentationFileProcessor;
+  }
+
+  public void setConversionRateLimiter(RequestRateLimiter conversionRateLimiter) {
+      this.conversionRateLimiter = conversionRateLimiter;
   }
 
   public long getMaxPageConversionTime() {

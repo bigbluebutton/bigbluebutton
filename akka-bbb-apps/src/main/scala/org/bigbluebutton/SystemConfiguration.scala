@@ -75,6 +75,7 @@ trait SystemConfiguration {
   lazy val transcriptLines = Try(config.getInt("transcript.lines")).getOrElse(2)
 
   lazy val reduceDuplicatedPick = Try(config.getBoolean("apps.reduceDuplicatedPick")).getOrElse(false)
+  // Keep these fallbacks non-zero: 0 disables the limit at the use sites.
   lazy val presUploadTokenMaxRequests = Try(config.getInt("apps.presentationUploadTokenMaxRequests")).getOrElse(20)
   lazy val presUploadTokenWindowSec = Try(config.getInt("apps.presentationUploadTokenWindowSec")).getOrElse(60)
   lazy val presMaxPerPod = Try(config.getInt("apps.presentationMaxPerPod")).getOrElse(50)

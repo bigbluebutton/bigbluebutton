@@ -90,7 +90,7 @@ trait PresentationUploadTokenReqMsgHdlr extends RightsManagementTrait {
         val podPresCount = PresentationPodsApp.getPresentationPod(state, msg.body.podId)
           .map(_.getPresentationsSize()).getOrElse(0)
 
-        if (podPresCount >= presMaxPerPod) {
+        if (presMaxPerPod > 0 && podPresCount >= presMaxPerPod) { //0 = no limit
           log.warning("Rejecting presentation upload token request: pod presentation limit reached. " +
             s"meetingId=$meetingId userId=${msg.header.userId} podId=${msg.body.podId} count=$podPresCount limit=$presMaxPerPod")
           broadcastPresentationUploadTokenFailResp(msg)

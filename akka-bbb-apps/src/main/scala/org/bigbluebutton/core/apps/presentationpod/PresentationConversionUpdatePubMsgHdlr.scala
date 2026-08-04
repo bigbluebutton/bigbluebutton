@@ -17,7 +17,9 @@ trait PresentationConversionUpdatePubMsgHdlr {
     val pres = new PresentationInPod(presentationId, msg.body.presName, default = false, current = false, Map.empty, downloadable = false,
       "", removable = true, filenameConverted = msg.body.presName, uploadCompleted = false, numPages = 0, errorDetails = Map.empty)
 
-    PresPresentationDAO.updateConversionStarted(liveMeeting.props.meetingProp.intId, pres)
+    // Not updateConversionStarted: this message carries no error information, so it must not
+    // touch the error columns.
+    PresPresentationDAO.updateConversionProgress(liveMeeting.props.meetingProp.intId, pres)
 
     state
   }

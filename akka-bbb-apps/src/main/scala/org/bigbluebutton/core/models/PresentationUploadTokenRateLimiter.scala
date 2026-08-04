@@ -18,19 +18,27 @@ class PresentationUploadTokenRateLimiter {
   /**
    * Prunes this user's timestamps older than (nowMs - windowMs), then admits the
    * request (recording nowMs) when the remaining count is below maxRequests.
+   *
+   * A maxRequests of 0 or less disables the limit and always admits.
+   *
    * Returns true when the request is allowed, false when it is throttled.
    */
   def allow(userId: String, nowMs: Long, maxRequests: Int, windowMs: Long): Boolean = {
-    val cutoff = nowMs - windowMs
-    val recent = requestTimestamps.getOrElse(userId, Vector.empty).filter(_ > cutoff)
-
-    if (recent.size < maxRequests) {
-      requestTimestamps = requestTimestamps.updated(userId, recent :+ nowMs)
+    if (maxRequests <= 0) {
+      // Limit disabled; nothing to record.
       true
     } else {
-      // Keep the pruned vector so memory does not retain stale entries.
-      requestTimestamps = requestTimestamps.updated(userId, recent)
-      false
+      val cutoff = nowMs - windowMs
+      val recent = requestTimestamps.getOrElse(userId, Vector.empty).filter(_ > cutoff)
+
+      if (recent.size < maxRequests) {
+        requestTimestamps = requestTimestamps.updated(userId, recent :+ nowMs)
+        true
+      } else {
+        // recent is non-empty here. Keep it pruned so stale entries are not retained.
+        requestTimestamps = requestTimestamps.updated(userId, recent)
+        false
+      }
     }
   }
 
