@@ -18,6 +18,9 @@ import getRecordingTextTracksEndpointTableData from '../data/getRecordingTextTra
 import insertDocumentEndpointTableData from '../data/insertDocument.tsx';
 import sendChatMessageEndpointTableData from '../data/sendChatMessage.tsx';
 import getJoinUrlTableData from '../data/getJoinUrl.tsx';
+import stunsTableData from '../data/stuns.tsx';
+import signOutTableData from '../data/signOut.tsx';
+import learningDashboardTableData from '../data/learningDashboard.tsx';
 import isMeetingRunningEndpointTableData from '../data/isMeetingRunning.tsx';
 import joinEndpointTableData from '../data/join.tsx';
 import publishRecordingsEndpointTableData from '../data/publishRecordings.tsx';
@@ -71,7 +74,7 @@ Updated in 2.0:
 
 Updated in 2.2:
 
-- **create** - Added `endWhenNoModerator`.
+- **create** - Added `endWhenNoModerator`, `meetingEndedURL`.
 - **getRecordingTextTracks** - Get a list of the caption/subtitle files currently available for a recording.
 - **putRecordingTextTrack** - Upload a caption or subtitle file to add it to the recording. If there is any existing track with the same values for kind and lang, it will be replaced.
 
@@ -99,7 +102,7 @@ Updated in 2.5:
 
 Updated in 2.6:
 
-- **create** - **Added:** `notifyRecordingIsOn`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`, `recordFullDurationMedia` (v2.6.9); `disabledFeaturesExclude`(2.6.9); Added `liveTranscription` and `presentation` as options for `disabledFeatures`.
+- **create** - **Added:** `notifyRecordingIsOn`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`, `recordFullDurationMedia` (v2.6.9); `disabledFeaturesExclude`(2.6.9); `maxPinnedCameras`, `breakoutRoomsCaptureSlides`, `breakoutRoomsCaptureSlidesFilename`, `breakoutRoomsCaptureNotes`, `breakoutRoomsCaptureNotesFilename`; Added `liveTranscription` and `presentation` as options for `disabledFeatures`.
 
 - **getRecordings** - **Added:** Added support for pagination using `offset`, `limit`
 
@@ -114,10 +117,10 @@ Updated in 2.7:
 Updated in 3.0:
 
 - **create**
-  - **Added parameters:** `allowOverrideClientSettingsOnCreateCall`, `loginURL`, `pluginManifests`, `pluginManifestsFetchUrl`, `presentationConversionCacheEnabled`, `maxNumPages`, `multiUserWhiteboardEnabled`, `clientSettingsOverrideJsonUrl`, `sharedNotesEditor`.
+  - **Added parameters:** `loginURL`, `pluginManifests`, `pluginManifestsFetchUrl`, `presentationConversionCacheEnabled`, `maxNumPages`, `multiUserWhiteboardEnabled`, `clientSettingsOverrideJsonUrl`, `sharedNotesEditor`, `cameraBridge`, `screenShareBridge`, `audioBridge`, `darklogo`.
   - **Added options:** Parameter `meetingLayout` supports a few new options: CAMERAS_ONLY, PARTICIPANTS_AND_CHAT_ONLY, PRESENTATION_ONLY, MEDIA_ONLY;
   - **Added options:** Parameter `disabledFeatures` supports a few new options: `infiniteWhiteboard`, `deleteChatMessage`, `editChatMessage`, `replyChatMessage`, `chatMessageReactions`, `raiseHand`, `userReactions`, `chatEmojiPicker`, `quizzes`;
-  - **Added POST module:** `clientSettingsOverride`;
+  - **Added POST module:** `clientSettingsOverride` (gated by the server-side setting `allowOverrideClientSettingsOnCreateCall` in `bbb-web.properties`);
   - **Removed:** `breakoutRoomsEnabled`, `learningDashboardEnabled`, `virtualBackgroundsDisabled`. 
 - **join**
   - **Added:** `bot`, `enforceLayout`, `logoutURL`, `firstName`, `lastName`, `userdata-bbb_default_layout`, `userdata-bbb_skip_echotest_if_previous_device`, `userdata-bbb_prefer_dark_theme`. `userdata-bbb_hide_notifications`, `userdata-bbb_hide_controls`, `userdata-bbb_initial_selected_tool`
@@ -416,6 +419,41 @@ If you choose the second option (sending content directly), the POST request pay
 
 Pay close attention: the initial content JSON structure must be as described in [BlockNote's documentation](https://www.blocknotejs.org/docs/foundations/document-structure?utm_source=chatgpt.com#block-properties). The same applies to the create parameter `sharedNotesInitialContentJsonUrl` (the content inside the URL must have the same structure).
 
+Alternatively, the initial content can be provided as plain Markdown instead of the BlockNote JSON structure. The Markdown is carried untouched through the pipeline and converted to BlockNote blocks on the shared-notes server before seeding the empty document. There are three ways to provide it:
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `sharedNotesInitialContentMarkdown` | create parameter | Raw Markdown sent inline as a `create` parameter. Suitable for short content that fits within URL length limits. |
+| `sharedNotesInitialContentMarkdownUrl` | create parameter | URL from which the raw Markdown will be fetched by the server. |
+| `sharedNotesInitialContentMarkdown` | POST module | Raw Markdown sent in the POST body via an xml module, for content too large for a query string. |
+
+The expected format is raw Markdown (headings, lists, emphasis, etc.), not the BlockNote JSON structure.
+
+To send the Markdown in the POST body, use the same `<modules>` envelope as the JSON variant:
+
+```xml
+<modules>
+   <module name="sharedNotesInitialContentMarkdown">
+      <![CDATA[
+# Welcome to BigBlueButton Shared Notes
+
+Start collaborating here...
+
+- First item
+- Second item
+      ]]>
+   </module>
+</modules>
+```
+
+**Precedence:** the BlockNote JSON initial content takes precedence over the Markdown. When both JSON and Markdown are supplied, the JSON is used to seed the document, and the Markdown is only used as a fallback when the JSON is absent, empty, or cannot be converted to a valid document. Within the Markdown options, the create parameter `sharedNotesInitialContentMarkdownUrl` is resolved first, then the inline `sharedNotesInitialContentMarkdown` create parameter, and finally the POST module.
+
+**URL fetch constraints:** the two URL variants (`sharedNotesInitialContentJsonUrl` and `sharedNotesInitialContentMarkdownUrl`) are fetched by the server through the same DNS-pinned, hardened path used for plugin, presentation and callback URLs. Integrators must be aware of the following, since a URL that violates them yields empty initial content silently (the meeting is still created):
+
+- **HTTPS only.** By default only `https` URLs are accepted (`fetchUrlSupportedProtocols=https`); an `http://` URL is rejected. Local, loopback, site-local and link-local addresses are always blocked. Use `fetchUrlBlockedExternalHosts` to block additional public hosts, or `fetchUrlAllowedLocalHosts` to allow specific internal hosts to resolve to private addresses.
+- **Payload cap.** The fetched response must not exceed `maxSharedNotesInitialContentUrlPayloadSize` (default `1024` KiB). Larger responses are dropped.
+- **Timeout.** The connect and socket timeout is 6000 ms; a slower endpoint is treated as a failed fetch.
+
 #### Pre-upload Slides
 
 You can upload slides within the create call. If you do this, the BigBlueButton server will immediately download and process the slides.
@@ -438,24 +476,26 @@ In the body part, you would append a simple XML like the example below:
 
 When you need to provide a document using a URL, and the document URL does not contain an extension, you can use the `filename` parameter, such as `filename=test-results.pdf` to help the BigBlueButton server determine the file type (in this example it would be a PDF file).
 
-**From `2.5.x` and on** there are also 2 parameters one can provide the payload to ensure that the document they are uploading can be downloaded or removed from the meeting, those parameters are:
+**From `2.5.x` and on** there are also 3 optional parameters one can provide, those parameters are:
 
-| Parameter      | Description                                    | Default Value |
-| -------------- | ---------------------------------------------- | ------------- |
-| `downloadable` | Dictates if the presentation can be downloaded | `false`        |
-| `removable`    | dictates if one can remove the presentation.   | `true`       |
+| Parameter      | Description                                                          | Default Value |
+| -------------- | -------------------------------------------------------------------- | ------------- |
+| `downloadable` | Dictates if the presentation can be downloaded                       | `false`       |
+| `removable`    | Dictates if one can remove the presentation.                         | `true`        |
+| `current`      | Dictates if the presentation should become the current presentation. | `false`       |
 
 In the payload the variables are passed inside each `<document>` tag of the xml, as follows:
 
 ```xml
 <document downloadable="false" removable="true" url="http://www.sample-pdf.com/sample.pdf" filename="report.pdf"/>
-<document removable="false" name="sample-presentation.pdf">JVBERi0xLjQKJ....
+<document removable="false" current="true" name="sample-presentation.pdf">JVBERi0xLjQKJ....
   [clipped here]
   ....0CiUlRU9GCg==
 </document>
 ```
 
-In the case more than a single document is provided, the first one will be loaded in the client, the processing of the other documents will continue in the background and they will be available for display when the user select one of them from the client.
+The first file with current="true" will be loaded in the client. If no file has current="true", the first one will be loaded in the client.
+The processing of the other documents will continue in the background and they will be available for display when the user select one of them from the client.
 
 For more information about the pre-upload slides check the following [link](http://groups.google.com/group/bigbluebutton-dev/browse_thread/thread/d36ba6ff53e4aa79).
 
@@ -464,7 +504,9 @@ For more information about the pre-upload slides check the following [link](http
 We support overriding the client settings (the entire set of options can be found in `/usr/share/bigbluebutton/html5-client/private/config/settings.yml`) as part of the CREATE call.
 Note that these values would have higher precedence over customizations made in `/etc/bigbluebutton/bbb-html5.yml`.
 
-By default this overriding approach on CREATE is disabled. To enable it, please set `allowOverrideClientSettingsOnCreateCall=true` in `/etc/bigbluebutton/bbb-web.properties` or as part of the CREATE call.
+By default this overriding approach on CREATE is disabled. To enable it, set `allowOverrideClientSettingsOnCreateCall=true` in `/etc/bigbluebutton/bbb-web.properties` and restart bbb-web. This is a **server-side setting only** — it is not read from the create request, so passing `allowOverrideClientSettingsOnCreateCall` as a `/create` parameter has no effect.
+
+Because the POST body is not covered by the `/create` [checksum](#api-security-model), only enable this on servers where the signed parameters of the create request are not visible to users. As an alternative that keeps the settings on a checksummed GET parameter, see [`clientSettingsOverrideJsonUrl`](#get-post-create), which does not require `allowOverrideClientSettingsOnCreateCall`.
 
 You can construct the HTTPS POST request as follows:
 
@@ -699,6 +741,8 @@ See [Passing user metadata to the client on join](/administration/customize/#pas
 
 This endpoint insert one or more documents into a running meeting via API call.
 
+The documents are downloaded and converted in the background: a `SUCCESS` response means the request was accepted, not that the documents are already available in the meeting. Download or conversion failures — and, when the server is overloaded, tasks rejected because the background download pool is saturated — are reported to the meeting clients (and the server log), not in the API response. The same applies to presentations pre-uploaded through the `create` call (`preUploadedPresentation` or a request body with a `presentation` module).
+
 **Resource URL:**
 
 https&#58;//yourserver.com/bigbluebutton/api/insertDocument?[parameters]&checksum=[checksum]
@@ -745,7 +789,7 @@ curl -s -X POST "https://{your-host}/bigbluebutton/api/insertDocument?meetingID=
 </modules>'
 ```
 
-There is also the possibility of passing the removable and downloadable variables inside the payload, they go in the `document` tag as already demonstrated. The way it works is exactly the same as in the [(POST) create endpoint](#pre-upload-slides)
+There is also the possibility of passing the removable, downloadable and current variables inside the payload, they go in the `document` tag as already demonstrated. The way it works is exactly the same as in the [(POST) create endpoint](#pre-upload-slides)
 
 ### `GET` `POST` isMeetingRunning
 
@@ -1398,13 +1442,37 @@ http&#58;//yourserver.com/bigbluebutton/api/sendChatMessage?meetingID=test01&mes
 </response>
 ```
 
-### `GET` getJoinUrl
+## Internal API calls
+
+Alongside the integration API described above, BigBlueButton exposes a small set of endpoints that exist **only to serve the BigBlueButton HTML5 client** while a user is inside a live meeting. They are documented here so their behaviour is discoverable, but they are **not part of the stable third-party integration contract**.
+
+The most important difference is how they are authenticated. The integration API described in [API Security Model](#api-security-model) is authenticated with a `checksum` derived from the shared secret, and calls are made server-to-server. Internal calls are instead authenticated with a per-user **`sessionToken`**:
+
+- A `sessionToken` is generated by the [`join`](#get-join) call. It is returned to (and only known by) the browser that joined the meeting.
+- It identifies a single user session; the server resolves the meeting, user, and role from it. There is no `checksum`, and the shared secret is not involved.
+- It is **not** available to front-ends (Greenlight, Moodle, …) or to load balancers (Scalelite, b3scale, …) that sit in front of BigBlueButton, because those components never see the session token — only the client does.
+
+Because of this, you should treat these endpoints as implementation details of the client:
+
+- Do not build integrations or load-balancing logic on top of them.
+- Their parameters, responses, and existence may change between releases without notice and without a deprecation cycle.
+- Requests without a valid, still-active session token are rejected.
+
+:::note
+This section was added in response to [issue #24212](https://github.com/bigbluebutton/bigbluebutton/issues/24212), which asked for `getJoinUrl` (and endpoints like it) to be clearly marked as internal rather than presented next to the integration API.
+:::
+
+The internal endpoints currently exposed by `bbb-web` are `getJoinUrl`, `stuns`, `signOut` and `learningDashboard`, described below. Note that a few other client-facing endpoints exist outside this controller (for example the presentation upload/download routes under `/bigbluebutton/presentation/...`) and are likewise not part of the integration API.
+
+### `GET` `POST` getJoinUrl
 
 The `getJoinUrl` endpoint generates a new `/join` URL that can be used to create a new session for an existing user. By associating the new session token with the same user ID, all sessions will appear as the same user in the user list, ensuring accurate user counts. Users can also customize the new session’s layout and user data parameters, allowing flexible control over the session’s environment and functionality.
 
 This is particularly useful for hybrid environments where multiple screens in the same room each require a distinct session with different layouts.
 
 It also facilitates seamless user session transfers to another device. For example, a mobile device can scan a QR code displayed on a computer, instantly migrating the user’s session from one device to another.
+
+The caller must present the `sessionToken` of an existing, still-active session; the resulting `/join` URL carries a valid `checksum` and can then be opened directly by the browser.
 
 **Resource URL:**
 
@@ -1428,6 +1496,109 @@ https://yourserver.com/bigbluebutton/api/getJoinUrl?sessionToken=xyn1fbqlrhug1j6
         "returncode": "SUCCESS",
         "message": "Join URL provided successfully.",
         "url": "https://yourserver.com/bigbluebutton/api/join?&redirect=true&existingUserID=w_t18rn7uc1wjm&role=MODERATOR&userdata-bbb_client_title=Presentation+client&sessionName=Presentation+session&fullName=teacher%2B1&meetingID=random-7653737&enforceLayout=PRESENTATION_ONLY&checksum=135f230a2339b9485d91a3e87b1a22420ca57e8b"
+    }
+}
+```
+
+### `GET` `POST` stuns
+
+The `stuns` endpoint returns the STUN/TURN server configuration and remote ICE candidates that the client needs to establish its WebRTC media connections (audio, webcam, screenshare). The meeting is resolved from the session, so no `meetingID` is passed.
+
+**Resource URL:**
+
+http&#58;//yourserver.com/bigbluebutton/api/stuns?[parameters]
+
+**Parameters:**
+
+```mdx-code-block
+<APITableComponent data={stunsTableData}/>
+```
+
+**Example Requests:**
+
+https://yourserver.com/bigbluebutton/api/stuns?sessionToken=xyn1fbqlrhug1j6z
+
+**Example Response:**
+
+```json
+{
+    "stunServers": [
+        { "url": "stun:stun.example.com:3478" }
+    ],
+    "turnServers": [
+        {
+            "username": "1699999999:bbb",
+            "password": "somegeneratedcredential",
+            "url": "turns:turn.example.com:443?transport=tcp",
+            "ttl": 86400
+        }
+    ],
+    "remoteIceCandidates": []
+}
+```
+
+When the session token is missing or invalid the endpoint responds with a failure payload instead:
+
+```json
+{
+    "returncode": "FAILED",
+    "message": "Could not find conference.",
+    "logoutURL": "https://yourserver.com/"
+}
+```
+
+### `GET` `POST` signOut
+
+The `signOut` endpoint invalidates a user session when the client leaves the meeting. It removes the server-side user session associated with the supplied `sessionToken`. It always responds with success, whether or not a matching session was found.
+
+**Resource URL:**
+
+http&#58;//yourserver.com/bigbluebutton/api/signOut?[parameters]
+
+**Parameters:**
+
+```mdx-code-block
+<APITableComponent data={signOutTableData}/>
+```
+
+**Example Requests:**
+
+https://yourserver.com/bigbluebutton/api/signOut?sessionToken=xyn1fbqlrhug1j6z
+
+**Example Response:**
+
+```xml
+<response>
+    <returncode>SUCCESS</returncode>
+</response>
+```
+
+### `GET` `POST` learningDashboard
+
+The `learningDashboard` endpoint returns the [Learning Analytics Dashboard](#learning-analytics-dashboard-callback-url) data for the session's meeting. Access is restricted: the session must belong to a user with the `MODERATOR` role, the meeting must be running, and the `learningDashboard` feature must not be listed in the meeting's `disabledFeatures`. The `data` field contains the dashboard's JSON document serialized as a string.
+
+**Resource URL:**
+
+http&#58;//yourserver.com/bigbluebutton/api/learningDashboard?[parameters]
+
+**Parameters:**
+
+```mdx-code-block
+<APITableComponent data={learningDashboardTableData}/>
+```
+
+**Example Requests:**
+
+https://yourserver.com/bigbluebutton/api/learningDashboard?sessionToken=xyn1fbqlrhug1j6z
+
+**Example Response:**
+
+```json
+{
+    "response": {
+        "returncode": "SUCCESS",
+        "data": "{ ...learning dashboard data as a JSON-encoded string... }",
+        "sessionToken": "xyn1fbqlrhug1j6z"
     }
 }
 ```

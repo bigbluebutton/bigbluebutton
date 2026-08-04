@@ -24,6 +24,7 @@ import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import useMeeting from '../../core/hooks/useMeeting';
 import { GET_PAD_ID, GetPadIdQueryResponse } from './queries';
 import BlockNoteContainer from '../bn-shared-notes/component';
+import { SharedNotesImportContext } from '../bn-shared-notes/import-context';
 
 const intlMessages = defineMessages({
   hide: {
@@ -83,7 +84,16 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     isPresentationEnabled,
   } = props;
   const [shouldRenderNotes, setShouldRenderNotes] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const intl = useIntl();
+
+  // Shared between the kebab menu (opens the modal) and the BlockNote editor
+  // (renders the modal and applies the import). See import-context.tsx.
+  const importContextValue = React.useMemo(() => ({
+    isImportModalOpen,
+    openImportModal: () => setIsImportModalOpen(true),
+    closeImportModal: () => setIsImportModalOpen(false),
+  }), [isImportModalOpen]);
 
   const { isChrome } = browserInfo;
   const isOnMediaArea = area === 'media';
@@ -140,54 +150,56 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
   const isEtherpadSharedNotes = sharedNotesEditor === 'etherpad';
 
   return (shouldRenderNotes || shouldShowSharedNotesOnPresentationArea) && (
-    <Styled.Notes
-      data-test="notes"
-      isChrome={isChrome}
-      style={style}
-    >
-      {!isOnMediaArea ? (
+    <SharedNotesImportContext.Provider value={importContextValue}>
+      <Styled.Notes
+        data-test="notes"
+        isChrome={isChrome}
+        style={style}
+      >
+        {!isOnMediaArea ? (
         // @ts-ignore Until everything in Typescript
-        <>
-          <h2 className="sr-only">{intl.formatMessage(intlMessages.title)}</h2>
-          <Header
-            leftButtonProps={{
-              onClick: () => {
-                layoutContextDispatch({
-                  type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-                  value: false,
-                });
-                layoutContextDispatch({
-                  type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-                  value: PANELS.NONE,
-                });
-              },
-              'data-test': 'hideNotesLabel',
-              'aria-label': intl.formatMessage(intlMessages.hide),
-              label: intl.formatMessage(intlMessages.title),
-            }}
-            data-test="notesHeader"
-            rightButtonProps={null}
-            customRightButton={(
-              <NotesDropdown
-                isEtherpadSharedNotes={isEtherpadSharedNotes}
-                handlePinSharedNotes={handlePinSharedNotes}
-                presentationEnabled={isPresentationEnabled}
-                padId={padId}
-              />
+          <>
+            <h2 className="sr-only">{intl.formatMessage(intlMessages.title)}</h2>
+            <Header
+              leftButtonProps={{
+                onClick: () => {
+                  layoutContextDispatch({
+                    type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
+                    value: false,
+                  });
+                  layoutContextDispatch({
+                    type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+                    value: PANELS.NONE,
+                  });
+                },
+                'data-test': 'hideNotesLabel',
+                'aria-label': intl.formatMessage(intlMessages.hide),
+                label: intl.formatMessage(intlMessages.title),
+              }}
+              data-test="notesHeader"
+              rightButtonProps={null}
+              customRightButton={(
+                <NotesDropdown
+                  isEtherpadSharedNotes={isEtherpadSharedNotes}
+                  handlePinSharedNotes={handlePinSharedNotes}
+                  presentationEnabled={isPresentationEnabled}
+                  padId={padId}
+                />
           )}
-          />
-        </>
-      ) : renderHeaderOnMedia()}
-      { isEtherpadSharedNotes
-        ? (
-          <PadContainer
-            externalId={NOTES_CONFIG.id}
-            hasPermission={hasPermission}
-            isResizing={isResizing}
-            isRTL={isRTL}
-          />
-        ) : <BlockNoteContainer />}
-    </Styled.Notes>
+            />
+          </>
+        ) : renderHeaderOnMedia()}
+        { isEtherpadSharedNotes
+          ? (
+            <PadContainer
+              externalId={NOTES_CONFIG.id}
+              hasPermission={hasPermission}
+              isResizing={isResizing}
+              isRTL={isRTL}
+            />
+          ) : <BlockNoteContainer />}
+      </Styled.Notes>
+    </SharedNotesImportContext.Provider>
   );
 };
 

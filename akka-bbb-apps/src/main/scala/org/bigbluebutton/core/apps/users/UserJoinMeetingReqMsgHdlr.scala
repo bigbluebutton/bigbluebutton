@@ -164,7 +164,7 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
 
   private def generateLivekitToken(regUser: RegisteredUser, liveMeeting: LiveMeeting) = {
     if (isUsingLiveKit(liveMeeting)) {
-      val grant = buildLiveKitTokenGrant(
+      val grant = HandlerHelpers.buildLiveKitTokenGrant(
         room = liveMeeting.props.meetingProp.intId,
         canPublish = true,
         canSubscribe = true,
