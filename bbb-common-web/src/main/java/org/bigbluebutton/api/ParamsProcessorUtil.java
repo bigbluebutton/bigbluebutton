@@ -144,7 +144,7 @@ public class ParamsProcessorUtil {
         private String defaultLockSettingsPresenterPolicy = "requireApproval";
 
     private Long maxPresentationFileUpload = 30000000L; // 30MB
-    private int maxPresentationsPerRequest = 25; // max documents processed per create/insertDocument call
+    private int maxPresentationsPerRequest = 10; // max documents processed per create/insertDocument call
 
     private Integer clientLogoutTimerInMinutes = 0;
     private Integer defaultMeetingExpireIfNoUserJoinedInMinutes = 5;

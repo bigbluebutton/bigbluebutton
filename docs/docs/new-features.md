@@ -276,8 +276,13 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 - `requireUserConsentBeforeUnmuting` added (default `false`). Only relevant when `allowModsToUnmuteUsers=true`; when `true`, a consent dialog is shown before a moderator can unmute a participant.
 - `maskTagThreshold` added (default `0` = disabled). When set to `N`, any slide whose generated SVG contains `N` or more `<mask>` tags falls back to full-slide rasterization during conversion; see [Rasterize slides whose SVG contains mask tags](/administration/customize#rasterize-slides-whose-svg-contains-mask-tags).
 - `maxPresentationsPerRequest` added in BBB 3.0
-- `insertDocumentMaxRequests` added in BBB 3.0
+- `insertDocumentMaxRequests` added in BBB 3.0 — set to `0` to disable
 - `insertDocumentRateWindowSec` added in BBB 3.0
+- `presentationConversionMaxRequests` added in BBB 3.0 — per-meeting cap on presentations entering the conversion pipeline, covering every upload source; set to `0` to disable
+- `presentationConversionRateWindowSec` added in BBB 3.0
+- `apps.presentationUploadTokenMaxRequests` (bbb-apps-akka) added in BBB 3.0 — per-user upload-token request rate limit; set to `0` to disable
+- `apps.presentationUploadTokenWindowSec` (bbb-apps-akka) added in BBB 3.0
+- `apps.presentationMaxPerPod` (bbb-apps-akka) added in BBB 3.0 — caps presentations held in a pod (meeting state, not conversion load); set to `0` to disable
 
 ### Client settings (settings.yml) changes
 

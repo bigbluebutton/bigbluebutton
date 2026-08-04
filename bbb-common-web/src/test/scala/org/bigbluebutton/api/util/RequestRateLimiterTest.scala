@@ -86,4 +86,29 @@ class RequestRateLimiterTest extends UnitSpec {
     (0 until 5).foreach { i => assert(l.allow("m1", now + 61000 + i)) }
     assert(!l.allow("m1", now + 61000 + 6))
   }
+
+  // allow() also prunes lazily, so the case above passes with or without sweep(). This one
+  // constrains sweep() itself: it must not hand back budget still inside the window.
+  it should "not return budget on sweep for timestamps still inside the window" in {
+    val l = limiter(2, 60)
+    val now = 1000L
+    assert(l.allow("m1", now))
+    assert(l.allow("m1", now + 10))
+    l.sweep(now + 20)
+    assert(!l.allow("m1", now + 30))
+  }
+
+  // Separate limiter instances are wired for different purposes and must not share a budget.
+  it should "keep separate instances independent for the same key" in {
+    val callLimiter = limiter(1, 60)
+    val conversionLimiter = limiter(1, 60)
+    val now = 1000L
+
+    assert(callLimiter.allow("meeting-1", now))
+    assert(!callLimiter.allow("meeting-1", now + 1))
+
+    // The second limiter's budget for the same key is untouched by the first.
+    assert(conversionLimiter.allow("meeting-1", now + 2))
+    assert(!conversionLimiter.allow("meeting-1", now + 3))
+  }
 }

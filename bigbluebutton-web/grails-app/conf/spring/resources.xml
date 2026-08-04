@@ -45,8 +45,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 
     <bean id="insertDocumentRateLimiter" class="org.bigbluebutton.api.util.RequestRateLimiter"
           init-method="start" destroy-method="stop">
-        <property name="maxRequests" value="${insertDocumentMaxRequests}"/>
-        <property name="windowSec" value="${insertDocumentRateWindowSec}"/>
+        <!-- Keep the placeholder defaults in step with bigbluebutton.properties. -->
+        <property name="maxRequests" value="${insertDocumentMaxRequests:30}"/>
+        <property name="windowSec" value="${insertDocumentRateWindowSec:60}"/>
     </bean>
 
     <bean id="sharedNotesRedirectValidator" class="org.bigbluebutton.api.service.impl.SharedNotesRedirectValidatorService">

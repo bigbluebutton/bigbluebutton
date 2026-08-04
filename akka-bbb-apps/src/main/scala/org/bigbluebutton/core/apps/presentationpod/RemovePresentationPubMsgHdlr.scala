@@ -40,21 +40,16 @@ trait RemovePresentationPubMsgHdlr extends RightsManagementTrait {
       val presentationId = msg.body.presentationId
       val meetingId = liveMeeting.props.meetingProp.intId
 
-      val newState = for {
-        pod <- PresentationPodsApp.getPresentationPod(state, podId)
-        _ <- pod.getPresentation(presentationId)
-      } yield {
-        PresPresentationDAO.delete(meetingId, presentationId)
+      // Keep this unconditional: a row without a pod entry would otherwise be undeletable.
+      PresPresentationDAO.delete(meetingId, presentationId)
 
-        broadcastRemovePresentationEvtMsg(pod.id, msg.header.userId, presentationId)
-
-        val pods = state.presentationPodManager.removePresentationInPod(pod.id, presentationId)
-        state.update(pods)
-      }
-
-      newState match {
-        case Some(ns) => ns
-        case None     => state
+      // Only announce presentations that were in the pod; consumers of this event assume they were.
+      PresentationPodsApp.getPresentationPod(state, podId) match {
+        case Some(pod) if pod.getPresentation(presentationId).isDefined =>
+          broadcastRemovePresentationEvtMsg(pod.id, msg.header.userId, presentationId)
+          state.update(state.presentationPodManager.removePresentationInPod(pod.id, presentationId))
+        case _ =>
+          state
       }
     }
 
