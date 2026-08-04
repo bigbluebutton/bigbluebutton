@@ -281,7 +281,7 @@ const LayoutObserver: React.FC = () => {
           type: ACTIONS.SET_ID_CHAT_OPEN,
           value: PUBLIC_CHAT_ID,
         });
-      } else if (initialSidebarContentPanel !== PANELS.USERLIST) {
+      } else if (!(initialSidebarContentPanel === PANELS.USERLIST && !deviceInfo.isPhone)) {
         layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
           value: false,

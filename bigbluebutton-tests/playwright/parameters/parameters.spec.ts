@@ -481,6 +481,15 @@ test.describe.parallel('Custom Parameters', { tag: '@ci' }, () => {
     await customParam.showParticipantsOnLogin();
   });
 
+  test('Show Participants Instead of Public Chat on Login', async ({ browser, context, page }, testInfo) => {
+    const customParam = new CustomParameters(browser, context);
+    await customParam.initModPage(page, {
+      joinParameter: c.showParticipantsAndPublicChatOnLogin,
+      testInfo,
+    });
+    await customParam.showParticipantsInsteadOfPublicChatOnLogin();
+  });
+
   test('Hide Participants on Login', async ({ browser, context, page }, testInfo) => {
     const customParam = new CustomParameters(browser, context);
     await customParam.initModPage(page, { joinParameter: c.hideParticipantsOnLogin, testInfo });
