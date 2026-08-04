@@ -670,7 +670,9 @@ export interface Media {
   listenOnlyOffering: boolean
   toggleMuteThrottleTime: number
   localEchoTest: LocalEchoTest
-  networkPriorities: MediaNetworkPriorities
+  // Commented out in settings.yml: absence means "do not set networkPriority
+  // on sender encodings at all", so it must stay absent from the defaults.
+  networkPriorities?: MediaNetworkPriorities
   muteAudioOutputWhenAway: boolean
   skipInitialCamEnumeration: boolean
   screenshareTroubleshootingLinks: Record<string, string>

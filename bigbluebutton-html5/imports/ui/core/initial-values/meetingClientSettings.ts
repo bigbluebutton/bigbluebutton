@@ -750,11 +750,6 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
           maxDelayTime: 2,
         },
       },
-      networkPriorities: {
-        audio: 'high',
-        webcam: 'medium',
-        screenshare: 'medium',
-      },
       muteAudioOutputWhenAway: false,
       skipInitialCamEnumeration: false,
       screenshareTroubleshootingLinks: {
