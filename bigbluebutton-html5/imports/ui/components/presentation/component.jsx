@@ -718,8 +718,6 @@ class Presentation extends PureComponent {
 
     const toolbarHeight = getToolbarHeight();
 
-    const toolbarWidth = Math.min(svgWidth, presentationBounds.width);
-
     const slideContent = currentSlide?.content
       ? `${intl.formatMessage(intlMessages.slideContentStart)}
     ${currentSlide.content}
@@ -736,6 +734,8 @@ class Presentation extends PureComponent {
       || presentationBounds.width === 0
       || presentationBounds.height === 0;
     if (!presentationIsOpen || presentationIsHidden) return null;
+
+    const toolbarWidth = Math.min(svgWidth || presentationBounds.width, presentationBounds.width);
 
     return (
       <>

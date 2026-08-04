@@ -299,6 +299,7 @@ const UnifiedLayout = (props) => {
     && presentationInput.isOpen
     && !isMediaContentOff();
 
+  // CONTENT_RIGHT mirrors under RTL, as every other camera position does.
   const getCameraDockPosition = () => (isSideBySideCamerasEnforced()
     ? CAMERADOCK_POSITION.CONTENT_RIGHT
     : cameraDockInput.position);

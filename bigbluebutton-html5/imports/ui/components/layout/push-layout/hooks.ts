@@ -35,6 +35,7 @@ const useMeetingLayoutUpdater = (
   const [setMeetingLayoutProps] = useMutation(SET_LAYOUT_PROPS);
 
   const { focusedId } = cameraDockOutput;
+  // Position from the input: the output may hold a device-enforced one, which is local.
   const { isResizing, position } = cameraDockInput;
   const { isOpen: presentationIsOpen } = presentationInput;
   const { selectedLayout } = layoutSettings;

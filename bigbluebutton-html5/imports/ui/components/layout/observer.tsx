@@ -114,6 +114,8 @@ const LayoutObserver: React.FC = () => {
   const meetingLayout = currentLayoutType && LAYOUT_TYPE[currentLayoutType as keyof typeof LAYOUT_TYPE];
   const isSharingVideo = currentMeeting?.componentsFlags?.hasExternalVideo;
 
+  // Not compared to `deviceType`: the resize listener captures it on mount, and the
+  // reducer already bails out when the value has not changed.
   const setDeviceType = () => {
     layoutContextDispatch({
       type: ACTIONS.SET_DEVICE_TYPE,
@@ -207,6 +209,7 @@ const LayoutObserver: React.FC = () => {
     handleWindowResize();
     window.addEventListener('resize', handleWindowResize, false);
     orientationQuery.addEventListener('change', handleOrientationChange);
+    // Deprecated, kept as a fallback for engines that do not fire the media query.
     window.addEventListener('orientationchange', handleOrientationChange, false);
 
     return () => {
