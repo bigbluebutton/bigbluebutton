@@ -141,6 +141,7 @@ Updated in 4.0:
 - **join**
   - **Changed:** Parameter `enforceLayout` accepted values are now `UNIFIED_LAYOUT`, `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, `MEDIA_ONLY` (the deprecated `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS` are no longer accepted).
   - **Removed parameters:** `userdata-bbb_change_layout` (redundant with `userdata-bbb_default_layout`; its legacy `smart`/`videoFocus`/`presentationFocus`/`custom` values no longer exist) and `userdata-enable-user-reaction` (redundant with the `userReactions` `disabledFeatures` option and `public.userReaction.enabled` in `settings.yml`).
+  - **Removed parameter:** `webVoiceConf` (obsolete; it set a custom Asterisk voice extension for the old Flash client and had no downstream effect, the value was never read).
 - **clientSettings** - The deprecated REST endpoint `/api/rest/clientSettings` was **removed**. Client settings are now served through the GraphQL stack.
 
 ## API Data Types
