@@ -56,7 +56,7 @@ const createEndpointTableData = [
     "name": "voiceBridge",
     "required": false,
     "type": "String",
-    "description": (<>Voice conference number for the FreeSWITCH voice conference associated with this meeting.  This must be a 5-digit number in the range 10000 to 99999.  If you <a href="/2.2/customize.html#add-a-phone-number-to-the-conference-bridge">add a phone number</a> to your BigBlueButton server, This parameter sets the personal identification number (PIN) that FreeSWITCH will prompt for a phone-only user to enter.  If you want to change this range, edit FreeSWITCH dialplan and <code className="language-plaintext highlighter-rouge">defaultNumDigitsForTelVoice</code> of <a href="https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a>.<br /><br />The <code className="language-plaintext highlighter-rouge">voiceBridge</code> number must be different for every meeting.<br /><br />This parameter is optional. If you do not specify a <code className="language-plaintext highlighter-rouge">voiceBridge</code> number, then BigBlueButton will assign a random unused number for the meeting.<br /><br />If do you pass a <code className="language-plaintext highlighter-rouge">voiceBridge</code> number, then you must ensure that each meeting has a unique <code className="language-plaintext highlighter-rouge">voiceBridge</code> number; otherwise, reusing same <code className="language-plaintext highlighter-rouge">voiceBridge</code> number for two different meetings will cause users from one meeting to appear as phone users in the other, which will be very confusing to users in both meetings.</>)
+    "description": (<>Voice conference number for the FreeSWITCH voice conference associated with this meeting.  This must be a 5-digit numeric string in the range 00000 to 99999.  If you <a href="/2.2/customize.html#add-a-phone-number-to-the-conference-bridge">add a phone number</a> to your BigBlueButton server, This parameter sets the personal identification number (PIN) that FreeSWITCH will prompt for a phone-only user to enter.  If you want to change this range, edit FreeSWITCH dialplan and <code className="language-plaintext highlighter-rouge">defaultNumDigitsForTelVoice</code> of <a href="https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a>.<br /><br />The <code className="language-plaintext highlighter-rouge">voiceBridge</code> number must be different for every meeting.<br /><br />This parameter is optional. If you do not specify a <code className="language-plaintext highlighter-rouge">voiceBridge</code> number, then BigBlueButton will assign a random unused number for the meeting.<br /><br />If do you pass a <code className="language-plaintext highlighter-rouge">voiceBridge</code> number, then you must ensure that each meeting has a unique <code className="language-plaintext highlighter-rouge">voiceBridge</code> number; otherwise, reusing same <code className="language-plaintext highlighter-rouge">voiceBridge</code> number for two different meetings will cause users from one meeting to appear as phone users in the other, which will be very confusing to users in both meetings.</>)
   },
   {
     "name": "maxParticipants",
@@ -75,6 +75,12 @@ const createEndpointTableData = [
     "required": false,
     "type": "String",
     "description": (<>The URL that the BigBlueButton client will go to after users click the OK button on the ‘You have been logged out message’.  This overrides the value for <code className="language-plaintext highlighter-rouge">bigbluebutton.web.logoutURL</code> in <a href="https://github.com/bigbluebutton/bigbluebutton/blob/master/bigbluebutton-web/grails-app/conf/bigbluebutton.properties">bigbluebutton.properties</a>.</>)
+  },
+  {
+    "name": "meetingEndedURL",
+    "required": false,
+    "type": "String",
+    "description": (<>Server-to-server callback URL that BigBlueButton will invoke when the meeting ends. Useful for third-party integrations that need to react to meeting termination. (added 2.2)</>)
   },
   {
     "name": "record",
@@ -125,6 +131,30 @@ const createEndpointTableData = [
     "type": "Boolean",
     "default": false,
     "description": (<>If set to false, breakout rooms will not be recorded.</>)
+  },
+  {
+    "name": "breakoutRoomsCaptureSlides",
+    "required": false,
+    "type": "Boolean",
+    "description": (<>If set to <code className="language-plaintext highlighter-rouge">true</code>, the current slide (with annotations) from each breakout room is exported back to the parent meeting's presentation when the breakout ends. The server-side default is taken from <code className="language-plaintext highlighter-rouge">defaultBreakoutRoomsCaptureSlides</code>. (added 2.6)</>)
+  },
+  {
+    "name": "breakoutRoomsCaptureSlidesFilename",
+    "required": false,
+    "type": "String",
+    "description": (<>Filename template for slides captured from breakout rooms when <code className="language-plaintext highlighter-rouge">breakoutRoomsCaptureSlides=true</code>. (added 2.6)</>)
+  },
+  {
+    "name": "breakoutRoomsCaptureNotes",
+    "required": false,
+    "type": "Boolean",
+    "description": (<>If set to <code className="language-plaintext highlighter-rouge">true</code>, the shared notes from each breakout room are exported back to the parent meeting's presentation when the breakout ends. The server-side default is taken from <code className="language-plaintext highlighter-rouge">defaultBreakoutRoomsCaptureNotes</code>. (added 2.6)</>)
+  },
+  {
+    "name": "breakoutRoomsCaptureNotesFilename",
+    "required": false,
+    "type": "String",
+    "description": (<>Filename template for shared notes captured from breakout rooms when <code className="language-plaintext highlighter-rouge">breakoutRoomsCaptureNotes=true</code>. (added 2.6)</>)
   },
   {
     "name": "meta",
@@ -240,7 +270,7 @@ const createEndpointTableData = [
     "required": false,
     "type": "Boolean",
     "default": false,
-    "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will disable notes in the meeting. (added 2.2)</>)
+    "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will disable notes in the meeting. (added 2.2)<br /><br /><i>Note:</i> <code className="language-plaintext highlighter-rouge">lockSettingsDisableNote</code> (singular) is accepted as a deprecated alias and logs a deprecation warning on the server.</>)
   },
   {
     "name": "lockSettingsHideUserList",
@@ -348,6 +378,30 @@ const createEndpointTableData = [
     "description": (<>Setting to <code className="language-plaintext highlighter-rouge">0</code> will disable this threshold. Defines the max number of webcams a meeting can have simultaneously. (added 2.5.0)</>)
   },
   {
+    "name": "maxPinnedCameras",
+    "required": false,
+    "type": "Number",
+    "description": (<>Per-meeting override of the <code className="language-plaintext highlighter-rouge">maxPinnedCameras</code> property in <code className="language-plaintext highlighter-rouge">bigbluebutton.properties</code>. Caps how many cameras can be pinned simultaneously in this meeting. Only positive values are applied. (added 2.6)</>)
+  },
+  {
+    "name": "cameraBridge",
+    "required": false,
+    "type": "String",
+    "description": (<>Per-meeting override of the <code className="language-plaintext highlighter-rouge">cameraBridge</code> property. Selects the media bridge used for camera streams. Valid values: <code className="language-plaintext highlighter-rouge">bbb-webrtc-sfu</code>, <code className="language-plaintext highlighter-rouge">livekit</code>. (added 3.0)</>)
+  },
+  {
+    "name": "screenShareBridge",
+    "required": false,
+    "type": "String",
+    "description": (<>Per-meeting override of the <code className="language-plaintext highlighter-rouge">screenShareBridge</code> property. Selects the media bridge used for screen share streams. Valid values: <code className="language-plaintext highlighter-rouge">bbb-webrtc-sfu</code>, <code className="language-plaintext highlighter-rouge">livekit</code>. (added 3.0)</>)
+  },
+  {
+    "name": "audioBridge",
+    "required": false,
+    "type": "String",
+    "description": (<>Per-meeting override of the <code className="language-plaintext highlighter-rouge">audioBridge</code> property. Selects the media bridge used for audio streams. Valid values: <code className="language-plaintext highlighter-rouge">bbb-webrtc-sfu</code>, <code className="language-plaintext highlighter-rouge">livekit</code>, <code className="language-plaintext highlighter-rouge">freeswitch</code>. (added 3.0)</>)
+  },
+  {
     "name": "meetingExpireIfNoUserJoinedInMinutes",
     "required": false,
     "type": "Number",
@@ -374,6 +428,12 @@ const createEndpointTableData = [
     "description": (<>Pass a URL to an image which will then be visible in the area above the participants list if <code>displayBrandingArea</code> is set to <code>true</code> in bbb-html5's configuration</>)
   },
   {
+    "name": "darklogo",
+    "required": false,
+    "type": "String",
+    "description": (<>Like <code className="language-plaintext highlighter-rouge">logo</code>, but used when the client is in dark mode. If only <code className="language-plaintext highlighter-rouge">logo</code> is provided, it is used in both light and dark modes. (added 3.0)</>)
+  },
+  {
     "name": "sharedNotesEditor",
     "required": false,
     "type": "String",
@@ -384,7 +444,19 @@ const createEndpointTableData = [
     "name": "sharedNotesInitialContentJsonUrl",
     "required": false,
     "type": "String",
-    "description": (<>Url from which the shared-notes will fetch the initial content (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise)</>)
+    "description": (<>Url from which the shared-notes will fetch the initial content (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise). The URL must be `https` (`fetchUrlSupportedProtocols`), is capped by `maxSharedNotesInitialContentUrlPayloadSize` (default 1024 KiB) and has a 6000 ms timeout; a URL that violates these yields empty initial content silently.</>)
+  },
+  {
+    "name": "sharedNotesInitialContentMarkdown",
+    "required": false,
+    "type": "String",
+    "description": (<>Raw markdown used as the shared-notes initial content (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise). When `sharedNotesInitialContentMarkdownUrl` is also provided, the URL takes precedence over this inline value; this inline parameter in turn takes precedence over the `sharedNotesInitialContentMarkdown` POST module.</>)
+  },
+  {
+    "name": "sharedNotesInitialContentMarkdownUrl",
+    "required": false,
+    "type": "String",
+    "description": (<>Url from which the shared-notes will fetch the initial content as markdown (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise). When provided, it takes precedence over the inline `sharedNotesInitialContentMarkdown` create parameter and POST module. The URL must be `https` (`fetchUrlSupportedProtocols`), is capped by `maxSharedNotesInitialContentUrlPayloadSize` (default 1024 KiB) and has a 6000 ms timeout; a URL that violates these yields empty initial content silently.</>)
   },
   {
     "name": "disabledFeatures",
@@ -595,25 +667,13 @@ const createEndpointTableData = [
     "name": "preUploadedPresentation",
     "required": false,
     "type": "String",
-    "description": (<>If passed with a valid presentation file url, this presentation will override the default presentation. To only upload but not set as default, also pass <code className="language-plaintext highlighter-rouge">preUploadedPresentationOverrideDefault=false</code> (added 2.7.2)</>)
+    "description": (<>If passed with a valid presentation file url, this presentation will override the default presentation. To only upload but not set as default, also pass <code className="language-plaintext highlighter-rouge">preUploadedPresentationOverrideDefault=false</code> (added 2.7.2). The file is downloaded and processed in the background: the create response does not wait for it, and download or conversion failures are reported to meeting clients rather than in the create response.</>)
   },
   {
     "name": "preUploadedPresentationName",
     "required": false,
     "type": "String",
     "description": (<>If passed it will use this string as the name of the presentation uploaded via <code className="language-plaintext highlighter-rouge">preUploadedPresentation</code> (added 2.7.2)</>)
-  },
-  {
-    "name": "allowOverrideClientSettingsOnCreateCall",
-    "required": false,
-    "default": false,
-    "type": "Boolean",
-    "description": (
-      <>
-        <p>Whether to allow <a href="#clientsettingsoverride">clientSettingsOverride</a> to be included in the body of a POST request. Because the body of the post request is not signed by the <a href="#api-security-model">checksum</a>, this parameter is set to <code>false</code> by default. If you set this to <code>true</code>, you must make sure that the signed parameters of the create API request are not visible to users.</p>
-        <p><i>Added:</i> 3.0.0-alpha.1</p>
-      </>
-    )
   },
   {
     "name": "clientSettingsOverride",

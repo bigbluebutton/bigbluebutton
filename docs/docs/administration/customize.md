@@ -964,6 +964,20 @@ After you save the changes to `/etc/bigbluebutton/bbb-web.properties`, restart t
 $ sudo bbb-conf --restart
 ```
 
+#### Tune parallel downloads of pre-uploaded presentations
+
+Presentations pre-uploaded through the `create` or `insertDocument` API calls are downloaded and processed in the background, on a bounded thread pool, so the API response is not delayed. By default up to 5 documents are downloaded in parallel per server; additional documents wait in a bounded queue. If the server is under sustained overload and that queue is full, further presentation tasks are rejected (and logged) instead of being queued without limit, which protects the server from running out of memory. A rejected presentation is not uploaded into the meeting, and — like a download or conversion failure — this is not reflected in the `create`/`insertDocument` API response (which has already returned); it is only visible in the server log. To change the parallelism, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties` and set the `numPresentationDownloadThreads` value (values below 1 are treated as 1):
+
+```properties
+numPresentationDownloadThreads=5
+```
+
+After you save the changes to `/etc/bigbluebutton/bbb-web.properties`, restart the BigBlueButton server with
+
+```bash
+sudo bbb-conf --restart
+```
+
 #### Increase the file size for an uploaded presentation
 
 The default maximum file upload size for an uploaded presentation is 30 MB.
@@ -1569,6 +1583,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `learningDashboardCleanupDelayInMinutes` | Minutes the Learning Dashboard remains available after the meeting ends | Integer (0=keep permanently) | 2 _`overwritable`_ |
 | `disabledFeatures` | Comma-separated list of features to disable (see [`/create` docs](/development/api/#create) for the full list of feature names) | csv | _(empty)_ _`overwritable`_ |
 | `sharedNotesEditor` | Type of shared notes editor to use | etherpad, blockNote | etherpad _`overwritable`_ |
+| `maxSharedNotesInitialContentUrlPayloadSize` | Maximum size (in KiB) of the response fetched when seeding shared-notes initial content from `sharedNotesInitialContentJsonUrl` / `sharedNotesInitialContentMarkdownUrl` | Integer (KiB) | 1024 |
 | `allowOverrideClientSettingsOnCreateCall` | Allow `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` to be passed on `/create` | true/false | false |
 | `clientSettingsOverrideStrictValidation` | When true, reject the `/create` call (`bbb-web`) and refuse `bbb-apps-akka` boot if a client settings override has unknown or malformed keys. Intended for test/staging (see [Validating client settings overrides](#validating-client-settings-overrides)) | true/false | false |
 | `clientSettingsFilePath` | Path to the `settings.yml` catalog used as the schema for the strict client-settings override validation above | path | `/usr/share/bigbluebutton/html5-client/private/config/settings.yml` |

@@ -126,9 +126,17 @@ object FakeUserGenerator {
     )
   }
 
-  def createFakeWebcamStreamFor(userId: String, subscribers: Set[String]): WebcamStream = {
+  def createFakeWebcamStreamFor(userId: String, userName: String, subscribers: Set[String]): WebcamStream = {
     val streamId = RandomStringGenerator.randomAlphanumericString(10)
-    WebcamStream(streamId, userId, "camera", hasAudio = false, showAsContent = false, subscribers)
+    WebcamStream(
+      streamId = streamId,
+      userId = userId,
+      userName = userName,
+      contentType = "camera",
+      hasAudio = false,
+      showAsContent = false,
+      subscribers = subscribers
+    )
   }
 
 }

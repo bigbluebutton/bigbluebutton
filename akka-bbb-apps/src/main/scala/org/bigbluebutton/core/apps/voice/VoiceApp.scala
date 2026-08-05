@@ -250,7 +250,19 @@ object VoiceApp extends SystemConfiguration {
               }
             }
           case None =>
-            if (!cvu.intId.startsWith(IntIdPrefixType.DIAL_IN)) {
+            if (cvu.intId.startsWith(IntIdPrefixType.DIAL_IN)) {
+              // Dial-in users get their user record from the voice join itself.
+            } else {
+              // Same rule as in UserJoinedVoiceConfEvtMsgHdlr: the VU is created
+              // either way. If orphaned, with downgraded media permissions.
+              if (liveMeeting.voiceUserReconciler.isOrphanedVoiceJoin(liveMeeting, cvu.intId)) {
+                liveMeeting.voiceUserReconciler.fenceVoiceJoin(
+                  liveMeeting,
+                  outGW,
+                  cvu.intId,
+                  cvu.voiceUserId
+                )
+              }
               handleUserJoinedVoiceConfEvtMsg(
                 liveMeeting,
                 outGW,
@@ -931,7 +943,7 @@ object VoiceApp extends SystemConfiguration {
         liveMeeting,
         outGW
       )
-      AudioFloorManager.handleUserTalking(
+      liveMeeting.audioFloorManager.handleUserTalking(
         talkingUser.intId,
         talking,
         System.currentTimeMillis(),

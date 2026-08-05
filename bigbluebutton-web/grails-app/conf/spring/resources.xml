@@ -44,6 +44,9 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
     </bean>
 
     <bean id="sharedNotesRedirectValidator" class="org.bigbluebutton.api.service.impl.SharedNotesRedirectValidatorService">
+        <property name="fetchUrlSupportedProtocols" value="${fetchUrlSupportedProtocols}" />
+        <property name="fetchUrlBlockedExternalHosts" value="${fetchUrlBlockedExternalHosts}" />
+        <property name="fetchUrlAllowedLocalHosts" value="${fetchUrlAllowedLocalHosts}" />
     </bean>
 
     <bean id="meetingService" class="org.bigbluebutton.api.MeetingService"
@@ -67,6 +70,8 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="pluginUtils" ref="pluginUtils"/>
         <property name="redirectFollower" ref="redirectFollower"/>
         <property name="sharedNotesRedirectValidator" ref="sharedNotesRedirectValidator"/>
+        <property name="secureUrlDownloader" ref="secureUrlDownloader"/>
+        <property name="maxSharedNotesInitialContentUrlPayloadSize" value="${maxSharedNotesInitialContentUrlPayloadSize}"/>
     </bean>
 
     <bean id="oldMessageReceivedGW" class="org.bigbluebutton.api2.bus.OldMessageReceivedGW">
@@ -291,6 +296,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="preUploadedPresentationOverrideDefault" value="${beans.presentationService.preUploadedPresentationOverrideDefault}"/>
         <property name="scanUploadedPresentationFiles" value="${scanUploadedPresentationFiles}"/>
         <property name="pageTokenSecret" value="${pageTokenSecret}"/>
+        <property name="numDownloadThreads" value="${numPresentationDownloadThreads}"/>
     </bean>
 
     <bean id="pdfPageDownscaler" class="org.bigbluebutton.presentation.imp.PdfPageDownscaler">

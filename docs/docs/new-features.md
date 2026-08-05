@@ -143,6 +143,25 @@ To enable it, you would first need to install the optional package via
 At this point you can use it in a specific session by passing `sharedNotesEditor=blockNote` on the `/create` call.
 If you have made up your mind and would like to use it for all sessions, add the same line (`sharedNotesEditor=blockNote`) to `/etc/bigbluebutton/bbb-web.properties` and restart BigBlueButton via `$ sudo bbb-conf --restart`
 
+#### Import and export BlockNote shared notes as Markdown
+
+The BlockNote shared notes editor can now exchange content as Markdown (available in BigBlueButton 3.0.33). From the shared notes options menu, the presenter can choose **Import from Markdown**, which opens a dialog to either upload a Markdown file (drag-and-drop or file picker) or paste Markdown directly. The imported content can be **appended** to the existing notes (the default, so importing never destroys what is already there) or **replace** the whole document. Separately, an **Export notes as Markdown** option downloads the current notes as a `.md` file.
+
+Both options are **disabled by default** in BigBlueButton 3.0 so that a minor upgrade does not add new menu buttons unexpectedly. Enable either or both in `/etc/bigbluebutton/bbb-html5.yml` and restart with `sudo bbb-conf --restart`:
+
+```yaml
+public:
+  sharedNotes:
+    importMarkdownEnabled: true
+    exportMarkdownEnabled: true
+```
+
+These toggles only affect the BlockNote editor; they are ignored when Etherpad is used.
+
+Integrations can also seed a session's shared notes with Markdown at creation time using the `sharedNotesInitialContentMarkdown` / `sharedNotesInitialContentMarkdownUrl` create parameters (or a `sharedNotesInitialContentMarkdown` POST module). See the [Create API parameters](/development/api/#get-post-create) for details.
+
+<!-- TODO add screenshot of the Import from Markdown dialog (append/replace + file upload) -->
+
 
 ### Engagement
 
@@ -307,6 +326,8 @@ For full details on what is new in BigBlueButton 3.0, see the release notes.
 
 
 Recent releases:
+- [3.0.33](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.33)
+- [3.0.32](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.32)
 - [3.0.31](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.31)
 - [3.0.30](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.30)
 - [3.0.29](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.29)
@@ -399,6 +420,11 @@ In BigBlueButton 3.0.0-alpha.5 we replaced the JOIN parameter `defaultLayout` wi
 
 - Client settings.yml: `showGuestLobbyWaitingQueuePosition`. Defaults to `true`
 
+#### Added new settings to enable Markdown import/export in shared notes
+
+- Client settings.yml: `public.sharedNotes.importMarkdownEnabled`. Defaults to `false`. When `true`, presenters see an **Import from Markdown** option in the BlockNote shared notes menu.
+- Client settings.yml: `public.sharedNotes.exportMarkdownEnabled`. Defaults to `false`. When `true`, an **Export notes as Markdown** option is shown in the BlockNote shared notes menu.
+
 #### Added new setting and userdata to allow skipping echo test if session has valid input/output devices stored
 
 - Client settings.yml: `skipEchoTestIfPreviousDevice`. Defaults to `false`
@@ -446,6 +472,7 @@ Modified/added events
 - `muteOnStart` default value changed to `true` - which helps now that `transparentListenOnly` is enabled by default too. See [PR 20848](https://github.com/bigbluebutton/bigbluebutton/issues/20848) for more info.
 - `insertDocumentSupportedProtocols` renamed to `fetchUrlSupportedProtocols`
 - `insertDocumentBlockedHosts` renamed to `fetchUrlBlockedExternalHosts`
+- `html5PluginSdkVersion` bumped to `0.0.103`
 
 #### Added
 - `pluginManifestFetchTimeout` added
@@ -498,6 +525,7 @@ Modified/added events
 - `pluginManifestCacheRefreshIntervalMinutes` added in BBB 3.0.27
 - `clientSettingsOverrideStrictValidation` added in BBB 3.0.30
 - `clientSettingsFilePath` added in BBB 3.0.30
+- `maxSharedNotesInitialContentUrlPayloadSize` added — caps the size (in KiB, default `1024`) of the response fetched by `sharedNotesInitialContentJsonUrl` / `sharedNotesInitialContentMarkdownUrl`
 
 ### Removed support for POST requests on `join` endpoint and Content-Type headers are now required
 
