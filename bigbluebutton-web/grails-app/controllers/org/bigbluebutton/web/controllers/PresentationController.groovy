@@ -53,6 +53,15 @@ class PresentationController {
     '/bigbluebutton/presentation/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/pdf/([A-Za-z0-9]+)/annotated_slides\\.pdf'
   )
 
+  private static final int MAX_LOGGED_PARAM_LENGTH = 64
+
+  private static String sanitizeForLog(Object value) {
+    if (value == null) return "null"
+    String sanitized = String.valueOf(value).replaceAll('[^A-Za-z0-9_.-]', '?')
+    return sanitized.length() > MAX_LOGGED_PARAM_LENGTH ?
+            sanitized.substring(0, MAX_LOGGED_PARAM_LENGTH) + "..." : sanitized
+  }
+
   def index = {
     render(view: 'upload-file')
   }
@@ -263,7 +272,14 @@ class PresentationController {
     }
 
     def isDownloadable = params.boolean('is_downloadable') //instead of params.is_downloadable
-    def podId = params.pod_id
+    def podId = presUploadToken.podId
+    if (params.pod_id != null && params.pod_id != podId) {
+      log.warn("Ignoring pod_id parameter that does not match the upload token." +
+              " meetingId=" + meetingId +
+              " presentationId=" + presUploadToken.presentationId +
+              " tokenPodId=" + podId +
+              " requestedPodId=" + sanitizeForLog(params.pod_id))
+    }
 
     // Defaults current to false (optional upload parameter)
     def current = false
@@ -272,7 +288,7 @@ class PresentationController {
       current = params.current.toBoolean()
     }
     
-    log.debug "@Default presentation pod" + podId
+    log.debug "Presentation pod from upload token: " + podId
 
     def uploadFailed = false
     def uploadFailReasons = new ArrayList<String>()
