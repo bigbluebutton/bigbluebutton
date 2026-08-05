@@ -450,13 +450,13 @@ const createEndpointTableData = [
     "name": "sharedNotesInitialContentMarkdown",
     "required": false,
     "type": "String",
-    "description": (<>Raw markdown used as the shared-notes initial content (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise). When `sharedNotesInitialContentMarkdownUrl` is also provided, the URL takes precedence over this inline value; this inline parameter in turn takes precedence over the `sharedNotesInitialContentMarkdown` POST module.</>)
+    "description": (<>Raw markdown used as the shared-notes initial content (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise). When `sharedNotesInitialContentMarkdownUrl` is also provided, the URL takes precedence over this inline value; this inline parameter in turn takes precedence over the `sharedNotesInitialContentMarkdown` POST module. (added 3.0.33)</>)
   },
   {
     "name": "sharedNotesInitialContentMarkdownUrl",
     "required": false,
     "type": "String",
-    "description": (<>Url from which the shared-notes will fetch the initial content as markdown (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise). When provided, it takes precedence over the inline `sharedNotesInitialContentMarkdown` create parameter and POST module. The URL must be `https` (`fetchUrlSupportedProtocols`), is capped by `maxSharedNotesInitialContentUrlPayloadSize` (default 1024 KiB) and has a 6000 ms timeout; a URL that violates these yields empty initial content silently.</>)
+    "description": (<>Url from which the shared-notes will fetch the initial content as markdown (Only applicable for when `sharedNotesEditor=blockNote`, ignored otherwise). When provided, it takes precedence over the inline `sharedNotesInitialContentMarkdown` create parameter and POST module. The URL must be `https` (`fetchUrlSupportedProtocols`), is capped by `maxSharedNotesInitialContentUrlPayloadSize` (default 1024 KiB) and has a 6000 ms timeout; a URL that violates these yields empty initial content silently. (added 3.0.33)</>)
   },
   {
     "name": "disabledFeatures",
