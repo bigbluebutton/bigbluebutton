@@ -862,13 +862,14 @@ export const { logger: pluginLogger } = BbbPluginSdk.getPluginApi(uuid);
 - `useLoadedUserList` hook: provides information regarding the loaded user list (displayed in the screen);
 - `useCurrentUser` hook: provides information regarding the current user;
 - `useUsersBasicInfo` hook: provides information regarding all users (only crucial information: userId, name and role);
-- `useLoadedChatMessages` hook: provides information regarding the loaded chat messages;
+- `useLoadedChatMessages` hook: provides information regarding the loaded chat messages. Each message carries `senderUserId` and, since BigBlueButton 3.0.33, `senderRole` — the role the sender had when the message was sent (it stays as it was, even if the user's role changes later in the meeting);
 - `useCustomSubscription` hook: with this hook, the developer can query pretty much anything graphql can provide. Note: Make sure that, on BBB version change, the custom subscriptions you make will work as expected.
 - `usePluginSettings` hook: it provides all the specific settings regarding the current plugin it's been loaded from.
 - `useTalkingIndicator` hook: it gives you information on the user-voice data, that is, who is talking or muted.
 - `useMeeting` hook: it gives you information on the current meeting that the user is on.
 - `useMeetingData` hook: provides detailed meeting data with projection support, offering more flexibility than `useMeeting`.
 - `useCustomQuery` hook: similar to `useCustomSubscription`, but for one-time GraphQL queries rather than subscriptions. Note: Make sure that, on BBB version change, the custom queries you make will work as expected.
+- `useTimer` hook: it gives you the state of the meeting timer/stopwatch — whether it is `active` and `running`, whether it is in `stopwatch` mode, the configured `time`, `accumulated` and `timePassed` values, `startedAt`, whether it has `elapsed`, and the selected `songTrack` (requires plugin SDK `0.0.104` or later, shipped with BigBlueButton 3.0.33).
 
 So for these types of hooks, the return will follow the same structure:
 
