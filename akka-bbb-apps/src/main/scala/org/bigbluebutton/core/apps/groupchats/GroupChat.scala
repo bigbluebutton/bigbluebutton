@@ -8,6 +8,8 @@ import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core.util.MarkdownUtil
 
+import java.util.Locale
+
 object GroupChatApp {
   def getGroupChatOfUsers(userId: String, participantIds: Vector[String], state: MeetingState2x): Option[GroupChat] = {
     state.groupChats.findAllPrivateChatsForUser(userId)
@@ -30,6 +32,18 @@ object GroupChatApp {
     GroupChatMessage(id, now, msg.correlationId, now, now, sender, emphasizedText, msg.message, messageAsHtml, msg.replyToMessageId, messageType, msg.metadata)
   }
 
+  def applyMentions(html: String, users2x: Users2x): (String, List[String]) = {
+    if (html.indexOf('@') < 0) {
+      (html, List.empty)
+    } else {
+      val userNameToIds: Map[String, List[String]] = Users2x.findAll(users2x)
+        .filterNot(_.bot)
+        .groupBy(_.name.toLowerCase(Locale.ROOT))
+        .map { case (name, users) => name -> users.map(_.intId).toList }
+      MarkdownUtil.processMentions(html, userNameToIds)
+    }
+  }
+
   def toMessageToUser(msg: GroupChatMessage): GroupChatMsgToUser = {
     GroupChatMsgToUser(id = msg.id, timestamp = msg.timestamp, correlationId = msg.correlationId,
       sender = msg.sender, chatEmphasizedText = msg.chatEmphasizedText, message = msg.message, messageAsHtml = msg.messageAsHtml,
@@ -49,7 +63,7 @@ object GroupChatApp {
   }
 
   def updateGroupChatMessage(meetingId: String, chat: GroupChat, chats: GroupChats, msg: GroupChatMessage): GroupChats = {
-    ChatMessageDAO.update(meetingId, chat.id, msg.id, msg.message, msg.messageAsHtml)
+    ChatMessageDAO.update(meetingId, chat.id, msg.id, msg.message, msg.messageAsHtml, msg.metadata)
 
     val c = chat.update(msg)
     chats.update(c)

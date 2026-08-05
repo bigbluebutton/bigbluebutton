@@ -209,6 +209,7 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
         chatId={message.chatId}
         content={content}
         title={titleContent}
+        isMention={mentionedMe}
         alertDuration={ALERT_DURATION}
         layoutContextDispatch={layoutContextDispatch}
       />
@@ -232,18 +233,11 @@ const ChatAlertContainerGraphql: React.FC = () => {
   };
 
   const [tabIsFocused, setTabIsFocused] = useState(true);
-  const skipSubscriptions = !chatPushAlerts && !chatAudioAlerts;
-  const previousSkipSubscriptions = usePreviousValue(skipSubscriptions);
   const cursor = useRef(new Date());
-
-  if (previousSkipSubscriptions && !skipSubscriptions) {
-    cursor.current = new Date();
-  }
 
   const { data: chatMessages } = useDeduplicatedSubscription<ChatMessageStreamResponse>(
     CHAT_MESSAGE_STREAM,
     {
-      skip: skipSubscriptions,
       variables: {
         createdAt: cursor.current.toISOString(),
       },
@@ -271,8 +265,6 @@ const ChatAlertContainerGraphql: React.FC = () => {
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
   const { sidebarContentPanel } = sidebarContent;
   const layoutContextDispatch = layoutDispatch();
-
-  if (!(chatAudioAlerts || chatPushAlerts)) return null;
 
   const idChat = sidebarContentPanel === PANELS.CHAT ? idChatOpen : '';
 

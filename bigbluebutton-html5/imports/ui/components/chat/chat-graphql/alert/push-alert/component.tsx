@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { toast } from 'react-toastify';
 import injectNotify from '/imports/ui/components/common/toast/inject-notify/component';
 import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
+import Styled from '../styles';
 
 interface ChatPushAlertProps {
   notify: (...args: unknown[]) => void;
@@ -12,22 +13,6 @@ interface ChatPushAlertProps {
   layoutContextDispatch: (...args: unknown[]) => void;
   isMention?: boolean;
 }
-
-const MENTION_BADGE_STYLE: React.CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  width: '2rem',
-  height: '2rem',
-  borderRadius: '50%',
-  flexShrink: 0,
-  alignSelf: 'flex-start',
-  fontWeight: 700,
-  fontSize: '0.9rem',
-  color: 'var(--toast-info-color, #fff)',
-  backgroundColor: 'var(--toast-info-bg, var(--color-primary, #527ACE))',
-  marginRight: '0.5rem',
-};
 
 const ChatPushAlert: React.FC<ChatPushAlertProps> = (props) => {
   useEffect(() => {
@@ -76,16 +61,16 @@ const ChatPushAlert: React.FC<ChatPushAlertProps> = (props) => {
     if (isMention) {
       const toastId = `mention-${chatId}`;
       const mentionToast = (
-        <div style={{ width: '100%' }} role="alert">
-          <div style={{ display: 'flex', alignItems: 'flex-start' }}>
-            <div style={MENTION_BADGE_STYLE} aria-hidden="true">@</div>
-            <div style={{ marginTop: 'auto', marginBottom: 'auto', fontSize: '0.85rem' }}>
+        <Styled.MentionToast role="alert" data-test="chatMentionToast">
+          <Styled.MentionHeader>
+            <Styled.MentionBadge aria-hidden="true">@</Styled.MentionBadge>
+            <Styled.MentionTitle>
               {link(title, chatId)}
-            </div>
-          </div>
-          <hr style={{ margin: '0.4rem 0', border: 'none', borderTop: '1px solid #d4d9df' }} />
+            </Styled.MentionTitle>
+          </Styled.MentionHeader>
+          <Styled.MentionDivider />
           {link(content, chatId)}
-        </div>
+        </Styled.MentionToast>
       );
 
       if (toast.isActive(toastId)) {
@@ -96,7 +81,7 @@ const ChatPushAlert: React.FC<ChatPushAlertProps> = (props) => {
       return;
     }
 
-    return notify(
+    notify(
       link(title, chatId),
       'info',
       'chat',

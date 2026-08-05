@@ -1,7 +1,12 @@
 import styled from 'styled-components';
-import { colorGrayDark } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  colorGrayDark,
+  colorBorder,
+  toastInfoColor,
+  toastInfoBg,
+} from '/imports/ui/stylesheets/styled-components/palette';
 import { borderRadius } from '/imports/ui/stylesheets/styled-components/general';
-import { fontSizeSmall } from '/imports/ui/stylesheets/styled-components/typography';
+import { fontSizeSmall, fontSizeSmaller } from '/imports/ui/stylesheets/styled-components/typography';
 
 const PushMessageContent = styled.div`
   margin-top: 1.4rem;
@@ -42,9 +47,56 @@ const ContentMessagePoll = styled(ContentMessage)`
   margin-top: ${fontSizeSmall};
 `;
 
+const MentionToast = styled.div`
+  width: 100%;
+`;
+
+const MentionHeader = styled.div`
+  display: flex;
+  align-items: flex-start;
+`;
+
+const MentionBadge = styled.div`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+  align-self: flex-start;
+  font-weight: bold;
+  font-size: ${fontSizeSmall};
+  color: ${toastInfoColor};
+  background-color: ${toastInfoBg};
+  margin-right: .5rem;
+
+  [dir="rtl"] & {
+    margin-right: 0;
+    margin-left: .5rem;
+  }
+`;
+
+const MentionTitle = styled.div`
+  margin-top: auto;
+  margin-bottom: auto;
+  font-size: ${fontSizeSmaller};
+`;
+
+const MentionDivider = styled.hr`
+  margin: .4rem 0;
+  border: none;
+  border-top: 1px solid ${colorBorder};
+`;
+
 export default {
   PushMessageContent,
   UserNameMessage,
   ContentMessage,
   ContentMessagePoll,
+  MentionToast,
+  MentionHeader,
+  MentionBadge,
+  MentionTitle,
+  MentionDivider,
 };

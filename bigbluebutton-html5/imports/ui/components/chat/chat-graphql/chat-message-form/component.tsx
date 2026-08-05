@@ -36,7 +36,7 @@ import { Layout } from '../../../layout/layoutTypes';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 
 import ChatOfflineIndicator from './chat-offline-indicator/component';
-import ChatMentionPicker from '../chat-mention-picker/component';
+import ChatMentionPicker, { MENTION_PICKER_ID } from '../chat-mention-picker/component';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import { CHAT_SEND_MESSAGE, CHAT_SET_TYPING } from './mutations';
 import Storage from '/imports/ui/services/storage/session';
@@ -129,6 +129,8 @@ const messages = defineMessages({
 
 type EditingMessage = { chatId: string; messageId: string, message: string };
 
+type MentionCandidate = { atIndex: number; search: string };
+
 const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   title,
   disabled,
@@ -146,7 +148,8 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [error, setError] = React.useState<string | null>(null);
   const [message, setMessage] = React.useState('');
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
-  const [mentionSearchText, setMentionSearchText] = React.useState<string | null>(null);
+  const [mentionCandidate, setMentionCandidate] = React.useState<MentionCandidate | null>(null);
+  const settledMentionIndexRef = useRef<number | null>(null);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const emojiPickerButtonRef = useRef<HTMLButtonElement>(null);
   const emojiPickerPreviousFocusRef = useRef<HTMLElement | null>(null);
@@ -182,6 +185,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const AUTO_CONVERT_EMOJI = window.meetingClientSettings.public.chat.autoConvertEmoji;
   const ENABLE_EMOJI_PICKER = useIsEmojiPickerEnabled();
   const ENABLE_TYPING_INDICATOR = CHAT_CONFIG.typingIndicator.enabled;
+  const MENTION_MAX_WORDS = CHAT_CONFIG.mentions.maxWords;
   const DISABLE_EMOJIS = CHAT_CONFIG.disableEmojis;
 
   const handleUserTyping = (hasError?: boolean) => {
@@ -349,15 +353,18 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     return result;
   };
 
-  const getMentionSearchAtCursor = (text: string, cursorPos: number): string | null => {
+  const getMentionCandidateAtCursor = (text: string, cursorPos: number): MentionCandidate | null => {
     const textBeforeCursor = text.slice(0, cursorPos);
     const atIndex = textBeforeCursor.lastIndexOf('@');
     if (atIndex === -1) return null;
+    if (atIndex === settledMentionIndexRef.current) return null;
     const charBefore = textBeforeCursor[atIndex - 1];
     if (charBefore !== undefined && !/\s/.test(charBefore)) return null;
-    const afterAt = textBeforeCursor.slice(atIndex + 1);
-    if (/\s/.test(afterAt)) return null;
-    return afterAt;
+    const search = textBeforeCursor.slice(atIndex + 1);
+    if (/[\r\n]/.test(search)) return null;
+    const words = search.split(/\s+/).filter((word) => word !== '');
+    if (words.length > MENTION_MAX_WORDS) return null;
+    return { atIndex, search };
   };
 
   const handleMessageChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
@@ -380,20 +387,22 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     setError(newError);
     throttleHandleUserTyping(newError != null);
 
+    if (newMessage.length < message.length) settledMentionIndexRef.current = null;
+
     const cursorPos = e.target.selectionStart ?? newMessage.length;
-    const searchText = getMentionSearchAtCursor(newMessage, cursorPos);
-    setMentionSearchText(searchText);
+    setMentionCandidate(getMentionCandidateAtCursor(newMessage, cursorPos));
   };
 
   const handleMentionSelect = (name: string) => {
+    if (!mentionCandidate) return;
     const txtArea = textAreaRef?.current?.textarea;
     const cursorPos = txtArea?.selectionStart ?? message.length;
-    const textBeforeCursor = message.slice(0, cursorPos);
-    const atIndex = textBeforeCursor.lastIndexOf('@');
-    if (atIndex === -1) return;
+    const { atIndex } = mentionCandidate;
+    if (cursorPos < atIndex) return;
     const newMessage = `${message.slice(0, atIndex)}@${name} ${message.slice(cursorPos)}`;
+    settledMentionIndexRef.current = atIndex;
     setMessage(newMessage);
-    setMentionSearchText(null);
+    setMentionCandidate(null);
     setTimeout(() => {
       if (txtArea) {
         const newPos = atIndex + name.length + 2;
@@ -401,6 +410,11 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         txtArea.setSelectionRange(newPos, newPos);
       }
     }, 0);
+  };
+
+  const handleMentionClose = () => {
+    if (mentionCandidate) settledMentionIndexRef.current = mentionCandidate.atIndex;
+    setMentionCandidate(null);
   };
 
   useEffect(() => {
@@ -694,11 +708,11 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         onSubmit={handleSubmit}
         isRTL={isRTL}
       >
-        {mentionSearchText !== null ? (
+        {mentionCandidate !== null ? (
           <ChatMentionPicker
-            searchText={mentionSearchText}
+            searchText={mentionCandidate.search}
             onSelect={handleMentionSelect}
-            onClose={() => setMentionSearchText(null)}
+            onClose={handleMentionClose}
           />
         ) : null}
         {showEmojiPicker ? (
@@ -724,6 +738,8 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
               placeholder={intl.formatMessage(messages.inputPlaceholder, { chatName: title })}
               aria-label={intl.formatMessage(messages.inputLabel, { chatName: title })}
               aria-invalid={hasErrors ? 'true' : 'false'}
+              aria-expanded={mentionCandidate !== null}
+              aria-controls={mentionCandidate !== null ? MENTION_PICKER_ID : undefined}
               autoCorrect="off"
               autoComplete="off"
               spellCheck="true"

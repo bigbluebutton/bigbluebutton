@@ -70,11 +70,7 @@ trait EditGroupChatMessageReqMsgHdlr extends HandlerHelpers {
                 val allowedHtmlElements = getConfigPropertyValueByPathAsBooleanOrElse(liveMeeting.clientSettings, "public.chat.markdownImageAllowed", false)
                 val editedHtml = MarkdownUtil.markdownToSafeHtml(msg.body.message, allowedHtmlElements)
 
-                val userNameToId: Map[String, String] = Users2x.findAll(liveMeeting.users2x)
-                  .filterNot(_.bot)
-                  .map(u => u.name -> u.intId)
-                  .toMap
-                val (mentionedHtml, mentionedUserIds) = MarkdownUtil.processMentions(editedHtml, userNameToId)
+                val (mentionedHtml, mentionedUserIds) = GroupChatApp.applyMentions(editedHtml, liveMeeting.users2x)
                 val updatedMetadata = if (mentionedUserIds.nonEmpty) {
                   gcMessage.metadata + ("mentionedUserIds" -> mentionedUserIds)
                 } else {

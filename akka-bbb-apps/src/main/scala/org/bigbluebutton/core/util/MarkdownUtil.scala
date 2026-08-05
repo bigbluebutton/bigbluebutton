@@ -9,6 +9,7 @@ import org.commonmark.renderer.html.{ AttributeProvider, AttributeProviderContex
 import java.util.regex.{ Matcher, Pattern }
 
 import java.util
+import java.util.Locale
 
 class LinkAttributeProvider extends AttributeProvider {
   override def setAttributes(node: Node, tagName: String, attributes: util.Map[String, String]): Unit = {
@@ -177,15 +178,15 @@ object MarkdownUtil {
     chosenRenderer.render(doc)
   }
 
-  def processMentions(html: String, userNameToId: Map[String, String]): (String, List[String]) = {
-    if (userNameToId.isEmpty) return (html, List.empty)
+  def processMentions(html: String, userNameToIds: Map[String, List[String]]): (String, List[String]) = {
+    if (userNameToIds.isEmpty || html.indexOf('@') < 0) return (html, List.empty)
 
-    val sortedNames = userNameToId.keys.toSeq.sortBy(-_.length)
+    val sortedNames = userNameToIds.keys.toSeq.sortBy(-_.length)
 
     val escapedAlternatives = sortedNames.map(n => Pattern.quote(n)).mkString("|")
     val mentionPattern: Pattern = Pattern.compile(
       s"@($escapedAlternatives)(?=[\\s,\\.!\\?;:\\)\\]>\"']|&nbsp;|<|$$)",
-      Pattern.CASE_INSENSITIVE
+      Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE
     )
 
     val tagPattern: Pattern = Pattern.compile("<[^>]+>")
@@ -206,7 +207,7 @@ object MarkdownUtil {
       if (tagStart > lastEnd) {
         val textNode = html.substring(lastEnd, tagStart)
         if (skipDepth == 0) {
-          val (processed, ids) = replaceMentionsInText(textNode, mentionPattern, userNameToId)
+          val (processed, ids) = replaceMentionsInText(textNode, mentionPattern, userNameToIds)
           result.append(processed)
           mentionedIds ++= ids
         } else {
@@ -233,7 +234,7 @@ object MarkdownUtil {
     if (lastEnd < html.length) {
       val textNode = html.substring(lastEnd)
       if (skipDepth == 0) {
-        val (processed, ids) = replaceMentionsInText(textNode, mentionPattern, userNameToId)
+        val (processed, ids) = replaceMentionsInText(textNode, mentionPattern, userNameToIds)
         result.append(processed)
         mentionedIds ++= ids
       } else {
@@ -247,7 +248,7 @@ object MarkdownUtil {
   private def replaceMentionsInText(
     text:           String,
     pattern:        Pattern,
-    userNameToId:   Map[String, String]
+    userNameToIds:  Map[String, List[String]]
   ): (String, List[String]) = {
     val m = pattern.matcher(text)
     val sb = new StringBuilder(text.length + 64)
@@ -257,14 +258,10 @@ object MarkdownUtil {
     while (m.find()) {
       sb.append(text.substring(last, m.start()))
       val matchedName = m.group(1)
-      // Case-insensitive lookup
-      val userId = userNameToId
-        .find { case (k, _) => k.equalsIgnoreCase(matchedName) }
-        .map(_._2)
-        .getOrElse("")
-      if (userId.nonEmpty) {
-        ids += userId
-        sb.append(s"""<span class="chat-mention" data-userid="$userId">@$matchedName</span>""")
+      val userIds = userNameToIds.getOrElse(matchedName.toLowerCase(Locale.ROOT), List.empty)
+      if (userIds.nonEmpty) {
+        ids ++= userIds
+        sb.append(s"""<span class="chat-mention" data-userid="${userIds.mkString(",")}">@$matchedName</span>""")
       } else {
         sb.append(m.group())
       }

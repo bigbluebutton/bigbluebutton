@@ -563,6 +563,11 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         enabled: true,
         showNames: true,
       },
+      mentions: {
+        pickerLimit: 10,
+        pickerDebounceMs: 500,
+        maxWords: 3,
+      },
       moderatorChatEmphasized: true,
       privateMessageReadFeedback: {
         enabled: false,

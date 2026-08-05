@@ -9,7 +9,6 @@ import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.models.PluginModel.{ ServerCommands, getPluginManifestContentByName }
 import org.bigbluebutton.core.running.{ HandlerHelpers, LiveMeeting }
 import org.bigbluebutton.core.models.{ GroupChatMessage, PluginModel, Roles, UserState, Users2x }
-import org.bigbluebutton.core.util.MarkdownUtil
 import org.bigbluebutton.core2.MeetingStatus2x
 
 trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
@@ -115,16 +114,13 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
             val allowedHtmlElements = getConfigPropertyValueByPathAsBooleanOrElse(liveMeeting.clientSettings, "public.chat.markdownImageAllowed", false)
             val gcMessageRaw = GroupChatApp.toGroupChatMessage(sender, groupChatMsgReceived, emphasizedText, messageType, allowedHtmlElements)
 
-            val userNameToId: Map[String, String] = Users2x.findAll(liveMeeting.users2x)
-              .filterNot(_.bot)
-              .map(u => u.name -> u.intId)
-              .toMap
-            val (mentionedHtml, mentionedUserIds) = MarkdownUtil.processMentions(gcMessageRaw.messageAsHtml, userNameToId)
+            val (mentionedHtml, mentionedUserIds) = GroupChatApp.applyMentions(gcMessageRaw.messageAsHtml, liveMeeting.users2x)
+            val baseMetadata = gcMessageRaw.metadata - "mentionedUserIds"
             val gcMessage = if (mentionedUserIds.nonEmpty) {
-              val updatedMetadata = gcMessageRaw.metadata + ("mentionedUserIds" -> mentionedUserIds)
+              val updatedMetadata = baseMetadata + ("mentionedUserIds" -> mentionedUserIds)
               gcMessageRaw.copy(messageAsHtml = mentionedHtml, metadata = updatedMetadata)
             } else {
-              gcMessageRaw.copy(messageAsHtml = mentionedHtml)
+              gcMessageRaw.copy(messageAsHtml = mentionedHtml, metadata = baseMetadata)
             }
 
             val allowSendPluginMessage =

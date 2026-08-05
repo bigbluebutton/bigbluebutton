@@ -4,9 +4,10 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useSubscription } from '@apollo/client';
 import { defineMessages, useIntl } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
+import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import { makeUserSearchWhere } from '/imports/ui/components/user-list/service';
 import { GET_MENTION_USERS, GetMentionUsersResponse, MentionUser } from './queries';
 import Styled from './styles';
 
@@ -21,6 +22,10 @@ const intlMessages = defineMessages({
   },
 });
 
+export const MENTION_PICKER_ID = 'chat-mention-picker';
+
+const optionId = (userId: string) => `chat-mention-option-${userId}`;
+
 interface ChatMentionPickerProps {
   searchText: string;
   onSelect: (name: string) => void;
@@ -33,20 +38,43 @@ const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
   onClose,
 }) => {
   const intl = useIntl();
-  const { data } = useSubscription<GetMentionUsersResponse>(GET_MENTION_USERS);
+  const CHAT_CONFIG = window.meetingClientSettings.public.chat;
+  const MENTION_PICKER_LIMIT = CHAT_CONFIG.mentions.pickerLimit;
+  const MENTION_PICKER_DEBOUNCE_MS = CHAT_CONFIG.mentions.pickerDebounceMs;
+
+  const [debouncedSearch, setDebouncedSearch] = useState(searchText);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedSearch(searchText), MENTION_PICKER_DEBOUNCE_MS);
+    return () => clearTimeout(timeout);
+  }, [searchText, MENTION_PICKER_DEBOUNCE_MS]);
+
+  const where = useMemo(() => ({
+    _and: [
+      makeUserSearchWhere(debouncedSearch),
+      { bot: { _eq: false } },
+      { loggedOut: { _eq: false } },
+      { userId: { _neq: Auth.userID } },
+    ],
+  }), [debouncedSearch]);
+
+  const { data, loading } = useDeduplicatedSubscription<GetMentionUsersResponse>(
+    GET_MENTION_USERS,
+    { variables: { where, limit: MENTION_PICKER_LIMIT } },
+  );
 
   const [activeIndex, setActiveIndex] = useState(0);
   const listRef = useRef<HTMLUListElement>(null);
 
-  const filtered = useMemo<MentionUser[]>(
-    () => (data?.user ?? [])
-      .filter((u) => u.userId !== Auth.userID && u.name.toLowerCase().startsWith(searchText.toLowerCase())),
-    [data?.user, searchText],
-  );
+  const users = useMemo<MentionUser[]>(() => data?.user ?? [], [data?.user]);
 
   useEffect(() => {
     setActiveIndex(0);
-  }, [searchText]);
+  }, [debouncedSearch]);
+
+  useEffect(() => {
+    setActiveIndex((prev) => (prev >= users.length ? 0 : prev));
+  }, [users.length]);
 
   useEffect(() => {
     if (listRef.current) {
@@ -55,11 +83,11 @@ const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
     }
   }, [activeIndex]);
 
-  const filteredRef = useRef(filtered);
+  const usersRef = useRef(users);
   const activeIndexRef = useRef(activeIndex);
   const onSelectRef = useRef(onSelect);
   const onCloseRef = useRef(onClose);
-  filteredRef.current = filtered;
+  usersRef.current = users;
   activeIndexRef.current = activeIndex;
   onSelectRef.current = onSelect;
   onCloseRef.current = onClose;
@@ -68,16 +96,16 @@ const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        setActiveIndex((prev) => (prev + 1) % Math.max(1, filteredRef.current.length));
+        setActiveIndex((prev) => (prev + 1) % Math.max(1, usersRef.current.length));
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
         setActiveIndex(
-          (prev) => (prev - 1 + Math.max(1, filteredRef.current.length)) % Math.max(1, filteredRef.current.length),
+          (prev) => (prev - 1 + Math.max(1, usersRef.current.length)) % Math.max(1, usersRef.current.length),
         );
       } else if (e.key === 'Enter') {
         e.preventDefault();
         e.stopPropagation();
-        const current = filteredRef.current[activeIndexRef.current];
+        const current = usersRef.current[activeIndexRef.current];
         if (current) {
           onSelectRef.current(current.name);
         }
@@ -91,23 +119,38 @@ const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown, true);
   }, []);
 
+  const activeUser = users[activeIndex];
+
   return (
-    <Styled.PickerContainer role="listbox" aria-label={intl.formatMessage(intlMessages.title)}>
+    <Styled.PickerContainer
+      id={MENTION_PICKER_ID}
+      role="listbox"
+      aria-label={intl.formatMessage(intlMessages.title)}
+      aria-activedescendant={activeUser ? optionId(activeUser.userId) : undefined}
+      data-test="chatMentionPicker"
+    >
       <Styled.PickerHeader>
         {intl.formatMessage(intlMessages.title)}
       </Styled.PickerHeader>
-      {filtered.length === 0 ? (
-        <Styled.EmptyState>
-          {intl.formatMessage(intlMessages.noResults)}
-        </Styled.EmptyState>
+      <Styled.ScreenReaderStatus aria-live="polite">
+        {activeUser?.name ?? ''}
+      </Styled.ScreenReaderStatus>
+      {users.length === 0 ? (
+        !loading && (
+          <Styled.EmptyState data-test="chatMentionNoResults">
+            {intl.formatMessage(intlMessages.noResults)}
+          </Styled.EmptyState>
+        )
       ) : (
         <Styled.UserList ref={listRef}>
-          {filtered.map((user, index) => (
+          {users.map((user, index) => (
             <Styled.UserItem
               key={user.userId}
+              id={optionId(user.userId)}
               $active={index === activeIndex}
               role="option"
               aria-selected={index === activeIndex}
+              data-test="chatMentionOption"
               onMouseEnter={() => setActiveIndex(index)}
               onMouseDown={(e) => {
                 e.preventDefault();

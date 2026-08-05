@@ -10,8 +10,15 @@ export interface GetMentionUsersResponse {
 }
 
 export const GET_MENTION_USERS = gql`
-  subscription GetMentionUsers {
-    user(where: { bot: { _eq: false }, loggedOut: { _eq: false } }) {
+  subscription GetMentionUsers($where: user_bool_exp, $limit: Int!) {
+    user(
+      where: $where,
+      limit: $limit,
+      order_by: [
+        { nameSortable: asc },
+        { userId: asc }
+      ]
+    ) {
       userId
       name
     }

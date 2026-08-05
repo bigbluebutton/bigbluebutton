@@ -173,7 +173,7 @@ public:
       offerRecordingForBreakouts: false
       # Pre-check the "record breakout room" option
       recordRoomByDefault: false
-      # Pre-check the "capture whiteboard when ending breakouts" option 
+      # Pre-check the "capture whiteboard when ending breakouts" option
       captureWhiteboardByDefault: false
       # Pre-check the "save shared notes when ending breakouts" option
       captureSharedNotesByDefault: false
@@ -808,6 +808,10 @@ public:
     typingIndicator:
       enabled: true
       showNames: true
+    mentions:
+      pickerLimit: 10
+      pickerDebounceMs: 500
+      maxWords: 3
     moderatorChatEmphasized: true
     privateMessageReadFeedback:
       enabled: false
