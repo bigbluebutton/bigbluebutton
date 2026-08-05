@@ -245,7 +245,7 @@ const ScreenshareButton = ({
                 color={amIBroadcasting ? 'primary' : 'default'}
                 hideLabel
                 circle
-                size="lg"
+                size={deviceInfo.isMobile ? 'md' : 'lg'}
                 loading={loading}
                 onClick={amIBroadcasting
                   ? screenshareHasEnded

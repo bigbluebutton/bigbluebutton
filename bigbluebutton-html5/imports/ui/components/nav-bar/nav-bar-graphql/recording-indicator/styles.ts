@@ -1,10 +1,11 @@
 import styled, { css } from 'styled-components';
 import { fontSizeLarge, fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 import {
-  smPaddingX,
+  mdPadding,
   borderSize,
   borderSizeLarge,
   borderSizeSmall,
+  mobileNavbarButtonSize,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorWhite,
@@ -15,6 +16,7 @@ import {
   btnRecordingActiveBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import SpinnerStyles from '/imports/ui/components/common/loading-screen/styles';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 interface RecordingIndicatorIconProps {
   titleMargin: boolean;
@@ -42,12 +44,18 @@ const RecordingIndicatorIcon = styled.span<RecordingIndicatorIconProps>`
   font-size: ${fontSizeBase};
   user-select: none;
 
+  @media ${smallOnly} {
+    width: 1rem;
+    height: 1rem;
+    font-size: 1rem;
+  }
+
   ${({ isRTL, titleMargin }) => isRTL && titleMargin && `
-      margin-left: ${smPaddingX};
+      margin-left: ${mdPadding};
   `}
 
   ${({ isRTL, titleMargin }) => !isRTL && titleMargin && `
-      margin-right: ${smPaddingX};
+      margin-right: ${mdPadding};
   `}
 `;
 
@@ -103,7 +111,7 @@ const collapsedOnRest = (borderWidth: string) => css`
     padding: 0 calc(1rem - ${borderWidth});
 
     ${RecordingIndicatorIcon} {
-      margin-right: ${smPaddingX};
+      margin-right: ${mdPadding};
     }
 
     /* Close to the longest label, so the collapse has no dead zone. */
@@ -116,7 +124,7 @@ const collapsedOnRest = (borderWidth: string) => css`
   [dir="rtl"] &:hover ${RecordingIndicatorIcon},
   [dir="rtl"] &:focus-visible ${RecordingIndicatorIcon} {
     margin-right: 0;
-    margin-left: ${smPaddingX};
+    margin-left: ${mdPadding};
   }
 `;
 
@@ -135,7 +143,7 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
     color: ${colorWhite} !important;
     cursor: pointer;
   }
-      
+
   &:focus {
     background-clip: padding-box;
     outline: transparent dotted 2px;
@@ -193,6 +201,27 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
 
   ${({ isPhone, recording }) => isPhone && !recording && css`
     justify-content: center;
+  `}
+
+  /* Small viewports keep the nav bar's own circular button box, so these come
+     last and win over the collapsed metrics above. */
+  ${({ recording }) => !recording && `
+    @media ${smallOnly} {
+      width: ${mobileNavbarButtonSize};
+      height: ${mobileNavbarButtonSize};
+      min-width: ${mobileNavbarButtonSize};
+      padding: 0 !important;
+      border-radius: 50% !important;
+      justify-content: center;
+    }
+  `}
+
+  ${({ recording }) => recording && `
+    @media ${smallOnly} {
+      height: ${mobileNavbarButtonSize};
+      padding: 0 0.6rem !important;
+      align-items: center;
+    }
   `}
 `;
 
