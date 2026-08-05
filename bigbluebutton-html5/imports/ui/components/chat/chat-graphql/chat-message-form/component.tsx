@@ -34,6 +34,7 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { Chat } from '/imports/ui/Types/chat';
 import { Layout } from '../../../layout/layoutTypes';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import meetingClientSettingsInitialValues from '/imports/ui/core/initial-values/meetingClientSettings';
 
 import ChatOfflineIndicator from './chat-offline-indicator/component';
 import ChatMentionPicker, { MENTION_PICKER_ID } from '../chat-mention-picker/component';
@@ -59,6 +60,7 @@ import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStat
 
 const CLOSED_CHAT_LIST_KEY = 'closedChatList';
 const START_TYPING_THROTTLE_INTERVAL = 1000;
+const MENTIONS_FALLBACK = meetingClientSettingsInitialValues.public.chat.mentions;
 
 interface ChatMessageFormProps {
   minMessageLength: number,
@@ -185,7 +187,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const AUTO_CONVERT_EMOJI = window.meetingClientSettings.public.chat.autoConvertEmoji;
   const ENABLE_EMOJI_PICKER = useIsEmojiPickerEnabled();
   const ENABLE_TYPING_INDICATOR = CHAT_CONFIG.typingIndicator.enabled;
-  const MENTION_MAX_WORDS = CHAT_CONFIG.mentions.maxWords;
+  const MENTION_MAX_WORDS = CHAT_CONFIG.mentions?.maxWords ?? MENTIONS_FALLBACK.maxWords;
   const DISABLE_EMOJIS = CHAT_CONFIG.disableEmojis;
 
   const handleUserTyping = (hasError?: boolean) => {

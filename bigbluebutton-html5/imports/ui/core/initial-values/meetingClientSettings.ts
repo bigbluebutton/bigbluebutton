@@ -564,7 +564,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         showNames: true,
       },
       mentions: {
-        pickerLimit: 10,
+        pickerLimit: 5,
         pickerDebounceMs: 500,
         maxWords: 3,
       },

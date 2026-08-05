@@ -10,6 +10,7 @@
     "app.chat.locked": "Chat is locked, messages can't be sent",
     "app.chat.mention.title": "Mention a participant",
     "app.chat.mention.noResults": "No participants found",
+    "app.chat.mention.filterHint": "Keep typing to filter participants",
     "app.chat.inputLabel": "Message input for chat {chatName}",
     "app.chat.emojiButtonLabel": "Emoji Picker",
     "app.chat.loadMoreButtonLabel": "Load More",

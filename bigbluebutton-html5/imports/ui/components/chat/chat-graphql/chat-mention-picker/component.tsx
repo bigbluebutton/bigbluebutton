@@ -7,6 +7,7 @@ import React, {
 import { defineMessages, useIntl } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
+import meetingClientSettingsInitialValues from '/imports/ui/core/initial-values/meetingClientSettings';
 import { makeUserSearchWhere } from '/imports/ui/components/user-list/service';
 import { GET_MENTION_USERS, GetMentionUsersResponse, MentionUser } from './queries';
 import Styled from './styles';
@@ -20,9 +21,15 @@ const intlMessages = defineMessages({
     id: 'app.chat.mention.noResults',
     description: 'Mention picker empty state',
   },
+  filterHint: {
+    id: 'app.chat.mention.filterHint',
+    description: 'Mention picker hint shown before the user types a name',
+  },
 });
 
 export const MENTION_PICKER_ID = 'chat-mention-picker';
+
+const MENTIONS_FALLBACK = meetingClientSettingsInitialValues.public.chat.mentions;
 
 const optionId = (userId: string) => `chat-mention-option-${userId}`;
 
@@ -39,8 +46,8 @@ const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
 }) => {
   const intl = useIntl();
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-  const MENTION_PICKER_LIMIT = CHAT_CONFIG.mentions.pickerLimit;
-  const MENTION_PICKER_DEBOUNCE_MS = CHAT_CONFIG.mentions.pickerDebounceMs;
+  const MENTION_PICKER_LIMIT = CHAT_CONFIG.mentions?.pickerLimit ?? MENTIONS_FALLBACK.pickerLimit;
+  const MENTION_PICKER_DEBOUNCE_MS = CHAT_CONFIG.mentions?.pickerDebounceMs ?? MENTIONS_FALLBACK.pickerDebounceMs;
 
   const [debouncedSearch, setDebouncedSearch] = useState(searchText);
 
@@ -57,6 +64,8 @@ const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
       { userId: { _neq: Auth.userID } },
     ],
   }), [debouncedSearch]);
+
+  const hasSearchTerm = debouncedSearch.trim() !== '';
 
   const { data, loading } = useDeduplicatedSubscription<GetMentionUsersResponse>(
     GET_MENTION_USERS,
@@ -122,13 +131,7 @@ const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
   const activeUser = users[activeIndex];
 
   return (
-    <Styled.PickerContainer
-      id={MENTION_PICKER_ID}
-      role="listbox"
-      aria-label={intl.formatMessage(intlMessages.title)}
-      aria-activedescendant={activeUser ? optionId(activeUser.userId) : undefined}
-      data-test="chatMentionPicker"
-    >
+    <Styled.PickerContainer id={MENTION_PICKER_ID} data-test="chatMentionPicker">
       <Styled.PickerHeader>
         {intl.formatMessage(intlMessages.title)}
       </Styled.PickerHeader>
@@ -142,7 +145,12 @@ const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
           </Styled.EmptyState>
         )
       ) : (
-        <Styled.UserList ref={listRef}>
+        <Styled.UserList
+          ref={listRef}
+          role="listbox"
+          aria-label={intl.formatMessage(intlMessages.title)}
+          aria-activedescendant={activeUser ? optionId(activeUser.userId) : undefined}
+        >
           {users.map((user, index) => (
             <Styled.UserItem
               key={user.userId}
@@ -164,6 +172,11 @@ const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
             </Styled.UserItem>
           ))}
         </Styled.UserList>
+      )}
+      {!hasSearchTerm && users.length > 0 && (
+        <Styled.PickerHint data-test="chatMentionFilterHint">
+          {intl.formatMessage(intlMessages.filterHint)}
+        </Styled.PickerHint>
       )}
     </Styled.PickerContainer>
   );

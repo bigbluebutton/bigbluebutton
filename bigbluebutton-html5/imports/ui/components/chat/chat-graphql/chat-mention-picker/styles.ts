@@ -92,6 +92,15 @@ export const UserName = styled.span`
   text-overflow: ellipsis;
 `;
 
+export const PickerHint = styled.div`
+  padding: .3rem .75rem;
+  font-size: ${fontSizeSmaller};
+  color: ${colorGrayLight};
+  border-top: 1px solid ${colorGrayLightest};
+  background: ${colorOffWhite};
+  flex-shrink: 0;
+`;
+
 export const ScreenReaderStatus = styled.span`
   position: absolute;
   width: 1px;
@@ -118,6 +127,7 @@ export default {
   UserItem,
   UserAvatar,
   UserName,
+  PickerHint,
   ScreenReaderStatus,
   EmptyState,
 };
