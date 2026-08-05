@@ -36,7 +36,7 @@ const DEFAULT_VALUES = {
   actionBarTabOrder: 6,
 
   sidebarNavWidthMobile: 48, // px
-  sidebarNavMarginToTheEdgeMobile: 8, // px
+  sidebarNavMarginToTheEdgeMobile: 5, // px
   sidebarNavHeightPercentage: 1,
   sidebarNavTop: 0,
   sidebarNavLeft: 0,
