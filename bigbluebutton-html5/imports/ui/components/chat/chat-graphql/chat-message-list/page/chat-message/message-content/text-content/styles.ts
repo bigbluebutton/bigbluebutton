@@ -4,6 +4,7 @@ import {
   colorBorder,
   colorOffWhite,
   colorText,
+  colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 interface ChatMessageProps {
@@ -37,6 +38,13 @@ export const ChatMessage = styled.div<ChatMessageProps>`
     height: auto;
     object-fit: contain;
     border-radius: 4px;
+    /* An image with an alpha channel shows whatever is behind it, so dark artwork
+       on a transparent background is nearly unreadable on a dark surface. Give the
+       element an opaque light backdrop of its own. It is invisible under an opaque
+       image, so it never reads as a frame. Dark mode needs the companion override in
+       app/styles.js: DarkReader rewrites this declaration, and only the fix CSS it
+       injects verbatim survives. */
+    background-color: ${colorWhite};
   }
 
   & p {
@@ -100,6 +108,10 @@ const ImageLightbox = styled.div`
     max-height: 90vh;
     object-fit: contain;
     border-radius: 4px;
+    /* The backdrop above is near-black in both themes, so enlarging a dark
+       transparent image would otherwise make it less readable than the thumbnail,
+       not more. Same opaque backdrop as the inline image. */
+    background-color: ${colorWhite};
   }
 `;
 
