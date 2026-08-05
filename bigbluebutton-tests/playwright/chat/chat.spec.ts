@@ -309,6 +309,38 @@ test.describe.parallel('Chat', { tag: '@ci' }, () => {
       await chat.rejectsUnsupportedType();
     });
 
+    test('Reject a file whose bytes are not the image type it declares', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.rejectsSpoofedImageContent();
+    });
+
+    test('Reject an image above the dimension cap', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.rejectsImageExceedingDimensionCap();
+    });
+
+    test('Stage a single image when the clipboard carries several', async ({ browser, context, page }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.stagesOnlyOneImageFromMultiImageClipboard();
+    });
+
+    test('Keep the image staged when the upload fails, and send it on retry', async ({
+      browser,
+      context,
+      page,
+    }, testInfo) => {
+      const chat = new ChatImagePaste(browser, context);
+      await chat.initModPage(page, { testInfo });
+      await chat.keepsImageStagedWhenUploadFails();
+    });
+
     test('Strip an externally hosted image from a sent message', async ({ browser, context, page }, testInfo) => {
       const chat = new ChatImagePaste(browser, context);
       await chat.initModPage(page, { testInfo });
