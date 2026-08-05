@@ -18,7 +18,13 @@ function fixtureAsDataUrl(fileName: string, mimeType: string): string {
 // handler, so the whiteboard paste handler reads the async clipboard itself.
 // Stub navigator.clipboard.read with our fixture image and press Ctrl+V, which
 // exercises the real upload + shape-insert path.
-async function pasteImageViaClipboard(testPage: Page, mimeType: string, dataUrl: string): Promise<void> {
+// `force` skips Playwright's actionability checks on the canvas click. A viewer
+// without write access has the canvas covered by the read-only interaction
+// blocker (an absolutely positioned overlay at z-index 300), so a plain click
+// never passes the hit-target check and the test fails before it can assert
+// anything. The click only exists to put focus on the whiteboard for the
+// Ctrl+V that follows, which forcing still does.
+async function pasteImageViaClipboard(testPage: Page, mimeType: string, dataUrl: string, force = false): Promise<void> {
   await testPage.page.evaluate(
     async ({ type, url }) => {
       const blob = await (await fetch(url)).blob();
@@ -34,7 +40,7 @@ async function pasteImageViaClipboard(testPage: Page, mimeType: string, dataUrl:
     { type: mimeType, url: dataUrl },
   );
 
-  await testPage.page.locator(e.whiteboard).click();
+  await testPage.page.locator(e.whiteboard).click({ force });
   await testPage.page.keyboard.press('ControlOrMeta+v');
 }
 
@@ -119,7 +125,7 @@ export class WhiteboardImagePaste extends MultiUsers {
 
     // userPage is a viewer without whiteboard write access.
     const baseline = await this.userPage.page.locator(e.wbImageShape).count();
-    await pasteImageViaClipboard(this.userPage, 'image/png', fixtureAsDataUrl(IMAGE_FIXTURE, 'image/png'));
+    await pasteImageViaClipboard(this.userPage, 'image/png', fixtureAsDataUrl(IMAGE_FIXTURE, 'image/png'), true);
     await this.userPage.page.waitForTimeout(ELEMENT_WAIT_TIME);
     await this.userPage.hasElementCount(
       e.wbImageShape,
