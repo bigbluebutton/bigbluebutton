@@ -135,11 +135,13 @@ Updated in 4.0:
   - **Added options:** Parameter `disabledFeatures` supports new options: `multiFunctionalMode` (the auxiliary/dual sidebar panel) and `pinChatMessage`.
   - **Removed parameter:** `lockSettingsDisableNote` (singular); use `lockSettingsDisableNotes` (plural) instead.
   - **Removed parameter:** `copyright` (it had no effect; the value was stored but never propagated to the client). To customize the copyright text per meeting, override `app.copyright` through `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` (requires `allowOverrideClientSettingsOnCreateCall=true`).
+  - **Removed parameter:** `webVoice` (obsolete; it selected a separate voice conference for the old Flash client and had no downstream effect after that client was removed in BBB 2.3, always falling back to `voiceBridge`).
   - **Changed:** Parameter `meetingLayout` default is now `UNIFIED_LAYOUT`. **Removed:** `meetingLayout` no longer supports `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS`. The remaining non-default options targeting hybrid/niche scenarios are `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, `MEDIA_ONLY`.
   - **Removed option:** `layouts` is no longer a valid `disabledFeatures` value (the layout selection UI was removed).
 - **join**
   - **Changed:** Parameter `enforceLayout` accepted values are now `UNIFIED_LAYOUT`, `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, `MEDIA_ONLY` (the deprecated `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS` are no longer accepted).
   - **Removed parameters:** `userdata-bbb_change_layout` (redundant with `userdata-bbb_default_layout`; its legacy `smart`/`videoFocus`/`presentationFocus`/`custom` values no longer exist) and `userdata-enable-user-reaction` (redundant with the `userReactions` `disabledFeatures` option and `public.userReaction.enabled` in `settings.yml`).
+  - **Removed parameter:** `webVoiceConf` (obsolete; it set a custom Asterisk voice extension for the old Flash client and had no downstream effect, the value was never read).
 - **clientSettings** - The deprecated REST endpoint `/api/rest/clientSettings` was **removed**. Client settings are now served through the GraphQL stack.
 
 ## API Data Types

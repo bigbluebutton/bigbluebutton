@@ -588,8 +588,7 @@ public class MeetingService implements MessageListener {
     String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(m.getExternalId());
     Meeting existingId = getNotEndedMeetingWithId(internalMeetingId);
     Meeting existingTelVoice = getNotEndedMeetingWithTelVoice(m.getTelVoice());
-    Meeting existingWebVoice = getNotEndedMeetingWithWebVoice(m.getWebVoice());
-    if (existingId == null && existingTelVoice == null && existingWebVoice == null) {
+    if (existingId == null && existingTelVoice == null) {
       meetings.put(m.getInternalId(), m);
       Map<String, Object> pluginsMap;
       ArrayList<Object> sharedNotesInitialContentMap = getSharedNotesInitialContent(m);
@@ -767,19 +766,6 @@ public class MeetingService implements MessageListener {
       for (Map.Entry<String, Meeting> entry : meetings.entrySet()) {
           Meeting m = entry.getValue();
           if (telVoice.equals(m.getTelVoice())) {
-              if (!m.isForciblyEnded())
-                  return m;
-          }
-      }
-      return null;
-  }
-
-  public Meeting getNotEndedMeetingWithWebVoice(String webVoice) {
-      if (webVoice == null)
-          return null;
-      for (Map.Entry<String, Meeting> entry : meetings.entrySet()) {
-          Meeting m = entry.getValue();
-          if (webVoice.equals(m.getWebVoice())) {
               if (!m.isForciblyEnded())
                   return m;
           }
