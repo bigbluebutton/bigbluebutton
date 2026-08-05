@@ -52,11 +52,7 @@ trait PresentationPageConversionStartedSysMsgHdlr extends SystemConfiguration {
       "", removable, filenameConverted = msg.body.presFilenameConverted, uploadCompleted = false, numPages = msg.body.numPages, errorDetails = Map.empty)
 
     PresentationPodsApp.getPresentationPod(state, podId) match {
-      // Enforce the per-pod presentation limit at the single point every upload source
-      // (interactive client, create/insertDocument API) passes through to enter a pod.
-      // The token-request check (PresentationUploadTokenReqMsgHdlr) only gates the
-      // interactive path; this is the authoritative backstop for all sources.
-      // 0 disables the cap.
+      // Bounds the akka pod map. 0 disables the cap.
       case Some(pod) if presMaxPerPod > 0 && pod.getPresentationsSize() >= presMaxPerPod =>
         log.warning("Rejecting presentation: pod presentation limit reached. " +
           s"meetingId=$meetingId userId=${msg.header.userId} podId=$podId " +
@@ -89,8 +85,18 @@ trait PresentationPageConversionStartedSysMsgHdlr extends SystemConfiguration {
         ns
 
       case None =>
-        PresPresentationDAO.updateConversionStarted(meetingId, pres)
-        broadcastEvent(msg)
+        log.warning("Rejecting presentation: unknown presentation pod. " +
+          s"meetingId=$meetingId podId=$podId presentationId=$presentationId")
+
+        PresPresentationDAO.insertUploadTokenIfNotExists(
+          meetingId, "", "", presentationId, "", msg.body.presName
+        )
+        PresPresentationDAO.updateErrors(
+          presentationId,
+          "PRESENTATION_UPLOAD_UNKNOWN_POD",
+          Map.empty
+        )
+
         state
     }
 
