@@ -158,6 +158,10 @@ header > h1 {
 .chat-emphasized-text {
   font-weight: bold;
 }
+.chat-text img {
+  max-width: 100%;
+  height: auto;
+}
 .chat-reactions {
   display: flex;
   flex-wrap: wrap;
