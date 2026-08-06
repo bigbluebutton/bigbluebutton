@@ -30,8 +30,7 @@ The conversion has three independent fixes.
    value is changed to False. This prevents LibreOffice from inserting extra
    spacing at Japanese/Latin and Japanese/digit boundaries that PowerPoint
    does not use for the affected PPTX files. Paragraphs already set to False
-   or those without directly adjacent Japanese/CJK and ASCII characters are
-   not changed.
+   are not changed.
 
 3. LibreOffice auto-fit recalculation after loading the normalized PPTX
 
@@ -61,7 +60,6 @@ from __future__ import annotations
 
 import argparse
 import io
-import re
 import shutil
 import sys
 import tempfile
@@ -107,16 +105,6 @@ AUTO_GROW_PROPERTIES = (
 # PowerPoint ignores these paragraph-final spaces when determining wrapping,
 # while LibreOffice may include them in the line width.
 TRAILING_SPACES = " \u3000"
-
-ASIAN_WESTERN_ADJACENCY = re.compile(
-    r"(?:"
-    r"[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]"
-    r"[A-Za-z0-9]"
-    r"|"
-    r"[A-Za-z0-9]"
-    r"[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]"
-    r")"
-)
 
 class ConversionError(RuntimeError):
     """Raised when the presentation cannot be converted safely."""
@@ -739,20 +727,12 @@ def paragraph_excerpt(paragraph, limit: int = 70) -> str:
     return text
 
 
-def has_adjacent_asian_western_text(text: str) -> bool:
-    """Return True for adjacent Japanese/CJK and ASCII alphanumeric text."""
-    return bool(ASIAN_WESTERN_ADJACENCY.search(text))
-
-
 def disable_asian_western_spacing_in_shape(
     shape,
     *,
     verbose: bool = False,
 ) -> int:
-    """
-    Disable Asian/non-Asian spacing only in paragraphs containing directly
-    adjacent East Asian and ASCII alphanumeric characters.
-    """
+    """Set ParaIsCharacterDistance=False for paragraphs where it is True."""
     if is_group_shape(shape):
         count = 0
         try:
@@ -802,14 +782,6 @@ def disable_asian_western_spacing_in_shape(
             continue
 
         if value is not True:
-            continue
-
-        try:
-            text = str(paragraph.getString())
-        except Exception:
-            continue
-
-        if not has_adjacent_asian_western_text(text):
             continue
 
         try:
