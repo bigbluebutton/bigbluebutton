@@ -496,8 +496,9 @@ const Whiteboard = React.memo((props) => {
     }
     debouncedUpdateShapes(
       shapes, tlEditorRef, presentationIdRef, pageChanged, assets, bgShape,
+      currentUser?.userId,
     );
-  }, [shapes]);
+  }, [shapes, currentUser?.userId]);
 
   React.useEffect(() => {
     if (removedShapes && removedShapes.length > 0) {
