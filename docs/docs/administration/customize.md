@@ -1215,7 +1215,9 @@ Presentation conversion is the most resource-intensive part of an upload. `bbb-w
 
 - **20** presentations per meeting within a rolling **60-second** window (`presentationConversionMaxRequests` / `presentationConversionRateWindowSec`).
 
-This limit is enforced at the single point every upload source passes through, so unlike the other limits it covers **all** of them: the interactive client upload, `create` with pre-uploaded presentations, `insertDocument`, and the breakout-room slide copy. An over-limit presentation is discarded and its uploaded file deleted *before* any conversion work is scheduled, and a warning is logged in `bbb-web`. Interactive uploads also show an error in the presenter's upload toast.
+This limit is enforced at the single point every upload passes through, so unlike the other limits it covers all the ways a participant or an API caller can request one: the interactive client upload, `create` with pre-uploaded presentations, `insertDocument`, and the presentation copied into a new breakout room. An over-limit presentation is discarded and its uploaded file deleted *before* any conversion work is scheduled, and a warning is logged in `bbb-web`. Interactive uploads also show an error in the presenter's upload toast.
+
+Content the server itself imports when a breakout room ends — captured slides and captured shared notes, which arrive in the parent meeting — is not counted against this limit. That content only exists in the room that produced it, so it is bounded by `apps.presentationMaxPerPod` rather than discarded on a timer.
 
 The limit is keyed by internal meeting ID, so a throttled meeting recovers once the window passes. To change the values, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties`:
 
@@ -1278,7 +1280,7 @@ insertDocumentMaxRequests=30
 insertDocumentRateWindowSec=60
 ```
 
-Note how this relates to the conversion limit: `insertDocumentMaxRequests` bounds API **calls**, while `presentationConversionMaxRequests` bounds **presentations** from every source. With the shipped defaults the conversion limit is the lower of the two, so that is the one to raise if a legitimate integration is being throttled.
+Note how this relates to the conversion limit: `insertDocumentMaxRequests` bounds API **calls**, while `presentationConversionMaxRequests` bounds the **presentations** those calls carry. With the shipped defaults the conversion limit is the lower of the two, so that is the one to raise if a legitimate integration is being throttled.
 
 ##### Which limit rejected my upload?
 
