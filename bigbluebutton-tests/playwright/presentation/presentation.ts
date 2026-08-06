@@ -5,9 +5,11 @@ import { elements as e } from '../core/elements';
 import { checkNotificationText } from '../notifications/util';
 import { MultiUsers } from '../user/multiusers';
 import {
-  checkSvgIndex,
+  expectSlideChanged,
   expectSlidesEqualBetweenPages,
+  expectSlideSvgPath,
   getCurrentPresentationHeight,
+  getCurrentSlideSvgPath,
   getSlideOuterHtml,
   uploadMultiplePresentations,
   uploadSinglePresentation,
@@ -23,19 +25,26 @@ export class Presentation extends MultiUsers {
       ELEMENT_WAIT_LONGER_TIME,
     );
 
-    await checkSvgIndex(this.modPage, '/svg/1');
+    const firstSlideSvgPath = await getCurrentSlideSvgPath(
+      this.modPage,
+      'should display the first slide image on the whiteboard',
+    );
 
     await this.modPage.waitAndClick(e.nextSlide);
     await this.modPage.hasElement(e.whiteboard, 'should display the next slide on the whiteboard');
-    await this.modPage.page.waitForTimeout(1000);
-
-    await checkSvgIndex(this.modPage, '/svg/2');
+    await expectSlideChanged(
+      this.modPage,
+      firstSlideSvgPath,
+      'should display a different slide image after skipping to the next slide',
+    );
 
     await this.modPage.waitAndClick(e.prevSlide);
     await this.modPage.hasElement(e.whiteboard, 'should display the previous slide on the whiteboard');
-    await this.modPage.page.waitForTimeout(1000);
-
-    await checkSvgIndex(this.modPage, '/svg/1');
+    await expectSlideSvgPath(
+      this.modPage,
+      firstSlideSvgPath,
+      'should display the first slide image again after going back to the previous slide',
+    );
   }
 
   async navigateSlidesWithKeys() {
@@ -45,54 +54,45 @@ export class Presentation extends MultiUsers {
       ELEMENT_WAIT_LONGER_TIME,
     );
 
-    await checkSvgIndex(this.modPage, '/svg/1');
+    const firstSlideSvgPath = await getCurrentSlideSvgPath(
+      this.modPage,
+      'should display the first slide image on the whiteboard',
+    );
 
     // Blur any focused element so keydown events target document.body
     const blurActive = () => this.modPage.page.evaluate(() => (document.activeElement as HTMLElement)?.blur());
 
     await blurActive();
     await this.modPage.press('ArrowRight');
-    await this.modPage.page.waitForFunction(
-       ([whiteboardSelector, expectedSvg]) => {
-         const whiteboard = document.querySelector(whiteboardSelector);
-         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
-       },
-       [e.whiteboard, '/svg/2'],
-       { timeout: ELEMENT_WAIT_LONGER_TIME },
-     );
+    const secondSlideSvgPath = await expectSlideChanged(
+      this.modPage,
+      firstSlideSvgPath,
+      'should display a different slide image after pressing ArrowRight',
+    );
 
     await blurActive();
     await this.modPage.press('ArrowLeft');
-    await this.modPage.page.waitForFunction(
-       ([whiteboardSelector, expectedSvg]) => {
-         const whiteboard = document.querySelector(whiteboardSelector);
-         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
-       },
-       [e.whiteboard, '/svg/1'],
-       { timeout: ELEMENT_WAIT_LONGER_TIME },
-     );
+    await expectSlideSvgPath(
+      this.modPage,
+      firstSlideSvgPath,
+      'should display the first slide image again after pressing ArrowLeft',
+    );
 
     await blurActive();
     await this.modPage.press('PageDown');
-    await this.modPage.page.waitForFunction(
-       ([whiteboardSelector, expectedSvg]) => {
-         const whiteboard = document.querySelector(whiteboardSelector);
-         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
-       },
-       [e.whiteboard, '/svg/2'],
-       { timeout: ELEMENT_WAIT_LONGER_TIME },
-     );
+    await expectSlideSvgPath(
+      this.modPage,
+      secondSlideSvgPath,
+      'should display the second slide image after pressing PageDown',
+    );
 
     await blurActive();
     await this.modPage.press('PageUp');
-    await this.modPage.page.waitForFunction(
-       ([whiteboardSelector, expectedSvg]) => {
-         const whiteboard = document.querySelector(whiteboardSelector);
-         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
-       },
-       [e.whiteboard, '/svg/1'],
-       { timeout: ELEMENT_WAIT_LONGER_TIME },
-     );
+    await expectSlideSvgPath(
+      this.modPage,
+      firstSlideSvgPath,
+      'should display the first slide image again after pressing PageUp',
+    );
   }
 
   async shareCameraAsContent() {

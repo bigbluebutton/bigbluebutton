@@ -10,16 +10,70 @@ import {
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 
-export async function checkSvgIndex(testPage: Page, element: string) {
-  await testPage.waitForSelector(e.currentSlideImg);
-  const check = await testPage.page.evaluate(
-    ([el, slideImg]) => {
-      const node = document.querySelector(slideImg);
-      return !!node && node.outerHTML.includes(el);
-    },
-    [element, e.currentSlideImg],
+// Slide assets are addressed by an opaque page id minted at conversion time
+// (/svg/<pageId>), so a test cannot assert a page number anymore. Identify the
+// displayed slide by its svg path instead, and assert navigation by that path
+// changing (or returning to a previously captured slide).
+const slideSvgPathRegex = /\/svg\/[^"'?&;\s>)]+/;
+
+// Non-throwing reader: returns undefined while the slide image is absent, so it
+// is safe to call from inside expect.poll during a slide transition.
+async function readCurrentSlideSvgPath(testPage: Page): Promise<string | undefined> {
+  const outerHtml = await testPage.page.evaluate(
+    ([slideImg]) => document.querySelector(slideImg)?.outerHTML,
+    [e.currentSlideImg],
   );
-  await expect(check).toBeTruthy();
+  return outerHtml?.match(slideSvgPathRegex)?.[0];
+}
+
+export async function getCurrentSlideSvgPath(
+  testPage: Page,
+  description: string,
+  timeout = ELEMENT_WAIT_LONGER_TIME,
+): Promise<string> {
+  let svgPath: string | undefined;
+  await expect
+    .poll(
+      async () => {
+        svgPath = await readCurrentSlideSvgPath(testPage);
+        return svgPath;
+      },
+      { message: description, timeout },
+    )
+    .toBeTruthy();
+  return svgPath as string;
+}
+
+export async function expectSlideSvgPath(
+  testPage: Page,
+  expectedSvgPath: string,
+  description: string,
+  timeout = ELEMENT_WAIT_LONGER_TIME,
+) {
+  await expect
+    .poll(async () => readCurrentSlideSvgPath(testPage), { message: description, timeout })
+    .toBe(expectedSvgPath);
+}
+
+// A missing slide image counts as "not changed yet" so the poll keeps waiting
+// instead of passing on a transient empty whiteboard.
+export async function expectSlideChanged(
+  testPage: Page,
+  previousSvgPath: string,
+  description: string,
+  timeout = ELEMENT_WAIT_LONGER_TIME,
+): Promise<string> {
+  let svgPath: string | undefined;
+  await expect
+    .poll(
+      async () => {
+        svgPath = await readCurrentSlideSvgPath(testPage);
+        return svgPath ?? previousSvgPath;
+      },
+      { message: description, timeout },
+    )
+    .not.toBe(previousSvgPath);
+  return svgPath as string;
 }
 
 export async function getSlideOuterHtml(testPage: Page) {
