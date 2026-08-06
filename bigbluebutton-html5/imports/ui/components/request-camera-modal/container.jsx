@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { injectIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
@@ -10,31 +10,36 @@ import { USER_CAMERA_REQUEST_ANSWER } from './mutations';
 const RequestCameraContainer = ({ intl }) => {
   const [handleAnswer] = useMutation(USER_CAMERA_REQUEST_ANSWER);
   const [isVideoPreviewModalOpen, setIsVideoPreviewModalOpen] = useState(false);
+  const [answered, setAnswered] = useState(false);
 
   const { data: currentUserData } = useCurrentUser((user) => ({
     requestedCameraByMod: user.requestedCameraByMod,
   }));
 
-  const handleConfirm = () => {
-    handleAnswer({
-      variables: {
-        accepted: true,
-      },
-    });
+  const isRequested = currentUserData?.requestedCameraByMod ?? false;
 
+  // Re-arms the prompt for a later request, once this one has been cleared.
+  useEffect(() => {
+    if (!isRequested) setAnswered(false);
+  }, [isRequested]);
+
+  const answer = (accepted) => {
+    // Hides the prompt right away instead of waiting on the subscription, and
+    // restores it if the answer never reached the server.
+    setAnswered(true);
+    handleAnswer({ variables: { accepted } }).catch(() => setAnswered(false));
+  };
+
+  const handleConfirm = () => {
+    answer(true);
     // Same flow as the join video button; honors the skipVideoPreview settings.
     setIsVideoPreviewModalOpen(true);
   };
 
   const handleDeny = () => {
-    handleAnswer({
-      variables: {
-        accepted: false,
-      },
-    });
+    answer(false);
   };
 
-  // Checked before the flag: answering clears it, but the preview must outlive it.
   if (isVideoPreviewModalOpen) {
     return (
       <VideoPreviewContainer
@@ -47,7 +52,7 @@ const RequestCameraContainer = ({ intl }) => {
     );
   }
 
-  if (!currentUserData?.requestedCameraByMod) {
+  if (answered || !isRequested) {
     return null;
   }
 

@@ -231,10 +231,17 @@ export const generateActionsPermissions = (
     && subjectUser.cameras.length > 0
     && (type === 'participant' || type === 'raised-hand');
 
+  // Mirrors CameraHdlrHelpers.canBeAskedToShareCamera: a request the server
+  // would drop must not be offered, since dropping it is silent.
+  const isSubjectUserCamLocked = !isSubjectUserModerator
+    && subjectUser.locked
+    && !!lockSettings?.disableCam;
+
   const allowedToRequestCamera = amIModerator
     && !amISubjectUser
     && !isDialInUser
     && !isSubjectUserBot
+    && !isSubjectUserCamLocked
     && usersPolicies?.requireUserConsentBeforeSharingCamera
     && subjectUser.cameras.length === 0
     && (type === 'participant' || type === 'raised-hand');

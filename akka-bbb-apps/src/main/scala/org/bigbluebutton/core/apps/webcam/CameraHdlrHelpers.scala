@@ -4,7 +4,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.LockSettingsUtil
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
-import org.bigbluebutton.core.models.{ Users2x, Webcams, WebcamStream }
+import org.bigbluebutton.core.models.{ ClientType, Users2x, Webcams, WebcamStream }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core2.MeetingStatus2x
 
@@ -77,34 +77,35 @@ object CameraHdlrHelpers extends SystemConfiguration with RightsManagementTrait 
       hasPermission)
   }
 
+  // Permission only. The requireUserConsentBeforeSharingCamera gate is checked
+  // separately, so a disabled feature is not punished as a permission violation.
   def isCameraRequestAllowed(
       liveMeeting: LiveMeeting,
       userId:      String
   ): Boolean = {
-    val requireUserConsentBeforeSharingCamera = liveMeeting.props.usersProp.requireUserConsentBeforeSharingCamera
-    val hasPermission = !permissionFailed(
+    !permissionFailed(
       PermissionCheck.MOD_LEVEL,
       PermissionCheck.VIEWER_LEVEL,
       liveMeeting.users2x,
       userId
     )
-
-    (requireUserConsentBeforeSharingCamera &&
-      hasPermission)
   }
 
-  // Whether #userId could actually accept a camera request.
+  // Whether #userId could actually accept a camera request. Dial-in users and
+  // bots have no client to prompt, so a request would never be answered.
   def canBeAskedToShareCamera(
       liveMeeting: LiveMeeting,
       userId:      String
   ): Boolean = {
     Users2x.findWithIntId(liveMeeting.users2x, userId) match {
       case Some(user) => {
+        val hasClientToPrompt = !user.bot && user.clientType != ClientType.DIAL_IN
         val isSharingCamera = Webcams.findWebcamsForUser(liveMeeting.webcams, userId).nonEmpty
         val camBroadcastLocked = LockSettingsUtil.isCameraBroadcastLocked(user, liveMeeting)
         val camCapReached = hasReachedCameraCap(liveMeeting, userId)
 
-        (!isSharingCamera &&
+        (hasClientToPrompt &&
+          !isSharingCamera &&
           !camBroadcastLocked &&
           !camCapReached)
       }
