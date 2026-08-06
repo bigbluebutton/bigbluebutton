@@ -237,7 +237,7 @@ public:
         wakeLock: true
         paginationEnabled: true
         whiteboardToolbarAutoHide: false
-        pushToTalkEnabled: false
+        pushToTalkEnabled: true
         autoCloseReactionsBar: true
         directLeaveButton: true
         darkTheme: false
