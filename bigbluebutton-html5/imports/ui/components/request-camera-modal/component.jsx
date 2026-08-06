@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, FormattedMessage } from 'react-intl';
-import Styled from './styles';
+import Styled from '/imports/ui/components/common/media-consent-modal/styles';
 
 const propTypes = {
   intl: PropTypes.shape({
