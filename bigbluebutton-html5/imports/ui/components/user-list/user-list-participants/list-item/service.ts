@@ -11,6 +11,7 @@ import { toggleMuteMicrophone } from '/imports/ui/components/audio/audio-graphql
 import { DispatcherFunction } from '/imports/ui/components/layout/layoutTypes';
 import { UserActionPermissions } from './types';
 import logger from '/imports/startup/client/logger';
+import { notify } from '/imports/ui/services/notification';
 import { setPendingChat } from '/imports/ui/core/local-states/usePendingChat';
 
 const intlMessages = defineMessages({
@@ -125,6 +126,10 @@ const intlMessages = defineMessages({
   requestUserCameraLabel: {
     id: 'app.userList.menu.requestUserCamera.label',
     description: 'label to ask a user to share their camera',
+  },
+  requestUserCameraSent: {
+    id: 'app.userList.menu.requestUserCamera.sent',
+    description: 'toast confirming the camera request was sent',
   },
   lowerUserHand: {
     id: 'app.statusNotifier.lowerHandDescOneUser',
@@ -558,6 +563,13 @@ export const createToolbarOptions = (
               userId: user.userId,
             },
           });
+          // The request is silent for the moderator otherwise: the prompt and
+          // the answer both happen on the other end.
+          notify(
+            intl.formatMessage(intlMessages.requestUserCameraSent, { userName: user.name }),
+            'info',
+            'video',
+          );
         },
         icon: 'video',
         dataTest: 'requestUserCamera',

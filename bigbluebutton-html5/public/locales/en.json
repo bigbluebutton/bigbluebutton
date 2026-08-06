@@ -267,6 +267,7 @@
     "app.userList.menu.removeWhiteboardAccess.label": "Remove whiteboard access",
     "app.userList.menu.ejectUserCameras.label": "Close cameras",
     "app.userList.menu.requestUserCamera.label": "Ask to share camera",
+    "app.userList.menu.requestUserCamera.sent": "Camera request sent to {userName}",
     "app.userList.menu.promoteUser.label": "Promote to moderator",
     "app.userList.menu.demoteUser.label": "Demote to viewer",
     "app.userList.menu.unlockUser.label": "Unlock {userName}",
