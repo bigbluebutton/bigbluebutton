@@ -122,6 +122,10 @@ const intlMessages = defineMessages({
     id: 'app.userList.menu.ejectUserCameras.label',
     description: 'label to eject user cameras',
   },
+  requestUserCameraLabel: {
+    id: 'app.userList.menu.requestUserCamera.label',
+    description: 'label to ask a user to share their camera',
+  },
   lowerUserHand: {
     id: 'app.statusNotifier.lowerHandDescOneUser',
     description: 'Label for lowering a user raised hand',
@@ -227,6 +231,14 @@ export const generateActionsPermissions = (
     && subjectUser.cameras.length > 0
     && (type === 'participant' || type === 'raised-hand');
 
+  const allowedToRequestCamera = amIModerator
+    && !amISubjectUser
+    && !isDialInUser
+    && !isSubjectUserBot
+    && usersPolicies?.requireUserConsentBeforeSharingCamera
+    && subjectUser.cameras.length === 0
+    && (type === 'participant' || type === 'raised-hand');
+
   const allowedToLowerHand = subjectUser.raiseHand
     && (amIModerator
     || amISubjectUser)
@@ -242,6 +254,7 @@ export const generateActionsPermissions = (
     allowedToDemote,
     allowedToChangeUserLockStatus,
     allowedToEjectCameras,
+    allowedToRequestCamera,
     allowedToRemove,
     allowedToLowerHand,
   };
@@ -334,6 +347,7 @@ export const createToolbarOptions = (
   setRole: MutationFunction,
   setLocked: MutationFunction,
   userEjectCameras: MutationFunction,
+  userRequestCamera: MutationFunction,
   openConfirmationModal: () => void,
   setRaiseHand: MutationFunction,
 ) => {
@@ -349,6 +363,7 @@ export const createToolbarOptions = (
     allowedToDemote,
     allowedToChangeUserLockStatus,
     allowedToEjectCameras,
+    allowedToRequestCamera,
     allowedToRemove,
     allowedToLowerHand,
   } = actionsPermitions;
@@ -525,6 +540,20 @@ export const createToolbarOptions = (
         },
         icon: 'video_off',
         dataTest: 'ejectCamera',
+      },
+      {
+        allowed: allowedToRequestCamera,
+        key: 'requestUserCamera',
+        label: intl.formatMessage(intlMessages.requestUserCameraLabel),
+        onClick: () => {
+          userRequestCamera({
+            variables: {
+              userId: user.userId,
+            },
+          });
+        },
+        icon: 'video',
+        dataTest: 'requestUserCamera',
       },
       {
         allowed: allowedToRemove,

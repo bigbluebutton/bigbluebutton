@@ -48,6 +48,7 @@ export const meetingComparator = <T>(
   const aup = aData.usersPolicies;
   const bup = bData.usersPolicies;
   if ((aup?.allowModsToEjectCameras ?? false) !== (bup?.allowModsToEjectCameras ?? false)) return false;
+  if ((aup?.requireUserConsentBeforeSharingCamera ?? false) !== (bup?.requireUserConsentBeforeSharingCamera ?? false)) return false;
   if ((aup?.allowModsToUnmuteUsers ?? false) !== (bup?.allowModsToUnmuteUsers ?? false)) return false;
   if ((aup?.authenticatedGuest ?? false) !== (bup?.authenticatedGuest ?? false)) return false;
   if ((aup?.allowPromoteGuestToModerator ?? false) !== (bup?.allowPromoteGuestToModerator ?? false)) return false;

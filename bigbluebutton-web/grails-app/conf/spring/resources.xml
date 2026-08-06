@@ -247,6 +247,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="allowModsToUnmuteUsers" value="${allowModsToUnmuteUsers}"/>
         <property name="requireUserConsentBeforeUnmuting" value="${requireUserConsentBeforeUnmuting}"/>
         <property name="allowModsToEjectCameras" value="${allowModsToEjectCameras}"/>
+        <property name="requireUserConsentBeforeSharingCamera" value="${requireUserConsentBeforeSharingCamera}"/>
         <property name="breakoutRoomsRecord" value="${breakoutRoomsRecord}"/>
         <property name="breakoutRoomsPrivateChatEnabled" value="${breakoutRoomsPrivateChatEnabled}"/>
         <property name="breakoutRoomsMultiUserWhiteboardDefaultOn" value="${breakoutRoomsMultiUserWhiteboardDefaultOn}"/>

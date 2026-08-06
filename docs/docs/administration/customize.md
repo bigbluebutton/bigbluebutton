@@ -1731,6 +1731,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `allowModsToUnmuteUsers` | Gives moderators permission to unmute other users | true/false | false _`overwritable`_ |
 | `requireUserConsentBeforeUnmuting` | Allows participants to accept or decline when a moderator asks them to unmute. | true/false | false _`overwritable`_ |
 | `allowModsToEjectCameras` | Gives moderators permission to close other users' webcams | true/false | false _`overwritable`_ |
+| `requireUserConsentBeforeSharingCamera` | Lets moderators ask a participant to share their webcam; the participant accepts or declines. | true/false | false _`overwritable`_ |
 | `cameraBridge` | Media bridge used for camera streams | livekit, bbb-webrtc-sfu | livekit |
 | `screenShareBridge` | Media bridge used for screen share streams | livekit, bbb-webrtc-sfu | livekit |
 | `audioBridge` | Media bridge used for audio streams | livekit, bbb-webrtc-sfu, freeswitch | livekit |

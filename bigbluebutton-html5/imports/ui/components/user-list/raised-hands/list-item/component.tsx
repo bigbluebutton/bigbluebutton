@@ -200,6 +200,7 @@ const RaisedHandsListItem: React.FC<RaisedHandsListItemProps> = ({
     operations.setRole,
     operations.setLocked,
     operations.userEjectCameras,
+    operations.userRequestCamera,
     () => modal.setIsOpen(true),
     operations.setRaiseHand,
   );

@@ -18,6 +18,7 @@ case class MeetingUsersPoliciesDbModel(
                                 allowModsToUnmuteUsers: Boolean,
                                 requireUserConsentBeforeUnmuting: Boolean,
                                 allowModsToEjectCameras: Boolean,
+                                requireUserConsentBeforeSharingCamera: Boolean,
                                 authenticatedGuest: Boolean,
                                 allowPromoteGuestToModerator: Boolean
                               )
@@ -35,6 +36,7 @@ class MeetingUsersPoliciesDbTableDef(tag: Tag) extends Table[MeetingUsersPolicie
   val allowModsToUnmuteUsers = column[Boolean]("allowModsToUnmuteUsers")
   val requireUserConsentBeforeUnmuting = column[Boolean]("requireUserConsentBeforeUnmuting")
   val allowModsToEjectCameras = column[Boolean]("allowModsToEjectCameras")
+  val requireUserConsentBeforeSharingCamera = column[Boolean]("requireUserConsentBeforeSharingCamera")
   val authenticatedGuest = column[Boolean]("authenticatedGuest")
   val allowPromoteGuestToModerator = column[Boolean]("allowPromoteGuestToModerator")
 
@@ -42,7 +44,8 @@ class MeetingUsersPoliciesDbTableDef(tag: Tag) extends Table[MeetingUsersPolicie
 
   override val * : ProvenShape[MeetingUsersPoliciesDbModel] = (meetingId, maxUsers, maxUserConcurrentAccesses,
     webcamsOnlyForModerator, multiUserWhiteboardEnabled, userCameraCap, guestPolicy, guestLobbyMessage, meetingLayout,
-    allowModsToUnmuteUsers, requireUserConsentBeforeUnmuting, allowModsToEjectCameras, authenticatedGuest, allowPromoteGuestToModerator
+    allowModsToUnmuteUsers, requireUserConsentBeforeUnmuting, allowModsToEjectCameras, requireUserConsentBeforeSharingCamera,
+    authenticatedGuest, allowPromoteGuestToModerator
   ) <> (MeetingUsersPoliciesDbModel.tupled, MeetingUsersPoliciesDbModel.unapply)
 }
 
@@ -63,6 +66,7 @@ object MeetingUsersPoliciesDAO {
           allowModsToUnmuteUsers = usersProp.allowModsToUnmuteUsers,
           requireUserConsentBeforeUnmuting = usersProp.requireUserConsentBeforeUnmuting,
           allowModsToEjectCameras = usersProp.allowModsToEjectCameras,
+          requireUserConsentBeforeSharingCamera = usersProp.requireUserConsentBeforeSharingCamera,
           authenticatedGuest = usersProp.authenticatedGuest,
           allowPromoteGuestToModerator = usersProp.allowPromoteGuestToModerator,
         )

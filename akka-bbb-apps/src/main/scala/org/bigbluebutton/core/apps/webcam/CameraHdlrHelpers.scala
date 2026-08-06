@@ -77,6 +77,41 @@ object CameraHdlrHelpers extends SystemConfiguration with RightsManagementTrait 
       hasPermission)
   }
 
+  def isCameraRequestAllowed(
+      liveMeeting: LiveMeeting,
+      userId:      String
+  ): Boolean = {
+    val requireUserConsentBeforeSharingCamera = liveMeeting.props.usersProp.requireUserConsentBeforeSharingCamera
+    val hasPermission = !permissionFailed(
+      PermissionCheck.MOD_LEVEL,
+      PermissionCheck.VIEWER_LEVEL,
+      liveMeeting.users2x,
+      userId
+    )
+
+    (requireUserConsentBeforeSharingCamera &&
+      hasPermission)
+  }
+
+  // Whether #userId could actually accept a camera request.
+  def canBeAskedToShareCamera(
+      liveMeeting: LiveMeeting,
+      userId:      String
+  ): Boolean = {
+    Users2x.findWithIntId(liveMeeting.users2x, userId) match {
+      case Some(user) => {
+        val isSharingCamera = Webcams.findWebcamsForUser(liveMeeting.webcams, userId).nonEmpty
+        val camBroadcastLocked = LockSettingsUtil.isCameraBroadcastLocked(user, liveMeeting)
+        val camCapReached = hasReachedCameraCap(liveMeeting, userId)
+
+        (!isSharingCamera &&
+          !camBroadcastLocked &&
+          !camCapReached)
+      }
+      case _ => false
+    }
+  }
+
   def isWebcamsOnlyForModeratorUpdateAllowed(
       liveMeeting: LiveMeeting,
       userId:      String

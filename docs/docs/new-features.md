@@ -78,6 +78,10 @@ Moderators can now **pin a chat message** so it stays prominently visible to eve
 
 When `allowModsToUnmuteUsers` is enabled, BigBlueButton 4.0 can optionally ask the participant for **consent before a moderator unmutes them**. With the new `requireUserConsentBeforeUnmuting` option set to `true`, a consent dialog is shown to the user instead of the microphone being unmuted directly. The default (`false`) preserves the legacy behavior. This can be set server-wide in bbb-web's properties or per meeting on the `create` call.
 
+#### Ask a participant to share their camera
+
+BigBlueButton 4.0 lets a moderator **ask a participant to turn on their webcam**. With the new `requireUserConsentBeforeSharingCamera` option set to `true`, moderators get an *Ask to share camera* entry in the user list; the participant is prompted and may accept or decline. Accepting takes them through the regular camera sharing flow, so the webcam is never started without their consent — a moderator cannot turn on someone's camera remotely. The default (`false`) hides the option entirely. This can be set server-wide in bbb-web's properties or per meeting on the `create` call.
+
 #### Multi-Functional Mode (auxiliary sidebar)
 
 A new **Multi-Functional Mode** adds an auxiliary sidebar content panel, allowing a second panel to be open alongside the primary one (for example, chat and the user list at the same time). It is disabled by default and enabled with `public.multiFunctionalMode.enabled` in `settings.yml`, and it can be disabled per meeting with the `multiFunctionalMode` value of `disabledFeatures`.
@@ -282,6 +286,7 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 
 - `lockSettingsPresenterPolicy` added (default `requireApproval`).
 - `requireUserConsentBeforeUnmuting` added (default `false`). Only relevant when `allowModsToUnmuteUsers=true`; when `true`, a consent dialog is shown before a moderator can unmute a participant.
+- `requireUserConsentBeforeSharingCamera` added (default `false`). When `true`, moderators may ask a participant to share their webcam; the participant accepts or declines.
 
 
 ### Client settings (settings.yml) changes

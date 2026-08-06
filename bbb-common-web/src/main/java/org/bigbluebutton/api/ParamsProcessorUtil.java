@@ -106,6 +106,7 @@ public class ParamsProcessorUtil {
     private boolean defaultAllowModsToUnmuteUsers = false;
     private boolean defaultRequireUserConsentBeforeUnmuting = false;
     private boolean defaultAllowModsToEjectCameras = false;
+    private boolean defaultRequireUserConsentBeforeSharingCamera = false;
     private String defaultCameraBridge = "livekit";
     private String defaultScreenShareBridge = "livekit";
     private String defaultAudioBridge = "livekit";
@@ -1134,6 +1135,12 @@ public class ParamsProcessorUtil {
     }
     meeting.setAllowModsToEjectCameras(allowModsToEjectCameras);
 
+    Boolean requireUserConsentBeforeSharingCamera = defaultRequireUserConsentBeforeSharingCamera;
+    if (!StringUtils.isEmpty(params.get(ApiParams.REQUIRE_USER_CONSENT_BEFORE_SHARING_CAMERA))) {
+      requireUserConsentBeforeSharingCamera = Boolean.parseBoolean(params.get(ApiParams.REQUIRE_USER_CONSENT_BEFORE_SHARING_CAMERA));
+    }
+    meeting.setRequireUserConsentBeforeSharingCamera(requireUserConsentBeforeSharingCamera);
+
         int maxNumPages = defaultMaxNumPages;
         if (!StringUtils.isEmpty(params.get(ApiParams.MAX_NUM_PAGES))) {
             try {
@@ -1792,6 +1799,14 @@ public class ParamsProcessorUtil {
 
   public Boolean getAllowModsToEjectCameras() {
     return defaultAllowModsToEjectCameras;
+  }
+
+  public void setRequireUserConsentBeforeSharingCamera(Boolean value) {
+    defaultRequireUserConsentBeforeSharingCamera = value;
+  }
+
+  public Boolean getRequireUserConsentBeforeSharingCamera() {
+    return defaultRequireUserConsentBeforeSharingCamera;
   }
 
 	public List<String> decodeIds(String encodeid) {

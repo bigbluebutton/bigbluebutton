@@ -267,6 +267,18 @@ object Users2x {
     }
   }
 
+  def setUserCameraRequested(users: Users2x, intId: String, requested: Boolean): Option[UserState] = {
+    for {
+      u <- findWithIntId(users, intId)
+      if u.requestedCameraByMod != requested
+    } yield {
+      val newUser = u.modify(_.requestedCameraByMod).setTo(requested)
+      users.save(newUser)
+      UserStateDAO.updateRequestedCameraByMod(u.meetingId, u.intId, requested)
+      newUser
+    }
+  }
+
   def setUserSpeechLocale(users: Users2x, intId: String, locale: String): Option[UserState] = {
     for {
       u <- findWithIntId(users, intId)
@@ -477,6 +489,7 @@ case class UserState(
     lastActivityTime:      Long                = System.currentTimeMillis(),
     lastInactivityInspect: Long                = 0,
     requestedUnmuteByMod:  Boolean             = false,
+    requestedCameraByMod:  Boolean             = false,
     requestedPresenter:    Boolean             = false,
     clientType:            String,
     userLeftFlag:          UserLeftFlag,

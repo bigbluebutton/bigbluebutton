@@ -234,6 +234,7 @@ Permission: Restricted by Lock Settings
 - `reactionEmoji`
 - `registeredAt`
 - `registeredOn`
+- `requestedCameraByMod`
 - `role`
 - `speechLocale`
 - `userId`

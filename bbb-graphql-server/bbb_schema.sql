@@ -159,6 +159,7 @@ create unlogged table "meeting_usersPolicies" (
     "allowModsToUnmuteUsers"       boolean,
     "requireUserConsentBeforeUnmuting"     boolean,
     "allowModsToEjectCameras"      boolean,
+    "requireUserConsentBeforeSharingCamera" boolean,
     "authenticatedGuest"           boolean,
     "allowPromoteGuestToModerator" boolean
 );
@@ -176,6 +177,7 @@ SELECT "meeting_usersPolicies"."meetingId",
     "meeting_usersPolicies"."allowModsToUnmuteUsers",
     "meeting_usersPolicies"."requireUserConsentBeforeUnmuting",
     "meeting_usersPolicies"."allowModsToEjectCameras",
+    "meeting_usersPolicies"."requireUserConsentBeforeSharingCamera",
     "meeting_usersPolicies"."authenticatedGuest",
     "meeting_usersPolicies"."allowPromoteGuestToModerator",
     "meeting"."isBreakout" is false "moderatorsCanMuteAudio",
@@ -311,6 +313,7 @@ CREATE UNLOGGED TABLE "user" (
 	"inactivityWarningDisplay" bool default FALSE,
 	"inactivityWarningTimeoutSecs" numeric,
     "requestedUnmuteByMod" bool default FALSE,
+    "requestedCameraByMod" bool default FALSE,
 	"hasDrawPermissionOnCurrentPage" bool default FALSE,
 	"whiteboardWriteAccess" bool default FALSE,
 	"echoTestRunningAt" timestamp with time zone,
@@ -554,6 +557,7 @@ SELECT
     "user"."inactivityWarningDisplay",
     "user"."inactivityWarningTimeoutSecs",
     "user"."requestedUnmuteByMod",
+    "user"."requestedCameraByMod",
     "user"."requestedPresenter",
     "user"."bot"
 FROM "user";

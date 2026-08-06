@@ -830,6 +830,8 @@ class MeetingActor(
       case m: CamStreamUnsubscribedInSfuEvtMsg => webcamApp2x.handle(m, liveMeeting, msgBus)
       case m: CamBroadcastStoppedInSfuEvtMsg   => webcamApp2x.handle(m, liveMeeting, msgBus)
       case m: EjectUserCamerasCmdMsg           => webcamApp2x.handle(m, liveMeeting, msgBus)
+      case m: RequestUserCameraCmdMsg          => webcamApp2x.handle(m, liveMeeting, msgBus)
+      case m: CameraRequestAnswerReqMsg        => webcamApp2x.handle(m, liveMeeting, msgBus)
       case m: GetWebcamsOnlyForModeratorReqMsg => webcamApp2x.handle(m, liveMeeting, msgBus)
       case m: UpdateWebcamsOnlyForModeratorCmdMsg =>
         webcamApp2x.handle(m, liveMeeting, msgBus)

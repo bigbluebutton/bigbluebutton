@@ -133,6 +133,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
     operations.setRole,
     operations.setLocked,
     operations.userEjectCameras,
+    operations.userRequestCamera,
     () => modal.setIsOpen(true),
     operations.setRaiseHand,
   );
