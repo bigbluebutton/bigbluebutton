@@ -322,6 +322,10 @@ FileUtils.cp_r("#{playback_dir}/css", process_dir)
 FileUtils.cp_r("#{playback_dir}/js", process_dir)
 FileUtils.cp_r("#{playback_dir}/video-js", process_dir)
 
+# Copy pasted images (chat/notes/whiteboard) from raw files, so the publish step
+# can put them next to the playback files, where the rewritten urls point
+FileUtils.cp_r("#{raw_archive_dir}/uploads", process_dir) unless Dir["#{raw_archive_dir}/uploads/*"].empty?
+
 logger.info 'Processing successfully completed, writing done file'
 
 File.write(donefile, "Processed #{meeting_id}")
