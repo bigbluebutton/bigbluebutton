@@ -46,6 +46,7 @@ public final class UploadedPresentation {
   private long maxPageConversionTime;
 
   private boolean defaultPresentation;
+  private boolean systemUpload = false;
 
   public UploadedPresentation(String podId,
                               String meetingId,
@@ -223,6 +224,14 @@ public final class UploadedPresentation {
 
   public boolean isDefaultPresentation() {
     return defaultPresentation;
+  }
+
+  public boolean isSystemUpload() {
+    return systemUpload;
+  }
+
+  public void setSystemUpload(boolean systemUpload) {
+    this.systemUpload = systemUpload;
   }
 
   public String getFilenameConverted() {

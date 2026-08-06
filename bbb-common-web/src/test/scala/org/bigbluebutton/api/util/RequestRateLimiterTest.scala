@@ -98,17 +98,23 @@ class RequestRateLimiterTest extends UnitSpec {
     assert(!l.allow("m1", now + 30))
   }
 
-  // Separate limiter instances are wired for different purposes and must not share a budget.
-  it should "keep separate instances independent for the same key" in {
-    val callLimiter = limiter(1, 60)
-    val conversionLimiter = limiter(1, 60)
+  // A rejected request must not be recorded. If it were, a caller that keeps retrying while
+  // throttled would push the window forward on every attempt and never recover.
+  it should "not consume budget for a request it rejects" in {
+    val l = limiter(1, 60)
     val now = 1000L
+    assert(l.allow("m1", now))
+    assert(!l.allow("m1", now + 100))
+    // Had the rejected call at now+100 been recorded, this would still be inside its window.
+    assert(l.allow("m1", now + 60000))
+  }
 
-    assert(callLimiter.allow("meeting-1", now))
-    assert(!callLimiter.allow("meeting-1", now + 1))
-
-    // The second limiter's budget for the same key is untouched by the first.
-    assert(conversionLimiter.allow("meeting-1", now + 2))
-    assert(!conversionLimiter.allow("meeting-1", now + 3))
+  // Pins the pruning comparison. An off-by-one here shifts every window in the system.
+  it should "expire a timestamp exactly one window later, not before" in {
+    val l = limiter(1, 60)
+    val now = 1000L
+    assert(l.allow("m1", now))
+    assert(!l.allow("m1", now + 59999))
+    assert(l.allow("m1", now + 60000))
   }
 }

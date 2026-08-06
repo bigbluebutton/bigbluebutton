@@ -245,7 +245,14 @@ class PresentationController {
       return
     }
 
-    def meetingId = params.conference
+    def meetingId = presUploadToken.meetingId
+    if (params.conference != null && params.conference != meetingId) {
+      log.warn("Ignoring conference parameter that does not match the upload token." +
+              " meetingId=" + meetingId +
+              " presentationId=" + presUploadToken.presentationId +
+              " requestedMeetingId=" + sanitizeForLog(params.conference))
+    }
+
     if (Util.isMeetingIdValidFormat(meetingId)) {
       def meeting = meetingService.getNotEndedMeetingWithId(meetingId)
       if (meeting == null) {
@@ -342,6 +349,7 @@ class PresentationController {
             uploadFailed,
             uploadFailReasons
     )
+    uploadedPres.setSystemUpload(presUploadToken.isSystemUpload())
     if (isPresentationMimeTypeValid) {
       if (isDownloadable) {
         log.debug "@Setting file to be downloadable..."
