@@ -96,6 +96,7 @@ header > h1 {
 #chat {
   padding: 0 10px;
   overflow-y: auto;
+  overflow-x: hidden;
   background: #fff;
   color: #4e5a66;
 
