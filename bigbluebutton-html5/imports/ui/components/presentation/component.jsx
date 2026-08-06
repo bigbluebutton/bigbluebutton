@@ -556,7 +556,7 @@ class Presentation extends PureComponent {
     zoomSlide(w, h, x, y);
   }
 
-  renderPresentationToolbar(toolbarWidth = 0) {
+  renderPresentationToolbar() {
     const {
       currentSlide,
       fullscreenElementId,
@@ -585,7 +585,6 @@ class Presentation extends PureComponent {
           zoom,
           currentSlide,
           slidePosition,
-          toolbarWidth,
           fullscreenElementId,
           layoutContextDispatch,
           presentationIsOpen,
@@ -856,7 +855,7 @@ class Presentation extends PureComponent {
                     width: toolbarWidth,
                   }}
                 >
-                  {this.renderPresentationToolbar(toolbarWidth)}
+                  {this.renderPresentationToolbar()}
                 </Styled.PresentationToolbar>
               )}
             </Styled.SvgContainer>

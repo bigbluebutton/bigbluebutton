@@ -426,12 +426,13 @@ const UnifiedLayout = (props) => {
 
     if (isCameraLeft || isCameraRight) {
       if (isEnforcedSideBySide) {
+        // max() on the upper bound too: it inverts below twice cameraDockMinWidth.
         cameraDockWidth = min(
           max(
             mediaAreaBounds.width * phoneLandscapeCameraWidthPercentage,
             cameraDockMinWidth,
           ),
-          mediaAreaBounds.width - cameraDockMinWidth,
+          max(mediaAreaBounds.width - cameraDockMinWidth, cameraDockMinWidth),
         );
       } else if (lastWidth === 0 && !isResizing) {
         cameraDockWidth = min(
@@ -458,11 +459,8 @@ const UnifiedLayout = (props) => {
       cameraDockBounds.minHeight = cameraDockMinHeight;
       cameraDockBounds.height = mediaAreaBounds.height;
       cameraDockBounds.maxHeight = mediaAreaBounds.height;
-
-      if (!isEnforcedSideBySide) {
-        // button size in vertical position
-        cameraDockBounds.height -= 20;
-      }
+      // button size in vertical position
+      cameraDockBounds.height -= 20;
 
       if (isCameraRight) {
         const sizeValue = mediaAreaBounds.left + mediaAreaBounds.width - cameraDockWidth;
@@ -570,7 +568,8 @@ const UnifiedLayout = (props) => {
           break;
         }
         case CAMERADOCK_POSITION.CONTENT_RIGHT: {
-          mediaBounds.width = mediaAreaWidth - cameraDockBounds.width - camerasMargin * 2;
+          // Clamped: a negative width reads as open to the `width === 0` guards.
+          mediaBounds.width = max(mediaAreaWidth - cameraDockBounds.width - camerasMargin * 2, 0);
           mediaBounds.height = mediaAreaHeight;
           mediaBounds.top = navBarHeight + bannerAreaHeight();
           mediaBounds.left = !isRTL ? sidebarSize : null;
@@ -586,7 +585,7 @@ const UnifiedLayout = (props) => {
           break;
         }
         case CAMERADOCK_POSITION.CONTENT_LEFT: {
-          mediaBounds.width = mediaAreaWidth - cameraDockBounds.width - camerasMargin * 2;
+          mediaBounds.width = max(mediaAreaWidth - cameraDockBounds.width - camerasMargin * 2, 0);
           mediaBounds.height = mediaAreaHeight;
           mediaBounds.top = navBarHeight + bannerAreaHeight();
           const sizeValue = sidebarNavWidth + sidebarContentWidth

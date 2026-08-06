@@ -123,6 +123,8 @@ const LayoutObserver: React.FC = () => {
     });
   };
 
+  // Duplicates each layout manager's own `resize` dispatch, for the sake of the
+  // orientation resamples, which no `resize` event follows.
   const setBrowserSize = () => {
     layoutContextDispatch({
       type: ACTIONS.SET_BROWSER_SIZE,
@@ -205,18 +207,24 @@ const LayoutObserver: React.FC = () => {
     };
 
     const orientationQuery = window.matchMedia(ORIENTATION_MEDIA);
+    // Unsupported on the very engines the deprecated event below covers, and a throw
+    // here would take that fallback and the cleanup down with it.
+    const supportsQueryListener = typeof orientationQuery.addEventListener === 'function';
 
     handleWindowResize();
     window.addEventListener('resize', handleWindowResize, false);
-    orientationQuery.addEventListener('change', handleOrientationChange);
-    // Deprecated, kept as a fallback for engines that do not fire the media query.
     window.addEventListener('orientationchange', handleOrientationChange, false);
+    if (supportsQueryListener) {
+      orientationQuery.addEventListener('change', handleOrientationChange);
+    }
 
     return () => {
       clearTimeout(orientationSettleTimeout);
       window.removeEventListener('resize', handleWindowResize, false);
-      orientationQuery.removeEventListener('change', handleOrientationChange);
       window.removeEventListener('orientationchange', handleOrientationChange, false);
+      if (supportsQueryListener) {
+        orientationQuery.removeEventListener('change', handleOrientationChange);
+      }
     };
   }, []);
 

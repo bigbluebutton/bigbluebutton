@@ -28,12 +28,11 @@ import {
   layoutSelectInput,
   layoutSelectOutput,
 } from '../context';
-import { calculatePresentationVideoRate } from './service';
+import { calculatePresentationVideoRate, getPropagatedCameraDock } from './service';
 import { useMeetingLayoutUpdater, usePushLayoutUpdater, useLayoutUpdater } from './hooks';
 import { setEnforcedLayout } from '/imports/ui/components/plugins-engine/ui-commands/layout/handler';
 import { useIsChatEnabled } from '/imports/ui/services/features';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
-import deviceInfo from '/imports/utils/deviceInfo';
 
 const equalDouble = (n1, n2) => {
   const precision = 0.01;
@@ -316,9 +315,9 @@ const PushLayoutEngine = (props) => {
         replicateFocusedCamera();
       }
 
-      // A phone in landscape arranges the dock on its own terms, so it must not
-      // follow the presenter's camera dock position and size.
-      if (syncCameraDockSizeAndPosition && !deviceInfo.isPhoneLandscape()) {
+      // Not guarded on the enforcing device: the layout manager overrides the position
+      // it renders, and a guard here would drop the push for good, nothing replays it.
+      if (syncCameraDockSizeAndPosition) {
         if (layoutReplicateElements.includes(LAYOUT_ELEMENTS.CAMERA_DOCK_POSITION)) {
           replicateCameraDockPosition();
         }
@@ -397,7 +396,7 @@ const PushLayoutEngineContainer = (props) => {
   const {
     width: cameraWidth,
     height: cameraHeight,
-    position: cameraPosition,
+    position: cameraDockPosition,
     focusedId: focusedCamera,
   } = cameraDockOutput;
 
@@ -418,7 +417,8 @@ const PushLayoutEngineContainer = (props) => {
     isResizing: cameraIsResizing,
   } = cameraDockInput;
 
-  const horizontalPosition = cameraPosition === 'contentLeft' || cameraPosition === 'contentRight';
+  const horizontalPosition = cameraDockPosition === 'contentLeft'
+    || cameraDockPosition === 'contentRight';
 
   const currentPluginLayoutRaw = useReactiveVar(setEnforcedLayout);
 
@@ -464,12 +464,14 @@ const PushLayoutEngineContainer = (props) => {
     });
   }, [enforcedLayoutLoading]);
 
-  const presentationVideoRate = calculatePresentationVideoRate(cameraDockOutput);
+  // Same source for the payload and for the change detection that fires it.
+  const propagatedCameraDock = getPropagatedCameraDock(cameraDockOutput, cameraDockInput);
+  const presentationVideoRate = calculatePresentationVideoRate(propagatedCameraDock);
 
   const setLocalSettings = useUserChangedLocalSettings();
   const setPushLayout = usePushLayoutUpdater(pushLayout);
   const setMeetingLayout = useMeetingLayoutUpdater(
-    cameraDockOutput,
+    propagatedCameraDock,
     cameraDockInput,
     presentationInput,
     layoutSettings,
@@ -504,9 +506,10 @@ const PushLayoutEngineContainer = (props) => {
         setLocalSettings,
         pushLayoutMeeting,
         cameraIsResizing,
-        cameraPosition,
         focusedCamera,
         isMeetingLayoutResizing,
+        // What is being propagated, not what the device renders.
+        cameraPosition: propagatedCameraDock.position,
         isModerator,
         isPresenter,
         isChatEnabled,

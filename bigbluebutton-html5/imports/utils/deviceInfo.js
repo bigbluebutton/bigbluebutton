@@ -14,7 +14,10 @@ export const isIos = osName === 'iOS' || (isTablet && osName === 'macOS');
 export const isMacos = osName === 'macOS';
 export const isIphone = !!(userAgent.match(/iPhone/i));
 
-export const isPortrait = () => window.innerHeight > window.innerWidth;
+// documentElement, the metric the layout managers measure and the resize dispatch
+// carries. window.inner* diverges from it on mobile.
+export const isPortrait = () => window.document.documentElement.clientHeight
+  > window.document.documentElement.clientWidth;
 
 // Tablets are deliberately left out: they keep the regular layout behavior.
 export const isPhoneLandscape = () => isPhone && !isPortrait();

@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import QuickPollDropdownContainer from '/imports/ui/components/actions-bar/quick-poll-dropdown/container';
+import { smallOnly, hasPhoneDimentions } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import {
   colorPrimary,
   colorOffWhite,
@@ -33,12 +34,18 @@ const PresentationToolbarWrapper = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   padding: 2px;
-  min-width: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
+  min-width: fit-content;
 
-  &::-webkit-scrollbar {
-    display: none;
+  // Only where dropdown/content becomes a full-screen overlay - keep both in sync, or
+  // this ~40px box clips a dropdown left in flow above it.
+  @media ${smallOnly}, ${hasPhoneDimentions} {
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   select {
@@ -71,7 +78,6 @@ const PresentationToolbarWrapper = styled.div`
     justify-content: center;
     align-items: center;
   }
-
 `;
 
 const QuickPollButton = styled(QuickPollDropdownContainer)`
