@@ -291,8 +291,7 @@ class ApiController {
         return
       } else {
         Meeting existingTelVoice = meetingService.getNotEndedMeetingWithTelVoice(newMeeting.getTelVoice());
-        Meeting existingWebVoice = meetingService.getNotEndedMeetingWithWebVoice(newMeeting.getWebVoice());
-        if (existingTelVoice != null || existingWebVoice != null) {
+        if (existingTelVoice != null) {
           log.error "VoiceBridge already in use by another meeting (different meetingId)"
           errors.nonUniqueVoiceBridgeError()
           respondWithErrors(errors)
@@ -534,7 +533,6 @@ class ApiController {
     us.conference = meeting.getInternalId()
     us.room = meeting.getInternalId()
     us.voicebridge = meeting.getTelVoice()
-    us.webvoiceconf = meeting.getWebVoice()
     us.mode = "LIVE"
     us.record = meeting.isRecord()
     us.welcome = meeting.getWelcomeMessage()
@@ -717,7 +715,6 @@ class ApiController {
     us.conference = meeting.getInternalId()
     us.room = meeting.getInternalId()
     us.voicebridge = meeting.getTelVoice()
-    us.webvoiceconf = meeting.getWebVoice()
     us.mode = "LIVE"
     us.record = meeting.isRecord()
     us.welcome = meeting.getWelcomeMessage()

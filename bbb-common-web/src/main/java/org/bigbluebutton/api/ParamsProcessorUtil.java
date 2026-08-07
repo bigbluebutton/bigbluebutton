@@ -247,7 +247,7 @@ public class ParamsProcessorUtil {
 		Map<String, Object> newParams = new HashMap<>();
 
         String[] createParams = { ApiParams.NAME, ApiParams.ATTENDEE_PW, ApiParams.MODERATOR_PW, ApiParams.VOICE_BRIDGE,
-                ApiParams.WEB_VOICE, ApiParams.DIAL_NUMBER, ApiParams.LOGOUT_URL, ApiParams.RECORD,
+                ApiParams.DIAL_NUMBER, ApiParams.LOGOUT_URL, ApiParams.RECORD,
                 ApiParams.MAX_PARTICIPANTS, ApiParams.DURATION, ApiParams.WELCOME };
 
         for (String paramName : createParams) {
@@ -593,16 +593,6 @@ public class ParamsProcessorUtil {
         // phone.
         // If none is provided, generate one.
         String telVoice = processTelVoice(params.get(ApiParams.VOICE_BRIDGE));
-
-        // Get the voice conference digits/chars for users joing through VOIP on
-        // the client.
-        // If none is provided, make it the same as the telVoice. If one has
-        // been provided,
-        // we expect that the users will be joined in the same voice conference.
-        String webVoice = params.get(ApiParams.WEB_VOICE);
-        if (StringUtils.isEmpty(webVoice)) {
-            webVoice = telVoice;
-        }
 
         // Get all the other relevant parameters and generate defaults if none
         // has been provided.
@@ -997,7 +987,7 @@ public class ParamsProcessorUtil {
                 .withLogoutUrl(logoutUrl)
                 .withLogoutTimer(logoutTimer)
                 .withBannerText(bannerText).withBannerColor(bannerColor)
-                .withTelVoice(telVoice).withWebVoice(webVoice)
+                .withTelVoice(telVoice)
                 .withDialNumber(dialNumber)
                 .withDefaultAvatarURL(avatarURL)
                 .withDefaultBotAvatarURL(botAvatarURL)
@@ -1093,9 +1083,6 @@ public class ParamsProcessorUtil {
             meeting.setCustomDarkLogoURL(this.getDefaultLogoURL());
         }
 
-		if (!StringUtils.isEmpty(params.get(ApiParams.COPYRIGHT))) {
-			meeting.setCustomCopyright(params.get(ApiParams.COPYRIGHT));
-		}
 		Boolean muteOnStart = defaultMuteOnStart;
 		if (!StringUtils.isEmpty(params.get(ApiParams.MUTE_ON_START))) {
         	muteOnStart = Boolean.parseBoolean(params.get(ApiParams.MUTE_ON_START));

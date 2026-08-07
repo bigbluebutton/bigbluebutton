@@ -50,7 +50,6 @@ public class Meeting {
 	private long endTime = 0;
 	private boolean forciblyEnded = false;
 	private String telVoice;
-	private String webVoice;
 	private String moderatorPass = "";
 	private String viewerPass = "";
 	private int learningDashboardCleanupDelayInMinutes;
@@ -109,7 +108,6 @@ public class Meeting {
 	private ArrayList<Group> groups = new ArrayList<Group>();
 	private String customLogoURL = "";
 	private String customDarkLogoURL = "";
-	private String customCopyright = "";
 	private Boolean muteOnStart = false;
 	private String cameraBridge = "livekit";
 	private String screenShareBridge = "livekit";
@@ -190,7 +188,6 @@ public class Meeting {
         userCameraCap = builder.userCameraCap;
         maxPinnedCameras = builder.maxPinnedCameras;
         duration = builder.duration;
-        webVoice = builder.webVoice;
         telVoice = builder.telVoice;
         welcomeMsgTemplate = builder.welcomeMsgTemplate;
         welcomeMsg = builder.welcomeMsg;
@@ -448,10 +445,6 @@ public class Meeting {
 
 	public String getParentMeetingId() {
 	    return parentMeetingId;
-	}
-
-	public String getWebVoice() {
-		return webVoice;
 	}
 
 	public String getTelVoice() {
@@ -774,14 +767,6 @@ public class Meeting {
 		customDarkLogoURL = url;
 	}
 
-	public void setCustomCopyright(String copyright) {
-    	customCopyright = copyright;
-	}
-
-	public String getCustomCopyright() {
-    	return customCopyright;
-	}
-
 	public void setMuteOnStart(Boolean mute) {
     	muteOnStart = mute;
 	}
@@ -1080,7 +1065,6 @@ public class Meeting {
 		private String presentationUploadExternalDescription;
 		private String presentationUploadExternalUrl;
     	private int duration;
-    	private String webVoice;
     	private String telVoice;
     	private String welcomeMsgTemplate;
     	private String welcomeMsg;
@@ -1219,11 +1203,6 @@ public class Meeting {
 					this.audioBridge = bridge;
 					return this;
 				}
-
-    	public Builder withWebVoice(String w) {
-    		this.webVoice = w;
-    		return this;
-    	}
 
     	public Builder withTelVoice(String t) {
     		this.telVoice = t;
