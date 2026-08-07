@@ -168,7 +168,7 @@ source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 sdk install gradle 8.14.3 
 sdk install grails 7.0.0
-sdk install sbt 1.6.2
+sdk install sbt 1.10.7
 sdk install maven 3.5.0
 ```
 
