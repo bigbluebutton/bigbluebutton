@@ -75,6 +75,20 @@ const intlMessages = defineMessages({
 
 const ALERT_DURATION = 4000; // 4 seconds
 
+/** A middleware older than the encoding fix streams the metadata already decoded. */
+const parseMessageMetadata = (metadata: unknown): Record<string, unknown> | null => {
+  if (metadata === null || metadata === undefined) return null;
+  if (typeof metadata === 'object') return metadata as Record<string, unknown>;
+  if (typeof metadata !== 'string') return null;
+
+  try {
+    const parsed = JSON.parse(metadata);
+    return typeof parsed === 'object' && parsed !== null ? parsed as Record<string, unknown> : null;
+  } catch {
+    return null;
+  }
+};
+
 interface ChatAlertGraphqlProps {
   idChatOpen: string;
   layoutContextDispatch: () => void;
@@ -102,14 +116,8 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
     && chatUnreadMessages.length > 0;
 
   const isMentioned = useCallback((m: Message): boolean => {
-    if (!m.messageMetadata) return false;
-    try {
-      const metadata = JSON.parse(m.messageMetadata);
-      const ids: string[] = metadata?.mentionedUserIds ?? [];
-      return ids.includes(Auth.userID as string);
-    } catch {
-      return false;
-    }
+    const ids = parseMessageMetadata(m.messageMetadata)?.mentionedUserIds;
+    return Array.isArray(ids) && ids.includes(Auth.userID as string);
   }, []);
 
   const shouldPlayAudioAlert = useCallback(
@@ -145,7 +153,7 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
 
   const mapTextContent = (msg: Message) => {
     if (msg.messageType === ChatMessageType.USER_AWAY_STATUS_MSG) {
-      const { away } = JSON.parse(msg.messageMetadata as string);
+      const away = parseMessageMetadata(msg.messageMetadata)?.away;
 
       return away
         ? intl.formatMessage(intlMessages.userAway)
