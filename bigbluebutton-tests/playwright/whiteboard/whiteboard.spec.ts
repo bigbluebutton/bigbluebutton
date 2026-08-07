@@ -10,7 +10,6 @@ import { ShapeTools } from './shapeTools';
 import { SlideChangeBlank } from './slideChangeBlank';
 import { SlideChangeWhileEditing } from './slideChangeWhileEditing';
 import { TextShape } from './textShape';
-import { linkIssue } from '../core/helpers';
 import { WhiteboardResize } from './whiteboardResize';
 
 async function runResizeTest(
