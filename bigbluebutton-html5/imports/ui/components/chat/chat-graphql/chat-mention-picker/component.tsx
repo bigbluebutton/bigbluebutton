@@ -35,14 +35,24 @@ const optionId = (userId: string) => `chat-mention-option-${userId}`;
 
 interface ChatMentionPickerProps {
   searchText: string;
+  /** The textarea the picker completes: it owns the key handling and the focus. */
+  inputElement: HTMLTextAreaElement | null;
   onSelect: (name: string) => void;
+  /** Deliberate dismissal: the mention is settled and won't be offered again. */
   onClose: () => void;
+  /** Out of the way, but the mention is still up for completion. */
+  onDismiss: () => void;
+  /** The focused element is the textarea, so it is the one that must announce it. */
+  onActiveOptionChange: (activeOptionId: string | null) => void;
 }
 
 const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
   searchText,
+  inputElement,
   onSelect,
   onClose,
+  onDismiss,
+  onActiveOptionChange,
 }) => {
   const intl = useIntl();
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
@@ -74,6 +84,7 @@ const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
 
   const [activeIndex, setActiveIndex] = useState(0);
   const listRef = useRef<HTMLUListElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const users = useMemo<MentionUser[]>(() => data?.user ?? [], [data?.user]);
 
@@ -92,46 +103,79 @@ const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
     }
   }, [activeIndex]);
 
+  const activeUser = users[activeIndex];
+  const activeOptionId = activeUser ? optionId(activeUser.userId) : null;
+
   const usersRef = useRef(users);
   const activeIndexRef = useRef(activeIndex);
   const onSelectRef = useRef(onSelect);
   const onCloseRef = useRef(onClose);
+  const onDismissRef = useRef(onDismiss);
+  const onActiveOptionChangeRef = useRef(onActiveOptionChange);
   usersRef.current = users;
   activeIndexRef.current = activeIndex;
   onSelectRef.current = onSelect;
   onCloseRef.current = onClose;
+  onDismissRef.current = onDismiss;
+  onActiveOptionChangeRef.current = onActiveOptionChange;
 
   useEffect(() => {
+    onActiveOptionChangeRef.current(activeOptionId);
+  }, [activeOptionId]);
+
+  useEffect(() => () => onActiveOptionChangeRef.current(null), []);
+
+  useEffect(() => {
+    if (!inputElement) return undefined;
+
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onCloseRef.current();
+        return;
+      }
+
+      // Nothing to pick: leave the keys to the message form so Enter still sends.
+      const current = usersRef.current[activeIndexRef.current];
+      if (usersRef.current.length === 0 || !current) return;
+
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        setActiveIndex((prev) => (prev + 1) % Math.max(1, usersRef.current.length));
+        setActiveIndex((prev) => (prev + 1) % usersRef.current.length);
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        setActiveIndex(
-          (prev) => (prev - 1 + Math.max(1, usersRef.current.length)) % Math.max(1, usersRef.current.length),
-        );
+        setActiveIndex((prev) => (prev - 1 + usersRef.current.length) % usersRef.current.length);
       } else if (e.key === 'Enter') {
         e.preventDefault();
         e.stopPropagation();
-        const current = usersRef.current[activeIndexRef.current];
-        if (current) {
-          onSelectRef.current(current.name);
-        }
-      } else if (e.key === 'Escape') {
-        e.preventDefault();
-        onCloseRef.current();
+        onSelectRef.current(current.name);
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown, true);
-    return () => window.removeEventListener('keydown', handleKeyDown, true);
-  }, []);
+    const handleBlur = () => onDismissRef.current();
 
-  const activeUser = users[activeIndex];
+    inputElement.addEventListener('keydown', handleKeyDown);
+    inputElement.addEventListener('blur', handleBlur);
+    return () => {
+      inputElement.removeEventListener('keydown', handleKeyDown);
+      inputElement.removeEventListener('blur', handleBlur);
+    };
+  }, [inputElement]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (containerRef.current?.contains(target)) return;
+      if (inputElement?.contains(target)) return;
+      onDismissRef.current();
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [inputElement]);
 
   return (
-    <Styled.PickerContainer id={MENTION_PICKER_ID} data-test="chatMentionPicker">
+    <Styled.PickerContainer ref={containerRef} id={MENTION_PICKER_ID} data-test="chatMentionPicker">
       <Styled.PickerHeader>
         {intl.formatMessage(intlMessages.title)}
       </Styled.PickerHeader>
@@ -149,7 +193,7 @@ const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
           ref={listRef}
           role="listbox"
           aria-label={intl.formatMessage(intlMessages.title)}
-          aria-activedescendant={activeUser ? optionId(activeUser.userId) : undefined}
+          aria-activedescendant={activeOptionId ?? undefined}
         >
           {users.map((user, index) => (
             <Styled.UserItem

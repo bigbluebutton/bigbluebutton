@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { toast } from 'react-toastify';
 import injectNotify from '/imports/ui/components/common/toast/inject-notify/component';
 import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
 import Styled from '../styles';
@@ -58,34 +57,19 @@ const ChatPushAlert: React.FC<ChatPushAlertProps> = (props) => {
       isMention,
     } = props;
 
-    if (isMention) {
-      const toastId = `mention-${chatId}`;
-      const mentionToast = (
-        <Styled.MentionToast role="alert" data-test="chatMentionToast">
-          <Styled.MentionHeader>
-            <Styled.MentionBadge aria-hidden="true">@</Styled.MentionBadge>
-            <Styled.MentionTitle>
-              {link(title, chatId)}
-            </Styled.MentionTitle>
-          </Styled.MentionHeader>
-          <Styled.MentionDivider />
-          {link(content, chatId)}
-        </Styled.MentionToast>
-      );
-
-      if (toast.isActive(toastId)) {
-        toast.update(toastId, { render: mentionToast, autoClose: alertDuration, progress: 0 });
-      } else {
-        toast(mentionToast, { autoClose: alertDuration, toastId });
-      }
-      return;
-    }
+    // One toast per chat: a second mention refreshes it instead of stacking a new one.
+    const icon = isMention
+      ? { svgContent: <Styled.MentionIcon data-test="chatMentionToast" aria-hidden="true">@</Styled.MentionIcon> }
+      : 'chat';
+    const options = isMention
+      ? { autoClose: alertDuration, toastId: `mention-${chatId}` }
+      : { autoClose: alertDuration };
 
     notify(
       link(title, chatId),
       'info',
-      'chat',
-      { autoClose: alertDuration },
+      icon,
+      options,
       link(content, chatId),
       true,
     );

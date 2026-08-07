@@ -178,19 +178,44 @@ object MarkdownUtil {
     chosenRenderer.render(doc)
   }
 
+  private val TagPattern: Pattern = Pattern.compile("<[^>]+>")
+
+  private val TagNamePattern: Pattern = Pattern.compile("^</?([a-z0-9]+)")
+
+  private val MentionSkippedTags: Set[String] = Set("code", "pre", "a")
+
+  private val NonBreakingSpace = "&nbsp;"
+
+  private val MentionLeftBoundaryChars: Set[Char] = Set('(', '[', '>', '"', '\'')
+
+  private val MentionRightBoundaryChars: Set[Char] =
+    Set(',', '.', '!', '?', ';', ':', ')', ']', '>', '<', '"', '\'')
+
+  /** Escapes the same characters commonmark escapes when it renders a text node. */
+  def escapeHtmlText(text: String): String = {
+    val sb = new StringBuilder(text.length + 16)
+    var i = 0
+    while (i < text.length) {
+      text.charAt(i) match {
+        case '&' => sb.append("&amp;")
+        case '<' => sb.append("&lt;")
+        case '>' => sb.append("&gt;")
+        case '"' => sb.append("&quot;")
+        case c   => sb.append(c)
+      }
+      i += 1
+    }
+    sb.toString()
+  }
+
   def processMentions(html: String, userNameToIds: Map[String, List[String]]): (String, List[String]) = {
     if (userNameToIds.isEmpty || html.indexOf('@') < 0) return (html, List.empty)
 
-    val sortedNames = userNameToIds.keys.toSeq.sortBy(-_.length)
+    // Scanning the '@' positions keeps this off compiling an alternation with one branch
+    // per participant on the meeting actor's thread, once per message.
+    val maxNameLength = userNameToIds.keys.map(_.length).max
 
-    val escapedAlternatives = sortedNames.map(n => Pattern.quote(n)).mkString("|")
-    val mentionPattern: Pattern = Pattern.compile(
-      s"@($escapedAlternatives)(?=[\\s,\\.!\\?;:\\)\\]>\"']|&nbsp;|<|$$)",
-      Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE
-    )
-
-    val tagPattern: Pattern = Pattern.compile("<[^>]+>")
-    val tagMatcher = tagPattern.matcher(html)
+    val tagMatcher = TagPattern.matcher(html)
 
     val result = new StringBuilder(html.length + 128)
     val mentionedIds = scala.collection.mutable.LinkedHashSet.empty[String]
@@ -207,7 +232,7 @@ object MarkdownUtil {
       if (tagStart > lastEnd) {
         val textNode = html.substring(lastEnd, tagStart)
         if (skipDepth == 0) {
-          val (processed, ids) = replaceMentionsInText(textNode, mentionPattern, userNameToIds)
+          val (processed, ids) = replaceMentionsInText(textNode, userNameToIds, maxNameLength)
           result.append(processed)
           mentionedIds ++= ids
         } else {
@@ -217,12 +242,11 @@ object MarkdownUtil {
 
       val isClosingTag = tagLower.startsWith("</")
       val isSelfClosing = tagLower.endsWith("/>") || tagLower.matches("<(br|hr|img|input)[^>]*/?>")
-      val tagName = tagLower.replaceAll("[<>/\\s].*", "").replaceAll("[<>/]", "").trim
 
-      if (!isSelfClosing) {
-        if (isClosingTag && Seq("code", "pre", "a").contains(tagName)) {
+      if (!isSelfClosing && MentionSkippedTags.contains(extractTagName(tagLower))) {
+        if (isClosingTag) {
           skipDepth = math.max(0, skipDepth - 1)
-        } else if (!isClosingTag && Seq("code", "pre", "a").contains(tagName)) {
+        } else {
           skipDepth += 1
         }
       }
@@ -234,7 +258,7 @@ object MarkdownUtil {
     if (lastEnd < html.length) {
       val textNode = html.substring(lastEnd)
       if (skipDepth == 0) {
-        val (processed, ids) = replaceMentionsInText(textNode, mentionPattern, userNameToIds)
+        val (processed, ids) = replaceMentionsInText(textNode, userNameToIds, maxNameLength)
         result.append(processed)
         mentionedIds ++= ids
       } else {
@@ -245,27 +269,80 @@ object MarkdownUtil {
     (result.toString(), mentionedIds.toList)
   }
 
+  private def extractTagName(tagLower: String): String = {
+    val m = TagNamePattern.matcher(tagLower)
+    if (m.find()) m.group(1) else ""
+  }
+
+  private def hasLeftBoundary(text: String, atIndex: Int): Boolean = {
+    if (atIndex == 0) return true
+
+    val c = text.charAt(atIndex - 1)
+    Character.isWhitespace(c) ||
+      MentionLeftBoundaryChars.contains(c) ||
+      text.startsWith(NonBreakingSpace, atIndex - NonBreakingSpace.length)
+  }
+
+  private def hasRightBoundary(text: String, endIndex: Int): Boolean = {
+    if (endIndex >= text.length) return true
+
+    val c = text.charAt(endIndex)
+    Character.isWhitespace(c) ||
+      MentionRightBoundaryChars.contains(c) ||
+      text.startsWith(NonBreakingSpace, endIndex)
+  }
+
+  /** Longest candidate first, so a name that prefixes another one doesn't win over it. */
+  private def findMentionAt(
+    text:          String,
+    atIndex:       Int,
+    userNameToIds: Map[String, List[String]],
+    maxNameLength: Int
+  ): Option[(String, List[String])] = {
+    val nameStart = atIndex + 1
+    var length = math.min(maxNameLength, text.length - nameStart)
+
+    while (length > 0) {
+      if (hasRightBoundary(text, nameStart + length)) {
+        val candidate = text.substring(nameStart, nameStart + length)
+        userNameToIds.get(candidate.toLowerCase(Locale.ROOT)) match {
+          case Some(userIds) if userIds.nonEmpty => return Some((candidate, userIds))
+          case _                                 =>
+        }
+      }
+      length -= 1
+    }
+
+    None
+  }
+
   private def replaceMentionsInText(
-    text:           String,
-    pattern:        Pattern,
-    userNameToIds:  Map[String, List[String]]
+    text:          String,
+    userNameToIds: Map[String, List[String]],
+    maxNameLength: Int
   ): (String, List[String]) = {
-    val m = pattern.matcher(text)
+    if (text.indexOf('@') < 0) return (text, List.empty)
+
     val sb = new StringBuilder(text.length + 64)
     val ids = scala.collection.mutable.ListBuffer.empty[String]
+    var i = 0
     var last = 0
 
-    while (m.find()) {
-      sb.append(text.substring(last, m.start()))
-      val matchedName = m.group(1)
-      val userIds = userNameToIds.getOrElse(matchedName.toLowerCase(Locale.ROOT), List.empty)
-      if (userIds.nonEmpty) {
-        ids ++= userIds
-        sb.append(s"""<span class="chat-mention" data-userid="${userIds.mkString(",")}">@$matchedName</span>""")
+    while (i < text.length) {
+      if (text.charAt(i) == '@' && hasLeftBoundary(text, i)) {
+        findMentionAt(text, i, userNameToIds, maxNameLength) match {
+          case Some((matchedName, userIds)) =>
+            sb.append(text.substring(last, i))
+            sb.append(s"""<span class="chat-mention" data-userid="${userIds.mkString(",")}">@$matchedName</span>""")
+            ids ++= userIds
+            i += matchedName.length + 1
+            last = i
+          case None =>
+            i += 1
+        }
       } else {
-        sb.append(m.group())
+        i += 1
       }
-      last = m.end()
     }
 
     sb.append(text.substring(last))

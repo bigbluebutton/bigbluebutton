@@ -151,6 +151,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [message, setMessage] = React.useState('');
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const [mentionCandidate, setMentionCandidate] = React.useState<MentionCandidate | null>(null);
+  const [activeMentionOptionId, setActiveMentionOptionId] = React.useState<string | null>(null);
   const settledMentionIndexRef = useRef<number | null>(null);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const emojiPickerButtonRef = useRef<HTMLButtonElement>(null);
@@ -389,9 +390,16 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     setError(newError);
     throttleHandleUserTyping(newError != null);
 
-    if (newMessage.length < message.length) settledMentionIndexRef.current = null;
-
     const cursorPos = e.target.selectionStart ?? newMessage.length;
+
+    // Re-arm only when the deletion reached back to the settled '@'.
+    const settledMentionIndex = settledMentionIndexRef.current;
+    if (settledMentionIndex !== null
+      && newMessage.length < message.length
+      && cursorPos <= settledMentionIndex) {
+      settledMentionIndexRef.current = null;
+    }
+
     setMentionCandidate(getMentionCandidateAtCursor(newMessage, cursorPos));
   };
 
@@ -418,6 +426,8 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     if (mentionCandidate) settledMentionIndexRef.current = mentionCandidate.atIndex;
     setMentionCandidate(null);
   };
+
+  const handleMentionDismiss = () => setMentionCandidate(null);
 
   useEffect(() => {
     window.dispatchEvent(new CustomEvent(PluginSdk.ChatFormUiDataNames.CURRENT_CHAT_INPUT_TEXT, {
@@ -713,8 +723,11 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         {mentionCandidate !== null ? (
           <ChatMentionPicker
             searchText={mentionCandidate.search}
+            inputElement={textAreaRef.current?.textarea ?? null}
             onSelect={handleMentionSelect}
             onClose={handleMentionClose}
+            onDismiss={handleMentionDismiss}
+            onActiveOptionChange={setActiveMentionOptionId}
           />
         ) : null}
         {showEmojiPicker ? (
@@ -740,8 +753,12 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
               placeholder={intl.formatMessage(messages.inputPlaceholder, { chatName: title })}
               aria-label={intl.formatMessage(messages.inputLabel, { chatName: title })}
               aria-invalid={hasErrors ? 'true' : 'false'}
+              role="combobox"
+              aria-autocomplete="list"
+              aria-haspopup="listbox"
               aria-expanded={mentionCandidate !== null}
               aria-controls={mentionCandidate !== null ? MENTION_PICKER_ID : undefined}
+              aria-activedescendant={mentionCandidate !== null ? activeMentionOptionId ?? undefined : undefined}
               autoCorrect="off"
               autoComplete="off"
               spellCheck="true"

@@ -1,5 +1,6 @@
 import styled, { css } from 'styled-components';
 import {
+  chatMentionBackgroundColor,
   colorDangerDark,
   colorBorder,
   colorOffWhite,
@@ -81,7 +82,7 @@ export const ChatMessage = styled.div<ChatMessageProps>`
   & span.chat-mention {
     color: ${colorPrimary};
     font-weight: 600;
-    background-color: var(--mention-bg, rgba(82, 122, 206, 0.12));
+    background-color: ${chatMentionBackgroundColor};
     border-radius: 3px;
     padding: 0 2px;
   }

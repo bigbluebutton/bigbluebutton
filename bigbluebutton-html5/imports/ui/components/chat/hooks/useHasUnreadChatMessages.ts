@@ -8,7 +8,18 @@ import useChat from '/imports/ui/core/hooks/useChat';
 import { Chat } from '/imports/ui/Types/chat';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 
-export const hasUnreadMentionVar = makeVar<boolean>(false);
+/** Chats with an unread mention, so reading one chat doesn't clear another one's badge. */
+export const unreadMentionChatIdsVar = makeVar<string[]>([]);
+
+export const addUnreadMentionChat = (chatId: string) => {
+  const current = unreadMentionChatIdsVar();
+  if (!current.includes(chatId)) unreadMentionChatIdsVar([...current, chatId]);
+};
+
+export const clearUnreadMentionChat = (chatId: string) => {
+  const current = unreadMentionChatIdsVar();
+  if (current.includes(chatId)) unreadMentionChatIdsVar(current.filter((id) => id !== chatId));
+};
 
 interface UseUnreadChatMessagesProps {
   isChatPanelOpened: boolean;
@@ -66,7 +77,6 @@ const useHasUnreadChatMessages = ({ isChatPanelOpened, skip = false }: UseUnread
       totalUnreadMessages: isChatPanelOpened ? 0 : totalUnread,
       hasUnreadMessages: !isChatPanelOpened && totalUnread > 0,
       hasUnreadPrivateMessages,
-      rawTotalUnread: totalUnread,
       activeChat,
       chatIds,
     };

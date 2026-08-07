@@ -14,7 +14,7 @@ import {
   fontSizeSmaller,
 } from '/imports/ui/stylesheets/styled-components/typography';
 
-export const PickerContainer = styled.div`
+const PickerContainer = styled.div`
   position: absolute;
   bottom: calc(100% + 0.5rem);
   left: 0;
@@ -30,7 +30,7 @@ export const PickerContainer = styled.div`
   flex-direction: column;
 `;
 
-export const PickerHeader = styled.div`
+const PickerHeader = styled.div`
   padding: .3rem .75rem;
   font-size: ${fontSizeSmaller};
   font-weight: 600;
@@ -42,7 +42,7 @@ export const PickerHeader = styled.div`
   flex-shrink: 0;
 `;
 
-export const UserList = styled.ul`
+const UserList = styled.ul`
   list-style: none;
   margin: 0;
   padding: .25rem 0;
@@ -54,7 +54,7 @@ interface UserItemProps {
   $active: boolean;
 }
 
-export const UserItem = styled.li<UserItemProps>`
+const UserItem = styled.li<UserItemProps>`
   display: flex;
   align-items: center;
   gap: .5rem;
@@ -70,7 +70,7 @@ export const UserItem = styled.li<UserItemProps>`
   }
 `;
 
-export const UserAvatar = styled.span`
+const UserAvatar = styled.span`
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 50%;
@@ -85,14 +85,14 @@ export const UserAvatar = styled.span`
   text-transform: uppercase;
 `;
 
-export const UserName = styled.span`
+const UserName = styled.span`
   flex: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 `;
 
-export const PickerHint = styled.div`
+const PickerHint = styled.div`
   padding: .3rem .75rem;
   font-size: ${fontSizeSmaller};
   color: ${colorGrayLight};
@@ -101,7 +101,7 @@ export const PickerHint = styled.div`
   flex-shrink: 0;
 `;
 
-export const ScreenReaderStatus = styled.span`
+const ScreenReaderStatus = styled.span`
   position: absolute;
   width: 1px;
   height: 1px;
@@ -113,7 +113,7 @@ export const ScreenReaderStatus = styled.span`
   border: 0;
 `;
 
-export const EmptyState = styled.div`
+const EmptyState = styled.div`
   padding: .75rem;
   font-size: ${fontSizeSmall};
   color: ${colorGrayLight};

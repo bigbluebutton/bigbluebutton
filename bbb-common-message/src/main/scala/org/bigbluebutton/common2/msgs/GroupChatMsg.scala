@@ -131,7 +131,7 @@ case class EditGroupChatMessageReqMsgBody(chatId: String, messageId: String, mes
 
 object GroupChatMessageEditedEvtMsg { val NAME = "GroupChatMessageEditedEvtMsg" }
 case class GroupChatMessageEditedEvtMsg(header: BbbClientMsgHeader, body: GroupChatMessageEditedEvtMsgBody) extends BbbCoreMsg
-case class GroupChatMessageEditedEvtMsgBody(chatId: String, messageId: String, message: String, messageAsHtml: String)
+case class GroupChatMessageEditedEvtMsgBody(chatId: String, messageId: String, message: String, messageAsHtml: String, metadata: Map[String, Any] = Map.empty)
 
 object DeleteGroupChatMessageReqMsg { val NAME = "DeleteGroupChatMessageReqMsg" }
 case class DeleteGroupChatMessageReqMsg(header: BbbClientMsgHeader, body: DeleteGroupChatMessageReqMsgBody) extends StandardMsg

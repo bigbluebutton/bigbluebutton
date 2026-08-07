@@ -24,7 +24,7 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import Auth from '/imports/ui/services/auth';
-import { hasUnreadMentionVar } from '/imports/ui/components/chat/hooks/useHasUnreadChatMessages';
+import { addUnreadMentionChat } from '/imports/ui/components/chat/hooks/useHasUnreadChatMessages';
 
 const intlMessages = defineMessages({
   appToastChatPublic: {
@@ -134,12 +134,15 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
     if (shouldRenderChatAlerts) {
       chatUnreadMessages.forEach((m) => {
         history.current.add(m.messageId);
-        if (m.senderId !== Auth.userID && isMentioned(m)) {
-          hasUnreadMentionVar(true);
+        const isUnreadMention = m.senderId !== Auth.userID
+          && isMentioned(m)
+          && (m.chatId !== idChatOpen || !tabIsFocused);
+        if (isUnreadMention) {
+          addUnreadMentionChat(m.chatId);
         }
       });
     }
-  }, [shouldRenderChatAlerts, chatUnreadMessages, isMentioned]);
+  }, [shouldRenderChatAlerts, chatUnreadMessages, isMentioned, idChatOpen, tabIsFocused]);
 
   let playAudioAlert = false;
 
@@ -189,7 +192,7 @@ const ChatAlertGraphql: React.FC<ChatAlertGraphqlProps> = (props) => {
 
   const renderToast = (message: Message) => {
     if (history.current.has(message.messageId)) return null;
-    const mentionedMe = isMentioned(message);
+    const mentionedMe = message.senderId !== Auth.userID && isMentioned(message);
     if (message.chatId === idChatOpen && !mentionedMe) return null;
 
     const isPublicChatMessage = message.chatId === PUBLIC_GROUP_CHAT_ID;

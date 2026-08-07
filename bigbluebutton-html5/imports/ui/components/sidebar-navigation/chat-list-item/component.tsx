@@ -7,7 +7,10 @@ import { defineMessages, useIntl } from 'react-intl';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { useShortcut } from '../../../core/hooks/useShortcut';
 import { useIsChatEnabled } from '/imports/ui/services/features';
-import useHasUnreadChatMessages, { hasUnreadMentionVar } from '../../chat/hooks/useHasUnreadChatMessages';
+import useHasUnreadChatMessages, {
+  clearUnreadMentionChat,
+  unreadMentionChatIdsVar,
+} from '../../chat/hooks/useHasUnreadChatMessages';
 import SidebarNavigationButton from '/imports/ui/components/sidebar-navigation/sidebar-navigation-button/component';
 import useIsSpecificPanelOpened from '../hooks/useIsSpecificPanelOpened';
 
@@ -35,19 +38,19 @@ const ChatListItem: React.FC = () => {
   const {
     hasUnreadMessages,
     hasUnreadPrivateMessages,
-    rawTotalUnread,
     activeChat,
   } = useHasUnreadChatMessages({ isChatPanelOpened: isOpened });
 
-  const hasUnreadMention = useReactiveVar(hasUnreadMentionVar);
-
-  useEffect(() => {
-    if (rawTotalUnread === 0 && hasUnreadMention) {
-      hasUnreadMentionVar(false);
-    }
-  }, [rawTotalUnread, hasUnreadMention]);
+  const unreadMentionChatIds = useReactiveVar(unreadMentionChatIdsVar);
+  const hasUnreadMention = unreadMentionChatIds.length > 0;
 
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
+
+  useEffect(() => {
+    if (!isOpened || !idChatOpen) return;
+    clearUnreadMentionChat(idChatOpen);
+  }, [isOpened, idChatOpen, unreadMentionChatIds]);
+
   const isChatEnabled = useIsChatEnabled();
   const layoutContextDispatch = layoutDispatch();
 

@@ -24,7 +24,3 @@ export const GET_MENTION_USERS = gql`
     }
   }
 `;
-
-export default {
-  GET_MENTION_USERS,
-};

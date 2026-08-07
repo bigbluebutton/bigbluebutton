@@ -36,9 +36,10 @@ object GroupChatApp {
     if (html.indexOf('@') < 0) {
       (html, List.empty)
     } else {
+      // The keys are matched against the rendered HTML, where commonmark already escaped them.
       val userNameToIds: Map[String, List[String]] = Users2x.findAll(users2x)
         .filterNot(_.bot)
-        .groupBy(_.name.toLowerCase(Locale.ROOT))
+        .groupBy(u => MarkdownUtil.escapeHtmlText(u.name).toLowerCase(Locale.ROOT))
         .map { case (name, users) => name -> users.map(_.intId).toList }
       MarkdownUtil.processMentions(html, userNameToIds)
     }
