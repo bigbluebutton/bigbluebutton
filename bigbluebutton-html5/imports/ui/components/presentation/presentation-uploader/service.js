@@ -260,7 +260,7 @@ const uploadPresentationNotes = (
   };
 
   return futch(
-    Auth.authenticateURL('/bigbluebutton/presentation-notes/upload'),
+    Auth.authenticateURL('endpoint'),
     opts,
     onProgress,
   )
@@ -291,7 +291,7 @@ const extractPresentationNotesFromExistingPptx = (
   };
 
   return futch(
-    Auth.authenticateURL(endpoint),
+    Auth.authenticateURL('/bigbluebutton/presentation-notes/extract-existing'),
     opts,
   )
     .catch((error) => {
