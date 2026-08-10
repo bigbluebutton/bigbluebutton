@@ -63,11 +63,9 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
     // Per-meeting cap on how many presentations may enter the conversion pipeline within a
     // rolling window. Rejecting here happens before any conversion work is scheduled. Placed
     // after the isUploadFailed check above so that uploads which are already failing do not
-    // consume the budget. Content the server imports on its own initiative is exempt: it is
-    // bounded by pod occupancy instead, and it has no retry path if discarded.
-    if (!pres.isSystemUpload()
-            && conversionRateLimiter != null
-            && !conversionRateLimiter.allow(pres.getMeetingId(), System.currentTimeMillis())) {
+    // consume the budget. Content the server imports on its own initiative is exempt: it has no
+    // retry path if discarded.
+    if (isRateLimited(pres, System.currentTimeMillis())) {
       log.warn("Rejecting presentation conversion: per-meeting rate limit exceeded. " +
                       "meetingId={} podId={} presId={} filename={}",
               pres.getMeetingId(), pres.getPodId(), pres.getId(), pres.getName());
@@ -99,6 +97,12 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
     sendDocConversionRequestReceived(pres);
 
     processDocumentStart(pres);
+  }
+
+  boolean isRateLimited(UploadedPresentation pres, long nowMs) {
+    if (pres.isSystemUpload()) return false;
+    if (conversionRateLimiter == null) return false;
+    return !conversionRateLimiter.allow(pres.getMeetingId(), nowMs);
   }
 
   public void processDocumentStart(UploadedPresentation pres) {

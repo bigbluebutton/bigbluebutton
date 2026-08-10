@@ -53,6 +53,10 @@ class PresentationController {
     '/bigbluebutton/presentation/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/pdf/([A-Za-z0-9]+)/annotated_slides\\.pdf'
   )
 
+  private static final Pattern UPLOAD_URI_PATTERN = Pattern.compile(
+    '/bigbluebutton/presentation/([A-Za-z0-9_-]+)/upload'
+  )
+
   private static final int MAX_LOGGED_PARAM_LENGTH = 64
 
   private static String sanitizeForLog(Object value) {
@@ -233,12 +237,26 @@ class PresentationController {
   }
 
   def upload = {
+    // The token is taken from the request path, which is the only form the upload endpoint is
+    // reachable through. Anything else is refused without consuming a token.
+    def requestUri = request.requestURI == null ? "" : request.requestURI.split('\\?')[0]
+    def uriMatcher = UPLOAD_URI_PATTERN.matcher(requestUri)
+    if (!uriMatcher.matches()) {
+      log.warn("Refusing presentation upload that did not arrive on the upload path." +
+              " uri=" + sanitizeForLog(requestUri))
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'text/plain'
+      response.outputStream << 'invalid auth token'
+      return
+    }
+    def authzToken = uriMatcher.group(1)
+
     // Atomically validate and consume the single-use authorization token.
     // Only the first concurrent POST with a given token gets a non-null result;
     // any replay (or an unknown token) gets null and is rejected.
-    PresentationUploadToken presUploadToken = meetingService.consumePresentationUploadToken(params.authzToken)
+    PresentationUploadToken presUploadToken = meetingService.consumePresentationUploadToken(authzToken)
     if (presUploadToken == null) {
-      log.debug "WARNING! AuthzToken=" + params.authzToken + " was not valid (or already used) in meetingId=" + params.conference
+      log.debug "WARNING! AuthzToken=" + sanitizeForLog(authzToken) + " was not valid (or already used) in meetingId=" + sanitizeForLog(params.conference)
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'text/plain'
       response.outputStream << 'invalid auth token'
@@ -321,7 +339,7 @@ class PresentationController {
     }
 
     if (presFilename == "" || filenameExt == "") {
-      log.debug("Upload failed. Invalid filename " + presOrigFilename)
+      log.debug("Upload failed. Invalid filename " + sanitizeForLog(presOrigFilename))
       uploadFailReasons.add("invalid_filename")
       uploadFailed = true
     } else {
