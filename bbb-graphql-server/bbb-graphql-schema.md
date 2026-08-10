@@ -322,6 +322,7 @@ Permission: Restricted to Presenter
 - `height`
 - `heightRatio`
 - `infiniteWhiteboard`
+- `insertRequestId`
 - `isCurrentPage`
 - `num`
 - `pageId`
