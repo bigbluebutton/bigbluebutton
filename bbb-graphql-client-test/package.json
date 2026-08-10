@@ -1,5 +1,5 @@
 {
-  "name": "bigbluebutton-graphql",
+  "name": "bbb-graphql-client-test",
   "homepage": "/graphql-test/",
   "version": "0.1.0",
   "private": true,
