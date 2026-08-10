@@ -111,17 +111,23 @@ const InsertPagesContainer: React.FC<InsertPagesContainerProps> = ({
     );
   }, [intl, resolveInsert]);
 
+  // The failure notification is broadcast to the whole meeting, so it can just as well
+  // announce another presenter's failed insert. Only the one carrying this request's
+  // correlation id resolves the insert pending here.
   useEffect(() => {
-    let insertFailed = false;
+    const pendingRequestId = pendingRef.current?.requestId;
+    let thisInsertFailed = false;
     notificationsStream?.notification_stream.forEach((notification) => {
       const createdAt = new Date(notification.createdAt).getTime();
       if (createdAt <= lastSeenNotificationAtRef.current) return;
       lastSeenNotificationAtRef.current = createdAt;
-      if (notification.messageId === 'app.presentation.insertPagesFailedNotification') {
-        insertFailed = true;
+      if (notification.messageId === 'app.presentation.insertPagesFailedNotification'
+        && pendingRequestId !== undefined
+        && notification.messageValues?.insertRequestId === pendingRequestId) {
+        thisInsertFailed = true;
       }
     });
-    if (insertFailed) resolveInsert();
+    if (thisInsertFailed) resolveInsert();
   }, [notificationsStream, resolveInsert]);
 
   const startInsert = useCallback((

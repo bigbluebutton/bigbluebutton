@@ -154,7 +154,7 @@ case class PresentationPagesInsertFailedSysMsg(
     body:   PresentationPagesInsertFailedSysMsgBody
 ) extends StandardMsg
 case class PresentationPagesInsertFailedSysMsgBody(podId: String, targetPresentationId: String,
-                                                   insertPresentationId: String)
+                                                   insertPresentationId: String, insertRequestId: String)
 
 object PresentationPageConvertedSysMsg { val NAME = "PresentationPageConvertedSysMsg" }
 case class PresentationPageConvertedSysMsg(

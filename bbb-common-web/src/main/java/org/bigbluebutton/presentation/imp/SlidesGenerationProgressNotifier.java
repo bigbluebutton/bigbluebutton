@@ -194,7 +194,8 @@ public class SlidesGenerationProgressNotifier {
       // and tell akka-apps to drop its state and DB row and notify the meeting of the failure.
       org.bigbluebutton.presentation.Util.deleteDirectory(insertDir);
       DocPagesInsertFailed failed = new DocPagesInsertFailed(
-        pres.getPodId(), pres.getMeetingId(), pres.getTargetPresentationId(), pres.getId());
+        pres.getPodId(), pres.getMeetingId(), pres.getTargetPresentationId(), pres.getId(),
+        pres.getTemporaryPresentationId());
       messagingService.sendDocConversionMsg(failed);
       return;
     }

@@ -300,7 +300,8 @@ object MsgBuilder {
     val body = PresentationPagesInsertFailedSysMsgBody(
       podId = msg.podId,
       targetPresentationId = msg.targetPresentationId,
-      insertPresentationId = msg.insertPresentationId
+      insertPresentationId = msg.insertPresentationId,
+      insertRequestId = msg.insertRequestId
     )
     val req = PresentationPagesInsertFailedSysMsg(header, body)
     BbbCommonEnvCoreMsg(envelope, req)

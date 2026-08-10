@@ -87,7 +87,12 @@ trait PresentationPagesInsertedSysMsgHdlr {
             "presentation",
             "app.presentation.insertPagesFailedNotification",
             "Notification when inserting pages into a presentation fails",
-            Map("presentationName" -> insertPres.name)
+            // See PresentationPagesInsertFailedSysMsgHdlr: insertRequestId rides along so the
+            // requesting client can correlate this meeting-wide failure with its own insert.
+            Map(
+              "presentationName" -> insertPres.name,
+              "insertRequestId" -> msg.body.insertRequestId
+            )
           )
           bus.outGW.send(notifyEvent)
           NotificationDAO.insert(notifyEvent)
