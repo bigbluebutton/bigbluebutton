@@ -131,7 +131,7 @@ Updated in 3.0:
 Updated in 4.0:
 
 - **create**
-  - **Added parameters:** `requireUserConsentBeforeUnmuting` (only relevant when `allowModsToUnmuteUsers=true`; when `true`, the user is shown a consent dialog before a moderator can unmute them), `lockSettingsPresenterPolicy` (controls the "Request to Present" policy; one of `moderatorOnly`, `requireApproval` (default), `freeForAll`).
+  - **Added parameters:** `requireUserConsentBeforeUnmuting` (only relevant when `allowModsToUnmuteUsers=true`; when `true`, the user is shown a consent dialog before a moderator can unmute them), `lockSettingsPresenterPolicy` (controls the "Request to Present" policy; one of `moderatorOnly`, `requireApproval` (default), `freeForAll`), `notifyRecordingAppend` (appends optional plain text to the recording notification dialog when `notifyRecordingIsOn=true`).
   - **Added options:** Parameter `disabledFeatures` supports new options: `multiFunctionalMode` (the auxiliary/dual sidebar panel) and `pinChatMessage`.
   - **Removed parameter:** `lockSettingsDisableNote` (singular); use `lockSettingsDisableNotes` (plural) instead.
   - **Removed parameter:** `copyright` (it had no effect; the value was stored but never propagated to the client). To customize the copyright text per meeting, override `app.copyright` through `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` (requires `allowOverrideClientSettingsOnCreateCall=true`).
