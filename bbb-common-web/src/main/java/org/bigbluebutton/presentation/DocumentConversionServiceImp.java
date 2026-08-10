@@ -23,6 +23,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import org.bigbluebutton.api.util.ParamsUtil;
 import org.bigbluebutton.api.util.RequestRateLimiter;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.presentation.imp.*;
@@ -68,7 +69,7 @@ public class DocumentConversionServiceImp implements DocumentConversionService {
     if (isRateLimited(pres, System.currentTimeMillis())) {
       log.warn("Rejecting presentation conversion: per-meeting rate limit exceeded. " +
                       "meetingId={} podId={} presId={} filename={}",
-              pres.getMeetingId(), pres.getPodId(), pres.getId(), pres.getName());
+              pres.getMeetingId(), pres.getPodId(), pres.getId(), ParamsUtil.stripControlChars(pres.getName()));
       notifier.sendConversionRateLimited(pres);
       Util.deleteDirectoryFromFileHandlingErrors(pres.getUploadedFile());
       return;

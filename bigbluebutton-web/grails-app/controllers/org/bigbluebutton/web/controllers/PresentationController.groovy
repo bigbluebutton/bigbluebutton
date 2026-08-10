@@ -61,7 +61,7 @@ class PresentationController {
 
   private static String sanitizeForLog(Object value) {
     if (value == null) return "null"
-    String sanitized = String.valueOf(value).replaceAll('[^A-Za-z0-9_.-]', '?')
+    String sanitized = String.valueOf(value).replaceAll('[^A-Za-z0-9_./-]', '?')
     return sanitized.length() > MAX_LOGGED_PARAM_LENGTH ?
             sanitized.substring(0, MAX_LOGGED_PARAM_LENGTH) + "..." : sanitized
   }
@@ -242,7 +242,7 @@ class PresentationController {
     def requestUri = request.requestURI == null ? "" : request.requestURI.split('\\?')[0]
     def uriMatcher = UPLOAD_URI_PATTERN.matcher(requestUri)
     if (!uriMatcher.matches()) {
-      log.warn("Refusing presentation upload that did not arrive on the upload path." +
+      log.debug("Refusing presentation upload that did not arrive on the upload path." +
               " uri=" + sanitizeForLog(requestUri))
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'text/plain'
@@ -352,7 +352,7 @@ class PresentationController {
       }
     }
 
-    log.debug("processing file upload " + presFilename + " (presId: " + presId + ")")
+    log.debug("processing file upload " + sanitizeForLog(presFilename) + " (presId: " + presId + ")")
     def presentationBaseUrl = presentationService.presentationBaseUrl
     def isPresentationMimeTypeValid = SupportedFileTypes.isPresentationMimeTypeValid(pres, filenameExt)
     UploadedPresentation uploadedPres = new UploadedPresentation(
@@ -375,7 +375,7 @@ class PresentationController {
       }
       uploadedPres.setUploadedFile(pres);
       presentationService.processUploadedPresentation(uploadedPres)
-      log.debug("file upload success " + presFilename)
+      log.debug("file upload success " + sanitizeForLog(presFilename))
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'text/plain'
       response.outputStream << 'upload-success'
@@ -383,7 +383,7 @@ class PresentationController {
       def mimeType = SupportedFileTypes.detectMimeType(pres)
       presentationService.sendDocConversionFailedOnMimeType(uploadedPres, mimeType, filenameExt)
       org.bigbluebutton.presentation.Util.deleteDirectoryFromFileHandlingErrors(pres)
-      log.debug("file upload failed " + presFilename)
+      log.debug("file upload failed " + sanitizeForLog(presFilename))
       response.addHeader("Cache-Control", "no-cache")
       response.contentType = 'text/plain'
       response.outputStream << 'upload-failed'
