@@ -141,6 +141,7 @@ export interface Meeting {
   meetingId: string;
   name: string;
   notifyRecordingIsOn: boolean;
+  notifyRecordingAppend: string;
   presentationUploadExternalDescription: string;
   presentationUploadExternalUrl: string;
   usersPolicies: UsersPolicies;

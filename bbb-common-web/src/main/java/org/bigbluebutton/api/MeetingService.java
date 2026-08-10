@@ -694,7 +694,7 @@ public class MeetingService implements MessageListener {
             m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), m.getRequireUserConsentBeforeUnmuting(), m.getAllowModsToEjectCameras(), m.getMeetingKeepEvents(),
             m.breakoutRoomsParams, m.lockSettingsParams, m.getLoginUrl(), m.getLogoutUrl(), m.getCustomLogoURL(), m.getCustomDarkLogoURL(),
             m.getBannerText(), m.getBannerColor(), m.getGroups(), m.getDisabledFeatures(), m.getNotifyRecordingIsOn(),
-            m.getPresentationUploadExternalDescription(), m.getPresentationUploadExternalUrl(), m.getPlugins(),
+            m.getNotifyRecordingAppend(), m.getPresentationUploadExternalDescription(), m.getPresentationUploadExternalUrl(), m.getPlugins(),
             m.getHtml5PluginSdkVersion(), m.getOverrideClientSettings());
   }
 
@@ -927,6 +927,7 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.CAMERA_BRIDGE, message.cameraBridge);
       params.put(ApiParams.SCREEN_SHARE_BRIDGE, message.screenShareBridge);
       params.put(ApiParams.NOTIFY_RECORDING_IS_ON,parentMeeting.getNotifyRecordingIsOn().toString());
+      params.put(ApiParams.NOTIFY_RECORDING_APPEND, parentMeeting.getNotifyRecordingAppend());
       params.put(ApiParams.DISABLED_FEATURES,String.join(",", message.disabledFeatures));
       params.put(ApiParams.GUEST_POLICY, GuestPolicy.ALWAYS_ACCEPT);
 
