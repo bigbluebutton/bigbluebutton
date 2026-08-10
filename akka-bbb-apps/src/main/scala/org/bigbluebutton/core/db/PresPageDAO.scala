@@ -65,6 +65,15 @@ class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pr
 object PresPageDAO {
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
 
+  // These values should be kept in sync across all BBB components.
+  // See the values under "process" in bbb-export-annotations/config/settings.json
+  val MaxImageWidth: Int = 1440
+  val MaxImageHeight: Int = 1080
+
+  // A page is stored unzoomed; the client derives the visible area from widthRatio/heightRatio.
+  val DefaultViewBoxWidth: Double = 1
+  val DefaultViewBoxHeight: Double = 1
+
   implicit val mapFormat: JsonWriter[Map[String, String]] = new JsonWriter[Map[String, String]] {
     def write(m: Map[String, String]): JsValue = {
       JsObject(m.map { case (k, v) => k -> JsString(v) })
@@ -88,14 +97,10 @@ object PresPageDAO {
           heightRatio = page.heightRatio,
           width = page.width,
           height = page.height,
-          viewBoxWidth = 1,
-          viewBoxHeight = 1,
-
-          // These values should be kept in sync across all BBB components.
-          // See the values under "process" in bbb-export-annotations/config/settings.json
-          maxImageWidth = 1440,
-          maxImageHeight = 1080,
-
+          viewBoxWidth = DefaultViewBoxWidth,
+          viewBoxHeight = DefaultViewBoxHeight,
+          maxImageWidth = MaxImageWidth,
+          maxImageHeight = MaxImageHeight,
           uploadCompleted = page.converted,
           infiniteWhiteboard = page.infiniteWhiteboard,
           fitToWidth = page.fitToWidth,

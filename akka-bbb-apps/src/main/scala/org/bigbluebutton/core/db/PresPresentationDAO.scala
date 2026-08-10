@@ -201,47 +201,55 @@ object PresPresentationDAO {
   // (presentationId, num) unique constraint gets checked at commit, which is what allows the
   // in-place renumbering of the shifted pages.
   def applyInsertedPages(presentation: PresentationInPod, meetingId: String, insertPresentationId: String,
-                         insertedPageIds: Set[String], insertRequestId: String) = {
+                         insertedPageIds: Set[String], insertRequestId: String): Unit = {
+    // The inserted pages occupy insertPosition..insertPosition + insertedPageIds.size - 1, so any
+    // page numbered below that is on the same side of the insert as before and needs no write at
+    // all. Everything above it was shifted up and needs its new num.
+    val insertPosition = presentation.pages.values
+      .collect { case page if insertedPageIds.contains(page.id) => page.num }
+      .minOption
+      .getOrElse(1)
+
     // Only the inserted pages get a full row write (they are re-homed from the transient insert
     // presentation and carry no live UI state yet). The target's own shifted pages must keep
     // their DB-only columns (slideRevealed, viewBoxWidth/Height, ...), which akka state does not
     // track; the insert only changes their position, so only "num" is written for them.
-    val pageUpserts = for {
-      page <- presentation.pages
-    } yield {
-      if (insertedPageIds.contains(page._2.id)) {
-        TableQuery[PresPageDbTableDef].insertOrUpdate(
-          PresPageDbModel(
-            pageId = page._2.id,
-            presentationId = presentation.id,
-            num = page._2.num,
-            urlsJson = page._2.urls.toJson,
-            content = page._2.content,
-            slideRevealed = page._2.current,
-            current = page._2.current,
-            xOffset = page._2.xOffset,
-            yOffset = page._2.yOffset,
-            widthRatio = page._2.widthRatio,
-            heightRatio = page._2.heightRatio,
-            width = page._2.width,
-            height = page._2.height,
-            viewBoxWidth = 1,
-            viewBoxHeight = 1,
-            maxImageWidth = 1440,
-            maxImageHeight = 1080,
-            uploadCompleted = page._2.converted,
-            infiniteWhiteboard = page._2.infiniteWhiteboard,
-            fitToWidth = page._2.fitToWidth,
-            insertRequestId = Some(insertRequestId),
+    val pageUpserts = presentation.pages.values
+      .filter(page => insertedPageIds.contains(page.id) || page.num >= insertPosition)
+      .map { page =>
+        if (insertedPageIds.contains(page.id)) {
+          TableQuery[PresPageDbTableDef].insertOrUpdate(
+            PresPageDbModel(
+              pageId = page.id,
+              presentationId = presentation.id,
+              num = page.num,
+              urlsJson = page.urls.toJson,
+              content = page.content,
+              slideRevealed = page.current,
+              current = page.current,
+              xOffset = page.xOffset,
+              yOffset = page.yOffset,
+              widthRatio = page.widthRatio,
+              heightRatio = page.heightRatio,
+              width = page.width,
+              height = page.height,
+              viewBoxWidth = PresPageDAO.DefaultViewBoxWidth,
+              viewBoxHeight = PresPageDAO.DefaultViewBoxHeight,
+              maxImageWidth = PresPageDAO.MaxImageWidth,
+              maxImageHeight = PresPageDAO.MaxImageHeight,
+              uploadCompleted = page.converted,
+              infiniteWhiteboard = page.infiniteWhiteboard,
+              fitToWidth = page.fitToWidth,
+              insertRequestId = Some(insertRequestId),
+            )
           )
-        )
-      } else {
-        TableQuery[PresPageDbTableDef]
-          .filter(_.pageId === page._2.id)
-          .map(_.num)
-          .update(page._2.num)
+        } else {
+          TableQuery[PresPageDbTableDef]
+            .filter(_.pageId === page.id)
+            .map(_.num)
+            .update(page.num)
+        }
       }
-    }
 
     val updateTotalPages = TableQuery[PresPresentationDbTableDef]
       .filter(_.presentationId === presentation.id)
