@@ -1217,7 +1217,9 @@ Presentation conversion is the most resource-intensive part of an upload. `bbb-w
 
 This limit is enforced at the single point every upload passes through, so unlike the other limits it covers all the ways a participant or an API caller can request one: the interactive client upload, `create` with pre-uploaded presentations, `insertDocument`, and the presentation copied into a new breakout room. An over-limit presentation is discarded and its uploaded file deleted *before* any conversion work is scheduled, and a warning is logged in `bbb-web`. Interactive uploads also show an error in the presenter's upload toast.
 
-Content the server itself imports when a breakout room ends — captured slides and captured shared notes, which arrive in the parent meeting — is not counted against this limit. That content only exists in the room that produced it, so it is bounded by `apps.presentationMaxPerPod` rather than discarded on a timer.
+Content the server itself imports when a breakout room ends — captured slides and captured shared notes, which arrive in the parent meeting — is not counted against this limit. That content only exists in the room that produced it and the room is destroyed immediately afterwards, so discarding it would lose it permanently with nothing left to retry from.
+
+Be aware that this means captures are not rate limited at all. `apps.presentationMaxPerPod` is not a substitute: it caps how many presentations a pod holds, which is meeting state, and it is applied in `bbb-apps-akka` after `bbb-web` has already converted the file. Ending a breakout session imports one presentation per room with captures enabled, all at once, so a session with many rooms produces a corresponding burst of conversion work in the parent meeting.
 
 The limit is keyed by internal meeting ID, so a throttled meeting recovers once the window passes. To change the values, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties`:
 
