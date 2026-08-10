@@ -26,7 +26,7 @@ const decodeBase64ToFile = (
 // Materializes the content payload of a plugin presentation server-command (file, blob,
 // dataUrl or base64) into a File, enforcing the configured upload size limit. Shared by the
 // upload and insert-pages command managers.
-export const toFile = async (
+const toFile = async (
   content: UploadPresentationContent,
   mimeType: string,
   name?: string,
@@ -57,4 +57,4 @@ export const toFile = async (
   throw new Error('Object type not supported.');
 };
 
-export default { toFile };
+export default toFile;

@@ -9,7 +9,7 @@ import { uniqueId } from '/imports/utils/string-utils';
 import PresentationUploaderService from '/imports/ui/components/actions-bar/media-area/media-sharing/presentation/service';
 import logger from '/imports/startup/client/logger';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import { toFile } from '../content-to-file';
+import toFile from '../content-to-file';
 
 const isValidUploadEvent = (event: CustomEvent<UploadPresentationCommandArguments>) => {
   if (

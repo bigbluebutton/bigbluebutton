@@ -69,5 +69,3 @@ export const buildAcceptAttribute = (): string => {
     .filter(Boolean)
     .join(',');
 };
-
-export default { insertPagesUpload, fetchBlankPageFile, buildAcceptAttribute };

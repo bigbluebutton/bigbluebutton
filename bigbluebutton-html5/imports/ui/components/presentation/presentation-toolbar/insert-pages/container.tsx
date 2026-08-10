@@ -10,7 +10,11 @@ import {
   NotificationResponse,
 } from '/imports/ui/components/notifications/queries';
 import { uniqueId } from '/imports/utils/string-utils';
-import Service from './service';
+import {
+  buildAcceptAttribute,
+  fetchBlankPageFile,
+  insertPagesUpload,
+} from './service';
 import InsertPagesToolbarButton from './component';
 
 const INSERT_TIMEOUT_MS = 120_000;
@@ -160,7 +164,7 @@ const InsertPagesContainer: React.FC<InsertPagesContainerProps> = ({
     }, INSERT_TIMEOUT_MS);
 
     filePromise
-      .then((file) => Service.insertPagesUpload(file, targetPosition, presentationId, requestId))
+      .then((file) => insertPagesUpload(file, targetPosition, presentationId, requestId))
       .catch((error) => {
         logger.error({
           logCode: 'presentation_insert_pages',
@@ -210,7 +214,7 @@ const InsertPagesContainer: React.FC<InsertPagesContainerProps> = ({
   useEffect(() => clearTimers, [clearTimers]);
 
   const handleInsertBlank = useCallback(() => {
-    startInsert('blank', Service.fetchBlankPageFile(), 'blank.pdf');
+    startInsert('blank', fetchBlankPageFile(), 'blank.pdf');
   }, [startInsert]);
 
   const handleInsertFromFile = useCallback((file: File) => {
@@ -228,7 +232,7 @@ const InsertPagesContainer: React.FC<InsertPagesContainerProps> = ({
       disabled={disabled}
       inFlight={inFlight}
       tooltipLabel={tooltipLabel}
-      acceptMimeTypes={Service.buildAcceptAttribute()}
+      acceptMimeTypes={buildAcceptAttribute()}
       onInsertBlank={handleInsertBlank}
       onInsertFromFile={handleInsertFromFile}
     />

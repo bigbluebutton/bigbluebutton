@@ -13,12 +13,7 @@ import {
   fetchBlankPageFile,
   insertPagesUpload,
 } from '/imports/ui/components/presentation/presentation-toolbar/insert-pages/service';
-import { toFile } from '../content-to-file';
-
-// The command name and argument types come from the plugin SDK, mirroring the sibling
-// upload/manager.tsx. Resolving these requires the paired insertPages SDK change, which is not in a
-// published release yet; bigbluebutton-html5/package.json references the SDK branch (codeload) until
-// it is released, at which point that dep becomes a normal version bump.
+import toFile from '../content-to-file';
 
 const isValidInsertEvent = (event: CustomEvent<InsertPagesCommandArguments>) => (
   event instanceof CustomEvent
