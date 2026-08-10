@@ -312,20 +312,25 @@ object MsgBuilder {
     val pages = new scala.collection.mutable.HashMap[String, PageVO]
     for (i <- 1 to numPages) {
       // Consume the id minted by the conversion pipeline. Do not mint fresh
-      // UUIDs here or the same page gets two competing ids.
-      val id = Option(pageIds.get(Integer.valueOf(i))).getOrElse(i.toString)
-      val num = i
-      val current = if (i == 1) true else false
-      val pageToken = if (pageTokenSecret.nonEmpty) generatePageToken(presId, id, pageTokenSecret) else ""
-      val tokenParam = if (pageToken.nonEmpty) "?pageToken=" + pageToken else ""
-      val thumbnail = presBaseUrl + "/thumbnail/" + id + tokenParam
+      // UUIDs here or the same page gets two competing ids. A page the pipeline
+      // never minted an id for has no files on disk either, so skip it instead
+      // of falling back to the page number and pointing at assets that do not exist.
+      Option(pageIds.get(Integer.valueOf(i))) match {
+        case None => logger.warn("No page id was minted for page {} of presentation {}. Skipping it.", i, presId)
+        case Some(id) =>
+          val num = i
+          val current = if (i == 1) true else false
+          val pageToken = if (pageTokenSecret.nonEmpty) generatePageToken(presId, id, pageTokenSecret) else ""
+          val tokenParam = if (pageToken.nonEmpty) "?pageToken=" + pageToken else ""
+          val thumbnail = presBaseUrl + "/thumbnail/" + id + tokenParam
 
-      val txtUri = presBaseUrl + "/textfiles/" + id + tokenParam
-      val svgUri = presBaseUrl + "/svg/" + id + tokenParam
+          val txtUri = presBaseUrl + "/textfiles/" + id + tokenParam
+          val svgUri = presBaseUrl + "/svg/" + id + tokenParam
 
-      val p = PageVO(id = id, num = num, thumbUri = thumbnail,
-        txtUri = txtUri, svgUri = svgUri, current = current, pageToken = pageToken)
-      pages += p.id -> p
+          val p = PageVO(id = id, num = num, thumbUri = thumbnail,
+            txtUri = txtUri, svgUri = svgUri, current = current, pageToken = pageToken)
+          pages += p.id -> p
+      }
     }
 
     pages.toMap
