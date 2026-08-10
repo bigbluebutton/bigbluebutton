@@ -192,6 +192,7 @@ RETIRED_BBB_WEB_PROPERTIES=(
     textFileCreationExecTimeoutInMs   # Renamed in BBB 3.0.17 (use textFileCreationExecTimeout instead)
     insertDocumentSupportedProtocols  # Renamed in BBB 3.0.23 (use fetchUrlSupportedProtocols instead)
     insertDocumentBlockedHosts        # Renamed in BBB 3.0.23 (use fetchUrlBlockedExternalHosts instead)
+    clientLogoutTimerInMinutes        # Removed in BBB 4.0
 )
 NGINX_IP=$(cat /etc/nginx/sites-available/bigbluebutton | grep -v '#' | sed -n '/server_name/{s/.*server_name[ ]*//;s/;//;p}' | cut -d' ' -f1 | head -n 1)
 
