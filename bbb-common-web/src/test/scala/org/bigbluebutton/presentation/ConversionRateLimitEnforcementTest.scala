@@ -46,9 +46,9 @@ class ConversionRateLimitEnforcementTest extends UnitSpec {
     l
   }
 
-  private def presentation(meetingId: String, system: Boolean): UploadedPresentation = {
+  private def presentation(meetingId: String, system: Boolean, uploadFailed: Boolean = false): UploadedPresentation = {
     val pres = new UploadedPresentation("DEFAULT_PRESENTATION_POD", meetingId, "p-" + meetingId,
-      "tmp", "f.pdf", "http://base", false, "authz", false, new ArrayList[String](), false)
+      "tmp", "f.pdf", "http://base", false, "authz", uploadFailed, new ArrayList[String](), false)
     pres.setSystemUpload(system)
     // startConversion() short-circuits the private sendDocConversionRequestReceived, keeping the
     // accept path free of collaborators we have not wired.
@@ -97,6 +97,20 @@ class ConversionRateLimitEnforcementTest extends UnitSpec {
 
     svc.processDocument(presentation("m1", system = true), false)
 
+    assert(svc.startedCount == 1)
+    assert(l.allow("m1", System.currentTimeMillis()))
+  }
+
+  // The limiter must stay below the isUploadFailed early return. Fails if that block is hoisted
+  // above it: the already-failing upload would spend the meeting's only slot.
+  it should "not consume the meeting's budget for an upload that already failed" in {
+    val l = limiter(1, 60)
+    val (svc, notifier) = serviceWith(l)
+
+    svc.processDocument(presentation("m1", system = false, uploadFailed = true), false)
+
+    assert(svc.startedCount == 0)
+    assert(notifier.rateLimitedCount == 0)
     assert(l.allow("m1", System.currentTimeMillis()))
   }
 
@@ -123,7 +137,7 @@ class ConversionRateLimitEnforcementTest extends UnitSpec {
     assert(notifier.rateLimitedCount == 0)
   }
 
-  // The predicate in isolation, including the null-limiter and null-userId directions.
+  // The predicate in isolation.
   it should "expose the decision directly" in {
     val l = limiter(1, 60)
     val svc = new DocumentConversionServiceImp
