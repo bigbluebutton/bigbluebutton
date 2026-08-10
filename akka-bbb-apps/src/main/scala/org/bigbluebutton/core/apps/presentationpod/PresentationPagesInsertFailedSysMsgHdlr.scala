@@ -4,6 +4,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.{ NotificationDAO, PresPresentationDAO }
 import org.bigbluebutton.core.domain.MeetingState2x
+import org.bigbluebutton.core.models.Roles
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
@@ -29,15 +30,16 @@ trait PresentationPagesInsertFailedSysMsgHdlr {
     } yield {
       PresPresentationDAO.delete(meetingId, insertPresId)
 
-      val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+      val notifyEvent = MsgBuilder.buildNotifyRoleInMeetingEvtMsg(
+        Roles.PRESENTER_ROLE,
         meetingId,
         "error",
         "presentation",
         "app.presentation.insertPagesFailedNotification",
         "Notification when inserting pages into a presentation fails",
         // insertRequestId is not rendered in the message: it is carried so the client that
-        // requested this insert can tell this failure apart from another presenter's, since
-        // the notification goes out to the whole meeting.
+        // requested this insert can tell this failure apart from a concurrent one, since the
+        // notification goes out to every presenter in the meeting.
         Map(
           "presentationName" -> insertPres.name,
           "insertRequestId" -> msg.body.insertRequestId

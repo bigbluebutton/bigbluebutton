@@ -4,7 +4,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.{ NotificationDAO, PresPresentationDAO }
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.PresentationPage
+import org.bigbluebutton.core.models.{ PresentationPage, Roles }
 import org.bigbluebutton.core.running.LiveMeeting
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
@@ -81,14 +81,15 @@ trait PresentationPagesInsertedSysMsgHdlr {
 
           state.update(pods)
         case None =>
-          val notifyEvent = MsgBuilder.buildNotifyAllInMeetingEvtMsg(
+          val notifyEvent = MsgBuilder.buildNotifyRoleInMeetingEvtMsg(
+            Roles.PRESENTER_ROLE,
             liveMeeting.props.meetingProp.intId,
             "error",
             "presentation",
             "app.presentation.insertPagesFailedNotification",
             "Notification when inserting pages into a presentation fails",
             // See PresentationPagesInsertFailedSysMsgHdlr: insertRequestId rides along so the
-            // requesting client can correlate this meeting-wide failure with its own insert.
+            // requesting client can correlate this presenter-wide failure with its own insert.
             Map(
               "presentationName" -> insertPres.name,
               "insertRequestId" -> msg.body.insertRequestId
