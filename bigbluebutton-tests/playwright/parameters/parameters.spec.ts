@@ -14,6 +14,41 @@ test.describe.parallel('Create Parameters', { tag: '@ci' }, () => {
     await createParam.recordMeeting();
   });
 
+  test.describe.parallel('Recording notification consent', () => {
+    test('Appends escaped custom text to the consent modal', async ({ browser, context, page }, testInfo) => {
+      linkIssue(25579);
+      const createParam = new CreateParameters(browser, context);
+      await createParam.initModPage(page, {
+        createParameter: `${c.recordMeeting}&${c.notifyRecordingIsOn}&${encodeCustomParams(c.notifyRecordingAppend)}`,
+        testInfo,
+      });
+      await createParam.initUserPage(context, { testInfo });
+      await createParam.recordingNotificationAppend(c.notifyRecordingAppendMessage);
+    });
+
+    test('Keeps the existing modal unchanged for an empty append', async ({ browser, context, page }, testInfo) => {
+      linkIssue(25579);
+      const createParam = new CreateParameters(browser, context);
+      await createParam.initModPage(page, {
+        createParameter: `${c.recordMeeting}&${c.notifyRecordingIsOn}&notifyRecordingAppend=`,
+        testInfo,
+      });
+      await createParam.initUserPage(context, { testInfo });
+      await createParam.recordingNotificationAppend();
+    });
+
+    test('Does not enable consent notifications by itself', async ({ browser, context, page }, testInfo) => {
+      linkIssue(25579);
+      const createParam = new CreateParameters(browser, context);
+      await createParam.initModPage(page, {
+        createParameter: `${c.recordMeeting}&${encodeCustomParams(c.notifyRecordingAppend)}`,
+        testInfo,
+      });
+      await createParam.initUserPage(context, { testInfo });
+      await createParam.recordingNotificationAppend(undefined, false);
+    });
+  });
+
   test.describe.parallel('Banner', () => {
     test('Banner Text', async ({ browser, context, page }, testInfo) => {
       const createParam = new CreateParameters(browser, context);
