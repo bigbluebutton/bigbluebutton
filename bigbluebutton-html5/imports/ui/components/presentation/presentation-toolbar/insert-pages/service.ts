@@ -1,3 +1,4 @@
+import { v4 as uuid } from 'uuid';
 import Auth from '/imports/ui/services/auth';
 import logger from '/imports/startup/client/logger';
 import { uniqueId } from '/imports/utils/string-utils';
@@ -27,7 +28,7 @@ export const fetchBlankPageFile = async (): Promise<File> => {
  * consumer) logs and drops the command.
  */
 export const insertPagesUpload = async (
-  file: File, position: number, targetPresentationId: string, insertRequestId = uniqueId(file.name),
+  file: File, position: number, targetPresentationId: string, insertRequestId = uniqueId(uuid()),
 ): Promise<void> => {
   const meetingId = Auth.meetingID as string;
   const endpoint = window.meetingClientSettings.public.presentation.uploadEndpoint;

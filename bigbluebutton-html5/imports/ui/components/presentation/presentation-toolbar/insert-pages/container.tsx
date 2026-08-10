@@ -2,6 +2,7 @@ import React, {
   useCallback, useEffect, useRef, useState,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import { v4 as uuid } from 'uuid';
 import { notify } from '/imports/ui/services/notification';
 import logger from '/imports/startup/client/logger';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
@@ -141,7 +142,7 @@ const InsertPagesContainer: React.FC<InsertPagesContainerProps> = ({
 
     const afterSlide = currentSlideNum;
     const targetPosition = currentSlideNum + 1;
-    const requestId = uniqueId(filename);
+    const requestId = uniqueId(uuid());
     pendingRef.current = {
       presentationId, targetPosition, afterSlide, requestId, kind, filename,
     };

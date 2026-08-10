@@ -1636,7 +1636,7 @@ CREATE UNLOGGED TABLE "pres_page" (
     --presenter that asked for the insert can tell its own pages apart from those
     --of a concurrent insert. Null for every page that arrived with its own
     --presentation.
-    "insertRequestId" varchar(100)
+    "insertRequestId" varchar(500)
 );
 CREATE INDEX "idx_pres_page_presentationId" ON "pres_page"("presentationId");
 CREATE INDEX "idx_pres_page_presentationId_curr" ON "pres_page"("presentationId") where "current" is true;
