@@ -2,8 +2,12 @@ package org.bigbluebutton.core.apps.presentationpod
 
 /**
  * Pure page-number arithmetic for splicing a converted presentation into a target presentation at a
- * 1-based position. bbb-web has already clamped the position to [1, targetTotal + 1], so these
- * functions only translate logical page numbers; they do not clamp.
+ * 1-based position: clamping the requested position, and translating the logical page numbers of
+ * both the shifted target pages and the inserted ones.
+ *
+ * bbb-web already clamped the position against the page manifest on disk. akka-apps clamps again
+ * because it decides against its own view of the target, which can hold a different number of
+ * pages by the time the insert lands.
  */
 object PresentationPagesInsertMath {
 
