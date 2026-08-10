@@ -1631,7 +1631,12 @@ CREATE UNLOGGED TABLE "pres_page" (
     "maxImageHeight" integer,
     "uploadCompleted" boolean,
     "infiniteWhiteboard" boolean,
-    "fitToWidth" boolean
+    "fitToWidth" boolean,
+    --Correlation id of the insert-pages request that put this page here, so the
+    --presenter that asked for the insert can tell its own pages apart from those
+    --of a concurrent insert. Null for every page that arrived with its own
+    --presentation.
+    "insertRequestId" varchar(100)
 );
 CREATE INDEX "idx_pres_page_presentationId" ON "pres_page"("presentationId");
 CREATE INDEX "idx_pres_page_presentationId_curr" ON "pres_page"("presentationId") where "current" is true;
@@ -1706,7 +1711,8 @@ SELECT pres_presentation."meetingId",
     (pres_page."height" * pres_page."heightRatio" / 100 * LEAST(pres_page."maxImageWidth" / NULLIF(pres_page."width", 0), pres_page."maxImageHeight" / NULLIF(pres_page."height", 0))) AS "scaledViewBoxHeight",
     pres_page."uploadCompleted",
     pres_page."infiniteWhiteboard",
-    pres_page."fitToWidth"
+    pres_page."fitToWidth",
+    pres_page."insertRequestId"
 FROM pres_page
 JOIN pres_presentation ON pres_presentation."presentationId" = pres_page."presentationId";
 

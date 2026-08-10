@@ -200,7 +200,8 @@ object PresPresentationDAO {
   // away the freshly inserted pages. It is also the transaction where the deferred
   // (presentationId, num) unique constraint gets checked at commit, which is what allows the
   // in-place renumbering of the shifted pages.
-  def applyInsertedPages(presentation: PresentationInPod, meetingId: String, insertPresentationId: String, insertedPageIds: Set[String]) = {
+  def applyInsertedPages(presentation: PresentationInPod, meetingId: String, insertPresentationId: String,
+                         insertedPageIds: Set[String], insertRequestId: String) = {
     // Only the inserted pages get a full row write (they are re-homed from the transient insert
     // presentation and carry no live UI state yet). The target's own shifted pages must keep
     // their DB-only columns (slideRevealed, viewBoxWidth/Height, ...), which akka state does not
@@ -231,6 +232,7 @@ object PresPresentationDAO {
             uploadCompleted = page._2.converted,
             infiniteWhiteboard = page._2.infiniteWhiteboard,
             fitToWidth = page._2.fitToWidth,
+            insertRequestId = Some(insertRequestId),
           )
         )
       } else {

@@ -150,7 +150,7 @@ export const PRESENTATION_PAGES_SUBSCRIPTION = gql`
     ) {
       pageId
       num
-      insertRequestId: urlsJson(path: "$.insertRequestId")
+      insertRequestId
     }
   }
 `;

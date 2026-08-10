@@ -28,7 +28,10 @@ case class PresPageDbModel(
     uploadCompleted: Boolean,
     infiniteWhiteboard:  Boolean,
     fitToWidth:  Boolean,
-
+    // Correlation id of the insert-pages request that placed this page, or None for a page
+    // that arrived with its own presentation. Client-side correlation only: it lets the
+    // presenter that requested an insert recognise its own pages.
+    insertRequestId: Option[String] = None,
 )
 
 class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pres_page") {
@@ -52,9 +55,10 @@ class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pr
   val uploadCompleted = column[Boolean]("uploadCompleted")
   val infiniteWhiteboard = column[Boolean]("infiniteWhiteboard")
   val fitToWidth = column[Boolean]("fitToWidth")
+  val insertRequestId = column[Option[String]]("insertRequestId")
 
   def * = (
-    pageId, presentationId, num, urlsJson, content, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight, maxImageWidth, maxImageHeight, uploadCompleted, infiniteWhiteboard, fitToWidth
+    pageId, presentationId, num, urlsJson, content, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight, maxImageWidth, maxImageHeight, uploadCompleted, infiniteWhiteboard, fitToWidth, insertRequestId
   ) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
 }
 

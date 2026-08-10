@@ -56,7 +56,7 @@ trait PresentationPagesInsertedSysMsgHdlr {
           // preserving their opaque page ids so future annotations stay keyed correctly.
           val inserted = insertPres.pages.values.map { pg =>
             val newNum = PresentationPagesInsertMath.insertedPageNum(pg.num, position)
-            val urls = urlsByPageId.getOrElse(pg.id, pg.urls) + ("insertRequestId" -> msg.body.insertRequestId)
+            val urls = urlsByPageId.getOrElse(pg.id, pg.urls)
             pg.id -> pg.copy(num = newNum, urls = urls, current = false, converted = true)
           }.toMap
 
@@ -71,7 +71,13 @@ trait PresentationPagesInsertedSysMsgHdlr {
           // the insert-pres delete could cascade away the inserted pages before they are re-homed.
           // The actor state update is fire-and-forget relative to that DAO transaction; a commit
           // failure is logged but can leave in-memory presentation state ahead of the database.
-          PresPresentationDAO.applyInsertedPages(newTargetPres, liveMeeting.props.meetingProp.intId, insertPresId, inserted.keySet)
+          PresPresentationDAO.applyInsertedPages(
+            newTargetPres,
+            liveMeeting.props.meetingProp.intId,
+            insertPresId,
+            inserted.keySet,
+            msg.body.insertRequestId
+          )
 
           state.update(pods)
         case None =>
