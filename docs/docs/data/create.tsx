@@ -639,6 +639,12 @@ const createEndpointTableData = [
     "description": (<>If it is true, a modal will be displayed to collect recording consent from users when meeting recording starts (only if <code className="language-plaintext highlighter-rouge">notifyRecordingIsOn=true</code>). By default it is false. (added 2.6)</>)
   },
   {
+    "name": "notifyRecordingAppend",
+    "required": false,
+    "type": "String",
+    "description": (<>Optional plain-text message appended after the standard recording notification description. It is shown only when recording notifications are enabled with <code className="language-plaintext highlighter-rouge">notifyRecordingIsOn=true</code>. If omitted or empty, the dialog is unchanged. HTML is displayed as text. (added 3.0.36)</>)
+  },
+  {
     "name": "presentationUploadExternalUrl",
     "required": false,
     "type": "String",
