@@ -8,17 +8,13 @@ them per meeting so nginx can serve them back.
   dimensions (read from the header, no bitmap decode), the format by magic bytes
   (`png`/`jpeg`/`gif`/`webp`, never `svg`), a per user+meeting rate limit and a
   per-meeting storage quota; stores the file at
-  `/var/bigbluebutton/{meetingId}/uploads/{uuid}.{ext}` and returns
+  `/var/bigbluebutton/{meetingId}/file-uploads/{uuid}.{ext}` and returns
   `{ "url": "/bigbluebutton/fileUpload/{meetingId}/{uuid}.{ext}" }`.
 - The service does **not** serve files. `GET` on that URL is handled directly by
   nginx (`alias` + `auth_request` to `checkFileUploadAuthorization` in bbb-web),
   so there is no path-traversal surface and no extra hop.
 - `meetingId`/`userId` come only from the headers the nginx `auth_request`
   injects; the request body is never trusted for identity.
-- On `MeetingEndedEvtMsg` (Redis `from-akka-apps-redis-channel`) the meeting's
-  uploads directory is deleted after `cleanup.retentionMinutes`, unless a
-  `.recording-hold` marker is present (dropped by the record-and-playback
-  archive while it copies a recorded meeting's uploads).
 
 Configuration lives in `config/default.yml`, overridable at
 `/etc/bigbluebutton/bbb-file-upload.yml`. The service listens on

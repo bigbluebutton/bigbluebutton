@@ -245,8 +245,11 @@ unless FileTest.directory?(target_dir)
     # Copy shared notes from raw files
     FileUtils.cp_r("#{raw_archive_dir}/notes", target_dir) unless Dir["#{raw_archive_dir}/notes/*"].empty?
 
-    # Copy pasted images (chat/notes/whiteboard) from raw files
-    FileUtils.cp_r("#{raw_archive_dir}/uploads", target_dir) unless Dir["#{raw_archive_dir}/uploads/*"].empty?
+    # Copy pasted images (chat/notes/whiteboard) from raw files. The file-uploads
+    # directory name is part of the recording format: it must match
+    # bbb-file-upload, bbb-shared-notes-server, the bbb-file-upload nginx template
+    # and the record-and-playback scripts.
+    FileUtils.cp_r("#{raw_archive_dir}/file-uploads", target_dir) unless Dir["#{raw_archive_dir}/file-uploads/*"].empty?
 
     process_done = File.new("#{recording_dir}/status/processed/#{meeting_id}-presentation.done", 'w')
     process_done.write("Processed #{meeting_id}")

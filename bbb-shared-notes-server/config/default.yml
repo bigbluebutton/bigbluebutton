@@ -42,7 +42,10 @@ fileUpload:
   # from /bigbluebutton/fileUpload/ by reading them from this directory as base64,
   # since the sandboxed wkhtmltopdf process cannot fetch them over the network.
   basePath: /var/bigbluebutton
-  uploadsDirName: uploads
+  # The file-uploads directory name is part of the recording format.
+  # Must match bbb-file-upload, bbb-shared-notes-server, the bbb-file-upload
+  # nginx template and the record-and-playback scripts.
+  uploadsDirName: file-uploads
 
 postgres:
   host: 127.0.0.1

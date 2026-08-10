@@ -1516,9 +1516,12 @@ begin
         BigBlueButton.logger.info('Copied files to package dir')
 
         # Pasted images (chat/notes/whiteboard). Playback loads them from
-        # /presentation/{recordId}/uploads/{file}, the path the chat and tldraw
-        # url rewrites above point at.
-        uploads_dir = "#{@process_dir}/uploads"
+        # /presentation/{recordId}/file-uploads/{file}, the path the chat and
+        # tldraw url rewrites above point at. The file-uploads directory name is
+        # part of the recording format: it must match bbb-file-upload,
+        # bbb-shared-notes-server, the bbb-file-upload nginx template and the
+        # record-and-playback scripts.
+        uploads_dir = "#{@process_dir}/file-uploads"
         if File.directory?(uploads_dir)
           FileUtils.cp_r(uploads_dir, package_dir)
           BigBlueButton.logger.info('Copied pasted images to package dir')

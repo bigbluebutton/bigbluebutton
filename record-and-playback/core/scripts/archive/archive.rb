@@ -22,6 +22,11 @@ require 'logger'
 require 'optimist'
 require 'yaml'
 
+# The file-uploads directory name is part of the recording format.
+# Must match bbb-file-upload, bbb-shared-notes-server, the bbb-file-upload
+# nginx template and the record-and-playback scripts.
+UPLOADS_DIR_NAME = 'file-uploads'
+
 AUDIO_ARCHIVE_FORMAT = {
   extension: 'opus',
   # TODO: consider changing bitrate based on channels or sample rate - this is
@@ -166,15 +171,6 @@ def archive_directory(source, dest)
   end
 end
 
-# Name of the marker file the bbb-file-upload service watches for. While it is
-# present in an uploads directory, that service defers its post-meeting cleanup,
-# so the archive can copy the files without racing the deletion. bbb-web drops
-# the marker at meeting end for recorded meetings (the archive may only start
-# long after that); the archive releases it once its copy has succeeded. Must
-# match cleanup.recordingHoldMarker in bbb-file-upload's config/default.yml and
-# UPLOADS_RECORDING_HOLD_MARKER in bbb-web's RecordingServiceFileImpl.
-UPLOADS_RECORDING_HOLD_MARKER = '.recording-hold'
-
 # The internal ids of a meeting's breakout rooms, read from the recording marks
 # events.xml (empty if the meeting had none). A pasted image is visible across
 # the whole meeting family, so an image referenced in the parent may physically
@@ -187,40 +183,33 @@ def breakout_room_ids(meeting_id, raw_archive_dir)
 end
 
 # Copy the images pasted into chat/notes/whiteboard (served live by
-# bbb-file-upload from {base_dir}/{meetingId}/uploads) into the recording so they
-# survive the post-meeting cleanup. The meeting's own uploads plus every breakout
-# room's are flattened into one directory - upload file names are uuids, so they
-# never collide, and this is cheaper than tracking which image belongs to which
-# room (playback rewrites the urls to this flat directory anyway).
+# bbb-file-upload from {base_dir}/{meetingId}/file-uploads) into the recording,
+# whose playback cannot use the live urls (they only answer for a running
+# meeting). The meeting's own uploads plus every breakout room's are
+# flattened into one directory - upload file names are uuids, so they never
+# collide, and this is cheaper than tracking which image belongs to which room
+# (playback rewrites the urls to this flat directory anyway).
 def archive_uploads(meeting_id, base_dir, dest_dir, raw_archive_dir)
   source_ids = [meeting_id] + breakout_room_ids(meeting_id, raw_archive_dir)
   archived = false
 
   source_ids.each do |id|
-    uploads_src = "#{base_dir}/#{id}/uploads"
+    uploads_src = "#{base_dir}/#{id}/#{UPLOADS_DIR_NAME}"
     next unless File.directory?(uploads_src)
 
-    # Hold off the bbb-file-upload cleanup while we copy (the touch is a no-op
-    # when bbb-web already dropped the marker at meeting end). A failure here
-    # (permissions, disk, a directory vanishing mid-copy) must never abort the
-    # whole recording archive, so warn and move on - the same resilience the
-    # other archive_* helpers use. On failure the marker is kept: it keeps the
-    # uploads deferred from cleanup so a re-run of the archive can still copy
-    # them, instead of the recording silently losing its images.
-    marker = File.join(uploads_src, UPLOADS_RECORDING_HOLD_MARKER)
+    # A failure here (permissions, disk, a directory vanishing mid-copy) must
+    # never abort the whole recording archive, so warn and move on - the same
+    # resilience the other archive_* helpers use.
     begin
-      FileUtils.touch(marker)
       FileUtils.mkdir_p(dest_dir)
       Dir.glob("#{uploads_src}/*").each do |file|
-        next if File.basename(file) == UPLOADS_RECORDING_HOLD_MARKER
         next unless File.file?(file)
 
         FileUtils.cp(file, dest_dir)
         archived = true
       end
-      FileUtils.rm_f(marker)
     rescue StandardError => e
-      BigBlueButton.logger.warn("Failed to archive uploads for #{id}: #{e.message}; keeping #{UPLOADS_RECORDING_HOLD_MARKER} for a re-run")
+      BigBlueButton.logger.warn("Failed to archive uploads for #{id}: #{e.message}")
     end
   end
 
@@ -319,7 +308,7 @@ archive_notes(meeting_id, notes_endpoint, bn_notes_endpoint, notes_formats, raw_
 # Presentation files
 archive_directory("#{presentation_dir}/#{meeting_id}/#{meeting_id}", "#{target_dir}/presentation")
 # Images pasted into chat/notes/whiteboard (bbb-file-upload), including breakout rooms
-archive_uploads(meeting_id, presentation_dir, "#{target_dir}/uploads", raw_archive_dir)
+archive_uploads(meeting_id, presentation_dir, "#{target_dir}/#{UPLOADS_DIR_NAME}", raw_archive_dir)
 # Learning Analytics Dashboard JSON file
 base_id = meeting_id.split('-').first
 if (src = Dir["/var/bigbluebutton/learning-dashboard/#{base_id}-*/**/learning_dashboard_data.json"].first)

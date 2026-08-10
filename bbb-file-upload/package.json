@@ -37,8 +37,7 @@
     "express-rate-limit": "^8.5.1",
     "image-size": "^2.0.2",
     "js-yaml": "^4.1.1",
-    "multer": "^2.0.2",
-    "redis": "^5.11.0"
+    "multer": "^2.0.2"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",

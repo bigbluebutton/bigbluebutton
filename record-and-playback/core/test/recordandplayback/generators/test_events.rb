@@ -252,7 +252,7 @@ class TestEvents < Minitest::Test
     message = '<p>look <img src="/bigbluebutton/fileUpload/mtg-abc/9f8b7c6d-1234.png" alt="image"></p>'
     rewritten = BigBlueButton::Events.rewrite_file_upload_urls(message, 'rec-123')
     assert_equal(
-      '<p>look <img src="/presentation/rec-123/uploads/9f8b7c6d-1234.png" alt="image"></p>',
+      '<p>look <img src="/presentation/rec-123/file-uploads/9f8b7c6d-1234.png" alt="image"></p>',
       rewritten
     )
   end
@@ -261,7 +261,7 @@ class TestEvents < Minitest::Test
     %w[png jpg jpeg gif webp].each do |ext|
       url = "/bigbluebutton/fileUpload/m1/abcdef.#{ext}"
       assert_equal(
-        "/presentation/r/uploads/abcdef.#{ext}",
+        "/presentation/r/file-uploads/abcdef.#{ext}",
         BigBlueButton::Events.rewrite_file_upload_urls(url, 'r')
       )
     end
@@ -269,20 +269,20 @@ class TestEvents < Minitest::Test
 
   def test_rewrite_file_upload_urls_flattens_meeting_family
     # An image pasted in a breakout room is served from that room's meetingId,
-    # but the archive flattens the whole family into one uploads directory, so
+    # but the archive flattens the whole family into one file-uploads directory, so
     # the rewrite drops the source meetingId and keeps only the file name.
     parent = '<img src="/bigbluebutton/fileUpload/parent-mtg/aaa.png">'
     breakout = '<img src="/bigbluebutton/fileUpload/parent-mtg-1/bbb.png">'
-    assert_equal('<img src="/presentation/rec/uploads/aaa.png">',
+    assert_equal('<img src="/presentation/rec/file-uploads/aaa.png">',
                  BigBlueButton::Events.rewrite_file_upload_urls(parent, 'rec'))
-    assert_equal('<img src="/presentation/rec/uploads/bbb.png">',
+    assert_equal('<img src="/presentation/rec/file-uploads/bbb.png">',
                  BigBlueButton::Events.rewrite_file_upload_urls(breakout, 'rec'))
   end
 
   def test_rewrite_file_upload_urls_multiple_occurrences
     text = '["/bigbluebutton/fileUpload/m/one.png","/bigbluebutton/fileUpload/m/two.webp"]'
     assert_equal(
-      '["/presentation/r/uploads/one.png","/presentation/r/uploads/two.webp"]',
+      '["/presentation/r/file-uploads/one.png","/presentation/r/file-uploads/two.webp"]',
       BigBlueButton::Events.rewrite_file_upload_urls(text, 'r')
     )
   end

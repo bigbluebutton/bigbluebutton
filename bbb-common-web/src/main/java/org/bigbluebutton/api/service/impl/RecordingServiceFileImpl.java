@@ -149,30 +149,6 @@ public class RecordingServiceFileImpl implements RecordingService {
         }
     }
 
-    // Marker dropped in a meeting's uploads directory so bbb-file-upload defers
-    // its retention cleanup until record-and-playback has archived the pasted
-    // images. Must match cleanup.recordingHoldMarker in bbb-file-upload's
-    // config/default.yml and UPLOADS_RECORDING_HOLD_MARKER in archive.rb, which
-    // releases the hold once its copy has succeeded.
-    private static final String UPLOADS_RECORDING_HOLD_MARKER = ".recording-hold";
-
-    public void holdUploadsForRecording(String meetingId) {
-        File uploadsDir = new File(presentationBaseDir + File.separatorChar + meetingId
-                + File.separatorChar + "uploads");
-        if (!uploadsDir.isDirectory()) {
-            // Nothing was pasted in this meeting, so there is nothing to hold.
-            return;
-        }
-        File marker = new File(uploadsDir, UPLOADS_RECORDING_HOLD_MARKER);
-        try {
-            marker.createNewFile();
-            if (!marker.exists())
-                log.error("Failed to create {} file.", marker.getAbsolutePath());
-        } catch (IOException e) {
-            log.error("Exception occurred when trying to create {} file.", marker.getAbsolutePath());
-        }
-    }
-
     public void markAsEnded(String meetingId) {
         String done = recordStatusDir + "/../ended/" + meetingId + ".done";
 

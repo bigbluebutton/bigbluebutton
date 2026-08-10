@@ -40,7 +40,7 @@ assert.equal(config.fileUpload.basePath, dataDir, 'test config did not take effe
 // Drop a real image file where an upload for `meetingId` would live.
 const PNG_BYTES = Buffer.from('89504e470d0a1a0a-fake-png-body', 'utf8');
 const writeUpload = (meetingId: string, filename: string, bytes: Buffer = PNG_BYTES): void => {
-  const dir = path.join(dataDir, meetingId, 'uploads');
+  const dir = path.join(dataDir, meetingId, 'file-uploads');
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, filename), bytes);
 };

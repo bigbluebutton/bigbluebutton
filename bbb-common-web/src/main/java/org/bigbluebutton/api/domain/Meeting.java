@@ -106,10 +106,6 @@ public class Meeting {
 	private final ConcurrentMap<String, Long> enteredUsers;
 	private final Boolean isBreakout;
 	private final List<String> breakoutRooms = new ArrayList<>();
-	// Captured when the breakout is created (its parent is guaranteed to be in
-	// the running-meetings map at that point). Read when the breakout ends, when
-	// the parent may already have been removed from that map.
-	private boolean parentMeetingRecorded = false;
 	private ArrayList<Group> groups = new ArrayList<Group>();
 	private String customLogoURL = "";
 	private String customDarkLogoURL = "";
@@ -452,15 +448,6 @@ public class Meeting {
 	public String getParentMeetingId() {
 	    return parentMeetingId;
 	}
-
-	public void setParentMeetingRecorded(boolean recorded) {
-	    parentMeetingRecorded = recorded;
-	}
-
-	public boolean isParentMeetingRecorded() {
-	    return parentMeetingRecorded;
-	}
-
 
 	public String getTelVoice() {
 		return telVoice;

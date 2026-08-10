@@ -228,7 +228,7 @@ async function overlayPoll(svg, annotation) {
  * @return {Promise<void>}
  */
 async function overlayImage(svg, annotation) {
-  const imageShape = new ImageShape(annotation, path.join(dropbox, 'uploads'));
+  const imageShape = new ImageShape(annotation, path.join(dropbox, 'file-uploads'));
   const image = await imageShape.draw();
   svg.add(image);
 }

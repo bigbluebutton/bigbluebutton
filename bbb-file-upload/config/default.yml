@@ -5,7 +5,10 @@ expressServer:
 storage:
   # Uploads are stored at {basePath}/{meetingId}/{uploadsDirName}/{uuid}.{ext}
   basePath: /var/bigbluebutton
-  uploadsDirName: uploads
+  # The file-uploads directory name is part of the recording format.
+  # Must match bbb-file-upload, bbb-shared-notes-server, the bbb-file-upload
+  # nginx template and the record-and-playback scripts.
+  uploadsDirName: file-uploads
 
 limits:
   maxFileSizeKb: 5120
@@ -24,32 +27,5 @@ rateLimit:
   windowInSeconds: 60
   maxRequestsPerWindow: 60
 
-cleanup:
-  # After a meeting ends, its uploads directory is deleted this many minutes
-  # later, giving the record-and-playback archive time to copy the files first.
-  retentionMinutes: 60
-  # A meeting whose uploads directory contains this marker file is deferred by
-  # cleanup. bbb-web drops it at meeting end for recorded meetings and the
-  # record-and-playback archive removes it once it has copied the uploads.
-  recordingHoldMarker: .recording-hold
-  # Upper bound on how long the marker above can defer cleanup, measured from
-  # the marker's mtime. If the archive never succeeds (e.g. a broken recording
-  # never removes the marker), the uploads are deleted anyway once this many
-  # hours have passed, instead of leaking forever.
-  recordingHoldMaxHours: 24
-  # How often to re-scan for uploads whose in-memory cleanup timer was lost to a
-  # crash or restart. It also recovers the startup race against bbb-web: on boot
-  # bbb-web may still be starting, so the first scan cannot list active meetings
-  # and skips; a later scan lands once bbb-web is answering.
-  residualScanIntervalMinutes: 5
-
 log:
   level: info
-
-redis:
-  host: 127.0.0.1
-  port: 6379
-  password: null
-  channels:
-    subscribe:
-      - from-akka-apps-redis-channel

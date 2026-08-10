@@ -131,20 +131,24 @@ async function collectAnnotationsFromRedis() {
 /**
  * Copies the upload files referenced by image annotations into the dropbox so
  * the process worker can inline them as base64. Uploads live alongside the
- * meeting's presentations at /var/bigbluebutton/{meetingId}/uploads, i.e. two
- * levels up from presLocation (/var/bigbluebutton/{meetingId}/{meetingId}/{presId}).
+ * meeting's presentations at /var/bigbluebutton/{meetingId}/file-uploads, i.e.
+ * two levels up from presLocation
+ * (/var/bigbluebutton/{meetingId}/{meetingId}/{presId}).
  *
  * @function collectUploadedImages
  * @param {Array} pages - The parsed whiteboard pages, each with `annotations`.
  * @return {void}
  */
 function collectUploadedImages(pages) {
-  const uploadsSource = path.resolve(exportJob.presLocation, '..', '..', 'uploads');
+  // The file-uploads directory name is part of the recording format.
+  // Must match bbb-file-upload, bbb-shared-notes-server, the bbb-file-upload
+  // nginx template and the record-and-playback scripts.
+  const uploadsSource = path.resolve(exportJob.presLocation, '..', '..', 'file-uploads');
   if (!fs.existsSync(uploadsSource)) {
     return;
   }
 
-  const uploadsDest = path.join(dropbox, 'uploads');
+  const uploadsDest = path.join(dropbox, 'file-uploads');
   fs.mkdirSync(uploadsDest, {recursive: true});
 
   const seen = new Set();

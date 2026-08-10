@@ -20,26 +20,8 @@ export interface RateLimitConfig {
   maxRequestsPerWindow: number;
 }
 
-export interface CleanupConfig {
-  retentionMinutes: number;
-  recordingHoldMarker: string;
-  recordingHoldMaxHours: number;
-  residualScanIntervalMinutes: number;
-}
-
 export interface LogConfig {
   level: string;
-}
-
-export interface RedisChannelsConfig {
-  subscribe: string[];
-}
-
-export interface RedisConfig {
-  host: string;
-  port: number;
-  password: string | null;
-  channels: RedisChannelsConfig;
 }
 
 export interface AppSettings {
@@ -47,7 +29,5 @@ export interface AppSettings {
   storage: StorageConfig;
   limits: LimitsConfig;
   rateLimit: RateLimitConfig;
-  cleanup: CleanupConfig;
   log: LogConfig;
-  redis: RedisConfig;
 }

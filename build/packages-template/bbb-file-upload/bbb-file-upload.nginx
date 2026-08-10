@@ -31,7 +31,10 @@ location = /bigbluebutton/fileUpload/upload {
 location ~ ^/bigbluebutton/fileUpload/(?<mid>[A-Za-z0-9-]+)/(?<file>[a-f0-9-]+\.(png|jpe?g|gif|webp))$ {
   auth_request /bigbluebutton/connection/checkFileUploadAuthorization;
 
-  alias /var/bigbluebutton/$mid/uploads/$file;
+  # The file-uploads directory name is part of the recording format.
+  # Must match bbb-file-upload, bbb-shared-notes-server, the bbb-file-upload
+  # nginx template and the record-and-playback scripts.
+  alias /var/bigbluebutton/$mid/file-uploads/$file;
 
   add_header X-Content-Type-Options nosniff always;
   # No Allow-Credentials here: it would contradict the '*' default origin (the

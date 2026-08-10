@@ -60,14 +60,14 @@ test('uploadsDir for a valid id stays inside basePath', () => {
   const dir = storage.uploadsDir('meeting-1');
   const resolved = path.resolve(dir);
   assert.equal(resolved.startsWith(path.resolve(dataDir) + path.sep), true);
-  assert.equal(resolved.endsWith(path.join('meeting-1', 'uploads')), true);
+  assert.equal(resolved.endsWith(path.join('meeting-1', 'file-uploads')), true);
 });
 
-test('store writes the file under {basePath}/{meetingId}/uploads and returns its path', () => {
+test('store writes the file under {basePath}/{meetingId}/file-uploads and returns its path', () => {
   const buffer = Buffer.from('hello-image-bytes');
   const finalPath = storage.store('meeting-write', 'a1b2c3.png', buffer);
 
-  const expected = path.join(dataDir, 'meeting-write', 'uploads', 'a1b2c3.png');
+  const expected = path.join(dataDir, 'meeting-write', 'file-uploads', 'a1b2c3.png');
   assert.equal(finalPath, expected);
   assert.equal(fs.existsSync(expected), true);
   assert.deepEqual(fs.readFileSync(expected), buffer);

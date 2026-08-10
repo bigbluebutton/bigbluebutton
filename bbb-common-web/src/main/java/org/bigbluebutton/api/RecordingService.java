@@ -41,7 +41,6 @@ public interface RecordingService {
     boolean changeState(String recordingId, String state);
     void updateMetaParams(List<String> recordIDs, Map<String,String> metaParams);
     void startIngestAndProcessing(String meetingId);
-    void holdUploadsForRecording(String meetingId);
     void markAsEnded(String meetingId);
     void kickOffRecordingChapterBreak(String meetingId, Long timestamp);
     void processMakePresentationDownloadableMsg(MakePresentationDownloadableMsg msg);
