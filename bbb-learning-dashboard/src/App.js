@@ -50,10 +50,12 @@ class App extends React.Component {
       sessionToken: '',
       lastUpdated: null,
       modalOpen: false,
+      sessionDataDownloaded: false,
     };
 
     this.handleCloseModal = this.handleCloseModal.bind(this);
     this.handleOpenModal = this.handleOpenModal.bind(this);
+    this.downloadButtonRef = React.createRef();
   }
 
   componentDidMount() {
@@ -74,9 +76,7 @@ class App extends React.Component {
     this.setState({ modalOpen: false });
   }
 
-  handleSaveSessionData(e) {
-    const { target: downloadButton } = e;
-    const downloadButtonLabel = downloadButton.querySelector('span') || downloadButton;
+  handleSaveSessionData() {
     const { intl } = this.props;
     const { activitiesJson } = this.state;
     const {
@@ -89,21 +89,22 @@ class App extends React.Component {
     const data = makeUserCSVData(users, polls, intl);
     const filename = `LearningDashboard_${meetingName}_${new Date(createdOn).toISOString().substr(0, 10)}.csv`.replace(/ /g, '-');
 
-    downloadButton.setAttribute('disabled', 'true');
-    downloadButton.style.cursor = 'not-allowed';
     link.setAttribute('href', `data:text/csv;charset=UTF-8,${encodeURIComponent(data)}`);
     link.setAttribute('download', filename);
     link.style.display = 'none';
     document.body.appendChild(link);
     link.click();
-    downloadButtonLabel.innerHTML = intl.formatMessage({ id: 'app.learningDashboard.sessionDataDownloadedLabel', defaultMessage: 'Downloaded!' });
-    setTimeout(() => {
-      downloadButtonLabel.innerHTML = intl.formatMessage({ id: 'app.learningDashboard.downloadSessionDataLabel', defaultMessage: 'Download Session Data' });
-      downloadButton.removeAttribute('disabled');
-      downloadButton.style.cursor = 'pointer';
-      downloadButton.focus();
-    }, 3000);
     document.body.removeChild(link);
+
+    // Label and disabled state go through React: writing innerHTML on a button React
+    // renders detaches the text node React tracks, and every later update is lost.
+    this.setState({ sessionDataDownloaded: true });
+
+    setTimeout(() => {
+      this.setState({ sessionDataDownloaded: false });
+
+      if (this.downloadButtonRef.current) this.downloadButtonRef.current.focus();
+    }, 3000);
   }
 
   setDashboardParams(callback) {
@@ -379,7 +380,7 @@ class App extends React.Component {
   render() {
     const {
       activitiesJson, tab, loading, lastUpdated, ldAccessTokenCopied, sessionToken,
-      modalOpen,
+      modalOpen, sessionDataDownloaded,
     } = this.state;
 
     const presentationBase = process.env.REACT_APP_STANDALONE_MODE === 'true'
@@ -800,6 +801,9 @@ class App extends React.Component {
                 <button
                   data-test="downloadSessionDataDashboard"
                   type="button"
+                  ref={this.downloadButtonRef}
+                  disabled={sessionDataDownloaded}
+                  style={{ cursor: sessionDataDownloaded ? 'not-allowed' : 'pointer' }}
                   className="flex border-2 text-gray-700 border-gray-200 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring ring-offset-2 focus:ring-gray-500 focus:ring-opacity-50"
                   onClick={this.handleSaveSessionData.bind(this)}
                 >
@@ -808,10 +812,9 @@ class App extends React.Component {
                   </svg>
                   &nbsp;
                   <span>
-                    <FormattedMessage
-                      id="app.learningDashboard.downloadSessionDataLabel"
-                      defaultMessage="Download Session Data"
-                    />
+                    {sessionDataDownloaded
+                      ? intl.formatMessage({ id: 'app.learningDashboard.sessionDataDownloadedLabel', defaultMessage: 'Downloaded!' })
+                      : intl.formatMessage({ id: 'app.learningDashboard.downloadSessionDataLabel', defaultMessage: 'Download Session Data' })}
                   </span>
                 </button>
               )
