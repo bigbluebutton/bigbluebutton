@@ -121,8 +121,16 @@ class StatusTable extends React.Component {
     const usersPeriods = {};
     Object.values(allUsers || {}).forEach((user) => {
       usersPeriods[user.userKey] = [];
-      Object.values(user.intIds || {}).forEach((intId, index, intIdsArray) => {
-        intId.sessions.forEach((session, sessionIndex, sessionArray) => {
+      // The session merge below consumes entries as it walks them. Copy the session arrays first:
+      // they belong to the polled payload held in App's state, and splicing them there
+      // deletes sessions for every other consumer until the next poll replaces it.
+      const intIdsArray = Object.values(user.intIds || {})
+        .map((intId) => ({ ...intId, sessions: [...(intId.sessions || [])] }));
+
+      for (let index = 0; index < intIdsArray.length; index += 1) {
+        const sessionArray = intIdsArray[index].sessions;
+        for (let sessionIndex = 0; sessionIndex < sessionArray.length; sessionIndex += 1) {
+          const session = sessionArray[sessionIndex];
           let { leftOn } = session;
           const nextSession = sessionArray[sessionIndex + 1];
           if (nextSession && Math.abs(leftOn - nextSession.registeredOn) <= 30000) {
@@ -140,8 +148,8 @@ class StatusTable extends React.Component {
             registeredOn: session.registeredOn,
             leftOn,
           });
-        });
-      });
+        }
+      }
     });
 
     const usersRegisteredTimes = Object
