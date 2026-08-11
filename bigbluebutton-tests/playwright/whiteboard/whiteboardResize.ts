@@ -1,7 +1,6 @@
+import { expect, type Page, test } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
-
-import { expect, test, type Page } from '@playwright/test';
 
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
@@ -157,8 +156,8 @@ export class WhiteboardResize extends DrawShape {
 
     expect(
       modDeviation,
-      `[mod] camera zoom/wrapper-width ratio should be restored after expanding back `
-      + `(deviation: ${(modDeviation * 100).toFixed(1)} %, expected < 5 %)`,
+      `[mod] camera zoom/wrapper-width ratio should be restored after expanding back ` +
+        `(deviation: ${(modDeviation * 100).toFixed(1)} %, expected < 5 %)`,
     ).toBeLessThan(0.05);
 
     const modAfterWrapperBounds = await modInnerWrapper.boundingBox();
@@ -177,18 +176,18 @@ export class WhiteboardResize extends DrawShape {
     expect(userAfterWidth, '[viewer] slide wrapper width should be unchanged').toBeGreaterThan(0);
 
     // Viewer page was never resized — their wrapper width must be identical to initial.
-    expect(
-      userAfterWidth,
-      '[viewer] slide wrapper width should not change (viewer page was not resized)',
-    ).toBe(userInitialWidth);
+    expect(userAfterWidth, '[viewer] slide wrapper width should not change (viewer page was not resized)').toBe(
+      userInitialWidth,
+    );
 
     const userInitialRatio = userInitialZoom! / userInitialWidth;
     const userAfterRatio = userAfterZoom! / userAfterWidth;
     const userDeviation = Math.abs(userAfterRatio - userInitialRatio) / userInitialRatio;
 
+    const userDeviationPct = (userDeviation * 100).toFixed(1);
     expect(
       userDeviation,
-      `[viewer] camera zoom/wrapper-width ratio should remain stable (deviation: ${(userDeviation * 100).toFixed(1)} %)`,
+      `[viewer] camera zoom/wrapper-width ratio should remain stable (deviation: ${userDeviationPct} %)`,
     ).toBeLessThan(0.05);
 
     const userAfterWrapperBounds = await userInnerWrapper.boundingBox();
@@ -222,17 +221,23 @@ export class WhiteboardResize extends DrawShape {
     const zoomed = await this.modPage.page.evaluate(() => {
       const whiteboard = document.getElementById('whiteboard-element');
       if (!whiteboard) return false;
-      const fiberKey = Object.keys(whiteboard as unknown as Record<string, unknown>)
-        .find((k) => k.startsWith('__reactFiber'));
+      const fiberKey = Object.keys(whiteboard as unknown as Record<string, unknown>).find((k) =>
+        k.startsWith('__reactFiber'),
+      );
       if (!fiberKey) return false;
 
       // Walk up the React fiber tree from #whiteboard-element to find tlEditorRef.
       // useRef stores its value as hook.memoizedState = { current: value }.
-      let fiber = (whiteboard as unknown as Record<string, unknown>)[fiberKey] as { memoizedState: unknown; return: unknown } | null;
+      let fiber = (whiteboard as unknown as Record<string, unknown>)[fiberKey] as {
+        memoizedState: unknown;
+        return: unknown;
+      } | null;
       while (fiber) {
         let hook = fiber.memoizedState as { memoizedState: unknown; next: unknown } | null;
         while (hook) {
-          const ms = hook.memoizedState as { current?: { setCamera?: unknown; getCamera?: unknown; getViewportScreenBounds?: unknown } } | null;
+          const ms = hook.memoizedState as {
+            current?: { setCamera?: unknown; getCamera?: unknown; getViewportScreenBounds?: unknown };
+          } | null;
           if (ms && ms.current && typeof ms.current.setCamera === 'function') {
             const editor = ms.current as {
               setCamera: (cam: { x: number; y: number; z: number }, opts?: { immediate?: boolean }) => void;
@@ -243,11 +248,14 @@ export class WhiteboardResize extends DrawShape {
             const vb = editor.getViewportScreenBounds();
             const newZ = cam.z * 2;
             // Zoom toward viewport center (keeps the same page point centred).
-            editor.setCamera({
-              x: cam.x + (vb.w / 2) * (1 / newZ - 1 / cam.z),
-              y: cam.y + (vb.h / 2) * (1 / newZ - 1 / cam.z),
-              z: newZ,
-            }, { immediate: true });
+            editor.setCamera(
+              {
+                x: cam.x + (vb.w / 2) * (1 / newZ - 1 / cam.z),
+                y: cam.y + (vb.h / 2) * (1 / newZ - 1 / cam.z),
+                z: newZ,
+              },
+              { immediate: true },
+            );
             return true;
           }
           hook = hook.next as typeof hook;
@@ -297,8 +305,12 @@ export class WhiteboardResize extends DrawShape {
     // ── 7. Screenshot C — must match Screenshot A (same run) ─────────────────
     // Playwright reads the baseline we wrote in step 3. A mismatch means the
     // camera was NOT restored to the zoomed position after the expand (the bug).
-    await expect(this.modPage.page).toHaveScreenshot('mod-whiteboard-resize-zoomed-initial.png', { maxDiffPixels: 1000 });
-    await expect(this.userPage.page).toHaveScreenshot('user-whiteboard-resize-zoomed-initial.png', { maxDiffPixels: 1000 });
+    await expect(this.modPage.page).toHaveScreenshot('mod-whiteboard-resize-zoomed-initial.png', {
+      maxDiffPixels: 1000,
+    });
+    await expect(this.userPage.page).toHaveScreenshot('user-whiteboard-resize-zoomed-initial.png', {
+      maxDiffPixels: 1000,
+    });
   }
 
   async cameraResyncAfterMinimizeRestore() {
@@ -350,7 +362,8 @@ export class WhiteboardResize extends DrawShape {
     // ── 5. Minimize then restore presentation ────────────────────────────────────
     await this.modPage.waitAndClick(e.minimizePresentation);
     // Wait for the whiteboard to unmount (presentation container leaves the DOM).
-    await this.modPage.page.locator(e.presentationContainer)
+    await this.modPage.page
+      .locator(e.presentationContainer)
       .waitFor({ state: 'detached', timeout: 10000 })
       .catch(() => {});
     await this.modPage.page.waitForTimeout(2000);
@@ -369,9 +382,9 @@ export class WhiteboardResize extends DrawShape {
     const deviation = Math.abs(zoomAfterRestore! - zoomBeforeMinimize!) / zoomBeforeMinimize!;
     expect(
       deviation,
-      `[mod] camera zoom should be preserved after minimize/restore `
-      + `(before: ${zoomBeforeMinimize!.toFixed(4)}, after: ${zoomAfterRestore!.toFixed(4)}, `
-      + `deviation: ${(deviation * 100).toFixed(1)} %, expected < 5 %)`,
+      `[mod] camera zoom should be preserved after minimize/restore ` +
+        `(before: ${zoomBeforeMinimize!.toFixed(4)}, after: ${zoomAfterRestore!.toFixed(4)}, ` +
+        `deviation: ${(deviation * 100).toFixed(1)} %, expected < 5 %)`,
     ).toBeLessThan(0.05);
 
     // ── 7. Verify toolbar zoom % is preserved after restore ───────────────────────
@@ -382,8 +395,8 @@ export class WhiteboardResize extends DrawShape {
     const toolbarZoomAfter = await getToolbarZoomText(this.modPage.page);
     expect(
       toolbarZoomAfter,
-      `[mod] toolbar zoom % should be preserved after minimize/restore `
-      + `(before: "${toolbarZoomBefore}", after: "${toolbarZoomAfter}")`,
+      `[mod] toolbar zoom % should be preserved after minimize/restore ` +
+        `(before: "${toolbarZoomBefore}", after: "${toolbarZoomAfter}")`,
     ).toBe(toolbarZoomBefore);
   }
 
@@ -456,7 +469,13 @@ export class WhiteboardResize extends DrawShape {
     // slide is displaced after the expand, pixels differ and the test fails.
     await this.modPage.closeAllToastNotifications();
     await this.userPage.closeAllToastNotifications();
-    await expect(this.modPage.page).toHaveScreenshot('mod-whiteboard-resize-initial.png', { maxDiffPixels: 1000, mask: dynamicRegions(this.modPage.page) });
-    await expect(this.userPage.page).toHaveScreenshot('user-whiteboard-resize-initial.png', { maxDiffPixels: 1000, mask: dynamicRegions(this.userPage.page) });
+    await expect(this.modPage.page).toHaveScreenshot('mod-whiteboard-resize-initial.png', {
+      maxDiffPixels: 1000,
+      mask: dynamicRegions(this.modPage.page),
+    });
+    await expect(this.userPage.page).toHaveScreenshot('user-whiteboard-resize-initial.png', {
+      maxDiffPixels: 1000,
+      mask: dynamicRegions(this.userPage.page),
+    });
   }
 }

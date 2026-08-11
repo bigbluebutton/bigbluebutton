@@ -263,7 +263,7 @@ export class Layouts extends MultiUsers {
   }
 
   private async attachPageVideos() {
-    const testInfo = this.modPage.testInfo;
+    const { testInfo } = this.modPage;
     if (!testInfo) return;
 
     // Register future video paths without closing anything — Playwright's fixture

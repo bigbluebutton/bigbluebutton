@@ -432,7 +432,10 @@ export class BlockNoteSharedNotes extends MultiUsers {
     await this.modPage.page.keyboard.type('Hello attendees');
 
     // viewer (notes panel closed) must see the unread indicator
-    await this.userPage.hasNotificationIcon(e.sharedNotesSidebarButton, 'should display the unread indicator for the viewer');
+    await this.userPage.hasNotificationIcon(
+      e.sharedNotesSidebarButton,
+      'should display the unread indicator for the viewer',
+    );
 
     // opening the notes clears the indicator
     await startSharedNotesBlockNote(this.userPage);
@@ -447,6 +450,9 @@ export class BlockNoteSharedNotes extends MultiUsers {
     const modNotesEditor = getBlockNoteEditorLocator(this.modPage);
     await modNotesEditor.click();
     await this.modPage.page.keyboard.type('New content');
-    await this.userPage.hasNotificationIcon(e.sharedNotesSidebarButton, 'should display the unread indicator again after new edits');
+    await this.userPage.hasNotificationIcon(
+      e.sharedNotesSidebarButton,
+      'should display the unread indicator again after new edits',
+    );
   }
 }

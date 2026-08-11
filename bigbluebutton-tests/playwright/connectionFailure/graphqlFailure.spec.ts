@@ -1,6 +1,7 @@
-import { test } from '../core/setup/fixtures';
 import { expect } from '@playwright/test';
+
 import { createMeeting, getJoinURL } from '../core/helpers';
+import { test } from '../core/setup/fixtures';
 
 test.describe('GraphQL connection failure', () => {
   test.beforeEach(async ({ page }, testInfo) => {
@@ -10,7 +11,9 @@ test.describe('GraphQL connection failure', () => {
     const joinURL = getJoinURL({ meetingID, fullName: 'Claude' });
 
     // Block the GraphQL WebSocket so it never connects
-    await page.routeWebSocket('**/graphql', () => { /* never connect */ });
+    await page.routeWebSocket('**/graphql', () => {
+      /* never connect */
+    });
     await page.goto(joinURL);
   });
 
