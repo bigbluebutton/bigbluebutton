@@ -626,6 +626,8 @@ public:
       quickPollCorrectAnswerSuffix: "__"
   captions:
     background: '#000000'
+    # maximum number of characters accepted in a single caption submission
+    maxTextLength: 8192
     font:
       color: '#ffffff'
       family: Calibri

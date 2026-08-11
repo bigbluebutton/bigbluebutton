@@ -5,6 +5,8 @@ import scala.collection.immutable.HashMap
 import org.bigbluebutton.SystemConfiguration
 
 object AudioCaptions extends SystemConfiguration {
+  val MaxLocalesPerMeeting = 20
+
   def parseTranscript(transcript: String): String = {
     transcript
   }
@@ -20,22 +22,29 @@ object AudioCaptions extends SystemConfiguration {
       text:          String,
       transcript:    String,
       locale:        String
-  ): (Int, Int, String) = {
+  ): Option[(Int, Int, String)] = {
     if (audioCaptions.transcripts contains locale) {
-      audioCaptions.updateTranscript(
+      Some(audioCaptions.updateTranscript(
         transcriptId,
         start,
         end,
         text,
         transcript,
         locale
-      )
-    } else audioCaptions.addTranscript(transcriptId, transcript, locale)
+      ))
+    } else if (audioCaptions.localeCount >= MaxLocalesPerMeeting) {
+      None
+    } else Some(audioCaptions.addTranscript(transcriptId, transcript, locale))
   }
 }
 
 class AudioCaptions {
   private var transcripts = new HashMap[String, Transcript]()
+
+  def localeCount: Int = transcripts.size
+
+  private def clampToInt(value: Long): Int =
+    Math.max(0L, Math.min(value, Int.MaxValue.toLong)).toInt
 
   /*
    * @return : (start, end, text)
@@ -52,18 +61,28 @@ class AudioCaptions {
 
     // If updating the current transcript
     if (item.currentId == transcriptId) {
+      // The client diffs against the transcript the server already holds, so
+      // offsets outside it cannot be honoured.
+      val previousLength = item.currentTranscript.length
+      val safeStart = Math.max(0, Math.min(start, previousLength))
+      val safeEnd = Math.max(safeStart, Math.min(end, previousLength))
+
       transcripts += locale -> item.copy(currentTranscript = transcript)
 
-      (item.fullTranscript.length + start, item.fullTranscript.length + end, text)
+      (
+        clampToInt(item.fullTranscriptLength + safeStart),
+        clampToInt(item.fullTranscriptLength + safeEnd),
+        text
+      )
     } else {
-      val fullTranscript = s"${item.fullTranscript}${item.currentTranscript}"
+      val fullTranscriptLength = item.fullTranscriptLength + item.currentTranscript.length
       transcripts += locale -> new Transcript(
-        fullTranscript,
+        fullTranscriptLength,
         transcriptId,
         transcript
       )
 
-      (fullTranscript.length, fullTranscript.length, s"${transcript}")
+      (clampToInt(fullTranscriptLength), clampToInt(fullTranscriptLength), s"${transcript}")
     }
   }
 
@@ -75,10 +94,10 @@ class AudioCaptions {
       transcript:   String,
       locale:       String
   ): (Int, Int, String) = {
-    transcripts += locale -> new Transcript("", transcriptId, transcript)
+    transcripts += locale -> new Transcript(0L, transcriptId, transcript)
 
     (0, 0, transcript)
   }
 }
 
-case class Transcript(fullTranscript: String, currentId: String, currentTranscript: String)
+case class Transcript(fullTranscriptLength: Long, currentId: String, currentTranscript: String)

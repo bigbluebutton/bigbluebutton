@@ -1,5 +1,5 @@
 import { RedisMessage } from '../types';
-import {throwErrorIfInvalidInput, throwErrorIfNotModerator} from "../imports/validation";
+import {throwErrorIfInvalidInput, throwErrorIfInvalidLocale, throwErrorIfNotModerator} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
   throwErrorIfNotModerator(sessionVariables);
@@ -9,6 +9,8 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
         {name: 'locale', type: 'string', required: true},
       ]
   )
+
+  throwErrorIfInvalidLocale(input.locale);
 
   const eventName = `AddCaptionLocalePubMsg`;
 

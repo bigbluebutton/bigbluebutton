@@ -1,13 +1,12 @@
 package org.bigbluebutton.core.apps.audiocaptions
 
-import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsStringOrElse
+import org.bigbluebutton.ClientSettings.getConfigPropertyValueByPathAsIntOrElse
 import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.bus.MessageBus
 import org.bigbluebutton.core.db.CaptionDAO
-import org.bigbluebutton.core.models.{AudioCaptions, UserState, Users2x, VoiceUsers}
+import org.bigbluebutton.core.models.{ AudioCaptions, Users2x, VoiceUsers }
 import org.bigbluebutton.core.running.LiveMeeting
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import org.bigbluebutton.core.util.LocaleUtil
 
 trait UpdateTranscriptPubMsgHdlr {
   this: AudioCaptionsApp2x =>
@@ -45,18 +44,26 @@ trait UpdateTranscriptPubMsgHdlr {
     }
 
     val isTranscriptionEnabled = !liveMeeting.props.meetingProp.disabledFeatures.contains("liveTranscription")
+    val maxTextLength = getConfigPropertyValueByPathAsIntOrElse(liveMeeting.clientSettings, "public.captions.maxTextLength", 8192)
 
-    if (isTranscriptionEnabled) {
+    if (!isTranscriptionEnabled) {
+      log.debug("Ignoring transcript from user {} in meeting {}: liveTranscription is disabled", msg.header.userId, meetingId)
+    } else if (!LocaleUtil.isValidLocale(msg.body.locale)) {
+      log.warning("Ignoring transcript from user {} in meeting {}: invalid locale '{}'", msg.header.userId, meetingId, msg.body.locale)
+    } else if (!LocaleUtil.isValidCaptionId(msg.body.transcriptId)) {
+      log.warning("Ignoring transcript from user {} in meeting {}: invalid transcriptId", msg.header.userId, meetingId)
+    } else if (msg.body.transcript.length > maxTextLength || msg.body.text.length > maxTextLength) {
+      log.warning(
+        "Ignoring transcript from user {} in meeting {}: length {} exceeds {}",
+        msg.header.userId, meetingId, msg.body.transcript.length, maxTextLength
+      )
+    } else {
       for {
-        u <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
+        _ <- Users2x.findWithIntId(liveMeeting.users2x, msg.header.userId)
         voiceUser <- VoiceUsers.findWithIntId(liveMeeting.voiceUsers, msg.header.userId)
         if !voiceUser.listenOnly
-        // A muted (or non-speaking) user is not producing audio, so must not be
-        // able to submit live-caption text. The official client already stops
-        // submitting when muted; this enforces it server-side.
-        if !voiceUser.muted
       } yield {
-        val (start, end, text) = AudioCaptions.editTranscript(
+        AudioCaptions.editTranscript(
           liveMeeting.audioCaptions,
           msg.body.transcriptId,
           msg.body.start,
@@ -64,27 +71,33 @@ trait UpdateTranscriptPubMsgHdlr {
           msg.body.text,
           msg.body.transcript,
           msg.body.locale
-        )
+        ) match {
+          case Some((start, end, text)) =>
+            editTranscript(
+              msg.header.userId,
+              start,
+              end,
+              msg.body.locale,
+              text
+            )
 
-        editTranscript(
-          msg.header.userId,
-          start,
-          end,
-          msg.body.locale,
-          text
-        )
+            val transcript = AudioCaptions.parseTranscript(msg.body.transcript)
 
-        val transcript = AudioCaptions.parseTranscript(msg.body.transcript)
+            CaptionDAO.insertOrUpdateCaption(msg.body.transcriptId, meetingId, msg.header.userId, transcript, msg.body.locale)
 
-        CaptionDAO.insertOrUpdateCaption(msg.body.transcriptId, meetingId, msg.header.userId, transcript, msg.body.locale)
-
-        broadcastEvent(
-          msg.header.userId,
-          msg.body.transcriptId,
-          transcript,
-          msg.body.locale,
-          msg.body.result,
-        )
+            broadcastEvent(
+              msg.header.userId,
+              msg.body.transcriptId,
+              transcript,
+              msg.body.locale,
+              msg.body.result,
+            )
+          case None =>
+            log.warning(
+              "Ignoring transcript from user {} in meeting {}: locale limit reached for locale '{}'",
+              msg.header.userId, meetingId, msg.body.locale
+            )
+        }
       }
     }
   }

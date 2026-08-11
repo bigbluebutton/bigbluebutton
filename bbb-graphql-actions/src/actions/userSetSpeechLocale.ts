@@ -1,5 +1,5 @@
 import { RedisMessage } from '../types';
-import {throwErrorIfInvalidInput} from "../imports/validation";
+import {throwErrorIfInvalidInput, throwErrorIfInvalidLocale} from "../imports/validation";
 
 export default function buildRedisMessage(sessionVariables: Record<string, unknown>, input: Record<string, unknown>): RedisMessage {
   throwErrorIfInvalidInput(input,
@@ -8,6 +8,8 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
         {name: 'provider', type: 'string', required: true},
       ]
   )
+
+  throwErrorIfInvalidLocale(input.locale, true);
 
   const eventName = `SetUserSpeechLocaleReqMsg`;
 
@@ -26,17 +28,6 @@ export default function buildRedisMessage(sessionVariables: Record<string, unkno
     locale: input.locale,
     provider: input.provider,
   };
-
-  //TODO move validations to Akka-apps
-  // const payload = {
-  //   locale,
-  //   provider: provider !== 'webspeech' ? provider : '',
-  // };
-  //
-  // const LANGUAGES = Meteor.settings.public.app.audioCaptions.language.available;
-  // if (LANGUAGES.includes(locale) || locale === '') {
-  //   RedisPubSub.publishUserMessage(CHANNEL, EVENT_NAME, meetingId, requesterUserId, payload);
-  // }
 
   return { eventName, routing, header, body };
 }

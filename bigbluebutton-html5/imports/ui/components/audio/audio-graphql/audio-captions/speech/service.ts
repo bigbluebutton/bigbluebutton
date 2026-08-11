@@ -1,4 +1,3 @@
-import Auth from '/imports/ui/services/auth';
 import deviceInfo from '/imports/utils/deviceInfo';
 import { unique } from 'radash';
 import { useIsAudioTranscriptionEnabled } from '../service';
@@ -10,7 +9,7 @@ import Session from '/imports/ui/services/storage/in-memory';
 export const SpeechRecognitionAPI = (window as any).SpeechRecognition
 || (window as any).webkitSpeechRecognition;
 
-export const generateId = () => `${Auth.userID}-${Date.now()}`;
+export const generateId = () => crypto.randomUUID();
 
 export const hasSpeechRecognitionSupport = () => {
   const CONFIG = window.meetingClientSettings.public.app.audioCaptions;

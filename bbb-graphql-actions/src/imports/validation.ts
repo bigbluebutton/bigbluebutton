@@ -12,11 +12,36 @@ export const throwErrorIfNotPresenter = (sessionVariables: Record<string, unknow
     }
 };
 
-export const throwErrorIfInvalidLocale = (locale: unknown) => {
-    // Locales are used to build recording caption filenames (caption_<locale>.vtt)
-    // and JSON keys. Restrict to a BCP-47-ish shape as defense-in-depth.
-    if (typeof locale !== 'string' || !/^[A-Za-z0-9-]{2,35}$/.test(locale)) {
+// "caption"."locale" and "caption_locale"."locale" are varchar(15)
+const MAX_LOCALE_LENGTH = 15;
+const LOCALE_PATTERN = /^[A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*$/;
+
+export const throwErrorIfInvalidLocale = (locale: unknown, allowEmpty: boolean = false) => {
+    if (typeof locale !== 'string') {
         throw new ValidationError('Invalid locale format.', 400);
+    }
+
+    if (locale === '') {
+        if (allowEmpty) {
+            return;
+        }
+        throw new ValidationError('Invalid locale format.', 400);
+    }
+
+    if (locale.length > MAX_LOCALE_LENGTH || !LOCALE_PATTERN.test(locale)) {
+        throw new ValidationError('Invalid locale format.', 400);
+    }
+};
+
+export const throwErrorIfStringTooLong = (name: string, value: unknown, maxLength: number) => {
+    if (typeof value === 'string' && value.length > maxLength) {
+        throw new ValidationError(`Parameter '${name}' exceeds the maximum length of ${maxLength}`, 400);
+    }
+};
+
+export const throwErrorIfIntOutOfRange = (name: string, value: unknown, min: number, max: number) => {
+    if (typeof value !== 'number' || !Number.isInteger(value) || value < min || value > max) {
+        throw new ValidationError(`Parameter '${name}' must be an integer between ${min} and ${max}`, 400);
     }
 };
 

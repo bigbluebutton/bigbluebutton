@@ -23,9 +23,13 @@ trait TranscriptionProviderErrorMsgHdlr {
       bus.outGW.send(msgEvent)
     }
 
-    broadcastEvent(msg.header.userId, msg.body.errorCode, msg.body.errorMessage)
+    // "user_transcriptionError"."errorCode" is varchar(255)
+    val errorCode = msg.body.errorCode.take(255)
+    val errorMessage = msg.body.errorMessage.take(1024)
 
-    UserTranscriptionErrorDAO.insert(msg.header.userId, msg.header.meetingId, msg.body.errorCode, msg.body.errorMessage)
+    broadcastEvent(msg.header.userId, errorCode, errorMessage)
+
+    UserTranscriptionErrorDAO.insert(msg.header.userId, msg.header.meetingId, errorCode, errorMessage)
 
   }
 }
