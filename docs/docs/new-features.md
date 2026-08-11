@@ -54,6 +54,32 @@ When browser-based (WebSpeech) live captions are enabled and a user holds the au
 
 <!-- TODO add screenshot of the wrong-microphone caption alert -->
 
+#### Import and export BlockNote shared notes as Markdown
+
+The BlockNote shared notes editor can exchange content as Markdown (available since BigBlueButton 3.0.33). From the shared notes options menu, the presenter can choose **Import from Markdown**, which opens a dialog to either upload a Markdown file (drag-and-drop or file picker) or paste Markdown directly. The imported content can be **appended** to the existing notes (the default, so importing never destroys what is already there) or **replace** the whole document. Separately, an **Export notes as Markdown** option downloads the current notes as a `.md` file.
+
+Both options are enabled by default. They can be toggled independently in `/etc/bigbluebutton/bbb-html5.yml` and restart with `sudo bbb-conf --restart`:
+
+```yaml
+public:
+  sharedNotes:
+    importMarkdownEnabled: true
+    exportMarkdownEnabled: true
+```
+
+These toggles only affect the BlockNote editor; they are ignored when Etherpad is used.
+
+Integrations can also seed a session's shared notes with Markdown at creation time using the `sharedNotesInitialContentMarkdown` / `sharedNotesInitialContentMarkdownUrl` create parameters (or a `sharedNotesInitialContentMarkdown` POST module). See the [Create API parameters](/development/api/#get-post-create) for details.
+
+<!-- TODO add screenshot of the Import from Markdown dialog (append/replace + file upload) -->
+
+#### Panopto videos can be shared as external video
+
+The **Share an external video** feature includes a player for [Panopto](https://www.panopto.com/) recordings (available since BigBlueButton 3.0.33). Paste a Panopto viewer link of the form `https://<your-panopto-host>/Panopto/Pages/Viewer.aspx?id=<video-id>` and it plays inside the presentation area with the usual synchronization (play/pause, seek and playback rate are shared with the other participants), just like the YouTube and Vimeo players.
+
+The player is tenant-agnostic — any Panopto host works, including `*.panopto.com`, `*.panopto.eu` and self-hosted installations. Note that it loads the Panopto embed API from `https://developers.panopto.com`, so participants need to be able to reach that host, and the video must be viewable by them in Panopto (BigBlueButton does not proxy Panopto's own authentication).
+
+
 ### Engagement
 
 #### Request to Present
@@ -182,6 +208,8 @@ Recent releases:
 - [4.0.0-beta.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-beta.3)
 - [3.1.0-beta.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.1.0-beta.2)
 - [3.1.0-beta.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.1.0-beta.1)
+- [3.0.34](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.34)
+- [3.0.33](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.0.33)
 
 ### Other notable changes
 
@@ -211,6 +239,26 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 
 - `public.stats.log` was removed and replaced by `public.stats.logMediaStats` (see [Client-side WebRTC stats logging](#client-side-webrtc-stats-logging)).
 
+#### Added new setting to control guest lobby waiting queue position
+
+- Client settings.yml: `showGuestLobbyWaitingQueuePosition`. Defaults to `true`
+
+#### Added new setting to tune the slide-change image swap
+
+- Client settings.yml: `public.whiteboard.slideSwapDecodeTimeoutMs`. Defaults to `250` (milliseconds). Added in BigBlueButton 3.0.33.
+
+On a slide change the client waits, up to this bound, for the new slide's image to finish decoding before swapping the visible page — which removes the white flash that used to appear between slides. A cached or fast-loading slide resolves well within the bound; if the image takes longer, the swap proceeds anyway (the pre-3.0.33 behaviour, including the white flash) rather than leaving the toolbar and zoom controls on a stale slide. Raise it only if your presentations are served slowly enough that the flash is still visible, and keep in mind that a larger value delays the slide change itself by the same amount.
+
+#### Added new setting and userdata to allow skipping echo test if session has valid input/output devices stored
+
+- Client settings.yml: `skipEchoTestIfPreviousDevice`. Defaults to `false`
+- Can be overridden on JOIN with Custom Parameter: `userdata-bbb_skip_echotest_if_previous_device=`
+
+#### Added new setting and userdata to allow skipping video preview if session has valid input devices stored
+
+- Client settings.yml: `skipVideoPreviewIfPreviousDevice`. Defaults to `false`
+- Can be overridden on JOIN with Custom Parameter: `userdata-bbb_skip_video_preview_if_previous_device=`
+
 ### Changes to events.xml
 
 
@@ -227,6 +275,10 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 - `disabledFeatures` accepts a new value: `pinChatMessage` (alongside the existing chat-related options).
 - `sharedNotesEditor` default changed from `etherpad` to `blockNote` (BlockNote is now the default shared-notes editor; see [Promoted BlockNote shared notes as default](#promoted-blocknote-shared-notes-as-default)).
 - `cameraBridge`, `screenShareBridge`, and `audioBridge` default changed from `bbb-webrtc-sfu` to `livekit` (see [LiveKit is the default media framework](#livekit-is-the-default-media-framework)).
+- `defaultHTML5ClientUrl` changed — dropped the `/join` ending (BBB 3.0.33).
+- `muteOnStart` default value changed to `true` - which helps now that `transparentListenOnly` is enabled by default too. See [PR 20848](https://github.com/bigbluebutton/bigbluebutton/issues/20848) for more info.
+- `insertDocumentSupportedProtocols` renamed to `fetchUrlSupportedProtocols`
+- `insertDocumentBlockedHosts` renamed to `fetchUrlBlockedExternalHosts`
 
 #### Added
 - `pluginManifestFetchTimeout` added
@@ -279,6 +331,8 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 - `pluginManifestCacheRefreshIntervalMinutes` added in BBB 3.0.27
 - `clientSettingsOverrideStrictValidation` added in BBB 3.0.30
 - `clientSettingsFilePath` added in BBB 3.0.30
+- `maxSharedNotesInitialContentUrlPayloadSize` added in BBB 3.0.33 — caps the size (in KiB, default `1024`) of the response fetched by `sharedNotesInitialContentJsonUrl` / `sharedNotesInitialContentMarkdownUrl`
+- `numPresentationDownloadThreads` added in BBB 3.0.33 — size of the bounded pool that downloads pre-uploaded presentations in the background (default `5`). See [Tune parallel downloads of pre-uploaded presentations](/administration/customize#tune-parallel-downloads-of-pre-uploaded-presentations)
 
 - `lockSettingsPresenterPolicy` added (default `requireApproval`).
 - `requireUserConsentBeforeUnmuting` added (default `false`). Only relevant when `allowModsToUnmuteUsers=true`; when `true`, a consent dialog is shown before a moderator can unmute a participant.

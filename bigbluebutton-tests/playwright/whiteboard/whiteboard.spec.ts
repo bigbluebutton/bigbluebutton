@@ -1,14 +1,15 @@
 import type { Browser, BrowserContext, Page, TestInfo } from '@playwright/test';
 
 import { elements as e } from '../core/elements';
+import { linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { ChangeStyles } from './changeStyles';
 import { DrawShape } from './drawShape';
 import { ShapeOptions } from './shapeOptions';
 import { ShapeTools } from './shapeTools';
+import { SlideChangeBlank } from './slideChangeBlank';
 import { SlideChangeWhileEditing } from './slideChangeWhileEditing';
 import { TextShape } from './textShape';
-import { linkIssue } from '../core/helpers';
 import { WhiteboardResize } from './whiteboardResize';
 
 async function runResizeTest(
@@ -172,6 +173,35 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     await slideChange.crashOnSlideChangeWhileEditing();
   });
 
+  test('No blank presentation area on slide change with a cold cache', async ({ browser, context, page }, testInfo) => {
+    linkIssue(25397);
+    const blank = new SlideChangeBlank(browser, context);
+    await blank.initModPage(page, { testInfo });
+    await blank.noBlankOnSlideChange();
+  });
+
+  test('Slide change with a broken background asset degrades without hanging', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    linkIssue(25397);
+    const blank = new SlideChangeBlank(browser, context);
+    await blank.initModPage(page, { testInfo });
+    await blank.brokenAssetDegradesWithoutHanging();
+  });
+
+  test('Viewer follows a slide change that happens during camera calibration', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    linkIssue(25397);
+    const blank = new SlideChangeBlank(browser, context);
+    await blank.initModPage(page, { testInfo });
+    await blank.viewerFollowsSlideChangeDuringMount();
+  });
+
   test.describe.parallel('Shape Options', () => {
     test('Duplicate', async ({ browser, context, page }, testInfo) => {
       const shapeOptions = new ShapeOptions(browser, context);
@@ -196,11 +226,19 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
     await runResizeTest('cameraResyncVisual', browser, context, page, testInfo);
   });
 
-  test('Camera re-sync visual regression after resize with canvas zoom', async ({ browser, context, page }, testInfo) => {
+  test('Camera re-sync visual regression after resize with canvas zoom', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
     await runResizeTest('cameraResyncZoomedVisual', browser, context, page, testInfo);
   });
 
-  test('Camera zoom is preserved after minimizing and restoring the presentation', async ({ browser, context, page }, testInfo) => {
+  test('Camera zoom is preserved after minimizing and restoring the presentation', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
     await runResizeTest('cameraResyncAfterMinimizeRestore', browser, context, page, testInfo);
   });
 });

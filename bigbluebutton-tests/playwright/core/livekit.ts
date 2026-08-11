@@ -3,13 +3,11 @@
 // explicitly selects bbb-webrtc-sfu.
 // Valid MEDIA_BRIDGE values: 'livekit' (default) | 'bbb-webrtc-sfu'.
 const VALID_MEDIA_BRIDGES = ['livekit', 'bbb-webrtc-sfu'] as const;
-type MediaBridge = typeof VALID_MEDIA_BRIDGES[number];
+type MediaBridge = (typeof VALID_MEDIA_BRIDGES)[number];
 
 export const MEDIA_BRIDGE = process.env.MEDIA_BRIDGE || 'livekit';
 if (!VALID_MEDIA_BRIDGES.includes(MEDIA_BRIDGE as MediaBridge)) {
-  throw new Error(
-    `Invalid MEDIA_BRIDGE "${MEDIA_BRIDGE}". Valid values: ${VALID_MEDIA_BRIDGES.join(', ')}.`,
-  );
+  throw new Error(`Invalid MEDIA_BRIDGE "${MEDIA_BRIDGE}". Valid values: ${VALID_MEDIA_BRIDGES.join(', ')}.`);
 }
 export const isLegacy = MEDIA_BRIDGE === 'bbb-webrtc-sfu';
 export const isLiveKit = !isLegacy;

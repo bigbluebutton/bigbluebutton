@@ -134,7 +134,7 @@
     "yaml": "^2.8.3"
   },
   "devDependencies": {
-    "@babel/core": "7.24.9",
+    "@babel/core": "7.29.6",
     "@babel/plugin-transform-runtime": "^7.24.7",
     "@babel/polyfill": "^7.12.1",
     "@babel/preset-env": "7.24.8",

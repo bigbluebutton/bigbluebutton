@@ -257,9 +257,18 @@ class ApiController {
     }
 
     if (meetingService.createMeeting(newMeeting)) {
-      respondWithConference(newMeeting, null, null)
       // See if the request came with pre-uploading of presentation.
-      uploadDocuments(xmlModules, newMeeting, false);  //
+      // The meeting is already created and running, so a failure in the
+      // synchronous portion of the upload handling must not turn a successful
+      // creation into a 500 — log it and still respond with success (the actual
+      // download/processing runs async and reports its own failures).
+      try {
+        uploadDocuments(xmlModules, newMeeting, false);
+      } catch (Exception e) {
+        log.error("Failed to handle pre-uploaded presentations for meeting [${newMeeting.getInternalId()}]", e)
+      }
+
+      respondWithConference(newMeeting, null, null)
     } else {
       // Translate the external meeting id into an internal meeting id.
       String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(params.meetingID);
@@ -1210,6 +1219,19 @@ class ApiController {
                     , contentType: "text/xml")
           }
         }
+      } else if (uploadResult == "invalid_filename") {
+        withFormat {
+          xml {
+            render(text: responseBuilder.buildInsertDocumentResponse(
+                    "One or more documents could not be uploaded due to an invalid filename.", RESP_CODE_FAILED)
+                    , contentType: "text/xml")
+          }
+          '*' {
+            render(text: responseBuilder.buildInsertDocumentResponse(
+                    "One or more documents could not be uploaded due to an invalid filename.", RESP_CODE_FAILED)
+                    , contentType: "text/xml")
+          }
+        }
       } else if (meetingService.isMeetingWithDisabledPresentation(meeting.getInternalId())) {
         withFormat {
           xml {
@@ -1652,6 +1674,14 @@ class ApiController {
       presentationListHasCurrent = hasCurrent;
     }
 
+    // Filenames are validated synchronously (on the request thread) while the
+    // request is still in scope; the slow download/processing is only submitted
+    // afterwards. Collect the submissions and defer them so that, for
+    // insertDocument, an invalid filename can be reported as a failed response
+    // instead of being silently skipped.
+    def pendingPresentationTasks = []
+    boolean invalidFilenameFound = false
+
     listOfPresentation.eachWithIndex { document, index ->
       def Boolean isCurrent = false;
       def Boolean isRemovable = true;
@@ -1664,9 +1694,23 @@ class ApiController {
           if (document.current) {
             isDefaultPresentation = true
           }
-          downloadAndProcessDocument(presentationService.defaultUploadedPresentation, conf.getInternalId(),
-                  document.current /* default presentation */, '', false,
-                  true, isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI);
+
+          // Validate the filename on the request thread; only then run the slow
+          // download and processing async for fast API responses
+          def defaultPresentationUrl = presentationService.defaultUploadedPresentation
+          def defaultPresFilename = resolvePresentationFilename(defaultPresentationUrl, '', false)
+          if (defaultPresFilename == null) {
+            log.error("Skipping default presentation: could not derive a valid filename from [${defaultPresentationUrl}]")
+            invalidFilenameFound = true
+          } else {
+            pendingPresentationTasks << {
+              presentationService.submitPresentationTask(conf.getInternalId(), "default presentation") {
+                downloadAndProcessDocument(defaultPresentationUrl, conf.getInternalId(),
+                        document.current /* default presentation */, defaultPresFilename, false,
+                        true, isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI);
+              }
+            }
+          }
         } else {
           log.error "Default presentation could not be read, it is (" + presentationService.defaultUploadedPresentation + ")", "error"
         }
@@ -1700,18 +1744,56 @@ class ApiController {
             log.debug("user provided filename: [${document.@filename}]");
             fileName = document.@filename.toString();
           }
-          downloadAndProcessDocument(document.@url.toString(), conf.getInternalId(), isCurrent /* default presentation */,
-                  fileName, isDownloadable, isRemovable, isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI);
+
+          // Validate the filename on the request thread, where failures are still
+          // tied to the request; only then run the slow download and processing async
+          def documentUrl = document.@url.toString()
+          def presOrigFilename = resolvePresentationFilename(documentUrl, fileName, isPreUploadedPresentationFromParameter)
+          if (presOrigFilename == null) {
+            log.error("Skipping presentation [${documentUrl}]: could not derive a valid filename")
+            invalidFilenameFound = true
+          } else {
+            pendingPresentationTasks << {
+              presentationService.submitPresentationTask(conf.getInternalId(), documentUrl) {
+                downloadAndProcessDocument(documentUrl, conf.getInternalId(), isCurrent /* default presentation */,
+                        presOrigFilename, isDownloadable, isRemovable, isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI);
+              }
+            }
+          }
         } else if (!StringUtils.isEmpty(document.@name.toString())) {
-          def b64 = new Base64()
-          def decodedBytes = b64.decode(document.text().getBytes())
-          processDocumentFromRawBytes(decodedBytes, document.@name.toString(),
-                  conf.getInternalId(), isCurrent, isDownloadable, isRemovable/* default presentation */, isDefaultPresentation, isFromInsertAPI);
+          // Validate the document name on the request thread; only then run the
+          // slow processing async
+          def documentName = resolvePresentationFilename(null, document.@name.toString(), false)
+          if (documentName == null) {
+            log.error("Skipping raw-bytes presentation: invalid document name [${document.@name}]")
+            invalidFilenameFound = true
+          } else {
+            def b64 = new Base64()
+            def decodedBytes = b64.decode(document.text().getBytes())
+
+            pendingPresentationTasks << {
+              presentationService.submitPresentationTask(conf.getInternalId(), documentName) {
+                processDocumentFromRawBytes(decodedBytes, documentName,
+                        conf.getInternalId(), isCurrent, isDownloadable, isRemovable/* default presentation */, isDefaultPresentation, isFromInsertAPI);
+              }
+            }
+          }
         } else {
           log.debug("presentation module config found, but it did not contain url or name attributes");
         }
       }
     }
+
+    // For insertDocument, reject the whole request if any document had an invalid
+    // filename so the caller reports a failure rather than a misleading SUCCESS.
+    // For create, invalid documents are just skipped (logged above) and meeting
+    // creation still proceeds with the valid ones.
+    if (isFromInsertAPI && invalidFilenameFound) {
+      log.warn("insertDocument rejected for meeting [${conf.getInternalId()}]: one or more documents had an invalid filename")
+      return "invalid_filename"
+    }
+
+    pendingPresentationTasks.each { it() }
     return true
   }
 
@@ -1789,10 +1871,11 @@ class ApiController {
 
   private String decodePresentationUrlFilename(String address) {
     try {
-      def urlParts = address.tokenize("/")
-      if (urlParts.isEmpty()) return ""
-      return URLDecoder.decode(urlParts[-1], URL_ENCODING)
-    } catch (IllegalArgumentException e) {
+      // Derive the name from the URL path only, dropping any query string or fragment
+      // (e.g. presigned S3 links carry ?X-Amz-... parameters that are not part of the filename).
+      String urlPath = new URL(address.toString()).getPath()
+      return URLDecoder.decode(FilenameUtils.getName(urlPath), URL_ENCODING)
+    } catch (MalformedURLException | IllegalArgumentException e) {
       log.warn("Could not decode presentation file name from URL [{}]: {}", address, e.getMessage())
     } catch (UnsupportedEncodingException e) {
       log.error("Couldn't decode the uploaded file name.", e)
@@ -1879,6 +1962,19 @@ class ApiController {
       presOrigFilename = fileName;
     }
 
+    String presFilename = FilenameUtils.getName(presOrigFilename)
+    String filenameExt = FilenameUtils.getExtension(presOrigFilename)
+    if (StringUtils.isEmpty(presFilename) || (StringUtils.isEmpty(filenameExt) && !allowMissingExtension)) {
+      log.error("Invalid presentation filename [${presOrigFilename}]")
+      return null
+    }
+    return presOrigFilename
+  }
+
+  private downloadAndProcessDocument(address, meetingId, current, presOrigFilename, isDownloadable, isRemovable,
+                                 isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI) {
+    log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId}, ${presOrigFilename})");
+
     def uploadFailed = false
     def uploadFailReasons = new ArrayList<String>()
     long maxFileSize = paramsProcessorUtil.getMaxPresentationFileUpload()
@@ -1917,7 +2013,7 @@ class ApiController {
             }
             break
           default:
-            log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${fileName}]")
+            log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${presOrigFilename}]")
             uploadFailReasons.add("failed_to_download_file")
             uploadFailed = true
         }

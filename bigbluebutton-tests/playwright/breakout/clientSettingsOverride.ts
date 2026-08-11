@@ -15,9 +15,16 @@ export class ClientSettingsOverride extends Join {
     const breakoutPage = await this.joinRoom();
 
     const showScreenshareQuickSwapButton = await breakoutPage.page.evaluate(
-      () => (window as unknown as { meetingClientSettings: { public: { layout: { showScreenshareQuickSwapButton: boolean } } } })
-        .meetingClientSettings?.public?.layout?.showScreenshareQuickSwapButton,
+      () =>
+        (
+          window as unknown as {
+            meetingClientSettings: { public: { layout: { showScreenshareQuickSwapButton: boolean } } };
+          }
+        ).meetingClientSettings?.public?.layout?.showScreenshareQuickSwapButton,
     );
-    expect(showScreenshareQuickSwapButton, 'breakout room should inherit the parent meeting clientSettingsOverride').toBe(true);
+    expect(
+      showScreenshareQuickSwapButton,
+      'breakout room should inherit the parent meeting clientSettingsOverride',
+    ).toBe(true);
   }
 }

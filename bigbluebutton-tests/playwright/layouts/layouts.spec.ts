@@ -4,7 +4,10 @@ import { test } from '../core/setup/fixtures';
 import { Layouts } from './layouts';
 
 test.describe.parallel('Unified Layout - meeting create param', { tag: '@ci' }, () => {
-  test('First minimize of presentation shows participant tiles for moderator', async ({ browser, context }, testInfo) => {
+  test('First minimize of presentation shows participant tiles for moderator', async ({
+    browser,
+    context,
+  }, testInfo) => {
     const layouts = new Layouts(browser, context);
     await initializePages(layouts, browser, {
       isMultiUser: true,
@@ -17,7 +20,10 @@ test.describe.parallel('Unified Layout - meeting create param', { tag: '@ci' }, 
 });
 
 test.describe.parallel('Unified Layout - meeting create param - with audio', { tag: '@ci' }, () => {
-  test('First minimize of presentation shows participant tiles for moderator', async ({ browser, context }, testInfo) => {
+  test('First minimize of presentation shows participant tiles for moderator', async ({
+    browser,
+    context,
+  }, testInfo) => {
     const layouts = new Layouts(browser, context);
     await initializePages(layouts, browser, {
       isMultiUser: false,
@@ -33,7 +39,10 @@ test.describe.parallel('Unified Layout - meeting create param - with audio', { t
 });
 
 test.describe.parallel('Unified Layout - who-is-talking tiles (no webcams)', { tag: '@ci' }, () => {
-  test('Speaking with no webcams keeps avatar tiles hidden while the presentation is visible', async ({ browser, context }, testInfo) => {
+  test('Speaking with no webcams keeps avatar tiles hidden while the presentation is visible', async ({
+    browser,
+    context,
+  }, testInfo) => {
     linkIssue(25235);
     const layouts = new Layouts(browser, context);
     await initializePages(layouts, browser, {

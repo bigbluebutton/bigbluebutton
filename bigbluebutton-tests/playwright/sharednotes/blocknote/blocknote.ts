@@ -21,8 +21,8 @@ export class BlockNoteSharedNotes extends MultiUsers {
   async collaborationCursorMustNotEmbedInLink() {
     const { sharedNotesEnabled } = this.modPage.settings || {};
     if (!sharedNotesEnabled) {
-      await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
-      await this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button');
+      await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
       return;
     }
 
