@@ -1962,19 +1962,6 @@ class ApiController {
       presOrigFilename = fileName;
     }
 
-    String presFilename = FilenameUtils.getName(presOrigFilename)
-    String filenameExt = FilenameUtils.getExtension(presOrigFilename)
-    if (StringUtils.isEmpty(presFilename) || (StringUtils.isEmpty(filenameExt) && !allowMissingExtension)) {
-      log.error("Invalid presentation filename [${presOrigFilename}]")
-      return null
-    }
-    return presOrigFilename
-  }
-
-  private downloadAndProcessDocument(address, meetingId, current, presOrigFilename, isDownloadable, isRemovable,
-                                 isDefaultPresentation, isPreUploadedPresentationFromParameter, isFromInsertAPI) {
-    log.debug("ApiController#downloadAndProcessDocument(${address}, ${meetingId}, ${presOrigFilename})");
-
     def uploadFailed = false
     def uploadFailReasons = new ArrayList<String>()
     long maxFileSize = paramsProcessorUtil.getMaxPresentationFileUpload()
@@ -2013,7 +2000,7 @@ class ApiController {
             }
             break
           default:
-            log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${presOrigFilename}]")
+            log.error("Failed to download presentation=[${address}], meeting=[${meetingId}], fileName=[${fileName}]")
             uploadFailReasons.add("failed_to_download_file")
             uploadFailed = true
         }
