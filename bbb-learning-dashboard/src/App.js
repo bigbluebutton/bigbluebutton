@@ -8,7 +8,7 @@ import TabsUnstyled from '@mui/base/TabsUnstyled';
 import { Stack } from '@mui/material';
 import './App.css';
 import {
-  FormattedMessage, FormattedDate, injectIntl, FormattedTime,
+  FormattedMessage, injectIntl,
 } from 'react-intl';
 import CardBody from './components/Card';
 import UsersTable from './components/UsersTable';
@@ -462,14 +462,13 @@ class App extends React.Component {
           </h1>
           <div className="mt-3 col-text-right py-1 text-gray-500 inline-block">
             <p className="font-bold">
-              <div className="inline" data-test="meetingDateDashboard">
-                <FormattedDate
-                  value={activitiesJson.createdOn}
-                  year="numeric"
-                  month="short"
-                  day="numeric"
-                />
-              </div>
+              <span className="inline" data-test="meetingDateDashboard">
+                {intl.formatDate(activitiesJson.createdOn, {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                })}
+              </span>
               &nbsp;&nbsp;
               {
                 activitiesJson.endedOn > 0
@@ -493,7 +492,7 @@ class App extends React.Component {
             <p data-test="meetingDurationTimeDashboard">
               <FormattedMessage id="app.learningDashboard.indicators.duration" defaultMessage="Duration" />
               :&nbsp;
-              {tsToHHmmss(this.totalOfActivity())}
+              <span>{tsToHHmmss(this.totalOfActivity())}</span>
             </p>
           </div>
         </div>
@@ -629,7 +628,7 @@ class App extends React.Component {
                 </CardContent>
               </Card>
             </TabUnstyled>
-            {pluginUserDataColumnTitleList.length && (
+            {pluginUserDataColumnTitleList.length > 0 && (
               <TabUnstyled className="rounded focus:outline-none focus:ring focus:ring-red-500 ring-offset-2" data-test="pluginsPanelDashboard">
                 <Card>
                   <CardContent classes={{ root: '!p-0' }}>
@@ -780,16 +779,15 @@ class App extends React.Component {
                       defaultMessage="Last updated at"
                     />
                     &nbsp;
-                    <FormattedTime
-                      value={lastUpdated}
-                    />
+                    <span>{intl.formatTime(lastUpdated)}</span>
                     &nbsp;
-                    <FormattedDate
-                      value={lastUpdated}
-                      year="numeric"
-                      month="long"
-                      day="numeric"
-                    />
+                    <span>
+                      {intl.formatDate(lastUpdated, {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })}
+                    </span>
                   </>
                 )
               }

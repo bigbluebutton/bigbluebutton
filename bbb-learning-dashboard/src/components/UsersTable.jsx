@@ -1,11 +1,17 @@
 import React from 'react';
-import {
-  FormattedMessage, FormattedDate, FormattedNumber, injectIntl,
-} from 'react-intl';
+import { FormattedMessage, injectIntl } from 'react-intl';
 import { getUserReactionsSummary } from '../services/ReactionService';
 import { getActivityScore, getSumOfTime, tsToHHmmss } from '../services/UserService';
 import UserAvatar from './UserAvatar';
 import { UserDetailsContext } from './UserDetails/context';
+
+const SESSION_DATE_FORMAT = {
+  month: 'short',
+  day: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+};
 
 function renderArrow(order = 'asc') {
   return (
@@ -182,7 +188,7 @@ class UsersTable extends React.Component {
 
   render() {
     const {
-      allUsers, tab,
+      allUsers, tab, intl,
     } = this.props;
 
     const {
@@ -306,7 +312,7 @@ class UsersTable extends React.Component {
               .map((user) => {
                 const opacity = user.leftOn > 0 ? 'opacity-75' : '';
                 return (
-                  <tr key={user} className="text-gray-700">
+                  <tr key={user.userKey} className="text-gray-700">
                     <td className={`flex items-center px-4 py-3 col-text-left text-sm ${opacity}`} data-test="userLabelDashboard">
                       <div className="inline-block relative w-8 h-8 rounded-full">
                         <UserAvatar user={user} />
@@ -339,14 +345,9 @@ class UsersTable extends React.Component {
                                     d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
                                   />
                                 </svg>
-                                <FormattedDate
-                                  value={session.registeredOn}
-                                  month="short"
-                                  day="numeric"
-                                  hour="2-digit"
-                                  minute="2-digit"
-                                  second="2-digit"
-                                />
+                                <span>
+                                  {intl.formatDate(session.registeredOn, SESSION_DATE_FORMAT)}
+                                </span>
                               </p>
                               { session.leftOn > 0
                                 ? (
@@ -366,14 +367,9 @@ class UsersTable extends React.Component {
                                       />
                                     </svg>
 
-                                    <FormattedDate
-                                      value={session.leftOn}
-                                      month="short"
-                                      day="numeric"
-                                      hour="2-digit"
-                                      minute="2-digit"
-                                      second="2-digit"
-                                    />
+                                    <span>
+                                      {intl.formatDate(session.leftOn, SESSION_DATE_FORMAT)}
+                                    </span>
                                   </p>
                                 )
                                 : null }
@@ -403,10 +399,12 @@ class UsersTable extends React.Component {
                         />
                       </svg>
                       &nbsp;
-                      { tsToHHmmss(Object.values(user.intIds).reduce((prev, intId) => (
-                        prev + intId.sessions.reduce((prev2, session) => ((session.leftOn > 0
-                          ? prev2 + session.leftOn
-                          : prev2 + (new Date()).getTime()) - session.registeredOn), 0)), 0)) }
+                      <span>
+                        { tsToHHmmss(Object.values(user.intIds).reduce((prev, intId) => (
+                          prev + intId.sessions.reduce((prev2, session) => ((session.leftOn > 0
+                            ? prev2 + session.leftOn
+                            : prev2 + (new Date()).getTime()) - session.registeredOn), 0)), 0)) }
+                      </span>
                       <br />
                       {
                         ((function getPercentage() {
@@ -452,7 +450,7 @@ class UsersTable extends React.Component {
                               />
                             </svg>
                             &nbsp;
-                            { tsToHHmmss(user.talk.totalTime) }
+                            <span>{ tsToHHmmss(user.talk.totalTime) }</span>
                           </span>
                         ) : null }
                     </td>
@@ -475,7 +473,7 @@ class UsersTable extends React.Component {
                               />
                             </svg>
                             &nbsp;
-                            { tsToHHmmss(getSumOfTime(user.webcams)) }
+                            <span>{ tsToHHmmss(getSumOfTime(user.webcams)) }</span>
                           </span>
                         ) : null }
                     </td>
@@ -498,17 +496,17 @@ class UsersTable extends React.Component {
                               />
                             </svg>
                             &nbsp;
-                            {user.totalOfMessages}
+                            <span>{user.totalOfMessages}</span>
                           </span>
                         ) : null }
                     </td>
                     <td className={`px-4 py-3 text-sm col-text-left ${opacity}`} data-test="userTotalReactionsDashboard">
                       {
                         Object.keys(usersReactionsSummary[user.userKey] || {}).map((reaction) => (
-                          <div className="text-xs whitespace-nowrap">
-                            {reaction}
+                          <div className="text-xs whitespace-nowrap" key={reaction}>
+                            <span>{reaction}</span>
                             &nbsp;
-                            { usersReactionsSummary[user.userKey][reaction] }
+                            <span>{ usersReactionsSummary[user.userKey][reaction] }</span>
                             &nbsp;
                           </div>
                         ))
@@ -520,7 +518,7 @@ class UsersTable extends React.Component {
                           <span>
                             ✋
                             &nbsp;
-                            {user.raiseHand.length}
+                            <span>{user.raiseHand.length}</span>
                           </span>
                         ) : null }
                     </td>
@@ -542,7 +540,7 @@ class UsersTable extends React.Component {
                     </td>
                     {
                       !user.isModerator ? (
-                        <td className={`px-4 py-3 text-sm text-center items ${opacity}`} data-test="userActivityScoreDashboard">
+                        <td key="activity-score" className={`px-4 py-3 text-sm text-center items ${opacity}`} data-test="userActivityScoreDashboard">
                           <svg viewBox="0 0 82 12" width="82" height="12" className="flex-none m-auto inline">
                             <rect width="12" height="12" fill={usersActivityScore[user.userKey] > 0 ? '#4BA381' : '#e4e4e7'} />
                             <rect width="12" height="12" x="14" fill={usersActivityScore[user.userKey] > 2 ? '#338866' : '#e4e4e7'} />
@@ -551,13 +549,16 @@ class UsersTable extends React.Component {
                             <rect width="12" height="12" x="56" fill={usersActivityScore[user.userKey] > 8 ? '#023B34' : '#e4e4e7'} />
                             <rect width="12" height="12" x="70" fill={usersActivityScore[user.userKey] === 10 ? '#02362B' : '#e4e4e7'} />
                           </svg>
-                          &nbsp;
+                          <span>&nbsp;</span>
                           <span className="text-xs bg-gray-200 rounded-full px-2">
-                            <FormattedNumber value={usersActivityScore[user.userKey]} minimumFractionDigits="0" maximumFractionDigits="1" />
+                            {intl.formatNumber(usersActivityScore[user.userKey], {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 1,
+                            })}
                           </span>
                         </td>
                       ) : (
-                        <td className="px-4 py-3 text-sm text-center">
+                        <td key="activity-score-na" className="px-4 py-3 text-sm text-center">
                           <FormattedMessage id="app.learningDashboard.usersTable.notAvailable" defaultMessage="N/A" />
                         </td>
                       )
@@ -568,12 +569,18 @@ class UsersTable extends React.Component {
                           .sessions.slice(-1)[0].leftOn > 0
                           ? (
                             <span className="px-2 py-1 font-semibold leading-tight text-red-700 bg-red-100 rounded-full">
-                              <FormattedMessage id="app.learningDashboard.usersTable.userStatusOffline" defaultMessage="Offline" />
+                              {intl.formatMessage({
+                                id: 'app.learningDashboard.usersTable.userStatusOffline',
+                                defaultMessage: 'Offline',
+                              })}
                             </span>
                           )
                           : (
                             <span className="px-2 py-1 font-semibold leading-tight text-green-700 bg-green-100 rounded-full">
-                              <FormattedMessage id="app.learningDashboard.usersTable.userStatusOnline" defaultMessage="Online" />
+                              {intl.formatMessage({
+                                id: 'app.learningDashboard.usersTable.userStatusOnline',
+                                defaultMessage: 'Online',
+                              })}
                             </span>
                           )
                       }
