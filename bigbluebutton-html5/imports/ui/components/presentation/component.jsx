@@ -283,6 +283,11 @@ class Presentation extends PureComponent {
       && !isPresentationDetached
     );
 
+    const presenterToolOpened = (
+      !prevProps.isPresentationDetached
+      && isPresentationDetached
+    );
+
     const presenterAnnotationSlideChanged = (
       prevProps.currentSlide?.id !== currentSlide?.id
       || prevProps.currentPresentationId !== currentPresentationId
@@ -293,6 +298,10 @@ class Presentation extends PureComponent {
       || presenterAnnotationSlideChanged
     ) {
       this.clearPresenterAnnotations();
+    }
+
+    if (presenterToolClosed) {
+      this.setState({ currentSlideNote: '' });
     }
 
     if (numCameras !== prevNumCameras) {
@@ -394,7 +403,14 @@ class Presentation extends PureComponent {
       setPresentationFitToWidth(false);
     }
 
-    if (currentSlide?.svgUri !== prevProps.currentSlide?.svgUri) {
+    const slideChanged = (
+      currentSlide?.svgUri !== prevProps.currentSlide?.svgUri
+    );
+
+    if (
+      presenterToolOpened
+      || (isPresentationDetached && slideChanged)
+    ) {
       this.loadCurrentSlideNote();
     }
   }
@@ -969,9 +985,9 @@ class Presentation extends PureComponent {
   }
 
   async loadCurrentSlideNote() {
-    const { currentSlide } = this.props;
+    const { currentSlide, isPresentationDetached } = this.props;
 
-    if (!currentSlide?.noteUri) {
+    if (!isPresentationDetached || !currentSlide?.noteUri) {
       this.setState({ currentSlideNote: '' });
       return;
     }
@@ -982,6 +998,15 @@ class Presentation extends PureComponent {
       });
 
       if (!response.ok) {
+        if (response.status === 404) {
+          console.info(
+            'Slide note is not available yet. Ignore the 404 error above.',
+          );
+        } else {
+          console.error(
+            `Failed to load slide note: HTTP ${response.status}`,
+          );
+        }
         this.setState({ currentSlideNote: '' });
         return;
       }
