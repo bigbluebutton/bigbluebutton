@@ -327,9 +327,10 @@ class UsersTable extends React.Component {
                         >
                           {user.name}
                         </button>
-                        { Object.values(user.intIds || {}).map((intId, index) => intId.sessions
+                        { Object.entries(user.intIds || {}).map(([intIdKey, intId], index) => intId
+                          .sessions
                           .map((session, sessionIndex) => (
-                            <>
+                            <React.Fragment key={`${intIdKey}-${session.registeredOn}`}>
                               <p className="text-xs text-gray-700 dark:text-gray-400">
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
@@ -379,7 +380,7 @@ class UsersTable extends React.Component {
                                 : (
                                   <hr className="my-1" />
                                 ) }
-                            </>
+                            </React.Fragment>
                           ))) }
                       </div>
                     </td>
