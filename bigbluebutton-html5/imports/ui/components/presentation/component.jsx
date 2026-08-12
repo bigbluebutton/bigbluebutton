@@ -304,7 +304,7 @@ class Presentation extends PureComponent {
       this.setState({ currentSlideNote: '' });
     }
 
-    if (numCameras !== prevNumCameras) {
+    if (numCameras !== prevNumCameras && !isPresentationDetached) {
       this.onResize();
     }
 
