@@ -16,6 +16,13 @@ if [ ! -f /.dockerenv ]; then
   systemctl daemon-reload
 fi
 
+# On upgrade ($2 carries the version we upgraded from), before-remove left the
+# service running; restart it so the new binary and unit take over. Fresh
+# installs are deliberately left stopped (see below).
+if [ -n "$2" ] && [ ! -f /.dockerenv ]; then
+  systemctl try-restart coturn.service || true
+fi
+
 # The service is deliberately left neither enabled nor started. The stock
 # /etc/turnserver.conf has every option commented out and coturn defaults to
 # anonymous access, so starting it before a real configuration is written would
