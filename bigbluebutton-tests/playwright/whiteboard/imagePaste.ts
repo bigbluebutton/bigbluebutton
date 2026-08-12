@@ -75,6 +75,67 @@ async function expectLoadedImageShapes(testPage: Page, minLoaded: number, descri
   }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
 }
 
+// Exports the current slide through the whiteboard options menu and returns the
+// downloaded PNG as base64. handleDownload reads the file as utf8, which would
+// corrupt binary content, so the bytes are read again from the download path.
+async function exportSlideSnapshot(testPage: Page): Promise<string> {
+  await testPage.waitAndClick(e.whiteboardOptionsButton);
+  const { download } = await testPage.handleDownload(testPage.page.locator(e.presentationSnapshot));
+  const filePath = await download.path();
+  return fs.readFileSync(filePath!).toString('base64');
+}
+
+// The exported snapshot covers the whole slide, so the pasted image is located
+// by color rather than by position. The fixture is a single flat color and it
+// is sampled from the fixture itself at runtime, so no color is hardcoded here.
+async function countFixtureColorPixels(testPage: Page, snapshotBase64: string): Promise<number> {
+  const fixtureBase64 = fs.readFileSync(path.join(__dirname, `../core/media/${IMAGE_FIXTURE}`)).toString('base64');
+
+  return testPage.page.evaluate(
+    async ({ snapshot, fixture }) => {
+      const decode = async (base64: string): Promise<ImageData> => {
+        const img = new Image();
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = () => reject(new Error('could not decode PNG'));
+          img.src = `data:image/png;base64,${base64}`;
+        });
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const context = canvas.getContext('2d')!;
+        context.drawImage(img, 0, 0);
+        return context.getImageData(0, 0, canvas.width, canvas.height);
+      };
+
+      const fixtureData = await decode(fixture);
+      const middleRow = Math.floor(fixtureData.height / 2);
+      const middleColumn = Math.floor(fixtureData.width / 2);
+      const middle = (middleRow * fixtureData.width + middleColumn) * 4;
+      const red = fixtureData.data[middle];
+      const green = fixtureData.data[middle + 1];
+      const blue = fixtureData.data[middle + 2];
+
+      // Small tolerance: the interior of a flat region survives rasterization
+      // untouched, only the edges get blended with the background.
+      const TOLERANCE = 4;
+      const snapshotData = await decode(snapshot);
+      let count = 0;
+      for (let i = 0; i < snapshotData.data.length; i += 4) {
+        if (
+          Math.abs(snapshotData.data[i] - red) <= TOLERANCE &&
+          Math.abs(snapshotData.data[i + 1] - green) <= TOLERANCE &&
+          Math.abs(snapshotData.data[i + 2] - blue) <= TOLERANCE
+        ) {
+          count += 1;
+        }
+      }
+      return count;
+    },
+    { snapshot: snapshotBase64, fixture: fixtureBase64 },
+  );
+}
+
 export class WhiteboardImagePaste extends MultiUsers {
   async pasteImage() {
     const { whiteboardImagePasteEnabled } = this.modPage.settings || {};
@@ -132,5 +193,41 @@ export class WhiteboardImagePaste extends MultiUsers {
       baseline,
       'a viewer without whiteboard write access should not be able to paste an image',
     );
+  }
+
+  async snapshotKeepsPastedImage() {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+
+    // Export once before pasting. Asserting on the delta rather than on an
+    // absolute count keeps the test honest whatever colors the slide
+    // background itself carries.
+    const baselineMatches = await countFixtureColorPixels(this.modPage, await exportSlideSnapshot(this.modPage));
+
+    const shapeBaseline = await this.modPage.page.locator(e.wbImageShape).count();
+    await pasteImageViaClipboard(this.modPage, 'image/png', fixtureAsDataUrl(IMAGE_FIXTURE, 'image/png'));
+    await this.modPage.hasElementCount(
+      e.wbImageShape,
+      shapeBaseline + 1,
+      'should insert the pasted image before exporting the snapshot',
+    );
+    await expectLoadedImageShapes(
+      this.modPage,
+      shapeBaseline + 1,
+      'the pasted image shape should decode before exporting the snapshot',
+    );
+
+    // The upload toast covers the whiteboard options button.
+    await this.modPage.closeAllToastNotifications();
+    const matches = await countFixtureColorPixels(this.modPage, await exportSlideSnapshot(this.modPage));
+
+    // The fixture is 64x64 at natural size in page units (paste only scales
+    // images down), so a correct export carries a few thousand of its pixels.
+    // The floor is deliberately low: the point is that the color is there at
+    // all. Before the fix the export replaced the pasted image with a copy of
+    // the slide background, leaving zero.
+    expect(
+      matches - baselineMatches,
+      'the exported snapshot should show the pasted image itself, not the slide background',
+    ).toBeGreaterThan(500);
   }
 }

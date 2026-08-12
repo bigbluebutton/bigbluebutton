@@ -257,5 +257,12 @@ test.describe.parallel('Whiteboard tools', { tag: '@ci' }, () => {
       await imagePaste.initUserPage(context, { testInfo });
       await imagePaste.viewerCannotPasteImage();
     });
+
+    test('Slide snapshot keeps the pasted image', async ({ browser, context, page, browserName }, testInfo) => {
+      test.skip(browserName === 'firefox', 'Firefox does not support download.');
+      const imagePaste = new WhiteboardImagePaste(browser, context);
+      await imagePaste.initModPage(page, { testInfo });
+      await imagePaste.snapshotKeepsPastedImage();
+    });
   });
 });
