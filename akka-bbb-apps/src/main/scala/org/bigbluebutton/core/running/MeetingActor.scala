@@ -50,6 +50,7 @@ import org.bigbluebutton.core.db.{
   UserDAO,
   UserStateDAO
 }
+import org.bigbluebutton.core.models.LiveKitMemberships
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 import org.bigbluebutton.core.models.VoiceUsers.{ findAllFreeswitchCallers, findAllListenOnlyVoiceUsers }
 import org.bigbluebutton.core.models.Webcams.findAll
@@ -1216,6 +1217,7 @@ class MeetingActor(
         }
 
         UserStateDAO.updateExpired(u.meetingId, u.intId, expired = true)
+        UsersApp.removeUserLiveKitMemberships(liveMeeting, liveMeeting.props.meetingProp.intId, u.intId, outGW)
       }
     }
 

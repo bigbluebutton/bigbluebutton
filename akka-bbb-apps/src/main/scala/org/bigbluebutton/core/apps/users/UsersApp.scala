@@ -13,7 +13,8 @@ import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
 import org.bigbluebutton.core2.message.senders.{MsgBuilder, Sender}
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
-import org.bigbluebutton.core.db.{ChatMessageDAO, UserDAO, UserStateDAO}
+import org.bigbluebutton.core.apps.mediagroups.PublicMediaGroupIds
+import org.bigbluebutton.core.db.{ChatMessageDAO, MediaGroupUserDAO, UserDAO, UserStateDAO}
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
 
@@ -136,6 +137,23 @@ object UsersApp {
     outGW.send(event)
   }
 
+  def removeUserLiveKitMemberships(
+    liveMeeting: LiveMeeting,
+    meetingId: String,
+    userId: String,
+    outGW: OutMsgRouter
+  ): Unit = {
+    LiveKitMemberships.removeByUser(liveMeeting.liveKitMemberships, userId).foreach { m =>
+      if (m.purpose != "primary") {
+        // TODO PRL REVIEW - should remove all media types?
+        // Reap the breakout's public:audio sender row for this transferred
+        // listener; otherwise the stale row lingers until the breakout ends.
+        MediaGroupUserDAO.delete(m.roomName, PublicMediaGroupIds.AUDIO, userId)
+        outGW.send(MsgBuilder.buildRemoveLiveKitParticipantSysMsg(meetingId, m.roomName, m.userId))
+      }
+    }
+  }
+
   def ejectUserFromMeeting(outGW: OutMsgRouter, liveMeeting: LiveMeeting,
                            userId: String, ejectedBy: String, reason: String,
                            reasonCode: String, ban: Boolean): Unit = {
@@ -157,6 +175,7 @@ object UsersApp {
         automaticallyAssignPresenter(outGW, liveMeeting)
       }
       UserStateDAO.updateEjected(meetingId, userId, reason, reasonCode, ejectedBy)
+      removeUserLiveKitMemberships(liveMeeting, meetingId, userId, outGW)
     }
 
     for {
@@ -185,25 +204,6 @@ object UsersApp {
         ChatMessageDAO.insertSystemMsg(liveMeeting.props.meetingProp.intId, GroupChatApp.MAIN_PUBLIC_CHAT, "", "", GroupChatMessageType.USER_IS_PRESENTER_MSG, Map(), newPresenter.name)
       }
     }
-  }
-
-  def sendGenerateLiveKitTokenReqMsg(
-    outGW: OutMsgRouter,
-    meetingId: String,
-    userId: String,
-    userName: String,
-    grant: LiveKitGrant,
-    metadata: LiveKitParticipantMetadata
-  ): Unit = {
-    val event = MsgBuilder.buildGenerateLiveKitTokenReqMsg(
-      meetingId,
-      userId,
-      userName,
-      grant,
-      metadata
-    )
-
-    outGW.send(event)
   }
 
 }
