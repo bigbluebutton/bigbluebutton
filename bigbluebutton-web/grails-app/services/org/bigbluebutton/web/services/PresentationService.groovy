@@ -270,6 +270,8 @@ class PresentationService {
 		}
 
 		private void extractNotesFromPptxFile(File presDir, File pptxFile) {
+			// We need to change the path if the script is copied in other locations.
+			//  Is there a better place to copy?
 			def script = new File("/usr/local/bin/extract_pptx_notes.py")
 
 			if (!script.exists()) {
