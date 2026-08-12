@@ -11,6 +11,7 @@ import Session from '/imports/ui/services/storage/in-memory';
 import { useMeetingIsBreakout } from '/imports/ui/components/app/service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import { USER_AGGREGATE_COUNT_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
+import { PRESENTATION_PAGES_SUBSCRIPTION } from '/imports/ui/components/whiteboard/queries';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { DEVICE_TYPE } from '/imports/ui/components/layout/enums';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
@@ -89,6 +90,8 @@ const PresentationToolbarContainer = (props) => {
   const { pluginsExtensibleAreasAggregatedState } = pluginsContext;
 
   const WHITEBOARD_CONFIG = window.meetingClientSettings.public.whiteboard;
+  const insertPagesEnabled = window.meetingClientSettings.public.presentation
+    ?.insertPagesEnabled ?? false;
   const isQuizEnabled = useIsQuizEnabled();
 
   const {
@@ -110,13 +113,24 @@ const PresentationToolbarContainer = (props) => {
     PRESENTATION_SET_PAGE_INFINITE_WHITEBOARD,
   );
 
+  const { data: presentationPagesData } = useDeduplicatedSubscription(
+    PRESENTATION_PAGES_SUBSCRIPTION,
+    {
+      variables: { presentationId },
+      skip: !userIsPresenter || !presentationId,
+    },
+  );
+
+  // Navigation resolves slide numbers to page ids through this subscription,
+  // so the controls stay disabled until its first payload arrives.
+  const presentationPagesLoaded = presentationPagesData !== undefined;
+
   const resetSlide = () => {
-    const { pageId, num } = currentPresentationPage;
+    const { pageId } = currentPresentationPage;
     presentationSetZoom({
       variables: {
         presentationId,
         pageId,
-        pageNum: num,
         xOffset: 0,
         yOffset: 0,
         widthRatio: 100,
@@ -135,7 +149,8 @@ const PresentationToolbarContainer = (props) => {
   };
 
   const setPresentationPageInfiniteWhiteboard = (infiniteWhiteboard) => {
-    const pageId = `${presentationId}/${currentSlideNum}`;
+    const pageId = currentPresentationPage?.pageId;
+    if (!pageId) return;
     presentationSetPageInfiniteWhiteboard({
       variables: {
         pageId,
@@ -145,8 +160,10 @@ const PresentationToolbarContainer = (props) => {
   };
 
   const skipToSlide = (slideNum) => {
-    const slideId = `${presentationId}/${slideNum}`;
-    setPresentationPage(slideId);
+    const page = (presentationPagesData?.pres_page || []).find((p) => p.num === slideNum);
+    if (page) {
+      setPresentationPage(page.pageId);
+    }
   };
 
   const previousSlide = () => {
@@ -228,8 +245,12 @@ const PresentationToolbarContainer = (props) => {
         allowInfiniteWhiteboard={allowInfiniteWhiteboard}
         // TODO: Remove this
         isConnected={connected}
+        presentationPagesLoaded={presentationPagesLoaded}
+        presentationPagesCount={(presentationPagesData?.pres_page || []).length}
+        presentationPages={presentationPagesData?.pres_page || []}
         maxNumberOfActiveUsers={WHITEBOARD_CONFIG.maxNumberOfActiveUsers}
         numberOfJoinedUsers={numberOfJoinedUsers}
+        insertPagesEnabled={insertPagesEnabled}
         {...{
           pluginProvidedPresentationToolbarItems,
           handleToggleFullScreen,

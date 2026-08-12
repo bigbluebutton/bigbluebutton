@@ -1631,10 +1631,22 @@ CREATE UNLOGGED TABLE "pres_page" (
     "maxImageHeight" integer,
     "uploadCompleted" boolean,
     "infiniteWhiteboard" boolean,
-    "fitToWidth" boolean
+    "fitToWidth" boolean,
+    --Correlation id of the insert-pages request that put this page here, so the
+    --presenter that asked for the insert can tell its own pages apart from those
+    --of a concurrent insert. Null for every page that arrived with its own
+    --presentation.
+    "insertRequestId" varchar(500)
 );
 CREATE INDEX "idx_pres_page_presentationId" ON "pres_page"("presentationId");
 CREATE INDEX "idx_pres_page_presentationId_curr" ON "pres_page"("presentationId") where "current" is true;
+--Page ids are opaque UUIDs, so this is what keeps a re-sent page notification
+--from silently inserting a duplicate row for the same slide. It is deferred to
+--commit time because "num" is a mutable position attribute: renumbering pages
+--in place (e.g. shifting them to open room for an insert) transiently collides
+--within a transaction even though the final state is unique.
+ALTER TABLE "pres_page" ADD CONSTRAINT "pres_page_presentationId_num_unique"
+    UNIQUE ("presentationId", "num") DEFERRABLE INITIALLY DEFERRED;
 
 CREATE OR REPLACE VIEW public.v_pres_presentation AS
 SELECT pres_presentation."meetingId",
@@ -1663,7 +1675,7 @@ SELECT pres_presentation."meetingId",
         SELECT pp."urlsJson"->>'thumb'
         FROM "pres_page" pp
         WHERE pp."presentationId" = pres_presentation."presentationId"
-          AND pp.num = 1
+        ORDER BY pp.num
         LIMIT 1
     ) as "firstPageThumbnailUrl",
     case when pres_presentation."exportToChatStatus" is not null
@@ -1699,7 +1711,8 @@ SELECT pres_presentation."meetingId",
     (pres_page."height" * pres_page."heightRatio" / 100 * LEAST(pres_page."maxImageWidth" / NULLIF(pres_page."width", 0), pres_page."maxImageHeight" / NULLIF(pres_page."height", 0))) AS "scaledViewBoxHeight",
     pres_page."uploadCompleted",
     pres_page."infiniteWhiteboard",
-    pres_page."fitToWidth"
+    pres_page."fitToWidth",
+    pres_page."insertRequestId"
 FROM pres_page
 JOIN pres_presentation ON pres_presentation."presentationId" = pres_page."presentationId";
 

@@ -6,12 +6,15 @@ public class PresentationUploadToken implements IMessage  {
     public final String authzToken;
     public final String filename;
     public final String meetingId;
+    public final boolean insertPagesEnabled;
 
-    public PresentationUploadToken(String podId, String authzToken, String filename, String meetingId, String presentationId) {
+    public PresentationUploadToken(String podId, String authzToken, String filename, String meetingId,
+                                   String presentationId, boolean insertPagesEnabled) {
         this.podId = podId;
         this.authzToken = authzToken;
         this.presentationId = presentationId;
         this.filename = filename;
         this.meetingId = meetingId;
+        this.insertPagesEnabled = insertPagesEnabled;
     }
 }

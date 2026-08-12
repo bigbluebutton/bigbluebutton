@@ -39,9 +39,9 @@ async function collectAnnotationsFromRedis() {
   const client = redis.createClient({
     password: config.redis.password,
     socket: {
-        host: config.redis.host,
-        port: config.redis.port
-    }
+      host: config.redis.host,
+      port: config.redis.port,
+    },
   });
 
   client.on('error', (err) => logger.info('Redis Client Error', err));
@@ -72,15 +72,19 @@ async function collectAnnotationsFromRedis() {
   // Message to display conversion progress toast
   const statusUpdate = new PresAnnStatusMsg(exportJob);
 
-  if (fs.existsSync(pdfFile)) {
-    // If there's a PDF file, we leverage the existing converted SVG slides
+  // A presentation without its own PDF (uploaded as a PNG/JPEG image) starts
+  // with one page. If pages are later inserted, use the converted SVG slides
+  // because the original image still represents only slide 1.
+  if (fs.existsSync(pdfFile) || pages.length > 1) {
+    // Leverage the existing converted SVG slides
     for (const p of pages) {
       const pageNumber = p.page;
-      const imageName = `slide${pageNumber}`;
+      // On-disk slide files are named by the opaque pageId; the job's dropbox
+      // keeps ordinal names so the downstream steps stay position-based.
       const convertedSVG = path.join(
           exportJob.presLocation,
           'svgs',
-          `${imageName}.svg`);
+          `slide${p.pageId}.svg`);
 
       const outputFile = path.join(dropbox, `slide${pageNumber}.svg`);
 

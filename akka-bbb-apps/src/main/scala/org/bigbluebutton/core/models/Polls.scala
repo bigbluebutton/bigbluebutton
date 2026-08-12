@@ -130,7 +130,10 @@ object Polls {
       pod <- state.presentationPodManager.getDefaultPod()
       pres <- pod.getCurrentPresentation()
       page <- PresentationInPod.getCurrentPage(pres)
-      shape = pollResultToWhiteboardShape(result, page, poll.questions(0).quiz, showAnswer)
+      // deskshare polls have no backing presentation; leave their presentation
+      // identity empty, like the recorder defaults below
+      shapePresId = if (result.id.contains("deskshare")) "" else pres.id
+      shape = pollResultToWhiteboardShape(result, page, shapePresId, poll.questions(0).quiz, showAnswer)
       annot <- send(result, shape)
     } yield {
       lm.wbModel.addAnnotations(annot.wbId, lm.props.meetingProp.intId, requesterId, Array[AnnotationVO](annot), isPresenter = false, isModerator = false)
@@ -140,7 +143,9 @@ object Polls {
       val annotationEnvelope = BbbCoreEnvelope(SendWhiteboardAnnotationsEvtMsg.NAME, annotationRouting)
       val annotationHeader = BbbClientMsgHeader(SendWhiteboardAnnotationsEvtMsg.NAME, lm.props.meetingProp.intId, requesterId)
 
-      val annotMsgBody = SendWhiteboardAnnotationsEvtMsgBody(annot.wbId, Array[AnnotationVO](annot))
+      // deskshare polls have no backing presentation page; mirror the recorder's empty defaults
+      val (annotPresId, annotPageNum) = if (annot.wbId == "deskshare") ("", 0) else (pres.id, page.num)
+      val annotMsgBody = SendWhiteboardAnnotationsEvtMsgBody(annot.wbId, Array[AnnotationVO](annot), annotPresId, annotPageNum)
       val annotationEvent = SendWhiteboardAnnotationsEvtMsg(annotationHeader, annotMsgBody)
       val annotationMsgEvent = BbbCommonEnvCoreMsg(annotationEnvelope, annotationEvent)
       bus.outGW.send(annotationMsgEvent)
@@ -295,6 +300,7 @@ object Polls {
   private def pollResultToWhiteboardShape(
       result:     SimplePollResultOutVO,
       page:       PresentationPage,
+      presId:     String,
       quiz:       Boolean,
       showAnswer: Boolean
   ): scala.collection.immutable.Map[String, Object] = {
@@ -370,12 +376,16 @@ object Polls {
     props += "color" -> "black"
     props += "question" -> result.questionText.getOrElse("")
 
+    // The whiteboard client keeps only shapes whose meta identifies the presentation
+    // being displayed; client-drawn shapes set this themselves on persist.
+    meta += "presentationId" -> presId
+
     shape += "x" -> java.lang.Double.valueOf(x)
     shape += "y" -> java.lang.Double.valueOf(y)
     shape += "isLocked" -> java.lang.Boolean.valueOf(false)
     shape += "index" -> "a1"
     shape += "rotation" -> Integer.valueOf(0)
-    shape += "parentId" -> s"page:${page.num}"
+    shape += "parentId" -> s"page:${page.id}"
     shape += "typeName" -> "shape"
     shape += "opacity" -> Integer.valueOf(1)
     shape += "id" -> s"shape:poll-result-${result.id}"

@@ -25,6 +25,7 @@ select_permissions:
         - height
         - heightRatio
         - infiniteWhiteboard
+        - insertRequestId
         - isCurrentPage
         - num
         - pageId

@@ -19,6 +19,7 @@ import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import KEYS from '/imports/utils/keys';
 import Spinner from '/imports/ui/components/common/spinner/component';
 import Separator from '/imports/ui/components/common/separator/component';
+import InsertPagesContainer from './insert-pages/container';
 
 const intlMessages = defineMessages({
   previousSlideLabel: {
@@ -335,6 +336,7 @@ class PresentationToolbar extends PureComponent {
       intl,
       zoom,
       isConnected,
+      presentationPagesLoaded,
       isPollingEnabled,
       amIPresenter,
       startPoll,
@@ -350,6 +352,11 @@ class PresentationToolbar extends PureComponent {
       maxNumberOfActiveUsers,
       numberOfJoinedUsers,
       isMobile,
+      insertPagesEnabled,
+      presentationId,
+      presentationPagesCount,
+      presentationPages,
+      skipToSlide,
     } = this.props;
 
     const startOfSlides = !(currentSlideNum > 1);
@@ -412,7 +419,7 @@ class PresentationToolbar extends PureComponent {
             aria-describedby={
               startOfSlides ? 'noPrevSlideDesc' : 'prevSlideDesc'
             }
-            disabled={startOfSlides || !isConnected}
+            disabled={startOfSlides || !isConnected || !presentationPagesLoaded}
             color="light"
             circle
             icon="left_arrow"
@@ -432,7 +439,7 @@ class PresentationToolbar extends PureComponent {
               aria-describedby="skipSlideDesc"
               aria-live="polite"
               aria-relevant="all"
-              disabled={!isConnected}
+              disabled={!isConnected || !presentationPagesLoaded}
               value={currentSlideNum}
               onChange={this.handleSkipToSlideChange}
               data-test="skipSlide"
@@ -446,7 +453,7 @@ class PresentationToolbar extends PureComponent {
             aria-describedby={
               endOfSlides ? 'noNextSlideDesc' : 'nextSlideDesc'
             }
-            disabled={endOfSlides || !isConnected}
+            disabled={endOfSlides || !isConnected || !presentationPagesLoaded}
             color="light"
             circle
             icon="right_arrow"
@@ -456,6 +463,19 @@ class PresentationToolbar extends PureComponent {
             hideLabel
             data-test="nextSlide"
           />
+          {insertPagesEnabled ? (
+            // numberOfSlides here is sourced from the same pres_page subscription that
+            // skipToSlide resolves slide numbers against (not from totalPages), so the
+            // insert-completion detection and the auto-advance lookup never disagree.
+            <InsertPagesContainer
+              presentationId={presentationId}
+              currentSlideNum={currentSlideNum}
+              numberOfSlides={presentationPagesCount}
+              pages={presentationPages}
+              isConnected={isConnected}
+              skipToSlide={skipToSlide}
+            />
+          ) : null}
         </Styled.PresentationSlideControls>
         <Styled.PresentationZoomControls>
           {(showIWB) && (
@@ -574,6 +594,7 @@ PresentationToolbar.propTypes = {
   fitToWidth: PropTypes.bool.isRequired,
   zoom: PropTypes.number.isRequired,
   isConnected: PropTypes.bool.isRequired,
+  presentationPagesLoaded: PropTypes.bool.isRequired,
   fullscreenElementId: PropTypes.string.isRequired,
   fullscreenAction: PropTypes.string.isRequired,
   isFullscreen: PropTypes.bool.isRequired,
@@ -592,10 +613,21 @@ PresentationToolbar.propTypes = {
   maxNumberOfActiveUsers: PropTypes.number.isRequired,
   numberOfJoinedUsers: PropTypes.number.isRequired,
   isMobile: PropTypes.bool.isRequired,
+  insertPagesEnabled: PropTypes.bool,
+  presentationId: PropTypes.string,
+  presentationPagesCount: PropTypes.number,
+  presentationPages: PropTypes.arrayOf(PropTypes.shape({
+    pageId: PropTypes.string.isRequired,
+    insertRequestId: PropTypes.string,
+  })),
 };
 
 PresentationToolbar.defaultProps = {
   fullscreenRef: null,
+  insertPagesEnabled: false,
+  presentationId: undefined,
+  presentationPagesCount: 0,
+  presentationPages: [],
 };
 
 export default injectWbResizeEvent(injectIntl(PresentationToolbar));

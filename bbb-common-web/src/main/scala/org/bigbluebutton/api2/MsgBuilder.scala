@@ -25,10 +25,10 @@ object MsgBuilder {
   private lazy val imageResolutionService: ImageResolutionService = new ImageResolutionService
   private lazy val logger: Logger = LoggerFactory.getLogger("msg-builder")
 
-  private def generatePageToken(presId: String, page: Int, secret: String): String = {
+  private def generatePageToken(presId: String, pageId: String, secret: String): String = {
     val mac = Mac.getInstance("HmacSHA256")
     mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"))
-    mac.doFinal(s"$presId|$page".getBytes(StandardCharsets.UTF_8)).map("%02x".format(_)).mkString
+    mac.doFinal(s"$presId|$pageId".getBytes(StandardCharsets.UTF_8)).map("%02x".format(_)).mkString
   }
 
   def buildDestroyMeetingSysCmdMsg(msg: DestroyMeetingMessage): BbbCommonEnvCoreMsg = {
@@ -104,20 +104,22 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
-  def generatePresentationPage(presId: String, presBaseUrl: String, presParentPath: String, page: Int, pageTokenSecret: String = ""): PresentationPageConvertedVO = {
-    val pageToken = if (pageTokenSecret.nonEmpty) generatePageToken(presId, page, pageTokenSecret) else ""
+  // Consumes the pageId minted by the conversion pipeline (the id under which
+  // the page's files were written to disk); never mints a new one.
+  def generatePresentationPage(presId: String, presBaseUrl: String, presParentPath: String, page: Int, pageId: String, pageTokenSecret: String = ""): PresentationPageConvertedVO = {
+    val pageToken = if (pageTokenSecret.nonEmpty) generatePageToken(presId, pageId, pageTokenSecret) else ""
     val tokenParam = if (pageToken.nonEmpty) "?pageToken=" + pageToken else ""
-    val thumbUrl = presBaseUrl + "/thumbnail/" + page + tokenParam
-    val txtUrl = presBaseUrl + "/textfiles/" + page + tokenParam
-    val svgUrl = presBaseUrl + "/svg/" + page + tokenParam
-    val pngUrl = presBaseUrl + "/png/" + page + tokenParam
+    val thumbUrl = presBaseUrl + "/thumbnail/" + pageId + tokenParam
+    val txtUrl = presBaseUrl + "/textfiles/" + pageId + tokenParam
+    val svgUrl = presBaseUrl + "/svg/" + pageId + tokenParam
+    val pngUrl = presBaseUrl + "/png/" + pageId + tokenParam
 
     val urls = Map("thumb" -> thumbUrl, "text" -> txtUrl, "svg" -> svgUrl, "png" -> pngUrl)
 
     // get SVG dimensions
     var width = 1440D
     var height = 1080D
-    val pageAbsoluteSvgPath = presParentPath + "/svgs/slide" + page.toString + ".svg"
+    val pageAbsoluteSvgPath = presParentPath + "/svgs/slide" + pageId + ".svg"
 
     val dims = readSvgDims(pageAbsoluteSvgPath)
     dims match {
@@ -137,7 +139,7 @@ object MsgBuilder {
 
     val content = Try {
       val maxChars: Int = 1024 * 1024 // limit ~1 MB to avoid OOM
-      val pageAbsoluteTxtPath = presParentPath + "/textfiles/slide-" + page.toString + ".txt"
+      val pageAbsoluteTxtPath = presParentPath + "/textfiles/slide-" + pageId + ".txt"
       Using(Source.fromFile(pageAbsoluteTxtPath, StandardCharsets.UTF_8.name())) { source =>
         val buffer = new StringBuilder
         val iter = source.iter
@@ -151,7 +153,7 @@ object MsgBuilder {
     }.getOrElse("")
 
     PresentationPageConvertedVO(
-      id = s"$presId/$page",
+      id = pageId,
       num = page,
       urls = urls,
       content = content,
@@ -167,7 +169,7 @@ object MsgBuilder {
     val envelope = BbbCoreEnvelope(PresentationPageConvertedSysMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationPageConvertedSysMsg.NAME, msg.meetingId, msg.authzToken)
 
-    val page = generatePresentationPage(msg.presId, msg.presBaseUrl, msg.presParentPath, msg.page.intValue(), pageTokenSecret)
+    val page = generatePresentationPage(msg.presId, msg.presBaseUrl, msg.presParentPath, msg.page.intValue(), msg.pageId, pageTokenSecret)
 
     val body = PresentationPageConvertedSysMsgBody(
       podId = msg.podId,
@@ -246,7 +248,7 @@ object MsgBuilder {
     val envelope = BbbCoreEnvelope(PresentationConversionCompletedSysPubMsg.NAME, routing)
     val header = BbbClientMsgHeader(PresentationConversionCompletedSysPubMsg.NAME, msg.meetingId, msg.authzToken)
 
-    val pages = generatePresentationPages(msg.presId, msg.numPages.intValue(), msg.presBaseUrl, pageTokenSecret)
+    val pages = generatePresentationPages(msg.presId, msg.numPages.intValue(), msg.presBaseUrl, msg.pageIds, pageTokenSecret)
     val presentation = PresentationVO(msg.presId, msg.temporaryPresentationId, msg.filename,
       current = msg.current.booleanValue(), pages.values.toVector, msg.downloadable.booleanValue(),
       msg.removable.booleanValue(),
@@ -258,22 +260,77 @@ object MsgBuilder {
     BbbCommonEnvCoreMsg(envelope, req)
   }
 
-  def generatePresentationPages(presId: String, numPages: Int, presBaseUrl: String, pageTokenSecret: String = ""): scala.collection.immutable.Map[String, PageVO] = {
+  def buildPresentationPagesInsertedSysMsg(msg: DocPagesInsertedProgress, pageTokenSecret: String = ""): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PresentationPagesInsertedSysMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationPagesInsertedSysMsg.NAME, msg.meetingId, "notUsed")
+
+    // Build the tokenized urls of the inserted pages, keyed by page id. bbb-web owns pageToken
+    // generation, and the token binds to the target presentation the pages now belong to. The
+    // shifted target pages need no urls here: assets are addressed by page id, so their urls do
+    // not change when only their num does.
+    val pageUrls = msg.insertPageIds.asScala.toVector.sortBy(_._1).map {
+      case (_, pageId) =>
+        val pageToken = if (pageTokenSecret.nonEmpty) generatePageToken(msg.targetPresentationId, pageId, pageTokenSecret) else ""
+        val tokenParam = if (pageToken.nonEmpty) "?pageToken=" + pageToken else ""
+        InsertedPageUrls(pageId, Map(
+          "thumb" -> (msg.presBaseUrl + "/thumbnail/" + pageId + tokenParam),
+          "text" -> (msg.presBaseUrl + "/textfiles/" + pageId + tokenParam),
+          "svg" -> (msg.presBaseUrl + "/svg/" + pageId + tokenParam),
+          "png" -> (msg.presBaseUrl + "/png/" + pageId + tokenParam)
+        ))
+    }
+
+    val body = PresentationPagesInsertedSysMsgBody(
+      podId = msg.podId,
+      targetPresentationId = msg.targetPresentationId,
+      insertPresentationId = msg.insertPresentationId,
+      insertRequestId = msg.insertRequestId,
+      insertAtPosition = msg.insertAtPosition.intValue(),
+      pageUrls = pageUrls
+    )
+    val req = PresentationPagesInsertedSysMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
+  def buildPresentationPagesInsertFailedSysMsg(msg: DocPagesInsertFailed): BbbCommonEnvCoreMsg = {
+    val routing = collection.immutable.HashMap("sender" -> "bbb-web")
+    val envelope = BbbCoreEnvelope(PresentationPagesInsertFailedSysMsg.NAME, routing)
+    val header = BbbClientMsgHeader(PresentationPagesInsertFailedSysMsg.NAME, msg.meetingId, "notUsed")
+    val body = PresentationPagesInsertFailedSysMsgBody(
+      podId = msg.podId,
+      targetPresentationId = msg.targetPresentationId,
+      insertPresentationId = msg.insertPresentationId,
+      insertRequestId = msg.insertRequestId
+    )
+    val req = PresentationPagesInsertFailedSysMsg(header, body)
+    BbbCommonEnvCoreMsg(envelope, req)
+  }
+
+  def generatePresentationPages(presId: String, numPages: Int, presBaseUrl: String,
+                                pageIds: java.util.Map[Integer, String], pageTokenSecret: String = ""): scala.collection.immutable.Map[String, PageVO] = {
     val pages = new scala.collection.mutable.HashMap[String, PageVO]
     for (i <- 1 to numPages) {
-      val id = presId + "/" + i
-      val num = i
-      val current = if (i == 1) true else false
-      val pageToken = if (pageTokenSecret.nonEmpty) generatePageToken(presId, i, pageTokenSecret) else ""
-      val tokenParam = if (pageToken.nonEmpty) "?pageToken=" + pageToken else ""
-      val thumbnail = presBaseUrl + "/thumbnail/" + i + tokenParam
+      // Consume the id minted by the conversion pipeline. Do not mint fresh
+      // UUIDs here or the same page gets two competing ids. A page the pipeline
+      // never minted an id for has no files on disk either, so skip it instead
+      // of falling back to the page number and pointing at assets that do not exist.
+      Option(pageIds.get(Integer.valueOf(i))) match {
+        case None => logger.warn("No page id was minted for page {} of presentation {}. Skipping it.", i, presId)
+        case Some(id) =>
+          val num = i
+          val current = if (i == 1) true else false
+          val pageToken = if (pageTokenSecret.nonEmpty) generatePageToken(presId, id, pageTokenSecret) else ""
+          val tokenParam = if (pageToken.nonEmpty) "?pageToken=" + pageToken else ""
+          val thumbnail = presBaseUrl + "/thumbnail/" + id + tokenParam
 
-      val txtUri = presBaseUrl + "/textfiles/" + i + tokenParam
-      val svgUri = presBaseUrl + "/svg/" + i + tokenParam
+          val txtUri = presBaseUrl + "/textfiles/" + id + tokenParam
+          val svgUri = presBaseUrl + "/svg/" + id + tokenParam
 
-      val p = PageVO(id = id, num = num, thumbUri = thumbnail,
-        txtUri = txtUri, svgUri = svgUri, current = current, pageToken = pageToken)
-      pages += p.id -> p
+          val p = PageVO(id = id, num = num, thumbUri = thumbnail,
+            txtUri = txtUri, svgUri = svgUri, current = current, pageToken = pageToken)
+          pages += p.id -> p
+      }
     }
 
     pages.toMap

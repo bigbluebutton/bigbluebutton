@@ -1108,6 +1108,9 @@ public:
     allowDownloadOriginal: true
     allowDownloadWithAnnotations: true
     allowSnapshotOfCurrentSlide: true
+    # Enables presenters to insert pages into the current presentation. When disabled, the native
+    # insert-pages (+) button is hidden and plugin SDK presentation.insertPages requests are blocked.
+    insertPagesEnabled: true
     panZoomThrottle: 32
     restoreOnUpdate: true
     uploadEndpoint: '/bigbluebutton/presentation/upload'

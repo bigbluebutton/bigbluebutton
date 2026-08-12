@@ -36,7 +36,9 @@ class BreakoutRoomsUtilSpec extends UnitSpec {
 
   it should "calculate the checksum of join url" in {
     val sharedSecret = "a820d30da2db356124fce5bd5d8054b4"
-    val checksum = "6baef866df491ae82df992eb14f7f8511d5b77f3"
+    // sha256("join" + baseString + sharedSecret): checkSumAlgorithmForBreakouts defaults to
+    // sha256 in application.conf (the old expected value here predated that default).
+    val checksum = "3c66f806931eaf4cc43b9d3a72c3b35fcdc66e3ff4c76c3d1ca8ac68057882e0"
     val baseString = "fullName=User+4621018&isBreakout=true&meetingID=random-1853792&password=mp&redirect=true"
 
     val joinChecksum = BreakoutRoomsUtil.calculateChecksum("join", baseString, sharedSecret)

@@ -438,6 +438,12 @@ class BbbWebApiGWApp(
     } else if (msg.isInstanceOf[DocConversionStarted]) {
       val event = MsgBuilder.buildPresentationConversionStartedSysPubMsg(msg.asInstanceOf[DocConversionStarted])
       msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+    } else if (msg.isInstanceOf[DocPagesInsertedProgress]) {
+      val event = MsgBuilder.buildPresentationPagesInsertedSysMsg(msg.asInstanceOf[DocPagesInsertedProgress], pageTokenSecret)
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
+    } else if (msg.isInstanceOf[DocPagesInsertFailed]) {
+      val event = MsgBuilder.buildPresentationPagesInsertFailedSysMsg(msg.asInstanceOf[DocPagesInsertFailed])
+      msgToAkkaAppsEventBus.publish(MsgToAkkaApps(toAkkaAppsChannel, event))
     }
   }
 

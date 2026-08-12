@@ -532,13 +532,13 @@ class MeetingActor(
 
       // Whiteboard
       case m: SendCursorPositionPubMsg =>
-        wbApp.handle(m, liveMeeting, msgBus)
+        wbApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
         updateUserLastActivity(m.header.userId)
       case m: DeleteWhiteboardAnnotationsPubMsg =>
-        wbApp.handle(m, liveMeeting, msgBus)
+        wbApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
         updateUserLastActivity(m.header.userId)
       case m: SendWhiteboardAnnotationsPubMsg =>
-        wbApp.handle(m, liveMeeting, msgBus)
+        wbApp.handle(m, state, liveMeeting, msgBus) // passing state but not modifying it
         updateUserLastActivity(m.header.userId)
       case m: GetWhiteboardAnnotationsReqMsg => wbApp.handle(m, liveMeeting, msgBus)
 
@@ -697,6 +697,8 @@ class MeetingActor(
         state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
         updateUserLastActivity(m.header.userId)
       case m: PresentationConversionCompletedSysPubMsg => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationPagesInsertedSysMsg          => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
+      case m: PresentationPagesInsertFailedSysMsg      => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: PdfConversionInvalidErrorSysPubMsg       => state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)
       case m: SetCurrentPagePubMsg =>
         state = presentationPodsApp.handle(m, state, liveMeeting, msgBus)

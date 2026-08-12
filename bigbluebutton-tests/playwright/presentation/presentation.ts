@@ -1,13 +1,21 @@
 import { expect } from '@playwright/test';
 
-import { CI, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, UPLOAD_PDF_WAIT_TIME } from '../core/constants';
+import {
+  CI,
+  ELEMENT_WAIT_EXTRA_LONG_TIME,
+  ELEMENT_WAIT_LONGER_TIME,
+  ELEMENT_WAIT_TIME,
+  UPLOAD_PDF_WAIT_TIME,
+} from '../core/constants';
 import { elements as e } from '../core/elements';
 import { checkNotificationText } from '../notifications/util';
 import { MultiUsers } from '../user/multiusers';
 import {
-  checkSvgIndex,
+  expectSlideChanged,
   expectSlidesEqualBetweenPages,
+  expectSlideSvgPath,
   getCurrentPresentationHeight,
+  getCurrentSlideSvgPath,
   getSlideOuterHtml,
   uploadMultiplePresentations,
   uploadSinglePresentation,
@@ -23,19 +31,26 @@ export class Presentation extends MultiUsers {
       ELEMENT_WAIT_LONGER_TIME,
     );
 
-    await checkSvgIndex(this.modPage, '/svg/1');
+    const firstSlideSvgPath = await getCurrentSlideSvgPath(
+      this.modPage,
+      'should display the first slide image on the whiteboard',
+    );
 
     await this.modPage.waitAndClick(e.nextSlide);
     await this.modPage.hasElement(e.whiteboard, 'should display the next slide on the whiteboard');
-    await this.modPage.page.waitForTimeout(1000);
-
-    await checkSvgIndex(this.modPage, '/svg/2');
+    await expectSlideChanged(
+      this.modPage,
+      firstSlideSvgPath,
+      'should display a different slide image after skipping to the next slide',
+    );
 
     await this.modPage.waitAndClick(e.prevSlide);
     await this.modPage.hasElement(e.whiteboard, 'should display the previous slide on the whiteboard');
-    await this.modPage.page.waitForTimeout(1000);
-
-    await checkSvgIndex(this.modPage, '/svg/1');
+    await expectSlideSvgPath(
+      this.modPage,
+      firstSlideSvgPath,
+      'should display the first slide image again after going back to the previous slide',
+    );
   }
 
   async navigateSlidesWithKeys() {
@@ -45,54 +60,45 @@ export class Presentation extends MultiUsers {
       ELEMENT_WAIT_LONGER_TIME,
     );
 
-    await checkSvgIndex(this.modPage, '/svg/1');
+    const firstSlideSvgPath = await getCurrentSlideSvgPath(
+      this.modPage,
+      'should display the first slide image on the whiteboard',
+    );
 
     // Blur any focused element so keydown events target document.body
     const blurActive = () => this.modPage.page.evaluate(() => (document.activeElement as HTMLElement)?.blur());
 
     await blurActive();
     await this.modPage.press('ArrowRight');
-    await this.modPage.page.waitForFunction(
-       ([whiteboardSelector, expectedSvg]) => {
-         const whiteboard = document.querySelector(whiteboardSelector);
-         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
-       },
-       [e.whiteboard, '/svg/2'],
-       { timeout: ELEMENT_WAIT_LONGER_TIME },
-     );
+    const secondSlideSvgPath = await expectSlideChanged(
+      this.modPage,
+      firstSlideSvgPath,
+      'should display a different slide image after pressing ArrowRight',
+    );
 
     await blurActive();
     await this.modPage.press('ArrowLeft');
-    await this.modPage.page.waitForFunction(
-       ([whiteboardSelector, expectedSvg]) => {
-         const whiteboard = document.querySelector(whiteboardSelector);
-         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
-       },
-       [e.whiteboard, '/svg/1'],
-       { timeout: ELEMENT_WAIT_LONGER_TIME },
-     );
+    await expectSlideSvgPath(
+      this.modPage,
+      firstSlideSvgPath,
+      'should display the first slide image again after pressing ArrowLeft',
+    );
 
     await blurActive();
     await this.modPage.press('PageDown');
-    await this.modPage.page.waitForFunction(
-       ([whiteboardSelector, expectedSvg]) => {
-         const whiteboard = document.querySelector(whiteboardSelector);
-         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
-       },
-       [e.whiteboard, '/svg/2'],
-       { timeout: ELEMENT_WAIT_LONGER_TIME },
-     );
+    await expectSlideSvgPath(
+      this.modPage,
+      secondSlideSvgPath,
+      'should display the second slide image after pressing PageDown',
+    );
 
     await blurActive();
     await this.modPage.press('PageUp');
-    await this.modPage.page.waitForFunction(
-       ([whiteboardSelector, expectedSvg]) => {
-         const whiteboard = document.querySelector(whiteboardSelector);
-         return whiteboard?.innerHTML.includes(expectedSvg) ?? false;
-       },
-       [e.whiteboard, '/svg/1'],
-       { timeout: ELEMENT_WAIT_LONGER_TIME },
-     );
+    await expectSlideSvgPath(
+      this.modPage,
+      firstSlideSvgPath,
+      'should display the first slide image again after pressing PageUp',
+    );
   }
 
   async shareCameraAsContent() {
@@ -664,7 +670,10 @@ export class Presentation extends MultiUsers {
     await this.modPage.waitAndClick(e.mediaAreaButton);
     await this.modPage.waitAndClick(e.managePresentations);
     await this.modPage.waitAndClick(e.removePresentation);
-    await this.modPage.hasElementDisabled(e.sharePresentationButton, 'should disable the share presentation button when there is no presentation');
+    await this.modPage.hasElementDisabled(
+      e.sharePresentationButton,
+      'should disable the share presentation button when there is no presentation',
+    );
 
     await this.modPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the moderator');
     await this.modPage.wasRemoved(
@@ -728,8 +737,8 @@ export class Presentation extends MultiUsers {
       2,
       'should display both default and uploaded presentation on the manage presentations modal',
     );
-    await this.modPage.waitAndClick(e.removePresentation);  // remove first presentation
-    await this.modPage.waitAndClick(e.removePresentation);  // remove second presentation
+    await this.modPage.waitAndClick(e.removePresentation); // remove first presentation
+    await this.modPage.waitAndClick(e.removePresentation); // remove second presentation
 
     await this.modPage.wasRemoved(e.whiteboard, 'should not display the whiteboard for the moderator');
     await this.modPage.wasRemoved(

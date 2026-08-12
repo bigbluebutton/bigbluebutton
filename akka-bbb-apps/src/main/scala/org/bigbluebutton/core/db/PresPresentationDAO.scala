@@ -4,6 +4,7 @@ import PostgresProfile.api._
 import org.bigbluebutton.core.models.PresentationInPod
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{ Failure, Success }
 import spray.json._
 
 case class PresPresentationDbModel(
@@ -190,6 +191,90 @@ object PresPresentationDAO {
     if (presentation.current) {
       setCurrentPres(presentation.id)
     }
+  }
+
+  // Persists a completed page insert as one transaction: re-home/renumber the target's pages,
+  // update its totalPages and delete the transient insert presentation row. All-or-nothing is
+  // required here, not just hygiene: pres_page references pres_presentation with ON DELETE
+  // CASCADE, so a delete landing in a separate transaction from the page upserts could cascade
+  // away the freshly inserted pages. It is also the transaction where the deferred
+  // (presentationId, num) unique constraint gets checked at commit, which is what allows the
+  // in-place renumbering of the shifted pages.
+  def applyInsertedPages(presentation: PresentationInPod, meetingId: String, insertPresentationId: String,
+                         insertedPageIds: Set[String], insertRequestId: String): Unit = {
+    // The inserted pages occupy insertPosition..insertPosition + insertedPageIds.size - 1, so any
+    // page numbered below that is on the same side of the insert as before and needs no write at
+    // all. Everything above it was shifted up and needs its new num.
+    val insertPosition = presentation.pages.values
+      .collect { case page if insertedPageIds.contains(page.id) => page.num }
+      .minOption
+      .getOrElse(1)
+
+    // Only the inserted pages get a full row write (they are re-homed from the transient insert
+    // presentation and carry no live UI state yet). The target's own shifted pages must keep
+    // their DB-only columns (slideRevealed, viewBoxWidth/Height, ...), which akka state does not
+    // track; the insert only changes their position, so only "num" is written for them.
+    val pageUpserts = presentation.pages.values
+      .filter(page => insertedPageIds.contains(page.id) || page.num >= insertPosition)
+      .map { page =>
+        if (insertedPageIds.contains(page.id)) {
+          TableQuery[PresPageDbTableDef].insertOrUpdate(
+            PresPageDbModel(
+              pageId = page.id,
+              presentationId = presentation.id,
+              num = page.num,
+              urlsJson = page.urls.toJson,
+              content = page.content,
+              slideRevealed = page.current,
+              current = page.current,
+              xOffset = page.xOffset,
+              yOffset = page.yOffset,
+              widthRatio = page.widthRatio,
+              heightRatio = page.heightRatio,
+              width = page.width,
+              height = page.height,
+              viewBoxWidth = PresPageDAO.DefaultViewBoxWidth,
+              viewBoxHeight = PresPageDAO.DefaultViewBoxHeight,
+              maxImageWidth = PresPageDAO.MaxImageWidth,
+              maxImageHeight = PresPageDAO.MaxImageHeight,
+              uploadCompleted = page.converted,
+              infiniteWhiteboard = page.infiniteWhiteboard,
+              fitToWidth = page.fitToWidth,
+              insertRequestId = Some(insertRequestId),
+            )
+          )
+        } else {
+          TableQuery[PresPageDbTableDef]
+            .filter(_.pageId === page.id)
+            .map(_.num)
+            .update(page.num)
+        }
+      }
+
+    val updateTotalPages = TableQuery[PresPresentationDbTableDef]
+      .filter(_.presentationId === presentation.id)
+      .map(p => p.totalPages)
+      .update(presentation.numPages)
+
+    val deleteInsertPres = TableQuery[PresPresentationDbTableDef]
+      .filter(p => p.meetingId === meetingId && p.presentationId === insertPresentationId)
+      .delete
+
+    val transaction = DBIO.seq((pageUpserts.toSeq :+ updateTotalPages :+ deleteInsertPres): _*)
+      .transactionally
+      .asTry
+      .map {
+        case Success(_) => ()
+        case Failure(e) =>
+          DatabaseConnection.logger.error(
+            s"Failed to apply inserted pages to presentation ${presentation.id}: $e"
+          )
+      }
+
+    // The meeting actor updates its in-memory presentation before this queued
+    // transaction commits. As with other BBB DAOs, a commit failure is logged
+    // but does not roll back actor state, so memory and DB may diverge.
+    DatabaseConnection.enqueue(transaction)
   }
 
   def setCurrentPres(presentationId: String) = {

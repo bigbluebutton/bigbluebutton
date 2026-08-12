@@ -38,6 +38,14 @@ object PresentationPodsApp {
     state.presentationPodManager.getAllPresentationPodsInMeeting()
   }
 
+  def findPresentationPage(state: MeetingState2x, pageId: String): Option[(PresentationInPod, PresentationPage)] = {
+    (for {
+      pod <- state.presentationPodManager.getAllPresentationPodsInMeeting()
+      pres <- pod.presentations.values
+      page <- pres.pages.get(pageId)
+    } yield (pres, page)).headOption
+  }
+
   def getNumberOfPresentationPods(state: MeetingState2x): Int = state.presentationPodManager.getNumberOfPods()
 
   def translatePresentationPodToVO(pod: PresentationPod): PresentationPodVO = {

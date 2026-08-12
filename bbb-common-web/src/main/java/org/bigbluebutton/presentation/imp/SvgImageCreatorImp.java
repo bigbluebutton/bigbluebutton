@@ -51,7 +51,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         if (!svgImagesPresentationDir.exists())
             svgImagesPresentationDir.mkdir();
 
-        File destSvg = new File(svgImagesPresentationDir.getAbsolutePath() + File.separatorChar + "slide" + page + ".svg");
+        File destSvg = new File(svgImagesPresentationDir.getAbsolutePath() + File.separatorChar + "slide" + pres.getOrMintPageId(page) + ".svg");
 
         if (useBlank) {
             copyBlankSvg(destSvg);
@@ -88,7 +88,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
             }
         }
 
-        File destSvg = new File(dir.getAbsolutePath() + File.separatorChar + "slide" + page + ".svg");
+        File destSvg = new File(dir.getAbsolutePath() + File.separatorChar + "slide" + pres.getOrMintPageId(page) + ".svg");
         copyBlankSvg(destSvg);
     }
 
@@ -132,7 +132,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
         String dest;
 
         // Skip processing if the destination file exists, as it was likely restored from the cache
-        File destsvg = new File(imagePresentationDir.getAbsolutePath() + File.separatorChar + "slide" + page + ".svg");
+        File destsvg = new File(imagePresentationDir.getAbsolutePath() + File.separatorChar + "slide" + pres.getOrMintPageId(page) + ".svg");
         if(destsvg.exists()) {
             return true;
         }
@@ -428,20 +428,6 @@ public class SvgImageCreatorImp implements SvgImageCreator {
 
     private File determineSvgImagesDirectory(File presentationFile) {
         return new File(presentationFile.getParent() + File.separatorChar + "svgs");
-    }
-
-    private void copyBlankSvgs(File svgssDir, int pageCount) {
-    	File[] svgs = svgssDir.listFiles();
-
-		if (svgs.length != pageCount) {
-			for (int i = 1; i <= pageCount; i++) {
-				File svg = new File(svgssDir.getAbsolutePath() + File.separator + "slide" + i + ".svg");
-				if (!svg.exists()) {
-					log.info("Copying blank svg for slide {}", i);
-					copyBlankSvg(svg);
-				}
-			}
-		}
     }
 
 	private void copyBlankSvg(File svg) {

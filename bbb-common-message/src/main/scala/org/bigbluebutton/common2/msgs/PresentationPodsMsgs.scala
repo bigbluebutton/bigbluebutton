@@ -39,7 +39,7 @@ case class SetPresentationDownloadablePubMsgBody(podId: String, presentationId: 
 object ResizeAndMovePagePubMsg { val NAME = "ResizeAndMovePagePubMsg" }
 case class ResizeAndMovePagePubMsg(header: BbbClientMsgHeader, body: ResizeAndMovePagePubMsgBody) extends StandardMsg
 case class ResizeAndMovePagePubMsgBody(podId: String, presentationId: String, pageId: String, xOffset: Double,
-                                       yOffset: Double, widthRatio: Double, heightRatio: Double, slideNumber: Int)
+                                       yOffset: Double, widthRatio: Double, heightRatio: Double)
 
 object SlideResizedPubMsg { val NAME = "SlideResizedPubMsg" }
 case class SlideResizedPubMsg(header: BbbClientMsgHeader, body: SlideResizedPubMsgBody) extends StandardMsg
@@ -124,6 +124,37 @@ case class PresentationConversionCompletedSysPubMsg(
 ) extends StandardMsg
 case class PresentationConversionCompletedSysPubMsgBody(podId: String, messageKey: String, code: String,
                                                         presentation: PresentationVO)
+
+// Sent by bbb-web when a plugin insert-pages command finished converting a file into a
+// separate presentation whose pages must be spliced into an existing (target) presentation
+// at a 1-based position. Slide files are named and served by opaque page id, so bbb-web only
+// moved the inserted pages' artifacts into the target presentation directory; akka-apps
+// re-homes the converted pages onto the target presentation and shifts the existing page
+// numbers to make room, keeping every page's urls keyed by its unchanged page id.
+object PresentationPagesInsertedSysMsg { val NAME = "PresentationPagesInsertedSysMsg" }
+case class PresentationPagesInsertedSysMsg(
+    header: BbbClientMsgHeader,
+    body:   PresentationPagesInsertedSysMsgBody
+) extends StandardMsg
+// pageUrls carries the tokenized urls of the inserted pages only, keyed by page id (bbb-web owns
+// url/pageToken generation, and the token binds to the target presentation the pages now live in).
+// The shifted target pages keep the urls they already had: only their num changes.
+case class PresentationPagesInsertedSysMsgBody(podId: String, targetPresentationId: String,
+                                               insertPresentationId: String, insertRequestId: String, insertAtPosition: Int,
+                                               pageUrls: Vector[InsertedPageUrls])
+case class InsertedPageUrls(pageId: String, urls: Map[String, String])
+
+// Sent by bbb-web when an insert-pages upload converted successfully but splicing the converted
+// files into the target presentation directory failed (e.g. the target disappeared meanwhile).
+// bbb-web already removed the insert presentation directory; akka-apps drops the transient insert
+// presentation from pod state and DB and notifies the meeting.
+object PresentationPagesInsertFailedSysMsg { val NAME = "PresentationPagesInsertFailedSysMsg" }
+case class PresentationPagesInsertFailedSysMsg(
+    header: BbbClientMsgHeader,
+    body:   PresentationPagesInsertFailedSysMsgBody
+) extends StandardMsg
+case class PresentationPagesInsertFailedSysMsgBody(podId: String, targetPresentationId: String,
+                                                   insertPresentationId: String, insertRequestId: String)
 
 object PresentationPageConvertedSysMsg { val NAME = "PresentationPageConvertedSysMsg" }
 case class PresentationPageConvertedSysMsg(
@@ -397,7 +428,7 @@ case class GetAllPresentationPodsRespMsgBody(pods: Vector[PresentationPodVO])
 
 object SetCurrentPageEvtMsg { val NAME = "SetCurrentPageEvtMsg" }
 case class SetCurrentPageEvtMsg(header: BbbClientMsgHeader, body: SetCurrentPageEvtMsgBody) extends BbbCoreMsg
-case class SetCurrentPageEvtMsgBody(podId: String, presentationId: String, pageId: String)
+case class SetCurrentPageEvtMsgBody(podId: String, presentationId: String, pageId: String, pageNum: Int)
 
 object SetPageInfiniteWhiteboardEvtMsg { val NAME = "SetPageInfiniteWhiteboardEvtMsg" }
 case class SetPageInfiniteWhiteboardEvtMsg(header: BbbClientMsgHeader, body: SetPageInfiniteWhiteboardEvtMsgBody) extends BbbCoreMsg
@@ -434,5 +465,6 @@ case class SetPresentationFitToWidthCmdMsgBody(userId: String, pageId: String, f
 // ------------ akka-apps to bbb-common-web ------------
 object PresentationUploadTokenSysPubMsg { val NAME = "PresentationUploadTokenSysPubMsg" }
 case class PresentationUploadTokenSysPubMsg(header: BbbClientMsgHeader, body: PresentationUploadTokenSysPubMsgBody) extends BbbCoreMsg
-case class PresentationUploadTokenSysPubMsgBody(podId: String, authzToken: String, filename: String, meetingId: String, presentationId: String)
+case class PresentationUploadTokenSysPubMsgBody(podId: String, authzToken: String, filename: String, meetingId: String,
+                                                presentationId: String, insertPagesEnabled: Boolean)
 // ------------ akka-apps to bbb-common-web ------------

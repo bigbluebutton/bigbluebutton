@@ -54,10 +54,10 @@ trait AppsTestFixtures {
   val captureSlidesFilename = s"Room 0${sequence} (Whiteboard)"
 
   val metadata: collection.immutable.Map[String, String] = Map("foo" -> "bar", "bar" -> "baz", "baz" -> "foo")
-  val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence, 
-                                    freeJoin = false, captureNotes = false, captureSlides = false,
-                                    breakoutRooms = Vector(), captureNotesFilename = captureNotesFilename,
-                                    captureSlidesFilename = captureSlidesFilename)
+  val breakoutProps = BreakoutProps(parentId = parentMeetingId, sequence = sequence,
+    freeJoin = false, captureNotes = false, captureSlides = false,
+    breakoutRooms = Vector(), captureNotesFilename = captureNotesFilename,
+    captureSlidesFilename = captureSlidesFilename)
 
   val meetingProp = MeetingProp(name = meetingName, extId = externalMeetingId, intId = meetingId,
     meetingCameraCap = meetingCameraCap,
@@ -71,7 +71,7 @@ trait AppsTestFixtures {
     userInactivityInspectTimerInMinutes = userInactivityInspectTimerInMinutes, userInactivityThresholdInMinutes = userInactivityInspectTimerInMinutes, userActivitySignResponseDelayInMinutes = userActivitySignResponseDelayInMinutes)
   val password = PasswordProp(moderatorPass = moderatorPassword, viewerPass = viewerPassword, learningDashboardAccessToken = learningDashboardAccessToken)
   val recordProp = RecordProp(record = record, autoStartRecording = autoStartRecording,
-    allowStartStopRecording = allowStartStopRecording, keepEvents = keepEvents )
+    allowStartStopRecording = allowStartStopRecording, keepEvents = keepEvents)
   val welcomeProp = WelcomeProp(welcomeMsg = welcomeMsg, welcomeMsgForModerators = welcomeMsgForModerators)
   val voiceProp = VoiceProp(telVoice = voiceConfId, voiceConf = voiceConfId, dialNumber = dialNumber, muteOnStart = muteOnStart)
   val usersProp = UsersProp(maxUsers = maxUsers, webcamsOnlyForModerator = webcamsOnlyForModerator,

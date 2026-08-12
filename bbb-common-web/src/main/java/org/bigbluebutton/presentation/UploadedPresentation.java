@@ -21,6 +21,9 @@ package org.bigbluebutton.presentation;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.io.FilenameUtils;
 
 public final class UploadedPresentation {
@@ -46,6 +49,17 @@ public final class UploadedPresentation {
   private long maxPageConversionTime;
 
   private boolean defaultPresentation;
+
+  // Page identity: opaque UUID per page, minted once when the page's files are
+  // first created on disk. Every on-disk filename, URL and message must consume
+  // the id from this map instead of deriving identity from the page number.
+  private final ConcurrentHashMap<Integer, String> pageIds = new ConcurrentHashMap<>();
+
+  // When set, this upload is a plugin insert-pages request: the converted pages are spliced
+  // into targetPresentationId at the 1-based insertAtPosition instead of surfacing as their
+  // own presentation.
+  private Integer insertAtPosition = null;
+  private String targetPresentationId = null;
 
   public UploadedPresentation(String podId,
                               String meetingId,
@@ -247,10 +261,38 @@ public final class UploadedPresentation {
     this.maxPageConversionTime = maxPageConversionTime;
   }
 
+  public Integer getInsertAtPosition() {
+    return insertAtPosition;
+  }
+
+  public void setInsertAtPosition(Integer insertAtPosition) {
+    this.insertAtPosition = insertAtPosition;
+  }
+
+  public String getTargetPresentationId() {
+    return targetPresentationId;
+  }
+
+  public void setTargetPresentationId(String targetPresentationId) {
+    this.targetPresentationId = targetPresentationId;
+  }
+
+  public boolean isInsert() {
+    return insertAtPosition != null && targetPresentationId != null && !targetPresentationId.isEmpty();
+  }
+
   public long getMaxTotalConversionTime() {
     if (numberOfPages == 0) {
       return maxPageConversionTime;
     }
     return maxPageConversionTime * numberOfPages;
+  }
+
+  public String getOrMintPageId(int page) {
+    return pageIds.computeIfAbsent(page, p -> UUID.randomUUID().toString());
+  }
+
+  public Map<Integer, String> getPageIds() {
+    return pageIds;
   }
 }

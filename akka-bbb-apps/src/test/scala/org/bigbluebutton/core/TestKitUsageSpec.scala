@@ -11,9 +11,9 @@ import akka.testkit.ImplicitSender
 import akka.testkit.TestKit
 import scala.concurrent.duration._
 import scala.collection.immutable
-import org.scalatest.WordSpecLike
 import org.scalatest.BeforeAndAfterAll
-import org.scalatest.Matchers
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 
 /**
  * a Test to show some TestKit examples
@@ -22,8 +22,8 @@ class TestKitUsageSpec extends TestKit(ActorSystem(
   "TestKitUsageSpec",
   ConfigFactory.parseString(TestKitUsageSpec.config)
 ))
-    with DefaultTimeout with ImplicitSender with WordSpecLike
-    with Matchers with BeforeAndAfterAll {
+  with DefaultTimeout with ImplicitSender with AnyWordSpecLike
+  with Matchers with BeforeAndAfterAll {
 
   import TestKitUsageSpec._
 

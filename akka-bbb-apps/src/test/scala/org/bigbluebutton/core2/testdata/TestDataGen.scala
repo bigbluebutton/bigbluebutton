@@ -6,7 +6,7 @@ import org.bigbluebutton.core.util.RandomStringGenerator
 
 object TestDataGen {
   def createRegisteredUser(meetingId: String, users: RegisteredUsers, name: String, role: String,
-                          bot: Boolean, guest: Boolean, authed: Boolean, waitForApproval: Boolean, logoutURL: String = ""): RegisteredUser = {
+                           bot: Boolean, guest: Boolean, authed: Boolean, waitForApproval: Boolean, logoutURL: String = ""): RegisteredUser = {
     val id = "w_" + RandomStringGenerator.randomAlphanumericString(16)
     val extId = RandomStringGenerator.randomAlphanumericString(16)
     val authToken = RandomStringGenerator.randomAlphanumericString(16)
@@ -48,7 +48,8 @@ object TestDataGen {
       floor = false,
       lastFloorTime = System.currentTimeMillis().toString(),
       hold = false,
-      "9b3f4504-275d-4315-9922-21174262d88c")
+      "9b3f4504-275d-4315-9922-21174262d88c"
+    )
   }
 
   def createFakeVoiceOnlyUser(meetingId: String, callingWith: String, muted: Boolean, listenOnlyInputDevice: Boolean, deafened: Boolean, talking: Boolean,
@@ -75,7 +76,8 @@ object TestDataGen {
       floor = false,
       lastFloorTime = System.currentTimeMillis().toString(),
       hold = false,
-      "9b3f4504-275d-4315-9922-21174262d88c")
+      "9b3f4504-275d-4315-9922-21174262d88c"
+    )
   }
 
   def createFakeWebcamStreamFor(userId: String, subscribers: Set[String]): WebcamStream = {
@@ -85,7 +87,7 @@ object TestDataGen {
 
   def createUserFor(liveMeeting: LiveMeeting, regUser: RegisteredUser, presenter: Boolean): UserState = {
     val u = UserState(intId = regUser.id, extId = regUser.externId, meetingId = regUser.meetingId, name = regUser.name,
-      role = regUser.role,bot = regUser.bot, guest = regUser.guest, authed = regUser.authed, guestStatus = regUser.guestStatus,
+      role = regUser.role, bot = regUser.bot, guest = regUser.guest, authed = regUser.authed, guestStatus = regUser.guestStatus,
       reactionEmoji = "none", raiseHand = false, away = false, pin = false, mobile = false,
       locked = false, presenter = false, whiteboardWriteAccess = false, avatar = regUser.avatarURL, webcamBackground = regUser.webcamBackgroundURL, color = "#ff6242",
       clientType = "unknown", userLeftFlag = UserLeftFlag(false, 0))

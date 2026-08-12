@@ -44,8 +44,9 @@ class PresentationController {
   DefaultMimeUtility grailsMimeUtility
 
   private static final Pattern SLIDE_URI_PATTERN = Pattern.compile(
-    '/bigbluebutton/presentation/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/(svg|thumbnail|textfiles|png)/(\\d+)'
+    '/bigbluebutton/presentation/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)/(svg|thumbnail|textfiles|png)/([A-Za-z0-9\\-]+)'
   )
+  private static final Pattern PAGE_ID_PATTERN = Pattern.compile('[A-Za-z0-9\\-]+')
   private static final Pattern DOWNLOAD_URI_PATTERN = Pattern.compile(
     '/bigbluebutton/presentation/download/([A-Za-z0-9\\-]+)/([A-Za-z0-9\\-]+)'
   )
@@ -96,8 +97,8 @@ class PresentationController {
         def pageToken = extractQueryParam(uri, "pageToken")
         if (presentationService.pageTokenSecret) {
           def presId = slideMatcher.group(3)
-          def pageNum = slideMatcher.group(5)
-          def expectedToken = generatePageToken(presId, Integer.parseInt(pageNum), presentationService.pageTokenSecret)
+          def pageId = slideMatcher.group(5)
+          def expectedToken = generatePageToken(presId, pageId, presentationService.pageTokenSecret)
           if (pageToken == null || pageToken != expectedToken) {
             response.setStatus(403)
             response.outputStream << 'invalid-token'
@@ -152,10 +153,10 @@ class PresentationController {
     return UriComponentsBuilder.fromUriString(uri).build().getQueryParams().getFirst(paramName)
   }
 
-  private static String generatePageToken(String presId, int page, String secret) {
+  private static String generatePageToken(String presId, String pageId, String secret) {
     Mac mac = Mac.getInstance("HmacSHA256")
     mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"))
-    return mac.doFinal("${presId}|${page}".getBytes(StandardCharsets.UTF_8)).collect { String.format('%02x', it) }.join()
+    return mac.doFinal("${presId}|${pageId}".getBytes(StandardCharsets.UTF_8)).collect { String.format('%02x', it) }.join()
   }
 
   private UserSession validateSession() {
@@ -271,7 +272,59 @@ class PresentationController {
     if (null != params.current) {
       current = params.current.toBoolean()
     }
-    
+
+    // Plugin insert-pages: when insertAtPosition + targetPresentationId are present, the pages
+    // converted from this upload are spliced into the target presentation at the given 1-based
+    // position instead of surfacing as their own presentation.
+    def insertAtPosition = null
+    def targetPresentationId = params.targetPresentationId
+    if (targetPresentationId != null && !targetPresentationId.isEmpty()
+            && !Util.isPresIdValidFormat(targetPresentationId)) {
+      log.debug("Upload failed. Invalid targetPresentationId format " + targetPresentationId)
+      response.setStatus(400)
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'text/plain'
+      response.outputStream << 'invalid-target-presentation-id'
+      return
+    }
+    def hasTargetPresentationId = (targetPresentationId != null && !targetPresentationId.isEmpty())
+    if (null != params.insertAtPosition) {
+      // An insert was requested: a malformed position must fail loudly instead of silently
+      // degrading into a regular upload that surfaces as a new presentation.
+      if (!params.insertAtPosition.isInteger() || (params.insertAtPosition as Integer) < 1) {
+        log.debug("Upload failed. Invalid insertAtPosition " + params.insertAtPosition)
+        response.setStatus(400)
+        response.addHeader("Cache-Control", "no-cache")
+        response.contentType = 'text/plain'
+        response.outputStream << 'invalid-insert-at-position'
+        return
+      }
+      insertAtPosition = params.insertAtPosition as Integer
+    }
+    // insertAtPosition and targetPresentationId only make sense together; one without the
+    // other is a malformed insert request, not a regular upload.
+    if ((insertAtPosition != null) != hasTargetPresentationId) {
+      log.debug("Upload failed. insertAtPosition and targetPresentationId must be provided together.")
+      response.setStatus(400)
+      response.addHeader("Cache-Control", "no-cache")
+      response.contentType = 'text/plain'
+      response.outputStream << 'incomplete-insert-request'
+      return
+    }
+    def isInsert = (insertAtPosition != null && hasTargetPresentationId)
+    if (isInsert) {
+      if (!presUploadToken.insertPagesEnabled) {
+        log.debug("Upload failed. Insert pages is disabled for meeting " + meetingId)
+        response.setStatus(403)
+        response.addHeader("Cache-Control", "no-cache")
+        response.contentType = 'text/plain'
+        response.outputStream << 'insert-pages-disabled'
+        return
+      }
+      // The transient insert presentation must never become the current presentation.
+      current = false
+    }
+
     log.debug "@Default presentation pod" + podId
 
     def uploadFailed = false
@@ -326,6 +379,10 @@ class PresentationController {
             uploadFailed,
             uploadFailReasons
     )
+    if (isInsert) {
+      uploadedPres.setInsertAtPosition(insertAtPosition)
+      uploadedPres.setTargetPresentationId(targetPresentationId)
+    }
     if (isPresentationMimeTypeValid) {
       if (isDownloadable) {
         log.debug "@Setting file to be downloadable..."
@@ -377,8 +434,8 @@ class PresentationController {
     if (conf != userSession.meetingID) { response.setStatus(403); return }
     if (presentationService.pageTokenSecret) {
       def pageToken = params.pageToken
-      if (!slide?.isInteger()) { response.setStatus(403); return }
-      def expected = generatePageToken(presentationName, Integer.parseInt(slide), presentationService.pageTokenSecret)
+      if (!slide || !PAGE_ID_PATTERN.matcher(slide).matches()) { response.setStatus(403); return }
+      def expected = generatePageToken(presentationName, slide, presentationService.pageTokenSecret)
       if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
     }
 
@@ -411,8 +468,8 @@ class PresentationController {
     if (conf != userSession.meetingID) { response.setStatus(403); return }
     if (presentationService.pageTokenSecret) {
       def pageToken = params.pageToken
-      if (!thumb?.isInteger()) { response.setStatus(403); return }
-      def expected = generatePageToken(presentationName, Integer.parseInt(thumb), presentationService.pageTokenSecret)
+      if (!thumb || !PAGE_ID_PATTERN.matcher(thumb).matches()) { response.setStatus(403); return }
+      def expected = generatePageToken(presentationName, thumb, presentationService.pageTokenSecret)
       if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
     }
 
@@ -446,8 +503,8 @@ class PresentationController {
     if (conf != userSession.meetingID) { response.setStatus(403); return }
     if (presentationService.pageTokenSecret) {
       def pageToken = params.pageToken
-      if (!png?.isInteger()) { response.setStatus(403); return }
-      def expected = generatePageToken(presentationName, Integer.parseInt(png), presentationService.pageTokenSecret)
+      if (!png || !PAGE_ID_PATTERN.matcher(png).matches()) { response.setStatus(403); return }
+      def expected = generatePageToken(presentationName, png, presentationService.pageTokenSecret)
       if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
     }
 
@@ -478,8 +535,8 @@ class PresentationController {
     if (conf != userSession.meetingID) { response.setStatus(403); return }
     if (presentationService.pageTokenSecret) {
       def pageToken = params.pageToken
-      if (!textfile?.isInteger()) { response.setStatus(403); return }
-      def expected = generatePageToken(presentationName, Integer.parseInt(textfile), presentationService.pageTokenSecret)
+      if (!textfile || !PAGE_ID_PATTERN.matcher(textfile).matches()) { response.setStatus(403); return }
+      def expected = generatePageToken(presentationName, textfile, presentationService.pageTokenSecret)
       if (pageToken == null || pageToken != expected) { response.setStatus(403); return }
     }
 

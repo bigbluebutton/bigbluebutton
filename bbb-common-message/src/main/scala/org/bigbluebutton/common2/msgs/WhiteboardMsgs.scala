@@ -5,6 +5,7 @@ case class AnnotationVO(id: String, annotationInfo: scala.collection.immutable.M
 
 case class PresentationPageForExport(
   page: Int,
+  pageId: String,
   width: Double,
   height: Double,
   annotations: Array[AnnotationVO],
@@ -62,7 +63,8 @@ case class DoLatencyTracerMsgBody(timestampUTC: Long)
 
 object ClearWhiteboardEvtMsg { val NAME = "ClearWhiteboardEvtMsg" }
 case class ClearWhiteboardEvtMsg(header: BbbClientMsgHeader, body: ClearWhiteboardEvtMsgBody) extends BbbCoreMsg
-case class ClearWhiteboardEvtMsgBody(whiteboardId: String, userId: String, fullClear: Boolean)
+// A future emitter must resolve these fields with PresentationPodsApp.findPresentationPage.
+case class ClearWhiteboardEvtMsgBody(whiteboardId: String, userId: String, fullClear: Boolean, presentationId: String, pageNum: Int)
 
 object GetWhiteboardAnnotationsRespMsg { val NAME = "GetWhiteboardAnnotationsRespMsg" }
 case class GetWhiteboardAnnotationsRespMsg(header: BbbClientMsgHeader, body: GetWhiteboardAnnotationsRespMsgBody) extends BbbCoreMsg
@@ -70,15 +72,15 @@ case class GetWhiteboardAnnotationsRespMsgBody(whiteboardId: String, annotations
 
 object SendCursorPositionEvtMsg { val NAME = "SendCursorPositionEvtMsg" }
 case class SendCursorPositionEvtMsg(header: BbbClientMsgHeader, body: SendCursorPositionEvtMsgBody) extends BbbCoreMsg
-case class SendCursorPositionEvtMsgBody(whiteboardId: String, userIsViewer: Boolean, xPercent: Double, yPercent: Double)
+case class SendCursorPositionEvtMsgBody(whiteboardId: String, userIsViewer: Boolean, xPercent: Double, yPercent: Double, presentationId: String, pageNum: Int)
 
 object SendWhiteboardAnnotationsEvtMsg { val NAME = "SendWhiteboardAnnotationsEvtMsg" }
 case class SendWhiteboardAnnotationsEvtMsg(header: BbbClientMsgHeader, body: SendWhiteboardAnnotationsEvtMsgBody) extends BbbCoreMsg
-case class SendWhiteboardAnnotationsEvtMsgBody(whiteboardId: String, annotations: Array[AnnotationVO])
+case class SendWhiteboardAnnotationsEvtMsgBody(whiteboardId: String, annotations: Array[AnnotationVO], presentationId: String, pageNum: Int)
 
 object DeleteWhiteboardAnnotationsEvtMsg { val NAME = "DeleteWhiteboardAnnotationsEvtMsg" }
 case class DeleteWhiteboardAnnotationsEvtMsg(header: BbbClientMsgHeader, body: DeleteWhiteboardAnnotationsEvtMsgBody) extends BbbCoreMsg
-case class DeleteWhiteboardAnnotationsEvtMsgBody(whiteboardId: String, annotationsIds: Array[String])
+case class DeleteWhiteboardAnnotationsEvtMsgBody(whiteboardId: String, annotationsIds: Array[String], presentationId: String, pageNum: Int)
 
 // ------------ akka-apps to client ------------
 object StoreAnnotationsInRedisSysMsg { val NAME = "StoreAnnotationsInRedisSysMsg" }

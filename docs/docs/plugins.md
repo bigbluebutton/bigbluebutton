@@ -1211,6 +1211,7 @@ For a complete working example, see the [sample-generic-content-sidekick-plugin]
   
   - presentation:
     - upload: uploads a new presentation to BigBlueButton;
+    - insertPages: inserts the pages of the given content into the current presentation at the given 1-based position (inserts a single blank page when no content is provided);
 
 As these commands can change state in the back-end, "permission control" is available based on role for some of the Commands (in the manifest), those are:
   - chat:

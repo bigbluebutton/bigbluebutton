@@ -11,7 +11,7 @@ class RecMetaXmlHelperTests extends UnitSpec {
     val helper = new RecMetaXmlHelper
 
     val xml = helper.loadMetadataXml(metaFile)
-   // println("METADATAXML = \n" + xml)
+    // println("METADATAXML = \n" + xml)
   }
 
   it should "get meta elements" in {
@@ -85,7 +85,6 @@ class RecMetaXmlHelperTests extends UnitSpec {
         println(rooms)
         assert(rooms.length == 2)
 
-
       case None => fail("Failed to load metadata.xml")
     }
   }
@@ -97,7 +96,7 @@ class RecMetaXmlHelperTests extends UnitSpec {
       case Some(metaXml) =>
         RecMeta.getBreakout(metaXml) match {
           case Some(br) => assert(br.sequence == 2)
-          case None => fail("Failed to get breakout.")
+          case None     => fail("Failed to get breakout.")
         }
       case None => fail("Failed to load metadata.xml")
     }
@@ -109,7 +108,8 @@ class RecMetaXmlHelperTests extends UnitSpec {
     xml match {
       case Some(metaXml) =>
         RecMeta.getRecMeta(metaXml) match {
-          case Some(br) => assert(br.id == "b27af2f930d418879550e09c7548d1cdd0be25cf-1504122319984")
+          case Some(br) =>
+            assert(br.id == "b27af2f930d418879550e09c7548d1cdd0be25cf-1504122319984")
             println(br.toXml())
           case None => fail("Failed to get recording metadata.")
         }
@@ -123,7 +123,8 @@ class RecMetaXmlHelperTests extends UnitSpec {
     xml match {
       case Some(metaXml) =>
         RecMeta.getRecMeta(metaXml) match {
-          case Some(br) => assert(br.id == "b27af2f930d418879550e09c7548d1cdd0be25cf-1504122319984")
+          case Some(br) =>
+            assert(br.id == "b27af2f930d418879550e09c7548d1cdd0be25cf-1504122319984")
             println(br.toMetadataXml())
           case None => fail("Failed to get recording metadata.")
         }

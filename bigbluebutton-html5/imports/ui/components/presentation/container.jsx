@@ -143,13 +143,12 @@ const PresentationContainer = ({
   };
 
   const zoomSlide = useCallback((widthRatio, heightRatio, xOffset, yOffset) => {
-    const { presentationId, pageId, num } = currentPresentationPage;
+    const { presentationId, pageId } = currentPresentationPage;
 
     presentationSetZoom({
       variables: {
         presentationId,
         pageId,
-        pageNum: num,
         xOffset,
         yOffset,
         widthRatio,

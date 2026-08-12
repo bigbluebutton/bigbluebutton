@@ -28,7 +28,10 @@ case class PresPageDbModel(
     uploadCompleted: Boolean,
     infiniteWhiteboard:  Boolean,
     fitToWidth:  Boolean,
-
+    // Correlation id of the insert-pages request that placed this page, or None for a page
+    // that arrived with its own presentation. Client-side correlation only: it lets the
+    // presenter that requested an insert recognise its own pages.
+    insertRequestId: Option[String] = None,
 )
 
 class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pres_page") {
@@ -52,14 +55,24 @@ class PresPageDbTableDef(tag: Tag) extends Table[PresPageDbModel](tag, None, "pr
   val uploadCompleted = column[Boolean]("uploadCompleted")
   val infiniteWhiteboard = column[Boolean]("infiniteWhiteboard")
   val fitToWidth = column[Boolean]("fitToWidth")
+  val insertRequestId = column[Option[String]]("insertRequestId")
 
   def * = (
-    pageId, presentationId, num, urlsJson, content, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight, maxImageWidth, maxImageHeight, uploadCompleted, infiniteWhiteboard, fitToWidth
+    pageId, presentationId, num, urlsJson, content, slideRevealed, current, xOffset, yOffset, widthRatio, heightRatio, width, height, viewBoxWidth, viewBoxHeight, maxImageWidth, maxImageHeight, uploadCompleted, infiniteWhiteboard, fitToWidth, insertRequestId
   ) <> (PresPageDbModel.tupled, PresPageDbModel.unapply)
 }
 
 object PresPageDAO {
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
+
+  // These values should be kept in sync across all BBB components.
+  // See the values under "process" in bbb-export-annotations/config/settings.json
+  val MaxImageWidth: Int = 1440
+  val MaxImageHeight: Int = 1080
+
+  // A page is stored unzoomed; the client derives the visible area from widthRatio/heightRatio.
+  val DefaultViewBoxWidth: Double = 1
+  val DefaultViewBoxHeight: Double = 1
 
   implicit val mapFormat: JsonWriter[Map[String, String]] = new JsonWriter[Map[String, String]] {
     def write(m: Map[String, String]): JsValue = {
@@ -84,14 +97,10 @@ object PresPageDAO {
           heightRatio = page.heightRatio,
           width = page.width,
           height = page.height,
-          viewBoxWidth = 1,
-          viewBoxHeight = 1,
-
-          // These values should be kept in sync across all BBB components.
-          // See the values under "process" in bbb-export-annotations/config/settings.json
-          maxImageWidth = 1440,
-          maxImageHeight = 1080,
-
+          viewBoxWidth = DefaultViewBoxWidth,
+          viewBoxHeight = DefaultViewBoxHeight,
+          maxImageWidth = MaxImageWidth,
+          maxImageHeight = MaxImageHeight,
           uploadCompleted = page.converted,
           infiniteWhiteboard = page.infiniteWhiteboard,
           fitToWidth = page.fitToWidth,
