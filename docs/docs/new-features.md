@@ -223,66 +223,15 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 #### Value changed
 
 - `defaultMeetingLayout` default changed from `CUSTOM_LAYOUT` to `UNIFIED_LAYOUT`. Accepted values are now `UNIFIED_LAYOUT` (default), plus the hybrid/niche options `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, and `MEDIA_ONLY`. The previous values `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, and `VIDEO_FOCUS` are no longer accepted.
-- `html5PluginSdkVersion` bumped from `0.1.17` to `0.1.20`.
+- `html5PluginSdkVersion` bumped from `0.1.17` to `0.1.24`.
 - `disabledFeatures` accepts a new value: `pinChatMessage` (alongside the existing chat-related options).
 - `sharedNotesEditor` default changed from `etherpad` to `blockNote` (BlockNote is now the default shared-notes editor; see [Promoted BlockNote shared notes as default](#promoted-blocknote-shared-notes-as-default)).
 - `cameraBridge`, `screenShareBridge`, and `audioBridge` default changed from `bbb-webrtc-sfu` to `livekit` (see [LiveKit is the default media framework](#livekit-is-the-default-media-framework)).
 
 #### Added
-- `pluginManifestFetchTimeout` added
-- `pluginManifestsFetchUrlResponseTimeout` added
-- `maxPluginManifestsFetchUrlPayloadSize` added
-- `numPluginManifestsFetchingThreads` added
-- `extractTimeoutInMs` added
-- `pngCreationExecTimeoutInMs` added, later (BBB 3.0.17) renamed to `pngCreationExecTimeout`
-- `pngCreationExecTimeout` added (used to be `pngCreationExecTimeoutInMs`)
-- `thumbnailCreationExecTimeoutInMs` added, later (BBB 3.0.17) renamed to `thumbnailCreationExecTimeout`
-- `thumbnailCreationExecTimeout` added (used to be `thumbnailCreationExecTimeoutInMs`)
-- `pdfPageDownscaleExecTimeoutInMs` added
-- `officeDocumentValidationExecTimeoutInMs` added
-- `textFileCreationExecTimeoutInMs` added, later (BBB 3.0.17) renamed to `textFileCreationExecTimeout`
-- `textFileCreationExecTimeout` added (used to be `textFileCreationExecTimeoutInMs`)
-- `presDownloadReadTimeoutInMs` added
-- `pngCreationConversionTimeout` added
-- `imageResizeWait` added
-- `officeDocumentValidationTimeout` added
-- `presOfficeConversionTimeout` added
-- `pdfPageCountWait` added
-- `detectImageDimensionsTimeout` added
-- `presentationConversionCacheEnabled` added
-- `presentationConversionCacheS3AccessKeyId` added
-- `presentationConversionCacheS3AccessKeySecret` added
-- `presentationConversionCacheS3BucketName` added
-- `presentationConversionCacheS3Region` added
-- `presentationConversionCacheS3EndpointURL` added
-- `presentationConversionCacheS3PathStyle` added
-- `cameraBridge` added
-- `screenShareBridge` added
-- `audioBridge` added
-- `pluginManifests` added
-- `scanUploadedPresentationFiles` added
-- `allowOverrideClientSettingsOnCreateCall` added
-- `defaultBotAvatarURL` added
-- `graphqlApiUrl` added
-- `graphqlWebsocketUrl` added
-- `sessionsCleanupDelayInMinutes` added
-- `useDefaultDarkLogo` added
-- `defaultDarkLogoURL` added
-- `maxNumPages` added
-- `fetchUrlAllowedLocalHosts` added
-- `clientSettingsOverrideJsonUrlResponseTimeout` added
-- `maxClientSettingsOverrideJsonUrlPayloadSize` added
-- `pageTokenSecret` added in BBB 3.0.27
-- `beans.presentationService.pageTokenSecret` added in BBB 3.0.27
-- `pluginManifestCacheEnabled` added in BBB 3.0.27
-- `pluginManifestCacheDirectory` added in BBB 3.0.27
-- `pluginManifestCacheRefreshIntervalMinutes` added in BBB 3.0.27
-- `clientSettingsOverrideStrictValidation` added in BBB 3.0.30
-- `clientSettingsFilePath` added in BBB 3.0.30
 
-- `lockSettingsPresenterPolicy` added (default `requireApproval`).
+- `lockSettingsPresenterPolicy` added (default `requireApproval`). Controls whether viewers can request the presenter role; see [Request to Present](#request-to-present).
 - `requireUserConsentBeforeUnmuting` added (default `false`). Only relevant when `allowModsToUnmuteUsers=true`; when `true`, a consent dialog is shown before a moderator can unmute a participant.
-
 
 ### Client settings (settings.yml) changes
 
@@ -298,6 +247,7 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 - `public.timer.presets`, `public.timer.quickAddButtons`, `public.timer.maxHours`, `public.timer.serverSyncTimeInterval` - timer presets and behavior.
 - `public.app.breakouts.breakoutRoomMinimum` (default `2`) - minimum number of breakout rooms.
 - `public.app.audioCaptions.showInSidebarNavigation` and `public.app.audioCaptions.terms` - show captions in the sidebar navigation and configure terms-of-service URLs per locale.
+- `public.app.darkTheme.autoDetectFromSystem` (default `true`) - uses the operating system's `prefers-color-scheme` preference as the initial theme and keeps following it while the user has not chosen a theme manually. The per-user "Dark mode" toggle and the `bbb_prefer_dark_theme` parameter always take precedence over the detected system theme.
 - `public.stats.logMediaStats` and `public.stats.probes` - client-side WebRTC stats logging.
 - `public.layout.showLeaveSessionLabel` (default `false`) and `public.layout.usersPerUserListPage` (default `50`).
 - `public.sidebarNavigation.buttons` - controls which built-in sidebar navigation buttons render, in which section (`top`/`center`/`bottom`) and in what order. It is a full replacement list (omit an id to hide that button; ids introduced by future upstream versions must be added back manually). Defaults: `top: [profile, user-list, chat, notes]`, `center: [apps-gallery, pinned-apps]`, `bottom: [audio-captions, learning-dashboard, settings]`.
@@ -310,7 +260,7 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 - `public.layout.showParticipantsOnLogin` default changed from `true` to `false`.
 - `public.layout.syncCameraDockSizeAndPosition` default changed from `false` to `true`.
 - The default layout under `defaultSettings` moved from `application.selectedLayout: 'custom'` to `layout.selectedLayout: 'unified'` (with `pushLayout` now nested under `layout`).
-- `public.userCamera`'s display labels now include `presenter` and `bot`, and `moderator` defaults to `true`.
+- `public.user.label` gained `presenter` and `bot` entries (both default `true`), and `moderator` default changed from `false` to `true`.
 - `public.media.audio.defaultFullAudioBridge` and `public.media.audio.defaultListenOnlyBridge` defaults changed from `fullaudio` to `livekit`, aligning the client fallbacks with LiveKit as the default media framework. (`defaultFullAudioBridge` is superseded by the `audioBridge` create/property setting; both keys are marked deprecated.)
 
 #### Removed
@@ -318,6 +268,7 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 - `public.layout.showPushLayoutButton`, `public.layout.showPushLayoutToggle`, and `public.layout.enableDeprecatedLayoutSelection`.
 - `public.stats.log` (replaced by `public.stats.logMediaStats`).
 - The SIP.js / legacy-audio client settings, removed together with the SIP.js audio bridge now that LiveKit is the default audio path. Under `public.media`: `callTransferTimeout`, `callHangupTimeout`, `callHangupMaximumRetries`, `iceGatheringTimeout`, `audioConnectionTimeout`, `audioReconnectionDelay`, `audioReconnectionAttempts`, `sipjsHackViaWs`, `sipjsAllowMdns`, `sip_ws_host`, `websocketKeepAliveInterval`, `websocketKeepAliveDebounce`, `traceSip`, `sdpSemantics`; plus `public.app.ipv4FallbackDomain`. Any of these still set in `bbb-html5.yml` are now silently ignored.
+
 
 ## Development
 
