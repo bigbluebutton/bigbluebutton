@@ -4,9 +4,10 @@ case "$1" in
    remove|purge)
        systemctl daemon-reload
    ;;
-   failed-upgrade|abort-upgrade|abort-install|disappear)
+   upgrade|failed-upgrade|abort-upgrade|abort-install|disappear)
    ;;
    *)
-       echo "postrm called with unknown argument \`\$1'" >&2
+       echo "postrm called with unknown argument \`$1'" >&2
+       exit 1
    ;;
 esac
