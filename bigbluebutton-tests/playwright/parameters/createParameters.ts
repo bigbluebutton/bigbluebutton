@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 
-import { VIDEO_LOADING_WAIT_TIME } from '../core/constants';
+import { ELEMENT_WAIT_LONGER_TIME, LOOP_INTERVAL, VIDEO_LOADING_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { checkScreenshots } from '../layouts/util';
 import { MultiUsers } from '../user/multiusers';
@@ -11,6 +11,65 @@ const { messageModerator } = constants;
 export class CreateParameters extends MultiUsers {
   async recordMeeting() {
     await this.modPage.hasElement(e.recordingIndicator, 'should the recording indicator to be displayed');
+  }
+
+  async recordingNotificationAppend(expectedAppend?: string, shouldShowModal = true) {
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitAndClick(e.recordingIndicator);
+    await this.modPage.hasElement(e.confirmRecordingButton, 'should display the button to start recording');
+    await this.modPage.waitAndClick(e.confirmRecordingButton);
+
+    const userRecordingButton = this.userPage.page.locator(`${e.recordingIndicator} button`);
+    await expect(
+      userRecordingButton,
+      'should show recording as started for the attendee before checking the consent modal',
+    ).toHaveCSS('background-color', 'rgb(223, 39, 33)', { timeout: ELEMENT_WAIT_LONGER_TIME });
+
+    if (!shouldShowModal) {
+      // Give the recording-change effects time to run before asserting that the gate suppressed the modal.
+      await this.userPage.page.waitForTimeout(LOOP_INTERVAL);
+      await this.userPage.wasRemoved(
+        e.recordingNotifyModal,
+        'should not display recording consent when notifyRecordingIsOn is disabled',
+      );
+      return;
+    }
+
+    await this.userPage.hasElement(
+      e.recordingNotifyModal,
+      'should display the recording consent modal for the attendee',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.userPage.hasText(
+      e.recordingNotifyDescription,
+      e.recordingNotifyDefaultText,
+      'should preserve the default recording consent description',
+    );
+    await this.modPage.wasRemoved(
+      e.recordingNotifyModal,
+      'should not display the recording consent modal for the user who started recording',
+    );
+
+    if (expectedAppend) {
+      await expect(
+        this.userPage.page.locator(e.recordingNotifyAppend),
+        'should append the custom recording consent text',
+      ).toHaveText(expectedAppend);
+      await expect(
+        this.userPage.page.locator(e.recordingNotifyAppend).locator('strong'),
+        'should render markup-like append content as escaped plain text',
+      ).toHaveCount(0);
+      await this.userPage.waitAndClick(e.recordingNotifyContinue);
+      await this.userPage.wasRemoved(
+        e.recordingNotifyModal,
+        'should close the recording consent modal after the attendee continues',
+      );
+    } else {
+      await this.userPage.wasRemoved(
+        e.recordingNotifyAppend,
+        'should not render an appended-text block when the parameter is empty',
+      );
+    }
   }
 
   async bannerText() {
