@@ -87,6 +87,8 @@ case class GenerateLiveKitTokenRespMsgBody(
     roomRef: LiveKitRoomRef,
     token:   String,
     grant:   LiveKitGrant,
+    // Token TTL as configured on the controller side (bbb-webrtc-sfu),
+    ttlSec:  Int,
 )
 
 object LiveKitParticipantLeftEvtMsg { val NAME = "LiveKitParticipantLeftEvtMsg" }

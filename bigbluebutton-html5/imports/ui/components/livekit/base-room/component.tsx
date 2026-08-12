@@ -63,6 +63,7 @@ const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
 }) => {
   const [connAttempts, setConnAttempts] = useState(0);
   const [connError, setConnError] = useState<Error | null>(null);
+  const initialTokenRef = React.useRef<string | null>(null);
   const [optionsApplied, setOptionsApplied] = useState(false);
   const [connectOptions, setConnectOptions] = useState<RoomConnectOptions | undefined>(undefined);
   const isClientConnected = useReactiveVar(connectionStatus.getConnectedStatusVar());
@@ -280,10 +281,15 @@ const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
 
   if (iceServersLoading || !optionsApplied || !connectOptions || !url || !token) return null;
 
+  // LiveKitRoom keeps the token it connected with initially to not trigger
+  // unnecessary reconnects on token refreshes. The retry effect above
+  // reads the live `token` prop in case of reconns.
+  if (!initialTokenRef.current) initialTokenRef.current = token;
+
   return (
     <LiveKitRoom
       room={room}
-      token={token}
+      token={initialTokenRef.current}
       serverUrl={url}
       connect
       audio={audio}

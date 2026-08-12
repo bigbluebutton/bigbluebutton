@@ -1,12 +1,16 @@
 package org.bigbluebutton.core.models
 
-import org.bigbluebutton.common2.msgs.LiveKitRoomRef
+import org.bigbluebutton.common2.msgs.{ LiveKitGrant, LiveKitParticipantMetadata, LiveKitRoomRef }
 import org.bigbluebutton.core.db.UserLivekitRoomDAO
 
+// Grants and metadata are kept in-memory only to issue token refreshes. Not used
+// by the client.
 case class LiveKitMembership(
     userId:   String,
     roomName: String,
     purpose:  String,
+    grant:    LiveKitGrant,
+    metadata: LiveKitParticipantMetadata,
     token:    Option[String]
 ) {
   def roomRef: LiveKitRoomRef = LiveKitRoomRef(roomName, purpose)

@@ -106,6 +106,11 @@ case class EjectUserFromBreakoutInternalMsg(parentId: String, breakoutId: String
 case class CapturePresentationReqInternalMsg(userId: String, parentMeetingId: String, filename: String, allPages: Boolean = true) extends InMessage
 
 /**
+ * Periodic LiveKit token refresh request sent by a context scheduler to the MeetingActor.
+ */
+case class LiveKitTokenRefreshInternalMsg(userId: String, roomName: String) extends InMessage
+
+/**
  * Sent to the same meeting to force a new presenter to the Pod
  * @param presenterId
  */

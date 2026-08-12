@@ -180,6 +180,8 @@ trait UserJoinMeetingReqMsgHdlr extends HandlerHelpers {
         userId   = regUser.id,
         roomName = roomName,
         purpose  = purpose,
+        grant    = grant,
+        metadata = metadata,
         token    = None,
       )
       LiveKitMemberships.add(liveMeeting.liveKitMemberships, membership)
