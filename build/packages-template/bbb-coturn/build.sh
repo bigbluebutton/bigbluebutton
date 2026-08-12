@@ -66,6 +66,12 @@ rm -rf "${DESTDIR:?}/usr/lib" \
        "${DESTDIR:?}/usr/share/examples" \
        "${DESTDIR:?}/var"
 
+# Redistributing the BSD-licensed binaries requires shipping the upstream
+# license; the prune above drops /usr/share/doc wholesale, so install it back
+# at the path dpkg expects the copyright file.
+install -Dm0644 "coturn-${COTURN_VERSION}/LICENSE" \
+    "$DESTDIR/usr/share/doc/bbb-coturn/copyright"
+
 # Default config: the upstream example, with every option commented out,
 # installed where the distro coturn package puts it. It carries the line
 # "#static-auth-secret=north" that bbb-install greps for to decide whether the
