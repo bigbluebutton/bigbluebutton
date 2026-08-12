@@ -86,6 +86,12 @@ install -Dm0644 "coturn-${COTURN_VERSION}/examples/etc/turnserver.conf" \
 # "systemctl restart coturn" keep working unchanged.
 install -Dm0644 coturn.service "$DESTDIR/usr/lib/systemd/system/coturn.service"
 
+# Log rotation for /var/log/turnserver (where bbb-install points --log-file;
+# coturn's verbose mode grows it quickly). Byte-identical to the file
+# bbb-install.sh writes, so whichever side creates it first, dpkg sees an
+# unmodified conffile.
+install -Dm0644 coturn.logrotate "$DESTDIR/etc/logrotate.d/coturn"
+
 # Distro-specific fpm options (sources opts-global.sh for vendor/maintainer/url).
 # shellcheck disable=SC1090
 . "./opts-$DISTRO.sh"
