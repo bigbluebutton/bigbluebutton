@@ -23,12 +23,14 @@ if [ -n "$2" ] && [ ! -f /.dockerenv ]; then
   systemctl try-restart coturn.service || true
 fi
 
-# The service is deliberately left neither enabled nor started. The stock
-# /etc/turnserver.conf has every option commented out and coturn defaults to
-# anonymous access, so starting it before a real configuration is written would
-# expose an open relay. Whoever writes the configuration (bbb-install) enables
-# and starts it.
-cat <<'EOT'
+# On fresh installs the service is deliberately left neither enabled nor
+# started. The stock /etc/turnserver.conf has every option commented out and
+# coturn defaults to anonymous access, so starting it before a real
+# configuration is written would expose an open relay. Whoever writes the
+# configuration (bbb-install) enables and starts it. On upgrades ($2 set) the
+# notice would be wrong — the service is configured and was just restarted.
+if [ -z "$2" ]; then
+  cat <<'EOT'
 
 bbb-coturn is installed but the coturn service was NOT started: the shipped
 /etc/turnserver.conf is the stock, all-commented configuration and coturn
@@ -37,3 +39,4 @@ defaults to anonymous access. Configure /etc/turnserver.conf first, then run:
     systemctl enable --now coturn
 
 EOT
+fi
