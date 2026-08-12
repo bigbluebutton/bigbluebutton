@@ -103,13 +103,13 @@ homepage := Some(url("https://www.bigbluebutton.org"))
 
 libraryDependencies ++= Seq(
   "jakarta.validation" % "jakarta.validation-api" % "3.0.2",
-  "org.springframework.data" % "spring-data-commons" % "3.4.10",
+  "org.springframework.data" % "spring-data-commons" % "3.5.12",
   "org.hibernate.validator" % "hibernate-validator" % "8.0.1.Final",
   "org.glassfish" % "jakarta.el" % "4.0.2",
   "org.apache.httpcomponents" % "httpclient" % "4.5.13",
   "commons-validator" % "commons-validator" % "1.10.0",
-  "org.apache.tika" % "tika-core" % "3.3.1",
-  "org.apache.tika" % "tika-parsers-standard-package" % "3.3.1",
+  "org.apache.tika" % "tika-core" % "3.3.2",
+  "org.apache.tika" % "tika-parsers-standard-package" % "3.3.2",
   "org.scala-lang.modules" %% "scala-xml" % "2.2.0",
   "jakarta.ws.rs" % "jakarta.ws.rs-api" % "3.1.0",
   "xyz.capybara" % "clamav-client" % "2.1.2",
