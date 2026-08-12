@@ -11,7 +11,10 @@ case class LiveKitMembership(
     purpose:  String,
     grant:    LiveKitGrant,
     metadata: LiveKitParticipantMetadata,
-    token:    Option[String]
+    token:    Option[String],
+    // Identifies the mint request that created this membership, so a stale
+    // mint-timeout cannot clear a newer membership for the same (user, room).
+    mintNonce: Long = 0L
 ) {
   def roomRef: LiveKitRoomRef = LiveKitRoomRef(roomName, purpose)
 }

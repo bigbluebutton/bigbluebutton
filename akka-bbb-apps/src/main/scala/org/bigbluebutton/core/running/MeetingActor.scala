@@ -312,6 +312,7 @@ class MeetingActor(
     case msg: MonitorGuestWaitPresenceInternalMsg => handleMonitorGuestWaitPresenceInternalMsg(msg)
     case msg: SetPresenterInDefaultPodInternalMsg => state = presentationPodsApp.handleSetPresenterInDefaultPodInternalMsg(msg, state, liveMeeting, msgBus)
     case msg: LiveKitTokenRefreshInternalMsg      => handleLiveKitTokenRefreshInternalMsg(msg)
+    case msg: LiveKitMintTimeoutInternalMsg       => handleLiveKitMintTimeoutInternalMsg(msg)
     case msg: UserClosedAllGraphqlConnectionsInternalMsg =>
       state = handleUserClosedAllGraphqlConnectionsInternalMsg(msg, state)
       updateModeratorsPresence()

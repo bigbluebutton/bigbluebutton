@@ -13,7 +13,6 @@ import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.running.{LiveMeeting, OutMsgRouter}
 import org.bigbluebutton.core2.message.senders.{MsgBuilder, Sender}
 import org.bigbluebutton.core.apps.screenshare.ScreenshareApp2x
-import org.bigbluebutton.core.apps.mediagroups.PublicMediaGroupIds
 import org.bigbluebutton.core.db.{ChatMessageDAO, MediaGroupUserDAO, UserDAO, UserStateDAO}
 import org.bigbluebutton.core2.MeetingStatus2x
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
@@ -145,10 +144,13 @@ object UsersApp {
   ): Unit = {
     LiveKitMemberships.removeByUser(liveMeeting.liveKitMemberships, userId).foreach { m =>
       if (m.purpose != "primary") {
-        // TODO PRL REVIEW - should remove all media types?
-        // Reap the breakout's public:audio sender row for this transferred
-        // listener; otherwise the stale row lingers until the breakout ends.
-        MediaGroupUserDAO.delete(m.roomName, PublicMediaGroupIds.AUDIO, userId)
+        // Explicit-return parity: without loggedOut the transferred row keeps
+        // currentlyInMeeting=true (ghost user in the breakout) and the
+        // media-group back-fill re-picks it. Enqueued before the media-group
+        // delete so a concurrent back-fill cannot re-insert the reaped row.
+        UserDAO.logOutTransferredUser(m.roomName, userId)
+        // Clear every media-group enrollment this transferred listener holds in the breakout.
+        MediaGroupUserDAO.deleteAllForUser(m.roomName, userId)
         outGW.send(MsgBuilder.buildRemoveLiveKitParticipantSysMsg(meetingId, m.roomName, m.userId))
       }
     }

@@ -117,6 +117,11 @@ case class LiveKitTokenRefreshInternalMsg(userId: String, roomName: String) exte
 case class SetPresenterInDefaultPodInternalMsg(presenterId: String) extends InMessage
 
 /**
+ * Deadline for a LK token mint
+ */
+case class LiveKitMintTimeoutInternalMsg(userId: String, roomName: String, mintNonce: Long) extends InMessage
+
+/**
  * Sent by GraphqlActionsActor to inform MeetingActor that user disconnected
  * @param userId
  */
