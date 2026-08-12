@@ -72,6 +72,22 @@ Note: like the distro package on a fresh install, `bbb-coturn` does not start co
 $ sudo systemctl enable --now coturn
 ```
 
+##### Upgrading a server that already runs a configured coturn
+
+Installing `bbb-coturn` on a server whose `/etc/turnserver.conf` is already configured (by `bbb-install.sh` or by hand) triggers a dpkg configuration file prompt, because the package ships a different (pristine) copy of that file. Answer `N` (the default) to keep your working configuration; the packaged copy is saved alongside as `/etc/turnserver.conf.dpkg-dist` for reference.
+
+Replacing the distro package also leaves the service stopped — apt stops coturn while removing the old package, and `bbb-coturn` does not start services on install. Start it again with:
+
+```bash
+$ sudo systemctl enable --now coturn
+```
+
+coturn 4.16.0 no longer recognizes some options that 4.6.1-era configurations carry, and it logs a warning for each of them on every start. The following lines are safe to delete from `/etc/turnserver.conf`:
+
+- `no-tlsv1` and `no-tlsv1_1` — TLS 1.0/1.1 support was removed entirely
+- `no-loopback-peers` — loopback peers are now denied by default (the opposite opt-in is `allow-loopback-peers`)
+- `no-cli` — deprecated in favour of the `cli` option; coturn logs an error for it on start
+
 ### Required DNS Entry
 
 You need to set up a fully qualified domain name that resolves to the external IP address of your turn server. You'll use this domain name to generate a TLS certificate using Let's Encrypt (next section).
