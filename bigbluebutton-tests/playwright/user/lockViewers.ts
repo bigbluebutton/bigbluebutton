@@ -283,6 +283,7 @@ export class LockViewers extends MultiUsers {
       'should display the private message for the locked attendee',
     ).toHaveText(message);
 
+    await this.modPage.waitAndClick(e.messagesSidebarButton);
     await this.modPage.waitAndClick(e.privateChatButton);
     await this.modPage.waitAndClick(e.privateChatItem);
     await expect(
