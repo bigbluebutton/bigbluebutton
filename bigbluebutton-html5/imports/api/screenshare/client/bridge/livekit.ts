@@ -25,7 +25,7 @@ import {
   ScreenSharePresets,
 } from 'livekit-client';
 import {
-  liveKitRoom,
+  liveKitRoomRegistry,
 } from '/imports/ui/services/livekit';
 import { getLiveKitStats } from '/imports/ui/services/livekit/stats';
 import { LiveKitPresetConfig } from 'imports/ui/Types/meetingClientSettings';
@@ -153,7 +153,10 @@ const resolveConfigPresets = (
 };
 
 export default class LiveKitScreenshareBridge {
-  private readonly liveKitRoom: Room;
+  // eslint-disable-next-line class-methods-use-this
+  private get liveKitRoom(): Room | undefined {
+    return liveKitRoomRegistry.getPrimary();
+  }
 
   private readonly screenPublications: Map<string, LocalTrackPublication | RemoteTrackPublication>;
 
@@ -177,7 +180,6 @@ export default class LiveKitScreenshareBridge {
 
   constructor() {
     this.hasAudio = false;
-    this.liveKitRoom = liveKitRoom;
     this.bridgeName = BRIDGE_NAME;
     this.screenPublications = new Map();
     this.audioPublications = new Map();
@@ -502,13 +504,20 @@ export default class LiveKitScreenshareBridge {
 
   private waitForRoomConnection(): Promise<void> {
     return new Promise((resolve, reject) => {
-      if (this.liveKitRoom.state === ConnectionState.Connected) {
+      const room = this.liveKitRoom;
+
+      if (!room) {
+        reject(new Error('LiveKit room not available'));
+        return;
+      }
+
+      if (room.state === ConnectionState.Connected) {
         resolve();
         return;
       }
 
       const timeout = setTimeout(() => {
-        this.liveKitRoom.off(RoomEvent.Connected, onRoomConnected);
+        room.off(RoomEvent.Connected, onRoomConnected);
         reject(new Error('Room connection timeout'));
       }, ROOM_CONNECTION_TIMEOUT);
       const onRoomConnected = () => {
@@ -516,7 +525,7 @@ export default class LiveKitScreenshareBridge {
         resolve();
       };
 
-      this.liveKitRoom.once(RoomEvent.Connected, onRoomConnected);
+      room.once(RoomEvent.Connected, onRoomConnected);
     });
   }
 
@@ -560,18 +569,18 @@ export default class LiveKitScreenshareBridge {
     return null;
   }
 
-  // eslint-disable-next-line class-methods-use-this
   async getStats(additionalStatsTypes = []): Promise<{
     transportStats: object;
     [key: string]: unknown,
   }> {
-    const stats = await getLiveKitStats({
-      room: liveKitRoom,
+    const room = this.liveKitRoom;
+    const stats = room ? await getLiveKitStats({
+      room,
       kind: 'video',
       source: Track.Source.ScreenShare,
       aggregateInbound: true,
       aggregateOutbound: true,
-    });
+    }) : new Map<string, unknown>();
     return BridgeService.parseStats({
       stats,
       additionalStatsTypes,
@@ -773,6 +782,13 @@ export default class LiveKitScreenshareBridge {
     };
 
     try {
+      const room = this.liveKitRoom;
+
+      if (!room) {
+        handleInitError(new Error('LiveKit room not available'));
+        return;
+      }
+
       const publishers = stream
         .getTracks()
         .map((track) => {
@@ -784,7 +800,7 @@ export default class LiveKitScreenshareBridge {
             name: `${Auth.userID}-${contentType}-${track.kind}`,
           };
 
-          return () => this.liveKitRoom.localParticipant.publishTrack(track, publishOptions);
+          return () => room.localParticipant.publishTrack(track, publishOptions);
         });
 
       this.waitForRoomConnection()
@@ -800,7 +816,9 @@ export default class LiveKitScreenshareBridge {
 
     if (this.role === SEND_ROLE) {
       try {
-        await this.liveKitRoom.localParticipant.setScreenShareEnabled(false);
+        const room = this.liveKitRoom;
+
+        if (room) await room.localParticipant.setScreenShareEnabled(false);
       } catch (error) {
         logger.error({
           logCode: 'livekit_screenshare_exit_error',

@@ -1,15 +1,28 @@
 import {
-  Room,
   Track,
+  type InternalRoomOptions,
+  type Room,
   type LocalTrackPublication,
   type TrackPublication,
   type RemoteTrack,
 } from 'livekit-client';
 import logger from '/imports/startup/client/logger';
+import { liveKitRoomRegistry } from './registry';
+import type { MembershipKey } from './registry';
 
 export const LK_FATAL_ERROR_EVENT = 'liveKitFatalError';
 
-export const liveKitRoom: Room = new Room();
+export const DEFAULT_ROOM_OPTIONS: Partial<InternalRoomOptions> = {
+  adaptiveStream: true,
+  dynacast: true,
+  stopLocalTrackOnUnpublish: false,
+};
+
+export interface LiveKitFatalErrorDetail {
+  key: MembershipKey;
+  source: string;
+  error: Error;
+}
 
 // Expose the main room instance for E2E testing, but only when a test
 // explicitly opts in before load (via Playwright's addInitScript with
@@ -17,12 +30,17 @@ export const liveKitRoom: Room = new Room();
 declare global {
   interface Window {
     liveKitRoom?: Room;
+    liveKitRooms?: typeof liveKitRoomRegistry;
     BBB_EXPOSE_LIVEKIT_ROOM?: boolean;
   }
 }
 
 if (typeof window !== 'undefined' && window.BBB_EXPOSE_LIVEKIT_ROOM) {
-  window.liveKitRoom = liveKitRoom;
+  Object.defineProperty(window, 'liveKitRoom', {
+    get: () => liveKitRoomRegistry.getPrimary(),
+    configurable: true,
+  });
+  window.liveKitRooms = liveKitRoomRegistry;
 }
 
 export const lkIsCameraSource = (track: TrackPublication | RemoteTrack): boolean => {
@@ -34,7 +52,8 @@ export const isLiveKitBridge = (bridgeName: string): boolean => {
 };
 
 export const lkToggleMuteCameras = (mute: boolean): void => {
-  const localParticipant = liveKitRoom?.localParticipant;
+  const room = liveKitRoomRegistry.getPrimary();
+  const localParticipant = room?.localParticipant;
 
   if (!localParticipant?.videoTrackPublications || localParticipant.videoTrackPublications.size === 0) {
     return;
@@ -60,9 +79,15 @@ export const lkToggleMuteCameras = (mute: boolean): void => {
   });
 };
 
+export {
+  liveKitRoomRegistry,
+  PRIMARY_KEY,
+  breakoutListenKey,
+} from './registry';
+export type { MembershipKey } from './registry';
+
 export default {
   LK_FATAL_ERROR_EVENT,
   lkIsCameraSource,
-  liveKitRoom,
   lkToggleMuteCameras,
 };

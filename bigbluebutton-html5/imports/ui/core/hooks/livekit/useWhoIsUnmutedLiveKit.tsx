@@ -6,7 +6,7 @@ import {
   useConnectionState,
 } from '@livekit/components-react';
 import { ConnectionState, RoomEvent, Track } from 'livekit-client';
-import { liveKitRoom } from '/imports/ui/services/livekit';
+import { liveKitRoomRegistry } from '/imports/ui/services/livekit';
 import Auth from '/imports/ui/services/auth';
 import useShouldUseLiveKitAudioState from './useShouldUseLiveKitAudioState';
 import useWhoIsUnmutedGraphql from '../useWhoIsUnmutedGraphql';
@@ -50,8 +50,9 @@ const createUseWhoIsUnmutedLiveKit = () => {
   function useWhoIsUnmuted(userId?: string): UnmutedUsersState | UnmutedUserState {
     const shouldUseLiveKit = useShouldUseLiveKitAudioState();
     const whoIsUnmutedData = useData(userId);
+    const room = liveKitRoomRegistry.getPrimary();
     const remoteParticipants = useRemoteParticipants({
-      room: liveKitRoom,
+      room,
       updateOnlyOn: [
         RoomEvent.ParticipantConnected,
         RoomEvent.ParticipantDisconnected,
@@ -62,8 +63,8 @@ const createUseWhoIsUnmutedLiveKit = () => {
         RoomEvent.Connected,
       ],
     });
-    const { localParticipant, microphoneTrack } = useLocalParticipant({ room: liveKitRoom });
-    const connectionState = useConnectionState(liveKitRoom);
+    const { localParticipant, microphoneTrack } = useLocalParticipant({ room });
+    const connectionState = useConnectionState(room);
     // Always read the full BBB record: the effect below writes the shared state,
     // so narrowing it to userId would blank every other user for every consumer.
     // userId filters on the read side only, through useData above.

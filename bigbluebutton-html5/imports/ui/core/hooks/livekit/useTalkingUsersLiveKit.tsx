@@ -5,7 +5,7 @@ import {
   useConnectionState,
 } from '@livekit/components-react';
 import { ConnectionState, RemoteParticipant, RoomEvent } from 'livekit-client';
-import { liveKitRoom } from '/imports/ui/services/livekit';
+import { liveKitRoomRegistry } from '/imports/ui/services/livekit';
 import { getBbbUserIdForParticipant } from '/imports/ui/components/livekit/selective-subscription/service';
 import Auth from '/imports/ui/services/auth';
 import useWhoIsUnmuted from '../useWhoIsUnmuted';
@@ -58,8 +58,9 @@ const createUseTalkingUsersLiveKit = () => {
 
   const useTalkingUsers = () => {
     const shouldUseLiveKit = useShouldUseLiveKitAudioState();
+    const room = liveKitRoomRegistry.getPrimary();
     const remoteParticipants = useRemoteParticipants({
-      room: liveKitRoom,
+      room,
       updateOnlyOn: [
         RoomEvent.ParticipantConnected,
         RoomEvent.ParticipantDisconnected,
@@ -67,8 +68,8 @@ const createUseTalkingUsersLiveKit = () => {
         RoomEvent.Connected,
       ],
     });
-    const { localParticipant } = useLocalParticipant({ room: liveKitRoom });
-    const connectionState = useConnectionState(liveKitRoom);
+    const { localParticipant } = useLocalParticipant({ room });
+    const connectionState = useConnectionState(room);
     const subscribedAudioUsers = useSubscribedAudioUsers();
     const { data: bbbTalkingUsers } = useTalkingUsersGraphql();
     const { data: unmutedUsers } = useWhoIsUnmuted();
