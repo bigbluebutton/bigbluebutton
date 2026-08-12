@@ -92,6 +92,101 @@ const getToolbarHeight = (doc = document) => {
   return height;
 };
 
+const getStyleSheetCssText = (style) => {
+  try {
+    const rules = Array.from(style.sheet?.cssRules ?? []);
+
+    if (rules.length > 0) {
+      return rules.map((rule) => rule.cssText).join('\n');
+    }
+  } catch (error) {
+    console.warn(
+      'Failed to read a DarkReader CSS rule for the presentation popup',
+      error,
+    );
+  }
+
+  return style.textContent || '';
+};
+
+const syncDarkReaderStylesToPopup = (sourceDocument, targetDocument) => {
+  // Remove the previous DarkReader styles from the popup.
+  targetDocument
+    .querySelectorAll(
+      'style.darkreader, style[data-popup-darkreader-mirror]',
+    )
+    .forEach((style) => style.remove());
+
+  // Synchronize DarkReader attributes on <html>.
+  Array.from(targetDocument.documentElement.attributes)
+    .filter((attr) => attr.name.startsWith('data-darkreader'))
+    .forEach((attr) => {
+      targetDocument.documentElement.removeAttribute(attr.name);
+    });
+
+  Array.from(sourceDocument.documentElement.attributes)
+    .filter((attr) => attr.name.startsWith('data-darkreader'))
+    .forEach((attr) => {
+      targetDocument.documentElement.setAttribute(
+        attr.name,
+        attr.value,
+      );
+    });
+
+  const darkReaderStyles = Array.from(
+    sourceDocument.querySelectorAll('style.darkreader'),
+  );
+
+  // DarkReader is disabled.
+  if (darkReaderStyles.length === 0) return;
+
+  const syncStyles = darkReaderStyles.filter(
+    (style) => style.classList.contains('darkreader--sync'),
+  );
+
+  const nonSyncStyles = darkReaderStyles.filter(
+    (style) => !style.classList.contains('darkreader--sync'),
+  );
+
+  // Copy the non-sync DarkReader styles.
+  nonSyncStyles.forEach((sourceStyle) => {
+      const targetStyle = targetDocument.createElement('style');
+
+      Array.from(sourceStyle.attributes).forEach((attr) => {
+        targetStyle.setAttribute(attr.name, attr.value);
+      });
+
+      targetStyle.textContent = getStyleSheetCssText(sourceStyle);
+
+      targetDocument.head.appendChild(targetStyle);
+    });
+
+  // Collect all darkreader--sync rules into one stylesheet.
+  const syncCssText = syncStyles
+    .flatMap((style) => {
+      try {
+        return Array.from(style.sheet?.cssRules ?? [])
+          .map((rule) => rule.cssText);
+      } catch (error) {
+        console.warn(
+          'Failed to read a DarkReader sync rule for the presentation popup',
+          error,
+        );
+        return [];
+      }
+    })
+    .join('\n');
+
+  if (syncCssText === '') return;
+
+  const mirror = targetDocument.createElement('style');
+  mirror.setAttribute('data-popup-darkreader-mirror', '');
+  mirror.textContent = syncCssText;
+
+  // Keep DarkReader overrides at the end of <head>.
+  targetDocument.head.appendChild(mirror);
+};
+
 const IGNORE_PRESENTATION_RESTORATION_TIMEOUT = 5000;
 
 class Presentation extends PureComponent {
@@ -692,14 +787,28 @@ class Presentation extends PureComponent {
         window.cancelAnimationFrame = popup.cancelAnimationFrame.bind(popup);
       }
 
+      syncDarkReaderStylesToPopup(document, popup.document);
+
       toggleDetachPresentation(popup);
 
       const closePopup = () => {
         if (popup && !popup.closed) popup.close();
       };
 
+      const handleDarkModeChange = () => {
+        window.requestAnimationFrame(() => {
+          if (popup.closed) return;
+
+          syncDarkReaderStylesToPopup(
+            document,
+            popup.document,
+          );
+        });
+      };
+
       const handlePopupBeforeUnload = () => {
         window.removeEventListener('beforeunload', closePopup);
+        window.removeEventListener('darkmodechange', handleDarkModeChange);
 
         window.requestAnimationFrame = originalRAF;
         window.cancelAnimationFrame = originalCAF;
@@ -731,7 +840,11 @@ class Presentation extends PureComponent {
         }
         // Then normal fullscreen change (by button or ESC)
         this.onFullscreenChange();
-      });        
+      });
+
+      window.addEventListener( 'darkmodechange',
+        handleDarkModeChange,
+      );
     } else {
       // to explicitely exit fullsreen; we do not need setState "isFullscreen: false".
       //  (in case user directly merge popup when it is fullscreen)
