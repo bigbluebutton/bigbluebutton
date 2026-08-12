@@ -16,6 +16,7 @@ object AudioCaptions extends SystemConfiguration {
    */
   def editTranscript(
       audioCaptions: AudioCaptions,
+      userId:        String,
       transcriptId:  String,
       start:         Int,
       end:           Int,
@@ -25,6 +26,7 @@ object AudioCaptions extends SystemConfiguration {
   ): Option[(Int, Int, String)] = {
     if (audioCaptions.transcripts contains locale) {
       Some(audioCaptions.updateTranscript(
+        userId,
         transcriptId,
         start,
         end,
@@ -34,7 +36,7 @@ object AudioCaptions extends SystemConfiguration {
       ))
     } else if (audioCaptions.localeCount >= MaxLocalesPerMeeting) {
       None
-    } else Some(audioCaptions.addTranscript(transcriptId, transcript, locale))
+    } else Some(audioCaptions.addTranscript(userId, transcriptId, transcript, locale))
   }
 }
 
@@ -50,6 +52,7 @@ class AudioCaptions {
    * @return : (start, end, text)
    */
   private def updateTranscript(
+      userId:       String,
       transcriptId: String,
       start:        Int,
       end:          Int,
@@ -59,8 +62,11 @@ class AudioCaptions {
   ): (Int, Int, String) = {
     val item = transcripts(locale)
 
-    // If updating the current transcript
-    if (item.currentId == transcriptId) {
+    // Only the user who opened this transcript may edit it in place. A foreign
+    // submission carrying someone else's transcriptId falls through to the
+    // rollover branch below, so it appends its own segment instead of
+    // addressing characters another user authored.
+    if (item.currentId == transcriptId && item.ownerUserId == userId) {
       // The client diffs against the transcript the server already holds, so
       // offsets outside it cannot be honoured.
       val previousLength = item.currentTranscript.length
@@ -79,7 +85,8 @@ class AudioCaptions {
       transcripts += locale -> new Transcript(
         fullTranscriptLength,
         transcriptId,
-        transcript
+        transcript,
+        userId
       )
 
       (clampToInt(fullTranscriptLength), clampToInt(fullTranscriptLength), s"${transcript}")
@@ -90,14 +97,15 @@ class AudioCaptions {
    * @return : (start, end, text)
    */
   private def addTranscript(
+      userId:       String,
       transcriptId: String,
       transcript:   String,
       locale:       String
   ): (Int, Int, String) = {
-    transcripts += locale -> new Transcript(0L, transcriptId, transcript)
+    transcripts += locale -> new Transcript(0L, transcriptId, transcript, userId)
 
     (0, 0, transcript)
   }
 }
 
-case class Transcript(fullTranscriptLength: Long, currentId: String, currentTranscript: String)
+case class Transcript(fullTranscriptLength: Long, currentId: String, currentTranscript: String, ownerUserId: String)
