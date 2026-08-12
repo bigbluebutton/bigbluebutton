@@ -56,11 +56,11 @@ Ubuntu 24.04 ships coturn 4.6.1. Starting with BigBlueButton 4.0, an optional `b
 
 `bbb-coturn` is a drop-in replacement for the distro `coturn` package — it declares `Provides`/`Conflicts`/`Replaces` on `coturn`, so apt removes the distro package when you install it, and it keeps the same `/usr/bin/turnserver` binary, `/etc/turnserver.conf` config file, and `coturn.service` unit name. Everything else on this page applies unchanged, including the systemd override and log rotation sections below.
 
-To install it, add the BigBlueButton package repository for the release you are running, then install the package. Replace `<version>` with your BigBlueButton release (for example `bigbluebutton-4.0`):
+To install it, add the BigBlueButton package repository for the release you are running, then install the package. Replace `<version>` with your BigBlueButton release (for example `noble-400`):
 
 ```bash
 $ sudo mkdir -p /etc/apt/keyrings
-$ wget https://ubuntu.bigbluebutton.org/bigbluebutton.asc -O /etc/apt/keyrings/bigbluebutton.asc
+$ sudo wget https://ubuntu.bigbluebutton.org/repo/bigbluebutton.asc -O /etc/apt/keyrings/bigbluebutton.asc
 $ echo "deb [signed-by=/etc/apt/keyrings/bigbluebutton.asc] https://ubuntu.bigbluebutton.org/<version> bigbluebutton-noble main" | sudo tee /etc/apt/sources.list.d/bigbluebutton.list
 $ sudo apt-get update
 $ sudo apt-get install bbb-coturn
