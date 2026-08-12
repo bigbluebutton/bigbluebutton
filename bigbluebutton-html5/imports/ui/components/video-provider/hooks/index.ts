@@ -688,8 +688,12 @@ const reserveAudioOnlyTiles = ({
   const uniqueAudioOnly = (showAudioOnlyOnFirstPage && audioOnlyUsers.length > 0)
     ? audioOnlyUsers.filter((audioUser) => !excludeStreams.find((s) => s.userId === audioUser.userId))
     : [];
+  // Caps maxAudioOnlyUsers below its configured value on a small page: the two slots
+  // of a mobile page hold one audio-only tile, not two.
+  const cameraSlotFloor = reservedCount === 0 && others.length > 0 ? 1 : 0;
+  const audioOnlySlots = Math.max(0, Math.min(availableSlots - cameraSlotFloor, maxAudioOnlyUsers));
   const audioOnlySlotsUsedOnPage1 = uniqueAudioOnly.length > 0
-    ? Math.min(uniqueAudioOnly.length, Math.min(availableSlots, maxAudioOnlyUsers))
+    ? Math.min(uniqueAudioOnly.length, audioOnlySlots)
     : 0;
 
   let totalNumberOfOtherStreams: number;
