@@ -38,10 +38,23 @@ interface BaseLiveKitRoomProps {
   onReconnectExhausted?: () => void;
   // Invoked when a fatal error actually triggers a forced reconnect cycle.
   onFatalReconnect?: () => void;
+  // Invoked on a disconnect the SDK will not retry, so the owner can unwind
+  // whatever server-side state this room materializes.
+  onTerminalDisconnect?: (reason?: DisconnectReason) => void;
   children?: React.ReactNode;
 }
 
 const DEFAULT_MAX_CONN_ATTEMPTS = 10;
+
+// Disconnects LiveKit never retries: the server sends these with LeaveRequest
+// action=DISCONNECT, ending the session without a reconnect cycle. See
+// https://github.com/livekit/client-sdk-js/blob/main/src/room/RTCEngine.ts
+// (LeaveRequest handling).
+const TERMINAL_DISCONNECT_REASONS: DisconnectReason[] = [
+  DisconnectReason.DUPLICATE_IDENTITY,
+  DisconnectReason.PARTICIPANT_REMOVED,
+  DisconnectReason.ROOM_DELETED,
+];
 
 const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
   membershipKey,
@@ -59,6 +72,7 @@ const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
   maxConnAttempts = DEFAULT_MAX_CONN_ATTEMPTS,
   onReconnectExhausted,
   onFatalReconnect,
+  onTerminalDisconnect,
   children,
 }) => {
   const [connAttempts, setConnAttempts] = useState(0);
@@ -86,7 +100,11 @@ const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
         membershipKey,
       },
     }, `${logPrefix}: room disconnected, reason=${reason}`);
-  }, [logPrefix, url, iceServers, connAttempts, membershipKey]);
+
+    if (reason !== undefined && TERMINAL_DISCONNECT_REASONS.includes(reason)) {
+      onTerminalDisconnect?.(reason);
+    }
+  }, [logPrefix, url, iceServers, connAttempts, membershipKey, onTerminalDisconnect]);
 
   const onError = useCallback((error: Error) => {
     logger.error({

@@ -3,7 +3,7 @@ import { isEqual } from 'radash';
 import { useTracks } from '@livekit/components-react';
 import { RoomEvent, Track } from 'livekit-client';
 import { liveKitRoomRegistry } from '/imports/ui/services/livekit';
-import useShouldUseLiveKitAudioState from './useShouldUseLiveKitAudioState';
+import { useIsUsingLiveKitAudio } from './useShouldUseLiveKitAudioState';
 
 const BASELINE_DATA: Record<string, boolean> = Object.freeze({});
 
@@ -14,7 +14,7 @@ const BASELINE_DATA: Record<string, boolean> = Object.freeze({});
  *
  */
 const useSubscribedAudioUsers = (): Record<string, boolean> => {
-  const shouldUseLiveKit = useShouldUseLiveKitAudioState();
+  const isLiveKitActive = useIsUsingLiveKitAudio();
   const subscribedUsersRef = useRef<Record<string, boolean>>({});
   const microphoneTracks = useTracks([Track.Source.Microphone], {
     room: liveKitRoomRegistry.getPrimary(),
@@ -28,7 +28,7 @@ const useSubscribedAudioUsers = (): Record<string, boolean> => {
   });
 
   return useMemo(() => {
-    if (!shouldUseLiveKit) return BASELINE_DATA;
+    if (!isLiveKitActive) return BASELINE_DATA;
 
     const subscribedUsers: Record<string, boolean> = {};
     microphoneTracks.forEach((trackRef) => {
@@ -43,7 +43,7 @@ const useSubscribedAudioUsers = (): Record<string, boolean> => {
     subscribedUsersRef.current = subscribedUsers;
 
     return subscribedUsers;
-  }, [shouldUseLiveKit, microphoneTracks]);
+  }, [isLiveKitActive, microphoneTracks]);
 };
 
 export default useSubscribedAudioUsers;

@@ -35,6 +35,9 @@ interface SecondaryLiveKitRoomProps {
   attachToAudioBridge?: boolean;
   // Fired when BaseLiveKitRoom exhausts its reconnect attempts.
   onReconnectExhausted?: () => void;
+  // Fired on a disconnect LiveKit will not retry (no reconnect cycle runs, so
+  // onReconnectExhausted never fires for it).
+  onTerminalDisconnect?: () => void;
 }
 
 const SECONDARY_RECONNECT_ATTEMPTS = 5;
@@ -44,6 +47,7 @@ const SecondaryLiveKitRoom: React.FC<SecondaryLiveKitRoomProps> = ({
   membershipKey,
   attachToAudioBridge = false,
   onReconnectExhausted,
+  onTerminalDisconnect,
 }) => {
   const [meetingSettings] = useMeetingSettings();
   const speakerLevel = useSpeakerLevel();
@@ -107,6 +111,7 @@ const SecondaryLiveKitRoom: React.FC<SecondaryLiveKitRoomProps> = ({
       logPrefix={`livekit_secondary_${membership.roomName}`}
       maxConnAttempts={SECONDARY_RECONNECT_ATTEMPTS}
       onReconnectExhausted={onReconnectExhausted}
+      onTerminalDisconnect={onTerminalDisconnect}
     >
       <RoomAudioRenderer volume={speakerLevel} />
     </BaseLiveKitRoom>
