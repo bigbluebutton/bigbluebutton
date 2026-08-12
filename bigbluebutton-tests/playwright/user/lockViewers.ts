@@ -3,6 +3,7 @@ import { expect } from '@playwright/test';
 import { hoverLastMessage } from '../chat/util';
 import { ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME, USER_LEFT_NOTIFICATION_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { linkIssue } from '../core/helpers';
 import { enableUserJoinPopup, enableUserLeavePopup, saveSettings } from '../notifications/util';
 import { openSettings } from '../options/util';
 import { getNotesLocator } from '../sharednotes/etherpad/util';
@@ -242,6 +243,52 @@ export class LockViewers extends MultiUsers {
       privateChatMessaSentUser2.locator(e.messageToolbar),
       'should not display the chat message toolbar when locked user is hovering the message',
     ).not.toBeVisible();
+  }
+
+  async lockedViewerCanSendPrivateMessageToModerator() {
+    linkIssue(25601);
+
+    // Lock private chat before the attendee starts a chat with the moderator.
+    await openLockViewers(this.modPage);
+    await this.modPage.waitAndClick(e.participantPermissionsTab);
+    await this.modPage.waitAndClickElement(e.lockPrivateChat);
+    await this.modPage.waitAndClick(e.applyLockSettings);
+
+    await this.userPage.waitAndClick(e.usersListSidebarButton);
+    const moderatorRow = this.userPage.page.locator(e.userListItem).filter({ hasText: this.modPage.username }).first();
+    await expect(moderatorRow, 'should display the moderator for the locked attendee').toBeVisible();
+    await moderatorRow.click();
+
+    const startPrivateChatButton = moderatorRow.locator(e.startPrivateChat);
+    await expect(
+      startPrivateChatButton,
+      'should allow the locked attendee to start a private chat with the moderator',
+    ).toBeVisible();
+    await startPrivateChatButton.click();
+
+    await this.userPage.hasElementEnabled(
+      e.chatBox,
+      'should enable the private chat input for the locked attendee when chatting with the moderator',
+    );
+    await this.userPage.hasElementEnabled(
+      e.sendButton,
+      'should enable the private chat send button for the locked attendee when chatting with the moderator',
+    );
+
+    const message = 'Private message from a locked attendee';
+    await this.userPage.fill(e.chatBox, message);
+    await this.userPage.waitAndClick(e.sendButton);
+    await expect(
+      this.userPage.page.locator(e.chatUserMessageText).last(),
+      'should display the private message for the locked attendee',
+    ).toHaveText(message);
+
+    await this.modPage.waitAndClick(e.privateChatButton);
+    await this.modPage.waitAndClick(e.privateChatItem);
+    await expect(
+      this.modPage.page.locator(e.chatUserMessageText).last(),
+      'should deliver the private message from the locked attendee to the moderator',
+    ).toHaveText(message);
   }
 
   async lockEditSharedNotes() {
