@@ -2,7 +2,9 @@
 
 case "$1" in
    remove|purge)
-       systemctl daemon-reload
+       if [ -d /run/systemd/system ]; then
+           systemctl daemon-reload
+       fi
    ;;
    upgrade|failed-upgrade|abort-upgrade|abort-install|disappear)
    ;;

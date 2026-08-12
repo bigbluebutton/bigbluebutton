@@ -12,14 +12,16 @@ fi
 mkdir -p /var/log/turnserver
 chown turnserver:turnserver /var/log/turnserver
 
-if [ ! -f /.dockerenv ]; then
+# /run/systemd/system only exists when systemd is the running init, which
+# covers docker/chroot/container environments in one check.
+if [ -d /run/systemd/system ]; then
   systemctl daemon-reload
 fi
 
 # On upgrade ($2 carries the version we upgraded from), before-remove left the
 # service running; restart it so the new binary and unit take over. Fresh
 # installs are deliberately left stopped (see below).
-if [ -n "$2" ] && [ ! -f /.dockerenv ]; then
+if [ -n "$2" ] && [ -d /run/systemd/system ]; then
   systemctl try-restart coturn.service || true
 fi
 
