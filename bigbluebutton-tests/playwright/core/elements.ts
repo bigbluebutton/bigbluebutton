@@ -414,6 +414,7 @@ export const elements = {
   uploadPresentationFileName: 'uploadTest.png',
   presentationPPTX: 'BBB.pptx',
   presentationTXT: 'helloWorld.txt',
+  maskSamplePdf: 'sample-with-mask.pdf',
   startScreenSharing: 'button[data-test="startScreenShare"]',
   stopScreenSharing: 'button[data-test="stopScreenShare"]',
   managePresentations: 'div[data-test="managePresentations"]',

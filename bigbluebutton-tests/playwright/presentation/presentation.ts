@@ -427,6 +427,45 @@ export class Presentation extends MultiUsers {
     }
   }
 
+  async maskRasterizationFallbackTest() {
+    // wait for whiteboard to load and no notifications
+    await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
+    await this.modPage.waitForSelector(e.skipSlide);
+    await this.modPage.closeAllToastNotifications();
+
+    await uploadSinglePresentation(this.modPage, e.maskSamplePdf, UPLOAD_PDF_WAIT_TIME);
+
+    // secondary check: the uploaded slide is visibly present
+    await this.modPage.hasElement(e.currentSlideImg, 'should display the uploaded slide as the current slide image');
+
+    // 4.0 renders slides as tldraw image assets, so a visual snapshot cannot tell a rasterized
+    // (embedded-PNG) slide apart from a vector slide of the same content. Inspect the served
+    // slide SVG file instead, deriving its URL from the current tl-image asset.
+    const slideSvgUrl = await this.modPage.page.evaluate(
+      ([selector]) => {
+        const element = document.querySelector(selector) as HTMLElement | null;
+        return element?.style?.backgroundImage?.split('"')[1] ?? null;
+      },
+      [e.currentSlideImg],
+    );
+    // the asset URL carries pageToken/sessionToken query params, e.g. .../svg/1?pageToken=...
+    expect(slideSvgUrl, 'should resolve the served slide SVG url from the current slide asset').toMatch(
+      /\/svg\/\d+(\?|$)/,
+    );
+
+    const slideSvgResponse = await this.modPage.page.request.get(slideSvgUrl as string);
+    expect(slideSvgResponse.ok(), 'should fetch the served slide SVG').toBeTruthy();
+    const slideSvgContent = await slideSvgResponse.text();
+
+    // A rasterized slide is the embedded-PNG SVG produced by SvgImageCreatorImp.createSvgWithEmbeddedPng():
+    // a single <image href="data:image/png;base64,..."> and no vector elements. pdftocairo vector output
+    // instead uses xlink:href for embedded bitmaps and contains <path> elements.
+    expect(slideSvgContent, 'served slide SVG should be the rasterized embedded-PNG form').toMatch(
+      /<image href="data:image\/png;base64,/,
+    );
+    expect(slideSvgContent, 'rasterized slide SVG should contain no vector <path> elements').not.toMatch(/<path[\s>]/);
+  }
+
   async uploadOtherPresentationsFormat() {
     // wait for whiteboard to load and no notifications
     await this.modPage.waitForSelector(e.whiteboard, ELEMENT_WAIT_LONGER_TIME);
