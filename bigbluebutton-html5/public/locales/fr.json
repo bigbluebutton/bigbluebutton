@@ -1771,6 +1771,7 @@
     "app.learningDashboard.statusTimelineTable.setAt": "Régler à",
     "app.learningDashboard.errors.invalidToken": "Jeton de séance invalide",
     "app.learningDashboard.errors.dataUnavailable": "Les données ne sont plus disponibles",
+    "app.learningDashboard.errors.genericError": "Something went wrong. Please reload the page.",
     "app.learningDashboard.closeHelpModal": "Fermer la fenêtre d'aide du tableau de bord",
     "app.learningDashboard.helpButtonLabel": "Aide",
     "app.learningDashboard.help.title": "Aide du tableau de bord d'apprentissage",
