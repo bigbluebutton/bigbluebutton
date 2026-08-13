@@ -248,6 +248,7 @@ public class SvgImageCreatorImp implements SvgImageCreator {
                 logData.put("fileExists", destsvg.exists());
                 logData.put("numberOfImages", pHandler.numberOfImageTags());
                 logData.put("numberOfPaths", pHandler.numberOfPaths());
+                logData.put("numberOfUseTags", pHandler.numberOfUseTags());
                 logData.put("numberOfMasks", pHandler.numberOfMaskTags());
                 logData.put("logCode", "potential_problem_with_svg");
                 logData.put("message", "Potential problem with generated SVG");
