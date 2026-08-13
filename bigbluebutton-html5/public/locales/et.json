@@ -1771,6 +1771,7 @@
     "app.learningDashboard.statusTimelineTable.setAt": "Määra",
     "app.learningDashboard.errors.invalidToken": "Kehtetu sessioonitõend",
     "app.learningDashboard.errors.dataUnavailable": "Andmed ei ole enam kättesaadavad",
+    "app.learningDashboard.errors.genericError": "Something went wrong. Please reload the page.",
     "app.learningDashboard.closeHelpModal": "Sulge andmelaua abiaken",
     "app.learningDashboard.helpButtonLabel": "Help",
     "app.learningDashboard.help.title": "Learning Dashboard Help",
