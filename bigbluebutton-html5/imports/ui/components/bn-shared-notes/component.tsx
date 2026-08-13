@@ -21,7 +21,7 @@ import {
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Menu as MantineMenu } from '@mantine/core';
 
-import { Plugin, PluginKey, TextSelection } from '@tiptap/pm/state';
+import { Plugin, PluginKey } from '@tiptap/pm/state';
 import { Extension } from '@tiptap/core';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
@@ -70,9 +70,6 @@ const createMaxDocumentCharsExtension = (
   },
 });
 
-// The left margin of the table Block as the first block is buggy when used with static toolbar;
-// ideally the fix would come from BlockNote
-// (wait for https://github.com/TypeCellOS/BlockNote/issues/2748 to be resolved)
 const escapeBlurExtension = Extension.create({
   name: 'bbbEscapeBlur',
   addKeyboardShortcuts() {
@@ -82,30 +79,6 @@ const escapeBlurExtension = Extension.create({
         return true;
       },
     };
-  },
-});
-
-// TODO: After the issue on BlockNote is resolved, update BlockNote and remove the
-// fixCursorAtOriginExtension and the fixCursorAtOriginPluginKey
-const fixCursorAtOriginPluginKey = new PluginKey('fixCursorAtOrigin');
-const fixCursorAtOriginExtension = Extension.create({
-  name: 'bbbFixCursorAtOrigin',
-  addProseMirrorPlugins() {
-    return [
-      new Plugin({
-        key: fixCursorAtOriginPluginKey,
-        appendTransaction(_transactions, _oldState, newState) {
-          const { selection } = newState;
-          if (selection.$from.pos > 2 || selection.$to.pos > 2) return null;
-          const firstBlockContent = newState.doc.firstChild?.firstChild?.firstChild;
-          if (!firstBlockContent || firstBlockContent.type.name !== 'table') return null;
-          if (newState.doc.content.size < 1) return null;
-          const safeSelection = TextSelection.near(newState.doc.resolve(1), 1);
-          if (safeSelection.from === 0) return null;
-          return newState.tr.setSelection(safeSelection);
-        },
-      }),
-    ];
   },
 });
 
@@ -289,7 +262,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
       },
     },
     _tiptapOptions: {
-      extensions: [maxDocumentCharsExtension, fixCursorAtOriginExtension, escapeBlurExtension],
+      extensions: [maxDocumentCharsExtension, escapeBlurExtension],
     },
     pasteHandler: ({ event, defaultPasteHandler }) => {
       try {
