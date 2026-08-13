@@ -1771,6 +1771,7 @@
     "app.learningDashboard.statusTimelineTable.setAt": "Ezarri",
     "app.learningDashboard.errors.invalidToken": "Saioaren token baliogabea",
     "app.learningDashboard.errors.dataUnavailable": "Datuak ez daude eskuragarri",
+    "app.learningDashboard.errors.genericError": "Something went wrong. Please reload the page.",
     "app.learningDashboard.closeHelpModal": "Itxi paneleko laguntza-modala",
     "app.learningDashboard.helpButtonLabel": "Laguntza",
     "app.learningDashboard.help.title": "Ikasteko arbelaren laguntza",
