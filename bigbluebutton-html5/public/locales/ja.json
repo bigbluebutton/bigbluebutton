@@ -1771,6 +1771,7 @@
     "app.learningDashboard.statusTimelineTable.setAt": "セット時刻",
     "app.learningDashboard.errors.invalidToken": "無効な会議参加許可",
     "app.learningDashboard.errors.dataUnavailable": "データはもう閲覧できません",
+    "app.learningDashboard.errors.genericError": "Something went wrong. Please reload the page.",
     "app.learningDashboard.closeHelpModal": "Close dashboard help modal",
     "app.learningDashboard.helpButtonLabel": "Help",
     "app.learningDashboard.help.title": "Learning Dashboard Help",
