@@ -1771,6 +1771,7 @@
     "app.learningDashboard.statusTimelineTable.setAt": "Sett kl",
     "app.learningDashboard.errors.invalidToken": "Ugyldig session token",
     "app.learningDashboard.errors.dataUnavailable": "Data er ikke lenger tilgjengelig",
+    "app.learningDashboard.errors.genericError": "Something went wrong. Please reload the page.",
     "app.learningDashboard.closeHelpModal": "Lukk hjelpevinduet til dashbordet",
     "app.learningDashboard.helpButtonLabel": "Hjelp",
     "app.learningDashboard.help.title": "Hjelp til Learning Dashboard",
