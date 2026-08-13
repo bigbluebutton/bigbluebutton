@@ -1771,6 +1771,7 @@
     "app.learningDashboard.statusTimelineTable.setAt": "Ρύθμιση σε",
     "app.learningDashboard.errors.invalidToken": "Μη έγκυρο αναγνωριστικό σύνδεσης",
     "app.learningDashboard.errors.dataUnavailable": "Τα δεδομένα δεν είναι πλέον διαθέσιμα",
+    "app.learningDashboard.errors.genericError": "Something went wrong. Please reload the page.",
     "app.learningDashboard.closeHelpModal": "Close dashboard help modal",
     "app.learningDashboard.helpButtonLabel": "Help",
     "app.learningDashboard.help.title": "Learning Dashboard Help",
