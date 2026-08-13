@@ -1771,6 +1771,7 @@
     "app.learningDashboard.statusTimelineTable.setAt": "Şu zamana ayarla",
     "app.learningDashboard.errors.invalidToken": "Oturum kodu geçersiz",
     "app.learningDashboard.errors.dataUnavailable": "Veriler artık kullanılamıyor",
+    "app.learningDashboard.errors.genericError": "Something went wrong. Please reload the page.",
     "app.learningDashboard.closeHelpModal": "Pano yardımı üste açılan penceresini kapat",
     "app.learningDashboard.helpButtonLabel": "Yardım",
     "app.learningDashboard.help.title": "Panoyu öğrenme yardımı",
