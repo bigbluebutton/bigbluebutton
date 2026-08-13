@@ -1771,6 +1771,7 @@
     "app.learningDashboard.statusTimelineTable.setAt": "設定於",
     "app.learningDashboard.errors.invalidToken": "無效的會話令牌",
     "app.learningDashboard.errors.dataUnavailable": "資料已不可用",
+    "app.learningDashboard.errors.genericError": "Something went wrong. Please reload the page.",
     "app.learningDashboard.closeHelpModal": "關閉儀表板幫助模式",
     "app.learningDashboard.helpButtonLabel": "幫助",
     "app.learningDashboard.help.title": "學習儀表板幫助",
