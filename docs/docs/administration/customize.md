@@ -1140,6 +1140,18 @@ After you save the changes to `/etc/bigbluebutton/bbb-web.properties`, restart t
 sudo bbb-conf --restart
 ```
 
+#### Rasterize slides whose SVG contains mask tags
+
+Some PDFs produce slides whose generated SVG contains `<mask>` elements (used for soft-masked/alpha images). On systems where those mask values are rendered incorrectly, the affected slides can show visual artifacts. To work around this, bbb-web can fall back to full-slide rasterization (the same BMP-based fallback used by `imageTagThreshold` and `useTagThreshold`) for any slide whose SVG contains a configurable number of `<mask>` tags.
+
+The check is **disabled by default** (`maskTagThreshold=0`), because masks are common in ordinary PDFs and the `pdftocairo` shipped with Ubuntu 24.04 (poppler 24.02.0) generates correct mask values. To rasterize only mask-heavy slides, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties`:
+
+```properties
+maskTagThreshold=100
+```
+
+A slide is rasterized when its SVG contains at least `maskTagThreshold` mask tags (a value of `1` would rasterize any slide containing a mask). After you save the changes, restart the BigBlueButton server with `sudo bbb-conf --restart`.
+
 #### Increase the file size for an uploaded presentation
 
 The default maximum file upload size for an uploaded presentation is 30 MB.
@@ -1656,9 +1668,9 @@ Restart the BigBlueButton server with `bbb-conf --restart`.  You will now be abl
 
 If you are using LiveKit as audio gateway, use [bbb-livekit-stt](https://github.com/bigbluebutton/bbb-livekit-stt) instead of [bbb-transcription-controller](https://github.com/bigbluebutton/bbb-transcription-controller) as gladia proxy.
 
-#### Musician Mode (WASM audio processing)
+#### Advanced Filtering (WASM audio processing)
 
-BigBlueButton 4.0 ships with an optional WASM-based audio processor (internally referred to as "BBBA") that runs on top of the microphone stream. It is exposed to users as **"Musician Mode"** and offers an alternative to the browser's built-in audio processing — useful, for example, when sharing music where the browser's noise suppression and automatic gain control would be undesirable.
+BigBlueButton 4.0 ships with an optional WASM-based audio processor (internally referred to as "BBBA") that runs on top of the microphone stream. It is exposed to users as the **"Advanced Filtering"** option in the Settings > Audio tab, and offers an alternative to the browser's built-in audio processing ("Standard Filtering"), isolating the speaker's voice and eliminating background noise. Users who want no processing at all — for example when sharing music, where noise suppression and automatic gain control would be undesirable — can select "Original Audio" in the same tab.
 
 It is **disabled by default**. To make it available to users, set `enabled: true` under `public.media.audio.audioWasmProcessing` in `/etc/bigbluebutton/bbb-html5.yml`:
 
@@ -1678,7 +1690,7 @@ public:
           noiseSuppression: true
 ```
 
-The initial per-user state of the feature is controlled by `public.app.defaultSettings.application.audioWasmProcessing`. Restart BigBlueButton with `sudo bbb-conf --restart` after changing the configuration.
+The audio-processing mode pre-selected for new users is controlled by `public.app.defaultSettings.audio.processingMode` (`advanced` selects the WASM processor; the client falls back to `standard` when WASM processing is disabled or the browser does not support it). Restart BigBlueButton with `sudo bbb-conf --restart` after changing the configuration.
 
 #### Configure guest policy
 
