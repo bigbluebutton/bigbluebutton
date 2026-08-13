@@ -1771,6 +1771,7 @@
     "app.learningDashboard.statusTimelineTable.setAt": "Beállítás erre",
     "app.learningDashboard.errors.invalidToken": "Érvénytelen munkamenet-token",
     "app.learningDashboard.errors.dataUnavailable": "Az adat többé nem érhető el",
+    "app.learningDashboard.errors.genericError": "Something went wrong. Please reload the page.",
     "app.learningDashboard.closeHelpModal": "Irányítópult súgójának bezárása",
     "app.learningDashboard.helpButtonLabel": "Súgó",
     "app.learningDashboard.help.title": "Tanulási irányítópult súgója",
