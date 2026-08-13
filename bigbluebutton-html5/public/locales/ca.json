@@ -1771,6 +1771,7 @@
     "app.learningDashboard.statusTimelineTable.setAt": "Fixat en",
     "app.learningDashboard.errors.invalidToken": "Token de sessió no vàlid",
     "app.learningDashboard.errors.dataUnavailable": "Les dades ja no estan disponibles",
+    "app.learningDashboard.errors.genericError": "Something went wrong. Please reload the page.",
     "app.learningDashboard.closeHelpModal": "Close dashboard help modal",
     "app.learningDashboard.helpButtonLabel": "Help",
     "app.learningDashboard.help.title": "Learning Dashboard Help",
