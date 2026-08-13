@@ -432,10 +432,7 @@ const WebcamContainer: React.FC = () => {
   }));
   const { selectedLayout } = useSettings(SETTINGS.LAYOUT) as { selectedLayout: string };
   const isUnifiedLayout = selectedLayout === LAYOUT_TYPE.UNIFIED_LAYOUT;
-  // 3.0 snapped in both CUSTOM_LAYOUT and UNIFIED_LAYOUT — the two layouts where
-  // the cameras form a grid. 4.0 dropped CUSTOM_LAYOUT from LAYOUT_TYPE, so
-  // UNIFIED_LAYOUT is the whole of that set here.
-  const snapToCameraGrid = selectedLayout === LAYOUT_TYPE.UNIFIED_LAYOUT;
+  const snapToCameraGrid = isUnifiedLayout;
 
   const isGridEnabled = isUnifiedLayout && !presentationIsOpen;
 
