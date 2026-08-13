@@ -1771,6 +1771,7 @@
     "app.learningDashboard.statusTimelineTable.setAt": "Setzen bei",
     "app.learningDashboard.errors.invalidToken": "Ungültiger Konferenz-Token",
     "app.learningDashboard.errors.dataUnavailable": "Die Daten sind nicht mehr verfügbar",
+    "app.learningDashboard.errors.genericError": "Something went wrong. Please reload the page.",
     "app.learningDashboard.closeHelpModal": "Close dashboard help modal",
     "app.learningDashboard.helpButtonLabel": "Help",
     "app.learningDashboard.help.title": "Learning Dashboard Help",
