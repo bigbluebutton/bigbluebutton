@@ -21,6 +21,10 @@ import useMeeting from '/imports/ui/core/hooks/useMeeting';
 const ASK_MODERATOR = 'ASK_MODERATOR';
 
 const SettingsContainer = (props) => {
+  const APP_CONFIG = window.meetingClientSettings.public.app;
+  const SHOW_AUDIO_FILTERS = (APP_CONFIG.showAudioFilters === undefined)
+    ? true
+    : APP_CONFIG.showAudioFilters;
   const layoutContextDispatch = layoutDispatch();
   const setLocalSettings = useUserChangedLocalSettings();
   const paginationToggleEnabled = useShouldRenderPaginationToggle();
@@ -74,6 +78,7 @@ const SettingsContainer = (props) => {
       setLocalSettings={setLocalSettings}
       paginationToggleEnabled={paginationToggleEnabled}
       fallbackLocales={FALLBACK_LOCALES}
+      isShowAudioFiltersEnabled={SHOW_AUDIO_FILTERS}
     />
   );
 };

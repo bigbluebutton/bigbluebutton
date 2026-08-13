@@ -474,6 +474,10 @@ export const elements = {
   enableWebcamsToggleBtn: 'span[data-test="webcamToggleBtn"] input',
   enableDesktopSharingToggleBtn: 'span[data-test="desktopSharingToggleBtn"] input',
   shortcutsTab: 'span[id="shortcutsTab"]',
+  audioTab: 'span[id="audioTab"]',
+  advancedFilteringRadio: 'input[data-test="advancedFilteringRadio"]',
+  standardFilteringRadio: 'input[data-test="standardFilteringRadio"]',
+  originalAudioRadio: 'input[data-test="originalAudioRadio"]',
 
   // User
   moderatorAvatar: 'div[data-test="moderatorAvatar"]',

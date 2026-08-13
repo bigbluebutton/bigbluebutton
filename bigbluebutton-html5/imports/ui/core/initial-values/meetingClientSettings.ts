@@ -153,6 +153,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         audio: {
           inputDeviceId: 'undefined',
           outputDeviceId: 'undefined',
+          processingMode: 'advanced',
         },
         dataSaving: {
           viewParticipantsWebcams: true,
