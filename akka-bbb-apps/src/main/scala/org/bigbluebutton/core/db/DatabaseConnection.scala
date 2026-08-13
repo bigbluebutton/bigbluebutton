@@ -70,7 +70,7 @@ object DatabaseConnection {
         case scala.util.Success(results) =>
           results.zipWithIndex.foreach {
             case (scala.util.Failure(e), index) =>
-              logger.error(s"Error executing batch actions: action ${index + 1}/${batch.size} discarded [${batch(index).getDumpInfo}]: $e")
+              logger.error(s"Error executing batch actions: action ${index + 1}/${batch.size} discarded [${batch(index).getDumpInfo}]", e)
             case _ =>
           }
           val endTime = System.nanoTime()
@@ -81,7 +81,7 @@ object DatabaseConnection {
           isProcessing.set(false)
           if (!queue.isEmpty) tryProcessBatch()
         case scala.util.Failure(e) =>
-          logger.error(s"Error executing batch actions: $e")
+          logger.error("Error executing batch actions", e)
           isProcessing.set(false)
           if (!queue.isEmpty) tryProcessBatch()
       }(dbExecutionContext)
