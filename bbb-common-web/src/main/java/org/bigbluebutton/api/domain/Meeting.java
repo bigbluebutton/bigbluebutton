@@ -105,7 +105,7 @@ public class Meeting {
 	private final ConcurrentMap<String, RegisteredUser> registeredUsers;
 	private final ConcurrentMap<String, Long> enteredUsers;
 	private final Boolean isBreakout;
-	private final List<String> breakoutRooms = new ArrayList<>();
+	private final List<BreakoutRoomIds> breakoutRooms = new ArrayList<>();
 	private ArrayList<Group> groups = new ArrayList<Group>();
 	private String customLogoURL = "";
 	private String customDarkLogoURL = "";
@@ -224,12 +224,16 @@ public class Meeting {
         enteredUsers = new  ConcurrentHashMap<>();
     }
 
-	public void addBreakoutRoom(String meetingId) {
-		breakoutRooms.add(meetingId);
+	public void addBreakoutRoom(String externalId, String internalId) {
+		breakoutRooms.add(new BreakoutRoomIds(externalId, internalId));
 	}
 
 	public List<String> getBreakoutRooms() {
-		return breakoutRooms;
+		return breakoutRooms.stream().map(BreakoutRoomIds::externalId).collect(Collectors.toList());
+	}
+
+	public List<String> getBreakoutRoomsInternalIds() {
+		return breakoutRooms.stream().map(BreakoutRoomIds::internalId).collect(Collectors.toList());
 	}
 
 	public Map<String, String> getMetadata() {
@@ -1036,6 +1040,12 @@ public class Meeting {
     public void setSharedNotesInitialContentMarkdownFromPayload(String sharedNotesInitialContentMarkdownFromPayload) {
         this.sharedNotesInitialContentMarkdownFromPayload = sharedNotesInitialContentMarkdownFromPayload;
     }
+
+	// Both IDs are captured at breakout-creation time and kept together so they can't drift apart.
+	// The internal ID is needed for Learning Dashboard cleanup: a breakout is dropped from
+	// MeetingService's live registry as soon as it ends, so by the time this parent meeting ends
+	// there's no live Meeting object left to read it back from.
+	public record BreakoutRoomIds(String externalId, String internalId) {}
 
     /***
 	 * Meeting Builder

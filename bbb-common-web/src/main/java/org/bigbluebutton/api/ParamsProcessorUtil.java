@@ -773,11 +773,6 @@ public class ParamsProcessorUtil {
 
         }
 
-        // Learning Dashboard not allowed for Breakout Rooms
-        if(isBreakout) {
-		listOfDisabledFeatures.add("learningDashboard");
-	}
-
 	//Set Learning Dashboard configs
         String learningDashboardAccessToken = "";
 	int learningDashboardCleanupMins = 0;
