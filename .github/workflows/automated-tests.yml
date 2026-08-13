@@ -80,7 +80,7 @@ jobs:
             build-list: bbb-webrtc-sfu bbb-webrtc-recorder
             cache-files-list: bbb-webrtc-sfu.placeholder.sh bbb-webrtc-recorder.placeholder.sh
           - package: others
-            build-list: bbb-mkclean bbb-pads bbb-libreoffice-docker bbb-transcription-controller bbb-livekit bbb-webhooks bbb-yq-go
+            build-list: bbb-mkclean bbb-pads bbb-libreoffice-docker bbb-transcription-controller bbb-livekit bbb-webhooks bbb-yq-go bbb-coturn
             cache-files-list: bbb-pads.placeholder.sh bbb-libreoffice bbb-transcription-controller.placeholder.sh bbb-webhooks.placeholder.sh
     steps:
       - name: Checkout PR's source merged into its target branch
@@ -266,9 +266,9 @@ jobs:
           sudo apt-get install -y -qq equivs
 
           DEBS_DIR="all-artifacts"
-          PKGS="bbb-apps-akka bbb-config bbb-etherpad bbb-export-annotations
+          PKGS="bbb-apps-akka bbb-config bbb-export-annotations
                 bbb-freeswitch-core bbb-freeswitch-sounds bbb-fsesl-akka bbb-html5
-                bbb-learning-dashboard bbb-libreoffice-docker bbb-livekit bbb-mkclean bbb-pads
+                bbb-learning-dashboard bbb-libreoffice-docker bbb-livekit bbb-mkclean
                 bbb-shared-notes-server bbb-playback bbb-playback-presentation
                 bbb-record-core bbb-web bbb-webrtc-sfu bbb-webrtc-recorder"
 

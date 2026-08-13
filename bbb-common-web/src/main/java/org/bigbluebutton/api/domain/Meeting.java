@@ -50,13 +50,13 @@ public class Meeting {
 	private long endTime = 0;
 	private boolean forciblyEnded = false;
 	private String telVoice;
-	private String webVoice;
 	private String moderatorPass = "";
 	private String viewerPass = "";
 	private int learningDashboardCleanupDelayInMinutes;
 	private String learningDashboardAccessToken;
 	private ArrayList<String> disabledFeatures;
 	private Boolean notifyRecordingIsOn;
+	private String notifyRecordingAppend = "";
 	private String welcomeMsgTemplate;
 	private String welcomeMsg;
 	private String welcomeMsgForModerators = "";
@@ -109,7 +109,6 @@ public class Meeting {
 	private ArrayList<Group> groups = new ArrayList<Group>();
 	private String customLogoURL = "";
 	private String customDarkLogoURL = "";
-	private String customCopyright = "";
 	private Boolean muteOnStart = false;
 	private String cameraBridge = "livekit";
 	private String screenShareBridge = "livekit";
@@ -152,6 +151,7 @@ public class Meeting {
 		pluginManifests = builder.pluginManifests;
 		html5PluginSdkVersion = builder.html5PluginSdkVersion;
 		notifyRecordingIsOn = builder.notifyRecordingIsOn;
+		notifyRecordingAppend = builder.notifyRecordingAppend;
 		presentationUploadExternalDescription = builder.presentationUploadExternalDescription;
 		presentationUploadExternalUrl = builder.presentationUploadExternalUrl;
 		if (builder.viewerPass == null){
@@ -190,7 +190,6 @@ public class Meeting {
         userCameraCap = builder.userCameraCap;
         maxPinnedCameras = builder.maxPinnedCameras;
         duration = builder.duration;
-        webVoice = builder.webVoice;
         telVoice = builder.telVoice;
         welcomeMsgTemplate = builder.welcomeMsgTemplate;
         welcomeMsg = builder.welcomeMsg;
@@ -450,10 +449,6 @@ public class Meeting {
 	    return parentMeetingId;
 	}
 
-	public String getWebVoice() {
-		return webVoice;
-	}
-
 	public String getTelVoice() {
 		return telVoice;
 	}
@@ -496,6 +491,10 @@ public class Meeting {
 
 	public Boolean getNotifyRecordingIsOn() {
 		return notifyRecordingIsOn;
+	}
+
+	public String getNotifyRecordingAppend() {
+		return notifyRecordingAppend;
 	}
 
 	public String getPresentationUploadExternalDescription() {
@@ -772,14 +771,6 @@ public class Meeting {
 
 	public void setCustomDarkLogoURL(String url) {
 		customDarkLogoURL = url;
-	}
-
-	public void setCustomCopyright(String copyright) {
-    	customCopyright = copyright;
-	}
-
-	public String getCustomCopyright() {
-    	return customCopyright;
 	}
 
 	public void setMuteOnStart(Boolean mute) {
@@ -1077,10 +1068,10 @@ public class Meeting {
 		private ArrayList<PluginManifest> pluginManifests;
 		private String html5PluginSdkVersion;
 		private Boolean notifyRecordingIsOn;
+		private String notifyRecordingAppend = "";
 		private String presentationUploadExternalDescription;
 		private String presentationUploadExternalUrl;
     	private int duration;
-    	private String webVoice;
     	private String telVoice;
     	private String welcomeMsgTemplate;
     	private String welcomeMsg;
@@ -1220,11 +1211,6 @@ public class Meeting {
 					return this;
 				}
 
-    	public Builder withWebVoice(String w) {
-    		this.webVoice = w;
-    		return this;
-    	}
-
     	public Builder withTelVoice(String t) {
     		this.telVoice = t;
     		return this;
@@ -1274,6 +1260,11 @@ public class Meeting {
 	    	this.notifyRecordingIsOn = b;
 	    	return this;
 	    }
+
+		public Builder withNotifyRecordingAppend(String message) {
+			this.notifyRecordingAppend = message;
+			return this;
+		}
 
     	public Builder withPresentationUploadExternalDescription(String d) {
 	    	this.presentationUploadExternalDescription = d;

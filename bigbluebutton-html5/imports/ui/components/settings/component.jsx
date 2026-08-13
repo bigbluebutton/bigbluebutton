@@ -1,9 +1,10 @@
-	import React, { Component } from 'react';
+import React, { Component } from 'react';
 import { defineMessages, injectIntl } from 'react-intl';
 import Langmap from 'langmap';
 import About from '/imports/ui/components/settings/submenus/about/component';
 import DataSaving from '/imports/ui/components/settings/submenus/data-saving/component';
 import Application from '/imports/ui/components/settings/submenus/application/component';
+import Audio from '/imports/ui/components/settings/submenus/audio/component';
 import Notification from '/imports/ui/components/settings/submenus/notification/component';
 import Shortcuts from '/imports/ui/components/settings/submenus/shortcuts/component';
 import { clone } from 'radash';
@@ -13,6 +14,7 @@ import { formatLocaleCode } from '/imports/utils/string-utils';
 import { setUseCurrentLocale } from '../../core/local-states/useCurrentLocale';
 import Transcription from '/imports/ui/components/settings/submenus/transcription/component';
 import UnsavedChangesModal from '/imports/ui/components/common/modal/unsaved-changes/component';
+import { SETTINGS_TABS, getSettingsTabs } from './enums';
 
 const intlMessages = defineMessages({
   appTabLabel: {
@@ -89,6 +91,7 @@ const propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func.isRequired,
   }).isRequired,
+  selectedTab: PropTypes.oneOf(Object.values(SETTINGS_TABS)),
   dataSaving: PropTypes.shape({
     viewParticipantsWebcams: PropTypes.bool,
     viewScreenshare: PropTypes.bool,
@@ -108,6 +111,9 @@ const propTypes = {
     locale: PropTypes.string,
     microphoneConstraints: PropTypes.objectOf(Object),
   }).isRequired,
+  audio: PropTypes.shape({
+    processingMode: PropTypes.oneOf(['advanced', 'standard', 'original']),
+  }).isRequired,
   updateSettings: PropTypes.func.isRequired,
   availableLocales: PropTypes.objectOf(PropTypes.array).isRequired,
   isReactionsEnabled: PropTypes.bool.isRequired,
@@ -120,6 +126,7 @@ const propTypes = {
     englishName: PropTypes.string.isRequired,
     nativeName: PropTypes.string.isRequired,
   })).isRequired,
+  isShowAudioFiltersEnabled: PropTypes.bool.isRequired,
 };
 
 class Settings extends Component {
@@ -131,22 +138,25 @@ class Settings extends Component {
     super(props);
 
     const {
-      dataSaving, application, selectedTab, transcription,
+      dataSaving, application, audio, selectedTab, transcription,
     } = props;
+
+    const tabs = this.getVisibleTabs();
+    const resolvedTabIndex = tabs.indexOf(selectedTab);
 
     this.state = {
       current: {
         dataSaving: clone(dataSaving),
         application: clone(application),
+        audio: clone(audio),
         transcription: clone(transcription),
       },
       saved: {
         dataSaving: clone(dataSaving),
         application: clone(application),
+        audio: clone(audio),
       },
-      selectedTab: Number.isFinite(selectedTab) && selectedTab >= 0 && selectedTab <= 3
-        ? selectedTab
-        : 0,
+      selectedTab: resolvedTabIndex >= 0 ? resolvedTabIndex : 0,
       unsavedModalOpen: false,
       hasUnsavedChanges: false,
     };
@@ -227,6 +237,18 @@ class Settings extends Component {
     });
   }
 
+  getVisibleTabs() {
+    const {
+      isShowAudioFiltersEnabled, isScreenSharingEnabled, isVideoEnabled, isGladiaEnabled,
+    } = this.props;
+
+    return getSettingsTabs({
+      isShowAudioFiltersEnabled,
+      isDataSavingTabEnabled: isScreenSharingEnabled || isVideoEnabled,
+      isGladiaEnabled,
+    });
+  }
+
   performClose() {
     const { saved } = this.state;
     const { setIsOpen } = this.props;
@@ -260,7 +282,6 @@ class Settings extends Component {
       isScreenSharingEnabled,
       isVideoEnabled,
       isReactionsEnabled,
-      isGladiaEnabled,
       paginationToggleEnabled,
       isChatEnabled,
     } = this.props;
@@ -271,62 +292,13 @@ class Settings extends Component {
       allLocales,
     } = this.state;
 
-    const isDataSavingTabEnabled = isScreenSharingEnabled || isVideoEnabled;
+    const tabs = this.getVisibleTabs();
 
-    return (
-      <Styled.SettingsTabs
-        onSelect={this.handleSelectTab}
-        selectedIndex={selectedTab}
-      >
-        <Styled.SettingsTabList>
-          <Styled.SettingsTabSelector
-            aria-labelledby="appTab"
-            selectedClassName="is-selected"
-          >
-            <span id="appTab">{intl.formatMessage(intlMessages.appTabLabel)}</span>
-          </Styled.SettingsTabSelector>
-          <Styled.SettingsTabSelector
-            aria-labelledby="notificationTab"
-            selectedClassName="is-selected"
-          >
-            <span id="notificationTab">{intl.formatMessage(intlMessages.notificationLabel)}</span>
-          </Styled.SettingsTabSelector>
-          {isDataSavingTabEnabled
-            ? (
-              <Styled.SettingsTabSelector
-                aria-labelledby="dataSavingTab"
-                selectedClassName="is-selected"
-              >
-                <span id="dataSaving">{intl.formatMessage(intlMessages.dataSavingLabel)}</span>
-              </Styled.SettingsTabSelector>
-            )
-            : null}
-          {isGladiaEnabled
-            ? (
-              <Styled.SettingsTabSelector
-                aria-labelledby="transcriptionTab"
-                selectedClassName="is-selected"
-              >
-                <span id="transcriptionTab">{intl.formatMessage(intlMessages.transcriptionLabel)}</span>
-              </Styled.SettingsTabSelector>
-            )
-            : null}
-          <Styled.SettingsTabSelector
-            aria-labelledby="shortcutsTab"
-            selectedClassName="is-selected"
-            data-test="shortcutsTabButton"
-          >
-            <span id="shortcutsTab">{intl.formatMessage(intlMessages.shortcutsLabel)}</span>
-          </Styled.SettingsTabSelector>
-          <Styled.SettingsTabSelector
-            aria-labelledby="aboutTab"
-            selectedClassName="is-selected"
-            data-test="aboutTabButton"
-          >
-            <span id="aboutTab">{intl.formatMessage(intlMessages.aboutTabLabel)}</span>
-          </Styled.SettingsTabSelector>
-        </Styled.SettingsTabList>
-        <Styled.SettingsTabPanel selectedClassName="is-selected">
+    const tabConfig = {
+      [SETTINGS_TABS.APPLICATION]: {
+        ariaId: 'appTab',
+        labelMsg: intlMessages.appTabLabel,
+        panel: (
           <Application
             allLocales={allLocales}
             handleUpdateSettings={this.handleUpdateSettings}
@@ -338,8 +310,23 @@ class Settings extends Component {
             isReactionsEnabled={isReactionsEnabled}
             paginationToggleEnabled={paginationToggleEnabled}
           />
-        </Styled.SettingsTabPanel>
-        <Styled.SettingsTabPanel selectedClassName="is-selected">
+        ),
+      },
+      [SETTINGS_TABS.AUDIO]: {
+        ariaId: 'audioTab',
+        labelMsg: intlMessages.audioTabLabel,
+        panel: (
+          <Audio
+            handleUpdateSettings={this.handleUpdateSettings}
+            settings={current.application}
+            audioSettings={current.audio}
+          />
+        ),
+      },
+      [SETTINGS_TABS.NOTIFICATION]: {
+        ariaId: 'notificationTab',
+        labelMsg: intlMessages.notificationLabel,
+        panel: (
           <Notification
             handleUpdateSettings={this.handleUpdateSettings}
             settings={current.application}
@@ -348,39 +335,78 @@ class Settings extends Component {
             isChatEnabled={isChatEnabled}
             {...{ isModerator }}
           />
-        </Styled.SettingsTabPanel>
-        {isDataSavingTabEnabled
-          ? (
-            <Styled.SettingsTabPanel selectedClassName="is-selected">
-              <DataSaving
-                settings={current.dataSaving}
-                handleUpdateSettings={this.handleUpdateSettings}
-                displaySettingsStatus={this.displaySettingsStatus}
-                isScreenSharingEnabled={isScreenSharingEnabled}
-                isVideoEnabled={isVideoEnabled}
-              />
-            </Styled.SettingsTabPanel>
-          )
-          : null}
-        {isGladiaEnabled
-          ? (
-            <Styled.SettingsTabPanel selectedClassName="is-selected">
-              <Transcription
-                handleUpdateSettings={this.handleUpdateSettings}
-                settings={current.transcription}
-                displaySettingsStatus={this.displaySettingsStatus}
-              />
-            </Styled.SettingsTabPanel>
-          )
-          : null}
-        <Styled.SettingsTabPanel selectedClassName="is-selected" $noPadding>
-          <Shortcuts />
-        </Styled.SettingsTabPanel>
-        <Styled.SettingsTabPanel selectedClassName="is-selected">
-          <About
-            settings={current.application}
+        ),
+      },
+      [SETTINGS_TABS.DATA_SAVING]: {
+        ariaId: 'dataSavingTab',
+        spanId: 'dataSaving',
+        labelMsg: intlMessages.dataSavingLabel,
+        panel: (
+          <DataSaving
+            settings={current.dataSaving}
+            handleUpdateSettings={this.handleUpdateSettings}
+            displaySettingsStatus={this.displaySettingsStatus}
+            isScreenSharingEnabled={isScreenSharingEnabled}
+            isVideoEnabled={isVideoEnabled}
           />
-        </Styled.SettingsTabPanel>
+        ),
+      },
+      [SETTINGS_TABS.TRANSCRIPTION]: {
+        ariaId: 'transcriptionTab',
+        labelMsg: intlMessages.transcriptionLabel,
+        panel: (
+          <Transcription
+            handleUpdateSettings={this.handleUpdateSettings}
+            settings={current.transcription}
+            displaySettingsStatus={this.displaySettingsStatus}
+          />
+        ),
+      },
+      [SETTINGS_TABS.SHORTCUTS]: {
+        ariaId: 'shortcutsTab',
+        labelMsg: intlMessages.shortcutsLabel,
+        dataTest: 'shortcutsTabButton',
+        noPadding: true,
+        panel: <Shortcuts />,
+      },
+      [SETTINGS_TABS.ABOUT]: {
+        ariaId: 'aboutTab',
+        labelMsg: intlMessages.aboutTabLabel,
+        dataTest: 'aboutTabButton',
+        panel: <About settings={current.application} />,
+      },
+    };
+
+    return (
+      <Styled.SettingsTabs
+        onSelect={this.handleSelectTab}
+        selectedIndex={selectedTab}
+      >
+        <Styled.SettingsTabList>
+          {tabs.map((tabId) => {
+            const {
+              ariaId, spanId, labelMsg, dataTest,
+            } = tabConfig[tabId];
+            return (
+              <Styled.SettingsTabSelector
+                key={tabId}
+                aria-labelledby={ariaId}
+                selectedClassName="is-selected"
+                data-test={dataTest}
+              >
+                <span id={spanId || ariaId}>{intl.formatMessage(labelMsg)}</span>
+              </Styled.SettingsTabSelector>
+            );
+          })}
+        </Styled.SettingsTabList>
+        {tabs.map((tabId) => {
+          const { panel, noPadding } = tabConfig[tabId];
+          return (
+            <Styled.SettingsTabPanel key={tabId} selectedClassName="is-selected" $noPadding={noPadding}>
+              {panel}
+            </Styled.SettingsTabPanel>
+          );
+        })}
       </Styled.SettingsTabs>
     );
   }

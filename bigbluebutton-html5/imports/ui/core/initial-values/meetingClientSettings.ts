@@ -33,6 +33,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       customStyleUrl: null,
       darkTheme: {
         enabled: true,
+        autoDetectFromSystem: true,
       },
       askForConfirmationOnLeave: false,
       wakeLock: {
@@ -152,6 +153,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         audio: {
           inputDeviceId: 'undefined',
           outputDeviceId: 'undefined',
+          processingMode: 'advanced',
         },
         dataSaving: {
           viewParticipantsWebcams: true,
@@ -863,6 +865,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       maxNumberOfAnnotations: 300,
       maxNumberOfActiveUsers: 25,
       maxHistoryStackSize: 400,
+      slideSwapDecodeTimeoutMs: 250,
       lockToolbarTools: false,
       allowInfiniteWhiteboard: false,
       allowInfiniteWhiteboardInBreakouts: false,

@@ -43,6 +43,7 @@ const colorOverlay = 'var(--color-overlay, rgba(6, 23, 42, 0.75))';
 const userListBg = `var(--user-list-bg, ${colorOffWhite})`;
 const userListText = `var(--user-list-text, ${colorGray})`;
 const unreadMessagesBg = `var(--unread-messages-bg, ${colorDanger})`;
+const notificationBadgeBg = 'var(--notification-badge-bg, #FF3939)';
 const colorGrayLabel = `var(--color-gray-label, ${colorGray})`;
 const colorText = `var(--color-text, ${colorGray})`;
 const colorLink = `var(--color-link, ${colorPrimary})`;
@@ -208,6 +209,7 @@ export {
   userListBg,
   userListText,
   unreadMessagesBg,
+  notificationBadgeBg,
   colorGrayLabel,
   colorText,
   colorLink,

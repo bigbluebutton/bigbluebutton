@@ -31,7 +31,6 @@ public class ApiParams {
     public static final String BANNER_COLOR = "bannerColor";
     public static final String BANNER_TEXT = "bannerText";
     public static final String CHECKSUM = "checksum";
-    public static final String COPYRIGHT = "copyright";
     public static final String DIAL_NUMBER = "dialNumber";
     public static final String DURATION = "duration";
     public static final String FREE_JOIN = "freeJoin";
@@ -67,7 +66,6 @@ public class ApiParams {
     public static final String REDIRECT = "redirect";
     public static final String SEQUENCE = "sequence";
     public static final String VOICE_BRIDGE = "voiceBridge";
-    public static final String WEB_VOICE = "webVoice";
     public static final String LEARNING_DASHBOARD_CLEANUP_DELAY_IN_MINUTES = "learningDashboardCleanupDelayInMinutes";
     public static final String WEBCAMS_ONLY_FOR_MODERATOR = "webcamsOnlyForModerator";
     public static final String MULTIUSER_WHITEBOARD_ENABLED = "multiUserWhiteboardEnabled";
@@ -85,6 +83,7 @@ public class ApiParams {
     public static final String CLIENT_SETTINGS_OVERRIDE_JSON_URL = "clientSettingsOverrideJsonUrl";
     public static final String DISABLED_FEATURES_EXCLUDE = "disabledFeaturesExclude";
     public static final String NOTIFY_RECORDING_IS_ON = "notifyRecordingIsOn";
+    public static final String NOTIFY_RECORDING_APPEND = "notifyRecordingAppend";
 
     public static final String PRESENTATION_UPLOAD_EXTERNAL_DESCRIPTION = "presentationUploadExternalDescription";
     public static final String PRESENTATION_UPLOAD_EXTERNAL_URL = "presentationUploadExternalUrl";

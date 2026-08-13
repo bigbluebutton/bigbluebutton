@@ -18,6 +18,9 @@ import getRecordingTextTracksEndpointTableData from '../data/getRecordingTextTra
 import insertDocumentEndpointTableData from '../data/insertDocument.tsx';
 import sendChatMessageEndpointTableData from '../data/sendChatMessage.tsx';
 import getJoinUrlTableData from '../data/getJoinUrl.tsx';
+import stunsTableData from '../data/stuns.tsx';
+import signOutTableData from '../data/signOut.tsx';
+import learningDashboardTableData from '../data/learningDashboard.tsx';
 import isMeetingRunningEndpointTableData from '../data/isMeetingRunning.tsx';
 import joinEndpointTableData from '../data/join.tsx';
 import publishRecordingsEndpointTableData from '../data/publishRecordings.tsx';
@@ -71,7 +74,7 @@ Updated in 2.0:
 
 Updated in 2.2:
 
-- **create** - Added `endWhenNoModerator`.
+- **create** - Added `endWhenNoModerator`, `meetingEndedURL`.
 - **getRecordingTextTracks** - Get a list of the caption/subtitle files currently available for a recording.
 - **putRecordingTextTrack** - Upload a caption or subtitle file to add it to the recording. If there is any existing track with the same values for kind and lang, it will be replaced.
 
@@ -99,7 +102,7 @@ Updated in 2.5:
 
 Updated in 2.6:
 
-- **create** - **Added:** `notifyRecordingIsOn`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`, `recordFullDurationMedia` (v2.6.9); `disabledFeaturesExclude`(2.6.9); Added `liveTranscription` and `presentation` as options for `disabledFeatures`.
+- **create** - **Added:** `notifyRecordingIsOn`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`, `recordFullDurationMedia` (v2.6.9); `disabledFeaturesExclude`(2.6.9); `maxPinnedCameras`, `breakoutRoomsCaptureSlides`, `breakoutRoomsCaptureSlidesFilename`, `breakoutRoomsCaptureNotes`, `breakoutRoomsCaptureNotesFilename`; Added `liveTranscription` and `presentation` as options for `disabledFeatures`.
 
 - **getRecordings** - **Added:** Added support for pagination using `offset`, `limit`
 
@@ -114,7 +117,7 @@ Updated in 2.7:
 Updated in 3.0:
 
 - **create**
-  - **Added parameters:** `loginURL`, `pluginManifests`, `pluginManifestsFetchUrl`, `presentationConversionCacheEnabled`, `maxNumPages`, `multiUserWhiteboardEnabled`, `clientSettingsOverrideJsonUrl`, `sharedNotesEditor`.
+  - **Added parameters:** `loginURL`, `pluginManifests`, `pluginManifestsFetchUrl`, `presentationConversionCacheEnabled`, `maxNumPages`, `multiUserWhiteboardEnabled`, `clientSettingsOverrideJsonUrl`, `sharedNotesEditor`, `sharedNotesInitialContentJsonUrl` (3.0.25), `sharedNotesInitialContentMarkdown` (3.0.33), `sharedNotesInitialContentMarkdownUrl` (3.0.33), `cameraBridge`, `screenShareBridge`, `audioBridge`, `darklogo`.
   - **Added options:** Parameter `meetingLayout` supports a few new options: CAMERAS_ONLY, PARTICIPANTS_AND_CHAT_ONLY, PRESENTATION_ONLY, MEDIA_ONLY;
   - **Added options:** Parameter `disabledFeatures` supports a few new options: `infiniteWhiteboard`, `deleteChatMessage`, `editChatMessage`, `replyChatMessage`, `chatMessageReactions`, `raiseHand`, `userReactions`, `chatEmojiPicker`, `quizzes`;
   - **Added POST module:** `clientSettingsOverride` (gated by the server-side setting `allowOverrideClientSettingsOnCreateCall` in `bbb-web.properties`);
@@ -131,14 +134,17 @@ Updated in 3.0:
 Updated in 4.0:
 
 - **create**
-  - **Added parameters:** `requireUserConsentBeforeUnmuting` (only relevant when `allowModsToUnmuteUsers=true`; when `true`, the user is shown a consent dialog before a moderator can unmute them), `lockSettingsPresenterPolicy` (controls the "Request to Present" policy; one of `moderatorOnly`, `requireApproval` (default), `freeForAll`).
+  - **Added parameters:** `requireUserConsentBeforeUnmuting` (only relevant when `allowModsToUnmuteUsers=true`; when `true`, the user is shown a consent dialog before a moderator can unmute them), `lockSettingsPresenterPolicy` (controls the "Request to Present" policy; one of `moderatorOnly`, `requireApproval` (default), `freeForAll`), `notifyRecordingAppend` (appends optional plain text to the recording notification dialog when `notifyRecordingIsOn=true`).
   - **Added options:** Parameter `disabledFeatures` supports new options: `multiFunctionalMode` (the auxiliary/dual sidebar panel) and `pinChatMessage`.
   - **Removed parameter:** `lockSettingsDisableNote` (singular); use `lockSettingsDisableNotes` (plural) instead.
+  - **Removed parameter:** `copyright` (it had no effect; the value was stored but never propagated to the client). To customize the copyright text per meeting, override `app.copyright` through `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` (requires `allowOverrideClientSettingsOnCreateCall=true`).
+  - **Removed parameter:** `webVoice` (obsolete; it selected a separate voice conference for the old Flash client and had no downstream effect after that client was removed in BBB 2.3, always falling back to `voiceBridge`).
   - **Changed:** Parameter `meetingLayout` default is now `UNIFIED_LAYOUT`. **Removed:** `meetingLayout` no longer supports `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS`. The remaining non-default options targeting hybrid/niche scenarios are `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, `MEDIA_ONLY`.
   - **Removed option:** `layouts` is no longer a valid `disabledFeatures` value (the layout selection UI was removed).
 - **join**
   - **Changed:** Parameter `enforceLayout` accepted values are now `UNIFIED_LAYOUT`, `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, `MEDIA_ONLY` (the deprecated `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS` are no longer accepted).
   - **Removed parameters:** `userdata-bbb_change_layout` (redundant with `userdata-bbb_default_layout`; its legacy `smart`/`videoFocus`/`presentationFocus`/`custom` values no longer exist) and `userdata-enable-user-reaction` (redundant with the `userReactions` `disabledFeatures` option and `public.userReaction.enabled` in `settings.yml`).
+  - **Removed parameter:** `webVoiceConf` (obsolete; it set a custom Asterisk voice extension for the old Flash client and had no downstream effect, the value was never read).
 - **clientSettings** - The deprecated REST endpoint `/api/rest/clientSettings` was **removed**. Client settings are now served through the GraphQL stack.
 
 ## API Data Types
@@ -747,6 +753,8 @@ See [Passing user metadata to the client on join](/administration/customize/#pas
 ### `POST` insertDocument
 
 This endpoint insert one or more documents into a running meeting via API call.
+
+The documents are downloaded and converted in the background: a `SUCCESS` response means the request was accepted, not that the documents are already available in the meeting. Download or conversion failures — and, when the server is overloaded, tasks rejected because the background download pool is saturated — are reported to the meeting clients (and the server log), not in the API response. The same applies to presentations pre-uploaded through the `create` call (`preUploadedPresentation` or a request body with a `presentation` module).
 
 **Resource URL:**
 
@@ -1447,13 +1455,37 @@ http&#58;//yourserver.com/bigbluebutton/api/sendChatMessage?meetingID=test01&mes
 </response>
 ```
 
-### `GET` getJoinUrl
+## Internal API calls
+
+Alongside the integration API described above, BigBlueButton exposes a small set of endpoints that exist **only to serve the BigBlueButton HTML5 client** while a user is inside a live meeting. They are documented here so their behaviour is discoverable, but they are **not part of the stable third-party integration contract**.
+
+The most important difference is how they are authenticated. The integration API described in [API Security Model](#api-security-model) is authenticated with a `checksum` derived from the shared secret, and calls are made server-to-server. Internal calls are instead authenticated with a per-user **`sessionToken`**:
+
+- A `sessionToken` is generated by the [`join`](#get-join) call. It is returned to (and only known by) the browser that joined the meeting.
+- It identifies a single user session; the server resolves the meeting, user, and role from it. There is no `checksum`, and the shared secret is not involved.
+- It is **not** available to front-ends (Greenlight, Moodle, …) or to load balancers (Scalelite, b3scale, …) that sit in front of BigBlueButton, because those components never see the session token — only the client does.
+
+Because of this, you should treat these endpoints as implementation details of the client:
+
+- Do not build integrations or load-balancing logic on top of them.
+- Their parameters, responses, and existence may change between releases without notice and without a deprecation cycle.
+- Requests without a valid, still-active session token are rejected.
+
+:::note
+This section was added in response to [issue #24212](https://github.com/bigbluebutton/bigbluebutton/issues/24212), which asked for `getJoinUrl` (and endpoints like it) to be clearly marked as internal rather than presented next to the integration API.
+:::
+
+The internal endpoints currently exposed by `bbb-web` are `getJoinUrl`, `stuns`, `signOut` and `learningDashboard`, described below. Note that a few other client-facing endpoints exist outside this controller (for example the presentation upload/download routes under `/bigbluebutton/presentation/...`) and are likewise not part of the integration API.
+
+### `GET` `POST` getJoinUrl
 
 The `getJoinUrl` endpoint generates a new `/join` URL that can be used to create a new session for an existing user. By associating the new session token with the same user ID, all sessions will appear as the same user in the user list, ensuring accurate user counts. Users can also customize the new session’s layout and user data parameters, allowing flexible control over the session’s environment and functionality.
 
 This is particularly useful for hybrid environments where multiple screens in the same room each require a distinct session with different layouts.
 
 It also facilitates seamless user session transfers to another device. For example, a mobile device can scan a QR code displayed on a computer, instantly migrating the user’s session from one device to another.
+
+The caller must present the `sessionToken` of an existing, still-active session; the resulting `/join` URL carries a valid `checksum` and can then be opened directly by the browser.
 
 **Resource URL:**
 
@@ -1477,6 +1509,109 @@ https://yourserver.com/bigbluebutton/api/getJoinUrl?sessionToken=xyn1fbqlrhug1j6
         "returncode": "SUCCESS",
         "message": "Join URL provided successfully.",
         "url": "https://yourserver.com/bigbluebutton/api/join?&redirect=true&existingUserID=w_t18rn7uc1wjm&role=MODERATOR&userdata-bbb_client_title=Presentation+client&sessionName=Presentation+session&fullName=teacher%2B1&meetingID=random-7653737&enforceLayout=PRESENTATION_ONLY&checksum=135f230a2339b9485d91a3e87b1a22420ca57e8b"
+    }
+}
+```
+
+### `GET` `POST` stuns
+
+The `stuns` endpoint returns the STUN/TURN server configuration and remote ICE candidates that the client needs to establish its WebRTC media connections (audio, webcam, screenshare). The meeting is resolved from the session, so no `meetingID` is passed.
+
+**Resource URL:**
+
+http&#58;//yourserver.com/bigbluebutton/api/stuns?[parameters]
+
+**Parameters:**
+
+```mdx-code-block
+<APITableComponent data={stunsTableData}/>
+```
+
+**Example Requests:**
+
+https://yourserver.com/bigbluebutton/api/stuns?sessionToken=xyn1fbqlrhug1j6z
+
+**Example Response:**
+
+```json
+{
+    "stunServers": [
+        { "url": "stun:stun.example.com:3478" }
+    ],
+    "turnServers": [
+        {
+            "username": "1699999999:bbb",
+            "password": "somegeneratedcredential",
+            "url": "turns:turn.example.com:443?transport=tcp",
+            "ttl": 86400
+        }
+    ],
+    "remoteIceCandidates": []
+}
+```
+
+When the session token is missing or invalid the endpoint responds with a failure payload instead:
+
+```json
+{
+    "returncode": "FAILED",
+    "message": "Could not find conference.",
+    "logoutURL": "https://yourserver.com/"
+}
+```
+
+### `GET` `POST` signOut
+
+The `signOut` endpoint invalidates a user session when the client leaves the meeting. It removes the server-side user session associated with the supplied `sessionToken`. It always responds with success, whether or not a matching session was found.
+
+**Resource URL:**
+
+http&#58;//yourserver.com/bigbluebutton/api/signOut?[parameters]
+
+**Parameters:**
+
+```mdx-code-block
+<APITableComponent data={signOutTableData}/>
+```
+
+**Example Requests:**
+
+https://yourserver.com/bigbluebutton/api/signOut?sessionToken=xyn1fbqlrhug1j6z
+
+**Example Response:**
+
+```xml
+<response>
+    <returncode>SUCCESS</returncode>
+</response>
+```
+
+### `GET` `POST` learningDashboard
+
+The `learningDashboard` endpoint returns the [Learning Analytics Dashboard](#learning-analytics-dashboard-callback-url) data for the session's meeting. Access is restricted: the session must belong to a user with the `MODERATOR` role, the meeting must be running, and the `learningDashboard` feature must not be listed in the meeting's `disabledFeatures`. The `data` field contains the dashboard's JSON document serialized as a string.
+
+**Resource URL:**
+
+http&#58;//yourserver.com/bigbluebutton/api/learningDashboard?[parameters]
+
+**Parameters:**
+
+```mdx-code-block
+<APITableComponent data={learningDashboardTableData}/>
+```
+
+**Example Requests:**
+
+https://yourserver.com/bigbluebutton/api/learningDashboard?sessionToken=xyn1fbqlrhug1j6z
+
+**Example Response:**
+
+```json
+{
+    "response": {
+        "returncode": "SUCCESS",
+        "data": "{ ...learning dashboard data as a JSON-encoded string... }",
+        "sessionToken": "xyn1fbqlrhug1j6z"
     }
 }
 ```

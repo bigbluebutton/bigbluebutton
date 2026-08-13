@@ -3,7 +3,7 @@ import { initializePages, linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
 import { Layouts } from './layouts';
 
-test.describe.parallel('Unified Layout - meeting create param', () => {
+test.describe.parallel('Unified Layout - meeting create param', { tag: '@ci' }, () => {
   test('First minimize of presentation shows participant tiles for moderator', async ({ browser, context }, testInfo) => {
     const layouts = new Layouts(browser, context);
     await initializePages(layouts, browser, {
@@ -16,7 +16,7 @@ test.describe.parallel('Unified Layout - meeting create param', () => {
   });
 });
 
-test.describe.parallel('Unified Layout - meeting create param - with audio', () => {
+test.describe.parallel('Unified Layout - meeting create param - with audio', { tag: '@ci' }, () => {
   test('First minimize of presentation shows participant tiles for moderator', async ({ browser, context }, testInfo) => {
     const layouts = new Layouts(browser, context);
     await initializePages(layouts, browser, {
@@ -32,7 +32,7 @@ test.describe.parallel('Unified Layout - meeting create param - with audio', () 
   });
 });
 
-test.describe.parallel('Unified Layout - who-is-talking tiles (no webcams)', () => {
+test.describe.parallel('Unified Layout - who-is-talking tiles (no webcams)', { tag: '@ci' }, () => {
   test('Speaking with no webcams keeps avatar tiles hidden while the presentation is visible', async ({ browser, context }, testInfo) => {
     linkIssue(25235);
     const layouts = new Layouts(browser, context);

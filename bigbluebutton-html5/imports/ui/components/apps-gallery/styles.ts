@@ -7,7 +7,12 @@ import {
   colorWhite,
   colorBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { titlesFontWeight, headingsFontWeight, fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
+import {
+  titlesFontWeight,
+  headingsFontWeight,
+  fontSizeBase,
+  fontSizeSmall,
+} from '/imports/ui/stylesheets/styled-components/typography';
 import {
   $2xlPadding,
   lgPadding,
@@ -127,8 +132,9 @@ const PinApp = styled.div<{pinned: boolean}>`
 const DescWrapper = styled.div`
   padding: 0 ${contentSidebarPadding} 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  gap: 0.5rem;
 `;
 
 const BoldText = styled.span`
@@ -138,11 +144,23 @@ const BoldText = styled.span`
 const NewLabel = styled.span`
   background-color: ${colorPrimary};
   color: ${colorWhite};
-  padding: 0.1rem 0.75rem;
-  border-radius: 10px;
-  font-size: ${fontSizeBase};
+  padding: 0.125rem 0.5rem;
+  border-radius: ${lgBorderRadius};
+  font-size: ${fontSizeSmall};
+  font-weight: ${headingsFontWeight};
   text-transform: uppercase;
-  flex-shrink: 1;
+  flex-shrink: 0;
+`;
+
+const TileNewLabel = styled(NewLabel)`
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+
+  [dir="rtl"] & {
+    left: auto;
+    right: 0.75rem;
+  }
 `;
 
 const SearchWrapper = styled.div`
@@ -168,6 +186,7 @@ const SearchWrapper = styled.div`
 
 const SearchInput = styled.input`
   flex: 1;
+  min-width: 0;
   border: none;
   outline: none;
   background: transparent;
@@ -180,7 +199,7 @@ const SearchInput = styled.input`
 `;
 
 const SectionSeparator = styled.hr`
-  width: calc(100% - 2 * ${contentSidebarPadding});
+  width: 100%;
   border: none;
   border-top: 1px solid ${colorBorder};
   margin: 0;
@@ -212,6 +231,15 @@ const ViewToggleButton = styled.button<{ $active: boolean }>`
     background-color: ${appsGalleryOutlineColor};
     color: ${colorPrimary};
   }
+
+  &[aria-disabled="true"] {
+    cursor: not-allowed;
+
+    &:hover {
+      background-color: transparent;
+      color: ${unpinnedAppIconColor};
+    }
+  }
 `;
 
 const TileAppsWrapper = styled.div`
@@ -226,10 +254,10 @@ const TileItem = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1.5rem 0.75rem 0.75rem;
+  padding: 2rem 1rem;
   border: 1px solid ${colorBorder};
-  border-radius: ${appsButtonsBorderRadius};
-  gap: 0.5rem;
+  border-radius: ${lgBorderRadius};
+  gap: ${appsPanelItemsSpacing};
   cursor: pointer;
   overflow: hidden;
 
@@ -244,7 +272,7 @@ const TileOpenButton = styled.span<{ $pinned: boolean }>`
   justify-content: center;
   width: 2.75rem;
   height: 2.75rem;
-  border-radius: 50%;
+  border-radius: ${appsButtonsBorderRadius};
 
   ${({ $pinned }) => ($pinned ? `
     background-color: ${colorPrimary};
@@ -263,12 +291,18 @@ const TilePinApp = styled.div<{ pinned: boolean }>`
   position: absolute;
   top: 0.4rem;
   right: 0.4rem;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   padding: 0.25rem;
   cursor: pointer;
+
+  [dir="rtl"] & {
+    right: auto;
+    left: 0.4rem;
+  }
 
   > i {
     font-size: 100%;
@@ -296,9 +330,18 @@ const TileClickableArea = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  gap: ${appsPanelItemsSpacing};
   width: 100%;
   cursor: pointer;
+
+  /* Stretch the click target over the whole tile so the "NEW" badge and the
+     surrounding padding also open the app; the pin stays clickable via its
+     higher z-index. */
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
 `;
 
 export default {
@@ -315,6 +358,7 @@ export default {
   DescWrapper,
   BoldText,
   NewLabel,
+  TileNewLabel,
   SearchWrapper,
   SearchInput,
   SectionSeparator,

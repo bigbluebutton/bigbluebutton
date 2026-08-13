@@ -3,7 +3,6 @@ import * as React from 'react';
 import { BlockNoteView } from '@blocknote/mantine';
 import * as BlockNoteLocales from '@blocknote/core/locales';
 import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
-import '@blocknote/core/fonts/inter.css';
 import '@blocknote/mantine/style.css';
 import { HocuspocusProvider } from '@hocuspocus/provider';
 import { Awareness } from 'y-protocols/awareness';
@@ -405,6 +404,16 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <style>
         {`
+          /* BlockNote ships Inter and hardcodes it; inherit the client font
+             instead (body in main.html) so Shared Notes matches the rest of the
+             UI. Both selectors are needed: '.bn-root' (toolbar and menus) sets
+             the font from a '--bn-font-family' default, and '.bn-default-styles'
+             (the editor content) sets Inter on its own. 'inherit' also follows
+             the per-language body overrides, e.g. body.lang-fa -> Tahoma. */
+          .bn-root,
+          .bn-default-styles {
+            font-family: inherit;
+          }
           .bn-toolbar-row .mantine-Button-label {
             display: none;
           }
@@ -576,7 +585,7 @@ function BlockNoteContainer({ isVisible }: BlockNoteContainerProps): React.React
     };
   }, [renderBlockNote, isVisible, markNotesAsRead]);
   return (
-    <Styled.Notes id="bn-notes-scroll-container">
+    <Styled.Notes id="bn-notes-scroll-container" isPresenter={currentUser?.presenter ?? false}>
       {(hasError) && (
         <Styled.WarningNotificationContainer data-test="notesError">
           <Styled.ErrorMessage>{error}</Styled.ErrorMessage>

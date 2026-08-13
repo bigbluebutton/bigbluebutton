@@ -3,7 +3,6 @@ const baseBbbIcon: string = 'i.icon-bbb-';
 const pollOptionItem: string = 'input[data-test="pollOptionItem"]';
 const pollAnswerOptionDesc: string = 'div[data-test="optionsAnswers"]';
 const pollAnswersOption: string = 'div[data-test="optionsAnswers"]';
-const userAvatar: string = 'div[data-test-avatar="userAvatar"]';
 const networkDataContainer: string = 'div[data-test="networkDataContainer"]';
 
 export const elements = {
@@ -247,6 +246,10 @@ export const elements = {
   reconnectingBar: '//div[@data-test="notificationBannerBar" and contains(text(), "Reconnection in progress")]',
   zoomInBtn: 'button[data-test="zoomInBtn"]',
   recordingIndicator: 'div[data-test="recordingIndicator"]',
+  recordingNotifyModal: 'div[data-test="recordingNotifyModal"]',
+  recordingNotifyDescription: 'div[data-test="recordingNotifyDescription"]',
+  recordingNotifyAppend: 'span[data-test="recordingNotifyAppend"]',
+  recordingNotifyContinue: 'button[data-test="recordingNotifyContinue"]',
   webcamMirroredVideoContainer: 'video[data-test="mirroredVideoContainer"]',
   currentUserLocalStreamVideo: 'video[data-local-stream="true"]',
   usersList: 'div[data-test="userList"]',
@@ -345,6 +348,7 @@ export const elements = {
   raisingHandToast: 'You have raised your hand',
   loweringHandToast: 'Your hand has been lowered',
   noActiveMicrophoneToast: 'No active microphone. Share your microphone to add audio to this recording.',
+  recordingNotifyDefaultText: 'A recording will be available based on the remainder of this session',
   whiteboardAvailableToast: 'The whiteboard is now available',
   whiteboardDisabledToast: 'The whiteboard access has been removed',
   inviteSentRoom1: 'Attendee was invited to Room 1',
@@ -410,6 +414,7 @@ export const elements = {
   uploadPresentationFileName: 'uploadTest.png',
   presentationPPTX: 'BBB.pptx',
   presentationTXT: 'helloWorld.txt',
+  maskSamplePdf: 'sample-with-mask.pdf',
   startScreenSharing: 'button[data-test="startScreenShare"]',
   stopScreenSharing: 'button[data-test="stopScreenShare"]',
   managePresentations: 'div[data-test="managePresentations"]',
@@ -469,9 +474,12 @@ export const elements = {
   enableWebcamsToggleBtn: 'span[data-test="webcamToggleBtn"] input',
   enableDesktopSharingToggleBtn: 'span[data-test="desktopSharingToggleBtn"] input',
   shortcutsTab: 'span[id="shortcutsTab"]',
+  audioTab: 'span[id="audioTab"]',
+  advancedFilteringRadio: 'input[data-test="advancedFilteringRadio"]',
+  standardFilteringRadio: 'input[data-test="standardFilteringRadio"]',
+  originalAudioRadio: 'input[data-test="originalAudioRadio"]',
 
   // User
-  userAvatar,
   moderatorAvatar: 'div[data-test="moderatorAvatar"]',
   viewerAvatar: 'div[data-test="viewerAvatar"]',
   userListItem: 'div[data-test="userListItem"]',

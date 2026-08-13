@@ -2,7 +2,7 @@ package org.bigbluebutton.core.running
 
 import org.bigbluebutton.common2.domain.DefaultProps
 import org.bigbluebutton.core.apps._
-import org.bigbluebutton.core.apps.voice.AudioFloorManager
+import org.bigbluebutton.core.apps.voice.{ AudioFloorManager, VoiceUserReconciler }
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core2.MeetingStatus2x
 
@@ -30,4 +30,5 @@ class LiveMeeting(
     val plugins:             PluginModel,
 ) {
   val audioFloorManager = new AudioFloorManager(props.meetingProp.intId)
+  val voiceUserReconciler = new VoiceUserReconciler(props.meetingProp.intId)
 }

@@ -47,7 +47,7 @@ test.use({
   video: 'retain-on-failure',
 });
 
-test.describe('Private chat input visual evidence', () => {
+test.describe('Private chat input visual evidence', { tag: '@ci' }, () => {
   test('Reproduce the placeholder and caret transition when clearing a narrow private chat input', async ({
     browser,
     context,

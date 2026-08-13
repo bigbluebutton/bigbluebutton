@@ -10,6 +10,7 @@ import {
 } from './enums';
 import getFromUserSettings from '/imports/ui/services/users-settings';
 import Auth from '/imports/ui/services/auth';
+import { isSystemThemeAutoDetectEnabled, systemPrefersDarkTheme } from './system-theme';
 
 class Settings {
   constructor(defaultValues = {}) {
@@ -44,9 +45,17 @@ class Settings {
       window.meetingClientSettings.public.app.defaultSettings.application.animations,
     );
 
+    // When system auto-detect is enabled, the OS prefers-color-scheme becomes
+    // the default theme; otherwise fall back to the configured default. The
+    // bbb_prefer_dark_theme parameter (handled by getFromUserSettings) still
+    // takes precedence over both.
+    const darkThemeDefault = isSystemThemeAutoDetectEnabled()
+      ? systemPrefersDarkTheme()
+      : window.meetingClientSettings.public.app.defaultSettings.application.darkTheme;
+
     const showDarkThemeDefault = getFromUserSettings(
       'bbb_prefer_dark_theme',
-      window.meetingClientSettings.public.app.defaultSettings.application.darkTheme,
+      darkThemeDefault,
     );
 
     writableDefaultValues.application.animations = showAnimationsDefault;
@@ -132,6 +141,17 @@ class Settings {
     }
   }
 }
+
+// Whether a given key inside a settings group has been persisted as a
+// user-changed value (i.e. it differs from the default). Used to detect an
+// explicit user choice that should override auto-detected defaults.
+export const hasPersistedChange = (settingGroup, key) => {
+  const APP_CONFIG = window.meetingClientSettings.public.app;
+  const Storage = (APP_CONFIG.userSettingsStorage === 'local') ? LocalStorage : SessionStorage;
+  const storageKey = Settings.getStorageKey({ prepend: CHANGED_SETTINGS, value: `_${settingGroup}` });
+  const saved = Storage.getItem(storageKey);
+  return Boolean(saved && Object.prototype.hasOwnProperty.call(saved, key));
+};
 
 let SettingsSingleton = null;
 export const getSettingsSingletonInstance = () => {
