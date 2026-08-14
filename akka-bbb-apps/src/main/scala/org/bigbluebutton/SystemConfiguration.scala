@@ -4,7 +4,6 @@ import java.util.concurrent.TimeUnit
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 
-import scala.jdk.CollectionConverters._
 import scala.util.{ Failure, Success, Try }
 import com.typesafe.config.ConfigFactory
 
@@ -76,10 +75,6 @@ trait SystemConfiguration {
   lazy val transcriptLines = Try(config.getInt("transcript.lines")).getOrElse(2)
 
   lazy val reduceDuplicatedPick = Try(config.getBoolean("apps.reduceDuplicatedPick")).getOrElse(false)
-
-  // Empty means "use WhiteboardModel.DefaultAllowedAnnotationTypes"; see effectiveAllowedTypes.
-  lazy val whiteboardAllowedAnnotationTypes: Set[String] =
-    Try(config.getStringList("whiteboard.allowedAnnotationTypes").asScala.toSet).getOrElse(Set.empty)
 
   // Redis server configuration
   lazy val redisHost = Try(config.getString("redis.host")).getOrElse("127.0.0.1")

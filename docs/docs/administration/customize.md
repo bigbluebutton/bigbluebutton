@@ -1227,21 +1227,29 @@ whiteboard {
 }
 ```
 
-To change it — for example to accept a shape type contributed by a plugin, or to stop accepting sticky notes — add an overwrite in `/etc/bigbluebutton/bbb-apps-akka.conf`:
+To change it — for example to accept a shape type contributed by a plugin — add an overwrite in `/etc/bigbluebutton/bbb-apps-akka.conf`, **below** the `include` line (an entry placed above the include is overwritten by the packaged defaults):
 
 ```properties
 whiteboard {
-  allowedAnnotationTypes = ["draw", "geo", "arrow", "line", "text", "frame", "group", "poll", "my-plugin-shape"]
+  allowedAnnotationTypes = ["draw", "geo", "arrow", "line", "text", "note", "highlight", "frame", "group", "poll", "my-plugin-shape"]
 }
 ```
 
-A configured list *replaces* the default rather than adding to it, so list every type you want to keep. Leave the list empty to restore the default.
+A configured list *replaces* the default rather than adding to it, so list every type you want to keep — dropping a type from the list disables that tool server-wide. Leave the list empty, or remove the key, to restore the default.
+
+If the value cannot be read as a list of strings (for example `allowedAnnotationTypes = "draw"`, which is a string rather than a list), akka-apps logs an error naming the setting and falls back to the default list. On startup it logs the types it ended up with, so you can confirm your edit took effect:
+
+```
+INFO o.b.core.apps.WhiteboardModel$ - Whiteboard annotation types enabled: [arrow, draw, ...]
+```
 
 The types `embed`, `bookmark`, `image` and `video` are fixed in code and are always rejected. Adding them here has no effect, and akka-apps logs a warning naming the entries it ignored.
 
-This is a server-side check only; the HTML5 client maintains its own list. A shape type the client permits but the server does not will appear on the whiteboard locally and then disappear.
+Annotations are also rejected if they carry a link that is not an `http://` or `https://` URL. This applies to the shapes that can hold one (rectangles and other geo shapes, and sticky notes) and is not configurable.
 
-Restart your server with `sudo bbb-conf --restart` to apply the changes.
+This is a server-side check only; the HTML5 client maintains its own, shorter list. A shape type the client permits but the server rejects is drawn locally for the author, never reaches anyone else, and disappears when they change slide or reload.
+
+Apply the change with `sudo systemctl restart bbb-apps-akka`, or restart everything with `sudo bbb-conf --restart`.
 
 #### Configure S3-based cache for presentation assets
 

@@ -2,7 +2,7 @@ package org.bigbluebutton.core.apps
 
 import java.io.File
 
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{ Config, ConfigFactory }
 import org.scalatest.flatspec.AnyFlatSpec
 
 import scala.jdk.CollectionConverters._
@@ -22,7 +22,9 @@ class WhiteboardModelSpec extends AnyFlatSpec {
     DefaultAllowedAnnotationTypes,
     ForbiddenAnnotationTypes,
     effectiveAllowedTypes,
-    isAllowedAnnotationType
+    hasSafeAnnotationUrl,
+    isAllowedAnnotationType,
+    readConfiguredTypes
   }
 
   private val defaultTypes = effectiveAllowedTypes(Set.empty)
@@ -103,6 +105,130 @@ class WhiteboardModelSpec extends AnyFlatSpec {
   it should "reject everything when the configured list resolves to nothing but exclusions" in {
     // Not a fallback case: the operator did configure something, it just leaves no usable type.
     assert(effectiveAllowedTypes(ForbiddenAnnotationTypes).isEmpty)
+  }
+
+  behavior of "hasSafeAnnotationUrl"
+
+  private def geoWithUrl(url: Any): Map[String, Any] =
+    Map("type" -> "geo", "id" -> "shape:1", "props" -> Map("geo" -> "rectangle", "url" -> url))
+
+  it should "reject a javascript: url" in {
+    assert(!hasSafeAnnotationUrl(geoWithUrl("javascript:alert(1)")))
+  }
+
+  it should "reject a javascript: url however it is disguised" in {
+    // Browsers tolerate mixed case, leading whitespace/control characters, and whitespace
+    // inside the scheme; the check normalises all of that away before testing the prefix.
+    List(
+      "JaVaScRiPt:alert(1)",
+      "JAVASCRIPT:alert(1)",
+      "  javascript:alert(1)",
+      s"${0x01.toChar}javascript:alert(1)",
+      "\tjavascript:alert(1)",
+      "java\tscript:alert(1)",
+      "java\nscript:alert(1)",
+      "java\r\nscript:alert(1)",
+      s"javascript${0x7f.toChar}:alert(1)"
+    ).foreach { url =>
+      assert(!hasSafeAnnotationUrl(geoWithUrl(url)), s"expected url '$url' to be rejected")
+    }
+  }
+
+  it should "reject other non-http schemes and scheme-less urls" in {
+    List(
+      "data:text/html;base64,PHNjcmlwdD5hbGVydCgxKTwvc2NyaXB0Pg==",
+      "vbscript:msgbox(1)",
+      "blob:https://example.com/1234",
+      "file:///etc/passwd",
+      "https:javascript:alert(1)", // scheme-looking prefix without the // separator
+      "//evil.example.com", // protocol-relative
+      "/relative/path",
+      "example.com"
+    ).foreach { url =>
+      assert(!hasSafeAnnotationUrl(geoWithUrl(url)), s"expected url '$url' to be rejected")
+    }
+  }
+
+  it should "allow http and https urls" in {
+    List(
+      "http://example.com",
+      "https://example.com",
+      "HTTPS://EXAMPLE.COM",
+      "https://example.com/path?q=1#frag",
+      "https://example.com/my file" // unencoded space: legitimate, must not fail closed
+    ).foreach { url =>
+      assert(hasSafeAnnotationUrl(geoWithUrl(url)), s"expected url '$url' to be allowed")
+    }
+  }
+
+  it should "allow an empty or blank url, which is what an unlinked shape carries" in {
+    assert(hasSafeAnnotationUrl(geoWithUrl("")))
+    assert(hasSafeAnnotationUrl(geoWithUrl("   ")))
+  }
+
+  it should "reject a url that is present but not a string" in {
+    assert(!hasSafeAnnotationUrl(geoWithUrl(123)))
+    assert(!hasSafeAnnotationUrl(geoWithUrl(Map("toString" -> "javascript:alert(1)"))))
+  }
+
+  it should "accept shapes with no url to validate" in {
+    assert(hasSafeAnnotationUrl(Map("type" -> "draw", "props" -> Map("size" -> "m"))))
+    assert(hasSafeAnnotationUrl(Map("type" -> "draw")))
+    assert(hasSafeAnnotationUrl(Map("type" -> "draw", "props" -> "not-a-map")))
+  }
+
+  it should "apply to note shapes too, not just geo" in {
+    val note = Map("type" -> "note", "props" -> Map("url" -> "javascript:alert(1)"))
+    assert(isAllowedAnnotationType(note, defaultTypes), "sanity: note is an allowed type")
+    assert(!hasSafeAnnotationUrl(note))
+  }
+
+  it should "be the second half of the gate: an allowed type is not enough on its own" in {
+    val hostileGeo = geoWithUrl("javascript:alert(1)")
+    assert(isAllowedAnnotationType(hostileGeo, defaultTypes), "sanity: the type gate passes it")
+    assert(!hasSafeAnnotationUrl(hostileGeo), "the url gate is what rejects it")
+  }
+
+  behavior of "readConfiguredTypes"
+
+  private def conf(hocon: String): Config = ConfigFactory.parseString(hocon)
+
+  it should "return nothing when the key is absent, so the default applies" in {
+    assert(readConfiguredTypes(conf("whiteboard { }")) == Set.empty[String])
+    assert(effectiveAllowedTypes(readConfiguredTypes(conf("whiteboard { }"))) == DefaultAllowedAnnotationTypes)
+  }
+
+  it should "read a well-formed list" in {
+    assert(readConfiguredTypes(conf("""whiteboard { allowedAnnotationTypes = ["draw", "geo"] }""")) == Set("draw", "geo"))
+  }
+
+  it should "trim entries and drop blank ones" in {
+    assert(readConfiguredTypes(conf("""whiteboard { allowedAnnotationTypes = [" draw ", "", "  "] }""")) == Set("draw"))
+  }
+
+  it should "fall back to the default for a value that is not a list" in {
+    // Every one of these throws inside the config library. The point of the test is that the
+    // fallback is reached deliberately (and logged) rather than by a swallowed exception.
+    List(
+      """whiteboard { allowedAnnotationTypes = "draw" }""",
+      """whiteboard { allowedAnnotationTypes = "draw,geo" }""",
+      """whiteboard { allowedAnnotationTypes = draw }""",
+      """whiteboard { allowedAnnotationTypes = null }""",
+      """whiteboard { allowedAnnotationTypes = { draw = true } }""",
+      """whiteboard { allowedAnnotationTypes = [["draw"]] }"""
+    ).foreach { hocon =>
+      assert(readConfiguredTypes(conf(hocon)) == Set.empty[String], s"expected fallback for: $hocon")
+    }
+  }
+
+  it should "treat an explicitly empty list as no configuration" in {
+    assert(readConfiguredTypes(conf("whiteboard { allowedAnnotationTypes = [] }")) == Set.empty[String])
+  }
+
+  it should "coerce a list of numbers rather than throwing, as the config library does" in {
+    // Pinning a footgun rather than endorsing it: [1, 2] parses, so it yields a real - and
+    // useless - allowlist instead of falling back. The startup INFO line is what surfaces it.
+    assert(readConfiguredTypes(conf("whiteboard { allowedAnnotationTypes = [1, 2] }")) == Set("1", "2"))
   }
 
   behavior of "the shipped default"

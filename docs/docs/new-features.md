@@ -256,7 +256,9 @@ The `bbb-config` package now ships [bbbctl](https://github.com/defnull/bbbctl) (
 
 #### Configurable whiteboard annotation types
 
-We added a new configuration property for the bbb-apps-akka package under `whiteboard` called `allowedAnnotationTypes`. It lists the whiteboard shape types the server accepts, stores and broadcasts; annotations of any other type are discarded. The default covers the shape types the bundled client can produce, so no action is needed unless you run a customized client or a plugin that contributes its own shape type — in which case add that type to the list in `/etc/bigbluebutton/bbb-apps-akka.conf` and restart BigBlueButton. A configured list replaces the default rather than extending it. See [Change which whiteboard shape types the server accepts](/administration/customize#change-which-whiteboard-shape-types-the-server-accepts).
+BigBlueButton 4.0 adds a new configuration property for the bbb-apps-akka package under `whiteboard` called `allowedAnnotationTypes`. It lists the whiteboard shape types the server accepts, stores and broadcasts; annotations of any other type are discarded. The default covers the shape types the bundled client can produce, so no action is needed unless you run a customized client or a plugin that contributes its own shape type — in which case add that type to the list in `/etc/bigbluebutton/bbb-apps-akka.conf` and restart BigBlueButton. A configured list replaces the default rather than extending it. See [Change which whiteboard shape types the server accepts](/administration/customize#change-which-whiteboard-shape-types-the-server-accepts).
+
+Two related behaviour changes ship with it. The server now rejects the `video` shape type, which the HTML5 client still permits, so a video inserted on the whiteboard is drawn for its author but not shared or recorded. And annotations carrying a link that is not an `http://` or `https://` URL are rejected; the whiteboard's own link editor only ever produces `https://` URLs, so this does not affect normal use.
 
 
 #### Removing deprecated layout options
