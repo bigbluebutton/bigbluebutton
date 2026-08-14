@@ -4,8 +4,9 @@ import {
   useLocalParticipant,
   useConnectionState,
 } from '@livekit/components-react';
-import { ConnectionState, RoomEvent } from 'livekit-client';
+import { ConnectionState, RemoteParticipant, RoomEvent } from 'livekit-client';
 import { liveKitRoom } from '/imports/ui/services/livekit';
+import { getBbbUserIdForParticipant } from '/imports/ui/components/livekit/selective-subscription/service';
 import Auth from '/imports/ui/services/auth';
 import useWhoIsUnmuted from '../useWhoIsUnmuted';
 import useShouldUseLiveKitAudioState from './useShouldUseLiveKitAudioState';
@@ -73,6 +74,18 @@ const createUseTalkingUsersLiveKit = () => {
     const { data: unmutedUsers } = useWhoIsUnmuted();
     const { data: userMetadataMap, loading } = useData();
     const isConnected = connectionState === ConnectionState.Connected;
+    const participantsByUserId = useMemo(() => {
+      const participants = new Map<string, RemoteParticipant>();
+
+      remoteParticipants.forEach((participant) => {
+        participants.set(participant.identity, participant);
+        // Dial-in/voice-only participants are tracked by BBB as v_<sid>, which never
+        // matches their LiveKit identity, so index them under both keys
+        participants.set(getBbbUserIdForParticipant(participant), participant);
+      });
+
+      return participants;
+    }, [remoteParticipants]);
 
     // Build raw voice activity from LiveKit state
     const rawVoiceActivity = useMemo<RawVoiceActivityItem[] | undefined>(() => {
@@ -98,15 +111,15 @@ const createUseTalkingUsersLiveKit = () => {
           talking = localParticipant?.isSpeaking ?? false;
         } else {
           const isSubscribed = subscribedAudioUsers[userId] ?? false;
-          const participant = remoteParticipants.find(
-            (participant) => participant.identity === userId,
-          );
+          const participant = participantsByUserId.get(userId);
 
           // LiveKit only emits speaking events for subscribed tracks
           if (isSubscribed && participant) {
             talking = participant.isSpeaking;
-          } else {
-            // Fallback to BBB state as fallback (unsubscribed or no participant data)
+          } else if (participant) {
+            // Fallback to BBB state (unsubscribed track). Users that are gone from
+            // the room keep talking = false: their BBB record may still read talking
+            // if they crashed mid-speech and it would resurrect the indicator
             talking = bbbTalkingUsers[userId]?.talking ?? false;
           }
         }
@@ -116,7 +129,7 @@ const createUseTalkingUsersLiveKit = () => {
         if (!userMetadata) {
           const participant = isLocalUser
             ? localParticipant
-            : remoteParticipants.find((participant) => participant.identity === userId);
+            : participantsByUserId.get(userId);
 
           if (!participant) return;
 
@@ -142,6 +155,7 @@ const createUseTalkingUsersLiveKit = () => {
       isConnected,
       localParticipant,
       remoteParticipants,
+      participantsByUserId,
       subscribedAudioUsers,
       bbbTalkingUsers,
       unmutedUsers,
