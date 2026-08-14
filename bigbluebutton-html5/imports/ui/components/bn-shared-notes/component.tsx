@@ -3,6 +3,9 @@ import * as React from 'react';
 import { BlockNoteView } from '@blocknote/mantine';
 import * as BlockNoteLocales from '@blocknote/core/locales';
 import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
+// As of BlockNote 0.53, `collaboration` is no longer a `BlockNoteEditorOptions` field:
+// it ships as an extension behind the `@blocknote/core/yjs` subpath
+import { withCollaboration } from '@blocknote/core/yjs';
 import '@blocknote/mantine/style.css';
 import { HocuspocusProvider } from '@hocuspocus/provider';
 import { Awareness } from 'y-protocols/awareness';
@@ -239,7 +242,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     [MAX_DOCUMENT_CHARS],
   );
 
-  const editor = useCreateBlockNote({
+  const editor = useCreateBlockNote(withCollaboration({
     tabBehavior: 'prefer-indent',
     collaboration: {
       provider: { awareness: hocuspocusProvider.awareness || undefined },
@@ -316,7 +319,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         return defaultPasteHandler();
       }
     },
-  }, [blockNoteLocale, notificationErrorMessage]);
+  }), [blockNoteLocale, notificationErrorMessage]);
 
   const editable = !disableNotes || !currentUserIsLocked || currentUserIsModerator;
 
