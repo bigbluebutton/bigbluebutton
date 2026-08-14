@@ -1,6 +1,4 @@
-import { useEffect, useMemo } from 'react';
-import { makeVar, useReactiveVar } from '@apollo/client';
-import { isEqual } from 'radash';
+import { useMemo } from 'react';
 import {
   useRemoteParticipants,
   useLocalParticipant,
@@ -26,12 +24,14 @@ const BASELINE_DATA: TalkingUsersHookResult = Object.freeze({
 });
 
 const createUseTalkingUsersLiveKit = () => {
+  // User metadata from voiceActivity subscription
   const {
+    useData,
     useConsumersCount,
     setLoading,
+    getState,
+    dispatch,
   } = createReactiveStateHook<Record<string, VoiceUserMetadata>>({});
-  // User metadata from voiceActivity subscription
-  const userMetadataVar = makeVar<Record<string, VoiceUserMetadata>>({});
 
   const dispatchTalkingUserUpdate = (
     data?: VoiceActivityResponse['user_voice_activity_stream'],
@@ -40,7 +40,7 @@ const createUseTalkingUsersLiveKit = () => {
 
     // Extract user metadata from voiceActivity data
     const newUserMetadata: Record<string, VoiceUserMetadata> = {
-      ...userMetadataVar(),
+      ...getState(),
     };
 
     data.forEach((voice) => {
@@ -52,9 +52,7 @@ const createUseTalkingUsersLiveKit = () => {
       };
     });
 
-    if (!isEqual(userMetadataVar(), newUserMetadata)) {
-      userMetadataVar(newUserMetadata);
-    }
+    dispatch(newUserMetadata);
   };
 
   const useTalkingUsers = () => {
@@ -73,14 +71,8 @@ const createUseTalkingUsersLiveKit = () => {
     const subscribedAudioUsers = useSubscribedAudioUsers();
     const { data: bbbTalkingUsers } = useTalkingUsersGraphql();
     const { data: unmutedUsers } = useWhoIsUnmuted();
-    const userMetadataMap = useReactiveVar(userMetadataVar);
+    const { data: userMetadataMap, loading } = useData();
     const isConnected = connectionState === ConnectionState.Connected;
-
-    useEffect(() => {
-      if (!shouldUseLiveKit) return;
-
-      setLoading(!isConnected);
-    }, [isConnected, shouldUseLiveKit]);
 
     // Build raw voice activity from LiveKit state
     const rawVoiceActivity = useMemo<RawVoiceActivityItem[] | undefined>(() => {
@@ -166,7 +158,9 @@ const createUseTalkingUsersLiveKit = () => {
 
     return {
       error: undefined,
-      loading: false,
+      // The fallback below is only as good as the BBB state backing it, so
+      // report its loading state while LiveKit is not connected
+      loading: isConnected ? false : loading,
       // When LiveKit is connected, use the processed data, otherwise use the BBB
       // processed data as fallback
       data: isConnected ? processedData : bbbTalkingUsers,
