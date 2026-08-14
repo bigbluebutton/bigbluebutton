@@ -83,7 +83,8 @@ const startExpressApp = () => {
   app.use('/api/documents/:documentName', (req, res, next) => {
     const meetingIdHeader = req.get('meeting-id');
     if (!meetingIdHeader) {
-      next();
+      logger.warn(`missing meeting-id header for ${req.originalUrl}`);
+      res.sendStatus(403);
       return;
     }
 

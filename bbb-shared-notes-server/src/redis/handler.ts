@@ -215,7 +215,7 @@ const handleBlockNoteExport = async (header: MessageHeader, body: MessageBody): 
     const fetchTimeout = setTimeout(() => controller.abort(), timeout * 1000);
     let response: Response;
     try {
-      response = await fetch(apiEndpoint, { method: 'GET', signal: controller.signal });
+      response = await fetch(apiEndpoint, { method: 'GET', signal: controller.signal, headers: { 'Meeting-Id': meetingId } });
     } finally {
       clearTimeout(fetchTimeout);
     }

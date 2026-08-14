@@ -12,6 +12,7 @@
     "dev": "tsx src/index.ts",
     "lint": "eslint src --max-warnings 0",
     "clean": "rimraf dist && rimraf types",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "postinstall": "node scripts/download-twemoji-assets.mjs"
   },
@@ -63,6 +64,7 @@
     "tsup": "^8.5.0",
     "tsx": "^4.19.0",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.56.1"
+    "typescript-eslint": "^8.56.1",
+    "vitest": "^3.2.7"
   }
 }
