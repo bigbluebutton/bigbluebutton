@@ -33,6 +33,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       customStyleUrl: null,
       darkTheme: {
         enabled: true,
+        autoDetectFromSystem: true,
       },
       askForConfirmationOnLeave: false,
       wakeLock: {
@@ -42,6 +43,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       skipMeetingEnded: false,
       dynamicGuestPolicy: true,
       enableGuestLobbyMessage: true,
+      showGuestLobbyWaitingQueuePosition: true,
       guestPolicyExtraAllowOptions: false,
       alwaysShowWaitingRoomUI: true,
       enableLimitOfViewersInWebcam: false,
@@ -151,6 +153,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         audio: {
           inputDeviceId: 'undefined',
           outputDeviceId: 'undefined',
+          processingMode: 'advanced',
         },
         dataSaving: {
           viewParticipantsWebcams: true,
@@ -226,6 +229,8 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       maxDocumentChars: 99999,
       maxLengthForContentUpdate: 512,
       staticFormattingToolbar: true,
+      importMarkdownEnabled: false,
+      exportMarkdownEnabled: false,
     },
     externalVideoPlayer: {
       enabled: true,
@@ -860,6 +865,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
       maxNumberOfAnnotations: 300,
       maxNumberOfActiveUsers: 25,
       maxHistoryStackSize: 400,
+      slideSwapDecodeTimeoutMs: 250,
       lockToolbarTools: false,
       allowInfiniteWhiteboard: false,
       allowInfiniteWhiteboardInBreakouts: false,

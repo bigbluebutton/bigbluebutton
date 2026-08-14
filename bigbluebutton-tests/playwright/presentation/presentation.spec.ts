@@ -149,6 +149,18 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.startExternalVideo();
       await presentation.endExternalVideo();
     });
+
+    // https://github.com/bigbluebutton/bigbluebutton/issues/25472
+    // Regression: presenter scrubbing the external video while playing must broadcast the
+    // new position. Adapters like YouTube do not emit a seek event, so before the fix the
+    // viewer stayed stuck. Asserts the viewer's playhead follows the presenter's seek.
+    test('Seek external video while playing', async ({ browser, context, page }, testInfo) => {
+      linkIssue(25472);
+      const presentation = new Presentation(browser, context);
+      await presentation.initPages(page, testInfo);
+      await presentation.startExternalVideo();
+      await presentation.seekExternalVideoWhilePlaying();
+    });
   });
 
   test.describe.parallel('Manage', () => {
@@ -158,6 +170,20 @@ test.describe.parallel('Presentation', { tag: '@ci' }, () => {
       await presentation.initPages(page, testInfo);
       await presentation.uploadSinglePresentationTest();
     });
+
+    // maskTagThreshold is a SERVER-SIDE bbb-web setting with no client-settings hook, so nothing
+    // applies it automatically: this test requires bbb-web to be restarted with `maskTagThreshold=1`
+    // in /etc/bigbluebutton/bbb-web.properties (rasterize any slide whose generated SVG contains a
+    // <mask> tag). The @setting-required tag keeps it out of the default CI gate.
+    test(
+      'Masked slide is rasterized when maskTagThreshold is set',
+      { tag: '@setting-required:maskTagThreshold' },
+      async ({ browser, context, page }, testInfo) => {
+        const presentation = new Presentation(browser, context);
+        await presentation.initModPage(page, { testInfo });
+        await presentation.maskRasterizationFallbackTest();
+      },
+    );
 
     test('Upload Other Presentations Format', async ({ browser, context, page }, testInfo) => {
       const presentation = new Presentation(browser, context);

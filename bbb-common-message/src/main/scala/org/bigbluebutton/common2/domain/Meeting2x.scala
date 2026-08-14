@@ -14,6 +14,7 @@ case class MeetingProp(
     intId:                                  String,
     meetingCameraCap:                       Int,
     sharedNotesInitialContentJson:          Vector[AnyRef],
+    sharedNotesInitialContentMarkdown:      String = "",
     sharedNotesEditor:                        String,
     maxPinnedCameras:                       Int,
     cameraBridge:                           String,
@@ -22,6 +23,7 @@ case class MeetingProp(
     isBreakout:                             Boolean,
     disabledFeatures:                       Vector[String],
     notifyRecordingIsOn:                    Boolean,
+    notifyRecordingAppend:                  String,
     presentationUploadExternalDescription:  String,
     presentationUploadExternalUrl:          String,
 )

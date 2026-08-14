@@ -8,6 +8,7 @@ import {
   lgPaddingY,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
+  colorBorder,
   colorGrayLabel,
   colorWhite,
   colorBlack,
@@ -71,9 +72,10 @@ const BgnCol = styled.div`
   justify-content: center;
   margin: 0 0.5rem 0 0.5rem;
 
+  /* No align-items here: the thumbnail grid centers its own items and needs a
+     definite width to compute how many columns fit. */
   @media ${smallOnly} {
     justify-content: space-between;
-    align-items: center;
     margin: 0;
   }
 `;
@@ -123,7 +125,7 @@ const Select = styled.select`
   background-color: ${colorWhite};
   border: ${borderSize} solid ${colorWhite};
   border-radius: ${borderSize};
-  border-bottom: 0.1rem solid ${colorGrayLighter};
+  border-bottom: 0.1rem solid ${colorBorder};
   color: ${colorGrayLabel};
   width: 100%;
   height: 1.75rem;

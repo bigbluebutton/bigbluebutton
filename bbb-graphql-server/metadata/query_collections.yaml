@@ -33,6 +33,7 @@
               customLogoUrl
               customDarkLogoUrl
               notifyRecordingIsOn
+              notifyRecordingAppend
               presentationUploadExternalDescription
               presentationUploadExternalUrl
               recordingPolicies {
@@ -45,6 +46,7 @@
                 allowModsToEjectCameras
                 allowModsToUnmuteUsers
                 authenticatedGuest
+                allowPromoteGuestToModerator
                 maxUserConcurrentAccesses
                 maxUsers
                 meetingLayout

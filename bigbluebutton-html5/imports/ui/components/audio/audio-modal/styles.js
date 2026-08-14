@@ -35,6 +35,13 @@ const AudioModalButton = styled(Button)`
     }
   }
 
+  // The unmute and listen glyphs have matching ink heights, but the unmute glyph sits slightly
+  // higher in its em box. Move only this instance down so both icons occupy the same vertical band.
+  // The em-based offset scales with the desktop and mobile font sizes.
+  & span:first-child i.icon-bbb-unmute {
+    transform: translateY(0.025em);
+  }
+
   // When hovering over a button of class audioBtn, change the border colour of first span-child
   &:hover span:first-child,
   &:focus span:first-child {

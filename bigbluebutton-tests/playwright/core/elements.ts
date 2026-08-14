@@ -3,7 +3,6 @@ const baseBbbIcon: string = 'i.icon-bbb-';
 const pollOptionItem: string = 'input[data-test="pollOptionItem"]';
 const pollAnswerOptionDesc: string = 'div[data-test="optionsAnswers"]';
 const pollAnswersOption: string = 'div[data-test="optionsAnswers"]';
-const userAvatar: string = 'div[data-test-avatar="userAvatar"]';
 const networkDataContainer: string = 'div[data-test="networkDataContainer"]';
 
 export const elements = {
@@ -174,6 +173,7 @@ export const elements = {
   publicUnreadIndicator: 'span[data-test="publicUnreadIndicator"]',
   privateUnreadIndicator: 'span[data-test="privateUnreadIndicator"]',
   privateChats: 'div[data-test="private-user-list-header"]',
+  privateChatListContent: 'div[data-test="private-user-list-content"]',
   privateChat: 'div[data-test="messageContent"] p>>nth=1',
   hidePublicChat: 'button[data-test="hidePublicChat"]',
   hidePrivateChat: 'button[data-test="hidePrivateChat"]',
@@ -246,6 +246,10 @@ export const elements = {
   reconnectingBar: '//div[@data-test="notificationBannerBar" and contains(text(), "Reconnection in progress")]',
   zoomInBtn: 'button[data-test="zoomInBtn"]',
   recordingIndicator: 'div[data-test="recordingIndicator"]',
+  recordingNotifyModal: 'div[data-test="recordingNotifyModal"]',
+  recordingNotifyDescription: 'div[data-test="recordingNotifyDescription"]',
+  recordingNotifyAppend: 'span[data-test="recordingNotifyAppend"]',
+  recordingNotifyContinue: 'button[data-test="recordingNotifyContinue"]',
   webcamMirroredVideoContainer: 'video[data-test="mirroredVideoContainer"]',
   currentUserLocalStreamVideo: 'video[data-local-stream="true"]',
   usersList: 'div[data-test="userList"]',
@@ -282,6 +286,20 @@ export const elements = {
   currentSlideText: 'span[id="currentSlideText"]',
   notesOptions: 'button[data-test="notesOptionsMenu"]',
   exportNotesAsPDF: '[data-test="exportNotesAsPDF"]',
+  exportNotesAsMarkdown: '[data-test="exportNotesAsMarkdown"]',
+  importNotesFromMarkdown: '[data-test="importNotesFromMarkdown"]',
+  notesImportMarkdownTextarea: 'textarea[data-test="notesImportMarkdownTextarea"]',
+  notesImportMarkdownConfirm: 'button[data-test="notesImportMarkdownConfirm"]',
+  notesImportMarkdownCancel: 'button[data-test="notesImportMarkdownCancel"]',
+  notesImportMarkdownModal: '[data-test="notesImportMarkdownModal"]',
+  notesImportMarkdownModeGroup: '[data-test="notesImportMarkdownModeGroup"]',
+  notesImportMarkdownAppendMode: 'input[data-test="notesImportMarkdownAppendMode"]',
+  notesImportMarkdownReplaceMode: 'input[data-test="notesImportMarkdownReplaceMode"]',
+  notesImportMarkdownDropzone: '[data-test="notesImportMarkdownDropzone"]',
+  notesImportMarkdownFileInput: 'input[data-test="notesImportMarkdownFileInput"]',
+  notesImportMarkdownFileLoaded: '[data-test="notesImportMarkdownFileLoaded"]',
+  notesImportMarkdownFileRemove: 'button[data-test="notesImportMarkdownFileRemove"]',
+  notesImportMarkdownError: '[data-test="notesImportMarkdownError"]',
   showMoreSharedNotesButton: 'span[class="show-more-icon-btn"]',
   exportSharedNotesButton: 'li[data-key="import_export"] button',
   exportPlainButton: 'a[id="exportplaina"] span',
@@ -330,6 +348,7 @@ export const elements = {
   raisingHandToast: 'You have raised your hand',
   loweringHandToast: 'Your hand has been lowered',
   noActiveMicrophoneToast: 'No active microphone. Share your microphone to add audio to this recording.',
+  recordingNotifyDefaultText: 'A recording will be available based on the remainder of this session',
   whiteboardAvailableToast: 'The whiteboard is now available',
   whiteboardDisabledToast: 'The whiteboard access has been removed',
   inviteSentRoom1: 'Attendee was invited to Room 1',
@@ -380,6 +399,7 @@ export const elements = {
   errorNoValueInput: 'div[data-test="errorNoValueInput"]',
   smartSlides1: 'smartSlidesPresentation.pdf',
   smartSlides2: 'SmartSlides.pdf',
+  smartSlidesBugRepro1: 'smart-slides-bug-repro-1.pdf',
   responsePollQuestion: 'div[data-test="pollQuestion"]',
   firstPollAnswerOptionBtn: `${pollAnswersOption}>>nth=0`,
   secondPollAnswerOptionBtn: `${pollAnswersOption}>>nth=1`,
@@ -399,6 +419,7 @@ export const elements = {
   // deck nor the 1440x1080 (4:3) fallback. Used to assert that slides keep their real
   // dimensions - if the upload silently reverted to a default, the ratio would not match.
   nonDefaultRatioPresentationFileName: 'sample.pdf',
+  maskSamplePdf: 'sample-with-mask.pdf',
   startScreenSharing: 'button[data-test="startScreenShare"]',
   stopScreenSharing: 'button[data-test="stopScreenShare"]',
   managePresentations: 'div[data-test="managePresentations"]',
@@ -458,9 +479,12 @@ export const elements = {
   enableWebcamsToggleBtn: 'span[data-test="webcamToggleBtn"] input',
   enableDesktopSharingToggleBtn: 'span[data-test="desktopSharingToggleBtn"] input',
   shortcutsTab: 'span[id="shortcutsTab"]',
+  audioTab: 'span[id="audioTab"]',
+  advancedFilteringRadio: 'input[data-test="advancedFilteringRadio"]',
+  standardFilteringRadio: 'input[data-test="standardFilteringRadio"]',
+  originalAudioRadio: 'input[data-test="originalAudioRadio"]',
 
   // User
-  userAvatar,
   moderatorAvatar: 'div[data-test="moderatorAvatar"]',
   viewerAvatar: 'div[data-test="viewerAvatar"]',
   userListItem: 'div[data-test="userListItem"]',
@@ -696,6 +720,9 @@ export const elements = {
   wbMoveToFront: 'button[data-testid="menu-item.bring-to-front"]',
   wbPaste: 'button[data-testid="menu-item.paste"]',
   wbTextTrue: 'div[data-hastext="true"]',
+  // tldraw renders this textarea only while a shape is actively being edited
+  // (select.editing_shape state) - used to gate on "is editing", not just "has text"
+  wbEditingTextArea: 'textarea.tl-text-input',
   wbDrawnArrow: 'div[data-shape-type="arrow"]',
   wbAutoHideToggleBtn: 'input[data-test="whiteboardToolbarAutoHideToggleBtn"]',
   turnInfiniteWhiteboardOn: 'button[data-test="turnInfiniteWhiteboardOn"]',

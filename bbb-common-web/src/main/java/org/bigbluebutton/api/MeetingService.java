@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.*;
@@ -51,6 +50,8 @@ import org.bigbluebutton.api.service.impl.SharedNotesRedirectValidatorService;
 import org.bigbluebutton.api.util.ParsedPluginManifest;
 import org.bigbluebutton.api.util.PluginUtils;
 import org.bigbluebutton.api.service.RedirectFollowerService;
+import org.bigbluebutton.api.service.SecureUrlDownloader;
+import org.bigbluebutton.api.service.ValidatedUrl;
 import org.bigbluebutton.api2.IBbbWebApiGWApp;
 import org.bigbluebutton.api2.domain.UploadedTrack;
 import org.bigbluebutton.common2.redis.RedisStorageService;
@@ -68,7 +69,6 @@ import com.google.gson.Gson;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.*;
 
@@ -110,6 +110,8 @@ public class MeetingService implements MessageListener {
   private PresentationUrlDownloadService presDownloadService;
   private RedirectFollowerService redirectFollower;
   private SharedNotesRedirectValidatorService sharedNotesRedirectValidator;
+  private SecureUrlDownloader secureUrlDownloader;
+  private int maxSharedNotesInitialContentUrlPayloadSize;
 
   private IBbbWebApiGWApp gw;
 
@@ -398,28 +400,33 @@ public class MeetingService implements MessageListener {
   }
 
   public ArrayList<Object> requestSharedNotesInitialContentFromUrl(String meetingId, String initialContentJsonUrl) {
-    ArrayList<Object> initialContent = new ArrayList<>();
-    if (!initialContentJsonUrl.isEmpty()) {
-      try {
-        String finalInitialContentJsonUrl = redirectFollower.followRedirect(
-                meetingId, initialContentJsonUrl, 0, initialContentJsonUrl, sharedNotesRedirectValidator, 6000
-        );
-
-        URL url = new URL(finalInitialContentJsonUrl);
-        String content;
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()))) {
-          content = in.lines().collect(Collectors.joining("\n"));
-        }
-        initialContent = parseSharedNotesInitialContent(content);
-      } catch (MalformedURLException e) {
-        log.error(
-                "Malformed URL for sharedNotesInitialContentJsonUrl: [{}]", initialContentJsonUrl);
-      } catch (IOException e) {
-        log.error(
-                "Something went wrong while processing [{}]. Error: {}", initialContentJsonUrl, e.getMessage());
-      }
+    if (initialContentJsonUrl.isEmpty()) {
+      return new ArrayList<>();
     }
-    return initialContent;
+    String content = fetchUrlContent(meetingId, initialContentJsonUrl);
+    return parseSharedNotesInitialContent(content);
+  }
+
+  /**
+   * Fetches the content at the given URL using the DNS-pinned, security-validated fetch path
+   * (protocol allowlist, blocked/local host rules, and rebinding protection). Returns an empty
+   * string when validation fails, the request errors, or the payload exceeds the configured cap.
+   */
+  private String fetchUrlContent(String meetingId, String url) {
+    ValidatedUrl validatedUrl = redirectFollower.followRedirectSecure(
+            meetingId, url, 0, url, sharedNotesRedirectValidator, 6000
+    );
+
+    if (validatedUrl == null) {
+      log.error("Failed to validate and resolve URL [{}] for meeting [{}]", url, meetingId);
+      return "";
+    }
+
+    String content = secureUrlDownloader.downloadToString(
+            meetingId, validatedUrl, 6000, maxSharedNotesInitialContentUrlPayloadSize
+    );
+
+    return content != null ? content : "";
   }
 
   public ArrayList<Object> parseSharedNotesInitialContent(String content) {
@@ -435,6 +442,32 @@ public class MeetingService implements MessageListener {
     }
     if (initialContent == null) return new ArrayList<>();
     return initialContent;
+  }
+
+  public String getSharedNotesInitialContentMarkdown(Meeting m) {
+    String sharedNotesInitialContentMarkdownUrl = m.getSharedNotesInitialContentMarkdownUrl();
+
+    if (!sharedNotesInitialContentMarkdownUrl.isEmpty()) {
+      return requestSharedNotesInitialContentMarkdownFromUrl(m.getInternalId(), sharedNotesInitialContentMarkdownUrl);
+    }
+
+    // Raw markdown can arrive either as a create param or, for larger content, in the POST
+    // body via the `sharedNotesInitialContentMarkdown` xml module. The create param wins when
+    // both are present; the payload is the fallback (mirrors sharedNotesInitialContentJson).
+    String markdownFromParam = m.getSharedNotesInitialContentMarkdown();
+    if (markdownFromParam != null && !markdownFromParam.isEmpty()) {
+      return markdownFromParam;
+    }
+
+    String markdownFromPayload = m.getSharedNotesInitialContentMarkdownFromPayload();
+    return markdownFromPayload != null ? markdownFromPayload : "";
+  }
+
+  public String requestSharedNotesInitialContentMarkdownFromUrl(String meetingId, String initialContentMarkdownUrl) {
+    if (initialContentMarkdownUrl.isEmpty()) {
+      return "";
+    }
+    return fetchUrlContent(meetingId, initialContentMarkdownUrl);
   }
 
   public Map<String, Object> requestPluginManifests(Meeting m) {
@@ -555,8 +588,7 @@ public class MeetingService implements MessageListener {
     String internalMeetingId = paramsProcessorUtil.convertToInternalMeetingId(m.getExternalId());
     Meeting existingId = getNotEndedMeetingWithId(internalMeetingId);
     Meeting existingTelVoice = getNotEndedMeetingWithTelVoice(m.getTelVoice());
-    Meeting existingWebVoice = getNotEndedMeetingWithWebVoice(m.getWebVoice());
-    if (existingId == null && existingTelVoice == null && existingWebVoice == null) {
+    if (existingId == null && existingTelVoice == null) {
       meetings.put(m.getInternalId(), m);
       Map<String, Object> pluginsMap;
       ArrayList<Object> sharedNotesInitialContentMap = getSharedNotesInitialContent(m);
@@ -568,6 +600,7 @@ public class MeetingService implements MessageListener {
 
       m.setPlugins(pluginsMap);
       m.setSharedNotesInitialContentJson(sharedNotesInitialContentMap);
+      m.setSharedNotesInitialContentMarkdown(getSharedNotesInitialContentMarkdown(m));
       handle(new CreateMeeting(m));
       return true;
     }
@@ -645,7 +678,7 @@ public class MeetingService implements MessageListener {
 
     gw.createMeeting(m.getInternalId(), m.getExternalId(), m.getParentMeetingId(), m.getName(), m.isRecord(),
             m.getTelVoice(), m.getDuration(), m.getAutoStartRecording(), m.getAllowStartStopRecording(),
-            m.getSharedNotesInitialContentJson(), m.getSharedNotesEditor(), m.getRecordFullDurationMedia(),
+            m.getSharedNotesInitialContentJson(), m.getSharedNotesInitialContentMarkdown(), m.getSharedNotesEditor(), m.getRecordFullDurationMedia(),
             m.getWebcamsOnlyForModerator(), m.getMultiUserWhiteboardEnabled(), m.getMeetingCameraCap(), m.getUserCameraCap(), m.getMaxPinnedCameras(),
             m.getCameraBridge(),
             m.getScreenShareBridge(),
@@ -661,7 +694,7 @@ public class MeetingService implements MessageListener {
             m.getMuteOnStart(), m.getAllowModsToUnmuteUsers(), m.getRequireUserConsentBeforeUnmuting(), m.getAllowModsToEjectCameras(), m.getMeetingKeepEvents(),
             m.breakoutRoomsParams, m.lockSettingsParams, m.getLoginUrl(), m.getLogoutUrl(), m.getCustomLogoURL(), m.getCustomDarkLogoURL(),
             m.getBannerText(), m.getBannerColor(), m.getGroups(), m.getDisabledFeatures(), m.getNotifyRecordingIsOn(),
-            m.getPresentationUploadExternalDescription(), m.getPresentationUploadExternalUrl(), m.getPlugins(),
+            m.getNotifyRecordingAppend(), m.getPresentationUploadExternalDescription(), m.getPresentationUploadExternalUrl(), m.getPlugins(),
             m.getHtml5PluginSdkVersion(), m.getOverrideClientSettings());
   }
 
@@ -733,19 +766,6 @@ public class MeetingService implements MessageListener {
       for (Map.Entry<String, Meeting> entry : meetings.entrySet()) {
           Meeting m = entry.getValue();
           if (telVoice.equals(m.getTelVoice())) {
-              if (!m.isForciblyEnded())
-                  return m;
-          }
-      }
-      return null;
-  }
-
-  public Meeting getNotEndedMeetingWithWebVoice(String webVoice) {
-      if (webVoice == null)
-          return null;
-      for (Map.Entry<String, Meeting> entry : meetings.entrySet()) {
-          Meeting m = entry.getValue();
-          if (webVoice.equals(m.getWebVoice())) {
               if (!m.isForciblyEnded())
                   return m;
           }
@@ -907,6 +927,7 @@ public class MeetingService implements MessageListener {
       params.put(ApiParams.CAMERA_BRIDGE, message.cameraBridge);
       params.put(ApiParams.SCREEN_SHARE_BRIDGE, message.screenShareBridge);
       params.put(ApiParams.NOTIFY_RECORDING_IS_ON,parentMeeting.getNotifyRecordingIsOn().toString());
+      params.put(ApiParams.NOTIFY_RECORDING_APPEND, parentMeeting.getNotifyRecordingAppend());
       params.put(ApiParams.DISABLED_FEATURES,String.join(",", message.disabledFeatures));
       params.put(ApiParams.GUEST_POLICY, GuestPolicy.ALWAYS_ACCEPT);
 
@@ -1671,6 +1692,14 @@ public class MeetingService implements MessageListener {
 
   public void setSharedNotesRedirectValidator(SharedNotesRedirectValidatorService sharedNotesRedirectValidator) {
     this.sharedNotesRedirectValidator = sharedNotesRedirectValidator;
+  }
+
+  public void setSecureUrlDownloader(SecureUrlDownloader secureUrlDownloader) {
+    this.secureUrlDownloader = secureUrlDownloader;
+  }
+
+  public void setMaxSharedNotesInitialContentUrlPayloadSize(int maxSharedNotesInitialContentUrlPayloadSize) {
+    this.maxSharedNotesInitialContentUrlPayloadSize = maxSharedNotesInitialContentUrlPayloadSize;
   }
 
 }

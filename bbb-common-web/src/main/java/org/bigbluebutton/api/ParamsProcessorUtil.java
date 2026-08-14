@@ -247,7 +247,7 @@ public class ParamsProcessorUtil {
 		Map<String, Object> newParams = new HashMap<>();
 
         String[] createParams = { ApiParams.NAME, ApiParams.ATTENDEE_PW, ApiParams.MODERATOR_PW, ApiParams.VOICE_BRIDGE,
-                ApiParams.WEB_VOICE, ApiParams.DIAL_NUMBER, ApiParams.LOGOUT_URL, ApiParams.RECORD,
+                ApiParams.DIAL_NUMBER, ApiParams.LOGOUT_URL, ApiParams.RECORD,
                 ApiParams.MAX_PARTICIPANTS, ApiParams.DURATION, ApiParams.WELCOME };
 
         for (String paramName : createParams) {
@@ -394,13 +394,6 @@ public class ParamsProcessorUtil {
 			String lockSettingsDisableNotesParam = params.get(ApiParams.LOCK_SETTINGS_DISABLE_NOTES);
 			if (!StringUtils.isEmpty(lockSettingsDisableNotesParam)) {
 				lockSettingsDisableNotes = Boolean.parseBoolean(lockSettingsDisableNotesParam);
-			} else {
-				// To be removed after deprecation period
-				lockSettingsDisableNotesParam = params.get(ApiParams.DEPRECATED_LOCK_SETTINGS_DISABLE_NOTES);
-				if (!StringUtils.isEmpty(lockSettingsDisableNotesParam)) {
-					log.warn("[DEPRECATION] use lockSettingsDisableNotes instead of lockSettingsDisableNote");
-					lockSettingsDisableNotes = Boolean.parseBoolean(lockSettingsDisableNotesParam);
-				}
 			}
 
 			Boolean lockSettingsHideUserList = defaultLockSettingsHideUserList;
@@ -601,16 +594,6 @@ public class ParamsProcessorUtil {
         // If none is provided, generate one.
         String telVoice = processTelVoice(params.get(ApiParams.VOICE_BRIDGE));
 
-        // Get the voice conference digits/chars for users joing through VOIP on
-        // the client.
-        // If none is provided, make it the same as the telVoice. If one has
-        // been provided,
-        // we expect that the users will be joined in the same voice conference.
-        String webVoice = params.get(ApiParams.WEB_VOICE);
-        if (StringUtils.isEmpty(webVoice)) {
-            webVoice = telVoice;
-        }
-
         // Get all the other relevant parameters and generate defaults if none
         // has been provided.
         String dialNumber = processDialNumber(params.get(ApiParams.DIAL_NUMBER));
@@ -666,6 +649,18 @@ public class ParamsProcessorUtil {
                         "Invalid param [sharedNotesInitialContentJsonUrl] for meeting=[{}]",
                         internalMeetingId);
             }
+        }
+
+        String sharedNotesInitialContentMarkdown = "";
+        if (!StringUtils.isEmpty(params.get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_MARKDOWN))) {
+            sharedNotesInitialContentMarkdown = params
+                    .get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_MARKDOWN);
+        }
+
+        String sharedNotesInitialContentMarkdownUrl = "";
+        if (!StringUtils.isEmpty(params.get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_MARKDOWN_URL))) {
+            sharedNotesInitialContentMarkdownUrl = params
+                    .get(ApiParams.SHARED_NOTES_INITIAL_CONTENT_MARKDOWN_URL);
         }
 
         String sharedNotesEditor = defaultSharedNotesEditor;
@@ -806,6 +801,11 @@ public class ParamsProcessorUtil {
         Boolean notifyRecordingIsOn = defaultNotifyRecordingIsOn;
         if (!StringUtils.isEmpty(params.get(ApiParams.NOTIFY_RECORDING_IS_ON))) {
             notifyRecordingIsOn = Boolean.parseBoolean(params.get(ApiParams.NOTIFY_RECORDING_IS_ON));
+        }
+
+        String notifyRecordingAppend = "";
+        if (!StringUtils.isBlank(params.get(ApiParams.NOTIFY_RECORDING_APPEND))) {
+            notifyRecordingAppend = ParamsUtil.stripControlChars(params.get(ApiParams.NOTIFY_RECORDING_APPEND));
         }
 
         boolean multiUserWhiteboardEnabled = false;
@@ -992,7 +992,7 @@ public class ParamsProcessorUtil {
                 .withLogoutUrl(logoutUrl)
                 .withLogoutTimer(logoutTimer)
                 .withBannerText(bannerText).withBannerColor(bannerColor)
-                .withTelVoice(telVoice).withWebVoice(webVoice)
+                .withTelVoice(telVoice)
                 .withDialNumber(dialNumber)
                 .withDefaultAvatarURL(avatarURL)
                 .withDefaultBotAvatarURL(botAvatarURL)
@@ -1001,6 +1001,8 @@ public class ParamsProcessorUtil {
                 .withAllowStartStopRecording(allowStartStoptRec)
                 .withSharedNotesEditor(sharedNotesEditor)
                 .withSharedNotesInitialContentJsonUrl(sharedNotesInitialContentJsonUrl)
+                .withSharedNotesInitialContentMarkdown(sharedNotesInitialContentMarkdown)
+                .withSharedNotesInitialContentMarkdownUrl(sharedNotesInitialContentMarkdownUrl)
                 .withPresentationConversionCacheEnabled(presentationCacheEnabled)
                 .withRecordFullDurationMedia(_recordFullDurationMedia)
                 .withWebcamsOnlyForModerator(webcamsOnlyForMod)
@@ -1032,6 +1034,7 @@ public class ParamsProcessorUtil {
                 .withHtml5PluginSdkVersion(html5PluginSdkVersion)
                 .withDisabledFeatures(listOfDisabledFeatures)
                 .withNotifyRecordingIsOn(notifyRecordingIsOn)
+                .withNotifyRecordingAppend(notifyRecordingAppend)
                 .withPresentationUploadExternalDescription(presentationUploadExternalDescription)
                 .withPresentationUploadExternalUrl(presentationUploadExternalUrl)
                 .build();
@@ -1086,9 +1089,6 @@ public class ParamsProcessorUtil {
             meeting.setCustomDarkLogoURL(this.getDefaultLogoURL());
         }
 
-		if (!StringUtils.isEmpty(params.get(ApiParams.COPYRIGHT))) {
-			meeting.setCustomCopyright(params.get(ApiParams.COPYRIGHT));
-		}
 		Boolean muteOnStart = defaultMuteOnStart;
 		if (!StringUtils.isEmpty(params.get(ApiParams.MUTE_ON_START))) {
         	muteOnStart = Boolean.parseBoolean(params.get(ApiParams.MUTE_ON_START));

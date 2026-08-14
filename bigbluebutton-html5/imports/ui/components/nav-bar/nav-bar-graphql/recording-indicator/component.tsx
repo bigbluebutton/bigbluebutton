@@ -99,6 +99,7 @@ interface RecordingIndicatorProps {
   micUser: boolean;
   isPhone: boolean;
   recordingNotificationEnabled: boolean;
+  notifyRecordingAppend: string;
   serverTime: number;
   isModerator: boolean;
   hasError: boolean;
@@ -114,6 +115,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
   isModerator,
   record,
   recordingNotificationEnabled,
+  notifyRecordingAppend,
   hasError,
   isLoading,
 }) => {
@@ -316,6 +318,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
           }}
           priority="high"
           isOpen={isRecordingNotifyModalOpen}
+          notifyRecordingAppend={notifyRecordingAppend}
           closeModal={() => {
             setIsRecordingNotifyModalOpen(false);
             setShouldNotify(false);
@@ -360,6 +363,7 @@ const RecordingIndicatorContainer: React.FC = () => {
   } = useMeeting((meeting) => ({
     meetingId: meeting.meetingId,
     notifyRecordingIsOn: meeting.notifyRecordingIsOn,
+    notifyRecordingAppend: meeting.notifyRecordingAppend,
     recordingPolicies: meeting.recordingPolicies,
   }));
 
@@ -418,6 +422,7 @@ const RecordingIndicatorContainer: React.FC = () => {
           && currentMeeting?.notifyRecordingIsOn)
         ?? false
       }
+      notifyRecordingAppend={currentMeeting?.notifyRecordingAppend ?? ''}
       serverTime={passedTime > 0 ? passedTime : 0}
       isModerator={currentUser?.isModerator ?? false}
       hasError={Boolean(currentMeetingErrors || meetingRecordingError)}

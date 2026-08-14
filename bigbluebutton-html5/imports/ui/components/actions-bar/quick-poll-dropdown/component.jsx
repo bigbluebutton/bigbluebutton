@@ -7,6 +7,7 @@ import { PANELS, ACTIONS } from '../../layout/enums';
 import { uniqueId, safeMatch } from '/imports/utils/string-utils';
 import PollService from '/imports/ui/components/poll/service';
 import Session from '/imports/ui/services/storage/in-memory';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const intlMessages = defineMessages({
   quickPollLabel: {
@@ -341,7 +342,7 @@ const QuickPollDropdown = (props) => {
     poll,
   }));
 
-  const pollQuestion = (question?.length > 0 && question[0]?.replace(/ *\([^)]*\) */g, '')) || '';
+  const pollQuestion = (question?.length > 0 && question[0]) || '';
 
   const slideId = currentSlide.id;
 
@@ -515,7 +516,7 @@ const QuickPollDropdown = (props) => {
           }
         }, CANCELED_POLL_DELAY);
       }}
-      size="lg"
+      size={deviceInfo.isMobile ? 'md' : 'lg'}
       data-test="quickPollBtn"
       color="primary"
     />
@@ -531,7 +532,7 @@ const QuickPollDropdown = (props) => {
         label={quickPollLabel}
         tooltipLabel={intl.formatMessage(intlMessages.quickPollLabel)}
         onClick={() => null}
-        size="lg"
+        size={deviceInfo.isMobile ? 'md' : 'lg'}
         data-test="yesNoQuickPoll"
       />
     );

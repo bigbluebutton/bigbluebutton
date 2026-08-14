@@ -31,7 +31,10 @@ export class Stress {
     let failureCount = 0;
     for (let i = 1; i <= c.JOIN_AS_MODERATOR_TEST_ROUNDS; i++) {
       await this.modPage.init(true, { fullName: `Moderator-${i}` });
-      await this.modPage.waitForSelector(e.userAvatar);
+      // 4.0 UI: the participants panel is collapsed by default, so the current-user
+      // list item (and its presenter sublabel) is not in the DOM until it is opened.
+      await this.modPage.waitAndClick(e.usersListSidebarButton);
+      await this.modPage.waitForSelector(e.currentUser, c.ELEMENT_WAIT_LONGER_TIME);
       const isPresenter = await checkIsPresenter(this.modPage);
       const canStartPoll = await this.modPage.checkElement(e.pollSidebarButton);
       if (!isPresenter || !canStartPoll) {
@@ -155,19 +158,39 @@ export class Stress {
 
       const lastPages = [pages[pages.length - 1], pages[pages.length - 2]];
 
+      // The user exceeding the limit never reaches the meeting layout: bbb-web
+      // redirects the join to logoutURL?errors=[maxParticipantsReached], or akka-apps
+      // rejects the join and the client renders the meeting-ended screen. Either way,
+      // init()'s usual layout/audio-modal steps must be skipped for these two pages.
       await Promise.all(
         lastPages.map((page, index) =>
-          page.init(true, { meetingId, fullName: `User-last-${index}`, shouldCloseAudioModal: false }),
+          page.init(true, {
+            meetingId,
+            fullName: `User-last-${index}`,
+            shouldCloseAudioModal: false,
+            shouldCheckAllInitialSteps: false,
+          }),
         ),
       );
 
-      try {
-        await lastPages[0].waitForSelector(e.audioModal);
-        await lastPages[1].waitForSelector(e.errorScreenMessage);
-      } catch {
-        await lastPages[1].waitForSelector(e.audioModal);
-        await lastPages[0].waitForSelector(e.errorScreenMessage);
-      }
+      const wasRejected = async (page: Page): Promise<boolean> => {
+        if (/maxParticipantsReached/.test(page.page.url())) return true; // bbb-web redirect
+        if (await page.checkElement(e.meetingEndedModal)) return true; // akka-apps rejection
+        return page.checkElement(e.errorScreenMessage);
+      };
+
+      await expect(async () => {
+        const [firstRejected, secondRejected] = await Promise.all(lastPages.map(wasRejected));
+        expect(
+          firstRejected !== secondRejected,
+          'exactly one of the two simultaneous users should be rejected for exceeding the participants limit',
+        ).toBeTruthy();
+        const acceptedPage = firstRejected ? lastPages[1] : lastPages[0];
+        expect(
+          await acceptedPage.checkElement(e.audioModal),
+          'the admitted user should reach the meeting (audio modal shown)',
+        ).toBeTruthy();
+      }).toPass({ timeout: c.ELEMENT_WAIT_EXTRA_LONG_TIME });
 
       await Promise.all(pages.map((currentPage) => currentPage.page.close()));
     }

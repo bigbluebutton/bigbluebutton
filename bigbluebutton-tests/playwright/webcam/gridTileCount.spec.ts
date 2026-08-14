@@ -14,7 +14,7 @@ import {
 // so the overflow path can be exercised with a practical number of webcams.
 // (The issue's own reproduction likewise required a custom pagination config.)
 // When the configured grid size is larger than MAX_GRID_SIZE the test is skipped.
-test.describe('Grid layout participant tile count', () => {
+test.describe('Grid layout participant tile count', { tag: '@ci' }, () => {
   test('tile count plus aggregated overflow equals total participants', async ({
     browser,
     context,

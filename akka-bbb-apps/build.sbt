@@ -18,7 +18,7 @@ val compileSettings = Seq(
     "-Xlint",
     "-Ywarn-dead-code",
     "-language:_",
-    "-release:17",
+    "-release:21",
     "-encoding", "UTF-8"
   ),
   javacOptions ++= List(
@@ -42,7 +42,7 @@ testOptions in Test += Tests.Argument(TestFrameworks.Specs2, "html", "console", 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/scalatest-reports")
 
 Seq(Revolver.settings: _*)
-lazy val bbbAppsAkka = (project in file(".")).settings(name := "bbb-apps-akka", libraryDependencies ++= Dependencies.runtime).settings(compileSettings)
+lazy val bbbAppsAkka = (project in file(".")).settings(name := "bbb-apps-akka", libraryDependencies ++= Dependencies.runtime, dependencyOverrides ++= Dependencies.overrides).settings(compileSettings)
 
 // See https://github.com/scala-ide/scalariform
 // Config file is in ./.scalariform.conf
@@ -77,4 +77,4 @@ daemonGroup in Linux := group
 javaOptions in Universal ++= Seq("-J-Xms130m", "-J-Xmx256m", "-Dconfig.file=/etc/bigbluebutton/bbb-apps-akka.conf", "-Dlogback.configurationFile=conf/logback.xml")
 javaOptions in reStart ++= Seq("-Dconfig.file=/etc/bigbluebutton/bbb-apps-akka.conf", "-Dlogback.configurationFile=conf/logback.xml")
 
-debianPackageDependencies in Debian ++= Seq("java17-runtime-headless", "bash")
+debianPackageDependencies in Debian ++= Seq("java21-runtime-headless", "bash")

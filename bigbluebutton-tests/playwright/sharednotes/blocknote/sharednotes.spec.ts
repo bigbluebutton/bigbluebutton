@@ -64,4 +64,10 @@ test.describe.parallel('Shared Notes - BlockNote', { tag: '@ci' }, () => {
     await initializePages(sharedNotes, browser, { isMultiUser: true, createParameter: CREATE_PARAMETER, testInfo });
     await sharedNotes.pinAndUnpinNotesOntoWhiteboard();
   });
+
+  test('Unread indicator notifies users of new notes content', async ({ browser, context }, testInfo) => {
+    const sharedNotes = new BlockNoteSharedNotes(browser, context);
+    await initializePages(sharedNotes, browser, { isMultiUser: true, createParameter: CREATE_PARAMETER, testInfo });
+    await sharedNotes.unreadNotesIndicator();
+  });
 });

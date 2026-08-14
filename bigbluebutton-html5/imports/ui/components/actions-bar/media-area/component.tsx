@@ -7,6 +7,7 @@ import Styled from './styles';
 import MediaSharingModal from '/imports/ui/components/actions-bar/media-area/media-sharing/component';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import { notify } from '/imports/ui/services/notification';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const intlMessages = defineMessages({
   mediaLabel: {
@@ -81,7 +82,7 @@ const MediaArea = (props: MediaAreaProps) => {
         label={intl.formatMessage(intlMessages.mediaLabel)}
         icon="media-area"
         color={menuOpen ? 'primary' : 'default'}
-        size="lg"
+        size={deviceInfo.isMobile ? 'md' : 'lg'}
         circle
         onClick={handleToggleMenu}
       />

@@ -17,13 +17,23 @@ buildscript {
     // Asset Pipeline plugin classpath is optional if you use plugins DSL; keeping here is fine:
     classpath "com.bertramlabs.plugins:asset-pipeline-gradle:5.0.9"
   }
+  configurations.classpath {
+    resolutionStrategy {
+      force 'com.google.protobuf:protobuf-java:3.25.5'
+    }
+  }
 }
 
 version "0.10.0"
 group "org.bigbluebutton.web"
 
-ext['tomcat.version'] = '10.1.55'
-ext['netty.version'] = '4.1.132.Final'
+ext['tomcat.version'] = '10.1.56'
+ext['netty.version'] = '4.1.136.Final'
+ext['postgresql.version'] = '42.7.13'
+ext['spring-framework.version'] = '6.2.19'
+ext['jackson-bom.version'] = '2.22.1'
+ext['logback.version'] = '1.5.38'
+ext['spring-data-bom.version'] = '2025.0.13'
 
 apply plugin: "eclipse"
 apply plugin: "idea"
@@ -63,10 +73,10 @@ dependencies {
   implementation "org.springframework.boot:spring-boot-starter-tomcat:${springVersion}"
 
   // Override transitive tomcat-embed from spring-boot-starter-tomcat.
-  // TODO: remove once springVersion >= 3.5.15 (which will manage a fixed tomcat-embed).
-  implementation "org.apache.tomcat.embed:tomcat-embed-core:10.1.55"
-  implementation "org.apache.tomcat.embed:tomcat-embed-websocket:10.1.55"
-  implementation "org.apache.tomcat.embed:tomcat-embed-el:10.1.55"
+  // TODO: remove once springVersion >= 3.5.17 (which will manage a fixed tomcat-embed).
+  implementation "org.apache.tomcat.embed:tomcat-embed-core:10.1.56"
+  implementation "org.apache.tomcat.embed:tomcat-embed-websocket:10.1.56"
+  implementation "org.apache.tomcat.embed:tomcat-embed-el:10.1.56"
 
   implementation "org.apache.grails:grails-core"
   implementation "org.apache.grails:grails-logging"
@@ -109,7 +119,7 @@ dependencies {
   testImplementation "org.apache.grails:grails-testing-support-datamapping"
   testImplementation "org.apache.grails:grails-geb"
   testImplementation "org.apache.grails:grails-testing-support-web"
-  testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:4.20.0"
+  testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:4.44.0"
   //testRuntimeOnly "net.sourceforge.htmlunit:htmlunit:3.10.0"
   testImplementation ("com.github.javafaker:javafaker:1.0.2") {
     exclude group: "org.yaml"

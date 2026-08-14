@@ -17,6 +17,7 @@ import RaiseHandButtonContainer from '/imports/ui/components/actions-bar/raise-h
 import Selector from '/imports/ui/components/common/selector/component';
 import ToggleGroup from '/imports/ui/components/common/toggle-group/component';
 import Separator from '/imports/ui/components/common/separator/component';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const intlMessages = defineMessages({
   actionsBarLabel: {
@@ -46,11 +47,13 @@ class ActionsBar extends PureComponent {
                 buttonProps = {
                   key: `${plugin.type}-${plugin.id}`,
                   onClick: plugin.onClick,
-                  hideLabel: true,
+                  hideLabel: plugin.hideLabel !== false,
                   color: plugin.color || 'primary',
-                  size: 'lg',
-                  circle: true,
-                  label: plugin.tooltip,
+                  size: deviceInfo.isMobile ? 'md' : (plugin.size || 'lg'),
+                  circle: deviceInfo.isMobile ? true : (plugin.circle !== false),
+                  style: plugin.style,
+                  label: plugin.label || plugin.tooltip,
+                  tooltipLabel: plugin.tooltip,
                   dataTest: plugin.dataTest,
                 };
                 if (typeof plugin?.icon === 'string') {

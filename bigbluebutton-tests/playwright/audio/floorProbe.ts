@@ -35,16 +35,19 @@ const queryDocument = (selections: FieldNode[]) => ({
 });
 
 const USER_VOICE_QUERY = queryDocument([
-  field('user_voice', [field('userId'), field('talking'), field('floor'), field('lastFloorTime')]),
+  field('user_voice', [field('userId'), field('talking'), field('floor'), field('lastFloorTime'), field('muted')]),
 ]);
 
 const USER_CURRENT_QUERY = queryDocument([field('user_current', [field('userId')])]);
+
+const USER_QUERY = queryDocument([field('user', [field('userId'), field('name')])]);
 
 export interface UserVoiceRow {
   userId: string;
   talking: boolean;
   floor: boolean;
   lastFloorTime: string;
+  muted: boolean;
 }
 
 type ApolloQueryWindow = Window & {
@@ -99,6 +102,30 @@ export const getOwnUserId = async (page: PlaywrightPage): Promise<string> => {
 export const getFloorHolders = async (page: PlaywrightPage): Promise<string[]> => {
   const rows = await getUserVoiceRows(page);
   return rows.filter((row) => row.floor).map((row) => row.userId);
+};
+
+export const getMeetingUserIds = async (page: PlaywrightPage): Promise<string[]> => {
+  const data = await runQuery(page, USER_QUERY);
+  return (data.user as { userId: string }[]).map((row) => row.userId);
+};
+
+// Voice rows with no matching meeting user - an orphan, in akka's terms.
+export const getUnsyncedVoiceUsers = async (page: PlaywrightPage): Promise<UserVoiceRow[]> => {
+  const [voiceRows, userIds] = await Promise.all([getUserVoiceRows(page), getMeetingUserIds(page)]);
+  const present = new Set(userIds);
+  return voiceRows.filter((row) => !present.has(row.userId));
+};
+
+// Polls until `userId` is gone from the meeting's user list.
+export const expectUserRemoved = async (
+  page: PlaywrightPage,
+  userId: string,
+  message: string,
+  timeout: number,
+): Promise<void> => {
+  await expect(async () => {
+    expect(await getMeetingUserIds(page), message).not.toContain(userId);
+  }).toPass({ timeout });
 };
 
 // Polls until the meeting observed from `page` has exactly one floor holder: `userId`.

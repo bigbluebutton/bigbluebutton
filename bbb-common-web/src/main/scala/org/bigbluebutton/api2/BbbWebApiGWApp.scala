@@ -127,6 +127,7 @@ class BbbWebApiGWApp(
                     autoStartRecording:      java.lang.Boolean,
                     allowStartStopRecording: java.lang.Boolean,
                     sharedNotesInitialContentJson: java.util.ArrayList[AnyRef],
+                    sharedNotesInitialContentMarkdown: java.lang.String,
                     sharedNotesEditor:         java.lang.String,
                     recordFullDurationMedia: java.lang.Boolean,
                     webcamsOnlyForModerator: java.lang.Boolean,
@@ -174,6 +175,7 @@ class BbbWebApiGWApp(
                     groups:                                 java.util.ArrayList[Group],
                     disabledFeatures:                       java.util.ArrayList[String],
                     notifyRecordingIsOn:                    java.lang.Boolean,
+                    notifyRecordingAppend:                  String,
                     presentationUploadExternalDescription:  String,
                     presentationUploadExternalUrl:          String,
                     plugins:                                util.Map[String, AnyRef],
@@ -189,6 +191,7 @@ class BbbWebApiGWApp(
       intId = meetingId,
       meetingCameraCap = meetingCameraCap.intValue(),
       sharedNotesInitialContentJson = sharedNotesInitialContentJsonVector,
+      sharedNotesInitialContentMarkdown = sharedNotesInitialContentMarkdown,
       sharedNotesEditor = sharedNotesEditor,
       maxPinnedCameras = maxPinnedCameras.intValue(),
       cameraBridge,
@@ -197,6 +200,7 @@ class BbbWebApiGWApp(
       isBreakout = isBreakout.booleanValue(),
       disabledFeaturesAsVector,
       notifyRecordingIsOn,
+      notifyRecordingAppend,
       presentationUploadExternalDescription,
       presentationUploadExternalUrl
     )

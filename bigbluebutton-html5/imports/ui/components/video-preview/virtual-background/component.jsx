@@ -452,53 +452,51 @@ const VirtualBgSelector = ({
     const ENABLE_CAMERA_BRIGHTNESS = window.meetingClientSettings.public.app.enableCameraBrightness;
 
     return (
-      <Styled.VirtualBackgroundRowThumbnail>
-        <Styled.BgWrapper
-          role="group"
-          aria-label={intl.formatMessage(intlMessages.virtualBackgroundSettingsLabel)}
-          brightnessEnabled={ENABLE_CAMERA_BRIGHTNESS}
-          data-test="virtualBackground"
-        >
-          {shouldEnableBackgroundUpload(isCustomVirtualBackgroundsEnabled) && (
-            <>
-              {!ready && renderSkeleton()}
+      <Styled.BgWrapper
+        role="group"
+        aria-label={intl.formatMessage(intlMessages.virtualBackgroundSettingsLabel)}
+        brightnessEnabled={ENABLE_CAMERA_BRIGHTNESS}
+        data-test="virtualBackground"
+      >
+        {shouldEnableBackgroundUpload(isCustomVirtualBackgroundsEnabled) && (
+          <>
+            {!ready && renderSkeleton()}
 
-              {ready && (
-                <>
-                  {renderNoneButton()}
+            {ready && (
+              <>
+                {renderNoneButton()}
 
-                  {Object.values(backgrounds)
-                    .sort((a, b) => b.lastActivityDate - a.lastActivityDate)
-                    .map((background, index) => {
-                      if (background.custom !== false) {
-                        return renderCustomButton(background, index);
-                      }
-                      const isBlur = background.uniqueId.includes('Blur');
-                      return isBlur
-                        ? renderBlurButton(index)
-                        : renderDefaultButton(background.uniqueId, index);
-                    })}
+                {Object.values(backgrounds)
+                  .sort((a, b) => b.lastActivityDate - a.lastActivityDate)
+                  .map((background, index) => {
+                    if (background.custom !== false) {
+                      return renderCustomButton(background, index);
+                    }
+                    const isBlur = background.uniqueId.includes('Blur');
+                    return isBlur
+                      ? renderBlurButton(index)
+                      : renderDefaultButton(background.uniqueId, index);
+                  })}
 
-                  {renderInputButton()}
-                </>
-              )}
-            </>
-          )}
+                {renderInputButton()}
+              </>
+            )}
+          </>
+        )}
 
-          {!shouldEnableBackgroundUpload(isCustomVirtualBackgroundsEnabled) && (
-            <>
-              {renderNoneButton()}
+        {!shouldEnableBackgroundUpload(isCustomVirtualBackgroundsEnabled) && (
+          <>
+            {renderNoneButton()}
 
-              {renderBlurButton(0)}
+            {renderBlurButton(0)}
 
-              {IMAGE_NAMES.map((imageName, index) => {
-                const actualIndex = index + 1;
-                return renderDefaultButton(imageName, actualIndex);
-              })}
-            </>
-          )}
-        </Styled.BgWrapper>
-      </Styled.VirtualBackgroundRowThumbnail>
+            {IMAGE_NAMES.map((imageName, index) => {
+              const actualIndex = index + 1;
+              return renderDefaultButton(imageName, actualIndex);
+            })}
+          </>
+        )}
+      </Styled.BgWrapper>
     );
   };
 

@@ -20,6 +20,7 @@ import {
   layoutSelect,
 } from '/imports/ui/components/layout/context';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import useHasPermission from './hooks/useHasPermission';
 import Styled from './styles';
 import { PIN_NOTES } from './mutations';
@@ -40,6 +41,7 @@ import { NotesRenderModeType } from './types';
 import { NOTES_ID, NOTES_UNMOUNT_DELAY } from './service';
 import { GET_PAD_ID, GetPadIdQueryResponse } from './queries';
 import BlockNoteContainer from '../bn-shared-notes/component';
+import { SharedNotesImportContext } from '../bn-shared-notes/import-context';
 
 const intlMessages = defineMessages({
   title: {
@@ -70,6 +72,7 @@ interface NotesGraphqlProps {
   ignoreDelayforUnmount: boolean;
   isRTL: boolean;
   handlePinSharedNotes: (pinned: boolean) => void;
+  shouldShowSharedNotesOnPresentationArea: boolean;
 }
 
 const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
@@ -86,12 +89,22 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     amIPresenter,
     ignoreDelayforUnmount,
     handlePinSharedNotes,
+    shouldShowSharedNotesOnPresentationArea,
   } = props;
   const [shouldRenderNotes, setShouldRenderNotes] = useState(isVisible);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const intl = useIntl();
 
   const isHidden = (isOnMediaArea && (sharedNotesOutput.width === 0 || sharedNotesOutput.height === 0))
     || (!isVisible && !ignoreDelayforUnmount);
+
+  // Shared between the kebab menu (opens the modal) and the BlockNote editor
+  // (renders the modal and applies the import). See import-context.tsx.
+  const importContextValue = React.useMemo(() => ({
+    isImportModalOpen,
+    openImportModal: () => setIsImportModalOpen(true),
+    closeImportModal: () => setIsImportModalOpen(false),
+  }), [isImportModalOpen]);
 
   const timeoutRef = useRef<NodeJS.Timeout>();
   useEffect(() => {
@@ -145,45 +158,47 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
 
   const isEtherpadSharedNotes = sharedNotesEditor === 'etherpad';
 
-  return shouldRenderNotes && (
-    <Styled.PanelContent
-      data-test="notes"
-      isOnMediaArea={isOnMediaArea}
-      isHidden={isHidden}
-      style={isOnMediaArea ? cssProps : {}}
-    >
-      {!isOnMediaArea ? (
-        <>
-          <PanelHeader
-            panelId={PANELS.SHARED_NOTES}
-            title={intl.formatMessage(intlMessages.title)}
-            dataTest="notesHeader"
-            closeButtonDataTest="hideNotesLabel"
-            customRightButton={(
-              <NotesDropdown
-                handlePinSharedNotes={handlePinSharedNotes}
-                isEtherpadSharedNotes={isEtherpadSharedNotes}
-                padId={padId}
-              />
-            )}
-          />
-          <Styled.Separator />
-        </>
-      ) : renderHeaderOnMedia()}
-      { isEtherpadSharedNotes
-        ? (
-          <PadContainer
-            isOnMediaArea={isOnMediaArea}
-            externalId={NOTES_ID()}
-            hasPermission={hasPermission}
-            isResizing={isResizing}
-            isLocalChange={isLocalChange}
-            isRTL={isRTL}
-            amIPresenter={amIPresenter}
-            isVisible={isVisible}
-          />
-        ) : <BlockNoteContainer />}
-    </Styled.PanelContent>
+  return (shouldRenderNotes || shouldShowSharedNotesOnPresentationArea) && (
+    <SharedNotesImportContext.Provider value={importContextValue}>
+      <Styled.PanelContent
+        data-test="notes"
+        isOnMediaArea={isOnMediaArea}
+        isHidden={isHidden}
+        style={isOnMediaArea ? cssProps : {}}
+      >
+        {!isOnMediaArea ? (
+          <>
+            <PanelHeader
+              panelId={PANELS.SHARED_NOTES}
+              title={intl.formatMessage(intlMessages.title)}
+              dataTest="notesHeader"
+              closeButtonDataTest="hideNotesLabel"
+              customRightButton={(
+                <NotesDropdown
+                  isEtherpadSharedNotes={isEtherpadSharedNotes}
+                  handlePinSharedNotes={handlePinSharedNotes}
+                  padId={padId}
+                />
+              )}
+            />
+            <Styled.Separator />
+          </>
+        ) : renderHeaderOnMedia()}
+        { isEtherpadSharedNotes
+          ? (
+            <PadContainer
+              isOnMediaArea={isOnMediaArea}
+              externalId={NOTES_ID()}
+              hasPermission={hasPermission}
+              isResizing={isResizing}
+              isLocalChange={isLocalChange}
+              isRTL={isRTL}
+              amIPresenter={amIPresenter}
+              isVisible={isVisible}
+            />
+          ) : <BlockNoteContainer isVisible={isVisible} />}
+      </Styled.PanelContent>
+    </SharedNotesImportContext.Provider>
   );
 };
 
@@ -194,6 +209,10 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
 
   const { data: currentUserData } = useCurrentUser((user) => ({
     presenter: user.presenter,
+  }));
+
+  const { data: currentMeeting } = useMeeting((meeting) => ({
+    componentsFlags: meeting.componentsFlags,
   }));
 
   const cameraDock = layoutSelectInput((i: Input) => i.cameraDock);
@@ -215,6 +234,9 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
   const { isOpen: isSidebarContentOpen } = sidebarContent;
   const isOnMediaArea = renderMode === NotesRenderMode.PINNED;
   const isGridLayout = useStorageKey('isGridEnabled');
+
+  const shouldShowSharedNotesOnPresentationArea = isGridLayout ? !!currentMeeting?.componentsFlags?.isSharedNotesPinned
+    && isSidebarContentOpen : !!currentMeeting?.componentsFlags?.isSharedNotesPinned;
 
   const [pinSharedNotes] = useMutation(PIN_NOTES);
   const [stopExternalVideoShare] = useMutation(EXTERNAL_VIDEO_STOP);
@@ -255,6 +277,7 @@ const NotesContainerGraphql: React.FC<NotesContainerGraphqlProps> = (props) => {
       amIPresenter={amIPresenter}
       isRTL={isRTL}
       handlePinSharedNotes={handlePinSharedNotes}
+      shouldShowSharedNotesOnPresentationArea={shouldShowSharedNotesOnPresentationArea}
     />
   );
 };

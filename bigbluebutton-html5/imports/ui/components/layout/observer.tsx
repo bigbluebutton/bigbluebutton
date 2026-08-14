@@ -16,6 +16,7 @@ import getFromUserSettings from '/imports/ui/services/users-settings';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import MediaService from '/imports/ui/components/media/service';
 import { useVideoStreams, useVideoStreamsCount } from '/imports/ui/components/video-provider/hooks';
+import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 import { useIsChatEnabled, useIsPresentationEnabled, useIsScreenSharingEnabled } from '/imports/ui/services/features';
 import useUserChangedLocalSettings from '/imports/ui/services/settings/hooks/useUserChangedLocalSettings';
 import Session from '/imports/ui/services/storage/in-memory';
@@ -27,6 +28,8 @@ import {
 } from '/imports/ui/components/whiteboard/queries';
 
 const MOBILE_MEDIA = 'only screen and (max-width: 40em)';
+const ORIENTATION_MEDIA = '(orientation: portrait)';
+const ORIENTATION_SETTLE_DELAY = 250;
 
 const LayoutObserver: React.FC = () => {
   const layoutType = useRef<string | null>(null);
@@ -111,14 +114,25 @@ const LayoutObserver: React.FC = () => {
   const meetingLayout = currentLayoutType && LAYOUT_TYPE[currentLayoutType as keyof typeof LAYOUT_TYPE];
   const isSharingVideo = currentMeeting?.componentsFlags?.hasExternalVideo;
 
+  // Not compared to `deviceType`: the resize listener captures it on mount, and the
+  // reducer already bails out when the value has not changed.
   const setDeviceType = () => {
-    const newDeviceType = getDeviceType();
-    if (newDeviceType !== deviceType) {
-      layoutContextDispatch({
-        type: ACTIONS.SET_DEVICE_TYPE,
-        value: newDeviceType,
-      });
-    }
+    layoutContextDispatch({
+      type: ACTIONS.SET_DEVICE_TYPE,
+      value: getDeviceType(),
+    });
+  };
+
+  // Duplicates each layout manager's own `resize` dispatch, for the sake of the
+  // orientation resamples, which no `resize` event follows.
+  const setBrowserSize = () => {
+    layoutContextDispatch({
+      type: ACTIONS.SET_BROWSER_SIZE,
+      value: {
+        width: window.document.documentElement.clientWidth,
+        height: window.document.documentElement.clientHeight,
+      },
+    });
   };
 
   const throttledDeviceType = throttle(
@@ -180,13 +194,37 @@ const LayoutObserver: React.FC = () => {
         return shouldEnableResize;
       });
       throttledDeviceType();
+      setBrowserSize();
     });
+
+    let orientationSettleTimeout: ReturnType<typeof setTimeout> | undefined;
+
+    const handleOrientationChange = () => {
+      handleWindowResize();
+      window.requestAnimationFrame(handleWindowResize);
+      clearTimeout(orientationSettleTimeout);
+      orientationSettleTimeout = setTimeout(handleWindowResize, ORIENTATION_SETTLE_DELAY);
+    };
+
+    const orientationQuery = window.matchMedia(ORIENTATION_MEDIA);
+    // Unsupported on the very engines the deprecated event below covers, and a throw
+    // here would take that fallback and the cleanup down with it.
+    const supportsQueryListener = typeof orientationQuery.addEventListener === 'function';
 
     handleWindowResize();
     window.addEventListener('resize', handleWindowResize, false);
+    window.addEventListener('orientationchange', handleOrientationChange, false);
+    if (supportsQueryListener) {
+      orientationQuery.addEventListener('change', handleOrientationChange);
+    }
 
     return () => {
+      clearTimeout(orientationSettleTimeout);
       window.removeEventListener('resize', handleWindowResize, false);
+      window.removeEventListener('orientationchange', handleOrientationChange, false);
+      if (supportsQueryListener) {
+        orientationQuery.removeEventListener('change', handleOrientationChange);
+      }
     };
   }, []);
 
@@ -249,12 +287,18 @@ const LayoutObserver: React.FC = () => {
     );
   });
 
+  // Count only real camera streams. AUDIO_ONLY (speaking) tiles are merged into the
+  // stream set for the unified layout, but they must not inflate the camera count:
+  // otherwise speaking with no webcams shared forces the top camera dock to display and
+  // shrinks the presentation, even while the presentation is visible (issue #25235).
+  const numCamerasValue = videoStream.filter((vs) => vs.type !== VIDEO_TYPES.AUDIO_ONLY).length;
+
   useEffect(() => {
     layoutContextDispatch({
       type: ACTIONS.SET_NUM_CAMERAS,
-      value: videoStream.length,
+      value: numCamerasValue,
     });
-  }, [videoStream.length]);
+  }, [numCamerasValue]);
 
   useEffect(() => {
     if (layoutIsReady) {

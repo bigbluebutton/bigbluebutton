@@ -1126,6 +1126,32 @@ After you save the changes to `/etc/bigbluebutton/bbb-web.properties`, restart t
 $ sudo bbb-conf --restart
 ```
 
+#### Tune parallel downloads of pre-uploaded presentations
+
+Presentations pre-uploaded through the `create` or `insertDocument` API calls are downloaded and processed in the background, on a bounded thread pool, so the API response is not delayed. By default up to 5 documents are downloaded in parallel per server; additional documents wait in a bounded queue. If the server is under sustained overload and that queue is full, further presentation tasks are rejected (and logged) instead of being queued without limit, which protects the server from running out of memory. A rejected presentation is not uploaded into the meeting, and — like a download or conversion failure — this is not reflected in the `create`/`insertDocument` API response (which has already returned); it is only visible in the server log. To change the parallelism, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties` and set the `numPresentationDownloadThreads` value (values below 1 are treated as 1):
+
+```properties
+numPresentationDownloadThreads=5
+```
+
+After you save the changes to `/etc/bigbluebutton/bbb-web.properties`, restart the BigBlueButton server with
+
+```bash
+sudo bbb-conf --restart
+```
+
+#### Rasterize slides whose SVG contains mask tags
+
+Some PDFs produce slides whose generated SVG contains `<mask>` elements (used for soft-masked/alpha images). On systems where those mask values are rendered incorrectly, the affected slides can show visual artifacts. To work around this, bbb-web can fall back to full-slide rasterization (the same BMP-based fallback used by `imageTagThreshold` and `useTagThreshold`) for any slide whose SVG contains a configurable number of `<mask>` tags.
+
+The check is **disabled by default** (`maskTagThreshold=0`), because masks are common in ordinary PDFs and the `pdftocairo` shipped with Ubuntu 24.04 (poppler 24.02.0) generates correct mask values. To rasterize only mask-heavy slides, add an overwrite rule in `/etc/bigbluebutton/bbb-web.properties`:
+
+```properties
+maskTagThreshold=100
+```
+
+A slide is rasterized when its SVG contains at least `maskTagThreshold` mask tags (a value of `1` would rasterize any slide containing a mask). After you save the changes, restart the BigBlueButton server with `sudo bbb-conf --restart`.
+
 #### Increase the file size for an uploaded presentation
 
 The default maximum file upload size for an uploaded presentation is 30 MB.
@@ -1642,9 +1668,9 @@ Restart the BigBlueButton server with `bbb-conf --restart`.  You will now be abl
 
 If you are using LiveKit as audio gateway, use [bbb-livekit-stt](https://github.com/bigbluebutton/bbb-livekit-stt) instead of [bbb-transcription-controller](https://github.com/bigbluebutton/bbb-transcription-controller) as gladia proxy.
 
-#### Musician Mode (WASM audio processing)
+#### Advanced Filtering (WASM audio processing)
 
-BigBlueButton 4.0 ships with an optional WASM-based audio processor (internally referred to as "BBBA") that runs on top of the microphone stream. It is exposed to users as **"Musician Mode"** and offers an alternative to the browser's built-in audio processing — useful, for example, when sharing music where the browser's noise suppression and automatic gain control would be undesirable.
+BigBlueButton 4.0 ships with an optional WASM-based audio processor (internally referred to as "BBBA") that runs on top of the microphone stream. It is exposed to users as the **"Advanced Filtering"** option in the Settings > Audio tab, and offers an alternative to the browser's built-in audio processing ("Standard Filtering"), isolating the speaker's voice and eliminating background noise. Users who want no processing at all — for example when sharing music, where noise suppression and automatic gain control would be undesirable — can select "Original Audio" in the same tab.
 
 It is **disabled by default**. To make it available to users, set `enabled: true` under `public.media.audio.audioWasmProcessing` in `/etc/bigbluebutton/bbb-html5.yml`:
 
@@ -1664,7 +1690,7 @@ public:
           noiseSuppression: true
 ```
 
-The initial per-user state of the feature is controlled by `public.app.defaultSettings.application.audioWasmProcessing`. Restart BigBlueButton with `sudo bbb-conf --restart` after changing the configuration.
+The audio-processing mode pre-selected for new users is controlled by `public.app.defaultSettings.audio.processingMode` (`advanced` selects the WASM processor; the client falls back to `standard` when WASM processing is disabled or the browser does not support it). Restart BigBlueButton with `sudo bbb-conf --restart` after changing the configuration.
 
 #### Configure guest policy
 
@@ -1677,6 +1703,19 @@ You can overwrite the default guest policy in `/etc/bigbluebutton/bbb-web.proper
 #
 defaultGuestPolicy=ALWAYS_ACCEPT
 ```
+
+#### Configure guest lobby queue position
+
+When the guest policy makes users wait for moderator approval, the HTML5 client shows each guest their position in the waiting queue by default. To hide this position, set `public.app.showGuestLobbyWaitingQueuePosition` to `false` in `/etc/bigbluebutton/bbb-html5.yml`.
+
+```yaml
+public:
+  app:
+    showGuestLobbyWaitingQueuePosition: false
+```
+
+Restart BigBlueButton with `sudo bbb-conf --restart` for the change to take effect.
+
 #### Show a custom logo on the client
 
 Ensure that the parameter `displayBrandingArea` is set to `true` in bbb-html5's configuration, restart BigBlueButton server with `sudo bbb-conf --restart` and pass `logo=<image-url>` in Custom parameters when creating the meeting.
@@ -1744,7 +1783,8 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 | `breakoutRoomsMultiUserWhiteboardDefaultOn` | Enable multi-user whiteboard by default in breakout rooms | true/false | true |
 | `learningDashboardCleanupDelayInMinutes` | Minutes the Learning Dashboard remains available after the meeting ends | Integer (0=keep permanently) | 2 _`overwritable`_ |
 | `disabledFeatures` | Comma-separated list of features to disable (see [`/create` docs](/development/api/#create) for the full list of feature names) | csv | _(empty)_ _`overwritable`_ |
-| `sharedNotesEditor` | Type of shared notes editor to use | etherpad, blockNote | etherpad _`overwritable`_ |
+| `sharedNotesEditor` | Type of shared notes editor to use | etherpad, blockNote | blockNote _`overwritable`_ |
+| `maxSharedNotesInitialContentUrlPayloadSize` | Maximum size (in KiB) of the response fetched when seeding shared-notes initial content from `sharedNotesInitialContentJsonUrl` / `sharedNotesInitialContentMarkdownUrl` | Integer (KiB) | 1024 |
 | `allowOverrideClientSettingsOnCreateCall` | Allow `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` to be passed on `/create` | true/false | false |
 | `clientSettingsOverrideStrictValidation` | When true, reject the `/create` call (`bbb-web`) and refuse `bbb-apps-akka` boot if a client settings override has unknown or malformed keys. Intended for test/staging (see [Validating client settings overrides](#validating-client-settings-overrides)) | true/false | false |
 | `clientSettingsFilePath` | Path to the `settings.yml` catalog used as the schema for the strict client-settings override validation above | path | `/usr/share/bigbluebutton/html5-client/private/config/settings.yml` |
@@ -1763,7 +1803,7 @@ These configs can be set in `/etc/bigbluebutton/bbb-web.properties`. The table i
 
 #### `/create` parameters without a `bigbluebutton.properties` counterpart
 
-Some `/create` parameters set per-meeting state but have no default in `bigbluebutton.properties`. Examples include `name`, `meetingID`, `parentMeetingID`/`sequence`/`freeJoin`/`isBreakout` (breakout-only), `bannerText`/`bannerColor`, `moderatorOnlyMessage`, `meta_*` metadata, `logo`, `multiUserWhiteboardEnabled`, presentation-upload parameters (`preUploadedPresentation*`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`), `sharedNotesInitialContentJsonUrl`, `disabledFeaturesExclude`, `clientSettingsOverride` / `clientSettingsOverrideJsonUrl`, and `pluginManifestsFetchUrl`. See [Create API parameters](/development/api/#create) for the complete list and descriptions.
+Some `/create` parameters set per-meeting state but have no default in `bigbluebutton.properties`. Examples include `name`, `meetingID`, `parentMeetingID`/`sequence`/`freeJoin`/`isBreakout` (breakout-only), `bannerText`/`bannerColor`, `moderatorOnlyMessage`, `notifyRecordingAppend`, `meta_*` metadata, `logo`, `multiUserWhiteboardEnabled`, presentation-upload parameters (`preUploadedPresentation*`, `presentationUploadExternalUrl`, `presentationUploadExternalDescription`), `sharedNotesInitialContentJsonUrl`, `disabledFeaturesExclude`, `clientSettingsOverride` / `clientSettingsOverrideJsonUrl`, and `pluginManifestsFetchUrl`. See [Create API parameters](/development/api/#create) for the complete list and descriptions.
 
 
 #### Passing user metadata to the client on join
@@ -1822,6 +1862,7 @@ Useful tools for development:
 | `userdata-bbb_mirror_own_webcam=`                | If set to `true`, the client will see a mirrored version of their webcam. Doesn't affect the incoming video stream for other users.                                                                                                                                                                                                     | `false`       |
 | `userdata-bbb_fullaudio_bridge=`                 | Specifies the audio bridge to be used in the client. Supported values: `fullaudio`.                                                                                       | `fullaudio`   |
 | `userdata-bbb_transparent_listen_only=`          | If set to `true`, the experimental "transparent listen only" audio mode will be used                                                                                                                                                                                                                                                    | `false`       |
+| `userdata-bbb_transcription_provider=`           | (Introduced in BigBlueButton 3.0) Overrides the speech-to-text provider used for live captions/transcription. Supported values: `webspeech`, `vosk`, `gladia`. Defaults to `public.app.audioCaptions.provider` in `settings.yml`.                                                                                                        | `webspeech`   |
 
 
 #### Presentation parameters
@@ -1864,6 +1905,7 @@ The use of *more will include all shapes listed above.
 | `userdata-bbb_default_layout=`             | The initial layout on client load. Options are: `UNIFIED_LAYOUT`, `CAMERAS_ONLY`, `PRESENTATION_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `MEDIA_ONLY`. If none is provided, the meeting layout (preset in bbb-web) will be used. Introduced in BBB 3.0.0-alpha.5. | `none`       |
 | `userdata-bbb_hide_notifications=`         | When this parameter is set to `true`, all notification toasts are suppressed in the client. Introduced in BBB 3.0.0-beta.4. | `false`       |
 | `userdata-bbb_hide_controls=`              | When this parameter is set to `true`, it hides the actions bar and the top row of the navigation bar (including the close sidebar button, room title, connectivity indicator, and leave meeting button) while keeping the row with the talking indicator and timer indicator visible. Introduced in BBB 3.0.0-beta.4. | `false`    |
+| `userdata-bbb_hide_sidebar_navigation=`    | (Introduced in BigBlueButton 4.0) If set to `true`, the sidebar navigation column (the user-list / apps panel and its toggles) will be hidden on join. | `false`    |
 
 #### Examples
 
