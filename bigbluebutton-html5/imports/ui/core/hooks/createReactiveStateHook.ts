@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { makeVar, useReactiveVar } from '@apollo/client';
+import { makeVar, useReactiveVar, ReactiveVar } from '@apollo/client';
 import { isEqual } from 'radash';
 
 type ReactiveStateHookResult<T> = {
@@ -8,6 +8,10 @@ type ReactiveStateHookResult<T> = {
   useLoading: () => boolean;
 
   useConsumersCount: () => number;
+
+  useConsumer: () => void;
+
+  stateVar: ReactiveVar<T>;
 
   setLoading: (loading: boolean) => void;
 
@@ -49,10 +53,9 @@ const createReactiveStateHook = <T>(initialState: T): ReactiveStateHookResult<T>
 
   const useLoading = () => useReactiveVar(loadingVar);
 
-  const useData = () => {
-    const state = useReactiveVar(stateVar);
-    const loading = useReactiveVar(loadingVar);
-
+  // Registers the caller as a consumer without subscribing it to the state,
+  // for consumers that track a slice of it through their own reactive vars.
+  const useConsumer = () => {
     useEffect(() => {
       countVar(countVar() + 1);
 
@@ -62,6 +65,13 @@ const createReactiveStateHook = <T>(initialState: T): ReactiveStateHookResult<T>
         if (countVar() === 0) stateVar(initialState);
       };
     }, []);
+  };
+
+  const useData = () => {
+    const state = useReactiveVar(stateVar);
+    const loading = useReactiveVar(loadingVar);
+
+    useConsumer();
 
     return { data: state, loading };
   };
@@ -70,6 +80,8 @@ const createReactiveStateHook = <T>(initialState: T): ReactiveStateHookResult<T>
     useData,
     useLoading,
     useConsumersCount,
+    useConsumer,
+    stateVar,
     setLoading,
     dispatch,
     getState,

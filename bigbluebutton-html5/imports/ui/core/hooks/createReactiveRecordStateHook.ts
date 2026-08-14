@@ -39,10 +39,22 @@ type ReactiveRecordStateHookResult = {
  */
 const createReactiveRecordStateHook = (): ReactiveRecordStateHookResult => {
   const baseHook = createReactiveStateHook<Record<string, boolean>>({});
+  // Key vars are created once and never removed: the var a render reads must be
+  // the same object a later update writes to, whatever the mount/unmount order.
   const keyVars = new Map<string, ReturnType<typeof makeVar<boolean | undefined>>>();
-  const keyRefCounts = new Map<string, number>();
   const dummyKeyVar = makeVar<boolean | undefined>(undefined);
   const dummyFullStateVar = makeVar<Record<string, boolean>>({});
+
+  const getKeyVar = (key: string) => {
+    let keyVar = keyVars.get(key);
+
+    if (!keyVar) {
+      keyVar = makeVar<boolean | undefined>(baseHook.getState()[key]);
+      keyVars.set(key, keyVar);
+    }
+
+    return keyVar;
+  };
 
   const setState = (newState: Record<string, boolean>) => {
     const currentState = baseHook.getState();
@@ -64,14 +76,9 @@ const createReactiveRecordStateHook = (): ReactiveRecordStateHookResult => {
 
     // Clear keys no longer in the state
     keyVars.forEach((keyVar, stateKey) => {
-      if (!(stateKey in newState) && keyVar() !== undefined) {
-        keyVar(undefined);
+      if (stateKey in newState) return;
 
-        // Only delete if no components are currently listening to this key
-        if (!keyRefCounts.has(stateKey) || keyRefCounts.get(stateKey) === 0) {
-          keyVars.delete(stateKey);
-        }
-      }
+      if (keyVar() !== undefined) keyVar(undefined);
     });
   };
 
@@ -79,43 +86,32 @@ const createReactiveRecordStateHook = (): ReactiveRecordStateHookResult => {
   function useData(key: string): PerKeyDataResult;
   function useData(key?: string): FullStateDataResult | PerKeyDataResult {
     const loading = baseHook.useLoading();
-    const fullStateResult = key
-      ? useReactiveVar(dummyFullStateVar)
-      : baseHook.useData().data;
+    // Per-key consumers count as consumers of the underlying state as well:
+    // dispatches are dropped and the source subscriptions skipped when the
+    // consumer count is zero.
+    baseHook.useConsumer();
+    // Both vars are always subscribed to - the unused one being a dummy that
+    // never changes - so that the hook call order is stable regardless of
+    // whether a key was supplied.
+    const fullStateResult = useReactiveVar(
+      key === undefined ? baseHook.stateVar : dummyFullStateVar,
+    );
 
     useEffect(() => {
-      if (!key) return () => {};
+      if (key === undefined) return;
 
-      const currentCount = keyRefCounts.get(key) || 0;
-      keyRefCounts.set(key, currentCount + 1);
+      // The var may predate the last full-state reset, which does not go
+      // through setState and so leaves key vars untouched.
+      const keyVar = getKeyVar(key);
+      const currentValue = baseHook.getState()[key];
 
-      return () => {
-        const newCount = (keyRefCounts.get(key) || 0) - 1;
-
-        if (newCount <= 0) {
-          // If key is not in the current state, we can safely cleanup the var
-          const currentState = baseHook.getState();
-          if (currentState[key] == null) keyVars.delete(key);
-          keyRefCounts.delete(key);
-        } else {
-          keyRefCounts.set(key, newCount);
-        }
-      };
+      if (keyVar() !== currentValue) keyVar(currentValue);
     }, [key]);
 
     const keySpecificVar = useMemo(() => {
-      if (!key) return dummyKeyVar;
+      if (key === undefined) return dummyKeyVar;
 
-      let keyVar = keyVars.get(key);
-
-      if (!keyVar) {
-        const currentState = baseHook.getState();
-        const initialValue = currentState[key];
-        keyVar = makeVar<boolean | undefined>(initialValue);
-        keyVars.set(key, keyVar);
-      }
-
-      return keyVar;
+      return getKeyVar(key);
     }, [key]);
 
     const data = useReactiveVar(keySpecificVar);
