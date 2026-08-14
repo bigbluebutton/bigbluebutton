@@ -1217,6 +1217,32 @@ public:
 
 and restart BigBlueButton via `sudo bbb-conf --restart`
 
+#### Change which whiteboard shape types the server accepts
+
+The server checks the type of every whiteboard annotation before storing and broadcasting it, and discards annotations whose type is not on an allowlist. This includes shape types introduced by a newer or customized client. The default list is:
+
+```properties
+whiteboard {
+  allowedAnnotationTypes = ["draw", "geo", "arrow", "line", "text", "note", "highlight", "frame", "group", "poll"]
+}
+```
+
+To change it — for example to accept a shape type contributed by a plugin, or to stop accepting sticky notes — add an overwrite in `/etc/bigbluebutton/bbb-apps-akka.conf`:
+
+```properties
+whiteboard {
+  allowedAnnotationTypes = ["draw", "geo", "arrow", "line", "text", "frame", "group", "poll", "my-plugin-shape"]
+}
+```
+
+A configured list *replaces* the default rather than adding to it, so list every type you want to keep. Leave the list empty to restore the default.
+
+The types `embed`, `bookmark`, `image` and `video` are fixed in code and are always rejected. Adding them here has no effect, and akka-apps logs a warning naming the entries it ignored.
+
+This is a server-side check only; the HTML5 client maintains its own list. A shape type the client permits but the server does not will appear on the whiteboard locally and then disappear.
+
+Restart your server with `sudo bbb-conf --restart` to apply the changes.
+
 #### Configure S3-based cache for presentation assets
 
 In BigBlueButton 3.0 we introduced a functionality to store outputs such as SVGs, PNGs, thumbnails and text generated from PDFs or document files uploaded as presentations.

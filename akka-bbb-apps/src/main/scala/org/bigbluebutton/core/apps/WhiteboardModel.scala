@@ -5,19 +5,36 @@ import org.bigbluebutton.common2.msgs.AnnotationVO
 import org.bigbluebutton.core.apps.whiteboard.Whiteboard
 import org.bigbluebutton.SystemConfiguration
 import org.bigbluebutton.core.db.{ PresAnnotationDAO, PresAnnotationHistoryDAO }
+import org.slf4j.LoggerFactory
 
 object WhiteboardModel {
-  // Allowlist of legitimate whiteboard shape types; anything else (rich-content
-  // sinks like embed/bookmark/image/video, unknown/future types, and the
-  // missing/non-string-type edge) is rejected before storage or broadcast.
-  // Keep in sync with the shape types a client can produce (bigbluebutton-html5
-  // whiteboard + the bundled @bigbluebutton/tldraw shape utils).
-  val AllowedAnnotationTypes: Set[String] =
+  private val logger = LoggerFactory.getLogger(getClass)
+
+  // Applied when whiteboard.allowedAnnotationTypes is unset or empty. Keep identical to the
+  // list shipped in src/universal/conf/application.conf.
+  val DefaultAllowedAnnotationTypes: Set[String] =
     Set("draw", "geo", "arrow", "line", "text", "note", "highlight", "frame", "group", "poll")
 
-  def isAllowedAnnotationType(annotationInfo: Map[String, _]): Boolean = {
+  val ForbiddenAnnotationTypes: Set[String] =
+    Set("embed", "bookmark", "image", "video")
+
+  def effectiveAllowedTypes(configuredTypes: Set[String]): Set[String] = {
+    val requestedTypes = if (configuredTypes.isEmpty) DefaultAllowedAnnotationTypes else configuredTypes
+
+    val forbidden = requestedTypes.intersect(ForbiddenAnnotationTypes)
+    if (forbidden.nonEmpty) {
+      logger.warn(
+        "Ignoring whiteboard.allowedAnnotationTypes entries that cannot be enabled: [{}]",
+        forbidden.toList.sorted.mkString(", ")
+      )
+    }
+
+    requestedTypes -- ForbiddenAnnotationTypes
+  }
+
+  def isAllowedAnnotationType(annotationInfo: Map[String, _], allowedTypes: Set[String]): Boolean = {
     annotationInfo.get("type") match {
-      case Some(annotationType: String) => AllowedAnnotationTypes.contains(annotationType)
+      case Some(annotationType: String) => allowedTypes.contains(annotationType)
       case _                            => false
     }
   }
@@ -25,6 +42,8 @@ object WhiteboardModel {
 
 class WhiteboardModel extends SystemConfiguration {
   import WhiteboardModel.isAllowedAnnotationType
+
+  private val allowedAnnotationTypes = WhiteboardModel.effectiveAllowedTypes(whiteboardAllowedAnnotationTypes)
 
   private var _whiteboards = new HashMap[String, Whiteboard]()
 
@@ -84,7 +103,7 @@ class WhiteboardModel extends SystemConfiguration {
             mergedAnnotationInfo
           }
 
-          if (isAllowedAnnotationType(finalAnnotationInfo)) {
+          if (isAllowedAnnotationType(finalAnnotationInfo, allowedAnnotationTypes)) {
             val newAnnotation = oldAnnotation.get.copy(annotationInfo = finalAnnotationInfo)
             newAnnotationsMap += (annotation.id -> newAnnotation)
             annotationsAdded :+= newAnnotation
@@ -97,7 +116,7 @@ class WhiteboardModel extends SystemConfiguration {
           println(s"User $userId doesn't have permission to edit annotation ${annotation.id}, ignoring...")
         }
       } else if (annotation.annotationInfo.contains("type")) {
-        if (isAllowedAnnotationType(annotation.annotationInfo)) {
+        if (isAllowedAnnotationType(annotation.annotationInfo, allowedAnnotationTypes)) {
           newAnnotationsMap += (annotation.id -> annotation)
           annotationsAdded :+= annotation
           annotationsDiffAdded :+= annotation

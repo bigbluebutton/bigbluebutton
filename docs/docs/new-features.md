@@ -254,6 +254,11 @@ See [Turn Server Configuration](/administration/turn-server) for the full config
 The `bbb-config` package now ships [bbbctl](https://github.com/defnull/bbbctl) (v0.5.1), a community-maintained command-line tool by [@defnull](https://github.com/defnull) for interacting with a BigBlueButton server from the shell. Installed as `/usr/bin/bbbctl`, it talks to the server's own API and lets administrators list, inspect, and end meetings and work with recordings without crafting signed API calls by hand. Thank you for developing it, defnull!
 
 
+#### Configurable whiteboard annotation types
+
+We added a new configuration property for the bbb-apps-akka package under `whiteboard` called `allowedAnnotationTypes`. It lists the whiteboard shape types the server accepts, stores and broadcasts; annotations of any other type are discarded. The default covers the shape types the bundled client can produce, so no action is needed unless you run a customized client or a plugin that contributes its own shape type — in which case add that type to the list in `/etc/bigbluebutton/bbb-apps-akka.conf` and restart BigBlueButton. A configured list replaces the default rather than extending it. See [Change which whiteboard shape types the server accepts](/administration/customize#change-which-whiteboard-shape-types-the-server-accepts).
+
+
 #### Removing deprecated layout options
 
 The layout system has been simplified to use a single unified layout. The following layouts have been removed: `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, and `VIDEO_FOCUS`. The default layout is now `UNIFIED_LAYOUT`.
