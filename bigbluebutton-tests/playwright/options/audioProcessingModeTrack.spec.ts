@@ -151,4 +151,75 @@ test.describe('Audio processing mode - actual getUserMedia constraints', { tag: 
     expect(lastConstraints).toMatchObject(wasmConstraintsOverride);
     expect(lastConstraints).not.toMatchObject(microphoneConstraintsOverride);
   });
+
+  test('loads the WorkAdventure/DTLN processor for Advanced filtering when configured', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    const audioProcessingMode = new AudioProcessingMode(browser, context);
+    await audioProcessingMode.trackWasmProcessorRequests(page);
+    await audioProcessingMode.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: audioProcessingModeOverrides(
+        true,
+        'advanced',
+        undefined,
+        undefined,
+        'workadventureDtln',
+      ),
+    });
+
+    await audioProcessingMode.joinWithMicrophone();
+
+    await expect(async () => {
+      expect(audioProcessingMode.wasmProcessorWasLoaded()).toBe(true);
+    }).toPass();
+
+    // Rule out a silent fallback to bbba (which would also flip
+    // wasmProcessorWasLoaded() to true via its own .wasm fetch) - confirm
+    // at least one observed request is NOT one of BBBA's named files.
+    const wasmUrls = audioProcessingMode.getWasmRequestUrls();
+    expect(wasmUrls.some((url) => !url.toLowerCase().includes('bbba'))).toBe(true);
+  });
+
+  test('forces noiseSuppression off for Advanced filtering with the WorkAdventure/DTLN provider, even if audioWasmProcessing.constraints says otherwise', async ({
+    browser,
+    context,
+    page,
+  }, testInfo) => {
+    await captureGetUserMediaAudioConstraints(page);
+
+    const audioProcessingMode = new AudioProcessingMode(browser, context);
+    await audioProcessingMode.trackWasmProcessorRequests(page);
+    // Deliberately the opposite of what this provider needs - settings.yml
+    // ships audioWasmProcessing.constraints.noiseSuppression: true by
+    // default (tuned for BBBA), so this reproduces that exact shipped
+    // default rather than a contrived override, to prove the forced
+    // constraint - not just a default - is what makes this work.
+    await audioProcessingMode.initModPage(page, {
+      testInfo,
+      clientSettingsOverrides: audioProcessingModeOverrides(
+        true,
+        'advanced',
+        undefined,
+        { echoCancellation: true, autoGainControl: true, noiseSuppression: true },
+        'workadventureDtln',
+      ),
+    });
+
+    await audioProcessingMode.joinWithMicrophone();
+
+    await expect(async () => {
+      expect(audioProcessingMode.wasmProcessorWasLoaded()).toBe(true);
+    }).toPass();
+
+    const captured = await getCapturedAudioConstraints(page);
+    const lastConstraints = captured[captured.length - 1];
+    expect(lastConstraints).toMatchObject({
+      echoCancellation: true,
+      autoGainControl: true,
+      noiseSuppression: false,
+    });
+  });
 });
