@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { isEqual } from 'radash';
 import {
   useRemoteParticipants,
@@ -63,12 +63,10 @@ const createUseWhoIsTalkingLiveKit = () => {
     const { localParticipant } = useLocalParticipant({ room: liveKitRoom });
     const connectionState = useConnectionState(liveKitRoom);
     const subscribedAudioUsers = useSubscribedAudioUsers();
-    const bbbTalkingUsersData = useWhoIsTalkingGraphql(userId);
-    const bbbTalkingUsers: Record<string, boolean> = useMemo(() => {
-      if (userId !== undefined) return bbbTalkingUsersData.data === true ? { [userId]: true } : {};
-
-      return bbbTalkingUsersData.data as Record<string, boolean>;
-    }, [userId, bbbTalkingUsersData.data]);
+    // Always read the full BBB record: the effect below writes the shared state,
+    // so narrowing it to userId would blank every other user for every consumer.
+    // userId filters on the read side only, through useData above.
+    const { data: bbbTalkingUsers } = useWhoIsTalkingGraphql();
 
     useEffect(() => {
       if (!shouldUseLiveKit) return;
