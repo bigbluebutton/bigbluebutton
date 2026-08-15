@@ -27,6 +27,7 @@ const BASELINE_USER_DATA: TalkingUserState = Object.freeze({
 type UseWhoIsTalkingLiveKitHook = {
   (): TalkingUsersState;
   (userId: string): TalkingUserState;
+  (userId?: string): TalkingUsersState | TalkingUserState;
 };
 
 const createUseWhoIsTalkingLiveKit = () => {
@@ -49,7 +50,7 @@ const createUseWhoIsTalkingLiveKit = () => {
   function useWhoIsTalking(userId: string): TalkingUserState;
   function useWhoIsTalking(userId?: string): TalkingUsersState | TalkingUserState {
     const shouldUseLiveKit = useShouldUseLiveKitAudioState();
-    const whoIsTalkingData = userId !== undefined ? useData(userId) : useData();
+    const whoIsTalkingData = useData(userId);
     const remoteParticipants = useRemoteParticipants({
       room: liveKitRoom,
       updateOnlyOn: [
@@ -62,9 +63,7 @@ const createUseWhoIsTalkingLiveKit = () => {
     const { localParticipant } = useLocalParticipant({ room: liveKitRoom });
     const connectionState = useConnectionState(liveKitRoom);
     const subscribedAudioUsers = useSubscribedAudioUsers();
-    const bbbTalkingUsersData = userId !== undefined
-      ? useWhoIsTalkingGraphql(userId)
-      : useWhoIsTalkingGraphql();
+    const bbbTalkingUsersData = useWhoIsTalkingGraphql(userId);
     const bbbTalkingUsers: Record<string, boolean> = useMemo(() => {
       if (userId !== undefined) return bbbTalkingUsersData.data === true ? { [userId]: true } : {};
 

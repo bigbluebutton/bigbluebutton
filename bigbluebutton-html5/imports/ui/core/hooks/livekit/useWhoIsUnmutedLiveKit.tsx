@@ -26,6 +26,7 @@ const BASELINE_USER_DATA: UnmutedUserState = Object.freeze({
 type UseWhoIsUnmutedLiveKitHook = {
   (): UnmutedUsersState;
   (userId: string): UnmutedUserState;
+  (userId?: string): UnmutedUsersState | UnmutedUserState;
 };
 
 const createUseWhoIsUnmutedLiveKit = () => {
@@ -48,7 +49,7 @@ const createUseWhoIsUnmutedLiveKit = () => {
   function useWhoIsUnmuted(userId: string): UnmutedUserState;
   function useWhoIsUnmuted(userId?: string): UnmutedUsersState | UnmutedUserState {
     const shouldUseLiveKit = useShouldUseLiveKitAudioState();
-    const whoIsUnmutedData = userId !== undefined ? useData(userId) : useData();
+    const whoIsUnmutedData = useData(userId);
     const remoteParticipants = useRemoteParticipants({
       room: liveKitRoom,
       updateOnlyOn: [
@@ -63,9 +64,7 @@ const createUseWhoIsUnmutedLiveKit = () => {
     });
     const { localParticipant, microphoneTrack } = useLocalParticipant({ room: liveKitRoom });
     const connectionState = useConnectionState(liveKitRoom);
-    const bbbUnmutedUsersData = userId !== undefined
-      ? useWhoIsUnmutedGraphql(userId)
-      : useWhoIsUnmutedGraphql();
+    const bbbUnmutedUsersData = useWhoIsUnmutedGraphql(userId);
     const bbbUnmutedUsers: Record<string, boolean> = useMemo(() => {
       if (userId !== undefined) return bbbUnmutedUsersData.data === true ? { [userId]: true } : {};
 

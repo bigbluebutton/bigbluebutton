@@ -7,6 +7,7 @@ import createReactiveRecordStateHook, {
 type UseWhoIsTalkingGraphqlHook = {
   (): FullStateDataResult;
   (userId: string): PerKeyDataResult;
+  (userId?: string): FullStateDataResult | PerKeyDataResult;
 };
 
 const createUseWhoIsTalkingGraphql = () => {

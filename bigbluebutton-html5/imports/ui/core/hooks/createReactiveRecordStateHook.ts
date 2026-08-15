@@ -15,6 +15,9 @@ type FullStateDataResult = {
 type UseDataHook = {
   (): FullStateDataResult;
   (key: string): PerKeyDataResult;
+  // For callers whose key is only known at runtime: passing it straight through
+  // keeps the call unconditional, which is what the rules of hooks require.
+  (key?: string): FullStateDataResult | PerKeyDataResult;
 };
 
 type ReactiveRecordStateHookResult = {

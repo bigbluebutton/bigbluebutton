@@ -7,6 +7,7 @@ import createReactiveRecordStateHook, {
 type UseWhoIsUnmutedGraphqlHook = {
   (): FullStateDataResult;
   (userId: string): PerKeyDataResult;
+  (userId?: string): FullStateDataResult | PerKeyDataResult;
 };
 
 const createUseWhoIsUnmutedGraphql = () => {

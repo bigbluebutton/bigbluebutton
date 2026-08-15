@@ -41,12 +41,8 @@ function useWhoIsUnmuted(): UnmutedUsersState;
 function useWhoIsUnmuted(userId: string): UnmutedUserState;
 function useWhoIsUnmuted(userId?: string): UnmutedUsersState | UnmutedUserState {
   const shouldUseLiveKit = useShouldUseLiveKitAudioState();
-  const bbbUnmutedState = userId !== undefined
-    ? useWhoIsUnmutedGraphql(userId)
-    : useWhoIsUnmutedGraphql();
-  const liveKitUnmutedState = userId !== undefined
-    ? useWhoIsUnmutedLiveKit(userId)
-    : useWhoIsUnmutedLiveKit();
+  const bbbUnmutedState = useWhoIsUnmutedGraphql(userId);
+  const liveKitUnmutedState = useWhoIsUnmutedLiveKit(userId);
 
   return useMemo(() => {
     if (shouldUseLiveKit) return liveKitUnmutedState;

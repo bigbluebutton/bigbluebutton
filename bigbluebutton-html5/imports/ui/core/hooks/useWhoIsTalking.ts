@@ -41,12 +41,8 @@ function useWhoIsTalking(): TalkingUsersState;
 function useWhoIsTalking(userId: string): TalkingUserState;
 function useWhoIsTalking(userId?: string): TalkingUsersState | TalkingUserState {
   const shouldUseLiveKit = useShouldUseLiveKitAudioState();
-  const bbbTalkingState = userId !== undefined
-    ? useWhoIsTalkingGraphql(userId)
-    : useWhoIsTalkingGraphql();
-  const liveKitTalkingState = userId !== undefined
-    ? useWhoIsTalkingLiveKit(userId)
-    : useWhoIsTalkingLiveKit();
+  const bbbTalkingState = useWhoIsTalkingGraphql(userId);
+  const liveKitTalkingState = useWhoIsTalkingLiveKit(userId);
 
   return useMemo(() => {
     if (shouldUseLiveKit) return liveKitTalkingState;
