@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { isEqual } from 'radash';
 import { VoiceUserMetadata } from './types';
 
 export type VoiceItem = {
@@ -60,20 +61,25 @@ const useTimedTalkingIndicator = (
       return;
     }
 
-    rawVoiceActivity.forEach((voiceActivityItem) => {
-      const {
-        userId, talking, muted, user, voiceUserId,
-      } = voiceActivityItem;
-      const currentSpokeTimeout = spokeTimeoutRegistry.current[userId];
-      const currentMutedTimeout = mutedTimeoutRegistry.current[userId];
+    // Accumulate the whole batch into a single record so that a pass which moves
+    // nothing writes no state at all
+    setRecord((previousRecord) => {
+      const nextRecord: Record<string, VoiceItem> = { ...previousRecord };
+      let changed = false;
 
-      setRecord((previousRecord) => {
-        const previousIndicator = previousRecord[userId];
+      rawVoiceActivity.forEach((voiceActivityItem) => {
+        const {
+          userId, talking, muted, user, voiceUserId,
+        } = voiceActivityItem;
+        const previousIndicator = nextRecord[userId];
+        const currentSpokeTimeout = spokeTimeoutRegistry.current[userId];
+        const currentMutedTimeout = mutedTimeoutRegistry.current[userId];
+        let nextIndicator: VoiceItem;
 
         // Handle unmuted users
         if (!muted) {
           // Skip if no previous state and not talking
-          if (!previousIndicator && !talking) return previousRecord;
+          if (!previousIndicator && !talking) return;
 
           let startTime = previousIndicator?.startTime ?? 0;
           let endTime = previousIndicator?.endTime ?? 0;
@@ -106,6 +112,8 @@ const useTimedTalkingIndicator = (
           if (endTime && !currentSpokeTimeout) {
             spokeTimeoutRegistry.current[userId] = setTimeout(() => {
               setRecord((prevRecord) => {
+                if (!(userId in prevRecord)) return prevRecord;
+
                 const newRecord = { ...prevRecord };
                 delete newRecord[userId];
                 return newRecord;
@@ -114,53 +122,50 @@ const useTimedTalkingIndicator = (
             }, TALKING_INDICATOR_TIMEOUT);
           }
 
-          return {
-            ...previousRecord,
-            [userId]: {
-              ...(previousIndicator || {}),
-              userId,
-              muted,
-              talking,
-              startTime,
-              endTime,
-              user,
-            },
+          nextIndicator = {
+            ...(previousIndicator || {}),
+            userId,
+            muted,
+            talking,
+            startTime,
+            endTime,
+            user,
           };
-        }
+        } else {
+          // Handle muted users
+          // If no previous state, leave the record untouched (muted)
+          if (!previousIndicator) return;
 
-        // Else: Handle muted users
-        // If no previous state, return previous record (muted)
-        if (!previousIndicator) return previousRecord;
+          const { startTime } = previousIndicator;
+          const endTime = previousIndicator.talking
+            ? Date.now()
+            : previousIndicator.endTime;
 
-        const { startTime } = previousIndicator;
-        const endTime = previousIndicator.talking
-          ? Date.now()
-          : previousIndicator.endTime;
+          // User has never talked or exited audio
+          // voiceUserId check is for GraphQL compatibility - when user exits audio,
+          // voiceUserId becomes empty
+          if (!(endTime || startTime) || (voiceUserId !== undefined && !voiceUserId)) {
+            delete nextRecord[userId];
+            changed = true;
 
-        // User has never talked or exited audio
-        // voiceUserId check is for GraphQL compatibility - when user exits audio,
-        // voiceUserId becomes empty
-        if (!(endTime || startTime) || (voiceUserId !== undefined && !voiceUserId)) {
-          const newRecord = { ...previousRecord };
-          delete newRecord[userId];
-          return newRecord;
-        }
+            return;
+          }
 
-        // Schedule removal if necessary (muted)
-        if (!currentMutedTimeout && !currentSpokeTimeout) {
-          mutedTimeoutRegistry.current[userId] = setTimeout(() => {
-            setRecord((prevRecord) => {
-              const newRecord = { ...prevRecord };
-              delete newRecord[userId];
-              return newRecord;
-            });
-            mutedTimeoutRegistry.current[userId] = null;
-          }, TALKING_INDICATOR_TIMEOUT);
-        }
+          // Schedule removal if necessary (muted)
+          if (!currentMutedTimeout && !currentSpokeTimeout) {
+            mutedTimeoutRegistry.current[userId] = setTimeout(() => {
+              setRecord((prevRecord) => {
+                if (!(userId in prevRecord)) return prevRecord;
 
-        return {
-          ...previousRecord,
-          [userId]: {
+                const newRecord = { ...prevRecord };
+                delete newRecord[userId];
+                return newRecord;
+              });
+              mutedTimeoutRegistry.current[userId] = null;
+            }, TALKING_INDICATOR_TIMEOUT);
+          }
+
+          nextIndicator = {
             ...previousIndicator,
             userId,
             muted,
@@ -168,9 +173,16 @@ const useTimedTalkingIndicator = (
             startTime,
             endTime,
             user,
-          },
-        };
+          };
+        }
+
+        if (isEqual(previousIndicator, nextIndicator)) return;
+
+        nextRecord[userId] = nextIndicator;
+        changed = true;
       });
+
+      return changed ? nextRecord : previousRecord;
     });
   }, [rawVoiceActivity, enabled]);
 
