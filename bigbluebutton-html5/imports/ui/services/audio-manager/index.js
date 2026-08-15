@@ -96,6 +96,7 @@ class AudioManager {
       bypassGUM: makeVar(false),
       permissionStatus: makeVar(null),
       transparentListenOnlySupported: makeVar(false),
+      isUsingLiveKit: makeVar(false),
     });
 
     this._inputStream = makeVar(null);
@@ -125,7 +126,7 @@ class AudioManager {
     checkMediaDevicesTarget();
   }
 
-  isUsingLiveKit() {
+  isBridgeLiveKit() {
     return this.bridge?.bridgeName === 'livekit';
   }
 
@@ -133,7 +134,7 @@ class AudioManager {
     const livekitConfig = window?.meetingClientSettings?.public?.media?.livekit;
     const useLiveKitAudioState = livekitConfig?.audio?.useLiveKitAudioState ?? false;
 
-    return this.isUsingLiveKit() && useLiveKitAudioState;
+    return this.isUsingLiveKit && useLiveKitAudioState;
   }
 
   onBeforeUnload() {
@@ -357,6 +358,7 @@ class AudioManager {
     this.loadBridges(bridges, userData);
     this._applyCachedOutputDeviceId();
     this.transparentListenOnlySupported = this.supportsTransparentListenOnly();
+    this.isUsingLiveKit = this.isBridgeLiveKit();
     this.audioEventHandler = audioEventHandler;
 
     // Only observe GraphQL voice activity if not using LiveKit's audio state
