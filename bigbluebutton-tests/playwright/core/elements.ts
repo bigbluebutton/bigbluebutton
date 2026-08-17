@@ -305,6 +305,7 @@ export const elements = {
   exportPlainButton: 'a[id="exportplaina"] span',
   pinNotes: 'li[data-test="pinNotes"]',
   unpinNotes: 'button[data-test="unpinNotes"]',
+  pinnedNotesHeader: 'header[data-test="pinnedNotesHeader"]',
   exportetherpad: 'span[id="exportetherpad"]',
   exporthtml: 'span[id="exporthtml"]',
 

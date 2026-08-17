@@ -545,9 +545,10 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
 
 interface BlockNoteContainerProps {
   isVisible: boolean;
+  isOnMediaArea: boolean;
 }
 
-function BlockNoteContainer({ isVisible }: BlockNoteContainerProps): React.ReactElement {
+function BlockNoteContainer({ isVisible, isOnMediaArea }: BlockNoteContainerProps): React.ReactElement {
   const {
     error, isAuthenticating, hocuspocusProvider, connectionClosed, handleRetry, isSynced,
   } = useHocuspocusProvider();
@@ -585,7 +586,11 @@ function BlockNoteContainer({ isVisible }: BlockNoteContainerProps): React.React
     };
   }, [renderBlockNote, isVisible, markNotesAsRead]);
   return (
-    <Styled.Notes id="bn-notes-scroll-container" isPresenter={currentUser?.presenter ?? false}>
+    <Styled.Notes
+      id="bn-notes-scroll-container"
+      isPresenter={currentUser?.presenter ?? false}
+      isOnMediaArea={isOnMediaArea}
+    >
       {(hasError) && (
         <Styled.WarningNotificationContainer data-test="notesError">
           <Styled.ErrorMessage>{error}</Styled.ErrorMessage>
