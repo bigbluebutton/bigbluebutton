@@ -452,7 +452,7 @@ const createEndpointTableData = [
     "required": false,
     "type": "String",
     "default": "blockNote",
-    "description": (<>Editor to be rendered in the shared-notes area: <code>blockNote</code> or <code>etherpad</code>. Values are case-insensitive and stored using the canonical spelling. Unknown values cause the create request to fail.</>)
+    "description": (<>Editor to be rendered in the shared-notes area: <code>blockNote</code> or <code>etherpad</code>. Values are stripped of control characters and surrounding whitespace, matched case-insensitively, and stored using the canonical spelling. Unknown values cause the create request to fail.</>)
   },
   {
     "name": "sharedNotesInitialContentJsonUrl",

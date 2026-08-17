@@ -15,6 +15,8 @@ class SharedNotesEditorSpec extends Specification {
     input                                || expected
     "etherpad"                           || "etherpad"
     "Etherpad"                           || "etherpad"
+    " \tEtherpad\r\n "                 || "etherpad"
+    "Eth\u0000erpad"                    || "etherpad"
     "blockNote"                          || "blockNote"
     "blocknote"                          || "blockNote"
     ""                                   || null
@@ -51,6 +53,7 @@ class SharedNotesEditorSpec extends Specification {
     input                                || expected
     "etherpad"                           || true
     "Etherpad"                           || true
+    " \tEtherpad\r\n "                 || false
     "blockNote"                          || true
     "blocknote"                          || true
     ""                                   || true
