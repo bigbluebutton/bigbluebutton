@@ -665,13 +665,12 @@ public class ParamsProcessorUtil {
 
         String sharedNotesEditor = defaultSharedNotesEditor;
         if (!StringUtils.isEmpty(params.get(ApiParams.SHARED_NOTES_EDITOR))) {
-            try {
-                sharedNotesEditor = params
-                        .get(ApiParams.SHARED_NOTES_EDITOR);
-            } catch (Exception ex) {
-                log.warn(
-                        "Invalid param [sharedNotesEditor] for meeting=[{}]",
-                        internalMeetingId);
+            String canonicalSharedNotesEditor = SharedNotesEditor.canonicalize(
+                    params.get(ApiParams.SHARED_NOTES_EDITOR));
+            if (canonicalSharedNotesEditor != null) {
+                sharedNotesEditor = canonicalSharedNotesEditor;
+            } else {
+                log.warn("Invalid param [sharedNotesEditor] for meeting=[{}]", internalMeetingId);
             }
         }
 
@@ -2010,7 +2009,14 @@ public class ParamsProcessorUtil {
     }
 
     public void setSharedNotesEditor(String sharedNotesEditor) {
-        this.defaultSharedNotesEditor = sharedNotesEditor;
+        String canonicalSharedNotesEditor = SharedNotesEditor.canonicalize(sharedNotesEditor);
+        if (canonicalSharedNotesEditor == null) {
+            log.error("Invalid default [sharedNotesEditor]=[{}]; using [{}]", sharedNotesEditor,
+                    SharedNotesEditor.BLOCK_NOTE);
+            this.defaultSharedNotesEditor = SharedNotesEditor.BLOCK_NOTE;
+        } else {
+            this.defaultSharedNotesEditor = canonicalSharedNotesEditor;
+        }
     }
 
     /**
