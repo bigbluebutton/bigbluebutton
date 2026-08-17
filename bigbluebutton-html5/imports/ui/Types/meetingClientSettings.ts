@@ -230,6 +230,7 @@ export interface Application {
 export interface Audio {
   inputDeviceId: string
   outputDeviceId: string
+  processingMode: 'advanced' | 'standard' | 'original'
 }
 
 export interface DataSaving {
@@ -706,6 +707,8 @@ export interface Audio2 {
   retryThroughRelay: boolean
   allowAudioJoinCancel: boolean
   audioWasmProcessing?: AudioWasmProcessingSettings
+  // See: https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
+  microphoneConstraints?: Record<string, unknown>
 }
 
 export interface Screenshare2 {
@@ -814,6 +817,7 @@ export interface Whiteboard {
   maxNumberOfAnnotations: number
   maxNumberOfActiveUsers: number
   maxHistoryStackSize: number
+  slideSwapDecodeTimeoutMs: number
   lockToolbarTools: boolean
   annotations: Annotations
   allowInfiniteWhiteboard: boolean

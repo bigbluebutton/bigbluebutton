@@ -1,4 +1,5 @@
-import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import { getSettingsSingletonInstance, hasPersistedChange } from '/imports/ui/services/settings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
 import logger from '/imports/startup/client/logger';
 import { getStorageSingletonInstance } from '/imports/ui/services/storage';
 import {
@@ -16,6 +17,13 @@ const DEFAULT_INPUT_DEVICE_ID = '';
 const DEFAULT_OUTPUT_DEVICE_ID = '';
 const INPUT_DEVICE_ID_KEY = 'audioInputDeviceId';
 const OUTPUT_DEVICE_ID_KEY = 'audioOutputDeviceId';
+const AUDIO_PROCESSING_MODES = ['advanced', 'standard', 'original'];
+
+const DISABLED_MICROPHONE_CONSTRAINTS = {
+  autoGainControl: false,
+  echoCancellation: false,
+  noiseSuppression: false,
+};
 
 const getAudioSessionNumber = () => {
   let currItem = parseInt(sessionStorage.getItem(AUDIO_SESSION_NUM_KEY), 10);
@@ -108,13 +116,108 @@ const filterSupportedConstraints = (audioDeviceConstraints) => {
   }
 };
 
+const getWasmProcessingSettings = () => {
+  const setting = window.meetingClientSettings.public.media.audio.audioWasmProcessing;
+
+  // Backwards compat, remove later - prlanzarin
+  if (typeof setting === 'boolean') return { enabled: setting };
+
+  return setting || {};
+};
+
+const isWasmProcessingConfigEnabled = () => !!getWasmProcessingSettings().enabled;
+
+const isBBBAWasmSupported = () => isWasmProcessorSupported()
+  && isWasmProcessingConfigEnabled();
+
+// check if any browser-level audio filter constraint (AGC, echo cancellation,
+// noise suppression) is enabled in the given microphone constraints
+const isAudioFilterEnabled = (constraints) => {
+  if (typeof constraints === 'undefined') return true;
+
+  const isConstraintEnabled = (constraintValue) => {
+    switch (typeof constraintValue) {
+      case 'boolean':
+        return constraintValue;
+      case 'string':
+        return constraintValue === 'true';
+      case 'object':
+        return !!(constraintValue.exact || constraintValue.ideal);
+      default:
+        return false;
+    }
+  };
+
+  const normalizedConstraints = (constraints.advanced && typeof constraints.advanced === 'object')
+    ? constraints.advanced
+    : constraints;
+
+  return !!Object.values(normalizedConstraints).find(isConstraintEnabled);
+};
+
+// 'standard' applies the browser-level filters configured in
+// media.audio.microphoneConstraints (settings.yml). If left unset, no
+// constraint is forced and the browser's own default takes over. 'advanced'
+// and 'original' both disable every browser filter here: 'original' wants the
+// raw signal, and 'advanced' relies on BBBA/WASM instead - once it loads,
+// doGUM() overwrites these with media.audio.audioWasmProcessing.constraints
+// ("on top of WASM"), so the all-false result below is only the baseline
+// used before that override
+const getConstraintsForMode = (mode) => {
+  if (mode !== 'standard') return DISABLED_MICROPHONE_CONSTRAINTS;
+
+  return window.meetingClientSettings.public.media.audio.microphoneConstraints || {};
+};
+
+// Validates a mode and resolves it against actual browser support.
+// Unknown values and unsupported 'advanced' both land on 'standard'.
+const resolveAudioProcessingMode = (mode) => {
+  const validMode = AUDIO_PROCESSING_MODES.includes(mode) ? mode : 'standard';
+
+  if (validMode === 'advanced' && !isBBBAWasmSupported()) return 'standard';
+
+  return validMode;
+};
+
+// Resolves defaultSettings.audio.processingMode (advanced/standard/original)
+// against actual browser support. Only used as a last resort, when the user
+// has made no choice of their own.
+const getDefaultAudioProcessingMode = () => resolveAudioProcessingMode(
+  window.meetingClientSettings.public.app.defaultSettings.audio.processingMode,
+);
+
+const getEffectiveAudioProcessingMode = () => {
+  const Settings = getSettingsSingletonInstance();
+
+  if (hasPersistedChange(SETTINGS.AUDIO, 'processingMode')) {
+    return resolveAudioProcessingMode(Settings.audio.processingMode);
+  }
+
+  // backwards compatibility
+  if (hasPersistedChange(SETTINGS.APPLICATION, 'audioWasmProcessing')) {
+    return resolveAudioProcessingMode(
+      isAudioFilterEnabled(Settings.application.microphoneConstraints) ? 'standard' : 'original',
+    );
+  }
+
+  return getDefaultAudioProcessingMode();
+};
+
 const getAudioConstraints = (constraintFields = {}) => {
   const { deviceId = '' } = constraintFields;
   const Settings = getSettingsSingletonInstance();
-  const userSettingsConstraints = Settings.application.microphoneConstraints;
-  const audioDeviceConstraints = userSettingsConstraints
-    || window.meetingClientSettings.public.app.defaultSettings.application.microphoneConstraints
-    || {};
+  const configuredConstraints = window.meetingClientSettings.public
+    .media.audio.microphoneConstraints;
+  // Derive from the effective mode rather than the persisted constraints: an
+  // 'advanced' pick that later loses WASM support resolves to 'standard', and
+  // the all-false constraints it stored must not survive that coercion.
+  // microphoneConstraints only speaks for a pre-4.0 record with no mode of
+  // its own.
+  const audioDeviceConstraints = hasPersistedChange(SETTINGS.AUDIO, 'processingMode')
+    ? getConstraintsForMode(getEffectiveAudioProcessingMode())
+    : Settings.application.microphoneConstraints
+      || configuredConstraints
+      || getConstraintsForMode(getEffectiveAudioProcessingMode());
 
   const matchConstraints = filterSupportedConstraints(
     audioDeviceConstraints,
@@ -127,35 +230,8 @@ const getAudioConstraints = (constraintFields = {}) => {
   return matchConstraints;
 };
 
-const getWasmProcessingSettings = () => {
-  const setting = window.meetingClientSettings.public.media.audio.audioWasmProcessing;
-
-  // Backwards compat, remove later - prlanzarin
-  if (typeof setting === 'boolean') return { enabled: setting };
-
-  return setting || {};
-};
-
-const isBBBAWasmSupported = () => isWasmProcessorSupported()
-  && getWasmProcessingSettings().enabled;
-
 // check if wasm processing is enabled
-const isWasmProcessingEnabled = (localSettingsState) => {
-  if (!isBBBAWasmSupported()) return false;
-
-  const defaultSetting = window.meetingClientSettings.public.app.audioWasmProcessing;
-  const Settings = getSettingsSingletonInstance();
-
-  // Precedence: unconfirmed local user setttings -> local user setting
-  // -> default setting -> false (for now until stable - prlanzarin Nov 2025)
-  if (localSettingsState !== undefined) return localSettingsState;
-  if (Settings.application.audioWasmProcessing !== undefined) {
-    return Settings.application.audioWasmProcessing;
-  }
-  if (defaultSetting !== undefined) return defaultSetting;
-
-  return false;
-};
+const isWasmProcessingEnabled = () => getEffectiveAudioProcessingMode() === 'advanced';
 
 const loadWasmProcessor = async () => {
   if (isBBBAWasmSupported()) {
@@ -388,5 +464,9 @@ export {
   destroyWasmProcessor,
   stereoUnsupported,
   isBBBAWasmSupported,
+  isWasmProcessorSupported,
+  isWasmProcessingConfigEnabled,
   isWasmProcessingEnabled,
+  getConstraintsForMode,
+  getEffectiveAudioProcessingMode,
 };

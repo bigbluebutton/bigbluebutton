@@ -11,7 +11,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.running.{LiveMeeting, MeetingActor, OutMsgRouter}
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.apps.users.UsersApp
-import org.bigbluebutton.core.db.{MeetingVoiceDAO, UserDAO, UserVoiceDAO, UserStateDAO}
+import org.bigbluebutton.core.db.{MeetingVoiceDAO, UserDAO, UserVoiceDAO}
 import org.bigbluebutton.core.util.ColorPicker
 import org.bigbluebutton.core.util.TimeUtil
 
@@ -810,7 +810,6 @@ object VoiceApp extends SystemConfiguration {
     liveMeeting:  LiveMeeting,
     userId:       String,
   )(implicit context: ActorContext): Unit = {
-    val meetingId = liveMeeting.props.meetingProp.intId
     for {
       u <- VoiceUsers.findWithIntId(
         liveMeeting.voiceUsers,
@@ -818,7 +817,7 @@ object VoiceApp extends SystemConfiguration {
       )
       } yield {
         if (u.muted == true && !u.deafened) {
-          UserStateDAO.updateRequestedUnmuteByMod(meetingId, userId, true)
+          Users2x.setUserUnmuteRequested(liveMeeting.users2x, userId)
         }
       }
   }

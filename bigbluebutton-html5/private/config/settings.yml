@@ -254,30 +254,21 @@ public:
         # but on first page load overrideLocale will trump the browser's
         # preferred locale
         overrideLocale: null
-        #Audio constraints for microphone. Use this to control browser's
-        #filters, such as AGC (Auto Gain Control) , Echo Cancellation,
-        #Noise Suppression, etc.
-        #For more deails, see:
-        # https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
-        #Currently, google chrome sets {ideal: true} for autoGainControl,
-        #echoCancellation and noiseSuppression, if not set.
-        #The accepted value for each constraint is an object of type
-        #https://developer.mozilla.org/en-US/docs/Web/API/ConstrainBoolean
-        #These values are used as initial constraints for every new participant,
-        #and can be changed by user in: Settings > Application > Microphone
-        #Audio Filters.
-        # microphoneConstraints:
-        #   autoGainControl:
-        #     ideal: true
-        #   echoCancellation:
-        #     ideal: true
-        #   noiseSuppression:
-        #     ideal: true
-        # Audio input processing through WASM/BBBA: initial state (enabled/disabled)
-        audioWasmProcessing: true
       audio:
         inputDeviceId: undefined
         outputDeviceId: undefined
+        # processingMode: which of the 3 audio-processing options in
+        # Settings > Audio comes selected by default for a new user.
+        # Accepted values:
+        #   advanced: process the microphone through BBBA/WASM (audioWasmProcessing)
+        #   standard: process it with the browser's own filters, i.e. the
+        #             AGC/echo-cancellation/noise-suppression constraints in
+        #             media.audio.microphoneConstraints
+        #   original: no processing at all, transmit the raw microphone signal
+        # If set to 'advanced' but the browser doesn't support BBBA/WASM
+        # processing or it is disabled via media.audio.audioWasmProcessing.enabled,
+        # it falls back to 'standard' (advanced -> standard).
+        processingMode: standard
       dataSaving:
         viewParticipantsWebcams: true
         viewScreenshare: true
@@ -924,6 +915,23 @@ public:
           echoCancellation: true
           autoGainControl: true
           noiseSuppression: true
+      # microphoneConstraints: browser-level audio constraints (AGC/echo
+      # cancellation/noise suppression) applied when the user selects the
+      # 'standard' audio processing mode in Settings > Audio.
+      # For more details, see:
+      # https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints
+      # Currently, google chrome sets {ideal: true} for autoGainControl,
+      # echoCancellation and noiseSuppression, if not set.
+      # The accepted value for each constraint is an object of type
+      # https://developer.mozilla.org/en-US/docs/Web/API/ConstrainBoolean
+      # If not set (commented out), the browser's own default is used.
+      #microphoneConstraints:
+      #  autoGainControl:
+      #    ideal: true
+      #  echoCancellation:
+      #    ideal: true
+      #  noiseSuppression:
+      #    ideal: true
     stunTurnServersFetchAddress: '/bigbluebutton/api/stuns'
     cacheStunTurnServers: true
     fallbackStunServer: ''
@@ -1182,6 +1190,12 @@ public:
     # This is the number of times we can press undo (plus 100 providing a safe margin for some shapes with extra entries)
     # default value is 400, adjusted for maxNumberOfAnnotations being 300
     maxHistoryStackSize: 400
+    # Upper bound (ms) for waiting on a new slide's background image to decode before
+    # swapping the visible page (issue 25397). Kept short: a warm/near cache resolves in
+    # sub-frame time and gates the swap, while a cold/slow asset falls through fast to the
+    # old (un-gated) behavior instead of leaving the un-gated toolbar/zoom UI on a stale
+    # slide. Latency above this bound still shows the original white flash.
+    slideSwapDecodeTimeoutMs: 250
     lockToolbarTools: false
     annotations:
       status:
