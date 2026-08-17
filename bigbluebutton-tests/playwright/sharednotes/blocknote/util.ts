@@ -112,11 +112,8 @@ const DOUBLE_CLICK_RESET_TIME = 700;
  * This is the interaction from BlockNote issue #2748 (BBB #25076): the click lands in
  * the editor's padding, so ProseMirror puts the selection *before* the block instead of
  * inside it.
- *
- * Returns the x coordinates that were clicked, so the caller can assert the interaction
- * was actually exercised.
  */
-export async function clickEditorLeftMargin(testPage: Page, blockContent: Locator): Promise<number[]> {
+export async function clickEditorLeftMargin(testPage: Page, blockContent: Locator): Promise<void> {
   // Hovering the block is what makes the floating handles render, so they can only be
   // measured (and avoided) after the pointer is over the target block.
   await blockContent.hover();
@@ -143,9 +140,8 @@ export async function clickEditorLeftMargin(testPage: Page, blockContent: Locato
   // Level with the top row of the block: for a table that is its first row, which is
   // where the reported crash happens.
   const y = blockBox!.y + Math.min(blockBox!.height / 2, 12);
-  const clickedX = [firstX, (firstX + lastX) / 2, lastX];
   // eslint-disable-next-line no-restricted-syntax
-  for (const x of clickedX) {
+  for (const x of [firstX, (firstX + lastX) / 2, lastX]) {
     // Each position must land as a *single* click: consecutive clicks in the same spot
     // are coalesced by the browser into double/triple clicks, which select a word or the
     // whole block instead of placing the caret before it. Parking the pointer elsewhere
@@ -157,7 +153,6 @@ export async function clickEditorLeftMargin(testPage: Page, blockContent: Locato
     // eslint-disable-next-line no-await-in-loop
     await testPage.page.mouse.click(x, y);
   }
-  return clickedX;
 }
 
 /**
