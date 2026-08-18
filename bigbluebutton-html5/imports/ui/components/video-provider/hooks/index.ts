@@ -31,6 +31,7 @@ import {
   AudioOnlyUsersResponse,
 } from '/imports/ui/components/video-provider/queries';
 import videoService from '/imports/ui/components/video-provider/service';
+import { useIsWebcamGridEnabled } from '/imports/ui/services/features';
 import { CAMERA_BROADCAST_STOP } from '/imports/ui/components/video-provider/mutations';
 import {
   GridItem,
@@ -541,9 +542,9 @@ export const useGridSize = () => {
 
 export const useIsGridEnabled = () => {
   const isGridLayout = useStorageKey('isGridEnabled');
-  const { gridEnabled = true } = window.meetingClientSettings.public.kurento.pagination;
+  const isWebcamGridEnabled = useIsWebcamGridEnabled();
 
-  return !!isGridLayout && gridEnabled;
+  return !!isGridLayout && isWebcamGridEnabled;
 };
 
 export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
