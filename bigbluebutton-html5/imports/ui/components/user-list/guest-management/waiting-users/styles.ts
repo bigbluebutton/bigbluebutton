@@ -182,7 +182,7 @@ const AcceptDenyButtonText = styled.div`
   line-height: 120%;
 `;
 
-const AcceptAllButton = styled.div`
+const AcceptAllButton = styled(ButtonBase)`
   display: flex;
   color: ${colorSuccess};
   align-items: center;
@@ -191,7 +191,7 @@ const AcceptAllButton = styled.div`
   cursor: pointer;
 `;
 
-const DenyAllButton = styled.div`
+const DenyAllButton = styled(ButtonBase)`
   display: flex;
   color: ${colorDanger};
   align-items: center;
