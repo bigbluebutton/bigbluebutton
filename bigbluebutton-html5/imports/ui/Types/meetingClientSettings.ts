@@ -443,6 +443,7 @@ export interface Pagination {
   pageChangeDebounceTime: number
   desktopPageSizes: DesktopPageSizes
   mobilePageSizes: MobilePageSizes
+  gridEnabled?: boolean
   desktopGridSizes: DesktopGridSizes
   mobileGridSizes: MobileGridSizes
 }

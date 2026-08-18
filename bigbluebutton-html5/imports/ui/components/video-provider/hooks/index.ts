@@ -325,7 +325,7 @@ const OVERFLOW_TILE_PREVIEW_LIMIT = 3;
 export const useGridUsers = (visibleStreamCount: number, visibleUserCount: number) => {
   const gridSize = useGridSize();
   const userCount = getCountData();
-  const isGridEnabled = useStorageKey('isGridEnabled');
+  const isGridEnabled = useIsGridEnabled();
   const canOnlySeeModeratorCameras = useCanOnlySeeModeratorCameras();
   const gridItems = useRef<GridItem[]>([]);
   const overflowCount = useRef<number>(0);
@@ -537,6 +537,13 @@ export const useGridSize = () => {
   }
 
   return size;
+};
+
+export const useIsGridEnabled = () => {
+  const isGridLayout = useStorageKey('isGridEnabled');
+  const { gridEnabled = true } = window.meetingClientSettings.public.kurento.pagination;
+
+  return !!isGridLayout && gridEnabled;
 };
 
 export const useAudioOnlyUsers = (): AudioOnlyStream[] => {
