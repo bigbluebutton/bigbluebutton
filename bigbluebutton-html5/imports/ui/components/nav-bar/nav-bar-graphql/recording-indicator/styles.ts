@@ -104,38 +104,50 @@ const RecordingTimer = styled.span`
 // Same box as the nav bar's plugin buttons, so this one reads as their sibling.
 const NAV_BAR_BUTTON_SIZE = '2.25rem';
 
+// Hovering changes the button's width, which shifts the nav bar layout and can
+// slide the button out from under the pointer - without this delay that drops
+// the hover, collapses, slides back under the pointer and re-hovers, looping
+// forever. Holding the expanded width past the un-hover breaks that cycle.
+const HOVER_COLLAPSE_DELAY = '0.25s';
+
 // Rests as an icon-only circle and reveals the label on hover. The height is
 // pinned so it cannot drift with font metrics; `borderWidth` is subtracted from
 // the padding so bordered and borderless states close the same box.
 const collapsedOnRest = (borderWidth: string) => css`
   height: ${NAV_BAR_BUTTON_SIZE};
   padding: 0 calc((${NAV_BAR_BUTTON_SIZE} - ${fontSizeLarge}) / 2 - ${borderWidth});
-  transition: padding 0.2s ease;
+  transition: padding 0.2s ease ${HOVER_COLLAPSE_DELAY};
 
   ${RecordingIndicatorIcon} {
     margin: 0;
-    transition: margin 0.2s ease;
+    transition: margin 0.2s ease ${HOVER_COLLAPSE_DELAY};
   }
 
   ${PresentationTitle} {
     max-width: 0;
     opacity: 0;
-    transition: max-width 0.2s ease, opacity 0.2s ease;
+    transition:
+      max-width 0.2s ease ${HOVER_COLLAPSE_DELAY},
+      opacity 0.2s ease ${HOVER_COLLAPSE_DELAY};
   }
 
   /* :focus-visible so keyboard users can reach the label too. */
   &:hover,
   &:focus-visible {
     padding: 0 calc(1rem - ${borderWidth});
+    /* The expand half of the hysteresis: no delay going out. */
+    transition-delay: 0s;
 
     ${RecordingIndicatorIcon} {
       margin-right: ${mdPadding};
+      transition-delay: 0s;
     }
 
     /* Close to the longest label, so the collapse has no dead zone. */
     ${PresentationTitle} {
       max-width: 12rem;
       opacity: 1;
+      transition-delay: 0s;
     }
   }
 
@@ -147,7 +159,8 @@ const collapsedOnRest = (borderWidth: string) => css`
 `;
 
 // While recording the button rests as a pill holding the dot and the timer, so
-// it never shrinks to a circle. Only the action label collapses.
+// it never shrinks to a circle. Only the action label collapses, under the same
+// asymmetric delay as collapsedOnRest.
 const labelCollapsedOnRest = css`
   /* Same pinned box as the idle state. border-box because this state is the
      only one with a rendered border, and there is no global box-sizing reset -
@@ -156,7 +169,7 @@ const labelCollapsedOnRest = css`
   box-sizing: border-box;
   height: ${NAV_BAR_BUTTON_SIZE};
   padding: 0 calc(1rem - ${borderSizeSmall});
-  transition: padding 0.2s ease;
+  transition: padding 0.2s ease ${HOVER_COLLAPSE_DELAY};
 
   /* The timer owns the gap after the dot. */
   ${RecordingIndicatorIcon} {
@@ -167,7 +180,10 @@ const labelCollapsedOnRest = css`
     max-width: 0;
     opacity: 0;
     margin-left: 0;
-    transition: max-width 0.2s ease, opacity 0.2s ease, margin 0.2s ease;
+    transition:
+      max-width 0.2s ease ${HOVER_COLLAPSE_DELAY},
+      opacity 0.2s ease ${HOVER_COLLAPSE_DELAY},
+      margin 0.2s ease ${HOVER_COLLAPSE_DELAY};
   }
 
   &:hover ${PresentationTitle},
@@ -175,6 +191,7 @@ const labelCollapsedOnRest = css`
     max-width: 12rem;
     opacity: 1;
     margin-left: ${mdPadding};
+    transition-delay: 0s;
   }
 
   [dir="rtl"] &:hover ${PresentationTitle},
