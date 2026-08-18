@@ -471,7 +471,8 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
           /* BlockNote hardcodes side-menu heights for its default typography.
              Let the controls keep their natural height when BBB typography changes
              the corresponding block height (https://github.com/TypeCellOS/BlockNote/issues/2224). */
-          .bn-side-menu[data-block-type="heading"],
+          .bn-side-menu,
+          .bn-side-menu[data-block-type="heading"][data-level],
           .bn-side-menu[data-block-type="file"],
           .bn-side-menu[data-block-type="audio"],
           .bn-side-menu[data-url="false"] {
