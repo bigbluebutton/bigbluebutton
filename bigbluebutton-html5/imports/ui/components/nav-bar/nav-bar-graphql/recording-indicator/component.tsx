@@ -219,7 +219,8 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
 
   const recordingIndicatorIcon = useMemo(() => (
     <Styled.RecordingIndicatorIcon
-      titleMargin={!isPhone || recording}
+      // While recording, the timer sits right after the dot and owns that gap.
+      titleMargin={!isPhone && !recording}
       data-test="mainWhiteboard"
       isRTL={isRTL}
     >
@@ -255,21 +256,17 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
       }}
     >
       {recordingIndicatorIcon}
+      {recording && (
+        <Styled.RecordingTimer aria-hidden>
+          {humanizeSeconds(time)}
+        </Styled.RecordingTimer>
+      )}
       {!isPhone && (
         <Styled.PresentationTitle>
           <Styled.VisuallyHidden id="recording-description">
             {`${title} ${recording ? `${intl.formatMessage(intlMessages.recordingTitle)} ${humanizeSeconds(time)}` : ''}`}
           </Styled.VisuallyHidden>
-          {recording ? (
-            <span aria-hidden>{`${intl.formatMessage(intlMessages.recordingTitle)} ${humanizeSeconds(time)}`}</span>
-          ) : (
-            <span>{recordTitle}</span>
-          )}
-        </Styled.PresentationTitle>
-      )}
-      {isPhone && recording && (
-        <Styled.PresentationTitle>
-          <span aria-hidden>{humanizeSeconds(time)}</span>
+          <span aria-hidden>{recordTitle}</span>
         </Styled.PresentationTitle>
       )}
     </Styled.RecordingControl>

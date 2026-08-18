@@ -83,6 +83,24 @@ const PresentationTitle = styled.div`
   }
 `;
 
+// Sits next to the dot for the whole recording session, so the elapsed time is
+// readable without hovering. Defined above RecordingControl to be targetable.
+const RecordingTimer = styled.span`
+  display: flex;
+  align-items: center;
+  font-weight: 400;
+  color: ${colorWhite};
+  font-size: ${fontSizeBase};
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  margin-left: ${mdPadding};
+
+  [dir="rtl"] & {
+    margin-right: ${mdPadding};
+    margin-left: 0;
+  }
+`;
+
 // Same box as the nav bar's plugin buttons, so this one reads as their sibling.
 const NAV_BAR_BUTTON_SIZE = '2.25rem';
 
@@ -128,6 +146,44 @@ const collapsedOnRest = (borderWidth: string) => css`
   }
 `;
 
+// While recording the button rests as a pill holding the dot and the timer, so
+// it never shrinks to a circle. Only the action label collapses.
+const labelCollapsedOnRest = css`
+  /* Same pinned box as the idle state. border-box because this state is the
+     only one with a rendered border, and there is no global box-sizing reset -
+     without it the 1px outline would make the recording button 2px taller than
+     its idle self and than the plugin buttons beside it. */
+  box-sizing: border-box;
+  height: ${NAV_BAR_BUTTON_SIZE};
+  padding: 0 calc(1rem - ${borderSizeSmall});
+  transition: padding 0.2s ease;
+
+  /* The timer owns the gap after the dot. */
+  ${RecordingIndicatorIcon} {
+    margin: 0;
+  }
+
+  ${PresentationTitle} {
+    max-width: 0;
+    opacity: 0;
+    margin-left: 0;
+    transition: max-width 0.2s ease, opacity 0.2s ease, margin 0.2s ease;
+  }
+
+  &:hover ${PresentationTitle},
+  &:focus-visible ${PresentationTitle} {
+    max-width: 12rem;
+    opacity: 1;
+    margin-left: ${mdPadding};
+  }
+
+  [dir="rtl"] &:hover ${PresentationTitle},
+  [dir="rtl"] &:focus-visible ${PresentationTitle} {
+    margin-right: ${mdPadding};
+    margin-left: 0;
+  }
+`;
+
 const RecordingControl = styled.button<RecordingIndicatorProps>`
   display: flex;
   align-items: center;
@@ -161,9 +217,8 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
     box-shadow: 0 0 0 ${borderSizeSmall} ${colorWhite};
   }
 
-  /* Recording: same circle as idle, told apart by the red outline; the timer
-     shows on hover. Phones stay expanded - no hover, and the timer is their
-     only label. */
+  /* Recording: a pill with the red outline, showing the dot and the elapsed
+     time at rest. Hover only adds the stop label. */
   ${({ recording, isPhone, disabled }) => recording && css`
     padding: calc(0.5rem - ${borderSizeSmall}) calc(1rem - ${borderSizeSmall});
     background-color: ${btnRecordingActiveBg};
@@ -178,7 +233,7 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
       box-shadow: none;
     }
 
-    ${!isPhone && !disabled && collapsedOnRest(borderSizeSmall)}
+    ${!isPhone && !disabled && labelCollapsedOnRest}
   `}
 
   /* Idle: borderless, so nothing to compensate. */
@@ -285,6 +340,7 @@ const Bounce2 = styled(SpinnerStyles.Bounce2)<SpinnerOverlayProps>`
 export default {
   RecordingIndicatorIcon,
   RecordingControl,
+  RecordingTimer,
   PresentationTitle,
   VisuallyHidden,
   PresentationTitleSeparator,
