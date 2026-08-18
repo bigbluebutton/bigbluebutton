@@ -104,11 +104,37 @@ const RecordingTimer = styled.span`
 // Same box as the nav bar's plugin buttons, so this one reads as their sibling.
 const NAV_BAR_BUTTON_SIZE = '2.25rem';
 
+// Hysteresis: expanding follows the pointer immediately, collapsing waits.
 // Hovering changes the button's width, which shifts the nav bar layout and can
 // slide the button out from under the pointer - without this delay that drops
 // the hover, collapses, slides back under the pointer and re-hovers, looping
 // forever. Holding the expanded width past the un-hover breaks that cycle.
 const HOVER_COLLAPSE_DELAY = '0.25s';
+
+// Touch devices latch :hover after a tap, which would leave the button stuck
+// open. Gating on a real pointer keeps phones and tablets a plain clickable
+// button. Detected by capability rather than by user agent, so a touchscreen
+// laptop is handled by how it is being used, not by what it is called.
+const HOVER_CAPABLE = '@media (hover: hover) and (pointer: fine)';
+
+// The opened box, shared by hover and keyboard focus so the two cannot drift.
+const expandedMetrics = (borderWidth: string) => css`
+  padding: 0 calc(1rem - ${borderWidth});
+  /* The expand half of the hysteresis: no delay going out. */
+  transition-delay: 0s;
+
+  ${RecordingIndicatorIcon} {
+    margin-right: ${mdPadding};
+    transition-delay: 0s;
+  }
+
+  /* Close to the longest label, so the collapse has no dead zone. */
+  ${PresentationTitle} {
+    max-width: 12rem;
+    opacity: 1;
+    transition-delay: 0s;
+  }
+`;
 
 // Rests as an icon-only circle and reveals the label on hover. The height is
 // pinned so it cannot drift with font metrics; `borderWidth` is subtracted from
@@ -131,30 +157,25 @@ const collapsedOnRest = (borderWidth: string) => css`
       opacity 0.2s ease ${HOVER_COLLAPSE_DELAY};
   }
 
-  /* :focus-visible so keyboard users can reach the label too. */
-  &:hover,
+  /* Keyboard focus reveals the label on every device - it needs no pointer. */
   &:focus-visible {
-    padding: 0 calc(1rem - ${borderWidth});
-    /* The expand half of the hysteresis: no delay going out. */
-    transition-delay: 0s;
-
-    ${RecordingIndicatorIcon} {
-      margin-right: ${mdPadding};
-      transition-delay: 0s;
-    }
-
-    /* Close to the longest label, so the collapse has no dead zone. */
-    ${PresentationTitle} {
-      max-width: 12rem;
-      opacity: 1;
-      transition-delay: 0s;
-    }
+    ${expandedMetrics(borderWidth)}
   }
 
-  [dir="rtl"] &:hover ${RecordingIndicatorIcon},
   [dir="rtl"] &:focus-visible ${RecordingIndicatorIcon} {
     margin-right: 0;
     margin-left: ${mdPadding};
+  }
+
+  ${HOVER_CAPABLE} {
+    &:hover {
+      ${expandedMetrics(borderWidth)}
+    }
+
+    [dir="rtl"] &:hover ${RecordingIndicatorIcon} {
+      margin-right: 0;
+      margin-left: ${mdPadding};
+    }
   }
 `;
 
@@ -186,7 +207,6 @@ const labelCollapsedOnRest = css`
       margin 0.2s ease ${HOVER_COLLAPSE_DELAY};
   }
 
-  &:hover ${PresentationTitle},
   &:focus-visible ${PresentationTitle} {
     max-width: 12rem;
     opacity: 1;
@@ -194,10 +214,23 @@ const labelCollapsedOnRest = css`
     transition-delay: 0s;
   }
 
-  [dir="rtl"] &:hover ${PresentationTitle},
   [dir="rtl"] &:focus-visible ${PresentationTitle} {
     margin-right: ${mdPadding};
     margin-left: 0;
+  }
+
+  ${HOVER_CAPABLE} {
+    &:hover ${PresentationTitle} {
+      max-width: 12rem;
+      opacity: 1;
+      margin-left: ${mdPadding};
+      transition-delay: 0s;
+    }
+
+    [dir="rtl"] &:hover ${PresentationTitle} {
+      margin-right: ${mdPadding};
+      margin-left: 0;
+    }
   }
 `;
 
@@ -207,14 +240,16 @@ const RecordingControl = styled.button<RecordingIndicatorProps>`
   user-select: none;
   background: ${btnDefaultGhostBg};
 
-  &:hover {
-    outline-style: solid;
-    outline: transparent dotted 2px;
-  }
+  ${HOVER_CAPABLE} {
+    &:hover {
+      outline-style: solid;
+      outline: transparent dotted 2px;
+    }
 
-  &:hover:not(:disabled) {
-    color: ${colorWhite} !important;
-    cursor: pointer;
+    &:hover:not(:disabled) {
+      color: ${colorWhite} !important;
+      cursor: pointer;
+    }
   }
 
   &:focus {
