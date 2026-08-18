@@ -44,7 +44,7 @@ export class GuestPolicy extends MultiUsers {
 
   async denyEveryoneInWaitingQueues() {
     await this.initTwoWaitingQueues();
-    await this.modPage.waitAndClick(e.denyEveryoneWaiting);
+    await this.modPage.waitAndClick(e.denyEveryone);
 
     await this.userPage.hasText(
       e.guestMessage,
@@ -64,7 +64,7 @@ export class GuestPolicy extends MultiUsers {
     await expect(this.modPage.page.locator(e.authenticatedWaitingUsers)).toBeVisible();
     await expect(this.modPage.page.locator(e.guestWaitingUsers)).toBeVisible();
     await expect(this.modPage.page.locator(e.guestWaitingUsers)).toContainText('1');
-    await this.modPage.waitAndClick(e.denyEveryoneWaiting);
+    await this.modPage.waitAndClick(e.denyEveryone);
     await this.userPage.hasText(
       e.guestMessage,
       /denied/,
