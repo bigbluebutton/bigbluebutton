@@ -1656,7 +1656,7 @@ Note :
 
     - You should get into a lobby screen indicating your position in the queue
 
-8. Moderator: the user list should show separate "Waiting Authenticated Users" and "Waiting Guests" sections, each with its pending-user count. Expanding a section should show its users and queue-specific actions.
+8. Moderator: the user list should show separate "Waiting Authenticated Users" and "Waiting Guests" sections, each with its pending-user count. Expanding a section should show its users and queue-specific actions with the affected count in their labels. The global "Allow everyone" and "Deny everyone" actions should appear only when both queues contain users, also with the total affected count. Searching should filter the visible rows while keeping both queue headers, full counts, and bulk-action scopes unchanged.
 
 9. Moderator: click "Permissions and Policies" at the bottom of the user list, select "Guest Policy", enable "Message to the guests' lobby", type the message, and press Enter or click "Send". The message should be visible to all waiting viewers on their lobby screens.
 
@@ -1672,7 +1672,7 @@ Note :
 
     - Click "Accept" for the specific user in the waiting users panel. That viewer should be accepted into the meeting.
 
-    - Click "Deny" for the specific user in teh waiting users panel. That viewer should see the message "Guest denied of joining the meeting" and should soon be redirected to the home page.
+    - Click "Deny" for the specific user in the waiting users panel. That viewer should see the message "Guest denied of joining the meeting" and should soon be redirected to the home page.
 
 ## Reactions bar
 

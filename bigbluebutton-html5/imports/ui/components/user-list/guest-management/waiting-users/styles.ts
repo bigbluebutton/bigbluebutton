@@ -176,7 +176,7 @@ export const AcceptDenyButtonsContainer = styled.div`
   }
 `;
 
-const AcceptDenyButtonText = styled.div`
+const AcceptDenyButtonText = styled.span`
   font-size: ${fontSizeSmall};
   font-weight: ${textFontWeight};
   line-height: 120%;

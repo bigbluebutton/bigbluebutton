@@ -214,7 +214,6 @@ const WaitingUserSection: React.FC<WaitingUserSectionProps> = ({
         <Styled.AcceptAllButton
           onClick={() => guestUsersCall(users, ALLOW_STATUS)}
           data-test={allowDataTest}
-          aria-label={allowLabel}
         >
           <CheckCircle sx={{ width: '1rem', height: '1rem' }} />
           <Styled.AcceptDenyButtonText>
@@ -224,7 +223,6 @@ const WaitingUserSection: React.FC<WaitingUserSectionProps> = ({
         <Styled.DenyAllButton
           onClick={() => guestUsersCall(users, DENY_STATUS)}
           data-test={denyDataTest}
-          aria-label={denyLabel}
         >
           <CancelIcon sx={{ width: '1rem', height: '1rem' }} />
           <Styled.AcceptDenyButtonText>
@@ -252,34 +250,38 @@ const WaitingUserSection: React.FC<WaitingUserSectionProps> = ({
               label={intl.formatMessage(intlMessages.rememberChoice)}
             />
           </Styled.RememberChoiceContainer>
-          <Styled.ActionButtonsWrapper>
-            <Styled.AcceptAllButton
-              onClick={() => guestUsersCall(
-                authedGuestUsers.concat(unauthedGuestUsers),
-                ALLOW_STATUS,
-              )}
-              data-test="allowEveryone"
-              aria-label={intl.formatMessage(intlMessages.allowEveryone)}
-            >
-              <CheckCircle sx={{ width: '1rem', height: '1rem' }} />
-              <Styled.AcceptDenyButtonText>
-                {intl.formatMessage(intlMessages.allowEveryone)}
-              </Styled.AcceptDenyButtonText>
-            </Styled.AcceptAllButton>
-            <Styled.DenyAllButton
-              onClick={() => guestUsersCall(
-                authedGuestUsers.concat(unauthedGuestUsers),
-                DENY_STATUS,
-              )}
-              data-test="denyEveryone"
-              aria-label={intl.formatMessage(intlMessages.denyEveryone)}
-            >
-              <CancelIcon sx={{ width: '1rem', height: '1rem' }} />
-              <Styled.AcceptDenyButtonText>
-                {intl.formatMessage(intlMessages.denyEveryone)}
-              </Styled.AcceptDenyButtonText>
-            </Styled.DenyAllButton>
-          </Styled.ActionButtonsWrapper>
+          {authedGuestUsers.length > 0 && unauthedGuestUsers.length > 0 && (
+            <Styled.ActionButtonsWrapper>
+              <Styled.AcceptAllButton
+                onClick={() => guestUsersCall(
+                  authedGuestUsers.concat(unauthedGuestUsers),
+                  ALLOW_STATUS,
+                )}
+                data-test="allowEveryone"
+              >
+                <CheckCircle sx={{ width: '1rem', height: '1rem' }} />
+                <Styled.AcceptDenyButtonText>
+                  {intl.formatMessage(intlMessages.allowEveryone, {
+                    count: authedGuestUsers.length + unauthedGuestUsers.length,
+                  })}
+                </Styled.AcceptDenyButtonText>
+              </Styled.AcceptAllButton>
+              <Styled.DenyAllButton
+                onClick={() => guestUsersCall(
+                  authedGuestUsers.concat(unauthedGuestUsers),
+                  DENY_STATUS,
+                )}
+                data-test="denyEveryone"
+              >
+                <CancelIcon sx={{ width: '1rem', height: '1rem' }} />
+                <Styled.AcceptDenyButtonText>
+                  {intl.formatMessage(intlMessages.denyEveryone, {
+                    count: authedGuestUsers.length + unauthedGuestUsers.length,
+                  })}
+                </Styled.AcceptDenyButtonText>
+              </Styled.DenyAllButton>
+            </Styled.ActionButtonsWrapper>
+          )}
         </Styled.AcceptDenyButtonsContainer>
       )}
       {authedGuestUsers.length > 0 && (
@@ -322,8 +324,8 @@ const WaitingUserSection: React.FC<WaitingUserSectionProps> = ({
           )}
           {waitingAuthedUsersVisible && renderActionButtons(
             authedGuestUsers,
-            intl.formatMessage(intlMessages.allowAllAuthenticated),
-            intl.formatMessage(intlMessages.denyAllAuthenticated),
+            intl.formatMessage(intlMessages.allowAllAuthenticated, { count: authedGuestUsers.length }),
+            intl.formatMessage(intlMessages.denyAllAuthenticated, { count: authedGuestUsers.length }),
             'allowAllAuthenticated',
             'denyAllAuthenticated',
           )}
@@ -369,8 +371,8 @@ const WaitingUserSection: React.FC<WaitingUserSectionProps> = ({
           )}
           {waitingUnauthedUsersVisible && renderActionButtons(
             unauthedGuestUsers,
-            intl.formatMessage(intlMessages.allowAllGuests),
-            intl.formatMessage(intlMessages.denyAllGuests),
+            intl.formatMessage(intlMessages.allowAllGuests, { count: unauthedGuestUsers.length }),
+            intl.formatMessage(intlMessages.denyAllGuests, { count: unauthedGuestUsers.length }),
             'allowAllGuests',
             'denyAllGuests',
           )}
