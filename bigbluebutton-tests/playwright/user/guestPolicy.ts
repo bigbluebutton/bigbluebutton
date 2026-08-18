@@ -24,6 +24,7 @@ export class GuestPolicy extends MultiUsers {
       'should display the waiting message for the authenticated viewer',
     );
     await this.userPage2.hasText(e.guestMessage, /wait/, 'should display the waiting message for the guest viewer');
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
   }
 
   async distinguishWaitingQueues() {
@@ -36,6 +37,9 @@ export class GuestPolicy extends MultiUsers {
     await expect(authenticatedQueue, 'should identify the authenticated queue').not.toHaveText(
       await guestQueue.innerText(),
     );
+    await authenticatedQueue.click();
+    await expect(this.modPage.page.locator(e.allowAllAuthenticatedWaiting)).toHaveText('Allow all authenticated');
+    await expect(this.modPage.page.locator(e.denyAllAuthenticatedWaiting)).toHaveText('Deny all authenticated');
   }
 
   async denyEveryoneInWaitingQueues() {
@@ -60,6 +64,19 @@ export class GuestPolicy extends MultiUsers {
     await expect(this.modPage.page.locator(e.authenticatedWaitingUsers)).toBeVisible();
     await expect(this.modPage.page.locator(e.guestWaitingUsers)).toBeVisible();
     await expect(this.modPage.page.locator(e.guestWaitingUsers)).toContainText('1');
+    await this.modPage.waitAndClick(e.denyEveryoneWaiting);
+    await this.userPage.hasText(
+      e.guestMessage,
+      /denied/,
+      'should deny the authenticated viewer excluded by the search',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.userPage2.hasText(
+      e.guestMessage,
+      /denied/,
+      'should deny the guest viewer excluded by the search',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
   }
 
   async messageToGuestLobby() {
