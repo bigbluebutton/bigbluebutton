@@ -11,7 +11,7 @@ export class RequestCamera extends MultiUsers {
   // Both role changes force a graphql reconnection, which lost the mic prompt.
   async requestSurvivesPromotion() {
     await this.askAttendeeToShareCamera();
-    await this.modPage.waitAndClick(e.moreOptionsUserItemButton);
+    await this.modPage.waitAndClick(e.otherUserMoreOptionsButton);
     await this.modPage.waitAndClick(e.promoteToModerator);
     await checkAvatarIcon(this.userPage);
     await this.userPage.hasElement(
@@ -28,7 +28,7 @@ export class RequestCamera extends MultiUsers {
 
   async requestSurvivesPresenterChange() {
     await this.askAttendeeToShareCamera();
-    await this.modPage.waitAndClick(e.moreOptionsUserItemButton);
+    await this.modPage.waitAndClick(e.otherUserMoreOptionsButton);
     await this.modPage.waitAndClick(e.makePresenter);
     await this.userPage.hasText(e.currentUser, 'Presenter', 'should make the attendee the presenter');
     await this.userPage.hasElement(e.confirmShareCamera, 'should keep the camera request prompt for the new presenter');
@@ -49,10 +49,10 @@ export class RequestCamera extends MultiUsers {
       VIDEO_LOADING_WAIT_TIME,
     );
     // The server drops a request the target cannot answer, and drops it silently.
-    await this.modPage.waitAndClick(e.moreOptionsUserItemButton);
-    // Eject only appears on another user's menu, so it proves the assertion below
-    // is not passing on the moderator's own menu.
-    await this.modPage.hasElement(e.ejectCamera, "should open the attendee's options");
+    await this.modPage.waitAndClick(e.otherUserMoreOptionsButton);
+    // Remove needs no create parameter, so it proves the menu opened and the
+    // assertion below is not passing on a menu that never rendered.
+    await this.modPage.hasElement(e.removeUser, "should open the attendee's options");
     await this.modPage.wasRemoved(
       e.requestUserCamera,
       'should stop offering the camera request while the attendee shares',
@@ -67,7 +67,7 @@ export class RequestCamera extends MultiUsers {
     await this.userPage.wasRemoved(e.webcamMirroredVideoContainer, 'should not share the attendee camera');
     await this.modPage.wasRemoved(e.webcamStreamItem, 'should not display any camera for the moderator');
     // Answering clears the request, so the moderator may ask again.
-    await this.modPage.waitAndClick(e.moreOptionsUserItemButton);
+    await this.modPage.waitAndClick(e.otherUserMoreOptionsButton);
     await this.modPage.hasElement(e.requestUserCamera, 'should offer the camera request again after a decline');
   }
 
@@ -78,7 +78,7 @@ export class RequestCamera extends MultiUsers {
   }
 
   private async askAttendeeToShareCamera() {
-    await this.modPage.waitAndClick(e.moreOptionsUserItemButton);
+    await this.modPage.waitAndClick(e.otherUserMoreOptionsButton);
     await this.modPage.waitAndClick(e.requestUserCamera);
     // The toast is the moderator's only feedback.
     await this.modPage.hasText(

@@ -504,6 +504,7 @@ export const elements = {
   alwaysDeny: 'li[data-test="alwaysDeny"]',
   deniedMessageElement: 'p[class="error-message"]',
   moreOptionsUserItemButton: 'div[data-test="moreOptionsUserItemButton"]',
+  otherUserMoreOptionsButton: 'div[data-test="userListItem"] div[data-test="moreOptionsUserItemButton"]',
   promoteToModerator: 'li[data-test="promoteToModerator"]',
   demoteToViewer: 'li[data-test="demoteToViewer"]',
   makePresenter: 'li[data-test="makePresenter"]',
