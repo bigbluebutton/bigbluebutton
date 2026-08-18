@@ -911,16 +911,8 @@ public:
       #   provider: which WASM backend runs the processing - 'bbba' or
       #             'workadventureDtln'. Defaults to 'bbba' if unset/unrecognized.
       #   constraints: browser-level audio constraints applied ON TOP of WASM processing.
-      #                Not every value here is guaranteed to reach the browser as-is:
-      #                a provider can force its own value for a given constraint,
-      #                overriding whatever is configured below, when running the
-      #                browser's native filter alongside its WASM processing would
-      #                hurt rather than help. A provider's forced value always wins.
-      #                Each provider declares its overrides (if any) via
-      #                forcedMicrophoneConstraints, in
-      #                imports/ui/components/audio/audio-processor/providers/:
-      #                  - bbba: none. Every constraint below is honored as configured.
-      #                    (providers/bbba.js)
+      #                Providers can force their own value for a given constraint,
+      #                overriding whatever is configured below.
       audioWasmProcessing:
         enabled: false
         provider: bbba

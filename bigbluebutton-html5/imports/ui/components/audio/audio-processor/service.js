@@ -1,7 +1,9 @@
 import bbbaProvider from './providers/bbba';
+import workadventureDtlnProvider from './providers/workadventureDtln';
 
 const PROVIDERS = {
   bbba: bbbaProvider,
+  workadventureDtln: workadventureDtlnProvider,
 };
 const DEFAULT_PROVIDER_ID = 'bbba';
 
