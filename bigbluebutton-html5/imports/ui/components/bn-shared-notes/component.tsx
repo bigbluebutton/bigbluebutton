@@ -3,6 +3,7 @@ import * as React from 'react';
 import { BlockNoteView } from '@blocknote/mantine';
 import * as BlockNoteLocales from '@blocknote/core/locales';
 import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
+import { SideMenuExtension } from '@blocknote/core/extensions';
 import '@blocknote/core/fonts/inter.css';
 import '@blocknote/mantine/style.css';
 import { HocuspocusProvider } from '@hocuspocus/provider';
@@ -372,6 +373,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   // Keep the editor's focus/selection when tapping a toolbar button by
   // cancelling the default focus move on mousedown.
   const toolbarRef = React.useRef<HTMLDivElement>(null);
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
     const el = toolbarRef.current;
     if (!el) return undefined;
@@ -400,8 +402,21 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
     };
   }, [editor]);
 
+  // TODO: Remove this workaround when BlockNote limits side-menu detection to the editor.
+  // Related upstream issues: https://github.com/TypeCellOS/BlockNote/issues/1016 and
+  // https://github.com/TypeCellOS/BlockNote/issues/351.
+  React.useEffect(() => {
+    const mousemoveHandler = (event: MouseEvent) => {
+      if (!wrapperRef.current?.contains(event.target as Node)) {
+        editor.getExtension(SideMenuExtension)?.hideMenuIfNotFrozen();
+      }
+    };
+    document.addEventListener('mousemove', mousemoveHandler);
+    return () => document.removeEventListener('mousemove', mousemoveHandler);
+  }, [editor]);
+
   return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div ref={wrapperRef} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <style>
         {`
           .bn-toolbar-row .mantine-Button-label {
@@ -466,6 +481,15 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
             flex: 1 1 0;
             min-height: 0;
             overflow-y: auto;
+          }
+          /* BlockNote hardcodes side-menu heights for its default typography.
+             Let the controls keep their natural height when BBB typography changes
+             the corresponding block height (https://github.com/TypeCellOS/BlockNote/issues/2224). */
+          .bn-side-menu[data-block-type="heading"],
+          .bn-side-menu[data-block-type="file"],
+          .bn-side-menu[data-block-type="audio"],
+          .bn-side-menu[data-url="false"] {
+            height: auto;
           }
           /* Flip labels to below when near top of scroll container */
           .bn-block-group > .bn-block-outer:first-child

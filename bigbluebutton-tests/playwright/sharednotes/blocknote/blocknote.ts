@@ -15,6 +15,36 @@ import {
 const LINK_URL = 'https://github.com/bigbluebutton/bigbluebutton/issues/25175';
 
 export class BlockNoteSharedNotes extends MultiUsers {
+  async sideMenuMustHideOutsideEditor() {
+    await startBlockNoteSharedNotes(this.modPage);
+
+    const editor = getBlockNoteEditorLocator(this.modPage);
+    await editor.click();
+    await this.modPage.page.keyboard.type('First block');
+    await this.modPage.page.keyboard.press('Enter');
+    await this.modPage.page.keyboard.type('Second block');
+
+    const firstBlock = editor.locator('.bn-block-outer').first();
+    const editorBox = await editor.boundingBox();
+    const firstBlockBox = await firstBlock.boundingBox();
+    expect(editorBox, 'BlockNote editor should have a bounding box').not.toBeNull();
+    expect(firstBlockBox, 'first BlockNote block should have a bounding box').not.toBeNull();
+    if (!editorBox || !firstBlockBox) return;
+
+    const blockY = firstBlockBox.y + firstBlockBox.height / 2;
+    await this.modPage.page.mouse.move(firstBlockBox.x + firstBlockBox.width / 2, blockY);
+    const sideMenu = this.modPage.page.locator(e.blockNoteSideMenu);
+    await expect(sideMenu, 'should display the side menu while hovering a block').toBeVisible();
+
+    // Regression test for #25575: BlockNote listens for mouse movement on the
+    // whole document and used to re-open the menu near a block, outside the editor.
+    await this.modPage.page.mouse.move(editorBox.x + editorBox.width + 120, blockY);
+    await expect(sideMenu, 'should hide the side menu outside the editor').toBeHidden();
+
+    await this.modPage.page.mouse.move(editorBox.x + editorBox.width + 130, blockY);
+    await expect(sideMenu, 'should keep the side menu hidden on later mouse movement outside the editor').toBeHidden();
+  }
+
   // Reproduces issue #25225: when a remote user's caret sits inside a link, that
   // user's collaboration-cursor name (and the U+2060 word-joiner separators around
   // it) must NOT be embedded in the link's text or href as seen by other users.
