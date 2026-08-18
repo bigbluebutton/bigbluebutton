@@ -750,7 +750,7 @@
     "app.submenu.application.localeDropdown.vi-VN": "Vietnami (Vietnam)",
     "app.submenu.application.localeDropdown.zh-CN": "Lihtsustatud hiina (Hiina)",
     "app.submenu.application.localeDropdown.zh-TW": "Traditsiooniline hiina (Taiwan)",
-    "app.submenu.audio.audioSectionTitle": "Mikrofoni helitöötlus",
+    "app.submenu.audio.audioSectionTitle": "Mikrofoniheli töötlemine",
     "app.submenu.audio.audioSectionSubtitle": "Reguleeri, kuidas mikrofon töötleb heli enne selle edastamist teistele osalejatele.",
     "app.submenu.audio.advancedFiltering": "Täpsem filtreerimine",
     "app.submenu.audio.advancedFilteringDesc": "Eraldab välja kõne ja kõrvaldab taustamüra. Sobib hästi klassiruumi, rahvarohke keskkonna või välismüra puhul.",
