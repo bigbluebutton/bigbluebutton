@@ -1,9 +1,67 @@
+import { expect } from '@playwright/test';
+
 import { ELEMENT_WAIT_LONGER_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { MultiUsers } from './multiusers';
 import { setGuestPolicyOption } from './util';
 
 export class GuestPolicy extends MultiUsers {
+  async initTwoWaitingQueues() {
+    await this.initUserPage(this.context, {
+      fullName: 'AuthenticatedViewer',
+      shouldCloseAudioModal: false,
+      shouldCheckAllInitialSteps: false,
+    });
+    await this.initUserPage2(this.context, {
+      fullName: 'GuestViewer',
+      joinParameter: 'guest=true',
+      shouldCloseAudioModal: false,
+      shouldCheckAllInitialSteps: false,
+    });
+    await this.userPage.hasText(
+      e.guestMessage,
+      /wait/,
+      'should display the waiting message for the authenticated viewer',
+    );
+    await this.userPage2.hasText(e.guestMessage, /wait/, 'should display the waiting message for the guest viewer');
+  }
+
+  async distinguishWaitingQueues() {
+    await this.initTwoWaitingQueues();
+
+    const authenticatedQueue = this.modPage.page.locator(e.authenticatedWaitingUsers);
+    const guestQueue = this.modPage.page.locator(e.guestWaitingUsers);
+    await expect(authenticatedQueue, 'should display the authenticated waiting users queue').toBeVisible();
+    await expect(guestQueue, 'should display the guest waiting users queue').toBeVisible();
+    await expect(authenticatedQueue, 'should identify the authenticated queue').not.toHaveText(
+      await guestQueue.innerText(),
+    );
+  }
+
+  async denyEveryoneInWaitingQueues() {
+    await this.initTwoWaitingQueues();
+    await this.modPage.waitAndClick(e.denyEveryoneWaiting);
+
+    await this.userPage.hasText(
+      e.guestMessage,
+      /denied/,
+      'should deny the authenticated viewer',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.userPage2.hasText(e.guestMessage, /denied/, 'should deny the guest viewer', ELEMENT_WAIT_LONGER_TIME);
+    await expect(this.modPage.page.locator(e.authenticatedWaitingUsers)).toHaveCount(0);
+    await expect(this.modPage.page.locator(e.guestWaitingUsers)).toHaveCount(0);
+  }
+
+  async keepQueuesVisibleWhileSearching() {
+    await this.initTwoWaitingQueues();
+    await this.modPage.fill(e.waitingUsersSearch, 'AuthenticatedViewer');
+
+    await expect(this.modPage.page.locator(e.authenticatedWaitingUsers)).toBeVisible();
+    await expect(this.modPage.page.locator(e.guestWaitingUsers)).toBeVisible();
+    await expect(this.modPage.page.locator(e.guestWaitingUsers)).toContainText('1');
+  }
+
   async messageToGuestLobby() {
     await setGuestPolicyOption(this.modPage, e.askModerator);
     await this.modPage.page.waitForTimeout(500);
