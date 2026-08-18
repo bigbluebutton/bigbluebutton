@@ -9,6 +9,7 @@ import { LockSettings, UsersPolicies } from '/imports/ui/Types/meeting';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import { useIsChatEnabled, useIsPrivateChatEnabled, useIsReactionsEnabled } from '/imports/ui/services/features';
 import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
+import { useHasMeetingCameraCapReached } from '/imports/ui/components/video-provider/hooks';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import UserItemToolbar from '/imports/ui/components/user-list/user-list-participants/list-item/user-item-toolbar/component';
@@ -166,6 +167,7 @@ const RaisedHandsListItem: React.FC<RaisedHandsListItemProps> = ({
 
   const { data: unmutedUsers } = useWhoIsUnmuted();
   const isMuted = !unmutedUsers[user.userId];
+  const hasMeetingCameraCapReached = useHasMeetingCameraCapReached();
 
   const actionsPermitions = generateActionsPermissions(
     user,
@@ -179,6 +181,7 @@ const RaisedHandsListItem: React.FC<RaisedHandsListItemProps> = ({
     isChatEnabled,
     isPrivateChatEnabled,
     type,
+    hasMeetingCameraCapReached,
   );
 
   const {

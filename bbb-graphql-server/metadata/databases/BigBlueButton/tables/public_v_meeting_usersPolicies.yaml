@@ -12,7 +12,7 @@ select_permissions:
       columns:
         - allowModsToEjectCameras
         - allowModsToUnmuteUsers
-        - requireUserConsentBeforeSharingCamera
+        - allowModsToRequestCameraShare
         - authenticatedGuest
         - allowPromoteGuestToModerator
         - guestLobbyMessage
@@ -33,7 +33,7 @@ select_permissions:
       columns:
         - allowModsToEjectCameras
         - allowModsToUnmuteUsers
-        - requireUserConsentBeforeSharingCamera
+        - allowModsToRequestCameraShare
         - allowPromoteGuestToModerator
         - authenticatedGuest
         - guestLobbyMessage

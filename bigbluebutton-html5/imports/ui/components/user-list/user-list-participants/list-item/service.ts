@@ -152,6 +152,7 @@ export const generateActionsPermissions = (
   isChatEnabled: boolean,
   isPrivateChatEnabled: boolean,
   type: string,
+  hasMeetingCameraCapReached: boolean,
 ) => {
   const subjectUserVoice = subjectUser.voice;
   const subjectUserInAudio = subjectUserVoice?.joined && !subjectUserVoice?.deafened;
@@ -247,7 +248,9 @@ export const generateActionsPermissions = (
     && !isDialInUser
     && !isSubjectUserBot
     && !isSubjectUserCamLocked
-    && usersPolicies?.requireUserConsentBeforeSharingCamera
+    && !hasMeetingCameraCapReached
+    && !subjectUser.requestedCameraByMod
+    && usersPolicies?.allowModsToRequestCameraShare
     && subjectUser.cameras.length === 0
     && (type === 'participant' || type === 'raised-hand');
 
@@ -562,14 +565,20 @@ export const createToolbarOptions = (
             variables: {
               userId: user.userId,
             },
+          }).then(() => {
+            // The request is silent for the moderator otherwise: the prompt and
+            // the answer both happen on the other end.
+            notify(
+              intl.formatMessage(intlMessages.requestUserCameraSent, { userName: user.name }),
+              'info',
+              'video',
+            );
+          }).catch((error) => {
+            logger.error({
+              logCode: 'user_request_camera_failed',
+              extraInfo: { errorMessage: error.message, userId: user.userId },
+            }, 'Requesting the user camera failed');
           });
-          // The request is silent for the moderator otherwise: the prompt and
-          // the answer both happen on the other end.
-          notify(
-            intl.formatMessage(intlMessages.requestUserCameraSent, { userName: user.name }),
-            'info',
-            'video',
-          );
         },
         icon: 'video',
         dataTest: 'requestUserCamera',

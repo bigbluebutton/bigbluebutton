@@ -215,7 +215,7 @@ const createEndpointTableData = [
     "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> will allow participants to accept or decline when a moderator asks them to unmute. (added 4.0)</>)
   },
   {
-    "name": "requireUserConsentBeforeSharingCamera",
+    "name": "allowModsToRequestCameraShare",
     "required": false,
     "type": "Boolean",
     "default": "false",

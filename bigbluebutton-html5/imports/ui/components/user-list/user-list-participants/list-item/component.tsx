@@ -10,6 +10,7 @@ import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import { useIsChatEnabled, useIsPrivateChatEnabled } from '/imports/ui/services/features';
 import { useWhoIsTalking } from '/imports/ui/core/hooks/useWhoIsTalking';
 import { useWhoIsUnmuted } from '/imports/ui/core/hooks/useWhoIsUnmuted';
+import { useHasMeetingCameraCapReached } from '/imports/ui/components/video-provider/hooks';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import UserItemToolbar from './user-item-toolbar/component';
@@ -97,6 +98,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
   const whiteboardAccess = hasWhiteboardWriteAccess(user);
   const { data: talkingUsers } = useWhoIsTalking();
   const { data: unmutedUsers } = useWhoIsUnmuted();
+  const hasMeetingCameraCapReached = useHasMeetingCameraCapReached();
   const isMuted = !unmutedUsers[user.userId];
   const isTalking = talkingUsers[user.userId];
 
@@ -112,6 +114,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
     isChatEnabled,
     isPrivateChatEnabled,
     type,
+    hasMeetingCameraCapReached,
   );
 
   const {

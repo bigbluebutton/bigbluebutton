@@ -29,7 +29,7 @@ export interface MeetingStaticData {
   } | null;
   usersPolicies: {
     allowModsToEjectCameras: boolean;
-    requireUserConsentBeforeSharingCamera: boolean;
+    allowModsToRequestCameraShare: boolean;
     allowModsToUnmuteUsers: boolean;
     authenticatedGuest: boolean;
     guestPolicy: string;

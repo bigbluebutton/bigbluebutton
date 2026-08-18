@@ -77,8 +77,8 @@ object CameraHdlrHelpers extends SystemConfiguration with RightsManagementTrait 
       hasPermission)
   }
 
-  // Permission only. The requireUserConsentBeforeSharingCamera gate is checked
-  // separately, so a disabled feature is not punished as a permission violation.
+  // Permission only. Unlike isCameraEjectAllowed, the handler checks the flag
+  // separately, so a moderator is not ejected over a disabled feature.
   def isCameraRequestAllowed(
       liveMeeting: LiveMeeting,
       userId:      String

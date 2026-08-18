@@ -106,7 +106,7 @@ public class ParamsProcessorUtil {
     private boolean defaultAllowModsToUnmuteUsers = false;
     private boolean defaultRequireUserConsentBeforeUnmuting = false;
     private boolean defaultAllowModsToEjectCameras = false;
-    private boolean defaultRequireUserConsentBeforeSharingCamera = false;
+    private boolean defaultAllowModsToRequestCameraShare = false;
     private String defaultCameraBridge = "livekit";
     private String defaultScreenShareBridge = "livekit";
     private String defaultAudioBridge = "livekit";
@@ -1135,11 +1135,11 @@ public class ParamsProcessorUtil {
     }
     meeting.setAllowModsToEjectCameras(allowModsToEjectCameras);
 
-    Boolean requireUserConsentBeforeSharingCamera = defaultRequireUserConsentBeforeSharingCamera;
-    if (!StringUtils.isEmpty(params.get(ApiParams.REQUIRE_USER_CONSENT_BEFORE_SHARING_CAMERA))) {
-      requireUserConsentBeforeSharingCamera = Boolean.parseBoolean(params.get(ApiParams.REQUIRE_USER_CONSENT_BEFORE_SHARING_CAMERA));
+    Boolean allowModsToRequestCameraShare = defaultAllowModsToRequestCameraShare;
+    if (!StringUtils.isEmpty(params.get(ApiParams.ALLOW_MODS_TO_REQUEST_CAMERA_SHARE))) {
+      allowModsToRequestCameraShare = Boolean.parseBoolean(params.get(ApiParams.ALLOW_MODS_TO_REQUEST_CAMERA_SHARE));
     }
-    meeting.setRequireUserConsentBeforeSharingCamera(requireUserConsentBeforeSharingCamera);
+    meeting.setAllowModsToRequestCameraShare(allowModsToRequestCameraShare);
 
         int maxNumPages = defaultMaxNumPages;
         if (!StringUtils.isEmpty(params.get(ApiParams.MAX_NUM_PAGES))) {
@@ -1801,12 +1801,12 @@ public class ParamsProcessorUtil {
     return defaultAllowModsToEjectCameras;
   }
 
-  public void setRequireUserConsentBeforeSharingCamera(Boolean value) {
-    defaultRequireUserConsentBeforeSharingCamera = value;
+  public void setAllowModsToRequestCameraShare(Boolean value) {
+    defaultAllowModsToRequestCameraShare = value;
   }
 
-  public Boolean getRequireUserConsentBeforeSharingCamera() {
-    return defaultRequireUserConsentBeforeSharingCamera;
+  public Boolean getAllowModsToRequestCameraShare() {
+    return defaultAllowModsToRequestCameraShare;
   }
 
 	public List<String> decodeIds(String encodeid) {

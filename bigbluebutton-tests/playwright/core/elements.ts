@@ -341,6 +341,7 @@ export const elements = {
   startScreenshareToast: 'Screenshare has started',
   endScreenshareToast: 'Screenshare has ended',
   attendeeJoinedToast: 'Attendee joined the session',
+  cameraRequestSentToast: 'Camera request sent to Attendee',
   raisingHandToast: 'You have raised your hand',
   loweringHandToast: 'Your hand has been lowered',
   noActiveMicrophoneToast: 'No active microphone. Share your microphone to add audio to this recording.',

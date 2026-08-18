@@ -29,6 +29,7 @@ export const mapRaisedHandToUser = (raisedHandUser: RaisedHandUser): User => {
     isModerator: raisedHandUser.isModerator ?? false,
     raiseHand: raisedHandUser.raiseHand ?? true,
     raiseHandTime: raisedHandUser.raiseHandTime,
+    requestedCameraByMod: raisedHandUser.requestedCameraByMod ?? false,
     locked: false,
     voice: {
       joined: voiceData.joined ?? false,

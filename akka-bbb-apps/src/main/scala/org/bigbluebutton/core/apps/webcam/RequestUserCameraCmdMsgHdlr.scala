@@ -32,8 +32,8 @@ trait RequestUserCameraCmdMsgHdlr {
         bus.outGW,
         liveMeeting
       )
-    } else if (!liveMeeting.props.usersProp.requireUserConsentBeforeSharingCamera) {
-      log.info(s"Ignoring camera request, requireUserConsentBeforeSharingCamera is disabled. meetingId=${meetingId}")
+    } else if (!liveMeeting.props.usersProp.allowModsToRequestCameraShare) {
+      log.info(s"Ignoring camera request, allowModsToRequestCameraShare is disabled. meetingId=${meetingId}")
     } else if (userId == requesterUserId) {
       log.info(s"Ignoring camera request to self. meetingId=${meetingId} userId=${userId}")
     } else if (!CameraHdlrHelpers.canBeAskedToShareCamera(liveMeeting, userId)) {

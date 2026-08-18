@@ -47,7 +47,7 @@ trait AppsTestFixtures {
   val allowModsToUnmuteUsers = false
   val requireUserConsentBeforeUnmuting = false
   val allowModsToEjectCameras = false
-  val requireUserConsentBeforeSharingCamera = false
+  val allowModsToRequestCameraShare = false
   val authenticatedGuest = false
   val allowPromoteGuestToModerator = false
   val meetingLayout = ""
@@ -78,7 +78,7 @@ trait AppsTestFixtures {
   val usersProp = UsersProp(maxUsers = maxUsers, webcamsOnlyForModerator = webcamsOnlyForModerator,
     userCameraCap = userCameraCap,
     guestPolicy = guestPolicy, allowModsToUnmuteUsers = allowModsToUnmuteUsers, requireUserConsentBeforeUnmuting = requireUserConsentBeforeUnmuting, allowModsToEjectCameras = allowModsToEjectCameras,
-    requireUserConsentBeforeSharingCamera = requireUserConsentBeforeSharingCamera,
+    allowModsToRequestCameraShare = allowModsToRequestCameraShare,
     authenticatedGuest = authenticatedGuest, allowPromoteGuestToModerator = allowPromoteGuestToModerator, meetingLayout = meetingLayout)
   val metadataProp = new MetadataProp(metadata)
 
