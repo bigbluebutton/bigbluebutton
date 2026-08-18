@@ -43,6 +43,8 @@ export class BlockNoteSharedNotes extends MultiUsers {
 
     await this.modPage.page.mouse.move(editorBox.x + editorBox.width + 130, blockY);
     await expect(sideMenu, 'should keep the side menu hidden on later mouse movement outside the editor').toBeHidden();
+
+    await this.modPage.waitAndClick(e.hideNotesLabel);
   }
 
   // Reproduces issue #25225: when a remote user's caret sits inside a link, that
