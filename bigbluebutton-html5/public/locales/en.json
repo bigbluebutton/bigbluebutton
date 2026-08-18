@@ -1106,6 +1106,7 @@
     "app.error.408": "Authentication failed",
     "app.error.409": "Conflict",
     "app.error.410": "Session has ended",
+    "app.error.sessionEnded": "This session has ended, or the link used to join it is no longer valid. Ask the organizer for a new link, or schedule a new session.",
     "app.error.500": "Ops, something went wrong",
     "app.error.503": "You have been disconnected",
     "app.error.disconnected.rejoin": "You are able to refresh the page to rejoin.",

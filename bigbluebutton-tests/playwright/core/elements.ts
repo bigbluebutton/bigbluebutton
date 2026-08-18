@@ -47,6 +47,8 @@ export const elements = {
   sendFeedbackButton: 'button[data-test="sendFeedbackButton"]',
   feedbackCommentInput: 'textarea#feedbackComment',
   errorScreenMessage: 'h1[data-test="errorScreenMessage"]',
+  errorScreenDescription: 'div[data-test="errorScreenDescription"]',
+  errorScreenCode: 'div[data-test="errorScreenCode"]',
   errorMessageLabel: 'span[id="error-message"]',
   shareCameraAsContent: 'div[data-test="cameraAsContent"]',
   closePopup: 'button[data-test="closePopup"]',

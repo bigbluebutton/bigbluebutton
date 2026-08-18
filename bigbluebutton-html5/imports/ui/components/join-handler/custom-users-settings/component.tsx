@@ -5,6 +5,15 @@ import BBBWeb from '/imports/api/bbb-web-api';
 import Session from '/imports/ui/services/storage/in-memory';
 import Auth from '/imports/ui/services/auth';
 import { ErrorScreen } from '/imports/ui/components/error-screen/component';
+import {
+  ERROR_CODE_GENERIC,
+  ERROR_CODE_SESSION_ENDED,
+  MISSING_TOKEN_DESCRIPTION,
+  RETRY_DESCRIPTION,
+  SESSION_ENDED_DESCRIPTION,
+  isSessionExpired,
+  rejectOnHttpError,
+} from '/imports/ui/components/error-screen/loader-error';
 import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
 
 const CONNECTION_TIMEOUT = 60000;
@@ -27,6 +36,7 @@ const CustomUsersSettings: React.FC<CustomUsersSettingsProps> = ({
   const [fetched, setFetched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [errorCode, setErrorCode] = useState(ERROR_CODE_GENERIC);
 
   useEffect(() => {
     setLoading(true);
@@ -35,14 +45,17 @@ const CustomUsersSettings: React.FC<CustomUsersSettingsProps> = ({
     timeoutRef.current = setTimeout(() => {
       controller.abort();
       setError('Timeout fetching user custom settings');
+      Session.setItem('errorMessageDescription', RETRY_DESCRIPTION);
       setLoading(false);
     }, CONNECTION_TIMEOUT);
 
     const sessionToken = Auth.sessionToken as string | null;
 
     if (!sessionToken) {
+      clearTimeout(timeoutRef.current);
       setLoading(false);
       setError('Missing session token');
+      Session.setItem('errorMessageDescription', MISSING_TOKEN_DESCRIPTION);
       return undefined;
     }
 
@@ -57,6 +70,7 @@ const CustomUsersSettings: React.FC<CustomUsersSettingsProps> = ({
           },
           signal: controller.signal,
         })
+          .then(rejectOnHttpError)
           .then((resp) => resp.json())
           .then((data: Response) => {
             const filteredData = data.user_metadata.map((uc) => {
@@ -78,16 +92,29 @@ const CustomUsersSettings: React.FC<CustomUsersSettingsProps> = ({
             if (timeoutRef.current) {
               clearTimeout(timeoutRef.current);
             }
-          }).catch(() => {
+          })
+          .catch((fetchError) => {
+            // The token can go stale between this fetch and the settings one that preceded it.
+            if (isSessionExpired(fetchError)) {
+              setErrorCode(ERROR_CODE_SESSION_ENDED);
+              setError('Session no longer valid');
+              Session.setItem('errorMessageDescription', SESSION_ENDED_DESCRIPTION);
+              return;
+            }
             setError('Error fetching user custom settings');
-            Session.setItem('errorMessageDescription', 'meeting_ended');
+            Session.setItem('errorMessageDescription', RETRY_DESCRIPTION);
           })
           .finally(() => {
+            // Every terminal path clears the timeout: left armed, it would fire a minute later and
+            // rewrite the message the user is already reading.
+            clearTimeout(timeoutRef.current);
             setLoading(false);
           });
       }).catch((error) => {
+        clearTimeout(timeoutRef.current);
         setLoading(false);
         setError('Error fetching GraphQL URL: '.concat(error?.message || ''));
+        Session.setItem('errorMessageDescription', RETRY_DESCRIPTION);
       });
 
     return () => {
@@ -101,6 +128,7 @@ const CustomUsersSettings: React.FC<CustomUsersSettingsProps> = ({
       {fetched ? children : null}
       {error ? (
         <ErrorScreen
+          code={errorCode}
           endedReason={error}
         />
       ) : null}

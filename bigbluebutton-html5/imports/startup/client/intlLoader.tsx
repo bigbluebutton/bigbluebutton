@@ -2,6 +2,8 @@ import React, { useCallback, useEffect } from 'react';
 import { IntlProvider } from 'react-intl';
 import LoadingScreen from '/imports/ui/components/common/loading-screen/component';
 import { ErrorScreen } from '/imports/ui/components/error-screen/component';
+import { RETRY_DESCRIPTION } from '/imports/ui/components/error-screen/loader-error';
+import Session from '/imports/ui/services/storage/in-memory';
 import useCurrentLocale from '/imports/ui/core/local-states/useCurrentLocale';
 import logger from './logger';
 
@@ -222,6 +224,14 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
   const [fallbackOnEmptyLocaleString, setFallbackOnEmptyLocaleString] = React.useState(false);
   const skipInitialLocaleFetch = React.useRef(true);
 
+  // Never leave the error screen with a bare headline: we cannot say why the locale never arrived,
+  // but "reload" is still the useful next step.
+  const failLocaleLoad = useCallback(() => {
+    Session.setItem('errorMessageDescription', RETRY_DESCRIPTION);
+    setHasError(true);
+    setFetching(false);
+  }, []);
+
   const fetchLocalizedMessages = useCallback((locale: string, init: boolean, signal: AbortSignal) => {
     setFetching(true);
     setHasError(false);
@@ -237,8 +247,7 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
         // surface the error screen instead of crashing on .map or spinning on a
         // blank screen.
         if (!Array.isArray(resp)) {
-          setHasError(true);
-          setFetching(false);
+          failLocaleLoad();
           return;
         }
         const data = fetchLocaleOptions(
@@ -266,8 +275,7 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
             const foundLocales = resp.filter((locale): locale is LocaleJson => locale !== false);
             if (foundLocales.length === 0) {
               logger.error({ logCode: 'intl_fetch_locale_none_error', extraInfo: { languageSets } }, 'Could not fetch any locale file');
-              setHasError(true);
-              setFetching(false);
+              failLocaleLoad();
               return;
             }
             const mergedLocale = foundLocales
@@ -285,8 +293,7 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
               },
               'Error fetching localized messages',
             );
-            setHasError(true);
-            setFetching(false);
+            failLocaleLoad();
           });
       })
       .catch((error) => {
@@ -297,8 +304,7 @@ const IntlLoader: React.FC<IntlLoaderProps> = ({
           },
           'Unable to fetch localized messages',
         );
-        setHasError(true);
-        setFetching(false);
+        failLocaleLoad();
       });
   }, []);
 
