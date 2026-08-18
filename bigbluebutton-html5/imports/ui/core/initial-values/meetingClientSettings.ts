@@ -639,6 +639,7 @@ export const meetingClientSettingsInitialValues: MeetingClientSettings = {
         allowAudioJoinCancel: true,
         audioWasmProcessing: {
           enabled: false,
+          provider: 'bbba',
           constraints: {
             echoCancellation: true,
             autoGainControl: true,

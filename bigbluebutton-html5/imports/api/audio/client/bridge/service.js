@@ -6,6 +6,7 @@ import {
   adoptWasmProcessor,
   createWasmProcessorStream,
   destroyWasmProcessor,
+  getProviderForcedMicrophoneConstraints,
   isWasmProcessorSupported,
   loadWasmProcessorFiles,
   setWasmProcessorEnabled,
@@ -116,6 +117,17 @@ const filterSupportedConstraints = (audioDeviceConstraints) => {
   }
 };
 
+// Used by doGUM()'s getUserMedia retry ladder: dropping deviceId (the only
+// thing that retry is meant to give up on) must not also silently reset
+// echoCancellation/autoGainControl/noiseSuppression - including a
+// provider's forcedMicrophoneConstraints - back to the browser's own
+// defaults, which are `true` for all three in Firefox/Chrome/Safari alike.
+const withoutDeviceIdConstraint = (audioConstraints) => {
+  if (!audioConstraints || typeof audioConstraints !== 'object') return true;
+  const { deviceId, ...rest } = audioConstraints;
+  return rest;
+};
+
 const getWasmProcessingSettings = () => {
   const setting = window.meetingClientSettings.public.media.audio.audioWasmProcessing;
 
@@ -127,7 +139,7 @@ const getWasmProcessingSettings = () => {
 
 const isWasmProcessingConfigEnabled = () => !!getWasmProcessingSettings().enabled;
 
-const isBBBAWasmSupported = () => isWasmProcessorSupported()
+const isAdvancedProcessingSupported = () => isWasmProcessorSupported()
   && isWasmProcessingConfigEnabled();
 
 // check if any browser-level audio filter constraint (AGC, echo cancellation,
@@ -174,7 +186,7 @@ const getConstraintsForMode = (mode) => {
 const resolveAudioProcessingMode = (mode) => {
   const validMode = AUDIO_PROCESSING_MODES.includes(mode) ? mode : 'standard';
 
-  if (validMode === 'advanced' && !isBBBAWasmSupported()) return 'standard';
+  if (validMode === 'advanced' && !isAdvancedProcessingSupported()) return 'standard';
 
   return validMode;
 };
@@ -234,7 +246,7 @@ const getAudioConstraints = (constraintFields = {}) => {
 const isWasmProcessingEnabled = () => getEffectiveAudioProcessingMode() === 'advanced';
 
 const loadWasmProcessor = async () => {
-  if (isBBBAWasmSupported()) {
+  if (isAdvancedProcessingSupported()) {
     try {
       await loadWasmProcessorFiles();
       return true;
@@ -278,10 +290,22 @@ const doGUM = async (
         autoGainControl: true,
         noiseSuppression: true,
       };
+      // Some providers have a hard requirement on top of the admin's own
+      // configured wasmConstraints (media.audio.audioWasmProcessing.constraints)
+      // - e.g. the WorkAdventure/DTLN provider's docs ask for the browser's
+      // own noiseSuppression to stay off so it doesn't double-process the
+      // signal alongside the model. That can't be expressed as just another
+      // default: settings.yml ships audioWasmProcessing.constraints
+      // non-empty (tuned for BBBA), so a merely-overridable value would
+      // silently lose to it for every deployment that hasn't customized
+      // that block. forcedMicrophoneConstraints is applied last so it always
+      // wins; today only the WA/DTLN provider forces anything.
+      const forcedMicrophoneConstraints = getProviderForcedMicrophoneConstraints();
       // eslint-disable-next-line no-param-reassign
       constraints.audio = filterSupportedConstraints({
         ...defaults,
         ...wasmConstraints,
+        ...forcedMicrophoneConstraints,
       });
 
       if (rawDeviceId) {
@@ -310,6 +334,8 @@ const doGUM = async (
     const retryableErrors = ['NotFoundError', 'OverconstrainedError', 'NotReadableError'];
 
     if (!retryableErrors.includes(error.name)) throw error;
+
+    const fallbackAudioConstraints = withoutDeviceIdConstraint(constraints?.audio);
 
     // If the deviceId was 'exact' and we got OverconstrainedError, relax to
     // 'ideal' before falling back further. This handles systems with dynamic
@@ -341,9 +367,9 @@ const doGUM = async (
             errorName: idealError.name,
             errorMessage: idealError.message,
           },
-        }, 'doGUM: ideal deviceId also failed, falling back to { audio: true }');
+        }, 'doGUM: ideal deviceId also failed, falling back without a specific device');
 
-        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream = await navigator.mediaDevices.getUserMedia({ audio: fallbackAudioConstraints });
       }
     } else if (retryOnFailure) {
       logger.warn({
@@ -355,7 +381,7 @@ const doGUM = async (
         },
       }, 'Audio getUserMedia returned OverconstrainedError, rollback');
 
-      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream = await navigator.mediaDevices.getUserMedia({ audio: fallbackAudioConstraints });
     } else {
       throw error;
     }
@@ -463,7 +489,7 @@ export {
   doGUM,
   destroyWasmProcessor,
   stereoUnsupported,
-  isBBBAWasmSupported,
+  isAdvancedProcessingSupported,
   isWasmProcessorSupported,
   isWasmProcessingConfigEnabled,
   isWasmProcessingEnabled,
