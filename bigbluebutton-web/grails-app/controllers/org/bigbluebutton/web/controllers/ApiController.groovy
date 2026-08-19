@@ -463,17 +463,17 @@ class ApiController {
       withFormat {
         xml {
           render(text: responseBuilder.buildError("Params required", "You must either send the valid role of the user, or " +
-                  "the password, sould the meeting has one.", RESP_CODE_FAILED), contentType: "text/xml")
+                  "the password, should the meeting have one.", RESP_CODE_FAILED), contentType: "text/xml")
         }
         '*' {
           render(text: responseBuilder.buildError("Params required", "You must either send the valid role of the user, or " +
-                  "the password, sould the meeting has one.", RESP_CODE_FAILED), contentType: "text/xml")
+                  "the password, should the meeting have one.", RESP_CODE_FAILED), contentType: "text/xml")
         }
       }
       return
     }
 
-    // We preprend "w_" to our internal meeting Id to indicate that this is a web user.
+    // We prepend "w_" to our internal meeting Id to indicate that this is a web user.
     // For users joining using the phone, we will prepend "v_" so it will be easier
     // to distinguish users who doesn't have a web client. (ralam june 12, 2017)
     String internalUserID = "w_" + Util.randomAlphanumeric(12).toLowerCase()
@@ -1013,10 +1013,10 @@ class ApiController {
       response.addHeader("Cache-Control", "no-cache")
       withFormat {
         xml {
-          render(text: responseBuilder.buildGetSessionsResponse(sssns, "noSessions", "no sessions were found on this serverr", RESP_CODE_SUCCESS), contentType: "text/xml")
+          render(text: responseBuilder.buildGetSessionsResponse(sssns, "noSessions", "no sessions were found on this server", RESP_CODE_SUCCESS), contentType: "text/xml")
         }
         '*' {
-          render(text: responseBuilder.buildGetSessionsResponse(sssns, "noSessions", "no sessions were found on this serverr", RESP_CODE_SUCCESS), contentType: "text/xml")
+          render(text: responseBuilder.buildGetSessionsResponse(sssns, "noSessions", "no sessions were found on this server", RESP_CODE_SUCCESS), contentType: "text/xml")
         }
       }
     } else {
