@@ -81,6 +81,22 @@ export function getBlockNoteLinkLocator(testPage: Page) {
   return testPage.page.locator(`${e.blockNoteEditor} a`);
 }
 
+export async function hoverBlockNoteLink(testPage: Page): Promise<void> {
+  const link = getBlockNoteLinkLocator(testPage);
+  const rect = await link.evaluate((element) => {
+    const clientRect = element.getClientRects()[0];
+    return {
+      x: clientRect.x,
+      y: clientRect.y,
+      width: clientRect.width,
+      height: clientRect.height,
+    };
+  });
+  await testPage.page.mouse.move(rect.x + 5, rect.y + rect.height / 2);
+  await testPage.page.mouse.move(rect.x + rect.width / 2, rect.y + rect.height / 2, { steps: 5 });
+  await testPage.page.locator(e.blockNoteLinkToolbar).waitFor({ timeout: ELEMENT_WAIT_LONGER_TIME });
+}
+
 // Collects every uncaught exception raised by the client from now on. The array is
 // filled asynchronously, so it must be read *after* the interaction under test.
 export function collectPageErrors(testPage: Page): string[] {

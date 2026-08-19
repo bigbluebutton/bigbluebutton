@@ -315,6 +315,8 @@ export const elements = {
   blockNoteEditable: '#bn-notes-scroll-container .bn-editor[contenteditable="true"]',
   blockNoteReadOnly: '#bn-notes-scroll-container .bn-editor[contenteditable="false"]',
   blockNoteToolbar: 'div[data-test="blockNoteToolbar"]',
+  blockNoteLinkToolbar: '.bn-link-toolbar',
+  blockNoteLinkForm: '.bn-form-popover',
   blockNoteUnderlineButton: 'div[data-test="blockNoteToolbar"] button[aria-label="Underline"]',
   blockNoteAlignTextLeftButton: 'div[data-test="blockNoteToolbar"] button[aria-label="Align text left"]',
   blockNoteSlashMenuItem: '.bn-suggestion-menu .bn-suggestion-menu-item',

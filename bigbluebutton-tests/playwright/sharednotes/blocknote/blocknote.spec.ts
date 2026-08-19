@@ -19,4 +19,8 @@ test.describe.parallel('Shared Notes - BlockNote', { tag: '@ci' }, () => {
   test("Collaboration cursor must not embed a user's name in a link", async () => {
     await blockNoteSharedNotes.collaborationCursorMustNotEmbedInLink();
   });
+
+  test('Link URL and text can be edited', async () => {
+    await blockNoteSharedNotes.linkUrlAndTextCanBeEdited();
+  });
 });

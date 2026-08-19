@@ -6,6 +6,7 @@ import { MultiUsers } from '../../user/multiusers';
 import {
   getBlockNoteEditorLocator,
   getBlockNoteLinkLocator,
+  hoverBlockNoteLink,
   readLinkAndCursorState,
   startBlockNoteSharedNotes,
   WORD_JOINER,
@@ -15,6 +16,51 @@ import {
 const LINK_URL = 'https://github.com/bigbluebutton/bigbluebutton/issues/25175';
 
 export class BlockNoteSharedNotes extends MultiUsers {
+  async linkUrlAndTextCanBeEdited() {
+    const { sharedNotesEnabled } = this.modPage.settings || {};
+    if (!sharedNotesEnabled) {
+      await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
+      await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
+      return;
+    }
+
+    await startBlockNoteSharedNotes(this.modPage);
+    const editor = getBlockNoteEditorLocator(this.modPage);
+    await editor.click();
+    await this.modPage.page.keyboard.type(`${LINK_URL} `);
+
+    const link = getBlockNoteLinkLocator(this.modPage);
+    await expect(link, 'should create a link from the typed URL').toHaveCount(1, {
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
+    await hoverBlockNoteLink(this.modPage);
+    await this.modPage.page
+      .locator(e.blockNoteLinkToolbar)
+      .getByRole('button', { name: /edit link/i })
+      .click();
+
+    const form = this.modPage.page.locator(e.blockNoteLinkForm);
+    const urlInput = form.locator('input[name="url"]');
+    const textInput = form.locator('input[name="title"]');
+    const editedUrl = `${LINK_URL}/bigbluebutton`;
+    const editedText = 'BigBlueButton repository';
+
+    await expect(urlInput, 'URL input should receive initial focus').toBeFocused();
+    await urlInput.click();
+    await expect(urlInput, 'URL input should retain focus when clicked').toBeFocused();
+    await urlInput.fill(editedUrl);
+    await textInput.click();
+    await expect(textInput, 'text input should retain focus when clicked').toBeFocused();
+    await textInput.fill(editedText);
+    await textInput.press('Enter');
+
+    await expect(link, 'should update the link text').toHaveText(editedText);
+    await expect(link, 'should update the link URL').toHaveAttribute('href', editedUrl);
+    await expect(editor, 'edited values should not be inserted as document text').not.toContainText(
+      `${LINK_URL} /bigbluebutton`,
+    );
+  }
+
   // Reproduces issue #25225: when a remote user's caret sits inside a link, that
   // user's collaboration-cursor name (and the U+2060 word-joiner separators around
   // it) must NOT be embedded in the link's text or href as seen by other users.
