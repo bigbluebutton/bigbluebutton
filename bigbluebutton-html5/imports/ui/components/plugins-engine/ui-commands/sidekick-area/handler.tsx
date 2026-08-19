@@ -10,7 +10,11 @@ import logger from '/imports/startup/client/logger';
 import { layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import { Input } from '/imports/ui/components/layout/layoutTypes';
-import { useIsMultiFunctionalModeEnabled } from '/imports/ui/services/features';
+import {
+  useIsChatEnabled,
+  useIsMultiFunctionalModeEnabled,
+  useIsSharedNotesEnabled,
+} from '/imports/ui/services/features';
 
 // A plugin can dispatch the raw event, so the enum alone is not a boundary.
 const ALLOWED_CORE_PANELS: string[] = Object.values(SidekickAreaCorePanelEnum);
@@ -36,7 +40,21 @@ const PluginSidekickAreaUiCommandsHandler = () => {
     sidebarContentPanel: sidebarContentPanelAuxiliary,
     isOpen: isAuxiliaryOpen,
   } = layoutSelectInput((i: Input) => i.sidebarContentAuxiliary);
+  const isSharedNotesPinned = layoutSelectInput((i: Input) => i.sharedNotes?.isPinned ?? false);
   const isMultiFunctionalModeEnabled = useIsMultiFunctionalModeEnabled();
+  const isChatEnabled = useIsChatEnabled();
+  const isSharedNotesEnabled = useIsSharedNotesEnabled();
+
+  const isCorePanelAvailable = useCallback((id: string): boolean => {
+    // No separate isEnabled check needed here: a disabled feature simply never registers.
+    if (REGISTRY_BACKED_CORE_PANELS.includes(id)) {
+      return Boolean(registeredApps?.[id]);
+    }
+    if (id === PANELS.CHAT) return isChatEnabled;
+    // Pinned notes render in the presentation area, so opening the panel would show it empty.
+    if (id === PANELS.SHARED_NOTES) return isSharedNotesEnabled && !isSharedNotesPinned;
+    return true;
+  }, [registeredApps, isChatEnabled, isSharedNotesEnabled, isSharedNotesPinned]);
 
   const resolvePanel = useCallback((
     { id }: SidekickAreaPanelCommandArguments,
@@ -44,10 +62,7 @@ const PluginSidekickAreaUiCommandsHandler = () => {
     if (!id) return null;
 
     if (ALLOWED_CORE_PANELS.includes(id)) {
-      if (REGISTRY_BACKED_CORE_PANELS.includes(id)) {
-        if (registeredApps?.[id]) {
-          return id;
-        }
+      if (!isCorePanelAvailable(id)) {
         logger.info({
           logCode: 'plugin_core_panel_unavailable',
           extraInfo: { panel: id },
@@ -68,7 +83,7 @@ const PluginSidekickAreaUiCommandsHandler = () => {
       return null;
     }
     return genericContentPanel;
-  }, [registeredApps]);
+  }, [registeredApps, isCorePanelAvailable]);
 
   const handlePanelOpen = useCallback((
     event: CustomEvent<SidekickAreaPanelCommandArguments>,
