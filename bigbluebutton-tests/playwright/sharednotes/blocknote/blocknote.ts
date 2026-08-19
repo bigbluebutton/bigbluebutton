@@ -44,6 +44,18 @@ export class BlockNoteSharedNotes extends MultiUsers {
     await this.modPage.page.mouse.move(editorBox.x + editorBox.width + 130, blockY);
     await expect(sideMenu, 'should keep the side menu hidden on later mouse movement outside the editor').toBeHidden();
 
+    await this.modPage.page.mouse.move(firstBlockBox.x + firstBlockBox.width / 2, blockY);
+    const dragHandle = sideMenu.getByRole('button', { name: 'Open block menu' });
+    await expect(dragHandle, 'should display the drag handle inside the editor').toBeVisible();
+    await dragHandle.click();
+    const blockMenu = this.modPage.page.getByRole('menu');
+    await expect(blockMenu, 'should open the block menu from the drag handle').toBeVisible();
+
+    await this.modPage.page.mouse.move(editorBox.x + editorBox.width + 120, blockY);
+    await expect(sideMenu, 'should keep the frozen side menu visible outside the editor').toBeVisible();
+    await expect(blockMenu, 'should keep the frozen block menu open outside the editor').toBeVisible();
+    await this.modPage.page.keyboard.press('Escape');
+
     await this.modPage.waitAndClick(e.hideNotesLabel);
   }
 
