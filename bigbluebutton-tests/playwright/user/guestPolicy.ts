@@ -54,6 +54,21 @@ export class GuestPolicy extends MultiUsers {
     await expect(this.modPage.page.locator(e.guestWaitingUsers)).toHaveCount(0);
   }
 
+  async allowEveryoneInWaitingQueues() {
+    await this.initTwoWaitingQueues();
+    await this.modPage.waitAndClick(e.allowEveryone);
+
+    await this.userPage.hasText(
+      e.guestMessage,
+      /approved/,
+      'should allow the authenticated viewer',
+      ELEMENT_WAIT_LONGER_TIME,
+    );
+    await this.userPage2.hasText(e.guestMessage, /approved/, 'should allow the guest viewer', ELEMENT_WAIT_LONGER_TIME);
+    await expect(this.modPage.page.locator(e.authenticatedWaitingUsers)).toHaveCount(0);
+    await expect(this.modPage.page.locator(e.guestWaitingUsers)).toHaveCount(0);
+  }
+
   async keepQueuesVisibleWhileSearching() {
     await this.initTwoWaitingQueues();
     await this.modPage.waitAndClick(e.guestWaitingUsers);
@@ -87,7 +102,11 @@ export class GuestPolicy extends MultiUsers {
     await this.initUserPage(this.context, { shouldCloseAudioModal: false, shouldCheckAllInitialSteps: false });
     await openLockViewers(this.modPage);
     await this.modPage.waitAndClick(e.guestPolicyTab);
-    await this.modPage.page.getByRole('checkbox').click();
+    await this.modPage.page
+      .getByText("Message to the guests' lobby", { exact: true })
+      .locator('..')
+      .getByRole('checkbox')
+      .click();
     await this.modPage.fill(e.waitingUsersLobbyMessage, 'test');
     await this.modPage.waitAndClick(e.sendLobbyMessage);
     await this.userPage.hasText(
@@ -98,7 +117,7 @@ export class GuestPolicy extends MultiUsers {
     );
   }
 
-  async allowEveryone() {
+  async allowAllAuthenticated() {
     await setGuestPolicyOption(this.modPage, e.askModerator);
     await this.modPage.page.waitForTimeout(500);
     await this.initUserPage(this.context, { shouldCloseAudioModal: false, shouldCheckAllInitialSteps: false });
@@ -133,7 +152,7 @@ export class GuestPolicy extends MultiUsers {
     );
   }
 
-  async denyEveryone() {
+  async denyAllAuthenticated() {
     await setGuestPolicyOption(this.modPage, e.askModerator);
     await this.modPage.page.waitForTimeout(500);
     await this.initUserPage(this.context, { shouldCloseAudioModal: false, shouldCheckAllInitialSteps: false });

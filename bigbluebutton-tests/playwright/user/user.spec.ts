@@ -24,6 +24,12 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
       await guestPolicy.denyEveryoneInWaitingQueues();
     });
 
+    test('Allow everyone clears both waiting queues', async ({ browser, context, page }, testInfo) => {
+      const guestPolicy = new GuestPolicy(browser, context);
+      await guestPolicy.initModPage(page, { createParameter: 'guestPolicy=ASK_MODERATOR', testInfo });
+      await guestPolicy.allowEveryoneInWaitingQueues();
+    });
+
     test('Keeps queue totals visible while searching', async ({ browser, context, page }, testInfo) => {
       const guestPolicy = new GuestPolicy(browser, context);
       await guestPolicy.initModPage(page, { createParameter: 'guestPolicy=ASK_MODERATOR', testInfo });
@@ -190,15 +196,15 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
           await guestPolicy.initModPage(page, { testInfo });
           await guestPolicy.messageToGuestLobby();
         });
-        test('Allow Everyone', async ({ browser, context, page }, testInfo) => {
+        test('Allow all authenticated', async ({ browser, context, page }, testInfo) => {
           const guestPolicy = new GuestPolicy(browser, context);
           await guestPolicy.initModPage(page, { testInfo });
-          await guestPolicy.allowEveryone();
+          await guestPolicy.allowAllAuthenticated();
         });
-        test('Deny Everyone', async ({ browser, context, page }, testInfo) => {
+        test('Deny all authenticated', async ({ browser, context, page }, testInfo) => {
           const guestPolicy = new GuestPolicy(browser, context);
           await guestPolicy.initModPage(page, { testInfo });
-          await guestPolicy.denyEveryone();
+          await guestPolicy.denyAllAuthenticated();
         });
 
         test('Remember choice', async ({ browser, context, page }, testInfo) => {
