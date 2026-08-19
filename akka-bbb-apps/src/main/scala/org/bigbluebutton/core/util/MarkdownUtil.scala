@@ -208,12 +208,29 @@ object MarkdownUtil {
     sb.toString()
   }
 
-  def processMentions(html: String, userNameToIds: Map[String, List[String]]): (String, List[String]) = {
+  /**
+   * Wraps every mention in the rendered HTML and returns the ids it resolved to.
+   *
+   * `authorizedByName` carries the ids the sender picked from the mention list, keyed by the
+   * escaped lowercase name and kept in message order, so the nth "@name" hit takes the nth id.
+   * A name typed by hand resolves only when it belongs to a single participant: with namesakes
+   * there is no way to tell which one was meant, and guessing would notify the wrong person.
+   */
+  def processMentions(
+      html:             String,
+      userNameToIds:    Map[String, List[String]],
+      authorizedByName: Map[String, List[String]] = Map.empty
+  ): (String, List[String]) = {
     if (userNameToIds.isEmpty || html.indexOf('@') < 0) return (html, List.empty)
 
     // Scanning the '@' positions keeps this off compiling an alternation with one branch
     // per participant on the meeting actor's thread, once per message.
     val maxNameLength = userNameToIds.keys.map(_.length).max
+
+    val queues = scala.collection.mutable.Map.empty[String, scala.collection.mutable.Queue[String]]
+    authorizedByName.foreach {
+      case (name, userIds) => queues(name) = scala.collection.mutable.Queue(userIds: _*)
+    }
 
     val tagMatcher = TagPattern.matcher(html)
 
@@ -227,12 +244,12 @@ object MarkdownUtil {
       val tagStart = tagMatcher.start()
       val tagEnd = tagMatcher.end()
       val tag = tagMatcher.group()
-      val tagLower = tag.toLowerCase
+      val tagLower = tag.toLowerCase(Locale.ROOT)
 
       if (tagStart > lastEnd) {
         val textNode = html.substring(lastEnd, tagStart)
         if (skipDepth == 0) {
-          val (processed, ids) = replaceMentionsInText(textNode, userNameToIds, maxNameLength)
+          val (processed, ids) = replaceMentionsInText(textNode, userNameToIds, queues, maxNameLength)
           result.append(processed)
           mentionedIds ++= ids
         } else {
@@ -258,7 +275,7 @@ object MarkdownUtil {
     if (lastEnd < html.length) {
       val textNode = html.substring(lastEnd)
       if (skipDepth == 0) {
-        val (processed, ids) = replaceMentionsInText(textNode, userNameToIds, maxNameLength)
+        val (processed, ids) = replaceMentionsInText(textNode, userNameToIds, queues, maxNameLength)
         result.append(processed)
         mentionedIds ++= ids
       } else {
@@ -294,21 +311,18 @@ object MarkdownUtil {
 
   /** Longest candidate first, so a name that prefixes another one doesn't win over it. */
   private def findMentionAt(
-    text:          String,
-    atIndex:       Int,
-    userNameToIds: Map[String, List[String]],
-    maxNameLength: Int
-  ): Option[(String, List[String])] = {
+      text:          String,
+      atIndex:       Int,
+      userNameToIds: Map[String, List[String]],
+      maxNameLength: Int
+  ): Option[String] = {
     val nameStart = atIndex + 1
     var length = math.min(maxNameLength, text.length - nameStart)
 
     while (length > 0) {
       if (hasRightBoundary(text, nameStart + length)) {
         val candidate = text.substring(nameStart, nameStart + length)
-        userNameToIds.get(candidate.toLowerCase(Locale.ROOT)) match {
-          case Some(userIds) if userIds.nonEmpty => return Some((candidate, userIds))
-          case _                                 =>
-        }
+        if (userNameToIds.contains(candidate.toLowerCase(Locale.ROOT))) return Some(candidate)
       }
       length -= 1
     }
@@ -316,10 +330,28 @@ object MarkdownUtil {
     None
   }
 
+  /**
+   * A picked id first, so namesakes resolve to the participant the sender chose. Falling back
+   * to the name is only safe while it belongs to a single participant.
+   */
+  private def resolveMentionId(
+      nameKey:       String,
+      userNameToIds: Map[String, List[String]],
+      queues:        scala.collection.mutable.Map[String, scala.collection.mutable.Queue[String]]
+  ): Option[String] = {
+    queues.get(nameKey).filter(_.nonEmpty).map(_.dequeue()) orElse {
+      userNameToIds.get(nameKey) match {
+        case Some(userId :: Nil) => Some(userId)
+        case _                   => None
+      }
+    }
+  }
+
   private def replaceMentionsInText(
-    text:          String,
-    userNameToIds: Map[String, List[String]],
-    maxNameLength: Int
+      text:          String,
+      userNameToIds: Map[String, List[String]],
+      queues:        scala.collection.mutable.Map[String, scala.collection.mutable.Queue[String]],
+      maxNameLength: Int
   ): (String, List[String]) = {
     if (text.indexOf('@') < 0) return (text, List.empty)
 
@@ -331,12 +363,19 @@ object MarkdownUtil {
     while (i < text.length) {
       if (text.charAt(i) == '@' && hasLeftBoundary(text, i)) {
         findMentionAt(text, i, userNameToIds, maxNameLength) match {
-          case Some((matchedName, userIds)) =>
-            sb.append(text.substring(last, i))
-            sb.append(s"""<span class="chat-mention" data-userid="${userIds.mkString(",")}">@$matchedName</span>""")
-            ids ++= userIds
-            i += matchedName.length + 1
-            last = i
+          case Some(matchedName) =>
+            resolveMentionId(matchedName.toLowerCase(Locale.ROOT), userNameToIds, queues) match {
+              case Some(userId) =>
+                sb.append(text.substring(last, i))
+                sb.append(s"""<span class="chat-mention" data-userid="${escapeHtmlText(userId)}">@$matchedName</span>""")
+                ids += userId
+                i += matchedName.length + 1
+                last = i
+              case None =>
+                // Ambiguous and not picked from the list: leave the text alone rather than
+                // notify a namesake. Skipping the whole name keeps a shorter one from matching.
+                i += matchedName.length + 1
+            }
           case None =>
             i += 1
         }

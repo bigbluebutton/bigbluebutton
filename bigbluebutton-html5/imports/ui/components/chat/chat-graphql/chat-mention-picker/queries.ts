@@ -3,6 +3,16 @@ import { gql } from '@apollo/client';
 export interface MentionUser {
   userId: string;
   name: string;
+  /** Shown next to the name of namesakes, as the only participant-facing unique handle. */
+  extId: string;
+  color: string;
+  avatar: string;
+  isModerator: boolean;
+  // The rest feeds the shared avatar content: reaction, away, dial-in and breakout room.
+  away: boolean;
+  reactionEmoji: string;
+  isDialIn: boolean;
+  lastBreakoutRoom?: { sequence: number; isUserCurrentlyInRoom: boolean } | null;
 }
 
 export interface GetMentionUsersResponse {
@@ -21,6 +31,17 @@ export const GET_MENTION_USERS = gql`
     ) {
       userId
       name
+      extId
+      color
+      avatar
+      isModerator
+      away
+      reactionEmoji
+      isDialIn
+      lastBreakoutRoom {
+        sequence
+        isUserCurrentlyInRoom
+      }
     }
   }
 `;

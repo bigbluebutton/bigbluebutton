@@ -106,6 +106,9 @@ const highlightedMessageBorderColor = `var(--highlighted-message-border-color, $
 const emphasizedMessageBackgroundColor = 'var(--emphasized-message-background-color, #E9F1F9)';
 // colorPrimary (0F70D7), 12%
 const chatMentionBackgroundColor = 'var(--chat-mention-background-color, rgba(15, 112, 215, 0.12))';
+// Amber, so the mention addressed to the current user stands out from the other ones.
+const chatMentionSelfBackgroundColor = 'var(--chat-mention-self-background-color, rgba(245, 158, 11, 0.18))';
+const chatMentionSelfColor = 'var(--chat-mention-self-color, #92400E)';
 const colorHeading = `var(--color-heading, ${colorGrayDark})`;
 const palettePlaceholderText = 'var(--palette-placeholder-text, #787675)';
 const pollAnnotationGray = 'var(--poll-annotation-gray, #333333)';
@@ -260,6 +263,8 @@ export {
   highlightedMessageBackgroundColor,
   highlightedMessageBorderColor,
   chatMentionBackgroundColor,
+  chatMentionSelfBackgroundColor,
+  chatMentionSelfColor,
   emphasizedMessageBackgroundColor,
   colorHeading,
   palettePlaceholderText,

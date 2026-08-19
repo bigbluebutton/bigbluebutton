@@ -38,6 +38,7 @@ import meetingClientSettingsInitialValues from '/imports/ui/core/initial-values/
 
 import ChatOfflineIndicator from './chat-offline-indicator/component';
 import ChatMentionPicker, { MENTION_PICKER_ID } from '../chat-mention-picker/component';
+import { MentionUser } from '../chat-mention-picker/queries';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import { CHAT_SEND_MESSAGE, CHAT_SET_TYPING } from './mutations';
 import Storage from '/imports/ui/services/storage/session';
@@ -70,6 +71,7 @@ interface ChatMessageFormProps {
   idChatOpen: string,
   isRTL: boolean,
   chatId: string,
+  isPublicChat: boolean,
   connected: boolean,
   disabled: boolean,
   locked: boolean,
@@ -129,9 +131,71 @@ const messages = defineMessages({
   },
 });
 
-type EditingMessage = { chatId: string; messageId: string, message: string };
+type EditingMessage = { chatId: string; messageId: string, message: string, messageAsHtml?: string };
 
 type MentionCandidate = { atIndex: number; search: string };
+
+/** A mention completed from the picker: the user id is what the server anchors it on. */
+type PickedMention = { userId: string; name: string; atIndex: number };
+
+/**
+ * Every "@name" in the text that starts on a word boundary, in reading order. Matched without
+ * case, like the server does, so recasing a name doesn't unpin the mention from it.
+ */
+const mentionOccurrences = (text: string, name: string): number[] => {
+  const target = name.toLowerCase();
+  const found: number[] = [];
+
+  for (let at = text.indexOf('@'); at !== -1; at = text.indexOf('@', at + 1)) {
+    const charBefore = text[at - 1];
+    if (charBefore === undefined || /\s/.test(charBefore)) {
+      if (text.slice(at + 1, at + 1 + name.length).toLowerCase() === target) found.push(at);
+    }
+  }
+
+  return found;
+};
+
+/**
+ * Keeps the picked mentions pinned to the text while it is edited: each one takes the free
+ * "@name" occurrence closest to where it was, and is dropped once its name is gone.
+ */
+const syncPickedMentions = (text: string, picked: PickedMention[]): PickedMention[] => {
+  const claimed = new Set<number>();
+
+  return [...picked]
+    .sort((a, b) => a.atIndex - b.atIndex)
+    .reduce<PickedMention[]>((acc, mention) => {
+      const free = mentionOccurrences(text, mention.name).filter((at) => !claimed.has(at));
+      if (free.length === 0) return acc;
+      const closest = free.reduce((best, at) => (
+        Math.abs(at - mention.atIndex) < Math.abs(best - mention.atIndex) ? at : best
+      ), free[0]);
+      claimed.add(closest);
+      return [...acc, { ...mention, atIndex: closest }];
+    }, []);
+};
+
+/**
+ * Recovers the mentions of a message being edited from the spans the server wrote, so editing
+ * doesn't downgrade them back to a name match.
+ */
+const pickedMentionsFromHtml = (text: string, html: string): PickedMention[] => {
+  if (!html) return [];
+
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const claimed = new Set<number>();
+
+  return Array.from(doc.querySelectorAll('span.chat-mention[data-userid]')).flatMap((span) => {
+    const userId = span.getAttribute('data-userid') ?? '';
+    const name = (span.textContent ?? '').replace(/^@/, '');
+    if (!userId || !name) return [];
+    const at = mentionOccurrences(text, name).find((index) => !claimed.has(index));
+    if (at === undefined) return [];
+    claimed.add(at);
+    return [{ userId, name, atIndex: at }];
+  });
+};
 
 const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   title,
@@ -140,6 +204,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   minMessageLength,
   maxMessageLength,
   chatId,
+  isPublicChat,
   connected,
   locked,
   isRTL,
@@ -152,7 +217,13 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const [mentionCandidate, setMentionCandidate] = React.useState<MentionCandidate | null>(null);
   const [activeMentionOptionId, setActiveMentionOptionId] = React.useState<string | null>(null);
-  const settledMentionIndexRef = useRef<number | null>(null);
+  const pickedMentionsRef = useRef<PickedMention[]>([]);
+  const dismissedMentionIndexesRef = useRef<Set<number>>(new Set());
+  const resetMentionState = () => {
+    pickedMentionsRef.current = [];
+    dismissedMentionIndexesRef.current = new Set();
+    setMentionCandidate(null);
+  };
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const emojiPickerButtonRef = useRef<HTMLButtonElement>(null);
   const emojiPickerPreviousFocusRef = useRef<HTMLElement | null>(null);
@@ -264,6 +335,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
     const unsentMessage = unsentMessages[chatId] || '';
     setMessage(unsentMessage);
+    resetMentionState();
 
     if (!isMobile) {
       if (textAreaRef?.current) textAreaRef.current.textarea.focus();
@@ -357,10 +429,13 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   };
 
   const getMentionCandidateAtCursor = (text: string, cursorPos: number): MentionCandidate | null => {
+    // A private chat has a single addressee, so there is nobody to disambiguate with a mention.
+    if (!isPublicChat) return null;
     const textBeforeCursor = text.slice(0, cursorPos);
     const atIndex = textBeforeCursor.lastIndexOf('@');
     if (atIndex === -1) return null;
-    if (atIndex === settledMentionIndexRef.current) return null;
+    if (dismissedMentionIndexesRef.current.has(atIndex)) return null;
+    if (pickedMentionsRef.current.some((mention) => mention.atIndex === atIndex)) return null;
     const charBefore = textBeforeCursor[atIndex - 1];
     if (charBefore !== undefined && !/\s/.test(charBefore)) return null;
     const search = textBeforeCursor.slice(atIndex + 1);
@@ -392,25 +467,36 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
     const cursorPos = e.target.selectionStart ?? newMessage.length;
 
-    // Re-arm only when the deletion reached back to the settled '@'.
-    const settledMentionIndex = settledMentionIndexRef.current;
-    if (settledMentionIndex !== null
-      && newMessage.length < message.length
-      && cursorPos <= settledMentionIndex) {
-      settledMentionIndexRef.current = null;
-    }
+    // Both are derived from the text, so editing a mention away re-arms the picker on its own.
+    pickedMentionsRef.current = syncPickedMentions(newMessage, pickedMentionsRef.current);
+    dismissedMentionIndexesRef.current.forEach((index) => {
+      if (newMessage[index] !== '@') dismissedMentionIndexesRef.current.delete(index);
+    });
 
     setMentionCandidate(getMentionCandidateAtCursor(newMessage, cursorPos));
   };
 
-  const handleMentionSelect = (name: string) => {
-    if (!mentionCandidate) return;
+  const handleMentionSelect = (user: MentionUser) => {
     const txtArea = textAreaRef?.current?.textarea;
     const cursorPos = txtArea?.selectionStart ?? message.length;
-    const { atIndex } = mentionCandidate;
-    if (cursorPos < atIndex) return;
+    // The caret can have moved since the candidate was computed, so it is recomputed here:
+    // replacing from a stale '@' would eat unrelated text.
+    const candidate = getMentionCandidateAtCursor(message, cursorPos);
+    if (!candidate) {
+      setMentionCandidate(null);
+      return;
+    }
+
+    const { atIndex } = candidate;
+    const { name } = user;
     const newMessage = `${message.slice(0, atIndex)}@${name} ${message.slice(cursorPos)}`;
-    settledMentionIndexRef.current = atIndex;
+
+    pickedMentionsRef.current = [
+      ...syncPickedMentions(newMessage, pickedMentionsRef.current)
+        .filter((mention) => mention.atIndex !== atIndex),
+      { userId: user.userId, name, atIndex },
+    ];
+
     setMessage(newMessage);
     setMentionCandidate(null);
     setTimeout(() => {
@@ -423,7 +509,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   };
 
   const handleMentionClose = () => {
-    if (mentionCandidate) settledMentionIndexRef.current = mentionCandidate.atIndex;
+    if (mentionCandidate) dismissedMentionIndexesRef.current.add(mentionCandidate.atIndex);
     setMentionCandidate(null);
   };
 
@@ -459,6 +545,8 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           }
           editingMessage.current = e.detail;
           setMessage(e.detail.message);
+          resetMentionState();
+          pickedMentionsRef.current = pickedMentionsFromHtml(e.detail.message, e.detail.messageAsHtml ?? '');
           textAreaRef.current?.textarea.focus();
         }
       }
@@ -471,6 +559,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             setMessage(messageBeforeEditingRef.current);
             messageBeforeEditingRef.current = null;
           }
+          resetMentionState();
           editingMessage.current = null;
         }
       }
@@ -526,12 +615,20 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
         }
       };
 
+      // The ids the sender picked, in message order: the server resolves the mentions against
+      // the participant list and ignores anything it can't confirm.
+      const pickedMentions = [...pickedMentionsRef.current]
+        .sort((a, b) => a.atIndex - b.atIndex)
+        .map(({ userId, name }) => ({ userId, name }));
+      const mentionMetadata = pickedMentions.length > 0 ? { mentions: pickedMentions } : null;
+
       if (editingMessage.current && !chatEditMessageLoading) {
         chatEditMessage({
           variables: {
             chatId: editingMessage.current.chatId,
             messageId: editingMessage.current.messageId,
             chatMessageInMarkdownFormat: msg,
+            metadata: mentionMetadata,
           },
         }).then(() => {
           sendCancelEvents();
@@ -550,6 +647,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
             chatMessageInMarkdownFormat: msg,
             chatId: chatId === PUBLIC_CHAT_ID ? PUBLIC_GROUP_CHAT_ID : chatId,
             replyToMessageId: repliedMessageId,
+            metadata: mentionMetadata,
           },
         }).then(() => {
           sendCancelEvents();
@@ -564,6 +662,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
       setMessage('');
       updateUnsentMessages(chatId, '');
+      resetMentionState();
       setError(null);
       setHasErrors(false);
       setShowEmojiPicker(false);
@@ -592,6 +691,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
                   messageId: msg.messageId,
                   chatId: msg.chatId,
                   message: msg.message,
+                  messageAsHtml: msg.messageAsHtml,
                 },
               }),
             );
@@ -939,6 +1039,7 @@ const ChatMessageFormContainer: React.FC = () => {
         maxMessageLength: CHAT_CONFIG.max_message_length,
         idChatOpen,
         chatId: idChatOpen,
+        isPublicChat: isPublicChat ?? false,
         connected: true, // TODO: monitoring network status
         disabled: ((isPublicChat ? locked : disabled) || !isConnected) ?? false,
         title,

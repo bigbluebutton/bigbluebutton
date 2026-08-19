@@ -114,8 +114,21 @@ trait SendGroupChatMessageMsgHdlr extends HandlerHelpers {
             val allowedHtmlElements = getConfigPropertyValueByPathAsBooleanOrElse(liveMeeting.clientSettings, "public.chat.markdownImageAllowed", false)
             val gcMessageRaw = GroupChatApp.toGroupChatMessage(sender, groupChatMsgReceived, emphasizedText, messageType, allowedHtmlElements)
 
-            val (mentionedHtml, mentionedUserIds) = GroupChatApp.applyMentions(gcMessageRaw.messageAsHtml, liveMeeting.users2x)
-            val baseMetadata = gcMessageRaw.metadata - "mentionedUserIds"
+            // Mentions only make sense where there is a participant list to pick from, and
+            // skipping private chats keeps their messages off the name matching entirely.
+            val (mentionedHtml, mentionedUserIds) = if (chatIsPrivate) {
+              (gcMessageRaw.messageAsHtml, List.empty[String])
+            } else {
+              GroupChatApp.applyMentions(
+                gcMessageRaw.messageAsHtml,
+                liveMeeting.users2x,
+                GroupChatApp.parseRequestedMentions(gcMessageRaw.metadata)
+              )
+            }
+
+            // The client asks for mentions, the server decides them: never persist either key
+            // as it arrived.
+            val baseMetadata = gcMessageRaw.metadata - "mentionedUserIds" - "mentions"
             val gcMessage = if (mentionedUserIds.nonEmpty) {
               val updatedMetadata = baseMetadata + ("mentionedUserIds" -> mentionedUserIds)
               gcMessageRaw.copy(messageAsHtml = mentionedHtml, metadata = updatedMetadata)

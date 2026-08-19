@@ -1,10 +1,10 @@
 import styled from 'styled-components';
+import UserAvatar from '/imports/ui/components/user-avatar/component';
 import {
   colorBorder,
   colorGrayLight,
   colorGrayLightest,
   colorOffWhite,
-  colorPrimary,
   colorText,
   colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
@@ -12,6 +12,7 @@ import { borderRadius } from '/imports/ui/stylesheets/styled-components/general'
 import {
   fontSizeSmall,
   fontSizeSmaller,
+  fontSizeXS,
 } from '/imports/ui/stylesheets/styled-components/typography';
 
 const PickerContainer = styled.div`
@@ -25,7 +26,7 @@ const PickerContainer = styled.div`
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   z-index: 1000;
-  max-height: 13.75rem;
+  max-height: 15.5rem;
   display: flex;
   flex-direction: column;
 `;
@@ -47,7 +48,7 @@ const UserList = styled.ul`
   margin: 0;
   padding: .25rem 0;
   overflow-y: auto;
-  max-height: 9.5rem;
+  max-height: 12.25rem;
 `;
 
 interface UserItemProps {
@@ -70,26 +71,39 @@ const UserItem = styled.li<UserItemProps>`
   }
 `;
 
-const UserAvatar = styled.span`
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 50%;
-  background: ${colorPrimary};
-  color: ${colorWhite};
+// Same avatar as the user list: role color and shape, the avatar image, and the reaction,
+// away, dial-in or breakout content. Sized to fit the 1.3rem emoji that content can render.
+const MentionAvatar = styled(UserAvatar)`
+  flex: 0 0 1.75rem;
   font-size: ${fontSizeSmaller};
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  text-transform: uppercase;
 `;
 
 const UserName = styled.span`
-  flex: 1;
+  flex: 0 1 auto;
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+`;
+
+/** Only rendered for namesakes, where the name alone can't tell the participants apart. */
+const UserIdentifier = styled.span`
+  flex: 0 1 auto;
+  min-width: 0;
+  font-size: ${fontSizeXS};
+  color: ${colorGrayLight};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  direction: ltr;
+`;
+
+const UserLabel = styled.span`
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: .25rem;
 `;
 
 const PickerHint = styled.div`
@@ -125,8 +139,10 @@ export default {
   PickerHeader,
   UserList,
   UserItem,
-  UserAvatar,
+  MentionAvatar,
+  UserLabel,
   UserName,
+  UserIdentifier,
   PickerHint,
   ScreenReaderStatus,
   EmptyState,

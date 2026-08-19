@@ -1,14 +1,13 @@
 import styled, { css } from 'styled-components';
 import {
-  chatMentionBackgroundColor,
   colorDangerDark,
   colorBorder,
   colorOffWhite,
-  colorPrimary,
   colorText,
 } from '/imports/ui/stylesheets/styled-components/palette';
+import chatMentionStyles, { ChatMentionStylesProps } from '/imports/ui/components/chat/chat-graphql/mention-styles';
 
-interface ChatMessageProps {
+interface ChatMessageProps extends ChatMentionStylesProps {
   systemMsg?: boolean;
   $jumbomoji?: boolean;
 }
@@ -79,13 +78,7 @@ export const ChatMessage = styled.div<ChatMessageProps>`
     margin: 0;
   }
 
-  & span.chat-mention {
-    color: ${colorPrimary};
-    font-weight: 600;
-    background-color: ${chatMentionBackgroundColor};
-    border-radius: 3px;
-    padding: 0 2px;
-  }
+  ${chatMentionStyles}
 `;
 
 export default {

@@ -10,6 +10,8 @@ import org.bigbluebutton.core.util.MarkdownUtil
 
 import java.util.Locale
 
+import scala.jdk.CollectionConverters._
+
 object GroupChatApp {
   def getGroupChatOfUsers(userId: String, participantIds: Vector[String], state: MeetingState2x): Option[GroupChat] = {
     state.groupChats.findAllPrivateChatsForUser(userId)
@@ -32,16 +34,76 @@ object GroupChatApp {
     GroupChatMessage(id, now, msg.correlationId, now, now, sender, emphasizedText, msg.message, messageAsHtml, msg.replyToMessageId, messageType, msg.metadata)
   }
 
-  def applyMentions(html: String, users2x: Users2x): (String, List[String]) = {
+  /** A message can't reasonably mention more participants than this, so cap what we read. */
+  private val MaxRequestedMentions = 100
+
+  /**
+   * The mentions the sender picked from the mention list, in message order, as delivered in
+   * `metadata.mentions`. Jackson binds the untyped metadata into Scala or Java collections
+   * depending on the payload, so both are accepted.
+   */
+  def parseRequestedMentions(metadata: Map[String, Any]): List[(String, String)] = {
+    // An older producer can leave the field out entirely, which deserializes as null.
+    val safeMetadata = Option(metadata).getOrElse(Map.empty[String, Any])
+
+    def entries(raw: Any): List[Any] = raw match {
+      case s: Seq[_]            => s.toList
+      case l: java.util.List[_] => l.asScala.toList
+      case _                    => List.empty
+    }
+
+    def field(raw: Any, key: String): Option[String] = raw match {
+      case m: scala.collection.Map[_, _] =>
+        m.asInstanceOf[scala.collection.Map[String, Any]].get(key).map(_.toString)
+      case m: java.util.Map[_, _] =>
+        Option(m.asInstanceOf[java.util.Map[String, Any]].get(key)).map(_.toString)
+      case _ => None
+    }
+
+    safeMetadata.get("mentions").toList
+      .flatMap(entries)
+      .take(MaxRequestedMentions)
+      .flatMap { entry =>
+        for {
+          userId <- field(entry, "userId") if userId.nonEmpty
+          name <- field(entry, "name") if name.nonEmpty
+        } yield (userId, name)
+      }
+  }
+
+  /**
+   * Wraps the mentions in the rendered HTML and returns the ids they resolved to.
+   *
+   * `requestedMentions` are the (userId, name) pairs the sender picked from the mention list,
+   * in message order. They are only honoured while the participant is still in the meeting
+   * under that same name, which is what makes a mention point at one participant instead of
+   * at everyone sharing a display name.
+   */
+  def applyMentions(
+      html:              String,
+      users2x:           Users2x,
+      requestedMentions: List[(String, String)] = List.empty
+  ): (String, List[String]) = {
     if (html.indexOf('@') < 0) {
       (html, List.empty)
     } else {
+      val users = Users2x.findAll(users2x).filterNot(_.bot)
       // The keys are matched against the rendered HTML, where commonmark already escaped them.
-      val userNameToIds: Map[String, List[String]] = Users2x.findAll(users2x)
-        .filterNot(_.bot)
+      val userNameToIds: Map[String, List[String]] = users
         .groupBy(u => MarkdownUtil.escapeHtmlText(u.name).toLowerCase(Locale.ROOT))
-        .map { case (name, users) => name -> users.map(_.intId).toList }
-      MarkdownUtil.processMentions(html, userNameToIds)
+        .map { case (name, namesakes) => name -> namesakes.map(_.intId).toList }
+
+      val usersById = users.map(u => u.intId -> u).toMap
+      val authorizedByName: Map[String, List[String]] = requestedMentions
+        .flatMap {
+          case (userId, name) => usersById.get(userId)
+            .filter(_.name == name)
+            .map(u => MarkdownUtil.escapeHtmlText(u.name).toLowerCase(Locale.ROOT) -> u.intId)
+        }
+        .groupBy(_._1)
+        .map { case (name, entries) => name -> entries.map(_._2) }
+
+      MarkdownUtil.processMentions(html, userNameToIds, authorizedByName)
     }
   }
 

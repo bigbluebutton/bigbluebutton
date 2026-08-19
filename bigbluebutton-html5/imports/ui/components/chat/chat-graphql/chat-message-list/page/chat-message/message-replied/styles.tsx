@@ -6,6 +6,7 @@ import {
   colorOffWhite, colorPrimary, colorText, colorWhite,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { $3xlPadding, smPadding } from '/imports/ui/stylesheets/styled-components/general';
+import chatMentionStyles, { ChatMentionStylesProps } from '/imports/ui/components/chat/chat-graphql/mention-styles';
 
 const Container = styled.div`
   border-top-left-radius: 0.5rem;
@@ -38,7 +39,7 @@ export const DeleteMessage = styled.span`
   white-space: nowrap;
 `;
 
-export const HtmlContent = styled.div`
+export const HtmlContent = styled.div<ChatMentionStylesProps>`
   color: ${colorText};
 
   & img {
@@ -86,6 +87,8 @@ export const HtmlContent = styled.div`
   & h6 {
     margin: 0;
   }
+
+  ${chatMentionStyles}
 `;
 
 export default {

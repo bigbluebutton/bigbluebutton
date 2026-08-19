@@ -11,6 +11,7 @@
     "app.chat.mention.title": "Mention a participant",
     "app.chat.mention.noResults": "No participants found",
     "app.chat.mention.filterHint": "Keep typing to filter participants",
+    "app.chat.mention.optionLabel": "{name} ({identifier})",
     "app.chat.inputLabel": "Message input for chat {chatName}",
     "app.chat.emojiButtonLabel": "Emoji Picker",
     "app.chat.loadMoreButtonLabel": "Load More",

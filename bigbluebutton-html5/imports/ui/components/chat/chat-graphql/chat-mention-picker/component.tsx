@@ -9,6 +9,7 @@ import Auth from '/imports/ui/services/auth';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import meetingClientSettingsInitialValues from '/imports/ui/core/initial-values/meetingClientSettings';
 import { makeUserSearchWhere } from '/imports/ui/components/user-list/service';
+import AvatarContent from '/imports/ui/components/user-list/user-list-participants/list-item/avatar-content/component';
 import { GET_MENTION_USERS, GetMentionUsersResponse, MentionUser } from './queries';
 import Styled from './styles';
 
@@ -25,6 +26,10 @@ const intlMessages = defineMessages({
     id: 'app.chat.mention.filterHint',
     description: 'Mention picker hint shown before the user types a name',
   },
+  optionLabel: {
+    id: 'app.chat.mention.optionLabel',
+    description: 'Mention picker option label for participants sharing a display name',
+  },
 });
 
 export const MENTION_PICKER_ID = 'chat-mention-picker';
@@ -33,11 +38,22 @@ const MENTIONS_FALLBACK = meetingClientSettingsInitialValues.public.chat.mention
 
 const optionId = (userId: string) => `chat-mention-option-${userId}`;
 
+const nameKey = (name: string) => name.trim().toLowerCase();
+
+/** Whatever the integration set as the external id, falling back to the internal one. */
+const uniqueHandle = (user: MentionUser) => user.extId || user.userId;
+
+/** Same rule as the user list: a reaction or the away state takes over the avatar image. */
+const avatarImage = (user: MentionUser) => (
+  user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none') ? '' : user.avatar
+);
+
 interface ChatMentionPickerProps {
   searchText: string;
   /** The textarea the picker completes: it owns the key handling and the focus. */
   inputElement: HTMLTextAreaElement | null;
-  onSelect: (name: string) => void;
+  /** The whole participant is handed over: the mention is anchored on the user id. */
+  onSelect: (user: MentionUser) => void;
   /** Deliberate dismissal: the mention is settled and won't be offered again. */
   onClose: () => void;
   /** Out of the way, but the mention is still up for completion. */
@@ -87,6 +103,23 @@ const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const users = useMemo<MentionUser[]>(() => data?.user ?? [], [data?.user]);
+
+  // Namesakes are the whole reason a mention can't be a display name: the unique handle is
+  // what lets the sender tell them apart before picking one.
+  const namesakeNames = useMemo(() => {
+    const counts = new Map<string, number>();
+    users.forEach((user) => {
+      const key = nameKey(user.name);
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    });
+    return new Set(
+      Array.from(counts.entries())
+        .filter(([, count]) => count > 1)
+        .map(([key]) => key),
+    );
+  }, [users]);
+
+  const isNamesake = (user: MentionUser) => namesakeNames.has(nameKey(user.name));
 
   useEffect(() => {
     setActiveIndex(0);
@@ -148,7 +181,7 @@ const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
       } else if (e.key === 'Enter') {
         e.preventDefault();
         e.stopPropagation();
-        onSelectRef.current(current.name);
+        onSelectRef.current(current);
       }
     };
 
@@ -174,13 +207,19 @@ const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [inputElement]);
 
+  const optionLabel = (user: MentionUser) => (
+    isNamesake(user)
+      ? intl.formatMessage(intlMessages.optionLabel, { name: user.name, identifier: uniqueHandle(user) })
+      : user.name
+  );
+
   return (
     <Styled.PickerContainer ref={containerRef} id={MENTION_PICKER_ID} data-test="chatMentionPicker">
       <Styled.PickerHeader>
         {intl.formatMessage(intlMessages.title)}
       </Styled.PickerHeader>
       <Styled.ScreenReaderStatus aria-live="polite">
-        {activeUser?.name ?? ''}
+        {activeUser ? optionLabel(activeUser) : ''}
       </Styled.ScreenReaderStatus>
       {users.length === 0 ? (
         !loading && (
@@ -202,17 +241,30 @@ const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
               $active={index === activeIndex}
               role="option"
               aria-selected={index === activeIndex}
+              aria-label={optionLabel(user)}
               data-test="chatMentionOption"
               onMouseEnter={() => setActiveIndex(index)}
               onMouseDown={(e) => {
                 e.preventDefault();
-                onSelect(user.name);
+                onSelect(user);
               }}
             >
-              <Styled.UserAvatar aria-hidden="true">
-                {user.name.charAt(0)}
-              </Styled.UserAvatar>
-              <Styled.UserName>{user.name}</Styled.UserName>
+              <Styled.MentionAvatar
+                avatar={avatarImage(user)}
+                color={user.color}
+                moderator={user.isModerator}
+              >
+                {/* @ts-ignore */}
+                <AvatarContent user={user} />
+              </Styled.MentionAvatar>
+              <Styled.UserLabel aria-hidden="true">
+                <Styled.UserName>{user.name}</Styled.UserName>
+                {isNamesake(user) && (
+                  <Styled.UserIdentifier data-test="chatMentionIdentifier">
+                    {uniqueHandle(user)}
+                  </Styled.UserIdentifier>
+                )}
+              </Styled.UserLabel>
             </Styled.UserItem>
           ))}
         </Styled.UserList>

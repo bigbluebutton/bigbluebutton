@@ -70,11 +70,23 @@ trait EditGroupChatMessageReqMsgHdlr extends HandlerHelpers {
                 val allowedHtmlElements = getConfigPropertyValueByPathAsBooleanOrElse(liveMeeting.clientSettings, "public.chat.markdownImageAllowed", false)
                 val editedHtml = MarkdownUtil.markdownToSafeHtml(msg.body.message, allowedHtmlElements)
 
-                val (mentionedHtml, mentionedUserIds) = GroupChatApp.applyMentions(editedHtml, liveMeeting.users2x)
-                val updatedMetadata = if (mentionedUserIds.nonEmpty) {
-                  gcMessage.metadata + ("mentionedUserIds" -> mentionedUserIds)
+                // Same rule as sending: no mentions in private chats, and the mentions the
+                // client asks for are resolved against the participant list, never trusted.
+                val (mentionedHtml, mentionedUserIds) = if (chatIsPrivate) {
+                  (editedHtml, List.empty[String])
                 } else {
-                  gcMessage.metadata - "mentionedUserIds"
+                  GroupChatApp.applyMentions(
+                    editedHtml,
+                    liveMeeting.users2x,
+                    GroupChatApp.parseRequestedMentions(msg.body.metadata)
+                  )
+                }
+
+                val baseMetadata = gcMessage.metadata - "mentionedUserIds" - "mentions"
+                val updatedMetadata = if (mentionedUserIds.nonEmpty) {
+                  baseMetadata + ("mentionedUserIds" -> mentionedUserIds)
+                } else {
+                  baseMetadata
                 }
                 val editedGCMessage = gcMessage.copy(
                   message = msg.body.message,
