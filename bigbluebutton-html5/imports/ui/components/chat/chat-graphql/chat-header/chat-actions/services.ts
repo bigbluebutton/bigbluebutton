@@ -3,7 +3,9 @@ import { stripTags, unescapeHtml } from '/imports/utils/string-utils';
 import { IntlShape, defineMessages } from 'react-intl';
 import { ChatMessageType } from '/imports/ui/core/enums/chat';
 import PollService from '/imports/ui/components/poll/service';
-import { parsePresentationMetadata } from '../../chat-message-list/page/chat-message/message-content/presentation-content/service';
+import {
+  parsePresentationMetadata,
+} from '/imports/ui/components/chat/chat-graphql/chat-message-list/page/chat-message/message-content/presentation-content/service';
 
 const intlMessages = defineMessages({
   chatClear: {
@@ -70,35 +72,52 @@ export const generateExportedMessages = (
       case ChatMessageType.POLL: {
         userName = `${intl.formatMessage(intlMessages.pollResult)}:\n`;
 
-        const metadata = JSON.parse(message.messageMetadata);
-        const pollText = htmlDecode(PollService.getPollResultString(metadata, intl).split('<br/>').join('\n'));
-        // remove last \n to avoid empty line
-        messageText = pollText.slice(0, -1);
+        try {
+          const metadata = JSON.parse(message.messageMetadata);
+          const pollText = htmlDecode(PollService.getPollResultString(metadata, intl).split('<br/>').join('\n'));
+          // remove last \n to avoid empty line
+          messageText = pollText.slice(0, -1);
+        } catch {
+          messageText = htmlDecode(message.message || message.messageAsHtml || '');
+        }
         break;
       }
       case ChatMessageType.USER_IS_PRESENTER_MSG: {
-        const { assignedBy } = JSON.parse(message.messageMetadata);
+        try {
+          const { assignedBy } = JSON.parse(message.messageMetadata);
 
-        messageText = (assignedBy)
-          ? `${intl.formatMessage(intlMessages.userIsPresenterSetBy, {
-            presenterName: message.senderName,
-            assignedByName: assignedBy,
-          })}`
-          : `${intl.formatMessage(intlMessages.userIsPresenter, { presenterName: message.senderName })}`;
+          messageText = (assignedBy)
+            ? `${intl.formatMessage(intlMessages.userIsPresenterSetBy, {
+              presenterName: message.senderName,
+              assignedByName: assignedBy,
+            })}`
+            : `${intl.formatMessage(intlMessages.userIsPresenter, { presenterName: message.senderName })}`;
+        } catch {
+          messageText = intl.formatMessage(intlMessages.userIsPresenter, { presenterName: message.senderName });
+        }
         break;
       }
       case ChatMessageType.USER_AWAY_STATUS_MSG: {
-        const { away } = JSON.parse(message.messageMetadata);
+        try {
+          const { away } = JSON.parse(message.messageMetadata);
 
-        messageText = (away)
-          ? `${message.senderName} ${intl.formatMessage(intlMessages.userAway)}`
-          : `${message.senderName} ${intl.formatMessage(intlMessages.userNotAway)}`;
+          messageText = (away)
+            ? `${message.senderName} ${intl.formatMessage(intlMessages.userAway)}`
+            : `${message.senderName} ${intl.formatMessage(intlMessages.userNotAway)}`;
+        } catch {
+          messageText = htmlDecode(message.message || message.messageAsHtml || '');
+        }
         break;
       }
       case ChatMessageType.PRESENTATION: {
-        const { filename } = parsePresentationMetadata(message.messageMetadata);
         const presentationAvailable = intl.formatMessage(intlMessages.presentationAvailableForDownload);
-        messageText = `${presentationAvailable}: ${filename}`;
+
+        try {
+          const { filename } = parsePresentationMetadata(message.messageMetadata);
+          messageText = `${presentationAvailable}: ${filename}`;
+        } catch {
+          messageText = presentationAvailable;
+        }
         break;
       }
       case ChatMessageType.API:
