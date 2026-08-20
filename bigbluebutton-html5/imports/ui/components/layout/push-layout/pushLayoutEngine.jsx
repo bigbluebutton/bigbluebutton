@@ -72,7 +72,6 @@ const propTypes = {
   setLocalSettings: PropTypes.func.isRequired,
   hasMeetingLayout: PropTypes.bool,
   meetingLayoutSetByUserId: PropTypes.string,
-  isChatEnabled: PropTypes.bool,
 };
 
 const PushLayoutEngine = (props) => {
