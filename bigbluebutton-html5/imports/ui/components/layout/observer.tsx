@@ -103,6 +103,10 @@ const LayoutObserver: React.FC = () => {
   const isPresentationEnabled = useIsPresentationEnabled();
   const isChatEnabled = useIsChatEnabled();
   const initialSidebarContentPanel = getInitialSidebarContentPanel(isChatEnabled);
+  // On phones the sidebar content covers the whole screen, so no panel is opened
+  // automatically on join. Tablets keep the regular behavior.
+  const shouldOpenChatPanel = initialSidebarContentPanel === PANELS.CHAT && !deviceInfo.isPhone;
+  const shouldOpenUserListPanel = initialSidebarContentPanel === PANELS.USERLIST && !deviceInfo.isPhone;
 
   const setLocalSettings = useUserChangedLocalSettings();
 
@@ -267,7 +271,7 @@ const LayoutObserver: React.FC = () => {
 
   useEffect(() => {
     if (layoutIsReady) {
-      if (initialSidebarContentPanel === PANELS.CHAT && !deviceInfo.isPhone) {
+      if (shouldOpenChatPanel) {
         const PUBLIC_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
         layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
@@ -281,7 +285,7 @@ const LayoutObserver: React.FC = () => {
           type: ACTIONS.SET_ID_CHAT_OPEN,
           value: PUBLIC_CHAT_ID,
         });
-      } else if (!(initialSidebarContentPanel === PANELS.USERLIST && !deviceInfo.isPhone)) {
+      } else if (!shouldOpenUserListPanel) {
         layoutContextDispatch({
           type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
           value: false,
@@ -301,7 +305,7 @@ const LayoutObserver: React.FC = () => {
           value: true,
         });
 
-        if (initialSidebarContentPanel === PANELS.USERLIST && !deviceInfo.isPhone) {
+        if (shouldOpenUserListPanel) {
           layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
             value: true,
@@ -312,7 +316,7 @@ const LayoutObserver: React.FC = () => {
           });
         }
 
-        if (initialSidebarContentPanel === PANELS.CHAT && !deviceInfo.isPhone) {
+        if (shouldOpenChatPanel) {
           const PUBLIC_GROUP_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
 
           layoutContextDispatch({

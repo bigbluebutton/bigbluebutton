@@ -33,6 +33,7 @@ import { useMeetingLayoutUpdater, usePushLayoutUpdater, useLayoutUpdater } from 
 import { setEnforcedLayout } from '/imports/ui/components/plugins-engine/ui-commands/layout/handler';
 import { useIsChatEnabled } from '/imports/ui/services/features';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
+import deviceInfo from '/imports/utils/deviceInfo';
 
 const equalDouble = (n1, n2) => {
   const precision = 0.01;
@@ -133,6 +134,9 @@ const PushLayoutEngine = (props) => {
     const HIDE_PRESENTATION = window.meetingClientSettings.public.layout.hidePresentationOnJoin;
     const shouldOpenPresentation = shouldShowScreenshare || shouldShowExternalVideo;
     const initialSidebarContentPanel = getInitialSidebarContentPanel(isChatEnabled);
+    // Same phone guard the layout observer applies: the sidebar content covers the
+    // whole screen on phones, so no panel is opened automatically on join.
+    const shouldOpenChatPanel = initialSidebarContentPanel === PANELS.CHAT && !deviceInfo.isPhone;
     let presentationLastState = !getFromUserSettings('bbb_hide_presentation_on_join', HIDE_PRESENTATION);
     presentationLastState = pushLayoutMeeting ? meetingPresentationIsOpen : presentationLastState;
     presentationLastState = shouldOpenPresentation || presentationLastState;
@@ -151,7 +155,7 @@ const PushLayoutEngine = (props) => {
           value: meetingLayoutCameraPosition || DEFAULT_VALUES.cameraPosition,
           isLocalChange: false,
         });
-        if (initialSidebarContentPanel === PANELS.CHAT && !hasLayoutEngineLoadedOnce) {
+        if (shouldOpenChatPanel && !hasLayoutEngineLoadedOnce) {
           layoutContextDispatch({
             type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
             value: true,
