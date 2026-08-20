@@ -203,6 +203,7 @@ const SidebarNavigation = ({
         )}
         <Styled.NavigationSidebarListItemsContainer
           ref={scrollRef}
+          data-test="sidebarNavigationScrollbox"
           isMobile={isMobile}
           noVirtualScrollboxBackground={noVirtualScrollboxBackground}
           isExpanded={isExpanded}
