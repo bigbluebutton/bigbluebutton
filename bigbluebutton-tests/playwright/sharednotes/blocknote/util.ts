@@ -97,6 +97,15 @@ export async function hoverBlockNoteLink(testPage: Page): Promise<void> {
   await testPage.page.locator(e.blockNoteLinkToolbar).waitFor({ timeout: ELEMENT_WAIT_LONGER_TIME });
 }
 
+export async function openBlockNoteLinkEditor(testPage: Page): Promise<void> {
+  await hoverBlockNoteLink(testPage);
+  await testPage.page
+    .locator(e.blockNoteLinkToolbar)
+    .getByRole('button', { name: /edit link/i })
+    .click();
+  await testPage.page.locator(e.blockNoteLinkForm).waitFor({ timeout: ELEMENT_WAIT_LONGER_TIME });
+}
+
 // Collects every uncaught exception raised by the client from now on. The array is
 // filled asynchronously, so it must be read *after* the interaction under test.
 export function collectPageErrors(testPage: Page): string[] {

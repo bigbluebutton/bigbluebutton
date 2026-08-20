@@ -417,6 +417,11 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
           .bn-mantine .bn-suggestion-menu {
             min-width: 300px;
           }
+          /* BlockNote fixes link form inputs at 300px, which overflows the
+             Shared Notes panel and scrolls the panel when an input is focused. */
+          .bn-mantine .bn-form-popover .mantine-TextInput-root {
+            width: 100%;
+          }
           /* Toolbar and editor are siblings inside .bn-container. DOM order matches
              visual order (toolbar first, editor second), so tab order is correct. */
           .bn-container {

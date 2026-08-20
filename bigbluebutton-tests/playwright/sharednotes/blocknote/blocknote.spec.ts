@@ -23,4 +23,8 @@ test.describe.parallel('Shared Notes - BlockNote', { tag: '@ci' }, () => {
   test('Link URL and text can be edited', async () => {
     await blockNoteSharedNotes.linkUrlAndTextCanBeEdited();
   });
+
+  test('Link editor must not overflow the notes panel', async () => {
+    await blockNoteSharedNotes.linkEditorMustNotOverflowNotesPanel();
+  });
 });

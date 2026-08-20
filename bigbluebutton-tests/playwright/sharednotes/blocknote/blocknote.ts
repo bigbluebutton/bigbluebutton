@@ -6,7 +6,7 @@ import { MultiUsers } from '../../user/multiusers';
 import {
   getBlockNoteEditorLocator,
   getBlockNoteLinkLocator,
-  hoverBlockNoteLink,
+  openBlockNoteLinkEditor,
   readLinkAndCursorState,
   startBlockNoteSharedNotes,
   WORD_JOINER,
@@ -33,11 +33,7 @@ export class BlockNoteSharedNotes extends MultiUsers {
     await expect(link, 'should create a link from the typed URL').toHaveCount(1, {
       timeout: ELEMENT_WAIT_LONGER_TIME,
     });
-    await hoverBlockNoteLink(this.modPage);
-    await this.modPage.page
-      .locator(e.blockNoteLinkToolbar)
-      .getByRole('button', { name: /edit link/i })
-      .click();
+    await openBlockNoteLinkEditor(this.modPage);
 
     const form = this.modPage.page.locator(e.blockNoteLinkForm);
     const urlInput = form.locator('input[name="url"]');
@@ -61,6 +57,45 @@ export class BlockNoteSharedNotes extends MultiUsers {
     );
   }
 
+  async linkEditorMustNotOverflowNotesPanel() {
+    const { sharedNotesEnabled } = this.modPage.settings || {};
+    if (!sharedNotesEnabled) {
+      await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
+      await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
+      return;
+    }
+
+    await startBlockNoteSharedNotes(this.modPage);
+    const editor = getBlockNoteEditorLocator(this.modPage);
+    await editor.click();
+    await this.modPage.page.keyboard.type(`${LINK_URL} `);
+
+    const link = getBlockNoteLinkLocator(this.modPage);
+    await expect(link, 'should create a link from the typed URL').toHaveCount(1, {
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
+    const notesPanel = this.modPage.page.locator(e.sharedNotesBackground);
+    const panelX = (await notesPanel.boundingBox())?.x;
+    expect(panelX, 'shared notes panel should be visible').toBeDefined();
+
+    await openBlockNoteLinkEditor(this.modPage);
+    const form = this.modPage.page.locator(e.blockNoteLinkForm);
+    const urlInput = form.locator('input[name="url"]');
+    const textInput = form.locator('input[name="title"]');
+
+    expect((await notesPanel.boundingBox())?.x, 'opening the link editor must not move the notes panel').toBe(panelX);
+    await urlInput.click();
+    expect((await notesPanel.boundingBox())?.x, 'focusing the URL input must not move the notes panel').toBe(panelX);
+    await textInput.click();
+    expect((await notesPanel.boundingBox())?.x, 'focusing the text input must not move the notes panel').toBe(panelX);
+
+    const { scrollWidth, clientWidth } = await form.evaluate((element) => ({
+      scrollWidth: element.scrollWidth,
+      clientWidth: element.clientWidth,
+    }));
+    expect(scrollWidth, 'link editor content must fit within the popover').toBeLessThanOrEqual(clientWidth);
+  }
+
   // Reproduces issue #25225: when a remote user's caret sits inside a link, that
   // user's collaboration-cursor name (and the U+2060 word-joiner separators around
   // it) must NOT be embedded in the link's text or href as seen by other users.
@@ -68,7 +103,7 @@ export class BlockNoteSharedNotes extends MultiUsers {
     const { sharedNotesEnabled } = this.modPage.settings || {};
     if (!sharedNotesEnabled) {
       await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
-      await this.modPage.wasRemoved(e.sharedNotes, 'should not display the shared notes button');
+      await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
       return;
     }
 
