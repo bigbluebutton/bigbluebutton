@@ -81,6 +81,25 @@ export function getBlockNoteLinkLocator(testPage: Page) {
   return testPage.page.locator(`${e.blockNoteEditor} a`);
 }
 
+export async function clickBlockNoteLink(testPage: Page, withModifier = false): Promise<void> {
+  const link = getBlockNoteLinkLocator(testPage);
+  const { rect, bounds } = await link.evaluate((element) => {
+    const firstRect = element.getClientRects()[0];
+    const boundingRect = element.getBoundingClientRect();
+    return {
+      rect: { x: firstRect.x, y: firstRect.y, width: firstRect.width, height: firstRect.height },
+      bounds: { x: boundingRect.x, y: boundingRect.y },
+    };
+  });
+  await link.click({
+    modifiers: withModifier ? [process.platform === 'darwin' ? 'Meta' : 'Control'] : [],
+    position: {
+      x: rect.x - bounds.x + rect.width / 2,
+      y: rect.y - bounds.y + rect.height / 2,
+    },
+  });
+}
+
 export async function hoverBlockNoteLink(testPage: Page): Promise<void> {
   const link = getBlockNoteLinkLocator(testPage);
   const rect = await link.evaluate((element) => {

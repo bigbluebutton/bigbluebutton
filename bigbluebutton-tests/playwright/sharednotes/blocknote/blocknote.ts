@@ -4,6 +4,7 @@ import { ELEMENT_WAIT_LONGER_TIME } from '../../core/constants';
 import { elements as e } from '../../core/elements';
 import { MultiUsers } from '../../user/multiusers';
 import {
+  clickBlockNoteLink,
   getBlockNoteEditorLocator,
   getBlockNoteLinkLocator,
   openBlockNoteLinkEditor,
@@ -16,6 +17,40 @@ import {
 const LINK_URL = 'https://github.com/bigbluebutton/bigbluebutton/issues/25175';
 
 export class BlockNoteSharedNotes extends MultiUsers {
+  async linksOpenOnlyOnCtrlOrCmdClick() {
+    const { sharedNotesEnabled } = this.modPage.settings || {};
+    if (!sharedNotesEnabled) {
+      await this.modPage.hasElement(e.chatButton, 'should display the public chat button');
+      await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
+      return;
+    }
+
+    await startBlockNoteSharedNotes(this.modPage);
+    const editor = getBlockNoteEditorLocator(this.modPage);
+    await editor.click();
+    await this.modPage.page.keyboard.type(`${LINK_URL} `);
+
+    const link = getBlockNoteLinkLocator(this.modPage);
+    await expect(link, 'should create a link from the typed URL').toHaveCount(1, {
+      timeout: ELEMENT_WAIT_LONGER_TIME,
+    });
+    const context = this.modPage.page.context();
+    const plainClickPage = await Promise.all([
+      context.waitForEvent('page', { timeout: 3000 }).catch(() => null),
+      clickBlockNoteLink(this.modPage),
+    ]).then(([page]) => page);
+    expect(plainClickPage, 'a plain click must not open the link').toBeNull();
+    const caretInsideLink = await link.evaluate((anchor) => {
+      const selection = window.getSelection();
+      return !!selection?.anchorNode && anchor.contains(selection.anchorNode);
+    });
+    expect(caretInsideLink, 'a plain click should leave the caret inside the link').toBe(true);
+    await this.modPage.page.keyboard.press('Escape');
+    const [newPage] = await Promise.all([context.waitForEvent('page'), clickBlockNoteLink(this.modPage, true)]);
+    await expect.poll(() => newPage.url()).toBe(LINK_URL);
+    await newPage.close();
+  }
+
   async linkUrlAndTextCanBeEdited() {
     const { sharedNotesEnabled } = this.modPage.settings || {};
     if (!sharedNotesEnabled) {
