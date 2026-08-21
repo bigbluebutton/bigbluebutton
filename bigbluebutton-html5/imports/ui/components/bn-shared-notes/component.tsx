@@ -17,6 +17,7 @@ import {
   ComponentsContext,
   FormattingToolbar,
   NestBlockButton,
+  SuggestionMenuController,
   UnnestBlockButton,
   useComponentsContext,
   useCreateBlockNote,
@@ -24,7 +25,7 @@ import {
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Menu as MantineMenu } from '@mantine/core';
 
-import { Plugin, PluginKey } from '@tiptap/pm/state';
+import { Plugin, PluginKey, Transaction } from '@tiptap/pm/state';
 import { Extension } from '@tiptap/core';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
@@ -84,6 +85,17 @@ const escapeBlurExtension = Extension.create({
     };
   },
 });
+
+const shouldOpenSlashMenu = (transaction: Transaction) => {
+  const { $from } = transaction.selection;
+  if ($from.parent.type.isInGroup('tableContent')) return false;
+
+  const previousCharacter = $from.parent.textBetween(
+    Math.max(0, $from.parentOffset - 1),
+    $from.parentOffset,
+  );
+  return previousCharacter === '' || /\s/.test(previousCharacter);
+};
 
 // TODO: remove this workaround once y-prosemirror's cursor decoration can set `marks: []`
 // (the upstream-correct fix is `marks: []` on the cursor `Decoration.widget` in
@@ -488,6 +500,7 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
         editor={editor}
         theme="light"
         formattingToolbar={!STATIC_FORMATTING_TOOLBAR_ENABLED}
+        slashMenu={false}
         renderEditor={false}
       >
         {STATIC_FORMATTING_TOOLBAR_ENABLED && editable && (
@@ -515,7 +528,12 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
             </div>
           </ToolbarWithAccessibleMenus>
         )}
-        <BlockNoteViewEditor />
+        <BlockNoteViewEditor>
+          <SuggestionMenuController
+            triggerCharacter="/"
+            shouldOpen={shouldOpenSlashMenu}
+          />
+        </BlockNoteViewEditor>
       </BlockNoteView>
       {isImportModalOpen && editable && (
         <MarkdownImportModal

@@ -17,6 +17,13 @@ test.describe.parallel('Shared Notes - BlockNote', { tag: '@ci' }, () => {
     await sharedNotes.typeInSharedNotes();
   });
 
+  test('Type fractions without opening the slash menu', async ({ browser, context }, testInfo) => {
+    linkIssue(25577);
+    const sharedNotes = new BlockNoteSharedNotes(browser, context);
+    await initializePages(sharedNotes, browser, { isMultiUser: true, createParameter: CREATE_PARAMETER, testInfo });
+    await sharedNotes.typeFractionsWithoutOpeningSlashMenu();
+  });
+
   test('Format text in shared notes', async ({ browser, context }, testInfo) => {
     const sharedNotes = new BlockNoteSharedNotes(browser, context);
     await initializePages(sharedNotes, browser, { isMultiUser: true, createParameter: CREATE_PARAMETER, testInfo });
