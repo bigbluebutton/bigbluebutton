@@ -123,6 +123,16 @@ const SidebarNavigation = ({
   }, [isExpanded, isMobile, enableScrollBar]);
 
   useEffect(() => {
+    // collapse the sidebar when the device becomes mobile (e.g. the window is
+    // resized across the breakpoint): mounting on mobile already starts collapsed,
+    // but without this the expanded rail carried over from desktop would overlay
+    // the sidebar content and the media area
+    if (isMobile) {
+      setIsExpanded(false);
+    }
+  }, [isMobile]);
+
+  useEffect(() => {
     if (!isMobile) return;
     const panelWasOpened = sidebarContentPanel !== PANELS.NONE;
     if (panelWasOpened) {
