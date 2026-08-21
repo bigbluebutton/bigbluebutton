@@ -46,6 +46,29 @@ test.describe.parallel('Unified Layout - who-is-talking tiles (no webcams)', { t
   });
 });
 
+test.describe.parallel('Unified Layout - viewer minimize persistence', { tag: '@ci' }, () => {
+  test(
+    'Viewer keeps the presentation minimized while webcams come and go',
+    { tag: '@media' },
+    async ({ browser, context }, testInfo) => {
+      linkIssue(25592);
+      const layouts = new Layouts(browser, context);
+      await initializePages(layouts, browser, {
+        isMultiUser: true,
+        createParameter: 'meetingLayout=UNIFIED_LAYOUT',
+        // Rules out the restoreOnUpdate family: the presentation must stay minimized
+        // because nothing about it changed, not because of any userdata, and the bug
+        // under test reopens it even with the restore feature explicitly disabled.
+        joinParameter: 'userdata-bbb_force_restore_presentation_on_new_events=false',
+        testInfo,
+        recordVideo: true,
+      });
+      await layouts.initUserPage2();
+      await layouts.unifiedLayoutViewerMinimizeSticksOnCameraChanges();
+    },
+  );
+});
+
 test.describe.parallel('Layout', { tag: ['@flaky-3.1', '@media'] }, () => {
   let layouts: Layouts;
 

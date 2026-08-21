@@ -1,5 +1,6 @@
 import { expect } from '@playwright/test';
 
+import { VIDEO_LOADING_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { MultiUsers } from '../user/multiusers';
@@ -278,6 +279,15 @@ export class Layouts extends MultiUsers {
     if (userVideoPath) {
       testInfo.attachments.push({ name: 'Attendee screen recording', contentType: 'video/webm', path: userVideoPath });
     }
+
+    const user2VideoPath = this.userPage2 ? await this.userPage2.page.video()?.path() : undefined;
+    if (user2VideoPath) {
+      testInfo.attachments.push({
+        name: 'Attendee2 screen recording',
+        contentType: 'video/webm',
+        path: user2VideoPath,
+      });
+    }
   }
 
   async unifiedLayoutMinimizeShowsTiles() {
@@ -359,6 +369,81 @@ export class Layouts extends MultiUsers {
     await this.modPage.hasElement(
       e.talkingIndicator,
       'the navbar "who is talking" indicator must remain visible after restore, making the top tiles redundant',
+    );
+
+    await this.attachPageVideos();
+  }
+
+  async unifiedLayoutViewerMinimizeSticksOnCameraChanges() {
+    // Wait for the whiteboard so the presentation is fully loaded and the minimize
+    // button is enabled on every participant.
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+    await this.userPage2.waitForSelector(e.whiteboard);
+
+    // The viewer minimizes the presentation. This is a local action: it does not
+    // propagate to the meeting layout record.
+    await this.userPage.waitAndClick(e.minimizePresentation);
+    await this.userPage.wasRemoved(e.presentationContainer, 'presentation should minimize for the viewer');
+    await this.userPage.hasElement(e.restorePresentation, 'restore presentation button should appear for the viewer');
+
+    // A third participant turns their webcam on. This updates the meeting layout
+    // record (cameraDockAspectRatio + updatedAt) without changing the meeting's
+    // presentation state, and must not clobber the viewer's local minimize.
+    await this.userPage2.shareWebcam();
+    // Fixed wait (matches the sibling tests' style): the wrongful reopen fires ~2s
+    // after the layout record updates, so wait past that window before asserting.
+    await this.userPage.page.waitForTimeout(4000);
+    await this.userPage.wasRemoved(
+      e.presentationContainer,
+      'presentation should stay minimized for the viewer after a webcam turns on',
+    );
+    await this.userPage.hasElement(
+      e.restorePresentation,
+      'restore presentation button should remain visible for the viewer after a webcam turns on',
+    );
+
+    // Same assertion for the symmetric trigger: the webcam turning off also
+    // updates the meeting layout record.
+    await this.userPage2.waitAndClick(e.leaveVideo);
+    await this.userPage2.wasRemoved(
+      e.webcamMirroredVideoContainer,
+      'webcam should stop sharing for the third participant',
+    );
+    await this.userPage.page.waitForTimeout(4000);
+    await this.userPage.wasRemoved(
+      e.presentationContainer,
+      'presentation should stay minimized for the viewer after a webcam turns off',
+    );
+    await this.userPage.hasElement(
+      e.restorePresentation,
+      'restore presentation button should remain visible for the viewer after a webcam turns off',
+    );
+
+    // Control (issue's third control): the presenter minimizing is NOT affected by
+    // camera changes - presenters never replicate the meeting layout onto themselves.
+    await this.modPage.waitAndClick(e.minimizePresentation);
+    await this.modPage.wasRemoved(e.presentationContainer, 'presentation should minimize for the presenter');
+    // Non-regression: the presenter's minimize is a genuine value change in the
+    // meeting layout record, so viewers must still follow it.
+    await this.userPage2.wasRemoved(
+      e.presentationContainer,
+      'viewers should follow the presenter minimize (value-change replication)',
+    );
+    // Share the webcam without the shareWebcam() helper: with the presentation
+    // minimized every participant renders as a tile, so the helper's strict-mode
+    // check on the connecting placeholder resolves to more than one element.
+    await this.userPage2.waitAndClick(e.joinVideo);
+    await this.userPage2.hasElement(
+      e.webcamMirroredVideoPreview,
+      'should display the video preview when sharing webcam',
+    );
+    await this.userPage2.waitAndClick(e.startSharingWebcam);
+    await this.userPage2.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
+    await this.modPage.page.waitForTimeout(4000);
+    await this.modPage.wasRemoved(
+      e.presentationContainer,
+      'presentation should stay minimized for the presenter after a webcam turns on',
     );
 
     await this.attachPageVideos();

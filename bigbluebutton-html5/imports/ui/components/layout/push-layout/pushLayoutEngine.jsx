@@ -57,7 +57,6 @@ const propTypes = {
   meetingLayoutFocusedCamera: PropTypes.string,
   meetingLayoutVideoRate: PropTypes.number,
   meetingPresentationIsOpen: PropTypes.bool,
-  meetingLayoutUpdatedAt: PropTypes.number,
   presentationIsOpen: PropTypes.bool,
   presentationContentUpdatedAt: PropTypes.number,
   presentationVideoRate: PropTypes.number,
@@ -101,7 +100,6 @@ const PushLayoutEngine = (props) => {
     isModerator,
     isPresenter,
     layoutContextDispatch,
-    meetingLayoutUpdatedAt,
     presentationContentUpdatedAt,
     presentationIsOpen,
     presentationVideoRate,
@@ -223,8 +221,7 @@ const PushLayoutEngine = (props) => {
     };
 
     const replicatePresentationState = () => {
-      if (meetingPresentationIsOpen !== prevProps.meetingPresentationIsOpen
-        || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+      if (meetingPresentationIsOpen !== prevProps.meetingPresentationIsOpen) {
         layoutContextDispatch({
           type: ACTIONS.SET_PRESENTATION_IS_OPEN,
           value: meetingPresentationIsOpen,
@@ -234,8 +231,7 @@ const PushLayoutEngine = (props) => {
     };
 
     const replicateFocusedCamera = () => {
-      if (meetingLayoutFocusedCamera !== prevProps.meetingLayoutFocusedCamera
-        || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+      if (meetingLayoutFocusedCamera !== prevProps.meetingLayoutFocusedCamera) {
         layoutContextDispatch({
           type: ACTIONS.SET_FOCUSED_CAMERA_ID,
           value: meetingLayoutFocusedCamera,
@@ -245,8 +241,7 @@ const PushLayoutEngine = (props) => {
     };
 
     const replicateCameraDockPosition = () => {
-      if (meetingLayoutCameraPosition !== prevProps.meetingLayoutCameraPosition
-        || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+      if (meetingLayoutCameraPosition !== prevProps.meetingLayoutCameraPosition) {
         layoutContextDispatch({
           type: ACTIONS.SET_CAMERA_DOCK_POSITION,
           value: meetingLayoutCameraPosition || DEFAULT_VALUES.cameraPosition,
@@ -257,7 +252,7 @@ const PushLayoutEngine = (props) => {
 
     const replicateCameraDockSize = () => {
       if (!equalDouble(meetingLayoutVideoRate, prevProps.meetingLayoutVideoRate)
-        || meetingLayoutUpdatedAt !== prevProps.meetingLayoutUpdatedAt) {
+        || isMeetingLayoutResizing !== prevProps.isMeetingLayoutResizing) {
         let w; let h;
         if (horizontalPosition) {
           w = window.innerWidth * meetingLayoutVideoRate;
@@ -435,7 +430,6 @@ const PushLayoutEngineContainer = (props) => {
     layout: m.layout,
   }));
   const meetingLayout = LAYOUT_TYPE[currentMeeting?.layout?.currentLayoutType];
-  const meetingLayoutUpdatedAt = new Date(currentMeeting?.layout?.updatedAt).getTime();
   const {
     propagateLayout: pushLayoutMeeting,
     cameraDockIsResizing: isMeetingLayoutResizing,
@@ -514,7 +508,6 @@ const PushLayoutEngineContainer = (props) => {
         isPresenter,
         isChatEnabled,
         layoutContextDispatch,
-        meetingLayoutUpdatedAt,
         presentationContentUpdatedAt,
         presentationIsOpen,
         presentationVideoRate,
