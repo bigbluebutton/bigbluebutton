@@ -219,7 +219,7 @@ const createEndpointTableData = [
     "required": false,
     "type": "Boolean",
     "default": "false",
-    "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> lets moderators ask a participant to share their webcam. The participant is prompted and may accept or decline; the webcam is never started without their consent. (added 4.0)</>)
+    "description": (<>Setting to <code className="language-plaintext highlighter-rouge">true</code> lets moderators ask a participant to share their webcam. The participant is prompted and may accept or decline; the webcam is never started without their consent. (added 4.1)</>)
   },
   {
     "name": "lockSettingsDisableCam",

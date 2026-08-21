@@ -131,7 +131,7 @@ Updated in 3.0:
 Updated in 4.0:
 
 - **create**
-  - **Added parameters:** `requireUserConsentBeforeUnmuting` (only relevant when `allowModsToUnmuteUsers=true`; when `true`, the user is shown a consent dialog before a moderator can unmute them), `allowModsToRequestCameraShare` (when `true`, moderators may ask a participant to share their webcam and the participant accepts or declines), `lockSettingsPresenterPolicy` (controls the "Request to Present" policy; one of `moderatorOnly`, `requireApproval` (default), `freeForAll`).
+  - **Added parameters:** `requireUserConsentBeforeUnmuting` (only relevant when `allowModsToUnmuteUsers=true`; when `true`, the user is shown a consent dialog before a moderator can unmute them), `lockSettingsPresenterPolicy` (controls the "Request to Present" policy; one of `moderatorOnly`, `requireApproval` (default), `freeForAll`).
   - **Added options:** Parameter `disabledFeatures` supports new options: `multiFunctionalMode` (the auxiliary/dual sidebar panel) and `pinChatMessage`.
   - **Removed parameter:** `lockSettingsDisableNote` (singular); use `lockSettingsDisableNotes` (plural) instead.
   - **Removed parameter:** `copyright` (it had no effect; the value was stored but never propagated to the client). To customize the copyright text per meeting, override `app.copyright` through `clientSettingsOverride` / `clientSettingsOverrideJsonUrl` (requires `allowOverrideClientSettingsOnCreateCall=true`).
@@ -141,6 +141,11 @@ Updated in 4.0:
   - **Changed:** Parameter `enforceLayout` accepted values are now `UNIFIED_LAYOUT`, `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, `MEDIA_ONLY` (the deprecated `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, `VIDEO_FOCUS` are no longer accepted).
   - **Removed parameters:** `userdata-bbb_change_layout` (redundant with `userdata-bbb_default_layout`; its legacy `smart`/`videoFocus`/`presentationFocus`/`custom` values no longer exist) and `userdata-enable-user-reaction` (redundant with the `userReactions` `disabledFeatures` option and `public.userReaction.enabled` in `settings.yml`).
 - **clientSettings** - The deprecated REST endpoint `/api/rest/clientSettings` was **removed**. Client settings are now served through the GraphQL stack.
+
+Updated in 4.1:
+
+- **create**
+  - **Added parameters:** `allowModsToRequestCameraShare` (when `true`, moderators may ask a participant to share their webcam and the participant accepts or declines).
 
 ## API Data Types
 
