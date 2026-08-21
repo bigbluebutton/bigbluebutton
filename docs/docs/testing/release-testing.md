@@ -1664,11 +1664,11 @@ Note :
 
     - Click the global "Deny everyone" action. All the waiting viewers should see the message "Guest denied of joining the meeting" and should soon be redirected to the home page. All new viewers should not be affected by this, but instead they should be placed in the waiting lobby.
 
-    - Select "Remember choice" and click "Deny everyone". All the waiting viewers should see the message "Guest denied of joining the meeting" and should soon be redirected to the home page. "Always deny" option should become current in the waiting users modal and all new viewers should be redirected to the home page.
+    - Select "Remember choice" and click the global "Deny everyone" action. All the waiting viewers should see the message "Guest denied of joining the meeting" and should soon be redirected to the home page. "Always deny" should become the active Guest Policy setting, and all new viewers should be redirected to the home page.
 
     - Click the global "Allow everyone" action. All the waiting viewers should successfully join the meeting. All new viewers should not be affected by this, but instead they should be placed in the waiting lobby.
 
-    - Select "Remember choice" and click "Allow everyone". All the waiting viewers should successfully join the meeting. "Always allow" option should become current in the waiting users modal and all new viewers should be able to join bypassing the waiting lobby.
+    - Select "Remember choice" and click the global "Allow everyone" action. All the waiting viewers should successfully join the meeting. "Always accept" should become the active Guest Policy setting, and all new viewers should be able to join bypassing the waiting lobby.
 
     - Click "Accept" for the specific user in the waiting users panel. That viewer should be accepted into the meeting.
 

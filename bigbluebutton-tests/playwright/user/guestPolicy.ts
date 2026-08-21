@@ -35,8 +35,20 @@ export class GuestPolicy extends MultiUsers {
     await expect(authenticatedQueue, 'should display the authenticated waiting users queue').toBeVisible();
     await expect(guestQueue, 'should display the guest waiting users queue').toBeVisible();
     await authenticatedQueue.click();
-    await expect(this.modPage.page.locator(e.allowAllAuthenticatedWaiting)).toHaveText('Allow all authenticated (1)');
-    await expect(this.modPage.page.locator(e.denyAllAuthenticatedWaiting)).toHaveText('Deny all authenticated (1)');
+    const allowAllAuthenticated = this.modPage.page.locator(e.allowAllAuthenticatedWaiting);
+    const denyAllAuthenticated = this.modPage.page.locator(e.denyAllAuthenticatedWaiting);
+    await expect(allowAllAuthenticated).toHaveText('Allow all authenticated (1)');
+    await expect(denyAllAuthenticated).toHaveText('Deny all authenticated (1)');
+    await expect(allowAllAuthenticated).toHaveCSS('color', 'rgb(0, 128, 129)');
+    await expect(denyAllAuthenticated).toHaveCSS('color', 'rgb(223, 39, 33)');
+
+    const actionButtonsBox = await allowAllAuthenticated.locator('..').boundingBox();
+    const actionRowBox = await allowAllAuthenticated.locator('../..').boundingBox();
+    expect(actionButtonsBox).not.toBeNull();
+    expect(actionRowBox).not.toBeNull();
+    const rightInset = actionRowBox!.x + actionRowBox!.width - actionButtonsBox!.x - actionButtonsBox!.width;
+    expect(rightInset).toBeGreaterThanOrEqual(0);
+    expect(rightInset).toBeLessThanOrEqual(8);
   }
 
   async denyEveryoneInWaitingQueues() {

@@ -184,7 +184,9 @@ const AcceptDenyButtonText = styled.span`
 
 const AcceptAllButton = styled(ButtonBase)`
   display: flex;
-  color: ${colorSuccess};
+  && {
+    color: ${colorSuccess};
+  }
   align-items: center;
   gap: 0.5rem;
   font-size: ${fontSizeSmall};
@@ -193,7 +195,9 @@ const AcceptAllButton = styled(ButtonBase)`
 
 const DenyAllButton = styled(ButtonBase)`
   display: flex;
-  color: ${colorDanger};
+  && {
+    color: ${colorDanger};
+  }
   align-items: center;
   gap: 0.5rem;
   font-size: ${fontSizeSmall};
@@ -343,11 +347,13 @@ export const RememberChoiceContainer = styled.div`
 export const ActionButtonsWrapper = styled.div`
   display: inline-flex;
   align-items: center;
+  margin-left: auto;
   gap: 1.5rem;
 
   @media ${smallOnly} {
     display: flex;
     width: 100%;
+    margin-left: 0;
     justify-content: space-between;
     gap: 0.5rem;
   }
