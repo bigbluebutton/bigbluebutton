@@ -1,10 +1,57 @@
 import { expect } from '@playwright/test';
 
-import { VIDEO_LOADING_WAIT_TIME } from '../core/constants';
+import { ELEMENT_WAIT_TIME, VIDEO_LOADING_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { MultiUsers } from '../user/multiusers';
 import { checkDefaultLocationReset, checkScreenshots } from './util';
+
+// Comfortably away from the 600px mobile breakpoint on both sides: getDeviceType()
+// reads documentElement.clientWidth, which differs from the viewport width by the
+// scrollbar, so near-threshold values would make the legs ambiguous.
+export const DESKTOP_VIEWPORT = { width: 1366, height: 768 };
+export const MOBILE_VIEWPORT = { width: 500, height: 768 };
+
+// Width of the open sidebar content panel relative to the viewport: ~1 on the
+// mobile layout (panel takes the whole width), a fraction on the desktop layout.
+async function getSidebarContentWidthRatio(page: Page): Promise<number> {
+  const box = await page.page.locator(e.sidebarContentMain).boundingBox();
+  const viewport = page.page.viewportSize();
+  if (!box || !viewport) return -1;
+  return box.width / viewport.width;
+}
+
+async function assertMobileLayoutActive(page: Page) {
+  await page.hasElement(
+    e.toggleSidebarNavigation,
+    'the sidebar navigation toggle should be rendered on the mobile layout',
+  );
+  // entering mobile must also collapse the navigation rail; when it stays
+  // expanded it overlays the open panel header and the media area
+  await expect(
+    page.page.locator(e.toggleSidebarNavigation),
+    'the sidebar navigation rail should be collapsed on the mobile layout',
+  ).toHaveAttribute('aria-expanded', 'false', { timeout: ELEMENT_WAIT_TIME });
+  await expect
+    .poll(() => getSidebarContentWidthRatio(page), {
+      message: 'the open panel should take the full viewport width on the mobile layout',
+      timeout: ELEMENT_WAIT_TIME,
+    })
+    .toBeGreaterThan(0.95);
+}
+
+async function assertDesktopLayoutActive(page: Page) {
+  await page.wasRemoved(
+    e.toggleSidebarNavigation,
+    'the sidebar navigation toggle should not be rendered on the desktop layout',
+  );
+  await expect
+    .poll(() => getSidebarContentWidthRatio(page), {
+      message: 'the open panel should take a fraction of the viewport width on the desktop layout',
+      timeout: ELEMENT_WAIT_TIME,
+    })
+    .toBeLessThan(0.6);
+}
 
 export class Layouts extends MultiUsers {
   async focusOnPresentation() {
@@ -544,6 +591,39 @@ export class Layouts extends MultiUsers {
       this.userPage2.username,
       'presenter should still render the meeting focused camera first',
     );
+
+    await this.attachPageVideos();
+  }
+
+  async desktopLayoutRestoredAfterMobileBreakpointRoundTrip() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await assertDesktopLayoutActive(this.modPage);
+
+    // crossing into the mobile breakpoint must switch to the mobile layout
+    await this.modPage.setHeightWidthViewPortSize(MOBILE_VIEWPORT);
+    await assertMobileLayoutActive(this.modPage);
+
+    // crossing back must restore the desktop layout: with the regression the client
+    // stayed stuck in the mobile layout until a page reload (issue 25590)
+    await this.modPage.setHeightWidthViewPortSize(DESKTOP_VIEWPORT);
+    await assertDesktopLayoutActive(this.modPage);
+
+    await this.attachPageVideos();
+  }
+
+  async mobileLayoutRestoredAfterDesktopBreakpointRoundTrip() {
+    // the context was created with the mobile viewport, so the client mounted mobile
+    await assertMobileLayoutActive(this.modPage);
+
+    // widening past the breakpoint must switch to the desktop layout
+    await this.modPage.setHeightWidthViewPortSize(DESKTOP_VIEWPORT);
+    await assertDesktopLayoutActive(this.modPage);
+
+    // narrowing again must restore the mobile layout: the regression followed the
+    // mount-time device type, so mounted-narrow clients got stuck in the desktop
+    // layout instead (mirror of issue 25590)
+    await this.modPage.setHeightWidthViewPortSize(MOBILE_VIEWPORT);
+    await assertMobileLayoutActive(this.modPage);
 
     await this.attachPageVideos();
   }

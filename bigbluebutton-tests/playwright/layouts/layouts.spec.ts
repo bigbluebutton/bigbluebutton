@@ -1,7 +1,7 @@
 import { elements as e } from '../core/elements';
 import { initializePages, linkIssue } from '../core/helpers';
 import { test } from '../core/setup/fixtures';
-import { Layouts } from './layouts';
+import { Layouts, MOBILE_VIEWPORT } from './layouts';
 
 test.describe.parallel('Unified Layout - meeting create param', { tag: '@ci' }, () => {
   test('First minimize of presentation shows participant tiles for moderator', async ({ browser, context }, testInfo) => {
@@ -87,6 +87,42 @@ test.describe.parallel('Unified Layout - focused camera replication', { tag: '@c
       await layouts.unifiedLayoutViewerFocusFollowSticksOnCameraChanges();
     },
   );
+});
+
+test.describe.parallel('Device type breakpoint crossing', { tag: '@ci' }, () => {
+  // the audio modal is irrelevant to these layout assertions, and closing it on a
+  // mobile-sized viewport is not reliable (the audio controls sit behind the open panel)
+  const audioModalOff = {
+    joinParameter: 'userdata-bbb_auto_join_audio=false',
+    shouldCloseAudioModal: false,
+  };
+
+  test('Desktop layout is restored after the viewport crosses the mobile breakpoint and back', async ({
+    browser,
+  }, testInfo) => {
+    linkIssue(25590);
+    const context = await browser.newContext({ recordVideo: { dir: 'test-results/' } });
+    const page = await context.newPage();
+    const layouts = new Layouts(browser, context);
+    await layouts.initModPage(page, { testInfo, ...audioModalOff });
+    await layouts.desktopLayoutRestoredAfterMobileBreakpointRoundTrip();
+  });
+
+  test('Mobile layout is restored after the viewport crosses the desktop breakpoint and back', async ({
+    browser,
+  }, testInfo) => {
+    linkIssue(25590);
+    // own context: this leg must MOUNT the client below the breakpoint, since the
+    // regression followed the mount-time device type
+    const mobileContext = await browser.newContext({
+      viewport: MOBILE_VIEWPORT,
+      recordVideo: { dir: 'test-results/' },
+    });
+    const page = await mobileContext.newPage();
+    const layouts = new Layouts(browser, mobileContext);
+    await layouts.initModPage(page, { testInfo, ...audioModalOff });
+    await layouts.mobileLayoutRestoredAfterDesktopBreakpointRoundTrip();
+  });
 });
 
 test.describe.parallel('Layout', { tag: ['@flaky-3.1', '@media'] }, () => {
