@@ -35,6 +35,7 @@ export class BlockNoteSharedNotes extends MultiUsers {
       timeout: ELEMENT_WAIT_LONGER_TIME,
     });
     const context = this.modPage.page.context();
+    await context.route(LINK_URL, (route) => route.fulfill({ contentType: 'text/html', body: '' }));
     const plainClickPage = await Promise.all([
       context.waitForEvent('page', { timeout: 3000 }).catch(() => null),
       clickBlockNoteLink(this.modPage),
