@@ -12,7 +12,6 @@ import { borderRadius } from '/imports/ui/stylesheets/styled-components/general'
 import {
   fontSizeSmall,
   fontSizeSmaller,
-  fontSizeXS,
 } from '/imports/ui/stylesheets/styled-components/typography';
 
 const PickerContainer = styled.div`
@@ -79,31 +78,11 @@ const MentionAvatar = styled(UserAvatar)`
 `;
 
 const UserName = styled.span`
-  flex: 0 1 auto;
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
-
-/** Only rendered for namesakes, where the name alone can't tell the participants apart. */
-const UserIdentifier = styled.span`
-  flex: 0 1 auto;
-  min-width: 0;
-  font-size: ${fontSizeXS};
-  color: ${colorGrayLight};
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  direction: ltr;
-`;
-
-const UserLabel = styled.span`
   flex: 1;
   min-width: 0;
-  display: flex;
-  align-items: baseline;
-  gap: .25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const PickerHint = styled.div`
@@ -140,9 +119,7 @@ export default {
   UserList,
   UserItem,
   MentionAvatar,
-  UserLabel,
   UserName,
-  UserIdentifier,
   PickerHint,
   ScreenReaderStatus,
   EmptyState,

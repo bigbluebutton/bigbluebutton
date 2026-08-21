@@ -28,7 +28,7 @@ const intlMessages = defineMessages({
   },
   optionLabel: {
     id: 'app.chat.mention.optionLabel',
-    description: 'Mention picker option label for participants sharing a display name',
+    description: 'Mention picker accessible name for participants sharing a display name',
   },
 });
 
@@ -104,8 +104,9 @@ const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
 
   const users = useMemo<MentionUser[]>(() => data?.user ?? [], [data?.user]);
 
-  // Namesakes are the whole reason a mention can't be a display name: the unique handle is
-  // what lets the sender tell them apart before picking one.
+  // Namesakes are the whole reason a mention can't be a display name. On screen the avatar
+  // tells them apart, so an id the sender has no use for stays out of the way; a screen reader
+  // has no avatar to go by, so there the unique handle is the only thing that separates them.
   const namesakeNames = useMemo(() => {
     const counts = new Map<string, number>();
     users.forEach((user) => {
@@ -257,14 +258,7 @@ const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
                 {/* @ts-ignore */}
                 <AvatarContent user={user} />
               </Styled.MentionAvatar>
-              <Styled.UserLabel aria-hidden="true">
-                <Styled.UserName>{user.name}</Styled.UserName>
-                {isNamesake(user) && (
-                  <Styled.UserIdentifier data-test="chatMentionIdentifier">
-                    {uniqueHandle(user)}
-                  </Styled.UserIdentifier>
-                )}
-              </Styled.UserLabel>
+              <Styled.UserName aria-hidden="true">{user.name}</Styled.UserName>
             </Styled.UserItem>
           ))}
         </Styled.UserList>

@@ -3,7 +3,7 @@ import { gql } from '@apollo/client';
 export interface MentionUser {
   userId: string;
   name: string;
-  /** Shown next to the name of namesakes, as the only participant-facing unique handle. */
+  /** Announced with the name of namesakes: what a screen reader has instead of the avatar. */
   extId: string;
   color: string;
   avatar: string;

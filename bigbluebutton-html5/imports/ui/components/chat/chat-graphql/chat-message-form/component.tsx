@@ -439,6 +439,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
     const charBefore = textBeforeCursor[atIndex - 1];
     if (charBefore !== undefined && !/\s/.test(charBefore)) return null;
     const search = textBeforeCursor.slice(atIndex + 1);
+    if (/^\s/.test(search)) return null;
     if (/[\r\n]/.test(search)) return null;
     const words = search.split(/\s+/).filter((word) => word !== '');
     if (words.length > MENTION_MAX_WORDS) return null;
