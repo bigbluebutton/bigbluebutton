@@ -348,6 +348,7 @@
     "app.presentationUploader.exportCurrentStatePresentation": "ホワイトボードの書き込みを含めたプレゼンファイルのダウンロードリンクを送る",
     "app.presentationUploader.enableOriginalPresentationDownload": "プレゼン({fileExtension})のダウンロードを有効にする",
     "app.presentationUploader.disableOriginalPresentationDownload": "元のプレゼン({fileExtension})のダウンロードを無効にする",
+    "app.presentationUploader.export.availableForDownload": "プレゼンファイルのダウンロード可能",
     "app.presentationUploader.export.withWhiteboardAnnotations": "ホワイトボードの書き込み付き",
     "app.presentationUploader.dropdownExportOptions": "書き出しオプション",
     "app.presentationUploader.dropdownExportOptionsUncomplete": "アップロード終了まで無効",
