@@ -1,6 +1,43 @@
 import hocuspocus from "../../hocuspocus";
 import { ServerBlockNoteEditor } from "@blocknote/server-util";
 
+// Indentation for nested non-list blocks (issue #25585).
+// blocksToHTMLLossy() preserves real nesting only for list items; every other nested
+// block (paragraph, heading, quote, code block, table) is flattened into a sibling that
+// records its depth in a data-nesting-level="N" attribute. Indent those blocks by scoping
+// a margin-left rule to the elements that carry the attribute directly. List items keep
+// the attribute on the <li>, which already sits in a padded <ul>/<ol>, so <li> is
+// deliberately excluded here - otherwise nested lists would be indented twice.
+//
+// The step is a fixed pixel value, not the lists' 2em, on purpose: em resolves against each
+// element's own font-size, so a level-2 heading (font-size 1.5em) would indent ~1.5x a
+// paragraph at the same depth and the block types would no longer line up. 32px equals the
+// lists' 2em at the default 16px root, so a paragraph flattened out from under a bullet
+// still lines up with that bullet's content, and every block type shares one indent per level.
+//
+// wkhtmltopdf runs an old WebKit with no attr()/calc() in properties, so the depth cannot be
+// read from the attribute at render time; the rules are enumerated per level up to a cap
+// instead (attribute-value selectors already render there, see the color rules below). A depth
+// beyond the cap is clamped to the maximum indent by a fallback rule placed before the
+// enumerated ones: they share specificity, so the later per-level rule wins within range while
+// deeper levels match only the fallback. The per-level loop stops one short of the cap because
+// the last level would repeat the fallback's value.
+const NESTING_INDENT_STEP_PX = 32;
+const MAX_NESTING_LEVEL = 10;
+const NESTED_BLOCK_TAGS = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'table'];
+const NESTING_INDENT_RULES = [
+  `${NESTED_BLOCK_TAGS.map((tag) => `${tag}[data-nesting-level]`).join(', ')} { margin-left: ${MAX_NESTING_LEVEL * NESTING_INDENT_STEP_PX}px; }`,
+  ...Array.from({ length: MAX_NESTING_LEVEL - 1 }, (_, index) => {
+    const level = index + 1;
+    const selector = NESTED_BLOCK_TAGS.map((tag) => `${tag}[data-nesting-level="${level}"]`).join(', ');
+    return `${selector} { margin-left: ${level * NESTING_INDENT_STEP_PX}px; }`;
+  }),
+  // Tables default to width: 100%; a margin-left on a full-width table would push its right
+  // edge past the page's right margin. Let indented tables size to their content instead, so
+  // the indentation reads without overflowing.
+  'table[data-nesting-level] { width: auto; }',
+];
+
 async function exportDocumentToHtml(documentName: string): Promise<string> {
   const connection = await hocuspocus.openDirectConnection(documentName);
 
@@ -27,11 +64,13 @@ async function exportDocumentToHtml(documentName: string): Promise<string> {
       // Convert blocks to HTML (using type assertion to handle schema differences)
       htmlContent = await editor.blocksToHTMLLossy(blocks as any);
 
-      // Replace empty paragraph tags with paragraphs containing a <br> tag so
-      // empty lines are preserved in the HTML output. Indented empty lines are
-      // flattened to <p data-nesting-level="N"></p>, so keep that attribute
+      // Preserve empty lines in the HTML output. BlockNote exports a blank line as a
+      // paragraph whose only content is U+FFFC (the object replacement character),
+      // i.e. <p>￼</p>, which otherwise renders as a "tofu" box. Replace that
+      // sole FFFC with a <br> so the line stays blank. Indented empty lines are
+      // flattened to <p data-nesting-level="N">￼</p>, so keep the attribute
       // (the stylesheet below indents them). See issues #25122 and #25585.
-      htmlContent = htmlContent.replace(/<p( data-nesting-level="\d+")?><\/p>/g, '<p$1><br></p>');
+      htmlContent = htmlContent.replace(/<p( data-nesting-level="\d+")?>\uFFFC<\/p>/g, '<p$1><br></p>');
 
       // Strip hardcoded inline color styles from BlockNote color spans.
       // The data-style-type / data-value attributes remain, and the CSS below
@@ -49,36 +88,6 @@ async function exportDocumentToHtml(documentName: string): Promise<string> {
   } finally {
     await connection.disconnect();
   }
-
-  // Indentation for nested non-list blocks (issue #25585).
-  // blocksToHTMLLossy() preserves real nesting only for list items; every other
-  // nested block (paragraph, heading, quote) is flattened into a sibling that
-  // records its depth in a data-nesting-level="N" attribute. Indent those blocks
-  // by scoping a margin-left rule to the elements that carry the attribute
-  // directly. List items keep the attribute on the <li>, which already sits in a
-  // padded <ul>/<ol>, so <li> is deliberately excluded here - otherwise nested
-  // lists would be indented twice.
-  //
-  // The step matches the 2em padding-left of the exported lists, so a paragraph
-  // flattened out from under a bullet lines up with that bullet's content.
-  // wkhtmltopdf runs an old WebKit with no attr()/calc() in properties, so the
-  // depth cannot be read from the attribute at render time; the rules are
-  // enumerated per level up to a cap instead (attribute-value selectors already
-  // render there, see the color rules above). A depth beyond the cap is clamped
-  // to the maximum indent by a fallback rule placed before the enumerated ones:
-  // they share specificity, so the later per-level rule wins within range while
-  // deeper levels match only the fallback.
-  const NESTING_INDENT_STEP_PX = 32;
-  const MAX_NESTING_LEVEL = 10;
-  const NESTED_BLOCK_TAGS = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote'];
-  const nestingIndentRules = [
-    `${NESTED_BLOCK_TAGS.map((tag) => `${tag}[data-nesting-level]`).join(', ')} { margin-left: ${MAX_NESTING_LEVEL * NESTING_INDENT_STEP_PX}px; }`,
-    ...Array.from({ length: MAX_NESTING_LEVEL }, (_, index) => {
-      const level = index + 1;
-      const selector = NESTED_BLOCK_TAGS.map((tag) => `${tag}[data-nesting-level="${level}"]`).join(', ');
-      return `${selector} { margin-left: ${level * NESTING_INDENT_STEP_PX}px; }`;
-    }),
-  ];
 
   // Create HTML document with styling
   const fullHtml = [
@@ -178,9 +187,9 @@ async function exportDocumentToHtml(documentName: string): Promise<string> {
       '   Checkbox items have <input> as the first child, so :first-child never matches them. */',
       String.raw`ul > li > p.bn-inline-content:first-child::before { content: "\2022\00A0"; }`,
       'li { margin-bottom: 4px; }',
-      '/* Indent nested non-list blocks (paragraphs, headings, quotes) that',
-      '   blocksToHTMLLossy() flattens into data-nesting-level siblings. */',
-      ...nestingIndentRules,
+      '/* Indent nested non-list blocks (paragraphs, headings, quotes, code blocks,',
+      '   tables) that blocksToHTMLLossy() flattens into data-nesting-level siblings. */',
+      ...NESTING_INDENT_RULES,
       'code {',
       '  background-color: #f6f8fa;',
       '  padding: 0.2em 0.4em;',

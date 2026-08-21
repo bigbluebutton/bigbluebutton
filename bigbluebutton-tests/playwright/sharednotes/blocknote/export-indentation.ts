@@ -12,6 +12,19 @@ const L2 = 'IndentLevelTwo';
 const BULLET_PARENT = 'BulletParent';
 const BULLET_CHILD = 'BulletChild';
 const PARA_UNDER_BULLET = 'ParagraphUnderBullet';
+const HEADING_PARENT = 'HeadingParent';
+const NESTED_HEADING = 'NestedHeading';
+const QUOTE_PARENT = 'QuoteParent';
+const NESTED_QUOTE = 'NestedQuote';
+const CODE_PARENT = 'CodeParent';
+const NESTED_CODE = 'nestedCodeLine';
+const OL_PARENT = 'OrderedParent';
+const OL_CHILD = 'OrderedChild';
+// Deep paragraph chain to exercise the depth cap (indent stops growing beyond
+// MAX_NESTING_LEVEL). L9/L10 straddle the cap; L11 must clamp to L10's indent.
+const CLAMP_L9 = 'ClampLevelNine';
+const CLAMP_L10 = 'ClampLevelTen';
+const CLAMP_L11 = 'ClampLevelEleven';
 
 // Horizontal slack for boundingBox comparisons (sub-pixel rounding / font metrics).
 const X_EPSILON = 4;
@@ -24,28 +37,53 @@ interface SeedBlock {
   children: SeedBlock[];
 }
 
+// Deterministic, unique block ids so the seed payload is stable across runs.
+function uuid(n: number): string {
+  return `00000000-0000-0000-0000-${n.toString().padStart(12, '0')}`;
+}
+
 // Builds a BlockNote block in the shape documented for sharedNotesInitialContentJson
-// (see docs/development/api.md and the markdown spec's jsonModule helper).
+// (see docs/development/api.md and the markdown spec's jsonModule helper). Props are
+// filled per type so each block validates against the default BlockNote schema.
 function block(id: string, type: string, text: string, children: SeedBlock[] = []): SeedBlock {
-  const props: Record<string, unknown> = { textAlignment: 'left', backgroundColor: 'default', textColor: 'default' };
+  let props: Record<string, unknown> = { textAlignment: 'left', backgroundColor: 'default', textColor: 'default' };
   if (type === 'heading') props.level = 2;
+  if (type === 'codeBlock') props = { language: 'javascript' };
   return { id, type, props, content: [{ type: 'text', text, styles: {} }], children };
 }
 
-// A document that exercises the bug: paragraphs nested by Tab (levels 0/1/2) and a
-// paragraph flattened out from under a bullet, plus a real nested bullet to guard
-// against list double-indentation.
+// A single paragraph nested `depth` levels deep (levels 9/10/11 carry marker texts) so the
+// depth cap can be measured: the exported blocks step right until the cap, then stop.
+function deepParagraphChain(): SeedBlock {
+  const label = (level: number): string => {
+    if (level === 9) return CLAMP_L9;
+    if (level === 10) return CLAMP_L10;
+    if (level === 11) return CLAMP_L11;
+    return `ClampFiller${level}`;
+  };
+  let node = block(uuid(111), 'paragraph', label(11));
+  for (let level = 10; level >= 0; level--) {
+    node = block(uuid(100 + level), 'paragraph', label(level), [node]);
+  }
+  return node;
+}
+
+// A document that exercises the bug across every block type blocksToHTMLLossy() flattens
+// into data-nesting-level siblings: paragraphs nested by Tab, a paragraph flattened out from
+// under a bullet, a real nested bullet (list double-indent guard), a nested heading, quote
+// and code block, an ordered list, and a chain deeper than the indent cap.
 function seedModule(): string {
   const blocks: SeedBlock[] = [
-    block('00000000-0000-0000-0000-000000000001', 'paragraph', L0, [
-      block('00000000-0000-0000-0000-000000000002', 'paragraph', L1, [
-        block('00000000-0000-0000-0000-000000000003', 'paragraph', L2),
-      ]),
+    block(uuid(1), 'paragraph', L0, [block(uuid(2), 'paragraph', L1, [block(uuid(3), 'paragraph', L2)])]),
+    block(uuid(4), 'bulletListItem', BULLET_PARENT, [
+      block(uuid(5), 'bulletListItem', BULLET_CHILD),
+      block(uuid(6), 'paragraph', PARA_UNDER_BULLET),
     ]),
-    block('00000000-0000-0000-0000-000000000004', 'bulletListItem', BULLET_PARENT, [
-      block('00000000-0000-0000-0000-000000000005', 'bulletListItem', BULLET_CHILD),
-      block('00000000-0000-0000-0000-000000000006', 'paragraph', PARA_UNDER_BULLET),
-    ]),
+    block(uuid(7), 'paragraph', HEADING_PARENT, [block(uuid(8), 'heading', NESTED_HEADING)]),
+    block(uuid(9), 'paragraph', QUOTE_PARENT, [block(uuid(10), 'quote', NESTED_QUOTE)]),
+    block(uuid(11), 'paragraph', CODE_PARENT, [block(uuid(12), 'codeBlock', NESTED_CODE)]),
+    block(uuid(13), 'numberedListItem', OL_PARENT, [block(uuid(14), 'numberedListItem', OL_CHILD)]),
+    deepParagraphChain(),
   ];
   const json = JSON.stringify(blocks);
   return `<modules><module name="sharedNotesInitialContentJson"><![CDATA[${json}]]></module></modules>`;
@@ -101,9 +139,10 @@ export class ExportIndentationSharedNotes extends MultiUsers {
     const probe = await context.newPage();
     try {
       await probe.setContent(html);
-      const leftEdge = async (tag: string, text: string): Promise<number> => {
-        const box = await probe.locator(`${tag}:text-is("${text}")`).first().boundingBox();
-        expect(box, `"${text}" should be present in the exported HTML`).not.toBeNull();
+      // Left edge of the first element matching the CSS selector that also contains `text`.
+      const leftEdge = async (selector: string, text: string): Promise<number> => {
+        const box = await probe.locator(selector, { hasText: text }).first().boundingBox();
+        expect(box, `"${text}" should be present in the exported HTML (${selector})`).not.toBeNull();
         return box!.x;
       };
 
@@ -140,6 +179,50 @@ export class ExportIndentationSharedNotes extends MultiUsers {
         oneListLevel,
         'a nested bullet should be indented by a single list level (no double-indentation)',
       ).toBeLessThan(60);
+
+      // A nested heading and blockquote are flattened into data-nesting-level siblings too;
+      // both must indent past their (level-0) parent instead of rendering flush left.
+      const xHeadingParent = await leftEdge('p', HEADING_PARENT);
+      const xNestedHeading = await leftEdge('h2', NESTED_HEADING);
+      expect(xNestedHeading, 'a nested heading should be indented past its parent').toBeGreaterThan(
+        xHeadingParent + X_EPSILON,
+      );
+
+      const xQuoteParent = await leftEdge('p', QUOTE_PARENT);
+      const xNestedQuote = await leftEdge('blockquote', NESTED_QUOTE);
+      expect(xNestedQuote, 'a nested blockquote should be indented past its parent').toBeGreaterThan(
+        xQuoteParent + X_EPSILON,
+      );
+
+      // A nested code block is flattened into <pre data-nesting-level>; it must indent too
+      // (this is exactly the case that regressed because <pre> was missing from the rules).
+      const xCodeParent = await leftEdge('p', CODE_PARENT);
+      const xNestedCode = await leftEdge('pre', NESTED_CODE);
+      expect(xNestedCode, 'a nested code block should be indented past its parent').toBeGreaterThan(
+        xCodeParent + X_EPSILON,
+      );
+
+      // An ordered list mirrors the bullet guard: the nested item steps right by exactly one
+      // list level, not two (the margin rule must not leak onto <li>).
+      const xOrderedParent = await leftEdge('p', OL_PARENT);
+      const xOrderedChild = await leftEdge('p', OL_CHILD);
+      const oneOrderedLevel = xOrderedChild - xOrderedParent;
+      expect(oneOrderedLevel, 'a nested ordered item should be indented past its parent').toBeGreaterThan(X_EPSILON);
+      expect(
+        oneOrderedLevel,
+        'a nested ordered item should be indented by a single list level (no double-indentation)',
+      ).toBeLessThan(60);
+
+      // The depth cap: indentation grows up to MAX_NESTING_LEVEL (level 10) and then stops.
+      // Level 10 must sit further right than level 9, and level 11 must clamp to level 10.
+      const xClampL9 = await leftEdge('p', CLAMP_L9);
+      const xClampL10 = await leftEdge('p', CLAMP_L10);
+      const xClampL11 = await leftEdge('p', CLAMP_L11);
+      expect(xClampL10, 'indentation should still grow up to the cap').toBeGreaterThan(xClampL9 + X_EPSILON);
+      expect(
+        Math.abs(xClampL11 - xClampL10),
+        'a depth beyond the cap should clamp to the maximum indent, not keep growing',
+      ).toBeLessThanOrEqual(X_EPSILON);
     } finally {
       await context.close();
     }
