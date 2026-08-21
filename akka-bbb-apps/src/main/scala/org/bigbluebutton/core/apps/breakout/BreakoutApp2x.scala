@@ -22,6 +22,7 @@ trait BreakoutApp2x extends BreakoutRoomCreatedMsgHdlr
   with EndBreakoutRoomInternalMsgHdlr
   with UpdateBreakoutRoomTimeInternalMsgHdlr
   with EjectUserFromBreakoutInternalMsgHdlr
+  with UpdateBreakoutUserAccessInternalMsgHdlr
   with BreakoutRoomEndedInternalMsgHdlr {
 
   this: MeetingActor =>

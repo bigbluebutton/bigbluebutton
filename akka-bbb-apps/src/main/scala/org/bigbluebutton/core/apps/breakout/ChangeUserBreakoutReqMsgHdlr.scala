@@ -1,13 +1,13 @@
 package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.EjectUserFromBreakoutInternalMsg
+import org.bigbluebutton.core.api.{EjectUserFromBreakoutInternalMsg, UpdateBreakoutUserAccessInternalMsg}
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers.getRedirectUrls
 import org.bigbluebutton.core.apps.{PermissionCheck, RightsManagementTrait}
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.db.{BreakoutRoomUserDAO, NotificationDAO}
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.EjectReasonCode
+import org.bigbluebutton.core.models.{EjectReasonCode, RegisteredUsers, Roles}
 import org.bigbluebutton.core.running.{MeetingActor, OutMsgRouter}
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
@@ -25,6 +25,8 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
       state
     } else {
       val meetingId = liveMeeting.props.meetingProp.intId
+      val movedUserIsViewer = RegisteredUsers.findWithUserId(msg.body.userId, liveMeeting.registeredUsers)
+        .forall(_.role != Roles.MODERATOR_ROLE)
 
       for {
         breakoutModel <- state.breakout
@@ -36,12 +38,17 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
           roomFrom.users.filter(u => u.extId == msg.body.userId + "-" + roomFrom.sequence).foreach(user => {
             eventBus.publish(BigBlueButtonEvent(roomFrom.id, EjectUserFromBreakoutInternalMsg(meetingId, roomFrom.id, user.extId, msg.header.userId, "User moved to another room", EjectReasonCode.EJECT_USER, false)))
           })
+
+          if (!roomFrom.freeJoin && movedUserIsViewer) {
+            eventBus.publish(BigBlueButtonEvent(roomFrom.id, UpdateBreakoutUserAccessInternalMsg(meetingId, roomFrom.id, msg.body.userId + "-" + roomFrom.sequence, revoked = true)))
+          }
         }
 
         //Get join URL for room To
         val redirectToHtml5JoinURL = (
             for {
               roomTo <- breakoutModel.rooms.get(msg.body.toBreakoutId)
+              _ = eventBus.publish(BigBlueButtonEvent(roomTo.id, UpdateBreakoutUserAccessInternalMsg(meetingId, roomTo.id, msg.body.userId + "-" + roomTo.sequence, revoked = false)))
               (redirectToHtml5JoinURL, redirectJoinURL) <- getRedirectUrls(liveMeeting, msg.body.userId, roomTo.externalId, roomTo.sequence.toString)
             } yield redirectToHtml5JoinURL
           ).getOrElse("")

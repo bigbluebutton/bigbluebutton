@@ -101,26 +101,27 @@ object RegisteredUsers {
 
   def add(users: RegisteredUsers, user: RegisteredUser, meetingId: String): Vector[RegisteredUser] = {
 
-    findWithExternUserId(user.externId, users) match {
-      case Some(u) =>
-        if (u.banned) {
-          // Banned user is rejoining. Don't add so that validate token
-          // will fail and can't join.
-          // ralam april 21, 2020
-          val bannedUser = user.copy(banned = true)
-          UserDAO.insert(meetingId, bannedUser)
-          users.save(bannedUser)
-        } else {
-          // If user hasn't been ejected, we allow user to join
-          // as the user might be joining using 2 browsers for
-          // better management of meeting.
-          // ralam april 21, 2020
-          UserDAO.insert(meetingId, user)
-          users.save(user)
-        }
-      case None =>
-        UserDAO.insert(meetingId, user)
-        users.save(user)
+    if (users.isRevokedExtId(user.externId) || findAllWithExternUserId(user.externId, users).exists(_.banned)) {
+      val bannedUser = user.copy(banned = true)
+      UserDAO.insert(meetingId, bannedUser)
+      users.save(bannedUser)
+    } else {
+      UserDAO.insert(meetingId, user)
+      users.save(user)
+    }
+  }
+
+  def revokeExtId(users: RegisteredUsers, extId: String): Unit = {
+    users.addRevokedExtId(extId)
+  }
+
+  def restoreExtId(users: RegisteredUsers, extId: String): Unit = {
+    users.removeRevokedExtId(extId)
+
+    findAllWithExternUserId(extId, users).filter(_.banned).foreach { u =>
+      val restoredUser = u.modify(_.banned).setTo(false)
+      users.save(restoredUser)
+      UserDAO.update(restoredUser)
     }
   }
 
@@ -235,8 +236,21 @@ object RegisteredUsers {
 
 class RegisteredUsers {
   private var regUsers = new collection.immutable.HashMap[String, RegisteredUser]
+  private var revokedExtIds = collection.immutable.Set.empty[String]
 
   private def toVector: Vector[RegisteredUser] = regUsers.values.toVector
+
+  private def addRevokedExtId(extId: String): Unit = {
+    revokedExtIds += extId
+  }
+
+  private def removeRevokedExtId(extId: String): Unit = {
+    revokedExtIds -= extId
+  }
+
+  private def isRevokedExtId(extId: String): Boolean = {
+    revokedExtIds.contains(extId)
+  }
 
   private def save(user: RegisteredUser): Vector[RegisteredUser] = {
     regUsers += user.authToken -> user

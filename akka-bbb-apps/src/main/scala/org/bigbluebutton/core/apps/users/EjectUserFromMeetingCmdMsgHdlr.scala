@@ -1,13 +1,13 @@
 package org.bigbluebutton.core.apps.users
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.EjectUserFromBreakoutInternalMsg
+import org.bigbluebutton.core.api.{ EjectUserFromBreakoutInternalMsg, UpdateBreakoutUserAccessInternalMsg }
 import org.bigbluebutton.core.running.{ LiveMeeting, OutMsgRouter }
 import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
-import org.bigbluebutton.core.models.{ EjectReasonCode, RegisteredUsers }
+import org.bigbluebutton.core.models.{ EjectReasonCode, RegisteredUsers, Roles }
 
 trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>
@@ -54,6 +54,10 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
                 room.users.filter(u => u.extId == ru.id + "-" + room.sequence).foreach(user => {
                   eventBus.publish(BigBlueButtonEvent(room.id, EjectUserFromBreakoutInternalMsg(meetingId, room.id, user.extId, ejectedBy, reason, EjectReasonCode.EJECT_USER, ban)))
                 })
+
+                if (!room.freeJoin && ru.role != Roles.MODERATOR_ROLE) {
+                  eventBus.publish(BigBlueButtonEvent(room.id, UpdateBreakoutUserAccessInternalMsg(meetingId, room.id, ru.id + "-" + room.sequence, revoked = true)))
+                }
               }
             }
 
