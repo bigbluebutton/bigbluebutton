@@ -38,10 +38,14 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
           roomFrom.users.filter(u => u.extId == msg.body.userId + "-" + roomFrom.sequence).foreach(user => {
             eventBus.publish(BigBlueButtonEvent(roomFrom.id, EjectUserFromBreakoutInternalMsg(meetingId, roomFrom.id, user.extId, msg.header.userId, "User moved to another room", EjectReasonCode.EJECT_USER, false)))
           })
+        }
 
-          if (!roomFrom.freeJoin && movedUserIsViewer) {
-            eventBus.publish(BigBlueButtonEvent(roomFrom.id, UpdateBreakoutUserAccessInternalMsg(meetingId, roomFrom.id, msg.body.userId + "-" + roomFrom.sequence, revoked = true)))
-          }
+        if (movedUserIsViewer) {
+          breakoutModel.rooms.values
+            .filter(room => room.id != msg.body.toBreakoutId && !room.freeJoin)
+            .foreach(room => {
+              eventBus.publish(BigBlueButtonEvent(room.id, UpdateBreakoutUserAccessInternalMsg(meetingId, room.id, msg.body.userId + "-" + room.sequence, revoked = true)))
+            })
         }
 
         //Get join URL for room To

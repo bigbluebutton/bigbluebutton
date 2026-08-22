@@ -7,7 +7,7 @@ import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
 import org.bigbluebutton.core.domain.MeetingState2x
 import org.bigbluebutton.core.graphql.GraphqlMiddleware
-import org.bigbluebutton.core.models.{ EjectReasonCode, RegisteredUsers, Roles }
+import org.bigbluebutton.core.models.{ EjectReasonCode, RegisteredUsers }
 
 trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
   this: UsersApp =>
@@ -55,9 +55,7 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
                   eventBus.publish(BigBlueButtonEvent(room.id, EjectUserFromBreakoutInternalMsg(meetingId, room.id, user.extId, ejectedBy, reason, EjectReasonCode.EJECT_USER, ban)))
                 })
 
-                if (!room.freeJoin && ru.role != Roles.MODERATOR_ROLE) {
-                  eventBus.publish(BigBlueButtonEvent(room.id, UpdateBreakoutUserAccessInternalMsg(meetingId, room.id, ru.id + "-" + room.sequence, revoked = true)))
-                }
+                eventBus.publish(BigBlueButtonEvent(room.id, UpdateBreakoutUserAccessInternalMsg(meetingId, room.id, ru.id + "-" + room.sequence, revoked = true)))
               }
             }
 

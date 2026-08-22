@@ -101,7 +101,7 @@ object RegisteredUsers {
 
   def add(users: RegisteredUsers, user: RegisteredUser, meetingId: String): Vector[RegisteredUser] = {
 
-    if (users.isRevokedExtId(user.externId) || findAllWithExternUserId(user.externId, users).exists(_.banned)) {
+    if (findAllWithExternUserId(user.externId, users).exists(_.banned)) {
       val bannedUser = user.copy(banned = true)
       UserDAO.insert(meetingId, bannedUser)
       users.save(bannedUser)
@@ -117,12 +117,10 @@ object RegisteredUsers {
 
   def restoreExtId(users: RegisteredUsers, extId: String): Unit = {
     users.removeRevokedExtId(extId)
+  }
 
-    findAllWithExternUserId(extId, users).filter(_.banned).foreach { u =>
-      val restoredUser = u.modify(_.banned).setTo(false)
-      users.save(restoredUser)
-      UserDAO.update(restoredUser)
-    }
+  def isExtIdRevoked(users: RegisteredUsers, extId: String): Boolean = {
+    users.isRevokedExtId(extId)
   }
 
   private def banOrEjectUser(ejectedUser: RegisteredUser, users: RegisteredUsers, ban: Boolean): RegisteredUser = {

@@ -30,7 +30,7 @@ trait RequestBreakoutJoinURLReqMsgHdlr extends RightsManagementTrait {
           eventBus.publish(BigBlueButtonEvent(room.id, UpdateBreakoutUserAccessInternalMsg(
             liveMeeting.props.meetingProp.intId,
             room.id,
-            msg.body.userId + "-" + room.sequence,
+            requesterUser.intId + "-" + room.sequence,
             revoked = false
           )))
 
@@ -39,7 +39,7 @@ trait RequestBreakoutJoinURLReqMsgHdlr extends RightsManagementTrait {
           BreakoutHdlrHelpers.sendJoinURL(
             liveMeeting,
             outGW,
-            msg.body.userId,
+            requesterUser.intId,
             room.externalId,
             room.sequence.toString(),
             room.id
