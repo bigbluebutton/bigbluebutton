@@ -1686,13 +1686,18 @@ const Whiteboard = React.memo((props) => {
         }
 
         const zoomed = next?.id?.includes('camera') && prev.z !== next.z;
+        const currentPage = currentPresentationPageRef.current;
 
         if (
           zoomed
           && isPresenterRef.current
-          && !currentPresentationPageRef.current?.infiniteWhiteboard
+          && currentPage
+          && !currentPage.infiniteWhiteboard
+          && Number.isFinite(currentPage.scaledWidth)
+          && currentPage.scaledWidth > 0
+          && Number.isFinite(currentPage.scaledHeight)
+          && currentPage.scaledHeight > 0
         ) {
-          const currentPage = currentPresentationPageRef.current;
           const { widthGap } = getContainerDimensions();
 
           let minimumZoom = calculateZoomValueRef.current(
@@ -1708,7 +1713,11 @@ const Whiteboard = React.memo((props) => {
             );
           }
 
-          if ( minimumZoom > 0 && next.z < minimumZoom) {
+          if (
+            Number.isFinite(minimumZoom)
+            && minimumZoom > 0
+            && next.z < minimumZoom
+          ) {
             newNext.z = minimumZoom;
           }         
         }
