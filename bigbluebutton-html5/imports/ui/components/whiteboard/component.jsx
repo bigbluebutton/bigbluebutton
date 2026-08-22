@@ -1685,6 +1685,18 @@ const Whiteboard = React.memo((props) => {
           viewportHeight = currentPresentationPageRef.current?.scaledViewBoxHeight;
         }
 
+        const zoomed = next?.id?.includes('camera') && prev.z !== next.z;
+
+        if (
+          zoomed
+          && isPresenterRef.current
+          && !currentPresentationPageRef.current?.infiniteWhiteboard
+          && initialZoomRef.current
+          && next.z < initialZoomRef.current
+        ) {
+          newNext.z = initialZoomRef.current;
+        }
+
         const presentationWidthLocal = currentPresentationPageRef.current?.scaledWidth || 0;
         const presentationHeightLocal = currentPresentationPageRef.current?.scaledHeight || 0;
 
