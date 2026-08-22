@@ -1691,10 +1691,26 @@ const Whiteboard = React.memo((props) => {
           zoomed
           && isPresenterRef.current
           && !currentPresentationPageRef.current?.infiniteWhiteboard
-          && initialZoomRef.current
-          && next.z < initialZoomRef.current
         ) {
-          newNext.z = initialZoomRef.current;
+          const currentPage = currentPresentationPageRef.current;
+          const { widthGap } = getContainerDimensions();
+
+          let minimumZoom = calculateZoomValueRef.current(
+            currentPage.scaledWidth,
+            currentPage.scaledHeight,
+          );
+
+          if (widthGap > 0) {
+            minimumZoom = calculateZoomWithGapValueRef.current(
+              currentPage.scaledWidth,
+              currentPage.scaledHeight,
+              widthGap,
+            );
+          }
+
+          if ( minimumZoom > 0 && next.z < minimumZoom) {
+            newNext.z = minimumZoom;
+          }         
         }
 
         const presentationWidthLocal = currentPresentationPageRef.current?.scaledWidth || 0;
