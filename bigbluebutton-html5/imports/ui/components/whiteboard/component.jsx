@@ -234,6 +234,7 @@ const Whiteboard = React.memo((props) => {
   const hasWBAccessRef = React.useRef(hasWBAccess);
   const isModeratorRef = React.useRef(isModerator);
   const currentPresentationPageRef = React.useRef(currentPresentationPage);
+  const presentationAreaDimensionsRef = useRef({width: presentationAreaWidth, height: presentationAreaHeight});
   const initialViewBoxWidthRef = React.useRef(null);
   const initialViewBoxHeightRef = React.useRef(null);
   const previousTool = React.useRef(null);
@@ -248,6 +249,11 @@ const Whiteboard = React.memo((props) => {
   const currentUserRef = useRef(currentUser);
 
   currentUserRef.current = currentUser;
+
+  presentationAreaDimensionsRef.current = {
+    width: presentationAreaWidth,
+    height: presentationAreaHeight,
+  };
 
   const [pageZoomMap, setPageZoomMap] = useState(() => {
     try {
@@ -1687,6 +1693,10 @@ const Whiteboard = React.memo((props) => {
 
         const zoomed = next?.id?.includes('camera') && prev.z !== next.z;
         const currentPage = currentPresentationPageRef.current;
+        const {
+          width: currentPresentationAreaWidth,
+          height: currentPresentationAreaHeight,
+        } = presentationAreaDimensionsRef.current;
 
         if (
           zoomed
@@ -1697,6 +1707,10 @@ const Whiteboard = React.memo((props) => {
           && currentPage.scaledWidth > 0
           && Number.isFinite(currentPage.scaledHeight)
           && currentPage.scaledHeight > 0
+          && Number.isFinite(currentPresentationAreaWidth)
+          && currentPresentationAreaWidth > 0
+          && Number.isFinite(currentPresentationAreaHeight)
+          && currentPresentationAreaHeight > 0
         ) {
           const { widthGap } = getContainerDimensions();
 
