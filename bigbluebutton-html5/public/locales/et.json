@@ -348,7 +348,7 @@
     "app.presentationUploader.exportCurrentStatePresentation": "Saada välja link esitluse allalaadimiseks koos tahvlimärgetega.",
     "app.presentationUploader.enableOriginalPresentationDownload": "Luba esitluse allalaadimine ({fileExtension})",
     "app.presentationUploader.disableOriginalPresentationDownload": "Keela algse esitluse allalaadimine ({fileExtension})",
-    "app.presentationUploader.export.availableForDownload": "Esitlus on allalaadimiseks valmis",
+    "app.presentationUploader.export.availableForDownload": "Esitlus on allalaadimiseks saadaval",
     "app.presentationUploader.export.withWhiteboardAnnotations": "koos tahvlimärgetega",
     "app.presentationUploader.dropdownExportOptions": "Ekspordi valikud",
     "app.presentationUploader.dropdownExportOptionsUncomplete": "Keelatud, kuni üleslaadimine on lõpetatud",
