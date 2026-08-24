@@ -11,6 +11,32 @@ import { AUDIO_ONLY_TILE_SETTINGS_OVERRIDE } from './util';
 const iPhone11 = devices['iPhone 11'];
 
 test.describe.parallel('User', { tag: '@ci' }, () => {
+  test.describe.parallel('Waiting users', () => {
+    test('Distinguishes authenticated and guest queues', async ({ browser, context, page }, testInfo) => {
+      const guestPolicy = new GuestPolicy(browser, context);
+      await guestPolicy.initModPage(page, { createParameter: 'guestPolicy=ASK_MODERATOR', testInfo });
+      await guestPolicy.distinguishWaitingQueues();
+    });
+
+    test('Deny everyone clears both waiting queues', async ({ browser, context, page }, testInfo) => {
+      const guestPolicy = new GuestPolicy(browser, context);
+      await guestPolicy.initModPage(page, { createParameter: 'guestPolicy=ASK_MODERATOR', testInfo });
+      await guestPolicy.denyEveryoneInWaitingQueues();
+    });
+
+    test('Allow everyone clears both waiting queues', async ({ browser, context, page }, testInfo) => {
+      const guestPolicy = new GuestPolicy(browser, context);
+      await guestPolicy.initModPage(page, { createParameter: 'guestPolicy=ASK_MODERATOR', testInfo });
+      await guestPolicy.allowEveryoneInWaitingQueues();
+    });
+
+    test('Keeps queue totals visible while searching', async ({ browser, context, page }, testInfo) => {
+      const guestPolicy = new GuestPolicy(browser, context);
+      await guestPolicy.initModPage(page, { createParameter: 'guestPolicy=ASK_MODERATOR', testInfo });
+      await guestPolicy.keepQueuesVisibleWhileSearching();
+    });
+  });
+
   test.describe.parallel('Actions', () => {
     // https://docs.bigbluebutton.org/3.0/testing/release-testing/#set-status--raise-hand-automated
     test('Raise and lower Hand', async ({ browser, context, page }, testInfo) => {
@@ -170,15 +196,15 @@ test.describe.parallel('User', { tag: '@ci' }, () => {
           await guestPolicy.initModPage(page, { testInfo });
           await guestPolicy.messageToGuestLobby();
         });
-        test('Allow Everyone', async ({ browser, context, page }, testInfo) => {
+        test('Allow all authenticated', async ({ browser, context, page }, testInfo) => {
           const guestPolicy = new GuestPolicy(browser, context);
           await guestPolicy.initModPage(page, { testInfo });
-          await guestPolicy.allowEveryone();
+          await guestPolicy.allowAllAuthenticated();
         });
-        test('Deny Everyone', async ({ browser, context, page }, testInfo) => {
+        test('Deny all authenticated', async ({ browser, context, page }, testInfo) => {
           const guestPolicy = new GuestPolicy(browser, context);
           await guestPolicy.initModPage(page, { testInfo });
-          await guestPolicy.denyEveryone();
+          await guestPolicy.denyAllAuthenticated();
         });
 
         test('Remember choice', async ({ browser, context, page }, testInfo) => {
