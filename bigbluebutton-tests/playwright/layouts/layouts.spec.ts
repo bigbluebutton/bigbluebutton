@@ -69,6 +69,26 @@ test.describe.parallel('Unified Layout - viewer minimize persistence', { tag: '@
   );
 });
 
+test.describe.parallel('Unified Layout - focused camera replication', { tag: '@ci' }, () => {
+  test(
+    'Viewer follows a camera focus and keeps a local unfocus while webcams come and go',
+    { tag: '@media' },
+    async ({ browser, context }, testInfo) => {
+      linkIssue(25592);
+      const layouts = new Layouts(browser, context);
+      await initializePages(layouts, browser, {
+        isMultiUser: true,
+        createParameter: 'meetingLayout=UNIFIED_LAYOUT',
+        testInfo,
+        recordVideo: true,
+      });
+      await layouts.initUserPage2();
+      await layouts.initModPage2();
+      await layouts.unifiedLayoutViewerFocusFollowSticksOnCameraChanges();
+    },
+  );
+});
+
 test.describe.parallel('Layout', { tag: ['@flaky-3.1', '@media'] }, () => {
   let layouts: Layouts;
 
