@@ -9,15 +9,21 @@ import { checkDefaultLocationReset, checkScreenshots } from './util';
 // Comfortably away from the 600px mobile breakpoint on both sides: getDeviceType()
 // reads documentElement.clientWidth, which differs from the viewport width by the
 // scrollbar, so near-threshold values would make the legs ambiguous.
+// Both legs run under Playwright's default desktop user-agent: the layout device
+// type is derived from width alone, so resizing is enough to flip it, but the
+// UA-based deviceInfo.isMobile stays false throughout. Running these specs under
+// mobile device emulation (mobile UA) would exercise a different mount path.
 export const DESKTOP_VIEWPORT = { width: 1366, height: 768 };
 export const MOBILE_VIEWPORT = { width: 500, height: 768 };
 
 // Width of the open sidebar content panel relative to the viewport: ~1 on the
 // mobile layout (panel takes the whole width), a fraction on the desktop layout.
+// NaN when the panel is absent: it fails both the mobile (> 0.95) and the desktop
+// (< 0.6) bounds, so a panel that never renders cannot pass either leg vacuously.
 async function getSidebarContentWidthRatio(page: Page): Promise<number> {
   const box = await page.page.locator(e.sidebarContentMain).boundingBox();
   const viewport = page.page.viewportSize();
-  if (!box || !viewport) return -1;
+  if (!box || !viewport) return NaN;
   return box.width / viewport.width;
 }
 
@@ -28,16 +34,25 @@ async function assertMobileLayoutActive(page: Page) {
   );
   // entering mobile must also collapse the navigation rail; when it stays
   // expanded it overlays the open panel header and the media area
-  await expect(
-    page.page.locator(e.toggleSidebarNavigation),
+  await assertNavigationRailExpanded(
+    page,
+    false,
     'the sidebar navigation rail should be collapsed on the mobile layout',
-  ).toHaveAttribute('aria-expanded', 'false', { timeout: ELEMENT_WAIT_TIME });
+  );
   await expect
     .poll(() => getSidebarContentWidthRatio(page), {
       message: 'the open panel should take the full viewport width on the mobile layout',
       timeout: ELEMENT_WAIT_TIME,
     })
     .toBeGreaterThan(0.95);
+}
+
+async function assertNavigationRailExpanded(page: Page, expanded: boolean, message: string) {
+  await expect(page.page.locator(e.toggleSidebarNavigation), message).toHaveAttribute(
+    'aria-expanded',
+    String(expanded),
+    { timeout: ELEMENT_WAIT_TIME },
+  );
 }
 
 async function assertDesktopLayoutActive(page: Page) {
@@ -607,6 +622,45 @@ export class Layouts extends MultiUsers {
     // stayed stuck in the mobile layout until a page reload (issue 25590)
     await this.modPage.setHeightWidthViewPortSize(DESKTOP_VIEWPORT);
     await assertDesktopLayoutActive(this.modPage);
+
+    await this.attachPageVideos();
+  }
+
+  async navigationRailToggleStillWorksAfterAutoCollapse() {
+    await this.modPage.waitForSelector(e.whiteboard);
+    await assertDesktopLayoutActive(this.modPage);
+
+    // entering mobile auto-collapses the rail (asserted inside)
+    await this.modPage.setHeightWidthViewPortSize(MOBILE_VIEWPORT);
+    await assertMobileLayoutActive(this.modPage);
+
+    // the auto-collapse must not swallow the user's toggle afterwards: the user
+    // can still expand the rail and collapse it again
+    await this.modPage.waitAndClick(e.toggleSidebarNavigation);
+    await assertNavigationRailExpanded(
+      this.modPage,
+      true,
+      'the user should be able to expand the rail after the automatic collapse',
+    );
+    await this.modPage.waitAndClick(e.toggleSidebarNavigation);
+    await assertNavigationRailExpanded(
+      this.modPage,
+      false,
+      'the user should be able to collapse the rail again with the toggle',
+    );
+
+    // a rail the user expanded is collapsed again on the next entry into mobile:
+    // the collapse fires on every device type change, not only on the first one
+    await this.modPage.waitAndClick(e.toggleSidebarNavigation);
+    await assertNavigationRailExpanded(
+      this.modPage,
+      true,
+      'the rail should be expanded by the user before the desktop round trip',
+    );
+    await this.modPage.setHeightWidthViewPortSize(DESKTOP_VIEWPORT);
+    await assertDesktopLayoutActive(this.modPage);
+    await this.modPage.setHeightWidthViewPortSize(MOBILE_VIEWPORT);
+    await assertMobileLayoutActive(this.modPage);
 
     await this.attachPageVideos();
   }

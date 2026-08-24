@@ -117,6 +117,17 @@ test.describe.parallel('Device type breakpoint crossing', { tag: '@ci' }, () => 
     await layouts.desktopLayoutRestoredAfterMobileBreakpointRoundTrip();
   });
 
+  test('Sidebar navigation toggle still works after the rail auto-collapses on mobile', async ({
+    browser,
+  }, testInfo) => {
+    linkIssue(25590);
+    const context = await browser.newContext({ recordVideo: { dir: 'test-results/' } });
+    const page = await context.newPage();
+    const layouts = new Layouts(browser, context);
+    await layouts.initModPage(page, { testInfo, ...audioModalOff });
+    await layouts.navigationRailToggleStillWorksAfterAutoCollapse();
+  });
+
   test('Mobile layout is restored after the viewport crosses the desktop breakpoint and back', async ({
     browser,
   }, testInfo) => {

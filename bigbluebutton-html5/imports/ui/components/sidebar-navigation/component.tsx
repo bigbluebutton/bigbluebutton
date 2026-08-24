@@ -126,7 +126,11 @@ const SidebarNavigation = ({
     // collapse the sidebar when the device becomes mobile (e.g. the window is
     // resized across the breakpoint): mounting on mobile already starts collapsed,
     // but without this the expanded rail carried over from desktop would overlay
-    // the sidebar content and the media area
+    // the sidebar content and the media area.
+    // Deliberately a separate effect depending on isMobile only, so it fires once
+    // per device type change. Folding it into the effect above (which re-runs on
+    // every isExpanded change) would collapse the rail right back each time the
+    // user taps the toggle to expand it on mobile, breaking the toggle.
     if (isMobile) {
       setIsExpanded(false);
     }
