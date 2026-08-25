@@ -3,6 +3,7 @@ import { useIntl } from 'react-intl';
 import PollingContainer from '/imports/ui/components/polling/container';
 import ActivityCheckContainer from '/imports/ui/components/activity-check/container';
 import RequestUnmuteContainer from '/imports/ui/components/request-unmute-modal/container';
+import RequestCameraContainer from '/imports/ui/components/request-camera-modal/container';
 import ToastContainer from '/imports/ui/components/common/toast/container';
 import WakeLockContainer from '../wake-lock/container';
 import NotificationsBarContainer from '../notifications-bar/container';
@@ -151,6 +152,7 @@ const App: React.FC<AppProps> = ({
           <ActivityCheckContainer />
           <DocumentTitleManager />
           <RequestUnmuteContainer />
+          <RequestCameraContainer />
           <ScreenReaderAlertContainer />
           <BannerBarContainer />
           <NotificationsBarContainer />

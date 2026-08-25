@@ -111,6 +111,7 @@ Permission: Restricted to User Viewing Self-Related Data
 - `reactionEmoji`
 - `registeredAt`
 - `registeredOn`
+- `requestedCameraByMod`
 - `role`
 - `speechLocale`
 - `userId`
@@ -234,6 +235,7 @@ Permission: Restricted by Lock Settings
 - `reactionEmoji`
 - `registeredAt`
 - `registeredOn`
+- `requestedCameraByMod`
 - `role`
 - `speechLocale`
 - `userId`

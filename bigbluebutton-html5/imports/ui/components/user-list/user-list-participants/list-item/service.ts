@@ -11,6 +11,7 @@ import { toggleMuteMicrophone } from '/imports/ui/components/audio/audio-graphql
 import { DispatcherFunction } from '/imports/ui/components/layout/layoutTypes';
 import { UserActionPermissions } from './types';
 import logger from '/imports/startup/client/logger';
+import { notify } from '/imports/ui/services/notification';
 import { setPendingChat } from '/imports/ui/core/local-states/usePendingChat';
 
 const intlMessages = defineMessages({
@@ -122,6 +123,14 @@ const intlMessages = defineMessages({
     id: 'app.userList.menu.ejectUserCameras.label',
     description: 'label to eject user cameras',
   },
+  requestUserCameraLabel: {
+    id: 'app.userList.menu.requestUserCamera.label',
+    description: 'label to ask a user to share their camera',
+  },
+  requestUserCameraSent: {
+    id: 'app.userList.menu.requestUserCamera.sent',
+    description: 'toast confirming the camera request was sent',
+  },
   lowerUserHand: {
     id: 'app.statusNotifier.lowerHandDescOneUser',
     description: 'Label for lowering a user raised hand',
@@ -143,6 +152,7 @@ export const generateActionsPermissions = (
   isChatEnabled: boolean,
   isPrivateChatEnabled: boolean,
   type: string,
+  hasMeetingCameraCapReached: boolean,
 ) => {
   const subjectUserVoice = subjectUser.voice;
   const subjectUserInAudio = subjectUserVoice?.joined && !subjectUserVoice?.deafened;
@@ -227,6 +237,23 @@ export const generateActionsPermissions = (
     && subjectUser.cameras.length > 0
     && (type === 'participant' || type === 'raised-hand');
 
+  // Mirrors CameraHdlrHelpers.canBeAskedToShareCamera: a request the server
+  // would drop must not be offered, since dropping it is silent.
+  const isSubjectUserCamLocked = !isSubjectUserModerator
+    && subjectUser.locked
+    && !!lockSettings?.disableCam;
+
+  const allowedToRequestCamera = amIModerator
+    && !amISubjectUser
+    && !isDialInUser
+    && !isSubjectUserBot
+    && !isSubjectUserCamLocked
+    && !hasMeetingCameraCapReached
+    && !subjectUser.requestedCameraByMod
+    && usersPolicies?.allowModsToRequestCameraShare
+    && subjectUser.cameras.length === 0
+    && (type === 'participant' || type === 'raised-hand');
+
   const allowedToLowerHand = subjectUser.raiseHand
     && (amIModerator
     || amISubjectUser)
@@ -242,6 +269,7 @@ export const generateActionsPermissions = (
     allowedToDemote,
     allowedToChangeUserLockStatus,
     allowedToEjectCameras,
+    allowedToRequestCamera,
     allowedToRemove,
     allowedToLowerHand,
   };
@@ -334,6 +362,7 @@ export const createToolbarOptions = (
   setRole: MutationFunction,
   setLocked: MutationFunction,
   userEjectCameras: MutationFunction,
+  userRequestCamera: MutationFunction,
   openConfirmationModal: () => void,
   setRaiseHand: MutationFunction,
 ) => {
@@ -349,6 +378,7 @@ export const createToolbarOptions = (
     allowedToDemote,
     allowedToChangeUserLockStatus,
     allowedToEjectCameras,
+    allowedToRequestCamera,
     allowedToRemove,
     allowedToLowerHand,
   } = actionsPermitions;
@@ -525,6 +555,33 @@ export const createToolbarOptions = (
         },
         icon: 'video_off',
         dataTest: 'ejectCamera',
+      },
+      {
+        allowed: allowedToRequestCamera,
+        key: 'requestUserCamera',
+        label: intl.formatMessage(intlMessages.requestUserCameraLabel),
+        onClick: () => {
+          userRequestCamera({
+            variables: {
+              userId: user.userId,
+            },
+          }).then(() => {
+            // The request is silent for the moderator otherwise: the prompt and
+            // the answer both happen on the other end.
+            notify(
+              intl.formatMessage(intlMessages.requestUserCameraSent, { userName: user.name }),
+              'info',
+              'video',
+            );
+          }).catch((error) => {
+            logger.error({
+              logCode: 'user_request_camera_failed',
+              extraInfo: { errorMessage: error.message, userId: user.userId },
+            }, 'Requesting the user camera failed');
+          });
+        },
+        icon: 'video',
+        dataTest: 'requestUserCamera',
       },
       {
         allowed: allowedToRemove,

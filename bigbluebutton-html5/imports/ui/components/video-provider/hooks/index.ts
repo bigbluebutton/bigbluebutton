@@ -213,6 +213,21 @@ export const useHasCapReached = () => {
   return meetingCap || userCap;
 };
 
+// Meeting-wide cap only, so it holds for a subject other than the local user;
+// the per-user cap is implied by that subject having no stream yet.
+export const useHasMeetingCameraCapReached = () => {
+  const { data: meeting } = useMeeting((m) => ({
+    meetingCameraCap: m.meetingCameraCap,
+  }));
+  const videoStreamsCount = useVideoStreamsCount();
+
+  // If the meeting prop data is unreachable, force a safe return
+  if (meeting?.meetingCameraCap === undefined) return true;
+  const { meetingCameraCap } = meeting;
+
+  return meetingCameraCap !== 0 && videoStreamsCount >= (meetingCameraCap as number);
+};
+
 export const useDisableCam = () => {
   const { data: meeting } = useMeeting((m) => ({
     lockSettings: m.lockSettings,

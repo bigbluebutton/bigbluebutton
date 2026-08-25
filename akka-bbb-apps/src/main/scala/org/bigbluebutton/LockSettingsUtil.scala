@@ -144,6 +144,8 @@ object LockSettingsUtil {
       user: UserState, liveMeeting: LiveMeeting, outGW: OutMsgRouter
   ): Unit = {
     if (isCameraBroadcastLocked(user, liveMeeting)) {
+      Users2x.setUserCameraRequested(liveMeeting.users2x, user.intId, requested = false)
+
       val broadcastedWebcams = Webcams.findWebcamsForUser(liveMeeting.webcams, user.intId)
       broadcastedWebcams foreach { webcam =>
         CameraHdlrHelpers.requestBroadcastedCamEjection(
