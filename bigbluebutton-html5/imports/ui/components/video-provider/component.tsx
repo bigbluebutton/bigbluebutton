@@ -12,6 +12,11 @@ import {
 import logger from '/imports/startup/client/logger';
 import { notifyStreamStateChange } from '/imports/ui/services/bbb-webrtc-sfu/stream-state-service';
 import VideoPreviewService from '/imports/ui/components/video-preview/service';
+import VBGSelectorService from '/imports/ui/components/video-preview/virtual-background/service';
+import {
+  EFFECT_TYPES,
+  getSessionVirtualBackgroundInfo,
+} from '/imports/ui/services/virtual-background/service';
 import MediaStreamUtils from '/imports/utils/media-stream-utils';
 import BBBVideoStream from '/imports/ui/services/webrtc-base/bbb-video-stream';
 import { shouldForceRelay } from '/imports/ui/services/bbb-webrtc-sfu/utils';
@@ -114,6 +119,7 @@ interface VideoProviderProps {
   lockUser: () => void;
   stopVideo: (cameraId?: string) => void;
   applyCameraProfile: (peer: WebRtcPeer, profileId: string) => void;
+  customBackgrounds?: Record<string, { uniqueId: string, data: string }>;
   intl: IntlShape;
 }
 
@@ -793,8 +799,20 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
         peer.generateOffer().then((offer) => {
           // Store the media stream if necessary. The scenario here is one where
           // there is no preloaded stream stored.
-          if (peer.bbbVideoStream == null) {
-            bbbVideoStream = new BBBVideoStream(peer.getLocalStream());
+          const usedRawFallback = peer.bbbVideoStream == null;
+          if (usedRawFallback) {
+            // getLocalStream() hands back a single MediaStream that the peer keeps
+            // and mutates in place (its track set is rebuilt from the RTCRtpSenders
+            // on every call). Wrap an independent snapshot of the current tracks so
+            // the effect pipeline's input is not aliased to that mutable object.
+            // Otherwise reapplyStoredVirtualBackground swaps the effect's own output
+            // track back into its input: startVirtualBackground -> streamSwapped ->
+            // replacePCVideoTracks -> VideoProvider.attach -> getLocalStream()
+            // removes the raw camera track and adds the canvas track on that very
+            // stream, starving the segmentation canvas and yielding a black tile
+            // (#25266).
+            const rawStream = new MediaStream(peer.getLocalStream().getTracks());
+            bbbVideoStream = new BBBVideoStream(rawStream);
             VideoPreviewService.storeStream(
               MediaStreamUtils.extractDeviceIdFromStream(
                 bbbVideoStream.mediaStream,
@@ -812,6 +830,25 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
           });
           peer.inactivationHandler = () => this.handleLocalStreamInactive(stream);
           bbbVideoStream.once('inactive', peer.inactivationHandler);
+
+          // A raw fallback means the camera was republished without a preloaded
+          // effect stream (e.g. after a full reconnection, where onWsClose tore
+          // the effect stream down and the video-preview flow that applies the
+          // stored virtual background never runs again). Re-apply the stored
+          // background so it is not silently lost (#25266). The camera is already
+          // publishing raw, so this swaps the effect in when it is ready.
+          if (usedRawFallback) {
+            this.reapplyStoredVirtualBackground(stream).catch((error) => {
+              logger.error({
+                logCode: 'video_provider_reapply_virtualbg_unhandled',
+                extraInfo: {
+                  errorName: (error as Error).name,
+                  errorMessage: (error as Error).message,
+                  cameraId: stream,
+                },
+              }, 'Unhandled error reapplying stored virtual background after republish');
+            });
+          }
           resolve(offer);
         }).catch(reject);
       } catch (error) {
@@ -1231,6 +1268,102 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
     }
   }
 
+  // Re-apply the virtual background stored for this camera's device onto a
+  // freshly-published raw stream. createPublisher calls this when the camera is
+  // republished without a preloaded effect stream (a full-reconnection republish):
+  // the stored background is applied only in the video-preview flow, so without
+  // this the camera comes back raw with the effect silently dropped (#25266).
+  // Mirrors startVirtualBackgroundByDrop; on failure the camera stays raw and the
+  // user is notified rather than left with a silent mismatch. The stored info is
+  // only read here, never mutated.
+  private async reapplyStoredVirtualBackground(stream: string) {
+    const peer = this.webRtcPeers[stream];
+    const bbbVideoStream = peer?.bbbVideoStream;
+    if (bbbVideoStream?.mediaStream == null) return;
+
+    let virtualBgType: string | undefined;
+
+    try {
+      const deviceId = MediaStreamUtils.extractDeviceIdFromStream(
+        bbbVideoStream.mediaStream,
+        'video',
+      );
+      const storedBackground = getSessionVirtualBackgroundInfo(deviceId);
+
+      if (storedBackground == null || storedBackground.type === EFFECT_TYPES.NONE_TYPE) return;
+
+      const { type, name, uniqueId } = storedBackground;
+      virtualBgType = type;
+
+      // Custom backgrounds keep their image data out of the stored session info and
+      // are resolved by uniqueId; built-in images and blur carry no uniqueId and are
+      // resolved from their name. A join-parameter background (uniqueId
+      // 'webcamBackgroundURL', flagged sessionOnly) is never persisted to IndexedDB
+      // and lives only in the CustomVirtualBackgrounds context, so resolve from the
+      // context first (mirroring the preview's getCustomParams) and fall back to
+      // IndexedDB for uploads not held in the context.
+      let customParams;
+      if (uniqueId) {
+        // The reducer's ACTIONS.NEW can default a background's uniqueId, so the map
+        // key and background.uniqueId may diverge; match on both, as the preview does.
+        const backgrounds: Record<string, { uniqueId: string, data: string }> = this.props.customBackgrounds ?? {};
+        const contextFile = (backgrounds[uniqueId]
+          ?? Object.values(backgrounds).find((bg) => bg.uniqueId === uniqueId))?.data;
+        const file = contextFile ?? await VideoProvider.getCustomBackgroundData(uniqueId);
+        customParams = { uniqueId, file };
+      }
+
+      // The awaits above (IndexedDB read here, WASM model load inside
+      // startVirtualBackground) yield the event loop, and the peer may have been
+      // torn down meanwhile (user clicked "Stop sharing webcam", or a second
+      // onWsClose fired on a flapping connection - this PR's own scenario). Re-check
+      // liveness before starting the effect: on a dead stream startEffect reads
+      // getSettings() off an ended track and silently produces a 0x0 canvas whose
+      // segmentation worker never receives its onloadeddata kick, for a camera that
+      // is already gone.
+      if (this.webRtcPeers[stream]?.bbbVideoStream !== bbbVideoStream
+        || bbbVideoStream.mediaStream == null) return;
+
+      await bbbVideoStream.startVirtualBackground(type, name, customParams);
+
+      // startVirtualBackground builds the Worker + WASM instance before it flips
+      // isVirtualBackgroundEnabled, so a teardown during that window leaves stop()
+      // skipping stopVirtualBackground() - the effect resolves onto a dead stream and
+      // leaks. Re-check liveness after the await and tear the effect down ourselves.
+      if (this.webRtcPeers[stream]?.bbbVideoStream !== bbbVideoStream) {
+        bbbVideoStream.stopVirtualBackground();
+      }
+    } catch (error) {
+      logger.error({
+        logCode: 'video_provider_reapply_virtualbg_error',
+        extraInfo: {
+          errorName: (error as Error).name,
+          errorMessage: (error as Error).message,
+          cameraId: stream,
+          virtualBgType,
+        },
+      }, 'Failed to reapply stored virtual background after republish');
+      const { intl } = this.props;
+      VideoService.notify(intl.formatMessage(intlClientErrors.virtualBgGenericError));
+    }
+  }
+
+  static getCustomBackgroundData(uniqueId: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      VBGSelectorService.load(
+        // The service's error path forwards the raw IndexedDB error Event; wrap it
+        // in an Error so downstream logging gets a real name/message instead of
+        // undefined on exactly the failure path we want diagnostics for.
+        (event: Event) => reject(new Error(`Failed to load custom virtual backgrounds: ${event?.type ?? 'unknown'}`)),
+        (backgrounds: Array<{ uniqueId: string, data: string }>) => {
+          const background = backgrounds.find((bg) => bg.uniqueId === uniqueId);
+          if (background?.data) resolve(background.data);
+          else reject(new Error('Missing custom virtual background data'));
+        },
+      );
+    });
+  }
+
   createVideoTag(stream: string, video: HTMLVideoElement) {
     const peer = this.webRtcPeers[stream];
     this.videoTags[stream] = video;
@@ -1337,9 +1470,8 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
 
   replacePCVideoTracks(streamId: string, mediaStream: MediaStream) {
     const peer = this.webRtcPeers[streamId];
-    const videoElement = this.getVideoElement(streamId);
 
-    if (peer == null || mediaStream == null || videoElement == null) return;
+    if (peer == null || mediaStream == null) return;
 
     const pc = peer.peerConnection;
     const newTracks = mediaStream.getVideoTracks();
@@ -1361,7 +1493,11 @@ class VideoProvider extends Component<VideoProviderProps, VideoProviderState> {
         }
       });
       Promise.all(trackReplacers).then(() => {
-        VideoProvider.attach(peer, videoElement);
+        // The reapply caller runs at publish time with no guarantee the tile is
+        // mounted; only the local self-view re-attach needs the element, so the
+        // sender replaceTrack above must not be gated on it.
+        const videoElement = this.getVideoElement(streamId);
+        if (videoElement != null) VideoProvider.attach(peer, videoElement);
       });
     }
   }
