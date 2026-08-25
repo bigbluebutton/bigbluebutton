@@ -2,10 +2,10 @@ import React, { useEffect, useReducer, useRef } from 'react';
 import { createContext, useContextSelector } from 'use-context-selector';
 import PropTypes from 'prop-types';
 import { clone } from 'ramda';
-import { getDeviceType, presentationContentHasChanges } from './utils';
+import { getDeviceType, presentationContentHasChanges, LAYOUTS_SYNC } from './utils';
 import {
   ACTIONS, PRESENTATION_AREA, PANELS,
-  CAMERADOCK_POSITION,
+  CAMERADOCK_POSITION, LAYOUT_ELEMENTS, SYNC,
 } from '/imports/ui/components/layout/enums';
 import DEFAULT_VALUES from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE, INITIAL_OUTPUT_STATE } from './initState';
@@ -21,6 +21,9 @@ import {
   removePluginUnpinnedApp,
 } from '/imports/ui/components/apps-gallery/service';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
+import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
+import useSettings from '/imports/ui/services/settings/hooks/useSettings';
+import { SETTINGS } from '/imports/ui/services/settings/enums';
 
 // variable to debug in console log
 const debug = false;
@@ -1766,6 +1769,7 @@ const updatePresentationAreaContent = (
   previousPresentationAreaContentActions,
   layoutContextDispatch,
   isPresentationEnabled,
+  followerPresentationOpen,
 ) => {
   const { layoutType } = layoutContextState;
   const { sidebarContent, sidebarContentAuxiliary, sharedNotes } = layoutContextState.input;
@@ -1885,7 +1889,17 @@ const updatePresentationAreaContent = (
           type: ACTIONS.SET_NOTES_IS_PINNED,
           value: !lastPresentationContentInPile.value.open,
         });
-        shouldOpenPresentation = Session.getItem('presentationLastState');
+        // The pop back to the whiteboard is a shared transition, driven by
+        // meeting state on every client at once. Followers of a synchronized
+        // layout restore to the meeting presentation state (mirroring
+        // replicatePresentationState) so they land on the same view as the
+        // presenter, instead of on their own local memory.
+        if (typeof followerPresentationOpen === 'boolean') {
+          shouldOpenPresentation = followerPresentationOpen;
+          Session.setItem('presentationLastState', followerPresentationOpen);
+        } else {
+          shouldOpenPresentation = Session.getItem('presentationLastState');
+        }
         break;
       }
       default:
@@ -1915,9 +1929,24 @@ const LayoutContextProvider = (props) => {
 
   const { data: currentMeeting } = useMeeting((m) => ({
     componentsFlags: m.componentsFlags,
+    layout: m.layout,
   }));
 
   const isSharedNotesPinned = currentMeeting?.componentsFlags?.isSharedNotesPinned;
+
+  const { data: currentUser } = useCurrentUser((user) => ({
+    presenter: user.presenter,
+  }));
+  const { selectedLayout } = useSettings(SETTINGS.LAYOUT);
+
+  const meetingLayout = currentMeeting?.layout;
+  const notInitialLayoutValues = !!meetingLayout?.setByUserId
+    && meetingLayout.setByUserId !== 'system';
+  const layoutReplicatesPresentationState = !!LAYOUTS_SYNC[selectedLayout]
+    ?.[SYNC.REPLICATE_ELEMENTS]?.includes(LAYOUT_ELEMENTS.PRESENTATION_STATE);
+  const followerPresentationOpen = (
+    !currentUser?.presenter && notInitialLayoutValues && layoutReplicatesPresentationState
+  ) ? !meetingLayout.presentationMinimized : undefined;
 
   const [layoutContextState, layoutContextDispatch] = useReducer(reducer, initState);
   const isPresentationEnabled = useIsPresentationEnabled();
@@ -1936,6 +1965,7 @@ const LayoutContextProvider = (props) => {
         previousPresentationAreaContentActions,
         layoutContextDispatch,
         isPresentationEnabled,
+        followerPresentationOpen,
       );
     }
   }, [layoutContextState, isPresentationEnabled]);
