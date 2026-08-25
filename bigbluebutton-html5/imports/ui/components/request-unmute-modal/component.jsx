@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, FormattedMessage } from 'react-intl';
 import { BBButton } from '@mconf/bbb-ui-components-react';
 import Icon from '/imports/ui/components/common/icon/component';
 import Styled from './styles';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 const propTypes = {
   intl: PropTypes.shape({
@@ -30,6 +31,10 @@ const intlMessages = defineMessages({
     id: 'app.unmute.modal.deny.label',
     description: 'Label for the unmute denial button',
   },
+  denyButtonLabelMobile: {
+    id: 'app.unmute.modal.deny.label.mobile',
+    description: 'Label for the unmute denial button on mobile',
+  },
 });
 
 const RequestUnmuteComponent = ({
@@ -41,6 +46,23 @@ const RequestUnmuteComponent = ({
     const alert = new Audio(`${window.meetingClientSettings.public.app.cdn + window.meetingClientSettings.public.app.basename}/resources/sounds/notify.mp3`);
     alert.play();
   }, []);
+
+  const [isSmallViewport, setIsSmallViewport] = useState(
+    // eslint-disable-next-line no-undef
+    () => globalThis.matchMedia(smallOnly).matches,
+  );
+
+  useEffect(() => {
+    // eslint-disable-next-line no-undef
+    const mediaQuery = globalThis.matchMedia(smallOnly);
+    const handleChange = (event) => setIsSmallViewport(event.matches);
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  const denyLabel = isSmallViewport
+    ? intl.formatMessage(intlMessages.denyButtonLabelMobile)
+    : intl.formatMessage(intlMessages.denyButtonLabel);
 
   return (
     <Styled.RequestModal
@@ -63,7 +85,7 @@ const RequestUnmuteComponent = ({
           color="default"
         />
         <BBButton
-          label={intl.formatMessage(intlMessages.denyButtonLabel)}
+          label={denyLabel}
           dataTest="denyUnmute"
           iconStart={<Icon iconName="mute" />}
           onClick={handleDeny}

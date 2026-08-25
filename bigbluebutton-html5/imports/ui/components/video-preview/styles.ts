@@ -71,9 +71,10 @@ const BgnCol = styled.div`
   justify-content: center;
   margin: 0 0.5rem 0 0.5rem;
 
+  /* No align-items here: the thumbnail grid centers its own items and needs a
+     definite width to compute how many columns fit. */
   @media ${smallOnly} {
     justify-content: space-between;
-    align-items: center;
     margin: 0;
   }
 `;

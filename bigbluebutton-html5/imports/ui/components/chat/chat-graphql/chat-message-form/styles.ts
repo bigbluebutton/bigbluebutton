@@ -192,14 +192,6 @@ const InputWrapper = styled.div`
   gap: 3px;
   cursor: text;
 
-  [dir='ltr'] & {
-    border-radius: 0.75rem 0 0 0.75rem;
-  }
-
-  [dir='rtl'] & {
-    border-radius: 0 0.75rem 0.75rem 0;
-  }
-
   &:focus-within {
     border-color: ${colorPrimary};
     box-shadow: 0 0 0 ${xsPadding} ${colorBorder};

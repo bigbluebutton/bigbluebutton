@@ -27,14 +27,15 @@ const usePushLayoutUpdater = (pushLayout: boolean) => {
 };
 
 const useMeetingLayoutUpdater = (
-  cameraDockOutput: Output['cameraDock'],
+  // Never the raw output: see getPropagatedCameraDock.
+  propagatedCameraDock: Output['cameraDock'],
   cameraDockInput: Input['cameraDock'],
   presentationInput: Input['presentation'],
   layoutSettings: { pushLayout: boolean, selectedLayout: boolean },
 ) => {
   const [setMeetingLayoutProps] = useMutation(SET_LAYOUT_PROPS);
 
-  const { focusedId, position } = cameraDockOutput;
+  const { focusedId, position } = propagatedCameraDock;
   const { isResizing } = cameraDockInput;
   const { isOpen: presentationIsOpen } = presentationInput;
   const { selectedLayout } = layoutSettings;
@@ -48,7 +49,7 @@ const useMeetingLayoutUpdater = (
         isResizing,
         cameraPosition: position || 'contentTop',
         focusedCamera: focusedId || 'none',
-        presentationVideoRate: calculatePresentationVideoRate(cameraDockOutput),
+        presentationVideoRate: calculatePresentationVideoRate(propagatedCameraDock),
       },
     });
   };

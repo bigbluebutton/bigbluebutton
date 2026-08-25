@@ -2,7 +2,31 @@ import { Locator } from '@playwright/test';
 
 import { ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
-import { Page } from '../core/page';
+import { ClientSettingsOverrides, Page } from '../core/page';
+
+// Client settings overrides that deterministically reproduce issue 25242 regardless of the
+// server config: the audio-only-tiles feature on, plus the equally-paginated branch
+// (partitionPrivilegedStreams: false) that used to drop audio-only tiles for non-privileged
+// (attendee) streams. Both are config-only settings (no per-meeting/userdata override), so
+// they are injected via `clientSettingsOverrides` in initModPage/initUserPage.
+export const AUDIO_ONLY_TILE_SETTINGS_OVERRIDE: ClientSettingsOverrides = {
+  public: {
+    kurento: {
+      cameraSortingModes: {
+        showAudioOnlyOnFirstPage: true,
+        partitionPrivilegedStreams: false,
+      },
+    },
+  },
+};
+
+// Locator for audio-only tiles (camera-less users that hold the audio floor): a webcam
+// grid item rendering the connecting/avatar placeholder instead of a <video> element.
+export function audioOnlyTilesLocator(testPage: Page): Locator {
+  return testPage.page
+    .locator(`${e.webcamItem}, ${e.webcamItemTalkingUser}`)
+    .filter({ has: testPage.page.locator(e.webcamConnecting) });
+}
 
 export async function openLockViewers(testPage: Page) {
   const isLockViewersButtonVisible = await testPage.page.locator(e.lockViewersButton).isVisible({ timeout: ELEMENT_WAIT_TIME }).catch(() => false);
@@ -36,12 +60,15 @@ export async function checkAvatarIcon(testPage: Page, checkModIcon = true) {
 }
 
 export async function checkIsPresenter(testPage: Page) {
+  // 4.0 no longer emits the data-test-presenter avatar attribute to the DOM. The
+  // current user's role is shown in the user-list item's "userNameSubs" sublabel
+  // (e.g. "Presenter | Moderator"), so detect the presenter role from that text.
   return testPage.page.evaluate(
-    ([currentAvatarSelector, userAvatarSelector]) =>
-      document
-        .querySelectorAll(`${currentAvatarSelector} ${userAvatarSelector}`)[0]
-        .hasAttribute('data-test-presenter'),
-    [e.currentUser, e.userAvatar],
+    ([currentUserSelector, userNameSubsSelector]) => {
+      const subs = document.querySelector(`${currentUserSelector} ${userNameSubsSelector}`);
+      return !!subs && (subs.textContent ?? '').includes('Presenter');
+    },
+    [e.currentUser, e.userNameSubs],
   );
 }
 

@@ -158,13 +158,15 @@ export const generateActionsPermissions = (
   const preventSelfChat = !amISubjectUser;
   const moderatorOverride = currentUserIsModerator
     && !amISubjectUser && !isDialInUser && isPrivateChatEnabled;
+  const viewerToModeratorOverride = isSubjectUserModerator
+    && isChatEnabled && isPrivateChatEnabled && !isDialInUser && !isSubjectUserBot;
   const regularUserCondition = (isPrivateChatEnabled
     && isChatEnabled
     && !lockSettings?.disablePrivateChat
     && !isDialInUser)
     || currentUserIsModerator;
   const allowedToChatPrivately = preventSelfChat
-    && (moderatorOverride || regularUserCondition || !userChatIsLocked)
+    && (moderatorOverride || viewerToModeratorOverride || regularUserCondition || !userChatIsLocked)
     && type === 'participant';
 
   const allowedToMuteAudio = hasAuthority
@@ -328,7 +330,7 @@ export const createToolbarOptions = (
   pageId: string,
   layoutContextDispatch: DispatcherFunction,
   chatCreateWithUser: MutationFunction,
-  toggleVoice: (userId: string, muted: boolean) => Promise<void>,
+  voiceToggle: (userId: string, muted: boolean) => Promise<void>,
   userSetWhiteboardWriteAccess: MutationFunction,
   setPresenter: MutationFunction,
   setRole: MutationFunction,
@@ -385,7 +387,7 @@ export const createToolbarOptions = (
           ? intl.formatMessage(intlMessages.unmuteUserAudioLabel)
           : intl.formatMessage(intlMessages.microphoneClosed),
         onClick: hasPermissionToUnmute
-          ? () => toggleVoice(user.userId, false)
+          ? () => toggleVoice(user.userId, false, voiceToggle)
           : () => {},
         disabled: !hasPermissionToUnmute,
         dataTest: hasPermissionToUnmute ? 'unmuteUser' : 'audioStateMuted ',
@@ -399,7 +401,7 @@ export const createToolbarOptions = (
         ? intl.formatMessage(intlMessages.muteUserAudioLabel)
         : intl.formatMessage(intlMessages.microphoneOpen),
       onClick: hasPermissionToMute
-        ? () => toggleVoice(user.userId, true)
+        ? () => toggleVoice(user.userId, true, voiceToggle)
         : () => {},
       disabled: !hasPermissionToMute,
       dataTest: hasPermissionToMute ? 'muteUser' : 'audioStateUnmuted',

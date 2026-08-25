@@ -304,10 +304,29 @@ export class Options extends MultiUsers {
     const fullscreenButton = '#app-settings-dropdown-menu li[role="menuitem"]:has(.icon-bbb-fullscreen)';
     await this.modPage.waitForSelector(fullscreenButton);
 
+    // Opening the settings menu via keyboard auto-focuses the first menu item
+    // (BBBMenu enables MUI autoFocus for keyboard input sources - the WAI-ARIA
+    // menu-button behavior), so the fullscreen option is focused before any arrow key.
+    await expect(
+      this.modPage.page.locator(fullscreenButton),
+      'should auto-focus the fullscreen option (first item) when opening the menu via keyboard',
+    ).toBeFocused({ timeout: ELEMENT_WAIT_TIME });
+
+    // In the default 4.0 configuration the options dropdown exposes a single
+    // navigable item (fullscreen): the Leave/End meeting entries are gated behind
+    // directLeaveButton, which defaults to true, and optionsDropdownItems only come
+    // from plugins. BBBMenu's arrow handler wraps around, so the arrow keys keep
+    // focus on the only item rather than moving it off.
     await this.modPage.press('ArrowDown');
     await expect(
       this.modPage.page.locator(fullscreenButton),
-      'should focus the fullscreen option on the first ArrowDown',
+      'ArrowDown should wrap around and keep focus on the fullscreen option (only item)',
+    ).toBeFocused({ timeout: ELEMENT_WAIT_TIME });
+
+    await this.modPage.press('ArrowUp');
+    await expect(
+      this.modPage.page.locator(fullscreenButton),
+      'ArrowUp should wrap around and keep focus on the fullscreen option (only item)',
     ).toBeFocused({ timeout: ELEMENT_WAIT_TIME });
   }
 

@@ -49,6 +49,7 @@ import useJoinLogger from './hooks/useJoinLogger';
 import useAppInitialization from './hooks/useAppInitialization';
 import usePollShortcut from './hooks/usePollShortcut';
 import useUserStatusNotifications from './hooks/useUserStatusNotifications';
+import useSystemThemeSync from './hooks/useSystemThemeSync';
 import { NotesRenderMode } from '/imports/ui/components/notes/constants';
 import RequestPresenterContainer from '/imports/ui/components/request-presenter/container';
 import DocumentTitleManager from './document-title-manager/component';
@@ -108,6 +109,7 @@ const App: React.FC<AppProps> = ({
   useJoinLogger(meetingId, meetingName, isBreakout);
   usePollShortcut(layoutContextDispatch, isPollingEnabled);
   useUserStatusNotifications(meetingId, currentUserAway, currentUserRaiseHand, intl);
+  useSystemThemeSync();
 
   useEffect(() => {
     AppService.setDarkTheme(darkTheme);

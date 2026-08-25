@@ -43,6 +43,7 @@ interface RecordingNotifyModalProps {
   closeModal: () => void;
   isOpen: boolean;
   priority: string;
+  notifyRecordingAppend: string;
 }
 
 const RecordingNotifyModal: React.FC<RecordingNotifyModalProps> = ({
@@ -50,8 +51,10 @@ const RecordingNotifyModal: React.FC<RecordingNotifyModalProps> = ({
   closeModal,
   isOpen,
   priority,
+  notifyRecordingAppend,
 }) => {
   const [userLeaveMeeting] = useMutation(USER_LEAVE_MEETING);
+  const hasRecordingAppend = notifyRecordingAppend.trim().length > 0;
 
   const intl = useIntl();
   const skipButtonHandle = useCallback(() => {
@@ -77,6 +80,7 @@ const RecordingNotifyModal: React.FC<RecordingNotifyModalProps> = ({
   return (
     <Styled.RecordingNotifyModal
       contentLabel={intl.formatMessage(intlMessages.title)}
+      data-test="recordingNotifyModal"
       shouldShowCloseButton={false}
       title={intl.formatMessage(intlMessages.title)}
       {...{
@@ -86,12 +90,18 @@ const RecordingNotifyModal: React.FC<RecordingNotifyModalProps> = ({
       }}
     >
       <Styled.Container>
-        <Styled.Description>
+        <Styled.Description data-test="recordingNotifyDescription">
           {intl.formatMessage(intlMessages.description)}
+          {hasRecordingAppend ? (
+            <Styled.AppendDescription data-test="recordingNotifyAppend">
+              {notifyRecordingAppend}
+            </Styled.AppendDescription>
+          ) : null}
         </Styled.Description>
         <Styled.Footer>
           <BBButton
             variant="primary"
+            dataTest="recordingNotifyContinue"
             label={intl.formatMessage(intlMessages.continue)}
             onClick={handleContinueInRecordedSession}
             ariaLabel={intl.formatMessage(intlMessages.continueAriaLabel)}

@@ -4,6 +4,7 @@ import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TI
 import { elements as e } from '../../core/elements';
 import { MultiUsers } from '../../user/multiusers';
 import {
+  enableMarkdownNotesOptions,
   getBlockNoteEditorLocator,
   getBlockNoteReadOnlyLocator,
   hasNoUnreadNotesIndicator,
@@ -49,6 +50,39 @@ export class BlockNoteSharedNotes extends MultiUsers {
     await editorLocator.press('Control+Z');
     await editorLocator.press('Control+Z');
     await editorLocator.press('Control+Z');
+
+    await this.modPage.waitAndClick(e.hideNotesLabel);
+    await this.modPage.wasRemoved(e.hideNotesLabel, 'should not display the hide notes label');
+  }
+
+  async typeFractionsWithoutOpeningSlashMenu() {
+    const { sharedNotesEnabled } = this.modPage.settings || {};
+
+    if (!sharedNotesEnabled) {
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button');
+      await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
+      return;
+    }
+
+    await startSharedNotesBlockNote(this.modPage);
+    const editorLocator = getBlockNoteEditorLocator(this.modPage);
+    const equation = '1/4 + 1/4 = 1/2';
+    await editorLocator.click();
+    await editorLocator.pressSequentially(equation);
+
+    await expect(
+      this.modPage.page.locator(e.blockNoteSlashMenuItem),
+      'a slash inside a fraction should not open the slash menu',
+    ).toHaveCount(0);
+
+    await editorLocator.press('Enter');
+    await expect(editorLocator, 'pressing Enter should keep the complete equation').toContainText(equation);
+
+    await editorLocator.pressSequentially('/');
+    await expect(
+      this.modPage.page.locator(e.blockNoteSlashMenuItem).first(),
+      'a slash at the start of a block should open the slash menu',
+    ).toBeVisible({ timeout: ELEMENT_WAIT_TIME });
 
     await this.modPage.waitAndClick(e.hideNotesLabel);
     await this.modPage.wasRemoved(e.hideNotesLabel, 'should not display the hide notes label');
@@ -364,6 +398,8 @@ export class BlockNoteSharedNotes extends MultiUsers {
     await startSharedNotesBlockNote(this.modPage);
     await this.modPage.waitAndClick(e.notesOptions);
     await this.modPage.waitAndClick(e.pinNotes);
+    await this.modPage.closeAllToastNotifications();
+    await this.userPage.closeAllToastNotifications();
     await this.modPage.hasElement(
       e.unpinNotes,
       'should display the unpin notes button for the moderator after pinning the notes again',
@@ -373,9 +409,113 @@ export class BlockNoteSharedNotes extends MultiUsers {
     await this.modPage.waitAndClick(e.moreOptionsUserItemButton);
     await this.modPage.waitAndClick(e.makePresenter);
     await this.userPage.closeAllToastNotifications();
+    await this.userPage.closeAllToastNotifications();
     await this.userPage.waitAndClick(e.unpinNotes);
     await this.userPage.hasElement(e.whiteboard, 'should restore the presentation for the attendee (previous state)');
     await this.modPage.hasElement(e.whiteboard, 'should restore the presentation for the moderator (previous state)');
+  }
+
+  async pinnedHeaderActions() {
+    const { sharedNotesEnabled } = this.modPage.settings || {};
+
+    if (!sharedNotesEnabled) {
+      await this.modPage.hasElement(e.messagesSidebarButton, 'should display the public chat button');
+      await this.modPage.wasRemoved(e.sharedNotesSidebarButton, 'should not display the shared notes button');
+      return;
+    }
+
+    await enableMarkdownNotesOptions(this.modPage);
+    await enableMarkdownNotesOptions(this.userPage);
+    await startSharedNotesBlockNote(this.modPage);
+    await this.modPage.waitAndClick(e.notesOptions);
+    await this.modPage.waitAndClick(e.pinNotes);
+
+    const assertPinnedHeaderControlsFit = async (width: number, height: number) => {
+      await this.modPage.setHeightWidthViewPortSize({ width, height });
+      const header = this.modPage.page.locator(e.pinnedNotesHeader);
+      const options = this.modPage.page.locator(e.notesOptions);
+      const unpin = this.modPage.page.locator(e.unpinNotes);
+      await expect(header, `should display the pinned header at ${width}x${height}`).toBeVisible();
+      await expect(options, `should display notes options at ${width}x${height}`).toBeVisible();
+      await expect(unpin, `should display unpin at ${width}x${height}`).toBeVisible();
+
+      const [headerBox, optionsBox, unpinBox] = await Promise.all([
+        header.boundingBox(),
+        options.boundingBox(),
+        unpin.boundingBox(),
+      ]);
+      expect(headerBox, 'the pinned header should have layout dimensions').not.toBeNull();
+      expect(optionsBox, 'the notes options control should have layout dimensions').not.toBeNull();
+      expect(unpinBox, 'the unpin control should have layout dimensions').not.toBeNull();
+      if (!headerBox || !optionsBox || !unpinBox) return;
+      expect(optionsBox.x, 'notes options should stay inside the pinned header').toBeGreaterThanOrEqual(headerBox.x);
+      expect(unpinBox.x + unpinBox.width, 'unpin should stay inside the pinned header').toBeLessThanOrEqual(
+        headerBox.x + headerBox.width + 1,
+      );
+      expect(optionsBox.x + optionsBox.width, 'the pinned header controls should not overlap').toBeLessThanOrEqual(
+        unpinBox.x,
+      );
+    };
+
+    await assertPinnedHeaderControlsFit(390, 844);
+    await assertPinnedHeaderControlsFit(1366, 768);
+
+    const modOptions = this.modPage.page.locator(e.notesOptions);
+    await modOptions.focus();
+    await modOptions.press('Enter');
+    await expect(this.modPage.page.locator(e.importNotesFromMarkdown)).toBeVisible();
+    await expect(this.modPage.page.locator(e.sendNotesToWhiteboard)).toBeVisible();
+    await expect(this.modPage.page.locator(e.exportNotesAsPDF)).toBeVisible();
+    await expect(this.modPage.page.locator(e.exportNotesAsMarkdown)).toBeVisible();
+    await expect(this.modPage.page.locator(e.pinNotes), 'should not offer to pin notes that are pinned').toHaveCount(0);
+    await this.modPage.page.keyboard.press('Escape');
+    await expect(this.modPage.page.locator(e.exportNotesAsPDF)).toBeHidden();
+    await expect(modOptions, 'keyboard focus should return to the notes options control').toBeFocused();
+
+    await expect(this.userPage.page.locator(e.pinnedNotesHeader)).toBeVisible();
+    await expect(this.userPage.page.locator(e.unpinNotes), 'a viewer should not be able to unpin notes').toHaveCount(0);
+    const userOptions = this.userPage.page.locator(e.notesOptions);
+    await userOptions.focus();
+    await userOptions.press('Enter');
+    await expect(this.userPage.page.locator(e.exportNotesAsPDF)).toBeVisible();
+    await expect(this.userPage.page.locator(e.exportNotesAsMarkdown)).toBeVisible();
+    await expect(
+      this.userPage.page.locator(e.importNotesFromMarkdown),
+      'a viewer should not be able to import notes',
+    ).toHaveCount(0);
+    await expect(
+      this.userPage.page.locator(e.sendNotesToWhiteboard),
+      'a viewer should not be able to convert notes',
+    ).toHaveCount(0);
+    await expect(this.userPage.page.locator(e.pinNotes)).toHaveCount(0);
+    await this.userPage.page.keyboard.press('Escape');
+
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
+    await this.modPage.waitAndClick(e.moreOptionsUserItemButton);
+    await this.modPage.waitAndClick(e.makePresenter);
+    await expect(
+      this.userPage.page.locator(e.unpinNotes),
+      'the new presenter should be able to unpin notes',
+    ).toBeVisible();
+    await expect(
+      this.modPage.page.locator(e.unpinNotes),
+      'a moderator who is not the presenter should not be able to unpin notes',
+    ).toHaveCount(0);
+
+    await userOptions.focus();
+    await userOptions.press('Enter');
+    await expect(this.userPage.page.locator(e.importNotesFromMarkdown)).toBeVisible();
+    await expect(this.userPage.page.locator(e.sendNotesToWhiteboard)).toBeVisible();
+    await this.userPage.page.keyboard.press('Escape');
+
+    await this.userPage.closeAllToastNotifications();
+    const userUnpin = this.userPage.page.locator(e.unpinNotes);
+    await userUnpin.focus();
+    await userUnpin.press('Enter');
+    await expect(this.userPage.page.locator(e.pinnedNotesHeader)).toHaveCount(0);
+    await expect(this.modPage.page.locator(e.pinnedNotesHeader)).toHaveCount(0);
+    await this.userPage.hasElement(e.whiteboard, 'should restore the presentation for the presenter');
+    await this.modPage.hasElement(e.whiteboard, 'should restore the presentation for the moderator');
   }
 
   async formatBlockNoteMessage() {
@@ -432,7 +572,10 @@ export class BlockNoteSharedNotes extends MultiUsers {
     await this.modPage.page.keyboard.type('Hello attendees');
 
     // viewer (notes panel closed) must see the unread indicator
-    await this.userPage.hasNotificationIcon(e.sharedNotesSidebarButton, 'should display the unread indicator for the viewer');
+    await this.userPage.hasNotificationIcon(
+      e.sharedNotesSidebarButton,
+      'should display the unread indicator for the viewer',
+    );
 
     // opening the notes clears the indicator
     await startSharedNotesBlockNote(this.userPage);
@@ -447,6 +590,9 @@ export class BlockNoteSharedNotes extends MultiUsers {
     const modNotesEditor = getBlockNoteEditorLocator(this.modPage);
     await modNotesEditor.click();
     await this.modPage.page.keyboard.type('New content');
-    await this.userPage.hasNotificationIcon(e.sharedNotesSidebarButton, 'should display the unread indicator again after new edits');
+    await this.userPage.hasNotificationIcon(
+      e.sharedNotesSidebarButton,
+      'should display the unread indicator again after new edits',
+    );
   }
 }

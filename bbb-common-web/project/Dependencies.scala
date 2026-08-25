@@ -15,7 +15,7 @@ object Dependencies {
     // Libraries
     val pekkoVersion = "1.0.1"
     val gson = "2.8.9"
-    val jackson = "2.13.5"
+    val jackson = "2.22.1"
     val freemarker = "2.3.31"
     val awsSdkS3 = "1.12.779"
     val apacheHttp = "4.5.13"
@@ -27,7 +27,7 @@ object Dependencies {
     // Office and document conversion
     val apachePoi = "5.5.1"
     val nuProcess = "2.0.6"
-    val tika = "3.3.1"
+    val tika = "3.3.2"
 
     // Server
     val servlet = "4.0.1"
@@ -54,6 +54,9 @@ object Dependencies {
     val googleGson = "com.google.code.gson" % "gson" % Versions.gson
     val jacksonModule = "com.fasterxml.jackson.module" %% "jackson-module-scala" % Versions.jackson
     val jacksonXml = "com.fasterxml.jackson.dataformat" % "jackson-dataformat-xml" % Versions.jackson
+    // Direct dep so it wins conflict resolution over the jackson-dataformat-cbor 2.17.2
+    // that aws-java-sdk-core pulls in, keeping the whole jackson suite on one version.
+    val jacksonCbor = "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % Versions.jackson
     val freemarker = "org.freemarker" % "freemarker" % Versions.freemarker
     val awsSdkS3 = "com.amazonaws" % "aws-java-sdk-s3" % Versions.awsSdkS3
     val apacheHttp = "org.apache.httpcomponents" % "httpclient" % Versions.apacheHttp
@@ -95,6 +98,7 @@ object Dependencies {
     Compile.googleGson,
     Compile.jacksonModule,
     Compile.jacksonXml,
+    Compile.jacksonCbor,
     Compile.freemarker,
     Compile.awsSdkS3,
     Compile.apacheHttp,

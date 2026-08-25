@@ -26,6 +26,7 @@ const SearchContainer = styled.div`
   padding: ${smPaddingY} ${smPaddingX};
   width: auto;
   height: 40px;
+  flex-shrink: 0;
   overflow: hidden;
   box-shadow: none;
   cursor: text;

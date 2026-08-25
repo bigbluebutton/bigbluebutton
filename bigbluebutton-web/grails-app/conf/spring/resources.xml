@@ -298,6 +298,7 @@ with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
         <property name="preUploadedPresentationOverrideDefault" value="${beans.presentationService.preUploadedPresentationOverrideDefault}"/>
         <property name="scanUploadedPresentationFiles" value="${scanUploadedPresentationFiles}"/>
         <property name="pageTokenSecret" value="${pageTokenSecret}"/>
+        <property name="numDownloadThreads" value="${numPresentationDownloadThreads}"/>
     </bean>
 
     <bean id="pdfPageDownscaler" class="org.bigbluebutton.presentation.imp.PdfPageDownscaler">

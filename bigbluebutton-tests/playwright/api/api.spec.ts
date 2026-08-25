@@ -14,6 +14,14 @@ test.describe.parallel('API', () => {
     await api.testGetMeetingInfo(page, testInfo);
   });
 
+  test('webVoiceParamIgnored', async () => {
+    await API.testWebVoiceParamIgnored();
+  });
+
+  test('duplicateVoiceBridgeRejected', async () => {
+    await API.testDuplicateVoiceBridgeRejected();
+  });
+
   test('breakoutWithoutParent', async () => {
     await APIBreakout.testBreakoutWithoutParent();
   });

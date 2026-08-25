@@ -97,6 +97,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
 
   const isHidden = (isOnMediaArea && (sharedNotesOutput.width === 0 || sharedNotesOutput.height === 0))
     || (!isVisible && !ignoreDelayforUnmount);
+  const isEtherpadSharedNotes = sharedNotesEditor === 'etherpad';
 
   // Shared between the kebab menu (opens the modal) and the BlockNote editor
   // (renders the modal and applies the import). See import-context.tsx.
@@ -121,22 +122,29 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     return () => clearTimeout(timeoutRef.current);
   }, [isVisible]);
 
-  const renderHeaderOnMedia = () => {
-    return amIPresenter ? (
-      <Styled.Header
-        title={intl.formatMessage(intlMessages.title)}
-        rightButtonProps={{
-          'aria-label': intl.formatMessage(intlMessages.unpinNotes),
-          'data-test': 'unpinNotes',
-          icon: 'close',
-          label: intl.formatMessage(intlMessages.unpinNotes),
-          onClick: () => {
-            handlePinSharedNotes(false);
-          },
-        }}
-      />
-    ) : null;
-  };
+  const renderHeaderOnMedia = () => (
+    <Styled.Header
+      data-test="pinnedNotesHeader"
+      title={intl.formatMessage(intlMessages.title)}
+      customRightButton={(
+        <NotesDropdown
+          isEtherpadSharedNotes={isEtherpadSharedNotes}
+          handlePinSharedNotes={handlePinSharedNotes}
+          padId={padId}
+          isPinned
+        />
+      )}
+      rightButtonProps={amIPresenter ? {
+        'aria-label': intl.formatMessage(intlMessages.unpinNotes),
+        'data-test': 'unpinNotes',
+        icon: 'close',
+        label: intl.formatMessage(intlMessages.unpinNotes),
+        onClick: () => {
+          handlePinSharedNotes(false);
+        },
+      } : undefined}
+    />
+  );
 
   const {
     height,
@@ -155,8 +163,6 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
     right,
     zIndex,
   };
-
-  const isEtherpadSharedNotes = sharedNotesEditor === 'etherpad';
 
   return (shouldRenderNotes || shouldShowSharedNotesOnPresentationArea) && (
     <SharedNotesImportContext.Provider value={importContextValue}>
@@ -178,6 +184,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
                   isEtherpadSharedNotes={isEtherpadSharedNotes}
                   handlePinSharedNotes={handlePinSharedNotes}
                   padId={padId}
+                  isPinned={false}
                 />
               )}
             />
@@ -196,7 +203,7 @@ const NotesGraphql: React.FC<NotesGraphqlProps> = (props) => {
               amIPresenter={amIPresenter}
               isVisible={isVisible}
             />
-          ) : <BlockNoteContainer isVisible={isVisible} />}
+          ) : <BlockNoteContainer isVisible={isVisible} isOnMediaArea={isOnMediaArea} />}
       </Styled.PanelContent>
     </SharedNotesImportContext.Provider>
   );
