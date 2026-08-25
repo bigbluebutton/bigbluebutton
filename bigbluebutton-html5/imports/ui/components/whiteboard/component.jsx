@@ -1676,7 +1676,6 @@ const Whiteboard = React.memo((props) => {
         let viewportWidth;
         let viewportHeight;
 
-        // Prevent pinch zoom outside allowed range
         if (isPresenterRef.current) {
           const viewportPageBounds = editor?.getViewportPageBounds();
           viewportWidth = viewportPageBounds?.w;
@@ -1689,6 +1688,7 @@ const Whiteboard = React.memo((props) => {
         const zoomed = next?.id?.includes('camera') && prev.z !== next.z;
         const currentPage = currentPresentationPageRef.current;
 
+        // Prevent pinch zoom outside allowed range
         if (
           zoomed
           && isPresenterRef.current
