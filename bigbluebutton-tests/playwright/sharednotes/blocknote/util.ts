@@ -81,6 +81,50 @@ export function getBlockNoteLinkLocator(testPage: Page) {
   return testPage.page.locator(`${e.blockNoteEditor} a`);
 }
 
+export async function clickBlockNoteLink(testPage: Page, withModifier = false): Promise<void> {
+  const link = getBlockNoteLinkLocator(testPage);
+  const { rect, bounds } = await link.evaluate((element) => {
+    const firstRect = element.getClientRects()[0];
+    const boundingRect = element.getBoundingClientRect();
+    return {
+      rect: { x: firstRect.x, y: firstRect.y, width: firstRect.width, height: firstRect.height },
+      bounds: { x: boundingRect.x, y: boundingRect.y },
+    };
+  });
+  await link.click({
+    modifiers: withModifier ? [process.platform === 'darwin' ? 'Meta' : 'Control'] : [],
+    position: {
+      x: rect.x - bounds.x + rect.width / 2,
+      y: rect.y - bounds.y + rect.height / 2,
+    },
+  });
+}
+
+export async function hoverBlockNoteLink(testPage: Page): Promise<void> {
+  const link = getBlockNoteLinkLocator(testPage);
+  const rect = await link.evaluate((element) => {
+    const clientRect = element.getClientRects()[0];
+    return {
+      x: clientRect.x,
+      y: clientRect.y,
+      width: clientRect.width,
+      height: clientRect.height,
+    };
+  });
+  await testPage.page.mouse.move(rect.x + 5, rect.y + rect.height / 2);
+  await testPage.page.mouse.move(rect.x + rect.width / 2, rect.y + rect.height / 2, { steps: 5 });
+  await testPage.page.locator(e.blockNoteLinkToolbar).waitFor({ timeout: ELEMENT_WAIT_LONGER_TIME });
+}
+
+export async function openBlockNoteLinkEditor(testPage: Page): Promise<void> {
+  await hoverBlockNoteLink(testPage);
+  await testPage.page
+    .locator(e.blockNoteLinkToolbar)
+    .getByRole('button', { name: /edit link/i })
+    .click();
+  await testPage.page.locator(e.blockNoteLinkForm).waitFor({ timeout: ELEMENT_WAIT_LONGER_TIME });
+}
+
 // Collects every uncaught exception raised by the client from now on. The array is
 // filled asynchronously, so it must be read *after* the interaction under test.
 export function collectPageErrors(testPage: Page): string[] {

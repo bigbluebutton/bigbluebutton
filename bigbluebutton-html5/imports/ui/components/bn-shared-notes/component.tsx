@@ -266,6 +266,17 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
       renderCursor: renderCollaborationCursor,
     },
     schema,
+    links: {
+      onClick: (event) => {
+        if (event.ctrlKey || event.metaKey) {
+          const anchor = (event.target as HTMLElement | null)?.closest<HTMLAnchorElement>(
+            'a[data-inline-content-type="link"]',
+          );
+          if (anchor?.href) window.open(anchor.href, '_blank', 'noopener,noreferrer');
+        }
+        return true;
+      },
+    },
     dictionary: {
       ...BlockNoteLocales[blockNoteLocale as keyof typeof BlockNoteLocales],
       placeholders: {
@@ -369,12 +380,15 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
   }, [editable]);
 
   // Keep editor focus when clicking SideMenu/DragHandleMenu items.
-  // Skip draggable="true" elements — preventDefault on mousedown prevents drag.
+  // Skip native editable controls and BlockNote form popovers so their focus is preserved.
+  // Also skip draggable="true" elements — preventDefault on mousedown prevents drag.
   React.useEffect(() => {
     const { portalElement } = editor;
     if (!portalElement) return undefined;
     const mousedownHandler = (e: MouseEvent) => {
-      if ((e.target as HTMLElement).closest('[draggable="true"]')) return;
+      const target = e.target as HTMLElement;
+      const nativeEditableSelector = '[draggable="true"], input, textarea, select, [contenteditable="true"], .bn-form-popover';
+      if (target.closest(nativeEditableSelector)) return;
       e.preventDefault();
       editor.focus();
     };
@@ -425,6 +439,11 @@ function BlockNoteApp(props: BlockNoteAppProps): React.ReactElement {
           }
           .bn-mantine .bn-suggestion-menu {
             min-width: 300px;
+          }
+          /* BlockNote fixes link form inputs at 300px, which overflows the
+             Shared Notes panel and scrolls the panel when an input is focused. */
+          .bn-mantine .bn-form-popover .mantine-TextInput-root {
+            width: 100%;
           }
           /* Toolbar and editor are siblings inside .bn-container. DOM order matches
              visual order (toolbar first, editor second), so tab order is correct. */
