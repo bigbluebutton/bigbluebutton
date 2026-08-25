@@ -28,8 +28,21 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
       val movedUserIsViewer = RegisteredUsers.findWithUserId(msg.body.userId, liveMeeting.registeredUsers)
         .forall(_.role != Roles.MODERATOR_ROLE)
 
+      val revokeUserIds = RegisteredUsers.findAllSessionsWithUserId(msg.body.userId, liveMeeting.registeredUsers) match {
+        case Vector() => Vector(msg.body.userId)
+        case sessions => sessions.filter(_.role != Roles.MODERATOR_ROLE).map(_.id)
+      }
+
+      val breakoutModelOpt = state.breakout
+      val roomToOpt = breakoutModelOpt.flatMap(_.find(msg.body.toBreakoutId))
+
+      if (roomToOpt.isEmpty) {
+        log.warning("Ignoring ChangeUserBreakoutReqMsg. Room {} not found in meeting {}", msg.body.toBreakoutId, meetingId)
+      }
+
       for {
-        breakoutModel <- state.breakout
+        breakoutModel <- breakoutModelOpt
+        roomTo <- roomToOpt
       } yield {
         //Eject user from room From
         for {
@@ -42,20 +55,20 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
 
         if (movedUserIsViewer) {
           breakoutModel.rooms.values
-            .filter(room => room.id != msg.body.toBreakoutId && !room.freeJoin)
+            .filter(room => room.id != roomTo.id && !room.freeJoin)
             .foreach(room => {
-              eventBus.publish(BigBlueButtonEvent(room.id, UpdateBreakoutUserAccessInternalMsg(meetingId, room.id, msg.body.userId + "-" + room.sequence, revoked = true)))
+              revokeUserIds.foreach(userId => {
+                eventBus.publish(BigBlueButtonEvent(room.id, UpdateBreakoutUserAccessInternalMsg(meetingId, room.id, userId + "-" + room.sequence, revoked = true)))
+              })
             })
         }
 
+        eventBus.publish(BigBlueButtonEvent(roomTo.id, UpdateBreakoutUserAccessInternalMsg(meetingId, roomTo.id, msg.body.userId + "-" + roomTo.sequence, revoked = false)))
+
         //Get join URL for room To
-        val redirectToHtml5JoinURL = (
-            for {
-              roomTo <- breakoutModel.rooms.get(msg.body.toBreakoutId)
-              _ = eventBus.publish(BigBlueButtonEvent(roomTo.id, UpdateBreakoutUserAccessInternalMsg(meetingId, roomTo.id, msg.body.userId + "-" + roomTo.sequence, revoked = false)))
-              (redirectToHtml5JoinURL, redirectJoinURL) <- getRedirectUrls(liveMeeting, msg.body.userId, roomTo.externalId, roomTo.sequence.toString)
-            } yield redirectToHtml5JoinURL
-          ).getOrElse("")
+        val redirectToHtml5JoinURL = getRedirectUrls(liveMeeting, msg.body.userId, roomTo.externalId, roomTo.sequence.toString)
+          .map { case (redirectToHtml5JoinURL, redirectJoinURL) => redirectToHtml5JoinURL }
+          .getOrElse("")
 
         BreakoutHdlrHelpers.sendChangeUserBreakoutMsg(
           outGW,
@@ -75,8 +88,7 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
 
         //Send notification to moved User
         for {
-          roomFrom <- breakoutModel.rooms.get(msg.body.fromBreakoutId)
-          roomTo <- breakoutModel.rooms.get(msg.body.toBreakoutId)
+          _ <- breakoutModel.rooms.get(msg.body.fromBreakoutId)
         } yield {
           val notifyUserEvent = MsgBuilder.buildNotifyUserInMeetingEvtMsg(
             msg.body.userId,

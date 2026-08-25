@@ -72,6 +72,10 @@ object RegisteredUsers {
     users.toVector.filter(ru => id == ru.externId)
   }
 
+  def findAllSessionsWithUserId(id: String, users: RegisteredUsers): Vector[RegisteredUser] = {
+    findWithUserId(id, users).toVector.flatMap(ru => findAllWithExternUserId(ru.externId, users))
+  }
+
   def getRegisteredUserWithToken(token: String, userId: String, regUsers: RegisteredUsers): Option[RegisteredUser] = {
     def isSameUserId(ru: RegisteredUser, userId: String): Option[RegisteredUser] = {
       if (userId.startsWith(ru.id)) {
