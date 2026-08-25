@@ -28,12 +28,16 @@ version "0.10.0"
 group "org.bigbluebutton.web"
 
 ext['tomcat.version'] = '10.1.56'
-ext['netty.version'] = '4.1.136.Final'
+ext['netty.version'] = '4.1.137.Final'
 ext['postgresql.version'] = '42.7.13'
 ext['spring-framework.version'] = '6.2.19'
 ext['jackson-bom.version'] = '2.22.1'
 ext['logback.version'] = '1.5.38'
 ext['spring-data-bom.version'] = '2025.0.13'
+ext['httpclient5.version'] = '5.6.3'
+ext['httpcore5.version'] = '5.4.3'
+ext['selenium.version'] = '4.45.0'
+ext['opentelemetry.version'] = '1.63.0'
 
 apply plugin: "eclipse"
 apply plugin: "idea"
@@ -65,6 +69,14 @@ repositories {
 }
 
 dependencies {
+  constraints {
+    // Grails CLI profile artifacts (build-time only, not packaged in the WAR)
+    profile "org.codehaus.plexus:plexus-utils:3.6.1"
+    // asset-pipeline -> closure-compiler, on the asset/dev and test classpaths only
+    assetDevelopmentRuntime "com.google.protobuf:protobuf-java:3.25.5"
+    testRuntimeOnly "com.google.protobuf:protobuf-java:3.25.5"
+  }
+
   // Spring Boot managed libs – version comes from `springVersion` property
   implementation "org.springframework.boot:spring-boot:${springVersion}"
   implementation "org.springframework.boot:spring-boot-autoconfigure:${springVersion}"
@@ -119,7 +131,7 @@ dependencies {
   testImplementation "org.apache.grails:grails-testing-support-datamapping"
   testImplementation "org.apache.grails:grails-geb"
   testImplementation "org.apache.grails:grails-testing-support-web"
-  testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:4.44.0"
+  testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:4.45.0"
   //testRuntimeOnly "net.sourceforge.htmlunit:htmlunit:3.10.0"
   testImplementation ("com.github.javafaker:javafaker:1.0.2") {
     exclude group: "org.yaml"

@@ -27,7 +27,7 @@ object Dependencies {
     // Netty. Explicitly pinned to lift the netty 4.1.68.Final that
     // lettuce-core 6.1.5.RELEASE pulls in. These pins can be
     // dropped once lettuce-core is upgraded to a release carrying newer netty.
-    val netty = "4.1.136.Final"
+    val netty = "4.1.137.Final"
 
     // Test
     val scalaTest = "3.0.8"

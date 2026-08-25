@@ -19,6 +19,7 @@
     ]
   },
   "overrides": {
+    "nanoid@^5.1.11": "5.1.16",
     "@mantine/core": "^8.3.11",
     "@mantine/hooks": "^8.3.11",
     "react-autosize-textarea": {
@@ -120,7 +121,7 @@
     "react-transition-group": "^4.4.5",
     "recharts": "^2.15.1",
     "reconnecting-websocket": "~v4.4.0",
-    "sanitize-html": "2.17.4",
+    "sanitize-html": "2.17.6",
     "sdp-transform": "2.7.0",
     "smile2emoji": "^3.8.3",
     "string-hash": "~1.1.3",
