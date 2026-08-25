@@ -224,6 +224,7 @@ const Whiteboard = React.memo((props) => {
   const shapeBatchRef = useRef({});
   const isMountedRef = useRef(false);
   const isWheelZoomRef = useRef(false);
+  const isTouchZoomRef = useRef(false);
   const pageJustChangedRef = useRef(false);
   const incomingPageZoomRef = useRef(null);
   const suppressNextZoomSyncRef = useRef(false);
@@ -1734,6 +1735,7 @@ const Whiteboard = React.memo((props) => {
         if (
           zoomed
           && isPresenterRef.current
+          && isTouchZoomRef.current
           && currentPage
           && Number.isFinite(currentPage.scaledWidth)
           && currentPage.scaledWidth > 0
@@ -2068,7 +2070,7 @@ const Whiteboard = React.memo((props) => {
 
   useMouseEvents(
     {
-      whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoomRef, isPresenterRef,
+      whiteboardRef, tlEditorRef, isWheelZoomRef, isTouchZoomRef, initialZoomRef, isPresenterRef,
     },
     {
       hasWBAccess: hasWBAccessRef.current,
