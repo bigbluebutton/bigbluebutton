@@ -1767,7 +1767,7 @@ const Whiteboard = React.memo((props) => {
             }
           }
         }
-        
+
         const presentationWidthLocal = currentPresentationPageRef.current?.scaledWidth || 0;
         const presentationHeightLocal = currentPresentationPageRef.current?.scaledHeight || 0;
 
