@@ -68,7 +68,7 @@ const getTldrawOpenMenu = () => {
 };
 
 const useMouseEvents = ({
-  whiteboardRef, tlEditorRef, isWheelZoomRef, initialZoomRef, isPresenterRef,
+  whiteboardRef, tlEditorRef, isWheelZoomRef, isTouchZoomRef, initialZoomRef, isPresenterRef,
 }, {
   hasWBAccess,
   whiteboardToolbarAutoHide,
@@ -268,6 +268,7 @@ const useMouseEvents = ({
   };
 
   const handleTouchStart = (event) => {
+    isTouchZoomRef.current = isPresenterRef.current && event.touches.length === 2;
     if (event.touches.length === 2) {
       if (!isPresenterRef.current) {
         event.preventDefault();
@@ -337,6 +338,10 @@ const useMouseEvents = ({
   });
 
   const handleTouchEnd = (event) => {
+    if (event.touches.length < 2) {
+      isTouchZoomRef.current = false;
+    }
+
     if (event.touches.length === 0) {
       const count = fingerCountRef.current;
 
