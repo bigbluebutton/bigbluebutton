@@ -1735,7 +1735,6 @@ const Whiteboard = React.memo((props) => {
           zoomed
           && isPresenterRef.current
           && currentPage
-          && !currentPage.infiniteWhiteboard
           && Number.isFinite(currentPage.scaledWidth)
           && currentPage.scaledWidth > 0
           && Number.isFinite(currentPage.scaledHeight)
@@ -1743,28 +1742,32 @@ const Whiteboard = React.memo((props) => {
         ) {
           const { widthGap } = getContainerDimensions();
 
-          let minimumZoom = calculateZoomValueRef.current(
+          let baseZoom = calculateZoomValueRef.current(
             currentPage.scaledWidth,
             currentPage.scaledHeight,
           );
 
           if (widthGap > 0) {
-            minimumZoom = calculateZoomWithGapValueRef.current(
+            baseZoom = calculateZoomWithGapValueRef.current(
               currentPage.scaledWidth,
               currentPage.scaledHeight,
               widthGap,
             );
           }
 
-          if (Number.isFinite(minimumZoom) && minimumZoom > 0) {
-            const maximumZoom = minimumZoom * 4;
+          if (Number.isFinite(baseZoom) && baseZoom > 0) {
+            const minimumZoom = currentPage.infiniteWhiteboard
+              ? baseZoom * 0.25
+              : baseZoom;
+
+            const maximumZoom = baseZoom * 4;
 
             if (next.z < minimumZoom || next.z > maximumZoom) {
               return prev;
             }
           }
         }
-
+        
         const presentationWidthLocal = currentPresentationPageRef.current?.scaledWidth || 0;
         const presentationHeightLocal = currentPresentationPageRef.current?.scaledHeight || 0;
 
