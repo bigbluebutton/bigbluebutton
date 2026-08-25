@@ -1263,7 +1263,7 @@
     "app.shortcut-help.delete": "Apagar",
     "app.shortcut-help.duplicate": "Duplicar",
     "app.shortcut-help.gesture": "Gestos",
-    "app.shortcut-help.fingerTap": "toque com o dedo",
+    "app.shortcut-help.fingerTap": "toque com {fingerCount} dedos",
     "app.lock-viewers.title": "Permissões e Políticas",
     "app.lock-viewers.description": "Restringir participantes do uso de funcionalidades específicas.",
     "app.lock-viewers.restrictParticipantsLabel": "Restringir participantes de...",
