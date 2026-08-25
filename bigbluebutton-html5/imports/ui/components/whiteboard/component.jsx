@@ -1718,6 +1718,7 @@ const Whiteboard = React.memo((props) => {
         let viewportWidth;
         let viewportHeight;
 
+        // Prevent pinch zoom outside allowed range
         if (isPresenterRef.current) {
           const viewportPageBounds = editor?.getViewportPageBounds();
           viewportWidth = viewportPageBounds?.w;
@@ -1725,6 +1726,43 @@ const Whiteboard = React.memo((props) => {
         } else {
           viewportWidth = currentPresentationPageRef.current?.scaledViewBoxWidth;
           viewportHeight = currentPresentationPageRef.current?.scaledViewBoxHeight;
+        }
+
+        const zoomed = next?.id?.includes('camera') && prev.z !== next.z;
+        const currentPage = currentPresentationPageRef.current;
+
+        if (
+          zoomed
+          && isPresenterRef.current
+          && currentPage
+          && !currentPage.infiniteWhiteboard
+          && Number.isFinite(currentPage.scaledWidth)
+          && currentPage.scaledWidth > 0
+          && Number.isFinite(currentPage.scaledHeight)
+          && currentPage.scaledHeight > 0
+        ) {
+          const { widthGap } = getContainerDimensions();
+
+          let minimumZoom = calculateZoomValueRef.current(
+            currentPage.scaledWidth,
+            currentPage.scaledHeight,
+          );
+
+          if (widthGap > 0) {
+            minimumZoom = calculateZoomWithGapValueRef.current(
+              currentPage.scaledWidth,
+              currentPage.scaledHeight,
+              widthGap,
+            );
+          }
+
+          if (Number.isFinite(minimumZoom) && minimumZoom > 0) {
+            const maximumZoom = minimumZoom * 4;
+
+            if (next.z < minimumZoom || next.z > maximumZoom) {
+              return prev;
+            }
+          }
         }
 
         const presentationWidthLocal = currentPresentationPageRef.current?.scaledWidth || 0;
