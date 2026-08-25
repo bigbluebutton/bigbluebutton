@@ -626,6 +626,9 @@ const createEndpointTableData = [
             <li>
               <code className="language-plaintext highlighter-rouge">multiFunctionalMode</code> - <b>Multi-Functional Mode - multiple sidebars</b>
             </li>
+            <li>
+              <code className="language-plaintext highlighter-rouge">webcamGrid</code> - <b>Enable/Disable the webcam grid, ie. the avatar tiles rendered for camera-less users while the presentation is minimized (added in BigBlueButton 4.0)</b>
+            </li>
           </ul>
         </>
     ),

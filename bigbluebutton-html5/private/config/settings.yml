@@ -571,6 +571,9 @@ public:
       mobilePageSizes:
         moderator: 2
         viewer: 2
+      # gridEnabled: whether the camera-less avatar grid is shown when presentation
+      # is minimized. Can also be disabled per meeting with disabledFeatures=webcamGrid.
+      gridEnabled: true
       # grid size for DESKTOP endpoints
       desktopGridSizes:
         moderator: 48
