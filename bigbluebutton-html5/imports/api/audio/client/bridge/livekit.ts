@@ -1,7 +1,6 @@
 import {
   AudioPresets,
   Track,
-  ConnectionState,
   RoomEvent,
   ParticipantEvent,
   type TrackPublication,
@@ -24,6 +23,7 @@ import {
 } from '/imports/api/audio/client/bridge/service';
 import {
   liveKitRoomRegistry,
+  waitForRoomConnection,
   LK_FATAL_ERROR_EVENT,
   PRIMARY_KEY,
   type LiveKitFatalErrorDetail,
@@ -36,7 +36,6 @@ const BRIDGE_NAME = 'livekit';
 const SENDRECV_ROLE = 'sendrecv';
 const PUBLISH_OP = 'publish';
 const UNPUBLISH_OP = 'unpublish';
-const ROOM_CONNECTION_TIMEOUT = 15000;
 const DEFAULT_UNPUBLISH_AFTER_MUTE_MS = 5000;
 
 interface JoinOptions {
@@ -368,7 +367,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     if (!deviceId) return;
 
     try {
-      await LiveKitAudioBridge.waitForSpecificRoomConnection(room);
+      await waitForRoomConnection(room);
       await room.switchActiveDevice('audiooutput', deviceId, true);
     } catch (error) {
       logger.warn({
@@ -383,35 +382,6 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
         },
       }, 'LiveKit: failed to apply output device to room');
     }
-  }
-
-  private static waitForSpecificRoomConnection(room: Room): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (room.state === ConnectionState.Connected) {
-        resolve();
-
-        return;
-      }
-
-      const timeout = setTimeout(() => {
-        room.off(RoomEvent.Connected, onRoomConnected);
-        room.off(RoomEvent.Reconnected, onRoomConnected);
-        reject(new Error('Room connection timeout'));
-      }, ROOM_CONNECTION_TIMEOUT);
-      const onRoomConnected = () => {
-        clearTimeout(timeout);
-        room.off(RoomEvent.Connected, onRoomConnected);
-        room.off(RoomEvent.Reconnected, onRoomConnected);
-        resolve();
-      };
-
-      // An SDK resume/restart completes with Reconnected (state stays
-      // Reconnecting throughout) - Connected only fires for fresh connects.
-      // Without it, a publish during a transient reconnect stalls the serial
-      // publish queue until the timeout.
-      room.once(RoomEvent.Connected, onRoomConnected);
-      room.once(RoomEvent.Reconnected, onRoomConnected);
-    });
   }
 
   private getLocalMicTrackPubs(): LocalTrackPublication[] {
@@ -1649,7 +1619,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
 
       // A room switch may still be establishing the target room's WebRTC conn
       // when this runs. Wait for room conn here.
-      await LiveKitAudioBridge.waitForSpecificRoomConnection(micRoom);
+      await waitForRoomConnection(micRoom);
 
       if (inputStream && inputStream.active) {
         // Get tracks from the stream and publish them. Map into an array of
@@ -1768,33 +1738,6 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     }
   }
 
-  private waitForRoomConnection(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const room = this.resolvePrimaryRoom();
-
-      if (!room) {
-        reject(new Error('Primary room not available'));
-        return;
-      }
-
-      if (room.state === ConnectionState.Connected) {
-        resolve();
-        return;
-      }
-
-      const timeout = setTimeout(() => {
-        room.off(RoomEvent.Connected, onRoomConnected);
-        reject(new Error('Room connection timeout'));
-      }, ROOM_CONNECTION_TIMEOUT);
-      const onRoomConnected = () => {
-        clearTimeout(timeout);
-        resolve();
-      };
-
-      room.once(RoomEvent.Connected, onRoomConnected);
-    });
-  }
-
   // eslint-disable-next-line class-methods-use-this
   getPeerConnection(): RTCPeerConnection | null {
     return null;
@@ -1827,7 +1770,7 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
 
     try {
       this.joinInFlight = true;
-      await this.waitForRoomConnection();
+      await waitForRoomConnection(this.resolvePrimaryRoom());
       this.originalStream = inputStream;
       this.shouldBeMuted = muted;
 

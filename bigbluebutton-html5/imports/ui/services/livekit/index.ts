@@ -1,4 +1,6 @@
 import {
+  ConnectionState,
+  RoomEvent,
   Track,
   type InternalRoomOptions,
   type Room,
@@ -42,6 +44,41 @@ if (typeof window !== 'undefined' && window.BBB_EXPOSE_LIVEKIT_ROOM) {
   });
   window.liveKitRooms = liveKitRoomRegistry;
 }
+
+// How long a room may stay unusable before the caller gives up on it.
+export const ROOM_CONNECTION_TIMEOUT = 15000;
+
+// Resolves once `room` can carry media, rejects once it cannot within the
+// timeout. Callers await this before publishing into a room or joining audio.
+export const waitForRoomConnection = (
+  room: Room | undefined,
+  timeout = ROOM_CONNECTION_TIMEOUT,
+): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    if (!room) {
+      reject(new Error('LiveKit room not available'));
+
+      return;
+    }
+
+    if (room.state === ConnectionState.Connected) {
+      resolve();
+
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      room.off(RoomEvent.Connected, onConnected);
+      reject(new Error('Room connection timeout'));
+    }, timeout);
+    const onConnected = () => {
+      clearTimeout(timer);
+      resolve();
+    };
+
+    room.once(RoomEvent.Connected, onConnected);
+  });
+};
 
 export const lkIsCameraSource = (track: TrackPublication | RemoteTrack): boolean => {
   return track.kind === Track.Kind.Video && track.source === Track.Source.Camera;

@@ -26,6 +26,7 @@ import {
 } from 'livekit-client';
 import {
   liveKitRoomRegistry,
+  waitForRoomConnection,
 } from '/imports/ui/services/livekit';
 import { getLiveKitStats } from '/imports/ui/services/livekit/stats';
 import { LiveKitPresetConfig } from 'imports/ui/Types/meetingClientSettings';
@@ -50,7 +51,6 @@ const SCREENSHARE_VIDEO_TAG = 'screenshareVideo';
 const SEND_ROLE = 'send';
 const RECV_ROLE = 'recv';
 const DEFAULT_VOLUME = 1;
-const ROOM_CONNECTION_TIMEOUT = 15000;
 const LOW_TIER_FPS = 5;
 const LOW_TIER_BITRATE = 500_000;
 const HIGH_TIER_FPS = 15;
@@ -502,33 +502,6 @@ export default class LiveKitScreenshareBridge {
     this.clearSubscriptions();
   }
 
-  private waitForRoomConnection(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const room = this.liveKitRoom;
-
-      if (!room) {
-        reject(new Error('LiveKit room not available'));
-        return;
-      }
-
-      if (room.state === ConnectionState.Connected) {
-        resolve();
-        return;
-      }
-
-      const timeout = setTimeout(() => {
-        room.off(RoomEvent.Connected, onRoomConnected);
-        reject(new Error('Room connection timeout'));
-      }, ROOM_CONNECTION_TIMEOUT);
-      const onRoomConnected = () => {
-        clearTimeout(timeout);
-        resolve();
-      };
-
-      room.once(RoomEvent.Connected, onRoomConnected);
-    });
-  }
-
   private unsubscribe(mainPublication: RemoteTrackPublication): void {
     if (this.role === RECV_ROLE) {
       // @ts-ignore
@@ -706,7 +679,7 @@ export default class LiveKitScreenshareBridge {
     };
 
     try {
-      await this.waitForRoomConnection();
+      await waitForRoomConnection(this.liveKitRoom);
       doSubscribe();
     } catch (error) {
       if ((error as Error).message === 'Publication not found') {
@@ -803,7 +776,7 @@ export default class LiveKitScreenshareBridge {
           return () => room.localParticipant.publishTrack(track, publishOptions);
         });
 
-      this.waitForRoomConnection()
+      waitForRoomConnection(this.liveKitRoom)
         .then(() => Promise.all(publishers.map((publish) => publish())))
         .catch(handleInitError);
     } catch (publishError) {
