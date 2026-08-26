@@ -17,7 +17,12 @@ import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStat
 import { useIceServers } from '/imports/ui/components/livekit/hooks';
 import shouldForceRelay from '/imports/ui/components/livekit/utils';
 import { ForcedReconnectionError } from '/imports/ui/components/livekit/errors';
-import { LK_FATAL_ERROR_EVENT, type LiveKitFatalErrorDetail, type MembershipKey } from '/imports/ui/services/livekit';
+import {
+  LK_FATAL_ERROR_EVENT,
+  isOrphaningDisconnect,
+  type LiveKitFatalErrorDetail,
+  type MembershipKey,
+} from '/imports/ui/services/livekit';
 
 interface BaseLiveKitRoomProps {
   membershipKey: MembershipKey;
@@ -45,16 +50,6 @@ interface BaseLiveKitRoomProps {
 }
 
 const DEFAULT_MAX_CONN_ATTEMPTS = 10;
-
-// Disconnects LiveKit never retries: the server sends these with LeaveRequest
-// action=DISCONNECT, ending the session without a reconnect cycle. See
-// https://github.com/livekit/client-sdk-js/blob/main/src/room/RTCEngine.ts
-// (LeaveRequest handling).
-const TERMINAL_DISCONNECT_REASONS: DisconnectReason[] = [
-  DisconnectReason.DUPLICATE_IDENTITY,
-  DisconnectReason.PARTICIPANT_REMOVED,
-  DisconnectReason.ROOM_DELETED,
-];
 
 const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
   membershipKey,
@@ -101,7 +96,7 @@ const BaseLiveKitRoom: React.FC<BaseLiveKitRoomProps> = ({
       },
     }, `${logPrefix}: room disconnected, reason=${reason}`);
 
-    if (reason !== undefined && TERMINAL_DISCONNECT_REASONS.includes(reason)) {
+    if (isOrphaningDisconnect(reason)) {
       onTerminalDisconnect?.(reason);
     }
   }, [logPrefix, url, iceServers, connAttempts, membershipKey, onTerminalDisconnect]);

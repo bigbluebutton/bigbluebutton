@@ -15,6 +15,20 @@ import type { MembershipKey } from './registry';
 
 export const LK_FATAL_ERROR_EVENT = 'liveKitFatalError';
 
+// Disconnection reasons that we intentionally do not flag as "orphaning"
+// the room as they are initiated by us (the client) and its cleanup
+// should be handled by the teardown callers instead.
+const NON_ORPHANING_DISCONNECT_REASONS: DisconnectReason[] = [
+  // We did it
+  DisconnectReason.CLIENT_INITIATED,
+  // A new conneciton superseded this one, so the room is no longer usable.
+  DisconnectReason.DUPLICATE_IDENTITY,
+];
+
+export const isOrphaningDisconnect = (reason?: DisconnectReason): boolean => {
+  return reason === undefined || !NON_ORPHANING_DISCONNECT_REASONS.includes(reason);
+};
+
 export const DEFAULT_ROOM_OPTIONS: Partial<InternalRoomOptions> = {
   adaptiveStream: true,
   dynacast: true,
