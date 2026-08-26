@@ -1,5 +1,6 @@
 import { expect } from '@playwright/test';
 
+import { VIDEO_LOADING_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
 import { Page } from '../core/page';
 import { MultiUsers } from '../user/multiusers';
@@ -278,6 +279,24 @@ export class Layouts extends MultiUsers {
     if (userVideoPath) {
       testInfo.attachments.push({ name: 'Attendee screen recording', contentType: 'video/webm', path: userVideoPath });
     }
+
+    const user2VideoPath = this.userPage2 ? await this.userPage2.page.video()?.path() : undefined;
+    if (user2VideoPath) {
+      testInfo.attachments.push({
+        name: 'Attendee2 screen recording',
+        contentType: 'video/webm',
+        path: user2VideoPath,
+      });
+    }
+
+    const mod2VideoPath = this.modPage2 ? await this.modPage2.page.video()?.path() : undefined;
+    if (mod2VideoPath) {
+      testInfo.attachments.push({
+        name: 'Moderator2 screen recording',
+        contentType: 'video/webm',
+        path: mod2VideoPath,
+      });
+    }
   }
 
   async unifiedLayoutMinimizeShowsTiles() {
@@ -359,6 +378,171 @@ export class Layouts extends MultiUsers {
     await this.modPage.hasElement(
       e.talkingIndicator,
       'the navbar "who is talking" indicator must remain visible after restore, making the top tiles redundant',
+    );
+
+    await this.attachPageVideos();
+  }
+
+  async unifiedLayoutViewerMinimizeSticksOnCameraChanges() {
+    // Wait for the whiteboard so the presentation is fully loaded and the minimize
+    // button is enabled on every participant.
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+    await this.userPage2.waitForSelector(e.whiteboard);
+
+    // The viewer minimizes the presentation. This is a local action: it does not
+    // propagate to the meeting layout record.
+    await this.userPage.waitAndClick(e.minimizePresentation);
+    await this.userPage.wasRemoved(e.presentationContainer, 'presentation should minimize for the viewer');
+    await this.userPage.hasElement(e.restorePresentation, 'restore presentation button should appear for the viewer');
+
+    // A third participant turns their webcam on. This updates the meeting layout
+    // record (cameraDockAspectRatio + updatedAt) without changing the meeting's
+    // presentation state, and must not clobber the viewer's local minimize.
+    await this.userPage2.shareWebcam();
+    // Fixed wait (matches the sibling tests' style): the wrongful reopen fires ~2s
+    // after the layout record updates, so wait past that window before asserting.
+    await this.userPage.page.waitForTimeout(4000);
+    await this.userPage.wasRemoved(
+      e.presentationContainer,
+      'presentation should stay minimized for the viewer after a webcam turns on',
+    );
+    await this.userPage.hasElement(
+      e.restorePresentation,
+      'restore presentation button should remain visible for the viewer after a webcam turns on',
+    );
+
+    // Same assertion for the symmetric trigger: the webcam turning off also
+    // updates the meeting layout record.
+    await this.userPage2.waitAndClick(e.leaveVideo);
+    await this.userPage2.wasRemoved(
+      e.webcamMirroredVideoContainer,
+      'webcam should stop sharing for the third participant',
+    );
+    await this.userPage.page.waitForTimeout(4000);
+    await this.userPage.wasRemoved(
+      e.presentationContainer,
+      'presentation should stay minimized for the viewer after a webcam turns off',
+    );
+    await this.userPage.hasElement(
+      e.restorePresentation,
+      'restore presentation button should remain visible for the viewer after a webcam turns off',
+    );
+
+    // Control (issue's third control): the presenter minimizing is NOT affected by
+    // camera changes - presenters never replicate the meeting layout onto themselves.
+    await this.modPage.waitAndClick(e.minimizePresentation);
+    await this.modPage.wasRemoved(e.presentationContainer, 'presentation should minimize for the presenter');
+    // Non-regression: the presenter's minimize is a genuine value change in the
+    // meeting layout record, so viewers must still follow it.
+    await this.userPage2.wasRemoved(
+      e.presentationContainer,
+      'viewers should follow the presenter minimize (value-change replication)',
+    );
+    // Share the webcam without the shareWebcam() helper: with the presentation
+    // minimized every participant renders as a tile, so the helper's strict-mode
+    // check on the connecting placeholder resolves to more than one element.
+    await this.userPage2.waitAndClick(e.joinVideo);
+    await this.userPage2.hasElement(
+      e.webcamMirroredVideoPreview,
+      'should display the video preview when sharing webcam',
+    );
+    await this.userPage2.waitAndClick(e.startSharingWebcam);
+    await this.userPage2.waitForSelector(e.leaveVideo, VIDEO_LOADING_WAIT_TIME);
+    await this.modPage.page.waitForTimeout(4000);
+    await this.modPage.wasRemoved(
+      e.presentationContainer,
+      'presentation should stay minimized for the presenter after a webcam turns on',
+    );
+
+    await this.attachPageVideos();
+  }
+
+  async unifiedLayoutViewerFocusFollowSticksOnCameraChanges() {
+    // Wait for the whiteboard so the presentation is fully loaded on every participant.
+    await this.modPage.waitForSelector(e.whiteboard);
+    await this.userPage.waitForSelector(e.whiteboard);
+    await this.userPage2.waitForSelector(e.whiteboard);
+    await this.modPage2.waitForSelector(e.whiteboard);
+
+    // Three webcams: the focus action only exists with more than two streams, and
+    // it must keep existing after the fourth participant toggles their webcam below.
+    await this.modPage.shareWebcam();
+    await this.userPage.shareWebcam();
+    await this.userPage2.shareWebcam();
+
+    // The presenter focuses the second attendee's camera. This is a genuine value
+    // change of the meeting layout record (cameraWithFocus), so the viewer must
+    // still follow it (value-change replication). The focused camera moves to the
+    // first tile; without the focus the viewer's own webcam would be first, which
+    // makes the assertion discriminating.
+    await this.modPage.page.locator(e.dropdownWebcamButton).filter({ hasText: this.userPage2.username }).click();
+    await this.modPage.getVisibleLocator(e.focusWebcamBtn).click();
+    await this.userPage.hasText(
+      `:nth-match(${e.dropdownWebcamButton}, 1)`,
+      this.userPage2.username,
+      'viewer should follow the presenter focusing a camera (value-change replication)',
+    );
+
+    // A fourth participant turns their webcam on: webcam churn is the original
+    // trigger of issue 25592 and must not disturb the viewer's followed focus.
+    await this.modPage2.shareWebcam();
+    // Fixed wait (matches the sibling tests' style): the wrongful re-assert fires
+    // ~2s after the layout record updates, so wait past that window before asserting.
+    await this.userPage.page.waitForTimeout(4000);
+    await this.userPage.hasText(
+      `:nth-match(${e.dropdownWebcamButton}, 1)`,
+      this.userPage2.username,
+      'viewer should keep the followed camera focus after a webcam turns on',
+    );
+
+    // The viewer unfocuses locally. This is a local choice that diverges from the
+    // meeting layout record, which stays focused on the second attendee. Probe the
+    // local state through the tile dropdown - the focused camera's tile offers
+    // "unfocus" while focused and "focus" once the local unfocus applied. (The
+    // first-tile text is not a safe probe here: hasText matches by containment and
+    // the viewer's own username is a prefix of the focused user's.)
+    await this.userPage.page.locator(e.dropdownWebcamButton).filter({ hasText: this.userPage2.username }).click();
+    await this.userPage.getVisibleLocator(e.unfocusWebcamBtn).click();
+    await this.userPage.page.locator(e.dropdownWebcamButton).filter({ hasText: this.userPage2.username }).click();
+    // Every tile keeps its dropdown menu in the DOM, so scope the probe to the
+    // visible (open) menu.
+    await expect(
+      this.userPage.getVisibleLocator(e.focusWebcamBtn),
+      'the focused camera tile should offer focus again after the viewer unfocuses locally',
+    ).toBeVisible();
+    await this.userPage.press('Escape');
+
+    // The presenter minimizes and restores the presentation: two genuine meeting
+    // layout record writes that do not touch the focused camera. Through the
+    // updatedAt clause each write re-asserted the meeting's focused camera onto
+    // the viewer, clobbering the local unfocus (issue 25592 mechanism). The viewer
+    // is expected to follow the presentation state itself - only the focused
+    // camera must keep the local choice.
+    await this.modPage.waitAndClick(e.minimizePresentation);
+    await this.userPage.wasRemoved(
+      e.presentationContainer,
+      'viewer should follow the presenter minimize (value-change replication)',
+    );
+    await this.modPage.waitAndClick(e.restorePresentation);
+    await this.userPage.hasElement(
+      e.presentationContainer,
+      'viewer should follow the presenter restore (value-change replication)',
+    );
+    await this.userPage.page.waitForTimeout(4000);
+    await this.userPage.page.locator(e.dropdownWebcamButton).filter({ hasText: this.userPage2.username }).click();
+    await expect(
+      this.userPage.getVisibleLocator(e.focusWebcamBtn),
+      'viewer local unfocus should persist after unrelated meeting layout writes',
+    ).toBeVisible();
+    await this.userPage.press('Escape');
+
+    // Control: the meeting layout record kept its focused camera - the presenter
+    // still renders the focused camera on the first tile.
+    await this.modPage.hasText(
+      `:nth-match(${e.dropdownWebcamButton}, 1)`,
+      this.userPage2.username,
+      'presenter should still render the meeting focused camera first',
     );
 
     await this.attachPageVideos();
