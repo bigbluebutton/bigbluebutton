@@ -1,5 +1,6 @@
 import {
   ConnectionState,
+  DisconnectReason,
   RoomEvent,
   Track,
   type InternalRoomOptions,
@@ -9,7 +10,7 @@ import {
   type RemoteTrack,
 } from 'livekit-client';
 import logger from '/imports/startup/client/logger';
-import { liveKitRoomRegistry } from './registry';
+import { hasConnectedOnce, liveKitRoomRegistry } from './registry';
 import type { MembershipKey } from './registry';
 
 export const LK_FATAL_ERROR_EVENT = 'liveKitFatalError';
@@ -48,8 +49,17 @@ if (typeof window !== 'undefined' && window.BBB_EXPOSE_LIVEKIT_ROOM) {
 // How long a room may stay unusable before the caller gives up on it.
 export const ROOM_CONNECTION_TIMEOUT = 15000;
 
-// Resolves once `room` can carry media, rejects once it cannot within the
-// timeout. Callers await this before publishing into a room or joining audio.
+/*
+ * Resolves once `room` can carry media, rejects once it never will.
+ *
+ * A fresh connect ends in Connected and an SDK resume in Reconnected, with the
+ * state pinned at Reconnecting in between, so both events have to be watched
+ * or an operation fired mid-resume waits the timeout instead of proceeding
+ * when the session comes back. Disconnected ends the wait whatever its reason:
+ * the SDK only emits it after tearing the room down (publications and
+ * participants cleared), and a resume never reaches that point, so neither
+ * event can arrive afterwards, and only a fresh connect revives the room.
+ */
 export const waitForRoomConnection = (
   room: Room | undefined,
   timeout = ROOM_CONNECTION_TIMEOUT,
@@ -67,16 +77,37 @@ export const waitForRoomConnection = (
       return;
     }
 
-    const timer = setTimeout(() => {
+    // A room torn down before the wait started gets no further events either.
+    // A room that has simply not connected yet reports the same state, so only
+    // abort for one that has been connected before.
+    if (room.state === ConnectionState.Disconnected && hasConnectedOnce(room)) {
+      reject(new Error('Room already disconnected'));
+
+      return;
+    }
+
+    const cleanup = () => {
+      clearTimeout(timer);
       room.off(RoomEvent.Connected, onConnected);
+      room.off(RoomEvent.Reconnected, onConnected);
+      room.off(RoomEvent.Disconnected, onDisconnected);
+    };
+    const timer = setTimeout(() => {
+      cleanup();
       reject(new Error('Room connection timeout'));
     }, timeout);
     const onConnected = () => {
-      clearTimeout(timer);
+      cleanup();
       resolve();
+    };
+    const onDisconnected = (reason?: DisconnectReason) => {
+      cleanup();
+      reject(new Error(`Room disconnected while waiting for connection (reason=${reason})`));
     };
 
     room.once(RoomEvent.Connected, onConnected);
+    room.once(RoomEvent.Reconnected, onConnected);
+    room.once(RoomEvent.Disconnected, onDisconnected);
   });
 };
 

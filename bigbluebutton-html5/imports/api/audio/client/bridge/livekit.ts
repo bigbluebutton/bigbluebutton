@@ -1,5 +1,7 @@
 import {
   AudioPresets,
+  ConnectionState,
+  DisconnectReason,
   Track,
   RoomEvent,
   ParticipantEvent,
@@ -359,6 +361,28 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
         },
       }, 'LiveKit: publish-on-switch failed');
     }
+  }
+
+  // A publish targets one specific room, but the publish queue is serial: if the
+  // target room dies mid-publish the SDK call stays pending for its own internal
+  // timeout and every later operation.
+  // Bind the call to the target's liveness so the queue is unclogged the moment
+  // publishing becomes pointless.
+  private static bindToRoomLiveness<T>(room: Room, operation: Promise<T>): Promise<T> {
+    if (room.state === ConnectionState.Disconnected) {
+      return Promise.reject(new Error('Room disconnected before publishing'));
+    }
+
+    return new Promise<T>((resolve, reject) => {
+      const onDisconnected = (reason?: DisconnectReason) => {
+        reject(new Error(`Room disconnected while publishing (reason=${reason})`));
+      };
+
+      room.once(RoomEvent.Disconnected, onDisconnected);
+      operation.then(resolve, reject).finally(() => {
+        room.off(RoomEvent.Disconnected, onDisconnected);
+      });
+    });
   }
 
   private async applyOutputDeviceToRoom(room: Room): Promise<void> {
@@ -1637,12 +1661,11 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
           .map((track) => {
             return micRoom.localParticipant.publishTrack(track, publishOptions);
           });
-        await Promise.all(trackPublishers);
+        await LiveKitAudioBridge.bindToRoomLiveness(micRoom, Promise.all(trackPublishers));
       } else {
-        await micRoom.localParticipant.setMicrophoneEnabled(
-          true,
-          constraints,
-          publishOptions,
+        await LiveKitAudioBridge.bindToRoomLiveness(
+          micRoom,
+          micRoom.localParticipant.setMicrophoneEnabled(true, constraints, publishOptions),
         );
         this.originalStream = this.inputStream;
         logger.debug({
