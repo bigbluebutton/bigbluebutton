@@ -16,6 +16,7 @@ import {
 } from '../core/apolloProbe';
 import { ELEMENT_WAIT_EXTRA_LONG_TIME, ELEMENT_WAIT_LONGER_TIME, ELEMENT_WAIT_TIME } from '../core/constants';
 import { elements as e } from '../core/elements';
+import { getMicPlacement } from '../core/livekit';
 import { Page } from '../core/page';
 import { Join } from './join';
 
@@ -477,6 +478,9 @@ export class Listen extends Join {
       const otherSequence = assignedSequence === 1 ? 2 : 1;
       const secondRoom = await this.resolveBreakout(otherSequence);
 
+      await this.modPage.waitAndClick(e.unmuteMicButton);
+      await this.modPage.hasElement(e.muteMicButton, 'the moderator should be unmuted before switching rooms');
+
       // Trigger listen on the other room while still listening to the first.
       await this.openRoomListenMenu(otherSequence);
 
@@ -495,8 +499,24 @@ export class Listen extends Join {
         'the first room listen toast should be replaced by the second room toast',
       );
 
+      // One microphone, one room: the switch must hand the mic to the second
+      // room and leave none behind.
+      await expect(async () => {
+        const placement = await getMicPlacement(this.modPage.page);
+        const target = placement.find((room) => room.name === secondRoom.meetingId);
+        const primary = placement.find((room) => room.primary);
+
+        expect(target?.mics ?? 0, 'the mic must be published in the room being listened to').toBe(1);
+        expect(primary?.mics ?? 0, 'the mic must NOT be published in the main room').toBe(0);
+        expect(placement.filter((room) => room.mics > 0).length, 'the mic must be published in exactly one room').toBe(
+          1,
+        );
+      }).toPass({ timeout: ELEMENT_WAIT_LONGER_TIME });
+
       // The audio session survived the switches (no fatal-publish escalation
-      // reconnected the primary): the muted-mic control is still mounted.
+      // reconnected the primary): the mic control is still mounted. Starting a
+      // listen leaves the moderator muted in the room they land in, switch or
+      // not, so the muted control is the expected one here.
       await this.modPage.hasElement(
         e.unmuteMicButton,
         'the moderator audio session should remain intact after switching listens',

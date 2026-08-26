@@ -1,8 +1,8 @@
 import {
   AudioPresets,
+  Track,
   ConnectionState,
   DisconnectReason,
-  Track,
   RoomEvent,
   ParticipantEvent,
   type TrackPublication,
@@ -363,28 +363,6 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     }
   }
 
-  // A publish targets one specific room, but the publish queue is serial: if the
-  // target room dies mid-publish the SDK call stays pending for its own internal
-  // timeout and every later operation.
-  // Bind the call to the target's liveness so the queue is unclogged the moment
-  // publishing becomes pointless.
-  private static bindToRoomLiveness<T>(room: Room, operation: Promise<T>): Promise<T> {
-    if (room.state === ConnectionState.Disconnected) {
-      return Promise.reject(new Error('Room disconnected before publishing'));
-    }
-
-    return new Promise<T>((resolve, reject) => {
-      const onDisconnected = (reason?: DisconnectReason) => {
-        reject(new Error(`Room disconnected while publishing (reason=${reason})`));
-      };
-
-      room.once(RoomEvent.Disconnected, onDisconnected);
-      operation.then(resolve, reject).finally(() => {
-        room.off(RoomEvent.Disconnected, onDisconnected);
-      });
-    });
-  }
-
   private async applyOutputDeviceToRoom(room: Room): Promise<void> {
     const deviceId = this.outputDeviceId;
 
@@ -406,6 +384,28 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
         },
       }, 'LiveKit: failed to apply output device to room');
     }
+  }
+
+  // A publish targets one specific room, but the publish queue is serial: if the
+  // target room dies mid-publish the SDK call stays pending for its own internal
+  // timeout and every later operation.
+  // Bind the call to the target's liveness so the queue is unclogged the moment
+  // publishing becomes pointless.
+  private static bindToRoomLiveness<T>(room: Room, operation: Promise<T>): Promise<T> {
+    if (room.state === ConnectionState.Disconnected) {
+      return Promise.reject(new Error('Room disconnected before publishing'));
+    }
+
+    return new Promise<T>((resolve, reject) => {
+      const onDisconnected = (reason?: DisconnectReason) => {
+        reject(new Error(`Room disconnected while publishing (reason=${reason})`));
+      };
+
+      room.once(RoomEvent.Disconnected, onDisconnected);
+      operation.then(resolve, reject).finally(() => {
+        room.off(RoomEvent.Disconnected, onDisconnected);
+      });
+    });
   }
 
   private getLocalMicTrackPubs(): LocalTrackPublication[] {
@@ -1565,6 +1565,49 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
     });
   }
 
+  // Helper routine to cleanup stray microphones in inactive rooms.
+  // Right now, the rule is: one microphone, one room. While that may change
+  // in the future, this is enforced for now to guarantee that no stray
+  // published tracks persist in inactive rooms due to a late publish from
+  // the queue resolving after a room switch.
+  private async unpublishStrayMics(target: Room): Promise<void> {
+    const strays = liveKitRoomRegistry.getRooms()
+      .filter((room) => room !== target)
+      .map((room) => ({
+        room,
+        track: room.localParticipant.getTrackPublication(Track.Source.Microphone)?.track,
+      }))
+      .filter((stray): stray is { room: Room; track: LocalTrack } => stray.track != null);
+
+    await Promise.all(strays.map(async ({ room, track }) => {
+      try {
+        await room.localParticipant.unpublishTrack(track, false);
+        logger.warn({
+          logCode: 'livekit_audio_stray_mic_unpublished',
+          extraInfo: {
+            bridge: this.bridgeName,
+            role: this.role,
+            strayRoom: room?.name,
+            targetRoom: target?.name,
+          },
+        }, `LiveKit: unpublished a stray mic from ${room.name}`);
+      } catch (error) {
+        logger.error({
+          logCode: 'livekit_audio_stray_mic_unpublish_failed',
+          extraInfo: {
+            errorMessage: (error as Error).message,
+            errorName: (error as Error).name,
+            errorStack: (error as Error)?.stack,
+            bridge: this.bridgeName,
+            role: this.role,
+            targetRoom: target?.name,
+            strayRoom: room?.name,
+          },
+        }, `LiveKit: failed to unpublish a stray mic from ${room.name}`);
+      }
+    }));
+  }
+
   private async doPublish(inputStream: MediaStream | null): Promise<void> {
     // Bind fatal-error handling to the switch state this publish started
     // under: a mic-room switch superseding us mid-await means the failure
@@ -1640,6 +1683,8 @@ export default class LiveKitAudioBridge extends BaseAudioBridge {
 
         return;
       }
+
+      await this.unpublishStrayMics(micRoom);
 
       // A room switch may still be establishing the target room's WebRTC conn
       // when this runs. Wait for room conn here.

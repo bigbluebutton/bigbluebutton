@@ -2,7 +2,7 @@ import { type Browser, type BrowserContext, type Page as PlaywrightPage, type Te
 
 import { isApolloClientExposed } from '../core/apolloProbe';
 import { ELEMENT_WAIT_TIME } from '../core/constants';
-import { isLiveKit } from '../core/livekit';
+import { exposeLiveKitRooms, isLiveKit } from '../core/livekit';
 import { test } from '../core/setup/fixtures';
 import { Listen } from './listen';
 
@@ -43,6 +43,9 @@ const initListen = async (
 ): Promise<Listen> => {
   test.skip(!isLiveKit, LIVEKIT_SKIP_REASON);
   const listen = new Listen(browser, context);
+  // The switch test reads which room holds the microphone straight from the
+  // client's room registry, which is only exposed on opt-in, before load.
+  await exposeLiveKitRooms(page);
   await listen.initModAndUser(page, testInfo);
   test.skip(!(await isApolloClientExposed(listen.modPage.page, ELEMENT_WAIT_TIME)), APOLLO_EXPOSURE_SKIP_REASON);
   return listen;
