@@ -71,7 +71,9 @@ repositories {
 dependencies {
   constraints {
     // Grails CLI profile artifacts (build-time only, not packaged in the WAR)
-    profile "org.codehaus.plexus:plexus-utils:3.6.1"
+    profile("org.codehaus.plexus:plexus-utils") {
+      version { strictly "3.6.1" }
+    }
     // asset-pipeline -> closure-compiler, on the asset/dev and test classpaths only
     assetDevelopmentRuntime "com.google.protobuf:protobuf-java:3.25.5"
     testRuntimeOnly "com.google.protobuf:protobuf-java:3.25.5"
