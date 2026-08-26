@@ -34,6 +34,8 @@ const createUseTalkingUsersLiveKit = () => {
     dispatch,
   } = createReactiveStateHook<Record<string, VoiceUserMetadata>>({});
 
+  // Merges, never evicts: the talking indicator treats absence from a LiveKit pass as
+  // a departure, so every user this has ever seen has to keep being offered to it.
   const dispatchTalkingUserUpdate = (
     data?: VoiceActivityResponse['user_voice_activity_stream'],
   ) => {
@@ -169,10 +171,14 @@ const createUseTalkingUsersLiveKit = () => {
       userMetadataMap,
     ]);
 
-    // Apply timing logic to the voice activity state
+    // Apply timing logic to the voice activity state. Every pass rebuilds the full
+    // user set from room state, so it doubles as the snapshot the indicator reconciles
+    // departures against - participants with no server voice record (a moderator
+    // listening into a breakout, dial-in participants) have nothing else to retire them.
     const processedData = useTimedTalkingIndicator(
       rawVoiceActivity,
       isLiveKitActive && isConnected,
+      true,
     );
 
     if (!isLiveKitActive) return BASELINE_DATA;

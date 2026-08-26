@@ -313,6 +313,25 @@ export class Listen extends Join {
     }).toPass({ timeout });
   }
 
+  // Talking indicators still rendered in the breakout, by name. Anchoring on the
+  // names matters: the counts above are also satisfied by a record that was wiped
+  // and rebuilt, or by the attendee's own entry going missing instead.
+  private async expectBreakoutIndicatorHolders(
+    breakoutUserPage: Page,
+    timeout = ELEMENT_WAIT_LONGER_TIME,
+  ): Promise<void> {
+    const entries = breakoutUserPage.page.locator(`${e.talkingIndicator} :is(${e.isTalking}, ${e.wasTalking})`);
+
+    await expect(
+      entries.locator(`:text-is("${this.modPage.username}")`),
+      'the moderator should hold no talking indicator in the breakout once their audio has left it',
+    ).toBeHidden({ timeout });
+    await expect(
+      entries.locator(`:text-is("${this.userPage.username}")`),
+      'the attendee should still hold their own talking indicator in the breakout',
+    ).toBeVisible({ timeout });
+  }
+
   // Dead-track detector. The moderator is left UNMUTED when switching back to main room,
   // so once their audio returns to main they must show as talking on their
   // OWN page with NO mute/unmute interaction.
@@ -385,8 +404,18 @@ export class Listen extends Join {
       'attendee-side moderator talking should return when the moderator unmutes',
     );
 
-    // Return to main via the toast button; the transfer state must fully switch back.
+    // Return to main via the toast button, with the moderator still actively talking -
+    // no mute, no pause. The transfer state must fully switch back, and the breakout
+    // must retire them: they are a LiveKit-only talker there (the transfer copies a
+    // user row, not a voice record), so nothing but their participant backs the
+    // indicator and a departure mid-speech has to be what retires it.
     await this.returnToMain();
+    await this.expectBreakoutActiveTalkers(
+      breakoutUserPage,
+      1,
+      "the moderator's talking indicator should clear in the breakout once they return to main",
+    );
+    await this.expectBreakoutIndicatorHolders(breakoutUserPage, ELEMENT_WAIT_EXTRA_LONG_TIME);
 
     // After returning, the moderator must be able to publish to the main room
     // again (talking indicator on their own page).

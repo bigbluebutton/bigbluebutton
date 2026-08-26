@@ -16,8 +16,9 @@ import { Listen } from './listen';
 // - Golden path (ie.: the base use case): the attendee-side talking indicator
 //   proves the moderator publishes into the breakout; the moderator's
 //   own main-room page showing no isTalking proves the rooms' audio is
-//   isolated; and after the return, the moderator must show as talking in main
-//   WITHOUT any mute/unmute interaction first.
+//   isolated; the return happens mid-speech, so the breakout must retire a talker
+//   whose participant vanishes while talking; and after the return, the moderator
+//   must show as talking in main WITHOUT any mute/unmute interaction first.
 // - Not-so-golden paths:
 //   - Page reloads: assertions that reloads/reconnects persists the listen-in
 //     state for the affected moderator
