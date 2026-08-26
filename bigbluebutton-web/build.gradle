@@ -28,7 +28,8 @@ version "0.10.0"
 group "org.bigbluebutton.web"
 
 ext['tomcat.version'] = '10.1.56'
-ext['netty.version'] = '4.1.137.Final'
+ext['netty.version'] = '4.2.17.Final'
+ext['lettuce.version'] = '7.7.0.RELEASE'
 ext['postgresql.version'] = '42.7.13'
 ext['spring-framework.version'] = '6.2.19'
 ext['jackson-bom.version'] = '2.22.1'
@@ -118,7 +119,7 @@ dependencies {
   implementation "org.bigbluebutton:bbb-common-web:0.0.5-SNAPSHOT"
 
   implementation "io.lettuce:lettuce-core"
-  implementation "io.projectreactor:reactor-core:3.6.0"
+  implementation "io.projectreactor:reactor-core:3.8.7"
   implementation "org.reactivestreams:reactive-streams:1.0.4"
 
   implementation "org.freemarker:freemarker:2.3.34"

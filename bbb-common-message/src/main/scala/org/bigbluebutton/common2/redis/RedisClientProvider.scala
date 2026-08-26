@@ -17,7 +17,7 @@ abstract class RedisClientProvider(
     case None       => ""
   }
 
-  val redisUri = RedisURI.Builder.redis(redisConfig.host, redisConfig.port).withClientName(clientName).withPassword(redisPassword).build()
+  val redisUri = RedisURI.Builder.redis(redisConfig.host, redisConfig.port).withClientName(clientName).withPassword(redisPassword.toCharArray()).build()
 
   var redis = RedisClient.create(redisUri)
   redis.setOptions(ClientOptions.builder().autoReconnect(true).build())
