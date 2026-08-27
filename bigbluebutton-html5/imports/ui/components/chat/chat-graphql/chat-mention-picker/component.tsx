@@ -8,7 +8,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import Auth from '/imports/ui/services/auth';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import meetingClientSettingsInitialValues from '/imports/ui/core/initial-values/meetingClientSettings';
-import { makeUserSearchWhere } from '/imports/ui/components/user-list/service';
+import { getFilteredAvatar, makeUserSearchWhere } from '/imports/ui/components/user-list/service';
 import AvatarContent from '/imports/ui/components/user-list/user-list-participants/list-item/avatar-content/component';
 import { GET_MENTION_USERS, GetMentionUsersResponse, MentionUser } from './queries';
 import Styled from './styles';
@@ -42,11 +42,6 @@ const nameKey = (name: string) => name.trim().toLowerCase();
 
 /** Whatever the integration set as the external id, falling back to the internal one. */
 const uniqueHandle = (user: MentionUser) => user.extId || user.userId;
-
-/** Same rule as the user list: a reaction or the away state takes over the avatar image. */
-const avatarImage = (user: MentionUser) => (
-  user.away === true || (user.reactionEmoji && user.reactionEmoji !== 'none') ? '' : user.avatar
-);
 
 interface ChatMentionPickerProps {
   searchText: string;
@@ -98,7 +93,9 @@ const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
     { variables: { where, limit: MENTION_PICKER_LIMIT } },
   );
 
-  const [activeIndex, setActiveIndex] = useState(0);
+  // Which option is picked, and the result set it was picked in. Keeping the search alongside
+  // the index is what lets the reset be worked out below instead of pushed through an effect.
+  const [selection, setSelection] = useState({ search: debouncedSearch, index: 0 });
   const listRef = useRef<HTMLUListElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -122,13 +119,13 @@ const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
 
   const isNamesake = (user: MentionUser) => namesakeNames.has(nameKey(user.name));
 
-  useEffect(() => {
-    setActiveIndex(0);
-  }, [debouncedSearch]);
+  // A fresh search, or a list that shrank past the picked option, falls back to the first one
+  // in this same render: an effect would only get there after a second one.
+  const activeIndex = selection.search === debouncedSearch && selection.index < users.length
+    ? selection.index
+    : 0;
 
-  useEffect(() => {
-    setActiveIndex((prev) => (prev >= users.length ? 0 : prev));
-  }, [users.length]);
+  const selectIndex = (index: number) => setSelection({ search: debouncedSearch, index });
 
   useEffect(() => {
     if (listRef.current) {
@@ -141,12 +138,14 @@ const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
   const activeOptionId = activeUser ? optionId(activeUser.userId) : null;
 
   const usersRef = useRef(users);
+  const searchRef = useRef(debouncedSearch);
   const activeIndexRef = useRef(activeIndex);
   const onSelectRef = useRef(onSelect);
   const onCloseRef = useRef(onClose);
   const onDismissRef = useRef(onDismiss);
   const onActiveOptionChangeRef = useRef(onActiveOptionChange);
   usersRef.current = users;
+  searchRef.current = debouncedSearch;
   activeIndexRef.current = activeIndex;
   onSelectRef.current = onSelect;
   onCloseRef.current = onClose;
@@ -175,10 +174,16 @@ const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
 
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        setActiveIndex((prev) => (prev + 1) % usersRef.current.length);
+        setSelection({
+          search: searchRef.current,
+          index: (activeIndexRef.current + 1) % usersRef.current.length,
+        });
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        setActiveIndex((prev) => (prev - 1 + usersRef.current.length) % usersRef.current.length);
+        setSelection({
+          search: searchRef.current,
+          index: (activeIndexRef.current - 1 + usersRef.current.length) % usersRef.current.length,
+        });
       } else if (e.key === 'Enter') {
         e.preventDefault();
         e.stopPropagation();
@@ -244,14 +249,14 @@ const ChatMentionPicker: React.FC<ChatMentionPickerProps> = ({
               aria-selected={index === activeIndex}
               aria-label={optionLabel(user)}
               data-test="chatMentionOption"
-              onMouseEnter={() => setActiveIndex(index)}
+              onMouseEnter={() => selectIndex(index)}
               onMouseDown={(e) => {
                 e.preventDefault();
                 onSelect(user);
               }}
             >
               <Styled.MentionAvatar
-                avatar={avatarImage(user)}
+                avatar={getFilteredAvatar(user)}
                 color={user.color}
                 moderator={user.isModerator}
               >
