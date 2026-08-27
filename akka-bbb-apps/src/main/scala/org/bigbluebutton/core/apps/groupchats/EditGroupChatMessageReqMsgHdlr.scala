@@ -72,13 +72,18 @@ trait EditGroupChatMessageReqMsgHdlr extends HandlerHelpers {
 
                 // Same rule as sending: no mentions in private chats, and the mentions the
                 // client asks for are resolved against the participant list, never trusted.
+                // The pairs the stored message already resolved come along, so a mention the
+                // edit didn't touch survives even once a namesake makes the name ambiguous.
                 val (mentionedHtml, mentionedUserIds) = if (chatIsPrivate) {
                   (editedHtml, List.empty[String])
                 } else {
                   GroupChatApp.applyMentions(
                     editedHtml,
                     liveMeeting.users2x,
-                    GroupChatApp.parseRequestedMentions(msg.body.metadata)
+                    GroupChatApp.mergeRequestedMentions(
+                      GroupChatApp.parseRequestedMentions(msg.body.metadata),
+                      MarkdownUtil.parseRenderedMentions(gcMessage.messageAsHtml)
+                    )
                   )
                 }
 

@@ -184,6 +184,19 @@ object MarkdownUtil {
 
   private val MentionSkippedTags: Set[String] = Set("code", "pre", "a")
 
+  /**
+   * Tags that don't break the rendered text apart. What sits on the other side of one is still
+   * the same word as far as a mention goes, so `**reminder**@Name` isn't one: the character
+   * before the "@" is the "r" the bold tag hides, not the start of a line.
+   */
+  private val MentionInlineTags: Set[String] = Set(
+    "a", "b", "code", "del", "em", "i", "ins", "mark", "s", "small",
+    "span", "strike", "strong", "sub", "sup", "u"
+  )
+
+  private val MentionPattern: Pattern =
+    Pattern.compile("""<span class="chat-mention" data-userid="([^"]*)">@([^<]*)</span>""")
+
   private val NonBreakingSpace = "&nbsp;"
 
   private val MentionLeftBoundaryChars: Set[Char] = Set('(', '[', '>', '"', '\'')
@@ -206,6 +219,35 @@ object MarkdownUtil {
       i += 1
     }
     sb.toString()
+  }
+
+  /** Undoes `escapeHtmlText`, so a name read back out of rendered html matches the user list. */
+  def unescapeHtmlText(text: String): String = {
+    text
+      .replace("&quot;", "\"")
+      .replace("&gt;", ">")
+      .replace("&lt;", "<")
+      .replace("&amp;", "&")
+  }
+
+  /**
+   * The (userId, name) pairs a previous render already resolved, in message order.
+   *
+   * Editing a message re-runs the whole mention pass, and the client doesn't have to resend
+   * what it picked the first time. Reading the pairs back out of the stored html keeps a
+   * mention the sender never touched from disappearing on an unrelated edit.
+   */
+  def parseRenderedMentions(html: String): List[(String, String)] = {
+    if (html.indexOf("chat-mention") < 0) return List.empty
+
+    val matcher = MentionPattern.matcher(html)
+    val pairs = List.newBuilder[(String, String)]
+
+    while (matcher.find()) {
+      pairs += ((unescapeHtmlText(matcher.group(1)), unescapeHtmlText(matcher.group(2))))
+    }
+
+    pairs.result()
   }
 
   /**
@@ -232,58 +274,113 @@ object MarkdownUtil {
       case (name, userIds) => queues(name) = scala.collection.mutable.Queue(userIds: _*)
     }
 
-    val tagMatcher = TagPattern.matcher(html)
+    // Tokenized up front because a name's boundaries can sit on the far side of a tag, in the
+    // text node before or after this one.
+    val tokens = tokenizeHtml(html)
 
     val result = new StringBuilder(html.length + 128)
     val mentionedIds = scala.collection.mutable.LinkedHashSet.empty[String]
 
     var skipDepth = 0
-    var lastEnd = 0
+    var index = 0
 
-    while (tagMatcher.find()) {
-      val tagStart = tagMatcher.start()
-      val tagEnd = tagMatcher.end()
-      val tag = tagMatcher.group()
-      val tagLower = tag.toLowerCase(Locale.ROOT)
+    while (index < tokens.length) {
+      val (isTag, raw) = tokens(index)
 
-      if (tagStart > lastEnd) {
-        val textNode = html.substring(lastEnd, tagStart)
-        if (skipDepth == 0) {
-          val (processed, ids) = replaceMentionsInText(textNode, userNameToIds, queues, maxNameLength)
-          result.append(processed)
-          mentionedIds ++= ids
-        } else {
-          result.append(textNode)
+      if (isTag) {
+        val tagLower = raw.toLowerCase(Locale.ROOT)
+        val isClosingTag = tagLower.startsWith("</")
+        val isSelfClosing = tagLower.endsWith("/>") || tagLower.matches("<(br|hr|img|input)[^>]*/?>")
+
+        if (!isSelfClosing && MentionSkippedTags.contains(extractTagName(tagLower))) {
+          if (isClosingTag) {
+            skipDepth = math.max(0, skipDepth - 1)
+          } else {
+            skipDepth += 1
+          }
         }
-      }
 
-      val isClosingTag = tagLower.startsWith("</")
-      val isSelfClosing = tagLower.endsWith("/>") || tagLower.matches("<(br|hr|img|input)[^>]*/?>")
-
-      if (!isSelfClosing && MentionSkippedTags.contains(extractTagName(tagLower))) {
-        if (isClosingTag) {
-          skipDepth = math.max(0, skipDepth - 1)
-        } else {
-          skipDepth += 1
-        }
-      }
-
-      result.append(tag)
-      lastEnd = tagEnd
-    }
-
-    if (lastEnd < html.length) {
-      val textNode = html.substring(lastEnd)
-      if (skipDepth == 0) {
-        val (processed, ids) = replaceMentionsInText(textNode, userNameToIds, queues, maxNameLength)
+        result.append(raw)
+      } else if (skipDepth == 0 && raw.indexOf('@') >= 0) {
+        val (processed, ids) = replaceMentionsInText(
+          raw,
+          textBefore(tokens, index),
+          textAfter(tokens, index),
+          userNameToIds,
+          queues,
+          maxNameLength
+        )
         result.append(processed)
         mentionedIds ++= ids
       } else {
-        result.append(textNode)
+        result.append(raw)
       }
+
+      index += 1
     }
 
     (result.toString(), mentionedIds.toList)
+  }
+
+  /** The html split into its tags and the text nodes between them, in order. */
+  private def tokenizeHtml(html: String): Vector[(Boolean, String)] = {
+    val tokens = Vector.newBuilder[(Boolean, String)]
+    val tagMatcher = TagPattern.matcher(html)
+    var lastEnd = 0
+
+    while (tagMatcher.find()) {
+      if (tagMatcher.start() > lastEnd) {
+        tokens += ((false, html.substring(lastEnd, tagMatcher.start())))
+      }
+      tokens += ((true, tagMatcher.group()))
+      lastEnd = tagMatcher.end()
+    }
+
+    if (lastEnd < html.length) {
+      tokens += ((false, html.substring(lastEnd)))
+    }
+
+    tokens.result()
+  }
+
+  private def breaksMentionText(tagRaw: String): Boolean =
+    !MentionInlineTags.contains(extractTagName(tagRaw.toLowerCase(Locale.ROOT)))
+
+  /**
+   * The rendered text that runs into this node from the left, empty once a tag that starts a
+   * new line of text (a paragraph, a list item, a `<br>`) gets in the way.
+   */
+  private def textBefore(tokens: Vector[(Boolean, String)], index: Int): String = {
+    var i = index - 1
+
+    while (i >= 0) {
+      val (isTag, raw) = tokens(i)
+      if (!isTag) {
+        if (raw.nonEmpty) return raw
+      } else if (breaksMentionText(raw)) {
+        return ""
+      }
+      i -= 1
+    }
+
+    ""
+  }
+
+  /** The mirror of `textBefore`: what runs into this node from the right. */
+  private def textAfter(tokens: Vector[(Boolean, String)], index: Int): String = {
+    var i = index + 1
+
+    while (i < tokens.length) {
+      val (isTag, raw) = tokens(i)
+      if (!isTag) {
+        if (raw.nonEmpty) return raw
+      } else if (breaksMentionText(raw)) {
+        return ""
+      }
+      i += 1
+    }
+
+    ""
   }
 
   private def extractTagName(tagLower: String): String = {
@@ -291,8 +388,30 @@ object MarkdownUtil {
     if (m.find()) m.group(1) else ""
   }
 
-  private def hasLeftBoundary(text: String, atIndex: Int): Boolean = {
-    if (atIndex == 0) return true
+  /** True when the rendered text ending with `prefix` leaves a word boundary behind it. */
+  private def endsAtBoundary(prefix: String): Boolean = {
+    if (prefix.isEmpty) return true
+
+    val c = prefix.charAt(prefix.length - 1)
+    Character.isWhitespace(c) ||
+      MentionLeftBoundaryChars.contains(c) ||
+      prefix.endsWith(NonBreakingSpace)
+  }
+
+  /** True when the rendered text starting with `suffix` opens on a word boundary. */
+  private def startsAtBoundary(suffix: String): Boolean = {
+    if (suffix.isEmpty) return true
+
+    val c = suffix.charAt(0)
+    Character.isWhitespace(c) ||
+      MentionRightBoundaryChars.contains(c) ||
+      suffix.startsWith(NonBreakingSpace)
+  }
+
+  private def hasLeftBoundary(text: String, atIndex: Int, prevText: String): Boolean = {
+    // At the edge of the node the neighbouring character lives in another text node, which is
+    // what keeps `**bold**@Name` from reading as a mention.
+    if (atIndex == 0) return endsAtBoundary(prevText)
 
     val c = text.charAt(atIndex - 1)
     Character.isWhitespace(c) ||
@@ -300,8 +419,8 @@ object MarkdownUtil {
       text.startsWith(NonBreakingSpace, atIndex - NonBreakingSpace.length)
   }
 
-  private def hasRightBoundary(text: String, endIndex: Int): Boolean = {
-    if (endIndex >= text.length) return true
+  private def hasRightBoundary(text: String, endIndex: Int, nextText: String): Boolean = {
+    if (endIndex >= text.length) return startsAtBoundary(nextText)
 
     val c = text.charAt(endIndex)
     Character.isWhitespace(c) ||
@@ -313,6 +432,7 @@ object MarkdownUtil {
   private def findMentionAt(
       text:          String,
       atIndex:       Int,
+      nextText:      String,
       userNameToIds: Map[String, List[String]],
       maxNameLength: Int
   ): Option[String] = {
@@ -320,7 +440,7 @@ object MarkdownUtil {
     var length = math.min(maxNameLength, text.length - nameStart)
 
     while (length > 0) {
-      if (hasRightBoundary(text, nameStart + length)) {
+      if (hasRightBoundary(text, nameStart + length, nextText)) {
         val candidate = text.substring(nameStart, nameStart + length)
         if (userNameToIds.contains(candidate.toLowerCase(Locale.ROOT))) return Some(candidate)
       }
@@ -349,6 +469,8 @@ object MarkdownUtil {
 
   private def replaceMentionsInText(
       text:          String,
+      prevText:      String,
+      nextText:      String,
       userNameToIds: Map[String, List[String]],
       queues:        scala.collection.mutable.Map[String, scala.collection.mutable.Queue[String]],
       maxNameLength: Int
@@ -361,8 +483,8 @@ object MarkdownUtil {
     var last = 0
 
     while (i < text.length) {
-      if (text.charAt(i) == '@' && hasLeftBoundary(text, i)) {
-        findMentionAt(text, i, userNameToIds, maxNameLength) match {
+      if (text.charAt(i) == '@' && hasLeftBoundary(text, i, prevText)) {
+        findMentionAt(text, i, nextText, userNameToIds, maxNameLength) match {
           case Some(matchedName) =>
             resolveMentionId(matchedName.toLowerCase(Locale.ROOT), userNameToIds, queues) match {
               case Some(userId) =>

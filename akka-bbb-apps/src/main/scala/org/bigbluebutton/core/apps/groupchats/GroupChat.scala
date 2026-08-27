@@ -37,6 +37,9 @@ object GroupChatApp {
   /** A message can't reasonably mention more participants than this, so cap what we read. */
   private val MaxRequestedMentions = 100
 
+  /** No display name comes anywhere near this, so a longer one isn't a name we could match. */
+  private val MaxMentionFieldLength = 512
+
   /**
    * The mentions the sender picked from the mention list, in message order, as delivered in
    * `metadata.mentions`. Jackson binds the untyped metadata into Scala or Java collections
@@ -46,9 +49,11 @@ object GroupChatApp {
     // An older producer can leave the field out entirely, which deserializes as null.
     val safeMetadata = Option(metadata).getOrElse(Map.empty[String, Any])
 
+    // Capped while the client's array is still being walked: the cap is there to bound the
+    // work this does on the meeting actor's thread, not only the list it hands back.
     def entries(raw: Any): List[Any] = raw match {
-      case s: Seq[_]            => s.toList
-      case l: java.util.List[_] => l.asScala.toList
+      case s: Seq[_]            => s.iterator.take(MaxRequestedMentions).toList
+      case l: java.util.List[_] => l.asScala.iterator.take(MaxRequestedMentions).toList
       case _                    => List.empty
     }
 
@@ -62,13 +67,28 @@ object GroupChatApp {
 
     safeMetadata.get("mentions").toList
       .flatMap(entries)
-      .take(MaxRequestedMentions)
       .flatMap { entry =>
         for {
-          userId <- field(entry, "userId") if userId.nonEmpty
-          name <- field(entry, "name") if name.nonEmpty
+          userId <- field(entry, "userId") if userId.nonEmpty && userId.length <= MaxMentionFieldLength
+          name <- field(entry, "name") if name.nonEmpty && name.length <= MaxMentionFieldLength
         } yield (userId, name)
       }
+  }
+
+  /**
+   * The mentions to resolve when a message is edited: the ones the client picked this time
+   * first, then the ones the stored message already carries.
+   *
+   * A mention the sender never touched shouldn't disappear because a namesake joined between
+   * sending and editing, and the client doesn't have to resend what it picked the first time.
+   * Both lists still go through the same participant-list check, so carrying a pair over
+   * authorizes nothing on its own.
+   */
+  def mergeRequestedMentions(
+      requested: List[(String, String)],
+      carried:   List[(String, String)]
+  ): List[(String, String)] = {
+    (requested ++ carried).distinct.take(MaxRequestedMentions)
   }
 
   /**
