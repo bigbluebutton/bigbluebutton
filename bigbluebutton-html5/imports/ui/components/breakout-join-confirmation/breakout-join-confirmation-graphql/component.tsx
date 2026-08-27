@@ -5,7 +5,7 @@ import React, {
 import { defineMessages, useIntl } from 'react-intl';
 import MenuItem from '@mui/material/MenuItem';
 import { type SelectChangeEvent } from '@mui/material';
-import { BBButton } from '@mconf/bbb-ui-components-react';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import { MdClose } from 'react-icons/md';
 import Styled from './styles';
 import {

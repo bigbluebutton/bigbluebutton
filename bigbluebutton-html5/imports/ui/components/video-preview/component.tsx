@@ -7,7 +7,7 @@ import {
 import VirtualBgSelector from '/imports/ui/components/video-preview/virtual-background/component';
 import browserInfo from '/imports/utils/browserInfo';
 import { MutationFunction } from '@apollo/client';
-import { BBButton } from '@mconf/bbb-ui-components-react';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import PreviewService from './service';
 import VideoService from '/imports/ui/components/video-provider/service';
 import Styled from './styles';

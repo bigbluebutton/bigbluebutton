@@ -5,7 +5,7 @@ import Session from '/imports/ui/services/storage/in-memory';
 import {
   Bar, BarChart, ResponsiveContainer, XAxis, YAxis,
 } from 'recharts';
-import { BBButton } from '@mconf/bbb-ui-components-react';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Styled from '../styles';
 import {
   ResponseInfo,

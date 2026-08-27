@@ -5,7 +5,7 @@ import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
-import { BBButton } from '@mconf/bbb-ui-components-react';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Styled from './styles';
 import {
   Rooms,

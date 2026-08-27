@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
-import { BBButton } from '@mconf/bbb-ui-components-react';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import Styled from './styles';
 import Icon from '/imports/ui/components/common/icon/component';
 import BBBMenu from '/imports/ui/components/common/menu/component';

@@ -12,7 +12,7 @@ import PreviewService from '/imports/ui/components/video-preview/service';
 import ProfileStyled from '/imports/ui/components/profile-settings/styles';
 import ModalStyled from '../styles';
 import Icon from '/imports/ui/components/common/icon/component';
-import { BBButton } from '@mconf/bbb-ui-components-react';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import * as ScreenShareService from '/imports/ui/components/screenshare/service';
 import { useStopVideo, useStreams } from '/imports/ui/components/video-provider/hooks';
 import { useVideoPreview } from '/imports/ui/components/video-preview/hooks/useVideoPreview';

@@ -53,6 +53,7 @@
   "dependencies": {
     "@apollo/client": "^3.10.4",
     "@babel/runtime": "^7.26.10",
+    "@bigbluebutton/bbb-ui-components-react": "^0.7.0",
     "@bigbluebutton/tldraw": "^2.0.0-alpha.35",
     "@blocknote/core": "^0.53.0",
     "@blocknote/mantine": "^0.53.0",
@@ -68,7 +69,6 @@
     "@hocuspocus/provider": "^3.4.4",
     "@livekit/components-react": "2.9.19",
     "@mconf/bbb-diff": "^1.2.0",
-    "@mconf/bbb-ui-components-react": "^2.3.0",
     "@mui/base": "^5.0.0-beta.58",
     "@mui/icons-material": "^6.1.4",
     "@mui/material": "^6.1.4",

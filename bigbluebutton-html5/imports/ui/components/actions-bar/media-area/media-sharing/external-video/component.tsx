@@ -4,7 +4,7 @@ import TextField from '@mui/material/TextField';
 import Styled from './styles';
 import ModalStyled from '../styles';
 import Icon from '/imports/ui/components/common/icon/component';
-import { BBButton } from '@mconf/bbb-ui-components-react';
+import { BBButton } from '@bigbluebutton/bbb-ui-components-react';
 import { isUrlValid, startWatching } from '/imports/ui/components/external-video-player/service';
 import { useMutation } from '@apollo/client';
 import { EXTERNAL_VIDEO_START } from '/imports/ui/components/external-video-player/mutations';
