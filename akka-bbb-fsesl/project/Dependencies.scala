@@ -16,7 +16,7 @@ object Dependencies {
     val pekkoHttpVersion = "1.0.0"
     val logback = "1.5.38"
     val jackson = "2.18.9"
-    val netty = "4.1.137.Final"
+    val netty = "4.2.17.Final"
     val slf4j = "2.0.17"
 
     // Apache Commons
