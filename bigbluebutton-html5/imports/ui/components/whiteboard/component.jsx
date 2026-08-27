@@ -1463,8 +1463,9 @@ const Whiteboard = React.memo((props) => {
               editor?.getViewportPageBounds()?.h,
               currentPresentationPageRef.current?.scaledHeight,
             );
-            const tlCamPercent = Math.round(
-              (nextCam.z / (initialZoomRef.current || 1)) * 100
+            const tlCamPercent = parseInt(
+              (nextCam.z / (initialZoomRef.current || 1)) * 100,
+              10,
             );
 
             if (tlCamPercent !== zoomValueRef.current) {
