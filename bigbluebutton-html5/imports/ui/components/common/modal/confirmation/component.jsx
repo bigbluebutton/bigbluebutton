@@ -16,7 +16,7 @@ const messages = defineMessages({
 });
 
 const propTypes = {
-  confirmButtonColor: PropTypes.string,
+  confirmButtonColor: PropTypes.oneOf(['primary', 'danger']),
   disableConfirmButton: PropTypes.bool,
   description: PropTypes.string,
   hideConfirmButton: PropTypes.bool,
