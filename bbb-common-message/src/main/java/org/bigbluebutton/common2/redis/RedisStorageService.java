@@ -43,8 +43,12 @@ public class RedisStorageService extends RedisAwareCommunicator {
 
     public void start() {
         log.info("Starting RedisStorageService with client name: clientName={}", clientName);
-        RedisURI redisUri = RedisURI.Builder.redis(this.host, this.port).withClientName(this.clientName)
-                .withPassword(this.password.toCharArray()).build();
+        RedisURI.Builder redisUriBuilder = RedisURI.Builder.redis(this.host, this.port)
+                .withClientName(this.clientName);
+        if (!this.password.isEmpty()) {
+            redisUriBuilder.withPassword(this.password.toCharArray());
+        }
+        RedisURI redisUri = redisUriBuilder.build();
 
         redisClient = RedisClient.create(redisUri);
         redisClient.setOptions(ClientOptions.builder().autoReconnect(true).build());
