@@ -5,9 +5,9 @@ for var in "$@"
 do
     if [[ $var == --build ]] ; then
        echo "Performing a full re-build..."
-       cd ~/src/bbb-common-web
+       cd ../bbb-common-web
        ./deploy.sh
-       cd ~/src/bigbluebutton-web/
+       cd ../bigbluebutton-web
     fi
 done
 
