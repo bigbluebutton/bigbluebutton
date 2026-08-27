@@ -163,6 +163,10 @@ const BecomePresenterViewContainer = styled.div`
   padding: 1rem;
   flex-direction: column;
   gap: 1rem;
+
+  > button {
+    min-width: 8.5rem;
+  }
 `;
 
 const BecomePresenterText = styled.div`

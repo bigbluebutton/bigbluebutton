@@ -385,6 +385,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
             dataTest="takePresenterButton"
             label={intl.formatMessage(intlMessages.takePresenter)}
             variant="primary"
+            size="sm"
             onClick={handleTakePresenter}
             iconStart={<CoPresentIcon />}
           />
@@ -412,6 +413,7 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
             dataTest="takePresenterButton"
             label={intl.formatMessage(intlMessages.takePresenter)}
             variant="primary"
+            size="sm"
             onClick={handleRequestPresenterWithFeedback}
             iconStart={<CoPresentIcon />}
           />
