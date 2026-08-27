@@ -1,4 +1,5 @@
 import styled, { css, keyframes } from 'styled-components';
+import ButtonWrappers from '/imports/ui/components/common/button-wrapper/styles';
 import Button from '/imports/ui/components/common/button/component';
 import {
   Separator as BaseSeparator,
@@ -577,14 +578,7 @@ const ButtonsActions = styled.div`
   gap: 0.75rem;
 `;
 
-const ButtonWrapper = styled.div`
-  flex: 1;
-  display: flex;
-
-  > * {
-    width: 100%;
-  }
-`;
+const ButtonWrapper = ButtonWrappers.FullWidthButtonWrapper;
 
 const StartPollButtonWrapper = styled.div`
   margin-top: 1rem;

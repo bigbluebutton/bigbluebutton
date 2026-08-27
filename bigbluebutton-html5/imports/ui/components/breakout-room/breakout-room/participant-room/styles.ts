@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import ButtonWrappers from '/imports/ui/components/common/button-wrapper/styles';
 import {
   contentSidebarPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
@@ -169,24 +170,7 @@ const BottomBar = styled.div`
   border-top: 1px solid ${colorGrayLighter};
 `;
 
-const ButtonWrapper = styled.div`
-  flex: 1;
-  min-width: 0;
-  display: flex;
-
-  > * {
-    width: 100%;
-    min-width: 0;
-  }
-
-  button span {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    min-width: 0;
-  }
-`;
+const ButtonWrapper = ButtonWrappers.TruncatingButtonWrapper;
 
 export default {
   Separator,
