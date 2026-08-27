@@ -138,22 +138,68 @@ type MentionCandidate = { atIndex: number; search: string };
 /** A mention completed from the picker: the user id is what the server anchors it on. */
 type PickedMention = { userId: string; name: string; atIndex: number };
 
+/** The word boundaries the server matches on, kept in step with MarkdownUtil.scala. */
+const MENTION_LEFT_BOUNDARY_CHARS = new Set(['(', '[', '>', '"', "'"]);
+const MENTION_RIGHT_BOUNDARY_CHARS = new Set([',', '.', '!', '?', ';', ':', ')', ']', '>', '<', '"', "'"]);
+
+const isMentionLeftBoundary = (char: string | undefined): boolean => (
+  char === undefined || /\s/.test(char) || MENTION_LEFT_BOUNDARY_CHARS.has(char)
+);
+
+const isMentionRightBoundary = (char: string | undefined): boolean => (
+  char === undefined || /\s/.test(char) || MENTION_RIGHT_BOUNDARY_CHARS.has(char)
+);
+
 /**
- * Every "@name" in the text that starts on a word boundary, in reading order. Matched without
+ * Every "@name" in the text that stands on its own as a word, in reading order. Matched without
  * case, like the server does, so recasing a name doesn't unpin the mention from it.
+ *
+ * Both ends are checked: without the right one, "@Karen" would keep matching after the text was
+ * edited to read "@Karenina", and the mention would still point at Karen.
  */
 const mentionOccurrences = (text: string, name: string): number[] => {
   const target = name.toLowerCase();
   const found: number[] = [];
 
   for (let at = text.indexOf('@'); at !== -1; at = text.indexOf('@', at + 1)) {
-    const charBefore = text[at - 1];
-    if (charBefore === undefined || /\s/.test(charBefore)) {
-      if (text.slice(at + 1, at + 1 + name.length).toLowerCase() === target) found.push(at);
+    const nameEnd = at + 1 + name.length;
+    if (isMentionLeftBoundary(text[at - 1])
+      && text.slice(at + 1, nameEnd).toLowerCase() === target
+      && isMentionRightBoundary(text[nameEnd])) {
+      found.push(at);
     }
   }
 
   return found;
+};
+
+/**
+ * Re-anchors the dismissed prompts after an edit. A textarea change is one contiguous splice,
+ * so what sits before it keeps its index and what sits after it moves by the length change:
+ * without that, typing ahead of a dismissed "@" would reopen the picker on it.
+ */
+const remapDismissedIndexes = (
+  previous: string,
+  next: string,
+  indexes: Set<number>,
+): Set<number> => {
+  if (indexes.size === 0) return indexes;
+
+  let prefix = 0;
+  while (prefix < previous.length && prefix < next.length && previous[prefix] === next[prefix]) {
+    prefix += 1;
+  }
+
+  const shift = next.length - previous.length;
+  const remapped = new Set<number>();
+
+  indexes.forEach((index) => {
+    const moved = index < prefix ? index : index + shift;
+    // An index that no longer sits on an "@" was edited away, and its dismissal with it.
+    if (moved >= 0 && next[moved] === '@') remapped.add(moved);
+  });
+
+  return remapped;
 };
 
 /**
@@ -431,13 +477,14 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const getMentionCandidateAtCursor = (text: string, cursorPos: number): MentionCandidate | null => {
     // A private chat has a single addressee, so there is nobody to disambiguate with a mention.
     if (!isPublicChat) return null;
+    // Both popovers sit in the same box above the textarea, so only one of them opens at a time.
+    if (showEmojiPicker) return null;
     const textBeforeCursor = text.slice(0, cursorPos);
     const atIndex = textBeforeCursor.lastIndexOf('@');
     if (atIndex === -1) return null;
     if (dismissedMentionIndexesRef.current.has(atIndex)) return null;
     if (pickedMentionsRef.current.some((mention) => mention.atIndex === atIndex)) return null;
-    const charBefore = textBeforeCursor[atIndex - 1];
-    if (charBefore !== undefined && !/\s/.test(charBefore)) return null;
+    if (!isMentionLeftBoundary(textBeforeCursor[atIndex - 1])) return null;
     const search = textBeforeCursor.slice(atIndex + 1);
     if (/^\s/.test(search)) return null;
     if (/[\r\n]/.test(search)) return null;
@@ -470,9 +517,11 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
 
     // Both are derived from the text, so editing a mention away re-arms the picker on its own.
     pickedMentionsRef.current = syncPickedMentions(newMessage, pickedMentionsRef.current);
-    dismissedMentionIndexesRef.current.forEach((index) => {
-      if (newMessage[index] !== '@') dismissedMentionIndexesRef.current.delete(index);
-    });
+    dismissedMentionIndexesRef.current = remapDismissedIndexes(
+      message,
+      newMessage,
+      dismissedMentionIndexesRef.current,
+    );
 
     setMentionCandidate(getMentionCandidateAtCursor(newMessage, cursorPos));
   };
@@ -900,6 +949,9 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
                   onClick={() => {
                     if (!showEmojiPicker) {
                       emojiPickerPreviousFocusRef.current = document.activeElement as HTMLElement;
+                      // It would render underneath the emoji picker, with the textarea still
+                      // announcing it as an open listbox.
+                      setMentionCandidate(null);
                     }
                     setShowEmojiPicker(!showEmojiPicker);
                   }}
