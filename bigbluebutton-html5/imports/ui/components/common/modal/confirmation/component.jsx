@@ -127,6 +127,7 @@ class ConfirmationModal extends Component {
               <div ref={this.cancelButtonRef}>
                 <BBButton
                   variant="secondary"
+                  dataTest="confirmationModalCancel"
                   label={cancelButtonLabel || intl.formatMessage(messages.noLabel)}
                   onClick={handleClose}
                 />

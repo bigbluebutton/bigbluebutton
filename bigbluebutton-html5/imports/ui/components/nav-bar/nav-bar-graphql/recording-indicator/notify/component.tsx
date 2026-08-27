@@ -108,6 +108,7 @@ const RecordingNotifyModal: React.FC<RecordingNotifyModalProps> = ({
           />
           <BBButton
             variant="secondary"
+            dataTest="recordingNotifyLeave"
             label={intl.formatMessage(intlMessages.leave)}
             onClick={skipButtonHandle}
             ariaLabel={intl.formatMessage(intlMessages.leaveAriaLabel)}

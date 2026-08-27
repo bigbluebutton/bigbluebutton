@@ -576,6 +576,7 @@ const VideoPreview: React.FC<VideoPreviewProps> = ({
                   <BBButton
                     variant="primary"
                     color="danger"
+                    dataTest="stopSharingAllWebcams"
                     label={intl.formatMessage(intlMessages.stopSharingAllLabel)}
                     onClick={handleStopSharingAll}
                     disabled={shouldDisableButtons}
