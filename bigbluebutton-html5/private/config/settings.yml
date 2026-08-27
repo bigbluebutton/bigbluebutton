@@ -173,7 +173,7 @@ public:
       offerRecordingForBreakouts: false
       # Pre-check the "record breakout room" option
       recordRoomByDefault: false
-      # Pre-check the "capture whiteboard when ending breakouts" option
+      # Pre-check the "capture whiteboard when ending breakouts" option 
       captureWhiteboardByDefault: false
       # Pre-check the "save shared notes when ending breakouts" option
       captureSharedNotesByDefault: false
@@ -809,9 +809,9 @@ public:
       enabled: true
       showNames: true
     mentions:
-      pickerLimit: 5
-      pickerDebounceMs: 500
-      maxWords: 3
+      pickerLimit: 5        # max suggestions per lookup
+      pickerDebounceMs: 500 # delay before a refined term hits the server
+      maxWords: 3           # how many words after "@" still count as a name
     moderatorChatEmphasized: true
     privateMessageReadFeedback:
       enabled: false

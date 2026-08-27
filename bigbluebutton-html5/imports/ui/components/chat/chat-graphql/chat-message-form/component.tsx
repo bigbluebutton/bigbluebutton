@@ -38,6 +38,13 @@ import meetingClientSettingsInitialValues from '/imports/ui/core/initial-values/
 
 import ChatOfflineIndicator from './chat-offline-indicator/component';
 import ChatMentionPicker, { MENTION_PICKER_ID } from '../chat-mention-picker/component';
+import {
+  isMentionLeftBoundary,
+  pickedMentionsFromHtml,
+  remapDismissedIndexes,
+  syncPickedMentions,
+  PickedMention,
+} from '../service';
 import { MentionUser } from '../chat-mention-picker/queries';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
 import { CHAT_SEND_MESSAGE, CHAT_SET_TYPING } from './mutations';
@@ -134,114 +141,6 @@ const messages = defineMessages({
 type EditingMessage = { chatId: string; messageId: string, message: string, messageAsHtml?: string };
 
 type MentionCandidate = { atIndex: number; search: string };
-
-/** A mention completed from the picker: the user id is what the server anchors it on. */
-type PickedMention = { userId: string; name: string; atIndex: number };
-
-/** The word boundaries the server matches on, kept in step with MarkdownUtil.scala. */
-const MENTION_LEFT_BOUNDARY_CHARS = new Set(['(', '[', '>', '"', "'"]);
-const MENTION_RIGHT_BOUNDARY_CHARS = new Set([',', '.', '!', '?', ';', ':', ')', ']', '>', '<', '"', "'"]);
-
-const isMentionLeftBoundary = (char: string | undefined): boolean => (
-  char === undefined || /\s/.test(char) || MENTION_LEFT_BOUNDARY_CHARS.has(char)
-);
-
-const isMentionRightBoundary = (char: string | undefined): boolean => (
-  char === undefined || /\s/.test(char) || MENTION_RIGHT_BOUNDARY_CHARS.has(char)
-);
-
-/**
- * Every "@name" in the text that stands on its own as a word, in reading order. Matched without
- * case, like the server does, so recasing a name doesn't unpin the mention from it.
- *
- * Both ends are checked: without the right one, "@Karen" would keep matching after the text was
- * edited to read "@Karenina", and the mention would still point at Karen.
- */
-const mentionOccurrences = (text: string, name: string): number[] => {
-  const target = name.toLowerCase();
-  const found: number[] = [];
-
-  for (let at = text.indexOf('@'); at !== -1; at = text.indexOf('@', at + 1)) {
-    const nameEnd = at + 1 + name.length;
-    if (isMentionLeftBoundary(text[at - 1])
-      && text.slice(at + 1, nameEnd).toLowerCase() === target
-      && isMentionRightBoundary(text[nameEnd])) {
-      found.push(at);
-    }
-  }
-
-  return found;
-};
-
-/**
- * Re-anchors the dismissed prompts after an edit. A textarea change is one contiguous splice,
- * so what sits before it keeps its index and what sits after it moves by the length change:
- * without that, typing ahead of a dismissed "@" would reopen the picker on it.
- */
-const remapDismissedIndexes = (
-  previous: string,
-  next: string,
-  indexes: Set<number>,
-): Set<number> => {
-  if (indexes.size === 0) return indexes;
-
-  let prefix = 0;
-  while (prefix < previous.length && prefix < next.length && previous[prefix] === next[prefix]) {
-    prefix += 1;
-  }
-
-  const shift = next.length - previous.length;
-  const remapped = new Set<number>();
-
-  indexes.forEach((index) => {
-    const moved = index < prefix ? index : index + shift;
-    // An index that no longer sits on an "@" was edited away, and its dismissal with it.
-    if (moved >= 0 && next[moved] === '@') remapped.add(moved);
-  });
-
-  return remapped;
-};
-
-/**
- * Keeps the picked mentions pinned to the text while it is edited: each one takes the free
- * "@name" occurrence closest to where it was, and is dropped once its name is gone.
- */
-const syncPickedMentions = (text: string, picked: PickedMention[]): PickedMention[] => {
-  const claimed = new Set<number>();
-
-  return [...picked]
-    .sort((a, b) => a.atIndex - b.atIndex)
-    .reduce<PickedMention[]>((acc, mention) => {
-      const free = mentionOccurrences(text, mention.name).filter((at) => !claimed.has(at));
-      if (free.length === 0) return acc;
-      const closest = free.reduce((best, at) => (
-        Math.abs(at - mention.atIndex) < Math.abs(best - mention.atIndex) ? at : best
-      ), free[0]);
-      claimed.add(closest);
-      return [...acc, { ...mention, atIndex: closest }];
-    }, []);
-};
-
-/**
- * Recovers the mentions of a message being edited from the spans the server wrote, so editing
- * doesn't downgrade them back to a name match.
- */
-const pickedMentionsFromHtml = (text: string, html: string): PickedMention[] => {
-  if (!html) return [];
-
-  const doc = new DOMParser().parseFromString(html, 'text/html');
-  const claimed = new Set<number>();
-
-  return Array.from(doc.querySelectorAll('span.chat-mention[data-userid]')).flatMap((span) => {
-    const userId = span.getAttribute('data-userid') ?? '';
-    const name = (span.textContent ?? '').replace(/^@/, '');
-    if (!userId || !name) return [];
-    const at = mentionOccurrences(text, name).find((index) => !claimed.has(index));
-    if (at === undefined) return [];
-    claimed.add(at);
-    return [{ userId, name, atIndex: at }];
-  });
-};
 
 const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   title,

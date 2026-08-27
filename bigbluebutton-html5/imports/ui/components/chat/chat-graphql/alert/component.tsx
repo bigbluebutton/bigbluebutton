@@ -20,6 +20,7 @@ import {
 import ChatPushAlert from './push-alert/component';
 import Styled from './styles';
 import Service from './service';
+import { parseMessageMetadata } from '../service';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
@@ -74,20 +75,6 @@ const intlMessages = defineMessages({
 });
 
 const ALERT_DURATION = 4000; // 4 seconds
-
-/** A middleware older than the encoding fix streams the metadata already decoded. */
-const parseMessageMetadata = (metadata: unknown): Record<string, unknown> | null => {
-  if (metadata === null || metadata === undefined) return null;
-  if (typeof metadata === 'object') return metadata as Record<string, unknown>;
-  if (typeof metadata !== 'string') return null;
-
-  try {
-    const parsed = JSON.parse(metadata);
-    return typeof parsed === 'object' && parsed !== null ? parsed as Record<string, unknown> : null;
-  } catch {
-    return null;
-  }
-};
 
 interface ChatAlertGraphqlProps {
   idChatOpen: string;
