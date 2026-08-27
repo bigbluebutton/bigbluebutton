@@ -15,11 +15,11 @@ object Dependencies {
     // Libraries
     val pekkoVersion = "1.0.1"
     val gson = "2.8.9"
-    val jackson = "2.18.9"
+    val jackson = "2.22.1"
     val sl4j = "1.7.32"
     val pool = "2.11.1"
     val codec = "1.15"
-    val jacksonDataFormat = "2.18.9"
+    val jacksonDataFormat = "2.22.1"
 
     // Redis
     val lettuce = "6.1.5.RELEASE"
