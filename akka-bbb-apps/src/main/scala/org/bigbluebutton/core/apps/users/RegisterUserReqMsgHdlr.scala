@@ -59,64 +59,65 @@ trait RegisterUserReqMsgHdlr {
     if (RegisteredUsers.isExtIdRevoked(liveMeeting.registeredUsers, msg.body.extUserId)) {
       log.info("Ignoring register user request. meetingId=" + liveMeeting.props.meetingProp.intId
         + " userId=" + msg.body.extUserId)
-    } else {
-      val guestStatus = msg.body.guestStatus
+      return
+    }
 
-      val regUser = RegisteredUsers.create(liveMeeting.props.meetingProp.intId, msg.body.intUserId, msg.body.extUserId,
-        msg.body.name, msg.body.firstName, msg.body.lastName, msg.body.role, msg.body.authToken, Vector(msg.body.sessionToken),
-        msg.body.avatarURL, msg.body.webcamBackgroundURL, ColorPicker.nextColor(liveMeeting.props.meetingProp.intId), msg.body.bot,
-        msg.body.guest, msg.body.authed, guestStatus, msg.body.excludeFromDashboard, msg.body.enforceLayout, msg.body.logoutUrl, msg.body.joinRequestMetadata, msg.body.userMetadata, loggedOut = false)
+    val guestStatus = msg.body.guestStatus
 
-      checkUserConcurrentAccesses(regUser)
-      RegisteredUsers.add(liveMeeting.registeredUsers, regUser, liveMeeting.props.meetingProp.intId)
+    val regUser = RegisteredUsers.create(liveMeeting.props.meetingProp.intId, msg.body.intUserId, msg.body.extUserId,
+      msg.body.name, msg.body.firstName, msg.body.lastName, msg.body.role, msg.body.authToken, Vector(msg.body.sessionToken),
+      msg.body.avatarURL, msg.body.webcamBackgroundURL, ColorPicker.nextColor(liveMeeting.props.meetingProp.intId), msg.body.bot,
+      msg.body.guest, msg.body.authed, guestStatus, msg.body.excludeFromDashboard, msg.body.enforceLayout, msg.body.logoutUrl, msg.body.joinRequestMetadata, msg.body.userMetadata, loggedOut = false)
 
-      log.info("Register user success. meetingId=" + liveMeeting.props.meetingProp.intId
-        + " userId=" + msg.body.extUserId + " user=" + regUser)
+    checkUserConcurrentAccesses(regUser)
+    RegisteredUsers.add(liveMeeting.registeredUsers, regUser, liveMeeting.props.meetingProp.intId)
 
-      val event = buildUserRegisteredRespMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.name,
-        regUser.role, regUser.excludeFromDashboard, regUser.registeredOn)
+    log.info("Register user success. meetingId=" + liveMeeting.props.meetingProp.intId
+      + " userId=" + msg.body.extUserId + " user=" + regUser)
+
+    val event = buildUserRegisteredRespMsg(liveMeeting.props.meetingProp.intId, regUser.id, regUser.name,
+      regUser.role, regUser.excludeFromDashboard, regUser.registeredOn)
+    outGW.send(event)
+
+    def notifyModeratorsOfGuestWaiting(guests: Vector[GuestWaiting], users: Users2x, meetingId: String): Unit = {
+      val mods = Users2x.findAll(users).filter(p => p.role == Roles.MODERATOR_ROLE && p.clientType == ClientType.FLASH)
+      mods foreach { m =>
+        val event = MsgBuilder.buildGuestsWaitingForApprovalEvtMsg(meetingId, m.intId, guests)
+        outGW.send(event)
+      }
+      // Meteor should only listen for this single message
+      val event = MsgBuilder.buildGuestsWaitingForApprovalEvtMsg(meetingId, "nodeJSapp", guests)
       outGW.send(event)
 
-      def notifyModeratorsOfGuestWaiting(guests: Vector[GuestWaiting], users: Users2x, meetingId: String): Unit = {
-        val mods = Users2x.findAll(users).filter(p => p.role == Roles.MODERATOR_ROLE && p.clientType == ClientType.FLASH)
-        mods foreach { m =>
-          val event = MsgBuilder.buildGuestsWaitingForApprovalEvtMsg(meetingId, m.intId, guests)
-          outGW.send(event)
-        }
-        // Meteor should only listen for this single message
-        val event = MsgBuilder.buildGuestsWaitingForApprovalEvtMsg(meetingId, "nodeJSapp", guests)
-        outGW.send(event)
+      val notifyEvent = MsgBuilder.buildNotifyRoleInMeetingEvtMsg(
+        Roles.MODERATOR_ROLE,
 
-        val notifyEvent = MsgBuilder.buildNotifyRoleInMeetingEvtMsg(
-          Roles.MODERATOR_ROLE,
+        liveMeeting.props.meetingProp.intId,
+        "info",
+        "user",
+        "app.userList.guest.pendingGuestAlert",
+        "Notification that a new guest user joined the session",
+        Map("0" -> s"${regUser.name}")
+      )
+      outGW.send(notifyEvent)
+      NotificationDAO.insert(notifyEvent)
+    }
 
-          liveMeeting.props.meetingProp.intId,
-          "info",
-          "user",
-          "app.userList.guest.pendingGuestAlert",
-          "Notification that a new guest user joined the session",
-          Map("0" -> s"${regUser.name}")
-        )
-        outGW.send(notifyEvent)
-        NotificationDAO.insert(notifyEvent)
-      }
+    def addGuestToWaitingForApproval(guest: GuestWaiting, guestsWaitingList: GuestsWaiting): Unit = {
+      GuestsWaiting.add(guestsWaitingList, guest)
+    }
 
-      def addGuestToWaitingForApproval(guest: GuestWaiting, guestsWaitingList: GuestsWaiting): Unit = {
-        GuestsWaiting.add(guestsWaitingList, guest)
-      }
-
-      guestStatus match {
-        case GuestStatus.ALLOW =>
-          val g = GuestApprovedVO(regUser.id, GuestStatus.ALLOW)
-          UsersApp.approveOrRejectGuest(liveMeeting, outGW, g, SystemUser.ID)
-        case GuestStatus.WAIT =>
-          val guest = GuestWaiting(regUser.id, regUser.name, regUser.role, regUser.guest, regUser.avatarURL, regUser.webcamBackgroundURL, regUser.color, regUser.authed, regUser.registeredOn)
-          addGuestToWaitingForApproval(guest, liveMeeting.guestsWaiting)
-          notifyModeratorsOfGuestWaiting(Vector(guest), liveMeeting.users2x, liveMeeting.props.meetingProp.intId)
-        case GuestStatus.DENY =>
-          val g = GuestApprovedVO(regUser.id, GuestStatus.DENY)
-          UsersApp.approveOrRejectGuest(liveMeeting, outGW, g, SystemUser.ID)
-      }
+    guestStatus match {
+      case GuestStatus.ALLOW =>
+        val g = GuestApprovedVO(regUser.id, GuestStatus.ALLOW)
+        UsersApp.approveOrRejectGuest(liveMeeting, outGW, g, SystemUser.ID)
+      case GuestStatus.WAIT =>
+        val guest = GuestWaiting(regUser.id, regUser.name, regUser.role, regUser.guest, regUser.avatarURL, regUser.webcamBackgroundURL, regUser.color, regUser.authed, regUser.registeredOn)
+        addGuestToWaitingForApproval(guest, liveMeeting.guestsWaiting)
+        notifyModeratorsOfGuestWaiting(Vector(guest), liveMeeting.users2x, liveMeeting.props.meetingProp.intId)
+      case GuestStatus.DENY =>
+        val g = GuestApprovedVO(regUser.id, GuestStatus.DENY)
+        UsersApp.approveOrRejectGuest(liveMeeting, outGW, g, SystemUser.ID)
     }
 
   }

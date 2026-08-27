@@ -1,14 +1,14 @@
 package org.bigbluebutton.core.apps.breakout
 
 import org.bigbluebutton.common2.msgs._
-import org.bigbluebutton.core.api.{EjectUserFromBreakoutInternalMsg, UpdateBreakoutUserAccessInternalMsg}
+import org.bigbluebutton.core.api.{ EjectUserFromBreakoutInternalMsg, UpdateBreakoutUserAccessInternalMsg }
 import org.bigbluebutton.core.apps.breakout.BreakoutHdlrHelpers.getRedirectUrls
-import org.bigbluebutton.core.apps.{PermissionCheck, RightsManagementTrait}
+import org.bigbluebutton.core.apps.{ PermissionCheck, RightsManagementTrait }
 import org.bigbluebutton.core.bus.BigBlueButtonEvent
-import org.bigbluebutton.core.db.{BreakoutRoomUserDAO, NotificationDAO}
+import org.bigbluebutton.core.db.{ BreakoutRoomUserDAO, NotificationDAO }
 import org.bigbluebutton.core.domain.MeetingState2x
-import org.bigbluebutton.core.models.{EjectReasonCode, RegisteredUsers, Roles}
-import org.bigbluebutton.core.running.{MeetingActor, OutMsgRouter}
+import org.bigbluebutton.core.models.{ EjectReasonCode, RegisteredUsers, Roles, Users2x }
+import org.bigbluebutton.core.running.{ MeetingActor, OutMsgRouter }
 import org.bigbluebutton.core2.message.senders.MsgBuilder
 
 trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
@@ -25,13 +25,16 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
       state
     } else {
       val meetingId = liveMeeting.props.meetingProp.intId
-      val movedUserIsViewer = RegisteredUsers.findWithUserId(msg.body.userId, liveMeeting.registeredUsers)
-        .forall(_.role != Roles.MODERATOR_ROLE)
+      val userSessions = RegisteredUsers.findAllSessionsWithUserId(msg.body.userId, liveMeeting.registeredUsers)
 
-      val revokeUserIds = RegisteredUsers.findAllSessionsWithUserId(msg.body.userId, liveMeeting.registeredUsers) match {
+      val revokeUserIds = userSessions match {
         case Vector() => Vector(msg.body.userId)
         case sessions => sessions.filter(_.role != Roles.MODERATOR_ROLE).map(_.id)
       }
+
+      val restoreUserIds = userSessions
+        .filter(ru => Users2x.findWithIntId(liveMeeting.users2x, ru.id).nonEmpty)
+        .map(_.id)
 
       val breakoutModelOpt = state.breakout
       val roomToOpt = breakoutModelOpt.flatMap(_.find(msg.body.toBreakoutId))
@@ -53,17 +56,17 @@ trait ChangeUserBreakoutReqMsgHdlr extends RightsManagementTrait {
           })
         }
 
-        if (movedUserIsViewer) {
-          breakoutModel.rooms.values
-            .filter(room => room.id != roomTo.id && !room.freeJoin)
-            .foreach(room => {
-              revokeUserIds.foreach(userId => {
-                eventBus.publish(BigBlueButtonEvent(room.id, UpdateBreakoutUserAccessInternalMsg(meetingId, room.id, userId + "-" + room.sequence, revoked = true)))
-              })
+        breakoutModel.rooms.values
+          .filter(room => room.id != roomTo.id && !room.freeJoin)
+          .foreach(room => {
+            revokeUserIds.foreach(userId => {
+              eventBus.publish(BigBlueButtonEvent(room.id, UpdateBreakoutUserAccessInternalMsg(meetingId, room.id, userId + "-" + room.sequence, revoked = true)))
             })
-        }
+          })
 
-        eventBus.publish(BigBlueButtonEvent(roomTo.id, UpdateBreakoutUserAccessInternalMsg(meetingId, roomTo.id, msg.body.userId + "-" + roomTo.sequence, revoked = false)))
+        restoreUserIds.foreach(userId => {
+          eventBus.publish(BigBlueButtonEvent(roomTo.id, UpdateBreakoutUserAccessInternalMsg(meetingId, roomTo.id, userId + "-" + roomTo.sequence, revoked = false)))
+        })
 
         //Get join URL for room To
         val redirectToHtml5JoinURL = getRedirectUrls(liveMeeting, msg.body.userId, roomTo.externalId, roomTo.sequence.toString)

@@ -39,6 +39,10 @@ trait EjectUserFromMeetingCmdMsgHdlr extends RightsManagementTrait {
         if (registeredUser.externId != ejectedByUser.externId) {
           val ban = banUser
 
+          if (liveMeeting.props.meetingProp.isBreakout) {
+            RegisteredUsers.revokeExtId(liveMeeting.registeredUsers, registeredUser.externId)
+          }
+
           // Eject users
           //println("****************** User " + ejectedBy + " ejecting user " + userId)
           // User might have joined using multiple browsers.
