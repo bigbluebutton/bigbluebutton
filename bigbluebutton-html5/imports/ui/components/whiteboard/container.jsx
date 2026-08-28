@@ -307,12 +307,12 @@ const WhiteboardContainer = (props) => {
       publishCursorUpdate,
       WHITEBOARD_CONFIG.cursorInterval,
     ),
-    [publishCursorUpdate, WHITEBOARD_CONFIG.cursorInterval],
+    [publishCursorUpdate, WHITEBOARD_CONFIG.cursorInterval, curPageId],
   );
 
   useEffect(() => () => {
     throttledPublishCursorUpdate.cancel();
-  }, [throttledPublishCursorUpdate, curPageId]);
+  }, [throttledPublishCursorUpdate]);
 
   const isMultiUserActive = whiteboardWriters.filter((u) => !u.presenter)?.length > 0;
   const cursorArray = useMergedCursorData();
