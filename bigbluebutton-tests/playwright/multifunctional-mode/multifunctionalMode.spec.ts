@@ -2,7 +2,7 @@ import { test } from '../core/setup/fixtures';
 import { constants as c } from '../parameters/constants';
 import { MultifunctionalMode } from './multifunctionalMode';
 
-test.describe.parallel('Multifunctional Mode', () => {
+test.describe.parallel('Multifunctional Mode', { tag: '@ci' }, () => {
   test('Open a panel in the auxiliary sidebar', async ({ browser, context, page }, testInfo) => {
     const mfm = new MultifunctionalMode(browser, context);
     await mfm.initModPage(page, { testInfo });

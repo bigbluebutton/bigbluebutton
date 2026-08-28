@@ -1,4 +1,4 @@
-import { MeetingLock, ConnectionInfo } from "./type";
+import { ConnectionInfo } from "./type";
 
 
 const connectionsMap = new Map<string, ConnectionInfo>();

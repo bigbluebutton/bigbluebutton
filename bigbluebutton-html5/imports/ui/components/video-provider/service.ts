@@ -191,10 +191,6 @@ class VideoService {
     VideoService.setCurrentVideoPageIndex(previousPage);
   }
 
-  static isGridEnabled() {
-    return Session.getItem('isGridEnabled');
-  }
-
   stopConnectingStream() {
     this.deviceId = null;
     setConnectingStream(null);
@@ -619,6 +615,7 @@ export default {
   getStreamsToConnectAndDisconnect: VideoService.getStreamsToConnectAndDisconnect,
   getPreviousVideoPage: VideoService.getPreviousVideoPage,
   getNextVideoPage: VideoService.getNextVideoPage,
+  setVideoPage: VideoService.setCurrentVideoPageIndex,
   getCurrentVideoPageIndex: VideoService.getCurrentVideoPageIndex,
   isLocalStream: videoService.isLocalStream.bind(videoService),
   isPaginationEnabled: VideoService.isPaginationEnabled,

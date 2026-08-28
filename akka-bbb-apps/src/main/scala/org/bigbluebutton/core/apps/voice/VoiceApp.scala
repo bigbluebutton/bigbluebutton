@@ -11,7 +11,7 @@ import org.bigbluebutton.common2.msgs._
 import org.bigbluebutton.core.running.{LiveMeeting, MeetingActor, OutMsgRouter}
 import org.bigbluebutton.core.models._
 import org.bigbluebutton.core.apps.users.UsersApp
-import org.bigbluebutton.core.db.{MeetingVoiceDAO, UserDAO, UserVoiceDAO, UserStateDAO}
+import org.bigbluebutton.core.db.{MeetingVoiceDAO, UserDAO, UserVoiceDAO}
 import org.bigbluebutton.core.util.ColorPicker
 import org.bigbluebutton.core.util.TimeUtil
 
@@ -250,7 +250,19 @@ object VoiceApp extends SystemConfiguration {
               }
             }
           case None =>
-            if (!cvu.intId.startsWith(IntIdPrefixType.DIAL_IN)) {
+            if (cvu.intId.startsWith(IntIdPrefixType.DIAL_IN)) {
+              // Dial-in users get their user record from the voice join itself.
+            } else {
+              // Same rule as in UserJoinedVoiceConfEvtMsgHdlr: the VU is created
+              // either way. If orphaned, with downgraded media permissions.
+              if (liveMeeting.voiceUserReconciler.isOrphanedVoiceJoin(liveMeeting, cvu.intId)) {
+                liveMeeting.voiceUserReconciler.fenceVoiceJoin(
+                  liveMeeting,
+                  outGW,
+                  cvu.intId,
+                  cvu.voiceUserId
+                )
+              }
               val userRole = Users2x.findWithIntId(liveMeeting.users2x, cvu.intId)
                 .map(_.role)
                 .getOrElse(Roles.VIEWER_ROLE)
@@ -798,7 +810,6 @@ object VoiceApp extends SystemConfiguration {
     liveMeeting:  LiveMeeting,
     userId:       String,
   )(implicit context: ActorContext): Unit = {
-    val meetingId = liveMeeting.props.meetingProp.intId
     for {
       u <- VoiceUsers.findWithIntId(
         liveMeeting.voiceUsers,
@@ -806,7 +817,7 @@ object VoiceApp extends SystemConfiguration {
       )
       } yield {
         if (u.muted == true && !u.deafened) {
-          UserStateDAO.updateRequestedUnmuteByMod(meetingId, userId, true)
+          Users2x.setUserUnmuteRequested(liveMeeting.users2x, userId)
         }
       }
   }

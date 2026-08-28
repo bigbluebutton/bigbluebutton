@@ -44,9 +44,27 @@ Guest management now lives in a dedicated panel integrated with the user list. M
 
 The "Lock viewers" / permissions modal was redesigned with a tabbed layout, and the toggle switches were replaced with checkboxes to make the "restrict" action clearer. The modal now warns about unsaved changes before closing. It also surfaces the new presenter policy described under [Request to Present](#request-to-present).
 
-#### "Musician Mode" audio processing
+#### Mobile layout overhaul
 
-BigBlueButton 4.0 introduces an optional WASM-based audio processor (internally "BBBA") that runs on top of the microphone stream. Exposed to users as **"Musician Mode"**, it provides an alternative to the browser's built-in audio processing for scenarios such as sharing music. It is disabled by default. See [Musician Mode (WASM audio processing)](/administration/customize#musician-mode-wasm-audio-processing) for configuration details.
+The mobile experience received a major overhaul. Webcams on mobile are now paginated, with swipe gestures and a dots indicator to move between pages, and the default mobile camera grid was reduced to 6 visible cameras (`public.kurento.pagination.mobileGridSizes`). The navigation bar uses circular buttons with an aligned sidebar toggle, the actions bar was made more compact with a unified audio control, and the chat and meeting options menus render as compact popovers. Dialogs such as the request-unmute modal were adapted to small screens. On phones in landscape orientation, cameras and the presentation are arranged side by side.
+
+<!-- TODO add screenshot of the mobile layout (portrait and landscape) -->
+
+#### Automatic light/dark theme
+
+The client now follows the operating system's light/dark preference (`prefers-color-scheme`) as the initial theme, and keeps following it while the user has not chosen a theme manually. The per-user "Dark mode" toggle and the `userdata-bbb_prefer_dark_theme` join parameter always take precedence over the detected system theme. The behavior is controlled by `public.app.darkTheme.autoDetectFromSystem` (default `true`).
+
+#### Dedicated Audio settings tab
+
+Audio settings moved into a dedicated **Audio** tab in the Settings modal, where each user picks how their microphone signal is processed before it is sent to other participants:
+
+- **Advanced Filtering** - an optional WASM-based audio processor (internally "BBBA") that runs on top of the microphone stream, isolating the speaker's voice and eliminating background noise. It is disabled by default and has to be made available by the administrator; see [Advanced Filtering (WASM audio processing)](/administration/customize#advanced-filtering-wasm-audio-processing) for configuration details.
+- **Standard Filtering** (default) - the browser's built-in filters: auto gain control, echo cancellation, and noise suppression.
+- **Original Audio** - no processing at all; the raw microphone signal is transmitted. Ideal for sharing music, singing, or instruments.
+
+The mode pre-selected for a new user is controlled by `public.app.defaultSettings.audio.processingMode` (default `standard`); if it is set to `advanced` while WASM processing is unsupported by the browser or disabled server-side, the client falls back to `standard`. The browser-level constraints applied in the standard mode are configurable under `public.media.audio.microphoneConstraints`.
+
+<!-- TODO add screenshot of the Audio settings tab -->
 
 #### Wrong-microphone alert for live captions
 
@@ -180,6 +198,8 @@ For full details on what is new in BigBlueButton 4.0, see the release notes.
 
 Recent releases:
 
+- [4.0.0-beta.5](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-beta.5)
+- [4.0.0-beta.4](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-beta.4)
 - [4.0.0-beta.3](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v4.0.0-beta.3)
 - [3.1.0-beta.2](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.1.0-beta.2)
 - [3.1.0-beta.1](https://github.com/bigbluebutton/bigbluebutton/releases/tag/v3.1.0-beta.1)
@@ -194,6 +214,28 @@ In the event that you prefer using Etherpad, install the optional packages via
 `$ sudo apt install bbb-pads bbb-etherpad`
 
 At this point you can use it in a specific session by passing `sharedNotesEditor=etherpad` on the `/create` call. If you have made up your mind and would like to use it for all sessions, add the same line (`sharedNotesEditor=etherpad`) to `/etc/bigbluebutton/bbb-web.properties` and restart BigBlueButton via `$ sudo bbb-conf --restart`
+
+
+#### New optional package: bbb-coturn
+
+BigBlueButton 4.0 adds `bbb-coturn`, a BigBlueButton build of the [coturn](https://github.com/coturn/coturn) TURN/STUN server. Ubuntu 24.04 only ships coturn 4.6.1; `bbb-coturn` packages coturn 4.16.0.
+
+It is an **optional** package — it is not a dependency of the `bigbluebutton` meta-package and is not installed by default. Install it with
+
+`$ sudo apt install bbb-coturn`
+
+`bbb-coturn` is a drop-in replacement for the distro `coturn` package: it declares `Provides`/`Conflicts`/`Replaces` on `coturn` (so apt swaps one for the other) and keeps the same paths — `/usr/bin/turnserver`, the `/etc/turnserver.conf` config file, and a `coturn.service` systemd unit. Existing systemd drop-ins under `/etc/systemd/system/coturn.service.d/` continue to apply.
+
+Unlike the distro package, `bbb-coturn` does **not** enable or start the service on install. The shipped `/etc/turnserver.conf` is the stock upstream example with every option commented out, and coturn's default in that state is anonymous access — starting it before a real configuration is written would expose an open relay. Once you have configured `/etc/turnserver.conf`, start it with
+
+`$ sudo systemctl enable --now coturn`
+
+See [Turn Server Configuration](/administration/turn-server) for the full configuration.
+
+
+#### New administration tool: bbbctl
+
+The `bbb-config` package now ships [bbbctl](https://github.com/defnull/bbbctl) (v0.5.1), a community-maintained command-line tool by [@defnull](https://github.com/defnull) for interacting with a BigBlueButton server from the shell. Installed as `/usr/bin/bbbctl`, it talks to the server's own API and lets administrators list, inspect, and end meetings and work with recordings without crafting signed API calls by hand. Thank you for developing it, defnull!
 
 
 #### Removing deprecated layout options
@@ -220,70 +262,22 @@ The deprecated REST endpoint `/api/rest/clientSettings` has been removed. Client
 #### Removed
 
 - `lockSettingsDisableNote` is no longer recognized; use `lockSettingsDisableNotes` instead. The singular property was renamed in BBB 2.5.
+- `clientLogoutTimerInMinutes` was removed. It was never consumed by the HTML5 client; its last reader, the `/enter` endpoint, was removed before BBB 4.0.
+  - If you customized `/usr/share/bbb-web/WEB-INF/classes/spring/resources.xml` in place, also remove the `<property name="clientLogoutTimerInMinutes" .../>` entry - bbb-web will fail to start (`NotWritablePropertyException`) otherwise. The `bbb-conf --check` retired-property warning only scans `/etc/bigbluebutton/bbb-web.properties`, not `resources.xml`.
 
 #### Value changed
 
 - `defaultMeetingLayout` default changed from `CUSTOM_LAYOUT` to `UNIFIED_LAYOUT`. Accepted values are now `UNIFIED_LAYOUT` (default), plus the hybrid/niche options `CAMERAS_ONLY`, `PARTICIPANTS_AND_CHAT_ONLY`, `PRESENTATION_ONLY`, and `MEDIA_ONLY`. The previous values `CUSTOM_LAYOUT`, `SMART_LAYOUT`, `PRESENTATION_FOCUS`, and `VIDEO_FOCUS` are no longer accepted.
-- `html5PluginSdkVersion` bumped from `0.1.17` to `0.1.20`.
+- `html5PluginSdkVersion` bumped from `0.1.17` to `0.1.24`.
 - `disabledFeatures` accepts a new value: `pinChatMessage` (alongside the existing chat-related options).
 - `sharedNotesEditor` default changed from `etherpad` to `blockNote` (BlockNote is now the default shared-notes editor; see [Promoted BlockNote shared notes as default](#promoted-blocknote-shared-notes-as-default)).
 - `cameraBridge`, `screenShareBridge`, and `audioBridge` default changed from `bbb-webrtc-sfu` to `livekit` (see [LiveKit is the default media framework](#livekit-is-the-default-media-framework)).
 
 #### Added
-- `pluginManifestFetchTimeout` added
-- `pluginManifestsFetchUrlResponseTimeout` added
-- `maxPluginManifestsFetchUrlPayloadSize` added
-- `numPluginManifestsFetchingThreads` added
-- `extractTimeoutInMs` added
-- `pngCreationExecTimeoutInMs` added, later (BBB 3.0.17) renamed to `pngCreationExecTimeout`
-- `pngCreationExecTimeout` added (used to be `pngCreationExecTimeoutInMs`)
-- `thumbnailCreationExecTimeoutInMs` added, later (BBB 3.0.17) renamed to `thumbnailCreationExecTimeout`
-- `thumbnailCreationExecTimeout` added (used to be `thumbnailCreationExecTimeoutInMs`)
-- `pdfPageDownscaleExecTimeoutInMs` added
-- `officeDocumentValidationExecTimeoutInMs` added
-- `textFileCreationExecTimeoutInMs` added, later (BBB 3.0.17) renamed to `textFileCreationExecTimeout`
-- `textFileCreationExecTimeout` added (used to be `textFileCreationExecTimeoutInMs`)
-- `presDownloadReadTimeoutInMs` added
-- `pngCreationConversionTimeout` added
-- `imageResizeWait` added
-- `officeDocumentValidationTimeout` added
-- `presOfficeConversionTimeout` added
-- `pdfPageCountWait` added
-- `detectImageDimensionsTimeout` added
-- `presentationConversionCacheEnabled` added
-- `presentationConversionCacheS3AccessKeyId` added
-- `presentationConversionCacheS3AccessKeySecret` added
-- `presentationConversionCacheS3BucketName` added
-- `presentationConversionCacheS3Region` added
-- `presentationConversionCacheS3EndpointURL` added
-- `presentationConversionCacheS3PathStyle` added
-- `cameraBridge` added
-- `screenShareBridge` added
-- `audioBridge` added
-- `pluginManifests` added
-- `scanUploadedPresentationFiles` added
-- `allowOverrideClientSettingsOnCreateCall` added
-- `defaultBotAvatarURL` added
-- `graphqlApiUrl` added
-- `graphqlWebsocketUrl` added
-- `sessionsCleanupDelayInMinutes` added
-- `useDefaultDarkLogo` added
-- `defaultDarkLogoURL` added
-- `maxNumPages` added
-- `fetchUrlAllowedLocalHosts` added
-- `clientSettingsOverrideJsonUrlResponseTimeout` added
-- `maxClientSettingsOverrideJsonUrlPayloadSize` added
-- `pageTokenSecret` added in BBB 3.0.27
-- `beans.presentationService.pageTokenSecret` added in BBB 3.0.27
-- `pluginManifestCacheEnabled` added in BBB 3.0.27
-- `pluginManifestCacheDirectory` added in BBB 3.0.27
-- `pluginManifestCacheRefreshIntervalMinutes` added in BBB 3.0.27
-- `clientSettingsOverrideStrictValidation` added in BBB 3.0.30
-- `clientSettingsFilePath` added in BBB 3.0.30
 
-- `lockSettingsPresenterPolicy` added (default `requireApproval`).
+- `lockSettingsPresenterPolicy` added (default `requireApproval`). Controls whether viewers can request the presenter role; see [Request to Present](#request-to-present).
 - `requireUserConsentBeforeUnmuting` added (default `false`). Only relevant when `allowModsToUnmuteUsers=true`; when `true`, a consent dialog is shown before a moderator can unmute a participant.
-
+- `maskTagThreshold` added (default `0` = disabled). When set to `N`, any slide whose generated SVG contains `N` or more `<mask>` tags falls back to full-slide rasterization during conversion; see [Rasterize slides whose SVG contains mask tags](/administration/customize#rasterize-slides-whose-svg-contains-mask-tags).
 
 ### Client settings (settings.yml) changes
 
@@ -295,10 +289,13 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 - `public.userList.searchBar.enabled` (default `true`) - enables the user list search field.
 - `public.app.appsGallery.maxPinnedApps` (default `3`) - maximum number of apps a user can pin in the Apps Gallery.
 - `public.sidebarNavigation.appsToLabelAsNew` (default `[]`) - apps to highlight with a "new" label (e.g. `poll`, `breakoutroom`, `timer`, `audio-captions`).
-- `public.media.audio.audioWasmProcessing` - configuration block for "Musician Mode" (WASM/BBBA audio processing), plus the per-user default `public.app.defaultSettings.application.audioWasmProcessing`.
+- `public.media.audio.audioWasmProcessing` - configuration block for the "Advanced Filtering" (WASM/BBBA) audio-processing option; see [Dedicated Audio settings tab](#dedicated-audio-settings-tab).
+- `public.app.defaultSettings.audio.processingMode` (default `standard`) - which of the three audio-processing modes (`advanced`, `standard`, `original`) comes pre-selected for a new user in Settings > Audio. `advanced` falls back to `standard` when WASM processing is unsupported by the browser or disabled server-side.
+- `public.media.audio.microphoneConstraints` - browser-level audio constraints (auto gain control, echo cancellation, noise suppression) applied when the user selects the `standard` audio-processing mode (moved from `public.app.defaultSettings.application.microphoneConstraints`).
 - `public.timer.presets`, `public.timer.quickAddButtons`, `public.timer.maxHours`, `public.timer.serverSyncTimeInterval` - timer presets and behavior.
 - `public.app.breakouts.breakoutRoomMinimum` (default `2`) - minimum number of breakout rooms.
 - `public.app.audioCaptions.showInSidebarNavigation` and `public.app.audioCaptions.terms` - show captions in the sidebar navigation and configure terms-of-service URLs per locale.
+- `public.app.darkTheme.autoDetectFromSystem` (default `true`) - uses the operating system's `prefers-color-scheme` preference as the initial theme and keeps following it while the user has not chosen a theme manually. The per-user "Dark mode" toggle and the `bbb_prefer_dark_theme` parameter always take precedence over the detected system theme.
 - `public.stats.logMediaStats` and `public.stats.probes` - client-side WebRTC stats logging.
 - `public.layout.showLeaveSessionLabel` (default `false`) and `public.layout.usersPerUserListPage` (default `50`).
 - `public.sidebarNavigation.buttons` - controls which built-in sidebar navigation buttons render, in which section (`top`/`center`/`bottom`) and in what order. It is a full replacement list (omit an id to hide that button; ids introduced by future upstream versions must be added back manually). Defaults: `top: [profile, user-list, chat, notes]`, `center: [apps-gallery, pinned-apps]`, `bottom: [audio-captions, learning-dashboard, settings]`.
@@ -311,14 +308,19 @@ These changes apply to the client configuration file (`/etc/bigbluebutton/bbb-ht
 - `public.layout.showParticipantsOnLogin` default changed from `true` to `false`.
 - `public.layout.syncCameraDockSizeAndPosition` default changed from `false` to `true`.
 - The default layout under `defaultSettings` moved from `application.selectedLayout: 'custom'` to `layout.selectedLayout: 'unified'` (with `pushLayout` now nested under `layout`).
-- `public.userCamera`'s display labels now include `presenter` and `bot`, and `moderator` defaults to `true`.
+- `public.user.label` gained `presenter` and `bot` entries (both default `true`), and `moderator` default changed from `false` to `true`.
 - `public.media.audio.defaultFullAudioBridge` and `public.media.audio.defaultListenOnlyBridge` defaults changed from `fullaudio` to `livekit`, aligning the client fallbacks with LiveKit as the default media framework. (`defaultFullAudioBridge` is superseded by the `audioBridge` create/property setting; both keys are marked deprecated.)
+- `public.app.defaultSettings.application.pushToTalkEnabled` default changed from `false` to `true` - push-to-talk (hold `M` to stay unmuted, added in BBB 3.0) is now enabled by default.
+- `public.layout.showSessionDetailsOnJoin` default changed from `true` to `false` - the Session Details dialog is no longer opened automatically when joining.
+- `public.kurento.pagination.mobileGridSizes` (`moderator` and `viewer`) defaults changed from `14` to `6`, as part of the [mobile layout overhaul](#mobile-layout-overhaul).
 
 #### Removed
 
 - `public.layout.showPushLayoutButton`, `public.layout.showPushLayoutToggle`, and `public.layout.enableDeprecatedLayoutSelection`.
 - `public.stats.log` (replaced by `public.stats.logMediaStats`).
+- `public.app.defaultSettings.application.audioWasmProcessing` and the commented-out `public.app.defaultSettings.application.microphoneConstraints` example - superseded by `public.app.defaultSettings.audio.processingMode` and `public.media.audio.microphoneConstraints` (see [Dedicated Audio settings tab](#dedicated-audio-settings-tab)).
 - The SIP.js / legacy-audio client settings, removed together with the SIP.js audio bridge now that LiveKit is the default audio path. Under `public.media`: `callTransferTimeout`, `callHangupTimeout`, `callHangupMaximumRetries`, `iceGatheringTimeout`, `audioConnectionTimeout`, `audioReconnectionDelay`, `audioReconnectionAttempts`, `sipjsHackViaWs`, `sipjsAllowMdns`, `sip_ws_host`, `websocketKeepAliveInterval`, `websocketKeepAliveDebounce`, `traceSip`, `sdpSemantics`; plus `public.app.ipv4FallbackDomain`. Any of these still set in `bbb-html5.yml` are now silently ignored.
+
 
 ## Development
 

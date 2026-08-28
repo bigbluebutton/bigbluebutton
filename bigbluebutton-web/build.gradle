@@ -17,6 +17,11 @@ buildscript {
     // Asset Pipeline moved from com.bertramlabs.plugins to cloud.wondrify for Grails 8
     classpath "cloud.wondrify:asset-pipeline-gradle:5.2.0-M1"
   }
+  configurations.classpath {
+    resolutionStrategy {
+      force 'com.google.protobuf:protobuf-java:3.25.5'
+    }
+  }
 }
 
 version = "0.10.0"
@@ -52,6 +57,16 @@ repositories {
 }
 
 dependencies {
+  constraints {
+    // Grails CLI profile artifacts (build-time only, not packaged in the WAR)
+    profile("org.codehaus.plexus:plexus-utils") {
+      version { strictly "3.6.1" }
+    }
+    // asset-pipeline -> closure-compiler, on the asset/dev and test classpaths only
+    assetDevelopmentRuntime "com.google.protobuf:protobuf-java:3.25.5"
+    testRuntimeOnly "com.google.protobuf:protobuf-java:3.25.5"
+  }
+
   // Spring Boot managed libs – version comes from `springVersion` property
   implementation "org.springframework.boot:spring-boot:${springVersion}"
   implementation "org.springframework.boot:spring-boot-autoconfigure:${springVersion}"
@@ -100,7 +115,7 @@ dependencies {
   testImplementation "org.apache.grails:grails-testing-support-datamapping"
   testImplementation "org.apache.grails:grails-geb"
   testImplementation "org.apache.grails:grails-testing-support-web"
-  testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:4.20.0"
+  testRuntimeOnly "org.seleniumhq.selenium:selenium-chrome-driver:4.45.0"
   //testRuntimeOnly "net.sourceforge.htmlunit:htmlunit:3.10.0"
   testImplementation ("com.github.javafaker:javafaker:1.0.2") {
     exclude group: "org.yaml"

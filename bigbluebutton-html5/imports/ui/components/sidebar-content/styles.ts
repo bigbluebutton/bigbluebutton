@@ -103,10 +103,6 @@ export const SidebarContentPanel = styled.div<SidebarContentPanelProps>`
       text-decoration: underline;
     }
   }
-  u {
-    text-decoration-line: none;
-  }
-
   ${({ isChrome }) => isChrome && `
     transform: translateZ(0);
   `}
