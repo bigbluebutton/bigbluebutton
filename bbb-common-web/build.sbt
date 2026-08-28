@@ -103,8 +103,8 @@ homepage := Some(url("https://www.bigbluebutton.org"))
 libraryDependencies ++= Seq(
   // Jakarta EE 11 / Spring Framework 7 levels (aligned with Spring Boot 4.1 dependency management)
   "jakarta.validation" % "jakarta.validation-api" % "3.1.1",
-  "org.springframework.data" % "spring-data-commons" % "4.1.0",
-  "org.hibernate.validator" % "hibernate-validator" % "9.1.0.Final",
+  "org.springframework.data" % "spring-data-commons" % "4.1.1",
+  "org.hibernate.validator" % "hibernate-validator" % "9.1.3.Final",
   "org.apache.httpcomponents" % "httpclient" % "4.5.13",
   "commons-validator" % "commons-validator" % "1.10.0",
   "org.apache.tika" % "tika-core" % "3.3.2",

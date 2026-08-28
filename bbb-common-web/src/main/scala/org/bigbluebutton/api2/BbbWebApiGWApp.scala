@@ -38,13 +38,12 @@ class BbbWebApiGWApp(
   val log = Logging(system, getClass)
 
   // Jackson 2.15+ enforces a default 20 MB limit on the length of any single
-  // string parsed from JSON. The Grails 8 / Spring Boot 4.1 upgrade moves
-  // bbb-common-web onto Jackson 2.21.5, so that limit now applies to the shared
-  // JsonUtil.mapper in this (the bbb-web) JVM — e.g. when deserializing a large
+  // string parsed from JSON, which applies to the shared JsonUtil.mapper in
+  // this (the bbb-web) JVM — e.g. when deserializing a large
   // clientSettingsOverride. Raise it here so oversized-but-legitimate payloads
-  // are not dropped. This is done on the bbb-web side rather than in
-  // bbb-common-message/JsonUtil because that module is still compiled against
-  // Jackson 2.13.5, where StreamReadConstraints does not yet exist.
+  // are not dropped. Done on the bbb-web side rather than in
+  // bbb-common-message/JsonUtil to keep the raised limit scoped to bbb-web
+  // instead of every consumer of JsonUtil.
   JsonUtil.mapper.getFactory.setStreamReadConstraints(
     StreamReadConstraints.builder().maxStringLength(100_000_000).build()
   )
