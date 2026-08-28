@@ -163,11 +163,13 @@ In the next step, you need to install a number of tools using sdkman.
 curl -s "https://get.sdkman.io" | bash
 source "$HOME/.sdkman/bin/sdkman-init.sh"
 
-sdk install gradle 8.14.3 
-sdk install grails 7.0.12
+sdk install gradle 9.6.0
 sdk install sbt 1.10.7
 sdk install maven 3.5.0
 ```
+
+A system-wide Grails install is no longer needed: bbb-web is built with the
+Gradle wrapper (`./gradlew`), which provisions the Grails toolchain itself.
 
 ### Checking out the Source
 

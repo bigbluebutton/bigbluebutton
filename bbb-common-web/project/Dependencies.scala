@@ -29,9 +29,6 @@ object Dependencies {
     val nuProcess = "2.0.6"
     val tika = "3.3.2"
 
-    // Server
-    val servlet = "4.0.1"
-
     // Apache Commons
     val io = "2.11.0"
     val pool = "2.11.1"
@@ -67,8 +64,6 @@ object Dependencies {
     val poiXml = "org.apache.poi" % "poi-ooxml" % Versions.apachePoi
     val nuProcess = "com.zaxxer" % "nuprocess" % Versions.nuProcess
     val tika = "org.apache.tika" % "tika-core" % Versions.tika
-
-    val servletApi = "javax.servlet" % "javax.servlet-api" % Versions.servlet
 
     val apacheIo = "commons-io" % "commons-io" % Versions.io
     val apachePool2 = "org.apache.commons" % "commons-pool2" % Versions.pool
@@ -108,7 +103,6 @@ object Dependencies {
     Compile.poiXml,
     Compile.nuProcess,
     Compile.tika,
-    Compile.servletApi,
     Compile.apacheIo,
     Compile.apachePool2,
     Compile.apacheText,

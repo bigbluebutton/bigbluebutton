@@ -1,21 +1,26 @@
 repositories {
   mavenCentral()
   mavenLocal()
-  maven { url "https://repo.grails.org/grails/core" }
+  maven { url = "https://repo.grails.org/grails/core" }
+  // TEMP: Grails 8.0.0-M6 is not on Maven Central yet (ASF release vote in
+  // progress); remove the staging repo once the M6 artifacts are promoted.
+  maven { url = "https://repository.apache.org/content/groups/staging" }
 }
 
 buildscript {
   repositories {
     mavenCentral()
     mavenLocal()
-    maven { url "https://repo.grails.org/grails/core" }
+    maven { url = "https://repo.grails.org/grails/core" }
+    // TEMP: see note above — remove once Grails 8.0.0-M6 reaches Maven Central.
+    maven { url = "https://repository.apache.org/content/groups/staging" }
   }
   dependencies {
     classpath platform("org.apache.grails:grails-gradle-bom:${grailsVersion}")
     classpath "org.apache.grails:grails-gradle-plugins"
     classpath "com.github.erdi:webdriver-binaries-gradle-plugin:3.2"
-    // Asset Pipeline plugin classpath is optional if you use plugins DSL; keeping here is fine:
-    classpath "com.bertramlabs.plugins:asset-pipeline-gradle:5.0.9"
+    // Asset Pipeline moved from com.bertramlabs.plugins to cloud.wondrify for Grails 8
+    classpath "cloud.wondrify:asset-pipeline-gradle:5.2.0-M3"
   }
   configurations.classpath {
     resolutionStrategy {
@@ -24,28 +29,15 @@ buildscript {
   }
 }
 
-version "0.10.0"
-group "org.bigbluebutton.web"
-
-ext['tomcat.version'] = '10.1.56'
-ext['netty.version'] = '4.2.17.Final'
-ext['lettuce.version'] = '7.7.0.RELEASE'
-ext['postgresql.version'] = '42.7.13'
-ext['spring-framework.version'] = '6.2.19'
-ext['jackson-bom.version'] = '2.22.1'
-ext['logback.version'] = '1.5.38'
-ext['spring-data-bom.version'] = '2025.0.13'
-ext['httpclient5.version'] = '5.6.3'
-ext['httpcore5.version'] = '5.4.3'
-ext['selenium.version'] = '4.45.0'
-ext['opentelemetry.version'] = '1.63.0'
+version = "0.10.0"
+group = "org.bigbluebutton.web"
 
 apply plugin: "eclipse"
 apply plugin: "idea"
 apply plugin: "war"
 apply plugin: "org.apache.grails.gradle.grails-web"
 apply plugin: "org.apache.grails.gradle.grails-gsp"
-apply plugin: "com.bertramlabs.asset-pipeline"
+apply plugin: "cloud.wondrify.asset-pipeline"
 apply plugin: "com.github.erdi.webdriver-binaries"
 apply plugin: "org.apache.grails.gradle.grails-gson"
 
@@ -58,7 +50,7 @@ task resolveDeps(type: Copy) {
 }
 
 task copyWebInf(type: Copy) {
-  into("${project.buildDir}/resources/main/")
+  into(layout.buildDirectory.dir("resources/main"))
   from("src/main/webapp")
 }
 processResources.dependsOn copyWebInf
@@ -66,7 +58,10 @@ processResources.dependsOn copyWebInf
 repositories {
   mavenCentral()
   mavenLocal()
-  maven { url "https://repo.grails.org/grails/core" }
+  maven { url = "https://repo.grails.org/grails/core" }
+  // TEMP: Grails 8.0.0-M6 is not on Maven Central yet (ASF release vote in
+  // progress); remove the staging repo once the M6 artifacts are promoted.
+  maven { url = "https://repository.apache.org/content/groups/staging" }
 }
 
 dependencies {
@@ -87,12 +82,6 @@ dependencies {
 //  implementation "org.springframework.boot:spring-boot-starter-actuator:${springVersion}"
   implementation "org.springframework.boot:spring-boot-starter-tomcat:${springVersion}"
 
-  // Override transitive tomcat-embed from spring-boot-starter-tomcat.
-  // TODO: remove once springVersion >= 3.5.17 (which will manage a fixed tomcat-embed).
-  implementation "org.apache.tomcat.embed:tomcat-embed-core:10.1.56"
-  implementation "org.apache.tomcat.embed:tomcat-embed-websocket:10.1.56"
-  implementation "org.apache.tomcat.embed:tomcat-embed-el:10.1.56"
-
   implementation "org.apache.grails:grails-core"
   implementation "org.apache.grails:grails-logging"
   implementation "org.apache.grails:grails-rest-transforms"
@@ -107,9 +96,9 @@ dependencies {
 //  implementation "org.grails.plugins:external-config:1.2.2"
 //  implementation "org.yaml:snakeyaml:1.33"
 
-  implementation "jakarta.validation:jakarta.validation-api:3.0.2"
-  implementation "org.hibernate.validator:hibernate-validator:8.0.1.Final"
-  implementation "org.glassfish:jakarta.el:4.0.2"
+  // Jakarta EE 11 levels (Spring Boot 4.1 manages HV 9.x; EL impl comes from tomcat-embed-el)
+  implementation "jakarta.validation:jakarta.validation-api:3.1.1"
+  implementation "org.hibernate.validator:hibernate-validator:9.1.3.Final"
 
   implementation "org.apache.xmlbeans:xmlbeans:5.0.3"
   implementation "org.apache.groovy:groovy-xml"
@@ -119,7 +108,7 @@ dependencies {
   implementation "org.bigbluebutton:bbb-common-web:0.0.5-SNAPSHOT"
 
   implementation "io.lettuce:lettuce-core"
-  implementation "io.projectreactor:reactor-core:3.8.7"
+  implementation "io.projectreactor:reactor-core"
   implementation "org.reactivestreams:reactive-streams:1.0.4"
 
   implementation "org.freemarker:freemarker:2.3.34"

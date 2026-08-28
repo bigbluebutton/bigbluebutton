@@ -186,11 +186,12 @@ lists.
 
 Under the hood, BigBlueButton 4.0 installs on Ubuntu 24.04 64-bit, and the following key components have been upgraded
 - Java 21 (OpenJDK)
-- Grails 7.0.12
-- Gradle 8.14.3
-- Groovy 4.0.21
-- Spring 6.2.11
-- Spring Boot 3.5.16
+- Grails 8.0.0-M6
+- Gradle 9.6.0
+- Groovy 5.1.0
+- Spring Framework 7.0.9
+- Spring Boot 4.1.1
+- Tomcat (embedded) 11.0.24
 
 For full details on what is new in BigBlueButton 4.0, see the release notes.
 
