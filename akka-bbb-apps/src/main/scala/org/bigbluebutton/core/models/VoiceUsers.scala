@@ -71,7 +71,7 @@ object VoiceUsers {
       u <- findWithVoiceUserId(users, voiceUserId)
     } yield {
       val vu = u.modify(_.muted).setTo(muted)
-        .modify(_.talking).setTo(false)
+        .modify(_.talking).setTo(!muted && u.talking)
         .modify(_.lastStatusUpdateOn).setTo(System.currentTimeMillis())
       users.save(vu)
       UserVoiceDAO.update(vu)
