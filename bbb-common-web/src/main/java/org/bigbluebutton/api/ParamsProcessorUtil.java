@@ -811,6 +811,11 @@ public class ParamsProcessorUtil {
             notifyRecordingIsOn = Boolean.parseBoolean(params.get(ApiParams.NOTIFY_RECORDING_IS_ON));
         }
 
+        String notifyRecordingAppend = "";
+        if (!StringUtils.isBlank(params.get(ApiParams.NOTIFY_RECORDING_APPEND))) {
+            notifyRecordingAppend = ParamsUtil.stripControlChars(params.get(ApiParams.NOTIFY_RECORDING_APPEND));
+        }
+
         boolean multiUserWhiteboardEnabled = false;
         if (isBreakout) {
             multiUserWhiteboardEnabled = defaultBreakoutRoomsMultiUserWhiteboardDefaultOn;
@@ -1037,6 +1042,7 @@ public class ParamsProcessorUtil {
                 .withHtml5PluginSdkVersion(html5PluginSdkVersion)
                 .withDisabledFeatures(listOfDisabledFeatures)
                 .withNotifyRecordingIsOn(notifyRecordingIsOn)
+                .withNotifyRecordingAppend(notifyRecordingAppend)
                 .withPresentationUploadExternalDescription(presentationUploadExternalDescription)
                 .withPresentationUploadExternalUrl(presentationUploadExternalUrl)
                 .build();

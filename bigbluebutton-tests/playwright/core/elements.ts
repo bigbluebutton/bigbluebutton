@@ -202,6 +202,10 @@ export const elements = {
   reconnectingBar: '//div[@data-test="notificationBannerBar" and contains(text(), "Reconnection in progress")]',
   zoomInBtn: 'button[data-test="zoomInBtn"]',
   recordingIndicator: 'div[data-test="recordingIndicator"]',
+  recordingNotifyModal: 'div[data-test="recordingNotifyModal"]',
+  recordingNotifyDescription: 'div[data-test="recordingNotifyDescription"]',
+  recordingNotifyAppend: 'span[data-test="recordingNotifyAppend"]',
+  recordingNotifyContinue: 'button[data-test="recordingNotifyContinue"]',
   webcamMirroredVideoContainer: 'video[data-test="mirroredVideoContainer"]',
   currentUserLocalStreamVideo: 'video[data-local-stream="true"]',
   usersList: 'div[data-test="userList"]',
@@ -292,6 +296,7 @@ export const elements = {
   raisingHandToast: 'You have raised your hand',
   loweringHandToast: 'Your hand has been lowered',
   noActiveMicrophoneToast: 'No active microphone. Share your microphone to add audio to this recording.',
+  recordingNotifyDefaultText: 'A recording will be available based on the remainder of this session',
   whiteboardAvailableToast: 'The whiteboard is now available',
   whiteboardDisabledToast: 'The whiteboard access has been removed',
   // Icons
