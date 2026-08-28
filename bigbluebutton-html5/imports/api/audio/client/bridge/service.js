@@ -196,9 +196,13 @@ const isAudioFilterEnabled = (constraints) => {
 // ("on top of WASM"), so the all-false result below is only the baseline
 // used before that override
 const getConstraintsForMode = (mode) => {
-  if (mode !== 'standard') return DISABLED_MICROPHONE_CONSTRAINTS;
+  // Always return a new object. Main consumer for this is, at the end,
+  // audio/container via a `useEffect`. If we return the same object, it never
+  // fires and original <-> advanced switches become no-op; shallow comparison
+  // shenanigans :)
+  if (mode !== 'standard') return { ...DISABLED_MICROPHONE_CONSTRAINTS };
 
-  return window.meetingClientSettings.public.media.audio.microphoneConstraints || {};
+  return { ...(window.meetingClientSettings.public.media.audio.microphoneConstraints || {}) };
 };
 
 // Validates a mode and resolves it against actual browser support.
