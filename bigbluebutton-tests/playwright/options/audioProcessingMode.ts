@@ -130,6 +130,18 @@ export class AudioProcessingMode extends MultiUsers {
     await this.modPage.waitAndClick(e.audioTab);
   }
 
+  async selectProcessingMode(mode: AudioProcessingModeValue): Promise<void> {
+    const radio = {
+      advanced: e.advancedFilteringRadio,
+      standard: e.standardFilteringRadio,
+      original: e.originalAudioRadio,
+    }[mode];
+
+    await this.openAudioSettings();
+    await this.modPage.waitAndClick(radio);
+    await this.modPage.waitAndClick(e.saveSettingsButton);
+  }
+
   async joinWithMicrophone(): Promise<void> {
     await this.modPage.waitAndClick(e.joinAudio);
     await connectMicrophone(this.modPage);
